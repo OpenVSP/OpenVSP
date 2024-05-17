@@ -37,7 +37,6 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual void PolygonizeMesh();
     virtual void CleanColinearVerts();
     virtual void SplitLEGeom();
     virtual void Triangulate();

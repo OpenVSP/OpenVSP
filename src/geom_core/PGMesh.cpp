@@ -3186,6 +3186,34 @@ void PGMesh::DumpGarbage()
     m_GarbageFaceVec.clear();
 }
 
+void PGMesh::PolygonizeMesh()
+{
+    // Make vector copy of list so edges can be removed from list without invalidating active list iterator.
+    vector< PGEdge* > eVec( m_EdgeList.begin(), m_EdgeList.end() );
+
+    for ( int i = 0; i < eVec.size(); i++ )
+    {
+        PGEdge* e = eVec[i];
+
+        // Verify removal of (*e) is OK.
+        if ( e->m_FaceVec.size() == 2 )
+        {
+            PGFace *f0 = e->m_FaceVec[0];
+            PGFace *f1 = e->m_FaceVec[1];
+
+            if ( f0->m_iQuad >= 0 &&
+                 f0->m_iQuad == f1->m_iQuad &&
+                 f0->m_Tag == f1->m_Tag )
+            {
+                RemoveEdgeMergeFaces( e );
+            }
+        }
+    }
+    DumpGarbage();
+    ResetNodeNumbers();
+
+}
+
 void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 {
     fprintf( file_id, "# vspgeom v2\n" );

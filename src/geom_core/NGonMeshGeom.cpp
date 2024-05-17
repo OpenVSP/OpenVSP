@@ -105,35 +105,6 @@ xmlNodePtr NGonMeshGeom::DecodeXml( xmlNodePtr & node )
     return ngon_node;
 }
 
-void NGonMeshGeom::PolygonizeMesh()
-{
-    // Make vector copy of list so edges can be removed from list without invalidating active list iterator.
-    vector< PGEdge* > eVec( m_PGMesh.m_EdgeList.begin(), m_PGMesh.m_EdgeList.end() );
-
-    for ( int i = 0; i < eVec.size(); i++ )
-    {
-        PGEdge* e = eVec[i];
-
-        // Verify removal of (*e) is OK.
-        if ( e->m_FaceVec.size() == 2 )
-        {
-            PGFace *f0 = e->m_FaceVec[0];
-            PGFace *f1 = e->m_FaceVec[1];
-
-            if ( f0->m_iQuad >= 0 &&
-                 f0->m_iQuad == f1->m_iQuad &&
-                 f0->m_Tag == f1->m_Tag )
-            {
-                m_PGMesh.RemoveEdgeMergeFaces( e );
-            }
-        }
-    }
-    m_PGMesh.DumpGarbage();
-    m_PGMesh.ResetNodeNumbers();
-
-//    m_PGMesh.ClearTris(); // Does not help.
-}
-
 void NGonMeshGeom::CleanColinearVerts()
 {
     // Node colinearity tolerance.
