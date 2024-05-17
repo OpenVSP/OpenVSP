@@ -94,6 +94,7 @@ public:
 
     static void BuildTriVec( const vector < TMesh* > &meshvec, vector< TTri* > &trivec );
     virtual void InitIndexedMesh( const vector < TMesh* > &meshvec );
+    virtual void IndexTriVec( vector < TTri* > &trivec, vector < TNode* > &nodvec );
     virtual void BuildIndexedMesh();
     virtual int  GetNumIndexedPnts() const
     {

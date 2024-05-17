@@ -660,33 +660,19 @@ void MeshGeom::InitIndexedMesh( const vector < TMesh* > &meshvec )
     BuildTriVec( meshvec, m_IndexedTriVec );
 }
 
-//==== Build Indexed Mesh ====//
-void MeshGeom::BuildIndexedMesh()
+void MeshGeom::IndexTriVec( vector < TTri* > &trivec, vector < TNode* > &nodvec )
 {
-    m_IndexedTriVec.clear();
-    m_IndexedNodeVec.clear();
-
-    if ( m_ViewMeshFlag() )
-    {
-        InitIndexedMesh( m_TMeshVec );
-    }
-
-    if ( m_ViewSliceFlag() )
-    {
-        InitIndexedMesh( m_SliceVec );
-    }
-
     //==== Collect All Points ====//
     vector< TNode* > allNodeVec;
-    allNodeVec.reserve( m_IndexedTriVec.size() * 3 );
-    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+    allNodeVec.reserve( trivec.size() * 3 );
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
     {
-        m_IndexedTriVec[t]->m_N0->m_ID = ( int )allNodeVec.size();
-        allNodeVec.push_back( m_IndexedTriVec[t]->m_N0 );
-        m_IndexedTriVec[t]->m_N1->m_ID = ( int )allNodeVec.size();
-        allNodeVec.push_back( m_IndexedTriVec[t]->m_N1 );
-        m_IndexedTriVec[t]->m_N2->m_ID = ( int )allNodeVec.size();
-        allNodeVec.push_back( m_IndexedTriVec[t]->m_N2 );
+        trivec[t]->m_N0->m_ID = ( int )allNodeVec.size();
+        allNodeVec.push_back( trivec[t]->m_N0 );
+        trivec[t]->m_N1->m_ID = ( int )allNodeVec.size();
+        allNodeVec.push_back( trivec[t]->m_N1 );
+        trivec[t]->m_N2->m_ID = ( int )allNodeVec.size();
+        allNodeVec.push_back( trivec[t]->m_N2 );
     }
     vector< vec3d > allPntVec( allNodeVec.size() );
     for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
@@ -711,12 +697,12 @@ void MeshGeom::BuildIndexedMesh()
     IndexPntNodes( pnCloud, tol );
 
     //==== Load Used Nodes ====//
-    m_IndexedNodeVec.reserve( pnCloud.m_NumUsedPts );
+    nodvec.reserve( pnCloud.m_NumUsedPts );
     for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
     {
         if ( pnCloud.UsedNode( i ) )
         {
-            m_IndexedNodeVec.push_back( allNodeVec[i] );
+            nodvec.push_back( allNodeVec[i] );
         }
     }
 
@@ -725,6 +711,25 @@ void MeshGeom::BuildIndexedMesh()
     {
         allNodeVec[i]->m_ID = pnCloud.GetNodeUsedIndex( i );
     }
+}
+
+//==== Build Indexed Mesh ====//
+void MeshGeom::BuildIndexedMesh()
+{
+    m_IndexedTriVec.clear();
+    m_IndexedNodeVec.clear();
+
+    if ( m_ViewMeshFlag() )
+    {
+        BuildTriVec( m_TMeshVec, m_IndexedTriVec );
+    }
+
+    if ( m_ViewSliceFlag() )
+    {
+        BuildTriVec( m_SliceVec, m_IndexedTriVec );
+    }
+
+    IndexTriVec( m_IndexedTriVec, m_IndexedNodeVec );
 
     //==== Remove Any Bogus Tris ====//
     vector< TTri* > goodTriVec;
