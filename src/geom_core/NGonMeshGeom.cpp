@@ -105,11 +105,6 @@ xmlNodePtr NGonMeshGeom::DecodeXml( xmlNodePtr & node )
     return ngon_node;
 }
 
-void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec )
-{
-    m_PGMesh.BuildFromTMesh( nodeVec, triVec );
-}
-
 void NGonMeshGeom::PolygonizeMesh()
 {
     // Make vector copy of list so edges can be removed from list without invalidating active list iterator.

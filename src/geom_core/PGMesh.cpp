@@ -4041,44 +4041,6 @@ void PGMesh::GetPartData( vector < string > &gidvec, vector < int > &partvec, ve
     }
 }
 
-void PGMesh::BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec )
-{
-    // Archive tag data at time of NGonMeshGeom creation.
-    m_TagNames = SubSurfaceMgr.m_TagNames;
-    m_TagIDs = SubSurfaceMgr.m_TagIDs;
-    m_ThickVec = SubSurfaceMgr.m_CompThick;
-    m_TypeVec = SubSurfaceMgr.m_CompTypes;
-    m_WminVec = SubSurfaceMgr.m_CompWmin;
-    m_TagKeys = SubSurfaceMgr.GetTagKeys();
-    m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
-
-    // Go to lengths to not reassign m_ID here.
-    // m_ID was previously set such that t->m_NX can point to nodes not in nodeVec,
-    // but that are spatially coincident with equal m_ID values.
-    map < int, int > nodidmap;
-    vector < PGNode* > nod( nodeVec.size() );
-    for ( int i = 0; i < nodeVec.size(); i++ )
-    {
-        nodidmap[ nodeVec[i]->m_ID ] = i;
-        nod[i] = AddNode( nodeVec[i]->m_Pnt );
-    }
-
-    for ( int i = 0; i < triVec.size(); i++ )
-    {
-        TTri *t = triVec[i];
-        int tag = GetTag( t->m_Tags );
-        PGFace *f = AddFace( nod[ nodidmap.find( t->m_N0->m_ID )->second ],
-                             nod[ nodidmap.find( t->m_N1->m_ID )->second ],
-                             nod[ nodidmap.find( t->m_N2->m_ID )->second ],
-                             t->m_N0->m_UWPnt.as_vec2d_xy(),
-                             t->m_N1->m_UWPnt.as_vec2d_xy(),
-                             t->m_N2->m_UWPnt.as_vec2d_xy(),
-                             t->m_Norm,
-                             t->m_iQuad,
-                             tag );
-    }
-}
-
 void PGMesh::BuildFromTMesh( const vector< TMesh* > tmv )
 {
     // Archive tag data at time of NGonMeshGeom creation.

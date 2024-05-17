@@ -37,7 +37,6 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual void BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec );
     virtual void PolygonizeMesh();
     virtual void CleanColinearVerts();
     virtual void SplitLEGeom();

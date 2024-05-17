@@ -365,7 +365,6 @@ public:
     int GetPart( int tag );
     void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );
 
-    void BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec );
     void BuildFromTMesh( const vector< TMesh* > tmv );
 
     std::map< std::vector<int>, int > GetSingleTagMap() { return m_SingleTagMap; }
