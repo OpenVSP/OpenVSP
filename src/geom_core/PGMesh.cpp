@@ -4041,7 +4041,7 @@ void PGMesh::GetPartData( vector < string > &gidvec, vector < int > &partvec, ve
     }
 }
 
-void PGMesh::BuildFromTMesh( const vector< TMesh* > tmv )
+void PGMesh::BuildFromTMeshVec( const vector< TMesh* > tmv )
 {
     // Archive tag data at time of NGonMeshGeom creation.
     m_TagNames = SubSurfaceMgr.m_TagNames;
