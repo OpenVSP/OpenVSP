@@ -718,6 +718,30 @@ void MeshGeom::IndexTriVec( vector < TTri* > &trivec, vector < TNode* > &nodvec 
     }
 }
 
+void MeshGeom::IgnoreDegenTris( vector < TTri* > &trivec )
+{
+    //==== Remove Any Bogus Tris ====//
+    vector< TTri* > goodTriVec;
+    goodTriVec.reserve( trivec.size() );
+    //==== Write Out Tris ====//
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        if( ttri )
+        {
+            if ( ttri->m_N0->m_ID != ttri->m_N1->m_ID &&
+                    ttri->m_N0->m_ID != ttri->m_N2->m_ID &&
+                    ttri->m_N1->m_ID != ttri->m_N2->m_ID )
+            {
+                goodTriVec.push_back( ttri );
+            }
+        }
+    }
+    // Swap instead of assign to avoid copy.
+    // m_IndexedTriVec = goodTriVec;
+    swap( trivec, goodTriVec );
+}
+
 //==== Build Indexed Mesh ====//
 void MeshGeom::BuildIndexedMesh()
 {
@@ -736,26 +760,7 @@ void MeshGeom::BuildIndexedMesh()
 
     IndexTriVec( m_IndexedTriVec, m_IndexedNodeVec );
 
-    //==== Remove Any Bogus Tris ====//
-    vector< TTri* > goodTriVec;
-    goodTriVec.reserve( m_IndexedTriVec.size() );
-    //==== Write Out Tris ====//
-    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
-    {
-        TTri* ttri = m_IndexedTriVec[t];
-        if( ttri )
-        {
-            if ( ttri->m_N0->m_ID != ttri->m_N1->m_ID &&
-                    ttri->m_N0->m_ID != ttri->m_N2->m_ID &&
-                    ttri->m_N1->m_ID != ttri->m_N2->m_ID )
-            {
-                goodTriVec.push_back( ttri );
-            }
-        }
-    }
-    // Swap instead of assign to avoid copy.
-    // m_IndexedTriVec = goodTriVec;
-    swap( m_IndexedTriVec, goodTriVec );
+    IgnoreDegenTris( m_IndexedTriVec );
 
     Update();
 }
