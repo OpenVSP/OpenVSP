@@ -1851,14 +1851,12 @@ string MeshGeom::CreateNGonMeshGeom()
 
         new_geom->m_PGMesh.FindAllColinearEdgeLoops();
         new_geom->m_PGMesh.SimplifyColinearEdgeLoops();
-
         new_geom->m_PGMesh.SealColinearEdgeLoops();
 
         new_geom->m_PGMesh.PolygonizeMesh();
         new_geom->m_PGMesh.CleanColinearVerts();
 
         new_geom->SplitLEGeom();
-
 
         new_geom->m_PGMesh.MakeRegions();
         new_geom->m_PGMesh.ClearTris();
@@ -1870,8 +1868,6 @@ string MeshGeom::CreateNGonMeshGeom()
         //new_geom->m_PGMesh.MergeDuplicateEdges();
         //new_geom->m_PGMesh.RemoveDegenEdges();
         //new_geom->m_PGMesh.RemoveDegenFaces();
-
-
 
         new_geom->m_SurfDirty = true;
 
