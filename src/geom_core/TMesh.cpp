@@ -1031,12 +1031,11 @@ void TMesh::MakeFromPGMesh( PGMesh *m )
 {
     printf( "TMesh::MakeFromPGMesh()\n" );
 
-    m->ResetNodeNumbers(); // Starts at 1.
-
     int nvert = m->m_NodeList.size();
 
     m_NVec.reserve( nvert );
 
+    int nodeid = 0;
     list< PGNode* >::iterator n;
     for ( n = m->m_NodeList.begin() ; n != m->m_NodeList.end(); ++n )
     {
@@ -1044,7 +1043,8 @@ void TMesh::MakeFromPGMesh( PGMesh *m )
 
         TNode *nod = new TNode();
         nod->m_Pnt = ( *n )->m_Pnt;
-        nod->m_ID = ( *n )->m_ID - 1; // Start at zero.
+        nod->m_ID = nodeid;
+        ( *n )->m_ID = nodeid;
         if ( ! ( *n )->m_TagUWMap.empty() )
         {
             vec2d uw = ( *n )->m_TagUWMap.begin()->second;
@@ -1052,6 +1052,7 @@ void TMesh::MakeFromPGMesh( PGMesh *m )
         }
 
         m_NVec.push_back( nod );
+        nodeid++;
     }
 
     list< PGFace* >::iterator f;
