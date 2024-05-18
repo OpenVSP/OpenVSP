@@ -2512,6 +2512,11 @@ void PGMesh::SealColinearEdgeLoop( vector < PGEdge * > &eloop )
     // Turn loop into two parallel strips.
     int irev = RotateLoopToDirectionChange( eloop );
 
+    if ( irev < 0 )
+    {
+        return;
+    }
+
     vector < PGEdge * > estripA( eloop.begin(), eloop.begin() + irev );
     vector < PGEdge * > estripB( eloop.begin() + irev, eloop.end() );
     reverse( estripB.begin(), estripB.end() );
