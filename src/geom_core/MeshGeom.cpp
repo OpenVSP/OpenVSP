@@ -2031,6 +2031,30 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
 
     MergeCoplanarTrimGroups();
 
+    // Clean up Coplanar trim groups.
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        if ( !m_TMeshVec[i]->m_InGroup.empty() )
+        {
+            PGMesh pgm;
+            pgm.BuildFromTMesh( m_TMeshVec[ i ] );
+            delete m_TMeshVec[ i ];
+
+            pgm.MergeCoincidentNodes();
+            pgm.MergeDuplicateEdges();
+
+            pgm.PolygonizeMesh();
+            pgm.CleanColinearVerts();
+
+            pgm.FindAllColinearEdgeLoops();
+            pgm.SimplifyColinearEdgeLoops();
+            pgm.SealColinearEdgeLoops();
+
+            m_TMeshVec[ i ] = new TMesh;
+            m_TMeshVec[ i ]->MakeFromPGMesh( &pgm );
+        }
+    }
+
     if ( halfFlag )
     {
         m_TMeshVec.push_back( AddHalfBox( "NEGATIVE_HALF" ) );
