@@ -2223,31 +2223,35 @@ bool PGMesh::ExtendCoLinearLoop( vector < PGEdge * > & eloop, PGNode * n0, PGEdg
     for ( int i = 0; i < nedg; i++ )
     {
         PGEdge * ei = n->m_EdgeVec[ i ];
-        if ( ei && ei != e && !ei->m_InLoopFlag && !ei->m_InCurrentLoopFlag )
+        if ( ei && (ei != e) && (!ei->m_InLoopFlag) && (!ei->m_InCurrentLoopFlag) )
         {
             PGNode * ni = ei->OtherNode( n );
 
-            if ( ni == n0 ) // Loop closed.  Add ending edge
+            if ( ni )
             {
-                eloop.push_back( ei );
-                ei->m_InLoopFlag = true;
-                return true;
-            }
-
-            if ( ColinearEdges( e, ei ) )
-            {
-                if ( ExtendCoLinearLoop( eloop, n0, ei, ni ) )
+                if ( ni == n0 ) // Loop closed.  Add ending edge
                 {
                     eloop.push_back( ei );
                     ei->m_InLoopFlag = true;
-
-                    if ( e->OtherNode( n ) == n0 ) // Adds starting edge.
-                    {
-                        eloop.push_back( e );
-                        e->m_InLoopFlag = true;
-                    }
-
                     return true;
+                }
+
+                if ( ColinearEdges( e, ei ) )
+                {
+                    if ( ExtendCoLinearLoop( eloop, n0, ei, ni ) )
+                    {
+                        eloop.push_back( ei );
+                        ei->m_InLoopFlag = true;
+
+                        if ( e->OtherNode( n ) == n0 ) // Adds starting edge.
+                        {
+                            eloop.push_back( e );
+                            e->m_InLoopFlag = true;
+
+                        }
+
+                        return true;
+                    }
                 }
             }
         }
