@@ -1849,12 +1849,12 @@ string MeshGeom::CreateNGonMeshGeom()
         new_geom->m_PGMesh.MergeCoincidentNodes();
         new_geom->m_PGMesh.MergeDuplicateEdges();
 
+        new_geom->m_PGMesh.PolygonizeMesh();
+        new_geom->m_PGMesh.CleanColinearVerts();
+
         new_geom->m_PGMesh.FindAllColinearEdgeLoops();
         new_geom->m_PGMesh.SimplifyColinearEdgeLoops();
         new_geom->m_PGMesh.SealColinearEdgeLoops();
-
-        new_geom->m_PGMesh.PolygonizeMesh();
-        new_geom->m_PGMesh.CleanColinearVerts();
 
         new_geom->SplitLEGeom();
 
