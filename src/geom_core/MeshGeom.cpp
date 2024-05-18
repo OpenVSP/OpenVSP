@@ -1830,8 +1830,6 @@ void MeshGeom::CreatePtCloudGeom()
 
 string MeshGeom::CreateNGonMeshGeom()
 {
-    BuildIndexedMesh( 0 );
-
     GeomType type = GeomType( NGON_GEOM_TYPE, "NGON", true );
     string id = m_Vehicle->AddGeom( type );
     if ( !id.compare( "NONE" ) )
@@ -1846,7 +1844,7 @@ string MeshGeom::CreateNGonMeshGeom()
 
         Matrix4d XFormMat = GetTotalTransMat();
 
-        new_geom->BuildFromTMesh( m_IndexedNodeVec, m_IndexedTriVec );
+        new_geom->m_PGMesh.BuildFromTMeshVec( m_TMeshVec );
 
         new_geom->m_PGMesh.MergeCoincidentNodes();
         new_geom->m_PGMesh.MergeDuplicateEdges();
