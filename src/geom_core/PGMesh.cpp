@@ -2150,6 +2150,7 @@ void PGMesh::SimplifyColinearEdgeLoops( bool print )
 bool ColinearEdges( PGEdge *e1, PGEdge *e2 )
 {
     double tol = 1e-6;
+    double tol2 = 1e-10;
 
     if ( !e1 || !e2 || e1 == e2 )
     {
@@ -2180,45 +2181,34 @@ bool ColinearEdges( PGEdge *e1, PGEdge *e2 )
         double d21 = v21.mag();
         double d20 = v20.mag();
 
-        v10.normalize();
-        v21.normalize();
-        v20.normalize();
-
-        double dprod = 0.0;
         bool flip12 = false;
         if ( d10 > d20 ) // p1 is furthest from p0
         {
-            dprod = dot( v20, -v21 );
             flip12 = true;
         }
         else // p2 is furthese from p0
         {
-            dprod = dot( v10, v21 );
             flip12 = false;
         }
 
-        bool colinear = false;
-        if ( 1.0 - std::abs( dprod ) < tol ) // rough colinear test.
+        double t;
+        double d;
+        double l;
+
+        if ( flip12 )
         {
-            double t;
-            double d;
-            double l;
+            d = sqrt( pointSegDistSquared( p2, p0, p1, &t ) );
+            l = d10;
+        }
+        else
+        {
+            d = sqrt( pointSegDistSquared( p1, p0, p2, &t ) );
+            l = d21;
+        }
 
-            if ( flip12 )
-            {
-                d = sqrt( pointSegDistSquared( p2, p0, p1, &t ) );
-                l = d10;
-            }
-            else
-            {
-                d = sqrt( pointSegDistSquared( p1, p0, p2, &t ) );
-                l = d21;
-            }
-
-            if ( d / l < tol )
-            {
-                return true;
-            }
+        if ( d / l < tol && d < tol2 )
+        {
+            return true;
         }
     }
     return false;
