@@ -1850,7 +1850,6 @@ string MeshGeom::CreateNGonMeshGeom()
         new_geom->m_PGMesh.MergeDuplicateEdges();
 
         new_geom->m_PGMesh.FindAllColinearEdgeLoops();
-        new_geom->m_PGMesh.ResetNodeNumbers();
         new_geom->m_PGMesh.SimplifyColinearEdgeLoops();
 
         new_geom->m_PGMesh.SealColinearEdgeLoops();

@@ -1811,10 +1811,7 @@ void PGMesh::MergeCoincidentNodes()
 
     DumpGarbage();
 
-    ResetNodeNumbers();
-
     ClearTris();
-
 }
 
 void PGMesh::MergeEdges( PGEdge *ea, PGEdge *eb )
@@ -1869,8 +1866,6 @@ void PGMesh::MergeDuplicateEdges()
 
     DumpGarbage();
 
-    ResetNodeNumbers();
-
     ClearTris();
 }
 
@@ -1895,8 +1890,6 @@ void PGMesh::RemoveDegenEdges()
     CleanUnused();
 
     DumpGarbage();
-
-    ResetNodeNumbers();
 
     ClearTris();
 }
@@ -1926,8 +1919,6 @@ void PGMesh::RemoveDegenFaces()
     CleanUnused();
 
     DumpGarbage();
-
-    ResetNodeNumbers();
 
     ClearTris();
 }
@@ -3222,8 +3213,6 @@ void PGMesh::PolygonizeMesh()
         }
     }
     DumpGarbage();
-    ResetNodeNumbers();
-
 }
 
 void PGMesh::CleanColinearVerts()
@@ -3780,7 +3769,7 @@ void PGMesh::WriteTRI( string fname )
         return;
     }
 
-    ResetNodeNumbers(); // Start numbering at 1.
+    ResetNodeNumbers();
 
     fprintf( fp, "%d\n", m_NodeList.size() );
 
