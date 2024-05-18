@@ -2482,23 +2482,27 @@ int PGMesh::RotateLoopToDirectionChange( vector < PGEdge * > &eloop, bool print 
 
     int iswitch = vector_find_val( dirvec, -1 );
 
-    // Rotate such that iswitch is first in loop.
-    std::rotate( eloop.begin(), eloop.begin() + iswitch, eloop.end() );
-
-    std::rotate( dirvec.begin(), dirvec.begin() + iswitch, dirvec.end() );
-
-    if ( print )
+    if ( iswitch >= 0 )
     {
-        printf( "        " );
+        // Rotate such that iswitch is first in loop.
+        std::rotate( eloop.begin(), eloop.begin() + iswitch, eloop.end() );
 
-        for ( int ie = 0; ie < dirvec.size(); ie++ )
+        std::rotate( dirvec.begin(), dirvec.begin() + iswitch, dirvec.end() );
+
+        if ( print )
         {
-            printf( "%3d ", dirvec[ ie ] );
-        }
-        printf( "\n" );
-    }
+            printf( "        " );
 
-    return vector_find_val( dirvec, 1 );
+            for ( int ie = 0; ie < dirvec.size(); ie++ )
+            {
+                printf( "%3d ", dirvec[ ie ] );
+            }
+            printf( "\n" );
+        }
+
+        return vector_find_val( dirvec, 1 );
+    }
+    return -1;
 }
 
 void PGMesh::SealColinearEdgeLoop( vector < PGEdge * > &eloop )
