@@ -2012,6 +2012,8 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     MeshInfo info;
     MergeRemoveOpenMeshes( m_TMeshVec, &info, deleteopen );
 
+    MergeCoplanarTrimGroups();
+
     if ( halfFlag )
     {
         m_TMeshVec.push_back( AddHalfBox( "NEGATIVE_HALF" ) );
@@ -4183,6 +4185,10 @@ void MeshGeom::TrimCoplanarPatches()
 
         TrimTMeshSequence( tmgroup );
 
+        for ( int j = 0; j < tmgroup.size(); j++ )
+        {
+            tmgroup[j]->m_InGroup.push_back( i );
+        }
     }
 
 
@@ -4206,6 +4212,50 @@ void MeshGeom::MergeSplitPatches()
                 {
                     tmi->MergeTMeshes( tmj );
                     tmj->m_DeleteMeFlag = true;
+                }
+            }
+        }
+    }
+
+    DeleteMarkedMeshes();
+}
+
+// TMeshes with coplanar patches (which have been trimmed) are stitched together here without
+// running Intersect on them.  This hopefully prevents sliver hell.  However, it runs the risk
+// of missing intersections if non-coplanar patches of these surfaces also intersect in a
+// non-coplanar way.
+void MeshGeom::MergeCoplanarTrimGroups()
+{
+    vector < int > allGroups;
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size(); i++ )
+    {
+        TMesh *tmi = m_TMeshVec[ i ];
+        allGroups.insert( allGroups.end(), tmi->m_InGroup.begin(), tmi->m_InGroup.end() );
+    }
+    std::sort( allGroups.begin(), allGroups.end() );
+    allGroups.erase( std::unique( allGroups.begin(), allGroups.end() ), allGroups.end() );
+
+
+    for ( int ig = 0 ; ig < ( int )allGroups.size(); ig++ )
+    {
+        int grp = allGroups[ig];
+
+        for ( int i = 0 ; i < ( int )m_TMeshVec.size() - 1; i++ )
+        {
+            TMesh *tmi = m_TMeshVec[ i ];
+            if ( tmi->m_DeleteMeFlag == false &&
+                 vector_contains_val( tmi->m_InGroup, grp ) )
+            {
+                for ( int j = i + 1; j < ( int ) m_TMeshVec.size(); j++ )
+                {
+                    TMesh *tmj = m_TMeshVec[ j ];
+
+                    if ( tmj->m_DeleteMeFlag == false &&
+                         vector_contains_val( tmj->m_InGroup, grp ) )
+                    {
+                        tmi->MergeTMeshes( tmj );
+                        tmj->m_DeleteMeFlag = true;
+                    }
                 }
             }
         }

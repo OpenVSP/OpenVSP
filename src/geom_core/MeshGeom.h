@@ -170,6 +170,8 @@ public:
 
     virtual void MergeSplitPatches();
 
+    virtual void MergeCoplanarTrimGroups();
+
     virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir );
 
     virtual void AddPointMass( TetraMassProp* pm )

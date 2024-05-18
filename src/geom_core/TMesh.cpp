@@ -471,6 +471,8 @@ void TMesh::Wype()
 
     m_TBox.Reset();
 
+    m_InGroup.clear();
+
     m_CompAreaVec.clear();
     m_TagTheoAreaVec.clear();
     m_TagWetAreaVec.clear();
@@ -656,6 +658,7 @@ void TMesh::CopyAttributes( TMesh* m )
     m_SurfCfdType = m->m_SurfCfdType;
     m_ThickSurf = m->m_ThickSurf;
     m_FlatPatch = m->m_FlatPatch;
+    m_InGroup = m->m_InGroup;
 
     m_TheoArea   = m->m_TheoArea;
     m_WetArea    = m->m_WetArea;
@@ -959,6 +962,10 @@ void TMesh::MergeTMeshes( const TMesh* tm )
         m_NonClosedTriVec[i]->m_InvalidFlag = false;
     }
     m_NonClosedTriVec.clear();
+
+    m_InGroup.insert( m_InGroup.end(), tm->m_InGroup.begin(), tm->m_InGroup.end() );
+    std::sort( m_InGroup.begin(), m_InGroup.end() );
+    m_InGroup.erase( std::unique( m_InGroup.begin(), m_InGroup.end() ), m_InGroup.end() );
 }
 
 void TMesh::Intersect( TMesh* tm, bool UWFlag )

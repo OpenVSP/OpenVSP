@@ -576,6 +576,7 @@ public:
     double m_Density;
     double m_ShellMassArea;
     bool m_ShellFlag;
+    vector < int > m_InGroup;
 
     double m_TheoArea;
     double m_WetArea;
