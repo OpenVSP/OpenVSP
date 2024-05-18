@@ -1693,7 +1693,7 @@ void PGMesh::RemoveNegativeiQuadFaces()
             iremove++;
         }
     }
-    printf( "Removed %d\n", iremove );
+    // printf( "Removed %d\n", iremove );
 
     CleanUnused();
 
@@ -1794,7 +1794,7 @@ void PGMesh::MergeCoincidentNodes()
         }
     }
 
-    printf( "%d coincident nodes merged\n", nmerge );
+    // printf( "%d coincident nodes merged\n", nmerge );
 
 
 //    for ( int imaster = 0 ; imaster < ( int )nVec.size() ; imaster++ )
@@ -1860,7 +1860,7 @@ void PGMesh::MergeDuplicateEdges()
         }
     }
 
-    printf( "%d duplicate edges merged.\n", nmerged );
+    // printf( "%d duplicate edges merged.\n", nmerged );
 
     CleanUnused();
 
@@ -1885,7 +1885,7 @@ void PGMesh::RemoveDegenEdges()
         }
     }
 
-    printf( "%d degen edges removed\n", ndegen );
+    // printf( "%d degen edges removed\n", ndegen );
 
     CleanUnused();
 
@@ -1914,7 +1914,7 @@ void PGMesh::RemoveDegenFaces()
         }
     }
 
-    printf( "%d degen faces removed\n", ndegen );
+    // printf( "%d degen faces removed\n", ndegen );
 
     CleanUnused();
 
@@ -2291,6 +2291,7 @@ bool PGMesh::ExtendCoLinearLoop( vector < PGEdge * > & eloop, PGNode * n0, PGEdg
     for ( int i = 0; i < nedg; i++ )
     {
         PGEdge * ei = n->m_EdgeVec[ i ];
+
         if ( ei && (ei != e) && (!ei->m_InLoopFlag) && (!ei->m_InCurrentLoopFlag) )
         {
             PGNode * ni = ei->OtherNode( n );
@@ -2315,7 +2316,6 @@ bool PGMesh::ExtendCoLinearLoop( vector < PGEdge * > & eloop, PGNode * n0, PGEdg
                         {
                             eloop.push_back( e );
                             e->m_InLoopFlag = true;
-
                         }
 
                         return true;
@@ -2414,7 +2414,7 @@ void PGMesh::IdentifyWakes()
         }
     }
 
-    printf( "IdentifyWakes() %d wakes found.\n", m_WakeVec.size() );
+    // printf( "IdentifyWakes() %d wakes found.\n", m_WakeVec.size() );
 
     ResetEdgeLoopFlags();
 }
@@ -3241,7 +3241,7 @@ void PGMesh::CleanColinearVerts()
         }
     }
 
-    printf( "%d colinear verts removed\n", ncolinear );
+    // printf( "%d colinear verts removed\n", ncolinear );
 
     DumpGarbage();
 }
