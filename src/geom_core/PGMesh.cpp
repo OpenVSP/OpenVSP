@@ -2436,8 +2436,11 @@ vector < int > PGMesh::BuildLoopDirectionVec( const vector < PGEdge * > &eloop, 
 
     // Initialize ni at start of loop
     PGNode *n0 = StartLoop( eloop );
+    if ( !n0 ) return dirvec;
     PGEdge *ei = eloop[ 0 ];
+    if ( !ei ) return dirvec;
     PGNode *n1 = ei->OtherNode( n0 );
+    if ( !n1 ) return dirvec;
 
     vec3d v0 = n1->m_Pnt - n0->m_Pnt;
     v0.normalize();
