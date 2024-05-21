@@ -110,6 +110,7 @@ public:
         return m_TMeshVec.size();
     }
 
+    virtual void WriteVSPGeom( const string file_name );
     virtual void WriteNascartPnts( FILE* file_id );
     virtual void WriteCart3DPnts( FILE* file_id );
     virtual void WriteOBJPnts( FILE* file_id );

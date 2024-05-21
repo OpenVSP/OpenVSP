@@ -27,6 +27,8 @@
 
 #include "SubSurfaceMgr.h"
 #include "VspUtil.h"
+#include <cstdio>
+#include <cstdlib>
 
 //==== Constructor =====//
 MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
@@ -769,6 +771,55 @@ void MeshGeom::BuildIndexedMesh()
     IgnoreDegenTris( m_IndexedTriVec );
 
     Update();
+}
+
+void MeshGeom::WriteVSPGeom( const string file_name )
+{
+    //==== Open file ====//
+    FILE *file_id = fopen( file_name.c_str(), "w" );
+
+    fprintf( file_id, "# vspgeom v2\n" );
+
+    //==== Count Number of Points & Tris ====//
+    int num_pnts = 0;
+    int num_tris = 0;
+    int num_parts = 0;
+    int i;
+
+    BuildIndexedMesh( num_parts );
+    num_parts += GetNumIndexedParts();
+    num_pnts += GetNumIndexedPnts();
+    num_tris += GetNumIndexedTris();
+
+    fprintf( file_id, "%d\n", num_pnts );
+
+    //==== Dump Points ====//
+    WriteVSPGeomPnts( file_id );
+
+    fprintf( file_id, "%d\n", num_tris );
+
+    int offset = 0;
+    //==== Dump Tris ====//
+    offset = WriteVSPGeomTris( file_id, offset );
+
+    WriteVSPGeomParts( file_id );
+
+    offset = 0;
+    // Wake line data.
+    IdentifyWakes();
+    offset = WriteVSPGeomWakes( file_id, offset );
+
+    m_SurfDirty = true;
+    Update();
+
+    offset = 0;
+    int tcount = 1;
+    //==== Dump alternate Tris ====//
+    offset = WriteVSPGeomAlternateTris( file_id, offset, tcount );
+
+    tcount = 1;
+    WriteVSPGeomAlternateParts( file_id, tcount );
+    fclose( file_id );
 }
 
 void MeshGeom::WriteNascartPnts( FILE* fp )
