@@ -1948,6 +1948,24 @@ void MeshGeom::ApplyScale()
     m_LastScale = m_Scale();
 }
 
+void MeshGeom::DumpMeshes( const string & prefix )
+{
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        PGMesh pgm;
+        pgm.BuildFromTMesh( m_TMeshVec[ i ] );
+
+        char buf[255];
+        Matrix4d mat;
+        FILE *file_id = NULL;
+
+        snprintf( buf, sizeof( buf ), "%s_%d.vspgeom", prefix.c_str(), i );
+        file_id = fopen( buf, "w" );
+        pgm.WriteVSPGeom( file_id, mat );
+        fclose( file_id );
+    }
+}
+
 void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag )
 {
     // Temporary variable -- likely pass up to top levels and make an option.

@@ -144,6 +144,8 @@ public:
 
     virtual void Scale();
 
+    virtual void DumpMeshes( const string & prefix );
+
     //==== Intersection, Splitting and Trimming ====//
     virtual void IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag );
 
