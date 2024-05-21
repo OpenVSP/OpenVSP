@@ -76,6 +76,7 @@ public:
     bool Check();
 
     bool DoubleBackNode( int &i, int &j );
+    void SealDoubleBackNode( PGMesh *pgm );
 
     void DumpMatlab();
     void Diagnostics();
@@ -284,6 +285,7 @@ public:
     vector < PGFace* > m_Regions;
 
     void FindAllDoubleBackNodes();
+    void SealDoubleBackNodes();
 
     PGNode * StartList( const list < PGEdge * > & elist );
     PGNode * StartLoop( const vector < PGEdge * > & eloop );

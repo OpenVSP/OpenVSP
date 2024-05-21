@@ -216,6 +216,40 @@ bool PGNode::DoubleBackNode( int &i, int &j )
     return false;
 }
 
+void PGNode::SealDoubleBackNode( PGMesh *pgm )
+{
+    int i, j;
+    while ( DoubleBackNode( i, j ) )
+    {
+        PGEdge *ei = m_EdgeVec[i];
+        PGNode *ni = ei->OtherNode( this );
+
+        PGEdge *ej = m_EdgeVec[j];
+        PGNode *nj = ej->OtherNode( this );
+
+        double ti, tj;
+        pointLineDistSquared( ni->m_Pnt, m_Pnt, nj->m_Pnt, &tj );
+        pointLineDistSquared( nj->m_Pnt, m_Pnt, ni->m_Pnt, &ti );
+
+        if ( ti < tj )
+        {
+            PGEdge *newedge = pgm->SplitEdge( ei, ti, this );
+            PGNode *newnode = newedge->SharedNode( ei );
+            pgm->MergeNodes( nj, newnode );
+
+            nj->SealDoubleBackNode( pgm );
+        }
+        else
+        {
+            PGEdge *newedge = pgm->SplitEdge( ej, tj, this );
+            PGNode *newnode = newedge->SharedNode( ej );
+            pgm->MergeNodes( ni, newnode );
+
+            ni->SealDoubleBackNode( pgm );
+        }
+    }
+}
+
 void PGNode::DumpMatlab()
 {
     printf( "\nx = %.*e;\n", DBL_DIG + 3, m_Pnt.x() );
@@ -2041,6 +2075,19 @@ void PGMesh::FindAllDoubleBackNodes()
             m_DoubleBackNode.push_back( *n );
         }
     }
+}
+
+void PGMesh::SealDoubleBackNodes()
+{
+    for ( int i = 0; i < m_DoubleBackNode.size(); i++ )
+    {
+        m_DoubleBackNode[i]->SealDoubleBackNode( this );
+    }
+    m_DoubleBackNode.clear();
+
+    CleanUnused();
+
+    DumpGarbage();
 }
 
 PGNode * PGMesh::StartList( const list < PGEdge * > & elist )
