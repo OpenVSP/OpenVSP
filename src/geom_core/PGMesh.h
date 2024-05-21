@@ -238,14 +238,14 @@ public:
     void RemoveNegativeiQuadFaces();
 
     void MergeNodes( PGNode* na, PGNode* nb );
-    void MergeCoincidentNodes();
+    int MergeCoincidentNodes();
 
     void MergeEdges( PGEdge *ea, PGEdge *eb );
-    void MergeDuplicateEdges();
+    int MergeDuplicateEdges();
 
-    void RemoveDegenEdges();
+    int RemoveDegenEdges();
 
-    void RemoveDegenFaces();
+    int RemoveDegenFaces();
 
     int GetNumFaces()
     {

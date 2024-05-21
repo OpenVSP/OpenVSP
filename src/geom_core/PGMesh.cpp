@@ -1748,7 +1748,7 @@ void PGMesh::MergeNodes( PGNode* na, PGNode* nb )
     }
 }
 
-void PGMesh::MergeCoincidentNodes()
+int PGMesh::MergeCoincidentNodes()
 {
     vector< vec3d > allPntVec( m_NodeList.size() );
 
@@ -1812,6 +1812,7 @@ void PGMesh::MergeCoincidentNodes()
     DumpGarbage();
 
     ClearTris();
+    return nmerge;
 }
 
 void PGMesh::MergeEdges( PGEdge *ea, PGEdge *eb )
@@ -1832,7 +1833,7 @@ void PGMesh::MergeEdges( PGEdge *ea, PGEdge *eb )
     }
 }
 
-void PGMesh::MergeDuplicateEdges()
+int PGMesh::MergeDuplicateEdges()
 {
     int nmerged = 0;
     vector < bool > dupflag( m_EdgeList.size(), false );
@@ -1867,9 +1868,10 @@ void PGMesh::MergeDuplicateEdges()
     DumpGarbage();
 
     ClearTris();
+    return nmerged;
 }
 
-void PGMesh::RemoveDegenEdges()
+int PGMesh::RemoveDegenEdges()
 {
     int ndegen = 0;
 
@@ -1892,9 +1894,10 @@ void PGMesh::RemoveDegenEdges()
     DumpGarbage();
 
     ClearTris();
+    return ndegen;
 }
 
-void PGMesh::RemoveDegenFaces()
+int PGMesh::RemoveDegenFaces()
 {
     int ndegen = 0;
 
@@ -1921,6 +1924,7 @@ void PGMesh::RemoveDegenFaces()
     DumpGarbage();
 
     ClearTris();
+    return ndegen;
 }
 
 
