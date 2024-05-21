@@ -1890,12 +1890,28 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         {
             for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
             {
+                vector < double > uvec;
+                vector < double > vvec;
+                if ( m_TMeshVec[i]->m_UWPnts.size() > 0 && m_TMeshVec[i]->m_UWPnts[0].size() > 0 )
+                {
+                    uvec.resize( m_TMeshVec[i]->m_UWPnts.size() );
+                    for ( int j = 0 ; j < ( int )m_TMeshVec[i]->m_UWPnts.size(); j++ )
+                    {
+                        uvec[j] = m_TMeshVec[i]->m_UWPnts[j][0].x();
+                    }
+                    vvec.resize( m_TMeshVec[i]->m_UWPnts[0].size() );
+                    for ( int j = 0; j < ( int ) m_TMeshVec[ i ]->m_UWPnts[ 0 ].size(); j++ )
+                    {
+                        vvec[j] = m_TMeshVec[ i ]->m_UWPnts[ 0 ][ j ].y();
+                    }
+                }
+
                 vector< TMesh* > sub_surf_meshes;
                 vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_OriginGeomID, m_TMeshVec[i]->m_SurfNum );
                 int ss;
                 for ( ss = 0 ; ss < ( int )sub_surf_vec.size() ; ss++ )
                 {
-                    vector< TMesh* > tmp_vec = sub_surf_vec[ss]->CreateTMeshVec();
+                    vector< TMesh* > tmp_vec = sub_surf_vec[ss]->CreateTMeshVec( uvec, vvec );
                     sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );
                 }
                 m_SubSurfVec.insert( m_SubSurfVec.end(), sub_surf_meshes.begin(), sub_surf_meshes.end() );
@@ -2501,12 +2517,28 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
 
         for ( int ssv = 0 ; ssv < ( int )sub_surf_vec.size(); ssv++ )
         {
+            vector < double > uvec;
+            vector < double > vvec;
+            if ( m_TMeshVec[i]->m_UWPnts.size() > 0 && m_TMeshVec[i]->m_UWPnts[0].size() > 0 )
+            {
+                uvec.resize( m_TMeshVec[i]->m_UWPnts.size() );
+                for ( int j = 0 ; j < ( int )m_TMeshVec[i]->m_UWPnts.size(); j++ )
+                {
+                    uvec[j] = m_TMeshVec[i]->m_UWPnts[j][0].x();
+                }
+                vvec.resize( m_TMeshVec[i]->m_UWPnts[0].size() );
+                for ( int j = 0; j < ( int ) m_TMeshVec[ i ]->m_UWPnts[ 0 ].size(); j++ )
+                {
+                    vvec[j] = m_TMeshVec[ i ]->m_UWPnts[ 0 ][ j ].y();
+                }
+            }
+
             // Populate vector of TMesh* for current subsurface
             vector< TMesh* > sub_surf_meshes;
             string subsurf_id = sub_surf_vec[ssv]->GetID();
             if ( vector_contains_val( Flow_vec, subsurf_id ) )
             {
-                vector< TMesh* > tmp_vec = sub_surf_vec[ssv]->CreateTMeshVec();
+                vector< TMesh* > tmp_vec = sub_surf_vec[ssv]->CreateTMeshVec( uvec, vvec );
                 sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );
             }
 

@@ -16,6 +16,7 @@
 #include "StructureMgr.h"
 #include "Vec2d.h"
 #include "VspUtil.h"
+#include "StlHelper.h"
 
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 
@@ -136,15 +137,36 @@ void SubSurface::LoadPartialColoredDrawObjs( const string & ss_id, int surf_num,
     draw_obj_vec.push_back(&m_SubSurfHighlightDO[surf_num]);
 }
 
-vector< TMesh* > SubSurface::CreateTMeshVec() const
+vector< TMesh* > SubSurface::CreateTMeshVec( const vector < double > &uvec, const vector < double > &vvec ) const
 {
+    // In u,v space.  Typical delta observed 2.2e-16
+    double tol = 1e-6;
+
     vector<TMesh*> tmesh_vec;
     tmesh_vec.resize(1);
     tmesh_vec[0] =  new TMesh();
 
     for ( int ls = 0 ; ls < ( int ) m_LVec.size() ; ls++ )
     {
-        m_LVec[ls].AddToTMesh( tmesh_vec[0] );
+        vec3d p0 = m_LVec[ls].GetP0();
+        vec3d p1 = m_LVec[ls].GetP1();
+
+        bool skip = false;
+
+        if ( p0.x() == p1.x() && vector_contains_val_approx( uvec, p0.x(), tol ) )
+        {
+            skip = true;
+        }
+
+        if ( p0.y() == p1.y() && vector_contains_val_approx( vvec, p0.y(), tol ) )
+        {
+            skip = true;
+        }
+
+        if ( !skip )
+        {
+            m_LVec[ls].AddToTMesh( tmesh_vec[0] );
+        }
     }
 
     return tmesh_vec;

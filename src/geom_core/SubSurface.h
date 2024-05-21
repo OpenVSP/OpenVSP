@@ -54,11 +54,11 @@ public:
     {
         m_P1 = pnt;
     }
-    virtual vec3d GetP0()
+    virtual vec3d GetP0() const
     {
         return m_P0;
     }
-    virtual vec3d GetP1()
+    virtual vec3d GetP1() const
     {
         return m_P1;
     }
@@ -126,7 +126,7 @@ public:
     virtual void Update();
     virtual void UpdateOrientation();
     virtual void UpdatePolygonPnts();
-    virtual std::vector< TMesh* > CreateTMeshVec() const; // Method to create a TMeshVector
+    virtual std::vector< TMesh* > CreateTMeshVec( const vector < double > &uvec, const vector < double > &vvec ) const; // Method to create a TMeshVector
     virtual void UpdateDrawObjs(); // Method to create lines to draw
     virtual void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
     virtual void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
