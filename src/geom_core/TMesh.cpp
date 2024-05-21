@@ -1029,35 +1029,16 @@ void TMesh::Split()
 
 void TMesh::MakeFromPGMesh( PGMesh *m )
 {
-    int nvert = m->m_NodeList.size();
-
-    m_NVec.reserve( nvert );
-
-    int nodeid = 0;
-    list< PGNode* >::iterator n;
-    for ( n = m->m_NodeList.begin() ; n != m->m_NodeList.end(); ++n )
-    {
-        ( *n )->m_Pnt;
-
-        TNode *nod = new TNode();
-        nod->m_Pnt = ( *n )->m_Pnt;
-        nod->m_ID = nodeid;
-        ( *n )->m_ID = nodeid;
-        if ( ! ( *n )->m_TagUWMap.empty() )
-        {
-            vec2d uw = ( *n )->m_TagUWMap.begin()->second;
-            nod->m_UWPnt = vec3d( uw.x(), uw.y(), 0.0 );
-        }
-
-        m_NVec.push_back( nod );
-        nodeid++;
-    }
-
     list< PGFace* >::iterator f;
     for ( f = m->m_FaceList.begin() ; f != m->m_FaceList.end(); ++f )
     {
         vector < PGNode* > nodVec;
         ( *f )->GetNodesAsTris( nodVec );
+
+        int tag = ( *f )->m_Tag;
+        vec3d norm = ( *f )->m_Nvec;
+        vector < int > tags = m->GetTagVec( tag );
+        int iQuad = ( *f )->m_iQuad;
 
         int npt = nodVec.size();
         int ntri = npt/3;
@@ -1065,27 +1046,27 @@ void TMesh::MakeFromPGMesh( PGMesh *m )
         int inod = 0;
         for ( int i = 0; i < ntri; i++ )
         {
-            TTri *t = new TTri( this );
+            vec2d uw;
 
-            t->m_N0 = m_NVec[ nodVec[ inod ]->m_ID ];
-            inod++;
-            t->m_N1 = m_NVec[ nodVec[ inod ]->m_ID ];
-            inod++;
-            t->m_N2 = m_NVec[ nodVec[ inod ]->m_ID ];
+            vec3d v0 =  nodVec[ inod ]->m_Pnt;
+            nodVec[ inod ]->GetUW( tag, uw );
+            vec3d uw0( uw.x(), uw.y(), 0.0 );
             inod++;
 
-            t->m_Norm = ( *f )->m_Nvec;
-            //t->m_Density = torig->m_Density;
-            t->m_Tags = m->GetTagVec( ( *f )->m_Tag );
-            //t->m_GeomID = torig->m_GeomID;
-            //t->m_InvalidFlag = torig->m_InvalidFlag;
-            //t->m_IgnoreTriFlag = torig->m_IgnoreTriFlag;
-            t->m_iQuad = ( *f )->m_iQuad;
-            t->m_ID = ( *f )->m_ID;
-            //t->m_ID = m_ID;
+            vec3d v1 =  nodVec[ inod ]->m_Pnt;
+            nodVec[ inod ]->GetUW( tag, uw );
+            vec3d uw1( uw.x(), uw.y(), 0.0 );
+            inod++;
 
-            m_TVec.push_back( t );
+            vec3d v2 =  nodVec[ inod ]->m_Pnt;
+            nodVec[ inod ]->GetUW( tag, uw );
+            vec3d uw2( uw.x(), uw.y(), 0.0 );
+            inod++;
 
+            AddTri( v0, v1, v2, norm, uw0, uw1, uw2, iQuad );
+            TTri* tri = m_TVec.back();
+
+            tri->m_Tags = tags;
         }
     }
 }
