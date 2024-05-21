@@ -180,6 +180,42 @@ bool PGNode::Check()
     return true;
 }
 
+bool PGNode::DoubleBackNode( int &i, int &j )
+{
+    double tol = 1e-10;
+
+    for ( i = 0; i < m_EdgeVec.size() - 1; i++ )
+    {
+        PGEdge *ei = m_EdgeVec[i];
+        PGNode *ni = ei->OtherNode( this );
+
+        for ( j = i + 1; j < m_EdgeVec.size(); j++ )
+        {
+            PGEdge *ej = m_EdgeVec[j];
+            PGNode *nj = ej->OtherNode( this );
+
+            double ti, tj;
+            double di, dj;
+            di = sqrt( pointLineDistSquared( ni->m_Pnt, m_Pnt, nj->m_Pnt, &ti ) );
+            dj = sqrt( pointLineDistSquared( nj->m_Pnt, m_Pnt, ni->m_Pnt, &tj ) );
+
+            // if ei and ej are co-linear and in the same direction,
+            // return true;
+            if ( ti > 0.0 && ti < 1.0 && di < tol )
+            {
+                return true;
+            }
+
+            if ( tj > 0.0 && tj < 1.0 && dj < tol )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 void PGNode::DumpMatlab()
 {
     printf( "\nx = %.*e;\n", DBL_DIG + 3, m_Pnt.x() );
@@ -1989,6 +2025,22 @@ bool PGMesh::Check()
     }
 
     return true;
+}
+
+void PGMesh::FindAllDoubleBackNodes()
+{
+    m_DoubleBackNode.clear();
+
+    int i, j;
+
+    list< PGNode* >::iterator n;
+    for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
+    {
+        if ( ( *n )->DoubleBackNode( i, j ) )
+        {
+            m_DoubleBackNode.push_back( *n );
+        }
+    }
 }
 
 PGNode * PGMesh::StartList( const list < PGEdge * > & elist )

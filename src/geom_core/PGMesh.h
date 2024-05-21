@@ -75,6 +75,8 @@ public:
     bool ColinearNode( double tol );
     bool Check();
 
+    bool DoubleBackNode( int &i, int &j );
+
     void DumpMatlab();
     void Diagnostics();
 
@@ -265,6 +267,7 @@ public:
     list < PGEdge* > m_EdgeList;
     list < PGNode* > m_NodeList;
 
+    vector < PGNode* > m_DoubleBackNode;
     vector < vector < PGEdge * > > m_EdgeLoopVec;
     vector < vector < PGEdge* > > m_WakeVec;
 
@@ -279,6 +282,8 @@ public:
     std::map< std::vector<int>, int > m_SingleTagMap;
 
     vector < PGFace* > m_Regions;
+
+    void FindAllDoubleBackNodes();
 
     PGNode * StartList( const list < PGEdge * > & elist );
     PGNode * StartLoop( const vector < PGEdge * > & eloop );

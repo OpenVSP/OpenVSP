@@ -336,6 +336,20 @@ void NGonMeshGeom::UpdateDrawObj()
         }
     }
     m_CoLinearLoopDO.m_GeomChanged = true;
+
+    m_DoubleBackNodeDO.m_PntVec.clear();
+    m_DoubleBackNodeDO.m_PointSize = 10;
+    m_DoubleBackNodeDO.m_PointColor = DrawObj::Color( DrawObj::BLACK );
+    m_DoubleBackNodeDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_DoubleBackNodeDO.m_GeomID = GetID() + "DoubleBack";
+    m_DoubleBackNodeDO.m_Type = DrawObj::VSP_POINTS;
+
+    for ( int i = 0; i < m_PGMesh.m_DoubleBackNode.size(); i++ )
+    {
+        m_DoubleBackNodeDO.m_PntVec.push_back( trans.xform( m_PGMesh.m_DoubleBackNode[i]->m_Pnt ) );
+    }
+    m_DoubleBackNodeDO.m_GeomChanged = true;
+
 }
 
 void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -444,6 +458,9 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     m_CoLinearLoopDO.m_Visible = m_ShowNonManifoldEdges() && visible;
     draw_obj_vec.push_back( &m_CoLinearLoopDO );
+
+    m_DoubleBackNodeDO.m_Visible = m_ShowNonManifoldEdges() && visible;
+    draw_obj_vec.push_back( &m_DoubleBackNodeDO );
 }
 
 vector<TMesh*> NGonMeshGeom::CreateTMeshVec() const

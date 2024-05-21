@@ -58,6 +58,7 @@ public:
     vector<DrawObj> m_WakeDrawObj_vec;
 
     DrawObj m_CoLinearLoopDO;
+    DrawObj m_DoubleBackNodeDO;
 
 
     PGMesh m_PGMesh;
