@@ -1914,10 +1914,7 @@ string MeshGeom::CreateNGonMeshGeom()
 
         new_geom->m_PGMesh.IdentifyWakes();
 
-        //new_geom->m_PGMesh.MergeCoincidentNodes();
-        //new_geom->m_PGMesh.MergeDuplicateEdges();
-        //new_geom->m_PGMesh.RemoveDegenEdges();
-        //new_geom->m_PGMesh.RemoveDegenFaces();
+
 
         new_geom->m_SurfDirty = true;
 
