@@ -38,6 +38,20 @@ bool vector_contains_val( const vector< T > & vec, T const & val )
     return false;
 }
 
+//==== Check If Vector Contains Val =====//
+template <class T>
+bool vector_contains_val_approx( const vector< T > & vec, T const & val, T const & tol )
+{
+    for ( int i = 0 ; i < ( int )vec.size() ; i++ )
+    {
+        if ( std::abs( val - vec[i] ) < tol )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 //==== Check If Deque Contains Val =====//
 template <class T>
 bool deque_contains_val( const deque< T > & deque, T const & val )
