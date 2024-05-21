@@ -1903,9 +1903,8 @@ string MeshGeom::CreateNGonMeshGeom()
         new_geom->m_PGMesh.PolygonizeMesh();
         new_geom->m_PGMesh.CleanColinearVerts();
 
-        new_geom->m_PGMesh.FindAllColinearEdgeLoops();
-        new_geom->m_PGMesh.SimplifyColinearEdgeLoops();
-        new_geom->m_PGMesh.SealColinearEdgeLoops();
+        new_geom->m_PGMesh.FindAllDoubleBackNodes();
+        new_geom->m_PGMesh.SealDoubleBackNodes();
 
         new_geom->SplitLEGeom();
 
@@ -2115,9 +2114,8 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
             pgm.PolygonizeMesh();
             pgm.CleanColinearVerts();
 
-            pgm.FindAllColinearEdgeLoops();
-            pgm.SimplifyColinearEdgeLoops();
-            pgm.SealColinearEdgeLoops();
+            pgm.FindAllDoubleBackNodes();
+            pgm.SealDoubleBackNodes();
 
             m_TMeshVec[ i ] = new TMesh;
             m_TMeshVec[ i ]->MakeFromPGMesh( &pgm );
