@@ -55,6 +55,8 @@ public:
     DrawObj m_BadEdgeTooFewDO;
     DrawObj m_BadEdgeTooManyDO;
 
+    vector<DrawObj> m_WakeDrawObj_vec;
+
     DrawObj m_CoLinearLoopDO;
 
 

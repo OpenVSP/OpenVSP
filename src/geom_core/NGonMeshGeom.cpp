@@ -227,7 +227,7 @@ void NGonMeshGeom::UpdateDrawObj()
     }
 
     int nwake = m_PGMesh.m_WakeVec.size();
-    m_FeatureDrawObj_vec.resize( nwake );
+    m_WakeDrawObj_vec.resize( nwake );
 
     // Calculate constants for color sequence.
     const int ncgrp = nwake; // Number of basic colors
@@ -247,29 +247,29 @@ void NGonMeshGeom::UpdateDrawObj()
             deg = (int)deg % 360;
         }
 
-        vec3d rgb = m_FeatureDrawObj_vec[iwake].ColorWheel( deg );
+        vec3d rgb = m_WakeDrawObj_vec[iwake].ColorWheel( deg );
         rgb.normalize();
 
-        m_FeatureDrawObj_vec[iwake].m_Type = DrawObj::VSP_LINE_STRIP;
-        m_FeatureDrawObj_vec[iwake].m_LineWidth = 5;
-        m_FeatureDrawObj_vec[iwake].m_LineColor = rgb;
-        m_FeatureDrawObj_vec[iwake].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_WakeDrawObj_vec[iwake].m_Type = DrawObj::VSP_LINE_STRIP;
+        m_WakeDrawObj_vec[iwake].m_LineWidth = 5;
+        m_WakeDrawObj_vec[iwake].m_LineColor = rgb;
+        m_WakeDrawObj_vec[iwake].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
         char str[255];
         snprintf( str, sizeof( str ),  "_%d", iwake );
-        m_FeatureDrawObj_vec[iwake].m_GeomID = m_ID + "Feature_" + str;
+        m_WakeDrawObj_vec[iwake].m_GeomID = m_ID + "Feature_" + str;
 
-        m_FeatureDrawObj_vec[iwake].m_GeomChanged = true;
+        m_WakeDrawObj_vec[iwake].m_GeomChanged = true;
 
         vector< PGNode* > nodVec;
         GetNodes( m_PGMesh.m_WakeVec[iwake], nodVec );
 
-        m_FeatureDrawObj_vec[iwake].m_PntVec.resize( nodVec.size() );
+        m_WakeDrawObj_vec[iwake].m_PntVec.resize( nodVec.size() );
         for ( int i = 0; i < nodVec.size(); i++ )
         {
             if ( nodVec[i] )
             {
-                m_FeatureDrawObj_vec[iwake].m_PntVec[i] = trans.xform( nodVec[i]->m_Pnt );
+                m_WakeDrawObj_vec[iwake].m_PntVec[i] = trans.xform( nodVec[i]->m_Pnt );
             }
         }
     }
@@ -428,6 +428,13 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
                 m_WireShadeDrawObj_vec[i].m_Visible = false;
                 break;
         }
+    }
+
+    // Load Wake Lines
+    for ( int i = 0; i < m_WakeDrawObj_vec.size(); i++ )
+    {
+        m_WakeDrawObj_vec[i].m_Visible = !m_ShowNonManifoldEdges() && visible;
+        draw_obj_vec.push_back( &m_WakeDrawObj_vec[i] );
     }
 
     m_BadEdgeTooFewDO.m_Visible = m_ShowNonManifoldEdges() && visible;
