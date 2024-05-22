@@ -1881,6 +1881,28 @@ void TMesh::UpdateBBox( BndBox &bbox, const Matrix4d &transMat )
     }
 }
 
+void TMesh::UpdateBBox( const Matrix4d &mat, BndBox & bb )
+{
+    for ( int j = 0 ; j < ( int )m_TVec.size() ; j++ )
+    {
+        bb.Update( mat.xform( m_TVec[j]->m_N0->m_Pnt ) );
+        bb.Update( mat.xform( m_TVec[j]->m_N1->m_Pnt ) );
+        bb.Update( mat.xform( m_TVec[j]->m_N2->m_Pnt ) );
+    }
+}
+
+void TMesh::ForceSmallYZero()
+{
+    double tol = 1e-10;
+    for ( int i = 0; i < m_NVec.size(); i++ )
+    {
+        if ( std::abs( m_NVec[i]->m_Pnt.y() ) < tol )
+        {
+            m_NVec[i]->m_Pnt.set_y( 0.0 );
+        }
+    }
+}
+
 //==== Write STL Tris =====//
 void TMesh::WriteIgnoredSTLTris( FILE* file_id, Matrix4d XFormMat )
 {
