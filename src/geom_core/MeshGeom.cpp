@@ -3914,6 +3914,47 @@ void MeshGeom::CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, doubl
     tetraVec.push_back( new TetraMassProp( tri->m_GeomID, tri->m_Density, p5, p3, p4, p1 ) );
 }
 
+// Look for TMesh's that correspond to symmetrical copies of a Geom, where the points along the
+// center plane should be at Y==0, but are slightly off.
+void MeshGeom::ForceSymmSmallYZero()
+{
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() - 1; i++ )
+    {
+        TMesh *tmi = m_TMeshVec[ i ];
+        Matrix4d mat;
+        BndBox bbi;
+        tmi->UpdateBBox( mat, bbi );
+        double ylimi = bbi.GetMax( 1 );
+        if ( bbi.GetCenter().y() > 0 )
+        {
+            ylimi = bbi.GetMin( 1 );
+        }
+
+        for ( int j = i + 1 ; j < ( int )m_TMeshVec.size(); j++ )
+        {
+            TMesh *tmj = m_TMeshVec[ j ];
+            if ( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
+                 tmi->m_PlateNum == tmj->m_PlateNum )
+            {
+                BndBox bbj;
+                tmj->UpdateBBox( mat, bbj );
+                double ylimj = bbj.GetMax( 1 );
+                if ( bbj.GetCenter().y() > 0 )
+                {
+                    ylimj = bbj.GetMin( 1 );
+                }
+
+                if ( std::abs( ylimj - ylimi ) < 1e-6 )
+                {
+                    tmi->ForceSmallYZero();
+                    tmj->ForceSmallYZero();
+                }
+            }
+        }
+
+    }
+}
+
 //==== Check Current Geom For Problems ====//
 void MeshGeom::WaterTightCheck( FILE* fid )
 {

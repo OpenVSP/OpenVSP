@@ -179,6 +179,8 @@ public:
 
     virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir );
 
+    virtual void ForceSymmSmallYZero();
+
     virtual void AddPointMass( TetraMassProp* pm )
     {
         m_PointMassVec.push_back( pm );
