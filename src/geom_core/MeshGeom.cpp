@@ -1908,11 +1908,12 @@ string MeshGeom::CreateNGonMeshGeom()
 
         new_geom->SplitLEGeom();
 
-        new_geom->m_PGMesh.MakeRegions();
-        new_geom->m_PGMesh.ClearTris();
-        new_geom->m_PGMesh.CullOrphanThinRegions( 0.05 );
-
-
+        if ( cullfracflag )
+        {
+            new_geom->m_PGMesh.MakeRegions();
+            new_geom->m_PGMesh.ClearTris();
+            new_geom->m_PGMesh.CullOrphanThinRegions( cullfrac );
+        }
 
         new_geom->m_PGMesh.IdentifyWakes( ContinueCoPlanarWakes );
 
