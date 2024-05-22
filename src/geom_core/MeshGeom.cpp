@@ -2119,6 +2119,8 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         }
     }
 
+    ForceSymmSmallYZero();
+
     if ( halfFlag )
     {
         m_TMeshVec.push_back( AddHalfBox( "NEGATIVE_HALF" ) );
