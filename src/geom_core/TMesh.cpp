@@ -6414,11 +6414,10 @@ void LoadBndBox( vector< TMesh* > &tmv )
 
 void UpdateBBox( BndBox &bbox, vector<TMesh*> &tmv, const Matrix4d &transMat )
 {
-    int i, j;
     bbox.Reset();
     if ( tmv.size() > 0 )
     {
-        for ( i = 0 ; i < ( int )tmv.size() ; i++ )
+        for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
         {
             tmv[i]->UpdateBBox( bbox, transMat );
         }
