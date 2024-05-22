@@ -137,7 +137,7 @@ public:
 
     bool Validate();
 
-    bool WakeEdge( PGMesh *m );
+    bool WakeEdge( PGMesh *m, bool ContinueCoPlanarWakes );
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -310,8 +310,8 @@ public:
 
     void ResetEdgeLoopFlags();
 
-    void ExtendWake( vector < PGEdge * > & wake, PGEdge *e, PGNode *n );
-    void IdentifyWakes();
+    void ExtendWake( vector < PGEdge * > & wake, PGEdge *e, PGNode *n, bool ContinueCoPlanarWakes );
+    void IdentifyWakes( bool ContinueCoPlanarWakes );
 
     void StartMatlab();
 

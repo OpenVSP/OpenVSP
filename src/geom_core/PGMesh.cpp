@@ -566,7 +566,7 @@ bool PGEdge::Validate()
     return valid;
 }
 
-bool PGEdge::WakeEdge( PGMesh *m )
+bool PGEdge::WakeEdge( PGMesh *m, bool ContinueCoPlanarWakes )
 {
     const double tol = 1e-12;
 
@@ -585,9 +585,12 @@ bool PGEdge::WakeEdge( PGMesh *m )
 
         if ( type == vsp::WING_SURF )
         {
-            if ( !thick && nface != 1 )
+            if ( !ContinueCoPlanarWakes )
             {
-                return false;
+                if ( !thick && nface != 1 )
+                {
+                    return false;
+                }
             }
 
             vec2d uw0, uw1;
@@ -2464,7 +2467,7 @@ void PGMesh::ResetEdgeLoopFlags()
 }
 
 
-void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, PGNode *n )
+void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, PGNode *n, bool ContinueCoPlanarWakes )
 {
     e->m_InCurrentLoopFlag = true;
 
@@ -2475,14 +2478,14 @@ void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, PGNode *n )
         PGEdge * ei = n->m_EdgeVec[ i ];
         if ( ei && ei != e && !ei->m_InLoopFlag && !ei->m_InCurrentLoopFlag )
         {
-            if ( ei->WakeEdge( this ) )
+            if ( ei->WakeEdge( this, ContinueCoPlanarWakes ) )
             {
                 PGNode * ni = ei->OtherNode( n );
 
                 wake.push_back( ei );
                 ei->m_InLoopFlag = true;
 
-                ExtendWake( wake, ei, ni );
+                ExtendWake( wake, ei, ni, ContinueCoPlanarWakes );
                 return;
             }
         }
@@ -2492,25 +2495,25 @@ void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, PGNode *n )
 }
 
 
-void PGMesh::IdentifyWakes()
+void PGMesh::IdentifyWakes( bool ContinueCoPlanarWakes )
 {
     m_WakeVec.clear();
 
     list< PGEdge* >::iterator e;
     for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
     {
-        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->WakeEdge( this ) )
+        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->WakeEdge( this, ContinueCoPlanarWakes ) )
         {
             (*e)->m_InLoopFlag = true;
 
             vector < PGEdge * > wake;
             wake.push_back( *e );
 
-            ExtendWake( wake, (*e), (*e)->m_N0 );
+            ExtendWake( wake, (*e), (*e)->m_N0, ContinueCoPlanarWakes );
 
             std::reverse( wake.begin(), wake.end() );
 
-            ExtendWake( wake, (*e), (*e)->m_N1 );
+            ExtendWake( wake, (*e), (*e)->m_N1, ContinueCoPlanarWakes );
 
 
             m_WakeVec.push_back( wake );

@@ -1912,9 +1912,9 @@ string MeshGeom::CreateNGonMeshGeom()
         new_geom->m_PGMesh.ClearTris();
         new_geom->m_PGMesh.CullOrphanThinRegions( 0.05 );
 
-        new_geom->m_PGMesh.IdentifyWakes();
 
 
+        new_geom->m_PGMesh.IdentifyWakes( ContinueCoPlanarWakes );
 
         new_geom->m_SurfDirty = true;
 
