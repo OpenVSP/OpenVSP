@@ -140,7 +140,7 @@ public:
     virtual void CreateGeomResults( Results* res );
 
     virtual void CreatePtCloudGeom();
-    virtual string CreateNGonMeshGeom();
+    virtual string CreateNGonMeshGeom( bool cullfracflag = false, double cullfrac = 0.03, bool ContinueCoPlanarWakes = false );
 
     virtual void Scale();
 
