@@ -2159,6 +2159,8 @@ void VSPAEROSweepAnalysis::SetDefaults()
         // Output redirection
         m_Inputs.Add( new NameValData( "RedirectFile",                  string( "stdout" )                                , "File to redirect output ('stdout' to console,  '' to suppress)." ) );
 
+        m_Inputs.Add( NameValData( "StopBeforeRun",                 false                                             , "Flag to stop after writing files, but before running VSPAERO." ) );
+
         //Case Setup
         m_Inputs.Add( new NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Thick surface geometry Set for analysis."  ) );
         m_Inputs.Add( new NameValData( "ThinGeomSet",                   VSPAEROMgr.m_ThinGeomSet.Get()                    , "Thin surface geometry Set for analysis."  ) );
@@ -2705,6 +2707,13 @@ string VSPAEROSweepAnalysis::Execute()
         }
 
         //==== Execute Analysis ====//
+
+        // Set flag to terminate after writing input files.
+        nvd = m_Inputs.FindPtr( "StopBeforeRun", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_StopBeforeRun = nvd->GetInt( 0 );
+        }
 
         if ( fname == string() )
         {
