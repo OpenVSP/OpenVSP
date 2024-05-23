@@ -62,7 +62,10 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_ConsoleLayout.SetFitWidthFlag( false );
 
     m_ConsoleLayout.AddButton( m_SolverButton, "Launch Solver" );
+    m_ConsoleLayout.SetButtonWidth( m_ConsoleLayout.GetW() / 4 );
     m_ConsoleLayout.AddButton( m_KillSolverButton, "Kill Solver" );
+    m_ConsoleLayout.AddButton( m_PrepareButton, "Prepare Solver" );
+    m_ConsoleLayout.SetButtonWidth( m_ConsoleLayout.GetW() / 2 );
 
     m_ConsoleLayout.ForceNewLine();
 
@@ -1092,6 +1095,9 @@ void * solver_thread_fun( void *data )
 
     if( vsmgr && vsscreen )
     {
+        // Store local copy.
+        bool stopbeforerun = vsmgr->m_StopBeforeRun;
+
         vsscreen->m_SolverThreadIsRunning = true;
 
         // EXECUTE SOLVER
@@ -1099,15 +1105,17 @@ void * solver_thread_fun( void *data )
 
         vsscreen->m_SolverThreadIsRunning = false;
 
-        vsscreen->GetScreenMgr()->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
-
-        // Display default view settings
-        VSPAEROPlotScreen* vspapscreen = (VSPAEROPlotScreen*)vsscreen->GetScreenMgr()->GetScreen( vsp::VSP_VSPAERO_PLOT_SCREEN );
-        if ( vspapscreen )
+        if ( !stopbeforerun )
         {
-            vspapscreen->SetDefaultView();
-        }
+            vsscreen->GetScreenMgr()->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
 
+            // Display default view settings
+            VSPAEROPlotScreen *vspapscreen = ( VSPAEROPlotScreen * ) vsscreen->GetScreenMgr()->GetScreen( vsp::VSP_VSPAERO_PLOT_SCREEN );
+            if ( vspapscreen )
+            {
+                vspapscreen->SetDefaultView();
+            }
+        }
         vsscreen->GetScreenMgr()->SetUpdateFlag( true );
     }
 
@@ -1171,6 +1179,12 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( device == &m_SolverButton )
         {
+            VSPAEROMgr.m_StopBeforeRun = false; // Should be redundant.
+            LaunchVSPAERO();
+        }
+        else if ( device == & m_PrepareButton )
+        {
+            VSPAEROMgr.m_StopBeforeRun = true; // Gets reset to false when execution breaks.
             LaunchVSPAERO();
         }
         else if ( device == &m_ViewerButton )

@@ -180,6 +180,7 @@ protected:
 
     // Execute Layout
     TriggerButton m_SolverButton;
+    TriggerButton m_PrepareButton;
     TriggerButton m_KillSolverButton;
     TriggerButton m_PlotButton;
     TriggerButton m_ViewerButton;
