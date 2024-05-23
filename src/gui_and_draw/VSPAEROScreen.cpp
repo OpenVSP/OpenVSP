@@ -1458,6 +1458,20 @@ void VSPAEROScreen::UpdateCaseSetup()
     m_CullFracSlider.Update( VSPAEROMgr.m_CullFrac.GetID() );
     m_CullFracButton.Update( VSPAEROMgr.m_CullFracFlag.GetID() );
     m_ContinueCoPlanarWakesButton.Update( VSPAEROMgr.m_ContinueCoPlanarWakesFlag.GetID() );
+
+    if ( VSPAEROMgr.m_ThinGeomSet() == vsp::SET_NONE )
+    {
+        m_CullFracSlider.Deactivate();
+        m_CullFracButton.Deactivate();
+        m_ContinueCoPlanarWakesButton.Deactivate();
+    }
+    else
+    {
+        m_CullFracSlider.Activate();
+        m_CullFracButton.Activate();
+        m_ContinueCoPlanarWakesButton.Activate();
+    }
+
 }
 
 void VSPAEROScreen::UpdateRefWing()
