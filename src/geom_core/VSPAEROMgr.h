@@ -529,6 +529,8 @@ public:
         BLADE_SELECT_TYPE
     };
 
+    bool m_StopBeforeRun;
+
     ProcessUtil m_SolverProcess; 
     ProcessUtil m_SlicerThread;
 

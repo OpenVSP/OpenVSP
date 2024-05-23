@@ -298,6 +298,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     slice->SetName( "Y = 0" );
     slice->m_CutType.Set( vsp::Y_DIR );
     slice->m_CutPosition.Set( 0.0 );
+
+    m_StopBeforeRun = false;
 }
 
 VSPAEROMgrSingleton::~VSPAEROMgrSingleton()
@@ -413,6 +415,8 @@ void VSPAEROMgrSingleton::Renew()
     m_RotateBladesFlag.Set( false );
 
     m_NCPU.Set( 4 );
+
+    m_StopBeforeRun = false;
 
     m_WakeNumIter.Set( 5 );
 
@@ -1983,6 +1987,12 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             data.m_String = "VSPAEROSolverMessage";
             data.m_StringVec.push_back( cmdStr );
             MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
+        }
+
+        if ( m_StopBeforeRun )
+        {
+            m_StopBeforeRun = false;
+            return string();
         }
 
         // Execute VSPAero
