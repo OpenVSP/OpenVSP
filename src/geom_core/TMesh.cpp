@@ -1760,6 +1760,37 @@ void TMesh::WriteOBJ( string fname, double scale )
 
 }
 
+void TMesh::WriteTRI( string fname, double scale )
+{
+    FILE* fp = fopen( fname.c_str(), "w" );
+
+    if ( !fp )
+    {
+        return;
+    }
+
+    int npt = m_NVec.size();
+    int ntri = m_TVec.size();
+
+    fprintf( fp, "%d\n", npt );
+    fprintf( fp, "%d\n", ntri  );
+
+    for ( int i = 0; i < npt; i++ )
+    {
+        m_NVec[i]->m_ID = i;
+
+        vec3d v = m_NVec[i]->m_Pnt;
+        fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x() * scale, v.y() * scale,  v.z() * scale );
+    }
+
+    for ( int i = 0; i < ntri; i++ )
+    {
+        TTri *ttri = m_TVec[i];
+        fprintf( fp, "%d %d %d\n", ttri->m_N0->m_ID + 1,  ttri->m_N1->m_ID + 1, ttri->m_N2->m_ID + 1 );
+    }
+    fclose( fp );
+}
+
 vec3d TMesh::GetVertex( int index )
 {
     if ( index < 0 )
