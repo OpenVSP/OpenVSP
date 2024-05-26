@@ -307,6 +307,7 @@ function(add_document)
           pandocology_add_input_file(${resource_file} ${CMAKE_CURRENT_BINARY_DIR} build_resources native_build_resources)
         else()
           pandocology_add_input_file(${CMAKE_CURRENT_SOURCE_DIR}/${resource_file} ${CMAKE_CURRENT_BINARY_DIR} build_resources native_build_resources)
+        endif()
     endforeach()
 
     ## get resource dirs
