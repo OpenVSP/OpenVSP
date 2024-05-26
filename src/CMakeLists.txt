@@ -193,6 +193,8 @@ IF( NOT VSP_NO_VSPAERO )
     ADD_SUBDIRECTORY( vsp_aero )
 ENDIF()
 
+ADD_SUBDIRECTORY( help )
+
 INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
 
 SET( CPACK_PACKAGE_NAME OpenVSP )
