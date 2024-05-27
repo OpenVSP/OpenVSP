@@ -32,7 +32,7 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA Assembly", 221 + 5 )
+StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA Assembly", "", 221 + 5 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 

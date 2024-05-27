@@ -34,7 +34,7 @@ using namespace std;
 
 ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
             DRAG_TAB_WIDTH + DRAG_TABLE_WIDTH + DRAG_TABLE_PERSISTENT_WIDTH + 10, TOTAL_WINDOW_HEIGHT,
-            "Parasite Drag", EXECUTE_LAYOUT_HEIGHT + 5, DRAG_TABLE_WIDTH + DRAG_TABLE_PERSISTENT_WIDTH + 10 )
+            "Parasite Drag", "", EXECUTE_LAYOUT_HEIGHT + 5, DRAG_TABLE_WIDTH + DRAG_TABLE_PERSISTENT_WIDTH + 10 )
 {
     // Used for Unit Labels
     string deg( 1, (char) 176 );

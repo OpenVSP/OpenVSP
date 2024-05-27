@@ -15,7 +15,7 @@
 
 /////////////////// Construction/Destruction /////////////////////////
 
-WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 450 + 72, "Wave Drag", 80, 470 )
+WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 450 + 72, "Wave Drag", "", 80, 470 )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 

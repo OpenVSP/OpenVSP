@@ -118,7 +118,7 @@ class BasicScreen : public VspScreen
 {
 public:
 
-    BasicScreen( ScreenMgr* mgr, int w, int h, const string & title  );
+    BasicScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string() );
     virtual ~BasicScreen();
 
     virtual void SetTitle( const string& title );
@@ -130,11 +130,19 @@ public:
         return false;
     }
 
+    void HelpCallBack( Fl_Widget *w );
+    static void staticHelpCB( Fl_Widget *w, void* data )
+    {
+        ( static_cast <BasicScreen*> ( data ) )->HelpCallBack( w );
+    }
+
 protected:
 
     Fl_Box* m_FL_TitleBox;
+    Fl_Button* m_MasterHelpButton;
 
     string m_Title;
+    string m_HelpFile;
 
 };
 
@@ -143,7 +151,7 @@ class TabScreen : public BasicScreen
 {
 public:
 
-    TabScreen( ScreenMgr* mgr, int w, int h, const string & title, int baseymargin = 0, int basexmargin = 0 );
+    TabScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string(), int baseymargin = 0, int basexmargin = 0 );
     virtual ~TabScreen();
 
     virtual bool Update()
@@ -181,7 +189,7 @@ protected:
 class GeomScreen : public TabScreen
 {
 public:
-    GeomScreen( ScreenMgr* mgr, int w, int h, const string & title );
+    GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string() );
     virtual ~GeomScreen()                               {}
 
     virtual bool Update( );
@@ -418,7 +426,7 @@ protected:
 class XSecScreen : public GeomScreen
 {
 public:
-    XSecScreen(ScreenMgr* mgr, int w, int h, const string & title);
+    XSecScreen(ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string() );
     virtual ~XSecScreen() {}
 
     virtual bool Update();
@@ -676,7 +684,7 @@ protected:
 class SkinScreen : public XSecScreen
 {
 public:
-    SkinScreen( ScreenMgr* mgr, int w, int h, const string & title );
+    SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string() );
     virtual ~SkinScreen()                               {}
 
     virtual bool Update( );
@@ -726,7 +734,7 @@ protected:
 class EngineModelScreen : public SkinScreen
 {
 public:
-    EngineModelScreen( ScreenMgr* mgr, int w, int h, const string & title );
+    EngineModelScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string() );
     virtual ~EngineModelScreen()                               {}
 
     virtual void BuildEngineGUI( GroupLayout & layout );
@@ -788,7 +796,7 @@ protected:
 class ChevronScreen : public EngineModelScreen
 {
 public:
-    ChevronScreen( ScreenMgr* mgr, int w, int h, const string & title );
+    ChevronScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string() );
     virtual ~ChevronScreen()                               {}
 
     virtual bool Update( );
@@ -848,7 +856,7 @@ protected:
 class BlendScreen : public XSecScreen
 {
 public:
-    BlendScreen( ScreenMgr* mgr, int w, int h, const string & title );
+    BlendScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string() );
     virtual ~BlendScreen()                               {}
 
     virtual bool Update( );

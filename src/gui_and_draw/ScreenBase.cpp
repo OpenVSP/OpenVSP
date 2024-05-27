@@ -112,19 +112,42 @@ ActionScreen::~ActionScreen()
 
 
 //==== Constructor ====//
-BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title  ) : VspScreen( mgr )
+BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile  ) : VspScreen( mgr )
 {
     //==== Window ====//
     m_FLTK_Window = new VSP_Window( w, h );
     m_FLTK_Window->resizable( m_FLTK_Window );
     VspScreen::SetFlWindow( m_FLTK_Window );
 
+    int reserve = 0;
+    if ( !helpfile.empty() )
+    {
+        reserve = 20 + 4;
+    }
+
     //==== Title Box ====//
-    m_FL_TitleBox = new Fl_Box( 2, 2, w - 4, 20 );
+    m_FL_TitleBox = new Fl_Box( 2, 2, w - 4 - reserve, 20 );
     m_FL_TitleBox->box( FL_ROUNDED_BOX );
     m_FL_TitleBox->labelfont( 1 );
     m_FL_TitleBox->labelsize( 16 );
     m_FL_TitleBox->labelcolor( FL_SELECTION_COLOR );
+
+    if ( !helpfile.empty() )
+    {
+        m_MasterHelpButton = new Fl_Button( 2 + (w - 4 - reserve) + 4, 2, 20, 20, "?" );
+        m_MasterHelpButton->labelfont( FL_HELVETICA_BOLD );
+        m_MasterHelpButton->labelsize( 12 );
+        m_MasterHelpButton->labelcolor( FL_DARK_BLUE );
+        m_MasterHelpButton->align( FL_ALIGN_NOWRAP );
+        m_MasterHelpButton->callback( staticHelpCB, this );
+
+        m_HelpFile = helpfile;
+    }
+    else
+    {
+        m_MasterHelpButton = NULL;
+        m_HelpFile = "";
+    }
 
     SetTitle( title );
 
@@ -151,13 +174,24 @@ string BasicScreen::GetTitle()
     return m_Title;
 }
 
+void BasicScreen::HelpCallBack( Fl_Widget *w )
+{
+    if ( w == m_MasterHelpButton )
+    {
+        if ( m_ScreenMgr )
+        {
+            m_ScreenMgr->HelpSystemDefaultBrowser( m_HelpFile );
+        }
+    }
+}
+
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
 
 //==== Constructor ====//
-TabScreen::TabScreen( ScreenMgr* mgr, int w, int h, const string & title, int baseymargin, int basexmargin ) :
-    BasicScreen( mgr, w, h, title )
+TabScreen::TabScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile, int baseymargin, int basexmargin ) :
+    BasicScreen( mgr, w, h, title, helpfile )
 {
     int topshift = 0;
     //==== Menu Tabs ====//
@@ -301,8 +335,8 @@ Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh )
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
-GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
-    TabScreen( mgr, w, h, title )
+GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
+    TabScreen( mgr, w, h, title, helpfile )
 {
     // Set the window as a geom screen window
     VSP_Window* vsp_win = dynamic_cast<VSP_Window*>(m_FLTK_Window);
@@ -1594,8 +1628,8 @@ void GeomScreen::CallBack( Fl_Widget *w )
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
-XSecScreen::XSecScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
-    GeomScreen( mgr, w, h, title )
+XSecScreen::XSecScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
+    GeomScreen( mgr, w, h, title, helpfile )
 {
     m_XSecTab = AddTab( "XSec" );
     Fl_Group* xsec_group = AddSubGroup( m_XSecTab, 5 );
@@ -3005,8 +3039,8 @@ void XSecScreen::RebuildCSTGroup( CSTAirfoil* cst_xs )
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
-SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
-    XSecScreen( mgr, w, h, title )
+SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
+    XSecScreen( mgr, w, h, title, helpfile )
 {
     const char* angleFmt = "%5.2f";
     const char* strengthFmt = "%5.2f";
@@ -3345,8 +3379,8 @@ void SkinScreen::CallBack( Fl_Widget *w )
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
-EngineModelScreen::EngineModelScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
-        SkinScreen( mgr, w, h, title )
+EngineModelScreen::EngineModelScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
+        SkinScreen( mgr, w, h, title, helpfile )
 {
 }
 
@@ -3682,8 +3716,8 @@ void EngineModelScreen::GuiDeviceCallBack( GuiDevice* device )
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
-ChevronScreen::ChevronScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
-        EngineModelScreen( mgr, w, h, title )
+ChevronScreen::ChevronScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
+        EngineModelScreen( mgr, w, h, title, helpfile )
 {
 
     //==== XSec Modifications ====//
@@ -3934,8 +3968,8 @@ void ChevronScreen::CallBack( Fl_Widget *w )
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
-BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
-    XSecScreen( mgr, w, h, title )
+BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
+    XSecScreen( mgr, w, h, title, helpfile )
 {
     const char* angleFmt = "%5.2f";
     const char* strengthFmt = "%5.2f";

@@ -14,7 +14,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-VarPresetScreen::VarPresetScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 600, "Variable Presets", (-6 * 20) - 25) // 6 rows * 20 StdHeight of UI objects, 25 Height of Tabs
+VarPresetScreen::VarPresetScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 600, "Variable Presets", "", (-6 * 20) - 25) // 6 rows * 20 StdHeight of UI objects, 25 Height of Tabs
 {
     //==== Variables ====//
     m_NVarLast = 0;
