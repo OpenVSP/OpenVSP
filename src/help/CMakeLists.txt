@@ -11,6 +11,9 @@ FOREACH ( hpath ${HELP_FILES} )
         ADD_DOCUMENT ( TARGET ${hbase}
                        OUTPUT_FILE ${hbase}.html
                        SOURCES ${hbase}.md
+                       RESOURCE_FILES links-to-html.lua
+                       PANDOC_DIRECTIVES --lua-filter=links-to-html.lua
+                                         -f gfm
         )
 
         INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/${hbase}.html DESTINATION help )
