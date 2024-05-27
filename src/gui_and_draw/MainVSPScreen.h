@@ -160,7 +160,7 @@ protected:
     ScreenMenuItem m_AeroStructMenuItem;
 
     // ScreenMenuItem m_AboutMenuItem;
-    // ScreenMenuItem m_OnlineHelpMenuItem;
+    ActionMenuItem m_OnlineHelpMenuItem;
     // ScreenMenuItem m_VersionMenuItem;
 
 

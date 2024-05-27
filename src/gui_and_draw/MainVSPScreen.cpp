@@ -163,7 +163,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
 
     // m_AboutMenuItem.Init( mgr, m_MenuBar, "Help/About...", ScreenMgr:: );
-    // m_OnlineHelpMenuItem.Init( mgr, m_MenuBar, "Help/Online Help...", ScreenMgr:: );
+    m_OnlineHelpMenuItem.Init( this, m_MenuBar, "Help/Help..." );
     // m_VersionMenuItem.Init( mgr, m_MenuBar, "Help/Check Latest Version...", ScreenMgr:: );
 
     BoldEntries( "File" );
@@ -173,6 +173,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     BoldEntries( "Model" );
     BoldEntries( "Analysis" );
     BoldEntries( "Undo" );
+    BoldEntries( "Help" );
 
     int glh = m_GenLayout.GetRemainY() - 20;
 
@@ -562,6 +563,13 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_ResetAllViewMenuItem )
     {
         ResetViews();
+    }
+    else if ( data == &m_OnlineHelpMenuItem )
+    {
+        if ( m_ScreenMgr )
+        {
+            m_ScreenMgr->HelpSystemDefaultBrowser( "index.html" );
+        }
     }
     // else if ( m_AntialiasMenuItem )
     // {
