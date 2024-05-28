@@ -11,10 +11,12 @@ FOREACH ( hpath ${HELP_FILES} )
         ADD_DOCUMENT ( TARGET ${hbase}
                        OUTPUT_FILE ${hbase}.html
                        SOURCES ${hbase}.md
-                       RESOURCE_FILES links-to-html.lua
+                       RESOURCE_FILES links-to-html.lua github-pandoc.css
                        PANDOC_DIRECTIVES --lua-filter=links-to-html.lua
                                          --standalone
+                                         --embed-resources
                                          -f gfm+tex_math_gfm+yaml_metadata_block
+                                         --css=github-pandoc.css
         )
 
         INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/${hbase}.html DESTINATION help )
