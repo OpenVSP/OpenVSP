@@ -1,0 +1,535 @@
+<h1 id="advanced-parameter-linking">Advanced Parameter Linking</h1>
+<p>Advanced parameter linking is an OpenVSP feature designed to enable
+users to capture design intent beyond what the OpenVSP developers ever
+expected. Advanced parameter linking allows the user to define
+mathematical relationships between arbitrary parameters.</p>
+<p>To create an advanced link, the user first 'Add's a link and changes
+the name to something apropriate. Next, the user identifies one or more
+input parameters and defines a variable name to be used as an alias for
+each. The user then identifies one or more output parameters and defines
+their aliases. Finally, the user writes code to define how the output
+parameters depend on the inputs.</p>
+<p>Advanced linking code is written in AngelScript. AngelScript is the
+scripting language embedded into OpenVSP. AngelScript is also used for
+general scripting and Custom Components -- consequently, the entire
+OpenVSP API is available to advanced links through AngelScript. A
+typical advanced link might look something like this:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode c++"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Sdisk <span class="op">=</span> GW <span class="op">/</span> DL<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Diam <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> sqrt<span class="op">(</span> Sdisk <span class="op">/</span> <span class="fl">3.1415926</span> <span class="op">);</span></span></code></pre></div>
+<p>This link determines the disk diameter for a vehicle given disk
+loading and gross weight. OpenVSP automatically defines the input
+(<code>GW</code>, <code>DL</code>) and output (<code>Diam</code>)
+variables as <code>double</code> precision floating point numbers.</p>
+<p>Most advanced links consist of a few lines of code that use standard
+mathematical notation with a semicolon at the end of each line. This can
+be thought of as a subset of the AngelScript language -- 'Math with
+Semicolons'.</p>
+<h2 id="math-with-semicolons">Math with Semicolons</h2>
+<p>OpenVSP automatically defines input and output variables as
+<code>double</code>. These variables can be used to construct arithmetic
+expressions using common mathematical notation.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>()</code></td>
+<td style="text-align: left;">Expression grouping and precedence
+control</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>+ -</code></td>
+<td style="text-align: left;">Unary positive and negative</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>**</code></td>
+<td style="text-align: left;">Exponent</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>* / %</code></td>
+<td style="text-align: left;">Multiply, divide, and modulo</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>+ -</code></td>
+<td style="text-align: left;">Binary add and subtract</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>= += -= *= /= %= **=</code></td>
+<td style="text-align: left;">Assignment and compound assignments</td>
+</tr>
+</tbody>
+</table>
+<p>A standard suite of mathematical functions are also available.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>cos(x) sin(x) tan(x)</code></td>
+<td style="text-align: left;">Trigonometric functions (radians)</td>
+</tr>
+<tr class="even">
+<td
+style="text-align: left;"><code>acos(x) asin(x) atan(x) atan2(x)</code></td>
+<td style="text-align: left;">Inverse trigonometric functions
+(radians)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>cosh(x) sinh(x) tanh(x)</code></td>
+<td style="text-align: left;">Hyperbolic functions</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>log(x) log10(x)</code></td>
+<td style="text-align: left;">Logarithmic functions</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>pow(x)</code></td>
+<td style="text-align: left;">Exponentiation</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>sqrt(x)</code></td>
+<td style="text-align: left;">Square root</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>abs(x)</code></td>
+<td style="text-align: left;">Absolute value</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ceil(x)</code></td>
+<td style="text-align: left;">Round up</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>floor(x)</code></td>
+<td style="text-align: left;">Round down</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>fraction(x)</code></td>
+<td style="text-align: left;">Fraction part</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Min(x,y) Max(x,y)</code></td>
+<td style="text-align: left;">Minimum and maximum of two values</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Rad2Deg(x) Deg2Rad(x)</code></td>
+<td style="text-align: left;">Angle conversion</td>
+</tr>
+</tbody>
+</table>
+<p>Both C++ style <code>//</code> line comments and C style
+<code>/*    */</code> block comments are supported.</p>
+<p>Output to the console can be easily achieved with the
+<code>Print()</code> function (note the capital P). The
+<code>Print()</code> functions are provided by the OpenVSP API. They can
+work with various data types directly. The lower case
+<code>print()</code> function is native to AngelScript and requires
+additional work to format numeric variables.</p>
+<h2 id="general-angelscript-programming">General AngelScript
+Programming</h2>
+<p>If using <code>Math with Semicolons</code> is insufficient for your
+advanced linking needs, you can also use any of the features from
+AngelScript. AngelScript is a scripting language similar to C++; it was
+designed to be embedded into other C++ programs. General documentation
+about the <a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script.html">AngelScript
+language</a> is available online.</p>
+<h3 id="data-types">Data Types</h3>
+<p>Since OpenVSP automatically defines input and output variables as
+<code>double</code>, most simple scripts will not need to define any
+variables at all. If you do need to use intermediate variables, all the
+common data types are available. In addition, AngelScript's
+<code>string</code> and <code>array</code> types are included and
+OpenVSP API provides <code>vec3d</code> and <code>matrix4d</code>
+types.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;">Logical true/false</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">32-bit Integer</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>uint</code></td>
+<td style="text-align: left;">32-bit Unsigned integer</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>float</code></td>
+<td style="text-align: left;">Single precision floating point
+number</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>double</code></td>
+<td style="text-align: left;">Double precision floating point
+number</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>string</code></td>
+<td style="text-align: left;">String</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>array &lt; T &gt;</code></td>
+<td style="text-align: left;">Array of type T</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>vec3d</code></td>
+<td style="text-align: left;">3D Vector</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>matrix4d</code></td>
+<td style="text-align: left;">Transformation matrix</td>
+</tr>
+</tbody>
+</table>
+<h3 id="operators-and-order-of-operations">Operators and Order of
+Operations</h3>
+<p>AngelScript has a comprehensive set of operators expanded from those
+available in C++. In expressions, the operator with the highest
+precedence is always computed first. Parenthesis can be used to group
+expressions and to override the default precedence.</p>
+<h4 id="unary-operators">Unary operators</h4>
+<p>Unary operators have the higher precedence than other operators, and
+between unary operators the operator closest to the actual value has the
+highest precedence. Post-operators have higher precedence than
+pre-operators.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>::</code></td>
+<td style="text-align: left;">Scope resolution operator</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>[]</code></td>
+<td style="text-align: left;">Indexing operator</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>++ --</code></td>
+<td style="text-align: left;">Post increment and decrement</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>.</code></td>
+<td style="text-align: left;">Member access</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>++ --</code></td>
+<td style="text-align: left;">Pre increment and decrement</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>not !</code></td>
+<td style="text-align: left;">Logical not</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>+ -</code></td>
+<td style="text-align: left;">Unary positive and negative</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>~</code></td>
+<td style="text-align: left;">Bitwise complement</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>@</code></td>
+<td style="text-align: left;">Handle of</td>
+</tr>
+</tbody>
+</table>
+<h4 id="binary-and-ternary-operators">Binary and ternary operators</h4>
+<p>This list shows the dual and ternary operator precedence in
+decreasing order.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>**</code></td>
+<td style="text-align: left;">Exponent</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>* / %</code></td>
+<td style="text-align: left;">Multiply, divide, and modulo</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>+ -</code></td>
+<td style="text-align: left;">Add and subtract</td>
+</tr>
+<tr class="even">
+<td
+style="text-align: left;"><code>&lt;&lt; &gt;&gt; &gt;&gt;&gt;</code></td>
+<td style="text-align: left;">Left shift, right shift, and arithmetic
+right shift</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&amp;</code></td>
+<td style="text-align: left;">Bitwise and</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>^</code></td>
+<td style="text-align: left;">Bitwise xor</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>|</code></td>
+<td style="text-align: left;">Bitwise or</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;= &lt; &gt;= &gt;</code></td>
+<td style="text-align: left;">Comparison</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>== != is !is xor ^^</code></td>
+<td style="text-align: left;">Equality, identity, and logical exclusive
+or</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>and &amp;&amp;</code></td>
+<td style="text-align: left;">Logical and</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>or ||</code></td>
+<td style="text-align: left;">Logical or</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>?:</code></td>
+<td style="text-align: left;">Condition</td>
+</tr>
+<tr class="odd">
+<td
+style="text-align: left;"><code>= += -= *= /= %= **= &amp;= |= ^= &lt;&lt;= &gt;&gt;= &gt;&gt;&gt;=</code></td>
+<td style="text-align: left;">Assignment and compound assignments</td>
+</tr>
+</tbody>
+</table>
+<h3 id="control-flow">Control Flow</h3>
+<p>All of the looping and branching constructs from C++ are available in
+AngelScript. Users should be careful when using these constructs as it
+is possible to make computationally expensive (slow) advanced links,
+including advance links that enter into infinite loops.</p>
+<p>Examples of the most common control flow constructs are given
+below.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode c++"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span> condition1 <span class="op">)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition1 is true.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span> condition2 <span class="op">)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition2 is true.</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition2 is false.</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> n <span class="op">=</span> <span class="dv">5</span><span class="op">;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span> <span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span> <span class="op">)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something five times.</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="arrays">Arrays</h3>
+<p>AngelScript's <code>array</code> are very similar to C++ STL's
+<code>vector</code>; they provide a dynamic container with random
+access. A summary of the methods available to work with
+<code>array</code> is given below.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>x[i];</code></td>
+<td style="text-align: left;">Access element</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>array &lt; T &gt; x;</code></td>
+<td style="text-align: left;">Declaration</td>
+</tr>
+<tr class="odd">
+<td
+style="text-align: left;"><code>array &lt; T &gt; x = {1.2, 2.3, 3.4};</code></td>
+<td style="text-align: left;">Declaration &amp; initialization</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>T[] x;</code></td>
+<td style="text-align: left;">Declaration</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>T[] x = {1.2, 2.3, 3.4};</code></td>
+<td style="text-align: left;">Declaration &amp; initialization</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>uint size();</code></td>
+<td style="text-align: left;">Array size</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bool empty();</code></td>
+<td style="text-align: left;">Test for empty array</td>
+</tr>
+<tr class="even">
+<td
+style="text-align: left;"><code>void push_back( const T &amp;in );</code></td>
+<td style="text-align: left;">Place value after end of array</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>void pop_back();</code></td>
+<td style="text-align: left;">Remove final value from array</td>
+</tr>
+<tr class="even">
+<td
+style="text-align: left;"><code>void insert( uint index, const T &amp;in value );</code></td>
+<td style="text-align: left;">Insert value at index</td>
+</tr>
+<tr class="odd">
+<td
+style="text-align: left;"><code>void insert( uint index, const array&lt;T&gt;&amp; arr );</code></td>
+<td style="text-align: left;">Insert arr at index</td>
+</tr>
+<tr class="even">
+<td
+style="text-align: left;"><code>void erase( uint index );</code></td>
+<td style="text-align: left;">Remove value at index</td>
+</tr>
+<tr class="odd">
+<td
+style="text-align: left;"><code>void reserve( uint length );</code></td>
+<td style="text-align: left;">Reserve memory for array</td>
+</tr>
+<tr class="even">
+<td
+style="text-align: left;"><code>void resize( uint length );</code></td>
+<td style="text-align: left;">Resize array</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>void reverse();</code></td>
+<td style="text-align: left;">Reverse elements in array</td>
+</tr>
+</tbody>
+</table>
+<h3 id="openvsp-types">OpenVSP Types</h3>
+<p>The <code>vec3d</code> and <code>matrix4d</code> types provided by
+the OpenVSP API are helpful for working with 3D position and direction
+vectors and also transformation matrices. The <code>vec3d</code> class
+performs vector math of various kinds including addition, scalar
+multiplication, dot and cross products, point projection, etc. The <a
+href="https://openvsp.org/api_docs/latest/classvec3d.html">complete
+vec3d documentation</a> is available online.</p>
+<p>The <code>matrix4d</code> class provides an augmented transformation
+matrix used to perform rotations, translations, scaling, projections,
+and other transformations in 3D space. The <a
+href="https://openvsp.org/api_docs/latest/class_matrix4d.html">complete
+matrix4d documentation</a> is available online.</p>
+<h3 id="openvsp-api">OpenVSP API</h3>
+<p>The entire OpenVSP API is available for use from advanced links. The
+<a href="https://openvsp.org/api_docs/latest/">complete OpenVSP API
+documentation</a> is available online.</p>
+<h3 id="angelscript-api">AngelScript API</h3>
+<p>The official <a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script.html">AngelScript
+language documentation</a> is available online. Angelscript comes with
+several optional packages that can be installed. Below is a table of the
+optional components installed in OpenVSP and a link to the documentation
+of each one.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">AngelScript Module</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>stdstring</code></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_string.html">String
+object</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>array</code></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_datatypes_arrays.html">Array
+template object</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>any</code></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_any.html">Any
+container</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>file</code></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_file.html">File
+I/O</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>math</code></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_math.html">Math</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>builder</code></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_build.html">Script
+Builder</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>filesystem</code></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_filesystem.html">Filesystem</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>datetime</code></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_datetime.html">Date
+and Time</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>aswrappedcall</code></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_autowrap.html">Auto
+Wrapper</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>stdstring_utils</code></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_string.html">String
+Utilities</a></td>
+</tr>
+</tbody>
+</table>
+<p>Note: OpenVSP compiles AngelScript with the
+<code>#define AS_USE_STLNAMES=1</code> option enabled. This causes the
+<code>stdstring</code> and <code>array</code> modules to behave more
+like their C++ STL equivalents.</p>
+<p>Note: OpenVSP registers the <code>array</code> package with the
+<code>defaultArray=true</code> option enabled. This causes
+<code>array</code> to accept declarations in the form
+<code>T[] arr;</code>.</p>
