@@ -1,4 +1,6 @@
-# Advanced Parameter Linking
+---
+title:  'Advanced Parameter Linking'
+---
 
 Advanced parameter linking is an OpenVSP feature designed to enable users to capture design intent beyond what the
 OpenVSP developers ever expected.  Advanced parameter linking allows the user to define mathematical relationships

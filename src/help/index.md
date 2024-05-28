@@ -1,4 +1,6 @@
-# OpenVSP
+---
+title:  'OpenVSP'
+---
 
 OpenVSP is a parametric geometry tool for conceptual design.  The program is intended
 to be easy to use with intuitive graphical interfaces that do not need much documentation.
