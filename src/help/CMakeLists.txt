@@ -13,7 +13,8 @@ FOREACH ( hpath ${HELP_FILES} )
                        SOURCES ${hbase}.md
                        RESOURCE_FILES links-to-html.lua
                        PANDOC_DIRECTIVES --lua-filter=links-to-html.lua
-                                         -f gfm
+                                         --standalone
+                                         -f gfm+tex_math_gfm+yaml_metadata_block
         )
 
         INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/${hbase}.html DESTINATION help )
