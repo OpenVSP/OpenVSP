@@ -322,11 +322,9 @@ max-width: 55em; color:black;}*:not('#mkdbuttons'){margin:0;padding:0}body{font:
 <header id="title-block-header">
 <h1 class="title">Advanced Parameter Linking</h1>
 </header>
-<p>Advanced parameter linking is an OpenVSP feature designed to enable
-users to capture design intent beyond what the OpenVSP developers ever
-expected. Advanced parameter linking allows the user to define
-mathematical relationships between arbitrary parameters.</p>
-<p>To create an advanced link, the user first &#39;Add&#39;s a link and changes
+<p>Advanced parameter linking allows the user to define mathematical
+relationships between arbitrary parameters.</p>
+<p>To create an advanced link, the user first add&#39;s a link and changes
 the name to something apropriate. Next, the user identifies one or more
 input parameters and defines a variable name to be used as an alias for
 each. The user then identifies one or more output parameters and defines
@@ -334,7 +332,7 @@ their aliases. Finally, the user writes code to define how the output
 parameters depend on the inputs.</p>
 <p>Advanced linking code is written in AngelScript. AngelScript is the
 scripting language embedded into OpenVSP. AngelScript is also used for
-general scripting and Custom Components -- consequently, the entire
+general scripting and Custom Components - consequently, the entire
 OpenVSP API is available to advanced links through AngelScript. A
 typical advanced link might look something like this:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Sdisk <span class="op">=</span> GW <span class="op">/</span> DL<span class="op">;</span></span>
@@ -345,7 +343,7 @@ loading and gross weight. OpenVSP automatically defines the input
 variables as <code>double</code> precision floating point numbers.</p>
 <p>Most advanced links consist of a few lines of code that use standard
 mathematical notation with a semicolon at the end of each line. This can
-be thought of as a subset of the AngelScript language -- &#39;Math with
+be thought of as a subset of the AngelScript language called &#39;Math with
 Semicolons&#39;.</p>
 <h2 id="math-with-semicolons">Math with Semicolons</h2>
 <p>OpenVSP automatically defines input and output variables as
@@ -354,7 +352,7 @@ expressions using common mathematical notation.</p>
 <table>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Math Operator</th>
 <th style="text-align: left;">Meaning</th>
 </tr>
 </thead>
@@ -366,7 +364,7 @@ control</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>+ -</code></td>
-<td style="text-align: left;">Unary positive and negative</td>
+<td style="text-align: left;">Single argument positive and negative</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>**</code></td>
@@ -378,11 +376,11 @@ control</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>+ -</code></td>
-<td style="text-align: left;">Binary add and subtract</td>
+<td style="text-align: left;">Two argument add and subtract</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>= += -= *= /= %= **=</code></td>
-<td style="text-align: left;">Assignment and compound assignments</td>
+<td style="text-align: left;"><code>=</code></td>
+<td style="text-align: left;">Assignment</td>
 </tr>
 </tbody>
 </table>
@@ -390,7 +388,7 @@ control</td>
 <table>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Math Function</th>
 <th style="text-align: left;">Description</th>
 </tr>
 </thead>
@@ -658,16 +656,20 @@ below.</p>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition2 is true.</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span> condition <span class="dv">3</span> <span class="op">)</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition2 is false.</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition2 is false, but condition 3 is true.</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> n <span class="op">=</span> <span class="dv">5</span><span class="op">;</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span> <span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span> <span class="op">)</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something five times.</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if both condition2 and condition3 are false.</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> n <span class="op">=</span> <span class="dv">5</span><span class="op">;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span> <span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span> <span class="op">)</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something five times.</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h3 id="arrays">Arrays</h3>
 <p>AngelScript&#39;s <code>array</code> are very similar to C++ STL&#39;s
 <code>vector</code>; they provide a dynamic container with random

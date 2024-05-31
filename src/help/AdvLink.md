@@ -2,17 +2,15 @@
 title:  'Advanced Parameter Linking'
 ---
 
-Advanced parameter linking is an OpenVSP feature designed to enable users to capture design intent beyond what the
-OpenVSP developers ever expected.  Advanced parameter linking allows the user to define mathematical relationships
-between arbitrary parameters.
+Advanced parameter linking allows the user to define mathematical relationships between arbitrary parameters.
 
-To create an advanced link, the user first 'Add's a link and changes the name to something apropriate.
+To create an advanced link, the user first add's a link and changes the name to something apropriate.
 Next, the user identifies one or more input parameters and defines a variable name to be used as an alias for each.
 The user then identifies one or more output parameters and defines their aliases.  Finally, the user writes code to
 define how the output parameters depend on the inputs.
 
 Advanced linking code is written in AngelScript.  AngelScript is the scripting language embedded into OpenVSP.
-AngelScript is also used for general scripting and Custom Components -- consequently, the entire OpenVSP API is
+AngelScript is also used for general scripting and Custom Components - consequently, the entire OpenVSP API is
 available to advanced links through AngelScript.
 A typical advanced link might look something like this:
 
@@ -27,25 +25,25 @@ This link determines the disk diameter for a vehicle given disk loading and gros
 defines the input (`GW`, `DL`) and output (`Diam`) variables as `double` precision floating point numbers.
 
 Most advanced links consist of a few lines of code that use standard mathematical notation with a semicolon at
-the end of each line.  This can be thought of as a subset of the AngelScript language -- 'Math with Semicolons'.
+the end of each line.  This can be thought of as a subset of the AngelScript language called 'Math with Semicolons'.
 
 ## Math with Semicolons
 
 OpenVSP automatically defines input and output variables as `double`.  These variables can be used to construct
 arithmetic expressions using common mathematical notation.
 
-| Operator               | Meaning                                    |
-|:-----------------------|:-------------------------------------------|
-| `()`                   | Expression grouping and precedence control |
-| `+ -`                  | Unary positive and negative                |
-| `**`                   | Exponent                                   |
-| `* / %`                | Multiply, divide, and modulo               |
-| `+ -`                  | Binary add and subtract                    |
-| `= += -= *= /= %= **=` | Assignment and compound assignments        |
+| Math Operator | Meaning                                    |
+|:--------------|:-------------------------------------------|
+| `()`          | Expression grouping and precedence control |
+| `+ -`         | Single argument positive and negative      |
+| `**`          | Exponent                                   |
+| `* / %`       | Multiply, divide, and modulo               |
+| `+ -`         | Two argument add and subtract              |
+| `=`           | Assignment                                 |
 
 A standard suite of mathematical functions are also available.
 
-| Function                           | Description                               |
+| Math Function                      | Description                               |
 |:-----------------------------------|:------------------------------------------|
 | `cos(x) sin(x) tan(x)`             | Trigonometric functions (radians)         |
 | `acos(x) asin(x) atan(x) atan2(x)` | Inverse trigonometric functions (radians) |
@@ -156,9 +154,13 @@ if ( condition2 )
 {
     // Do something if condition2 is true.
 }
+else if ( condition 3 )
+{
+    // Do something if condition2 is false, but condition 3 is true.
+}
 else
 {
-    // Do something if condition2 is false.
+    // Do something if both condition2 and condition3 are false.
 }
 
 int n = 5;
