@@ -99,12 +99,7 @@ xmlNodePtr Background3D::EncodeXml( xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
-        string filetowrite = m_BGFile;
-        Vehicle *veh = VehicleMgr.GetVehicle();
-        if ( veh )
-        {
-            veh->MakeRelativePath( filetowrite );
-        }
+        string filetowrite = GetRelativePathToFile();
 
         XmlUtil::AddStringNode( parmcontain_node, "BGFile", filetowrite );
     }
@@ -118,13 +113,9 @@ xmlNodePtr Background3D::DecodeXml( xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
-        m_BGFile = XmlUtil::FindString( parmcontain_node, "BGFile", m_BGFile );
+        string filetowrite = XmlUtil::FindString( parmcontain_node, "BGFile", m_BGFile );
 
-        Vehicle *veh = VehicleMgr.GetVehicle();
-        if ( veh )
-        {
-            veh->MakeAbsolutePath( m_BGFile );
-        }
+        SetRelativePathToFile( filetowrite );
     }
 
     return parmcontain_node;
@@ -546,4 +537,27 @@ string Background3D::GetDirectionName()
     }
 
     return ret;
+}
+
+string Background3D::GetRelativePathToFile()
+{
+    string relativePathToFile = m_BGFile;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->MakeRelativePath( relativePathToFile );
+    }
+
+    return relativePathToFile;
+}
+
+void Background3D::SetRelativePathToFile( const string &fname )
+{
+    m_BGFile = fname;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->MakeAbsolutePath( m_BGFile );
+    }
 }

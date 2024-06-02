@@ -28,6 +28,12 @@ public:
 
     string GetDirectionName();
 
+    string GetRelativePathToFile();
+    string GetAbsolutePathToFile() { return m_BGFile; };
+
+    void SetRelativePathToFile( const string &fname );
+    void SetAbsolutePathToFile( const string &fname ) { m_BGFile = fname; };
+
     std::string m_BGFile;
 
     IntParm m_Direction;
