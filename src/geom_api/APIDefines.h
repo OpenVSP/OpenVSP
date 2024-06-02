@@ -472,6 +472,7 @@ enum ERROR_CODE {   VSP_OK,	/*!< No error */
                     VSP_LINK_LOOP_DETECTED,	/*!< A parameter link loop was detected and stopped */
                     VSP_DUPLICATE_NAME,	/*!< A duplicate name has been provided */
                     VSP_GUI_DEVICE_DEACTIVATED, /*!< A deactivated GUI device was touched */
+                    VSP_COULD_NOT_CREATE_BACKGROUND3D,	/*!< Could not create and add Background3D */
                     VSP_NUM_ERROR_CODE	/*!< Total number of VSP error codes */
 };
 

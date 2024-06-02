@@ -15,6 +15,7 @@
 
 #include "AdvLinkMgr.h"
 #include "AnalysisMgr.h"
+#include "Background3DMgr.h"
 #include "BORGeom.h"
 #include "CfdMeshMgr.h"
 #include "DesignVarMgr.h"
@@ -5076,6 +5077,136 @@ vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const doubl
     ordered_vec = geom_ptr->GetAirfoilCoordinates( foilsurf_u );
     ErrorMgr.NoError();
     return ordered_vec;
+}
+
+//===================================================================//
+//==============      Background3D Functions        =================//
+//===================================================================//
+
+string AddBackground3D()
+{
+    Background3D * bg = Background3DMgr.CreateAndAddBackground3D();
+
+    if ( !bg )
+    {
+        ErrorMgr.AddError( VSP_COULD_NOT_CREATE_BACKGROUND3D, "AddBackground3D::Could not create Background3D" );
+        return "NONE";
+    }
+
+    ErrorMgr.NoError();
+    return bg->GetID();
+}
+
+int GetNumBackground3Ds()
+{
+    ErrorMgr.NoError();
+    return Background3DMgr.GetNumBackground3Ds();
+}
+
+vector < string > GetAllBackground3Ds()
+{
+    ErrorMgr.NoError();
+    return Background3DMgr.GetAllBackground3Ds();
+}
+
+void ShowAllBackground3Ds()
+{
+    ErrorMgr.NoError();
+    Background3DMgr.ShowAllBackground3Ds();
+}
+
+void HideAllBackground3Ds()
+{
+    ErrorMgr.NoError();
+    Background3DMgr.HideAllBackground3Ds();
+}
+
+void DelAllBackground3Ds()
+{
+    ErrorMgr.NoError();
+    Background3DMgr.DelAllBackground3Ds();
+}
+
+void DelBackground3D( const string &id )
+{
+    Background3D * bg = Background3DMgr.GetBackground3D( id );
+
+    if ( !bg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DelBackground3D::Could not find Background3D " + id );
+        return;
+    }
+
+    ErrorMgr.NoError();
+    Background3DMgr.DelBackground3D( id );
+}
+
+vector < string > GetAllBackground3DRelativePaths()
+{
+    ErrorMgr.NoError();
+    return Background3DMgr.GetAllBackground3DRelativePaths();
+}
+
+vector < string > GetAllBackground3DAbsolutePaths()
+{
+    ErrorMgr.NoError();
+    return Background3DMgr.GetAllBackground3DAbsolutePaths();
+}
+
+string GetBackground3DRelativePath( const string &id )
+{
+    Background3D * bg = Background3DMgr.GetBackground3D( id );
+
+    if ( !bg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetBackground3DRelativePath::Could not find Background3D " + id );
+        return "";
+    }
+
+    ErrorMgr.NoError();
+    return Background3DMgr.GetBackground3DRelativePath( id );
+}
+
+string GetBackground3DAbsolutePath( const string &id )
+{
+    Background3D * bg = Background3DMgr.GetBackground3D( id );
+
+    if ( !bg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetBackground3DAbsolutePath::Could not find Background3D " + id );
+        return "";
+    }
+
+    ErrorMgr.NoError();
+    return Background3DMgr.GetBackground3DAbsolutePath( id );
+}
+
+void SetBackground3DRelativePath( const string &id, const string &fname )
+{
+    Background3D * bg = Background3DMgr.GetBackground3D( id );
+
+    if ( !bg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetBackground3DRelativePath::Could not find Background3D " + id );
+        return;
+    }
+
+    ErrorMgr.NoError();
+    Background3DMgr.SetBackground3DRelativePath( id, fname );
+}
+
+void SetBackground3DAbsolutePath( const string &id, const string &fname )
+{
+    Background3D * bg = Background3DMgr.GetBackground3D( id );
+
+    if ( !bg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetBackground3DAbsolutePath::Could not find Background3D " + id );
+        return;
+    }
+
+    ErrorMgr.NoError();
+    Background3DMgr.SetBackground3DAbsolutePath( id, fname );
 }
 
 //===================================================================//

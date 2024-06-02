@@ -30,6 +30,10 @@
     through the functions defined in the Results group.
     \ref index "Click here to return to the main page"
 
+    \defgroup Background3D Background3D Functions
+    \brief This group of functions is used to work with 3D background images.
+    \ref index "Click here to return to the main page"
+
     \defgroup BOR BOR Functions
     \brief This group of API functions provides capabilities related to the body of revolution (BOR) geometry type in OpenVSP.
     \ref index "Click here to return to the main page"
@@ -8894,6 +8898,525 @@ extern void DemoteCSTLower( const std::string& xsec_id );
 
 extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg );
 
+//======================== Background3D Functions ======================//
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Add a Background3D to model
+    \forcpponly
+    \code{.cpp}
+    int nbg = GetNumBackground3Ds();
+
+    // Add Background3D
+    string bg_id = AddBackground3D();
+
+    if ( GetNumBackground3Ds() != nbg + 1 )
+    {
+        Print( "ERROR: AddBackground3D" );
+    }
+
+    DelBackground3D( bg_id );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    nbg = GetNumBackground3Ds()
+
+    # Add Background3D
+    bg_id = AddBackground3D()
+
+    if GetNumBackground3Ds() != nbg + 1 :
+        Print( "ERROR: AddBackground3D" )
+
+    DelBackground3D( bg_id )
+    \endcode
+    \endPythonOnly
+    \return string ID for added Background3D
+*/
+
+extern string AddBackground3D();
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Get Number of Background3D's in a model
+    \forcpponly
+    \code{.cpp}
+    int nbg = GetNumBackground3Ds();
+
+    // Add Background3D
+    string bg_id = AddBackground3D();
+
+    if ( GetNumBackground3Ds() != nbg + 1 )
+    {
+        Print( "ERROR: AddBackground3D" );
+    }
+
+    DelBackground3D( bg_id );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    nbg = GetNumBackground3Ds()
+
+    # Add Background3D
+    bg_id = AddBackground3D()
+
+    if GetNumBackground3Ds() != nbg + 1 :
+        Print( "ERROR: AddBackground3D" )
+
+    DelBackground3D( bg_id )
+    \endcode
+    \endPythonOnly
+    \return int Number of Background3D's in model
+*/
+
+extern int GetNumBackground3Ds();
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Get id's of all Background3Ds in model
+    \forcpponly
+    \code{.cpp}
+    int nbg = GetNumBackground3Ds();
+
+    // Add Background3D
+    AddBackground3D();
+    AddBackground3D();
+    AddBackground3D();
+
+    if ( GetNumBackground3Ds() != nbg + 3 )
+    {
+        Print( "ERROR: AddBackground3D" );
+    }
+
+    array< string > @bg_array = GetAllBackground3Ds();
+
+    for( int n = 0; n < int( bg_array.length() ); n++ )
+    {
+        Print( bg_array[n] );
+    }
+
+    DelAllBackground3Ds();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    nbg = GetNumBackground3Ds()
+
+    # Add Background3D
+    AddBackground3D()
+    AddBackground3D()
+    AddBackground3D()
+
+    if GetNumBackground3Ds() != nbg + 3 :
+        Print( "ERROR: AddBackground3D" )
+
+    bg_array = GetAllBackground3Ds()
+
+    for n in range( len( bg_array ) ):
+        print( bg_array[n] )
+
+    DelAllBackground3Ds()
+    \endcode
+    \endPythonOnly
+    \return vector<string> Vector of Background3D IDs
+*/
+
+extern vector < string > GetAllBackground3Ds();
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Show all Background3Ds in model
+    \forcpponly
+    \code{.cpp}
+    // Add Background3D
+    AddBackground3D();
+    AddBackground3D();
+    AddBackground3D();
+
+    ShowAllBackground3Ds();
+
+    DelAllBackground3Ds();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Background3D
+    AddBackground3D()
+    AddBackground3D()
+    AddBackground3D()
+
+    ShowAllBackground3Ds()
+
+    DelAllBackground3Ds()
+    \endcode
+    \endPythonOnly
+*/
+
+extern void ShowAllBackground3Ds();
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Hide all Background3Ds in model
+    \forcpponly
+    \code{.cpp}
+    // Add Background3D
+    AddBackground3D();
+    AddBackground3D();
+    AddBackground3D();
+
+    HideAllBackground3Ds();
+
+    DelAllBackground3Ds();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Background3D
+    AddBackground3D()
+    AddBackground3D()
+    AddBackground3D()
+
+    HideAllBackground3Ds()
+
+    DelAllBackground3Ds()
+    \endcode
+    \endPythonOnly
+*/
+
+extern void HideAllBackground3Ds();
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Delete all Background3Ds in model
+    \forcpponly
+    \code{.cpp}
+    // Add Background3D
+    AddBackground3D();
+    AddBackground3D();
+    AddBackground3D();
+
+    DelAllBackground3Ds();
+
+    int nbg = GetNumBackground3Ds();
+
+    if ( nbg != 0 )
+    {
+        Print( "ERROR: DelAllBackground3Ds" );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Background3D
+    AddBackground3D()
+    AddBackground3D()
+    AddBackground3D()
+
+    DelAllBackground3Ds()
+
+    nbg = GetNumBackground3Ds()
+
+    if nbg != 0 :
+        print( "ERROR: DelAllBackground3Ds" )
+
+    \endcode
+    \endPythonOnly
+*/
+
+extern void DelAllBackground3Ds();
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Delete specific Background3D frommodel
+    \forcpponly
+    \code{.cpp}
+    // Add Background3D
+    AddBackground3D();
+    string bg_id = AddBackground3D();
+    AddBackground3D();
+
+    int nbg = GetNumBackground3Ds();
+
+    DelBackground3D( bg_id );
+
+    if ( GetNumBackground3Ds() != nbg - 1 )
+    {
+        Print( "ERROR: DelBackground3D" );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Background3D
+    AddBackground3D()
+    bg_id = AddBackground3D()
+    AddBackground3D()
+
+    nbg = GetNumBackground3Ds()
+
+    DelBackground3D( bg_id )
+
+    if GetNumBackground3Ds() != nbg -1 :
+        print( "ERROR: DelBackground3D" )
+
+    \endcode
+    \endPythonOnly
+    \param [in] id string Background3D ID to delete
+*/
+
+extern void DelBackground3D( const string &id );
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Get relative paths to all Background3D images in model.  Note that path is relative to the model's *.vsp3 file.
+    Consequently, if a file has not yet been saved or assigned a file name, the relative path is meaningless.
+    \forcpponly
+    \code{.cpp}
+    // Add Background3D
+    AddBackground3D();
+    AddBackground3D();
+    AddBackground3D();
+
+    array< string > @bg_file_array = GetAllBackground3DRelativePaths();
+
+    for( int n = 0; n < int( bg_file_array.length() ); n++ )
+    {
+        Print( bg_file_array[n] );
+    }
+
+    DelAllBackground3Ds();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Background3D
+    AddBackground3D()
+    AddBackground3D()
+    AddBackground3D()
+
+    bg_file_array = GetAllBackground3DRelativePaths()
+
+    for n in range( len( bg_file_array ) ):
+        print( bg_file_array[n] )
+
+    DelAllBackground3Ds()
+    \endcode
+    \endPythonOnly
+    \return vector<string> Vector of relative paths to Background3D image files
+*/
+
+extern vector < string > GetAllBackground3DRelativePaths();
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Get absolute paths to all Background3D images in model.
+    \forcpponly
+    \code{.cpp}
+    // Add Background3D
+    AddBackground3D();
+    AddBackground3D();
+    AddBackground3D();
+
+    array< string > @bg_file_array = GetAllBackground3DAbsolutePaths();
+
+    for( int n = 0; n < int( bg_file_array.length() ); n++ )
+    {
+        Print( bg_file_array[n] );
+    }
+
+    DelAllBackground3Ds();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Background3D
+    AddBackground3D()
+    AddBackground3D()
+    AddBackground3D()
+
+    bg_file_array = GetAllBackground3DAbsolutePaths()
+
+    for n in range( len( bg_file_array ) ):
+        print( bg_file_array[n] )
+
+    DelAllBackground3Ds()
+    \endcode
+    \endPythonOnly
+    \return vector<string> Vector of absolute paths to Background3D image files
+*/
+
+extern vector < string > GetAllBackground3DAbsolutePaths();
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Get relative path to specified Background3D's image.  Note that path is relative to the model's *.vsp3 file.
+    Consequently, if a file has not yet been saved or assigned a file name, the relative path is meaningless.
+    \forcpponly
+    \code{.cpp}
+    // Add Background3D
+    string bg_id = AddBackground3D();
+
+    SetBackground3DRelativePath( bg_id, "front.png" );
+    string bg_file = GetBackground3DRelativePath( bg_id );
+
+    Print( bg_file );
+
+    DelAllBackground3Ds();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Background3D
+    bg_id = AddBackground3D()
+
+    SetBackground3DRelativePath( bg_id, "front.png" )
+    bg_file = GetBackground3DRelativePath( bg_id )
+
+    print( bg_file )
+
+    DelAllBackground3Ds()
+    \endcode
+    \endPythonOnly
+    \param [in] id string Background3D ID
+    \return string Relative path to Background3D image file
+*/
+
+extern string GetBackground3DRelativePath( const string &id );
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Get absolute path to specified Background3D's image.
+    \forcpponly
+    \code{.cpp}
+    // Add Background3D
+    string bg_id = AddBackground3D();
+
+    SetBackground3DAbsolutePath( bg_id, "/user/me/vsp_work/front.png" );
+    string bg_file = GetBackground3DAbsolutePath( bg_id );
+
+    Print( bg_file );
+
+    DelAllBackground3Ds();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Background3D
+    bg_id = AddBackground3D()
+
+    SetBackground3DAbsolutePath( bg_id, "/user/me/vsp_work/front.png" )
+    bg_file = GetBackground3DAbsolutePath( bg_id )
+
+    print( bg_file )
+
+    DelAllBackground3Ds()
+    \endcode
+    \endPythonOnly
+    \param [in] id string Background3D ID
+    \return string Absolute path to Background3D image file
+*/
+
+extern string GetBackground3DAbsolutePath( const string &id );
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Set relative path to specified Background3D's image.  Note that path is relative to the model's *.vsp3 file.
+    Consequently, if a file has not yet been saved or assigned a file name, the relative path is meaningless.
+    \forcpponly
+    \code{.cpp}
+    // Add Background3D
+    string bg_id = AddBackground3D();
+
+    SetBackground3DRelativePath( bg_id, "front.png" );
+    string bg_file = GetBackground3DRelativePath( bg_id );
+
+    Print( bg_file );
+
+    DelAllBackground3Ds();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Background3D
+    bg_id = AddBackground3D()
+
+    SetBackground3DRelativePath( bg_id, "front.png" )
+    bg_file = GetBackground3DRelativePath( bg_id )
+
+    print( bg_file )
+
+    DelAllBackground3Ds()
+    \endcode
+    \endPythonOnly
+    \param [in] id string Background3D ID
+    \param [in] fname string Relative path to Background3D image file
+*/
+
+extern void SetBackground3DRelativePath( const string &id, const string &fname );
+
+/*!
+    \ingroup Background3D
+*/
+/*!
+    Set absolute path to specified Background3D's image.
+    \forcpponly
+    \code{.cpp}
+    // Add Background3D
+    string bg_id = AddBackground3D();
+
+    SetBackground3DAbsolutePath( bg_id, "front.png" );
+    string bg_file = GetBackground3DAbsolutePath( bg_id );
+
+    Print( bg_file );
+
+    DelAllBackground3Ds();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Background3D
+    bg_id = AddBackground3D()
+
+    SetBackground3DAbsolutePath( bg_id, "front.png" )
+    bg_file = GetBackground3DAbsolutePath( bg_id )
+
+    print( bg_file )
+
+    DelAllBackground3Ds()
+    \endcode
+    \endPythonOnly
+    \param [in] id string Background3D ID
+    \param [in] fname string Absolute path to Background3D image file
+*/
+
+extern void SetBackground3DAbsolutePath( const string &id, const string &fname );
 
 //======================== BOR Functions ======================//
 /*!
