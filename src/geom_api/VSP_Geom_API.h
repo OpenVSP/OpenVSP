@@ -3473,6 +3473,94 @@ extern void SetGeomDisplayType(const string &geom_id, int type);
     \ingroup Visualization
 */
 /*!
+    Set the visualization material the specified goemetry
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    SetGeomMaterialName( pid, "Ruby" );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    SetGeomMaterialName( pid, "Ruby" )
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string Geom ID
+    \param [in] name string Material name
+*/
+
+extern void SetGeomMaterialName( const string &geom_id, const string &name );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Set the visualization material the specified goemetry
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 30, 0.4 );
+
+    SetGeomMaterialName( pid, "RedGlass" );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 30, 0.4 )
+
+    SetGeomMaterialName( pid, "RedGlass" )
+    \endcode
+    \endPythonOnly
+    \param [in] name string Material name
+    \param [in] ambient vec3d Ambient color RGB tripple on scale [0, 255]
+    \param [in] diffuse vec3d Diffuse color RGB tripple on scale [0, 255]
+    \param [in] specular vec3d Specular color RGB tripple on scale [0, 255]
+    \param [in] emmissive vec3d Emissive color RGB tripple on scale [0, 255]
+    \param [in] shininess double Shininess exponent on scale [0, 127]
+    \param [in] alpha double Transparency factor on scale [0, 1]
+*/
+
+extern void AddMaterial( const string &name, const vec3d & ambient, const vec3d & diffuse, const vec3d & specular, const vec3d & emissive, const double & alpha, const double & shininess );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Get the names of all visualization materials
+    \forcpponly
+    \code{.cpp}
+    array< string > @mat_array = GetMaterialNames();
+
+    for ( int i = 0; i < int( mat_array.size() ); i++ )
+    {
+        Print( mat_array[i] );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    mat_array = GetMaterialNames()
+
+    for i in range(int( len(mat_array) )):
+        print( mat_array[i] )
+
+    \endcode
+    \endPythonOnly
+    \return vector<string> Array of material names
+*/
+
+extern vector < string > GetMaterialNames();
+
+/*!
+    \ingroup Visualization
+*/
+/*!
     Set the background color
     \forcpponly
     \code{.cpp}

@@ -1814,6 +1814,59 @@ void SetGeomDisplayType(const string &geom_id, int type)
     ErrorMgr.NoError();
 }
 
+void SetGeomMaterialName( const string &geom_id, const string &name )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomMaterialName::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    Material mat;
+    if( MaterialMgr.FindMaterial( name, mat ) )
+    {
+        geom_ptr->SetMaterial( mat.m_Name, mat.m_Ambi, mat.m_Diff, mat.m_Spec, mat.m_Emis, mat.m_Shininess );
+    }
+    else
+    {
+        geom_ptr->SetMaterialToDefault();
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetGeomMaterialName::Can't Find Material " + name );
+        return;
+    }
+
+    ErrorMgr.NoError();
+}
+
+void AddMaterial( const string &name, const vec3d & ambient, const vec3d & diffuse, const vec3d & specular, const vec3d & emissive, const double & alpha, const double & shininess )
+{
+    Material tmpmat;
+    if ( MaterialMgr.FindMaterial( name, tmpmat ) )
+    {
+        ErrorMgr.AddError( VSP_DUPLICATE_NAME, "AddMaterial::Material " + name + " already exists." );
+        return;
+    }
+
+    Material mat;
+    mat.m_Name = name;
+    mat.SetAmbient( ambient );
+    mat.SetDiffuse( diffuse );
+    mat.SetSpecular( specular );
+    mat.SetEmissive( emissive );
+    mat.SetAlpha( alpha );
+    mat.SetShininess( shininess );
+
+    MaterialMgr.AddMaterial( mat );
+    ErrorMgr.NoError();
+}
+
+vector < string > GetMaterialNames()
+{
+    ErrorMgr.NoError();
+    return MaterialMgr.GetNames();
+}
+
 void SetBackground( double r, double g, double b )
 {
 #ifdef VSP_USE_FLTK
