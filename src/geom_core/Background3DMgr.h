@@ -38,7 +38,6 @@ public:
     void DelBackground3D( const int &i );
     void DelBackground3D( const string &id );
 
-    void DeleteInvalid();
     void Update();
 
 private:
