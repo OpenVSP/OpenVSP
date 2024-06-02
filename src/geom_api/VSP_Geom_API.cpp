@@ -1786,6 +1786,20 @@ void SetGeomDrawType(const string &geom_id, int type)
     ErrorMgr.NoError();
 }
 
+void SetGeomWireColor( const string &geom_id, int r, int g, int b )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomWireColor::Can't Find Geom " + geom_id );
+        return;
+    }
+    geom_ptr->SetColor( r, g, b );
+
+    ErrorMgr.NoError();
+}
+
 void SetGeomDisplayType(const string &geom_id, int type)
 {
     Vehicle* veh = GetVehicle();

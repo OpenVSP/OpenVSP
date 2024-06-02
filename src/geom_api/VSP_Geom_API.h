@@ -3418,6 +3418,34 @@ extern void SetGeomDrawType(const string &geom_id, int type);
     \ingroup Visualization
 */
 /*!
+    Set the wireframe color of the specified goemetry
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD", "" );
+
+    SetGeomWireColor( pid, 0, 0, 255 );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD", "" )
+
+    SetGeomWireColor( pid, 0, 0, 255 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string Geom ID
+    \param [in] r int Red component of color [0, 255]
+    \param [in] g int Green component of color [0, 255]
+    \param [in] b int Blue component of color [0, 255]
+*/
+
+extern void SetGeomWireColor( const string &geom_id, int r, int g, int b );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
     Set the display type of the specified goemetry
     \forcpponly
     \code{.cpp}
