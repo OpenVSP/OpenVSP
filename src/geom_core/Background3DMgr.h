@@ -40,6 +40,16 @@ public:
 
     void Update();
 
+    int GetNumBackground3Ds();
+
+    vector < string > GetAllBackground3DRelativePaths();
+    vector < string > GetAllBackground3DAbsolutePaths();
+
+    string GetBackground3DRelativePath( const string &id );
+    string GetBackground3DAbsolutePath( const string &id );
+    void SetBackground3DRelativePath( const string &id, const string &fname );
+    void SetBackground3DAbsolutePath( const string &id, const string &fname );
+
 private:
 
     std::vector < Background3D * > m_Background3Ds;

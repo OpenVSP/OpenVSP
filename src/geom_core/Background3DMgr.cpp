@@ -213,6 +213,79 @@ void Background3DMgrSingleton::DelBackground3D( const string &id )
     DelBackground3D( idel );
 }
 
+int Background3DMgrSingleton::GetNumBackground3Ds()
+{
+    return m_Background3Ds.size();
+}
+
+vector < string > Background3DMgrSingleton::GetAllBackground3DRelativePaths()
+{
+    vector < string > paths;
+
+    for( int i = 0; i < ( int )m_Background3Ds.size(); i++ )
+    {
+        if ( m_Background3Ds[i] )
+        {
+            paths.push_back( m_Background3Ds[i]->GetRelativePathToFile() );
+        }
+    }
+
+    return paths;
+}
+
+vector < string > Background3DMgrSingleton::GetAllBackground3DAbsolutePaths()
+{
+    vector < string > paths;
+
+    for( int i = 0; i < ( int )m_Background3Ds.size(); i++ )
+    {
+        if ( m_Background3Ds[i] )
+        {
+            paths.push_back( m_Background3Ds[i]->GetAbsolutePathToFile() );
+        }
+    }
+
+    return paths;
+}
+
+string Background3DMgrSingleton::GetBackground3DRelativePath( const string &id )
+{
+    Background3D * bg = GetBackground3D( id );
+    if ( bg )
+    {
+        return bg->GetRelativePathToFile();
+    }
+    return string();
+}
+
+string Background3DMgrSingleton::GetBackground3DAbsolutePath( const string &id )
+{
+    Background3D * bg = GetBackground3D( id );
+    if ( bg )
+    {
+        return bg->GetAbsolutePathToFile();
+    }
+    return string();
+}
+
+void Background3DMgrSingleton::SetBackground3DRelativePath( const string &id, const string &fname )
+{
+    Background3D * bg = GetBackground3D( id );
+    if ( bg )
+    {
+        bg->SetRelativePathToFile( fname );
+    }
+}
+
+void Background3DMgrSingleton::SetBackground3DAbsolutePath( const string &id, const string &fname )
+{
+    Background3D * bg = GetBackground3D( id );
+    if ( bg )
+    {
+        bg->SetAbsolutePathToFile( fname );
+    }
+}
+
 void Background3DMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     UpdateDrawObjs();
