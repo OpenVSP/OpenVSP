@@ -1056,7 +1056,7 @@ void * monitorfun( void *data )
 
                     Fl::lock();
                     // Any FL calls must occur between Fl::lock() and Fl::unlock().
-                    vs->AddOutputText( display, buf );
+                    VSPAEROScreen::AddOutputText( display, buf );
                     Fl::unlock();
                 }
 
@@ -1079,7 +1079,7 @@ void * monitorfun( void *data )
             free( buf );
         }
     }
-    return 0;
+    return nullptr;
 }
 
 #ifdef WIN32
@@ -1119,7 +1119,7 @@ void * solver_thread_fun( void *data )
         vsscreen->GetScreenMgr()->SetUpdateFlag( true );
     }
 
-    return 0;
+    return nullptr;
 }
 
 void VSPAEROScreen::LaunchVSPAERO()
@@ -1262,11 +1262,11 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             string file_ext = "*.vspgeom";
             string message = "Select comp geom VSPGEOM output file.";
 
-            veh->setExportFileName( file_type, m_ScreenMgr->FileChooser( message.c_str(), file_ext.c_str(), vsp::SAVE ) );
+            veh->setExportFileName( file_type, m_ScreenMgr->FileChooser( message, file_ext, vsp::SAVE ) );
         }
         else if ( device == &m_LoadExistingResultsButton )
         {
-            if ( VSPAEROMgr.LoadExistingVSPAEROResults() != string() )
+            if ( !VSPAEROMgr.LoadExistingVSPAEROResults().empty() )
             {
                 m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
 
@@ -1292,7 +1292,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         else if( device == &m_ExportResultsToCsvButton )
         {
             string fileName = m_ScreenMgr->FileChooser( "Select CSV File", "*.csv", vsp::SAVE );
-            if ( fileName.size() > 0 )
+            if ( !fileName.empty() )
             {
                 int status = VSPAEROMgr.ExportResultsToCSV( fileName );
                 if ( status != vsp::VSP_OK )
@@ -1515,7 +1515,7 @@ void VSPAEROScreen::UpdateRefWing()
 
     //    Update selected value
     string refGeomID = VSPAEROMgr.m_RefGeomID;
-    if (refGeomID.length() == 0 && m_WingGeomVec.size() > 0)
+    if ( refGeomID.empty() && !m_WingGeomVec.empty() )
     {
         // Handle case default case.
         refGeomID = m_WingGeomVec[0];
@@ -1649,7 +1649,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_ActuatorDiskToggle.Update( VSPAEROMgr.m_ActuatorDiskFlag.GetID() );
     m_RotateBladesToggle.Update( VSPAEROMgr.m_RotateBladesFlag.GetID() );
 
-    if ( VSPAEROMgr.GetRotorDiskVec().size() == 0 )
+    if ( VSPAEROMgr.GetRotorDiskVec().empty() )
     {
         m_ActuatorDiskToggle.Deactivate();
     }
@@ -1871,7 +1871,7 @@ void VSPAEROScreen::UpdateControlSurfaceBrowsers()
     if (VSPAEROMgr.GetCurrentCSGroupIndex() != -1)
     {
         vector < VspAeroControlSurf > grouped_cs = VSPAEROMgr.GetActiveCSVec();
-        m_GroupEditNameInput.Update(VSPAEROMgr.GetCurrentCSGGroupName().c_str());
+        m_GroupEditNameInput.Update( VSPAEROMgr.GetCurrentCSGGroupName() );
         for (size_t i = 0; i < grouped_cs.size(); ++i)
         {
             m_GroupedCSBrowser->add(grouped_cs[i].fullName.c_str());
@@ -2033,7 +2033,7 @@ void VSPAEROScreen::UpdateControlSurfaceGroupNames()
         }
         else
         {
-            m_DeflectionAngleSliderVec[i].SetButtonName(cs_group_vec[i]->GetName().c_str());
+            m_DeflectionAngleSliderVec[i].SetButtonName( cs_group_vec[i]->GetName() );
         }
     }
 }
@@ -2073,7 +2073,7 @@ void VSPAEROScreen::UpdateDeflectionGainScrollGroup()
         {
             for ( size_t i = 0; i < cs_vec.size(); ++i )
             {
-                m_DeflectionGainSliderVec[i].SetButtonName( cs_vec[i].fullName.c_str() );
+                m_DeflectionGainSliderVec[i].SetButtonName( cs_vec[i].fullName );
                 m_DeflectionGainSliderVec[i].Update( cs->m_DeflectionGainVec[i]->GetID() );
             }
         }
@@ -2145,7 +2145,7 @@ void VSPAEROScreen::UngroupedCSBrowserCallback()
 {
     vector < int > selected;
     vector < VspAeroControlSurf > ungrouped_vec = VSPAEROMgr.GetAvailableCSVec();
-    if ( ungrouped_vec.size() != 0 )
+    if ( !ungrouped_vec.empty() )
     {
         for ( size_t i = 1; i <= m_UngroupedCSBrowser->size(); ++i )
         {
@@ -2174,7 +2174,7 @@ void VSPAEROScreen::GroupedCSBrowserCallback()
 {
     vector < int > selected;
     vector < VspAeroControlSurf > active_item_vec = VSPAEROMgr.GetActiveCSVec();
-    if ( active_item_vec.size() != 0 )
+    if ( !active_item_vec.empty() )
     {
         for ( size_t i = 1; i <= m_GroupedCSBrowser->size(); ++i )
         {
@@ -2289,7 +2289,7 @@ void VSPAEROScreen::UpdateCpSlices()
 {
     m_CpSlicerActivateToggle.Update( VSPAEROMgr.m_CpSliceFlag.GetID() );
 
-    if ( VSPAEROMgr.GetCpSliceVec().size() <= 0 )
+    if ( VSPAEROMgr.GetCpSliceVec().empty() )
     {
         m_CpSlicerActivateToggle.Deactivate();
     }
@@ -2410,7 +2410,7 @@ void VSPAEROScreen::UpdateUnsteadyGroups()
     {
         m_RPMSlider.Update( group->m_RPM.GetID() );
 
-        if ( group->m_GeomPropertyType() == group->GEOM_ROTOR )
+        if ( group->m_GeomPropertyType() == UnsteadyGroup::GEOM_ROTOR )
         {
             m_RPMSlider.Activate();
         }
@@ -2439,7 +2439,7 @@ void VSPAEROScreen::UpdateUnsteadyGroupBrowser()
     for ( size_t i = 0; i < VSPAEROMgr.NumUnsteadyGroups(); i++ )
     {
         UnsteadyGroup* group = VSPAEROMgr.GetUnsteadyGroup( i );
-        if ( group && group->m_GeomPropertyType() == group->GEOM_ROTOR )
+        if ( group && group->m_GeomPropertyType() == UnsteadyGroup::GEOM_ROTOR )
         {
             char str[256];
 
