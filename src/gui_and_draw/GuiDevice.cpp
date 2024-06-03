@@ -3475,12 +3475,34 @@ void DriverGroupBank::EnforceXSecGeomType( int geom_type )
 
 void DriverGroupBank::Activate()
 {
+    for ( int i = 0 ; i < (int)m_Sliders.size() ; i++ )
+    {
+        m_Sliders[i]->Activate();
+    }
 
+    for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
+    {
+        for( int j = 0; j < m_DriverGroup->GetNchoice(); j++ )
+        {
+            m_Buttons[i][j]->activate();
+        }
+    }
 }
 
 void DriverGroupBank::Deactivate()
 {
+    for ( int i = 0 ; i < (int)m_Sliders.size() ; i++ )
+    {
+        m_Sliders[i]->Deactivate();
+    }
 
+    for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
+    {
+        for( int j = 0; j < m_DriverGroup->GetNchoice(); j++ )
+        {
+            m_Buttons[i][j]->deactivate();
+        }
+    }
 }
 
 bool DriverGroupBank::WhichButton( Fl_Widget *w, int &imatch, int &jmatch )
