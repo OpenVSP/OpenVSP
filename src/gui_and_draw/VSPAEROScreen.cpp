@@ -2095,11 +2095,8 @@ void VSPAEROScreen::PropElemBrowserCallback()
 {
     //==== Find Last Selected Prop ====//
     int last = m_PropElemBrowser->value();
-    printf( "PropElemBrowser %d\n", last );
-    if ( last >= 2 )
-    {
-        VSPAEROMgr.SetCurrentRotorDiskIndex( last - 2 );
-    }
+    VSPAEROMgr.SetCurrentRotorDiskIndex( last - 2 );
+
     VSPAEROMgr.HighlightSelected( VSPAEROMgr.ROTORDISK );
 }
 
