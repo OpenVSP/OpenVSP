@@ -1817,6 +1817,7 @@ void VSPAEROScreen::UpdatePropElemDevices()
     else
     {
         VSPAEROMgr.SetCurrentRotorDiskIndex( -1 );
+        m_PropElemDriverGroupBank.Deactivate();
     }
 }
 
