@@ -2931,6 +2931,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction("void SetGeomWireColor( const string & in geom_id, int r, int g, int b )", asFUNCTION(vsp::SetGeomWireColor), asCALL_CDECL);
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction("void SetGeomDisplayType( const string & in geom_id, int type )", asFUNCTION(vsp::SetGeomDisplayType), asCALL_CDECL);
     assert( r >= 0 );
 
