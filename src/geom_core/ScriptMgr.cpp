@@ -3797,6 +3797,47 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ReparameterizeEditXSec( const string& in xsec_id )", asFUNCTION( vsp::ReparameterizeEditXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
+    //==== Background3D Functions ====//
+
+    r = se->RegisterGlobalFunction( "string AddBackground3D()", asFUNCTION( vsp::AddBackground3D ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int GetNumBackground3Ds()", asFUNCTION( vsp::GetNumBackground3Ds ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllBackground3Ds()", asMETHOD( ScriptMgrSingleton, GetAllBackground3Ds ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ShowAllBackground3Ds()", asFUNCTION( vsp::ShowAllBackground3Ds ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void HideAllBackground3Ds()", asFUNCTION( vsp::HideAllBackground3Ds ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelAllBackground3Ds()", asFUNCTION( vsp::DelAllBackground3Ds ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelBackground3D( const string & in id )", asFUNCTION( vsp::DelBackground3D ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllBackground3DRelativePaths()", asMETHOD( ScriptMgrSingleton, GetAllBackground3DRelativePaths ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllBackground3DAbsolutePaths()", asMETHOD( ScriptMgrSingleton, GetAllBackground3DAbsolutePaths ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetBackground3DRelativePath( const string & in id )", asFUNCTION( vsp::GetBackground3DRelativePath ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetBackground3DAbsolutePath( const string & in id )", asFUNCTION( vsp::GetBackground3DAbsolutePath ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetBackground3DRelativePath( const string & in id, const string & in fname )", asFUNCTION( vsp::SetBackground3DRelativePath ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetBackground3DAbsolutePath( const string & in id, const string & in fname )", asFUNCTION( vsp::SetBackground3DAbsolutePath ), asCALL_CDECL );
+    assert( r >= 0 );
+
     //==== BOR Functions ====//
 
     r = se->RegisterGlobalFunction( "void ChangeBORXSecShape( const string & in geom_id, int type )", asFUNCTION( vsp::ChangeBORXSecShape ), asCALL_CDECL );
@@ -4909,6 +4950,24 @@ CScriptArray* ScriptMgrSingleton::GetGeomSetAtIndex( int index )
 CScriptArray* ScriptMgrSingleton::GetGeomSet( const string & name )
 {
     m_ProxyStringArray = vsp::GetGeomSet( name );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAllBackground3Ds()
+{
+    m_ProxyStringArray = vsp::GetAllBackground3Ds();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAllBackground3DRelativePaths()
+{
+    m_ProxyStringArray = vsp::GetAllBackground3DRelativePaths();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAllBackground3DAbsolutePaths()
+{
+    m_ProxyStringArray = vsp::GetAllBackground3DAbsolutePaths();
     return GetProxyStringArray();
 }
 

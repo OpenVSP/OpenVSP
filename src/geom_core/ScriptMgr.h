@@ -163,6 +163,10 @@ private:
     CScriptArray* GetGeomSetAtIndex( int index );
     CScriptArray* GetGeomSet( const string & name );
 
+    CScriptArray* GetAllBackground3Ds();
+    CScriptArray* GetAllBackground3DRelativePaths();
+    CScriptArray* GetAllBackground3DAbsolutePaths();
+
     CScriptArray* ListAnalysis();
     CScriptArray* GetAnalysisInputNames( const string & analysis );
     CScriptArray* GetIntAnalysisInput( const string & analysis, const string & name, int index );
