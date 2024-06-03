@@ -2939,6 +2939,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "void SetGeomMaterialName( const string & in geom_id, const string & in name )", asFUNCTION( vsp::SetGeomMaterialName ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void AddMaterial( const string & in name, const vec3d & in ambient, const vec3d & in diffuse, const vec3d & in specular, const vec3d & in emissive, const double & in alpha, const double & in shininess )", asFUNCTION( vsp::AddMaterial ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetMaterialNames()", asMETHOD( ScriptMgrSingleton, GetMaterialNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "void SetBackground( double r, double g, double b )", asFUNCTION( vsp::SetBackground ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -4972,6 +4984,12 @@ CScriptArray* ScriptMgrSingleton::GetAllBackground3DRelativePaths()
 CScriptArray* ScriptMgrSingleton::GetAllBackground3DAbsolutePaths()
 {
     m_ProxyStringArray = vsp::GetAllBackground3DAbsolutePaths();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetMaterialNames()
+{
+    m_ProxyStringArray = vsp::GetMaterialNames();
     return GetProxyStringArray();
 }
 

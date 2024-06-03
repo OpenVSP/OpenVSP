@@ -167,6 +167,8 @@ private:
     CScriptArray* GetAllBackground3DRelativePaths();
     CScriptArray* GetAllBackground3DAbsolutePaths();
 
+    CScriptArray* GetMaterialNames();
+
     CScriptArray* ListAnalysis();
     CScriptArray* GetAnalysisInputNames( const string & analysis );
     CScriptArray* GetIntAnalysisInput( const string & analysis, const string & name, int index );
