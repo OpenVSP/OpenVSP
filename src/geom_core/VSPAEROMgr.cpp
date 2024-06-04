@@ -4172,11 +4172,6 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
     // Append them.
     all_geom_vec.insert( all_geom_vec.end(), thingeomvec.begin(), thingeomvec.end() );
 
-    vector < int > degen_type_vec = veh->GetDegenGeomTypeVec( set_index );
-    vector < int > thin_degen_type_vec = veh->GetDegenGeomTypeVec( thin_set );
-    // Append them.
-    degen_type_vec.insert( degen_type_vec.end(), thin_degen_type_vec.begin(), thin_degen_type_vec.end() );
-
     for ( size_t i = 0; i < all_geom_vec.size(); i++ )
     {
         Geom* geom = veh->FindGeom( all_geom_vec[i] );
