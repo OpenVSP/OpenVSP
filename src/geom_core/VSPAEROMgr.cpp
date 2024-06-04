@@ -3581,8 +3581,8 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
         return;
     }
 
-    string parentID = "";
-    string ssid = "";
+    string parentID;
+    string ssid;
     int sub_surf_indx;
     if ( m_CurrentCSGroupIndex != -1 )
     {
@@ -5875,7 +5875,7 @@ xmlNodePtr RotorDisk::EncodeXml( xmlNodePtr & node )
 
 xmlNodePtr RotorDisk::DecodeXml( xmlNodePtr & node )
 {
-    string defstr = "";
+    string defstr;
     int defint = 0;
     if ( node )
     {
