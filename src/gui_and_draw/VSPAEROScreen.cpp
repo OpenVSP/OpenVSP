@@ -676,7 +676,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     int prop_elem_browser_h = 140;
     m_PropGeneralLayout.AddSubGroupLayout( m_PropElemLayout,
         m_PropGeneralLayout.GetW(),
-        11 * m_PropGeneralLayout.GetStdHeight() + m_PropGeneralLayout.GetGapHeight() + prop_elem_browser_h );
+        11 * m_PropGeneralLayout.GetStdHeight() + m_PropGeneralLayout.GetDividerHeight() + m_PropGeneralLayout.GetGapHeight() + prop_elem_browser_h );
     m_PropGeneralLayout.AddY( m_PropElemLayout.GetH() );
 
     m_PropElemLayout.SetSameLineFlag( false );
