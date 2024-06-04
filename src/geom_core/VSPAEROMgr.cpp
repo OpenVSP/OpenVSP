@@ -1100,7 +1100,7 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                     }
                 }
 
-                if ( m_ControlSurfaceGroupVec[j]->m_ControlSurfVec.size() > 0 && is_available )
+                if ( !m_ControlSurfaceGroupVec[j]->m_ControlSurfVec.empty() && is_available )
                 {
                     // Construct a default group name
                     string curr_csg_id = m_CompleteControlSurfaceVec[i].parentGeomId + "_" + m_CompleteControlSurfaceVec[i].SSID;
@@ -1368,7 +1368,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     unsigned int numUsedCSGs = 0;
     for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
     {
-        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.size() > 0 )
+        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && !m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.empty() )
         {
             // Don't "use" if no control surfaces are assigned to the group
             numUsedCSGs++;
@@ -1378,7 +1378,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     fprintf( case_file, "NumberOfControlGroups = %u \n", numUsedCSGs );
     for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
     {
-        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.size() > 0 )
+        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && !m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.empty() )
         {
             m_ControlSurfaceGroupVec[iCSG]->Write_STP_Data( case_file );
         }
@@ -1437,7 +1437,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         fprintf( case_file, "Num Unsteady Props = %d \n", NumUnsteadyRotorGroups() ); // number of unsteady propellers
     }
 
-    if ( m_CpSliceFlag() && m_CpSliceVec.size() > 0 )
+    if ( m_CpSliceFlag() && !m_CpSliceVec.empty() )
     {
         fprintf( case_file, "NumberOfQuadTrees = %zu \n", m_CpSliceVec.size() );
 
@@ -2009,7 +2009,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         }
 
         // CpSlice *.adb File and slices are defined
-        if ( m_CpSliceFlag() && m_CpSliceVec.size() > 0 )
+        if ( m_CpSliceFlag() && !m_CpSliceVec.empty() )
         {
             string slice_res_id = ComputeCpSlices();
             res_id_vector.push_back( slice_res_id );
@@ -3004,7 +3004,7 @@ void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> 
                 data_string_array = ReadDelimLine( fp, seps );
             } // end while
         }
-        else if ( data_string_array.size() > 0 )
+        else if ( !data_string_array.empty() )
         {
             // Parse if this is not a comment line
             if ( res && strncmp( data_string_array[0].c_str(), "#", 1 ) != 0 )
@@ -3036,7 +3036,7 @@ void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> 
                 {
                     //================ Table Data ================//
                     // Checks for table header format
-                    if ( ( data_string_array.size() != table_column_names.size() ) || ( table_column_names.size() == 0 ) )
+                    if ( ( data_string_array.size() != table_column_names.size() ) || ( table_column_names.empty() ) )
                     {
                         //Indicator that the data table has changed or has not been initialized.
                         table_column_names.clear();
@@ -3177,14 +3177,14 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp )
     std::vector<string> data_string_array;
 
     //skip any blank lines before the header
-    while ( !feof( fp ) && data_string_array.size() == 0 )
+    while ( !feof( fp ) && data_string_array.empty() )
     {
         data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
     }
 
     // Read header table
     double value;
-    while ( !feof( fp ) && data_string_array.size() > 0 )
+    while ( !feof( fp ) && !data_string_array.empty() )
     {
         // Parse if this is not a comment line
         if ( ( strncmp( data_string_array[0].c_str(), "#", 1 ) != 0 ) && ( data_string_array.size() == 3 ) )
@@ -3211,7 +3211,7 @@ int VSPAEROMgrSingleton::ExportResultsToCSV( const string &fileName )
 
     // Get the results
     string resId = ResultsMgr.FindLatestResultsID( "VSPAERO_Wrapper" );
-    if ( resId == string() )
+    if ( resId.empty() )
     {
         retVal = vsp::VSP_CANT_FIND_NAME;
         fprintf( stderr, "ERROR %d: Unable to find ""VSPAERO_Wrapper"" result \n\tFile: %s \tLine:%d\n", retVal, __FILE__, __LINE__ );
@@ -3228,14 +3228,14 @@ int VSPAEROMgrSingleton::ExportResultsToCSV( const string &fileName )
 
     // Get all the child results and write out to csv using a vector of results
     vector <string> resIdVector = ResultsMgr.GetStringResults( resId, "ResultsVec" );
-    if ( resIdVector.size() == 0 )
+    if ( resIdVector.empty() )
     {
         fprintf( stderr, "WARNING %d: ""VSPAERO_Wrapper"" result contains no child results \n\tFile: %s \tLine:%d\n", retVal, __FILE__, __LINE__ );
     }
 
     // Get CP Slice results if available
     string CPresId = ResultsMgr.FindLatestResultsID( "CpSlice_Wrapper" );
-    if ( CPresId != string() )
+    if ( !CPresId.empty() )
     {
         vector < string > caseIdVector = ResultsMgr.GetStringResults( CPresId, "CpSlice_Case_ID_Vec" );
 
@@ -3261,7 +3261,7 @@ void VSPAEROMgrSingleton::AddRotorDisk()
 
 bool VSPAEROMgrSingleton::ValidRotorDiskIndex( int index )
 {
-    if ( ( index >= 0 ) && ( index < m_RotorDiskVec.size() ) && m_RotorDiskVec.size() > 0 )
+    if ( ( index >= 0 ) && ( index < m_RotorDiskVec.size() ) && !m_RotorDiskVec.empty() )
     {
         return true;
     }
@@ -3328,7 +3328,7 @@ void VSPAEROMgrSingleton::RemoveControlSurfaceGroup()
         delete m_ControlSurfaceGroupVec[m_CurrentCSGroupIndex];
         m_ControlSurfaceGroupVec.erase( m_ControlSurfaceGroupVec.begin() + m_CurrentCSGroupIndex );
 
-        if ( m_ControlSurfaceGroupVec.size() > 0 )
+        if ( !m_ControlSurfaceGroupVec.empty() )
         {
             m_CurrentCSGroupIndex = 0;
         }
@@ -3585,7 +3585,7 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
     {
         vector < VspAeroControlSurf > cont_surf_vec = m_ActiveControlSurfaceVec;
         vector < VspAeroControlSurf > cont_surf_vec_ungrouped = GetAvailableCSVec();
-        if ( m_SelectedGroupedCS.size() == 0 && m_SelectedUngroupedCS.size() == 0 )
+        if ( m_SelectedGroupedCS.empty() && m_SelectedUngroupedCS.empty() )
         {
             for ( size_t i = 0; i < cont_surf_vec.size(); ++i )
             {
@@ -3606,7 +3606,7 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
         }
         else
         {
-            if ( cont_surf_vec_ungrouped.size() > 0 )
+            if ( !cont_surf_vec_ungrouped.empty() )
             {
                 for ( size_t i = 0; i < m_SelectedUngroupedCS.size(); ++i )
                 {
@@ -3623,7 +3623,7 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
                 }
             }
 
-            if ( cont_surf_vec.size() > 0 )
+            if ( !cont_surf_vec.empty() )
             {
                 for ( size_t i = 0; i < m_SelectedGroupedCS.size(); ++i )
                 {
@@ -3978,7 +3978,7 @@ void VSPAEROMgrSingleton::ReadSliceFile( const string &filename, vector <string>
         }
         skip = false;
 
-        if ( data_string_array.size() > 0 )
+        if ( !data_string_array.empty() )
         {
             if ( strcmp( data_string_array[0].c_str(), "BLOCK" ) == 0 )
             {
@@ -4317,7 +4317,7 @@ void VSPAEROMgrSingleton::UpdateParmRestrictions()
         m_Vref.Set( m_Vinf() );
     }
 
-    if ( m_RotorDiskVec.size() == 0 )
+    if ( m_RotorDiskVec.empty() )
     {
         m_ActuatorDiskFlag.Set( false );
     }
@@ -4421,7 +4421,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
                         ungrouped_props.push_back( std::make_pair( geom_set_vec[i], s ) );
                     }
                 }
-                else if ( vspaero_geom_index_map[std::make_pair( geom_set_vec[i], s )].size() > 0 &&
+                else if ( !vspaero_geom_index_map[std::make_pair( geom_set_vec[i], s )].empty() &&
                           geom->GetType().m_Type != BLANK_GEOM_TYPE &&
                           geom->GetType().m_Type != PT_CLOUD_GEOM_TYPE &&
                           geom->GetType().m_Type != HINGE_GEOM_TYPE ) // TODO: Check if point cloud works in panel method?
@@ -4460,7 +4460,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
                     continue; // TODO: Check if point cloud works in panel method?
                 }
 
-                if ( vspaero_geom_index_map[comp_id_surf_ind_vec[j]].size() > 0 )
+                if ( !vspaero_geom_index_map[comp_id_surf_ind_vec[j]].empty() )
                 {
                     new_comp_pair_vec.push_back( std::make_pair( comp_id_surf_ind_vec[j].first, comp_id_surf_ind_vec[j].second ) );
                     vspaero_index_vec.insert( vspaero_index_vec.end(), vspaero_geom_index_map[comp_id_surf_ind_vec[j]].begin(), vspaero_geom_index_map[comp_id_surf_ind_vec[j]].end() );
@@ -4478,7 +4478,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
             ungrouped_comps.clear();
         }
 
-        if ( new_comp_pair_vec.size() == 0 )
+        if ( new_comp_pair_vec.empty() )
         {
             del_vec.push_back( i );
         }
@@ -4492,7 +4492,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
     DeleteUnsteadyGroup( del_vec );
 
     // Create a fixed component group with all ungrouped components
-    if ( ungrouped_comps.size() > 0 )
+    if ( !ungrouped_comps.empty() )
     {
         UnsteadyGroup* group = AddUnsteadyGroup();
 
@@ -4807,7 +4807,7 @@ void VSPAEROMgrSingleton::ReadGroupResFile( const string &filename, vector <stri
     while ( !feof( fp ) )
     {
         data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
-        if ( data_string_array.size() == 0 )
+        if ( data_string_array.empty() )
         {
             continue;
         }
@@ -4948,7 +4948,7 @@ void VSPAEROMgrSingleton::ReadRotorResFile( const string &filename, vector <stri
     while ( !feof( fp ) )
     {
         data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
-        if ( data_string_array.size() == 0 )
+        if ( data_string_array.empty() )
         {
             continue;
         }
