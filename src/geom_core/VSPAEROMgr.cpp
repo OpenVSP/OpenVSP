@@ -675,7 +675,6 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 {
     // Initialize these to blanks.  if any of the checks fail the variables will at least contain an empty string
     m_ModelNameBase     = string();
-    m_CompGeomFileFull  = string();     // TODO this is set from the get export name
     m_VSPGeomFileFull   = string();
     m_SetupFile         = string();
     m_AdbFile           = string();
@@ -703,7 +702,6 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
         int pos = -1;
 
         m_VSPGeomFileFull = veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE );
-        m_CompGeomFileFull = veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE );
 
         m_ModelNameBase = m_VSPGeomFileFull;
         pos = m_ModelNameBase.find( ".vspgeom" );
@@ -711,8 +709,6 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
         {
             m_ModelNameBase.erase( pos, m_ModelNameBase.length() - 1 );
         }
-
-        m_CompGeomFileFull = m_ModelNameBase + string( ".tri" );
 
         m_SetupFile         = m_ModelNameBase + string( ".vspaero" );
         m_AdbFile           = m_ModelNameBase + string( ".adb" );
