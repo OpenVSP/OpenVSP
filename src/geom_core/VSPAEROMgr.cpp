@@ -929,7 +929,7 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
                 // If Control Surface ID AND Reflection Number Match - Replace Subsurf within Control Surface Group
-                if ( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 &&
+                if ( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID == m_CompleteControlSurfaceVec[j].SSID &&
                         m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
                 {
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].fullName = m_CompleteControlSurfaceVec[j].fullName;
@@ -3321,7 +3321,7 @@ void VSPAEROMgrSingleton::RemoveControlSurfaceGroup()
         {
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
-                if ( m_CompleteControlSurfaceVec[j].SSID.compare( m_ActiveControlSurfaceVec[i].SSID ) == 0 )
+                if ( m_CompleteControlSurfaceVec[j].SSID == m_ActiveControlSurfaceVec[i].SSID )
                 {
                     m_CompleteControlSurfaceVec[j].isGrouped = false;
                 }
@@ -3388,7 +3388,7 @@ void VSPAEROMgrSingleton::RemoveSelectedFromCSGroup()
                     m_ActiveControlSurfaceVec[selected[i] - 1].iReflect );
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
-                if ( m_ActiveControlSurfaceVec[selected[i] - 1].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
+                if ( m_ActiveControlSurfaceVec[selected[i] - 1].SSID == m_CompleteControlSurfaceVec[j].SSID )
                 {
                     if ( m_ActiveControlSurfaceVec[selected[i] - 1].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
                     {
@@ -3411,7 +3411,7 @@ void VSPAEROMgrSingleton::RemoveAllFromCSGroup()
             m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( m_ActiveControlSurfaceVec[i].SSID, m_ActiveControlSurfaceVec[i].iReflect );
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
-                if ( m_ActiveControlSurfaceVec[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
+                if ( m_ActiveControlSurfaceVec[i].SSID == m_CompleteControlSurfaceVec[j].SSID )
                 {
                     if ( m_ActiveControlSurfaceVec[i].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
                     {
@@ -6050,7 +6050,7 @@ void ControlSurfaceGroup::RemoveSubSurface( const string & ssid, int reflec_num 
 {
     for ( int i = m_ControlSurfVec.size() - 1; i >= 0; i-- ) // Iterate in reverse as vector is changing size.
     {
-        if ( m_ControlSurfVec[i].SSID.compare( ssid ) == 0 && m_ControlSurfVec[i].iReflect == reflec_num )
+        if ( m_ControlSurfVec[i].SSID == ssid && m_ControlSurfVec[i].iReflect == reflec_num )
         {
             m_ControlSurfVec.erase( m_ControlSurfVec.begin() + i );
             delete m_DeflectionGainVec[i];
