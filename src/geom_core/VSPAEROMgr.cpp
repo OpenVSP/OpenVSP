@@ -762,6 +762,52 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     }
 }
 
+void VSPAEROMgrSingleton::PurgeDuplicateRotorDisks()
+{
+    // These should not exist.  However, there was a bug in a development version that allowed them to be created.
+    // This code should filter them out and otherwise should be fairly harmless.
+    //
+    // Hopefully this code can eventually be removed.
+    bool anydupe = false;
+
+    vector < bool > dupvec( m_RotorDiskVec.size(), false );
+    for ( size_t i = 0; i < m_RotorDiskVec.size() - 1; i++ )
+    {
+        RotorDisk *ri = m_RotorDiskVec[i];
+
+        for ( size_t j = i + 1; j < m_RotorDiskVec.size(); j++ )
+        {
+            RotorDisk *rj = m_RotorDiskVec[j];
+
+            if ( ri->GetID() == rj->GetID() )
+            {
+                dupvec[j] = true;
+                anydupe = true;
+            }
+        }
+    }
+
+    vector < RotorDisk* > keep;
+    for ( size_t i = 0; i < m_RotorDiskVec.size(); i++ )
+    {
+        if ( !dupvec[i] )
+        {
+            keep.push_back( m_RotorDiskVec[i] );
+        }
+        else
+        {
+            delete m_RotorDiskVec[i];
+        }
+    }
+    m_RotorDiskVec = keep;
+
+    if ( anydupe )
+    {
+        printf( "Duplicate rotor disks purged.\n" );
+        printf( "If you see this message repeatedly, please report a bug to the developers.\n" );
+    }
+}
+
 void VSPAEROMgrSingleton::UpdateRotorDisks()
 {
     int set = m_GeomSet();
@@ -780,6 +826,8 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
 
     Vehicle * veh = VehicleMgr.GetVehicle();
     char str[256];
+
+    PurgeDuplicateRotorDisks();
 
     if ( veh )
     {
