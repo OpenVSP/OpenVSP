@@ -521,8 +521,8 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
         }
 
         // Decode Unsteady Groups using Internal Decode Method
-        int num__unsteady_groups = XmlUtil::FindInt( VSPAEROsetnode, "UnsteadyGroupCount", 0 );
-        for ( size_t i = 0; i < num__unsteady_groups; ++i )
+        int num_unsteady_groups = XmlUtil::FindInt( VSPAEROsetnode, "UnsteadyGroupCount", 0 );
+        for ( size_t i = 0; i < num_unsteady_groups; ++i )
         {
             xmlNodePtr unsteady_node = XmlUtil::GetNode( VSPAEROsetnode, "Unsteady_Group", i );
             if ( unsteady_node )
