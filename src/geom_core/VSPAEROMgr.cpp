@@ -793,8 +793,10 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
         vector <string> currgeomvec = veh->GetGeomSet( set );
         vector <string> thingeomvec = veh->GetGeomSet( degenset );
 
-        // Append them.
+        // Append them and make sure each is included only once.
         currgeomvec.insert( currgeomvec.end(), thingeomvec.begin(), thingeomvec.end() );
+        sort( currgeomvec.begin(), currgeomvec.end() );
+        currgeomvec.erase( std::unique( currgeomvec.begin(), currgeomvec.end() ), currgeomvec.end() );
 
         // Ensure that a deleted component is still not in the DegenGeom vector
         vector < Geom* > geom_ptr_vec = veh->FindGeomVec( currgeomvec );
