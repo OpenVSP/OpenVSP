@@ -51,8 +51,8 @@ class RotorDisk : public ParmContainer
 {
 public:
     // Constructor, Destructor, Copy
-    RotorDisk( void );
-    ~RotorDisk( void );
+    RotorDisk();
+    ~RotorDisk();
 
     void Update( double V, double rho );
 
@@ -128,8 +128,8 @@ class ControlSurfaceGroup : public ParmContainer
 public:
     // Constructor, Destructor, Copy
 
-    ControlSurfaceGroup( void );
-    ~ControlSurfaceGroup( void );
+    ControlSurfaceGroup();
+    ~ControlSurfaceGroup();
 
     // Member variables
 
@@ -164,8 +164,8 @@ public:
 class UnsteadyGroup : public ParmContainer
 {
 public:
-    UnsteadyGroup( void );
-    ~UnsteadyGroup( void );
+    UnsteadyGroup();
+    ~UnsteadyGroup();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr& node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr& node );

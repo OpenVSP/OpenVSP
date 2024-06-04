@@ -5717,7 +5717,7 @@ bool PropDriverGroup::ValidDrivers( vector< int > choices )
 #                                                                              #
 ##############################################################################*/
 
-RotorDisk::RotorDisk( void ) : ParmContainer()
+RotorDisk::RotorDisk() : ParmContainer()
 {
     m_Name = "RotorDisk";
     m_GroupName = "Rotor";
@@ -5767,7 +5767,7 @@ RotorDisk::RotorDisk( void ) : ParmContainer()
 }
 
 
-RotorDisk::~RotorDisk( void )
+RotorDisk::~RotorDisk()
 {
 }
 
@@ -5897,7 +5897,7 @@ void RotorDisk::SetGroupDisplaySuffix(int num)
 #                                                                              #
 ##############################################################################*/
 
-ControlSurfaceGroup::ControlSurfaceGroup( void ) : ParmContainer()
+ControlSurfaceGroup::ControlSurfaceGroup() : ParmContainer()
 {
     m_Name = "Unnamed Control Group";
     m_ParentGeomBaseID = "";
@@ -5911,7 +5911,7 @@ ControlSurfaceGroup::ControlSurfaceGroup( void ) : ParmContainer()
     m_DeflectionAngle.SetDescript( "Angle of deflection for the control group" );
 }
 
-ControlSurfaceGroup::~ControlSurfaceGroup( void )
+ControlSurfaceGroup::~ControlSurfaceGroup()
 {
     for ( int i = 0 ; i < (int)m_DeflectionGainVec.size() ; i++ )
     {
@@ -6070,7 +6070,7 @@ void ControlSurfaceGroup::SetGroupDisplaySuffix( int num )
 #                                                                              #
 ##############################################################################*/
 
-UnsteadyGroup::UnsteadyGroup( void ) : ParmContainer()
+UnsteadyGroup::UnsteadyGroup() : ParmContainer()
 {
     m_Name = "Unnamed Unsteady Group";
 
@@ -6145,7 +6145,7 @@ UnsteadyGroup::UnsteadyGroup( void ) : ParmContainer()
     m_ReverseFlag = false;
 }
 
-UnsteadyGroup::~UnsteadyGroup( void )
+UnsteadyGroup::~UnsteadyGroup()
 {
 }
 
