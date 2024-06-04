@@ -8,8 +8,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(VEHICLE__INCLUDED_)
-#define VEHICLE__INCLUDED_
+#if !defined(VEHICLE_INCLUDED_)
+#define VEHICLE_INCLUDED_
 
 #define ATTR_WM_GROUP "_AttrWMGroup"
 #define ATTR_WM_SHOW "_AttrWMShow"
@@ -648,4 +648,4 @@ private:
 };
 
 
-#endif // !defined(VEHICLE__INCLUDED_)
+#endif // !defined(VEHICLE_INCLUDED_)

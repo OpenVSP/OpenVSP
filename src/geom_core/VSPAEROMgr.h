@@ -7,8 +7,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(VSPAERO__INCLUDED_)
-#define VSPAERO__INCLUDED_
+#if !defined(VSPAERO_INCLUDED_)
+#define VSPAERO_INCLUDED_
 
 #include "VehicleMgr.h"
 #include "Vehicle.h"
