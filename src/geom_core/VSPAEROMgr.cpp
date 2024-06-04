@@ -1864,7 +1864,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         vector<string> args;
 
         // Set number of openmp threads
-        args.push_back( "-omp" );
+        args.emplace_back("-omp" );
         args.push_back( StringUtil::int_to_string( m_NCPU.Get(), "%d" ) );
 
         // Set stability run arguments
@@ -1878,19 +1878,19 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             switch ( stabilityType )
             {
                 case vsp::STABILITY_DEFAULT:
-                    args.push_back( "-stab" );
+                    args.emplace_back("-stab" );
                     break;
 
                 case vsp::STABILITY_P_ANALYSIS:
-                    args.push_back( "-pstab" );
+                    args.emplace_back( "-pstab" );
                     break;
 
                 case vsp::STABILITY_Q_ANALYSIS:
-                    args.push_back( "-qstab" );
+                    args.emplace_back( "-qstab" );
                     break;
 
                 case vsp::STABILITY_R_ANALYSIS:
-                    args.push_back( "-rstab" );
+                    args.emplace_back( "-rstab" );
                     break;
 
                 // === To Be Implemented ===
@@ -1907,7 +1907,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
                 //    break;
 
                 case vsp::STABILITY_PITCH:
-                    args.push_back( "-acstab" );
+                    args.emplace_back( "-acstab" );
                     break;
             }
 #pragma GCC diagnostic pop
@@ -1916,41 +1916,41 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
         if ( m_FromSteadyState() )
         {
-            args.push_back( "-fromsteadystate" );
+            args.emplace_back( "-fromsteadystate" );
         }
 
         if ( m_GroundEffectToggle() )
         {
-            args.push_back( "-groundheight" );
+            args.emplace_back( "-groundheight" );
             args.push_back( StringUtil::double_to_string( m_GroundEffect(), "%f" ) );
         }
 
         if( m_Write2DFEMFlag() )
         {
-            args.push_back( "-write2dfem" );
+            args.emplace_back( "-write2dfem" );
         }
 
         if ( m_Precondition() == vsp::PRECON_JACOBI )
         {
-            args.push_back( "-jacobi" );
+            args.emplace_back( "-jacobi" );
         }
         else if ( m_Precondition() == vsp::PRECON_SSOR )
         {
-            args.push_back( "-ssor" );
+            args.emplace_back( "-ssor" );
         }
 
         if ( m_KTCorrection() )
         {
-            args.push_back( "-dokt" );
+            args.emplace_back( "-dokt" );
         }
 
         if ( m_RotateBladesFlag() )
         {
-            args.push_back( "-unsteady" );
+            args.emplace_back( "-unsteady" );
 
             if ( m_HoverRampFlag() )
             {
-                args.push_back( "-hoverramp" );
+                args.emplace_back( "-hoverramp" );
                 args.push_back( StringUtil::double_to_string( m_HoverRamp(), "%f" ) );
             }
         }
@@ -2891,7 +2891,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
                 if ( data_string_array.size() == nCompDataTableCols - 1 )
                 {
                     // Condition if no body-type components in *.vspgeom input
-                    Comp_Name.push_back( "NONE" );
+                    Comp_Name.emplace_back( "NONE" );
                 }
                 else
                 {
@@ -3123,7 +3123,7 @@ vector <string> VSPAEROMgrSingleton::ReadDelimLine( FILE * fp, char * delimiters
         char * pch = strtok ( strbuff, delimiters );
         while ( pch != nullptr )
         {
-            dataStringVector.push_back( pch );
+            dataStringVector.emplace_back( pch );
             pch = strtok ( nullptr, delimiters );
         }
     }
@@ -3697,7 +3697,7 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     vector<string> args;
 
     // Add model file name
-    args.push_back( "-slice" );
+    args.emplace_back( "-slice" );
     args.push_back( m_ModelNameBase );
 
     //Print out execute command
@@ -3772,12 +3772,12 @@ void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
     vector<string> args;
 
     // Add model file name
-    args.push_back( "-interrogate" );
+    args.emplace_back( "-interrogate" );
 
     if ( m_RotateBladesFlag() ||
        ( m_StabilityType.Get() > vsp::STABILITY_DEFAULT && m_StabilityType.Get() < vsp::STABILITY_PITCH ) )
     {
-        args.push_back( "-unsteady" );
+        args.emplace_back( "-unsteady" );
     }
 
     args.push_back( m_ModelNameBase );
@@ -4418,7 +4418,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
                     assert( prop );
                     if ( prop->m_PropMode() != vsp::PROP_DISK )
                     {
-                        ungrouped_props.push_back( std::make_pair( geom_set_vec[i], s ) );
+                        ungrouped_props.emplace_back( std::make_pair( geom_set_vec[i], s ) );
                     }
                 }
                 else if ( !vspaero_geom_index_map[std::make_pair( geom_set_vec[i], s )].empty() &&
@@ -4426,7 +4426,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
                           geom->GetType().m_Type != PT_CLOUD_GEOM_TYPE &&
                           geom->GetType().m_Type != HINGE_GEOM_TYPE ) // TODO: Check if point cloud works in panel method?
                 {
-                    ungrouped_comps.push_back( std::make_pair( geom_set_vec[i], s ) );
+                    ungrouped_comps.emplace_back( std::make_pair( geom_set_vec[i], s ) );
                 }
             }
         }
@@ -4462,7 +4462,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
 
                 if ( !vspaero_geom_index_map[comp_id_surf_ind_vec[j]].empty() )
                 {
-                    new_comp_pair_vec.push_back( std::make_pair( comp_id_surf_ind_vec[j].first, comp_id_surf_ind_vec[j].second ) );
+                    new_comp_pair_vec.emplace_back( std::make_pair( comp_id_surf_ind_vec[j].first, comp_id_surf_ind_vec[j].second ) );
                     vspaero_index_vec.insert( vspaero_index_vec.end(), vspaero_geom_index_map[comp_id_surf_ind_vec[j]].begin(), vspaero_geom_index_map[comp_id_surf_ind_vec[j]].end() );
                 }
             }
@@ -4472,7 +4472,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         {
             for ( size_t j = 0; j < ungrouped_comps.size(); j++ )
             {
-                new_comp_pair_vec.push_back( std::make_pair( ungrouped_comps[j].first, ungrouped_comps[j].second ) );
+                new_comp_pair_vec.emplace_back( std::make_pair( ungrouped_comps[j].first, ungrouped_comps[j].second ) );
                 vspaero_index_vec.insert( vspaero_index_vec.end(), vspaero_geom_index_map[ungrouped_comps[j]].begin(), vspaero_geom_index_map[ungrouped_comps[j]].end() );
             }
             ungrouped_comps.clear();
@@ -4721,24 +4721,24 @@ string VSPAEROMgrSingleton::ExecuteNoiseAnalysis( FILE* logFile, int noise_type,
     //====== Send command to be executed by the system at the command prompt ======//
     vector<string> args;
 
-    args.push_back( "-noise" );
+    args.emplace_back( "-noise" );
 
     if ( noise_type == vsp::NOISE_FLYBY )
     {
-        args.push_back( "-flyby" );
+        args.emplace_back( "-flyby" );
     }
     else if ( noise_type == vsp::NOISE_FOOTPRINT )
     {
-        args.push_back( "-footprint" );
+        args.emplace_back( "-footprint" );
     }
     else if ( noise_type == vsp::NOISE_STEADY )
     {
-        args.push_back( "-steady" );
+        args.emplace_back( "-steady" );
     }
 
     if ( noise_unit == vsp::NOISE_ENGLISH )
     {
-        args.push_back( "-english" );
+        args.emplace_back( "-english" );
     }
 
     // Add model file name
