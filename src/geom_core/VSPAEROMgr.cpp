@@ -4171,6 +4171,8 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
     vector <string> thingeomvec = veh->GetGeomSet( thin_set );
     // Append them.
     all_geom_vec.insert( all_geom_vec.end(), thingeomvec.begin(), thingeomvec.end() );
+    sort( all_geom_vec.begin(), all_geom_vec.end() );
+    all_geom_vec.erase( std::unique( all_geom_vec.begin(), all_geom_vec.end() ), all_geom_vec.end() );
 
     for ( size_t i = 0; i < all_geom_vec.size(); i++ )
     {
@@ -4373,6 +4375,8 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
 
     // Append them.
     geom_set_vec.insert( geom_set_vec.end(), thingeomvec.begin(), thingeomvec.end() );
+    sort( geom_set_vec.begin(), geom_set_vec.end() );
+    geom_set_vec.erase( std::unique( geom_set_vec.begin(), geom_set_vec.end() ), geom_set_vec.end() );
 
     vector < pair < string, int > > ungrouped_props, ungrouped_comps; // ungrouped Geom ID and symmetric surf index
 
