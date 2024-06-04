@@ -750,7 +750,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 
         for ( size_t i = 0; i < m_UnsteadyGroupResNames.size(); i++ )
         {
-            if ( i == 0 && m_UnsteadyGroupVec[i]->m_GeomPropertyType() == m_UnsteadyGroupVec[i]->GEOM_FIXED )
+            if ( i == 0 && m_UnsteadyGroupVec[i]->m_GeomPropertyType() == UnsteadyGroup::GEOM_FIXED )
             {
                 m_UnsteadyGroupResNames[i] = m_UnsteadyGroupVec[i]->GetName();
             }
@@ -4505,7 +4505,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         }
 
         group->SetVSPAEROIndexVec( vspaero_index_vec );
-        group->m_GeomPropertyType.Set( group->GEOM_FIXED );
+        group->m_GeomPropertyType.Set( UnsteadyGroup::GEOM_FIXED );
         group->SetName( "FixedGroup" );
         group->Update();
     }
@@ -4516,7 +4516,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         UnsteadyGroup* group = AddUnsteadyGroup();
 
         group->SetVSPAEROIndexVec( vspaero_geom_index_map[ungrouped_props[i]] );
-        group->m_GeomPropertyType.Set( group->GEOM_ROTOR );
+        group->m_GeomPropertyType.Set( UnsteadyGroup::GEOM_ROTOR );
         group->AddComp( ungrouped_props[i].first, ungrouped_props[i].second );
         group->Update();
     }
