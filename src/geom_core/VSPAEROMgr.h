@@ -71,8 +71,6 @@ public:
     string m_GroupName;
     int m_GroupSuffix;
 
-    bool m_IsUsed;
-
     vec3d m_XYZ;           // RotorXYZ_
     vec3d m_Normal;        // RotorNormal_
 

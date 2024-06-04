@@ -1355,25 +1355,15 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     // RotorDisks
     if ( m_ActuatorDiskFlag() )
     {
-        unsigned int numUsedRotors = 0;
-        for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
-        {
-            if ( m_RotorDiskVec[iRotor]->m_IsUsed )
-            {
-                numUsedRotors++;
-            }
-        }
-        fprintf( case_file, "NumberOfRotors = %u \n", numUsedRotors );           //TODO add to VSPAEROMgr as parm
+        unsigned int numRotors = m_RotorDiskVec.size();
+        fprintf( case_file, "NumberOfRotors = %u \n", numRotors );
         int iPropElement = 0;
         for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
         {
-            if ( m_RotorDiskVec[iRotor]->m_IsUsed )
-            {
-                iPropElement++;
-                fprintf( case_file, "PropElement_%d\n", iPropElement );     //read in by, but not used, in vspaero and begins at 1
-                fprintf( case_file, "%d\n", iPropElement );                 //read in by, but not used, in vspaero
-                m_RotorDiskVec[iRotor]->Write_STP_Data( case_file );
-            }
+            iPropElement++;
+            fprintf( case_file, "PropElement_%d\n", iPropElement );     //read in by, but not used, in vspaero and begins at 1
+            fprintf( case_file, "%d\n", iPropElement );                 //read in by, but not used, in vspaero
+            m_RotorDiskVec[iRotor]->Write_STP_Data( case_file );
         }
     }
 
@@ -5802,8 +5792,6 @@ RotorDisk::RotorDisk( void ) : ParmContainer()
 {
     m_Name = "RotorDisk";
     m_GroupName = "Rotor";
-
-    m_IsUsed = true;
 
     m_XYZ.set_xyz( 0, 0, 0 );           // RotorXYZ_
     m_Normal.set_xyz( 0, 0, 0 );        // RotorNormal_
