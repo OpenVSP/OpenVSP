@@ -798,11 +798,9 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
         sort( currgeomvec.begin(), currgeomvec.end() );
         currgeomvec.erase( std::unique( currgeomvec.begin(), currgeomvec.end() ), currgeomvec.end() );
 
-        // Ensure that a deleted component is still not in the DegenGeom vector
-        vector < Geom* > geom_ptr_vec = veh->FindGeomVec( currgeomvec );
-
         for ( size_t i = 0; i < currgeomvec.size(); ++i )
         {
+            // Ensure that a deleted component is still not in the DegenGeom vector
             Geom* geom = veh->FindGeom(currgeomvec[i]);
             if (geom)
             {
