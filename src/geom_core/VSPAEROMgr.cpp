@@ -2340,8 +2340,6 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
     } //end feof loop to read entire history file
 
     fclose ( fp );
-
-    return;
 }
 
 /*******************************************************
@@ -2580,8 +2578,6 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
     } //end for while !feof(fp)
 
     std::fclose( fp );
-
-    return;
 }
 
 /*******************************************************
@@ -2955,8 +2951,6 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
     } // end file loop
 
     std::fclose ( fp );
-
-    return;
 }
 
 /*******************************************************
@@ -3128,8 +3122,6 @@ void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> 
     } //end for while !feof(fp)
 
     std::fclose ( fp );
-
-    return;
 }
 
 vector <string> VSPAEROMgrSingleton::ReadDelimLine( FILE * fp, char * delimiters )
@@ -4092,8 +4084,6 @@ void VSPAEROMgrSingleton::ReadSliceFile( const string &filename, vector <string>
     }
 
     std::fclose( fp );
-
-    return;
 }
 
 bool VSPAEROMgrSingleton::ValidUnsteadyGroupInd( int index )
@@ -4970,8 +4960,6 @@ void VSPAEROMgrSingleton::ReadGroupResFile( const string &filename, vector <stri
     }
 
     std::fclose( fp );
-
-    return;
 }
 
 /*******************************************************
@@ -5258,8 +5246,6 @@ void VSPAEROMgrSingleton::ReadRotorResFile( const string &filename, vector <stri
     } //end for while !feof(fp)
 
     std::fclose( fp );
-
-    return;
 }
 
 /*##############################################################################
