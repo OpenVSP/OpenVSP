@@ -1296,6 +1296,7 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
                     if ( suppressdisks && ( tMeshVec[j]->m_SurfType == vsp::DISK_SURF ) )
                     {
                         // Skip actuator disk.
+                        delete tMeshVec[j];
                     }
                     else
                     {
@@ -1328,6 +1329,7 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
                         if ( suppressdisks && ( tMeshVec[j]->m_SurfType == vsp::DISK_SURF ) )
                         {
                             // Skip actuator disk.
+                            delete tMeshVec[j];
                         }
                         else
                         {
