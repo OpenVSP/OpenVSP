@@ -61,9 +61,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_ContinueCoPlanarWakesFlag.Init( "ContinueCoPlanarWakesFlag", groupname, this, true, false, true );
     m_ContinueCoPlanarWakesFlag.SetDescript( "Flag to continue coplanar wakes through bodies" );
 
-    m_AnalysisMethod.Init( "AnalysisMethod", groupname, this, vsp::VORTEX_LATTICE, vsp::VORTEX_LATTICE, vsp::PANEL );
-    m_AnalysisMethod.SetDescript( "Analysis method: 0=VLM, 1=Panel" );
-
     m_LastPanelMeshGeomId = string();
 
     m_Sref.Init( "Sref", groupname, this, 100.0, 0.0, 1e12 );
@@ -4341,9 +4338,6 @@ void VSPAEROMgrSingleton::UpdateParmRestrictions()
     }
 }
 
-// TODO:  Not sure how this works.  It references m_GeomSet, but not yet m_ThinGeomSet.
-// it is also the last place that accesses m_AnalysisMethod() - if you include the GetVSPAEROGeomIndexMap()
-// that is only called from here.
 void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
 {
     int set = m_GeomSet();
@@ -4427,14 +4421,12 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
                         ungrouped_props.push_back( std::make_pair( geom_set_vec[i], s ) );
                     }
                 }
-                else if ( vspaero_geom_index_map[std::make_pair( geom_set_vec[i], s )].size() > 0 && geom->GetType().m_Type != BLANK_GEOM_TYPE &&
-                          geom->GetType().m_Type != PT_CLOUD_GEOM_TYPE && geom->GetType().m_Type != HINGE_GEOM_TYPE ) // TODO: Check if point cloud works in panel method?
+                else if ( vspaero_geom_index_map[std::make_pair( geom_set_vec[i], s )].size() > 0 &&
+                          geom->GetType().m_Type != BLANK_GEOM_TYPE &&
+                          geom->GetType().m_Type != PT_CLOUD_GEOM_TYPE &&
+                          geom->GetType().m_Type != HINGE_GEOM_TYPE ) // TODO: Check if point cloud works in panel method?
                 {
-                    // Allow mesh and human types for panel method
-                    if ( m_AnalysisMethod() == vsp::PANEL || ( m_AnalysisMethod() == vsp::VORTEX_LATTICE && geom->GetType().m_Type != HUMAN_GEOM_TYPE && geom->GetType().m_Type != MESH_GEOM_TYPE ) )
-                    {
-                        ungrouped_comps.push_back( std::make_pair( geom_set_vec[i], s ) );
-                    }
+                    ungrouped_comps.push_back( std::make_pair( geom_set_vec[i], s ) );
                 }
             }
         }
@@ -4461,13 +4453,11 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
                         break;
                     }
                 }
-                else if ( parent->GetType().m_Type == BLANK_GEOM_TYPE || parent->GetType().m_Type == HINGE_GEOM_TYPE || parent->GetType().m_Type == PT_CLOUD_GEOM_TYPE )
+                else if ( parent->GetType().m_Type == BLANK_GEOM_TYPE ||
+                          parent->GetType().m_Type == HINGE_GEOM_TYPE ||
+                          parent->GetType().m_Type == PT_CLOUD_GEOM_TYPE )
                 {
                     continue; // TODO: Check if point cloud works in panel method?
-                }
-                else if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE && ( parent->GetType().m_Type == HUMAN_GEOM_TYPE || parent->GetType().m_Type == MESH_GEOM_TYPE ) )
-                {
-                    continue; // Allow human and mesh types for panel method
                 }
 
                 if ( vspaero_geom_index_map[comp_id_surf_ind_vec[j]].size() > 0 )

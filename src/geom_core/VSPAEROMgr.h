@@ -358,8 +358,6 @@ public:
     static void HighlightSelected( int type );
     void LoadDrawObjs( vector < DrawObj* > & draw_obj_vec );
 
-    IntParm m_AnalysisMethod;
-
     BoolParm m_CpSliceFlag;
 
     vector < int > m_SelectedGroupedCS;
