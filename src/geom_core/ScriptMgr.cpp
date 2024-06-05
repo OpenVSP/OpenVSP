@@ -2280,14 +2280,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterEnum( "VSPAERO_ANALYSIS_METHOD" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_ANALYSIS_METHOD", "VORTEX_LATTICE", VORTEX_LATTICE );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_ANALYSIS_METHOD", "PANEL", PANEL );
-    assert( r >= 0 );
-
-
     r = se->RegisterEnum( "VSPAERO_NOISE_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_NOISE_TYPE", "NOISE_FLYBY", NOISE_FLYBY );

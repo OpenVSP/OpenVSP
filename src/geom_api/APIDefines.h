@@ -1495,14 +1495,6 @@ enum VIEW_TYPE { VIEW_LEFT,	/*!< Left 2D view type */
 /*!
 	\ingroup Enumerations
 */
-/*! Enum that definies the VSPAERO analysis method. */
-enum VSPAERO_ANALYSIS_METHOD { VORTEX_LATTICE,	/*!< VSPAERO vortex lattice method */
-                               PANEL	/*!< VSPAERO panel method */
-};
-
-/*!
-	\ingroup Enumerations
-*/
 /*! Enums for VSPAERO unsteady noise calculation types. */
 enum VSPAERO_NOISE_TYPE { NOISE_FLYBY,	/*!< Set up fly by noise analysis in VSPAERO for PSU-WOPWOP */
                           NOISE_FOOTPRINT,	/*!< Set up footprint noise analysis in VSPAERO for PSU-WOPWOP */
