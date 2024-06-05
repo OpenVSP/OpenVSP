@@ -6555,7 +6555,6 @@ class EllipsoidVV : VV_Base
 
                 SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_ALL}, 0);                // Thick geometry -- "Panel"
                 SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_NONE}, 0);
-                SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // list inputs, type, and current values
                 PrintAnalysisInputs( m_CompGeomAnalysis );
