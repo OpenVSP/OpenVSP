@@ -771,11 +771,11 @@ void VSPAEROMgrSingleton::PurgeDuplicateRotorDisks()
     bool anydupe = false;
 
     vector < bool > dupvec( m_RotorDiskVec.size(), false );
-    for ( size_t i = 0; i < m_RotorDiskVec.size() - 1; i++ )
+    for ( int i = 0; i < (int) m_RotorDiskVec.size() - 1; i++ )
     {
         RotorDisk *ri = m_RotorDiskVec[i];
 
-        for ( size_t j = i + 1; j < m_RotorDiskVec.size(); j++ )
+        for ( int j = i + 1; j < (int) m_RotorDiskVec.size(); j++ )
         {
             RotorDisk *rj = m_RotorDiskVec[j];
 
@@ -788,7 +788,7 @@ void VSPAEROMgrSingleton::PurgeDuplicateRotorDisks()
     }
 
     vector < RotorDisk* > keep;
-    for ( size_t i = 0; i < m_RotorDiskVec.size(); i++ )
+    for ( int i = 0; i < (int) m_RotorDiskVec.size(); i++ )
     {
         if ( !dupvec[i] )
         {
