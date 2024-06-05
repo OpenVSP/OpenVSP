@@ -3354,7 +3354,7 @@ class HersheyVV : VV_Base
                 // Lift Distribution:
                 span_loc_data[u] = GetDoubleResults( load_rid, "Yavg" );
                 cl_dist_data[u] = GetDoubleResults( load_rid, "cl" );
-                cd_dist_data[u] = GetDoubleResults( load_rid, "cd" );
+                cd_dist_data[u] = GetDoubleResults( load_rid, "cdi" );
             }
             
             ClearVSPModel();
@@ -3564,7 +3564,7 @@ class HersheyVV : VV_Base
                 // Lift Distribution:
                 span_loc_data[w] = GetDoubleResults( load_rid, "Yavg" );
                 cl_dist_data[w] = GetDoubleResults( load_rid, "cl" );
-                cd_dist_data[w] = GetDoubleResults( load_rid, "cd" );
+                cd_dist_data[w] = GetDoubleResults( load_rid, "cdi" );
             }
             
             ClearVSPModel();
@@ -4022,7 +4022,7 @@ class HersheyVV : VV_Base
                 // Lift Distribution:
                 span_loc_data[t] = GetDoubleResults( load_rid, "Yavg" );
                 cl_dist_data[t] = GetDoubleResults( load_rid, "cl" );
-                cd_dist_data[t] = GetDoubleResults( load_rid, "cd" );
+                cd_dist_data[t] = GetDoubleResults( load_rid, "cdi" );
             }
             
             ClearVSPModel();
