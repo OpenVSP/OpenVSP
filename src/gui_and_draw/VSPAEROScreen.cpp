@@ -1079,7 +1079,7 @@ void * monitorfun( void *data )
             free( buf );
         }
     }
-    return nullptr;
+    return NULL; // Do not change to nullptr
 }
 
 #ifdef WIN32
@@ -1119,7 +1119,7 @@ void * solver_thread_fun( void *data )
         vsscreen->GetScreenMgr()->SetUpdateFlag( true );
     }
 
-    return nullptr;
+    return NULL; // Do not change to nullptr
 }
 
 void VSPAEROScreen::LaunchVSPAERO()
