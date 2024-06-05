@@ -2459,7 +2459,6 @@ class VV_Base
         
         m_AlphaVec[0] = 1.0; //deg
         m_MachVec[0] = 0.1;
-        m_GeomVec[0] = 0; // Set: All
         m_RefFlagVec[0] = 1; // Wing Reference
         m_WakeIterVec[0] = 3;
         m_SymFlagVec[0] = 1;
@@ -2479,7 +2478,6 @@ class VV_Base
     
     array<double> m_AlphaVec(1);
     array<double> m_MachVec(1);
-    array<int> m_GeomVec(1);
     array<int> m_RefFlagVec(1);
     array<int> m_WakeIterVec(1);
     array<int> m_SymFlagVec(1);
@@ -2945,7 +2943,9 @@ class HersheyVV : VV_Base
 
             // Set defaults
             SetAnalysisInputDefaults( m_CompGeomAnalysis );
-            
+
+            SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+            SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
             SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             // list inputs, type, and current values
@@ -2964,7 +2964,8 @@ class HersheyVV : VV_Base
             SetAnalysisInputDefaults(m_VSPSweepAnalysis);
 
             // Reference geometry set
-            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
             SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
 
             array< string > wid = FindGeomsWithName( "WingGeom" );
@@ -3071,9 +3072,8 @@ class HersheyVV : VV_Base
             // Set defaults
             SetAnalysisInputDefaults( m_CompGeomAnalysis );
             
-            array<int> panel_analysis(1, VSPAERO_ANALYSIS_METHOD::PANEL);
-            SetIntAnalysisInput( m_CompGeomAnalysis, "AnalysisMethod", panel_analysis );
-            
+            SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_ALL}, 0);            // Thick geometry -- "Panel"
+            SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_NONE}, 0);
             SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             // list inputs, type, and current values
@@ -3093,11 +3093,11 @@ class HersheyVV : VV_Base
             Print(m_VSPSweepAnalysis);
 
             // Reference geometry set
-            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_ALL}, 0);            // Thick geometry -- "Panel"
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_NONE}, 0);
             SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
             SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
             SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
-            SetIntAnalysisInput( m_VSPSweepAnalysis, "AnalysisMethod", panel_analysis );
             SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
             
             // Freestream Parameters
@@ -3295,7 +3295,9 @@ class HersheyVV : VV_Base
 
             // Set defaults
             SetAnalysisInputDefaults( m_CompGeomAnalysis );
-            
+
+            SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+            SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
             SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             // list inputs, type, and current values
@@ -3315,7 +3317,8 @@ class HersheyVV : VV_Base
             Print(m_VSPSweepAnalysis);
 
             // Reference geometry set
-            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
             SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
             SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
@@ -3502,7 +3505,9 @@ class HersheyVV : VV_Base
 
             // Set defaults
             SetAnalysisInputDefaults( m_CompGeomAnalysis );
-            
+
+            SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+            SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
             SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             // list inputs, type, and current values
@@ -3522,7 +3527,8 @@ class HersheyVV : VV_Base
             Print(m_VSPSweepAnalysis);
 
             // Reference geometry set
-            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
             SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
             SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
@@ -3726,7 +3732,9 @@ class HersheyVV : VV_Base
 
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
-                
+
+                SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);                // Thin geometry -- "VLM"
                 SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // list inputs, type, and current values
@@ -3746,7 +3754,8 @@ class HersheyVV : VV_Base
                 Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
@@ -3954,7 +3963,9 @@ class HersheyVV : VV_Base
 
             // Set defaults
             SetAnalysisInputDefaults( m_CompGeomAnalysis );
-            
+
+            SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+            SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
             SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             // list inputs, type, and current values
@@ -3974,7 +3985,8 @@ class HersheyVV : VV_Base
             Print(m_VSPSweepAnalysis);
 
             // Reference geometry set
-            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
             SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
             SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
@@ -4115,6 +4127,8 @@ class HersheyVV : VV_Base
             // Set defaults
             SetAnalysisInputDefaults( m_CompGeomAnalysis );
 
+            SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+            SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
             SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
             
             // list inputs, type, and current values
@@ -4134,7 +4148,8 @@ class HersheyVV : VV_Base
             Print(m_VSPSweepAnalysis);
 
             // Reference geometry set
-            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
             SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
 
             array<string> wid = FindGeomsWithName( "WingGeom" );
@@ -4311,7 +4326,9 @@ class HersheyVV : VV_Base
 
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
-                
+
+                SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);                // Thin geometry -- "VLM"
                 SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // list inputs, type, and current values
@@ -4331,7 +4348,8 @@ class HersheyVV : VV_Base
                 Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
 
                 array<string> wid = FindGeomsWithName( "WingGeom" );
@@ -4711,7 +4729,9 @@ class SweepVV : VV_Base
 
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
-                
+
+                SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);                // Thin geometry -- "VLM"
                 SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // list inputs, type, and current values
@@ -4731,7 +4751,8 @@ class SweepVV : VV_Base
                 Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 );
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
@@ -4793,9 +4814,8 @@ class SweepVV : VV_Base
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
                 
-                array<int> panel_analysis(1, VSPAERO_ANALYSIS_METHOD::PANEL);
-                SetIntAnalysisInput( m_CompGeomAnalysis, "AnalysisMethod", panel_analysis );
-                
+                SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_ALL}, 0);                // Thick geometry -- "Panel"
+                SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_NONE}, 0);
                 SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // list inputs, type, and current values
@@ -4815,11 +4835,11 @@ class SweepVV : VV_Base
                 Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_ALL}, 0);            // Thick geometry -- "Panel"
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_NONE}, 0);
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
                 SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
-                SetIntAnalysisInput(m_VSPSweepAnalysis, "AnalysisMethod", panel_analysis);
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
                 
                 // Freestream Parameters
@@ -5010,6 +5030,10 @@ class SweepVV : VV_Base
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
 
+                SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);                // Thin geometry -- "VLM"
+                SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
+
                 // list inputs, type, and current values
                 PrintAnalysisInputs( m_CompGeomAnalysis );
 
@@ -5027,7 +5051,8 @@ class SweepVV : VV_Base
                 Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 );
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
@@ -5235,7 +5260,9 @@ class BertinVV : VV_Base
 
         // Set defaults
         SetAnalysisInputDefaults( m_CompGeomAnalysis );
-        
+
+        SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+        SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);        // Thin geometry -- "VLM"
         SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
         // list inputs, type, and current values
@@ -5255,7 +5282,8 @@ class BertinVV : VV_Base
         Print(m_VSPSweepAnalysis);
 
         // Reference geometry set
-        SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+        SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+        SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
         SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
         SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
@@ -5493,7 +5521,9 @@ class WarrenVV : VV_Base
 
         // Set defaults
         SetAnalysisInputDefaults( m_CompGeomAnalysis );
-        
+
+        SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+        SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);        // Thin geometry -- "VLM"
         SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
         // list inputs, type, and current values
@@ -5513,7 +5543,8 @@ class WarrenVV : VV_Base
         Print(m_VSPSweepAnalysis);
 
         // Reference geometry set
-        SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+        SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+        SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
         SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
         SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
@@ -5965,11 +5996,12 @@ class VKTVV : VV_Base
                     // Set defaults
                     SetAnalysisInputDefaults( m_CompGeomAnalysis );
 
+                    SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_ALL}, 0);                    // Thick geometry -- "Panel"
+                    SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_NONE}, 0);
+                    SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
+
                     // list inputs, type, and current values
                     PrintAnalysisInputs( m_CompGeomAnalysis );
-
-                    array<int> panel_analysis(1, VSPAERO_ANALYSIS_METHOD::PANEL);
-                    SetIntAnalysisInput( m_CompGeomAnalysis, "AnalysisMethod", panel_analysis );
 
                     // Execute
                     Print( "\tExecuting..." );
@@ -5984,14 +6016,13 @@ class VKTVV : VV_Base
                     SetAnalysisInputDefaults(m_VSPSweepAnalysis);
                     Print(m_VSPSweepAnalysis);
 
-                    SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 );
+                    SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_ALL}, 0);            // Thick geometry -- "Panel"
+                    SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_NONE}, 0);
                     SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
                     //SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0); // TODO: Add symmetry if VSPAERO doesn't crash
 
                     array< string > wid = FindGeomsWithName( "WingGeom" );
                     SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
-
-                    SetIntAnalysisInput( m_VSPSweepAnalysis, "AnalysisMethod", panel_analysis );
 
                     // Freestream Parameters
                     SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", Alpha, 0);
@@ -6028,9 +6059,6 @@ class VKTVV : VV_Base
                     // Set defaults
                     SetAnalysisInputDefaults( m_CpSliceAnalysis );
 
-                    // Indicate VSPAERO analysis type for CpSlicer (dCp vs. Cp Results)
-                    SetIntAnalysisInput( m_CpSliceAnalysis, "AnalysisMethod", panel_analysis );
-                    
                     // Setup cuts
                     SetDoubleAnalysisInput( m_CpSliceAnalysis, "YSlicePosVec", cut, 0 );
 
@@ -6168,11 +6196,12 @@ class VKTVV : VV_Base
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
 
+                SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_ALL}, 0);                // Thick geometry -- "Panel"
+                SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
+
                 // list inputs, type, and current values
                 PrintAnalysisInputs( m_CompGeomAnalysis );
-
-                array<int> panel_analysis(1, VSPAERO_ANALYSIS_METHOD::PANEL);
-                SetIntAnalysisInput( m_CompGeomAnalysis, "AnalysisMethod", panel_analysis );
 
                 // Execute
                 Print( "\tExecuting..." );
@@ -6187,9 +6216,8 @@ class VKTVV : VV_Base
                 SetAnalysisInputDefaults(m_VSPSweepAnalysis);
                 Print(m_VSPSweepAnalysis);
 
-                SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 );
-
-                SetIntAnalysisInput( m_VSPSweepAnalysis, "AnalysisMethod", panel_analysis );
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_ALL}, 0);            // Thick geometry -- "Panel"
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_NONE}, 0);
 
                 // Freestream Parameters
                 SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", Alpha, 0);
@@ -6221,9 +6249,6 @@ class VKTVV : VV_Base
 
                 // Set defaults
                 SetAnalysisInputDefaults( m_CpSliceAnalysis );
-                
-                // Indicate VSPAERO analysis type for CpSlicer (dCp vs. Cp Results)
-                SetIntAnalysisInput( m_CpSliceAnalysis, "AnalysisMethod", panel_analysis );
                 
                 // Setup cuts
                 SetDoubleAnalysisInput( m_CpSliceAnalysis, "YSlicePosVec", cut, 0 );
@@ -6528,11 +6553,12 @@ class EllipsoidVV : VV_Base
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
 
+                SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_ALL}, 0);                // Thick geometry -- "Panel"
+                SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
+
                 // list inputs, type, and current values
                 PrintAnalysisInputs( m_CompGeomAnalysis );
-
-                array<int> panel_analysis(1,VSPAERO_ANALYSIS_METHOD::PANEL );
-                SetIntAnalysisInput( m_CompGeomAnalysis, "AnalysisMethod", panel_analysis );
 
                 // Execute
                 Print( "\tExecuting..." );
@@ -6559,9 +6585,9 @@ class EllipsoidVV : VV_Base
                 array<double> Mach(1, 0.0);
                 SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", Mach, 0);
                 array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
-                
-                SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 ); // Reference geometry set
-                SetIntAnalysisInput( m_VSPSweepAnalysis, "AnalysisMethod", panel_analysis );
+
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_ALL}, 0);            // Thick geometry -- "Panel"
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_NONE}, 0);
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
                 Update();
@@ -6587,9 +6613,6 @@ class EllipsoidVV : VV_Base
 
                 // Set defaults
                 SetAnalysisInputDefaults( m_CpSliceAnalysis );
-                
-                // Indicate VSPAERO analysis type for CpSlicer (dCp vs. Cp Results)
-                SetIntAnalysisInput( m_CpSliceAnalysis, "AnalysisMethod", panel_analysis );
                 
                 // Set cuts
                 SetDoubleAnalysisInput( m_CpSliceAnalysis, "XSlicePosVec", cut, 0 );
@@ -6905,7 +6928,9 @@ class SDVV : VV_Base
 
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
-                
+
+                SetIntAnalysisInput(m_CompGeomAnalysis, "GeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_CompGeomAnalysis, "ThinGeomSet", {SET_ALL}, 0);                // Thin geometry -- "VLM"
                 SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // list inputs, type, and current values
@@ -6925,7 +6950,8 @@ class SDVV : VV_Base
                 Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 );
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", {SET_NONE}, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "ThinGeomSet", {SET_ALL}, 0);            // Thin geometry -- "VLM"
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
