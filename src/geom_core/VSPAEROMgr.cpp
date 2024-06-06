@@ -40,10 +40,10 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Name = "VSPAEROSettings";
     string groupname = "VSPAERO";
 
-    m_GeomSet.Init( "GeomSet", groupname, this, DEFAULT_SET, vsp::SET_NONE, vsp::MAX_NUM_SETS );
+    m_GeomSet.Init( "GeomSet", groupname, this, vsp::SET_NONE, vsp::SET_NONE, vsp::MAX_NUM_SETS );
     m_GeomSet.SetDescript( "Thick surface geometry set" );
 
-    m_ThinGeomSet.Init( "ThinGeomSet", groupname, this, vsp::SET_NONE, vsp::SET_NONE, vsp::MAX_NUM_SETS );
+    m_ThinGeomSet.Init( "ThinGeomSet", groupname, this, DEFAULT_SET, vsp::SET_NONE, vsp::MAX_NUM_SETS );
     m_ThinGeomSet.SetDescript( "Thin surface geometry set" );
 
     m_UseMode.Init( "UseMode", groupname, this, false, false, true );
