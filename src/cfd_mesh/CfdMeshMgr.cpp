@@ -2690,7 +2690,14 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
     // tol_fract previously was compared to the distance between groups as a fraction of the local edge length.
     // However, it currently is simply compared to the distance between groups.
     // Consequently, while a reasonable value was previously 1e-2, a much smaller value is now appropriate.
-    double tol = GetGridDensityPtr()->m_MinLen / 1000.0;
+    // In addition, this tolerance is actually in terms of r^2.
+    // This would be better if we had a better representative minimum feature length that was the mininum of:
+    //     Grid minimum edge length
+    //     Shortest edge length specified in any source
+    //     Shortest length of any boundary
+    //     Shortest length of any intersection curve
+    double tol = GetGridDensityPtr()->m_MinLen / 100.0;
+    tol = tol * tol;
 
     MergeEndPointCloud( cloud, tol );
 }
