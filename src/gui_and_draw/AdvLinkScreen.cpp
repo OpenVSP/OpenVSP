@@ -495,6 +495,16 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     {
         if ( edit_link )
         {
+            if ( Fl::event_clicks() > 0 )
+            {
+                string vname = edit_link->GetInputVarName( m_InputBrowserSelect );
+                if ( vname.size() > 0 )
+                {
+                    Fl::copy( vname.c_str(), vname.size(), 1 );
+                }
+            }
+            else
+            {
             int ibs = -1;
             for ( size_t i = 2; i <= m_InputBrowser->size(); i++ )
             {
@@ -520,12 +530,23 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
                 m_VarNameInput.Update( "" );
                 m_ParmPicker.SetParmChoice( "" );
             }
+            }
         }
     }
     else if ( w == m_OutputBrowser )
     {
         if ( edit_link )
         {
+            if ( Fl::event_clicks() > 0 )
+            {
+                string vname = edit_link->GetOutputVarName( m_OutputBrowserSelect );
+                if ( vname.size() > 0 )
+                {
+                    Fl::copy( vname.c_str(), vname.size(), 1 );
+                }
+            }
+            else
+            {
             int obs = -1;
             for ( size_t i = 2; i <= m_OutputBrowser->size(); i++ )
             {
@@ -550,6 +571,7 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
                 m_OutputBrowserSelect = -1;
                 m_VarNameInput.Update( "" );
                 m_ParmPicker.SetParmChoice( "" );
+            }
             }
         }
     }
