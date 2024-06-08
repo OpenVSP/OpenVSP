@@ -69,6 +69,9 @@ public:
     void UpdateInputVarName( int index, const string & var_name, bool changeincode );
     void UpdateOutputVarName( int index, const string & var_name, bool changeincode );
 
+    string GetInputVarName( int index );
+    string GetOutputVarName( int index );
+
     int ReorderInputVar( int index, int action );
     int ReorderOutputVar( int index, int action );
 

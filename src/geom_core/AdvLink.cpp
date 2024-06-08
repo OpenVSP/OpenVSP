@@ -227,6 +227,24 @@ void AdvLink::UpdateOutputVarName( int index, const string & var_name, bool chan
     }
 }
 
+string AdvLink::GetInputVarName( int index )
+{
+    if ( index >= 0 && index < (int)m_InputVars.size() )
+    {
+        return m_InputVars[ index ].m_VarName;
+    }
+    return string();
+}
+
+string AdvLink::GetOutputVarName( int index )
+{
+    if ( index >= 0 && index < (int)m_OutputVars.size() )
+    {
+        return m_OutputVars[ index ].m_VarName;
+    }
+    return string();
+}
+
 int AdvLink::ReorderInputVar( int index, int action )
 {
     if ( index >= 0 && index < (int)m_InputVars.size() )
