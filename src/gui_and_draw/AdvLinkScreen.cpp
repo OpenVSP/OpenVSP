@@ -505,31 +505,31 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
             }
             else
             {
-            int ibs = -1;
-            for ( size_t i = 2; i <= m_InputBrowser->size(); i++ )
-            {
-                if ( m_InputBrowser->selected( i ) )
+                int ibs = -1;
+                for ( size_t i = 2; i <= m_InputBrowser->size(); i++ )
                 {
-                    ibs = i - 2;
-                    break;
+                    if ( m_InputBrowser->selected( i ) )
+                    {
+                        ibs = i - 2;
+                        break;
+                    }
                 }
-            }
 
-            vector <VarDef> ivars = edit_link->GetInputVars();
-            if ( ibs >= 0 && ibs < ivars.size() )
-            {
-                m_InputBrowserSelect = ibs;
-                m_VarNameInput.Update( ivars[ m_InputBrowserSelect ].m_VarName );
-                m_ParmPicker.SetParmChoice( ivars[ m_InputBrowserSelect ].m_ParmID );
+                vector <VarDef> ivars = edit_link->GetInputVars();
+                if ( ibs >= 0 && ibs < ivars.size() )
+                {
+                    m_InputBrowserSelect = ibs;
+                    m_VarNameInput.Update( ivars[ m_InputBrowserSelect ].m_VarName );
+                    m_ParmPicker.SetParmChoice( ivars[ m_InputBrowserSelect ].m_ParmID );
 
-                m_OutputBrowserSelect = -1;
-            }
-            else
-            {
-                m_InputBrowserSelect = -1;
-                m_VarNameInput.Update( "" );
-                m_ParmPicker.SetParmChoice( "" );
-            }
+                    m_OutputBrowserSelect = -1;
+                }
+                else
+                {
+                    m_InputBrowserSelect = -1;
+                    m_VarNameInput.Update( "" );
+                    m_ParmPicker.SetParmChoice( "" );
+                }
             }
         }
     }
@@ -547,31 +547,31 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
             }
             else
             {
-            int obs = -1;
-            for ( size_t i = 2; i <= m_OutputBrowser->size(); i++ )
-            {
-                if ( m_OutputBrowser->selected( i ) )
+                int obs = -1;
+                for ( size_t i = 2; i <= m_OutputBrowser->size(); i++ )
                 {
-                    obs = i - 2;
-                    break;
+                    if ( m_OutputBrowser->selected( i ) )
+                    {
+                        obs = i - 2;
+                        break;
+                    }
                 }
-            }
 
-            vector < VarDef > ovars = edit_link->GetOutputVars();
-            if ( obs >= 0 && obs < ovars.size())
-            {
-                m_OutputBrowserSelect = obs;
-                m_VarNameInput.Update( ovars[ m_OutputBrowserSelect ].m_VarName );
-                m_ParmPicker.SetParmChoice( ovars[ m_OutputBrowserSelect ].m_ParmID );
+                vector < VarDef > ovars = edit_link->GetOutputVars();
+                if ( obs >= 0 && obs < ovars.size())
+                {
+                    m_OutputBrowserSelect = obs;
+                    m_VarNameInput.Update( ovars[ m_OutputBrowserSelect ].m_VarName );
+                    m_ParmPicker.SetParmChoice( ovars[ m_OutputBrowserSelect ].m_ParmID );
 
-                m_InputBrowserSelect = -1;
-            }
-            else
-            {
-                m_OutputBrowserSelect = -1;
-                m_VarNameInput.Update( "" );
-                m_ParmPicker.SetParmChoice( "" );
-            }
+                    m_InputBrowserSelect = -1;
+                }
+                else
+                {
+                    m_OutputBrowserSelect = -1;
+                    m_VarNameInput.Update( "" );
+                    m_ParmPicker.SetParmChoice( "" );
+                }
             }
         }
     }
