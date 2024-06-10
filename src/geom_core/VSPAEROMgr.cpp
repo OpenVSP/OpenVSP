@@ -149,6 +149,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     UpdateFilenames();
 
     m_SolverProcessKill = false;
+    m_SlicerProcessKill = false;
 
     // Plot limits
     m_ConvergenceXMinIsManual.Init( "m_ConvergenceXMinIsManual", groupname, this, 0, 0, 1 );
@@ -2129,6 +2130,24 @@ ProcessUtil* VSPAEROMgrSingleton::GetSolverProcess()
     return &m_SolverProcess;
 }
 
+bool VSPAEROMgrSingleton::IsSlicerRunning()
+{
+    return m_SlicerThread.IsRunning();
+}
+
+void VSPAEROMgrSingleton::KillSlicer()
+{
+    // Raise flag to break the compute solver thread
+    m_SlicerProcessKill = true;
+    return m_SlicerThread.Kill();
+}
+
+ProcessUtil* VSPAEROMgrSingleton::GetSlicerProcess()
+{
+    return &m_SlicerThread;
+}
+
+
 /*******************************************************
 Read .HISTORY file output from VSPAERO
 See: VSP_Solver.C in vspaero project
@@ -3776,6 +3795,15 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     // ==== MonitorSolverProcess ==== //
     MonitorProcess( logFile, &m_SlicerThread, "VSPAEROSolverMessage" );
 
+    // Check if the kill slicer flag has been raised, if so clean up and return
+    //  note: we could have exited the IsRunning loop if the process was killed
+    if( m_SlicerProcessKill )
+    {
+        m_SlicerProcessKill = false;    //reset kill flag
+
+        return string();
+    }
+
     // Write out new results
     Results* res = ResultsMgr.CreateResults( "CpSlice_Wrapper", "VSPAERO Cp slicer setup results." );
     if ( !res )
@@ -3853,10 +3881,17 @@ void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
     }
 
     //====== Execute VSPAERO Slicer ======//
-    m_SolverProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
+    m_SlicerThread.ForkCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
 
     // ==== MonitorSolverProcess ==== //
-    MonitorProcess( logFile, &m_SolverProcess, "VSPAEROSolverMessage" );
+    MonitorProcess( logFile, &m_SlicerThread, "VSPAEROSolverMessage" );
+
+    // Check if the kill slicer flag has been raised, if so clean up and return
+    //  note: we could have exited the IsRunning loop if the process was killed
+    if( m_SlicerProcessKill )
+    {
+        m_SlicerProcessKill = false;    //reset kill flag
+    }
 }
 
 void VSPAEROMgrSingleton::ClearCpSliceResults()

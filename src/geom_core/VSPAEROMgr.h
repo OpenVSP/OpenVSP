@@ -292,6 +292,9 @@ public:
     ProcessUtil* GetSolverProcess();
     bool IsSolverRunning();
     void KillSolver();
+    ProcessUtil* GetSlicerProcess();
+    bool IsSlicerRunning();
+    void KillSlicer();
 
     static int ExportResultsToCSV( const string &fileName );
 
@@ -534,6 +537,7 @@ protected:
     void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec, vector<double> &recrefVec ) const;
 
     bool m_SolverProcessKill;
+    bool m_SlicerProcessKill;
 
     // helper functions for VSPAERO files
     void ReadHistoryFile( const string &filename, vector <string> &res_id_vector, double recref ) const;
