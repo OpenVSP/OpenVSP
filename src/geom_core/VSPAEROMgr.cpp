@@ -2112,6 +2112,19 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
     }
 }
 
+void VSPAEROMgrSingleton::KillSolverOrSlicer()
+{
+    if ( IsSolverRunning() )
+    {
+        KillSolver();
+    }
+
+    if ( IsSlicerRunning() )
+    {
+        KillSlicer();
+    }
+}
+
 // helper thread functions for VSPAERO GUI interface and multi-threaded impleentation
 bool VSPAEROMgrSingleton::IsSolverRunning()
 {
