@@ -1852,11 +1852,15 @@ extern int GetAnalysisInputType( const std::string & analysis, const std::string
     string analysis_name = "VSPAEROComputeGeometry";
 
     // Set to panel method
-    array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
+    array< int > thick_set = GetIntAnalysisInput( analysis_name, "GeomSet" );
+    array< int > thin_set = GetIntAnalysisInput( analysis_name, "ThinGeomSet" );
 
-    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    thick_set[0] = ( SET_TYPE::SET_NONE );
+    thin_set[0] = ( SET_TYPE::SET_ALL );
 
-    SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
+    SetIntAnalysisInput( analysis_name, "GeomSet", thick_set, 0);
+    SetIntAnalysisInput( analysis_name, "ThinGeomSet", thin_set, 0);
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -1865,11 +1869,14 @@ extern int GetAnalysisInputType( const std::string & analysis, const std::string
     analysis_name = "VSPAEROComputeGeometry"
 
     # Set to panel method
-    analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" )
+    thick_set = GetIntAnalysisInput( analysis_name, "GeomSet" )
+    thin_set = GetIntAnalysisInput( analysis_name, "ThinGeomSet" )
 
-    analysis_method = [VORTEX_LATTICE]
+    thick_set = [vsp.SET_NONE]
+    thin_set = [vsp.SET_ALL]
 
-    SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method )
+    SetIntAnalysisInput( analysis_name, "GeomSet", thick_set )
+    SetIntAnalysisInput( analysis_name, "ThinGeomSet", thin_set )
 
     \endcode
     \endPythonOnly
@@ -2024,11 +2031,15 @@ extern void SetAnalysisInputDefaults( const std::string & analysis );
     string analysis_name = "VSPAEROComputeGeometry";
 
     // Set to panel method
-    array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
+    array< int > thick_set = GetIntAnalysisInput( analysis_name, "GeomSet" );
+    array< int > thin_set = GetIntAnalysisInput( analysis_name, "ThinGeomSet" );
 
-    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    thick_set[0] = ( SET_TYPE::SET_NONE );
+    thin_set[0] = ( SET_TYPE::SET_ALL );
 
-    SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
+    SetIntAnalysisInput( analysis_name, "GeomSet", thick_set, 0);
+    SetIntAnalysisInput( analysis_name, "ThinGeomSet", thin_set, 0);
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2037,11 +2048,14 @@ extern void SetAnalysisInputDefaults( const std::string & analysis );
     analysis_name = "VSPAEROComputeGeometry"
 
     # Set to panel method
-    analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" )
+    thick_set = GetIntAnalysisInput( analysis_name, "GeomSet" )
+    thin_set = GetIntAnalysisInput( analysis_name, "ThinGeomSet" )
 
-    analysis_method = [VORTEX_LATTICE]
+    thick_set = [vsp.SET_NONE]
+    thin_set = [vsp.SET_ALL]
 
-    SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method )
+    SetIntAnalysisInput( analysis_name, "GeomSet", thick_set )
+    SetIntAnalysisInput( analysis_name, "ThinGeomSet", thin_set )
 
     \endcode
     \endPythonOnly
