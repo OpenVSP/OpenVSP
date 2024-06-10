@@ -82,9 +82,12 @@ void TestVSPAeroComputeGeom()
     SetAnalysisInputDefaults( analysis_name );
 
     // Analysis method
-    array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
-    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
-    SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
+    array< int > thick_set = GetIntAnalysisInput( analysis_name, "GeomSet" );
+    array< int > thin_set = GetIntAnalysisInput( analysis_name, "ThinGeomSet" );
+    thick_set[0] = ( SET_TYPE::SET_NONE );
+    thin_set[0] = ( SET_TYPE::SET_ALL );
+    SetIntAnalysisInput( analysis_name, "GeomSet", thick_set );
+    SetIntAnalysisInput( analysis_name, "ThinGeomSet", thin_set );
 
     // list inputs, type, and current values
     PrintAnalysisInputs( analysis_name );
