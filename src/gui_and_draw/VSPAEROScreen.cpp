@@ -1209,7 +1209,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if( device == &m_KillSolverButton )
         {
-            VSPAEROMgr.KillSolver();
+            VSPAEROMgr.KillSolverOrSlicer();
         }
         else if( device == &m_PlotButton )
         {
