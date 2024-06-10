@@ -147,7 +147,6 @@ public:
 
     // Setup File I/O
     void Write_STP_Data( FILE * InputFile );
-    static void Load_STP_Data( FILE * InputFile );
 
     // vsp3 file xml I/O
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );

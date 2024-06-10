@@ -6063,11 +6063,6 @@ void ControlSurfaceGroup::Write_STP_Data( FILE *InputFile )
 
 }
 
-void ControlSurfaceGroup::Load_STP_Data( FILE *InputFile )
-{
-    //TODO - need to write function to load data from .vspaero file
-}
-
 xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
 {
     if ( node )
