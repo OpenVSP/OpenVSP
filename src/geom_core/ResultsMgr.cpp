@@ -1232,6 +1232,19 @@ vector< string > ResultsMgrSingleton::GetAllDataNames( const string & results_id
     return results_ptr->GetAllDataNames();
 }
 
+vector< string > ResultsMgrSingleton::GetAllResultsIDs()
+{
+    vector < string > res_ids;
+
+    map< string, Results* >::iterator iter;
+    for ( iter = m_ResultsMap.begin() ; iter != m_ResultsMap.end() ; ++iter )
+    {
+        res_ids.push_back( iter->first );
+    }
+
+    return res_ids;
+}
+
 void ResultsMgrSingleton::PrintResults( const string &fname, const string &results_id )
 {
     FILE *fp;

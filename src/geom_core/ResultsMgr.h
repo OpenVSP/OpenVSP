@@ -240,6 +240,7 @@ public:
 
     vector< string > GetAllResultsNames();
     vector< string > GetAllDataNames( const string & results_id );
+    vector< string > GetAllResultsIDs();
 
     void PrintResults( const string &fname, const std::string &results_id );
     void PrintResults( const std::string &results_id );
