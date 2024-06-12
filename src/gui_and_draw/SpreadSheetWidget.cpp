@@ -1,0 +1,182 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+// Rob McDonald
+//
+//////////////////////////////////////////////////////////////////////
+
+#include "SpreadSheetWidget.h"
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <>
+void SpreadSheet< int >::set_value( int R, int C, const char * str )
+{
+    (*m_Data)[ R ] = strtol( str, nullptr, 10 );
+}
+
+template <>
+string SpreadSheet< int >::get_value( int R, int C )
+{
+    char s[255];
+    snprintf( s, sizeof( s ), "%d", (*m_Data)[ R ] );
+    return string( s );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <>
+void SpreadSheet< double >::set_value( int R, int C, const char * str )
+{
+    (*m_Data)[ R ] = strtod( str, nullptr );
+}
+
+template <>
+string SpreadSheet< double >::get_value( int R, int C )
+{
+    char s[255];
+    snprintf( s, sizeof( s ), "%f", (*m_Data)[ R ] );
+    return string( s );
+}
+
+template <>
+string SpreadSheet< double >::get_exact_value( int R, int C )
+{
+    char s[255];
+    snprintf( s, sizeof(s), "%.*e", DBL_DIG + 3, (*m_Data)[ R ] );
+    return string( s );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <>
+void SpreadSheet< string >::set_value( int R, int C, const char * str )
+{
+    (*m_Data)[ R ] = string( str );
+}
+
+template <>
+string SpreadSheet< string >::get_value( int R, int C )
+{
+    return (*m_Data)[ R ];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <>
+void SpreadSheet< vec3d >::set_value( int R, int C, const char * str )
+{
+    (*m_Data)[ R ][ C ] = strtod( str, nullptr );
+}
+
+template <>
+string SpreadSheet< vec3d >::get_value( int R, int C )
+{
+    char s[255];
+    snprintf( s, sizeof( s ), "%f", (*m_Data)[ R ][ C ] );
+    return string( s );
+}
+
+template <>
+string SpreadSheet< vec3d >::get_exact_value( int R, int C )
+{
+    char s[255];
+    snprintf( s, sizeof(s), "%.*e", DBL_DIG + 3, (*m_Data)[ R ][ C ] );
+    return string( s );
+}
+
+// Unfortunately, the following two methods must be re-specialized for every
+// vector type.  Fortunately, copy/paste should suffice as they are data type
+// independent.
+template <>
+int SpreadSheet< vec3d >::get_data_ncol()
+{
+    if ( get_data_nrow() > 0 )
+    {
+        return 3;
+    }
+    return 0;
+};
+
+template <>
+void SpreadSheet< vec3d >::update_size( int nrow, int ncol )
+{
+    bool change = false;
+
+    if ( get_data_nrow() != nrow )
+    {
+        (*m_Data).resize( nrow );
+        change = true;
+    }
+
+    if ( change )
+    {
+        update_size();
+    }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <>
+void SpreadSheet< vector < double > >::set_value( int R, int C, const char * str )
+{
+    (*m_Data)[ R ][ C ] = strtod( str, nullptr );
+}
+
+template <>
+string SpreadSheet< vector < double > >::get_value( int R, int C )
+{
+    char s[255];
+    snprintf( s, sizeof( s ), "%f", (*m_Data)[ R ][ C ] );
+    return string( s );
+}
+
+template <>
+string SpreadSheet< vector < double > >::get_exact_value( int R, int C )
+{
+    char s[255];
+    snprintf( s, sizeof(s), "%.*e", DBL_DIG + 3, (*m_Data)[ R ][ C ] );
+    return string( s );
+}
+
+// Unfortunately, the following two methods must be re-specialized for every
+// vector type.  Fortunately, copy/paste should suffice as they are data type
+// independent.
+template <>
+int SpreadSheet< vector < double > >::get_data_ncol()
+{
+    if ( get_data_nrow() > 0 )
+    {
+        return (*m_Data)[ 0 ].size();
+    }
+    return 0;
+};
+
+template <>
+void SpreadSheet< vector < double > >::update_size( int nrow, int ncol )
+{
+    bool change = false;
+
+    if ( get_data_nrow() != nrow )
+    {
+        (*m_Data).resize( nrow );
+        change = true;
+    }
+
+    if ( ( get_data_ncol() != ncol ) || change )
+    {
+        for ( int i = 0; i < get_data_nrow(); i++ )
+        {
+            ( *m_Data )[ i ].resize( ncol );
+        }
+        change = true;
+    }
+
+    if ( change )
+    {
+        update_size();
+    }
+}
