@@ -306,3 +306,47 @@ string StringUtil::NasFmt( double input )
         }
     }
 }
+
+void StringUtil::parse_table( const char * str, int len, std::vector < std::vector < string > > & table )
+{
+    // strtok won't work on const char *, so make a copy.
+    char str_copy[len];
+    strcpy( str_copy, str );
+
+    // Parse lines by \n
+    std::vector < string > lines;
+    char *l = strtok( str_copy, "\n" );
+    while ( l != nullptr )
+    {
+        lines.emplace_back( l );
+        l = strtok ( nullptr, "\n" );
+    }
+
+    table.resize( lines.size() );
+    int ncol = 0;
+    for ( int i = 0; i < lines.size(); i++ )
+    {
+        // strtok won't work on const char *, so make a copy.
+        char buf[ lines[i].size() ];
+        strcpy( buf, lines[i].c_str() );
+
+        // Parse fields by \t
+        char *f = strtok( buf, "\t" );
+        while ( f != nullptr )
+        {
+            table[i].emplace_back( f );
+            f = strtok ( nullptr, "\t" );
+        }
+
+        if ( table[i].size() > ncol )
+        {
+            ncol = table[i].size();
+        }
+    }
+
+    // ensure all rows have same number of columns.
+    for ( int i = 0; i < table.size(); i++ )
+    {
+        table[i].resize( ncol );
+    }
+}

@@ -42,6 +42,8 @@ string truncateFileName( const string &fn, int len );
 
 string NasFmt( double input );
 
+void parse_table( const char * str, int len, std::vector < std::vector < string > > & table );
+
 }
 
 
