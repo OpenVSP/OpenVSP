@@ -21,6 +21,7 @@
 #include <FL/Fl_Sys_Menu_Bar.H>
 
 #include "GuiDevice.h"
+#include "SpreadSheetWidget.h"
 
 #include <vector>
 #include <string>
@@ -176,6 +177,9 @@ public:
 
     Fl_Color_Chooser* AddFlColorChooser( int height );
 
+    template < typename T >
+    SpreadSheet<T> * AddSpreadSheet( int height );
+
     //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
     //==== Subgroups can be Used To Create Multiple Column Layouts ====//
     void AddSubGroupLayout( GroupLayout& layout, int w, int h );
@@ -227,6 +231,35 @@ void AddPoint( const vector <double> & xdata,  const vector <double> & ydata, Fl
 Fl_Color ColorWheel( int i, int nunique, int nhue = 7 );
 int StyleWheel( int i );
 void DebugLabelSize( Fl_Widget *widget );
+
+
+template < typename T >
+SpreadSheet<T> * GroupLayout::AddSpreadSheet( int height )
+{
+    assert( m_Group && m_Screen );
+
+    SpreadSheet<T> * sheet = new SpreadSheet<T>( m_X, m_Y, m_W, height, "" );
+
+    m_Group->add( sheet );
+
+    // Table rows
+    sheet->row_header( 1 );
+    sheet->row_header_width( m_ButtonWidth );
+    sheet->row_resize( 1 );
+    sheet->row_default_height( m_StdHeight );
+    // Table cols
+    sheet->col_header( 1 );
+    sheet->col_header_height( m_StdHeight );
+    sheet->col_resize( 1 );
+    sheet->col_default_width( m_InputWidth );
+
+    AddX( m_W );
+
+    AddY( height );
+    NewLineX();
+
+    return sheet;
+}
 
 
 #endif // !defined(GUIDEVICE__INCLUDED_)
