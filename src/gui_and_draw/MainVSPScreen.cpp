@@ -122,8 +122,9 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RearMenuItem.Init( this, m_MenuBar, "View/Rear", FL_F + 10 );
     m_RightSideMenuItem.Init( this, m_MenuBar, "View/Right", FL_F + 11 );
     m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso", FL_F + 12 );
-    m_CenterMenuItem.Init( this, m_MenuBar, "View/Center", 'c' );
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
+    m_CenterMenuItem.Init( this, m_MenuBar, "View/Center", 'c' );
+    m_CenterAllMenuItem.Init( this, m_MenuBar, "View/Center All", 'C' );
     m_FitViewMenuItem.Init( this, m_MenuBar, "View/Fit On Screen", 'f' );
     m_FitAllViewMenuItem.Init( this, m_MenuBar, "View/Fit All On Screen", 'F' );
     m_AdjustMenuItem.Init( mgr, m_MenuBar, "View/Adjust...", vsp::VSP_VIEW_SCREEN );
@@ -643,6 +644,28 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_CenterMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_CENTER );
+
+        ManageViewScreen * viewScreen = NULL;
+        viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
+
+        if( viewScreen )
+        {
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+            }
+        }
+    }
+    else if ( data == &m_CenterAllMenuItem )
+    {
+        std::vector< VSPGraphic::Viewport *> vpts = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+
+        for ( int i = 0; i < vpts.size(); i++ )
+        {
+            vpts[i]->getCamera()->changeView( VSPGraphic::Common::VSP_CAM_CENTER );
+        }
 
         ManageViewScreen * viewScreen = NULL;
         viewScreen = dynamic_cast< ManageViewScreen* >

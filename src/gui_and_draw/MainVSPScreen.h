@@ -115,6 +115,7 @@ protected:
     ActionMenuItem m_RightSideMenuItem;
     ActionMenuItem m_RightIsoMenuItem;
     ActionMenuItem m_CenterMenuItem;
+    ActionMenuItem m_CenterAllMenuItem;
     ScreenMenuItem m_AdjustMenuItem;
     ActionMenuItem m_SetCORMenuItem;
     ActionMenuItem m_FitViewMenuItem;
