@@ -17,22 +17,32 @@ LayoutMgr::LayoutMgr( int row, int column )
 
     _row = row;
     _column = column;
+    int nview = _row * _column;
 
     _sWidth = _sHeight = 1;
 
     _startx = _starty = -1;
 
     // Set View order for viewports.
-    _vOrder.push_back( Common::VSP_CAM_TOP );
-    _vOrder.push_back( Common::VSP_CAM_LEFT_ISO );
-    _vOrder.push_back( Common::VSP_CAM_LEFT );
-    _vOrder.push_back( Common::VSP_CAM_FRONT );
-    _vOrder.push_back( Common::VSP_CAM_REAR );
-    _vOrder.push_back( Common::VSP_CAM_RIGHT_ISO );
-    _vOrder.push_back( Common::VSP_CAM_RIGHT );
-    _vOrder.push_back( Common::VSP_CAM_BOTTOM );
+    switch ( nview )
+    {
+        case 1:
+            _vOrder.push_back( Common::VSP_CAM_TOP );
+            break;
+        case 2:
+            _vOrder.push_back( Common::VSP_CAM_FRONT );
+            _vOrder.push_back( Common::VSP_CAM_TOP );
+            break;
+        case 4:
+        default:
+            _vOrder.push_back( Common::VSP_CAM_LEFT_ISO );
+            _vOrder.push_back( Common::VSP_CAM_TOP );
+            _vOrder.push_back( Common::VSP_CAM_FRONT );
+            _vOrder.push_back( Common::VSP_CAM_LEFT );
+            break;
+    }
 
-    for( int i = 0; i < ( _row * _column ); i++ )
+    for( int i = 0; i < nview; i++ )
     {
         // Placeholder viewports.
         Viewport * viewport = new Viewport( 0, 0, 1, 1 );
