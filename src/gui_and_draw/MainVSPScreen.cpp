@@ -125,6 +125,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_CenterMenuItem.Init( this, m_MenuBar, "View/Center", 'c' );
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
     m_FitViewMenuItem.Init( this, m_MenuBar, "View/Fit On Screen", 'f' );
+    m_FitAllViewMenuItem.Init( this, m_MenuBar, "View/Fit All On Screen", 'F' );
     m_AdjustMenuItem.Init( mgr, m_MenuBar, "View/Adjust...", vsp::VSP_VIEW_SCREEN );
     // m_AntialiasMenuItem.Init( this, m_MenuBar, "View/New" );
 
@@ -666,72 +667,9 @@ void MainVSPScreen::ActionCB( void * data )
             corScreen->EnableSelection();
         }
     }
-    else if ( data == &m_FitViewMenuItem )
+    else if ( data == &m_FitViewMenuItem || data == &m_FitAllViewMenuItem )
     {
-        BndBox bbox;
-
-        bool vehvisible = VehicleMgr.GetVehicle()->GetVisibleBndBox( bbox );
-
-        bool cfdvisible = false;
-        // Load visible boundign box from CfdMeshScreen.
-        CfdMeshScreen * cfdScreen = dynamic_cast< CfdMeshScreen* >
-        ( m_ScreenMgr->GetScreen( vsp::VSP_CFD_MESH_SCREEN ) );
-        if( cfdScreen )
-        {
-            cfdvisible = cfdScreen->GetVisBndBox( bbox );
-        }
-
-        bool surfvisible = false;
-        // Load visible boundign box from SurfaceIntersectionScreen.
-        SurfaceIntersectionScreen * surfScreen = dynamic_cast< SurfaceIntersectionScreen* >
-        ( m_ScreenMgr->GetScreen( vsp::VSP_SURFACE_INTERSECTION_SCREEN ) );
-        if( surfScreen )
-        {
-            surfvisible = surfScreen->GetVisBndBox( bbox );
-        }
-
-        bool structvisible = false;
-        // Load visible boundign box from FeaStructScreen.
-        StructScreen * structScreen = dynamic_cast< StructScreen* >
-        ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_SCREEN ) );
-        if( structScreen )
-        {
-            structvisible = structScreen->GetVisBndBox( bbox );
-        }
-
-        bool assemblyvisible = false;
-        // Load visible boundign box from FeaStructAssemblyScreen.
-        StructAssemblyScreen * structAssemblyScreen = dynamic_cast< StructAssemblyScreen* >
-        ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_ASSEMBLY_SCREEN ) );
-        if( structAssemblyScreen )
-        {
-            assemblyvisible = structAssemblyScreen->GetVisBndBox( bbox );
-        }
-
-        if ( vehvisible || cfdvisible || surfvisible || structvisible || assemblyvisible ) // Check for any visible objects
-        {
-            vec3d p = bbox.GetCenter();
-            double d = bbox.DiagDist();
-            int wid = m_GlWin->pixel_w();
-            int ht = m_GlWin->pixel_h();
-
-            float z = d * ( wid < ht ? 1.f / wid : 1.f / ht );
-
-            m_GlWin->getGraphicEngine()->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
-            m_GlWin->getGraphicEngine()->getDisplay()->relativePan( 0.0f, 0.0f );
-            m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
-
-            ManageViewScreen * viewScreen = NULL;
-            viewScreen = dynamic_cast< ManageViewScreen* >
-            ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
-            if ( viewScreen->IsShown() )
-            {
-                viewScreen->UpdateCOR();
-                viewScreen->UpdatePan();
-                viewScreen->UpdateZoom();
-            }
-        }
+        FitView( data == &m_FitAllViewMenuItem );
     }
     // else if ( m_AntialiasMenuItem )
     // {
@@ -801,6 +739,96 @@ void MainVSPScreen::SetBackground( double r, double g, double b )
         }
     }
 }
+
+void MainVSPScreen::FitView( bool all )
+{
+    BndBox bbox;
+
+    bool vehvisible = VehicleMgr.GetVehicle()->GetVisibleBndBox( bbox );
+
+    bool cfdvisible = false;
+    // Load visible boundign box from CfdMeshScreen.
+    CfdMeshScreen * cfdScreen = dynamic_cast< CfdMeshScreen* >
+    ( m_ScreenMgr->GetScreen( vsp::VSP_CFD_MESH_SCREEN ) );
+    if( cfdScreen )
+    {
+        cfdvisible = cfdScreen->GetVisBndBox( bbox );
+    }
+
+    bool surfvisible = false;
+    // Load visible boundign box from SurfaceIntersectionScreen.
+    SurfaceIntersectionScreen * surfScreen = dynamic_cast< SurfaceIntersectionScreen* >
+    ( m_ScreenMgr->GetScreen( vsp::VSP_SURFACE_INTERSECTION_SCREEN ) );
+    if( surfScreen )
+    {
+        surfvisible = surfScreen->GetVisBndBox( bbox );
+    }
+
+    bool structvisible = false;
+    // Load visible boundign box from FeaStructScreen.
+    StructScreen * structScreen = dynamic_cast< StructScreen* >
+    ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_SCREEN ) );
+    if( structScreen )
+    {
+        structvisible = structScreen->GetVisBndBox( bbox );
+    }
+
+    bool assemblyvisible = false;
+    // Load visible boundign box from FeaStructAssemblyScreen.
+    StructAssemblyScreen * structAssemblyScreen = dynamic_cast< StructAssemblyScreen* >
+    ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_ASSEMBLY_SCREEN ) );
+    if( structAssemblyScreen )
+    {
+        assemblyvisible = structAssemblyScreen->GetVisBndBox( bbox );
+    }
+
+    if ( vehvisible || cfdvisible || surfvisible || structvisible || assemblyvisible ) // Check for any visible objects
+    {
+        vec3d p = bbox.GetCenter();
+        double d = bbox.DiagDist();
+
+        std::vector< VSPGraphic::Viewport *> vpts = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+
+        int wid = m_GlWin->pixel_w();
+        int ht = m_GlWin->pixel_h();
+
+        for ( int i = 0; i < vpts.size(); i++ )
+        {
+            wid = MIN( wid, vpts[i]->width() );
+            ht = MIN( ht, vpts[i]->height() );
+        }
+
+        float z = d * ( wid < ht ? 1.f / wid : 1.f / ht );
+
+        if ( all )
+        {
+            for ( int i = 0; i < vpts.size(); i++ )
+            {
+                vpts[i]->getCamera()->setCOR( -p.x(), -p.y(), -p.z() );
+                vpts[i]->getCamera()->relativePan( 0.0f, 0.0f );
+                vpts[i]->getCamera()->relativeZoom( z );
+            }
+        }
+        else
+        {
+            m_GlWin->getGraphicEngine()->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
+            m_GlWin->getGraphicEngine()->getDisplay()->relativePan( 0.0f, 0.0f );
+            m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
+        }
+
+        ManageViewScreen * viewScreen = NULL;
+        viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
+
+        if ( viewScreen->IsShown() )
+        {
+            viewScreen->UpdateCOR();
+            viewScreen->UpdatePan();
+            viewScreen->UpdateZoom();
+        }
+    }
+}
+
 
 void MainVSPScreen::ShowReturnToAPIImplementation()
 {

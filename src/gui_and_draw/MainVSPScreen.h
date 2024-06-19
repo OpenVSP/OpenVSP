@@ -45,6 +45,8 @@ public:
         return m_GlWin;
     }
 
+    void FitView( bool all );
+
     void ShowReturnToAPIImplementation();
     void HideReturnToAPIImplementation();
     void ShowExitImplementation();
@@ -116,6 +118,7 @@ protected:
     ScreenMenuItem m_AdjustMenuItem;
     ActionMenuItem m_SetCORMenuItem;
     ActionMenuItem m_FitViewMenuItem;
+    ActionMenuItem m_FitAllViewMenuItem;
     // ActionMenuItem m_AntialiasMenuItem;
 
     ScreenMenuItem m_GeomMenuItem;
