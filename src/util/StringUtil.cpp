@@ -307,6 +307,66 @@ string StringUtil::NasFmt( double input )
     }
 }
 
+// strtok replacement from https://stackoverflow.com/questions/26522583/c-strtok-skips-second-token-or-consecutive-delimiter
+// ... modified to fix 'const' and 'static' attributes, remove superfluous variable 'tkn'
+char *paxtok( char *str, const char *seps )
+{
+    static char *pos = NULL;
+    char *tpos;
+    static char savech;
+
+    // Specific actions for first and subsequent calls.
+
+    if ( str != NULL )
+    {
+        // First call, set pointer.
+
+        pos = str;
+        savech = 'x';
+    }
+    else
+    {
+        // Subsequent calls, check we've done first.
+
+        if (pos == NULL)
+        {
+            return NULL;
+        }
+        // Then put character back and advance.
+
+        while ( *pos != '\0' )
+        {
+            pos++;
+        }
+        *pos++ = savech;
+    }
+
+    // Detect previous end of string.
+
+    if ( savech == '\0' )
+    {
+        return NULL;
+    }
+
+    // Now we have pos pointing to first character.
+    // Find first separator or nul.
+
+    tpos = pos;
+    while (*tpos != '\0')
+    {
+        if ( strchr( seps, *tpos ) )
+        {
+            break;
+        }
+        tpos++;
+    }
+
+    savech = *tpos;
+    *tpos = '\0';
+
+    return pos;
+}
+
 void StringUtil::parse_table( const char * str, int len, std::vector < std::vector < string > > & table )
 {
     // strtok won't work on const char *, so make a copy.
@@ -316,11 +376,11 @@ void StringUtil::parse_table( const char * str, int len, std::vector < std::vect
 
     // Parse lines by \n
     std::vector < string > lines;
-    char *l = strtok( str_copy, "\n" );
+    char *l = paxtok( str_copy, "\n" );
     while ( l != nullptr )
     {
         lines.emplace_back( l );
-        l = strtok ( nullptr, "\n" );
+        l = paxtok ( nullptr, "\n" );
     }
 
     table.resize( lines.size() );
@@ -334,11 +394,11 @@ void StringUtil::parse_table( const char * str, int len, std::vector < std::vect
         buf[siz] = '\0';
 
         // Parse fields by \t
-        char *f = strtok( buf, "\t" );
+        char *f = paxtok( buf, "\t" );
         while ( f != nullptr )
         {
             table[i].emplace_back( f );
-            f = strtok ( nullptr, "\t" );
+            f = paxtok ( nullptr, "\t" );
         }
 
         if ( (int)table[i].size() > ncol )
