@@ -551,18 +551,7 @@ void MainVSPScreen::ActionCB( void * data )
             vpts[i]->getCamera()->changeView( VSPGraphic::Common::VSP_CAM_CENTER );
         }
 
-        ManageViewScreen * viewScreen = NULL;
-        viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
-        if( viewScreen )
-        {
-            if ( viewScreen->IsShown() )
-            {
-                viewScreen->UpdateCOR();
-                viewScreen->UpdatePan();
-            }
-        }
+        UpdateViewScreen();
     }
     else if ( data == &m_SetCORMenuItem )
     {
@@ -672,19 +661,7 @@ void MainVSPScreen::SetView( int view )
 {
     m_GlWin->setView( static_cast < VSPGraphic::Common::VSPenum > ( view ) );
 
-    ManageViewScreen * viewScreen = NULL;
-    viewScreen = dynamic_cast< ManageViewScreen* >
-    ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
-    if( viewScreen )
-    {
-        if ( viewScreen->IsShown() )
-        {
-            viewScreen->UpdateCOR();
-            viewScreen->UpdatePan();
-            viewScreen->UpdateRotations();
-        }
-    }
+    UpdateViewScreen();
 }
 
 void MainVSPScreen::FitView( bool all )
@@ -763,16 +740,7 @@ void MainVSPScreen::FitView( bool all )
             m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
         }
 
-        ManageViewScreen * viewScreen = NULL;
-        viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
-        if ( viewScreen->IsShown() )
-        {
-            viewScreen->UpdateCOR();
-            viewScreen->UpdatePan();
-            viewScreen->UpdateZoom();
-        }
+        UpdateViewScreen();
     }
 }
 
@@ -807,18 +775,7 @@ void MainVSPScreen::ResetViews()
         vpts[i]->getCamera()->changeView( vOrder[ i ] );
     }
 
-    ManageViewScreen * viewScreen = NULL;
-    viewScreen = dynamic_cast< ManageViewScreen* >
-    ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
-    if( viewScreen )
-    {
-        if ( viewScreen->IsShown() )
-        {
-            viewScreen->UpdateCOR();
-            viewScreen->UpdatePan();
-        }
-    }
+    UpdateViewScreen();
 }
 
 void MainVSPScreen::ShowReturnToAPIImplementation()
