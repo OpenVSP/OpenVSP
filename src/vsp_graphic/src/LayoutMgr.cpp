@@ -23,23 +23,24 @@ LayoutMgr::LayoutMgr( int row, int column )
 
     _startx = _starty = -1;
 
+    std::vector < Common::VSPenum > vOrder;
     // Set View order for viewports.
     // Note:  Changes here should be matched in MainVSPScreen::ResetViews()
     switch ( nview )
     {
         case 1:
-            _vOrder.push_back( Common::VSP_CAM_TOP );
+            vOrder.push_back( Common::VSP_CAM_TOP );
             break;
         case 2:
-            _vOrder.push_back( Common::VSP_CAM_FRONT );
-            _vOrder.push_back( Common::VSP_CAM_TOP );
+            vOrder.push_back( Common::VSP_CAM_FRONT );
+            vOrder.push_back( Common::VSP_CAM_TOP );
             break;
         case 4:
         default:
-            _vOrder.push_back( Common::VSP_CAM_LEFT_ISO );
-            _vOrder.push_back( Common::VSP_CAM_TOP );
-            _vOrder.push_back( Common::VSP_CAM_FRONT );
-            _vOrder.push_back( Common::VSP_CAM_LEFT );
+            vOrder.push_back( Common::VSP_CAM_LEFT_ISO );
+            vOrder.push_back( Common::VSP_CAM_TOP );
+            vOrder.push_back( Common::VSP_CAM_FRONT );
+            vOrder.push_back( Common::VSP_CAM_LEFT );
             break;
     }
 
@@ -47,7 +48,7 @@ LayoutMgr::LayoutMgr( int row, int column )
     {
         // Placeholder viewports.
         Viewport * viewport = new Viewport( 0, 0, 1, 1 );
-        viewport->getCamera()->changeView( _vOrder[i % ( int )_vOrder.size()] );
+        viewport->getCamera()->changeView( vOrder[i % ( int )vOrder.size()] );
 
         _viewportList.push_back( viewport );
     }

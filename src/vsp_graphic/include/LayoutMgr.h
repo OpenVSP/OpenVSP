@@ -131,8 +131,6 @@ private:
     int _sHeight;
 
     int _startx, _starty;
-
-    std::vector<Common::VSPenum> _vOrder;
 };
 }
 #endif
