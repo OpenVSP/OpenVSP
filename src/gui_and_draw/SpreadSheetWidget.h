@@ -74,13 +74,13 @@ public:
 
 protected:
 
-    int handle( int event );
+    int handle( int event ) override;
 
     string row_header_text( int R );
 
     string col_header_txt( int C );
 
-    void draw_cell( TableContext context, int = 0, int = 0, int = 0, int = 0, int = 0, int = 0 );
+    void draw_cell( TableContext context, int = 0, int = 0, int = 0, int = 0, int = 0, int = 0 ) override;
 
     void event_callback2();                               // table's event callback (instance)
 
