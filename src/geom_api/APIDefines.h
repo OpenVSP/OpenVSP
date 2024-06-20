@@ -121,6 +121,22 @@ enum CAMBER_INPUT_FLAG { MAX_CAMB,	/*!< Input maximum camber, calculate ideal li
 /*!
 	\ingroup Enumerations
 */
+/*! Enum used to set camera view. */
+enum CAMERA_VIEW { CAM_TOP,	/*!< Camera top view */
+                   CAM_FRONT,	/*!< Camera front view */
+                   CAM_FRONT_YUP,	/*!< Camera front Y-up view */
+                   CAM_LEFT,	/*!< Camera left view */
+                   CAM_LEFT_ISO,	/*!< Camera left isometric view */
+                   CAM_BOTTOM,	/*!< Camera bottom view */
+                   CAM_REAR,	/*!< Camera rear view */
+                   CAM_RIGHT,	/*!< Camera right view */
+                   CAM_RIGHT_ISO,	/*!< Camera right isometric view */
+                   CAM_CENTER	/*!< Camera center view */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that identifies the end cap types for a geometry (i.e. wing root and tip). */
 enum CAP_TYPE { NO_END_CAP,	/*!< No end cap */
                 FLAT_END_CAP,	/*!< Flat end cap */

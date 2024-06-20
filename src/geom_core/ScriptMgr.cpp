@@ -535,6 +535,30 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "CAMERA_VIEW" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMERA_VIEW", "CAM_TOP", CAM_TOP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMERA_VIEW", "CAM_FRONT", CAM_FRONT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMERA_VIEW", "CAM_FRONT_YUP", CAM_FRONT_YUP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMERA_VIEW", "CAM_LEFT", CAM_LEFT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMERA_VIEW", "CAM_LEFT_ISO", CAM_LEFT_ISO );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMERA_VIEW", "CAM_BOTTOM", CAM_BOTTOM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMERA_VIEW", "CAM_REAR", CAM_REAR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMERA_VIEW", "CAM_RIGHT", CAM_RIGHT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMERA_VIEW", "CAM_RIGHT_ISO", CAM_RIGHT_ISO );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMERA_VIEW", "CAM_CENTER", CAM_CENTER );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "CAP_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CAP_TYPE", "NO_END_CAP", vsp::NO_END_CAP );

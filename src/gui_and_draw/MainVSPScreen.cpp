@@ -649,6 +649,11 @@ void MainVSPScreen::UpdateViewScreen()
     }
 }
 
+int MainVSPScreen::ConvertViewEnums( int v )
+{
+    return  VSPGraphic::Common::VSP_CAM_TOP + v - vsp::CAM_TOP;
+}
+
 void MainVSPScreen::SetAllViews( int view )
 {
     std::vector< VSPGraphic::Viewport *> vpts = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();

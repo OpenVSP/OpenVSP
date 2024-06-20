@@ -47,7 +47,7 @@ public:
 
     void UpdateViewScreen();
 
-
+    static int ConvertViewEnums( int v );
     void SetAllViews( int view );
     void SetView( int viewport, int view );
     void SetView( int view );
