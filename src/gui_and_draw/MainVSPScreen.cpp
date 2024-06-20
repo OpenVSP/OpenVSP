@@ -476,27 +476,19 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_OneMenuItem )
     {
-        m_GlWin->setWindowLayout( 1, 1 );
-        SetViewAxis( m_ShowXYZArrow );
-        SetShowBorders( m_ShowBorder );
+        SetWindowLayout( 1, 1 );
     }
     else if ( data == &m_FourMenuItem )
     {
-        m_GlWin->setWindowLayout( 2, 2 );
-        SetViewAxis( m_ShowXYZArrow );
-        SetShowBorders( m_ShowBorder );
+        SetWindowLayout( 2, 2 );
     }
     else if ( data == &m_TwoHMenuItem )
     {
-        m_GlWin->setWindowLayout( 1, 2 );
-        SetViewAxis( m_ShowXYZArrow );
-        SetShowBorders( m_ShowBorder );
+        SetWindowLayout( 1, 2 );
     }
     else if ( data == &m_TwoVMenuItem )
     {
-        m_GlWin->setWindowLayout( 2, 1 );
-        SetViewAxis( m_ShowXYZArrow );
-        SetShowBorders( m_ShowBorder );
+        SetWindowLayout( 2, 1 );
     }
     else if ( data == &m_AxisMenuItem )
     {
@@ -776,6 +768,13 @@ void MainVSPScreen::ResetViews()
     }
 
     UpdateViewScreen();
+}
+
+void MainVSPScreen::SetWindowLayout( int r, int c )
+{
+    m_GlWin->setWindowLayout( r, c );
+    SetViewAxis( m_ShowXYZArrow );
+    SetShowBorders( m_ShowBorder );
 }
 
 void MainVSPScreen::ShowReturnToAPIImplementation()

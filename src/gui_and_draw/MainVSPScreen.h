@@ -50,6 +50,7 @@ public:
     void SetView( int view );
     void FitView( bool all );
     void ResetViews();
+    void SetWindowLayout( int r, int c );
 
     void ShowReturnToAPIImplementation();
     void HideReturnToAPIImplementation();
