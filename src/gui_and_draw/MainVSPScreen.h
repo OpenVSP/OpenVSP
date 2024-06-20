@@ -45,6 +45,8 @@ public:
         return m_GlWin;
     }
 
+    void UpdateViewScreen();
+
     void SetView( int view );
     void FitView( bool all );
     void ResetViews();

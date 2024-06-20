@@ -651,6 +651,23 @@ void MainVSPScreen::SetBackground( double r, double g, double b )
     }
 }
 
+void MainVSPScreen::UpdateViewScreen()
+{
+    ManageViewScreen * viewScreen = NULL;
+    viewScreen = dynamic_cast< ManageViewScreen* >
+    ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
+
+    if( viewScreen )
+    {
+        if ( viewScreen->IsShown() )
+        {
+            viewScreen->UpdateCOR();
+            viewScreen->UpdatePan();
+            viewScreen->UpdateRotations();
+        }
+    }
+}
+
 void MainVSPScreen::SetView( int view )
 {
     m_GlWin->setView( static_cast < VSPGraphic::Common::VSPenum > ( view ) );
