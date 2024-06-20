@@ -649,6 +649,30 @@ void MainVSPScreen::UpdateViewScreen()
     }
 }
 
+void MainVSPScreen::SetAllViews( int view )
+{
+    std::vector< VSPGraphic::Viewport *> vpts = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+
+    for ( int i = 0; i < vpts.size(); i++ )
+    {
+        vpts[i]->getCamera()->changeView( static_cast < VSPGraphic::Common::VSPenum > ( view ) );
+    }
+
+    UpdateViewScreen();
+}
+
+void MainVSPScreen::SetView( int viewport, int view )
+{
+    std::vector< VSPGraphic::Viewport *> vpts = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+
+    if ( viewport >= 0 && viewport < vpts.size() )
+    {
+        vpts[ viewport ]->getCamera()->changeView( static_cast < VSPGraphic::Common::VSPenum > ( view ) );
+    }
+
+    UpdateViewScreen();
+}
+
 void MainVSPScreen::SetView( int view )
 {
     m_GlWin->setView( static_cast < VSPGraphic::Common::VSPenum > ( view ) );

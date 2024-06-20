@@ -47,6 +47,9 @@ public:
 
     void UpdateViewScreen();
 
+
+    void SetAllViews( int view );
+    void SetView( int viewport, int view );
     void SetView( int view );
     void FitView( bool all );
     void ResetViews();
