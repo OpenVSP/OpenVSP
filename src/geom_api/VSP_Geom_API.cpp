@@ -1806,6 +1806,41 @@ void SetBackground( double r, double g, double b )
 #endif
 }
 
+void SetAllViews( int view )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetAllViews( view );
+#endif
+}
+
+void SetView( int viewport, int view )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetView( viewport, view );
+#endif
+}
+
+void FitAllViews()
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().FitAllViews();
+#endif
+}
+
+void ResetViews()
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().ResetViews();
+#endif
+}
+
+void SetWindowLayout( int r, int c )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetWindowLayout( r, c );
+#endif
+}
+
 void SetGUIElementDisable( int e, bool state )
 {
 #ifdef VSP_USE_FLTK

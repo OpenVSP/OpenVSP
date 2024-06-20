@@ -175,6 +175,76 @@ void GuiInterface::SetBackground( double r, double g, double b )
 #endif
 }
 
+void GuiInterface::SetView( int viewport, int view )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->SetView( viewport, main->ConvertViewEnums( view ) );
+        }
+    }
+#endif
+}
+
+void GuiInterface::SetAllViews( int view )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->SetAllViews( main->ConvertViewEnums( view ) );
+        }
+    }
+#endif
+}
+
+void GuiInterface::FitAllViews()
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->FitView( true );
+        }
+    }
+#endif
+}
+
+void GuiInterface::ResetViews()
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->ResetViews();
+        }
+    }
+#endif
+}
+
+void GuiInterface::SetWindowLayout( int r, int c )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->SetWindowLayout( r, c );
+        }
+    }
+#endif
+}
+
 // In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
 void GuiInterface::EnableStopGUIMenuItem()
 {

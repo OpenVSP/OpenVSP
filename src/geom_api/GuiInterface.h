@@ -47,6 +47,12 @@ public:
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );
 
+    void SetAllViews( int view );
+    void SetView( int viewport, int view );
+    void FitAllViews();
+    void ResetViews();
+    void SetWindowLayout( int r, int c );
+
     void EnableStopGUIMenuItem();
     void DisableStopGUIMenuItem();
 

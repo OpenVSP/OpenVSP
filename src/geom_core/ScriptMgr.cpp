@@ -2899,6 +2899,26 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "void SetAllViews( int view )", asFUNCTION( vsp::SetAllViews ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void SetView( int viewport, int view )", asFUNCTION( vsp::SetView ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void FitAllViews()", asFUNCTION( vsp::FitAllViews ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void ResetViews()", asFUNCTION( vsp::ResetViews ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void SetWindowLayout( int r, int c )", asFUNCTION( vsp::SetWindowLayout ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "void SetGUIElementDisable( int e, bool state )", asFUNCTION( vsp::SetGUIElementDisable ), asCALL_CDECL );
     assert( r >= 0 );
 

@@ -3464,6 +3464,110 @@ extern void SetBackground( double r, double g, double b );
     \ingroup Visualization
 */
 /*!
+    Set the view of all viewports
+    \forcpponly
+    \code{.cpp}
+    SetAllViews( CAM_CENTER );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    SetAllViews( CAM_CENTER )
+
+    \endcode
+    \endPythonOnly
+    \param [in] view int CAMERA_VIEW enum
+*/
+
+extern void SetAllViews( int view );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Set the view of a particular viewports
+    \forcpponly
+    \code{.cpp}
+    SetView( 0, CAM_CENTER );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    SetView( 0, CAM_CENTER )
+
+    \endcode
+    \endPythonOnly
+    \param [in] view int CAMERA_VIEW enum
+*/
+
+extern void SetView( int viewport, int view );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Fit contents to all viewports
+    \forcpponly
+    \code{.cpp}
+    FitAllViews();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    FitAllViews()
+
+    \endcode
+    \endPythonOnly
+*/
+
+extern void FitAllViews();
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Reset views of all viewports
+    \forcpponly
+    \code{.cpp}
+    ResetViews();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ResetViews()
+
+    \endcode
+    \endPythonOnly
+*/
+
+extern void ResetViews();
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Set the rows and columns of the window layout
+    \forcpponly
+    \code{.cpp}
+    SetWindowLayout( 2, 2 );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    SetWindowLayout( 2, 2 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] r int Number of viewport rows
+    \param [in] c int Number of viewport columns
+*/
+
+extern void SetWindowLayout( int r, int c );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
     Set whether all instances of GUI device type are disabled
     \forcpponly
     \code{.cpp}
