@@ -24,6 +24,7 @@ LayoutMgr::LayoutMgr( int row, int column )
     _startx = _starty = -1;
 
     // Set View order for viewports.
+    // Note:  Changes here should be matched in MainVSPScreen::ResetViews()
     switch ( nview )
     {
         case 1:

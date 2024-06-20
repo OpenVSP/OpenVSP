@@ -127,6 +127,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_CenterAllMenuItem.Init( this, m_MenuBar, "View/Center All", 'C' );
     m_FitViewMenuItem.Init( this, m_MenuBar, "View/Fit On Screen", 'f' );
     m_FitAllViewMenuItem.Init( this, m_MenuBar, "View/Fit All On Screen", 'F' );
+    m_ResetAllViewMenuItem.Init( this, m_MenuBar, "View/Reset All", 'R' );
     m_AdjustMenuItem.Init( mgr, m_MenuBar, "View/Adjust...", vsp::VSP_VIEW_SCREEN );
     // m_AntialiasMenuItem.Init( this, m_MenuBar, "View/New" );
 
@@ -694,6 +695,10 @@ void MainVSPScreen::ActionCB( void * data )
     {
         FitView( data == &m_FitAllViewMenuItem );
     }
+    else if ( data == &m_ResetAllViewMenuItem )
+    {
+        ResetViews();
+    }
     // else if ( m_AntialiasMenuItem )
     // {
     // }
@@ -852,6 +857,50 @@ void MainVSPScreen::FitView( bool all )
     }
 }
 
+void MainVSPScreen::ResetViews()
+{
+    std::vector< VSPGraphic::Viewport *> vpts = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+    int nview = vpts.size();
+
+    std::vector < VSPGraphic::Common::VSPenum > vOrder;
+    // Set View order for viewports.
+    // Note:  This order is duplicated from LayoutMgr::LayoutMgr()
+    switch ( nview )
+    {
+        case 1:
+            vOrder.push_back( VSPGraphic::Common::VSP_CAM_TOP );
+            break;
+        case 2:
+            vOrder.push_back( VSPGraphic::Common::VSP_CAM_FRONT );
+            vOrder.push_back( VSPGraphic::Common::VSP_CAM_TOP );
+            break;
+        case 4:
+        default:
+            vOrder.push_back( VSPGraphic::Common::VSP_CAM_LEFT_ISO );
+            vOrder.push_back( VSPGraphic::Common::VSP_CAM_TOP );
+            vOrder.push_back( VSPGraphic::Common::VSP_CAM_FRONT );
+            vOrder.push_back( VSPGraphic::Common::VSP_CAM_LEFT );
+            break;
+    }
+
+    for ( int i = 0; i < nview; i++ )
+    {
+        vpts[i]->getCamera()->changeView( vOrder[ i ] );
+    }
+
+    ManageViewScreen * viewScreen = NULL;
+    viewScreen = dynamic_cast< ManageViewScreen* >
+    ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
+
+    if( viewScreen )
+    {
+        if ( viewScreen->IsShown() )
+        {
+            viewScreen->UpdateCOR();
+            viewScreen->UpdatePan();
+        }
+    }
+}
 
 void MainVSPScreen::ShowReturnToAPIImplementation()
 {

@@ -46,6 +46,7 @@ public:
     }
 
     void FitView( bool all );
+    void ResetViews();
 
     void ShowReturnToAPIImplementation();
     void HideReturnToAPIImplementation();
@@ -120,6 +121,7 @@ protected:
     ActionMenuItem m_SetCORMenuItem;
     ActionMenuItem m_FitViewMenuItem;
     ActionMenuItem m_FitAllViewMenuItem;
+    ActionMenuItem m_ResetAllViewMenuItem;
     // ActionMenuItem m_AntialiasMenuItem;
 
     ScreenMenuItem m_GeomMenuItem;
