@@ -1,5 +1,16 @@
 CMAKE_MINIMUM_REQUIRED ( VERSION 3.24 )
 
+INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/images/ DESTINATION help/images )
+
+ADD_CUSTOM_TARGET ( copy_images ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/images/
+        ${CMAKE_BINARY_DIR}/src/vsp/help/images/
+
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/images/
+        ${CMAKE_CURRENT_BINARY_DIR}/images/ )
+
 INCLUDE ( pandocology )
 
 FILE ( GLOB_RECURSE HELP_FILES *.md )
