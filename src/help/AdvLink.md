@@ -66,9 +66,29 @@ A standard suite of mathematical functions are also available.
 
 Both C++ style `//` line comments and C style `/*    */` block comments are supported.
 
+## Troubleshooting
+
 Output to the console can be easily achieved with the `Print()` function (note the capital P).  The `Print()`
 functions are provided by the OpenVSP API.  They can work with various data types directly.  The lower case
 `print()` function is native to AngelScript and requires additional work to format numeric variables.
+For example, when debugging the example script, one might add print statements to display the intermediate
+values at each step.
+
+
+```c++
+double Sdisk = GrossWeight / DiskLoading;
+Print( "Disk area: ", false );
+Print( Sdisk );
+Diameter = 2.0 * sqrt( Sdisk / 3.1415926 );
+Print( "Disk diameter: ", false );
+Print( Diameter );
+```
+
+The optional second parameter to `Print()` controls whether a line is terminated and a new line is started.
+Passing `false` allows multiple `Print()` commands to continue printing on the same line.
+
+The output from the print statements goes to the console displayed behind the main OpenVSP window, or to the
+console used to launch the OpenVSP executable.
 
 ## General AngelScript Programming
 
