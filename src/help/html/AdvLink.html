@@ -333,18 +333,20 @@ parameters depend on the inputs.</p>
 <p>Advanced linking code is written in AngelScript. AngelScript is the
 scripting language embedded into OpenVSP. AngelScript is also used for
 general scripting and Custom Components - consequently, the entire
-OpenVSP API is available to advanced links through AngelScript. A
-typical advanced link might look something like this:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Sdisk <span class="op">=</span> GW <span class="op">/</span> DL<span class="op">;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Diam <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> sqrt<span class="op">(</span> Sdisk <span class="op">/</span> <span class="fl">3.1415926</span> <span class="op">);</span></span></code></pre></div>
+OpenVSP API is available to advanced links through AngelScript.</p>
+<p>A typical advanced link might look something like this:</p>
+<p><img role="img" aria-label="Example Advanced Link" src="images/AdvLink_example.png" title="Example Advanced Link" alt="Example Advanced Link" /></p>
 <p>This link determines the disk diameter for a vehicle given disk
 loading and gross weight. OpenVSP automatically defines the input
-(<code>GW</code>, <code>DL</code>) and output (<code>Diam</code>)
-variables as <code>double</code> precision floating point numbers.</p>
+(<code>GrossWeight</code>, <code>DiskLoading</code>) and output
+(<code>Diameter</code>) variables as <code>double</code> precision
+floating point numbers.</p>
 <p>Most advanced links consist of a few lines of code that use standard
 mathematical notation with a semicolon at the end of each line. This can
 be thought of as a subset of the AngelScript language called &#39;Math with
-Semicolons&#39;.</p>
+Semicolons&#39;. The code for the example link is repeated below.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Sdisk <span class="op">=</span> GrossWeight <span class="op">/</span> DiskLoading<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Diameter <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> sqrt<span class="op">(</span> Sdisk <span class="op">/</span> <span class="fl">3.1415926</span> <span class="op">);</span></span></code></pre></div>
 <h2 id="math-with-semicolons">Math with Semicolons</h2>
 <p>OpenVSP automatically defines input and output variables as
 <code>double</code>. These variables can be used to construct arithmetic
