@@ -11,6 +11,13 @@ ADD_CUSTOM_TARGET ( copy_images ALL
         ${CMAKE_CURRENT_SOURCE_DIR}/images/
         ${CMAKE_CURRENT_BINARY_DIR}/images/ )
 
+INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css DESTINATION help )
+
+ADD_CUSTOM_TARGET ( copy_css ALL
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css
+        ${CMAKE_BINARY_DIR}/src/vsp/help/ )
+
 INCLUDE ( pandocology )
 
 FILE ( GLOB_RECURSE HELP_FILES *.md )
@@ -25,7 +32,6 @@ FOREACH ( hpath ${HELP_FILES} )
                        RESOURCE_FILES links-to-html.lua github-pandoc.css
                        PANDOC_DIRECTIVES --lua-filter=links-to-html.lua
                                          --standalone
-                                         --embed-resources
                                          -f gfm+tex_math_gfm+yaml_metadata_block
                                          --css=github-pandoc.css
         )
