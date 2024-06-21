@@ -12,20 +12,26 @@ define how the output parameters depend on the inputs.
 Advanced linking code is written in AngelScript.  AngelScript is the scripting language embedded into OpenVSP.
 AngelScript is also used for general scripting and Custom Components - consequently, the entire OpenVSP API is
 available to advanced links through AngelScript.
+
 A typical advanced link might look something like this:
 
 
-```c++
-double Sdisk = GW / DL;
-Diam = 2.0 * sqrt( Sdisk / 3.1415926 );
-```
+![Example Advanced Link](images/AdvLink_example.png "Example Advanced Link")
 
 
 This link determines the disk diameter for a vehicle given disk loading and gross weight.  OpenVSP automatically
-defines the input (`GW`, `DL`) and output (`Diam`) variables as `double` precision floating point numbers.
+defines the input (`GrossWeight`, `DiskLoading`) and output (`Diameter`) variables as `double` precision floating
+point numbers.
 
 Most advanced links consist of a few lines of code that use standard mathematical notation with a semicolon at
 the end of each line.  This can be thought of as a subset of the AngelScript language called 'Math with Semicolons'.
+The code for the example link is repeated below.
+
+```c++
+double Sdisk = GrossWeight / DiskLoading;
+Diameter = 2.0 * sqrt( Sdisk / 3.1415926 );
+```
+
 
 ## Math with Semicolons
 
