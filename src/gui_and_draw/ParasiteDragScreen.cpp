@@ -1154,14 +1154,7 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_EqnDocumentation )
     {
-#if     defined(__APPLE__)
-        system( "open http://www.openvsp.org/wiki/doku.php?id=parasitedrag" );
-#elif   defined(_WIN32) || defined(WIN32) 
-        ShellExecute( NULL, "open", "http://www.openvsp.org/wiki/doku.php?id=parasitedrag",
-                      NULL, NULL, SW_SHOWNORMAL );
-#else
-        system( "xdg-open http://www.openvsp.org/wiki/doku.php?id=parasitedrag" );
-#endif
+        m_ScreenMgr->LaunchSystemDefaultBrowser( "http://www.openvsp.org/wiki/doku.php?id=parasitedrag" );
     }
     else if ( device == &m_FreestreamTypeChoice )
     {

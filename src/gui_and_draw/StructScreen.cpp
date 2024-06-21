@@ -4205,14 +4205,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_WikiLinkButton )
     {
-#if     defined(__APPLE__)
-        system( "open http://www.openvsp.org/wiki/doku.php?id=feamesh" );
-#elif   defined(_WIN32) || defined(WIN32) 
-        ShellExecute( NULL, "open", "http://www.openvsp.org/wiki/doku.php?id=feamesh",
-                      NULL, NULL, SW_SHOWNORMAL );
-#else
-        system( "xdg-open http://www.openvsp.org/wiki/doku.php?id=feamesh" );
-#endif
+        m_ScreenMgr->LaunchSystemDefaultBrowser( "http://www.openvsp.org/wiki/doku.php?id=feamesh" );
     }
     else if ( device == &m_GeomChoice )
     {

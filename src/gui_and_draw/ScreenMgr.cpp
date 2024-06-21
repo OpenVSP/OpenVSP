@@ -662,6 +662,18 @@ VspScreen * ScreenMgr::GetScreen( int id )
     return NULL;
 }
 
+void ScreenMgr::LaunchSystemDefaultBrowser( const string &url )
+{
+#if     defined(__APPLE__)
+        system( string( "open " + url ).c_str() );
+#elif   defined(_WIN32) || defined(WIN32)
+        ShellExecute( NULL, "open", url.c_str(),
+                      NULL, NULL, SW_SHOWNORMAL );
+#else
+        system( string( "xdg-open " + url ).c_str() );
+#endif
+}
+
 string ScreenMgr::FileChooser( const string &title, const string &filter, int mode, const string &dir )
 {
     Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
