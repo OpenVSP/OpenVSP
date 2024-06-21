@@ -674,6 +674,17 @@ void ScreenMgr::LaunchSystemDefaultBrowser( const string &url )
 #endif
 }
 
+void ScreenMgr::HelpSystemDefaultBrowser( const string &file )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    string exepath = veh->GetExePath();
+
+    string url = "file://" + exepath + "/help/" + file;
+
+    LaunchSystemDefaultBrowser( url );
+}
+
 string ScreenMgr::FileChooser( const string &title, const string &filter, int mode, const string &dir )
 {
     Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
