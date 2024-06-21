@@ -1,322 +1,92 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Advanced Parameter Linking</title>
   <style>
-code{white-space: pre-wrap;}
-span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-
-ul.task-list[class]{list-style: none;}
-ul.task-list li input[type="checkbox"] {
-font-size: inherit;
-width: 0.8em;
-margin: 0 0.8em 0.2em -1.6em;
-vertical-align: middle;
-}
-.display.math{display: block; text-align: center; margin: 0.5rem auto;}
-
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-{ counter-reset: source-line 0; }
-pre.numberSource code > span
-{ position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-{ content: counter(source-line);
-position: relative; left: -1em; text-align: right; vertical-align: baseline;
-border: none; display: inline-block;
--webkit-touch-callout: none; -webkit-user-select: none;
--khtml-user-select: none; -moz-user-select: none;
--ms-user-select: none; user-select: none;
-padding: 0 4px; width: 4em;
-color: #aaaaaa;
-}
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
-div.sourceCode
-{ }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } 
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.at { color: #7d9029; } 
-code span.bn { color: #40a070; } 
-code span.bu { color: #008000; } 
-code span.cf { color: #007020; font-weight: bold; } 
-code span.ch { color: #4070a0; } 
-code span.cn { color: #880000; } 
-code span.co { color: #60a0b0; font-style: italic; } 
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.do { color: #ba2121; font-style: italic; } 
-code span.dt { color: #902000; } 
-code span.dv { color: #40a070; } 
-code span.er { color: #ff0000; font-weight: bold; } 
-code span.ex { } 
-code span.fl { color: #40a070; } 
-code span.fu { color: #06287e; } 
-code span.im { color: #008000; font-weight: bold; } 
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.kw { color: #007020; font-weight: bold; } 
-code span.op { color: #666666; } 
-code span.ot { color: #007020; } 
-code span.pp { color: #bc7a00; } 
-code span.sc { color: #4070a0; } 
-code span.ss { color: #bb6688; } 
-code span.st { color: #4070a0; } 
-code span.va { color: #19177c; } 
-code span.vs { color: #4070a0; } 
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
-</style>
-  <style type="text/css">
-
-
-article,
-aside,
-details,
-figcaption,
-figure,
-footer,
-header,
-hgroup,
-main,
-nav,
-section,
-summary {
-display: block;
-}
-
-audio,
-canvas,
-video {
-display: inline-block;
-}
-
-audio:not([controls]) {
-display: none;
-height: 0;
-}
-
-[hidden],
-template {
-display: none;
-}
-
-
-html {
-font-family: sans-serif; 
--ms-text-size-adjust: 100%; 
--webkit-text-size-adjust: 100%; 
-}
-
-body {
-margin: 0;
-}
-
-
-a {
-background: transparent;
-}
-
-a:focus {
-outline: thin dotted;
-}
-
-a:active,
-a:hover {
-outline: 0;
-}
-
-
-h1 {
-font-size: 2em;
-margin: 0.67em 0;
-}
-
-abbr[title] {
-border-bottom: 1px dotted;
-}
-
-b,
-strong {
-font-weight: bold;
-}
-
-dfn {
-font-style: italic;
-}
-
-hr {
--moz-box-sizing: content-box;
-box-sizing: content-box;
-height: 0;
-}
-
-mark {
-background: #ff0;
-color: #000;
-}
-
-code,
-kbd,
-pre,
-samp {
-font-family: monospace, serif;
-font-size: 1em;
-}
-
-pre {
-white-space: pre-wrap;
-overflow-x: scroll;
-}
-
-q {
-quotes: "\201C" "\201D" "\2018" "\2019";
-}
-
-small {
-font-size: 80%;
-}
-
-sub,
-sup {
-font-size: 75%;
-line-height: 0;
-position: relative;
-vertical-align: baseline;
-}
-sup {
-top: -0.5em;
-}
-sub {
-bottom: -0.25em;
-}
-
-
-img {
-border: 0;
-}
-
-svg:not(:root) {
-overflow: hidden;
-}
-
-
-figure {
-margin: 0;
-}
-
-
-fieldset {
-border: 1px solid #c0c0c0;
-margin: 0 2px;
-padding: 0.35em 0.625em 0.75em;
-}
-
-legend {
-border: 0; 
-padding: 0; 
-}
-
-button,
-input,
-select,
-textarea {
-font-family: inherit; 
-font-size: 100%; 
-margin: 0; 
-}
-
-button,
-input {
-line-height: normal;
-}
-
-button,
-select {
-text-transform: none;
-}
-
-button,
-html input[type="button"], 
-input[type="reset"],
-input[type="submit"] {
--webkit-appearance: button; 
-cursor: pointer; 
-}
-
-button[disabled],
-html input[disabled] {
-cursor: default;
-}
-
-input[type="checkbox"],
-input[type="radio"] {
-box-sizing: border-box; 
-padding: 0; 
-}
-
-input[type="search"] {
--webkit-appearance: textfield; 
--moz-box-sizing: content-box;
--webkit-box-sizing: content-box; 
-box-sizing: content-box;
-}
-
-input[type="search"]::-webkit-search-cancel-button,
-input[type="search"]::-webkit-search-decoration {
--webkit-appearance: none;
-}
-
-button::-moz-focus-inner,
-input::-moz-focus-inner {
-border: 0;
-padding: 0;
-}
-
-textarea {
-overflow: auto; 
-vertical-align: top; 
-}
-
-
-table {
-border-collapse: collapse;
-border-spacing: 0;
-}
-.go-top {
-position: fixed;
-bottom: 2em;
-right: 2em;
-text-decoration: none;
-background-color: #E0E0E0;
-font-size: 12px;
-padding: 1em;
-display: inline;
-}
-
-html,body{ margin: auto;
-padding-right: 1em;
-padding-left: 1em;
-max-width: 55em; color:black;}*:not('#mkdbuttons'){margin:0;padding:0}body{font:13.34px helvetica,arial,freesans,clean,sans-serif;-webkit-font-smoothing:subpixel-antialiased;line-height:1.4;padding:3px;background:#fff;border-radius:3px;-moz-border-radius:3px;-webkit-border-radius:3px}p{margin:1em 0}a{color:#4183c4;text-decoration:none}body{background-color:#fff;padding:30px;margin:15px;font-size:14px;line-height:1.6}body>*:first-child{margin-top:0!important}body>*:last-child{margin-bottom:0!important}@media screen{body{box-shadow:0 0 0 1px #cacaca,0 0 0 4px #eee}}h1,h2,h3,h4,h5,h6{margin:20px 0 10px;padding:0;font-weight:bold;-webkit-font-smoothing:subpixel-antialiased;cursor:text}h1{font-size:28px;color:#000}h2{font-size:24px;border-bottom:1px solid #ccc;color:#000}h3{font-size:18px;color:#333}h4{font-size:16px;color:#333}h5{font-size:14px;color:#333}h6{color:#777;font-size:14px}p,blockquote,table,pre{margin:15px 0}ul{padding-left:30px}ol{padding-left:30px}ol li ul:first-of-type{margin-top:0}hr{background:transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAYAAACtBE5DAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OENDRjNBN0E2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OENDRjNBN0I2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4Q0NGM0E3ODY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4Q0NGM0E3OTY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PqqezsUAAAAfSURBVHjaYmRABcYwBiM2QSA4y4hNEKYDQxAEAAIMAHNGAzhkPOlYAAAAAElFTkSuQmCC) repeat-x 0 0;border:0 none;color:#ccc;height:4px;padding:0}body>h2:first-child{margin-top:0;padding-top:0}body>h1:first-child{margin-top:0;padding-top:0}body>h1:first-child+h2{margin-top:0;padding-top:0}body>h3:first-child,body>h4:first-child,body>h5:first-child,body>h6:first-child{margin-top:0;padding-top:0}a:first-child h1,a:first-child h2,a:first-child h3,a:first-child h4,a:first-child h5,a:first-child h6{margin-top:0;padding-top:0}h1+p,h2+p,h3+p,h4+p,h5+p,h6+p,ul li>:first-child,ol li>:first-child{margin-top:0}dl{padding:0}dl dt{font-size:14px;font-weight:bold;font-style:italic;padding:0;margin:15px 0 5px}dl dt:first-child{padding:0}dl dt>:first-child{margin-top:0}dl dt>:last-child{margin-bottom:0}dl dd{margin:0 0 15px;padding:0 15px}dl dd>:first-child{margin-top:0}dl dd>:last-child{margin-bottom:0}blockquote{border-left:4px solid #DDD;padding:0 15px;color:#777}blockquote>:first-child{margin-top:0}blockquote>:last-child{margin-bottom:0}table{border-collapse:collapse;border-spacing:0;font-size:100%;font:inherit}table th{font-weight:bold;border:1px solid #ccc;padding:6px 13px}table td{border:1px solid #ccc;padding:6px 13px}table tr{border-top:1px solid #ccc;background-color:#fff}table tr:nth-child(2n){background-color:#f8f8f8}img{max-width:100%}code,tt{margin:0 2px;padding:0 5px;white-space:nowrap;border:1px solid #eaeaea;background-color:#f8f8f8;border-radius:3px;font-family:Consolas,'Liberation Mono',Courier,monospace;font-size:12px;color:#333}pre>code{margin:0;padding:0;white-space:pre;border:0;background:transparent}.highlight pre{background-color:#f8f8f8;border:1px solid #ccc;font-size:13px;line-height:19px;overflow:auto;padding:6px 10px;border-radius:3px}pre{background-color:#f8f8f8;border:1px solid #ccc;font-size:13px;line-height:19px;overflow:auto;padding:6px 10px;border-radius:3px}pre code,pre tt{background-color:transparent;border:0}.poetry pre{font-family:Georgia,Garamond,serif!important;font-style:italic;font-size:110%!important;line-height:1.6em;display:block;margin-left:1em}.poetry pre code{font-family:Georgia,Garamond,serif!important;word-break:break-all;word-break:break-word;-webkit-hyphens:auto;-moz-hyphens:auto;hyphens:auto;white-space:pre-wrap}sup,sub,a.footnote{font-size:1.4ex;height:0;line-height:1;vertical-align:super;position:relative}sub{vertical-align:sub;top:-1px}@media print{body{background:#fff}img,pre,blockquote,table,figure{page-break-inside:avoid}body{background:#fff;border:0}code{background-color:#fff;color:#333!important;padding:0 .2em;border:1px solid #dedede}pre{background:#fff}pre code{background-color:white!important;overflow:visible}}@media screen{body.inverted{color:#eee!important;border-color:#555;box-shadow:none}.inverted body,.inverted hr .inverted p,.inverted td,.inverted li,.inverted h1,.inverted h2,.inverted h3,.inverted h4,.inverted h5,.inverted h6,.inverted th,.inverted .math,.inverted caption,.inverted dd,.inverted dt,.inverted blockquote{color:#eee!important;border-color:#555;box-shadow:none}.inverted td,.inverted th{background:#333}.inverted h2{border-color:#555}.inverted hr{border-color:#777;border-width:1px!important}::selection{background:rgba(157,193,200,0.5)}h1::selection{background-color:rgba(45,156,208,0.3)}h2::selection{background-color:rgba(90,182,224,0.3)}h3::selection,h4::selection,h5::selection,h6::selection,li::selection,ol::selection{background-color:rgba(133,201,232,0.3)}code::selection{background-color:rgba(0,0,0,0.7);color:#eee}code span::selection{background-color:rgba(0,0,0,0.7)!important;color:#eee!important}a::selection{background-color:rgba(255,230,102,0.2)}.inverted a::selection{background-color:rgba(255,230,102,0.6)}td::selection,th::selection,caption::selection{background-color:rgba(180,237,95,0.5)}.inverted{background:#0b2531;background:#252a2a}.inverted body{background:#252a2a}.inverted a{color:#acd1d5}}.highlight .c{color:#998;font-style:italic}.highlight .err{color:#a61717;background-color:#e3d2d2}.highlight .k,.highlight .o{font-weight:bold}.highlight .cm{color:#998;font-style:italic}.highlight .cp{color:#999;font-weight:bold}.highlight .c1{color:#998;font-style:italic}.highlight .cs{color:#999;font-weight:bold;font-style:italic}.highlight .gd{color:#000;background-color:#fdd}.highlight .gd .x{color:#000;background-color:#faa}.highlight .ge{font-style:italic}.highlight .gr{color:#a00}.highlight .gh{color:#999}.highlight .gi{color:#000;background-color:#dfd}.highlight .gi .x{color:#000;background-color:#afa}.highlight .go{color:#888}.highlight .gp{color:#555}.highlight .gs{font-weight:bold}.highlight .gu{color:#800080;font-weight:bold}.highlight .gt{color:#a00}.highlight .kc,.highlight .kd,.highlight .kn,.highlight .kp,.highlight .kr{font-weight:bold}.highlight .kt{color:#458;font-weight:bold}.highlight .m{color:#099}.highlight .s{color:#d14}.highlight .na{color:#008080}.highlight .nb{color:#0086b3}.highlight .nc{color:#458;font-weight:bold}.highlight .no{color:#008080}.highlight .ni{color:#800080}.highlight .ne,.highlight .nf{color:#900;font-weight:bold}.highlight .nn{color:#555}.highlight .nt{color:#000080}.highlight .nv{color:#008080}.highlight .ow{font-weight:bold}.highlight .w{color:#bbb}.highlight .mf,.highlight .mh,.highlight .mi,.highlight .mo{color:#099}.highlight .sb,.highlight .sc,.highlight .sd,.highlight .s2,.highlight .se,.highlight .sh,.highlight .si,.highlight .sx{color:#d14}.highlight .sr{color:#009926}.highlight .s1{color:#d14}.highlight .ss{color:#990073}.highlight .bp{color:#999}.highlight .vc,.highlight .vg,.highlight .vi{color:#008080}.highlight .il{color:#099}.highlight .gc{color:#999;background-color:#eaf2f5}.type-csharp .highlight .k,.type-csharp .highlight .kt{color:#00F}.type-csharp .highlight .nf{color:#000;font-weight:normal}.type-csharp .highlight .nc{color:#2b91af}.type-csharp .highlight .nn{color:#000}.type-csharp .highlight .s,.type-csharp .highlight .sc{color:#a31515}
-</style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
 </head>
 <body>
 <header id="title-block-header">
@@ -324,7 +94,7 @@ max-width: 55em; color:black;}*:not('#mkdbuttons'){margin:0;padding:0}body{font:
 </header>
 <p>Advanced parameter linking allows the user to define mathematical
 relationships between arbitrary parameters.</p>
-<p>To create an advanced link, the user first add&#39;s a link and changes
+<p>To create an advanced link, the user first add's a link and changes
 the name to something apropriate. Next, the user identifies one or more
 input parameters and defines a variable name to be used as an alias for
 each. The user then identifies one or more output parameters and defines
@@ -335,7 +105,8 @@ scripting language embedded into OpenVSP. AngelScript is also used for
 general scripting and Custom Components - consequently, the entire
 OpenVSP API is available to advanced links through AngelScript.</p>
 <p>A typical advanced link might look something like this:</p>
-<p><img role="img" aria-label="Example Advanced Link" src="images/AdvLink_example.png" title="Example Advanced Link" alt="Example Advanced Link" /></p>
+<p><img src="images/AdvLink_example.png" title="Example Advanced Link"
+alt="Example Advanced Link" /></p>
 <p>This link determines the disk diameter for a vehicle given disk
 loading and gross weight. OpenVSP automatically defines the input
 (<code>GrossWeight</code>, <code>DiskLoading</code>) and output
@@ -343,9 +114,10 @@ loading and gross weight. OpenVSP automatically defines the input
 floating point numbers.</p>
 <p>Most advanced links consist of a few lines of code that use standard
 mathematical notation with a semicolon at the end of each line. This can
-be thought of as a subset of the AngelScript language called &#39;Math with
-Semicolons&#39;. The code for the example link is repeated below.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Sdisk <span class="op">=</span> GrossWeight <span class="op">/</span> DiskLoading<span class="op">;</span></span>
+be thought of as a subset of the AngelScript language called 'Math with
+Semicolons'. The code for the example link is repeated below.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode c++"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Sdisk <span class="op">=</span> GrossWeight <span class="op">/</span> DiskLoading<span class="op">;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Diameter <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> sqrt<span class="op">(</span> Sdisk <span class="op">/</span> <span class="fl">3.1415926</span> <span class="op">);</span></span></code></pre></div>
 <h2 id="math-with-semicolons">Math with Semicolons</h2>
 <p>OpenVSP automatically defines input and output variables as
@@ -400,7 +172,8 @@ control</td>
 <td style="text-align: left;">Trigonometric functions (radians)</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>acos(x) asin(x) atan(x) atan2(x)</code></td>
+<td
+style="text-align: left;"><code>acos(x) asin(x) atan(x) atan2(x)</code></td>
 <td style="text-align: left;">Inverse trigonometric functions
 (radians)</td>
 </tr>
@@ -448,25 +221,43 @@ control</td>
 </table>
 <p>Both C++ style <code>//</code> line comments and C style
 <code>/*    */</code> block comments are supported.</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
 <p>Output to the console can be easily achieved with the
 <code>Print()</code> function (note the capital P). The
 <code>Print()</code> functions are provided by the OpenVSP API. They can
 work with various data types directly. The lower case
 <code>print()</code> function is native to AngelScript and requires
-additional work to format numeric variables.</p>
+additional work to format numeric variables. For example, when debugging
+the example script, one might add print statements to display the
+intermediate values at each step.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode c++"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Sdisk <span class="op">=</span> GrossWeight <span class="op">/</span> DiskLoading<span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>Print<span class="op">(</span> <span class="st">&quot;Disk area: &quot;</span><span class="op">,</span> <span class="kw">false</span> <span class="op">);</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Print<span class="op">(</span> Sdisk <span class="op">);</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>Diameter <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> sqrt<span class="op">(</span> Sdisk <span class="op">/</span> <span class="fl">3.1415926</span> <span class="op">);</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>Print<span class="op">(</span> <span class="st">&quot;Disk diameter: &quot;</span><span class="op">,</span> <span class="kw">false</span> <span class="op">);</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>Print<span class="op">(</span> Diameter <span class="op">);</span></span></code></pre></div>
+<p>The optional second parameter to <code>Print()</code> controls
+whether a line is terminated and a new line is started. Passing
+<code>false</code> allows multiple <code>Print()</code> commands to
+continue printing on the same line.</p>
+<p>The output from the print statements goes to the console displayed
+behind the main OpenVSP window, or to the console used to launch the
+OpenVSP executable.</p>
 <h2 id="general-angelscript-programming">General AngelScript
 Programming</h2>
 <p>If using <code>Math with Semicolons</code> is insufficient for your
 advanced linking needs, you can also use any of the features from
 AngelScript. AngelScript is a scripting language similar to C++; it was
 designed to be embedded into other C++ programs. General documentation
-about the <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script.html">AngelScript
+about the <a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script.html">AngelScript
 language</a> is available online.</p>
 <h3 id="data-types">Data Types</h3>
 <p>Since OpenVSP automatically defines input and output variables as
 <code>double</code>, most simple scripts will not need to define any
 variables at all. If you do need to use intermediate variables, all the
-common data types are available. In addition, AngelScript&#39;s
+common data types are available. In addition, AngelScript's
 <code>string</code> and <code>array</code> types are included and
 OpenVSP API provides <code>vec3d</code> and <code>matrix4d</code>
 types.</p>
@@ -599,7 +390,8 @@ decreasing order.</p>
 <td style="text-align: left;">Add and subtract</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>&lt;&lt; &gt;&gt; &gt;&gt;&gt;</code></td>
+<td
+style="text-align: left;"><code>&lt;&lt; &gt;&gt; &gt;&gt;&gt;</code></td>
 <td style="text-align: left;">Left shift, right shift, and arithmetic
 right shift</td>
 </tr>
@@ -637,7 +429,8 @@ or</td>
 <td style="text-align: left;">Condition</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>= += -= *= /= %= **= &amp;= |= ^= &lt;&lt;= &gt;&gt;= &gt;&gt;&gt;=</code></td>
+<td
+style="text-align: left;"><code>= += -= *= /= %= **= &amp;= |= ^= &lt;&lt;= &gt;&gt;= &gt;&gt;&gt;=</code></td>
 <td style="text-align: left;">Assignment and compound assignments</td>
 </tr>
 </tbody>
@@ -649,31 +442,32 @@ is possible to make computationally expensive (slow) advanced links,
 including advance links that enter into infinite loops.</p>
 <p>Examples of the most common control flow constructs are given
 below.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span> condition1 <span class="op">)</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition1 is true.</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span> condition2 <span class="op">)</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition2 is true.</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span> condition <span class="dv">3</span> <span class="op">)</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition2 is false, but condition 3 is true.</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if both condition2 and condition3 are false.</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> n <span class="op">=</span> <span class="dv">5</span><span class="op">;</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span> <span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span> <span class="op">)</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something five times.</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode c++"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span> condition1 <span class="op">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition1 is true.</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span> condition2 <span class="op">)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition2 is true.</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span> condition <span class="dv">3</span> <span class="op">)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if condition2 is false, but condition 3 is true.</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something if both condition2 and condition3 are false.</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> n <span class="op">=</span> <span class="dv">5</span><span class="op">;</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span> <span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span> <span class="op">)</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Do something five times.</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h3 id="arrays">Arrays</h3>
-<p>AngelScript&#39;s <code>array</code> are very similar to C++ STL&#39;s
+<p>AngelScript's <code>array</code> are very similar to C++ STL's
 <code>vector</code>; they provide a dynamic container with random
 access. A summary of the methods available to work with
 <code>array</code> is given below.</p>
@@ -694,7 +488,8 @@ access. A summary of the methods available to work with
 <td style="text-align: left;">Declaration</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>array &lt; T &gt; x = {1.2, 2.3, 3.4};</code></td>
+<td
+style="text-align: left;"><code>array &lt; T &gt; x = {1.2, 2.3, 3.4};</code></td>
 <td style="text-align: left;">Declaration &amp; initialization</td>
 </tr>
 <tr class="even">
@@ -714,7 +509,8 @@ access. A summary of the methods available to work with
 <td style="text-align: left;">Test for empty array</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>void push_back( const T &amp;in );</code></td>
+<td
+style="text-align: left;"><code>void push_back( const T &amp;in );</code></td>
 <td style="text-align: left;">Place value after end of array</td>
 </tr>
 <tr class="odd">
@@ -722,23 +518,28 @@ access. A summary of the methods available to work with
 <td style="text-align: left;">Remove final value from array</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>void insert( uint index, const T &amp;in value );</code></td>
+<td
+style="text-align: left;"><code>void insert( uint index, const T &amp;in value );</code></td>
 <td style="text-align: left;">Insert value at index</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>void insert( uint index, const array&lt;T&gt;&amp; arr );</code></td>
+<td
+style="text-align: left;"><code>void insert( uint index, const array&lt;T&gt;&amp; arr );</code></td>
 <td style="text-align: left;">Insert arr at index</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>void erase( uint index );</code></td>
+<td
+style="text-align: left;"><code>void erase( uint index );</code></td>
 <td style="text-align: left;">Remove value at index</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>void reserve( uint length );</code></td>
+<td
+style="text-align: left;"><code>void reserve( uint length );</code></td>
 <td style="text-align: left;">Reserve memory for array</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>void resize( uint length );</code></td>
+<td
+style="text-align: left;"><code>void resize( uint length );</code></td>
 <td style="text-align: left;">Resize array</td>
 </tr>
 <tr class="odd">
@@ -752,18 +553,21 @@ access. A summary of the methods available to work with
 the OpenVSP API are helpful for working with 3D position and direction
 vectors and also transformation matrices. The <code>vec3d</code> class
 performs vector math of various kinds including addition, scalar
-multiplication, dot and cross products, point projection, etc. The <a href="https://openvsp.org/api_docs/latest/classvec3d.html">complete
+multiplication, dot and cross products, point projection, etc. The <a
+href="https://openvsp.org/api_docs/latest/classvec3d.html">complete
 vec3d documentation</a> is available online.</p>
 <p>The <code>matrix4d</code> class provides an augmented transformation
 matrix used to perform rotations, translations, scaling, projections,
-and other transformations in 3D space. The <a href="https://openvsp.org/api_docs/latest/class_matrix4d.html">complete
+and other transformations in 3D space. The <a
+href="https://openvsp.org/api_docs/latest/class_matrix4d.html">complete
 matrix4d documentation</a> is available online.</p>
 <h3 id="openvsp-api">OpenVSP API</h3>
 <p>The entire OpenVSP API is available for use from advanced links. The
 <a href="https://openvsp.org/api_docs/latest/">complete OpenVSP API
 documentation</a> is available online.</p>
 <h3 id="angelscript-api">AngelScript API</h3>
-<p>The official <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script.html">AngelScript
+<p>The official <a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script.html">AngelScript
 language documentation</a> is available online. Angelscript comes with
 several optional packages that can be installed. Below is a table of the
 optional components installed in OpenVSP and a link to the documentation
@@ -778,50 +582,60 @@ of each one.</p>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>stdstring</code></td>
-<td style="text-align: left;"><a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_string.html">String
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_string.html">String
 object</a></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>array</code></td>
-<td style="text-align: left;"><a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_datatypes_arrays.html">Array
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_datatypes_arrays.html">Array
 template object</a></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>any</code></td>
-<td style="text-align: left;"><a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_any.html">Any
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_any.html">Any
 container</a></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>file</code></td>
-<td style="text-align: left;"><a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_file.html">File
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_file.html">File
 I/O</a></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>math</code></td>
-<td style="text-align: left;"><a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_math.html">Math</a></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_math.html">Math</a></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>builder</code></td>
-<td style="text-align: left;"><a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_build.html">Script
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_build.html">Script
 Builder</a></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>filesystem</code></td>
-<td style="text-align: left;"><a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_filesystem.html">Filesystem</a></td>
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_filesystem.html">Filesystem</a></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>datetime</code></td>
-<td style="text-align: left;"><a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_datetime.html">Date
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_datetime.html">Date
 and Time</a></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>aswrappedcall</code></td>
-<td style="text-align: left;"><a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_autowrap.html">Auto
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_autowrap.html">Auto
 Wrapper</a></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>stdstring_utils</code></td>
-<td style="text-align: left;"><a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_string.html">String
+<td style="text-align: left;"><a
+href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_string.html">String
 Utilities</a></td>
 </tr>
 </tbody>
