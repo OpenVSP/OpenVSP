@@ -219,7 +219,7 @@ protected:
     virtual void UpdateSurf();
     virtual void UpdateMainTessVec();
 
-    virtual void RigidBladeMotion( Matrix4d & mat );
+    virtual void RigidBladeMotion( Matrix4d & mat, double foldangle );
 
     virtual void EnforceOrder( PropXSec* xs, int indx );
     virtual void EnforcePCurveOrder( double rfirst, double rlast );

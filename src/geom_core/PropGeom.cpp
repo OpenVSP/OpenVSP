@@ -516,7 +516,7 @@ void PropGeom::UpdateDrawObj()
     GeomXSec::UpdateDrawObj();
 
     Matrix4d rigid;
-    RigidBladeMotion( rigid );
+    RigidBladeMotion( rigid, m_FoldAngle() );
     for ( int i = 0 ; i < m_XSecDrawObj_vec.size() ; i++ )
     {
         rigid.xformvec( m_XSecDrawObj_vec[ i ].m_PntVec );
@@ -598,7 +598,7 @@ void PropGeom::UpdateHighlightDrawObj()
     GeomXSec::UpdateHighlightDrawObj();
 
     Matrix4d rigid;
-    RigidBladeMotion( rigid );
+    RigidBladeMotion( rigid, m_FoldAngle() );
 
     rigid.xformvec( m_HighlightXSecDrawObj.m_PntVec );
     rigid.xformvec( m_CurrentXSecDrawObj.m_PntVec );
@@ -1202,7 +1202,7 @@ void PropGeom::UpdateSurf()
         Matrix4d rot;
         for ( int i = 0; i < m_Nblade(); i++ )
         {
-            RigidBladeMotion( rigid );
+            RigidBladeMotion( rigid, m_FoldAngle() );
             m_MainSurfVec[i].Transform( rigid );
 
             if ( i > 0 )
@@ -1277,7 +1277,7 @@ void PropGeom::UpdateMainTessVec()
     Matrix4d rot;
     for ( int i = 0; i < m_Nblade(); i++ )
     {
-        RigidBladeMotion( rigid );
+        RigidBladeMotion( rigid, m_FoldAngle() );
         m_MainTessVec[i].Transform( rigid );
         m_MainFeatureTessVec[i].Transform( rigid );
 
@@ -1293,7 +1293,7 @@ void PropGeom::UpdateMainTessVec()
     }
 }
 
-void PropGeom::RigidBladeMotion( Matrix4d & mat )
+void PropGeom::RigidBladeMotion( Matrix4d & mat, double foldangle )
 {
     double rev = 1.0;
     if ( m_ReverseFlag() )
@@ -1309,7 +1309,7 @@ void PropGeom::RigidBladeMotion( Matrix4d & mat )
     mat.rotateZ( m_Precone() );
 
     mat.translatef( m_FoldAxOrigin.x(), m_FoldAxOrigin.y(), m_FoldAxOrigin.z() );
-    mat.rotate( m_FoldAngle() * PI / 180.0, m_FoldAxDirection );
+    mat.rotate( foldangle * PI / 180.0, m_FoldAxDirection );
     mat.translatef( -m_FoldAxOrigin.x(), -m_FoldAxOrigin.y(), -m_FoldAxOrigin.z() );
 
 }
