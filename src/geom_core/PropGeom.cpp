@@ -37,7 +37,6 @@ PropPositioner::PropPositioner()
     m_RootTwist = 0.0;
 
     m_Twist = 0.0;
-    m_PropRot = 0.0;
     m_Feather = 0.0;
     m_ZRotate = 0.0;
 
@@ -47,10 +46,6 @@ PropPositioner::PropPositioner()
     m_Rake = 0.0;
     m_Skew = 0.0;
     m_Sweep = 0.0;
-
-    m_FoldOrigin = vec3d( 0, 0, 0 );
-    m_FoldDirection = vec3d( 0, 0, 1 );
-    m_FoldAngle = 0.0;
 
     m_Reverse = 1.0;
 
@@ -1070,14 +1065,7 @@ void PropGeom::UpdateSurf()
                 xs->m_PropPos.m_Sweep = m_SweepCurve.Comp( r );
                 xs->m_PropPos.m_Axial = m_AxialCurve.Comp( r ) * radius;
                 xs->m_PropPos.m_Tangential = m_TangentialCurve.Comp( r ) * radius;
-                xs->m_PropPos.m_PropRot = m_Rotate();
                 xs->m_PropPos.m_Feather = m_Feather();
-
-                xs->m_PropPos.m_Precone = m_Precone();
-
-                xs->m_PropPos.m_FoldOrigin = m_FoldAxOrigin;
-                xs->m_PropPos.m_FoldDirection = m_FoldAxDirection;
-                xs->m_PropPos.m_FoldAngle = m_FoldAngle();
 
                 xs->m_PropPos.m_Reverse = rev;
             }
@@ -1157,14 +1145,7 @@ void PropGeom::UpdateSurf()
             pp.m_Axial = m_AxialCurve.Comp( r ) * radius;
             pp.m_Tangential = m_TangentialCurve.Comp( r ) * radius;
 
-            pp.m_PropRot = m_Rotate();
             pp.m_Feather = m_Feather();
-
-            pp.m_Precone = m_Precone();
-
-            pp.m_FoldOrigin = m_FoldAxOrigin;
-            pp.m_FoldDirection = m_FoldAxDirection;
-            pp.m_FoldAngle = m_FoldAngle();
 
             pp.m_Reverse = rev;
 

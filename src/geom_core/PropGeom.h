@@ -40,10 +40,7 @@ public:
     double m_RootChord;
     double m_RootTwist;
 
-    double m_Precone;
-
     double m_Twist;
-    double m_PropRot;
     double m_Feather;
     double m_ZRotate;
 
@@ -55,10 +52,6 @@ public:
     double m_Sweep;
     double m_Axial;
     double m_Tangential;
-
-    vec3d m_FoldOrigin;
-    vec3d m_FoldDirection;
-    double m_FoldAngle;
 
     double m_Reverse;
 
