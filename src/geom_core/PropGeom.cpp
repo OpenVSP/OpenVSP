@@ -121,15 +121,6 @@ void PropPositioner::Update()
 
     mat.loadIdentity();  // Reset to handle rigid body motion of lofted prop sections.
 
-    // Propeller rotation first because order is reversed.
-    mat.rotateX( -m_Reverse * m_PropRot );
-
-    mat.rotateZ( m_Precone );
-
-    mat.translatef( m_FoldOrigin.x(), m_FoldOrigin.y(), m_FoldOrigin.z() );
-    mat.rotate( m_FoldAngle * PI / 180.0, m_FoldDirection );
-    mat.translatef( -m_FoldOrigin.x(), -m_FoldOrigin.y(), -m_FoldOrigin.z() );
-
 
     mat.translatef( 0, 0, m_RootChord * m_FeatherOffset );
 
@@ -1323,6 +1314,23 @@ void PropGeom::UpdateMainTessVec()
 
 void PropGeom::RigidBladeMotion( Matrix4d & mat )
 {
+    double rev = 1.0;
+    if ( m_ReverseFlag() )
+    {
+        rev = -1.0;
+    }
+
+    mat.loadIdentity();  // Reset to handle rigid body motion of lofted prop sections.
+
+    // Propeller rotation first because order is reversed.
+    mat.rotateX( -rev * m_Rotate() );
+
+    mat.rotateZ( m_Precone() );
+
+    mat.translatef( m_FoldAxOrigin.x(), m_FoldAxOrigin.y(), m_FoldAxOrigin.z() );
+    mat.rotate( m_FoldAngle() * PI / 180.0, m_FoldAxDirection );
+    mat.translatef( -m_FoldAxOrigin.x(), -m_FoldAxOrigin.y(), -m_FoldAxOrigin.z() );
+
 }
 
 void PropGeom::CalculateMeshMetrics()
