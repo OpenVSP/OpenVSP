@@ -336,6 +336,11 @@ def start_server():
                         result = gui_active
                         b_result = pack_data(result)
 
+                    # Special functionality for IsGUIRunning
+                    elif data[0] == 'InitGUI':
+                        result = 0
+                        b_result = pack_data(result)
+
                     # Regular functionality
                     else:
                         func_name = data[0]
@@ -405,6 +410,9 @@ if __name__ == "__main__":
         f.write(server_string)
 
 def modify_vsp_py(filepath):
+    with open(filepath, 'r') as vsp_py:
+        if PLACEHOLDER_FUNCS in vsp_py.read():
+            return
     with open(filepath, 'a') as vsp_py:
         vsp_py.write(PLACEHOLDER_FUNCS)
 

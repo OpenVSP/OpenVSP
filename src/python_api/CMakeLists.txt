@@ -134,12 +134,12 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
         #copy vsp_g to folder and add "placeholder" facade functions
         add_custom_command( TARGET pyvsp_g POST_BUILD
+            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
+            ${CMAKE_CURRENT_BINARY_DIR}/vsp_g.py False
+
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_BINARY_DIR}/vsp_g.py
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py
-
-            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py False
         )
 
         INSTALL( TARGETS pyvsp_g LIBRARY DESTINATION python/openvsp/openvsp )
@@ -200,12 +200,20 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
     # Copy vsp.py wrapper post SWIG generation and run post copy commands.
     add_custom_command( TARGET pyvsp POST_BUILD
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
+        ${CMAKE_CURRENT_BINARY_DIR}/vsp.py True
+
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_BINARY_DIR}/vsp.py
         ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py
 
-        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
-        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py True
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_BINARY_DIR}/facade_server.py
+        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade_server.py
+
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_BINARY_DIR}/facade.py
+        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade.py
     )
 
     add_custom_command( TARGET pyvsp POST_BUILD
