@@ -529,6 +529,13 @@ void PropGeom::UpdateDrawObj()
 {
     GeomXSec::UpdateDrawObj();
 
+    Matrix4d rigid;
+    RigidBladeMotion( rigid );
+    for ( int i = 0 ; i < m_XSecDrawObj_vec.size() ; i++ )
+    {
+        rigid.xformvec( m_XSecDrawObj_vec[ i ].m_PntVec );
+    }
+
     m_ArrowLinesDO.m_PntVec.clear();
     m_ArrowHeadDO.m_PntVec.clear();
 
@@ -598,6 +605,17 @@ void PropGeom::UpdateDrawObj()
             MakeCircleArrow( pmid, dir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
         }
     }
+}
+
+void PropGeom::UpdateHighlightDrawObj()
+{
+    GeomXSec::UpdateHighlightDrawObj();
+
+    Matrix4d rigid;
+    RigidBladeMotion( rigid );
+
+    rigid.xformvec( m_HighlightXSecDrawObj.m_PntVec );
+    rigid.xformvec( m_CurrentXSecDrawObj.m_PntVec );
 }
 
 void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -1208,14 +1226,21 @@ void PropGeom::UpdateSurf()
         m_CapUMinSuccess.resize( m_Nblade(), m_CapUMinSuccess[0] );
         m_CapUMaxSuccess.resize( m_Nblade(), m_CapUMaxSuccess[0] );
 
+        Matrix4d rigid;
         Matrix4d rot;
-        for ( int i = 1; i < m_Nblade(); i++ )
+        for ( int i = 0; i < m_Nblade(); i++ )
         {
-            double theta = 360.0 * i / ( double )m_Nblade();
-            rot.loadIdentity();
-            rot.rotateX( theta );
+            RigidBladeMotion( rigid );
+            m_MainSurfVec[i].Transform( rigid );
 
-            m_MainSurfVec[i].Transform( rot );
+            if ( i > 0 )
+            {
+                double theta = 360.0 * i / ( double )m_Nblade();
+                rot.loadIdentity();
+                rot.rotateX( theta );
+
+                m_MainSurfVec[i].Transform( rot );
+            }
         }
     }
 
@@ -1276,16 +1301,28 @@ void PropGeom::UpdateMainTessVec()
     m_MainTessVec.resize( nmain, m_MainTessVec[0] );
     m_MainFeatureTessVec.resize( nmain, m_MainFeatureTessVec[0] );
 
+    Matrix4d rigid;
     Matrix4d rot;
-    for ( int i = 1; i < m_Nblade(); i++ )
+    for ( int i = 0; i < m_Nblade(); i++ )
     {
-        double theta = 360.0 * i / ( double )m_Nblade();
-        rot.loadIdentity();
-        rot.rotateX( theta );
+        RigidBladeMotion( rigid );
+        m_MainTessVec[i].Transform( rigid );
+        m_MainFeatureTessVec[i].Transform( rigid );
 
-        m_MainTessVec[i].Transform( rot );
-        m_MainFeatureTessVec[i].Transform( rot );
+        if ( i > 0 )
+        {
+            double theta = 360.0 * i / ( double )m_Nblade();
+            rot.loadIdentity();
+            rot.rotateX( theta );
+
+            m_MainTessVec[i].Transform( rot );
+            m_MainFeatureTessVec[i].Transform( rot );
+        }
     }
+}
+
+void PropGeom::RigidBladeMotion( Matrix4d & mat )
+{
 }
 
 void PropGeom::CalculateMeshMetrics()

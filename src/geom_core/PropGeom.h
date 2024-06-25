@@ -102,6 +102,7 @@ public:
     virtual ~PropGeom();
 
     virtual void UpdateDrawObj();
+    virtual void UpdateHighlightDrawObj();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void ComputeCenter();
@@ -224,6 +225,8 @@ protected:
 
     virtual void UpdateSurf();
     virtual void UpdateMainTessVec();
+
+    virtual void RigidBladeMotion( Matrix4d & mat );
 
     virtual void EnforceOrder( PropXSec* xs, int indx );
     virtual void EnforcePCurveOrder( double rfirst, double rlast );
