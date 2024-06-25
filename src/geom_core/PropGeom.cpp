@@ -604,7 +604,7 @@ void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
 
     // Get all geom DO's
-    Geom::LoadDrawObjs( draw_obj_vec );
+    GeomXSec::LoadDrawObjs( draw_obj_vec );
 
     // Bypass XSec drawing for disk
     if ( m_PropMode() == PROP_MODE::PROP_DISK )
