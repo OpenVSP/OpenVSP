@@ -525,11 +525,21 @@ void PropGeom::UpdateDrawObj()
 {
     GeomXSec::UpdateDrawObj();
 
+    Matrix4d relTrans = m_AttachMatrix;
+    relTrans.affineInverse();
+    relTrans.matMult( m_ModelMatrix.data() );
+    relTrans.postMult( m_AttachMatrix.data() );
+
+    Matrix4d invRelTrans = relTrans;
+    invRelTrans.affineInverse();
+
     Matrix4d rigid;
     RigidBladeMotion( rigid, m_FoldAngle() );
     for ( int i = 0 ; i < m_XSecDrawObj_vec.size() ; i++ )
     {
+        invRelTrans.xformvec( m_XSecDrawObj_vec[ i ].m_PntVec );
         rigid.xformvec( m_XSecDrawObj_vec[ i ].m_PntVec );
+        relTrans.xformvec( m_XSecDrawObj_vec[ i ].m_PntVec );
     }
 
     m_ArrowLinesDO.m_PntVec.clear();
@@ -607,10 +617,20 @@ void PropGeom::UpdateHighlightDrawObj()
 {
     GeomXSec::UpdateHighlightDrawObj();
 
+    Matrix4d relTrans = m_AttachMatrix;
+    relTrans.affineInverse();
+    relTrans.matMult( m_ModelMatrix.data() );
+    relTrans.postMult( m_AttachMatrix.data() );
+
+    Matrix4d invRelTrans = relTrans;
+    invRelTrans.affineInverse();
+
     Matrix4d rigid;
     RigidBladeMotion( rigid, m_FoldAngle() );
 
+    invRelTrans.xformvec( m_HighlightXSecDrawObj.m_PntVec );
     rigid.xformvec( m_HighlightXSecDrawObj.m_PntVec );
+    relTrans.xformvec( m_HighlightXSecDrawObj.m_PntVec );
 }
 
 void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
