@@ -175,6 +175,10 @@ public:
     Parm m_ElevationFoldDir;
     Parm m_FoldAngle;
 
+    BoolParm m_IndividualBladeFoldFlag;
+    vector< Parm* > m_FoldAngleParmVec;
+    IntParm m_ActiveBlade;
+
     vec3d m_FoldAxOrigin;
     vec3d m_FoldAxDirection;
 
@@ -227,6 +231,9 @@ protected:
     virtual void UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const;
     virtual void UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
     virtual void UpdatePreTess();
+
+    virtual void ReserveBlades( int n );
+    virtual void AddBlade();
 
     virtual void CalculateMeshMetrics();
 

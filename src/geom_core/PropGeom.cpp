@@ -245,6 +245,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Nblade.Init( "NumBlade", "Design", this, 3, 1, 1000 );
     m_Nblade.SetDescript( "Number of propeller blades" );
 
+    m_ActiveBlade.Init( "ActiveBlade", "Design", this, 1, 1, 1000 );
+    m_ActiveBlade.SetDescript( "Active blade" );
+
     m_PropMode.Init( "PropMode", "Design", this, PROP_BLADES, PROP_BLADES, PROP_DISK );
     m_PropMode.SetDescript( "Propeller model mode." );
 
@@ -277,6 +280,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_FoldAngle.Init( "FoldAngle", "Design", this, 0.0, -180.0, 180.0 );
     m_FoldAngle.SetDescript( "Propeller fold angle" );
+
+    m_IndividualBladeFoldFlag.Init( "IndividualBladeFoldFlag", "Design", this, false, 0, 1 );
+    m_IndividualBladeFoldFlag.SetDescript( "Flag to enable individual blade fold angles" );
 
     m_Beta34.Init( "Beta34", "Design", this, 20.0, -400.0, 400.0 );
     m_Beta34.SetDescript( "Blade pitch at 3/4 of radius" );
@@ -508,7 +514,11 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 //==== Destructor ====//
 PropGeom::~PropGeom()
 {
-
+    for ( int i = 0; i < m_FoldAngleParmVec.size(); i++ )
+    {
+        delete m_FoldAngleParmVec[i];
+    }
+    m_FoldAngleParmVec.clear();
 }
 
 void PropGeom::UpdateDrawObj()
@@ -759,6 +769,19 @@ void InterpXSecCurve( VspCurve & cout, XSecCurve *c1, XSecCurve *c2, const doubl
 //==== Update Fuselage And Cross Section Placement ====//
 void PropGeom::UpdateSurf()
 {
+    ReserveBlades( m_Nblade() - 1 );
+
+    if ( !m_IndividualBladeFoldFlag() )
+    {
+        m_ActiveBlade.Set( 1 );
+        for ( int i = 0; i < m_FoldAngleParmVec.size(); i++ )
+        {
+            m_FoldAngleParmVec[i]->Set( m_FoldAngle() );
+        }
+    }
+
+    m_ActiveBlade.SetUpperLimit( m_Nblade() );
+
     unsigned int nxsec = m_XSecSurf.NumXSec();
 
     double radius = m_Diameter() / 2.0;
@@ -1202,7 +1225,14 @@ void PropGeom::UpdateSurf()
         Matrix4d rot;
         for ( int i = 0; i < m_Nblade(); i++ )
         {
-            RigidBladeMotion( rigid, m_FoldAngle() );
+            if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
+            {
+                RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
+            }
+            else
+            {
+                RigidBladeMotion( rigid, m_FoldAngle() );
+            }
             m_MainSurfVec[i].Transform( rigid );
 
             if ( i > 0 )
@@ -1277,7 +1307,14 @@ void PropGeom::UpdateMainTessVec()
     Matrix4d rot;
     for ( int i = 0; i < m_Nblade(); i++ )
     {
-        RigidBladeMotion( rigid, m_FoldAngle() );
+        if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
+        {
+            RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
+        }
+        else
+        {
+            RigidBladeMotion( rigid, m_FoldAngle() );
+        }
         m_MainTessVec[i].Transform( rigid );
         m_MainFeatureTessVec[i].Transform( rigid );
 
@@ -1312,6 +1349,47 @@ void PropGeom::RigidBladeMotion( Matrix4d & mat, double foldangle )
     mat.rotate( foldangle * PI / 180.0, m_FoldAxDirection );
     mat.translatef( -m_FoldAxOrigin.x(), -m_FoldAxOrigin.y(), -m_FoldAxOrigin.z() );
 
+}
+
+void PropGeom::ReserveBlades( int n )
+{
+    if ( n < m_FoldAngleParmVec.size() )
+    {
+        vector< Parm* > faparms( n );
+
+        int i;
+        for ( i = 0; i < n; i++ )
+        {
+            faparms[i] = m_FoldAngleParmVec[i];
+        }
+        for ( ; i < m_FoldAngleParmVec.size(); i++ )
+        {
+            delete m_FoldAngleParmVec[i];
+        }
+        m_FoldAngleParmVec = faparms;
+    }
+    else
+    {
+        while ( m_FoldAngleParmVec.size() < n )
+        {
+            AddBlade();
+        }
+    }
+}
+
+void PropGeom::AddBlade()
+{
+    Parm *p;
+    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
+    if ( p )
+    {
+        int i = m_FoldAngleParmVec.size();
+        char str[255];
+        snprintf( str, sizeof( str ),  "FoldAngle_%d", i+1 );
+        p->Init( string( str ), "Design", this, m_FoldAngle(), -180, 180 );
+        p->SetDescript( "Propeller fold angle" );
+        m_FoldAngleParmVec.push_back( p );
+    }
 }
 
 void PropGeom::CalculateMeshMetrics()
@@ -1422,6 +1500,21 @@ xmlNodePtr PropGeom::EncodeXml( xmlNodePtr & node )
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr PropGeom::DecodeXml( xmlNodePtr & node )
 {
+    xmlNodePtr child_node = XmlUtil::GetNode( node, "ParmContainer", 0 );
+    if ( child_node )
+    {
+        xmlNodePtr gnode = XmlUtil::GetNode( child_node, "Design", 0 );
+        if ( gnode )
+        {
+            xmlNodePtr n = XmlUtil::GetNode( gnode, "NumBlade", 0 );
+            if ( n )
+            {
+                double nblade = XmlUtil::FindDoubleProp( n, "Value", m_Nblade() );
+                ReserveBlades( (int) nblade - 1 );
+            }
+        }
+    }
+
     Geom::DecodeXml( node );
 
     xmlNodePtr propeller_node = XmlUtil::GetNode( node, "PropellerGeom", 0 );

@@ -389,7 +389,28 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 700, "Propeller
 
     m_MoreLayout.AddDividerBox("Folding" );
 
-    m_MoreLayout.AddSlider(m_FoldAngleSlider, "Angle", 100, "%5.3f" );
+    m_MoreLayout.SetFitWidthFlag( false );
+    m_MoreLayout.SetSameLineFlag( true );
+
+    m_MoreLayout.SetButtonWidth( 15 );
+    m_MoreLayout.AddButton( m_IndividualBladeFoldToggle, "");
+
+    m_MoreLayout.SetButtonWidth( 50 );
+    m_MoreLayout.SetSliderWidth( 50 );
+    m_MoreLayout.AddCounter( m_ActiveBladeIndexSelector, "Blade" );
+
+
+    m_MoreLayout.SetButtonWidth( 100 );
+    m_MoreLayout.SetFitWidthFlag( true );
+
+    m_MoreLayout.AddSlider( m_FoldAngleSlider, "Angle", 100, "%5.3f" );
+    m_MoreLayout.ForceNewLine();
+
+
+    m_MoreLayout.SetFitWidthFlag( true );
+    m_MoreLayout.SetSameLineFlag( false );
+
+
     m_MoreLayout.AddSlider(m_RFoldSlider, "Radial/R", 1, "%5.3f" );
     m_MoreLayout.AddSlider(m_AxFoldSlider, "Axial/R", 1, "%5.3f" );
     m_MoreLayout.AddSlider(m_OffFoldSlider, "Offset/R", 1, "%5.3f" );
@@ -534,7 +555,28 @@ bool PropScreen::Update()
     m_OffFoldSlider.Update( propeller_ptr->m_OffsetFoldAxis.GetID() );
     m_AzFoldSlider.Update( propeller_ptr->m_AzimuthFoldDir.GetID() );
     m_ElFoldSlider.Update( propeller_ptr->m_ElevationFoldDir.GetID() );
-    m_FoldAngleSlider.Update( propeller_ptr->m_FoldAngle.GetID() );
+
+    m_IndividualBladeFoldToggle.Update( propeller_ptr->m_IndividualBladeFoldFlag.GetID() );
+    m_ActiveBladeIndexSelector.Update( propeller_ptr->m_ActiveBlade.GetID() );
+
+    if ( propeller_ptr->m_ActiveBlade() > 1 && propeller_ptr->m_ActiveBlade() <= propeller_ptr->m_Nblade() )
+    {
+        int index = propeller_ptr->m_ActiveBlade() - 2;
+        m_FoldAngleSlider.Update( propeller_ptr->m_FoldAngleParmVec[ index ]->GetID() );
+    }
+    else
+    {
+        m_FoldAngleSlider.Update( propeller_ptr->m_FoldAngle.GetID() );
+    }
+
+    if ( propeller_ptr->m_IndividualBladeFoldFlag() )
+    {
+        m_ActiveBladeIndexSelector.Activate();
+    }
+    else
+    {
+        m_ActiveBladeIndexSelector.Deactivate();
+    }
 
     m_LEClusterSlider.Update( propeller_ptr->m_LECluster.GetID() );
     m_TEClusterSlider.Update( propeller_ptr->m_TECluster.GetID() );

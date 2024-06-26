@@ -143,6 +143,9 @@ protected:
     SliderAdjRangeInput m_ElFoldSlider;
     SliderAdjRangeInput m_FoldAngleSlider;
 
+    ToggleButton m_IndividualBladeFoldToggle;
+    Counter m_ActiveBladeIndexSelector;
+
     Choice m_RootCapTypeChoice;
     SliderAdjRangeInput m_RootCapLenSlider;
     SliderAdjRangeInput m_RootCapOffsetSlider;
