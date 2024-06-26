@@ -156,7 +156,7 @@ public:
     void AddIndexSelector( IndexSelector& selector, const char* label = NULL, int used_w = 0 );
     void AddColorPicker( ColorPicker& picker );
     void AddChoice( Choice & choice, const char* label, int used_w = 0 );
-    void AddCounter( Counter & count, const char* label, int used_w = 0 );
+    void AddCounter( Counter & count, const char* label = "", int used_w = 0 );
     void AddParmPicker( ParmPicker & parm_picker );
     void AddParmTreePicker( ParmTreePicker & parm_tree_picker, int w, int h );
     void AddDriverGroupBank( DriverGroupBank & driver_group, const vector < string > &labels,

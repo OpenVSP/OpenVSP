@@ -1160,15 +1160,17 @@ void GroupLayout::AddCounter( Counter & count, const char* label, int used_w )
     assert( m_Group && m_Screen );
 
     //==== Counter Button ====//
+    int bw = 0;
     VspButton* button = NULL;
     if ( strcmp( label, "" ) != 0 )
     {
         button = AddParmButton( label );
         button->align( Fl_Align( FL_ALIGN_CLIP ) );
+        bw = m_ButtonWidth;
     }
 
     //==== Counter ====//
-    int counter_w = FitWidth( m_ButtonWidth + used_w, m_SliderWidth );
+    int counter_w = FitWidth( bw + used_w, m_SliderWidth );
     Fl_Counter* fl_counter = new Fl_Counter( m_X, m_Y, counter_w, m_StdHeight );
     fl_counter->type( FL_SIMPLE_COUNTER );
     fl_counter->minimum( 0 );
