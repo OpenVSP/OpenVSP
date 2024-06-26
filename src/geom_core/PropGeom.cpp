@@ -611,7 +611,6 @@ void PropGeom::UpdateHighlightDrawObj()
     RigidBladeMotion( rigid, m_FoldAngle() );
 
     rigid.xformvec( m_HighlightXSecDrawObj.m_PntVec );
-    rigid.xformvec( m_CurrentXSecDrawObj.m_PntVec );
 }
 
 void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
