@@ -631,6 +631,34 @@ void PropGeom::UpdateHighlightDrawObj()
     invRelTrans.xformvec( m_HighlightXSecDrawObj.m_PntVec );
     rigid.xformvec( m_HighlightXSecDrawObj.m_PntVec );
     relTrans.xformvec( m_HighlightXSecDrawObj.m_PntVec );
+
+
+
+    m_HighlightBladeDrawObj.m_PntVec = m_MainBladeBBox.GetBBoxDrawLines();
+
+    int i = m_ActiveBlade() - 1;
+    if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
+    {
+        RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
+    }
+    else
+    {
+        RigidBladeMotion( rigid, m_FoldAngle() );
+    }
+
+    rigid.xformvec( m_HighlightBladeDrawObj.m_PntVec );
+
+    Matrix4d rot;
+    double theta = 360.0 * i / ( double )m_Nblade();
+    rot.loadIdentity();
+    rot.rotateX( theta );
+
+    rot.xformvec( m_HighlightBladeDrawObj.m_PntVec );
+
+    relTrans.xformvec( m_HighlightBladeDrawObj.m_PntVec );
+
+
+    m_HighlightBladeDrawObj.m_GeomChanged = true;
 }
 
 void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -650,6 +678,14 @@ void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_HighlightXSecDrawObj.m_Visible = false;
         m_CurrentXSecDrawObj.m_Visible = false;
     }
+
+    m_HighlightBladeDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_HighlightBladeDrawObj.m_GeomID = BBOXHEADER + m_ID + "ACTIVE_BLADE";
+    m_HighlightBladeDrawObj.m_Visible = m_Vehicle->IsGeomActive( m_ID ) && m_PropMode() != PROP_MODE::PROP_DISK;
+    m_HighlightBladeDrawObj.m_LineWidth = 4.0;
+    m_HighlightBladeDrawObj.m_LineColor = vec3d( 0.0, 1.0, 0.0 );
+    m_HighlightBladeDrawObj.m_Type = DrawObj::VSP_LINES;
+    draw_obj_vec.push_back( &m_HighlightBladeDrawObj );
 
     m_ArrowHeadDO.m_GeomID = m_ID + "Arrows";
     m_ArrowHeadDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
@@ -1239,6 +1275,9 @@ void PropGeom::UpdateSurf()
         // Duplicate capping variables
         m_CapUMinSuccess.resize( m_Nblade(), m_CapUMinSuccess[0] );
         m_CapUMaxSuccess.resize( m_Nblade(), m_CapUMaxSuccess[0] );
+
+        m_MainBladeBBox.Reset();
+        m_MainSurfVec[0].GetBoundingBox( m_MainBladeBBox );
 
         Matrix4d rigid;
         Matrix4d rot;

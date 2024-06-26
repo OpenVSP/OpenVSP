@@ -239,6 +239,8 @@ protected:
 
     DrawObj m_ArrowLinesDO;
     DrawObj m_ArrowHeadDO;
+    BndBox m_MainBladeBBox;
+    DrawObj m_HighlightBladeDrawObj;
 
     Vsp1DCurve m_rtou;
     VspSurf m_FoilSurf;
