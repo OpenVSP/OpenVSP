@@ -82,18 +82,18 @@ xmlNodePtr Link::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr link_node = xmlNewChild( node, NULL, BAD_CAST"Link", NULL );
 
-    XmlUtil::AddStringNode( link_node, "ParmAID", m_ParmA );
-    XmlUtil::AddStringNode( link_node, "ParmBID", m_ParmB );
+    if ( link_node )
+    {
+        ParmContainer::EncodeXml( link_node );
 
-    m_Offset.EncodeXml( link_node );
-    m_Scale.EncodeXml( link_node );
-    m_LowerLimit.EncodeXml( link_node );
-    m_UpperLimit.EncodeXml( link_node );
+        XmlUtil::AddStringNode( link_node, "ParmAID", m_ParmA );
+        XmlUtil::AddStringNode( link_node, "ParmBID", m_ParmB );
 
-    XmlUtil::AddIntNode( link_node, "OffsetFlag", m_OffsetFlag );
-    XmlUtil::AddIntNode( link_node, "ScaleFlag", m_ScaleFlag );
-    XmlUtil::AddIntNode( link_node, "LowerLimitFlag", m_LowerLimitFlag );
-    XmlUtil::AddIntNode( link_node, "UpperLimitFlag", m_UpperLimitFlag );
+        XmlUtil::AddIntNode( link_node, "OffsetFlag", m_OffsetFlag );
+        XmlUtil::AddIntNode( link_node, "ScaleFlag", m_ScaleFlag );
+        XmlUtil::AddIntNode( link_node, "LowerLimitFlag", m_LowerLimitFlag );
+        XmlUtil::AddIntNode( link_node, "UpperLimitFlag", m_UpperLimitFlag );
+    }
 
     return link_node;
 }
@@ -102,18 +102,36 @@ xmlNodePtr Link::DecodeXml( xmlNodePtr & link_node )
 {
     if ( link_node )
     {
-        m_ParmA = ParmMgr.RemapID( XmlUtil::FindString( link_node, "ParmAID", string() ) );
-        m_ParmB = ParmMgr.RemapID( XmlUtil::FindString( link_node, "ParmBID", string() ) );
+        xmlNodePtr pc = XmlUtil::GetNode( link_node, "ParmContainer", 0 );
+        if ( pc )
+        {
+            printf("New format\n");
+            ParmContainer::DecodeXml( link_node );
 
-        m_Offset.DecodeXml( link_node );
-        m_Scale.DecodeXml( link_node );
-        m_LowerLimit.DecodeXml( link_node );
-        m_UpperLimit.DecodeXml( link_node );
+            m_ParmA = ParmMgr.RemapID( XmlUtil::FindString( link_node, "ParmAID", string() ) );
+            m_ParmB = ParmMgr.RemapID( XmlUtil::FindString( link_node, "ParmBID", string() ) );
 
-        m_OffsetFlag = !!XmlUtil::FindInt( link_node, "OffsetFlag", m_OffsetFlag );
-        m_ScaleFlag = !!XmlUtil::FindInt( link_node, "ScaleFlag", m_ScaleFlag );
-        m_LowerLimitFlag = !!XmlUtil::FindInt( link_node, "LowerLimitFlag", m_LowerLimitFlag );
-        m_UpperLimitFlag = !!XmlUtil::FindInt( link_node, "UpperLimitFlag", m_UpperLimitFlag );
+            m_OffsetFlag = !!XmlUtil::FindInt( link_node, "OffsetFlag", m_OffsetFlag );
+            m_ScaleFlag = !!XmlUtil::FindInt( link_node, "ScaleFlag", m_ScaleFlag );
+            m_LowerLimitFlag = !!XmlUtil::FindInt( link_node, "LowerLimitFlag", m_LowerLimitFlag );
+            m_UpperLimitFlag = !!XmlUtil::FindInt( link_node, "UpperLimitFlag", m_UpperLimitFlag );
+        }
+        else // Read legacy format
+        {
+            printf("Old format\n");
+            m_ParmA = ParmMgr.RemapID( XmlUtil::FindString( link_node, "ParmAID", string() ) );
+            m_ParmB = ParmMgr.RemapID( XmlUtil::FindString( link_node, "ParmBID", string() ) );
+
+            m_Offset.DecodeXml( link_node );
+            m_Scale.DecodeXml( link_node );
+            m_LowerLimit.DecodeXml( link_node );
+            m_UpperLimit.DecodeXml( link_node );
+
+            m_OffsetFlag = !!XmlUtil::FindInt( link_node, "OffsetFlag", m_OffsetFlag );
+            m_ScaleFlag = !!XmlUtil::FindInt( link_node, "ScaleFlag", m_ScaleFlag );
+            m_LowerLimitFlag = !!XmlUtil::FindInt( link_node, "LowerLimitFlag", m_LowerLimitFlag );
+            m_UpperLimitFlag = !!XmlUtil::FindInt( link_node, "UpperLimitFlag", m_UpperLimitFlag );
+        }
     }
     return link_node;
 }
