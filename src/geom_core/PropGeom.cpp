@@ -245,7 +245,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Nblade.Init( "NumBlade", "Design", this, 3, 1, 1000 );
     m_Nblade.SetDescript( "Number of propeller blades" );
 
-    m_ActiveBlade.Init( "ActiveBlade", "Design", this, 1, 1, 1000 );
+    m_ActiveBlade.Init( "ActiveBlade", "Index", this, 1, 1, 1000 );
     m_ActiveBlade.SetDescript( "Active blade" );
 
     m_PropMode.Init( "PropMode", "Design", this, PROP_BLADES, PROP_BLADES, PROP_DISK );

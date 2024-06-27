@@ -193,6 +193,7 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
         m_HighlightDirty = true;
         // GeomXSec::m_ActiveXSec
         // WingGeom::m_ActiveAirfoil
+        // PropGeom::m_ActiveBlade
     }
     else if ( gname.substr(0, 3) == string("Fea") )
     {
