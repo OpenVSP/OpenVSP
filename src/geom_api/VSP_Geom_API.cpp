@@ -3336,6 +3336,9 @@ void ComputeFeaMesh( const string & geom_id, int fea_struct_ind, int file_type )
     FeaMeshMgr.SetFeaMeshStructID( feastruct->GetID() );
 
     FeaMeshMgr.GenerateFeaMesh();
+
+    FeaMeshMgr.ExportFeaMesh( feastruct->GetID() );
+
     ErrorMgr.NoError();
 }
 
@@ -3356,6 +3359,9 @@ void ComputeFeaMesh( const string & struct_id, int file_type )
     FeaMeshMgr.SetFeaMeshStructID( struct_id );
 
     FeaMeshMgr.GenerateFeaMesh();
+
+    FeaMeshMgr.ExportFeaMesh( struct_id );
+
     ErrorMgr.NoError();
 }
 
