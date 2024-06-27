@@ -1061,6 +1061,16 @@ enum PROJ_TGT_TYPE { SET_TARGET,	/*!< Set target type */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum used to specify the mode of a propeller blade azimuth control. */
+enum PROP_AZIMUTH_MODE { PROP_AZI_UNIFORM,	/*!< Propeller blades are uniformly spaced */
+                         PROP_AZI_FREE,	/*!< Propeller blades are free to spaced arbitrarially */
+                         PROP_AZI_BALANCED,	/*!< Propeller blade balance is enforced */
+                         NUM_PROP_AZI,	/*!< Number of propeller blade azimuth modes */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum used to specify the mode of a propeller Geom. */
 enum PROP_MODE { PROP_BLADES,	/*!< Propeller Geom is defined by individual propeller blades */
                  PROP_BOTH,	/*!< Propeller Geom is defined by blades and a disk together */

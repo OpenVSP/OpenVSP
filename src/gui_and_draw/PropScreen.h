@@ -23,6 +23,8 @@ public:
     PropScreen( ScreenMgr* mgr );
     virtual ~PropScreen();
 
+    virtual void RedrawBladeAzimuthSliders( int num_sliders );
+
     virtual void Show();
     virtual bool Update();
 
@@ -145,6 +147,14 @@ protected:
 
     ToggleButton m_IndividualBladeFoldToggle;
     Counter m_ActiveBladeIndexSelector;
+
+
+    Choice m_BladeAziModeChoice;
+    ToggleButton m_BladeAziDeltaButton;
+    Fl_Scroll* m_BladeAziScroll;
+    GroupLayout m_BladeAziLayout;
+
+    vector < SliderAdjRange2Input > m_BladeAziSliderVec;
 
     Choice m_RootCapTypeChoice;
     SliderAdjRangeInput m_RootCapLenSlider;

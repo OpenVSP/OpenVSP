@@ -248,6 +248,12 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_ActiveBlade.Init( "ActiveBlade", "Index", this, 1, 1, 1000 );
     m_ActiveBlade.SetDescript( "Active blade" );
 
+    m_BladeAzimuthMode.Init( "BladeAzimuthMode", "Design", this, PROP_AZI_UNIFORM, PROP_AZI_UNIFORM, NUM_PROP_AZI - 1 );
+    m_BladeAzimuthMode.SetDescript( "Blade angle mode control" );
+
+    m_BladeAzimuthDeltaFlag.Init( "BladeAzimuthDeltaFlag", "Design", this, 0, 0, 1 );
+    m_BladeAzimuthDeltaFlag.SetDescript( "Flag to determine whether blade azimuth is absolute or deltas from uniform" );
+
     m_PropMode.Init( "PropMode", "Design", this, PROP_BLADES, PROP_BLADES, PROP_DISK );
     m_PropMode.SetDescript( "Propeller model mode." );
 
@@ -633,6 +639,11 @@ void PropGeom::UpdateHighlightDrawObj()
     relTrans.xformvec( m_HighlightXSecDrawObj.m_PntVec );
 
 
+    double rev = 1.0;
+    if ( m_ReverseFlag() )
+    {
+        rev = -1.0;
+    }
 
     m_HighlightBladeDrawObj.m_PntVec = m_MainBladeBBox.GetBBoxDrawLines();
 
@@ -649,9 +660,12 @@ void PropGeom::UpdateHighlightDrawObj()
     rigid.xformvec( m_HighlightBladeDrawObj.m_PntVec );
 
     Matrix4d rot;
-    double theta = 360.0 * i / ( double )m_Nblade();
     rot.loadIdentity();
-    rot.rotateX( theta );
+
+    if ( i > 0 )
+    {
+        rot.rotateX( -rev * m_BladeAzimuthParmVec[  i - 1  ]->Get() );
+    }
 
     rot.xformvec( m_HighlightBladeDrawObj.m_PntVec );
 
@@ -825,6 +839,8 @@ void InterpXSecCurve( VspCurve & cout, XSecCurve *c1, XSecCurve *c2, const doubl
 void PropGeom::UpdateSurf()
 {
     ReserveBlades( m_Nblade() - 1 );
+
+    UpdateBladeAzimuth();
 
     if ( !m_IndividualBladeFoldFlag() )
     {
@@ -1279,6 +1295,8 @@ void PropGeom::UpdateSurf()
         m_MainBladeBBox.Reset();
         m_MainSurfVec[0].GetBoundingBox( m_MainBladeBBox );
 
+
+
         Matrix4d rigid;
         Matrix4d rot;
         for ( int i = 0; i < m_Nblade(); i++ )
@@ -1295,9 +1313,8 @@ void PropGeom::UpdateSurf()
 
             if ( i > 0 )
             {
-                double theta = 360.0 * i / ( double )m_Nblade();
                 rot.loadIdentity();
-                rot.rotateX( theta );
+                rot.rotateX( -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get() );
 
                 m_MainSurfVec[i].Transform( rot );
             }
@@ -1361,6 +1378,12 @@ void PropGeom::UpdateMainTessVec()
     m_MainTessVec.resize( nmain, m_MainTessVec[0] );
     m_MainFeatureTessVec.resize( nmain, m_MainFeatureTessVec[0] );
 
+    double rev = 1.0;
+    if ( m_ReverseFlag() )
+    {
+        rev = -1.0;
+    }
+
     Matrix4d rigid;
     Matrix4d rot;
     for ( int i = 0; i < m_Nblade(); i++ )
@@ -1378,12 +1401,73 @@ void PropGeom::UpdateMainTessVec()
 
         if ( i > 0 )
         {
-            double theta = 360.0 * i / ( double )m_Nblade();
+            double theta = -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get();
             rot.loadIdentity();
             rot.rotateX( theta );
 
             m_MainTessVec[i].Transform( rot );
             m_MainFeatureTessVec[i].Transform( rot );
+        }
+    }
+}
+
+void PropGeom::UpdateBladeAzimuth()
+{
+    for ( int i = 1; i < m_Nblade(); i++ )
+    {
+        m_BladeAzimuthParmVec[ i - 1 ]->Activate();
+        m_BladeDeltaAzimuthParmVec[ i - 1 ]->Activate();
+    }
+    m_BladeAzimuthDeltaFlag.Activate();
+
+    if ( m_BladeAzimuthMode() == PROP_AZI_UNIFORM )
+    {
+        for ( int i = 1; i < m_Nblade(); i++ )
+        {
+            double theta_nom = 360.0 * i / ( double )m_Nblade();
+
+            m_BladeAzimuthParmVec[ i - 1 ]->Set( theta_nom );
+            m_BladeDeltaAzimuthParmVec[ i - 1 ]->Set( 0.0 );
+
+            m_BladeAzimuthParmVec[ i - 1 ]->Deactivate();
+            m_BladeDeltaAzimuthParmVec[ i - 1 ]->Deactivate();
+        }
+        m_BladeAzimuthDeltaFlag.Deactivate();
+    }
+    else if ( m_BladeAzimuthMode() == PROP_AZI_FREE )
+    {
+        for ( int i = 1; i < m_Nblade(); i++ )
+        {
+            double theta_nom = 360.0 * i / ( double )m_Nblade();
+
+            if ( !m_BladeAzimuthDeltaFlag() )
+            {
+                m_BladeDeltaAzimuthParmVec[ i - 1 ]->Set( m_BladeAzimuthParmVec[ i - 1 ]->Get() - theta_nom );
+                m_BladeDeltaAzimuthParmVec[ i - 1 ]->Deactivate();
+            }
+            else
+            {
+                m_BladeAzimuthParmVec[ i - 1 ]->Set( theta_nom + m_BladeDeltaAzimuthParmVec[ i - 1 ]->Get() );
+                m_BladeAzimuthParmVec[ i - 1 ]->Deactivate();
+            }
+        }
+    }
+    else // Temporary branch.
+    {
+        for ( int i = 1; i < m_Nblade(); i++ )
+        {
+            double theta_nom = 360.0 * i / ( double )m_Nblade();
+
+            if ( !m_BladeAzimuthDeltaFlag() )
+            {
+                m_BladeDeltaAzimuthParmVec[ i - 1 ]->Set( m_BladeAzimuthParmVec[ i - 1 ]->Get() - theta_nom );
+                m_BladeDeltaAzimuthParmVec[ i - 1 ]->Deactivate();
+            }
+            else
+            {
+                m_BladeAzimuthParmVec[ i - 1 ]->Set( theta_nom + m_BladeDeltaAzimuthParmVec[ i - 1 ]->Get() );
+                m_BladeAzimuthParmVec[ i - 1 ]->Deactivate();
+            }
         }
     }
 }
@@ -1409,22 +1493,35 @@ void PropGeom::RigidBladeMotion( Matrix4d & mat, double foldangle )
 
 }
 
-void PropGeom::ReserveBlades( int n )
+void PropGeom::ReserveBlades( int n ) // Note:  n is m_Nblade() - 1
 {
+    if ( n == m_FoldAngleParmVec.size() )
+    {
+        return;
+    }
+
     if ( n < m_FoldAngleParmVec.size() )
     {
         vector< Parm* > faparms( n );
+        vector< Parm* > baparms( n );
+        vector< Parm* > badparms( n );
 
         int i;
         for ( i = 0; i < n; i++ )
         {
             faparms[i] = m_FoldAngleParmVec[i];
+            baparms[i] = m_BladeAzimuthParmVec[i];
+            badparms[i] = m_BladeDeltaAzimuthParmVec[i];
         }
         for ( ; i < m_FoldAngleParmVec.size(); i++ )
         {
             delete m_FoldAngleParmVec[i];
+            delete m_BladeAzimuthParmVec[i];
+            delete m_BladeDeltaAzimuthParmVec[i];
         }
         m_FoldAngleParmVec = faparms;
+        m_BladeAzimuthParmVec = baparms;
+        m_BladeDeltaAzimuthParmVec = badparms;
     }
     else
     {
@@ -1433,6 +1530,11 @@ void PropGeom::ReserveBlades( int n )
             AddBlade();
         }
     }
+
+    bool flag_before = m_BladeAzimuthDeltaFlag();
+    m_BladeAzimuthDeltaFlag.Set( true );
+    UpdateBladeAzimuth();
+    m_BladeAzimuthDeltaFlag.Set( flag_before );
 }
 
 void PropGeom::AddBlade()
@@ -1447,6 +1549,29 @@ void PropGeom::AddBlade()
         p->Init( string( str ), "Design", this, m_FoldAngle(), -180, 180 );
         p->SetDescript( "Propeller fold angle" );
         m_FoldAngleParmVec.push_back( p );
+    }
+
+    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
+    if ( p )
+    {
+        int i = m_BladeAzimuthParmVec.size();
+        double theta_nom = 360.0 * i / ( double )m_Nblade();
+        char str[255];
+        snprintf( str, sizeof( str ),  "BladeAz_%d", i + 2 );
+        p->Init( string( str ), "Design", this, theta_nom, 0, 360 );
+        p->SetDescript( "Propeller blade azimuth" );
+        m_BladeAzimuthParmVec.push_back( p );
+    }
+
+    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
+    if ( p )
+    {
+        int i = m_BladeDeltaAzimuthParmVec.size();
+        char str[255];
+        snprintf( str, sizeof( str ),  "DeltaAz_%d", i + 2 );
+        p->Init( string( str ), "Design", this, 0, -180, 180 );
+        p->SetDescript( "Propeller blade azimuth delta" );
+        m_BladeDeltaAzimuthParmVec.push_back( p );
     }
 }
 

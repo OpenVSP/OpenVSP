@@ -1763,6 +1763,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "PROP_AZIMUTH_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_AZIMUTH_MODE", "PROP_AZI_UNIFORM", PROP_AZI_UNIFORM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_AZIMUTH_MODE", "PROP_AZI_FREE", PROP_AZI_FREE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_AZIMUTH_MODE", "PROP_AZI_BALANCED", PROP_AZI_BALANCED );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_AZIMUTH_MODE", "NUM_PROP_AZI", NUM_PROP_AZI );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "PROP_MODE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PROP_MODE", "PROP_BLADES", PROP_BLADES );

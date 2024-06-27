@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 700, "Propeller" )
+PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 750, "Propeller" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -421,6 +421,40 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 700, "Propeller
 
     m_MoreLayout.AddYGap();
 
+    m_MoreLayout.AddDividerBox( "Blade Spacing" );
+
+    m_MoreLayout.SetFitWidthFlag( true );
+    m_MoreLayout.SetSameLineFlag( true );
+
+    m_BladeAziModeChoice.AddItem( "Uniform", PROP_AZI_UNIFORM );
+    m_BladeAziModeChoice.AddItem( "Free", PROP_AZI_FREE );
+    m_BladeAziModeChoice.AddItem( "Balanced", PROP_AZI_BALANCED );
+    m_BladeAziModeChoice.UpdateItems();
+
+    m_MoreLayout.AddChoice( m_BladeAziModeChoice, "Mode", m_MoreLayout.GetButtonWidth() );
+    m_MoreLayout.SetFitWidthFlag( false );
+    m_MoreLayout.AddButton( m_BladeAziDeltaButton, "Delta" );
+    m_MoreLayout.ForceNewLine();
+
+    m_MoreLayout.SetFitWidthFlag( true );
+    m_MoreLayout.SetSameLineFlag( false );
+
+    int ht = m_MoreLayout.GetStdHeight() * 5;
+    m_MoreLayout.AddSubGroupLayout( m_BladeAziLayout, m_MoreLayout.GetRemainX(), ht );
+    m_MoreLayout.AddY( ht );
+
+    m_BladeAziScroll = m_BladeAziLayout.AddFlScroll( m_BladeAziLayout.GetRemainY() );
+    m_BladeAziScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    m_BladeAziScroll->box( FL_BORDER_BOX );
+
+    m_BladeAziLayout.SetSameLineFlag( false );
+    m_BladeAziLayout.SetFitWidthFlag( true );
+
+    m_FLTK_Window->resizable( m_BladeAziScroll );
+
+
+    m_MoreLayout.AddYGap();
+
     m_MoreLayout.AddDividerBox("Tip Treatment" );
     m_MoreLayout.AddSlider(m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
 
@@ -477,6 +511,23 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 700, "Propeller
 //==== Show Pod Screen ====//
 PropScreen::~PropScreen()
 {
+}
+
+void PropScreen::RedrawBladeAzimuthSliders( int num_sliders )
+{
+    if ( num_sliders != m_BladeAziSliderVec.size() )
+    {
+        m_BladeAziScroll->clear();
+        m_BladeAziLayout.SetGroup( m_BladeAziScroll );
+
+        m_BladeAziSliderVec.clear();
+        m_BladeAziSliderVec.resize( num_sliders, SliderAdjRange2Input() );
+
+        for ( int i = 0; i < num_sliders; i++ )
+        {
+            m_BladeAziLayout.AddSlider( m_BladeAziSliderVec[i], "AUTO_UPDATE", 10, "%9.4f" );
+        }
+    }
 }
 
 //==== Show Pod Screen ====//
@@ -577,6 +628,25 @@ bool PropScreen::Update()
     {
         m_ActiveBladeIndexSelector.Deactivate();
     }
+
+    int nslider = propeller_ptr->m_Nblade() - 1;
+    RedrawBladeAzimuthSliders( nslider );
+
+    m_BladeAziModeChoice.Update( propeller_ptr->m_BladeAzimuthMode.GetID() );
+    m_BladeAziDeltaButton.Update( propeller_ptr->m_BladeAzimuthDeltaFlag.GetID() );
+
+    for ( int i = 0; i < nslider; i++ )
+    {
+        if ( !( propeller_ptr->m_BladeAzimuthDeltaFlag() ) )
+        {
+            m_BladeAziSliderVec[i].Update( 1, propeller_ptr->m_BladeAzimuthParmVec[i]->GetID(), propeller_ptr->m_BladeDeltaAzimuthParmVec[i]->GetID() );
+        }
+        else
+        {
+            m_BladeAziSliderVec[i].Update( 2, propeller_ptr->m_BladeAzimuthParmVec[i]->GetID(), propeller_ptr->m_BladeDeltaAzimuthParmVec[i]->GetID() );
+        }
+    }
+
 
     m_LEClusterSlider.Update( propeller_ptr->m_LECluster.GetID() );
     m_TEClusterSlider.Update( propeller_ptr->m_TECluster.GetID() );

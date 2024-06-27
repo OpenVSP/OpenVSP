@@ -183,6 +183,12 @@ public:
     vec3d m_FoldAxDirection;
 
     IntParm m_Nblade;
+
+    vector< Parm* > m_BladeAzimuthParmVec;
+    vector< Parm* > m_BladeDeltaAzimuthParmVec;
+    IntParm m_BladeAzimuthMode;
+    BoolParm m_BladeAzimuthDeltaFlag;
+
     IntParm m_PropMode;
 
     PCurve m_ChordCurve;
@@ -222,6 +228,7 @@ protected:
 
     virtual void UpdateSurf();
     virtual void UpdateMainTessVec();
+    virtual void UpdateBladeAzimuth();
 
     virtual void RigidBladeMotion( Matrix4d & mat, double foldangle );
 
