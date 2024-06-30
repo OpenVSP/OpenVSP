@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 750, "Propeller" )
+PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 755, "Propeller" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -452,6 +452,14 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 750, "Propeller
 
     m_FLTK_Window->resizable( m_BladeAziScroll );
 
+    m_MoreLayout.SetFitWidthFlag( true );
+    m_MoreLayout.SetSameLineFlag( true );
+    m_MoreLayout.AddOutput( m_BalanceX1Output, "X1 Balance", "%5.3g", m_MoreLayout.GetW() / 2.0 );
+    m_MoreLayout.AddOutput( m_BalanceX2Output, "X2 Balance", "%5.3g", m_MoreLayout.GetW() / 2.0 );
+    m_MoreLayout.ForceNewLine();
+
+    m_MoreLayout.SetFitWidthFlag( true );
+    m_MoreLayout.SetSameLineFlag( false );
 
     m_MoreLayout.AddYGap();
 
@@ -634,6 +642,9 @@ bool PropScreen::Update()
 
     m_BladeAziModeChoice.Update( propeller_ptr->m_BladeAzimuthMode.GetID() );
     m_BladeAziDeltaButton.Update( propeller_ptr->m_BladeAzimuthDeltaFlag.GetID() );
+
+    m_BalanceX1Output.Update( propeller_ptr->m_BalanceX1.GetID() );
+    m_BalanceX2Output.Update( propeller_ptr->m_BalanceX2.GetID() );
 
     for ( int i = 0; i < nslider; i++ )
     {

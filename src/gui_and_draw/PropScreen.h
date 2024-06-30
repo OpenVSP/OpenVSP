@@ -153,6 +153,8 @@ protected:
     ToggleButton m_BladeAziDeltaButton;
     Fl_Scroll* m_BladeAziScroll;
     GroupLayout m_BladeAziLayout;
+    Output m_BalanceX1Output;
+    Output m_BalanceX2Output;
 
     vector < SliderAdjRange2Input > m_BladeAziSliderVec;
 

@@ -9,6 +9,9 @@
 #include "ParmMgr.h"
 #include "Vehicle.h"
 #include <float.h>
+
+#include <eli/mutil/nls/newton_raphson_system_method.hpp>
+
 #include "Cluster.h"
 #include "SubSurfaceMgr.h"
 
@@ -253,6 +256,12 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_BladeAzimuthDeltaFlag.Init( "BladeAzimuthDeltaFlag", "Design", this, 0, 0, 1 );
     m_BladeAzimuthDeltaFlag.SetDescript( "Flag to determine whether blade azimuth is absolute or deltas from uniform" );
+
+    m_BalanceX1.Init( "BalanceX1", "Design", this, 0, -1, 1 );
+    m_BalanceX1.SetDescript( "Normalized rotor balance point in blade 1 direction." );
+
+    m_BalanceX2.Init( "BalanceX2", "Design", this, 0, -1, 1 );
+    m_BalanceX2.SetDescript( "Normalized rotor balance point in direction perpendicular to blade 1." );
 
     m_PropMode.Init( "PropMode", "Design", this, PROP_BLADES, PROP_BLADES, PROP_DISK );
     m_PropMode.SetDescript( "Propeller model mode." );
@@ -841,6 +850,8 @@ void PropGeom::UpdateSurf()
     ReserveBlades( m_Nblade() - 1 );
 
     UpdateBladeAzimuth();
+
+    CheckBalance();
 
     if ( !m_IndividualBladeFoldFlag() )
     {
@@ -1452,24 +1463,146 @@ void PropGeom::UpdateBladeAzimuth()
             }
         }
     }
-    else // Temporary branch.
+    else // PROP_AZI_BALANCED
     {
-        for ( int i = 1; i < m_Nblade(); i++ )
+        if ( m_Nblade() > 3 )
         {
-            double theta_nom = 360.0 * i / ( double )m_Nblade();
+            vector < double > thetavec( m_Nblade(), 0.0 );
 
-            if ( !m_BladeAzimuthDeltaFlag() )
+            for ( int i = 1; i < m_Nblade(); i++ )
             {
-                m_BladeDeltaAzimuthParmVec[ i - 1 ]->Set( m_BladeAzimuthParmVec[ i - 1 ]->Get() - theta_nom );
-                m_BladeDeltaAzimuthParmVec[ i - 1 ]->Deactivate();
+                double theta_nom = 360.0 * i / ( double )m_Nblade();
+
+                if ( !m_BladeAzimuthDeltaFlag() )
+                {
+                    m_BladeDeltaAzimuthParmVec[ i - 1 ]->Set( m_BladeAzimuthParmVec[ i - 1 ]->Get() - theta_nom );
+                    m_BladeDeltaAzimuthParmVec[ i - 1 ]->Deactivate();
+                }
+                else
+                {
+                    m_BladeAzimuthParmVec[ i - 1 ]->Set( theta_nom + m_BladeDeltaAzimuthParmVec[ i - 1 ]->Get() );
+                    m_BladeAzimuthParmVec[ i - 1 ]->Deactivate();
+                }
+                thetavec[i] = m_BladeAzimuthParmVec[ i - 1 ]->Get() * PI / 180.0;
             }
-            else
+
+            BalanceBlades( thetavec );
+
+
+            for ( int i = m_Nblade() - 2; i < m_Nblade(); i++ )
             {
-                m_BladeAzimuthParmVec[ i - 1 ]->Set( theta_nom + m_BladeDeltaAzimuthParmVec[ i - 1 ]->Get() );
+                double theta_nom = 360.0 * i / ( double )m_Nblade();
+
+                m_BladeAzimuthParmVec[ i - 1 ]->Set( thetavec[i] * 180.0 / PI );
+                m_BladeDeltaAzimuthParmVec[ i - 1 ]->Set( m_BladeAzimuthParmVec[ i - 1 ]->Get() - theta_nom );
+
+                m_BladeDeltaAzimuthParmVec[ i - 1 ]->Deactivate();
                 m_BladeAzimuthParmVec[ i - 1 ]->Deactivate();
             }
         }
+        else // Uniorm spacing for 3 or less blades.
+        {
+            for ( int i = 1; i < m_Nblade(); i++ )
+            {
+                double theta_nom = 360.0 * i / ( double )m_Nblade();
+
+                m_BladeAzimuthParmVec[ i - 1 ]->Set( theta_nom );
+                m_BladeDeltaAzimuthParmVec[ i - 1 ]->Set( 0.0 );
+
+                m_BladeAzimuthParmVec[ i - 1 ]->Deactivate();
+                m_BladeDeltaAzimuthParmVec[ i - 1 ]->Deactivate();
+            }
+            m_BladeAzimuthDeltaFlag.Deactivate();
+        }
     }
+}
+
+struct balance_g_gp_functor
+{
+    double s, c;
+
+    typedef typename Eigen::Matrix < double, 2, 1 > vec;
+    typedef typename Eigen::Matrix < double, 2, 2 > mat;
+
+    void operator()( vec &g, mat &gp, const vec &theta ) const
+    {
+        double s0 = sin( theta[0] );
+        double s1 = sin( theta[1] );
+        double c0 = cos( theta[0] );
+        double c1 = cos( theta[1] );
+
+        g(0) = s + s0 + s1;
+        g(1) = c + c0 + c1;
+
+        gp(0,0) = c0; // d g0 / d0
+        gp(0,1) = c1; // d g0 / d1
+
+        gp(1,0) = -s0; // d g1 / d0
+        gp(1,1) = -s1; // d g1 / d1
+    }
+};
+
+
+void PropGeom::BalanceBlades(vector < double > &thetavec)
+{
+    typedef eli::mutil::nls::newton_raphson_system_method < double, 2, 1 > nonlinear_solver_type;
+    nonlinear_solver_type nrm;
+    balance_g_gp_functor fun;
+    typedef typename Eigen::Matrix < double, 2, 1 > vec;
+    vec theta0, theta;
+    vec f0;
+
+
+    double s = 0;
+    double c = 0;
+    int n = thetavec.size();
+
+    for ( int i = 0; i < n - 2; i++ )
+    {
+        s += sin( thetavec[i] );
+        c += cos( thetavec[i] );
+    }
+
+    fun.s = s;
+    fun.c = c;
+
+    theta0[ 0 ] = thetavec[ n - 2 ];
+    theta0[ 1 ] = thetavec[ n - 1 ];
+
+    f0[0] = 0;
+    f0[1] = 0;
+
+    nrm.set_initial_guess( theta0 );
+
+    nrm.find_root( theta, fun, f0 );
+
+    thetavec[ n - 2 ] = theta[ 0 ];
+    thetavec[ n - 1 ] = theta[ 1 ];
+}
+
+void PropGeom::CheckBalance()
+{
+    int n = m_Nblade();
+
+    double rev = 1.0;
+    if ( m_ReverseFlag() )
+    {
+        rev = -1.0;
+    }
+
+    // Initialize with blade zero values.
+    double s = 0.0;
+    double c = 1.0;
+    // Add rest of blades.
+    for ( int i = 1; i < n; i++ )
+    {
+        double th = -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get() * PI / 180.0;
+        s += sin( th );
+        c += cos( th );
+    }
+
+    m_BalanceX1.Set( c / n );
+    m_BalanceX2.Set( s / n );
 }
 
 void PropGeom::RigidBladeMotion( Matrix4d & mat, double foldangle )

@@ -188,6 +188,8 @@ public:
     vector< Parm* > m_BladeDeltaAzimuthParmVec;
     IntParm m_BladeAzimuthMode;
     BoolParm m_BladeAzimuthDeltaFlag;
+    Parm m_BalanceX1;
+    Parm m_BalanceX2;
 
     IntParm m_PropMode;
 
@@ -229,6 +231,9 @@ protected:
     virtual void UpdateSurf();
     virtual void UpdateMainTessVec();
     virtual void UpdateBladeAzimuth();
+
+    virtual void BalanceBlades( vector < double > & thetavec );
+    virtual void CheckBalance();
 
     virtual void RigidBladeMotion( Matrix4d & mat, double foldangle );
 
