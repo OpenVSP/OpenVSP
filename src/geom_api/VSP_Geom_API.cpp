@@ -2821,7 +2821,7 @@ void SetFeaPartName( const string & part_id, const string & name )
     FeaPart* part = StructureMgr.GetFeaPart( part_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPartName::Can't Find FEA Part " + part_id );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPartName::Can't Find FEA Part " + part_id + " to name " + name );
         return;
     }
 
@@ -6762,7 +6762,7 @@ string FindParm( const string & parm_container_id, const string& parm_name, cons
    Parm* p = ParmMgr.FindParm( parm_id );
    if ( !p )
    {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "FindParm::Can't Find Parm " + parm_id );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "FindParm::Can't Find Parm " + parm_name + " " + group_name );
         return string();
    }
    ErrorMgr.NoError();
