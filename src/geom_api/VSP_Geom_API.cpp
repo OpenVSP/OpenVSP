@@ -3045,6 +3045,34 @@ string GetFeaPartPerpendicularSparID( const string& part_id )
     return ret_str;
 }
 
+void SetFeaSubSurfName( const string & subsurf_id, const string & name )
+{
+    SubSurface* ssurf = StructureMgr.GetFeaSubSurf( subsurf_id );
+
+    if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaSubSurfName::Can't Find FEA Sub Surface " + subsurf_id + " to name " + name );
+        return;
+    }
+
+    ssurf->SetName( name );
+    ErrorMgr.NoError();
+    return;
+}
+
+string GetFeaSubSurfName( const string & subsurf_id )
+{
+    SubSurface* ssurf = StructureMgr.GetFeaSubSurf( subsurf_id );
+    if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaSubSurfName::Can't Find FEA SubSurf " + subsurf_id );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return ssurf->GetName();
+}
+
 /// Add a FeaSubSurface, return FeaSubSurface ID
 string AddFeaSubSurf( const string & geom_id, int fea_struct_ind, int type )
 {

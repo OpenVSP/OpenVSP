@@ -6096,6 +6096,97 @@ extern std::string GetFeaPartPerpendicularSparID( const std::string& part_id );
     \ingroup FEAMesh
 */
 /*!
+    Set the name of an FEA SubSurface
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    //==== Add LineArray ====//
+    string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
+
+    SetFeaSubSurfName( line_array_id, "Stiffener_array" );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pod_id = AddGeom( "POD" )
+
+    #==== Add FeaStructure to Pod ====//
+    struct_ind = AddFeaStruct( pod_id )
+
+    #==== Add LineArray ====//
+    line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
+
+    SetFeaSubSurfName( line_array_id, "Stiffener_array" )
+
+    \endcode
+    \endPythonOnly
+    \param [in] subsurf_id FEA SubSurface ID
+    \param [in] name New name for the FEA SubSurface
+*/
+
+extern void SetFeaSubSurfName( const std::string & subsurf_id, const std::string & name );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the name of an FEA SubSurface
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    //==== Add LineArray ====//
+    string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
+
+    string name = "example_name";
+    SetFeaSubSurfName( line_array_id, name );
+
+    if ( name != GetFeaSubSurfName( line_array_id ) ) // These should be equivalent
+    {
+        Print( "Error: GetFeaSubSurfName" );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pod_id = AddGeom( "POD" )
+
+    #==== Add FeaStructure to Pod ====//
+    struct_ind = AddFeaStruct( pod_id )
+
+    #==== Add LineArray ====//
+    line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
+
+    name = "example_name"
+    SetFeaSubSurfName( line_array_id, name )
+
+    if  name != GetFeaSubSurfName( line_array_id ) : # These should be equivalent
+        print( "Error: GetFeaSubSurfName" )
+
+    \endcode
+    \endPythonOnly
+    \param [in] subsurf_id FEA SubSurface ID
+    \return FEA SubSurf name
+*/
+
+extern std::string GetFeaSubSurfName( const std::string & subsurf_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
     Add an FEA SubSurface to a Structure
     \forcpponly
     \code{.cpp}
