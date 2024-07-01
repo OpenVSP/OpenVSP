@@ -256,6 +256,7 @@ private:
     CScriptArray* GetFeaStructIDVec();
     CScriptArray* GetFeaPartIDVec( const std::string & fea_struct_id );
     CScriptArray* GetFeaSubSurfIDVec( const std::string & fea_struct_id );
+    CScriptArray* GetFeaBCIDVec( const string & fea_struct_id );
 
     //=== Register Measure Functions ===//
     CScriptArray* GetAllRulers();

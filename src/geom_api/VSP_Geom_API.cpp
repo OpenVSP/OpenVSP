@@ -3230,6 +3230,89 @@ vector< string > GetFeaSubSurfIDVec( const string & fea_struct_id )
     return ret_vec;
 }
 
+std::string AddFeaBC( const string & fea_struct_id, int type )
+{
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddFeaBC::Invalid FeaStructure ID " + fea_struct_id );
+        return string();
+    }
+
+    FeaBC* bc = feastruct->AddFeaBC( type );
+    if ( !bc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaBC::Invalid FeaPart Ptr" );
+        return string();
+    }
+
+    string bc_id = bc->GetID();
+
+    ErrorMgr.NoError();
+    return bc_id;
+}
+
+void DelFeaBC( const string & fea_struct_id, std::string bc_id )
+{
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DelFeaBC::Invalid FeaStructure ID " + fea_struct_id );
+        return;
+    }
+
+    int indx = feastruct->GetFeaBCIndex( bc_id );
+
+    if ( !feastruct->ValidFeaBCInd( indx ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelFeaBC::Can't Find FeaBC " + bc_id );
+        return;
+    }
+
+    feastruct->DelFeaBC( indx );
+
+    ErrorMgr.NoError();
+}
+
+std::vector< std::string > GetFeaBCIDVec( const string & fea_struct_id )
+{
+    vector < string > ret_vec;
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaBCVec::Invalid FeaStructure ID " + fea_struct_id );
+        return ret_vec;
+    }
+
+    std::vector< FeaBC* > bcvec = feastruct->GetFeaBCVec();
+
+    for ( int i = 0; i < bcvec.size(); i++ )
+    {
+        if ( bcvec[i] )
+        {
+            ret_vec.push_back( bcvec[i]->GetID() );
+        }
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
+int NumFeaBCs( const string & fea_struct_id )
+{
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "NumFeaBCs::Invalid FeaStructure ID " + fea_struct_id );
+        return -1;
+    }
+
+    int n = feastruct->NumFeaBCs();
+
+    ErrorMgr.NoError();
+    return n;
+}
+
 /// Add an FeaMaterial, return FeaMaterial ID
 string AddFeaMaterial()
 {

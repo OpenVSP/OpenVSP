@@ -4549,6 +4549,22 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "string AddFeaBC( int fea_struct_ind, int type )", asFUNCTION( vsp::AddFeaBC ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void DelFeaBC( int fea_struct_ind, const string & in ss_id )", asFUNCTION( vsp::DelFeaBC ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetFeaBCIDVec(const string & in fea_struct_id)", asMETHOD( ScriptMgrSingleton, GetFeaBCIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "int NumFeaBCs( const string & in fea_struct_id )", asFUNCTION( vsp::NumFeaBCs ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "string AddFeaMaterial()", asFUNCTION( vsp::AddFeaMaterial ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -5399,6 +5415,12 @@ CScriptArray* ScriptMgrSingleton::GetFeaSubSurfIDVec( const string & fea_struct_
 CScriptArray* ScriptMgrSingleton::GetFeaPartIDVec( const string & fea_struct_id )
 {
     m_ProxyStringArray = vsp::GetFeaPartIDVec( fea_struct_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetFeaBCIDVec( const string & fea_struct_id )
+{
+    m_ProxyStringArray = vsp::GetFeaBCIDVec( fea_struct_id );
     return GetProxyStringArray();
 }
 

@@ -6483,6 +6483,187 @@ extern int NumFeaSubSurfs( const std::string & fea_struct_id );
     \ingroup FEAMesh
 */
 /*!
+    Add an FEA BC to a Structure
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    //==== Add BC ====//
+    string bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pod_id = AddGeom( "POD" )
+
+    #==== Add FeaStructure to Pod ====//
+    struct_ind = AddFeaStruct( pod_id )
+
+    struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    #==== Add BC ====//
+    bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE )
+
+    \endcode
+    \endPythonOnly
+    \sa FEA_BC_TYPE
+    \param [in] string fea_struct_id FEA Structure ID
+    \param [in] string type FEA BC type enum ( i.e. FEA_BC_STRUCTURE )
+    \return FEA BC ID
+*/
+
+extern std::string AddFeaBC( const string & fea_struct_id, int type = -1 );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete an FEA BC from a Structure
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    //==== Add BC ====//
+    string bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE );
+
+    DelFeaBC( struct_id, bc_id );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pod_id = AddGeom( "POD" )
+
+    #==== Add FeaStructure to Pod ====//
+    struct_ind = AddFeaStruct( pod_id )
+
+    struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    #==== Add BC ====//
+    bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE )
+
+    DelFeaBC( struct_id, bc_id )
+
+    \endcode
+    \endPythonOnly
+    \sa FEA_BC_TYPE
+    \param [in] string fea_struct_id FEA Structure ID
+    \param [in] string bc_id FEA BC ID
+*/
+
+extern void DelFeaBC( const string & fea_struct_id, std::string bc_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Return a vector of FEA BC ID's for a structure
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    //==== Add BC ====//
+    string bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE );
+
+    array < string > bc_id_vec = GetFeaBCIDVec( struct_id );
+
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pod_id = AddGeom( "POD" )
+
+    #==== Add FeaStructure to Pod ====//
+    struct_ind = AddFeaStruct( pod_id )
+
+    struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    #==== Add BC ====//
+    bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE )
+
+    bc_id_vec = GetFeaBCIDVec( struct_id )
+
+    \endcode
+    \endPythonOnly
+    \param [in] string fea_struct_id FEA Structure ID
+    \return Array of FEA BC IDs
+*/
+
+extern std::vector< std::string > GetFeaBCIDVec( const string & fea_struct_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Return number of FEA BC's in a structure
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    //==== Add BC ====//
+    string bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE );
+
+    int nbc = NumFeaBCs( struct_id );
+
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pod_id = AddGeom( "POD" )
+
+    #==== Add FeaStructure to Pod ====//
+    struct_ind = AddFeaStruct( pod_id )
+
+    struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    #==== Add BC ====//
+    bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE )
+
+    nbc = NumFeaBCs( struct_id )
+
+    \endcode
+    \endPythonOnly
+    \param [in] string fea_struct_id FEA Structure ID
+    \return Number of FEA BCs
+*/
+
+extern int NumFeaBCs( const string & fea_struct_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
     Add an FEA Material the FEA Mesh material library. Materials are available across all Geoms and Structures.
     \forcpponly
     \code{.cpp}
