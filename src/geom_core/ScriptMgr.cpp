@@ -1017,6 +1017,34 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "FEA_BC_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_BC_STRUCTURE", FEA_BC_STRUCTURE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_BC_PART", FEA_BC_PART );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_BC_SUBSURF", FEA_BC_SUBSURF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_NUM_BC_TYPES", FEA_NUM_BC_TYPES );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "FEA_BC_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_MODE", "FEA_BCM_USER", FEA_BCM_USER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_MODE", "FEA_BCM_ALL", FEA_BCM_ALL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_MODE", "FEA_BCM_PIN", FEA_BCM_PIN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_MODE", "FEA_BCM_SYMM", FEA_BCM_SYMM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_MODE", "FEA_BCM_ASYMM", FEA_BCM_ASYMM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_MODE", "FEA_NUM_BCM_MODES", FEA_NUM_BCM_MODES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "FEA_CROSS_SECT_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_CROSS_SECT_TYPE", "FEA_XSEC_GENERAL", FEA_XSEC_GENERAL );
