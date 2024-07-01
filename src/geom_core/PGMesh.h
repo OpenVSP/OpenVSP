@@ -110,8 +110,6 @@ public:
     bool ContainsNode( const PGNode* in ) const;
     bool UsedBy( PGFace* f ) const;
 
-    void BuildColinearLoop( vector < PGEdge * > eloop );
-
     bool SetNode( PGNode* n );
     void AddConnectFace( PGFace* f );
 
@@ -286,27 +284,6 @@ public:
 
     void FindAllDoubleBackNodes();
     void SealDoubleBackNodes();
-
-    PGNode * StartList( const list < PGEdge * > & elist );
-    PGNode * StartLoop( const vector < PGEdge * > & eloop );
-
-    void PrintColinearEdgeStrip( list < PGEdge * > &eloop );
-    void PrintColinearEdgeStrip( const vector < PGEdge * > &eloop, PGNode * ni );
-    void PrintColinearEdgeLoop( const vector < PGEdge * > &eloop );
-    void PrintColinearEdgeLoops();
-    vector < PGNode * > MakeNodeVec( list < PGEdge * > elist );
-    vector < PGNode * > MakeNodeVec( vector < PGEdge * > eloop );
-    std::pair < int, int > CheckLoopForDuplciateNodes( vector < PGEdge * > eloop, bool print = false );
-    void SimplifyColinearEdgeLoops( bool print = false );
-
-    vector < int > BuildLoopDirectionVec( const vector < PGEdge * > &eloop, bool print = false );
-    int RotateLoopToDirectionChange( vector < PGEdge * > &eloop, bool print = false );
-
-    void SealColinearEdgeLoop( vector < PGEdge * > &eloop );
-    void SealColinearEdgeLoops();
-
-    bool ExtendCoLinearLoop( vector < PGEdge * > & eloop, PGNode * n0, PGEdge *e, PGNode *n );
-    void FindAllColinearEdgeLoops();
 
     void ResetEdgeLoopFlags();
 
