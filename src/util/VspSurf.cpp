@@ -1427,8 +1427,17 @@ void VspSurf::FlagDuplicate( const VspSurf &othersurf ) const
 
 }
 
-void VspSurf::MakeUTess( vector < double > &u, const vector < int > &num_u, const std::vector < int > &umerge, const int &n_cap, const int &n_default, const int & n_ref ) const
+void VspSurf::MakeUTess( vector < double > &u, vector < int > num_u, const std::vector < int > &umerge, int n_cap, int n_default, const int & n_ref ) const
 {
+    // Refine tess parameters.
+    int n_mult = 1 << n_ref;
+    for ( int i = 0; i < num_u.size(); i++ )
+    {
+        num_u[i] = n_mult * ( num_u[i] - 1 ) + 1;
+    }
+    n_cap = n_mult * ( n_cap - 1 ) + 1;
+    n_default = n_mult * ( n_default - 1 ) + 1;
+
     if ( umerge.size() != 0 )
     {
         const unsigned int nusect = num_u.size();
@@ -1629,8 +1638,13 @@ void VspSurf::MakeUTess( vector < double > &u, const vector < int > &num_u, cons
     }
 }
 
-void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen, const int & n_ref ) const
+void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, int n_cap, bool degen, const int & n_ref ) const
 {
+    // Refine tess parameters.
+    int n_mult = 1 << n_ref;
+    num_v = n_mult * ( num_v - 1 ) + 1;
+    n_cap = n_mult * ( n_cap - 1 ) + 1;
+
     double vmin, vmax, vabsmin, vabsmax, vle, vlelow, vleup;
     surface_index_type nv( num_v );
 
