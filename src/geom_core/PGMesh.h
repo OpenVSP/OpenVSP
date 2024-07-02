@@ -45,7 +45,7 @@ class PGNode
 {
 public:
     PGNode();
-    PGNode( const vec3d& p );
+    explicit PGNode( const vec3d& p );
     virtual ~PGNode();
 
     list< PGNode* >::iterator m_List_it;
@@ -66,22 +66,22 @@ public:
 
     PGEdge *FindEdge( const PGNode* n ) const;
 
-    bool UsedBy( PGEdge* e ) const;
+    bool UsedBy( const PGEdge* e ) const;
 
     void AddConnectEdge( PGEdge* e );
-    void RemoveConnectEdge( PGEdge* e );
-    void EdgeForgetNode( PGEdge* e );
+    void RemoveConnectEdge( const PGEdge* e );
+    void EdgeForgetNode( PGEdge* e ) const;
 
-    bool ColinearNode( double tol );
-    bool Check();
+    bool ColinearNode( double tol ) const;
+    bool Check() const;
 
-    bool DoubleBackNode( int &i, int &j );
+    bool DoubleBackNode( int &i, int &j ) const;
     void SealDoubleBackNode( PGMesh *pgm );
 
-    void DumpMatlab();
-    void Diagnostics();
+    void DumpMatlab() const;
+    void Diagnostics() const;
 
-    bool Validate();
+    bool Validate() const;
 };
 
 
@@ -108,34 +108,32 @@ public:
 
     bool ContainsNodes( const PGNode* in0, const PGNode* in1 ) const;
     bool ContainsNode( const PGNode* in ) const;
-    bool UsedBy( PGFace* f ) const;
+    bool UsedBy( const PGFace* f ) const;
 
     bool SetNode( PGNode* n );
     void AddConnectFace( PGFace* f );
 
-    void RemoveFace( PGFace* f );
+    void RemoveFace( const PGFace* f );
 
-    void ReplaceNode( PGNode* curr_PGNode, PGNode* replace_PGNode );
-
-    PGNode* Split( const vec3d & pt );
+    void ReplaceNode( const PGNode* curr_PGNode, PGNode* replace_PGNode );
 
     PGNode* OtherNode( const PGNode* n ) const;
     PGNode* SharedNode( const PGEdge* e ) const;
 
-    PGFace* OtherManifoldFace( PGFace* );
+    PGFace* OtherManifoldFace( const PGFace* ) const;
 
-    void NodesForgetEdge();
+    void NodesForgetEdge() const;
 
     void SortFaces();
-    bool SameFaces( PGEdge *e2 );
-    bool Check();
+    bool SameFaces( const PGEdge *e2 ) const;
+    bool Check() const;
 
-    void DumpMatlab();
-    void Diagnostics();
+    void DumpMatlab() const;
+    void Diagnostics() const;
 
-    bool Validate();
+    bool Validate() const;
 
-    bool WakeEdge( PGMesh *m, bool ContinueCoPlanarWakes );
+    bool WakeEdge( const PGMesh *m, bool ContinueCoPlanarWakes ) const;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -145,7 +143,7 @@ public:
     PGFace();
     virtual ~PGFace();
 
-    PGEdge* FindEdge( PGNode* nn0, PGNode* nn1 ) const;
+    PGEdge* FindEdge( const PGNode* nn0, const PGNode* nn1 ) const;
 
 
     PGNode * FindPrevNode( int i ) const;
@@ -161,30 +159,30 @@ public:
 
     void AddEdge( PGEdge* e );
     void RemoveEdge( PGEdge* e );
-    void ReplaceEdge( PGEdge *eold, PGEdge *enew );
-    bool Contains( PGEdge* e ) const;
-    bool Contains( PGNode* n ) const;
-    void EdgeForgetFace();
-    bool Check();
+    void ReplaceEdge( const PGEdge *eold, PGEdge *enew );
+    bool Contains( const PGEdge* e ) const;
+    bool Contains( const PGNode* n ) const;
+    void EdgeForgetFace() const;
+    bool Check() const;
 
-    void DumpMatlab();
-    void Diagnostics();
+    void DumpMatlab() const;
+    void Diagnostics() const;
 
-    bool Validate();
+    bool Validate() const;
 
     double ComputeArea();
 
-    void WalkRegion();
+    void WalkRegion() const;
 
-    PGNode * FindDoubleBackNode( PGEdge* & edouble );
+    PGNode * FindDoubleBackNode( PGEdge* & edouble ) const;
 
     void SplitEdge( PGEdge *e0, PGEdge *e1 );
 
     void GetHullEdges( vector < PGEdge* > & evec ) const;
 
-    double ComputeTriQual();
-    static double ComputeTriQual( PGNode* n0, PGNode* n1, PGNode* n2 );
-    static void ComputeCosAngles( PGNode* n0, PGNode* n1, PGNode* n2, double* ang0, double* ang1, double* ang2 );
+    double ComputeTriQual() const;
+    static double ComputeTriQual( const PGNode* n0, const PGNode* n1, const PGNode* n2 );
+    static void ComputeCosAngles( const PGNode* n0, const PGNode* n1, const PGNode* n2, double* ang0, double* ang1, double* ang2 );
     list< PGFace* >::iterator m_List_it;
 
     vec3d m_Nvec;
@@ -219,15 +217,15 @@ public:
     void DumpGarbage();
 
 
-    PGNode* AddNode( vec3d p );
+    PGNode* AddNode( const vec3d& p );
     void  RemoveNode( PGNode* nptr );
 
     PGEdge* AddEdge( PGNode* n0, PGNode* n1 );
     void  RemoveEdge( PGEdge* e );
     void  RemoveEdgeMergeFaces( PGEdge* e );
-    void SwapEdge( PGEdge* e );
+    static void SwapEdge( PGEdge* e );
     void CheckQualitySwapEdges();
-    PGEdge* FindEdge( const PGNode* n0, const PGNode* n1 ) const;
+    static PGEdge* FindEdge( const PGNode* n0, const PGNode* n1 ) ;
 
     PGFace* AddFace();
     PGFace* AddFace( PGNode* n0, PGNode* n1, PGNode* n2,
@@ -248,12 +246,12 @@ public:
 
     int RemoveDegenFaces();
 
-    int GetNumFaces()
+    int GetNumFaces() const
     {
         return m_FaceList.size();
     }
 
-    const list <PGFace*> & GetFaceList()
+    const list <PGFace*> & GetFaceList() const
     {
         return m_FaceList;
     }
@@ -287,15 +285,15 @@ public:
 
     void ResetEdgeLoopFlags();
 
-    void ExtendWake( vector < PGEdge * > & wake, PGEdge *e, PGNode *n, bool ContinueCoPlanarWakes );
+    void ExtendWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n, bool ContinueCoPlanarWakes );
     void IdentifyWakes( bool ContinueCoPlanarWakes );
 
-    void StartMatlab();
+    static void StartMatlab();
 
     PGEdge * SplitEdge( PGEdge *e, PGNode *n );
     PGEdge * SplitEdge( PGEdge *e, double t, PGNode *n0 );
 
-    void SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n );
+    void SplitFaceFromDoubleBackNode( PGFace *f, const PGEdge *e, PGNode *n );
 
     void SplitFace( PGFace *f0, PGEdge *e );
 
@@ -319,15 +317,15 @@ public:
     void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomFaces( FILE* file_id );
     void WriteVSPGeomParts( FILE* file_id );
-    void WriteVSPGeomWakes( FILE* file_id );
+    void WriteVSPGeomWakes( FILE* file_id ) const;
     void WriteVSPGeomAlternateTris( FILE* file_id );
     void WriteVSPGeomAlternateParts( FILE* file_id );
-    void WriteTagFiles( string file_name, vector < string > &all_fnames );
+    void WriteTagFiles( const string& file_name, vector < string > &all_fnames );
     void WriteTagFile( FILE* file_id, int part, int tag );
     void WriteVSPGEOMKeyFile(const string & file_name, vector < string > &all_fnames );
 
-    void WriteSTL( string fname );
-    void WriteTRI( string fname );
+    void WriteSTL( const string& fname );
+    void WriteTRI( const string& fname );
 
     // Get Comma Delimited list of names for a set of tags
     std::string GetTagNames( const std::vector<int> & tags );
@@ -338,25 +336,25 @@ public:
 
     string GetGID( const int& tag );
 
-    bool MatchPartAndTag( const vector < int > & tags, int part, int tag );
-    bool MatchPartAndTag( int singletag, int part, int tag );
-    bool ExistPartAndTag( int part, int tag );
-    void MakePartList( std::vector < int > & partvec );
+    static bool MatchPartAndTag( const vector < int > & tags, int part, int tag );
+    bool MatchPartAndTag( int singletag, int part, int tag ) const;
+    bool ExistPartAndTag( int part, int tag ) const;
+    void MakePartList( std::vector < int > & partvec ) const;
 
     int GetTag( const std::vector<int> & tags );
     vector< int > GetTagVec( const int &t );
-    int GetType( int part );
-    int GetThickThin( int part );
-    double GetWmin( int part );
-    int GetPart( const std::vector<int> & tags );
-    int GetPart( int tag );
+    int GetType( int part ) const;
+    int GetThickThin( int part ) const;
+    double GetWmin( int part ) const;
+    static int GetPart( const std::vector<int> & tags );
+    int GetPart( int tag ) const;
     void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );
 
-    void BuildFromTMesh( TMesh* tmi );
-    void BuildFromTMeshVec( const vector< TMesh* > tmv );
+    void BuildFromTMesh( const TMesh* tmi );
+    void BuildFromTMeshVec( const vector< TMesh* > &tmv );
 
-    std::map< std::vector<int>, int > GetSingleTagMap() { return m_SingleTagMap; }
-    unsigned int GetNumTags() { return m_SingleTagMap.size(); }
+    std::map< std::vector<int>, int > GetSingleTagMap() const { return m_SingleTagMap; }
+    unsigned int GetNumTags() const { return m_SingleTagMap.size(); }
 
 protected:
     vector< PGFace* > m_GarbageFaceVec;

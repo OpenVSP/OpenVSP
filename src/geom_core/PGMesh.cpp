@@ -85,7 +85,7 @@ void PGNode::GetTags( vector < int > & tags ) const
     }
 }
 
-bool PGNode::GetUW( int tag, vec2d &uw ) const
+bool PGNode::GetUW( const int tag, vec2d &uw ) const
 {
     // Try to find uw with matching tag.
     map < int, vec2d >::const_iterator it = m_TagUWMap.find( tag );
@@ -114,9 +114,9 @@ PGEdge * PGNode::FindEdge( const PGNode* n ) const
     return nullptr;
 }
 
-bool PGNode::UsedBy( PGEdge* e ) const
+bool PGNode::UsedBy( const PGEdge* e ) const
 {
-    return vector_contains_val( m_EdgeVec, e );
+    return vector_contains_val( m_EdgeVec, const_cast < PGEdge* > ( e ) );
 }
 
 void PGNode::AddConnectEdge( PGEdge* e )
@@ -128,17 +128,17 @@ void PGNode::AddConnectEdge( PGEdge* e )
     m_EdgeVec.push_back( e );
 }
 
-void PGNode::RemoveConnectEdge( PGEdge* e )
+void PGNode::RemoveConnectEdge( const PGEdge* e )
 {
-    vector_remove_val( m_EdgeVec, e );
+    vector_remove_val( m_EdgeVec, const_cast < PGEdge* > ( e ) );
 }
 
-void PGNode::EdgeForgetNode( PGEdge* e )
+void PGNode::EdgeForgetNode( PGEdge* e ) const
 {
     e->ReplaceNode( this, nullptr );
 }
 
-bool PGNode::ColinearNode( double tol )
+bool PGNode::ColinearNode( const double tol ) const
 {
     if ( m_EdgeVec.size() == 2 )
     {
@@ -163,7 +163,7 @@ bool PGNode::ColinearNode( double tol )
     return false;
 }
 
-bool PGNode::Check()
+bool PGNode::Check() const
 {
     if ( m_DeleteMeFlag )
     {
@@ -180,7 +180,7 @@ bool PGNode::Check()
     return true;
 }
 
-bool PGNode::DoubleBackNode( int &i, int &j )
+bool PGNode::DoubleBackNode( int &i, int &j ) const
 {
     double tol = 1e-10;
 
@@ -250,7 +250,7 @@ void PGNode::SealDoubleBackNode( PGMesh *pgm )
     }
 }
 
-void PGNode::DumpMatlab()
+void PGNode::DumpMatlab() const
 {
     printf( "\nx = %.*e;\n", DBL_DIG + 3, m_Pnt.x() );
     printf( "\ny = %.*e;\n", DBL_DIG + 3, m_Pnt.y() );
@@ -261,7 +261,7 @@ void PGNode::DumpMatlab()
 }
 
 
-void PGNode::Diagnostics()
+void PGNode::Diagnostics() const
 {
     printf( "Node %d\n", m_ID );
     printf( "Edges: " );
@@ -273,7 +273,7 @@ void PGNode::Diagnostics()
     printf( "\n" );
 }
 
-bool PGNode::Validate()
+bool PGNode::Validate() const
 {
     bool valid = true;
 
@@ -313,6 +313,9 @@ PGEdge::PGEdge( PGNode* PGNode0, PGNode* PGNode1 )
     m_N0 = PGNode0;
     m_N1 = PGNode1;
     m_DeleteMeFlag = false;
+    m_InLoopFlag = false;
+    m_InCurrentLoopFlag = false;
+    m_ID = -1;
 }
 
 PGEdge::~PGEdge()
@@ -343,9 +346,9 @@ bool PGEdge::ContainsNode( const PGNode* in ) const
     return false;
 }
 
-bool PGEdge::UsedBy( PGFace* f ) const
+bool PGEdge::UsedBy( const PGFace* f ) const
 {
-    return vector_contains_val( m_FaceVec, f );
+    return vector_contains_val( m_FaceVec, const_cast < PGFace* > ( f ) );
 }
 
 bool PGEdge::SetNode( PGNode* n )
@@ -379,9 +382,9 @@ void PGEdge::AddConnectFace( PGFace* f )
     m_FaceVec.push_back( f );
 }
 
-void PGEdge::RemoveFace( PGFace* f )
+void PGEdge::RemoveFace( const PGFace* f )
 {
-    vector_remove_val( m_FaceVec, f );
+    vector_remove_val( m_FaceVec, const_cast < PGFace* > ( f ) );
 }
 
 PGNode* PGEdge::OtherNode( const PGNode* n ) const
@@ -412,14 +415,14 @@ PGNode* PGEdge::SharedNode( const PGEdge* e ) const
     {
         return m_N1;
     }
-    return NULL;
+    return nullptr;
 }
 
-PGFace* PGEdge::OtherManifoldFace( PGFace* f )
+PGFace* PGEdge::OtherManifoldFace( const PGFace* f ) const
 {
     if ( m_FaceVec.size() != 2 )
     {
-        return NULL;
+        return nullptr;
     }
 
     if ( m_FaceVec[0] == f )
@@ -431,10 +434,10 @@ PGFace* PGEdge::OtherManifoldFace( PGFace* f )
     {
         return m_FaceVec[0];
     }
-    return NULL;
+    return nullptr;
 }
 
-void PGEdge::ReplaceNode( PGNode* curr_PGNode, PGNode* replace_PGNode )
+void PGEdge::ReplaceNode( const PGNode* curr_PGNode, PGNode* replace_PGNode )
 {
     if ( m_N0 == curr_PGNode )
     {
@@ -450,7 +453,7 @@ void PGEdge::ReplaceNode( PGNode* curr_PGNode, PGNode* replace_PGNode )
     }
 }
 
-void PGEdge::NodesForgetEdge()
+void PGEdge::NodesForgetEdge() const
 {
     m_N0->RemoveConnectEdge( this );
     m_N1->RemoveConnectEdge( this );
@@ -461,14 +464,14 @@ void PGEdge::SortFaces()
     sort( m_FaceVec.begin(), m_FaceVec.end() );
 }
 
-bool PGEdge::SameFaces( PGEdge *e2 )
+bool PGEdge::SameFaces( const PGEdge *e2 ) const
 {
     // Comparison of std::vector checks size and then contents.  Since these are pointers that were previously sorted,
     // this should work.
     return ( m_FaceVec == e2->m_FaceVec );
 }
 
-bool PGEdge::Check()
+bool PGEdge::Check() const
 {
     if ( m_DeleteMeFlag )
     {
@@ -495,7 +498,7 @@ bool PGEdge::Check()
     return true;
 }
 
-void PGEdge::DumpMatlab()
+void PGEdge::DumpMatlab() const
 {
     printf( "x = [%.*e %.*e];\n", DBL_DIG + 3, m_N0->m_Pnt.x(), DBL_DIG + 3, m_N1->m_Pnt.x() );
     printf( "y = [%.*e %.*e];\n", DBL_DIG + 3, m_N0->m_Pnt.y(), DBL_DIG + 3, m_N1->m_Pnt.y() );
@@ -505,7 +508,7 @@ void PGEdge::DumpMatlab()
     printf( "hold on\n" );
 }
 
-void PGEdge::Diagnostics()
+void PGEdge::Diagnostics() const
 {
     printf( "Edge %d\n", m_ID );
     printf( "Nodes: %3d %3d\n", m_N0->m_ID, m_N1->m_ID );
@@ -521,7 +524,7 @@ void PGEdge::Diagnostics()
     m_N1->Diagnostics();
 }
 
-bool PGEdge::Validate()
+bool PGEdge::Validate() const
 {
     bool valid = true;
 
@@ -566,7 +569,7 @@ bool PGEdge::Validate()
     return valid;
 }
 
-bool PGEdge::WakeEdge( PGMesh *m, bool ContinueCoPlanarWakes )
+bool PGEdge::WakeEdge( const PGMesh *m, const bool ContinueCoPlanarWakes ) const
 {
     const double tol = 1e-12;
 
@@ -615,13 +618,16 @@ PGFace::PGFace()
 {
     m_DeleteMeFlag = false;
     m_ID = -1;
+    m_iQuad = -1;
+    m_Tag = -1;
+    m_Region = -1;
 }
 
 PGFace::~PGFace()
 {
 }
 
-PGEdge* PGFace::FindEdge( PGNode* nn0, PGNode* nn1 ) const
+PGEdge* PGFace::FindEdge( const PGNode* nn0, const PGNode* nn1 ) const
 {
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
     {
@@ -641,7 +647,7 @@ PGNode * PGFace::FindPrevNode( int istart ) const
 
     if ( nedge == 0 )
     {
-        return NULL;
+        return nullptr;
     }
 
     // Preserve input index.
@@ -679,10 +685,10 @@ PGNode * PGFace::FindPrevNode( int istart ) const
     // Should be imposible. Looped through all edges and they were all identical.
     if ( ethis == enext )
     {
-        return NULL;
+        return nullptr;
     }
 
-    PGNode *nprev = NULL;
+    PGNode *nprev = nullptr;
     if ( enext->ContainsNode( ethis->m_N0 ) )
     {
         nprev = ethis->m_N1;
@@ -740,7 +746,7 @@ void PGFace::GetOtherNodes( vector< PGNode* > & nodVec, const vector< PGNode* > 
 
 void PGFace::GetNodesAsTris( vector < PGNode* > & trinodVec )
 {
-    if ( m_TriNodeVec.size() == 0 )
+    if ( m_TriNodeVec.empty() )
     {
         Triangulate();
     }
@@ -817,24 +823,24 @@ void PGFace::Triangulate_triangle()
 
     //==== PreAllocate Data For In/Out ====//
     in.pointlist    = ( REAL * ) malloc( npt * 2 * sizeof( REAL ) );
-    out.pointlist   = NULL;
+    out.pointlist   = nullptr;
 
     in.segmentlist  = ( int * ) malloc( npt * 2 * sizeof( int ) );
-    out.segmentlist  = NULL;
-    out.trianglelist  = NULL;
+    out.segmentlist  = nullptr;
+    out.trianglelist  = nullptr;
 
     in.numberofpointattributes = 0;
-    in.pointattributelist = NULL;
-    in.pointmarkerlist = NULL;
+    in.pointattributelist = nullptr;
+    in.pointmarkerlist = nullptr;
     in.numberofholes = 0;
     in.numberoftriangles = 0;
     in.numberofpointattributes = 0;
     in.numberofedges = 0;
-    in.trianglelist = NULL;
-    in.trianglearealist = NULL;
-    in.edgelist = NULL;
-    in.edgemarkerlist = NULL;
-    in.segmentmarkerlist = NULL;
+    in.trianglelist = nullptr;
+    in.trianglearealist = nullptr;
+    in.edgelist = nullptr;
+    in.edgemarkerlist = nullptr;
+    in.segmentmarkerlist = nullptr;
 
     //==== Load Points into Triangle Struct ====//
     in.numberofpoints = npt;
@@ -1012,7 +1018,7 @@ void PGFace::Triangulate_DBA()
     if ( false )
     {
         static int idump = 0;
-        FILE *fpdump = NULL;
+        FILE *fpdump = nullptr;
 
         string fname = string( "dlbtest_" ) + to_string( idump ) + string( ".txt" );
         fpdump = fopen( fname.c_str(), "w" );
@@ -1040,7 +1046,7 @@ void PGFace::Triangulate_DBA()
     {
         idb->ConstrainEdges( nedg, &bounds->a, &bounds->b, sizeof( dba_edge ) );
 
-        int tris = idb->FloodFill( false, 0, 1 );
+        int tris = idb->FloodFill( false, nullptr, 1 );
 
         const IDelaBella2<double>::Simplex* dela = idb->GetFirstDelaunaySimplex();
 
@@ -1089,7 +1095,7 @@ void PGFace::RemoveEdge( PGEdge* e )
     vector_remove_val( m_EdgeVec, e );
 }
 
-void PGFace::ReplaceEdge( PGEdge *eold, PGEdge *enew )
+void PGFace::ReplaceEdge( const PGEdge *eold, PGEdge *enew )
 {
     for ( int i = 0 ; i < ( int )m_EdgeVec.size() ; i++ )
     {
@@ -1100,12 +1106,12 @@ void PGFace::ReplaceEdge( PGEdge *eold, PGEdge *enew )
     }
 }
 
-bool PGFace::Contains( PGEdge* e ) const
+bool PGFace::Contains( const PGEdge* e ) const
 {
-    return vector_contains_val( m_EdgeVec, e );
+    return vector_contains_val( m_EdgeVec, const_cast < PGEdge* > ( e ) );
 }
 
-bool PGFace::Contains( PGNode* n ) const
+bool PGFace::Contains( const PGNode* n ) const
 {
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
     {
@@ -1132,7 +1138,7 @@ bool PGFace::Contains( PGNode* n ) const
 }
 */
 
-void PGFace::EdgeForgetFace()
+void PGFace::EdgeForgetFace() const
 {
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
     {
@@ -1140,7 +1146,7 @@ void PGFace::EdgeForgetFace()
     }
 }
 
-bool PGFace::Check()
+bool PGFace::Check() const
 {
     if ( m_DeleteMeFlag )
     {
@@ -1157,7 +1163,7 @@ bool PGFace::Check()
     return true;
 }
 
-void PGFace::DumpMatlab()
+void PGFace::DumpMatlab() const
 {
     vector < PGNode* > nodVec;
     GetNodes( nodVec );
@@ -1191,7 +1197,7 @@ void PGFace::DumpMatlab()
 
 }
 
-void PGFace::Diagnostics()
+void PGFace::Diagnostics() const
 {
     printf( "Face %d\n", m_ID );
     printf( "Edges: " );
@@ -1208,7 +1214,7 @@ void PGFace::Diagnostics()
     }
 }
 
-bool PGFace::Validate()
+bool PGFace::Validate() const
 {
     bool valid = true;
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
@@ -1248,7 +1254,7 @@ double PGFace::ComputeArea()
     return a;
 }
 
-void PGFace::WalkRegion()
+void PGFace::WalkRegion() const
 {
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
     {
@@ -1266,9 +1272,9 @@ void PGFace::WalkRegion()
     }
 }
 
-PGNode * PGFace::FindDoubleBackNode( PGEdge* & edouble )
+PGNode * PGFace::FindDoubleBackNode( PGEdge* & edouble ) const
 {
-    edouble = NULL;
+    edouble = nullptr;
     int nedge = m_EdgeVec.size();
 
     PGNode *nprev = FindPrevNode( 0 );
@@ -1295,7 +1301,7 @@ PGNode * PGFace::FindDoubleBackNode( PGEdge* & edouble )
         nprev = nnext;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 // Split edge e0 into e0,e1.  Direction indeterminte (e1 can go before or after e0).
@@ -1304,7 +1310,6 @@ void PGFace::SplitEdge( PGEdge *e0, PGEdge *e1 )
 {
 
     PGNode* ns = e0->SharedNode( e1 );
-    PGNode* n0 = e0->OtherNode( ns );
     PGNode* n1 = e1->OtherNode( ns );
 
 
@@ -1344,7 +1349,7 @@ void PGFace::GetHullEdges( vector < PGEdge* > & evec ) const
     while ( vector_remove_consecutive_duplicates( evec ) );
 }
 
-double PGFace::ComputeTriQual()
+double PGFace::ComputeTriQual() const
 {
     vector< PGNode* > nodVec;
     GetNodes( nodVec );
@@ -1352,7 +1357,7 @@ double PGFace::ComputeTriQual()
     return PGFace::ComputeTriQual( nodVec[0], nodVec[1], nodVec[2] );
 }
 
-double PGFace::ComputeTriQual( PGNode* n0, PGNode* n1, PGNode* n2 )
+double PGFace::ComputeTriQual( const PGNode* n0, const PGNode* n1, const PGNode* n2 )
 {
     double ang0, ang1, ang2;
 
@@ -1372,7 +1377,7 @@ double PGFace::ComputeTriQual( PGNode* n0, PGNode* n1, PGNode* n2 )
     return acos( minang );
 }
 
-void PGFace::ComputeCosAngles( PGNode* n0, PGNode* n1, PGNode* n2, double* ang0, double* ang1, double* ang2 )
+void PGFace::ComputeCosAngles( const PGNode* n0, const PGNode* n1, const PGNode* n2, double* ang0, double* ang1, double* ang2 )
 {
     double dsqr01 = dist_squared( n0->m_Pnt, n1->m_Pnt );
     double dsqr12 = dist_squared( n1->m_Pnt, n2->m_Pnt );
@@ -1465,7 +1470,7 @@ void PGMesh::CleanUnused()
     }
 }
 
-PGNode* PGMesh::AddNode( vec3d p )
+PGNode* PGMesh::AddNode( const vec3d& p )
 {
     PGNode* nptr = new PGNode( p );
     m_NodeList.push_back( nptr );
@@ -1509,9 +1514,9 @@ PGEdge* PGMesh::AddEdge( PGNode* n0, PGNode* n1 )
 void PGMesh::RemoveEdge( PGEdge* e )
 {
     e->m_N0->RemoveConnectEdge( e );
-    e->m_N0 = NULL;
+    e->m_N0 = nullptr;
     e->m_N1->RemoveConnectEdge( e );
-    e->m_N1 = NULL;
+    e->m_N1 = nullptr;
 
     for ( int i = 0; i < e->m_FaceVec.size(); i++ )
     {
@@ -1685,7 +1690,7 @@ void PGMesh::CheckQualitySwapEdges()
     ClearTris();
 }
 
-PGEdge* PGMesh::FindEdge( const PGNode* n0, const PGNode* n1 ) const
+PGEdge* PGMesh::FindEdge( const PGNode* n0, const PGNode* n1 )
 {
     PGEdge *e;
     e = n0->FindEdge( n1 );
@@ -1708,7 +1713,7 @@ PGFace* PGMesh::AddFace()
 
 PGFace* PGMesh::AddFace( PGNode* n0, PGNode* n1, PGNode* n2,
                          const vec2d &uw0, const vec2d &uw1, const vec2d &uw2,
-                         const vec3d & norm, int iQuad, int tag )
+                         const vec3d & norm, const int iQuad, const int tag )
 {
     PGFace *f = AddFace( );
     f->m_Nvec = norm;
@@ -2008,14 +2013,13 @@ void PGMesh::RemoveNodeMergeEdges( PGNode* n )
         PGEdge *e0 = n->m_EdgeVec[0];
         PGEdge *e1 = n->m_EdgeVec[1];
 
-        PGNode *n0 = e0->OtherNode( n );
         PGNode *n1 = e1->OtherNode( n );
 
         e0->ReplaceNode( n, n1 ); // Only changes node pointer, does not recurse.
         n1->AddConnectEdge( e0 ); // Adds edge to node's edge vec.
 
         RemoveEdge( e1 ); // Calls both nodes to RemoveConnectEdge - removes edge from node edgevec
-                          // Sets nodes to null
+                          // Sets nodes to nullptr
                           // Removes edge from all faces.
                           // Clears face list.
                           // Adds to garbage vec
@@ -2104,7 +2108,7 @@ void PGMesh::ResetEdgeLoopFlags()
 }
 
 
-void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, PGNode *n, bool ContinueCoPlanarWakes )
+void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n, const bool ContinueCoPlanarWakes )
 {
     e->m_InCurrentLoopFlag = true;
 
@@ -2132,7 +2136,7 @@ void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, PGNode *n, bool 
 }
 
 
-void PGMesh::IdentifyWakes( bool ContinueCoPlanarWakes )
+void PGMesh::IdentifyWakes( const bool ContinueCoPlanarWakes )
 {
     m_WakeVec.clear();
 
@@ -2171,7 +2175,6 @@ void PGMesh::StartMatlab()
 
 PGEdge * PGMesh::SplitEdge( PGEdge *e0, PGNode *n )
 {
-    PGNode *n0 = e0->m_N0;
     PGNode *n1 = e0->m_N1;
 
     e0->ReplaceNode( n1, n );
@@ -2199,7 +2202,7 @@ PGEdge * PGMesh::SplitEdge( PGEdge *e0, PGNode *n )
     return e1;
 }
 
-PGEdge * PGMesh::SplitEdge( PGEdge *e, double t, PGNode *n0 )
+PGEdge * PGMesh::SplitEdge( PGEdge *e, const double t, PGNode *n0 )
 {
     PGNode *n1 = e->OtherNode( n0 );
 
@@ -2227,7 +2230,7 @@ PGEdge * PGMesh::SplitEdge( PGEdge *e, double t, PGNode *n0 )
 }
 
 
-void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n )
+void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, const PGEdge *e, PGNode *n )
 {
     vector < PGEdge* > ehull;
     f->GetHullEdges( ehull );
@@ -2401,7 +2404,7 @@ void PGMesh::MakeRegions()
     }
 }
 
-void PGMesh::CullOrphanThinRegions( double tol )
+void PGMesh::CullOrphanThinRegions( const double tol )
 {
     int nreg = m_Regions.size();
     vector < double > region_area( nreg, 0.0 );
@@ -2882,7 +2885,7 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
     }
 }
 
-void PGMesh::WriteVSPGeomWakes( FILE* file_id )
+void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
 {
     int nwake = m_WakeVec.size();
 
@@ -2969,7 +2972,7 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
     }
 }
 
-void PGMesh::WriteTagFiles( string file_name, vector < string > &all_fnames )
+void PGMesh::WriteTagFiles( const string& file_name, vector < string > &all_fnames )
 {
     int ntagfile = 0;
     int ncsffile = 0;
@@ -3010,7 +3013,7 @@ void PGMesh::WriteTagFiles( string file_name, vector < string > &all_fnames )
         string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
 
         FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
-        FILE* csf_taglist_fid = NULL;
+        FILE* csf_taglist_fid = nullptr;
         if ( ncsffile > 0 )
         {
             csf_taglist_fid = fopen( csf_taglist_name.c_str(), "w" );
@@ -3086,7 +3089,7 @@ void PGMesh::WriteTagFiles( string file_name, vector < string > &all_fnames )
     }
 }
 
-void PGMesh::WriteTagFile( FILE* file_id, int part, int tag )
+void PGMesh::WriteTagFile( FILE* file_id, const int part, const int tag )
 {
     //==== Write Tri IDs for each tag =====//
 
@@ -3276,7 +3279,7 @@ void PGMesh::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &a
     fclose( fid );
 }
 
-void PGMesh::WriteSTL( string fname )
+void PGMesh::WriteSTL( const string& fname )
 {
     FILE* fp = fopen( fname.c_str(), "w" );
 
@@ -3315,7 +3318,7 @@ void PGMesh::WriteSTL( string fname )
     fclose( fp );
 }
 
-void PGMesh::WriteTRI( string fname )
+void PGMesh::WriteTRI( const string& fname )
 {
     FILE* fp = fopen( fname.c_str(), "w" );
 
@@ -3403,7 +3406,7 @@ string PGMesh::GetTagNames( const vector<int> & tags )
     return comp_list;
 }
 
-string PGMesh::GetTagNames( int indx )
+string PGMesh::GetTagNames( const int indx )
 {
     if ( indx < m_TagKeys.size() && indx >= 0 )
     {
@@ -3450,7 +3453,7 @@ string PGMesh::GetTagIDs( const vector<int>& tags )
     return comp_list;
 }
 
-string PGMesh::GetTagIDs( int indx )
+string PGMesh::GetTagIDs( const int indx )
 {
     if ( indx < m_TagKeys.size() && indx >= 0 )
     {
@@ -3471,9 +3474,9 @@ string PGMesh::GetGID( const int& tag )
     return gid_bare;
 }
 
-bool PGMesh::MatchPartAndTag( const vector < int > & tags, int part, int tag )
+bool PGMesh::MatchPartAndTag( const vector < int > & tags, const int part, const int tag )
 {
-    if ( tags.size() > 0 )
+    if ( !tags.empty() )
     {
         if ( tags[0] == part )
         {
@@ -3486,7 +3489,7 @@ bool PGMesh::MatchPartAndTag( const vector < int > & tags, int part, int tag )
     return false;
 }
 
-bool PGMesh::MatchPartAndTag( int singletag, int part, int tag )
+bool PGMesh::MatchPartAndTag( const int singletag, const int part, const int tag ) const
 {
     if ( m_TagKeys.size() >= singletag )
     {
@@ -3495,7 +3498,7 @@ bool PGMesh::MatchPartAndTag( int singletag, int part, int tag )
     return false;
 }
 
-bool PGMesh::ExistPartAndTag( int part, int tag )
+bool PGMesh::ExistPartAndTag( const int part, const int tag ) const
 {
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
@@ -3507,12 +3510,12 @@ bool PGMesh::ExistPartAndTag( int part, int tag )
     return false;
 }
 
-void PGMesh::MakePartList( std::vector < int > & partvec )
+void PGMesh::MakePartList( std::vector < int > & partvec ) const
 {
     std::set< int > partset;
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
-        if ( m_TagKeys[i].size() > 0 )
+        if ( !m_TagKeys[i].empty() )
         {
             partset.insert( m_TagKeys[i][0] );
         }
@@ -3572,31 +3575,31 @@ vector< int > PGMesh::GetTagVec( const int &tin )
     return vector<int> { -1 };
 }
 
-int PGMesh::GetType( int part )
+int PGMesh::GetType( const int part ) const
 {
     return m_TypeVec[ part - 1 ];
 }
 
-int PGMesh::GetThickThin( int part )
+int PGMesh::GetThickThin( const int part ) const
 {
     return m_ThickVec[ part - 1 ];
 }
 
-double PGMesh::GetWmin( int part )
+double PGMesh::GetWmin( const int part ) const
 {
     return m_WminVec[ part - 1 ];
 }
 
 int PGMesh::GetPart( const vector<int> & tags )
 {
-    if ( tags.size() > 0 )
+    if ( !tags.empty() )
     {
         return tags[0];
     }
     return -1;
 }
 
-int PGMesh::GetPart( int tag )
+int PGMesh::GetPart( int tag ) const
 {
     if ( m_TagKeys.size() >= tag )
     {
@@ -3652,11 +3655,11 @@ void PGMesh::GetPartData( vector < string > &gidvec, vector < int > &partvec, ve
 
         gidvec.push_back( gid_bare );
         partvec.push_back( part );
-        surfvec.push_back( stoi( snum.c_str() ) );
+        surfvec.push_back( stoi( snum ) );
     }
 }
 
-void PGMesh::BuildFromTMesh( TMesh* tmi )
+void PGMesh::BuildFromTMesh( const TMesh* tmi )
 {
     // Archive tag data at time of NGonMeshGeom creation.
     m_TagNames = SubSurfaceMgr.m_TagNames;
@@ -3680,7 +3683,7 @@ void PGMesh::BuildFromTMesh( TMesh* tmi )
     {
         TTri *tj = tmi->m_TVec[j];
 
-        if ( tj->m_SplitVec.size() )
+        if ( !tj->m_SplitVec.empty() )
         {
             for ( int s = 0; s < ( int ) tj->m_SplitVec.size(); s++ )
             {
@@ -3720,7 +3723,7 @@ void PGMesh::BuildFromTMesh( TMesh* tmi )
 
 }
 
-void PGMesh::BuildFromTMeshVec( const vector< TMesh* > tmv )
+void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
 {
     // Archive tag data at time of NGonMeshGeom creation.
     m_TagNames = SubSurfaceMgr.m_TagNames;
@@ -3752,7 +3755,7 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > tmv )
         {
             TTri *tj = tmi->m_TVec[j];
 
-            if ( tj->m_SplitVec.size() )
+            if ( !tj->m_SplitVec.empty() )
             {
                 for ( int s = 0; s < ( int ) tj->m_SplitVec.size(); s++ )
                 {
@@ -3794,9 +3797,9 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > tmv )
 
 PGNode* FindEndNode( const vector < PGEdge* > & eVec )
 {
-    if ( eVec.size() == 0 )
+    if ( eVec.empty() )
     {
-        return NULL;
+        return nullptr;
     }
 
     if ( eVec.size() == 1 )
@@ -3805,7 +3808,7 @@ PGNode* FindEndNode( const vector < PGEdge* > & eVec )
         {
             return eVec[0]->m_N0;
         }
-        return NULL;
+        return nullptr;
     }
 
     PGEdge* e0 = eVec[0];
@@ -3813,7 +3816,7 @@ PGNode* FindEndNode( const vector < PGEdge* > & eVec )
 
     if ( !e0 || !e1 )
     {
-        return NULL;
+        return nullptr;
     }
 
     if ( e1->ContainsNode( e0->m_N0 ) )
