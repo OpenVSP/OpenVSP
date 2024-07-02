@@ -5638,6 +5638,7 @@ vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec, bool ski
 
             bool thicksurf = true;
             CreateTMeshVecFromPts( this, TMeshVec, pnts, uw_pnts,
+                                   n_ref,
                                    i, -1, surf_vec[i].GetSurfType(), surf_vec[i].GetSurfCfdType(),
                                    thicksurf, surf_vec[i].GetFlipNormal(), surf_vec[i].GetWMax(), skipnegflipnormal );
         }

@@ -1702,7 +1702,7 @@ void DegenGeom::write_degenHingeLineResultsManager( vector<string> &hinge_ids, c
     hinge_res->Add( new NameValData( "xEnd", degenHingeLine.xEnd, "Coordinate of end point." ) );
 }
 
-void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int skipnegflipnormal )
+void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int skipnegflipnormal, int n_ref )
 {
     int surftype = getType();
     bool thicksurf = false;
@@ -1731,6 +1731,7 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
                                             tMeshVec,
                                             degenPlates[i].xCamber,
                                             uw_pnts,
+                                            n_ref,
                                             getSurfNum(),
                                             i,
                                             vsp::WING_SURF,
@@ -1750,6 +1751,7 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
                                             tMeshVec,
                                             degenPlates[i].x,
                                             uw_pnts,
+                                            n_ref,
                                             getSurfNum(),
                                             i,
                                             vsp::NORMAL_SURF,

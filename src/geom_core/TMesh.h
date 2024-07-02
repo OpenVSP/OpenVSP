@@ -630,6 +630,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             vector < TMesh* > & TMeshVec,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & uw_pnts,
+                            int n_ref,
                             int indx, int platenum, int surftype, int cfdsurftype,
                             bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal,
                             bool flatpatch = false );
@@ -638,6 +639,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             vector < TMesh* > & TMeshVec,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & uw_pnts,
+                            int n_ref,
                             int indx, int platenum, int surftype, int cfdsurftype,
                             bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal,
                             int iustart, int iuend,
@@ -647,10 +649,11 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                             vector < TMesh* > & TMeshVec,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & uw_pnts,
+                            int n_ref,
                             int indx, int platenum, int surftype, int cfdsurftype,
                             bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal );
 
-void BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax, int platenum );
+void BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax, int platenum, int n_ref );
 
 vector<TMesh*> CopyTMeshVec( const vector<TMesh*> &tmv );
 void DeleteTMeshVec(  vector<TMesh*> &tmv );

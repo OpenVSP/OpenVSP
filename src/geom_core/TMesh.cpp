@@ -6030,6 +6030,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             vector < TMesh* > & TMeshVec,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & uw_pnts,
+                            int n_ref,
                             int indx, int platenum, int surftype, int cfdsurftype,
                             bool thicksurf, bool flipnormal, double wmax,bool skipnegflipnormal,
                             bool flatpatch )
@@ -6052,7 +6053,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
         flipnormal = !flipnormal;
     }
 
-    BuildTMeshTris( TMeshVec[itmesh], flipnormal, wmax, platenum );
+    BuildTMeshTris( TMeshVec[itmesh], flipnormal, wmax, platenum, n_ref );
 
 }
 
@@ -6060,6 +6061,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             vector < TMesh* > & TMeshVec,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & uw_pnts,
+                            int n_ref,
                             int indx, int platenum, int surftype, int cfdsurftype,
                             bool thicksurf, bool flipnormal, double wmax,bool skipnegflipnormal,
                             int iustart, int iuend,
@@ -6082,6 +6084,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
     CreateTMeshVecFromPts( geom,
                            TMeshVec,
                            pnts_subset, uw_pnts_subset,
+                           n_ref,
                            indx, platenum, surftype, cfdsurftype,
                            thicksurf, flipnormal, wmax, skipnegflipnormal,
                            flatpatch );
@@ -6091,6 +6094,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                      vector < TMesh* > & TMeshVec,
                                      const vector< vector<vec3d> > & pnts,
                                      const vector< vector<vec3d> > & uw_pnts,
+                                     int n_ref,
                                      int indx, int platenum, int surftype, int cfdsurftype,
                                      bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal )
 {
@@ -6162,6 +6166,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                        TMeshVec,
                                        pnts,
                                        uw_pnts,
+                                       n_ref,
                                        indx, platenum, surftype, cfdsurftype,
                                        thicksurf, flipnormal, wmax, skipnegflipnormal,
                                        iustart, iuend,
@@ -6181,6 +6186,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                    TMeshVec,
                                    pnts,
                                    uw_pnts,
+                                   n_ref,
                                    indx, platenum, surftype, cfdsurftype,
                                    thicksurf, flipnormal, wmax, skipnegflipnormal,
                                    false );
@@ -6192,6 +6198,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                TMeshVec,
                                pnts,
                                uw_pnts,
+                               n_ref,
                                indx, platenum, surftype, cfdsurftype,
                                thicksurf, flipnormal, wmax, skipnegflipnormal,
                                false );
@@ -6199,7 +6206,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
 }
 
 
-void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum )
+void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, int n_ref )
 {
     double tol=1.0e-12;
 

@@ -1322,7 +1322,7 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
                         DegenGeomVec[j].setFlipNormal( ! DegenGeomVec[j].getFlipNormal() );
                         // Create MeshGeom from DegenGeom
                         // Camber surfaces for wings & props, plates for bodies.
-                        DegenGeomVec[j].createTMeshVec( g_ptr, tMeshVec, skipnegflipnormal );
+                        DegenGeomVec[j].createTMeshVec( g_ptr, tMeshVec, skipnegflipnormal, n_ref );
                     }
 
                     // Do not combine these loops.  tMeshVec.size() != DegenGeomVec.size()
