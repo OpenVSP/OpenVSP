@@ -493,7 +493,7 @@ vector<TMesh*> NGonMeshGeom::CreateTMeshVec() const
             vec3d v0 = nodVec[ inod ]->m_Pnt;
             vec3d v1 = nodVec[ inod + 1 ]->m_Pnt;
             vec3d v2 = nodVec[ inod + 2 ]->m_Pnt;
-            retTMeshVec[0]->AddTri( v0, v2, v1, (*f)->m_Nvec, (*f)->m_iQuad );
+            retTMeshVec[0]->AddTri( v0, v2, v1, (*f)->m_Nvec, (*f)->m_iQuad, (*f)->m_jref, (*f)->m_kref );
         }
     }
 

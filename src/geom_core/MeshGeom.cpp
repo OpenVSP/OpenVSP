@@ -4009,14 +4009,14 @@ void MeshGeom::WaterTightCheck( FILE* fid )
                     if ( !mesh->m_TVec[t]->m_SplitVec[i]->m_IgnoreTriFlag )
                     {
                         TTri* tri = mesh->m_TVec[t]->m_SplitVec[i];
-                        oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, mesh->m_TVec[t]->m_Norm, mesh->m_TVec[t]->m_iQuad );
+                        oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, mesh->m_TVec[t]->m_Norm, mesh->m_TVec[t]->m_iQuad, mesh->m_TVec[t]->m_jref, mesh->m_TVec[t]->m_kref );
                     }
                 }
             }
             else if ( !mesh->m_TVec[t]->m_IgnoreTriFlag )
             {
                 TTri* tri = mesh->m_TVec[t];
-                oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, tri->m_Norm, tri->m_iQuad );
+                oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, tri->m_Norm, tri->m_iQuad, tri->m_jref, tri->m_kref );
             }
         }
     }
@@ -4115,7 +4115,7 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
         TTri *t = tm->m_TVec[i];
         pgm.AddFace( nod[t->m_N0->m_ID], nod[t->m_N1->m_ID], nod[t->m_N2->m_ID],
                      t->m_N0->m_UWPnt.as_vec2d_xy(), t->m_N1->m_UWPnt.as_vec2d_xy(), t->m_N2->m_UWPnt.as_vec2d_xy(),
-                     t->m_Norm, t->m_iQuad, 0 );
+                     t->m_Norm, t->m_iQuad, 0, t->m_jref, t->m_kref );
     }
 
     // Merge Nodes and Edges to make topologically correct.

@@ -507,6 +507,8 @@ void TMesh::copy( TMesh* m )
 
         tri->m_Norm    = m->m_TVec[i]->m_Norm;
         tri->m_iQuad    = m->m_TVec[i]->m_iQuad;
+        tri->m_jref     = m->m_TVec[i]->m_jref;
+        tri->m_kref     = m->m_TVec[i]->m_kref;
         tri->m_ID    = m->m_TVec[i]->m_ID;
         tri->m_Tags = m->m_TVec[i]->m_Tags;
         tri->m_GeomID = m->m_TVec[i]->m_GeomID;
@@ -553,6 +555,8 @@ void TMesh::copyFewerNodes( TMesh* m )
 
         tri->m_Norm = m->m_TVec[i]->m_Norm;
         tri->m_iQuad = m->m_TVec[i]->m_iQuad;
+        tri->m_jref = m->m_TVec[i]->m_jref;
+        tri->m_kref = m->m_TVec[i]->m_kref;
         tri->m_ID = m->m_TVec[i]->m_ID;
         tri->m_Tags = m->m_TVec[i]->m_Tags;
         tri->m_GeomID = m->m_TVec[i]->m_GeomID;
@@ -581,6 +585,8 @@ void TMesh::CopyFlatten( TMesh* m )
                 {
                     AddTri( s_tri->m_N0, s_tri->m_N1, s_tri->m_N2, s_tri->m_Norm, orig_tri->m_iQuad );
                     m_TVec.back()->m_Tags = s_tri->m_Tags;
+                    m_TVec.back()->m_jref = s_tri->m_jref;
+                    m_TVec.back()->m_kref = s_tri->m_kref;
                     m_TVec.back()->m_ID = s_tri->m_ID;
                     m_TVec.back()->m_GeomID = s_tri->m_GeomID;
                     m_TVec.back()->m_Density = s_tri->m_Density;
@@ -593,6 +599,8 @@ void TMesh::CopyFlatten( TMesh* m )
             {
                 AddTri( orig_tri->m_N0, orig_tri->m_N1, orig_tri->m_N2, orig_tri->m_Norm, orig_tri->m_iQuad );
                 m_TVec.back()->m_Tags = orig_tri->m_Tags;
+                m_TVec.back()->m_jref = orig_tri->m_jref;
+                m_TVec.back()->m_kref = orig_tri->m_kref;
                 m_TVec.back()->m_ID = orig_tri->m_ID;
                 m_TVec.back()->m_GeomID = orig_tri->m_GeomID;
                 m_TVec.back()->m_Density = orig_tri->m_Density;
@@ -621,6 +629,8 @@ void TMesh::FlattenInPlace()
                 {
                     AddTri( s_tri->m_N0, s_tri->m_N1, s_tri->m_N2, s_tri->m_Norm, orig_tri->m_iQuad );
                     m_TVec.back()->m_Tags = s_tri->m_Tags;
+                    m_TVec.back()->m_jref = s_tri->m_jref;
+                    m_TVec.back()->m_kref = s_tri->m_kref;
                     m_TVec.back()->m_ID = s_tri->m_ID;
                     m_TVec.back()->m_GeomID = s_tri->m_GeomID;
                     m_TVec.back()->m_Density = s_tri->m_Density;
@@ -633,6 +643,8 @@ void TMesh::FlattenInPlace()
             {
                 AddTri( orig_tri->m_N0, orig_tri->m_N1, orig_tri->m_N2, orig_tri->m_Norm, orig_tri->m_iQuad );
                 m_TVec.back()->m_Tags = orig_tri->m_Tags;
+                m_TVec.back()->m_jref = orig_tri->m_jref;
+                m_TVec.back()->m_kref = orig_tri->m_kref;
                 m_TVec.back()->m_ID = orig_tri->m_ID;
                 m_TVec.back()->m_GeomID = orig_tri->m_GeomID;
                 m_TVec.back()->m_Density = orig_tri->m_Density;
@@ -1039,6 +1051,8 @@ void TMesh::MakeFromPGMesh( PGMesh *m )
         vec3d norm = ( *f )->m_Nvec;
         vector < int > tags = m->GetTagVec( tag );
         int iQuad = ( *f )->m_iQuad;
+        int jref = ( *f )->m_jref;
+        int kref = ( *f )->m_kref;
 
         int npt = nodVec.size();
         int ntri = npt/3;
@@ -1063,7 +1077,7 @@ void TMesh::MakeFromPGMesh( PGMesh *m )
             vec3d uw2( uw.x(), uw.y(), 0.0 );
             inod++;
 
-            AddTri( v0, v1, v2, norm, uw0, uw1, uw2, iQuad );
+            AddTri( v0, v1, v2, norm, uw0, uw1, uw2, iQuad, jref, kref );
             TTri* tri = m_TVec.back();
 
             tri->m_Tags = tags;
@@ -1144,6 +1158,8 @@ void TMesh::SubMesh( int imesh, TMesh *tm )
             t->m_InvalidFlag = torig->m_InvalidFlag;
             t->m_IgnoreTriFlag = torig->m_IgnoreTriFlag;
             t->m_iQuad = torig->m_iQuad;
+            t->m_jref = torig->m_jref;
+            t->m_kref = torig->m_kref;
             t->m_ID = torig->m_ID;
 
             m_TVec.push_back( t );
@@ -1193,6 +1209,8 @@ void TMesh::MakeUWTMesh( TMesh & tm )
         t->m_InvalidFlag = ti->m_InvalidFlag;
         t->m_IgnoreTriFlag = ti->m_IgnoreTriFlag;
         t->m_iQuad = ti->m_iQuad;
+        t->m_jref = ti->m_jref;
+        t->m_kref = ti->m_kref;
 
         tm.m_TVec.push_back( t );
     }
@@ -1733,6 +1751,14 @@ void TMesh::AddTri( const vec3d &p0, const vec3d &p1, const vec3d &p2, const int
     AddTri( p0, p1, p2, norm, iQuad );
 }
 
+void TMesh::AddTri( const vec3d &p0, const vec3d &p1, const vec3d &p2, const int &iQuad, const int & jref, const int & kref )
+{
+    AddTri( p0, p1, p2, iQuad );
+    TTri* tri = m_TVec.back();
+    tri->m_jref = jref;
+    tri->m_kref = kref;
+}
+
 // Base.  i.e. does m_TVec.push_back()
 void TMesh::AddTri( const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &norm, const int &iQuad )
 {
@@ -1758,6 +1784,14 @@ void TMesh::AddTri( const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec
     m_NVec.push_back( ttri->m_N0 );
     m_NVec.push_back( ttri->m_N1 );
     m_NVec.push_back( ttri->m_N2 );
+}
+
+void TMesh::AddTri( const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &norm, const int &iQuad, const int & jref, const int & kref )
+{
+    AddTri( v0, v1, v2, norm, iQuad );
+    TTri* tri = m_TVec.back();
+    tri->m_jref = jref;
+    tri->m_kref = kref;
 }
 
 // Base
@@ -1793,15 +1827,19 @@ void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm
     m_NVec.push_back( ttri->m_N0 );
     m_NVec.push_back( ttri->m_N1 );
     m_NVec.push_back( ttri->m_N2 );
+}
 
-
-
+void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm, const int & iQuad, const int & jref, const int & kref )
+{
+    AddTri( node0, node1, node2, norm, iQuad );
+    TTri* tri = m_TVec.back();
+    tri->m_jref = jref;
+    tri->m_kref = kref;
 }
 
 // Wrapper
 void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
-                    const vec3d & uw1, const vec3d & uw2, const int & iQuad )
-{
+                    const vec3d & uw1, const vec3d & uw2, const int & iQuad, const int & jref, const int & kref ){
     // AddTri with both xyz and uw info
     AddTri( v0, v1, v2, norm, iQuad );
     TTri* tri = m_TVec.back();
@@ -1812,6 +1850,9 @@ void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const 
     tri->m_N0->SetCoordInfo( TNode::HAS_XYZ | TNode::HAS_UW );
     tri->m_N1->SetCoordInfo( TNode::HAS_XYZ | TNode::HAS_UW );
     tri->m_N2->SetCoordInfo( TNode::HAS_XYZ | TNode::HAS_UW );
+
+    tri->m_jref = jref;
+    tri->m_kref = kref;
 }
 
 // Base
@@ -2460,6 +2501,8 @@ TTri::TTri( TMesh* tmesh )
     m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = nullptr;
     m_iQuad = -1;
     m_ID = -1;
+    m_jref = 0;
+    m_kref = 0;
 }
 
 TTri::~TTri()
@@ -2532,6 +2575,8 @@ void TTri::CopyFrom( const TTri* tri )
     m_InvalidFlag = tri->m_InvalidFlag;
     m_IgnoreTriFlag = tri->m_IgnoreTriFlag;
     m_iQuad = tri->m_iQuad;
+    m_jref = tri->m_jref;
+    m_kref = tri->m_kref;
     m_ID = tri->m_ID;
 }
 
@@ -3313,6 +3358,8 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
         t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
         t->m_Norm = m_Norm;
         t->m_iQuad = m_iQuad;
+        t->m_jref = m_jref;
+        t->m_kref = m_kref;
         t->m_ID = m_ID;
         m_SplitVec.push_back( t );
     }
@@ -3862,6 +3909,8 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_Norm = m_Norm;
         tri->m_iQuad = m_iQuad;
         tri->m_ID = m_ID;
+        tri->m_jref = m_jref;
+        tri->m_kref = m_kref;
         m_SplitVec.push_back( tri );
 
         tri = new TTri( m_TMesh );
@@ -3871,6 +3920,8 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_Norm = m_Norm;
         tri->m_iQuad = m_iQuad;
         tri->m_ID = m_ID;
+        tri->m_jref = m_jref;
+        tri->m_kref = m_kref;
         m_SplitVec.push_back( tri );
 
         tri = new TTri( m_TMesh );
@@ -3880,6 +3931,8 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_Norm = m_Norm;
         tri->m_iQuad = m_iQuad;
         tri->m_ID = m_ID;
+        tri->m_jref = m_jref;
+        tri->m_kref = m_kref;
         m_SplitVec.push_back( tri );
 
         tri = new TTri( m_TMesh );
@@ -3889,6 +3942,8 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_Norm = m_Norm;
         tri->m_iQuad = m_iQuad;
         tri->m_ID = m_ID;
+        tri->m_jref = m_jref;
+        tri->m_kref = m_kref;
         m_SplitVec.push_back( tri );
 
     }
@@ -6220,6 +6275,9 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
 
     int iQuad = 0;
 
+    int ref_start = 1 << n_ref;
+    int ref_end = 1 << ( n_ref + 1 );
+
     int nj = (*pnts).size();
     int nk = (*pnts)[0].size();
 
@@ -6272,8 +6330,10 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
     double umax = (*uw_pnts)[ lastj + 1 ][ nk - 1 ].x();
     double umid = 0.5 * ( umin + umax );
 
+    int jref = ref_start;
     for ( int j = 0; j < nj - 1; j++ )
     {
+        int kref = ref_start;
         for ( int k = 0; k < nk - 1; k++ )
         {
             v0 = (*pnts)[j][k];
@@ -6318,11 +6378,11 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1, iQuad );
+                        tmesh->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1, iQuad, jref, kref );
                     }
                     else
                     {
-                        tmesh->AddTri( v0, v1, v2, norm, uw0, uw1, uw2, iQuad );
+                        tmesh->AddTri( v0, v1, v2, norm, uw0, uw1, uw2, iQuad, jref, kref );
                     }
                 }
 
@@ -6332,11 +6392,11 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2, iQuad );
+                        tmesh->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2, iQuad, jref, kref );
                     }
                     else
                     {
-                        tmesh->AddTri( v0, v2, v3, norm, uw0, uw2, uw3, iQuad );
+                        tmesh->AddTri( v0, v2, v3, norm, uw0, uw2, uw3, iQuad, jref, kref );
                     }
                 }
             }
@@ -6349,11 +6409,11 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1, iQuad );
+                        tmesh->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1, iQuad, jref, kref );
                     }
                     else
                     {
-                        tmesh->AddTri( v0, v1, v3, norm, uw0, uw1, uw3, iQuad );
+                        tmesh->AddTri( v0, v1, v3, norm, uw0, uw1, uw3, iQuad, jref, kref );
                     }
                 }
 
@@ -6363,16 +6423,28 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2, iQuad );
+                        tmesh->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2, iQuad, jref, kref );
                     }
                     else
                     {
-                        tmesh->AddTri( v1, v2, v3, norm, uw1, uw2, uw3, iQuad );
+                        tmesh->AddTri( v1, v2, v3, norm, uw1, uw2, uw3, iQuad, jref, kref );
                     }
                 }
             }
 
             iQuad++;
+
+            kref++;
+            if ( kref >= ref_end )
+            {
+                kref = ref_start;
+            }
+        }
+
+        jref++;
+        if ( jref >= ref_end )
+        {
+            jref = ref_start;
         }
     }
 }

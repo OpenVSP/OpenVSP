@@ -389,6 +389,8 @@ public:
     bool m_InvalidFlag;
     int m_iQuad;
     int m_ID;
+    int m_jref;
+    int m_kref;
 
     TEdge* m_E0;
     TEdge* m_E1;
@@ -499,10 +501,13 @@ public:
     virtual void Transform( const Matrix4d & TransMat );
 
     virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const int & iQuad );
+    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const int & iQuad, const int & jref, const int & kref );
     virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const int & iQuad );
+    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const int & iQuad, const int & jref, const int & kref );
+    virtual void AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm, const int & iQuad, const int & jref, const int & kref );
     virtual void AddTri( TNode * node0, TNode * node1, TNode * node2, const vec3d & norm, const int & iQuad );
     virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
-                         const vec3d & uw1, const vec3d & uw2, const int & iQuad );
+                         const vec3d & uw1, const vec3d & uw2, const int & iQuad, const int & jref, const int & kref );
     virtual void AddTri( const TTri* tri );
     virtual void AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm, const int & iQuad );
 

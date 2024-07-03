@@ -188,6 +188,8 @@ public:
     vec3d m_Nvec;
     int m_iQuad;
     int m_Tag;
+    int m_jref;
+    int m_kref;
 
     int m_ID;
 
@@ -230,7 +232,7 @@ public:
     PGFace* AddFace();
     PGFace* AddFace( PGNode* n0, PGNode* n1, PGNode* n2,
                              const vec2d &uw0, const vec2d &uw1, const vec2d &uw2,
-                             const vec3d & norm, int iQuad, int tag );
+                             const vec3d & norm, int iQuad, int tag, int jref, int kref );
 
     void  RemoveFace( PGFace* fptr );
 

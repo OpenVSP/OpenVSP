@@ -621,6 +621,8 @@ PGFace::PGFace()
     m_iQuad = -1;
     m_Tag = -1;
     m_Region = -1;
+    m_jref = 0;
+    m_kref = 0;
 }
 
 PGFace::~PGFace()
@@ -1713,12 +1715,14 @@ PGFace* PGMesh::AddFace()
 
 PGFace* PGMesh::AddFace( PGNode* n0, PGNode* n1, PGNode* n2,
                          const vec2d &uw0, const vec2d &uw1, const vec2d &uw2,
-                         const vec3d & norm, const int iQuad, const int tag )
+                         const vec3d & norm, const int iQuad, const int tag, const int jref, const int kref )
 {
     PGFace *f = AddFace( );
     f->m_Nvec = norm;
     f->m_iQuad = iQuad;
     f->m_Tag = tag;
+    f->m_jref = jref;
+    f->m_kref = kref;
 
     PGEdge *e1 = AddEdge( n0, n1 );
     PGEdge *e2 = AddEdge( n1, n2 );
@@ -2352,6 +2356,8 @@ void PGMesh::SplitFace( PGFace *f0, PGEdge *e )
     f1->m_iQuad = f0->m_iQuad;
     f1->m_Nvec = f0->m_Nvec;
     f1->m_Tag = f0->m_Tag;
+    f1->m_jref = f0->m_jref;
+    f1->m_kref = f0->m_kref;
 
     // Build two new edge vectors.
     vector < PGEdge * > ev0;
@@ -2481,6 +2487,8 @@ void PGMesh::Triangulate()
                 f->m_Nvec = fpoly->m_Nvec;
                 f->m_iQuad = fpoly->m_iQuad;
                 f->m_Tag = fpoly->m_Tag;
+                f->m_jref = fpoly->m_jref;
+                f->m_kref = fpoly->m_kref;
 
                 PGEdge *e1 = AddEdge( nodVec [ inod ], nodVec[ inod + 1 ] );
                 PGEdge *e2 = AddEdge( nodVec [ inod + 1 ], nodVec[ inod + 2 ] );
@@ -3699,7 +3707,9 @@ void PGMesh::BuildFromTMesh( const TMesh* tmi )
                              ts->m_N2->m_UWPnt.as_vec2d_xy(),
                              ts->m_Norm,
                              ts->m_iQuad,
-                             tag );
+                             tag,
+                             ts->m_jref,
+                             ts->m_kref );
                 }
             }
         }
@@ -3716,7 +3726,9 @@ void PGMesh::BuildFromTMesh( const TMesh* tmi )
                          tj->m_N2->m_UWPnt.as_vec2d_xy(),
                          tj->m_Norm,
                          tj->m_iQuad,
-                         tag );
+                         tag,
+                         tj->m_jref,
+                         tj->m_kref  );
             }
         }
     }
@@ -3771,7 +3783,9 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
                                  ts->m_N2->m_UWPnt.as_vec2d_xy(),
                                  ts->m_Norm,
                                  ts->m_iQuad,
-                                 tag );
+                                 tag,
+                                 ts->m_jref,
+                                 ts->m_kref );
                     }
                 }
             }
@@ -3788,7 +3802,9 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
                              tj->m_N2->m_UWPnt.as_vec2d_xy(),
                              tj->m_Norm,
                              tj->m_iQuad,
-                             tag );
+                             tag,
+                             tj->m_jref,
+                             tj->m_kref );
                 }
             }
         }
