@@ -315,6 +315,8 @@ public:
 
     bool Validate();
 
+    void MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ) );
+
     void PolygonizeMesh();
     void CleanColinearVerts();
 

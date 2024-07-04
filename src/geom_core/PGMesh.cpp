@@ -2745,17 +2745,17 @@ void PGMesh::DumpGarbage()
     {
         delete m_GarbageEdgeVec[i];
     }
-    m_GarbageEdgeVec.clear();
-
-    //==== Delete Flagged PGFaces =====//
-    for ( int i = 0 ; i < ( int )m_GarbageFaceVec.size() ; i++ )
-    {
-        delete m_GarbageFaceVec[i];
-    }
     m_GarbageFaceVec.clear();
 }
 
-void PGMesh::PolygonizeMesh()
+bool QuadTagMatch( PGFace *f0, PGFace *f1 )
+{
+    return f0->m_iQuad >= 0 &&
+           f0->m_iQuad == f1->m_iQuad &&
+           f0->m_Tag == f1->m_Tag;
+}
+
+void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ) )
 {
     // Make vector copy of list so edges can be removed from list without invalidating active list iterator.
     vector< PGEdge* > eVec( m_EdgeList.begin(), m_EdgeList.end() );
@@ -2769,16 +2769,29 @@ void PGMesh::PolygonizeMesh()
         {
             PGFace *f0 = e->m_FaceVec[0];
             PGFace *f1 = e->m_FaceVec[1];
+void PGMesh::Coarsen1()
+{
 
-            if ( f0->m_iQuad >= 0 &&
-                 f0->m_iQuad == f1->m_iQuad &&
-                 f0->m_Tag == f1->m_Tag )
+}
+
+void PGMesh::Coarsen2()
+{
+
+}
+
+            if ( facemergetest( f0, f1 ) )
             {
                 RemoveEdgeMergeFaces( e );
             }
         }
     }
     DumpGarbage();
+}
+
+
+void PGMesh::PolygonizeMesh()
+{
+    MergeFaces( &QuadTagMatch );
 }
 
 void PGMesh::CleanColinearVerts()
