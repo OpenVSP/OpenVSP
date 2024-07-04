@@ -28,6 +28,9 @@ public:
 
     ToggleButton m_ShowNonManifoldEdgesButton;
 
+    TriggerButton m_Coarsen1Button;
+    TriggerButton m_Coarsen2Button;
+
 protected:
 
 };

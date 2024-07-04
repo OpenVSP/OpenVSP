@@ -305,6 +305,9 @@ public:
     void Triangulate();
     void ClearTris();
 
+    void Coarsen1();
+    void Coarsen2();
+
     void Report();
     void ResetNodeNumbers();
     void ResetEdgeNumbers();
