@@ -1399,6 +1399,10 @@ void PGFace::ComputeCosAngles( const PGNode* n0, const PGNode* n1, const PGNode*
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+void QuadFaceMergeProps( PGFace *f0, PGFace *f1 )
+{
+}
+
 bool QuadTagMatch( PGFace *f0, PGFace *f1 )
 {
     return f0->m_iQuad >= 0 &&
@@ -1539,7 +1543,7 @@ void PGMesh::RemoveEdge( PGEdge* e )
     e->m_DeleteMeFlag = true;
 }
 
-void PGMesh::RemoveEdgeMergeFaces( PGEdge* e )
+void PGMesh::RemoveEdgeMergeFaces( PGEdge* e, void ( * facemergeproperties ) ( PGFace *f0, PGFace *f1 ) )
 {
     if ( e->m_FaceVec.size() == 2 )
     {
@@ -1572,6 +1576,8 @@ void PGMesh::RemoveEdgeMergeFaces( PGEdge* e )
             f0->m_EdgeVec = ev0;
 
             RemoveEdge( e );
+
+            facemergeproperties( f0, f1 );
 
             for ( int i = 0; i < ev1.size(); i++ )
             {
@@ -2762,7 +2768,7 @@ void PGMesh::DumpGarbage()
     m_GarbageFaceVec.clear();
 }
 
-void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ) )
+void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), void ( * facemergeproperties ) ( PGFace *f0, PGFace *f1 )  )
 {
     // Make vector copy of list so edges can be removed from list without invalidating active list iterator.
     vector< PGEdge* > eVec( m_EdgeList.begin(), m_EdgeList.end() );
@@ -2779,7 +2785,7 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ) )
 
             if ( facemergetest( f0, f1 ) )
             {
-                RemoveEdgeMergeFaces( e );
+                RemoveEdgeMergeFaces( e, facemergeproperties );
             }
         }
     }

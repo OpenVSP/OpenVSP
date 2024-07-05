@@ -205,6 +205,8 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
+void QuadFaceMergeProps( PGFace *f0, PGFace *f1 );
+
 bool QuadTagMatch( PGFace *f0, PGFace *f1 );
 
 
@@ -228,7 +230,7 @@ public:
 
     PGEdge* AddEdge( PGNode* n0, PGNode* n1 );
     void  RemoveEdge( PGEdge* e );
-    void  RemoveEdgeMergeFaces( PGEdge* e );
+    void  RemoveEdgeMergeFaces( PGEdge* e, void ( * facemergeproperties ) ( PGFace *f0, PGFace *f1 ) );
     static void SwapEdge( PGEdge* e );
     void CheckQualitySwapEdges();
     static PGEdge* FindEdge( const PGNode* n0, const PGNode* n1 ) ;
@@ -319,7 +321,7 @@ public:
 
     bool Validate();
 
-    void MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ) );
+    void MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), void ( * facemergeproperties ) ( PGFace *f0, PGFace *f1 ) = &QuadFaceMergeProps  );
 
     void PolygonizeMesh();
     void CleanColinearVerts();
