@@ -1399,6 +1399,13 @@ void PGFace::ComputeCosAngles( const PGNode* n0, const PGNode* n1, const PGNode*
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+bool QuadTagMatch( PGFace *f0, PGFace *f1 )
+{
+    return f0->m_iQuad >= 0 &&
+           f0->m_iQuad == f1->m_iQuad &&
+           f0->m_Tag == f1->m_Tag;
+}
+
 PGMesh::PGMesh()
 {
 }
@@ -2746,13 +2753,6 @@ void PGMesh::DumpGarbage()
         delete m_GarbageEdgeVec[i];
     }
     m_GarbageFaceVec.clear();
-}
-
-bool QuadTagMatch( PGFace *f0, PGFace *f1 )
-{
-    return f0->m_iQuad >= 0 &&
-           f0->m_iQuad == f1->m_iQuad &&
-           f0->m_Tag == f1->m_Tag;
 }
 
 void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ) )
