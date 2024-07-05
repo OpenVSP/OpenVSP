@@ -2769,15 +2769,6 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ) )
         {
             PGFace *f0 = e->m_FaceVec[0];
             PGFace *f1 = e->m_FaceVec[1];
-void PGMesh::Coarsen1()
-{
-
-}
-
-void PGMesh::Coarsen2()
-{
-
-}
 
             if ( facemergetest( f0, f1 ) )
             {
@@ -2788,6 +2779,15 @@ void PGMesh::Coarsen2()
     DumpGarbage();
 }
 
+void PGMesh::Coarsen1()
+{
+
+}
+
+void PGMesh::Coarsen2()
+{
+
+}
 
 void PGMesh::PolygonizeMesh()
 {
