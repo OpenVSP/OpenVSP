@@ -2752,6 +2752,13 @@ void PGMesh::DumpGarbage()
     {
         delete m_GarbageEdgeVec[i];
     }
+    m_GarbageEdgeVec.clear();
+
+    //==== Delete Flagged PGFaces =====//
+    for ( int i = 0 ; i < ( int )m_GarbageFaceVec.size() ; i++ )
+    {
+        delete m_GarbageFaceVec[i];
+    }
     m_GarbageFaceVec.clear();
 }
 
