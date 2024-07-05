@@ -138,8 +138,11 @@ void PGNode::EdgeForgetNode( PGEdge* e ) const
     e->ReplaceNode( this, nullptr );
 }
 
-bool PGNode::ColinearNode( const double tol ) const
+bool PGNode::ColinearNode() const
 {
+    // Node colinearity tolerance.
+    double tol = 1.0e-12;
+
     if ( m_EdgeVec.size() == 2 )
     {
         PGEdge *e0 = m_EdgeVec[0];
@@ -2809,9 +2812,6 @@ void PGMesh::PolygonizeMesh()
 
 void PGMesh::CleanColinearVerts()
 {
-    // Node colinearity tolerance.
-    double tol = 1.0e-12;
-
     list< PGEdge* >::iterator e;
     for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
     {
@@ -2826,7 +2826,7 @@ void PGMesh::CleanColinearVerts()
     {
         PGNode *n = nVec[ i ];
 
-        if ( n->ColinearNode( tol ) )
+        if ( n->ColinearNode() )
         {
             RemoveNodeMergeEdges( n );
             ncolinear++;

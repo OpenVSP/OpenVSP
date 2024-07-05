@@ -72,7 +72,7 @@ public:
     void RemoveConnectEdge( const PGEdge* e );
     void EdgeForgetNode( PGEdge* e ) const;
 
-    bool ColinearNode( double tol ) const;
+    bool ColinearNode() const;
     bool Check() const;
 
     bool DoubleBackNode( int &i, int &j ) const;
