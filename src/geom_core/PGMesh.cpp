@@ -761,15 +761,19 @@ void PGFace::GetNodesAsTris( vector < PGNode* > & trinodVec )
 
 void PGFace::Triangulate()
 {
-    Triangulate_DBA();
+    vector < PGNode* > nodVec;
+    GetNodes(nodVec);
+    Triangulate( nodVec, m_Nvec, m_TriNodeVec );
 }
 
-void PGFace::Triangulate_triangle()
+void PGFace::Triangulate( const vector < PGNode* > &nodVec, const vec3d & nvec, vector < PGNode* > &triNodeVec )
 {
-    ClearTris();
+    Triangulate_DBA( nodVec, nvec, triNodeVec );
+}
 
-    vector < PGNode* > nodVec;
-    GetNodes( nodVec );
+void PGFace::Triangulate_triangle( const vector < PGNode* > &nodVec, const vec3d & nvec, vector < PGNode* > &triNodeVec )
+{
+    triNodeVec.clear();
 
     // index to size-1 because first/last point is repeated.
     int npt = nodVec.size() - 1;
@@ -792,9 +796,9 @@ void PGFace::Triangulate_triangle()
     {
         if ( nodVec[ 0 ] && nodVec[ 1 ] && nodVec[ 2 ] )
         {
-            m_TriNodeVec.push_back( nodVec[ 0 ] );
-            m_TriNodeVec.push_back( nodVec[ 1 ] );
-            m_TriNodeVec.push_back( nodVec[ 2 ] );
+            triNodeVec.push_back( nodVec[ 0 ] );
+            triNodeVec.push_back( nodVec[ 1 ] );
+            triNodeVec.push_back( nodVec[ 2 ] );
         }
         else
         {
@@ -812,7 +816,7 @@ void PGFace::Triangulate_triangle()
 
     // Rotate along normal.
     Matrix4d mat;
-    mat.rotatealongX( m_Nvec );
+    mat.rotatealongX( nvec );
     mat.xformvec( ptVec );
 
     //==== Dump Into Triangle ====//
@@ -891,16 +895,16 @@ void PGFace::Triangulate_triangle()
         triangle_mesh_copy( ctx, &out, 1, 1 );
 
         // Place result into node pointer vector.
-        m_TriNodeVec.resize( out.numberoftriangles * 3 );
+        triNodeVec.resize( out.numberoftriangles * 3 );
         for ( int i = 0; i < out.numberoftriangles * 3; i++ )
         {
-            m_TriNodeVec[i] = nodVec[ out.trianglelist[i] ];
+            triNodeVec[i] = nodVec[ out.trianglelist[i] ];
         }
     }
 
-    for ( int i = 0; i < m_TriNodeVec.size(); i++ )
+    for ( int i = 0; i < triNodeVec.size(); i++ )
     {
-        if ( !m_TriNodeVec[i] )
+        if ( !triNodeVec[i] )
         {
             printf( "m_TriNodeVec Invalid in Triangulate_triangle\n" );
         }
@@ -941,12 +945,9 @@ void PGFace::Triangulate_triangle()
     triangle_context_destroy( ctx );
 }
 
-void PGFace::Triangulate_DBA()
+void PGFace::Triangulate_DBA( const vector < PGNode* > &nodVec, const vec3d & nvec, vector < PGNode* > &triNodeVec )
 {
-    ClearTris();
-
-    vector < PGNode* > nodVec;
-    GetNodes( nodVec );
+    triNodeVec.clear();
 
     // index to size-1 because first/last point is repeated.
     int npt = nodVec.size() - 1;
@@ -969,9 +970,9 @@ void PGFace::Triangulate_DBA()
     {
         if ( nodVec[ 0 ] && nodVec[ 1 ] && nodVec[ 2 ] )
         {
-            m_TriNodeVec.push_back( nodVec[ 0 ] );
-            m_TriNodeVec.push_back( nodVec[ 1 ] );
-            m_TriNodeVec.push_back( nodVec[ 2 ] );
+            triNodeVec.push_back( nodVec[ 0 ] );
+            triNodeVec.push_back( nodVec[ 1 ] );
+            triNodeVec.push_back( nodVec[ 2 ] );
         }
         else
         {
@@ -992,7 +993,7 @@ void PGFace::Triangulate_DBA()
 
     // Rotate along normal.
     Matrix4d mat;
-    mat.rotatealongX( m_Nvec );
+    mat.rotatealongX( nvec );
     mat.xformvec( ptVec );
 
     dba_point* cloud = new dba_point[npt];
@@ -1055,13 +1056,13 @@ void PGFace::Triangulate_DBA()
 
         const IDelaBella2<double>::Simplex* dela = idb->GetFirstDelaunaySimplex();
 
-        m_TriNodeVec.reserve( tris * 3 );
+        triNodeVec.reserve( tris * 3 );
         for ( int i = 0; i < tris; i++ )
         {
             // Note winding order!
-            m_TriNodeVec.push_back( nodVec[ dela->v[ 0 ]->i ] );
-            m_TriNodeVec.push_back( nodVec[ dela->v[ 2 ]->i ] );
-            m_TriNodeVec.push_back( nodVec[ dela->v[ 1 ]->i ] );
+            triNodeVec.push_back( nodVec[ dela->v[ 0 ]->i ] );
+            triNodeVec.push_back( nodVec[ dela->v[ 2 ]->i ] );
+            triNodeVec.push_back( nodVec[ dela->v[ 1 ]->i ] );
 
             dela = dela->next;
         }
@@ -1071,9 +1072,9 @@ void PGFace::Triangulate_DBA()
         printf( "DLB Error! %d\n", verts );
     }
 
-    for ( int i = 0; i < m_TriNodeVec.size(); i++ )
+    for ( int i = 0; i < triNodeVec.size(); i++ )
     {
-        if ( !m_TriNodeVec[i] )
+        if ( !triNodeVec[i] )
         {
             printf( "m_TriNodeVec Invalid in Triangulate_DBA\n" );
         }

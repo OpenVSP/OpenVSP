@@ -153,8 +153,9 @@ public:
 
     void GetNodesAsTris( vector < PGNode* > & trinodVec );
     void Triangulate();
-    void Triangulate_triangle();
-    void Triangulate_DBA();
+    static void Triangulate( const vector < PGNode* > &nodVec, const vec3d & nvec, vector < PGNode* > &triNodeVec );
+    static void Triangulate_triangle( const vector < PGNode* > &nodVec, const vec3d & nvec, vector < PGNode* > &triNodeVec );
+    static void Triangulate_DBA( const vector < PGNode* > &nodVec, const vec3d & nvec, vector < PGNode* > &triNodeVec );
     void ClearTris();
 
     void AddEdge( PGEdge* e );
