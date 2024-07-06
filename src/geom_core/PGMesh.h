@@ -172,6 +172,7 @@ public:
     bool Validate() const;
 
     double ComputeArea();
+    static double ComputeArea( const vector < PGNode* > &nodVec );
 
     void WalkRegion() const;
 

@@ -1244,7 +1244,11 @@ double PGFace::ComputeArea()
 {
     vector < PGNode* > nodVec;
     GetNodesAsTris( nodVec );
+    return ComputeArea( nodVec );
+}
 
+double PGFace::ComputeArea( const vector < PGNode* > &nodVec )
+{
     int ntri = nodVec.size() / 3;
 
     double a = 0;
