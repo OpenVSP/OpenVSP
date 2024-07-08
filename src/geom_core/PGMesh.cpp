@@ -1411,12 +1411,41 @@ void QuadFaceMergeProps( PGFace *f0, PGFace *f1 )
 {
 }
 
+void JrefMergeProps( PGFace *f0, PGFace *f1 )
+{
+    f0->m_jref = f0->m_jref / 2;
+}
+
+void KrefMergeProps( PGFace *f0, PGFace *f1 )
+{
+    f0->m_kref = f0->m_kref / 2;
+}
+
 bool QuadTagMatch( PGFace *f0, PGFace *f1 )
 {
     return f0->m_iQuad >= 0 &&
            f0->m_iQuad == f1->m_iQuad &&
            f0->m_Tag == f1->m_Tag;
 }
+
+bool JrefTagMatch( PGFace *f0, PGFace *f1 )
+{
+    return f0->m_Tag ==       f1->m_Tag &&
+           f0->m_jref >= 1 && f1->m_jref >= 1 &&
+           f0->m_jref !=      f1->m_jref &&
+           f0->m_jref / 2 ==  f1->m_jref / 2;
+}
+
+bool KrefTagMatch( PGFace *f0, PGFace *f1 )
+{
+    return f0->m_Tag ==       f1->m_Tag &&
+           f0->m_kref >= 1 && f1->m_kref >= 1 &&
+           f0->m_kref !=      f1->m_kref &&
+           f0->m_kref / 2 ==  f1->m_kref / 2;
+}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 PGMesh::PGMesh()
 {

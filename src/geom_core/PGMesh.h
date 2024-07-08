@@ -209,8 +209,15 @@ public:
 
 void QuadFaceMergeProps( PGFace *f0, PGFace *f1 );
 
+void JrefMergeProps( PGFace *f0, PGFace *f1 );
+
+void KrefMergeProps( PGFace *f0, PGFace *f1 );
+
 bool QuadTagMatch( PGFace *f0, PGFace *f1 );
 
+bool JrefTagMatch( PGFace *f0, PGFace *f1 );
+
+bool KrefTagMatch( PGFace *f0, PGFace *f1 );
 
 //////////////////////////////////////////////////////////////////////
 class PGMesh
