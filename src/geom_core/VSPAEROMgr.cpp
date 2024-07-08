@@ -1243,7 +1243,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     bool compgeom_csv = veh->getExportCompGeomCsvFile();
     veh->setExportCompGeomCsvFile( false );
 
-    int n_ref = 1;
+    int n_ref = 2; // 4; // Number of doublings of mesh.
 
     // Generate *.vspgeom geometry file for analysis
     // Compute intersected and trimmed geometry
