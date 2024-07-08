@@ -2831,12 +2831,16 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), vo
 
 void PGMesh::Coarsen1()
 {
-
+    MergeFaces( &JrefTagMatch, &JrefMergeProps );
+    CleanColinearVerts();
+    DumpGarbage();
 }
 
 void PGMesh::Coarsen2()
 {
-
+    MergeFaces( &KrefTagMatch, &KrefMergeProps );
+    CleanColinearVerts();
+    DumpGarbage();
 }
 
 void PGMesh::PolygonizeMesh()
