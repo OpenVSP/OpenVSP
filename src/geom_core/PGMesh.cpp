@@ -2864,6 +2864,8 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), vo
         }
     }
     DumpGarbage();
+
+    ClearTris();
 }
 
 void PGMesh::Coarsen1()
