@@ -150,14 +150,51 @@ bool PGNode::ColinearNode() const
 
         if ( e0->SameFaces( e1 ) )
         {
-            PGNode *n0 = e0->OtherNode( this );
-            PGNode *n1 = e1->OtherNode( this );
+            if ( e0->m_FaceVec.size() == 0 ) // Should be invalid
+            {
+                return false;
+            }
+            if ( e0->m_FaceVec.size() == 1 ) // Only check straightness on manifold == 1 edges.
+            {
+                PGFace *f = e0->m_FaceVec[0];
+                vec3d nvec = f->m_Nvec;
 
-            double t;
-            double d = sqrt( pointSegDistSquared( m_Pnt, n0->m_Pnt, n1->m_Pnt, &t ) );
-            double l = dist( n0->m_Pnt, n1->m_Pnt );
+                vector < PGNode* > nods;
+                f->GetNodes( nods );
 
-            if ( d / l < tol )
+                vector < PGNode* > triNodeVec;
+                PGFace::Triangulate( nods, nvec, triNodeVec );
+                double Area1 = PGFace::ComputeArea( triNodeVec );
+
+                if ( nods.size() > 1 )
+                {
+                    if ( nods[0] == this )
+                    {
+                        nods.pop_back();
+                        nods[0] = nods.back();
+                    }
+                    else
+                    {
+                        vector_remove_val( nods, const_cast< PGNode* > ( this ) );
+                    }
+                }
+
+
+                triNodeVec.clear();
+                PGFace::Triangulate( nods, nvec, triNodeVec );
+                double Area2 = PGFace::ComputeArea( triNodeVec );
+
+                if ( Area2 >= 0.9 * Area1 )
+                {
+                    return true;
+                }
+                else
+                {
+                    printf( "Areas ratio %f false\n", Area2 / Area1 );
+                }
+
+            }
+            else // For manifold >=2 edges, logical check suffices.
             {
                 return true;
             }
