@@ -6275,8 +6275,8 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
 
     int iQuad = 0;
 
-    int ref_start = 1 << n_ref;
-    int ref_end = 1 << ( n_ref + 1 );
+    int ref_start = 1 << ( n_ref + 2 ); // Offset n_ref by 2 to prevent collisions
+    int ref_end = ref_start * 2;
 
     int nj = (*pnts).size();
     int nk = (*pnts)[0].size();
