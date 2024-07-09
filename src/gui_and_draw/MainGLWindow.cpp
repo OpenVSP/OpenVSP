@@ -466,17 +466,30 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
     // Check for changes in DrawObjs and adjust accordingly.
     _updateBuffer( objects );
 
-    // Get view Z vector.
-    glm::mat4 mvm = m_GEngine->getDisplay()->getCamera()->getModelViewMatrix();
-    vec3d v( mvm[0][2], mvm[1][2], mvm[2][2] );
-
-    for( int i = 0; i < (int)objects.size(); i++ )
+    // Get view Z vector for 3D background visibility check.
+    Display * dis = m_GEngine->getDisplay();
+    if ( dis )
     {
-        if ( objects[i]->m_VisibleDirFlag )
+        Viewport * vpt = dis->getViewport();
+        if ( vpt )
         {
-            if ( acos( std::abs( dot( objects[ i ]->m_VisibleDir, v ) ) ) * ( 180.0 / M_PI ) > objects[ i ]->m_VisTol )
+            Camera * cam = vpt->getCamera();
+            if ( cam )
             {
-                objects[ i ]->m_Visible = false;
+                glm::mat4 mvm = cam->getModelViewMatrix();
+
+                vec3d v( mvm[0][2], mvm[1][2], mvm[2][2] );
+
+                for( int i = 0; i < (int)objects.size(); i++ )
+                {
+                    if ( objects[i]->m_VisibleDirFlag )
+                    {
+                        if ( acos( std::abs( dot( objects[ i ]->m_VisibleDir, v ) ) ) * ( 180.0 / M_PI ) > objects[ i ]->m_VisTol )
+                        {
+                            objects[ i ]->m_Visible = false;
+                        }
+                    }
+                }
             }
         }
     }
