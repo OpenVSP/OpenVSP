@@ -63,6 +63,7 @@ public:
     DrawObj m_CoLinearLoopDO;
     DrawObj m_DoubleBackNodeDO;
 
+    vector<DrawObj> m_LabelDO_vec;
 
     PGMesh m_PGMesh;
 

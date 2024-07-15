@@ -370,6 +370,36 @@ void NGonMeshGeom::UpdateDrawObj()
     }
     m_DoubleBackNodeDO.m_GeomChanged = true;
 
+    // Debug DrawObj's to display jref, kref at each face center.
+    if ( false )
+    {
+        int i = 0;
+        m_LabelDO_vec.resize( m_PGMesh.m_FaceList.size() );
+        for ( list< PGFace* >::iterator f = m_PGMesh.m_FaceList.begin() ; f != m_PGMesh.m_FaceList.end(); ++f )
+        {
+            m_LabelDO_vec[i].m_GeomID = GenerateRandomID( 4 ) + "_Probe";
+            m_LabelDO_vec[i].m_Type = DrawObj::VSP_PROBE;
+            m_LabelDO_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+            m_LabelDO_vec[i].m_TextColor = vec3d( 0, 0, 0 );
+            m_LabelDO_vec[i].m_TextSize = 1;
+
+            m_LabelDO_vec[i].m_VisibleDirFlag = true;
+            m_LabelDO_vec[i].m_VisTol = 89.0;
+            m_LabelDO_vec[i].m_VisibleDir = ( *f )->m_Nvec;
+
+            m_LabelDO_vec[i].m_Probe.Step = DrawObj::VSP_PROBE_STEP_COMPLETE;
+            m_LabelDO_vec[i].m_Probe.Pt = ( *f )->ComputeCenter();
+            m_LabelDO_vec[i].m_Probe.Norm = ( *f )->m_Nvec;
+            m_LabelDO_vec[i].m_Probe.Len = 0.01;
+            m_LabelDO_vec[i].m_GeomChanged = true;
+
+            char str[255];
+            snprintf( str, sizeof(str), "%d, %d", (*f)->m_jref, (*f)->m_kref );
+            m_LabelDO_vec[i].m_Probe.Label = string( str );
+
+            i++;
+        }
+    }
 }
 
 void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -481,6 +511,12 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     m_DoubleBackNodeDO.m_Visible = m_ShowNonManifoldEdges() && visible;
     draw_obj_vec.push_back( &m_DoubleBackNodeDO );
+
+    for ( int i = 0; i < m_LabelDO_vec.size(); i++ )
+    {
+        m_LabelDO_vec[i].m_Visible = visible;
+        draw_obj_vec.push_back( &m_LabelDO_vec[i] );
+    }
 }
 
 vector<TMesh*> NGonMeshGeom::CreateTMeshVec() const
