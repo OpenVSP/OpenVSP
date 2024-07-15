@@ -1256,7 +1256,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     if ( mesh_geom )
     {
-        m_LastPanelMeshGeomId = mesh_geom->CreateNGonMeshGeom( m_CullFracFlag(), m_CullFrac(), m_ContinueCoPlanarWakesFlag() );
+        m_LastPanelMeshGeomId = mesh_geom->CreateNGonMeshGeom( m_CullFracFlag(), m_CullFrac(), m_ContinueCoPlanarWakesFlag(), n_ref );
 
         NGonMeshGeom* ngon_mesh_geom = ( NGonMeshGeom * ) veh->FindGeom( m_LastPanelMeshGeomId );
 

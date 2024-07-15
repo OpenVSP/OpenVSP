@@ -1879,7 +1879,7 @@ void MeshGeom::CreatePtCloudGeom()
     }
 }
 
-string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool ContinueCoPlanarWakes )
+string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool ContinueCoPlanarWakes, int n_ref )
 {
     GeomType type = GeomType( NGON_GEOM_TYPE, "NGON", true );
     string id = m_Vehicle->AddGeom( type );
