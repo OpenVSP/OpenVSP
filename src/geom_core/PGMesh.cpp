@@ -1301,6 +1301,31 @@ double PGFace::ComputeArea( const vector < PGNode* > &nodVec )
     return a;
 }
 
+vec3d PGFace::ComputeCenter()
+{
+    vector < PGNode* > nodVec;
+    GetNodesAsTris( nodVec );
+
+    int ntri = nodVec.size() / 3;
+
+    double a = 0;
+    vec3d cen;
+    for ( int i = 0; i < ntri; i++ )
+    {
+        int inod = 3 * i;
+        vec3d v0 = nodVec[ inod ]->m_Pnt;
+        vec3d v1 = nodVec[ inod + 1 ]->m_Pnt;
+        vec3d v2 = nodVec[ inod + 2 ]->m_Pnt;
+
+        vec3d ceni = ( v0 + v1 + v2 ) / 3.0;
+
+        double ai = area( v0, v1, v2 );
+        a += ai;
+        cen += ai * ceni;
+    }
+    return cen / a;
+}
+
 void PGFace::WalkRegion() const
 {
     for ( int i = 0; i < m_EdgeVec.size(); i++ )

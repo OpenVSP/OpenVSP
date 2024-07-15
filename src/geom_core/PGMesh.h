@@ -174,6 +174,8 @@ public:
     double ComputeArea();
     static double ComputeArea( const vector < PGNode* > &nodVec );
 
+    vec3d ComputeCenter();
+
     void WalkRegion() const;
 
     PGNode * FindDoubleBackNode( PGEdge* & edouble ) const;
