@@ -1451,11 +1451,13 @@ void QuadFaceMergeProps( PGFace *f0, PGFace *f1 )
 void JrefMergeProps( PGFace *f0, PGFace *f1 )
 {
     f0->m_jref = f0->m_jref / 2;
+    f0->m_ID = -f0->m_ID;
 }
 
 void KrefMergeProps( PGFace *f0, PGFace *f1 )
 {
     f0->m_kref = f0->m_kref / 2;
+    f0->m_ID = -f0->m_ID;
 }
 
 bool QuadTagMatch( PGFace *f0, PGFace *f1 )
@@ -1470,7 +1472,8 @@ bool JrefTagMatch( PGFace *f0, PGFace *f1 )
     return f0->m_Tag ==       f1->m_Tag &&
            f0->m_jref >= 1 && f1->m_jref >= 1 &&
            f0->m_jref !=      f1->m_jref &&
-           f0->m_jref / 2 ==  f1->m_jref / 2;
+           f0->m_jref / 2 ==  f1->m_jref / 2 &&
+           f0->m_ID > 0 &&    f1->m_ID > 0;
 }
 
 bool KrefTagMatch( PGFace *f0, PGFace *f1 )
@@ -1478,7 +1481,8 @@ bool KrefTagMatch( PGFace *f0, PGFace *f1 )
     return f0->m_Tag ==       f1->m_Tag &&
            f0->m_kref >= 1 && f1->m_kref >= 1 &&
            f0->m_kref !=      f1->m_kref &&
-           f0->m_kref / 2 ==  f1->m_kref / 2;
+           f0->m_kref / 2 ==  f1->m_kref / 2 &&
+           f0->m_ID > 0 &&    f1->m_ID > 0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2870,16 +2874,40 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), vo
 
 void PGMesh::Coarsen1()
 {
+    ResetFaceNumbers();
     MergeFaces( &JrefTagMatch, &JrefMergeProps );
+
+    for ( list< PGFace* >::iterator f = m_FaceList.begin(); f != m_FaceList.end(); ++f )
+    {
+        if ( ( *f )->m_ID > 0 )
+        {
+            ( *f )->m_jref = ( *f )->m_jref / 2;
+            ( *f )->m_ID = -( *f )->m_ID;
+        }
+    }
+
     CleanColinearVerts();
     DumpGarbage();
+    ResetFaceNumbers();
 }
 
 void PGMesh::Coarsen2()
 {
+    ResetFaceNumbers();
     MergeFaces( &KrefTagMatch, &KrefMergeProps );
+
+    for ( list< PGFace* >::iterator f = m_FaceList.begin(); f != m_FaceList.end(); ++f )
+    {
+        if ( ( *f )->m_ID > 0 )
+        {
+            ( *f )->m_kref = ( *f )->m_kref / 2;
+            ( *f )->m_ID = -( *f )->m_ID;
+        }
+    }
+
     CleanColinearVerts();
     DumpGarbage();
+    ResetFaceNumbers();
 }
 
 void PGMesh::PolygonizeMesh()
