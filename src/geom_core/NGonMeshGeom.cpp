@@ -73,7 +73,7 @@ void NGonMeshGeom::UpdateBBox()
         list< PGNode* >::iterator n;
         for ( n = m_PGMesh.m_NodeList.begin(); n != m_PGMesh.m_NodeList.end(); ++n )
         {
-            m_BBox.Update( transMat.xform( (*n)->m_Pnt ) );
+            m_BBox.Update( transMat.xform( (*n)->m_Pt->m_Pnt ) );
         }
     }
     else
@@ -222,8 +222,8 @@ void NGonMeshGeom::UpdateDrawObj()
             PGEdge *e = (*f)->m_EdgeVec[i];
             if ( true ) // e
             {
-                d_obj->m_PntVec.push_back( trans.xform( e->m_N0->m_Pnt ) );
-                d_obj->m_PntVec.push_back( trans.xform( e->m_N1->m_Pnt ) );
+                d_obj->m_PntVec.push_back( trans.xform( e->m_N0->m_Pt->m_Pnt ) );
+                d_obj->m_PntVec.push_back( trans.xform( e->m_N1->m_Pt->m_Pnt ) );
             }
         }
     }
@@ -240,7 +240,7 @@ void NGonMeshGeom::UpdateDrawObj()
         {
             if ( nodVec[i] )
             {
-                d_obj->m_PntVec.push_back( trans.xform( nodVec[ i ]->m_Pnt ) );
+                d_obj->m_PntVec.push_back( trans.xform( nodVec[ i ]->m_Pt->m_Pnt ) );
                 d_obj->m_NormVec.push_back( norm );
             }
         }
@@ -289,7 +289,7 @@ void NGonMeshGeom::UpdateDrawObj()
         {
             if ( nodVec[i] )
             {
-                m_WakeDrawObj_vec[iwake].m_PntVec[i] = trans.xform( nodVec[i]->m_Pnt );
+                m_WakeDrawObj_vec[iwake].m_PntVec[i] = trans.xform( nodVec[i]->m_Pt->m_Pnt );
             }
         }
     }
@@ -325,13 +325,13 @@ void NGonMeshGeom::UpdateDrawObj()
     {
         if ( ( *e )->m_FaceVec.size() < 2 )
         {
-            m_BadEdgeTooFewDO.m_PntVec.push_back( trans.xform( ( *e )->m_N0->m_Pnt ) );
-            m_BadEdgeTooFewDO.m_PntVec.push_back( trans.xform( ( *e )->m_N1->m_Pnt ) );
+            m_BadEdgeTooFewDO.m_PntVec.push_back( trans.xform( ( *e )->m_N0->m_Pt->m_Pnt ) );
+            m_BadEdgeTooFewDO.m_PntVec.push_back( trans.xform( ( *e )->m_N1->m_Pt->m_Pnt ) );
         }
         if ( ( *e )->m_FaceVec.size() > 2 )
         {
-            m_BadEdgeTooManyDO.m_PntVec.push_back( trans.xform( ( *e )->m_N0->m_Pnt ) );
-            m_BadEdgeTooManyDO.m_PntVec.push_back( trans.xform( ( *e )->m_N1->m_Pnt ) );
+            m_BadEdgeTooManyDO.m_PntVec.push_back( trans.xform( ( *e )->m_N0->m_Pt->m_Pnt ) );
+            m_BadEdgeTooManyDO.m_PntVec.push_back( trans.xform( ( *e )->m_N1->m_Pt->m_Pnt ) );
         }
     }
     m_BadEdgeTooFewDO.m_GeomChanged = true;
@@ -351,8 +351,8 @@ void NGonMeshGeom::UpdateDrawObj()
         for ( int j = 0; j < eloop.size(); j++ )
         {
             PGEdge *e = eloop[ j ];
-            m_CoLinearLoopDO.m_PntVec.push_back( trans.xform( e->m_N0->m_Pnt ) );
-            m_CoLinearLoopDO.m_PntVec.push_back( trans.xform( e->m_N1->m_Pnt ) );
+            m_CoLinearLoopDO.m_PntVec.push_back( trans.xform( e->m_N0->m_Pt->m_Pnt ) );
+            m_CoLinearLoopDO.m_PntVec.push_back( trans.xform( e->m_N1->m_Pt->m_Pnt ) );
         }
     }
     m_CoLinearLoopDO.m_GeomChanged = true;
@@ -366,7 +366,7 @@ void NGonMeshGeom::UpdateDrawObj()
 
     for ( int i = 0; i < m_PGMesh.m_DoubleBackNode.size(); i++ )
     {
-        m_DoubleBackNodeDO.m_PntVec.push_back( trans.xform( m_PGMesh.m_DoubleBackNode[i]->m_Pnt ) );
+        m_DoubleBackNodeDO.m_PntVec.push_back( trans.xform( m_PGMesh.m_DoubleBackNode[i]->m_Pt->m_Pnt ) );
     }
     m_DoubleBackNodeDO.m_GeomChanged = true;
 
@@ -546,9 +546,9 @@ vector<TMesh*> NGonMeshGeom::CreateTMeshVec() const
         for ( int i = 0; i < ntri; i++ )
         {
             int inod = 3 * i;
-            vec3d v0 = nodVec[ inod ]->m_Pnt;
-            vec3d v1 = nodVec[ inod + 1 ]->m_Pnt;
-            vec3d v2 = nodVec[ inod + 2 ]->m_Pnt;
+            vec3d v0 = nodVec[ inod ]->m_Pt->m_Pnt;
+            vec3d v1 = nodVec[ inod + 1 ]->m_Pt->m_Pnt;
+            vec3d v2 = nodVec[ inod + 2 ]->m_Pt->m_Pnt;
             retTMeshVec[0]->AddTri( v0, v2, v1, (*f)->m_Nvec, (*f)->m_iQuad, (*f)->m_jref, (*f)->m_kref );
         }
     }

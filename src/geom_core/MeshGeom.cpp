@@ -4107,7 +4107,8 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
     for ( int i = 0; i < tm->m_NVec.size(); i++ )
     {
         tm->m_NVec[i]->m_ID = i;
-        nod[i] = pgm.AddNode( tm->m_NVec[i]->m_Pnt );
+        PGPoint *pnt = pgm.AddPoint( tm->m_NVec[i]->m_Pnt );
+        nod[i] = pgm.AddNode( pnt );
     }
 
     for ( int i = 0; i < tm->m_TVec.size(); i++ )
@@ -4144,15 +4145,15 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
     for ( n = pgm.m_NodeList.begin() ; n != pgm.m_NodeList.end(); ++n )
     {
         // Assign ID number.
-        ( *n )->m_ID = inode;
+        ( *n )->m_Pt->m_ID = inode;
 
         TNode *n1 = new TNode();
-        n1->m_Pnt = ( *n )->m_Pnt - 10 * norm;
+        n1->m_Pnt = ( *n )->m_Pt->m_Pnt - 10 * norm;
         n1->m_ID = inode;
         tm_cutter->m_NVec[ inode ] = n1;
 
         TNode *n2 = new TNode();
-        n2->m_Pnt = ( *n )->m_Pnt + 10 * norm;
+        n2->m_Pnt = ( *n )->m_Pt->m_Pnt + 10 * norm;
         n2->m_ID = inode + numnode;
         tm_cutter->m_NVec[ inode + numnode ] = n2;
 
@@ -4172,18 +4173,18 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
         {
             TTri *t = new TTri( tm_cutter );
 
-            t->m_N0 = tm_cutter->m_NVec[ nodVec[ i * 3 + 0 ]->m_ID ];
-            t->m_N1 = tm_cutter->m_NVec[ nodVec[ i * 3 + 1 ]->m_ID ];
-            t->m_N2 = tm_cutter->m_NVec[ nodVec[ i * 3 + 2 ]->m_ID ];
+            t->m_N0 = tm_cutter->m_NVec[ nodVec[ i * 3 + 0 ]->m_Pt->m_ID ];
+            t->m_N1 = tm_cutter->m_NVec[ nodVec[ i * 3 + 1 ]->m_Pt->m_ID ];
+            t->m_N2 = tm_cutter->m_NVec[ nodVec[ i * 3 + 2 ]->m_Pt->m_ID ];
 
             t->CompNorm();
             tm_cutter->m_TVec.push_back( t );
 
             t = new TTri( tm_cutter );
 
-            t->m_N0 = tm_cutter->m_NVec[ nodVec[ i * 3 + 0 ]->m_ID + numnode ];
-            t->m_N2 = tm_cutter->m_NVec[ nodVec[ i * 3 + 1 ]->m_ID + numnode ];
-            t->m_N1 = tm_cutter->m_NVec[ nodVec[ i * 3 + 2 ]->m_ID + numnode ];
+            t->m_N0 = tm_cutter->m_NVec[ nodVec[ i * 3 + 0 ]->m_Pt->m_ID + numnode ];
+            t->m_N2 = tm_cutter->m_NVec[ nodVec[ i * 3 + 1 ]->m_Pt->m_ID + numnode ];
+            t->m_N1 = tm_cutter->m_NVec[ nodVec[ i * 3 + 2 ]->m_Pt->m_ID + numnode ];
 
             t->CompNorm();
             tm_cutter->m_TVec.push_back( t );
@@ -4198,17 +4199,17 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
 
         TTri *t = new TTri( tm_cutter );
 
-        t->m_N0 = tm_cutter->m_NVec[ e->m_N0->m_ID ];
-        t->m_N1 = tm_cutter->m_NVec[ e->m_N0->m_ID + numnode ];
-        t->m_N2 = tm_cutter->m_NVec[ e->m_N1->m_ID ];
+        t->m_N0 = tm_cutter->m_NVec[ e->m_N0->m_Pt->m_ID ];
+        t->m_N1 = tm_cutter->m_NVec[ e->m_N0->m_Pt->m_ID + numnode ];
+        t->m_N2 = tm_cutter->m_NVec[ e->m_N1->m_Pt->m_ID ];
         t->CompNorm();
         tm_cutter->m_TVec.push_back( t );
 
         t = new TTri( tm_cutter );
 
-        t->m_N0 = tm_cutter->m_NVec[ e->m_N0->m_ID + numnode ];
-        t->m_N1 = tm_cutter->m_NVec[ e->m_N1->m_ID + numnode ];
-        t->m_N2 = tm_cutter->m_NVec[ e->m_N1->m_ID ];
+        t->m_N0 = tm_cutter->m_NVec[ e->m_N0->m_Pt->m_ID + numnode ];
+        t->m_N1 = tm_cutter->m_NVec[ e->m_N1->m_Pt->m_ID + numnode ];
+        t->m_N2 = tm_cutter->m_NVec[ e->m_N1->m_Pt->m_ID ];
         t->CompNorm();
         tm_cutter->m_TVec.push_back( t );
     }

@@ -1062,17 +1062,17 @@ void TMesh::MakeFromPGMesh( PGMesh *m )
         {
             vec2d uw;
 
-            vec3d v0 =  nodVec[ inod ]->m_Pnt;
+            vec3d v0 =  nodVec[ inod ]->m_Pt->m_Pnt;
             nodVec[ inod ]->GetUW( tag, uw );
             vec3d uw0( uw.x(), uw.y(), 0.0 );
             inod++;
 
-            vec3d v1 =  nodVec[ inod ]->m_Pnt;
+            vec3d v1 =  nodVec[ inod ]->m_Pt->m_Pnt;
             nodVec[ inod ]->GetUW( tag, uw );
             vec3d uw1( uw.x(), uw.y(), 0.0 );
             inod++;
 
-            vec3d v2 =  nodVec[ inod ]->m_Pnt;
+            vec3d v2 =  nodVec[ inod ]->m_Pt->m_Pnt;
             nodVec[ inod ]->GetUW( tag, uw );
             vec3d uw2( uw.x(), uw.y(), 0.0 );
             inod++;

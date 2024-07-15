@@ -39,23 +39,50 @@ class TMesh;
 class PGMesh;
 class PGFace;
 class PGEdge;
+class PGNode;
+
+//////////////////////////////////////////////////////////////////////
+
+class PGPoint
+{
+public:
+    PGPoint();
+    explicit PGPoint( const vec3d& p );
+    virtual ~PGPoint();
+
+    list< PGPoint* >::iterator m_List_it;
+    vector< PGNode* > m_NodeVec;       // All PGEdges Which Use This PGNode
+
+    bool m_DeleteMeFlag;
+
+    vec3d m_Pnt;                   // Position
+    int m_ID;
+
+    void AddConnectNode( PGNode* n );
+    void RemoveConnectNode( const PGNode* n );
+    void NodeForgetPoint( PGNode* n ) const;
+
+
+    bool Check() const;
+
+};
 
 //////////////////////////////////////////////////////////////////////
 class PGNode
 {
 public:
-    PGNode();
-    explicit PGNode( const vec3d& p );
+    explicit PGNode( PGPoint *pptr );
     virtual ~PGNode();
 
     list< PGNode* >::iterator m_List_it;
     vector< PGEdge* > m_EdgeVec;       // All PGEdges Which Use This PGNode
 
+    PGPoint *m_Pt;
+
     bool m_DeleteMeFlag;
 
-    vec3d m_Pnt;                   // Position
     map < int, vec2d > m_TagUWMap; // Parametric on a per-tag basis.
-    int m_ID;
+
 
     void GetConnectNodes( vector< PGNode* > & cnVec ) const;
     void GetConnectFaces( vector< PGFace* > & cfVec ) const;
@@ -236,7 +263,10 @@ public:
     void DumpGarbage();
 
 
-    PGNode* AddNode( const vec3d& p );
+    PGPoint* AddPoint( const vec3d& p );
+    void  RemovePoint( PGPoint* pptr );
+
+    PGNode* AddNode( PGPoint *pptr );
     void  RemoveNode( PGNode* nptr );
 
     PGEdge* AddEdge( PGNode* n0, PGNode* n1 );
@@ -282,6 +312,7 @@ public:
     list < PGFace* > m_FaceList;
     list < PGEdge* > m_EdgeList;
     list < PGNode* > m_NodeList;
+    list < PGPoint* > m_PointList;
 
     vector < PGNode* > m_DoubleBackNode;
     vector < vector < PGEdge * > > m_EdgeLoopVec;
@@ -384,6 +415,7 @@ protected:
     vector< PGFace* > m_GarbageFaceVec;
     vector< PGEdge* > m_GarbageEdgeVec;
     vector< PGNode* > m_GarbageNodeVec;
+    vector< PGPoint* > m_GarbagePointVec;
 
 };
 

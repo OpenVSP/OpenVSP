@@ -32,16 +32,67 @@
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-PGNode::PGNode()
+PGPoint::PGPoint()
 {
     m_DeleteMeFlag = false;
     m_ID = -1;
 }
 
-PGNode::PGNode( const vec3d& p )
+
+PGPoint::PGPoint( const vec3d& p )
 {
     m_Pnt = p;
     m_ID = -1;
+    m_DeleteMeFlag = false;
+}
+
+PGPoint::~PGPoint()
+{
+}
+
+void PGPoint::AddConnectNode( PGNode* n )
+{
+    if ( vector_contains_val( m_NodeVec, n ) )
+    {
+        return;
+    }
+    m_NodeVec.push_back( n );
+}
+
+void PGPoint::RemoveConnectNode( const PGNode* n )
+{
+    vector_remove_val( m_NodeVec, const_cast < PGNode* > ( n ) );
+}
+
+void PGPoint::NodeForgetPoint( PGNode* n ) const
+{
+    n->m_Pt = nullptr;
+}
+
+bool PGPoint::Check() const
+{
+    if ( m_DeleteMeFlag )
+    {
+        return false;
+    }
+
+    for ( int i = 0; i < m_NodeVec.size(); i++ )
+    {
+        if ( !m_NodeVec[i] )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+PGNode::PGNode( PGPoint *pptr )
+{
+    m_Pt = pptr;
     m_DeleteMeFlag = false;
 }
 
@@ -210,6 +261,11 @@ bool PGNode::Check() const
         return false;
     }
 
+    if ( !m_Pt )
+    {
+        return false;
+    }
+
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
     {
         if ( !m_EdgeVec[i] )
@@ -236,8 +292,8 @@ bool PGNode::DoubleBackNode( int &i, int &j ) const
 
             double ti, tj;
             double di, dj;
-            di = sqrt( pointLineDistSquared( ni->m_Pnt, m_Pnt, nj->m_Pnt, &ti ) );
-            dj = sqrt( pointLineDistSquared( nj->m_Pnt, m_Pnt, ni->m_Pnt, &tj ) );
+            di = sqrt( pointLineDistSquared( ni->m_Pt->m_Pnt, m_Pt->m_Pnt, nj->m_Pt->m_Pnt, &ti ) );
+            dj = sqrt( pointLineDistSquared( nj->m_Pt->m_Pnt, m_Pt->m_Pnt, ni->m_Pt->m_Pnt, &tj ) );
 
             // if ei and ej are co-linear and in the same direction,
             // return true;
@@ -268,8 +324,8 @@ void PGNode::SealDoubleBackNode( PGMesh *pgm )
         PGNode *nj = ej->OtherNode( this );
 
         double ti, tj;
-        pointLineDistSquared( ni->m_Pnt, m_Pnt, nj->m_Pnt, &tj );
-        pointLineDistSquared( nj->m_Pnt, m_Pnt, ni->m_Pnt, &ti );
+        pointLineDistSquared( ni->m_Pt->m_Pnt, m_Pt->m_Pnt, nj->m_Pt->m_Pnt, &tj );
+        pointLineDistSquared( nj->m_Pt->m_Pnt, m_Pt->m_Pnt, ni->m_Pt->m_Pnt, &ti );
 
         if ( ti < tj )
         {
@@ -292,9 +348,9 @@ void PGNode::SealDoubleBackNode( PGMesh *pgm )
 
 void PGNode::DumpMatlab() const
 {
-    printf( "\nx = %.*e;\n", DBL_DIG + 3, m_Pnt.x() );
-    printf( "\ny = %.*e;\n", DBL_DIG + 3, m_Pnt.y() );
-    printf( "\nz = %.*e;\n", DBL_DIG + 3, m_Pnt.z() );
+    printf( "\nx = %.*e;\n", DBL_DIG + 3, m_Pt->m_Pnt.x() );
+    printf( "\ny = %.*e;\n", DBL_DIG + 3, m_Pt->m_Pnt.y() );
+    printf( "\nz = %.*e;\n", DBL_DIG + 3, m_Pt->m_Pnt.z() );
 
     printf( "plot3( x, y, z, 'bo' );\n" );
     printf( "hold on\n" );
@@ -303,7 +359,7 @@ void PGNode::DumpMatlab() const
 
 void PGNode::Diagnostics() const
 {
-    printf( "Node %d\n", m_ID );
+    printf( "Node %d\n", m_Pt->m_ID );
     printf( "Edges: " );
 
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
@@ -321,14 +377,14 @@ bool PGNode::Validate() const
     {
         if ( !m_EdgeVec[i] )
         {
-            printf( "Node %d has invalid edge pointer %d\n", m_ID, i );
+            printf( "Node %d has invalid edge pointer %d\n", m_Pt->m_ID, i );
             valid = false;
             continue;
         }
 
         if ( !m_EdgeVec[i]->ContainsNode( this ) )
         {
-            printf( "Edge %d does not contain node %d\n", m_EdgeVec[i]->m_ID, m_ID );
+            printf( "Edge %d does not contain node %d\n", m_EdgeVec[i]->m_ID, m_Pt->m_ID );
             valid = false;
         }
     }
@@ -540,9 +596,9 @@ bool PGEdge::Check() const
 
 void PGEdge::DumpMatlab() const
 {
-    printf( "x = [%.*e %.*e];\n", DBL_DIG + 3, m_N0->m_Pnt.x(), DBL_DIG + 3, m_N1->m_Pnt.x() );
-    printf( "y = [%.*e %.*e];\n", DBL_DIG + 3, m_N0->m_Pnt.y(), DBL_DIG + 3, m_N1->m_Pnt.y() );
-    printf( "z = [%.*e %.*e];\n", DBL_DIG + 3, m_N0->m_Pnt.z(), DBL_DIG + 3, m_N1->m_Pnt.z() );
+    printf( "x = [%.*e %.*e];\n", DBL_DIG + 3, m_N0->m_Pt->m_Pnt.x(), DBL_DIG + 3, m_N1->m_Pt->m_Pnt.x() );
+    printf( "y = [%.*e %.*e];\n", DBL_DIG + 3, m_N0->m_Pt->m_Pnt.y(), DBL_DIG + 3, m_N1->m_Pt->m_Pnt.y() );
+    printf( "z = [%.*e %.*e];\n", DBL_DIG + 3, m_N0->m_Pt->m_Pnt.z(), DBL_DIG + 3, m_N1->m_Pt->m_Pnt.z() );
 
     printf( "plot3( x, y, z, 'b+:' );\n" );
     printf( "hold on\n" );
@@ -551,7 +607,7 @@ void PGEdge::DumpMatlab() const
 void PGEdge::Diagnostics() const
 {
     printf( "Edge %d\n", m_ID );
-    printf( "Nodes: %3d %3d\n", m_N0->m_ID, m_N1->m_ID );
+    printf( "Nodes: %3d %3d\n", m_N0->m_Pt->m_ID, m_N1->m_Pt->m_ID );
     printf( "Faces: " );
 
     for ( int i = 0; i < m_FaceVec.size(); i++ )
@@ -591,7 +647,7 @@ bool PGEdge::Validate() const
     }
     else if ( !m_N0->UsedBy( this ) )
     {
-        printf( "Node %d is unaware it is used by edge %d\n", m_N0->m_ID, m_ID );
+        printf( "Node %d is unaware it is used by edge %d\n", m_N0->m_Pt->m_ID, m_ID );
         valid = false;
     }
 
@@ -602,7 +658,7 @@ bool PGEdge::Validate() const
     }
     else if ( !m_N1->UsedBy( this ) )
     {
-        printf( "Node %d is unaware it is used by edge %d\n", m_N1->m_ID, m_ID );
+        printf( "Node %d is unaware it is used by edge %d\n", m_N1->m_Pt->m_ID, m_ID );
         valid = false;
     }
 
@@ -848,7 +904,7 @@ void PGFace::Triangulate_triangle( const vector < PGNode* > &nodVec, const vec3d
     vector < vec3d > ptVec( npt );
     for ( int i = 0; i < npt; i++ )
     {
-        ptVec[i] = nodVec[i]->m_Pnt;
+        ptVec[i] = nodVec[i]->m_Pt->m_Pnt;
     }
 
     // Rotate along normal.
@@ -1024,7 +1080,7 @@ void PGFace::Triangulate_DBA( const vector < PGNode* > &nodVec, const vec3d & nv
     {
         if ( nodVec[i] )
         {
-            ptVec[i] = nodVec[i]->m_Pnt;
+            ptVec[i] = nodVec[i]->m_Pt->m_Pnt;
         }
     }
 
@@ -1217,23 +1273,23 @@ void PGFace::DumpMatlab() const
     printf( "\nx = [" );
     for ( i = 0; i < num - 1; i++ )
     {
-        printf( "%.*e;\n", DBL_DIG + 3, nodVec[i]->m_Pnt.x() );
+        printf( "%.*e;\n", DBL_DIG + 3, nodVec[i]->m_Pt->m_Pnt.x() );
     }
-    printf( "%.*e];\n", DBL_DIG + 3, nodVec[i]->m_Pnt.x() );
+    printf( "%.*e];\n", DBL_DIG + 3, nodVec[i]->m_Pt->m_Pnt.x() );
 
     printf( "\ny = [" );
     for ( i = 0; i < num - 1; i++ )
     {
-        printf( "%.*e;\n", DBL_DIG + 3, nodVec[i]->m_Pnt.y() );
+        printf( "%.*e;\n", DBL_DIG + 3, nodVec[i]->m_Pt->m_Pnt.y() );
     }
-    printf( "%.*e];\n", DBL_DIG + 3, nodVec[i]->m_Pnt.y() );
+    printf( "%.*e];\n", DBL_DIG + 3, nodVec[i]->m_Pt->m_Pnt.y() );
 
     printf( "\nz = [" );
     for ( i = 0; i < num - 1; i++ )
     {
-        printf( "%.*e;\n", DBL_DIG + 3, nodVec[i]->m_Pnt.z() );
+        printf( "%.*e;\n", DBL_DIG + 3, nodVec[i]->m_Pt->m_Pnt.z() );
     }
-    printf( "%.*e];\n", DBL_DIG + 3, nodVec[i]->m_Pnt.z() );
+    printf( "%.*e];\n", DBL_DIG + 3, nodVec[i]->m_Pt->m_Pnt.z() );
 
     printf( "plot3( x, y, z, 'kx-' );\n" );
     printf( "hold on\n" );
@@ -1292,9 +1348,9 @@ double PGFace::ComputeArea( const vector < PGNode* > &nodVec )
     for ( int i = 0; i < ntri; i++ )
     {
         int inod = 3 * i;
-        vec3d v0 = nodVec[ inod ]->m_Pnt;
-        vec3d v1 = nodVec[ inod + 1 ]->m_Pnt;
-        vec3d v2 = nodVec[ inod + 2 ]->m_Pnt;
+        vec3d v0 = nodVec[ inod ]->m_Pt->m_Pnt;
+        vec3d v1 = nodVec[ inod + 1 ]->m_Pt->m_Pnt;
+        vec3d v2 = nodVec[ inod + 2 ]->m_Pt->m_Pnt;
 
         a += area( v0, v1, v2 );
     }
@@ -1313,9 +1369,9 @@ vec3d PGFace::ComputeCenter()
     for ( int i = 0; i < ntri; i++ )
     {
         int inod = 3 * i;
-        vec3d v0 = nodVec[ inod ]->m_Pnt;
-        vec3d v1 = nodVec[ inod + 1 ]->m_Pnt;
-        vec3d v2 = nodVec[ inod + 2 ]->m_Pnt;
+        vec3d v0 = nodVec[ inod ]->m_Pt->m_Pnt;
+        vec3d v1 = nodVec[ inod + 1 ]->m_Pt->m_Pnt;
+        vec3d v2 = nodVec[ inod + 2 ]->m_Pt->m_Pnt;
 
         vec3d ceni = ( v0 + v1 + v2 ) / 3.0;
 
@@ -1451,9 +1507,9 @@ double PGFace::ComputeTriQual( const PGNode* n0, const PGNode* n1, const PGNode*
 
 void PGFace::ComputeCosAngles( const PGNode* n0, const PGNode* n1, const PGNode* n2, double* ang0, double* ang1, double* ang2 )
 {
-    double dsqr01 = dist_squared( n0->m_Pnt, n1->m_Pnt );
-    double dsqr12 = dist_squared( n1->m_Pnt, n2->m_Pnt );
-    double dsqr20 = dist_squared( n2->m_Pnt, n0->m_Pnt );
+    double dsqr01 = dist_squared( n0->m_Pt->m_Pnt, n1->m_Pt->m_Pnt );
+    double dsqr12 = dist_squared( n1->m_Pt->m_Pnt, n2->m_Pt->m_Pnt );
+    double dsqr20 = dist_squared( n2->m_Pt->m_Pnt, n0->m_Pt->m_Pnt );
 
     double d01 = sqrt( dsqr01 );
     double d12 = sqrt( dsqr12 );
@@ -1548,6 +1604,14 @@ void PGMesh::Clear()
     }
 
     m_NodeList.clear();
+
+    list< PGPoint* >::iterator p;
+    for ( p = m_PointList.begin() ; p != m_PointList.end(); ++p )
+    {
+        delete ( *p );
+    }
+
+    m_PointList.clear();
 }
 
 void PGMesh::CleanUnused()
@@ -1584,13 +1648,49 @@ void PGMesh::CleanUnused()
             RemoveNode( n );
         }
     }
+
+    // Copy list to vector because removal from list will corrupt list in-use.
+    vector< PGPoint* > pVec( m_PointList.begin(), m_PointList.end() );
+    for ( int i = 0; i < pVec.size(); i++ )
+    {
+        PGPoint *p = pVec[ i ];
+        if ( p->m_NodeVec.empty() )
+        {
+            RemovePoint( p );
+        }
+    }
 }
 
-PGNode* PGMesh::AddNode( const vec3d& p )
+PGPoint* PGMesh::AddPoint( const vec3d& p )
 {
-    PGNode* nptr = new PGNode( p );
+    PGPoint *pptr = new PGPoint( p );
+    m_PointList.push_back( pptr );
+    pptr->m_List_it = --m_PointList.end();
+    return pptr;
+}
+
+void PGMesh::RemovePoint( PGPoint* pptr )
+{
+    for ( int i = 0; i < pptr->m_NodeVec.size(); i++ )
+    {
+        pptr->NodeForgetPoint( pptr->m_NodeVec[i] );
+    }
+    pptr->m_NodeVec.clear();
+
+    m_GarbagePointVec.push_back( pptr );
+    m_PointList.erase( pptr->m_List_it );
+
+    pptr->m_DeleteMeFlag = true;
+}
+
+PGNode* PGMesh::AddNode( PGPoint *pptr )
+{
+    PGNode* nptr = new PGNode( pptr );
     m_NodeList.push_back( nptr );
     nptr->m_List_it = --m_NodeList.end();
+
+    pptr->AddConnectNode( nptr );
+
     return nptr;
 }
 
@@ -1603,6 +1703,9 @@ void PGMesh::RemoveNode( PGNode* nptr )
     nptr->m_EdgeVec.clear();
 
     nptr->m_TagUWMap.clear();
+
+    nptr->m_Pt->RemoveConnectNode( nptr );
+    nptr->m_Pt = nullptr;
 
     m_GarbageNodeVec.push_back( nptr );
     m_NodeList.erase( nptr->m_List_it );
@@ -1944,6 +2047,8 @@ void PGMesh::MergeNodes( PGNode* na, PGNode* nb )
         na->AddConnectEdge( e );
         nb->RemoveConnectEdge( e );
     }
+
+    RemoveNode( nb );
 }
 
 int PGMesh::MergeCoincidentNodes()
@@ -1956,7 +2061,7 @@ int PGMesh::MergeCoincidentNodes()
     for ( int i = 0; i < nVec.size(); i++ )
     {
         PGNode *n = nVec[ i ];
-        allPntVec[ i ] = n->m_Pnt;
+        allPntVec[ i ] = n->m_Pt->m_Pnt;
     }
 
     PntNodeCloud pnCloud;
@@ -2149,6 +2254,8 @@ void PGMesh::RemoveNodeMergeEdges( PGNode* n )
         RemoveNode( n ); // Removes node from all edges
                           // Clears edge list
                           // Clears TagUWMap
+                          // Removes node from point
+                          // Null's point pointer
                           // Adds to garbage vec
                           // Removes from mesh node list.
                           // Sets deleteme flag
@@ -2180,6 +2287,15 @@ bool PGMesh::Check()
     for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
     {
         if ( !( *n )->Check() )
+        {
+            return false;
+        }
+    }
+
+    list< PGPoint* >::iterator p;
+    for ( p = m_PointList.begin() ; p != m_PointList.end(); ++p )
+    {
+        if ( !( *p )->Check() )
         {
             return false;
         }
@@ -2326,9 +2442,10 @@ PGEdge * PGMesh::SplitEdge( PGEdge *e, const double t, PGNode *n0 )
 {
     PGNode *n1 = e->OtherNode( n0 );
 
-    vec3d p = ( 1.0 - t ) * n0->m_Pnt + t * n1->m_Pnt;
+    vec3d p = ( 1.0 - t ) * n0->m_Pt->m_Pnt + t * n1->m_Pt->m_Pnt;
 
-    PGNode * newnode = AddNode( p );
+    PGPoint *pnt = AddPoint( p );
+    PGNode * newnode = AddNode( pnt );
 
     // Loop over all uw's in n0's map.
     for ( map < int, vec2d >::iterator it0 = n0->m_TagUWMap.begin(); it0 != n0->m_TagUWMap.end(); ++it0 )
@@ -2370,7 +2487,7 @@ void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, const PGEdge *e, PGNode *n 
     // Find other node of double-back edge.  Will be used to establish a direction.
     PGNode *nother = e->OtherNode( n );
 
-    vec3d dir = n->m_Pnt - nother->m_Pnt;
+    vec3d dir = n->m_Pt->m_Pnt - nother->m_Pt->m_Pnt;
     dir.normalize();
 
     int imindist = -1;
@@ -2382,11 +2499,11 @@ void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, const PGEdge *e, PGNode *n 
         PGEdge* eh = ehull[i];
 
         double s, t;
-        line_line_intersect( nother->m_Pnt, n->m_Pnt, eh->m_N0->m_Pnt, eh->m_N1->m_Pnt, &s, &t );
+        line_line_intersect( nother->m_Pt->m_Pnt, n->m_Pt->m_Pnt, eh->m_N0->m_Pt->m_Pnt, eh->m_N1->m_Pt->m_Pnt, &s, &t );
 
-        vec3d p = ( 1.0 - t ) * eh->m_N0->m_Pnt + t * eh->m_N1->m_Pnt;
+        vec3d p = ( 1.0 - t ) * eh->m_N0->m_Pt->m_Pnt + t * eh->m_N1->m_Pt->m_Pnt;
 
-        double d = dist( n->m_Pnt, p );
+        double d = dist( n->m_Pt->m_Pnt, p );
 
         if ( d < mindist && s > 1.0 )
         {
@@ -2731,8 +2848,8 @@ void PGMesh::Report()
         if ( ( *e )->m_FaceVec.size() != 2 )
         {
             printf( "Edge %d has %d faces\n", iedge, ( *e )->m_FaceVec.size() );
-            printf( "    Node %d %f %f %f\n", ( *e )->m_N0->m_ID + 1, ( *e )->m_N0->m_Pnt.x(), ( *e )->m_N0->m_Pnt.y(), ( *e )->m_N0->m_Pnt.z() );
-            printf( "    Node %d %f %f %f\n", ( *e )->m_N1->m_ID + 1, ( *e )->m_N1->m_Pnt.x(), ( *e )->m_N1->m_Pnt.y(), ( *e )->m_N1->m_Pnt.z() );
+            printf( "    Node %d %f %f %f\n", ( *e )->m_N0->m_Pt->m_ID + 1, ( *e )->m_N0->m_Pt->m_Pnt.x(), ( *e )->m_N0->m_Pt->m_Pnt.y(), ( *e )->m_N0->m_Pt->m_Pnt.z() );
+            printf( "    Node %d %f %f %f\n", ( *e )->m_N1->m_Pt->m_ID + 1, ( *e )->m_N1->m_Pt->m_Pnt.x(), ( *e )->m_N1->m_Pt->m_Pnt.y(), ( *e )->m_N1->m_Pt->m_Pnt.z() );
         }
 
         iedge++;
@@ -2759,7 +2876,7 @@ void PGMesh::ResetNodeNumbers()
     for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
     {
         // Assign ID number.
-        ( *n )->m_ID = inode;
+        ( *n )->m_Pt->m_ID = inode;
         inode++;
     }
 }
@@ -2849,6 +2966,13 @@ bool PGMesh::Validate()
 
 void PGMesh::DumpGarbage()
 {
+    //==== Delete Flagged PGPoint =====//
+    for ( int i = 0 ; i < ( int )m_GarbagePointVec.size() ; i++ )
+    {
+        delete m_GarbagePointVec[i];
+    }
+    m_GarbagePointVec.clear();
+
     //==== Delete Flagged PGNodes =====//
     for ( int i = 0 ; i < ( int )m_GarbageNodeVec.size() ; i++ )
     {
@@ -2992,7 +3116,7 @@ void PGMesh::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
     for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
     {
         // Apply Transformations
-        v = XFormMat.xform( ( *n )->m_Pnt );
+        v = XFormMat.xform( ( *n )->m_Pt->m_Pnt );
         fprintf( file_id, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() ); // , tnode->m_UWPnt.x(), tnode->m_UWPnt.y() );
     }
 }
@@ -3014,7 +3138,7 @@ void PGMesh::WriteVSPGeomFaces( FILE* file_id )
         fprintf( file_id, "%d", npt );
         for ( int i = 0; i < npt; i++ )
         {
-            fprintf( file_id, " %d", nodVec[i]->m_ID + 1 );
+            fprintf( file_id, " %d", nodVec[i]->m_Pt->m_ID + 1 );
         }
         fprintf( file_id, "\n" );
     }
@@ -3066,7 +3190,7 @@ void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
         int iprt = 0;
         for ( int i = 0; i < nwn; i++ )
         {
-            fprintf( file_id, "%d", nodVec[i]->m_ID + 1 );
+            fprintf( file_id, "%d", nodVec[i]->m_Pt->m_ID + 1 );
 
             if ( iprt >= 9 || i == nwn - 1 )
             {
@@ -3097,7 +3221,7 @@ void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
         fprintf( file_id, "%d %d", iface, npt / 3 );
         for ( int i = 0; i < npt; i++ )
         {
-            fprintf( file_id, " %d", nodVec[i]->m_ID + 1 );
+            fprintf( file_id, " %d", nodVec[i]->m_Pt->m_ID + 1 );
         }
         fprintf( file_id, "\n" );
 
@@ -3470,7 +3594,7 @@ void PGMesh::WriteSTL( const string& fname )
             fprintf( fp, "   outer loop\n" );
             for ( int j = 0; j < 3; j++ )
             {
-                vec3d v = nodVec[ inod ]->m_Pnt;
+                vec3d v = nodVec[ inod ]->m_Pt->m_Pnt;
                 fprintf( fp, "     vertex %2.10le %2.10le %2.10le\n", v.x(), v.y(), v.z() );
                 inod++;
             }
@@ -3509,7 +3633,7 @@ void PGMesh::WriteTRI( const string& fname )
     list< PGNode* >::iterator n;
     for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
     {
-        vec3d v = ( *n )->m_Pnt;
+        vec3d v = ( *n )->m_Pt->m_Pnt;
         fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() );
     }
 
@@ -3523,11 +3647,11 @@ void PGMesh::WriteTRI( const string& fname )
         int inod = 0;
         for ( int i = 0; i < nt; i++ )
         {
-            fprintf( fp, "%d ", nodVec[ inod ]->m_ID + 1 );
+            fprintf( fp, "%d ", nodVec[ inod ]->m_Pt->m_ID + 1 );
             inod++;
-            fprintf( fp, "%d ", nodVec[ inod ]->m_ID + 1 );
+            fprintf( fp, "%d ", nodVec[ inod ]->m_Pt->m_ID + 1 );
             inod++;
-            fprintf( fp, "%d\n", nodVec[ inod ]->m_ID + 1 );
+            fprintf( fp, "%d\n", nodVec[ inod ]->m_Pt->m_ID + 1 );
             inod++;
         }
     }
@@ -3839,8 +3963,9 @@ void PGMesh::BuildFromTMesh( const TMesh* tmi )
     for ( int j = 0; j < tmi->m_NVec.size(); j++ )
     {
         TNode *nj = tmi->m_NVec[j];
+        PGPoint *pnt = AddPoint( nj->m_Pnt );
         nj->m_ID = nod.size();
-        nod.push_back( AddNode( nj->m_Pnt ) );
+        nod.push_back( AddNode( pnt ) );
     }
 
     for ( int j = 0; j < tmi->m_TVec.size(); j++ )
@@ -3910,8 +4035,9 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
         for ( int j = 0; j < tmi->m_NVec.size(); j++ )
         {
             TNode *nj = tmi->m_NVec[j];
+            PGPoint *pnt = AddPoint( nj->m_Pnt );
             nj->m_ID = nod.size();
-            nod.push_back( AddNode( nj->m_Pnt ) );
+            nod.push_back( AddNode( pnt ) );
         }
     }
 
