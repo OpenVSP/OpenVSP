@@ -330,6 +330,8 @@ public:
 
     vector < PGFace* > m_Regions;
 
+    bool m_DeleteMeFlag;
+
     void FindAllDoubleBackNodes();
     void SealDoubleBackNodes();
 
@@ -421,5 +423,38 @@ protected:
 
 PGNode* FindEndNode( const vector < PGEdge* > & eVec );
 void GetNodes( const vector < PGEdge* > & eVec, vector< PGNode* > & nodVec );
+
+//////////////////////////////////////////////////////////////////////
+
+
+class PGMulti
+{
+public:
+
+    PGMulti();
+    virtual ~PGMulti();
+
+    void Clear();
+
+    void CleanUnused();
+
+    void DumpGarbage();
+
+    PGMesh* AddMesh();
+    void  RemoveMesh( PGMesh* m );
+
+    PGMesh* GetActiveMesh();
+
+    vector < PGMesh* > m_MeshVec;
+
+    int m_ActiveMesh;
+
+
+protected:
+
+    vector< PGMesh* > m_GarbageMeshVec;
+
+};
+
 
 #endif

@@ -1895,27 +1895,34 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool Co
 
         Matrix4d XFormMat = GetTotalTransMat();
 
-        new_geom->m_PGMesh.BuildFromTMeshVec( m_TMeshVec );
+        PGMesh *pgm = new_geom->m_PGMulti.GetActiveMesh();
 
-        new_geom->m_PGMesh.MergeCoincidentNodes();
-        new_geom->m_PGMesh.MergeDuplicateEdges();
+        pgm->BuildFromTMeshVec( m_TMeshVec );
 
-        new_geom->m_PGMesh.PolygonizeMesh();
-        new_geom->m_PGMesh.CleanColinearVerts();
+        pgm->MergeCoincidentNodes();
+        pgm->MergeDuplicateEdges();
 
-        new_geom->m_PGMesh.FindAllDoubleBackNodes();
-        new_geom->m_PGMesh.SealDoubleBackNodes();
+        pgm->PolygonizeMesh();
+        pgm->CleanColinearVerts();
+
+        pgm->FindAllDoubleBackNodes();
+        pgm->SealDoubleBackNodes();
 
         new_geom->SplitLEGeom();
 
         if ( cullfracflag )
         {
-            new_geom->m_PGMesh.MakeRegions();
-            new_geom->m_PGMesh.ClearTris();
-            new_geom->m_PGMesh.CullOrphanThinRegions( cullfrac );
+            pgm->MakeRegions();
+            pgm->ClearTris();
+            pgm->CullOrphanThinRegions( cullfrac );
         }
 
-        new_geom->m_PGMesh.IdentifyWakes( ContinueCoPlanarWakes );
+        for ( int iref = 0; iref < n_ref; iref++ )
+        {
+            new_geom->Coarsen1();
+            new_geom->Coarsen2();
+        }
+        pgm->IdentifyWakes( ContinueCoPlanarWakes );
 
         new_geom->m_SurfDirty = true;
 
@@ -1949,8 +1956,9 @@ void MeshGeom::DumpMeshes( const string & prefix )
 {
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        PGMesh pgm;
-        pgm.BuildFromTMesh( m_TMeshVec[ i ] );
+        PGMulti pgmulti;
+        PGMesh *pgm = pgmulti.GetActiveMesh();
+        pgm->BuildFromTMesh( m_TMeshVec[ i ] );
 
         char buf[255];
         Matrix4d mat;
@@ -1958,7 +1966,7 @@ void MeshGeom::DumpMeshes( const string & prefix )
 
         snprintf( buf, sizeof( buf ), "%s_%d.vspgeom", prefix.c_str(), i );
         file_id = fopen( buf, "w" );
-        pgm.WriteVSPGeom( file_id, mat );
+        pgm->WriteVSPGeom( file_id, mat );
         fclose( file_id );
     }
 }
@@ -2102,21 +2110,34 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     {
         if ( !m_TMeshVec[i]->m_InGroup.empty() )
         {
-            PGMesh pgm;
-            pgm.BuildFromTMesh( m_TMeshVec[ i ] );
+            PGMulti pgmulti;
+            PGMesh *pgm = pgmulti.GetActiveMesh();
+
+            pgm->BuildFromTMesh( m_TMeshVec[ i ] );
+
+
             delete m_TMeshVec[ i ];
 
-            pgm.MergeCoincidentNodes();
-            pgm.MergeDuplicateEdges();
+            pgm->MergeCoincidentNodes();
 
-            pgm.PolygonizeMesh();
-            pgm.CleanColinearVerts();
 
-            pgm.FindAllDoubleBackNodes();
-            pgm.SealDoubleBackNodes();
+            pgm->MergeDuplicateEdges();
+
+
+            pgm->PolygonizeMesh();
+
+
+            pgm->CleanColinearVerts();
+
+
+            pgm->FindAllDoubleBackNodes();
+
+
+            pgm->SealDoubleBackNodes();
+
 
             m_TMeshVec[ i ] = new TMesh;
-            m_TMeshVec[ i ]->MakeFromPGMesh( &pgm );
+            m_TMeshVec[ i ]->MakeFromPGMesh( pgm );
         }
     }
 
@@ -4102,31 +4123,33 @@ bool CutterTMeshCompare( TMesh* a, TMesh* b )
 TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
 {
     // Convert input TMesh into PGMesh to make isolating the boundary easier.
-    PGMesh pgm;
+    PGMulti pgmulti;
+    PGMesh *pgm = pgmulti.GetActiveMesh();
+
     vector < PGNode* > nod( tm->m_NVec.size() );
     for ( int i = 0; i < tm->m_NVec.size(); i++ )
     {
         tm->m_NVec[i]->m_ID = i;
-        PGPoint *pnt = pgm.AddPoint( tm->m_NVec[i]->m_Pnt );
-        nod[i] = pgm.AddNode( pnt );
+        PGPoint *pnt = pgm->AddPoint( tm->m_NVec[i]->m_Pnt );
+        nod[i] = pgm->AddNode( pnt );
     }
 
     for ( int i = 0; i < tm->m_TVec.size(); i++ )
     {
         TTri *t = tm->m_TVec[i];
-        pgm.AddFace( nod[t->m_N0->m_ID], nod[t->m_N1->m_ID], nod[t->m_N2->m_ID],
+        pgm->AddFace( nod[t->m_N0->m_ID], nod[t->m_N1->m_ID], nod[t->m_N2->m_ID],
                      t->m_N0->m_UWPnt.as_vec2d_xy(), t->m_N1->m_UWPnt.as_vec2d_xy(), t->m_N2->m_UWPnt.as_vec2d_xy(),
                      t->m_Norm, t->m_iQuad, 0, t->m_jref, t->m_kref );
     }
 
     // Merge Nodes and Edges to make topologically correct.
-    pgm.MergeCoincidentNodes();
-    pgm.MergeDuplicateEdges();
+    pgm->MergeCoincidentNodes();
+    pgm->MergeDuplicateEdges();
 
     // Build vector of boundary edges.
     vector < PGEdge* > boundary_edges;
     list< PGEdge* >::iterator e;
-    for ( e = pgm.m_EdgeList.begin(); e != pgm.m_EdgeList.end(); ++e )
+    for ( e = pgm->m_EdgeList.begin(); e != pgm->m_EdgeList.end(); ++e )
     {
         if ( ( *e )->m_FaceVec.size() < 2 )
         {
@@ -4137,12 +4160,12 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
     // Construct new TMesh cutter volume from surfaces.
     TMesh *tm_cutter = new TMesh();
 
-    int numnode = pgm.m_NodeList.size();
+    int numnode = pgm->m_NodeList.size();
     tm_cutter->m_NVec.resize( numnode * 2 );
 
     int inode = 0; // Start numbering at 0
     list< PGNode* >::iterator n;
-    for ( n = pgm.m_NodeList.begin() ; n != pgm.m_NodeList.end(); ++n )
+    for ( n = pgm->m_NodeList.begin() ; n != pgm->m_NodeList.end(); ++n )
     {
         // Assign ID number.
         ( *n )->m_Pt->m_ID = inode;
@@ -4161,7 +4184,7 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
     }
 
     list< PGFace* >::iterator f;
-    for ( f = pgm.m_FaceList.begin() ; f != pgm.m_FaceList.end(); ++f )
+    for ( f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
     {
         vector < PGNode* > nodVec;
         ( *f )->GetNodesAsTris( nodVec );

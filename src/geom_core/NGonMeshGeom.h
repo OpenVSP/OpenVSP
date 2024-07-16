@@ -44,7 +44,7 @@ public:
 
     virtual void WriteVSPGEOM( string fname, vector < string > &all_fnames );
 
-    virtual vector< TMesh* > CreateTMeshVec() const;
+    virtual vector< TMesh* > CreateTMeshVec();
 
     virtual void Coarsen1();
     virtual void Coarsen2();
@@ -65,7 +65,7 @@ public:
 
     vector<DrawObj> m_LabelDO_vec;
 
-    PGMesh m_PGMesh;
+    PGMulti m_PGMulti;
 
 protected:
 

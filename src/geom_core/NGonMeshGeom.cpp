@@ -66,12 +66,13 @@ void NGonMeshGeom::UpdateBBox()
 {
     m_BBox.Reset();
 
-    if ( m_PGMesh.m_NodeList.size() > 0 )
+    PGMesh * pgm = m_PGMulti.GetActiveMesh();
+    if ( pgm->m_NodeList.size() > 0 )
     {
         Matrix4d transMat = GetTotalTransMat();
 
         list< PGNode* >::iterator n;
-        for ( n = m_PGMesh.m_NodeList.begin(); n != m_PGMesh.m_NodeList.end(); ++n )
+        for ( n = pgm->m_NodeList.begin(); n != pgm->m_NodeList.end(); ++n )
         {
             m_BBox.Update( transMat.xform( (*n)->m_Pt->m_Pnt ) );
         }
@@ -107,8 +108,9 @@ xmlNodePtr NGonMeshGeom::DecodeXml( xmlNodePtr & node )
 
 void NGonMeshGeom::SplitLEGeom()
 {
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
     // Make vector copy of list so faces can be removed from list without invalidating active list iterator.
-    vector< PGFace* > fVec( m_PGMesh.m_FaceList.begin(), m_PGMesh.m_FaceList.end() );
+    vector< PGFace* > fVec( pgm->m_FaceList.begin(), pgm->m_FaceList.end() );
 
     for ( int i = 0; i < fVec.size(); i++ )
     {
@@ -118,16 +120,17 @@ void NGonMeshGeom::SplitLEGeom()
         PGNode *n = f->FindDoubleBackNode( e );
         if ( n )
         {
-            m_PGMesh.SplitFaceFromDoubleBackNode( f, e, n );
+            pgm->SplitFaceFromDoubleBackNode( f, e, n );
         }
     }
 }
 
 void NGonMeshGeom::Triangulate()
 {
-    m_PGMesh.Triangulate();
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
+    pgm->Triangulate();
 
-    m_PGMesh.DumpGarbage();
+    pgm->DumpGarbage();
 
     m_SurfDirty = true;
     Update();
@@ -135,19 +138,22 @@ void NGonMeshGeom::Triangulate()
 
 void NGonMeshGeom::Report()
 {
-    m_PGMesh.Report();
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
+    pgm->Report();
 }
 
 void NGonMeshGeom::ClearTris()
 {
-    m_PGMesh.ClearTris();
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
+    pgm->ClearTris();
 }
 
 void NGonMeshGeom::Coarsen1()
 {
-    m_PGMesh.Coarsen1();
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
+    pgm->Coarsen1();
 
-    m_PGMesh.DumpGarbage();
+    pgm->DumpGarbage();
 
     m_SurfDirty = true;
     Update();
@@ -155,9 +161,10 @@ void NGonMeshGeom::Coarsen1()
 
 void NGonMeshGeom::Coarsen2()
 {
-    m_PGMesh.Coarsen2();
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
+    pgm->Coarsen2();
 
-    m_PGMesh.DumpGarbage();
+    pgm->DumpGarbage();
 
     m_SurfDirty = true;
     Update();
@@ -166,26 +173,27 @@ void NGonMeshGeom::Coarsen2()
 void NGonMeshGeom::WriteVSPGEOM( string fname, vector < string > &all_fnames )
 {
     Matrix4d trans = GetTotalTransMat();
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
 
     FILE *file_id = fopen( fname.c_str(), "w" );
 
-    if ( file_id )
+    if ( file_id && pgm )
     {
         all_fnames.push_back( fname );
-        m_PGMesh.WriteVSPGeom( file_id, trans );
+        pgm->WriteVSPGeom( file_id, trans );
 
         fclose ( file_id );
 
-        m_PGMesh.WriteTagFiles( fname, all_fnames );
+        pgm->WriteTagFiles( fname, all_fnames );
 
         //==== Write Out tag key file ====//
 
-        m_PGMesh.WriteVSPGEOMKeyFile( fname, all_fnames );
+        pgm->WriteVSPGEOMKeyFile( fname, all_fnames );
 
         vector < string > gidvec;
         vector < int > partvec;
         vector < int > surfvec;
-        m_PGMesh.GetPartData( gidvec, partvec, surfvec );
+        pgm->GetPartData( gidvec, partvec, surfvec );
 
         m_Vehicle->WriteControlSurfaceFile( fname, gidvec, partvec, surfvec, all_fnames );
     }
@@ -196,7 +204,9 @@ void NGonMeshGeom::UpdateDrawObj()
     Matrix4d trans = GetTotalTransMat();
     vec3d zeroV = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
 
-    unsigned int num_uniq_tags = m_PGMesh.GetNumTags();
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
+
+    unsigned int num_uniq_tags = pgm->GetNumTags();
 
     m_WireShadeDrawObj_vec.clear();
     m_WireShadeDrawObj_vec.resize( num_uniq_tags * 2 );
@@ -204,7 +214,7 @@ void NGonMeshGeom::UpdateDrawObj()
     map<int, DrawObj*> face_dobj_map;
     map<int, DrawObj*> outline_dobj_map;
     map< std::vector<int>, int >::const_iterator mit;
-    map< std::vector<int>, int > tagMap = m_PGMesh.GetSingleTagMap();
+    map< std::vector<int>, int > tagMap = pgm->GetSingleTagMap();
     int cnt = 0;
     for ( mit = tagMap.begin(); mit != tagMap.end() ; ++mit )
     {
@@ -213,7 +223,7 @@ void NGonMeshGeom::UpdateDrawObj()
         cnt++;
     }
 
-    for ( list< PGFace* >::iterator f = m_PGMesh.m_FaceList.begin() ; f != m_PGMesh.m_FaceList.end(); ++f )
+    for ( list< PGFace* >::iterator f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
     {
         DrawObj* d_obj = outline_dobj_map[ (*f)->m_Tag ];
 
@@ -228,7 +238,7 @@ void NGonMeshGeom::UpdateDrawObj()
         }
     }
 
-    for ( list< PGFace* >::iterator f = m_PGMesh.m_FaceList.begin() ; f != m_PGMesh.m_FaceList.end(); ++f )
+    for ( list< PGFace* >::iterator f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
     {
         vector< PGNode* > nodVec;
         (*f)->GetNodesAsTris( nodVec );
@@ -246,7 +256,7 @@ void NGonMeshGeom::UpdateDrawObj()
         }
     }
 
-    int nwake = m_PGMesh.m_WakeVec.size();
+    int nwake = pgm->m_WakeVec.size();
     m_WakeDrawObj_vec.resize( nwake );
 
     // Calculate constants for color sequence.
@@ -282,7 +292,7 @@ void NGonMeshGeom::UpdateDrawObj()
         m_WakeDrawObj_vec[iwake].m_GeomChanged = true;
 
         vector< PGNode* > nodVec;
-        GetNodes( m_PGMesh.m_WakeVec[iwake], nodVec );
+        GetNodes( pgm->m_WakeVec[iwake], nodVec );
 
         m_WakeDrawObj_vec[iwake].m_PntVec.resize( nodVec.size() );
         for ( int i = 0; i < nodVec.size(); i++ )
@@ -321,7 +331,7 @@ void NGonMeshGeom::UpdateDrawObj()
 
 
     list< PGEdge* >::iterator e;
-    for ( e = m_PGMesh.m_EdgeList.begin() ; e != m_PGMesh.m_EdgeList.end(); ++e )
+    for ( e = pgm->m_EdgeList.begin() ; e != pgm->m_EdgeList.end(); ++e )
     {
         if ( ( *e )->m_FaceVec.size() < 2 )
         {
@@ -344,9 +354,9 @@ void NGonMeshGeom::UpdateDrawObj()
     m_CoLinearLoopDO.m_GeomID = GetID() + "Colinear";
     m_CoLinearLoopDO.m_Type = DrawObj::VSP_LINES;
 
-    for ( int i = 0; i < m_PGMesh.m_EdgeLoopVec.size(); i++ )
+    for ( int i = 0; i < pgm->m_EdgeLoopVec.size(); i++ )
     {
-        vector < PGEdge * > eloop = m_PGMesh.m_EdgeLoopVec[ i ];
+        vector < PGEdge * > eloop = pgm->m_EdgeLoopVec[ i ];
 
         for ( int j = 0; j < eloop.size(); j++ )
         {
@@ -364,9 +374,9 @@ void NGonMeshGeom::UpdateDrawObj()
     m_DoubleBackNodeDO.m_GeomID = GetID() + "DoubleBack";
     m_DoubleBackNodeDO.m_Type = DrawObj::VSP_POINTS;
 
-    for ( int i = 0; i < m_PGMesh.m_DoubleBackNode.size(); i++ )
+    for ( int i = 0; i < pgm->m_DoubleBackNode.size(); i++ )
     {
-        m_DoubleBackNodeDO.m_PntVec.push_back( trans.xform( m_PGMesh.m_DoubleBackNode[i]->m_Pt->m_Pnt ) );
+        m_DoubleBackNodeDO.m_PntVec.push_back( trans.xform( pgm->m_DoubleBackNode[i]->m_Pt->m_Pnt ) );
     }
     m_DoubleBackNodeDO.m_GeomChanged = true;
 
@@ -374,8 +384,8 @@ void NGonMeshGeom::UpdateDrawObj()
     if ( false )
     {
         int i = 0;
-        m_LabelDO_vec.resize( m_PGMesh.m_FaceList.size() );
-        for ( list< PGFace* >::iterator f = m_PGMesh.m_FaceList.begin() ; f != m_PGMesh.m_FaceList.end(); ++f )
+        m_LabelDO_vec.resize( pgm->m_FaceList.size() );
+        for ( list< PGFace* >::iterator f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
         {
             m_LabelDO_vec[i].m_GeomID = GenerateRandomID( 4 ) + "_Probe";
             m_LabelDO_vec[i].m_Type = DrawObj::VSP_PROBE;
@@ -404,8 +414,9 @@ void NGonMeshGeom::UpdateDrawObj()
 
 void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
     bool visible = GetSetFlag( vsp::SET_SHOWN );
-    unsigned int num_uniq_tags = m_PGMesh.GetNumTags();
+    unsigned int num_uniq_tags = pgm->GetNumTags();
 
     // Calculate constants for color sequence.
     const int ncgrp = 6; // Number of basic colors
@@ -519,8 +530,9 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
-vector<TMesh*> NGonMeshGeom::CreateTMeshVec() const
+vector<TMesh*> NGonMeshGeom::CreateTMeshVec()
 {
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
     vector<TMesh*> retTMeshVec(1);
     retTMeshVec[0] = new TMesh();
     retTMeshVec[0]->LoadGeomAttributes( this );
@@ -536,7 +548,7 @@ vector<TMesh*> NGonMeshGeom::CreateTMeshVec() const
 //    retTMeshVec[0]->m_Wmin = uw_pnts[0][0].y();
 
 
-    for ( list< PGFace* >::const_iterator f = m_PGMesh.m_FaceList.begin() ; f != m_PGMesh.m_FaceList.end(); ++f )
+    for ( list< PGFace* >::const_iterator f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
     {
         vector< PGNode* > nodVec;
         (*f)->GetNodesAsTris( nodVec );

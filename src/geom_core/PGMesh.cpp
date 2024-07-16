@@ -1573,6 +1573,7 @@ bool KrefTagMatch( PGFace *f0, PGFace *f1 )
 
 PGMesh::PGMesh()
 {
+    m_DeleteMeFlag = false;
 }
 
 PGMesh::~PGMesh()
@@ -4164,4 +4165,74 @@ void GetNodes( const vector < PGEdge* > & eVec, vector< PGNode* > & nodVec )
             printf( "Invalid node.\n" );
         }
     }
+}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+PGMulti::PGMulti()
+{
+    AddMesh();
+    m_ActiveMesh = 0;
+}
+
+PGMulti::~PGMulti()
+{
+    DumpGarbage();
+    Clear();
+}
+
+void PGMulti::Clear()
+{
+    vector< PGMesh* >::iterator m;
+    for ( m = m_MeshVec.begin() ; m != m_MeshVec.end(); ++m )
+    {
+        delete ( *m );
+    }
+
+    m_MeshVec.clear();
+}
+
+void PGMulti::CleanUnused()
+{
+    // Copy vector to vector because removal from vector will corrupt vector in-use.
+    vector< PGMesh* > mVec( m_MeshVec.begin(), m_MeshVec.end() );
+    for ( int i = 0; i < mVec.size(); i++ )
+    {
+        PGMesh *m = mVec[ i ];
+        if ( m->m_FaceList.empty() )
+        {
+            RemoveMesh( m );
+        }
+    }
+}
+
+PGMesh* PGMulti::AddMesh()
+{
+    PGMesh *m = new PGMesh();
+    m_MeshVec.push_back( m );
+    return m;
+}
+
+void PGMulti::RemoveMesh( PGMesh* m )
+{
+    m_GarbageMeshVec.push_back( m );
+    vector_remove_val( m_MeshVec, m );
+
+    m->m_DeleteMeFlag = true;
+}
+
+void PGMulti::DumpGarbage()
+{
+    //==== Delete Flagged PGMesh =====//
+    for ( int i = 0 ; i < ( int )m_GarbageMeshVec.size() ; i++ )
+    {
+        delete m_GarbageMeshVec[i];
+    }
+    m_GarbageMeshVec.clear();
+}
+
+PGMesh* PGMulti::GetActiveMesh()
+{
+    return m_MeshVec[ m_ActiveMesh ];
 }
