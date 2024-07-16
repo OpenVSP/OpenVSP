@@ -359,7 +359,6 @@ public:
     void Coarsen2();
 
     void Report();
-    void ResetNodeNumbers();
     void ResetEdgeNumbers();
     void ResetFaceNumbers();
 
@@ -448,6 +447,7 @@ public:
     PGMesh* GetActiveMesh();
 
     bool Check();
+    void ResetPointNumbers();
 
     vector < PGMesh* > m_MeshVec;
     list < PGPoint* > m_PointList;

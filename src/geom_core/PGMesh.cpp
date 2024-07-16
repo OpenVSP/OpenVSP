@@ -2708,7 +2708,7 @@ void PGMesh::ClearTris()
 
 void PGMesh::Report()
 {
-    ResetNodeNumbers();
+    m_PGMulti->ResetPointNumbers();
 
     printf( "m_TagNames %d entries\n", m_TagNames.size() );
     for ( auto it = m_TagNames.begin(); it != m_TagNames.end(); it++ )
@@ -2823,18 +2823,6 @@ void PGMesh::Report()
     printf( "Done\n" );
 
 
-}
-
-void PGMesh::ResetNodeNumbers()
-{
-    int inode = 0; // Start numbering at 0
-    list< PGNode* >::iterator n;
-    for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
-    {
-        // Assign ID number.
-        ( *n )->m_Pt->m_ID = inode;
-        inode++;
-    }
 }
 
 void PGMesh::ResetEdgeNumbers()
@@ -3054,7 +3042,7 @@ void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 
 void PGMesh::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
 {
-    ResetNodeNumbers();
+    m_PGMulti->ResetPointNumbers();
 
     fprintf( file_id, "%d\n", m_NodeList.size() );
 
@@ -3564,7 +3552,7 @@ void PGMesh::WriteTRI( const string& fname )
         return;
     }
 
-    ResetNodeNumbers();
+    m_PGMulti->ResetPointNumbers();
 
     fprintf( fp, "%d\n", m_NodeList.size() );
 
@@ -4244,4 +4232,16 @@ bool PGMulti::Check()
     }
 
     return true;
+}
+
+void PGMulti::ResetPointNumbers()
+{
+    int inode = 0; // Start numbering at 0
+    list< PGPoint* >::iterator p;
+    for ( p = m_PointList.begin() ; p != m_PointList.end(); ++p )
+    {
+        // Assign ID number.
+        ( *p )->m_ID = inode;
+        inode++;
+    }
 }
