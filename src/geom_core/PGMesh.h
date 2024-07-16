@@ -320,7 +320,6 @@ public:
 
     std::map< int, std::string > m_TagNames;
     std::map< int, std::string > m_TagIDs;
-    std::map< std::string, int > m_ThickMap;
     std::vector< int > m_ThickVec;
     std::vector< int > m_TypeVec;
     std::vector< double > m_WminVec;
