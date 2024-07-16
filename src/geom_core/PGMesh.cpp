@@ -1571,8 +1571,9 @@ bool KrefTagMatch( PGFace *f0, PGFace *f1 )
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-PGMesh::PGMesh()
+PGMesh::PGMesh( PGMulti* pgmulti )
 {
+    m_PGMulti = pgmulti;
     m_DeleteMeFlag = false;
 }
 
@@ -1607,14 +1608,6 @@ void PGMesh::Clear()
     }
 
     m_NodeList.clear();
-
-    list< PGPoint* >::iterator p;
-    for ( p = m_PointList.begin() ; p != m_PointList.end(); ++p )
-    {
-        delete ( *p );
-    }
-
-    m_PointList.clear();
 }
 
 void PGMesh::CleanUnused()
@@ -1652,38 +1645,7 @@ void PGMesh::CleanUnused()
         }
     }
 
-    // Copy list to vector because removal from list will corrupt list in-use.
-    vector< PGPoint* > pVec( m_PointList.begin(), m_PointList.end() );
-    for ( int i = 0; i < pVec.size(); i++ )
-    {
-        PGPoint *p = pVec[ i ];
-        if ( p->m_NodeVec.empty() )
-        {
-            RemovePoint( p );
-        }
-    }
-}
 
-PGPoint* PGMesh::AddPoint( const vec3d& p )
-{
-    PGPoint *pptr = new PGPoint( p );
-    m_PointList.push_back( pptr );
-    pptr->m_List_it = --m_PointList.end();
-    return pptr;
-}
-
-void PGMesh::RemovePoint( PGPoint* pptr )
-{
-    for ( int i = 0; i < pptr->m_NodeVec.size(); i++ )
-    {
-        pptr->NodeForgetPoint( pptr->m_NodeVec[i] );
-    }
-    pptr->m_NodeVec.clear();
-
-    m_GarbagePointVec.push_back( pptr );
-    m_PointList.erase( pptr->m_List_it );
-
-    pptr->m_DeleteMeFlag = true;
 }
 
 PGNode* PGMesh::AddNode( PGPoint *pptr )
@@ -2295,15 +2257,6 @@ bool PGMesh::Check()
         }
     }
 
-    list< PGPoint* >::iterator p;
-    for ( p = m_PointList.begin() ; p != m_PointList.end(); ++p )
-    {
-        if ( !( *p )->Check() )
-        {
-            return false;
-        }
-    }
-
     return true;
 }
 
@@ -2447,7 +2400,7 @@ PGEdge * PGMesh::SplitEdge( PGEdge *e, const double t, PGNode *n0 )
 
     vec3d p = ( 1.0 - t ) * n0->m_Pt->m_Pnt + t * n1->m_Pt->m_Pnt;
 
-    PGPoint *pnt = AddPoint( p );
+    PGPoint *pnt = m_PGMulti->AddPoint( p );
     PGNode * newnode = AddNode( pnt );
 
     // Loop over all uw's in n0's map.
@@ -2969,13 +2922,6 @@ bool PGMesh::Validate()
 
 void PGMesh::DumpGarbage()
 {
-    //==== Delete Flagged PGPoint =====//
-    for ( int i = 0 ; i < ( int )m_GarbagePointVec.size() ; i++ )
-    {
-        delete m_GarbagePointVec[i];
-    }
-    m_GarbagePointVec.clear();
-
     //==== Delete Flagged PGNodes =====//
     for ( int i = 0 ; i < ( int )m_GarbageNodeVec.size() ; i++ )
     {
@@ -3966,7 +3912,7 @@ void PGMesh::BuildFromTMesh( const TMesh* tmi )
     for ( int j = 0; j < tmi->m_NVec.size(); j++ )
     {
         TNode *nj = tmi->m_NVec[j];
-        PGPoint *pnt = AddPoint( nj->m_Pnt );
+        PGPoint *pnt = m_PGMulti->AddPoint( nj->m_Pnt );
         nj->m_ID = nod.size();
         nod.push_back( AddNode( pnt ) );
     }
@@ -4038,7 +3984,7 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
         for ( int j = 0; j < tmi->m_NVec.size(); j++ )
         {
             TNode *nj = tmi->m_NVec[j];
-            PGPoint *pnt = AddPoint( nj->m_Pnt );
+            PGPoint *pnt = m_PGMulti->AddPoint( nj->m_Pnt );
             nj->m_ID = nod.size();
             nod.push_back( AddNode( pnt ) );
         }
@@ -4191,6 +4137,14 @@ void PGMulti::Clear()
     }
 
     m_MeshVec.clear();
+
+    list< PGPoint* >::iterator p;
+    for ( p = m_PointList.begin() ; p != m_PointList.end(); ++p )
+    {
+        delete ( *p );
+    }
+
+    m_PointList.clear();
 }
 
 void PGMulti::CleanUnused()
@@ -4205,11 +4159,22 @@ void PGMulti::CleanUnused()
             RemoveMesh( m );
         }
     }
+
+    // Copy list to vector because removal from list will corrupt list in-use.
+    vector< PGPoint* > pVec( m_PointList.begin(), m_PointList.end() );
+    for ( int i = 0; i < pVec.size(); i++ )
+    {
+        PGPoint *p = pVec[ i ];
+        if ( p->m_NodeVec.empty() )
+        {
+            RemovePoint( p );
+        }
+    }
 }
 
 PGMesh* PGMulti::AddMesh()
 {
-    PGMesh *m = new PGMesh();
+    PGMesh *m = new PGMesh( this );
     m_MeshVec.push_back( m );
     return m;
 }
@@ -4222,6 +4187,29 @@ void PGMulti::RemoveMesh( PGMesh* m )
     m->m_DeleteMeFlag = true;
 }
 
+
+PGPoint* PGMulti::AddPoint( const vec3d& p )
+{
+    PGPoint *pptr = new PGPoint( p );
+    m_PointList.push_back( pptr );
+    pptr->m_List_it = --m_PointList.end();
+    return pptr;
+}
+
+void PGMulti::RemovePoint( PGPoint* pptr )
+{
+    for ( int i = 0; i < pptr->m_NodeVec.size(); i++ )
+    {
+        pptr->NodeForgetPoint( pptr->m_NodeVec[i] );
+    }
+    pptr->m_NodeVec.clear();
+
+    m_GarbagePointVec.push_back( pptr );
+    m_PointList.erase( pptr->m_List_it );
+
+    pptr->m_DeleteMeFlag = true;
+}
+
 void PGMulti::DumpGarbage()
 {
     //==== Delete Flagged PGMesh =====//
@@ -4230,9 +4218,30 @@ void PGMulti::DumpGarbage()
         delete m_GarbageMeshVec[i];
     }
     m_GarbageMeshVec.clear();
+
+    //==== Delete Flagged PGPoint =====//
+    for ( int i = 0 ; i < ( int )m_GarbagePointVec.size() ; i++ )
+    {
+        delete m_GarbagePointVec[i];
+    }
+    m_GarbagePointVec.clear();
 }
 
 PGMesh* PGMulti::GetActiveMesh()
 {
     return m_MeshVec[ m_ActiveMesh ];
+}
+
+bool PGMulti::Check()
+{
+    list< PGPoint* >::iterator p;
+    for ( p = m_PointList.begin() ; p != m_PointList.end(); ++p )
+    {
+        if ( !( *p )->Check() )
+        {
+            return false;
+        }
+    }
+
+    return true;
 }

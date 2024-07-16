@@ -4130,7 +4130,7 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
     for ( int i = 0; i < tm->m_NVec.size(); i++ )
     {
         tm->m_NVec[i]->m_ID = i;
-        PGPoint *pnt = pgm->AddPoint( tm->m_NVec[i]->m_Pnt );
+        PGPoint *pnt = pgmulti.AddPoint( tm->m_NVec[i]->m_Pnt );
         nod[i] = pgm->AddNode( pnt );
     }
 

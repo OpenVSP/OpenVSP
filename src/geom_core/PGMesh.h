@@ -36,6 +36,7 @@ class TNode;
 class TTri;
 class TMesh;
 
+class PGMulti;
 class PGMesh;
 class PGFace;
 class PGEdge;
@@ -253,7 +254,7 @@ class PGMesh
 {
 public:
 
-    PGMesh();
+    PGMesh( PGMulti* pgmulti );
     virtual ~PGMesh();
 
     void Clear();
@@ -263,8 +264,7 @@ public:
     void DumpGarbage();
 
 
-    PGPoint* AddPoint( const vec3d& p );
-    void  RemovePoint( PGPoint* pptr );
+
 
     PGNode* AddNode( PGPoint *pptr );
     void  RemoveNode( PGNode* nptr );
@@ -309,10 +309,10 @@ public:
 
     bool Check();
 
+    PGMulti *m_PGMulti;
     list < PGFace* > m_FaceList;
     list < PGEdge* > m_EdgeList;
     list < PGNode* > m_NodeList;
-    list < PGPoint* > m_PointList;
 
     vector < PGNode* > m_DoubleBackNode;
     vector < vector < PGEdge * > > m_EdgeLoopVec;
@@ -417,7 +417,6 @@ protected:
     vector< PGFace* > m_GarbageFaceVec;
     vector< PGEdge* > m_GarbageEdgeVec;
     vector< PGNode* > m_GarbageNodeVec;
-    vector< PGPoint* > m_GarbagePointVec;
 
 };
 
@@ -443,9 +442,15 @@ public:
     PGMesh* AddMesh();
     void  RemoveMesh( PGMesh* m );
 
+    PGPoint* AddPoint( const vec3d& p );
+    void  RemovePoint( PGPoint* pptr );
+
     PGMesh* GetActiveMesh();
 
+    bool Check();
+
     vector < PGMesh* > m_MeshVec;
+    list < PGPoint* > m_PointList;
 
     int m_ActiveMesh;
 
@@ -453,6 +458,7 @@ public:
 protected:
 
     vector< PGMesh* > m_GarbageMeshVec;
+    vector< PGPoint* > m_GarbagePointVec;
 
 };
 
