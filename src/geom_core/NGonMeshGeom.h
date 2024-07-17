@@ -46,9 +46,6 @@ public:
 
     virtual vector< TMesh* > CreateTMeshVec();
 
-    virtual void Coarsen1();
-    virtual void Coarsen2();
-
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;

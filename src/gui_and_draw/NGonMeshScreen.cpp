@@ -34,9 +34,6 @@ NGonMeshScreen::NGonMeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "N
 
     m_OtherLayout.AddYGap();
     m_OtherLayout.AddCounter( m_ActiveMeshIndexSelector, "Mesh" );
-    m_OtherLayout.AddButton( m_Coarsen1Button, "Coarsen 1" );
-    m_OtherLayout.AddYGap();
-    m_OtherLayout.AddButton( m_Coarsen2Button, "Coarsen 2" );
 
 }
 
@@ -117,14 +114,6 @@ void NGonMeshScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_ReportButton )
     {
         ngon_mesh_geom_ptr->Report();
-    }
-    else if ( device == & m_Coarsen1Button )
-    {
-        ngon_mesh_geom_ptr->Coarsen1();
-    }
-    else if ( device == & m_Coarsen2Button )
-    {
-        ngon_mesh_geom_ptr->Coarsen2();
     }
 
     GeomScreen::GuiDeviceCallBack( device );

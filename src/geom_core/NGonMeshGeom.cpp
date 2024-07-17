@@ -154,28 +154,6 @@ void NGonMeshGeom::ClearTris()
     pgm->ClearTris();
 }
 
-void NGonMeshGeom::Coarsen1()
-{
-    PGMesh *pgm = m_PGMulti.GetActiveMesh();
-    pgm->Coarsen1();
-
-    pgm->DumpGarbage();
-
-    m_SurfDirty = true;
-    Update();
-}
-
-void NGonMeshGeom::Coarsen2()
-{
-    PGMesh *pgm = m_PGMulti.GetActiveMesh();
-    pgm->Coarsen2();
-
-    pgm->DumpGarbage();
-
-    m_SurfDirty = true;
-    Update();
-}
-
 void NGonMeshGeom::WriteVSPGEOM( string fname, vector < string > &all_fnames )
 {
     Matrix4d trans = GetTotalTransMat();
