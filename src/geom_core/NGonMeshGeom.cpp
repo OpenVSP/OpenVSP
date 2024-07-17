@@ -144,8 +144,7 @@ void NGonMeshGeom::Triangulate()
 
 void NGonMeshGeom::Report()
 {
-    PGMesh *pgm = m_PGMulti.GetActiveMesh();
-    pgm->Report();
+    m_PGMulti.Report();
 }
 
 void NGonMeshGeom::ClearTris()
@@ -177,7 +176,7 @@ void NGonMeshGeom::WriteVSPGEOM( string fname, vector < string > &all_fnames )
         vector < string > gidvec;
         vector < int > partvec;
         vector < int > surfvec;
-        pgm->GetPartData( gidvec, partvec, surfvec );
+        m_PGMulti.GetPartData( gidvec, partvec, surfvec );
 
         m_Vehicle->WriteControlSurfaceFile( fname, gidvec, partvec, surfvec, all_fnames );
     }
@@ -190,7 +189,7 @@ void NGonMeshGeom::UpdateDrawObj()
 
     PGMesh *pgm = m_PGMulti.GetActiveMesh();
 
-    unsigned int num_uniq_tags = pgm->GetNumTags();
+    unsigned int num_uniq_tags = m_PGMulti.GetNumTags();
 
     m_WireShadeDrawObj_vec.clear();
     m_WireShadeDrawObj_vec.resize( num_uniq_tags * 2 );
@@ -198,7 +197,7 @@ void NGonMeshGeom::UpdateDrawObj()
     map<int, DrawObj*> face_dobj_map;
     map<int, DrawObj*> outline_dobj_map;
     map< std::vector<int>, int >::const_iterator mit;
-    map< std::vector<int>, int > tagMap = pgm->GetSingleTagMap();
+    map< std::vector<int>, int > tagMap = m_PGMulti.GetSingleTagMap();
     int cnt = 0;
     for ( mit = tagMap.begin(); mit != tagMap.end() ; ++mit )
     {
@@ -400,7 +399,7 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     PGMesh *pgm = m_PGMulti.GetActiveMesh();
     bool visible = GetSetFlag( vsp::SET_SHOWN );
-    unsigned int num_uniq_tags = pgm->GetNumTags();
+    unsigned int num_uniq_tags = m_PGMulti.GetNumTags();
 
     // Calculate constants for color sequence.
     const int ncgrp = 6; // Number of basic colors

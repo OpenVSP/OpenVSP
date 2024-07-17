@@ -318,15 +318,6 @@ public:
     vector < vector < PGEdge * > > m_EdgeLoopVec;
     vector < vector < PGEdge* > > m_WakeVec;
 
-    std::map< int, std::string > m_TagNames;
-    std::map< int, std::string > m_TagIDs;
-    std::vector< int > m_ThickVec;
-    std::vector< int > m_TypeVec;
-    std::vector< double > m_WminVec;
-
-    std::vector< std::vector<int> > m_TagKeys;
-    std::map< std::vector<int>, int > m_SingleTagMap;
-
     vector < PGFace* > m_Regions;
 
     bool m_DeleteMeFlag;
@@ -357,7 +348,6 @@ public:
     void Coarsen1();
     void Coarsen2();
 
-    void Report();
     void ResetEdgeNumbers();
     void ResetFaceNumbers();
 
@@ -382,35 +372,10 @@ public:
     void WriteSTL( const string& fname );
     void WriteTRI( const string& fname );
 
-    // Get Comma Delimited list of names for a set of tags
-    std::string GetTagNames( const std::vector<int> & tags );
-    std::string GetTagNames( int indx );
-
-    std::string GetTagIDs( const std::vector<int>& tags );
-    std::string GetTagIDs( int indx );
-
-    string GetGID( const int& tag );
-
-    static bool MatchPartAndTag( const vector < int > & tags, int part, int tag );
-    bool MatchPartAndTag( int singletag, int part, int tag ) const;
-    bool ExistPartAndTag( int part, int tag ) const;
-    void MakePartList( std::vector < int > & partvec ) const;
-
-    int GetTag( const std::vector<int> & tags );
-    vector< int > GetTagVec( const int &t );
-    int GetType( int part ) const;
-    int GetThickThin( int part ) const;
-    double GetWmin( int part ) const;
-    static int GetPart( const std::vector<int> & tags );
-    int GetPart( int tag ) const;
-    void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );
 
     void BuildFromTMesh( const TMesh* tmi );
     void BuildFromTMeshVec( const vector< TMesh* > &tmv );
     void BuildFromPGMesh( const PGMesh* pgm );
-
-    std::map< std::vector<int>, int > GetSingleTagMap() const { return m_SingleTagMap; }
-    unsigned int GetNumTags() const { return m_SingleTagMap.size(); }
 
 protected:
     vector< PGFace* > m_GarbageFaceVec;
@@ -449,11 +414,48 @@ public:
     bool Check();
     void ResetPointNumbers();
 
+    // Get Comma Delimited list of names for a set of tags
+    std::string GetTagNames( const std::vector<int> & tags );
+    std::string GetTagNames( int indx );
+
+    std::string GetTagIDs( const std::vector<int>& tags );
+    std::string GetTagIDs( int indx );
+
+    string GetGID( const int& tag );
+
+    static bool MatchPartAndTag( const vector < int > & tags, int part, int tag );
+    bool MatchPartAndTag( int singletag, int part, int tag ) const;
+    bool ExistPartAndTag( int part, int tag ) const;
+    void MakePartList( std::vector < int > & partvec ) const;
+
+    int GetTag( const std::vector<int> & tags );
+    vector< int > GetTagVec( const int &t );
+    int GetType( int part ) const;
+    int GetThickThin( int part ) const;
+    double GetWmin( int part ) const;
+    static int GetPart( const std::vector<int> & tags );
+    int GetPart( int tag ) const;
+    void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );
+
+    std::map< std::vector<int>, int > GetSingleTagMap() const;
+    unsigned int GetNumTags() const;
+
+    void Report();
+
     vector < PGMesh* > m_MeshVec;
     list < PGPoint* > m_PointList;
 
     int m_ActiveMesh;
 
+
+    std::map< int, std::string > m_TagNames;
+    std::map< int, std::string > m_TagIDs;
+    std::vector< int > m_ThickVec;
+    std::vector< int > m_TypeVec;
+    std::vector< double > m_WminVec;
+
+    std::vector< std::vector<int> > m_TagKeys;
+    std::map< std::vector<int>, int > m_SingleTagMap;
 
 protected:
 

@@ -1049,7 +1049,7 @@ void TMesh::MakeFromPGMesh( PGMesh *m )
 
         int tag = ( *f )->m_Tag;
         vec3d norm = ( *f )->m_Nvec;
-        vector < int > tags = m->GetTagVec( tag );
+        vector < int > tags = m->m_PGMulti->GetTagVec( tag );
         int iQuad = ( *f )->m_iQuad;
         int jref = ( *f )->m_jref;
         int kref = ( *f )->m_kref;

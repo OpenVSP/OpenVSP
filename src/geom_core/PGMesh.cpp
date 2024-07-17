@@ -678,11 +678,11 @@ bool PGEdge::WakeEdge( const PGMesh *m, const bool ContinueCoPlanarWakes ) const
         PGFace *f = m_FaceVec[i];
 
         int tag = f->m_Tag;
-        int part = m->GetPart( tag );
-        int type = m->GetType( part );
-        double wmin = m->GetWmin( part );
+        int part = m->m_PGMulti->GetPart( tag );
+        int type = m->m_PGMulti->GetType( part );
+        double wmin = m->m_PGMulti->GetWmin( part );
 
-        int thick = m->GetThickThin( part );
+        int thick = m->m_PGMulti->GetThickThin( part );
 
         if ( type == vsp::WING_SURF )
         {
@@ -2620,8 +2620,8 @@ void PGMesh::CullOrphanThinRegions( const double tol )
         PGFace* f = m_Regions[i];
 
         region_tag[ i ] = f->m_Tag;
-        int part = GetPart( region_tag[ i ] );
-        region_thick[ i ] = GetThickThin( part );
+        int part = m_PGMulti->GetPart( region_tag[ i ] );
+        region_thick[ i ] = m_PGMulti->GetThickThin( part );
         tag_area[ region_tag[ i ] ] += region_area[ i ];
     }
 
@@ -2706,9 +2706,9 @@ void PGMesh::ClearTris()
     }
 }
 
-void PGMesh::Report()
+void PGMulti::Report()
 {
-    m_PGMulti->ResetPointNumbers();
+    ResetPointNumbers();
 
     printf( "m_TagNames %d entries\n", m_TagNames.size() );
     for ( auto it = m_TagNames.begin(); it != m_TagNames.end(); it++ )
@@ -2784,13 +2784,16 @@ void PGMesh::Report()
     printf( "\n" );
 
 
-    printf( "%10d   Nodes\n", m_NodeList.size() );
-    printf( "%10d   Edges\n", m_EdgeList.size() );
-    printf( "%10d   Faces\n", m_FaceList.size() );
+    PGMesh *pgm = GetActiveMesh();
+
+
+    printf( "%10d   Nodes\n", pgm->m_NodeList.size() );
+    printf( "%10d   Edges\n", pgm->m_EdgeList.size() );
+    printf( "%10d   Faces\n", pgm->m_FaceList.size() );
 
     int inode = 1; // Start numbering at 1
     list< PGNode* >::iterator n;
-    for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
+    for ( n = pgm->m_NodeList.begin() ; n != pgm->m_NodeList.end(); ++n )
     {
         inode++;
     }
@@ -2799,7 +2802,7 @@ void PGMesh::Report()
     printf( "Non-manifold edges\n" );
     int iedge = 1;
     list< PGEdge* >::iterator e;
-    for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    for ( e = pgm->m_EdgeList.begin() ; e != pgm->m_EdgeList.end(); ++e )
     {
         if ( ( *e )->m_FaceVec.size() != 2 )
         {
@@ -2814,7 +2817,7 @@ void PGMesh::Report()
 
 
     list< PGFace* >::iterator f;
-    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    for ( f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
     {
 
     }
@@ -3096,7 +3099,7 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
         int npt = nodVec.size() - 1;
 
         tag = ( *f )->m_Tag;
-        int part = GetPart( tag );
+        int part = m_PGMulti->GetPart( tag );
         fprintf( file_id, "%d %d", part, tag );
 
         for ( int i = 0; i < npt; i++ )
@@ -3181,7 +3184,7 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
         int npt = nodVec.size();
 
         tag = ( *f )->m_Tag;
-        int part = GetPart( tag );
+        int part = m_PGMulti->GetPart( tag );
         fprintf( file_id, "%d %d %d", iface, part, tag );
 
         for ( int i = 0; i < npt; i++ )
@@ -3324,7 +3327,7 @@ void PGMesh::WriteTagFile( FILE* file_id, const int part, const int tag )
     {
         int singletag = ( *f )->m_Tag;
 
-        if ( MatchPartAndTag( singletag, part, tag ) )
+        if ( m_PGMulti->MatchPartAndTag( singletag, part, tag ) )
         {
             count++;
         }
@@ -3336,7 +3339,7 @@ void PGMesh::WriteTagFile( FILE* file_id, const int part, const int tag )
     {
         int singletag = ( *f )->m_Tag;
 
-        if ( MatchPartAndTag( singletag, part, tag ) )
+        if ( m_PGMulti->MatchPartAndTag( singletag, part, tag ) )
         {
             fprintf( file_id, "%d\n", iface );
         }
@@ -3595,7 +3598,7 @@ void PGMesh::WriteTRI( const string& fname )
     fclose( fp );
 }
 
-string PGMesh::GetTagNames( const vector<int> & tags )
+string PGMulti::GetTagNames( const vector<int> & tags )
 {
     string comp_list;
     map< int, string >::iterator si;
@@ -3631,7 +3634,7 @@ string PGMesh::GetTagNames( const vector<int> & tags )
     return comp_list;
 }
 
-string PGMesh::GetTagNames( const int indx )
+string PGMulti::GetTagNames( const int indx )
 {
     if ( indx < m_TagKeys.size() && indx >= 0 )
     {
@@ -3640,7 +3643,7 @@ string PGMesh::GetTagNames( const int indx )
     return string( "Error_Tag" );
 }
 
-string PGMesh::GetTagIDs( const vector<int>& tags )
+string PGMulti::GetTagIDs( const vector<int>& tags )
 {
     string comp_list;
     map< int, string >::iterator si;
@@ -3678,7 +3681,7 @@ string PGMesh::GetTagIDs( const vector<int>& tags )
     return comp_list;
 }
 
-string PGMesh::GetTagIDs( const int indx )
+string PGMulti::GetTagIDs( const int indx )
 {
     if ( indx < m_TagKeys.size() && indx >= 0 )
     {
@@ -3687,7 +3690,7 @@ string PGMesh::GetTagIDs( const int indx )
     return string( "Error_Tag" );
 }
 
-string PGMesh::GetGID( const int& tag )
+string PGMulti::GetGID( const int& tag )
 {
     string id_list = GetTagIDs( tag - 1 );
 
@@ -3699,7 +3702,7 @@ string PGMesh::GetGID( const int& tag )
     return gid_bare;
 }
 
-bool PGMesh::MatchPartAndTag( const vector < int > & tags, const int part, const int tag )
+bool PGMulti::MatchPartAndTag( const vector < int > & tags, const int part, const int tag )
 {
     if ( !tags.empty() )
     {
@@ -3714,7 +3717,7 @@ bool PGMesh::MatchPartAndTag( const vector < int > & tags, const int part, const
     return false;
 }
 
-bool PGMesh::MatchPartAndTag( const int singletag, const int part, const int tag ) const
+bool PGMulti::MatchPartAndTag( const int singletag, const int part, const int tag ) const
 {
     if ( m_TagKeys.size() >= singletag )
     {
@@ -3723,7 +3726,7 @@ bool PGMesh::MatchPartAndTag( const int singletag, const int part, const int tag
     return false;
 }
 
-bool PGMesh::ExistPartAndTag( const int part, const int tag ) const
+bool PGMulti::ExistPartAndTag( const int part, const int tag ) const
 {
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
@@ -3735,7 +3738,7 @@ bool PGMesh::ExistPartAndTag( const int part, const int tag ) const
     return false;
 }
 
-void PGMesh::MakePartList( std::vector < int > & partvec ) const
+void PGMulti::MakePartList( std::vector < int > & partvec ) const
 {
     std::set< int > partset;
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
@@ -3755,7 +3758,7 @@ void PGMesh::MakePartList( std::vector < int > & partvec ) const
     }
 }
 
-int PGMesh::GetTag( const vector<int> & tags )
+int PGMulti::GetTag( const vector<int> & tags )
 {
     map< vector<int>, int >::iterator mi;
     mi = m_SingleTagMap.find( tags );
@@ -3770,7 +3773,7 @@ int PGMesh::GetTag( const vector<int> & tags )
     }
 }
 
-vector< int > PGMesh::GetTagVec( const int &tin )
+vector< int > PGMulti::GetTagVec( const int &tin )
 {
     vector < int > ret;
 
@@ -3800,22 +3803,22 @@ vector< int > PGMesh::GetTagVec( const int &tin )
     return vector<int> { -1 };
 }
 
-int PGMesh::GetType( const int part ) const
+int PGMulti::GetType( const int part ) const
 {
     return m_TypeVec[ part - 1 ];
 }
 
-int PGMesh::GetThickThin( const int part ) const
+int PGMulti::GetThickThin( const int part ) const
 {
     return m_ThickVec[ part - 1 ];
 }
 
-double PGMesh::GetWmin( const int part ) const
+double PGMulti::GetWmin( const int part ) const
 {
     return m_WminVec[ part - 1 ];
 }
 
-int PGMesh::GetPart( const vector<int> & tags )
+int PGMulti::GetPart( const vector<int> & tags )
 {
     if ( !tags.empty() )
     {
@@ -3824,7 +3827,7 @@ int PGMesh::GetPart( const vector<int> & tags )
     return -1;
 }
 
-int PGMesh::GetPart( int tag ) const
+int PGMulti::GetPart( int tag ) const
 {
     if ( m_TagKeys.size() >= tag )
     {
@@ -3834,7 +3837,7 @@ int PGMesh::GetPart( int tag ) const
     return -1;
 }
 
-void PGMesh::GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec )
+void PGMulti::GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec )
 {
     gidvec.clear();
     partvec.clear();
@@ -3884,16 +3887,26 @@ void PGMesh::GetPartData( vector < string > &gidvec, vector < int > &partvec, ve
     }
 }
 
+std::map< std::vector<int>, int > PGMulti::GetSingleTagMap() const
+{
+    return m_SingleTagMap;
+}
+
+unsigned int PGMulti::GetNumTags() const
+{
+    return m_SingleTagMap.size();
+}
+
 void PGMesh::BuildFromTMesh( const TMesh* tmi )
 {
     // Archive tag data at time of NGonMeshGeom creation.
-    m_TagNames = SubSurfaceMgr.m_TagNames;
-    m_TagIDs = SubSurfaceMgr.m_TagIDs;
-    m_ThickVec = SubSurfaceMgr.m_CompThick;
-    m_TypeVec = SubSurfaceMgr.m_CompTypes;
-    m_WminVec = SubSurfaceMgr.m_CompWmin;
-    m_TagKeys = SubSurfaceMgr.GetTagKeys();
-    m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
+    m_PGMulti->m_TagNames = SubSurfaceMgr.m_TagNames;
+    m_PGMulti->m_TagIDs = SubSurfaceMgr.m_TagIDs;
+    m_PGMulti->m_ThickVec = SubSurfaceMgr.m_CompThick;
+    m_PGMulti->m_TypeVec = SubSurfaceMgr.m_CompTypes;
+    m_PGMulti->m_WminVec = SubSurfaceMgr.m_CompWmin;
+    m_PGMulti->m_TagKeys = SubSurfaceMgr.GetTagKeys();
+    m_PGMulti->m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
 
     vector < PGNode* > nod;
 
@@ -3916,7 +3929,7 @@ void PGMesh::BuildFromTMesh( const TMesh* tmi )
                 TTri *ts = tj->m_SplitVec[ s ];
                 if ( !ts->m_IgnoreTriFlag )
                 {
-                    int tag = GetTag( ts->m_Tags );
+                    int tag = m_PGMulti->GetTag( ts->m_Tags );
                     AddFace( nod[ ts->m_N0->m_ID ],
                              nod[ ts->m_N1->m_ID ],
                              nod[ ts->m_N2->m_ID ],
@@ -3935,7 +3948,7 @@ void PGMesh::BuildFromTMesh( const TMesh* tmi )
         {
             if ( !tj->m_IgnoreTriFlag )
             {
-                int tag = GetTag( tj->m_Tags );
+                int tag = m_PGMulti->GetTag( tj->m_Tags );
                 AddFace( nod[ tj->m_N0->m_ID ],
                          nod[ tj->m_N1->m_ID ],
                          nod[ tj->m_N2->m_ID ],
@@ -3956,13 +3969,13 @@ void PGMesh::BuildFromTMesh( const TMesh* tmi )
 void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
 {
     // Archive tag data at time of NGonMeshGeom creation.
-    m_TagNames = SubSurfaceMgr.m_TagNames;
-    m_TagIDs = SubSurfaceMgr.m_TagIDs;
-    m_ThickVec = SubSurfaceMgr.m_CompThick;
-    m_TypeVec = SubSurfaceMgr.m_CompTypes;
-    m_WminVec = SubSurfaceMgr.m_CompWmin;
-    m_TagKeys = SubSurfaceMgr.GetTagKeys();
-    m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
+    m_PGMulti->m_TagNames = SubSurfaceMgr.m_TagNames;
+    m_PGMulti->m_TagIDs = SubSurfaceMgr.m_TagIDs;
+    m_PGMulti->m_ThickVec = SubSurfaceMgr.m_CompThick;
+    m_PGMulti->m_TypeVec = SubSurfaceMgr.m_CompTypes;
+    m_PGMulti->m_WminVec = SubSurfaceMgr.m_CompWmin;
+    m_PGMulti->m_TagKeys = SubSurfaceMgr.GetTagKeys();
+    m_PGMulti->m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
 
     vector < PGNode* > nod;
     for ( int i = 0; i < tmv.size(); i++ )
@@ -3993,7 +4006,7 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
                     TTri *ts = tj->m_SplitVec[ s ];
                     if ( !ts->m_IgnoreTriFlag )
                     {
-                        int tag = GetTag( ts->m_Tags );
+                        int tag = m_PGMulti->GetTag( ts->m_Tags );
                         AddFace( nod[ ts->m_N0->m_ID ],
                                  nod[ ts->m_N1->m_ID ],
                                  nod[ ts->m_N2->m_ID ],
@@ -4012,7 +4025,7 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
             {
                 if ( !tj->m_IgnoreTriFlag )
                 {
-                    int tag = GetTag( tj->m_Tags );
+                    int tag = m_PGMulti->GetTag( tj->m_Tags );
                     AddFace( nod[ tj->m_N0->m_ID ],
                              nod[ tj->m_N1->m_ID ],
                              nod[ tj->m_N2->m_ID ],
@@ -4034,13 +4047,13 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
 void PGMesh::BuildFromPGMesh( const PGMesh* pgm )
 {
     // Archive tag data at time of NGonMeshGeom creation.
-    m_TagNames = pgm->m_TagNames;
-    m_TagIDs = pgm->m_TagIDs;
-    m_ThickVec = pgm->m_ThickVec;
-    m_TypeVec = pgm->m_TypeVec;
-    m_WminVec = pgm->m_WminVec;
-    m_TagKeys = pgm->m_TagKeys;
-    m_SingleTagMap = pgm->m_SingleTagMap;
+    m_PGMulti->m_TagNames = pgm->m_PGMulti->m_TagNames;
+    m_PGMulti->m_TagIDs = pgm->m_PGMulti->m_TagIDs;
+    m_PGMulti->m_ThickVec = pgm->m_PGMulti->m_ThickVec;
+    m_PGMulti->m_TypeVec = pgm->m_PGMulti->m_TypeVec;
+    m_PGMulti->m_WminVec = pgm->m_PGMulti->m_WminVec;
+    m_PGMulti->m_TagKeys = pgm->m_PGMulti->m_TagKeys;
+    m_PGMulti->m_SingleTagMap = pgm->m_PGMulti->m_SingleTagMap;
 
     vector < PGNode * > nods;
     nods.reserve( pgm->m_PGMulti->m_PointList.size() );
