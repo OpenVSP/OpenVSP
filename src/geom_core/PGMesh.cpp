@@ -4030,6 +4030,67 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
     }
 }
 
+// Copies pgm into this, but re-using all of the basic points at the bottom level.
+void PGMesh::BuildFromPGMesh( const PGMesh* pgm )
+{
+    // Archive tag data at time of NGonMeshGeom creation.
+    m_TagNames = pgm->m_TagNames;
+    m_TagIDs = pgm->m_TagIDs;
+    m_ThickVec = pgm->m_ThickVec;
+    m_TypeVec = pgm->m_TypeVec;
+    m_WminVec = pgm->m_WminVec;
+    m_TagKeys = pgm->m_TagKeys;
+    m_SingleTagMap = pgm->m_SingleTagMap;
+
+    vector < PGNode * > nods;
+    nods.reserve( pgm->m_PGMulti->m_PointList.size() );
+    int ipt = 0; // Number all points starting at zero.  Copy to corresponding vector.
+    list< PGNode* >::const_iterator n;
+    for ( n = pgm->m_NodeList.begin() ; n != pgm->m_NodeList.end(); ++n )
+    {
+        PGPoint *p = (*n)->m_Pt;
+        PGNode *nnew = AddNode( p );
+        nnew->m_TagUWMap = (*n)->m_TagUWMap;
+        nods.push_back( nnew );
+        p->m_ID = ipt;
+        ipt++;
+    }
+
+    vector < PGEdge * > edgs;
+    edgs.reserve( pgm->m_EdgeList.size() );
+    int ie = 0;
+    list< PGEdge* >::const_iterator e;
+    for ( e = pgm->m_EdgeList.begin() ; e != pgm->m_EdgeList.end(); ++e )
+    {
+        edgs.push_back( AddEdge( nods[ (*e)->m_N0->m_Pt->m_ID ], nods[ (*e)->m_N1->m_Pt->m_ID ] ) );
+        (*e)->m_ID = ie;
+        ie++;
+    }
+
+    list< PGFace* >::const_iterator f;
+    for ( f = pgm->m_FaceList.begin(); f != pgm->m_FaceList.end(); ++f )
+    {
+        PGFace *fnew = AddFace();
+
+        fnew->m_Nvec = (*f)->m_Nvec;
+        fnew->m_iQuad = (*f)->m_iQuad;
+        fnew->m_Tag = (*f)->m_Tag;
+        fnew->m_jref = (*f)->m_jref;
+        fnew->m_kref = (*f)->m_kref;
+        fnew->m_Region = (*f)->m_Region;
+
+        vector < PGEdge * >::iterator ei;
+        for( ei = (*f)->m_EdgeVec.begin(); ei != (*f)->m_EdgeVec.end(); ++ei )
+        {
+            PGEdge *eadd = edgs[ (*ei)->m_ID ];
+            fnew->AddEdge( eadd );
+            eadd->AddConnectFace( fnew );
+        }
+    }
+
+    CleanUnused();
+}
+
 PGNode* FindEndNode( const vector < PGEdge* > & eVec )
 {
     if ( eVec.empty() )

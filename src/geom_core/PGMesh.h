@@ -407,6 +407,7 @@ public:
 
     void BuildFromTMesh( const TMesh* tmi );
     void BuildFromTMeshVec( const vector< TMesh* > &tmv );
+    void BuildFromPGMesh( const PGMesh* pgm );
 
     std::map< std::vector<int>, int > GetSingleTagMap() const { return m_SingleTagMap; }
     unsigned int GetNumTags() const { return m_SingleTagMap.size(); }
