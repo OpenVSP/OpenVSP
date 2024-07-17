@@ -1919,12 +1919,26 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool Co
             pgm->CullOrphanThinRegions( cullfrac );
         }
 
+        pgm->IdentifyWakes( ContinueCoPlanarWakes );
+
+        PGMesh *pgm_prev = pgm;
         for ( int iref = 0; iref < n_ref; iref++ )
         {
-            new_geom->Coarsen1();
-            new_geom->Coarsen2();
+            PGMesh *pgmi = new_geom->m_PGMulti.AddMesh();;
+
+            pgmi->BuildFromPGMesh( pgm_prev );
+
+            pgmi->Coarsen1();
+            pgmi->Coarsen2();
+
+            pgmi->CleanUnused();
+
+            pgmi->DumpGarbage();
+
+            pgmi->IdentifyWakes( ContinueCoPlanarWakes );
+
+            pgm_prev = pgmi;
         }
-        pgm->IdentifyWakes( ContinueCoPlanarWakes );
 
         new_geom->m_SurfDirty = true;
 
