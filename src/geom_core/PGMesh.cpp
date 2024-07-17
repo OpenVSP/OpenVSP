@@ -3106,6 +3106,7 @@ void PGMesh::WriteTagFile( FILE* file_id, const int part, const int tag )
         }
         iface++;
     }
+    fprintf( file_id, "\n" );
 }
 
 void PGMesh::WriteSTL( const string& fname )
