@@ -2706,128 +2706,6 @@ void PGMesh::ClearTris()
     }
 }
 
-void PGMulti::Report()
-{
-    ResetPointNumbers();
-
-    printf( "m_TagNames %d entries\n", m_TagNames.size() );
-    for ( auto it = m_TagNames.begin(); it != m_TagNames.end(); it++ )
-    {
-        printf( "%d %s\n", it->first, it->second.c_str() );
-    }
-    printf( "\n" );
-
-    printf( "m_TagIDs %d entries\n", m_TagIDs.size() );
-    for ( auto it = m_TagIDs.begin(); it != m_TagIDs.end(); it++ )
-    {
-        printf( "%d %s\n", it->first, it->second.c_str() );
-    }
-    printf( "\n" );
-
-    printf( "m_ThickVec %d entries\n", m_ThickVec.size() );
-    for ( int i = 0; i < m_ThickVec.size(); i++ )
-    {
-        printf( "%d %d\n", i, m_ThickVec[i] );
-    }
-    printf( "\n" );
-
-    printf( "m_TypeVec %d entries\n", m_TypeVec.size() );
-    for ( int i = 0; i < m_TypeVec.size(); i++ )
-    {
-        printf( "%d %d\n", i, m_TypeVec[i] );
-    }
-    printf( "\n" );
-
-    printf( "m_WminVec %d entries\n", m_WminVec.size() );
-    for ( int i = 0; i < m_WminVec.size(); i++ )
-    {
-        printf( "%d %g\n", i, m_WminVec[i] );
-    }
-    printf( "\n" );
-
-    printf( "m_TagKeys %d entries\n", m_TagKeys.size() );
-    for ( int i = 0; i < m_TagKeys.size(); i++ )
-    {
-        printf( "%d     ", i + 1 );
-        for ( int j = 0; j < m_TagKeys[i].size(); j++ )
-        {
-            printf( "%d ", m_TagKeys[i][j] );
-        }
-        printf( "\n" );
-    }
-    printf( "\n" );
-
-    printf( "m_SingleTagMap %d entries\n", m_SingleTagMap.size() );
-    for ( auto it = m_SingleTagMap.begin(); it != m_SingleTagMap.end(); it++ )
-    {
-        printf( "%d     ", it->second );
-        for ( int j = 0; j < (it->first).size(); j++ )
-        {
-            printf( "%d ", (it->first)[j] );
-        }
-        printf( "\n" );
-    }
-    printf( "\n" );
-
-    printf( "GetGID( tag )\n" );
-    for ( int i = 0; i < m_TagKeys.size(); i++ )
-    {
-        printf( "%d %s\n", i + 1, GetGID( i + 1 ).c_str() );
-    }
-    printf( "\n" );
-
-    printf( "GetPart( tag )\n" );
-    for ( int i = 0; i < m_TagKeys.size(); i++ )
-    {
-        printf( "%d %d\n", i + 1, GetPart( i + 1 ) );
-    }
-    printf( "\n" );
-
-
-    PGMesh *pgm = GetActiveMesh();
-
-
-    printf( "%10d   Nodes\n", pgm->m_NodeList.size() );
-    printf( "%10d   Edges\n", pgm->m_EdgeList.size() );
-    printf( "%10d   Faces\n", pgm->m_FaceList.size() );
-
-    int inode = 1; // Start numbering at 1
-    list< PGNode* >::iterator n;
-    for ( n = pgm->m_NodeList.begin() ; n != pgm->m_NodeList.end(); ++n )
-    {
-        inode++;
-    }
-
-
-    printf( "Non-manifold edges\n" );
-    int iedge = 1;
-    list< PGEdge* >::iterator e;
-    for ( e = pgm->m_EdgeList.begin() ; e != pgm->m_EdgeList.end(); ++e )
-    {
-        if ( ( *e )->m_FaceVec.size() != 2 )
-        {
-            printf( "Edge %d has %d faces\n", iedge, ( *e )->m_FaceVec.size() );
-            printf( "    Node %d %f %f %f\n", ( *e )->m_N0->m_Pt->m_ID + 1, ( *e )->m_N0->m_Pt->m_Pnt.x(), ( *e )->m_N0->m_Pt->m_Pnt.y(), ( *e )->m_N0->m_Pt->m_Pnt.z() );
-            printf( "    Node %d %f %f %f\n", ( *e )->m_N1->m_Pt->m_ID + 1, ( *e )->m_N1->m_Pt->m_Pnt.x(), ( *e )->m_N1->m_Pt->m_Pnt.y(), ( *e )->m_N1->m_Pt->m_Pnt.z() );
-        }
-
-        iedge++;
-    }
-
-
-
-    list< PGFace* >::iterator f;
-    for ( f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
-    {
-
-    }
-
-
-    printf( "Done\n" );
-
-
-}
-
 void PGMesh::ResetEdgeNumbers()
 {
     int iedge = 1; // Start numbering at 1
@@ -3200,128 +3078,6 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
     }
 }
 
-void PGMulti::WriteTagFiles( const string& file_name, vector < string > &all_fnames )
-{
-    int ntagfile = 0;
-    int ncsffile = 0;
-
-    std::vector < int > partvec;
-    MakePartList( partvec );
-    vector < SubSurface* > ssurfs = SubSurfaceMgr.GetSubSurfs();
-
-    for ( int ipart = 0; ipart < partvec.size(); ipart++ )
-    {
-        int part = partvec[ ipart ];
-
-        for ( int iss = 0; iss < ssurfs.size(); iss++ )
-        {
-            SubSurface *ssurf = ssurfs[iss];
-            int tag = ssurf->m_Tag;
-
-            if ( ExistPartAndTag( part, tag ) )
-            {
-                ntagfile++;
-
-                if ( ssurf->GetType() == vsp::SS_CONTROL )
-                {
-                    ncsffile++;
-                }
-            }
-        }
-    }
-
-    if ( ntagfile > 0 )
-    {
-        string base_name = GetBasename( file_name );
-
-        string base_path, base_fname;
-        GetPathFile( base_name, base_path, base_fname );
-
-        string taglist_name = base_name + ".ALL.taglist";
-        string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
-
-        FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
-        FILE* csf_taglist_fid = nullptr;
-        if ( ncsffile > 0 )
-        {
-            csf_taglist_fid = fopen( csf_taglist_name.c_str(), "w" );
-        }
-
-        if ( taglist_fid )
-        {
-            all_fnames.push_back( taglist_name );
-
-            fprintf( taglist_fid, "%d\n", ntagfile );
-
-            if ( csf_taglist_fid )
-            {
-                all_fnames.push_back( csf_taglist_name );
-                fprintf( csf_taglist_fid, "%d\n", ncsffile );
-            }
-
-            for ( int ipart = 0; ipart < partvec.size(); ipart++ )
-            {
-                int part = partvec[ ipart ];
-
-                for ( int iss = 0; iss < ssurfs.size(); iss++ )
-                {
-                    SubSurface *ssurf = ssurfs[iss];
-                    int tag = ssurf->m_Tag;
-
-                    if ( ExistPartAndTag( part, tag ) )
-                    {
-                        vector < int > parttag;
-                        parttag.push_back( part );
-                        parttag.push_back( tag );
-
-                        string str = m_TagNames[ part ];
-                        int pos = str.find_first_of( '_' );
-                        string gname = str.substr( 0, pos );
-                        string sname = str.substr( pos + 2 );
-
-                        string ptagname = gname + sname + "_" + m_TagNames[tag];
-
-                        string tagfile_name = base_name + ptagname + ".tag";
-                        string tagfile_localname = base_fname + ptagname;
-
-                        fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
-
-                        if ( csf_taglist_fid )
-                        {
-                            if ( ssurf->GetType() == vsp::SS_CONTROL )
-                            {
-                                fprintf( csf_taglist_fid, "%s\n", tagfile_localname.c_str() );
-                            }
-                        }
-
-                        FILE* fid = fopen( tagfile_name.c_str(), "w" );
-                        if ( fid )
-                        {
-                            all_fnames.push_back( tagfile_name );
-
-                            // Iterate through meshes coarse to fine.
-                            for ( int imesh = m_MeshVec.size() - 1; imesh >= 0; imesh-- )
-                            {
-                                PGMesh *pgm = m_MeshVec[imesh];
-                                pgm->WriteTagFile( fid, part, tag );
-                            }
-
-                            fclose( fid );
-                        }
-                    }
-                }
-            }
-
-            fclose( taglist_fid );
-
-            if ( csf_taglist_fid )
-            {
-                fclose( csf_taglist_fid );
-            }
-        }
-    }
-}
-
 void PGMesh::WriteTagFile( FILE* file_id, const int part, const int tag )
 {
     //==== Write Tri IDs for each tag =====//
@@ -3350,166 +3106,6 @@ void PGMesh::WriteTagFile( FILE* file_id, const int part, const int tag )
         }
         iface++;
     }
-}
-
-//==== Write Key File ====//
-void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &all_fnames )
-{
-    bool writethickthin = true;
-    // figure out basename
-    string base_name = GetBasename( file_name );
-    string key_name = base_name + ".vkey";
-
-    FILE* fid = fopen( key_name.c_str(), "w" );
-    if ( !fid )
-    {
-        return;
-    }
-
-    all_fnames.push_back( key_name );
-
-    int npart = 0;
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
-    {
-        if ( m_TagKeys[i].size() == 1 )
-        {
-            npart++;
-        }
-    }
-
-    // Write Out Header Information
-    fprintf( fid, "# VSPGEOM v2 Tag Key File\n" );
-    fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
-
-    // Build GeomID set to have unique integer index instead of GeomID.
-    std::set< string, greater< string > > gids;
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
-    {
-        string id_list = GetTagIDs( m_TagKeys[i] );
-        int pos = id_list.find( "_Surf" );
-        string gid = id_list.substr( 0, pos );
-        gids.insert( gid );
-    }
-
-    fprintf( fid, "%d\n", npart );
-    fprintf( fid, "\n" );
-
-    if ( writethickthin )
-    {
-        fprintf( fid, "# part#,geom#,surf#,gname,gid,thick\n" );
-    }
-    else
-    {
-        fprintf( fid, "# part#,geom#,surf#,gname,gid\n" );
-    }
-
-
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
-    {
-        if ( m_TagKeys[i].size() != 1 )
-        {
-            continue;
-        }
-
-        int part = GetPart( m_TagKeys[i] );
-
-        string comp_list = GetTagNames( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        int spos = comp_list.find( "_Surf" );
-
-        string gname = comp_list.substr( 0, spos );
-
-        string snum, ssnames, ssids;
-
-        // Find position of first comma
-        int cpos = comp_list.find( "," );
-        if ( cpos != std::string::npos )
-        {
-            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
-            ssnames = comp_list.substr( cpos );
-        }
-        else
-        {
-            snum = comp_list.substr( spos + 5 );
-        }
-
-        string id_list = GetTagIDs( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        spos = id_list.find( "_Surf" );
-        string gid = id_list.substr( 0, spos );
-        string gid_bare = gid.substr( 0, 10 );
-
-        // Find position of first comma
-        cpos = id_list.find( "," );
-        if ( cpos != std::string::npos )
-        {
-            ssids = id_list.substr( cpos );
-        }
-
-        // Lookup Geom number
-        int gnum = distance( gids.begin(), gids.find( gid ) );
-
-        int thickthin = GetThickThin( part );
-
-        // Write tag number and surface list to file
-        if ( writethickthin )
-        {
-            fprintf( fid, "%d,%d,%s,%s,%s,%d\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin );
-        }
-        else
-        {
-            fprintf( fid, "%d,%d,%s,%s,%s\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str() );
-        }
-    }
-
-    fprintf( fid, "\n" );
-    fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
-    fprintf( fid, "\n" );
-
-    fprintf( fid, "# tag#,part#,ssname1,ssname2,...,ssid1,ssid2,...\n" );
-
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
-    {
-        int tag = GetTag( m_TagKeys[i] );
-        int part = GetPart( m_TagKeys[i] );
-
-        string comp_list = GetTagNames( m_TagKeys[i] );
-
-        string ssnames, ssids;
-
-        // Find position of first comma
-        int cpos = comp_list.find( "," );
-        if ( cpos != std::string::npos )
-        {
-            ssnames = comp_list.substr( cpos );
-        }
-
-        string id_list = GetTagIDs( m_TagKeys[i] );
-
-        // Find position of first comma
-        cpos = id_list.find( "," );
-        if ( cpos != std::string::npos )
-        {
-            ssids = id_list.substr( cpos );
-        }
-
-        // Write tag number and surface list to file
-        fprintf( fid, "%d,%d", tag, part );
-
-        // Write subsurface information if there is any
-        if( !ssnames.empty() )
-        {
-            // ssnames and ssids have leading commas
-            fprintf( fid, "%s%s\n", ssnames.c_str(), ssids.c_str() );
-        }
-        else
-        {
-            fprintf( fid, "\n" );
-        }
-    }
-    fclose( fid );
 }
 
 void PGMesh::WriteSTL( const string& fname )
@@ -3601,305 +3197,6 @@ void PGMesh::WriteTRI( const string& fname )
         }
     }
     fclose( fp );
-}
-
-string PGMulti::GetTagNames( const vector<int> & tags )
-{
-    string comp_list;
-    map< int, string >::iterator si;
-
-    int tag = GetTag( tags );
-
-    if ( tag == -1 )
-    {
-        comp_list = "Error_Tag";
-        return comp_list;
-    }
-    else
-    {
-        for ( int i = 0 ; i < ( int )tags.size() ; i++ )
-        {
-            si = m_TagNames.find( tags[i] );
-
-            if ( si == m_TagNames.end() )
-            {
-                comp_list += ",Error_SubSurf";
-            }
-            else if ( si != m_TagNames.end() )
-            {
-                comp_list += "," + si->second ;
-            }
-
-            // Remove leading comma on first loop
-            if ( i == 0 )
-            { comp_list.erase( comp_list.begin(), comp_list.begin() + 1 ); }
-        }
-    }
-
-    return comp_list;
-}
-
-string PGMulti::GetTagNames( const int indx )
-{
-    if ( indx < m_TagKeys.size() && indx >= 0 )
-    {
-        return GetTagNames( m_TagKeys[indx] );
-    }
-    return string( "Error_Tag" );
-}
-
-string PGMulti::GetTagIDs( const vector<int>& tags )
-{
-    string comp_list;
-    map< int, string >::iterator si;
-
-    int tag = GetTag( tags );
-
-    if ( tag == -1 )
-    {
-        comp_list = "Error_Tag";
-        return comp_list;
-    }
-    else
-    {
-        for ( int i = 0; i < (int)tags.size(); i++ )
-        {
-            si = m_TagIDs.find( tags[i] );
-
-            if ( si == m_TagIDs.end() )
-            {
-                comp_list += ",Error_SubSurf";
-            }
-            else if ( si != m_TagIDs.end() )
-            {
-                comp_list += "," + si->second;
-            }
-
-            // Remove leading comma on first loop
-            if ( i == 0 )
-            {
-                comp_list.erase( comp_list.begin(), comp_list.begin() + 1 );
-            }
-        }
-    }
-
-    return comp_list;
-}
-
-string PGMulti::GetTagIDs( const int indx )
-{
-    if ( indx < m_TagKeys.size() && indx >= 0 )
-    {
-        return GetTagIDs( m_TagKeys[indx] );
-    }
-    return string( "Error_Tag" );
-}
-
-string PGMulti::GetGID( const int& tag )
-{
-    string id_list = GetTagIDs( tag - 1 );
-
-    // Find position of token _Surf
-    int spos = id_list.find( "_Surf" );
-    string gid = id_list.substr( 0, spos );
-    string gid_bare = gid.substr( 0, 10 );
-
-    return gid_bare;
-}
-
-bool PGMulti::MatchPartAndTag( const vector < int > & tags, const int part, const int tag )
-{
-    if ( !tags.empty() )
-    {
-        if ( tags[0] == part )
-        {
-            if ( vector_contains_val( tags, tag ) )
-            {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-bool PGMulti::MatchPartAndTag( const int singletag, const int part, const int tag ) const
-{
-    if ( m_TagKeys.size() >= singletag )
-    {
-        return MatchPartAndTag( m_TagKeys[ singletag - 1 ], part, tag );
-    }
-    return false;
-}
-
-bool PGMulti::ExistPartAndTag( const int part, const int tag ) const
-{
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
-    {
-        if ( MatchPartAndTag( m_TagKeys[i], part, tag ) )
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-void PGMulti::MakePartList( std::vector < int > & partvec ) const
-{
-    std::set< int > partset;
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
-    {
-        if ( !m_TagKeys[i].empty() )
-        {
-            partset.insert( m_TagKeys[i][0] );
-        }
-    }
-
-    partvec.clear();
-    partvec.reserve( partset.size() );
-    std::set< int >::iterator it;
-    for ( it = partset.begin(); it != partset.end(); ++it )
-    {
-        partvec.push_back( *it );
-    }
-}
-
-int PGMulti::GetTag( const vector<int> & tags )
-{
-    map< vector<int>, int >::iterator mi;
-    mi = m_SingleTagMap.find( tags );
-
-    if ( mi != m_SingleTagMap.end() )
-    {
-        return mi->second;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-vector< int > PGMulti::GetTagVec( const int &tin )
-{
-    vector < int > ret;
-
-    int t = tin;
-
-    if ( t > 1000 )
-    {
-        t -= 1000;
-    }
-
-    t -= 1;
-
-    if ( t >=0 && t < m_TagKeys.size() )
-    {
-        ret = m_TagKeys[ t ];
-        if ( GetTag( ret ) == tin )
-        {
-            return ret;
-        }
-        printf( "Error in PGMesh::GetTagVec.  Unable to invert %d.\n", tin );
-    }
-    else
-    {
-        printf( "Error in PGMesh::GetTagVec.  Out of range %d.\n", tin );
-    }
-
-    return vector<int> { -1 };
-}
-
-int PGMulti::GetType( const int part ) const
-{
-    return m_TypeVec[ part - 1 ];
-}
-
-int PGMulti::GetThickThin( const int part ) const
-{
-    return m_ThickVec[ part - 1 ];
-}
-
-double PGMulti::GetWmin( const int part ) const
-{
-    return m_WminVec[ part - 1 ];
-}
-
-int PGMulti::GetPart( const vector<int> & tags )
-{
-    if ( !tags.empty() )
-    {
-        return tags[0];
-    }
-    return -1;
-}
-
-int PGMulti::GetPart( int tag ) const
-{
-    if ( m_TagKeys.size() >= tag )
-    {
-        vector < int > tags = m_TagKeys[ tag - 1 ];
-        return GetPart( tags );
-    }
-    return -1;
-}
-
-void PGMulti::GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec )
-{
-    gidvec.clear();
-    partvec.clear();
-    surfvec.clear();
-
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
-    {
-        if ( m_TagKeys[i].size() != 1 )
-        {
-            continue;
-        }
-
-        int part = GetPart( m_TagKeys[i] );
-
-        string comp_list = GetTagNames( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        int spos = comp_list.find( "_Surf" );
-
-        string gname = comp_list.substr( 0, spos );
-
-        string snum, ssnames, ssids;
-
-        // Find position of first comma
-        int cpos = comp_list.find( "," );
-        if ( cpos != std::string::npos )
-        {
-            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
-            ssnames = comp_list.substr( cpos );
-        }
-        else
-        {
-            snum = comp_list.substr( spos + 5 );
-        }
-
-        string id_list = GetTagIDs( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        spos = id_list.find( "_Surf" );
-        string gid = id_list.substr( 0, spos );
-        string gid_bare = gid.substr( 0, 10 );
-
-
-        gidvec.push_back( gid_bare );
-        partvec.push_back( part );
-        surfvec.push_back( stoi( snum ) );
-    }
-}
-
-std::map< std::vector<int>, int > PGMulti::GetSingleTagMap() const
-{
-    return m_SingleTagMap;
-}
-
-unsigned int PGMulti::GetNumTags() const
-{
-    return m_SingleTagMap.size();
 }
 
 void PGMesh::BuildFromTMesh( const TMesh* tmi )
@@ -4374,5 +3671,708 @@ void PGMulti::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
             }
         }
     }
+
+}
+
+void PGMulti::WriteTagFiles( const string& file_name, vector < string > &all_fnames )
+{
+    int ntagfile = 0;
+    int ncsffile = 0;
+
+    std::vector < int > partvec;
+    MakePartList( partvec );
+    vector < SubSurface* > ssurfs = SubSurfaceMgr.GetSubSurfs();
+
+    for ( int ipart = 0; ipart < partvec.size(); ipart++ )
+    {
+        int part = partvec[ ipart ];
+
+        for ( int iss = 0; iss < ssurfs.size(); iss++ )
+        {
+            SubSurface *ssurf = ssurfs[iss];
+            int tag = ssurf->m_Tag;
+
+            if ( ExistPartAndTag( part, tag ) )
+            {
+                ntagfile++;
+
+                if ( ssurf->GetType() == vsp::SS_CONTROL )
+                {
+                    ncsffile++;
+                }
+            }
+        }
+    }
+
+    if ( ntagfile > 0 )
+    {
+        string base_name = GetBasename( file_name );
+
+        string base_path, base_fname;
+        GetPathFile( base_name, base_path, base_fname );
+
+        string taglist_name = base_name + ".ALL.taglist";
+        string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
+
+        FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
+        FILE* csf_taglist_fid = nullptr;
+        if ( ncsffile > 0 )
+        {
+            csf_taglist_fid = fopen( csf_taglist_name.c_str(), "w" );
+        }
+
+        if ( taglist_fid )
+        {
+            all_fnames.push_back( taglist_name );
+
+            fprintf( taglist_fid, "%d\n", ntagfile );
+
+            if ( csf_taglist_fid )
+            {
+                all_fnames.push_back( csf_taglist_name );
+                fprintf( csf_taglist_fid, "%d\n", ncsffile );
+            }
+
+            for ( int ipart = 0; ipart < partvec.size(); ipart++ )
+            {
+                int part = partvec[ ipart ];
+
+                for ( int iss = 0; iss < ssurfs.size(); iss++ )
+                {
+                    SubSurface *ssurf = ssurfs[iss];
+                    int tag = ssurf->m_Tag;
+
+                    if ( ExistPartAndTag( part, tag ) )
+                    {
+                        vector < int > parttag;
+                        parttag.push_back( part );
+                        parttag.push_back( tag );
+
+                        string str = m_TagNames[ part ];
+                        int pos = str.find_first_of( '_' );
+                        string gname = str.substr( 0, pos );
+                        string sname = str.substr( pos + 2 );
+
+                        string ptagname = gname + sname + "_" + m_TagNames[tag];
+
+                        string tagfile_name = base_name + ptagname + ".tag";
+                        string tagfile_localname = base_fname + ptagname;
+
+                        fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
+
+                        if ( csf_taglist_fid )
+                        {
+                            if ( ssurf->GetType() == vsp::SS_CONTROL )
+                            {
+                                fprintf( csf_taglist_fid, "%s\n", tagfile_localname.c_str() );
+                            }
+                        }
+
+                        FILE* fid = fopen( tagfile_name.c_str(), "w" );
+                        if ( fid )
+                        {
+                            all_fnames.push_back( tagfile_name );
+
+                            // Iterate through meshes coarse to fine.
+                            for ( int imesh = m_MeshVec.size() - 1; imesh >= 0; imesh-- )
+                            {
+                                PGMesh *pgm = m_MeshVec[imesh];
+                                pgm->WriteTagFile( fid, part, tag );
+                            }
+
+                            fclose( fid );
+                        }
+                    }
+                }
+            }
+
+            fclose( taglist_fid );
+
+            if ( csf_taglist_fid )
+            {
+                fclose( csf_taglist_fid );
+            }
+        }
+    }
+}
+
+//==== Write Key File ====//
+void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &all_fnames )
+{
+    bool writethickthin = true;
+    // figure out basename
+    string base_name = GetBasename( file_name );
+    string key_name = base_name + ".vkey";
+
+    FILE* fid = fopen( key_name.c_str(), "w" );
+    if ( !fid )
+    {
+        return;
+    }
+
+    all_fnames.push_back( key_name );
+
+    int npart = 0;
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( m_TagKeys[i].size() == 1 )
+        {
+            npart++;
+        }
+    }
+
+    // Write Out Header Information
+    fprintf( fid, "# VSPGEOM v2 Tag Key File\n" );
+    fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
+
+    // Build GeomID set to have unique integer index instead of GeomID.
+    std::set< string, greater< string > > gids;
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        string id_list = GetTagIDs( m_TagKeys[i] );
+        int pos = id_list.find( "_Surf" );
+        string gid = id_list.substr( 0, pos );
+        gids.insert( gid );
+    }
+
+    fprintf( fid, "%d\n", npart );
+    fprintf( fid, "\n" );
+
+    if ( writethickthin )
+    {
+        fprintf( fid, "# part#,geom#,surf#,gname,gid,thick\n" );
+    }
+    else
+    {
+        fprintf( fid, "# part#,geom#,surf#,gname,gid\n" );
+    }
+
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( m_TagKeys[i].size() != 1 )
+        {
+            continue;
+        }
+
+        int part = GetPart( m_TagKeys[i] );
+
+        string comp_list = GetTagNames( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        int spos = comp_list.find( "_Surf" );
+
+        string gname = comp_list.substr( 0, spos );
+
+        string snum, ssnames, ssids;
+
+        // Find position of first comma
+        int cpos = comp_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
+            ssnames = comp_list.substr( cpos );
+        }
+        else
+        {
+            snum = comp_list.substr( spos + 5 );
+        }
+
+        string id_list = GetTagIDs( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        spos = id_list.find( "_Surf" );
+        string gid = id_list.substr( 0, spos );
+        string gid_bare = gid.substr( 0, 10 );
+
+        // Find position of first comma
+        cpos = id_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            ssids = id_list.substr( cpos );
+        }
+
+        // Lookup Geom number
+        int gnum = distance( gids.begin(), gids.find( gid ) );
+
+        int thickthin = GetThickThin( part );
+
+        // Write tag number and surface list to file
+        if ( writethickthin )
+        {
+            fprintf( fid, "%d,%d,%s,%s,%s,%d\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin );
+        }
+        else
+        {
+            fprintf( fid, "%d,%d,%s,%s,%s\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str() );
+        }
+    }
+
+    fprintf( fid, "\n" );
+    fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
+    fprintf( fid, "\n" );
+
+    fprintf( fid, "# tag#,part#,ssname1,ssname2,...,ssid1,ssid2,...\n" );
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        int tag = GetTag( m_TagKeys[i] );
+        int part = GetPart( m_TagKeys[i] );
+
+        string comp_list = GetTagNames( m_TagKeys[i] );
+
+        string ssnames, ssids;
+
+        // Find position of first comma
+        int cpos = comp_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            ssnames = comp_list.substr( cpos );
+        }
+
+        string id_list = GetTagIDs( m_TagKeys[i] );
+
+        // Find position of first comma
+        cpos = id_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            ssids = id_list.substr( cpos );
+        }
+
+        // Write tag number and surface list to file
+        fprintf( fid, "%d,%d", tag, part );
+
+        // Write subsurface information if there is any
+        if( !ssnames.empty() )
+        {
+            // ssnames and ssids have leading commas
+            fprintf( fid, "%s%s\n", ssnames.c_str(), ssids.c_str() );
+        }
+        else
+        {
+            fprintf( fid, "\n" );
+        }
+    }
+    fclose( fid );
+}
+
+string PGMulti::GetTagNames( const vector<int> & tags )
+{
+    string comp_list;
+    map< int, string >::iterator si;
+
+    int tag = GetTag( tags );
+
+    if ( tag == -1 )
+    {
+        comp_list = "Error_Tag";
+        return comp_list;
+    }
+    else
+    {
+        for ( int i = 0 ; i < ( int )tags.size() ; i++ )
+        {
+            si = m_TagNames.find( tags[i] );
+
+            if ( si == m_TagNames.end() )
+            {
+                comp_list += ",Error_SubSurf";
+            }
+            else if ( si != m_TagNames.end() )
+            {
+                comp_list += "," + si->second ;
+            }
+
+            // Remove leading comma on first loop
+            if ( i == 0 )
+            { comp_list.erase( comp_list.begin(), comp_list.begin() + 1 ); }
+        }
+    }
+
+    return comp_list;
+}
+
+string PGMulti::GetTagNames( const int indx )
+{
+    if ( indx < m_TagKeys.size() && indx >= 0 )
+    {
+        return GetTagNames( m_TagKeys[indx] );
+    }
+    return string( "Error_Tag" );
+}
+
+string PGMulti::GetTagIDs( const vector<int>& tags )
+{
+    string comp_list;
+    map< int, string >::iterator si;
+
+    int tag = GetTag( tags );
+
+    if ( tag == -1 )
+    {
+        comp_list = "Error_Tag";
+        return comp_list;
+    }
+    else
+    {
+        for ( int i = 0; i < (int)tags.size(); i++ )
+        {
+            si = m_TagIDs.find( tags[i] );
+
+            if ( si == m_TagIDs.end() )
+            {
+                comp_list += ",Error_SubSurf";
+            }
+            else if ( si != m_TagIDs.end() )
+            {
+                comp_list += "," + si->second;
+            }
+
+            // Remove leading comma on first loop
+            if ( i == 0 )
+            {
+                comp_list.erase( comp_list.begin(), comp_list.begin() + 1 );
+            }
+        }
+    }
+
+    return comp_list;
+}
+
+string PGMulti::GetTagIDs( const int indx )
+{
+    if ( indx < m_TagKeys.size() && indx >= 0 )
+    {
+        return GetTagIDs( m_TagKeys[indx] );
+    }
+    return string( "Error_Tag" );
+}
+
+string PGMulti::GetGID( const int& tag )
+{
+    string id_list = GetTagIDs( tag - 1 );
+
+    // Find position of token _Surf
+    int spos = id_list.find( "_Surf" );
+    string gid = id_list.substr( 0, spos );
+    string gid_bare = gid.substr( 0, 10 );
+
+    return gid_bare;
+}
+
+bool PGMulti::MatchPartAndTag( const vector < int > & tags, const int part, const int tag )
+{
+    if ( !tags.empty() )
+    {
+        if ( tags[0] == part )
+        {
+            if ( vector_contains_val( tags, tag ) )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool PGMulti::MatchPartAndTag( const int singletag, const int part, const int tag ) const
+{
+    if ( m_TagKeys.size() >= singletag )
+    {
+        return MatchPartAndTag( m_TagKeys[ singletag - 1 ], part, tag );
+    }
+    return false;
+}
+
+bool PGMulti::ExistPartAndTag( const int part, const int tag ) const
+{
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( MatchPartAndTag( m_TagKeys[i], part, tag ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void PGMulti::MakePartList( std::vector < int > & partvec ) const
+{
+    std::set< int > partset;
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( !m_TagKeys[i].empty() )
+        {
+            partset.insert( m_TagKeys[i][0] );
+        }
+    }
+
+    partvec.clear();
+    partvec.reserve( partset.size() );
+    std::set< int >::iterator it;
+    for ( it = partset.begin(); it != partset.end(); ++it )
+    {
+        partvec.push_back( *it );
+    }
+}
+
+int PGMulti::GetTag( const vector<int> & tags )
+{
+    map< vector<int>, int >::iterator mi;
+    mi = m_SingleTagMap.find( tags );
+
+    if ( mi != m_SingleTagMap.end() )
+    {
+        return mi->second;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+vector< int > PGMulti::GetTagVec( const int &tin )
+{
+    vector < int > ret;
+
+    int t = tin;
+
+    if ( t > 1000 )
+    {
+        t -= 1000;
+    }
+
+    t -= 1;
+
+    if ( t >=0 && t < m_TagKeys.size() )
+    {
+        ret = m_TagKeys[ t ];
+        if ( GetTag( ret ) == tin )
+        {
+            return ret;
+        }
+        printf( "Error in PGMesh::GetTagVec.  Unable to invert %d.\n", tin );
+    }
+    else
+    {
+        printf( "Error in PGMesh::GetTagVec.  Out of range %d.\n", tin );
+    }
+
+    return vector<int> { -1 };
+}
+
+int PGMulti::GetType( const int part ) const
+{
+    return m_TypeVec[ part - 1 ];
+}
+
+int PGMulti::GetThickThin( const int part ) const
+{
+    return m_ThickVec[ part - 1 ];
+}
+
+double PGMulti::GetWmin( const int part ) const
+{
+    return m_WminVec[ part - 1 ];
+}
+
+int PGMulti::GetPart( const vector<int> & tags )
+{
+    if ( !tags.empty() )
+    {
+        return tags[0];
+    }
+    return -1;
+}
+
+int PGMulti::GetPart( int tag ) const
+{
+    if ( m_TagKeys.size() >= tag )
+    {
+        vector < int > tags = m_TagKeys[ tag - 1 ];
+        return GetPart( tags );
+    }
+    return -1;
+}
+
+void PGMulti::GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec )
+{
+    gidvec.clear();
+    partvec.clear();
+    surfvec.clear();
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( m_TagKeys[i].size() != 1 )
+        {
+            continue;
+        }
+
+        int part = GetPart( m_TagKeys[i] );
+
+        string comp_list = GetTagNames( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        int spos = comp_list.find( "_Surf" );
+
+        string gname = comp_list.substr( 0, spos );
+
+        string snum, ssnames, ssids;
+
+        // Find position of first comma
+        int cpos = comp_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
+            ssnames = comp_list.substr( cpos );
+        }
+        else
+        {
+            snum = comp_list.substr( spos + 5 );
+        }
+
+        string id_list = GetTagIDs( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        spos = id_list.find( "_Surf" );
+        string gid = id_list.substr( 0, spos );
+        string gid_bare = gid.substr( 0, 10 );
+
+
+        gidvec.push_back( gid_bare );
+        partvec.push_back( part );
+        surfvec.push_back( stoi( snum ) );
+    }
+}
+
+std::map< std::vector<int>, int > PGMulti::GetSingleTagMap() const
+{
+    return m_SingleTagMap;
+}
+
+unsigned int PGMulti::GetNumTags() const
+{
+    return m_SingleTagMap.size();
+}
+
+void PGMulti::Report()
+{
+    ResetPointNumbers();
+
+    printf( "m_TagNames %d entries\n", m_TagNames.size() );
+    for ( auto it = m_TagNames.begin(); it != m_TagNames.end(); it++ )
+    {
+        printf( "%d %s\n", it->first, it->second.c_str() );
+    }
+    printf( "\n" );
+
+    printf( "m_TagIDs %d entries\n", m_TagIDs.size() );
+    for ( auto it = m_TagIDs.begin(); it != m_TagIDs.end(); it++ )
+    {
+        printf( "%d %s\n", it->first, it->second.c_str() );
+    }
+    printf( "\n" );
+
+    printf( "m_ThickVec %d entries\n", m_ThickVec.size() );
+    for ( int i = 0; i < m_ThickVec.size(); i++ )
+    {
+        printf( "%d %d\n", i, m_ThickVec[i] );
+    }
+    printf( "\n" );
+
+    printf( "m_TypeVec %d entries\n", m_TypeVec.size() );
+    for ( int i = 0; i < m_TypeVec.size(); i++ )
+    {
+        printf( "%d %d\n", i, m_TypeVec[i] );
+    }
+    printf( "\n" );
+
+    printf( "m_WminVec %d entries\n", m_WminVec.size() );
+    for ( int i = 0; i < m_WminVec.size(); i++ )
+    {
+        printf( "%d %g\n", i, m_WminVec[i] );
+    }
+    printf( "\n" );
+
+    printf( "m_TagKeys %d entries\n", m_TagKeys.size() );
+    for ( int i = 0; i < m_TagKeys.size(); i++ )
+    {
+        printf( "%d     ", i + 1 );
+        for ( int j = 0; j < m_TagKeys[i].size(); j++ )
+        {
+            printf( "%d ", m_TagKeys[i][j] );
+        }
+        printf( "\n" );
+    }
+    printf( "\n" );
+
+    printf( "m_SingleTagMap %d entries\n", m_SingleTagMap.size() );
+    for ( auto it = m_SingleTagMap.begin(); it != m_SingleTagMap.end(); it++ )
+    {
+        printf( "%d     ", it->second );
+        for ( int j = 0; j < (it->first).size(); j++ )
+        {
+            printf( "%d ", (it->first)[j] );
+        }
+        printf( "\n" );
+    }
+    printf( "\n" );
+
+    printf( "GetGID( tag )\n" );
+    for ( int i = 0; i < m_TagKeys.size(); i++ )
+    {
+        printf( "%d %s\n", i + 1, GetGID( i + 1 ).c_str() );
+    }
+    printf( "\n" );
+
+    printf( "GetPart( tag )\n" );
+    for ( int i = 0; i < m_TagKeys.size(); i++ )
+    {
+        printf( "%d %d\n", i + 1, GetPart( i + 1 ) );
+    }
+    printf( "\n" );
+
+
+    PGMesh *pgm = GetActiveMesh();
+
+
+    printf( "%10d   Nodes\n", pgm->m_NodeList.size() );
+    printf( "%10d   Edges\n", pgm->m_EdgeList.size() );
+    printf( "%10d   Faces\n", pgm->m_FaceList.size() );
+
+    int inode = 1; // Start numbering at 1
+    list< PGNode* >::iterator n;
+    for ( n = pgm->m_NodeList.begin() ; n != pgm->m_NodeList.end(); ++n )
+    {
+        inode++;
+    }
+
+
+    printf( "Non-manifold edges\n" );
+    int iedge = 1;
+    list< PGEdge* >::iterator e;
+    for ( e = pgm->m_EdgeList.begin() ; e != pgm->m_EdgeList.end(); ++e )
+    {
+        if ( ( *e )->m_FaceVec.size() != 2 )
+        {
+            printf( "Edge %d has %d faces\n", iedge, ( *e )->m_FaceVec.size() );
+            printf( "    Node %d %f %f %f\n", ( *e )->m_N0->m_Pt->m_ID + 1, ( *e )->m_N0->m_Pt->m_Pnt.x(), ( *e )->m_N0->m_Pt->m_Pnt.y(), ( *e )->m_N0->m_Pt->m_Pnt.z() );
+            printf( "    Node %d %f %f %f\n", ( *e )->m_N1->m_Pt->m_ID + 1, ( *e )->m_N1->m_Pt->m_Pnt.x(), ( *e )->m_N1->m_Pt->m_Pnt.y(), ( *e )->m_N1->m_Pt->m_Pnt.z() );
+        }
+
+        iedge++;
+    }
+
+
+
+    list< PGFace* >::iterator f;
+    for ( f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
+    {
+
+    }
+
+
+    printf( "Done\n" );
+
 
 }
