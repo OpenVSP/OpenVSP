@@ -167,11 +167,11 @@ void NGonMeshGeom::WriteVSPGEOM( string fname, vector < string > &all_fnames )
 
         fclose ( file_id );
 
-        pgm->WriteTagFiles( fname, all_fnames );
+        m_PGMulti.WriteTagFiles( fname, all_fnames );
 
         //==== Write Out tag key file ====//
 
-        pgm->WriteVSPGEOMKeyFile( fname, all_fnames );
+        m_PGMulti.WriteVSPGEOMKeyFile( fname, all_fnames );
 
         vector < string > gidvec;
         vector < int > partvec;

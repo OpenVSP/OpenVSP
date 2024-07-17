@@ -3200,7 +3200,7 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
     }
 }
 
-void PGMesh::WriteTagFiles( const string& file_name, vector < string > &all_fnames )
+void PGMulti::WriteTagFiles( const string& file_name, vector < string > &all_fnames )
 {
     int ntagfile = 0;
     int ncsffile = 0;
@@ -3299,7 +3299,12 @@ void PGMesh::WriteTagFiles( const string& file_name, vector < string > &all_fnam
                         {
                             all_fnames.push_back( tagfile_name );
 
-                            WriteTagFile( fid, part, tag );
+                            // Iterate through meshes coarse to fine.
+                            for ( int imesh = m_MeshVec.size() - 1; imesh >= 0; imesh-- )
+                            {
+                                PGMesh *pgm = m_MeshVec[imesh];
+                                pgm->WriteTagFile( fid, part, tag );
+                            }
 
                             fclose( fid );
                         }
@@ -3348,7 +3353,7 @@ void PGMesh::WriteTagFile( FILE* file_id, const int part, const int tag )
 }
 
 //==== Write Key File ====//
-void PGMesh::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &all_fnames )
+void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &all_fnames )
 {
     bool writethickthin = true;
     // figure out basename
@@ -4318,4 +4323,56 @@ void PGMulti::ResetPointNumbers()
         ( *p )->m_ID = inode;
         inode++;
     }
+}
+
+void PGMulti::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
+{
+    fprintf( file_id, "# vspgeom v3\n" );
+    WriteVSPGeomPnts( file_id, XFormMat );
+
+    // Iterate through meshes coarse to fine.
+    for ( int imesh = m_MeshVec.size() - 1; imesh >= 0; imesh-- )
+    {
+        PGMesh *pgm = m_MeshVec[imesh];
+
+        pgm->WriteVSPGeomFaces( file_id );
+        pgm->WriteVSPGeomParts( file_id );
+        pgm->WriteVSPGeomWakes( file_id );
+        pgm->WriteVSPGeomAlternateTris( file_id );
+        pgm->WriteVSPGeomAlternateParts( file_id );
+    }
+}
+
+void PGMulti::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
+{
+    // Set point ID to -1 to mark as un-written.
+    for ( list< PGPoint* >::iterator p = m_PointList.begin() ; p != m_PointList.end(); ++p )
+    {
+        ( *p )->m_ID = -1;
+    }
+
+    // Number of nodes in finest mesh, total nodes to be written out.
+    int ntot = m_MeshVec[0]->m_NodeList.size();
+
+    fprintf( file_id, "%d\n", ntot );
+
+    int ipoint = 0;
+    // Iterate through meshes coarse to fine.
+    for ( int imesh = m_MeshVec.size() - 1; imesh >= 0; imesh-- )
+    {
+        PGMesh *pgm = m_MeshVec[imesh];
+
+        for ( list< PGNode* >::iterator n = pgm->m_NodeList.begin(); n != pgm->m_NodeList.end(); ++n )
+        {
+            if ( (*n)->m_Pt->m_ID < 0 )
+            {
+                (*n)->m_Pt->m_ID = ipoint;
+                // Apply Transformations
+                vec3d v = XFormMat.xform( ( *n )->m_Pt->m_Pnt );
+                fprintf( file_id, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() );
+                ipoint++;
+            }
+        }
+    }
+
 }

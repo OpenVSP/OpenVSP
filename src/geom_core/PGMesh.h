@@ -365,9 +365,7 @@ public:
     void WriteVSPGeomWakes( FILE* file_id ) const;
     void WriteVSPGeomAlternateTris( FILE* file_id );
     void WriteVSPGeomAlternateParts( FILE* file_id );
-    void WriteTagFiles( const string& file_name, vector < string > &all_fnames );
     void WriteTagFile( FILE* file_id, int part, int tag );
-    void WriteVSPGEOMKeyFile(const string & file_name, vector < string > &all_fnames );
 
     void WriteSTL( const string& fname );
     void WriteTRI( const string& fname );
@@ -413,6 +411,11 @@ public:
 
     bool Check();
     void ResetPointNumbers();
+
+    void WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  );
+    void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );
+    void WriteTagFiles( const string& file_name, vector < string > &all_fnames );
+    void WriteVSPGEOMKeyFile(const string & file_name, vector < string > &all_fnames );
 
     // Get Comma Delimited list of names for a set of tags
     std::string GetTagNames( const std::vector<int> & tags );
