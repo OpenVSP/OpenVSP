@@ -247,6 +247,34 @@ bool PGNode::ColinearNode() const
 
                 return FaceRemoveNodeTest( f );
             }
+            else if ( e0->m_FaceVec.size() == 2 )
+            {
+                PGFace *f0 = e0->m_FaceVec[0];
+                PGFace *f1 = e0->m_FaceVec[1];
+
+                // Faces originate from same iQuad, but different tags.
+                if ( f0->m_iQuad == f1->m_iQuad &&
+                     f0->m_Tag != f1->m_Tag )
+                {
+                    PGNode *n0 = e0->OtherNode( this );
+                    PGNode *n1 = e1->OtherNode( this );
+
+                    vec3d v0 = n0->m_Pt->m_Pnt - m_Pt->m_Pnt;
+                    vec3d v1 = m_Pt->m_Pnt - n1->m_Pt->m_Pnt;
+
+                    double ang = angle( v0, v1 ) * 180.0 / PI;
+
+                    if ( ang < 5 )
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
             else // For manifold >=2 edges, logical check suffices.
             {
                 return true;
