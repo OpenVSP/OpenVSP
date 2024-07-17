@@ -55,6 +55,8 @@ public:
 
     BoolParm m_ShowNonManifoldEdges;
 
+    IntParm m_ActiveMesh;
+
     DrawObj m_BadEdgeTooFewDO;
     DrawObj m_BadEdgeTooManyDO;
 

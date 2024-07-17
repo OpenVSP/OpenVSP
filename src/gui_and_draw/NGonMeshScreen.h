@@ -28,6 +28,7 @@ public:
 
     ToggleButton m_ShowNonManifoldEdgesButton;
 
+    Counter m_ActiveMeshIndexSelector;
     TriggerButton m_Coarsen1Button;
     TriggerButton m_Coarsen2Button;
 

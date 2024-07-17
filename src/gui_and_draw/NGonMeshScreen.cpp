@@ -33,6 +33,7 @@ NGonMeshScreen::NGonMeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "N
     m_OtherLayout.AddButton( m_ShowNonManifoldEdgesButton, "Show Non Manifold Edges" );
 
     m_OtherLayout.AddYGap();
+    m_OtherLayout.AddCounter( m_ActiveMeshIndexSelector, "Mesh" );
     m_OtherLayout.AddButton( m_Coarsen1Button, "Coarsen 1" );
     m_OtherLayout.AddYGap();
     m_OtherLayout.AddButton( m_Coarsen2Button, "Coarsen 2" );
@@ -69,6 +70,8 @@ bool NGonMeshScreen::Update()
     assert( ngon_mesh_geom_ptr );
 
     m_ShowNonManifoldEdgesButton.Update( ngon_mesh_geom_ptr->m_ShowNonManifoldEdges.GetID() );
+
+    m_ActiveMeshIndexSelector.Update( ngon_mesh_geom_ptr->m_ActiveMesh.GetID() );
 
     return true;
 }

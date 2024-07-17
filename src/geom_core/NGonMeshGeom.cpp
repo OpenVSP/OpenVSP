@@ -31,6 +31,8 @@ NGonMeshGeom::NGonMeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_ShowNonManifoldEdges.Init( "ShowNonManifoldEdges", "Draw", this, false, false, true );
 
+    m_ActiveMesh.Init( "ActiveMesh", "RefMesh", this, 0, 0, 10 );
+
     Update();
 }
 
@@ -41,6 +43,10 @@ NGonMeshGeom::~NGonMeshGeom()
 
 void NGonMeshGeom::UpdateSurf()
 {
+    if ( m_PGMulti.m_ActiveMesh != m_ActiveMesh() )
+    {
+        m_PGMulti.m_ActiveMesh = m_ActiveMesh();
+    }
 }
 
 //==== Get Total Transformation Matrix from Original Points ====//

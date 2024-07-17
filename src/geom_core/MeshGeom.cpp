@@ -1891,6 +1891,8 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool Co
     NGonMeshGeom* new_geom = ( NGonMeshGeom* ) m_Vehicle->FindGeom( id );
     if ( new_geom )
     {
+        new_geom->m_ActiveMesh.SetUpperLimit( n_ref );
+
         new_geom->SetName( GetName() + "_NGon" );
 
         Matrix4d XFormMat = GetTotalTransMat();
