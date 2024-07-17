@@ -2122,6 +2122,9 @@ void PGMesh::MergeEdges( PGEdge *ea, PGEdge *eb )
     }
 }
 
+// Profiling shows this routine to be quite slow -- and in testing, it never finds a duplicate edge.
+// consequently, it has been removed from the code paths, but this will remain in case something like
+// this is needed later.
 int PGMesh::MergeDuplicateEdges()
 {
     int nmerged = 0;

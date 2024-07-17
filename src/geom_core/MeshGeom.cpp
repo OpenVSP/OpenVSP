@@ -1902,7 +1902,7 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool Co
         pgm->BuildFromTMeshVec( m_TMeshVec );
 
         pgm->MergeCoincidentNodes();
-        pgm->MergeDuplicateEdges();
+        // pgm->MergeDuplicateEdges();
 
         pgm->PolygonizeMesh();
         pgm->CleanColinearVerts();
@@ -2137,7 +2137,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
             pgm->MergeCoincidentNodes();
 
 
-            pgm->MergeDuplicateEdges();
+            // pgm->MergeDuplicateEdges();
 
 
             pgm->PolygonizeMesh();
@@ -4160,7 +4160,7 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
 
     // Merge Nodes and Edges to make topologically correct.
     pgm->MergeCoincidentNodes();
-    pgm->MergeDuplicateEdges();
+    // pgm->MergeDuplicateEdges();
 
     // Build vector of boundary edges.
     vector < PGEdge* > boundary_edges;
