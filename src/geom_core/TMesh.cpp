@@ -3231,7 +3231,10 @@ void TTri::OrientConnList( vector < vector < int > > & cl )
 {
     for ( int i = 0; i < cl.size(); i++ )
     {
-        OrientTri( cl[i] );
+        if ( cl[i].size() > 0 )
+        {
+            OrientTri( cl[i] );
+        }
     }
 }
 
@@ -3351,17 +3354,20 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
     int ntri = cl_DBA.size();
     for ( int i = 0; i < ntri; i++ )
     {
-        TTri* t = new TTri( m_TMesh );
-        t->m_N0 = m_NVec[ cl_DBA[i][0] ];
-        t->m_N1 = m_NVec[ cl_DBA[i][1] ];
-        t->m_N2 = m_NVec[ cl_DBA[i][2] ];
-        t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
-        t->m_Norm = m_Norm;
-        t->m_iQuad = m_iQuad;
-        t->m_jref = m_jref;
-        t->m_kref = m_kref;
-        t->m_ID = m_ID;
-        m_SplitVec.push_back( t );
+        if ( cl_DBA[i].size() == 3 )
+        {
+            TTri* t = new TTri( m_TMesh );
+            t->m_N0 = m_NVec[ cl_DBA[i][0] ];
+            t->m_N1 = m_NVec[ cl_DBA[i][1] ];
+            t->m_N2 = m_NVec[ cl_DBA[i][2] ];
+            t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
+            t->m_Norm = m_Norm;
+            t->m_iQuad = m_iQuad;
+            t->m_jref = m_jref;
+            t->m_kref = m_kref;
+            t->m_ID = m_ID;
+            m_SplitVec.push_back( t );
+        }
     }
 
     return match;
