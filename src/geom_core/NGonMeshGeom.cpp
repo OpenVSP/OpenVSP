@@ -156,14 +156,13 @@ void NGonMeshGeom::ClearTris()
 void NGonMeshGeom::WriteVSPGEOM( string fname, vector < string > &all_fnames )
 {
     Matrix4d trans = GetTotalTransMat();
-    PGMesh *pgm = m_PGMulti.GetActiveMesh();
 
     FILE *file_id = fopen( fname.c_str(), "w" );
 
-    if ( file_id && pgm )
+    if ( file_id )
     {
         all_fnames.push_back( fname );
-        pgm->WriteVSPGeom( file_id, trans );
+        m_PGMulti.WriteVSPGeom( file_id, trans );
 
         fclose ( file_id );
 
