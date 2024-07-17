@@ -100,6 +100,7 @@ public:
     void RemoveConnectEdge( const PGEdge* e );
     void EdgeForgetNode( PGEdge* e ) const;
 
+    bool FaceRemoveNodeTest( PGFace* f ) const;
     bool ColinearNode() const;
     bool Check() const;
 
