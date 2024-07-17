@@ -1943,7 +1943,7 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool Co
         new_geom->m_SurfDirty = true;
 
         new_geom->Update();
-        m_Vehicle->UpdateGUI();
+        Vehicle::UpdateGUI();
 
     }
     return id;
