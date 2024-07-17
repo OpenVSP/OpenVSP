@@ -427,15 +427,6 @@ bool PGNode::Validate() const
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-PGEdge::PGEdge()
-{
-    m_N0 = m_N1 = nullptr;
-    m_DeleteMeFlag = false;
-    m_InLoopFlag = false;
-    m_InCurrentLoopFlag = false;
-    m_ID = -1;
-}
-
 PGEdge::PGEdge( PGNode* PGNode0, PGNode* PGNode1 )
 {
     m_N0 = PGNode0;

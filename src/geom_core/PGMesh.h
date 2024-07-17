@@ -118,7 +118,6 @@ public:
 class PGEdge
 {
 public:
-    PGEdge();
     PGEdge( PGNode* PGNode0, PGNode* PGNode1 );
     virtual ~PGEdge();
 
