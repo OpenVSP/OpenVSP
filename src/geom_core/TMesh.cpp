@@ -3549,10 +3549,9 @@ bool TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec,
                 out.trianglelist[cnt + 1] < npt &&
                 out.trianglelist[cnt + 2] < npt )
             {
-                connlist.resize( connlist.size() + 1 );
-                connlist.back().push_back( out.trianglelist[cnt] );
-                connlist.back().push_back( out.trianglelist[cnt + 1] );
-                connlist.back().push_back( out.trianglelist[cnt + 2] );
+                connlist.push_back( { out.trianglelist[ cnt ],
+                                      out.trianglelist[ cnt + 1 ],
+                                      out.trianglelist[ cnt + 2 ] } );
             }
             else
             {
