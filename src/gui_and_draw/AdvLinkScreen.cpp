@@ -375,6 +375,7 @@ bool AdvLinkScreen::Update()
 
         snprintf( str, sizeof( str ),  "@b@.VAR_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
         m_InputBrowser->add( str );
+        m_InputBrowser->addCopyText( "header" );
 
         vector< VarDef > input_vars = edit_link->GetInputVars();
         for ( int i = 0 ; i < (int)input_vars.size() ; i++ )
@@ -383,6 +384,7 @@ bool AdvLinkScreen::Update()
             ParmMgr.GetNames( input_vars[i].m_ParmID, c_name, g_name, p_name );
             snprintf( str, sizeof( str ),  "%s:%s:%s:%s\n", input_vars[i].m_VarName.c_str(), p_name.c_str(), g_name.c_str(), c_name.c_str() );
             m_InputBrowser->add( str );
+            m_InputBrowser->addCopyText( input_vars[i].m_VarName );
         }
         if ( m_InputBrowserSelect >= 0 && m_InputBrowserSelect < (int)input_vars.size() )
         {
@@ -393,6 +395,7 @@ bool AdvLinkScreen::Update()
 
         snprintf( str, sizeof( str ),  "@b@.VAR_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
         m_OutputBrowser->add( str );
+        m_OutputBrowser->addCopyText( "header" );
 
         vector< VarDef > output_vars = edit_link->GetOutputVars();
         for ( int i = 0 ; i < (int)output_vars.size() ; i++ )
@@ -401,6 +404,7 @@ bool AdvLinkScreen::Update()
             ParmMgr.GetNames( output_vars[i].m_ParmID, c_name, g_name, p_name );
             snprintf( str, sizeof( str ),  "%s:%s:%s:%s\n", output_vars[i].m_VarName.c_str(), p_name.c_str(), g_name.c_str(), c_name.c_str() );
             m_OutputBrowser->add( str );
+            m_OutputBrowser->addCopyText( output_vars[i].m_VarName );
         }
         if ( m_OutputBrowserSelect >= 0 && m_OutputBrowserSelect < (int)output_vars.size() )
         {
