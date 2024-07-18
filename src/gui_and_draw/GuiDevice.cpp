@@ -4357,14 +4357,30 @@ ColResizeBrowser::ColResizeBrowser( int X, int Y, int W, int H, const char* L ) 
 
 int ColResizeBrowser::handle( int e )
 {
+    int ret = 0;
+
+    switch ( e )
+    {
+        case FL_KEYBOARD:{
+            if ( ( Fl::event_state() & ( FL_CTRL | FL_COMMAND ) ) && Fl::event_key() == 'c' )
+            {
+                if ( copy( 1 ) == 1 )
+                {
+                    ret = 1;
+                }
+            }
+            break;
+        }
+    }
+
     if ( !m_ShowColSepFlag )
     {
         // Not showing column separators? Use default Fl_Browser::handle() logic
-        return( Fl_Browser::handle( e ) );
+        return( Fl_Browser::handle( e ) ? 1 : ret );
     }
 
     // Handle column resizing
-    int ret = 0;
+
     switch ( e )
     {
         case FL_ENTER:
@@ -4492,4 +4508,39 @@ void ColResizeBrowser::recalc_hscroll()
     textsize( size );       // XXX: recalc Fl_Browser's scrollbars
     hposition( m_HPos );    // Set  horizontal scroll position
     redraw();
+}
+
+void ColResizeBrowser::clear()
+{
+    Fl_Browser::clear();
+    m_CopyText.clear();
+}
+
+void ColResizeBrowser::addCopyText( string cpt )
+{
+    m_CopyText.push_back( cpt );
+}
+
+int ColResizeBrowser::copy( int clipboard )
+{
+    if ( m_CopyText.size() != size() )
+    {
+        return 0;
+    }
+
+    string cp_str;
+    for ( size_t i = 1; i <= size(); i++ )
+    {
+        if ( selected( i ) )
+        {
+            cp_str.append( m_CopyText[ i - 1] );
+        }
+    }
+
+    if ( !cp_str.empty() )
+    {
+        Fl::copy( cp_str.c_str(), cp_str.size(), clipboard );
+        return 1;
+    }
+    return 0;
 }

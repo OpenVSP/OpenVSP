@@ -1384,6 +1384,12 @@ public:
         m_NumCol = num;
     }
 
+    void clear();
+
+    void addCopyText( string cpt );
+
+    int copy( int clipboard );
+
 protected:
 
     int handle( int e ); // MANAGE EVENTS TO HANDLE COLUMN RESIZING
@@ -1412,6 +1418,7 @@ private:
     size_t    m_NumCol;          // number of columns
     int       m_HPos;            // Horizontal scroll position
 
+    vector < string > m_CopyText;
 };
 
 #endif // !defined(GUIDEVICE__INCLUDED_)
