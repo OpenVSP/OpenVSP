@@ -50,7 +50,7 @@ FOREACH ( hpath ${HELP_FILES} )
     ELSE()
         INSTALL ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html DESTINATION help )
 
-        ADD_CUSTOM_TARGET ( copy_html ALL
+        ADD_CUSTOM_TARGET ( copy_html_${hbase} ALL
                 COMMAND ${CMAKE_COMMAND} -E copy
                 ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html
                 ${CMAKE_BINARY_DIR}/src/vsp/help/${conf_suffix}${hbase}.html )
