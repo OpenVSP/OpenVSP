@@ -742,6 +742,8 @@ PGFace::PGFace()
     m_Region = -1;
     m_jref = 0;
     m_kref = 0;
+
+    m_Parent = this;
 }
 
 PGFace::~PGFace()
@@ -1556,12 +1558,14 @@ void JrefMergeProps( PGFace *f0, PGFace *f1 )
 {
     f0->m_jref = f0->m_jref / 2;
     f0->m_ID = -f0->m_ID;
+    f0->m_ChildVec.insert( f0->m_ChildVec.end(), f1->m_ChildVec.begin(), f1->m_ChildVec.end() );
 }
 
 void KrefMergeProps( PGFace *f0, PGFace *f1 )
 {
     f0->m_kref = f0->m_kref / 2;
     f0->m_ID = -f0->m_ID;
+    f0->m_ChildVec.insert( f0->m_ChildVec.end(), f1->m_ChildVec.begin(), f1->m_ChildVec.end() );
 }
 
 bool QuadTagMatch( PGFace *f0, PGFace *f1 )
@@ -2323,6 +2327,16 @@ void PGMesh::ResetEdgeLoopFlags()
     }
 }
 
+void PGMesh::IdentifyParents()
+{
+    for ( list< PGFace* >::iterator fit = m_FaceList.begin() ; fit != m_FaceList.end(); ++fit )
+    {
+        for ( int i = 0; i < (*fit)->m_ChildVec.size(); i++ )
+        {
+            (*fit)->m_ChildVec[i]->m_Parent = (*fit);
+        }
+    }
+}
 
 void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n, const bool ContinueCoPlanarWakes )
 {
@@ -3418,6 +3432,7 @@ void PGMesh::BuildFromPGMesh( const PGMesh* pgm )
         fnew->m_jref = (*f)->m_jref;
         fnew->m_kref = (*f)->m_kref;
         fnew->m_Region = (*f)->m_Region;
+        fnew->m_ChildVec.push_back( (*f) );
 
         vector < PGEdge * >::iterator ei;
         for( ei = (*f)->m_EdgeVec.begin(); ei != (*f)->m_EdgeVec.end(); ++ei )

@@ -1935,6 +1935,8 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool Co
 
             pgmi->DumpGarbage();
 
+            pgmi->IdentifyParents();
+
             pgmi->IdentifyWakes( ContinueCoPlanarWakes );
 
             pgm_prev = pgmi;

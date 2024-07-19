@@ -230,6 +230,9 @@ public:
     vector< PGEdge* > m_EdgeVec;
     vector < PGNode* > m_TriNodeVec;
 
+    vector< PGFace* > m_ChildVec;
+    PGFace* m_Parent;
+
     // Set to true if PGFace should be removed
     bool m_DeleteMeFlag;
 
@@ -329,6 +332,8 @@ public:
 
     void ExtendWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n, bool ContinueCoPlanarWakes );
     void IdentifyWakes( bool ContinueCoPlanarWakes );
+
+    void IdentifyParents();
 
     static void StartMatlab();
 
