@@ -3660,6 +3660,14 @@ void PGMulti::ResetPointNumbers()
 void PGMulti::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 {
     fprintf( file_id, "# vspgeom v3\n" );
+
+    fprintf( file_id, "%d\n", m_MeshVec.size() );
+    for ( int imesh = m_MeshVec.size() - 1; imesh >= 0; imesh-- )
+    {
+        PGMesh *pgm = m_MeshVec[imesh];
+        fprintf( file_id, "%d %d %d\n", pgm->m_NodeList.size(), pgm->m_FaceList.size(), pgm->m_WakeVec.size() );
+    }
+
     WriteVSPGeomPnts( file_id, XFormMat );
 
     // Iterate through meshes coarse to fine.
@@ -3686,7 +3694,7 @@ void PGMulti::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
     // Number of nodes in finest mesh, total nodes to be written out.
     int ntot = m_MeshVec[0]->m_NodeList.size();
 
-    fprintf( file_id, "%d\n", ntot );
+    // fprintf( file_id, "%d\n", ntot );
 
     int ipoint = 0;
     // Iterate through meshes coarse to fine.
