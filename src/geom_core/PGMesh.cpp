@@ -3065,7 +3065,6 @@ void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
 void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
 {
     //==== Write Out Tris ====//
-    int iface = 1;
     list< PGFace* >::iterator f;
     for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
     {
@@ -3074,14 +3073,12 @@ void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
 
         int npt = nodVec.size();
 
-        fprintf( file_id, "%d %d", iface, npt / 3 );
+        fprintf( file_id, "%d %d", (*f)->m_ID, npt / 3 );
         for ( int i = 0; i < npt; i++ )
         {
             fprintf( file_id, " %d", nodVec[i]->m_Pt->m_ID + 1 );
         }
         fprintf( file_id, "\n" );
-
-        iface++;
     }
 }
 
@@ -3090,7 +3087,6 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
     //==== Write Component IDs for each Tri =====//
     int tag;
 
-    int iface = 1;
     list< PGFace* >::iterator f;
     for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
     {
@@ -3101,7 +3097,7 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
 
         tag = ( *f )->m_Tag;
         int part = m_PGMulti->GetPart( tag );
-        fprintf( file_id, "%d %d %d", iface, part, tag );
+        fprintf( file_id, "%d %d %d", (*f)->m_ID, part, tag );
 
         for ( int i = 0; i < npt; i++ )
         {
@@ -3112,7 +3108,6 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
         }
         fprintf( file_id, "\n" );
 
-        iface++;
     }
 }
 
@@ -3698,6 +3693,8 @@ void PGMulti::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
     for ( int imesh = m_MeshVec.size() - 1; imesh >= 0; imesh-- )
     {
         PGMesh *pgm = m_MeshVec[imesh];
+
+        pgm->ResetFaceNumbers();
 
         for ( list< PGNode* >::iterator n = pgm->m_NodeList.begin(); n != pgm->m_NodeList.end(); ++n )
         {
