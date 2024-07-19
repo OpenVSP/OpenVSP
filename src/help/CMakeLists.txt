@@ -1,5 +1,9 @@
 CMAKE_MINIMUM_REQUIRED ( VERSION 3.24 )
 
+if ( is_multi_config )
+    SET( conf_suffix "$<CONFIG>/" )
+endif()
+
 INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/images/ DESTINATION help/images )
 
 ADD_CUSTOM_TARGET ( copy_images ALL
@@ -16,7 +20,7 @@ INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css DESTINATION help )
 ADD_CUSTOM_TARGET ( copy_css ALL
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css
-        ${CMAKE_BINARY_DIR}/src/vsp/help/ )
+        ${CMAKE_BINARY_DIR}/src/vsp/help/${conf_suffix}$ )
 
 INCLUDE ( pandocology )
 
