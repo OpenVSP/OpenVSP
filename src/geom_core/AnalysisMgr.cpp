@@ -2165,7 +2165,11 @@ void ParasiteDragFullAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "Temperature",          ParasiteDragMgr.m_Temp.Get(), "Temperature." ) );
         m_Inputs.Add( NameValData( "Pressure",             ParasiteDragMgr.m_Pres.Get(), "Pressure." ) );
         m_Inputs.Add( NameValData( "Density",              ParasiteDragMgr.m_Rho.Get(), "Density." ) );
-        //m_Inputs.Add( NameValData( "Medium",               ParasiteDragMgr.m_MediumType.Get() ) );
+        m_Inputs.Add( NameValData( "DynaVisc",           ParasiteDragMgr.m_DynaVisc.Get(), "Dynamic viscoscity" ) );
+        m_Inputs.Add( NameValData( "SpecificHeatRatio",  ParasiteDragMgr.m_SpecificHeatRatio.Get(), "Ratio of specific heats" ) );
+        m_Inputs.Add( NameValData( "KineVisc",           ParasiteDragMgr.m_KineVisc.Get(), "Kinematic viscoscity" ) );
+        m_Inputs.Add( NameValData( "Mach",               ParasiteDragMgr.m_Mach.Get(), "Mach." ) );
+        m_Inputs.Add( NameValData( "Re_L",               ParasiteDragMgr.m_ReqL.Get(), "Reynolds number per unit length." ) );
 
         // Reference Area
         m_Inputs.Add( NameValData( "RefFlag", ParasiteDragMgr.m_RefFlag.Get(), "Flag to control how reference quantities are set." ) );
@@ -2269,7 +2273,11 @@ string ParasiteDragFullAnalysis::Execute()
         double tempOrig = ParasiteDragMgr.m_Temp.Get();
         double presOrig = ParasiteDragMgr.m_Pres.Get();
         double densOrig = ParasiteDragMgr.m_Rho.Get();
-        //int mediumChoiceOrig = ParasiteDragMgr.m_MediumType.Get();
+        double dynviscOrig = ParasiteDragMgr.m_DynaVisc.Get();
+        double gammaOrig = ParasiteDragMgr.m_SpecificHeatRatio.Get();
+        double kinviscOrig = ParasiteDragMgr.m_KineVisc.Get();
+        double MachOrig = ParasiteDragMgr.m_Mach.Get();
+        double Re_LOrig = ParasiteDragMgr.m_ReqL.Get();
         nvd = m_Inputs.FindPtr( "FreestreamPropChoice", 0 );
         if ( nvd )
         {
@@ -2305,8 +2313,32 @@ string ParasiteDragFullAnalysis::Execute()
         {
             ParasiteDragMgr.m_Rho.Set( nvd->GetDouble( 0 ) );
         }
+        nvd = m_Inputs.FindPtr( "DynaVisc", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_DynaVisc.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "SpecificHeatRatio", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_SpecificHeatRatio.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "KineVisc", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_KineVisc.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Mach", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Mach.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Re_L", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_ReqL.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Medium", 0 );
-        //ParasiteDragMgr.m_MediumType.Set( nvd->GetInt(0) );
 
         // Reference Area
         int refFlagOrig = ParasiteDragMgr.m_RefFlag.Get();
@@ -2380,7 +2412,11 @@ string ParasiteDragFullAnalysis::Execute()
         ParasiteDragMgr.m_Temp.Set( tempOrig );
         ParasiteDragMgr.m_Pres.Set( presOrig );
         ParasiteDragMgr.m_Rho.Set( densOrig );
-        //ParasiteDragMgr.m_MediumType.Set( mediumChoiceOrig );
+        ParasiteDragMgr.m_DynaVisc.Set( dynviscOrig );
+        ParasiteDragMgr.m_SpecificHeatRatio.Set( gammaOrig );
+        ParasiteDragMgr.m_KineVisc.Set( kinviscOrig );
+        ParasiteDragMgr.m_Mach.Set( MachOrig );
+        ParasiteDragMgr.m_ReqL.Set( Re_LOrig );
 
         // Reference Area
         ParasiteDragMgr.m_RefFlag.Set( refFlagOrig );
