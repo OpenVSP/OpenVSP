@@ -17,11 +17,11 @@ jobs:
       matrix:
         python-version: [3.9, 3.11]
         gcc-version: [11]
-        os: [ windows-2019, ubuntu-20.04, ubuntu-22.04, macos-12, macos-14 ]
+        os: [ windows-2019, ubuntu-22.04, ubuntu-24.04, macos-12, macos-14 ]
         exclude:
           - os: ubuntu-22.04
             python-version: 3.9
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             python-version: 3.9
           - os: macos-14
             python-version: 3.9
@@ -41,8 +41,7 @@ jobs:
       shell: bash
       run:   |
         sudo apt-get update
-        sudo apt-get install python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip
-        pip install sphinx
+        sudo apt-get install python3-sphinx python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip
 
     - name:  Install Windows
       if: runner.os == 'Windows'
