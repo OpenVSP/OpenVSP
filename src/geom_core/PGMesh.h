@@ -370,6 +370,9 @@ public:
     void WriteVSPGeomWakes( FILE* file_id ) const;
     void WriteVSPGeomAlternateTris( FILE* file_id );
     void WriteVSPGeomAlternateParts( FILE* file_id );
+
+    void WriteVSPGeomParents( FILE* file_id );
+
     void WriteTagFile( FILE* file_id, int part, int tag );
 
     void WriteSTL( const string& fname );

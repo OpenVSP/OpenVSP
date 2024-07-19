@@ -3107,7 +3107,15 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
             fprintf( file_id, " %16.10g %16.10g", uw.x(), uw.y() );
         }
         fprintf( file_id, "\n" );
+    }
+}
 
+void PGMesh::WriteVSPGeomParents( FILE* file_id )
+{
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        fprintf( file_id, "%d %d\n", (*f)->m_ID, (*f)->m_Parent->m_ID );
     }
 }
 
@@ -3680,6 +3688,8 @@ void PGMulti::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
         pgm->WriteVSPGeomWakes( file_id );
         pgm->WriteVSPGeomAlternateTris( file_id );
         pgm->WriteVSPGeomAlternateParts( file_id );
+
+        pgm->WriteVSPGeomParents( file_id );
     }
 }
 
