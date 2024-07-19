@@ -49,6 +49,7 @@
 #include <cassert>
 #include <cmath>  // for abs()
 #include <cstdlib>  // for abs()
+#include <cstdint> // for uint32_t
 #include <functional>
 #include <istream>
 #include <limits>  // std::reference_wrapper
