@@ -3685,11 +3685,11 @@ void PGMulti::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 
         pgm->WriteVSPGeomFaces( file_id );
         pgm->WriteVSPGeomParts( file_id );
+        pgm->WriteVSPGeomParents( file_id );
         pgm->WriteVSPGeomWakes( file_id );
         pgm->WriteVSPGeomAlternateTris( file_id );
         pgm->WriteVSPGeomAlternateParts( file_id );
 
-        pgm->WriteVSPGeomParents( file_id );
     }
 }
 
