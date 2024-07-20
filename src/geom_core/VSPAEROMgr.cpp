@@ -5419,6 +5419,362 @@ void CpSlice::LoadDrawObj( vector < DrawObj* > &draw_obj_vec, int id, bool highl
 
 /*##############################################################################
 #                                                                              #
+#                              PropDriverGroup                                 #
+#                                                                              #
+##############################################################################*/
+
+PropDriverGroup::PropDriverGroup() : DriverGroup( vsp::NUM_PROP_DRIVER, 3 )
+{
+    m_CurrChoices[0] = vsp::RPM_PROP_DRIVER;
+    m_CurrChoices[1] = vsp::CT_PROP_DRIVER;
+    m_CurrChoices[2] = vsp::CP_PROP_DRIVER;
+}
+
+void PropDriverGroup::UpdateGroup( vector< string > parmIDs )
+{
+    Parm* rpm = ParmMgr.FindParm( parmIDs[ vsp::RPM_PROP_DRIVER ] );
+    Parm* J = ParmMgr.FindParm( parmIDs[ vsp::J_PROP_DRIVER ] );
+    Parm* CT = ParmMgr.FindParm( parmIDs[ vsp::CT_PROP_DRIVER ] );
+    Parm* thrust = ParmMgr.FindParm( parmIDs[ vsp::T_PROP_DRIVER ] );
+    Parm* CP = ParmMgr.FindParm( parmIDs[ vsp::CP_PROP_DRIVER ] );
+    Parm* power = ParmMgr.FindParm( parmIDs[ vsp::P_PROP_DRIVER ] );
+    Parm* CQ = ParmMgr.FindParm( parmIDs[ vsp::CQ_PROP_DRIVER ] );
+    Parm* torque = ParmMgr.FindParm( parmIDs[ vsp::Q_PROP_DRIVER ] );
+    Parm* eta = ParmMgr.FindParm( parmIDs[ vsp::ETA_PROP_DRIVER ] );
+
+    vector< bool > uptodate( m_Nvar, false );
+
+    for( int i = 0; i < m_Nchoice; i++ )
+    {
+        uptodate[ m_CurrChoices[ i ] ] = true;
+    }
+
+//    for( int i = 0; i < m_Nvar; i++ )
+//    {
+//        if ( !uptodate[ i ] )
+//        {
+//            Parm * p = ParmMgr.FindParm( parmIDs[ i ] );
+//            if ( p )
+//            {
+//                p->Set( 0.0 );
+//            }
+//        }
+//    }
+
+
+    double D4 = D * D * D * D;
+    double D5 = D4 * D;
+
+    int niter = 0;
+    while( vector_contains_val( uptodate, false ) ) //  && niter < ( m_Nvar - m_Nchoice ) )
+    {
+
+        if ( !uptodate[ vsp::J_PROP_DRIVER ] )
+        {
+            if ( uptodate[ vsp::RPM_PROP_DRIVER ] )
+            {
+                double nrps = rpm->Get() / 60.0;
+
+                J->Set( Vinf / ( nrps * D ) );
+                uptodate[ vsp::J_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::CT_PROP_DRIVER ] && uptodate[ vsp::CP_PROP_DRIVER ] && uptodate[ vsp::ETA_PROP_DRIVER ] )
+            {
+                J->Set( eta->Get() * CP->Get() / CT->Get() );
+                uptodate[ vsp::J_PROP_DRIVER ] = true;
+            }
+        }
+
+        if ( !uptodate[ vsp::RPM_PROP_DRIVER ] )
+        {
+            if ( uptodate[ vsp::J_PROP_DRIVER ] )
+            {
+                double nrps = Vinf / ( J->Get() * D );
+
+                rpm->Set( nrps * 60.0 );
+                uptodate[ vsp::RPM_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::CP_PROP_DRIVER ] && uptodate[ vsp::P_PROP_DRIVER ] )
+            {
+                double nrps = pow( power->Get() / ( CP->Get() * rho * D5 ), 1.0 / 3.0 );
+                rpm->Set( nrps * 60.0 );
+                uptodate[ vsp::RPM_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::CQ_PROP_DRIVER ] && uptodate[ vsp::Q_PROP_DRIVER ] )
+            {
+                double nrps = sqrt( torque->Get() / ( CQ->Get() * rho * D5 ) );
+                rpm->Set( nrps * 60.0 );
+                uptodate[ vsp::RPM_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::CT_PROP_DRIVER ] && uptodate[ vsp::T_PROP_DRIVER ] )
+            {
+                double nrps = sqrt( thrust->Get() / ( CT->Get() * rho * D4 ) );
+                rpm->Set( nrps * 60.0 );
+                uptodate[ vsp::RPM_PROP_DRIVER ] = true;
+            }
+        }
+
+        if ( !uptodate[ vsp::CQ_PROP_DRIVER ] )
+        {
+            if ( uptodate[ vsp::CP_PROP_DRIVER ] )
+            {
+                CQ->Set( CP->Get() / ( 2.0 * PI ) );
+                uptodate[ vsp::CQ_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::Q_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
+            {
+                double nrps = rpm->Get() / 60.0;
+                double n2 = nrps * nrps;
+                CQ->Set( torque->Get() / ( rho * n2 * D5 ) );
+                uptodate[ vsp::CQ_PROP_DRIVER ] = true;
+            }
+        }
+
+        if ( !uptodate[ vsp::CP_PROP_DRIVER ] )
+        {
+            if ( uptodate[ vsp::CQ_PROP_DRIVER ] )
+            {
+                CP->Set( CQ->Get() * 2.0 * PI );
+                uptodate[ vsp::CP_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::P_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
+            {
+                double nrps = rpm->Get() / 60.0;
+                double n3 = nrps * nrps * nrps;
+                CP->Set( power->Get() / ( rho * n3 * D5 ) );
+                uptodate[ vsp::CP_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::J_PROP_DRIVER] && uptodate[ vsp::CT_PROP_DRIVER ] && uptodate[ vsp::ETA_PROP_DRIVER ] )
+            {
+                CP->Set( J->Get() * CT->Get() / eta->Get() );
+                uptodate[ vsp::CP_PROP_DRIVER ] = true;
+            }
+        }
+
+        if ( !uptodate[ vsp::CT_PROP_DRIVER ] )
+        {
+            if ( uptodate[ vsp::T_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
+            {
+                double nrps = rpm->Get() / 60.0;
+                double n2 = nrps * nrps;
+                CT->Set( thrust->Get() / ( rho * n2 * D4 ) );
+                uptodate[ vsp::CT_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::J_PROP_DRIVER] && uptodate[ vsp::CP_PROP_DRIVER ] && uptodate[ vsp::ETA_PROP_DRIVER ] )
+            {
+                CT->Set( eta->Get() * CP->Get() / J->Get() );
+                uptodate[ vsp::CT_PROP_DRIVER ] = true;
+            }
+        }
+
+        if ( !uptodate[ vsp::Q_PROP_DRIVER ] )
+        {
+            if ( uptodate[ vsp::CQ_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
+            {
+                double nrps = rpm->Get() / 60.0;
+                double n2 = nrps * nrps;
+                torque->Set( CQ->Get() * rho * n2 * D5 );
+                uptodate[ vsp::Q_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::P_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
+            {
+                double nrps = rpm->Get() / 60.0;
+                torque->Set( power->Get() / ( nrps * 2.0 * PI ) );
+                uptodate[ vsp::Q_PROP_DRIVER ] = true;
+            }
+        }
+
+        if ( !uptodate[ vsp::P_PROP_DRIVER ] )
+        {
+            if ( uptodate[ vsp::CP_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
+            {
+                double nrps = rpm->Get() / 60.0;
+                double n3 = nrps * nrps * nrps;
+                power->Set( CP->Get() * rho * n3 * D5 );
+                uptodate[ vsp::P_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::Q_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
+            {
+                double nrps = rpm->Get() / 60.0;
+                power->Set( torque->Get() * nrps * 2.0 * PI );
+                uptodate[ vsp::P_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::ETA_PROP_DRIVER ] && uptodate[ vsp::T_PROP_DRIVER ] )
+            {
+                power->Set( thrust->Get() * Vinf / eta->Get() );
+                uptodate[ vsp::P_PROP_DRIVER ] = true;
+            }
+        }
+
+        if ( !uptodate[ vsp::T_PROP_DRIVER ] )
+        {
+            if ( uptodate[ vsp::CT_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
+            {
+                double nrps = rpm->Get() / 60.0;
+                double n2 = nrps * nrps;
+                thrust->Set( CT->Get() * rho * n2 * D4 );
+                uptodate[ vsp::T_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::ETA_PROP_DRIVER ] && uptodate[ vsp::P_PROP_DRIVER ] )
+            {
+                thrust->Set( eta->Get() * power->Get() / Vinf );
+                uptodate[ vsp::T_PROP_DRIVER ] = true;
+            }
+        }
+
+        if ( !uptodate[ vsp::ETA_PROP_DRIVER ] )
+        {
+            if ( uptodate[ vsp::J_PROP_DRIVER] && uptodate[ vsp::CT_PROP_DRIVER ] && uptodate[ vsp::CP_PROP_DRIVER ] )
+            {
+                eta->Set( J->Get() * CT->Get() / CP->Get() );
+                uptodate[ vsp::ETA_PROP_DRIVER ] = true;
+            }
+            else if ( uptodate[ vsp::T_PROP_DRIVER ] && uptodate[ vsp::P_PROP_DRIVER ] )
+            {
+                eta->Set( Vinf * thrust->Get() / power->Get() );
+                uptodate[ vsp::ETA_PROP_DRIVER ] = true;
+            }
+        }
+
+
+        // Each pass through the loop should update at least one variable.
+        // With m_Nvar variables and m_Nchoice initially known, all should
+        // be updated in ( m_Nvar - m_Nchoice ) iterations.  If not, we're
+        // in an infinite loop.
+        assert( niter < ( m_Nvar - m_Nchoice ) );
+        niter++;
+    }
+}
+
+bool PropDriverGroup::ValidDrivers( vector< int > choices )
+{
+    // Check for duplicate selections.
+    for( int i = 0; i < (int)choices.size() - 1; i++ )
+    {
+        for( int j = i + 1; j < (int)choices.size(); j++ )
+        {
+            if( choices[i] == choices[j] )
+            {
+                return false;
+            }
+        }
+    }
+
+    // Check for algebraically nonsense selections.
+    if( vector_contains_val( choices, ( int ) vsp::RPM_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::J_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::CP_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::CQ_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::P_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::Q_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::RPM_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::CT_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::T_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::J_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::CT_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::T_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::RPM_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::CP_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::P_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::J_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::CP_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::P_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::RPM_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::CQ_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::Q_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::J_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::CQ_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::Q_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::RPM_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::CQ_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::P_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::J_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::CQ_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::P_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::RPM_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::CP_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::Q_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::J_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::CP_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::Q_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::T_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::P_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::ETA_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::T_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::Q_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::ETA_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) vsp::CT_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::Q_PROP_DRIVER ) &&
+        vector_contains_val( choices, ( int ) vsp::ETA_PROP_DRIVER ) )
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/*##############################################################################
+#                                                                              #
 #                              RotorDisk                                       #
 #                                                                              #
 ##############################################################################*/
@@ -5451,13 +5807,22 @@ RotorDisk::RotorDisk( void ) : ParmContainer()
     m_CP.Init( "RotorCP", m_GroupName, this, 0.6, -1e3, 1e3 );        // Rotor_CP_
     m_CP.SetDescript( "Rotor Coefficient of Power" );
 
+    m_CQ.Init( "RotorCQ", m_GroupName, this, 0.6, -1e3, 1e3 );
+    m_CQ.SetDescript( "Rotor Coefficient of Torque" );
+
     m_T.Init( "RotorThrust", m_GroupName, this,  1.0, -1e12, 1e12 );
     m_T.SetDescript( "Rotor thrust" );
+
+    m_P.Init( "RotorPower", m_GroupName, this,  1.0, -1e12, 1e12 );
+    m_P.SetDescript( "Rotor power" );
+
+    m_Q.Init( "RotorTorque", m_GroupName, this,  1.0, -1e12, 1e12 );
+    m_Q.SetDescript( "Rotor torque" );
 
     m_J.Init( "RotorJ", m_GroupName, this, 0.6, -1e6, 1e6 );
     m_J.SetDescript( "Rotor advance ratio" );
 
-    m_eta.Init( "RotorEta", m_GroupName, this, 0.9, -1.0, 1.0 );
+    m_eta.Init( "RotorEta", m_GroupName, this, 0.9, -1e3, 1e3 );
     m_eta.SetDescript( "Rotor efficiency" );
 
     m_ParentGeomId = "";
@@ -5472,30 +5837,36 @@ RotorDisk::~RotorDisk( void )
 
 void RotorDisk::Update( double V, double rho )
 {
-    double D = m_Diameter();
-    double D2 = D * D;
-    double D4 = D2 * D2;
-    double D5 = D4 * D;
+    m_DriverGroup.rho = rho;
+    m_DriverGroup.Vinf = V;
+    m_DriverGroup.D = m_Diameter();
 
-    double nrps = std::abs( m_RPM() ) / 60.0;
-    double n2 = nrps * nrps;
-    double n3 = n2 * nrps;
+    m_DriverGroup.UpdateGroup( GetDriverParms() );
 
-    double CT = m_CT();
-    double CP = m_CP();
-
-    double J = V / ( nrps * D );
-
-    double eta = J * CT / CP;
-
-    double T = CT * rho * n2 * D4;
-    double P = CP * rho * n3 * D5;
-    double CQ = CP / ( 2.0 * PI );
-    double Q = CQ * rho * n2 * D5;
-
-    m_T = T;
-    m_J = J;
-    m_eta = eta;
+//    double D = m_Diameter();
+//    double D2 = D * D;
+//    double D4 = D2 * D2;
+//    double D5 = D4 * D;
+//
+//    double nrps = std::abs( m_RPM() ) / 60.0;
+//    double n2 = nrps * nrps;
+//    double n3 = n2 * nrps;
+//
+//    double CT = m_CT();
+//    double CP = m_CP();
+//
+//    double J = V / ( nrps * D );
+//
+//    double eta = J * CT / CP;
+//
+//    double T = CT * rho * n2 * D4;
+//    double P = CP * rho * n3 * D5;
+//    double CQ = CP / ( 2.0 * PI );
+//    double Q = CQ * rho * n2 * D5;
+//
+//    m_T = T;
+//    m_J = J;
+//    m_eta = eta;
 }
 
 void RotorDisk::Write_STP_Data( FILE *InputFile )
@@ -5524,6 +5895,24 @@ void RotorDisk::Write_STP_Data( FILE *InputFile )
 
     fprintf( InputFile, "%lf \n", m_CP() );
 
+}
+
+//==== Get Driver Parms ====//
+vector< string > RotorDisk::GetDriverParms()
+{
+    vector< string > parm_ids;
+    parm_ids.resize( vsp::NUM_PROP_DRIVER );
+    parm_ids[ vsp::RPM_PROP_DRIVER ] = m_RPM.GetID();
+    parm_ids[ vsp::J_PROP_DRIVER ] = m_J.GetID();
+    parm_ids[ vsp::CT_PROP_DRIVER ] = m_CT.GetID();
+    parm_ids[ vsp::T_PROP_DRIVER ] = m_T.GetID();
+    parm_ids[ vsp::CP_PROP_DRIVER ] = m_CP.GetID();
+    parm_ids[ vsp::P_PROP_DRIVER ] = m_P.GetID();
+    parm_ids[ vsp::CQ_PROP_DRIVER ] = m_CQ.GetID();
+    parm_ids[ vsp::Q_PROP_DRIVER ] = m_Q.GetID();
+    parm_ids[ vsp::ETA_PROP_DRIVER ] = m_eta.GetID();
+
+    return parm_ids;
 }
 
 xmlNodePtr RotorDisk::EncodeXml( xmlNodePtr & node )

@@ -252,15 +252,14 @@ protected:
 
     // Prop Elem Layout
     ColResizeBrowser* m_PropElemBrowser;
-    StringOutput m_PropElemDia;
-    ToggleButton m_PropAutoHubDia;
-    SliderAdjRangeInput m_PropElemHubDia;
-    SliderAdjRangeInput m_PropElemRPM;
-    SliderAdjRangeInput m_PropElemCT;
-    SliderAdjRangeInput m_PropElemCP;
-    Output m_PropThrust;
-    Output m_PropAdvance;
-    Output m_PropEfficiency;
+
+    Output m_PropElemDiaOutput;
+    ToggleButton m_PropAutoHubDiaButton;
+    SliderAdjRangeInput m_PropElemHubDiaSlider;
+
+    PropDriverGroup m_DefaultPropDriverGroup;
+    DriverGroupBank m_PropElemDriverGroupBank;
+    TriggerButton m_TestDriverGroupButton;
 
     // Deflection Angle Layout
     Fl_Scroll* m_DeflectionAngleScroll;

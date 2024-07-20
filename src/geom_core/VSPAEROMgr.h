@@ -34,6 +34,19 @@ public:
     unsigned int iReflect;      // mapping index to which reflected sub surface
 };
 
+class PropDriverGroup : public DriverGroup
+{
+public:
+    PropDriverGroup();
+
+    virtual void UpdateGroup( vector< string > parmIDs );
+    virtual bool ValidDrivers( vector< int > choices );
+
+    double Vinf;
+    double rho;
+    double D;
+};
+
 class RotorDisk : public ParmContainer
 {
 public:
@@ -45,6 +58,8 @@ public:
 
     // Setup File I/O
     void Write_STP_Data( FILE * InputFile );
+
+    vector< string > GetDriverParms();
 
     string GetParentID()                  { return m_ParentGeomId; }
     unsigned int GetSurfNum()             { return m_ParentGeomSurfNdx; }
@@ -67,10 +82,15 @@ public:
     BoolParm m_AutoHubDiaFlag; // Flag to pull hub diameter automatically from Prop Geom
     Parm m_CT;          // Rotor_CT_
     Parm m_CP;          // Rotor_CP_
+    Parm m_CQ;          // Rotor_CQ_
 
     Parm m_T;
+    Parm m_P;
+    Parm m_Q;
     Parm m_J;
     Parm m_eta;
+
+    PropDriverGroup m_DriverGroup;
 
     bool m_FlipNormalFlag;
 

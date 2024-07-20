@@ -1196,6 +1196,22 @@ enum PROP_AZIMUTH_MODE { PROP_AZI_UNIFORM,	/*!< Propeller blades are uniformly s
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for actuator disk driver parameters. */
+enum PROP_DRIVERS { RPM_PROP_DRIVER,	/*!< RPM driver */
+                    J_PROP_DRIVER,	/*!< Advance ratio driver */
+                    CT_PROP_DRIVER,	/*!< Thrust coefficient driver */
+                    T_PROP_DRIVER,	/*!< Thrust driver */
+                    CP_PROP_DRIVER,	/*!< Power coefficient driver */
+                    P_PROP_DRIVER,	/*!< Power driver */
+                    CQ_PROP_DRIVER,	/*!< Torque coefficient driver */
+                    Q_PROP_DRIVER,	/*!< Torque driver */
+                    ETA_PROP_DRIVER,	/*!< Prop efficiency driver */
+                    NUM_PROP_DRIVER	/*!< Number of actuator disk drivers */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum used to specify the mode of a propeller Geom. */
 enum PROP_MODE { PROP_BLADES,	/*!< Propeller Geom is defined by individual propeller blades */
                  PROP_BOTH,	/*!< Propeller Geom is defined by blades and a disk together */

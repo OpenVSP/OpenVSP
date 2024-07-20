@@ -653,10 +653,10 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_PropGeneralLayout.SetGroupAndScreen( rotor_group, this );
 
     // Prop Element Layout
-    int prop_elem_browser_h = 200;
+    int prop_elem_browser_h = 100;
     m_PropGeneralLayout.AddSubGroupLayout( m_PropElemLayout,
         m_PropGeneralLayout.GetW(),
-        6 * m_PropGeneralLayout.GetStdHeight() + prop_elem_browser_h );
+        13 * m_PropGeneralLayout.GetStdHeight() + prop_elem_browser_h );
     m_PropGeneralLayout.AddY( m_PropElemLayout.GetH() );
 
     m_PropElemLayout.SetSameLineFlag( false );
@@ -677,29 +677,38 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_PropElemLayout.SetButtonWidth( else_button_width );
     m_PropElemLayout.SetInputWidth( input_width );
-    m_PropElemLayout.AddOutput( m_PropElemDia, "Dia." );
+    m_PropElemLayout.AddOutput( m_PropElemDiaOutput, "Dia.", "%3.3f" );
 
     m_PropElemLayout.SetFitWidthFlag( false );
     m_PropElemLayout.SetSameLineFlag( true );
     m_PropElemLayout.SetButtonWidth( else_button_width / 2 );
 
-    m_PropElemLayout.AddButton( m_PropAutoHubDia, "Auto" );
+    m_PropElemLayout.AddButton( m_PropAutoHubDiaButton, "Auto" );
 
     m_PropElemLayout.SetFitWidthFlag( true );
 
-    m_PropElemLayout.AddSlider( m_PropElemHubDia, "Hub Dia.", 100, "%3.3f" );
+    m_PropElemLayout.AddSlider( m_PropElemHubDiaSlider, "Hub Dia.", 100, "%3.3f" );
 
     m_PropElemLayout.SetButtonWidth( else_button_width );
     m_PropElemLayout.ForceNewLine();
     m_PropElemLayout.SetSameLineFlag( false );
 
-    m_PropElemLayout.AddSlider( m_PropElemRPM, "RPM", 10000, "%7.2f" );
-    m_PropElemLayout.AddSlider( m_PropElemCT, "CT", 1, "%2.3f" );
-    m_PropElemLayout.AddSlider( m_PropElemCP, "CP", 1, "%2.3f" );
+    m_PropElemLayout.AddButton( m_TestDriverGroupButton, "Test Drivers" );
 
-    m_PropElemLayout.AddOutput( m_PropThrust, "Thrust", "%7.3f" );
-    m_PropElemLayout.AddOutput( m_PropAdvance, "Advance Ratio", "%5.3f" );
-    m_PropElemLayout.AddOutput( m_PropEfficiency, "Efficiency", "%5.3f" );
+    vector < string > prop_driver_labels;
+    prop_driver_labels.resize( vsp::NUM_PROP_DRIVER );
+    prop_driver_labels[vsp::RPM_PROP_DRIVER] = "RPM";
+    prop_driver_labels[vsp::J_PROP_DRIVER] = "Advance Ratio";
+    prop_driver_labels[vsp::CT_PROP_DRIVER] = "C_T";
+    prop_driver_labels[vsp::T_PROP_DRIVER] = "Thrust";
+    prop_driver_labels[vsp::CP_PROP_DRIVER] = "C_P";
+    prop_driver_labels[vsp::P_PROP_DRIVER] = "Power";
+    prop_driver_labels[vsp::CQ_PROP_DRIVER] = "C_Q";
+    prop_driver_labels[vsp::Q_PROP_DRIVER] = "Torque";
+    prop_driver_labels[vsp::ETA_PROP_DRIVER] = "Efficiency";
+
+    m_PropElemDriverGroupBank.SetDriverGroup( &m_DefaultPropDriverGroup );
+    m_PropElemLayout.AddDriverGroupBank( m_PropElemDriverGroupBank, prop_driver_labels, 10, "%6.2f" );
 
     m_PropGeneralLayout.AddYGap();
 
@@ -1342,7 +1351,16 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             VSPAEROMgr.ExecuteNoiseAnalysis( nullptr, VSPAEROMgr.m_NoiseCalcType(), VSPAEROMgr.m_NoiseUnits() );
         }
-
+        else if ( device == &m_TestDriverGroupButton )
+        {
+            vector < RotorDisk* > rotordiskvec = VSPAEROMgr.GetRotorDiskVec();
+            int index = VSPAEROMgr.GetCurrentRotorDiskIndex();
+            if (index >= 0 && index < rotordiskvec.size())
+            {
+                vector< string > parm_ids = rotordiskvec[ index ]->GetDriverParms();
+                rotordiskvec[ index ]->m_DriverGroup.Test( parm_ids, 1e-4 );
+            }
+        }
     }
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -1720,32 +1738,28 @@ void VSPAEROScreen::UpdateVSPAEROButtons()
 
 void VSPAEROScreen::UpdatePropElemDevices()
 {
-    vector < RotorDisk* > rotordiskvec = VSPAEROMgr.GetRotorDiskVec();
     int index = VSPAEROMgr.GetCurrentRotorDiskIndex();
-    if (index >= 0 && index < rotordiskvec.size())
+    if ( VSPAEROMgr.ValidRotorDiskIndex( index ) )
     {
-        rotordiskvec[ index ]->m_Diameter.Activate();
-        // m_HubDiameter parm activated/deactivated automatically in VSPAEROMgr.UpdateRotorDisks()
-        rotordiskvec[ index ]->m_RPM.Activate();
-        rotordiskvec[ index ]->m_CP.Activate();
-        rotordiskvec[ index ]->m_CT.Activate();
+        RotorDisk * rotor = VSPAEROMgr.GetRotorDisk( index );
 
-        m_PropElemDia.Update(to_string(rotordiskvec[ index ]->m_Diameter()));
-        rotordiskvec[ index ]->m_HubDiameter.SetUpperLimit( rotordiskvec[ index ]->m_Diameter() );
-        m_PropElemHubDia.SetMaxBound( rotordiskvec[ index ]->m_Diameter() );
-        m_PropElemHubDia.Update( rotordiskvec[ index ]->m_HubDiameter.GetID() );
-        m_PropAutoHubDia.Update( rotordiskvec[index]->m_AutoHubDiaFlag.GetID() );
-        m_PropElemRPM.Update( rotordiskvec[ index ]->m_RPM.GetID());
-        m_PropElemCP.Update( rotordiskvec[ index ]->m_CP.GetID());
-        m_PropElemCT.Update( rotordiskvec[ index ]->m_CT.GetID());
+        if ( rotor )
+        {
+            m_PropElemDriverGroupBank.SetDriverGroup( ( DriverGroup * )&( rotor->m_DriverGroup ) );
 
-        m_PropThrust.Update( rotordiskvec[ index ]->m_T.GetID() );
-        m_PropAdvance.Update( rotordiskvec[ index ]->m_J.GetID() );
-        m_PropEfficiency.Update( rotordiskvec[ index ]->m_eta.GetID() );
+            vector< string > parm_ids = rotor->GetDriverParms();
+            rotor->m_DriverGroup.UpdateGroup( parm_ids );
+            m_PropElemDriverGroupBank.Update( parm_ids );
 
+            m_PropElemDiaOutput.Update( rotor->m_Diameter.GetID() );
+
+            rotor->m_HubDiameter.SetUpperLimit( rotor->m_Diameter() );
+            m_PropElemHubDiaSlider.SetMaxBound( rotor->m_Diameter() );
+            m_PropElemHubDiaSlider.Update( rotor->m_HubDiameter.GetID() );
+            m_PropAutoHubDiaButton.Update( rotor->m_AutoHubDiaFlag.GetID() );
+        }
     }
-
-    if (index > rotordiskvec.size())
+    else
     {
         VSPAEROMgr.SetCurrentRotorDiskIndex( -1 );
     }
@@ -2025,6 +2039,7 @@ void VSPAEROScreen::PropElemBrowserCallback()
 {
     //==== Find Last Selected Prop ====//
     int last = m_PropElemBrowser->value();
+    printf( "PropElemBrowser %d\n", last );
     if ( last >= 2 )
     {
         VSPAEROMgr.SetCurrentRotorDiskIndex( last - 2 );
