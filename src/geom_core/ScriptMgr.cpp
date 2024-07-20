@@ -1923,6 +1923,30 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "PROP_DRIVERS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_DRIVERS", "RPM_PROP_DRIVER", RPM_PROP_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_DRIVERS", "CT_PROP_DRIVER", CT_PROP_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_DRIVERS", "CP_PROP_DRIVER", CP_PROP_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_DRIVERS", "T_PROP_DRIVER", T_PROP_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_DRIVERS", "ETA_PROP_DRIVER", ETA_PROP_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_DRIVERS", "J_PROP_DRIVER", J_PROP_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_DRIVERS", "P_PROP_DRIVER", P_PROP_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_DRIVERS", "CQ_PROP_DRIVER", CQ_PROP_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_DRIVERS", "Q_PROP_DRIVER", Q_PROP_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_DRIVERS", "NUM_PROP_DRIVER", NUM_PROP_DRIVER );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "PROP_MODE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PROP_MODE", "PROP_BLADES", PROP_BLADES );
