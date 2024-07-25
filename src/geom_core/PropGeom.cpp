@@ -1826,6 +1826,7 @@ xmlNodePtr PropGeom::DecodeXml( xmlNodePtr & node )
             if ( n )
             {
                 double nblade = XmlUtil::FindDoubleProp( n, "Value", m_Nblade() );
+                m_Nblade.Set( nblade );
                 ReserveBlades( (int) nblade - 1 );
             }
         }
