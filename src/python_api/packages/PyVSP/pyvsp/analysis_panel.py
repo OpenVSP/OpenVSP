@@ -92,7 +92,7 @@ class AnalysisPanel(wx.Panel):
         analysis_name = self.vsp.ListAnalysis()[analysis_index]
 
         # I don't think the has_defaults list was implemented
-        # I imagine it was suppposed to save user inputs
+        # I imagine it was supposed to save user inputs
         if not analysis_name in self.has_defaults_list:
             self.vsp.SetAnalysisInputDefaults(analysis_name)
             self.has_defaults_list.append(analysis_name)

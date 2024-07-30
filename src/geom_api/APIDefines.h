@@ -732,7 +732,7 @@ enum FREESTREAM_PD_UNITS { PD_UNITS_IMPERIAL = 0,	/*!< Imperial unit system */
 /*!
 	\ingroup Enumerations
 */
-/*! Enum for setting the mode ofthe file chooser. */
+/*! Enum for setting the mode of the file chooser. */
 enum FILE_CHOOSER_MODE { OPEN,	/*!< Browse files that already exist */
                          SAVE,	/*!< Browse file system and enter file name */
                          NUM_FILE_CHOOSER_MODES	/*!< Number of file chooser modes */
