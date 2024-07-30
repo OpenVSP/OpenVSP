@@ -566,7 +566,7 @@ void WaveDragSingleton::FitBuildup()
 void WaveDragSingleton::PushSliceResults( Results* res )
 {
     //==== Add Mesh Results after component and subsurface intersection ====//
-    res->Add( NameValData( "Ambiguous_Subsurf_Flag", m_AmbigSubSurf, "Ambigious subsurface flag." ) );
+    res->Add( NameValData( "Ambiguous_Subsurf_Flag", m_AmbigSubSurf, "Ambiguous subsurface flag." ) );
 
     res->Add( NameValData( "Num_Slices", m_NSlice, "Number of slices." ) );
 

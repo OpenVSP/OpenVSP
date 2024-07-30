@@ -2004,7 +2004,7 @@ void Geom::UpdateSymmAttach()
         m_TransMatVec[i].postMult( symmOriginMat.data() );
 
         m_FeaTransMatVec[i] = m_TransMatVec[i];
-        m_FeaTransMatVec[i].matMult( retrun_relTrans.data() ); // m_FeaTransMatVec does not inclde the relTrans matrix
+        m_FeaTransMatVec[i].matMult( retrun_relTrans.data() ); // m_FeaTransMatVec does not include the relTrans matrix
     }
 }
 

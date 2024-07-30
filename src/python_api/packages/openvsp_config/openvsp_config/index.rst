@@ -7,7 +7,7 @@ The OpenVSP python API can be loaded in different modes.  Since it is not possib
 package during import, :py:`openvsp_config` is a configuration module that holds variables that the :py:`openvsp` package
 uses to set how it is loaded.
 
-At present, the :py:`openvsp_config` has two attributes that controll how :py:`openvsp` is loaded, :py:`LOAD_GRAPHICS` and
+At present, the :py:`openvsp_config` has two attributes that control how :py:`openvsp` is loaded, :py:`LOAD_GRAPHICS` and
 :py:`LOAD_FACADE`, which can be set to :py:`True` or :py:`False`.  Although these options control how the OpenVSP API is loaded,
 these differences should otherwise be transparent to the user.  I.e. no changes to a user's code are required when
 changing from one API mode to another.
@@ -72,7 +72,7 @@ set :py:`openvsp_config.LOAD_GRAPHICS = True` before you import :py:`openvsp` as
     vsp.StartGUI()
 
 Note that when the GUI is running in this mode, complete program flow control has been transferred to the GUI.  While
-the GUI is fully interactive, Python execution will halt until the user stops the GUI by slecting :py:`Stop GUI` from the File
+the GUI is fully interactive, Python execution will halt until the user stops the GUI by selecting :py:`Stop GUI` from the File
 menu in the OpenVSP GUI.
 
 OpenVSP API in Separate Python Process

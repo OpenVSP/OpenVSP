@@ -22,7 +22,7 @@ Python API Instructions
 -----------------------
 View the **README** file in the **python** directory of the distribution for instructions on Python API installation. Note, the Python
 version must be the same as what OpenVSP was compiled with. For instance OpenVSP 3.21.2 Win64 requires Python 3.6-x64. If a different 
-verison of Python is desired, the user must compile OpenVSP themselves. 
+version of Python is desired, the user must compile OpenVSP themselves. 
 
  
 Improvements

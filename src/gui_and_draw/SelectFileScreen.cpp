@@ -268,7 +268,7 @@ void  SelectFileScreen::GuiDeviceCallBack(GuiDevice* device)
         m_FileName = m_FileSelectInput.GetString();
     }
 
-    //Tells m_ScreenMgr to exacute Update() function
+    //Tells m_ScreenMgr to execute Update() function
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

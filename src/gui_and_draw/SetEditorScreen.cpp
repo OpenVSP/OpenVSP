@@ -217,7 +217,7 @@ void SetEditorScreen::CloseCallBack( Fl_Widget *w )
 //==== Callbacks ====//
 
 //This Main Callback is responding to events for windows, groups, and widgets attached to this object.
-//m_ScreenMgr is another BasicScreen member inherated from VspScreen (included from "ScreenBase.h")
+//m_ScreenMgr is another BasicScreen member inherited from VspScreen (included from "ScreenBase.h")
 void SetEditorScreen::CallBack( Fl_Widget *w )
 {
     //We get a vehiclePtr to help work with events
@@ -320,7 +320,7 @@ void SetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
         vehiclePtr->SetActiveGeomVec( activate_geom_vec );
     }
 
-    //Tells m_ScreenMgr to exacute Update() function
+    //Tells m_ScreenMgr to execute Update() function
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

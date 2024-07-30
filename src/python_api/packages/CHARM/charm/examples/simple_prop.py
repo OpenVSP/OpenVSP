@@ -35,7 +35,7 @@ run_directory = "runs"
 overwrite_files = True
 
 vsp_filename = "prop.vsp3"
-# This is one of your problems.  This VSP3 model was made inconsitently...the set name in the model is "Charm", not
+# This is one of your problems.  This VSP3 model was made inconsistently...the set name in the model is "Charm", not
 # "CHARM."  
 vsp_charm_set_name = "Charm"
 # You don't need to have a pitch component name because this is a simple rotor, there is no Datum in the vsp3 model

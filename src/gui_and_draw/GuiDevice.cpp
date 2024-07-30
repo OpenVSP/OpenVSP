@@ -2539,7 +2539,7 @@ void ColorPicker::DeviceCB( Fl_Widget* w )
 }
 
 //=====================================================================//
-//===========       Parmater Picker                         ===========//
+//===========       Parameter Picker                        ===========//
 //=====================================================================//
 ParmPicker::ParmPicker()
 {
@@ -2668,7 +2668,7 @@ vector< string > ParmPicker::FindParmNames( vector< string > & parm_id_vec )
 }
 
 //=====================================================================//
-//===========       Parmater Tree Picker                    ===========//
+//===========       Parameter Tree Picker                   ===========//
 //=====================================================================//
 ParmTreePicker::ParmTreePicker()
 {

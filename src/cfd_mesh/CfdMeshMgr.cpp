@@ -183,7 +183,7 @@ void CfdMeshMgrSingleton::CleanUp()
     SurfaceIntersectionSingleton::CleanUp();
 
     int i;
-    //==== Delete Stored Ndoes ====//
+    //==== Delete Stored Nodes ====//
     for ( i = 0 ; i < ( int )m_nodeStore.size() ; i++ )
     {
         delete m_nodeStore[i];
@@ -2691,7 +2691,7 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
     // However, it currently is simply compared to the distance between groups.
     // Consequently, while a reasonable value was previously 1e-2, a much smaller value is now appropriate.
     // In addition, this tolerance is actually in terms of r^2.
-    // This would be better if we had a better representative minimum feature length that was the mininum of:
+    // This would be better if we had a better representative minimum feature length that was the minimum of:
     //     Grid minimum edge length
     //     Shortest edge length specified in any source
     //     Shortest length of any boundary

@@ -34,7 +34,7 @@
 //
 //      CfdMeshMgr::IntersectSplitChains: Intersect non-border chains and split.
 //
-//  InitMesh: Tesselate chaings, merge border end points, build initial mesh, remove interior tris.
+//  InitMesh: Tesselate chains, merge border end points, build initial mesh, remove interior tris.
 //
 //      CfdMeshMgr::MergeBorderEndPoints: Merge IPnts into single points.
 //

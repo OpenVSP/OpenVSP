@@ -72,7 +72,7 @@ def _exception_hook(exc_type, exc_value, tb):
     for line in exc_value.args[0].split("\n")[3:]:
         regular_traceback.append(line)
 
-    print("This error occured while using the facade API")
+    print("This error occurred while using the facade API")
     print("Facade Traceback:")
     for line in facade_traceback:
         print(line)
@@ -81,7 +81,7 @@ def _exception_hook(exc_type, exc_value, tb):
     for line in regular_traceback:
         print(line)
 
-# function to send and recieve data from the facade server
+# function to send and receive data from the facade server
 def _send_recieve(func_name, args, kwargs):
     b_data = pack_data([func_name, args, kwargs], True)
     sock.sendall(b_data)

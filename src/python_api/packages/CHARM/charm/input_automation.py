@@ -166,7 +166,7 @@ class CharmRotorSettings:
         :param icoll: set ICOLL variable in CHARM rotor wake file. Controls how collective is adjusted
         :param airfoil_r_o_Rs: optional array of local radius/blade radius locations of airfoil sections
             specified in `airfoil_opts`. If not specified, an attempt to use VSP will be made to locate the airfoils
-        :param nchord: number of chordwise elements in vortex latice method
+        :param nchord: number of chordwise elements in vortex lattice method
         :param icnvct: controls downstream wake convection; =0 is a free wake, =1 is free up fixed down, =2 is fixed
         :param flap_type: flap type input for segment ISEG; =0 no flap, =1 plain flap (nicolai), =-1 plain flap
         :param flap_defl: flap deflection of segment ISEG in degrees (0 - 40)
@@ -1464,7 +1464,7 @@ def build_default_trim_settings(trim_template=None) -> CharmTrimSettings:
     ctrl_expr = re.compile(r"(^|\s)Ctrl\s")
     init_expr = re.compile(r"(^|\s)Initial\s")
     line_cntrl_gains = 0  # Initialize variable
-    line_init_labels = 0  # Initiailize variable
+    line_init_labels = 0  # Initialize variable
     for linenum in range(len(trim_template)):
         line = trim_template[linenum]
         if re.search(ctrl_expr, line):
@@ -1967,7 +1967,7 @@ def build_charm_input_files(degen_mgr: dg.DegenGeomMgr, case_name,
     :return: dictionary of name, file contents pairs
     """
 
-    # Get key quantites from run characteristic file
+    # Get key quantities from run characteristic file
     run_char_vars = read_run_characteristics_template(template_filename=run_char_filename,
                                                       template_file=run_char_template)
     num_psi = run_char_vars['NPSI']

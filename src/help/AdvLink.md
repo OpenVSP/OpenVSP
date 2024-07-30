@@ -4,7 +4,7 @@ title:  'Advanced Parameter Linking'
 
 Advanced parameter linking allows the user to define mathematical relationships between arbitrary parameters.
 
-To create an advanced link, the user first add's a link and changes the name to something apropriate.
+To create an advanced link, the user first add's a link and changes the name to something appropriate.
 Next, the user identifies one or more input parameters and defines a variable name to be used as an alias for each.
 The user then identifies one or more output parameters and defines their aliases.  Finally, the user writes code to
 define how the output parameters depend on the inputs.
