@@ -3545,7 +3545,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
             vol_vec.push_back( m_PointMassVec[ i ]->m_Vol );
         }
 
-        res->Add( NameValData( "Num_Comps", (int)name_vec.size(), "Number of componenets." ) );
+        res->Add( NameValData( "Num_Comps", (int)name_vec.size(), "Number of components." ) );
         res->Add( NameValData( "Comp_Name", name_vec, "Component names." ) );
         res->Add( NameValData( "Comp_ID", id_vec, "Component IDs." ) );
         res->Add( NameValData( "Comp_Mass", mass_vec, "Component contribution to mass." ) );
@@ -4248,7 +4248,7 @@ vector< string > MeshGeom::GetTMeshIDs()
         string plate;
         if ( m_TMeshVec[ i ]->m_PlateNum == -1 )
         {
-            // plate; // emtpy string.
+            // plate; // empty string.
         }
         else
         {

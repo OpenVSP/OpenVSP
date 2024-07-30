@@ -224,7 +224,7 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
                 // Assign MIN_LEN_CONSTRAINT, MIN_LEN_CONSTRAINT_CURV_GAP, MIN_LEN_CONSTRAINT_CURV_NCIRCSEG as appropriate.
                 reason += vsp::MIN_LEN_INCREMENT;
 
-                if ( reason >= vsp::NUM_MESH_REASON ) // Should be imposible, just as a safety check.
+                if ( reason >= vsp::NUM_MESH_REASON ) // Should be impossible, just as a safety check.
                 {
                     reason = vsp::MIN_LEN_CONSTRAINT;
                 }

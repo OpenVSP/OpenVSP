@@ -90,7 +90,7 @@ class DemoFrame(wx.Frame):
         self.vtk_panel_buffer_box.Add(self.vtkPanel, 1, wx.EXPAND|wx.ALL,5)
         self.vtk_panel_buffer.SetSizer(self.vtk_panel_buffer_box)
 
-        #creates the analyis panel
+        #creates the analysis panel
         self.analysis_panel = AnalysisPanel(top_splitter, vsp)
 
         #adds analysis panel and vtk panel
@@ -254,7 +254,7 @@ class DemoFrame(wx.Frame):
 
     def on_screenshot(self, event):
         """
-        Prompts user for save locaiton, then takes a screenshot
+        Prompts user for save location, then takes a screenshot
         It uses a default width/height of 400
         It uses a default trasperency flag of False
 

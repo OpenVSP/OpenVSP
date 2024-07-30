@@ -17,7 +17,7 @@ class FuselageGeom;
 namespace VSPGUI
 {
 /*
-* This class provides all functionalites of a 2D opengl window.
+* This class provides all functionalities of a 2D opengl window.
 */
 class VspSubGlWindow : public Fl_Gl_Window
 {

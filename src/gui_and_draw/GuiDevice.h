@@ -1286,7 +1286,7 @@ public:
     virtual void UpdateAxisLimits( vector< double > x_data, vector < double > y_data, bool mag_round = true );
 
     // Clear and reinitialize the parm sliders. Add G1 continuity check boxes for CEDIT. 
-    // This function must be called in the size of the curve parameter vectors chenges
+    // This function must be called in the size of the curve parameter vectors changes
     // and when a type conversion is performed
     virtual void RedrawXYSliders( int num_pts, int curve_type );
 

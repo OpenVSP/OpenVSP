@@ -4451,7 +4451,7 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
     StructureMgr.AddLinkableContainers( linkable_container_vec );
 }
 
-// As m_BBox, but wihtout EngineGeom modifications applied.
+// As m_BBox, but without EngineGeom modifications applied.
 BndBox Vehicle::UpdateOrigBBox( int set )
 {
     BndBox bbox;  // m_OrigBBox

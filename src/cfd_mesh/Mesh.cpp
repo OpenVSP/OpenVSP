@@ -1772,7 +1772,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         cnt++;
     }
 
-    //==== Constrained Delaunay Trianglulation ====//
+    //==== Constrained Delaunay Triangulation ====//
     double est_num_tris = ( uw_prime.size() / 4 ) * ( uw_prime.size() / 4 );
     if ( est_num_tris < 1 )
     {
@@ -1801,7 +1801,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
     snprintf( str, sizeof( str ), "zpYYQa%8.6fq20", uw_tri_area );
 
-    //==== Constrained Delaunay Trianglulation ====//
+    //==== Constrained Delaunay Triangulation ====//
     tristatus = triangle_context_options( ctx, str );
     if ( tristatus != TRI_OK ) printf( "triangle_context_options Error\n" );
 

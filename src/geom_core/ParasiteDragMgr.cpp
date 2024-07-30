@@ -3235,7 +3235,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
         res->Add( NameValData( "Comp_Roughness", new_geo_Roughness, "Surface roughness." ) );
         res->Add( NameValData( "Comp_TeTwRatio", new_geo_TeTwRatio, "Te/Tw temperature ratio." ) );
         res->Add( NameValData( "Comp_TawTwRatio", new_geo_TawTwRatio, "Taw/Tw temperature ratio." ) );
-        res->Add( NameValData( "Comp_Q", new_geo_Q, "Inteference factor." ) );
+        res->Add( NameValData( "Comp_Q", new_geo_Q, "Interference factor." ) );
         res->Add( NameValData( "Comp_f", new_geo_f, "Drag area." ) );
         res->Add( NameValData( "Comp_CD", new_geo_CD, "Drag coefficient." ) );
         res->Add( NameValData( "Comp_PercTotalCD", new_geo_percTotalCD, "Percent of total CD." ) );
@@ -3259,7 +3259,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
         res->Add( NameValData( "Comp_Roughness", m_geo_Roughness, "Surface roughness." ) );
         res->Add( NameValData( "Comp_TeTwRatio", m_geo_TeTwRatio, "Te/Tw temperature ratio." ) );
         res->Add( NameValData( "Comp_TawTwRatio", m_geo_TawTwRatio, "Taw/Tw temperature ratio." ) );
-        res->Add( NameValData( "Comp_Q", m_geo_Q, "Inteference factor." ) );
+        res->Add( NameValData( "Comp_Q", m_geo_Q, "Interference factor." ) );
         res->Add( NameValData( "Comp_f", m_geo_f, "Drag area." ) );
         res->Add( NameValData( "Comp_CD", m_geo_CD, "Drag coefficient." ) );
         res->Add( NameValData( "Comp_PercTotalCD", m_geo_percTotalCD, "Percent of total CD." ) );

@@ -997,7 +997,7 @@ void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlis
 
     char cmdline[] = "zpQ";
 
-    //==== Constrained Delaunay Trianglulation ====//
+    //==== Constrained Delaunay Triangulation ====//
     tristatus = triangle_context_options( ctx, cmdline );
     if ( tristatus != TRI_OK ) printf( "triangle_context_options Error\n" );
 
