@@ -377,3 +377,7 @@
    9. Right-click on PACKAGE in the Solution Explorer and select
    Build.  This packages all the directories and executables in a zip
    file.  This zip file will be placed in .../build/vsp/.
+
+### PACKAGING STATUS
+
+[![OpenVSP Packaging Status](https://repology.org/badge/vertical-allrepos/openvsp.svg?columns=3&header=OpenVSP)](https://repology.org/project/openvsp/versions)
