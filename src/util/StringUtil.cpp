@@ -309,7 +309,7 @@ string StringUtil::NasFmt( double input )
 
 // strtok replacement from https://stackoverflow.com/questions/26522583/c-strtok-skips-second-token-or-consecutive-delimiter
 // ... modified to fix 'const' and 'static' attributes, remove superfluous variable 'tkn'
-char *paxtok( char *str, const char *seps )
+char *paxtok( std::string * str, const char *seps )
 {
     static char *pos = NULL;
     char *tpos;
@@ -317,11 +317,10 @@ char *paxtok( char *str, const char *seps )
 
     // Specific actions for first and subsequent calls.
 
-    if ( str != NULL )
+    if ( str && str->size() )
     {
         // First call, set pointer.
-
-        pos = str;
+        pos = const_cast< char* >( str->c_str() );
         savech = 'x';
     }
     else
@@ -369,17 +368,16 @@ char *paxtok( char *str, const char *seps )
 
 void StringUtil::parse_table( const char * str, int len, std::vector < std::vector < string > > & table )
 {
-    // strtok won't work on const char *, so make a copy.
-    char str_copy[len + 1];
-    strcpy( str_copy, str );
-    str_copy[len] = '\0';
+    std::string str_copy( str );
+    str_copy += '\0';
 
     // Parse lines by \n
     std::vector < string > lines;
-    char *l = paxtok( str_copy, "\n" );
+    char *l = paxtok( &str_copy, "\n" );
     while ( l != nullptr )
     {
         lines.emplace_back( l );
+        lines.back() += '\0';
         l = paxtok ( nullptr, "\n" );
     }
 
@@ -387,14 +385,8 @@ void StringUtil::parse_table( const char * str, int len, std::vector < std::vect
     int ncol = 0;
     for ( int i = 0; i < (int)lines.size(); i++ )
     {
-        // strtok won't work on const char *, so make a copy.
-        int siz = lines[i].size();
-        char buf[ siz + 1 ];
-        strcpy( buf, lines[i].c_str() );
-        buf[siz] = '\0';
-
         // Parse fields by \t
-        char *f = paxtok( buf, "\t" );
+        char *f = paxtok( &lines[i], "\t" );
         while ( f != nullptr )
         {
             table[i].emplace_back( f );
