@@ -67,9 +67,16 @@ public:
 
     void set_ChangeCallback( Fl_Callback *ccb, void *data ) { m_ChangeCallback = ccb; m_ChangeCallbackData = data; };
 
+    void set_row_header_txt( std::string headerVec );
+    void set_col_header_txt( std::string headerVec );
+    void set_row_user_header_flag( bool headerFlag );
+    void set_col_user_header_flag( bool headerFlag );
+
 protected:
 
     int handle( int event );
+
+    string row_header_text( int R );
 
     string col_header_txt( int C );
 
@@ -105,6 +112,11 @@ protected:
     bool m_AllowPasteGrowRows;
 
     int m_HeaderOffset;
+
+    std::vector < std::string > m_UserRowHeader;
+    std::vector < std::string > m_UserColHeader;
+    bool m_UserRowHeaderFlag;
+    bool m_UserColHeaderFlag;
 
     int m_LabelAlign;
 
@@ -146,6 +158,8 @@ SpreadSheet<T>::SpreadSheet( int X, int Y, int W, int H, const char* L ) : Fl_Ta
 
     m_ChangeCallback = nullptr;
     m_ChangeCallbackData = nullptr;
+
+    m_UserColHeaderFlag = false;
 }
 
 // Apply value from input widget to values[row][col] array and hide (done editing)
@@ -227,8 +241,38 @@ int SpreadSheet<T>::handle( int event )
 }
 
 template < typename T >
+string SpreadSheet<T>::row_header_text( int index )
+{
+    if ( m_UserRowHeaderFlag )
+    {
+        if ( index < m_UserRowHeader.size() )
+        {
+            return m_UserRowHeader.at( index );
+        }
+        else
+        {
+            return "";
+        }
+    }
+    string s;
+    s = to_string( index + 1 );
+    return s;
+}
+
+template < typename T >
 string SpreadSheet<T>::col_header_txt( int index )
 {
+    if ( m_UserColHeaderFlag )
+    {
+        if ( index < m_UserColHeader.size() )
+        {
+            return m_UserColHeader.at( index );
+        }
+        else
+        {
+            return "";
+        }
+    }
     index = index + m_HeaderOffset;
     int base = 'Z' - 'A' + 1;
     string name;
@@ -241,11 +285,36 @@ string SpreadSheet<T>::col_header_txt( int index )
     return name;
 }
 
+template < typename T >
+void SpreadSheet<T>::set_row_header_txt( std::string headerVec )
+{
+    m_UserRowHeader = StringUtil::csv_to_vecstr( headerVec.c_str() );
+    set_row_user_header_flag( true );
+}
+
+template < typename T >
+void SpreadSheet<T>::set_col_header_txt( std::string headerVec )
+{
+    m_UserColHeader = StringUtil::csv_to_vecstr( headerVec.c_str() );
+    set_col_user_header_flag( true );
+}
+
+template < typename T >
+void SpreadSheet<T>::set_row_user_header_flag( bool headerFlag )
+{
+    m_UserRowHeaderFlag = headerFlag;
+}
+
+template < typename T >
+void SpreadSheet<T>::set_col_user_header_flag( bool headerFlag )
+{
+    m_UserColHeaderFlag = headerFlag;
+}
+
 // Handle drawing all cells in table
 template < typename T >
 void SpreadSheet<T>::draw_cell( TableContext context, int R, int C, int X, int Y, int W, int H )
 {
-    static char s[30];
     switch ( context )
     {
     case CONTEXT_STARTPAGE:                     // table about to redraw
@@ -268,8 +337,7 @@ void SpreadSheet<T>::draw_cell( TableContext context, int R, int C, int X, int Y
         {
             fl_draw_box( FL_THIN_UP_BOX, X, Y, W, H, row_header_color() );
             fl_color( FL_BLACK );
-            snprintf( s, sizeof(s), "%d", R + 1 );
-            fl_draw( s, X, Y, W, H, FL_ALIGN_CENTER );
+            fl_draw( row_header_text( R ).c_str(), X, Y, W, H, FL_ALIGN_CENTER );
         }
         fl_pop_clip();
         return;
@@ -440,37 +508,30 @@ void SpreadSheet<T>::paste( const char *str, int len )
     if ( trow > 0 )
     {
         bool change = false;
-        if ( trow + select_row > datarow )
+        if ( trow + select_row > datarow && m_AllowPasteGrowRows )
         {
             change = true;
             datarow = trow + select_row;
 
-            if ( !m_AllowPasteGrowRows )
-            {
-                fl_beep( FL_BEEP_ERROR );
-                return;
-            }
         }
 
         int tcol = table[ 0 ].size();
         if ( tcol > 0 )
         {
-            if ( tcol + select_col > datacol )
+            if ( tcol + select_col > datacol && m_AllowPasteGrowCols )
             {
                 change = true;
                 datacol = tcol + select_col;
 
-                if ( !m_AllowPasteGrowCols )
-                {
-                    fl_beep( FL_BEEP_ERROR );
-                    return;
-                }
             }
 
             if ( change )
             {
                 update_size( datarow, datacol );
             }
+
+            int max_row = get_data_nrow();
+            int max_col = get_data_ncol();
 
             for ( int i = 0; i < table.size(); i++ )
             {
@@ -479,7 +540,10 @@ void SpreadSheet<T>::paste( const char *str, int len )
                 {
                     int jdata = j + select_col;
 
-                    set_value( idata, jdata, table[ i ][ j ].c_str() );
+                    if ( idata <= max_row && jdata <= max_col )
+                    {
+                        set_value( idata, jdata, table[ i ][ j ].c_str() );
+                    }
                 }
             }
 
@@ -607,6 +671,25 @@ int SpreadSheet< vec3d >::get_data_ncol();
 
 template <>
 void SpreadSheet< vec3d >::update_size( int nrow, int ncol );
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef SpreadSheet< vector < int > > SpreadSheetInt;
+
+template <>
+void SpreadSheet< vector < int > >::set_value( int R, int C, const char * str );
+
+template <>
+string SpreadSheet< vector < int > >::get_value( int R, int C );
+
+template <>
+string SpreadSheet< vector < int > >::get_exact_value( int R, int C );
+
+template <>
+int SpreadSheet< vector < int > >::get_data_ncol();
+
+template <>
+void SpreadSheet< vector < int > >::update_size( int nrow, int ncol );
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
