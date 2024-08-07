@@ -2701,6 +2701,8 @@ void ParmTreePicker::Init( VspScreen* screen, Fl_Tree* parm_tree )
     m_ParmTree->sortorder( FL_TREE_SORT_ASCENDING );
     m_ParmTree->callback( StaticDeviceCB, this );
     m_ParmTree->selectmode( FL_TREE_SELECT_NONE );
+    int fontsize = 12;
+    m_ParmTree->item_labelsize( fontsize );
 
     m_ParmTreePrefs.sortorder( FL_TREE_SORT_ASCENDING );
     m_ParmTreePrefs.selectmode( FL_TREE_SELECT_NONE );
