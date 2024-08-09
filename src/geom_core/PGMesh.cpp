@@ -2994,7 +2994,10 @@ void PGMesh::WriteVSPGeomFaces( FILE* file_id )
         fprintf( file_id, "%d", npt );
         for ( int i = 0; i < npt; i++ )
         {
-            fprintf( file_id, " %d", nodVec[i]->m_Pt->m_ID + 1 );
+            if ( nodVec[i] )
+            {
+                fprintf( file_id, " %d", nodVec[i]->m_Pt->m_ID + 1 );
+            }
         }
         fprintf( file_id, "\n" );
     }
@@ -3020,10 +3023,13 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
 
         for ( int i = 0; i < npt; i++ )
         {
-            vec2d uw;
-            nodVec[i]->GetUW( tag, uw );
+            if ( nodVec[i] )
+            {
+                vec2d uw;
+                nodVec[i]->GetUW( tag, uw );
 
-            fprintf( file_id, " %16.10g %16.10g", uw.x(), uw.y() );
+                fprintf( file_id, " %16.10g %16.10g", uw.x(), uw.y() );
+            }
         }
         fprintf( file_id, "\n" );
     }
