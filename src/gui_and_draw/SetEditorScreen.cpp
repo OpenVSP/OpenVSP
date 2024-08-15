@@ -9,7 +9,7 @@
 
 using namespace vsp;
 
-SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 400, "Set Editor" )
+SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 400, "Set Editor", "SetEdit.html" )
 {
     //Variables to help get locations of widgets to look nice and clean
     int browserHeight = 200;
