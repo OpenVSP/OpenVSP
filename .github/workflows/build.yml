@@ -41,20 +41,20 @@ jobs:
       shell: bash
       run:   |
         sudo apt-get update
-        sudo apt-get install python3-sphinx python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip
+        sudo apt-get install python3-sphinx python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip pandoc
 
     - name:  Install Windows
       if: runner.os == 'Windows'
       shell: cmd
       run:   |
-        choco install -y swig
+        choco install -y swig pandoc
         pip install sphinx
 
     - name:  Install MacOS
       if: runner.os == 'macos'
       shell: bash
       run:   |
-        brew install swig gcc@${GCC_VERNO} doxygen graphviz
+        brew install swig gcc@${GCC_VERNO} doxygen graphviz pandoc
         pip install sphinx
 
     - name:  Build Linux
