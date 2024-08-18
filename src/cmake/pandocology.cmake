@@ -49,6 +49,12 @@ if(NOT EXISTS ${PANDOC_EXECUTABLE})
         return()
     endif()
 endif()
+
+execute_process( COMMAND ${PANDOC_EXECUTABLE} --version OUTPUT_VARIABLE PANDOC_VERSION_RAW_OUTPUT )
+get_filename_component( PANDOC_EXE_NAME ${PANDOC_EXECUTABLE} NAME )
+string( REGEX REPLACE "^${PANDOC_EXE_NAME} ([^\n]+)\n.*" "\\1" PANDOC_VERSION "${PANDOC_VERSION_RAW_OUTPUT}" )
+find_package_handle_standard_args( pandoc REQUIRED_VARS PANDOC_EXECUTABLE PANDOC_VERSION VERSION_VAR PANDOC_VERSION )
+
 if(NOT EXISTS ${PP_EXECUTABLE})
     find_program(PP_EXECUTABLE pp)
     mark_as_advanced(PP_EXECUTABLE)
