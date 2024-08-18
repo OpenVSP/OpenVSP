@@ -154,41 +154,41 @@ SET( VSP_G_LIBRARIES_CORE_FIRST
 ADD_SUBDIRECTORY( vsp )
 
 IF( NOT VSP_NO_API_WRAPPERS )
-FIND_PACKAGE( SWIG )
+    FIND_PACKAGE( SWIG )
 
-IF( SWIG_FOUND )
-	INCLUDE( ${SWIG_USE_FILE})
-ELSE( SWIG_FOUND )
-	MESSAGE( "SWIG not found, skipping API configurations" )
-ENDIF( SWIG_FOUND )
+    IF( SWIG_FOUND )
+        INCLUDE( ${SWIG_USE_FILE})
+    ELSE( SWIG_FOUND )
+        MESSAGE( "SWIG not found, skipping API configurations" )
+    ENDIF( SWIG_FOUND )
 
-IF( SWIG_FOUND )
-	FIND_PACKAGE( PythonLibsNew 3 )
-	if ( PYTHONLIBS_FOUND )
-		INCLUDE( CreateVirtualEnvironment )
-		ADD_SUBDIRECTORY( python_api )
-	ELSE(PYTHONLIBS_FOUND)
-		MESSAGE( STATUS "Python not found, API will not be compiled" )
-	ENDIF( PYTHONLIBS_FOUND )
+    IF( SWIG_FOUND )
+        FIND_PACKAGE( PythonLibsNew 3 )
+        if ( PYTHONLIBS_FOUND )
+            INCLUDE( CreateVirtualEnvironment )
+            ADD_SUBDIRECTORY( python_api )
+        ELSE(PYTHONLIBS_FOUND)
+            MESSAGE( STATUS "Python not found, API will not be compiled" )
+        ENDIF( PYTHONLIBS_FOUND )
 
-	# Note that for the MATLAB API to be built successfully, the unreleased
-	# MATLAB branch of SWIG must be compiled first. CMAKE must then be pointed
-	# the executable using the SWIG_EXECUTABLE entry. Last, MATLAB must be
-	# installed. Note, this has only been tested on 64 Bit Windows, so additional
-	# modifications may be required for other operating systems. If you find this
-	# to be the case, please consider contributing findings to the public repository.
+        # Note that for the MATLAB API to be built successfully, the unreleased
+        # MATLAB branch of SWIG must be compiled first. CMAKE must then be pointed
+        # the executable using the SWIG_EXECUTABLE entry. Last, MATLAB must be
+        # installed. Note, this has only been tested on 64 Bit Windows, so additional
+        # modifications may be required for other operating systems. If you find this
+        # to be the case, please consider contributing findings to the public repository.
 
-	IF( VSP_ENABLE_MATLAB_API )
-		FIND_PACKAGE( Matlab REQUIRED MX_LIBRARY )
+        IF( VSP_ENABLE_MATLAB_API )
+            FIND_PACKAGE( Matlab REQUIRED MX_LIBRARY )
 
-		IF(MATLAB_FOUND)
-			ADD_SUBDIRECTORY( matlab_api )
-		ELSE(MATLAB_FOUND)
-			MESSAGE("MATLAB not found... MATLAB API will NOT be built.")
-		ENDIF(MATLAB_FOUND)
-	ENDIF()
+            IF(MATLAB_FOUND)
+                ADD_SUBDIRECTORY( matlab_api )
+            ELSE(MATLAB_FOUND)
+                MESSAGE("MATLAB not found... MATLAB API will NOT be built.")
+            ENDIF(MATLAB_FOUND)
+        ENDIF()
 
-ENDIF( SWIG_FOUND )
+    ENDIF( SWIG_FOUND )
 ENDIF( NOT VSP_NO_API_WRAPPERS )
 
 IF( NOT VSP_NO_VSPAERO )
