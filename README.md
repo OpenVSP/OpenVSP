@@ -234,6 +234,11 @@
      to do with VSPAERO.  The build system will not build VSPAERO
      or any of its associated utilities.
 
+   - `VSP_NO_API_WRAPPERS` -- Set this variable to disable
+     everything to do with wrapping API for higher level scripting
+     languages.  The build system will not search for
+     Swig, Python, or Matlab.
+
    - `XXX_OMP_COMPILER` -- Set these variables to point at secondary
      compilers to use when the primary compiler does not support
      OpenMP.  This will allow the VSPAERO solver to be built as
