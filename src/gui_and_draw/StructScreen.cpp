@@ -4060,22 +4060,25 @@ void StructScreen::CallBack( Fl_Widget* w )
         }
         else if ( w == m_DrawPartSelectBrowser )
         {
-            int selected_index = m_DrawPartSelectBrowser->value();
-            bool flag = !!m_DrawPartSelectBrowser->checked( selected_index );
-            selected_index--;
-
-            vector < string > draw_browser_name_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserNameVec();
-            vector < int > draw_browser_index_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserIndexVec();
-
-            if ( selected_index < draw_browser_name_vec.size() )
+            if ( FeaMeshMgr.GetMeshPtr() )
             {
-                if ( draw_browser_name_vec[ selected_index ].find( "CAP" ) != std::string::npos )
+                int selected_index = m_DrawPartSelectBrowser->value();
+                bool flag = !!m_DrawPartSelectBrowser->checked( selected_index );
+                selected_index--;
+
+                vector < string > draw_browser_name_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserNameVec();
+                vector < int > draw_browser_index_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserIndexVec();
+
+                if ( selected_index < draw_browser_name_vec.size() )
                 {
-                    FeaMeshMgr.GetMeshPtr()->SetDrawCapFlag( draw_browser_index_vec[ selected_index ], flag );
-                }
-                else
-                {
-                    FeaMeshMgr.GetMeshPtr()->SetDrawElementFlag( draw_browser_index_vec[ selected_index ], flag );
+                    if ( draw_browser_name_vec[ selected_index ].find( "CAP" ) != std::string::npos )
+                    {
+                        FeaMeshMgr.GetMeshPtr()->SetDrawCapFlag( draw_browser_index_vec[ selected_index ], flag );
+                    }
+                    else
+                    {
+                        FeaMeshMgr.GetMeshPtr()->SetDrawElementFlag( draw_browser_index_vec[ selected_index ], flag );
+                    }
                 }
             }
         }
@@ -4493,11 +4496,17 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DrawAllButton )
     {
-        FeaMeshMgr.GetMeshPtr()->SetAllDisplayFlags( true );
+        if ( FeaMeshMgr.GetMeshPtr() )
+        {
+            FeaMeshMgr.GetMeshPtr()->SetAllDisplayFlags( true );
+        }
     }
     else if ( device == &m_HideAllButton )
     {
-        FeaMeshMgr.GetMeshPtr()->SetAllDisplayFlags( false );
+        if ( FeaMeshMgr.GetMeshPtr() )
+        {
+            FeaMeshMgr.GetMeshPtr()->SetAllDisplayFlags( false );
+        }
     }
     else if ( device == &m_MovePrtUpButton )
     {

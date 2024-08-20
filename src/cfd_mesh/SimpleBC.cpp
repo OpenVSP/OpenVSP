@@ -22,7 +22,10 @@ void SimpleBC::CopyFrom( FeaBC* fea_bc )
     m_Constraints = fea_bc->GetAsBitMask();
     m_BCType = fea_bc->m_FeaBCType();
 
-    m_FeaPartIndex = vector_find_val( FeaMeshMgr.GetMeshPtr()->m_FeaPartIDVec, fea_bc->GetPartID() );
+    if ( FeaMeshMgr.GetMeshPtr() )
+    {
+        m_FeaPartIndex = vector_find_val( FeaMeshMgr.GetMeshPtr()->m_FeaPartIDVec, fea_bc->GetPartID() );
+    }
     m_FeaSubSurfIndex = FeaMeshMgr.GetSimpSubSurfIndex( fea_bc->GetSubSurfID() );
 
     m_XLTFlag = fea_bc->m_XLTFlag();

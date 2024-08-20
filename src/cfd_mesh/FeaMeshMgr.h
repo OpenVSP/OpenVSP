@@ -63,18 +63,18 @@ public:
 
     virtual SimpleGridDensity* GetGridDensityPtr()
     {
-        if ( m_ActiveMesh )
+        if ( GetMeshPtr() )
         {
-            return m_ActiveMesh->GetGridDensityPtr();
+            return GetMeshPtr()->GetGridDensityPtr();
         }
         return NULL;
     }
 
     virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {
-        if ( m_ActiveMesh )
+        if ( GetMeshPtr() )
         {
-            return (SimpleMeshCommonSettings* ) m_ActiveMesh->GetStructSettingsPtr();
+            return (SimpleMeshCommonSettings* ) GetMeshPtr()->GetStructSettingsPtr();
         }
         return NULL;
     }

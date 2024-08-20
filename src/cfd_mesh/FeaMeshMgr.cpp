@@ -143,7 +143,7 @@ void FeaMeshMgrSingleton::LoadSkins()
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
-    if ( fea_struct )
+    if ( fea_struct && GetMeshPtr() )
     {
         FeaPart* prt = fea_struct->GetFeaSkin();
 
@@ -186,7 +186,7 @@ void FeaMeshMgrSingleton::TransferMeshSettings()
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
-    if ( fea_struct )
+    if ( fea_struct && GetMeshPtr() )
     {
         GetMeshPtr()->m_StructSettings = SimpleFeaMeshSettings();
         GetMeshPtr()->m_StructSettings.CopyFrom( fea_struct->GetStructSettingsPtr() );
@@ -213,6 +213,11 @@ void FeaMeshMgrSingleton::IdentifyCompIDNames()
 {
     m_CompIDNameMap.clear();
 
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
+
     for ( size_t i = 0; i < m_SurfVec.size(); i++ )
     {
         if ( m_CompIDNameMap.count( m_SurfVec[i]->GetFeaPartIndex() ) == 0 )
@@ -224,6 +229,11 @@ void FeaMeshMgrSingleton::IdentifyCompIDNames()
 
 void FeaMeshMgrSingleton::GetMassUnit()
 {
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
+
     switch ( m_Vehicle->m_StructUnit() )
     {
         case vsp::SI_UNIT:
@@ -260,7 +270,7 @@ void FeaMeshMgrSingleton::TransferFeaData()
     // Transfer FeaPart Data
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
-    if ( fea_struct )
+    if ( fea_struct && GetMeshPtr() )
     {
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
         GetMeshPtr()->m_FeaPartNameVec.resize( GetMeshPtr()->m_NumFeaParts );
@@ -340,18 +350,21 @@ void FeaMeshMgrSingleton::TransferSubSurfData()
         }
     }
 
-    // Identify number of FeaSubSurfaces
-    GetMeshPtr()->m_NumFeaSubSurfs = m_SimpleSubSurfaceVec.size();
-    // Duplicate subsurface data in mesh data structure so it will be available
-    // after mesh generation is complete.
-    GetMeshPtr()->m_SimpleSubSurfaceVec = m_SimpleSubSurfaceVec;
+    if ( GetMeshPtr() )
+    {
+        // Identify number of FeaSubSurfaces
+        GetMeshPtr()->m_NumFeaSubSurfs = m_SimpleSubSurfaceVec.size();
+        // Duplicate subsurface data in mesh data structure so it will be available
+        // after mesh generation is complete.
+        GetMeshPtr()->m_SimpleSubSurfaceVec = m_SimpleSubSurfaceVec;
+    }
 }
 
 void FeaMeshMgrSingleton::TransferBCData()
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
-    if ( fea_struct )
+    if ( fea_struct && GetMeshPtr() )
     {
         vector< FeaBC* > bc_vec = fea_struct->GetFeaBCVec();
 
@@ -403,28 +416,31 @@ bool FeaMeshMgrSingleton::CheckPropMat()
         }
     }
 
-    for ( size_t i = 0; i < GetMeshPtr()->m_FeaPartPropertyIndexVec.size(); i++ )
+    if ( GetMeshPtr() )
     {
-        if ( GetMeshPtr()->m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
+        for ( size_t i = 0; i < GetMeshPtr()->m_FeaPartPropertyIndexVec.size(); i++ )
         {
-            if ( GetMeshPtr()->m_FeaPartPropertyIndexVec[ i ] == -1 )
+            if ( GetMeshPtr()->m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
             {
-                snprintf( buf, sizeof( buf ), "Could not find part shell property '%s'\n", GetMeshPtr()->m_FeaPartPropertyIDVec[ i ].c_str() );
-                addOutputText( string( buf ) );
-                pass = false;
+                if ( GetMeshPtr()->m_FeaPartPropertyIndexVec[ i ] == -1 )
+                {
+                    snprintf( buf, sizeof( buf ), "Could not find part shell property '%s'\n", GetMeshPtr()->m_FeaPartPropertyIDVec[ i ].c_str() );
+                    addOutputText( string( buf ) );
+                    pass = false;
+                }
             }
         }
-    }
 
-    for ( size_t i = 0; i < GetMeshPtr()->m_FeaPartCapPropertyIndexVec.size(); i++ )
-    {
-        if ( GetMeshPtr()->m_FeaPartCreateBeamElementsVec[i] )
+        for ( size_t i = 0; i < GetMeshPtr()->m_FeaPartCapPropertyIndexVec.size(); i++ )
         {
-            if ( GetMeshPtr()->m_FeaPartCapPropertyIndexVec[ i ] == -1 )
+            if ( GetMeshPtr()->m_FeaPartCreateBeamElementsVec[i] )
             {
-                snprintf( buf, sizeof( buf ), "Could not find part cap property '%s'\n", GetMeshPtr()->m_FeaPartCapPropertyIDVec[ i ].c_str() );
-                addOutputText( string( buf ) );
-                pass = false;
+                if ( GetMeshPtr()->m_FeaPartCapPropertyIndexVec[ i ] == -1 )
+                {
+                    snprintf( buf, sizeof( buf ), "Could not find part cap property '%s'\n", GetMeshPtr()->m_FeaPartCapPropertyIDVec[ i ].c_str() );
+                    addOutputText( string( buf ) );
+                    pass = false;
+                }
             }
         }
     }
@@ -558,7 +574,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Remesh\n" );
     Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
-    if ( GetMeshPtr()->m_StructSettings.m_ConvertToQuadsFlag )
+    if ( GetMeshPtr() && GetMeshPtr()->m_StructSettings.m_ConvertToQuadsFlag )
     {
         addOutputText( "ConvertToQuads\n" );
         ConvertToQuads();
@@ -623,7 +639,7 @@ void FeaMeshMgrSingleton::ExportCADFiles()
 
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
-    if ( fea_struct )
+    if ( fea_struct && GetMeshPtr() )
     {
         GetMeshPtr()->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr());
     }
@@ -682,7 +698,7 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
     vector < int > all_feaprt_ind_vec;
     vector < int > feaprt_surf_ind_vec;
 
-    if ( fea_struct )
+    if ( fea_struct && GetMeshPtr() )
     {
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
@@ -824,7 +840,7 @@ void FeaMeshMgrSingleton::AddStructureSurfParts()
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
-    if ( fea_struct )
+    if ( fea_struct && GetMeshPtr() )
     {
         // Identify the max Surf ID of structure's parent surfaces (not necessarily equal to m_SurfVec.size() due to CleanMergedSurfs)
         int start_surf_id = 0;
@@ -868,7 +884,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
-    if ( fea_struct )
+    if ( fea_struct && GetMeshPtr() )
     {
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
@@ -989,6 +1005,11 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
 
 void FeaMeshMgrSingleton::ForceSurfaceFixPoints( int surf_indx, vector < vec2d > &adduw )
 {
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
+
     for ( size_t n = 0; n < GetMeshPtr()->m_NumFeaFixPoints; n++ )  // Loop over all fix points.
     {
         FixPoint fxpt = GetMeshPtr()->m_FixPntVec[ n ];       // This fix point
@@ -1024,6 +1045,10 @@ void FeaMeshMgrSingleton::AddStructureTrimPlanes()
 
 void FeaMeshMgrSingleton::BuildMeshOrientationLookup()
 {
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
 
     GetMeshPtr()->m_PartSurfOrientation.resize( GetMeshPtr()->m_NumFeaParts );
 
@@ -1161,6 +1186,11 @@ void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
 
 void FeaMeshMgrSingleton::BuildFeaMesh()
 {
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
+
     bool highorder = GetMeshPtr()->m_StructSettings.m_HighOrderElementFlag;
 
     //==== Collect All Nodes and Tris ====//
@@ -1575,6 +1605,11 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
 
 void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
 {
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
+
     for ( size_t n = 0; n < GetMeshPtr()->m_NumFeaFixPoints; n++ )
     {
         FixPoint fxpt = GetMeshPtr()->m_FixPntVec[n];
@@ -1608,6 +1643,11 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
 // Called first from SurfaceIntersectionMgr::Intersect()
 void FeaMeshMgrSingleton::SetFixPointBorderNodes()
 {
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
+
     addOutputText( "SetFixPointBorderNodes\n" );
 
     for ( size_t n = 0; n < GetMeshPtr()->m_NumFeaFixPoints; n++ )
@@ -1706,6 +1746,11 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
 // Called immediately next from SurfaceIntersectionMgr::Intersect()
 void FeaMeshMgrSingleton::CheckFixPointIntersects()
 {
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
+
     addOutputText( "CheckFixPointIntersects\n" );
     // Identify and set FeaFixPoints on intersection curves
 
@@ -2257,6 +2302,11 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
 
 void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
 {
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
+
     // Check for SubSurface Edges on FeaPart Surfaces. If found, remove the SubSurface intersectionchain and 
     //  allow it to be replaced by the FeaPart intersection curve. 
     vec2d uw_pnt0;
@@ -2442,6 +2492,11 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
 
 void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
 {
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
+
     vector< FeaElement* > newFeaElementVec;
     newFeaElementVec.reserve( GetMeshPtr()->m_FeaElementVec.size() );
 
@@ -2482,6 +2537,11 @@ void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
 
 void FeaMeshMgrSingleton::TagFeaNodes()
 {
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
+
     //==== Collect All FeaNodes ====//
     GetMeshPtr()->m_FeaNodeVec.clear();
 
@@ -2660,7 +2720,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
-    if ( fea_struct )
+    if ( fea_struct && GetMeshPtr() )
     {
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
@@ -2724,7 +2784,10 @@ void FeaMeshMgrSingleton::UpdateDrawObjs()
 {
     SurfaceIntersectionSingleton::UpdateDrawObjs();
 
-    GetMeshPtr()->UpdateDrawObjs();
+    if ( GetMeshPtr() )
+    {
+        GetMeshPtr()->UpdateDrawObjs();
+    }
 }
 
 void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -2799,9 +2862,9 @@ void FeaMeshMgrSingleton::MeshUnMeshed( const vector < string > & idvec )
     {
         SetFeaMeshStructID( idvec[i] );
 
-        if ( m_ActiveMesh )
+        if ( GetMeshPtr() )
         {
-            if ( !m_ActiveMesh->m_MeshReady )
+            if ( !GetMeshPtr()->m_MeshReady )
             {
                 GenerateFeaMesh();
 
