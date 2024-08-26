@@ -456,6 +456,12 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Init Timer\n" );
 #endif
 
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
+    if ( fea_struct )
+    {
+        fea_struct->Update();
+    }
+
     addOutputText( "Transfer Mesh Settings\n" );
     TransferMeshSettings();
 
