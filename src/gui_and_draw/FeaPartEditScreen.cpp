@@ -1146,6 +1146,8 @@ bool FeaPartEditScreen::Update()
                         if ( skin->m_RemoveSkinFlag() )
                         {
                             m_ShellPropertyChoice.Deactivate();
+                            m_RemoveRootCapToggle.Deactivate();
+                            m_RemoveTipCapToggle.Deactivate();
                         }
 
                         FeaPartDispGroup( &m_SkinEditLayout );
