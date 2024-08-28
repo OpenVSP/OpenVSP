@@ -72,6 +72,8 @@ private:
 
     //===== Skin =====//
     ToggleButton m_RemoveSkinToggle;
+    ToggleButton m_RemoveRootCapToggle;
+    ToggleButton m_RemoveTipCapToggle;
 
     //===== Slice =====//
     Choice m_SliceOrientationChoice;

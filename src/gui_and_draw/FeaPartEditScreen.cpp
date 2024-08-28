@@ -83,6 +83,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SkinEditLayout.AddDividerBox( "Skin" );
 
     m_SkinEditLayout.AddButton( m_RemoveSkinToggle, "Remove Skin" );
+    m_SkinEditLayout.AddButton( m_RemoveRootCapToggle, "Remove Root Cap" );
+    m_SkinEditLayout.AddButton( m_RemoveTipCapToggle, "Remove Tip Cap" );
 
     //==== FeaSlice ====//
     m_GenLayout.AddSubGroupLayout( m_SliceEditLayout, m_GenLayout.GetRemainX(), m_GenLayout.GetRemainY() );
@@ -1134,6 +1136,8 @@ bool FeaPartEditScreen::Update()
                         assert( skin );
 
                         m_RemoveSkinToggle.Update( skin->m_RemoveSkinFlag.GetID() );
+                        m_RemoveRootCapToggle.Update( skin->m_RemoveRootCapFlag.GetID() );
+                        m_RemoveTipCapToggle.Update( skin->m_RemoveTipCapFlag.GetID() );
 
                         m_KeepDelShellElementsToggleGroup.Deactivate();
                         m_CreateBeamElementsToggle.Deactivate();

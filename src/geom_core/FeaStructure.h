@@ -506,6 +506,14 @@ public:
 
     BoolParm m_RemoveSkinFlag;
 
+    BoolParm m_RemoveRootCapFlag;
+    BoolParm m_RemoveTipCapFlag;
+
+    bool m_CapUMinSuccess;
+    bool m_CapUMaxSuccess;
+
+    double m_UMax;
+
 protected:
 
 

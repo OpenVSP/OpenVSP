@@ -4013,7 +4013,13 @@ FeaSkin::FeaSkin( const string &geomID, const string &structID, int type ) : Fea
     m_DrawFeaPartFlag.Set( false );
 
     m_RemoveSkinFlag.Init( "RemoveSkinTrisFlag", "FeaSkin", this, false, false, true );
-    m_RemoveSkinFlag.SetDescript( "Flag to Remove Skin Surface and Triangles after Intersections" );
+    m_RemoveSkinFlag.SetDescript( "Flag to Remove Skin Surface and Elements after Intersections" );
+
+    m_RemoveRootCapFlag.Init( "RemoveRootCapFlag", "FeaSkin", this, false, false, true );
+    m_RemoveRootCapFlag.SetDescript( "Flag to Remove Root Cap Skin Surface and Elements after Intersections" );
+
+    m_RemoveTipCapFlag.Init( "RemoveTipCapFlag", "FeaSkin", this, false, false, true );
+    m_RemoveTipCapFlag.SetDescript( "Flag to Remove Tip Cap Skin Surface and Elements after Intersections" );
 }
 
 void FeaSkin::UpdateSurface()
@@ -4028,6 +4034,10 @@ void FeaSkin::BuildSkinSurf()
     m_MainFeaPartSurfVec.clear();
     m_MainFeaPartSurfVec.resize( 1 );
 
+    m_CapUMinSuccess = false;
+    m_CapUMaxSuccess = false;
+    m_UMax = -1;
+
     if ( veh )
     {
         Geom* currgeom = veh->FindGeom( m_ParentGeomID );
@@ -4035,6 +4045,10 @@ void FeaSkin::BuildSkinSurf()
         if ( currgeom )
         {
             m_MainFeaPartSurfVec[0] = *( currgeom->GetSurfPtr( m_MainSurfIndx ) );
+
+            m_CapUMinSuccess = currgeom->GetCapUMinSuccess( m_MainSurfIndx );
+            m_CapUMaxSuccess = currgeom->GetCapUMaxSuccess( m_MainSurfIndx );;
+            m_UMax = m_MainFeaPartSurfVec[0].GetUMax();
         }
     }
 }
