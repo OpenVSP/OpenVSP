@@ -555,7 +555,7 @@ string FeaStructure::GetFeaPartName( int ind )
     return name;
 }
 
-int FeaStructure::FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, const double & scale )
+int FeaStructure::FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, vector < int > &symm, const double & scale )
 {
     pt.clear();
     norm.clear();
@@ -580,11 +580,13 @@ int FeaStructure::FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < 
 
                 pt.reserve( pt.size() + nadd );
                 norm.reserve( norm.size() + nadd );
+                symm.reserve( symm.size() + nadd );
 
                 for ( int j = 0; j < nadd; j++ )
                 {
                     pt.push_back( pti[j] );
                     norm.push_back( normi[j] );
+                    symm.push_back( j );
                 }
             }
         }

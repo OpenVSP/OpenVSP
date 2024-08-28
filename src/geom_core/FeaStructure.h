@@ -79,7 +79,7 @@ public:
         return m_FeaPartVec.size();
     }
 
-    virtual int FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, const double & scale );
+    virtual int FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, vector < int > &symm, const double & scale );
 
     vector< FeaPart* > GetFeaPartVecType( int type );
 

@@ -1045,7 +1045,7 @@ void FeaMeshMgrSingleton::AddStructureTrimPlanes()
 
     if ( fea_struct && GetMeshPtr() )
     {
-        GetMeshPtr()->m_NumFeaTrimParts = fea_struct->FetchAllTrimPlanes( GetMeshPtr()->m_TrimPt, GetMeshPtr()->m_TrimNorm, GetMeshPtr()->m_LenScale );
+        GetMeshPtr()->m_NumFeaTrimParts = fea_struct->FetchAllTrimPlanes( GetMeshPtr()->m_TrimPt, GetMeshPtr()->m_TrimNorm, GetMeshPtr()->m_TrimSymm, GetMeshPtr()->m_LenScale );
     }
 }
 
@@ -1115,7 +1115,7 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
                 for ( int i = 0; i < GetMeshPtr()->m_TrimPt.size(); i++ )
                 {
                     // This seems convoluted, but it needs to be cumulative.
-                    if ( CullPtByTrimGroup( cp, GetMeshPtr()->m_TrimPt[ i ], GetMeshPtr()->m_TrimNorm[ i ] ) )
+                    if ( m_SurfVec[s]->GetFeaSymmIndex() == GetMeshPtr()->m_TrimSymm[i] && CullPtByTrimGroup( cp, GetMeshPtr()->m_TrimPt[ i ], GetMeshPtr()->m_TrimNorm[ i ] ) )
                     {
                         ( *t )->deleteFlag = true;
                         delSomeTris = true;
@@ -1334,7 +1334,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                     for ( int i = 0; i < GetMeshPtr()->m_TrimPt.size(); i++ )
                     {
                         // This seems convoluted, but it needs to be cumulative.
-                        if ( CullPtByTrimGroup( mid_pnt, GetMeshPtr()->m_TrimPt[ i ], GetMeshPtr()->m_TrimNorm[ i ] ) )
+                        if ( NormSurf->GetFeaSymmIndex() == GetMeshPtr()->m_TrimSymm[i] && CullPtByTrimGroup( mid_pnt, GetMeshPtr()->m_TrimPt[ i ], GetMeshPtr()->m_TrimNorm[ i ] ) )
                         {
                             skipElement = true;
                             break; // Once flagged for deletion, don't check further trim groups, go to next beam segment.

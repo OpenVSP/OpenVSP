@@ -163,6 +163,7 @@ public:
     // Groups of trimming planes.
     vector < vector < vec3d > > m_TrimPt;
     vector < vector < vec3d > > m_TrimNorm;
+    vector < int > m_TrimSymm;
 
     vector < SimpleBC > m_BCVec;
 
