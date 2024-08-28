@@ -2946,7 +2946,11 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 int comp_id = m_SurfVec[i]->GetCompID();
                 if ( i != s && comp_id != s_comp_id ) // Don't check self intersection.
                 {
-                    if ( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT &&
+                    if ( m_SurfVec[s]->GetFeaSymmIndex() >=0 && m_SurfVec[s]->GetFeaSymmIndex() != m_SurfVec[i]->GetFeaSymmIndex() )
+                    {
+                        // Do nothing.
+                    }
+                    else if ( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT &&
                          m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_STRUCTURE &&
                          m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_STIFFENER ) // Don't check against transparent, structure, or stiffener surf.
                     {
