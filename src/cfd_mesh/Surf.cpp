@@ -63,6 +63,8 @@ Surf::Surf()
     m_MainSurfID = 0;
     m_SplitNum = 0;
     m_FeaPartIndex = -1;
+    m_FeaPartSurfNum = -1;
+    m_FeaSymmIndex = -1;
     m_IgnoreSurfFlag = false;
     m_PlanarUWAspect = -1;
 }

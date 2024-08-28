@@ -319,6 +319,16 @@ public:
         return m_FeaOrientation;
     }
 
+    void SetFeaSymmIndex( int s )
+    {
+        m_FeaSymmIndex = s;
+    }
+
+    int GetFeaSymmIndex()
+    {
+        return m_FeaSymmIndex;
+    }
+
     void DegenCamberSurf( const VspSurf & parent );
     void DegenPlanarSurf( const VspSurf & parent, int vhflag );
 
@@ -357,6 +367,7 @@ protected:
     // Possibly shouldn't be here, but seems as good as any place for now.
     int m_FeaOrientationType;
     vec3d m_FeaOrientation;
+    int m_FeaSymmIndex;
 
     bool m_ThickSurf;
     int m_PlateNum;

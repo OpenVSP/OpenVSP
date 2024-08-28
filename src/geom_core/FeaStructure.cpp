@@ -1303,6 +1303,7 @@ void FeaPart::UpdateSymmParts()
             m_MainFeaPartSurfVec[i].FlipNormal();
         }
         m_FeaPartSurfVec[i] = m_MainFeaPartSurfVec[i]; // Initialize first set.
+        m_FeaPartSurfVec[i].SetFeaSymmIndex( 0 );
     }
 
     for ( size_t i = 0; i < nsurf; i++ )
@@ -1318,6 +1319,7 @@ void FeaPart::UpdateSymmParts()
             }
 
             m_FeaPartSurfVec[ nsurf * j + i ].Transform( transMats[ m_SymmIndexVec[ j ] ] );
+            m_FeaPartSurfVec[ nsurf * j + i ].SetFeaSymmIndex( j );
         }
     }
 }

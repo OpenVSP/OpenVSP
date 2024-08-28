@@ -30,6 +30,7 @@ public:
         m_CompIndx = 0;
         m_SurfIndx = 0;
         m_FeaPartSurfNum = -1;
+        m_FeaSymmIndex = -1;
         m_SurfType = vsp::NORMAL_SURF;
         m_SurfCfdType = vsp::CFD_NORMAL;
         m_FeaOrientationType = vsp::FEA_ORIENT_OML_U;
@@ -51,6 +52,7 @@ public:
     int m_CompIndx;
     int m_SurfIndx;
     int m_FeaPartSurfNum;
+    int m_FeaSymmIndex;
     int m_SurfType;
     int m_SurfCfdType;
     int m_FeaOrientationType;

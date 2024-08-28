@@ -262,6 +262,16 @@ public:
     vec3d GetFeaElementOrientation( double u, double w, int type, const vec3d & defaultorientation );
     vec3d GetFeaElementOrientation();
 
+    void SetFeaSymmIndex( int s )
+    {
+        m_FeaSymmIndex = s;
+    }
+
+    int GetFeaSymmIndex()
+    {
+        return m_FeaSymmIndex;
+    }
+
     //Getter/Setter Surface VSP TYPE (NORMAL_SURF, WING_SURF, DISK_SURF)
     void SetSurfaceVSPType( int surfVspType )
     {
@@ -402,6 +412,7 @@ protected:
     int m_FeaPartSurfNum; // Which surface in the FeaPart
     int m_FeaOrientationType; // Which orientation type
     vec3d m_FeaOrientation; // Surface orientation
+    int m_FeaSymmIndex;
 
 };
 

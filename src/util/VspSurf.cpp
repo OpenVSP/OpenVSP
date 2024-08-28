@@ -63,6 +63,7 @@ VspSurf::VspSurf()
 
     m_FeaOrientationType = vsp::FEA_ORIENT_OML_U;
     m_FeaOrientation = vec3d();
+    m_FeaSymmIndex = -1;
 
     m_CloneIndex = -1;
 
@@ -2536,6 +2537,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         xsurf.m_PlanarUWAspect = m_PlanarUWAspect;
         xsurf.m_CompIndx = comp_ind;
         xsurf.m_FeaPartSurfNum = part_surf_num;
+        xsurf.m_FeaSymmIndex = m_FeaSymmIndex;
         xfersurfs.push_back( xsurf );
         ivalid++;
     }
