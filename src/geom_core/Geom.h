@@ -433,6 +433,9 @@ public:
     virtual double GetWMax( int indx ) const;
     virtual double GetMainWMax( int indx ) const;
 
+    bool GetCapUMinSuccess( int indx ) const { return m_CapUMinSuccess[indx]; }
+    bool GetCapUMaxSuccess( int indx ) const { return m_CapUMaxSuccess[indx]; }
+
     virtual void GetSymmIndexs( int imain, vector < int > & symindexs )
     {
         if ( imain >= 0 && imain < m_SurfSymmMap.size() )
