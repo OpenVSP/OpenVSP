@@ -176,6 +176,20 @@ void FeaMeshMgrSingleton::LoadSkins()
                 {
                     m_SurfVec[j]->SetIgnoreSurfFlag( true );
                 }
+
+                if ( skin->m_CapUMinSuccess &&
+                     skin->m_RemoveRootCapFlag() &&
+                     m_SurfVec[j]->GetSurfCore()->GetMinU() < 1.0 )
+                {
+                    m_SurfVec[j]->SetIgnoreSurfFlag( true );
+                }
+
+                if ( skin->m_CapUMaxSuccess &&
+                     skin->m_RemoveTipCapFlag() &&
+                     m_SurfVec[j]->GetSurfCore()->GetMaxU() > ( skin->m_UMax - 1.0 ) )
+                {
+                    m_SurfVec[j]->SetIgnoreSurfFlag( true );
+                }
             }
 
         }
