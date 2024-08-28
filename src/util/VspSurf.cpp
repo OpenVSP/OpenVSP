@@ -2243,24 +2243,6 @@ bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, dou
     return true;
 }
 
-bool VspSurf::CapWMin(int CapType)
-{
-    if (CapType == vsp::NO_END_CAP)
-      return false;
-
-    std::cout << "Am Capping WMin on this one!" << std::endl;
-    return false;
-}
-
-bool VspSurf::CapWMax(int CapType)
-{
-    if (CapType == vsp::NO_END_CAP)
-      return false;
-
-    std::cout << "Am Capping WMax on this one!" << std::endl;
-    return false;
-}
-
 void VspSurf::RollU( const double &u )
 {
     m_Surface.split_u( u );
