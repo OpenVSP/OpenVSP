@@ -770,6 +770,11 @@ void Surf::Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
         return;
     }
 
+    if ( m_FeaSymmIndex >= 0 && surfPtr->GetFeaSymmIndex() != m_FeaSymmIndex )
+    {
+        return;
+    }
+
     if ( !Compare( m_BBox, surfPtr->GetBBox() ) )
     {
         return;
