@@ -2021,6 +2021,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     assert( fixpt );
 
                     fixpt->m_ParentFeaPartID = parent_feaprt->GetID();
+                    fixpt->m_SurfDirty = true;
                 }
             }
         }
@@ -2034,6 +2035,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     assert( fixpt );
 
                     fixpt->m_OtherGeomID = m_FixPointOtherGeomPicker.GetGeomChoice();
+                    fixpt->m_SurfDirty = true;
                 }
             }
         }
@@ -2290,6 +2292,7 @@ void FeaPartEditScreen::UpdateFixPointParentChoice()
                         if ( structVec[StructureMgr.m_CurrStructIndex()]->GetFeaSkin() )
                         {
                             fixpt->m_ParentFeaPartID = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaSkin()->GetID();
+                            fixpt->m_SurfDirty = true;
                         }
                     }
                 }

@@ -384,6 +384,7 @@ public:
     void SetPerpendicularEdgeID( const string & ID )
     {
         m_PerpendicularEdgeID = ID;
+        m_SurfDirty = true;
     }
     string GetPerpendicularEdgeID()
     {
@@ -578,6 +579,7 @@ public:
     void SetPerpendicularEdgeID( const string & ID )
     {
         m_PerpendicularEdgeID = ID;
+        m_SurfDirty = true;
     }
     string GetPerpendicularEdgeID()
     {
