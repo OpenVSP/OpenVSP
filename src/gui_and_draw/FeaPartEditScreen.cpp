@@ -68,7 +68,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_OrientationChoice.AddItem( "OML T", vsp::FEA_ORIENT_OML_T );
     m_OrientationChoice.UpdateItems();
 
-    m_GenLayout.AddChoice( m_OrientationChoice, "Orientation" );
+    m_GenLayout.AddChoice( m_OrientationChoice, "Mat. Orientation" );
     m_GenLayout.AddChoice( m_CapPropertyChoice, "Cap Property" );
 
     m_GenLayout.AddYGap();
