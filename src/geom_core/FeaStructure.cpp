@@ -3971,6 +3971,7 @@ void FeaPartTrim::AddTrimPart( string partID )
 
     m_TrimFeaPartIDVec.push_back( partID );
 
+    m_SurfDirty = true;
     m_LateUpdateFlag = true;
     ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
 }
@@ -3986,6 +3987,7 @@ void FeaPartTrim::DeleteTrimPart( int indx )
 
         RenameParms();
 
+        m_SurfDirty = true;
         m_LateUpdateFlag = true;
         ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
     }
