@@ -230,6 +230,9 @@ public:
     virtual void WriteAssemblySTL( const string &assembly_id );
     virtual void WriteAssemblySTL( FILE* fp, const string &assembly_id );
 
+    virtual double ComputeWriteAssemblyMass( const string &assembly_id );
+    virtual double ComputeWriteAssemblyMass( FILE* fp, const string &assembly_id );
+
     virtual void DetermineConnectionNodes( FeaConnection* conn, int &startnod, int &endnod );
 
     virtual void ModifyConnDO( FeaConnection* conn, vector < DrawObj* > connDO );

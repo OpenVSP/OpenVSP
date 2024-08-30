@@ -2993,6 +2993,13 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
     {
         WriteAssemblyGmsh( assembly_id );
     }
+
+    if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )
+    {
+        double assy_mass = ComputeWriteAssemblyMass( assembly_id );
+        string mass_output = "Total Assembly Mass = " + std::to_string( assy_mass ) + "\n";
+        FeaMeshMgr.addOutputText( mass_output );
+    }
 }
 
 void FeaMeshMgrSingleton::WriteAssemblyCalculix( const string &assembly_id, const FeaCount &feacount )
@@ -3222,6 +3229,54 @@ void FeaMeshMgrSingleton::WriteAssemblySTL( FILE* fp, const string &assembly_id 
             }
         }
     }
+}
+
+double FeaMeshMgrSingleton::ComputeWriteAssemblyMass( const string &assembly_id )
+{
+    double assy_mass = 0;
+
+    string fn = m_AssemblySettings.GetExportFileName( vsp::FEA_MASS_FILE_NAME );
+    FILE* fp = fopen( fn.c_str(), "w" );
+
+    if ( fp )
+    {
+        assy_mass = ComputeWriteAssemblyMass( fp, assembly_id );
+        fclose( fp );
+    }
+    return assy_mass;
+}
+
+double FeaMeshMgrSingleton::ComputeWriteAssemblyMass( FILE* fp, const string &assembly_id )
+{
+    double assy_mass = 0;
+    FeaAssembly* fea_assembly = StructureMgr.GetFeaAssembly( assembly_id );
+
+    if ( !fea_assembly )
+    {
+        return assy_mass;
+    }
+
+    vector < string > & idvec = fea_assembly->m_StructIDVec;
+
+    if ( fp )
+    {
+        for ( int i = 0; i < idvec.size(); i++ )
+        {
+            FeaMesh* mesh = GetMeshPtr( idvec[i] );
+            if ( mesh )
+            {
+                mesh->ComputeWriteMass( fp );
+                assy_mass += mesh->m_TotalMass;
+            }
+        }
+
+        fprintf( fp, "\n" );
+        fprintf( fp, "Assembly_Name       Total_Mass\n" );
+        fprintf( fp, "%-20s% -9.4f\n", fea_assembly->GetName().c_str(), assy_mass );
+
+    }
+
+    return assy_mass;
 }
 
 void FeaMeshMgrSingleton::DetermineConnectionNodes( FeaConnection* conn, int &startnod, int &endnod )
