@@ -97,10 +97,10 @@ public:
 
     virtual void WriteGmsh();
     virtual void WriteGmsh( FILE* fp );
-    virtual void WriteGmshHeader( FILE* fp );
+    static void WriteGmshHeader( FILE* fp );
     virtual void WriteGmshNames( FILE* fp );
     virtual void WriteGmshNodes( FILE* fp );
-    virtual void WriteGmshElements( FILE* fp );
+    virtual void WriteGmshElements( FILE* fp, int & ele_cnt );
 
     virtual void WriteSTL();
     virtual void WriteSTL( FILE* fp );
