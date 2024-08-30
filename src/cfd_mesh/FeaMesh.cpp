@@ -2189,9 +2189,20 @@ void FeaMesh::WriteSTL( FILE* fp )
 
 void FeaMesh::ComputeWriteMass()
 {
+    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_MASS_FILE_NAME );
+    FILE* fp = fopen( fn.c_str(), "w" );
+
+    if ( fp )
+    {
+        ComputeWriteMass( fp );
+        fclose( fp );
+    }
+}
+
+void FeaMesh::ComputeWriteMass( FILE* fp )
+{
     m_TotalMass = 0.0;
 
-    FILE* fp = fopen( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_MASS_FILE_NAME ).c_str(), "w" );
     if ( fp )
     {
         fprintf( fp, "...FEA Mesh...\n" );
@@ -2320,7 +2331,6 @@ void FeaMesh::ComputeWriteMass()
         fprintf( fp, "FeaStruct_Name       Total_Mass\n" );
         fprintf( fp, "%-20s% -9.4f\n", m_StructName.c_str(), m_TotalMass );
 
-        fclose( fp );
     }
 }
 

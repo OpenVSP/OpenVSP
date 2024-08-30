@@ -109,6 +109,7 @@ public:
     virtual void WriteNASTRANSet( FILE* dat_fp, FILE* nkey_fp, int & set_num, vector < long long int > set_ids, const string &set_name, const long long int &offset );
 
     virtual void ComputeWriteMass();
+    virtual void ComputeWriteMass( FILE* fp );
 
     virtual FixPoint* GetFixPointByID( const string &id );
 
