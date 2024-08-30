@@ -224,6 +224,9 @@ public:
     virtual void WriteNASTRANProperties( FILE* bdf_fp );
     virtual void WriteNASTRANMaterials( FILE* bdf_fp );
 
+    virtual void WriteAssemblyGmsh( const string &assembly_id );
+    virtual void WriteAssemblyGmsh( FILE* fp, const string &assembly_id );
+
     virtual void WriteAssemblySTL( const string &assembly_id );
     virtual void WriteAssemblySTL( FILE* fp, const string &assembly_id );
 
