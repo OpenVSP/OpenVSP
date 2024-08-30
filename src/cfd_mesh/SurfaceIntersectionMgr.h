@@ -235,7 +235,7 @@ public:
     virtual void FetchSurfs( vector< XferSurf > &xfersurfs );
     virtual void LoadSurfs( vector< XferSurf > &xfersurfs, double scale = 1.0, int start_surf_id = 0 );
 
-    virtual void CleanMergeSurfs();
+    virtual void CleanMergeSurfs( bool skip_duplicate_removal );
 
     virtual void WriteSurfsIntCurves( const string &filename  );
     virtual void WriteGridToolCurvFile( const string &filename, bool rawflag );

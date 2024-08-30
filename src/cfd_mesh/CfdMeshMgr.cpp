@@ -83,7 +83,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     }
 
     addOutputText( "Clean Merge Surfaces\n" );
-    CleanMergeSurfs();
+    CleanMergeSurfs( /* skip_duplicate_removal */ false );
 
     if ( m_SurfVec.size() == 0 )
     {

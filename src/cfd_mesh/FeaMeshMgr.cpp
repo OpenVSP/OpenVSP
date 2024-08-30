@@ -531,7 +531,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     AddStructureSurfParts();
 
     addOutputText( "Clean Merge Surfs\n" );
-    CleanMergeSurfs(); // Must be called before AddStructureFixPoints to prevent FEA Fix Point surface misidentification
+    CleanMergeSurfs( /* skip_duplicate_removal */ true ); // Must be called before AddStructureFixPoints to prevent FEA Fix Point surface misidentification
 
     // Must be after CleanMergeSurfs() as that is when m_SurfVec is last updated.
     BuildMeshOrientationLookup();

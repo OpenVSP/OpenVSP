@@ -407,7 +407,7 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     }
 
     addOutputText( "Clean Merge Surfs\n" );
-    CleanMergeSurfs();
+    CleanMergeSurfs( /* skip_duplicate_removal */ false );
 
     addOutputText( "Identify CompID Names\n" );
     IdentifyCompIDNames();
@@ -728,7 +728,7 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, dou
     }
 }
 
-void SurfaceIntersectionSingleton::CleanMergeSurfs()
+void SurfaceIntersectionSingleton::CleanMergeSurfs(  bool skip_duplicate_removal )
 {
 
     vector < Surf* > surfs = m_SurfVec;
@@ -771,7 +771,10 @@ void SurfaceIntersectionSingleton::CleanMergeSurfs()
         }
     }
 
-    DeleteDuplicateSurfs();
+    if ( !skip_duplicate_removal )
+    {
+        DeleteDuplicateSurfs();
+    }
 
     //==== Combine Components With Matching Surface Edges ====//
     map< int, int > mergeCompMap;
