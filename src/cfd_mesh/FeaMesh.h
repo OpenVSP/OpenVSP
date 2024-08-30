@@ -97,6 +97,7 @@ public:
 
     virtual void WriteGmsh();
     virtual void WriteSTL();
+    virtual void WriteSTL( FILE* fp );
 
     // Was protected.
     virtual void WriteNASTRANSet( FILE* dat_fp, FILE* nkey_fp, int & set_num, vector < long long int > set_ids, const string &set_name, const long long int &offset );

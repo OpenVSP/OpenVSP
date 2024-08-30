@@ -2100,6 +2100,16 @@ void FeaMesh::WriteSTL()
 {
     string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
+
+    if ( fp )
+    {
+        WriteSTL( fp );
+        fclose( fp );
+    }
+}
+
+void FeaMesh::WriteSTL( FILE* fp )
+{
     if ( fp )
     {
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )

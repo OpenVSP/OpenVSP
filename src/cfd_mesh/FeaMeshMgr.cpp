@@ -2983,6 +2983,11 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
     {
         WriteAssemblyNASTRAN( assembly_id, feacount, connoffset );
     }
+
+    if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) )
+    {
+        WriteAssemblySTL( assembly_id );
+    }
 }
 
 void FeaMeshMgrSingleton::WriteAssemblyCalculix( const string &assembly_id, const FeaCount &feacount )
@@ -3078,6 +3083,42 @@ void FeaMeshMgrSingleton::WriteAssemblyCalculix( FILE* fp, const string &assembl
         }
 
         WriteCalculixMaterials( fp );
+    }
+}
+
+void FeaMeshMgrSingleton::WriteAssemblySTL( const string &assembly_id )
+{
+    string fn = m_AssemblySettings.GetExportFileName( vsp::FEA_STL_FILE_NAME );
+    FILE* fp = fopen( fn.c_str(), "w" );
+
+    if ( fp )
+    {
+        WriteAssemblySTL( fp, assembly_id );
+        fclose( fp );
+    }
+}
+
+void FeaMeshMgrSingleton::WriteAssemblySTL( FILE* fp, const string &assembly_id )
+{
+    FeaAssembly* fea_assembly = StructureMgr.GetFeaAssembly( assembly_id );
+
+    if ( !fea_assembly )
+    {
+        return;
+    }
+
+    vector < string > & idvec = fea_assembly->m_StructIDVec;
+
+    if ( fp )
+    {
+        for ( int i = 0; i < idvec.size(); i++ )
+        {
+            FeaMesh* mesh = GetMeshPtr( idvec[i] );
+            if ( mesh )
+            {
+                mesh->WriteSTL( fp );
+            }
+        }
     }
 }
 
