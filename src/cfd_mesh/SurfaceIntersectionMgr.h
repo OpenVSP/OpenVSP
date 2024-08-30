@@ -50,9 +50,9 @@
 #if !defined(SURFACE_INTERSECTION_MGR__INCLUDED_)
 #define SURFACE_INTERSECTION_MGR__INCLUDED_
 
-#ifndef DEBUG_CFD_MESH
-#define DEBUG_CFD_MESH
-#endif
+//#ifndef DEBUG_CFD_MESH
+//#define DEBUG_CFD_MESH
+//#endif
 
 #ifdef __JETBRAINS_IDE__
 #define DEBUG_CFD_MESH

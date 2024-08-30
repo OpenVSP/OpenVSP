@@ -1008,15 +1008,7 @@ void Surf::InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw,
 
     BuildDistMap();
 
-    try
-    {
-        m_Mesh.InitMesh( uwPntVec, isegVec, MeshMgr );
-
-    }
-    catch ( int errno )
-    {
-        printf( "errno %d\n", errno );
-    }
+    m_Mesh.InitMesh( uwPntVec, isegVec, MeshMgr );
 
     CleanupDistMap();
 }
