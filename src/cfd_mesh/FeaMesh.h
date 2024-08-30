@@ -96,6 +96,12 @@ public:
     virtual void WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int &set_cnt );
 
     virtual void WriteGmsh();
+    virtual void WriteGmsh( FILE* fp );
+    virtual void WriteGmshHeader( FILE* fp );
+    virtual void WriteGmshNames( FILE* fp );
+    virtual void WriteGmshNodes( FILE* fp );
+    virtual void WriteGmshElements( FILE* fp );
+
     virtual void WriteSTL();
     virtual void WriteSTL( FILE* fp );
 

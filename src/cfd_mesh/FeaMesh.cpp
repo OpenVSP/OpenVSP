@@ -2021,79 +2021,110 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
 
 void FeaMesh::WriteGmsh()
 {
-    unsigned long long int noffset = m_StructSettings.m_NodeOffset;
-    unsigned long long int eoffset = m_StructSettings.m_ElementOffset;
-
     string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_GMSH_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
+
     if ( fp )
     {
-        //=====================================================================================//
-        //============== Write Gmsh File ======================================================//
-        //=====================================================================================//
-        fprintf( fp, "$MeshFormat\n" );
-        fprintf( fp, "2.2 0 %d\n", ( int )sizeof( double ) );
-        fprintf( fp, "$EndMeshFormat\n" );
-
-        // Count FeaNodes
-        int node_count = 0;
-        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-        {
-            if ( m_FeaNodeVecUsed[ j ] )
-            {
-                node_count++;
-            }
-        }
-
-        //==== Group and Name FeaParts ====//
-        fprintf( fp, "$PhysicalNames\n" );
-        fprintf( fp, "%llu\n", m_NumFeaParts - m_NumFeaFixPoints );
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
-        {
-            if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
-            {
-                fprintf( fp, "9 %d \"%s\"\n", i + 1, m_FeaPartNameVec[i].c_str() );
-            }
-        }
-        fprintf( fp, "$EndPhysicalNames\n" );
-
-        //==== Write Nodes ====//
-        fprintf( fp, "$Nodes\n" );
-        fprintf( fp, "%u\n", node_count );
-
-        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-        {
-            if ( m_FeaNodeVecUsed[ j ] )
-            {
-                m_FeaNodeVec[j]->WriteGmsh( fp, noffset );
-            }
-        }
-
-        fprintf( fp, "$EndNodes\n" );
-
-        //==== Write FeaElements ====//
-        fprintf( fp, "$Elements\n" );
-        fprintf( fp, "%d\n", (int)m_FeaElementVec.size() );
-
-        int ele_cnt = 1;
-
-        for ( unsigned int j = 0; j < m_NumFeaParts; j++ )
-        {
-            for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
-            {
-                if ( m_FeaElementVec[i]->GetFeaPartIndex() == j )
-                {
-                    m_FeaElementVec[i]->WriteGmsh( fp, ele_cnt, j + 1, noffset, eoffset );
-                    ele_cnt++;
-                }
-            }
-        }
-
-        fprintf( fp, "$EndElements\n" );
+        WriteGmsh( fp );
         fclose( fp );
+    }
+}
+
+void FeaMesh::WriteGmsh( FILE* fp )
+{
+    if ( fp )
+    {
+        WriteGmshHeader( fp );
+
+        WriteGmshNames( fp );
+
+        WriteGmshNodes( fp );
+
+        WriteGmshElements( fp );
 
         // Note: Material properties are not supported in *.msh file
     }
+}
+
+void FeaMesh::WriteGmshHeader( FILE* fp )
+{
+    //=====================================================================================//
+    //============== Write Gmsh File ======================================================//
+    //=====================================================================================//
+    fprintf( fp, "$MeshFormat\n" );
+    fprintf( fp, "2.2 0 %d\n", ( int )sizeof( double ) );
+    fprintf( fp, "$EndMeshFormat\n" );
+}
+
+void FeaMesh::WriteGmshNames( FILE* fp )
+{
+    //==== Group and Name FeaParts ====//
+    fprintf( fp, "$PhysicalNames\n" );
+    fprintf( fp, "%llu\n", m_NumFeaParts - m_NumFeaFixPoints );
+    for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+    {
+        if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
+        {
+            fprintf( fp, "9 %d \"%s\"\n", i + 1, m_FeaPartNameVec[i].c_str() );
+        }
+    }
+    fprintf( fp, "$EndPhysicalNames\n" );
+}
+
+void FeaMesh::WriteGmshNodes( FILE* fp )
+{
+    unsigned long long int noffset = m_StructSettings.m_NodeOffset;
+
+    // Count FeaNodes
+    int node_count = 0;
+    for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+    {
+        if ( m_FeaNodeVecUsed[ j ] )
+        {
+            node_count++;
+        }
+    }
+
+    //==== Write Nodes ====//
+    fprintf( fp, "$Nodes\n" );
+    fprintf( fp, "%u\n", node_count );
+
+    for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+    {
+        if ( m_FeaNodeVecUsed[ j ] )
+        {
+            m_FeaNodeVec[j]->WriteGmsh( fp, noffset );
+        }
+    }
+
+    fprintf( fp, "$EndNodes\n" );
+}
+
+void FeaMesh::WriteGmshElements( FILE* fp )
+{
+    unsigned long long int noffset = m_StructSettings.m_NodeOffset;
+    unsigned long long int eoffset = m_StructSettings.m_ElementOffset;
+
+    //==== Write FeaElements ====//
+    fprintf( fp, "$Elements\n" );
+    fprintf( fp, "%d\n", (int)m_FeaElementVec.size() );
+
+    int ele_cnt = 1;
+
+    for ( unsigned int j = 0; j < m_NumFeaParts; j++ )
+    {
+        for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
+        {
+            if ( m_FeaElementVec[i]->GetFeaPartIndex() == j )
+            {
+                m_FeaElementVec[i]->WriteGmsh( fp, ele_cnt, j + 1, noffset, eoffset );
+                ele_cnt++;
+            }
+        }
+    }
+
+    fprintf( fp, "$EndElements\n" );
 }
 
 void FeaMesh::WriteSTL()
