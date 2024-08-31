@@ -709,7 +709,7 @@ void Surf::FindBorderCurves()
 string Surf::GetDisplayName()
 {
     char buf[255];
-    snprintf( buf, sizeof( buf ), "%4d %4d %s", m_FeaPartSurfNum, m_SplitNum, m_Name.c_str() );
+    snprintf( buf, sizeof( buf ), "%s_%d",  m_Name.c_str(), m_SplitNum );
 
     return string( buf );
 }
