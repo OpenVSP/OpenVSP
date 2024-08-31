@@ -195,7 +195,9 @@ IF( NOT VSP_NO_VSPAERO )
     ADD_SUBDIRECTORY( vsp_aero )
 ENDIF()
 
-ADD_SUBDIRECTORY( help )
+IF( NOT VSP_NO_HELP )
+    ADD_SUBDIRECTORY( help )
+ENDIF()
 
 INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
 

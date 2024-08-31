@@ -239,6 +239,9 @@
      languages.  The build system will not search for
      Swig, Python, or Matlab.
 
+   - `VSP_NO_HELP` -- Set this variable to disable
+     everything to do with building the online help files.
+
    - `XXX_OMP_COMPILER` -- Set these variables to point at secondary
      compilers to use when the primary compiler does not support
      OpenMP.  This will allow the VSPAERO solver to be built as
