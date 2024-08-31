@@ -3133,11 +3133,21 @@ void CfdMeshMgrSingleton::ConnectBorderNodes( bool wakeOnly )
 
 void CfdMeshMgrSingleton::MatchBorderNodes( const vector< Node* > & nodeVec )
 {
-    vector < vec3d > ptVec( nodeVec.size() );
+    vector < vec3d > ptVec;
+    ptVec.reserve( nodeVec.size() );
+    vector < int > indexVec;
+    indexVec.reserve( nodeVec.size() );
 
     for ( int i = 0; i < nodeVec.size(); i++ )
     {
-        ptVec[i] = nodeVec[i]->pnt;
+        try
+        {
+            ptVec.push_back( nodeVec[i]->pnt );
+            indexVec.push_back( i );
+        }
+        catch ( int ex )
+        {
+        }
     }
 
     //==== Build Map ====//
@@ -3156,7 +3166,7 @@ void CfdMeshMgrSingleton::MatchBorderNodes( const vector< Node* > & nodeVec )
 
             for ( int j = 1; j < matches.size(); j++ )
             {
-                nodeVec[ matches[j] ]->pnt = nodeVec[ i ]->pnt;
+                nodeVec[ indexVec[ matches[j] ] ]->pnt = nodeVec[ indexVec[i] ]->pnt;
             }
         }
     }
