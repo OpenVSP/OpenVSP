@@ -621,42 +621,47 @@ Edge* Face::FindEdgeWithout( Node* node_ptr )
 
 Edge* Face::FindShortEdge()
 {
-    if ( !e0 || !e1 || !e2 )
+    Edge* e0a = dynamic_cast< Edge* > ( e0 );
+    Edge* e1a = dynamic_cast< Edge* > ( e1 );
+    Edge* e2a = dynamic_cast< Edge* > ( e2 );
+    Edge* e3a = dynamic_cast< Edge* > ( e3 );
+
+    if ( !e0a || !e1a || !e2a )
     {
         return NULL;
     }
 
-    if ( !e0->n0 || !e1->n0 || !e2->n0 || !e0->n1 || !e1->n1 || !e2->n1 )
+    if ( !e0a->n0 || !e1a->n0 || !e2a->n0 || !e0a->n1 || !e1a->n1 || !e2a->n1 )
     {
         return NULL;
     }
 
-    double dsqr0 = dist_squared( e0->n0->pnt, e0->n1->pnt );
-    double dsqr1 = dist_squared( e1->n0->pnt, e1->n1->pnt );
-    double dsqr2 = dist_squared( e2->n0->pnt, e2->n1->pnt );
+    double dsqr0 = dist_squared( e0a->n0->pnt, e0a->n1->pnt );
+    double dsqr1 = dist_squared( e1a->n0->pnt, e1a->n1->pnt );
+    double dsqr2 = dist_squared( e2a->n0->pnt, e2a->n1->pnt );
 
-    Edge * e = e0;
+    Edge * e = e0a;
 
     if ( dsqr1 < dsqr0 )
     {
-        e = e1;
+        e = e1a;
         dsqr0 = dsqr1;
     }
 
     if ( dsqr2 < dsqr0 )
     {
-        e = e2;
+        e = e2a;
         dsqr0 = dsqr2;
     }
 
-    if ( e3 )
+    if ( e3a )
     {
-        if ( e3->n0 && e3->n1 )
+        if ( e3a->n0 && e3a->n1 )
         {
-            double dsqr3 = dist_squared( e3->n0->pnt, e3->n1->pnt );
+            double dsqr3 = dist_squared( e3a->n0->pnt, e3a->n1->pnt );
             if ( dsqr3 < dsqr0 )
             {
-                e = e3;
+                e = e3a;
             }
         }
     }
