@@ -189,9 +189,12 @@ void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
     double k2 = 1.0 / ( 3.0 * sum_area );
     for ( int i = 0 ; i < ( int )connectFaces.size() ; i++ )
     {
-        double k = k2 * areas[i];
-        movePnt = movePnt + ( connectFaces[i]->n0->pnt + connectFaces[i]->n1->pnt + connectFaces[i]->n2->pnt ) * k;
-        moveUW = moveUW + ( connectFaces[i]->n0->uw + connectFaces[i]->n1->uw + connectFaces[i]->n2->uw ) * k;
+        if ( connectFaces[i]->n0 && connectFaces[i]->n1 && connectFaces[i]->n2 )
+        {
+            double k = k2 * areas[i];
+            movePnt = movePnt + ( connectFaces[i]->n0->pnt + connectFaces[i]->n1->pnt + connectFaces[i]->n2->pnt ) * k;
+            moveUW = moveUW + ( connectFaces[i]->n0->uw + connectFaces[i]->n1->uw + connectFaces[i]->n2->uw ) * k;
+        }
     }
 
     // TODO:  This routine calculates an area weighted smoothed point to high precision.
@@ -934,6 +937,11 @@ bool Face::CorrectOrder( Node* en0, Node* en1 )
 
 double Face::Area()
 {
+    if ( !n0 || !n1 || !n2 )
+    {
+        return 0.0;
+    }
+
     if ( !n3 )
     {
         return area( n0->pnt, n1->pnt, n2->pnt );
@@ -1039,26 +1047,50 @@ void Face::AddBorderNodes( vector< Node* > &nodeVec )
 {
     if ( e0->OtherFace( this ) == NULL )
     {
-        nodeVec.push_back( e0->n0 );
-        nodeVec.push_back( e0->n1 );
+        if ( e0->n0 )
+        {
+            nodeVec.push_back( e0->n0 );
+        }
+        if ( e0->n1 )
+        {
+            nodeVec.push_back( e0->n1 );
+        }
     }
     if ( e1->OtherFace( this ) == NULL )
     {
-        nodeVec.push_back( e1->n0 );
-        nodeVec.push_back( e1->n1 );
+        if ( e1->n0 )
+        {
+            nodeVec.push_back( e1->n0 );
+        }
+        if ( e1->n1 )
+        {
+            nodeVec.push_back( e1->n1 );
+        }
     }
     if ( e2->OtherFace( this ) == NULL )
     {
-        nodeVec.push_back( e2->n0 );
-        nodeVec.push_back( e2->n1 );
+        if ( e2->n0 )
+        {
+            nodeVec.push_back( e2->n0 );
+        }
+        if ( e2->n1 )
+        {
+            nodeVec.push_back( e2->n1 );
+        }
     }
 
     if ( e3 )
     {
         if ( e3->OtherFace( this ) == NULL )
         {
-            nodeVec.push_back( e3->n0 );
-            nodeVec.push_back( e3->n1 );
+            if ( e3->n0 )
+            {
+                nodeVec.push_back( e3->n0 );
+            }
+            if ( e3->n1 )
+            {
+                nodeVec.push_back( e3->n1 );
+            }
         }
     }
 }

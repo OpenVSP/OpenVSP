@@ -808,6 +808,11 @@ void Mesh::SplitEdge( Edge* edge )
 
 void Mesh::SwapEdge( Edge* edge )
 {
+    if ( !edge )
+    {
+        return;
+    }
+
     //if ( edge->n0->fixed && edge->n1->fixed )
     //  return;
     if ( edge->border )
@@ -831,6 +836,10 @@ void Mesh::SwapEdge( Edge* edge )
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
 
+    if ( !n0 || !n1 )
+    {
+        return;
+    }
 
     if ( !fa->CorrectOrder( n0, n1 ) )
     {
@@ -842,6 +851,11 @@ void Mesh::SwapEdge( Edge* edge )
     Node* nb = fb->OtherNodeTri( n0, n1 );
 
     assert( na != nb );
+
+    if ( !na || !nb )
+    {
+        return;
+    }
 
     //==== Determine Face Quality of Existing Faces =====//
     double qa = fa->ComputeTriQual();
