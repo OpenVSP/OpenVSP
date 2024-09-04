@@ -533,10 +533,10 @@ void SpreadSheet<T>::paste( const char *str, int len )
             int max_row = get_data_nrow();
             int max_col = get_data_ncol();
 
-            for ( int i = 0; i < table.size(); i++ )
+            for ( int i = 0; i < (int)table.size(); i++ )
             {
                 int idata = i + select_row;
-                for ( int j = 0; j < table[ i ].size(); j++ )
+                for ( int j = 0; j < (int)table[ i ].size(); j++ )
                 {
                     int jdata = j + select_col;
 
