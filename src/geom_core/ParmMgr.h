@@ -75,6 +75,8 @@ public:
     string RemapID( const string & oldID, const string & suggestID = "" );
     string ResetRemapID( const string & lastReset = "" );
 
+    void SwapIDs( const string &aID, const string &bID );
+
     void SetActiveParm( const string &id )         { m_ActiveParmID = id; }
     Parm* GetActiveParm()                   { return FindParm( m_ActiveParmID ); }
     int GetNumParmChanges()                 { return m_NumParmChanges; }

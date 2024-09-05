@@ -279,6 +279,20 @@ string ParmMgrSingleton::ResetRemapID( const string & lastReset )
     return m_LastReset;
 }
 
+void ParmMgrSingleton::SwapIDs( const string &aID, const string &bID )
+{
+
+    Parm* parm_a = FindParm( aID );
+    Parm* parm_b = FindParm( bID );
+
+    if ( parm_a && parm_b )
+    {
+        parm_b->ChangeID( "TEMP" );
+        parm_a->ChangeID( bID );
+        parm_b->ChangeID( aID );
+    }
+}
+
 //==== Get Names For Parm Given ID ====//
 void ParmMgrSingleton::GetNames( const string& parm_id, string& container_name,
                                  string& group_name, string& parm_name )
