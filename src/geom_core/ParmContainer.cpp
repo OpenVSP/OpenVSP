@@ -532,3 +532,22 @@ void ParmContainer::CopyVals( ParmContainer *from )
         }
     }
 }
+
+void ParmContainer::SwapIDs( ParmContainer *from )
+{
+    // Make a copy to iterate over because SwapID's implicitly modifies m_ParmVec.
+    vector< string > parmvec = m_ParmVec;
+
+    for ( int i = 0 ; i < ( int )parmvec.size() ; i++ )
+    {
+        Parm* pa = ParmMgr.FindParm( parmvec[i] );
+        if ( pa )
+        {
+            Parm* pb = ParmMgr.FindParm( from->FindParm( pa->GetName(), pa->GetGroupName() ) );
+            if ( pb )
+            {
+                ParmMgr.SwapIDs( pa->GetID(), pb->GetID() );
+            }
+        }
+    }
+}

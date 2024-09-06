@@ -69,6 +69,9 @@ public:
     virtual void SetParentContainer( const string & id )    { m_ParentContainer = id; }
 
     virtual void CopyVals( ParmContainer *from );
+
+    virtual void SwapIDs( ParmContainer* from );
+
 protected:
 
     string m_ID;                                        // Unique ID
