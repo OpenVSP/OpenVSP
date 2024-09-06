@@ -10,6 +10,7 @@
 #include "XSecSurf.h"
 #include "WingGeom.h"
 #include "CustomGeom.h"
+#include "ParmMgr.h"
 #include "PropGeom.h"
 #include "StlHelper.h"
 
@@ -450,6 +451,37 @@ void XSecSurf::ChangeXSecShape( int index, int type )
     {
         //==== Copy Data ====//
         nxs->CopyFrom( xs );
+
+        // Swap all XSec ID's.
+        nxs->SwapIDs( xs );
+
+        // Store first Width ID.
+        string waID = nxs->GetXSecCurve()->GetWidthParmID();
+
+        // Swap all XSecCurve ID's.
+        nxs->GetXSecCurve()->SwapIDs( xs->GetXSecCurve() );
+
+        // Width and height Parms need special treatment because they don't always exist (Point, Circle) and
+        // they are inconsistently named.
+        // Circle_Diameter, Ellipse_Width, Super_Width, RoundedRect_Width, Width, Chord, etc.
+        if ( waID == nxs->GetXSecCurve()->GetWidthParmID() ) // ID did not change.
+        {
+            Parm* wa = ParmMgr.FindParm( nxs->GetXSecCurve()->GetWidthParmID() );
+            Parm* ha = ParmMgr.FindParm( nxs->GetXSecCurve()->GetHeightParmID() );
+
+            Parm* wb = ParmMgr.FindParm( xs->GetXSecCurve()->GetWidthParmID() );
+            Parm* hb = ParmMgr.FindParm( xs->GetXSecCurve()->GetHeightParmID() );
+
+            if ( wb && wa )
+            {
+                ParmMgr.SwapIDs( wa->GetID(), wb->GetID() );
+            }
+
+            if ( hb && ha )
+            {
+                ParmMgr.SwapIDs( ha->GetID(), hb->GetID() );
+            }
+        }
 
         m_XSecIDDeque.insert( m_XSecIDDeque.begin() + index, nxs->GetID() );
 
