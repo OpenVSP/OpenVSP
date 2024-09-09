@@ -42,6 +42,7 @@
 #include "PropGeom.h"
 #include "PtCloudGeom.h"
 #include "Quat.h"
+#include "RoutingGeom.h"
 #include "ScriptMgr.h"
 #include "StlHelper.h"
 #include "StringUtil.h"
@@ -401,6 +402,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( PROP_GEOM_TYPE, "PROP", true ) );
     m_GeomTypeVec.push_back( GeomType( HINGE_GEOM_TYPE, "HINGE", true ) );
     m_GeomTypeVec.push_back( GeomType( CONFORMAL_GEOM_TYPE, "CONFORMAL", true ) );
+    m_GeomTypeVec.push_back( GeomType( ROUTING_GEOM_TYPE, "ROUTING", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -1058,6 +1060,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     else if ( type.m_Name == "Human" || type.m_Name == "HUMAN" )
     {
         new_geom = new HumanGeom( this );
+    }
+    else if ( type.m_Name == "Routing" || type.m_Name == "ROUTING" )
+    {
+        new_geom = new RoutingGeom( this );
     }
 
     if ( !new_geom )

@@ -76,6 +76,7 @@ ProjectionMgr.cpp
 PropGeom.cpp
 PtCloudGeom.cpp
 ResultsMgr.cpp
+RoutingGeom.cpp
 ScriptMgr.cpp
 SnapTo.cpp
 StackGeom.cpp
@@ -154,6 +155,7 @@ ProjectionMgr.h
 PropGeom.h
 PtCloudGeom.h
 ResultsMgr.h
+RoutingGeom.h
 ScriptMgr.h
 SnapTo.h
 StackGeom.h

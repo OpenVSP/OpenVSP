@@ -32,6 +32,7 @@
 #include "EllipsoidScreen.h"
 #include "WireScreen.h"
 #include "HumanGeomScreen.h"
+#include "RoutingScreen.h"
 
 using std::string;
 using std::vector;

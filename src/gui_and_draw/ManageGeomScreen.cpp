@@ -705,6 +705,7 @@ void ManageGeomScreen::CreateScreens()
     m_GeomScreenVec[vsp::BOR_GEOM_SCREEN] = new BORScreen( m_ScreenMgr );
     m_GeomScreenVec[vsp::HUMAN_GEOM_SCREEN] = new HumanGeomScreen( m_ScreenMgr );
     m_GeomScreenVec[vsp::WIRE_FRAME_GEOM_SCREEN] = new WireScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::ROUTING_GEOM_SCREEN] = new RoutingScreen( m_ScreenMgr );
 
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {

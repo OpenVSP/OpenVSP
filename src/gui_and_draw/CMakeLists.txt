@@ -86,6 +86,7 @@ ProjectionScreen.cpp
 PropScreen.cpp
 PSliceScreen.cpp
 PtCloudScreen.cpp
+RoutingScreen.cpp
 ScreenBase.cpp
 ScreenMgr.cpp
 ScreenshotScreen.cpp
@@ -172,6 +173,7 @@ ProjectionScreen.h
 PropScreen.h
 PSliceScreen.h
 PtCloudScreen.h
+RoutingScreen.h
 ScreenBase.h
 ScreenMgr.h
 ScreenshotScreen.h
