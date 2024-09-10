@@ -21,6 +21,25 @@ ClearanceScreen::ClearanceScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 +
 
     //==== Design ====//
 
+    m_ClearanceModeChoice.AddItem( "Rotor tip path", vsp::CLEARANCE_ROTOR_TIP_PATH );
+    m_ClearanceModeChoice.AddItem( "Rotor burst", vsp::CLEARANCE_ROTOR_BURST );
+    m_ClearanceModeChoice.UpdateItems();
+
+    m_DesignLayout.AddChoice( m_ClearanceModeChoice, "Mode" );
+
+    m_DesignLayout.AddButton( m_AutoDiamToggleButton, "Automatic Diameter" );
+
+    m_DesignLayout.AddSlider( m_DiameterSlider, "Diameter", 1.0, "%5.4f" );
+
+    m_DesignLayout.AddSlider( m_FlapRadiusFractSlider, "r_flap/R", 1.0, "%5.4f" );
+
+    m_DesignLayout.AddSlider( m_RootLengthSlider, "Root Length", 1.0, "%5.4f" );
+
+    m_DesignLayout.AddSlider( m_RootOffsetSlider, "Root Offset", 1.0, "%5.4f" );
+
+    m_DesignLayout.AddSlider( m_ThetaThrustSlider, "Theta Thrust", 1.0, "%5.4f" );
+
+    m_DesignLayout.AddSlider( m_ThetaAntiThrustSlider, "Theta Anti Thrust", 1.0, "%5.4f" );
 
 }
 
@@ -55,6 +74,22 @@ bool ClearanceScreen::Update()
     ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom_ptr );
     assert( clearance_ptr );
 
+
+    m_ClearanceModeChoice.Update( clearance_ptr->m_ClearanceMode.GetID() );
+
+    m_AutoDiamToggleButton.Update( clearance_ptr->m_AutoDiam.GetID() );
+
+    m_DiameterSlider.Update( clearance_ptr->m_Diameter.GetID() );
+
+    m_FlapRadiusFractSlider.Update( clearance_ptr->m_FlapRadiusFract.GetID() );
+
+    m_RootLengthSlider.Update( clearance_ptr->m_RootLength.GetID() );
+
+    m_RootOffsetSlider.Update( clearance_ptr->m_RootOffset.GetID() );
+
+    m_ThetaThrustSlider.Update( clearance_ptr->m_ThetaThrust.GetID() );
+
+    m_ThetaAntiThrustSlider.Update( clearance_ptr->m_ThetaAntiThrust.GetID() );
 
     return true;
 }

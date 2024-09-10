@@ -31,6 +31,22 @@ protected:
 
     GroupLayout m_DesignLayout;
 
+
+
+    Choice m_ClearanceModeChoice;
+
+    ToggleButton m_AutoDiamToggleButton;
+
+    SliderAdjRangeInput m_DiameterSlider;
+    SliderAdjRangeInput m_FlapRadiusFractSlider;
+
+    SliderAdjRangeInput m_RootLengthSlider;
+    SliderAdjRangeInput m_RootOffsetSlider;
+
+    SliderAdjRangeInput m_ThetaThrustSlider;
+    SliderAdjRangeInput m_ThetaAntiThrustSlider;
+
+
 };
 
 

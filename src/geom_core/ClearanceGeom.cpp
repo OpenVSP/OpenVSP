@@ -10,7 +10,8 @@
 #include "ClearanceGeom.h"
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"
-#include "WingGeom.h"
+#include "PropGeom.h"
+#include "Geom.h"
 #include <cfloat>  //For DBL_EPSILON
 
 using namespace vsp;
@@ -21,6 +22,34 @@ ClearanceGeom::ClearanceGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Name = "ClearanceGeom";
     m_Type.m_Name = "Clearance";
     m_Type.m_Type = CLEARANCE_GEOM_TYPE;
+
+
+    m_ClearanceMode.Init( "ClearanceType", "Design", this, CLEARANCE_ROTOR_TIP_PATH, CLEARANCE_ROTOR_TIP_PATH, NUM_CLEARANCE_MODES - 1 );
+    m_ClearanceMode.SetDescript( "Type of clearance geometry." );
+
+    m_AutoDiam.Init( "AutoDiam", "Design", this, true, false, true );
+    m_AutoDiam.SetDescript( "Flag to set the diameter automatically." );
+
+    m_Diameter.Init( "Diameter", "Design", this, 30.0, 0.0, 1.0e12 );
+    m_Diameter.SetDescript( "Diameter of clearance geometry" );
+
+    m_FlapRadiusFract.Init( "FlapRadiusFract", "Design", this, 0.0, 0.0, 1.0 );
+    m_FlapRadiusFract.SetDescript( "Radius fraction for the flappling hinge location" );
+
+    m_RootLength.Init( "RootLength", "Design", this, 0.0, 0.0, 1.0e12 );
+    m_RootLength.SetDescript( "Axial length of rotor at root of burst cone" );
+
+    m_RootOffset.Init( "RootOffset", "Design", this, 0.5, 0.0, 1.0 );
+    m_RootOffset.SetDescript( "Axial offset of burst cone as ratio of length" );
+
+    m_ThetaThrust.Init( "ThetaThrust", "Design", this, 15.0, 0.0, 1.0e12 );
+    m_ThetaThrust.SetDescript( "Cone angle in the direction of thrust." );
+
+    m_ThetaAntiThrust.Init( "ThetaAntiThrust", "Design", this, 15.0, 0.0, 1.0e12 );
+    m_ThetaAntiThrust.SetDescript( "Cone angle in the direction opposite thrust." );
+
+
+    m_ParentType = -1;
 
 }
 
@@ -58,8 +87,104 @@ void ClearanceGeom::UpdateSurf()
         return;
     }
 
+    m_ParentType = parent_geom->GetType().m_Type;
+
     //==== Copy XForm/Tess Data From Parent ====//
     CopyDataFrom( parent_geom );
+
+
+    double refLen = 30.0;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        BndBox b;
+        if ( veh->GetVisibleBndBox( b ) ) // Checks for empty visible box.  Clearance Geom's ignored.
+        {
+            refLen = 1.5 * b.DiagDist();
+        }
+    }
+
+
+    if ( m_ParentType == PROP_GEOM_TYPE )
+    {
+        PropGeom * parent_prop = dynamic_cast< PropGeom* > ( parent_geom );
+
+        if ( parent_prop )
+        {
+            if ( m_AutoDiam() )
+            {
+                if ( m_ClearanceMode() == CLEARANCE_ROTOR_TIP_PATH )
+                {
+                    m_Diameter.Set( parent_prop->m_Diameter() );
+                }
+                else // CLEARANCE_ROTOR_BURST
+                {
+                    m_Diameter.Set( refLen );
+                }
+                m_Diameter.Deactivate();
+            }
+            else
+            {
+                m_Diameter.Activate();
+            }
+
+            if ( m_ClearanceMode() == CLEARANCE_ROTOR_TIP_PATH )
+            {
+                m_FlapRadiusFract.Activate();
+            }
+            else // CLEARANCE_ROTOR_BURST
+            {
+                m_FlapRadiusFract.Deactivate();
+            }
+
+        }
+    }
+
+
+    if ( m_ClearanceMode() == CLEARANCE_ROTOR_TIP_PATH )
+    {
+        double radius = m_Diameter() * 0.5;
+        double flapr = radius * m_FlapRadiusFract();
+        double bladelen = radius - flapr;
+
+        vector < vec3d > pts;
+        pts.emplace_back( vec3d( 0.0, flapr, 0.0 ) );
+        pts.emplace_back( vec3d( sin( -m_ThetaThrust() * PI / 180.0 ) * bladelen, flapr + cos( -m_ThetaThrust() * PI / 180.0 ) * bladelen, 0.0 ) );
+        pts.emplace_back( vec3d( 0.0, radius, 0.0 ) );
+        pts.emplace_back( vec3d( sin( m_ThetaAntiThrust() * PI / 180.0 ) * bladelen, flapr + cos( m_ThetaAntiThrust() * PI / 180.0 ) * bladelen, 0.0 ) );
+        pts.emplace_back( vec3d( 0.0, flapr, 0.0 ) );
+
+        vector < double > ts = { 0, 1, 2, 3, 4 };
+
+        VspCurve crv;
+        crv.InterpolateLinear( pts, ts, false );
+
+        m_MainSurfVec[0].CreateBodyRevolution( crv, true );
+        m_MainSurfVec[0].SetMagicVParm( false );
+    }
+    else if ( m_ClearanceMode() == CLEARANCE_ROTOR_BURST )
+    {
+        double radius = m_Diameter() * 0.5;
+
+        double xstart = -m_RootOffset() * m_RootLength();
+        double xend = xstart + m_RootLength();
+
+        vector < vec3d > pts;
+        pts.emplace_back( vec3d( xstart, 0.0, 0.0 ) );
+        pts.emplace_back( vec3d( xstart + tan( -m_ThetaThrust() * PI / 180.0 ) * radius, radius, 0.0 ) );
+        pts.emplace_back( vec3d( xend + tan( m_ThetaAntiThrust() * PI / 180.0 ) * radius, radius, 0.0 ) );
+        pts.emplace_back( vec3d( xend, 0.0, 0.0 ) );
+
+        vector < double > ts = { 0, 4.0*1.0/3.0, 4.0*2.0/3.0, 4.0 };
+
+        VspCurve crv;
+        crv.InterpolateLinear( pts, ts, false );
+
+        m_MainSurfVec[0].CreateBodyRevolution( crv, true );
+        m_MainSurfVec[0].SetMagicVParm( false );
+    }
+
 
 }
 
@@ -82,20 +207,20 @@ void ClearanceGeom::CopyDataFrom( Geom* geom_ptr )
     m_MLoc.Deactivate();
     m_NLoc.Deactivate();
 
-    //==== Copy Cap Options ====//
-    m_CapUMinOption = geom_ptr->m_CapUMinOption();
-    m_CapUMinTess   = geom_ptr->m_CapUMinTess();
-    m_CapUMaxOption = geom_ptr->m_CapUMaxOption();
+    // //==== Copy Cap Options ====//
+    m_CapUMinOption.Deactivate();
+    m_CapUMinTess.Deactivate();
+    m_CapUMaxOption.Deactivate();
 
-    m_CapUMinLength = geom_ptr->m_CapUMinLength();
-    m_CapUMinOffset = geom_ptr->m_CapUMinOffset();
-    m_CapUMinStrength = geom_ptr->m_CapUMinStrength();
-    m_CapUMinSweepFlag = geom_ptr->m_CapUMinSweepFlag();
+    m_CapUMinLength.Deactivate();
+    m_CapUMinOffset.Deactivate();
+    m_CapUMinStrength.Deactivate();
+    m_CapUMinSweepFlag.Deactivate();
 
-    m_CapUMaxLength = geom_ptr->m_CapUMaxLength();
-    m_CapUMaxOffset = geom_ptr->m_CapUMaxOffset();
-    m_CapUMaxStrength = geom_ptr->m_CapUMaxStrength();
-    m_CapUMaxSweepFlag = geom_ptr->m_CapUMaxSweepFlag();
+    m_CapUMaxLength.Deactivate();
+    m_CapUMaxOffset.Deactivate();
+    m_CapUMaxStrength.Deactivate();
+    m_CapUMaxSweepFlag.Deactivate();
 
     //=== Let User Change Tess
     //m_TessU = geom_ptr->m_TessU();

@@ -35,6 +35,20 @@ public:
     virtual void OffsetXSecs( double off );
 
 
+    IntParm m_ClearanceMode;
+
+    BoolParm m_AutoDiam;
+    Parm m_Diameter;
+    Parm m_FlapRadiusFract;
+
+    Parm m_RootLength;
+    Parm m_RootOffset;
+
+    Parm m_ThetaThrust;
+    Parm m_ThetaAntiThrust;
+
+    int m_ParentType;
+
 protected:
 
     virtual void UpdateSurf();

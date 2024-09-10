@@ -5219,7 +5219,8 @@ bool Vehicle::GetVisibleBndBox( BndBox &b )
 
     for ( int i = 0 ; i < ngeom ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( vsp::SET_SHOWN ) )
+        if ( geom_vec[i]->GetSetFlag( vsp::SET_SHOWN ) &&
+             geom_vec[i]->GetType().m_Type != CLEARANCE_GEOM_TYPE ) // Ignore clearance type in Visible BBox.
         {
             b.Update( geom_vec[i]->GetBndBox() );
             anyvisible = true;

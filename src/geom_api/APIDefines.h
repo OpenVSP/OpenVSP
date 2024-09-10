@@ -306,6 +306,15 @@ enum CHEVRON_W01_MODES { CHEVRON_W01_SE, // Start and End
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for clearance geom modes. */
+enum CLEARANCE_GEOM_MODE { CLEARANCE_ROTOR_TIP_PATH,	/*!< Rotor tip path */
+                           CLEARANCE_ROTOR_BURST,	/*!< Rotor burst zone */
+                           NUM_CLEARANCE_MODES	/*!< Number of clearance geom modes. */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for Snap To collision error types. */
 enum COLLISION_ERRORS { COLLISION_OK,	/*!< No Error. */
                         COLLISION_INTERSECT_NO_SOLUTION,	/*!< Touching, no solution */
