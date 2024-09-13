@@ -406,8 +406,30 @@ void AdvLink::SetVar( const string & var_name, double val )
             if ( parm_ptr && val > -1.0e15 && !parm_ptr->GetLinkUpdateFlag() )
             {
                 parm_ptr->SetFromLink( val );
-                break;
             }
+            else if ( parm_ptr )
+            {
+                MessageData errMsgData;
+                errMsgData.m_String = "Error";
+
+                errMsgData.m_IntVec.push_back( vsp::VSP_LINK_LOOP_DETECTED );
+                char buf[255];
+                snprintf( buf, sizeof( buf ), "Warning: Updating advanced link output variable '%s' (%s, %s) would initiate a link loop.  Stopping.\n", var_name.c_str(), parm_ptr->GetName().c_str(), parm_ptr->GetID().c_str() );
+                errMsgData.m_StringVec.emplace_back( string( buf ) );
+                MessageMgr::getInstance().SendAll( errMsgData );
+            }
+            else
+            {
+                MessageData errMsgData;
+                errMsgData.m_String = "Error";
+
+                errMsgData.m_IntVec.push_back( vsp::VSP_CANT_FIND_PARM );
+                char buf[255];
+                snprintf( buf, sizeof( buf ), "Error: Advanced link output variable '%s' not found.\n", var_name.c_str() );
+                errMsgData.m_StringVec.emplace_back( string( buf ) );
+                MessageMgr::getInstance().SendAll( errMsgData );
+            }
+            break;
         }
     }
 }
