@@ -3237,28 +3237,7 @@ void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
         }
     }
 
-    if ( type == Parm::SET )
-    {
-        m_LateUpdateFlag = true;
-
-        //==== Notify Parent Container (XSecSurf) ====//
-        ParmContainer* pc = GetParentContainerPtr();
-        if ( pc )
-        {
-            pc->ParmChanged( parm_ptr, type );
-        }
-
-        return;
-    }
-
-    Update();
-
-    //==== Notify Parent Container (XSecSurf) ====//
-    ParmContainer* pc = GetParentContainerPtr();
-    if ( pc )
-    {
-        pc->ParmChanged( parm_ptr, type );
-    }
+    XSecCurve::ParmChanged( parm_ptr, type );
 }
 
 xmlNodePtr EditCurveXSec::EncodeXml( xmlNodePtr & node )
