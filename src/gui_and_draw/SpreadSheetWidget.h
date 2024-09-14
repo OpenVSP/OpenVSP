@@ -65,6 +65,8 @@ public:
 
     void set_LabelAlign( int a ) { m_LabelAlign = a; };
 
+    void set_ChangeCallback( Fl_Callback *ccb, void *data ) { m_ChangeCallback = ccb; m_ChangeCallbackData = data; };
+
 protected:
 
     int handle( int event );
@@ -107,6 +109,9 @@ protected:
     int m_LabelAlign;
 
     vector < T > *m_Data;
+
+    Fl_Callback* m_ChangeCallback;
+    void* m_ChangeCallbackData;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,6 +143,9 @@ SpreadSheet<T>::SpreadSheet( int X, int Y, int W, int H, const char* L ) : Fl_Ta
     m_HeaderOffset = 0;
 
     m_LabelAlign = FL_ALIGN_RIGHT;
+
+    m_ChangeCallback = nullptr;
+    m_ChangeCallbackData = nullptr;
 }
 
 // Apply value from input widget to values[row][col] array and hide (done editing)
@@ -147,6 +155,11 @@ void SpreadSheet<T>::set_value_hide()
     set_value( row_edit, col_edit, input->value() );
     input->hide();
     window()->cursor( FL_CURSOR_DEFAULT );              // XXX: if we don't do this, cursor can disappear!
+
+    if ( m_ChangeCallback )
+    {
+        m_ChangeCallback ( this, m_ChangeCallbackData );
+    }
 }
 
 // Start editing a new cell: move the Fl_Int_Input widget to specified row/column
@@ -471,6 +484,11 @@ void SpreadSheet<T>::paste( const char *str, int len )
             }
 
             damage_zone( select_row, select_col, select_row + trow - 1, select_col + tcol - 1 );
+
+            if ( m_ChangeCallback )
+            {
+                m_ChangeCallback ( this, m_ChangeCallbackData );
+            }
         }
     }
 }
