@@ -780,51 +780,6 @@ bool ISegChain::Valid()
     return len >= tol;
 }
 
-void ISegChain::AddChain( ISegChain* B )
-{
-    deque< ISeg* >::iterator s;
-    deque< ISeg* >::reverse_iterator r;
-    ISeg* backSegA  = m_ISegDeque.back();
-    ISeg* frontSegA = m_ISegDeque.front();
-    ISeg* backSegB  = B->m_ISegDeque.back();
-    ISeg* frontSegB = B->m_ISegDeque.front();
-
-    double dBackBack   = backSegA->MinDist( backSegB );
-    double dBackFront  = backSegA->MinDist( frontSegB );
-    double dFrontBack  = frontSegA->MinDist( backSegB );
-    double dFrontFront = frontSegA->MinDist( frontSegB );
-
-    if ( dBackBack < dBackFront && dBackBack < dFrontBack && dBackBack < dFrontFront )
-    {
-        for ( r = B->m_ISegDeque.rbegin() ; r != B->m_ISegDeque.rend() ; ++r )
-        {
-            AddSeg( ( *r ) );
-        }
-    }
-    else if ( dBackFront < dFrontBack && dBackFront < dFrontFront )
-    {
-        for ( s = B->m_ISegDeque.begin() ; s != B->m_ISegDeque.end() ; ++s )
-        {
-            AddSeg( ( *s ) );
-        }
-    }
-    else if ( dFrontBack < dFrontFront )
-    {
-        for ( r = B->m_ISegDeque.rbegin() ; r != B->m_ISegDeque.rend() ; ++r )
-        {
-            AddSeg( ( *r ) );
-        }
-    }
-    else
-    {
-        for ( s = B->m_ISegDeque.begin() ; s != B->m_ISegDeque.end() ; ++s )
-        {
-            AddSeg( ( *s ) );
-        }
-    }
-    B->m_ISegDeque.clear();
-}
-
 void ISegChain::BuildBoxes()
 {
     if ( m_ISegDeque.size() == 0 )

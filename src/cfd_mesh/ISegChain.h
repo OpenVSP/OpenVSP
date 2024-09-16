@@ -173,7 +173,6 @@ public:
 
     void AddSeg( ISeg* s );
     void AddSeg( ISeg* seg, bool frontFlag );
-    void AddChain( ISegChain* B );
 
     double MatchDist( ISeg* s );
     double ChainDist( ISegChain* B );
