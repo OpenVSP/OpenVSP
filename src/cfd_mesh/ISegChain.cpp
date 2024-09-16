@@ -726,42 +726,6 @@ void ISegChain::AddSeg( ISeg* seg, bool frontFlag )
     }
 }
 
-
-
-void ISegChain::AddSeg( ISeg* seg )
-{
-    ISeg* backSeg  = m_ISegDeque.back();
-    ISeg* frontSeg = m_ISegDeque.front();
-
-    double backd  = seg->MinDist( backSeg->m_IPnt[1] );
-    double frontd = seg->MinDist( frontSeg->m_IPnt[0] );
-
-    if ( backd < frontd )
-    {
-        if ( !backSeg->Match( seg ) )
-        {
-            backSeg->JoinBack( seg );
-            m_ISegDeque.push_back( seg );
-        }
-        else
-        {
-            delete seg;
-        }
-    }
-    else
-    {
-        if ( !frontSeg->Match( seg ) )
-        {
-            frontSeg->JoinFront( seg );
-            m_ISegDeque.push_front( seg );
-        }
-        else
-        {
-            delete seg;
-        }
-    }
-}
-
 bool ISegChain::Valid()
 {
     if ( m_ISegDeque.size() < 1 )

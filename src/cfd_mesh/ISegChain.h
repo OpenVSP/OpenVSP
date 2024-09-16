@@ -171,7 +171,6 @@ public:
 
     void FlipDir();
 
-    void AddSeg( ISeg* s );
     void AddSeg( ISeg* seg, bool frontFlag );
 
     double MatchDist( ISeg* s );
