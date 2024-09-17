@@ -109,7 +109,7 @@ ParmContainer* ParmContainer::GetParentContainerPtr() const
 //==== Create A Unique ID  =====//
 string ParmContainer::GenerateID()
 {
-    return GenerateRandomID( 10 );
+    return GenerateRandomID( vsp::ID_LENGTH_PARMCONTAINER );
 }
 
 void ParmContainer::ChangeID( string id )

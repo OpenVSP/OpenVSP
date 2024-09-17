@@ -240,7 +240,7 @@ void Parm::SetLowerUpperLimits( double lower_limit, double upper_limit )
 //==== Generate Unique ID ====//
 string Parm::GenerateID()
 {
-    return GenerateRandomID( 11 );
+    return GenerateRandomID( vsp::ID_LENGTH_PARM );
 }
 
 string Parm::GetContainerID()
