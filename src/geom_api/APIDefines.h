@@ -887,6 +887,16 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for ID length by vsp object type. */
+enum OBJ_ID_LENGTH { ID_LENGTH_ATTR = 8,	/*!< ID for Attributes are length 8 */
+                           ID_LENGTH_ATTRCOLL = 9,	/*!< ID for Attribute Collections are length 9 */
+                           ID_LENGTH_PARMCONTAINER = 10,	/*!< ID for Parm Containers are length 10 */
+                           ID_LENGTH_PARM = 11,	/*!< ID for Parms are length 11 */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Initial shape enums for XS_EDIT_CURVE type XSecs. */
 enum INIT_EDIT_XSEC_TYPE { EDIT_XSEC_CIRCLE,	/*!< Circle initialized as cubic Bezier type */
                            EDIT_XSEC_ELLIPSE,	/*!< Ellipse initialized as PCHIP type */
