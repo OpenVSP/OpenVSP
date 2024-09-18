@@ -62,16 +62,19 @@ void Node::GetConnectFaces( vector< Face* > & cfVec )
     cfVec.clear();
     for ( int i = 0 ; i < ( int )edgeVec.size() ; i++ )
     {
-        Face* f0 = edgeVec[i]->f0;
-        if ( f0 && find( cfVec.begin(), cfVec.end(), f0 ) == cfVec.end() )
+        if( edgeVec[i] )
         {
-            cfVec.push_back( f0 );
-        }
+            Face* f0 = edgeVec[i]->f0;
+            if ( f0 && find( cfVec.begin(), cfVec.end(), f0 ) == cfVec.end() )
+            {
+                cfVec.push_back( f0 );
+            }
 
-        Face* f1 = edgeVec[i]->f1;
-        if ( f1 && find( cfVec.begin(), cfVec.end(), f1 ) == cfVec.end() )
-        {
-            cfVec.push_back( f1 );
+            Face* f1 = edgeVec[i]->f1;
+            if ( f1 && find( cfVec.begin(), cfVec.end(), f1 ) == cfVec.end() )
+            {
+                cfVec.push_back( f1 );
+            }
         }
     }
 
