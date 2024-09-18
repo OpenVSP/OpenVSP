@@ -302,6 +302,7 @@ public:
     }
 
     virtual void WriteChains();
+    virtual void WriteChainSplits( const char* name, vector< ISegChain* > chainvec );
 
     void AddPossCoPlanarSurf( Surf* surfA, Surf* surfB );
     vector< Surf* > GetPossCoPlanarSurfs( Surf* surfPtr );

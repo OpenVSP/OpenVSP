@@ -2542,6 +2542,152 @@ void SurfaceIntersectionSingleton::WriteChains()
     }
 }
 
+
+void SurfaceIntersectionSingleton::WriteChainSplits( const char* name, vector< ISegChain* > chainvec )
+{
+#ifdef DEBUG_CFD_MESH
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        char str[256];
+        snprintf( str, sizeof( str ), "%s%sSplits%d.m", m_DebugDir.c_str(), name, i );
+        FILE* fp = fopen( str, "w" );
+
+        int cnt = 0;
+        vector< ISegChain* >::iterator c;
+        for ( c = chainvec.begin() ; c != chainvec.end(); ++c )
+        {
+            if ( !( *c )->m_BorderFlag && m_SurfVec[i] == ( *c )->m_SurfA || m_SurfVec[i] == ( *c )->m_SurfB )
+            {
+                bool first;
+
+                fprintf( fp, "u=[" );
+                first = true;
+                //==== Draw Intersections ====//
+                for ( int s = 0 ; s < ( int )( *c )->m_SplitVec.size() ; s++ )
+                {
+                    ISegSplit* split = ( *c )->m_SplitVec[s];
+                    if (  split->m_Surf == m_SurfVec[i] )
+                    {
+                        if ( !first ) fprintf( fp, ";\n" );
+                        first = false;
+                        fprintf( fp, "%.19e", split->m_UW.x() );
+                    }
+                }
+                fprintf( fp, "];\n" );
+
+                fprintf( fp, "w=[" );
+                first = true;
+                //==== Draw Intersections ====//
+                for ( int s = 0 ; s < ( int )( *c )->m_SplitVec.size() ; s++ )
+                {
+                    ISegSplit* split = ( *c )->m_SplitVec[s];
+                    if (  split->m_Surf == m_SurfVec[i] )
+                    {
+                        if ( !first ) fprintf( fp, ";\n" );
+                        first = false;
+                        fprintf( fp, "%.19e", split->m_UW.y() );
+                    }
+                }
+                fprintf( fp, "];\n" );
+
+                fprintf( fp, "x=[" );
+                first = true;
+                //==== Draw Intersections ====//
+                for ( int s = 0 ; s < ( int )( *c )->m_SplitVec.size() ; s++ )
+                {
+                    ISegSplit* split = ( *c )->m_SplitVec[s];
+                    if (  split->m_Surf == m_SurfVec[i] )
+                    {
+                        if ( !first ) fprintf( fp, ";\n" );
+                        first = false;
+                        fprintf( fp, "%.19e", split->m_Pnt.x() );
+                    }
+                }
+                fprintf( fp, "];\n" );
+
+                fprintf( fp, "y=[" );
+                first = true;
+                //==== Draw Intersections ====//
+                for ( int s = 0 ; s < ( int )( *c )->m_SplitVec.size() ; s++ )
+                {
+                    ISegSplit* split = ( *c )->m_SplitVec[s];
+                    if (  split->m_Surf == m_SurfVec[i] )
+                    {
+                        if ( !first ) fprintf( fp, ";\n" );
+                        first = false;
+                        fprintf( fp, "%.19e", split->m_Pnt.y() );
+                    }
+                }
+                fprintf( fp, "];\n" );
+
+                fprintf( fp, "z=[" );
+                first = true;
+                //==== Draw Intersections ====//
+                for ( int s = 0 ; s < ( int )( *c )->m_SplitVec.size() ; s++ )
+                {
+                    ISegSplit* split = ( *c )->m_SplitVec[s];
+                    if (  split->m_Surf == m_SurfVec[i] )
+                    {
+                        if ( !first ) fprintf( fp, ";\n" );
+                        first = false;
+                        fprintf( fp, "%.19e", split->m_Pnt.z() );
+                    }
+                }
+                fprintf( fp, "];\n" );
+
+                fprintf( fp, "f=[" );
+                first = true;
+                //==== Draw Intersections ====//
+                for ( int s = 0 ; s < ( int )( *c )->m_SplitVec.size() ; s++ )
+                {
+                    ISegSplit* split = ( *c )->m_SplitVec[s];
+                    if (  split->m_Surf == m_SurfVec[i] )
+                    {
+                        if ( !first ) fprintf( fp, ";\n" );
+                        first = false;
+                        fprintf( fp, "%.19e", split->m_Fract );
+                    }
+                }
+                fprintf( fp, "];\n" );
+
+
+                fprintf( fp, "indx=[" );
+                first = true;
+                //==== Draw Intersections ====//
+                for ( int s = 0 ; s < ( int )( *c )->m_SplitVec.size() ; s++ )
+                {
+                    ISegSplit* split = ( *c )->m_SplitVec[s];
+                    if (  split->m_Surf == m_SurfVec[i] )
+                    {
+                        if ( !first ) fprintf( fp, ";\n" );
+                        first = false;
+                        fprintf( fp, "%d", split->m_Index );
+                    }
+                }
+                fprintf( fp, "];\n" );
+
+
+                fprintf( fp, "figure(1)\n" );
+                fprintf( fp, "plot( u, w, 'x-');\n hold on;\n" );
+                fprintf( fp, "if ( numel(u) > 0 );\n" );
+                fprintf( fp, "    text( u(round(end/2)), w(round(end/2)), 'Surf: %d Chain: %d' );\n", i, cnt );
+                fprintf( fp, "end\n" );
+
+                fprintf( fp, "figure(2)\n" );
+                fprintf( fp, "plot3( x, y, z, 'x-' );\n hold on;\n" );
+                fprintf( fp, "if ( numel(u) > 0 );\n" );
+                fprintf( fp, "    text( x(round(end/2)), y(round(end/2)), z(round(end/2)), 'Surf: %d Chain: %d' );\n", i, cnt );
+                fprintf( fp, "end\n" );
+                fprintf( fp, "pause\n" );
+
+                cnt++;
+            }
+        }
+        fclose( fp );
+    }
+#endif
+}
+
 void SurfaceIntersectionSingleton::LoadBorderCurves()
 {
 
