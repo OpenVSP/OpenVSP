@@ -1809,6 +1809,9 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     tristatus = triangle_mesh_create( ctx, &in );
     if ( tristatus != TRI_OK ) printf( "triangle_mesh_create Error\n" );
 
+#ifdef DEBUG_CFD_MESH
+    if ( tristatus != TRI_OK ) printf( "  Triangle failed for surface %d\n", namecnt );
+#endif
 
     //==== Clear All Node, Edge, Tri Data ====//
     Clear();
