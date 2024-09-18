@@ -3076,11 +3076,15 @@ void SurfaceIntersectionSingleton::IntersectSplitChains()
         }
     }
 
+    // DebugWriteChainVec( "StartChainVec", chains );
+
     //==== Build Bounding Boxes Around Intersection Curves ====//
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
     {
         chains[i]->BuildBoxes();
     }
+
+    // DebugWriteChainVec( "BuildBoxesChainVec", chains );
 
     //==== Do Intersection ====//
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
@@ -3098,11 +3102,17 @@ void SurfaceIntersectionSingleton::IntersectSplitChains()
         }
     }
 
+    // DebugWriteChainVec( "IntersectChainVec", chains );
+    // WriteChainSplits( "IntersectChainVec", chains );
+
     //==== Merge Splits ====//
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
     {
         chains[i]->MergeSplits();
     }
+
+    // DebugWriteChainVec( "MergeSplitsChainVec", chains );
+    // WriteChainSplits( "MergeSplitsChainVec", chains );
 
     //==== Remove Chain End Splits ====//
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
@@ -3110,20 +3120,34 @@ void SurfaceIntersectionSingleton::IntersectSplitChains()
         chains[i]->RemoveChainEndSplits();
     }
 
+    // DebugWriteChainVec( "RemovechainEndChainVec", chains );
+    // WriteChainSplits( "RemovechainEndChainVec", chains );
+
+    // vector< ISegChain* > all_new_chains;
+    // vector< ISegChain* > valid_new_chains;
+
     //==== Split Chains ====//
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
     {
         vector< ISegChain* > new_chains = chains[i]->SortAndSplit( this );
         for ( int j = 0 ; j < ( int )new_chains.size() ; j++ )
         {
+            // all_new_chains.push_back( new_chains[j]);
             if ( new_chains[j]->Valid() )
             {
+                // valid_new_chains.push_back( new_chains[j]);
                 new_chains[j]->m_SSIntersectIndex = chains[i]->m_SSIntersectIndex; // Track SubSurface Index
                 m_ISegChainList.push_back( new_chains[j] );
             }
 
         }
     }
+
+    // DebugWriteChainVec( "all_new_chains", all_new_chains );
+    // WriteChainSplits( "all_new_chains", all_new_chains );
+
+    // DebugWriteChainVec( "valid_new_chains", valid_new_chains );
+    // WriteChainSplits( "valid_new_chains", valid_new_chains );
 }
 
 void SurfaceIntersectionSingleton::MergeInteriorChainIPnts()
