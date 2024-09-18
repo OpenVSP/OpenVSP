@@ -285,6 +285,7 @@ public:
     virtual void LoadBorderCurves();
     virtual void SplitBorderCurves();
 
+    virtual void DebugWriteChainVec( const char* name, vector< ISegChain* > chainvec );
     virtual void DebugWriteChains( const char* name, bool tessFlag );
 
     // SubSurface Methods

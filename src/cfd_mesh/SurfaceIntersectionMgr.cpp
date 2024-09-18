@@ -3145,6 +3145,84 @@ void SurfaceIntersectionSingleton::HighlightNextChain()
     }
 }
 
+void SurfaceIntersectionSingleton::DebugWriteChainVec( const char* name, vector< ISegChain* > chainvec )
+{
+#ifdef DEBUG_CFD_MESH
+
+    char str2[256];
+    snprintf( str2, sizeof( str2 ), "%s%s.m", m_DebugDir.c_str(), name );
+    FILE* fpmas = fopen( str2, "w" );
+
+    fprintf( fpmas, "clear all; format compact; close all;\n" );
+    fprintf( fpmas, "figure(1); hold on\n" );
+    fprintf( fpmas, "figure(2); hold on\n" );
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        char str[256];
+        snprintf( str, sizeof( str ), "%s%s%d.m", m_DebugDir.c_str(), name, i );
+        FILE* fp = fopen( str, "w" );
+
+        snprintf( str, sizeof( str ), "%s%d.m", name, i );
+        fprintf( fpmas, "run( '%s' );\n", str );
+
+        int cnt = 0;
+        vector< ISegChain* >::iterator c;
+        for ( c = chainvec.begin() ; c != chainvec.end(); ++c )
+        {
+            if ( m_SurfVec[i] == ( *c )->m_SurfA || m_SurfVec[i] == ( *c )->m_SurfB )
+            {
+
+                fprintf( fp, "u=[" );
+                int j;
+                vec2d uw1, uw2;
+                for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
+                {
+                    uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                    fprintf( fp, "%.19e;\n", uw1[0] );
+                }
+                uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
+                fprintf( fp, "%.19e;\n%.19e];\n", uw1[0], uw2[0] );
+
+                fprintf( fp, "w=[" );
+                for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
+                {
+                    uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                    fprintf( fp, "%.19e;\n", uw1[1] );
+                }
+                uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
+                fprintf( fp, "%.19e;\n%.19e];\n", uw1[1], uw2[1] );
+
+                fprintf( fp, "figure(1)\n" );
+                fprintf( fp, "plot( u, w, 'x-');\n hold on;\n" );
+                fprintf( fp, "text( u(round(end/2)), w(round(end/2)), 'Surf: %d Chain: %d' );\n", i, cnt );
+                fprintf( fp, "pause\n" );
+
+                cnt++;
+            }
+        }
+        fclose( fp );
+    }
+
+    fprintf( fpmas, "figure(1)\n");
+    fprintf( fpmas, "axis off\n" );
+    fprintf( fpmas, "axis equal\n" );
+    fprintf( fpmas, "hold off\n" );
+
+    fprintf( fpmas, "figure(2)\n");
+    fprintf( fpmas, "axis off\n" );
+    fprintf( fpmas, "axis equal\n" );
+    fprintf( fpmas, "hold off\n" );
+
+    fclose( fpmas );
+
+
+#endif
+}
+
+
 void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tessFlag )
 {
 #ifdef DEBUG_CFD_MESH
