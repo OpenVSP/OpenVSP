@@ -1934,9 +1934,10 @@ ISeg* SurfaceIntersectionSingleton::CreateSurfaceSeg(  Surf* surfA, vec2d & uwA0
 
 void SurfaceIntersectionSingleton::WriteISegs()
 {
+#ifdef DEBUG_CFD_MESH
     int i;
     char str2[256];
-    snprintf( str2, sizeof( str2 ), "ISegs.m" );
+    snprintf( str2, sizeof( str2 ), "%sISegs.m", m_DebugDir.c_str() );
     FILE* fp = fopen( str2, "w" );
 
     fprintf( fp, "clear all;\n" );
@@ -1976,6 +1977,7 @@ void SurfaceIntersectionSingleton::WriteISegs()
     fprintf( fp, "axis off;\n" );
 
     fclose( fp );
+#endif
 }
 
 void SurfaceIntersectionSingleton::BuildChains()
