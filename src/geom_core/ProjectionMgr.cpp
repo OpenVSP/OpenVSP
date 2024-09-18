@@ -794,7 +794,7 @@ void ProjectionMgrSingleton::ClosePaths( Clipper2Lib::Paths64 & pths )
 void ProjectionMgrSingleton::Union( Clipper2Lib::Paths64 & pths, Clipper2Lib::Paths64 & sol )
 {
     Clipper2Lib::Clipper64 clpr;
-    clpr.PreserveCollinear = false;
+    clpr.PreserveCollinear( false );
     clpr.AddSubject( pths );
 
     if ( !clpr.Execute( Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::Positive, sol ) )
@@ -852,7 +852,7 @@ void ProjectionMgrSingleton::Union( vector < Clipper2Lib::Paths64 > & pthsvec, v
 void ProjectionMgrSingleton::Intersect( Clipper2Lib::Paths64 & pthA, Clipper2Lib::Paths64 & pthB, Clipper2Lib::Paths64 & sol )
 {
     Clipper2Lib::Clipper64 clpr;
-    clpr.PreserveCollinear = false;
+    clpr.PreserveCollinear( false );
     clpr.AddSubject( pthA );
     clpr.AddClip( pthB );
 
