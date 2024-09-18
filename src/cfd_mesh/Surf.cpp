@@ -560,6 +560,15 @@ void Surf::UWtoTargetMapij( double u, double w, int &i, int &j, double &fraci, d
         j = jmax - 1;
         fracj = 1.0;
     }
+
+    if ( i < 0 )
+        i = 0;
+    if ( j < 0 )
+        j = 0;
+    if ( fraci < 0 )
+        fraci = 0;
+    if ( fracj < 0 )
+        fracj = 0;
 }
 
 void Surf::UWtoTargetMapij( double u, double w, int &i, int &j )
