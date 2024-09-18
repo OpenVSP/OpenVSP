@@ -1733,6 +1733,10 @@ void SurfaceIntersectionSingleton::Intersect()
     BuildChains();
     // DebugWriteChains( "BuildChains", false );
 
+    addOutputText( "CleanChains\n" );
+    CleanChains();
+    // DebugWriteChains( "CleanChains", false );
+
     addOutputText( "RefineChains\n" );
     RefineChains();
     // DebugWriteChains( "RefineChains", false );
@@ -2008,6 +2012,147 @@ void SurfaceIntersectionSingleton::BuildChains()
                 chain = NULL;
             }
         }
+    }
+}
+
+void SurfaceIntersectionSingleton::CleanChains()
+{
+    list< ISegChain* >::iterator c;
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
+    {
+        if ( ( *c )->m_SurfA == ( *c )->m_SurfB )
+        {
+            // Do not clean SubSurface curves
+            continue;
+        }
+
+        CleanChain( *c );
+    }
+}
+
+void SurfaceIntersectionSingleton::CleanChain( ISegChain* c )
+{
+    if ( c->m_ISegDeque.size() < 2 )
+    {
+        return;
+    }
+
+    int j;
+    double tol = 1e-3;
+
+
+    // Calculate segment lengths and chain length.
+    double s = 0;
+    list < double > ds;
+    list < ISeg* > segList;
+    for ( j = 0; j < ( int ) c->m_ISegDeque.size(); j++ )
+    {
+        segList.push_back( c->m_ISegDeque[j] );
+
+        vec2d uw1 = c->m_ISegDeque[j]->m_IPnt[0]->GetPuw( c->m_SurfA )->m_UW;
+        vec3d pt1 = c->m_ISegDeque[j]->m_IPnt[0]->GetPuw( c->m_SurfA )->m_Surf->CompPnt( uw1[0], uw1[1] );
+        vec2d uw2 = c->m_ISegDeque[j]->m_IPnt[1]->GetPuw( c->m_SurfA )->m_UW;
+        vec3d pt2 = c->m_ISegDeque[j]->m_IPnt[1]->GetPuw( c->m_SurfA )->m_Surf->CompPnt( uw2[0], uw2[1] );
+        double d = dist( pt1, pt2 );
+        s += d;
+        ds.push_back( d );
+    }
+
+    // Average segment length.
+    double save = s / c->m_ISegDeque.size();
+
+
+    list< ISeg* >::iterator sit;
+    list< double >::iterator dsit;
+    for ( sit = segList.begin(), dsit = ds.begin(); sit != segList.end(); ++sit, ++dsit )
+    {
+        if ( segList.size() > 1 && ( (*dsit) / save) < tol ) // Small segment detected
+        {
+            // Iterators for first and second segments to merge together.
+            list< ISeg* >::iterator sfirstit;
+            list< ISeg* >::iterator ssecondit;
+
+            list< double >::iterator dsfirstit;
+            list< double >::iterator dssecondit;
+
+            list< ISeg* >::iterator snextit = next( sit );
+
+            if ( sit == segList.begin() ) // First element, must merge with next.
+            {
+                sfirstit = sit;
+                ssecondit = next( sfirstit );
+
+                dsfirstit = dsit;
+                dssecondit = next( dsfirstit );
+            }
+            else if ( snextit == segList.end() ) // Last element, must merge with previous.
+            {
+                ssecondit = sit;
+                sfirstit = prev( ssecondit );
+
+                dssecondit = dsit;
+                dsfirstit = prev( dssecondit );
+            }
+            else // Interior elements, can go either way.
+            {
+                if ( true ) // Always choose forward merge for now, make smart choice later.
+                {
+                    sfirstit = sit;
+                    ssecondit = next( sfirstit );
+
+                    dsfirstit = dsit;
+                    dssecondit = next( dsfirstit );
+                }
+                else
+                {
+                    ssecondit = sit;
+                    sfirstit = prev( ssecondit );
+
+                    dssecondit = dsit;
+                    dsfirstit = prev( dssecondit );
+                }
+            }
+
+            // Merge segments.
+            (*ssecondit)->m_IPnt[1]->RemoveSegRef( *ssecondit );
+            (*sfirstit)->m_IPnt[1] = (*ssecondit)->m_IPnt[1];
+            (*sfirstit)->m_IPnt[1]->AddSegRef( *sfirstit );
+            delete (*ssecondit);
+
+            // Add lengths.
+            (*dsfirstit) += (*dssecondit);
+
+
+            // Remove ssecondit, but ssecondit will become invalid upon removal.  So, before removal, we need
+            // to check if sit is sseconit and if so set sit to something that will continue working for the
+            // next iteration.  In the normal case, the previous iterator works as the for loop will soon
+            // increment to the next iterator.  However, we must be careful not to increment before the start
+            // of the list.  In that case, we actually skip checking one entry.
+
+            if ( sit == ssecondit )
+            {
+                if ( sit == segList.begin() )
+                {
+                    ++sit;
+                    ++dsit;
+                }
+                else
+                {
+                    --sit;
+                    --dsit;
+                }
+            }
+            // Remove current segment.
+            segList.erase( ssecondit );
+            ds.erase( dssecondit );
+        }
+    }
+
+    // Put list back into deque.
+    c->m_ISegDeque.clear();
+    for ( sit = segList.begin(); sit != segList.end(); ++sit )
+    {
+        c->m_ISegDeque.push_back( *sit );
     }
 }
 
