@@ -491,10 +491,12 @@ void ISegBox::Intersect( ISegBox* box )
                 vec2d int_pnt;
                 vec2d p2 = box->m_ChainPtr->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_Surf )->m_UW;
                 vec2d p3 = box->m_ChainPtr->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_Surf )->m_UW;
-                if ( seg_seg_intersect( p0, p1, p2, p3, int_pnt ) )
+
+                double t0, t1;
+                if ( seg_seg_intersect( p0, p1, p2, p3, int_pnt, t0, t1 ) )
                 {
-                    m_ChainPtr->AddSplit( m_Surf, i, int_pnt );
-                    box->m_ChainPtr->AddSplit( box->m_Surf, j, int_pnt );
+                    m_ChainPtr->AddSplit( m_Surf, i, int_pnt, t0 );
+                    box->m_ChainPtr->AddSplit( box->m_Surf, j, int_pnt, t1 );
                 }
             }
         }
@@ -798,7 +800,7 @@ void ISegChain::Intersect( Surf* surfPtr, ISegChain* B )
 
 }
 
-void ISegChain::AddSplit( Surf* surfPtr, int index, vec2d int_pnt )
+void ISegChain::AddSplit( Surf* surfPtr, int index, vec2d int_pnt, double t )
 {
     //jrg 9/27
     //==== Check if chain already has a point there =====//
@@ -822,7 +824,7 @@ void ISegChain::AddSplit( Surf* surfPtr, int index, vec2d int_pnt )
     ISegSplit* split = new ISegSplit;
     split->m_Surf  = surfPtr;
     split->m_Index = index;
-    split->m_Fract = 0.0;
+    split->m_Fract = t;
     split->m_UW    = int_pnt;
     m_SplitVec.push_back( split );
 

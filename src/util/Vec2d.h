@@ -98,7 +98,7 @@ public:
     friend double angle( const vec2d& a, const vec2d& b );
     friend double cos_angle( const vec2d& a, const vec2d& b );
 
-    friend int seg_seg_intersect( const vec2d& pnt_A, const vec2d& pnt_B, const vec2d& pnt_C, const vec2d& pnt_D, vec2d& int_pnt );
+    friend int seg_seg_intersect( const vec2d& pnt_A, const vec2d& pnt_B, const vec2d& pnt_C, const vec2d& pnt_D, vec2d& int_pnt, double &t1, double &t2 );
     friend vec2d proj_pnt_on_line_seg( const vec2d& line_A, const vec2d& line_B, const vec2d& pnt );
     friend double proj_pnt_on_line_u( const vec2d& line_A, const vec2d& line_B, const vec2d& pnt );
 

@@ -408,7 +408,7 @@ void clip_seg_rect( double x_min, double y_min, double x_max, double y_max,
 
 
 //==== Line Seg - Seg Intersection ====//
-int seg_seg_intersect( const vec2d& pnt_A, const vec2d& pnt_B, const vec2d& pnt_C, const vec2d& pnt_D, vec2d& int_pnt )
+int seg_seg_intersect( const vec2d& pnt_A, const vec2d& pnt_B, const vec2d& pnt_C, const vec2d& pnt_D, vec2d& int_pnt, double &ua, double &ub )
 {
 
     double denom = ( ( pnt_D[1] - pnt_C[1] ) * ( pnt_B[0] - pnt_A[0] ) ) -
@@ -425,8 +425,8 @@ int seg_seg_intersect( const vec2d& pnt_A, const vec2d& pnt_B, const vec2d& pnt_
     double nume_b = ( ( pnt_B[0] - pnt_A[0] ) * ( pnt_A[1] - pnt_C[1] ) ) -
                     ( ( pnt_B[1] - pnt_A[1] ) * ( pnt_A[0] - pnt_C[0] ) );
 
-    double ua = nume_a / denom;
-    double ub = nume_b / denom;
+    ua = nume_a / denom;
+    ub = nume_b / denom;
 
     double zero = -0.0000000000001;
     double one =   1.0000000000001;

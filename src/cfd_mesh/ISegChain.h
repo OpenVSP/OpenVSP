@@ -179,7 +179,7 @@ public:
 
     void Intersect( Surf* surfPtr, ISegChain* B );
 
-    void AddSplit( Surf* surfPtr, int index, vec2d int_pnt );
+    void AddSplit( Surf* surfPtr, int index, vec2d int_pnt, double t );
     bool AddBorderSplit( Puw* uw ); // Return true if split successfully added
 
     void MergeSplits();

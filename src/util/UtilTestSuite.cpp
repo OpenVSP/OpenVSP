@@ -49,11 +49,12 @@ void UtilTestSuite::Vec2dUtilTest()
     vec2d C = vec2d( 0, 1 );
     vec2d D = vec2d( 1, 0 );
     vec2d intPnt;
-    int intFlag = seg_seg_intersect( A, B, C, D, intPnt );              // Segment Intersection
+    double t1, t2;
+    int intFlag = seg_seg_intersect( A, B, C, D, intPnt, t1, t2 );              // Segment Intersection
     TEST_ASSERT( intFlag );
     TEST_ASSERT_DELTA( dist( intPnt, vec2d( 0.5, 0.5 ) ), 0.0, DBL_EPSILON );
 
-    intFlag = seg_seg_intersect( A, vec2d( 0.4999, 0.4999 ), C, D, intPnt );                    // Segment Intersection
+    intFlag = seg_seg_intersect( A, vec2d( 0.4999, 0.4999 ), C, D, intPnt, t1, t2 );                    // Segment Intersection
     TEST_ASSERT( intFlag == 0 );
 
     vec2d proj = proj_pnt_on_line_seg( A, B, vec2d( 1, 0 ) );           // Project on Line Seg
