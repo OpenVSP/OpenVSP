@@ -21,8 +21,13 @@ ClearanceScreen::ClearanceScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 +
 
     //==== Design ====//
 
-    m_ClearanceModeChoice.AddItem( "Rotor tip path", vsp::CLEARANCE_ROTOR_TIP_PATH );
-    m_ClearanceModeChoice.AddItem( "Rotor burst", vsp::CLEARANCE_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "Rotor Tip Path", vsp::CLEARANCE_ROTOR_TIP_PATH );
+    m_ClearanceModeChoice.AddItem( "Rotor Burst", vsp::CLEARANCE_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "Rotor 1/3 Fragment", vsp::CLEARANCE_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "Rotor Intermediate Fragment", vsp::CLEARANCE_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "Tire Spray Cone", vsp::CLEARANCE_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "Pilot Vision", vsp::CLEARANCE_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "Conical Field Of View", vsp::CLEARANCE_ROTOR_BURST );
     m_ClearanceModeChoice.UpdateItems();
 
     m_DesignLayout.AddChoice( m_ClearanceModeChoice, "Mode" );
