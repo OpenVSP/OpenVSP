@@ -31,6 +31,7 @@ bool string_is_number( const string &str );
 string int_to_string( int i, const char* format );
 string double_to_string( double v, const char* format );
 string vec3d_to_string( const vec3d & vec, const char* format );
+std::vector < string > csv_to_vecstr( const char * str );
 
 int count_char_matches( const string & str, char c );
 

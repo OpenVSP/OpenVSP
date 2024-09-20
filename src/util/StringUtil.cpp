@@ -366,6 +366,23 @@ char *paxtok( std::string * str, const char *seps )
     return pos;
 }
 
+std::vector < string > StringUtil::csv_to_vecstr( const char * str )
+{
+    string str_copy( str );
+    str_copy += '\0';
+
+    // parse line by ','
+    std::vector < string > vecstr;
+    char *f = paxtok( &str_copy, "," );
+    while ( f != nullptr )
+    {
+        vecstr.emplace_back( f );
+        f = paxtok ( nullptr, "," );
+    }
+
+    return vecstr;
+}
+
 void StringUtil::parse_table( const char * str, int len, std::vector < std::vector < string > > & table )
 {
     std::string str_copy( str );
