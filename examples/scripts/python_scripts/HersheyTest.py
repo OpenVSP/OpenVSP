@@ -463,8 +463,10 @@ class HersheyTest:
             
             # Freestream Parameters
             Alpha = [1.0]
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', Alpha, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', Alpha, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
             
             vsp.Update()
 
@@ -680,8 +682,12 @@ class HersheyTest:
                 vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, 'WingID', wid, 0)
 
                 # Freestream Parameters
-                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', const.m_AlphaVec, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', const.m_MachVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', const.m_AlphaVec, 0)
+                AlphaNpts = [1]
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', const.m_MachVec, 0)
+                MachNpts = [1]
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
                 vsp.Update()
@@ -887,8 +893,12 @@ class HersheyTest:
             vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, 'WingID', wid, 0)
 
             # Freestream Parameters
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', const.m_AlphaVec, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', const.m_AlphaVec, 0)
+            AlphaNpts = [1]
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', const.m_MachVec, 0)
+            MachNpts = [1]
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
             vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
             vsp.Update()
@@ -1062,8 +1072,12 @@ class HersheyTest:
             vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, 'WingID', wid, 0)
 
             # Freestream Parameters
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', const.m_AlphaVec, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', const.m_AlphaVec, 0)
+            AlphaNpts = [1]
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', const.m_MachVec, 0)
+            MachNpts = [1]
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
             vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
             vsp.Update()
@@ -1258,8 +1272,12 @@ class HersheyTest:
             vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, 'WingID', wid, 0)
 
             # Freestream Parameters
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', const.m_AlphaVec, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', const.m_AlphaVec, 0)
+            AlphaNpts = [1]
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', const.m_MachVec, 0)
+            MachNpts = [1]
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
             vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
             vsp.Update()
@@ -1458,8 +1476,12 @@ class HersheyTest:
 
             # Freestream Parameters
             Alpha = [1.0]
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', Alpha, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', Alpha, 0)
+            AlphaNpts = [1]
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', const.m_MachVec, 0)
+            MachNpts = [1]
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
             wake_vec = [self.m_WakeIter[i]]
             vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', wake_vec, 0)
             vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
@@ -1651,9 +1673,13 @@ class HersheyTest:
                 vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, 'WingID', wid, 0)
 
                 # Freestream Parameters
-                Alpha=[ 1.0]
-                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', Alpha, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', const.m_MachVec, 0)
+                Alpha = [1.0]
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', Alpha, 0)
+                AlphaNpts = [1]
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', const.m_MachVec, 0)
+                MachNpts = [1]
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
                 wake_vec=[self.m_WakeIter[w]]
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', wake_vec, 0)
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Symmetry', const.m_SymFlagVec, 0)

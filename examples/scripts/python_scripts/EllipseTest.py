@@ -153,12 +153,16 @@ class EllipsoidTest:
                 # Freestream Parameters
                 Alpha = [self.m_alpha_vec[a]]
                 Beta = [self.m_beta_vec[b]]
-                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', Alpha, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Beta', Beta, 0)
-                
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', Alpha, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'BetaStart', Beta, 0)
+                AlphaNpts = [1]
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
+
                 Mach = [0.0]
-                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', Mach, 0)
-                
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', Mach, 0)
+                MachNpts = [1]
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
+
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', const.m_GeomVec)
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AnalysisMethod', panel_analysis)
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)

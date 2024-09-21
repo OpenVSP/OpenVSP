@@ -191,8 +191,12 @@ class VKTTest:
 
                     # Freestream Parameters
 
-                    vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', Alpha, 0)
-                    vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', const.m_MachVec, 0)
+                    vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', Alpha, 0)
+                    AlphaNpts = [1]
+                    vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
+                    vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Machstart', const.m_MachVec, 0)
+                    MachNpts = [1]
+                    vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
                     vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
                     vsp.Update()
@@ -416,8 +420,12 @@ class VKTTest:
                 vsp.SetIntAnalysisInput( const.m_VSPSweepAnalysis, 'AnalysisMethod', panel_analysis )
 
                 # Freestream Parameters
-                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', Alpha, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', const.m_MachVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', Alpha, 0)
+                AlphaNpts = [1]
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', const.m_MachVec, 0)
+                MachNpts = [1]
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
                 vsp.Update()

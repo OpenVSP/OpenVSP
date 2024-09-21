@@ -144,8 +144,12 @@ class SupersonicDeltaWingTest:
                 # Freestream Parameters
                 Alpha = [5.0]
                 Mach = [self.m_SuperMachVec[m]]
-                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', Alpha, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', Mach, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', Alpha, 0)
+                AlphaNpts = [1]
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', Mach, 0)
+                MachNpts = [1]
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
                 vsp.Update()
