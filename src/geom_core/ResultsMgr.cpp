@@ -1994,7 +1994,11 @@ void Results::WriteBEMFile( const string & file_name )
 //==== Constructor ====//
 ResultsMgrSingleton::ResultsMgrSingleton()
 {
-
+    m_DefaultIntVec.emplace_back( 0 );
+    m_DefaultDoubleVec.emplace_back( 0.0 );
+    m_DefaultStringVec.emplace_back( "Default" );
+    m_DefaultVec3dVec.emplace_back( 0, 0, 0 );
+    m_DefaultDoubleMat.emplace_back( vector < double > ( 1, 0.0 ) );
 }
 //==== Destructor ====//
 ResultsMgrSingleton::~ResultsMgrSingleton()
