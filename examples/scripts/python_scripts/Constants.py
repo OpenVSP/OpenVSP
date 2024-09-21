@@ -6,7 +6,6 @@ STUDY_SETUP_TABLE_HEADER =["Case #","Analysis","Method","alpha (°)","beta (°)"
 #STRING CONSTANTS
 m_VSPSweepAnalysis = "VSPAEROSweep"
 m_CompGeomAnalysis = "VSPAEROComputeGeometry"
-m_VSPSingleAnalysis = "VSPAEROSinglePoint"
 m_CpSliceAnalysis = 'CpSlicer'
 
 #VECTOR CONSTANTS

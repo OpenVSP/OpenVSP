@@ -119,7 +119,7 @@ class EllipsoidTest:
                 vsp.ReadVSPFile( fname ) # Sets VSP3 file name
 
                 #==== Analysis: VSPAeroSinglePoint ====#
-                print( const.m_VSPSingleAnalysis )
+                print( const.m_VSPSweepAnalysis )
 
                 #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
                 print( const.m_CompGeomAnalysis )
@@ -145,33 +145,33 @@ class EllipsoidTest:
 
                 #==== Analysis: VSPAero Single Point ====#
                 # Set defaults
-                vsp.SetAnalysisInputDefaults(const.m_VSPSingleAnalysis)
-                print(const.m_VSPSingleAnalysis)
+                vsp.SetAnalysisInputDefaults(const.m_VSPSweepAnalysis)
+                print(const.m_VSPSweepAnalysis)
 
                 #Note: Symmetry will cause VSPAERO to crash
 
                 # Freestream Parameters
                 Alpha = [self.m_alpha_vec[a]]
                 Beta = [self.m_beta_vec[b]]
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', Alpha, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Beta', Beta, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', Alpha, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Beta', Beta, 0)
                 
                 Mach = [0.0]
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', Mach, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', Mach, 0)
                 
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'AnalysisMethod', panel_analysis)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', const.m_GeomVec)
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AnalysisMethod', panel_analysis)
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
                 vsp.Update()
 
                 # list inputs, type, and current values
-                vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
+                vsp.PrintAnalysisInputs( const.m_VSPSweepAnalysis )
                 print( '' )
 
                 # Execute
                 print( '\tExecuting...' )
-                rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
+                rid = vsp.ExecAnalysis( const.m_VSPSweepAnalysis )
                 print( 'COMPLETE' )
 
                 # Get & Display Results

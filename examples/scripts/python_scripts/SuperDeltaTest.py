@@ -107,7 +107,7 @@ class SupersonicDeltaWingTest:
                 vsp.ReadVSPFile( fname ) # Sets VSP3 file name
 
                 #==== Analysis: VSPAeroSinglePoint ====#
-                print( const.m_VSPSingleAnalysis )
+                print( const.m_VSPSweepAnalysis )
 
                 #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
                 print( const.m_CompGeomAnalysis )
@@ -130,33 +130,33 @@ class SupersonicDeltaWingTest:
 
                 #==== Analysis: VSPAero Single Point ====#
                 # Set defaults
-                vsp.SetAnalysisInputDefaults(const.m_VSPSingleAnalysis)
-                print(const.m_VSPSingleAnalysis)
+                vsp.SetAnalysisInputDefaults(const.m_VSPSweepAnalysis)
+                print(const.m_VSPSweepAnalysis)
 
                 # Reference geometry set
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_GeomVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_GeomVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', const.m_GeomVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'RefFlag', const.m_GeomVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Symmetry', const.m_GeomVec, 0)
 
                 wid = vsp.FindGeomsWithName('WingGeom')
-                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
+                vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, 'WingID', wid, 0)
                 
                 # Freestream Parameters
                 Alpha = [5.0]
                 Mach = [self.m_SuperMachVec[m]]
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', Alpha, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', Mach, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Alpha', Alpha, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Mach', Mach, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
                 vsp.Update()
 
                 # list inputs, type, and current values
-                vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
+                vsp.PrintAnalysisInputs( const.m_VSPSweepAnalysis )
                 print( '' )
 
                 # Execute
                 print( '\tExecuting...' )
-                rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
+                rid = vsp.ExecAnalysis( const.m_VSPSweepAnalysis )
                 print( 'COMPLETE' )
 
                 # Get & Display Results
