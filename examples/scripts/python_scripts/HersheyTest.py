@@ -1323,7 +1323,7 @@ class HersheyTest:
         ax.set_xlabel('Span Location (Y)')
         ax.set_ylabel('Cl')
         for i in range(len(self.span_loc_data_wtess)):
-            ax.plot(self.span_loc_data_wtess[i],self.cd_dist_data_wtess[i],'o-', color=const.bokehcolors[i], label='W Tess: '+str(self.m_Tess_W[i]))
+            ax.plot(self.span_loc_data_wtess[i],self.cl_dist_data_wtess[i],'o-', color=const.bokehcolors[i], label='W Tess: '+str(self.m_Tess_W[i]))
         theo_x = [ vec[0] for vec in self.cl_dist_theo_wtess ]
         theo_y = [ vec[1] for vec in self.cl_dist_theo_wtess ]
         ax.plot(theo_x,theo_y,color=const.bokehcolors[-1],label='LLT')
