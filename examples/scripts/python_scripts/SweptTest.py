@@ -2,11 +2,8 @@ import openvsp as vsp
 import math
 import Constants as const
 import traceback
-# from bohek_helper import make_table
 from pathlib import Path
 import matplotlib.pyplot as plt
-# from bokeh.plotting import figure,output_file, show
-# from bokeh.io import export_png
 import pickle
 
 scriptpath = str(Path(__file__).parent.resolve())
@@ -225,7 +222,7 @@ class SweptTest:
                 
                 vsp.ClearVSPModel()
         
-#======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
+#======== Use Matplotlib to Create tables and Graphs for the _________ Studies =#
     def GenerateSweptUWTessCharts(self):
         
         # title = 'Tesselation Study Geometry Setup'
@@ -245,7 +242,7 @@ class SweptTest:
         ax.set_xlabel('Chord Tesselation (W Tess)')
         ax.set_ylabel(r'Cl_alpha % Error')
         for i in range(len(self.Error_Cla)):
-            ax.plot(self.m_Tess_W,self.Error_Cla[i], 'o-', label='U Tess:'+str(self.m_Tess_U[i]),color=const.bokehcolors[i])
+            ax.plot(self.m_Tess_W,self.Error_Cla[i], 'o-', label='U Tess:'+str(self.m_Tess_U[i]),color=const.colors[i])
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/swept_files/swept_img/span_tesselation/span_tess.svg', bbox_inches='tight')
         
@@ -254,7 +251,7 @@ class SweptTest:
         ax.set_xlabel('Span Tesselation (U Tess)')
         ax.set_ylabel(r'Cl_alpha % Error')
         for i in range(len(self.Error_Cla)):
-            ax.plot(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], 'o-', label='W Tess:'+str(self.m_Tess_W[i]),color=const.bokehcolors[i])
+            ax.plot(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], 'o-', label='W Tess:'+str(self.m_Tess_W[i]),color=const.colors[i])
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/swept_files/swept_img/chord_tesselation/chord_tess.svg', bbox_inches='tight')
 
@@ -512,7 +509,7 @@ class SweptTest:
                     self.Avg_Cla_Error_PM[s] += abs((self.Cl_alpha_pm[x][s] - self.Cl_alpha_theo_multi[x][s])/self.Cl_alpha_theo_multi[x][s])/num_AR
                 
                 vsp.ClearVSPModel()
-#======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
+#======== Use Matplotlib to Create tables and Graphs for the _________ Studies =#
     def GenerateSweptARSweepCharts(self):
         fullAR = list(map(lambda n: n*2,self.m_halfAR))
         
@@ -536,9 +533,9 @@ class SweptTest:
             ax.set_title(str(self.m_Sweep[i])+'° Sweep: Cl_alpha vs. Aspect Ratio')
             ax.set_xlabel('AR')
             ax.set_ylabel('Cl_alpha (°)')
-            ax.plot(fullAR, const.transpose(self.Cl_alpha_vlm)[i],'o-', color=const.bokehcolors[0],label=r'VSPAERO VLM')
-            ax.plot(fullAR, const.transpose(self.Cl_alpha_pm)[i],color=const.bokehcolors[1],label=r'VSPAERO Panel')
-            ax.plot(fullAR, const.transpose(self.Cl_alpha_theo_multi)[i],color=const.bokehcolors[-1],label=r'LLT')
+            ax.plot(fullAR, const.transpose(self.Cl_alpha_vlm)[i],'o-', color=const.colors[0],label=r'VSPAERO VLM')
+            ax.plot(fullAR, const.transpose(self.Cl_alpha_pm)[i],color=const.colors[1],label=r'VSPAERO Panel')
+            ax.plot(fullAR, const.transpose(self.Cl_alpha_theo_multi)[i],color=const.colors[-1],label=r'LLT')
             ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
             fig.savefig(scriptpath + '/swept_files/swept_img/ar_sweep/ar_sweep_'+str(i)+'.svg', bbox_inches='tight')
         
@@ -546,8 +543,8 @@ class SweptTest:
         ax.set_title(str(self.m_Sweep[i])+r'Average % Error in Cl_alpha Across All Aspect Ratios Sweep Sensitivity')
         ax.set_xlabel('Sweep (°)')
         ax.set_ylabel(r'Cl_alpha % Error')
-        ax.plot(self.m_Sweep, avgclavlm,'o-',color=const.bokehcolors[0], label=r'VLM')
-        ax.plot(self.m_Sweep, avgclapm,color=const.bokehcolors[1],label=r'Panel Method')
+        ax.plot(self.m_Sweep, avgclavlm,'o-',color=const.colors[0], label=r'VLM')
+        ax.plot(self.m_Sweep, avgclapm,color=const.colors[1],label=r'Panel Method')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/swept_files/swept_img/ar_sweep/ar_sweep_avgs.svg', bbox_inches='tight')
 

@@ -2,12 +2,7 @@ import openvsp as vsp
 import math
 import Constants as const
 from pathlib import Path
-# from bokeh.models.ranges import Range1d 
-# from bokeh.models import LinearAxis
-# from bokeh.plotting import figure, show
-# from bokeh.io import export_png
 import matplotlib.pyplot as plt
-from bohek_helper import make_table
 import pickle
 
 scriptpath = str(Path(__file__).parent.resolve())
@@ -264,7 +259,7 @@ class VKTTest:
                     
                     
                     
-#======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
+#======== Use Matplotlib to Create tables and Graphs for the _________ Studies =#
     def GenerateVKTEKTCharts(self):
         # title = 'VKT ε κ τ Study Geometry Setup'
         # header = ['Airfoil', 'ε','κ','τ (°)','AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Span Tess (U)','Chord Tess (W)','LE Clustering','TE Clustering']
@@ -286,14 +281,14 @@ class VKTTest:
                     ax.set_title('VKT Cp Distribution at Y=0: Epsilon = '+str(self.m_epsilon[e])+', Kappa = '+str(self.m_kappa[k])+', Tau = '+str(self.m_tau[t])+'°')
                     ax.set_xlabel('Chord Location (X)')
                     ax.set_ylabel('Cp')
-                    ax.plot(self.x_slicer_mat_ekt[e][k][t],self.cp_slicer_mat_ekt[e][k][t], 'o-', label='VSPAERO',color=const.bokehcolors[2])
-                    ax.plot(self.xyz_airfoil_mat_ekt_noswig[e][k][t][0],self.cp_airfoil_mat_ekt[e][k][t], label='Exact',color=const.bokehcolors[-1])
+                    ax.plot(self.x_slicer_mat_ekt[e][k][t],self.cp_slicer_mat_ekt[e][k][t], 'o-', label='VSPAERO',color=const.colors[2])
+                    ax.plot(self.xyz_airfoil_mat_ekt_noswig[e][k][t][0],self.cp_airfoil_mat_ekt[e][k][t], label='Exact',color=const.colors[-1])
                     ax.set_ylim(-1.5,1.5)
                     ax2 = ax.twinx()
                     ax2.set_ylim(-.175,.175)
                     ax2.set_ylabel('Z')
                     
-                    ax2.plot(self.xyz_airfoil_mat_ekt_noswig[e][k][t][0],self.xyz_airfoil_mat_ekt_noswig[e][k][t][1], label='Airfoil',color=const.bokehcolors[0])
+                    ax2.plot(self.xyz_airfoil_mat_ekt_noswig[e][k][t][0],self.xyz_airfoil_mat_ekt_noswig[e][k][t][1], label='Airfoil',color=const.colors[0])
                     #ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
                     ax.legend(bbox_to_anchor=(.5,-.1),loc='upper center', ncols=10)
                     fig.savefig(scriptpath + '/vkt_files/vkt_img/ekt/ekt_'+str(e*4+k*2+t)+'.svg', bbox_inches='tight')
@@ -505,16 +500,16 @@ class VKTTest:
             ax.set_xlabel('Chord Location (X)')
             ax.set_ylabel('Cp')
             transpose = const.transpose(self.Xfoil_CpDist)
-            ax.plot(transpose[0],transpose[2],'o-', label='XFoil',color=const.bokehcolors[2])
+            ax.plot(transpose[0],transpose[2],'o-', label='XFoil',color=const.colors[2])
             transpose = const.transpose(self.xyz_airfoil_mat_tess_noswig)
-            ax.plot(transpose[0],self.cp_airfoil_mat_tess, label='Exact',color=const.bokehcolors[-1])
+            ax.plot(transpose[0],self.cp_airfoil_mat_tess, label='Exact',color=const.colors[-1])
             for w in range(len(self.m_Tess_W)):
-                ax.plot(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w],'o-' ,label='W Tess: '+str(self.m_Tess_W[w]),color=const.bokehcolors[3+w])
+                ax.plot(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w],'o-' ,label='W Tess: '+str(self.m_Tess_W[w]),color=const.colors[3+w])
             ax.set_ylim(-1.5,1.5)
             ax2 = ax.twinx()
             ax2.set_ylim(-.175,.175)
             ax2.set_ylabel('Z')
-            ax2.plot(transpose[0],transpose[1], label='Airfoil',color=const.bokehcolors[0])
+            ax2.plot(transpose[0],transpose[1], label='Airfoil',color=const.colors[0])
             #ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
             ax.legend(bbox_to_anchor=(.5,-.1),loc='upper center', ncols=10)
             fig.savefig(scriptpath + '/vkt_files/vkt_img/uw/u_'+str(u)+'.svg', bbox_inches='tight')
@@ -526,16 +521,16 @@ class VKTTest:
             ax.set_xlabel('Chord Location (X)')
             ax.set_ylabel('Cp')
             transpose = const.transpose(self.Xfoil_CpDist)
-            ax.plot(transpose[0],transpose[2], 'o-', label='XFoil',color=const.bokehcolors[2])
+            ax.plot(transpose[0],transpose[2], 'o-', label='XFoil',color=const.colors[2])
             transpose = const.transpose(self.xyz_airfoil_mat_tess_noswig)
-            ax.plot(transpose[0],self.cp_airfoil_mat_tess, label='Exact',color=const.bokehcolors[-1])
+            ax.plot(transpose[0],self.cp_airfoil_mat_tess, label='Exact',color=const.colors[-1])
             for u in range(len(self.m_Tess_U)):
-                ax.plot(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w],'o-', label='U Tess: '+str(self.m_Tess_U[u]),color=const.bokehcolors[3+u])
+                ax.plot(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w],'o-', label='U Tess: '+str(self.m_Tess_U[u]),color=const.colors[3+u])
             ax.set_ylim(-1.5,1.5)
             ax2 = ax.twinx()
             ax2.set_ylim(-.175,.175)
             ax2.set_ylabel('Z')
-            ax2.plot(transpose[0],transpose[1], label='Airfoil',color=const.bokehcolors[0])
+            ax2.plot(transpose[0],transpose[1], label='Airfoil',color=const.colors[0])
             #ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
             ax.legend(bbox_to_anchor=(.5,-.1),loc='upper center', ncols=10)
             fig.savefig(scriptpath + '/vkt_files/vkt_img/uw/w_'+str(w)+'.svg', bbox_inches='tight')

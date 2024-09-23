@@ -3,11 +3,7 @@ import math
 import Constants as const
 from pathlib import Path
 import matplotlib.pyplot as plt
-# from bokeh.models.ranges import Range1d 
-# from bokeh.models import LinearAxis
-# from bokeh.plotting import figure, show
-# from bokeh.io import export_png
-# from bohek_helper import make_table
+
 import pickle
 
 scriptpath = str(Path(__file__).parent.resolve())
@@ -178,7 +174,7 @@ class SupersonicDeltaWingTest:
                 vsp.ClearVSPModel()    
                     
                     
-#======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
+#======== Use Matplotlib to Create tables and Graphs for the _________ Studies =#
     def GenerateSupersonicDeltaWingCharts(self):
         fig, ax = plt.subplots(figsize=(25,.5))
         ax.axis('off')
@@ -199,8 +195,8 @@ class SupersonicDeltaWingTest:
         ax.axis('on')
         fig, ax = plt.subplots()
         for a in range(len(self.m_Sweep)):
-            ax.plot(self.M_sweep_fun[a],self.Cl_alpha_tan_sweep[a], 'o-',color=const.bokehcolors[a],label='VSPAERO '+str(self.m_Sweep[a])+'° Sweep')
-        ax.scatter(self.m_exp,self.Cl_alpha_tan_sweep_exp, label='Experimental Data',color=const.bokehcolors[-1])    
+            ax.plot(self.M_sweep_fun[a],self.Cl_alpha_tan_sweep[a], 'o-',color=const.colors[a],label='VSPAERO '+str(self.m_Sweep[a])+'° Sweep')
+        ax.scatter(self.m_exp,self.Cl_alpha_tan_sweep_exp, label='Experimental Data',color=const.colors[-1])
         ax.set_title('Supersonic Delta Wing: Cl_alpha*tan(sweep) = f(m)')
         ax.set_xlabel('m')
         ax.set_ylabel('Cl_alpha*tan(sweep)')

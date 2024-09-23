@@ -3,9 +3,6 @@ import math
 import Constants as const
 from pathlib import Path
 import matplotlib.pyplot as plt
-# from bokeh.plotting import figure, show
-# from bokeh.io import export_png
-# from bohek_helper import make_table
 import pickle
 
 scriptpath = str(Path(__file__).parent.resolve())
@@ -209,7 +206,7 @@ class WarrenTest:
         self.m_Warren_Sweep_Cm_alpha_Err = (abs((self.Cm_alpha_res_avg - self.m_Cm_alpha_expected)/self.m_Cm_alpha_expected))*100
         
         vsp.ClearVSPModel()
-#======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
+#======== Use Matplotlib to Create tables and Graphs for the _________ Studies =#
     def GenerateWarrenCharts(self):
         # title = 'Warren-12 Geometry Setup'
         # header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)','Tip Clustering']
@@ -227,8 +224,8 @@ class WarrenTest:
         ax.set_title('Warren VLM: Cl vs Alpha')
         ax.set_xlabel('Alpha (°)')
         ax.set_ylabel('Cl')
-        ax.plot(self.m_AlphaSweepVec,self.Cl_res,'o-', label='VSPAERO',color=const.bokehcolors[0])
-        ax.plot(self.m_AlphaSweepVec,self.Cl_approx_vec, label='Expected',color=const.bokehcolors[-1])
+        ax.plot(self.m_AlphaSweepVec,self.Cl_res,'o-', label='VSPAERO',color=const.colors[0])
+        ax.plot(self.m_AlphaSweepVec,self.Cl_approx_vec, label='Expected',color=const.colors[-1])
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/warren_files/warren_img/warren/warrenrawcl.svg', bbox_inches='tight')
         
@@ -236,7 +233,7 @@ class WarrenTest:
         ax.set_title('Warren VLM Cl_alpha Alpha Sensitivity')
         ax.set_xlabel('Alpha (°)')
         ax.set_ylabel(r'Cl_alpha % Difference')
-        ax.plot(self.m_AlphaSweepVec,self.m_Cl_alpha_error,'o-' , label=r'% Difference',color=const.bokehcolors[0])
+        ax.plot(self.m_AlphaSweepVec,self.m_Cl_alpha_error,'o-' , label=r'% Difference',color=const.colors[0])
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/warren_files/warren_img/warren/warrenpercentcl.svg', bbox_inches='tight')
         
@@ -244,8 +241,8 @@ class WarrenTest:
         ax.set_title('Warren VLM: Cm vs Alpha')
         ax.set_xlabel('Alpha (°)')
         ax.set_ylabel('Cm')
-        ax.plot(self.m_AlphaSweepVec,self.Cm_res,'o-', label='VSPAERO',color=const.bokehcolors[0])
-        ax.plot(self.m_AlphaSweepVec,self.Cm_approx_vec, label='Expected',color=const.bokehcolors[-1])
+        ax.plot(self.m_AlphaSweepVec,self.Cm_res,'o-', label='VSPAERO',color=const.colors[0])
+        ax.plot(self.m_AlphaSweepVec,self.Cm_approx_vec, label='Expected',color=const.colors[-1])
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/warren_files/warren_img/warren/warrenrawcm.svg', bbox_inches='tight')
         
@@ -253,7 +250,7 @@ class WarrenTest:
         ax.set_title('Warren VLM Cm_alpha Alpha Sensitivity')
         ax.set_xlabel('Alpha (°)')
         ax.set_ylabel(r'Cm_alpha % Difference')
-        ax.plot(self.m_AlphaSweepVec,self.m_Cm_alpha_error,'o-' , label=r'% Difference',color=const.bokehcolors[0])
+        ax.plot(self.m_AlphaSweepVec,self.m_Cm_alpha_error,'o-' , label=r'% Difference',color=const.colors[0])
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/warren_files/warren_img/warren/warrenpercentcm.svg', bbox_inches='tight')
         

@@ -3,11 +3,6 @@ import math
 import Constants as const
 import matplotlib.pyplot as plt
 from pathlib import Path
-# from bokeh.models.ranges import Range1d 
-# from bokeh.models import LinearAxis
-# from bokeh.plotting import figure, show
-# from bokeh.io import export_png
-# from bohek_helper import make_table
 import pickle
 
 scriptpath = str(Path(__file__).parent.resolve())
@@ -237,7 +232,7 @@ class EllipsoidTest:
                     
                     
                     
-#======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
+#======== Use Matplotlib to Create tables and Graphs for the _________ Studies =#
     def GenerateEllipsoidCharts(self):
         # title = 'Ellipsoid Geometry Setup'
         # header = ['A Radius', 'B Radius','C Radius','Center','Span Tess (U)', 'Chord Tess (W)']
@@ -263,8 +258,8 @@ class EllipsoidTest:
                     if i == 2:
                         x, y2, pntvec = 0, 1, const.transpose(self.z_slice_pnt_vec_noswig)
                     fig, ax = plt.subplots()
-                    ax.plot(pntvec[x],self.ellipsoid_cp_mat[a][b][i], label='Exact',color=const.bokehcolors[-1])
-                    ax.scatter(self.xyz_slicer_mat[a][b][i],self.cp_slicer_mat[a][b][i], label='VSPAERO',color=const.bokehcolors[2])
+                    ax.plot(pntvec[x],self.ellipsoid_cp_mat[a][b][i], label='Exact',color=const.colors[-1])
+                    ax.scatter(self.xyz_slicer_mat[a][b][i],self.cp_slicer_mat[a][b][i], label='VSPAERO',color=const.colors[2])
                     ax.set_title('Ellipsoid Cp Distribution at '+slic[i]+'= 0: Alpha = '+str(self.m_alpha_vec[a])+'°, Beta = '+str(self.m_beta_vec[b])+'°')
                     ax.set_xlabel(slic[x])
                     ax.set_ylabel('Cp')
@@ -272,7 +267,7 @@ class EllipsoidTest:
                     ax2 = ax.twinx()
                     ax2.set_ylim(-3,3)
                     ax2.set_ylabel(slic[y2])
-                    ax2.plot(pntvec[x],pntvec[y2],label='Ellipsoid',color=const.bokehcolors[0])
+                    ax2.plot(pntvec[x],pntvec[y2],label='Ellipsoid',color=const.colors[0])
                     #ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
                     ax.legend(bbox_to_anchor=(.5,-.1),loc='upper center', ncols=10)
                     fig.savefig(scriptpath + '/ellipse_files/ellipse_img/ellipse/'+str(count)+'.svg', bbox_inches='tight')

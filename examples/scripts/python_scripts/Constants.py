@@ -16,12 +16,7 @@ m_SymFlagVec = [1]
 m_RefFlagVec = [1] # Wing Reference
 m_WakeIterVec = [3]
 
-#Bokeh graph constants
-bokehcolors = ["blue","red","gold","green","purple", "skyblue","gray"] #Bokeh uses css color names https://www.w3schools.com/colors/colors_names.asp
-bokehlinewidth = 3
-bokehsize = 5
-bokehwidth = 800
-bokehheight = 400        
+colors = ["blue","red","gold","green","purple", "skyblue","gray"]
 
 #CONSTANTS
 b = 0.9949874371 # M = 0.1, b = (1-M^2)^0.5

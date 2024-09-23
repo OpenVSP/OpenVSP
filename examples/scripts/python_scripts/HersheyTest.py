@@ -6,11 +6,6 @@ import traceback
 from pathlib import Path
 import pickle
 
-# from bokeh.plotting import figure, output_file, show
-# from bokeh.io import export_png
-
-# from bohek_helper import make_table
-
 scriptpath = str(Path(__file__).parent.resolve())
 def vecofvec3dtolistoflists(temp):
     lis = []
@@ -498,7 +493,7 @@ class HersheyTest:
 
             vsp.ClearVSPModel()
 
-#======== Use Bokeh to Create tables and Graphs for the Aspect Ratio and Angle of Attack Studies =#
+#======== Use Matplotlib to Create tables and Graphs for the Aspect Ratio and Angle of Attack Studies =#
     def generateARWingChart(self):
         # #Aspect Ratio Setup Table
         # header = const.STUDY_SETUP_TABLE_HEADER.copy()
@@ -519,8 +514,8 @@ class HersheyTest:
         ax.set_xlabel('Alpha (॰)')
         ax.set_ylabel('Cl')
         for i in range(len(self.Cl_vlm)):
-            ax.plot(self.alpha_vlm[0],self.Cl_vlm[i], 'o-',label='AR: '+str(self.m_halfAR[i]*2),color=const.bokehcolors[i])
-        ax.plot(self.alpha_vlm[0],self.Cl_approx[0], label='2*pi',color=const.bokehcolors[-1])
+            ax.plot(self.alpha_vlm[0],self.Cl_vlm[i], 'o-',label='AR: '+str(self.m_halfAR[i]*2),color=const.colors[i])
+        ax.plot(self.alpha_vlm[0],self.Cl_approx[0], label='2*pi',color=const.colors[-1])
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/aspect_ratio/ClvA.svg', bbox_inches='tight')
         
@@ -531,9 +526,9 @@ class HersheyTest:
         ax.set_title('Hershey Bar Cl_alpha vs AR')
         ax.set_xlabel('AR')
         ax.set_ylabel('Cl_alpha (॰)')
-        ax.plot(self.AR,self.Cl_alpha_vlm,'o-', color=const.bokehcolors[0], label='VSPAERO VLM')
-        ax.plot(self.AR,self.Cl_alpha_pm,'o-',color=const.bokehcolors[1],label='VSPAERO Panel')
-        ax.plot(self.AR,self.Cl_alpha_theo,color=const.bokehcolors[-1],label='LLT')
+        ax.plot(self.AR,self.Cl_alpha_vlm,'o-', color=const.colors[0], label='VSPAERO VLM')
+        ax.plot(self.AR,self.Cl_alpha_pm,'o-',color=const.colors[1],label='VSPAERO Panel')
+        ax.plot(self.AR,self.Cl_alpha_theo,color=const.colors[-1],label='LLT')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/aspect_ratio/ClvAR.svg', bbox_inches='tight')
         
@@ -544,7 +539,7 @@ class HersheyTest:
         ax.set_title('Hershey Bar VLM Cl_alpha Alpha Sensitivity: AR = 10')
         ax.set_xlabel('Alpha (॰)')
         ax.set_ylabel(r'Cl_alpha % Error')
-        ax.plot(self.alpha_vlm[1],self.Error_Cl_alpha_vlm,'o-',color=const.bokehcolors[0],label=r'% Error')
+        ax.plot(self.alpha_vlm[1],self.Error_Cl_alpha_vlm,'o-',color=const.colors[0],label=r'% Error')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.svg', bbox_inches='tight')
         
@@ -724,7 +719,7 @@ class HersheyTest:
                 
                 vsp.ClearVSPModel()
 
-#======== Use Bokeh to Create tables and Graphs for the Tesselation Study ========================#
+#======== Use Matplotlib to Create tables and Graphs for the Tesselation Study ========================#
     def generateUWTessChart(self):
         
         fig, ax = plt.subplots()
@@ -732,7 +727,7 @@ class HersheyTest:
         ax.set_xlabel('Chord Tesselation (W Tess)')
         ax.set_ylabel(r'Cl_alpha % Error')
         for i in range(len(self.Error_Cla)):
-            ax.plot(self.m_Tess_W,self.Error_Cla[i], 'o-', color=const.bokehcolors[i],label='U Tess: '+str(self.m_Tess_U[i]))
+            ax.plot(self.m_Tess_W,self.Error_Cla[i], 'o-', color=const.colors[i],label='U Tess: '+str(self.m_Tess_U[i]))
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/tesselation/Error_Cla_U.svg', bbox_inches='tight')
         
@@ -742,7 +737,7 @@ class HersheyTest:
         ax.set_xlabel('Chord Tesselation (U Tess)')
         ax.set_ylabel(r'Cl_alpha % Error')
         for i in range(len(W_list)):
-            ax.plot(self.m_Tess_U,W_list[i], 'o-', color=const.bokehcolors[i], label='W Tess: ' + str(self.m_Tess_W[i]))
+            ax.plot(self.m_Tess_U,W_list[i], 'o-', color=const.colors[i], label='W Tess: ' + str(self.m_Tess_W[i]))
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/tesselation/Error_Cla_W.svg', bbox_inches='tight')
         
@@ -752,7 +747,7 @@ class HersheyTest:
         ax.set_xlabel('Chord Tesselation (W Tess)')
         ax.set_ylabel('Time (sec)')
         for i in range(len(self.Exe_Time)):
-            ax.plot(self.m_Tess_W,self.Exe_Time[i], 'o-', color=const.bokehcolors[i], label='U Tess: '+str(self.m_Tess_U[i]))
+            ax.plot(self.m_Tess_W,self.Exe_Time[i], 'o-', color=const.colors[i], label='U Tess: '+str(self.m_Tess_U[i]))
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/tesselation/Exec_Time_U.svg', bbox_inches='tight')
         
@@ -763,7 +758,7 @@ class HersheyTest:
         ax.set_ylabel('Time (sec)')
         W_list2 = [[self.Exe_Time[u][i] for u in range(len(self.Exe_Time))] for i in range(len(self.Exe_Time[0]))]
         for i in range(len(W_list2)):
-            ax.plot(self.m_Tess_U,W_list2[i], 'o-', color=const.bokehcolors[i],label='W Tess: '+str(self.m_Tess_W[i]))
+            ax.plot(self.m_Tess_U,W_list2[i], 'o-', color=const.colors[i],label='W Tess: '+str(self.m_Tess_W[i]))
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/tesselation/Exec_Time_W.svg', bbox_inches='tight')
         
@@ -929,7 +924,7 @@ class HersheyTest:
             vsp.ClearVSPModel()
         temp = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
         self.cl_dist_theo = vecofvec3dtolistoflists(temp)
-#======== Use Bokeh to Create tables and Graphs for the Tip Clustering Study ==================#
+#======== Use Matplotlib to Create tables and Graphs for the Tip Clustering Study ==================#
     def generateTCWingChart(self):
         
         fig, ax = plt.subplots()
@@ -937,12 +932,12 @@ class HersheyTest:
         ax.set_xlabel('Span Location (Y)')
         ax.set_ylabel('Cl')
         for i in range(len(self.span_loc_data_tc)):
-            ax.plot(self.span_loc_data_tc[i],self.cl_dist_data_tc[i],'o-', color=const.bokehcolors[i], label='TC:'+str(self.m_Tip_Clus[i]))
+            ax.plot(self.span_loc_data_tc[i],self.cl_dist_data_tc[i],'o-', color=const.colors[i], label='TC:'+str(self.m_Tip_Clus[i]))
         theo_x = [ vec[0] for vec in self.cl_dist_theo ]
         theo_y = [ vec[1] for vec in self.cl_dist_theo ]
-        ax.plot(theo_x,theo_y, color = const.bokehcolors[-1], label = 'LLT')
+        ax.plot(theo_x,theo_y, color = const.colors[-1], label = 'LLT')
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
-        ax.plot(transposed_list_2[0],transposed_list_2[1],'o-' ,color=const.bokehcolors[4], label='AVL')
+        ax.plot(transposed_list_2[0],transposed_list_2[1],'o-' ,color=const.colors[4], label='AVL')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/tip_clustering/tc_graph.svg', bbox_inches='tight')
         
@@ -1111,7 +1106,7 @@ class HersheyTest:
         temp = vsp.GetHersheyBarDragDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
         self.cd_dist_theo_utess = vecofvec3dtolistoflists(temp)
 
-#======== Use Bokeh to Create tables and Graphs for the Span Tesselation Study ===================#
+#======== Use Matplotlib to Create tables and Graphs for the Span Tesselation Study ===================#
     def generateHersheyBarUTessChart(self):
         
         fig, ax = plt.subplots()
@@ -1119,12 +1114,12 @@ class HersheyTest:
         ax.set_xlabel('Span Location (Y)')
         ax.set_ylabel('Cl')
         for i in range(len(self.span_loc_data_utess)):
-            ax.plot(self.span_loc_data_utess[i],self.cl_dist_data_utess[i],'o-', color=const.bokehcolors[i], label='U Tess: '+str(self.m_Tess_U[i]))
+            ax.plot(self.span_loc_data_utess[i],self.cl_dist_data_utess[i],'o-', color=const.colors[i], label='U Tess: '+str(self.m_Tess_U[i]))
         theo_x = [ vec[0] for vec in self.cl_dist_theo_utess ]
         theo_y = [ vec[1] for vec in self.cl_dist_theo_utess ]
-        ax.plot(theo_x,theo_y, color=const.bokehcolors[-1], label='LLT')
+        ax.plot(theo_x,theo_y, color=const.colors[-1], label='LLT')
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
-        ax.plot(transposed_list_2[0],transposed_list_2[1],'o-', color=const.bokehcolors[4], label='AVL')
+        ax.plot(transposed_list_2[0],transposed_list_2[1],'o-', color=const.colors[4], label='AVL')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/span_tesselation/lift_dist.svg', bbox_inches='tight')
         
@@ -1135,11 +1130,11 @@ class HersheyTest:
         ax.set_xlabel('Span Location (Y)')
         ax.set_ylabel('Cd')
         for i in range(len(self.span_loc_data_utess)):
-            ax.plot(self.span_loc_data_utess[i],self.cd_dist_data_utess[i],'o-', color=const.bokehcolors[i], label='U Tess: '+str(self.m_Tess_U[i]))
+            ax.plot(self.span_loc_data_utess[i],self.cd_dist_data_utess[i],'o-', color=const.colors[i], label='U Tess: '+str(self.m_Tess_U[i]))
         theo_x_cd = [ vec[0] for vec in self.cd_dist_theo_utess ]
         theo_z_cd = [ vec[1] for vec in self.cd_dist_theo_utess ]
-        ax.plot(theo_x_cd,theo_z_cd, color=const.bokehcolors[-1], label='LLT')
-        ax.plot(transposed_list_2[0],transposed_list_2[2],'o-', color=const.bokehcolors[4], label='AVL')
+        ax.plot(theo_x_cd,theo_z_cd, color=const.colors[-1], label='LLT')
+        ax.plot(transposed_list_2[0],transposed_list_2[2],'o-', color=const.colors[4], label='AVL')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/span_tesselation/drag_dist.svg', bbox_inches='tight')
         
@@ -1315,7 +1310,7 @@ class HersheyTest:
         self.cd_dist_theo_wtess = vecofvec3dtolistoflists(temp)
         print('SOMETHING BIG', self.cl_dist_theo_wtess)
 
-#======== Use Bokeh to Create tables and Graphs for the Span Tesselation Study ===================#
+#======== Use Matplotlib to Create tables and Graphs for the Span Tesselation Study ===================#
     def generateWTessChart(self):
         
         fig, ax = plt.subplots()
@@ -1323,12 +1318,12 @@ class HersheyTest:
         ax.set_xlabel('Span Location (Y)')
         ax.set_ylabel('Cl')
         for i in range(len(self.span_loc_data_wtess)):
-            ax.plot(self.span_loc_data_wtess[i],self.cl_dist_data_wtess[i],'o-', color=const.bokehcolors[i], label='W Tess: '+str(self.m_Tess_W[i]))
+            ax.plot(self.span_loc_data_wtess[i],self.cl_dist_data_wtess[i],'o-', color=const.colors[i], label='W Tess: '+str(self.m_Tess_W[i]))
         theo_x = [ vec[0] for vec in self.cl_dist_theo_wtess ]
         theo_y = [ vec[1] for vec in self.cl_dist_theo_wtess ]
-        ax.plot(theo_x,theo_y,color=const.bokehcolors[-1],label='LLT')
+        ax.plot(theo_x,theo_y,color=const.colors[-1],label='LLT')
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
-        ax.plot(transposed_list_2[0],transposed_list_2[1],'o-', color=const.bokehcolors[4], label='AVL')
+        ax.plot(transposed_list_2[0],transposed_list_2[1],'o-', color=const.colors[4], label='AVL')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/chord_tesselation/lift_dist.svg', bbox_inches='tight')
         
@@ -1337,11 +1332,11 @@ class HersheyTest:
         ax.set_xlabel('Span Location (Y)')
         ax.set_ylabel('Cd')
         for i in range(len(self.span_loc_data_wtess)):
-            ax.plot(self.span_loc_data_wtess[i],self.cd_dist_data_wtess[i],'o-', color=const.bokehcolors[i], label='W Tess: '+str(self.m_Tess_W[i]))
+            ax.plot(self.span_loc_data_wtess[i],self.cd_dist_data_wtess[i],'o-', color=const.colors[i], label='W Tess: '+str(self.m_Tess_W[i]))
         theo_x_cd = [ vec[0] for vec in self.cd_dist_theo_wtess ]
         theo_z_cd = [ vec[1] for vec in self.cd_dist_theo_wtess ]
-        ax.plot(theo_x_cd,theo_z_cd,color=const.bokehcolors[-1],label='LLT')
-        ax.plot(transposed_list_2[0],transposed_list_2[2],'o-', color=const.bokehcolors[4],label='AVL')
+        ax.plot(theo_x_cd,theo_z_cd,color=const.colors[-1],label='LLT')
+        ax.plot(transposed_list_2[0],transposed_list_2[2],'o-', color=const.colors[4],label='AVL')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/chord_tesselation/drag_dist.svg', bbox_inches='tight')
         
@@ -1521,7 +1516,7 @@ class HersheyTest:
         temp = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
         self.wake_cl_dist_theo = vecofvec3dtolistoflists(temp)
 
-#======== Use Bokeh to Create tables and Graphs for the Wake Iteration Study ===================#
+#======== Use Matplotlib to Create tables and Graphs for the Wake Iteration Study ===================#
     def generateWakeChart(self):
         
         fig, ax = plt.subplots()
@@ -1529,10 +1524,10 @@ class HersheyTest:
         ax.set_xlabel('Span Location (Y)')
         ax.set_ylabel('Cl')
         for i in range(len(self.wake_span_loc_data)):
-            ax.plot(self.wake_span_loc_data[i],self.wake_cl_dist_data[i],'o-', color=const.bokehcolors[i],label='Wake Iter: '+str(self.m_WakeIter[i]))
+            ax.plot(self.wake_span_loc_data[i],self.wake_cl_dist_data[i],'o-', color=const.colors[i],label='Wake Iter: '+str(self.m_WakeIter[i]))
         x = [vec[0] for vec in self.wake_cl_dist_theo ]
         y = [vec[1] for vec in self.wake_cl_dist_theo ]
-        ax.plot(x,y,color=const.bokehcolors[-1],label='LLT')
+        ax.plot(x,y,color=const.colors[-1],label='LLT')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/wake_iteration/lift_dist.svg', bbox_inches='tight')
         
@@ -1734,7 +1729,7 @@ class HersheyTest:
             temp = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
             self.cl_dist_theo_adv = vecofvec3dtolistoflists(temp)
 
-#======== Use Bokeh to Create tables and Graphs for the Advanced Settings Study ===================#
+#======== Use Matplotlib to Create tables and Graphs for the Advanced Settings Study ===================#
     def generateAdvChart(self):
         
         fig, ax = plt.subplots()
@@ -1744,7 +1739,7 @@ class HersheyTest:
         time_vec_trans = [[ self.m_AdvancedTimeVec[i][j] for i in range(len(self.m_AdvancedWakeVec))] for j in range(self.num_case)]
         print(f'time vec{time_vec_trans}')
         for i in range(len(time_vec_trans)):
-            ax.plot(range(1,self.num_case),time_vec_trans[i],'o-', color=const.bokehcolors[i+1],label='Case #'+str(i+1))
+            ax.plot(range(1,self.num_case),time_vec_trans[i],'o-', color=const.colors[i+1],label='Case #'+str(i+1))
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/advanced_settings/comp_time.svg', bbox_inches='tight')
         
