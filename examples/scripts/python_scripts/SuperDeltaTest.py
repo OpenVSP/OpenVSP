@@ -135,8 +135,8 @@ class SupersonicDeltaWingTest:
 
                 # Reference geometry set
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', const.m_GeomVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'RefFlag', const.m_GeomVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Symmetry', const.m_GeomVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
                 wid = vsp.FindGeomsWithName('WingGeom')
                 vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, 'WingID', wid, 0)
