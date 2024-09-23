@@ -74,9 +74,9 @@ class SupersonicDeltaWingTest:
                 vsp.SetParmVal(wing_id,'Root_Chord', 'XSec_1',22.39583)
             vsp.Update()    
             
-            for m in self.m_SuperMachVec:    
+            for im, m in enumerate( self.m_SuperMachVec ):
                 #==== Setup export filenames ====#
-                fname = scriptpath + '/supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep' + str(s) + '_Mach' + str(m) + '.vsp3'
+                fname = scriptpath + '/supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep' + str(s) + '_Mach' + str(im) + '.vsp3'
 
                 #==== Save Vehicle to File ====#
                 message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -99,8 +99,8 @@ class SupersonicDeltaWingTest:
             for m in range(num_mach):
                           
                 #==== Open and test generated wings ====#
-                fname = scriptpath + '/supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep' + str(self.m_Sweep[s]) + '_Mach' + str(self.m_SuperMachVec[m]) + '.vsp3'
-                fname_res = '/supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep' + str(s) + '_Mach' + str(m) + '_res.csv'
+                fname = scriptpath + '/supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep' + str(self.m_Sweep[s]) + '_Mach' + str(m) + '.vsp3'
+                fname_res = '/supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep' + str(self.m_Sweep[s]) + '_Mach' + str(m) + '_res.csv'
 
                 print( 'Reading in file: ')
                 print( fname )
