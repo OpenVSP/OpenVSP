@@ -1997,7 +1997,7 @@ def runhersheybarstudy(arandaoa = 3, uw = 3, tc=3, ctes=3, stes=3, wi=3, ads=3):
     if (tc == 1): 
         test.generateTCWingChart()
     if (tc == 3):
-        test.TesselationStudy()
+        test.TipClusteringStudy()
         with open(scriptpath+'/hershey_files/tctest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)
     if (tc == 2):
