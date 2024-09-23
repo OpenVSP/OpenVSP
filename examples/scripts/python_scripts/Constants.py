@@ -1,3 +1,6 @@
+import matplotlib as mpl
+
+
 #Constants pulled from V&V Base Class in Master_VSP_VV_Script.vspscript
 
 #TABLE CONSTANTS
@@ -17,6 +20,8 @@ m_RefFlagVec = [1] # Wing Reference
 m_WakeIterVec = [3]
 
 colors = ["blue","red","gold","green","purple", "skyblue","gray"]
+mpl.rcParams['lines.markersize'] = 3
+mpl.rcParams['figure.figsize'] = [6.4*1.5, 4.8*1.5] # [6.4,4.8] default
 
 #CONSTANTS
 b = 0.9949874371 # M = 0.1, b = (1-M^2)^0.5
