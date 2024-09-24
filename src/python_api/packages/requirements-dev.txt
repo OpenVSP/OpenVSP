@@ -7,3 +7,5 @@
 -e AvlPy
 -e pyPMARC
 pytest
+matplotlib
+pathlib
