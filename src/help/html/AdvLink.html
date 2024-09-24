@@ -87,6 +87,9 @@
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
   <link rel="stylesheet" href="github-pandoc.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <header id="title-block-header">
@@ -125,34 +128,34 @@ class="sourceCode c++"><code class="sourceCode cpp"><span id="cb1-1"><a href="#c
 expressions using common mathematical notation.</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th style="text-align: left;">Math Operator</th>
 <th style="text-align: left;">Meaning</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>()</code></td>
 <td style="text-align: left;">Expression grouping and precedence
 control</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>+ -</code></td>
 <td style="text-align: left;">Single argument positive and negative</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>**</code></td>
 <td style="text-align: left;">Exponent</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>* / %</code></td>
 <td style="text-align: left;">Multiply, divide, and modulo</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>+ -</code></td>
 <td style="text-align: left;">Two argument add and subtract</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>=</code></td>
 <td style="text-align: left;">Assignment</td>
 </tr>
@@ -161,59 +164,59 @@ control</td>
 <p>A standard suite of mathematical functions are also available.</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th style="text-align: left;">Math Function</th>
 <th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>cos(x) sin(x) tan(x)</code></td>
 <td style="text-align: left;">Trigonometric functions (radians)</td>
 </tr>
-<tr>
+<tr class="even">
 <td
 style="text-align: left;"><code>acos(x) asin(x) atan(x) atan2(x)</code></td>
 <td style="text-align: left;">Inverse trigonometric functions
 (radians)</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>cosh(x) sinh(x) tanh(x)</code></td>
 <td style="text-align: left;">Hyperbolic functions</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>log(x) log10(x)</code></td>
 <td style="text-align: left;">Logarithmic functions</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>pow(x)</code></td>
 <td style="text-align: left;">Exponentiation</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>sqrt(x)</code></td>
 <td style="text-align: left;">Square root</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>abs(x)</code></td>
 <td style="text-align: left;">Absolute value</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>ceil(x)</code></td>
 <td style="text-align: left;">Round up</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>floor(x)</code></td>
 <td style="text-align: left;">Round down</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>fraction(x)</code></td>
 <td style="text-align: left;">Fraction part</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>Min(x,y) Max(x,y)</code></td>
 <td style="text-align: left;">Minimum and maximum of two values</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>Rad2Deg(x) Deg2Rad(x)</code></td>
 <td style="text-align: left;">Angle conversion</td>
 </tr>
@@ -263,47 +266,47 @@ OpenVSP API provides <code>vec3d</code> and <code>matrix4d</code>
 types.</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th style="text-align: left;">Type</th>
 <th style="text-align: left;">Meaning</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>bool</code></td>
 <td style="text-align: left;">Logical true/false</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>int</code></td>
 <td style="text-align: left;">32-bit Integer</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>uint</code></td>
 <td style="text-align: left;">32-bit Unsigned integer</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>float</code></td>
 <td style="text-align: left;">Single precision floating point
 number</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>double</code></td>
 <td style="text-align: left;">Double precision floating point
 number</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>string</code></td>
 <td style="text-align: left;">String</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>array &lt; T &gt;</code></td>
 <td style="text-align: left;">Array of type T</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>vec3d</code></td>
 <td style="text-align: left;">3D Vector</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>matrix4d</code></td>
 <td style="text-align: left;">Transformation matrix</td>
 </tr>
@@ -322,45 +325,45 @@ highest precedence. Post-operators have higher precedence than
 pre-operators.</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th style="text-align: left;">Operator</th>
 <th style="text-align: left;">Meaning</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>::</code></td>
 <td style="text-align: left;">Scope resolution operator</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>[]</code></td>
 <td style="text-align: left;">Indexing operator</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>++ --</code></td>
 <td style="text-align: left;">Post increment and decrement</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>.</code></td>
 <td style="text-align: left;">Member access</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>++ --</code></td>
 <td style="text-align: left;">Pre increment and decrement</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>not !</code></td>
 <td style="text-align: left;">Logical not</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>+ -</code></td>
 <td style="text-align: left;">Unary positive and negative</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>~</code></td>
 <td style="text-align: left;">Bitwise complement</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>@</code></td>
 <td style="text-align: left;">Handle of</td>
 </tr>
@@ -371,64 +374,64 @@ pre-operators.</p>
 decreasing order.</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th style="text-align: left;">Operator</th>
 <th style="text-align: left;">Meaning</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>**</code></td>
 <td style="text-align: left;">Exponent</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>* / %</code></td>
 <td style="text-align: left;">Multiply, divide, and modulo</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>+ -</code></td>
 <td style="text-align: left;">Add and subtract</td>
 </tr>
-<tr>
+<tr class="even">
 <td
 style="text-align: left;"><code>&lt;&lt; &gt;&gt; &gt;&gt;&gt;</code></td>
 <td style="text-align: left;">Left shift, right shift, and arithmetic
 right shift</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>&amp;</code></td>
 <td style="text-align: left;">Bitwise and</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>^</code></td>
 <td style="text-align: left;">Bitwise xor</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>|</code></td>
 <td style="text-align: left;">Bitwise or</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>&lt;= &lt; &gt;= &gt;</code></td>
 <td style="text-align: left;">Comparison</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>== != is !is xor ^^</code></td>
 <td style="text-align: left;">Equality, identity, and logical exclusive
 or</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>and &amp;&amp;</code></td>
 <td style="text-align: left;">Logical and</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>or ||</code></td>
 <td style="text-align: left;">Logical or</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>?:</code></td>
 <td style="text-align: left;">Condition</td>
 </tr>
-<tr>
+<tr class="odd">
 <td
 style="text-align: left;"><code>= += -= *= /= %= **= &amp;= |= ^= &lt;&lt;= &gt;&gt;= &gt;&gt;&gt;=</code></td>
 <td style="text-align: left;">Assignment and compound assignments</td>
@@ -473,76 +476,76 @@ access. A summary of the methods available to work with
 <code>array</code> is given below.</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th style="text-align: left;">Method</th>
 <th style="text-align: left;">Meaning</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>x[i];</code></td>
 <td style="text-align: left;">Access element</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>array &lt; T &gt; x;</code></td>
 <td style="text-align: left;">Declaration</td>
 </tr>
-<tr>
+<tr class="odd">
 <td
 style="text-align: left;"><code>array &lt; T &gt; x = {1.2, 2.3, 3.4};</code></td>
 <td style="text-align: left;">Declaration &amp; initialization</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>T[] x;</code></td>
 <td style="text-align: left;">Declaration</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>T[] x = {1.2, 2.3, 3.4};</code></td>
 <td style="text-align: left;">Declaration &amp; initialization</td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>uint size();</code></td>
 <td style="text-align: left;">Array size</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>bool empty();</code></td>
 <td style="text-align: left;">Test for empty array</td>
 </tr>
-<tr>
+<tr class="even">
 <td
 style="text-align: left;"><code>void push_back( const T &amp;in );</code></td>
 <td style="text-align: left;">Place value after end of array</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>void pop_back();</code></td>
 <td style="text-align: left;">Remove final value from array</td>
 </tr>
-<tr>
+<tr class="even">
 <td
 style="text-align: left;"><code>void insert( uint index, const T &amp;in value );</code></td>
 <td style="text-align: left;">Insert value at index</td>
 </tr>
-<tr>
+<tr class="odd">
 <td
 style="text-align: left;"><code>void insert( uint index, const array&lt;T&gt;&amp; arr );</code></td>
 <td style="text-align: left;">Insert arr at index</td>
 </tr>
-<tr>
+<tr class="even">
 <td
 style="text-align: left;"><code>void erase( uint index );</code></td>
 <td style="text-align: left;">Remove value at index</td>
 </tr>
-<tr>
+<tr class="odd">
 <td
 style="text-align: left;"><code>void reserve( uint length );</code></td>
 <td style="text-align: left;">Reserve memory for array</td>
 </tr>
-<tr>
+<tr class="even">
 <td
 style="text-align: left;"><code>void resize( uint length );</code></td>
 <td style="text-align: left;">Resize array</td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>void reverse();</code></td>
 <td style="text-align: left;">Reverse elements in array</td>
 </tr>
@@ -574,65 +577,65 @@ optional components installed in OpenVSP and a link to the documentation
 of each one.</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th style="text-align: left;">AngelScript Module</th>
 <th style="text-align: left;">Purpose</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>stdstring</code></td>
 <td style="text-align: left;"><a
 href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_string.html">String
 object</a></td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>array</code></td>
 <td style="text-align: left;"><a
 href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_datatypes_arrays.html">Array
 template object</a></td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>any</code></td>
 <td style="text-align: left;"><a
 href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_any.html">Any
 container</a></td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>file</code></td>
 <td style="text-align: left;"><a
 href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_file.html">File
 I/O</a></td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>math</code></td>
 <td style="text-align: left;"><a
 href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_math.html">Math</a></td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>builder</code></td>
 <td style="text-align: left;"><a
 href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_build.html">Script
 Builder</a></td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>filesystem</code></td>
 <td style="text-align: left;"><a
 href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_filesystem.html">Filesystem</a></td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>datetime</code></td>
 <td style="text-align: left;"><a
 href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_datetime.html">Date
 and Time</a></td>
 </tr>
-<tr>
+<tr class="odd">
 <td style="text-align: left;"><code>aswrappedcall</code></td>
 <td style="text-align: left;"><a
 href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_autowrap.html">Auto
 Wrapper</a></td>
 </tr>
-<tr>
+<tr class="even">
 <td style="text-align: left;"><code>stdstring_utils</code></td>
 <td style="text-align: left;"><a
 href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_string.html">String
