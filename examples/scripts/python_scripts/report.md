@@ -91,7 +91,10 @@ of 1.0. This plot can be seen in the second graph below.
 
 #### Aspect Ratio Study VSPAERO Setup
 
-![Aspet Ratio Setup](hershey_files/hershey_img/aspect_ratio/vspasero_setup.svg)
+| Case # |   Analysis   | Method |      $\alpha$ (°)      | $\beta$ (°) |  M  | Wake Iterations |
+|:------:|:------------:|:------:|:----------------------:|:-----------:|:---:|:---------------:|
+|   1    |    Sweep     |  VLM   | -20.0 to 20.0, npts: 8 |     0.0     | 0.1 |        3        |
+|   2    | Single Point | Panel  |          1.0           |     0.0     | 0.1 |        3        |
 
 ![Cl vs Alpha](hershey_files/hershey_img/aspect_ratio/ClvA.svg)
 ![Cl_alpha vs AR](./hershey_files/hershey_img/aspect_ratio/ClvAR.svg)
@@ -113,6 +116,12 @@ The goal of this study is to demonstrate how the error in $C_{L\alpha}$ changes 
 
 ![Aspet Ratio Setup](hershey_files/hershey_img/angle_of_attack/vspasero_setup.svg)
 
+
+| Case # |   Analysis   | Method |      $\alpha$ (°)      | $\beta$ (°) |  M  | Wake Iterations |
+|:------:|:------------:|:------:|:----------------------:|:-----------:|:---:|:---------------:|
+|   1    |    Sweep     |  VLM   | -20.0 to 20.0, npts: 9 |     0.0     | 0.1 |        3        |
+
+
 ![Cl_alpha Sensitivity](hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.svg)
 
 </center>
@@ -131,7 +140,9 @@ but as span tesselation increases at various chord tesselations.
 | NACA0012 |  10   |    1.0     |    1.0    |      0.0      |    5 to 41    |    9 to 51     |      0.2      |      1.0      |      1.0       |
 
 #### Tesselation Study VSPAERO Setup
-![Tesselation Setup](hershey_files/hershey_img/tesselation/vspasero_setup.svg)
+|   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations |
+|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|
+| Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |
 
 ![U Tess Span Tesselation](./hershey_files/hershey_img/tesselation/Error_Cla_U.svg)
 ![W Tess Sensitivity](./hershey_files/hershey_img/tesselation/Error_Cla_W.svg)
@@ -166,10 +177,15 @@ The plots below display how tip clustering effects the error between VSPAERO VLM
 | NACA0012 |  10   |    1.0     |    1.0    |      0.0      |      12       |       17       |      0.2      |      1.0      | 1.0, 0.5, 1.0  |
 
 #### Tip Clustering Study VSPAERO Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/tip_clustering/vspasero_setup.svg)
+|   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations |
+|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|
+| Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |
+
 
 #### Tip Clustering Study AVL Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/tip_clustering/avl_setup.svg)
+| Nchord | Cspace | Nspan | Sspan |  M  |
+|:------:|:------:|:-----:|:-----:|:---:|
+|   30   |  1.0   |  20   | -3.0  | 0.1 |
 
 ![Tip Clustering Sensitivity](./hershey_files/hershey_img/tip_clustering/tc_graph.svg)
 
@@ -189,10 +205,14 @@ In addition, the lift distribution results computed by AVL for an identical geom
 | NACA0012 |  10   |    1.0     |    1.0    |      0.0      |    5 to 41    |       17       |      0.2      |      1.0      |      1.0       |
 
 #### Span Tesselation Study VSPAERO Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/span_tesselation/vspasero_setup.svg)
+|   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations |
+|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|
+| Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |
 
 #### Span Tesselation Study AVL Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/span_tesselation/avl_setup.svg)
+| Nchord | Cspace | Nspan | Sspan |  M  |
+|:------:|:------:|:-----:|:-----:|:---:|
+|   30   |  1.0   |  20   | -3.0  | 0.1 |
 
 ![Span Tesselation 1](hershey_files/hershey_img/span_tesselation/lift_dist.svg)
 </center>
@@ -222,11 +242,14 @@ The AVL results are read in and plotted as well. The results file, "Hershey_AR10
 | NACA0012 |  10   |    1.0     |    1.0    |      0.0      |      12       |    9 to 51     |      0.2      |      1.0      |      1.0       |
 
 #### Chord Tesselation Study VSPAERO Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/chord_tesselation/vspasero_setup.svg)
+|   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations |
+|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|
+| Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |
 
 #### Chord Tesselation Study AVL Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/chord_tesselation/avl_setup.svg)
-
+| Nchord | Cspace | Nspan | Sspan |  M  |
+|:------:|:------:|:-----:|:-----:|:---:|
+|   30   |  1.0   |  20   | -3.0  | 0.1 |
 
 ![Chord Tesselation 1](hershey_files/hershey_img/chord_tesselation/lift_dist.svg)
 
@@ -257,8 +280,9 @@ Combined, these plots demonstrate the increase in VSPAERO accuracy as the number
 | NACA0012 |  10   |    1.0     |    1.0    |      0.0      |      12       |       17       |      0.2      |      1.0      |      1.0       |
 
 #### Wake Iteration Study VSPAERO Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/wake_iteration/vspasero_setup.svg)
-
+|   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations |
+|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|
+| Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        1 to 5   |
 
 ![Wake Iteration](./hershey_files/hershey_img/wake_iteration/lift_dist.svg)
 ![Compute Time](./hershey_files/hershey_img/wake_iteration/comp_time.svg)
@@ -282,13 +306,31 @@ This process is repeated for one, two, and three wake iterations.
 | NACA0012 |  15   |    1.0     |    1.0    |      0.0      |      12       |       17       |      0.2      |      1.0      |      1.0       |
 
 #### Advanced Settings Study VSPAERO Setup: Wake Iterations = 1 </div>
-![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup1.svg)
+| Case #  |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations | Preconditioner | Mach Correction |
+|:-------:|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|:--------------:|:---------------:|
+| Default | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        1        |     Matrix     |       Off       |
+|    1    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        1        |     Jacobi     |       Off       |
+|    2    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        1        |      SSOR      |       Off       |
+|    3    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        1        |     Matrix     |       On        |
+
 
 #### Advanced Settings Study VSPAERO Setup: Wake Iterations = 2 </div>
-![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup2.svg)
+| Case #  |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations | Preconditioner | Mach Correction |
+|:-------:|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|:--------------:|:---------------:|
+| Default | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Matrix     |       Off       |
+|    1    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Jacobi     |       Off       |
+|    2    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |      SSOR      |       Off       |
+|    3    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Matrix     |       On        |
+
 
 #### Advanced Settings Study VSPAERO Setup: Wake Iterations = 3 </div>
-![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup3.svg)
+| Case #  |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations | Preconditioner | Mach Correction |
+|:-------:|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|:--------------:|:---------------:|
+| Default | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Matrix     |       Off       |
+|    1    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Jacobi     |       Off       |
+|    2    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |      SSOR      |       Off       |
+|    3    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Matrix     |       On        |
+
 
 </center>
 
@@ -317,20 +359,15 @@ A similar error is displayed in the following chart, but as span tesselation inc
 <center>
 
 #### Tesselation Study Geometry Setup </div>
-
-![Tesselation Study Geometry Setup](./swept_files/swept_img/chord_tesselation/geometrysetup.svg)
-#### Tesselation Study VSPAERO Setup </div>
-![Tesselation Study VSPAERO Setup](./swept_files/swept_img/chord_tesselation/vspaerosetup.svg)
-
-<!---
 | Airfoil  |  AR   | Root Chord | Tip Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
 | :------: | :---: | :--------: | :-------: | :-----------: | :----------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
 | NACA0012 |  10   |    1.0     |    1.0    |      30       |        0.5         |    5 to 41    |    9 to 51     |      0.2      |      1.0      |      1.0       |
+
 #### Tesselation Study VSPAERO Setup </div>
 | Case # |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |   M   | Wake Iterations |
 | :----: | :----------: | :----: | :----------: | :---------: | :---: | :-------------: |
 |   1    | Single Point |  VLM   |     1.0      |     0.0     |  0.1  |        3        |
---->
+
 
 ![Sweep Tesselation U](./swept_files/swept_img/span_tesselation/span_tess.svg)
 ![Sweep Tesselation W](./swept_files/swept_img/chord_tesselation/chord_tess.svg)
@@ -347,32 +384,25 @@ These results are plotted against aspect ratio in the charts below.
 <center>
 
 #### Sweep Study Geometry Setup
-![Tesselation Study Geometry Setup](./swept_files/swept_img/ar_sweep/geometrysetup.svg)
-#### Sweep Study VSPAERO Setup 
-![Tesselation Study Geometry Setup](./swept_files/swept_img/ar_sweep/geometrysetup.svg)
-![sweptar0](./swept_files/swept_img/ar_sweep/ar_sweep_0.svg)
-![sweptar1](./swept_files/swept_img/ar_sweep/ar_sweep_1.svg)
-![sweptar2](./swept_files/swept_img/ar_sweep/ar_sweep_2.svg)
-![sweptar3](./swept_files/swept_img/ar_sweep/ar_sweep_3.svg)
-![sweptar4](./swept_files/swept_img/ar_sweep/ar_sweep_4.svg)
-For each sweep value, the average percent error between VSPAERO and theoretical $C_{L\alpha}$ is calculated across all AR cases. 
-The plot below identifies how average error changes as wing sweep increases.
-![sweptaraverage](./swept_files/swept_img/ar_sweep/ar_sweep_avgs.svg)
-
-
-
-<!---
 | Airfoil  |   AR    | Root Chord | Tip Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
 | :------: | :-----: | :--------: | :-------: | :-----------: | :----------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
 | NACA0012 | 5 to 60 |    1.0     |    1.0    |    0 to 40    |        0.5         |      41       |       51       |      0.2      |      1.0      |      1.0       |
 
 #### Sweep Study VSPAERO Setup 
-
 | Case # |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |   M   | Wake Iterations |
 | :----: | :----------: | :----: | :----------: | :---------: | :---: | :-------------: |
 |   1    | Single Point |  VLM   |     1.0      |     0.0     |  0.1  |        3        |
 |   2    | Single Point | Panel  |     1.0      |     0.0     |  0.1  |        3        |
---->
+
+
+![sweptar0](./swept_files/swept_img/ar_sweep/ar_sweep_0.svg)
+![sweptar1](./swept_files/swept_img/ar_sweep/ar_sweep_1.svg)
+![sweptar2](./swept_files/swept_img/ar_sweep/ar_sweep_2.svg)
+![sweptar3](./swept_files/swept_img/ar_sweep/ar_sweep_3.svg)
+![sweptar4](./swept_files/swept_img/ar_sweep/ar_sweep_4.svg)
+For each sweep value, the average percent error between VSPAERO and theoretical $C_{L\alpha}$ is calculated across all AR cases.
+The plot below identifies how average error changes as wing sweep increases.
+![sweptaraverage](./swept_files/swept_img/ar_sweep/ar_sweep_avgs.svg)
 
 
 </center>
@@ -389,15 +419,19 @@ These results are compared to the theoretical value to calculate a percent diffe
 <center>
 
 #### Bertin-Smith Geometry Setup </div>
-![BertinSmithgeomsetup](./bertinsmith_files/bertinsmith_img/bertinsmith/geometrysetup.svg)
+| Airfoil  |  AR  | Root Chord | Tip Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) | Tip Clustering |
+| :------: |:----:|:----------:|:---------:|:-------------:|:------------------:|:-------------:|:--------------:|:--------------:|
+| NACA0012 |  5   |    0.2     |    0.2    |    45         |        0.0         |       6       |       33       |      1.0       |
+
 
 #### Bertin-Smith VSPAERO Setup </div>
-![BertinSmithaerosetup](./bertinsmith_files/bertinsmith_img/bertinsmith/vspaerosetup.svg)
+| Analysis | Method |      $\alpha$ (°)      | $\beta$ (°) |   M   | Wake Iterations |
+|:--------:| :----: |:----------------------:| :---------: | :---: | :-------------: |
+|  Sweep   |  VLM   | -20.0 to 20.0, npts: 9 |     0.0     |  0.1  |        3        |
 
 
 ![BertinSmithraw](./bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithraw.svg)
 ![BertinSmithpercent](./bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithpercent.svg)
-![BertinSmithresults](./bertinsmith_files/bertinsmith_img/bertinsmith/results.svg)
 
 </center>
 
@@ -417,11 +451,14 @@ Last, the values and percent differences for $C_{L\alpha}$ and $C_{M\alpha}$ are
 
 #### Warren-12  Geometry Setup </div>
 
-![Warrengeomsetup](./warren_files/warren_img/warren/geometrysetup.svg)
+| Airfoil  |     AR      | Root Chord | Tip Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) | Tip Clustering |
+| :------: |:-----------:|:----------:|:---------:|:-------------:|:------------------:|:-------------:|:--------------:|:--------------:|
+| NACA0012 | $2\sqrt{2}$ |    1.5     |    0.5    |     53.54     |        0.0         |       6       |       33       |      1.0       |
 
 #### Warren-12 VSPAERO Setup </div>
-![Warrenaerosetup](./warren_files/warren_img/warren/vspaerosetup.svg)
-
+| Analysis | Method |      $\alpha$ (°)      | $\beta$ (°) |   M   | Wake Iterations |
+|:--------:| :----: |:----------------------:| :---------: | :---: | :-------------: |
+|  Sweep   |  VLM   | -20.0 to 20.0, npts: 9 |     0.0     |  0.1  |        3        |
 
 ![Warrenrawcl](./warren_files/warren_img/warren/warrenrawcl.svg)
 ![Warrenpercentcl](./warren_files/warren_img/warren/warrenpercentcl.svg)
@@ -452,11 +489,15 @@ Note that if the VKT airfoil is symmetric, there is no difference in the exact $
 When the airfoil is not symmetric, there is a noticeable difference in the $C_{P}$ distribution between the upper and lower surfaces.
 
 #### VKT ε κ τ Study Geometry Setup </div>
+| Airfoil | $\epsilon$ | $\kapa$  | $\tau$ (°) | AR | Root Chord | Tip Chord | $\Lambda$ (°) | Span Tess (U) | Chord Tess (W) | Tip Clustering |
+|:-------:|:----------:|:--------:|:----------:|:--:|:----------:|:---------:|:-------------:|:-------------:|:--------------:|:--------------:|
+| VKT     |  0.1, 0.2  | 0.0, 0.1 |   0, 10    | 30 |    1.0     |   1.0     |     0.0       |      41       |       51       |      1.0       |
 
-![VKTektgeomsetup](./vkt_files/vkt_img/ekt/ektgeometrysetup.svg)
 
 #### VKT ε κ τ Study VSPAERO Setup </div>
-![VKektTaerosetup](./vkt_files/vkt_img/ekt/ektvspaerosetup.svg)
+|   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |   M   | Wake Iterations |
+|:------------:|:------:|:------------:| :---------: | :---: | :-------------: |
+| Single Point | Panel  |    0.0       |     0.0     |  0.1  |        3        |
 
 
 ![VKTekt0](./vkt_files/vkt_img/ekt/ekt_0.svg)
@@ -479,11 +520,17 @@ This file is loaded in XFoil 6.99 and run with identical flow conditions as VSPA
 The VKT airfoil coordinate file, "VKT_e0.1_k0.1_t10.dat", and $C_{P}$ distribution results file from XFoil, "XFoil_VKT_CpDist.txt", can be found in the airfoil directory of the OpenVSP software. 
 
 #### VKT Chord Tesselation Study Geometry Setup </div>
+| Airfoil | $\epsilon$ | $\kapa$ | $\tau$ (°) | AR | Root Chord | Tip Chord | $\Lambda$ (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering |
+|:-------:|:----------:|:-------:|:----------:|:--:|:----------:|:---------:|:-------------:|:-------------:|:--------------:|:-------------:|:-------------:|
+| VKT     |    0.1     |   0.1   |     10     | 15 |    1.0     |   1.0     |     0.0       |   12 to 41    |    17 to 51    |      0.2      |      1.0      |
 
-![VKTchordgeomsetup](./vkt_files/vkt_img/uw/uwgeometrysetup.svg)
 
 #### VKT Chord Tesselation Study VSPAERO Setup </div>
-![VKTchordaerosetup](./vkt_files/vkt_img/uw/uwvspaerosetup.svg)
+|   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |   M   | Wake Iterations |
+|:------------:|:------:|:------------:| :---------: | :---: | :-------------: |
+| Single Point | Panel  |    0.0       |     0.0     |  0.1  |        3        |
+
+
 ![VKTu0](./vkt_files/vkt_img/uw/u_0.svg)
 ![VKTu1](./vkt_files/vkt_img/uw/u_1.svg)
 ![VKTu2](./vkt_files/vkt_img/uw/u_2.svg)
@@ -496,12 +543,18 @@ A CpSlicer analysis with a slice located along the wing root is then performed o
 The VSPAERO $C_{P}$ distribution is then compared to the theoretical $C_{P}$ distribution for the VKT airfoil and XFoil's $C_{P}$ solution. 
 This comparison can be seen in the plots below. 
 The VKT coordinate file input to XFoil, "VKT_e0.1_k0.1_t10.dat", and $C_{P}$ distribution results file, "XFoil_VKT_CpDist.txt", are located in the airfoil directory.
-#### VKT Span Tesselation Study Geometry Setup </div>
 
-![VKTgeomsetup](./vkt_files/vkt_img/uw/uwgeometrysetup.svg)
+#### VKT Span Tesselation Study Geometry Setup </div>
+| Airfoil | $\epsilon$ | $\kapa$ | $\tau$ (°) | AR | Root Chord | Tip Chord | $\Lambda$ (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering |
+|:-------:|:----------:|:-------:|:----------:|:--:|:----------:|:---------:|:-------------:|:-------------:|:--------------:|:-------------:|:-------------:|
+| VKT     |    0.1     |   0.1   |     10     | 15 |    1.0     |   1.0     |     0.0       |   12 to 41    |    17 to 51    |      0.2      |      1.0      |
 
 #### VKT Span Tesselation Study VSPAERO Setup </div>
-![VKTspanaerosetup](./vkt_files/vkt_img/uw/uwvspaerosetup.svg)
+|   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |   M   | Wake Iterations |
+|:------------:|:------:|:------------:| :---------: | :---: | :-------------: |
+| Single Point | Panel  |    0.0       |     0.0     |  0.1  |        3        |
+
+
 ![VKTw0](./vkt_files/vkt_img/uw/w_0.svg)
 ![VKTw1](./vkt_files/vkt_img/uw/w_1.svg)
 ![VKTw2](./vkt_files/vkt_img/uw/w_2.svg)
@@ -520,11 +573,18 @@ Three plots are generated for each VSPAERO run case, displaying the VSPAERO and 
 <center>
 
 #### Ellipsoid Geometry Setup </div>
-
-![Ellipsoidgeomsetup](./ellipse_files/ellipse_img/ellipse/geometrysetup.svg)
+| A Radius | B Radius | C Radius |     Center      | Span Tess (U) | Chord Tess (W) |
+|:--------:|:--------:|:--------:|:---------------:|:-------------:|:--------------:|
+|   1.0    |   2.0    |   3.0    | (0.0, 0.0, 0.0) |      40       |       41       |
 
 #### Ellipsoid VSPAERO Setup </div>
-![Ellipseaerosetup](./ellipse_files/ellipse_img/ellipse/vspaerosetup.svg)
+| Case # |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations |
+|:------:| :----------: |:------:|:------------:|:-----------:|:---:| :-------------: |
+|   1    | Single Point | Panel  |     0.0      |     0.0     | 0.0 |        3        |
+|   2    | Single Point | Panel  |     0.0      |    20.0     | 0.0 |        3        |
+|   3    | Single Point | Panel  |     20.0     |     0.0     | 0.0 |        3        |
+|   4    | Single Point | Panel  |     20.0     |    20.0     | 0.0 |        3        |
+
 ![Ellipse0](./ellipse_files/ellipse_img/ellipse/0.svg)
 ![Ellipse1](./ellipse_files/ellipse_img/ellipse/1.svg)
 ![Ellipse2](./ellipse_files/ellipse_img/ellipse/2.svg)
@@ -553,16 +613,17 @@ $m = \frac{B}{tan(\Lambda)}$
 
 #### Supersonic Delta Wing Geometry Setup </div>
 
-![supersonicgeomsetup](./supersonic_files/supersonic_img/supersonic/geometrysetup.svg)
+| Case | Root Airfoil | Tip Airfoil | Span | Root Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) |
+|:----:|:------------:|:-----------:|:----:|:----------:|:-------------:|:------------------:|:-------------:|:--------------:|
+|  1   |  NACA 0004   |  NACA 0006  |  20  |    11.0    |     45.0      |        0.0         |      30       |       33       |
+|  1   |  NACA 0004   |  NACA 0006  |  20  |    11.0    |     65.0      |        0.0         |      30       |       33       |
 
 #### Supersonic Delta Wing VSPAERO Setup </div>
-![supersonicaerosetup](./supersonic_files/supersonic_img/supersonic/vspaerosetup.svg)
+|   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |                            M                            | Wake Iterations |
+|:------------:|:------:|:------------:| :---------: |:-------------------------------------------------------:| :-------------: |
+| Single Point | Panel  |     5.0      |     0.0     | 1.135, 1.366, 1.894, 2.386, 2.861, 3.369, 3.884, 4.404  |        3        |
+
 ![supersoniconly](./supersonic_files/supersonic_img/supersonic/only.svg)
-![test1](matplotlibfigtest.svg)
-![test2](matplotlibtabletest.svg)
-
-
-
 
 
 </center>
