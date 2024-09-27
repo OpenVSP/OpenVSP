@@ -370,17 +370,29 @@ public:
     virtual void SetAirfoilUpperPnts( const vector< vec3d > & up_pnt_vec )
     {
         m_UpperPnts = up_pnt_vec;
+
+        MakeCurve();
+        m_BaseThickness.Set( CalculateThick() );
+        m_ThickChord.Set( m_BaseThickness() );
     }
 
     virtual void SetAirfoilLowerPnts( const vector< vec3d > & low_pnt_vec )
     {
         m_LowerPnts = low_pnt_vec;
+
+        MakeCurve();
+        m_BaseThickness.Set( CalculateThick() );
+        m_ThickChord.Set( m_BaseThickness() );
     }
 
     virtual void SetAirfoilPnts( const vector< vec3d > & up_pnt_vec, const vector< vec3d > & low_pnt_vec )
     {
         m_UpperPnts = up_pnt_vec;
         m_LowerPnts = low_pnt_vec;
+
+        MakeCurve();
+        m_BaseThickness.Set( CalculateThick() );
+        m_ThickChord.Set( m_BaseThickness() );
     }
 
     virtual void ReadV2File( xmlNodePtr &root );
