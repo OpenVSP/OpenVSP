@@ -28,95 +28,97 @@ from pydantic import BaseModel, Field
 
 @dataclass
 class loadsData:
-    ntstps: int = 0
-    dt: float = 0
-    aldeg: float = 0
-    yawdeg: float = 0
-    cbar: float = 0
-    sref: float = 0
-    sspan: float = 0
-    mx: float = 0
-    my: float = 0
-    mz: float = 0
-    npatch: int = 0
-    nsectional: int = 0
-    maxsect: int = 0
-    patno = []
-    patid = []
-    komp = []
-    klass = []
-    nrow = []
-    patncol = []
-    ipan = []
-    lpan = []
-    npans = []
-    patname = []
-    xle_sect = []
-    yle_sect = []
-    zle_sect = []
-    chord_sect = []
-    circ_sect = []
-    eta_sect = []
-    Clift_sect = []
-    Cdrag_sect = []
-    Cside_sect = []
-    Cpitch_sect = []
-    Cyaw_sect = []
-    Croll_sect = []
-    Clift_patch: np.ndarray = Field(default_factory=lambda: np.zeros())  # shape=<int>, dtype=<type>
-    Cdrag_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
-    Cside_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
-    Cpitch_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
-    Cyaw_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
-    Croll_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
-    Sfrac_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
-    Clift: float = 0
-    Cdrag: float = 0
-    Cside: float = 0
-    Cpitch: float = 0
-    Cyaw: float = 0
-    Croll: float = 0
-    CdragTrefftz: float = 0
-    CliftTrefftz: float = 0
+    def __init__(self):
+        self.ntstps: int = 0
+        self.dt: float = 0
+        self.aldeg: float = 0
+        self.yawdeg: float = 0
+        self.cbar: float = 0
+        self.sref: float = 0
+        self.sspan: float = 0
+        self.mx: float = 0
+        self.my: float = 0
+        self.mz: float = 0
+        self.npatch: int = 0
+        self.nsectional: int = 0
+        self.maxsect: int = 0
+        self.patno = []
+        self.patid = []
+        self.komp = []
+        self.klass = []
+        self.nrow = []
+        self.patncol = []
+        self.ipan = []
+        self.lpan = []
+        self.npans = []
+        self.patname = []
+        self.xle_sect = []
+        self.yle_sect = []
+        self.zle_sect = []
+        self.chord_sect = []
+        self.circ_sect = []
+        self.eta_sect = []
+        self.Clift_sect = []
+        self.Cdrag_sect = []
+        self.Cside_sect = []
+        self.Cpitch_sect = []
+        self.Cyaw_sect = []
+        self.Croll_sect = []
+        self.Clift_patch: np.ndarray = Field(default_factory=lambda: np.zeros())  # shape=<int>, dtype=<type>
+        self.Cdrag_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.Cside_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.Cpitch_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.Cyaw_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.Croll_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.Sfrac_patch: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.Clift: float = 0
+        self.Cdrag: float = 0
+        self.Cside: float = 0
+        self.Cpitch: float = 0
+        self.Cyaw: float = 0
+        self.Croll: float = 0
+        self.CdragTrefftz: float = 0
+        self.CliftTrefftz: float = 0
 
 
 @dataclass
 class surfData:
-    ntstep: int = 0
-    npatch: int = 0
-    pnames = []
-    ncol: np.ndarray = Field(default_factory=lambda: np.zeros())
-    nrow: np.ndarray = Field(default_factory=lambda: np.zeros())
-    initpan: np.ndarray = Field(default_factory=lambda: np.zeros())
-    finalpan: np.ndarray = Field(default_factory=lambda: np.zeros())
-    x_corner = []
-    y_corner = []
-    z_corner = []
-    x_center = []
-    y_center = []
-    z_center = []
-    x_normal = []
-    y_normal = []
-    z_normal = []
-    nwake: int = 0
-    wnames = []
-    nwcol: np.ndarray = Field(default_factory=lambda: np.zeros())
-    nwrow: np.ndarray = Field(default_factory=lambda: np.zeros())
-    iwpan: np.ndarray = Field(default_factory=lambda: np.zeros())
-    lwpan: np.ndarray = Field(default_factory=lambda: np.zeros())
-    xw_corner = []
-    yw_corner = []
-    zw_corner = []
-    dub_corner = []
-    vx_corner = []
-    vy_corner = []
-    vz_corner = []
-    cp_corner = []
-    dub_center = []
-    vx_center = []
-    vy_center = []
-    vz_center = []
-    cp_center = []
+    def __init__(self):
+        self.ntstep: int = 0
+        self.npatch: int = 0
+        self.pnames = []
+        self.ncol: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.nrow: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.initpan: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.finalpan: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.x_corner = []
+        self.y_corner = []
+        self.z_corner = []
+        self.x_center = []
+        self.y_center = []
+        self.z_center = []
+        self.x_normal = []
+        self.y_normal = []
+        self.z_normal = []
+        self.nwake: int = 0
+        self.wnames = []
+        self.nwcol: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.nwrow: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.iwpan: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.lwpan: np.ndarray = Field(default_factory=lambda: np.zeros())
+        self.xw_corner = []
+        self.yw_corner = []
+        self.zw_corner = []
+        self.dub_corner = []
+        self.vx_corner = []
+        self.vy_corner = []
+        self.vz_corner = []
+        self.cp_corner = []
+        self.dub_center = []
+        self.vx_center = []
+        self.vy_center = []
+        self.vz_center = []
+        self.cp_center = []
 
 
 def pos_file_str(file, target_string):
