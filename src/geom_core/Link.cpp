@@ -105,7 +105,6 @@ xmlNodePtr Link::DecodeXml( xmlNodePtr & link_node )
         xmlNodePtr pc = XmlUtil::GetNode( link_node, "ParmContainer", 0 );
         if ( pc )
         {
-            printf("New format\n");
             ParmContainer::DecodeXml( link_node );
 
             m_ParmA = ParmMgr.RemapID( XmlUtil::FindString( link_node, "ParmAID", string() ) );
@@ -118,7 +117,6 @@ xmlNodePtr Link::DecodeXml( xmlNodePtr & link_node )
         }
         else // Read legacy format
         {
-            printf("Old format\n");
             m_ParmA = ParmMgr.RemapID( XmlUtil::FindString( link_node, "ParmAID", string() ) );
             m_ParmB = ParmMgr.RemapID( XmlUtil::FindString( link_node, "ParmBID", string() ) );
 
