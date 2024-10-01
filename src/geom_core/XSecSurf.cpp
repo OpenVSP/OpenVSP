@@ -257,8 +257,15 @@ void XSecSurf::DeleteAllXSecs()
         delete m_XSecPtrVec[i];
     }
     m_XSecPtrVec.clear();
+
     m_XSecIDDeque.clear();
     m_SavedXSec.clear();
+
+    if ( m_SavedXSecCurve )
+    {
+        delete m_SavedXSecCurve;
+        m_SavedXSecCurve = NULL;
+    }
 }
 
 //==== Insert XSec After Index ====//
