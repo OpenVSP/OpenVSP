@@ -536,6 +536,18 @@ PropGeom::~PropGeom()
         delete m_FoldAngleParmVec[i];
     }
     m_FoldAngleParmVec.clear();
+
+    for ( int i = 0; i < m_BladeAzimuthParmVec.size(); i++ )
+    {
+        delete m_BladeAzimuthParmVec[i];
+    }
+    m_BladeAzimuthParmVec.clear();
+
+    for ( int i = 0; i < m_BladeDeltaAzimuthParmVec.size(); i++ )
+    {
+        delete m_BladeDeltaAzimuthParmVec[i];
+    }
+    m_BladeDeltaAzimuthParmVec.clear();
 }
 
 void PropGeom::UpdateDrawObj()
