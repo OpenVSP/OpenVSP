@@ -100,6 +100,9 @@ public:
         return Get();
     }
 
+    // Do not allow assignment operator for Parms.  Copying Parms causes hard to find bugs.
+    Parm& operator= ( const Parm& p ) = delete;
+
     double operator= ( double val )
     {
         return Set( val );
