@@ -5466,12 +5466,12 @@ RotorDisk& RotorDisk::operator=( const RotorDisk &RotorDisk )
     m_XYZ = RotorDisk.m_XYZ;           // RotorXYZ_
     m_Normal = RotorDisk.m_Normal;        // RotorNormal_
 
-    m_Diameter = RotorDisk.m_Diameter;       // RotorRadius_
-    m_HubDiameter = RotorDisk.m_HubDiameter;    // RotorHubRadius_
-    m_RPM = RotorDisk.m_RPM;       // RotorRPM_
-    m_AutoHubDiaFlag = RotorDisk.m_AutoHubDiaFlag;
-    m_CT = RotorDisk.m_CT;        // Rotor_CT_
-    m_CP = RotorDisk.m_CP;        // Rotor_CP_
+    m_Diameter = RotorDisk.m_Diameter();       // RotorRadius_
+    m_HubDiameter = RotorDisk.m_HubDiameter();    // RotorHubRadius_
+    m_RPM = RotorDisk.m_RPM();       // RotorRPM_
+    m_AutoHubDiaFlag = RotorDisk.m_AutoHubDiaFlag();
+    m_CT = RotorDisk.m_CT();        // Rotor_CT_
+    m_CP = RotorDisk.m_CP();        // Rotor_CP_
 
     m_ParentGeomId = RotorDisk.m_ParentGeomId;
     m_ParentGeomSurfNdx = RotorDisk.m_ParentGeomSurfNdx;
