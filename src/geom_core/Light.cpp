@@ -3,6 +3,8 @@
 
 Light::Light() : ParmContainer()
 {
+    m_Name = "Light";
+
     m_Active.Init( "ActiveFlag", "Light_Parm", this, 0, 0, 1 );
 
     m_X.Init( "X", "Light_Parm", this, 0, -1.0e12, 1.0e12 );

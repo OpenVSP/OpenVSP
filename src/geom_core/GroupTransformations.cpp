@@ -10,6 +10,8 @@
 // ==== Constructor ==== //
 GroupTransformations::GroupTransformations()
 {
+    m_Name = "GroupTransformations";
+
     // Initialize parameters
     m_GroupXLoc.Init( "Group_XLoc", "GroupXForm", this, 0, -1e12, 1e12 );
     m_GroupYLoc.Init( "Group_YLoc", "GroupXForm", this, 0, -1e12, 1e12 );

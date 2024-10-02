@@ -5258,6 +5258,8 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
 
 CpSlice::CpSlice() : ParmContainer()
 {
+    m_Name = "CpSlice";
+
     m_CutType.Init( "CutType", "CpSlice", this, vsp::Y_DIR, vsp::X_DIR, vsp::Z_DIR );
     m_CutType.SetDescript( "Perpendicular Axis for the Cut" );
 
@@ -5420,7 +5422,7 @@ void CpSlice::LoadDrawObj( vector < DrawObj* > &draw_obj_vec, int id, bool highl
 
 RotorDisk::RotorDisk( void ) : ParmContainer()
 {
-    m_Name = "Default";
+    m_Name = "RotorDisk";
     m_GroupName = "Rotor";
 
     m_IsUsed = true;

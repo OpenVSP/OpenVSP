@@ -5419,6 +5419,8 @@ void FeaLayer::GetInvTransMat( mat3 & Tinv )
 
 FeaMaterial::FeaMaterial() : ParmContainer()
 {
+    m_Name = "FeaMaterial";
+
     m_FeaMaterialType.Init( "FeaMaterialType", "FeaMaterial", this, vsp::FEA_ISOTROPIC, vsp::FEA_ISOTROPIC, vsp::FEA_NUM_MAT_TYPES - 1 );
     m_FeaMaterialType.SetDescript( "Fea Material Type" );
 

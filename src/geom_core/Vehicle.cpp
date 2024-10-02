@@ -56,6 +56,8 @@ using namespace vsp;
 //==== Constructor ====//
 Vehicle::Vehicle()
 {
+    m_Name = "Vehicle_Constructor";
+
     m_STEPLenUnit.Init( "LenUnit", "STEPSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_YD );
     m_STEPTol.Init( "Tolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPSplitSurfs.Init( "SplitSurfs", "STEPSettings", this, true, 0, 1 );
