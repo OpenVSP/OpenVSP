@@ -1422,13 +1422,13 @@ void SkinXSec::SetTanAngles( int side, double top, double right, double bottom, 
 
         m_TopLAngle = top;
         if ( right > XSEC_NO_VAL )      { m_RightLAngle = right; }
-        else                            { m_RightLAngle = m_TopLAngle; }
+        else                            { m_RightLAngle = m_TopLAngle(); }
 
         if ( bottom > XSEC_NO_VAL )     { m_BottomLAngle = bottom; }
-        else                            { m_BottomLAngle = m_TopLAngle; }
+        else                            { m_BottomLAngle = m_TopLAngle(); }
 
         if ( left > XSEC_NO_VAL )       { m_LeftLAngle = left; }
-        else                            { m_LeftLAngle = m_RightLAngle; }
+        else                            { m_LeftLAngle = m_RightLAngle(); }
     }
 
     if ( side == XSEC_BOTH_SIDES || side == XSEC_RIGHT_SIDE )
@@ -1440,13 +1440,13 @@ void SkinXSec::SetTanAngles( int side, double top, double right, double bottom, 
 
         m_TopRAngle = top;
         if ( right > XSEC_NO_VAL )      { m_RightRAngle = right; }
-        else                            { m_RightRAngle = m_TopRAngle; }
+        else                            { m_RightRAngle = m_TopRAngle(); }
 
         if ( bottom > XSEC_NO_VAL )     { m_BottomRAngle = bottom; }
-        else                            { m_BottomRAngle = m_TopRAngle; }
+        else                            { m_BottomRAngle = m_TopRAngle(); }
 
         if ( left > XSEC_NO_VAL )       { m_LeftRAngle = left; }
-        else                            { m_LeftRAngle = m_RightRAngle; }
+        else                            { m_LeftRAngle = m_RightRAngle(); }
     }
 }
 
@@ -1464,13 +1464,13 @@ void SkinXSec::SetTanSlews( int side, double top, double right, double bottom, d
 
         m_TopLSlew = top;
         if ( right > XSEC_NO_VAL )      { m_RightLSlew = right; }
-        else                            { m_RightLSlew = m_TopLSlew; }
+        else                            { m_RightLSlew = m_TopLSlew(); }
 
         if ( bottom > XSEC_NO_VAL )     { m_BottomLSlew = bottom; }
-        else                            { m_BottomLSlew = m_TopLSlew; }
+        else                            { m_BottomLSlew = m_TopLSlew(); }
 
         if ( left > XSEC_NO_VAL )       { m_LeftLSlew = left; }
-        else                            { m_LeftLSlew = m_RightLSlew; }
+        else                            { m_LeftLSlew = m_RightLSlew(); }
     }
 
     if ( side == XSEC_BOTH_SIDES || side == XSEC_RIGHT_SIDE )
@@ -1482,13 +1482,13 @@ void SkinXSec::SetTanSlews( int side, double top, double right, double bottom, d
 
         m_TopRSlew = top;
         if ( right > XSEC_NO_VAL )      { m_RightRSlew = right; }
-        else                            { m_RightRSlew = m_TopRSlew; }
+        else                            { m_RightRSlew = m_TopRSlew(); }
 
         if ( bottom > XSEC_NO_VAL )     { m_BottomRSlew = bottom; }
-        else                            { m_BottomRSlew = m_TopRSlew; }
+        else                            { m_BottomRSlew = m_TopRSlew(); }
 
         if ( left > XSEC_NO_VAL )       { m_LeftRSlew = left; }
-        else                            { m_LeftRSlew = m_RightRSlew; }
+        else                            { m_LeftRSlew = m_RightRSlew(); }
     }
 }
 
@@ -1506,13 +1506,13 @@ void SkinXSec::SetTanStrengths( int side, double top, double right, double botto
 
         m_TopLStrength = top;
         if ( right > XSEC_NO_VAL )      { m_RightLStrength = right; }
-        else                            { m_RightLStrength = m_TopLStrength; }
+        else                            { m_RightLStrength = m_TopLStrength(); }
 
         if ( bottom > XSEC_NO_VAL )     { m_BottomLStrength = bottom; }
-        else                            { m_BottomLStrength = m_TopLStrength; }
+        else                            { m_BottomLStrength = m_TopLStrength(); }
 
         if ( left > XSEC_NO_VAL )       { m_LeftLStrength = left; }
-        else                            { m_LeftLStrength = m_RightLStrength; }
+        else                            { m_LeftLStrength = m_RightLStrength(); }
     }
 
     if ( side == XSEC_BOTH_SIDES || side == XSEC_RIGHT_SIDE )
@@ -1524,13 +1524,13 @@ void SkinXSec::SetTanStrengths( int side, double top, double right, double botto
 
         m_TopRStrength = top;
         if ( right > XSEC_NO_VAL )      { m_RightRStrength = right; }
-        else                            { m_RightRStrength = m_TopRStrength; }
+        else                            { m_RightRStrength = m_TopRStrength(); }
 
         if ( bottom > XSEC_NO_VAL )     { m_BottomRStrength = bottom; }
-        else                            { m_BottomRStrength = m_TopRStrength; }
+        else                            { m_BottomRStrength = m_TopRStrength(); }
 
         if ( left > XSEC_NO_VAL )       { m_LeftRStrength = left; }
-        else                            { m_LeftRStrength = m_RightRStrength; }
+        else                            { m_LeftRStrength = m_RightRStrength(); }
     }
 }
 
@@ -1548,13 +1548,13 @@ void SkinXSec::SetCurvatures( int side, double top, double right, double bottom,
 
         m_TopLCurve = top;
         if ( right > XSEC_NO_VAL )      { m_RightLCurve = right; }
-        else                            { m_RightLCurve = m_TopLCurve; }
+        else                            { m_RightLCurve = m_TopLCurve(); }
 
         if ( bottom > XSEC_NO_VAL )     { m_BottomLCurve = bottom; }
-        else                            { m_BottomLCurve = m_TopLCurve; }
+        else                            { m_BottomLCurve = m_TopLCurve(); }
 
         if ( left > XSEC_NO_VAL)        { m_LeftLCurve = left; }
-        else                            { m_LeftLCurve = m_RightLCurve; }
+        else                            { m_LeftLCurve = m_RightLCurve(); }
     }
 
     if ( side == XSEC_BOTH_SIDES || side == XSEC_RIGHT_SIDE )
@@ -1566,13 +1566,13 @@ void SkinXSec::SetCurvatures( int side, double top, double right, double bottom,
 
         m_TopRCurve = top;
         if ( right > XSEC_NO_VAL )      { m_RightRCurve = right; }
-        else                            { m_RightRCurve = m_TopRCurve; }
+        else                            { m_RightRCurve = m_TopRCurve(); }
 
         if ( bottom > XSEC_NO_VAL )     { m_BottomRCurve = bottom; }
-        else                            { m_BottomRCurve = m_TopRCurve; }
+        else                            { m_BottomRCurve = m_TopRCurve(); }
 
         if ( left > XSEC_NO_VAL )       { m_LeftRCurve = left; }
-        else                            { m_LeftRCurve = m_RightRCurve; }
+        else                            { m_LeftRCurve = m_RightRCurve(); }
     }
 }
 
