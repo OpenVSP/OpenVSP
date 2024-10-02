@@ -36,6 +36,9 @@ public:
     ParmContainer();
     virtual ~ParmContainer();
 
+    // Do not allow assignment operator for ParmContainers.  Copying ParmContainers causes hard to find bugs.
+    ParmContainer& operator= ( const ParmContainer& pc ) = delete;
+
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
     virtual void AddParm( const string & id );
