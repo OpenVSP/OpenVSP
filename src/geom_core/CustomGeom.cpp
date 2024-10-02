@@ -655,11 +655,11 @@ CustomGeom::~CustomGeom()
 void CustomGeom::Clear()
 {
     //==== Clear Parms ====//
-    for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
+    for ( int i = 0 ; i < (int)m_CustomGeomParmVec.size() ; i++ )
     {
-        delete m_ParmVec[i];
+        delete m_CustomGeomParmVec[i];
     }
-    m_ParmVec.clear();
+    m_CustomGeomParmVec.clear();
 
     //==== Clear XSec Surfs====//
     ClearXSecSurfs();
@@ -803,7 +803,7 @@ string CustomGeom::AddParm( int type, const string & name, const string & group 
     {
         p->Init( name, group, this, 0.0, -1.0e6, 1.0e6 );
         p->SetDescript( "Custom Descript" );
-        m_ParmVec.push_back( p );
+        m_CustomGeomParmVec.push_back( p );
         return p->GetID();
     }
     return string();
@@ -812,9 +812,9 @@ string CustomGeom::AddParm( int type, const string & name, const string & group 
 //==== Find Parm String Based On Index ===//
 string CustomGeom::FindParmID( int index )
 {
-    if ( index >= 0 && index < ( int )m_ParmVec.size() )
+    if ( index >= 0 && index < ( int )m_CustomGeomParmVec.size() )
     {
-        return m_ParmVec[index]->GetID();
+        return m_CustomGeomParmVec[index]->GetID();
 
     }
     return string();
@@ -1007,9 +1007,9 @@ xmlNodePtr CustomGeom::EncodeXml( xmlNodePtr & node )
 
         string safe_file_contents = XmlUtil::ConvertToXMLSafeChars( incl_contents );
 
-        for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
+        for ( int i = 0 ; i < (int)m_CustomGeomParmVec.size() ; i++ )
         {
-            m_ParmVec[i]->EncodeXml( custom_node );
+            m_CustomGeomParmVec[i]->EncodeXml( custom_node );
         }
 
         XmlUtil::AddStringNode( custom_node, "ScriptFileModule", GetScriptModuleName()  );
@@ -1034,9 +1034,9 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
         string new_module_name = ScriptMgr.ReadScriptFromMemory( module_name, file_contents );
         CustomGeomMgr.InitGeom( GetID(), new_module_name, module_name );
 
-        for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
+        for ( int i = 0 ; i < (int)m_CustomGeomParmVec.size() ; i++ )
         {
-            m_ParmVec[i]->DecodeXml( custom_node );
+            m_CustomGeomParmVec[i]->DecodeXml( custom_node );
         }
     }
     Geom::DecodeXml( node );

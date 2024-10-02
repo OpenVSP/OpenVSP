@@ -231,7 +231,7 @@ protected:
     string m_ScriptModuleName;
     string m_DisplayName;
 
-    vector< Parm* > m_ParmVec;              // Storage For Pointers
+    vector< Parm* > m_CustomGeomParmVec;    // Storage For Pointers
     vector< GuiDef > m_GuiDefVec;           // Gui Definition
     vector< GuiUpdate > m_UpdateGuiVec;     // Match Gui with Parms
     vector< XSecSurf* > m_XSecSurfVec;
