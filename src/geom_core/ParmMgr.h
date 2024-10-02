@@ -67,6 +67,9 @@ public:
     Parm* FindParm( const string & id );
     ParmContainer* FindParmContainer( const string & id );
 
+    bool ValidateParmMap();
+    bool ValidateParmContainerMap();
+
     void AddToUndoStack( Parm* parm_ptr, bool drag_flag );
     void UnDo();
 

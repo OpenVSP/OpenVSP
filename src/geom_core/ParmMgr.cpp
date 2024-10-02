@@ -122,6 +122,77 @@ ParmContainer* ParmMgrSingleton::FindParmContainer( const string & id )
     return NULL;
 }
 
+bool ParmMgrSingleton::ValidateParmMap()
+{
+    bool pass = true;
+    unordered_map< string, Parm* >::iterator iter;
+    for ( iter = m_ParmMap.begin(); iter != m_ParmMap.end(); ++iter )
+    {
+        if ( iter->second )
+        {
+            try
+            {
+                if ( iter->first == iter->second->GetID() )
+                {
+                    // All good
+                }
+                else
+                {
+                    printf( "ID compare failed %s\n", iter->first.c_str() );
+                    pass = false;
+                }
+            }
+            catch( int e )
+            {
+                printf( "Exception caught %s\n", iter->first.c_str() );
+                pass = false;
+            }
+        }
+        else
+        {
+            printf( "Pointer failed %s\n", iter->first.c_str() );
+            pass = false;
+        }
+    }
+
+    return pass;
+}
+
+bool ParmMgrSingleton::ValidateParmContainerMap()
+{
+    bool pass = true;
+    unordered_map< string, ParmContainer* >::iterator iter;
+    for ( iter = m_ParmContainerMap.begin(); iter != m_ParmContainerMap.end(); ++iter )
+    {
+        if ( iter->second )
+        {
+            try
+            {
+                if ( iter->first == iter->second->GetID() )
+                {
+                    // All good
+                }
+                else
+                {
+                    printf( "ID compare failed %s\n", iter->first.c_str() );
+                    pass = false;
+                }
+            }
+            catch( int e )
+            {
+                printf( "Exception caught %s\n", iter->first.c_str() );
+                pass = false;
+            }
+        }
+        else
+        {
+            printf( "Pointer failed %s\n", iter->first.c_str() );
+            pass = false;
+        }
+    }
+
+    return pass;
+}
 
 //==== Add Parm To Undo Stack ====//
 void ParmMgrSingleton::AddToUndoStack( Parm* parm_ptr, bool drag_flag )
