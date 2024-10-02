@@ -31,6 +31,7 @@
 #include "FileUtil.h"
 
 #include "CfdMeshScreen.h"
+#include "ParmMgr.h"
 #include "SurfaceIntersectionScreen.h"
 #include "StructScreen.h"
 #include "StructAssemblyScreen.h"
@@ -165,6 +166,10 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     // m_AboutMenuItem.Init( mgr, m_MenuBar, "Help/About...", ScreenMgr:: );
     m_OnlineHelpMenuItem.Init( this, m_MenuBar, "Help/Help..." );
     // m_VersionMenuItem.Init( mgr, m_MenuBar, "Help/Check Latest Version...", ScreenMgr:: );
+
+    // Add some hidden test menu entries.
+    // m_TestParmMapMenuItem.Init( this, m_MenuBar, "Test/Test Parm Map..." );
+    // m_TestParmContainerMapMenuItem.Init( this, m_MenuBar, "Test/Test ParmContainer Map..." );
 
     BoldEntries( "File" );
     BoldEntries( "Edit" );
@@ -569,6 +574,20 @@ void MainVSPScreen::ActionCB( void * data )
         if ( m_ScreenMgr )
         {
             m_ScreenMgr->HelpSystemDefaultBrowser( "index.html" );
+        }
+    }
+    else if ( data == &m_TestParmMapMenuItem )
+    {
+        if ( !ParmMgr.ValidateParmMap() )
+        {
+            m_ScreenMgr->Alert( "Parm Map is not valid.");
+        }
+    }
+    else if ( data == &m_TestParmContainerMapMenuItem )
+    {
+        if ( !ParmMgr.ValidateParmContainerMap() )
+        {
+            m_ScreenMgr->Alert( "ParmContainer Map is not valid.");
         }
     }
     // else if ( m_AntialiasMenuItem )

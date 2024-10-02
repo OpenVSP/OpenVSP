@@ -161,6 +161,8 @@ protected:
 
     // ScreenMenuItem m_AboutMenuItem;
     ActionMenuItem m_OnlineHelpMenuItem;
+    ActionMenuItem m_TestParmMapMenuItem;
+    ActionMenuItem m_TestParmContainerMapMenuItem;
     // ScreenMenuItem m_VersionMenuItem;
 
 
