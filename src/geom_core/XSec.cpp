@@ -19,6 +19,8 @@ using namespace vsp;
 //==== Default Constructor ====//
 XSec::XSec( XSecCurve *xsc )
 {
+    m_Name = "XSec";
+
     if ( xsc == NULL )
     {
         //==== Create A Default Curve ====//
@@ -540,6 +542,7 @@ EditCurveXSec* XSec::ConvertToEdit()
 //==== Default Constructor ====//
 SkinXSec::SkinXSec( XSecCurve *xsc ) : XSec( xsc)
 {
+    m_Name = "SkinXSec";
 
     m_AllSymFlag.Init( "AllSym", m_GroupName, this, 1, 0, 1 );
     m_AllSymFlag.SetDescript( "Set all skinning parameters equal." );

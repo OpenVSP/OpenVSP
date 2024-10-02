@@ -543,6 +543,7 @@ int CustomGeomMgrSingleton::SaveScriptContentToFile( const string & module_name,
 //==== Constructor ====//
 CustomXSec::CustomXSec( XSecCurve *xsc ) : SkinXSec( xsc)
 {
+    m_Name = "CustomXSec";
     m_Type = vsp::XSEC_CUSTOM;
 
 }

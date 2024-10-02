@@ -41,6 +41,8 @@ XSecCurve::XSecCurve()
         xscdg->m_Parent = this;
     }
 
+    m_Name = "XSecCurve";
+
     m_GroupName = "XSecCurve";
     m_GroupSuffix = -1;
 
@@ -2081,6 +2083,7 @@ void XSecCurve::Interp( XSecCurve *start, XSecCurve *end, double frac )
 PointXSec::PointXSec( ) : XSecCurve( )
 {
     m_Type = XS_POINT;
+    m_Name = "Point";
 }
 
 //==== Update Geometry ====//
@@ -2116,6 +2119,8 @@ void PointXSec::UpdateCurve( bool updateParms )
 //==== Constructor ====//
 CircleXSec::CircleXSec( ) : XSecCurve( )
 {
+    m_Name = "Circle";
+
     if( m_DriverGroup )
     {
         // m_DriverGroup was initialized in the XSecCurve() constructor.  However, we want to use a different
@@ -2212,6 +2217,7 @@ void CircleXSec::UpdateCurve( bool updateParms )
 //==== Constructor ====//
 EllipseXSec::EllipseXSec( ) : XSecCurve( )
 {
+    m_Name = "Ellipse";
     m_Type = XS_ELLIPSE;
 
     m_Height.Init( "Ellipse_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
@@ -2265,6 +2271,7 @@ void EllipseXSec::SetWidthHeight( double w, double h )
 SuperXSec::SuperXSec( ) : XSecCurve( )
 {
     m_Type = XS_SUPER_ELLIPSE;
+    m_Name = "SuperEllipse";
 
     m_Height.Init( "Super_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Height.SetDescript( "Height of the Super Ellipse Cross-Section" );
@@ -2359,6 +2366,7 @@ void SuperXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
 RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 {
     m_Type = XS_ROUNDED_RECTANGLE;
+    m_Name = "RoundedRectangle";
 
     m_Height.Init( "RoundedRect_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "RoundedRect_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
@@ -2511,6 +2519,7 @@ EditCurveXSec* RoundedRectXSec::ConvertToEdit()
 GeneralFuseXSec::GeneralFuseXSec( ) : XSecCurve( )
 {
     m_Type = XS_GENERAL_FUSE;
+    m_Name = "GeneralFuse";
 
     m_Height.Init( "Height",           m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "Width",             m_GroupName, this, 1.0, 0.0, 1.0e12 );
@@ -2648,6 +2657,7 @@ void GeneralFuseXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
 FileXSec::FileXSec( ) : XSecCurve( )
 {
     m_Type = XS_FILE_FUSE;
+    m_Name = "FileFuse";
 
     // Initialize to closed circle.
     int n = 21;
@@ -3056,6 +3066,7 @@ void FileXSec::ReadV2FileFuse2( xmlNodePtr &root )
 EditCurveXSec::EditCurveXSec() : XSecCurve()
 {
     m_Type = XS_EDIT_CURVE;
+    m_Name = "EditCurve";
 
     m_View.Init( "View", m_GroupName, this, vsp::VIEW_FRONT, vsp::VIEW_LEFT, vsp::VIEW_NUM_TYPES - 1 );
     m_View.SetDescript( "View direction" );
@@ -5351,6 +5362,7 @@ void EditCurveXSec::EnforceG1( int new_index )
 InterpXSec::InterpXSec( ) : XSecCurve( )
 {
     m_Type = XS_UNDEFINED; // Special XSecCurve that can not be constructed in conventional way.
+    m_Name = "InterpCurve";
 
     m_Height.Init( "Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Height.SetDescript( "Height of the Interp Cross-Section" );

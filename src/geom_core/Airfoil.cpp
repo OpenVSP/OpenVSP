@@ -68,6 +68,8 @@ double CalcFourDigitCamber( double CLi, double p )
 //==== Default Constructor ====//
 Airfoil::Airfoil( ) : XSecCurve( )
 {
+    m_Name = "Airfoil";
+
     m_Invert.Init( "Invert", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_Chord.Init( "Chord", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_ThickChord.Init( "ThickChord", m_GroupName, this, 0.1, 0.0, 1.0 );
@@ -264,6 +266,7 @@ void NACABase::BuildCurve( const naca_airfoil_type & af )
 FourSeries::FourSeries( ) : NACABase( )
 {
     m_Type = XS_FOUR_SERIES;
+    m_Name = "FourSeries";
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.1, 0.9 );
     m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
@@ -368,6 +371,7 @@ void FourSeries::Interp( XSecCurve *start, XSecCurve *end, double frac )
 FourDigMod::FourDigMod( ) : NACABase( )
 {
     m_Type = XS_FOUR_DIGIT_MOD;
+    m_Name = "FourDigitMod";
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.1, 0.9 );
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.3, 0.2, 0.6 );
@@ -464,6 +468,8 @@ void FourDigMod::Interp( XSecCurve *start, XSecCurve *end, double frac )
 FiveDig::FiveDig( ) : NACABase( )
 {
     m_Type = XS_FIVE_DIGIT;
+    m_Name = "FiveDigit";
+
     m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.3, 0.0, 1.0 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.423 );
     m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
@@ -531,6 +537,8 @@ void FiveDig::Interp( XSecCurve *start, XSecCurve *end, double frac )
 FiveDigMod::FiveDigMod( ) : NACABase( )
 {
     m_Type = XS_FIVE_DIGIT_MOD;
+    m_Name = "FiveDigitMod";
+
     m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.3, 0.0, 1.0 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.423 );
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.3, 0.2, 0.6 );
@@ -605,6 +613,7 @@ void FiveDigMod::Interp( XSecCurve *start, XSecCurve *end, double frac )
 OneSixSeries::OneSixSeries( ) : NACABase( )
 {
     m_Type = XS_ONE_SIX_SERIES;
+    m_Name = "OneSixSeries";
     m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.2, 0.0, 1.0 );
     m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
 }
@@ -653,6 +662,7 @@ string OneSixSeries::GetAirfoilName()
 SixSeries::SixSeries( ) : Airfoil( )
 {
     m_Type = XS_SIX_SERIES;
+    m_Name = "SixSeries";
 
     m_Series.Init( "Series", m_GroupName, this, SERIES_63, SERIES_63, NUM_SERIES );
     m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.0, 0.0, 2.0 );
@@ -831,6 +841,7 @@ void SixSeries::Interp( XSecCurve *start, XSecCurve *end, double frac )
 Biconvex::Biconvex( ) : Airfoil( )
 {
     m_Type = XS_BICONVEX;
+    m_Name = "BiConvex";
 }
 
 //==== Update ====//
@@ -895,6 +906,8 @@ void Biconvex::UpdateCurve( bool updateParms )
 Wedge::Wedge( ) : Airfoil( )
 {
     m_Type = XS_WEDGE;
+    m_Name = "Wedge";
+
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.5, 0.0, 1.0 );
     m_ThickLoc.SetDescript( "X/C location of first max thickness location on top surface." );
 
@@ -1024,6 +1037,7 @@ void Wedge::Interp( XSecCurve *start, XSecCurve *end, double frac )
 FileAirfoil::FileAirfoil( ) : Airfoil( )
 {
     m_Type = XS_FILE_AIRFOIL;
+    m_Name = "FileAirfoil";
 
     m_BaseThickness.Init( "BaseThickChord", m_GroupName, this, 0.1, 0.0, 1.0 );
 
@@ -1465,6 +1479,7 @@ void FileAirfoil::ReadV2File( xmlNodePtr &root )
 CSTAirfoil::CSTAirfoil( ) : Airfoil( )
 {
     m_Type = XS_CST_AIRFOIL;
+    m_Name = "CSTAirfoil";
 
     int initorder = 10;
     for ( int i = 0; i < initorder; i++ )
@@ -2024,6 +2039,7 @@ void CSTAirfoil::OffsetCurve( double offset_val )
 VKTAirfoil::VKTAirfoil( ) : Airfoil( )
 {
     m_Type = XS_VKT_AIRFOIL;
+    m_Name = "VKTAirfoil";
 
     m_Epsilon.Init( "Epsilon", m_GroupName, this, 0.1, 0.0, 10.0 );
     m_Kappa.Init( "Kappa", m_GroupName, this, 0.1, -5.0, 5.0 );
