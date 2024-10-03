@@ -7358,39 +7358,39 @@ double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, 
 
 void AddVarPresetGroup( const string &group_name )
 {
-    VarPresetMgr.AddGroup( group_name );
-    VarPresetMgr.SavePreset();
+    OldVarPresetMgr.AddGroup( group_name );
+    OldVarPresetMgr.SavePreset();
 
     ErrorMgr.NoError();
 }
 
 void AddVarPresetSetting( const string &setting_name )
 {
-    VarPresetMgr.AddSetting( setting_name );
-    VarPresetMgr.SavePreset();
+    OldVarPresetMgr.AddSetting( setting_name );
+    OldVarPresetMgr.SavePreset();
 
     ErrorMgr.NoError();
 }
 
 void AddVarPresetParm( const string &parm_id )
 {
-    if ( !VarPresetMgr.AddVar( parm_id ) )
+    if ( !OldVarPresetMgr.AddVar( parm_id ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Failed to add Variable Preset " + parm_id );
     }
-    VarPresetMgr.SavePreset();
+    OldVarPresetMgr.SavePreset();
 
     ErrorMgr.NoError();
 }
 
 void AddVarPresetParm( const string &parm_id, const string &group_name )
 {
-    VarPresetMgr.GroupChange( group_name );
-    if ( !VarPresetMgr.AddVar( parm_id ) )
+    OldVarPresetMgr.GroupChange( group_name );
+    if ( !OldVarPresetMgr.AddVar( parm_id ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Failed to add Variable Preset " + parm_id );
     }
-    VarPresetMgr.SavePreset();
+    OldVarPresetMgr.SavePreset();
 
     ErrorMgr.NoError();
 }
@@ -7406,7 +7406,7 @@ void EditVarPresetParm( const string &parm_id, double parm_val )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "EditVarPresetParm::Can't Find Parm " + parm_id );
     }
-    VarPresetMgr.SavePreset();
+    OldVarPresetMgr.SavePreset();
 }
 
 void EditVarPresetParm( const string &parm_id, double parm_val, const string &group_name,
@@ -7418,17 +7418,17 @@ void EditVarPresetParm( const string &parm_id, double parm_val, const string &gr
 
 void DeleteVarPresetParm( const string &parm_id )
 {
-    VarPresetMgr.SetWorkingParmID( parm_id );
-    VarPresetMgr.DelCurrVar();
-    VarPresetMgr.SavePreset();
+    OldVarPresetMgr.SetWorkingParmID( parm_id );
+    OldVarPresetMgr.DelCurrVar();
+    OldVarPresetMgr.SavePreset();
 
     ErrorMgr.NoError();
 }
 
 void DeleteVarPresetParm( const string &parm_id, const string &group_name )
 {
-    VarPresetMgr.GroupChange( group_name );
-    if (VarPresetMgr.GetActiveGroupText().compare( group_name ) == 0 )
+    OldVarPresetMgr.GroupChange( group_name );
+    if (OldVarPresetMgr.GetActiveGroupText().compare( group_name ) == 0 )
     {
         ErrorMgr.NoError();
     }
@@ -7441,8 +7441,8 @@ void DeleteVarPresetParm( const string &parm_id, const string &group_name )
 
 void SwitchVarPreset( const string &group_name, const string &setting_name )
 {
-    VarPresetMgr.GroupChange( group_name );
-    if (VarPresetMgr.GetActiveGroupText().compare( group_name ) == 0 )
+    OldVarPresetMgr.GroupChange( group_name );
+    if (OldVarPresetMgr.GetActiveGroupText().compare( group_name ) == 0 )
     {
         ErrorMgr.NoError();
     }
@@ -7450,8 +7450,8 @@ void SwitchVarPreset( const string &group_name, const string &setting_name )
     {
         ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchVarPreset::Can't Find Group " + group_name );
     }
-    VarPresetMgr.SettingChange( setting_name );
-    if (VarPresetMgr.GetActiveSettingText().compare( setting_name ) == 0 )
+    OldVarPresetMgr.SettingChange( setting_name );
+    if (OldVarPresetMgr.GetActiveSettingText().compare( setting_name ) == 0 )
     {
         ErrorMgr.NoError();
     }
@@ -7459,12 +7459,12 @@ void SwitchVarPreset( const string &group_name, const string &setting_name )
     {
         ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "SwitchSaveParmGroup::Can't Find Setting " + setting_name );
     }
-    VarPresetMgr.ApplySetting();
+    OldVarPresetMgr.ApplySetting();
 }
 
 bool DeleteVarPresetSet( const string &group_name, const string &setting_name )
 {
-    if ( VarPresetMgr.DeletePreset( group_name, setting_name ) )
+    if ( OldVarPresetMgr.DeletePreset( group_name, setting_name ) )
     {
         ErrorMgr.NoError();
         return true;
@@ -7479,24 +7479,24 @@ bool DeleteVarPresetSet( const string &group_name, const string &setting_name )
 
 string GetCurrentGroupName()
 {
-    return VarPresetMgr.GetActiveGroupText();
+    return OldVarPresetMgr.GetActiveGroupText();
 }
 
 string GetCurrentSettingName()
 {
-    return VarPresetMgr.GetActiveSettingText();
+    return OldVarPresetMgr.GetActiveSettingText();
 }
 
 vector <string> GetVarPresetGroupNames()
 {
     ErrorMgr.NoError();
-    return VarPresetMgr.GetGroupNames();
+    return OldVarPresetMgr.GetGroupNames();
 }
 
 vector <string> GetVarPresetSettingNamesWName( const string &group_name )
 {
     vector <string> vec;
-    vec = VarPresetMgr.GetSettingNames( group_name );
+    vec = OldVarPresetMgr.GetSettingNames( group_name );
 
     if ( vec.empty() )
     {
@@ -7513,7 +7513,7 @@ vector <string> GetVarPresetSettingNamesWName( const string &group_name )
 vector <string> GetVarPresetSettingNamesWIndex( int group_index )
 {
     vector <string> vec;
-    vec = VarPresetMgr.GetSettingNames( group_index );
+    vec = OldVarPresetMgr.GetSettingNames( group_index );
 
     if ( vec.empty() )
     {
@@ -7530,25 +7530,25 @@ vector <string> GetVarPresetSettingNamesWIndex( int group_index )
 vector <double> GetVarPresetParmVals()
 {
     ErrorMgr.NoError();
-    return VarPresetMgr.GetCurrentParmVals();
+    return OldVarPresetMgr.GetCurrentParmVals();
 }
 
 vector <double> GetVarPresetParmValsWNames( const string &group_name, const string &setting_name )
 {
     ErrorMgr.NoError();
-    return VarPresetMgr.GetParmVals( group_name, setting_name );
+    return OldVarPresetMgr.GetParmVals( group_name, setting_name );
 }
 
 vector <string> GetVarPresetParmIDs()
 {
     ErrorMgr.NoError();
-    return VarPresetMgr.GetCurrentParmIDs();
+    return OldVarPresetMgr.GetCurrentParmIDs();
 }
 
 vector <string> GetVarPresetParmIDsWName( const string &group_name )
 {
     ErrorMgr.NoError();
-    return VarPresetMgr.GetParmIDs( group_name );
+    return OldVarPresetMgr.GetParmIDs( group_name );
 }
 
 //===================================================================//

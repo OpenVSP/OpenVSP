@@ -17,18 +17,18 @@
 //=========================================================================//
 
 //==== Constructor ====//
-Preset::Preset()
+OldPreset::OldPreset()
 {
     m_GroupName = "";
 }
 
 //==== Destructor ====//
-Preset::~Preset()
+OldPreset::~OldPreset()
 {
 }
 
 //==== Init ====//
-void Preset::Init( const string &group_name, const vector < string > &p_IDvec)
+void OldPreset::Init( const string &group_name, const vector < string > &p_IDvec)
 {
     m_GroupName = group_name;
 
@@ -36,7 +36,7 @@ void Preset::Init( const string &group_name, const vector < string > &p_IDvec)
 }
 
 //==== Get Setting Index ====//
-int Preset::GetSettingIndex()
+int OldPreset::GetSettingIndex()
 {
     if ( !m_SettingNameVec.empty() )
     {
@@ -48,13 +48,13 @@ int Preset::GetSettingIndex()
     }
 }
 
-int Preset::GetSettingIndex( const string &name )
+int OldPreset::GetSettingIndex( const string &name )
 {
     return vector_find_val( m_SettingNameVec, name );
 }
 
 //==== New Setting ====//
-void Preset::NewSet( const string &set_name, vector < double > p_ValVec)
+void OldPreset::NewSet( const string &set_name, vector < double > p_ValVec)
 {
     m_SettingNameVec.push_back( set_name );
 
@@ -64,27 +64,27 @@ void Preset::NewSet( const string &set_name, vector < double > p_ValVec)
 }
 
 //==== Delete Setting ====//
-void Preset::DeleteSet( int set_index )
+void OldPreset::DeleteSet( int set_index )
 {
     m_SettingNameVec.erase( m_SettingNameVec.begin() + set_index );
     m_ParmValVec.erase( m_ParmValVec.begin() + set_index );
 }
 
 //==== EditParm ====//
-void Preset::EditParm( int set_index, const string &p_id, double p_val )
+void OldPreset::EditParm( int set_index, const string &p_id, double p_val )
 {
     int p_index = vector_find_val( m_ParmIDVec, p_id );
     m_ParmValVec[ set_index ][ p_index ] = p_val;
 }
 
 //==== Setting Name Exist ====//
-bool Preset::SettingNameExist( const string &name )
+bool OldPreset::SettingNameExist( const string &name )
 {
     return vector_contains_val( m_SettingNameVec, name );
 }
 
 //==== Add Parm ====//
-void Preset::AddParm( const string &p_ID, double p_val )
+void OldPreset::AddParm( const string &p_ID, double p_val )
 {
     if( !vector_contains_val( m_ParmIDVec, p_ID ) )
     {
@@ -97,7 +97,7 @@ void Preset::AddParm( const string &p_ID, double p_val )
 }
 
 //==== Delete Parm ====//
-void Preset::DeleteParm( const string &p_id )
+void OldPreset::DeleteParm( const string &p_id )
 {
     int p_index = vector_find_val( m_ParmIDVec, p_id );
 
@@ -110,7 +110,7 @@ void Preset::DeleteParm( const string &p_id )
 }
 
 //==== Encode XML ====//
-xmlNodePtr Preset::EncodeXml( xmlNodePtr &varpresetnode, int i )
+xmlNodePtr OldPreset::EncodeXml( xmlNodePtr &varpresetnode, int i )
 {
     char buffer [50];
 
@@ -145,7 +145,7 @@ xmlNodePtr Preset::EncodeXml( xmlNodePtr &varpresetnode, int i )
 }
 
 //==== Decode XML ====//
-Preset Preset::DecodeXml( xmlNodePtr &varpresetnode, int i )
+OldPreset OldPreset::DecodeXml( xmlNodePtr &varpresetnode, int i )
 {
     char buffer [50];
     string name = "";
@@ -153,7 +153,7 @@ Preset Preset::DecodeXml( xmlNodePtr &varpresetnode, int i )
     string setName;
     vector < double > p_vals;
     vector < string > p_IDs;
-    Preset temp_preset;
+    OldPreset temp_preset;
 
     // Grab Size of Settings and Parms/Setting
     vector <int> numSetqGroup = XmlUtil::ExtractVectorIntNode( varpresetnode, "NumSettingsPerGroup" );
@@ -203,12 +203,12 @@ Preset Preset::DecodeXml( xmlNodePtr &varpresetnode, int i )
 //=========================================================================//
 
 //==== Constructor ====//
-VarPresetMgrSingleton::VarPresetMgrSingleton()
+OldVarPresetMgrSingleton::OldVarPresetMgrSingleton()
 {
     Init();
 }
 
-void VarPresetMgrSingleton::Init()
+void OldVarPresetMgrSingleton::Init()
 {
     m_CurrVarIndex = -1;
     m_PrevDeleteFlag = false;
@@ -220,7 +220,7 @@ void VarPresetMgrSingleton::Init()
     m_PresetVec.clear();
 }
 
-void VarPresetMgrSingleton::ResetIndexAndText()
+void OldVarPresetMgrSingleton::ResetIndexAndText()
 {
     m_CurGroupIndex = -1;
     m_CurSettingIndex = -1;
@@ -228,7 +228,7 @@ void VarPresetMgrSingleton::ResetIndexAndText()
     m_CurSettingText = "";
 }
 
-void VarPresetMgrSingleton::Wype()
+void OldVarPresetMgrSingleton::Wype()
 {
     m_CurrVarIndex = int();
     m_WorkingParmID = string();
@@ -237,20 +237,20 @@ void VarPresetMgrSingleton::Wype()
     m_VarVec = vector< string >();
 }
 
-void VarPresetMgrSingleton::Renew()
+void OldVarPresetMgrSingleton::Renew()
 {
     Wype();
     Init();
 }
 
 //==== Get Current Design Variable ====//
-string VarPresetMgrSingleton::GetCurrVar()
+string OldVarPresetMgrSingleton::GetCurrVar()
 {
     return GetVar( m_CurrVarIndex );
 }
 
 //==== Get Design Variable Given Index ====//
-string VarPresetMgrSingleton::GetVar( int index )
+string OldVarPresetMgrSingleton::GetVar( int index )
 {
     if ( index >= 0 && index < ( int )m_VarVec.size() )
     {
@@ -260,7 +260,7 @@ string VarPresetMgrSingleton::GetVar( int index )
 }
 
 //==== Add Curr Variable ====//
-bool VarPresetMgrSingleton::AddCurrVar()
+bool OldVarPresetMgrSingleton::AddCurrVar()
 {
     //==== Check if Modifying Already Add Link ====//
     if (  m_CurrVarIndex >= 0 && m_CurrVarIndex < ( int )m_VarVec.size() )
@@ -277,7 +277,7 @@ bool VarPresetMgrSingleton::AddCurrVar()
 }
 
 //==== Check For Duplicate Variable  ====//
-bool VarPresetMgrSingleton::CheckForDuplicateVar( const string &p )
+bool OldVarPresetMgrSingleton::CheckForDuplicateVar( const string &p )
 {
     for ( int i = 0 ; i < ( int )m_VarVec.size() ; i++ )
     {
@@ -289,7 +289,7 @@ bool VarPresetMgrSingleton::CheckForDuplicateVar( const string &p )
     return false;
 }
 
-bool VarPresetMgrSingleton::SortVars()
+bool OldVarPresetMgrSingleton::SortVars()
 {
     bool wassorted = std::is_sorted( m_VarVec.begin(), m_VarVec.end(), NameCompare );
 
@@ -302,7 +302,7 @@ bool VarPresetMgrSingleton::SortVars()
 }
 
 //==== Add New Variable ====//
-bool VarPresetMgrSingleton::AddVar( const string& parm_id  )
+bool OldVarPresetMgrSingleton::AddVar( const string& parm_id  )
 {
     if ( CheckForDuplicateVar( parm_id ) )
     {
@@ -327,7 +327,7 @@ bool VarPresetMgrSingleton::AddVar( const string& parm_id  )
 }
 
 //==== Check All Vars For Valid Parms ====//
-void VarPresetMgrSingleton::CheckVars()
+void OldVarPresetMgrSingleton::CheckVars()
 {
     //==== Check If Any Parms Have Added/Removed From Last Check ====//
     static int check_links_stamp = 0;
@@ -371,7 +371,7 @@ void VarPresetMgrSingleton::CheckVars()
 }
 
 //==== Delete Curr Variable ====//
-void VarPresetMgrSingleton::DelCurrVar()
+void OldVarPresetMgrSingleton::DelCurrVar()
 {
     if ( m_CurrVarIndex < 0 || m_CurrVarIndex >= ( int )m_VarVec.size() )
     {
@@ -386,14 +386,14 @@ void VarPresetMgrSingleton::DelCurrVar()
 }
 
 //==== Delete All Variables ====//
-void VarPresetMgrSingleton::DelAllVars()
+void OldVarPresetMgrSingleton::DelAllVars()
 {
     m_VarVec.clear();
     m_CurrVarIndex = -1;
 }
 
 //==== Reset Working Variable ====//
-void VarPresetMgrSingleton::ResetWorkingVar()
+void OldVarPresetMgrSingleton::ResetWorkingVar()
 {
     m_CurrVarIndex = -1;
 
@@ -401,7 +401,7 @@ void VarPresetMgrSingleton::ResetWorkingVar()
 }
 
 //==== Set Working Parm ID ====//
-void VarPresetMgrSingleton::SetWorkingParmID( const string & parm_id )
+void OldVarPresetMgrSingleton::SetWorkingParmID( const string & parm_id )
 {
     if ( !ParmMgr.FindParm( parm_id ) )
     {
@@ -414,7 +414,7 @@ void VarPresetMgrSingleton::SetWorkingParmID( const string & parm_id )
 }
 
 //==== Check For Empty ====//
-bool VarPresetMgrSingleton::CheckForEmpty( int curGroupIndex, int curSettingIndex )
+bool OldVarPresetMgrSingleton::CheckForEmpty( int curGroupIndex, int curSettingIndex )
 {
     // If there aren't any existing groups or settings, return
     if ( curSettingIndex == -1 || curGroupIndex == -1 )
@@ -427,7 +427,7 @@ bool VarPresetMgrSingleton::CheckForEmpty( int curGroupIndex, int curSettingInde
     }
 }
 
-int VarPresetMgrSingleton::GetNumSet()
+int OldVarPresetMgrSingleton::GetNumSet()
 {
     if ( m_CurGroupIndex < 0 || m_CurGroupIndex >= m_PresetVec.size() )
     {
@@ -438,7 +438,7 @@ int VarPresetMgrSingleton::GetNumSet()
 }
 
 //====  Add Group ====//
-void VarPresetMgrSingleton::AddGroup( const string &groupText )
+void OldVarPresetMgrSingleton::AddGroup( const string &groupText )
 {
     //cout << "Add Group Pressed-------------------------------------" << endl;
 
@@ -464,7 +464,7 @@ void VarPresetMgrSingleton::AddGroup( const string &groupText )
         m_CurGroupText = groupText;
         m_CurSettingIndex = -1;
 
-        Preset new_group;
+        OldPreset new_group;
         new_group.Init( groupText, pIDvec );
         m_PresetVec.push_back( new_group );
     }
@@ -473,7 +473,7 @@ void VarPresetMgrSingleton::AddGroup( const string &groupText )
     // If Group Does Not Exist, Create
     if ( groupExistFlag == 0 )
     {
-        Preset new_group;
+        OldPreset new_group;
         new_group.Init( groupText, pIDvec );
         m_PresetVec.push_back( new_group );
 
@@ -490,7 +490,7 @@ void VarPresetMgrSingleton::AddGroup( const string &groupText )
 }
 
 //==== Add Setting ====//
-void VarPresetMgrSingleton::AddSetting( const string &settingText )
+void OldVarPresetMgrSingleton::AddSetting( const string &settingText )
 {
     //cout << "Add Setting Pressed -------------------------" << endl;
     string groupText = m_PresetVec[ m_CurGroupIndex ].GetGroupName();
@@ -519,7 +519,7 @@ void VarPresetMgrSingleton::AddSetting( const string &settingText )
 }
 
 //==== Preset Save ====//
-bool VarPresetMgrSingleton::SavePreset()
+bool OldVarPresetMgrSingleton::SavePreset()
 {
     //cout << "Save Button Has Been Pressed----------------------------" << endl;
     int resetFlag = 0;
@@ -551,7 +551,7 @@ bool VarPresetMgrSingleton::SavePreset()
     return true;
 }
 
-void VarPresetMgrSingleton::ApplySetting()
+void OldVarPresetMgrSingleton::ApplySetting()
 {
     //cout << "Setting Change Has Occurred -----------------------------------------" << endl;
     int group_index = GetActiveGroupIndex();
@@ -579,7 +579,7 @@ void VarPresetMgrSingleton::ApplySetting()
 }
 
 //==== Setting Change ====//
-void VarPresetMgrSingleton::SettingChange( int set_index )
+void OldVarPresetMgrSingleton::SettingChange( int set_index )
 {
     //cout << "Setting Change Has Occurred -----------------------------------------" << endl;
     int group_index = GetActiveGroupIndex();
@@ -600,7 +600,7 @@ void VarPresetMgrSingleton::SettingChange( int set_index )
     m_PrevDeleteFlag = false;
 }
 
-void VarPresetMgrSingleton::SettingChange( const string & set_name )
+void OldVarPresetMgrSingleton::SettingChange( const string & set_name )
 {
     int set_index = vector_find_val( m_PresetVec[ m_CurGroupIndex ].GetSettingNameVec(), set_name );
 
@@ -608,7 +608,7 @@ void VarPresetMgrSingleton::SettingChange( const string & set_name )
 }
 
 //==== Group Change ====//
-void VarPresetMgrSingleton::GroupChange( int group_index )
+void OldVarPresetMgrSingleton::GroupChange( int group_index )
 {
     //cout << "Group Change Has Occurred -------------------------------" << endl;
     // Get Current Group Index and Text
@@ -660,7 +660,7 @@ void VarPresetMgrSingleton::GroupChange( int group_index )
     m_PrevDeleteFlag = false;
 }
 
-void VarPresetMgrSingleton::GroupChange( const string &group_name )
+void OldVarPresetMgrSingleton::GroupChange( const string &group_name )
 {
     int g_index = vector_find_val( GetGroupNames(), group_name );
 
@@ -671,7 +671,7 @@ void VarPresetMgrSingleton::GroupChange( const string &group_name )
 }
 
 //==== Delete Preset ====//
-bool VarPresetMgrSingleton::DeletePreset( int group_index, int set_index )
+bool OldVarPresetMgrSingleton::DeletePreset( int group_index, int set_index )
 {
     //cout << "Deleting Preset ===============================" << endl;
 
@@ -689,7 +689,7 @@ bool VarPresetMgrSingleton::DeletePreset( int group_index, int set_index )
         return true;
     }
 
-    Preset group = m_PresetVec[group_index];
+    OldPreset group = m_PresetVec[group_index];
 
     // If Group Has ONLY 1 Setting Delete It All
     if (group.GetNumSet() == 1)
@@ -728,7 +728,7 @@ bool VarPresetMgrSingleton::DeletePreset( int group_index, int set_index )
 }
 
 //==== Delete Save Parm Setting ====//
-bool VarPresetMgrSingleton::DeletePreset( const string &group_name, const string &setting_name )
+bool OldVarPresetMgrSingleton::DeletePreset( const string &group_name, const string &setting_name )
 {
     int group_index = vector_find_val( GetGroupNames(), group_name );
     int set_index = vector_find_val( m_PresetVec[ group_index ].GetSettingNameVec(), setting_name );
@@ -736,7 +736,7 @@ bool VarPresetMgrSingleton::DeletePreset( const string &group_name, const string
     return DeletePreset( group_index, set_index );
 }
 
-vector <string> VarPresetMgrSingleton::GetParmIDs( const string &group_name )
+vector <string> OldVarPresetMgrSingleton::GetParmIDs( const string &group_name )
 {
     int group_index = vector_find_val( GetGroupNames(), group_name );
     vector <string> vec;
@@ -751,7 +751,7 @@ vector <string> VarPresetMgrSingleton::GetParmIDs( const string &group_name )
     }
 }
 
-vector <double> VarPresetMgrSingleton::GetParmVals( const string &group_name, const string &setting_name )
+vector <double> OldVarPresetMgrSingleton::GetParmVals( const string &group_name, const string &setting_name )
 {
     int group_index = vector_find_val( GetGroupNames(), group_name );
     int set_index = vector_find_val( m_PresetVec[ group_index ].GetSettingNameVec(), setting_name );
@@ -768,7 +768,7 @@ vector <double> VarPresetMgrSingleton::GetParmVals( const string &group_name, co
 }
 
 //==== Get Setting Names ====//
-vector <string> VarPresetMgrSingleton::GetSettingNames( int group_index )
+vector <string> OldVarPresetMgrSingleton::GetSettingNames( int group_index )
 {
     if ( group_index >= 0 && group_index < m_PresetVec.size() )
     {
@@ -780,7 +780,7 @@ vector <string> VarPresetMgrSingleton::GetSettingNames( int group_index )
     }
 }
 
-vector <string> VarPresetMgrSingleton::GetSettingNames( const string & group_name )
+vector <string> OldVarPresetMgrSingleton::GetSettingNames( const string & group_name )
 {
     int group_index = vector_find_val( GetGroupNames(), group_name );
     if ( group_index >= 0 )
@@ -794,7 +794,7 @@ vector <string> VarPresetMgrSingleton::GetSettingNames( const string & group_nam
 }
 
 //==== Get Group Names ====//
-vector <string> VarPresetMgrSingleton::GetGroupNames()
+vector <string> OldVarPresetMgrSingleton::GetGroupNames()
 {
     vector <string> vec( m_PresetVec.size() );
     for ( int i = 0; i < m_PresetVec.size(); i++ )
@@ -806,7 +806,7 @@ vector <string> VarPresetMgrSingleton::GetGroupNames()
 
 //==== Check For Repeat Parameters ====//
 // Checks for Repeat Parameters across all groups
-bool VarPresetMgrSingleton::CheckForDuplicateParm( const string & p_ID )
+bool OldVarPresetMgrSingleton::CheckForDuplicateParm( const string & p_ID )
 {
     for ( int i = 0; i < m_PresetVec.size(); i++ )
     {
@@ -820,7 +820,7 @@ bool VarPresetMgrSingleton::CheckForDuplicateParm( const string & p_ID )
 }
 
 //==== Encode XML ====//
-xmlNodePtr VarPresetMgrSingleton::EncodeXml( xmlNodePtr & node )
+xmlNodePtr OldVarPresetMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
     // Create Var Preset Node
     xmlNodePtr varpresetnode = xmlNewChild( node, NULL, BAD_CAST"VariablePresets", NULL );
@@ -858,7 +858,7 @@ xmlNodePtr VarPresetMgrSingleton::EncodeXml( xmlNodePtr & node )
 }
 
 //==== Decode XML ====//
-xmlNodePtr VarPresetMgrSingleton::DecodeXml( xmlNodePtr & node )
+xmlNodePtr OldVarPresetMgrSingleton::DecodeXml( xmlNodePtr & node )
 {
     // Find Var Preset Node
     xmlNodePtr varpresetnode = XmlUtil::GetNode( node, "VariablePresets", 0 );

@@ -21,11 +21,11 @@ using std::string;
 using std::vector;
 
 //==== Preset ====//
-class Preset
+class OldPreset
 {
 public:
-    Preset();
-    virtual ~Preset();
+    OldPreset();
+    virtual ~OldPreset();
 
     virtual void Init( const string &group_name, const vector< string > &p_IDvec);
 
@@ -52,7 +52,7 @@ public:
     virtual void DeleteParm( const string &p_id );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr &varpresetnode, int i );
-    virtual Preset DecodeXml( xmlNodePtr &varpresetnode, int i );
+    virtual OldPreset DecodeXml( xmlNodePtr &varpresetnode, int i );
 
 protected:
 
@@ -66,12 +66,12 @@ protected:
 };
 
 //==== Design Variable Manager ====//
-class VarPresetMgrSingleton
+class OldVarPresetMgrSingleton
 {
 public:
-    static VarPresetMgrSingleton& getInstance()
+    static OldVarPresetMgrSingleton& getInstance()
     {
-        static VarPresetMgrSingleton instance;
+        static OldVarPresetMgrSingleton instance;
         return instance;
     }
 
@@ -114,7 +114,7 @@ public:
     virtual string GetActiveSettingText()               { return m_CurSettingText; }
     virtual int GetNumSet();
     virtual int GetActiveSettingIndexFromGroup( int g_index )   { return m_PresetVec[ g_index ].GetSettingIndex(); }
-    virtual vector < Preset > GetPresetVec()            { return m_PresetVec; }
+    virtual vector < OldPreset > GetPresetVec()            { return m_PresetVec; }
     virtual bool GetDeleteFlag()                        { return m_PrevDeleteFlag; }
 
     virtual vector < string > GetCurrentParmIDs()
@@ -138,9 +138,9 @@ public:
 
 private:
 
-    VarPresetMgrSingleton();
-    VarPresetMgrSingleton( VarPresetMgrSingleton const& copy );          // Not Implemented
-    VarPresetMgrSingleton& operator=( VarPresetMgrSingleton const& copy ); // Not Implemented
+    OldVarPresetMgrSingleton();
+    OldVarPresetMgrSingleton( OldVarPresetMgrSingleton const& copy );          // Not Implemented
+    OldVarPresetMgrSingleton& operator=( OldVarPresetMgrSingleton const& copy ); // Not Implemented
 
     void Init();
     void Wype();
@@ -156,9 +156,9 @@ private:
     int m_CurSettingIndex;
     string m_CurGroupText;
     string m_CurSettingText;
-    vector < Preset > m_PresetVec;
+    vector < OldPreset > m_PresetVec;
 };
 
-#define VarPresetMgr VarPresetMgrSingleton::getInstance()
+#define OldVarPresetMgr OldVarPresetMgrSingleton::getInstance()
 
 #endif

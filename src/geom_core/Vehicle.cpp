@@ -527,7 +527,7 @@ void Vehicle::Wype()
     DesignVarMgr.Renew();
     FitModelMgr.Renew();
     AnalysisMgr.Renew();
-    VarPresetMgr.Renew();
+    OldVarPresetMgr.Renew();
     ParasiteDragMgr.Renew();
     VSPAEROMgr.Renew();
     MeasureMgr.Renew();
@@ -1858,7 +1858,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     LinkMgr.EncodeXml( node );
     AdvLinkMgr.EncodeXml( node );
     VSPAEROMgr.EncodeXml( node );
-    VarPresetMgr.EncodeXml( node );
+    OldVarPresetMgr.EncodeXml( node );
     m_CfdSettings.EncodeXml( node );
     m_ISectSettings.EncodeXml( node );
     m_CfdGridDensity.EncodeXml( node );
@@ -1979,7 +1979,7 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
 
     LinkMgr.DecodeXml( node );
     AdvLinkMgr.DecodeXml( node );
-    VarPresetMgr.DecodeXml( node );
+    OldVarPresetMgr.DecodeXml( node );
     StructureMgr.DecodeXml( node );
     Background3DMgr.EncodeXml( node );
 
