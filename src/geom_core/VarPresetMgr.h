@@ -20,6 +20,129 @@
 using std::string;
 using std::vector;
 
+
+class Setting
+{
+public:
+    Setting();
+    ~Setting();
+
+    string GetName() const                       { return m_Name; }
+    void SetName( const string & name )          { m_Name = name; }
+
+    string GetID() const
+    {
+        return m_ID;
+    }
+    void ChangeID( const string& newID );
+
+    void SetParmValVec( const vector < double > &valvec )       { m_ParmValVec = valvec; };
+    vector < double > GetParmValVec() const      { return m_ParmValVec; }
+
+    void SetParmVal( int index, double val );
+    double GetParmVal( int index ) const;
+
+    void PushBackParmVal( double val );
+    void EraseParmVal( int index );
+
+    xmlNodePtr EncodeXml( xmlNodePtr &node );
+    xmlNodePtr DecodeXml( xmlNodePtr &node );
+
+protected:
+    string GenerateID();
+
+    string m_ID;
+    string m_Name;
+    vector < double > m_ParmValVec;
+};
+
+class SettingGroup
+{
+public:
+    SettingGroup();
+    ~SettingGroup();
+
+    string GetName() const                       { return m_Name; }
+    void SetName( const string & name )          { m_Name = name; }
+
+    string GetID() const
+    {
+        return m_ID;
+    }
+    void ChangeID( const string& newID );
+
+    bool AddSetting( Setting* s );
+    void RemoveSetting( Setting* s );
+
+    bool AddParm( const string &id );
+    void RemoveParm( const string &id );
+
+    void SetParmIDVec( const vector < string > &pid_vec )      { m_ParmIDVec = pid_vec; }
+    vector < string > GetParmIDVec() const       { return m_ParmIDVec; }
+
+    vector < string > GetSettingIDVec() const                  { return m_SettingIDVec; }
+
+    void ApplySetting( const string &id );
+    void SaveSetting( const string &id );
+    bool CheckSetting( const string &id );
+
+    xmlNodePtr EncodeXml( xmlNodePtr &node );
+    xmlNodePtr DecodeXml( xmlNodePtr &node );
+
+protected:
+    string GenerateID();
+
+    string m_ID;
+    string m_Name;
+
+    vector < string > m_ParmIDVec;
+    vector < string > m_SettingIDVec;
+
+};
+
+
+class VarPresetMgrSingleton
+{
+public:
+    static VarPresetMgrSingleton& getInstance()
+    {
+        static VarPresetMgrSingleton instance;
+        return instance;
+    }
+
+    void Renew();
+
+    bool AddSetting( Setting* s );
+    void RemoveSetting( Setting* s );
+    Setting* FindSetting( const string & id );
+
+    bool AddSettingGroup( SettingGroup* sg );
+    void RemoveSettingGroup( SettingGroup* sg );
+    SettingGroup* FindSettingGroup( const string & id );
+
+    vector < string > GetAllSettingGroups();
+
+    xmlNodePtr EncodeXml( xmlNodePtr &node ) const;
+    xmlNodePtr DecodeXml( xmlNodePtr &node );
+
+private:
+    VarPresetMgrSingleton();
+    VarPresetMgrSingleton( VarPresetMgrSingleton const& copy );             // Not Implemented
+    VarPresetMgrSingleton& operator=( VarPresetMgrSingleton const& copy );  // Not Implemented
+
+    unordered_map< string, Setting* > m_SettingMap;                         // ID->Setting Map
+    unordered_map< string, SettingGroup* > m_SettingGroupMap;               // ID->Setting Group Map
+    vector < string > m_SettingGroupVec;                                    // Ordered Setting Group ID's
+
+};
+
+#define VarPresetMgr VarPresetMgrSingleton::getInstance()
+
+
+
+
+
+
 //==== Preset ====//
 class OldPreset
 {

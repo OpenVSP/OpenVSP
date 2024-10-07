@@ -12,6 +12,371 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 
+
+//=========================================================================//
+//=======================        Setting       ============================//
+//=========================================================================//
+
+Setting::Setting()
+{
+    m_ID = GenerateID();
+}
+
+Setting::~Setting()
+{
+
+}
+
+void Setting::ChangeID( const string& newID )
+{
+    VarPresetMgr.RemoveSetting( this );
+
+    m_ID = newID;
+
+    VarPresetMgr.AddSetting( this );
+}
+
+void Setting::SetParmVal( int index, double val )
+{
+    if ( index >= 0 && index < m_ParmValVec.size() )
+    {
+        m_ParmValVec[ index ] = val;
+    }
+}
+
+double Setting::GetParmVal( int index ) const
+{
+    if ( index >= 0 && index < m_ParmValVec.size() )
+    {
+        return m_ParmValVec[ index ];
+    }
+    return 0.0;
+}
+
+void Setting::PushBackParmVal( double val )
+{
+    m_ParmValVec.push_back( val );
+}
+
+void Setting::EraseParmVal( int index )
+{
+    if ( index >= 0 && index < m_ParmValVec.size() )
+    {
+        m_ParmValVec.erase( m_ParmValVec.begin() + index );
+    }
+}
+
+xmlNodePtr Setting::EncodeXml( xmlNodePtr &node )
+{
+    return node;
+}
+
+xmlNodePtr Setting::DecodeXml( xmlNodePtr &node )
+{
+    return node;
+}
+
+string Setting::GenerateID()
+{
+    return GenerateRandomID( 6 );
+}
+
+//=========================================================================//
+//====================        SettingGroup       ==========================//
+//=========================================================================//
+
+SettingGroup::SettingGroup()
+{
+    m_ID = GenerateID();
+}
+
+SettingGroup::~SettingGroup()
+{
+
+}
+
+void SettingGroup::ChangeID( const string& newID )
+{
+    VarPresetMgr.RemoveSettingGroup( this );
+
+    m_ID = newID;
+
+    VarPresetMgr.AddSettingGroup( this );
+}
+
+bool SettingGroup::AddSetting( Setting* s )
+{
+    if ( VarPresetMgr.AddSetting( s ) )
+    {
+        vector < double > valvec( m_ParmIDVec.size(), 0.0 );
+        s->SetParmValVec( valvec );
+        m_SettingIDVec.push_back( s->GetID() );
+        SaveSetting( s->GetID() );
+        return true;
+    }
+    return false;
+}
+
+void SettingGroup::RemoveSetting( Setting* s )
+{
+    VarPresetMgr.RemoveSetting( s );
+    vector_remove_val( m_SettingIDVec, s->GetID() );
+}
+
+bool SettingGroup::AddParm( const string &id )
+{
+    Parm *p = ParmMgr.FindParm( id );
+
+    if ( p )
+    {
+        if ( !vector_contains_val( m_ParmIDVec, id ) )
+        {
+            m_ParmIDVec.push_back( id );
+            double val = p->Get();
+
+            for ( int i = 0; i < m_SettingIDVec.size(); i++ )
+            {
+                Setting *s = VarPresetMgr.FindSetting( m_SettingIDVec[i] );
+                if ( s )
+                {
+                    s->PushBackParmVal( val );
+                }
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+void SettingGroup::RemoveParm( const string &id )
+{
+    Parm *p = ParmMgr.FindParm( id );
+
+    if ( p )
+    {
+        int index = vector_find_val( m_ParmIDVec, id );
+
+        m_ParmIDVec.erase( m_ParmIDVec.begin() + index );
+
+        for ( int i = 0; i < m_SettingIDVec.size(); i++ )
+        {
+            Setting *s = VarPresetMgr.FindSetting( m_SettingIDVec[i] );
+            if ( s )
+            {
+                s->EraseParmVal( index );
+            }
+        }
+    }
+}
+
+void SettingGroup::ApplySetting( const string &id )
+{
+    Setting* s = VarPresetMgr.FindSetting( id );
+    if ( s )
+    {
+        vector < double > valvec = s->GetParmValVec();
+
+        for ( int i = 0; i < m_ParmIDVec.size(); i++ )
+        {
+            Parm *p = ParmMgr.FindParm( m_ParmIDVec[i] );
+            if ( p )
+            {
+                p->Set( valvec[i] );
+            }
+        }
+        VehicleMgr.GetVehicle()->Update();
+    }
+}
+
+void SettingGroup::SaveSetting( const string &id )
+{
+    Setting* s = VarPresetMgr.FindSetting( id );
+    if ( s )
+    {
+        vector < double > valvec( m_ParmIDVec.size(), 0.0 );
+        for ( int i = 0; i < m_ParmIDVec.size(); i++ )
+        {
+            Parm *p = ParmMgr.FindParm( m_ParmIDVec[i] );
+            if ( p )
+            {
+                valvec[i] = p->Get();
+            }
+        }
+        s->SetParmValVec( valvec );
+    }
+}
+
+bool SettingGroup::CheckSetting( const string &id )
+{
+    Setting* s = VarPresetMgr.FindSetting( id );
+    if ( s )
+    {
+        bool match = true;
+        vector < double > valvec = s->GetParmValVec();
+
+        for ( int i = 0; i < m_ParmIDVec.size(); i++ )
+        {
+            Parm *p = ParmMgr.FindParm( m_ParmIDVec[i] );
+            if ( p )
+            {
+                if ( p->Get() != valvec[i] ) // Parm does not match
+                {
+                    match = false;
+                }
+            }
+            else // Parm not ound
+            {
+                match = false;
+            }
+        }
+        return match;
+    }
+    return false; // Setting not found
+}
+
+xmlNodePtr SettingGroup::EncodeXml( xmlNodePtr &node )
+{
+    return node;
+}
+
+xmlNodePtr SettingGroup::DecodeXml( xmlNodePtr &node )
+{
+    return node;
+}
+
+string SettingGroup::GenerateID()
+{
+    return GenerateRandomID( 5 );
+}
+
+//=========================================================================//
+//===============        VarPresetMgrSingleton       ======================//
+//=========================================================================//
+
+VarPresetMgrSingleton::VarPresetMgrSingleton()
+{
+}
+
+void VarPresetMgrSingleton::Renew()
+{
+
+}
+
+bool VarPresetMgrSingleton::AddSetting( Setting* s )
+{
+    if ( !s )
+    {
+        return false;
+    }
+
+    string id = s->GetID();
+
+    if ( id.size() == 0 )
+    {
+        return false;
+    }
+
+    //==== Check If Already Added ====//
+    if ( m_SettingMap.find( s->GetID() ) != m_SettingMap.end() )
+    {
+        return false;
+    }
+
+    m_SettingMap[id] = s;
+
+    return true;
+}
+
+void VarPresetMgrSingleton::RemoveSetting( Setting* s )
+{
+    unordered_map< string, Setting* >::iterator iter;
+    iter = m_SettingMap.find( s->GetID() );
+
+    if ( iter != m_SettingMap.end() && iter->second == s )
+    {
+        m_SettingMap.erase( iter );
+    }
+}
+
+Setting* VarPresetMgrSingleton::FindSetting( const string & id )
+{
+    unordered_map< string, Setting* >::iterator iter;
+
+    iter = m_SettingMap.find( id );
+    if ( iter != m_SettingMap.end() )
+    {
+        return iter->second;
+    }
+    return nullptr;
+}
+
+bool VarPresetMgrSingleton::AddSettingGroup( SettingGroup* sg )
+{
+    if ( !sg )
+    {
+        return false;
+    }
+
+    string id = sg->GetID();
+
+    if ( id.size() == 0 )
+    {
+        return false;
+    }
+
+    //==== Check If Already Added ====//
+    if ( m_SettingGroupMap.find( sg->GetID() ) != m_SettingGroupMap.end() )
+    {
+        return false;
+    }
+    m_SettingGroupMap[id] = sg;
+    m_SettingGroupVec.push_back( sg->GetID() );
+
+    return true;
+}
+
+void VarPresetMgrSingleton::RemoveSettingGroup( SettingGroup* sg )
+{
+    unordered_map< string, SettingGroup* >::iterator iter;
+    iter = m_SettingGroupMap.find( sg->GetID() );
+
+    if ( iter !=  m_SettingGroupMap.end() && iter->second == sg )
+    {
+        m_SettingGroupMap.erase( iter );
+        vector_remove_val( m_SettingGroupVec, sg->GetID() );
+    }
+}
+
+SettingGroup* VarPresetMgrSingleton::FindSettingGroup( const string & id )
+{
+    unordered_map< string, SettingGroup* >::iterator iter;
+
+    iter = m_SettingGroupMap.find( id );
+    if ( iter != m_SettingGroupMap.end() )
+    {
+        return iter->second;
+    }
+    return nullptr;
+}
+
+vector < string > VarPresetMgrSingleton::GetAllSettingGroups()
+{
+    return m_SettingGroupVec;
+}
+
+xmlNodePtr VarPresetMgrSingleton::EncodeXml( xmlNodePtr &node ) const
+{
+    return node;
+}
+
+xmlNodePtr VarPresetMgrSingleton::DecodeXml( xmlNodePtr &node )
+{
+    return node;
+}
+
+
+
+
 //=========================================================================//
 //=======================        Preset        ============================//
 //=========================================================================//
