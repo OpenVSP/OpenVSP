@@ -29,8 +29,10 @@ public:
 
     bool Update();
     virtual void RebuildAdjustTab();
-    virtual void RebuildMenus( int g_index );
-    virtual void CheckSaveStatus( int g_index, int s_index );
+    virtual void RebuildMenus();
+    virtual void UpdateVarBrowser();
+    virtual void CheckSaveStatus();
+    virtual void EnableDisableWidgets();
 
     void Show();
     void Hide();
@@ -45,8 +47,6 @@ public:
 
 protected:
 
-    int m_NVarLast;
-
     GroupLayout m_ChangeStateLayout;
     GroupLayout m_PickLayout;
 
@@ -54,8 +54,15 @@ protected:
     GroupLayout m_AdjustLayout;
 
     ParmPicker m_ParmPicker;
+
     Choice m_GroupChoice;
+    int m_GroupChoiceIndex;
+    vector < string > m_GroupIDs;
+
     Choice m_SettingChoice;
+    int m_SettingChoiceIndex;
+    vector < string > m_SettingIDs;
+
     StringInput m_GroupInput;
     StringInput m_SettingInput;
 
@@ -63,14 +70,18 @@ protected:
     TriggerButton m_DelVarButton;
 
     ColResizeBrowser* m_VarBrowser;
+    int m_SelectedVarIndex;
+    vector < string > m_ParmIDs;
 
     TriggerButton m_AddGroupButton;
     TriggerButton m_AddSettingButton;
-    TriggerButton m_DeleteButton;
+    TriggerButton m_DeleteGroupButton;
+    TriggerButton m_DeleteSettingButton;
     TriggerButton m_ApplyButton;
     TriggerButton m_SaveButton;
 
     vector < SliderAdjRangeInput > m_ParmSliderVec;
+    std::size_t m_ParmListHash;
 };
 
 #endif

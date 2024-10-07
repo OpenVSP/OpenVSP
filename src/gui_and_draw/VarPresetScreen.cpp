@@ -9,6 +9,7 @@
 
 #include "VarPresetScreen.h"
 #include "ParmMgr.h"
+#include "StlHelper.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -16,9 +17,6 @@
 
 VarPresetScreen::VarPresetScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 600, "Variable Presets", "", (-6 * 20) - 25) // 6 rows * 20 StdHeight of UI objects, 25 Height of Tabs
 {
-    //==== Variables ====//
-    m_NVarLast = 0;
-
     // Hidden Var Tree Tab until complete
     //Fl_Group* tree_tab = AddTab( "Var Tree" );
     //( (Vsp_Group*) tree_tab )->SetAllowDrop( true );
@@ -49,12 +47,12 @@ VarPresetScreen::VarPresetScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 600, "
 
     m_ChangeStateLayout.AddDividerBox( "Edit" );
 
-    m_ChangeStateLayout.SetButtonWidth( ( m_ChangeStateLayout.GetRemainX() ) / 2 );
+    m_ChangeStateLayout.SetButtonWidth( ( m_ChangeStateLayout.GetRemainX() ) / 3 );
     m_ChangeStateLayout.SetSameLineFlag( true );
     m_ChangeStateLayout.SetFitWidthFlag( false );
     m_ChangeStateLayout.AddButton( m_SaveButton , "Save Changes" );
-    m_SaveButton.Deactivate();
-    m_ChangeStateLayout.AddButton( m_DeleteButton, "Delete Current" );
+    m_ChangeStateLayout.AddButton( m_DeleteGroupButton, "Delete Group" );
+    m_ChangeStateLayout.AddButton( m_DeleteSettingButton, "Delete Setting" );
 
     // Everything Relevant to "Pick" Tab
     m_PickLayout.SetGroupAndScreen( pick_group, this );
@@ -111,6 +109,12 @@ VarPresetScreen::VarPresetScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 600, "
 
     // Everything Relevant to "Adjust" Tab
     m_AdjustLayout.SetGroupAndScreen( m_AdjustGroup, this );
+
+    m_GroupChoiceIndex = 0;
+    m_SettingChoiceIndex = 0;
+    m_SelectedVarIndex = 0;
+
+    m_ParmListHash = 0;
 }
 
 VarPresetScreen::~VarPresetScreen()
@@ -121,142 +125,18 @@ bool VarPresetScreen::Update()
 {
     TabScreen::Update();
 
-    int i;
-    char str[256];
+    RebuildMenus();
 
-    if ( OldVarPresetMgr.GetPresetVec().size() == 0 )
-    {
-        m_GroupChoice.Deactivate();
-        m_SettingChoice.Deactivate();
-        m_ApplyButton.Deactivate();
-        m_DeleteButton.Deactivate();
-        m_SettingInput.Deactivate();
-        m_AddSettingButton.Deactivate();
-        m_ParmPicker.Deactivate();
-        m_AddVarButton.Deactivate();
-        m_DelVarButton.Deactivate();
-        m_VarBrowser->deactivate();
-    }
-    else if ( OldVarPresetMgr.GetDeleteFlag() == 1 )
-    {
-        m_GroupChoice.Activate();
-        m_SettingChoice.Activate();
-        m_ApplyButton.Activate();
-        m_DeleteButton.Deactivate();
-        m_SettingInput.Deactivate();
-        m_AddSettingButton.Deactivate();
-        m_ParmPicker.Deactivate();
-        m_AddVarButton.Deactivate();
-        m_DelVarButton.Deactivate();
-        m_VarBrowser->deactivate();
-    }
-    else
-    {
-        if ( OldVarPresetMgr.GetNumSet() == 0 )
-        {
-            m_GroupChoice.Activate();
-            m_DeleteButton.Activate();
-            m_SettingInput.Activate();
-            m_AddSettingButton.Activate();
-            m_SettingChoice.Deactivate();
-            m_ApplyButton.Deactivate();
-            m_ParmPicker.Deactivate();
-            m_AddVarButton.Deactivate();
-            m_DelVarButton.Deactivate();
-            m_VarBrowser->deactivate();
-        }
-        else
-        {
-            m_GroupChoice.Activate();
-            m_SettingChoice.Activate();
-            m_ApplyButton.Activate();
-            m_DeleteButton.Activate();
-            m_SettingInput.Activate();
-            m_AddSettingButton.Activate();
-            m_ParmPicker.Activate();
-            m_AddVarButton.Activate();
-            m_DelVarButton.Activate();
-            m_VarBrowser->activate();
-        }
-    }
-
-    // Predefined Parms
-    m_GroupInput.Update( OldVarPresetMgr.GetActiveGroupText() );
-    m_SettingInput.Update( OldVarPresetMgr.GetActiveSettingText() );
-
-    // ==== Update Menus ==== //
-    // This used to only update when a flag to update it was set or the
-    // number of variable presets changed. This was not working so was simplified
-    // to update the menus every iteration. The additional time is negligible and
-    // this is consistent with updates for other menu items.
-    RebuildMenus( OldVarPresetMgr.GetActiveGroupIndex() );
-
-    if ( OldVarPresetMgr.GetPresetVec().empty() )
-    {
-        m_GroupChoice.ClearItems();
-        m_GroupChoice.UpdateItems();
-        m_SettingChoice.ClearItems();
-        m_SettingChoice.UpdateItems();
-    }
-
-    // Check that all Parms exist.  Needed in case a Geom with DesVars is
-    // deleted.
-    OldVarPresetMgr.CheckVars();
-
-    // Re-sort DesVars.  Needed in case a Geom's name is changed.
-    if ( !OldVarPresetMgr.SortVars() )
-    {
-        RebuildAdjustTab();
-    }
-
-    //==== Update Parm Picker ====//
     m_ParmPicker.Update();
 
-    //==== Update Parm Browser ====//
-    int h_pos = m_VarBrowser->hposition();
-    int v_pos = m_VarBrowser->vposition();
-    m_VarBrowser->clear();
+    UpdateVarBrowser(); // Updates m_ParmIDs
 
-    m_VarBrowser->column_char( ':' );         // use : as the column character
-
-    snprintf( str, sizeof( str ), "@b@.COMP:@b@.GROUP:@b@.PARM" );
-    m_VarBrowser->add( str );
-
-    int num_vars = OldVarPresetMgr.GetNumVars();
-    for ( i = 0 ; i < num_vars ; i++ )
-    {
-        string parmid = OldVarPresetMgr.GetVar( i );
-
-        string c_name, g_name, p_name;
-        ParmMgr.GetNames( parmid, c_name, g_name, p_name );
-
-        snprintf( str, sizeof( str ), "%s:%s:%s", c_name.c_str(), g_name.c_str(), p_name.c_str() );
-        m_VarBrowser->add( str );
-    }
-
-    int index = OldVarPresetMgr.GetCurrVarIndex();
-    if ( index >= 0 && index < num_vars )
-    {
-        m_VarBrowser->select( index + 2 );
-    }
-
-    m_VarBrowser->hposition( h_pos );
-    m_VarBrowser->vposition( v_pos );
-
-    // Parameter GUI got out of sync.  Probably from File->New or similar.
-    if ( m_NVarLast != num_vars )
-    {
-        RebuildAdjustTab();
-    }
-
-    //==== Update Parm Adjust Tab ====//
-    for ( i = 0 ; i < num_vars ; i++ )
-    {
-        m_ParmSliderVec[i].Update( OldVarPresetMgr.GetVar( i ) );
-    }
+    RebuildAdjustTab(); // Relies on up-to-date m_ParmIDs
 
     // ==== Check if Save Necessary ==== //
-    CheckSaveStatus( OldVarPresetMgr.GetActiveGroupIndex(), OldVarPresetMgr.GetActiveSettingIndex() );
+    CheckSaveStatus();
+
+    EnableDisableWidgets();
 
     m_FLTK_Window->redraw();
 
@@ -265,115 +145,256 @@ bool VarPresetScreen::Update()
 
 void VarPresetScreen::RebuildAdjustTab()
 {
-    //printf( "Rebuild Adjust Tab ================================== \n" );
-    m_AdjustGroup->clear();
-    m_AdjustLayout.SetGroup( m_AdjustGroup );
-    m_AdjustLayout.InitWidthHeightVals();
+    // Serialize m_ParmIDs into single long string.
+    string str = string_vec_serialize( m_ParmIDs );
+    // Calculate hash to detect changes in m_ParmIDs
+    std::size_t str_hash = std::hash < std::string >{}( str );
 
-    m_ParmSliderVec.clear();
-
-    unsigned int num_vars = OldVarPresetMgr.GetNumVars();
-    m_ParmSliderVec.resize( num_vars );
-
-    string lastContID;
-
-    for ( int i = 0 ; i < num_vars ; i++ )
+    // Relies on currency of m_ParmIDs by UpdateVarBrowser()
+    if ( str_hash != m_ParmListHash )
     {
-        string pID = OldVarPresetMgr.GetVar( i );
+        m_AdjustGroup->clear();
+        m_AdjustLayout.SetGroup( m_AdjustGroup );
+        m_AdjustLayout.InitWidthHeightVals();
 
-        Parm* p = ParmMgr.FindParm( pID );
+        m_ParmSliderVec.clear();
 
-        string contID = p->GetContainerID();
+        m_ParmSliderVec.resize( m_ParmIDs.size() );
 
-        if ( contID.compare( lastContID ) != 0 )
+        string lastContID;
+        for ( int i = 0; i < m_ParmIDs.size(); i++ )
         {
-            lastContID = contID;
-            m_AdjustLayout.AddDividerBox( ParmMgr.FindParmContainer( contID )->GetName() );
-        }
+            Parm *p = ParmMgr.FindParm( m_ParmIDs[i] );
 
-        m_AdjustLayout.AddSlider( m_ParmSliderVec[i], "AUTO_UPDATE", 10, "%7.3f" );
-        m_ParmSliderVec[i].Update( pID );
+            if ( p )
+            {
+                string contID = p->GetContainerID();
+                if ( contID.compare( lastContID ) != 0 )
+                {
+                    lastContID = contID;
+                    ParmContainer *pc = ParmMgr.FindParmContainer( contID );
+                    if ( pc )
+                    {
+                        m_AdjustLayout.AddDividerBox( pc->GetName() );
+                    }
+                }
+
+                m_AdjustLayout.AddSlider( m_ParmSliderVec[i], "AUTO_UPDATE", 10, "%7.3f" );
+            }
+        }
+        m_ParmListHash = str_hash;
     }
 
-    m_NVarLast = num_vars;
+    for ( int i = 0; i < m_ParmIDs.size(); i++ )
+    {
+        Parm *p = ParmMgr.FindParm( m_ParmIDs[i] );
 
+        if ( p )
+        {
+            m_ParmSliderVec[i].Update( m_ParmIDs[i] );
+        }
+    }
 }
 
-void VarPresetScreen::RebuildMenus( int g_index )
+void VarPresetScreen::RebuildMenus()
 {
-    //printf( "Rebuilding Menus ====================================== \n" );
-    int s_index;
-    vector < OldPreset > m_PresetVec = OldVarPresetMgr.GetPresetVec();
-
     m_GroupChoice.ClearItems();
-    m_SettingChoice.ClearItems();
+    m_GroupIDs.clear();
 
-    if ( m_PresetVec.size() != 0 || g_index != -1 )
+    m_GroupIDs = VarPresetMgr.GetAllSettingGroups();
+    for ( int i = 0; i < m_GroupIDs.size(); i++ )
     {
-        if ( g_index == -1 )
+        SettingGroup *sg = VarPresetMgr.FindSettingGroup( m_GroupIDs[i] );
+        if ( sg )
         {
-            g_index = 0;
-            s_index = 0;
+            m_GroupChoice.AddItem( sg->GetName(), i );
         }
-        else
-        {
-            s_index = OldVarPresetMgr.GetActiveSettingIndexFromGroup( g_index );
-        }
+    }
+    m_GroupChoice.UpdateItems();
 
-        // Add Item to Apply Lists
-        for ( int i = 0; i < m_PresetVec.size(); i++ )
+    m_GroupChoice.SetVal( m_GroupChoiceIndex );
+
+    m_SettingChoice.ClearItems();
+    m_SettingIDs.clear();
+
+    if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() )
+    {
+        string gid = m_GroupIDs[ m_GroupChoiceIndex ];
+
+        SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+        if ( sg )
         {
-            m_GroupChoice.AddItem( m_PresetVec[i].GetGroupName() );
-            if ( i ==  g_index )
+            m_SettingIDs = sg->GetSettingIDVec();
+
+            for ( int i = 0; i < m_SettingIDs.size(); i++ )
             {
-                for ( int j = 0; j < m_PresetVec[i].GetNumSet(); j++ )
+                Setting *s = VarPresetMgr.FindSetting( m_SettingIDs[i] );
+                if ( s )
                 {
-                    m_SettingChoice.AddItem( m_PresetVec[i].GetSettingName(j) );
+                    m_SettingChoice.AddItem( s->GetName(), i );
                 }
             }
         }
+    }
+    m_SettingChoice.UpdateItems();
 
-        m_SettingChoice.UpdateItems();
-        m_SettingChoice.SetVal( s_index );
+    m_SettingChoice.SetVal( m_SettingChoiceIndex );
+}
 
-        m_GroupChoice.UpdateItems();
-        m_GroupChoice.SetVal( g_index );
+void VarPresetScreen::UpdateVarBrowser()
+{
+    char str[256];
+
+    //==== Update Parm Browser ====//
+    int h_pos = m_VarBrowser->hposition();
+    int v_pos = m_VarBrowser->vposition();
+    m_VarBrowser->clear();
+    m_ParmIDs.clear();
+
+    m_VarBrowser->column_char( ':' );         // use : as the column character
+
+    snprintf( str, sizeof( str ), "@b@.COMP:@b@.GROUP:@b@.PARM" );
+    m_VarBrowser->add( str );
+
+    if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() )
+    {
+        string gid = m_GroupIDs[ m_GroupChoiceIndex ];
+
+        SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+        if ( sg )
+        {
+            m_ParmIDs = sg->GetParmIDVec();
+        }
+    }
+
+    for ( int i = 0 ; i < m_ParmIDs.size() ; i++ )
+    {
+        string parmid = m_ParmIDs[ i ];
+
+        string c_name, g_name, p_name;
+        ParmMgr.GetNames( parmid, c_name, g_name, p_name );
+
+        snprintf( str, sizeof( str ), "%s:%s:%s", c_name.c_str(), g_name.c_str(), p_name.c_str() );
+        m_VarBrowser->add( str );
+    }
+
+    if ( m_SelectedVarIndex >= 0 && m_SelectedVarIndex < m_ParmIDs.size() )
+    {
+        m_VarBrowser->select( m_SelectedVarIndex + 2 );
+    }
+
+    m_VarBrowser->hposition( h_pos );
+    m_VarBrowser->vposition( v_pos );
+}
+
+void VarPresetScreen::CheckSaveStatus()
+{
+    m_SaveButton.Deactivate();
+    m_SaveButton.GetFlButton()->label( "Save Changes" );
+
+    if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() &&
+         m_SettingChoiceIndex >= 0 && m_SettingChoiceIndex < m_SettingIDs.size() )
+    {
+        string gid = m_GroupIDs[ m_GroupChoiceIndex ];
+        string sid = m_SettingIDs[ m_SettingChoiceIndex ];
+
+        SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+        if ( sg )
+        {
+            if ( !sg->CheckSetting( sid ) )
+            {
+                m_SaveButton.GetFlButton()->label( "*SAVE CHANGES*" );
+                m_SaveButton.Activate();
+            }
+
+        }
     }
 }
 
-void VarPresetScreen::CheckSaveStatus( int g_index, int s_index )
+void VarPresetScreen::EnableDisableWidgets()
 {
-    //printf( "Checking Save Status ============================= \n" );
-    // Compare Currently Saved Values with Current
-    // if different notify user to save changes
-    vector <OldPreset> m_PresetVec = OldVarPresetMgr.GetPresetVec();
-    if ( g_index != -1 && s_index != -1 )
+    SettingGroup *sg = NULL;
+    Setting *s = NULL;
+    Parm *p = NULL;
+
+    if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() )
     {
-        int num_vars = OldVarPresetMgr.GetNumVars();
-        vector <double> p_val = m_PresetVec[ g_index ].GetParmVals( s_index );
-        vector <string> p_IDs = m_PresetVec[ g_index ].GetParmIDs();
-        for ( int i = 0; i < num_vars; i++ )
-        {
-            string pID = OldVarPresetMgr.GetVar( i );
-            Parm* p = ParmMgr.FindParm( pID );
-            for ( int j = 0; j < p_IDs.size(); j++ )
-            {
-                if ( pID.compare(p_IDs[j]) == 0 )
-                {
-                    if ( p->Get() != p_val[j] )
-                    {
-                        m_SaveButton.GetFlButton()->label( "*SAVE CHANGES*" );
-                        m_SaveButton.Activate();
-                        return;
-                    }
-                    else
-                    {
-                        m_SaveButton.Deactivate();
-                        m_SaveButton.GetFlButton()->label( "Save Changes" );
-                    }
-                }
-            }
-        }
+        string gid = m_GroupIDs[ m_GroupChoiceIndex ];
+        sg = VarPresetMgr.FindSettingGroup( gid );
+    }
+
+    if ( m_SettingChoiceIndex >= 0 && m_SettingChoiceIndex < m_SettingIDs.size() )
+    {
+        string sid = m_SettingIDs[ m_SettingChoiceIndex ];
+        s = VarPresetMgr.FindSetting( sid );
+    }
+
+    if ( m_SelectedVarIndex >= 0 && m_SelectedVarIndex < m_ParmIDs.size() )
+    {
+        string pid = m_ParmIDs[ m_SelectedVarIndex ];
+        p = ParmMgr.FindParm( pid );
+    }
+
+
+    if ( m_GroupIDs.empty() )
+    {
+        m_GroupChoice.Deactivate();
+    }
+    else
+    {
+        m_GroupChoice.Activate();
+    }
+
+    if ( m_SettingIDs.empty() )
+    {
+        m_SettingChoice.Deactivate();
+    }
+    else
+    {
+        m_SettingChoice.Activate();
+    }
+
+    if ( sg && s )
+    {
+        m_AddVarButton.Activate();
+        m_ParmPicker.Activate();
+        m_VarBrowser->activate();
+    }
+    else
+    {
+        m_AddVarButton.Deactivate();
+        m_ParmPicker.Deactivate();
+        m_VarBrowser->deactivate();
+    }
+
+    if ( p )
+    {
+        m_DelVarButton.Activate();
+    }
+    else
+    {
+        m_DelVarButton.Deactivate();
+    }
+
+    if ( sg )
+    {
+        m_DeleteGroupButton.Activate();
+    }
+    else
+    {
+        m_DeleteGroupButton.Deactivate();
+    }
+
+    if ( s )
+    {
+        m_DeleteSettingButton.Activate();
+    }
+    else
+    {
+        m_DeleteSettingButton.Deactivate();
     }
 }
 
@@ -394,35 +415,32 @@ void VarPresetScreen::CallBack( Fl_Widget* w )
 
     if( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
     {
-        string ParmID( Fl::event_text() );
-        if ( OldVarPresetMgr.GetDeleteFlag() )
-        {
-            return;
-        }
+        string pid( Fl::event_text() );
+        m_ParmPicker.SetParmChoice( pid );
 
-        if ( OldVarPresetMgr.GetNumSet() != 0 )
+        if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() )
         {
-            if ( OldVarPresetMgr.CheckForDuplicateParm( ParmID ) )
+            string gid = m_GroupIDs[ m_GroupChoiceIndex ];
+
+            SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+            if ( sg )
             {
-                return;
-            }
-            else
-            {
-                OldVarPresetMgr.AddVar( ParmID );
-                OldVarPresetMgr.SavePreset();
-                RebuildAdjustTab();
+                sg->AddParm( pid );
             }
         }
     }
     else if (  w == m_VarBrowser )
     {
-        int sel = m_VarBrowser->value();
-        OldVarPresetMgr.SetCurrVarIndex( sel - 2 );
+        m_SelectedVarIndex = m_VarBrowser->value() - 2;
 
-        string parmid = OldVarPresetMgr.GetCurrVar();
-
-        m_ParmPicker.SetParmChoice( parmid );
+        if ( m_SelectedVarIndex >= 0 && m_SelectedVarIndex < m_ParmIDs.size() )
+        {
+            m_ParmPicker.SetParmChoice( m_ParmIDs[ m_SelectedVarIndex ] );
+        }
     }
+
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
@@ -431,81 +449,175 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_AddVarButton )
     {
-        OldVarPresetMgr.AddCurrVar( );
-        OldVarPresetMgr.SavePreset();
+        if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() )
+        {
+            string gid = m_GroupIDs[ m_GroupChoiceIndex ];
+
+            SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+            if ( sg )
+            {
+                if ( sg->AddParm( m_ParmPicker.GetParmChoice() ) )
+                {
+                    m_SelectedVarIndex = m_ParmIDs.size();
+                }
+            }
+        }
     }
     else if ( device == &m_DelVarButton )
     {
-        OldVarPresetMgr.DelCurrVar( );
-        OldVarPresetMgr.SavePreset();
-    }
-    else if ( device == &m_ParmPicker )
-    {
-        OldVarPresetMgr.SetWorkingParmID( m_ParmPicker.GetParmChoice() );
-        OldVarPresetMgr.SetCurrVarIndex( -1 );
-    }
+        if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() )
+        {
+            string gid = m_GroupIDs[ m_GroupChoiceIndex ];
 
-    //====Preset Edits Related ====//
+            SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+            if ( sg )
+            {
+                if ( m_SelectedVarIndex >= 0 && m_SelectedVarIndex < m_ParmIDs.size() )
+                {
+                    sg->RemoveParm( m_ParmIDs[ m_SelectedVarIndex ] );
+                    m_SelectedVarIndex = 0;
+                }
+            }
+        }
+    }
     else if ( device == &m_GroupChoice )
     {
-        OldVarPresetMgr.GroupChange( m_GroupChoice.GetVal() );
+        m_GroupChoiceIndex = m_GroupChoice.GetVal();
     }
     else if ( device == &m_SettingChoice )
     {
-        OldVarPresetMgr.SettingChange( m_SettingChoice.GetVal() );
+        m_SettingChoiceIndex = m_SettingChoice.GetVal();
     }
     else if ( device == &m_AddGroupButton )
     {
-        if ( !m_GroupInput.GetString().empty() )
+        string gname = m_GroupInput.GetString();
+        if ( !gname.empty() )
         {
-            // Get Strings from TextInput
-            string groupText = m_GroupInput.GetString();
-            OldVarPresetMgr.AddGroup( groupText );
+            SettingGroup *sg = new SettingGroup();
+            sg->SetName( gname );
+
+            if ( VarPresetMgr.AddSettingGroup( sg ) )
+            {
+                m_GroupChoiceIndex = m_GroupIDs.size();
+                m_GroupInput.Update( "" );
+            }
+            else
+            {
+                delete sg;
+            }
         }
     }
     else if ( device == &m_AddSettingButton )
     {
         if ( !m_SettingInput.GetString().empty() )
         {
-            // Get Strings from TextInput
-            string settingText = m_SettingInput.GetString();
-            OldVarPresetMgr.AddSetting( settingText );
+            if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() )
+            {
+                string gid = m_GroupIDs[ m_GroupChoiceIndex ];
+
+                SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+                if ( sg )
+                {
+                    Setting *s = new Setting();
+                    s->SetName( m_SettingInput.GetString() );
+
+                    if ( sg->AddSetting( s ) )
+                    {
+                        m_SettingChoiceIndex = m_SettingIDs.size();
+                        m_SettingInput.Update( "" );
+                    }
+                    else
+                    {
+                        delete s;
+                    }
+                }
+            }
         }
     }
-    else if ( device == &m_DeleteButton )
+    else if ( device == &m_DeleteGroupButton )
     {
-        if ( !OldVarPresetMgr.GetDeleteFlag() )
+        if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() )
         {
-            OldVarPresetMgr.DeletePreset( OldVarPresetMgr.GetActiveGroupIndex(), OldVarPresetMgr.GetActiveSettingIndex() );
-            RebuildMenus( OldVarPresetMgr.GetActiveGroupIndex() );
+            string gid = m_GroupIDs[ m_GroupChoiceIndex ];
+
+            SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+            if ( sg )
+            {
+                VarPresetMgr.RemoveSettingGroup( sg );
+                vector < string > settings = sg->GetSettingIDVec();
+                for ( int i = 0; i < settings.size(); i++ )
+                {
+                    Setting *s = VarPresetMgr.FindSetting( settings[i] );
+                    if ( s )
+                    {
+                        VarPresetMgr.RemoveSetting( s );
+
+                        delete s;
+                    }
+                }
+                delete sg;
+                m_GroupChoiceIndex = 0;
+            }
+        }
+    }
+    else if ( device == &m_DeleteSettingButton )
+    {
+        if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() &&
+             m_SettingChoiceIndex >= 0 && m_SettingChoiceIndex < m_SettingIDs.size() )
+        {
+            string gid = m_GroupIDs[ m_GroupChoiceIndex ];
+            string sid = m_SettingIDs[ m_SettingChoiceIndex ];
+
+            SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+            if ( sg )
+            {
+                Setting *s = VarPresetMgr.FindSetting( sid );
+                if ( s )
+                {
+                    sg->RemoveSetting( s );
+
+                    delete s;
+                    m_SettingChoiceIndex = 0;
+                }
+            }
         }
     }
     else if ( device == &m_ApplyButton )
     {
-        if ( m_GroupChoice.GetVal() != -1 && m_SettingChoice.GetVal() != -1 )
+        if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() &&
+             m_SettingChoiceIndex >= 0 && m_SettingChoiceIndex < m_SettingIDs.size() )
         {
-            if ( OldVarPresetMgr.GetActiveSettingIndex() == -1 && !OldVarPresetMgr.GetDeleteFlag() )
+            string gid = m_GroupIDs[ m_GroupChoiceIndex ];
+            string sid = m_SettingIDs[ m_SettingChoiceIndex ];
+
+            SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+            if ( sg )
             {
-                fl_alert( "Error: At least 1 setting required before switching groups." );
-            }
-            else
-            {
-                OldVarPresetMgr.GroupChange( m_GroupChoice.GetVal() );
-                OldVarPresetMgr.SettingChange( m_SettingChoice.GetVal() );
-                OldVarPresetMgr.ApplySetting();
+                sg->ApplySetting( sid );
             }
         }
     }
-    else if ( device == &m_GroupChoice )
-    {
-        RebuildMenus( m_GroupChoice.GetVal() );
-    }
-    else if ( device == &m_SettingChoice )
-    {
-    }
     else if ( device == &m_SaveButton )
     {
-        OldVarPresetMgr.SavePreset();
+        if ( m_GroupChoiceIndex >= 0 && m_GroupChoiceIndex < m_GroupIDs.size() &&
+             m_SettingChoiceIndex >= 0 && m_SettingChoiceIndex < m_SettingIDs.size() )
+        {
+            string gid = m_GroupIDs[ m_GroupChoiceIndex ];
+            string sid = m_SettingIDs[ m_SettingChoiceIndex ];
+
+            SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+            if ( sg )
+            {
+                sg->SaveSetting( sid );
+            }
+        }
     }
     else
     {
