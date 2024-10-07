@@ -400,24 +400,6 @@ void OldPreset::Init( const string &group_name, const vector < string > &p_IDvec
     m_ParmIDVec = p_IDvec;
 }
 
-//==== Get Setting Index ====//
-int OldPreset::GetSettingIndex()
-{
-    if ( !m_SettingNameVec.empty() )
-    {
-        return vector_find_val( m_SettingNameVec, m_CurSetName );
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-int OldPreset::GetSettingIndex( const string &name )
-{
-    return vector_find_val( m_SettingNameVec, name );
-}
-
 //==== New Setting ====//
 void OldPreset::NewSet( const string &set_name, vector < double > p_ValVec)
 {
@@ -608,39 +590,6 @@ void OldVarPresetMgrSingleton::Renew()
     Init();
 }
 
-//==== Get Current Design Variable ====//
-string OldVarPresetMgrSingleton::GetCurrVar()
-{
-    return GetVar( m_CurrVarIndex );
-}
-
-//==== Get Design Variable Given Index ====//
-string OldVarPresetMgrSingleton::GetVar( int index )
-{
-    if ( index >= 0 && index < ( int )m_VarVec.size() )
-    {
-        return m_VarVec[ index ];
-    }
-    return string();
-}
-
-//==== Add Curr Variable ====//
-bool OldVarPresetMgrSingleton::AddCurrVar()
-{
-    //==== Check if Modifying Already Add Link ====//
-    if (  m_CurrVarIndex >= 0 && m_CurrVarIndex < ( int )m_VarVec.size() )
-    {
-        return false;
-    }
-
-    if ( CheckForDuplicateParm( m_WorkingParmID ) )
-    {
-        return false;
-    }
-
-    return AddVar( m_WorkingParmID );
-}
-
 //==== Check For Duplicate Variable  ====//
 bool OldVarPresetMgrSingleton::CheckForDuplicateVar( const string &p )
 {
@@ -691,50 +640,6 @@ bool OldVarPresetMgrSingleton::AddVar( const string& parm_id  )
     return true;
 }
 
-//==== Check All Vars For Valid Parms ====//
-void OldVarPresetMgrSingleton::CheckVars()
-{
-    //==== Check If Any Parms Have Added/Removed From Last Check ====//
-    static int check_links_stamp = 0;
-    if ( ParmMgr.GetNumParmChanges() == check_links_stamp )
-    {
-        return;
-    }
-
-    check_links_stamp = ParmMgr.GetNumParmChanges();
-
-    deque< int > del_indices;
-    for ( int i = 0 ; i < ( int )m_VarVec.size() ; i++ )
-    {
-        Parm* pA = ParmMgr.FindParm( m_VarVec[ i ] );
-
-        if ( !pA )
-        {
-            del_indices.push_front( i );
-        }
-    }
-
-    if ( del_indices.size() )
-    {
-        m_CurrVarIndex = -1;
-    }
-
-    // Every Parm in Preset was Deleted w/ Connected Geom
-    if ( del_indices.size() == m_VarVec.size() )
-    {
-        m_VarVec.clear();
-    }
-    // Some Parms in Preset were Deleted w/ Connected Geom
-    else
-    {
-        for ( int i = del_indices.size() - 1; i >= 0; i-- )
-        {
-            m_VarVec.erase( m_VarVec.begin() + del_indices[ i ] );
-        }
-    }
-
-}
-
 //==== Delete Curr Variable ====//
 void OldVarPresetMgrSingleton::DelCurrVar()
 {
@@ -755,14 +660,6 @@ void OldVarPresetMgrSingleton::DelAllVars()
 {
     m_VarVec.clear();
     m_CurrVarIndex = -1;
-}
-
-//==== Reset Working Variable ====//
-void OldVarPresetMgrSingleton::ResetWorkingVar()
-{
-    m_CurrVarIndex = -1;
-
-    m_WorkingParmID = string();
 }
 
 //==== Set Working Parm ID ====//
@@ -790,16 +687,6 @@ bool OldVarPresetMgrSingleton::CheckForEmpty( int curGroupIndex, int curSettingI
     {
         return false;
     }
-}
-
-int OldVarPresetMgrSingleton::GetNumSet()
-{
-    if ( m_CurGroupIndex < 0 || m_CurGroupIndex >= m_PresetVec.size() )
-    {
-        return 0;
-    }
-
-    return m_PresetVec[ m_CurGroupIndex ].GetNumSet();
 }
 
 //====  Add Group ====//
@@ -1167,21 +1054,6 @@ vector <string> OldVarPresetMgrSingleton::GetGroupNames()
         vec[i] = m_PresetVec[ i ].GetGroupName();
     }
     return vec;
-}
-
-//==== Check For Repeat Parameters ====//
-// Checks for Repeat Parameters across all groups
-bool OldVarPresetMgrSingleton::CheckForDuplicateParm( const string & p_ID )
-{
-    for ( int i = 0; i < m_PresetVec.size(); i++ )
-    {
-        vector <string> IDvec = m_PresetVec[ i ].GetParmIDs();
-        if ( vector_contains_val( IDvec, p_ID ) )
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 //==== Encode XML ====//

@@ -160,9 +160,6 @@ public:
     virtual int GetNumSet()                                     { return m_SettingNameVec.size(); }
     virtual vector < double > GetParmVals( int set_index )      { return m_ParmValVec[ set_index ]; }
 
-    virtual int GetSettingIndex();
-    virtual int GetSettingIndex( const string &set_name );
-
     virtual bool SettingNameExist( const string &name );
     //virtual void SetGroupName( const string &name )             { m_GroupName = name; }
     virtual void SetCurSetName( const string &name )            { m_CurSetName = name; }
@@ -212,33 +209,24 @@ public:
     virtual bool DeletePreset( int group_index, int set_index );
     virtual bool DeletePreset( const string &group_name, const string &set_name );
 
-    bool CheckForDuplicateParm( const string &p_ID );
     bool CheckForDuplicateVar( const string &p );
 
-    virtual bool AddCurrVar();
+
     virtual void DelCurrVar();
     virtual void DelAllVars();
     virtual bool AddVar( const string &parm_id );
-    virtual void SetCurrVarIndex( int i )           { m_CurrVarIndex = i; }
-    virtual int  GetCurrVarIndex()                  { return m_CurrVarIndex; }
-    virtual string GetCurrVar();
-    virtual void CheckVars();
+
     virtual bool SortVars();
     virtual int GetNumVars()                        { return ( int )m_VarVec.size(); }
-    virtual string GetVar( int index );
+
     virtual void SetWorkingParmID( const string &parm_id );
-    virtual void ResetWorkingVar();
 
     virtual bool CheckForEmpty( int curGroupIndex, int curSettingIndex );
 
     virtual int GetActiveGroupIndex()                   { return m_CurGroupIndex; }
     virtual string GetActiveGroupText()                 { return m_CurGroupText; }
-    virtual int GetActiveSettingIndex()                 { return m_CurSettingIndex; }
     virtual string GetActiveSettingText()               { return m_CurSettingText; }
-    virtual int GetNumSet();
-    virtual int GetActiveSettingIndexFromGroup( int g_index )   { return m_PresetVec[ g_index ].GetSettingIndex(); }
-    virtual vector < OldPreset > GetPresetVec()            { return m_PresetVec; }
-    virtual bool GetDeleteFlag()                        { return m_PrevDeleteFlag; }
+
 
     virtual vector < string > GetCurrentParmIDs()
     {
