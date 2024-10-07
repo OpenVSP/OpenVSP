@@ -153,3 +153,22 @@ int ClosestElement( const vector< double > & vec, double const & val )
         }
     }
 }
+
+std::string string_vec_serialize( const vector < std::string > & str_vec )
+{
+    int siz = 0;
+    for ( int i = 0; i < str_vec.size(); i++ )
+    {
+        siz += str_vec[i].size();
+    }
+
+    std::string str;
+    str.reserve( siz );
+
+    for ( int i = 0; i < str_vec.size(); i++ )
+    {
+        str.append( str_vec[i] );
+    }
+
+    return str;
+}

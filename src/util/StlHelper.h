@@ -321,4 +321,6 @@ int ReorderVectorIndex( vector < T > &vec, int index, int action )
     return new_index;
 }
 
+std::string string_vec_serialize( const vector < std::string > & str_vec );
+
 #endif
