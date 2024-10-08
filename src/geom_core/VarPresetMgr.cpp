@@ -585,41 +585,6 @@ void OldPreset::DeleteParm( const string &p_id )
     }
 }
 
-//==== Encode XML ====//
-xmlNodePtr OldPreset::EncodeXml( xmlNodePtr &varpresetnode, int i )
-{
-    char buffer [50];
-
-    // Encode Group Name
-    snprintf( buffer, sizeof( buffer ),  "Group%i", i );
-    XmlUtil::AddStringNode( varpresetnode, buffer, m_GroupName );
-
-    // Encode Group Qualities
-    snprintf( buffer, sizeof( buffer ),  "Group%iQualities", i );
-    xmlNodePtr groupqualnode = xmlNewChild( varpresetnode, NULL, BAD_CAST buffer, NULL );
-
-    XmlUtil::AddStringNode( groupqualnode, "ActiveSettingName" , m_CurSetName );
-    for ( int j = 0; j < m_ParmIDVec.size(); j++ )
-    {
-        snprintf( buffer, sizeof( buffer ),  "ParmID%i", j );
-        XmlUtil::AddStringNode( groupqualnode, buffer, m_ParmIDVec[ j ] );
-    }
-
-    // Encode Setting Qualities
-    for ( int j = 0; j < m_SettingNameVec.size(); j++ )
-    {
-        snprintf( buffer, sizeof( buffer ),  "SettingName%i", j );
-        XmlUtil::AddStringNode( groupqualnode, buffer , m_SettingNameVec[ j ] );
-
-        snprintf( buffer, sizeof( buffer ),  "Setting%iQualities", j );
-        xmlNodePtr setqualnode = xmlNewChild( groupqualnode, NULL, BAD_CAST buffer, NULL );
-
-        XmlUtil::AddVectorDoubleNode( setqualnode, "ParmVals", m_ParmValVec[ j ] );
-    }
-
-    return varpresetnode;
-}
-
 //==== Decode XML ====//
 OldPreset OldPreset::DecodeXml( xmlNodePtr &varpresetnode, int i )
 {
@@ -1183,44 +1148,6 @@ vector <string> OldVarPresetMgrSingleton::GetGroupNames()
         vec[i] = m_PresetVec[ i ].GetGroupName();
     }
     return vec;
-}
-
-//==== Encode XML ====//
-xmlNodePtr OldVarPresetMgrSingleton::EncodeXml( xmlNodePtr & node )
-{
-    // Create Var Preset Node
-    xmlNodePtr varpresetnode = xmlNewChild( node, NULL, BAD_CAST"VariablePresets", NULL );
-
-    // Initialize Variables
-    vector <int> numSetqGroup( m_PresetVec.size() );
-    vector <int> numParmqGroup( m_PresetVec.size() );
-
-    for ( int i = 0; i < m_PresetVec.size(); i++ )
-    {
-        // Grab # of Settings per Group
-        numSetqGroup[ i ]  = m_PresetVec[ i ].GetNumSet();
-
-        // Grab # of Parms per Group
-        numParmqGroup[ i ] = m_PresetVec[ i ].GetParmIDs().size();
-
-        // Let Preset Class Encode Preset Info
-        m_PresetVec[ i ].EncodeXml( varpresetnode, i );
-    }
-
-    // Encode # of Groups
-    XmlUtil::AddIntNode( varpresetnode, "NumGroups", m_PresetVec.size() );
-
-    // Encode # of Settings per Group
-    XmlUtil::AddVectorIntNode( varpresetnode, "NumSettingsPerGroup", numSetqGroup );
-
-    // Encode # of Parm per Group
-    XmlUtil::AddVectorIntNode( varpresetnode, "NumParmsPerGroup", numParmqGroup );
-
-    // Encode Current Group and Setting Index
-    XmlUtil::AddIntNode( varpresetnode, "CurrentGroupIndex", m_CurGroupIndex );
-    XmlUtil::AddIntNode( varpresetnode, "CurrentSettingIndex", m_CurSettingIndex );
-
-    return varpresetnode;
 }
 
 //==== Decode XML ====//

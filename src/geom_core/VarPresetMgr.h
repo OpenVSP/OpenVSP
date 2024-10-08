@@ -174,7 +174,6 @@ public:
     virtual void EditParm( int set_index, const string &p_id, double p_val );
     virtual void DeleteParm( const string &p_id );
 
-    virtual xmlNodePtr EncodeXml( xmlNodePtr &varpresetnode, int i );
     virtual OldPreset DecodeXml( xmlNodePtr &varpresetnode, int i );
 
 protected:
@@ -247,7 +246,6 @@ public:
     virtual vector < string > GetSettingNames( const string &group_name );
     virtual vector < string > GetGroupNames();
 
-    virtual xmlNodePtr EncodeXml( xmlNodePtr &node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr &node );
 
 private:
