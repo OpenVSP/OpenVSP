@@ -115,7 +115,7 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
         {
             xmlNodePtr assy = XmlUtil::GetNode( structmgr_node, "FeaAssembly", i );
 
-            if ( num_assy )
+            if ( assy )
             {
                 FeaAssembly* fea_assy = new FeaAssembly();
 
