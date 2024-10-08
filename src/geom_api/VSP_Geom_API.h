@@ -12987,34 +12987,795 @@ extern double SnapParm( const std::string & parm_id, double target_min_dist, boo
 
 //======================== Variable Preset Functions ======================//
 
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Add a Variable Preset Group
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+    \endcode
+    \endPythonOnly
+    \param [in] group_name string Name for Var Preset Group
+    \return string Var Preset Group ID
+*/
+
 extern string AddVarPresetGroup( const std::string &group_name );
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Add a Setting to the Variable Preset Group
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid =AddVarPresetSetting( "Coarse" );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \param [in] setting_name string Var Preset Setting Name
+    \return string Var Preset Setting ID
+*/
+
 extern string AddVarPresetSetting( const std::string &group_id, const std::string &setting_name );
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Add a Parm to the Variable Preset Group
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \param [in] parm_id string Parm ID
+*/
+
 extern void AddVarPresetParm( const std::string &group_id, const std::string &parm_id );
 
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Delete Variable Preset Group (and all contained settings)
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    DeleteVarPresetGroup( gid )
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    DeleteVarPresetGroup( gid )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+*/
+
 extern void DeleteVarPresetGroup( const std::string &group_id );
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Delete Variable Preset Setting
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    DeleteVarPresetSetting( gid, sid )
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    DeleteVarPresetSetting( gid, sid )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \param [in] setting_id string Var Preset Setting ID
+*/
+
 extern void DeleteVarPresetSetting( const std::string &group_id, const std::string &setting_id );
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Delete Parm from Variable Preset Group
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    DeleteVarPresetParm( gid, p1 )
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    DeleteVarPresetParm( gid, p1 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \param [in] parm_id string Var Parm ID
+*/
+
 extern void DeleteVarPresetParm( const std::string &group_id, const std::string &parm_id );
 
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Set value for Parm in Var Preset Setting
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    SetVarPresetParmVal( gid, sid, p1, 51 )
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    SetVarPresetParmVal( gid, sid, p1, 51 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \param [in] setting_id string Var Preset Setting ID
+    \param [in] parm_id string Var Parm ID
+    \param [in] parm_val double Parm value
+*/
+
 extern void SetVarPresetParmVal( const std::string &group_id, const std::string &setting_id, const std::string &parm_id, double parm_val );
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Get value for Parm in Var Preset Setting
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    double val = GetVarPresetParmVal( gid, sid, p1 )
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    val = GetVarPresetParmVal( gid, sid, p1 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \param [in] setting_id string Var Preset Setting ID
+    \param [in] parm_id string Var Parm ID
+    \return double Var Preset Parm value
+*/
+
 extern double GetVarPresetParmVal( const std::string &group_id, const std::string &setting_id, const std::string &parm_id );
 
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Get Variable Preset group name
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string name = GetGroupName( gid );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    name = GetGroupName( gid )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \return string Var Preset Group name
+*/
+
 extern std::string GetGroupName( const std::string &group_id );
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Get Variable Preset Setting name
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string name = GetSettingName( sid );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    name = GetSettingName( sid )
+
+    \endcode
+    \endPythonOnly
+    \param [in] setting_id string Var Preset Setting ID
+    \return string Var Preset Setting name
+*/
+
 extern std::string GetSettingName( const std::string &setting_id );
 
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Set Variable Preset group name
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    SetGroupName( gid, "Resolution" );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    SetGroupName( gid, "Resolution" )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \param [in] group_name string New Var Preset Group name
+*/
+
 extern void SetGroupName( const std::string &group_id, const std::string &group_name );
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Set Variable Preset Setting name
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    SetSettingName( sid, "Low" );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    SetSettingName( sid, "Low" )
+
+    \endcode
+    \endPythonOnly
+    \param [in] setting_id string Var Preset Setting ID
+    \param [in] setting_name string New Var Preset Setting name
+*/
+
 extern void SetSettingName( const std::string &setting_id, const std::string &setting_name );
 
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Get group_ids for Variable Preset Groups
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    array <string> group_ids = GetVarPresetGroups();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    group_ids = GetVarPresetGroups()
+
+    \endcode
+    \endPythonOnly
+    \return array<string> Array of Variable Preset Group IDs
+*/
+
 extern std::vector< std::string > GetVarPresetGroups();
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Get Setting IDs for Variable Preset Group
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    array <string> settingids = GetVarPresetSettings( gid );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    settingds = GetVarPresetSettings( gid )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \return array<string> Array of Variable Preset Group ParmIDs
+*/
+
 extern std::vector< std::string > GetVarPresetSettings( const std::string &group_id );
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Get ParmIDs for Variable Preset Group
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    array <string> parmids = GetVarPresetParmIDs( gid );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    parmids = GetVarPresetParmIDs( gid )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \return array<string> Array of Variable Preset Group ParmIDs
+*/
+
 extern std::vector< std::string > GetVarPresetParmIDs( const std::string &group_id );
 
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Get Parm values for Variable Preset Setting
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    array < double > parmval_vec = GetVarPresetParmVals( sid );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    parmval_vec = GetVarPresetParmVals( sid )
+
+    \endcode
+    \endPythonOnly
+    \param [in] setting_id string Var Preset Setting ID
+    \return array<double> Var Preset Parm values for Setting
+
+*/
+
 extern std::vector< double > GetVarPresetParmVals( const std::string &setting_id );
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Set Parm values for Variable Preset Setting
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    array <double> vals = { 45 };
+
+    SetVarPresetParmVals( sid, vals );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    vals = [ 45 ]
+
+    SetVarPresetParmVals( sid, vals )
+
+    \endcode
+    \endPythonOnly
+    \param [in] setting_id string Var Preset Setting ID
+    \return array<double> Array of Variable Preset Group Parm values
+*/
+
 extern void SetVarPresetParmVals( const std::string &setting_id, const std::vector< double > &parm_vals );
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Save current Parm values to Variable Preset Setting
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    SaveVarPresetParmVals( gid, sid );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    SaveVarPresetParmVals( gid, sid )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \param [in] setting_id string Var Preset Setting ID
+*/
 
 extern void SaveVarPresetParmVals( const std::string &group_id, const std::string &setting_id );
 
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Apply Parm values for Var Preset Setting
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pod1 = AddGeom( "POD", "" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string sid = AddVarPresetSetting( "Coarse" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+    AddVarPresetParm( gid, p1 );
+
+    ApplyVarPresetSetting( gid, sid );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pod1 = AddGeom( "POD", "" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    sid = AddVarPresetSetting( "Coarse" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+
+    AddVarPresetParm( gid, p1 )
+
+    ApplyVarPresetSetting( gid, sid )
+
+    \endcode
+    \endPythonOnly
+    \param [in] group_id string Var Preset Group ID
+    \param [in] setting_id string Var Preset Setting ID
+*/
 
 extern void ApplyVarPresetSetting( const std::string &group_id, const std::string &setting_id );
+
 
 //======================== Parametric Curve Functions ======================//
 /*!
