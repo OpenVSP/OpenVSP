@@ -11,7 +11,7 @@
 #include "ParmMgr.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
-
+#include "IDMgr.h"
 
 //=========================================================================//
 //=======================        Setting       ============================//
@@ -82,7 +82,7 @@ xmlNodePtr Setting::DecodeXml( xmlNodePtr &setting_node )
 {
     if ( setting_node )
     {
-        m_ID = ParmMgr.RemapID( XmlUtil::FindString( setting_node, "ID", m_ID ) );
+        m_ID = IDMgr.RemapID( XmlUtil::FindString( setting_node, "ID", m_ID ) );
         m_Name = XmlUtil::FindString( setting_node, "Name", string() );
         m_ParmValVec = XmlUtil::ExtractVectorDoubleNode( setting_node, "ParmVals" );
     }
@@ -284,7 +284,7 @@ xmlNodePtr SettingGroup::DecodeXml( xmlNodePtr &grp_node )
 {
     if ( grp_node )
     {
-        m_ID = ParmMgr.RemapID( XmlUtil::FindString( grp_node, "ID", m_ID ) );
+        m_ID = IDMgr.RemapID( XmlUtil::FindString( grp_node, "ID", m_ID ) );
 
         m_Name = XmlUtil::FindString( grp_node, "Name", string() );
 
@@ -293,7 +293,7 @@ xmlNodePtr SettingGroup::DecodeXml( xmlNodePtr &grp_node )
         for ( int i = 0; i < num_parm; i++ )
         {
             xmlNodePtr n = XmlUtil::GetNode( grp_node, "Parm", i );
-            m_ParmIDVec.push_back( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+            m_ParmIDVec.push_back( IDMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
         }
 
         int num_setting = XmlUtil::GetNumNames( grp_node, "Setting" );
@@ -648,7 +648,7 @@ OldPreset OldPreset::DecodeXml( xmlNodePtr &varpresetnode, int i )
     for ( int j = 0; j < numParmqGroup[ i ]; j++ )
     {
         snprintf( buffer, sizeof( buffer ),  "ParmID%i", j);
-        p_IDs.push_back( ParmMgr.RemapID( XmlUtil::FindString( groupqualnode, buffer, name) ) );
+        p_IDs.push_back( IDMgr.RemapID( XmlUtil::FindString( groupqualnode, buffer, name) ) );
     }
 
     // Grab Setting Qualities
