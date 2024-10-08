@@ -37,6 +37,7 @@
 #include "VSPAEROMgr.h"
 #include "VspUtil.h"
 #include "WingGeom.h"
+#include "StlHelper.h"
 
 #include <cstdlib>
 #include <csignal>
@@ -7356,199 +7357,282 @@ double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, 
 //===============     Variable Presets Functions       ==============//
 //===================================================================//
 
-void AddVarPresetGroup( const string &group_name )
+string AddVarPresetGroup( const std::string &group_name )
 {
-    OldVarPresetMgr.AddGroup( group_name );
-    OldVarPresetMgr.SavePreset();
+    SettingGroup *sg = new SettingGroup();
+    sg->SetName( group_name );
 
-    ErrorMgr.NoError();
-}
-
-void AddVarPresetSetting( const string &setting_name )
-{
-    OldVarPresetMgr.AddSetting( setting_name );
-    OldVarPresetMgr.SavePreset();
-
-    ErrorMgr.NoError();
-}
-
-void AddVarPresetParm( const string &parm_id )
-{
-    if ( !OldVarPresetMgr.AddVar( parm_id ) )
-    {
-        ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Failed to add Variable Preset " + parm_id );
-    }
-    OldVarPresetMgr.SavePreset();
-
-    ErrorMgr.NoError();
-}
-
-void AddVarPresetParm( const string &parm_id, const string &group_name )
-{
-    OldVarPresetMgr.GroupChange( group_name );
-    if ( !OldVarPresetMgr.AddVar( parm_id ) )
-    {
-        ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Failed to add Variable Preset " + parm_id );
-    }
-    OldVarPresetMgr.SavePreset();
-
-    ErrorMgr.NoError();
-}
-
-void EditVarPresetParm( const string &parm_id, double parm_val )
-{
-    Parm *p = ParmMgr.FindParm( parm_id );
-    if ( p )
-    {
-        p->Set( parm_val );
-    }
-    else
-    {
-        ErrorMgr.AddError( VSP_INVALID_ID, "EditVarPresetParm::Can't Find Parm " + parm_id );
-    }
-    OldVarPresetMgr.SavePreset();
-}
-
-void EditVarPresetParm( const string &parm_id, double parm_val, const string &group_name,
-    const string &setting_name )
-{
-    SwitchVarPreset( group_name, setting_name );
-    EditVarPresetParm( parm_id, parm_val );
-}
-
-void DeleteVarPresetParm( const string &parm_id )
-{
-    OldVarPresetMgr.SetWorkingParmID( parm_id );
-    OldVarPresetMgr.DelCurrVar();
-    OldVarPresetMgr.SavePreset();
-
-    ErrorMgr.NoError();
-}
-
-void DeleteVarPresetParm( const string &parm_id, const string &group_name )
-{
-    OldVarPresetMgr.GroupChange( group_name );
-    if (OldVarPresetMgr.GetActiveGroupText().compare( group_name ) == 0 )
+    if ( VarPresetMgr.AddSettingGroup( sg ) )
     {
         ErrorMgr.NoError();
+        return sg->GetID();
     }
-    else
-    {
-        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "DeleteVarPresetParm::Can't Find Group " + group_name );
-    }
-    DeleteVarPresetParm( parm_id );
+
+    delete sg;
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetGroup::Unable to create var preset group." );
+    return string();
 }
 
-void SwitchVarPreset( const string &group_name, const string &setting_name )
+string AddVarPresetSetting( const std::string &group_id, const std::string &setting_name )
 {
-    OldVarPresetMgr.GroupChange( group_name );
-    if (OldVarPresetMgr.GetActiveGroupText().compare( group_name ) == 0 )
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( group_id );
+
+    if ( sg )
+    {
+        Setting *s = new Setting();
+        s->SetName( setting_name );
+
+        if ( sg->AddSetting( s, true ) )
+        {
+            ErrorMgr.NoError();
+            return s->GetID();
+        }
+
+        delete s;
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetSetting::Unable to create var preset setting." );
+    return string();
+}
+
+void AddVarPresetParm( const std::string &group_id, const std::string &parm_id )
+{
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( group_id );
+
+    if ( sg )
+    {
+        if ( sg->AddParm( parm_id ) )
+        {
+            ErrorMgr.NoError();
+            return;
+        }
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "AddVarPresetParm::Unable to add parm to var preset group." );
+        return;
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Unable to find var preset group." );
+}
+
+void DeleteVarPresetGroup( const std::string &group_id )
+{
+    VarPresetMgr.DeleteSettingGroup( group_id );
+    ErrorMgr.NoError();
+}
+
+void DeleteVarPresetSetting( const std::string &group_id, const std::string &setting_id )
+{
+    VarPresetMgr.DeleteSetting( group_id, setting_id );
+    ErrorMgr.NoError();
+}
+
+void DeleteVarPresetParm( const std::string &group_id, const std::string &parm_id )
+{
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( group_id );
+
+    if ( sg )
+    {
+        sg->RemoveParm( parm_id );
+        ErrorMgr.NoError();
+        return;
+    }
+    ErrorMgr.AddError( VSP_INVALID_ID, "DeleteVarPresetParm::Unable to find var preset group." );
+}
+
+void SetVarPresetParmVal( const std::string &group_id, const std::string &setting_id, const std::string &parm_id, double parm_val )
+{
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( group_id );
+
+    if ( sg )
+    {
+        vector < string > parm_vec = sg->GetParmIDVec();
+
+        int index = vector_find_val( parm_vec, parm_id );
+
+        if ( index >= 0 )
+        {
+            Setting *s = VarPresetMgr.FindSetting( setting_id );
+            if ( s )
+            {
+                s->SetParmVal( index, parm_val );
+                ErrorMgr.NoError();
+                return;
+            }
+        }
+
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetVarPresetParmVal::Unable to find Parm in var preset group." );
+        return;
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "SetVarPresetParmVal::Unable to find var preset group." );
+}
+
+double GetVarPresetParmVal( const std::string &group_id, const std::string &setting_id, const std::string &parm_id )
+{
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( group_id );
+
+    if ( sg )
+    {
+        vector < string > parm_vec = sg->GetParmIDVec();
+
+        int index = vector_find_val( parm_vec, parm_id );
+
+        if ( index >= 0 )
+        {
+            Setting *s = VarPresetMgr.FindSetting( setting_id );
+            if ( s )
+            {
+                ErrorMgr.NoError();
+                return s->GetParmVal( index );
+            }
+            ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmVal::Unable to find var preset setting." );
+            return 0.0;
+        }
+
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetVarPresetParmVal::Unable to find Parm in var preset group." );
+        return 0.0;
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmVal::Unable to find var preset group." );
+    return 0.0;
+}
+
+std::string GetGroupName( const std::string &group_id )
+{
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( group_id );
+
+    if ( sg )
     {
         ErrorMgr.NoError();
+        return sg->GetName();
     }
-    else
-    {
-        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchVarPreset::Can't Find Group " + group_name );
-    }
-    OldVarPresetMgr.SettingChange( setting_name );
-    if (OldVarPresetMgr.GetActiveSettingText().compare( setting_name ) == 0 )
-    {
-        ErrorMgr.NoError();
-    }
-    else
-    {
-        ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "SwitchSaveParmGroup::Can't Find Setting " + setting_name );
-    }
-    OldVarPresetMgr.ApplySetting();
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetGroupName::Unable to find var preset group." );
+    return string();
 }
 
-bool DeleteVarPresetSet( const string &group_name, const string &setting_name )
+std::string GetSettingName( const std::string &setting_id )
 {
-    if ( OldVarPresetMgr.DeletePreset( group_name, setting_name ) )
+    Setting *s = VarPresetMgr.FindSetting( setting_id );
+    if ( s )
     {
         ErrorMgr.NoError();
-        return true;
+        return s->GetName();
     }
-    else
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetSettingName::Unable to find var preset setting." );
+    return string();
+}
+
+void SetGroupName( const std::string &group_id, const std::string &group_name )
+{
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( group_id );
+
+    if ( sg )
     {
-        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "DeleteVarPresetSet::Can't Find Group " + group_name );
-        ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "DeleteVarPresetSet::Can't Find Setting " + setting_name );
-        return false;
+        sg->SetName( group_name );
+        ErrorMgr.NoError();
+        return;
     }
+    ErrorMgr.AddError( VSP_INVALID_ID, "SetGroupName::Unable to find var preset group." );
 }
 
-string GetCurrentGroupName()
+void SetSettingName( const std::string &setting_id, const std::string &setting_name )
 {
-    return OldVarPresetMgr.GetActiveGroupText();
+    Setting *s = VarPresetMgr.FindSetting( setting_id );
+    if ( s )
+    {
+        s->SetName( setting_name );
+        ErrorMgr.NoError();
+        return;
+    }
+    ErrorMgr.AddError( VSP_INVALID_ID, "SetSettingName::Unable to find var preset setting." );
+    return;
 }
 
-string GetCurrentSettingName()
-{
-    return OldVarPresetMgr.GetActiveSettingText();
-}
-
-vector <string> GetVarPresetGroupNames()
+std::vector< std::string > GetVarPresetGroups()
 {
     ErrorMgr.NoError();
-    return OldVarPresetMgr.GetGroupNames();
+    return VarPresetMgr.GetAllSettingGroups();
 }
 
-vector <string> GetVarPresetSettingNamesWName( const string &group_name )
+std::vector< std::string > GetVarPresetSettings( const std::string &group_id )
 {
-    vector <string> vec;
-    vec = OldVarPresetMgr.GetSettingNames( group_name );
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( group_id );
 
-    if ( vec.empty() )
-    {
-        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "GetVarPresetSettingNamesWName::Can't Find Group " + group_name );
-        return vec;
-    }
-    else
+    if ( sg )
     {
         ErrorMgr.NoError();
-        return vec;
+        return sg->GetSettingIDVec();
     }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetSettings::Unable to find var preset group." );
+    vector < string > ret;
+    return ret;
 }
 
-vector <string> GetVarPresetSettingNamesWIndex( int group_index )
+std::vector< std::string > GetVarPresetParmIDs( const std::string &group_id )
 {
-    vector <string> vec;
-    vec = OldVarPresetMgr.GetSettingNames( group_index );
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( group_id );
 
-    if ( vec.empty() )
-    {
-        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "GetVarPresetSettingNamesWIndex::Can't Find Group @ Index " + to_string( group_index ) );
-        return vec;
-    }
-    else
+    if ( sg )
     {
         ErrorMgr.NoError();
-        return vec;
+        return sg->GetParmIDVec();
     }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmIDs::Unable to find var preset group." );
+    vector < string > ret;
+    return ret;
 }
 
-vector <double> GetVarPresetParmVals()
+std::vector< double > GetVarPresetParmVals( const std::string &setting_id )
 {
-    ErrorMgr.NoError();
-    return OldVarPresetMgr.GetCurrentParmVals();
+    Setting *s = VarPresetMgr.FindSetting( setting_id );
+    if ( s )
+    {
+        ErrorMgr.NoError();
+        return s->GetParmValVec();
+    }
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmVals::Unable to find var preset setting." );
+    vector < double > ret;
+    return ret;
 }
 
-vector <double> GetVarPresetParmValsWNames( const string &group_name, const string &setting_name )
+void SetVarPresetParmVals( const std::string &setting_id, const std::vector< double > &parm_vals )
 {
-    ErrorMgr.NoError();
-    return OldVarPresetMgr.GetParmVals( group_name, setting_name );
+    Setting *s = VarPresetMgr.FindSetting( setting_id );
+    if ( s )
+    {
+        s->SetParmValVec( parm_vals );
+        ErrorMgr.NoError();
+        return;
+    }
+    ErrorMgr.AddError( VSP_INVALID_ID, "SetVarPresetParmVals::Unable to find var preset setting." );
 }
 
-vector <string> GetVarPresetParmIDs()
+void SaveVarPresetParmVals( const std::string &group_id, const std::string &setting_id )
 {
-    ErrorMgr.NoError();
-    return OldVarPresetMgr.GetCurrentParmIDs();
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( group_id );
+
+    if ( sg )
+    {
+        sg->SaveSetting( setting_id );
+        ErrorMgr.NoError();
+        return;
+    }
+    ErrorMgr.AddError( VSP_INVALID_ID, "SaveVarPresetParmVals::Unable to find var preset group." );
 }
 
-vector <string> GetVarPresetParmIDsWName( const string &group_name )
+void ApplyVarPresetSetting( const std::string &group_id, const std::string &setting_id )
 {
-    ErrorMgr.NoError();
-    return OldVarPresetMgr.GetParmIDs( group_name );
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( group_id );
+
+    if ( sg )
+    {
+        sg->ApplySetting( setting_id );
+        ErrorMgr.NoError();
+        return;
+    }
+    ErrorMgr.AddError( VSP_INVALID_ID, "ApplyVarPresetSetting::Unable to find var preset group." );
 }
 
 //===================================================================//

@@ -231,23 +231,11 @@ private:
     void SetVec3dAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
 
     // ==== Variable Preset Functions ====//
-    CScriptArray* GetVarPresetGroupNames();
-    CScriptArray* GetVarPresetSettingNamesWName( const string &group_name );
-    CScriptArray* GetVarPresetSettingNamesWIndex( int group_index );
-    CScriptArray* GetVarPresetParmVals();
-    CScriptArray* GetVarPresetParmValsWNames( const string &group_name, const string &setting_name );
-    CScriptArray* GetVarPresetParmIDs();
-    CScriptArray* GetVarPresetParmIDsWName( const string &group_name );
-    static void AddVarPresetGroup( const string &group_name );
-    static void AddVarPresetSetting( const string &setting_name );
-    static void AddVarPresetParm( const string &parm_ID );
-    static void AddVarPresetParm( const string &parm_ID, const string &group_name );
-    static void EditVarPresetParm( const string &parm_ID, double parm_val );
-    static void EditVarPresetParm( const string &parm_ID, double parm_val, const string &group_name, const string &setting_name );
-    static void DeleteVarPresetParm( const string &parm_ID );
-    static void DeleteVarPresetParm( const string &parm_ID, const string &group_name );
-    static void SwitchVarPreset( const string &group_name, const string &setting_name );
-    static void DeleteVarPresetSet( const string &group_name, const string &setting_name );
+    CScriptArray* GetVarPresetGroups();
+    CScriptArray* GetVarPresetSettings( const string &group_id );
+    CScriptArray* GetVarPresetParmIDs( const string &group_id );
+    CScriptArray* GetVarPresetParmVals( const string &setting_id );
+    void SetVarPresetParmVals( const string& setting_id, CScriptArray* coefs_arr );
 
     // ==== PCurve Functions ====//
     void SetPCurve( const string& geom_id, const int & pcurveid, CScriptArray* tvec, CScriptArray* valvec, const int & newtype );
