@@ -332,9 +332,32 @@ VarPresetMgrSingleton::VarPresetMgrSingleton()
 {
 }
 
+VarPresetMgrSingleton::~VarPresetMgrSingleton()
+{
+    Wype();
+}
+
 void VarPresetMgrSingleton::Renew()
 {
+    Wype();
+}
 
+void VarPresetMgrSingleton::Wype()
+{
+    unordered_map< string, Setting* >::iterator setting_iter;
+    for ( setting_iter = m_SettingMap.begin(); setting_iter != m_SettingMap.end(); ++setting_iter )
+    {
+        delete setting_iter->second;
+    }
+    m_SettingMap.clear();
+
+    unordered_map< string, SettingGroup* >::iterator group_iter;
+    for ( group_iter = m_SettingGroupMap.begin(); group_iter != m_SettingGroupMap.end(); ++group_iter )
+    {
+        delete group_iter->second;
+    }
+    m_SettingGroupMap.clear();
+    m_SettingGroupVec.clear();
 }
 
 bool VarPresetMgrSingleton::AddSetting( Setting* s )

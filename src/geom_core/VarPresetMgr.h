@@ -110,7 +110,10 @@ public:
         return instance;
     }
 
+    virtual ~VarPresetMgrSingleton();
+
     void Renew();
+    void Wype();
 
     bool AddSetting( Setting* s );
     void RemoveSetting( Setting* s );
