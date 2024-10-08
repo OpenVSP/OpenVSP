@@ -524,7 +524,7 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
                     Setting *s = new Setting();
                     s->SetName( m_SettingInput.GetString() );
 
-                    if ( sg->AddSetting( s ) )
+                    if ( sg->AddSetting( s, true ) )
                     {
                         m_SettingChoiceIndex = m_SettingIDs.size();
                         m_SettingInput.Update( "" );

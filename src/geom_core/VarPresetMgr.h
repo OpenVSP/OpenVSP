@@ -71,7 +71,7 @@ public:
     }
     void ChangeID( const string& newID );
 
-    bool AddSetting( Setting* s );
+    bool AddSetting( Setting* s, bool savevals );
     void RemoveSetting( Setting* s );
 
     bool AddParm( const string &id );

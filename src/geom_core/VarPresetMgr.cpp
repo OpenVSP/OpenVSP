@@ -104,14 +104,18 @@ void SettingGroup::ChangeID( const string& newID )
     VarPresetMgr.AddSettingGroup( this );
 }
 
-bool SettingGroup::AddSetting( Setting* s )
+bool SettingGroup::AddSetting( Setting* s, bool savevals )
 {
     if ( VarPresetMgr.AddSetting( s ) )
     {
-        vector < double > valvec( m_ParmIDVec.size(), 0.0 );
-        s->SetParmValVec( valvec );
+        if ( savevals )
+        {
+            vector < double > valvec( m_ParmIDVec.size(), 0.0 );
+            s->SetParmValVec( valvec );
+            SaveSetting( s->GetID() );
+        }
         m_SettingIDVec.push_back( s->GetID() );
-        SaveSetting( s->GetID() );
+
         return true;
     }
     return false;
