@@ -298,9 +298,9 @@ void VarPresetMgrSingleton::RemoveSetting( Setting* s )
     }
 }
 
-Setting* VarPresetMgrSingleton::FindSetting( const string & id )
+Setting* VarPresetMgrSingleton::FindSetting( const string & id ) const
 {
-    unordered_map< string, Setting* >::iterator iter;
+    unordered_map< string, Setting* >::const_iterator iter;
 
     iter = m_SettingMap.find( id );
     if ( iter != m_SettingMap.end() )
@@ -347,9 +347,9 @@ void VarPresetMgrSingleton::RemoveSettingGroup( SettingGroup* sg )
     }
 }
 
-SettingGroup* VarPresetMgrSingleton::FindSettingGroup( const string & id )
+SettingGroup* VarPresetMgrSingleton::FindSettingGroup( const string & id ) const
 {
-    unordered_map< string, SettingGroup* >::iterator iter;
+    unordered_map< string, SettingGroup* >::const_iterator iter;
 
     iter = m_SettingGroupMap.find( id );
     if ( iter != m_SettingGroupMap.end() )

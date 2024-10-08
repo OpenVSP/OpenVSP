@@ -114,11 +114,11 @@ public:
 
     bool AddSetting( Setting* s );
     void RemoveSetting( Setting* s );
-    Setting* FindSetting( const string & id );
+    Setting* FindSetting( const string & id ) const;
 
     bool AddSettingGroup( SettingGroup* sg );
     void RemoveSettingGroup( SettingGroup* sg );
-    SettingGroup* FindSettingGroup( const string & id );
+    SettingGroup* FindSettingGroup( const string & id ) const;
 
     vector < string > GetAllSettingGroups();
 
