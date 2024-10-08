@@ -68,12 +68,25 @@ void Setting::EraseParmVal( int index )
 
 xmlNodePtr Setting::EncodeXml( xmlNodePtr &node )
 {
+    xmlNodePtr setting_node = xmlNewChild( node, NULL, BAD_CAST "Setting", NULL );
+    if ( setting_node )
+    {
+        XmlUtil::AddStringNode( setting_node, "ID", m_ID );
+        XmlUtil::AddStringNode( setting_node, "Name", m_Name );
+        XmlUtil::AddVectorDoubleNode( setting_node, "ParmVals", m_ParmValVec );
+    }
     return node;
 }
 
-xmlNodePtr Setting::DecodeXml( xmlNodePtr &node )
+xmlNodePtr Setting::DecodeXml( xmlNodePtr &setting_node )
 {
-    return node;
+    if ( setting_node )
+    {
+        m_ID = ParmMgr.RemapID( XmlUtil::FindString( setting_node, "ID", m_ID ) );
+        m_Name = XmlUtil::FindString( setting_node, "Name", string() );
+        m_ParmValVec = XmlUtil::ExtractVectorDoubleNode( setting_node, "ParmVals" );
+    }
+    return setting_node;
 }
 
 string Setting::GenerateID()
@@ -240,12 +253,70 @@ bool SettingGroup::CheckSetting( const string &id )
 
 xmlNodePtr SettingGroup::EncodeXml( xmlNodePtr &node )
 {
+    xmlNodePtr settinggroup_node = xmlNewChild( node, NULL, BAD_CAST "SettingGroup", NULL );
+    if ( settinggroup_node )
+    {
+        XmlUtil::AddStringNode( settinggroup_node, "ID", m_ID );
+        XmlUtil::AddStringNode( settinggroup_node, "Name", m_Name );
+
+        for ( int i = 0; i < m_ParmIDVec.size(); i++ )
+        {
+            xmlNodePtr n = xmlNewChild( settinggroup_node, NULL, BAD_CAST "Parm", NULL );
+            if ( n )
+            {
+                XmlUtil::AddStringNode( n, "ID", m_ParmIDVec[i] );
+            }
+        }
+
+        for ( int i = 0; i < m_SettingIDVec.size(); i++ )
+        {
+            Setting *s = VarPresetMgr.FindSetting( m_SettingIDVec[i] );
+            if ( s )
+            {
+                s->EncodeXml( settinggroup_node );
+            }
+        }
+    }
     return node;
 }
 
-xmlNodePtr SettingGroup::DecodeXml( xmlNodePtr &node )
+xmlNodePtr SettingGroup::DecodeXml( xmlNodePtr &grp_node )
 {
-    return node;
+    if ( grp_node )
+    {
+        m_ID = ParmMgr.RemapID( XmlUtil::FindString( grp_node, "ID", m_ID ) );
+
+        m_Name = XmlUtil::FindString( grp_node, "Name", string() );
+
+        int num_parm = XmlUtil::GetNumNames( grp_node, "Parm" );
+
+        for ( int i = 0; i < num_parm; i++ )
+        {
+            xmlNodePtr n = XmlUtil::GetNode( grp_node, "Parm", i );
+            m_ParmIDVec.push_back( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+        }
+
+        int num_setting = XmlUtil::GetNumNames( grp_node, "Setting" );
+
+        for ( int i = 0; i < num_setting; i++ )
+        {
+            xmlNodePtr setting_node = XmlUtil::GetNode( grp_node, "Setting", i );
+
+            if ( setting_node )
+            {
+                Setting* s = new Setting();
+
+                if ( s )
+                {
+                    s->DecodeXml( setting_node );
+                    AddSetting( s, false );
+                }
+            }
+        }
+
+    }
+
+    return grp_node;
 }
 
 string SettingGroup::GenerateID()
@@ -370,11 +441,42 @@ vector < string > VarPresetMgrSingleton::GetAllSettingGroups()
 
 xmlNodePtr VarPresetMgrSingleton::EncodeXml( xmlNodePtr &node ) const
 {
-    return node;
+    xmlNodePtr varpresetmgr_node = xmlNewChild( node, NULL, BAD_CAST"VarPresetMgr", NULL );
+
+    for ( int i = 0; i < m_SettingGroupVec.size(); i++ )
+    {
+        FindSettingGroup( m_SettingGroupVec[i] )->EncodeXml( varpresetmgr_node );
+    }
+
+    return varpresetmgr_node;
 }
 
 xmlNodePtr VarPresetMgrSingleton::DecodeXml( xmlNodePtr &node )
 {
+    xmlNodePtr varpresetmgr_node = XmlUtil::GetNode( node, "VarPresetMgr", 0 );
+
+    if ( varpresetmgr_node )
+    {
+        int num_grp = XmlUtil::GetNumNames( varpresetmgr_node, "SettingGroup" );
+
+        for ( unsigned int i = 0; i < num_grp; i++ )
+        {
+            xmlNodePtr grp_node = XmlUtil::GetNode( varpresetmgr_node, "SettingGroup", i );
+
+            if ( grp_node )
+            {
+                SettingGroup* grp = new SettingGroup();
+
+                if ( grp )
+                {
+                    grp->DecodeXml( grp_node );
+
+                    AddSettingGroup( grp );
+                }
+            }
+        }
+    }
+
     return node;
 }
 
