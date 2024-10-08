@@ -123,6 +123,9 @@ public:
     void RemoveSettingGroup( SettingGroup* sg );
     SettingGroup* FindSettingGroup( const string & id ) const;
 
+    void DeleteSettingGroup( const string & gid );
+    void DeleteSetting( const string &gid, const string &sid );
+
     vector < string > GetAllSettingGroups();
 
     xmlNodePtr EncodeXml( xmlNodePtr &node ) const;

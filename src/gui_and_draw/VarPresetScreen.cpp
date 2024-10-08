@@ -543,25 +543,8 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             string gid = m_GroupIDs[ m_GroupChoiceIndex ];
 
-            SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
-
-            if ( sg )
-            {
-                VarPresetMgr.RemoveSettingGroup( sg );
-                vector < string > settings = sg->GetSettingIDVec();
-                for ( int i = 0; i < settings.size(); i++ )
-                {
-                    Setting *s = VarPresetMgr.FindSetting( settings[i] );
-                    if ( s )
-                    {
-                        VarPresetMgr.RemoveSetting( s );
-
-                        delete s;
-                    }
-                }
-                delete sg;
-                m_GroupChoiceIndex = 0;
-            }
+            VarPresetMgr.DeleteSettingGroup( gid );
+            m_GroupChoiceIndex = 0;
         }
     }
     else if ( device == &m_DeleteSettingButton )
@@ -572,19 +555,8 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
             string gid = m_GroupIDs[ m_GroupChoiceIndex ];
             string sid = m_SettingIDs[ m_SettingChoiceIndex ];
 
-            SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
-
-            if ( sg )
-            {
-                Setting *s = VarPresetMgr.FindSetting( sid );
-                if ( s )
-                {
-                    sg->RemoveSetting( s );
-
-                    delete s;
-                    m_SettingChoiceIndex = 0;
-                }
-            }
+            VarPresetMgr.DeleteSetting( gid, sid );
+            m_SettingChoiceIndex = 0;
         }
     }
     else if ( device == &m_ApplyButton )

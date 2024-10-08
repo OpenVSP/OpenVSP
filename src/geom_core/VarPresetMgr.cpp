@@ -457,6 +457,44 @@ SettingGroup* VarPresetMgrSingleton::FindSettingGroup( const string & id ) const
     return nullptr;
 }
 
+void VarPresetMgrSingleton::DeleteSettingGroup( const string & gid )
+{
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+    if ( sg )
+    {
+        VarPresetMgr.RemoveSettingGroup( sg );
+        vector < string > settings = sg->GetSettingIDVec();
+        for ( int i = 0; i < settings.size(); i++ )
+        {
+            Setting *s = VarPresetMgr.FindSetting( settings[i] );
+            if ( s )
+            {
+                VarPresetMgr.RemoveSetting( s );
+
+                delete s;
+            }
+        }
+        delete sg;
+    }
+}
+
+void VarPresetMgrSingleton::DeleteSetting( const string &gid, const string &sid )
+{
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+    if ( sg )
+    {
+        Setting *s = VarPresetMgr.FindSetting( sid );
+        if ( s )
+        {
+            sg->RemoveSetting( s );
+
+            delete s;
+        }
+    }
+}
+
 vector < string > VarPresetMgrSingleton::GetAllSettingGroups()
 {
     return m_SettingGroupVec;
