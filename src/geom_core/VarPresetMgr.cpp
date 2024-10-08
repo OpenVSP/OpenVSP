@@ -91,7 +91,7 @@ xmlNodePtr Setting::DecodeXml( xmlNodePtr &setting_node )
 
 string Setting::GenerateID()
 {
-    return GenerateRandomID( 6 );
+    return GenerateRandomID( vsp::ID_LENGTH_PRESET_SETTING );
 }
 
 //=========================================================================//
@@ -321,7 +321,7 @@ xmlNodePtr SettingGroup::DecodeXml( xmlNodePtr &grp_node )
 
 string SettingGroup::GenerateID()
 {
-    return GenerateRandomID( 5 );
+    return GenerateRandomID( vsp::ID_LENGTH_PRESET_GROUP );
 }
 
 //=========================================================================//
