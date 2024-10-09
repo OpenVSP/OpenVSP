@@ -146,10 +146,11 @@ private:
 
 #define VarPresetMgr VarPresetMgrSingleton::getInstance()
 
-
-
-
-
+// The following two classes are the essence of the original Variable Preset implementation.
+// This version relied on lookups based on name and index in a way that it was not suitable for
+// extension to Modes.  It was re-written to the preceeding ID-based implementation.
+// This essence is enough to read in legacy files with Variable Presets and to convert them to
+// the new implementation.
 
 //==== Preset ====//
 class OldPreset
