@@ -163,21 +163,14 @@ public:
     virtual string GetGroupName()                               { return m_GroupName; }
     virtual string GetSettingName( int index )                  { return m_SettingNameVec[index]; }
     virtual vector < string > GetSettingNameVec()               { return m_SettingNameVec; }
-    virtual string GetCurSetName()                              { return m_CurSetName; }
+
     virtual vector < string > GetParmIDs()                      { return m_ParmIDVec; }
-    virtual int GetNumSet()                                     { return m_SettingNameVec.size(); }
+
     virtual vector < double > GetParmVals( int set_index )      { return m_ParmValVec[ set_index ]; }
 
-    virtual bool SettingNameExist( const string &name );
-    //virtual void SetGroupName( const string &name )             { m_GroupName = name; }
     virtual void SetCurSetName( const string &name )            { m_CurSetName = name; }
 
     virtual void NewSet( const string &set_name, vector < double > p_ValVec );
-    virtual void DeleteSet( int set_index );
-
-    virtual void AddParm( const string &p_ID, double p_val );
-    virtual void EditParm( int set_index, const string &p_id, double p_val );
-    virtual void DeleteParm( const string &p_id );
 
     virtual OldPreset DecodeXml( xmlNodePtr &varpresetnode, int i );
 
@@ -203,52 +196,14 @@ public:
     }
 
     virtual void Renew();
-    virtual void ResetIndexAndText();
 
-    virtual void AddGroup( const string &groupText );
-    virtual void AddSetting( const string &settingText );
-    virtual bool SavePreset();
-    virtual void ApplySetting();
-    virtual void SettingChange( int set_index );
-    virtual void SettingChange( const string &set_name );
-    virtual void GroupChange( int group_index );
-    virtual void GroupChange( const string &group_name );
-    virtual bool DeletePreset( int group_index, int set_index );
-    virtual bool DeletePreset( const string &group_name, const string &set_name );
-
-    bool CheckForDuplicateVar( const string &p );
-
-
-    virtual void DelCurrVar();
     virtual void DelAllVars();
-    virtual bool AddVar( const string &parm_id );
-
-    virtual bool SortVars();
-    virtual int GetNumVars()                        { return ( int )m_VarVec.size(); }
-
-    virtual void SetWorkingParmID( const string &parm_id );
-
-    virtual bool CheckForEmpty( int curGroupIndex, int curSettingIndex );
-
-    virtual int GetActiveGroupIndex()                   { return m_CurGroupIndex; }
-    virtual string GetActiveGroupText()                 { return m_CurGroupText; }
-    virtual string GetActiveSettingText()               { return m_CurSettingText; }
 
 
-    virtual vector < string > GetCurrentParmIDs()
-    {
-        return m_PresetVec[ m_CurGroupIndex ].GetParmIDs();
-    }
     virtual vector < string > GetParmIDs( const string &group_name );
-
-    virtual vector < double > GetCurrentParmVals()
-    {
-        return m_PresetVec[ m_CurGroupIndex ].GetParmVals( m_CurSettingIndex );
-    }
     virtual vector < double> GetParmVals( const string &group_name, const string &set_name );
 
     virtual vector < string > GetSettingNames( int group_index );
-    virtual vector < string > GetSettingNames( const string &group_name );
     virtual vector < string > GetGroupNames();
 
     virtual xmlNodePtr DecodeXml( xmlNodePtr &node );
@@ -262,13 +217,8 @@ private:
     void Init();
     void Wype();
 
-    int m_CurrVarIndex;
-
-    string m_WorkingParmID;
-
     vector < string > m_VarVec;
 
-    bool m_PrevDeleteFlag;
     int m_CurGroupIndex;
     int m_CurSettingIndex;
     string m_CurGroupText;
