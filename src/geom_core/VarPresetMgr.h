@@ -128,6 +128,8 @@ public:
 
     vector < string > GetAllSettingGroups();
 
+    void ConvertOldToNew();
+
     xmlNodePtr EncodeXml( xmlNodePtr &node ) const;
     xmlNodePtr DecodeXml( xmlNodePtr &node );
 

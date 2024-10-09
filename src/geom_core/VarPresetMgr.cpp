@@ -500,6 +500,46 @@ vector < string > VarPresetMgrSingleton::GetAllSettingGroups()
     return m_SettingGroupVec;
 }
 
+void VarPresetMgrSingleton::ConvertOldToNew()
+{
+    vector < string > gnames = OldVarPresetMgr.GetGroupNames();
+
+    for ( int i = 0; i < gnames.size(); i++ )
+    {
+        SettingGroup *sg = new SettingGroup();
+        sg->SetName( gnames[ i ] );
+
+        if ( VarPresetMgr.AddSettingGroup( sg ) )
+        {
+            vector < string > pids = OldVarPresetMgr.GetParmIDs( gnames[ i ] );
+
+            sg->SetParmIDVec( pids );
+
+            vector < string > snames = OldVarPresetMgr.GetSettingNames( i );
+
+            for ( int j = 0; j < snames.size(); j++ )
+            {
+                Setting *s = new Setting();
+                s->SetName( snames[ j ] );
+
+                vector < double > valvec = OldVarPresetMgr.GetParmVals( gnames[ i ], snames[ j ] );
+                s->SetParmValVec( valvec );
+
+                if ( !sg->AddSetting( s, false ) )
+                {
+                    delete s;
+                }
+            }
+        }
+        else
+        {
+            delete sg;
+        }
+    }
+
+    OldVarPresetMgr.Renew();
+}
+
 xmlNodePtr VarPresetMgrSingleton::EncodeXml( xmlNodePtr &node ) const
 {
     xmlNodePtr varpresetmgr_node = xmlNewChild( node, NULL, BAD_CAST"VarPresetMgr", NULL );
