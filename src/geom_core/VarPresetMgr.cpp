@@ -511,7 +511,7 @@ void VarPresetMgrSingleton::ConvertOldToNew()
 
         if ( VarPresetMgr.AddSettingGroup( sg ) )
         {
-            vector < string > pids = OldVarPresetMgr.GetParmIDs( gnames[ i ] );
+            vector < string > pids = OldVarPresetMgr.GetParmIDs( i );
 
             sg->SetParmIDVec( pids );
 
@@ -522,7 +522,7 @@ void VarPresetMgrSingleton::ConvertOldToNew()
                 Setting *s = new Setting();
                 s->SetName( snames[ j ] );
 
-                vector < double > valvec = OldVarPresetMgr.GetParmVals( gnames[ i ], snames[ j ] );
+                vector < double > valvec = OldVarPresetMgr.GetParmVals( i, j );
                 s->SetParmValVec( valvec );
 
                 if ( !sg->AddSetting( s, false ) )
@@ -708,9 +708,8 @@ void OldVarPresetMgrSingleton::DelAllVars()
     m_VarVec.clear();
 }
 
-vector <string> OldVarPresetMgrSingleton::GetParmIDs( const string &group_name )
+vector <string> OldVarPresetMgrSingleton::GetParmIDs( int group_index )
 {
-    int group_index = vector_find_val( GetGroupNames(), group_name );
     vector <string> vec;
 
     if (group_index != -1 )
@@ -723,10 +722,8 @@ vector <string> OldVarPresetMgrSingleton::GetParmIDs( const string &group_name )
     }
 }
 
-vector <double> OldVarPresetMgrSingleton::GetParmVals( const string &group_name, const string &setting_name )
+vector <double> OldVarPresetMgrSingleton::GetParmVals( int group_index, int set_index )
 {
-    int group_index = vector_find_val( GetGroupNames(), group_name );
-    int set_index = vector_find_val( m_PresetVec[ group_index ].GetSettingNameVec(), setting_name );
     vector<double> vec;
 
     if ( group_index != -1 && set_index != -1 )

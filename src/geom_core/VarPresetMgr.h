@@ -200,8 +200,8 @@ public:
     virtual void DelAllVars();
 
 
-    virtual vector < string > GetParmIDs( const string &group_name );
-    virtual vector < double> GetParmVals( const string &group_name, const string &set_name );
+    virtual vector < string > GetParmIDs( int group_index );
+    virtual vector < double> GetParmVals( int group_index, int set_index );
 
     virtual vector < string > GetSettingNames( int group_index );
     virtual vector < string > GetGroupNames();
