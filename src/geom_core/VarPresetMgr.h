@@ -161,11 +161,8 @@ public:
     virtual void Init( const string &group_name, const vector< string > &p_IDvec);
 
     virtual string GetGroupName()                               { return m_GroupName; }
-
     virtual vector < string > GetSettingNameVec()               { return m_SettingNameVec; }
-
     virtual vector < string > GetParmIDs()                      { return m_ParmIDVec; }
-
     virtual vector < double > GetParmVals( int set_index )      { return m_ParmValVec[ set_index ]; }
 
     virtual void NewSet( const string &set_name, vector < double > p_ValVec );
@@ -173,7 +170,6 @@ public:
     virtual OldPreset DecodeXml( xmlNodePtr &varpresetnode, int i );
 
 protected:
-
     string m_GroupName;
 
     vector < string > m_ParmIDVec;
@@ -193,9 +189,7 @@ public:
     }
 
     virtual void Renew();
-
     virtual void DelAllVars();
-
 
     virtual vector < string > GetParmIDs( int group_index );
     virtual vector < double> GetParmVals( int group_index, int set_index );
@@ -206,7 +200,6 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr &node );
 
 private:
-
     OldVarPresetMgrSingleton();
     OldVarPresetMgrSingleton( OldVarPresetMgrSingleton const& copy );          // Not Implemented
     OldVarPresetMgrSingleton& operator=( OldVarPresetMgrSingleton const& copy ); // Not Implemented
@@ -215,7 +208,6 @@ private:
     void Wype();
 
     vector < string > m_VarVec;
-
     vector < OldPreset > m_PresetVec;
 };
 
