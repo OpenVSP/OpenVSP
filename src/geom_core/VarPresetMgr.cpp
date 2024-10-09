@@ -542,7 +542,7 @@ void VarPresetMgrSingleton::ConvertOldToNew()
 
 xmlNodePtr VarPresetMgrSingleton::EncodeXml( xmlNodePtr &node ) const
 {
-    xmlNodePtr varpresetmgr_node = xmlNewChild( node, NULL, BAD_CAST"VarPresetMgr", NULL );
+    xmlNodePtr varpresetmgr_node = xmlNewChild( node, NULL, BAD_CAST"VariablePresets", NULL );
 
     for ( int i = 0; i < m_SettingGroupVec.size(); i++ )
     {
@@ -554,7 +554,7 @@ xmlNodePtr VarPresetMgrSingleton::EncodeXml( xmlNodePtr &node ) const
 
 xmlNodePtr VarPresetMgrSingleton::DecodeXml( xmlNodePtr &node )
 {
-    xmlNodePtr varpresetmgr_node = XmlUtil::GetNode( node, "VarPresetMgr", 0 );
+    xmlNodePtr varpresetmgr_node = XmlUtil::GetNode( node, "VariablePresets", 0 );
 
     if ( varpresetmgr_node )
     {
