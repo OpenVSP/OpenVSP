@@ -613,8 +613,6 @@ void OldPreset::NewSet( const string &set_name, vector < double > p_ValVec)
     m_SettingNameVec.push_back( set_name );
 
     m_ParmValVec.push_back( p_ValVec );
-
-    m_CurSetName = set_name;
 }
 
 //==== Decode XML ====//
@@ -663,7 +661,6 @@ OldPreset OldPreset::DecodeXml( xmlNodePtr &varpresetnode, int i )
 
     // Initialize Preset & Set Current Setting Name
     temp_preset.Init( groupName, p_IDs );
-    temp_preset.SetCurSetName( XmlUtil::FindString( groupqualnode, "ActiveSettingName", "" ) );
 
     p_IDs.clear();
     groupName.clear();
@@ -683,10 +680,6 @@ OldVarPresetMgrSingleton::OldVarPresetMgrSingleton()
 
 void OldVarPresetMgrSingleton::Init()
 {
-    m_CurGroupIndex = -1;
-    m_CurSettingIndex = -1;
-    m_CurGroupText = "";
-    m_CurSettingText = "";
     m_PresetVec.clear();
 }
 
@@ -782,19 +775,6 @@ xmlNodePtr OldVarPresetMgrSingleton::DecodeXml( xmlNodePtr & node )
     {
         // Decode Preset Details
         m_PresetVec[ i ] = m_PresetVec[ i ].DecodeXml( varpresetnode, i );
-    }
-
-    // Decode Group and Setting Index
-    int val = -1;
-    m_CurGroupIndex = XmlUtil::FindInt( varpresetnode, "CurrentGroupIndex", val );
-    m_CurSettingIndex = XmlUtil::FindInt( varpresetnode, "CurrentSettingIndex", val );
-
-    if ( m_CurGroupIndex >= 0 && m_CurSettingIndex >= 0 )
-    {
-        // Assign Current Group and Setting Name
-        m_CurGroupText = m_PresetVec[m_CurGroupIndex].GetGroupName();
-        m_CurSettingText = m_PresetVec[ m_CurGroupIndex ].GetSettingName( m_CurSettingIndex );
-        m_PresetVec[ m_CurGroupIndex ].SetCurSetName( m_CurSettingText );
     }
 
     return varpresetnode;

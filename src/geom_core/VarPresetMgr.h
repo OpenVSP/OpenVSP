@@ -161,14 +161,12 @@ public:
     virtual void Init( const string &group_name, const vector< string > &p_IDvec);
 
     virtual string GetGroupName()                               { return m_GroupName; }
-    virtual string GetSettingName( int index )                  { return m_SettingNameVec[index]; }
+
     virtual vector < string > GetSettingNameVec()               { return m_SettingNameVec; }
 
     virtual vector < string > GetParmIDs()                      { return m_ParmIDVec; }
 
     virtual vector < double > GetParmVals( int set_index )      { return m_ParmValVec[ set_index ]; }
-
-    virtual void SetCurSetName( const string &name )            { m_CurSetName = name; }
 
     virtual void NewSet( const string &set_name, vector < double > p_ValVec );
 
@@ -177,7 +175,6 @@ public:
 protected:
 
     string m_GroupName;
-    string m_CurSetName;
 
     vector < string > m_ParmIDVec;
     vector < string > m_SettingNameVec;
@@ -219,10 +216,6 @@ private:
 
     vector < string > m_VarVec;
 
-    int m_CurGroupIndex;
-    int m_CurSettingIndex;
-    string m_CurGroupText;
-    string m_CurSettingText;
     vector < OldPreset > m_PresetVec;
 };
 
