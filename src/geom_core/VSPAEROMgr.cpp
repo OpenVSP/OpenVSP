@@ -4603,7 +4603,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
     if ( m_UnsteadyGroupVec.size() > NumUnsteadyRotorGroups() && m_UnsteadyGroupVec[0]->m_GeomPropertyType() != UnsteadyGroup::GEOM_FIXED )
     {
         UnsteadyGroup* fixed_group = NULL;
-        size_t fixed_group_index = -1;
+        int fixed_group_index = -1;
         for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
         {
             if ( m_UnsteadyGroupVec[i]->m_GeomPropertyType() == UnsteadyGroup::GEOM_FIXED )
