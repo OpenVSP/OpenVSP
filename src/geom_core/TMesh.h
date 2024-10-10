@@ -389,7 +389,7 @@ public:
     void IgnoreYLessThan( const double & ytol );
     void IgnoreAll();
 
-    void DeterIntExt( vector< TMesh* >& meshVec );
+    void DeterIntExt( const vector< TMesh* >& meshVec );
     void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
 
     void LoadBndBox();

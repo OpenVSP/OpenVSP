@@ -910,7 +910,7 @@ void TMesh::IgnoreAll()
     }
 }
 
-void TMesh::DeterIntExt( vector< TMesh* >& meshVec )
+void TMesh::DeterIntExt( const vector< TMesh* >& meshVec )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
