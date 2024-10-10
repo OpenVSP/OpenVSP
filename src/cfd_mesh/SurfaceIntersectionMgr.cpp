@@ -1207,7 +1207,7 @@ void SurfaceIntersectionSingleton::WritePlot3DFile( const string &filename, bool
         int ichain = 0;
         for ( ichain = 0; ichain < nchain; ichain++ )
         {
-            fprintf( fp, " %d 1 1\n", (*allpts)[ichain].size() );
+            fprintf( fp, " %zu 1 1\n", (*allpts)[ichain].size() );
         }
 
         for ( ichain = 0; ichain < nchain; ichain++ )
@@ -1718,7 +1718,7 @@ void SurfaceIntersectionSingleton::Intersect()
     //==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
     for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
     {
-        snprintf( str, sizeof( str ), "Intersect %3d/%3d %s\n", i + 1, m_SurfVec.size(), m_SurfVec[i]->GetDisplayName().c_str() );
+        snprintf( str, sizeof( str ), "Intersect %3d/%3zu %s\n", i + 1, m_SurfVec.size(), m_SurfVec[i]->GetDisplayName().c_str() );
         addOutputText( str );
 
         for ( int j = i + 1; j < (int) m_SurfVec.size(); j++ )
@@ -2775,7 +2775,7 @@ void SurfaceIntersectionSingleton::LoadBorderCurves()
     list< ISegChain* >::iterator c;
     for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
-        fprintf( m_DebugFile, "   Chain Num Segs = %d Border %d \n",
+        fprintf( m_DebugFile, "   Chain Num Segs = %zu Border %d \n",
                  ( *c )->m_ISegDeque.size(), ( int )( ( *c )->m_BorderFlag ) );
     }
 #endif

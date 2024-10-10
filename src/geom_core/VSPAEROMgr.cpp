@@ -1557,7 +1557,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
 
     if ( m_CpSliceFlag() && m_CpSliceVec.size() > 0 )
     {
-        fprintf( case_file, "NumberOfQuadTrees = %d \n", m_CpSliceVec.size() );
+        fprintf( case_file, "NumberOfQuadTrees = %zu \n", m_CpSliceVec.size() );
 
         for ( i = 0; i < m_CpSliceVec.size(); i++ )
         {
@@ -5971,7 +5971,7 @@ int UnsteadyGroup::WriteGroup( FILE *group_file, int method, bool alternatefile 
 
     if ( oldway )
     {
-        fprintf( group_file, "NumberOfComponents = %d\n", m_ComponentVSPAEROIndexVec.size() );
+        fprintf( group_file, "NumberOfComponents = %zu\n", m_ComponentVSPAEROIndexVec.size() );
         for ( size_t i = 0; i < m_ComponentVSPAEROIndexVec.size(); i++ )
         {
             fprintf( group_file, "%d\n", m_ComponentVSPAEROIndexVec[i] );
@@ -5979,7 +5979,7 @@ int UnsteadyGroup::WriteGroup( FILE *group_file, int method, bool alternatefile 
     }
     else
     {
-        fprintf( group_file, "NumberOfComponents = %d\n", m_GeomIDsInGroup.size() );
+        fprintf( group_file, "NumberOfComponents = %zu\n", m_GeomIDsInGroup.size() );
         for ( size_t i = 0; i < m_GeomIDsInGroup.size(); i++ )
         {
             int gnum = SubSurfaceMgr.FindGNum( m_GeomIDsInGroup[i] );

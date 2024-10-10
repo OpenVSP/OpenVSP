@@ -92,7 +92,7 @@ void IPnt::CompPnt_WithMetrics()
         }
         dave /= m_Puws.size();
 
-        printf( "Number in group %d average spread %e\n", m_Puws.size(), dave );
+        printf( "Number in group %zu average spread %e\n", m_Puws.size(), dave );
     }
 
     m_Pnt = psum;
@@ -155,7 +155,7 @@ void IPnt::DumpMatlab( FILE* fp, int figno )
             dave += dist( pts[i], psum );
         }
         dave /= m_Puws.size();
-        fprintf( fp, "title( 'N = %d dave = %.19e' );\n", m_Puws.size(), dave );
+        fprintf( fp, "title( 'N = %zu dave = %.19e' );\n", m_Puws.size(), dave );
     }
     fprintf( fp, "hold off\n" );
     fprintf( fp, "axis equal\n" );

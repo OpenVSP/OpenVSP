@@ -1139,7 +1139,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
 
     //===== Write Num Pnts and Tris ====//
     fprintf( fp, "# Part 1 - node list\n" );
-    fprintf( fp, "%d 3 0 0\n", pnCloud.m_NumUsedPts );
+    fprintf( fp, "%lld 3 0 0\n", pnCloud.m_NumUsedPts );
 
     //==== Write Model Pnts ====//
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
@@ -2798,7 +2798,7 @@ void CfdMeshMgrSingleton::BuildMesh()
         vector < vec2d > adduw;
         ForceSurfaceFixPoints( s, adduw );
 
-        snprintf( str, sizeof( str ), "InitMesh %3d/%3d %s\n", s+1, m_SurfVec.size(), m_SurfVec[s]->GetDisplayName().c_str() );
+        snprintf( str, sizeof( str ), "InitMesh %3d/%3zu %s\n", s+1, m_SurfVec.size(), m_SurfVec[s]->GetDisplayName().c_str() );
         addOutputText( str );
         m_SurfVec[s]->InitMesh( surf_chains, adduw, this );
     }

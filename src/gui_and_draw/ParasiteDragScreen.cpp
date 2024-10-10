@@ -1590,7 +1590,7 @@ void ParasiteDragScreen::UpdateIncorporateDropDowns()
                 veh->FindGeom( rowVec[i].GeomID )->BuildAncestorList( ancestorNames );
                 for ( size_t j = 1; j < ancestorNames.size(); ++j )
                 {
-                    snprintf( str, sizeof( str ),  "%u %s", j, ancestorNames[j].c_str() );
+                    snprintf( str, sizeof( str ),  "%zu %s", j, ancestorNames[j].c_str() );
                     m_grouped[i].AddItem( str );
                 }
                 ancestorNames.clear();
