@@ -488,7 +488,7 @@ public:
     virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
 
     //===== Read File ====//
-    bool ReadXsecFile( string file_name );
+    bool ReadXsecFile( const string &file_name );
     void SetPnts( vector< vec3d > & pnt_vec );
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );

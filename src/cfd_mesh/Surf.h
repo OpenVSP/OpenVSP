@@ -71,7 +71,7 @@ public:
     void UWtoTargetMapij( double u, double w, int &i, int &j, double &fraci, double &fracj );
     void UWtoTargetMapij( double u, double w, int &i, int &j );
 
-    void ApplyES( vec3d uw, double t, int reason );
+    void ApplyES( const vec3d &uw, double t, int reason );
 
     vec2d ClosestUW( const vec3d & pnt_in, double guess_u, double guess_w ) const;
     vec2d ClosestUW( const vec3d & pnt_in ) const;
@@ -194,7 +194,7 @@ public:
         m_PatchVec = pvec;
     }
 
-    void InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw, SurfaceIntersectionSingleton *MeshMgr );
+    void InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > &adduw, SurfaceIntersectionSingleton *MeshMgr );
 
     void FindSTBox( const vec2d &st, int &i_match, int &j_match );
 
@@ -254,7 +254,7 @@ public:
         return m_FeaOrientationType;
     }
 
-    void SetFeaOrientation( vec3d o )
+    void SetFeaOrientation( const vec3d &o )
     {
         m_FeaOrientation = o;
     }

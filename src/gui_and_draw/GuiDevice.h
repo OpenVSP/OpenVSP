@@ -1386,7 +1386,7 @@ public:
 
     void clear();
 
-    void addCopyText( string cpt );
+    void addCopyText( const string &cpt );
 
     int copy( int clipboard );
 

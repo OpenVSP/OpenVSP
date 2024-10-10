@@ -1056,7 +1056,7 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
     return formfactor;
 }
 
-void ParasiteDragMgrSingleton::Calculate_AvgSweep( vector<DegenStick> degenSticks )
+void ParasiteDragMgrSingleton::Calculate_AvgSweep( const vector<DegenStick> &degenSticks )
 {
     // Find Quarter Chord Using Derived Eqn from Geometry
     double width, secSweep25, secSweep50, secArea, weighted25Sum = 0, weighted50Sum = 0, totalArea = 0;

@@ -1023,7 +1023,7 @@ std::string FitModelMgrSingleton::getFeedbackGroupName()
     return std::string("FitModelGUIGroup");
 }
 
-void FitModelMgrSingleton::SelectPoint( string gid, int index )
+void FitModelMgrSingleton::SelectPoint( const string &gid, int index )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
@@ -1280,7 +1280,7 @@ void FitModelMgrSingleton::SetSelectBox()
     }
 }
 
-void FitModelMgrSingleton::AddSelectedPts( string tgtGeomID )
+void FitModelMgrSingleton::AddSelectedPts( const string &tgtGeomID )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 

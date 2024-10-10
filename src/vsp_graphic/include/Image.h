@@ -19,7 +19,7 @@ public:
     * Constructor.
     * fileName - the path and name of the image file.
     */
-    Image( std::string fileName );
+    Image( const std::string &fileName );
 
     Image( unsigned int width, unsigned int height, unsigned int bpp );
 
@@ -88,8 +88,8 @@ protected:
     virtual void _loadImage( std::string fileName );
 
 private:
-    bool _loadWithExt( std::string fileName, std::string ext );
-    bool _loadWithoutExt( std::string fileName );
+    bool _loadWithExt( const std::string &fileName, std::string ext );
+    bool _loadWithoutExt( const std::string &fileName );
 
     static std::vector<ImageLoader *> _initLoaders();
 

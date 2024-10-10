@@ -6686,7 +6686,7 @@ extern std::string AddFeaBC( const string & fea_struct_id, int type = -1 );
     \param [in] string bc_id FEA BC ID
 */
 
-extern void DelFeaBC( const string & fea_struct_id, std::string bc_id );
+extern void DelFeaBC( const string & fea_struct_id, const std::string &bc_id );
 
 /*!
     \ingroup FEAMesh
@@ -8679,7 +8679,7 @@ extern std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alph
     \return vector<double> Vector of Cp values for each point in xydata
 */
 
-extern std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, std::vector<vec3d> xyz_data );
+extern std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, const std::vector<vec3d> &xyz_data );
 
 /*!
     \ingroup XSec
@@ -10540,7 +10540,7 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
     \param [in] control_pts Nondimensionalized array of control points
 */
 
-extern void SetEditXSecPnts( const std::string & xsec_id, std::vector < double > u_vec, std::vector < vec3d > control_pts, std::vector < double > r_vec );
+extern void SetEditXSecPnts( const std::string & xsec_id, const std::vector < double > &u_vec, const std::vector < vec3d > &control_pts, const std::vector < double > &r_vec );
 
 /*!
     \ingroup EditCurveXSec
@@ -14365,7 +14365,7 @@ extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
     \param [in] CSGroupIndex Index of the control surface group
 */
 
-extern void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex);
+extern void AddSelectedToCSGroup( const vector <int> &selected, int CSGroupIndex);
 
 /*!
     \ingroup CSGroup
@@ -14430,7 +14430,7 @@ extern void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex);
     \param [in] CSGroupIndex Index of the control surface group
 */
 
-extern void RemoveSelectedFromCSGroup(vector <int> selected, int CSGroupIndex);
+extern void RemoveSelectedFromCSGroup( const vector <int> &selected, int CSGroupIndex);
 
 /*!
     \ingroup CSGroup

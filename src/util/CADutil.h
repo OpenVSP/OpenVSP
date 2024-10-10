@@ -56,7 +56,7 @@ public:
     STEPutil( const int & len, const double & tol );
     virtual ~STEPutil();
 
-    void  WriteFile( string fname );
+    void  WriteFile( const string &fname );
     SdaiCartesian_point * MakePoint( const double & x, const double & y, const double & z );
 
     Registry * registry;
@@ -65,10 +65,10 @@ public:
     // Functions for STEP file representation
     void RepresentBREPSolid( vector < vector < SdaiAdvanced_face* > > adv_vec, const string& label = "" );
     void RepresentManifoldShell( vector < vector < SdaiAdvanced_face* > > adv_vec, const string& label = "" );
-    void RepresentUntrimmedSurfs( vector < SdaiB_spline_surface_with_knots* > surf_vec, const string& label = "" );
+    void RepresentUntrimmedSurfs( const vector < SdaiB_spline_surface_with_knots* > &surf_vec, const string& label = "" );
 
     // Create a STEP planar surface. The surface will extend infinitely if it is not bounded
-    SdaiSurface* MakePlane( const vec3d center, const vec3d norm, const vec3d tangent, const string& label );
+    SdaiSurface* MakePlane( const vec3d &center, const vec3d &norm, const vec3d &tangent, const string& label );
 
     // Convert a piecewise Bezier surface to a NURBS surface and add it to the STEP file. Additional options
     // are included to use Nanoflann to merge points that are close together
@@ -76,11 +76,11 @@ public:
 
     // Create a STEP vertex and add it to the STEP file. This function is used to define the endpoints 
     // of STEP edge curves.
-    SdaiVertex_point* MakeVertex( vec3d vertex );
+    SdaiVertex_point* MakeVertex( const vec3d &vertex );
 
     // Convert a set of input control points to a NURBS curve and write to the STEP file. Additional options
     // are included to use Nanoflann to merge points that are close together
-    SdaiB_spline_curve_with_knots* MakeCurve( vector < vec3d > cp_vec, const int& deg, const string& label = "", bool closed_curve = false, bool mergepnts = false, double merge_tol = 1e-8 );
+    SdaiB_spline_curve_with_knots* MakeCurve( const vector < vec3d > &cp_vec, const int& deg, const string& label = "", bool closed_curve = false, bool mergepnts = false, double merge_tol = 1e-8 );
 
     // Write a curve defined from the given control points to the STEP file. This function is mainly
     // available for sub-surface lines and the intersection of FEA Parts with each other.
@@ -118,7 +118,7 @@ public:
     IGESutil( const int& len );
     virtual ~IGESutil();
 
-    void  WriteFile( string fname, bool overwrite = true );
+    void WriteFile( const string &fname, bool overwrite = true );
 
     // Identify the NURBS knot vector for a curve or direction of a surface given its degree and number of patches
     void IGESKnots( int deg, int npatch, vector< double >& knot );
@@ -127,17 +127,17 @@ public:
     DLL_IGES_ENTITY_128 MakeSurf( piecewise_surface_type& s, const string& label );
 
     // Bound a parent NURBS surface (entity 128) with an input control point vector
-    DLL_IGES_ENTITY_144 MakeLoop( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec, const string& label );
+    DLL_IGES_ENTITY_144 MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label );
 
-    DLL_IGES_ENTITY_126 MakeCurve( vector < vec3d > cp_vec, int deg, const string& label );
+    DLL_IGES_ENTITY_126 MakeCurve( const vector < vec3d > &cp_vec, int deg, const string& label );
 
     // Create a hole in a trimmed IGES surface (entity 144) at the given control point vector
-    void MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec, const string& label );
+    void MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label );
 
 protected:
 
     // Add an IGES bounding curve (entity 142) to a parent NURBS surface at the given control point vector
-    DLL_IGES_ENTITY_142 MakeBound( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec, const string& label );
+    DLL_IGES_ENTITY_142 MakeBound( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label );
 
     // Add a label to any DLL_IGES_ENTITY
     void AddLabel( DLL_IGES_ENTITY& entity, const string& label );

@@ -82,7 +82,7 @@ void GeomGuiDraw::SetMaterialToDefault()
     m_Material.SetMaterialToDefault( );
 }
 
-void GeomGuiDraw::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )
+void GeomGuiDraw::SetMaterial( const std::string &name, double ambi[], double diff[], double spec[], double emis[], double shin )
 {
     m_Material.SetMaterial( name, ambi, diff, spec, emis, shin );
 }
@@ -2420,7 +2420,7 @@ void Geom::WriteProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox )
     }
 }
 
-vector< vector < vec3d > > Geom::GetGeomProjectionLines( int view, vec3d offset )
+vector< vector < vec3d > > Geom::GetGeomProjectionLines( int view, const vec3d &offset )
 {
     vector < vector < vec3d > > PathVec;
 

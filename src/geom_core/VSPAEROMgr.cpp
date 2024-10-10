@@ -2181,7 +2181,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
     }
 }
 
-void VSPAEROMgrSingleton::AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+void VSPAEROMgrSingleton::AddResultHeader( const string &res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
 {
     // Add Flow Condition header to each result
     Results * res = ResultsMgr.FindResultsPtr( res_id );
@@ -2952,7 +2952,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
 Read .STAB file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType )
+void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -3141,7 +3141,7 @@ vector <string> VSPAEROMgrSingleton::ReadDelimLine( FILE * fp, char * delimiters
     return dataStringVector;
 }
 
-bool VSPAEROMgrSingleton::CheckForCaseHeader( std::vector<string> headerStr )
+bool VSPAEROMgrSingleton::CheckForCaseHeader( const std::vector<string> &headerStr )
 {
     if ( headerStr.size() == 1 )
     {
@@ -3154,7 +3154,7 @@ bool VSPAEROMgrSingleton::CheckForCaseHeader( std::vector<string> headerStr )
     return false;
 }
 
-bool VSPAEROMgrSingleton::CheckForResultHeader( std::vector<string> headerStr )
+bool VSPAEROMgrSingleton::CheckForResultHeader( const std::vector<string> &headerStr )
 {
     if ( headerStr.size() == 4 )
     {
@@ -3252,7 +3252,7 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::V
 }
 
 //Export Results to CSV
-int VSPAEROMgrSingleton::ExportResultsToCSV( string fileName )
+int VSPAEROMgrSingleton::ExportResultsToCSV( const string &fileName )
 {
     int retVal = vsp::VSP_FILE_WRITE_FAILURE;
 
@@ -3903,7 +3903,7 @@ void VSPAEROMgrSingleton::CreateCutsFile()
 
 }
 
-void VSPAEROMgrSingleton::AddCpSliceVec( int cut_type, vector< double > cut_vec )
+void VSPAEROMgrSingleton::AddCpSliceVec( int cut_type, const vector< double > &cut_vec )
 {
     for ( size_t i = 0; i < cut_vec.size(); i++ )
     {
@@ -3997,7 +3997,7 @@ void VSPAEROMgrSingleton::ClearCpSliceVec()
     m_CpSliceVec.clear();
 }
 
-void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_id_vector )
+void VSPAEROMgrSingleton::ReadSliceFile( const string &filename, vector <string> &res_id_vector )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -4104,7 +4104,7 @@ bool VSPAEROMgrSingleton::ValidUnsteadyGroupInd( int index )
     }
 }
 
-void VSPAEROMgrSingleton::DeleteUnsteadyGroup( vector <int> ind_vec )
+void VSPAEROMgrSingleton::DeleteUnsteadyGroup( const vector <int> &ind_vec )
 {
     vector < UnsteadyGroup* > tempvec;
 
@@ -5674,7 +5674,7 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
     return node;
 }
 
-void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
+void ControlSurfaceGroup::AddSubSurface( const VspAeroControlSurf &control_surf )
 {
     // Add deflection gain parm to ControlSurfaceGroup container
     Parm* p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );

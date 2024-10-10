@@ -54,7 +54,7 @@ void XSecSurf::ChangeID( string id )
 }
 
 //==== Find XSec Given ID ====//
-XSec* XSecSurf::FindXSec( string id ) const
+XSec* XSecSurf::FindXSec( const string &id ) const
 {
     for ( int i = 0 ; i < ( int )m_XSecPtrVec.size() ; i++ )
     {
@@ -66,7 +66,7 @@ XSec* XSecSurf::FindXSec( string id ) const
     return NULL;
 }
 
-const XSec* XSecSurf::FindConstXSec( string id ) const
+const XSec* XSecSurf::FindConstXSec( const string &id ) const
 {
     return FindXSec( id );
 }
@@ -84,7 +84,7 @@ const XSec* XSecSurf::FindConstXSec( int index ) const
 }
 
 //==== Find XSec Index Given ID ====//
-int XSecSurf::FindXSecIndex( string ID ) const
+int XSecSurf::FindXSecIndex( const string &ID ) const
 {
     for( int i = 0; i < static_cast<int>( m_XSecIDDeque.size() ); i++ )
     {
@@ -108,7 +108,7 @@ string XSecSurf::GetXSecID( int index ) const
 }
 
 //==== Change XSecID ====//
-void XSecSurf::ChangeXSecID( string oldID, string newID )
+void XSecSurf::ChangeXSecID( const string &oldID, const string &newID )
 {
     for( int i = 0; i < static_cast<int>( m_XSecIDDeque.size() ); i++ )
     {

@@ -28,7 +28,7 @@ SubSurfaceMgrSingleton::~SubSurfaceMgrSingleton()
 
 
 //==== Get the geom pointer matching a given comp_id ====//
-Geom* SubSurfaceMgrSingleton::GetGeom( string comp_id )
+Geom* SubSurfaceMgrSingleton::GetGeom( const string &comp_id )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )

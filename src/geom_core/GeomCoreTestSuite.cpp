@@ -136,7 +136,7 @@ void GeomCoreTestSuite::PodTest()
 
 
 //==== WriteCurve =====//
-void GeomCoreTestSuite::WritePnts( const std::vector< vec3d > & pnt_vec, std::string file_name )
+void GeomCoreTestSuite::WritePnts( const std::vector< vec3d > & pnt_vec, const std::string &file_name )
 {
     FILE* fp = fopen( file_name.c_str(), "w" );
     if ( fp )
@@ -240,7 +240,7 @@ void GeomCoreTestSuite::MeshIOTest()
     veh.CutActiveGeomVec();
 }
 
-void GeomCoreTestSuite::CompareMeshes( Vehicle & veh, string mesh_a, string mesh_b )
+void GeomCoreTestSuite::CompareMeshes( Vehicle & veh, const string &mesh_a, const string &mesh_b )
 {
     MeshGeom* mesh_1 = ( MeshGeom* )veh.FindGeom( mesh_a );
     MeshGeom* mesh_2 = ( MeshGeom* )veh.FindGeom( mesh_b );

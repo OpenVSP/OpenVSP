@@ -143,7 +143,7 @@ void APITestSuiteCFDMesh::TestSurfaceIntersection()
     printf( "COMPLETE\n" );
 }
 
-void APITestSuiteCFDMesh::RunAnalysis( vector < string > file_1, vector < string > file_2 )
+void APITestSuiteCFDMesh::RunAnalysis( const vector < string > &file_1, const vector < string > &file_2 )
 {
     //Get analysis type
     string analysis_name = "SurfaceIntersection";
@@ -241,7 +241,7 @@ void APITestSuiteCFDMesh::RunScaleTest( double scale_value, double test_compare_
     TEST_ASSERT( abs( step_dif ) <= test_compare_percent );
 }
 
-int APITestSuiteCFDMesh::GetFileSize( string file_name )
+int APITestSuiteCFDMesh::GetFileSize( const string &file_name )
 {
     int fileSize = 0;
     std::ifstream in_file(file_name, std::ios::binary );

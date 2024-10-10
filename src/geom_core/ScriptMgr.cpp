@@ -5372,7 +5372,7 @@ CScriptArray* ScriptMgrSingleton::GetVarPresetGroupNames()
     return GetProxyStringArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetVarPresetSettingNamesWName( string group_name )
+CScriptArray* ScriptMgrSingleton::GetVarPresetSettingNamesWName( const string &group_name )
 {
     m_ProxyStringArray = vsp::GetVarPresetSettingNamesWName( group_name );
     return GetProxyStringArray();
@@ -5390,7 +5390,7 @@ CScriptArray* ScriptMgrSingleton::GetVarPresetParmVals()
     return GetProxyDoubleArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetVarPresetParmValsWNames( string group_name, string setting_name )
+CScriptArray* ScriptMgrSingleton::GetVarPresetParmValsWNames( const string &group_name, const string &setting_name )
 {
     m_ProxyDoubleArray = vsp::GetVarPresetParmValsWNames( group_name, setting_name );
     return GetProxyDoubleArray();
@@ -5402,7 +5402,7 @@ CScriptArray* ScriptMgrSingleton::GetVarPresetParmIDs()
     return GetProxyStringArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetVarPresetParmIDsWName( string group_name )
+CScriptArray* ScriptMgrSingleton::GetVarPresetParmIDsWName( const string &group_name )
 {
     m_ProxyStringArray = vsp::GetVarPresetParmIDsWName( group_name );
     return GetProxyStringArray();
@@ -5423,7 +5423,7 @@ void ScriptMgrSingleton::AddVarPresetParm( const string &parm_ID )
     vsp::AddVarPresetParm( parm_ID );
 }
 
-void ScriptMgrSingleton::AddVarPresetParm( const string &parm_ID, string group_name )
+void ScriptMgrSingleton::AddVarPresetParm( const string &parm_ID, const string &group_name )
 {
     vsp::AddVarPresetParm( parm_ID, group_name );
 }
@@ -5433,7 +5433,7 @@ void ScriptMgrSingleton::EditVarPresetParm( const string &parm_ID, double parm_v
     vsp::EditVarPresetParm( parm_ID, parm_val );
 }
 
-void ScriptMgrSingleton::EditVarPresetParm( const string &parm_ID, double parm_val, string group_name, string setting_name )
+void ScriptMgrSingleton::EditVarPresetParm( const string &parm_ID, double parm_val, const string &group_name, const string &setting_name )
 {
     vsp::EditVarPresetParm( parm_ID, parm_val, group_name, setting_name );
 }
@@ -5443,17 +5443,17 @@ void ScriptMgrSingleton::DeleteVarPresetParm( const string &parm_ID )
     vsp::DeleteVarPresetParm( parm_ID );
 }
 
-void ScriptMgrSingleton::DeleteVarPresetParm( const string &parm_ID, string group_name )
+void ScriptMgrSingleton::DeleteVarPresetParm( const string &parm_ID, const string &group_name )
 {
     vsp::DeleteVarPresetParm( parm_ID, group_name );
 }
 
-void ScriptMgrSingleton::SwitchVarPreset( string group_name, string setting_name )
+void ScriptMgrSingleton::SwitchVarPreset( const string &group_name, const string &setting_name )
 {
     vsp::SwitchVarPreset( group_name, setting_name );
 }
 
-void ScriptMgrSingleton::DeleteVarPresetSet( string group_name, string setting_name )
+void ScriptMgrSingleton::DeleteVarPresetSet( const string &group_name, const string &setting_name )
 {
     vsp::DeleteVarPresetSet( group_name, setting_name );
 }

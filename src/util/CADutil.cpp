@@ -765,7 +765,7 @@ void  STEPutil::STEPBoilerplate( const vsp::LEN_UNITS & len, const char * tolstr
     ownerpersonorg->role_( owner_role );
 }
 
-void STEPutil::WriteFile( string fname )
+void STEPutil::WriteFile( const string &fname )
 {
     sfile->WriteExchangeFile( fname.c_str() );
     if( sfile->Error().severity() < SEVERITY_USERMSG )
@@ -774,7 +774,7 @@ void STEPutil::WriteFile( string fname )
     }
 }
 
-SdaiSurface* STEPutil::MakePlane( const vec3d center, const vec3d norm, const vec3d tangent, const string& label )
+SdaiSurface* STEPutil::MakePlane( const vec3d &center, const vec3d &norm, const vec3d &tangent, const string& label )
 {
     SdaiPlane* plane = (SdaiPlane*)registry->ObjCreate( "PLANE" );
     instance_list->Append( (SDAI_Application_instance*)plane, completeSE );
@@ -940,7 +940,7 @@ SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, const string& label,
     return (SdaiSurface*)surf;
 }
 
-SdaiVertex_point* STEPutil::MakeVertex( vec3d vertex )
+SdaiVertex_point* STEPutil::MakeVertex( const vec3d &vertex )
 {
     SdaiCartesian_point* cart_pnt = MakePoint( vertex.x(), vertex.y(), vertex.z() );
     SdaiVertex_point* vert_pnt = (SdaiVertex_point*)registry->ObjCreate( "VERTEX_POINT" );
@@ -950,7 +950,7 @@ SdaiVertex_point* STEPutil::MakeVertex( vec3d vertex )
     return vert_pnt;
 }
 
-SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( vector < vec3d > cp_vec, const int& deg, const string& label, bool closed_curve, bool mergepnts, double merge_tol )
+SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( const vector < vec3d > &cp_vec, const int& deg, const string& label, bool closed_curve, bool mergepnts, double merge_tol )
 {
     // Identify the edge
     int npts = (int)cp_vec.size();
@@ -1278,7 +1278,7 @@ void STEPutil::RepresentManifoldShell( vector < vector < SdaiAdvanced_face* > > 
     shape_def_rep->used_representation_( man_surf );
 }
 
-void STEPutil::RepresentUntrimmedSurfs( vector < SdaiB_spline_surface_with_knots* > surf_vec, const string& label )
+void STEPutil::RepresentUntrimmedSurfs( const vector < SdaiB_spline_surface_with_knots* > &surf_vec, const string& label )
 {
     SdaiGeometric_set* gset = (SdaiGeometric_set*)registry->ObjCreate( "GEOMETRIC_SET" );
     instance_list->Append( (SDAI_Application_instance*)gset, completeSE );
@@ -1335,7 +1335,7 @@ IGESutil::~IGESutil()
 {
 }
 
-void IGESutil::WriteFile( string fname, bool overwrite )
+void IGESutil::WriteFile( const string &fname, const bool overwrite )
 {
     model.Write( fname.c_str(), overwrite );
 }
@@ -1393,7 +1393,7 @@ DLL_IGES_ENTITY_128 IGESutil::MakeSurf( piecewise_surface_type& s, const string&
     return isurf;
 }
 
-DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec, const string& label )
+DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label )
 {
     // Create the Trimmed Parametric Surface (TPS)
     DLL_IGES_ENTITY_144 trim_surf( model, true );
@@ -1413,7 +1413,7 @@ DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, vector
     return trim_surf;
 }
 
-void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec, const string& label )
+void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label )
 {
     // Define the 1st surface boundary in model space
     DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, label );
@@ -1425,7 +1425,7 @@ void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144
     }
 }
 
-DLL_IGES_ENTITY_126 IGESutil::MakeCurve( vector < vec3d > cp_vec, int deg, const string& label )
+DLL_IGES_ENTITY_126 IGESutil::MakeCurve( const vector < vec3d > &cp_vec, int deg, const string& label )
 {
     int npts = (int)cp_vec.size();
 
@@ -1473,7 +1473,7 @@ DLL_IGES_ENTITY_126 IGESutil::MakeCurve( vector < vec3d > cp_vec, int deg, const
     return nc;
 }
 
-DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec, const string& label )
+DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label )
 {
     // Create a compound curve
     DLL_IGES_ENTITY_102 compound( model, true );

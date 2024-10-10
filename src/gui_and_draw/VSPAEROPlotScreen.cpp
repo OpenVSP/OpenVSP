@@ -2599,7 +2599,7 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
     }
 }
 
-string VSPAEROPlotScreen::MakeAxisLabelStr( vector <string> dataSetNames )
+string VSPAEROPlotScreen::MakeAxisLabelStr( const vector <string> &dataSetNames )
 {
     string labelStr;
     for ( int iDataSet = 0; iDataSet < dataSetNames.size(); iDataSet++ )
@@ -3061,7 +3061,7 @@ void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetN
 
 }
 
-void VSPAEROPlotScreen::UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expandOnly )
+void VSPAEROPlotScreen::UpdateAxisLimits( Ca_Canvas * canvas, const vector <double> &xDoubleData, const vector <double> &yDoubleData, bool expandOnly )
 {
     UpdateSingleAxisLimits( canvas->current_x(), xDoubleData, expandOnly );
     UpdateSingleAxisLimits( canvas->current_y(), yDoubleData, expandOnly );

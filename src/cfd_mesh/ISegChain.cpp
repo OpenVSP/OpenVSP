@@ -18,7 +18,7 @@ Puw::Puw()
     m_Surf = NULL;
 }
 
-Puw::Puw( Surf* s, vec2d uw )
+Puw::Puw( Surf* s, const vec2d &uw )
 {
     m_Surf = s;
     m_UW = uw;
@@ -800,7 +800,7 @@ void ISegChain::Intersect( Surf* surfPtr, ISegChain* B )
 
 }
 
-void ISegChain::AddSplit( Surf* surfPtr, int index, vec2d int_pnt, double t )
+void ISegChain::AddSplit( Surf* surfPtr, int index, const vec2d &int_pnt, double t )
 {
     //jrg 9/27
     //==== Check if chain already has a point there =====//

@@ -42,7 +42,7 @@ Renderable * Pickable::getSource()
     return _rSource;
 }
 
-void Pickable::setGroup(std::string groupName)
+void Pickable::setGroup( const std::string &groupName )
 {
     _groupName = groupName;
 }

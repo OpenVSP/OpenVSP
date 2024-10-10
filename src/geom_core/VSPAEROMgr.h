@@ -131,7 +131,7 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     // Subsurface Manipulation
-    void AddSubSurface( VspAeroControlSurf control_surf );
+    void AddSubSurface( const VspAeroControlSurf &control_surf );
     void RemoveSubSurface( const string & ssid, int reflec_num );
 
     void SetGroupDisplaySuffix( int num );
@@ -154,10 +154,10 @@ public:
     int WriteGroup( FILE *group_file, int method, bool alternatefile );
 
     vector < pair < string, int > > GetCompSurfPairVec()                                    { return m_ComponentSurfPairVec; }
-    void SetCompSurfPairVec( const vector < pair < string, int > > comp_surf_pair_vec )     { m_ComponentSurfPairVec = comp_surf_pair_vec; }
+    void SetCompSurfPairVec( const vector < pair < string, int > > &comp_surf_pair_vec )    { m_ComponentSurfPairVec = comp_surf_pair_vec; }
 
-    void SetVSPAEROIndexVec( vector < int > vepaero_index_vec )                             { m_ComponentVSPAEROIndexVec = vepaero_index_vec; }
-    void SetGeomIDsInGroup( vector < string > gidvec )                                      { m_GeomIDsInGroup = gidvec; }
+    void SetVSPAEROIndexVec( const vector < int > &vepaero_index_vec )                      { m_ComponentVSPAEROIndexVec = vepaero_index_vec; }
+    void SetGeomIDsInGroup( const vector < string > &gidvec )                               { m_GeomIDsInGroup = gidvec; }
 
     void AddComp( string comp_id, int surf_ind )                                            { m_ComponentSurfPairVec.push_back( std::make_pair( comp_id, surf_ind ) ); }
 
@@ -270,7 +270,7 @@ public:
     bool IsSolverRunning();
     void KillSolver();
 
-    int ExportResultsToCSV( string fileName );
+    int ExportResultsToCSV( const string &fileName );
 
     string LoadExistingVSPAEROResults();
 
@@ -287,7 +287,7 @@ public:
     void DelCpSlice( int ind );
     CpSlice* GetCpSlice( int ind );
     int GetCpSliceIndex( const string & id );
-    void AddCpSliceVec( int cut_type, vector < double > cut_vec );
+    void AddCpSliceVec( int cut_type, const vector < double > &cut_vec );
     vector < double > GetCpSlicePosVec(int type );
     vector < CpSlice* > GetCpSliceVec()                    { return m_CpSliceVec; }
     void ClearCpSliceVec();
@@ -317,7 +317,7 @@ public:
     void SetCurrentUnsteadyGroupIndex( const string& id );
     int GetCurrentUnsteadyGroupIndex()                          { return m_CurrentUnsteadyGroupIndex; }
     UnsteadyGroup* AddUnsteadyGroup();
-    void DeleteUnsteadyGroup( vector <int> ind_vec );
+    void DeleteUnsteadyGroup( const vector <int> &ind_vec );
     bool ValidUnsteadyGroupInd( int index );
     void AddUnsteadyGroup( UnsteadyGroup* group )               { m_UnsteadyGroupVec.push_back( group ); }
     UnsteadyGroup* GetUnsteadyGroup( int index );
@@ -505,16 +505,16 @@ protected:
     void ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, double recref );
     void ReadPolarFile( string filename, vector <string> &res_id_vector, double recref );
     void ReadLoadFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
-    void ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType );
+    void ReadStabFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType );
     static vector <string> ReadDelimLine( FILE * fp, char * delimiters );
-    static bool CheckForCaseHeader( std::vector<string> headerStr );
-    static bool CheckForResultHeader( std::vector < string > headerstr );
+    static bool CheckForCaseHeader( const std::vector<string> &headerStr );
+    static bool CheckForResultHeader( const std::vector < string > &headerstr );
     static int ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
     void ReadSetupFile(); // Read the VSPAERO setup file to identify VSPAERO inputs needed to generate existing VSPAERO results
-    void ReadSliceFile( string filename, vector <string> &res_id_vector );
+    void ReadSliceFile( const string &filename, vector <string> &res_id_vector );
     void ReadGroupResFile( string filename, vector <string> &res_id_vector, string group_name = "" );
     void ReadRotorResFile( string filename, vector <string> &res_id_vector, string group_name = "" );
-    static void AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    static void AddResultHeader( const string &res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
 
     DrawObj m_HighlightDrawObj;
 

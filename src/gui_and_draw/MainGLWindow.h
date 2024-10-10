@@ -155,13 +155,13 @@ private:
 
     struct ID;
 
-    ID * _findID( std::string geomID );
+    ID * _findID( const std::string &geomID );
     ID * _findID( unsigned int bufferID );
 
-    void _updateBuffer( std::vector<DrawObj *> objects );
+    void _updateBuffer( const std::vector<DrawObj *> &objects );
 
     void _sendFeedback( VSPGraphic::Selectable * selected );
-    void _sendFeedback( std::vector<VSPGraphic::Selectable *> listOfSelected );
+    void _sendFeedback( const std::vector<VSPGraphic::Selectable *> &listOfSelected );
 
     void OnPush( int x, int y );
     void OnDrag( int x, int y );
@@ -185,7 +185,7 @@ private:
         std::string geomID;
         std::vector<TextureID> textureIDs;
 
-        TextureID * find( std::string geomTexID )
+        TextureID * find( const std::string &geomTexID )
         {
             for( int i = 0; i < ( int )textureIDs.size(); i++ )
             {

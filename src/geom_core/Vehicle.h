@@ -196,7 +196,7 @@ public:
     void WriteX3DFile( const string & file_name, int write_set );
     static void WriteX3DMaterial( xmlNodePtr node, Material * material );
     void WriteX3DViewpoints( xmlNodePtr node );
-    static void WriteX3DViewpointProps( xmlNodePtr node, string orients, string cents, string posits, string sfov, string name );
+    static void WriteX3DViewpointProps( xmlNodePtr node, const string &orients, const string &cents, const string &posits, const string &sfov, const string &name );
     void WritePovRayFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set, bool labelID,
@@ -220,7 +220,7 @@ public:
     void WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox );
     void WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox );
 
-    vector< vector < vec3d > > GetVehProjectionLines( int view, vec3d offset );
+    vector< vector < vec3d > > GetVehProjectionLines( int view, const vec3d &offset );
 
     virtual void SetVehProjectVec3d( const vector < vector < vec3d > > &polyvec, int dir_index )
     {
@@ -234,7 +234,7 @@ public:
     void FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs );
     //==== Computation File Names ====//
     string getExportFileName( int type );
-    void setExportFileName( int type, string f_name );
+    void setExportFileName( int type, const string &f_name );
     void resetExportFileNames();
 
     bool getExportCompGeomCsvFile()                    { return m_exportCompGeomCsvFile(); }
@@ -255,8 +255,8 @@ public:
     string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1, int degenset = vsp::SET_NONE, bool hideset = true, bool suppressdisks = false );
     string MassProps( int set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true );
     string MassPropsAndFlatten( int set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true );
-    string PSlice( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start, double end, bool measureduct );
-    string PSliceAndFlatten( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start, double end, bool measureduct );
+    string PSlice( int set, int numSlices, const vec3d &norm, bool autoBoundsFlag, double start, double end, bool measureduct );
+    string PSliceAndFlatten( int set, int numSlices, const vec3d &norm, bool autoBoundsFlag, double start, double end, bool measureduct );
 
     //==== Degenerate Geometry ====//
     void CreateDegenGeom( int set );

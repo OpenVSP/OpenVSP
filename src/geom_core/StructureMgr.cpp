@@ -493,7 +493,7 @@ FeaProperty* StructureMgrSingleton::AddFeaProperty( int property_type )
 }
 
 //==== Delete FeaProperty =====//
-void StructureMgrSingleton::DeleteFeaProperty( string id )
+void StructureMgrSingleton::DeleteFeaProperty( const string &id )
 {
     vector < FeaProperty* > newpropvec;
 
@@ -521,7 +521,7 @@ bool StructureMgrSingleton::ValidFeaPropertyInd( int index )
     return false;
 }
 
-FeaProperty* StructureMgrSingleton::GetFeaProperty( string id )
+FeaProperty* StructureMgrSingleton::GetFeaProperty( const string &id )
 {
     if ( id == string( "NONE" ) )
     {
@@ -671,7 +671,7 @@ FeaMaterial* StructureMgrSingleton::AddFeaMaterial()
 }
 
 //==== Delete FeaMaterial =====//
-bool StructureMgrSingleton::DeleteFeaMaterial( string id )
+bool StructureMgrSingleton::DeleteFeaMaterial( const string &id )
 {
     bool delsuccess = false;
     vector < FeaMaterial* > newmatvec;
@@ -703,7 +703,7 @@ bool StructureMgrSingleton::ValidFeaMaterialInd( int index )
     return false;
 }
 
-FeaMaterial* StructureMgrSingleton::GetFeaMaterial( string id )
+FeaMaterial* StructureMgrSingleton::GetFeaMaterial( const string &id )
 {
     if ( id == string( "NONE" ) )
     {

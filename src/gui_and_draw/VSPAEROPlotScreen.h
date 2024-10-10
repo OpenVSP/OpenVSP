@@ -55,8 +55,8 @@ protected:
     void UpdateSweepAutoManualAxisLimits();
     void UpdateCpSliceAutoManualAxisLimits();
     void UpdateUnsteadyAutoManualAxisLimits();
-    static string MakeAxisLabelStr( vector <string> dataSetNames );
-    void UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expand_only );
+    static string MakeAxisLabelStr( const vector <string> &dataSetNames );
+    void UpdateAxisLimits( Ca_Canvas * canvas, const vector <double> &xDoubleData, const vector <double> &yDoubleData, bool expand_only );
     static void UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero = false );
     //  general utility
     static void ConstructFlowConditionString( char *strbuf, size_t str_siz, Results *res, bool includeResultId, bool include_recref );

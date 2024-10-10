@@ -320,7 +320,7 @@ void FeaStructure::ReorderFeaPart( int ind, int action )
 }
 
 //==== Highlight Active FeaParts ====//
-void FeaStructure::HighlightFeaParts( vector < int > active_ind_vec )
+void FeaStructure::HighlightFeaParts( const vector < int > &active_ind_vec )
 {
     for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
     {
@@ -334,7 +334,7 @@ void FeaStructure::HighlightFeaParts( vector < int > active_ind_vec )
 }
 
 //==== Highlight Active Subsurface ====//
-void FeaStructure::RecolorFeaSubSurfs( vector < int > active_ind_vec )
+void FeaStructure::RecolorFeaSubSurfs( const vector < int > &active_ind_vec )
 {
     for ( int i = 0; i < (int)m_FeaSubSurfVec.size(); i++ )
     {
@@ -6410,7 +6410,7 @@ void FeaMaterial::ReorderCurrentLayer( int action )
     SetCurrLayerIndex( index );
 }
 
-FeaLayer* FeaMaterial::GetFeaLayer( string id )
+FeaLayer* FeaMaterial::GetFeaLayer( const string &id )
 {
     if ( id == string( "NONE" ) )
     {

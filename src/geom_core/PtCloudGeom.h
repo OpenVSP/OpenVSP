@@ -61,7 +61,7 @@ public:
         return m_NumSelected;
     }
 
-    void ProjectPts( string geomid, int surfid, int idir );
+    void ProjectPts( const string &geomid, int surfid, int idir );
 
     vector < vec3d > m_Pts;
     vector < int > m_ShownIndx;

@@ -67,7 +67,7 @@ public:
     /*!
     * Set current geom to geom with specific ID.
     */
-    void Set(std::string geomID);
+    void Set( const std::string &geomID);
 
     /*!
     * Push Pick button once.
@@ -148,14 +148,14 @@ protected:
     void LoadDisplayChoice();
     void UpdateDrawType();
     void GeomBrowserCallback();
-    void SelectGeomBrowser( string geom_id );
-    bool IsParentSelected( string geom_id, const vector< string > & selVec );
+    void SelectGeomBrowser( const string &geom_id );
+    bool IsParentSelected( const string &geom_id, const vector< string > & selVec );
     void NoShowActiveGeoms( bool flag );
     void SelectAll();
     void SelectSet( int set );
     void SetGeomDisplayChoice( int type );
     void SetGeomDisplayType( int type );
-    void EditName( string name );
+    void EditName( const string &name );
     void SetSubDrawFlag( bool f );
     void SetFeatureDrawFlag( bool f );
 

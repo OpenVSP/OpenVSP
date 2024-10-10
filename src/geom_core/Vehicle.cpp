@@ -3089,7 +3089,7 @@ void Vehicle::WriteX3DViewpoints( xmlNodePtr node )
     }
 }
 
-void Vehicle::WriteX3DViewpointProps( xmlNodePtr node, string orients, string cents, string posits, string sfov, string name )
+void Vehicle::WriteX3DViewpointProps( xmlNodePtr node, const string &orients, const string &cents, const string &posits, const string &sfov, const string &name )
 {
     xmlSetProp( node, BAD_CAST "id", BAD_CAST name.c_str() );
     xmlSetProp( node, BAD_CAST "description", BAD_CAST name.c_str() );
@@ -4408,7 +4408,7 @@ void Vehicle::WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox 
     }
 }
 
-vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, vec3d offset )
+vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, const vec3d &offset )
 {
     vector < vector < vec3d > > PathVec;
 
@@ -4597,7 +4597,7 @@ string Vehicle::getExportFileName( int type )
     }
 }
 
-void Vehicle::setExportFileName( int type, string f_name )
+void Vehicle::setExportFileName( int type, const string &f_name )
 {
     if ( f_name.compare( "" ) == 0 || f_name.compare( "/" ) == 0 )
     {
@@ -4821,7 +4821,7 @@ string Vehicle::MassPropsAndFlatten( int set, int numSlices, int idir, bool hide
     return m_LastMassMeshID;
 }
 
-string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag, double start, double end, bool measureduct )
+string Vehicle::PSlice( int set, int numSlices, const vec3d &axis, bool autoBoundsFlag, double start, double end, bool measureduct )
 {
 
     string id = AddMeshGeom( set );
@@ -4852,7 +4852,7 @@ string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag,
     return id;
 }
 
-string Vehicle::PSliceAndFlatten( int set, int numSlices, vec3d axis, bool autoBoundsFlag, double start, double end, bool measureduct )
+string Vehicle::PSliceAndFlatten( int set, int numSlices, const vec3d &axis, bool autoBoundsFlag, double start, double end, bool measureduct )
 {
     string id = PSlice( set, numSlices, axis, autoBoundsFlag, start, end, measureduct );
     Geom* geom = FindGeom( id );

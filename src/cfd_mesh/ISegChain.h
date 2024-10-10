@@ -50,7 +50,7 @@ class Puw
 public:
 
     Puw();
-    Puw( Surf* s, vec2d  uw );
+    Puw( Surf* s, const vec2d &uw );
     virtual ~Puw();
     Surf* m_Surf;
     vec2d m_UW;
@@ -179,7 +179,7 @@ public:
 
     void Intersect( Surf* surfPtr, ISegChain* B );
 
-    void AddSplit( Surf* surfPtr, int index, vec2d int_pnt, double t );
+    void AddSplit( Surf* surfPtr, int index, const vec2d &int_pnt, double t );
     bool AddBorderSplit( Puw* uw ); // Return true if split successfully added
 
     void MergeSplits();

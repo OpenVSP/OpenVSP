@@ -26,7 +26,7 @@ typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, TwoDNodeCloud > , T
 
 struct TwoDNode
 {
-    TwoDNode( vec2d uv, double iu, double iv )
+    TwoDNode( const vec2d &uv, double iu, double iv )
     {
         m_UV = uv;
         m_iU = iu;

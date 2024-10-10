@@ -2784,7 +2784,7 @@ xmlNodePtr FileXSec::DecodeXml(  xmlNodePtr & node  )
 }
 
 //==== Read Fuse XSec File ====//
-bool FileXSec::ReadXsecFile( string file_name )
+bool FileXSec::ReadXsecFile( const string &file_name )
 {
     FILE* file_id =  fopen( file_name.c_str(), "r" );
     if ( file_id == ( FILE * )NULL )

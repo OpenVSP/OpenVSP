@@ -91,7 +91,7 @@ public:
     static void CheckValidEdge( Edge* e );
     void CheckValidAllEdges();
 
-    Node* AddNode( vec3d p, vec2d uw_in );
+    Node* AddNode( const vec3d &p, const vec2d &uw_in );
     void  RemoveNode( Node* nptr );
     Node* FindNode( const vec3d& p );
 

@@ -102,7 +102,7 @@ public:
     double CalculateFinessRatioAndTOC( int isurf, int irow );
     void Calculate_FF();
     double CalculateFormFactor( int isurf, int irow );
-    void Calculate_AvgSweep( vector <DegenStick> degenSticks );
+    void Calculate_AvgSweep( const vector <DegenStick> &degenSticks );
     void Calculate_f();
     void Calculate_CD();
     void Calculate_ALL();

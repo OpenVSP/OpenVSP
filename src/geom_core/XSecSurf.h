@@ -28,13 +28,13 @@ public:
     XSecSurf();                                 // Default Constructor
     virtual ~XSecSurf();                        // Destructor
 
-    XSec* FindXSec( string id ) const;
+    XSec* FindXSec( const string &id ) const;
     XSec* FindXSec( int index ) const;
-    const XSec* FindConstXSec( string id ) const;
+    const XSec* FindConstXSec( const string &id ) const;
     const XSec* FindConstXSec( int index ) const;
-    int FindXSecIndex( string id ) const;
+    int FindXSecIndex( const string &id ) const;
     string GetXSecID( int index ) const;
-    void ChangeXSecID( string oldID, string newID );
+    void ChangeXSecID( const string &oldID, const string &newID );
     string AddXSec( int type );
     void CutXSec( int index );
     void SetCutMinNumXSecs( int num )                { m_CutMinNumXSecs = num; }

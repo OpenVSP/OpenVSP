@@ -93,9 +93,9 @@ protected:
     void Setupf( int index, double f );
     void SetupCD( int index, double CD );
     void SetupPercCD( int index, double percCD );
-    void SetupSubSurfInclude( int index, const string geomid, const string subsurfid );
+    void SetupSubSurfInclude( int index, const string &geomid, const string &subsurfid );
 
-    void SetupExcresType( int index, const string type );
+    void SetupExcresType( int index, const string &type );
     void SetupExcresInput( int index, double input );
 
     // Screen Variables

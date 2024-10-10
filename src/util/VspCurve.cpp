@@ -265,7 +265,7 @@ bool VspCurve::RoundJoint( double rad, double u )
     return false;
 }
 
-bool VspCurve::RoundJoints( double rad, vector < double > uvec )
+bool VspCurve::RoundJoints( double rad, const vector < double > &uvec )
 {
     vector < double > umap;
 

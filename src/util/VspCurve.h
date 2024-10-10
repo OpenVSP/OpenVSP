@@ -54,7 +54,7 @@ public:
 
     bool RoundJoint( double rad, int i );
     bool RoundJoint( double rad, double u );
-    bool RoundJoints( double rad, vector < double > uvec );
+    bool RoundJoints( double rad, const vector < double > &uvec );
 
     void Modify( int type, bool le, double len, double off, double str );
 

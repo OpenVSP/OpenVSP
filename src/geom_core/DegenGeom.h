@@ -179,7 +179,7 @@ public:
     {
         this->degenPoint = degenPoint;
     }
-    void setDegenDisk( DegenDisk degenDisk )
+    void setDegenDisk( const DegenDisk &degenDisk )
     {
         this->degenDisk = degenDisk;
     }

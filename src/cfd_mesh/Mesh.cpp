@@ -549,7 +549,7 @@ void Mesh::ColorTris()
 //  printf( "Num Faces = %d \n", (int)faceList.size() );
 }
 
-Node* Mesh::AddNode( vec3d p, vec2d uw_in )
+Node* Mesh::AddNode( const vec3d &p, const vec2d &uw_in )
 {
     Node* nptr = new Node( p, uw_in );
     nodeList.push_back( nptr );

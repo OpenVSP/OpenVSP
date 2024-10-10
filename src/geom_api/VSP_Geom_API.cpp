@@ -907,7 +907,7 @@ string GetVSPAEROControlGroupName( int CSGroupIndex )
     return VSPAEROMgr.GetCurrentCSGGroupName();
 }
 
-void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex)
+void AddSelectedToCSGroup( const vector <int> &selected, int CSGroupIndex)
 {
     if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
     {
@@ -940,7 +940,7 @@ void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex)
     VSPAEROMgr.AddSelectedToCSGroup();
 }
 
-void RemoveSelectedFromCSGroup(vector <int> selected, int CSGroupIndex)
+void RemoveSelectedFromCSGroup( const vector <int> &selected, int CSGroupIndex)
 {
     if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
     {
@@ -3320,7 +3320,7 @@ std::string AddFeaBC( const string & fea_struct_id, int type )
     return bc_id;
 }
 
-void DelFeaBC( const string & fea_struct_id, std::string bc_id )
+void DelFeaBC( const string & fea_struct_id, const std::string &bc_id )
 {
     FeaStructure* feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
     if ( !feastruct )
@@ -4484,7 +4484,7 @@ std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, cons
     return xyzdata;
 }
 
-std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, std::vector<vec3d> xyzdata )
+std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, const std::vector<vec3d> &xyzdata )
 {
     // alpha = Angle of attack( radian )
     // epsilon = Thickness
@@ -6277,7 +6277,7 @@ vector < vec3d > GetEditXSecCtrlVec( const std::string& xsec_id, const bool non_
     return edit_xs->GetCtrlPntVec( non_dimensional );
 }
 
-void SetEditXSecPnts( const std::string & xsec_id, vector < double > u_vec, vector < vec3d > control_pts, vector < double > r_vec )
+void SetEditXSecPnts( const std::string & xsec_id, const vector < double > &u_vec, const vector < vec3d > &control_pts, const vector < double > &r_vec )
 {
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )

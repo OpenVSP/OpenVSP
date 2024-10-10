@@ -441,7 +441,7 @@ void PtCloudGeom::GetSelectedPoints( vector < vec3d > &selpts )
     }
 }
 
-void PtCloudGeom::ProjectPts( string geomid, int surfid, int idir )
+void PtCloudGeom::ProjectPts( const string &geomid, int surfid, int idir )
 {
     Matrix4d transMat = GetTotalTransMat();
     Matrix4d invMat = transMat;

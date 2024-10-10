@@ -360,7 +360,7 @@ void UtilTestSuite::VspCurveTest()
 #endif
 }
 //==== Write Point Vecs =====//
-void UtilTestSuite::WritePntVecs( const vector< vector< vec3d > > & pnt_vecs,  string file_name )
+void UtilTestSuite::WritePntVecs( const vector< vector< vec3d > > & pnt_vecs, const string &file_name )
 {
     const char* colors[] = {"GREEN", "BLUE", "PURPLE", "WHITE",  };
 
@@ -524,7 +524,7 @@ void UtilTestSuite::WriteSurf( vector< vector< PntNorm > > & pnt_norm_vec, strin
 #endif
 
 //==== WriteSurface =====//
-void UtilTestSuite::WriteControlPnts( const vector< vector< vec3d > > & control_pnts, string file_name )
+void UtilTestSuite::WriteControlPnts( const vector< vector< vec3d > > & control_pnts, const string &file_name )
 {
     FILE* file_id = fopen( file_name.c_str(), "w" );
     if ( file_id )

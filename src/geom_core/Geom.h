@@ -114,7 +114,7 @@ public:
     }
 
     void SetMaterialToDefault();
-    void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
+    void SetMaterial( const std::string &name, double ambi[], double diff[], double spec[], double emis[], double shin );
     void SetMaterial( const std::string &name );
 
     void SetDisplayChildrenFlag( bool f )
@@ -758,7 +758,7 @@ public:
 
     void WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox );
     void WriteProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox );
-    vector < vector< vec3d > > GetGeomProjectionLines( int view, vec3d offset );
+    vector < vector< vec3d > > GetGeomProjectionLines( int view, const vec3d &offset );
     void WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &dxfbox );
     void WriteProjectionLinesSVG( xmlNodePtr root, const BndBox &dxfbox );
 

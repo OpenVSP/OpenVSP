@@ -8,7 +8,7 @@
 
 namespace VSPGraphic
 {
-Image::Image( std::string fileName )
+Image::Image( const std::string &fileName )
 {
     _loaders = _initLoaders();
 
@@ -406,7 +406,7 @@ void Image::_loadImage( std::string fileName )
     }
 }
 
-bool Image::_loadWithExt( std::string fileName, std::string ext )
+bool Image::_loadWithExt( const std::string &fileName, std::string ext )
 {
     std::transform( ext.begin(), ext.end(), ext.begin(), ::tolower );
 
@@ -422,7 +422,7 @@ bool Image::_loadWithExt( std::string fileName, std::string ext )
     return false;
 }
 
-bool Image::_loadWithoutExt( std::string fileName )
+bool Image::_loadWithoutExt( const std::string &fileName )
 {
     for( int i = 0; i < ( int )_loaders.size(); i++ )
     {

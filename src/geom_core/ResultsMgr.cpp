@@ -185,7 +185,7 @@ void NameValCollection::Add( const NameValData & d )
     }
 }
 
-void NameValCollection::Add(const vector<vector<vec3d> > & d, string prefix, const string &doc )
+void NameValCollection::Add(const vector<vector<vec3d> > & d, const string &prefix, const string &doc )
 {
     string names[] = { prefix + "x", prefix + "y", prefix + "z"};
     for ( int dim = 0; dim < 3; dim++ )

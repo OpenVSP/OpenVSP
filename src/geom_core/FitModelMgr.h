@@ -225,7 +225,7 @@ public:
     /*!
     * Process feedbacks.
     */
-    void SelectPoint( string gid, int index );
+    void SelectPoint( const string &gid, int index );
 
     void SelectAllShown();
     void SelectNone();
@@ -238,7 +238,7 @@ public:
     void SetSelectOne();
     void SetSelectBox();
 
-    void AddSelectedPts( string tgtGeomID );
+    void AddSelectedPts( const string &tgtGeomID );
 
     int GetNumSelected()
     {

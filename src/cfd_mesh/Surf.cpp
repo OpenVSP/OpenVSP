@@ -577,7 +577,7 @@ void Surf::UWtoTargetMapij( double u, double w, int &i, int &j )
     UWtoTargetMapij( u, w, i, j, fraci, fracj );
 }
 
-void Surf::ApplyES( vec3d uw, double t, int reason )
+void Surf::ApplyES( const vec3d &uw, double t, int reason )
 {
     double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
     int nmapu = m_SrcMap.size();
@@ -952,7 +952,7 @@ void Surf::SetBBox( const vec3d &pmin, const vec3d &pmax )
 }
 
 
-void Surf::InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw, SurfaceIntersectionSingleton *MeshMgr )
+void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > &adduw, SurfaceIntersectionSingleton *MeshMgr )
 {
     //==== Store Only One Instance of each IPnt ====//
     set< IPnt* > ipntSet;

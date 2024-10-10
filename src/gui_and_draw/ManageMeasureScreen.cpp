@@ -1291,7 +1291,7 @@ void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
+void ManageMeasureScreen::Set( const vec3d &placement, const std::string &targetGeomId )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 

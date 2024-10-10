@@ -149,7 +149,7 @@ public:
     * Define Values for Grid Overlay
     * -5 to +5 spacing on default.
     */
-    void setGridVals( std::vector < double > xGridVec, std::vector < double > yGridVec )
+    void setGridVals( const std::vector < double > &xGridVec, const std::vector < double > &yGridVec )
     {
         _xGridVec = xGridVec;
         _yGridVec = yGridVec;

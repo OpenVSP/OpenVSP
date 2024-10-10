@@ -100,8 +100,8 @@ public:
     FeaPart* GetFeaSkin();
 
     void UpdateFeaSubSurfs();
-    void HighlightFeaParts( vector < int > active_ind_vec );
-    void RecolorFeaSubSurfs( vector < int > active_ind_vec );
+    void HighlightFeaParts( const vector < int > &active_ind_vec );
+    void RecolorFeaSubSurfs( const vector < int > &active_ind_vec );
     SubSurface* AddFeaSubSurf( int type );
     bool ValidFeaSubSurfInd( int ind );
     void DelFeaSubSurf( int ind );
@@ -750,7 +750,7 @@ public:
     bool DeleteLayer( const string &id );
     bool ValidLayerInd( int index );
     void ReorderCurrentLayer( int action );
-    FeaLayer* GetFeaLayer( string id );
+    FeaLayer* GetFeaLayer( const string &id );
     int GetCurrLayerIndex();
     void SetCurrLayerIndex( int index );
 

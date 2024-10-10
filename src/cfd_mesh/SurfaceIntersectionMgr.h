@@ -164,12 +164,12 @@ public:
 
     vec3d ComputeTrailEdgePnt( vec3d le_pnt, double angle_deg );
 
-    void SetWakeScaleVec( vector < double > wake_scale_vec )
+    void SetWakeScaleVec( const vector < double > &wake_scale_vec )
     {
         m_WakeScaleVec = wake_scale_vec;
     }
 
-    void SetWakeAngleVec( vector < double > wake_angle_vec )
+    void SetWakeAngleVec( const vector < double > &wake_angle_vec )
     {
         m_WakeAngleVec = wake_angle_vec;
     }

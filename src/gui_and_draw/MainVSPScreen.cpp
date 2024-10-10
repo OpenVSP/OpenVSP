@@ -259,7 +259,7 @@ void MainVSPScreen::ResizeWindow( int width, int height )
     m_FLTK_Window->resize( m_FLTK_Window->x_root(), m_FLTK_Window->y_root(), width, height );
 }
 
-void MainVSPScreen::BoldEntries( string mpath )
+void MainVSPScreen::BoldEntries( const string &mpath )
 {
     Fl_Menu_Item* item = NULL;
     item = (Fl_Menu_Item*) m_MenuBar->find_item( mpath.c_str() );
@@ -293,7 +293,7 @@ void MainVSPScreen::CloseCallBack( Fl_Widget *w )
     }
 }
 
-void MainVSPScreen::SetFileLabel( string fname )
+void MainVSPScreen::SetFileLabel( const string &fname )
 {
     string label = "File Name: ";
     label.append( fname );

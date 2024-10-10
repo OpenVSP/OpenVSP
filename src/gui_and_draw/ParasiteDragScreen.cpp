@@ -2267,7 +2267,7 @@ void ParasiteDragScreen::SetupPercCD( int index, double percCD )
     }
 }
 
-void ParasiteDragScreen::SetupSubSurfInclude( int index, const string geomid, const string subsurfid )
+void ParasiteDragScreen::SetupSubSurfInclude( int index, const string &geomid, const string &subsurfid )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
     m_TableLayout.SetSliderWidth( TYPICAL_INPUT_WIDTH );
@@ -2281,7 +2281,7 @@ void ParasiteDragScreen::SetupSubSurfInclude( int index, const string geomid, co
     m_subsurfinclude[index].SetVal( veh->FindGeom( geomid )->GetSubSurf( subsurfid )->m_IncludeType() );
 }
 
-void ParasiteDragScreen::SetupExcresType( int index, const string type )
+void ParasiteDragScreen::SetupExcresType( int index, const string &type )
 {
     ostringstream strs;
     m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH + 45 );

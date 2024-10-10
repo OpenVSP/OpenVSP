@@ -206,7 +206,7 @@ void NerfManageGeomScreen::LoadBrowser()
     }
 }
 
-void NerfManageGeomScreen::SelectGeomBrowser( string geom_id )
+void NerfManageGeomScreen::SelectGeomBrowser( const string &geom_id )
 {
     //==== Select If Match ====//
     for ( int i = 0 ; i < ( int )m_DisplayedGeomVec.size() ; i++ )
@@ -235,7 +235,7 @@ void NerfManageGeomScreen::SelectGeomBrowser( string geom_id )
 }
 
 //==== Is Parent (or Higher) Selected ====//
-bool NerfManageGeomScreen::IsParentSelected( string geom_id, const vector< string > & selVec )
+bool NerfManageGeomScreen::IsParentSelected( const string &geom_id, const vector< string > & selVec )
 {
     Geom* checkGeom = m_VehiclePtr->FindGeom( geom_id );
     while ( checkGeom )
@@ -517,7 +517,7 @@ void NerfManageGeomScreen::SetGeomDisplayType( int type )
 //  aircraftPtr->triggerDraw();
 }
 
-void NerfManageGeomScreen::EditName( string name )
+void NerfManageGeomScreen::EditName( const string &name )
 {
     vector<string> active_geom_vec = m_VehiclePtr->GetActiveGeomVec();
 
@@ -688,7 +688,7 @@ std::string NerfManageGeomScreen::getFeedbackGroupName()
     return std::string("GeomGUIGroup");
 }
 
-void NerfManageGeomScreen::Set( std::string geomId )
+void NerfManageGeomScreen::Set( const std::string &geomId )
 {
     printf("%s\n", geomId.c_str());
     m_VehiclePtr->SetActiveGeom(geomId);

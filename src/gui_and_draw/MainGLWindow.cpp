@@ -1617,7 +1617,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
     }
 }
 
-VspGlWindow::ID * VspGlWindow::_findID( std::string geomID )
+VspGlWindow::ID * VspGlWindow::_findID( const std::string &geomID )
 {
     for( int i = 0; i < ( int )m_ids.size(); i++ )
     {
@@ -1641,7 +1641,7 @@ VspGlWindow::ID * VspGlWindow::_findID( unsigned int bufferID )
     return NULL;
 }
 
-void VspGlWindow::_updateBuffer( std::vector<DrawObj *> objects )
+void VspGlWindow::_updateBuffer( const std::vector<DrawObj *> &objects )
 {
     std::vector<ID> idsToRemove;
     std::vector<ID> idsToKeep;
@@ -2683,7 +2683,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
     }
 }
 
-void VspGlWindow::_sendFeedback( std::vector<Selectable *> listOfSelected )
+void VspGlWindow::_sendFeedback( const std::vector<Selectable *> &listOfSelected )
 {
     for ( int i = 0; i < (int) listOfSelected.size(); i++ )
     {

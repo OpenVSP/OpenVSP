@@ -61,9 +61,9 @@ public:
         m_FeaPropertyVec.push_back( fea_prop );
     }
     FeaProperty* AddFeaProperty( int property_type );
-    void DeleteFeaProperty( string id );
+    void DeleteFeaProperty( const string &id );
     bool ValidFeaPropertyInd( int index );
-    FeaProperty* GetFeaProperty( string id );
+    FeaProperty* GetFeaProperty( const string &id );
 
     vector < FeaProperty* > GetFeaPropertyVec()
     {
@@ -88,9 +88,9 @@ public:
         m_FeaMaterialVec.push_back( fea_mat );
     }
     FeaMaterial* AddFeaMaterial();
-    bool DeleteFeaMaterial( string id );
+    bool DeleteFeaMaterial( const string &id );
     bool ValidFeaMaterialInd( int index );
-    FeaMaterial* GetFeaMaterial( string id );
+    FeaMaterial* GetFeaMaterial( const string &id );
     void InitFeaMaterials();
 
     vector < FeaMaterial* > GetFeaMaterialVec()

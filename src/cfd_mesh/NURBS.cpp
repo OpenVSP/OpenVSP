@@ -783,7 +783,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
     return adv_vec;
 }
 
-vector < NURBS_Curve > NURBS_Surface::MatchNURBSCurves( vector < NURBS_Curve > all_curve_vec )
+vector < NURBS_Curve > NURBS_Surface::MatchNURBSCurves( const vector < NURBS_Curve > &all_curve_vec )
 {
     vector < NURBS_Curve > return_vec;
 

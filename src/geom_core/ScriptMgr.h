@@ -233,22 +233,22 @@ private:
 
     // ==== Variable Preset Functions ====//
     CScriptArray* GetVarPresetGroupNames();
-    CScriptArray* GetVarPresetSettingNamesWName( string group_name );
+    CScriptArray* GetVarPresetSettingNamesWName( const string &group_name );
     CScriptArray* GetVarPresetSettingNamesWIndex( int group_index );
     CScriptArray* GetVarPresetParmVals();
-    CScriptArray* GetVarPresetParmValsWNames( string group_name, string setting_name );
+    CScriptArray* GetVarPresetParmValsWNames( const string &group_name, const string &setting_name );
     CScriptArray* GetVarPresetParmIDs();
-    CScriptArray* GetVarPresetParmIDsWName( string group_name );
+    CScriptArray* GetVarPresetParmIDsWName( const string &group_name );
     static void AddVarPresetGroup( const string &group_name );
     static void AddVarPresetSetting( const string &setting_name );
     static void AddVarPresetParm( const string &parm_ID );
-    static void AddVarPresetParm( const string &parm_ID, string group_name );
+    static void AddVarPresetParm( const string &parm_ID, const string &group_name );
     static void EditVarPresetParm( const string &parm_ID, double parm_val );
-    static void EditVarPresetParm( const string &parm_ID, double parm_val, string group_name, string setting_name );
+    static void EditVarPresetParm( const string &parm_ID, double parm_val, const string &group_name, const string &setting_name );
     static void DeleteVarPresetParm( const string &parm_ID );
-    static void DeleteVarPresetParm( const string &parm_ID, string group_name );
-    static void SwitchVarPreset( string group_name, string setting_name );
-    static void DeleteVarPresetSet( string group_name, string setting_name );
+    static void DeleteVarPresetParm( const string &parm_ID, const string &group_name );
+    static void SwitchVarPreset( const string &group_name, const string &setting_name );
+    static void DeleteVarPresetSet( const string &group_name, const string &setting_name );
 
     // ==== PCurve Functions ====//
     void SetPCurve( const string& geom_id, const int & pcurveid, CScriptArray* tvec, CScriptArray* valvec, const int & newtype );

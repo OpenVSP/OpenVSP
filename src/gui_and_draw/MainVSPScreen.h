@@ -74,9 +74,9 @@ protected:
 
     virtual void ActionCB( void * data );
 
-    void BoldEntries( string mpath );
+    void BoldEntries( const string &mpath );
 
-    void SetFileLabel( string fname );
+    void SetFileLabel( const string &fname );
 
     virtual void ExitVSP();
 

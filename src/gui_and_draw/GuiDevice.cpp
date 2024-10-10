@@ -4516,7 +4516,7 @@ void ColResizeBrowser::clear()
     m_CopyText.clear();
 }
 
-void ColResizeBrowser::addCopyText( string cpt )
+void ColResizeBrowser::addCopyText( const string &cpt )
 {
     m_CopyText.push_back( cpt );
 }

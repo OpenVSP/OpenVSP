@@ -43,7 +43,7 @@ public:
     * Set this Pickable to specific group. Group identifies who
     * the feedback is for.
     */
-    void setGroup(std::string group);
+    void setGroup( const std::string &group);
     /*!
     * Return the group name.
     */

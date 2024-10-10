@@ -177,7 +177,7 @@ public:
     void BuildNURBSLoopMap();
 
     // Find all NURBS surves associated with this NURBS surface
-    vector < NURBS_Curve > MatchNURBSCurves( vector < NURBS_Curve > all_curve_vec );
+    vector < NURBS_Curve > MatchNURBSCurves( const vector < NURBS_Curve > &all_curve_vec );
 
     void SetNURBSCurveVec( const vector < NURBS_Curve >& curve_vec )
     {

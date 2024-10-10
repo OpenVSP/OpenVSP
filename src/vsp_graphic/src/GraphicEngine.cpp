@@ -36,7 +36,7 @@ void GraphicEngine::draw( int mouseX, int mouseY )
     _display->draw( _scene, mouseX, mouseY );
 }
 
-void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height, bool transparentBG, bool autocrop, bool framebufferSupported, int filetype )
+void GraphicEngine::dumpScreenImage( const std::string &fileName, int width, int height, bool transparentBG, bool autocrop, bool framebufferSupported, int filetype )
 {
     GLuint color;
     GLuint depth;

@@ -250,7 +250,7 @@ void ManageGeomScreen::LoadBrowser()
     }
 }
 
-void ManageGeomScreen::SelectGeomBrowser( string geom_id )
+void ManageGeomScreen::SelectGeomBrowser( const string &geom_id )
 {
     //==== Select If Match ====//
     for ( int i = 0 ; i < ( int )m_DisplayedGeomVec.size() ; i++ )
@@ -279,7 +279,7 @@ void ManageGeomScreen::SelectGeomBrowser( string geom_id )
 }
 
 //==== Is Parent (or Higher) Selected ====//
-bool ManageGeomScreen::IsParentSelected( string geom_id, const vector< string > & selVec )
+bool ManageGeomScreen::IsParentSelected( const string &geom_id, const vector< string > & selVec )
 {
     Geom* checkGeom = m_VehiclePtr->FindGeom( geom_id );
     while ( checkGeom )
@@ -608,7 +608,7 @@ void ManageGeomScreen::SetGeomDisplayType( int type )
 //  aircraftPtr->triggerDraw();
 }
 
-void ManageGeomScreen::EditName( string name )
+void ManageGeomScreen::EditName( const string &name )
 {
     vector<string> active_geom_vec = m_VehiclePtr->GetActiveGeomVec();
 
@@ -864,7 +864,7 @@ std::string ManageGeomScreen::getFeedbackGroupName()
     return std::string("GeomGUIGroup");
 }
 
-void ManageGeomScreen::Set( std::string geomId )
+void ManageGeomScreen::Set( const std::string &geomId )
 {
     printf("%s\n", geomId.c_str());
     m_VehiclePtr->SetActiveGeom(geomId);

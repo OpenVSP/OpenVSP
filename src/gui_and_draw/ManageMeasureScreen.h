@@ -27,7 +27,7 @@ public:
 
 
 
-    static void Set( vec3d placement, std::string targetGeomId = "" );
+    static void Set( const vec3d &placement, const std::string &targetGeomId = "" );
 
     virtual std::string getFeedbackGroupName();
 

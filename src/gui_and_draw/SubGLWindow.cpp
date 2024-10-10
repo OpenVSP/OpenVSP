@@ -549,7 +549,7 @@ void VspSubGlWindow::_setLighting( DrawObj * drawObj )
     }
 }
 
-VspSubGlWindow::ID * VspSubGlWindow::_findID( std::string geomID )
+VspSubGlWindow::ID * VspSubGlWindow::_findID( const std::string &geomID )
 {
     for( int i = 0; i < ( int )m_ids.size(); i++ )
     {
@@ -573,7 +573,7 @@ VspSubGlWindow::ID * VspSubGlWindow::_findID( unsigned int bufferID )
     return NULL;
 }
 
-void VspSubGlWindow::_updateBuffer( std::vector<DrawObj *> objects )
+void VspSubGlWindow::_updateBuffer( const std::vector<DrawObj *> &objects )
 {
     std::vector<ID> idsToRemove;
     std::vector<ID> idsToKeep;
