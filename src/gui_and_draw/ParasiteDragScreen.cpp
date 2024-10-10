@@ -48,7 +48,6 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     int excrescence_browser_height = TOTAL_WINDOW_HEIGHT - 285;
 
     // Inputs
-    stringstream strs;
     int layoutHeight = 600;
 
     // Add Tabs

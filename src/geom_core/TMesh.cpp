@@ -642,7 +642,6 @@ void TMesh::CheckIfClosed()
 
     //==== Check If All Tris Have 3 Edges ====//
     m_NonClosedTriVec.clear();
-    vector< TTri* > ivTriVec;
     for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
         if ( !m_TVec[t]->m_E0 || !m_TVec[t]->m_E1 || !m_TVec[t]->m_E2 )
@@ -1286,7 +1285,7 @@ void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
     int t, s;
     vec3d norm;
     vec3d v0, v1, v2;
-    vec3d d30, d21;
+    vec3d d21;
 
     for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {

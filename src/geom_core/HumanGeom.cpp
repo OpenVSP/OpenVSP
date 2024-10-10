@@ -894,7 +894,6 @@ void HumanGeom::UpdateDrawObj()
 
     m_WireShadeDrawObj_vec.resize( 1, DrawObj() );
 
-    vec3d zeroV = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
     unsigned int pi = 0;
     unsigned int ido = 0;
     unsigned int isize = 0;

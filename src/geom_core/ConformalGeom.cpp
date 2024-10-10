@@ -950,7 +950,7 @@ void ConformalGeom::TrimU( VspSurf & surf )
     nupatch = bez_surface->number_u_patches();
     nvpatch = bez_surface->number_v_patches();
 
-    piecewise_surface_type s1, s2, s3, s4, s5, s6;
+    piecewise_surface_type s1, s2, s3, s4;
     double u_min = bez_surface->get_u0();
     double u_max = bez_surface->get_umax();
 

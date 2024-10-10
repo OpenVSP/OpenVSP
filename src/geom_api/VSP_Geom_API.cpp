@@ -4145,7 +4145,6 @@ void SetXSecCurvatures( const string& xsec_id, int side, double top, double righ
 
 void ReadFileAirfoil( const string& xsec_id, const string& file_name )
 {
-    vector< vec3d > pnt_vec;
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
@@ -5474,7 +5473,6 @@ vec3d ComputeBORXSecTan( const string& bor_id, double fract )
 
 void ReadBORFileAirfoil( const string& bor_id, const string& file_name )
 {
-    vector< vec3d > pnt_vec;
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )

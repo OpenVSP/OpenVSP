@@ -1323,8 +1323,6 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     IndexPntNodes( pnCloud, tol2 );
 
     //==== Build Wake Map If Available ====//
-    map< int, vector< int > > wakeIndMap;
-    vector< int > wakePntShift;
     PntNodeCloud wakepnCloud;
     if ( wakeAllPntVec.size() )
     {

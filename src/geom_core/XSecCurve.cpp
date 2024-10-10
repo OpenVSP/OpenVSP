@@ -2597,7 +2597,6 @@ void GeneralFuseXSec::UpdateCurve( bool updateParms )
     m_Curve.SetCubicControlPoints( roll_pnts );
 
     //==== Corner Points ====//
-    VspCurve corner_curve;
     if ( m_CornerRad() > 0.001 )
     {
         m_Curve.RoundJoint( m_CornerRad() * m_Height(), 2 );

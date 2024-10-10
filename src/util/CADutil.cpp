@@ -383,7 +383,6 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
             stepcomplex->ResetAttributes();
             while( ( attr = stepcomplex->NextAttribute() ) != NULL )
             {
-                std::string attrval;
                 if( !strcmp( attr->Name(), "units" ) )
                 {
                     EntityAggregate * unit_assigned_agg = new EntityAggregate();

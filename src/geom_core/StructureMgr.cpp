@@ -457,7 +457,6 @@ void StructureMgrSingleton::HideAllParts()
 
     if ( fea_struct && veh )
     {
-        string parent_id = fea_struct->GetParentGeomID();
         veh->HideAll();
 
         vector < FeaPart* > part_vec = fea_struct->GetFeaPartVec();

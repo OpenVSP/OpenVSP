@@ -842,9 +842,6 @@ double ParasiteDragMgrSingleton::CalcPartialTurbulence( double perclam, double r
 void ParasiteDragMgrSingleton::Calculate_fineRat_and_toc()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
-    char str[256];
-    string newstr;
-    int searchIndex;
 
     if ( !veh )
     {
@@ -1028,7 +1025,6 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
     // Initialize Variables
     vector<double>::const_iterator it;
     double toc;
-    vector <double> hVec, wVec;
     double formfactor = 1.0;
 
     // Grab Degen Sticks for Appropriate Geom
@@ -2210,7 +2206,6 @@ int ParasiteDragMgrSingleton::GetCurrentExcresType()
 void ParasiteDragMgrSingleton::AddExcrescence()
 {
     ExcrescenceTableRow tempStruct;
-    ostringstream strs;
     char str[256];
 
     if ( m_ExcresRowVec.size() > 0 )
@@ -2382,7 +2377,7 @@ void ParasiteDragMgrSingleton::ConsolidateExcres()
     m_excres_f.clear();
     m_excres_Amount.clear();
     m_excres_PercTotalCD.clear();
-    ExcrescenceTableRow excresRowStruct;
+
     for ( size_t i = 0; i < m_ExcresRowVec.size(); ++i )
     {
         m_excres_Label.push_back( m_ExcresRowVec[i].Label.c_str() );

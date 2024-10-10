@@ -82,7 +82,6 @@ void CustomGeomExportScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector < string > geom_id_vec = veh->GetValidTypeGeoms();
 
     if ( device == &m_SaveScriptToggle )
     {

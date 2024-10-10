@@ -2486,7 +2486,6 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
 
     Results* res = NULL;
 
-    std::vector<string> table_column_names;
     std::vector<string> data_string_array;
 
     int num_polar_col = 23; // number of columns in the file
@@ -2729,7 +2728,6 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
 
     Results* res = NULL;
     std::vector< std::string > data_string_array;
-    std::vector< std::vector< double > > data_array;
     bool sectional_data_complete = false; // flag indicating if the sectional data section of the Lod file has been read
 
     double cref = 1.0;
@@ -5646,7 +5644,6 @@ xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
 xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
 {
     unsigned int nControlSubSurfaces = 0;
-    string GroupName;
     string ParentGeomID;
     string SSID;
 

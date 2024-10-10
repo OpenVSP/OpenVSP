@@ -4582,7 +4582,7 @@ vector < vec3d > Geom::GetAirfoilCoordinates( double foilsurf_u_location )
     // This function returns the coordinate points of a Foil Surf airfoil in Selig format.
     //  Input foilsurf_u_location must be 0 <= u <= 1
 
-    vector < vec3d > coord_vec, ordered_vec;
+    vector < vec3d > ordered_vec;
 
     if ( m_MainSurfVec.size() == 0 || foilsurf_u_location < 0.0 || foilsurf_u_location > 1.0 )
     {

@@ -839,7 +839,6 @@ void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<d
 
 void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector < int > &degree, const vector<double> &param, bool closed_flag )
 {
-    general_creator_type gc;
     surface_index_type i, ncrv;
 
     ncrv = input_crv_vec.size();
@@ -2903,7 +2902,7 @@ void VspSurf::MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &pt
 
 void VspSurf::DegenCamberSurf( const VspSurf & parent )
 {
-    piecewise_surface_type s, s1, s2;
+    piecewise_surface_type s1, s2;
     double umin, vmin, umax, vmax, vmid;
 
     parent.m_Surface.get_parameter_min( umin, vmin );

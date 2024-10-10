@@ -328,7 +328,6 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
     vector<vec3d>   xVec(  platePnts );
     vector<vec3d>   xCVec(  platePnts );
     vector<vec3d>   nCVec( platePnts );
-    vector<vec3d>   nPVec( platePnts );
     vector<double>  tVec(  platePnts );
     vector<double>  zVec(  platePnts );
 
@@ -457,7 +456,6 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
 void DegenGeom::createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const VspSurf *foilSurf, const bool &urootcap )
 {
     int nLow = 0, nHigh = num_xsecs;
-    vec3d chordVec, camberPnt, prevCamberPnt;
 
     degenSticks.resize( 1 );
 

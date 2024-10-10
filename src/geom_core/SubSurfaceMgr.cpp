@@ -676,7 +676,7 @@ void SubSurfaceMgrSingleton::GetPartData( vector < string > &gidvec, vector < in
 
         string gname = comp_list.substr( 0, spos );
 
-        string snum, ssnames, ssids;
+        string snum, ssnames;
 
         // Find position of first comma
         int cpos = comp_list.find( "," );

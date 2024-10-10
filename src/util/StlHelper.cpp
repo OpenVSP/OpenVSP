@@ -71,7 +71,6 @@ double interpolate( const vector< double > & arr, double value, int interval )
 double interpolate( const map< double, int > & val_map, double key, bool * in_range )
 {
     map< double, int >::const_iterator low, high, it;
-    vector<double> val_vector;
     double tol = 1e-10;
 
     if ( in_range )

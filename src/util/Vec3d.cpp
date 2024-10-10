@@ -1397,8 +1397,6 @@ vec2d MapToPlane( const vec3d & P, const vec3d & B, const vec3d & e0, const vec3
 {
     vec2d result;
     vec3d BmP = B - P;
-    vec3d zero;
-    vec3d me1 = zero - e1;
     double a = dot( e0, e0 );
     double b = dot( e0, e1 );
     double c = dot( e1, e1 );

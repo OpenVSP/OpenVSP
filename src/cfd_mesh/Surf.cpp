@@ -1100,7 +1100,6 @@ void Surf::BuildDistMap()
     IndexPntNodes( pnCloud, 1e-6 );
 
     //==== Load Used Points ====//
-    vector < vec3d > usedPts;
     vector < int > kused;
     for ( i = 0; i < (int)pvec.size(); i++ )
     {

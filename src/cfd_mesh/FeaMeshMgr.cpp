@@ -2742,8 +2742,6 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
 
     if ( fea_struct && GetMeshPtr() )
     {
-        vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
-
         // FeaParts:
         for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ )
         {

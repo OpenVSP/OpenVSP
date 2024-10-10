@@ -2388,6 +2388,8 @@ string ParasiteDragFullAnalysis::Execute()
         res_id = ParasiteDragMgr.ComputeBuildUp();
 
         // ==== Restore original values that were overwritten by analysis inputs ==== //
+        ParasiteDragMgr.m_FileName = fileNameOrig;
+
         // Geometry Set
         ParasiteDragMgr.m_SetChoice.Set( geomSetOrig );
 

@@ -885,7 +885,6 @@ string Vehicle::CreateGeom( const GeomType & type )
     Geom* type_geom_ptr = FindGeom( type.m_GeomID );
     if ( type_geom_ptr )
     {
-        string id = new_geom->GetID();
         new_geom->CopyFrom( type_geom_ptr );
         new_geom->SetName( type.m_Name );
     }
@@ -1450,7 +1449,6 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
 
     //==== Create New Geoms ====//
     vector< string > created_id_vec;
-    vector< Geom* > created_geom_vec;
 
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -1630,8 +1628,6 @@ vector< string > Vehicle::GetGeomSet( int index )
 
 void Vehicle::HideAllExcept( const string& id )
 {
-    vector< string > geom_id_vec;
-
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -1651,8 +1647,6 @@ void Vehicle::HideAllExcept( const string& id )
 
 void Vehicle::HideAll()
 {
-    vector< string > geom_id_vec;
-
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -3062,7 +3056,7 @@ void Vehicle::WriteX3DViewpoints( xmlNodePtr node )
         vec3d position = center + ( view_axis * dist );
 
         // Convert vectors to strings //
-        string orients, cents, posits, name, sfov;
+        string orients, cents, posits, sfov;
 
         snprintf( numstr, sizeof( numstr ),  format4.c_str(),  rot_axis.x(), rot_axis.y(), rot_axis.z(), angle );
         orients = numstr;
@@ -5427,7 +5421,6 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
 
 void Vehicle::CreateDegenGeom( int set )
 {
-    vector< string > geom_id_vec;
     m_DegenGeomVec.clear();
     m_DegenPtMassVec.clear();
 
@@ -5489,8 +5482,6 @@ string Vehicle::WriteDegenGeomFile()
 {
     int geomCnt = 0, blankCnt = 0;
     string outStr = "\n";
-
-    vector<BlankGeom*> blankGeom;
 
     geomCnt = m_DegenGeomVec.size();
 

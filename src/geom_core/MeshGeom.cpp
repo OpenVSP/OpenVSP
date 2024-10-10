@@ -1248,7 +1248,7 @@ void MeshGeom::WriteX3D( xmlNodePtr node )
     {
         for ( int j = 0 ; j < ( int )m_TMeshVec[i]->m_TVec.size() ; j++ )
         {
-            vec3d v0, v1, v2, n, d21;
+            vec3d v0, v1, v2, d21;
 
             TTri* tri = m_TMeshVec[i]->m_TVec[j];
 
@@ -2150,10 +2150,6 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
                     tagWetAreaVec[j] += m_TMeshVec[i]->m_TagWetAreaVec[j];
                 }
             }
-
-            vector < int > tags = SubSurfaceMgr.GetAllTags();
-
-            assert( tags.size() == ntags );
 
             for ( j = 0; j < ntags; j++ )
             {

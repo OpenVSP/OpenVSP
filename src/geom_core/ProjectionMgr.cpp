@@ -700,7 +700,6 @@ void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vect
 
         for ( int j = 0 ; j < ( int )tmv[i]->m_TVec.size() ; j++ )
         {
-            Clipper2Lib::Paths64 pth;
             pthvec[i][j].resize( 3 );
 
             for ( int k = 0; k < 3; k++ )

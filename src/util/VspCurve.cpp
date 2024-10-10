@@ -1783,9 +1783,6 @@ void VspCurve::MatchThick( const double & ttarget )
     typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
     onedpwc sumsq;
 
-    typedef onedpwc::bounding_box_type onedbox;
-    onedbox box;
-
     typedef onedpwc::point_type onedpt;
     onedpt p;
 
@@ -1867,7 +1864,6 @@ vector < BezierSegment > VspCurve::GetBezierSegments()
 
 void VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, double vsk, const double & r1, const double & r2, const double & r3, const double & r4, bool keycorner )
 {
-    VspCurve edge;
     vector<vec3d> pt;
     vector<double> u;
 
