@@ -2,6 +2,11 @@
 #include <MenuItem.h>
 #include "ScreenMgr.h"
 
+BaseMenuItem::BaseMenuItem()
+{
+    m_MenuBar = nullptr;
+}
+
 void BaseMenuItem::Hide()
 {
     if ( m_MenuBar )

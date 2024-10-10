@@ -18,6 +18,7 @@ class ActionScreen;
 class BaseMenuItem
 {
 public:
+    BaseMenuItem();
 
     void Hide();
     void Show();
