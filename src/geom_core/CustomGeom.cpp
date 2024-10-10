@@ -636,6 +636,7 @@ double CustomXSec::GetScale()
 //==== Constructor ====//
 CustomGeom::CustomGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 {
+    m_ConformalOffset = 0;
     m_InitGeomFlag = false;
     m_Name = "CustomGeom";
     m_Type.m_Name = "Custom";

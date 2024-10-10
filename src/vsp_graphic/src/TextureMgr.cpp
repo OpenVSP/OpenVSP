@@ -16,6 +16,7 @@ TextureMgr::TextureMgr()
 {
     _lights = NULL;
     _textureMode = Common::VSP_TEXTURE_LAYERED;
+    _blendAlpha = false;
 }
 TextureMgr::~TextureMgr()
 {

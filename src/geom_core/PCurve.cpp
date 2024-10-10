@@ -14,6 +14,8 @@
 
 PCurve::PCurve() : ParmContainer()
 {
+    m_SelectPntID = -1;
+    m_EnforceG1Next = false;
     m_Name = "PCurve"; // ParmContainer name
 }
 

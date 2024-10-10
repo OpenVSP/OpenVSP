@@ -49,6 +49,8 @@ PropPositioner::PropPositioner()
     m_Rake = 0.0;
     m_Skew = 0.0;
     m_Sweep = 0.0;
+    m_Axial = 0.0;
+    m_Tangential = 0.0;
 
     m_Reverse = 1.0;
 

@@ -15,6 +15,7 @@
 
 PntNodeCloud::PntNodeCloud()
 {
+    m_NumUsedPts = 0;
     m_index = NULL;
 }
 

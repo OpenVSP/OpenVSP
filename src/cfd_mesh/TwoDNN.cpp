@@ -12,6 +12,7 @@
 TwoDNodeCloud::TwoDNodeCloud()
 {
     m_index = NULL;
+    m_NumUsedPts = 0;
 }
 
 TwoDNodeCloud::~TwoDNodeCloud()

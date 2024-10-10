@@ -35,6 +35,7 @@ void RWCollection::Clear()
 //==== Constructor ====//
 AnalysisMgrSingleton::AnalysisMgrSingleton()
 {
+    m_AnalysisExecutionDuration = 0;
 }
 //==== Destructor ====//
 AnalysisMgrSingleton::~AnalysisMgrSingleton()

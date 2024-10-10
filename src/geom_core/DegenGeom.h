@@ -146,6 +146,8 @@ public:
         flip_normal = false;
         main_surf_ind = 0;
         sym_copy_ind = 0;
+        cfdsurftype = vsp::CFD_NORMAL;
+        degenDisk = DegenDisk();
     };
     virtual ~DegenGeom() {};
 

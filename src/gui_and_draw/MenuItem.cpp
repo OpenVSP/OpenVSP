@@ -46,6 +46,7 @@ bool BaseMenuItem::IsShown()
 
 ScreenMenuItem::ScreenMenuItem()
 {
+    m_ScreenMgr = nullptr;
     m_ScreenID = -1;
     m_SecondaryScreenID = -1;
 }

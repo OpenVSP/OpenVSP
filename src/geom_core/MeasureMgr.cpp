@@ -4,9 +4,9 @@
 MeasureMgrSingleton::MeasureMgrSingleton()
 {
     m_CurrRulerIndex = 0;
-    m_CurrRulerIndex = 0;
     m_CurrProbeIndex = 0;
     m_CurrRSTProbeIndex = 0;
+    m_CurrProtractorIndex = 0;
     Init();
 }
 

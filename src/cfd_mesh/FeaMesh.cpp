@@ -21,6 +21,8 @@ FeaMesh::FeaMesh( const string & struct_id )
     m_NumFeaTrimParts = 0;
     m_NumFeaFixPoints = 0;
 
+    m_NumNodes = 0;
+
     m_NumEls = 0;
     m_NumTris = 0;
     m_NumQuads = 0;

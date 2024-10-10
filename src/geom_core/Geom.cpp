@@ -110,6 +110,10 @@ GeomBase::GeomBase( Vehicle* vehicle_ptr )
     m_SurfDirty = true;
     m_TessDirty = true;
     m_HighlightDirty = true;
+    m_FeaDirty = true;
+
+    m_UpdateXForm = false;
+    m_UpdateSurf = false;
 }
 
 //==== Destructor ====//

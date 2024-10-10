@@ -65,6 +65,12 @@ ScriptMgrSingleton::ScriptMgrSingleton()
     m_ScriptEngine = NULL;
     m_ScriptMessages = "";
 
+    m_IntArrayType = nullptr;
+    m_DoubleArrayType = nullptr;
+    m_DoubleMatArrayType = nullptr;
+    m_Vec3dArrayType = nullptr;
+    m_StringArrayType = nullptr;
+
 }
 
 //==== Set Up Script Engine, Script Error Callbacks ====//

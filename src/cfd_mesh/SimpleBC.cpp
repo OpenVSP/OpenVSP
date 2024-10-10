@@ -15,6 +15,24 @@ SimpleBC::SimpleBC()
 
     m_FeaPartIndex = -1;
     m_FeaSubSurfIndex = -1;
+
+    m_XLTFlag = false;
+    m_XGTFlag = false;
+
+    m_YLTFlag = false;
+    m_YGTFlag = false;
+
+    m_ZLTFlag = false;
+    m_ZGTFlag = false;
+
+    m_XLTVal = 0;
+    m_XGTVal = 0;
+
+    m_YLTVal = 0;
+    m_YGTVal = 0;
+
+    m_ZLTVal = 0;
+    m_ZGTVal = 0;
 }
 
 void SimpleBC::CopyFrom( FeaBC* fea_bc )

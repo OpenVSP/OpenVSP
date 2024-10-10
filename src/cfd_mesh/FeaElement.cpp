@@ -131,6 +131,7 @@ void FeaNode::WriteGmsh( FILE* fp, long long int noffset )
 
 FeaElement::FeaElement()
 {
+    m_FeaPartSurfNum = -1;
     m_ElementType = FEA_TRI_6;
     m_FeaPartIndex = -1;
     m_FeaSSIndex = -1;

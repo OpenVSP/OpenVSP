@@ -3382,6 +3382,7 @@ void SkinScreen::CallBack( Fl_Widget *w )
 EngineModelScreen::EngineModelScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
         SkinScreen( mgr, w, h, title, helpfile )
 {
+    m_SelectedEngineExtensionSetChoiceIndex = -1;
 }
 
 void EngineModelScreen::BuildEngineGUI( GroupLayout & layout )

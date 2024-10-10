@@ -13,6 +13,9 @@
 SimpleTess::SimpleTess()
 {
     m_FlipNormal = false;
+
+    m_nufeat = 0;
+    m_nvfeat = 0;
 }
 
 SimpleTess::~SimpleTess()

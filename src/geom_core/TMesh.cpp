@@ -317,6 +317,7 @@ TMesh::TMesh()
 {
     m_MaterialID = 0;
     m_SurfCfdType = vsp::CFD_NORMAL;
+    m_SurfType = vsp::NORMAL_SURF;
     m_ThickSurf = true;
     m_MassPrior = 0;
     m_Density = 0;
