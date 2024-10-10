@@ -119,7 +119,7 @@ public:
     vector < SimpleSubSurface > m_SimpleSubSurfaceVec;
 
     SimpleFeaMeshSettings m_StructSettings;
-    SimpleGridDensity m_FeaGridDensity;
+    SimpleFeaGridDensity m_FeaGridDensity;
 
     string m_StructName;
 
