@@ -85,8 +85,6 @@ class CfdMeshMgrSingleton : public SurfaceIntersectionSingleton
 {
 protected:
     CfdMeshMgrSingleton();
-    CfdMeshMgrSingleton( CfdMeshMgrSingleton const& copy );          // Not Implemented
-    CfdMeshMgrSingleton& operator=( CfdMeshMgrSingleton const& copy ); // Not Implemented
 
 public:
 

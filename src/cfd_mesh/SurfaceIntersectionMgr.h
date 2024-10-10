@@ -197,8 +197,6 @@ class SurfaceIntersectionSingleton : public ParmContainer
 {
 protected:
     SurfaceIntersectionSingleton();
-    SurfaceIntersectionSingleton( SurfaceIntersectionSingleton const& copy );          // Not Implemented
-    SurfaceIntersectionSingleton& operator=( SurfaceIntersectionSingleton const& copy ); // Not Implemented
 
 public:
 

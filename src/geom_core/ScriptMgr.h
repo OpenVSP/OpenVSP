@@ -209,7 +209,6 @@ private:
     void SetBORAirfoilUpperPnts( const string& bor_id, CScriptArray* up_pnt_arr );
     void SetBORAirfoilLowerPnts( const string& bor_id, CScriptArray* low_pnt_arr );
     void SetBORAirfoilPnts( const string& bor_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
-    void SetVec3dArray( CScriptArray* arr );
 
     CScriptArray* GetHersheyBarLiftDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
     CScriptArray* GetHersheyBarDragDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
