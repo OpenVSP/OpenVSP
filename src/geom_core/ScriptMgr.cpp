@@ -5327,7 +5327,7 @@ CScriptArray* ScriptMgrSingleton::GetEditXSecUVec( const std::string& xsec_id )
     return GetProxyDoubleArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetEditXSecCtrlVec( const std::string & xsec_id, const bool non_dimensional )
+CScriptArray* ScriptMgrSingleton::GetEditXSecCtrlVec( const std::string & xsec_id, bool non_dimensional )
 {
     m_ProxyVec3dArray = vsp::GetEditXSecCtrlVec( xsec_id, non_dimensional );
 

@@ -688,7 +688,7 @@ void ProjectionMgrSingleton::MeshToPaths( const vector < TMesh* > & tmv, Clipper
     }
 }
 
-void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vector < Clipper2Lib::Paths64 > & pthvec, vector < string > & ids, const int keepdir1, const int keepdir2 )
+void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vector < Clipper2Lib::Paths64 > & pthvec, vector < string > & ids, int keepdir1, int keepdir2 )
 {
     pthvec.resize( tmv.size() );
     ids.resize( tmv.size() );
@@ -716,7 +716,7 @@ void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vect
     }
 }
 
-void ProjectionMgrSingleton::PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, const int keepdir1, const int keepdir2 )
+void ProjectionMgrSingleton::PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, int keepdir1, int keepdir2 )
 {
     polyvec.clear();
     polyvec.reserve( pths.size() );

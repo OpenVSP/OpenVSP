@@ -10429,7 +10429,7 @@ extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
     \return Array of control points
 */
 
-extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, const bool non_dimensional = true );
+extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, bool non_dimensional = true );
 
 /*!
     \ingroup EditCurveXSec

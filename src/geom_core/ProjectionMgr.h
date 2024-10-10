@@ -99,9 +99,9 @@ protected:
 
     virtual void MeshToPaths( const vector < TMesh* > & tmv, Clipper2Lib::Paths64 & pths );
 
-    virtual void MeshToPathsVec( const vector < TMesh* > & tmv, vector < Clipper2Lib::Paths64 > & pths, vector < string > & ids, const int keepdir1 = 1, const int keepdir2 = 2 );
+    virtual void MeshToPathsVec( const vector < TMesh* > & tmv, vector < Clipper2Lib::Paths64 > & pths, vector < string > & ids, int keepdir1 = 1, int keepdir2 = 2 );
 
-    virtual void PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, const int keepdir1 = 1, const int keepdir2 = 2 );
+    virtual void PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, int keepdir1 = 1, int keepdir2 = 2 );
 
     virtual void Poly3dToPoly2d( vector < vector < vec3d > > & invec, vector < vector < vec2d > > & outvec );
 

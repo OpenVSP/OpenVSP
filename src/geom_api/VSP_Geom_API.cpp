@@ -6250,7 +6250,7 @@ vector < double > GetEditXSecUVec( const std::string& xsec_id )
     return edit_xs->GetUVec();
 }
 
-vector < vec3d > GetEditXSecCtrlVec( const std::string& xsec_id, const bool non_dimensional )
+vector < vec3d > GetEditXSecCtrlVec( const std::string& xsec_id, bool non_dimensional )
 {
     vector < vec3d > ret_vec;
 

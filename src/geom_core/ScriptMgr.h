@@ -194,7 +194,7 @@ private:
     CScriptArray* GetBORLowerCSTCoefs( const string & bor_id );
 
     CScriptArray* GetEditXSecUVec( const string& xsec_id );
-    CScriptArray* GetEditXSecCtrlVec( const string & xsec_id, const bool non_dimensional );
+    CScriptArray* GetEditXSecCtrlVec( const string & xsec_id, bool non_dimensional );
     void SetEditXSecPnts( const string & xsec_id, CScriptArray* t_vec, CScriptArray* control_pts, CScriptArray* r_vec );
     CScriptArray* GetEditXSecFixedUVec( const string& xsec_id );
     void SetEditXSecFixedUVec( const string & xsec_id, CScriptArray* fixed_u_vec );
