@@ -1256,7 +1256,6 @@ void FitModelMgrSingleton::SetSelectOne()
 
         if ( m_LastSelGeom != "NONE" )
         {
-            Vehicle *veh = VehicleMgr.GetVehicle();
             Geom *g = veh->FindGeom( m_LastSelGeom );
             PtCloudGeom* pt_cloud = dynamic_cast< PtCloudGeom* >( g );
 

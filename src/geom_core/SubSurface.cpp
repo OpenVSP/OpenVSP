@@ -1657,9 +1657,9 @@ void SSControlSurf::Update()
 
     if ( midangleflag )
     {
-        double ts = m_StartLength() * sin( m_StartAngle() * PI / 180.0 );
-        double te = m_EndLength() * sin( m_EndAngle() * PI / 180.0 );
-        d = 0.5 * ( ts + te ) / sin( midangle * PI / 180.0 );
+        double startt = m_StartLength() * sin( m_StartAngle() * PI / 180.0 );
+        double endt = m_EndLength() * sin( m_EndAngle() * PI / 180.0 );
+        d = 0.5 * ( startt + endt ) / sin( midangle * PI / 180.0 );
 
         if ( angle1 < 1e-6 )
         {
@@ -1667,7 +1667,7 @@ void SSControlSurf::Update()
         }
         else
         {
-            d1 = ( ts + ( te - ts ) / 3.0   ) / sin( angle1 * PI / 180.0 );
+            d1 = ( startt + ( endt - startt ) / 3.0   ) / sin( angle1 * PI / 180.0 );
         }
 
         if ( angle2 < 1e-6 )
@@ -1676,7 +1676,7 @@ void SSControlSurf::Update()
         }
         else
         {
-            d2 = ( ts + 2.0 * ( te - ts ) / 3.0 ) / sin( angle2 * PI / 180.0 );
+            d2 = ( startt + 2.0 * ( endt - startt ) / 3.0 ) / sin( angle2 * PI / 180.0 );
         }
     }
     else

@@ -855,7 +855,7 @@ void SurfCore::FindCornerPtVec( vector < vec3d > &uwvec, const double &u0, const
     double halfdot = cos( 0.5 * acos( du.dot( dw ) ) );
 
     int numtry = 16;
-    for ( int i = 0; i < numtry; i++ )
+    for ( i = 0; i < numtry; i++ )
     {
         double u, w;
         int retval;

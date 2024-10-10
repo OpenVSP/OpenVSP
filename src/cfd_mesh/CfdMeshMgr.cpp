@@ -1347,19 +1347,15 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             vector< vec2d >& sUWVec = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
             for ( int t = 0 ; t <  ( int )sFaceVec.size() ; t++ )
             {
-                int i0 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind0] );
-                int i1 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind1] );
-                int i2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind2] );
                 SimpFace sface;
-                sface.ind0 = i0 + 1;
-                sface.ind1 = i1 + 1;
-                sface.ind2 = i2 + 1;
+                sface.ind0 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind0] ) + 1;
+                sface.ind1 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind1] ) + 1;
+                sface.ind2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind2] ) + 1;
 
                 if( sFaceVec[t].m_isQuad )
                 {
                     sface.m_isQuad = true;
-                    int i3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind3] );
-                    sface.ind3 = i3 + 1;
+                    sface.ind3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind3] ) + 1;
                     ntristrict++; // Bonus tri for split quad.
                 }
 

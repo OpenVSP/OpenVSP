@@ -462,6 +462,7 @@ void ManageMeasureScreen::Hide()
 
 bool ManageMeasureScreen::Update()
 {
+    char str[255];
     TabScreen::Update();
 
     Vehicle* vPtr = VehicleMgr.GetVehicle();
@@ -515,7 +516,7 @@ bool ManageMeasureScreen::Update()
         if ( geom_start )
         {
             int nsurf = geom_start->GetNumTotalSurfs();
-            char str[256];
+
             for ( int i = 0; i < nsurf; ++i )
             {
                 snprintf( str, sizeof( str ),  "Surf_%d", i );
@@ -536,7 +537,6 @@ bool ManageMeasureScreen::Update()
         m_EndUSlider.Update( ruler->m_EndU.GetID() );
         m_EndWSlider.Update( ruler->m_EndW.GetID() );
 
-        char str[255];
         snprintf( str, sizeof( str ),  "%%.%df", ruler->m_Precision() );
 
         m_DeltaXOutput.SetFormat( str );
@@ -560,7 +560,7 @@ bool ManageMeasureScreen::Update()
         if ( geom_end )
         {
             int nsurf = geom_end->GetNumTotalSurfs();
-            char str[256];
+
             for ( int i = 0; i < nsurf; ++i )
             {
                 snprintf( str, sizeof( str ),  "Surf_%d", i );
@@ -641,7 +641,7 @@ bool ManageMeasureScreen::Update()
         if ( geom_start )
         {
             int nsurf = geom_start->GetNumTotalSurfs();
-            char str[256];
+
             for ( int i = 0; i < nsurf; ++i )
             {
                 snprintf( str, sizeof( str ),  "Surf_%d", i );
@@ -657,7 +657,7 @@ bool ManageMeasureScreen::Update()
             m_ProbeSurfChoice.SetVal( probe->m_OriginIndx() );
         }
 
-        char str[255];
+
         snprintf( str, sizeof( str ),  "%%.%df", probe->m_Precision() );
 
         m_XOutput.SetFormat( str );
@@ -792,7 +792,7 @@ bool ManageMeasureScreen::Update()
         if ( geom_start )
         {
             int nsurf = geom_start->GetNumTotalSurfs();
-            char str[256];
+
             for ( int i = 0; i < nsurf; ++i )
             {
                 snprintf( str, sizeof( str ),  "Surf_%d", i );
@@ -808,7 +808,7 @@ bool ManageMeasureScreen::Update()
             m_RSTProbeSurfChoice.SetVal( RSTprobe->m_OriginIndx() );
         }
 
-        char str[255];
+
         snprintf( str, sizeof( str ),  "%%.%df", RSTprobe->m_Precision() );
 
         m_RSTXOutput.SetFormat( str );
@@ -890,7 +890,7 @@ bool ManageMeasureScreen::Update()
         if ( geom_start )
         {
             int nsurf = geom_start->GetNumTotalSurfs();
-            char str[256];
+
             for ( int i = 0; i < nsurf; ++i )
             {
                 snprintf( str, sizeof( str ),  "Surf_%d", i );
@@ -917,7 +917,7 @@ bool ManageMeasureScreen::Update()
         if ( geom_mid )
         {
             int nsurf = geom_mid->GetNumTotalSurfs();
-            char str[256];
+
             for ( int i = 0; i < nsurf; ++i )
             {
                 snprintf( str, sizeof( str ),  "Surf_%d", i );
@@ -938,7 +938,7 @@ bool ManageMeasureScreen::Update()
         m_ProtractorEndUSlider.Update( protractor->m_EndU.GetID() );
         m_ProtractorEndWSlider.Update( protractor->m_EndW.GetID() );
 
-        char str[255];
+
         snprintf( str, sizeof( str ),  "%%.%df", protractor->m_Precision() );
 
         m_ThetaXOutput.SetFormat( str );
@@ -963,7 +963,7 @@ bool ManageMeasureScreen::Update()
         if ( geom_end )
         {
             int nsurf = geom_end->GetNumTotalSurfs();
-            char str[256];
+
             for ( int i = 0; i < nsurf; ++i )
             {
                 snprintf( str, sizeof( str ),  "Surf_%d", i );

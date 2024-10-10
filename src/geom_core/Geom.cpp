@@ -2166,23 +2166,23 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
                     allflines[j][k].offset_z( -to_orgin.z() );
                 }
             }
+        }
+        for ( int j = 0; j < nw; j++ )
+        {
+            m_SurfVec[i].TessWFeatureLine( j, allflines[j + nu], tol );
 
-            for ( int j = 0; j < nw; j++ )
+            // Shift Feature Lines back near the orgin for multi-view case:
+            if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
             {
-                m_SurfVec[i].TessWFeatureLine( j, allflines[j + nu], tol );
-
-                // Shift Feature Lines back near the orgin for multi-view case:
-                if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
+                for ( unsigned int k = 0; k < allflines[j + nu].size(); k++ )
                 {
-                    for ( unsigned int k = 0; k < allflines[j + nu].size(); k++ )
-                    {
-                        allflines[j + nu][k].offset_x( -to_orgin.x() );
-                        allflines[j + nu][k].offset_y( -to_orgin.y() );
-                        allflines[j + nu][k].offset_z( -to_orgin.z() );
-                    }
+                    allflines[j + nu][k].offset_x( -to_orgin.x() );
+                    allflines[j + nu][k].offset_y( -to_orgin.y() );
+                    allflines[j + nu][k].offset_z( -to_orgin.z() );
                 }
             }
         }
+
 
         // Add layers:
         string layer = m_Name + string( "_Surf[" ) + to_string( i ) + string( "]" );
@@ -3200,9 +3200,9 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
     {
         m_SetFlags = XmlUtil::ExtractVectorBoolNode( geom_node, "Set_List" );
 
-        int num = XmlUtil::GetNumNames( geom_node, "Source" );
+        int num_source = XmlUtil::GetNumNames( geom_node, "Source" );
 
-        for ( int i = 0 ; i < num ; i++ )
+        for ( int i = 0 ; i < num_source ; i++ )
         {
             xmlNodePtr src_node = XmlUtil::GetNode( geom_node, "Source", i );
             if ( src_node )
@@ -3248,9 +3248,9 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
         xmlNodePtr structvecnode = XmlUtil::GetNode( geom_node, "FeaStructures", 0 );
         if ( structvecnode )
         {
-            int num = XmlUtil::GetNumNames( structvecnode, "FeaStructureInfo" );
+            int num_struct = XmlUtil::GetNumNames( structvecnode, "FeaStructureInfo" );
 
-            for ( int i = 0; i < num; i++ )
+            for ( int i = 0; i < num_struct; i++ )
             {
                 xmlNodePtr structnode = XmlUtil::GetNode( structvecnode, "FeaStructureInfo", i );
 

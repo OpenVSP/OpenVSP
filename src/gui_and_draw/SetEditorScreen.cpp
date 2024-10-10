@@ -286,7 +286,6 @@ void SetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( m_SelectedSetIndex > SET_ALL )
         {
-            vector< string > geom_id_vec = vehiclePtr->GetGeomVec();
             for (int i = 0; i < ( int )geom_id_vec.size(); i++ )
             {
                 Geom* gptr = vehiclePtr->FindGeom( geom_id_vec[i] );
@@ -302,7 +301,6 @@ void SetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( m_SelectedSetIndex > SET_ALL )
         {
-            vector< string > geom_id_vec = vehiclePtr->GetGeomVec();
             for (int i = 0; i < ( int )geom_id_vec.size(); i++)
             {
                 Geom* gptr = vehiclePtr->FindGeom( geom_id_vec[i] );

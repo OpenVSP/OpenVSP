@@ -742,7 +742,6 @@ void VspCurve::GetLinearControlPoints( vector< vec3d >& cntrl_pts, vector< doubl
 
         if ( i == nseg - 1 )
         {
-            curve_point_type p;
             p = c.get_control_point( 1 );
 
             cntrl_pts.push_back( p );

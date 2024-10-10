@@ -1612,12 +1612,12 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         {
             for ( size_t j = 0; j < fxpt.m_Pnt.size(); j++ )
             {
-                FeaNode *n = new FeaNode( fxpt.m_Pnt[j] );
+                FeaNode *nod = new FeaNode( fxpt.m_Pnt[j] );
 
                 // Should be redundant.
                 //n->m_FixedPointFlag = true;
                 //n->AddTag( fxpt.m_FeaPartIndex );
-                GetMeshPtr()->m_FeaOffBodyFixPointNodeVec.push_back( n );
+                GetMeshPtr()->m_FeaOffBodyFixPointNodeVec.push_back( nod );
             }
         }
     }

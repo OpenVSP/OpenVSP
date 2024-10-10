@@ -4409,7 +4409,6 @@ void EditCurveXSec::ReparameterizeEqualArcLength()
 
     // Identify length of each section between fixed U values
     vector < double > seg_len_vec;
-    double seg_len = 0;
     int i_seg_prev = 0;
 
     for ( size_t i = 0; i < nseg; i++ )

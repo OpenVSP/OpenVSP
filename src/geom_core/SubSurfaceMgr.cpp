@@ -290,8 +290,8 @@ int SubSurfaceMgrSingleton::FindGNum( const string &gid )
     {
         string id_list = GetTagIDs( m_TagKeys[i] );
         int pos = id_list.find( "_Surf" );
-        string gid = id_list.substr( 0, pos );
-        gids.insert( gid );
+        string g = id_list.substr( 0, pos );
+        gids.insert( g );
     }
 
     int gnum = distance( gids.begin(), gids.find( gid ) );

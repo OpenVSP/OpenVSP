@@ -1466,9 +1466,9 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
                 if (m_CopySetsWithGeomsFlag.Get() == false)
                 {
                     // New geom is only in SET_SHOWN
-                    for ( int i = SET_FIRST_USER; i < m_NumUserSets() + SET_FIRST_USER; i++ )
+                    for ( int j = SET_FIRST_USER; j < m_NumUserSets() + SET_FIRST_USER; j++ )
                     {
-                        toPtr->SetSetFlag( i, false );
+                        toPtr->SetSetFlag( j, false );
                     }
 
                     toPtr->SetSetFlag( SET_SHOWN, true );
