@@ -31,6 +31,8 @@ static void bytesToUInt( const unsigned char * bytes, unsigned int * uInt_out )
     }
     convert;
 
+    convert.unsigned_Int = 0;
+
     if( isLittleEndian() )
     {
         for( i = 0; i < sizeof( unsigned int ); i++ )
