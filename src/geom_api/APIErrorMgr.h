@@ -7,14 +7,15 @@
 // J.R Gloudemans
 //
 //////////////////////////////////////////////////////////////////////
+
+#if !defined(APIERRORMGR__INCLUDED_)
+#define APIERRORMGR__INCLUDED_
+
 #ifdef SWIG
 %feature("autodoc", 1);
 %feature("doxygen:ignore:forcpponly", range="end");
 %feature("doxygen:ignore:beginPythonOnly", range="end:endPythonOnly", contents="parse");
 #endif
-
-#if !defined(APIERRORMGR__INCLUDED_)
-#define APIERRORMGR__INCLUDED_
 
 #include "APIDefines.h"
 #include "MessageMgr.h"

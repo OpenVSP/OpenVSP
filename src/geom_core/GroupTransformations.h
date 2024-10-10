@@ -7,7 +7,7 @@
 // 
 //
 //////////////////////////////////////////////////////////////////////
-#if(!defined(VSPGROUP_TRANSFORMATIONS_INCLUDED_))
+#if !defined(VSPGROUP_TRANSFORMATIONS_INCLUDED_)
 #define VSPGROUP_TRANSFORMATIONS_INCLUDED_
 
 #include "Parm.h"

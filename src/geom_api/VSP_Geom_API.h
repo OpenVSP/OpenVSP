@@ -186,17 +186,15 @@
     \ref index "Click here to return to the main page"
 */
 
+#if !defined(VSPAPI__INCLUDED_)
+#define VSPAPI__INCLUDED_
+
 #ifdef SWIG
 %feature("autodoc", 1);
 %feature("doxygen:ignore:forcpponly", range="end");
 %feature("doxygen:ignore:beginPythonOnly", range="end:endPythonOnly", contents="parse");
 
 #endif
-
-
-
-#if !defined(VSPAPI__INCLUDED_)
-#define VSPAPI__INCLUDED_
 
 #include "Defines.h"
 
