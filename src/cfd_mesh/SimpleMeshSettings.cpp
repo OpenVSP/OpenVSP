@@ -545,23 +545,6 @@ void SimpleAssemblySettings::CopyFrom( AssemblySettings* settings )
     CopyPostOpFrom( settings );
 }
 
-string SimpleAssemblySettings::GetExportFileName( int type )
-{
-    if ( type >= 0 && type < m_ExportFileNames.size() )
-    {
-        return m_ExportFileNames[type];
-    }
-
-    return string();
-}
-
-bool SimpleAssemblySettings::GetExportFileFlag( int type )
-{
-    assert( type >= 0 && type < m_ExportFileFlags.size() );
-
-    return m_ExportFileFlags[type];
-}
-
 // The Post-op variables are used after the primary operation.
 // For example, the file names (and flags) and mesh/element offsets might
 // be adjusted after the mesh is generated, but before a file is written.

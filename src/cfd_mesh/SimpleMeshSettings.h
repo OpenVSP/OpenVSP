@@ -245,9 +245,6 @@ public:
 
     virtual void CopyFrom( AssemblySettings* settings );
 
-    string GetExportFileName( int type );
-    bool GetExportFileFlag( int type );
-
     virtual void CopyPostOpFrom( AssemblySettings* settings );
 
     bool m_DrawAsMeshFlag;
