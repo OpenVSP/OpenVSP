@@ -2063,6 +2063,7 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
         VSPAEROMgr.m_AlternateInputFormatFlag.Set( alternateFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
+        VSPAEROMgr.m_NumWakeNodes.Set( numWakeNodesOrig );
         VSPAEROMgr.m_StabilityType.Set( stabilityTypeOrig );
         VSPAEROMgr.m_Precondition.Set( preconditionOrig );
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
@@ -2490,6 +2491,9 @@ string CpSlicerAnalysis::Execute()
 
         // Execute analysis
         res_id = VSPAEROMgr.ComputeCpSlices( stdout );
+
+
+        VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
 
         VSPAEROMgr.ClearCpSliceVec();
 
