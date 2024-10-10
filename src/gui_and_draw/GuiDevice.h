@@ -595,6 +595,8 @@ protected:
 class SliderInput : public GuiDevice
 {
 public:
+    SliderInput();
+
     virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, Fl_Input* input,
                        double range, const char* format, VspButton* parm_button = NULL,
                        bool log_slider = false );
@@ -635,6 +637,7 @@ protected:
 class SliderAdjRangeInput : public GuiDevice
 {
 public:
+    SliderAdjRangeInput();
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input, double range, const char* format,
                        VspButton* parm_button = NULL, bool log_slider = false );
@@ -699,6 +702,7 @@ protected:
 class SliderAdjRange2Input
 {
 public:
+    SliderAdjRange2Input();
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2,
                        double range, const char* format, VspButton* parm_button = NULL );

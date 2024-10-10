@@ -886,6 +886,11 @@ void SliderAdjRange::MaxButtonCB( Parm* parm_ptr )
 //=================       Slider Input Combo     ======================//
 //=====================================================================//
 
+SliderInput::SliderInput()
+{
+    m_ParmButtonFlag = false;
+}
+
 //==== Init ====//
 void SliderInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Input* input,
                         double range, const char* format, VspButton* parm_button,
@@ -927,6 +932,11 @@ void SliderInput::Update( const string& parm_id )
 //===========       Slider Adjustable Range Input Combo     ===========//
 //=====================================================================//
 
+SliderAdjRangeInput::SliderAdjRangeInput()
+{
+    m_ParmButtonFlag = false;
+}
+
 //==== Init ====//
 void SliderAdjRangeInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                                 Fl_Button* rbutton, Fl_Input* input, double range, const char* format,
@@ -965,6 +975,11 @@ void SliderAdjRangeInput::Update( const string& parm_id )
 //=====================================================================//
 //===========       Slider Adjustable Range 2 Input Combo     ===========//
 //=====================================================================//
+
+SliderAdjRange2Input::SliderAdjRange2Input()
+{
+    m_ParmButtonFlag = false;
+}
 
 void SliderAdjRange2Input::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                                  Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2,

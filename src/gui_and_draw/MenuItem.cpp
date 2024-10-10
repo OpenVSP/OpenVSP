@@ -72,6 +72,11 @@ void ScreenMenuItem::ShowScreenCallBack( void* data )
     }
 }
 
+ActionMenuItem::ActionMenuItem()
+{
+    m_ActionScreen = nullptr;
+}
+
 void ActionMenuItem::Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, std::string mpath, int scut )
 {
     m_ActionScreen = ascreen;

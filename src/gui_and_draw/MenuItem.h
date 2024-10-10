@@ -55,7 +55,7 @@ protected:
 class ActionMenuItem : public BaseMenuItem
 {
 public:
-
+    ActionMenuItem();
     virtual void Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, std::string mpath, int scut = 0 );
 
     void ActionCallBack( void* data );
