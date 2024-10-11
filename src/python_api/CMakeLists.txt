@@ -8,18 +8,17 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
     MESSAGE( STATUS "Configuring Python API" )
 
     execute_process(
-		COMMAND pip show sphinx
-		RESULT_VARIABLE EXIT_CODE
-		OUTPUT_QUIET
-	)
+        COMMAND ${PYTHON_EXECUTABLE} -c "import sphinx"
+        RESULT_VARIABLE EXIT_SPHINX
+    )
 
-	if ( ${EXIT_CODE} EQUAL 0 )
-		SET ( SPHINX_FOUND true CACHE BOOL "SPHINX" )
-		mark_as_advanced( SPHINX_FOUND )
-		MESSAGE( STATUS "Sphinx found, Python API doc will be generated." )
-	ELSE( ${EXIT_CODE} EQUAL 0 )
-		MESSAGE( STATUS "Sphinx not found, Python API doc will not be generated." )
-	endif()
+    if ( ${EXIT_SPHINX} EQUAL 0 )
+        SET ( SPHINX_FOUND true CACHE BOOL "SPHINX" )
+        mark_as_advanced( SPHINX_FOUND )
+        MESSAGE( STATUS "Sphinx found, Python API doc will be generated." )
+    ELSE( ${EXIT_SPHINX} EQUAL 0 )
+        MESSAGE( STATUS "Sphinx not found, Python API doc will not be generated." )
+    endif()
 
     INCLUDE_DIRECTORIES(
         ${CLIPPER2_INCLUDE_DIR}
