@@ -7,7 +7,6 @@ import openvsp as vsp
 
 
 def test_FourViewScreenShot():
-    vsp.InitGUI()
     vsp.StartGUI()
 
     time.sleep(1)  # Needed or following API calls fail.

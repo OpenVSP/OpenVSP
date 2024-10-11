@@ -336,11 +336,6 @@ def start_server():
                         result = gui_active
                         b_result = pack_data(result)
 
-                    # Special functionality for IsGUIRunning
-                    elif data[0] == 'InitGUI':
-                        result = 0
-                        b_result = pack_data(result)
-
                     # Regular functionality
                     else:
                         func_name = data[0]
@@ -385,7 +380,6 @@ def start_server():
 
 
 if __name__ == "__main__":
-    did_init = False
     t = Thread(target=start_server, args=())
     t.start()
     module.Lock()
@@ -395,9 +389,6 @@ if __name__ == "__main__":
         if debug:
             print("Server GUI Thread: Starting GUI")
         if gui_wait: #makes sure this didnt change while waiting
-            if not did_init:
-                module.InitGUI()
-                did_init = True
             gui_active = True
             module.StartGUI()
         if debug:

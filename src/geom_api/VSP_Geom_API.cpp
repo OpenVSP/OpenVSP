@@ -1659,32 +1659,23 @@ void WriteTestResults()
 
 /// Check VehicleMgr for a valid vehicle pointer.  Create vehicle
 /// pointer on first call.  There is a check to prevent multiple calls.
-extern void InitGUI()
-{
-    printf( "InitGUI()\n" );
-    //==== Make Sure Init is Only Called Once ===//
-    static bool once = false;
-    if ( once )
-    {
-        return;
-    }
-    once = true;
-
-// Please dont do this - messes up the batch script mode
-#ifdef VSP_USE_FLTK
-    if ( VehicleMgr.GetVehicle() )
-    {
-        printf( "Initing GUI\n" );
-        GuiInterface::getInstance().InitGUI( VehicleMgr.GetVehicle() );
-    }
-#endif
-
-    ErrorMgr.NoError();
-}
 
 extern void StartGUI( )
 {
 #ifdef VSP_USE_FLTK
+    //==== Make Sure Init is Only Called Once ===//
+    static bool once = false;
+
+    if ( !once )
+    {
+        // Please dont do this - messes up the batch script mode
+        if ( VehicleMgr.GetVehicle() )
+        {
+            GuiInterface::getInstance().InitGUI( VehicleMgr.GetVehicle() );
+        }
+        ErrorMgr.NoError();
+    }
+    once = true;
     GuiInterface::getInstance().StartGUIAPI( );
 #endif
 }

@@ -38,7 +38,7 @@ bool run_tests()
     ts.add(std::unique_ptr<Test::Suite>(new APITestSuiteParasiteDrag));
     ts.add(std::unique_ptr<Test::Suite>(new APITestSuiteVSPAERO));
     ts.add(std::unique_ptr<Test::Suite>(new APITestSuiteCFDMesh));
-    
+
     // Test Suite run parameters
     Test::TextOutput output(Test::TextOutput::Verbose);
     bool cont_after_fail = true; //TRUE continues test execution after failure
@@ -114,7 +114,7 @@ int main( int argc, char** argv )
     printf( "Adding a pod\n" );
     string pod_id = vsp::AddGeom( "POD", fuse_id );
     vsp::ErrorMgr.PopErrorAndPrint( stdout );
-    
+
     //==== Edit the Pod ====//
     printf( "Editing the pod\n" );
     //==== Set Name ====//
@@ -133,7 +133,7 @@ int main( int argc, char** argv )
     string sym_flag_id = vsp::GetParm( pod_id, "Sym_Planar_Flag", "Sym" );
     vsp::SetParmValUpdate( sym_flag_id, vsp::SYM_XZ  );
     vsp::ErrorMgr.PopErrorAndPrint( stdout );
-    
+
     //==== Copy/Paste Pod Geom =====//
     printf( "Copy/Paste pod\n" );
     vsp::CopyGeomToClipboard( pod_id );
@@ -149,7 +149,7 @@ int main( int argc, char** argv )
     vsp::SetParmVal( second_pod_id, "Y_Rel_Location", "XForm", 0.0 );
     vsp::SetParmVal( second_pod_id, "Z_Rel_Location", "XForm", 1.0 );
     vsp::ErrorMgr.PopErrorAndPrint( stdout );
-    
+
     //==== List out all geoms ====//
     printf( "All geoms in Vehicle:\n" );
     vector<string> geoms = vsp::FindGeoms();
@@ -158,7 +158,7 @@ int main( int argc, char** argv )
         printf( "Geom id: %s name: %s \n", geoms[i].c_str(), vsp::GetGeomName( geoms[i] ).c_str() );
     }
     vsp::ErrorMgr.PopErrorAndPrint( stdout );
-    
+
     //==== Save Vehicle to File ====//
     string fname = "apitest.vsp3";
     vsp::WriteVSPFile( fname );
@@ -168,7 +168,7 @@ int main( int argc, char** argv )
 //==== Use Case 2 ====//
     printf( "\n//==== Use Case 2 ====//\n");
     printf( "Description: Fuselage editing\n" );
-    
+
     //==== Reset Geometry ====//
     printf( "Resetting VSP model to blank slate\n" );
     vsp::VSPRenew();
@@ -243,11 +243,11 @@ int main( int argc, char** argv )
         printf( "Geom id: %s name: %s \n", geoms[i].c_str(), vsp::GetGeomName( geoms[i] ).c_str() );
     }
     vsp::ErrorMgr.PopErrorAndPrint( stdout );
-    
+
 //==== Use Case 3 ====//
     printf( "\n//==== Use Case 3 ====//\n");
     printf( "Description: Read in first-case file.\n" );
-    
+
     //==== Reset Geometry ====//
     printf( "Resetting VSP model to blank slate\n" );
     vsp::VSPRenew();
@@ -266,7 +266,7 @@ int main( int argc, char** argv )
         printf( "Geom id: %s name: %s \n", geoms[i].c_str(), vsp::GetGeomName( geoms[i] ).c_str() );
     }
     vsp::ErrorMgr.PopErrorAndPrint( stdout );
-    
+
 //==== Final check for errors ====//
     printf( "\n//==== Final check for errors ====//\n" );
     //==== Check And Print Any Errors ====//
@@ -277,7 +277,6 @@ int main( int argc, char** argv )
         printf( "err = %s\n", err.m_ErrorString.c_str() );
     }
 
-    vsp::InitGUI();
     vsp::StartGUI();
 
 }

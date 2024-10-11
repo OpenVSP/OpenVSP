@@ -2881,10 +2881,6 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //==== Visualization Functions ====//
 
-    r = se->RegisterGlobalFunction( "void InitGUI()", asFUNCTION( vsp::InitGUI ), asCALL_CDECL );
-    assert( r >= 0 );
-
-
     r = se->RegisterGlobalFunction( "void StartGUI()", asFUNCTION( vsp::StartGUI ), asCALL_CDECL );
     assert( r >= 0 );
 

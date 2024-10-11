@@ -2942,41 +2942,12 @@ extern void WriteTestResults();
     \ingroup Visualization
 */
 /*!
-    Initialize the GUI so it can be called from the API.  Must be called before other GUI related API calls.
-    In a multi-threaded environment, this must be called from the main thread only.
-    \forcpponly
-    \code{.cpp}
-
-    InitGUI();
-    StartGUI();
-
-    \endcode
-    \endforcpponly
-    \beginPythonOnly
-    \code{.py}
-
-    InitGUI()
-    StartGUI()
-
-    \endcode
-    \endPythonOnly
-
-    \sa StartGUI
-*/
-
-extern void InitGUI();
-
-/*!
-    \ingroup Visualization
-*/
-/*!
     Launch the interactive OpenVSP GUI.  In a multi-threaded environment, this must be called from the main thread only.
     This starts the GUI event loop.  It will also show the main screen and screens displayed when StopGUI() was
     previously called.
     \forcpponly
     \code{.cpp}
 
-    InitGUI();
     StartGUI();
 
     \endcode
@@ -2984,13 +2955,10 @@ extern void InitGUI();
     \beginPythonOnly
     \code{.py}
 
-    InitGUI()
     StartGUI()
 
     \endcode
     \endPythonOnly
-
-    \sa InitGUI
 */
 
     extern void StartGUI();
@@ -3011,7 +2979,6 @@ extern void InitGUI();
     \forcpponly
     \code{.cpp}
 
-    InitGUI();
     EnableStopGUIMenuItem();
     StartGUI();
 
@@ -3020,14 +2987,13 @@ extern void InitGUI();
     \beginPythonOnly
     \code{.py}
 
-    InitGUI()
     EnableStopGUIMenuItem()
     StartGUI()
 
     \endcode
     \endPythonOnly
 
-    \sa InitGUI, DisableStopGUIMenuItem
+    \sa DisableStopGUIMenuItem
 */
 
 extern void EnableStopGUIMenuItem();
@@ -3043,7 +3009,6 @@ extern void EnableStopGUIMenuItem();
     \forcpponly
     \code{.cpp}
 
-    InitGUI();
     EnableStopGUIMenuItem();
     StartGUI();
 
@@ -3052,7 +3017,6 @@ extern void EnableStopGUIMenuItem();
     \beginPythonOnly
     \code{.py}
 
-    InitGUI()
     EnableStopGUIMenuItem()
     DisableStopGUIMenuItem()
     StartGUI()
@@ -3060,7 +3024,7 @@ extern void EnableStopGUIMenuItem();
     \endcode
     \endPythonOnly
 
-    \sa InitGUI, EnableStopGUIMenuItem
+    \sa EnableStopGUIMenuItem
 */
 
 extern void DisableStopGUIMenuItem();
@@ -3073,7 +3037,6 @@ extern void DisableStopGUIMenuItem();
     \forcpponly
     \code{.cpp}
 
-    InitGUI();
     StartGUI();
 
     StopGUI();
@@ -3085,7 +3048,6 @@ extern void DisableStopGUIMenuItem();
     \beginPythonOnly
     \code{.py}
 
-    InitGUI()
     StartGUI()
 
     StopGUI()
@@ -3095,7 +3057,7 @@ extern void DisableStopGUIMenuItem();
     \endcode
     \endPythonOnly
 
-    \sa InitGUI, StartGUI
+    \sa StartGUI
 */
 
 extern void StopGUI();
@@ -3108,7 +3070,6 @@ extern void StopGUI();
     \forcpponly
     \code{.cpp}
 
-    InitGUI();
     StartGUI();
 
     PopupMsg( "This is a popup message." );
@@ -3118,7 +3079,6 @@ extern void StopGUI();
     \beginPythonOnly
     \code{.py}
 
-    InitGUI()
     StartGUI()
 
     PopupMsg( "This is a popup message." )
@@ -3139,7 +3099,6 @@ extern void PopupMsg( const std::string &msg );
     \forcpponly
     \code{.cpp}
 
-    InitGUI();
     StartGUI();
 
     string pod_id = AddGeom( "POD" );
@@ -3155,7 +3114,6 @@ extern void PopupMsg( const std::string &msg );
     \beginPythonOnly
     \code{.py}
 
-    InitGUI()
     StartGUI()
 
     pod_id = AddGeom( "POD" )
@@ -3169,7 +3127,7 @@ extern void PopupMsg( const std::string &msg );
     \endcode
     \endPythonOnly
 
-    \sa InitGUI, StartGUI
+    \sa StartGUI
 */
 
 extern void UpdateGUI();
@@ -3221,7 +3179,6 @@ extern bool IsGUIBuild();
     \forcpponly
     \code{.cpp}
 
-    InitGUI();
     StartGUI();
 
     string pod_id = AddGeom( "POD" );
@@ -3239,7 +3196,6 @@ extern bool IsGUIBuild();
     \beginPythonOnly
     \code{.py}
 
-    InitGUI()
     StartGUI()
 
     pod_id = AddGeom( "POD" )
@@ -3269,7 +3225,6 @@ extern void Lock( );
     \forcpponly
     \code{.cpp}
 
-    InitGUI();
     StartGUI();
 
     string pod_id = AddGeom( "POD" );
@@ -3287,7 +3242,6 @@ extern void Lock( );
     \beginPythonOnly
     \code{.py}
 
-    InitGUI()
     StartGUI()
 
     pod_id = AddGeom( "POD" )

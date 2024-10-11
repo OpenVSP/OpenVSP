@@ -9,14 +9,9 @@ event = Event()
 
 
 def start_gui():
-    print("Before InitStartGui() in Python")
-    # vsp.InitStartGui()
-    vsp.InitGui()
-    #sleep(5)
     print("before start gui")
     vsp.StartGui()
     print("after start gui")
-    #sleep(1)
     event.set()
 
 print("before thread")
