@@ -119,6 +119,9 @@ public:
     void ShowSet( int index );
     vector< string > GetGeomSet( int index );
 
+    void SetNormalDisplayType( int index );
+    void SetDegenDisplayType( int index );
+
     void HideAllExcept( const string& id );
     void HideAll();
 

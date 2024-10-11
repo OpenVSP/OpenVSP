@@ -1669,6 +1669,50 @@ vector< string > Vehicle::GetGeomSet( int index )
     return geom_id_vec;
 }
 
+void Vehicle::SetNormalDisplayType( int index )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( index ) )
+        {
+            for ( size_t j = 0; j < geom_vec[i]->GetNumMainSurfs(); j++ )
+            {
+                geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_BEZIER );
+            }
+        }
+    }
+}
+
+void Vehicle::SetDegenDisplayType( int index )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( index ) )
+        {
+            for ( size_t j = 0; j < geom_vec[i]->GetNumMainSurfs(); j++ )
+            {
+                int surf_type = geom_vec[i]->GetMainSurfType(j);
+
+                if ( surf_type == vsp::DISK_SURF )
+                {
+                    geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_SURF );
+                }
+                else if ( surf_type == vsp::WING_SURF )
+                {
+                    geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_CAMBER );
+                }
+                else
+                {
+                    geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_PLATE );
+                }
+            }
+        }
+    }
+}
+
+
 void Vehicle::HideAllExcept( const string& id )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
