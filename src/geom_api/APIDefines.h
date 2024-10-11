@@ -852,6 +852,7 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
                       VSP_MASS_PROP_SCREEN,	/*!< Mass properties screen */
                       VSP_MATERIAL_EDIT_SCREEN,	/*!< Material edit screen */
                       VSP_MEASURE_SCREEN,	/*!< Measure screen */
+                      VSP_MODE_EDITOR_SCREEN,	/*!< Mode editor screen */
                       VSP_NERF_MANAGE_GEOM_SCREEN,  /*!< NERF'ed (limited to make safe) Manage geom screen */
                       VSP_SNAP_TO_SCREEN,	/*!< Snap to screen */
                       VSP_PARASITE_DRAG_SCREEN,	/*!< Parasite drg screen */

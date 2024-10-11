@@ -70,6 +70,7 @@ MassPropScreen.cpp
 MaterialEditScreen.cpp
 MenuItem.cpp
 MeshScreen.cpp
+ModeEditorScreen.cpp
 MultTransScreen.cpp
 NerfManageGeomScreen.cpp
 ParasiteDragScreen.cpp
@@ -152,6 +153,7 @@ MassPropScreen.h
 MaterialEditScreen.h
 MenuItem.h
 MeshScreen.h
+ModeEditorScreen.h
 MultTransScreen.h
 NerfManageGeomScreen.h
 ParasiteDragScreen.h

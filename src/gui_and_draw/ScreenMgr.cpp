@@ -42,6 +42,7 @@
 #include "ManageViewScreen.h"
 #include "MassPropScreen.h"
 #include "MaterialEditScreen.h"
+#include "ModeEditorScreen.h"
 #include "NerfManageGeomScreen.h"
 #include "SnapToScreen.h"
 #include "ParasiteDragScreen.h"
@@ -61,6 +62,7 @@
 #include "SurfaceIntersectionScreen.h"
 #include "SVGOptionsScreen.h"
 #include "CustomGeomExportScreen.h"
+#include "ModeEditorScreen.h"
 #include "UserParmScreen.h"
 #include "VarPresetScreen.h"
 #include "VSPAEROPlotScreen.h"
@@ -676,6 +678,7 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_MANAGE_TEXTURE_SCREEN] = new ManageTextureScreen( this );
     m_ScreenVec[vsp::VSP_MASS_PROP_SCREEN] = new MassPropScreen( this );
     m_ScreenVec[vsp::VSP_MATERIAL_EDIT_SCREEN] = new MaterialEditScreen( this );
+    m_ScreenVec[vsp::VSP_MODE_EDITOR_SCREEN] = new ModeEditorScreen( this );
     m_ScreenVec[vsp::VSP_NERF_MANAGE_GEOM_SCREEN] = new NerfManageGeomScreen( this );
     m_ScreenVec[vsp::VSP_SNAP_TO_SCREEN] = new SnapToScreen( this );
     m_ScreenVec[vsp::VSP_PARASITE_DRAG_SCREEN] = new ParasiteDragScreen( this );

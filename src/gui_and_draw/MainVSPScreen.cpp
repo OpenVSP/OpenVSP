@@ -134,6 +134,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
     m_GeomMenuItem.Init( mgr, m_MenuBar, "Model/Geometry...", vsp::VSP_MANAGE_GEOM_SCREEN, vsp::VSP_NERF_MANAGE_GEOM_SCREEN );
     m_SetEditMenuItem.Init( mgr, m_MenuBar, "Model/Set Editor...", vsp::VSP_SET_EDITOR_SCREEN );
+    m_ModeEditMenuItem.Init( mgr, m_MenuBar, "Model/Mode Editor...", vsp::VSP_MODE_EDITOR_SCREEN );
     m_LinkMenuItem.Init( mgr, m_MenuBar, "Model/Link...", vsp::VSP_PARM_LINK_SCREEN );
     m_DesVarMenuItem.Init( mgr, m_MenuBar, "Model/Design Variables...", vsp::VSP_DESIGN_VAR_SCREEN );
     m_LabelMenuItem.Init( mgr, m_MenuBar, "Model/Measure...", vsp::VSP_MEASURE_SCREEN );
