@@ -572,6 +572,12 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
             if ( sg )
             {
                 sg->ApplySetting( sid );
+
+                Vehicle* veh = VehicleMgr.GetVehicle();
+                if ( veh )
+                {
+                    veh->Update();
+                }
             }
         }
     }

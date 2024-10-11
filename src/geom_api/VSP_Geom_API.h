@@ -13751,6 +13751,8 @@ extern void SaveVarPresetParmVals( const std::string &group_id, const std::strin
 
     ApplyVarPresetSetting( gid, sid );
 
+    Update();
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -13767,6 +13769,8 @@ extern void SaveVarPresetParmVals( const std::string &group_id, const std::strin
     AddVarPresetParm( gid, p1 )
 
     ApplyVarPresetSetting( gid, sid )
+
+    Update()
 
     \endcode
     \endPythonOnly
