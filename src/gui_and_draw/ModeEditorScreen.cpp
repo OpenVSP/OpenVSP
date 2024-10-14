@@ -8,6 +8,7 @@
 #include "ModeEditorScreen.h"
 
 #include "ModeMgr.h"
+#include "StlHelper.h"
 #include "VarPresetMgr.h"
 
 using namespace vsp;
@@ -301,18 +302,56 @@ void ModeEditorScreen::CloseCallBack( Fl_Widget *w )
 void ModeEditorScreen::CallBack( Fl_Widget *w )
 {
 
+    bool changed = false;
+
     assert( m_ScreenMgr ); 
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
-    if ( w == m_SettingBrowser )
-    {
-        m_SelectedSettingIndex = m_SettingBrowser->value() - 2;
-    }
-    else if ( w == m_ModeBrowser )
+    if ( w == m_ModeBrowser )
     {
         m_SelectedModeIndex = m_ModeBrowser->value() - 2;
+
+        Mode *mod = ModeMgr.GetMode( m_SelectedModeIndex );
+
+        if ( mod )
+        {
+            m_ModeNameInput.Update( mod->GetName() );
+        }
+        changed = true;
+    }
+    else if ( w == m_SettingBrowser )
+    {
+        m_SelectedSettingIndex = m_SettingBrowser->value() - 2;
+        changed = true;
     }
 
+    if ( changed )
+    {
+        Mode *mod = ModeMgr.GetMode( m_SelectedModeIndex );
+
+        if ( mod )
+        {
+            vector < pair < string, string > > settingvec = mod->GetAllSettings();
+
+            if ( m_SelectedSettingIndex >= 0 && m_SelectedSettingIndex < settingvec.size() )
+            {
+                pair < string, string > setting = settingvec[ m_SelectedSettingIndex ];
+                string gid = setting.first;
+                m_GroupChoiceIndex = vector_find_val( m_GroupIDs, gid );
+
+                // Updating m_SettingIDs here (vs. UpdateVarPresetChoices()) is needed so this
+                // vector_find_val will search the right vector.
+                SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+                if ( sg )
+                {
+                    m_SettingIDs = sg->GetSettingIDVec();
+                }
+
+                string sid = setting.second;
+                m_SettingChoiceIndex = vector_find_val( m_SettingIDs, sid );
+            }
+        }
+    }
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
