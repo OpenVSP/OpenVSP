@@ -37,7 +37,6 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600
 
     m_ModeBrowser = m_GenLayout.AddColResizeBrowser( mode_widths, 4, browserHeight );
     m_ModeBrowser->callback( staticScreenCB, this );
-    m_ModeBrowser->type( FL_MULTI_BROWSER );
 
     m_GenLayout.AddInput( m_ModeNameInput, "Name:" );
 
@@ -61,7 +60,6 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600
 
     m_SettingBrowser = m_GenLayout.AddColResizeBrowser( setting_widths, 2, browserHeight );
     m_SettingBrowser->callback( staticScreenCB, this );
-    m_SettingBrowser->type( FL_MULTI_BROWSER );
 
 
     m_GenLayout.AddButton( m_DeleteSetting, "Delete" );
