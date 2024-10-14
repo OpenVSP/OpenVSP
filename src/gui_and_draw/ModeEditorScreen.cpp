@@ -33,9 +33,9 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600
 
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
-    static int mode_widths[] = { 160, 85, 80, 0 }; // widths for each column
+    static int mode_widths[] = { 120, 120, 120, 600 - ( 3 * 120 ), 0 }; // widths for each column
 
-    m_ModeBrowser = m_GenLayout.AddColResizeBrowser( mode_widths, 3, browserHeight );
+    m_ModeBrowser = m_GenLayout.AddColResizeBrowser( mode_widths, 4, browserHeight );
     m_ModeBrowser->callback( staticScreenCB, this );
     m_ModeBrowser->type( FL_MULTI_BROWSER );
 
@@ -129,6 +129,26 @@ void ModeEditorScreen::UpdateModeBrowser()
             string dname = veh->GetSetNameVec( true )[ mod->m_DegenSet() + 1 ];
 
             string settingstr;
+
+            vector < pair < string, string > > settingvec = mod->GetAllSettings();
+            m_NumSetting = settingvec.size();
+
+            for ( int j = 0 ; j < m_NumSetting; j++ )
+            {
+                string sid = settingvec[j].second;
+
+                Setting *s = VarPresetMgr.FindSetting( sid );
+                if ( s )
+                {
+                    string sname = s->GetName();
+                    settingstr.append( sname );
+
+                    if ( j < m_NumSetting - 1 )
+                    {
+                        settingstr.append( ", " );
+                    }
+                }
+            }
 
             snprintf( str, sizeof( str ),  "%s:%s:%s:%s\n", mname.c_str(), sname.c_str(), dname.c_str(), settingstr.c_str() );
             m_ModeBrowser->add( str );
