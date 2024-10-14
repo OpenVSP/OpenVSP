@@ -39,21 +39,40 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600
     m_ModeBrowser = m_GenLayout.AddColResizeBrowser( mode_widths, 4, browserHeight );
     m_ModeBrowser->callback( staticScreenCB, this );
 
-    m_GenLayout.AddInput( m_ModeNameInput, "Name:" );
+    int bw = 100;
+    m_GenLayout.SetChoiceButtonWidth( bw );
 
-    m_GenLayout.AddButton( m_AddMode, "Add" );
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetW() * 0.5 );
+
+    m_GenLayout.SetSameLineFlag( true );
+    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.AddButton( m_AddMode, "Create" );
     m_GenLayout.AddButton( m_DeleteMode, "Delete" );
-    m_GenLayout.AddButton( m_DeleteAllModes, "Delete All" );
+    m_GenLayout.ForceNewLine();
+
     m_GenLayout.AddButton( m_ApplyAndShowOnlyMode, "Apply and Show Only" );
+    m_GenLayout.AddButton( m_DeleteAllModes, "Delete All" );
+    m_GenLayout.ForceNewLine();
+
+    m_GenLayout.SetSameLineFlag( false );
+    m_GenLayout.SetFitWidthFlag( true );
 
     m_GenLayout.AddYGap();
 
+    m_GenLayout.AddDividerBox( "Mode" );
+
+    m_GenLayout.SetButtonWidth( bw );
+    m_GenLayout.AddInput( m_ModeNameInput, "Name:" );
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddDividerBox( "Sets" );
+
     m_GenLayout.AddChoice( m_NormalSetChoice, "Normal Set:" );
     m_GenLayout.AddChoice( m_DegenSetChoice, "Degen Set:" );
-    m_GenLayout.AddChoice( m_GroupChoice, "Setting Group:" );
-    m_GenLayout.AddChoice( m_SettingChoice, "Setting:" );
+    m_GenLayout.AddYGap();
 
-    m_GenLayout.AddButton( m_AddSetting, "Add" );
+
+    m_GenLayout.AddDividerBox( "Variable Presets" );
 
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
@@ -62,10 +81,20 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600
     m_SettingBrowser = m_GenLayout.AddColResizeBrowser( setting_widths, 2, browserHeight );
     m_SettingBrowser->callback( staticScreenCB, this );
 
+    m_GenLayout.SetSameLineFlag( true );
+    m_GenLayout.SetFitWidthFlag( true );
+    m_GenLayout.AddChoice( m_GroupChoice, "Setting Group:", m_GenLayout.GetW() * 0.5 );
+    m_GenLayout.AddChoice( m_SettingChoice, "Setting:", m_GenLayout.GetW() * 0.5  );
+    m_GenLayout.ForceNewLine();
 
-    m_GenLayout.AddButton( m_DeleteSetting, "Delete" );
-    m_GenLayout.AddButton( m_DeleteAllSettings, "Delete All" );
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetW() / 3.0 );
 
+    m_GenLayout.SetSameLineFlag( true );
+    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.AddButton( m_AddSetting, "Add" );
+    m_GenLayout.AddButton( m_DeleteSetting, "Remove Setting" );
+    m_GenLayout.AddButton( m_DeleteAllSettings, "Remove All Settings" );
+    m_GenLayout.ForceNewLine();
 
 }
 
