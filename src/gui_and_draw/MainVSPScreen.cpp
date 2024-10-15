@@ -649,12 +649,15 @@ void MainVSPScreen::SetBackground( double r, double g, double b )
 {
     if ( m_GlWin ) {
 
-        VSPGraphic::Viewport *viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
-        if (viewport)
+        vector< VSPGraphic::Viewport * > vports = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+        for ( int i = 0; i < vports.size(); i++ )
         {
-            viewport->getBackground()->setRed((float) (r));
-            viewport->getBackground()->setGreen((float) (g));
-            viewport->getBackground()->setBlue((float) (b));
+            if ( vports[i] )
+            {
+                vports[i]->getBackground()->setRed((float) (r));
+                vports[i]->getBackground()->setGreen((float) (g));
+                vports[i]->getBackground()->setBlue((float) (b));
+            }
         }
     }
 }
