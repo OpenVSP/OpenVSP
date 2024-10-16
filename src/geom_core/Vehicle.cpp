@@ -3313,8 +3313,8 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
     }
 
     // Add a new mesh if one does not exist in either set
-    if ( ( write_set >= 0 && !ExistMesh( write_set ) ) ||
-         ( degen_set >= 0 && !ExistMesh( degen_set ) ) )
+    if ( ( write_set >= 0 && !ExistMesh( write_set ) && !ExistType( write_set, NGON_GEOM_TYPE ) ) ||
+         ( degen_set >= 0 && !ExistMesh( degen_set ) && !ExistType( degen_set, NGON_GEOM_TYPE ) ) )
     {
         mesh_id = AddMeshGeom( write_set, degen_set, suppressdisks );
         if ( mesh_id.compare( "NONE" ) != 0 )
@@ -3356,6 +3356,28 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
             write_set = vsp::SET_SHOWN;
         }
     }
+
+    if ( ExistType( write_set, NGON_GEOM_TYPE ) ||
+         ExistType( degen_set, NGON_GEOM_TYPE ) )
+    {
+        for ( int i = 0; i < ( int ) geom_vec.size(); i++ )
+        {
+            if ( ( geom_vec[i]->GetSetFlag( write_set ) ||
+                   geom_vec[i]->GetSetFlag( degen_set ) )
+                && geom_vec[i]->GetType().m_Type == NGON_GEOM_TYPE )
+            {
+                NGonMeshGeom *ng = ( NGonMeshGeom * ) geom_vec[i];
+                mesh_id = geom_vec[i]->GetID();
+
+                vector < string > all_files;
+                ng->WriteVSPGEOM( file_name, all_files );
+
+                break;
+            }
+        }
+    }
+    else
+    {
 
     //==== Open file ====//
     FILE *file_id = fopen( file_name.c_str(), "w" );
@@ -3613,6 +3635,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
     vector < string > all_files;
     WriteControlSurfaceFile( file_name, gidvec, partvec2, surfvec, all_files );
 
+    }
     return mesh_id;
 
 }
