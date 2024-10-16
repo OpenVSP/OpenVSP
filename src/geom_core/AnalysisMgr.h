@@ -179,6 +179,16 @@ public:
     virtual string Execute();
 };
 
+class DegenGeomMeshAnalysis : public Analysis
+{
+public:
+
+    DegenGeomMeshAnalysis();
+
+    virtual void SetDefaults();
+    virtual string Execute();
+};
+
 class EmintonLordAnalysis : public Analysis
 {
 public:

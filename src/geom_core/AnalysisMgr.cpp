@@ -661,6 +661,13 @@ void AnalysisMgrSingleton::RegisterBuiltins()
         delete dga;
     }
 
+    DegenGeomMeshAnalysis *dgm = new DegenGeomMeshAnalysis();
+
+    if ( dgm && !RegisterAnalysis( dgm ) )
+    {
+        delete dgm;
+    }
+
     EmintonLordAnalysis *ema = new EmintonLordAnalysis();
 
 
@@ -1089,6 +1096,63 @@ string DegenGeomAnalysis::Execute()
 
         res = ResultsMgr.FindLatestResultsID( "DegenGeom" );
 
+    }
+
+    return res;
+}
+
+//======================================================================================//
+//================================ Degen Geom Mesh =====================================//
+//======================================================================================//
+DegenGeomMeshAnalysis::DegenGeomMeshAnalysis() : Analysis( "DegenGeomMesh", "Build degenerate geometry mesh of model." )
+{
+}
+
+void DegenGeomMeshAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    m_Inputs.Add( new NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        m_Inputs.Add( new NameValData( "DegenGeomMeshType", veh->m_DegenGeomMeshType(), "Enum to identify which kind of mesh to create." ) );
+    }
+}
+
+string DegenGeomMeshAnalysis::Execute()
+{
+    string res;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        int set_num = vsp::SET_ALL;
+        int degenGeomMeshType_orig = veh->m_DegenGeomMeshType();
+        int degenGeomMeshType = degenGeomMeshType_orig;
+
+        NameValData *nvd;
+        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
+        if ( nvd )
+        {
+            set_num = nvd->GetInt( 0 );
+        }
+        nvd = m_Inputs.FindPtr( "DegenGeomMeshType", 0 );
+        if ( nvd )
+        {
+            degenGeomMeshType = nvd->GetInt( 0 );
+        }
+
+        veh->m_DegenGeomMeshType.Set( degenGeomMeshType );
+
+        // Perform analysis
+        veh->CreateDegenGeomMesh( set_num );
+
+
+        veh->m_DegenGeomMeshType.Set( degenGeomMeshType_orig );
+
+        res = ResultsMgr.FindLatestResultsID( "DegenGeomMesh" );
     }
 
     return res;
