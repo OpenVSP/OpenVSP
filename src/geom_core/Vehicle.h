@@ -174,6 +174,7 @@ public:
     xmlNodePtr DecodeXmlGeomsOnly( xmlNodePtr & node );
 
     bool ExistMesh( int set );
+    bool ExistType( int set, int geomtype );
 
     vector < string > GetPtCloudGeoms();
 

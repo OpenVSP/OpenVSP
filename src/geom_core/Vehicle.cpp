@@ -2748,23 +2748,28 @@ void Vehicle::WritePLOT3DFile( const string & file_name, int write_set, bool use
 //==== Check for an existing mesh in set ====//
 bool Vehicle::ExistMesh( int set )
 {
+    return ExistType( set, MESH_GEOM_TYPE );
+}
+
+bool Vehicle::ExistType( int set, int geomtype )
+{
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return false;
     }
 
-    // Check to see if a MeshGeom Exists
-    bool existMesh = false;
+    // Check to see if a geomtype Exists
+    bool exist = false;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        if ( geom_vec[i]->GetSetFlag( set ) && geom_vec[i]->GetType().m_Type == geomtype )
         {
-            existMesh = true;
+            exist = true;
         }
     }
 
-    return existMesh;
+    return exist;
 }
 
 vector < string > Vehicle::GetPtCloudGeoms()
