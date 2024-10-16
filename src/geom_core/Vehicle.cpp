@@ -3379,261 +3379,261 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
     else
     {
 
-    //==== Open file ====//
-    FILE *file_id = fopen( file_name.c_str(), "w" );
+        //==== Open file ====//
+        FILE *file_id = fopen( file_name.c_str(), "w" );
 
-    if ( !file_id )
-    {
-        return mesh_id;
-    }
-
-    fprintf( file_id, "# vspgeom v2\n" );
-
-    //==== Count Number of Points & Tris ====//
-    int num_pnts = 0;
-    int num_tris = 0;
-    int num_parts = 0;
-    int i;
-
-    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
-    {
-        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) )
-            && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        if ( !file_id )
         {
-            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-            mg->BuildIndexedMesh();
-            num_parts += mg->GetNumIndexedParts();
-            num_pnts += mg->GetNumIndexedPnts();
-            num_tris += mg->GetNumIndexedTris();
+            return mesh_id;
         }
-    }
 
-    fprintf( file_id, "%d\n", num_pnts );
+        fprintf( file_id, "# vspgeom v2\n" );
 
-    //==== Dump Points ====//
-    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
-    {
-        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
-             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        //==== Count Number of Points & Tris ====//
+        int num_pnts = 0;
+        int num_tris = 0;
+        int num_parts = 0;
+        int i;
+
+        for ( i = 0; i < ( int ) geom_vec.size(); i++ )
         {
-            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-            mesh_id = geom_vec[i]->GetID(); // Set ID in case mesh already existed
-
-            mg->WriteVSPGeomPnts( file_id );
-        }
-    }
-
-    fprintf( file_id, "%d\n", num_tris );
-
-    int offset = 0;
-    //==== Dump Tris ====//
-    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
-    {
-        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
-             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
-        {
-            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-            offset = mg->WriteVSPGeomTris( file_id, offset );
-        }
-    }
-
-    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
-    {
-        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
-             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
-        {
-            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-            mg->WriteVSPGeomParts( file_id );
-        }
-    }
-
-    offset = 0;
-    // Wake line data.
-    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
-    {
-        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
-             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
-        {
-            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-            mg->IdentifyWakes();
-            offset = mg->WriteVSPGeomWakes( file_id, offset );
-
-            mg->m_SurfDirty = true;
-            mg->Update();
-        }
-    }
-
-    offset = 0;
-    int tcount = 1;
-    //==== Dump alternate Tris ====//
-    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
-    {
-        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
-             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
-        {
-            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-            offset = mg->WriteVSPGeomAlternateTris( file_id, offset, tcount );
-        }
-    }
-
-    tcount = 1;
-    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
-    {
-        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
-             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
-        {
-            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-            mg->WriteVSPGeomAlternateParts( file_id, tcount );
-        }
-    }
-    fclose( file_id );
-
-
-    int ntagfile = 0;
-    int ncsffile = 0;
-
-    std::vector < int > partvec;
-    SubSurfaceMgr.MakePartList( partvec );
-    vector < SubSurface* > ssurfs = SubSurfaceMgr.GetSubSurfs();
-
-    for ( int ipart = 0; ipart < partvec.size(); ipart++ )
-    {
-        int part = partvec[ ipart ];
-
-        for ( int iss = 0; iss < ssurfs.size(); iss++ )
-        {
-            SubSurface *ssurf = ssurfs[iss];
-            int tag = ssurf->m_Tag;
-
-            if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
+            if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) )
+                && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
             {
-                ntagfile++;
-
-                if ( ssurf->GetType() == vsp::SS_CONTROL )
-                {
-                    ncsffile++;
-                }
+                MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                mg->BuildIndexedMesh();
+                num_parts += mg->GetNumIndexedParts();
+                num_pnts += mg->GetNumIndexedPnts();
+                num_tris += mg->GetNumIndexedTris();
             }
         }
-    }
 
-    if ( ntagfile > 0 )
-    {
-        string base_name = GetBasename( file_name );
+        fprintf( file_id, "%d\n", num_pnts );
 
-        string base_path, base_fname;
-        GetPathFile( base_name, base_path, base_fname );
-
-        string taglist_name = base_name + ".ALL.taglist";
-        string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
-
-        FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
-        FILE* csf_taglist_fid = NULL;
-        if ( ncsffile > 0 )
+        //==== Dump Points ====//
+        for ( i = 0; i < ( int ) geom_vec.size(); i++ )
         {
-            csf_taglist_fid = fopen( csf_taglist_name.c_str(), "w" );
+            if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            {
+                MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                mesh_id = geom_vec[i]->GetID(); // Set ID in case mesh already existed
+
+                mg->WriteVSPGeomPnts( file_id );
+            }
         }
 
-        if ( taglist_fid )
+        fprintf( file_id, "%d\n", num_tris );
+
+        int offset = 0;
+        //==== Dump Tris ====//
+        for ( i = 0; i < ( int ) geom_vec.size(); i++ )
         {
-
-            fprintf( taglist_fid, "%d\n", ntagfile );
-
-            if ( csf_taglist_fid )
+            if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
             {
-                fprintf( csf_taglist_fid, "%d\n", ncsffile );
+                MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                offset = mg->WriteVSPGeomTris( file_id, offset );
             }
+        }
 
-            for ( int ipart = 0; ipart < partvec.size(); ipart++ )
+        for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+        {
+            if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
             {
-                int part = partvec[ ipart ];
+                MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                mg->WriteVSPGeomParts( file_id );
+            }
+        }
 
-                for ( int iss = 0; iss < ssurfs.size(); iss++ )
+        offset = 0;
+        // Wake line data.
+        for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+        {
+            if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            {
+                MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                mg->IdentifyWakes();
+                offset = mg->WriteVSPGeomWakes( file_id, offset );
+
+                mg->m_SurfDirty = true;
+                mg->Update();
+            }
+        }
+
+        offset = 0;
+        int tcount = 1;
+        //==== Dump alternate Tris ====//
+        for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+        {
+            if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            {
+                MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                offset = mg->WriteVSPGeomAlternateTris( file_id, offset, tcount );
+            }
+        }
+
+        tcount = 1;
+        for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+        {
+            if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            {
+                MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                mg->WriteVSPGeomAlternateParts( file_id, tcount );
+            }
+        }
+        fclose( file_id );
+
+
+        int ntagfile = 0;
+        int ncsffile = 0;
+
+        std::vector < int > partvec;
+        SubSurfaceMgr.MakePartList( partvec );
+        vector < SubSurface* > ssurfs = SubSurfaceMgr.GetSubSurfs();
+
+        for ( int ipart = 0; ipart < partvec.size(); ipart++ )
+        {
+            int part = partvec[ ipart ];
+
+            for ( int iss = 0; iss < ssurfs.size(); iss++ )
+            {
+                SubSurface *ssurf = ssurfs[iss];
+                int tag = ssurf->m_Tag;
+
+                if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
                 {
-                    SubSurface *ssurf = ssurfs[iss];
-                    int tag = ssurf->m_Tag;
+                    ntagfile++;
 
-                    if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
+                    if ( ssurf->GetType() == vsp::SS_CONTROL )
                     {
-                        vector < int > parttag;
-                        parttag.push_back( part );
-                        parttag.push_back( tag );
-
-                        string str = SubSurfaceMgr.m_TagNames[ part ];
-                        int pos = str.find_first_of( '_' );
-                        string gname = str.substr( 0, pos );
-                        string sname = str.substr( pos + 2 );
-
-                        string ptagname = gname + sname + "_" + SubSurfaceMgr.m_TagNames[tag];
-
-                        string tagfile_name = base_name + ptagname + ".tag";
-                        string tagfile_localname = base_fname + ptagname;
-
-                        fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
-
-                        if ( csf_taglist_fid )
-                        {
-                            if ( ssurf->GetType() == vsp::SS_CONTROL )
-                            {
-                                fprintf( csf_taglist_fid, "%s\n", tagfile_localname.c_str() );
-                            }
-                        }
-
-                        FILE* fid = fopen( tagfile_name.c_str(), "w" );
-                        if ( fid )
-                        {
-                            int tagcount = 0;
-                            for ( i = 0; i < ( int ) geom_vec.size(); i++ )
-                            {
-                                if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
-                                     geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
-                                {
-                                    MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-                                    tagcount += mg->CountVSPGeomPartTagTris( part, tag );
-                                }
-                            }
-                            fprintf( fid, "%d\n\n", tagcount );
-
-                            int tri_offset = 0;
-                            for ( i = 0; i < ( int ) geom_vec.size(); i++ )
-                            {
-                                if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
-                                     geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
-                                {
-                                    MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-                                    tri_offset = mg->WriteVSPGeomPartTagTris( fid, tri_offset, part, tag );
-                                }
-                            }
-
-                            fclose( fid );
-                        }
+                        ncsffile++;
                     }
                 }
             }
+        }
 
-            fclose( taglist_fid );
+        if ( ntagfile > 0 )
+        {
+            string base_name = GetBasename( file_name );
 
-            if ( csf_taglist_fid )
+            string base_path, base_fname;
+            GetPathFile( base_name, base_path, base_fname );
+
+            string taglist_name = base_name + ".ALL.taglist";
+            string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
+
+            FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
+            FILE* csf_taglist_fid = NULL;
+            if ( ncsffile > 0 )
             {
-                fclose( csf_taglist_fid );
+                csf_taglist_fid = fopen( csf_taglist_name.c_str(), "w" );
+            }
+
+            if ( taglist_fid )
+            {
+
+                fprintf( taglist_fid, "%d\n", ntagfile );
+
+                if ( csf_taglist_fid )
+                {
+                    fprintf( csf_taglist_fid, "%d\n", ncsffile );
+                }
+
+                for ( int ipart = 0; ipart < partvec.size(); ipart++ )
+                {
+                    int part = partvec[ ipart ];
+
+                    for ( int iss = 0; iss < ssurfs.size(); iss++ )
+                    {
+                        SubSurface *ssurf = ssurfs[iss];
+                        int tag = ssurf->m_Tag;
+
+                        if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
+                        {
+                            vector < int > parttag;
+                            parttag.push_back( part );
+                            parttag.push_back( tag );
+
+                            string str = SubSurfaceMgr.m_TagNames[ part ];
+                            int pos = str.find_first_of( '_' );
+                            string gname = str.substr( 0, pos );
+                            string sname = str.substr( pos + 2 );
+
+                            string ptagname = gname + sname + "_" + SubSurfaceMgr.m_TagNames[tag];
+
+                            string tagfile_name = base_name + ptagname + ".tag";
+                            string tagfile_localname = base_fname + ptagname;
+
+                            fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
+
+                            if ( csf_taglist_fid )
+                            {
+                                if ( ssurf->GetType() == vsp::SS_CONTROL )
+                                {
+                                    fprintf( csf_taglist_fid, "%s\n", tagfile_localname.c_str() );
+                                }
+                            }
+
+                            FILE* fid = fopen( tagfile_name.c_str(), "w" );
+                            if ( fid )
+                            {
+                                int tagcount = 0;
+                                for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+                                {
+                                    if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+                                         geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+                                    {
+                                        MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                                        tagcount += mg->CountVSPGeomPartTagTris( part, tag );
+                                    }
+                                }
+                                fprintf( fid, "%d\n\n", tagcount );
+
+                                int tri_offset = 0;
+                                for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+                                {
+                                    if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+                                         geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+                                    {
+                                        MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                                        tri_offset = mg->WriteVSPGeomPartTagTris( fid, tri_offset, part, tag );
+                                    }
+                                }
+
+                                fclose( fid );
+                            }
+                        }
+                    }
+                }
+
+                fclose( taglist_fid );
+
+                if ( csf_taglist_fid )
+                {
+                    fclose( csf_taglist_fid );
+                }
             }
         }
-    }
 
 
 
-    //==== Write Out tag key file ====//
+        //==== Write Out tag key file ====//
 
-    SubSurfaceMgr.WriteVSPGEOMKeyFile( file_name );
+        SubSurfaceMgr.WriteVSPGEOMKeyFile( file_name );
 
-    vector < string > gidvec;
-    vector < int > partvec2;
-    vector < int > surfvec;
-    SubSurfaceMgr.GetPartData( gidvec, partvec2, surfvec );
+        vector < string > gidvec;
+        vector < int > partvec2;
+        vector < int > surfvec;
+        SubSurfaceMgr.GetPartData( gidvec, partvec2, surfvec );
 
 
-    vector < string > all_files;
-    WriteControlSurfaceFile( file_name, gidvec, partvec2, surfvec, all_files );
+        vector < string > all_files;
+        WriteControlSurfaceFile( file_name, gidvec, partvec2, surfvec, all_files );
 
     }
     return mesh_id;
