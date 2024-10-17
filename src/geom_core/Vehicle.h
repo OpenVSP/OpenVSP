@@ -258,8 +258,8 @@ public:
     string ImportV2File( const string & file_name );
 
     //Comp Geom
-    string CompGeom( int set, int degenset, int halfFlag, int intSubsFlag = 1, bool hideset = true, bool suppressdisks = false );
-    string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1, int degenset = vsp::SET_NONE, bool hideset = true, bool suppressdisks = false );
+    string CompGeom( int set, int degenset, int halfFlag, int intSubsFlag = 1, bool hideset = true, bool suppressdisks = false, bool useMode = false, const string &modeID = string() );
+    string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1, int degenset = vsp::SET_NONE, bool hideset = true, bool suppressdisks = false, bool useMode = false, const string &modeID = string() );
     string MassProps( int set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true );
     string MassPropsAndFlatten( int set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true );
     string PSlice( int set, int numSlices, const vec3d &norm, bool autoBoundsFlag, double start, double end, bool measureduct );
