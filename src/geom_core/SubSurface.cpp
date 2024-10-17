@@ -2176,7 +2176,7 @@ void SSControlSurf::UpdateDrawObjs()
             m_HingeDO.m_PntVec.push_back( pst );
             m_HingeDO.m_PntVec.push_back( pend );
 
-            MakeCircleArrow( pmid, dir, 0.25 * axlen, m_HingeDO, m_ArrowDO );
+            MakeCircleArrow( pmid, dir, 0.25 * axlen, 0.25 * axlen, m_HingeDO, m_ArrowDO );
         }
         m_ArrowDO.m_NormVec = vector <vec3d> ( m_ArrowDO.m_PntVec.size() );
     }

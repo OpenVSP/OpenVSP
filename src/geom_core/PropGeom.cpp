@@ -265,6 +265,12 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_BalanceX2.Init( "BalanceX2", "Design", this, 0, -1, 1 );
     m_BalanceX2.SetDescript( "Normalized rotor balance point in direction perpendicular to blade 1." );
 
+    m_TipMarkerScaleFlag.Init( "TipMarkerScaleFlag", "Attach", this, 0, 0, 1 );
+    m_TipMarkerScaleFlag.SetDescript( "Flag for rendering the propeller vector." );
+
+    m_TipMarkerScale.Init( "TipMarkerScale", "Attach", this, 1, 0, 2 );
+    m_TipMarkerScale.SetDescript( "Set propeller render vector as ratio of diameter." );
+
     m_PropMode.Init( "PropMode", "Design", this, PROP_BLADES, PROP_BLADES, PROP_DISK );
     m_PropMode.SetDescript( "Propeller model mode." );
 
@@ -578,11 +584,24 @@ void PropGeom::UpdateDrawObj()
     m_ArrowHeadDO.m_GeomChanged = true;
 
     double axlen = 1.0;
+    double rot_axlen = 1.0;
+
+
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        axlen = veh->m_AxisLength();
+        rot_axlen = axlen = veh->m_AxisLength();
+    }
+
+    if ( m_TipMarkerScaleFlag.Get() )
+    {
+        m_TipMarkerScale.Activate();
+        rot_axlen = m_TipMarkerScale() * m_Diameter() / 2;
+    }
+    else
+    {
+        m_TipMarkerScale.Deactivate();
     }
 
     for ( int i = 0; i < GetNumSymmCopies(); i++)
@@ -631,14 +650,16 @@ void PropGeom::UpdateDrawObj()
 
         m_ArrowLinesDO.m_PntVec.push_back( cen );
         m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir * axlen );
-
         MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec );
-        MakeCircleArrow( cen, rotdir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+        MakeCircleArrow( cen, rotdir, rot_axlen, axlen, m_ArrowLinesDO, m_ArrowHeadDO );
 
         if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
         {
-            MakeCircleArrow( pmid, dir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+            MakeCircleArrow( pmid, dir, 0.5 * axlen, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
         }
+
+
+
     }
 }
 
@@ -1365,7 +1386,7 @@ void PropGeom::UpdateSurf()
         m_CapUMinSuccess[ idisk ] = false;
         m_CapUMaxSuccess[ idisk ] = false;
 
-        if ( m_ReverseFlag() )
+        if ( !m_ReverseFlag() )
         {
             m_MainSurfVec[idisk].FlipNormal();
         }
@@ -1885,6 +1906,9 @@ xmlNodePtr PropGeom::EncodeXml( xmlNodePtr & node )
     xmlNodePtr propeller_node = xmlNewChild( node, NULL, BAD_CAST "PropellerGeom", NULL );
     if ( propeller_node )
     {
+        // m_VecViz.EncodeXml( propeller_node );
+        // m_VecVizDia.EncodeXml( propeller_node );
+
         m_XSecSurf.EncodeXml( propeller_node );
         m_ChordCurve.EncodeXml( propeller_node );
         m_TwistCurve.EncodeXml( propeller_node );

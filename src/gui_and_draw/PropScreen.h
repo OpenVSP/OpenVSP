@@ -67,6 +67,9 @@ protected:
     Output m_TChordOutput;
     Output m_PChordOutput;
 
+    ToggleButton m_MarkerScaleToggle;
+    SliderAdjRangeInput m_MarkerScaleSlider;
+
     Choice m_PropModeChoice;
 
     TriggerButton m_InsertXSec;

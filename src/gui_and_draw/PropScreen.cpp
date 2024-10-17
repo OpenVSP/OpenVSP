@@ -29,7 +29,18 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 755, "Propeller
     m_PropModeChoice.AddItem( "Both" );
     m_PropModeChoice.AddItem( "Disk" );
     m_DesignLayout.AddChoice( m_PropModeChoice, "Prop Mode" );
+    m_DesignLayout.AddYGap();
 
+    m_DesignLayout.AddDividerBox( "Blade Direction Marker" );
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.SetButtonWidth( 15 );
+    m_DesignLayout.AddButton( m_MarkerScaleToggle, "" );
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.SetButtonWidth( 100 - 15 );
+    m_DesignLayout.AddSlider( m_MarkerScaleSlider, "Fraction", 100, "%6.5f" );
+    m_DesignLayout.ForceNewLine();
+    m_DesignLayout.SetSameLineFlag( false );
     m_DesignLayout.AddYGap();
 
     m_DesignLayout.AddDividerBox( "Design" );
@@ -606,6 +617,9 @@ bool PropScreen::Update()
     m_ChordOutput.Update( propeller_ptr->m_Chord.GetID() );
     m_TChordOutput.Update( propeller_ptr->m_TChord.GetID() );
     m_PChordOutput.Update( propeller_ptr->m_PChord.GetID() );
+
+    m_MarkerScaleToggle.Update( propeller_ptr->m_TipMarkerScaleFlag.GetID() );
+    m_MarkerScaleSlider.Update( propeller_ptr->m_TipMarkerScale.GetID() );
 
     m_PropModeChoice.Update( propeller_ptr->m_PropMode.GetID() );
 

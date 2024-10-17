@@ -495,7 +495,7 @@ void HingeGeom::UpdateDrawObj()
     if ( m_JointRotateFlag.Get() )
     {
         vec3d u = baseAxis[ m_PrimaryDir() ] - baseOrigin;
-        MakeCircleArrow(baseOrigin + 0.6 * u, u, 0.5 * axlen, m_MotionLinesDO, m_MotionArrowsDO );
+        MakeCircleArrow(baseOrigin + 0.6 * u, u, 0.5 * axlen, 0.5 * axlen, m_MotionLinesDO, m_MotionArrowsDO );
     }
     if ( m_JointTranslateFlag.Get() )
     {

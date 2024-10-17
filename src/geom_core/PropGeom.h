@@ -191,6 +191,9 @@ public:
     Parm m_BalanceX1;
     Parm m_BalanceX2;
 
+    BoolParm m_TipMarkerScaleFlag;
+    Parm m_TipMarkerScale;
+
     IntParm m_PropMode;
 
     PCurve m_ChordCurve;

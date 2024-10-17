@@ -153,7 +153,7 @@ void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj
     dobj.m_GeomChanged = true;
 }
 
-void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj, DrawObj &arrow )
+void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, double headlen, DrawObj &dobj, DrawObj &arrow )
 {
     double lenfrac = 0.6;
 
@@ -178,7 +178,7 @@ void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj 
 
 
     vector < vec3d > arrowpts;
-    MakeArrowhead( vec3d( 0, 0, 0 ), v, rad * lenfrac, arrowpts );
+    MakeArrowhead( vec3d( 0, 0, 0 ), v, headlen * lenfrac, arrowpts );
 
     Matrix4d mat;
     mat.translatev( pcen + pstart );
