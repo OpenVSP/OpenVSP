@@ -749,13 +749,13 @@ string CompGeomAnalysis::Execute()
 
         NameValData *nvd = NULL;
 
-        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
+        nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
         {
             geomSet = nvd->GetInt( 0 );
         }
 
-        nvd = m_Inputs.FindPtr( "DegenSet", vsp::SET_NONE );
+        nvd = m_Inputs.FindPtr( "DegenSet", 0 );
         if ( nvd )
         {
             degenSet = nvd->GetInt( 0 );
@@ -819,7 +819,7 @@ string DegenGeomAnalysis::Execute()
         bool write_mfile = write_mfile_orig;
 
         NameValData *nvd;
-        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
+        nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
         {
             set_num = nvd->GetInt( 0 );
@@ -948,7 +948,7 @@ string MassPropAnalysis::Execute()
 
         NameValData *nvd = NULL;
 
-        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
+        nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
         {
             geomSet = nvd->GetInt( 0 );
@@ -1022,7 +1022,7 @@ string PlanarSliceAnalysis::Execute()
 
         NameValData *nvd = NULL;
 
-        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
+        nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
         {
             geomSet = nvd->GetInt( 0 );
@@ -1258,7 +1258,7 @@ string SurfacePatchAnalysis::Execute()
         int set = vsp::SET_ALL;
 
         NameValData *nvd = NULL;
-        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
+        nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
         {
             set = nvd->GetInt( 0 );
@@ -1306,7 +1306,7 @@ string WaveDragAnalysis::Execute()
 
         NameValData *nvd = NULL;
 
-        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
+        nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
         {
             set = nvd->GetInt( 0 );
