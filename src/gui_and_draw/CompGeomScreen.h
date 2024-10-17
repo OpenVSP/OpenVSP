@@ -35,10 +35,14 @@ public:
 
     void LoadSetChoice( Choice & choice, int selectedindex );
 
+    void LoadModeChoice( Choice & choice, int selectedchoice );
+
 protected:
 
     int m_SelectedSetIndex;
     int m_DegenSelectedSetIndex;
+    int m_SelectedModeChoice;
+    vector < string > m_ModeIDs;
 
     GroupLayout m_MainLayout;
     GroupLayout m_BorderLayout;
@@ -51,6 +55,11 @@ protected:
     TriggerButton m_TxtSelect;
     TriggerButton m_CsvSelect;
 
+    ToggleRadioGroup m_ModeSetToggleGroup;
+    ToggleButton m_ModeToggle;
+    Choice m_ModeChoice;
+
+    ToggleButton m_SetToggle;
     Choice m_UseSet;
     Choice m_DegenSet;
 

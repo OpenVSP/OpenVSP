@@ -7,6 +7,8 @@
 
 #include "CompGeomScreen.h"
 
+#include "ModeMgr.h"
+
 CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 470, "Comp Geom - Mesh, Intersect, Trim" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
@@ -59,12 +61,35 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 470, "
     m_BorderLayout.SetFitWidthFlag( false );
     m_BorderLayout.SetSameLineFlag( true );
 
-    m_BorderLayout.SetChoiceButtonWidth(75);
-    m_BorderLayout.SetButtonWidth(( m_BorderLayout.GetRemainX() - 5 ) / 2.0 );
+    int bw = 100;
+    m_BorderLayout.SetButtonWidth( bw );
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetChoiceButtonWidth( 0 );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.AddButton( m_SetToggle, "Normal Set:" );
     m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice(m_UseSet, "", bw);
+    m_BorderLayout.ForceNewLine();
+
     m_BorderLayout.SetSameLineFlag( false );
-    m_BorderLayout.AddChoice(m_UseSet, "Normal Set:");
+    m_BorderLayout.SetChoiceButtonWidth( bw );
     m_BorderLayout.AddChoice(m_DegenSet, "Degen Set:" );
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetChoiceButtonWidth( 0 );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.AddButton( m_ModeToggle, "Mode:" );
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice(m_ModeChoice, "", bw );
+    m_BorderLayout.ForceNewLine();
+
+    m_ModeSetToggleGroup.Init( this );
+    m_ModeSetToggleGroup.AddButton( m_SetToggle.GetFlButton() );
+    m_ModeSetToggleGroup.AddButton( m_ModeToggle.GetFlButton() );
+
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.SetButtonWidth(( m_BorderLayout.GetRemainX() - 5 ) / 2.0 );
 
     m_BorderLayout.SetFitWidthFlag( false );
     m_BorderLayout.SetSameLineFlag( true );
@@ -81,6 +106,8 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 470, "
 
     m_SelectedSetIndex = DEFAULT_SET;
     m_DegenSelectedSetIndex = vsp::SET_NONE;
+    m_SelectedModeChoice = 0;
+
     m_Subsurfs.GetFlButton()->value( 1 );
 }
 
@@ -106,6 +133,22 @@ void CompGeomScreen::LoadSetChoice( Choice & choice, int selectedindex )
     choice.SetVal( selectedindex );
 }
 
+void CompGeomScreen::LoadModeChoice( Choice & choice, int selectedchoice )
+{
+    choice.ClearItems();
+    m_ModeIDs.clear();
+
+    m_ModeIDs = ModeMgr.GetAllModes();
+
+    for ( int i = 0; i < m_ModeIDs.size(); i++ )
+    {
+        choice.AddItem( ModeMgr.GetMode( m_ModeIDs[i] )->GetName(), i );
+    }
+    choice.UpdateItems();
+
+    choice.SetVal( selectedchoice );
+}
+
 void CompGeomScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
@@ -127,12 +170,55 @@ bool CompGeomScreen::Update()
     LoadSetChoice( m_UseSet, m_SelectedSetIndex );
     LoadSetChoice( m_DegenSet, m_DegenSelectedSetIndex );
 
+    LoadModeChoice( m_ModeChoice, m_SelectedModeChoice );
+
     //===== Update File Toggle Buttons =====//
     m_CsvToggle.Update( vehiclePtr->m_exportCompGeomCsvFile.GetID() );
 
     //===== Update File Output Text =====//
     m_TxtOutput.Update( vehiclePtr->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() );
     m_CsvOutput.Update( vehiclePtr->getExportFileName( vsp::COMP_GEOM_CSV_TYPE ).c_str() );
+
+    m_ModeSetToggleGroup.Update( vehiclePtr->m_UseModeCompGeomFlag.GetID() );
+
+    if ( ModeMgr.GetNumModes() == 0 )
+    {
+        if ( vehiclePtr->m_UseModeCompGeomFlag() )
+        {
+            vehiclePtr->m_UseModeCompGeomFlag.Set( false );
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+        m_ModeToggle.Deactivate();
+    }
+    else
+    {
+        m_ModeToggle.Activate();
+    }
+
+    if ( vehiclePtr->m_UseModeCompGeomFlag() )
+    {
+        m_ModeChoice.Activate();
+        m_UseSet.Deactivate();
+        m_DegenSet.Deactivate();
+
+        Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+        if ( m )
+        {
+            if ( m_SelectedSetIndex != m->m_NormalSet() ||
+                 m_DegenSelectedSetIndex != m->m_DegenSet() )
+            {
+                m_SelectedSetIndex = m->m_NormalSet();
+                m_DegenSelectedSetIndex = m->m_DegenSet();
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+        }
+    }
+    else
+    {
+        m_ModeChoice.Deactivate();
+        m_UseSet.Activate();
+        m_DegenSet.Activate();
+    }
 
     m_FLTK_Window->redraw();
     return false;
@@ -166,6 +252,10 @@ void CompGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         vehiclePtr->setExportFileName( vsp::COMP_GEOM_CSV_TYPE, m_ScreenMgr->FileChooser( "Select comp_geom output file.", "*.csv", vsp::SAVE ) );
     }
+    else if ( device == &m_ModeChoice )
+    {
+        m_SelectedModeChoice = m_ModeChoice.GetVal();
+    }
     else if ( device == &m_UseSet )
     {
         m_SelectedSetIndex = m_UseSet.GetVal();
@@ -176,8 +266,18 @@ void CompGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_Execute )
     {
+        bool useMode = vehiclePtr->m_UseModeCompGeomFlag();
+        string modeID;
+        if ( m_SelectedModeChoice >= 0 && m_SelectedModeChoice < m_ModeIDs.size() )
+        {
+            modeID = m_ModeIDs[ m_SelectedModeChoice ];
+        }
+
+        bool hideset = true;
+        bool suppressdisks = false;
+
         string geom = vehiclePtr->CompGeomAndFlatten( m_SelectedSetIndex, m_HalfMesh.GetFlButton()->value(),
-                      m_Subsurfs.GetFlButton()->value(), m_DegenSelectedSetIndex );
+                      m_Subsurfs.GetFlButton()->value(), m_DegenSelectedSetIndex, hideset, suppressdisks, useMode, modeID );
         if ( geom.compare( "NONE" ) != 0 )
         {
             m_TextDisplay->buffer()->loadfile( vehiclePtr->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() );
