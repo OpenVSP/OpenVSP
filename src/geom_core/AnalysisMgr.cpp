@@ -725,12 +725,14 @@ void CompGeomAnalysis::SetDefaults()
     m_Inputs.Add( NameValData( "DegenSet", vsp::SET_NONE, "Degenerate geometry Set for analysis." ) );
     m_Inputs.Add( NameValData( "HalfMeshFlag", 0, "Flag to control whether Y >= 0 half mesh is generated." ) );
     m_Inputs.Add( NameValData( "SubSurfFlag", 1, "Flag to control whether subsurfaces are used in analysis." ) );
+    m_Inputs.Add( NameValData( "ModeID", "", "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( veh )
     {
         m_Inputs.Add( NameValData( "WriteCSVFlag", veh->getExportCompGeomCsvFile(), "Flag to control whether CSV file is written." ) );
+        m_Inputs.Add( NameValData( "UseModeFlag", veh->m_UseModeCompGeomFlag(), "Flag to control whether Modes are used instead of Sets." ) );
     }
 }
 
@@ -746,6 +748,10 @@ string CompGeomAnalysis::Execute()
         int degenSet = vsp::SET_NONE;
         int halfMeshFlag = 0;
         int subSurfFlag = 1;
+        int useModeFlag = 0;
+        string modeID;
+
+        int prevCsvFile = veh->getExportCompGeomCsvFile();
 
         NameValData *nvd = NULL;
 
@@ -774,11 +780,31 @@ string CompGeomAnalysis::Execute()
         }
 
         nvd = m_Inputs.FindPtr( "WriteCSVFlag", 0 );
-        veh->setExportCompGeomCsvFile( !!nvd->GetInt( 0 ) );
+        if ( nvd )
+        {
+            veh->setExportCompGeomCsvFile( !!nvd->GetInt( 0 ) );
+        }
 
-        string geom = veh->CompGeomAndFlatten( geomSet, halfMeshFlag, subSurfFlag, degenSet );
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        if ( nvd )
+        {
+            useModeFlag = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
+        {
+            modeID = nvd->GetString( 0 );
+        }
+
+        bool hideset = true;
+        bool suppressdisks = false;
+
+        string geom = veh->CompGeomAndFlatten( geomSet, halfMeshFlag, subSurfFlag, degenSet, hideset, suppressdisks, useModeFlag, modeID );
 
         res = ResultsMgr.FindLatestResultsID( "Comp_Geom" );
+
+        veh->setExportCompGeomCsvFile( prevCsvFile );
     }
 
     return res;
