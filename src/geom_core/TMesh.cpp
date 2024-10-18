@@ -6806,6 +6806,17 @@ vector< int > GetTMeshTypes( vector<TMesh*> &tmv )
     return type;
 }
 
+vector< int > GetTMeshPlateNum( vector<TMesh*> &tmv )
+{
+    vector< int > plate;
+    for ( int i = 0; i < (int)tmv.size(); i++ )
+    {
+        plate.push_back( tmv[i]->m_PlateNum );
+    }
+
+    return plate;
+}
+
 vector< double > GetTMeshWmins( vector<TMesh*> &tmv )
 {
     vector < double > wmin( tmv.size(), 0.0 );
@@ -6846,6 +6857,7 @@ void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & s
     SubSurfaceMgr.m_CompNames = GetTMeshNames( tmv );
     SubSurfaceMgr.m_CompIDs = GetTMeshIDs( tmv );
     SubSurfaceMgr.m_CompTypes = GetTMeshTypes( tmv );
+    SubSurfaceMgr.m_CompPlate = GetTMeshPlateNum( tmv );
     SubSurfaceMgr.m_CompWmin = GetTMeshWmins( tmv );
     SubSurfaceMgr.m_CompUscale = GetTMeshUscale( tmv );
     SubSurfaceMgr.m_CompWscale = GetTMeshWscale( tmv );

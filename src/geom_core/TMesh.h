@@ -677,6 +677,7 @@ vector< string > GetTMeshNames( vector<TMesh*> &tmv );
 vector< string > GetTMeshIDs( vector<TMesh*> &tmv );
 vector< int > GetTMeshThicks( vector<TMesh*> &tmv );
 vector< int > GetTMeshTypes( vector<TMesh*> &tmv );
+vector< int > GetTMeshPlateNum( vector<TMesh*> &tmv );
 vector< double > GetTMeshWmins( vector<TMesh*> &tmv );
 vector< double > GetTMeshUscale( vector<TMesh*> &tmv );
 vector< double > GetTMeshWscale( vector<TMesh*> &tmv );

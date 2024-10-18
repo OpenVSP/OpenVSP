@@ -442,6 +442,7 @@ public:
     int GetTag( const std::vector<int> & tags );
     vector< int > GetTagVec( const int &t );
     int GetType( int part ) const;
+    int GetPlate( int part ) const;
     int GetThickThin( int part ) const;
     double GetWmin( int part ) const;
     double GetUscale( int part ) const;
@@ -465,6 +466,7 @@ public:
     std::map< int, std::string > m_TagIDs;
     std::vector< int > m_ThickVec;
     std::vector< int > m_TypeVec;
+    std::vector< int > m_PlateVec;
     std::vector< double > m_WminVec;
     std::vector< double > m_UscaleVec;
     std::vector< double > m_WscaleVec;

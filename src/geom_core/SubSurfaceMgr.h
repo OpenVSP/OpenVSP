@@ -107,6 +107,7 @@ public:
     std::vector< std::string > m_CompNames;
     std::vector< std::string > m_CompIDs;
     std::vector< int > m_CompTypes;
+    std::vector< int > m_CompPlate;
     std::vector< double > m_CompWmin;
     std::vector< double > m_CompUscale;
     std::vector< double > m_CompWscale;
