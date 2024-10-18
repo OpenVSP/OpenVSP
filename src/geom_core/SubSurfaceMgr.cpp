@@ -310,7 +310,6 @@ int SubSurfaceMgrSingleton::FindGNum( const string &gid )
 //==== Write Key File ====//
 void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
 {
-    bool writethickthin = true;
     // figure out basename
     string base_name = GetBasename( file_name );
     string key_name = base_name + ".vkey";
@@ -331,7 +330,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
     }
 
     // Write Out Header Information
-    fprintf( fid, "# VSPGEOM v2 Tag Key File\n" );
+    fprintf( fid, "# VSPGEOM v3 Tag Key File\n" );
     fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
 
     // Build GeomID set to have unique integer index instead of GeomID.
@@ -347,14 +346,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
     fprintf( fid, "%d\n", npart );
     fprintf( fid, "\n" );
 
-    if ( writethickthin )
-    {
-        fprintf( fid, "# part#,geom#,surf#,gname,gid,thick\n" );
-    }
-    else
-    {
-        fprintf( fid, "# part#,geom#,surf#,gname,gid\n" );
-    }
+    fprintf( fid, "# part#,geom#,surf#,gname,gid,thick,plate\n" );
 
 
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
@@ -406,15 +398,17 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
 
         int thickthin = m_CompThick[ part - 1 ];
 
+        int plate = m_CompPlate[ part - 1] + 1; // (-1=S, 0=V,C, 1=H) + 1
+        int type = m_CompTypes[ part - 1];
+
+        if ( type != vsp::NORMAL_SURF && plate != 0 )  // Not NORMAL and Not a S -- i.e. WING and C
+        {
+            plate = 3;
+        }
+        // At this point, plate = 0 = S, 1 = V, 2 = H, 3 = C
+
         // Write tag number and surface list to file
-        if ( writethickthin )
-        {
-            fprintf( fid, "%d,%d,%s,%s,%s,%d\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin );
-        }
-        else
-        {
-            fprintf( fid, "%d,%d,%s,%s,%s\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str() );
-        }
+        fprintf( fid, "%d,%d,%s,%s,%s,%d,%d\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin, plate );
     }
 
     fprintf( fid, "\n" );
