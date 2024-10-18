@@ -3019,6 +3019,10 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
 
         tag = ( *f )->m_Tag;
         int part = m_PGMulti->GetPart( tag );
+
+        double uscale = m_PGMulti->GetUscale( part );
+        double wscale = m_PGMulti->GetWscale( part );
+
         fprintf( file_id, "%d %d", part, tag );
 
         for ( int i = 0; i < npt; i++ )
@@ -3028,7 +3032,7 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
                 vec2d uw;
                 nodVec[i]->GetUW( tag, uw );
 
-                fprintf( file_id, " %16.10g %16.10g", uw.x(), uw.y() );
+                fprintf( file_id, " %16.10g %16.10g", uw.x() / uscale, uw.y() / wscale );
             }
         }
         fprintf( file_id, "\n" );
@@ -3103,6 +3107,10 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
 
         tag = ( *f )->m_Tag;
         int part = m_PGMulti->GetPart( tag );
+
+        double uscale = m_PGMulti->GetUscale( part );
+        double wscale = m_PGMulti->GetWscale( part );
+
         fprintf( file_id, "%d %d %d", (*f)->m_ID, part, tag );
 
         for ( int i = 0; i < npt; i++ )
@@ -3110,7 +3118,7 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
             vec2d uw;
             nodVec[i]->GetUW( tag, uw );
 
-            fprintf( file_id, " %16.10g %16.10g", uw.x(), uw.y() );
+            fprintf( file_id, " %16.10g %16.10g", uw.x() / uscale, uw.y() / wscale );
         }
         fprintf( file_id, "\n" );
     }

@@ -2246,11 +2246,13 @@ void TMesh::WriteVSPGeomParts( FILE* file_id  )
         TTri* ttri = m_TVec[t];
         tag = SubSurfaceMgr.GetTag( ttri->m_Tags );
         part = SubSurfaceMgr.GetPart( ttri->m_Tags );
+        double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
+        double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
 
         fprintf( file_id, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
-                 ttri->m_N0->m_UWPnt.x(), ttri->m_N0->m_UWPnt.y(),
-                 ttri->m_N1->m_UWPnt.x(), ttri->m_N1->m_UWPnt.y(),
-                 ttri->m_N2->m_UWPnt.x(), ttri->m_N2->m_UWPnt.y() );
+                 ttri->m_N0->m_UWPnt.x() / uscale, ttri->m_N0->m_UWPnt.y() / wscale,
+                 ttri->m_N1->m_UWPnt.x() / uscale, ttri->m_N1->m_UWPnt.y() / wscale,
+                 ttri->m_N2->m_UWPnt.x() / uscale, ttri->m_N2->m_UWPnt.y() / wscale );
     }
 }
 
@@ -2263,11 +2265,13 @@ void TMesh::WriteVSPGeomAlternateParts( FILE* file_id  )
         TTri* ttri = m_TVec[t];
         tag = SubSurfaceMgr.GetTag( ttri->m_Tags );
         part = SubSurfaceMgr.GetPart( ttri->m_Tags );
+        double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
+        double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
 
         fprintf( file_id, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", t + 1, part, tag,
-                 ttri->m_N0->m_UWPnt.x(), ttri->m_N0->m_UWPnt.y(),
-                 ttri->m_N1->m_UWPnt.x(), ttri->m_N1->m_UWPnt.y(),
-                 ttri->m_N2->m_UWPnt.x(), ttri->m_N2->m_UWPnt.y() );
+                 ttri->m_N0->m_UWPnt.x() / uscale, ttri->m_N0->m_UWPnt.y() / wscale,
+                 ttri->m_N1->m_UWPnt.x() / uscale, ttri->m_N1->m_UWPnt.y() / wscale,
+                 ttri->m_N2->m_UWPnt.x() / uscale, ttri->m_N2->m_UWPnt.y() / wscale );
     }
 }
 
