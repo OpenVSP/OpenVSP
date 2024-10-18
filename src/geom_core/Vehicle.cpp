@@ -5426,8 +5426,8 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                     if ( cs )                                  // Restrict to control surface subsurf.
                     {
                         string gName = g->GetName();
-                        double umax = g->GetUMax( isurf );
-                        double wmax = g->GetWMax( isurf );
+                        double uscale = g->GetUMax( isurf );
+                        double wscale = g->GetWMax( isurf );
 
                         int icopy = g->GetSurfCopyIndx( isurf );
 
@@ -5473,22 +5473,22 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                         for ( int ihinge = 0; ihinge < nhinge; ihinge++ )
                         {
                             fprintf( csf_file, "2 Hinge UV\n" );
-                            fprintf( csf_file, "%16.10g %16.10g\n", cs->m_UWStart[ihinge].x(), cs->m_UWStart[ihinge].y() );
-                            fprintf( csf_file, "%16.10g %16.10g\n", cs->m_UWEnd[ihinge].x(), cs->m_UWEnd[ihinge].y() );
+                            fprintf( csf_file, "%16.10g %16.10g\n", clamp( cs->m_UWStart[ihinge].x(), 0.0, uscale ) / uscale, clamp( cs->m_UWStart[ihinge].y(), 0.0, wscale ) / wscale );
+                            fprintf( csf_file, "%16.10g %16.10g\n", clamp( cs->m_UWEnd[ihinge].x(), 0.0, uscale ) / uscale, clamp( cs->m_UWEnd[ihinge].y(), 0.0, wscale ) / wscale );
 
                             int nbndpt = ppvec[ihinge].size();
 
                             fprintf( csf_file, "%d Boundary UV\n", nbndpt );
                             for ( int j = 0; j < nbndpt; j++ )
                             {
-                                fprintf( csf_file, "%16.10g %16.10g\n", ppvec[ ihinge ][ j ].x(), ppvec[ ihinge ][ j ].y() );
+                                fprintf( csf_file, "%16.10g %16.10g\n", clamp( ppvec[ ihinge ][ j ].x(), 0.0, uscale ) / uscale, clamp( ppvec[ ihinge ][ j ].y(), 0.0, wscale ) / wscale );
                             }
                         }
 
                         for ( int ihinge = 0; ihinge < nhinge; ihinge++ )
                         {
-                            vec3d xStart = g->CompPnt01( isurf, clamp( cs->m_UWStart[ihinge].x(), 0.0, umax ) / umax, clamp( cs->m_UWStart[ihinge].y(), 0.0, wmax ) / wmax );
-                            vec3d xEnd = g->CompPnt01( isurf, clamp( cs->m_UWEnd[ihinge].x(), 0.0, umax ) / umax, clamp( cs->m_UWEnd[ihinge].y(), 0.0, wmax ) / wmax );
+                            vec3d xStart = g->CompPnt01( isurf, clamp( cs->m_UWStart[ihinge].x(), 0.0, uscale ) / uscale, clamp( cs->m_UWStart[ihinge].y(), 0.0, wscale ) / wscale );
+                            vec3d xEnd = g->CompPnt01( isurf, clamp( cs->m_UWEnd[ihinge].x(), 0.0, uscale ) / uscale, clamp( cs->m_UWEnd[ihinge].y(), 0.0, wscale ) / wscale );
 
                             fprintf( csf_file, "2 Hinge XYZ\n" );
                             fprintf( csf_file, "%16.10g %16.10g %16.10g\n", xStart.x(), xStart.y(), xStart.z() );
@@ -5499,7 +5499,7 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                             fprintf( csf_file, "%d Boundary XYZ\n", nbndpt );
                             for ( int j = 0; j < nbndpt; j++ )
                             {
-                                vec3d x = g->CompPnt01( isurf, clamp( ppvec[ ihinge ][ j ].x(), 0.0, umax ) / umax, clamp( ppvec[ ihinge ][ j ].y(), 0.0, wmax ) / wmax );
+                                vec3d x = g->CompPnt01( isurf, clamp( ppvec[ ihinge ][ j ].x(), 0.0, uscale ) / uscale, clamp( ppvec[ ihinge ][ j ].y(), 0.0, wscale ) / wscale );
 
                                 fprintf( csf_file, "%16.10g %16.10g %16.10g\n", x.x(), x.y(), x.z() );
                             }
