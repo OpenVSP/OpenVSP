@@ -1,5 +1,5 @@
 function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid,...
-    alttri, altpartid, altutagid, altu, altv] = readvspgeom( fname, plotflag )
+    alttri, altpartid, altutagid, altu, altv, parchild] = readvspgeom( fname, plotflag )
 %readvspgeom reads a *.vspgeom file into Matlab
 %
 %   *.vspgeom files are a new file format to facilitate communication
@@ -16,7 +16,8 @@ function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid,...
 %   empennage, and rotors are thin.
 %
 %   [t, p, u, v, wedata, partid, utagid, itagname, itag,...
-%      altfaceid, alttri, altpartid, altutagid, altu, altv ] = readvspgeom( fname, plotflag )
+%      altfaceid, alttri, altpartid, altutagid, altu, altv, parchild ]...
+%      = readvspgeom( fname, plotflag )
 %
 %   Reads in a *.vspgeom file passed in fname.  If plotflag is true, then
 %   a series of simple plots are generated.  If plotflag is not passed,
@@ -37,6 +38,7 @@ function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid,...
 %     altutagid  Alternate triangulation unique tag id vector
 %     altu       Alternate triangulation U surface data
 %     altv       Alternate triangulation V surface data
+%     parchild   Parent child face relationship
 %
 
 %   Rob McDonald
@@ -48,6 +50,7 @@ function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid,...
 %   8 May      2023 v. 1.5 - Handle tagfiles with local paths.
 %   8 May      2023 v. 1.6 - Handle file versioning.
 %  26 May      2023 v. 1.7 - Read in alt triangulation aux data.
+%  18 Oct      2024 v. 1.8 - Update to vspgeom v3 files.
 
 if ( nargin < 2 )
     plotflag = false;
@@ -56,15 +59,27 @@ end
 fp = fopen(fname,'r');
 
 ver = fgets(fp);
-if ( strfind( ver, 'v2' ) )
+if ( strfind( ver, 'v3' ) )
+    filever = 3;
+elseif ( strfind( ver, 'v2' ) )
     filever = 2;
 else
     filever = 1;
     frewind( fp );
 end
 
-% Read in number of points
-npt = fscanf(fp, '%d', 1);
+if ( filever == 3 )
+    % Read in number of meshes
+    nmesh = fscanf(fp, '%d', 1);
+
+    % Read in number of points
+    npt = fscanf(fp, '%d', 1);
+    npoly = fscanf(fp, '%d', 1);
+    nwake = fscanf(fp, '%d', 1);
+else
+    % Read in number of points
+    npt = fscanf(fp, '%d', 1);
+end
 
 % Read in the point coordinates.
 ptdata = fscanf(fp, '%f', [3 npt]);
@@ -103,7 +118,7 @@ v = nan(mnp,npoly);
 % Read in the surface id's and poly node data
 for i=1:npoly
     % Face ID
-    if ( filever == 2 )
+    if ( filever > 1 )
         partid(i) = fscanf(fp,'%d',[1 1]);
     end
     utagid(i) = fscanf(fp,'%d',[1 1]);
@@ -127,6 +142,13 @@ for i=2:mnp
     v(i,mask) = v(i-1,mask);
 end
 
+parchild = [];
+% Read in the parent child data
+if ( filever >= 3 )
+    pardata = fscanf(fp, '%f', [2 npoly]);
+    parchild = pardata(1:2,:);
+end
+
 % Read in the number of wakes
 nwake = fscanf(fp, '%d', 1);
 
@@ -141,7 +163,7 @@ end
 altfaceid = [];
 alttri = [];
 
-if ( filever == 2 )
+if ( filever > 1 )
     read_altfaceid = ones(npoly, 1);
     read_nalttri = ones(npoly, 1);
     read_alttri = cell(npoly,1);
@@ -289,7 +311,7 @@ if ( plotflag )
     title('V surface parameter with wake lines')
 
 
-    if ( filever == 2 )
+    if ( filever > 1 )
         figure
         trisurf(alttri, p(1,:), p(2,:), p(3,:),altpartid); % 'EdgeColor','none');
         axis equal
