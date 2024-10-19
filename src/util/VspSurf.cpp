@@ -1052,6 +1052,12 @@ vec3d VspSurf::CompPnt01( double u, double v ) const
     return CompPnt( u * GetUMax(), v * GetWMax() );
 }
 
+//===== Compute Degen Point On Plate or Surf Given  U V (Between 0 1 ) =====//
+vec3d VspSurf::CompDegenPnt01( int type, double u, double v ) const
+{
+    return CompDegenPnt( type, u * GetUMax(), v * GetWMax() );
+}
+
 //===== Compute Tangent In U Direction   =====//
 vec3d VspSurf::CompTanU01( double u01, double v01 ) const
 {
@@ -1173,6 +1179,36 @@ vec3d VspSurf::CompPnt( double u, double v ) const
 {
     vec3d rtn;
     surface_point_type p( m_Surface.f( u, v ) );
+
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
+}
+
+//===== Compute Point On Surf Given  U W =====//
+vec3d VspSurf::CompDegenPnt( const int &type, const double &u, double v ) const
+{
+    vec3d rtn;
+    const double wmax = GetWMax();
+
+    surface_point_type p( m_Surface.f( u, v ) );
+
+    if ( type != 0 )
+    {
+        // Opposite point.
+        double vop;
+
+        if ( type == 2 )
+        {
+            vop = clampCyclic( 0.5 * wmax - v, wmax );
+        }
+        else // types 1 & 3
+        {
+            vop = clampCyclic( wmax - v, wmax );
+        }
+
+        const surface_point_type pop( m_Surface.f( u, vop ) );
+        p = 0.5 * ( p + pop );
+    }
 
     rtn.set_xyz( p.x(), p.y(), p.z() );
     return rtn;

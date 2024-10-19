@@ -170,6 +170,7 @@ public:
 
     //===== Bezier Funcs ====//
     vec3d CompPnt( double u, double v ) const;
+    vec3d CompDegenPnt( const int &type, const double &u, double v ) const;
     vec3d CompTanU( double u, double v ) const;
     vec3d CompTanW( double u, double v ) const;
     vec3d CompTanUU( double u, double v ) const;
@@ -177,6 +178,7 @@ public:
     vec3d CompTanUW( double u, double v ) const;
 
     vec3d CompPnt01( double u, double v ) const;
+    vec3d CompDegenPnt01( int type, double u, double v ) const;
     vec3d CompTanU01( double u, double v ) const;
     vec3d CompTanW01( double u, double v ) const;
     vec3d CompTanUU01( double u, double v ) const;
