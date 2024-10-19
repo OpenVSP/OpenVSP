@@ -306,6 +306,7 @@ private:
     CScriptArray* GetAdvLinkOutputParms( int index );
 
     CScriptArray* CompVecPnt01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws);
+    CScriptArray* CompVecDegenPnt01(const string &geom_id, const int &surf_indx, const int &degen_type, CScriptArray* us, CScriptArray* ws);
     CScriptArray* CompVecPntRST(const string &geom_id, const int &surf_indx, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts);
     CScriptArray* CompVecNorm01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws);
     void CompVecCurvature01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws, CScriptArray* k1s, CScriptArray* k2s, CScriptArray* kas, CScriptArray* kgs);

@@ -5005,6 +5005,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ CompVecDegenPnt01(const string & in geom_id, const int & in surf_indx, const int & in degen_type, array<double>@+ us, array<double>@+ ws )", asMETHOD( ScriptMgrSingleton, CompVecDegenPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "array<vec3d>@+ CompVecNorm01(const string & in geom_id, const int & in surf_indx, array<double>@+ us, array<double>@+ ws )", asMETHOD( ScriptMgrSingleton, CompVecNorm01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
@@ -6290,6 +6294,18 @@ CScriptArray* ScriptMgrSingleton::CompVecPnt01(const string &geom_id, const int 
     FillSTLVector( ws, in_ws );
 
     m_ProxyVec3dArray = vsp::CompVecPnt01( geom_id, surf_indx, in_us, in_ws );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::CompVecDegenPnt01(const string &geom_id, const int &surf_indx, const int &degen_type, CScriptArray* us, CScriptArray* ws)
+{
+    vector < double > in_us;
+    FillSTLVector( us, in_us );
+
+    vector < double > in_ws;
+    FillSTLVector( ws, in_ws );
+
+    m_ProxyVec3dArray = vsp::CompVecDegenPnt01( geom_id, surf_indx, degen_type, in_us, in_ws );
     return GetProxyVec3dArray();
 }
 

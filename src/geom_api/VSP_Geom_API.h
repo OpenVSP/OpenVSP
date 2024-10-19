@@ -22368,6 +22368,63 @@ extern std::vector < vec3d > CompVecPnt01(const std::string &geom_id, const int 
     \ingroup SurfaceQuery
 */
 /*!
+    Determine 3D coordinate for each degen surface coordinate point in the input arrays
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int n = 5;
+
+    array<double> uvec, wvec;
+
+    uvec.resize( n );
+    wvec.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        uvec[i] = (i+1)*1.0/(n+1);
+
+        wvec[i] = (n-i)*1.0/(n+1);
+    }
+
+    array< vec3d > ptvec = CompVecDegenPnt01( geom_id, 0, 0, uvec, wvec );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    geom_id = AddGeom( "POD", "" )
+
+    n = 5
+
+    uvec = [0]*n
+    wvec = [0]*n
+
+    for i in range(n):
+
+        uvec[i] = (i+1)*1.0/(n+1)
+
+        wvec[i] = (n-i)*1.0/(n+1)
+
+    ptvec = CompVecDegenPnt01( geom_id, 0, 0, uvec, wvec )
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string Parent Geom ID
+    \param [in] surf_indx int Main surface index from the parent Geom
+    \param [in] degen_type int Type of degen surface (0-S, 1-V, 2-H, 3-C)
+    \param [in] u_in_vec vector<double> Input vector of U (0 - 1) surface coordinates
+    \param [in] w_in_vec vector<double> Input vector of W (0 - 1) surface coordinates
+    \return vector<vec3d> Vector of 3D coordinate points
+*/
+
+extern std::vector < vec3d > CompVecDegenPnt01(const std::string &geom_id, const int &surf_indx, const int &degen_type, const std::vector < double > &u_in_vec, const std::vector < double > &w_in_vec);
+
+/*!
+    \ingroup SurfaceQuery
+*/
+/*!
     Determine the normal vector on a surface for each surface coordinate point in the input arrays
     \forcpponly
     \code{.cpp}

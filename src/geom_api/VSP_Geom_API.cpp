@@ -9694,6 +9694,51 @@ vector < vec3d > CompVecPnt01( const std::string &geom_id, const int &surf_indx,
     return pts;
 }
 
+vector < vec3d > CompVecDegenPnt01( const std::string &geom_id, const int &surf_indx, const int &degen_type, const vector < double > &us, const vector < double > &ws )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    vector < vec3d > pts;
+    pts.resize( 0 );
+
+    if ( geom_ptr )
+    {
+        if ( us.size() == ws.size() )
+        {
+            const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+
+            if ( surf )
+            {
+                pts.resize( us.size() );
+
+                for ( int i = 0; i < us.size(); i++ )
+                {
+                    pts[i] = surf->CompDegenPnt01( degen_type, clamp( us[i], 0.0, 1.0 ), clamp( ws[i], 0.0, 1.0 ) );
+                }
+            }
+            else
+            {
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompVecDegenPnt01::Invalid surf index " + to_string( surf_indx ) );
+                return pts;
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompVecDegenPnt01::Input size mismatch." );
+            return pts;
+        }
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompVecDegenPnt01::Can't Find Geom " + geom_id );
+        return pts;
+    }
+    ErrorMgr.NoError();
+    return pts;
+}
+
 vector < vec3d > CompVecNorm01( const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws )
 {
     Vehicle* veh = GetVehicle();
