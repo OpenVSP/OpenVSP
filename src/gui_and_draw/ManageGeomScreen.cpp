@@ -347,7 +347,7 @@ void ManageGeomScreen::LoadSetChoice()
 
     for ( int i = SET_FIRST_USER; i < ( int )set_name_vec.size(); i++ )
     {
-        m_SetChoice.AddItem( set_name_vec[i].c_str() );
+        m_SetChoice.AddItem( set_name_vec[i].c_str(), i );
     }
 
     m_SetChoice.UpdateItems();
@@ -824,19 +824,19 @@ void ManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ShowOnlySetButton )
     {
-        m_VehiclePtr->ShowOnlySet( m_SetIndex + SET_FIRST_USER );
+        m_VehiclePtr->ShowOnlySet( m_SetIndex );
     }
     else if ( device == &m_ShowSetButton )
     {
-        m_VehiclePtr->ShowSet( m_SetIndex + SET_FIRST_USER );
+        m_VehiclePtr->ShowSet( m_SetIndex );
     }
     else if ( device == &m_NoShowSetButton )
     {
-        m_VehiclePtr->NoShowSet( m_SetIndex + SET_FIRST_USER );
+        m_VehiclePtr->NoShowSet( m_SetIndex );
     }
     else if ( device == &m_SelectSetButton )
     {
-        SelectSet( m_SetIndex + SET_FIRST_USER );
+        SelectSet( m_SetIndex );
     }
     else if ( device == &m_ShowSubToggle )
     {
