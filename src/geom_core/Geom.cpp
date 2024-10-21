@@ -5629,6 +5629,7 @@ vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec, bool ski
         }
     }
 
+    int iQuad = 0;
     for ( int i = 0 ; i < nsurf ; i++ )
     {
         if ( surf_vec[i].GetNumSectU() != 0 && surf_vec[i].GetNumSectW() != 0 )
@@ -5640,7 +5641,7 @@ vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec, bool ski
             CreateTMeshVecFromPts( this, TMeshVec, pnts, uw_pnts,
                                    n_ref,
                                    i, -1, surf_vec[i].GetSurfType(), surf_vec[i].GetSurfCfdType(),
-                                   thicksurf, surf_vec[i].GetFlipNormal(), skipnegflipnormal );
+                                   thicksurf, surf_vec[i].GetFlipNormal(), skipnegflipnormal, iQuad );
         }
     }
     return TMeshVec;

@@ -1706,6 +1706,7 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
 {
     int surftype = getType();
     bool thicksurf = false;
+    int iQuad = 0;
 
     for (int i = 0; i < degenPlates.size(); i++ )
     {
@@ -1740,7 +1741,7 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
                                                 getCfdSurfType(),
                                                 thicksurf,
                                                 getFlipNormal(),
-                                                skipnegflipnormal );
+                                                skipnegflipnormal, iQuad );
             }
             else
             {
@@ -1755,7 +1756,7 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
                                        getCfdSurfType(),
                                        thicksurf,
                                        getFlipNormal(),
-                                       skipnegflipnormal );
+                                       skipnegflipnormal, iQuad );
             }
         }
         else if ( surftype == DegenGeom::DISK_TYPE)
@@ -1777,7 +1778,7 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
                                                 getCfdSurfType(),
                                                 thicksurf,
                                                 getFlipNormal(),
-                                                skipnegflipnormal );
+                                                skipnegflipnormal, iQuad );
             }
             else
             {
@@ -1792,7 +1793,7 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
                                        getCfdSurfType(),
                                        thicksurf,
                                        getFlipNormal(),
-                                       skipnegflipnormal );
+                                       skipnegflipnormal, iQuad );
             }
         }
     }

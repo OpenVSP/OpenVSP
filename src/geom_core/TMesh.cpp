@@ -6101,7 +6101,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             int n_ref,
                             int indx, int platenum, int surftype, int cfdsurftype,
                             bool thicksurf, bool flipnormal, bool skipnegflipnormal,
-                            bool flatpatch )
+                            int &iQuad, bool flatpatch )
 {
     TMeshVec.push_back( new TMesh() );
     int itmesh = TMeshVec.size() - 1;
@@ -6123,7 +6123,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
         flipnormal = !flipnormal;
     }
 
-    BuildTMeshTris( TMeshVec[itmesh], flipnormal, geom->GetWMax( indx ), platenum, n_ref );
+    BuildTMeshTris( TMeshVec[itmesh], flipnormal, geom->GetWMax( indx ), platenum, n_ref, iQuad );
 
 }
 
@@ -6135,7 +6135,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             int indx, int platenum, int surftype, int cfdsurftype,
                             bool thicksurf, bool flipnormal, bool skipnegflipnormal,
                             int iustart, int iuend,
-                            bool flatpatch )
+                            int &iQuad, bool flatpatch )
 {
     vector< vector < vec3d > > pnts_subset;
     vector< vector < vec3d > > uw_pnts_subset;
@@ -6157,7 +6157,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                            n_ref,
                            indx, platenum, surftype, cfdsurftype,
                            thicksurf, flipnormal, skipnegflipnormal,
-                           flatpatch );
+                           iQuad, flatpatch );
 }
 
 void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
@@ -6166,7 +6166,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                      const vector< vector<vec3d> > & uw_pnts,
                                      int n_ref,
                                      int indx, int platenum, int surftype, int cfdsurftype,
-                                     bool thicksurf, bool flipnormal, bool skipnegflipnormal )
+                                     bool thicksurf, bool flipnormal, bool skipnegflipnormal, int &iQuad )
 {
     // Comparing on distance squared between two normal vectors.
     double tol = 1e-12;
@@ -6240,7 +6240,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                        indx, platenum, surftype, cfdsurftype,
                                        thicksurf, flipnormal, skipnegflipnormal,
                                        iustart, iuend,
-                                       flatpatch );
+                                       iQuad, flatpatch );
 
                 // Over-ride some variable copies to full range rather than patch subset.
                 TMeshVec.back()->m_UWPnts = uw_pnts;
@@ -6259,7 +6259,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                    n_ref,
                                    indx, platenum, surftype, cfdsurftype,
                                    thicksurf, flipnormal, skipnegflipnormal,
-                                   false );
+                                   iQuad, false );
         }
     }
     else
@@ -6271,12 +6271,12 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                n_ref,
                                indx, platenum, surftype, cfdsurftype,
                                thicksurf, flipnormal, skipnegflipnormal,
-                               false );
+                               iQuad, false );
     }
 }
 
 
-void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, int n_ref )
+void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, int n_ref, int &iQuad  )
 {
     double tol=1.0e-12;
 
@@ -6287,8 +6287,6 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
     vec3d v0, v1, v2, v3;
     vec3d uw0, uw1, uw2, uw3;
     vec3d d21, d01, d03, d23, d20, d31;
-
-    int iQuad = 0;
 
     int ref_start = 1 << ( n_ref + 2 ); // Offset n_ref by 2 to prevent collisions
     int ref_end = ref_start * 2;
