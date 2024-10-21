@@ -1702,7 +1702,7 @@ void DegenGeom::write_degenHingeLineResultsManager( vector<string> &hinge_ids, c
     hinge_res->Add( new NameValData( "xEnd", degenHingeLine.xEnd, "Coordinate of end point." ) );
 }
 
-void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int skipnegflipnormal, int n_ref )
+void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int skipnegflipnormal, int n_ref, bool checkFlat )
 {
     int surftype = getType();
     bool thicksurf = false;
@@ -1727,18 +1727,36 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
 
         if ( surftype == DegenGeom::SURFACE_TYPE )
         {
-            CreateTMeshVecFromPtsCheckFlat( geom,
-                                            tMeshVec,
-                                            degenPlates[i].xCamber,
-                                            uw_pnts,
-                                            n_ref,
-                                            getSurfNum(),
-                                            i,
-                                            vsp::WING_SURF,
-                                            getCfdSurfType(),
-                                            thicksurf,
-                                            getFlipNormal(),
-                                            skipnegflipnormal );
+            if ( checkFlat )
+            {
+                CreateTMeshVecFromPtsCheckFlat( geom,
+                                                tMeshVec,
+                                                degenPlates[i].xCamber,
+                                                uw_pnts,
+                                                n_ref,
+                                                getSurfNum(),
+                                                i,
+                                                vsp::WING_SURF,
+                                                getCfdSurfType(),
+                                                thicksurf,
+                                                getFlipNormal(),
+                                                skipnegflipnormal );
+            }
+            else
+            {
+                CreateTMeshVecFromPts( geom,
+                                       tMeshVec,
+                                       degenPlates[i].xCamber,
+                                       uw_pnts,
+                                       n_ref,
+                                       getSurfNum(),
+                                       i,
+                                       vsp::WING_SURF,
+                                       getCfdSurfType(),
+                                       thicksurf,
+                                       getFlipNormal(),
+                                       skipnegflipnormal );
+            }
         }
         else if ( surftype == DegenGeom::DISK_TYPE)
         {
@@ -1746,18 +1764,36 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
         }
         else
         {
-            CreateTMeshVecFromPtsCheckFlat( geom,
-                                            tMeshVec,
-                                            degenPlates[i].x,
-                                            uw_pnts,
-                                            n_ref,
-                                            getSurfNum(),
-                                            i,
-                                            vsp::NORMAL_SURF,
-                                            getCfdSurfType(),
-                                            thicksurf,
-                                            getFlipNormal(),
-                                            skipnegflipnormal );
+            if ( checkFlat )
+            {
+                CreateTMeshVecFromPtsCheckFlat( geom,
+                                                tMeshVec,
+                                                degenPlates[i].x,
+                                                uw_pnts,
+                                                n_ref,
+                                                getSurfNum(),
+                                                i,
+                                                vsp::NORMAL_SURF,
+                                                getCfdSurfType(),
+                                                thicksurf,
+                                                getFlipNormal(),
+                                                skipnegflipnormal );
+            }
+            else
+            {
+                CreateTMeshVecFromPts( geom,
+                                       tMeshVec,
+                                       degenPlates[i].x,
+                                       uw_pnts,
+                                       n_ref,
+                                       getSurfNum(),
+                                       i,
+                                       vsp::NORMAL_SURF,
+                                       getCfdSurfType(),
+                                       thicksurf,
+                                       getFlipNormal(),
+                                       skipnegflipnormal );
+            }
         }
     }
 }

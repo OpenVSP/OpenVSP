@@ -1261,7 +1261,7 @@ string Vehicle::AddGeom( Geom* add_geom )
     return add_id;
 }
 
-string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, bool skipnegflipnormal, int n_ref )
+string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, bool skipnegflipnormal, int n_ref, bool checkFlat )
 {
     ClearActiveGeom();
 
@@ -1324,7 +1324,7 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
                         DegenGeomVec[j].setFlipNormal( ! DegenGeomVec[j].getFlipNormal() );
                         // Create MeshGeom from DegenGeom
                         // Camber surfaces for wings & props, plates for bodies.
-                        DegenGeomVec[j].createTMeshVec( g_ptr, tMeshVec, skipnegflipnormal, n_ref );
+                        DegenGeomVec[j].createTMeshVec( g_ptr, tMeshVec, skipnegflipnormal, n_ref, checkFlat );
                     }
 
                     // Do not combine these loops.  tMeshVec.size() != DegenGeomVec.size()
@@ -5847,7 +5847,7 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
         }
     }
 
-    string id = AddMeshGeom( set, degenset, suppressdisks, false /* skipnegflipnormal */, n_ref );
+    string id = AddMeshGeom( set, degenset, suppressdisks, false /* skipnegflipnormal */, n_ref, true /* checkFlat */ );
     if ( id.compare( "NONE" ) == 0 )
     {
         return id;
