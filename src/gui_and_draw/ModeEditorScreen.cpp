@@ -104,24 +104,18 @@ bool ModeEditorScreen::Update()
 
     assert(m_ScreenMgr);
 
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    Mode *mod = ModeMgr.GetMode( m_SelectedModeIndex );
 
-    LoadSetChoice( m_NormalSetChoice );
-    LoadSetChoice( m_DegenSetChoice );
+    if ( mod )
+    {
+        m_ScreenMgr->LoadSetChoice( m_NormalSetChoice, m_DegenSetChoice, mod->m_NormalSet.GetID(), mod->m_DegenSet.GetID(), true );
+    }
 
     UpdateModeBrowser();
 
     UpdateSettingBrowser();
 
     UpdateVarPresetChoices();
-
-    Mode *mod = ModeMgr.GetMode( m_SelectedModeIndex );
-
-    if ( mod )
-    {
-        m_NormalSetChoice.Update( mod->m_NormalSet.GetID() );
-        m_DegenSetChoice.Update( mod->m_DegenSet.GetID() );
-    }
 
     m_FLTK_Window->redraw();
     return false;
@@ -290,23 +284,6 @@ void ModeEditorScreen::UpdateVarPresetChoices()
     m_SettingChoice.UpdateItems();
 
     m_SettingChoice.SetVal( m_SettingChoiceIndex );
-}
-
-void ModeEditorScreen::LoadSetChoice( Choice & choice )
-{
-    int selectedindex = choice.GetVal();
-    choice.ClearItems();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec( true );
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
-    {
-        choice.AddItem( set_name_vec[i].c_str(), i - 1 );
-    }
-
-    choice.UpdateItems();
-    choice.SetVal( selectedindex );
 }
 
 //==== Show Screen ====//

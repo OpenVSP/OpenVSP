@@ -93,6 +93,17 @@ public:
     mutex m_TaskMutex;
     condition_variable m_TaskCV;
     bool m_TaskComplete;
+
+    mutex m_ScreenGrabMutex;
+    condition_variable m_ScreenGrabCV;
+    bool m_ScreenGrabComplete;
+
+    void LoadSetChoice( Choice &choice, const int &selected, bool includeNone = false, int istart = 0 );
+    void LoadSetChoice( Choice &choice1, Choice &choice2, const int &selected1, const int &selected2, bool includeNone = false );
+
+    void LoadSetChoice( Choice &choice, const string &selectedID, bool includeNone = false );
+    void LoadSetChoice( Choice &choice1, Choice &choice2, const string &selected1ID, const string &selected2ID, bool includeNone = false );
+
 protected:
 
     void Init();

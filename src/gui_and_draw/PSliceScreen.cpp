@@ -102,7 +102,7 @@ bool PSliceScreen::Update()
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    LoadSetChoice();
+    m_ScreenMgr->LoadSetChoice( m_SetChoice, m_SelectedSetIndex );
 
     m_Norm.set_xyz( 0, 0, 0 );
     m_Norm[veh->m_PlanarAxisType.Get()] = 1;
@@ -176,22 +176,6 @@ void PSliceScreen::Hide()
 {
     m_FLTK_Window->hide();
     m_ScreenMgr->SetUpdateFlag( true );
-}
-
-void PSliceScreen::LoadSetChoice()
-{
-    m_SetChoice.ClearItems();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
-    {
-        m_SetChoice.AddItem( set_name_vec[i].c_str() );
-    }
-
-    m_SetChoice.UpdateItems();
-    m_SetChoice.SetVal( m_SelectedSetIndex );
 }
 
 void PSliceScreen::GuiDeviceCallBack( GuiDevice* device )

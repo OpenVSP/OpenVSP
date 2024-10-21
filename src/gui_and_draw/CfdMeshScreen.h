@@ -28,8 +28,6 @@ public:
     void Show();
     void Hide();
 
-    void LoadSetChoice();
-
     void CallBack( Fl_Widget *w );
     virtual void CloseCallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )

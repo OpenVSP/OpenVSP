@@ -127,7 +127,6 @@ protected:
 
     void LoadBrowser();
     void LoadActiveGeomOutput();
-    void LoadSetChoice();
     void LoadDisplayChoice();
     void UpdateDrawType();
     void GeomBrowserCallback();

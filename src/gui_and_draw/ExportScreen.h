@@ -29,8 +29,6 @@ public:
     void Hide();
     bool Update();
 
-    void LoadSetChoice();
-
     void ExportFile( string &newfile, int write_set, int degen_set, int intSubsFlag, int type );
 
     void CallBack( Fl_Widget *w );

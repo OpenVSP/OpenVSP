@@ -46,7 +46,6 @@ protected:
     // General Functions
     void UpdateTableLabels();
     void UpdateSrefChoice();
-    void UpdateSetChoice();
     void UpdateChoiceDevices();
     void UpdateSliderDevices();
     void UpdateExcrescenceSliderLimits();

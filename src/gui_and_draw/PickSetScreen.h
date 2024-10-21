@@ -23,8 +23,6 @@ public:
     void Hide();
     bool Update();
 
-    void LoadSetChoice();
-
     int PickSet( const string & title );
 
     void GuiDeviceCallBack( GuiDevice* device );

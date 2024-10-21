@@ -71,7 +71,7 @@ bool PickSetScreen::Update()
 {
     BasicScreen::Update();
 
-    LoadSetChoice();
+    m_ScreenMgr->LoadSetChoice( m_PickSetChoice, m_SelectedSetIndex );
 
     m_FLTK_Window->redraw();
     return true;
@@ -89,24 +89,6 @@ void PickSetScreen::Hide()
 {
     m_FLTK_Window->hide();
     m_ScreenMgr->SetUpdateFlag( true );
-}
-
-//==== Load Type Choice ====//
-void PickSetScreen::LoadSetChoice()
-{
-    m_PickSetChoice.ClearItems();
-
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
-    {
-        m_PickSetChoice.AddItem( set_name_vec[i].c_str() );
-    }
-
-    m_PickSetChoice.UpdateItems();
-    m_PickSetChoice.SetVal( m_SelectedSetIndex );
-
 }
 
 //==== Callbacks ====//

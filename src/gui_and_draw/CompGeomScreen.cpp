@@ -117,22 +117,6 @@ CompGeomScreen::~CompGeomScreen()
     delete m_TextBuffer;
 }
 
-void CompGeomScreen::LoadSetChoice( Choice & choice, int selectedindex )
-{
-    choice.ClearItems();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec( true );
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
-    {
-        choice.AddItem( set_name_vec[i].c_str(), i - 1 );
-    }
-
-    choice.UpdateItems();
-    choice.SetVal( selectedindex );
-}
-
 void CompGeomScreen::LoadModeChoice( Choice & choice, int selectedchoice )
 {
     choice.ClearItems();
@@ -167,8 +151,7 @@ bool CompGeomScreen::Update()
 
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
-    LoadSetChoice( m_UseSet, m_SelectedSetIndex );
-    LoadSetChoice( m_DegenSet, m_DegenSelectedSetIndex );
+    m_ScreenMgr->LoadSetChoice( m_UseSet, m_DegenSet, m_SelectedSetIndex, m_DegenSelectedSetIndex, true );
 
     LoadModeChoice( m_ModeChoice, m_SelectedModeChoice );
 

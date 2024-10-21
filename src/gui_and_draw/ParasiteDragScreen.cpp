@@ -622,7 +622,8 @@ bool ParasiteDragScreen::Update()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        UpdateSetChoice();
+        m_ScreenMgr->LoadSetChoice( m_SetChoice, ParasiteDragMgr.m_SetChoice.GetID() );
+        ParasiteDragMgr.RefreshBaseDataVectors();
 
         UpdateSrefChoice();
 
@@ -717,23 +718,6 @@ void ParasiteDragScreen::UpdateTableLabels()
     }
 
     ParasiteDragMgr.UpdateExportLabels();
-}
-
-void ParasiteDragScreen::UpdateSetChoice()
-{
-    // Clear All Items
-    m_SetChoice.ClearItems();
-
-    // Adding Items to Set Choice
-    vector <string> setnames = VehicleMgr.GetVehicle()->GetSetNameVec();
-    for ( int i = 0; i < setnames.size(); i++ )
-    {
-        m_SetChoice.AddItem( setnames[i] );
-    }
-    m_SetChoice.UpdateItems();
-    m_SetChoice.SetVal( ParasiteDragMgr.m_SetChoice() );
-
-    ParasiteDragMgr.RefreshBaseDataVectors();
 }
 
 void ParasiteDragScreen::UpdateChoiceDevices()
@@ -1138,11 +1122,6 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
         int id = m_RefWingChoice.GetVal();
         ParasiteDragMgr.m_RefGeomID = m_WingGeomVec[id];
     }
-    else if ( device == &m_SetChoice )
-    {
-        // Set Choice
-        ParasiteDragMgr.m_SetChoice.Set( m_SetChoice.GetVal() );
-    }
     else if ( device == &m_LamCfEqnChoice )
     {
         ParasiteDragMgr.m_LamCfEqnType.Set( m_LamCfEqnChoice.GetVal() );
@@ -1280,7 +1259,8 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                 if ( m_subsurfinclude[i].GetVal() == vsp::SS_INC_SEPARATE_TREATMENT && ParasiteDragMgr.IsCaclualted() )
                 {
                     vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_IncludeType.Set( m_subsurfinclude[i].GetVal() );
-                    UpdateSetChoice();
+                    m_ScreenMgr->LoadSetChoice( m_SetChoice, ParasiteDragMgr.m_SetChoice.GetID() );
+                    ParasiteDragMgr.RefreshBaseDataVectors();
                     RebuildBuildUpTable();
                     ParasiteDragMgr.RenewDegenGeomVec();
                 }
@@ -1289,7 +1269,8 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                         ParasiteDragMgr.IsCaclualted() )
                 {
                     vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_IncludeType.Set( m_subsurfinclude[i].GetVal() );
-                    UpdateSetChoice();
+                    m_ScreenMgr->LoadSetChoice( m_SetChoice, ParasiteDragMgr.m_SetChoice.GetID() );
+                    ParasiteDragMgr.RefreshBaseDataVectors();
                     RebuildBuildUpTable();
                     ParasiteDragMgr.RenewDegenGeomVec();
                 }

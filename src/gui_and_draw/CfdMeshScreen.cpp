@@ -702,7 +702,9 @@ bool CfdMeshScreen::Update()
 {
     TabScreen::Update();
 
-    LoadSetChoice();
+    m_ScreenMgr->LoadSetChoice( m_UseSet, m_UseDegenSet,
+        m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex.GetID(),
+        m_Vehicle->GetCfdSettingsPtr()->m_SelectedDegenSetIndex.GetID(), true );
 
     if ( CfdMeshMgr.GetMeshInProgress() )
     {
@@ -1184,25 +1186,6 @@ void CfdMeshScreen::UpdateWakesTab()
     }
 }
 
-void CfdMeshScreen::LoadSetChoice()
-{
-    m_UseSet.ClearItems();
-    m_UseDegenSet.ClearItems();
-
-    vector< string > set_name_vec = m_Vehicle->GetSetNameVec( true );
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
-    {
-        m_UseSet.AddItem( set_name_vec[i].c_str(), i - 1 );
-        m_UseDegenSet.AddItem( set_name_vec[i].c_str(), i - 1 );
-    }
-
-    m_UseSet.UpdateItems();
-    m_UseSet.SetVal( m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex() );
-    m_UseDegenSet.UpdateItems();
-    m_UseDegenSet.SetVal( m_Vehicle->GetCfdSettingsPtr()->m_SelectedDegenSetIndex() );
-}
-
 void CfdMeshScreen::AddOutputText( const string &text )
 {
     Fl::lock();
@@ -1321,15 +1304,6 @@ void CfdMeshScreen::GuiDeviceGlobalTabCallback( GuiDevice* device )
     else if ( device == &m_GlobSrcAdjustRadRhtRht )
     {
         CfdMeshMgr.AdjustAllSourceRad( 1.5 );
-    }
-    //Use Set
-    else if ( device == &m_UseSet )
-    {
-        m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex = m_UseSet.GetVal();
-    }
-    else if ( device == &m_UseDegenSet )
-    {
-        m_Vehicle->GetCfdSettingsPtr()->m_SelectedDegenSetIndex = m_UseDegenSet.GetVal();
     }
 }
 

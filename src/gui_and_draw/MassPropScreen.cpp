@@ -105,7 +105,7 @@ bool MassPropScreen::Update()
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    LoadSetChoice();
+    m_ScreenMgr->LoadSetChoice( m_SetChoice, m_SelectedSetIndex );
 
     m_NumSlicesInput.Update( veh->m_NumMassSlices.GetID() );
     m_SliceDirChoice.Update( veh->m_MassSliceDir.GetID() );
@@ -176,23 +176,6 @@ void MassPropScreen::Hide()
 {
     m_FLTK_Window->hide();
     m_ScreenMgr->SetUpdateFlag( true );
-}
-
-void MassPropScreen::LoadSetChoice()
-{
-    m_SetChoice.ClearItems();
-
-    assert( m_ScreenMgr );
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
-    {
-        m_SetChoice.AddItem( set_name_vec[i].c_str() );
-    }
-
-    m_SetChoice.UpdateItems();
-    m_SetChoice.SetVal( m_SelectedSetIndex );
 }
 
 void MassPropScreen::GuiDeviceCallBack( GuiDevice* device )

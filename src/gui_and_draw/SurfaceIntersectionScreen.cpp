@@ -290,7 +290,7 @@ bool SurfaceIntersectionScreen::Update()
 {
     TabScreen::Update();
 
-    LoadSetChoice();
+    m_ScreenMgr->LoadSetChoice( m_UseSet, m_UseDegenSet, m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.GetID(), m_Vehicle->GetISectSettingsPtr()->m_SelectedDegenSetIndex.GetID() );
 
     if ( SurfaceIntersectionMgr.GetMeshInProgress() )
     {
@@ -495,25 +495,6 @@ void SurfaceIntersectionScreen::UpdateWakesTab()
     }
 }
 
-void SurfaceIntersectionScreen::LoadSetChoice()
-{
-    m_UseSet.ClearItems();
-    m_UseDegenSet.ClearItems();
-
-    vector< string > set_name_vec = m_Vehicle->GetSetNameVec( true );
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
-    {
-        m_UseSet.AddItem( set_name_vec[i].c_str(), i - 1 );
-        m_UseDegenSet.AddItem(set_name_vec[i].c_str(), i - 1 );
-    }
-
-    m_UseSet.UpdateItems();
-    m_UseSet.SetVal( m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex() );
-    m_UseDegenSet.UpdateItems();
-    m_UseDegenSet.SetVal(m_Vehicle->GetISectSettingsPtr()->m_SelectedDegenSetIndex() );
-}
-
 void SurfaceIntersectionScreen::AddOutputText( const string &text )
 {
     Fl::lock();
@@ -593,15 +574,6 @@ void SurfaceIntersectionScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void SurfaceIntersectionScreen::GuiDeviceGlobalTabCallback( GuiDevice* device )
 {
-    //Use Set
-    if ( device == &m_UseSet )
-    {
-        m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex = m_UseSet.GetVal();
-    }
-    else if ( device == &m_UseDegenSet )
-    {
-        m_Vehicle->GetISectSettingsPtr()->m_SelectedDegenSetIndex = m_UseDegenSet.GetVal();
-    }
 }
 
 void SurfaceIntersectionScreen::GuiDeviceOutputTabCallback( GuiDevice* device )

@@ -641,6 +641,76 @@ void ScreenMgr::SetGeomScreenDisable( int s, bool state )
     }
 }
 
+void ScreenMgr::LoadSetChoice( Choice &choice, const int &selected, bool includeNone, int istart )
+{
+    choice.ClearItems();
+
+    vector< string > set_name_vec = m_VehiclePtr->GetSetNameVec( includeNone );
+
+    for ( int i = istart; i < ( int )set_name_vec.size(); ++i )
+    {
+        choice.AddItem( set_name_vec[i], i - (int) includeNone );
+    }
+
+    choice.UpdateItems();
+    choice.SetVal( selected );
+}
+
+void ScreenMgr::LoadSetChoice( Choice &choice1, Choice &choice2, const int &selected1, const int &selected2, bool includeNone )
+{
+    choice1.ClearItems();
+    choice2.ClearItems();
+
+    vector< string > set_name_vec = m_VehiclePtr->GetSetNameVec( includeNone );
+
+    for ( int i = 0; i < ( int )set_name_vec.size(); ++i )
+    {
+        choice1.AddItem( set_name_vec[i], i - (int) includeNone );
+        choice2.AddItem( set_name_vec[i], i - (int) includeNone );
+    }
+
+    choice1.UpdateItems();
+    choice1.SetVal( selected1 );
+
+    choice2.UpdateItems();
+    choice2.SetVal( selected2 );
+}
+
+void ScreenMgr::LoadSetChoice( Choice &choice, const string &selectedID, bool includeNone )
+{
+    choice.ClearItems();
+
+    vector< string > set_name_vec = m_VehiclePtr->GetSetNameVec( includeNone );
+
+    for ( int i = 0; i < ( int )set_name_vec.size(); ++i )
+    {
+        choice.AddItem( set_name_vec[i], i - (int) includeNone );
+    }
+
+    choice.UpdateItems();
+    choice.Update( selectedID );
+}
+
+void ScreenMgr::LoadSetChoice( Choice &choice1, Choice &choice2, const string &selected1ID, const string &selected2ID, bool includeNone )
+{
+    choice1.ClearItems();
+    choice2.ClearItems();
+
+    vector< string > set_name_vec = m_VehiclePtr->GetSetNameVec( includeNone );
+
+    for ( int i = 0; i < ( int )set_name_vec.size(); ++i )
+    {
+        choice1.AddItem( set_name_vec[i], i - (int) includeNone );
+        choice2.AddItem( set_name_vec[i], i - (int) includeNone );
+    }
+
+    choice1.UpdateItems();
+    choice1.Update( selected1ID );
+
+    choice2.UpdateItems();
+    choice2.Update( selected2ID );
+}
+
 //==== Init All Screens ====//
 void ScreenMgr::Init()
 {

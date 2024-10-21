@@ -3667,23 +3667,8 @@ bool EngineModelScreen::Update( )
     m_EngineExtendDistanceSlider.Update( geomengine_ptr->m_ExtensionDistance.GetID() );
 
     m_EngineAutoExtensionFlagButton.Update( geomengine_ptr->m_AutoExtensionFlag.GetID() );
-    m_EngineAutoExtensionSetChoice.Update( geomengine_ptr->m_AutoExtensionSet.GetID() );
 
-
-
-
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    m_EngineAutoExtensionSetChoice.ClearItems();
-
-    vector< string > set_name_vec = veh->GetSetNameVec();
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
-    {
-        m_EngineAutoExtensionSetChoice.AddItem( set_name_vec[i].c_str(), i );
-    }
-    m_EngineAutoExtensionSetChoice.UpdateItems();
-    m_EngineAutoExtensionSetChoice.SetVal( geomengine_ptr->m_AutoExtensionSet() );
+    m_ScreenMgr->LoadSetChoice( m_EngineAutoExtensionSetChoice, geomengine_ptr->m_AutoExtensionSet.GetID() );
 
 
     return true;

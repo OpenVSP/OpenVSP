@@ -143,7 +143,6 @@ protected:
     void AddGeom();
     void LoadBrowser();
     void LoadActiveGeomOutput();
-    void LoadSetChoice();
     void LoadTypeChoice();
     void LoadDisplayChoice();
     void UpdateDrawType();

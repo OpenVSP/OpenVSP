@@ -201,22 +201,6 @@ ProjectionScreen::~ProjectionScreen()
 {
 }
 
-void ProjectionScreen::LoadSetChoice( Choice & c, const int & index )
-{
-    c.ClearItems();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
-    {
-        c.AddItem( set_name_vec[i].c_str() );
-    }
-
-    c.UpdateItems();
-    c.SetVal( index );
-}
-
 void ProjectionScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
@@ -248,8 +232,7 @@ bool ProjectionScreen::Update()
     ProjectionMgr.UpdateDirection();
 
 
-    LoadSetChoice( m_TargetSet, ProjectionMgr.m_TargetSetIndex );
-    LoadSetChoice( m_BoundarySet, ProjectionMgr.m_BoundarySetIndex );
+    m_ScreenMgr->LoadSetChoice( m_TargetSet, m_BoundarySet, ProjectionMgr.m_TargetSetIndex, ProjectionMgr.m_BoundarySetIndex );
 
     m_XSlider.Update( vehiclePtr->m_XComp.GetID() );
     m_YSlider.Update( vehiclePtr->m_YComp.GetID() );

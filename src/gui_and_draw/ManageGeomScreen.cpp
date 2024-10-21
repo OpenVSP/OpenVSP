@@ -142,7 +142,7 @@ bool ManageGeomScreen::Update()
     {
         LoadBrowser();
         LoadActiveGeomOutput();
-        LoadSetChoice();
+        m_ScreenMgr->LoadSetChoice( m_SetChoice, m_SetIndex, false, SET_FIRST_USER );
         LoadTypeChoice();
         LoadDisplayChoice();
         UpdateDrawType();
@@ -335,23 +335,6 @@ void ManageGeomScreen::LoadActiveGeomOutput()
     {
         m_ActiveGeomInput.Update( "<multiple>" );
     }
-}
-
-//==== Load Type Choice ====//
-void ManageGeomScreen::LoadSetChoice()
-{
-    m_SetChoice.ClearItems();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector<string> set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = SET_FIRST_USER; i < ( int )set_name_vec.size(); i++ )
-    {
-        m_SetChoice.AddItem( set_name_vec[i].c_str(), i );
-    }
-
-    m_SetChoice.UpdateItems();
-    m_SetChoice.SetVal( m_SetIndex );
 }
 
 //==== Load Type Choice ====//

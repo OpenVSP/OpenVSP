@@ -33,8 +33,6 @@ public:
         ( ( ProjectionScreen* )data )->CallBack( w );
     }
 
-    void LoadSetChoice( Choice & c, const int & index );
-
 protected:
 
     GroupLayout m_MainLayout;

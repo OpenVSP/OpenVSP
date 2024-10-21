@@ -74,7 +74,7 @@ bool ExportScreen::Update()
 {
     BasicScreen::Update();
 
-    LoadSetChoice();
+    m_ScreenMgr->LoadSetChoice( m_ExportSetChoice, m_DegenSetChoice, m_SelectedSetIndex, m_DegenSetIndex, true );
 
     return true;
 }
@@ -91,27 +91,6 @@ void ExportScreen::Hide()
 {
     m_FLTK_Window->hide();
     m_ScreenMgr->SetUpdateFlag( true );
-}
-
-//==== Load Type Choice ====//
-void ExportScreen::LoadSetChoice()
-{
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    m_ExportSetChoice.ClearItems();
-    m_DegenSetChoice.ClearItems();
-
-    vector <string> setVec = veh->GetSetNameVec( true );
-    for ( int i = 0; i < setVec.size(); i++ )
-    {
-        m_ExportSetChoice.AddItem( setVec[i], i - 1 );
-        m_DegenSetChoice.AddItem( setVec[i], i - 1 );
-    }
-    m_ExportSetChoice.UpdateItems();
-    m_DegenSetChoice.UpdateItems();
-
-    m_ExportSetChoice.SetVal( m_SelectedSetIndex );
-    m_DegenSetChoice.SetVal( m_DegenSetIndex );
 }
 
 void ExportScreen::ExportFile( string &newfile, int write_set, int degen_set, int intSubsFlag, int type )

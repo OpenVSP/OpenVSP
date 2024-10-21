@@ -75,22 +75,6 @@ DegenGeomScreen::~DegenGeomScreen()
     delete m_TextBuffer;
 }
 
-void DegenGeomScreen::LoadSetChoice()
-{
-    m_UseSet.ClearItems();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
-    {
-        m_UseSet.AddItem( set_name_vec[i].c_str() );
-    }
-
-    m_UseSet.UpdateItems();
-    m_UseSet.SetVal( m_SelectedSetIndex );
-}
-
 void DegenGeomScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
@@ -109,7 +93,7 @@ bool DegenGeomScreen::Update()
 
     BasicScreen::Update();
 
-    LoadSetChoice();
+    m_ScreenMgr->LoadSetChoice( m_UseSet, m_SelectedSetIndex );
 
     //===== Update File Toggle Buttons =====//
     m_CsvToggle.Update( vehiclePtr->m_exportDegenGeomCsvFile.GetID() );

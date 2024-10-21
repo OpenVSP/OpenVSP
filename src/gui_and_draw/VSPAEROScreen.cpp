@@ -788,7 +788,7 @@ bool VSPAEROScreen::Update()
     {
         UpdateRefWing();
 
-        UpdateSetChoiceLists();
+        m_ScreenMgr->LoadSetChoice( m_GeomSetChoice, m_CGSetChoice, VSPAEROMgr.m_GeomSet.GetID(), VSPAEROMgr.m_CGGeomSet.GetID() );
 
         UpdateCaseSetupDevices();
 
@@ -1064,10 +1064,6 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             int id = m_RefWingChoice.GetVal();
             VSPAEROMgr.m_RefGeomID = m_WingGeomVec[id];
         }
-        else if( device == &m_GeomSetChoice )
-        {
-            VSPAEROMgr.m_GeomSet = m_GeomSetChoice.GetVal();
-        }
         else if( device == &m_DegenFileButton )
         {
             int file_type = vsp::DEGEN_GEOM_CSV_TYPE;
@@ -1111,10 +1107,6 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                     vspapscreen->SetDefaultView();
                 }
             }
-        }
-        else if( device == &m_CGSetChoice )
-        {
-            VSPAEROMgr.m_CGGeomSet = m_CGSetChoice.GetVal();
         }
         else if( device == &m_MassPropButton )
         {
@@ -1347,8 +1339,7 @@ void VSPAEROScreen::UpdateSetChoiceLists()
     m_GeomSetChoice.UpdateItems();
     m_CGSetChoice.UpdateItems();
 
-    m_GeomSetChoice.SetVal(VSPAEROMgr.m_GeomSet());
-    m_CGSetChoice.SetVal(VSPAEROMgr.m_CGGeomSet());
+
 }
 
 void VSPAEROScreen::UpdateCaseSetupDevices()

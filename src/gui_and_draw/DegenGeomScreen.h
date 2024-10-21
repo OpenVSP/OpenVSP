@@ -33,8 +33,6 @@ public:
         ( ( DegenGeomScreen* )data )->CallBack( w );
     }
 
-    void LoadSetChoice();
-
 protected:
 
     int m_SelectedSetIndex;

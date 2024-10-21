@@ -36,8 +36,6 @@ public:
         ( ( PSliceScreen* )data )->CallBack( w );
     }
 
-    void LoadSetChoice();
-
 protected:
 
     GroupLayout m_MainLayout;

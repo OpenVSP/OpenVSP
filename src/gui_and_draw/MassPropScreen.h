@@ -26,7 +26,6 @@ public:
     virtual void CloseCallBack( Fl_Widget* w );
     
     void LoadDrawObjs( vector< DrawObj* >& draw_obj_vec );
-    void LoadSetChoice();
 
 protected:
 
