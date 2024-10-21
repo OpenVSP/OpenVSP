@@ -117,22 +117,6 @@ CompGeomScreen::~CompGeomScreen()
     delete m_TextBuffer;
 }
 
-void CompGeomScreen::LoadModeChoice( Choice & choice, int selectedchoice )
-{
-    choice.ClearItems();
-    m_ModeIDs.clear();
-
-    m_ModeIDs = ModeMgr.GetAllModes();
-
-    for ( int i = 0; i < m_ModeIDs.size(); i++ )
-    {
-        choice.AddItem( ModeMgr.GetMode( m_ModeIDs[i] )->GetName(), i );
-    }
-    choice.UpdateItems();
-
-    choice.SetVal( selectedchoice );
-}
-
 void CompGeomScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
@@ -153,7 +137,7 @@ bool CompGeomScreen::Update()
 
     m_ScreenMgr->LoadSetChoice( m_UseSet, m_DegenSet, m_SelectedSetIndex, m_DegenSelectedSetIndex, true );
 
-    LoadModeChoice( m_ModeChoice, m_SelectedModeChoice );
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
 
     //===== Update File Toggle Buttons =====//
     m_CsvToggle.Update( vehiclePtr->m_exportCompGeomCsvFile.GetID() );

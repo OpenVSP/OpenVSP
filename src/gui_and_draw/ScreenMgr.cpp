@@ -43,6 +43,7 @@
 #include "MassPropScreen.h"
 #include "MaterialEditScreen.h"
 #include "ModeEditorScreen.h"
+#include "ModeMgr.h"
 #include "NerfManageGeomScreen.h"
 #include "SnapToScreen.h"
 #include "ParasiteDragScreen.h"
@@ -709,6 +710,47 @@ void ScreenMgr::LoadSetChoice( Choice &choice1, Choice &choice2, const string &s
 
     choice2.UpdateItems();
     choice2.Update( selected2ID );
+}
+
+void ScreenMgr::LoadModeChoice( Choice & choice, vector < string > &modeIDVec, int selected )
+{
+    choice.ClearItems();
+    modeIDVec.clear();
+
+    modeIDVec = ModeMgr.GetAllModes();
+
+    for ( int i = 0; i < modeIDVec.size(); i++ )
+    {
+        choice.AddItem( ModeMgr.GetMode( modeIDVec[i] )->GetName(), i );
+    }
+    choice.UpdateItems();
+
+    choice.SetVal( selected );
+}
+
+void ScreenMgr::LoadModeChoice( Choice & choice, vector < string > &modeIDVec, const string &selModeID )
+{
+    choice.ClearItems();
+    modeIDVec.clear();
+
+    modeIDVec = ModeMgr.GetAllModes();
+
+    for ( int i = 0; i < modeIDVec.size(); i++ )
+    {
+        choice.AddItem( ModeMgr.GetMode( modeIDVec[i] )->GetName(), i );
+    }
+    choice.UpdateItems();
+
+
+    int imode = vector_find_val( modeIDVec, selModeID );
+    if ( imode >= 0 )
+    {
+        choice.SetVal( imode );
+    }
+    else
+    {
+        choice.SetVal( -1 );
+    }
 }
 
 //==== Init All Screens ====//

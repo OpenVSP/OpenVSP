@@ -104,6 +104,9 @@ public:
     void LoadSetChoice( Choice &choice, const string &selectedID, bool includeNone = false );
     void LoadSetChoice( Choice &choice1, Choice &choice2, const string &selected1ID, const string &selected2ID, bool includeNone = false );
 
+    void LoadModeChoice( Choice & choice, vector < string > &modeIDVec, int selected );
+    void LoadModeChoice( Choice & choice, vector < string > &modeIDVec, const string &selModeID );
+
 protected:
 
     void Init();
