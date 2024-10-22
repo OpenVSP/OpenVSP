@@ -16,6 +16,7 @@
 #include "VSPAEROPlotScreen.h"
 #include "FileUtil.h"
 #include <FL/fl_ask.H>
+#include "ModeMgr.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -123,11 +124,34 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_AeroMethodToggleGroup.SetValMapVec( val_map );
 
     m_CaseSetupLayout.ForceNewLine();
-
     m_CaseSetupLayout.InitWidthHeightVals();
+
+    int bw = m_CaseSetupLayout.GetChoiceButtonWidth();
+    m_CaseSetupLayout.SetButtonWidth( bw );
+    m_CaseSetupLayout.SetChoiceButtonWidth( bw );
+
+    m_CaseSetupLayout.SetSameLineFlag( true );
+    m_CaseSetupLayout.SetChoiceButtonWidth( 0 );
+    m_CaseSetupLayout.SetFitWidthFlag( false );
+    m_CaseSetupLayout.AddButton( m_SetToggle, "Normal Set:" );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+    m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "", bw );
+    m_CaseSetupLayout.ForceNewLine();
+
+    m_CaseSetupLayout.SetSameLineFlag( true );
+    m_CaseSetupLayout.SetChoiceButtonWidth( 0 );
+    m_CaseSetupLayout.SetFitWidthFlag( false );
+    m_CaseSetupLayout.AddButton( m_ModeToggle, "Mode:" );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+    m_CaseSetupLayout.AddChoice(m_ModeChoice, "", bw );
+    m_CaseSetupLayout.ForceNewLine();
+
+    m_ModeSetToggleGroup.Init( this );
+    m_ModeSetToggleGroup.AddButton( m_SetToggle.GetFlButton() );
+    m_ModeSetToggleGroup.AddButton( m_ModeToggle.GetFlButton() );
+
     m_CaseSetupLayout.SetSameLineFlag( false );
     m_CaseSetupLayout.SetFitWidthFlag( true );
-    m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "Geometry Set:" );
 
     m_CaseSetupLayout.AddYGap();
 
@@ -789,6 +813,45 @@ bool VSPAEROScreen::Update()
         UpdateRefWing();
 
         m_ScreenMgr->LoadSetChoice( m_GeomSetChoice, m_CGSetChoice, VSPAEROMgr.m_GeomSet.GetID(), VSPAEROMgr.m_CGGeomSet.GetID() );
+        m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, VSPAEROMgr.m_ModeID );
+
+        m_ModeSetToggleGroup.Update( VSPAEROMgr.m_UseMode.GetID() );
+
+        if ( ModeMgr.GetNumModes() == 0 )
+        {
+            if ( VSPAEROMgr.m_UseMode() )
+            {
+                VSPAEROMgr.m_UseMode.Set( false );
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+            m_ModeToggle.Deactivate();
+        }
+        else
+        {
+            m_ModeToggle.Activate();
+        }
+
+        if ( VSPAEROMgr.m_UseMode() )
+        {
+            m_ModeChoice.Activate();
+            m_GeomSetChoice.Deactivate();
+
+            Mode *m = ModeMgr.GetMode( VSPAEROMgr.m_ModeID );
+            if ( m )
+            {
+                if ( VSPAEROMgr.m_GeomSet() != m->m_NormalSet() )
+                {
+                    VSPAEROMgr.m_GeomSet = m->m_NormalSet();
+                    m_ScreenMgr->SetUpdateFlag( true );
+                }
+            }
+        }
+        else
+        {
+            m_ModeChoice.Deactivate();
+            m_GeomSetChoice.Activate();
+        }
+
 
         UpdateCaseSetupDevices();
 
@@ -1058,6 +1121,18 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         else if ( device == &m_PreviewDegenButton )
         {
             DisplayDegenVLMPreview();
+        }
+        else if ( device == &m_ModeChoice )
+        {
+            int indx = m_ModeChoice.GetVal();
+            if ( indx >= 0  && indx < m_ModeIDs.size() )
+            {
+                VSPAEROMgr.m_ModeID = m_ModeIDs[ indx ];
+            }
+            else
+            {
+                VSPAEROMgr.m_ModeID = "";
+            }
         }
         else if( device == &m_RefWingChoice )
         {
@@ -2029,10 +2104,23 @@ void VSPAEROScreen::DisplayDegenVLMPreview()
         return;
     }
 
+    int set = VSPAEROMgr.m_GeomSet();
+
+    if ( VSPAEROMgr.m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( VSPAEROMgr.m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
     for ( size_t i = 0; i < (int)geom_vec.size(); i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( VSPAEROMgr.m_GeomSet() ) )
+        if ( geom_vec[i]->GetSetFlag( set ) )
         {
             for ( size_t j = 0; j < geom_vec[i]->GetNumMainSurfs(); j++ )
             {

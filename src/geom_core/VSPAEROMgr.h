@@ -363,6 +363,9 @@ public:
 
     IntParm m_GeomSet;
 
+    BoolParm m_UseMode;
+    string m_ModeID;
+
     // Reference Area Parms
     Parm m_Sref;
     Parm m_bref;

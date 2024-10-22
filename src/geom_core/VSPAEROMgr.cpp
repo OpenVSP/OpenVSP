@@ -24,6 +24,7 @@
 #include "PropGeom.h"
 #include "FileUtil.h"
 #include "SubSurfaceMgr.h"
+#include "ModeMgr.h"
 
 //==== Constructor ====//
 VspAeroControlSurf::VspAeroControlSurf()
@@ -40,6 +41,9 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 
     m_GeomSet.Init( "GeomSet", groupname, this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
     m_GeomSet.SetDescript( "Geometry set" );
+
+    m_UseMode.Init( "UseMode", groupname, this, false, false, true );
+    m_UseMode.SetDescript( "Flag to control whether modes are used instead of sets." );
 
     m_AnalysisMethod.Init( "AnalysisMethod", groupname, this, vsp::VORTEX_LATTICE, vsp::VORTEX_LATTICE, vsp::PANEL );
     m_AnalysisMethod.SetDescript( "Analysis method: 0=VLM, 1=Panel" );
@@ -347,6 +351,11 @@ void VSPAEROMgrSingleton::Renew()
 
     m_AnalysisMethod.Set( vsp::VORTEX_LATTICE );
     m_GeomSet.Set( vsp::SET_ALL );
+
+    m_UseMode.Set( false );
+    m_ModeID = "";
+
+    m_RefGeomID = "";
     m_RefFlag.Set( vsp::MANUAL_REF );
     m_Sref.Set( 100 );
     m_bref.Set( 1.0 );
@@ -389,6 +398,9 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     ParmContainer::EncodeXml( VSPAEROsetnode ); // Encode VSPAEROMgr Parms
 
+    XmlUtil::AddStringNode( VSPAEROsetnode, "RefGeomID", m_RefGeomID );
+    XmlUtil::AddStringNode( VSPAEROsetnode, "ModeID", m_ModeID );
+
     // Encode Control Surface Groups using Internal Encode Method
     XmlUtil::AddIntNode( VSPAEROsetnode, "ControlSurfaceGroupCount", m_ControlSurfaceGroupVec.size() );
     for ( size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i )
@@ -430,6 +442,9 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
     if ( VSPAEROsetnode )
     {
         ParmContainer::DecodeXml( VSPAEROsetnode ); // Decode VSPAEROMgr Parms
+
+        m_RefGeomID = ParmMgr.RemapID( XmlUtil::FindString( VSPAEROsetnode, "RefGeomID", m_RefGeomID ) );
+        m_ModeID = ParmMgr.RemapID( XmlUtil::FindString( VSPAEROsetnode, "ModeID", m_ModeID ) );
 
         // Decode Control Surface Groups using Internal Decode Method
         int num_groups = XmlUtil::FindInt( VSPAEROsetnode, "ControlSurfaceGroupCount", 0 );
@@ -800,6 +815,19 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 
 void VSPAEROMgrSingleton::UpdateRotorDisks()
 {
+    int set = m_GeomSet();
+
+    if ( m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     Vehicle * veh = VehicleMgr.GetVehicle();
     char str[256];
 
@@ -808,7 +836,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
         vector < RotorDisk* > temp;
         bool contained = false;
 
-        vector <string> currgeomvec = veh->GetGeomSet( m_GeomSet() );
+        vector <string> currgeomvec = veh->GetGeomSet( set );
 
         // Ensure that a deleted component is still not in the DegenGeom vector
         vector < Geom* > geom_ptr_vec = veh->FindGeomVec( currgeomvec );
@@ -1174,12 +1202,25 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         return string();
     }
 
+    int set = m_GeomSet();
+
+    if ( m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     // Cleanup previously created meshGeom IDs created from VSPAEROMgr
     Geom* last_mesh = veh->FindGeom( m_LastPanelMeshGeomId );
-    vector < string > geom_vec = veh->GetGeomSet( m_GeomSet() );
+    vector < string > geom_vec = veh->GetGeomSet( set );
     if ( last_mesh && m_AnalysisMethod() == vsp::VORTEX_LATTICE && !m_AlternateInputFormatFlag() )
     {
-        veh->ShowOnlySet( m_GeomSet() );
+        veh->ShowOnlySet( set );
     }
 
     if ( !last_mesh && geom_vec.size() == 1 )
@@ -1214,7 +1255,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     }
 
     m_DegenGeomVec.clear();
-    veh->CreateDegenGeom( m_GeomSet() );
+    veh->CreateDegenGeom( set );
     m_DegenGeomVec = veh->GetDegenGeomVec();
 
     //Update information derived from the degenerate geometry
@@ -1243,7 +1284,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     if ( m_AlternateInputFormatFlag() && m_AnalysisMethod() == vsp::VORTEX_LATTICE )
     {
-        m_LastPanelMeshGeomId = veh->WriteVSPGeomFile( m_VSPGeomFileFull, vsp::SET_NONE, m_GeomSet(), 0 /*subsFlag*/, false /* useMode */, "" /* modeID */, halfFlag, false, true);
+        m_LastPanelMeshGeomId = veh->WriteVSPGeomFile( m_VSPGeomFileFull, vsp::SET_NONE, set, 0 /*subsFlag*/, m_UseMode(), m_ModeID, halfFlag, false, true);
 
         WaitForFile( m_VSPGeomFileFull );
         if ( !FileExist( m_VSPGeomFileFull ) )
@@ -1267,7 +1308,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         fprintf( stderr, "WARNING: DegenGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_DegenFileFull.c_str(), __FILE__, __LINE__ );
     }
 
-    int mesh_set = m_GeomSet();
+    int mesh_set = set;
 
     // Generate *.tri geometry file for Panel method
     if ( m_AnalysisMethod.Get() == vsp::PANEL )
@@ -1275,14 +1316,14 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         if ( !last_mesh )
         {
             // Compute intersected and trimmed geometry
-            m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag, 1 /*subsFlag*/, vsp::SET_NONE, false, true );
+            m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( set, halfFlag, 1 /*subsFlag*/, vsp::SET_NONE, false, true );
             mesh_set = vsp::SET_SHOWN; // Only MeshGeom is shown after geometry is computed
         }
 
         if ( !m_AlternateInputFormatFlag() )
         {
             // Write out mesh to *.vspgeom file. Only the MeshGeom is shown
-            veh->WriteVSPGeomFile( m_VSPGeomFileFull, mesh_set, vsp::SET_NONE, 1 /*subsFlag*/, false /* useMode */, "" /* modeID */ );
+            veh->WriteVSPGeomFile( m_VSPGeomFileFull, mesh_set, vsp::SET_NONE, 1 /*subsFlag*/, m_UseMode(), m_ModeID );
             WaitForFile( m_VSPGeomFileFull );
             if ( !FileExist( m_VSPGeomFileFull ) )
             {
@@ -1292,7 +1333,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         else
         {
             // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
-            veh->WriteTRIFile( m_CompGeomFileFull, mesh_set, 1 /*subsFlag*/, false /* useMode */, "" /* modeID */ );
+            veh->WriteTRIFile( m_CompGeomFileFull, mesh_set, 1 /*subsFlag*/, m_UseMode(), m_ModeID );
             WaitForFile( m_CompGeomFileFull );
             if ( !FileExist( m_CompGeomFileFull ) )
             {
@@ -1313,7 +1354,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
         return string();
     }
-    res->Add( NameValData( "GeometrySet", m_GeomSet(), "Geometry Set for analysis." ) );
+    res->Add( NameValData( "GeometrySet", set, "Geometry Set for analysis." ) );
     res->Add( NameValData( "AnalysisMethod", m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
     res->Add( NameValData( "DegenGeomFileName", m_DegenFileFull, "Degen geom file name." ) );
     if ( m_AnalysisMethod.Get() == vsp::PANEL )
@@ -4413,6 +4454,19 @@ void VSPAEROMgrSingleton::UpdateParmRestrictions()
 
 void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
 {
+    int set = m_GeomSet();
+
+    if ( m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
@@ -4421,7 +4475,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
 
     vector < int > del_vec;
 
-    map < pair < string, int >, vector < int > > vspaero_geom_index_map = GetVSPAEROGeomIndexMap( m_GeomSet() );
+    map < pair < string, int >, vector < int > > vspaero_geom_index_map = GetVSPAEROGeomIndexMap( set );
 
     // For the current VSPAERO set, identify if there are any props or fixed components 
     // that are not placed in an unsteady group
@@ -4429,7 +4483,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
     // Note, this function will delete unsteady groups if the prop is no longer in the set or
     // changed to disk mode, causing the parms to be lost. This can be improved, but is the
     // same behavior for rotor disks. 
-    vector < string > geom_set_vec = veh->GetGeomSet( m_GeomSet() );
+    vector < string > geom_set_vec = veh->GetGeomSet( set );
     vector < pair < string, int > > ungrouped_props, ungrouped_comps; // ungrouped Geom ID and symmetric surf index
 
     for ( size_t i = 0; i < geom_set_vec.size(); ++i )
@@ -4495,7 +4549,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         {
             // Check if Geom still exists and is in the current set
             Geom* parent = veh->FindGeom( comp_id_surf_ind_vec[j].first );
-            if ( parent && parent->GetSetFlag( m_GeomSet() ) )
+            if ( parent && parent->GetSetFlag( set ) )
             {
                 if ( parent->GetType().m_Type == PROP_GEOM_TYPE )
                 {

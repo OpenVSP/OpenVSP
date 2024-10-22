@@ -126,7 +126,15 @@ protected:
     ToggleButton m_AeroMethodToggleVLM;
     ToggleButton m_AeroMethodTogglePanel;
     ToggleRadioGroup m_AeroMethodToggleGroup;
+
+    ToggleButton m_SetToggle;
     Choice m_GeomSetChoice;
+
+    ToggleRadioGroup m_ModeSetToggleGroup;
+    ToggleButton m_ModeToggle;
+    Choice m_ModeChoice;
+    vector < string > m_ModeIDs;
+
     // Additional options
     TriggerButton m_PreviewDegenButton;
 

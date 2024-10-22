@@ -1391,6 +1391,9 @@ void VSPAERODegenGeomAnalysis::SetDefaults()
     if ( veh )
     {
         m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Geometry Set for analysis."  ) );
+
+        m_Inputs.Add( NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
     }
     else
     {
@@ -1416,11 +1419,27 @@ string VSPAERODegenGeomAnalysis::Execute()
             VSPAEROMgr.m_GeomSet.Set( nvd->GetInt( 0 ) );
         }
 
+        int useModeOrig = VSPAEROMgr.m_UseMode.Get();
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_UseMode.Set( nvd->GetInt(0) );
+        }
+
+        string modeIDOrig = VSPAEROMgr.m_ModeID;
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ModeID = nvd->GetString( 0 );
+        }
+
         // Execute analysis
         res_id = VSPAEROMgr.ComputeGeometry();
 
         //Restore original values that were overwritten by analysis inputs
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_UseMode.Set( useModeOrig );
+        VSPAEROMgr.m_ModeID = modeIDOrig;
 
     }
     
@@ -1442,6 +1461,9 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
         m_Inputs.Add( NameValData( "Symmetry", VSPAEROMgr.m_Symmetry.Get(), "Symmetry mode enum." ) );
         m_Inputs.Add( NameValData( "AlternateInputFormatFlag", VSPAEROMgr.m_AlternateInputFormatFlag.Get(), "Flag to use alternate input file format." ) );
+
+        m_Inputs.Add( NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
     }
     else
     {
@@ -1462,11 +1484,31 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         //==== Apply current analysis input values ====//
         int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+        }
+
+        int useModeOrig = VSPAEROMgr.m_UseMode.Get();
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_UseMode.Set( nvd->GetInt(0) );
+        }
+
+        string modeIDOrig = VSPAEROMgr.m_ModeID;
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ModeID = nvd->GetString( 0 );
+        }
 
         int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
         nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
-        VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
+        }
 
         bool symmetryOrig = VSPAEROMgr.m_Symmetry.Get();
         nvd = m_Inputs.FindPtr( "Symmetry", 0 );
@@ -1487,6 +1529,8 @@ string VSPAEROComputeGeometryAnalysis::Execute()
 
         //==== Restore Original Values ====//
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_UseMode.Set( useModeOrig );
+        VSPAEROMgr.m_ModeID = modeIDOrig;
         VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
         VSPAEROMgr.m_AlternateInputFormatFlag.Set( alternateFileOrig );
@@ -1536,6 +1580,8 @@ void VSPAEROSweepAnalysis::SetDefaults()
 
         //Case Setup
         m_Inputs.Add( NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Geometry Set for analysis." ) );
+        m_Inputs.Add( NameValData( "UseModeFlag",                   VSPAEROMgr.m_UseMode()                            , "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( NameValData( "ModeID",                        VSPAEROMgr.m_ModeID                               , "ID for Mode to use for analysis." ) );
         m_Inputs.Add( NameValData( "AnalysisMethod",                VSPAEROMgr.m_AnalysisMethod.Get()                 , "Flag to indicate analysis method (thin vs. thick)." ) );
         m_Inputs.Add( NameValData( "AlternateInputFormatFlag",      VSPAEROMgr.m_AlternateInputFormatFlag.Get()       , "Flag to use alternate input file format." ) );
         m_Inputs.Add( NameValData( "NCPU",                          VSPAEROMgr.m_NCPU.Get()                           , "Number of processors to use for computation." ) );
@@ -1633,9 +1679,26 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
         }
 
+        int useModeOrig = VSPAEROMgr.m_UseMode.Get();
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_UseMode.Set( nvd->GetInt(0) );
+        }
+
+        string modeIDOrig = VSPAEROMgr.m_ModeID;
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ModeID = nvd->GetString( 0 );
+        }
+
         int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
         nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
-        VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
+        }
 
         //    Regerence area, length parameters
         int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
@@ -2057,6 +2120,8 @@ string VSPAEROSweepAnalysis::Execute()
         //==== Restore Original Values ====//
         //    Geometry set
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_UseMode.Set( useModeOrig );
+        VSPAEROMgr.m_ModeID = modeIDOrig;
         VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
 
         //    Regerence area, length parameters
