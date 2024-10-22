@@ -3030,7 +3030,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "string ExportFile( const string & in file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = -1 )", asFUNCTION( vsp::ExportFile ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string ExportFile( const string & in file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = -1, bool useMode = false, const string & in modeID = "" )", asFUNCTION( vsp::ExportFile ), asCALL_CDECL );
     assert( r >= 0 );
 
 

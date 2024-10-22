@@ -197,6 +197,8 @@ void GeomCoreTestSuite::MeshIOTest()
     string out_file;
     type.m_Type = POD_GEOM_TYPE;
     type.m_Name = "POD";
+    bool useMode = false;
+    string modeID = "";
 
     string id0 = veh.AddGeom( type );
 
@@ -204,7 +206,7 @@ void GeomCoreTestSuite::MeshIOTest()
     TEST_ASSERT( mesh_orig.compare( "NONE" ) != 0 );
 
     out_file = "nascart_test.dat";
-    veh.WriteNascartFiles( out_file, 0, 1 );
+    veh.WriteNascartFiles( out_file, 0, 1, useMode, modeID);
     string mesh_ncart = veh.ImportFile( out_file, vsp::IMPORT_NASCART );
     TEST_ASSERT( mesh_ncart.compare( "NONE" ) != 0 );
     CompareMeshes( veh, mesh_orig, mesh_ncart );
@@ -213,7 +215,7 @@ void GeomCoreTestSuite::MeshIOTest()
     veh.CutActiveGeomVec();
 
     out_file = "stl_test.stl";
-    veh.WriteSTLFile( out_file, 0 );
+    veh.WriteSTLFile( out_file, 0, useMode, modeID);
     string mesh_stl = veh.ImportFile( out_file, vsp::IMPORT_STL );
     TEST_ASSERT( mesh_stl.compare( "NONE" ) != 0 );
     CompareMeshes( veh, mesh_orig, mesh_stl );
@@ -222,7 +224,7 @@ void GeomCoreTestSuite::MeshIOTest()
     veh.CutActiveGeomVec();
 
     out_file = "tri_test.tri";
-    veh.WriteTRIFile( out_file, 0, 1 );
+    veh.WriteTRIFile( out_file, 0, 1, useMode, modeID);
     string mesh_tri = veh.ImportFile( out_file, vsp::IMPORT_CART3D_TRI );
     TEST_ASSERT( mesh_tri.compare( "NONE" ) != 0 );
     CompareMeshes( veh, mesh_orig, mesh_tri );
@@ -231,7 +233,7 @@ void GeomCoreTestSuite::MeshIOTest()
     veh.CutActiveGeomVec();
 
     out_file = "test_xsec.hrm";
-    veh.WriteXSecFile( out_file, 0 );
+    veh.WriteXSecFile( out_file, 0, useMode, modeID );
     string mesh_hrm = veh.ImportFile( out_file, vsp::IMPORT_XSEC_MESH );
     TEST_ASSERT( mesh_hrm.compare( "NONE" ) != 0 );
     CompareMeshes( veh, mesh_orig, mesh_hrm );

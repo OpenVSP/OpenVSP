@@ -29,7 +29,7 @@ public:
     void Hide();
     bool Update();
 
-    void ExportFile( string &newfile, int write_set, int degen_set, int intSubsFlag, int type );
+    void ExportFile( string &newfile, int write_set, int degen_set, int intSubsFlag, int type, bool useMode, const string &modeID );
 
     void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
@@ -44,8 +44,13 @@ protected:
     GroupLayout m_MainLayout;
     GroupLayout m_GenLayout;
 
+    ToggleButton m_SetToggle;
     Choice m_ExportSetChoice;
     Choice m_DegenSetChoice;
+
+    ToggleRadioGroup m_ModeSetToggleGroup;
+    ToggleButton m_ModeToggle;
+    Choice m_ModeChoice;
 
     ToggleButton m_Subsurfs;
 
@@ -74,6 +79,8 @@ protected:
 
     int m_SelectedSetIndex;
     int m_DegenSetIndex;
+    int m_SelectedModeChoice;
+    vector < string > m_ModeIDs;
 };
 
 

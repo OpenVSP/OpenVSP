@@ -247,6 +247,7 @@ Vehicle::Vehicle()
     m_BbZMin.SetDescript( "Minimum Z coordinate of vehicle bounding box" );
 
     m_UseModeCompGeomFlag.Init( "UseModeCompGeomFlag", "CompGeom", this, false, 0, 1 );
+    m_UseModeExportFlag.Init( "UseModeExportFlag", "ExportFlag", this, false, 0, 1 );
 
     m_exportCompGeomCsvFile.Init( "CompGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomCsvFile.Init( "DegenGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
@@ -2187,8 +2188,19 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
 }
 
 //==== Write Cross Section File ====//
-void Vehicle::WriteXSecFile( const string & file_name, int write_set )
+void Vehicle::WriteXSecFile( const string & file_name, int write_set, bool useMode, const string& modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     int geom_cnt = 0;
@@ -2218,8 +2230,19 @@ void Vehicle::WriteXSecFile( const string & file_name, int write_set )
 }
 
 //==== Write Formatted PLOT3D File ====//
-void Vehicle::WritePLOT3DFile( const string & file_name, int write_set )
+void Vehicle::WritePLOT3DFile( const string & file_name, int write_set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     int geom_cnt = 0;
@@ -2302,8 +2325,19 @@ vector < string > Vehicle::GetPtCloudGeoms()
 }
 
 //==== Write STL File ====//
-string Vehicle::WriteSTLFile( const string & file_name, int write_set )
+string Vehicle::WriteSTLFile( const string & file_name, int write_set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
@@ -2347,8 +2381,19 @@ string Vehicle::WriteSTLFile( const string & file_name, int write_set )
 }
 
 //==== Write STL File ====//
-string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set, int subsFlag )
+string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
@@ -2419,8 +2464,19 @@ string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set, i
 }
 
 //==== Write Facet File ====//
-string Vehicle::WriteFacetFile( const string & file_name, int write_set, int subsFlag )
+string Vehicle::WriteFacetFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
@@ -2522,8 +2578,19 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set, int sub
 }
 
 //==== Write Tri File ====//
-string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsFlag )
+string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
@@ -2624,8 +2691,19 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsF
 }
 
 //==== Write OBJ File ====//
-string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsFlag )
+string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
@@ -2735,8 +2813,19 @@ nnwake in1 in2 in3 in4...inn // Last wake line
 */
 
 //==== Write VSPGeom File ====//
-string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int degen_set, int subsFlag, bool half_flag, bool hideset, bool suppressdisks )
+string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int degen_set, int subsFlag, bool useMode, const string &modeID, bool half_flag, bool hideset, bool suppressdisks )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            degen_set = m->m_DegenSet();
+        }
+    }
+
     string mesh_id = string();
 
     vector< Geom * > geom_vec = FindGeomVec( GetGeomVec( false ) );
@@ -2883,8 +2972,19 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
 
 
 //==== Write Nascart Files ====//
-string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int subsFlag )
+string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
@@ -2980,8 +3080,19 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int 
 
 }
 
-string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subsFlag )
+string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
@@ -3073,8 +3184,19 @@ string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subs
     return mesh_id;
 }
 
-void Vehicle::WriteX3DFile( const string & file_name, int write_set )
+void Vehicle::WriteX3DFile( const string & file_name, int write_set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
@@ -3238,8 +3360,19 @@ void Vehicle::WriteX3DMaterial( xmlNodePtr node, Material * material )
     xmlSetProp( mat_node, BAD_CAST "ambientIntensity", BAD_CAST numstr );
 }
 
-void Vehicle::WritePovRayFile( const string & file_name, int write_set )
+void Vehicle::WritePovRayFile( const string & file_name, int write_set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     UpdateBBox();
     int i;
 
@@ -3364,8 +3497,19 @@ void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &
     }
 }
 
-void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
+void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     WriteSTEPFile( file_name, write_set, m_STEPLabelID(), m_STEPLabelName(), m_STEPLabelSurfNo(), m_STEPLabelSplitNo(), m_STEPLabelAirfoilPart(), m_STEPLabelDelim() );
 }
 
@@ -3547,8 +3691,19 @@ void Vehicle::WriteStructureSTEPFile( const string & file_name )
     step.WriteFile( file_name );
 }
 
-void Vehicle::WriteIGESFile( const string & file_name, int write_set )
+void Vehicle::WriteIGESFile( const string & file_name, int write_set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     WriteIGESFile( file_name, write_set, m_IGESLenUnit(), m_IGESSplitSubSurfs(), m_IGESSplitSurfs(), m_IGESToCubic(),
                    m_IGESToCubicTol(), m_IGESTrimTE(), m_IGESMergeLETE(), m_IGESLabelID(), m_IGESLabelName(), m_IGESLabelSurfNo(),
                    m_IGESLabelSplitNo(), m_IGESLabelAirfoilPart(), m_IGESLabelDelim());
@@ -3708,8 +3863,19 @@ void Vehicle::WriteStructureIGESFile( const string & file_name, int feaMeshStruc
     iges.WriteFile( file_name.c_str(), true );
 }
 
-void Vehicle::WriteBEMFile( const string &file_name, int write_set )
+void Vehicle::WriteBEMFile( const string &file_name, int write_set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            // write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     Geom* geom = FindGeom( m_BEMPropID );
 
     PropGeom* pgeom = dynamic_cast < PropGeom* > ( geom );
@@ -3725,8 +3891,19 @@ void Vehicle::WriteBEMFile( const string &file_name, int write_set )
     }
 }
 
-void Vehicle::WriteAirfoilFile( const string &file_name, int write_set )
+void Vehicle::WriteAirfoilFile( const string &file_name, int write_set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     FILE* meta_fid = fopen( file_name.c_str(), "w" );
     if ( !meta_fid )
     {
@@ -3760,8 +3937,19 @@ void Vehicle::WriteAirfoilFile( const string &file_name, int write_set )
     fclose( meta_fid );
 }
 
-void Vehicle::WriteDXFFile( const string & file_name, int write_set )
+void Vehicle::WriteDXFFile( const string & file_name, int write_set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     FILE* dxf_file = fopen( file_name.c_str(), "w" );
 
     if ( dxf_file )
@@ -3968,8 +4156,19 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
     }
 }
 
-void Vehicle::WriteSVGFile( const string & file_name, int write_set )
+void Vehicle::WriteSVGFile( const string & file_name, int write_set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
+
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     if ( geom_vec.size() == 0 )
@@ -4179,8 +4378,18 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
     }
 }
 
-void Vehicle::WritePMARCFile( const string & file_name, int write_set )
+void Vehicle::WritePMARCFile( const string & file_name, int write_set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            write_set = m->m_NormalSet();
+            // degenset = m->m_DegenSet();
+        }
+    }
 
     int ntstep = 10;
     double dtstep = 0.5;
@@ -4771,9 +4980,12 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
     if ( useMode )
     {
         Mode *m = ModeMgr.GetMode( modeID );
-        m->ApplySettings();
-        set = m->m_NormalSet();
-        degenset = m->m_DegenSet();
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+            degenset = m->m_DegenSet();
+        }
     }
 
     string id = AddMeshGeom( set, degenset, suppressdisks );
@@ -5390,17 +5602,17 @@ void Vehicle::SetApplyAbsIgnoreFlag( const vector< string > &g_vec, bool val )
 }
 
 //==== Import File Methods ====//
-string Vehicle::ExportFile( const string & file_name, int write_set, int degen_set, int subsFlag, int file_type )
+string Vehicle::ExportFile( const string & file_name, int write_set, int degen_set, int subsFlag, int file_type, bool useMode, const string &modeID )
 {
     string mesh_id = string();
 
     if ( file_type == EXPORT_XSEC )
     {
-        WriteXSecFile( file_name, write_set );
+        WriteXSecFile( file_name, write_set, useMode, modeID );
     }
     else if ( file_type == EXPORT_PLOT3D )
     {
-        WritePLOT3DFile( file_name, write_set  );
+        WritePLOT3DFile( file_name, write_set, useMode, modeID );
     }
     else if ( file_type == EXPORT_STL )
     {
@@ -5411,11 +5623,11 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
 
         if ( !m_STLMultiSolid() )
         {
-            mesh_id = WriteSTLFile( file_name, write_set );
+            mesh_id = WriteSTLFile( file_name, write_set, useMode, modeID );
         }
         else
         {
-            mesh_id = WriteTaggedMSSTLFile( file_name, write_set, subsFlag );
+            mesh_id = WriteTaggedMSSTLFile( file_name, write_set, subsFlag, useMode, modeID );
         }
 
         if ( m_STLExportPropMainSurf() )
@@ -5425,31 +5637,31 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
     }
     else if ( file_type == EXPORT_CART3D )
     {
-        mesh_id = WriteTRIFile( file_name, write_set, subsFlag );
+        mesh_id = WriteTRIFile( file_name, write_set, subsFlag, useMode, modeID );
     }
     else if ( file_type == EXPORT_OBJ )
     {
-        mesh_id = WriteOBJFile( file_name, write_set, subsFlag );
+        mesh_id = WriteOBJFile( file_name, write_set, subsFlag, useMode, modeID );
     }
     else if ( file_type == EXPORT_VSPGEOM )
     {
-        mesh_id = WriteVSPGeomFile( file_name, write_set, degen_set, subsFlag );
+        mesh_id = WriteVSPGeomFile( file_name, write_set, degen_set, subsFlag, useMode, modeID );
     }
     else if ( file_type == EXPORT_NASCART )
     {
-        mesh_id = WriteNascartFiles( file_name, write_set, subsFlag );
+        mesh_id = WriteNascartFiles( file_name, write_set, subsFlag, useMode, modeID );
     }
     else if ( file_type == EXPORT_GMSH )
     {
-        mesh_id = WriteGmshFile( file_name, write_set, subsFlag );
+        mesh_id = WriteGmshFile( file_name, write_set, subsFlag, useMode, modeID );
     }
     else if ( file_type == EXPORT_POVRAY )
     {
-        WritePovRayFile( file_name, write_set );
+        WritePovRayFile( file_name, write_set, useMode, modeID );
     }
     else if ( file_type == EXPORT_X3D )
     {
-        WriteX3DFile( file_name, write_set );
+        WriteX3DFile( file_name, write_set, useMode, modeID );
     }
     else if ( file_type == EXPORT_STEP )
     {
@@ -5458,7 +5670,7 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
             SetExportPropMainSurf( true );
         }
 
-        WriteSTEPFile( file_name, write_set );
+        WriteSTEPFile( file_name, write_set, useMode, modeID );
 
         if ( m_STEPExportPropMainSurf() )
         {
@@ -5476,7 +5688,7 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
             SetExportPropMainSurf( true );
         }
 
-        WriteIGESFile( file_name, write_set );
+        WriteIGESFile( file_name, write_set, useMode, modeID );
 
         if ( m_IGESExportPropMainSurf() )
         {
@@ -5489,33 +5701,33 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
     }
     else if ( file_type == EXPORT_BEM )
     {
-        WriteBEMFile( file_name, write_set );
+        WriteBEMFile( file_name, write_set, useMode, modeID );
     }
     else if ( file_type == EXPORT_DXF )
     {
-        WriteDXFFile( file_name, write_set  );
+        WriteDXFFile( file_name, write_set, useMode, modeID );
     }
     else if ( file_type == EXPORT_SVG )
     {
-        WriteSVGFile( file_name, write_set  );
+        WriteSVGFile( file_name, write_set, useMode, modeID );
     }
     else if ( file_type == EXPORT_FACET )
     {
-        mesh_id = WriteFacetFile(file_name, write_set, subsFlag);
+        mesh_id = WriteFacetFile(file_name, write_set, subsFlag, useMode, modeID );
     }
     else if ( file_type == EXPORT_PMARC )
     {
-        WritePMARCFile(file_name, write_set);
+        WritePMARCFile(file_name, write_set, useMode, modeID );
     }
     else if ( file_type == EXPORT_SELIG_AIRFOIL )
     {
         m_AFExportType.Set( vsp::SELIG_AF_EXPORT );
-        WriteAirfoilFile( file_name, write_set );
+        WriteAirfoilFile( file_name, write_set, useMode, modeID );
     }
     else if ( file_type == EXPORT_BEZIER_AIRFOIL )
     {
         m_AFExportType.Set( vsp::BEZIER_AF_EXPORT );
-        WriteAirfoilFile( file_name, write_set );
+        WriteAirfoilFile( file_name, write_set, useMode, modeID );
     }
 
     return mesh_id;

@@ -1002,10 +1002,12 @@ extern void InsertVSPFile( const std::string & file_name, const std::string & pa
     \param [in] file_type File type enum (i.e. EXPORT_IGES)
     \param [in] subsFlag Flag to tag subsurfaces if MeshGeom is created
     \param [in] thin_set Set index to export as degenerate geometry (i.e. SET_NONE)
+    \param [in] useMode bool Flag determine if mode is used instead of sets
+    \param [in] modeID string ID of Mode to use
     \return Mesh Geom ID if the export generates a mesh
 */
 
-extern std::string ExportFile( const std::string & file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = vsp::SET_NONE );
+extern std::string ExportFile( const std::string & file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = vsp::SET_NONE, bool useMode = false, const string &modeID = "" );
 
 /*!
     \ingroup FileIO

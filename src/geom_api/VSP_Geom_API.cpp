@@ -320,9 +320,9 @@ string ImportFile( const string & file_name, int file_type, const string & paren
     return veh->ImportFile( file_name, file_type );
 }
 
-string ExportFile( const string & file_name, int thick_set, int file_type, int subsFlag, int thin_set )
+string ExportFile( const string & file_name, int thick_set, int file_type, int subsFlag, int thin_set, bool useMode, const string &modeID )
 {
-    string mesh_id = GetVehicle()->ExportFile( file_name, thick_set, thin_set, subsFlag, file_type );
+    string mesh_id = GetVehicle()->ExportFile( file_name, thick_set, thin_set, subsFlag, file_type, useMode, modeID );
 
     ErrorMgr.NoError();
     return mesh_id;

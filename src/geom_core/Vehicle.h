@@ -188,28 +188,30 @@ public:
     //=== Export Files ===//
     // Return Mesh Geom ID if the export generates a mesh, otherwise return an
     // empty string. This facilitates deleting the generated mesh from the API.
-    string ExportFile( const string & file_name, int write_set, int degen_set, int subsFlag, int file_type );
+    string ExportFile( const string & file_name, int write_set, int degen_set, int subsFlag, int file_type, bool useMode, const string &modeID );
     bool WriteXMLFile( const string & file_name, int set );
-    void WriteXSecFile( const string & file_name, int write_set );
-    void WritePLOT3DFile( const string & file_name, int write_set );
-    string WriteSTLFile( const string & file_name, int write_set );
-    string WriteTaggedMSSTLFile( const string & file_name, int write_set, int subsFlag );
-    string WriteFacetFile( const string & file_name, int write_set, int subsFlag );
-    string WriteTRIFile( const string & file_name, int write_set, int subsFlag );
-    string WriteOBJFile( const string & file_name, int write_set, int subsFlag );
-    string WriteVSPGeomFile( const string & file_name, int write_set, int degen_set, int subsFlag, bool half_flag = false, bool hideset = true, bool suppressdisks = false );
-    string WriteNascartFiles( const string & file_name, int write_set, int subsFlag );
-    string WriteGmshFile( const string & file_name, int write_set, int subsFlag );
-    void WriteX3DFile( const string & file_name, int write_set );
+    void WriteXSecFile( const string & file_name, int write_set, bool useMode, const string& modeID );
+    void WritePLOT3DFile( const string & file_name, int write_set, bool useMode, const string &modeID );
+    string WriteSTLFile( const string & file_name, int write_set, bool useMode, const string &modeID );
+    string WriteTaggedMSSTLFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
+    string WriteFacetFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
+    string WriteTRIFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
+    string WriteOBJFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
+    string WriteVSPGeomFile( const string & file_name, int write_set, int degen_set, int subsFlag, bool useMode, const string &modeID, bool half_flag = false, bool hideset = true, bool suppressdisks = false );
+    string WriteNascartFiles( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
+    string WriteGmshFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
+    void WriteX3DFile( const string & file_name, int write_set, bool useMode, const string &modeID );
     static void WriteX3DMaterial( xmlNodePtr node, Material * material );
     void WriteX3DViewpoints( xmlNodePtr node );
+
     static void WriteX3DViewpointProps( xmlNodePtr node, const string &orients, const string &cents, const string &posits, const string &sfov, const string &name );
-    void WritePovRayFile( const string & file_name, int write_set );
-    void WriteSTEPFile( const string & file_name, int write_set );
+    void WritePovRayFile( const string & file_name, int write_set, bool useMode, const string &modeID );
+    void WriteSTEPFile( const string & file_name, int write_set, bool useMode, const string &modeID );
+
     void WriteSTEPFile( const string & file_name, int write_set, bool labelID,
                         bool labelName, bool labelSurfNo, bool labelSplitNo, bool labelAirfoilPart, int delimType );
     void WriteStructureSTEPFile( const string & file_name );
-    void WriteIGESFile( const string & file_name, int write_set );
+    void WriteIGESFile( const string & file_name, int write_set, bool useMode, const string &modeID );
     void WriteIGESFile( const string &file_name, int write_set, int lenUnit, bool splitSubSurfs, bool splitSurfs,
                         bool toCubic, double toCubicTol, bool trimTE, bool mergeLETE, bool labelID, bool labelName,
                         bool labelSurfNo, bool labelSplitNo, bool labelAirfoilPart, int delimType );
@@ -218,11 +220,11 @@ public:
                         bool toCubic, double toCubicTol, bool labelID, bool labelName,
                         bool labelSurfNo, bool labelSplitNo, bool labelAirfoilPart, int delimType );
 
-    void WriteBEMFile( const string & file_name, int write_set );
-    void WriteAirfoilFile( const string & file_name, int write_set );
-    void WriteDXFFile( const string & file_name, int write_set );
-    void WriteSVGFile( const string & file_name, int write_set );
-    void WritePMARCFile( const string & file_name, int write_set );
+    void WriteBEMFile( const string & file_name, int write_set, bool useMode, const string &modeID );
+    void WriteAirfoilFile( const string & file_name, int write_set, bool useMode, const string &modeID );
+    void WriteDXFFile( const string & file_name, int write_set, bool useMode, const string &modeID );
+    void WriteSVGFile( const string & file_name, int write_set, bool useMode, const string &modeID );
+    void WritePMARCFile( const string & file_name, int write_set, bool useMode, const string &modeID );
 
     void WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox );
     void WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox );
@@ -497,6 +499,7 @@ public:
     BoolParm m_STLExportPropMainSurf;
 
     BoolParm m_UseModeCompGeomFlag;
+    BoolParm m_UseModeExportFlag;
 
     BoolParm m_exportCompGeomCsvFile;
     BoolParm m_exportDegenGeomCsvFile;
