@@ -41,7 +41,11 @@ protected:
     Choice m_TargetSet;
     GeomPicker m_TargetGeom;
 
+    Choice m_ModeChoice;
+    vector < string > m_ModeIDs;
+
     ToggleRadioGroup m_TargetTypeGroup;
+    ToggleButton m_TargetTypeMode;
     ToggleButton m_TargetTypeSet;
     ToggleButton m_TargetTypeGeom;
 

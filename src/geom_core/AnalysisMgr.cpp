@@ -20,6 +20,7 @@
 #include "VSPAEROMgr.h"
 #include "ParasiteDragMgr.h"
 #include <cstdio>
+#include "ModeMgr.h"
 
 #include "VSP_Geom_API.h"
 
@@ -1133,6 +1134,7 @@ void ProjectionAnalysis::SetDefaults()
     m_Inputs.Add( NameValData( "TargetSet", vsp::SET_ALL, "Target geometry Set for analysis." ) );
     m_Inputs.Add( NameValData( "BoundarySet", vsp::SET_ALL, "Boundary geometry Set for analysis." ) );
 
+    m_Inputs.Add( NameValData( "TargetModeID", "", "ID for Mode to use for analysis." ) );
     m_Inputs.Add( NameValData( "TargetGeomID", "", "Target GeomID." ) );
     m_Inputs.Add( NameValData( "BoundaryGeomID", "", "Boundary GeomID." ) );
     m_Inputs.Add( NameValData( "DirectionGeomID", "", "Direction GeomID." ) );
@@ -1180,6 +1182,13 @@ string ProjectionAnalysis::Execute()
         boundarySet = nvd->GetInt( 0 );
     }
 
+    string targetModeID = "";
+    nvd = m_Inputs.FindPtr( "TargetModeID", 0 );
+    if ( nvd )
+    {
+        targetModeID = nvd->GetString( 0 );
+    }
+
     string targetGeomID = "";
     nvd = m_Inputs.FindPtr( "TargetGeomID", 0 );
     if ( nvd )
@@ -1213,12 +1222,23 @@ string ProjectionAnalysis::Execute()
         dir = ProjectionMgr.GetDirection( directionType, directionGeomID );
     }
 
+
+    if ( targetType == vsp::MODE_TARGET )
+    {
+        Mode *m = ModeMgr.GetMode( targetModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            targetSet = m->m_NormalSet();
+        }
+    }
+
     Results* res = NULL;
 
     switch ( boundaryType )
     {
         case vsp::NO_BOUNDARY:
-            if ( targetType == vsp::SET_TARGET )
+            if ( targetType == vsp::SET_TARGET || targetType == vsp::MODE_TARGET )
             {
                 res = ProjectionMgr.Project( targetSet, dir );
             }
@@ -1228,7 +1248,7 @@ string ProjectionAnalysis::Execute()
             }
             break;
         case vsp::SET_BOUNDARY:
-            if ( targetType == vsp::SET_TARGET )
+            if ( targetType == vsp::SET_TARGET || targetType == vsp::MODE_TARGET )
             {
                 res = ProjectionMgr.Project( targetSet, boundarySet, dir );
             }
@@ -1238,7 +1258,7 @@ string ProjectionAnalysis::Execute()
             }
             break;
         case vsp::GEOM_BOUNDARY:
-            if ( targetType == vsp::SET_TARGET )
+            if ( targetType == vsp::SET_TARGET || targetType == vsp::MODE_TARGET )
             {
                 res = ProjectionMgr.Project( targetSet, boundaryGeomID, dir );
             }

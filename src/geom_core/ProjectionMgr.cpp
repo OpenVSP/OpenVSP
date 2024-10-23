@@ -11,6 +11,7 @@
 #include "ParmMgr.h"
 #include "Vehicle.h"
 #include "MeshGeom.h"
+#include "ModeMgr.h"
 
 #include "triangle.h"
 #include "triangle_api.h"
@@ -127,14 +128,27 @@ Results* ProjectionMgrSingleton::Project( )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
+    int ttype = veh->m_TargetType();
+    int tset = m_TargetSetIndex;
+
+    if ( ttype == vsp::MODE_TARGET )
+    {
+        Mode *m = ModeMgr.GetMode( m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            tset = m->m_NormalSet();
+        }
+    }
+
     vec3d dir = GetDirection();
 
     switch ( veh->m_BoundaryType() )
     {
         case vsp::NO_BOUNDARY:
-            if ( veh->m_TargetType() == vsp::SET_TARGET )
+            if ( ttype == vsp::SET_TARGET || ttype == vsp::MODE_TARGET )
             {
-                return Project( m_TargetSetIndex, dir );
+                return Project( tset, dir );
             }
             else
             {
@@ -142,9 +156,9 @@ Results* ProjectionMgrSingleton::Project( )
             }
             break;
         case vsp::SET_BOUNDARY:
-            if ( veh->m_TargetType() == vsp::SET_TARGET )
+            if ( ttype == vsp::SET_TARGET || ttype == vsp::MODE_TARGET )
             {
-                return Project( m_TargetSetIndex, m_BoundarySetIndex, dir );
+                return Project( tset, m_BoundarySetIndex, dir );
             }
             else
             {
@@ -152,9 +166,9 @@ Results* ProjectionMgrSingleton::Project( )
             }
             break;
         case vsp::GEOM_BOUNDARY:
-            if ( veh->m_TargetType() == vsp::SET_TARGET )
+            if ( ttype == vsp::SET_TARGET || ttype == vsp::MODE_TARGET )
             {
-                return Project( m_TargetSetIndex, m_BoundaryGeomID, dir );
+                return Project( tset, m_BoundaryGeomID, dir );
             }
             else
             {

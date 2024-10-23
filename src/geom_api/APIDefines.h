@@ -1069,6 +1069,7 @@ enum PROJ_DIR_TYPE { X_PROJ,	/*!< Project in X axis direction */
 /*! Enum for Projected Area target type. */
 enum PROJ_TGT_TYPE { SET_TARGET,	/*!< Set target type */
                      GEOM_TARGET,	/*!< Geom target type */
+                     MODE_TARGET,	/*!< Mode target type */
                      NUM_PROJ_TGT_OPTIONS	/*!< Number of Projected Area target types */
 };
 

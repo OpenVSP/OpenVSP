@@ -62,9 +62,9 @@ public:
     virtual void ExportProjectLines( vector < TMesh* > targetTMeshVec );
 
     int m_TargetSetIndex;
-
     int m_BoundarySetIndex;
 
+    string m_ModeID;
     string m_TargetGeomID;
     string m_BoundaryGeomID;
     string m_DirectionGeomID;

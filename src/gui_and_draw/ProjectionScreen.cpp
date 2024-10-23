@@ -7,8 +7,9 @@
 
 #include "ProjectionMgr.h"
 #include "ProjectionScreen.h"
+#include "ModeMgr.h"
 
-ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 397, "Projected Area Analysis" )
+ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 397+20, "Projected Area Analysis" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -34,6 +35,14 @@ ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 39
     m_BorderLayout.SetFitWidthFlag( false );
     m_BorderLayout.ForceNewLine();
 
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.AddButton( m_TargetTypeMode, "Mode:" );
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice(m_ModeChoice, "", m_BorderLayout.GetButtonWidth() );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.ForceNewLine();
+
     m_BorderLayout.AddButton( m_TargetTypeGeom, "Geom" );
     m_BorderLayout.SetFitWidthFlag( true );
     m_TargetGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
@@ -47,10 +56,12 @@ ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 39
     m_TargetTypeGroup.Init( this );
     m_TargetTypeGroup.AddButton( m_TargetTypeSet.GetFlButton() );
     m_TargetTypeGroup.AddButton( m_TargetTypeGeom.GetFlButton() );
+    m_TargetTypeGroup.AddButton( m_TargetTypeMode.GetFlButton() );
 
     vector< int > target_type_map;
     target_type_map.push_back( vsp::SET_TARGET );
     target_type_map.push_back( vsp::GEOM_TARGET );
+    target_type_map.push_back( vsp::MODE_TARGET );
     m_TargetTypeGroup.SetValMapVec( target_type_map );
 
     m_BorderLayout.AddYGap();
@@ -234,6 +245,8 @@ bool ProjectionScreen::Update()
 
     m_ScreenMgr->LoadSetChoice( m_TargetSet, m_BoundarySet, ProjectionMgr.m_TargetSetIndex, ProjectionMgr.m_BoundarySetIndex );
 
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, ProjectionMgr.m_ModeID );
+
     m_XSlider.Update( vehiclePtr->m_XComp.GetID() );
     m_YSlider.Update( vehiclePtr->m_YComp.GetID() );
     m_ZSlider.Update( vehiclePtr->m_ZComp.GetID() );
@@ -255,15 +268,47 @@ bool ProjectionScreen::Update()
             break;
     }
 
-    if ( vehiclePtr->m_TargetType() == vsp::SET_TARGET )
+    if ( ModeMgr.GetNumModes() == 0 )
     {
-        m_TargetGeom.Deactivate();
-        m_TargetSet.Activate();
+        if ( vehiclePtr->m_TargetType() == vsp::MODE_TARGET )
+        {
+            vehiclePtr->m_TargetType.Set( vsp::SET_TARGET );
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+        m_TargetTypeMode.Deactivate();
     }
     else
     {
+        m_TargetTypeMode.Activate();
+    }
+
+    if ( vehiclePtr->m_TargetType() == vsp::SET_TARGET )
+    {
+        m_TargetGeom.Deactivate();
+        m_ModeChoice.Deactivate();
+        m_TargetSet.Activate();
+    }
+    else if ( vehiclePtr->m_TargetType() == vsp::GEOM_TARGET )
+    {
         m_TargetGeom.Activate();
+        m_ModeChoice.Deactivate();
         m_TargetSet.Deactivate();
+    }
+    else
+    {
+        m_TargetGeom.Deactivate();
+        m_ModeChoice.Activate();
+        m_TargetSet.Deactivate();
+
+        Mode *m = ModeMgr.GetMode( ProjectionMgr.m_ModeID );
+        if ( m )
+        {
+            if ( ProjectionMgr.m_TargetSetIndex != m->m_NormalSet() )
+            {
+                ProjectionMgr.m_TargetSetIndex = m->m_NormalSet();
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+        }
     }
 
     switch ( vehiclePtr->m_DirectionType() )
@@ -320,6 +365,18 @@ void ProjectionScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_TargetSet )
     {
         ProjectionMgr.m_TargetSetIndex = m_TargetSet.GetVal();
+    }
+    else if ( device == &m_ModeChoice )
+    {
+        int indx = m_ModeChoice.GetVal();
+        if ( indx >= 0  && indx < m_ModeIDs.size() )
+        {
+            ProjectionMgr.m_ModeID = m_ModeIDs[ indx ];
+        }
+        else
+        {
+            ProjectionMgr.m_ModeID = "";
+        }
     }
     else if ( device == &m_BoundarySet )
     {
