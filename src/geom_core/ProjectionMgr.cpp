@@ -127,77 +127,43 @@ Results* ProjectionMgrSingleton::Project( )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
+    vec3d dir = GetDirection();
+
     switch ( veh->m_BoundaryType() )
     {
         case vsp::NO_BOUNDARY:
             if ( veh->m_TargetType() == vsp::SET_TARGET )
             {
-                return Project( m_TargetSetIndex );
+                return Project( m_TargetSetIndex, dir );
             }
             else
             {
-                return Project( m_TargetGeomID );
+                return Project( m_TargetGeomID, dir );
             }
             break;
         case vsp::SET_BOUNDARY:
             if ( veh->m_TargetType() == vsp::SET_TARGET )
             {
-                return Project( m_TargetSetIndex, m_BoundarySetIndex );
+                return Project( m_TargetSetIndex, m_BoundarySetIndex, dir );
             }
             else
             {
-                return Project( m_TargetGeomID, m_BoundarySetIndex );
+                return Project( m_TargetGeomID, m_BoundarySetIndex, dir );
             }
             break;
         case vsp::GEOM_BOUNDARY:
             if ( veh->m_TargetType() == vsp::SET_TARGET )
             {
-                return Project( m_TargetSetIndex, m_BoundaryGeomID );
+                return Project( m_TargetSetIndex, m_BoundaryGeomID, dir );
             }
             else
             {
-                return Project( m_TargetGeomID, m_BoundaryGeomID );
+                return Project( m_TargetGeomID, m_BoundaryGeomID, dir );
             }
             break;
     }
 
     return NULL;
-}
-
-Results* ProjectionMgrSingleton::Project( int tset )
-{
-    UpdateDirection();
-    return Project( tset, GetDirection() );
-}
-
-Results* ProjectionMgrSingleton::Project( int tset, int bset )
-{
-    UpdateDirection();
-    return Project( tset, bset, GetDirection() );
-}
-
-Results* ProjectionMgrSingleton::Project( int tset, string bgeom )
-{
-    UpdateDirection();
-    return Project( tset, bgeom, GetDirection() );
-}
-
-Results* ProjectionMgrSingleton::Project( const string &tgeom )
-{
-    UpdateDirection();
-    return Project( tgeom, GetDirection() );
-}
-
-Results* ProjectionMgrSingleton::Project( const string &tgeom, int bset )
-{
-    UpdateDirection();
-    return Project( tgeom, bset, GetDirection() );
-}
-
-Results* ProjectionMgrSingleton::Project( const string &tgeom, string bgeom )
-{
-    UpdateDirection();
-    return Project( tgeom, bgeom, GetDirection() );
 }
 
 Results* ProjectionMgrSingleton::Project( int tset, const vec3d & dir )

@@ -49,14 +49,6 @@ public:
 
     virtual Results* Project( );
 
-    virtual Results* Project( int tset );
-    virtual Results* Project( int tset, int bset );
-    virtual Results* Project( int tset, string bgeom );
-
-    virtual Results* Project( const string &tgeom );
-    virtual Results* Project( const string &tgeom, int bset );
-    virtual Results* Project( const string &tgeom, string bgeom );
-
     virtual Results* Project( int tset, const vec3d & dir );
     virtual Results* Project( int tset, int bset, const vec3d & dir );
     virtual Results* Project( int tset, string bgeom, const vec3d & dir );
