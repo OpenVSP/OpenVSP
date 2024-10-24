@@ -93,7 +93,7 @@ bool SnapToScreen::Update()
     string parm_id = m_ParmPicker.GetParmChoice();
     m_ValSlider.Update( parm_id );
 
-    m_ScreenMgr->LoadSetChoice( m_SetChoice, snap->m_CollisionSet );
+    m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {snap->m_CollisionSet} );
 
     m_MethodChoice.ClearItems();
     m_MethodChoice.AddItem( "Mesh - Faster" );

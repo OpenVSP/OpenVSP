@@ -105,7 +105,7 @@ bool MassPropScreen::Update()
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    m_ScreenMgr->LoadSetChoice( m_SetChoice, m_SelectedSetIndex );
+    m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {m_SelectedSetIndex} );
 
     m_NumSlicesInput.Update( veh->m_NumMassSlices.GetID() );
     m_SliceDirChoice.Update( veh->m_MassSliceDir.GetID() );

@@ -142,7 +142,7 @@ bool ManageGeomScreen::Update()
     {
         LoadBrowser();
         LoadActiveGeomOutput();
-        m_ScreenMgr->LoadSetChoice( m_SetChoice, m_SetIndex, false, SET_FIRST_USER );
+        m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, vector<int>({m_SetIndex}), false, SET_FIRST_USER );
         LoadTypeChoice();
         LoadDisplayChoice();
         UpdateDrawType();

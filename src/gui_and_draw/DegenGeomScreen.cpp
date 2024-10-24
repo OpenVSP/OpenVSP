@@ -93,7 +93,7 @@ bool DegenGeomScreen::Update()
 
     BasicScreen::Update();
 
-    m_ScreenMgr->LoadSetChoice( m_UseSet, m_SelectedSetIndex );
+    m_ScreenMgr->LoadSetChoice( {&m_UseSet}, vector < int >( { m_SelectedSetIndex } ) );
 
     //===== Update File Toggle Buttons =====//
     m_CsvToggle.Update( vehiclePtr->m_exportDegenGeomCsvFile.GetID() );

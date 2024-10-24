@@ -642,21 +642,6 @@ void ScreenMgr::SetGeomScreenDisable( int s, bool state )
     }
 }
 
-void ScreenMgr::LoadSetChoice( Choice &choice, const int &selected, bool includeNone, int istart )
-{
-    choice.ClearItems();
-
-    vector< string > set_name_vec = m_VehiclePtr->GetSetNameVec( includeNone );
-
-    for ( int i = istart; i < ( int )set_name_vec.size(); ++i )
-    {
-        choice.AddItem( set_name_vec[i], i - (int) includeNone );
-    }
-
-    choice.UpdateItems();
-    choice.SetVal( selected );
-}
-
 void ScreenMgr::LoadSetChoice( const vector < Choice* > &choicevec, const vector <int> &selectedvec, bool includeNone, int istart )
 {
     vector< string > set_name_vec = m_VehiclePtr->GetSetNameVec( includeNone );
