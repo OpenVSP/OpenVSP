@@ -702,9 +702,9 @@ bool CfdMeshScreen::Update()
 {
     TabScreen::Update();
 
-    m_ScreenMgr->LoadSetChoice( m_UseSet, m_UseDegenSet,
-        m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex.GetID(),
-        m_Vehicle->GetCfdSettingsPtr()->m_SelectedDegenSetIndex.GetID(), true );
+    m_ScreenMgr->LoadSetChoice( {&m_UseSet, &m_UseDegenSet},
+        {m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex.GetID(),
+        m_Vehicle->GetCfdSettingsPtr()->m_SelectedDegenSetIndex.GetID()}, true );
 
     if ( CfdMeshMgr.GetMeshInProgress() )
     {

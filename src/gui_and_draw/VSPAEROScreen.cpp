@@ -812,7 +812,7 @@ bool VSPAEROScreen::Update()
     {
         UpdateRefWing();
 
-        m_ScreenMgr->LoadSetChoice( m_GeomSetChoice, m_CGSetChoice, VSPAEROMgr.m_GeomSet.GetID(), VSPAEROMgr.m_CGGeomSet.GetID() );
+        m_ScreenMgr->LoadSetChoice( {&m_GeomSetChoice, &m_CGSetChoice}, {VSPAEROMgr.m_GeomSet.GetID(), VSPAEROMgr.m_CGGeomSet.GetID()} );
         m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, VSPAEROMgr.m_ModeID );
 
         m_ModeSetToggleGroup.Update( VSPAEROMgr.m_UseMode.GetID() );

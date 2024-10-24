@@ -135,7 +135,7 @@ bool CompGeomScreen::Update()
 
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
-    m_ScreenMgr->LoadSetChoice( m_UseSet, m_DegenSet, m_SelectedSetIndex, m_DegenSelectedSetIndex, true );
+    m_ScreenMgr->LoadSetChoice( {&m_UseSet, &m_DegenSet}, {m_SelectedSetIndex, m_DegenSelectedSetIndex}, true );
 
     m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
 

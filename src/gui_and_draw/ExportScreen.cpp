@@ -105,7 +105,7 @@ bool ExportScreen::Update()
 
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
-    m_ScreenMgr->LoadSetChoice( m_ExportSetChoice, m_DegenSetChoice, m_SelectedSetIndex, m_DegenSetIndex, true );
+    m_ScreenMgr->LoadSetChoice( {&m_ExportSetChoice, &m_DegenSetChoice}, {m_SelectedSetIndex, m_DegenSetIndex}, true );
     m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
 
     m_ModeSetToggleGroup.Update( vehiclePtr->m_UseModeExportFlag.GetID() );

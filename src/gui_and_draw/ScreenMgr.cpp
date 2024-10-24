@@ -657,24 +657,24 @@ void ScreenMgr::LoadSetChoice( Choice &choice, const int &selected, bool include
     choice.SetVal( selected );
 }
 
-void ScreenMgr::LoadSetChoice( Choice &choice1, Choice &choice2, const int &selected1, const int &selected2, bool includeNone )
+void ScreenMgr::LoadSetChoice( const vector < Choice* > &choicevec, const vector <int> &selectedvec, bool includeNone, int istart )
 {
-    choice1.ClearItems();
-    choice2.ClearItems();
-
     vector< string > set_name_vec = m_VehiclePtr->GetSetNameVec( includeNone );
 
-    for ( int i = 0; i < ( int )set_name_vec.size(); ++i )
+    for ( int ichoice = 0; ichoice < choicevec.size(); ichoice++ )
     {
-        choice1.AddItem( set_name_vec[i], i - (int) includeNone );
-        choice2.AddItem( set_name_vec[i], i - (int) includeNone );
+        Choice *c = choicevec[ ichoice ];
+
+        c->ClearItems();
+
+        for ( int i = istart; i < ( int )set_name_vec.size(); ++i )
+        {
+            c->AddItem( set_name_vec[i], i - (int) includeNone );
+        }
+
+        c->UpdateItems();
+        c->SetVal( selectedvec[ ichoice ] );
     }
-
-    choice1.UpdateItems();
-    choice1.SetVal( selected1 );
-
-    choice2.UpdateItems();
-    choice2.SetVal( selected2 );
 }
 
 void ScreenMgr::LoadSetChoice( Choice &choice, const string &selectedID, bool includeNone )
@@ -692,24 +692,24 @@ void ScreenMgr::LoadSetChoice( Choice &choice, const string &selectedID, bool in
     choice.Update( selectedID );
 }
 
-void ScreenMgr::LoadSetChoice( Choice &choice1, Choice &choice2, const string &selected1ID, const string &selected2ID, bool includeNone )
+void ScreenMgr::LoadSetChoice( const vector < Choice* > &choicevec, const vector <string> &selectedIDvec, bool includeNone, int istart )
 {
-    choice1.ClearItems();
-    choice2.ClearItems();
-
     vector< string > set_name_vec = m_VehiclePtr->GetSetNameVec( includeNone );
 
-    for ( int i = 0; i < ( int )set_name_vec.size(); ++i )
+    for ( int ichoice = 0; ichoice < choicevec.size(); ichoice++ )
     {
-        choice1.AddItem( set_name_vec[i], i - (int) includeNone );
-        choice2.AddItem( set_name_vec[i], i - (int) includeNone );
+        Choice *c = choicevec[ ichoice ];
+
+        c->ClearItems();
+
+        for ( int i = istart; i < ( int )set_name_vec.size(); ++i )
+        {
+            c->AddItem( set_name_vec[i], i - (int) includeNone );
+        }
+
+        c->UpdateItems();
+        c->Update( selectedIDvec[ ichoice ] );
     }
-
-    choice1.UpdateItems();
-    choice1.Update( selected1ID );
-
-    choice2.UpdateItems();
-    choice2.Update( selected2ID );
 }
 
 void ScreenMgr::LoadModeChoice( Choice & choice, vector < string > &modeIDVec, int selected )

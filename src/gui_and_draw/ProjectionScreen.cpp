@@ -243,7 +243,7 @@ bool ProjectionScreen::Update()
     ProjectionMgr.UpdateDirection();
 
 
-    m_ScreenMgr->LoadSetChoice( m_TargetSet, m_BoundarySet, ProjectionMgr.m_TargetSetIndex, ProjectionMgr.m_BoundarySetIndex );
+    m_ScreenMgr->LoadSetChoice( {&m_TargetSet, &m_BoundarySet}, {ProjectionMgr.m_TargetSetIndex, ProjectionMgr.m_BoundarySetIndex} );
 
     m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, ProjectionMgr.m_ModeID );
 

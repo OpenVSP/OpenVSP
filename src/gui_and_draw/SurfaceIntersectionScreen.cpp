@@ -290,7 +290,7 @@ bool SurfaceIntersectionScreen::Update()
 {
     TabScreen::Update();
 
-    m_ScreenMgr->LoadSetChoice( m_UseSet, m_UseDegenSet, m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.GetID(), m_Vehicle->GetISectSettingsPtr()->m_SelectedDegenSetIndex.GetID() );
+    m_ScreenMgr->LoadSetChoice( {&m_UseSet, &m_UseDegenSet}, {m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.GetID(), m_Vehicle->GetISectSettingsPtr()->m_SelectedDegenSetIndex.GetID()} );
 
     if ( SurfaceIntersectionMgr.GetMeshInProgress() )
     {

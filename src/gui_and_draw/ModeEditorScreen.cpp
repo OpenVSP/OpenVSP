@@ -108,7 +108,7 @@ bool ModeEditorScreen::Update()
 
     if ( mod )
     {
-        m_ScreenMgr->LoadSetChoice( m_NormalSetChoice, m_DegenSetChoice, mod->m_NormalSet.GetID(), mod->m_DegenSet.GetID(), true );
+        m_ScreenMgr->LoadSetChoice( {&m_NormalSetChoice, &m_DegenSetChoice}, {mod->m_NormalSet.GetID(), mod->m_DegenSet.GetID()}, true );
     }
 
     UpdateModeBrowser();
