@@ -332,7 +332,7 @@ bool WaveDragScreen::Update()
         m_SelectedBodyRev.Update( WaveDragMgr.m_IdealBodyType.GetID() );
 
 
-        m_ScreenMgr->LoadSetChoice( m_SelectedSetChoice, WaveDragMgr.m_SelectedSetIndex.GetID() );
+        m_ScreenMgr->LoadSetChoice( {&m_SelectedSetChoice}, {WaveDragMgr.m_SelectedSetIndex.GetID()} );
 
         // Removes any subsurf IDs from m_SSFlow_vec that don't exist in the model
         for ( int i = (int)WaveDragMgr.m_SSFlow_vec.size()-1; i >= 0 ; i--)

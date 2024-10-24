@@ -662,21 +662,6 @@ void ScreenMgr::LoadSetChoice( const vector < Choice* > &choicevec, const vector
     }
 }
 
-void ScreenMgr::LoadSetChoice( Choice &choice, const string &selectedID, bool includeNone )
-{
-    choice.ClearItems();
-
-    vector< string > set_name_vec = m_VehiclePtr->GetSetNameVec( includeNone );
-
-    for ( int i = 0; i < ( int )set_name_vec.size(); ++i )
-    {
-        choice.AddItem( set_name_vec[i], i - (int) includeNone );
-    }
-
-    choice.UpdateItems();
-    choice.Update( selectedID );
-}
-
 void ScreenMgr::LoadSetChoice( const vector < Choice* > &choicevec, const vector <string> &selectedIDvec, bool includeNone, int istart )
 {
     vector< string > set_name_vec = m_VehiclePtr->GetSetNameVec( includeNone );

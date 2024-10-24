@@ -3668,7 +3668,7 @@ bool EngineModelScreen::Update( )
 
     m_EngineAutoExtensionFlagButton.Update( geomengine_ptr->m_AutoExtensionFlag.GetID() );
 
-    m_ScreenMgr->LoadSetChoice( m_EngineAutoExtensionSetChoice, geomengine_ptr->m_AutoExtensionSet.GetID() );
+    m_ScreenMgr->LoadSetChoice( {&m_EngineAutoExtensionSetChoice}, {geomengine_ptr->m_AutoExtensionSet.GetID()} );
 
 
     return true;

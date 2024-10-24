@@ -100,8 +100,6 @@ public:
 
     void LoadSetChoice( Choice &choice, const int &selected, bool includeNone = false, int istart = 0 );
     void LoadSetChoice( const vector < Choice* > &choicevec, const vector <int> &selectedvec, bool includeNone = false, int istart = 0 );
-
-    void LoadSetChoice( Choice &choice, const string &selectedID, bool includeNone = false );
     void LoadSetChoice( const vector < Choice* > &choicevec, const vector <string> &selectedIDvec, bool includeNone = false, int istart = 0 );
 
     void LoadModeChoice( Choice & choice, vector < string > &modeIDVec, int selected );

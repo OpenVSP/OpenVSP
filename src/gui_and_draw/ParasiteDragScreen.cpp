@@ -622,7 +622,7 @@ bool ParasiteDragScreen::Update()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        m_ScreenMgr->LoadSetChoice( m_SetChoice, ParasiteDragMgr.m_SetChoice.GetID() );
+        m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
         ParasiteDragMgr.RefreshBaseDataVectors();
 
         UpdateSrefChoice();
@@ -1259,7 +1259,7 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                 if ( m_subsurfinclude[i].GetVal() == vsp::SS_INC_SEPARATE_TREATMENT && ParasiteDragMgr.IsCaclualted() )
                 {
                     vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_IncludeType.Set( m_subsurfinclude[i].GetVal() );
-                    m_ScreenMgr->LoadSetChoice( m_SetChoice, ParasiteDragMgr.m_SetChoice.GetID() );
+                    m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
                     ParasiteDragMgr.RefreshBaseDataVectors();
                     RebuildBuildUpTable();
                     ParasiteDragMgr.RenewDegenGeomVec();
@@ -1269,7 +1269,7 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                         ParasiteDragMgr.IsCaclualted() )
                 {
                     vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_IncludeType.Set( m_subsurfinclude[i].GetVal() );
-                    m_ScreenMgr->LoadSetChoice( m_SetChoice, ParasiteDragMgr.m_SetChoice.GetID() );
+                    m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
                     ParasiteDragMgr.RefreshBaseDataVectors();
                     RebuildBuildUpTable();
                     ParasiteDragMgr.RenewDegenGeomVec();
