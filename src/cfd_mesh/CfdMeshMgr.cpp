@@ -11,6 +11,7 @@
 #include "SubSurfaceMgr.h"
 #include "main.h"
 #include "MeshAnalysis.h"
+#include "ModeMgr.h"
 
 #include <algorithm>
 
@@ -498,13 +499,28 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
 {
     GetGridDensityPtr()->ClearSources();
 
+    int nset = GetCfdSettingsPtr()->m_SelectedSetIndex;
+    int dset = GetCfdSettingsPtr()->m_SelectedDegenSetIndex;
+
+    if ( GetCfdSettingsPtr()->m_UseMode )
+    {
+        Mode *m = ModeMgr.GetMode( GetCfdSettingsPtr()->m_ModeID );
+        if ( m )
+        {
+            // Do not apply settings every time Sources and Wakes are updated.
+            // m->ApplySettings();
+            nset = m->m_NormalSet();
+            dset = m->m_DegenSet();
+        }
+    }
+
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
         Geom* geom = m_Vehicle->FindGeom( geomVec[g] );
         if ( geom )
         {
-            if ( geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex ) || geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedDegenSetIndex ) )
+            if ( geom->GetSetFlag( nset ) || geom->GetSetFlag( dset ) )
             {
                 geom->UpdateSources();
                 vector< BaseSimpleSource* > sVec = geom->GetCfdMeshSimpSourceVec();
@@ -1189,6 +1205,19 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
 
     fprintf( fp, "# Part 3 - Hole List\n" );
 
+    int set = GetCfdSettingsPtr()->m_SelectedSetIndex;
+
+    if ( GetCfdSettingsPtr()->m_UseMode )
+    {
+        Mode *m = ModeMgr.GetMode( GetCfdSettingsPtr()->m_ModeID );
+        if ( m )
+        {
+            // Don't apply settings here, mesh should already be created.
+            // m->ApplySettings();
+            set = m->m_NormalSet();
+        }
+    }
+
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     vector< vec3d > interiorPntVec;
     for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
@@ -1196,7 +1225,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
         Geom* geom = m_Vehicle->FindGeom( geomVec[i] );
         if ( geom )
         {
-            if ( geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex ) )
+            if ( geom->GetSetFlag( set ) )
             {
                 if ( GetCfdSettingsPtr()->m_FarMeshFlag && GetCfdSettingsPtr()->m_FarCompFlag )
                 {

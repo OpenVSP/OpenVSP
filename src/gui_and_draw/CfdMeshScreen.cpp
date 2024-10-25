@@ -14,6 +14,7 @@
 
 #include "CfdMeshScreen.h"
 #include "CfdMeshMgr.h"
+#include "ModeMgr.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -175,9 +176,35 @@ void CfdMeshScreen::CreateGlobalTab()
     m_GlobalTabLayout.AddButton(m_IntersectSubsurfaces, "Intersect Subsurfaces");
     m_GlobalTabLayout.AddYGap();
 
-    m_GlobalTabLayout.SetChoiceButtonWidth(m_GlobalTabLayout.GetRemainX() / 2.0);
-    m_GlobalTabLayout.AddChoice(m_UseSet, "Use Set");
-    m_GlobalTabLayout.AddChoice(m_UseDegenSet, "DegenUse Set");
+    int bw = m_GlobalTabLayout.GetRemainX() / 2.0;
+    m_GlobalTabLayout.SetButtonWidth( bw );
+    m_GlobalTabLayout.SetChoiceButtonWidth( bw );
+
+    m_GlobalTabLayout.SetSameLineFlag( true );
+    m_GlobalTabLayout.SetChoiceButtonWidth( 0 );
+    m_GlobalTabLayout.SetFitWidthFlag( false );
+    m_GlobalTabLayout.AddButton( m_SetToggle, "Normal Set:" );
+    m_GlobalTabLayout.SetFitWidthFlag( true );
+    m_GlobalTabLayout.AddChoice(m_UseSet, "", bw);
+    m_GlobalTabLayout.ForceNewLine();
+
+    m_GlobalTabLayout.SetSameLineFlag( false );
+    m_GlobalTabLayout.SetChoiceButtonWidth( bw );
+    m_GlobalTabLayout.AddChoice(m_UseDegenSet, "Degen Set:" );
+
+    m_GlobalTabLayout.SetSameLineFlag( true );
+    m_GlobalTabLayout.SetChoiceButtonWidth( 0 );
+    m_GlobalTabLayout.SetFitWidthFlag( false );
+    m_GlobalTabLayout.AddButton( m_ModeToggle, "Mode:" );
+    m_GlobalTabLayout.SetFitWidthFlag( true );
+    m_GlobalTabLayout.AddChoice(m_ModeChoice, "", bw );
+    m_GlobalTabLayout.ForceNewLine();
+
+    m_ModeSetToggleGroup.Init( this );
+    m_ModeSetToggleGroup.AddButton( m_SetToggle.GetFlButton() );
+    m_ModeSetToggleGroup.AddButton( m_ModeToggle.GetFlButton() );
+
+    m_GlobalTabLayout.SetSameLineFlag( false );
 
     m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.SetButtonWidth( 175.0 );
@@ -706,6 +733,50 @@ bool CfdMeshScreen::Update()
         {m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex.GetID(),
         m_Vehicle->GetCfdSettingsPtr()->m_SelectedDegenSetIndex.GetID()}, true );
 
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_Vehicle->GetCfdSettingsPtr()->m_ModeID );
+
+    m_ModeSetToggleGroup.Update( m_Vehicle->GetCfdSettingsPtr()->m_UseMode.GetID() );
+
+    if ( ModeMgr.GetNumModes() == 0 )
+    {
+        if ( m_Vehicle->GetCfdSettingsPtr()->m_UseMode() )
+        {
+            m_Vehicle->GetCfdSettingsPtr()->m_UseMode.Set( false );
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+        m_ModeToggle.Deactivate();
+    }
+    else
+    {
+        m_ModeToggle.Activate();
+    }
+
+    if ( m_Vehicle->GetCfdSettingsPtr()->m_UseMode() )
+    {
+        m_ModeChoice.Activate();
+        m_UseSet.Deactivate();
+        m_UseDegenSet.Deactivate();
+
+        Mode *m = ModeMgr.GetMode( m_Vehicle->GetCfdSettingsPtr()->m_ModeID );
+        if ( m )
+        {
+            if ( m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex() != m->m_NormalSet() ||
+                 m_Vehicle->GetCfdSettingsPtr()->m_SelectedDegenSetIndex() != m->m_DegenSet() )
+            {
+                m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex = m->m_NormalSet();
+                m_Vehicle->GetCfdSettingsPtr()->m_SelectedDegenSetIndex = m->m_DegenSet();
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+        }
+    }
+    else
+    {
+        m_ModeChoice.Deactivate();
+        m_UseSet.Activate();
+        m_UseDegenSet.Activate();
+    }
+
+
     if ( CfdMeshMgr.GetMeshInProgress() )
     {
         m_MeshAndExport.Deactivate();
@@ -1214,6 +1285,15 @@ bool CfdMeshScreen::GetVisBndBox( BndBox &bbox )
 
 void CfdMeshScreen::Show()
 {
+    if ( m_Vehicle->GetCfdSettingsPtr()->m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( m_Vehicle->GetCfdSettingsPtr()->m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+        }
+    }
+
     m_ScreenMgr->SetUpdateFlag( true );
     TabScreen::Show();
 }
@@ -1304,6 +1384,27 @@ void CfdMeshScreen::GuiDeviceGlobalTabCallback( GuiDevice* device )
     else if ( device == &m_GlobSrcAdjustRadRhtRht )
     {
         CfdMeshMgr.AdjustAllSourceRad( 1.5 );
+    }
+    else if ( device == &m_ModeChoice )
+    {
+        int indx = m_ModeChoice.GetVal();
+        if ( indx >= 0  && indx < m_ModeIDs.size() )
+        {
+            m_Vehicle->GetCfdSettingsPtr()->m_ModeID = m_ModeIDs[ indx ];
+        }
+        else
+        {
+            m_Vehicle->GetCfdSettingsPtr()->m_ModeID = "";
+        }
+
+        if ( m_Vehicle->GetCfdSettingsPtr()->m_UseMode() )
+        {
+            Mode *m = ModeMgr.GetMode( m_Vehicle->GetCfdSettingsPtr()->m_ModeID );
+            if ( m )
+            {
+                m->ApplySettings();
+            }
+        }
     }
 }
 

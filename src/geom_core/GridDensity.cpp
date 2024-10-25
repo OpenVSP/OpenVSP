@@ -13,6 +13,7 @@
 #include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "VspUtil.h"
+#include "ModeMgr.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -1455,6 +1456,18 @@ double CfdGridDensity::GetModelLen()
 
     int cfdset = veh->GetCfdSettingsPtr()->m_SelectedSetIndex();
     int dgset = veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex();
+
+    if ( veh->GetCfdSettingsPtr()->m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( veh->GetCfdSettingsPtr()->m_ModeID );
+        if ( m )
+        {
+            // Do not apply settings every time Sources and Wakes are updated.
+            // m->ApplySettings();
+            cfdset = m->m_NormalSet();
+            dgset = m->m_DegenSet();
+        }
+    }
 
     vector < string > gids = veh->GetGeomVec();
 

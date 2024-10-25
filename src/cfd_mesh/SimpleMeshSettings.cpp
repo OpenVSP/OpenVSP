@@ -51,6 +51,8 @@ SimpleMeshCommonSettings::SimpleMeshCommonSettings()
 
     m_SelectedSetIndex = 0;
     m_SelectedDegenSetIndex = 0;
+    m_UseMode = false;
+    m_ModeID = "";
 
     m_XYZIntCurveFlag = false;
 
@@ -151,6 +153,9 @@ void SimpleIntersectSettings::CopyFrom( IntersectSettings* settings )
     m_SelectedSetIndex = settings->m_SelectedSetIndex.Get();
     m_SelectedDegenSetIndex = settings->m_SelectedDegenSetIndex.Get();
 
+    m_UseMode = settings->m_UseMode.Get();
+    m_ModeID = settings->m_ModeID;
+
     m_STEPTol = settings->m_STEPTol.Get();
     m_STEPMergePoints = settings->m_STEPMergePoints.Get();
     m_STEPRepresentation = settings->m_STEPRepresentation.Get();
@@ -227,6 +232,9 @@ void SimpleCfdMeshSettings::CopyFrom( CfdMeshSettings* settings )
 
     m_SelectedSetIndex = settings->m_SelectedSetIndex.Get();
     m_SelectedDegenSetIndex = settings->m_SelectedDegenSetIndex.Get();
+
+    m_UseMode = settings->m_UseMode.Get();
+    m_ModeID = settings->m_ModeID;
 
     m_ExportFileFlags.clear();
     m_ExportFileFlags.resize( vsp::CFD_NUM_FILE_NAMES );

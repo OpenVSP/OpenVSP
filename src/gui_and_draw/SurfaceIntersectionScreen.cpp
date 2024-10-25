@@ -14,6 +14,7 @@
 
 #include "SurfaceIntersectionScreen.h"
 #include "SurfaceIntersectionMgr.h"
+#include "ModeMgr.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -83,9 +84,35 @@ void SurfaceIntersectionScreen::CreateGlobalTab()
     m_GlobalTabLayout.AddButton( m_IntersectSubsurfaces, "Intersect Subsurfaces" );
     m_GlobalTabLayout.AddYGap();
 
-    m_GlobalTabLayout.SetChoiceButtonWidth( m_GlobalTabLayout.GetRemainX() / 2 );
-    m_GlobalTabLayout.AddChoice( m_UseSet, "Use Set" );
-    m_GlobalTabLayout.AddChoice(m_UseDegenSet, "Degen Use Set" );
+    int bw = m_GlobalTabLayout.GetRemainX() / 2.0;
+    m_GlobalTabLayout.SetButtonWidth( bw );
+    m_GlobalTabLayout.SetChoiceButtonWidth( bw );
+
+    m_GlobalTabLayout.SetSameLineFlag( true );
+    m_GlobalTabLayout.SetChoiceButtonWidth( 0 );
+    m_GlobalTabLayout.SetFitWidthFlag( false );
+    m_GlobalTabLayout.AddButton( m_SetToggle, "Normal Set:" );
+    m_GlobalTabLayout.SetFitWidthFlag( true );
+    m_GlobalTabLayout.AddChoice(m_UseSet, "", bw);
+    m_GlobalTabLayout.ForceNewLine();
+
+    m_GlobalTabLayout.SetSameLineFlag( false );
+    m_GlobalTabLayout.SetChoiceButtonWidth( bw );
+    m_GlobalTabLayout.AddChoice(m_UseDegenSet, "Degen Set:" );
+
+    m_GlobalTabLayout.SetSameLineFlag( true );
+    m_GlobalTabLayout.SetChoiceButtonWidth( 0 );
+    m_GlobalTabLayout.SetFitWidthFlag( false );
+    m_GlobalTabLayout.AddButton( m_ModeToggle, "Mode:" );
+    m_GlobalTabLayout.SetFitWidthFlag( true );
+    m_GlobalTabLayout.AddChoice(m_ModeChoice, "", bw );
+    m_GlobalTabLayout.ForceNewLine();
+
+    m_ModeSetToggleGroup.Init( this );
+    m_ModeSetToggleGroup.AddButton( m_SetToggle.GetFlButton() );
+    m_ModeSetToggleGroup.AddButton( m_ModeToggle.GetFlButton() );
+
+    m_GlobalTabLayout.SetSameLineFlag( false );
 
     m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.AddButton( m_ToCubicToggle, "Demote Surfs to Cubic" );
@@ -290,7 +317,53 @@ bool SurfaceIntersectionScreen::Update()
 {
     TabScreen::Update();
 
-    m_ScreenMgr->LoadSetChoice( {&m_UseSet, &m_UseDegenSet}, {m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.GetID(), m_Vehicle->GetISectSettingsPtr()->m_SelectedDegenSetIndex.GetID()} );
+    m_ScreenMgr->LoadSetChoice( {&m_UseSet, &m_UseDegenSet},
+        {m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.GetID(),
+        m_Vehicle->GetISectSettingsPtr()->m_SelectedDegenSetIndex.GetID()}, true );
+
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_Vehicle->GetISectSettingsPtr()->m_ModeID );
+
+    m_ModeSetToggleGroup.Update( m_Vehicle->GetISectSettingsPtr()->m_UseMode.GetID() );
+
+    if ( ModeMgr.GetNumModes() == 0 )
+    {
+        if ( m_Vehicle->GetISectSettingsPtr()->m_UseMode() )
+        {
+            m_Vehicle->GetISectSettingsPtr()->m_UseMode.Set( false );
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+        m_ModeToggle.Deactivate();
+    }
+    else
+    {
+        m_ModeToggle.Activate();
+    }
+
+    if ( m_Vehicle->GetISectSettingsPtr()->m_UseMode() )
+    {
+        m_ModeChoice.Activate();
+        m_UseSet.Deactivate();
+        m_UseDegenSet.Deactivate();
+
+        Mode *m = ModeMgr.GetMode( m_Vehicle->GetISectSettingsPtr()->m_ModeID );
+        if ( m )
+        {
+            if ( m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex() != m->m_NormalSet() ||
+                 m_Vehicle->GetISectSettingsPtr()->m_SelectedDegenSetIndex() != m->m_DegenSet() )
+            {
+                m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex = m->m_NormalSet();
+                m_Vehicle->GetISectSettingsPtr()->m_SelectedDegenSetIndex = m->m_DegenSet();
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+        }
+    }
+    else
+    {
+        m_ModeChoice.Deactivate();
+        m_UseSet.Activate();
+        m_UseDegenSet.Activate();
+    }
+
 
     if ( SurfaceIntersectionMgr.GetMeshInProgress() )
     {
@@ -523,6 +596,15 @@ bool SurfaceIntersectionScreen::GetVisBndBox( BndBox &bbox )
 
 void SurfaceIntersectionScreen::Show()
 {
+    if ( m_Vehicle->GetISectSettingsPtr()->m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( m_Vehicle->GetISectSettingsPtr()->m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+        }
+    }
+
     m_ScreenMgr->SetUpdateFlag( true );
     TabScreen::Show();
 }
@@ -574,6 +656,27 @@ void SurfaceIntersectionScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void SurfaceIntersectionScreen::GuiDeviceGlobalTabCallback( GuiDevice* device )
 {
+    if ( device == &m_ModeChoice )
+    {
+        int indx = m_ModeChoice.GetVal();
+        if ( indx >= 0  && indx < m_ModeIDs.size() )
+        {
+            m_Vehicle->GetISectSettingsPtr()->m_ModeID = m_ModeIDs[ indx ];
+        }
+        else
+        {
+            m_Vehicle->GetISectSettingsPtr()->m_ModeID = "";
+        }
+
+        if ( m_Vehicle->GetISectSettingsPtr()->m_UseMode() )
+        {
+            Mode *m = ModeMgr.GetMode( m_Vehicle->GetISectSettingsPtr()->m_ModeID );
+            if ( m )
+            {
+                m->ApplySettings();
+            }
+        }
+    }
 }
 
 void SurfaceIntersectionScreen::GuiDeviceOutputTabCallback( GuiDevice* device )

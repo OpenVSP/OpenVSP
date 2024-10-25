@@ -90,6 +90,9 @@ public:
     IntParm m_SelectedSetIndex;
     IntParm m_SelectedDegenSetIndex;
 
+    BoolParm m_UseMode;
+    string m_ModeID;
+
     BoolParm m_XYZIntCurveFlag;
 
 protected:
@@ -157,6 +160,9 @@ public:
 
     IntParm m_SelectedSetIndex;
     IntParm m_SelectedDegenSetIndex;
+
+    BoolParm m_UseMode;
+    string m_ModeID;
 
     BoolParm m_ExportFileFlags[vsp::CFD_NUM_FILE_NAMES];
     BoolParm m_XYZIntCurveFlag;

@@ -47,6 +47,9 @@ void CfdMeshAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "SelectedSetIndex", veh->GetCfdSettingsPtr()->m_SelectedSetIndex(), "Normal (thick) geometry set for analysis." ) );
         m_Inputs.Add( NameValData( "SelectedDegenSetIndex", veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex(), "Degenerate (thin) geometry set for analysis." ) );
 
+        m_Inputs.Add( NameValData( "UseMode", veh->GetCfdSettingsPtr()->m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( NameValData( "ModeID", veh->GetCfdSettingsPtr()->m_ModeID, "ID for Mode to use for analysis." ) );
+
         // File Outputs
         m_Inputs.Add( NameValData( "STLFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get(), "Flag to enable STL file export." ) );
         m_Inputs.Add( NameValData( "STLFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ), "File name for STL file export." ) );
@@ -132,6 +135,14 @@ string CfdMeshAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "SelectedDegenSetIndex", 0 );
         if( nvd ) veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex.Set( nvd->GetInt( 0 ) );
 
+        bool useModeOrig = veh->GetCfdSettingsPtr()->m_UseMode();
+        nvd = m_Inputs.FindPtr( "UseMode", 0 );
+        if( nvd ) veh->GetCfdSettingsPtr()->m_UseMode.Set( nvd->GetInt( 0 ) );
+
+        string modeIDOrig = veh->GetCfdSettingsPtr()->m_ModeID;
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if( nvd ) veh->GetCfdSettingsPtr()->m_ModeID = nvd->GetString( 0 );
+
         // File Outputs
         bool stlFileFlagOrig = veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get();
         nvd = m_Inputs.FindPtr( "STLFileFlag", 0 );
@@ -202,6 +213,9 @@ string CfdMeshAnalysis::Execute()
 
         veh->GetCfdSettingsPtr()->m_SelectedSetIndex.Set( selectedSetIndexOrig );
         veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex.Set( selectedDegenSetIndexOrig );
+
+        veh->GetCfdSettingsPtr()->m_UseMode.Set( useModeOrig );
+        veh->GetCfdSettingsPtr()->m_ModeID = modeIDOrig;
 
         // File Outputs
         veh->GetCfdSettingsPtr()->SetFileExportFlag( vsp::CFD_STL_FILE_NAME, stlFileFlagOrig );
@@ -580,6 +594,9 @@ void SurfaceIntersectionAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "SelectedSetIndex", veh->GetISectSettingsPtr()->m_SelectedSetIndex(), "Normal (thick) geometry set for analysis." ) );
         m_Inputs.Add( NameValData( "SelectedDegenSetIndex", veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex(), "Degen (thin) geometry set for analysis." ) );
 
+        m_Inputs.Add( NameValData( "UseMode", veh->GetISectSettingsPtr()->m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( NameValData( "ModeID", veh->GetISectSettingsPtr()->m_ModeID, "ID for Mode to use for analysis." ) );
+
         // CAD Export
         m_Inputs.Add( NameValData( "CADLabelDelim", veh->GetISectSettingsPtr()->m_CADLabelDelim(), "Delimiter enum to separate components of CAD surface label." ) );
         m_Inputs.Add( NameValData( "CADLabelID", veh->GetISectSettingsPtr()->m_CADLabelID(), "Flag to include GeomID in CAD surface label." ) );
@@ -637,6 +654,14 @@ string SurfaceIntersectionAnalysis::Execute()
         int selectedDegenSetIndexOrig = veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex();
         nvd = m_Inputs.FindPtr( "SelectedDegenSetIndex", 0 );
         if( nvd ) veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex.Set( nvd->GetInt( 0 ) );
+
+        bool useModeOrig = veh->GetISectSettingsPtr()->m_UseMode();
+        nvd = m_Inputs.FindPtr( "UseMode", 0 );
+        if( nvd ) veh->GetISectSettingsPtr()->m_UseMode.Set( nvd->GetInt( 0 ) );
+
+        string modeIDOrig = veh->GetISectSettingsPtr()->m_ModeID;
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if( nvd ) veh->GetISectSettingsPtr()->m_ModeID = nvd->GetString( 0 );
 
         // CAD Export
         int cadLabelDelimOrig = veh->GetISectSettingsPtr()->m_CADLabelDelim();
@@ -725,6 +750,9 @@ string SurfaceIntersectionAnalysis::Execute()
         veh->GetISectSettingsPtr()->m_RelCurveTol.Set( relCurveTolOrig );
         veh->GetISectSettingsPtr()->m_SelectedSetIndex.Set( selectedSetIndexOrig );
         veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex.Set( selectedDegenSetIndexOrig );
+
+        veh->GetISectSettingsPtr()->m_UseMode.Set( useModeOrig );
+        veh->GetISectSettingsPtr()->m_ModeID = modeIDOrig;
 
         // CAD Export
         veh->GetISectSettingsPtr()->m_CADLabelDelim.Set( cadLabelDelimOrig );

@@ -12,6 +12,7 @@
 #include "SubSurfaceMgr.h"
 #include "StringUtil.h"
 #include <cfloat>  //For DBL_EPSILON
+#include "ModeMgr.h"
 
 #include "eli/geom/intersect/intersect_surface.hpp"
 
@@ -646,7 +647,21 @@ void SurfaceIntersectionSingleton::addOutputText( string str, int output_type )
 
 void SurfaceIntersectionSingleton::FetchSurfs( vector< XferSurf > &xfersurfs )
 {
-    m_Vehicle->FetchXFerSurfs( GetSettingsPtr()->m_SelectedSetIndex, GetSettingsPtr()->m_SelectedDegenSetIndex, xfersurfs );
+    int normal_set = GetSettingsPtr()->m_SelectedSetIndex;
+    int degen_set = GetSettingsPtr()->m_SelectedDegenSetIndex;
+
+    if ( GetSettingsPtr()->m_UseMode )
+    {
+        Mode *m = ModeMgr.GetMode( GetSettingsPtr()->m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            normal_set = m->m_NormalSet();
+            degen_set = m->m_DegenSet();
+        }
+    }
+
+    m_Vehicle->FetchXFerSurfs( normal_set, degen_set, xfersurfs );
 }
 
 void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, double scale, int start_surf_id )
@@ -3918,13 +3933,28 @@ void SurfaceIntersectionSingleton::UpdateWakes()
     vector < double > wake_scale_vec;
     vector < double > wake_angle_vec;
 
+    int nset = GetSettingsPtr()->m_SelectedSetIndex;
+    int dset = GetSettingsPtr()->m_SelectedDegenSetIndex;
+
+    if ( GetSettingsPtr()->m_UseMode )
+    {
+        Mode *m = ModeMgr.GetMode( GetSettingsPtr()->m_ModeID );
+        if ( m )
+        {
+            // Do not apply settings every time Sources and Wakes are updated.
+            // m->ApplySettings();
+            nset = m->m_NormalSet();
+            dset = m->m_DegenSet();
+        }
+    }
+
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0; g < (int)geomVec.size(); g++ )
     {
         Geom* geom = m_Vehicle->FindGeom( geomVec[g] );
         if ( geom )
         {
-            if ( geom->GetSetFlag( GetSettingsPtr()->m_SelectedSetIndex ) || geom->GetSetFlag( GetSettingsPtr()->m_SelectedDegenSetIndex ) )
+            if ( geom->GetSetFlag( nset ) || geom->GetSetFlag( dset ) )
             {
                 geom->AppendWakeData( wake_leading_edges, wake_scale_vec, wake_angle_vec );
             }
@@ -3964,5 +3994,7 @@ void SurfaceIntersectionSingleton::UpdateDisplaySettings()
         // Needed by update wakes - called by screen::Update
         GetSettingsPtr()->m_SelectedSetIndex = m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.Get();
         GetSettingsPtr()->m_SelectedDegenSetIndex = m_Vehicle->GetISectSettingsPtr()->m_SelectedDegenSetIndex.Get();
+        GetSettingsPtr()->m_UseMode = m_Vehicle->GetISectSettingsPtr()->m_UseMode.Get();
+        GetSettingsPtr()->m_ModeID = m_Vehicle->GetISectSettingsPtr()->m_ModeID;
     }
 }

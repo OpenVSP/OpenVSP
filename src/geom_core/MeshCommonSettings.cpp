@@ -81,6 +81,9 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
     m_SelectedDegenSetIndex.Init( "DegenSet", "Global", this, vsp::SET_NONE, vsp::SET_NONE, vsp::MAX_NUM_SETS );
     m_SelectedDegenSetIndex.SetDescript( "Selected degen set for operation" );
 
+    m_UseMode.Init( "UseMode", "Global", this, false, false, true );
+    m_UseMode.SetDescript( "Flag to control whether modes are used instead of sets." );
+
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportIntersect", this, false, 0, 1 );
 
     m_CADLenUnit.Init( "CADLenUnit", "ExportIntersect", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_YD );
@@ -119,6 +122,8 @@ xmlNodePtr IntersectSettings::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr structsettingnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
 
+    XmlUtil::AddStringNode( structsettingnode, "ModeID", m_ModeID );
+
     MeshCommonSettings::EncodeXml( structsettingnode );
 
     return structsettingnode;
@@ -129,6 +134,8 @@ xmlNodePtr IntersectSettings::DecodeXml( xmlNodePtr & node )
     xmlNodePtr structsettingnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
     if ( structsettingnode )
     {
+        m_ModeID = ParmMgr.RemapID( XmlUtil::FindString( structsettingnode, "ModeID", m_ModeID ) );
+
         MeshCommonSettings::DecodeXml( structsettingnode );
     }
 
@@ -248,6 +255,9 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
     m_SelectedDegenSetIndex.Init( "DegenSet", "Global", this, vsp::SET_NONE, vsp::SET_NONE, vsp::MAX_NUM_SETS );
     m_SelectedDegenSetIndex.SetDescript( "Selected set for degen operation" );
 
+    m_UseMode.Init( "UseMode", "Global", this, false, false, true );
+    m_UseMode.SetDescript( "Flag to control whether modes are used instead of sets." );
+
     m_ExportFileFlags[ vsp::CFD_DAT_FILE_NAME ].Init( "DAT_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::CFD_KEY_FILE_NAME ].Init( "KEY_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::CFD_OBJ_FILE_NAME ].Init( "OBJ_Export", "ExportCFD", this, true, 0, 1 );
@@ -279,6 +289,7 @@ xmlNodePtr CfdMeshSettings::EncodeXml( xmlNodePtr & node )
     xmlNodePtr cfdsettingnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
 
     XmlUtil::AddStringNode( cfdsettingnode, "FarGeomID", m_FarGeomID );
+    XmlUtil::AddStringNode( cfdsettingnode, "ModeID", m_ModeID );
 
     MeshCommonSettings::EncodeXml( cfdsettingnode );
 
@@ -291,6 +302,7 @@ xmlNodePtr CfdMeshSettings::DecodeXml( xmlNodePtr & node )
     if ( cfdsettingnode )
     {
         m_FarGeomID = ParmMgr.RemapID( XmlUtil::FindString( cfdsettingnode, "FarGeomID", m_FarGeomID ) );
+        m_ModeID = ParmMgr.RemapID( XmlUtil::FindString( cfdsettingnode, "ModeID", m_ModeID ) );
 
         MeshCommonSettings::DecodeXml( cfdsettingnode );
     }

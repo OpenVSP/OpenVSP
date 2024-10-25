@@ -91,8 +91,14 @@ protected:
     TriggerButton m_GlobSrcAdjustRadRht;
     TriggerButton m_GlobSrcAdjustRadRhtRht;
 
+    ToggleButton m_SetToggle;
     Choice m_UseSet;
     Choice m_UseDegenSet;
+
+    ToggleRadioGroup m_ModeSetToggleGroup;
+    ToggleButton m_ModeToggle;
+    Choice m_ModeChoice;
+    vector < string > m_ModeIDs;
 
     ToggleButton m_ToCubicToggle;
     SliderAdjRangeInput m_ToCubicTolSlider;

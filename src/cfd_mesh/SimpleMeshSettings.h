@@ -62,6 +62,8 @@ public:
 
     int m_SelectedSetIndex;
     int m_SelectedDegenSetIndex;
+    bool m_UseMode;
+    string m_ModeID;
 
     bool m_XYZIntCurveFlag;
 
