@@ -1454,17 +1454,21 @@ double CfdGridDensity::GetModelLen()
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     int cfdset = veh->GetCfdSettingsPtr()->m_SelectedSetIndex();
+    int dgset = veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex();
 
-    vector < string > gids = veh->GetGeomSet( cfdset );
-    vector < Geom* > gs = veh->FindGeomVec( gids );
+    vector < string > gids = veh->GetGeomVec();
 
     BndBox b;
-    for ( int i = 0; i< gs.size(); i++ )
+    for ( int i = 0; i < gids.size(); i++ )
     {
-        Geom * g = gs[i];
+        Geom * g = veh->FindGeom( gids[i] );
         if ( g )
         {
-            b.Update( g->GetBndBox() );
+            if ( g->GetSetFlag( cfdset ) ||
+                 g->GetSetFlag( dgset ) )
+            {
+                b.Update( g->GetBndBox() );
+            }
         }
     }
 
