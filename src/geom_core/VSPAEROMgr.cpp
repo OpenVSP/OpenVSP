@@ -1267,7 +1267,8 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     }
 
     m_DegenGeomVec.clear();
-    veh->CreateDegenGeom( set );
+    // Don't pass mode parameters here as they've already been applied to 'set'.
+    veh->CreateDegenGeom( set, /* useMode */ false, /* modeID */ "" );
     m_DegenGeomVec = veh->GetDegenGeomVec();
 
     //Update information derived from the degenerate geometry

@@ -447,7 +447,8 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
 
         vector < string > geomIDVec = veh->GetGeomSet( set );
 
-        veh->CreateDegenGeom( set );
+        // Don't pass mode parameters here as they've already been applied to 'set'.
+        veh->CreateDegenGeom( set, /* useMode */ false, /* modeID */ "" );
         string meshID = veh->CompGeomAndFlatten( set, 0 );
         veh->DeleteGeom( meshID );
 
@@ -3910,7 +3911,8 @@ void ParasiteDragMgrSingleton::RenewDegenGeomVec()
 
     if ( veh )
     {
-        veh->CreateDegenGeom( set );
+        // Don't pass mode parameters here as they've already been applied to 'set'.
+        veh->CreateDegenGeom( set, /* useMode */ false, /* modeID */ "" );
         string meshID = veh->CompGeomAndFlatten( set, 0);
         veh->DeleteGeom(meshID);
         veh->ShowOnlySet( set );

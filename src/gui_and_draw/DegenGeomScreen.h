@@ -36,6 +36,8 @@ public:
 protected:
 
     int m_SelectedSetIndex;
+    int m_SelectedModeChoice;
+    vector < string > m_ModeIDs;
 
     GroupLayout m_MainLayout;
     GroupLayout m_BorderLayout;
@@ -52,7 +54,12 @@ protected:
     Fl_Text_Display* m_TextDisplay;
     Fl_Text_Buffer* m_TextBuffer;
 
+    ToggleButton m_SetToggle;
     Choice m_UseSet;
+
+    ToggleRadioGroup m_ModeSetToggleGroup;
+    ToggleButton m_ModeToggle;
+    Choice m_ModeChoice;
 
     TriggerButton m_Execute;
 

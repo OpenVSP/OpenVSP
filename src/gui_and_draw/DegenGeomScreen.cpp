@@ -9,8 +9,9 @@
 #include "CfdMeshMgr.h"
 #include "StringUtil.h"
 #include "MeshGeom.h"
+#include "ModeMgr.h"
 
-DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 365, "Degen Geom - Compute Models, File IO" )
+DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 405, "Degen Geom - Compute Models, File IO" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -55,14 +56,33 @@ DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 365,
     m_TextDisplay->buffer( m_TextBuffer );
     m_BorderLayout.AddYGap();
 
+    int bw = 100;
+    m_BorderLayout.SetButtonWidth( bw );
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetChoiceButtonWidth( 0 );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.AddButton( m_SetToggle, "Set:" );
     m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice(m_UseSet, "", bw);
+    m_BorderLayout.ForceNewLine();
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetChoiceButtonWidth( 0 );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.AddButton( m_ModeToggle, "Mode:" );
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice(m_ModeChoice, "", bw );
+    m_BorderLayout.ForceNewLine();
+
+    m_ModeSetToggleGroup.Init( this );
+    m_ModeSetToggleGroup.AddButton( m_SetToggle.GetFlButton() );
+    m_ModeSetToggleGroup.AddButton( m_ModeToggle.GetFlButton() );
+
+    m_BorderLayout.SetFitWidthFlag( false );
     m_BorderLayout.SetSameLineFlag( true );
 
-    m_BorderLayout.SetButtonWidth(m_BorderLayout.GetRemainX() / 3.0 - 5.0);
-    m_BorderLayout.SetChoiceButtonWidth(50);
-    m_BorderLayout.AddChoice(m_UseSet, "Set:", 2.0 * m_BorderLayout.GetRemainX() / 3.0);
-    m_BorderLayout.AddX(5);
-    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetButtonWidth(m_BorderLayout.GetW() * 0.5 );
     m_BorderLayout.AddButton(m_Execute, "Execute");
     m_BorderLayout.AddButton(m_MakeDegenMeshGeom, "Make MeshGeom");
 
@@ -94,6 +114,45 @@ bool DegenGeomScreen::Update()
     BasicScreen::Update();
 
     m_ScreenMgr->LoadSetChoice( {&m_UseSet}, vector < int >( { m_SelectedSetIndex } ) );
+
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+
+    m_ModeSetToggleGroup.Update( vehiclePtr->m_UseModeDegenGeomFlag.GetID() );
+
+    if ( ModeMgr.GetNumModes() == 0 )
+    {
+        if ( vehiclePtr->m_UseModeDegenGeomFlag() )
+        {
+            vehiclePtr->m_UseModeDegenGeomFlag.Set( false );
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+        m_ModeToggle.Deactivate();
+    }
+    else
+    {
+        m_ModeToggle.Activate();
+    }
+
+    if ( vehiclePtr->m_UseModeDegenGeomFlag() )
+    {
+        m_ModeChoice.Activate();
+        m_UseSet.Deactivate();
+
+        Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+        if ( m )
+        {
+            if ( m_SelectedSetIndex != m->m_NormalSet() )
+            {
+                m_SelectedSetIndex = m->m_NormalSet();
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+        }
+    }
+    else
+    {
+        m_ModeChoice.Deactivate();
+        m_UseSet.Activate();
+    }
 
     //===== Update File Toggle Buttons =====//
     m_CsvToggle.Update( vehiclePtr->m_exportDegenGeomCsvFile.GetID() );
@@ -141,13 +200,25 @@ void DegenGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         m_SelectedSetIndex = m_UseSet.GetVal();
     }
+    else if ( device == &m_ModeChoice )
+    {
+        m_SelectedModeChoice = m_ModeChoice.GetVal();
+    }
     else if ( device == &m_Execute )
     {
         m_TextDisplay->buffer()->text("");
         m_TextDisplay->buffer()->append("Computing degenerate geometry...\n");
         Fl::flush();
 
-        vehiclePtr->CreateDegenGeom( m_SelectedSetIndex );
+        bool useMode = vehiclePtr->m_UseModeDegenGeomFlag();
+        string modeID;
+
+        if ( m_SelectedModeChoice >= 0 && m_SelectedModeChoice < m_ModeIDs.size() )
+        {
+            modeID = m_ModeIDs[m_SelectedModeChoice];
+        }
+
+        vehiclePtr->CreateDegenGeom( m_SelectedSetIndex, useMode, modeID );
         m_TextDisplay->buffer()->append("Done!\n");
 
         if ( vehiclePtr->getExportDegenGeomCsvFile() || vehiclePtr->getExportDegenGeomMFile() )
@@ -161,7 +232,19 @@ void DegenGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == & m_MakeDegenMeshGeom )
     {
-        string id = vehiclePtr->AddMeshGeom( vsp::SET_NONE, m_SelectedSetIndex );
+        int set = m_SelectedSetIndex;
+
+        if ( vehiclePtr->m_UseModeDegenGeomFlag() )
+        {
+            Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+            if ( m )
+            {
+                m->ApplySettings();
+                set = m->m_NormalSet();
+            }
+        }
+
+        string id = vehiclePtr->AddMeshGeom( vsp::SET_NONE, set );
         if ( id.compare( "NONE" ) != 0 )
         {
             Geom* geom_ptr = vehiclePtr->FindGeom( id );

@@ -822,6 +822,7 @@ void DegenGeomAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
     m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
+    m_Inputs.Add( NameValData( "ModeID", "", "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
@@ -829,6 +830,8 @@ void DegenGeomAnalysis::SetDefaults()
     {
         m_Inputs.Add( NameValData( "WriteCSVFlag", veh->getExportDegenGeomCsvFile(), "Flag to control whether CSV file is written." ) );
         m_Inputs.Add( NameValData( "WriteMFileFlag", veh->getExportDegenGeomMFile(), "Flag to control whether Matlab file is written." ) );
+        m_Inputs.Add( NameValData( "UseModeFlag", veh->m_UseModeDegenGeomFlag(), "Flag to control whether Modes are used instead of Sets." ) );
+
     }
 }
 
@@ -844,6 +847,8 @@ string DegenGeomAnalysis::Execute()
         bool write_mfile_orig = veh->getExportDegenGeomMFile();
         bool write_csv = write_csv_orig;
         bool write_mfile = write_mfile_orig;
+        int useMode = veh->m_UseModeDegenGeomFlag();
+        string modeID;
 
         NameValData *nvd;
         nvd = m_Inputs.FindPtr( "Set", 0 );
@@ -862,10 +867,22 @@ string DegenGeomAnalysis::Execute()
             write_mfile = ( bool )nvd->GetInt( 0 );
         }
 
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        if ( nvd )
+        {
+            useMode = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
+        {
+            modeID = nvd->GetString( 0 );
+        }
+
         veh->setExportDegenGeomCsvFile( write_csv );
         veh->setExportDegenGeomMFile( write_mfile );
 
-        veh->CreateDegenGeom( set_num );
+        veh->CreateDegenGeom( set_num, useMode, modeID );
         veh->WriteDegenGeomFile();
 
 

@@ -248,6 +248,7 @@ Vehicle::Vehicle()
 
     m_UseModeCompGeomFlag.Init( "UseModeCompGeomFlag", "CompGeom", this, false, 0, 1 );
     m_UseModeExportFlag.Init( "UseModeExportFlag", "ExportFlag", this, false, 0, 1 );
+    m_UseModeDegenGeomFlag.Init( "UseModeDegenGeomFlag", "DegenGeom", this, false, 0, 1 );
 
     m_exportCompGeomCsvFile.Init( "CompGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomCsvFile.Init( "DegenGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
@@ -5757,8 +5758,18 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
     return mesh_id;
 }
 
-void Vehicle::CreateDegenGeom( int set )
+void Vehicle::CreateDegenGeom( int set, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+        }
+    }
+
     m_DegenGeomVec.clear();
     m_DegenPtMassVec.clear();
 
