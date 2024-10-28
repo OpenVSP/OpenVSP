@@ -539,7 +539,10 @@ string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto
     Update();
     Vehicle* veh = GetVehicle();
 
-    string id = veh->PSliceAndFlatten( set, num_slices, norm, auto_bnd, start_bnd, end_bnd, measureduct );
+    bool useMode = false;
+    string modeID;
+
+    string id = veh->PSliceAndFlatten( set, num_slices, norm, auto_bnd, start_bnd, end_bnd, measureduct, useMode, modeID );
 
     if ( id.size() == 0 )
     {

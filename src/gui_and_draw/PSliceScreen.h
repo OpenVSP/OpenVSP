@@ -42,7 +42,13 @@ protected:
     GroupLayout m_BorderLayout;
 
     Choice m_AxisChoice;
+
+    ToggleButton m_SetToggle;
     Choice m_SetChoice;
+
+    ToggleRadioGroup m_ModeSetToggleGroup;
+    ToggleButton m_ModeToggle;
+    Choice m_ModeChoice;
 
     SliderAdjRangeInput m_NumSlicesInput;
     SliderAdjRangeInput m_StartLocSlider;
@@ -63,7 +69,8 @@ protected:
 private :
 
     int m_SelectedSetIndex;
-
+    int m_SelectedModeChoice;
+    vector < string > m_ModeIDs;
 };
 
 #endif /* PSLICESCREEN_H_ */

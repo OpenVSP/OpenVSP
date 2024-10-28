@@ -6,8 +6,9 @@
 
 #include "PSliceScreen.h"
 #include "ScreenMgr.h"
+#include "ModeMgr.h"
 
-PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 490, "Planar Slicing" )
+PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 510, "Planar Slicing" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -82,7 +83,32 @@ PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 490, "Plan
     m_TextDisplay->buffer( m_TextBuffer );
     m_BorderLayout.AddYGap();
 
-    m_BorderLayout.AddChoice( m_SetChoice, "Set" );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetSameLineFlag( true );
+
+    int bw = 100;
+    m_BorderLayout.SetButtonWidth( bw );
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetChoiceButtonWidth( 0 );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.AddButton( m_SetToggle, "Set:" );
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice(m_SetChoice, "", bw);
+    m_BorderLayout.ForceNewLine();
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetChoiceButtonWidth( 0 );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.AddButton( m_ModeToggle, "Mode:" );
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice(m_ModeChoice, "", bw );
+    m_BorderLayout.ForceNewLine();
+
+    m_ModeSetToggleGroup.Init( this );
+    m_ModeSetToggleGroup.AddButton( m_SetToggle.GetFlButton() );
+    m_ModeSetToggleGroup.AddButton( m_ModeToggle.GetFlButton() );
+
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.AddButton( m_StartSlicingTrigger, "Start Slicing" );
@@ -103,6 +129,45 @@ bool PSliceScreen::Update()
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
     m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, vector<int>({m_SelectedSetIndex}) );
+
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+
+    m_ModeSetToggleGroup.Update( veh->m_UseModePlanarSlicesFlag.GetID() );
+
+    if ( ModeMgr.GetNumModes() == 0 )
+    {
+        if ( veh->m_UseModePlanarSlicesFlag() )
+        {
+            veh->m_UseModePlanarSlicesFlag.Set( false );
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+        m_ModeToggle.Deactivate();
+    }
+    else
+    {
+        m_ModeToggle.Activate();
+    }
+
+    if ( veh->m_UseModePlanarSlicesFlag() )
+    {
+        m_ModeChoice.Activate();
+        m_SetChoice.Deactivate();
+
+        Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+        if ( m )
+        {
+            if ( m_SelectedSetIndex != m->m_NormalSet() )
+            {
+                m_SelectedSetIndex = m->m_NormalSet();
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+        }
+    }
+    else
+    {
+        m_ModeChoice.Deactivate();
+        m_SetChoice.Activate();
+    }
 
     m_Norm.set_xyz( 0, 0, 0 );
     m_Norm[veh->m_PlanarAxisType.Get()] = 1;
@@ -189,8 +254,17 @@ void PSliceScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_StartSlicingTrigger )
     {
+        bool useMode = veh->m_UseModePlanarSlicesFlag();
+        string modeID;
+        if ( m_SelectedModeChoice >= 0 && m_SelectedModeChoice < m_ModeIDs.size() )
+        {
+            modeID = m_ModeIDs[ m_SelectedModeChoice ];
+        }
+
         string id = veh->PSliceAndFlatten( m_SelectedSetIndex, veh->m_NumPlanerSlices.Get(), m_Norm,
-                                           !!veh->m_AutoBoundsFlag.Get(), veh->m_PlanarStartLocation.Get(), veh->m_PlanarEndLocation.Get(), veh->m_PlanarMeasureDuct.Get() );
+                                           !!veh->m_AutoBoundsFlag.Get(),
+                                           veh->m_PlanarStartLocation.Get(), veh->m_PlanarEndLocation.Get(),
+                                           veh->m_PlanarMeasureDuct.Get(), useMode, modeID );
         if ( id.compare( "NONE" ) != 0 )
         {
             m_TextBuffer->loadfile( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
@@ -199,6 +273,10 @@ void PSliceScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_SetChoice )
     {
         m_SelectedSetIndex = m_SetChoice.GetVal();
+    }
+    else if ( device == &m_ModeChoice )
+    {
+        m_SelectedModeChoice = m_ModeChoice.GetVal();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

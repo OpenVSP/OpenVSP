@@ -1042,6 +1042,8 @@ void PlanarSliceAnalysis::SetDefaults()
 
     m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
     m_Inputs.Add( NameValData( "NumSlices", veh->m_NumPlanerSlices.Get(), "Number of slices." ) );
+    m_Inputs.Add( NameValData( "ModeID", "", "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( NameValData( "UseModeFlag", veh->m_UseModePlanarSlicesFlag(), "Flag to control whether Modes are used instead of Sets." ) );
 
     vec3d norm;
     norm[veh->m_PlanarAxisType.Get()] = 1;
@@ -1067,6 +1069,8 @@ string PlanarSliceAnalysis::Execute()
         bool autobnd = true;
         double start = 0.0, end = 10.0;
         bool measureduct = false;
+        int useMode = 0;
+        string modeID;
 
         NameValData *nvd = NULL;
 
@@ -1128,7 +1132,19 @@ string PlanarSliceAnalysis::Execute()
             }
         }
 
-        string geom = veh->PSliceAndFlatten( geomSet, numSlice,  axis,  autobnd,  start,  end, measureduct  );
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        if ( nvd )
+        {
+            useMode = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
+        {
+            modeID = nvd->GetString( 0 );
+        }
+
+        string geom = veh->PSliceAndFlatten( geomSet, numSlice,  axis,  autobnd,  start,  end, measureduct, useMode, modeID );
 
         res = ResultsMgr.FindLatestResultsID( "Slice" );
     }

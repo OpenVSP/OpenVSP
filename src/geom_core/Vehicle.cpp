@@ -284,6 +284,8 @@ Vehicle::Vehicle()
     m_NumPlanerSlices.Init( "NumPlanerSlices", "PSlice", this, 10, 1, 100 );
     m_NumPlanerSlices.SetDescript( "Number of planar slices used to display mesh" );
 
+    m_UseModePlanarSlicesFlag.Init( "UseModePlanarSliceFlag", "PSlice", this, false, 0, 1 );
+
     m_AutoBoundsFlag.Init( "AutoBoundsFlag", "PSlice", this, true, false, true );
     m_AutoBoundsFlag.SetDescript( "Automatically sets Planar Start and End locations" );
 
@@ -5142,8 +5144,17 @@ string Vehicle::MassPropsAndFlatten( int set, int degen_set, int numSlices, int 
     return m_LastMassMeshID;
 }
 
-string Vehicle::PSlice( int set, int numSlices, const vec3d &axis, bool autoBoundsFlag, double start, double end, bool measureduct )
+string Vehicle::PSlice( int set, int numSlices, const vec3d &axis, bool autoBoundsFlag, double start, double end, bool measureduct, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+        }
+    }
 
     string id = AddMeshGeom( set );
     if ( id.compare( "NONE" ) == 0 )
@@ -5173,9 +5184,9 @@ string Vehicle::PSlice( int set, int numSlices, const vec3d &axis, bool autoBoun
     return id;
 }
 
-string Vehicle::PSliceAndFlatten( int set, int numSlices, const vec3d &axis, bool autoBoundsFlag, double start, double end, bool measureduct )
+string Vehicle::PSliceAndFlatten( int set, int numSlices, const vec3d &axis, bool autoBoundsFlag, double start, double end, bool measureduct, bool useMode, const string &modeID )
 {
-    string id = PSlice( set, numSlices, axis, autoBoundsFlag, start, end, measureduct );
+    string id = PSlice( set, numSlices, axis, autoBoundsFlag, start, end, measureduct, useMode, modeID );
     Geom* geom = FindGeom( id );
     if ( !geom )
     {
