@@ -112,7 +112,14 @@ protected:
     GroupLayout m_PersistenceLayout;
 
     //---- Geometry ----//
+    ToggleButton m_SetToggle;
     Choice m_SetChoice;
+
+    ToggleRadioGroup m_ModeSetToggleGroup;
+    ToggleButton m_ModeToggle;
+    Choice m_ModeChoice;
+    int m_SelectedModeChoice;
+    vector < string > m_ModeIDs;
 
     //---- Table Options ----//
     Choice m_LamCfEqnChoice;

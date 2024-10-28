@@ -12,6 +12,7 @@
 #include "StlHelper.h"
 #include "WingGeom.h"
 #include "ParasiteDragMgr.h"
+#include "ModeMgr.h"
 
 #include <numeric>
 
@@ -26,6 +27,7 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_LamCfEqnName = "Blasius";
     m_TurbCfEqnName = "Blasius Power Law";
     m_RefGeomID = "";
+    m_ModeID = "";
     m_CurrentExcresIndex = -1;
     m_CompGeomResults = NULL;
 
@@ -110,6 +112,8 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_SetChoice.Init( "Set", groupname, this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
     m_SetChoice.SetDescript( "Selected set for operation" );
 
+    m_UseMode.Init( "UseModeMassFlag", groupname, this, false, 0, 1 );
+
     // Recompute flag, if true degen/compgeom will be run even if an existing degen geom and comp geom exist from
     // a previous calculation
     m_RecomputeGeom = true;
@@ -150,6 +154,7 @@ void ParasiteDragMgrSingleton::Renew()
     m_LamCfEqnName = "Blasius";
     m_TurbCfEqnName = "Blasius Power Law";
     m_RefGeomID = "";
+    m_ModeID = "";
 
     m_ExcresType = 0;
     m_ExcresValue = 0;
@@ -420,6 +425,19 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 void ParasiteDragMgrSingleton::SetupFullCalculation()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
+
+    int set = m_SetChoice();
+
+    if ( m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+        }
+    }
+
     if ( veh && (m_RecomputeGeom || (m_DegenGeomVec.size() == 0 && !m_CompGeomResults)))
     {
         veh->ClearDegenGeom();
@@ -427,16 +445,16 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
         ClearInputVectors();
         ClearOutputVectors();
 
-        vector < string > geomIDVec = veh->GetGeomSet( m_SetChoice() );
+        vector < string > geomIDVec = veh->GetGeomSet( set );
 
-        veh->CreateDegenGeom( m_SetChoice() );
-        string meshID = veh->CompGeomAndFlatten( m_SetChoice(), 0 );
+        veh->CreateDegenGeom( set );
+        string meshID = veh->CompGeomAndFlatten( set, 0 );
         veh->DeleteGeom( meshID );
 
         // Restore set visibility. At this point, all geoms in the set will only be in the 
         //  Not_Shown set. We want the Parasite Drag table to contain the same geoms before 
         //  and after tool execution.
-        if ( m_SetChoice() == vsp::SET_NOT_SHOWN )
+        if ( set == vsp::SET_NOT_SHOWN )
         {
             veh->ShowSet( 0 ); // show all
         }
@@ -446,7 +464,7 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
             Geom* geom = veh->FindGeom( geomIDVec[i] );
             if ( geom )
             {
-                if ( m_SetChoice() == vsp::SET_NOT_SHOWN ) // Place back in Not_Shown set 
+                if ( set == vsp::SET_NOT_SHOWN ) // Place back in Not_Shown set
                 {
                     geom->SetSetFlag( vsp::SET_SHOWN, false );
                     geom->SetSetFlag( vsp::SET_NOT_SHOWN, true );
@@ -2073,9 +2091,21 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    int set = m_SetChoice();
+
+    if ( m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( m_ModeID );
+        if ( m )
+        {
+            // m->ApplySettings();
+            set = m->m_NormalSet();
+        }
+    }
+
     if ( veh )
     {
-        vector <string> geomVec = veh->GetGeomSet( m_SetChoice() );
+        vector <string> geomVec = veh->GetGeomSet( set );
 
         m_PDGeomIDVec.clear();
         for ( int i = 0; i < geomVec.size(); i++ )
@@ -3343,6 +3373,7 @@ xmlNodePtr ParasiteDragMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     ParmContainer::EncodeXml( ParasiteDragnode );
     XmlUtil::AddStringNode( ParasiteDragnode, "ReferenceGeomID", m_RefGeomID );
+    XmlUtil::AddStringNode( ParasiteDragnode, "ModeID", m_ModeID );
 
     xmlNodePtr ExcresDragnode = xmlNewChild( ParasiteDragnode, NULL, BAD_CAST"Excrescence", NULL );
 
@@ -3372,6 +3403,7 @@ xmlNodePtr ParasiteDragMgrSingleton::DecodeXml( xmlNodePtr & node )
     {
         ParmContainer::DecodeXml( ParasiteDragnode );
         m_RefGeomID = ParmMgr.RemapID( XmlUtil::FindString( ParasiteDragnode, "ReferenceGeomID", m_RefGeomID ) );
+        m_ModeID = ParmMgr.RemapID( XmlUtil::FindString( ParasiteDragnode, "ModeID", m_ModeID ) );
 
         xmlNodePtr ExcresDragnode = XmlUtil::GetNode( ParasiteDragnode, "Excrescence", 0 );
 
@@ -3691,8 +3723,20 @@ bool ParasiteDragMgrSingleton::IsSameGeomSet()
         return false;
     }
 
+    int set = m_SetChoice();
+
+    if ( m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( m_ModeID );
+        if ( m )
+        {
+            // m->ApplySettings();
+            set = m->m_NormalSet();
+        }
+    }
+
     // Create New Vector of IDs to Compare
-    vector <string> newIDVec = veh->GetGeomSet( m_SetChoice() );
+    vector <string> newIDVec = veh->GetGeomSet( set );
     vector < string > newVecToCompare;
     for ( int i = 0; i < newIDVec.size(); i++ )
     {
@@ -3852,12 +3896,24 @@ void ParasiteDragMgrSingleton::RenewDegenGeomVec()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    int set = m_SetChoice();
+
+    if ( m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+        }
+    }
+
     if ( veh )
     {
-        veh->CreateDegenGeom(m_SetChoice());
-        string meshID = veh->CompGeomAndFlatten(m_SetChoice(), 0);
+        veh->CreateDegenGeom( set );
+        string meshID = veh->CompGeomAndFlatten( set, 0);
         veh->DeleteGeom(meshID);
-        veh->ShowOnlySet(m_SetChoice());
+        veh->ShowOnlySet( set );
 
         // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
         m_DegenGeomVec = veh->GetDegenGeomVec();

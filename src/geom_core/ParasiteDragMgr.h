@@ -271,6 +271,8 @@ public:
     IntParm m_VinfUnitType;
     IntParm m_AltLengthUnit;
     IntParm m_SetChoice;
+    BoolParm m_UseMode;
+    string m_ModeID;
     IntParm m_LengthUnit;
     IntParm m_TempUnit;
     IntParm m_PresUnit;

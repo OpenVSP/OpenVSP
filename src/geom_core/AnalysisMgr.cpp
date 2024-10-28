@@ -2334,6 +2334,9 @@ void ParasiteDragFullAnalysis::SetDefaults()
         // Geometry to Degen
         m_Inputs.Add( NameValData( "GeomSet",           ParasiteDragMgr.m_SetChoice.Get(), "Geometry Set for analysis."  ) );
 
+        m_Inputs.Add( NameValData( "UseModeFlag",       ParasiteDragMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( NameValData( "ModeID",           ParasiteDragMgr.m_ModeID, "ID for Mode to use for analysis." ) );
+
         // Friction Coefficient Eqn Choice
         m_Inputs.Add( NameValData( "LamCfEqnChoice",    ParasiteDragMgr.m_LamCfEqnType.Get(), "Laminar skin friction coefficient equation enum." ) );
         m_Inputs.Add( NameValData( "TurbCfEqnChoice",   ParasiteDragMgr.m_TurbCfEqnType.Get(), "Trubulent skin friction coefficient equation enum." ) );
@@ -2400,6 +2403,20 @@ string ParasiteDragFullAnalysis::Execute()
         if ( nvd )
         {
             ParasiteDragMgr.m_SetChoice.Set( nvd->GetInt( 0 ) );
+        }
+
+        int useModeOrig = ParasiteDragMgr.m_UseMode.Get();
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_UseMode.Set( nvd->GetInt(0) );
+        }
+
+        string modeIDOrig = ParasiteDragMgr.m_ModeID;
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_ModeID = nvd->GetString( 0 );
         }
 
         // Friction Coefficient Eqn Choice
@@ -2582,6 +2599,8 @@ string ParasiteDragFullAnalysis::Execute()
 
         // Geometry Set
         ParasiteDragMgr.m_SetChoice.Set( geomSetOrig );
+        ParasiteDragMgr.m_UseMode.Set( useModeOrig );
+        ParasiteDragMgr.m_ModeID = modeIDOrig;
 
         // Friction Coefficient Equations
         ParasiteDragMgr.m_LamCfEqnType.Set( lamCfEqnChoiceOrig );

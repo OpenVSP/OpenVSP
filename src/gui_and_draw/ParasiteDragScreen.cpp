@@ -16,6 +16,7 @@
 #include "ParasiteDragScreen.h"
 #include "ParasiteDragMgr.h"
 #include "StlHelper.h"
+#include "ModeMgr.h"
 
 #include <numeric>
 using namespace std;
@@ -26,7 +27,7 @@ using namespace std;
 #define DRAG_TAB_WIDTH 310          // width of the tab group
 #define DRAG_TABLE_WIDTH 470        // width of the drag build-up table
 #define DRAG_TABLE_PERSISTENT_WIDTH 180 // width of persistent sectino of drag table
-#define TOTAL_WINDOW_HEIGHT 580     // Entire Window Height
+#define TOTAL_WINDOW_HEIGHT 600     // Entire Window Height
 #define EXECUTE_LAYOUT_HEIGHT 65    // height needed for dividerbox and two buttons
 #define TYPICAL_INPUT_WIDTH 70      // input width for most table cells
 
@@ -201,7 +202,39 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     // Add GUI Elements to Options Layout
     //---- Geometry ----//
     m_OptionsLayout.AddDividerBox( "Geometry" );
-    m_OptionsLayout.AddChoice( m_SetChoice, "Geometry Set: " );
+
+    m_OptionsLayout.SetFitWidthFlag( false );
+    m_OptionsLayout.SetSameLineFlag( true );
+
+    int bw = m_OptionsLayout.GetChoiceButtonWidth();
+    m_OptionsLayout.SetButtonWidth( bw );
+
+    m_OptionsLayout.SetSameLineFlag( true );
+    m_OptionsLayout.SetChoiceButtonWidth( 0 );
+    m_OptionsLayout.SetFitWidthFlag( false );
+    m_OptionsLayout.AddButton( m_SetToggle, "Geometry Set:" );
+    m_OptionsLayout.SetFitWidthFlag( true );
+    m_OptionsLayout.AddChoice(m_SetChoice, "", bw);
+    m_OptionsLayout.ForceNewLine();
+
+    m_OptionsLayout.SetSameLineFlag( true );
+    m_OptionsLayout.SetChoiceButtonWidth( 0 );
+    m_OptionsLayout.SetFitWidthFlag( false );
+    m_OptionsLayout.AddButton( m_ModeToggle, "Mode:" );
+    m_OptionsLayout.SetFitWidthFlag( true );
+    m_OptionsLayout.AddChoice(m_ModeChoice, "", bw );
+    m_OptionsLayout.ForceNewLine();
+
+    m_ModeSetToggleGroup.Init( this );
+    m_ModeSetToggleGroup.AddButton( m_SetToggle.GetFlButton() );
+    m_ModeSetToggleGroup.AddButton( m_ModeToggle.GetFlButton() );
+
+    m_OptionsLayout.SetFitWidthFlag( true );
+    m_OptionsLayout.SetSameLineFlag( false );
+
+    m_OptionsLayout.SetChoiceButtonWidth( bw );
+
+
     m_OptionsLayout.AddChoice( m_ModelLengthUnitChoice, "Model Length Unit" );
     m_ModelLengthUnitChoice.AddItem( "mm" );
     m_ModelLengthUnitChoice.AddItem( "cm" );
@@ -623,6 +656,46 @@ bool ParasiteDragScreen::Update()
     if ( veh )
     {
         m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
+
+        m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+
+        m_ModeSetToggleGroup.Update( ParasiteDragMgr.m_UseMode.GetID() );
+
+        if ( ModeMgr.GetNumModes() == 0 )
+        {
+            if ( ParasiteDragMgr.m_UseMode() )
+            {
+                ParasiteDragMgr.m_UseMode.Set( false );
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+            m_ModeToggle.Deactivate();
+        }
+        else
+        {
+            m_ModeToggle.Activate();
+        }
+
+        if ( ParasiteDragMgr.m_UseMode() )
+        {
+            m_ModeChoice.Activate();
+            m_SetChoice.Deactivate();
+
+            Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+            if ( m )
+            {
+                if ( ParasiteDragMgr.m_SetChoice() != m->m_NormalSet() )
+                {
+                    ParasiteDragMgr.m_SetChoice = m->m_NormalSet();
+                    m_ScreenMgr->SetUpdateFlag( true );
+                }
+            }
+        }
+        else
+        {
+            m_ModeChoice.Deactivate();
+            m_SetChoice.Activate();
+        }
+
         ParasiteDragMgr.RefreshBaseDataVectors();
 
         UpdateSrefChoice();
@@ -1122,6 +1195,10 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
         int id = m_RefWingChoice.GetVal();
         ParasiteDragMgr.m_RefGeomID = m_WingGeomVec[id];
     }
+    else if ( device == &m_ModeChoice )
+    {
+        m_SelectedModeChoice = m_ModeChoice.GetVal();
+    }
     else if ( device == &m_LamCfEqnChoice )
     {
         ParasiteDragMgr.m_LamCfEqnType.Set( m_LamCfEqnChoice.GetVal() );
@@ -1260,6 +1337,7 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                 {
                     vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_IncludeType.Set( m_subsurfinclude[i].GetVal() );
                     m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
+                    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
                     ParasiteDragMgr.RefreshBaseDataVectors();
                     RebuildBuildUpTable();
                     ParasiteDragMgr.RenewDegenGeomVec();
@@ -1270,6 +1348,7 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                 {
                     vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_IncludeType.Set( m_subsurfinclude[i].GetVal() );
                     m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
+                    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
                     ParasiteDragMgr.RefreshBaseDataVectors();
                     RebuildBuildUpTable();
                     ParasiteDragMgr.RenewDegenGeomVec();
