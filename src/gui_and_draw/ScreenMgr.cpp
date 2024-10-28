@@ -723,6 +723,36 @@ void ScreenMgr::LoadModeChoice( Choice & choice, vector < string > &modeIDVec, c
     }
 }
 
+void ScreenMgr::LoadModeChoice( const vector < Choice* > &choicevec, vector < string > &modeIDVec, const vector <string> &selModeIDvec )
+{
+    modeIDVec.clear();
+    modeIDVec = ModeMgr.GetAllModes();
+
+    for ( int ichoice = 0; ichoice < choicevec.size(); ichoice++ )
+    {
+        Choice *c = choicevec[ ichoice ];
+
+        c->ClearItems();
+
+        for ( int i = 0; i < modeIDVec.size(); i++ )
+        {
+            c->AddItem( ModeMgr.GetMode( modeIDVec[i] )->GetName(), i );
+        }
+
+        c->UpdateItems();
+
+        int imode = vector_find_val( modeIDVec, selModeIDvec[ ichoice ] );
+        if ( imode >= 0 )
+        {
+            c->SetVal( imode );
+        }
+        else
+        {
+            c->SetVal( 0 );
+        }
+    }
+}
+
 //==== Init All Screens ====//
 void ScreenMgr::Init()
 {

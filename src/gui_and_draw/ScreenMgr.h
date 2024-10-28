@@ -105,6 +105,8 @@ public:
     void LoadModeChoice( Choice & choice, vector < string > &modeIDVec, int selected );
     void LoadModeChoice( Choice & choice, vector < string > &modeIDVec, const string &selModeID );
 
+    void LoadModeChoice( const vector < Choice* > &choicevec, vector < string > &modeIDVec, const vector <string> &selModeIDvec );
+
 protected:
 
     void Init();
