@@ -36,6 +36,7 @@ protected:
     Choice m_SliceDirChoice;
 
     Choice m_SetChoice;
+    Choice m_DegenSet;
     DrawObj m_CGDrawObj;
     ToggleButton m_DrawCgButton;
     
@@ -57,6 +58,7 @@ protected:
 
 private :
     int m_SelectedSetIndex;
+    int m_DegenSelectedSetIndex;
 
 };
 

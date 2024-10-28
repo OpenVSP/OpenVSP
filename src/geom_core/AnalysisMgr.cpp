@@ -947,6 +947,7 @@ void MassPropAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
     m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
+    m_Inputs.Add( NameValData( "DegenSet", vsp::SET_NONE, "Degenerate geometry Set for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -970,6 +971,7 @@ string MassPropAnalysis::Execute()
     if ( veh )
     {
         int geomSet = vsp::SET_ALL;
+        int degenSet = vsp::SET_NONE;
         int numMassSlice = 20;
         int dir = vsp::X_DIR;
 
@@ -979,6 +981,12 @@ string MassPropAnalysis::Execute()
         if ( nvd )
         {
             geomSet = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "DegenSet", 0 );
+        if ( nvd )
+        {
+            degenSet = nvd->GetInt( 0 );
         }
 
         nvd = m_Inputs.FindPtr( "NumMassSlices", 0 );
@@ -993,7 +1001,7 @@ string MassPropAnalysis::Execute()
             dir = nvd->GetInt( 0 );
         }
 
-        string geom = veh->MassPropsAndFlatten( geomSet, numMassSlice, dir );
+        string geom = veh->MassPropsAndFlatten( geomSet, degenSet, numMassSlice, dir);
 
         res = ResultsMgr.FindLatestResultsID( "Mass_Properties" );
     }

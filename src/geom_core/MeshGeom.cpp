@@ -2952,10 +2952,11 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
 void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSlices, int idir, bool writefile )
 {
     int i, j, s;
+    bool deleteopen = false;
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
     MeshInfo info;
-    MergeRemoveOpenMeshes( &info );
+    MergeRemoveOpenMeshes( &info, deleteopen );
 
     //==== Create Results ====//
     Results *res = NULL;
@@ -3029,9 +3030,13 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
         //==== Intersect All Mesh Geoms ====//
         for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
         {
-            tm->Intersect( m_TMeshVec[ i ] );
+            // Only intersect mass slice with thick surfaces.
+            if ( m_TMeshVec[ i ]->m_ThickSurf )
+            {
+                tm->Intersect( m_TMeshVec[ i ] );
 
-            m_TMeshVec[ i ]->RemoveIsectEdges();
+                m_TMeshVec[ i ]->RemoveIsectEdges();
+            }
         }
 
         //==== Split Intersected Tri in Mesh ====//

@@ -6,7 +6,7 @@
 
 #include "MassPropScreen.h"
 
-MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 440, "Mass Properties" )
+MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 440+40, "Mass Properties" )
 {
     int borderPaddingWidth = 5;
     int yPadding = 7;
@@ -38,6 +38,7 @@ MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 440, "
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.AddChoice( m_SetChoice, "Set" );
+    m_BorderLayout.AddChoice(m_DegenSet, "Degen Set:" );
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.AddButton( m_ComputeButton, "Compute" );
@@ -105,7 +106,8 @@ bool MassPropScreen::Update()
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {m_SelectedSetIndex} );
+    m_ScreenMgr->LoadSetChoice( {&m_SetChoice, &m_DegenSet}, {m_SelectedSetIndex, m_DegenSelectedSetIndex}, true );
+
 
     m_NumSlicesInput.Update( veh->m_NumMassSlices.GetID() );
     m_SliceDirChoice.Update( veh->m_MassSliceDir.GetID() );
@@ -188,9 +190,13 @@ void MassPropScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         m_SelectedSetIndex = m_SetChoice.GetVal();
     }
+    else if ( device == &m_DegenSet )
+    {
+        m_DegenSelectedSetIndex = m_DegenSet.GetVal();
+    }
     else if ( device == &m_ComputeButton )
     {
-        veh->MassPropsAndFlatten( m_SelectedSetIndex, veh->m_NumMassSlices.Get(), veh->m_MassSliceDir.Get() );
+        veh->MassPropsAndFlatten( m_SelectedSetIndex, m_DegenSelectedSetIndex, veh->m_NumMassSlices.Get(), veh->m_MassSliceDir.Get());
     }
     else if ( device == &m_FileTrigger )
     {

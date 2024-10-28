@@ -470,7 +470,7 @@ string ComputeMassProps( int set, int num_slices, int idir )
 {
     Update();
 
-    string id = GetVehicle()->MassPropsAndFlatten( set, num_slices, idir );
+    string id = GetVehicle()->MassPropsAndFlatten( set, vsp::SET_NONE, num_slices, idir);
 
     if ( id.size() == 0 )
     {

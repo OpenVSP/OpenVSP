@@ -5036,9 +5036,9 @@ string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int 
     return id;
 }
 
-string Vehicle::MassProps( int set, int numSlices, int idir, bool hidegeom, bool writefile )
+string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool hidegeom, bool writefile )
 {
-    string id = AddMeshGeom( set );
+    string id = AddMeshGeom( set, degen_set );
     if ( id.compare( "NONE" ) == 0 )
     {
         return id;
@@ -5111,10 +5111,10 @@ string Vehicle::MassProps( int set, int numSlices, int idir, bool hidegeom, bool
     return id;
 }
 
-string Vehicle::MassPropsAndFlatten( int set, int numSlices, int idir, bool hidegeom, bool writefile )
+string Vehicle::MassPropsAndFlatten( int set, int degen_set, int numSlices, int idir, bool hidegeom, bool writefile )
 {
     DeleteGeom( m_LastMassMeshID );
-    m_LastMassMeshID = MassProps( set, numSlices, idir, hidegeom, writefile );
+    m_LastMassMeshID = MassProps( set, degen_set, numSlices, idir, hidegeom, writefile);
     Geom* geom = FindGeom( m_LastMassMeshID );
     if ( !geom )
     {
