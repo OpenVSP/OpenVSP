@@ -276,6 +276,8 @@ Vehicle::Vehicle()
     m_MassSliceDir.Init( "MassSliceDir", "MassProperties", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
     m_MassSliceDir.SetDescript( "Slicing direction for mass property integration" );
 
+    m_UseModeMassFlag.Init( "UseModeMassFlag", "MassProperties", this, false, 0, 1 );
+
     m_DrawCgFlag.Init( "DrawCgFlag", "MassProperties", this, true, false, true );
     m_DrawCgFlag.SetDescript( "Adds red center point to mesh" );
 
@@ -5036,8 +5038,19 @@ string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int 
     return id;
 }
 
-string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool hidegeom, bool writefile )
+string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool hidegeom, bool writefile, bool useMode, const string &modeID )
 {
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+            degen_set = m->m_DegenSet();
+        }
+    }
+
     string id = AddMeshGeom( set, degen_set );
     if ( id.compare( "NONE" ) == 0 )
     {
@@ -5111,10 +5124,10 @@ string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool
     return id;
 }
 
-string Vehicle::MassPropsAndFlatten( int set, int degen_set, int numSlices, int idir, bool hidegeom, bool writefile )
+string Vehicle::MassPropsAndFlatten( int set, int degen_set, int numSlices, int idir, bool hidegeom, bool writefile, bool useMode, const string &modeID )
 {
     DeleteGeom( m_LastMassMeshID );
-    m_LastMassMeshID = MassProps( set, degen_set, numSlices, idir, hidegeom, writefile);
+    m_LastMassMeshID = MassProps( set, degen_set, numSlices, idir, hidegeom, writefile, useMode, modeID );
     Geom* geom = FindGeom( m_LastMassMeshID );
     if ( !geom )
     {

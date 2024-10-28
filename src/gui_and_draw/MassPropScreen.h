@@ -35,11 +35,18 @@ protected:
     SliderAdjRangeInput m_NumSlicesInput;
     Choice m_SliceDirChoice;
 
+    ToggleButton m_SetToggle;
+
     Choice m_SetChoice;
     Choice m_DegenSet;
+
+    ToggleRadioGroup m_ModeSetToggleGroup;
+    ToggleButton m_ModeToggle;
+    Choice m_ModeChoice;
+
     DrawObj m_CGDrawObj;
     ToggleButton m_DrawCgButton;
-    
+
     StringOutput m_TotalMassOutput;
     StringOutput m_XCgOutput;
     StringOutput m_YCgOutput;
@@ -59,7 +66,8 @@ protected:
 private :
     int m_SelectedSetIndex;
     int m_DegenSelectedSetIndex;
-
+    int m_SelectedModeChoice;
+    vector < string > m_ModeIDs;
 };
 
 #endif /* MASSPROPSCREEN_H_ */

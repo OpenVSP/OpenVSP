@@ -5,6 +5,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "MassPropScreen.h"
+#include "ModeMgr.h"
 
 MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 440+40, "Mass Properties" )
 {
@@ -19,6 +20,8 @@ MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 440+40
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
     m_SelectedSetIndex = DEFAULT_SET;
+    m_DegenSelectedSetIndex = vsp::SET_NONE;
+    m_SelectedModeChoice = 0;
 
     m_MainLayout.ForceNewLine();
     m_MainLayout.AddY( yPadding );
@@ -37,8 +40,33 @@ MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 440+40
     m_BorderLayout.AddChoice( m_SliceDirChoice, "Slice Direction:" );
     m_BorderLayout.AddYGap();
 
-    m_BorderLayout.AddChoice( m_SetChoice, "Set" );
+    int bw = 100;
+    m_BorderLayout.SetButtonWidth( bw );
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetChoiceButtonWidth( 0 );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.AddButton( m_SetToggle, "Normal Set:" );
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice(m_SetChoice, "", bw);
+    m_BorderLayout.ForceNewLine();
+
+    m_BorderLayout.SetSameLineFlag( false );
+    m_BorderLayout.SetChoiceButtonWidth( bw );
     m_BorderLayout.AddChoice(m_DegenSet, "Degen Set:" );
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetChoiceButtonWidth( 0 );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.AddButton( m_ModeToggle, "Mode:" );
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice(m_ModeChoice, "", bw );
+    m_BorderLayout.ForceNewLine();
+    m_BorderLayout.SetSameLineFlag( false );
+
+    m_ModeSetToggleGroup.Init( this );
+    m_ModeSetToggleGroup.AddButton( m_SetToggle.GetFlButton() );
+    m_ModeSetToggleGroup.AddButton( m_ModeToggle.GetFlButton() );
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.AddButton( m_ComputeButton, "Compute" );
@@ -108,6 +136,48 @@ bool MassPropScreen::Update()
 
     m_ScreenMgr->LoadSetChoice( {&m_SetChoice, &m_DegenSet}, {m_SelectedSetIndex, m_DegenSelectedSetIndex}, true );
 
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+
+    m_ModeSetToggleGroup.Update( veh->m_UseModeMassFlag.GetID() );
+
+    if ( ModeMgr.GetNumModes() == 0 )
+    {
+        if ( veh->m_UseModeMassFlag() )
+        {
+            veh->m_UseModeMassFlag.Set( false );
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+        m_ModeToggle.Deactivate();
+    }
+    else
+    {
+        m_ModeToggle.Activate();
+    }
+
+    if ( veh->m_UseModeMassFlag() )
+    {
+        m_ModeChoice.Activate();
+        m_SetChoice.Deactivate();
+        m_DegenSet.Deactivate();
+
+        Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+        if ( m )
+        {
+            if ( m_SelectedSetIndex != m->m_NormalSet() ||
+                 m_DegenSelectedSetIndex != m->m_DegenSet() )
+            {
+                m_SelectedSetIndex = m->m_NormalSet();
+                m_DegenSelectedSetIndex = m->m_DegenSet();
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+        }
+    }
+    else
+    {
+        m_ModeChoice.Deactivate();
+        m_SetChoice.Activate();
+        m_DegenSet.Activate();
+    }
 
     m_NumSlicesInput.Update( veh->m_NumMassSlices.GetID() );
     m_SliceDirChoice.Update( veh->m_MassSliceDir.GetID() );
@@ -194,9 +264,23 @@ void MassPropScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         m_DegenSelectedSetIndex = m_DegenSet.GetVal();
     }
+    else if ( device == &m_ModeChoice )
+    {
+        m_SelectedModeChoice = m_ModeChoice.GetVal();
+    }
     else if ( device == &m_ComputeButton )
     {
-        veh->MassPropsAndFlatten( m_SelectedSetIndex, m_DegenSelectedSetIndex, veh->m_NumMassSlices.Get(), veh->m_MassSliceDir.Get());
+        bool useMode = veh->m_UseModeMassFlag();
+        string modeID;
+        if ( m_SelectedModeChoice >= 0 && m_SelectedModeChoice < m_ModeIDs.size() )
+        {
+            modeID = m_ModeIDs[ m_SelectedModeChoice ];
+        }
+
+        bool hidegeom = true;
+        bool writefile = true;
+
+        veh->MassPropsAndFlatten( m_SelectedSetIndex, m_DegenSelectedSetIndex, veh->m_NumMassSlices.Get(), veh->m_MassSliceDir.Get(), hidegeom, writefile, useMode, modeID );
     }
     else if ( device == &m_FileTrigger )
     {

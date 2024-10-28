@@ -948,17 +948,14 @@ void MassPropAnalysis::SetDefaults()
     m_Inputs.Clear();
     m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
     m_Inputs.Add( NameValData( "DegenSet", vsp::SET_NONE, "Degenerate geometry Set for analysis." ) );
+    m_Inputs.Add( NameValData( "ModeID", "", "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
         m_Inputs.Add( NameValData( "NumMassSlices", veh->m_NumMassSlices.Get(), "Number of slices." ) );
         m_Inputs.Add( NameValData( "MassSliceDir", veh->m_MassSliceDir.Get(), "Direction for mass property slicing." ) );
-    }
-    else
-    {
-        m_Inputs.Add( NameValData( "NumMassSlices", 20, "Number of slices." ) );
-        m_Inputs.Add( NameValData( "MassSliceDir", vsp::X_DIR, "Direction for mass property slicing." ) );
+        m_Inputs.Add( NameValData( "UseModeFlag", veh->m_UseModeMassFlag(), "Flag to control whether Modes are used instead of Sets." ) );
     }
 }
 
@@ -974,6 +971,8 @@ string MassPropAnalysis::Execute()
         int degenSet = vsp::SET_NONE;
         int numMassSlice = 20;
         int dir = vsp::X_DIR;
+        int useModeFlag = 0;
+        string modeID;
 
         NameValData *nvd = NULL;
 
@@ -1001,7 +1000,21 @@ string MassPropAnalysis::Execute()
             dir = nvd->GetInt( 0 );
         }
 
-        string geom = veh->MassPropsAndFlatten( geomSet, degenSet, numMassSlice, dir);
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        if ( nvd )
+        {
+            useModeFlag = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
+        {
+            modeID = nvd->GetString( 0 );
+        }
+
+        bool hidegeom = true;
+        bool writefile = true;
+        string geom = veh->MassPropsAndFlatten( geomSet, degenSet, numMassSlice, dir, hidegeom, writefile, useModeFlag, modeID );
 
         res = ResultsMgr.FindLatestResultsID( "Mass_Properties" );
     }

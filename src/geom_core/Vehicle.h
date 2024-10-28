@@ -262,8 +262,8 @@ public:
     //Comp Geom
     string CompGeom( int set, int degenset, int halfFlag, int intSubsFlag = 1, bool hideset = true, bool suppressdisks = false, bool useMode = false, const string &modeID = string() );
     string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1, int degenset = vsp::SET_NONE, bool hideset = true, bool suppressdisks = false, bool useMode = false, const string &modeID = string() );
-    string MassProps( int set, int degen_set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true );
-    string MassPropsAndFlatten( int set, int degen_set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true );
+    string MassProps( int set, int degen_set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true, bool useMode = false, const string &modeID = string() );
+    string MassPropsAndFlatten( int set, int degen_set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true, bool useMode = false, const string &modeID = string() );
     string PSlice( int set, int numSlices, const vec3d &norm, bool autoBoundsFlag, double start, double end, bool measureduct );
     string PSliceAndFlatten( int set, int numSlices, const vec3d &norm, bool autoBoundsFlag, double start, double end, bool measureduct );
 
@@ -322,6 +322,7 @@ public:
     IntParm m_MassSliceDir;
     BoolParm m_DrawCgFlag;
     string m_LastMassMeshID;
+    BoolParm m_UseModeMassFlag;
 
     IntParm m_NumPlanerSlices;
     BoolParm m_AutoBoundsFlag;
