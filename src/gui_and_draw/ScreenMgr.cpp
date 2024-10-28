@@ -719,7 +719,7 @@ void ScreenMgr::LoadModeChoice( Choice & choice, vector < string > &modeIDVec, c
     }
     else
     {
-        choice.SetVal( -1 );
+        choice.SetVal( 0 );
     }
 }
 
