@@ -45,6 +45,9 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_UseMode.Init( "UseMode", groupname, this, false, false, true );
     m_UseMode.SetDescript( "Flag to control whether modes are used instead of sets." );
 
+    m_CGUseMode.Init( "CGUseMode", groupname, this, false, false, true );
+    m_CGUseMode.SetDescript( "Flag to control whether modes are used instead of sets or CG calc." );
+
     m_AnalysisMethod.Init( "AnalysisMethod", groupname, this, vsp::VORTEX_LATTICE, vsp::VORTEX_LATTICE, vsp::PANEL );
     m_AnalysisMethod.SetDescript( "Analysis method: 0=VLM, 1=Panel" );
 
@@ -353,10 +356,13 @@ void VSPAEROMgrSingleton::Renew()
     m_LastSelectedType = -1;
 
     m_AnalysisMethod.Set( vsp::VORTEX_LATTICE );
-    m_GeomSet.Set( vsp::SET_ALL );
+    m_GeomSet.Set( DEFAULT_SET );
 
     m_UseMode.Set( false );
     m_ModeID = "";
+
+    m_CGUseMode.Set( false );
+    m_CGModeID = "";
 
     m_RefGeomID = "";
     m_RefFlag.Set( vsp::MANUAL_REF );
@@ -404,6 +410,7 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     XmlUtil::AddStringNode( VSPAEROsetnode, "RefGeomID", m_RefGeomID );
     XmlUtil::AddStringNode( VSPAEROsetnode, "ModeID", m_ModeID );
+    XmlUtil::AddStringNode( VSPAEROsetnode, "CGModeID", m_CGModeID );
 
     // Encode Control Surface Groups using Internal Encode Method
     XmlUtil::AddIntNode( VSPAEROsetnode, "ControlSurfaceGroupCount", m_ControlSurfaceGroupVec.size() );
@@ -449,6 +456,7 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
 
         m_RefGeomID = ParmMgr.RemapID( XmlUtil::FindString( VSPAEROsetnode, "RefGeomID", m_RefGeomID ) );
         m_ModeID = ParmMgr.RemapID( XmlUtil::FindString( VSPAEROsetnode, "ModeID", m_ModeID ) );
+        m_CGModeID = ParmMgr.RemapID( XmlUtil::FindString( VSPAEROsetnode, "CGModeID", m_CGModeID ) );
 
         // Decode Control Surface Groups using Internal Decode Method
         int num_groups = XmlUtil::FindInt( VSPAEROsetnode, "ControlSurfaceGroupCount", 0 );

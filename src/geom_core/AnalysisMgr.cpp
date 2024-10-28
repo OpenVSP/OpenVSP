@@ -1621,7 +1621,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
 
         //Case Setup
         m_Inputs.Add( NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Geometry Set for analysis." ) );
-        m_Inputs.Add( NameValData( "UseModeFlag",                   VSPAEROMgr.m_UseMode()                            , "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( NameValData( "UseModeFlag",                   VSPAEROMgr.m_UseMode.Get()                         , "Flag to control whether Modes are used instead of Sets." ) );
         m_Inputs.Add( NameValData( "ModeID",                        VSPAEROMgr.m_ModeID                               , "ID for Mode to use for analysis." ) );
         m_Inputs.Add( NameValData( "AnalysisMethod",                VSPAEROMgr.m_AnalysisMethod.Get()                 , "Flag to indicate analysis method (thin vs. thick)." ) );
         m_Inputs.Add( NameValData( "AlternateInputFormatFlag",      VSPAEROMgr.m_AlternateInputFormatFlag.Get()       , "Flag to use alternate input file format." ) );
@@ -1661,6 +1661,8 @@ void VSPAEROSweepAnalysis::SetDefaults()
         //TODO add flag to identify if this is manual or computed
         m_Inputs.Add( NameValData( "CGGeomSet",         VSPAEROMgr.m_CGGeomSet.Get()         , "Geometry set for center of gravity computation." ) );
         m_Inputs.Add( NameValData( "CGDegenSet",        VSPAEROMgr.m_CGDegenSet.Get()        , "Geometry degen set for center of gravity computation." ) );
+        m_Inputs.Add( NameValData( "UseCGModeFlag",     VSPAEROMgr.m_CGUseMode.Get()         , "Flag to control whether Modes are used instead of Sets for mass properties." ) );
+        m_Inputs.Add( NameValData( "CGModeID",          VSPAEROMgr.m_CGModeID                , "ID for Mode to use for analysis." ) );
         m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      , "Number of slices for CG computation." ) );
         m_Inputs.Add( NameValData( "MassSliceDir",    VSPAEROMgr.m_MassSliceDir.Get()        , "Slicing direction for mass properties." ) );
         m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               , "X moment reference point." ) );
@@ -1807,6 +1809,8 @@ string VSPAEROSweepAnalysis::Execute()
         //    Mass properties
         int cgGeomSetOrig       = VSPAEROMgr.m_CGGeomSet.Get();
         int cgDegenSetOrig       = VSPAEROMgr.m_CGDegenSet.Get();
+        int cguseModeOrig       = VSPAEROMgr.m_CGUseMode.Get();
+        string cgmodeIDOrig     = VSPAEROMgr.m_CGModeID;
         int numMassSliceOrig    = VSPAEROMgr.m_NumMassSlice.Get();
         int massSliceDirOrig            = VSPAEROMgr.m_MassSliceDir.Get();
         double xcgOrig          = VSPAEROMgr.m_Xcg.Get();
@@ -1821,6 +1825,16 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_CGDegenSet.Set( nvd->GetInt(0) );
+        }
+        nvd = m_Inputs.FindPtr( "CGUseModeFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_CGUseMode.Set( nvd->GetInt(0) );
+        }
+        nvd = m_Inputs.FindPtr( "CGModeID", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_CGModeID = nvd->GetString( 0 );
         }
         nvd = m_Inputs.FindPtr( "NumMassSlice", 0 );
         if ( nvd )
@@ -2182,6 +2196,8 @@ string VSPAEROSweepAnalysis::Execute()
         //    Mass properties
         VSPAEROMgr.m_CGGeomSet.Set(cgGeomSetOrig);
         VSPAEROMgr.m_CGDegenSet.Set(cgDegenSetOrig);
+        VSPAEROMgr.m_CGUseMode.Set(cguseModeOrig);
+        VSPAEROMgr.m_CGModeID = cgmodeIDOrig;
         VSPAEROMgr.m_NumMassSlice.Set(numMassSliceOrig);
         VSPAEROMgr.m_MassSliceDir.Set( massSliceDirOrig);
         VSPAEROMgr.m_Xcg.Set(xcgOrig);

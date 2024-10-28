@@ -150,8 +150,14 @@ protected:
 
     // Moment Ref Layout
     // Moment reference location
+    ToggleButton m_CGSetToggle;
     Choice m_CGSetChoice;
     Choice m_CGDegenSetChoice;
+
+    ToggleRadioGroup m_CGModeSetToggleGroup;
+    ToggleButton m_CGModeToggle;
+    Choice m_CGModeChoice;
+
     TriggerButton m_MassPropButton;
     SliderAdjRangeInput m_NumSliceSlider;
     Choice m_MassSliceDirChoice;

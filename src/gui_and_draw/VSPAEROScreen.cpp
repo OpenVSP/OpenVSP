@@ -22,7 +22,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 #define VSPAERO_SCREEN_WIDTH 610
-#define VSPAERO_SCREEN_HEIGHT 650
+#define VSPAERO_SCREEN_HEIGHT 670
 #define VSPAERO_EXECUTE_CONSTANT_HEIGHT 210
 
 VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_WIDTH,
@@ -202,17 +202,40 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_MomentRefLayout.AddDividerBox( "Moment Reference Position" );
 
-    m_MomentRefLayout.SetButtonWidth( 125 );
+    m_MomentRefLayout.SetButtonWidth( bw );
+    m_MomentRefLayout.SetSliderWidth( bw );
+    m_MomentRefLayout.SetChoiceButtonWidth( 0 );
 
     m_MomentRefLayout.SetSameLineFlag( true );
     m_MomentRefLayout.SetFitWidthFlag( false );
+
+    m_MomentRefLayout.AddButton( m_CGSetToggle, "Mass Set:" );
+    m_MomentRefLayout.SetFitWidthFlag( true );
+    m_MomentRefLayout.AddChoice( m_CGSetChoice, "", bw );
+
+    m_MomentRefLayout.ForceNewLine();
+
+    m_MomentRefLayout.SetChoiceButtonWidth( bw );
     m_MomentRefLayout.AddChoice( m_CGDegenSetChoice, "Degen Set:" );
+    m_MomentRefLayout.SetChoiceButtonWidth( 0 );
+
+    m_MomentRefLayout.ForceNewLine();
+
+    m_MomentRefLayout.SetFitWidthFlag( false );
+    m_MomentRefLayout.AddButton( m_CGModeToggle, "Mass Mode:" );
+    m_MomentRefLayout.SetFitWidthFlag( true );
+    m_MomentRefLayout.AddChoice(m_CGModeChoice, "", bw );
     m_MomentRefLayout.ForceNewLine();
 
     m_MomentRefLayout.SetSameLineFlag( false );
     m_MomentRefLayout.SetFitWidthFlag( true );
 
+    m_CGModeSetToggleGroup.Init( this );
+    m_CGModeSetToggleGroup.AddButton( m_CGSetToggle.GetFlButton() );
+    m_CGModeSetToggleGroup.AddButton( m_CGModeToggle.GetFlButton() );
+
     m_MomentRefLayout.AddButton( m_MassPropButton, "Calc CG" );
+
     m_MomentRefLayout.InitWidthHeightVals();
 
     m_MassSliceDirChoice.AddItem( "X", vsp::X_DIR );
@@ -813,9 +836,10 @@ bool VSPAEROScreen::Update()
         UpdateRefWing();
 
         m_ScreenMgr->LoadSetChoice( {&m_GeomSetChoice, &m_CGSetChoice, &m_CGDegenSetChoice}, {VSPAEROMgr.m_GeomSet.GetID(), VSPAEROMgr.m_CGGeomSet.GetID(), VSPAEROMgr.m_CGDegenSet.GetID()}, true );
-        m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, VSPAEROMgr.m_ModeID );
+        m_ScreenMgr->LoadModeChoice( {&m_ModeChoice, &m_CGModeChoice}, m_ModeIDs, {VSPAEROMgr.m_ModeID, VSPAEROMgr.m_CGModeID} );
 
         m_ModeSetToggleGroup.Update( VSPAEROMgr.m_UseMode.GetID() );
+        m_CGModeSetToggleGroup.Update( VSPAEROMgr.m_CGUseMode.GetID() );
 
         if ( ModeMgr.GetNumModes() == 0 )
         {
@@ -825,10 +849,19 @@ bool VSPAEROScreen::Update()
                 m_ScreenMgr->SetUpdateFlag( true );
             }
             m_ModeToggle.Deactivate();
+
+
+            if ( VSPAEROMgr.m_CGUseMode() )
+            {
+                VSPAEROMgr.m_CGUseMode.Set( false );
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+            m_CGModeToggle.Deactivate();
         }
         else
         {
             m_ModeToggle.Activate();
+            m_CGModeToggle.Activate();
         }
 
         if ( VSPAEROMgr.m_UseMode() )
@@ -852,6 +885,30 @@ bool VSPAEROScreen::Update()
             m_GeomSetChoice.Activate();
         }
 
+        if ( VSPAEROMgr.m_CGUseMode() )
+        {
+            m_CGModeChoice.Activate();
+            m_CGSetChoice.Deactivate();
+            m_CGDegenSetChoice.Deactivate();
+
+            Mode *m = ModeMgr.GetMode( VSPAEROMgr.m_CGModeID );
+            if ( m )
+            {
+                if ( VSPAEROMgr.m_CGGeomSet() != m->m_NormalSet() ||
+                     VSPAEROMgr.m_CGDegenSet() != m->m_DegenSet() )
+                {
+                    VSPAEROMgr.m_CGGeomSet = m->m_NormalSet();
+                    VSPAEROMgr.m_CGDegenSet = m->m_DegenSet();
+                    m_ScreenMgr->SetUpdateFlag( true );
+                }
+            }
+        }
+        else
+        {
+            m_CGModeChoice.Deactivate();
+            m_CGSetChoice.Activate();
+            m_CGDegenSetChoice.Activate();
+        }
 
         UpdateCaseSetupDevices();
 
@@ -1134,6 +1191,18 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                 VSPAEROMgr.m_ModeID = "";
             }
         }
+        else if ( device == &m_CGModeChoice )
+        {
+            int indx = m_CGModeChoice.GetVal();
+            if ( indx >= 0  && indx < m_ModeIDs.size() )
+            {
+                VSPAEROMgr.m_CGModeID = m_ModeIDs[ indx ];
+            }
+            else
+            {
+                VSPAEROMgr.m_CGModeID = "";
+            }
+        }
         else if( device == &m_RefWingChoice )
         {
             int id = m_RefWingChoice.GetVal();
@@ -1187,8 +1256,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             bool hidegeom = true;
             bool writefile = true;
-            int degen_set = vsp::SET_NONE;
-            string id = veh->MassPropsAndFlatten( m_CGSetChoice.GetVal(), degen_set, VSPAEROMgr.m_NumMassSlice(), VSPAEROMgr.m_MassSliceDir(), hidegeom, writefile );
+            string id = veh->MassPropsAndFlatten( m_CGSetChoice.GetVal(), m_CGDegenSetChoice.GetVal(), VSPAEROMgr.m_NumMassSlice(), VSPAEROMgr.m_MassSliceDir(), hidegeom, writefile, VSPAEROMgr.m_CGUseMode(), VSPAEROMgr.m_CGModeID );
             veh->DeleteGeom( id );
 
             VSPAEROMgr.m_Xcg = veh->m_CG.x();

@@ -366,6 +366,9 @@ public:
     BoolParm m_UseMode;
     string m_ModeID;
 
+    BoolParm m_CGUseMode;
+    string m_CGModeID;
+
     // Reference Area Parms
     Parm m_Sref;
     Parm m_bref;
