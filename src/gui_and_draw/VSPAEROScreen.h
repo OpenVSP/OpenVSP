@@ -74,7 +74,6 @@ public:
     bool m_SolverThreadIsRunning;
 
     void UpdateRefWing();
-    void UpdateSetChoiceLists();
     void UpdateCaseSetupDevices();
     void UpdateReferenceQuantitiesDevices();
     void UpdateCGDevices();

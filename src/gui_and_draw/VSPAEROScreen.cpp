@@ -1402,24 +1402,6 @@ void VSPAEROScreen::UpdateRefWing()
     m_RefWingChoice.SetVal(WingCompIDMap[refGeomID]);
 }
 
-void VSPAEROScreen::UpdateSetChoiceLists()
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    m_GeomSetChoice.ClearItems();
-    m_CGSetChoice.ClearItems();
-
-    vector <string> setVec = veh->GetSetNameVec();
-    for (int iSet = 0; iSet < setVec.size(); iSet++)
-    {
-        m_GeomSetChoice.AddItem(setVec[iSet]);
-        m_CGSetChoice.AddItem(setVec[iSet]);
-    }
-    m_GeomSetChoice.UpdateItems();
-    m_CGSetChoice.UpdateItems();
-
-
-}
-
 void VSPAEROScreen::UpdateCaseSetupDevices()
 {
     m_AeroMethodToggleGroup.Update(VSPAEROMgr.m_AnalysisMethod.GetID());
