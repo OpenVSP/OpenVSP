@@ -1185,7 +1185,10 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if( device == &m_MassPropButton )
         {
-            string id = veh->MassPropsAndFlatten( m_CGSetChoice.GetVal(), vsp::SET_NONE, VSPAEROMgr.m_NumMassSlice(), VSPAEROMgr.m_MassSliceDir(), false, false);
+            bool hidegeom = true;
+            bool writefile = true;
+            int degen_set = vsp::SET_NONE;
+            string id = veh->MassPropsAndFlatten( m_CGSetChoice.GetVal(), degen_set, VSPAEROMgr.m_NumMassSlice(), VSPAEROMgr.m_MassSliceDir(), hidegeom, writefile );
             veh->DeleteGeom( id );
 
             VSPAEROMgr.m_Xcg = veh->m_CG.x();
