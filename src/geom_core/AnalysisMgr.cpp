@@ -1370,6 +1370,9 @@ void WaveDragAnalysis::SetDefaults()
     m_Inputs.Add( NameValData( "Mach", WaveDragMgr.m_MachNumber.Get(), "Mach number." ) );
     m_Inputs.Add( NameValData( "SSFlow_vec", WaveDragMgr.m_SSFlow_vec, "Propulsive face subsurface ID's." ) );
     m_Inputs.Add( NameValData( "SymmFlag", WaveDragMgr.m_SymmFlag.Get(), "Symmetry flag." ) );
+    m_Inputs.Add( NameValData( "ModeID", WaveDragMgr.m_ModeID, "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( NameValData( "UseModeFlag", WaveDragMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+
 }
 
 string WaveDragAnalysis::Execute()
@@ -1386,6 +1389,8 @@ string WaveDragAnalysis::Execute()
         double Mach = WaveDragMgr.m_MachNumber.Get();
         vector <string> Flow_vec = WaveDragMgr.m_SSFlow_vec;
         bool Symm = WaveDragMgr.m_SymmFlag.Get();
+        int useMode = WaveDragMgr.m_UseMode.Get();
+        string modeID = WaveDragMgr.m_ModeID;
 
         NameValData *nvd = NULL;
 
@@ -1425,7 +1430,19 @@ string WaveDragAnalysis::Execute()
             Symm = nvd->GetInt( 0 );
         }
 
-        res = WaveDragMgr.SliceAndAnalyze( set, numSlices, numRots, Mach, Flow_vec, Symm );
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        if ( nvd )
+        {
+            useMode = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
+        {
+            modeID = nvd->GetString( 0 );
+        }
+
+        res = WaveDragMgr.SliceAndAnalyze( set, numSlices, numRots, Mach, Flow_vec, Symm, useMode, modeID );
     }
 
     return res;

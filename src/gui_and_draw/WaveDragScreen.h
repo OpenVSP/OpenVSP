@@ -49,12 +49,22 @@ public:
 
 protected:
 
+    int m_SelectedModeChoice;
+    vector < string > m_ModeIDs;
+
     //==== Run Tab ====//
     GroupLayout m_RunLayout;
 
     SliderAdjRangeInput m_NumSlicesSlider;
     SliderAdjRangeInput m_NumRotSectsSlider;
+
+    ToggleButton m_SetToggle;
     Choice m_SelectedSetChoice;
+
+    ToggleRadioGroup m_ModeSetToggleGroup;
+    ToggleButton m_ModeToggle;
+    Choice m_ModeChoice;
+
     SliderAdjRangeInput m_MachNumberSlider;
     TriggerButton m_FileTrigger;
     StringOutput m_FileSelect;

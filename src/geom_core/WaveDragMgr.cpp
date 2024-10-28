@@ -12,6 +12,7 @@
 #include "WingGeom.h"
 #include "ParmMgr.h"
 #include "wavedragEL.h"
+#include "ModeMgr.h"
 
 WaveDragSingleton::WaveDragSingleton() : ParmContainer()
 {
@@ -29,6 +30,8 @@ WaveDragSingleton::WaveDragSingleton() : ParmContainer()
 
     m_SelectedSetIndex.Init( "SelSetIndex", "WaveDrag", this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
     m_SelectedSetIndex.SetDescript( "Selected Set Index" );
+
+    m_UseMode.Init( "UseMode", "WaveDrag", this, false, 0, 1 );
 
     m_RefFlag.Init( "RefFlag", "WaveDrag", this, vsp::MANUAL_REF, vsp::MANUAL_REF, vsp::COMPONENT_REF );
     m_RefFlag.SetDescript( "Reference quantity flag" );
@@ -71,6 +74,7 @@ xmlNodePtr WaveDragSingleton::EncodeXml( xmlNodePtr & node )
     ParmContainer::EncodeXml( WaveDragnode );
 
     XmlUtil::AddStringNode( WaveDragnode, "ReferenceGeomID", m_RefGeomID );
+    XmlUtil::AddStringNode( WaveDragnode, "ModeID", m_ModeID );
 
     //===== Flow-Through Subsurfaces ====//
     xmlNodePtr flowSS_list_node = xmlNewChild( WaveDragnode, NULL, ( const xmlChar * )"FlowSS_List", NULL );
@@ -91,6 +95,7 @@ xmlNodePtr WaveDragSingleton::DecodeXml( xmlNodePtr & node )
     {
         ParmContainer::DecodeXml( WaveDragnode );
         m_RefGeomID   = ParmMgr.RemapID( XmlUtil::FindString( WaveDragnode, "ReferenceGeomID", m_RefGeomID ) );
+        m_ModeID   = ParmMgr.RemapID( XmlUtil::FindString( WaveDragnode, "ModeID", m_ModeID ) );
 
         //==== Flow-Through Subsurfaces ====//
         xmlNodePtr flowSS_list_node = XmlUtil::GetNode( WaveDragnode, "FlowSS_List", 0 );
@@ -245,18 +250,28 @@ void WaveDragSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 string WaveDragSingleton::SliceAndAnalyze()
 {
     return SliceAndAnalyze( m_SelectedSetIndex.Get(), m_NumSlices.Get(),
-            m_NumRotSects.Get(), m_MachNumber.Get(),
-            m_SSFlow_vec, m_SymmFlag.Get() );
+                            m_NumRotSects.Get(), m_MachNumber.Get(),
+                            m_SSFlow_vec, m_SymmFlag.Get(), m_UseMode.Get(), m_ModeID );
 }
 
 string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, double Mach,
-        const vector <string> & Flow_vec, bool Symm )
+                                           const vector <string> & Flow_vec, bool Symm, bool useMode, const string &modeID )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
         assert( false );
         return string();
+    }
+
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+        }
     }
 
     // Terminates slicing routine if no Geoms in desired set
@@ -305,8 +320,7 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
 
     vector< string > set_name_vec = veh->GetSetNameVec();
 
-    int set_index = m_SelectedSetIndex.Get();
-    string set_name = set_name_vec[set_index];
+    string set_name = set_name_vec[set];
     res->Add( NameValData( "Set_Name", set_name, "Set name." ) );
 
     string to_insert = "_" + str_mach + "_" + set_name;

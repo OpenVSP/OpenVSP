@@ -43,7 +43,7 @@ public:
 
     string SliceAndAnalyze();
     string SliceAndAnalyze( int set, int numSlices, int numRots, double Mach,
-                           const vector <string> & Flow_vec, bool Symm );
+                            const vector <string> & Flow_vec, bool Symm, bool useMode, const string &modeID );
 
     void SetupTheta( int ntheta );
     void Setup( int nslice, int ncomp );
@@ -76,6 +76,9 @@ public:
     IntParm m_NumRotSects;
     IntParm m_SelectedSetIndex;
     Parm m_MachNumber;
+
+    BoolParm m_UseMode;
+    string m_ModeID;
 
     string m_RefGeomID;
     IntParm m_RefFlag;

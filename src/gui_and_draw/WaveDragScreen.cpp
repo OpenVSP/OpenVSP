@@ -12,6 +12,7 @@
 #include "SubSurfaceMgr.h"
 #include "StlHelper.h"
 #include "VspUtil.h"
+#include "ModeMgr.h"
 
 /////////////////// Construction/Destruction /////////////////////////
 
@@ -40,7 +41,34 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
     // Slice Number, Rotation, and Set
     m_RunLayout.AddDividerBox( "Case Setup" );
 
-    m_RunLayout.AddChoice( m_SelectedSetChoice, "Geometry Set: " );
+    m_RunLayout.SetFitWidthFlag( false );
+    m_RunLayout.SetSameLineFlag( true );
+
+    int bw = 100;
+    m_RunLayout.SetButtonWidth( bw );
+
+    m_RunLayout.SetSameLineFlag( true );
+    m_RunLayout.SetChoiceButtonWidth( 0 );
+    m_RunLayout.SetFitWidthFlag( false );
+    m_RunLayout.AddButton( m_SetToggle, "Geometry Set:" );
+    m_RunLayout.SetFitWidthFlag( true );
+    m_RunLayout.AddChoice(m_SelectedSetChoice, "", bw);
+    m_RunLayout.ForceNewLine();
+
+    m_RunLayout.SetSameLineFlag( true );
+    m_RunLayout.SetChoiceButtonWidth( 0 );
+    m_RunLayout.SetFitWidthFlag( false );
+    m_RunLayout.AddButton( m_ModeToggle, "Mode:" );
+    m_RunLayout.SetFitWidthFlag( true );
+    m_RunLayout.AddChoice(m_ModeChoice, "", bw );
+    m_RunLayout.ForceNewLine();
+
+    m_ModeSetToggleGroup.Init( this );
+    m_ModeSetToggleGroup.AddButton( m_SetToggle.GetFlButton() );
+    m_ModeSetToggleGroup.AddButton( m_ModeToggle.GetFlButton() );
+
+    m_RunLayout.SetSameLineFlag( false );
+
     m_RunLayout.AddSlider( m_NumSlicesSlider, "Num Slices", 80, "%7.0f" );
     m_RunLayout.AddSlider( m_NumRotSectsSlider, "Num Rotations", 20, "%7.0f" );
     m_RunLayout.AddButton( m_SymmToggle, "Run with X-Z Symmetry" );
@@ -334,6 +362,45 @@ bool WaveDragScreen::Update()
 
         m_ScreenMgr->LoadSetChoice( {&m_SelectedSetChoice}, {WaveDragMgr.m_SelectedSetIndex.GetID()} );
 
+        m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+
+        m_ModeSetToggleGroup.Update( WaveDragMgr.m_UseMode.GetID() );
+
+        if ( ModeMgr.GetNumModes() == 0 )
+        {
+            if ( WaveDragMgr.m_UseMode() )
+            {
+                WaveDragMgr.m_UseMode.Set( false );
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+            m_ModeToggle.Deactivate();
+        }
+        else
+        {
+            m_ModeToggle.Activate();
+        }
+
+        if ( WaveDragMgr.m_UseMode() )
+        {
+            m_ModeChoice.Activate();
+            m_SelectedSetChoice.Deactivate();
+
+            Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+            if ( m )
+            {
+                if ( WaveDragMgr.m_SelectedSetIndex() != m->m_NormalSet() )
+                {
+                    WaveDragMgr.m_SelectedSetIndex = m->m_NormalSet();
+                    m_ScreenMgr->SetUpdateFlag( true );
+                }
+            }
+        }
+        else
+        {
+            m_ModeChoice.Deactivate();
+            m_SelectedSetChoice.Activate();
+        }
+
         // Removes any subsurf IDs from m_SSFlow_vec that don't exist in the model
         for ( int i = (int)WaveDragMgr.m_SSFlow_vec.size()-1; i >= 0 ; i--)
         {
@@ -473,6 +540,10 @@ void WaveDragScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         int id = m_RefWingChoice.GetVal();
         WaveDragMgr.m_RefGeomID = m_WingGeomVec[id];
+    }
+    else if ( gui_device == &m_ModeChoice )
+    {
+        m_SelectedModeChoice = m_ModeChoice.GetVal();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
