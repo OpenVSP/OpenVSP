@@ -62,8 +62,11 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_RefFlag.Init( "RefFlag", groupname, this, vsp::MANUAL_REF, 0, vsp::NUM_REF_TYPES - 1 );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
-    m_CGGeomSet.Init( "MassSet", groupname, this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
+    m_CGGeomSet.Init( "MassSet", groupname, this, DEFAULT_SET, vsp::SET_NONE, vsp::MAX_NUM_SETS );
     m_CGGeomSet.SetDescript( "Mass property set" );
+
+    m_CGDegenSet.Init( "MassDegenSet", groupname, this, vsp::SET_NONE, vsp::SET_NONE, vsp::MAX_NUM_SETS );
+    m_CGDegenSet.SetDescript( "Mass property degen set" );
 
     m_NumMassSlice.Init( "NumMassSlice", groupname, this, 10, 10, 200 );
     m_NumMassSlice.SetDescript( "Number of mass property slices" );
@@ -361,7 +364,8 @@ void VSPAEROMgrSingleton::Renew()
     m_bref.Set( 1.0 );
     m_cref.Set( 1.0 );
 
-    m_CGGeomSet.Set( vsp::SET_ALL );
+    m_CGGeomSet.Set( DEFAULT_SET );
+    m_CGDegenSet.Set( vsp::SET_NONE );
     m_NumMassSlice.Set( 10 );
     m_MassSliceDir.Set( vsp::X_DIR );
     m_Xcg.Set( 0.0 );

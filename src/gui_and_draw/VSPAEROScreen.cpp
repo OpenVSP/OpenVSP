@@ -205,14 +205,14 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_MomentRefLayout.SetButtonWidth( 125 );
 
     m_MomentRefLayout.SetSameLineFlag( true );
-    m_MomentRefLayout.AddChoice( m_CGSetChoice, "Mass Set:",  m_MomentRefLayout.GetButtonWidth() );
     m_MomentRefLayout.SetFitWidthFlag( false );
-    m_MomentRefLayout.AddButton( m_MassPropButton, "Calc CG" );
+    m_MomentRefLayout.AddChoice( m_CGDegenSetChoice, "Degen Set:" );
     m_MomentRefLayout.ForceNewLine();
 
     m_MomentRefLayout.SetSameLineFlag( false );
     m_MomentRefLayout.SetFitWidthFlag( true );
 
+    m_MomentRefLayout.AddButton( m_MassPropButton, "Calc CG" );
     m_MomentRefLayout.InitWidthHeightVals();
 
     m_MassSliceDirChoice.AddItem( "X", vsp::X_DIR );
@@ -812,7 +812,7 @@ bool VSPAEROScreen::Update()
     {
         UpdateRefWing();
 
-        m_ScreenMgr->LoadSetChoice( {&m_GeomSetChoice, &m_CGSetChoice}, {VSPAEROMgr.m_GeomSet.GetID(), VSPAEROMgr.m_CGGeomSet.GetID()} );
+        m_ScreenMgr->LoadSetChoice( {&m_GeomSetChoice, &m_CGSetChoice, &m_CGDegenSetChoice}, {VSPAEROMgr.m_GeomSet.GetID(), VSPAEROMgr.m_CGGeomSet.GetID(), VSPAEROMgr.m_CGDegenSet.GetID()}, true );
         m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, VSPAEROMgr.m_ModeID );
 
         m_ModeSetToggleGroup.Update( VSPAEROMgr.m_UseMode.GetID() );

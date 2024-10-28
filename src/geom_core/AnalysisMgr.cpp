@@ -1647,6 +1647,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         //Moment center
         //TODO add flag to identify if this is manual or computed
         m_Inputs.Add( NameValData( "CGGeomSet",         VSPAEROMgr.m_CGGeomSet.Get()         , "Geometry set for center of gravity computation." ) );
+        m_Inputs.Add( NameValData( "CGDegenSet",        VSPAEROMgr.m_CGDegenSet.Get()        , "Geometry degen set for center of gravity computation." ) );
         m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      , "Number of slices for CG computation." ) );
         m_Inputs.Add( NameValData( "MassSliceDir",    VSPAEROMgr.m_MassSliceDir.Get()        , "Slicing direction for mass properties." ) );
         m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               , "X moment reference point." ) );
@@ -1792,6 +1793,7 @@ string VSPAEROSweepAnalysis::Execute()
 
         //    Mass properties
         int cgGeomSetOrig       = VSPAEROMgr.m_CGGeomSet.Get();
+        int cgDegenSetOrig       = VSPAEROMgr.m_CGDegenSet.Get();
         int numMassSliceOrig    = VSPAEROMgr.m_NumMassSlice.Get();
         int massSliceDirOrig            = VSPAEROMgr.m_MassSliceDir.Get();
         double xcgOrig          = VSPAEROMgr.m_Xcg.Get();
@@ -1801,6 +1803,11 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_CGGeomSet.Set( nvd->GetInt(0) );
+        }
+        nvd = m_Inputs.FindPtr( "CGDegenSet", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_CGDegenSet.Set( nvd->GetInt(0) );
         }
         nvd = m_Inputs.FindPtr( "NumMassSlice", 0 );
         if ( nvd )
@@ -2161,6 +2168,7 @@ string VSPAEROSweepAnalysis::Execute()
 
         //    Mass properties
         VSPAEROMgr.m_CGGeomSet.Set(cgGeomSetOrig);
+        VSPAEROMgr.m_CGDegenSet.Set(cgDegenSetOrig);
         VSPAEROMgr.m_NumMassSlice.Set(numMassSliceOrig);
         VSPAEROMgr.m_MassSliceDir.Set( massSliceDirOrig);
         VSPAEROMgr.m_Xcg.Set(xcgOrig);
