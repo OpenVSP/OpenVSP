@@ -1385,20 +1385,20 @@ void CfdMeshScreen::GuiDeviceGlobalTabCallback( GuiDevice* device )
     {
         CfdMeshMgr.AdjustAllSourceRad( 1.5 );
     }
-    else if ( device == &m_ModeChoice )
+    else if ( device == &m_ModeChoice || device == &m_ModeSetToggleGroup )
     {
-        int indx = m_ModeChoice.GetVal();
-        if ( indx >= 0  && indx < m_ModeIDs.size() )
-        {
-            m_Vehicle->GetCfdSettingsPtr()->m_ModeID = m_ModeIDs[ indx ];
-        }
-        else
-        {
-            m_Vehicle->GetCfdSettingsPtr()->m_ModeID = "";
-        }
-
         if ( m_Vehicle->GetCfdSettingsPtr()->m_UseMode() )
         {
+            int indx = m_ModeChoice.GetVal();
+            if ( indx >= 0  && indx < m_ModeIDs.size() )
+            {
+                m_Vehicle->GetCfdSettingsPtr()->m_ModeID = m_ModeIDs[ indx ];
+            }
+            else
+            {
+                m_Vehicle->GetCfdSettingsPtr()->m_ModeID = "";
+            }
+
             Mode *m = ModeMgr.GetMode( m_Vehicle->GetCfdSettingsPtr()->m_ModeID );
             if ( m )
             {

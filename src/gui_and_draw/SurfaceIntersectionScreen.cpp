@@ -656,20 +656,20 @@ void SurfaceIntersectionScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void SurfaceIntersectionScreen::GuiDeviceGlobalTabCallback( GuiDevice* device )
 {
-    if ( device == &m_ModeChoice )
+    if ( device == &m_ModeChoice || device == &m_ModeSetToggleGroup )
     {
-        int indx = m_ModeChoice.GetVal();
-        if ( indx >= 0  && indx < m_ModeIDs.size() )
-        {
-            m_Vehicle->GetISectSettingsPtr()->m_ModeID = m_ModeIDs[ indx ];
-        }
-        else
-        {
-            m_Vehicle->GetISectSettingsPtr()->m_ModeID = "";
-        }
-
         if ( m_Vehicle->GetISectSettingsPtr()->m_UseMode() )
         {
+            int indx = m_ModeChoice.GetVal();
+            if ( indx >= 0  && indx < m_ModeIDs.size() )
+            {
+                m_Vehicle->GetISectSettingsPtr()->m_ModeID = m_ModeIDs[ indx ];
+            }
+            else
+            {
+                m_Vehicle->GetISectSettingsPtr()->m_ModeID = "";
+            }
+
             Mode *m = ModeMgr.GetMode( m_Vehicle->GetISectSettingsPtr()->m_ModeID );
             if ( m )
             {
