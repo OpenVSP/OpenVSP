@@ -4122,22 +4122,22 @@ void MeshGeom::FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm )
 bool CutterTMeshCompare( TMesh* a, TMesh* b )
 {
     if ( a->m_SurfType == vsp::WING_SURF && b->m_SurfType != vsp::WING_SURF )
-        return a;
+        return true;
 
     if ( b->m_SurfType == vsp::WING_SURF && a->m_SurfType != vsp::WING_SURF )
-        return b;
+        return false;
 
     if ( a->m_MassPrior > b->m_MassPrior )
-        return a;
+        return true;
 
     if ( b->m_MassPrior > a->m_MassPrior )
-        return b;
+        return false;
 
     if ( a->m_OriginGeomID < b->m_OriginGeomID )
-        return a;
+        return true;
 
     if ( b->m_OriginGeomID < b->m_OriginGeomID )
-        return b;
+        return false;
 
     return ( a->m_SurfNum < b->m_SurfNum );
 }
