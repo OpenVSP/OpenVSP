@@ -366,7 +366,7 @@ void ProjectionScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         ProjectionMgr.m_TargetSetIndex = m_TargetSet.GetVal();
     }
-    else if ( device == &m_ModeChoice )
+    else if ( device == &m_ModeChoice || device == &m_TargetTypeGroup )
     {
         int indx = m_ModeChoice.GetVal();
         if ( indx >= 0  && indx < m_ModeIDs.size() )
