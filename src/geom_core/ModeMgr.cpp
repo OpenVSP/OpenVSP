@@ -32,7 +32,10 @@ Mode::~Mode()
 
 void Mode::AddSetting( const pair < string, string > &s )
 {
-    m_GroupSettingVec.push_back( s );
+    if ( !GroupHasSetting( s.first ) )
+    {
+        m_GroupSettingVec.push_back( s );
+    }
 }
 
 pair < string, string > Mode::GetSetting( int indx )
@@ -56,6 +59,20 @@ void Mode::RemoveSetting( int indx )
 void Mode::RemoveAllSettings()
 {
     m_GroupSettingVec.clear();
+}
+
+bool Mode::GroupHasSetting( const string & gidcheck )
+{
+    for ( int i = 0; i < m_GroupSettingVec.size(); i++ )
+    {
+        pair < string, string > set_pair = m_GroupSettingVec[ i ];
+        string gid = set_pair.first;
+        if ( gidcheck == gid )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Mode::ApplySettings()

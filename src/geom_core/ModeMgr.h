@@ -33,6 +33,8 @@ public:
     void RemoveSetting( int indx );
     void RemoveAllSettings();
 
+    bool GroupHasSetting( const string & gidcheck );
+
     void ApplySettings();
     void ShowOnly();
 
