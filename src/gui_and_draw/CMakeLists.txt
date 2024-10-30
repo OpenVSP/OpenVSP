@@ -103,6 +103,7 @@ SVGOptionsScreen.cpp
 TreeColumnWidget.cpp
 CustomGeomExportScreen.cpp
 UserParmScreen.cpp
+VarPresetEditorScreen.cpp
 VarPresetScreen.cpp
 VSPAEROPlotScreen.cpp
 VSPAEROScreen.cpp
@@ -186,6 +187,7 @@ SVGOptionsScreen.h
 TreeColumnWidget.h
 CustomGeomExportScreen.h
 UserParmScreen.h
+VarPresetEditorScreen.h
 VarPresetScreen.h
 VSPAEROPlotScreen.h
 VSPAEROScreen.h
