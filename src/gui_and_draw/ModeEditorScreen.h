@@ -42,6 +42,7 @@ public:
 protected:
 
     int m_SelectedModeIndex;
+    string m_PrevMID;
     ColResizeBrowser* m_ModeBrowser;
     vector < string > m_ModeIDs;
 
@@ -52,12 +53,15 @@ protected:
     GroupLayout m_MainLayout;
     GroupLayout m_GenLayout;
 
+    TriggerButton m_ApplyAndShowOnlyMode;
 
     StringInput m_ModeNameInput;
 
     TriggerButton m_AddMode;
     TriggerButton m_DeleteMode;
     TriggerButton m_DeleteAllModes;
+    TriggerButton m_RenameMode;
+
 
     Choice m_NormalSetChoice;
     Choice m_DegenSetChoice;
@@ -65,6 +69,7 @@ protected:
     Choice m_GroupChoice;
     vector < string > m_GroupIDs;
     int m_GroupChoiceIndex;
+
     Choice m_SettingChoice;
     vector < string > m_SettingIDs;
     int m_SettingChoiceIndex;
@@ -72,8 +77,6 @@ protected:
     TriggerButton m_AddSetting;
     TriggerButton m_DeleteSetting;
     TriggerButton m_DeleteAllSettings;
-
-    TriggerButton m_ApplyAndShowOnlyMode;
 
 };
 #endif //VSPMODEEDITORSCREEN__INCLUDED_

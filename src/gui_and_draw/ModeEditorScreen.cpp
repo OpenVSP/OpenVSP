@@ -32,6 +32,8 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600
 
     m_MainLayout.AddSubGroupLayout( m_GenLayout, m_MainLayout.GetRemainX() - borderPaddingWidth, m_MainLayout.GetRemainY() - borderPaddingWidth);
 
+    m_GenLayout.AddDividerBox( "Mode" );
+
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
     static int mode_widths[] = { 120, 120, 120, 600 - ( 3 * 120 ), 0 }; // widths for each column
@@ -39,8 +41,14 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600
     m_ModeBrowser = m_GenLayout.AddColResizeBrowser( mode_widths, 4, browserHeight );
     m_ModeBrowser->callback( staticScreenCB, this );
 
+    m_GenLayout.AddButton( m_ApplyAndShowOnlyMode, "Apply and Show Only" );
+
+
     int bw = 100;
     m_GenLayout.SetChoiceButtonWidth( bw );
+
+    m_GenLayout.SetButtonWidth( bw );
+    m_GenLayout.AddInput( m_ModeNameInput, "Name:" );
 
     m_GenLayout.SetButtonWidth( m_GenLayout.GetW() * 0.5 );
 
@@ -50,20 +58,18 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600
     m_GenLayout.AddButton( m_DeleteMode, "Delete" );
     m_GenLayout.ForceNewLine();
 
-    m_GenLayout.AddButton( m_ApplyAndShowOnlyMode, "Apply and Show Only" );
+    m_GenLayout.AddButton( m_RenameMode, "Rename" );
     m_GenLayout.AddButton( m_DeleteAllModes, "Delete All" );
     m_GenLayout.ForceNewLine();
 
     m_GenLayout.SetSameLineFlag( false );
     m_GenLayout.SetFitWidthFlag( true );
 
+
+
     m_GenLayout.AddYGap();
 
-    m_GenLayout.AddDividerBox( "Mode" );
 
-    m_GenLayout.SetButtonWidth( bw );
-    m_GenLayout.AddInput( m_ModeNameInput, "Name:" );
-    m_GenLayout.AddYGap();
 
     m_GenLayout.AddDividerBox( "Sets" );
 
@@ -109,6 +115,12 @@ bool ModeEditorScreen::Update()
     if ( mod )
     {
         m_ScreenMgr->LoadSetChoice( {&m_NormalSetChoice, &m_DegenSetChoice}, {mod->m_NormalSet.GetID(), mod->m_DegenSet.GetID()}, true );
+
+        if ( m_PrevMID != mod->GetID() )
+        {
+            m_ModeNameInput.Update( mod->GetName() );
+            m_PrevMID = mod->GetID();
+        }
     }
 
     UpdateModeBrowser();
@@ -116,6 +128,58 @@ bool ModeEditorScreen::Update()
     UpdateSettingBrowser();
 
     UpdateVarPresetChoices();
+
+
+    if ( m_ModeIDs.empty() )
+    {
+        m_DeleteAllModes.Deactivate();
+    }
+    else
+    {
+        m_DeleteAllModes.Activate();
+    }
+
+    if ( mod )
+    {
+        m_ApplyAndShowOnlyMode.Activate();
+        m_DeleteMode.Activate();
+        m_RenameMode.Activate();
+        m_NormalSetChoice.Activate();
+        m_DegenSetChoice.Activate();
+        m_GroupChoice.Activate();
+        m_SettingChoice.Activate();
+        m_AddSetting.Activate();
+    }
+    else
+    {
+        m_ApplyAndShowOnlyMode.Deactivate();
+        m_DeleteMode.Deactivate();
+        m_RenameMode.Deactivate();
+        m_NormalSetChoice.Deactivate();
+        m_DegenSetChoice.Deactivate();
+        m_GroupChoice.Deactivate();
+        m_SettingChoice.Deactivate();
+        m_AddSetting.Deactivate();
+    }
+
+    if ( m_NumSetting <= 0 )
+    {
+        m_DeleteAllSettings.Deactivate();
+    }
+    else
+    {
+        m_DeleteAllSettings.Activate();
+    }
+
+    if ( mod && m_SelectedSettingIndex >= 0 && m_SelectedSettingIndex < m_NumSetting )
+    {
+        m_DeleteSetting.Activate();
+    }
+    else
+    {
+        m_DeleteSetting.Deactivate();
+    }
+
 
     m_FLTK_Window->redraw();
     return false;
@@ -372,17 +436,14 @@ void ModeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     Mode *mod = ModeMgr.GetMode( m_SelectedModeIndex );
 
 
-    if ( device == &m_ModeNameInput )
+    if ( device == &m_AddMode )
     {
-        if ( mod )
+        string mname = m_ModeNameInput.GetString();
+        if ( !mname.empty() )
         {
-            mod->SetName( m_ModeNameInput.GetString() );
+            ModeMgr.CreateAndAddMode( mname );
+            m_SelectedModeIndex = ModeMgr.GetNumModes() - 1;
         }
-    }
-    else if ( device == &m_AddMode )
-    {
-        ModeMgr.CreateAndAddMode( "Default" );
-        m_SelectedModeIndex = ModeMgr.GetNumModes() - 1;
     }
     else if ( device == &m_DeleteMode )
     {
@@ -394,6 +455,13 @@ void ModeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_DeleteAllModes )
     {
         ModeMgr.DelAllModes();
+    }
+    else if ( device == &m_RenameMode )
+    {
+        if ( mod )
+        {
+            mod->SetName( m_ModeNameInput.GetString() );
+        }
     }
     else if ( device == &m_AddSetting )
     {
