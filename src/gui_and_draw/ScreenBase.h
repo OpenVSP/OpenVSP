@@ -171,7 +171,7 @@ public:
     //==== Create A Sub Group In Tab - With Border in Pixels ====//
     virtual Fl_Group* AddSubGroup( Fl_Group* group, int border  );
 
-    virtual Fl_Scroll* AddSubScroll( Fl_Group* group, int border, int lessh = 0  );
+    virtual Fl_Scroll* AddSubScroll( Fl_Group* group, int border, int lessh = 0, int starty = 0 );
 
 protected:
 

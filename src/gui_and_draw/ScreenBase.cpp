@@ -308,7 +308,7 @@ Fl_Group* TabScreen::AddSubGroup( Fl_Group* group, int border )
 }
 
 //==== Add A Sub Scroll To Group ====//
-Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh )
+Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh, int starty )
 {
     if ( !group )
     {
@@ -319,9 +319,9 @@ Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh )
     m_MenuTabs->client_area( rx, ry, rw, rh, TAB_H );
 
     int x = rx + border;
-    int y = ry + border;
+    int y = ry + border + starty;
     int w = rw - 2 * border;
-    int h = rh - 2 * border - lessh;
+    int h = rh - 2 * border - lessh - starty;
 
     Fl_Scroll* sub_group = new Fl_Scroll( x, y, w, h );
     sub_group->show();
