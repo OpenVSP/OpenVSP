@@ -133,7 +133,6 @@ protected:
 
     ScreenMenuItem m_GeomMenuItem;
     ScreenMenuItem m_SetEditMenuItem;
-    ScreenMenuItem m_VarPresetMenuItem;
     ScreenMenuItem m_VarPresetEditorMenuItem;
     ScreenMenuItem m_ModeEditMenuItem;
     ScreenMenuItem m_LinkMenuItem;

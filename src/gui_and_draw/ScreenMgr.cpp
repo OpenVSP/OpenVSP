@@ -65,7 +65,6 @@
 #include "CustomGeomExportScreen.h"
 #include "ModeEditorScreen.h"
 #include "UserParmScreen.h"
-#include "VarPresetScreen.h"
 #include "VarPresetEditorScreen.h"
 #include "VSPAEROPlotScreen.h"
 #include "VSPAEROScreen.h"
@@ -814,7 +813,6 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_SVG_OPTIONS_SCREEN] = new SVGOptionsScreen( this );
     m_ScreenVec[vsp::VSP_USER_PARM_SCREEN] = new UserParmScreen( this );
     m_ScreenVec[vsp::VSP_VIEW_SCREEN] = new ManageViewScreen( this );
-    m_ScreenVec[vsp::VSP_VAR_PRESET_SCREEN] = new VarPresetScreen( this );
     m_ScreenVec[vsp::VSP_VAR_PRESET_EDITOR_SCREEN] = new VarPresetEditorScreen( this );
     m_ScreenVec[vsp::VSP_VSPAERO_PLOT_SCREEN] = new VSPAEROPlotScreen( this );
     m_ScreenVec[vsp::VSP_VSPAERO_SCREEN] = new VSPAEROScreen( this );
