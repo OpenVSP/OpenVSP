@@ -216,7 +216,7 @@ void ModeEditorScreen::UpdateModeBrowser()
 
             string settingstr;
 
-            vector < pair < string, string > > settingvec = mod->GetAllSettings();
+            vector < pair < string, string > > settingvec = mod->GetAllGroupSettings();
             m_NumSetting = settingvec.size();
 
             for ( int j = 0 ; j < m_NumSetting; j++ )
@@ -272,7 +272,7 @@ void ModeEditorScreen::UpdateSettingBrowser()
 
     if ( mod )
     {
-        vector < pair < string, string > > settingvec = mod->GetAllSettings();
+        vector < pair < string, string > > settingvec = mod->GetAllGroupSettings();
         m_NumSetting = settingvec.size();
 
         for ( int i = 0 ; i < m_NumSetting; i++ )
@@ -401,7 +401,7 @@ void ModeEditorScreen::CallBack( Fl_Widget *w )
 
         if ( mod )
         {
-            vector < pair < string, string > > settingvec = mod->GetAllSettings();
+            vector < pair < string, string > > settingvec = mod->GetAllGroupSettings();
 
             if ( m_SelectedSettingIndex >= 0 && m_SelectedSettingIndex < settingvec.size() )
             {

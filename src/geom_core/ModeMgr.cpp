@@ -108,7 +108,7 @@ void Mode::ShowOnly()
     }
 }
 
-vector < pair < string, string > > Mode::GetAllSettings()
+vector < pair < string, string > > Mode::GetAllGroupSettings() const
 {
     return m_GroupSettingVec;
 }

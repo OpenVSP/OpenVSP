@@ -38,7 +38,7 @@ public:
     void ApplySettings();
     void ShowOnly();
 
-    vector < pair < string, string > > GetAllSettings();
+    vector < pair < string, string > > GetAllGroupSettings() const;
     void SetSettingVec( const vector < pair < string, string > > &sv );
 
     xmlNodePtr EncodeXml( xmlNodePtr &node );
