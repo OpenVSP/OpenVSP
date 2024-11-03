@@ -41,6 +41,9 @@ public:
     vector < pair < string, string > > GetAllGroupSettings() const;
     void SetSettingVec( const vector < pair < string, string > > &sv );
 
+    vector < string > GetAllGroups() const;
+    vector < string > GetAllSettings() const;
+
     xmlNodePtr EncodeXml( xmlNodePtr &node );
     xmlNodePtr DecodeXml( xmlNodePtr &node );
 

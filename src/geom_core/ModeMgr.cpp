@@ -118,6 +118,28 @@ void Mode::SetSettingVec( const vector < pair < string, string > > &sv )
     m_GroupSettingVec = sv;
 }
 
+vector < string > Mode::GetAllGroups() const
+{
+    vector < string > groups( m_GroupSettingVec.size() );
+
+    for ( int i = 0; i < m_GroupSettingVec.size(); i++ )
+    {
+        groups[i] = m_GroupSettingVec[i].first;
+    }
+    return groups;
+}
+
+vector < string > Mode::GetAllSettings() const
+{
+    vector < string > settings( m_GroupSettingVec.size() );
+
+    for ( int i = 0; i < m_GroupSettingVec.size(); i++ )
+    {
+        settings[i] = m_GroupSettingVec[i].first;
+    }
+    return settings;
+}
+
 xmlNodePtr Mode::EncodeXml( xmlNodePtr &node )
 {
     xmlNodePtr parmcontain_node = ParmContainer::EncodeXml( node );
