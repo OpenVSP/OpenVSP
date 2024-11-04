@@ -237,6 +237,11 @@ private:
     CScriptArray* GetVarPresetParmVals( const string &setting_id );
     void SetVarPresetParmVals( const string& setting_id, CScriptArray* coefs_arr );
 
+    // ==== Mode Functions ====//
+    CScriptArray* GetAllModes();
+    CScriptArray* ModeGetAllGroups( const string &mode_id );
+    CScriptArray* ModeGetAllSettings( const string &mode_id );
+
     // ==== PCurve Functions ====//
     void SetPCurve( const string& geom_id, const int & pcurveid, CScriptArray* tvec, CScriptArray* valvec, const int & newtype );
     CScriptArray* PCurveGetTVec( const std::string & geom_id, const int & pcurveid );

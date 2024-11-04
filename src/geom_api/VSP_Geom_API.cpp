@@ -38,6 +38,7 @@
 #include "VspUtil.h"
 #include "WingGeom.h"
 #include "StlHelper.h"
+#include "ModeMgr.h"
 
 #include <cstdlib>
 #include <csignal>
@@ -7655,6 +7656,181 @@ void ApplyVarPresetSetting( const std::string &group_id, const std::string &sett
         return;
     }
     ErrorMgr.AddError( VSP_INVALID_ID, "ApplyVarPresetSetting::Unable to find var preset group." );
+}
+
+//===================================================================//
+//=======================     Mode Functions       ==================//
+//===================================================================//
+
+string CreateAndAddMode( const string & name, int normal_set, int degen_set )
+{
+    Mode *mod = ModeMgr.CreateAndAddMode();
+    if ( mod )
+    {
+        mod->SetName( name );
+        mod->m_NormalSet = normal_set;
+        mod->m_DegenSet = degen_set;
+
+        ErrorMgr.NoError();
+        return mod->GetID();
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_PTR, "CreateAndAddMode::Unable to create mode." );
+
+    return string();
+}
+
+int GetNumModes()
+{
+    ErrorMgr.NoError();
+    return ModeMgr.GetNumModes();
+}
+
+vector < string > GetAllModes()
+{
+    ErrorMgr.NoError();
+    return ModeMgr.GetAllModes();
+}
+
+void DelMode( const string &mid )
+{
+    ErrorMgr.NoError();
+    ModeMgr.DelMode( mid );
+}
+
+void DelAllModes()
+{
+    ErrorMgr.NoError();
+    ModeMgr.DelAllModes();
+}
+
+void ApplyModeSettings( const string &mid )
+{
+    Mode *mod = ModeMgr.GetMode( mid );
+
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ApplyModeSettings::Counld not find mode." );
+    }
+
+    mod->ApplySettings();
+    ErrorMgr.NoError();
+}
+
+void ShowOnlyMode( const string &mid )
+{
+    Mode *mod = ModeMgr.GetMode( mid );
+
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ShowOnlyMode::Counld not find mode." );
+    }
+
+    mod->ShowOnly();
+    ErrorMgr.NoError();
+}
+
+void ModeAddGroupSetting( const string &mid, const string &gid, const string &sid )
+{
+    Mode *mod = ModeMgr.GetMode( mid );
+
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeAddGroupSetting::Counld not find mode." );
+    }
+
+    mod->AddSetting( pair < string, string > ( gid, sid ) );
+    ErrorMgr.NoError();
+}
+
+string ModeGetGroup( const string &mid, int indx )
+{
+    Mode *mod = ModeMgr.GetMode( mid );
+
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetGroup::Counld not find mode." );
+        return string();
+    }
+
+    pair < string, string > set = mod->GetSetting( indx );
+    ErrorMgr.NoError();
+    return set.first;
+}
+
+string ModeGetSetting( const string &mid, int indx )
+{
+    Mode *mod = ModeMgr.GetMode( mid );
+
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetSetting::Counld not find mode." );
+        return string();
+    }
+
+    pair < string, string > set = mod->GetSetting( indx );
+    ErrorMgr.NoError();
+    return set.second;
+}
+
+vector < string > ModeGetAllGroups( const string &mid )
+{
+    vector < string > ret;
+    Mode *mod = ModeMgr.GetMode( mid );
+
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetAllGroups::Counld not find mode." );
+        return ret;
+    }
+
+    ret = mod->GetAllGroups();
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vector < string > ModeGetAllSettings( const string &mid )
+{
+    vector < string > ret;
+    Mode *mod = ModeMgr.GetMode( mid );
+
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetAllSettings::Counld not find mode." );
+        return ret;
+    }
+
+    ret = mod->GetAllSettings();
+    ErrorMgr.NoError();
+    return ret;
+}
+
+void RemoveGroupSetting( const string &mid, int indx )
+{
+    Mode *mod = ModeMgr.GetMode( mid );
+
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "RemoveGroupSetting::Counld not find mode." );
+        return;
+    }
+
+    mod->RemoveSetting( indx );
+    ErrorMgr.NoError();
+}
+
+void RemoveAllGroupSettings( const string &mid )
+{
+    Mode *mod = ModeMgr.GetMode( mid );
+
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "RemoveAllGroupSettings::Counld not find mode." );
+        return;
+    }
+
+    mod->RemoveAllSettings();
+    ErrorMgr.NoError();
 }
 
 //===================================================================//

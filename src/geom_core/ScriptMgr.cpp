@@ -4256,6 +4256,50 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    //=== Register Mode Functions ====//
+
+    r = se->RegisterGlobalFunction( "void CreateAndAddMode( const string & in name, int normal_set, int degen_set )", asFUNCTION( vsp::CreateAndAddMode ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void GetNumModes()", asFUNCTION( vsp::GetNumModes ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<double>@+ GetAllModes()", asMETHOD( ScriptMgrSingleton, GetAllModes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelMode( const string & in mode_id )", asFUNCTION( vsp::DelMode ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelAllModes()", asFUNCTION( vsp::DelAllModes ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ApplyModeSettings( const string & in mode_id )", asFUNCTION( vsp::ApplyModeSettings ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ShowOnlyMode( const string & in mode_id )", asFUNCTION( vsp::ShowOnlyMode ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ModeAddGroupSetting( const string & in mode_id, const string & in group_id, const string & in setting_id )", asFUNCTION( vsp::ModeAddGroupSetting ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string ModeGetGroup( const string & in mode_id, int indx )", asFUNCTION( vsp::ModeGetGroup ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string ModeGetSetting( const string & in mode_id, int indx )", asFUNCTION( vsp::ModeGetSetting ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<double>@+ ModeGetAllGroups( const string & in mode_id )", asMETHOD( ScriptMgrSingleton, ModeGetAllGroups ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<double>@+ ModeGetAllSettings( const string & in mode_id )", asMETHOD( ScriptMgrSingleton, ModeGetAllSettings ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void RemoveGroupSetting( const string & in mode_id, int indx )", asFUNCTION( vsp::RemoveGroupSetting ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void RemoveAllGroupSettings( const string & in mode_id )", asFUNCTION( vsp::RemoveAllGroupSettings ), asCALL_CDECL);
+    assert( r >= 0 );
+
     //=== Register PCurve Functions ====//
 
     r = se->RegisterGlobalFunction( "void SetPCurve( const string& in geom_id, const int & in pcurveid, array<double>@+ tvec, array<double>@+ valvec, const int & in newtype )", asMETHOD( ScriptMgrSingleton, SetPCurve ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
@@ -5416,6 +5460,25 @@ void ScriptMgrSingleton::SetVarPresetParmVals( const string& setting_id, CScript
     vector < double > coefs_vec;
     FillSTLVector( coefs_arr, coefs_vec );
     vsp::SetVarPresetParmVals( setting_id, coefs_vec );
+}
+
+//==== Mode Functions ====//
+CScriptArray* ScriptMgrSingleton::GetAllModes()
+{
+    m_ProxyStringArray = vsp::GetAllModes();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::ModeGetAllGroups( const string &mode_id )
+{
+    m_ProxyStringArray = vsp::ModeGetAllGroups( mode_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::ModeGetAllSettings( const string &mode_id )
+{
+    m_ProxyStringArray = vsp::ModeGetAllSettings( mode_id );
+    return GetProxyStringArray();
 }
 
 //==== PCurve Functions ====//

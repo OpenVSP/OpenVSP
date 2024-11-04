@@ -13786,6 +13786,2218 @@ extern void SaveVarPresetParmVals( const std::string &group_id, const std::strin
 
 extern void ApplyVarPresetSetting( const std::string &group_id, const std::string &setting_id );
 
+//======================== Mode Functions ======================//
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Create a Mode -- a combination of Sets and Variable Presets
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    \endcode
+    \endPythonOnly
+    \param [in] name string Name for new Mode
+    \param [in] normal_set int Normal set for Mode
+    \param [in] degen_set int Degen set for Mode
+    \return string Mode ID for new Mode
+*/
+
+extern string CreateAndAddMode( const string & name, int normal_set, int degen_set );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Get number of Modes in model.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    int nmod = GetNumModes();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    nmod = GetNumModes()
+
+    \endcode
+    \endPythonOnly
+    \return int Number of Modes in model.
+*/
+
+extern int GetNumModes();
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Get all ModeID's in model.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    array<string> modids = GetAllModes();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    modids = GetAllModes();
+
+    \endcode
+    \endPythonOnly
+    \return array<string> array of Mode IDs
+*/
+
+extern vector < string > GetAllModes();
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Delete a mode from the model.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    DelMode( mid1 );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    DelMode( mid1 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] mid string Mode ID of mode to delete
+*/
+
+extern void DelMode( const string &mid );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Delete all modes from the model.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    DelAllModes();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    DelAllModes()
+
+    \endcode
+    \endPythonOnly
+*/
+
+extern void DelAllModes();
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Apply Parm settings corresponding to a Mode.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    \endcode
+    \endPythonOnly
+    \param [in] mid string Mode ID of mode to apply
+*/
+
+extern void ApplyModeSettings( const string &mid );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Show-only a mode in a model.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    ShowOnlyMode( mid1 );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    ShowOnly( mid1 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] mid string Mode ID of mode to show-only
+*/
+
+extern void ShowOnlyMode( const string &mid );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Add a variable preset group and setting to a mode.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    \endcode
+    \endPythonOnly
+    \param [in] mid string Mode ID to add variable preset to
+    \param [in] gid string Variable preset group ID to add to mode
+    \param [in] sid string Variable preset setting ID to add to mode
+*/
+
+extern void ModeAddGroupSetting( const string &mid, const string &gid, const string &sid );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Get the group ID of var preset indx from a mode.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    string gid3 = ModeGetGroup( mid1, 0 );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    gid3 = ModeGetGroup( mid1, 0 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] mid string Mode ID to return GroupID
+    \param [in] indx int Index of Variable preset to return GroupID
+    \return string Group ID for Mode Variable preset indx
+*/
+
+extern string ModeGetGroup( const string &mid, int indx );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Get the setting ID of var preset indx from a mode.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    string sid6 = ModeGetSetting( mid1, 0 );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    sid6 = ModeGetSetting( mid1, 0 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] mid string Mode ID to return settingID
+    \param [in] indx int Index of Variable preset to return SettingID
+    \return string Setting ID for Mode Variable preset indx
+*/
+
+extern string ModeGetSetting( const string &mid, int indx );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Get all var preset group IDs in model.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    array<string> gids = ModeGetAllGroups( mid1 );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    gids = ModeGetAllGroups( mid1 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] mid string Mode ID to return all group IDs
+    \return array<string> array of Group IDs
+*/
+
+extern vector < string >  ModeGetAllGroups( const string &mid );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Get all var preset setting IDs in model.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    array<string> sids = ModeGetAllSettings( mid1 );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    sids = ModeGetAllSettings( mid1 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] mid string Mode ID to return all group IDs
+    \return array<string> array of Group IDs
+*/
+
+extern vector < string >  ModeGetAllSettings( const string &mid );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Remove the indx'th variable preset group and setting from the specified mode.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    RemoveGroupSetting( mid1, 0 );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    RemoveGroupSetting( mid1, 0 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] mid string Mode ID to remove varible preset group and setting from
+    \param [in] indx int Index of Variable preset to remove
+*/
+
+extern void RemoveGroupSetting( const string &mid, int indx );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Remove all variable preset groups and settings from mode.
+    \forcpponly
+    \code{.cpp}
+    // Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    //
+    // Setup boiler plate.
+    string pod1 = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", pod1 );
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN );
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 );
+
+    SetSetName( SET_FIRST_USER, "NonLifting" );
+    SetSetName( SET_FIRST_USER + 1, "Lifting" );
+
+    SetSetFlag( pod1, SET_FIRST_USER, true );
+    SetSetFlag( wing, SET_FIRST_USER + 1, true );
+
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    AddVarPresetParm( gid, p1 );
+
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
+    AddVarPresetParm( gid, p2 );
+
+    string sid = AddVarPresetSetting( "Default" );
+    SaveVarPresetParmVals( gid, sid );
+
+    string sid1 = AddVarPresetSetting( "Coarse" );
+    SetVarPresetParmVal( gid, sid1, p1, 3 );
+    SetVarPresetParmVal( gid, sid1, p2, 5 );
+
+    string sid2 = AddVarPresetSetting( "Fine" );
+    SetVarPresetParmVal( gid, sid, p1, 35 );
+    SetVarPresetParmVal( gid, sid, p2, 21 );
+
+
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    string p3 = FindParm( pod1, "Length", "Design" );
+    AddVarPresetParm( gid2, p3 );
+
+    string p4 = FindParm( pod1, "FineRatio", "Design" );
+    AddVarPresetParm( gid2, p4 );
+
+    string sid3 = AddVarPresetSetting( "Normal" );
+    SaveVarPresetParmVals( gid2, sid3 );
+
+    string sid4 = AddVarPresetSetting( "ShortFat" );
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
+
+    string sid5 = AddVarPresetSetting( "LongThin" );
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+
+    // End of setup boiler plate.
+
+    string mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+    ModeAddGroupSetting( mid1, gid, sid1 );
+    ModeAddGroupSetting( mid1, gid2, sid4 );
+
+    string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
+    ModeAddGroupSetting( mid2, gid, sid2 );
+    ModeAddGroupSetting( mid1, gid2, sid5 );
+
+    ApplyModeSettings( mid2 );
+    Update();
+
+    RemoveAllGroupSettings( mid1 );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Illustrating use of Modes requires substantial setup of the model including components, sets, and variable presets.
+    #
+    # Setup boiler plate.
+    pod1 = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", pod1 )
+
+    SetParmVal( wing, "Trans_Attach_Flag", "Attach", ATTACH_TRANS_LMN )
+    SetParmVal( wing, "L_Attach_Location", "Attach", 0.35 )
+
+    SetSetName( SET_FIRST_USER, "NonLifting" )
+    SetSetName( SET_FIRST_USER + 1, "Lifting" )
+
+    SetSetFlag( pod1, SET_FIRST_USER, true )
+    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
+    AddVarPresetParm( gid, p1 )
+
+    p2 = FindParm( pod1, "Tess_W", "Shape" )
+    AddVarPresetParm( gid, p2 )
+
+    sid = AddVarPresetSetting( "Default" )
+    SaveVarPresetParmVals( gid, sid )
+
+    sid1 = AddVarPresetSetting( "Coarse" )
+    SetVarPresetParmVal( gid, sid1, p1, 3 )
+    SetVarPresetParmVal( gid, sid1, p2, 5 )
+
+    sid2 = AddVarPresetSetting( "Fine" )
+    SetVarPresetParmVal( gid, sid, p1, 35 )
+    SetVarPresetParmVal( gid, sid, p2, 21 )
+
+
+    gid2 = AddVarPresetGroup( "Design" )
+
+    p3 = FindParm( pod1, "Length", "Design" )
+    AddVarPresetParm( gid2, p3 )
+
+    p4 = FindParm( pod1, "FineRatio", "Design" )
+    AddVarPresetParm( gid2, p4 )
+
+    sid3 = AddVarPresetSetting( "Normal" )
+    SaveVarPresetParmVals( gid2, sid3 )
+
+    sid4 = AddVarPresetSetting( "ShortFat" )
+    SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
+    SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
+
+    sid5 = AddVarPresetSetting( "LongThin" )
+    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+
+    # End of setup boiler plate.
+
+    mid1 = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+    ModeAddGroupSetting( mid1, gid, sid1 )
+    ModeAddGroupSetting( mid1, gid2, sid4 )
+
+    mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
+    ModeAddGroupSetting( mid2, gid, sid2 )
+    ModeAddGroupSetting( mid1, gid2, sid5 )
+
+    ApplyModeSettings( mid2 )
+    Update()
+
+    RemoveAllGroupSettings( mid1 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] mid string Mode ID to remove all variable presets from
+*/
+
+extern void RemoveAllGroupSettings( const string &mid );
 
 //======================== Parametric Curve Functions ======================//
 /*!
