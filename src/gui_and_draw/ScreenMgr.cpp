@@ -67,6 +67,8 @@
 #include "VSPAEROScreen.h"
 #include "WaveDragScreen.h"
 
+#include "MainThreadIDMgr.h"
+
 #define UPDATE_TIME (1.0/30.0)
 
 //==== Constructor ====//
@@ -389,6 +391,9 @@ void ScreenMgr::APIShowScreens()
 void ScreenMgr::APIScreenGrabImplementation( const string & fname, int w, int h, bool transparentBG, bool autocrop )
 {
     ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ScreenGrab( fname, w, h, transparentBG, autocrop );
+
+    // Set flag that screen grab has been completed.
+    m_ScreenGrabComplete = true;
 }
 
 struct ScreenGrabStruct {
@@ -403,22 +408,58 @@ struct ScreenGrabStruct {
 void APIScreenGrabHandler( void * data )
 {
     ScreenGrabStruct * sg = ( ScreenGrabStruct * ) data;
+
+    std::unique_lock lk( sg->m_ScrMgr->m_ScreenGrabMutex );
+
     // scmgr->ForceUpdate();
     sg->m_ScrMgr->APIScreenGrabImplementation( sg->m_fname, sg->m_w, sg->m_h, sg->m_TransparentBG, sg->m_AutoCrop );
+
+    lk.unlock();
+
+    sg->m_ScrMgr->m_ScreenGrabCV.notify_one();
+
     delete sg;
 }
 
 void ScreenMgr::APIScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop )
 {
-    ScreenGrabStruct *sg = new ScreenGrabStruct;
-    sg->m_fname = fname;
-    sg->m_w = w;
-    sg->m_h = h;
-    sg->m_TransparentBG = transparentBG;
-    sg->m_AutoCrop = autocrop;
-    sg->m_ScrMgr = this;
+    // Mark that screen grab has not been completed.
+    m_ScreenGrabComplete = false;
 
-    Fl::awake( APIScreenGrabHandler, sg );
+    if ( MainThreadIDMgr.IsCurrentThreadMain() )
+    {
+        // Simple main thread code path.
+        APIScreenGrabImplementation( fname, w, h, transparentBG, autocrop );
+    }
+    else
+    {
+        // Works for Python under Facde.
+        ScreenGrabStruct *sg = new ScreenGrabStruct;
+        sg->m_fname = fname;
+        sg->m_w = w;
+        sg->m_h = h;
+        sg->m_TransparentBG = transparentBG;
+        sg->m_AutoCrop = autocrop;
+        sg->m_ScrMgr = this;
+
+        // Queue screen grab to main thread.
+        Fl::awake( APIScreenGrabHandler, sg );
+
+        // Release lock to allow main thread to process queue.
+        Fl::unlock();
+
+        // Set up lock and mutex.
+        std::unique_lock lk( m_ScreenGrabMutex );
+
+        // Wait for change in screen grab flag.
+        m_ScreenGrabCV.wait(lk, [this]
+            {
+                return m_ScreenGrabComplete;
+            });
+
+        // Re-acquire lock from main thread.
+        Fl::lock();
+    }
 }
 
 bool ScreenMgr::IsGUIElementDisabled( int e ) const

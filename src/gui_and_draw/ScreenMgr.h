@@ -22,7 +22,8 @@
 
 #include <vector>
 #include <string>
-
+#include <mutex>
+#include <condition_variable>
 
 //==== ScreenMgr ====//
 class ScreenMgr : MessageBase
@@ -84,6 +85,9 @@ public:
 
     bool m_ShowPlotScreenOnce;
 
+    mutex m_ScreenGrabMutex;
+    condition_variable m_ScreenGrabCV;
+    bool m_ScreenGrabComplete;
 protected:
 
     void Init();
