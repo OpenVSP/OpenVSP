@@ -56,6 +56,7 @@ HingeGeom.cpp
 HumanGeom.cpp
 Link.cpp
 LinkMgr.cpp
+MainThreadIDMgr.cpp
 MaterialMgr.cpp
 Measure.cpp
 MeasureMgr.cpp
@@ -130,6 +131,7 @@ Light.h
 LightMgr.h
 Link.h
 LinkMgr.h
+MainThreadIDMgr.h
 MaterialMgr.h
 Measure.h
 MeasureMgr.h
