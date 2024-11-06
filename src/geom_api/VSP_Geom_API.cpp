@@ -1711,11 +1711,7 @@ extern void PopupMsg( const std::string &msg )
 extern void UpdateGUI()
 {
 #ifdef VSP_USE_FLTK
-    Vehicle* veh = GetVehicle();
-    if ( veh )
-    {
-        veh->UpdateGUI();
-    }
+    GuiInterface::getInstance().UpdateGUI();
 #endif
 }
 

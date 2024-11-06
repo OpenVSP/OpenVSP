@@ -38,6 +38,7 @@ public:
     void StartGUIAPI( );
     void StopGUI();
     void PopupMsg( const std::string &message );
+    void UpdateGUI();
 
     void Lock();
     void Unlock();

@@ -104,6 +104,16 @@ void GuiInterface::PopupMsg( const std::string &message )
 
 }
 
+void GuiInterface::UpdateGUI()
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->ForceUpdate();
+    }
+#endif
+}
+
 // In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::Lock()
 {
