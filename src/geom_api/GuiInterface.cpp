@@ -21,9 +21,14 @@
 #include "ScreenMgr.h"
 #endif
 
+#include "MainThreadIDMgr.h"
+
 //==== Constructor ====//
 GuiInterface::GuiInterface()
 {
+    // Set up MainThreadID if this is entry point.
+    MainThreadIDMgr.getInstance();
+
     m_ScreenMgr = NULL;
 }
 

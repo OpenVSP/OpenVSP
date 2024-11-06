@@ -14,12 +14,16 @@
 #endif
 
 #include "Vehicle.h"
+#include "MainThreadIDMgr.h"
 
 bool VehicleMgrSingleton::m_firsttime = true;
 
 //==== Constructor ====//
 VehicleMgrSingleton::VehicleMgrSingleton()
 {
+    // Set up MainThreadID if this is entry point.
+    MainThreadIDMgr.getInstance();
+
     m_Vehicle = new Vehicle();
 }
 

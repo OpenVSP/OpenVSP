@@ -32,6 +32,7 @@
 #include "VehicleMgr.h"
 #include "GuiInterface.h"
 #include "common.h"
+#include "MainThreadIDMgr.h"
 
 using namespace vsp;
 using namespace std;
@@ -199,6 +200,9 @@ void ThreadCheckVersionNumber()
 
 int main( int argc, char** argv )
 {
+    // Set up MainThreadID if this is entry point.
+    MainThreadIDMgr.getInstance();
+
     //==== Get Vehicle Ptr ====//
     Vehicle* vPtr = VehicleMgr.GetVehicle();
 
