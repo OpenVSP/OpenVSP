@@ -390,6 +390,9 @@ void ScreenMgr::APIShowScreens()
 
 void ScreenMgr::APIScreenGrabImplementation( const string & fname, int w, int h, bool transparentBG, bool autocrop )
 {
+    // Make sure most current OpenGL data has been collected and scene has been redrawn.
+    ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->Update();
+
     ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ScreenGrab( fname, w, h, transparentBG, autocrop );
 
     // Set flag that screen grab has been completed.
@@ -411,7 +414,6 @@ void APIScreenGrabHandler( void * data )
 
     std::unique_lock lk( sg->m_ScrMgr->m_ScreenGrabMutex );
 
-    // scmgr->ForceUpdate();
     sg->m_ScrMgr->APIScreenGrabImplementation( sg->m_fname, sg->m_w, sg->m_h, sg->m_TransparentBG, sg->m_AutoCrop );
 
     lk.unlock();
