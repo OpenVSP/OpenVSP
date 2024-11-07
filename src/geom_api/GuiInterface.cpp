@@ -120,7 +120,7 @@ void GuiInterface::UpdateGUI()
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
-        m_ScreenMgr->ForceUpdate();
+        m_ScreenMgr->APIUpdateGUI();
     }
 #endif
 }

@@ -73,6 +73,9 @@ public:
     void APIHideScreens();
     void APIShowScreens();
 
+    void APIUpdateGUIImplementation();
+    void APIUpdateGUI();
+
     void APIScreenGrabImplementation( const string & fname, int w, int h, bool transparentBG, bool autocrop );
     void APIScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop );
 
