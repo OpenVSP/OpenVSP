@@ -313,8 +313,8 @@ def start_server():
                             break
                         except (pickle.UnpicklingError, EOFError):
                             pass
-                    if b_data == []:
-                        break
+                    # if b_data == []:
+                    #     break
 
                     # Special functionality for StartGUI
                     if data[0] == 'StartGUI':
@@ -376,7 +376,7 @@ def start_server():
                         if debug:
                             print("Server Socket Thread: sending data back")
                         conn.sendall(b_result)
-                    except ConnectionResetError:
+                    except (ConnectionResetError, BrokenPipeError) as e:
                         print("Server Socket Thread: Unable to send data to socket, closing server.")
                         socket_open = False
                         break
