@@ -85,9 +85,9 @@ public:
 
     bool m_ShowPlotScreenOnce;
 
-    mutex m_ScreenGrabMutex;
-    condition_variable m_ScreenGrabCV;
-    bool m_ScreenGrabComplete;
+    mutex m_TaskMutex;
+    condition_variable m_TaskCV;
+    bool m_TaskComplete;
 protected:
 
     void Init();

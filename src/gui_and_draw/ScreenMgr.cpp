@@ -395,8 +395,8 @@ void ScreenMgr::APIScreenGrabImplementation( const string & fname, int w, int h,
 
     ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ScreenGrab( fname, w, h, transparentBG, autocrop );
 
-    // Set flag that screen grab has been completed.
-    m_ScreenGrabComplete = true;
+    // Set flag that task has been completed.
+    m_TaskComplete = true;
 }
 
 struct ScreenGrabStruct {
@@ -412,21 +412,21 @@ void APIScreenGrabHandler( void * data )
 {
     ScreenGrabStruct * sg = ( ScreenGrabStruct * ) data;
 
-    std::unique_lock lk( sg->m_ScrMgr->m_ScreenGrabMutex );
+    std::unique_lock lk( sg->m_ScrMgr->m_TaskMutex );
 
     sg->m_ScrMgr->APIScreenGrabImplementation( sg->m_fname, sg->m_w, sg->m_h, sg->m_TransparentBG, sg->m_AutoCrop );
 
     lk.unlock();
 
-    sg->m_ScrMgr->m_ScreenGrabCV.notify_one();
+    sg->m_ScrMgr->m_TaskCV.notify_one();
 
     delete sg;
 }
 
 void ScreenMgr::APIScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop )
 {
-    // Mark that screen grab has not been completed.
-    m_ScreenGrabComplete = false;
+    // Mark that task has not been completed.
+    m_TaskComplete = false;
 
     if ( MainThreadIDMgr.IsCurrentThreadMain() )
     {
@@ -444,19 +444,19 @@ void ScreenMgr::APIScreenGrab( const string & fname, int w, int h, bool transpar
         sg->m_AutoCrop = autocrop;
         sg->m_ScrMgr = this;
 
-        // Queue screen grab to main thread.
+        // Queue task to main thread.
         Fl::awake( APIScreenGrabHandler, sg );
 
         // Release lock to allow main thread to process queue.
         Fl::unlock();
 
         // Set up lock and mutex.
-        std::unique_lock lk( m_ScreenGrabMutex );
+        std::unique_lock lk( m_TaskMutex );
 
-        // Wait for change in screen grab flag.
-        m_ScreenGrabCV.wait(lk, [this]
+        // Wait for change in task flag.
+        m_TaskCV.wait(lk, [this]
             {
-                return m_ScreenGrabComplete;
+                return m_TaskComplete;
             });
 
         // Re-acquire lock from main thread.
