@@ -76,7 +76,7 @@ void GuiInterface::StartGUIAPI( )
         m_ScreenMgr->DisableExitMenuItem();
         m_ScreenMgr->EnableStopGUIMenuItem();
         m_ScreenMgr->ShowScreen( vsp::VSP_MAIN_SCREEN );
-        m_ScreenMgr->APIShowScreens();
+        m_ScreenMgr->APIShowScreensImplementation();
         Fl::lock();
         m_EventLoopRunning = true;
         while( m_ScreenMgr->CheckRunGui() )
