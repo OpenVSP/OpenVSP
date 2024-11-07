@@ -9,8 +9,6 @@ import openvsp as vsp
 def test_FourViewScreenShot():
     vsp.StartGUI()
 
-    time.sleep(1)  # Needed or following API calls fail.
-
     errorMgr = vsp.ErrorMgrSingleton.getInstance()
 
     pod = vsp.AddGeom('POD', '')
@@ -27,9 +25,6 @@ def test_FourViewScreenShot():
 
     vsp.SetWindowLayout(2, 2)
     vsp.FitAllViews()
-    vsp.UpdateGUI()
-
-    time.sleep(1)  # Needed or UpdateGUI() does not have time to complete,
 
     png_path = 'favorite_airplane.png'
     vsp.ScreenGrab(png_path, 400, 400, True)
