@@ -23,7 +23,6 @@ MessageBase::MessageBase()
 //==== Message Base ====//
 MessageBase::~MessageBase()
 {
-    UnRegister();
 }
 
 /** @brief Register this MessageBase listener.
