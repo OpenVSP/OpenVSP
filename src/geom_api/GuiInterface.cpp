@@ -29,6 +29,8 @@ GuiInterface::GuiInterface()
     // Set up MainThreadID if this is entry point.
     MainThreadIDMgr.getInstance();
 
+    m_EventLoopRunning = false;
+
     m_ScreenMgr = NULL;
 }
 
@@ -57,7 +59,9 @@ void GuiInterface::StartGUI()
 {
 #ifdef VSP_USE_FLTK
     Fl::lock();
+    m_EventLoopRunning = true;
     Fl::run();
+    m_EventLoopRunning = false;
     Fl::unlock();  // We wont' ever get here.
 #endif
 }
@@ -74,10 +78,12 @@ void GuiInterface::StartGUIAPI( )
         m_ScreenMgr->ShowScreen( vsp::VSP_MAIN_SCREEN );
         m_ScreenMgr->APIShowScreens();
         Fl::lock();
+        m_EventLoopRunning = true;
         while( m_ScreenMgr->CheckRunGui() )
         {
             Fl::wait( 1e20 );
         }
+        m_EventLoopRunning = false;
         Fl::unlock();
     }
 #endif
@@ -133,6 +139,11 @@ void GuiInterface::Unlock()
 #ifdef VSP_USE_FLTK
     Fl::unlock();
 #endif
+}
+
+bool GuiInterface::IsEventLoopRunning() const
+{
+    return m_EventLoopRunning;
 }
 
 void GuiInterface::ScreenGrab( const std::string &fname, int w, int h, bool transparentBG, bool autocrop )

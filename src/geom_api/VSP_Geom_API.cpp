@@ -1738,6 +1738,14 @@ extern void Unlock( )
 #endif
 }
 
+extern bool IsEventLoopRunning( )
+{
+#ifdef VSP_USE_FLTK
+    return GuiInterface::getInstance().IsEventLoopRunning( );
+#endif
+    return false;
+}
+
 void ScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop )
 {
 #ifdef VSP_USE_FLTK

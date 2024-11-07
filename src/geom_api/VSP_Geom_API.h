@@ -3262,6 +3262,40 @@ extern void Lock( );
 
 extern void Unlock( );
 
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Test if the OpenVSP GUI event loop is running.
+
+    \forcpponly
+    \code{.cpp}
+
+    StartGUI();
+
+    if ( IsEventLoopRunning() )
+    {
+        Print( "Event loop is running." );
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    StartGUI()
+
+    if ( IsEventLoopRunning() )
+        print( "Event loop is running." )
+
+    \endcode
+    \endPythonOnly
+    \return bool True if the OpenVSP GUI event loop is running.  False otherwise.
+*/
+
+extern bool IsEventLoopRunning( );
+
 /*!
     \ingroup Visualization
 */

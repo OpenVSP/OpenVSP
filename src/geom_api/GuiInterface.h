@@ -27,6 +27,7 @@ private:
     GuiInterface& operator=( GuiInterface const& copy ); // Not Implemented
 
     ScreenMgr* m_ScreenMgr;
+    bool m_EventLoopRunning;
 public:
     static GuiInterface& getInstance()
     {
@@ -42,6 +43,8 @@ public:
 
     void Lock();
     void Unlock();
+
+    bool IsEventLoopRunning() const;
 
     void ScreenGrab( const std::string & fname, int w, int h, bool transparentBG, bool autocrop );
     void SetViewAxis( bool vaxis );
