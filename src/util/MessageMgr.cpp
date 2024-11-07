@@ -71,56 +71,7 @@ void MessageMgr::Register( MessageBase* msg_base )
  */
 void MessageMgr::UnRegister( MessageBase* msg_base )
 {
-    map< string, deque< MessageBase* > >::iterator iter;
-
-    if ( m_MessageRegMap.size() == 0 )
-    {
-        return;
-    }
-
-    iter = m_MessageRegMap.begin();
-
-    // In a case where std::map has only one element in its list, map::end() returns
-    // bad pointer.  Handle one element std::map as special case.
-    if ( m_MessageRegMap.size() == 1 )
-    {
-        deque< int > erase_index_vec;
-        for ( int i = 0 ; i < ( int )( iter->second ).size() ; i++ )
-        {
-            if ( ( iter->second )[i] == msg_base )
-            {
-                erase_index_vec.push_front( i );
-            }
-        }
-
-        for ( int e = 0 ; e < ( int )erase_index_vec.size() ; e++ )
-        {
-            int erase_index = erase_index_vec[e];
-            ( iter->second ).erase( ( iter->second ).begin() + erase_index );
-        }
-    }
-    else
-    {
-        while ( iter !=  m_MessageRegMap.end() )
-        {
-            deque< int > erase_index_vec;
-            for ( int i = 0 ; i < ( int )( iter->second ).size() ; i++ )
-            {
-                if ( ( iter->second )[i] == msg_base )
-                {
-                    erase_index_vec.push_front( i );
-                }
-            }
-
-            for ( int e = 0 ; e < ( int )erase_index_vec.size() ; e++ )
-            {
-                int erase_index = erase_index_vec[e];
-                ( iter->second ).erase( ( iter->second ).begin() + erase_index );
-            }
-            ++iter;
-        }
-    }
-
+    m_MessageRegMap.erase( msg_base->GetName() );
 }
 
 /** @brief Send string message to designated receiver, from undesignated sender.
