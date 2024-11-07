@@ -48,10 +48,14 @@ from traceback import format_exception
 import openvsp_config
 
 # Starting the server
+sock = socket.socket()
+sock.bind(('', 0))
 HOST = 'localhost'
-PORT = 6000
+PORT = sock.getsockname()[1]
+sock.close()
+
 server_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'facade_server.py')
-proc = subprocess.Popen([sys.executable, server_file, str(openvsp_config.LOAD_GRAPHICS)])
+proc = subprocess.Popen([sys.executable, server_file, str(PORT), str(openvsp_config.LOAD_GRAPHICS)])
 
 sleep(1)
 
@@ -191,13 +195,16 @@ import sys
 import openvsp_config
 openvsp_config._IGNORE_IMPORTS = True
 try:
-    openvsp_config.LOAD_GRAPHICS = (sys.argv[1] == 'True')
+    openvsp_config.LOAD_GRAPHICS = (sys.argv[2] == 'True')
 except IndexError:
     pass
 import openvsp as module
 
 HOST = 'localhost'
-PORT = 6000
+try:
+    PORT = int(sys.argv[1])
+except IndexError:
+    PORT = 6000
 event = Event()
 global gui_wait
 gui_wait = True
