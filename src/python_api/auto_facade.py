@@ -190,6 +190,7 @@ from threading import Thread, Event
 import pickle
 import traceback
 import sys
+from time import sleep
 
 #special code that is not generalizable
 import openvsp_config
@@ -324,6 +325,8 @@ def start_server():
                         result = 0
                         b_result = pack_data(result)
                         event.set()
+                        while not module.IsEventLoopRunning():
+                            sleep(.01)
 
                     # Special functionality for StopGUI
                     elif data[0] == 'StopGUI':

@@ -49,7 +49,7 @@ class DemoFrame(wx.Frame):
 
         vsp_version = vsp.GetVSPVersion()
         assert "VSP" in vsp_version, "Could not load or verify OpenVSP"
-        print(f"Loadad {vsp_version}")
+        print(f"Loaded {vsp_version}")
 
         wx.Frame.__init__(
             self,
