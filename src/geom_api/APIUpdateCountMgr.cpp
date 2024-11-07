@@ -24,7 +24,6 @@ UpdateCountMgrSingleton::UpdateCountMgrSingleton()
 
 UpdateCountMgrSingleton::~UpdateCountMgrSingleton()
 {
-    MessageMgr::getInstance().UnRegister( this );
 }
 
 unsigned long UpdateCountMgrSingleton::GetUpdateCount()

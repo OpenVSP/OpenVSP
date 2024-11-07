@@ -108,7 +108,6 @@ ScreenMgr::~ScreenMgr()
         delete m_ScreenVec[i];
     }
     m_ScreenVec.clear();
-    MessageMgr::getInstance().UnRegister( this );
 
     if ( m_NativeFileChooser )
     {
