@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Set Editor Window</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Set Editor Window</h1>
+</header>
+<p>OpenVSP Sets enable a user to group components together and perform a
+wide range of actions or functions. Examples include show/hide, export,
+and analyses. The Set Editor GUI allows a user to quickly add, remove,
+and copy components to a set. Default set names may be customized and
+the number of available sets increased, and components within a set may
+be selected from within the Set Editor.</p>
+<p>The Set Editor can be access via the Model menu and looks like
+this:</p>
+<p><img src="images/SetEditor_window.png" title="Set Editor GUI"
+alt="Set Editor Window" /></p>
+<h2 id="set-editor-header">Set Editor Header</h2>
+<p>The Set Editor header contains two elements:
+<code>Num User Sets</code> and <code>Set Name:</code>. A user may
+increase the number of sets available in the model, with the minimum
+number of sets being 20. The Set Name dialogue box indicates what set in
+the set editor is selected, and allows the user to rename the selected
+set using a string input. Note, sets "Shown" and "Not_Shown" are
+protected and may not be renamed.</p>
+<p><img src="images/SetEditor_header.png" title="Set Editor Header"
+alt="Set Editor Header" /></p>
+<h2 id="set-editor-body">Set Editor Body</h2>
+<p>Users may select sets in the Sets window of the Set Editor body and
+view the model components that are contained in the set via the Geom in
+Set window. Components with a check mark are included in a set.
+Components may be manually added or removed by clicking the check box
+next to the component name in the Geom in Set window.</p>
+<p>In the figure below, a custom named "LiftingSurf" set has been
+selected and the components "Wing", "HT", and "VT" are included in the
+selected set.</p>
+<p><img src="images/SetEditor_body.png" title="Set Editor Body"
+alt="Set Editor Body" /></p>
+<h2 id="set-editor-footer">Set Editor Footer</h2>
+<p>A set of buttons in the footer of the Set Editor enables users to
+Copy and Paste set component members between different sets, or
+add/remove all component members from a set. The <code>Select Set</code>
+button allows the user to select the geometry components in the OpenVSP
+model. For example, with the LiftingSurf set selected in the Sets
+window, clicking the Select Set button will select the geometry
+components within the OpenVSP model. The
+<code>Copy Set Membershipt When Copying Geoms</code> toggle button
+enables or disables a copied component to retain its set membership. For
+example, the "Wing" component can be copied and pasted within the
+OpenVSP model and the new wing will, when enabled, retain membership in
+the "LiftSurf" set.</p>
+<p><img src="images/SetEditor_footer.png" title="Set Editor Footer"
+alt="Set Editor Body" /></p>
+</body>
+</html>
