@@ -336,7 +336,8 @@ def start_server():
                             print("Server Socket Thread: The OpenVSP GUI is not running")
                         if debug:
                             print("Server Socket Thread: About to call StopGUI()")
-                        module.StopGUI()
+                        if gui_active:
+                            module.StopGUI()
                         gui_active = False
                         if debug:
                             print("Server Socket Thread: After StopGUI() called")
