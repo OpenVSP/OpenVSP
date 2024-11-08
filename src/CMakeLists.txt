@@ -164,6 +164,8 @@ SET( VSP_G_LIBRARIES_CORE_FIRST
 
 ADD_SUBDIRECTORY( vsp )
 
+set(IS_NUMPY_FOUND FALSE)
+
 IF( NOT VSP_NO_API_WRAPPERS )
     FIND_PACKAGE( SWIG )
 
@@ -173,11 +175,27 @@ IF( NOT VSP_NO_API_WRAPPERS )
         MESSAGE( "SWIG not found, skipping API configurations" )
     ENDIF( SWIG_FOUND )
 
+
+
     IF( SWIG_FOUND )
         FIND_PACKAGE( PythonLibsNew 3 )
+
         if ( PYTHONLIBS_FOUND )
-            INCLUDE( CreateVirtualEnvironment )
-            ADD_SUBDIRECTORY( python_api )
+            execute_process(
+                COMMAND ${PYTHON_EXECUTABLE} -c "import numpy"
+                RESULT_VARIABLE EXIT_NUMPY
+            )
+
+            if ( ${EXIT_NUMPY} EQUAL 0 )
+                set(IS_NUMPY_FOUND TRUE)
+            endif( ${EXIT_NUMPY} EQUAL 0 )
+
+            if ( IS_NUMPY_FOUND)
+                INCLUDE( CreateVirtualEnvironment )
+                ADD_SUBDIRECTORY( python_api )
+            ELSE( IS_NUMPY_FOUND )
+                MESSAGE( STATUS "Numpy not found, Python API will not be compiled" )
+            ENDIF( IS_NUMPY_FOUND )
         ELSE(PYTHONLIBS_FOUND)
             MESSAGE( STATUS "Python not found, API will not be compiled" )
         ENDIF( PYTHONLIBS_FOUND )

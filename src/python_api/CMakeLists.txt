@@ -3,7 +3,7 @@ CMAKE_MINIMUM_REQUIRED( VERSION 3.24 )
 # include the CTest framework
 include( CTest )
 
-IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
+IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
 
     MESSAGE( STATUS "Configuring Python API" )
 
@@ -22,7 +22,22 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         endif()
     endif()
 
-    INCLUDE_DIRECTORIES(
+    execute_process(
+            COMMAND ${PYTHON_EXECUTABLE} -c "import numpy; print(numpy.__version__)"
+            OUTPUT_VARIABLE NUMPY_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    execute_process(
+            COMMAND ${PYTHON_EXECUTABLE} -c "import numpy; print(numpy.get_include())"
+            OUTPUT_VARIABLE NUMPY_INCLUDE_PATH OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    MESSAGE( STATUS "Numpy found, vec3d to numpy API will be created." )
+    MESSAGE( STATUS "  Numpy version: ${NUMPY_VERSION}" )
+    MESSAGE( STATUS "  Numpy include path: ${NUMPY_INCLUDE_PATH}" )
+
+    # Build include directories list
+    set(INCLUDE_DIRS
         ${CLIPPER2_INCLUDE_DIR}
         ${CodeEli_INCLUDE_DIRS}
         ${CPPTEST_INCLUDE_DIR}
@@ -44,7 +59,12 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         ${UTIL_API_INCLUDE_DIR}
         ${XMLVSP_INCLUDE_DIR}
         ${VSP_SOURCE_DIR}
-     )
+    )
+
+    # Add numpy include directory if numpy is found (needed for SWIG to process python.i)
+    list(APPEND INCLUDE_DIRS ${NUMPY_INCLUDE_PATH})
+
+    INCLUDE_DIRECTORIES(${INCLUDE_DIRS})
 
     SET( SWIG_MODULE_pyvsp_EXTRA_DEPS
         ${GEOM_API_INCLUDE_DIR}/APIDefines.h
@@ -53,10 +73,10 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         ${GEOM_CORE_INCLUDE_DIR}/SWIGDefines.h
         ${UTIL_API_INCLUDE_DIR}/Vec3d.h
     )
-
     set(I_FILES
-        ../geom_api/vsp.i
+        ../geom_api/vsp_python.i
     )
+
 
     SET_SOURCE_FILES_PROPERTIES( ${I_FILES} PROPERTIES CPLUSPLUS ON )
 
@@ -89,6 +109,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         ${VSP_LIBRARIES_API_FIRST}
         ${PY_LIB}
     )
+    target_include_directories(pyvsp PRIVATE ${NUMPY_INCLUDE_PATH})
 
 
     IF( NOT VSP_NO_GRAPHICS )
@@ -102,8 +123,8 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         )
 
         set(I_FILES_g
-            ../geom_api/vsp_g.i
-            )
+            ../geom_api/vsp_g_python.i
+        )
 
         SET_SOURCE_FILES_PROPERTIES( ${I_FILES_g} PROPERTIES CPLUSPLUS ON )
 
@@ -129,6 +150,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
             ${VSP_G_LIBRARIES_API_FIRST}
             ${PY_LIB}
         )
+        target_include_directories(pyvsp_g PRIVATE ${NUMPY_INCLUDE_PATH})
 
         add_custom_command( TARGET pyvsp_g POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
