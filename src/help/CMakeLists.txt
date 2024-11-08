@@ -30,7 +30,7 @@ FOREACH ( hpath ${HELP_FILES} )
     CMAKE_PATH ( GET hpath STEM hbase )
 
     # Pandoc 3.1.9 required for tex_math_gfm
-    IF ( EXISTS ${PANDOC_EXECUTABLE} AND ${PANDOC_VERSION} VERSION_GREATER_EQUAL 3.1.9 )
+    IF ( EXISTS "${PANDOC_EXECUTABLE}" AND "${PANDOC_VERSION}" VERSION_GREATER_EQUAL 3.1.9 )
         ADD_DOCUMENT ( TARGET ${hbase}
                        OUTPUT_FILE ${hbase}.html
                        SOURCES ${hbase}.md
