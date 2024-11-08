@@ -313,8 +313,10 @@ def start_server():
                             break
                         except (pickle.UnpicklingError, EOFError):
                             pass
-                    # if b_data == []:
-                    #     break
+                    if b_data == []:
+                        print("Server Socket Thread: Unable to recieve data from socket, closing server.")
+                        socket_open = False
+                        break
 
                     # Special functionality for StartGUI
                     if data[0] == 'StartGUI':
