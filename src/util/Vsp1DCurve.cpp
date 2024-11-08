@@ -42,7 +42,7 @@ Vsp1DCurve::~Vsp1DCurve()
 }
 
 //==== Copy From Input Curve =====//
-void Vsp1DCurve::Copy( Vsp1DCurve & input_crv )
+void Vsp1DCurve::Copy( const Vsp1DCurve & input_crv )
 {
     m_Curve = input_crv.m_Curve;
 }
@@ -54,7 +54,7 @@ void Vsp1DCurve::Split( double u )
 }
 
 //==== Append Curve To Existing Curve ====//
-void Vsp1DCurve::Append( Vsp1DCurve & input_crv )
+void Vsp1DCurve::Append(const Vsp1DCurve & input_crv )
 {
     oned_curve_index_type i, nc( input_crv.GetNumSections() );
 
@@ -78,7 +78,7 @@ bool Vsp1DCurve::IsClosed() const
 }
 
 //===== Interpolate Creates piecewise linear curves ===//
-void Vsp1DCurve::InterpolateLinear( vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag )
+void Vsp1DCurve::InterpolateLinear( const vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag )
 {
     // do some checking of vector lengths
     if ( closed_flag )
@@ -135,7 +135,7 @@ void Vsp1DCurve::InterpolateLinear( vector< double > & input_pnt_vec, const vect
 }
 
 //===== Interpolate Creates PCHIP ====//
-void Vsp1DCurve::InterpolatePCHIP( vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag )
+void Vsp1DCurve::InterpolatePCHIP( const vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag )
 {
     // do some checking of vector lengths
     if ( closed_flag )
@@ -195,7 +195,7 @@ void Vsp1DCurve::InterpolatePCHIP( vector< double > & input_pnt_vec, const vecto
 }
 
 //===== Interpolate Creates cubic spline with either not-a-knot ends or closed ends  ====//
-void Vsp1DCurve::InterpolateCSpline( vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag )
+void Vsp1DCurve::InterpolateCSpline( const vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag )
 {
     // do some checking of vector lengths
     if ( closed_flag )
@@ -255,7 +255,7 @@ void Vsp1DCurve::InterpolateCSpline( vector< double > & input_pnt_vec, const vec
 }
 
 //===== Interpolate Creates cubic spline with set end slopes ====//
-void Vsp1DCurve::InterpolateCSpline( vector< double > & input_pnt_vec, const double &start_slope, const double &end_slope, const vector<double> &param )
+void Vsp1DCurve::InterpolateCSpline( const vector< double > & input_pnt_vec, const double &start_slope, const double &end_slope, const vector<double> &param )
 {
     // do some checking of vector lengths
     if ( param.size() != input_pnt_vec.size() )
@@ -536,7 +536,7 @@ double Vsp1DCurve::FindNearest01( double &u, const double &pt, const double &u0 
     return dist;
 }
 
-void Vsp1DCurve::AppendCurveSegment( oned_curve_segment_type &c )
+void Vsp1DCurve::AppendCurveSegment( const oned_curve_segment_type &c )
 {
     m_Curve.push_back( c, 1 );
 }

@@ -2649,7 +2649,7 @@ void ParmPicker::DeviceCB( Fl_Widget* w )
     m_Screen->GuiDeviceCallBack( this );
 }
 
-vector< string > ParmPicker::FindParmNames( vector< string > & parm_id_vec )
+vector< string > ParmPicker::FindParmNames(const vector< string > & parm_id_vec )
 {
     vector< string > name_vec;
     for ( int i = 0 ; i < ( int )parm_id_vec.size() ; i++ )

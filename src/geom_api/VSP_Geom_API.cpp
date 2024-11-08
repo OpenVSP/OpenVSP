@@ -4236,7 +4236,7 @@ void SetAirfoilPnts( const string& xsec_id, const std::vector< vec3d > & up_pnt_
     ErrorMgr.NoError();
 }
 
-void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d> & ordered_airfoil_pnts )
+void WriteSeligAirfoilFile( const std::string & airfoil_name, const std::vector<vec3d> & ordered_airfoil_pnts )
 {
     // Note, the input airfoil coordinate points must be ordered in the correct Selig format: Start at X = 1, proceed
     //  along the top of the airfoil to x = 0.0 at the leading edge, and return to X = 1 along the bottom surface

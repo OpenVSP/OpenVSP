@@ -156,7 +156,7 @@ string StringUtil::vec3d_to_string(const vec3d & vec, const char* format)
 }
 
 //==== Count Number of Chars that match c =====//
-int StringUtil::count_char_matches( string & str, char c )
+int StringUtil::count_char_matches( const string & str, char c )
 {
     int cnt = 0;
     for ( int i = 0 ; i < ( int )str.size() ; i++ )

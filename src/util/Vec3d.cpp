@@ -576,7 +576,7 @@ double radius_of_circle( const vec3d& p1, const vec3d& p2, const vec3d& p3 )
 }
 
 //******* Center And Radius of Circle Passing Thru 3 Points ******//
-void center_of_circle( vec3d& p1, vec3d& p2, vec3d& p3, vec3d& center )
+void center_of_circle( const vec3d& p1, const vec3d& p2, const vec3d& p3, vec3d& center )
 {
     vec3d a = p1 - p3;
     vec3d b = p2 - p3;
@@ -606,7 +606,7 @@ void center_of_circle( vec3d& p1, vec3d& p2, vec3d& p3, vec3d& center )
 
 
 //******* Dist Between Point And Plane ******//
-double dist_pnt_2_plane( vec3d& org, vec3d& norm, vec3d& pnt )
+double dist_pnt_2_plane( const vec3d& org, const vec3d& norm, const vec3d& pnt )
 {
     //===== NORM SHOULD BE NORMALIZED ====//
     double d = dot( ( pnt - org ), norm );
@@ -754,7 +754,7 @@ vec3d proj_pnt_on_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3
 
 //******* Project Line To Plane******//
 //======= NOT TESTED !!!!!!!!!!!!!!! ===//
-vec3d proj_pnt_to_plane( vec3d& org, vec3d& plane_ln1, vec3d& plane_ln2, vec3d& pnt )
+vec3d proj_pnt_to_plane( const vec3d& org, const vec3d& plane_ln1, const vec3d& plane_ln2, const vec3d& pnt )
 {
     vec3d normal = cross( plane_ln1, plane_ln2 );
 
@@ -782,7 +782,7 @@ vec3d proj_vec_to_plane( const vec3d& vec, const vec3d& norm )
 
 //******* Find The Point On Line AB nearest to Line CD******//
 //======= NOT TESTED !!!!!!!!!!!!!!! ===//
-int ray_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& int_pnt1, vec3d& int_pnt2 )
+int ray_ray_intersect( const vec3d& A, const vec3d& B, const vec3d& C, const vec3d& D, vec3d& int_pnt1, vec3d& int_pnt2 )
 {
     vec3d line1 = B - A;
     vec3d line2 = C - D;
@@ -827,7 +827,7 @@ int ray_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& int_pnt1, 
 // ==== D - Base Point for Line Seg
 // ==== E - Vector for Line Seg
 // ==============================================//
-int tri_seg_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& E,
+int tri_seg_intersect( const vec3d& A, const vec3d& B, const vec3d& C, const vec3d& D, const vec3d& E,
                        double& u, double& w, double& t )
 {
     double zero = -1.0e-08;
@@ -897,7 +897,7 @@ int tri_seg_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& E,
 // ==== D - Base Point for Ray
 // ==== E - Vector for Ray
 // ==============================================//
-int tri_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& E,
+int tri_ray_intersect( const vec3d& A, const vec3d& B, const vec3d& C, const vec3d& D, const vec3d& E,
                        double& u, double& w, double& t )
 {
     double zero = -1.0e-08;
@@ -963,7 +963,7 @@ int tri_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& E,
 // ==== D - Base Point for Ray
 // ==== E - Vector for Ray
 // ==============================================//
-int plane_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& E, double& t )
+int plane_ray_intersect( const vec3d& A, const vec3d& B, const vec3d& C, const vec3d& D, const vec3d& E, double& t )
 {
     vec3d cs = cross( B, C );
     double denom = dot( cs, E );
@@ -984,7 +984,7 @@ int plane_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& E, doubl
 // ==== D - Base Point for Ray
 // ==== E - Vector for Ray
 // ==============================================//
-int plane_ray_intersect( vec3d& orig, vec3d& norm, vec3d& D, vec3d& E, double& t )
+int plane_ray_intersect( const vec3d& orig, const vec3d& norm, const vec3d& D, const vec3d& E, double& t )
 {
     double denom = dot( norm, E );
 
@@ -1000,7 +1000,7 @@ int plane_ray_intersect( vec3d& orig, vec3d& norm, vec3d& D, vec3d& E, double& t
 
 //******* Signed Volume Of Tetrahedron Defined By ******//
 //*******       Three Vecs From Common Pnt        ******//
-double tetra_volume( vec3d& A, vec3d& B, vec3d& C )
+double tetra_volume( const vec3d& A, const vec3d& B, const vec3d& C )
 {
     vector < double > dt = { A.v[0] * B.v[1] * C.v[2], B.v[0] * C.v[1] * A.v[2], C.v[0] * A.v[1] * B.v[2], - C.v[0] * B.v[1] * A.v[2], - B.v[0] * A.v[1] * C.v[2], - A.v[0] * C.v[1] * B.v[2] };
 
@@ -1012,8 +1012,8 @@ double tetra_volume( vec3d& A, vec3d& B, vec3d& C )
 //******* Area of tri defined by            ******//
 //******* three vectors from common point   ******//
 // Do not use naive Heron's formula.  Instead, use an algorithm that is stable in the case of slivers
-// and degenerate triangles http://http.cs.berkeley.edu/~wkahan/Triangle.pdf
-double area( vec3d& A, vec3d& B, vec3d& C )
+// and degenerate triangles https://people.eecs.berkeley.edu/~wkahan/Triangle.pdf
+double area( const vec3d& A, const vec3d& B, const vec3d& C )
 {
     double a = ( B - A ).mag();
     double b = ( C - A ).mag();
@@ -1053,7 +1053,7 @@ double area( vec3d& A, vec3d& B, vec3d& C )
 // Users of this code must verify correctness for their application.
 //
 // dist3D_Segment_to_Segment():
-double dist3D_Segment_to_Segment( vec3d& S1P0, vec3d& S1P1, vec3d& S2P0, vec3d& S2P1 )
+double dist3D_Segment_to_Segment( const vec3d& S1P0, const vec3d& S1P1, const vec3d& S2P0, const vec3d& S2P1 )
 {
     double SMALL_NUM = 0.0000001;
 
@@ -1152,7 +1152,7 @@ double dist3D_Segment_to_Segment( vec3d& S1P0, vec3d& S1P1, vec3d& S2P0, vec3d& 
 // Users of this code must verify correctness for their application.
 //
 // dist3D_Segment_to_Segment():
-double dist3D_Segment_to_Segment( vec3d& S1P0, vec3d& S1P1, vec3d& S2P0, vec3d& S2P1,
+double dist3D_Segment_to_Segment( const vec3d& S1P0, const vec3d& S1P1, const vec3d& S2P0, const vec3d& S2P1,
                                   double* Lt, vec3d* Ln, double* St, vec3d* Sn )
 {
     double SMALL_NUM = 0.0000001;
@@ -1425,7 +1425,7 @@ vec3d MapFromPlane( const vec2d & uw, const vec3d & B, const vec3d & e0, const v
     return result;
 }
 
-int plane_half_space( vec3d & planeOrig, vec3d & planeNorm, vec3d & pnt )
+int plane_half_space( const vec3d & planeOrig, const vec3d & planeNorm, const vec3d & pnt )
 {
     double od = dot( planeNorm, planeOrig );
     double pd = dot( planeNorm, pnt );
@@ -1442,7 +1442,7 @@ int plane_half_space( vec3d & planeOrig, vec3d & planeNorm, vec3d & pnt )
 
 // pint12 = p1 + s*(p2-p1)
 // pint34 = p3 + t*(p4-p3)
-bool line_line_intersect( vec3d & p1, vec3d & p2, vec3d & p3, vec3d & p4, double* s, double* t )
+bool line_line_intersect( const vec3d & p1, const vec3d & p2, const vec3d & p3, const vec3d & p4, double* s, double* t )
 {
     vec3d p13 = p1 - p3;
     vec3d p43 = p4 - p3;
@@ -1624,7 +1624,7 @@ void BilinearWeights( const vec3d & p0, const vec3d & p1, const vec3d & p, std::
 
 }
 
-double tri_tri_min_dist( vec3d & v0, vec3d & v1, vec3d & v2, vec3d & v3, vec3d & v4, vec3d & v5 )
+double tri_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & v3, const vec3d & v4, const vec3d & v5 )
 {
     double d;
     double min_dist = 1.0e12;
@@ -1640,7 +1640,7 @@ double tri_tri_min_dist( vec3d & v0, vec3d & v1, vec3d & v2, vec3d & v3, vec3d &
     return min_dist;
 }
 
-double pnt_tri_min_dist( vec3d & v0, vec3d & v1, vec3d & v2, vec3d & pnt )
+double pnt_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & pnt )
 {
     vec2d uw = MapToPlane( pnt, v0, v1-v0, v2-v0 );
     vec3d plnpnt = MapFromPlane( uw, v0, v1-v0, v2-v0 );

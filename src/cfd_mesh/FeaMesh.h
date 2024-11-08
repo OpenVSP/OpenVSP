@@ -29,7 +29,7 @@ public:
 class FeaMesh
 {
 public:
-    FeaMesh( string & struct_id );
+    FeaMesh( const string & struct_id );
     ~FeaMesh();
 
     void Cleanup();

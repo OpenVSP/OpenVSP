@@ -1089,27 +1089,27 @@ public:
     friend double signed_angle( const vec3d& a, const vec3d& b, const vec3d& ref );
     friend double cos_angle( const vec3d& a, const vec3d& b );
     friend double radius_of_circle( const vec3d& p1, const vec3d& p2, const vec3d& p3 );
-    friend void center_of_circle( vec3d& p1, vec3d& p2, vec3d& p3, vec3d& center );
-    friend double dist_pnt_2_plane( vec3d& org, vec3d& norm, vec3d& pnt );
+    friend void center_of_circle( const vec3d& p1, const vec3d& p2, const vec3d& p3, vec3d& center );
+    friend double dist_pnt_2_plane( const vec3d& org, const vec3d& norm, const vec3d& pnt );
     friend double dist_pnt_2_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );
 //   friend double dist_pnt_2_line_seg( vec3d& line_pt1,  vec3d& line_pt2,  vec3d& pnt);
     friend vec3d proj_pnt_on_line_seg( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );
     friend vec3d proj_pnt_on_ray( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );
     friend vec3d proj_pnt_on_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );
-    friend vec3d proj_pnt_to_plane( vec3d& org, vec3d& plane_ln1, vec3d& plane_ln2, vec3d& pnt );
+    friend vec3d proj_pnt_to_plane( const vec3d& org, const vec3d& plane_ln1, const vec3d& plane_ln2, const vec3d& pnt );
     friend vec3d proj_vec_to_plane( const vec3d& vec, const vec3d& norm );
-    friend int tri_seg_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& E,
+    friend int tri_seg_intersect( const vec3d& A, const vec3d& B, const vec3d& C, const vec3d& D, const vec3d& E,
                                   double& u, double& w, double& t );
-    friend int tri_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& E,
+    friend int tri_ray_intersect( const vec3d& A, const vec3d& B, const vec3d& C, const vec3d& D, const vec3d& E,
                                   double& u, double& w, double& t );
-    friend int plane_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& E, double& t );
-    friend int plane_ray_intersect( vec3d& orig, vec3d& norm, vec3d& D, vec3d& E, double& t );
-    friend int ray_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& int_pnt1, vec3d& int_pnt2 );
-    friend double tetra_volume( vec3d& A, vec3d& B, vec3d& C );
-    friend double area( vec3d& A, vec3d& B, vec3d& C );
+    friend int plane_ray_intersect( const vec3d& A, const vec3d& B, const vec3d& C, const vec3d& D, const vec3d& E, double& t );
+    friend int plane_ray_intersect( const vec3d& orig, const vec3d& norm, const vec3d& D, const vec3d& E, double& t );
+    friend int ray_ray_intersect( const vec3d& A, const vec3d& B, const vec3d& C, const vec3d& D, vec3d& int_pnt1, vec3d& int_pnt2 );
+    friend double tetra_volume( const vec3d& A, const vec3d& B, const vec3d& C );
+    friend double area( const vec3d& A, const vec3d& B, const vec3d& C );
     friend double poly_area( const std::vector< vec3d > & pnt_vec );
-    friend double dist3D_Segment_to_Segment( vec3d& S1P0, vec3d& S1P1, vec3d& S2P0, vec3d& S2P1 );
-    friend double dist3D_Segment_to_Segment( vec3d& S1P0, vec3d& S1P1, vec3d& S2P0, vec3d& S2P1,
+    friend double dist3D_Segment_to_Segment( const vec3d& S1P0, const vec3d& S1P1, const vec3d& S2P0, const vec3d& S2P1 );
+    friend double dist3D_Segment_to_Segment( const vec3d& S1P0, const vec3d& S1P1, const vec3d& S2P0, const vec3d& S2P1,
             double* Lt, vec3d* Ln, double* St, vec3d* Sn );
     friend double nearSegSeg( const vec3d& L0, const vec3d& L1, const vec3d& S0, const vec3d& S1, double* Lt, vec3d* Ln, double* St,  vec3d* Sn );
     friend double pointLineDistSquared( const vec3d & p, const vec3d& lp0, const vec3d& lp1, double* t );
@@ -1119,17 +1119,17 @@ public:
     friend vec2d MapToPlane( const vec3d & p, const vec3d & planeOrig, const vec3d & planeVec1, const vec3d & planeVec2 );
     friend vec3d MapFromPlane( const vec2d & uw, const vec3d & planeOrig, const vec3d & planeVec1, const vec3d & planeVec2 );
 
-    friend int plane_half_space( vec3d & planeOrig, vec3d & planeNorm, vec3d & pnt );
+    friend int plane_half_space( const vec3d & planeOrig, const vec3d & planeNorm, const vec3d & pnt );
 
-    friend bool line_line_intersect( vec3d & p1, vec3d & p2, vec3d & p3, vec3d & p4, double* s, double* t );
+    friend bool line_line_intersect( const vec3d & p1, const vec3d & p2, const vec3d & p3, const vec3d & p4, double* s, double* t );
 
     friend vec3d RotateArbAxis( const vec3d & p, double theta, const vec3d & r );
 
     friend bool PtInTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & p );
     friend vec3d BarycentricWeights( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & p );
     friend void BilinearWeights( const vec3d & p0, const vec3d & p1, const vec3d & p, std::vector< double > & weights );
-    friend double tri_tri_min_dist( vec3d & v0, vec3d & v1, vec3d & v2, vec3d & v3, vec3d & v4, vec3d & v5 );
-    friend double pnt_tri_min_dist( vec3d & v0, vec3d & v1, vec3d & v2, vec3d & pnt );
+    friend double tri_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & v3, const vec3d & v4, const vec3d & v5 );
+    friend double pnt_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & pnt );
 
     friend vec3d slerp( const vec3d& a, const vec3d& b, const double &t );
 };

@@ -201,7 +201,7 @@ ProjectionScreen::~ProjectionScreen()
 {
 }
 
-void ProjectionScreen::LoadSetChoice( Choice & c, int & index )
+void ProjectionScreen::LoadSetChoice( Choice & c, const int & index )
 {
     c.ClearItems();
 

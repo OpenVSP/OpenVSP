@@ -69,7 +69,7 @@ public:
     void ApplyESSurface( double u, double t, int reason );
     void Tesselate();
 
-    void InterpolateLinear(vector<vec3d> &pnts_to_interpolate);
+    void InterpolateLinear( const vector<vec3d> &pnts_to_interpolate );
     void PromoteTo( int deg );
 
     double Length( int num_segs );

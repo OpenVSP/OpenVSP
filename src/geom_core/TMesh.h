@@ -390,7 +390,7 @@ public:
     void IgnoreAll();
 
     void DeterIntExt( vector< TMesh* >& meshVec );
-    void DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
+    void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
 
     void LoadBndBox();
 

@@ -20,7 +20,7 @@ public:
     SimpleSubSurface();
     virtual ~SimpleSubSurface();
 
-    void CopyFrom( SubSurface *ss, vector < string > & );
+    void CopyFrom( SubSurface *ss, const vector < string > & );
 
     void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
     void SplitSegsW( const double & w ); // Split line segments that cross a constant W value

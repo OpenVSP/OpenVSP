@@ -400,7 +400,7 @@ void HingeGeom::UpdateMotionFlagsLimits()
                    m_JointRotMax, m_JointRotMaxFlag );
 }
 
-void HingeGeom::SetParmLimits( Parm & p, Parm & pflag, Parm & pmin, Parm & pminflag, Parm & pmax, Parm & pmaxflag )
+void HingeGeom::SetParmLimits( Parm & p, const Parm & pflag, const Parm & pmin, const Parm & pminflag, const Parm & pmax, const Parm & pmaxflag )
 {
     if ( pminflag() )
     {

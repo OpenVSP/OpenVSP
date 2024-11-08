@@ -381,7 +381,7 @@ std::vector< vec3d > BndBox::GetBBoxDrawLines() const
     return lines;
 }
 
-void BndBox::Transform( Matrix4d & mat )
+void BndBox::Transform( const Matrix4d & mat )
 {
     std::vector< vec3d > corners = GetCornerPnts();
     mat.xformvec( corners );

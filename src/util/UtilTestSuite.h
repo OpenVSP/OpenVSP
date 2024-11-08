@@ -53,7 +53,7 @@ private:
     void FormatWidthTest();
     void NumbersTest();
 
-    static void WritePntVecs( vector< vector< vec3d > > & pnt_vecs,  string file_name );
+    static void WritePntVecs( const vector< vector< vec3d > > & pnt_vecs,  string file_name );
     void WriteCurve( VspCurve& crv, string file_name );
 //  void WriteSurf( vector< vector< PntNorm > > & pnt_norm_vec, string file_name );
     static void WriteControlPnts( const vector< vector< vec3d > > & control_pnts, string file_name );

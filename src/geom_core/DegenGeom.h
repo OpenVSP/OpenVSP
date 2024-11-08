@@ -304,8 +304,8 @@ public:
     static string makeCsvFmt( int n, bool newline = true );
     void write_degenGeomCsv_file( FILE* file_id );
     void write_degenGeomSurfCsv_file( FILE* file_id, int nxsecs );
-    void write_degenGeomPlateCsv_file( FILE* file_id, int nxsecs, DegenPlate &degenPlate );
-    void write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, DegenStick &degenStick );
+    void write_degenGeomPlateCsv_file( FILE* file_id, int nxsecs, const DegenPlate &degenPlate );
+    void write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, const DegenStick &degenStick );
     void write_degenGeomPointCsv_file( FILE* file_id );
     void write_degenGeomDiskCsv_file( FILE* file_id );
     void write_degenSubSurfCsv_file( FILE* file_id, int isubsurf );
@@ -313,8 +313,8 @@ public:
 
     void write_degenGeomM_file( FILE* file_id );
     void write_degenGeomSurfM_file( FILE* file_id, int nxsecs );
-    void write_degenGeomPlateM_file( FILE* file_id, int nxsecs, DegenPlate &degenPlate, int iplate );
-    static void write_degenGeomStickM_file( FILE* file_id, int nxsecs, DegenStick &degenStick, int istick );
+    void write_degenGeomPlateM_file( FILE* file_id, int nxsecs, const DegenPlate &degenPlate, int iplate );
+    static void write_degenGeomStickM_file( FILE* file_id, int nxsecs, const DegenStick &degenStick, int istick );
     void write_degenGeomPointM_file( FILE* file_id );
     void write_degenGeomDiskM_file( FILE* file_id );
     void write_degenSubSurfM_file( FILE* file_id, int isubsurf );

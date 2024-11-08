@@ -37,7 +37,7 @@ SimpleSubSurface::~SimpleSubSurface()
 {
 }
 
-void SimpleSubSurface::CopyFrom( SubSurface *ss, vector < string > & prop_id_vec )
+void SimpleSubSurface::CopyFrom( SubSurface *ss, const vector < string > & prop_id_vec )
 {
     if ( ss )
     {

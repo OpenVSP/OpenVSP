@@ -43,9 +43,9 @@ public:
     VspCurve();
     virtual ~VspCurve();
 
-    void Copy( VspCurve & input_crv );
+    void Copy( const VspCurve & input_crv );
     void Split( double u );
-    void Append( VspCurve & input_crv ); // Append Curve
+    void Append( const VspCurve & input_crv ); // Append Curve
 
     void Spin( double u );
     void Spin01( double u );
@@ -59,17 +59,17 @@ public:
     void Modify( int type, bool le, double len, double off, double str );
 
     // creates C0 continuous piecewise line
-    void InterpolateLinear( vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
+    void InterpolateLinear( const vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
 
     // creates C1 continuous Piecewise Cubic Hermite Interpolating Polynomial
-    void InterpolatePCHIP( vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
+    void InterpolatePCHIP( const vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
     void InterpolateEqArcLenPCHIP( const piecewise_curve_type &c );
 
     // creates C2 continuous piecewise cubic spline polynomial with not-a-knot or closed end conditions
-    void InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
+    void InterpolateCSpline( const vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
 
     // creates C2 continuous piecewise cubic spline polynomial with clamped end slopes
-    void InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vec3d &start_slope, const vec3d &end_slope, const vector<double> &param );
+    void InterpolateCSpline( const vector< vec3d > & input_pnt_vec, const vec3d &start_slope, const vec3d &end_slope, const vector<double> &param );
 
     void ToBinaryCubic( bool wingtype, double ttol = 1e-6, double atol = 0.01, int dmin = 2, int dmax = 12 );
 
@@ -81,7 +81,7 @@ public:
 
     const piecewise_curve_type & GetCurve() const;
     void SetCurve( const piecewise_curve_type &c );
-    void AppendCurveSegment( curve_segment_type &c );
+    void AppendCurveSegment( const curve_segment_type &c );
 
     double FindDistant( double &u, const vec3d &pt, const double &d, const double &u0 ) const;
     double FindDistant( double &u, const vec3d &pt, const double &d ) const;

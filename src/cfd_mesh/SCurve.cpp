@@ -27,7 +27,7 @@ SCurve::~SCurve()
 {
 }
 
-void SCurve::InterpolateLinear(vector<vec3d> &pnts_to_interpolate)
+void SCurve::InterpolateLinear( const vector<vec3d> &pnts_to_interpolate )
 {
     m_UWCrv.InterpolateLinear( pnts_to_interpolate );
 }

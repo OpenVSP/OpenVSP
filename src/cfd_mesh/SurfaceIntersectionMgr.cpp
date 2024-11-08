@@ -39,7 +39,7 @@ Wake::~Wake()
 {
 }
 
-double Wake::DistToClosestLeadingEdgePnt( vec3d& pnt )
+double Wake::DistToClosestLeadingEdgePnt( const vec3d& pnt )
 {
     double close_dist = 1.0e12;
 
@@ -143,7 +143,7 @@ vec3d WakeMgrSingleton::ComputeTrailEdgePnt( vec3d p, double angle_deg )
     return vec3d( m_EndX, p[1], z );
 }
 
-void WakeMgrSingleton::SetLeadingEdges( vector < piecewise_curve_type >& wake_leading_edges )
+void WakeMgrSingleton::SetLeadingEdges( const vector < piecewise_curve_type >& wake_leading_edges )
 {
     m_LeadingEdgeVec = wake_leading_edges;
 }

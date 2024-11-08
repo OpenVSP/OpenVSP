@@ -100,7 +100,7 @@ public:
 
     void MatchBorderCurve( ICurve* curve );
     void BuildSurfs();
-    double DistToClosestLeadingEdgePnt( vec3d& p );
+    double DistToClosestLeadingEdgePnt( const vec3d& p );
 
     piecewise_curve_type m_LeadingEdge;
     vector< ICurve* > m_LeadingCurves;
@@ -127,7 +127,7 @@ public:
 
     void ClearWakes();
 
-    void SetLeadingEdges( vector < piecewise_curve_type >& wake_leading_edges );
+    void SetLeadingEdges( const vector < piecewise_curve_type >& wake_leading_edges );
     void CreateWakesAppendBorderCurves( vector< ICurve* >& border_curves, SimpleGridDensity* grid_density_ptr );
     vector< Surf* > GetWakeSurfs();
     void StretchWakes();

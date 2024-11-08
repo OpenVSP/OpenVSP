@@ -950,7 +950,7 @@ void DegenGeom::write_degenGeomSurfCsv_file( FILE* file_id, int nxsecs )
     }
 }
 
-void DegenGeom::write_degenGeomPlateCsv_file( FILE* file_id, int nxsecs, DegenPlate &degenPlate )
+void DegenGeom::write_degenGeomPlateCsv_file( FILE* file_id, int nxsecs, const DegenPlate &degenPlate )
 {
     fprintf( file_id, "# DegenGeom Type,nXsecs,nPnts/Xsec\n" );
     fprintf( file_id, "PLATE,%d,%d\n", nxsecs, ( num_pnts + 1 ) / 2 );
@@ -986,7 +986,7 @@ void DegenGeom::write_degenGeomPlateCsv_file( FILE* file_id, int nxsecs, DegenPl
     }
 }
 
-void DegenGeom::write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, DegenStick &degenStick )
+void DegenGeom::write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, const DegenStick &degenStick )
 {
 
     fprintf( file_id, "# DegenGeom Type, nXsecs\n" );
@@ -1284,7 +1284,7 @@ void DegenGeom::write_degenGeomSurfM_file( FILE* file_id, int nxsecs )
     writeMatDouble.write( file_id, degenSurface.area, basename + "area", nxsecs - 1,    num_pnts - 1 );
 }
 
-void DegenGeom::write_degenGeomPlateM_file( FILE* file_id, int nxsecs, DegenPlate &degenPlate, int iplate )
+void DegenGeom::write_degenGeomPlateM_file( FILE* file_id, int nxsecs, const DegenPlate &degenPlate, int iplate )
 {
     char num[80];
     snprintf( num, sizeof( num ), "degenGeom(end).plate(%d).", iplate );
@@ -1309,7 +1309,7 @@ void DegenGeom::write_degenGeomPlateM_file( FILE* file_id, int nxsecs, DegenPlat
     writeMatDouble.write( file_id, degenPlate.wBot,    basename + "wBot",    nxsecs,    ( num_pnts + 1 ) / 2 );
 }
 
-void DegenGeom::write_degenGeomStickM_file( FILE* file_id, int nxsecs, DegenStick &degenStick, int istick )
+void DegenGeom::write_degenGeomStickM_file( FILE* file_id, int nxsecs, const DegenStick &degenStick, int istick )
 {
     char num[80];
     snprintf( num, sizeof( num ), "degenGeom(end).stick(%d).", istick );

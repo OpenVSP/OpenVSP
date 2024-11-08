@@ -235,7 +235,7 @@ void NerfManageGeomScreen::SelectGeomBrowser( string geom_id )
 }
 
 //==== Is Parent (or Higher) Selected ====//
-bool NerfManageGeomScreen::IsParentSelected( string geom_id, vector< string > & selVec )
+bool NerfManageGeomScreen::IsParentSelected( string geom_id, const vector< string > & selVec )
 {
     Geom* checkGeom = m_VehiclePtr->FindGeom( geom_id );
     while ( checkGeom )

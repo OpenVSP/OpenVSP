@@ -360,7 +360,7 @@ void UtilTestSuite::VspCurveTest()
 #endif
 }
 //==== Write Point Vecs =====//
-void UtilTestSuite::WritePntVecs( vector< vector< vec3d > > & pnt_vecs,  string file_name )
+void UtilTestSuite::WritePntVecs( const vector< vector< vec3d > > & pnt_vecs,  string file_name )
 {
     const char* colors[] = {"GREEN", "BLUE", "PURPLE", "WHITE",  };
 

@@ -5772,7 +5772,7 @@ void ScriptMgrSingleton::ConvertLMNtoRSTVec(const string &geom_id, const int &su
     FillASArray( out_ts, ts );
 }
 
-void ScriptMgrSingleton::GetUWTess01(const string &geom_id, int &surf_indx, CScriptArray* us, CScriptArray* ws )
+void ScriptMgrSingleton::GetUWTess01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws )
 {
     vector < double > out_us;
     vector < double > out_ws;

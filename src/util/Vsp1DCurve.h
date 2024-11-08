@@ -34,23 +34,23 @@ public:
     double GetUMin() const { return m_Curve.get_parameter_min(); };
     double GetUMax() const { return m_Curve.get_parameter_max(); };
 
-    void Copy( Vsp1DCurve & input_crv );
+    void Copy( const Vsp1DCurve & input_crv );
     void Split( double u );
-    void Append( Vsp1DCurve & input_crv ); // Append Curve
+    void Append( const Vsp1DCurve & input_crv ); // Append Curve
 
     bool IsClosed() const;
 
     // creates C0 continuous piecewise line
-    void InterpolateLinear( vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag );
+    void InterpolateLinear( const vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag );
 
     // creates C1 continuous Piecewise Cubic Hermite Interpolating Polynomial
-    void InterpolatePCHIP( vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag );
+    void InterpolatePCHIP( const vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag );
 
     // creates C2 continuous piecewise cubic spline polynomial with not-a-knot or closed end conditions
-    void InterpolateCSpline( vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag );
+    void InterpolateCSpline( const vector< double > & input_pnt_vec, const vector<double> &param, bool closed_flag );
 
     // creates C2 continuous piecewise cubic spline polynomial with clamped end slopes
-    void InterpolateCSpline( vector< double > & input_pnt_vec, const double &start_slope, const double &end_slope, const vector<double> &param );
+    void InterpolateCSpline( const vector< double > & input_pnt_vec, const double &start_slope, const double &end_slope, const vector<double> &param );
 
     void BinCubicTMap( vector < double > &tmap, vector < double > &tdisc ) const;
     void GetTMap( vector < double > &tmap, vector < double > &tdisc ) const;
@@ -65,7 +65,7 @@ public:
 
     const oned_piecewise_curve_type & GetCurve() const;
     void SetCurve( const oned_piecewise_curve_type &c );
-    void AppendCurveSegment( oned_curve_segment_type &c );
+    void AppendCurveSegment( const oned_curve_segment_type &c );
 
     double FindNearest( double &u, const double &pt ) const;
     double FindNearest( double &u, const double &pt, const double &u0 ) const;

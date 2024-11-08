@@ -10,7 +10,7 @@
 class redirecter
 {
 public:
-    redirecter( std::ostream & dst, std::ostream & src ) :
+    redirecter( const std::ostream & dst, std::ostream & src ) :
         src( src ), sbuf( src.rdbuf( dst.rdbuf() ) )
     {
     }
@@ -68,12 +68,12 @@ class teestream: public std::ostream
 public:
     // Construct an ostream which tees output to the supplied
     // ostreams.
-    teestream( std::ostream & o1, std::ostream & o2 );
+    teestream( const std::ostream & o1, const std::ostream & o2 );
 private:
     teebuf tbuf;
 };
 
-teestream::teestream( std::ostream & o1, std::ostream & o2 ) :
+teestream::teestream( const std::ostream & o1, const std::ostream & o2 ) :
     std::ostream( &tbuf ), tbuf( o1.rdbuf(), o2.rdbuf() )
 {
 }

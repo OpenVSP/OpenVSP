@@ -931,7 +931,7 @@ void TMesh::DeterIntExt( vector< TMesh* >& meshVec )
     }
 }
 
-void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
+void TMesh::DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
 {
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
     orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;

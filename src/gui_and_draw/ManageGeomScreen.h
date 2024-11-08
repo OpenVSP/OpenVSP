@@ -149,7 +149,7 @@ protected:
     void UpdateDrawType();
     void GeomBrowserCallback();
     void SelectGeomBrowser( string geom_id );
-    bool IsParentSelected( string geom_id, vector< string > & selVec );
+    bool IsParentSelected( string geom_id, const vector< string > & selVec );
     void NoShowActiveGeoms( bool flag );
     void SelectAll();
     void SelectSet( int set );

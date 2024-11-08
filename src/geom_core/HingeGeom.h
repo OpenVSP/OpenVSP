@@ -97,7 +97,7 @@ protected:
 
     vec3d m_PrimEndpt;
 
-    static void SetParmLimits( Parm & p, Parm & pflag, Parm & pmin, Parm & pminflag, Parm & pmax, Parm & pmaxflag );
+    static void SetParmLimits( Parm & p, const Parm & pflag, const Parm & pmin, const Parm & pminflag, const Parm & pmax, const Parm & pmaxflag );
 
 };
 

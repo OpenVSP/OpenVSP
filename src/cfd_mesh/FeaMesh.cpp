@@ -9,7 +9,7 @@
 #include "FileUtil.h"
 #include "StringUtil.h"
 
-FeaMesh::FeaMesh( string & struct_id )
+FeaMesh::FeaMesh( const string & struct_id )
 {
     m_ID = struct_id;
 

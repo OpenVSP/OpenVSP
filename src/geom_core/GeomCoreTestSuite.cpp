@@ -136,7 +136,7 @@ void GeomCoreTestSuite::PodTest()
 
 
 //==== WriteCurve =====//
-void GeomCoreTestSuite::WritePnts( std::vector< vec3d > & pnt_vec, std::string file_name )
+void GeomCoreTestSuite::WritePnts( const std::vector< vec3d > & pnt_vec, std::string file_name )
 {
     FILE* fp = fopen( file_name.c_str(), "w" );
     if ( fp )

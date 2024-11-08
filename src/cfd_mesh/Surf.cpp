@@ -441,7 +441,7 @@ void Surf::LimitTargetMap()
     }
 }
 
-void Surf::LimitTargetMap( const MSCloud &es_cloud, MSTree &es_tree, double minmap )
+void Surf::LimitTargetMap( const MSCloud &es_cloud, const MSTree &es_tree, double minmap )
 {
     double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
 

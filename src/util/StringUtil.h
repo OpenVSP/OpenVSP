@@ -32,7 +32,7 @@ string int_to_string( int i, const char* format );
 string double_to_string( double v, const char* format );
 string vec3d_to_string( const vec3d & vec, const char* format );
 
-int count_char_matches( string & str, char c );
+int count_char_matches( const string & str, char c );
 
 int compute_hash( const string & str );
 
