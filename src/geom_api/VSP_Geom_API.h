@@ -3286,7 +3286,7 @@ extern void Unlock( );
 
     StartGUI()
 
-    if ( IsEventLoopRunning() )
+    if ( IsEventLoopRunning() ):
         print( "Event loop is running." )
 
     \endcode
