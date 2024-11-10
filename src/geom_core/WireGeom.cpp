@@ -78,6 +78,8 @@ WireGeom::~WireGeom()
 
 void WireGeom::UpdateSurf()
 {
+    m_MainSurfVec.clear();
+
     int num_j, num_i;
 
     m_OtherInvertFlag = false;

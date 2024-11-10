@@ -177,6 +177,7 @@ public:
 
     virtual void UpdateSurf()
     {
+        m_MainSurfVec.clear();
         m_ScaleMatrix.loadIdentity();
         m_ScaleMatrix.scale( m_ScaleFromOrig() );
     }

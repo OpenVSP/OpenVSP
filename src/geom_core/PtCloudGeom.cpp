@@ -39,6 +39,7 @@ PtCloudGeom::~PtCloudGeom()
 
 void PtCloudGeom::UpdateSurf()
 {
+    m_MainSurfVec.clear();
 }
 
 void PtCloudGeom::UpdateDrawObj()

@@ -471,6 +471,8 @@ void HumanGeom::SetPreset()
 
 void HumanGeom::UpdateSurf()
 {
+    m_MainSurfVec.clear();
+
     ValidateParms();
 
     // Compute score vector used in anthropometric calculations
