@@ -2970,8 +2970,7 @@ void VspSurf::InitUMapping()
 
 void VspSurf::InitUMapping( double val )
 {
-    double m_UMapMax = GetUMax();
-    int n = round( m_UMapMax ) + 1;
+    int n = GetNumSectU() + 1;
 
     vector < double > uvals( n, val );
     vector < double > tvals( n );
