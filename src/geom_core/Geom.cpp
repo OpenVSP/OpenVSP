@@ -2053,7 +2053,8 @@ void Geom::UpdateChildren( bool fullupdate )
             // If the child is a Conformal
             if ( child->GetType().m_Type == CONFORMAL_GEOM_TYPE )
             {
-                if ( m_UpdateSurf )
+                // m_UpdateXForm here captures changes in parent symmetry.
+                if ( m_UpdateSurf || m_UpdateXForm )
                 {
                     child->m_SurfDirty = true;
                 }
