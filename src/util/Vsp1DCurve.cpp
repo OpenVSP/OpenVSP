@@ -980,7 +980,12 @@ double Vsp1DCurve::IntegrateCrv_rcub( double r0 )
 double Vsp1DCurve::GetSegFirstPoint( int i ) const
 {
     oned_curve_segment_type c;
-    m_Curve.get( c, i );
+
+    if ( m_Curve.get( c, i ) != oned_piecewise_curve_type::NO_ERRORS )
+    {
+        printf( "Invalid curve segment\n" );
+        assert(false);
+    }
 
     oned_curve_point_type p;
     p = c.get_control_point( 0 );
@@ -990,7 +995,12 @@ double Vsp1DCurve::GetSegFirstPoint( int i ) const
 double Vsp1DCurve::GetSegLastPoint( int i ) const
 {
     oned_curve_segment_type c;
-    m_Curve.get( c, i );
+
+    if ( m_Curve.get( c, i ) != oned_piecewise_curve_type::NO_ERRORS )
+    {
+        printf( "Invalid curve segment\n" );
+        assert(false);
+    }
 
     oned_curve_point_type p;
     p = c.get_control_point( c.degree() );
