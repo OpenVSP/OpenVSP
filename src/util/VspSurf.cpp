@@ -2961,15 +2961,11 @@ void VspSurf::DegenPlanarSurf( const VspSurf & parent, int vhflag )
 void VspSurf::InitUMapping()
 {
     m_UMapMax = GetUMax();
-    int n = round( m_UMapMax ) + 1;
 
-    vector < double > uvals( n );
-    for ( int i = 0; i < n; i++ )
-    {
-        uvals[i] = 1.0 * i;
-    }
+    vector < double > umap;
+    m_Surface.get_pmap_u( umap );
 
-    m_UMapping.InterpolateLinear( uvals, uvals, false );
+    m_UMapping.InterpolateLinear( umap, umap, false );
 }
 
 void VspSurf::InitUMapping( double val )
