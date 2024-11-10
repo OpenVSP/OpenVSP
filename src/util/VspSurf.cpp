@@ -2987,7 +2987,7 @@ void VspSurf::InitUMapping( double val )
     m_UMapping.InterpolateLinear( uvals, tvals, false );
 }
 
-void VspSurf::PrintUMapping()
+void VspSurf::PrintUMapping() const
 {
     m_UMapping.GetCurve().print();
 }

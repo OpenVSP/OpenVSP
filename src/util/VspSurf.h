@@ -336,7 +336,7 @@ public:
 
     void InitUMapping();
     void InitUMapping( double val );
-    void PrintUMapping();
+    void PrintUMapping() const;
 
     void ParmReport();
 
