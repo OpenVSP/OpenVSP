@@ -4714,7 +4714,7 @@ int VSPAEROMgrSingleton::CreateGroupsFile()
 
     for ( size_t i = 0; i < numgroups; i++ )
     {
-        m_UnsteadyGroupVec[ i ]->WriteGroup( group_file, m_AnalysisMethod(), m_AlternateInputFormatFlag() );
+        m_UnsteadyGroupVec[ i ]->WriteGroup( group_file, m_AlternateInputFormatFlag() );
     }
 
     //Finish up by closing the file and making sure that it appears in the file system
@@ -5931,7 +5931,7 @@ void UnsteadyGroup::Update()
     m_Rz.Set( r_vec.z() );
 }
 
-int UnsteadyGroup::WriteGroup( FILE *group_file, int method, bool alternatefile )
+int UnsteadyGroup::WriteGroup( FILE *group_file, bool alternatefile )
 {
     if ( !group_file )
     {
@@ -5947,29 +5947,18 @@ int UnsteadyGroup::WriteGroup( FILE *group_file, int method, bool alternatefile 
 
     fprintf( group_file, "GroupName = %s\n", name.c_str() );
 
-    bool oldway = true;
+    // 'Old' way of setting up number of components.
+    // fprintf( group_file, "NumberOfComponents = %d\n", m_ComponentVSPAEROIndexVec.size() );
+    // for ( size_t i = 0; i < m_ComponentVSPAEROIndexVec.size(); i++ )
+    // {
+    //     fprintf( group_file, "%d\n", m_ComponentVSPAEROIndexVec[i] );
+    // }
 
-    if ( method == vsp::PANEL && !alternatefile )
+    fprintf( group_file, "NumberOfComponents = %d\n", m_GeomIDsInGroup.size() );
+    for ( size_t i = 0; i < m_GeomIDsInGroup.size(); i++ )
     {
-        oldway = false;
-    }
-
-    if ( oldway )
-    {
-        fprintf( group_file, "NumberOfComponents = %zu\n", m_ComponentVSPAEROIndexVec.size() );
-        for ( size_t i = 0; i < m_ComponentVSPAEROIndexVec.size(); i++ )
-        {
-            fprintf( group_file, "%d\n", m_ComponentVSPAEROIndexVec[i] );
-        }
-    }
-    else
-    {
-        fprintf( group_file, "NumberOfComponents = %zu\n", m_GeomIDsInGroup.size() );
-        for ( size_t i = 0; i < m_GeomIDsInGroup.size(); i++ )
-        {
-            int gnum = SubSurfaceMgr.FindGNum( m_GeomIDsInGroup[i] );
-            fprintf( group_file, "%d\n", gnum + 1 );
-        }
+        int gnum = SubSurfaceMgr.FindGNum( m_GeomIDsInGroup[i] );
+        fprintf( group_file, "%d\n", gnum + 1 );
     }
 
     bool geom_fixed = false;

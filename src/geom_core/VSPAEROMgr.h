@@ -151,7 +151,7 @@ public:
 
     void Update();
 
-    int WriteGroup( FILE *group_file, int method, bool alternatefile );
+    int WriteGroup( FILE *group_file, bool alternatefile );
 
     vector < pair < string, int > > GetCompSurfPairVec()                                    { return m_ComponentSurfPairVec; }
     void SetCompSurfPairVec( const vector < pair < string, int > > &comp_surf_pair_vec )    { m_ComponentSurfPairVec = comp_surf_pair_vec; }
