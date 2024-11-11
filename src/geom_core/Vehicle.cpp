@@ -3515,7 +3515,15 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
 
     //==== Write Out tag key file ====//
 
-    SubSurfaceMgr.WriteVSPGEOMKeyFile(file_name);
+    SubSurfaceMgr.WriteVSPGEOMKeyFile( file_name );
+
+    vector < string > gidvec;
+    vector < int > partvec2;
+    vector < int > surfvec;
+    SubSurfaceMgr.GetPartData( gidvec, partvec2, surfvec );
+
+
+    WriteControlSurfaceFile( file_name, gidvec, partvec2, surfvec );
 
     return mesh_id;
 
@@ -5255,6 +5263,138 @@ void Vehicle::WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox 
         FeatureLinesShift( projectionvec4, shiftvec, VIEW_SHIFT::RIGHT, m_SVGView4_rot(), m_SVGView2_rot() );
         WriteSVGPolylines2D( root, projectionvec4, svgbox );
     }
+}
+
+void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < string > &gidvec, const vector < int > &partvec, const vector < int > &surfvec )
+{
+    string base_name = file_name;
+    std::string::size_type loc = base_name.find_last_of( "." );
+    if ( loc != base_name.npos )
+    {
+        base_name = base_name.substr( 0, loc );
+    }
+    string csf_name = base_name + ".csf";
+
+    FILE* csf_file = fopen( csf_name.c_str(), "w" );
+
+    if ( csf_file )
+    {
+        int ncsurf = 0;
+
+        for ( int ipart = 0; ipart < ( int )gidvec.size(); ipart++ ) // Loop over all geoms.
+        {
+            string gid = gidvec[ipart];
+            int part = partvec[ipart];
+            int isurf = surfvec[ipart];
+
+            vector< SubSurface* > ssvec = SubSurfaceMgr.GetSubSurfs( gid, isurf );
+
+            int nss = ssvec.size();
+
+            for ( int issurf = 0; issurf < nss; issurf++ ) // Loop over geom's subsurfaces.
+            {
+                SSControlSurf* cs = dynamic_cast< SSControlSurf* > ( ssvec[ issurf ] );
+                if ( cs )                                  // Restrict to control surface subsurf.
+                {
+                    ncsurf++;
+                }
+            }
+        }
+        fprintf( csf_file, "%d Control Surfaces\n", ncsurf );
+
+        for ( int ipart = 0; ipart < ( int )gidvec.size(); ipart++ ) // Loop over all geoms.
+        {
+            string gid = gidvec[ipart];
+            int part = partvec[ipart];
+            int isurf = surfvec[ipart];
+
+            vector< SubSurface* > ssvec = SubSurfaceMgr.GetSubSurfs( gid, isurf );
+            int nss = ssvec.size();
+
+
+            Geom *g = FindGeom( gid );
+            if ( g )
+            {
+                for ( int issurf = 0; issurf < nss; issurf++ ) // Loop over subsurfaces.
+                {
+                    SSControlSurf* cs = dynamic_cast< SSControlSurf* > ( ssvec[ issurf ] );
+                    if ( cs )                                  // Restrict to control surface subsurf.
+                    {
+                        string gName = g->GetName();
+                        double umax = g->GetUMax( isurf );
+                        double wmax = g->GetWMax( isurf );
+
+                        fprintf( csf_file, "CSurf ID %s, %s\n", cs->GetID().c_str(), cs->GetName().c_str() );
+                        fprintf( csf_file, "Geom  ID %s, %s\n", g->GetID().c_str(), g->GetName().c_str() );
+                        fprintf( csf_file, "Surface # %d\n", isurf );
+                        fprintf( csf_file, "Part # %d\n", part );
+
+                        if ( cs->m_SurfType() == SSControlSurf::UPPER_SURF )
+                        {
+                            fprintf( csf_file, "1 Upper\n" );
+                        }
+                        else if ( cs->m_SurfType() == SSControlSurf::LOWER_SURF )
+                        {
+                            fprintf( csf_file, "1 Lower\n" );
+                        }
+                        else
+                        {
+                            fprintf( csf_file, "2 Both\n" );
+                        }
+
+                        std::vector< std::vector< vec2d > > ppvec = cs->GetPolyPntsVec();
+
+                        int nhinge = cs->m_UWStart.size();
+                        int nbound = ppvec.size();
+
+                        if ( nhinge != nbound )
+                        {
+                            printf( "Mismatch number of control surfaces\n" );
+                        }
+
+                        for ( int ihinge = 0; ihinge < nhinge; ihinge++ )
+                        {
+                            fprintf( csf_file, "2 Hinge UV\n" );
+                            fprintf( csf_file, "%f %f\n", cs->m_UWStart[ihinge].x(), cs->m_UWStart[ihinge].y() );
+                            fprintf( csf_file, "%f %f\n", cs->m_UWEnd[ihinge].x(), cs->m_UWEnd[ihinge].y() );
+
+                            int nbndpt = ppvec[ihinge].size();
+
+                            fprintf( csf_file, "%d Boundary UV\n", nbndpt );
+                            for ( int j = 0; j < nbndpt; j++ )
+                            {
+                                fprintf( csf_file, "%f %f\n", ppvec[ ihinge ][ j ].x(), ppvec[ ihinge ][ j ].y() );
+                            }
+                        }
+
+                        for ( int ihinge = 0; ihinge < nhinge; ihinge++ )
+                        {
+                            vec3d xStart = g->CompPnt01( isurf, clamp( cs->m_UWStart[ihinge].x(), 0.0, umax ) / umax, clamp( cs->m_UWStart[ihinge].y(), 0.0, wmax ) / wmax );
+                            vec3d xEnd = g->CompPnt01( isurf, clamp( cs->m_UWEnd[ihinge].x(), 0.0, umax ) / umax, clamp( cs->m_UWEnd[ihinge].y(), 0.0, wmax ) / wmax );
+
+                            fprintf( csf_file, "2 Hinge XYZ\n" );
+                            fprintf( csf_file, "%f %f %f\n", xStart.x(), xStart.y(), xStart.z() );
+                            fprintf( csf_file, "%f %f %f\n", xEnd.x(), xEnd.y(), xEnd.z() );
+
+                            int nbndpt = ppvec[ihinge].size();
+
+                            fprintf( csf_file, "%d Boundary XYZ\n", nbndpt );
+                            for ( int j = 0; j < nbndpt; j++ )
+                            {
+                                vec3d x = g->CompPnt01( isurf, clamp( ppvec[ ihinge ][ j ].x(), 0.0, umax ) / umax, clamp( ppvec[ ihinge ][ j ].y(), 0.0, wmax ) / wmax );
+
+                                fprintf( csf_file, "%f %f %f\n", x.x(), x.y(), x.z() );
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+    }
+
+    fclose( csf_file );
 }
 
 vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, const vec3d &offset )
