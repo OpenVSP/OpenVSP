@@ -51,6 +51,7 @@ public:
 
     void GetSelectedPoints( vector < vec3d > &selpts );
 
+    void CreateConvexHull();
 
     int GetNumSelected()
     {

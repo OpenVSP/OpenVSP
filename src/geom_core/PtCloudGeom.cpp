@@ -9,6 +9,9 @@
 #include "PntNodeMerge.h"
 #include "Vehicle.h"
 #include "FitModelMgr.h"
+#include "MeshGeom.h"
+
+#include "Mathematics/ConvexHull3.h"
 
 //==== Constructor ====//
 PtCloudGeom::PtCloudGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
@@ -456,6 +459,90 @@ void PtCloudGeom::GetSelectedPoints( vector < vec3d > &selpts )
             selpts.push_back(transMat.xform( m_Pts[i] ) );
         }
     }
+}
+
+void PtCloudGeom::CreateConvexHull()
+{
+    constexpr int dim = 3;
+
+    int npts = m_Pts.size();
+
+    gte::Vector3 < double > *pts = new gte::Vector3 < double > [ npts ];
+
+    for ( int i = 0 ; i < ( int )npts ; i++ )
+    {
+        pts[i][0] = m_Pts[i].x();
+        pts[i][1] = m_Pts[i].y();
+        pts[i][2] = m_Pts[i].z();
+    }
+
+
+    gte::ConvexHull3 < double > ch;
+
+    ch( npts, pts, 0 );
+
+    if ( ch.GetDimension() == 3 )
+    {
+        GeomType type = GeomType( MESH_GEOM_TYPE, "MESH", true );
+        string id = m_Vehicle->AddGeom( type );
+        Geom* geom_ptr = m_Vehicle->FindGeom( id );
+        if ( !geom_ptr )
+        {
+            // return string( "NONE" );
+        }
+
+        MeshGeom* mesh_geom = ( MeshGeom* )( geom_ptr );
+
+        TMesh* tMesh = new TMesh();
+
+        if ( tMesh )
+        {
+            std::vector < size_t > hull = ch.GetHull();
+
+            vector < bool > vused( npts, false );
+            for ( int i = 0; i < hull.size(); i++ )
+            {
+                vused[ hull[ i ] ] = true;
+            }
+
+            vector < int > vxref( npts, -1 );
+            int iused = 0;
+            for ( int i = 0 ; i < ( int )npts ; i++ )
+            {
+                if ( vused[i] )
+                {
+                    TNode *n = new TNode();
+                    n->m_Pnt = m_Pts[ i ];
+                    n->m_ID = i;
+                    tMesh->m_NVec.push_back( n );
+                    vxref[i] = iused;
+                    iused++;
+                }
+            }
+
+            int nFaces = hull.size() / 3;
+
+            for ( int i = 0; i < nFaces; i++ )
+            {
+                TTri *t = new TTri( tMesh );
+
+                t->m_N0 = tMesh->m_NVec[ vxref[ hull[ 3 * i + 0 ] ] ];
+                t->m_N1 = tMesh->m_NVec[ vxref[ hull[ 3 * i + 1 ] ] ];
+                t->m_N2 = tMesh->m_NVec[ vxref[ hull[ 3 * i + 2 ] ] ];
+
+                t->CompNorm();
+                tMesh->m_TVec.push_back( t );
+            }
+
+            mesh_geom->m_TMeshVec.push_back( tMesh );
+
+            mesh_geom->m_SurfDirty = true;
+            mesh_geom->Update();
+        }
+
+    }
+
+    delete[] pts;
 }
 
 void PtCloudGeom::ProjectPts( const string &geomid, int surfid, int idir )
