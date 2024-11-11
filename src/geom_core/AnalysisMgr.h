@@ -77,21 +77,21 @@ public:
 
     string ExecAnalysis( const string & analysis );
 
-    bool ValidAnalysisName( const string & analysis );
-    bool ValidAnalysisInputDataIndex( const string & analysis, const string & name, int index = 0 );
+    bool ValidAnalysisName( const string & analysis ) const;
+    bool ValidAnalysisInputDataIndex( const string & analysis, const string & name, int index = 0 ) const;
 
-    int GetNumInputData( const string & analysis, const string & name );
-    int GetAnalysisInputType( const string & analysis, const string & name );
-    string GetAnalysisInputTypeName( const string & results_id, const string & data_name );
-    string GetAnalysisInputDoc( const string & analysis, const string & name );
+    int GetNumInputData( const string & analysis, const string & name ) const;
+    int GetAnalysisInputType( const string & analysis, const string & name ) const;
+    string GetAnalysisInputTypeName( const string & results_id, const string & data_name ) const;
+    string GetAnalysisInputDoc( const string & analysis, const string & name ) const;
 
     void PrintAnalysisInputs( const string & fname, const std::string& analysis_name );
     void PrintAnalysisInputs( const std::string& analysis_name );
     void PrintAnalysisInputs( FILE * outputStream, const std::string& analysis_name );
 
-    void PrintAnalysisDocs( const string & fname, const std::string& analysis_name );
-    void PrintAnalysisDocs( const std::string& analysis_name );
-    void PrintAnalysisDocs( FILE * outputStream, const string& analysis_name );
+    void PrintAnalysisDocs( const string & fname, const std::string& analysis_name ) const;
+    void PrintAnalysisDocs( const std::string& analysis_name ) const;
+    void PrintAnalysisDocs( FILE * outputStream, const string& analysis_name ) const;
 
     const vector<int> & GetIntInputData( const string & analysis, const string & name, int index = 0 );
     const vector<double> & GetDoubleInputData( const string & analysis, const string & name, int index = 0 );
@@ -101,11 +101,11 @@ public:
     const vector<vector<double> > & GetDoubleMatInputData( const string & analysis, const string & name, int index );
 
 
-    void SetAnalysisInputDefaults( const string & analysis );
-    void SetIntAnalysisInput( const string & analysis, const string & name, const vector< int > & d, int index = 0 );
-    void SetDoubleAnalysisInput( const string & analysis, const string & name, const vector< double > & d, int index = 0 );
-    void SetStringAnalysisInput( const string & analysis, const string & name, const vector< string > & d, int index = 0 );
-    void SetVec3dAnalysisInput( const string & analysis, const string & name, const vector< vec3d > & d, int index = 0 );
+    void SetAnalysisInputDefaults( const string & analysis ) const;
+    void SetIntAnalysisInput( const string & analysis, const string & name, const vector< int > & d, int index = 0 ) const;
+    void SetDoubleAnalysisInput( const string & analysis, const string & name, const vector< double > & d, int index = 0 ) const;
+    void SetStringAnalysisInput( const string & analysis, const string & name, const vector< string > & d, int index = 0 ) const;
+    void SetVec3dAnalysisInput( const string & analysis, const string & name, const vector< vec3d > & d, int index = 0 ) const;
 
     void RegisterBuiltins();
 

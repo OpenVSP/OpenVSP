@@ -60,7 +60,7 @@ void RWCollection::Clear()
 //==== Constructor ====//
 AnalysisMgrSingleton::AnalysisMgrSingleton()
 {
-    m_AnalysisExecutionDuration = 0;
+    m_AnalysisExecutionDuration = -1;
 }
 //==== Destructor ====//
 AnalysisMgrSingleton::~AnalysisMgrSingleton()
@@ -182,7 +182,7 @@ string AnalysisMgrSingleton::ExecAnalysis( const string & analysis )
     return res;
 }
 
-bool AnalysisMgrSingleton::ValidAnalysisName( const string & analysis )
+bool AnalysisMgrSingleton::ValidAnalysisName( const string & analysis ) const
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
 
@@ -193,7 +193,7 @@ bool AnalysisMgrSingleton::ValidAnalysisName( const string & analysis )
     return true;
 }
 
-bool AnalysisMgrSingleton::ValidAnalysisInputDataIndex( const string & analysis, const string & name, int index )
+bool AnalysisMgrSingleton::ValidAnalysisInputDataIndex( const string & analysis, const string & name, int index ) const
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
 
@@ -211,7 +211,7 @@ bool AnalysisMgrSingleton::ValidAnalysisInputDataIndex( const string & analysis,
     return true;
 }
 
-int AnalysisMgrSingleton::GetNumInputData( const string & analysis, const string & name )
+int AnalysisMgrSingleton::GetNumInputData( const string & analysis, const string & name ) const
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
     if ( !analysis_ptr )
@@ -222,7 +222,7 @@ int AnalysisMgrSingleton::GetNumInputData( const string & analysis, const string
     return analysis_ptr->m_Inputs.GetNumData( name );
 }
 
-int AnalysisMgrSingleton::GetAnalysisInputType( const string & analysis, const string & name )
+int AnalysisMgrSingleton::GetAnalysisInputType( const string & analysis, const string & name ) const
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
     if ( !analysis_ptr )
@@ -239,7 +239,7 @@ int AnalysisMgrSingleton::GetAnalysisInputType( const string & analysis, const s
     return inpt_ptr->GetType();
 }
 
-string AnalysisMgrSingleton::GetAnalysisInputTypeName( const string & analysis, const string & name )
+string AnalysisMgrSingleton::GetAnalysisInputTypeName( const string & analysis, const string & name ) const
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
     if ( !analysis_ptr )
@@ -256,7 +256,7 @@ string AnalysisMgrSingleton::GetAnalysisInputTypeName( const string & analysis, 
     return inpt_ptr->GetTypeName();
 }
 
-string AnalysisMgrSingleton::GetAnalysisInputDoc( const string & analysis, const string & name )
+string AnalysisMgrSingleton::GetAnalysisInputDoc( const string & analysis, const string & name ) const
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
     if ( !analysis_ptr )
@@ -416,7 +416,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
     }
 }
 
-void AnalysisMgrSingleton::PrintAnalysisDocs( const string &fname, const string& analysis_name )
+void AnalysisMgrSingleton::PrintAnalysisDocs( const string &fname, const string& analysis_name ) const
 {
     FILE *fp;
     fp = fopen( fname.c_str(), "w" );
@@ -427,13 +427,13 @@ void AnalysisMgrSingleton::PrintAnalysisDocs( const string &fname, const string&
     }
 }
 
-void AnalysisMgrSingleton::PrintAnalysisDocs( const string& analysis_name )
+void AnalysisMgrSingleton::PrintAnalysisDocs( const string& analysis_name ) const
 {
     PrintAnalysisDocs( stdout, analysis_name );
     fflush( stdout );
 }
 
-void AnalysisMgrSingleton::PrintAnalysisDocs( FILE * outputStream, const string& analysis_name )
+void AnalysisMgrSingleton::PrintAnalysisDocs( FILE * outputStream, const string& analysis_name ) const
 {
     fprintf( outputStream, "%s\n", analysis_name.c_str() );
 
@@ -559,7 +559,7 @@ const vector<vector<double> > & AnalysisMgrSingleton::GetDoubleMatInputData( con
     return inpt_ptr->GetDoubleMatData();
 }
 
-void AnalysisMgrSingleton::SetAnalysisInputDefaults( const string & analysis )
+void AnalysisMgrSingleton::SetAnalysisInputDefaults( const string & analysis ) const
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
     if ( !analysis_ptr )
@@ -570,7 +570,7 @@ void AnalysisMgrSingleton::SetAnalysisInputDefaults( const string & analysis )
     analysis_ptr->SetDefaults();
 }
 
-void AnalysisMgrSingleton::SetIntAnalysisInput( const string & analysis, const string & name, const vector< int > & d, int index )
+void AnalysisMgrSingleton::SetIntAnalysisInput( const string & analysis, const string & name, const vector< int > & d, int index ) const
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
     if ( !analysis_ptr )
@@ -587,7 +587,7 @@ void AnalysisMgrSingleton::SetIntAnalysisInput( const string & analysis, const s
     inpt_ptr->SetIntData( d );
 }
 
-void AnalysisMgrSingleton::SetDoubleAnalysisInput( const string & analysis, const string & name, const vector< double > & d, int index )
+void AnalysisMgrSingleton::SetDoubleAnalysisInput( const string & analysis, const string & name, const vector< double > & d, int index ) const
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
     if ( !analysis_ptr )
@@ -604,7 +604,7 @@ void AnalysisMgrSingleton::SetDoubleAnalysisInput( const string & analysis, cons
     inpt_ptr->SetDoubleData( d );
 }
 
-void AnalysisMgrSingleton::SetStringAnalysisInput( const string & analysis, const string & name, const vector< string > & d, int index )
+void AnalysisMgrSingleton::SetStringAnalysisInput( const string & analysis, const string & name, const vector< string > & d, int index ) const
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
     if ( !analysis_ptr )
@@ -621,7 +621,7 @@ void AnalysisMgrSingleton::SetStringAnalysisInput( const string & analysis, cons
     inpt_ptr->SetStringData( d );
 }
 
-void AnalysisMgrSingleton::SetVec3dAnalysisInput( const string & analysis, const string & name, const vector< vec3d > & d, int index )
+void AnalysisMgrSingleton::SetVec3dAnalysisInput( const string & analysis, const string & name, const vector< vec3d > & d, int index ) const
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
     if ( !analysis_ptr )
@@ -880,13 +880,13 @@ string CompGeomAnalysis::Execute()
 
         NameValData *nvd = nullptr;
 
-        nvd = m_Inputs.FindPtr( "Set", 0 );
+        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
         if ( nvd )
         {
             geomSet = nvd->GetInt( 0 );
         }
 
-        nvd = m_Inputs.FindPtr( "DegenSet", 0 );
+        nvd = m_Inputs.FindPtr( "DegenSet", vsp::SET_NONE );
         if ( nvd )
         {
             degenSet = nvd->GetInt( 0 );
@@ -1042,7 +1042,7 @@ string DegenGeomAnalysis::Execute()
         string modeID;
 
         NameValData *nvd;
-        nvd = m_Inputs.FindPtr( "Set", 0 );
+        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
         if ( nvd )
         {
             set_num = nvd->GetInt( 0 );
@@ -1239,7 +1239,7 @@ string MassPropAnalysis::Execute()
 
         NameValData *nvd = nullptr;
 
-        nvd = m_Inputs.FindPtr( "Set", 0 );
+        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
         if ( nvd )
         {
             geomSet = nvd->GetInt( 0 );
@@ -1567,8 +1567,6 @@ string ParasiteDragFullAnalysis::Execute()
         res_id = ParasiteDragMgr.ComputeBuildUp();
 
         // ==== Restore original values that were overwritten by analysis inputs ==== //
-        ParasiteDragMgr.m_FileName = fileNameOrig;
-
         // Geometry Set
         ParasiteDragMgr.m_SetChoice.Set( geomSetOrig );
         ParasiteDragMgr.m_UseMode.Set( useModeOrig );
@@ -1666,7 +1664,7 @@ string PlanarSliceAnalysis::Execute()
 
         NameValData *nvd = nullptr;
 
-        nvd = m_Inputs.FindPtr( "Set", 0 );
+        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
         if ( nvd )
         {
             geomSet = nvd->GetInt( 0 );
@@ -2773,7 +2771,6 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_NCPU.Set( ncpuOrig );
         VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
-        VSPAEROMgr.m_NumWakeNodes.Set( numWakeNodesOrig );
         VSPAEROMgr.m_StabilityType.Set( stabilityTypeOrig );
         VSPAEROMgr.m_Precondition.Set( preconditionOrig );
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
