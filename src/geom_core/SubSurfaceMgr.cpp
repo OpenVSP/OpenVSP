@@ -291,12 +291,16 @@ int SubSurfaceMgrSingleton::FindGNum( const string &gid )
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
         string id_list = GetTagIDs( m_TagKeys[i] );
-        int pos = id_list.find( "_Surf" );
+        int pos = id_list.find_first_of( "_" );
         string g = id_list.substr( 0, pos );
         gids.insert( g );
     }
 
-    int gnum = distance( gids.begin(), gids.find( gid ) );
+    int pos = gid.find_first_of( "_" );
+    string g = gid.substr( 0, pos );
+
+    int gnum = distance( gids.begin(), gids.find( g ) );
+
     return gnum;
 }
 
