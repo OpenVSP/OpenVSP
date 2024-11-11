@@ -40,7 +40,6 @@ public:
     // Constructor, Destructor, Copy
     RotorDisk( void );
     ~RotorDisk( void );
-    RotorDisk& operator=( const RotorDisk &RotorDisk );
 
     // Setup File I/O
     void Write_STP_Data( FILE * InputFile );
