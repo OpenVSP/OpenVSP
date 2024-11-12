@@ -50,7 +50,6 @@ the main project.  The build process should go something like this:
      overwrite them.  Acceptable versions of this variable are:
 
       - `FLTK_INSTALL_DIR`
-      - `ADEPT_INSTALL_DIR`
 
 ##### Library project variables:
 
@@ -59,10 +58,3 @@ the main project.  The build process should go something like this:
      Acceptable versions of this variable are:
 
       - `VSP_USE_SYSTEM_FLTK`
-      - `VSP_USE_SYSTEM_ADEPT2`
-
-   - `ADEPT_XXX_COMPILER` -- Set this variable to use a different
-     compiler to build the ADEPT2 library.
-
-      - `ADEPT_C_COMPILER`
-      - `ADEPT_CXX_COMPILER`

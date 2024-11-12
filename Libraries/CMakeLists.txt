@@ -10,12 +10,6 @@ SET( CMAKE_CXX_STANDARD 17 )
 
 INCLUDE( ExternalProject )
 
-IF( NOT VSP_NO_VSPAERO )
-    IF( NOT VSP_USE_SYSTEM_ADEPT2 )
-	    INCLUDE( External_Adept2 )
-    ENDIF()
-ENDIF()
-
 IF( NOT VSP_USE_SYSTEM_ANGELSCRIPT )
 	INCLUDE( External_AngelScript )
 ENDIF()

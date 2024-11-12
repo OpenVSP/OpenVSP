@@ -36,7 +36,6 @@ else()
         CMAKE_ARGS -DCMAKE_C_COMPILER=${C_OMP_COMPILER}
             -DCMAKE_CXX_COMPILER=${CXX_OMP_COMPILER}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DAdept2_INSTALL_DIR=${Adept2_INSTALL_DIR}
             -DEP_BUILD=TRUE
         INSTALL_COMMAND ""
     )
@@ -83,17 +82,8 @@ else()
         INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_complex DESTINATION . )
     ENDIF()
 
-    # If this level finds Adept2, then we can assume the ExternalProject_Add level also found it and
-    # succeeded in building vspaero_adjoint.
-    SET( ORIG_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} )
-    SET( CMAKE_PREFIX_PATH ${Adept2_INSTALL_DIR} ${ORIG_CMAKE_PREFIX_PATH} )
-    FIND_PACKAGE(Adept2 CONFIG )
-    SET( CMAKE_PREFIX_PATH ${ORIG_CMAKE_PREFIX_PATH} )
-
-    IF( Adept2_FOUND )
-        INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_adjoint DESTINATION . )
-        INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_opt DESTINATION . )
-    ENDIF()
+    INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_adjoint DESTINATION . )
+    INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_opt DESTINATION . )
 
   else()
     set(BUILD_VSPAERO true)
@@ -114,17 +104,8 @@ if(BUILD_VSPAERO)
   LIST(APPEND LIB_TARGETS complex)
   LIST(APPEND SOLVER_TARGETS vspaero_complex)
 
-  SET( ORIG_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} )
-  SET( CMAKE_PREFIX_PATH ${Adept2_INSTALL_DIR} ${ORIG_CMAKE_PREFIX_PATH} )
-  FIND_PACKAGE(Adept2 CONFIG )
-  SET( CMAKE_PREFIX_PATH ${ORIG_CMAKE_PREFIX_PATH} )
-
-  MESSAGE(STATUS "Adept2_FOUND " ${Adept2_FOUND})
-
-  IF(Adept2_FOUND )
-      LIST(APPEND LIB_TARGETS adjoint)
-      LIST(APPEND SOLVER_TARGETS vspaero_adjoint)
-  ENDIF()
+  LIST(APPEND LIB_TARGETS adjoint)
+  LIST(APPEND SOLVER_TARGETS vspaero_adjoint)
 
   SET( VSPAERO_CORE_FILES
   AdjointGradient.C
@@ -263,23 +244,13 @@ if(BUILD_VSPAERO)
     TARGET_COMPILE_DEFINITIONS( vspaero_adjoint PRIVATE -DAUTODIFF -DADEPT_RECORDING_PAUSABLE )
     TARGET_COMPILE_DEFINITIONS( adjoint PRIVATE -DAUTODIFF -DADEPT_RECORDING_PAUSABLE )
 
-    TARGET_LINK_LIBRARIES( vspaero_adjoint PRIVATE adept::adept )
-    TARGET_LINK_LIBRARIES( adjoint PRIVATE adept::adept )
-
-    TARGET_INCLUDE_DIRECTORIES( vspaero_adjoint PRIVATE adept::adept )
-    TARGET_INCLUDE_DIRECTORIES( adjoint PRIVATE adept::adept )
-
-
     ADD_EXECUTABLE( vspaero_opt
     VSP_Optimizer.C
     vspaero_opt.C
     VSP_Optimizer.H
     )
 
-    TARGET_LINK_LIBRARIES( vspaero_opt PRIVATE adept::adept )
     TARGET_LINK_LIBRARIES( vspaero_opt PUBLIC solver adjoint )
-
-    TARGET_INCLUDE_DIRECTORIES( vspaero_opt PRIVATE adept::adept )
 
     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
       TARGET_COMPILE_OPTIONS( vspaero_opt PUBLIC -Wno-non-pod-varargs -Wno-format-security -Wno-format -Wno-deprecated-declarations)
@@ -330,10 +301,8 @@ if(BUILD_VSPAERO)
 
     # INSTALL( TARGETS solver LIBRARY DESTINATION . )
 
-    if(Adept2_FOUND )
-      INSTALL( TARGETS vspaero_opt RUNTIME DESTINATION . )
-      # INSTALL( TARGETS adjoint LIBRARY DESTINATION . )
-    ENDIF()
+    INSTALL( TARGETS vspaero_opt RUNTIME DESTINATION . )
+    # INSTALL( TARGETS adjoint LIBRARY DESTINATION . )
   endif()
 
 endif()

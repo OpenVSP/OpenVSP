@@ -14,10 +14,6 @@ IF( NOT VSP_NO_GRAPHICS )
 	ENDIF()
 ENDIF()
 
-IF( NOT VSP_USE_SYSTEM_ADEPT2 )
-	INCLUDE( External_Adept2 )
-ENDIF()
-
 # Set targeted variables in file to be read by VSP's CMake
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/VSPAERO_Libraries_Config.cmake.in
