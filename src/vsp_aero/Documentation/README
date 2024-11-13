@@ -1,4 +1,0 @@
-The docs require Doxygen to compile.
-To compile the docs run the following command in the directory:
-
-  $ doxygen DoxConfigFile

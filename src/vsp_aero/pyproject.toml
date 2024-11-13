@@ -1,4 +1,0 @@
-#pyproject.toml
-[build-system]
-# Minimum requirements for the build system to execute.
-requires = ['setuptools>=45.0', 'wheel', 'cython>=0.29', 'oldest-supported-numpy']
