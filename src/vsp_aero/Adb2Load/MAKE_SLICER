@@ -1,0 +1,49 @@
+################################################################################      
+#                                                                              #
+# Compiles the VSPAERO SLICER code.                                            #
+#                                                                              #
+# June 2017                                                                    #
+# Makefile created by Dave Kinney                                              #
+#                                                                              #
+################################################################################
+.SUFFIXES:	.h .C .cc
+
+C_SRCS	=	    ADBSlicer.C         \
+                binaryio.C          \
+                quat.C		         \
+                RotorDisk.C			\
+                utils.C             \
+                Slicer.C
+		
+          
+        
+################################################################################      
+#                                                                              #
+#                               COMPILE SCRIPT                                 #
+#                                                                              #
+################################################################################
+
+C_OBJS		= $(C_SRCS:.C=.o)
+
+all:	msg1 $(C_OBJS) 
+	@echo " "
+	@echo " "
+	@rm -rf ../bin/$(PROGRAM)
+	@rm -rf ../bin/$(PROGRAM).exe
+	$(LDC) $(CCFLAGS) $(INCDIRS) $(LIBDIRS) $(C_OBJS) $(F_OBJS) $(OBJS) $(LIBS) -o ../bin/$(PROGRAM)
+
+msg1:
+	@echo " "
+	@echo " "
+	@echo  "Compiling SLICER code"
+
+msg2:
+	@echo " "
+	@echo " "
+	@echo  "Final link to create SLICER executable..."
+
+
+.C.o:
+		$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $*.C
+
+
