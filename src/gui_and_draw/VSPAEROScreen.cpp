@@ -21,7 +21,7 @@
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-#define VSPAERO_SCREEN_WIDTH 610
+#define VSPAERO_SCREEN_WIDTH 910
 #define VSPAERO_SCREEN_HEIGHT 720
 #define VSPAERO_EXECUTE_CONSTANT_HEIGHT 210
 
@@ -319,14 +319,18 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedLayout.SetGroupAndScreen( advanced_group, this );
 
-    m_AdvancedLayout.AddSubGroupLayout( m_AdvancedLeftLayout,
-        (advanced_group->w()-window_border_width) / 2,
-        advanced_group->h() );
+    int col_width = ( advanced_group->w() - 2 * window_border_width ) / 3;
 
-    m_AdvancedLayout.AddX( m_AdvancedLeftLayout.GetW() + window_border_width );
+    m_AdvancedLayout.AddSubGroupLayout( m_AdvancedLeftLayout,
+        col_width, advanced_group->h() );
+
+    m_AdvancedLayout.AddX( col_width + window_border_width );
+    m_AdvancedLayout.AddSubGroupLayout( m_AdvancedMiddleLayout,
+        col_width, advanced_group->h() );
+
+    m_AdvancedLayout.AddX( col_width + window_border_width );
     m_AdvancedLayout.AddSubGroupLayout( m_AdvancedRightLayout,
-        (advanced_group->w()-window_border_width) / 2,
-        advanced_group->h() );
+        col_width, advanced_group->h() );
 
     // Advanced Case Setup Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_AdvancedCaseSetupLayout,
@@ -373,7 +377,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Wake Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_WakeLayout,
         m_AdvancedLeftLayout.GetW(),
-        4 * m_AdvancedLeftLayout.GetStdHeight() );
+        8 * m_AdvancedLeftLayout.GetStdHeight() );
     m_AdvancedLeftLayout.AddY( m_WakeLayout.GetH() );
 
     m_WakeLayout.AddDividerBox( "Wake" );
@@ -385,11 +389,22 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_WakeLayout.AddSlider( m_WakeNumIterSlider, "Num It.", 10, "%3.0f" );
     m_WakeLayout.AddSlider( m_NumWakeNodeSlider, "Wake Nodes", 128, "%3.0f" );
 
+
+    m_WakeLayout.AddSlider( m_WakeRelaxSlider, "Wake Relaxation", 1, "%5.3f" );
+    m_WakeLayout.AddSlider( m_FreezeWakeAtIterationSlider, "Freeze Wake At Iteration", 10, "%3.0f" );
+    m_WakeLayout.AddButton( m_ImplicitWakeToggle, "Implicit Wake" );
+    m_WakeLayout.AddSlider( m_ImplicitWakeStartIterationSlider, "Start Implicit Wake At Iteration", 10, "%3.0f" );
+
+
+
+
     // Other Setup Parms Layout
-    m_AdvancedLeftLayout.AddSubGroupLayout( m_OtherParmsLayout,
-        m_AdvancedLeftLayout.GetW(),
-        9 * m_AdvancedLeftLayout.GetStdHeight() );
-    m_AdvancedLeftLayout.AddY( m_OtherParmsLayout.GetH() );
+    m_AdvancedMiddleLayout.AddSubGroupLayout( m_OtherParmsLayout,
+        m_AdvancedMiddleLayout.GetW(),
+        13 * m_AdvancedMiddleLayout.GetStdHeight() +
+         5 * m_AdvancedMiddleLayout.GetDividerHeight() +
+         4 * m_AdvancedMiddleLayout.GetGapHeight() );
+    m_AdvancedMiddleLayout.AddY( m_OtherParmsLayout.GetH() );
 
     int togglewidth = 15;
     int labelwidth = 120;
@@ -418,6 +433,36 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_OtherParmsLayout.AddSlider( m_GroundEffectSlider, "Ground Effect Dist", 1e3, "%7.2f" );
     m_OtherParmsLayout.ForceNewLine();
     m_OtherParmsLayout.AddYGap();
+
+    m_OtherParmsLayout.SetSameLineFlag( false );
+    m_OtherParmsLayout.SetFitWidthFlag( true );
+
+    m_OtherParmsLayout.AddDividerBox( "Convergence Factors" );
+
+    m_OtherParmsLayout.AddSlider( m_ForwardGMRESConvergenceFactorSlider, "Forward GMRES", 1, "%5.3f" );
+    m_OtherParmsLayout.AddSlider( m_AdjointGMRESConvergenceFactorSlider, "Adjoint GMRES", 1, "%5.3f" );
+    m_OtherParmsLayout.AddSlider( m_NonLinearConvergenceFactorSlider, "Non-linear", 1, "%5.3f" );
+    m_OtherParmsLayout.AddSlider( m_CoreSizeFactorSlider, "Core Size Factor", 1, "%5.3f" );
+    m_OtherParmsLayout.AddYGap();
+
+
+    m_OtherParmsLayout.AddDividerBox( "Multipole Control" );
+
+    m_OtherParmsLayout.AddSlider( m_FreezeMultiPoleAtIterationSlider, "Freeze Iteration", 10, "%3.0f" );
+    m_OtherParmsLayout.AddSlider( m_FarAwaySlider, "Far Away", 1, "%5.3f" );
+    m_OtherParmsLayout.AddYGap();
+
+    m_OtherParmsLayout.AddDividerBox( "Preconditioner" );
+
+    m_OtherParmsLayout.AddButton( m_UpdateMatrixPreconditionerToggle, "Update Matrix Preconditioner" );
+    m_OtherParmsLayout.AddButton( m_UseWakeNodeMatrixPreconditionerToggle, "Use Wake Node Matrix Preconditioner" );
+    m_OtherParmsLayout.AddYGap();
+
+    m_OtherParmsLayout.AddDividerBox( "Quad Tree" );
+    m_OtherParmsLayout.AddSlider( m_QuadTreeBufferLevelsSlider, "Quad Tree Buffer Levels", 10, "%3.0f" );
+
+
+    m_AdvancedMiddleLayout.AddDividerBox( "End" );
 
     // Propeller and Stability Setup
     int button_width = 130;
@@ -1597,6 +1642,11 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_WakeNumIterSlider.Update(VSPAEROMgr.m_WakeNumIter.GetID());
     m_NumWakeNodeSlider.Update( VSPAEROMgr.m_NumWakeNodes.GetID() );
 
+    m_WakeRelaxSlider.Update( VSPAEROMgr.m_WakeRelax.GetID() );
+    m_FreezeWakeAtIterationSlider.Update( VSPAEROMgr.m_FreezeWakeAtIteration.GetID() );
+    m_ImplicitWakeToggle.Update( VSPAEROMgr.m_ImplicitWake.GetID() );
+    m_ImplicitWakeStartIterationSlider.Update( VSPAEROMgr.m_ImplicitWakeStartIteration.GetID() );
+
     bool time_dependent = false;
     if ( VSPAEROMgr.m_RotateBladesFlag() || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_P_ANALYSIS ||
          VSPAEROMgr.m_StabilityType() == vsp::STABILITY_Q_ANALYSIS || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
@@ -1629,6 +1679,18 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_FarDistSlider.Update( VSPAEROMgr.m_FarDist.GetID() );
     m_GroundEffectToggle.Update( VSPAEROMgr.m_GroundEffectToggle.GetID() );
     m_GroundEffectSlider.Update( VSPAEROMgr.m_GroundEffect.GetID() );
+
+    m_FreezeMultiPoleAtIterationSlider.Update( VSPAEROMgr.m_FreezeMultiPoleAtIteration.GetID() );
+    m_ForwardGMRESConvergenceFactorSlider.Update( VSPAEROMgr.m_ForwardGMRESConvergenceFactor.GetID() );
+    m_AdjointGMRESConvergenceFactorSlider.Update( VSPAEROMgr.m_AdjointGMRESConvergenceFactor.GetID() );
+    m_NonLinearConvergenceFactorSlider.Update( VSPAEROMgr.m_NonLinearConvergenceFactor.GetID() );
+    m_CoreSizeFactorSlider.Update( VSPAEROMgr.m_CoreSizeFactor.GetID() );
+    m_FarAwaySlider.Update( VSPAEROMgr.m_FarAway.GetID() );
+
+    m_UpdateMatrixPreconditionerToggle.Update( VSPAEROMgr.m_UpdateMatrixPreconditioner.GetID() );
+    m_UseWakeNodeMatrixPreconditionerToggle.Update( VSPAEROMgr.m_UseWakeNodeMatrixPreconditioner.GetID() );
+
+    m_QuadTreeBufferLevelsSlider.Update( VSPAEROMgr.m_QuadTreeBufferLevels.GetID() );
 
     // Stability
     if (VSPAEROMgr.m_Symmetry())

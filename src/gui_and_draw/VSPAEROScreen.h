@@ -190,6 +190,7 @@ protected:
     //==== Advanced Tab ====//
     GroupLayout m_AdvancedLayout;
     GroupLayout m_AdvancedLeftLayout;
+    GroupLayout m_AdvancedMiddleLayout;
     GroupLayout m_AdvancedRightLayout;
     GroupLayout m_AdvancedCaseSetupLayout;
     GroupLayout m_WakeLayout;
@@ -215,6 +216,23 @@ protected:
     ToggleButton m_FixedWakeToggle;
     SliderAdjRangeInput m_WakeNumIterSlider;
     SliderAdjRangeInput m_NumWakeNodeSlider;
+
+    SliderAdjRangeInput m_WakeRelaxSlider;
+    SliderAdjRangeInput m_FreezeWakeAtIterationSlider;
+    ToggleButton m_ImplicitWakeToggle;
+    SliderAdjRangeInput m_ImplicitWakeStartIterationSlider;
+
+    SliderAdjRangeInput m_FreezeMultiPoleAtIterationSlider;
+    SliderAdjRangeInput m_ForwardGMRESConvergenceFactorSlider;
+    SliderAdjRangeInput m_AdjointGMRESConvergenceFactorSlider;
+    SliderAdjRangeInput m_NonLinearConvergenceFactorSlider;
+    SliderAdjRangeInput m_CoreSizeFactorSlider;
+    SliderAdjRangeInput m_FarAwaySlider;
+
+    ToggleButton m_UpdateMatrixPreconditionerToggle;
+    ToggleButton m_UseWakeNodeMatrixPreconditionerToggle;
+
+    SliderAdjRangeInput m_QuadTreeBufferLevelsSlider;
 
     // Other Setup Parms Setup
     Choice m_StallChoice;
