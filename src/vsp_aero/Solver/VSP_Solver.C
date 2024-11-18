@@ -35432,8 +35432,8 @@ void VSP_SOLVER::OutputStatusFile(int FinalIteration)
                double(CFoz() + CFiz()),                     
 
                double(CLiw() + CLo()),
-               double(CLiw() + CLo()),
-               double(CLiw() + CLo()),
+               double(CDiw() + CDo()),
+               double(CSiw() + CSo()),
 
                
                CLiw(),
