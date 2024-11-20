@@ -1532,13 +1532,14 @@ enum VSPAERO_PRECONDITION { PRECON_MATRIX = 0,	/*!< Matrix preconditioner */
 	\ingroup Enumerations
 */
 /*! Enum for the types of VSPAERO stability analyses. */
-enum VSPAERO_STABILITY_TYPE { STABILITY_OFF = 0,	/*!< No stability analysis (off) */
-                              STABILITY_DEFAULT = 1,	/*!< Steady 6DOF stability analysis */
-                              STABILITY_P_ANALYSIS = 2,	/*!< Unsteady roll stability analysis */
-                              STABILITY_Q_ANALYSIS = 3,	/*!< Unsteady pitch stability analysis */
-                              STABILITY_R_ANALYSIS = 4,	/*!< Unsteady yaw stability analysis */
-                              STABILITY_PITCH = 5,	/*!< Simplified pitch stability analysis */
-                              STABILITY_NUM_TYPES = 6	/*!< Number of stability analysis types */
+enum VSPAERO_STABILITY_TYPE { STABILITY_OFF,	/*!< No stability analysis (off) */
+                              STABILITY_DEFAULT,	/*!< Steady 6DOF stability analysis */
+                              STABILITY_P_ANALYSIS,	/*!< Unsteady roll stability analysis */
+                              STABILITY_Q_ANALYSIS,	/*!< Unsteady pitch stability analysis */
+                              STABILITY_R_ANALYSIS,	/*!< Unsteady yaw stability analysis */
+                              STABILITY_PITCH,	/*!< Simplified pitch stability analysis */
+                              STABILITY_ADJOINT,	/*!< Steady 6DOF stability analysis using adjoint */
+                              STABILITY_NUM_TYPES	/*!< Number of stability analysis types */
 };
 
 /*!

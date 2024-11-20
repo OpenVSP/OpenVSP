@@ -492,6 +492,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_PropAndStabLayout.AddChoice( m_StabilityTypeChoice, "Stability Type" );
     m_StabilityTypeChoice.AddItem( "Off", vsp::STABILITY_OFF );
     m_StabilityTypeChoice.AddItem( "Steady", vsp::STABILITY_DEFAULT );
+    m_StabilityTypeChoice.AddItem( "Steady Adjoint", vsp::STABILITY_ADJOINT );
     m_StabilityTypeChoice.AddItem( "Pitch", vsp::STABILITY_PITCH );
     m_StabilityTypeChoice.AddItem( "P Analysis", vsp::STABILITY_P_ANALYSIS );
     m_StabilityTypeChoice.AddItem( "Q Analysis", vsp::STABILITY_Q_ANALYSIS );

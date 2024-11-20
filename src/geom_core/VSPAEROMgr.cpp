@@ -746,6 +746,10 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
         {
             m_StabFile = m_ModelNameBase + string( ".aerocenter.stab" );
         }
+        else if ( m_StabilityType() == vsp::STABILITY_ADJOINT )
+        {
+            m_StabFile = m_ModelNameBase + string( ".adjoint.stab" );
+        }
         else
         {
             m_StabFile = m_ModelNameBase + string( ".stab" );
@@ -2048,6 +2052,10 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
                 case vsp::STABILITY_PITCH:
                     args.emplace_back( "-acstab" );
                     break;
+
+                case vsp::STABILITY_ADJOINT:
+                    args.emplace_back( "-adjoint" );
+                    break;
             }
 #pragma GCC diagnostic pop
 #pragma clang diagnostic pop
@@ -3096,7 +3104,7 @@ void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> 
             // Parse if this is not a comment line
             if ( res && strncmp( data_string_array[0].c_str(), "#", 1 ) != 0 )
             {
-                if ( stabilityType != vsp::STABILITY_DEFAULT )
+                if ( stabilityType != vsp::STABILITY_DEFAULT && stabilityType != vsp::STABILITY_ADJOINT )
                 {
                     // Support file format for P, Q, or R uinsteady analysis types
                     // Also works for pitch stability run.

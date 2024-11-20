@@ -2323,6 +2323,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_PITCH", STABILITY_PITCH );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_ADJOINT", STABILITY_ADJOINT );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_NUM_TYPES", STABILITY_NUM_TYPES );
     assert( r >= 0 );
 
