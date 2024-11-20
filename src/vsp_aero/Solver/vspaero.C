@@ -3088,11 +3088,11 @@ void WriteOutAdjointStabilityDerivatives(void)
             ( VSP_VLM().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 1 )    ) {
    
                          // 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012          
-          fprintf(StabFile,"   Total        Total        Total        Total        Total        Total        Total        Total        Total        Total        Total        Total \n");    
-          fprintf(StabFile,"    CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS           CMl          CMm          CMn\n");
+          fprintf(StabFile,"#    Total        Total        Total        Total        Total        Total        Total        Total        Total        Total        Total        Total \n");
+          fprintf(StabFile,"#     CFxt         CFyt         CFzt         CMxt         CMyt         CMzt         CLt          CDt          CSt          CMlt         CMmt         CMnt\n");
           fprintf(StabFile,"#\n");
 
-          fprintf(StabFile,"%12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
+          fprintf(StabFile,"# %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
                   VSP_VLM().CFix() + VSP_VLM().CFox(),
                   VSP_VLM().CFiy() + VSP_VLM().CFoy(),
                   VSP_VLM().CFiz() + VSP_VLM().CFoz(),
@@ -3134,7 +3134,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           fprintf(StabFile,"#\n");
          
-          fprintf(StabFile,"CFx    "); PRINT_STAB_LINE( VSP_VLM().CFtx(),
+          fprintf(StabFile,"CFxt   "); PRINT_STAB_LINE( VSP_VLM().CFtx(),
                                                        VSP_VLM().pCFtx_pAlpha(),
                                                        VSP_VLM().pCFtx_pBeta(),
                                                        VSP_VLM().pCFtx_pP(),
@@ -3145,7 +3145,7 @@ void WriteOutAdjointStabilityDerivatives(void)
           
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFtx_pDelta()); }; fprintf(StabFile,"\n");
              
-          fprintf(StabFile,"CFy    "); PRINT_STAB_LINE( VSP_VLM().CFty(),
+          fprintf(StabFile,"CFyt   "); PRINT_STAB_LINE( VSP_VLM().CFty(),
                                                        VSP_VLM().pCFty_pAlpha(),
                                                        VSP_VLM().pCFty_pBeta(),
                                                        VSP_VLM().pCFty_pP(),
@@ -3157,7 +3157,7 @@ void WriteOutAdjointStabilityDerivatives(void)
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) {fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFty_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CFz    "); PRINT_STAB_LINE( VSP_VLM().CFtz(),
+          fprintf(StabFile,"CFzt   "); PRINT_STAB_LINE( VSP_VLM().CFtz(),
                                                        VSP_VLM().pCFtz_pAlpha(),
                                                        VSP_VLM().pCFtz_pBeta(),
                                                        VSP_VLM().pCFtz_pP(),
@@ -3168,7 +3168,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFtz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMx    "); PRINT_STAB_LINE( VSP_VLM().CMtx(),
+          fprintf(StabFile,"CMxt   "); PRINT_STAB_LINE( VSP_VLM().CMtx(),
                                                        VSP_VLM().pCMtx_pAlpha(),
                                                        VSP_VLM().pCMtx_pBeta(),
                                                        VSP_VLM().pCMtx_pP(),
@@ -3179,7 +3179,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMtx_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMy    "); PRINT_STAB_LINE( VSP_VLM().CMty(),
+          fprintf(StabFile,"CMyt   "); PRINT_STAB_LINE( VSP_VLM().CMty(),
                                                        VSP_VLM().pCMty_pAlpha(),
                                                        VSP_VLM().pCMty_pBeta(),
                                                        VSP_VLM().pCMty_pP(),
@@ -3190,7 +3190,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMty_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMz    "); PRINT_STAB_LINE( VSP_VLM().CMtz(),
+          fprintf(StabFile,"CMzt   "); PRINT_STAB_LINE( VSP_VLM().CMtz(),
                                                        VSP_VLM().pCMtz_pAlpha(),
                                                        VSP_VLM().pCMtz_pBeta(),
                                                        VSP_VLM().pCMtz_pP(),
@@ -3201,7 +3201,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMtz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CL     "); PRINT_STAB_LINE( VSP_VLM().CLt(),
+          fprintf(StabFile,"CLt    "); PRINT_STAB_LINE( VSP_VLM().CLt(),
                                                        VSP_VLM().pCLt_pAlpha(),
                                                        VSP_VLM().pCLt_pBeta(),
                                                        VSP_VLM().pCLt_pP(),
@@ -3212,7 +3212,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCLt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CD     "); PRINT_STAB_LINE( VSP_VLM().CDt(),
+          fprintf(StabFile,"CDt    "); PRINT_STAB_LINE( VSP_VLM().CDt(),
                                                        VSP_VLM().pCDt_pAlpha(),
                                                        VSP_VLM().pCDt_pBeta(),
                                                        VSP_VLM().pCDt_pP(),
@@ -3223,7 +3223,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCDt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CS     "); PRINT_STAB_LINE( VSP_VLM().CSt(),
+          fprintf(StabFile,"CSt    "); PRINT_STAB_LINE( VSP_VLM().CSt(),
                                                        VSP_VLM().pCSt_pAlpha(),
                                                        VSP_VLM().pCSt_pBeta(),
                                                        VSP_VLM().pCSt_pP(),
@@ -3235,7 +3235,7 @@ void WriteOutAdjointStabilityDerivatives(void)
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCSt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CML    "); PRINT_STAB_LINE( VSP_VLM().CMlt(),
+          fprintf(StabFile,"CMLt   "); PRINT_STAB_LINE( VSP_VLM().CMlt(),
                                                        VSP_VLM().pCMlt_pAlpha(),
                                                        VSP_VLM().pCMlt_pBeta(),
                                                        VSP_VLM().pCMlt_pP(),
@@ -3246,7 +3246,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMlt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMm    "); PRINT_STAB_LINE( VSP_VLM().CMmt(),
+          fprintf(StabFile,"CMmt   "); PRINT_STAB_LINE( VSP_VLM().CMmt(),
                                                        VSP_VLM().pCMmt_pAlpha(),
                                                        VSP_VLM().pCMmt_pBeta(),
                                                        VSP_VLM().pCMmt_pP(),
@@ -3257,7 +3257,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMmt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMn    "); PRINT_STAB_LINE( VSP_VLM().CMnt(),
+          fprintf(StabFile,"CMnt   "); PRINT_STAB_LINE( VSP_VLM().CMnt(),
                                                        VSP_VLM().pCMnt_pAlpha(),
                                                        VSP_VLM().pCMnt_pBeta(),
                                                        VSP_VLM().pCMnt_pP(),
@@ -3280,11 +3280,11 @@ void WriteOutAdjointStabilityDerivatives(void)
             ( VSP_VLM().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 2 )    ) {
    
                          // 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012          
-          fprintf(StabFile,"  Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid \n");    
-          fprintf(StabFile,"    CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS           CMl          CMm          CMn\n");
+          fprintf(StabFile,"#   Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid \n");
+          fprintf(StabFile,"#     CFxi         CFyi         CFzi         CMxi         CMyi         CMzi         CLi          CDi          CSi          CMli         CMmi         CMni\n");
           fprintf(StabFile,"#\n");
 
-          fprintf(StabFile,"%12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
+          fprintf(StabFile,"# %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
                   VSP_VLM().CFix(),
                   VSP_VLM().CFiy(),
                   VSP_VLM().CFiz(),
@@ -3316,7 +3316,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           fprintf(StabFile,"#\n");
          
-          fprintf(StabFile,"CFx    "); PRINT_STAB_LINE( VSP_VLM().CFix(),
+          fprintf(StabFile,"CFxi   "); PRINT_STAB_LINE( VSP_VLM().CFix(),
                                                        VSP_VLM().pCFix_pAlpha(),
                                                        VSP_VLM().pCFix_pBeta(),
                                                        VSP_VLM().pCFix_pP(),
@@ -3327,7 +3327,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFix_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CFy    "); PRINT_STAB_LINE( VSP_VLM().CFiy(),
+          fprintf(StabFile,"CFyi   "); PRINT_STAB_LINE( VSP_VLM().CFiy(),
                                                        VSP_VLM().pCFiy_pAlpha(),
                                                        VSP_VLM().pCFiy_pBeta(),
                                                        VSP_VLM().pCFiy_pP(),
@@ -3338,7 +3338,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFiy_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CFz    "); PRINT_STAB_LINE( VSP_VLM().CFiz(),
+          fprintf(StabFile,"CFzi   "); PRINT_STAB_LINE( VSP_VLM().CFiz(),
                                                        VSP_VLM().pCFiz_pAlpha(),
                                                        VSP_VLM().pCFiz_pBeta(),
                                                        VSP_VLM().pCFiz_pP(),
@@ -3349,7 +3349,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFiz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMx    "); PRINT_STAB_LINE( VSP_VLM().CMix(),
+          fprintf(StabFile,"CMxi   "); PRINT_STAB_LINE( VSP_VLM().CMix(),
                                                        VSP_VLM().pCMix_pAlpha(),
                                                        VSP_VLM().pCMix_pBeta(),
                                                        VSP_VLM().pCMix_pP(),
@@ -3360,7 +3360,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMix_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMy    "); PRINT_STAB_LINE( VSP_VLM().CMiy(),
+          fprintf(StabFile,"CMyi   "); PRINT_STAB_LINE( VSP_VLM().CMiy(),
                                                        VSP_VLM().pCMiy_pAlpha(),
                                                        VSP_VLM().pCMiy_pBeta(),
                                                        VSP_VLM().pCMiy_pP(),
@@ -3371,7 +3371,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMiy_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMz    "); PRINT_STAB_LINE( VSP_VLM().CMiz(),
+          fprintf(StabFile,"CMzi   "); PRINT_STAB_LINE( VSP_VLM().CMiz(),
                                                        VSP_VLM().pCMiz_pAlpha(),
                                                        VSP_VLM().pCMiz_pBeta(),
                                                        VSP_VLM().pCMiz_pP(),
@@ -3382,7 +3382,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMiz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CL     "); PRINT_STAB_LINE( VSP_VLM().CLi(),
+          fprintf(StabFile,"CLi    "); PRINT_STAB_LINE( VSP_VLM().CLi(),
                                                        VSP_VLM().pCLi_pAlpha(),
                                                        VSP_VLM().pCLi_pBeta(),
                                                        VSP_VLM().pCLi_pP(),
@@ -3393,7 +3393,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCLi_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CD     "); PRINT_STAB_LINE( VSP_VLM().CDi(),
+          fprintf(StabFile,"CDi    "); PRINT_STAB_LINE( VSP_VLM().CDi(),
                                                        VSP_VLM().pCDi_pAlpha(),
                                                        VSP_VLM().pCDi_pBeta(),
                                                        VSP_VLM().pCDi_pP(),
@@ -3404,7 +3404,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCDi_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CS     "); PRINT_STAB_LINE( VSP_VLM().CSi(),
+          fprintf(StabFile,"CSi    "); PRINT_STAB_LINE( VSP_VLM().CSi(),
                                                        VSP_VLM().pCSi_pAlpha(),
                                                        VSP_VLM().pCSi_pBeta(),
                                                        VSP_VLM().pCSi_pP(),
@@ -3415,7 +3415,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCSi_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CML    "); PRINT_STAB_LINE( VSP_VLM().CMli(),
+          fprintf(StabFile,"CMLi   "); PRINT_STAB_LINE( VSP_VLM().CMli(),
                                                        VSP_VLM().pCMli_pAlpha(),
                                                        VSP_VLM().pCMli_pBeta(),
                                                        VSP_VLM().pCMli_pP(),
@@ -3426,7 +3426,7 @@ void WriteOutAdjointStabilityDerivatives(void)
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMli_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMm    "); PRINT_STAB_LINE( VSP_VLM().CMmi(),
+          fprintf(StabFile,"CMmi   "); PRINT_STAB_LINE( VSP_VLM().CMmi(),
                                                        VSP_VLM().pCMmi_pAlpha(),
                                                        VSP_VLM().pCMmi_pBeta(),
                                                        VSP_VLM().pCMmi_pP(),
@@ -3437,7 +3437,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMmi_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMn    "); PRINT_STAB_LINE( VSP_VLM().CMni(),
+          fprintf(StabFile,"CMni   "); PRINT_STAB_LINE( VSP_VLM().CMni(),
                                                        VSP_VLM().pCMni_pAlpha(),
                                                        VSP_VLM().pCMni_pBeta(),
                                                        VSP_VLM().pCMni_pP(),
@@ -3461,11 +3461,11 @@ void WriteOutAdjointStabilityDerivatives(void)
             ( VSP_VLM().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 3 )    ) {
    
                          // 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012          
-          fprintf(StabFile,"   Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous \n");    
-          fprintf(StabFile,"    CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS           CMl          CMm          CMn\n");
+          fprintf(StabFile,"#    Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous \n");
+          fprintf(StabFile,"#     CFxo         CFyo         CFzo         CMxo         CMyo         CMzo         CLo          CDo          CSo          CMlo         CMmo         CMno\n");
           fprintf(StabFile,"#\n");
 
-          fprintf(StabFile,"%12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
+          fprintf(StabFile,"# %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
                   VSP_VLM().CFox(),
                   VSP_VLM().CFoy(),
                   VSP_VLM().CFoz(),
@@ -3497,7 +3497,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           fprintf(StabFile,"#\n");
          
-          fprintf(StabFile,"CFx    "); PRINT_STAB_LINE( VSP_VLM().CFox(),
+          fprintf(StabFile,"CFxo   "); PRINT_STAB_LINE( VSP_VLM().CFox(),
                                                        VSP_VLM().pCFox_pAlpha(),
                                                        VSP_VLM().pCFox_pBeta(),
                                                        VSP_VLM().pCFox_pP(),
@@ -3508,7 +3508,7 @@ void WriteOutAdjointStabilityDerivatives(void)
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFox_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CFy    "); PRINT_STAB_LINE( VSP_VLM().CFoy(),
+          fprintf(StabFile,"CFyo   "); PRINT_STAB_LINE( VSP_VLM().CFoy(),
                                                        VSP_VLM().pCFoy_pAlpha(),
                                                        VSP_VLM().pCFoy_pBeta(),
                                                        VSP_VLM().pCFoy_pP(),
@@ -3519,7 +3519,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFoy_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CFz    "); PRINT_STAB_LINE( VSP_VLM().CFoz(),
+          fprintf(StabFile,"CFzo   "); PRINT_STAB_LINE( VSP_VLM().CFoz(),
                                                        VSP_VLM().pCFoz_pAlpha(),
                                                        VSP_VLM().pCFoz_pBeta(),
                                                        VSP_VLM().pCFoz_pP(),
@@ -3530,7 +3530,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFoz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMx    "); PRINT_STAB_LINE( VSP_VLM().CMox(),
+          fprintf(StabFile,"CMxo   "); PRINT_STAB_LINE( VSP_VLM().CMox(),
                                                        VSP_VLM().pCMox_pAlpha(),
                                                        VSP_VLM().pCMox_pBeta(),
                                                        VSP_VLM().pCMox_pP(),
@@ -3541,7 +3541,7 @@ void WriteOutAdjointStabilityDerivatives(void)
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMox_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMy    "); PRINT_STAB_LINE( VSP_VLM().CMoy(),
+          fprintf(StabFile,"CMyo   "); PRINT_STAB_LINE( VSP_VLM().CMoy(),
                                                        VSP_VLM().pCMoy_pAlpha(),
                                                        VSP_VLM().pCMoy_pBeta(),
                                                        VSP_VLM().pCMoy_pP(),
@@ -3552,7 +3552,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMoy_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMz    "); PRINT_STAB_LINE( VSP_VLM().CMoz(),
+          fprintf(StabFile,"CMzo   "); PRINT_STAB_LINE( VSP_VLM().CMoz(),
                                                        VSP_VLM().pCMoz_pAlpha(),
                                                        VSP_VLM().pCMoz_pBeta(),
                                                        VSP_VLM().pCMoz_pP(),
@@ -3563,7 +3563,7 @@ void WriteOutAdjointStabilityDerivatives(void)
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMoz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CL     "); PRINT_STAB_LINE( VSP_VLM().CLo(),
+          fprintf(StabFile,"CLo    "); PRINT_STAB_LINE( VSP_VLM().CLo(),
                                                        VSP_VLM().pCLo_pAlpha(),
                                                        VSP_VLM().pCLo_pBeta(),
                                                        VSP_VLM().pCLo_pP(),
@@ -3574,7 +3574,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCLo_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CD     "); PRINT_STAB_LINE( VSP_VLM().CDo(),
+          fprintf(StabFile,"CDo    "); PRINT_STAB_LINE( VSP_VLM().CDo(),
                                                        VSP_VLM().pCDo_pAlpha(),
                                                        VSP_VLM().pCDo_pBeta(),
                                                        VSP_VLM().pCDo_pP(),
@@ -3585,7 +3585,7 @@ void WriteOutAdjointStabilityDerivatives(void)
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCDo_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CS     "); PRINT_STAB_LINE( VSP_VLM().CSo(),
+          fprintf(StabFile,"CSo    "); PRINT_STAB_LINE( VSP_VLM().CSo(),
                                                        VSP_VLM().pCSo_pAlpha(),
                                                        VSP_VLM().pCSo_pBeta(),
                                                        VSP_VLM().pCSo_pP(),
@@ -3596,7 +3596,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCSo_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CML    "); PRINT_STAB_LINE( VSP_VLM().CMlo(),
+          fprintf(StabFile,"CMLo   "); PRINT_STAB_LINE( VSP_VLM().CMlo(),
                                                        VSP_VLM().pCMlo_pAlpha(),
                                                        VSP_VLM().pCMlo_pBeta(),
                                                        VSP_VLM().pCMlo_pP(),
@@ -3607,7 +3607,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMlo_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMm    "); PRINT_STAB_LINE( VSP_VLM().CMmo(),
+          fprintf(StabFile,"CMmo   "); PRINT_STAB_LINE( VSP_VLM().CMmo(),
                                                        VSP_VLM().pCMmo_pAlpha(),
                                                        VSP_VLM().pCMmo_pBeta(),
                                                        VSP_VLM().pCMmo_pP(),
@@ -3618,7 +3618,7 @@ void WriteOutAdjointStabilityDerivatives(void)
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMmo_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMn    "); PRINT_STAB_LINE( VSP_VLM().CMno(),
+          fprintf(StabFile,"CMno   "); PRINT_STAB_LINE( VSP_VLM().CMno(),
                                                        VSP_VLM().pCMno_pAlpha(),
                                                        VSP_VLM().pCMno_pBeta(),
                                                        VSP_VLM().pCMno_pP(),
