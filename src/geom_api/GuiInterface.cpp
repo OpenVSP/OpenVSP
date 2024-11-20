@@ -96,7 +96,7 @@ void GuiInterface::StopGUI()
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
-        m_ScreenMgr->APIHideScreens();      // Uses Fl::awake()
+        m_ScreenMgr->APIHideScreens();     // Runs in main thread, is blocking.
         m_ScreenMgr->SetRunGui( false ); // Safe from secondary thread.
     }
 #endif

@@ -332,6 +332,9 @@ void ScreenMgr::APIHideScreensImplementation()
             }
         }
     }
+
+    // Set flag that task has been completed.
+    m_TaskComplete = true;
 }
 
 void ScreenMgr::APIShowScreensImplementation()
@@ -364,7 +367,13 @@ void APIHideScreenHandler( void * data )
     ScreenMgr * m_ScreenMgr = (ScreenMgr*) data;
     if ( m_ScreenMgr )
     {
+        std::unique_lock lk( m_ScreenMgr->m_TaskMutex );
+
         m_ScreenMgr->APIHideScreensImplementation();
+
+        lk.unlock();
+
+        m_ScreenMgr->m_TaskCV.notify_one();
     }
 }
 
@@ -379,7 +388,34 @@ void APIShowScreenHandler( void * data )
 
 void ScreenMgr::APIHideScreens()
 {
-    Fl::awake( APIHideScreenHandler, ( void* )this );
+    // Mark that task has not been completed.
+    m_TaskComplete = false;
+
+    if ( MainThreadIDMgr.IsCurrentThreadMain() )
+    {
+        // Simple main thread code path.
+        APIHideScreensImplementation();
+    }
+    else
+    {
+        // Queue task to main thread.
+        Fl::awake( APIHideScreenHandler, ( void* )this );
+
+        // Release lock to allow main thread to process queue.
+        Fl::unlock();
+
+        // Set up lock and mutex.
+        std::unique_lock lk( m_TaskMutex );
+
+        // Wait for change in task flag.
+        m_TaskCV.wait(lk, [this]
+            {
+                return m_TaskComplete;
+            });
+
+        // Re-acquire lock from main thread.
+        Fl::lock();
+    }
 }
 
 void ScreenMgr::APIShowScreens()

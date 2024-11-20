@@ -290,7 +290,7 @@ void MainVSPScreen::CloseCallBack( Fl_Widget *w )
 {
     if ( m_StopGUIMenuItem.IsShown() )
     {
-        m_ScreenMgr->APIHideScreens();
+        m_ScreenMgr->APIHideScreens();       // Runs in main thread, is blocking.
         m_ScreenMgr->SetRunGui( false );
     }
     else if ( m_ExitMenuItem.IsShown() )
@@ -437,7 +437,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_StopGUIMenuItem )
     {
-        m_ScreenMgr->APIHideScreens();
+        m_ScreenMgr->APIHideScreens();          // Runs in main thread, is blocking.
         m_ScreenMgr->SetRunGui( false );
     }
     else if ( data == &m_UndoMenuItem )
