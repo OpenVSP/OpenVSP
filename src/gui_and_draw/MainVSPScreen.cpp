@@ -204,8 +204,6 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_TitleBox->labelsize(15);
     m_TitleBox->labelcolor(FL_DARK_BLUE);
     m_TitleBox->align(Fl_Align(FL_ALIGN_CLIP));
-
-    SetFileLabel( VehicleMgr.GetVehicle()->GetVSP3FileName() );
 }
 
 MainVSPScreen::~MainVSPScreen()
@@ -250,6 +248,8 @@ bool MainVSPScreen::Update()
     // Not sure all three of these are needed.
     m_GlWin->update();
     m_GlWin->redraw();
+
+    SetFileLabel( VehicleMgr.GetVehicle()->GetVSP3FileName() );
 
     m_AxisMenuItem.Update( m_ShowXYZArrow );
     m_BorderMenuItem.Update( m_ShowBorder );
@@ -301,10 +301,12 @@ void MainVSPScreen::CloseCallBack( Fl_Widget *w )
 
 void MainVSPScreen::SetFileLabel( const string &fname )
 {
+    // In status bar at bottom of screen, full path to file.
     string label = "File Name: ";
     label.append( fname );
     m_FileNameBox->copy_label( label.c_str() );
 
+    // In menu bar, file name only.
     string title = string( VSPVERSION2 ) + "     " + GetFilename( fname );
     m_FLTK_Window->copy_label( title.c_str() );
 }
@@ -345,7 +347,6 @@ void MainVSPScreen::ActionCB( void * data )
     {
         VehicleMgr.GetVehicle()->Renew();
 
-        SetFileLabel( VehicleMgr.GetVehicle()->GetVSP3FileName() );
         m_GlWin->getGraphicEngine()->getDisplay()->setCOR( 0.0, 0.0, 0.0 );
     }
     else if ( data == &m_OpenMenuItem )
@@ -356,8 +357,6 @@ void MainVSPScreen::ActionCB( void * data )
             VehicleMgr.GetVehicle()->Renew();
             VehicleMgr.GetVehicle()->SetVSP3FileName( openfile );
             VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
-
-            SetFileLabel( openfile );
 
             BndBox bbox = VehicleMgr.GetVehicle()->GetBndBox();
             vec3d p = bbox.GetCenter();
@@ -377,8 +376,6 @@ void MainVSPScreen::ActionCB( void * data )
         {
             VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
             VehicleMgr.GetVehicle()->WriteXMLFile( savefile, vsp::SET_ALL );
-
-            SetFileLabel( savefile );
         }
     }
     else if ( data == &m_SaveAsMenuItem )
@@ -388,8 +385,6 @@ void MainVSPScreen::ActionCB( void * data )
         {
             VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
             VehicleMgr.GetVehicle()->WriteXMLFile( savefile, vsp::SET_ALL );
-
-            SetFileLabel( savefile );
         }
     }
     else if ( data == &m_SaveSetMenuItem )
