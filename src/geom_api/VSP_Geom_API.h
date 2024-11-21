@@ -337,6 +337,16 @@ extern void VSPExit( int error_code );
     \ingroup Vehicle
 */
 /*!
+    Cause OpenVSP to crash in a variety of ways.
+    \param [in] int crash_type Type of crash to attempt.
+*/
+
+extern void VSPCrash( int crash_type );
+
+/*!
+    \ingroup Vehicle
+*/
+/*!
     Return the OpenVSP update count and also reset it to zero.
 
     The OpenVSP update count tracks how many times the GUI has been told to update screens (set to dirty).  It

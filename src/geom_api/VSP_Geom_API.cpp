@@ -38,6 +38,9 @@
 #include "VspUtil.h"
 #include "WingGeom.h"
 
+#include <cstdlib>
+#include <csignal>
+
 #include "eli/mutil/quad/simpson.hpp"
 
 #ifdef __JETBRAINS_IDE__
@@ -168,6 +171,22 @@ void Update( bool update_managers )
 void VSPExit( int error_code )
 {
     exit( error_code );
+}
+
+void VSPCrash( int crash_type )
+{
+    switch ( crash_type )
+    {
+        case 0:
+            raise( SIGABRT );
+        case 1:
+            raise( SIGSEGV );
+        case 2:
+            int a[1];
+            a[1] = 1;
+        default:
+            abort();
+    }
 }
 
 int GetAndResetUpdateCount()

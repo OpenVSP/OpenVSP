@@ -2998,6 +2998,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 ); // TODO: Example
 
 
+    r = se->RegisterGlobalFunction( "void VSPCrash( int crash_type )", asFUNCTION( vsp::VSPCrash ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "void ClearVSPModel()", asFUNCTION( vsp::ClearVSPModel ), asCALL_CDECL );
     assert( r >= 0 );
 
