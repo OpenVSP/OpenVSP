@@ -545,6 +545,16 @@ void Vehicle::SetVSP3FileName( const string & f_name )
 {
     m_VSP3FileName = f_name;
 
+    std::filesystem::path filepath( m_VSP3FileName );
+
+    if ( m_VSP3FileName != "Unnamed.vsp3" && filepath.is_relative() )
+    {
+        std::filesystem::path vsppath = std::filesystem::current_path();
+        vsppath /= f_name;
+
+        m_VSP3FileName = vsppath.generic_string();
+    }
+
     m_CfdSettings.ResetExportFileNames( m_VSP3FileName );
     m_ISectSettings.ResetExportFileNames( m_VSP3FileName );
     StructureMgr.ResetAllExportFileNames();
@@ -554,7 +564,7 @@ void Vehicle::SetVSP3FileName( const string & f_name )
 // Make fname into a path relative to m_VSP3ileName.
 void Vehicle::MakeRelativePath( string & fname )
 {
-    if ( m_VSP3FileName.compare( "Unnamed.vsp3" ) != 0 )
+    if ( m_VSP3FileName != "Unnamed.vsp3" )
     {
         std::filesystem::path vsppath( m_VSP3FileName );
         vsppath.remove_filename();
@@ -567,7 +577,7 @@ void Vehicle::MakeRelativePath( string & fname )
 // Make relative path fname into absolute path.
 void Vehicle::MakeAbsolutePath( string & fname )
 {
-    if ( m_VSP3FileName.compare( "Unnamed.vsp3" ) != 0 )
+    if ( m_VSP3FileName != "Unnamed.vsp3" )
     {
         std::filesystem::path vsppath( m_VSP3FileName );
         vsppath.remove_filename();
