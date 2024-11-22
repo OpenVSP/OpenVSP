@@ -811,9 +811,9 @@ void ScreenMgr::HelpSystemDefaultBrowser( const string &file )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
-    string exepath = veh->GetExePath();
+    string helppath = veh->GetHelpPath();
 
-    string url = "file://" + exepath + "/help/" + file;
+    string url = "file://" + helppath + file;
 
     LaunchSystemDefaultBrowser( url );
 }

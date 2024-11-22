@@ -4717,6 +4717,18 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "bool SetVSPHelpPath( const string & in path )", asFUNCTION( vsp::SetVSPHelpPath ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string GetVSPHelpPath()", asFUNCTION( vsp::GetVSPHelpPath ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "bool CheckForVSPHelp( const string & in path )", asFUNCTION( vsp::CheckForVSPHelp ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "void VSPCheckSetup()", asFUNCTION( vsp::VSPCheckSetup ), asCALL_CDECL);
     assert( r >= 0 );
 

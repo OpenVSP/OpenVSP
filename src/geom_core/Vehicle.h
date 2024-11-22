@@ -162,6 +162,7 @@ public:
 
     string GetExePath()                                     { return m_ExePath; }
     string GetHomePath()                                    { return m_HomePath; }
+    string GetHelpPath()                                    { return m_HelpPath; }
     string GetVSPAEROPath()                                 { return m_VSPAEROPath; }
     string GetVSPAEROCmd()                                  { return m_VSPAEROCmd; }
     string GetVIEWERCmd()                                   { return m_VIEWERCmd; }
@@ -169,6 +170,9 @@ public:
 
     bool CheckForVSPAERO( const string & path );
     bool SetVSPAEROPath( const string & path );
+
+    bool CheckForHelp( const string & path );
+    bool SetHelpPath( const string & path );
 
     bool GetVSPAEROFound()                                  { return m_VSPAEROFound; }
     bool GetVIEWERFound()                                   { return m_VIEWERFound; }
@@ -541,6 +545,7 @@ protected:
 
     string m_ExePath;
     string m_HomePath;
+    string m_HelpPath;
     string m_VSPAEROPath;
     string m_VSPAEROCmd;
     string m_VIEWERCmd;

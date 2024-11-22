@@ -37,4 +37,7 @@ elif not (load_facade or load_multi_facade):
         if  CheckForVSPAERO( base_dir ):
             SetVSPAEROPath( base_dir )
 
+        if  CheckForVSPHelp( base_dir + "/help_vsp" ):
+            SetVSPHelpPath( base_dir + "/help_vsp" )
+
     setup_vspaero_path()

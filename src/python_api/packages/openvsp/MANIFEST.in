@@ -5,6 +5,8 @@ include openvsp/vspaero*
 include openvsp/vsploads*
 include openvsp/vspviewer*
 
+graft openvsp/help_vsp
+
 recursive-include openvsp *.py
 
 include MANIFEST.in

@@ -9281,6 +9281,36 @@ bool CheckForVSPAERO( const std::string & path )
     return false;
 }
 
+bool SetVSPHelpPath( const std::string & path )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if( veh )
+    {
+        return veh->SetHelpPath( path );
+    }
+    return false;
+}
+
+std::string GetVSPHelpPath()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if( veh )
+    {
+        return veh->GetHelpPath();
+    }
+    return string();
+}
+
+bool CheckForVSPHelp( const std::string & path )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if( veh )
+    {
+        return veh->CheckForHelp( path );
+    }
+    return false;
+}
+
 //======================= Advanced Link Functions ============================//
 
 std::vector< std::string > GetAdvLinkNames()

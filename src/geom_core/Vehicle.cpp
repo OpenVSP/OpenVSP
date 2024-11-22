@@ -591,6 +591,7 @@ void Vehicle::MakeAbsolutePath( string & fname )
 void Vehicle::SetupPaths()
 {
     m_ExePath = PathToExe();
+    m_HelpPath = m_ExePath + string( "/help/" );
     m_HomePath = PathToHome();
 
     // Initialize VSPAERO directory as VSP executable directory.
@@ -673,6 +674,35 @@ bool Vehicle::SetVSPAEROPath( const string & path )
     if( CheckForVSPAERO( path ) )
     {
         m_VSPAEROPath = path;
+        return true;
+    }
+    return false;
+}
+
+bool Vehicle::CheckForHelp( const string & path )
+{
+    printf( "Vehicle::CheckForHelp %s\n", path.c_str() );
+
+    string helpfile = "vsp_help";
+
+    if( !CheckForFile( path, helpfile ) )
+    {
+        fprintf( stderr, "WARNING %d: OpenVSP Help Not Found. \n"
+            "\tExpected here: %s\n",
+            vsp::VSP_FILE_DOES_NOT_EXIST,
+            ( path + string("/") + helpfile ).c_str() );
+        return false;
+    }
+
+    printf( "Help files found\n" );
+    return true;
+}
+
+bool Vehicle::SetHelpPath( const string & path )
+{
+    if( CheckForHelp( path ) )
+    {
+        m_HelpPath = path + "/";
         return true;
     }
     return false;

@@ -603,6 +603,95 @@ extern std::string GetVSPAEROPath();
 
 extern bool CheckForVSPAERO( const std::string & path );
 
+/*!
+    \ingroup APIUtilities
+*/
+/*!
+    Set the path to the OpenVSP help files. By default, OpenVSP will assume that the OpenVSP help directory is in the
+    same directory as the VSP executable. However, this may need to be changed when using certain API languages like MATLAB and Python. For example,
+    Python may treat the location of the Python executable as the VSP executable path, so either the VSPAERO executable needs to be moved to the same
+    directory or this function can be called to tell Python where to look for help.
+    \forcpponly
+    \code{.cpp}
+    if ( !CheckForVSPHelp( GetVSPExePath() ) )
+    {
+        string vsphelp_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5/help";
+        SetVSPHelpPath( vsphelp_path );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    if  not CheckForVSPHelp( GetVSPExePath() ) :
+        vsphelp_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5/help"
+        SetVSPHelpPath( vsphelp_path )
+
+    \endcode
+    \endPythonOnly
+    \sa GetVSPExePath, CheckForVSPHelp, GetVSPHelpPath
+    \param [in] path Absolute path to directory containing OpenVSP help files
+    \return Flag that indicates whether or not the path was set correctly
+*/
+
+extern bool SetVSPHelpPath( const std::string & path );
+
+/*!
+    \ingroup APIUtilities
+*/
+/*!
+    Get the path that OpenVSP will use to look for all OpenVSP help files. If the OpenVSP help files are not in this location,
+    they must either be copied there or the VSPHelp path must be set using SetVSPHelpPath.
+    \forcpponly
+    \code{.cpp}
+    if ( !CheckForVSPHelp( GetVSPHelpPath() ) )
+    {
+        Print( "VSPAERO is not where OpenVSP thinks it is. I should move the VSPAERO executable or call SetVSPAEROPath." );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    if  not CheckForVSPHelp( GetVSPHelpPath() ) :
+        print( "VSPAERO is not where OpenVSP thinks it is. I should move the VSPAERO executable or call SetVSPAEROPath." )
+
+    \endcode
+    \endPythonOnly
+    \sa GetVSPExePath, CheckForVSPHelp, SetVSPHelpPath
+    \return Path OpenVSP will look for help files
+*/
+
+extern std::string GetVSPHelpPath();
+
+/*!
+    \ingroup APIUtilities
+*/
+/*!
+    Check if all OpenVSP help files are in a given directory.
+    \forcpponly
+    \code{.cpp}
+    string vsphelp_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5/help";
+
+    if ( CheckForVSPHelp( vsphelp_path ) )
+    {
+        SetVSPHelpPath( vsphelp_path );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    vsphelp_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5/help"
+
+    if  CheckForVSPHelp( vsphelp_path ) :
+        SetVSPHelpPath( vsphelp_path )
+
+    \endcode
+    \endPythonOnly
+    \sa GetVSPExePath, GetVSPAEROPath, SetVSPHelpPath
+    \param [in] path Absolute path to check for VSPAERO executables
+    \return Flag that indicates if OpenVSP help files are found or not
+*/
+
+extern bool CheckForVSPHelp( const std::string & path );
 
 extern void RegisterCFDMeshAnalyses();
 
