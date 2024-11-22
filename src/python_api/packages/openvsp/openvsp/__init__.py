@@ -29,8 +29,12 @@ def setup_vspaero_path():
     if  CheckForVSPHelp( base_dir + "/help_vsp" ):
         SetVSPHelpPath( base_dir + "/help_vsp" )
 
+if load_graphics:
+    InitGUI()
+
 if ignore_imports:
     setup_vspaero_path()
+
 
 elif not (load_facade or load_multi_facade):
     from .degen_geom_parse import *
