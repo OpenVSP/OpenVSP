@@ -5,6 +5,3 @@ openvsp/.
 CHARM/.
 AvlPy/.
 pyPMARC/.
-PyVSP/.
-wxPython
-vtk
