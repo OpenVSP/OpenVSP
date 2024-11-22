@@ -51,6 +51,14 @@ class DemoFrame(wx.Frame):
         assert "VSP" in vsp_version, "Could not load or verify OpenVSP"
         print(f"Loaded {vsp_version}")
 
+        # print( "NERF'ing OpenVSP GUI" )
+        # vsp.SetGeomScreenDisable( vsp.ALL_GEOM_SCREENS, True )            # Disable
+        # vsp.SetGUIScreenDisable( vsp.VSP_ALL_SCREENS, True )              # Disable
+
+        # vsp.SetGUIScreenDisable( vsp.VSP_MAIN_SCREEN, False )             # Enable
+        # vsp.SetGUIScreenDisable( vsp.VSP_NERF_MANAGE_GEOM_SCREEN, False ) # Enable
+        # print( "Done NERF'ing OpenVSP GUI" )
+
         wx.Frame.__init__(
             self,
             None,
