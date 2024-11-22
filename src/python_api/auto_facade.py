@@ -54,8 +54,17 @@ HOST = 'localhost'
 PORT = sock.getsockname()[1]
 sock.close()
 
+python_exe = None
+if "python" in sys.executable:
+    python_exe = sys.executable
+elif "python" in os.__file__:
+    python_exe = os.__file__
+else:
+    python_exe = "python"
+
+
 server_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'facade_server.py')
-proc = subprocess.Popen([sys.executable, server_file, str(PORT), str(openvsp_config.LOAD_GRAPHICS)])
+proc = subprocess.Popen([python_exe, server_file, str(PORT), str(openvsp_config.LOAD_GRAPHICS)])
 
 sleep(1)
 
