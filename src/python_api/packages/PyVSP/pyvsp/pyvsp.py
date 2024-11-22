@@ -172,6 +172,10 @@ class DemoFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_popup_gui, popup_gui)
         current_sizer.Add(popup_gui)
 
+        crash_gui = wx.Button(current_page, wx.ID_ANY, u"Crash VSP", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.on_crash_gui, crash_gui)
+        current_sizer.Add(crash_gui)
+
         screenshot = wx.Button(current_page, wx.ID_ANY, u"Take Screenshot", wx.DefaultPosition, wx.DefaultSize, 0)
         self.Bind(wx.EVT_BUTTON, self.on_screenshot, screenshot)
         current_sizer.Add(screenshot)
@@ -237,6 +241,20 @@ class DemoFrame(wx.Frame):
         print("PyVSP, Attempting to popup message in VSP GUI")
         vsp.PopupMsg( "Hello World!" )
         print("PyVSP, VSP GUI popup screens")
+
+    def on_crash_gui(self, event):
+        """
+        event called when user clicks the crash vsp button
+        Causes OpenVSP to crash
+
+        Parameters
+        ----------
+        event : wx.Event
+            the button event
+        """
+        print("PyVSP, Attempting to crash VSP")
+        vsp.VSPCrash( 2 )
+        print("PyVSP, VSP crashed")
 
     def on_stop_gui(self, event):
         """
