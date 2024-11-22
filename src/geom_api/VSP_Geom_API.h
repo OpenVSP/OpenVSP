@@ -3060,7 +3060,7 @@ extern void WriteTestResults();
     \endPythonOnly
 */
 
-    extern void StartGUI();
+extern void StartGUI();
 
 /*!
     \ingroup Visualization
