@@ -3041,6 +3041,29 @@ extern void WriteTestResults();
     \ingroup Visualization
 */
 /*!
+    Low level routine that should be called to set up GUI before running StartGUI()
+    \forcpponly
+    \code{.cpp}
+
+    InitGUI();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGUI()
+
+    \endcode
+    \endPythonOnly
+*/
+
+extern void InitGUI();
+
+/*!
+    \ingroup Visualization
+*/
+/*!
     Launch the interactive OpenVSP GUI.  In a multi-threaded environment, this must be called from the main thread only.
     This starts the GUI event loop.  It will also show the main screen and screens displayed when StopGUI() was
     previously called.
