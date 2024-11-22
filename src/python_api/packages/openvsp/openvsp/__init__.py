@@ -1,3 +1,4 @@
+import os
 try:
     import openvsp_config
     load_graphics = openvsp_config.LOAD_GRAPHICS
@@ -20,24 +21,21 @@ elif load_graphics:
 else:
     from .vsp import *
 
+def setup_vspaero_path():
+    base_dir = os.path.dirname(__file__)
+    if  CheckForVSPAERO( base_dir ):
+        SetVSPAEROPath( base_dir )
+
+    if  CheckForVSPHelp( base_dir + "/help_vsp" ):
+        SetVSPHelpPath( base_dir + "/help_vsp" )
+
 if ignore_imports:
-    pass
+    setup_vspaero_path()
 
 elif not (load_facade or load_multi_facade):
-
     from .degen_geom_parse import *
     from .parasite_drag import *
     from .surface_patches import *
     from .utilities import *
-    import os
-
-    def setup_vspaero_path():
-        base_dir = os.path.dirname(__file__)
-
-        if  CheckForVSPAERO( base_dir ):
-            SetVSPAEROPath( base_dir )
-
-        if  CheckForVSPHelp( base_dir + "/help_vsp" ):
-            SetVSPHelpPath( base_dir + "/help_vsp" )
 
     setup_vspaero_path()
