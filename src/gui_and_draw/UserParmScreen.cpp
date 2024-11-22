@@ -31,13 +31,15 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
     //===== Predefined ====//
     m_PredefGroup.SetGroupAndScreen( predef_group, this );
     m_PredefGroup.AddDividerBox( "Predefined" );
+    m_PredefGroup.SetButtonWidth( 150 );
+    m_PredefGroup.SetInputWidth( 100 );
+
     unsigned int num_sliders = LinkMgr.GetNumPredefinedUserParms();
     m_PredefSliderVec.resize( num_sliders );
 
     for ( int i = 0 ; i < num_sliders ; i++ )
     {
-        m_PredefGroup.SetButtonWidth( 150 );
-        m_PredefGroup.AddSlider( m_PredefSliderVec[i], "AUTO_UPDATE", 10, "%6.5f" );
+        m_PredefGroup.AddSlider( m_PredefSliderVec[i], "AUTO_UPDATE", 10, " % #.5g" );
     }
 
     //===== Create ====//
@@ -196,6 +198,8 @@ void UserParmScreen::RebuildAdjustGroup()
     m_AdjustScroll->clear();
     m_AdjustLayout.SetGroup( m_AdjustScroll );
     m_AdjustLayout.InitWidthHeightVals();
+    m_AdjustLayout.SetButtonWidth( 300 );
+    m_AdjustLayout.SetInputWidth( 100 );
 
     m_ParmSliderVec.clear();
 
@@ -217,8 +221,19 @@ void UserParmScreen::RebuildAdjustGroup()
             lastGroupName = groupName;
             m_AdjustLayout.AddDividerBox( groupName );
         }
-        m_AdjustLayout.SetButtonWidth( 300 );
-        m_AdjustLayout.AddSlider( m_ParmSliderVec[i], "AUTO_UPDATE", 10, "%7.3f" );
+
+        if ( p->GetType() == vsp::PARM_INT_TYPE ||
+             p->GetType() == vsp::PARM_BOOL_TYPE ||
+             p->GetType() == vsp::PARM_LIMITED_INT_TYPE ||
+             p->GetType() == vsp::PARM_POWER_INT_TYPE )
+        {
+            m_AdjustLayout.AddSlider( m_ParmSliderVec[i], "AUTO_UPDATE", 10, " % -15.0f" );
+        }
+        else
+        {
+            m_AdjustLayout.AddSlider( m_ParmSliderVec[i], "AUTO_UPDATE", 10, " % #.5g" );
+        }
+
         m_ParmSliderVec[i].Update( pID );
     }
 
