@@ -374,7 +374,7 @@ def start_server():
                                     print("Server Socket Thread: A2 Lock obtained")
                             result = foo(*args, **kwargs)
                             if debug:
-                                print("Server Socket Thread: A3 VSP function called")
+                                print("Server Socket Thread: A3 VSP function called " + func_name)
                             if gui_active:
                                 module.Unlock()
                                 if debug:
