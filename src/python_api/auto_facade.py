@@ -358,6 +358,10 @@ def start_server():
                     elif data[0] == 'IsGUIRunning':
                         result = gui_active
                         b_result = pack_data(result)
+                    # Special functionality for InitGUI (user shouldn't call this)
+                    elif data[0] == 'InitGUI':
+                        result = 0
+                        b_result = pack_data(result)
 
                     # Regular functionality
                     else:
