@@ -724,11 +724,14 @@ void ScreenMgr::Init()
 
     for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
     {
-        m_ScreenVec[i]->SetScreenType( i );
-
-        if( i != vsp::VSP_MAIN_SCREEN && i != vsp::VSP_COR_SCREEN )
+        if ( m_ScreenVec[i] )
         {
-            m_ScreenVec[i]->GetFlWindow()->set_non_modal();
+            m_ScreenVec[i]->SetScreenType( i );
+
+            if( i != vsp::VSP_MAIN_SCREEN && i != vsp::VSP_COR_SCREEN )
+            {
+                m_ScreenVec[i]->GetFlWindow()->set_non_modal();
+            }
         }
     }
 
@@ -747,7 +750,7 @@ void ScreenMgr::UpdateAllScreens()
     for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
     {
         //===== Force Update Of ManageGeomScreen ====//
-        if ( m_ScreenVec[i]->IsShown() || (i == vsp::VSP_MANAGE_GEOM_SCREEN) )
+        if ( m_ScreenVec[i] && ( m_ScreenVec[i]->IsShown() || (i == vsp::VSP_MANAGE_GEOM_SCREEN) ) )
         {
             m_ScreenVec[i]->Update();
         }
