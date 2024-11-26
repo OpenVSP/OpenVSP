@@ -59,6 +59,10 @@ void GuiInterface::StartGUI()
 {
 #ifdef VSP_USE_FLTK
     Fl::lock();
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->FirstShow();
+    }
     m_EventLoopRunning = true;
     Fl::run();
     m_EventLoopRunning = false;
@@ -70,8 +74,17 @@ void GuiInterface::StartGUI()
 void GuiInterface::StartGUIAPI( )
 {
 #ifdef VSP_USE_FLTK
+
+    static bool once = false;
+
     if ( m_ScreenMgr )
     {
+        if ( !once )
+        {
+            m_ScreenMgr->FirstShow();
+            once = true;
+        }
+
         m_ScreenMgr->SetRunGui( true );
         m_ScreenMgr->DisableExitMenuItem();
         m_ScreenMgr->EnableStopGUIMenuItem();

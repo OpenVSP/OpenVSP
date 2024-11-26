@@ -32,6 +32,8 @@ public:
     ScreenMgr( Vehicle* vPtr );
     virtual ~ScreenMgr();
 
+    virtual void FirstShow();
+
     virtual void ShowScreen( int id );
     virtual void HideScreen( int id );
     virtual Vehicle* GetVehiclePtr()

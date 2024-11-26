@@ -703,7 +703,10 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_VSPAERO_SCREEN] = new VSPAEROScreen( this );
     m_ScreenVec[vsp::VSP_WAVEDRAG_SCREEN] = new WaveDragScreen( this );
     m_ScreenVec[vsp::VSP_XSEC_SCREEN] = new XSecViewScreen( this );
+}
 
+void ScreenMgr::FirstShow()
+{
     m_ScreenVec[vsp::VSP_MAIN_SCREEN]->Show();
 
     // Set manage geom screen to show up to the main screen as the default.
