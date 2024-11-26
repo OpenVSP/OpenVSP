@@ -401,8 +401,10 @@ void ScreenMgr::APIHideScreens()
         // Queue task to main thread.
         Fl::awake( APIHideScreenHandler, ( void* )this );
 
-        // Release lock to allow main thread to process queue.
-        Fl::unlock();
+        // Not sure why this unlock/lock pair is not needed here.  However, removing it
+        // fixes CloseGUI() from the API.
+        // // Release lock to allow main thread to process queue.
+        // Fl::unlock();
 
         // Set up lock and mutex.
         std::unique_lock lk( m_TaskMutex );
@@ -413,8 +415,10 @@ void ScreenMgr::APIHideScreens()
                 return m_TaskComplete;
             });
 
-        // Re-acquire lock from main thread.
-        Fl::lock();
+        // Not sure why this unlock/lock pair is not needed here.  However, removing it
+        // fixes CloseGUI() from the API.
+        // // Re-acquire lock from main thread.
+        // Fl::lock();
     }
 }
 
