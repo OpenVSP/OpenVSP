@@ -96,6 +96,7 @@ void GuiInterface::StartGUIAPI( )
         {
             Fl::wait( 1e20 );
         }
+        Fl::wait( 0.01 );
         m_EventLoopRunning = false;
         Fl::unlock();
     }
