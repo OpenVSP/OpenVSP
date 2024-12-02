@@ -74,6 +74,8 @@
 
 #include "MainThreadIDMgr.h"
 
+#include <FL/platform.H>
+
 #define UPDATE_TIME (1.0/30.0)
 
 //==== Constructor ====//
@@ -758,6 +760,7 @@ void ScreenMgr::LoadModeChoice( const vector < Choice* > &choicevec, vector < st
 //==== Init All Screens ====//
 void ScreenMgr::Init()
 {
+    fl_open_display();
     //==== Build All Screens ====//
     m_ScreenVec.resize( vsp::VSP_NUM_SCREENS );
     m_ScreenVec[vsp::VSP_ADV_LINK_SCREEN] = new AdvLinkScreen( this );
