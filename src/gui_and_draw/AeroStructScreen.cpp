@@ -392,7 +392,6 @@ void * asmonitorfun( void *data )
                 if( nread > 0 )
                 {
                     buf[nread] = 0;
-                    StringUtil::change_from_to( buf, '\r', '\n' );
 
                     Fl::lock();
                     // Any FL calls must occur between Fl::lock() and Fl::unlock().

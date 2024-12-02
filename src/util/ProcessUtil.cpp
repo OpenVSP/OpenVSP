@@ -508,7 +508,6 @@ void MonitorProcess( FILE * logFile, ProcessUtil *process, const string &msgLabe
             if ( buf )
             {
                 buf[nread] = 0;
-                StringUtil::change_from_to( buf, '\r', '\n' );
                 if( logFile )
                 {
                     fprintf( logFile, "%s", buf );
