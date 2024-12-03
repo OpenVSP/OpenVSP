@@ -49,38 +49,39 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     // Console
     m_ConstantAreaLayout.AddSubGroupLayout( m_ConsoleLayout, m_ConstantAreaLayout.GetRemainX() - window_border_width,
-        m_ConstantAreaLayout.GetRemainY() );
+        m_ConstantAreaLayout.GetRemainY() - 3 * m_ConstantAreaLayout.GetStdHeight() - window_border_width );
 
     m_SolverDisplay = m_ConsoleLayout.AddFlTextDisplay( m_ConsoleLayout.GetRemainY() - 3 * m_ConsoleLayout.GetStdHeight() - window_border_width );
     m_SolverBuffer = new Fl_Text_Buffer;
     m_SolverDisplay->buffer( m_SolverBuffer );
     m_FLTK_Window->resizable( m_SolverDisplay );
 
-    m_ConsoleLayout.SetButtonWidth( m_ConsoleLayout.GetW() / 2 );
-
-    m_ConsoleLayout.SetSameLineFlag( true );
-    m_ConsoleLayout.SetFitWidthFlag( false );
-
-    m_ConsoleLayout.AddButton( m_SolverButton, "Launch Solver" );
-    m_ConsoleLayout.SetButtonWidth( m_ConsoleLayout.GetW() / 4 );
-    m_ConsoleLayout.AddButton( m_KillSolverButton, "Kill Solver" );
-    m_ConsoleLayout.AddButton( m_PrepareButton, "Prepare Solver" );
-    m_ConsoleLayout.SetButtonWidth( m_ConsoleLayout.GetW() / 2 );
-
-    m_ConsoleLayout.ForceNewLine();
-
-    m_ConsoleLayout.AddButton( m_PlotButton, "Show Results Mgr" );
-    m_ConsoleLayout.AddButton( m_ViewerButton, "Launch Viewer" );
-
-    m_ConsoleLayout.ForceNewLine();
-
-    m_ConsoleLayout.AddButton( m_LoadExistingResultsButton, "Load Previous Results" );
-    m_ConsoleLayout.AddButton( m_ExportResultsToCsvButton, "Export to *.csv" );
-    m_ExportResultsToCsvButton.Deactivate();
-
     // Execute
+    m_ConstantAreaLayout.AddY( m_ConsoleLayout.GetH() );
     int execute_height = m_ConstantAreaLayout.GetStdHeight();
     m_ConstantAreaLayout.AddSubGroupLayout( m_ExecuteLayout, m_ConstantAreaLayout.GetW(), execute_height );
+
+    m_ExecuteLayout.SetButtonWidth( m_ExecuteLayout.GetW() / 2 );
+
+    m_ExecuteLayout.SetSameLineFlag( true );
+    m_ExecuteLayout.SetFitWidthFlag( false );
+
+    m_ExecuteLayout.AddButton( m_SolverButton, "Launch Solver" );
+    m_ExecuteLayout.SetButtonWidth( m_ExecuteLayout.GetW() / 4 );
+    m_ExecuteLayout.AddButton( m_KillSolverButton, "Kill Solver" );
+    m_ExecuteLayout.AddButton( m_PrepareButton, "Prepare Solver" );
+    m_ExecuteLayout.SetButtonWidth( m_ExecuteLayout.GetW() / 2 );
+
+    m_ExecuteLayout.ForceNewLine();
+
+    m_ExecuteLayout.AddButton( m_PlotButton, "Show Results Mgr" );
+    m_ExecuteLayout.AddButton( m_ViewerButton, "Launch Viewer" );
+
+    m_ExecuteLayout.ForceNewLine();
+
+    m_ExecuteLayout.AddButton( m_LoadExistingResultsButton, "Load Previous Results" );
+    m_ExecuteLayout.AddButton( m_ExportResultsToCsvButton, "Export to *.csv" );
+    m_ExportResultsToCsvButton.Deactivate();
 
     //==== Overview Tab ====//
     Fl_Group* overview_tab = AddTab( "Overview" );
