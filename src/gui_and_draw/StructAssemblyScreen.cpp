@@ -719,7 +719,15 @@ void StructAssemblyScreen::UpdateDrawPartBrowser()
 void StructAssemblyScreen::AddOutputText( const string &text )
 {
     Fl::lock();
-    m_ConsoleDisplay->append( text.c_str() );
+    if ( text == "CLEAR_TERMINAL" )
+    {
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
+    }
+    else
+    {
+        m_ConsoleDisplay->append( text.c_str() );
+    }
     Fl::unlock();
 }
 
@@ -796,9 +804,6 @@ void * feaassy_thread_fun( void *data )
 
 void StructAssemblyScreen::LaunchBatchFEAMesh( const vector < string > &idvec )
 {
-    m_ConsoleDisplay->clear();
-    m_ConsoleDisplay->clear_history();
-
     FeaMeshMgr.SetFeaMeshInProgress( true );
 
     // Copy vector to memory that will persist through duration of meshing process.

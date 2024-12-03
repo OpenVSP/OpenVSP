@@ -2992,6 +2992,7 @@ Surf* FeaMeshMgrSingleton::GetFeaSurf( int FeaPartID, int surf_num )
 
 void FeaMeshMgrSingleton::MeshUnMeshed( const vector < string > & idvec )
 {
+    addOutputText( "CLEAR_TERMINAL" );
     for ( int i = 0; i < idvec.size(); i++ )
     {
         SetFeaMeshStructID( idvec[i] );

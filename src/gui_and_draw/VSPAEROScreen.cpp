@@ -1056,6 +1056,7 @@ void VSPAEROScreen::CloseCallBack( Fl_Widget* w )
     Hide();
 }
 
+// Only called when launching VSPAERO Viewer from GUI.
 #ifdef WIN32
 DWORD WINAPI monitorfun( LPVOID data )
 #else
@@ -1173,8 +1174,10 @@ void VSPAEROScreen::LaunchVSPAERO()
             VSPAEROMgr.ComputeGeometry();
 
             // Clear the solver console
-            m_SolverDisplay->clear();
-            m_SolverDisplay->clear_history();
+            MessageData data;
+            data.m_String = "VSPAEROSolverMessage";
+            data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
+            MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
 
             // Check for transonic Mach numbers and warn the user if found
             double transonic_mach_min = 0.8;
@@ -1445,7 +1448,15 @@ void VSPAEROScreen::AddOutputText( Fl_Terminal *display, const string &text )
         // Added lock(), unlock() calls to avoid heap corruption while updating the text and rapidly scrolling with the mouse wheel inside the text display
         Fl::lock();
 
-        display->append( text.c_str() );
+        if ( text == "CLEAR_TERMINAL" )
+        {
+            display->clear();
+            display->clear_history();
+        }
+        else
+        {
+            display->append( text.c_str() );
+        }
 
         Fl::unlock();
     }

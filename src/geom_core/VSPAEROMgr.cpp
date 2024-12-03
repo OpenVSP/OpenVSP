@@ -1682,6 +1682,9 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
     data.m_String = "VSPAEROSolverMessage";
     bool no_errors = true;
 
+    data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
+    MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
+
     if ( FileExist( m_HistoryFile ) )
     {
         ReadHistoryFile( m_HistoryFile, res_id_vec, m_ReCrefStart() );
@@ -2089,7 +2092,9 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         {
             MessageData data;
             data.m_String = "VSPAEROSolverMessage";
-            data.m_StringVec.push_back( cmdStr );
+            data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
+            MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
+            data.m_StringVec = vector < string >{ cmdStr };
             MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
         }
 
@@ -3805,7 +3810,9 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     {
         MessageData data;
         data.m_String = "VSPAEROSolverMessage";
-        data.m_StringVec.push_back( cmdStr );
+        data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
+        data.m_StringVec = vector < string >{ cmdStr };
         MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
 
@@ -3896,7 +3903,9 @@ void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
     {
         MessageData data;
         data.m_String = "VSPAEROSolverMessage";
-        data.m_StringVec.push_back( cmdStr );
+        data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
+        data.m_StringVec = vector < string >{ cmdStr };
         MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
 
@@ -4865,7 +4874,9 @@ string VSPAEROMgrSingleton::ExecuteNoiseAnalysis( FILE* logFile, int noise_type,
     {
         MessageData data;
         data.m_String = "VSPAEROSolverMessage";
-        data.m_StringVec.push_back( cmdStr );
+        data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
+        data.m_StringVec = vector < string >{ cmdStr };
         MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
 

@@ -1259,7 +1259,15 @@ void CfdMeshScreen::UpdateWakesTab()
 void CfdMeshScreen::AddOutputText( const string &text )
 {
     Fl::lock();
-    m_ConsoleDisplay->append( text.c_str() );
+    if ( text == "CLEAR_TERMINAL" )
+    {
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
+    }
+    else
+    {
+        m_ConsoleDisplay->append( text.c_str() );
+    }
     Fl::unlock();
 }
 
@@ -1340,8 +1348,6 @@ void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_MeshAndExport )
     {
-        m_ConsoleDisplay->clear();
-        m_ConsoleDisplay->clear_history();
         CfdMeshMgr.SetMeshInProgress( true );
         m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, nullptr );
     }

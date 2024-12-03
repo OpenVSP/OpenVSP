@@ -49,6 +49,8 @@ CfdMeshMgrSingleton::~CfdMeshMgrSingleton()
 
 void CfdMeshMgrSingleton::GenerateMesh()
 {
+    addOutputText( "CLEAR_TERMINAL" );
+
     m_MeshInProgress = true;
 
 #ifdef DEBUG_TIME_OUTPUT

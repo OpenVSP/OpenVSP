@@ -3970,7 +3970,15 @@ bool StructScreen::Update()
 void StructScreen::AddOutputText( const string &text )
 {
     Fl::lock();
-    m_ConsoleDisplay->append( text.c_str() );
+    if ( text == "CLEAR_TERMINAL" )
+    {
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
+    }
+    else
+    {
+        m_ConsoleDisplay->append( text.c_str() );
+    }
     Fl::unlock();
 }
 
@@ -4113,6 +4121,7 @@ DWORD WINAPI feamesh_thread_fun( LPVOID data )
 void * feamesh_thread_fun( void *data )
 #endif
 {
+    FeaMeshMgr.addOutputText( "CLEAR_TERMINAL" );
     FeaMeshMgr.GenerateFeaMesh();
 
     return 0;
@@ -4124,9 +4133,6 @@ void StructScreen::LaunchFEAMesh()
     {
         // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
         FeaMeshMgr.SetFeaMeshInProgress( true );
-
-        m_ConsoleDisplay->clear();
-        m_ConsoleDisplay->clear_history();
 
         // Identify which structure to mesh
         FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );

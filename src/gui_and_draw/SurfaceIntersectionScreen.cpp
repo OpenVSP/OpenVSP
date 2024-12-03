@@ -570,7 +570,15 @@ void SurfaceIntersectionScreen::UpdateWakesTab()
 void SurfaceIntersectionScreen::AddOutputText( const string &text )
 {
     Fl::lock();
-    m_ConsoleDisplay->append( text.c_str() );
+    if ( text == "CLEAR_TERMINAL" )
+    {
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
+    }
+    else
+    {
+        m_ConsoleDisplay->append( text.c_str() );
+    }
     Fl::unlock();
 }
 
@@ -644,9 +652,6 @@ void SurfaceIntersectionScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_IntersectAndExport )
     {
-        m_ConsoleDisplay->clear();
-        m_ConsoleDisplay->clear_history();
-
         SurfaceIntersectionMgr.SetMeshInProgress( true );
         m_IntersectProcess.StartThread( surfint_thread_fun, nullptr );
     }

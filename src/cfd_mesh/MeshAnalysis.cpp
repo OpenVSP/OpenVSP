@@ -502,6 +502,7 @@ string FeaMeshAnalysis::Execute()
         if( nvd ) curr_struct->GetStructSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::FEA_STEP_FILE_NAME );
 
         // Execute analysis
+        FeaMeshMgr.addOutputText( "CLEAR_TERMINAL" );
         FeaMeshMgr.GenerateFeaMesh();
 
         // ==== Restore original values that were overwritten by analysis inputs ==== //
