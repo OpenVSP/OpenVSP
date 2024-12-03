@@ -21,7 +21,7 @@
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-#define VSPAERO_SCREEN_WIDTH 910
+#define VSPAERO_SCREEN_WIDTH 1000
 #define VSPAERO_SCREEN_HEIGHT 720
 #define VSPAERO_EXECUTE_CONSTANT_HEIGHT 210
 
@@ -51,9 +51,10 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_ConstantAreaLayout.AddSubGroupLayout( m_ConsoleLayout, m_ConstantAreaLayout.GetRemainX() - window_border_width,
         m_ConstantAreaLayout.GetRemainY() - 3 * m_ConstantAreaLayout.GetStdHeight() - window_border_width );
 
-    m_SolverDisplay = m_ConsoleLayout.AddFlTextDisplay( m_ConsoleLayout.GetRemainY() - 3 * m_ConsoleLayout.GetStdHeight() - window_border_width );
-    m_SolverBuffer = new Fl_Text_Buffer;
-    m_SolverDisplay->buffer( m_SolverBuffer );
+    m_SolverDisplay = m_ConsoleLayout.AddFlTerminal( m_ConsoleLayout.GetRemainY() );
+    m_SolverDisplay->display_columns( 300 );
+    m_SolverDisplay->history_lines( 1000 );
+
     m_FLTK_Window->resizable( m_SolverDisplay );
 
     // Execute
@@ -871,9 +872,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_ViewerLayout.AddDividerBox( "VSPAERO Viewer Console" );
 
-    m_ViewerDisplay = m_ViewerLayout.AddFlTextDisplay( m_ViewerLayout.GetRemainY() - m_ViewerLayout.GetStdHeight() );
-    m_ViewerBuffer = new Fl_Text_Buffer;
-    m_ViewerDisplay->buffer( m_ViewerBuffer );
+    m_ViewerDisplay = m_ViewerLayout.AddFlTerminal( m_ViewerLayout.GetRemainY() - m_ViewerLayout.GetStdHeight() );
+    m_ViewerDisplay->display_columns( 300 );
+    m_ViewerDisplay->history_lines( 1000 );
 
 
     // Show the starting tab
@@ -885,10 +886,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
 VSPAEROScreen::~VSPAEROScreen()
 {
-    m_SolverDisplay->buffer( nullptr );
-    delete m_SolverBuffer;
-    m_ViewerDisplay->buffer( nullptr );
-    delete m_ViewerBuffer;
 }
 
 bool VSPAEROScreen::Update()
@@ -1072,7 +1069,7 @@ void * monitorfun( void *data )
 
     if( vs )
     {
-        Fl_Text_Display *display = vs->GetDisplay( id );
+        Fl_Terminal *display = vs->GetDisplay( id );
         ProcessUtil *pu = vs->GetProcess( id );
         if( pu && display )
         {
@@ -1176,7 +1173,8 @@ void VSPAEROScreen::LaunchVSPAERO()
             VSPAEROMgr.ComputeGeometry();
 
             // Clear the solver console
-            m_SolverBuffer->text( "" );
+            m_SolverDisplay->clear();
+            m_SolverDisplay->clear_history();
 
             // Check for transonic Mach numbers and warn the user if found
             double transonic_mach_min = 0.8;
@@ -1231,7 +1229,8 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
             else
             {
-                m_ViewerBuffer->text( "" );
+                m_ViewerDisplay->clear();
+                m_ViewerDisplay->clear_history();
 
                 vector<string> args;
                 args.push_back( VSPAEROMgr.m_ModelNameBase );
@@ -1437,19 +1436,16 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-// VSPAEROScreen::AddOutputText( Fl_Text_Display *display, const char *text )
+// VSPAEROScreen::AddOutputText( Fl_Terminal *display, const char *text )
 //     This is used for the Solver tab to show the current results of the solver in the GUI
-void VSPAEROScreen::AddOutputText( Fl_Text_Display *display, const string &text )
+void VSPAEROScreen::AddOutputText( Fl_Terminal *display, const string &text )
 {
     if ( display )
     {
         // Added lock(), unlock() calls to avoid heap corruption while updating the text and rapidly scrolling with the mouse wheel inside the text display
         Fl::lock();
 
-        display->buffer()->append( text.c_str() );
-        display->insert_position( display->buffer()->length() );
-
-        display->show_insert_position();
+        display->append( text.c_str() );
 
         Fl::unlock();
     }
@@ -1475,7 +1471,7 @@ ProcessUtil* VSPAEROScreen::GetProcess( int id )
     }
 }
 
-Fl_Text_Display* VSPAEROScreen::GetDisplay( int id )
+Fl_Terminal* VSPAEROScreen::GetDisplay( int id )
 {
     if( id == VSPAERO_SOLVER )
     {

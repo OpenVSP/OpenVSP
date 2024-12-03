@@ -65,10 +65,10 @@ public:
     void SelectCpSliceBrowser( int cur_index );
     void SelectUnsteadyGroupBrowser( int cur_index );
 
-    static void AddOutputText( Fl_Text_Display *display, const string &text );
+    static void AddOutputText( Fl_Terminal *display, const string &text );
 
     ProcessUtil *GetProcess( int id );
-    Fl_Text_Display *GetDisplay( int id );
+    Fl_Terminal *GetDisplay( int id );
 
     // Solver thread kill flags (these must be public because they are accessed by the thread)
     bool m_SolverThreadIsRunning;
@@ -330,8 +330,7 @@ protected:
     //==== Solver Tab ====//
     GroupLayout m_SolverLayout;
 
-    Fl_Text_Display *m_SolverDisplay;
-    Fl_Text_Buffer *m_SolverBuffer;
+    Fl_Terminal *m_SolverDisplay;
 
     //====  Propeller Tab ====//
     Fl_Group* m_PropellerTab;
@@ -353,8 +352,7 @@ protected:
     //==== Viewer Tab ====//
     GroupLayout m_ViewerLayout;
 
-    Fl_Text_Display *m_ViewerDisplay;
-    Fl_Text_Buffer *m_ViewerBuffer;
+    Fl_Terminal *m_ViewerDisplay;
 
 
     // Additional thread handling stuff
