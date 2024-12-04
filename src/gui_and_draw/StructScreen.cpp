@@ -33,7 +33,9 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA Structure", "", 196 )
+#define STRUCT_CONSOLE_HEIGHT 246
+
+StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT_CONSOLE_HEIGHT, "FEA Structure", "", STRUCT_CONSOLE_HEIGHT )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -61,24 +63,17 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-    int textheight = 100;
+    m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY() - STRUCT_CONSOLE_HEIGHT );
 
-    m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY()
-                        - textheight                            // 100
-                        - 4 * m_ConsoleLayout.GetStdHeight()    // 4 * 20
-                        - m_ConsoleLayout.GetGapHeight()        // 6
-                        - border );                             // 5
-
-    // 196 passed to TabScreen constructor above is this sum plus an additional border.
-    // textheight + 3 * m_ConsoleLayout.GetStdHeight() + m_ConsoleLayout.GetGapHeight() + 2 * border
-    // This is for the contents of m_BorderConsoleLayout.
-
+    m_ConsoleLayout.AddYGap();
     m_ConsoleLayout.AddX( border );
 
     m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - border,
                                        m_ConsoleLayout.GetRemainY() - border );
 
-    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTerminal( textheight );
+    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTerminal( m_BorderConsoleLayout.GetRemainY()
+                                                               - 4 * m_BorderConsoleLayout.GetStdHeight()
+                                                               - m_BorderConsoleLayout.GetGapHeight() );
     m_ConsoleDisplay->display_columns( 300 );
     m_ConsoleDisplay->history_lines( 1000 );
 
