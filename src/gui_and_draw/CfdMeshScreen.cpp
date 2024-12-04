@@ -51,7 +51,9 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 642, "CFD 
     m_ConsoleDisplay->display_columns( 300 );
     m_ConsoleDisplay->history_lines( 1000 );
 
-    m_FLTK_Window->resizable( m_ConsoleDisplay );
+    m_FLTK_Window->resizable( m_ConsoleLayout.GetGroup() );
+    m_ConsoleLayout.GetGroup()->resizable( m_BorderConsoleLayout.GetGroup() );
+    m_BorderConsoleLayout.GetGroup()->resizable( m_ConsoleDisplay );
 
     m_BorderConsoleLayout.AddYGap();
 
