@@ -82,7 +82,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
     m_ConsoleDisplay->display_columns( 300 );
     m_ConsoleDisplay->history_lines( 1000 );
 
-    m_FLTK_Window->resizable( m_ConsoleDisplay );
+    m_FLTK_Window->resizable( m_ConsoleLayout.GetGroup() );
+    m_ConsoleLayout.GetGroup()->resizable( m_BorderConsoleLayout.GetGroup() );
+    m_BorderConsoleLayout.GetGroup()->resizable( m_ConsoleDisplay );
 
     m_BorderConsoleLayout.AddYGap();
 
