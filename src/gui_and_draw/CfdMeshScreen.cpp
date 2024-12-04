@@ -20,7 +20,9 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 642, "CFD Mesh", "", 150 )
+#define CFD_CONSOLE_HEIGHT 200
+
+CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 472 + CFD_CONSOLE_HEIGHT, "CFD Mesh", "", CFD_CONSOLE_HEIGHT )
 {
     m_Vehicle = m_ScreenMgr->GetVehiclePtr();
 
@@ -37,9 +39,7 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 642, "CFD 
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-    m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY()
-                        - 7 * m_ConsoleLayout.GetStdHeight()
-                        - 2 * m_ConsoleLayout.GetGapHeight() );
+    m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY() - CFD_CONSOLE_HEIGHT );
 
     m_ConsoleLayout.AddYGap();
     m_ConsoleLayout.AddX(5);
@@ -47,7 +47,9 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 642, "CFD 
     m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - 5,
                                        m_ConsoleLayout.GetRemainY() - 5 );
 
-    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTerminal( 115 );
+    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTerminal( m_BorderConsoleLayout.GetRemainY()
+                                                               - m_BorderConsoleLayout.GetStdHeight()
+                                                               - m_BorderConsoleLayout.GetGapHeight() );
     m_ConsoleDisplay->display_columns( 300 );
     m_ConsoleDisplay->history_lines( 1000 );
 
