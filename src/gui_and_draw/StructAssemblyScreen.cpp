@@ -32,7 +32,9 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA Assembly", "", 221 + 5 )
+#define ASSEMBLY_CONSOLE_HEIGHT 226
+
+StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 494 + ASSEMBLY_CONSOLE_HEIGHT, "FEA Assembly", "", ASSEMBLY_CONSOLE_HEIGHT )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -50,24 +52,17 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-    int textheight = 150;
+    m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY() - ASSEMBLY_CONSOLE_HEIGHT );
 
-    m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY()
-                        - textheight                            // 150
-                        - 3 * m_ConsoleLayout.GetStdHeight()    // 3 * 20
-                        - m_ConsoleLayout.GetGapHeight()        // 6
-                        - border );                             // 5
-
-    // 221 + 5 passed to TabScreen constructor above is this sum plus an additional border.
-    // textheight + 2 * m_ConsoleLayout.GetStdHeight() + m_ConsoleLayout.GetGapHeight() + 2 * border
-    // This is for the contents of m_BorderConsoleLayout.
-
+    m_ConsoleLayout.AddYGap();
     m_ConsoleLayout.AddX( border );
 
     m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - border,
                                        m_ConsoleLayout.GetRemainY() - border );
 
-    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTerminal( textheight );
+    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTerminal(  m_BorderConsoleLayout.GetRemainY()
+                                                               - 3 * m_BorderConsoleLayout.GetStdHeight()
+                                                               - m_BorderConsoleLayout.GetGapHeight()  );
     m_ConsoleDisplay->display_columns( 300 );
     m_ConsoleDisplay->history_lines( 1000 );
 
