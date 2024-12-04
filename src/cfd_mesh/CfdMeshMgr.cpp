@@ -812,7 +812,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
             num_tris += m_SurfVec[ i ]->GetMesh()->GetNumFaces();
 
-            snprintf( str, sizeof( str ), "Surf %3d/%3d Iter %2d/10 Num Tris = %8d %s\n", i + 1, nsurf, iter + 1, num_tris, m_SurfVec[i]->GetDisplayName().c_str() );
+            snprintf( str, sizeof( str ), "Surf %3d/%3d Iter %2d/10 Num Tris = %8d %s                                       \r", i + 1, nsurf, iter + 1, num_tris, m_SurfVec[i]->GetDisplayName().c_str() );
 
             if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
             {
@@ -820,6 +820,12 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
             }
         }
         total_num_tris += num_tris;
+
+        if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
+        {
+            snprintf( str, sizeof( str ), "Surf %3d/%3d Num Tris = %8d %s                                       \n", i + 1, nsurf, num_tris, m_SurfVec[i]->GetDisplayName().c_str() );
+            addOutputText( str, output_type );
+        }
 
         if ( num_rev_removed > 0 )
         {
@@ -3080,9 +3086,10 @@ void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
 void CfdMeshMgrSingleton::BuildMesh()
 {
     char str[256];
+    int n = m_SurfVec.size();
 
     //==== Mesh Each Surface ====//
-    for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+    for ( int s = 0; s < n; s++ )
     {
         vector< ISegChain* > surf_chains;
         list< ISegChain* >::iterator c;
@@ -3097,10 +3104,11 @@ void CfdMeshMgrSingleton::BuildMesh()
         vector < vec2d > adduw;
         ForceSurfaceFixPoints( s, adduw );
 
-        snprintf( str, sizeof( str ), "InitMesh %3d/%3zu %s\n", s+1, m_SurfVec.size(), m_SurfVec[s]->GetDisplayName().c_str() );
+        snprintf( str, sizeof( str ), "InitMesh %3d/%3d %s                                          \r", s+1, n, m_SurfVec[s]->GetDisplayName().c_str() );
         addOutputText( str );
         m_SurfVec[s]->InitMesh( surf_chains, adduw, this );
     }
+    addOutputText( "\n" );
 }
 
 // Determines if a triangle should be deleted based on its type and whether or not it is inside every other surface

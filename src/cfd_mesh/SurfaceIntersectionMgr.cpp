@@ -635,7 +635,7 @@ void SurfaceIntersectionSingleton::addOutputText( string str, int output_type )
         static auto tprev = std::chrono::high_resolution_clock::now();
         auto tnow = std::chrono::high_resolution_clock::now();
         char buf[256];
-        snprintf( buf, sizeof( buf ), " %.3f ms\n", std::chrono::duration_cast< std::chrono::microseconds >( tnow - tprev ).count() / 1000.0 );
+        snprintf( buf, sizeof( buf ), "%9.3fms ", std::chrono::duration_cast< std::chrono::microseconds >( tnow - tprev ).count() / 1000.0 );
         tprev = tnow;
         str.insert( 0, buf );
 #endif
@@ -1729,19 +1729,23 @@ void SurfaceIntersectionSingleton::BuildCurves()
 void SurfaceIntersectionSingleton::Intersect()
 {
     char str[256];
+    int n = m_SurfVec.size();
 
     if ( GetSettingsPtr()->m_IntersectSubSurfs ) BuildSubSurfIntChains();
 
     //==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
-    for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
+    for ( int i = 0 ; i < n; i++ )
     {
-        snprintf( str, sizeof( str ), "Intersect %3d/%3zu %s\n", i + 1, m_SurfVec.size(), m_SurfVec[i]->GetDisplayName().c_str() );
-        addOutputText( str );
-
-        for ( int j = i + 1; j < (int) m_SurfVec.size(); j++ )
+        for ( int j = i + 1; j < n; j++ )
         {
+            snprintf( str, sizeof( str ), "Intersect %3d/%3d %s vs. %3d %s                                           \r", i + 1, n, m_SurfVec[i]->GetDisplayName().c_str(),
+                                                                                             j + 1, m_SurfVec[j]->GetDisplayName().c_str());
+            addOutputText( str );
+
             m_SurfVec[i]->Intersect( m_SurfVec[j], this );
         }
+        snprintf( str, sizeof( str ), "Intersect %3d/%3d %s                                                      \n", i + 1, n, m_SurfVec[i]->GetDisplayName().c_str() );
+        addOutputText( str );
     }
 
     // WriteISegs();
