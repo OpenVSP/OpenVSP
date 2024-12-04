@@ -815,8 +815,6 @@ bool Vehicle::SetVSPAEROPath( const string & path )
 
 bool Vehicle::CheckForHelp( const string & path )
 {
-    printf( "Vehicle::CheckForHelp %s\n", path.c_str() );
-
     string helpfile = "vsp_help";
 
     if( !CheckForFile( path, helpfile ) )
@@ -828,7 +826,6 @@ bool Vehicle::CheckForHelp( const string & path )
         return false;
     }
 
-    printf( "Help files found\n" );
     return true;
 }
 
