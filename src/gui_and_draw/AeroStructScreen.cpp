@@ -27,7 +27,7 @@
 
 
 //==== Constructor ====//
-AeroStructScreen::AeroStructScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 600, "Aero Structure Coupled Analysis" )
+AeroStructScreen::AeroStructScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 550, 600, "Aero Structure Coupled Analysis" )
 {
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
