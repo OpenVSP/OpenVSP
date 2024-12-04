@@ -97,6 +97,10 @@ AeroStructScreen::AeroStructScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 60
     m_ConsoleDisplay->history_lines( 1000 );
 
     m_FLTK_Window->resizable( m_ConsoleDisplay );
+
+    m_FLTK_Window->resizable( m_MainLayout.GetGroup() );
+    m_MainLayout.GetGroup()->resizable( m_BorderLayout.GetGroup() );
+    m_BorderLayout.GetGroup()->resizable( m_ConsoleDisplay );
 }
 
 AeroStructScreen::~AeroStructScreen()
