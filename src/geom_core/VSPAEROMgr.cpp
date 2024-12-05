@@ -1921,13 +1921,6 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
     Update(); // Force update to ensure correct number of unstead groups, actuator disks, etc when run though the API.
     UpdateFilenames(); // Do we really need this? is also called by Update() moments before
 
-    return ComputeSolverBatch( logFile );
-}
-
-/* ComputeSolverBatch(FILE * logFile)
-*/
-string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
-{
     std::vector <string> res_id_vector;
 
     Vehicle *veh = VehicleMgr.GetVehicle();

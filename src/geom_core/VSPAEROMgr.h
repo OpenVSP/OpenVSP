@@ -287,7 +287,6 @@ public:
     string ComputeGeometry();
     string CreateSetupFile();                          // natively creates a *.vspaero template setup file
     string ComputeSolver( FILE * logFile = nullptr ); // returns a result with a vector of results id's under the name ResultVec
-    string ComputeSolverBatch( FILE * logFile = nullptr );
 
     void KillSolverOrSlicer();
     ProcessUtil* GetSolverProcess();
