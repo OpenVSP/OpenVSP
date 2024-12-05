@@ -820,33 +820,33 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_UnsteadyGroupLeftLayout.AddButton( m_FromSteadyStateToggle, "From Steady State" );
     m_UnsteadyGroupLeftLayout.AddYGap();
 
-    m_UnsteadyGroupLeftLayout.AddDividerBox( "Noise Analysis" );
-
-    m_UnsteadyGroupLeftLayout.SetSameLineFlag( true );
-    m_UnsteadyGroupLeftLayout.SetFitWidthFlag( false );
-
-    m_UnsteadyGroupLeftLayout.SetButtonWidth( m_UnsteadyGroupLeftLayout.GetRemainX() / 2 );
-    m_UnsteadyGroupLeftLayout.AddButton( m_NoiseCalcToggle, "Enable Noise Calc" );
-    m_UnsteadyGroupLeftLayout.AddButton( m_NoiseCalcTrigger, "Analyze Latest *.adb" );
-    m_UnsteadyGroupLeftLayout.ForceNewLine();
-
-    m_UnsteadyGroupLeftLayout.SetSameLineFlag( false );
-    m_UnsteadyGroupLeftLayout.SetFitWidthFlag( true );
-
-    m_UnsteadyGroupLeftLayout.SetChoiceButtonWidth( m_UnsteadyGroupLeftLayout.GetRemainX() / 2 );
-    m_UnsteadyGroupLeftLayout.AddChoice( m_NoiseCalcChoice, "Noise Type" );
-    m_NoiseCalcChoice.AddItem( "Flyby" );
-    m_NoiseCalcChoice.AddItem( "Footprint" );
-    m_NoiseCalcChoice.AddItem( "Steady" );
-    m_NoiseCalcChoice.UpdateItems();
-
-    m_UnsteadyGroupLeftLayout.AddChoice( m_NoiseUnitChoice, "Model Length Unit" );
-    m_NoiseUnitChoice.AddItem( "SI" );
-    m_NoiseUnitChoice.AddItem( "English" );
-    m_NoiseUnitChoice.UpdateItems();
-
-    m_UnsteadyGroupLeftLayout.ForceNewLine();
-    m_UnsteadyGroupLeftLayout.AddYGap();
+    // m_UnsteadyGroupLeftLayout.AddDividerBox( "Noise Analysis" );
+    //
+    // m_UnsteadyGroupLeftLayout.SetSameLineFlag( true );
+    // m_UnsteadyGroupLeftLayout.SetFitWidthFlag( false );
+    //
+    // m_UnsteadyGroupLeftLayout.SetButtonWidth( m_UnsteadyGroupLeftLayout.GetRemainX() / 2 );
+    // m_UnsteadyGroupLeftLayout.AddButton( m_NoiseCalcToggle, "Enable Noise Calc" );
+    // m_UnsteadyGroupLeftLayout.AddButton( m_NoiseCalcTrigger, "Analyze Latest *.adb" );
+    // m_UnsteadyGroupLeftLayout.ForceNewLine();
+    //
+    // m_UnsteadyGroupLeftLayout.SetSameLineFlag( false );
+    // m_UnsteadyGroupLeftLayout.SetFitWidthFlag( true );
+    //
+    // m_UnsteadyGroupLeftLayout.SetChoiceButtonWidth( m_UnsteadyGroupLeftLayout.GetRemainX() / 2 );
+    // m_UnsteadyGroupLeftLayout.AddChoice( m_NoiseCalcChoice, "Noise Type" );
+    // m_NoiseCalcChoice.AddItem( "Flyby" );
+    // m_NoiseCalcChoice.AddItem( "Footprint" );
+    // m_NoiseCalcChoice.AddItem( "Steady" );
+    // m_NoiseCalcChoice.UpdateItems();
+    //
+    // m_UnsteadyGroupLeftLayout.AddChoice( m_NoiseUnitChoice, "Model Length Unit" );
+    // m_NoiseUnitChoice.AddItem( "SI" );
+    // m_NoiseUnitChoice.AddItem( "English" );
+    // m_NoiseUnitChoice.UpdateItems();
+    //
+    // m_UnsteadyGroupLeftLayout.ForceNewLine();
+    // m_UnsteadyGroupLeftLayout.AddYGap();
 
     m_UnsteadyGroupRightLayout.AddDividerBox( "Propellers" );
 
@@ -2445,8 +2445,8 @@ void VSPAEROScreen::UpdateUnsteadyGroups()
     m_HoverRampToggle.Update( VSPAEROMgr.m_HoverRampFlag.GetID() );
     m_HoverRampSlider.Update( VSPAEROMgr.m_HoverRamp.GetID() );
     m_FromSteadyStateToggle.Update( VSPAEROMgr.m_FromSteadyState.GetID() );
-    m_NoiseCalcToggle.Update( VSPAEROMgr.m_NoiseCalcFlag.GetID() );
-    m_NoiseCalcChoice.Update( VSPAEROMgr.m_NoiseCalcType.GetID() );
+    // m_NoiseCalcToggle.Update( VSPAEROMgr.m_NoiseCalcFlag.GetID() );
+    // m_NoiseCalcChoice.Update( VSPAEROMgr.m_NoiseCalcType.GetID() );
     m_UniformRPMToggle.Update( VSPAEROMgr.m_UniformPropRPMFlag.GetID() );
 
     if ( VSPAEROMgr.m_RotateBladesFlag() )
