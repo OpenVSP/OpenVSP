@@ -59,7 +59,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     // Execute
     m_ConstantAreaLayout.AddY( m_ConsoleLayout.GetH() );
-    int execute_height = m_ConstantAreaLayout.GetStdHeight();
+    int execute_height = 3 * m_ConstantAreaLayout.GetStdHeight();
     m_ConstantAreaLayout.AddSubGroupLayout( m_ExecuteLayout, m_ConstantAreaLayout.GetW(), execute_height );
 
     m_ExecuteLayout.SetButtonWidth( m_ExecuteLayout.GetW() / 2 );
