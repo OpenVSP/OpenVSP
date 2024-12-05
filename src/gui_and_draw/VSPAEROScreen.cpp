@@ -1347,6 +1347,12 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if ( device == &m_CpSliceLastADBButton )
         {
+            // Clear the solver console
+            MessageData data;
+            data.m_String = "VSPAEROSolverMessage";
+            data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
+            MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
+
             // Clear out previous results
             VSPAEROMgr.ClearCpSliceResults();
 
@@ -1423,6 +1429,12 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if ( device == &m_NoiseCalcTrigger )
         {
+            // Clear the solver console
+            MessageData data;
+            data.m_String = "VSPAEROSolverMessage";
+            data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
+            MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
+
             VSPAEROMgr.ExecuteNoiseAnalysis( nullptr, VSPAEROMgr.m_NoiseCalcType(), VSPAEROMgr.m_NoiseUnits() );
         }
         else if ( device == &m_TestDriverGroupButton )

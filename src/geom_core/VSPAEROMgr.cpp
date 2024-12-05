@@ -2085,8 +2085,6 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
         {
             MessageData data;
             data.m_String = "VSPAEROSolverMessage";
-            data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
-            MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
             data.m_StringVec = vector < string >{ cmdStr };
             MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
         }
@@ -3803,8 +3801,6 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     {
         MessageData data;
         data.m_String = "VSPAEROSolverMessage";
-        data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
-        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
         data.m_StringVec = vector < string >{ cmdStr };
         MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
@@ -3896,8 +3892,6 @@ void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
     {
         MessageData data;
         data.m_String = "VSPAEROSolverMessage";
-        data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
-        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
         data.m_StringVec = vector < string >{ cmdStr };
         MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
@@ -4867,8 +4861,6 @@ string VSPAEROMgrSingleton::ExecuteNoiseAnalysis( FILE* logFile, int noise_type,
     {
         MessageData data;
         data.m_String = "VSPAEROSolverMessage";
-        data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
-        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
         data.m_StringVec = vector < string >{ cmdStr };
         MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
