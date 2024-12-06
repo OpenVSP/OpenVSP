@@ -313,6 +313,25 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_WakeLayout.ForceNewLine();
 
+    // Flow Condition
+    m_RightColumnLayout.AddSubGroupLayout( m_FlowCondLayout,
+        m_RightColumnLayout.GetW(),
+        4 * m_RightColumnLayout.GetStdHeight() +
+        m_RightColumnLayout.GetDividerHeight() );
+    m_RightColumnLayout.AddY( m_FlowCondLayout.GetH() );
+
+    m_FlowCondLayout.AddDividerBox( "Flow Condition" );
+    m_FlowCondLayout.SetSameLineFlag( false );
+    m_FlowCondLayout.SetFitWidthFlag( true );
+
+    m_FlowCondLayout.SetButtonWidth( button_width );
+
+    m_FlowCondLayout.AddInputEvenSpacedVector( m_AlphaStartInput, m_AlphaEndInput, m_AlphaNptsInput, "Alpha", "%7.3f" );
+    m_FlowCondLayout.AddInputEvenSpacedVector( m_BetaStartInput, m_BetaEndInput, m_BetaNptsInput, "Beta", "%7.3f" );
+    m_FlowCondLayout.AddInputEvenSpacedVector( m_MachStartInput, m_MachEndInput, m_MachNptsInput, "Mach", "%7.3f" );
+    m_FlowCondLayout.AddInputEvenSpacedVector( m_ReCrefStartInput, m_ReCrefEndInput, m_ReCrefNptsInput, "ReCref", "%g" );
+
+    m_RightColumnLayout.AddYGap();
     // Reference Quantities
     m_RightColumnLayout.AddSubGroupLayout( m_RefLengthLayout,
         m_RightColumnLayout.GetW(),
@@ -436,26 +455,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_MomentRefLayout.AddSlider( m_XcgSlider, "Xref", 100.0, "%7.3f" );
     m_MomentRefLayout.AddSlider( m_YcgSlider, "Yref", 100.0, "%7.3f" );
     m_MomentRefLayout.AddSlider( m_ZcgSlider, "Zref", 100.0, "%7.3f" );
-
-    m_RightColumnLayout.AddYGap();
-
-    // Flow Condition
-    m_RightColumnLayout.AddSubGroupLayout( m_FlowCondLayout,
-        m_RightColumnLayout.GetW(),
-        4 * m_RightColumnLayout.GetStdHeight() +
-        m_RightColumnLayout.GetDividerHeight() );
-    m_RightColumnLayout.AddY( m_FlowCondLayout.GetH() );
-
-    m_FlowCondLayout.AddDividerBox( "Flow Condition" );
-    m_FlowCondLayout.SetSameLineFlag( false );
-    m_FlowCondLayout.SetFitWidthFlag( true );
-
-    m_FlowCondLayout.SetButtonWidth( button_width );
-
-    m_FlowCondLayout.AddInputEvenSpacedVector( m_AlphaStartInput, m_AlphaEndInput, m_AlphaNptsInput, "Alpha", "%7.3f" );
-    m_FlowCondLayout.AddInputEvenSpacedVector( m_BetaStartInput, m_BetaEndInput, m_BetaNptsInput, "Beta", "%7.3f" );
-    m_FlowCondLayout.AddInputEvenSpacedVector( m_MachStartInput, m_MachEndInput, m_MachNptsInput, "Mach", "%7.3f" );
-    m_FlowCondLayout.AddInputEvenSpacedVector( m_ReCrefStartInput, m_ReCrefEndInput, m_ReCrefNptsInput, "ReCref", "%g" );
 
     m_RightColumnLayout.AddYGap();
 
