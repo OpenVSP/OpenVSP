@@ -1608,6 +1608,8 @@ Fl_Terminal* VSPAEROScreen::GetDisplay( int id )
 
 void VSPAEROScreen::UpdateCaseSetup()
 {
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
     m_NRefCounter.Update( VSPAEROMgr.m_NRef.GetID() );
 
     m_CullFracSlider.Update( VSPAEROMgr.m_CullFrac.GetID() );
@@ -1625,6 +1627,49 @@ void VSPAEROScreen::UpdateCaseSetup()
         m_CullFracSlider.Activate();
         m_CullFracButton.Activate();
         m_ContinueCoPlanarWakesButton.Activate();
+    }
+
+    m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
+
+    m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
+
+    m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
+    m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
+    m_WriteTecplotToggle.Update( VSPAEROMgr.m_WriteTecplotFlag.GetID() );
+
+    // Wake Options
+    m_FixedWakeToggle.Update( VSPAEROMgr.m_FixedWakeFlag.GetID() );
+    m_WakeNumIterSlider.Update(VSPAEROMgr.m_WakeNumIter.GetID());
+    m_NumWakeNodeSlider.Update( VSPAEROMgr.m_NumWakeNodes.GetID() );
+
+    m_WakeRelaxSlider.Update( VSPAEROMgr.m_WakeRelax.GetID() );
+    m_FreezeWakeAtIterationSlider.Update( VSPAEROMgr.m_FreezeWakeAtIteration.GetID() );
+    m_ImplicitWakeToggle.Update( VSPAEROMgr.m_ImplicitWake.GetID() );
+    m_ImplicitWakeStartIterationSlider.Update( VSPAEROMgr.m_ImplicitWakeStartIteration.GetID() );
+
+    bool time_dependent = false;
+    if ( VSPAEROMgr.m_RotateBladesFlag() || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_P_ANALYSIS ||
+         VSPAEROMgr.m_StabilityType() == vsp::STABILITY_Q_ANALYSIS || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
+    {
+        time_dependent = true;
+    }
+
+    if ( time_dependent )
+    {
+        m_FixedWakeToggle.Deactivate();
+    }
+    else
+    {
+        m_FixedWakeToggle.Activate();
+    }
+
+    if ( time_dependent || VSPAEROMgr.m_FixedWakeFlag() )
+    {
+        m_WakeNumIterSlider.Deactivate();
+    }
+    else
+    {
+        m_WakeNumIterSlider.Activate();
     }
 
 }
@@ -1744,49 +1789,6 @@ void VSPAEROScreen::UpdateCGDevices()
 void VSPAEROScreen::UpdateAdvancedTabDevices()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
-
-    m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
-
-    m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
-
-    m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
-    m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
-    m_WriteTecplotToggle.Update( VSPAEROMgr.m_WriteTecplotFlag.GetID() );
-
-    // Wake Options
-    m_FixedWakeToggle.Update( VSPAEROMgr.m_FixedWakeFlag.GetID() );
-    m_WakeNumIterSlider.Update(VSPAEROMgr.m_WakeNumIter.GetID());
-    m_NumWakeNodeSlider.Update( VSPAEROMgr.m_NumWakeNodes.GetID() );
-
-    m_WakeRelaxSlider.Update( VSPAEROMgr.m_WakeRelax.GetID() );
-    m_FreezeWakeAtIterationSlider.Update( VSPAEROMgr.m_FreezeWakeAtIteration.GetID() );
-    m_ImplicitWakeToggle.Update( VSPAEROMgr.m_ImplicitWake.GetID() );
-    m_ImplicitWakeStartIterationSlider.Update( VSPAEROMgr.m_ImplicitWakeStartIteration.GetID() );
-
-    bool time_dependent = false;
-    if ( VSPAEROMgr.m_RotateBladesFlag() || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_P_ANALYSIS ||
-         VSPAEROMgr.m_StabilityType() == vsp::STABILITY_Q_ANALYSIS || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
-    {
-        time_dependent = true;
-    }
-
-    if ( time_dependent )
-    {
-        m_FixedWakeToggle.Deactivate();
-    }
-    else
-    {
-        m_FixedWakeToggle.Activate();
-    }
-
-    if ( time_dependent || VSPAEROMgr.m_FixedWakeFlag() )
-    {
-        m_WakeNumIterSlider.Deactivate();
-    }
-    else
-    {
-        m_WakeNumIterSlider.Activate();
-    }
 
     // Other Set Up Parms
     m_StallChoice.Update( VSPAEROMgr.m_StallModel.GetID() );
