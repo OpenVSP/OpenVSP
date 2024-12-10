@@ -1548,51 +1548,21 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
 
 
-    // We write all command line options to the bottom of this file in a way that is ignored
+    // We write some command line options to the bottom of this file in a way that is ignored
     // by VSPAERO, but that OpenVSP can read back in to understand what options were used
     // when a case was run.
 
-
-/*
     // The following additions to the setup file are not read by VSPAERO, and therefore must
     // be placed at the end of the file.
 
-    // Preconditioner
-    string precon;
-    if ( m_Precondition() == vsp::PRECON_MATRIX )
-    {
-        precon = "Matrix";
-    }
-    else if ( m_Precondition() == vsp::PRECON_JACOBI )
-    {
-        precon = "Jacobi";
-    }
-    else if ( m_Precondition() == vsp::PRECON_SSOR )
-    {
-        precon = "SSOR";
-    }
-    fprintf( case_file, "Preconditioner = %s \n", precon.c_str() );
-
-    // 2nd Order Karman-Tsien Mach Number Correction
-    string ktcorrect;
-    if ( m_KTCorrection() )
-    {
-        ktcorrect = "Y";
-    }
-    else
-    {
-        ktcorrect = "N";
-    }
-    fprintf( case_file, "Karman-Tsien Correction = %s \n", ktcorrect.c_str() );
-
-    fprintf( case_file, "Stability Type = %d \n", m_StabilityType() ); // Stability Type
+    fprintf( case_file, "VSP_StabilityType = %d \n", m_StabilityType() ); // Stability Type
 
     if ( m_RotateBladesFlag() )
     {
-        fprintf( case_file, "Num Unsteady Groups = %d \n", NumUnsteadyGroups() ); // Number of unsteady groups
-        fprintf( case_file, "Num Unsteady Props = %d \n", NumUnsteadyRotorGroups() ); // number of unsteady propellers
+        fprintf( case_file, "VSP_NumUnsteadyGroups = %d \n", NumUnsteadyGroups() ); // Number of unsteady groups
+        fprintf( case_file, "VSP_NumUnsteadyProps = %d \n", NumUnsteadyRotorGroups() ); // number of unsteady propellers
     }
-*/
+
 
     //Finish up by closing the file and making sure that it appears in the file system
     fclose( case_file );
@@ -1649,17 +1619,17 @@ void VSPAEROMgrSingleton::ReadSetupFile()
     char strbuff[1024]; // buffer for entire line in file
     while ( fgets( strbuff, 1024, case_file ) != nullptr )
     {
-        if ( string( strbuff ).find( "Stability Type" ) != string::npos )
+        if ( string( strbuff ).find( "VSP_StabilityType" ) != string::npos )
         {
-            sscanf( strbuff, "Stability Type = %d \n", &m_PreviousStabilityType );
+            sscanf( strbuff, "VSP_StabilityType = %d \n", &m_PreviousStabilityType );
         }
-        else if ( string( strbuff ).find( "Num Unsteady Groups" ) != string::npos )
+        else if ( string( strbuff ).find( "VSP_NumUnsteadyGroups" ) != string::npos )
         {
-            sscanf( strbuff, "Num Unsteady Groups = %d \n", &m_PreviousNumUnsteadyGroups );
+            sscanf( strbuff, "VSP_NumUnsteadyGroups = %d \n", &m_PreviousNumUnsteadyGroups );
         }
-        else if ( string( strbuff ).find( "Num Unsteady Props" ) != string::npos )
+        else if ( string( strbuff ).find( "VSP_NumUnsteadyProps" ) != string::npos )
         {
-            sscanf( strbuff, "Num Unsteady Props = %d \n", &m_PreviousNumUnsteadyProps );
+            sscanf( strbuff, "VSP_NumUnsteadyProps = %d \n", &m_PreviousNumUnsteadyProps );
         }
     }
 
