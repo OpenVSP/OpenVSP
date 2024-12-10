@@ -1925,7 +1925,7 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
     }
     for ( unsigned int iCase = 0; iCase < m_SweepYDataBrowser->size(); iCase++ )
     {
-        if( ( m_SelectDefaultData && strcmp( m_SweepYDataBrowser->text( iCase + 1 ), "CL" ) == 0 ) )
+        if( ( m_SelectDefaultData && strcmp( m_SweepYDataBrowser->text( iCase + 1 ), "CLtot" ) == 0 ) )
         {
             m_SweepYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
         }
@@ -2097,7 +2097,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
         // TODO: Get feedback of best default. Options: Cx, Cy, Cz, Cxo, Cyo,
         //  Czo, Cxi, Cyi, Czi, Cmx, Cmy , Cmz, EtaP, Cmxo, Cmxo, CP_H, Cmzo, 
         //  Cmxi, Cmyi, Cmzi, CL, CD, CLo, CDo, CLi, CDi 
-        default_res = "CL";
+        default_res = "CLtot";
     }
     else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR_SELECT_TYPE )
     {
@@ -2132,7 +2132,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
         }
         else
         {
-            default_res = "CL"; // TODO: Get feedback of best default
+            default_res = "CLtot"; // TODO: Get feedback of best default
         }
     }
 
