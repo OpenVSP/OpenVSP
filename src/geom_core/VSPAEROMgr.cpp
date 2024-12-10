@@ -2745,7 +2745,6 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
 
     Results* res = nullptr;
     std::vector< std::string > data_string_array;
-    bool sectional_data_complete = false; // flag indicating if the sectional data section of the Lod file has been read
 
     double cref = 1.0;
 
@@ -2772,7 +2771,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
 
         // Sectional distribution table
         int nSectionalDataTableCols = 36;
-        if ( data_string_array.size() == nSectionalDataTableCols && !sectional_data_complete && !isdigit( data_string_array[0][0] ) )
+        if ( data_string_array.size() == nSectionalDataTableCols && !isdigit( data_string_array[0][0] ) )
         {
             //discard the header row and read the next line assuming that it is numeric
             data_string_array = ReadDelimLine( fp, seps );
@@ -2987,12 +2986,6 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             res->Add( new NameValData( "cmxi*c/cref", Cmxic_cref, "Section X scaled moment.  Induced part." ) );
             res->Add( new NameValData( "cmyi*c/cref", Cmyic_cref, "Section Y scaled moment.  Induced part." ) );
             res->Add( new NameValData( "cmzi*c/cref", Cmzic_cref, "Section Z scaled moment.  Induced part." ) );
-
-            if ( !sectional_data_complete )
-            {
-                // First time through.
-                sectional_data_complete = true;
-            }
 
         } // end sectional and remnant table read
 
