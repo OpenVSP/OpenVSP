@@ -3024,7 +3024,7 @@ class HersheyVV : VV_Base
                     array<double> alpha_vec = GetDoubleResults( rid_vec[i], "Alpha" );
                     alpha_res[i] = alpha_vec[int(alpha_vec.length()) - 1];
                     
-                    array<double> cl_vec = GetDoubleResults( rid_vec[i], "CL" );
+                    array<double> cl_vec = GetDoubleResults( rid_vec[i], "CLtot" );
                     Cl_res[i] = cl_vec[int(cl_vec.length()) - 1];
                     
                     Cl_approx_vec[i] = 2 * pi * sin( Deg2Rad( alpha_res[i] ) );
@@ -3128,7 +3128,7 @@ class HersheyVV : VV_Base
             if ( rid_vec.length() > 0 )
             {
                 // Get Result from Final Wake Iteration
-                array<double> cl_vec = GetDoubleResults( rid_vec[0], "CL" );
+                array<double> cl_vec = GetDoubleResults( rid_vec[0], "CLtot" );
                 
                 double Cl_pm = cl_vec[int(cl_vec.length()) - 1];
                 Cl_alpha_pm[x] = Cl_pm; // deg (alpha = 1.0°)
@@ -3789,7 +3789,7 @@ class HersheyVV : VV_Base
                 if ( rid_vec.length() > 0 )
                 {
                     // Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
-                    array<double> cl_vec = GetDoubleResults( rid_vec[0], "CL" );
+                    array<double> cl_vec = GetDoubleResults( rid_vec[0], "CLtot" );
                     double Cl_alpha_vsp = cl_vec[int(cl_vec.length()) - 1]; // alpha = 1.0 deg
                     
                     Error_Cla[u][w] = (abs((Cl_alpha_vsp - Cl_alpha_theo)/Cl_alpha_theo))*100;
@@ -4796,7 +4796,7 @@ class SweepVV : VV_Base
                 if ( rid_vec.length() > 0 )
                 {
                     // Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
-                    array<double> cl_vec = GetDoubleResults( rid_vec[0], "CL" );
+                    array<double> cl_vec = GetDoubleResults( rid_vec[0], "CLtot" );
                     double Cl_res = cl_vec[int(cl_vec.length()) - 1];
                     Cl_alpha_vlm[x][s] = Cl_res; // alpha = 1.0 (deg)
                     Lift_angle_vlm[x][s] = 1/(Cl_alpha_vlm[x][s]); // deg
@@ -4869,7 +4869,7 @@ class SweepVV : VV_Base
                 if ( rid_vec.length() > 0 )
                 {
                     // Get Result from Final Wake Iteration
-                    array<double> cl_vec = GetDoubleResults( rid_vec[0], "CL" );
+                    array<double> cl_vec = GetDoubleResults( rid_vec[0], "CLtot" );
                     
                     double Cl_pm = cl_vec[int(cl_vec.length()) - 1];
                     Cl_alpha_pm[x][s] = Cl_pm; // deg (alpha = 1.0°)
@@ -5086,7 +5086,7 @@ class SweepVV : VV_Base
                 if ( rid_vec.length() > 0 )
                 {
                     // Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
-                    array<double> cl_vec = GetDoubleResults( rid_vec[0], "CL" );
+                    array<double> cl_vec = GetDoubleResults( rid_vec[0], "CLtot" );
                     double Cl_res = cl_vec[int(cl_vec.length()) - 1];
 
                     // Calculate Error
@@ -5333,7 +5333,7 @@ class BertinVV : VV_Base
             array<double> alpha_vec = GetDoubleResults( rid_vec[i], "Alpha" );
             m_AlphaSweepVec[i] = alpha_vec[int(alpha_vec.length()) - 1];
             
-            array<double> cl_vec = GetDoubleResults( rid_vec[i], "CL" );
+            array<double> cl_vec = GetDoubleResults( rid_vec[i], "CLtot" );
             Cl_res[i] = cl_vec[int(cl_vec.length()) - 1];
             
             Cl_approx_vec[i] = m_Cl_alpha_expected * sin( Deg2Rad( m_AlphaSweepVec[i] ) );
@@ -5594,10 +5594,10 @@ class WarrenVV : VV_Base
             array<double> alpha_vec = GetDoubleResults( rid_vec[i], "Alpha" );
             m_AlphaSweepVec[i] = alpha_vec[int(alpha_vec.length()) - 1];
             
-            array<double> cl_vec = GetDoubleResults( rid_vec[i], "CL" );
+            array<double> cl_vec = GetDoubleResults( rid_vec[i], "CLtot" );
             Cl_res[i] = cl_vec[int(cl_vec.length()) - 1];
 
-            array<double> cmy_vec = GetDoubleResults( rid_vec[i], "CMy" );
+            array<double> cmy_vec = GetDoubleResults( rid_vec[i], "CMytot" );
             Cm_res[i] = cmy_vec[int(cmy_vec.length()) - 1];
             
             Cl_approx_vec[i] = m_Cl_alpha_expected * sin( Deg2Rad( m_AlphaSweepVec[i] ) );
@@ -6986,7 +6986,7 @@ class SDVV : VV_Base
                 if ( rid_vec.length() > 0 )
                 {
                     // Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
-                    array<double> cl_vec = GetDoubleResults( rid_vec[0], "CL" );
+                    array<double> cl_vec = GetDoubleResults( rid_vec[0], "CLtot" );
                     double Cl_res = cl_vec[int(cl_vec.length()) - 1];
                     double Cl_alpha_vsp = Cl_res / 5.0; // alpha = 5.0 (deg)
                     Cl_alpha_vsp = Cl_alpha_vsp*(180/pi); // deg -> rad 
