@@ -1402,9 +1402,11 @@ class HTML
                     head_str[8] = string("Mach Correction");
                     head_str[9] = string("Exe Time (sec)");
                     t2.m_HeaderStringVec = head_str;
-                    
-                    data_mat.resize(4);
-                    for ( uint8 i = 0; i < 4; i++ )
+
+                    const uint8 num_case = 2; // Number of advanced VSPAERO settings to test
+
+                    data_mat.resize(num_case);
+                    for ( uint8 i = 0; i < num_case; i++ )
                     {
                         data_mat[i].resize(10);
                         
@@ -1425,19 +1427,6 @@ class HTML
                         data_mat[i][6] = m_hvv.m_AdvancedWakeVec[w];
                         
                         if ( i == 1 )
-                        {
-                            data_mat[i][7] = string("Jacobi");
-                        }
-                        else if ( i == 2 )
-                        {
-                            data_mat[i][7] = string("SSOR");
-                        }
-                        else
-                        {
-                            data_mat[i][7] = string("Matrix");
-                        }
-                        
-                        if ( i == 3 )
                         {
                             data_mat[i][8] = string("On");
                         }
@@ -4423,10 +4412,13 @@ class HersheyVV : VV_Base
             array<string> data_str_vec1;
             for( uint i = 0; i < uint8(span_loc_data[0].length()); i++ )
             {
-                string row = string("\t\t  [") + double( span_loc_data[0][i] ) + string(",") + double( cl_dist_data[0][i] ) + string(",") + 
-                    double( cl_dist_data[1][i] ) + string(",") + double( cl_dist_data[2][i] ) + string(",") + double( cl_dist_data[3][i] ) + 
-                    string(",") + string(",null],\n");
-                    
+                string row = string("\t\t  [") + double( span_loc_data[0][i] ) + string(",");
+                for ( uint8 j = 0; j < num_case; j++ )
+                {
+                    row = row + double( cl_dist_data[j][i] ) + string(",");
+                }
+                row = row + string(",null],\n");
+
                 data_str_vec1.push_back( row );
             }
 
