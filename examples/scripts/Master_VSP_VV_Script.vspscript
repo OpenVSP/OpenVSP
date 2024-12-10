@@ -4297,7 +4297,7 @@ class HersheyVV : VV_Base
         const uint8 x = 2; // AR
         const uint8 t = 2; // Tip Clustering
         
-        const uint8 num_case = 4; // Number of advanced VSPAERO settings to test
+        const uint8 num_case = 2; // Number of advanced VSPAERO settings to test
         const uint8 num_wake = uint8(m_AdvancedWakeVec.length());
 
         m_AdvancedTimeVec.resize(num_wake);
@@ -4368,16 +4368,6 @@ class HersheyVV : VV_Base
                 // if i == 0 -> use default advanced settings
                 
                 if ( i == 1 )
-                {
-                    array<int> precon_vec(1, PRECON_JACOBI); // Jacobi Preconditioner
-                    SetIntAnalysisInput(m_VSPSweepAnalysis, "Precondition", precon_vec, 0);
-                }
-                else if ( i == 2 )
-                {
-                    array<int> precon_vec(1, PRECON_SSOR); // SSOR Preconditioner
-                    SetIntAnalysisInput(m_VSPSweepAnalysis, "Precondition", precon_vec, 0);
-                }
-                else if ( i == 3 )
                 {
                     array<int> KTCorrect_vec(1, 0); // 2nd Orrder Mach Correction On
                     SetIntAnalysisInput(m_VSPSweepAnalysis, "KTCorrection", KTCorrect_vec, 0);
