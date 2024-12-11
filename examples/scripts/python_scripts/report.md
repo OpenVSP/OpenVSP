@@ -489,7 +489,7 @@ Note that if the VKT airfoil is symmetric, there is no difference in the exact $
 When the airfoil is not symmetric, there is a noticeable difference in the $C_{P}$ distribution between the upper and lower surfaces.
 
 #### VKT ε κ τ Study Geometry Setup </div>
-| Airfoil | $\epsilon$ | $\kapa$  | $\tau$ (°) | AR | Root Chord | Tip Chord | $\Lambda$ (°) | Span Tess (U) | Chord Tess (W) | Tip Clustering |
+| Airfoil | $\epsilon$ | $\kappa$ | $\tau$ (°) | AR | Root Chord | Tip Chord | $\Lambda$ (°) | Span Tess (U) | Chord Tess (W) | Tip Clustering |
 |:-------:|:----------:|:--------:|:----------:|:--:|:----------:|:---------:|:-------------:|:-------------:|:--------------:|:--------------:|
 | VKT     |  0.1, 0.2  | 0.0, 0.1 |   0, 10    | 30 |    1.0     |   1.0     |     0.0       |      41       |       51       |      1.0       |
 
@@ -520,7 +520,7 @@ This file is loaded in XFoil 6.99 and run with identical flow conditions as VSPA
 The VKT airfoil coordinate file, "VKT_e0.1_k0.1_t10.dat", and $C_{P}$ distribution results file from XFoil, "XFoil_VKT_CpDist.txt", can be found in the airfoil directory of the OpenVSP software. 
 
 #### VKT Chord Tesselation Study Geometry Setup </div>
-| Airfoil | $\epsilon$ | $\kapa$ | $\tau$ (°) | AR | Root Chord | Tip Chord | $\Lambda$ (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering |
+| Airfoil | $\epsilon$ | $\kappa$ | $\tau$ (°) | AR | Root Chord | Tip Chord | $\Lambda$ (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering |
 |:-------:|:----------:|:-------:|:----------:|:--:|:----------:|:---------:|:-------------:|:-------------:|:--------------:|:-------------:|:-------------:|
 | VKT     |    0.1     |   0.1   |     10     | 15 |    1.0     |   1.0     |     0.0       |   12 to 41    |    17 to 51    |      0.2      |      1.0      |
 
@@ -545,7 +545,7 @@ This comparison can be seen in the plots below.
 The VKT coordinate file input to XFoil, "VKT_e0.1_k0.1_t10.dat", and $C_{P}$ distribution results file, "XFoil_VKT_CpDist.txt", are located in the airfoil directory.
 
 #### VKT Span Tesselation Study Geometry Setup </div>
-| Airfoil | $\epsilon$ | $\kapa$ | $\tau$ (°) | AR | Root Chord | Tip Chord | $\Lambda$ (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering |
+| Airfoil | $\epsilon$ | $\kappa$ | $\tau$ (°) | AR | Root Chord | Tip Chord | $\Lambda$ (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering |
 |:-------:|:----------:|:-------:|:----------:|:--:|:----------:|:---------:|:-------------:|:-------------:|:--------------:|:-------------:|:-------------:|
 | VKT     |    0.1     |   0.1   |     10     | 15 |    1.0     |   1.0     |     0.0       |   12 to 41    |    17 to 51    |      0.2      |      1.0      |
 

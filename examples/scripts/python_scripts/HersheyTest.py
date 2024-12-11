@@ -511,7 +511,7 @@ class HersheyTest:
         
         fig, ax = plt.subplots()
         ax.set_title('Hershey Bar VLM Cl vs Alpha for Various AR')
-        ax.set_xlabel('Alpha (॰)')
+        ax.set_xlabel('Alpha (°)')
         ax.set_ylabel('Cl')
         for i in range(len(self.Cl_vlm)):
             ax.plot(self.alpha_vlm[0],self.Cl_vlm[i], 'o-',label='AR: '+str(self.m_halfAR[i]*2),color=const.colors[i])
@@ -525,7 +525,7 @@ class HersheyTest:
         fig, ax = plt.subplots()
         ax.set_title('Hershey Bar Cl_alpha vs AR')
         ax.set_xlabel('AR')
-        ax.set_ylabel('Cl_alpha (॰)')
+        ax.set_ylabel('Cl_alpha (°)')
         ax.plot(self.AR,self.Cl_alpha_vlm,'o-', color=const.colors[0], label='VSPAERO VLM')
         ax.plot(self.AR,self.Cl_alpha_pm,'o-',color=const.colors[1],label='VSPAERO Panel')
         ax.plot(self.AR,self.Cl_alpha_theo,color=const.colors[-1],label='LLT')
@@ -537,7 +537,7 @@ class HersheyTest:
         
         fig, ax = plt.subplots()
         ax.set_title('Hershey Bar VLM Cl_alpha Alpha Sensitivity: AR = 10')
-        ax.set_xlabel('Alpha (॰)')
+        ax.set_xlabel('Alpha (°)')
         ax.set_ylabel(r'Cl_alpha % Error')
         ax.plot(self.alpha_vlm[1],self.Error_Cl_alpha_vlm,'o-',color=const.colors[0],label=r'% Error')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
