@@ -75,7 +75,9 @@ class HersheyTest:
 
         #Consts
         self.Vinf = 100
-        self.num_case = 4
+
+        # Number of cases in Advanced tests.
+        self.num_case = 2
         
         #Data for CLvA chart
         self.alpha_vlm = [[] for i in range(len(self.m_halfAR))]
@@ -1626,14 +1628,13 @@ class HersheyTest:
         x = 2 # AR
         t = 2 # Tip Clustering
     
-        num_case = 4 # Number of advanced VSPAERO settings to test
         num_wake = len(self.m_AdvancedWakeVec)
 
-        self.m_AdvancedTimeVec = [[0.0]*num_case for i in range(num_wake)]
+        self.m_AdvancedTimeVec = [[0.0]*self.num_case for i in range(num_wake)]
         
         for w in range (num_wake):
         
-            for i in range( num_case ):
+            for i in range( self.num_case ):
             
                 fname =scriptpath + '/hershey_files/vsp_files/Hershey_Advanced_' + str(i) + '.vsp3'
                 fname_res =scriptpath + '/hershey_files/vsp_files/Hershey_Advanced_' + str(i) + '_res.csv'
@@ -1694,14 +1695,6 @@ class HersheyTest:
                 # if i == 0 -> use default advanced settings
                 
                 if ( i == 1 ):
-                    precon_vec=[vsp.PRECON_JACOBI] # Jacobi Preconditioner
-                    vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Precondition', precon_vec, 0)
-                
-                elif ( i == 2 ):
-                    precon_vec=[vsp.PRECON_SSOR] # SSOR Preconditioner
-                    vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Precondition', precon_vec, 0)
-                
-                elif ( i == 3 ):
                     KTCorrect_vec=[0] # 2nd Orrder Mach Correction On
                     vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'KTCorrection', KTCorrect_vec, 0)
                 
@@ -1749,9 +1742,8 @@ class HersheyTest:
         ax.set_xlabel('Wake Iter')
         ax.set_ylabel('Time (Sec)')
         time_vec_trans = [[ self.m_AdvancedTimeVec[i][j] for i in range(len(self.m_AdvancedWakeVec))] for j in range(self.num_case)]
-        print(f'time vec{time_vec_trans}')
         for i in range(len(time_vec_trans)):
-            ax.plot(range(1,self.num_case),time_vec_trans[i],'o-', color=const.colors[i+1],label='Case #'+str(i+1))
+            ax.plot(range(len(self.m_AdvancedWakeVec)),time_vec_trans[i],'o-', color=const.colors[i+1],label='Case #'+str(i+1))
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/advanced_settings/comp_time.svg', bbox_inches='tight')
         
