@@ -386,7 +386,7 @@ class HersheyTest:
                     alpha_vec = vsp.GetDoubleResults( rid_vec[i], 'Alpha' )
                     alpha_res[i] = alpha_vec[int(len(alpha_vec)) - 1]
                     
-                    cl_vec = vsp.GetDoubleResults( rid_vec[i], 'CL' )
+                    cl_vec = vsp.GetDoubleResults( rid_vec[i], 'CLtot' )
                     Cl_res[i] = cl_vec[int(len(cl_vec)) - 1]
                     
                     Cl_approx_vec[i] = 2 * math.pi * math.sin( math.radians( alpha_res[i] ) )
@@ -484,7 +484,7 @@ class HersheyTest:
             if ( len(rid_vec) > 0 ):
             
                 # Get Result from Final Wake Iteration
-                cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CL' )
+                cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CLtot' )
                 
                 Cl_pm = cl_vec[int(len(cl_vec)) - 1]
                 self.Cl_alpha_pm[x] = Cl_pm # deg (alpha = 1.0°)
@@ -707,7 +707,7 @@ class HersheyTest:
                 if ( len(rid_vec) > 0 ):
                 
                     # Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
-                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CL' )
+                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CLtot' )
                     Cl_alpha_vsp = cl_vec[int(len(cl_vec)) - 1] # alpha = 1.0 deg
                     
                     self.Error_Cla[u][w] = (abs((Cl_alpha_vsp - Cl_alpha_theo)/Cl_alpha_theo))*100
@@ -922,7 +922,7 @@ class HersheyTest:
                 # Lift Distribution:
                 self.span_loc_data_tc[t] = vsp.GetDoubleResults( load_rid, 'Yavg' )
                 self.cl_dist_data_tc[t] = vsp.GetDoubleResults( load_rid, 'cl' )
-                self.cd_dist_data_tc[t] = vsp.GetDoubleResults( load_rid, 'cd' )
+                self.cd_dist_data_tc[t] = vsp.GetDoubleResults( load_rid, 'cdi' )
             
             
             vsp.ClearVSPModel()
@@ -1103,7 +1103,7 @@ class HersheyTest:
                 # Lift Distribution:
                 self.span_loc_data_utess[u] = vsp.GetDoubleResults( load_rid, 'Yavg' )
                 self.cl_dist_data_utess[u] = vsp.GetDoubleResults( load_rid, 'cl' )
-                self.cd_dist_data_utess[u] = vsp.GetDoubleResults( load_rid, 'cd' )
+                self.cd_dist_data_utess[u] = vsp.GetDoubleResults( load_rid, 'cdi' )
             
             
             vsp.ClearVSPModel()
@@ -1305,7 +1305,7 @@ class HersheyTest:
                 # Lift Distribution:
                 self.span_loc_data_wtess[w] = vsp.GetDoubleResults( load_rid, 'Yavg' )
                 self.cl_dist_data_wtess[w] = vsp.GetDoubleResults( load_rid, 'cl' )
-                self.cd_dist_data_wtess[w] = vsp.GetDoubleResults( load_rid, 'cd' )
+                self.cd_dist_data_wtess[w] = vsp.GetDoubleResults( load_rid, 'cdi' )
             
             
             vsp.ClearVSPModel()

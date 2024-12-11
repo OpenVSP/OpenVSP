@@ -167,7 +167,7 @@ class SupersonicDeltaWingTest:
                 
                 rid_vec = vsp.GetStringResults(rid, 'ResultsVec')
                 if len(rid_vec) > 0:
-                    cl_vec = vsp.GetDoubleResults(rid_vec[0], 'CL')
+                    cl_vec = vsp.GetDoubleResults(rid_vec[0], 'CLtot')
                     Cl_res = cl_vec[-1]
                     Cl_alpha_vsp = Cl_res / math.radians(Alpha[0]) 
                     

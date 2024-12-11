@@ -170,10 +170,10 @@ class WarrenTest:
             alpha_vec = vsp.GetDoubleResults( rid_vec[i], 'Alpha' )
             self.m_AlphaSweepVec[i] = alpha_vec[len(alpha_vec) - 1]
             
-            cl_vec = vsp.GetDoubleResults( rid_vec[i], 'CL' )
+            cl_vec = vsp.GetDoubleResults( rid_vec[i], 'CLtot' )
             self.Cl_res[i] = cl_vec[len(cl_vec) - 1]
             
-            cmy_vec = vsp.GetDoubleResults( rid_vec[i], 'CMy' )
+            cmy_vec = vsp.GetDoubleResults( rid_vec[i], 'CMytot' )
             self.Cm_res[i] = cmy_vec[len(cmy_vec) - 1]
             
             self.Cl_approx_vec[i] = self.m_Cl_alpha_expected * math.sin( math.radians( self.m_AlphaSweepVec[i]))

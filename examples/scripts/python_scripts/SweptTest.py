@@ -215,7 +215,7 @@ class SweptTest:
                 if len(rid_vec) > 0 :
                 
                     # Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
-                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CL' )
+                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CLtot' )
                     Cl_res = cl_vec[len(cl_vec) - 1]
 
                     # Calculate Error
@@ -432,7 +432,7 @@ class SweptTest:
                 if len(rid_vec) > 0 :
                 
                     # Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
-                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CL' )
+                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CLtot' )
                     Cl_res = cl_vec[-1]
                     self.Cl_alpha_vlm[x][s] = Cl_res # alpha = 1.0 (deg)
                     Lift_angle_vlm[x][s] = 1/(self.Cl_alpha_vlm[x][s]) # deg
@@ -504,7 +504,7 @@ class SweptTest:
                 rid_vec = vsp.GetStringResults( rid, 'ResultsVec' )
                 if len(rid_vec) > 0:
                     # Get Result from Final Wake Iteration
-                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CL' )
+                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CLtot' )
                     
                     Cl_pm = cl_vec[len(cl_vec) - 1]
                     self.Cl_alpha_pm[x][s] = Cl_pm # deg (alpha = 1.0°)
