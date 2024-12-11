@@ -2871,6 +2871,8 @@ string VSPAEROSweepAnalysis::Execute()
             fname = nvd->GetString( 0 );
         }
 
+        VSPAEROMgr.ClearCpSliceVec();
+
         //==== Execute Analysis ====//
 
         // Set flag to terminate after writing input files.
