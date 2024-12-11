@@ -144,8 +144,10 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_FixedWakeFlag.SetDescript( "Flag to enable a fixed wake." );
     m_WakeNumIter.Init( "WakeNumIter", groupname, this, 3, 3, 255 );
     m_WakeNumIter.SetDescript( "Number of wake iterations to execute" );
-    m_NumWakeNodes.SetPowShift( 2, 0 ); // Must come before Init
-    m_NumWakeNodes.Init( "RootWakeNodes", groupname, this, 64, 0, 10e12 );
+
+    // m_NumWakeNodes no longer must be a power of two.
+    // m_NumWakeNodes.SetPowShift( 2, 0 ); // Must come before Init
+    m_NumWakeNodes.Init( "RootWakeNodes", groupname, this, 8, 0, 10e12 );
     m_NumWakeNodes.SetDescript( "Number of Wake Nodes (f(n^2))" );
 
     // This sets all the filename members to the appropriate value (for example: empty strings if there is no vehicle)
@@ -469,7 +471,7 @@ void VSPAEROMgrSingleton::Renew()
     m_StallModel.Set( vsp::STALL_OFF );
     m_GroundEffectToggle.Set( false );
     m_FromSteadyState.Set( false );
-    m_NumWakeNodes.Set( 64 );
+    m_NumWakeNodes.Set( 8 );
 }
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )

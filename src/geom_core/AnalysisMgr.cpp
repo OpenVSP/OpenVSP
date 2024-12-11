@@ -2940,6 +2940,7 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_NCPU.Set( ncpuOrig );
         VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
+        VSPAEROMgr.m_NumWakeNodes.Set( numWakeNodesOrig );
         VSPAEROMgr.m_StabilityType.Set( stabilityTypeOrig );
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
         VSPAEROMgr.m_Write2DFEMFlag.Set( write2DFEMOrig );

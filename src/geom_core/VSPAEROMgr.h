@@ -426,7 +426,7 @@ public:
     IntParm m_NCPU;
     BoolParm m_FixedWakeFlag;
     IntParm m_WakeNumIter;
-    PowIntParm m_NumWakeNodes;
+    IntParm m_NumWakeNodes;
 
     // Other Setup Parameters
     Parm m_Vinf;
