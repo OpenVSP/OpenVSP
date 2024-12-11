@@ -157,9 +157,8 @@ class VKTTest:
 
                     # list inputs, type, and current values
                     vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
-                    panel_analysis = [vsp.PANEL]
-                    
-                    vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'AnalysisMethod', panel_analysis)
+                    vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'GeomSet', [vsp.SET_ALL], 0)  # Thick geometry - Panel
+                    vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'ThinGeomSet', [vsp.SET_NONE], 0)
 
                     # Execute
                     print( '\tExecuting...' )
@@ -175,14 +174,13 @@ class VKTTest:
                     print(const.m_VSPSweepAnalysis)
 
                     # Reference geometry set
-                    vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', const.m_GeomVec, 0)
+                    vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', [vsp.SET_ALL], 0)  # Thick geometry - Panel
+                    vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'ThinGeomSet', [vsp.SET_NONE], 0)
                     vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
                     #vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Symmetry', const.m_SymFlagVec, 0) #TODO: Add symmetry if VSPAERO doesn't crash
 
                     wid = vsp.FindGeomsWithName( 'WingGeom' )
                     vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, 'WingID', wid, 0)
-                    
-                    vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AnalysisMethod', panel_analysis)
 
                     # Freestream Parameters
 
@@ -222,9 +220,6 @@ class VKTTest:
                     # Set defaults
                     vsp.SetAnalysisInputDefaults( const.m_CpSliceAnalysis )
 
-                    # Indicate VSPAERO analysis type for CpSlicer (dCp vs. Cp Results)
-                    vsp.SetIntAnalysisInput( const.m_CpSliceAnalysis, 'AnalysisMethod', panel_analysis )
-                    
                     # Setup cuts
                     vsp.SetDoubleAnalysisInput(const.m_CpSliceAnalysis, 'YSlicePosVec', cut, 0 )
 
@@ -394,8 +389,8 @@ class VKTTest:
                 # list inputs, type, and current values
                 vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
-                panel_analysis = [vsp.PANEL]
-                vsp.SetIntAnalysisInput( const.m_CompGeomAnalysis, 'AnalysisMethod', panel_analysis )
+                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'GeomSet', [vsp.SET_ALL], 0)  # Thick geometry - Panel
+                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'ThinGeomSet', [vsp.SET_NONE], 0)
 
                 # Execute
                 print( '\tExecuting...' )
@@ -410,9 +405,8 @@ class VKTTest:
                 vsp.SetAnalysisInputDefaults(const.m_VSPSweepAnalysis)
                 print(const.m_VSPSweepAnalysis)
 
-                vsp.SetIntAnalysisInput( const.m_VSPSweepAnalysis, 'GeomSet', const.m_GeomVec, 0 )
-
-                vsp.SetIntAnalysisInput( const.m_VSPSweepAnalysis, 'AnalysisMethod', panel_analysis )
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', [vsp.SET_ALL], 0)  # Thick geometry - Panel
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'ThinGeomSet', [vsp.SET_NONE], 0)
 
                 # Freestream Parameters
                 vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', Alpha, 0)
@@ -446,9 +440,6 @@ class VKTTest:
 
                 # Set defaults
                 vsp.SetAnalysisInputDefaults( const.m_CpSliceAnalysis )
-                
-                # Indicate VSPAERO analysis type for CpSlicer (dCp vs. Cp Results)
-                vsp.SetIntAnalysisInput( const.m_CpSliceAnalysis, 'AnalysisMethod', panel_analysis )
                 
                 # Setup cuts
                 vsp.SetDoubleAnalysisInput( const.m_CpSliceAnalysis, 'YSlicePosVec', cut, 0 )

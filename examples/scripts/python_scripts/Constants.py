@@ -12,7 +12,6 @@ m_CompGeomAnalysis = "VSPAEROComputeGeometry"
 m_CpSliceAnalysis = 'CpSlicer'
 
 #VECTOR CONSTANTS
-m_GeomVec = [0]
 m_AlphaVec = [1.0]
 m_MachVec = [0.1]
 m_SymFlagVec = [1]

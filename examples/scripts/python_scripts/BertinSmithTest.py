@@ -100,7 +100,9 @@ class BertinSmithTest:
 
         # Set defaults
         vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
-        
+
+        vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'GeomSet', [vsp.SET_NONE], 0)
+        vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'ThinGeomSet', [vsp.SET_ALL], 0)  # Thin geometry - VLM
         vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
         # list inputs, type, and current values
@@ -120,7 +122,8 @@ class BertinSmithTest:
         print(const.m_VSPSweepAnalysis)
 
         # Reference geometry set
-        vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', const.m_GeomVec, 0)
+        vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', [vsp.SET_NONE], 0)
+        vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'ThinGeomSet', [vsp.SET_ALL], 0)  # Thin geometry - VLM
         vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
         vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 

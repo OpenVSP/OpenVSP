@@ -126,9 +126,9 @@ class EllipsoidTest:
 
                 # list inputs, type, and current values
                 vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
-                panel_analysis = [vsp.PANEL]
-                
-                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'AnalysisMethod', panel_analysis)
+
+                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'GeomSet', [vsp.SET_ALL], 0)  # Thick geometry - Panel
+                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'ThinGeomSet', [vsp.SET_NONE], 0)
 
                 # Execute
                 print( '\tExecuting...' )
@@ -158,8 +158,8 @@ class EllipsoidTest:
                 MachNpts = [1]
                 vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
 
-                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', const.m_GeomVec)
-                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AnalysisMethod', panel_analysis)
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', [vsp.SET_ALL], 0)  # Thick geometry - Panel
+                vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'ThinGeomSet', [vsp.SET_NONE], 0)
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
                 vsp.Update()
@@ -186,9 +186,6 @@ class EllipsoidTest:
                 # Set defaults
                 vsp.SetAnalysisInputDefaults( const.m_CpSliceAnalysis )
 
-                # Indicate VSPAERO analysis type for CpSlicer (dCp vs. Cp Results)
-                vsp.SetIntAnalysisInput( const.m_CpSliceAnalysis, 'AnalysisMethod', panel_analysis )
-                
                 # Setup cuts
                 vsp.SetDoubleAnalysisInput(const.m_CpSliceAnalysis, 'XSlicePosVec', cut, 0 )
                 vsp.SetDoubleAnalysisInput(const.m_CpSliceAnalysis, 'YSlicePosVec', cut, 0 )
