@@ -5930,6 +5930,7 @@ xmlNodePtr RotorDisk::EncodeXml( xmlNodePtr & node )
         ParmContainer::EncodeXml( node );
         XmlUtil::AddStringNode( node, "ParentID", m_ParentGeomId );
         XmlUtil::AddIntNode( node, "SurfIndex", m_ParentGeomSurfNdx );
+        m_DriverGroup.EncodeXml( node );
     }
 
     return node;
@@ -5944,6 +5945,7 @@ xmlNodePtr RotorDisk::DecodeXml( xmlNodePtr & node )
         ParmContainer::DecodeXml( node );
         m_ParentGeomId = ParmMgr.RemapID( XmlUtil::FindString( node, "ParentID", defstr ) );
         m_ParentGeomSurfNdx = XmlUtil::FindInt( node, "SurfIndex", defint );
+        m_DriverGroup.DecodeXml( node );
     }
 
     return node;
