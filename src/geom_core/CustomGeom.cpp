@@ -1110,6 +1110,7 @@ void CustomGeom::OffsetXSecs( double off )
 {
     m_ConformalFlag = true;
     m_ConformalOffset = off;
+    m_SurfDirty = true;
 }
 
 //==== Apply Conformal Offset ====//
