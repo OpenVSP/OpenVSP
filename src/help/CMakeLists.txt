@@ -48,7 +48,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
     ADD_CUSTOM_TARGET ( py_copy_css ALL
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/help_vsp/ )
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/help_vsp/github-pandoc.css )
 
     ADD_DEPENDENCIES ( py_copy_css py_mk_help_dir )
 
@@ -57,7 +57,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
     ADD_CUSTOM_TARGET ( py_copy_help_marker ALL
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/vsp_help
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/help_vsp/ )
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/help_vsp/vsp_help )
 
     ADD_DEPENDENCIES ( py_copy_help_marker py_mk_help_dir )
 
