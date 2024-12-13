@@ -2101,6 +2101,20 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "SCALE_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_TYPE", "SCALE_WIDTH", SCALE_WIDTH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_TYPE", "SCALE_HEIGHT", SCALE_HEIGHT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_TYPE", "SCALE_WIDTH_HEIGHT", SCALE_WIDTH_HEIGHT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_TYPE", "SCALE_RESOLUTION", SCALE_RESOLUTION );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_TYPE", "NUM_SCALE_TYPES", NUM_SCALE_TYPES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "SET_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "SET_TYPE", "SET_NONE", SET_NONE );
