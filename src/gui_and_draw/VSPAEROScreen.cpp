@@ -694,20 +694,32 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CpSlicerSubLayout.AddSlider( m_CpSliceLocation, "Position", 100, "%7.3f" );
 
     //==== Control Grouping Tab ====//
-    int main_browser_w = 180;
-    int browser_h = 130;
-    int component_browser_w = 200;
-    int browser_h_augment = 20;
-    int main_browser_spacing = 18;
-    int items_browsers_spacing = 2;
     Fl_Group* cs_grouping_tab = AddTab( "Control Grouping" );
     Fl_Group* cs_grouping_group = AddSubGroup( cs_grouping_tab, window_border_width );
     m_ControlSurfaceLayout.SetGroupAndScreen( cs_grouping_group, this );
 
+    int main_browser_spacing = 18;
+    int items_browsers_spacing = 2;
+
+    int main_browser_w = ( m_ControlSurfaceLayout.GetW() - main_browser_spacing - items_browsers_spacing ) / 3;
+    // force even.
+    main_browser_w = 2 * ( main_browser_w / 2 );
+    int component_browser_w = main_browser_w;
+
+    // Adjust gap to make up for rounding.
+    main_browser_spacing = m_ControlSurfaceLayout.GetW() - main_browser_w - 2 * component_browser_w - items_browsers_spacing;
+
+
+    int browser_h = 130;
+    int browser_h_augment = m_ControlSurfaceLayout.GetStdHeight();
+
     // Grouping Browsers Layout
     m_ControlSurfaceLayout.AddSubGroupLayout( m_CSGroupingLayout,
         m_ControlSurfaceLayout.GetW(),
-        5 * m_ControlSurfaceLayout.GetStdHeight() + browser_h );
+        4 * m_ControlSurfaceLayout.GetStdHeight() +
+        browser_h +
+        m_ControlSurfaceLayout.GetDividerHeight() +
+        m_ControlSurfaceLayout.GetGapHeight() );
     m_ControlSurfaceLayout.AddY( m_CSGroupingLayout.GetH() );
 
     m_CSGroupingLayout.AddDividerBox( "Control Surface Grouping" );
