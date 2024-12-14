@@ -1,5 +1,13 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.24)
 
+if ( EP_BUILD )
+    PROJECT( VSPAERO_SOLVER )
+
+    string( REPLACE "__VSP_DELIMETER__" ";" VSP_LIBRARIES_API_FIRST "${vsp_lib_escaped}" )
+
+    string( REPLACE "__VSP_DELIMETER__" ";" CodeEli_INCLUDE_DIRS  "${CodeEli_INCLUDE_DIRS_escaped}" )
+endif()
+
 if( APPLE )
   set( CMAKE_FIND_LIBRARY_SUFFIXES_ORIG ${CMAKE_FIND_LIBRARY_SUFFIXES} )
   set( CMAKE_FIND_LIBRARY_SUFFIXES ".a;.tbd;.dylib;.so" )
@@ -31,13 +39,39 @@ else()
 
     INCLUDE( ExternalProject )
 
+    set( vsp_lib_string )
+    foreach( lib ${VSP_LIBRARIES_API_FIRST} )
+
+        string( COMPARE EQUAL "${lib}" "OpenABF::OpenABF" isOpenABF )
+
+        if ( isOpenABF )
+            # Do nothing
+        elseif ( TARGET ${lib} )
+            get_target_property( libpath ${lib} BINARY_DIR )
+            list( APPEND vsp_lib_string ${libpath}/lib${lib}.a )
+        else()
+            list( APPEND vsp_lib_string ${lib} )
+        endif()
+    endforeach()
+
+    string( REPLACE ";" "__VSP_DELIMETER__" vsp_lib_escaped "${vsp_lib_string}" )
+
+    string( REPLACE ";" "__VSP_DELIMETER__" CodeEli_INCLUDE_DIRS_escaped "${CodeEli_INCLUDE_DIRS}" )
+
+
     ExternalProject_Add( SOLVER
         DOWNLOAD_COMMAND ""
         CMAKE_ARGS -DCMAKE_C_COMPILER=${C_OMP_COMPILER}
             -DCMAKE_CXX_COMPILER=${CXX_OMP_COMPILER}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -Dvsp_lib_escaped=${vsp_lib_escaped}
+            -DCodeEli_INCLUDE_DIRS_escaped=${CodeEli_INCLUDE_DIRS_escaped}
+            -DGEOM_API_INCLUDE_DIR=${GEOM_API_INCLUDE_DIR}
+            -DUTIL_INCLUDE_DIR=${UTIL_INCLUDE_DIR}
+            -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR}
             -DEP_BUILD=TRUE
         INSTALL_COMMAND ""
+        DEPENDS cfd_mesh xmlvsp sixseries util tritri wavedragEL stb_image geom_core geom_api
     )
     ExternalProject_Get_Property( SOLVER BINARY_DIR )
     ExternalProject_Get_Property( SOLVER SOURCE_DIR )
@@ -174,6 +208,7 @@ if(BUILD_VSPAERO)
       ${CodeEli_INCLUDE_DIRS}
       ${GEOM_API_INCLUDE_DIR}
       ${UTIL_INCLUDE_DIR}
+      ${EIGEN3_INCLUDE_DIR}
     )
   ENDIF()
 
