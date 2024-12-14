@@ -787,11 +787,12 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
     
     for ( i = 0 ; i < 100000 ; i++ ) {
        
-       StartOfWallTemperatureData[i] = 0;
+       StartOfWallTemperatureData_ready[i] = false;
        
     }
      
     fgetpos(adb_file, &StartOfWallTemperatureData[1]);
+    StartOfWallTemperatureData_ready[1] = true;
 
     // Load in the geometry and surface information
 
@@ -6209,7 +6210,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
     
     // Set the file position to the top of the temperature data
   
-    if ( StartOfWallTemperatureData[Case] != 0 ) {
+    if ( StartOfWallTemperatureData_ready[Case] ) {
        
        pStart = 1;
        pEnd   = 1;
@@ -6386,7 +6387,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
 
        }     
        
-       if ( StartOfWallTemperatureData[p+1] == 0 ) fgetpos(adb_file, &StartOfWallTemperatureData[p+1]);
+       if ( !StartOfWallTemperatureData_ready[p + 1] ) fgetpos(adb_file, &StartOfWallTemperatureData[p + 1]);
       
     }
     

@@ -829,6 +829,7 @@ private:
     // ADB file pointers
 
     fpos_t StartOfWallTemperatureData[100000];
+    bool StartOfWallTemperatureData_ready[100000];
 
     // Write out a png file
 
