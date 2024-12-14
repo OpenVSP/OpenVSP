@@ -22,7 +22,6 @@
 
 // OpenVSP headers
 
-#include "main.h"
 #include "VSP_Geom_API.h"
 
 
