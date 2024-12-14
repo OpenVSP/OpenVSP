@@ -50,7 +50,7 @@ else()
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR} ${SOURCE_DIR}
         DEPENDS ${SOLVER_SOURCES}
         DEPENDEES download
-        DEPENDERS patch
+        DEPENDERS configure
     )
 
     INSTALL( PROGRAMS ${BINARY_DIR}/vspaero DESTINATION . )
