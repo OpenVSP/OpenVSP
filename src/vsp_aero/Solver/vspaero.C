@@ -282,6 +282,11 @@ int main(int argc, char **argv)
     NumberOfThreads_ = omp_get_max_threads();
 
     printf("NumberOfThreads_: %d \n",NumberOfThreads_);
+
+#ifdef _OPENMP
+    printf("_OPENMP Version string: %d\n", _OPENMP);
+#endif
+
 #else
     NumberOfThreads_ = 1;
     printf("Single threaded build.\n");
