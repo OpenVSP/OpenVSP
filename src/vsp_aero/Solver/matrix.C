@@ -1135,7 +1135,7 @@ void MATRIX::LU_pivot(int *indx)
 
     for (j = 1 ; j <= neq ; j++ ) {
 
-        if ( abs( (*this)(i,j) ) > big) {
+        if ( ABS( (*this)(i,j) ) > big) {
 
           //  big = fabs( (*this)(i,j) );
             big = ABS( (*this)(i,j) );
@@ -1189,7 +1189,7 @@ void MATRIX::LU_pivot(int *indx)
         // Some issue here as to whether the index should be i or j
         // in the ans[.] array.
 
-        if ( (dum = ans[j]*abs( sum )) >= big ) {
+        if ( (dum = ans[j]*ABS( sum )) >= big ) {
 
             big = dum;
 
