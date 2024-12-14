@@ -11406,7 +11406,11 @@ void VSP_SOLVER::CalculateGammaPerturbationLoopVelocities_Tranpose(double *vec_i
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:GammaT_pR_pGamma[:ArraySize]) private(iLevel,iLoop,j,jLevel,VortexEdge,q,Coef,LoopL,LoopR,qs,xyz) schedule(dynamic)     
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionLoops(LoopType) ; i++ ) {
 
           iLevel = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Level();
@@ -11650,7 +11654,11 @@ void VSP_SOLVER::CalculateGammaPerturbationEdgeVelocities_Tranpose(double *vec_i
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:GammaT_pR_pGamma[:ArraySize]) private(iLevel,iEdge,j,jLevel,VortexEdge,q,Coef,LoopL,LoopR,qs,xyz) schedule(dynamic)
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
  
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
@@ -12025,6 +12033,8 @@ void VSP_SOLVER::CalculateMeshPerturbationEdgeVelocitiesOverLoops_Tranpose(doubl
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:vec_out[:NumberOfEquations_+1]) private(Level,Loop,j,k,jLevel,VortexEdge,Coef,i1,i2,\
                                                                              dq0_dx1,\
                                                                              dq0_dy1,\
@@ -12087,6 +12097,8 @@ void VSP_SOLVER::CalculateMeshPerturbationEdgeVelocitiesOverLoops_Tranpose(doubl
                                                                              dq1_dMach_s,\
                                                                              dq2_dMach_s,\
                                                                              xyz) schedule(dynamic)
+#endif
+#endif
                                                                              
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionLoops(LoopType) ; i++ ) {
  
@@ -12348,7 +12360,11 @@ void VSP_SOLVER::CalculateKstallPerturbationLoopVelocities_Tranpose(double *vec_
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:GammaT_pR_pStall[:ArraySize]) private(iLevel,iLoop,j,jLevel,VortexEdge,q,Coef,LoopL,LoopR,xyz,qs) schedule(dynamic)     
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionLoops(LoopType) ; i++ ) {
 
           iLevel = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Level();
@@ -12481,7 +12497,11 @@ void VSP_SOLVER::CalculateKstallPerturbationEdgeVelocities_Tranpose(double *vec_
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:GammaT_pR_pStall[:ArraySize]) private(iLevel,iEdge,j,jLevel,VortexEdge,q,Coef,LoopL,LoopR,xyz,qs) schedule(dynamic)
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
  
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
@@ -12621,7 +12641,11 @@ void VSP_SOLVER::CalculateVortexStretchingRatioPerturbationLoopVelocities_Tranpo
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:GammaT_pR_pRatio[:ArraySize]) private(iLevel,iLoop,j,jLevel,VortexEdge,q,Coef,LoopL,LoopR,xyz,qs) schedule(dynamic)     
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionLoops(LoopType) ; i++ ) {
 
           iLevel = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Level();
@@ -12754,7 +12778,11 @@ void VSP_SOLVER::CalculateVortexStretchingRatioPerturbationEdgeVelocities_Tranpo
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:GammaT_pR_pRatio[:ArraySize]) private(iLevel,iEdge,j,jLevel,VortexEdge,q,Coef,LoopL,LoopR,xyz,qs) schedule(dynamic)
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
  
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
@@ -13184,6 +13212,8 @@ void VSP_SOLVER::CalculateMeshPerturbationEdgeVelocitiesOverEdges_Tranpose(doubl
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:GammaT_pR_pMesh[:ArraySize]) private(iLevel,iEdge,j,jLevel,VortexEdge,\
                                                                                                    dq0_dx1,\
                                                                                                    dq0_dy1,\
@@ -13246,6 +13276,8 @@ void VSP_SOLVER::CalculateMeshPerturbationEdgeVelocitiesOverEdges_Tranpose(doubl
                                                                                                    dq1_dMach_s,\
                                                                                                    dq2_dMach_s,\
                                                                                                    xyz, Coef, Node1, Node2) schedule(dynamic)
+#endif
+#endif
                                                                                    
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
    
@@ -13961,7 +13993,11 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Gamma(void)
     // Surface vortex induced gamma perturbation velocities across all the loops
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:pF_pGamma[:ArraySize],pM_pGamma[:ArraySize],pFw_pGamma[:ArraySize]) private(iLevel,iEdge,j,jLevel,VortexEdge,q,Forces,Moments,WakeForces,LoopL,LoopR,xyz,qs,qw) schedule(dynamic)           
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
  
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
@@ -14859,6 +14895,8 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Mesh(void)
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:pF_pMesh[:ArraySize],pM_pMesh[:ArraySize],pFw_pMesh[:ArraySize]) private(iLevel,iEdge,j,jLevel,VortexEdge,\
                                                                                                                                           dq0_dx1,\
                                                                                                                                           dq0_dy1,\
@@ -14921,6 +14959,8 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Mesh(void)
                                                                                                                                           dq1_dMach_s,\
                                                                                                                                           dq2_dMach_s,\
                                                                                                                                           Node1, Node2, q, Forces, Moments, xyz, qw, WakeForces) schedule(dynamic)           
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
     
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
@@ -16495,7 +16535,11 @@ void VSP_SOLVER::CalculateForceGradients_wrt_StallFactor(void)
     // Surface vortex induced gamma perturbation velocities across all the loops
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:pF_pStall[:ArraySize],pM_pStall[:ArraySize],pFw_pStall[:ArraySize]) private(iLevel,iEdge,j,jLevel,VortexEdge,q,Forces,Moments,LoopL,LoopR,xyz,qs,qw,WakeForces) schedule(dynamic)           
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
  
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
@@ -16883,7 +16927,11 @@ void VSP_SOLVER::CalculateForceGradients_wrt_VortexStretchingFactor(void)
     // Surface vortex induced gamma perturbation velocities across all the loops
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:pF_pRatio[:ArraySize],pM_pRatio[:ArraySize],pFw_pRatio[:ArraySize]) private(iLevel,iEdge,j,jLevel,VortexEdge,q,Forces,Moments,LoopL,LoopR,xyz,qs,qw,WakeForces) schedule(dynamic)           
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
  
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
@@ -19215,6 +19263,8 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialMesh_VorticityEquations(voi
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:PsiT_pR_pMesh[:ArraySize]) private(iLevel,iLoop,Psi,j,jLevel,VortexEdge,\
                                                                                                      dq0_dx1,\
                                                                                                      dq0_dy1,\
@@ -19277,6 +19327,8 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialMesh_VorticityEquations(voi
                                                                                                      dq1_dMach_s,\
                                                                                                      dq2_dMach_s,\
                                                                                                      Node1, Node2, q, xyz, Coef, k) schedule(dynamic)     
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionLoops(LoopType) ; i++ ) {
 
           iLevel = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Level();
@@ -19867,6 +19919,8 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialMesh_WakeEquations(void)
 
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
+#ifdef _OPENMP
+#if _OPENMP >= 201511
 #pragma omp parallel for reduction(+:PsiT_pR_pMesh[:ArraySize]) private(Level,Edge,Node1,Node2,Psi,j,jLevel,VortexEdge,\
                                                                                                                dq0_dx1,\
                                                                                                                dq0_dy1,\
@@ -19929,6 +19983,8 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialMesh_WakeEquations(void)
                                                                                                                dq1_dMach_s,\
                                                                                                                dq2_dMach_s,\
                                                                                                                xyz,Coef) schedule(dynamic)    
+#endif
+#endif
        for ( i = 1 ; i <= FastMatrix_.NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
    
           Level = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
