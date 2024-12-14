@@ -155,7 +155,6 @@ if(BUILD_VSPAERO)
 
   ADD_EXECUTABLE( vspaero
     vspaero.C
-    vspaero.H
   )
 
   IF( NOT VSP_NO_VSPAERO_OPT )
