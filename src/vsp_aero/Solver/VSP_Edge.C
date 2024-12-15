@@ -7547,16 +7547,16 @@ void VSP_EDGE::Wake_pResidual_pMach(double pResidual_pMach[3])
                  
           // Chain rule
           
-          pVecP_pMach[0] = pVecP_pDot[0] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach();
-                         + pVecP_pDot[0] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach();
+          pVecP_pMach[0] = pVecP_pDot[0] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach()
+                         + pVecP_pDot[0] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach()
                          + pVecP_pDot[0] * pDot_pVecR[2] * pVecR_Velocity[2] * dW_dMach();
                                                      
-          pVecP_pMach[1] = pVecP_pDot[1] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach();
-                         + pVecP_pDot[1] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach();
+          pVecP_pMach[1] = pVecP_pDot[1] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach()
+                         + pVecP_pDot[1] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach()
                          + pVecP_pDot[1] * pDot_pVecR[2] * pVecR_Velocity[2] * dW_dMach();
                                                   
-          pVecP_pMach[2] = pVecP_pDot[2] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach();
-                         + pVecP_pDot[2] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach();
+          pVecP_pMach[2] = pVecP_pDot[2] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach()
+                         + pVecP_pDot[2] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach()
                          + pVecP_pDot[2] * pDot_pVecR[2] * pVecR_Velocity[2] * dW_dMach();
  
           pResX_pMach = -pVecP_pMach[0]*WakeEdgeData_->dS()/Q_ + VecP[0]*(VecP[0]*pVecP_pMach[0] + VecP[1]*pVecP_pMach[1] + VecP[2]*pVecP_pMach[2] )*WakeEdgeData_->dS()/(Q_*Q_*Q_);
@@ -7662,16 +7662,16 @@ void VSP_EDGE::UnsteadyWake_pResidual_pMach(double pResidual_pMach[3], double &D
                  
           // Chain rule
           
-          pVecP_pMach[0] = pVecP_pDot[0] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach();
-                         + pVecP_pDot[0] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach();
+          pVecP_pMach[0] = pVecP_pDot[0] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach()
+                         + pVecP_pDot[0] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach()
                          + pVecP_pDot[0] * pDot_pVecR[2] * pVecR_Velocity[2] * dW_dMach();
                                                                     
-          pVecP_pMach[1] = pVecP_pDot[1] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach();
-                         + pVecP_pDot[1] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach();
+          pVecP_pMach[1] = pVecP_pDot[1] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach()
+                         + pVecP_pDot[1] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach()
                          + pVecP_pDot[1] * pDot_pVecR[2] * pVecR_Velocity[2] * dW_dMach();
                                                                     
-          pVecP_pMach[2] = pVecP_pDot[2] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach();
-                         + pVecP_pDot[2] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach();
+          pVecP_pMach[2] = pVecP_pDot[2] * pDot_pVecR[0] * pVecR_Velocity[0] * dU_dMach()
+                         + pVecP_pDot[2] * pDot_pVecR[1] * pVecR_Velocity[1] * dV_dMach()
                          + pVecP_pDot[2] * pDot_pVecR[2] * pVecR_Velocity[2] * dW_dMach();
           
           pResidual_pMach[0] = -DeltaTime * pVecP_pMach[0];
