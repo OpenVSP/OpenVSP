@@ -137,9 +137,9 @@ void VSP_GEOM::ReadFile(char *FileName)
      
     // File name possibilities...
 
-    sprintf(CART3D_File_Name,"%s.tri",FileName);
+    snprintf(CART3D_File_Name,sizeof(CART3D_File_Name)*sizeof(char),"%s.tri",FileName);
     
-    sprintf(VSPGEOM_File_Name,"%s.vspgeom",FileName);
+    snprintf(VSPGEOM_File_Name,sizeof(VSPGEOM_File_Name)*sizeof(char),"%s.vspgeom",FileName);
 
     if ( (File = fopen(VSPGEOM_File_Name,"r")) != NULL ) {
 
@@ -169,7 +169,7 @@ void VSP_GEOM::ReadFile(char *FileName)
     
     // Look for control surfaces
     
-    sprintf(ControlSurfaceTagListFileName,"%s.ControlSurfaces.taglist",FileName);
+    snprintf(ControlSurfaceTagListFileName,sizeof(ControlSurfaceTagListFileName)*sizeof(char),"%s.ControlSurfaces.taglist",FileName);
     
     printf("Looking for %s control surface definition file ... \n",ControlSurfaceTagListFileName);
     
@@ -213,7 +213,7 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
     double Diam, x, y, z, nx, ny, nz;
     FILE *Cart3D_File, *TKEY_File, *VSP_Degen_File;
  
-    sprintf(VSP_File_Name,"%s.tri",FileName);
+    snprintf(VSP_File_Name,sizeof(VSP_File_Name)*sizeof(char),"%s.tri",FileName);
     
     if ( (Cart3D_File = fopen(VSP_File_Name,"r")) == NULL ) {
 
@@ -223,7 +223,7 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 
     }    
 
-    sprintf(TKEY_File_Name,"%s.tkey",FileName);
+    snprintf(TKEY_File_Name,sizeof(TKEY_File_Name)*sizeof(char),"%s.tkey",FileName);
     
     if ( (TKEY_File = fopen(TKEY_File_Name,"r")) == NULL ) {
 
@@ -235,7 +235,7 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
  
     // Read in the cart3d geometry
 
-    sprintf(Name,"CART3D");
+    snprintf(Name,sizeof(Name)*sizeof(char),"CART3D");
 
     ReadCart3DDataFromFile(Name,Cart3D_File,TKEY_File);
 
@@ -271,7 +271,7 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
     
     // Now see if a degen file exists
 
-    sprintf(VSP_Degen_File_Name,"%s_DegenGeom.csv",FileName);
+    snprintf(VSP_Degen_File_Name,sizeof(VSP_Degen_File_Name)*sizeof(char),"%s_DegenGeom.csv",FileName);
 
     if ( (VSP_Degen_File = fopen(VSP_Degen_File_Name,"r")) != NULL ) {
 
@@ -374,7 +374,7 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
     double Diam, x, y, z, nx, ny, nz;
     FILE *VSPGEOM_File, *VKEY_File, *VSP_Degen_File;
  
-    sprintf(VSPGEOM_File_Name,"%s.vspgeom",FileName);
+    snprintf(VSPGEOM_File_Name,sizeof(VSPGEOM_File_Name)*sizeof(char),"%s.vspgeom",FileName);
     
     if ( (VSPGEOM_File = fopen(VSPGEOM_File_Name,"r")) == NULL ) {
 
@@ -384,7 +384,7 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
 
     }    
 
-    sprintf(VKEY_File_Name,"%s.vkey",FileName);
+    snprintf(VKEY_File_Name,sizeof(VKEY_File_Name)*sizeof(char),"%s.vkey",FileName);
     
     if ( (VKEY_File = fopen(VKEY_File_Name,"r")) == NULL ) {
 
@@ -396,7 +396,7 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
 
     // Read in the vspgeom mesh file
 
-    sprintf(Name,"VSPGEOM");
+    snprintf(Name,sizeof(Name)*sizeof(char),"VSPGEOM");
 
     ReadVSPGeomDataFromFile(Name,VSPGEOM_File,VKEY_File);
  
@@ -406,7 +406,7 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
  
     // Now see if a degen file exists
 
-    sprintf(VSP_Degen_File_Name,"%s_DegenGeom.csv",FileName);
+    snprintf(VSP_Degen_File_Name,sizeof(VSP_Degen_File_Name)*sizeof(char),"%s_DegenGeom.csv",FileName);
 
     if ( (VSP_Degen_File = fopen(VSP_Degen_File_Name,"r")) != NULL ) {
 
@@ -507,7 +507,7 @@ void VSP_GEOM::ReadControlSurfaceInformation(char *FileName)
     char ControlSurfaceTagListFileName[2000], TagListFileName[2000];
     FILE *TagListFile;
     
-    sprintf(ControlSurfaceTagListFileName,"%s.ControlSurfaces.taglist",FileName);
+    snprintf(ControlSurfaceTagListFileName,sizeof(ControlSurfaceTagListFileName)*sizeof(char),"%s.ControlSurfaces.taglist",FileName);
     
     if ( (TagListFile = fopen(ControlSurfaceTagListFileName,"r")) == NULL ) {
 
@@ -596,7 +596,7 @@ void VSP_GEOM::ReadGroupFile(char *FileName)
 
     // Open the group file... if it exists
     
-    sprintf(GroupFileName,"%s.groups",FileName);
+    snprintf(GroupFileName,sizeof(GroupFileName)*sizeof(char),"%s.groups",FileName);
     
     if ( (GroupFile = fopen(GroupFileName, "r")) != NULL ) {
  
@@ -632,7 +632,7 @@ void VSP_GEOM::ReadGroupFile(char *FileName)
        
        SetNumberOfComponentGroupsTo(NumberOfComponentGroups_);
        
-       sprintf(ComponentGroupList(1).GroupName(),"%s",FileName);
+       snprintf(ComponentGroupList(1).GroupName(),sizeof(ComponentGroupList(1).GroupName())*sizeof(char),"%s",FileName);
        
        ComponentGroupList(1).AngleMax() = 0.;
        
@@ -662,7 +662,7 @@ void VSP_GEOM::ReadGroupFile(char *FileName)
     
     // Create a '0' component group that has everything in it....
     
-    sprintf(ComponentGroupList(0).GroupName(),"%s",FileName);
+    snprintf(ComponentGroupList(0).GroupName(),sizeof(ComponentGroupList(0).GroupName())*sizeof(char),"%s",FileName);
     
     ComponentGroupList(0).AngleMax() = 0.;
                       
@@ -1126,7 +1126,7 @@ void VSP_GEOM::WriteOutTriMesh(void)
     char FileName[2000];
     FILE *TriMesh;
     
-    sprintf(FileName,"whacked.tri");
+    snprintf(FileName,sizeof(FileName)*sizeof(char),"whacked.tri");
     
     if ( (TriMesh = fopen(FileName,"w")) == NULL ) {
 
@@ -2516,11 +2516,11 @@ void VSP_GEOM::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TKEY_
     
     InputMeshIsMixedPolys_ = 0;
 
-    sprintf (Comma,",");
+    snprintf(Comma,sizeof(Comma)*sizeof(char),",");
 
     // Save the component name
     
-    sprintf (ComponentName_,"%s_Cart3d",Name);
+    snprintf(ComponentName_,sizeof(ComponentName_)*sizeof(char),"%s_Cart3d",Name);
     
     // Set surface type
     
@@ -2710,7 +2710,7 @@ void VSP_GEOM::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TKEY_
              
              SurfaceNameList_[k] = new char[2000];
                           
-             sprintf(SurfaceNameList_[k],"%s",Next);
+             snprintf(SurfaceNameList_[k],sizeof(SurfaceNameList_[k])*sizeof(char),"%s",Next);
           
              printf("Surface: %d exists in tringulation and will be surface: %d with OpenVSP Name: %s \n",DumInt,k,SurfaceNameList_[k]);
   
@@ -2735,7 +2735,7 @@ void VSP_GEOM::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TKEY_
           
           SurfaceNameList_[n] = new char[2000];
           
-          sprintf(SurfaceNameList_[n],"Surface_%d",n);
+          snprintf(SurfaceNameList_[n],sizeof(SurfaceNameList_[n])*sizeof(char),"Surface_%d",n);
           
        }
        
@@ -2933,13 +2933,13 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     
     if ( FileVersion == 1 ) rewind(VSPGeom_File);
 
-    sprintf (Comma,",");
+    snprintf(Comma,sizeof(Comma)*sizeof(char),",");
 
-    sprintf (Space," ");
+    snprintf(Space,sizeof(Space)*sizeof(char)," ");
 
     // Save the component name
     
-    sprintf (ComponentName_,"%s_VSPGeom",Name);
+    snprintf(ComponentName_,sizeof(ComponentName_)*sizeof(char),"%s_VSPGeom",Name);
     
     // Set surface type
     
@@ -3293,9 +3293,9 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
           
           SurfID = atoi(Next);
 
-          Next = strtok(NULL,Comma); Next[strcspn(Next, "\n")] = 0; sprintf(TempName,"%s",Next);  // Surface name, per user
+          Next = strtok(NULL,Comma); Next[strcspn(Next, "\n")] = 0; snprintf(TempName,sizeof(TempName)*sizeof(char),"%s",Next);  // Surface name, per user
           
-          Next = strtok(NULL,Comma); Next[strcspn(Next, "\n")] = 0; sprintf(TempGIDName,"%s",Next);// VSP gid
+          Next = strtok(NULL,Comma); Next[strcspn(Next, "\n")] = 0; snprintf(TempGIDName,sizeof(TempGIDName)*sizeof(char),"%s",Next);// VSP gid
           
           if ( ThickThinDataExists ) Next = strtok(NULL,Comma); // Thick/thin flag
                     
@@ -3317,9 +3317,9 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
 
              SurfaceGIDList_[k] = new char[2000];
              
-             sprintf(SurfaceNameList_[k],"%s",TempName);    
+             snprintf(SurfaceNameList_[k],sizeof(SurfaceNameList_[k])*sizeof(char),"%s",TempName);    
 
-             sprintf(SurfaceGIDList_[k],"%s",TempGIDName);    
+             snprintf(SurfaceGIDList_[k],sizeof(SurfaceGIDList_[k])*sizeof(char),"%s",TempGIDName);
 
              SurfaceIsThick_[k] = 0;
   

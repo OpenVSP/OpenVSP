@@ -108,7 +108,7 @@ void VSP_SOLVER::init(void)
     
     UseWakeNodeMatrixPreconditioner_ = 0;
         
-    sprintf(CaseString_,"No Comment");
+    snprintf(CaseString_,sizeof(CaseString_)*sizeof(char),"No Comment");
 
     AngleOfAttackZero_ = 0.;
     
@@ -826,7 +826,7 @@ void VSP_SOLVER::Setup(void)
     
     // Read in high lift setup file if it exists...
  
-    sprintf(HighLiftFileName,"%s.HightLiftData",FileName_);
+    snprintf(HighLiftFileName,sizeof(HighLiftFileName)*sizeof(char),"%s.HightLiftData",FileName_);
     
     if ( (HighLiftFile = fopen(HighLiftFileName, "r")) == NULL ) {
     
@@ -966,7 +966,7 @@ void VSP_SOLVER::Setup(void)
  
     if ( CreateHighLiftFile_ ) {
 
-       sprintf(HighLiftFileName,"%s.HightLiftData",FileName_);
+       snprintf(HighLiftFileName,sizeof(HighLiftFileName)*sizeof(char),"%s.HightLiftData",FileName_);
        
        if ( (HighLiftFile = fopen(HighLiftFileName, "w")) == NULL ) {
    
@@ -2781,7 +2781,7 @@ void VSP_SOLVER::Solve(int Case)
     
     if ( Case == 0 || Case == 1 ) {
        
-       sprintf(StatusFileName,"%s.history",FileName_);
+       snprintf(StatusFileName,sizeof(StatusFileName)*sizeof(char),"%s.history",FileName_);
        
        if ( (StatusFile_ = fopen(StatusFileName, "w")) == NULL ) {
    
@@ -2829,7 +2829,7 @@ void VSP_SOLVER::Solve(int Case)
 
     if ( NumberofSurveyPoints_ > 0 ) {
        
-       sprintf(SurveyFileName,"%s.svy",FileName_);
+       snprintf(SurveyFileName,sizeof(SurveyFileName)*sizeof(char),"%s.svy",FileName_);
        
        if ( (SurveyFile_ = fopen(SurveyFileName, "w")) == NULL ) {
    
@@ -2847,7 +2847,7 @@ void VSP_SOLVER::Solve(int Case)
     
     if ( Case == 0 || Case == 1 ) {
 
-       sprintf(ADBFileName,"%s.adb",FileName_);
+       snprintf(ADBFileName,sizeof(ADBFileName)*sizeof(char),"%s.adb",FileName_);
        
        if ( (ADBFile_ = fopen(ADBFileName, "wb")) == NULL ) {
    
@@ -2857,7 +2857,7 @@ void VSP_SOLVER::Solve(int Case)
    
        }
        
-       sprintf(ADBFileName,"%s.adb.cases",FileName_);
+       snprintf(ADBFileName,sizeof(ADBFileName)*sizeof(char),"%s.adb.cases",FileName_);
        
        if ( (ADBCaseListFile_ = fopen(ADBFileName, "w")) == NULL ) {
    
@@ -2869,7 +2869,7 @@ void VSP_SOLVER::Solve(int Case)
 
        if ( NumberOfQuadTrees_ > 0 ) {  
         
-          sprintf(QUADTREEFileName,"%s.quad.cases",FileName_);
+          snprintf(QUADTREEFileName,sizeof(QUADTREEFileName)*sizeof(char),"%s.quad.cases",FileName_);
 
           if ( (QUADTREECaseListFile_ = fopen(QUADTREEFileName, "w")) == NULL ) {
       
@@ -2918,7 +2918,7 @@ void VSP_SOLVER::Solve(int Case)
     
        // Create group file
        
-       sprintf(GroupFileName,"%s.group.%d",FileName_,c);
+       snprintf(GroupFileName,sizeof(GroupFileName)*sizeof(char),"%s.group.%d",FileName_,c);
     
        if ( (GroupFile_[c] = fopen(GroupFileName, "w")) == NULL ) {
     
@@ -2938,7 +2938,7 @@ void VSP_SOLVER::Solve(int Case)
           
           k++;
           
-          sprintf(RotorFileName,"%s.rotor.%d",FileName_,k);
+          snprintf(RotorFileName,sizeof(RotorFileName)*sizeof(char),"%s.rotor.%d",FileName_,k);
     
           if ( (RotorFile_[k] = fopen(RotorFileName, "w")) == NULL ) {
       
@@ -2999,7 +2999,7 @@ void VSP_SOLVER::Solve(int Case)
     
     if ( TimeAccurate_ ) {
        
-        sprintf(CaseString_,"Time: %-f ...",0.);
+        snprintf(CaseString_,sizeof(CaseString_)*sizeof(char),"Time: %-f ...",0.);
        
         WriteOutAerothermalDatabaseGeometry();
        
@@ -3265,26 +3265,26 @@ void VSP_SOLVER::Solve(int Case)
           
           if ( TimeAnalysisType_ == P_ANALYSIS ) {
              
-             sprintf(CaseString_,"T: %-f, P: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
+             snprintf(CaseString_,sizeof(CaseString_)*sizeof(char),"T: %-f, P: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
              
           }
              
           else if ( TimeAnalysisType_ == Q_ANALYSIS ) {
              
-             sprintf(CaseString_,"T: %-f, Q: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
+             snprintf(CaseString_,sizeof(CaseString_)*sizeof(char),"T: %-f, Q: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
 
              
           }
           
           else if ( TimeAnalysisType_ == R_ANALYSIS ) {
              
-             sprintf(CaseString_,"T: %-f, R: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
+             snprintf(CaseString_,sizeof(CaseString_)*sizeof(char),"T: %-f, R: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
              
           }
                 
           else {
           
-             sprintf(CaseString_,"Time: %-f ...",CurrentTime_);
+             snprintf(CaseString_,sizeof(CaseString_)*sizeof(char),"Time: %-f ...",CurrentTime_);
              
           }
 
@@ -3346,7 +3346,7 @@ void VSP_SOLVER::Solve(int Case)
     
     if ( Case == 0 || Case == 1 ) {
     
-       sprintf(LoadFileName,"%s.lod",FileName_);
+       snprintf(LoadFileName,sizeof(LoadFileName)*sizeof(char),"%s.lod",FileName_);
        
        if ( (LoadFile_ = fopen(LoadFileName, "w")) == NULL ) {
    
@@ -3484,7 +3484,7 @@ void VSP_SOLVER::RestartAndInterrogateSolution(int Case)
 
     if ( NumberofSurveyPoints_ > 0 ) {
        
-       sprintf(SurveyFileName,"%s.interrogate.svy",FileName_);
+       snprintf(SurveyFileName,sizeof(SurveyFileName)*sizeof(char),"%s.interrogate.svy",FileName_);
        
        if ( (SurveyFile_ = fopen(SurveyFileName, "w")) == NULL ) {
    
@@ -3500,7 +3500,7 @@ void VSP_SOLVER::RestartAndInterrogateSolution(int Case)
 
     if ( NumberOfQuadTrees_ > 0 ) {  
      
-       sprintf(QUADTREEFileName,"%s.quad.cases",FileName_);
+       snprintf(QUADTREEFileName,sizeof(QUADTREEFileName)*sizeof(char),"%s.quad.cases",FileName_);
 
        if ( (QUADTREECaseListFile_ = fopen(QUADTREEFileName, "w")) == NULL ) {
     
@@ -3529,7 +3529,7 @@ void VSP_SOLVER::RestartAndInterrogateSolution(int Case)
     
     if ( Case == 0 || Case == 1 ) {
 
-       sprintf(ADBFileName,"%s.adb",FileName_);
+       snprintf(ADBFileName,sizeof(ADBFileName)*sizeof(char),"%s.adb",FileName_);
        
        if ( (InputADBFile_ = fopen(ADBFileName, "rb")) == NULL ) {
    
@@ -10729,7 +10729,7 @@ void VSP_SOLVER::WriteOutMeshGradients(void)
   
     // Write out gradients
 
-    sprintf(AdjointGradientsFileName,"%s.adjoint.gradient",FileName_);
+    snprintf(AdjointGradientsFileName,sizeof(AdjointGradientsFileName)*sizeof(char),"%s.adjoint.gradient",FileName_);
        
     if ( (AdjointGradientFile = fopen(AdjointGradientsFileName, "w")) != NULL ) {
 
@@ -30503,7 +30503,7 @@ void VSP_SOLVER::WriteFEM2DGeometry(void)
 
     // Open the fem load file
     
-    sprintf(LoadFileName,"%s.fem2d",FileName_);
+    snprintf(LoadFileName,sizeof(LoadFileName)*sizeof(char),"%s.fem2d",FileName_);
     
     if ( (FEM2DLoadFile_ = fopen(LoadFileName, "w")) == NULL ) {
 
@@ -30600,7 +30600,7 @@ void VSP_SOLVER::WriteOutTecPlotFile(void)
 
     // Open the fem load file
     
-    sprintf(LoadFileName,"%s.tec.dat",FileName_);
+    snprintf(LoadFileName,sizeof(LoadFileName)*sizeof(char),"%s.tec.dat",FileName_);
     
     if ( (TecFile = fopen(LoadFileName, "w")) == NULL ) {
 
@@ -31590,7 +31590,7 @@ void VSP_SOLVER::CalculateQuadTreeVelocitySurvey(int Case)
 
     for ( j = 1 ; j <= NumberOfQuadTrees_ ; j++ ) {
 
-       sprintf(FileNameWithExt,"%s.case.%d.quad.%d.dat",FileName_,Case,j);
+       snprintf(FileNameWithExt,sizeof(FileNameWithExt)*sizeof(char),"%s.case.%d.quad.%d.dat",FileName_,Case,j);
        
        if ( (QuadFile = fopen(FileNameWithExt, "w")) == NULL ) {
      
@@ -31911,7 +31911,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseHeader(void)
     
        fwrite(&(i), i_size, 1, ADBFile_);
     
-       sprintf(DumChar,"%s",VSPGeom().SurfaceNameList(i));
+       snprintf(DumChar,sizeof(DumChar)*sizeof(char),"%s",VSPGeom().SurfaceNameList(i));
        
        fwrite(DumChar, c_size, 100, ADBFile_);
        
@@ -33290,7 +33290,7 @@ void VSP_SOLVER::WriteRestartFile(void)
     
     // Open restart file
     
-    sprintf(FileNameWithExt,"%s.restart",FileName_);
+    snprintf(FileNameWithExt,sizeof(FileNameWithExt)*sizeof(char),"%s.restart",FileName_);
     
     if ( (RestartFile = fopen(FileNameWithExt, "wb")) == NULL ) {
 
@@ -33339,7 +33339,7 @@ void VSP_SOLVER::LoadRestartFile(void)
     
     // Open restart file
     
-    sprintf(FileNameWithExt,"%s.restart",FileName_);
+    snprintf(FileNameWithExt,sizeof(FileNameWithExt)*sizeof(char),"%s.restart",FileName_);
     
     if ( (RestartFile = fopen(FileNameWithExt, "rb")) == NULL ) {
 
@@ -36208,7 +36208,7 @@ void VSP_SOLVER::WriteOutCart3dTriFile(void)
     
     // Open the cart3d file
     
-    sprintf(Cart3DFileName,"%s.vspaero.tri",FileName_);
+    snprintf(Cart3DFileName,sizeof(Cart3DFileName)*sizeof(char),"%s.vspaero.tri",FileName_);
     
     if ( (Cart3dFile = fopen(Cart3DFileName, "w")) == NULL ) {
     

@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 
           Calculix = 1;
 
-          sprintf(CalculixFileName,"%s",argv[++i]);
+          snprintf(CalculixFileName,sizeof(CalculixFileName)*sizeof(char),"%s",argv[++i]);
           
           printf("CalculixFileName: %s \n",CalculixFileName);fflush(NULL);
 
@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
 
     // Set a time stamp label
 
-    if ( TimeStamp ) vui->glviewer->SetTimeStampLabel(TimeLabel);
+    if ( TimeStamp ) vui->glviewer->SetTimeStampLabel(TimeLabel, sizeof(TimeLabel)*sizeof(char));
     
     // Set the Calculix file name
     
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
        
        printf("Setting calculix file name for viewer... \n");fflush(NULL);
        
-       vui->glviewer->SetCalculixFileName(CalculixFileName);
+       vui->glviewer->SetCalculixFileName(CalculixFileName, sizeof(CalculixFileName)*sizeof(char));
        
     }
     

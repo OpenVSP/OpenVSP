@@ -171,7 +171,7 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
 
     glfLoadFont( (char *) "cbviewer_font.glf");\
 
-    sprintf(tempname,"cbviewer_font.glf");
+    snprintf(tempname,sizeof(tempname)*sizeof(char),"cbviewer_font.glf");
 
     ::remove(tempname);
 
@@ -351,7 +351,7 @@ void GL_VIEWER::LoadInitialData(char *name)
     
     // Save the file name
 
-    sprintf( file_name, "%s", name );
+    snprintf(file_name,sizeof(file_name)*sizeof(char), "%s", name );
 
     char* pathsep = NULL;
     pathsep = strrchr( file_name, '/' );
@@ -362,21 +362,21 @@ void GL_VIEWER::LoadInitialData(char *name)
 
     if (pathsep)
     {
-        sprintf( file_name_no_path, "%s", pathsep + 1 );
-        sprintf( path, "%.*s", ( int ) ( pathsep - file_name ), file_name );
+        snprintf(file_name_no_path,sizeof(file_name_no_path)*sizeof(char), "%s", pathsep + 1 );
+        snprintf(path,sizeof(path)*sizeof(char), "%.*s", ( int ) ( pathsep - file_name ), file_name );
     }
     else
     {
-        sprintf( file_name_no_path, "%s", file_name );
-        sprintf( path, "." );
+        snprintf(file_name_no_path,sizeof(file_name_no_path)*sizeof(char), "%s", file_name );
+        snprintf(path,sizeof(path)*sizeof(char), "." );
     }
 
     // Determine if an adb file exists. Add the .adb extension if not already present.
     
     if (strstr(file_name,".adb") )    
-        sprintf(file_name_w_ext,"%s",file_name);
+        snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s",file_name);
     else
-        sprintf(file_name_w_ext,"%s.adb",file_name);
+        snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) != NULL ) {
      
@@ -451,7 +451,7 @@ printf("ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
     
     if ( TimeAccurate_ ) {
        
-       sprintf(DumChar," of %d",NumberOfADBCases_ - 1);
+       snprintf(DumChar,sizeof(DumChar)*sizeof(char)," of %d",NumberOfADBCases_ - 1);
        
        vui->LoadSolutionCase->value(0);
        
@@ -463,7 +463,7 @@ printf("ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
     
     else {
 
-       sprintf(DumChar," of %d",NumberOfADBCases_);
+       snprintf(DumChar,sizeof(DumChar)*sizeof(char)," of %d",NumberOfADBCases_);
        
        vui->LoadSolutionCase->value(0);
        
@@ -607,17 +607,17 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
 
     if ( strstr(file_name,".adb") ) {   
     
-        sprintf(file_name_w_ext,"%s",file_name);
+        snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s",file_name);
         
-        if ( ReLoad ) sprintf(file_name_w_ext,"%s.%d",file_name,ReLoad);
+        if ( ReLoad ) snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.%d",file_name,ReLoad);
     
     }
     
     else {
     
-        sprintf(file_name_w_ext,"%s.adb",file_name);
+        snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.adb",file_name);
 
-        if ( ReLoad ) sprintf(file_name_w_ext,"%s.%d.adb",file_name,ReLoad);
+        if ( ReLoad ) snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.%d.adb",file_name,ReLoad);
 
     }
     
@@ -1369,13 +1369,13 @@ void GL_VIEWER::LoadSolutionCaseList(void)
 
     if (strstr(file_name,".adb") ) {    
 
-       sprintf(file_name_w_ext,"%s.cases",file_name);
+       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.cases",file_name);
        
     }
 
     else {
        
-       sprintf(file_name_w_ext,"%s.adb.cases",file_name);
+       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.adb.cases",file_name);
         
     }
 
@@ -1440,13 +1440,13 @@ void GL_VIEWER::LoadQuadCuttingPlaneCaseList(void)
        printf("this doesn't work yet... \n");
        fflush(NULL);exit(1);
 
-       sprintf(file_name_w_ext,"%s.quad.cases",file_name);
+       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.quad.cases",file_name);
        
     }
 
     else {
        
-       sprintf(file_name_w_ext,"%s.quad.cases",file_name);
+       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.quad.cases",file_name);
         
     }
 
@@ -1533,7 +1533,7 @@ void GL_VIEWER::LoadCalculixINPFile(void)
 
     // Open the aerothermal data base file
 
-    sprintf(file_name_w_ext,"%s.inp",CalculixFileName);
+    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",CalculixFileName);
 
     printf("Attemping to open the Calculix inp file... \n");
 
@@ -1649,7 +1649,7 @@ void GL_VIEWER::LoadCalculixINPFile(void)
    
              DumChar[strcspn(DumChar, "\n")] = 0;
                  
-             sprintf(SaveChar,"%s\0",DumChar);
+             snprintf(SaveChar,sizeof(SaveChar)*sizeof(char),"%s\0",DumChar);
              
              Done = 0;
              
@@ -2046,7 +2046,7 @@ void GL_VIEWER::LoadCalculixINPFile(void)
              
              sscanf(VarArray,"NAME=%s",DumChar);
             
-             sprintf(INP_MESH.CalculixLocalCoord[i].Name,"FEM Orientation: %s",DumChar);
+             snprintf(INP_MESH.CalculixLocalCoord[i].Name,sizeof(INP_MESH.CalculixLocalCoord[i].Name)*sizeof(char),"FEM Orientation: %s",DumChar);
             
              printf("Orientation name: %s \n",INP_MESH.CalculixLocalCoord[i].Name);
             
@@ -2392,7 +2392,7 @@ void GL_VIEWER::LoadCalculixDATFile(void)
     
     // Open the aerothermal data base file
 
-    sprintf(file_name_w_ext,"%s.dat",CalculixFileName);
+    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.dat",CalculixFileName);
 
     printf("Attemping to open the Calculix dat file... \n");
 
@@ -2490,7 +2490,7 @@ void GL_VIEWER::LoadCalculixFRDFileOld(void)
     
     printf("Attemping to open the Calculix frd file... \n");
 
-    sprintf(file_name_w_ext,"%s.frd",CalculixFileName);
+    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.frd",CalculixFileName);
     
     if ( (frd_file = fopen(file_name_w_ext,"r")) != NULL ) {
 
@@ -3011,7 +3011,7 @@ void GL_VIEWER::LoadCalculixFRDFile(void)
     
     printf("Attemping to open the Calculix frd file... \n");
 
-    sprintf(file_name_w_ext,"%s.frd",CalculixFileName);
+    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.frd",CalculixFileName);
     
     if ( (frd_file = fopen(file_name_w_ext,"r")) != NULL ) {
 
@@ -3688,7 +3688,7 @@ void GL_VIEWER::DrawCalculixFEMModelAsWireFrame(CALCULIX_MESH &FEM_MESH, int Dra
     
     if ( DrawFEMStressIsOn ) {
 
-       sprintf(LegendTitle,"Mises Stress Magnitude / 1.e6");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Mises Stress Magnitude / 1.e6");
        
        LegendMin = LegendMinClip = FRD_MESH.StressMin/1.e6;
        LegendMax = LegendMaxClip = FRD_MESH.StressMax/1.e6;    
@@ -3697,7 +3697,7 @@ void GL_VIEWER::DrawCalculixFEMModelAsWireFrame(CALCULIX_MESH &FEM_MESH, int Dra
     
     else if ( DrawFEMPressureIsOn ) {
 
-       sprintf(LegendTitle,"Pressure");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Pressure");
        
        LegendMin = LegendMinClip = INP_MESH.PressureMin;
        LegendMax = LegendMaxClip = INP_MESH.PressureMax;    
@@ -3706,7 +3706,7 @@ void GL_VIEWER::DrawCalculixFEMModelAsWireFrame(CALCULIX_MESH &FEM_MESH, int Dra
     
     else if ( DrawFEMDeflectionIsOn ) {
        
-       sprintf(LegendTitle,"Deflection Magnitude");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Deflection Magnitude");
        
        LegendMin = LegendMinClip = FRD_MESH.DeflectionMin;
        LegendMax = LegendMaxClip = FRD_MESH.DeflectionMax;    
@@ -3715,7 +3715,7 @@ void GL_VIEWER::DrawCalculixFEMModelAsWireFrame(CALCULIX_MESH &FEM_MESH, int Dra
 
     else if ( DrawFEMThicknessIsOn ) {
        
-       sprintf(LegendTitle,"Thickness");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Thickness");
        
        LegendMin = FRD_MESH.ThicknessMin;
        LegendMax = FRD_MESH.ThicknessMax;
@@ -3724,7 +3724,7 @@ void GL_VIEWER::DrawCalculixFEMModelAsWireFrame(CALCULIX_MESH &FEM_MESH, int Dra
         
     else {
        
-       sprintf(LegendTitle," ");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char)," ");
        
        LegendMin = -1.;
        LegendMax = 1.;
@@ -4808,7 +4808,7 @@ void GL_VIEWER::DrawCalculixFEMModel(CALCULIX_MESH &FEM_MESH, int DrawDeformed)
     
     if ( DrawFEMStressIsOn ) {
 
-       sprintf(LegendTitle,"Mises Stress Magnitude / 1.e6");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Mises Stress Magnitude / 1.e6");
        
        LegendMin = FRD_MESH.StressMin/1.e6;
        LegendMax = FRD_MESH.StressMax/1.e6;    
@@ -4817,7 +4817,7 @@ void GL_VIEWER::DrawCalculixFEMModel(CALCULIX_MESH &FEM_MESH, int DrawDeformed)
     
     else if ( DrawFEMPressureIsOn ) {
 
-       sprintf(LegendTitle,"Pressure");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Pressure");
        
        LegendMin = INP_MESH.PressureMin;
        LegendMax = INP_MESH.PressureMax;    
@@ -4826,7 +4826,7 @@ void GL_VIEWER::DrawCalculixFEMModel(CALCULIX_MESH &FEM_MESH, int DrawDeformed)
     
     else if ( DrawFEMDeflectionIsOn ) {
        
-       sprintf(LegendTitle,"Deflection Magnitude");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Deflection Magnitude");
        
        LegendMin = FRD_MESH.DeflectionMin;
        LegendMax = FRD_MESH.DeflectionMax;    
@@ -4835,7 +4835,7 @@ void GL_VIEWER::DrawCalculixFEMModel(CALCULIX_MESH &FEM_MESH, int DrawDeformed)
 
     else if ( DrawFEMThicknessIsOn ) {
        
-       sprintf(LegendTitle,"Thickness");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Thickness");
        
        LegendMin = FRD_MESH.ThicknessMin;
        LegendMax = FRD_MESH.ThicknessMax;    
@@ -4844,7 +4844,7 @@ void GL_VIEWER::DrawCalculixFEMModel(CALCULIX_MESH &FEM_MESH, int DrawDeformed)
              
     else {
        
-       sprintf(LegendTitle," ");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char)," ");
        
        LegendMin = -1.;
        LegendMax = 1.;
@@ -5974,7 +5974,7 @@ void GL_VIEWER::MakeMovie(char *FileName)
     char DumChar[2000], Command[2000], Path[2000], file_name_w_ext[2000];
     FILE *adb_file;
 
-    sprintf( Path, "%s/MoviePNGFiles/", path );
+    snprintf(path,sizeof(path)*sizeof(char), "%s/MoviePNGFiles/", path );
 
 
     // Check for ffmpeg  & delete any old png files
@@ -6027,7 +6027,7 @@ void GL_VIEWER::MakeMovie(char *FileName)
    
           if ( !UserSetPlotLimits ) FindSolutionMinMax();
           
-          sprintf(DumChar,"%s.%d",FileName,i);
+          snprintf(DumChar,sizeof(DumChar)*sizeof(char),"%s.%d",FileName,i);
           
           Draw();
    
@@ -6047,7 +6047,7 @@ void GL_VIEWER::MakeMovie(char *FileName)
        
        while ( !Done ) {
        
-          sprintf(file_name_w_ext,"%s.%d.adb",file_name,Case);
+          snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.%d.adb",file_name,Case);
           
           if ( (adb_file = fopen(file_name_w_ext,"r")) != NULL ) {
              
@@ -6063,7 +6063,7 @@ void GL_VIEWER::MakeMovie(char *FileName)
             
              if ( !UserSetPlotLimits ) FindSolutionMinMax();
              
-             sprintf(DumChar,"%s.%d",FileName,Case);
+             snprintf(DumChar,sizeof(DumChar)*sizeof(char),"%s.%d",FileName,Case);
              
              Draw();
       
@@ -6094,7 +6094,7 @@ void GL_VIEWER::MakeMovie(char *FileName)
 
     if ( !CheckForOptimizationReloads_ ) {
     
-       sprintf(Command, "ffmpeg -r 10 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4", Path, file_name_no_path, FileName, file_name, FileName );
+       snprintf(Command,sizeof(Command)*sizeof(char), "ffmpeg -r 10 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4", Path, file_name_no_path, FileName, file_name, FileName );
 
     }
     
@@ -6102,7 +6102,7 @@ void GL_VIEWER::MakeMovie(char *FileName)
     
     else {
        
-       sprintf(Command, "ffmpeg -r 50 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4", Path, file_name_no_path, FileName, file_name, FileName );
+       snprintf(Command,sizeof(Command)*sizeof(char), "ffmpeg -r 50 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4", Path, file_name_no_path, FileName, file_name, FileName );
 
     }       
 
@@ -6168,17 +6168,17 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
 
     if (strstr(file_name,".adb") ) {
        
-        sprintf(file_name_w_ext,"%s",file_name);
+        snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s",file_name);
         
-        if ( CheckForOptimizationReloads_ ) sprintf(file_name_w_ext,"%s.%d",file_name,Case);
+        if ( CheckForOptimizationReloads_ ) snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.%d",file_name,Case);
 
     }
     
     else {
     
-        sprintf(file_name_w_ext,"%s.adb",file_name);
+        snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.adb",file_name);
 
-        if ( CheckForOptimizationReloads_ ) sprintf(file_name_w_ext,"%s.%d.adb",file_name,Case);
+        if ( CheckForOptimizationReloads_ ) snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.%d.adb",file_name,Case);
 
     }
     
@@ -6399,7 +6399,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
     
     for ( c = 1 ; c <= NumberOfQuadCuttingPlanes_ ; c++ ) {
        
-       sprintf(file_name_w_ext,"%s.case.%d.quad.%d.dat",file_name,Case,c);
+       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.case.%d.quad.%d.dat",file_name,Case,c);
        
        if ( QuadCutPlaneList_[c].NumberOfQuadNodes != 0 ) delete [] QuadCutPlaneList_[c].QuadNodeList;
        if ( QuadCutPlaneList_[c].NumberOfQuadCells != 0 ) delete [] QuadCutPlaneList_[c].QuadCellList;
@@ -6594,7 +6594,7 @@ void GL_VIEWER::LoadCaseFile(char *FileName)
 
     // Open the case file
 
-    sprintf(file_name_w_ext,"%s.vspaero",FileName);
+    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.vspaero",FileName);
 
     if ( (case_file = fopen(file_name_w_ext,"r")) == NULL ) {
 
@@ -6664,7 +6664,7 @@ void GL_VIEWER::LoadBeam3DFEMData(void)
     
     for ( i = 1 ; i <= NumberOfSurfaces_ ; i++ ) {
 
-       sprintf(FEM_File_Name,"%s.Surface.%d.dfm",file_name,i);
+       snprintf(FEM_File_Name,sizeof(FEM_File_Name)*sizeof(char),"%s.Surface.%d.dfm",file_name,i);
     
        // If a deformation solution exists... load it in
        
@@ -6695,7 +6695,7 @@ void GL_VIEWER::LoadAdjointandGradients(void)
     char OptFileName[2000], DumChar[2000];
     FILE *OptFile;
     
-    sprintf(OptFileName,"%s.gradient",file_name);
+    snprintf(OptFileName,sizeof(OptFileName)*sizeof(char),"%s.gradient",file_name);
     
     // If an optimization solution exists... load it in
     
@@ -7831,7 +7831,7 @@ void GL_VIEWER::SolutionCaseSliderWasMoved(int Case)
           
           printf("Looking for adb case: %d \n",NewCase);
           
-          sprintf(file_name_w_ext,"%s.%d.adb",file_name,NewCase);
+          snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.%d.adb",file_name,NewCase);
           
           if ( (adb_file = fopen(file_name_w_ext,"r")) != NULL ) {
              
@@ -7841,7 +7841,7 @@ void GL_VIEWER::SolutionCaseSliderWasMoved(int Case)
              
              printf("Looking for adb case: %d \n",NewCase);
              
-             sprintf(file_name_w_ext,"%s.%d.adb",file_name,NewCase);
+             snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.%d.adb",file_name,NewCase);
              
              printf("2... \n");
              
@@ -7887,18 +7887,18 @@ void GL_VIEWER::SolutionCaseSliderWasMoved(int Case)
 #                                                                              #
 ##############################################################################*/
 
-void GL_VIEWER::GetCommentTextString(char *c)
+void GL_VIEWER::GetCommentTextString(char *c, size_t siz)
 { 
    
    if ( !CheckForOptimizationReloads_ ) {
       
-      sprintf(c,"%s",ADBCaseList_[UserSelectedSolutionCase_].CommentLine);
+      snprintf(c,siz,"%s",ADBCaseList_[UserSelectedSolutionCase_].CommentLine);
       
    }
    
    else {
       
-      sprintf(c,"Optimization Step: %d",UserSelectedSolutionCase_);
+      snprintf(c,siz,"Optimization Step: %d",UserSelectedSolutionCase_);
       
    }
    
@@ -8496,7 +8496,7 @@ void GL_VIEWER::DrawLegend(void)
 
     glPushMatrix();
 
-       sprintf(string, "%s", LegendTitle);
+       snprintf(string,sizeof(string)*sizeof(char), "%s", LegendTitle);
        glTranslatef(0.05*w(), 0.95*h(), 0);
        glScalef(15., 15., 1);
        glfDrawSolidString(string);
@@ -8520,7 +8520,7 @@ void GL_VIEWER::DrawLegend(void)
 
        glPushMatrix();
 
-          sprintf(string, "%6.5f", LegendVal);
+          snprintf(string,sizeof(string)*sizeof(char), "%6.5f", LegendVal);
           glTranslatef(0.075*w(), y_old, 0);
           glScalef(15., 15., 1);
           glfDrawSolidString(string);
@@ -8544,7 +8544,7 @@ void GL_VIEWER::DrawLegend(void)
 
     glPushMatrix();
 
-       sprintf(string, "%6.5f", LegendMinClip);
+       snprintf(string,sizeof(string)*sizeof(char), "%6.5f", LegendMinClip);
        glTranslatef(0.075*w(), y1 - 4.*y_delt, 0);
        glScalef(15., 15., 1);
        glfDrawSolidString(string);
@@ -8553,7 +8553,7 @@ void GL_VIEWER::DrawLegend(void)
 
     glPushMatrix();
 
-       sprintf(string, "%6.5f", LegendMaxClip);
+       snprintf(string,sizeof(string)*sizeof(char), "%6.5f", LegendMaxClip);
        glTranslatef(0.075*w(), y2 + 4.*y_delt, 0);
        glScalef(15., 15., 1);
        glfDrawSolidString(string);
@@ -8584,7 +8584,7 @@ void GL_VIEWER::DrawLabel(void)
 
     glPushMatrix();
 
-       sprintf(string, "Mach: %2.3f, Beta: %2.8f, Alpha: %2.3f",
+       snprintf(string,sizeof(string)*sizeof(char), "Mach: %2.3f, Beta: %2.8f, Alpha: %2.3f",
        CurrentEdgeMach, CurrentBeta, CurrentAlpha);
        glTranslatef(0.25*w(), 0.075*h(), 0);
        glScalef(15., 15., 1);
@@ -10006,7 +10006,7 @@ void GL_VIEWER::PanelComGeomTagsBrowser_Update(void)
     
     for ( i = 1 ; i <= NumberOfWings_ ; i++ ) {
 
-       sprintf(Line,"(%d) Wing: (%d): %-100s \n", WingGroupID_[i], i, WingListName_[i]);
+       snprintf(Line,sizeof(Line)*sizeof(char),"(%d) Wing: (%d): %-100s \n", WingGroupID_[i], i, WingListName_[i]);
 
        PanelComGeomTagsBrowser->add(Line);
        
@@ -10017,7 +10017,7 @@ void GL_VIEWER::PanelComGeomTagsBrowser_Update(void)
     
     for ( i = 1 ; i <= NumberOfBodies_ ; i++ ) {
 
-       sprintf(Line,"(%d) Body: (%d): %-100s \n", BodyGroupID_[i], i, BodyListName_[i]);
+       snprintf(Line,sizeof(Line)*sizeof(char),"(%d) Body: (%d): %-100s \n", BodyGroupID_[i], i, BodyListName_[i]);
 
        PanelComGeomTagsBrowser->add(Line);
        
@@ -10027,7 +10027,7 @@ void GL_VIEWER::PanelComGeomTagsBrowser_Update(void)
 
     for ( i = 1 ; i <= NumberOfCart3dSurfaces_ ; i++ ) {
 
-       sprintf(Line,"(%d) : (%d): %-100s \n", Cart3DComponentList[i], i, Cart3dListName_[i]);
+       snprintf(Line,sizeof(Line)*sizeof(char),"(%d) : (%d): %-100s \n", Cart3DComponentList[i], i, Cart3dListName_[i]);
 
        PanelComGeomTagsBrowser->add(Line);
        
@@ -10099,9 +10099,9 @@ void GL_VIEWER::CutPlanesBrowser_Update(void)
     
     for ( i = 1 ; i <= NumberOfQuadCuttingPlanes_ ; i++ ) {
 
-       if ( QuadCutPlaneList_[i].CutPlaneDirection == 1 ) sprintf(Line,"(%d) X-Cut: %10.5f \n", i,QuadCutPlaneList_[i].CutPlaneValue);
-       if ( QuadCutPlaneList_[i].CutPlaneDirection == 2 ) sprintf(Line,"(%d) Y-Cut: %10.5f \n", i,QuadCutPlaneList_[i].CutPlaneValue);
-       if ( QuadCutPlaneList_[i].CutPlaneDirection == 3 ) sprintf(Line,"(%d) Z-Cut: %10.5f \n", i,QuadCutPlaneList_[i].CutPlaneValue);
+       if ( QuadCutPlaneList_[i].CutPlaneDirection == 1 ) snprintf(Line,sizeof(Line)*sizeof(char),"(%d) X-Cut: %10.5f \n", i,QuadCutPlaneList_[i].CutPlaneValue);
+       if ( QuadCutPlaneList_[i].CutPlaneDirection == 2 ) snprintf(Line,sizeof(Line)*sizeof(char),"(%d) Y-Cut: %10.5f \n", i,QuadCutPlaneList_[i].CutPlaneValue);
+       if ( QuadCutPlaneList_[i].CutPlaneDirection == 3 ) snprintf(Line,sizeof(Line)*sizeof(char),"(%d) Z-Cut: %10.5f \n", i,QuadCutPlaneList_[i].CutPlaneValue);
 
        CuttingPlanesBrowser->add(Line);
 
@@ -11197,13 +11197,13 @@ void GL_VIEWER::DrawCp(void)
 
     if ( ModelType == VLM_MODEL ) {
     
-       sprintf(LegendTitle,"Delta-Cp");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Delta-Cp");
        
     }
     
     else {
        
-       sprintf(LegendTitle,"Cp");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Cp");
        
     }
 
@@ -11230,13 +11230,13 @@ void GL_VIEWER::DrawCpSteady(void)
 
     if ( ModelType == VLM_MODEL ) {
     
-       sprintf(LegendTitle,"Steady Delta-Cp");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Steady Delta-Cp");
        
     }
     
     else {
        
-       sprintf(LegendTitle,"Steady Cp");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Steady Cp");
        
     }
 
@@ -11263,13 +11263,13 @@ void GL_VIEWER::DrawCpUnsteady(void)
 
     if ( ModelType == VLM_MODEL ) {
     
-       sprintf(LegendTitle,"Unsteady Delta-Cp");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Unsteady Delta-Cp");
        
     }
     
     else {
        
-       sprintf(LegendTitle,"Unsteady Cp");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Unsteady Cp");
        
     }
 
@@ -11296,13 +11296,13 @@ void GL_VIEWER::DrawGamma(void)
 
     if ( ModelType == VLM_MODEL ) {
     
-       sprintf(LegendTitle,"Vorticity");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Vorticity");
        
     }
     
     else {
        
-       sprintf(LegendTitle,"Vorticity");
+       snprintf(LegendTitle,sizeof(LegendTitle)*sizeof(char),"Vorticity");
        
     }
 
@@ -12351,7 +12351,7 @@ void GL_VIEWER::DrawCGLabel(void)
 
     glPushMatrix();
 
-       sprintf(string, "Vehicle CG: %f, %f, %f \n", Xcg, Ycg, Zcg);
+       snprintf(string,sizeof(string)*sizeof(char), "Vehicle CG: %f, %f, %f \n", Xcg, Ycg, Zcg);
 
        glTranslatef(0.25*w(), 0.025*h(), 0);
        glScalef(15., 15., 1);
@@ -13006,7 +13006,7 @@ void GL_VIEWER::remove_dir(const char* path)
             char *abs_path = new char[256];
             if (( *( entry->d_name ) != '.' ) || (( strlen( entry->d_name ) > 1 ) && ( entry->d_name[ 1 ] != '.' )))
             {
-                sprintf( abs_path, "%s/%s", path, entry->d_name );
+                snprintf(abs_path,sizeof(abs_path)*sizeof(char), "%s/%s", path, entry->d_name );
                 if ( (sub_dir = opendir( abs_path )))
                 {
                     closedir( sub_dir );
@@ -13048,7 +13048,7 @@ void GL_VIEWER::WritePNGFile(char *FileName)
 
        // Now write to png file
 
-       sprintf(rgbstr,"%s.%s.png",file_name,FileName);
+       snprintf(rgbstr,sizeof(rgbstr)*sizeof(char),"%s.%s.png",file_name,FileName);
        width = pixel_w();
        height = pixel_h();
        
@@ -13080,7 +13080,7 @@ void GL_VIEWER::WritePNGFile(char *Path, char *FileName)
 
        // Now write to png file
 
-       sprintf( rgbstr, "%s%s.%s.png", Path, file_name_no_path, FileName );
+       snprintf(rgbstr,sizeof(rgbstr)*sizeof(char), "%s%s.%s.png", Path, file_name_no_path, FileName );
        width = pixel_w();
        height = pixel_h();
        

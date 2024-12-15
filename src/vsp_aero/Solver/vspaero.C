@@ -354,7 +354,7 @@ int main(int argc, char **argv)
                     
     // Load in the VSP degenerate geometry file
  
-    VSP_VLM().ReadFile(FileName);
+    VSP_VLM().ReadFile(FileName, sizeof(FileName)*sizeof(char));
     
     // Check adjoint component group settings
         
@@ -783,13 +783,14 @@ void LoadCaseFile(int ReadFlag)
 
     // Delimiters
     
-    sprintf(Comma,",");
+    snprintf(Comma,sizeof(Comma)*sizeof(char),",");
+
 
     // Open the case file
 
     if ( ReadFlag ) {
        
-       sprintf(file_name_w_ext,"%s.vspaero",FileName);
+       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.vspaero",FileName);
    
        if ( (case_file = fopen(file_name_w_ext,"r")) == NULL ) {
    
@@ -1241,7 +1242,7 @@ void LoadCaseFile(int ReadFlag)
                 
                 DumChar[strcspn(DumChar, "\n")] = 0;
                 
-                sprintf(ControlSurfaceGroup_[i].ControlSurface_Name(1),"%s",DumChar);
+                snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(1),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(1))*sizeof(char),"%s",DumChar);
                 
                 printf("Control Surface(1): %s___ \n",ControlSurfaceGroup_[i].ControlSurface_Name(1));
                 
@@ -1267,7 +1268,7 @@ void LoadCaseFile(int ReadFlag)
                 
                 // Save a copy of Dumchar
                 
-                sprintf(DumChar2,"%s",DumChar);
+                snprintf(DumChar2,sizeof(DumChar2)*sizeof(char),"%s",DumChar);
             
                 // Figure out how many control surfaces are in the list
                 
@@ -1295,13 +1296,13 @@ void LoadCaseFile(int ReadFlag)
          
                 // Reparse the list to get the actual control surface names
                 
-                sprintf(DumChar,"%s",DumChar2);
+                snprintf(DumChar,sizeof(DumChar)*sizeof(char),"%s",DumChar2);
                 
                 Next = strtok(DumChar,Comma);
   
                 NumberOfControlSurfaces = 1;
                 
-                sprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),"%s",Next);
+                snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces))*sizeof(char),"%s",Next);
                 
                 ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(NumberOfControlSurfaces) = 1;
                 
@@ -1315,7 +1316,7 @@ void LoadCaseFile(int ReadFlag)
                        
                        NumberOfControlSurfaces++;
 
-                       sprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),"%s", Next );
+                       snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces))*sizeof(char),"%s", Next );
                 
                        printf("Control surface(%d): %s \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces));
    
@@ -1695,7 +1696,7 @@ int SearchForIntegerVariable(FILE *File, const char *VariableName, int &Value)
           
     }
         
-    sprintf (Space," ");
+    snprintf(Space,sizeof(Space)*sizeof(char)," ");
     
     // Search file from the begining
     
@@ -1705,7 +1706,7 @@ int SearchForIntegerVariable(FILE *File, const char *VariableName, int &Value)
         
     while ( fgets(DumChar1,2000,File) != NULL && !Found ) {
 
-       sprintf(DumChar2,"%s",DumChar1);
+       snprintf(DumChar2,sizeof(DumChar2)*sizeof(char),"%s",DumChar1);
    
        Next = strtok(DumChar1,Space); 
 
@@ -1743,7 +1744,7 @@ int SearchForCharacterVariable(FILE *File, const char *VariableName, char *Varia
           
     }
         
-    sprintf (Space," ");
+    snprintf(Space,sizeof(Space)*sizeof(char)," ");
     
     // Search file from the begining
     
@@ -1753,7 +1754,7 @@ int SearchForCharacterVariable(FILE *File, const char *VariableName, char *Varia
         
     while ( fgets(DumChar1,2000,File) != NULL && !Found ) {
 
-       sprintf(DumChar2,"%s",DumChar1);
+       snprintf(DumChar2,sizeof(DumChar2)*sizeof(char),"%s",DumChar1);
    
        Next = strtok(DumChar1,Space); 
 
@@ -1791,7 +1792,7 @@ int SearchForFloatVariable(FILE *File, const char *VariableName, double &Value)
           
     }
         
-    sprintf (Space," ");
+    snprintf(Space,sizeof(Space)*sizeof(char)," ");
     
     // Search file from the begining
     
@@ -1801,7 +1802,7 @@ int SearchForFloatVariable(FILE *File, const char *VariableName, double &Value)
         
     while ( fgets(DumChar1,2000,File) != NULL && !Found ) {
 
-       sprintf(DumChar2,"%s",DumChar1);
+       snprintf(DumChar2,sizeof(DumChar2)*sizeof(char),"%s",DumChar1);
    
        Next = strtok(DumChar1,Space); 
 
@@ -1842,9 +1843,9 @@ int SearchForFloatVariableList(FILE *File, const char *VariableName, double *Val
     
     // Delimiters
 
-    sprintf (Space," ");
+    snprintf(Space,sizeof(Space)*sizeof(char)," ");
    
-    sprintf(Comma,",");
+    snprintf(Comma,sizeof(Comma)*sizeof(char),",");
     
     // Search file from the begining
     
@@ -1854,7 +1855,7 @@ int SearchForFloatVariableList(FILE *File, const char *VariableName, double *Val
         
     while ( fgets(DumChar2,2000,File) != NULL && !Found ) {
 
-       sprintf(DumChar1,"%s",DumChar2);
+       snprintf(DumChar1,sizeof(DumChar1)*sizeof(char),"%s",DumChar2);
 
        Next = strtok(DumChar2,Space); 
 
@@ -1938,9 +1939,9 @@ int SearchForIntVariableList(FILE *File, const char *VariableName, int *Value, i
     
     // Delimiters
 
-    sprintf (Space," ");
+    snprintf(Space,sizeof(Space)*sizeof(char)," ");
    
-    sprintf(Comma,",");
+    snprintf(Comma,sizeof(Comma)*sizeof(char),",");
     
     // Search file from the begining
     
@@ -1950,7 +1951,7 @@ int SearchForIntVariableList(FILE *File, const char *VariableName, int *Value, i
         
     while ( fgets(DumChar2,2000,File) != NULL && !Found ) {
 
-       sprintf(DumChar1,"%s",DumChar2);
+       snprintf(DumChar1,sizeof(DumChar1)*sizeof(char),"%s",DumChar2);
 
        Next = strtok(DumChar2,Space); 
 
@@ -2134,9 +2135,9 @@ void Solve(void)
 
              // Set a comment line
              
-             sprintf(VSP_VLM().CaseString(),"Case: %-d ...",Case);
+             snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Case: %-d ...",Case);
              
-             if ( DoGroundEffectsAnalysis_ ) sprintf(VSP_VLM().CaseString(),"AoA: %7.3f ... H: %8.3f",-VSP_VLM().VehicleRotationAngleVector(1),HeightAboveGround_);
+             if ( DoGroundEffectsAnalysis_ ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"AoA: %7.3f ... H: %8.3f",-VSP_VLM().VehicleRotationAngleVector(1),HeightAboveGround_);
 
              // Solve this case
              
@@ -2250,7 +2251,7 @@ void Solve(void)
 
     // Write out final integrated force data
     
-    sprintf(PolarFileName,"%s.polar",FileName);
+    snprintf(PolarFileName,sizeof(PolarFileName)*sizeof(char),"%s.polar",FileName);
 
     if ( (PolarFile = fopen(PolarFileName,"w")) == NULL ) {
 
@@ -2330,7 +2331,7 @@ void FiniteDifference_StabilityAndControlSolve(void)
     
     // Open the stability and control output file
     
-    sprintf(StabFileName,"%s.stab",FileName);
+    snprintf(StabFileName,sizeof(StabFileName)*sizeof(char),"%s.stab",FileName);
 
     if ( (StabFile = fopen(StabFileName,"w")) == NULL ) {
 
@@ -2342,7 +2343,7 @@ void FiniteDifference_StabilityAndControlSolve(void)
     
     // Open the vorview flt
     
-    sprintf(VorviewFltFileName,"%s.flt",FileName);
+    snprintf(VorviewFltFileName,sizeof(VorviewFltFileName)*sizeof(char),"%s.flt",FileName);
 
     if ( (VorviewFlt = fopen(VorviewFltFileName,"w")) == NULL ) {
 
@@ -2456,13 +2457,13 @@ void FiniteDifference_StabilityAndControlSolve(void)
                 
                 // Set a comment line
 
-                if ( Case == 1 ) sprintf(VSP_VLM().CaseString(),"Base Aero         ");
-                if ( Case == 2 ) sprintf(VSP_VLM().CaseString(),"Alpha      +%5.3lf",Delta_AoA_);
-                if ( Case == 3 ) sprintf(VSP_VLM().CaseString(),"Beta       +%5.3lf",Delta_Beta_);
-                if ( Case == 4 ) sprintf(VSP_VLM().CaseString(),"Roll Rate  +%5.3lf",Delta_P_);
-                if ( Case == 5 ) sprintf(VSP_VLM().CaseString(),"Pitch Rate +%5.3lf",Delta_Q_);
-                if ( Case == 6 ) sprintf(VSP_VLM().CaseString(),"Yaw Rate   +%5.3lf",Delta_R_);
-                if ( Case == 7 ) sprintf(VSP_VLM().CaseString(),"Mach       +%5.3lf",Delta_Mach_);         
+                if ( Case == 1 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Base Aero         ");
+                if ( Case == 2 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Alpha      +%5.3lf",Delta_AoA_);
+                if ( Case == 3 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Beta       +%5.3lf",Delta_Beta_);
+                if ( Case == 4 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Roll Rate  +%5.3lf",Delta_P_);
+                if ( Case == 5 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Pitch Rate +%5.3lf",Delta_Q_);
+                if ( Case == 6 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Yaw Rate   +%5.3lf",Delta_R_);
+                if ( Case == 7 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Mach       +%5.3lf",Delta_Mach_);         
                 
                 // Solve this case
                 
@@ -2572,7 +2573,7 @@ void FiniteDifference_StabilityAndControlSolve(void)
                 
                 // Set a comment line
              
-                sprintf(VSP_VLM().CaseString(),"Deflecting Control Group: %-d",i);
+                snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Deflecting Control Group: %-d",i);
                
                 // Now solve
                
@@ -2677,15 +2678,15 @@ void CalculateStabilityDerivatives(void)
        // Stability derivative cases
                                      //12345678901234567890123456789
                                      
-       if ( n == 1 ) sprintf(CaseType,caseTypeFormatStr,"Base_Aero", 0.0,        "n/a"); // note must print a "-" for the units column here or the parser in VSP has a hard time
-       if ( n == 2 ) sprintf(CaseType,caseTypeFormatStr,"Alpha",     Delta_AoA_, "deg");
-       if ( n == 3 ) sprintf(CaseType,caseTypeFormatStr,"Beta",      Delta_Beta_,"deg");
-       if ( n == 4 ) sprintf(CaseType,caseTypeFormatStr,"Roll__Rate",Delta_P_,   "rad/Tunit");
-       if ( n == 5 ) sprintf(CaseType,caseTypeFormatStr,"Pitch_Rate",Delta_Q_,   "rad/Tunit");
-       if ( n == 6 ) sprintf(CaseType,caseTypeFormatStr,"Yaw___Rate",Delta_R_,   "rad/Tunit");
-       if ( n == 7 ) sprintf(CaseType,caseTypeFormatStr,"Mach",      Delta_Mach_,"no_unit");
+       if ( n == 1 ) snprintf(CaseType,sizeof(CaseType)*sizeof(char),caseTypeFormatStr,"Base_Aero", 0.0,        "n/a"); // note must print a "-" for the units column here or the parser in VSP has a hard time
+       if ( n == 2 ) snprintf(CaseType,sizeof(CaseType)*sizeof(char),caseTypeFormatStr,"Alpha",     Delta_AoA_, "deg");
+       if ( n == 3 ) snprintf(CaseType,sizeof(CaseType)*sizeof(char),caseTypeFormatStr,"Beta",      Delta_Beta_,"deg");
+       if ( n == 4 ) snprintf(CaseType,sizeof(CaseType)*sizeof(char),caseTypeFormatStr,"Roll__Rate",Delta_P_,   "rad/Tunit");
+       if ( n == 5 ) snprintf(CaseType,sizeof(CaseType)*sizeof(char),caseTypeFormatStr,"Pitch_Rate",Delta_Q_,   "rad/Tunit");
+       if ( n == 6 ) snprintf(CaseType,sizeof(CaseType)*sizeof(char),caseTypeFormatStr,"Yaw___Rate",Delta_R_,   "rad/Tunit");
+       if ( n == 7 ) snprintf(CaseType,sizeof(CaseType)*sizeof(char),caseTypeFormatStr,"Mach",      Delta_Mach_,"no_unit");
 
-       if ( n  > 7 ) sprintf(CaseType,caseTypeFormatStr,ControlSurfaceGroup_[n - NumStabCases_].Name(), Delta_Control_, "deg" );
+       if ( n  > 7 ) snprintf(CaseType,sizeof(CaseType)*sizeof(char),caseTypeFormatStr,ControlSurfaceGroup_[n - NumStabCases_].Name(), Delta_Control_, "deg" );
        
        fprintf(StabFile,"%-39s %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
                CaseType,
@@ -3062,7 +3063,7 @@ void WriteOutAdjointStabilityDerivatives(void)
     
     // Open the stability and control output file
     
-    sprintf(StabFileName,"%s.adjoint.stab",FileName);
+    snprintf(StabFileName,sizeof(StabFileName)*sizeof(char),"%s.adjoint.stab",FileName);
 
     if ( (StabFile = fopen(StabFileName,"w")) == NULL ) {
 
@@ -3716,11 +3717,11 @@ void UnsteadyStabilityAndControlSolve(void)
     double CMz_damp, CMz_avg;     
     double Fact, T, Theta;  
 
-    if ( StabControlRun_ == 2 ) sprintf(StabFileName,"%s.pstab",FileName); // Roll analysis
+    if ( StabControlRun_ == 2 ) snprintf(StabFileName,sizeof(StabFileName)*sizeof(char),"%s.pstab",FileName); // Roll analysis
                                 
-    if ( StabControlRun_ == 3 ) sprintf(StabFileName,"%s.qstab",FileName); // Pitch analysis
+    if ( StabControlRun_ == 3 ) snprintf(StabFileName,sizeof(StabFileName)*sizeof(char),"%s.qstab",FileName); // Pitch analysis
                                 
-    if ( StabControlRun_ == 4 ) sprintf(StabFileName,"%s.rstab",FileName); // Yaw analysis
+    if ( StabControlRun_ == 4 ) snprintf(StabFileName,sizeof(StabFileName)*sizeof(char),"%s.rstab",FileName); // Yaw analysis
 
     if ( (StabFile = fopen(StabFileName,"w")) == NULL ) {
 
@@ -4016,7 +4017,7 @@ void CalculateAerodynamicCenter(void)
     
     // Open the stability and control output file
     
-    sprintf(StabFileName,"%s.aerocenter.stab",FileName);
+    snprintf(StabFileName,sizeof(StabFileName)*sizeof(char),"%s.aerocenter.stab",FileName);
 
     if ( (StabFile = fopen(StabFileName,"w")) == NULL ) {
 
@@ -4042,7 +4043,7 @@ void CalculateAerodynamicCenter(void)
              
              // Solve the base case
              
-             sprintf(VSP_VLM().CaseString(),"Base Aero         ");
+             snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Base Aero         ");
                           
              VSP_VLM().Mach()          = Mach_;
              VSP_VLM().AngleOfAttack() =  AoA_ * TORAD;
@@ -4080,7 +4081,7 @@ void CalculateAerodynamicCenter(void)
                      
              // Solve the perturbed case
              
-             sprintf(VSP_VLM().CaseString(),"Alpha      +%5.3lf",1.);
+             snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Alpha      +%5.3lf",1.);
                    
              VSP_VLM().Mach()          = Mach_;
              VSP_VLM().AngleOfAttack() =  ( AoA_ + 1.) * TORAD;
@@ -4153,7 +4154,7 @@ void FiniteDiffTestSolve(void)
 
     // Open the output file for the test derivatives
     
-    sprintf(TestFileName,"%s.fd.gradient",FileName);
+    snprintf(TestFileName,sizeof(TestFileName)*sizeof(char),"%s.fd.gradient",FileName);
 
     if ( (FiniteDiffFile = fopen(TestFileName,"w")) == NULL ) {
 

@@ -145,11 +145,11 @@ CONTROL_SURFACE& CONTROL_SURFACE::operator=(const CONTROL_SURFACE &ControlSurfac
 
     int i;
     
-    sprintf(Name_,"%s",ControlSurface.Name_);
+    snprintf(Name_,sizeof(Name_)*sizeof(char),"%s",ControlSurface.Name_);
     
     NumberOfLoops_ = ControlSurface.NumberOfLoops_;
     
-    sprintf(TypeName_,"%s",ControlSurface.TypeName_);
+    snprintf(TypeName_,sizeof(TypeName_)*sizeof(char),"%s",ControlSurface.TypeName_);
     
     Type_ = ControlSurface.Type_;
 
@@ -349,11 +349,11 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     
     // Save file name
     
-    sprintf(Name_,"%s",TagFileName);
+    snprintf(Name_,sizeof(Name_)*sizeof(char),"%s",TagFileName);
     
     // Read in tag file data
     
-    sprintf(FileNameWithExtension,"%s.tag",TagFileName);
+    snprintf(FileNameWithExtension,sizeof(FileNameWithExtension)*sizeof(char),"%s.tag",TagFileName);
 
     if ( (TagFile = fopen(FileNameWithExtension,"r")) == NULL ) {
 
@@ -381,7 +381,7 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     
     // Read in .csf file data
         
-    sprintf(FileNameWithExtension,"%s.csf",FileName);
+    snprintf(FileNameWithExtension,sizeof(FileNameWithExtension)*sizeof(char),"%s.csf",FileName);
     
     if ( (CSFFile = fopen(FileNameWithExtension,"r")) == NULL ) {
 

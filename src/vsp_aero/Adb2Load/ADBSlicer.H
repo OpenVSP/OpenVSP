@@ -406,7 +406,7 @@ public:
     float &MinSkinThickness(void) { return MinSkinThickness_; };
     float &MaxStress(void) { return MaxStress_; };
     float &OptFact(void) { return OptFact_; };
-    void SetElementName(char *Name) { sprintf(ElementLabel_,"%s",Name); };
+    void SetElementName(char *Name, size_t siz) { snprintf(ElementLabel_,siz,"%s",Name); };
         
     int &NodeOffSet(void) { return NodeOffSet_; };
     

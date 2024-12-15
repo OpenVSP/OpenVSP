@@ -113,16 +113,16 @@ glviewer->redraw();}
 
 glviewer->SolutionCaseSliderWasMoved( ((Fl_Value_Input *)o)->value());
 
-glviewer->GetCurrentMachText(dum);
+glviewer->GetCurrentMachText(dum, sizeof(dum)*sizeof(char));
 MachOutput->value(dum);
 
-glviewer->GetCurrentAlphaText(dum);
+glviewer->GetCurrentAlphaText(dum, sizeof(dum)*sizeof(char));
 AlphaOutput->value(dum);
 
-glviewer->GetCurrentBetaText(dum);
+glviewer->GetCurrentBetaText(dum, sizeof(dum)*sizeof(char));
 BetaOutput->value(dum);
 
-glviewer->GetCommentTextString(dum);
+glviewer->GetCommentTextString(dum, sizeof(dum)*sizeof(char));
 
 CommentOutput->value(dum);
 
@@ -780,13 +780,13 @@ glviewer->redraw();}
 
 glviewer->LoadInitialData(name);
 
-glviewer->GetCurrentMachText(dum);
+glviewer->GetCurrentMachText(dum, sizeof(dum)*sizeof(char));
 MachOutput->value(dum);
 
-glviewer->GetCurrentAlphaText(dum);
+glviewer->GetCurrentAlphaText(dum, sizeof(dum)*sizeof(char));
 AlphaOutput->value(dum);
 
-glviewer->GetCurrentBetaText(dum);
+glviewer->GetCurrentBetaText(dum, sizeof(dum)*sizeof(char));
 BetaOutput->value(dum);
 
 int UpperBound = glviewer->GetNumberOfADBCases();
@@ -803,7 +803,7 @@ sprintf(dum," of %d",UpperBound);
 
 //NumberOfSolutionCasesText->value(dum);
 
-glviewer->GetCommentTextString(dum);
+glviewer->GetCommentTextString(dum, sizeof(dum)*sizeof(char));
 
 CommentOutput->value(dum);} {selected
     }

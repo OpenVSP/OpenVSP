@@ -171,7 +171,7 @@ int TestCase_1(char *GeometryFileName, int SolverMode)
 
     // Read in the OpenVSP geometry
     
-    sprintf(OpenVSP_FileName,"%s.vsp3",GeometryFileName);
+    snprintf(OpenVSP_FileName,sizeof(OpenVSP_FileName)*sizeof(char),"%s.vsp3",GeometryFileName);
 
     vsp::ReadVSPFile( OpenVSP_FileName );
     
@@ -295,7 +295,7 @@ int TestCase_1(char *GeometryFileName, int SolverMode)
 
     if ( SolverMode == PANEL_MODEL ) VSP_VLM.AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES_USING_WAKE_FORCES; // Only total forces gradients, but based on Trefftz forces
             
-    VSP_VLM.ReadFile(GeometryFileName);
+    VSP_VLM.ReadFile(GeometryFileName, sizeof(GeometryFileName)*sizeof(char));
 
     VSP_VLM.Setup();
 
@@ -343,7 +343,7 @@ int TestCase_1(char *GeometryFileName, int SolverMode)
     
     // Open the history file
 
-    sprintf(HistoryFileName,"%s.opt.history",GeometryFileName);
+    snprintf(HistoryFileName,sizeof(HistoryFileName)*sizeof(char),"%s.opt.history",GeometryFileName);
 
     if ( (HistoryFile = fopen(HistoryFileName, "w")) == NULL ) {
     
@@ -355,7 +355,7 @@ int TestCase_1(char *GeometryFileName, int SolverMode)
     
     // Clean up any old opt adb files
     
-    sprintf(CommandLine,"rm %s.opt.*.adb",GeometryFileName);
+    snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"rm %s.opt.*.adb",GeometryFileName);
     
     system(CommandLine);
       
@@ -408,7 +408,7 @@ int TestCase_1(char *GeometryFileName, int SolverMode)
 
        // Save the .adb file for later viewing
        
-       sprintf(CommandLine,"cp %s.adb %s.opt.%d.adb",GeometryFileName,GeometryFileName,Iter);
+       snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.%d.adb",GeometryFileName,GeometryFileName,Iter);
        
        system(CommandLine);
        
@@ -416,13 +416,13 @@ int TestCase_1(char *GeometryFileName, int SolverMode)
           
           // Save the .adb file for later viewing
           
-          sprintf(CommandLine,"cp %s.adb %s.opt.adb",GeometryFileName,GeometryFileName);
+          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.adb",GeometryFileName,GeometryFileName);
           
           system(CommandLine);
           
           // Copy over the .cases file for viewer
           
-          sprintf(CommandLine,"cp %s.adb.cases %s.opt.adb.cases",GeometryFileName,GeometryFileName);
+          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb.cases %s.opt.adb.cases",GeometryFileName,GeometryFileName);
           
           system(CommandLine);          
        
@@ -727,7 +727,7 @@ PARAMETER_DATA *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables)
     
     // Open the OpenVSP des file
 
-    sprintf(DesignFileName,"%s.des",FileName);
+    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.des",FileName);
     
     printf("Opening: %s \n",DesignFileName);fflush(NULL);
 
@@ -891,13 +891,13 @@ void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **Paramet
 
     string compgeom_resid = vsp::ExecAnalysis( "DegenGeomMesh" );    
     
-    sprintf(NewFileName,"%s.Opt.Final.vspgeom",FileName);
+    snprintf(NewFileName,sizeof(NewFileName)*sizeof(char),"%s.Opt.Final.vspgeom",FileName);
     
     vsp::ExportFile( NewFileName, vsp::SET_ALL, vsp::EXPORT_VSPGEOM );
     
     // Save the current design
     
-    sprintf(DesignFileName,"%s.des",FileName);
+    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.des",FileName);
     
     if ( (DesignFile = fopen(DesignFileName, "r")) == NULL ) {
     
@@ -909,7 +909,7 @@ void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **Paramet
     
     // Open Opt des file
     
-    sprintf(DesignFileName,"%s.Opt.Final.des",FileName);
+    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.Opt.Final.des",FileName);
     
     //printf("Opening: %s \n",DesignFileName);fflush(NULL);
 

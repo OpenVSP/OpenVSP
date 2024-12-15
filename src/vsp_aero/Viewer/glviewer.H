@@ -956,9 +956,9 @@ public:
 
     void FixViewBox(float BoxSize) { ForceView_ = 1; BoxSize_ = BoxSize; };
 
-    void SetTimeStampLabel(char *Label) { DrawTimeStampIsOn = 1 ; sprintf(TimeLabel_,"%s",Label); };
+    void SetTimeStampLabel(char *Label, size_t siz) { DrawTimeStampIsOn = 1 ; snprintf(TimeLabel_,siz,"%s",Label); };
     
-    void SetCalculixFileName(char *Name) { ThereIsCalculixData = 1 ; sprintf(CalculixFileName,"%s",Name); printf("CalculixFileName: %s \n",CalculixFileName);fflush(NULL); };
+    void SetCalculixFileName(char *Name, size_t siz) { ThereIsCalculixData = 1 ; snprintf(CalculixFileName,siz,"%s",Name); printf("CalculixFileName: %s \n",CalculixFileName);fflush(NULL); };
 
     // Script File I/O
 
@@ -1081,7 +1081,7 @@ public:
     
     int GetNumberOfADBCases(void) { return NumberOfADBCases_; };
     
-    void GetCommentTextString(char *c);
+    void GetCommentTextString(char *c, size_t siz);
                                                        
     // Access size of data set
 
@@ -1097,9 +1097,9 @@ public:
 
     // Access actual EdgeMach values for each case
 
-    void GetMachText(char *c)  { sprintf(c,"%2.9f", MachList[UserChoiceMach])         ; };
-    void GetBetaText(char *c)  { sprintf(c,"%2.9f", BetaList[UserChoiceBeta])         ; };
-    void GetAlphaText(char *c) { sprintf(c,"%2.9f", AlphaList[UserChoiceAlpha])       ; };
+    void GetMachText(char *c, size_t siz)  { snprintf(c,siz,"%2.9f", MachList[UserChoiceMach])         ; };
+    void GetBetaText(char *c, size_t siz)  { snprintf(c,siz,"%2.9f", BetaList[UserChoiceBeta])         ; };
+    void GetAlphaText(char *c, size_t siz) { snprintf(c,siz,"%2.9f", AlphaList[UserChoiceAlpha])       ; };
 
     // EdgeMach, Q, Alpha cases inputted by user
 
@@ -1113,9 +1113,9 @@ public:
 
     // Return actual EdgeMach, Q, Alpha after a load data set or interpolation operation
 
-    void GetCurrentMachText(char *c)  { sprintf(c,"%3.3f", CurrentEdgeMach)  ; };
-    void GetCurrentBetaText(char *c) { sprintf(c,"%3.3f", CurrentBeta) ; };
-    void GetCurrentAlphaText(char *c) { sprintf(c,"%3.3f", CurrentAlpha) ; };
+    void GetCurrentMachText(char *c, size_t siz)  { snprintf(c,siz,"%3.3f", CurrentEdgeMach)  ; };
+    void GetCurrentBetaText(char *c, size_t siz) { snprintf(c,siz,"%3.3f", CurrentBeta) ; };
+    void GetCurrentAlphaText(char *c, size_t siz) { snprintf(c,siz,"%3.3f", CurrentAlpha) ; };
 
     // Set min and maximum Contour levels
     
