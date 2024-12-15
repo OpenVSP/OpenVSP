@@ -804,7 +804,7 @@ void LoadCaseFile(int ReadFlag)
     
     else {
               
-       case_file == NULL;
+       case_file = NULL;
 
     }
     
