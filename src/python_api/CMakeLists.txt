@@ -7,17 +7,19 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
     MESSAGE( STATUS "Configuring Python API" )
 
-    execute_process(
-        COMMAND ${PYTHON_EXECUTABLE} -c "import sphinx"
-        RESULT_VARIABLE EXIT_SPHINX
-    )
+    if( NOT VSP_NO_PYDOC )
+        execute_process(
+            COMMAND ${PYTHON_EXECUTABLE} -c "import sphinx"
+            RESULT_VARIABLE EXIT_SPHINX
+        )
 
-    if ( ${EXIT_SPHINX} EQUAL 0 )
-        SET ( SPHINX_FOUND true CACHE BOOL "SPHINX" )
-        mark_as_advanced( SPHINX_FOUND )
-        MESSAGE( STATUS "Sphinx found, Python API doc will be generated." )
-    ELSE( ${EXIT_SPHINX} EQUAL 0 )
-        MESSAGE( STATUS "Sphinx not found, Python API doc will not be generated." )
+        if ( ${EXIT_SPHINX} EQUAL 0 )
+            SET ( SPHINX_FOUND true CACHE BOOL "SPHINX" )
+            mark_as_advanced( SPHINX_FOUND )
+            MESSAGE( STATUS "Sphinx found, Python API doc will be generated." )
+        ELSE( ${EXIT_SPHINX} EQUAL 0 )
+            MESSAGE( STATUS "Sphinx not found, Python API doc will not be generated." )
+        endif()
     endif()
 
     INCLUDE_DIRECTORIES(
@@ -60,7 +62,10 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
     # Although not documented this way, CMAKE_SWIG_FLAGS is apparently a list and must be built up this way.
     SET( CMAKE_SWIG_FLAGS "-threads" )
-    list( APPEND CMAKE_SWIG_FLAGS "-doxygen" )
+
+    if( DOXYGEN_FOUND AND NOT VSP_NO_PYDOC )
+        list( APPEND CMAKE_SWIG_FLAGS "-doxygen" )
+    endif()
 
     SWIG_ADD_LIBRARY( pyvsp
         LANGUAGE python
