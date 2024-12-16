@@ -58,6 +58,7 @@ HumanGeomScreen.cpp
 IGESOptionsScreen.cpp
 IGESStructureOptionsScreen.cpp
 ImportScreen.cpp
+InterferenceScreen.cpp
 MainGLWindow.cpp
 MainGLWindow.cpp
 MainVSPScreen.cpp
@@ -147,6 +148,7 @@ HumanGeomScreen.h
 IGESOptionsScreen.h
 IGESStructureOptionsScreen.h
 ImportScreen.h
+InterferenceScreen.h
 MainGLWindow.h
 MainGLWindow.h
 MainVSPScreen.h

@@ -165,6 +165,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_PSliceMenuItem.Init( mgr, m_MenuBar, "Analysis/Planar Slice...", vsp::VSP_PSLICE_SCREEN );
     m_MassPropMenuItem.Init( mgr, m_MenuBar, "Analysis/Mass Prop...", vsp::VSP_MASS_PROP_SCREEN );
     m_ProjectionMenuItem.Init( mgr, m_MenuBar, "Analysis/Projected Area...", vsp::VSP_PROJECTION_SCREEN );
+    m_InterferenceMenuItem.Init( mgr, m_MenuBar, "Analysis/Interference...", vsp::VSP_INTERFERENCE_SCREEN );
     m_DegenGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/DegenGeom...", vsp::VSP_DEGEN_GEOM_SCREEN );
     m_SurfIntMenuItem.Init( mgr, m_MenuBar, "Analysis/Trimmed Surfaces...", vsp::VSP_SURFACE_INTERSECTION_SCREEN );
     m_CFDMeshMenuItem.Init( mgr, m_MenuBar, "Analysis/CFD Mesh...", vsp::VSP_CFD_MESH_SCREEN );
