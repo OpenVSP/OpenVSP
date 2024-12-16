@@ -5,6 +5,9 @@ namespace VSPGraphic
 {
 namespace Common
 {
+
+#define fNAN (std::numeric_limits<float>::signaling_NaN())
+
 enum VSPenum
 {
     VSP_TRIANGLES,

@@ -6,14 +6,14 @@
 
 namespace VSPGraphic
 {
-static glm::vec3 _mouseLocInWorld = glm::vec3(0xFFFFFFFF);
+static glm::vec3 _mouseLocInWorld = glm::vec3(fNAN);
 static TextMgr _textMgr = TextMgr();
 
 Probe::Probe() : Marker()
 {
     reset();
 
-    _mouseLocInWorld = glm::vec3(0xFFFFFFFF);
+    _mouseLocInWorld = glm::vec3(fNAN);
 }
 Probe::~Probe()
 {
@@ -52,11 +52,11 @@ void Probe::reset()
 {
     _label = "Probe";
 
-    _v1 = glm::vec3(0xFFFFFFFF);
+    _v1 = glm::vec3(fNAN);
 
-    _norm = glm::vec3(0xFFFFFFFF);
+    _norm = glm::vec3(fNAN);
 
-    _len = 0xFFFFFFFF;
+    _len = fNAN;
 }
 
 void Probe::_draw()
@@ -70,7 +70,7 @@ void Probe::_draw()
     glPointSize(12);
 
     // Last Stage.
-    if(_v1 != glm::vec3(0xFFFFFFFF) && _norm != glm::vec3(0xFFFFFFFF) && _len != 0xFFFFFFFF )
+    if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_norm)) && !isnan(_len) )
     {
         probeEnd = _v1 + _norm * _len;
 
@@ -87,13 +87,13 @@ void Probe::_draw()
 
     }
     // First stage of ruler.
-    else if(_v1 != glm::vec3(0xFFFFFFFF) && _norm != glm::vec3(0xFFFFFFFF) )
+    else if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_norm)) )
     {
         glm::vec3 v2 = _mouseLocInWorld;
 
         glBegin(GL_LINES);
         glVertex3f(_v1[0], _v1[1], _v1[2]);
-        if(_mouseLocInWorld != glm::vec3(0xFFFFFFFF))
+        if( !glm::any(glm::isnan(_mouseLocInWorld)) )
         {
             float len = glm::length( _mouseLocInWorld - _v1 );
             v2 = _v1 + _norm * len;
@@ -109,7 +109,7 @@ void Probe::_draw()
     }
 
     // Render text.
-    if(_v1 != glm::vec3(0xFFFFFFFF))
+    if( !glm::any(glm::isnan(_v1)) )
     {
         GLfloat mvArray[16];
         glGetFloatv(GL_MODELVIEW_MATRIX, mvArray);

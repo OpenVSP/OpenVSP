@@ -95,7 +95,7 @@ void PickablePnts::_draw()
 
             glm::vec3 hlPoint = _rSource->getVertexVec( index[i] );
 
-            if(hlPoint != glm::vec3(0xFFFFFFFF))
+            if( !glm::any(glm::isnan(hlPoint)) )
             {
                 glColor3f(1.f, 0.f, 0.f);
                 glPointSize(_pointSize * 1.2f);

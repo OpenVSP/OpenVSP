@@ -6,14 +6,14 @@
 
 namespace VSPGraphic
 {
-static glm::vec3 _mouseLocInWorld = glm::vec3(0xFFFFFFFF);
+static glm::vec3 _mouseLocInWorld = glm::vec3(fNAN);
 static TextMgr _textMgr = TextMgr();
 
 Protractor::Protractor() : Marker()
 {
     reset();
 
-    _mouseLocInWorld = glm::vec3(0xFFFFFFFF);
+    _mouseLocInWorld = glm::vec3(fNAN);
 }
 Protractor::~Protractor()
 {
@@ -86,12 +86,12 @@ void Protractor::reset()
 {
     _label = "Protractor";
 
-    _v1 = glm::vec3(0xFFFFFFFF);
-    _v2 = glm::vec3(0xFFFFFFFF);
-    _v3 = glm::vec3(0xFFFFFFFF);
+    _v1 = glm::vec3(fNAN);
+    _v2 = glm::vec3(fNAN);
+    _v3 = glm::vec3(fNAN);
 
-    _label_dir = glm::vec3(0xFFFFFFFF);
-    _offset = (float) 0xFFFFFFFF;
+    _label_dir = glm::vec3(fNAN);
+    _offset = (float) fNAN;
 }
 
 void Protractor::_draw()
@@ -106,7 +106,7 @@ void Protractor::_draw()
     glPointSize(12);
 
     // Last Stage.
-    if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 != glm::vec3(0xFFFFFFFF) && _v3 != glm::vec3(0xFFFFFFFF) && _offset != (float) 0xFFFFFFFF )
+    if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_v2)) && !glm::any(glm::isnan(_v3)) && !isnan(_offset) )
     {
         protractorStart = _v1;
         protractorEnd = _v3;
@@ -140,7 +140,7 @@ void Protractor::_draw()
         textLocation = _v2 + _label_dir * _offset;
     }
     // Third stage of protractor.
-    else if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 != glm::vec3(0xFFFFFFFF) && _v3 != glm::vec3(0xFFFFFFFF) && _offset == (float) 0xFFFFFFFF )
+    else if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_v2)) && !glm::any(glm::isnan(_v3)) && isnan(_offset) )
     {
         glBegin(GL_LINE_STRIP);
         glVertex3f(_v1[0], _v1[1], _v1[2]);
@@ -148,7 +148,7 @@ void Protractor::_draw()
         glVertex3f(_v3[0], _v3[1], _v3[2]);
         glEnd();
 
-        if(_mouseLocInWorld != glm::vec3(0xFFFFFFFF))
+        if( !glm::any(glm::isnan(_mouseLocInWorld)) )
         {
             textLocation = _v2 + _label_dir * glm::length( _mouseLocInWorld - _v2 );
         }
@@ -159,12 +159,12 @@ void Protractor::_draw()
 
     }
     // Second stage of protractor.
-    else if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 != glm::vec3(0xFFFFFFFF) && _v3 == glm::vec3(0xFFFFFFFF))
+    else if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_v2)) && glm::any(glm::isnan(_v3)) )
     {
         glBegin(GL_LINE_STRIP);
         glVertex3f(_v1[0], _v1[1], _v1[2]);
         glVertex3f(_v2[0], _v2[1], _v2[2]);
-        if(_mouseLocInWorld != glm::vec3(0xFFFFFFFF))
+        if( !glm::any(glm::isnan(_mouseLocInWorld)) )
         {
             glVertex3f(_mouseLocInWorld.x, _mouseLocInWorld.y, _mouseLocInWorld.z);
         }
@@ -177,11 +177,11 @@ void Protractor::_draw()
         textLocation = (_mouseLocInWorld + _v1) * 0.5f;
     }
     // First stage of protractor.
-    else if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 == glm::vec3(0xFFFFFFFF))
+    else if( !glm::any(glm::isnan(_v1)) && glm::any(glm::isnan(_v2)) )
     {
         glBegin(GL_LINES);
         glVertex3f(_v1[0], _v1[1], _v1[2]);
-        if(_mouseLocInWorld != glm::vec3(0xFFFFFFFF))
+        if( !glm::any(glm::isnan(_mouseLocInWorld)) )
         {
             glVertex3f(_mouseLocInWorld.x, _mouseLocInWorld.y, _mouseLocInWorld.z);
         }
@@ -195,7 +195,7 @@ void Protractor::_draw()
     }
 
     // Render text.
-    if(_v1 != glm::vec3(0xFFFFFFFF))
+    if( !glm::any(glm::isnan(_v1)) )
     {
         GLfloat mvArray[16];
         glGetFloatv(GL_MODELVIEW_MATRIX, mvArray);

@@ -87,9 +87,9 @@ VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::
     m_initialized = false;
 
     m_prevViewport = -1;
-    m_prevLB = m_prevRB = m_prevMB = glm::vec2( 0xFFFFFFFF );
-    m_prevAltLB = m_prevCtrlLB = m_prevMetaLB = glm::vec2( 0xFFFFFFFF );
-    m_prevLBRB = glm::vec2( 0xFFFFFFFF );
+    m_prevLB = m_prevRB = m_prevMB = glm::vec2( fNAN );
+    m_prevAltLB = m_prevCtrlLB = m_prevMetaLB = glm::vec2( fNAN );
+    m_prevLBRB = glm::vec2( fNAN );
 
     m_ScreenMgr = mgr;
 
@@ -2359,7 +2359,7 @@ void VspGlWindow::OnPush( int x, int y )
         else
         {
             // LB
-            glm::vec3 mouseInWorld = glm::vec3( 0xFFFFFFFF );
+            glm::vec3 mouseInWorld = glm::vec3( fNAN );
 
             // Getting mouse location in world space.  This is for selectLocation().
             Viewport * vp = m_GEngine->getDisplay()->getViewport();
@@ -2375,7 +2375,7 @@ void VspGlWindow::OnPush( int x, int y )
                 _sendFeedback( selected );
             }
             // Select location in world.
-            else if( mouseInWorld != glm::vec3( 0xFFFFFFFF ) && 
+            else if( !glm::any(glm::isnan(mouseInWorld)) &&
                 m_GEngine->getScene()->selectLocation( mouseInWorld.x, mouseInWorld.y, mouseInWorld.z ) )
             {
                 Selectable * selected = m_GEngine->getScene()->getLastSelected();
@@ -2409,7 +2409,7 @@ void VspGlWindow::OnDrag( int x, int y )
     if( Fl::event_button1() && Fl::event_button3() )
     {
         // LB + RB 
-        if( m_prevLBRB != glm::vec2( 0xFFFFFFFF ) )
+        if( !glm::any(glm::isnan(m_prevLBRB)) )
         {
             display->zoom( ( int )m_prevLBRB.x, ( int )m_prevLBRB.y, x, y );
 
@@ -2431,7 +2431,7 @@ void VspGlWindow::OnDrag( int x, int y )
             {
                 if (fitModelScreen->IsShown() )
                 {
-                    if( m_startShiftLB == glm::vec2( 0xFFFFFFFF ) )
+                    if( glm::any(glm::isnan(m_startShiftLB)) )
                     {
                         m_startShiftLB = glm::vec2( x, y );
                         display->getLayoutMgr()->setStartXY( x, y );
@@ -2447,7 +2447,7 @@ void VspGlWindow::OnDrag( int x, int y )
         else if( Fl::event_alt() )
         {
             // Alt + LB
-            if( m_prevAltLB != glm::vec2( 0xFFFFFFFF ) )
+            if( !glm::any(glm::isnan(m_prevAltLB)) )
             {
                 display->pan( ( int )m_prevAltLB.x, ( int )m_prevAltLB.y, x, y );
 
@@ -2461,7 +2461,7 @@ void VspGlWindow::OnDrag( int x, int y )
         else if( Fl::event_ctrl() )
         {
             // Ctrl + LB
-            if( m_prevCtrlLB != glm::vec2( 0xFFFFFFFF ) )
+            if( !glm::any(glm::isnan(m_prevCtrlLB)) )
             {
                 display->zoom( ( int )m_prevCtrlLB.x, ( int )m_prevCtrlLB.y, x, y );
 
@@ -2474,7 +2474,7 @@ void VspGlWindow::OnDrag( int x, int y )
         }
         else if( Fl::event_state( FL_META ) )
         {
-            if( m_prevMetaLB != glm::vec2( 0xFFFFFFFF ) )
+            if( !glm::any(glm::isnan(m_prevMetaLB)) )
             {
                 display->zoom( ( int )m_prevMetaLB.x, ( int )m_prevMetaLB.y, x, y );
 
@@ -2488,7 +2488,7 @@ void VspGlWindow::OnDrag( int x, int y )
         else if ( !m_noRotate )
         {
             // LB
-            if( m_prevLB != glm::vec2( 0xFFFFFFFF ) )
+            if( !glm::any(glm::isnan(m_prevLB)) )
             {
                 display->rotate( ( int )m_prevLB.x, ( int )m_prevLB.y, x, y );
 
@@ -2503,7 +2503,7 @@ void VspGlWindow::OnDrag( int x, int y )
     else if( Fl::event_button2() )
     {
         // MB
-        if( m_prevMB != glm::vec2( 0xFFFFFFFF ) )
+        if( !glm::any(glm::isnan(m_prevMB)) )
         {
             display->zoom( ( int )m_prevMB.x, ( int )m_prevMB.y, x, y );
 
@@ -2517,7 +2517,7 @@ void VspGlWindow::OnDrag( int x, int y )
     else if( Fl::event_button3() )
     {
         // RB
-        if( m_prevRB != glm::vec2( 0xFFFFFFFF ) )
+        if( !glm::any(glm::isnan(m_prevRB)) )
         {
             display->pan( ( int )m_prevRB.x, ( int )m_prevRB.y, x, y );
 
@@ -2540,8 +2540,8 @@ void VspGlWindow::OnRelease( int x, int y )
     switch( Fl::event_button() )
     {
     case FL_LEFT_MOUSE:
-        m_prevLB = m_prevAltLB = m_prevCtrlLB = glm::vec2( 0xFFFFFFFF );
-        m_prevMetaLB = glm::vec2( 0xFFFFFFFF );
+        m_prevLB = m_prevAltLB = m_prevCtrlLB = glm::vec2( fNAN );
+        m_prevMetaLB = glm::vec2( fNAN );
         if( Fl::event_shift() || vPtr->m_SelectBoxFlag() )
         {
             FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
@@ -2558,17 +2558,17 @@ void VspGlWindow::OnRelease( int x, int y )
                 }
             }
         }
-        m_startShiftLB = glm::vec2( 0xFFFFFFFF );
+        m_startShiftLB = glm::vec2( fNAN );
         display->getLayoutMgr()->setStartXY( -1, -1 );
 
         break;
 
     case FL_RIGHT_MOUSE:
-        m_prevRB = glm::vec2( 0xFFFFFFFF );
+        m_prevRB = glm::vec2( fNAN );
         break;
 
     case FL_MIDDLE_MOUSE:
-        m_prevMB = glm::vec2( 0xFFFFFFFF );
+        m_prevMB = glm::vec2( fNAN );
         break;
     }
     redraw();
@@ -2665,7 +2665,7 @@ int VspGlWindow::OnKeyup( int x, int y )
             m_prevLB = glm::vec2( x, y );
 
             // Stop Alt+B control.
-            m_prevAltLB = glm::vec2( 0xFFFFFFFF );
+            m_prevAltLB = glm::vec2( fNAN );
         }
         if( Fl::event_button2() )
         {
@@ -2686,7 +2686,7 @@ int VspGlWindow::OnKeyup( int x, int y )
             m_prevLB = glm::vec2( x, y );
 
             // Stop Alt+B control.
-            m_prevCtrlLB = glm::vec2( 0xFFFFFFFF );
+            m_prevCtrlLB = glm::vec2( fNAN );
         }
         if( Fl::event_button2() )
         {
@@ -2707,7 +2707,7 @@ int VspGlWindow::OnKeyup( int x, int y )
             m_prevLB = glm::vec2( x, y );
 
             // Stop Alt+B control.
-            m_prevCtrlLB = glm::vec2( 0xFFFFFFFF );
+            m_prevCtrlLB = glm::vec2( fNAN );
         }
         if( Fl::event_button2() )
         {

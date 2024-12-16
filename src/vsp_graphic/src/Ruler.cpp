@@ -6,14 +6,14 @@
 
 namespace VSPGraphic
 {
-static glm::vec3 _mouseLocInWorld = glm::vec3(0xFFFFFFFF);
+static glm::vec3 _mouseLocInWorld = glm::vec3(fNAN);
 static TextMgr _textMgr = TextMgr();
 
 Ruler::Ruler() : Marker()
 {
     reset();
 
-    _mouseLocInWorld = glm::vec3(0xFFFFFFFF);
+    _mouseLocInWorld = glm::vec3(fNAN);
 }
 Ruler::~Ruler()
 {
@@ -73,10 +73,10 @@ void Ruler::reset()
 {
     _label = "Ruler";
 
-    _v1 = glm::vec3(0xFFFFFFFF);
-    _v2 = glm::vec3(0xFFFFFFFF);
+    _v1 = glm::vec3(fNAN);
+    _v2 = glm::vec3(fNAN);
 
-    _offset = glm::vec3(0xFFFFFFFF);
+    _offset = glm::vec3(fNAN);
 }
 
 void Ruler::_draw()
@@ -91,7 +91,7 @@ void Ruler::_draw()
     glPointSize(12);
 
     // Last Stage.
-    if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 != glm::vec3(0xFFFFFFFF) && _offset != glm::vec3(0xFFFFFFFF))
+    if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_v2)) && !glm::any(glm::isnan(_offset)) )
     {
         rulerStart = _v1 + _offset;
         rulerEnd = _v2 + _offset;
@@ -130,9 +130,9 @@ void Ruler::_draw()
         textLocation = (rulerStart + rulerEnd) * 0.5f;
     }
     // Second stage of ruler.
-    else if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 != glm::vec3(0xFFFFFFFF))
+    else if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_v2)) )
     {
-        if(_mouseLocInWorld != glm::vec3(0xFFFFFFFF))
+        if( !glm::any(glm::isnan(_mouseLocInWorld)) )
         {
             glm::vec3 rulerOffset = calculateOffset(_v1, _v2, _mouseLocInWorld);
 
@@ -155,11 +155,11 @@ void Ruler::_draw()
         textLocation = (rulerStart + rulerEnd) * 0.5f;
     }
     // First stage of ruler.
-    else if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 == glm::vec3(0xFFFFFFFF))
+    else if( !glm::any(glm::isnan(_v1)) && glm::any(glm::isnan(_v2)) )
     {
         glBegin(GL_LINES);
         glVertex3f(_v1[0], _v1[1], _v1[2]);
-        if(_mouseLocInWorld != glm::vec3(0xFFFFFFFF))
+        if( !glm::any(glm::isnan(_mouseLocInWorld)) )
         {
             glVertex3f(_mouseLocInWorld.x, _mouseLocInWorld.y, _mouseLocInWorld.z);
         }
@@ -173,7 +173,7 @@ void Ruler::_draw()
     }
 
     // Render text.
-    if(_v1 != glm::vec3(0xFFFFFFFF))
+    if( !glm::any(glm::isnan(_v1)) )
     {
         GLfloat mvArray[16];
         glGetFloatv(GL_MODELVIEW_MATRIX, mvArray);
