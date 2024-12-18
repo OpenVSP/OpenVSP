@@ -14,6 +14,7 @@
 #include "StlHelper.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include "SnapTo.h"
 
 InterferenceCase::InterferenceCase()
 {
@@ -127,9 +128,6 @@ vector< TMesh* > InterferenceCase::GetPrimaryTMeshVec()
                 Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
                 if ( m )
                 {
-                    m->ApplySettings();
-                    veh->Update();
-
                     set = m->m_NormalSet();
                 }
             }
@@ -208,18 +206,49 @@ xmlNodePtr InterferenceCase::DecodeXml( xmlNodePtr & node )
 
 string InterferenceCase::Evaluate()
 {
-    // Do something.
     m_LastResultValue = 1.0;
 
-    Results *res = ResultsMgr.CreateResults( "InterferenceCheck", "Interference check result." );
-    if( res )
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
     {
-        // Populate results.
+        if ( m_PrimaryType() == vsp::MODE_TARGET )
+        {
+            Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
+            if ( m )
+            {
+                m->ApplySettings();
+                // fullupdate = false skips feature lines, subsurfaces, and structured tessellation.
+                veh->Update( false );
+            }
+        }
 
-        res->Add( NameValData( "Result", m_LastResultValue(), "Interference check value" ) );
+        vector< TMesh* > primary_tmv = GetPrimaryTMeshVec();
+        LoadBndBox(primary_tmv );
+        vector< TMesh* > secondary_tmv = GetSecondaryTMeshVec();
+        LoadBndBox( secondary_tmv );
 
-        m_LastResult = res->GetID();
-        return m_LastResult;
+
+        bool intersect_flag;
+        double min_dist = SnapTo::FindMinDistance( primary_tmv, secondary_tmv, intersect_flag );
+
+        DeleteTMeshVec( primary_tmv );
+        DeleteTMeshVec( secondary_tmv );
+
+
+        m_LastResultValue = min_dist;
+
+        Results *res = ResultsMgr.CreateResults( "InterferenceCheck", "Interference check result." );
+        if( res )
+        {
+            // Populate results.
+
+            res->Add( new NameValData( "Result", m_LastResultValue(), "Interference check value" ) );
+            res->Add( new NameValData( "MinDist", min_dist, "Minimum distance" ) );
+            res->Add( new NameValData( "Intersect", intersect_flag, "Intersection detection" ) );
+
+            m_LastResult = res->GetID();
+            return m_LastResult;
+        }
     }
 
     m_LastResult.clear();
