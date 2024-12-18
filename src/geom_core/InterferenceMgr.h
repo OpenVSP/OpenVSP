@@ -29,6 +29,7 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    string Evaluate();
 
     IntParm m_PrimarySet;
     IntParm m_PrimaryType; // Mode, Set, or Geom
@@ -64,6 +65,8 @@ public:
     void Wype();
 
     virtual void Update();
+
+    string EvaluateAll();
 
     void AddLinkableContainers( vector< string > & linkable_container_vec );
 

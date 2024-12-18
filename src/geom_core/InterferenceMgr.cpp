@@ -128,6 +128,19 @@ xmlNodePtr InterferenceCase::DecodeXml( xmlNodePtr & node )
     return node;
 }
 
+string InterferenceCase::Evaluate()
+{
+    // Do something.
+
+    Results *res = ResultsMgr.CreateResults( "InterferenceCheck", "Interference check result." );
+    if( res )
+    {
+        // Populate results.
+        return res->GetID();
+    }
+
+    return string();
+}
 
 //===============================================================================//
 //===============================================================================//
@@ -209,6 +222,25 @@ void InterferenceMgrSingleton::Update()
         m_ICaseVec[i]->Update();
     }
 
+}
+
+string InterferenceMgrSingleton::EvaluateAll()
+{
+    std::vector <string> res_id_vector;
+
+    for ( int i = 0; i < (int)m_ICaseVec.size(); i++ )
+    {
+        string rid = m_ICaseVec[i]->Evaluate();
+        res_id_vector.push_back( rid );
+    }
+
+    Results *res = ResultsMgr.CreateResults( "InterferenceCheckAll", "All interference check results for model." );
+    if( res )
+    {
+        res->Add( new NameValData( "ResultsVec", res_id_vector, "ID's of interference check analysis results." ) );
+        return res->GetID();
+    }
+    return string();
 }
 
 void InterferenceMgrSingleton::AddLinkableContainers( vector< string > & linkable_container_vec )
