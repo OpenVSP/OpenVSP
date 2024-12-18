@@ -29,6 +29,9 @@ public:
     vector< TMesh* > GetPrimaryTMeshVec();
     vector< TMesh* > GetSecondaryTMeshVec();
 
+    static void LoadBndBox( vector< TMesh* > &tmv );
+    static void DeleteTMeshVec( vector< TMesh* > &tmv );
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
