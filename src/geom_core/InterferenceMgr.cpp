@@ -106,6 +106,65 @@ string InterferenceCase::GetSecondaryName() const
     return string();
 }
 
+vector< TMesh* > InterferenceCase::GetPrimaryTMeshVec()
+{
+    vector< TMesh* > tmv;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_PrimaryType() == vsp::SET_TARGET || m_PrimaryType() == vsp::MODE_TARGET )
+        {
+            int set = vsp::SET_NONE;
+
+            if ( m_PrimaryType() == vsp::SET_TARGET )
+            {
+                set = m_PrimarySet();
+            }
+            else
+            {
+                Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
+                if ( m )
+                {
+                    m->ApplySettings();
+                    veh->Update();
+
+                    set = m->m_NormalSet();
+                }
+            }
+
+            tmv = veh->CreateTMeshVec( set );
+        }
+        else if ( m_PrimaryType() == vsp::GEOM_TARGET )
+        {
+            tmv = veh->CreateTMeshVec( m_PrimaryGeomID );
+        }
+    }
+
+    return tmv;
+}
+
+vector< TMesh* > InterferenceCase::GetSecondaryTMeshVec()
+{
+    vector< TMesh* > tmv;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_SecondaryType() == vsp::SET_TARGET )
+        {
+            int set = m_SecondarySet();
+
+            tmv = veh->CreateTMeshVec( set );
+        }
+        else if ( m_SecondaryType() == vsp::GEOM_TARGET )
+        {
+            tmv = veh->CreateTMeshVec( m_SecondaryGeomID );
+        }
+    }
+
+    return tmv;
+}
+
 xmlNodePtr InterferenceCase::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr icase_node = xmlNewChild( node, NULL, BAD_CAST"InterferenceCase", NULL );

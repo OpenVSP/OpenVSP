@@ -13,6 +13,7 @@
 
 #include "ParmContainer.h"
 #include "Parm.h"
+#include "TMesh.h"
 
 class InterferenceCase : public ParmContainer
 {
@@ -25,6 +26,8 @@ public:
     string GetPrimaryName() const;
     string GetSecondaryName() const;
 
+    vector< TMesh* > GetPrimaryTMeshVec();
+    vector< TMesh* > GetSecondaryTMeshVec();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
