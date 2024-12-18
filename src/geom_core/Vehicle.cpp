@@ -1317,6 +1317,40 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks )
     return id;
 }
 
+vector< TMesh* > Vehicle::CreateTMeshVec( int normal_set )
+{
+    vector< TMesh* > tmv;
+    vector<string> geom_vec = GetGeomVec();
+
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        Geom* g_ptr = FindGeom( geom_vec[i] );
+        if ( g_ptr )
+        {
+            if ( g_ptr->GetSetFlag( normal_set ) )
+            {
+                vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec();
+                for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
+                {
+                    tmv.push_back( tMeshVec[j] );
+                }
+            }
+        }
+    }
+    return tmv;
+}
+
+vector< TMesh* > Vehicle::CreateTMeshVec( const string &geomid )
+{
+    vector< TMesh* > tmv;
+    Geom *g = FindGeom( geomid );
+    if ( g )
+    {
+        tmv = g->CreateTMeshVec();
+    }
+    return tmv;
+}
+
 //==== Traverse Top Geoms And Get All Geoms - Check Display Flag if True ====//
 vector< string > Vehicle::GetGeomVec( bool check_display_flag )
 {

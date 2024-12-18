@@ -96,6 +96,9 @@ public:
     string AddGeom( Geom* add_geom );
     string AddMeshGeom( int normal_set, int degen_set = vsp::SET_NONE, bool suppressdisks = false );
 
+    vector< TMesh* > CreateTMeshVec( int normal_set );
+    vector< TMesh* > CreateTMeshVec( const string &geomid );
+
     virtual void AddLinkableContainers( vector< string > & linkable_container_vec );
 
     //==== Get All Geoms (Does NOT Return Collapsed Geoms if check_display_flag == true) ====//
