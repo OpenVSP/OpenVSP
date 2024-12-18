@@ -30,6 +30,7 @@ InterferenceCase::InterferenceCase()
 
     m_SecondaryType.Init( "SecondaryType", "Projection", this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_BNDY_OPTIONS - 2 ); // Note - 2, MODE_TARGET not allowed.
 
+    m_LastResultValue.Init( "LastResult", groupname, this, 0.0, -1e12, 1e12 );
 }
 
 void InterferenceCase::Update()
@@ -190,15 +191,21 @@ xmlNodePtr InterferenceCase::DecodeXml( xmlNodePtr & node )
 string InterferenceCase::Evaluate()
 {
     // Do something.
+    m_LastResultValue = 1.0;
 
     Results *res = ResultsMgr.CreateResults( "InterferenceCheck", "Interference check result." );
     if( res )
     {
         // Populate results.
-        return res->GetID();
+
+        res->Add( NameValData( "Result", m_LastResultValue(), "Interference check value" ) );
+
+        m_LastResult = res->GetID();
+        return m_LastResult;
     }
 
-    return string();
+    m_LastResult.clear();
+    return m_LastResult;
 }
 
 //===============================================================================//

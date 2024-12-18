@@ -54,6 +54,8 @@ protected:
     TriggerButton m_DelInterferenceCheck;
     TriggerButton m_DelAllInterferenceChecks;
 
+    TriggerButton m_EvaluateAllInterferenceChecks;
+
     StringInput m_ICNameInput;
 
     ToggleRadioGroup m_PrimaryToggleGroup;
@@ -75,6 +77,11 @@ protected:
 
     ToggleButton m_SecondaryGeomToggle;
     GeomPicker m_SecondaryGeomPicker;
+
+    TriggerButton m_Evaluate;
+
+    Output m_ResultOutput;
+
 };
 
 

@@ -28,22 +28,26 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
 
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
-    static int out_col_widths[] = { 160, 85, 80, 85, 0 }; // widths for each column
+    static int out_col_widths[] = { 200, 100, 100, 100, 0 }; // widths for each column
 
     m_InterferenceCheckBrowser = m_BorderLayout.AddColResizeBrowser( out_col_widths, 4, 200 );
     m_InterferenceCheckBrowser->callback( staticScreenCB, this );
     m_InterferenceCheckBrowser->type( FL_MULTI_BROWSER );
 
 
-    m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 3 );
+    m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 2 );
 
     m_BorderLayout.SetSameLineFlag( true );
     m_BorderLayout.SetFitWidthFlag( false );
+
     m_BorderLayout.AddButton( m_AddInterferenceCheck, "Add" );
     m_BorderLayout.AddButton( m_DelInterferenceCheck, "Del" );
-    m_BorderLayout.AddButton( m_DelAllInterferenceChecks, "Del All" );
-
     m_BorderLayout.ForceNewLine();
+
+    m_BorderLayout.AddButton( m_EvaluateAllInterferenceChecks, "Evaluate All" );
+    m_BorderLayout.AddButton( m_DelAllInterferenceChecks, "Del All" );
+    m_BorderLayout.ForceNewLine();
+
     m_BorderLayout.SetSameLineFlag( false );
     m_BorderLayout.SetFitWidthFlag( true );
 
@@ -133,7 +137,12 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
     m_SecondaryToggleGroup.AddButton( m_SecondarySetToggle.GetFlButton() );
     m_SecondaryToggleGroup.AddButton( m_SecondaryGeomToggle.GetFlButton() );
 
+    m_ICaseLayout.SetSameLineFlag( false );
+    m_ICaseLayout.SetFitWidthFlag( true );
 
+    m_ICaseLayout.AddButton( m_Evaluate, "Evaluate" );
+
+    m_ICaseLayout.AddOutput( m_ResultOutput, "Result", "%6.5f" );
 
     m_InterferenceBrowserSelect = -1;
 }
@@ -163,6 +172,7 @@ bool InterferenceScreen::Update()
 
         m_ICNameInput.Update( icase->GetName() );
 
+        m_ResultOutput.Update( icase->m_LastResultValue.GetID() );
 
 
         Vehicle *veh = VehicleMgr.GetVehicle();
@@ -243,6 +253,10 @@ bool InterferenceScreen::Update()
     {
         m_ICaseLayout.GetGroup()->deactivate();
 
+        m_ICNameInput.Update( "" );
+
+        m_ResultOutput.Update( "" );
+
         m_PrimaryGeomPicker.SetGeomChoice( "" );
         m_SecondaryGeomPicker.SetGeomChoice( "" );
 
@@ -271,7 +285,7 @@ void InterferenceScreen::UpdateInterferenceCheckBrowser()
     vector < InterferenceCase* > icases = InterferenceMgr.GetAllInterferenceCases();
     for ( int i = 0 ; i < (int)icases.size() ; i++ )
     {
-        snprintf( str, sizeof( str ),  "%s:%s:%s: \n", icases[i]->GetName().c_str(), icases[i]->GetPrimaryName().c_str(), icases[i]->GetSecondaryName().c_str() );
+        snprintf( str, sizeof( str ),  "%s:%s:%s:%f: \n", icases[i]->GetName().c_str(), icases[i]->GetPrimaryName().c_str(), icases[i]->GetSecondaryName().c_str(), icases[i]->m_LastResultValue() );
         m_InterferenceCheckBrowser->add( str );
     }
     if ( m_InterferenceBrowserSelect >= 0 && m_InterferenceBrowserSelect < (int)icases.size() )
@@ -384,6 +398,17 @@ void InterferenceScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( icase )
         {
             icase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetGeomChoice();
+        }
+    }
+    else if ( gui_device == &m_EvaluateAllInterferenceChecks )
+    {
+        InterferenceMgr.EvaluateAll();
+    }
+    else if ( gui_device == &m_Evaluate )
+    {
+        if ( icase )
+        {
+            icase->Evaluate();
         }
     }
     else

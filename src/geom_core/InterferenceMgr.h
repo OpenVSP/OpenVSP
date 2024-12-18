@@ -43,6 +43,9 @@ public:
     IntParm m_SecondaryType; // Set or Geom
     string m_SecondaryGeomID;
 
+    string m_LastResult;
+    Parm m_LastResultValue;
+
 };
 
 
