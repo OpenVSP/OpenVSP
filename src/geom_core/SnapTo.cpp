@@ -66,6 +66,28 @@ void SnapTo::PreventCollision( const string & geom_id, const string & parm_id )
 }
 
 //===== Vectors of TMeshs with Bounding Boxes Already Set Up ====//
+bool SnapTo::CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & other_tmesh_vec )
+{
+    bool intsect_flag = false;
+
+    for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
+    {
+        for ( int j = 0 ; j < (int)other_tmesh_vec.size() ; j++ )
+        {
+            if ( tmesh_vec[i]->CheckIntersect( other_tmesh_vec[j] ) )
+            {
+                intsect_flag = true;
+                break;
+            }
+        }
+        if ( intsect_flag )
+            break;
+    }
+
+    return intsect_flag;
+}
+
+//===== Vectors of TMeshs with Bounding Boxes Already Set Up ====//
 bool SnapTo::CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec )
 {
     bool intsect_flag = false;
@@ -74,17 +96,9 @@ bool SnapTo::CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_
     for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
     {
         tmesh_vec[i]->LoadBndBox();
-        for ( int j = 0 ; j < (int)other_tmesh_vec.size() ; j++ )
-        {
-            if ( tmesh_vec[i]->CheckIntersect( other_tmesh_vec[j] ) )
-            {
-                    intsect_flag = true;
-                    break;
-            }
-        }
-        if ( intsect_flag )
-            break;
     }
+
+    intsect_flag = CheckIntersect( tmesh_vec, other_tmesh_vec );
 
     for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
     {
@@ -95,31 +109,45 @@ bool SnapTo::CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_
 }
 
 //==== Returns Large Neg Number If Error and 0.0 If Collision ====//
-double SnapTo::FindMinDistance( const string & geom_id, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag )
+double SnapTo::FindMinDistance( const vector< TMesh* > & tmesh_vec, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag )
 {
     intersect_flag = false;
-    Geom* geom_ptr = VehicleMgr.GetVehicle()->FindGeom( geom_id );
-    if ( !geom_ptr )    return -1.0e12;
 
-    if ( CheckIntersect( geom_ptr, other_tmesh_vec ) )
+    if ( CheckIntersect( tmesh_vec, other_tmesh_vec ) )
     {
         intersect_flag = true;
         return 0.0;
     }
 
-    vector< TMesh* > tmesh_vec = geom_ptr->CreateTMeshVec();        // Must Delete!!!
-
     //==== Find Min Dist ====//
     double min_dist = 1.0e12;
     for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
     {
-        tmesh_vec[i]->LoadBndBox();
         for ( int j = 0 ; j < (int)other_tmesh_vec.size() ; j++ )
         {
             double d =  tmesh_vec[i]->MinDistance(  other_tmesh_vec[j], min_dist );
             min_dist = min( d, min_dist );
         }
     }
+
+    return min_dist;
+}
+
+//==== Returns Large Neg Number If Error and 0.0 If Collision ====//
+double SnapTo::FindMinDistance( const string & geom_id, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag )
+{
+    intersect_flag = false;
+    Geom* geom_ptr = VehicleMgr.GetVehicle()->FindGeom( geom_id );
+    if ( !geom_ptr )    return -1.0e12;
+
+    vector< TMesh* > tmesh_vec = geom_ptr->CreateTMeshVec();        // Must Delete!!!
+
+    for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
+    {
+        tmesh_vec[i]->LoadBndBox();
+    }
+
+    double min_dist = FindMinDistance( tmesh_vec, other_tmesh_vec, intersect_flag );
 
     for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
     {
