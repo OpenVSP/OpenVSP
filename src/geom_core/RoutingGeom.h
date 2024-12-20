@@ -18,6 +18,25 @@
 #include "XSec.h"
 #include "XSecSurf.h"
 
+class RoutingPoint : public ParmContainer
+{
+public:
+    RoutingPoint();
+
+    void Update();
+    vec3d GetPt() const      { return pt; };
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    string m_ParentID;
+    Parm m_U;
+    Parm m_W;
+
+    vec3d pt;
+
+};
+
 
 //==== Clearance Geom ====//
 class RoutingGeom : public Geom
@@ -25,6 +44,9 @@ class RoutingGeom : public Geom
 public:
     RoutingGeom( Vehicle* vehicle_ptr );
     virtual ~RoutingGeom();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void ComputeCenter();
 
@@ -34,6 +56,13 @@ public:
 
     virtual void OffsetXSecs( double off );
 
+    virtual int GetNumPt() const          { return m_RoutingPointVec.size(); };
+    virtual RoutingPoint* AddPt();
+    virtual void DelPt( int index );
+    virtual void DelAllPt();
+
+    virtual RoutingPoint * GetPt( int index );
+    virtual vector < RoutingPoint* > GetAllPt()      { return m_RoutingPointVec; };
 
 protected:
 
@@ -42,6 +71,11 @@ protected:
 
     virtual void UpdateDrawObj();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
+
+    vector < RoutingPoint* > m_RoutingPointVec;
+
+
 
 };
 

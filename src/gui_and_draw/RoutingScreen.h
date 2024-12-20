@@ -25,11 +25,30 @@ public:
     virtual void Show();
     virtual bool Update();
 
+    virtual void UpdateBrowser();
+
     virtual void CallBack( Fl_Widget *w );
+
+    virtual void GuiDeviceCallBack( GuiDevice* gui_device );
 
 protected:
 
     GroupLayout m_DesignLayout;
+
+    ColResizeBrowser* m_RoutingPointBrowser;
+    int m_RoutingPointBrowserSelect;
+
+
+    TriggerButton m_AddRoutingPoint;
+    TriggerButton m_DelRoutingPoint;
+    TriggerButton m_DelAllRoutingPoints;
+
+    StringInput m_PtNameInput;
+
+    GeomPicker m_GeomPicker;
+
+    SliderAdjRangeInput m_USlider;
+    SliderAdjRangeInput m_WSlider;
 
 };
 

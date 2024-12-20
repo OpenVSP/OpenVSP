@@ -12,8 +12,57 @@
 #include "VSP_Geom_API.h"
 #include "WingGeom.h"
 #include <cfloat>  //For DBL_EPSILON
+#include "ParmMgr.h"
 
 using namespace vsp;
+
+//=========================================================================//
+//========================        RoutingPoint       ======================//
+//=========================================================================//
+
+RoutingPoint::RoutingPoint()
+{
+
+
+
+    m_U.Init( "U", "RoutePt", this, 0.5, 0.0, 1.0 );
+    m_W.Init( "W", "RoutePt", this, 0.5, 0.0, 1.0 );
+}
+
+void RoutingPoint::Update()
+{
+
+}
+
+xmlNodePtr RoutingPoint::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr routingpoint_node = xmlNewChild( node, NULL, BAD_CAST"RoutingPoint", NULL );
+
+    ParmContainer::EncodeXml( routingpoint_node );
+
+    if ( routingpoint_node )
+    {
+        XmlUtil::AddStringNode( routingpoint_node, "ParentID", m_ParentID );
+    }
+
+    return routingpoint_node;
+}
+
+xmlNodePtr RoutingPoint::DecodeXml( xmlNodePtr & node )
+{
+    ParmContainer::DecodeXml( node );
+
+    if ( node )
+    {
+        m_ParentID = ParmMgr.RemapID( XmlUtil::FindString( node, "ParentID", m_ParentID ) );
+    }
+
+    return node;
+}
+
+//=========================================================================//
+//=========================        RoutingGeom       ======================//
+//=========================================================================//
 
 //==== Constructor ====//
 RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
@@ -27,8 +76,51 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 //==== Destructor ====//
 RoutingGeom::~RoutingGeom()
 {
+    for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
+    {
+        delete m_RoutingPointVec[i];
+    }
+    m_RoutingPointVec.clear();
 
 }
+
+xmlNodePtr RoutingGeom::EncodeXml( xmlNodePtr & node )
+{
+    Geom::EncodeXml( node );
+
+    xmlNodePtr routingpoints_node = xmlNewChild( node, NULL, BAD_CAST "RoutingPoints", NULL );
+
+    for ( int i = 0; i < ( int )m_RoutingPointVec.size(); i++ )
+    {
+        m_RoutingPointVec[i]->EncodeXml( routingpoints_node );
+    }
+
+    return routingpoints_node;
+}
+
+xmlNodePtr RoutingGeom::DecodeXml( xmlNodePtr & node )
+{
+    Geom::DecodeXml( node );
+
+    xmlNodePtr routingpoints_node = XmlUtil::GetNode( node, "RoutingPoints", 0 );
+
+    if ( routingpoints_node )
+    {
+        int num = XmlUtil::GetNumNames( routingpoints_node, "RoutingPoint" );
+        for ( int i = 0 ; i < num ; i++ )
+        {
+            xmlNodePtr rpt_node = XmlUtil::GetNode( routingpoints_node, "RoutingPoint", i );
+            if ( rpt_node )
+            {
+                RoutingPoint* rpt = AddPt();
+                rpt->DecodeXml( rpt_node );
+            }
+        }
+    }
+
+    return routingpoints_node;
+}
+
 
 void RoutingGeom::ComputeCenter()
 {
@@ -49,6 +141,43 @@ void RoutingGeom::OffsetXSecs( double off )
 {
 }
 
+
+RoutingPoint* RoutingGeom::AddPt()
+{
+    RoutingPoint *rpt = new RoutingPoint();
+    m_RoutingPointVec.push_back( rpt );
+    return rpt;
+}
+
+void RoutingGeom::DelPt( int index )
+{
+    if ( index >= 0 && index < m_RoutingPointVec.size() )
+    {
+        RoutingPoint *rpt = m_RoutingPointVec[ index ];
+        m_RoutingPointVec.erase( m_RoutingPointVec.begin() + index );
+
+        delete rpt;
+    }
+}
+
+void RoutingGeom::DelAllPt()
+{
+    for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
+    {
+        delete m_RoutingPointVec[i];
+    }
+    m_RoutingPointVec.clear();
+}
+
+RoutingPoint * RoutingGeom::GetPt( int index )
+{
+    if ( index >= 0 && index < m_RoutingPointVec.size() )
+    {
+        return m_RoutingPointVec[ index ];
+    }
+    return nullptr;
+}
+
 void RoutingGeom::UpdateSurf()
 {
     //===== Find Parent ====//
@@ -60,6 +189,11 @@ void RoutingGeom::UpdateSurf()
 
     //==== Copy XForm/Tess Data From Parent ====//
     CopyDataFrom( parent_geom );
+
+    for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
+    {
+        m_RoutingPointVec[i]->Update();
+    }
 
 }
 
