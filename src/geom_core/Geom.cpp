@@ -427,17 +427,17 @@ xmlNodePtr GeomBase::EncodeXml( xmlNodePtr & node )
 xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
 {
     ParmContainer::DecodeXml( node );
-    xmlNodePtr child_node = XmlUtil::GetNode( node, "GeomBase", 0 );
-    if ( child_node )
+    xmlNodePtr geombase_node = XmlUtil::GetNode( node, "GeomBase", 0 );
+    if ( geombase_node )
     {
         //m_Type.m_Name   = XmlUtil::FindString( child_node, "TypeName", m_Type.m_Name );
         //m_Type.m_Type   = XmlUtil::FindInt( child_node, "TypeID", m_Type.m_Type );
-        m_Type.m_FixedFlag = !!XmlUtil::FindInt( child_node, "TypeFixed", m_Type.m_FixedFlag );
-        m_ParentID = ParmMgr.RemapID( XmlUtil::FindString( child_node, "ParentID", m_ParentID ) );
+        m_Type.m_FixedFlag = !!XmlUtil::FindInt( geombase_node, "TypeFixed", m_Type.m_FixedFlag );
+        m_ParentID = ParmMgr.RemapID( XmlUtil::FindString( geombase_node, "ParentID", m_ParentID ) );
 
         m_ChildIDVec.clear();
 
-        xmlNodePtr cl_node = XmlUtil::GetNode( child_node, "Child_List", 0 );
+        xmlNodePtr cl_node = XmlUtil::GetNode( geombase_node, "Child_List", 0 );
         int num_children = XmlUtil::GetNumNames( cl_node, "Child" );
 
         for ( int i = 0 ; i < num_children ; i++ )
@@ -446,7 +446,7 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
             m_ChildIDVec.push_back( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
         }
     }
-    return child_node;
+    return geombase_node;
 }
 
 //===============================================================================//
