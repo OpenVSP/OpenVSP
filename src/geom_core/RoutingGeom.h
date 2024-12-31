@@ -53,6 +53,8 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void ChangeID( string id );
+    virtual void UpdateParents();
+
     virtual void ComputeCenter();
 
     virtual void Scale();
@@ -82,6 +84,9 @@ protected:
 
 
     DrawObj m_RouteLineDO;
+
+    std::size_t m_ParentHash;
+    vector < string > m_ParentVec;
 
 };
 

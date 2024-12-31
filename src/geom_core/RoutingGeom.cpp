@@ -13,6 +13,7 @@
 #include "WingGeom.h"
 #include <cfloat>  //For DBL_EPSILON
 #include "ParmMgr.h"
+#include "StlHelper.h"
 
 using namespace vsp;
 
@@ -60,6 +61,17 @@ vec3d RoutingPoint::GetPt()
 void RoutingPoint::SetParentID( const string &id )
 {
     m_ParentID = id;
+
+    //==== Notify Parent Container (XSecSurf) ====//
+    ParmContainer* pc = GetParentContainerPtr();
+    if ( pc )
+    {
+        RoutingGeom * rg = dynamic_cast< RoutingGeom* >( pc );
+        if ( rg )
+        {
+            rg->UpdateParents();
+        }
+    }
 }
 
 xmlNodePtr RoutingPoint::EncodeXml( xmlNodePtr & node )
@@ -166,6 +178,7 @@ xmlNodePtr RoutingGeom::DecodeXml( xmlNodePtr & node )
         }
     }
 
+    UpdateParents();
     return routingpoints_node;
 }
 
@@ -176,6 +189,58 @@ void RoutingGeom::ChangeID( string id )
     for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
     {
         m_RoutingPointVec[i]->SetParentContainer( id );
+    }
+}
+
+void RoutingGeom::UpdateParents()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    vector < string > parent_vec;
+    parent_vec.reserve( m_RoutingPointVec.size() );
+    for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
+    {
+        parent_vec.push_back( m_RoutingPointVec[i]->GetParentID() );
+    }
+
+    std::sort( parent_vec.begin(), parent_vec.end() );
+    parent_vec.erase(std::unique( parent_vec.begin(), parent_vec.end()), parent_vec.end() );
+
+    // Serialize m_ParmIDs into single long string.
+    string str = string_vec_serialize( parent_vec );
+    // Calculate hash to detect changes in m_ParmIDs
+    std::size_t str_hash = std::hash < std::string >{}( str );
+
+    // Relies on currency of m_ParmIDs by UpdateVarBrowser()
+    if ( str_hash != m_ParentHash )
+    {
+        // Remove parents.
+        for ( int i = 0; i < m_ParentVec.size(); i++ )
+        {
+            Geom * g = veh->FindGeom( m_ParentVec[i] );
+            if ( g )
+            {
+                g->RemoveStepChildID( m_ID );
+            }
+        }
+
+        // Add to parents.
+        for ( int i = 0; i < parent_vec.size(); i++ )
+        {
+            Geom * g = veh->FindGeom( parent_vec[i] );
+            if ( g )
+            {
+                g->AddStepChildID( m_ID );
+            }
+        }
+
+        m_ParentVec = parent_vec;
+        m_ParentHash = str_hash;
     }
 }
 
@@ -216,7 +281,7 @@ void RoutingGeom::DelPt( int index )
     {
         RoutingPoint *rpt = m_RoutingPointVec[ index ];
         m_RoutingPointVec.erase( m_RoutingPointVec.begin() + index );
-
+        UpdateParents();
         delete rpt;
     }
 }
@@ -228,6 +293,7 @@ void RoutingGeom::DelAllPt()
         delete m_RoutingPointVec[i];
     }
     m_RoutingPointVec.clear();
+    UpdateParents();
 }
 
 RoutingPoint * RoutingGeom::GetPt( int index )
