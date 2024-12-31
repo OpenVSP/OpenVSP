@@ -31,6 +31,30 @@ RoutingPoint::RoutingPoint()
 
 void RoutingPoint::Update()
 {
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom * g = veh->FindGeom( m_ParentID );
+        if ( g )
+        {
+            Matrix4d transMat;
+            g->CompTransCoordSys( 0, m_U(), m_W(), transMat );
+            m_Pt = transMat.getTranslation();
+        }
+    }
+
+    m_LateUpdateFlag = false;
+}
+
+vec3d RoutingPoint::GetPt()
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_Pt;
 }
 
 void RoutingPoint::SetParentID( const string &id )

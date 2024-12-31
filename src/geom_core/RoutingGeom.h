@@ -24,7 +24,7 @@ public:
     RoutingPoint();
 
     void Update();
-    vec3d GetPt() const      { return pt; };
+    vec3d GetPt();
     string GetParentID() const { return m_ParentID; };
     void SetParentID( const string &id );
 
@@ -35,9 +35,9 @@ public:
     Parm m_U;
     Parm m_W;
 
-    vec3d pt;
 protected:
     string m_ParentID;
+    vec3d m_Pt;
 
 };
 
