@@ -64,6 +64,26 @@ xmlNodePtr RoutingPoint::DecodeXml( xmlNodePtr & node )
     return node;
 }
 
+//==== Parm Changed ====//
+void RoutingPoint::ParmChanged( Parm* parm_ptr, int type )
+{
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+    }
+    else
+    {
+        Update();
+    }
+
+    //==== Notify Parent Container (XSecSurf) ====//
+    ParmContainer* pc = GetParentContainerPtr();
+    if ( pc )
+    {
+        pc->ParmChanged( parm_ptr, type );
+    }
+}
+
 //=========================================================================//
 //=========================        RoutingGeom       ======================//
 //=========================================================================//

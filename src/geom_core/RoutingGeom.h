@@ -30,6 +30,7 @@ public:
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+    virtual void ParmChanged( Parm* parm_ptr, int type );
 
     Parm m_U;
     Parm m_W;
