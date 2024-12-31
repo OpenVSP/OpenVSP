@@ -51,6 +51,7 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void ChangeID( string id );
     virtual void ComputeCenter();
 
     virtual void Scale();

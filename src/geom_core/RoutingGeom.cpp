@@ -125,6 +125,16 @@ xmlNodePtr RoutingGeom::DecodeXml( xmlNodePtr & node )
     return routingpoints_node;
 }
 
+void RoutingGeom::ChangeID( string id )
+{
+    Geom::ChangeID( id );
+
+    for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
+    {
+        m_RoutingPointVec[i]->SetParentContainer( id );
+    }
+}
+
 
 void RoutingGeom::ComputeCenter()
 {
@@ -149,6 +159,9 @@ void RoutingGeom::OffsetXSecs( double off )
 RoutingPoint* RoutingGeom::AddPt()
 {
     RoutingPoint *rpt = new RoutingPoint();
+
+    rpt->SetParentContainer( m_ID );
+
     m_RoutingPointVec.push_back( rpt );
     return rpt;
 }
