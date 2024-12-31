@@ -381,6 +381,11 @@ void GeomBase::RemoveChildID( string id )
     vector_remove_val( m_ChildIDVec, id );
 }
 
+void GeomBase::RemoveStepChildID( string id )
+{
+    vector_remove_val( m_StepChildIDVec, id );
+}
+
 ////==== Copy Geometry ====//
 //void GeomBase::CopyFrom( GeomBase* geom )
 //{
@@ -419,6 +424,13 @@ xmlNodePtr GeomBase::EncodeXml( xmlNodePtr & node )
             xmlNodePtr child_node = xmlNewChild( clist_node, NULL, BAD_CAST "Child", NULL );
             XmlUtil::AddStringNode( child_node, "ID", m_ChildIDVec[i] );
         }
+
+        xmlNodePtr sclist_node = xmlNewChild( geombase_node, NULL, BAD_CAST "Step_Child_List", NULL );
+        for ( int i = 0 ; i < ( int )m_StepChildIDVec.size() ; i++ )
+        {
+            xmlNodePtr schild_node = xmlNewChild( sclist_node, NULL, BAD_CAST "Step_Child", NULL );
+            XmlUtil::AddStringNode( schild_node, "ID", m_StepChildIDVec[i] );
+        }
     }
     return geombase_node;
 }
@@ -446,6 +458,20 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
             {
                 xmlNodePtr n = XmlUtil::GetNode( cl_node, "Child", i );
                 m_ChildIDVec.push_back( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+            }
+        }
+
+        m_StepChildIDVec.clear();
+
+        xmlNodePtr scl_node = XmlUtil::GetNode( geombase_node, "Step_Child_List", 0 );
+        if ( scl_node )
+        {
+            int num_stepchildren = XmlUtil::GetNumNames( scl_node, "Step_Child" );
+
+            for ( int i = 0 ; i < num_stepchildren ; i++ )
+            {
+                xmlNodePtr n = XmlUtil::GetNode( scl_node, "Step_Child", i );
+                m_StepChildIDVec.push_back( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
             }
         }
     }

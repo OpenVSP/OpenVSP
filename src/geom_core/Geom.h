@@ -224,6 +224,20 @@ public:
         m_ChildIDVec = vec;
     }
 
+    virtual void AddStepChildID( const string &id )
+    {
+        m_StepChildIDVec.push_back( id );
+    }
+    virtual void RemoveStepChildID( string id );
+    virtual vector< string > GetStepChildIDVec()
+    {
+        return m_StepChildIDVec;
+    }
+    virtual void SetStepChildIDVec( vector< string > & vec )
+    {
+        m_StepChildIDVec = vec;
+    }
+
     virtual bool UpdatedParm( const string & id );
 
     virtual void LoadIDAndChildren( vector< string > & id_vec, bool check_display_flag = false );
@@ -257,6 +271,9 @@ protected:
 
     string m_ParentID;                                  // ID of Parent (NONE == No Parent)
     vector< string > m_ChildIDVec;                      // Children ID
+    // 'Step' children depend upon the parent, but are not directly descended from them.  I.e. they need to be
+    // updated when the parent is updated, but they are not hierarchaicly related in the Geom tree.
+    vector< string > m_StepChildIDVec;                  // Step-Children ID
 
     vector< string > m_UpdatedParmVec;
 };
