@@ -84,7 +84,7 @@ bool RoutingScreen::Update()
     {
         m_PtNameInput.Update( rpt->GetName() );
 
-        m_GeomPicker.SetGeomChoice( rpt->m_ParentID );
+        m_GeomPicker.SetGeomChoice( rpt->GetParentID() );
 
         m_USlider.Update( rpt->m_U.GetID() );
         m_WSlider.Update( rpt->m_W.GetID() );
@@ -207,7 +207,7 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         if ( rpt )
         {
-            rpt->m_ParentID = m_GeomPicker.GetGeomChoice();
+            rpt->SetParentID( m_GeomPicker.GetGeomChoice() );
         }
     }
     else

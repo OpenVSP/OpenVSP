@@ -25,15 +25,18 @@ public:
 
     void Update();
     vec3d GetPt() const      { return pt; };
+    string GetParentID() const { return m_ParentID; };
+    void SetParentID( const string &id );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    string m_ParentID;
     Parm m_U;
     Parm m_W;
 
     vec3d pt;
+protected:
+    string m_ParentID;
 
 };
 

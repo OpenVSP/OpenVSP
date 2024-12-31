@@ -31,7 +31,11 @@ RoutingPoint::RoutingPoint()
 
 void RoutingPoint::Update()
 {
+}
 
+void RoutingPoint::SetParentID( const string &id )
+{
+    m_ParentID = id;
 }
 
 xmlNodePtr RoutingPoint::EncodeXml( xmlNodePtr & node )
