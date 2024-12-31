@@ -184,25 +184,16 @@ RoutingPoint * RoutingGeom::GetPt( int index )
 
 void RoutingGeom::UpdateSurf()
 {
-    //===== Find Parent ====//
-    Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
-    if ( !parent_geom )
-    {
-        return;
-    }
-
-    //==== Copy XForm/Tess Data From Parent ====//
-    CopyDataFrom( parent_geom );
+    DisableParms();
 
     for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
     {
         m_RoutingPointVec[i]->Update();
     }
-
 }
 
 
-void RoutingGeom::CopyDataFrom( Geom* geom_ptr )
+void RoutingGeom::DisableParms()
 {
     //==== Force Attached So Clearance Moves With Parent =====//
     m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
@@ -220,34 +211,34 @@ void RoutingGeom::CopyDataFrom( Geom* geom_ptr )
     m_MLoc.Deactivate();
     m_NLoc.Deactivate();
 
-    //==== Copy Cap Options ====//
-    m_CapUMinOption = geom_ptr->m_CapUMinOption();
-    m_CapUMinTess   = geom_ptr->m_CapUMinTess();
-    m_CapUMaxOption = geom_ptr->m_CapUMaxOption();
-
-    m_CapUMinLength = geom_ptr->m_CapUMinLength();
-    m_CapUMinOffset = geom_ptr->m_CapUMinOffset();
-    m_CapUMinStrength = geom_ptr->m_CapUMinStrength();
-    m_CapUMinSweepFlag = geom_ptr->m_CapUMinSweepFlag();
-
-    m_CapUMaxLength = geom_ptr->m_CapUMaxLength();
-    m_CapUMaxOffset = geom_ptr->m_CapUMaxOffset();
-    m_CapUMaxStrength = geom_ptr->m_CapUMaxStrength();
-    m_CapUMaxSweepFlag = geom_ptr->m_CapUMaxSweepFlag();
+    // //==== Copy Cap Options ====//
+    // m_CapUMinOption = geom_ptr->m_CapUMinOption();
+    // m_CapUMinTess   = geom_ptr->m_CapUMinTess();
+    // m_CapUMaxOption = geom_ptr->m_CapUMaxOption();
+    //
+    // m_CapUMinLength = geom_ptr->m_CapUMinLength();
+    // m_CapUMinOffset = geom_ptr->m_CapUMinOffset();
+    // m_CapUMinStrength = geom_ptr->m_CapUMinStrength();
+    // m_CapUMinSweepFlag = geom_ptr->m_CapUMinSweepFlag();
+    //
+    // m_CapUMaxLength = geom_ptr->m_CapUMaxLength();
+    // m_CapUMaxOffset = geom_ptr->m_CapUMaxOffset();
+    // m_CapUMaxStrength = geom_ptr->m_CapUMaxStrength();
+    // m_CapUMaxSweepFlag = geom_ptr->m_CapUMaxSweepFlag();
 
     //=== Let User Change Tess
     //m_TessU = geom_ptr->m_TessU();
     //m_TessW = geom_ptr->m_TessW();
 
-    m_SymAncestor = geom_ptr->m_SymAncestor();
-    if ( m_SymAncestor() != 0 ) // Not global ancestor.
-    {
-        m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
-    }
-    m_SymAncestOriginFlag = geom_ptr->m_SymAncestOriginFlag();
-    m_SymPlanFlag = geom_ptr->m_SymPlanFlag();
-    m_SymAxFlag = geom_ptr->m_SymAxFlag();
-    m_SymRotN = geom_ptr->m_SymRotN();
+    // m_SymAncestor = geom_ptr->m_SymAncestor();
+    // if ( m_SymAncestor() != 0 ) // Not global ancestor.
+    // {
+    //     m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
+    // }
+    // m_SymAncestOriginFlag = geom_ptr->m_SymAncestOriginFlag();
+    // m_SymPlanFlag = geom_ptr->m_SymPlanFlag();
+    // m_SymAxFlag = geom_ptr->m_SymAxFlag();
+    // m_SymRotN = geom_ptr->m_SymRotN();
 
     m_SymAncestor.Deactivate();
     m_SymAncestOriginFlag.Deactivate();
