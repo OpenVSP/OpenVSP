@@ -307,10 +307,30 @@ void RoutingGeom::DisableParms()
 void RoutingGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
+
+    m_RouteLineDO.m_PntVec.clear();
+    m_RouteLineDO.m_GeomChanged = true;
+
+    int npt = m_RoutingPointVec.size();
+    m_RouteLineDO.m_PntVec.reserve( npt );
+    for ( int i = 0; i < npt; i++ )
+    {
+        m_RouteLineDO.m_PntVec.push_back( m_RoutingPointVec[i]->GetPt() );
+    }
+
+    m_RouteLineDO.m_GeomID = "Rte_" + m_ID;
+    m_RouteLineDO.m_Type = DrawObj::VSP_LINE_STRIP;
+    m_RouteLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_RouteLineDO.m_LineWidth = 2.0;
+    m_RouteLineDO.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+
 }
 
 
 void RoutingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     Geom::LoadDrawObjs( draw_obj_vec );
+
+    m_RouteLineDO.m_Visible = true; // GetSetFlag( vsp::SET_SHOWN );
+    draw_obj_vec.push_back( &m_RouteLineDO );
 }

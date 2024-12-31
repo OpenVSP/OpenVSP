@@ -69,18 +69,19 @@ public:
     virtual RoutingPoint * GetPt( int index );
     virtual vector < RoutingPoint* > GetAllPt()      { return m_RoutingPointVec; };
 
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
 protected:
 
     virtual void UpdateSurf();
     virtual void DisableParms();
 
     virtual void UpdateDrawObj();
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
-
 
     vector < RoutingPoint* > m_RoutingPointVec;
 
 
+    DrawObj m_RouteLineDO;
 
 };
 
