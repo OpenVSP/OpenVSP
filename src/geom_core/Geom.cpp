@@ -438,12 +438,15 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
         m_ChildIDVec.clear();
 
         xmlNodePtr cl_node = XmlUtil::GetNode( geombase_node, "Child_List", 0 );
-        int num_children = XmlUtil::GetNumNames( cl_node, "Child" );
-
-        for ( int i = 0 ; i < num_children ; i++ )
+        if ( cl_node )
         {
-            xmlNodePtr n = XmlUtil::GetNode( cl_node, "Child", i );
-            m_ChildIDVec.push_back( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+            int num_children = XmlUtil::GetNumNames( cl_node, "Child" );
+
+            for ( int i = 0 ; i < num_children ; i++ )
+            {
+                xmlNodePtr n = XmlUtil::GetNode( cl_node, "Child", i );
+                m_ChildIDVec.push_back( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+            }
         }
     }
     return geombase_node;
