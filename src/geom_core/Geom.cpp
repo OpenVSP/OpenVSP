@@ -1727,6 +1727,7 @@ void Geom::Update( bool fullupdate )
     m_HighlightDirty = false;
 
     UpdateChildren( fullupdate );
+    UpdateStepChildren( fullupdate );
 
     m_UpdatedParmVec.clear();
     m_UpdateBlock = false;
@@ -2119,6 +2120,35 @@ void Geom::UpdateChildren( bool fullupdate )
     {
         UpdateGrandChildren( this, fullupdate );
     }
+}
+
+void Geom::UpdateStepChildren( bool fullupdate )
+{
+    vector< string > updated_child_vec;
+    for ( int i = 0 ; i < (int)m_StepChildIDVec.size() ; i++ )
+    {
+        Geom* child = m_Vehicle->FindGeom( m_StepChildIDVec[i] );
+        if ( child )
+        {
+            // Parent was XFormed
+            if ( m_UpdateXForm || m_UpdateSurf )
+            {
+                child->m_XFormDirty = true;
+                child->m_SurfDirty = true;
+            }
+
+            // Ignore the abs location values and only use rel values for children so a child
+            // with abs button selected stays attached to parent if the parent moves
+            child->m_ignoreAbsFlag = true;
+            child->Update( fullupdate );
+            child->m_ignoreAbsFlag = false;
+
+            updated_child_vec.push_back( m_StepChildIDVec[i] );
+        }
+    }
+
+    // Update Children Vec
+    m_StepChildIDVec = updated_child_vec;
 }
 
 void Geom::UpdateBBox()

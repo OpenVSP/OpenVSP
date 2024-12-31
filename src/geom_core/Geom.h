@@ -870,6 +870,7 @@ protected:
 
     virtual void UpdateGrandChildren( Geom* grandparent, bool fullupdate );
     virtual void UpdateChildren( bool fullupdate );
+    virtual void UpdateStepChildren( bool fullupdate );
     virtual void UpdateBBox();
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj()    {};
