@@ -70,25 +70,25 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 710, "BOR" )
 
     m_XSecLayout.AddDividerBox( "Type" );
 
-    m_XSecTypeChoice.AddItem( "POINT" );
-    m_XSecTypeChoice.AddItem( "CIRCLE" );
-    m_XSecTypeChoice.AddItem( "ELLIPSE" );
-    m_XSecTypeChoice.AddItem( "SUPER_ELLIPSE" );
-    m_XSecTypeChoice.AddItem( "ROUNDED_RECTANGLE" );
-    m_XSecTypeChoice.AddItem( "GENERAL_FUSE" );
-    m_XSecTypeChoice.AddItem( "FUSE_FILE" );
-    m_XSecTypeChoice.AddItem( "FOUR_SERIES" );
-    m_XSecTypeChoice.AddItem( "SIX_SERIES" );
-    m_XSecTypeChoice.AddItem( "BICONVEX" );
-    m_XSecTypeChoice.AddItem( "WEDGE" );
-    m_XSecTypeChoice.AddItem( "EDIT_CURVE" );
-    m_XSecTypeChoice.AddItem( "AF_FILE" );
-    m_XSecTypeChoice.AddItem( "CST_AIRFOIL" );
-    m_XSecTypeChoice.AddItem( "KARMAN_TREFFTZ" );
-    m_XSecTypeChoice.AddItem( "FOUR_DIGIT_MOD" );
-    m_XSecTypeChoice.AddItem( "FIVE_DIGIT" );
-    m_XSecTypeChoice.AddItem( "FIVE_DIGIT_MOD" );
-    m_XSecTypeChoice.AddItem( "16_SERIES" );
+    m_XSecTypeChoice.AddItem( "POINT", vsp::XS_POINT );
+    m_XSecTypeChoice.AddItem( "CIRCLE", vsp::XS_CIRCLE );
+    m_XSecTypeChoice.AddItem( "ELLIPSE", vsp::XS_ELLIPSE );
+    m_XSecTypeChoice.AddItem( "SUPER_ELLIPSE", vsp::XS_SUPER_ELLIPSE );
+    m_XSecTypeChoice.AddItem( "ROUNDED_RECTANGLE", vsp::XS_ROUNDED_RECTANGLE );
+    m_XSecTypeChoice.AddItem( "GENERAL_FUSE", vsp::XS_GENERAL_FUSE );
+    m_XSecTypeChoice.AddItem( "FUSE_FILE", vsp::XS_FILE_FUSE );
+    m_XSecTypeChoice.AddItem( "FOUR_SERIES", vsp::XS_FOUR_SERIES );
+    m_XSecTypeChoice.AddItem( "SIX_SERIES", vsp::XS_SIX_SERIES );
+    m_XSecTypeChoice.AddItem( "BICONVEX", vsp::XS_BICONVEX );
+    m_XSecTypeChoice.AddItem( "WEDGE", vsp::XS_WEDGE );
+    m_XSecTypeChoice.AddItem( "EDIT_CURVE", vsp::XS_EDIT_CURVE );
+    m_XSecTypeChoice.AddItem( "AF_FILE", vsp::XS_FILE_AIRFOIL );
+    m_XSecTypeChoice.AddItem( "CST_AIRFOIL", vsp::XS_CST_AIRFOIL );
+    m_XSecTypeChoice.AddItem( "KARMAN_TREFFTZ", vsp::XS_VKT_AIRFOIL );
+    m_XSecTypeChoice.AddItem( "FOUR_DIGIT_MOD", vsp::XS_FOUR_DIGIT_MOD );
+    m_XSecTypeChoice.AddItem( "FIVE_DIGIT", vsp::XS_FIVE_DIGIT );
+    m_XSecTypeChoice.AddItem( "FIVE_DIGIT_MOD", vsp::XS_FIVE_DIGIT_MOD );
+    m_XSecTypeChoice.AddItem( "16_SERIES", vsp::XS_ONE_SIX_SERIES );
 
     m_XSecLayout.SetFitWidthFlag( true );
     m_XSecLayout.SetSameLineFlag( false );
