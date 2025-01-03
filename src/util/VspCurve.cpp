@@ -23,12 +23,17 @@
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 #include "eli/geom/intersect/specified_thickness_curve.hpp"
 #include "eli/geom/intersect/minimum_dimension_curve.hpp"
+#include "eli/geom/intersect/one_d_curve_solver.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
 typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
 typedef piecewise_curve_type::bounding_box_type curve_bounding_box_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
+
+typedef eli::geom::curve::bezier<double, 1> oned_curve_segment_type;
+typedef eli::geom::curve::piecewise<eli::geom::curve::bezier, double, 1> oned_piecewise_curve_type;
+typedef oned_piecewise_curve_type::point_type oned_curve_point_type;
 
 
 typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, curve_tolerance_type> piecewise_cubic_spline_creator_type;
@@ -2021,4 +2026,138 @@ void VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, 
 void VspCurve::ToCubic( double tol )
 {
     m_Curve.to_cubic( tol );
+}
+
+void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wflange, double Hflange )
+{
+    m_Curve.clear();
+
+
+    // Tire height
+    double H = 0.5 * ( Do - Drim );
+
+    // Shoulder origin
+    double Hs = Ds - Do;
+    double rs = 0.5 * Ws;
+    double xs0 = rs - sqrt( 0.25 * ( - Hs * Hs - 2 * Ws * Hs ) );
+    double ys0 = 0.5 * ( Do - Ws );
+
+
+    // Cheek origin
+    double yc0 = 0.5 * Drim + 0.5 * H;
+    double dy = 0.5 * Ds - yc0;
+    double xc0 = ( 0.25 * ( Ws * Ws - W * W ) + dy * dy) / ( Ws - W );
+    double rc = 0.5 * W - xc0;
+
+    // Flank origin
+    double yf0 = yc0;
+    double dyf = 0.5 * H - Hflange;
+    double xf0 = ( 0.25 * ( Wflange * Wflange - W * W ) + dyf * dyf) / ( Wflange - W );;
+    double rf = 0.5 * W - xf0;
+
+
+
+    double beta = 0.5 * PI;
+    double k = eli::constants::math< double >::cubic_bezier_circle_const() * tan( beta * 0.25 );
+
+    curve_segment_type clin, carc;
+    piecewise_curve_type pc1;
+    curve_point_type pt;
+
+    double t;
+    oned_curve_segment_type c1d;
+    oned_curve_point_type x1d;
+    curve_segment_type c1, c2;
+
+
+    m_Curve.set_t0( 0.0 );
+
+    clin.resize( 1 ); // Linear
+    carc.resize( 3 ); // Cubic
+
+    // Wheel
+    pt << Wflange / 2.0, 0, 0;
+    clin.set_control_point( pt, 0 );
+    pt << Wflange / 2.0, Drim / 2.0 + Hflange, 0;
+    clin.set_control_point( pt, 1 );
+    m_Curve.push_back( clin, 0.2 );
+
+    // Flank
+    pt << xf0, yf0 - rf, 0;
+    carc.set_control_point( pt, 0 );
+    pt << xf0 + k * rf, yf0 - rf, 0;
+    carc.set_control_point( pt, 1 );
+    pt << W / 2, yf0 - k * rf, 0;
+    carc.set_control_point( pt, 2 );
+    pt << W / 2, yf0, 0;
+    carc.set_control_point( pt, 3 );
+
+    x1d << -Wflange / 2;
+    c1d = carc.singledimensioncurve( 0 );
+    c1d.translate( x1d );
+    eli::geom::intersect::find_zero( t, c1d, 0.5 );
+
+    carc.split( c1, c2, t );
+    m_Curve.push_back( c2, 0.2 );
+
+    // Cheek
+    pt << W / 2.0, yc0, 0;
+    carc.set_control_point( pt, 0 );
+    pt << W / 2.0, yc0 + k * rc, 0;
+    carc.set_control_point( pt, 1 );
+    pt << xc0 + k * rc, yc0 + rc, 0;
+    carc.set_control_point( pt, 2 );
+    pt << xc0, yc0 + rc, 0;
+    carc.set_control_point( pt, 3 );
+
+    x1d << -rs;
+    c1d = carc.singledimensioncurve( 0 );
+    c1d.translate( x1d );
+    eli::geom::intersect::find_zero( t, c1d, 0.5 );
+
+    carc.split( c1, c2, t );
+    m_Curve.push_back( c1, 0.2 );
+
+    // Shoulder
+    pt << xs0 + rs, ys0, 0;
+    carc.set_control_point( pt, 0 );
+    pt << xs0 + rs, ys0 + k * rs, 0;
+    carc.set_control_point( pt, 1 );
+    pt << xs0 + k * rs, Do / 2.0, 0;
+    carc.set_control_point( pt, 2 );
+    pt << xs0, Do / 2.0, 0;
+    carc.set_control_point( pt, 3 );
+
+    x1d << -rs;
+    c1d = carc.singledimensioncurve( 0 );
+    c1d.translate( x1d );
+    eli::geom::intersect::find_zero( t, c1d, 0.5 );
+
+    carc.split( c1, c2, t );
+    m_Curve.push_back( c2, 0.2 );
+
+    // Flat
+    clin.set_control_point( pt, 0 );
+    pt << 0, Do / 2.0, 0;
+    clin.set_control_point( pt, 1 );
+    m_Curve.push_back( clin, 0.2 );
+
+
+
+    // First quadrant has been created.  Now, copy, reflect, and merge to complete curve.
+
+    m_Curve.reflect_xz();
+    pc1 = m_Curve;
+    pc1.reflect_yz();
+    pc1.reverse();
+    m_Curve.push_back( pc1 );
+
+    pc1 = m_Curve;
+    pc1.reflect_xz();
+    pc1.reverse();
+    m_Curve.push_back( pc1 );
+
+    // Shift so origin is consistent with other curves.
+    pt << W / 2.0, 0, 0;
+    m_Curve.translate( pt );
 }
