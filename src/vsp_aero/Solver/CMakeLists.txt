@@ -2,6 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.24)
 
 if ( EP_BUILD )
     PROJECT( VSPAERO_SOLVER )
+    SET( CMAKE_CXX_STANDARD 17 )
 
     string( REPLACE "__VSP_DELIMETER__" ";" VSP_LIBRARIES_API_FIRST "${vsp_lib_escaped}" )
 
@@ -29,7 +30,7 @@ if(OPENMP_FOUND AND NOT CXX_OMP_COMPILER)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND APPLE)
     # Historically was here to force OpenMP static.  Might not be needed anymore,
     # not sure if these are included with default MacOS.
-    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+    # set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
   endif()
 
   set(BUILD_VSPAERO true)
