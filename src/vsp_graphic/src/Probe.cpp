@@ -70,7 +70,7 @@ void Probe::_draw()
     glPointSize(12);
 
     // Last Stage.
-    if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_norm)) && !isnan(_len) )
+    if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_norm)) && !std::isnan(_len) )
     {
         probeEnd = _v1 + _norm * _len;
 

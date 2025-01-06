@@ -106,7 +106,7 @@ void Protractor::_draw()
     glPointSize(12);
 
     // Last Stage.
-    if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_v2)) && !glm::any(glm::isnan(_v3)) && !isnan(_offset) )
+    if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_v2)) && !glm::any(glm::isnan(_v3)) && !std::isnan(_offset) )
     {
         protractorStart = _v1;
         protractorEnd = _v3;
@@ -140,7 +140,7 @@ void Protractor::_draw()
         textLocation = _v2 + _label_dir * _offset;
     }
     // Third stage of protractor.
-    else if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_v2)) && !glm::any(glm::isnan(_v3)) && isnan(_offset) )
+    else if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_v2)) && !glm::any(glm::isnan(_v3)) && std::isnan(_offset) )
     {
         glBegin(GL_LINE_STRIP);
         glVertex3f(_v1[0], _v1[1], _v1[2]);
