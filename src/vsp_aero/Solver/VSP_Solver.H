@@ -2656,7 +2656,7 @@ public:
     
     /** Read in the VSP geometry file **/
     
-    void ReadFile(char *FileName, size_t siz) { snprintf(FileName_,siz,"%s",FileName);  VSPGeom_.DoSymmetryPlaneSolve() = DoSymmetryPlaneSolve_ ; VSPGeom_.ReadFile(FileName); };
+    void ReadFile(char *FileName) { snprintf(FileName_,sizeof(FileName_)*sizeof(char),"%s",FileName);  VSPGeom_.DoSymmetryPlaneSolve() = DoSymmetryPlaneSolve_ ; VSPGeom_.ReadFile(FileName); };
 
     /** Turn on ground effects analysis **/
     

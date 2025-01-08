@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
        Slicer.MaxStress()        = MaxStress;
        Slicer.OptFact()          = OptFact;
        
-       Slicer.SetElementName(OptElementListName, sizeof(OptElementListName)*sizeof(char));
+       Slicer.SetElementName(OptElementListName);
        
        Slicer.OptimizationCalculixInpFile(FileName_1, FileName_2, FileName_3);
        

@@ -295,7 +295,7 @@ int TestCase_1(char *GeometryFileName, int SolverMode)
 
     if ( SolverMode == PANEL_MODEL ) VSP_VLM.AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES_USING_WAKE_FORCES; // Only total forces gradients, but based on Trefftz forces
             
-    VSP_VLM.ReadFile(GeometryFileName, sizeof(GeometryFileName)*sizeof(char));
+    VSP_VLM.ReadFile(GeometryFileName);
 
     VSP_VLM.Setup();
 

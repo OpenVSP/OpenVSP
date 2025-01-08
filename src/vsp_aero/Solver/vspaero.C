@@ -354,7 +354,7 @@ int main(int argc, char **argv)
                     
     // Load in the VSP degenerate geometry file
  
-    VSP_VLM().ReadFile(FileName, sizeof(FileName)*sizeof(char));
+    VSP_VLM().ReadFile(FileName);
     
     // Check adjoint component group settings
         
