@@ -2982,24 +2982,49 @@ void PGMesh::WriteVSPGeomFaces( FILE* file_id )
     fprintf( file_id, "%d\n", m_FaceList.size() );
 
     //==== Write Out Tris ====//
+    int nFaceError = 0;
     list< PGFace* >::iterator f;
     for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
     {
+        bool faceError = false;
         vector < PGNode* > nodVec;
         ( *f )->GetNodes( nodVec );
 
-        // index to size-1 because first/last point is repeated.
-        int npt = nodVec.size() - 1;
-
-        fprintf( file_id, "%d", npt );
-        for ( int i = 0; i < npt; i++ )
+        if ( nodVec.size() > 0 )
         {
-            if ( nodVec[i] )
+            // index to size-1 because first/last point is repeated.
+            int npt = nodVec.size() - 1;
+
+            fprintf( file_id, "%d", npt );
+            for ( int i = 0; i < npt; i++ )
             {
-                fprintf( file_id, " %d", nodVec[i]->m_Pt->m_ID + 1 );
+                if ( nodVec[i] )
+                {
+                    fprintf( file_id, " %d", nodVec[i]->m_Pt->m_ID + 1 );
+                }
+                else
+                {
+                    fprintf( file_id, " 1" );
+                    faceError = true;
+                }
             }
+            if ( faceError )
+            {
+                fprintf( file_id, "                                          # FACE ERROR" );
+                nFaceError++;
+            }
+            fprintf( file_id, "\n" );
         }
-        fprintf( file_id, "\n" );
+        else
+        {
+            fprintf( file_id, "0                                          # FACE ERROR\n" );
+            nFaceError++;
+        }
+    }
+
+    if ( nFaceError != 0 )
+    {
+        printf( "%d Faces have errors.\n", nFaceError );
     }
 }
 
@@ -3034,6 +3059,10 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
 
                 fprintf( file_id, " %16.10g %16.10g", uw.x() / uscale, uw.y() / wscale );
             }
+            else
+            {
+                fprintf( file_id, " 0.0 0.0" );
+            }
         }
         fprintf( file_id, "\n" );
     }
@@ -3041,6 +3070,7 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
 
 void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
 {
+    int nWakeError = 0;
     int nwake = m_WakeVec.size();
 
     fprintf( file_id, "%d\n", nwake );
@@ -3054,11 +3084,30 @@ void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
         fprintf( file_id, "%d ", nwn );
 
         int iprt = 0;
+        bool wakeError = false;
         for ( int i = 0; i < nwn; i++ )
         {
-            fprintf( file_id, "%d", nodVec[i]->m_Pt->m_ID + 1 );
+            if ( nodVec[i] )
+            {
+                fprintf( file_id, "%d", nodVec[i]->m_Pt->m_ID + 1 );
+            }
+            else
+            {
+                fprintf( file_id, "1" );
+                wakeError = true;
+            }
 
-            if ( iprt >= 9 || i == nwn - 1 )
+            if ( i == nwn - 1 )
+            {
+                if ( wakeError )
+                {
+                    fprintf( file_id, "                                          # WAKE ERROR" );
+                    nWakeError++;
+                }
+                fprintf( file_id, "\n" );
+                iprt = 0;
+            }
+            else if ( iprt >= 9 )
             {
                 fprintf( file_id, "\n" );
                 iprt = 0;
@@ -3069,6 +3118,11 @@ void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
                 iprt++;
             }
         }
+    }
+
+    if ( nWakeError != 0 )
+    {
+        printf( "%d Wakes have errors.\n", nWakeError );
     }
 }
 
@@ -3086,7 +3140,14 @@ void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
         fprintf( file_id, "%d %d", (*f)->m_ID, npt / 3 );
         for ( int i = 0; i < npt; i++ )
         {
-            fprintf( file_id, " %d", nodVec[i]->m_Pt->m_ID + 1 );
+            if ( nodVec[i] )
+            {
+                fprintf( file_id, " %d", nodVec[i]->m_Pt->m_ID + 1 );
+            }
+            else
+            {
+                fprintf( file_id, " 1" );
+            }
         }
         fprintf( file_id, "\n" );
     }
@@ -3115,10 +3176,17 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
 
         for ( int i = 0; i < npt; i++ )
         {
-            vec2d uw;
-            nodVec[i]->GetUW( tag, uw );
+            if ( nodVec[i] )
+            {
+                vec2d uw;
+                nodVec[i]->GetUW( tag, uw );
 
-            fprintf( file_id, " %16.10g %16.10g", uw.x() / uscale, uw.y() / wscale );
+                fprintf( file_id, " %16.10g %16.10g", uw.x() / uscale, uw.y() / wscale );
+            }
+            else
+            {
+                fprintf( file_id, " 0.0 0.0" );
+            }
         }
         fprintf( file_id, "\n" );
     }
