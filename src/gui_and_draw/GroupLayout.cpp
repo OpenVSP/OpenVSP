@@ -1949,6 +1949,9 @@ Fl_Terminal* GroupLayout::AddFlTerminal( int height )
     terminal->cursorbgcolor( FL_WHITE );
     terminal->cursorfgcolor( FL_BLACK );
 
+    terminal->selectionfgcolor( FL_WHITE );
+    terminal->selectionbgcolor( FL_BLACK );
+
     terminal->scrollbar->linesize( 2 ); // Default 16.
 
     m_Group->add( terminal );
