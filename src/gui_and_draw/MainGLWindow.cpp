@@ -254,7 +254,7 @@ void VspGlWindow::update()
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
 
-    if ( vPtr )
+    if ( vPtr && m_initialized )
     {
         make_current();
 
@@ -282,7 +282,7 @@ void VspGlWindow::update()
                 camera->setZNearFar( zn, zf );
             }
 
-            if ( m_initialized && AttributeMgr.GetDirtyFlag( vsp::ATTR_GROUP_WATERMARK ) )
+            if ( AttributeMgr.GetDirtyFlag( vsp::ATTR_GROUP_WATERMARK ) )
             {
                 AttributeMgr.ClearDirtyFlag( vsp::ATTR_GROUP_WATERMARK );
 
