@@ -278,6 +278,23 @@ std::pair < int, int > vector_find_duplicates( const vector < T > & vec, int i0 
     return std::pair < int, int > ( -1, -1 );
 }
 
+template <class T>
+bool vector_contains_duplicates( const vector < T > & vec )
+{
+    for ( int i = 0; i < ( int )vec.size() - 1; i++ )
+    {
+        for ( int j = i + 1; j < ( int )vec.size(); j++ )
+        {
+            if ( vec[i] == vec[j] )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 //==== Clamp Value Between Two Vals ====//
 template <typename T>
 T Clamp( const T& value, const T& low, const T& high )
