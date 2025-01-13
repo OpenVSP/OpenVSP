@@ -8,44 +8,27 @@ jobs:
   build:
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    env:
-      GCC_VER: gcc-${{ matrix.gcc-version }}
-      GPP_VER: g++-${{ matrix.gcc-version }}
-      GCC_VERNO: ${{ matrix.gcc-version }}
     strategy:
       fail-fast: false
       matrix:
         python-version: [3.9, 3.11]
-        gcc-version: [10, 11, 13]
         os: [ windows-2019, ubuntu-22.04, ubuntu-24.04, macos-13, macos-14 ]
         exclude:
           - os: ubuntu-22.04
             python-version: 3.9
-          - os: ubuntu-22.04
-            gcc-version: 11
-          - os: ubuntu-22.04
-            gcc-version: 13
           - os: ubuntu-24.04
             python-version: 3.9
-          - os: ubuntu-24.04
-            gcc-version: 11
-          - os: ubuntu-24.04
-            gcc-version: 10
           - os: macos-14
             python-version: 3.9
-          - os: macos-14
+        include:
+          - os: ubuntu-22.04
             gcc-version: 10
-          - os: macos-14
+          - os: ubuntu-24.04
             gcc-version: 13
           - os: macos-13
-            gcc-version: 10
-          - os: macos-13
-            gcc-version: 13
-          - os: windows-2019
-            gcc-version: 10
-          - os: windows-2019
-            gcc-version: 11
-
+            llvm-version: 15
+          - os: macos-14
+            llvm-version: 18
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -74,7 +57,7 @@ jobs:
       if: runner.os == 'macos'
       shell: bash
       run:   |
-        brew install swig gcc@${GCC_VERNO} doxygen graphviz pandoc
+        brew install swig llvm@${{ matrix.llvm-version }} libomp doxygen graphviz pandoc
         pip install sphinx
 
     - name:  Build Linux
@@ -134,11 +117,11 @@ jobs:
       run:   |
         mkdir build buildlibs artifacts
         cd $GITHUB_WORKSPACE/buildlibs
-        cmake -DCMAKE_BUILD_TYPE=Release ../Libraries -DADEPT_CXX_COMPILER=${GPP_VER} -DADEPT_C_COMPILER=${GCC_VER}
+        cmake -DCMAKE_C_COMPILER=$(brew --prefix llvm@${{ matrix.llvm-version }})/bin/clang -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@${{ matrix.llvm-version }})/bin/clang++ -DCMAKE_BUILD_TYPE=Release ../Libraries
         make -j2
         
         cd $GITHUB_WORKSPACE/build
-        cmake -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DCXX_OMP_COMPILER=${GPP_VER} -DC_OMP_COMPILER=${GCC_VER} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
+        cmake -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DCMAKE_C_COMPILER=$(brew --prefix llvm@${{ matrix.llvm-version }})/bin/clang -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@${{ matrix.llvm-version }})/bin/clang++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
         make -j2 package
         
         ZIPFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-MacOS.zip
