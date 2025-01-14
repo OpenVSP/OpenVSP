@@ -117,7 +117,7 @@ void Bogie::Update()
 {
     UpdateTireCurve();
 
-    m_TireSurface.CreateBodyRevolution( m_TireProfile );
+    m_TireSurface.CreateBodyRevolution( m_TireProfile, false, 1 );
 
 }
 
