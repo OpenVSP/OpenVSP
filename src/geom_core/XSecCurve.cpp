@@ -370,8 +370,6 @@ void XSecCurve::ParmChanged( Parm* parm_ptr, int type )
 //==== Update ====//
 void XSecCurve::Update()
 {
-    m_TETrimX.SetUpperLimit( 0.999 * GetWidth() );
-
     // Reconcile height, width, area, and hwratio.
     // Potentially involves an iterative solution when area is a driver.
     // May include lofting the curve.
