@@ -668,9 +668,9 @@ Matrix4d VspSurf::CompTransCoordSysLMN( const double &l, const double &m, const 
     return CompTransCoordSysRST( r, s, t );
 }
 
-void VspSurf::CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm )
+void VspSurf::CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm, int iaxis )
 {
-    eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), 0, true, match_uparm );
+    eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), iaxis, true, match_uparm );
 
     ResetFlipNormal();
     ResetUSkip();

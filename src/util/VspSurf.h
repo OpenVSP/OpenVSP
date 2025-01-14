@@ -55,7 +55,7 @@ public:
     void CopyNonSurfaceData( const VspSurf & s );
 
     // create surface as a body of revolution using the specified curve
-    void CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm = false );
+    void CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm = false, int iaxis = 0 );
 
     void CreateDisk( double dia, int ix = vsp::X_DIR, int iy = vsp::Y_DIR );
 
