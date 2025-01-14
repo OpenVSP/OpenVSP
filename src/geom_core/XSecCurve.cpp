@@ -452,7 +452,7 @@ void XSecCurve::Update()
         if ( w == 0 ) w = 1;
         if ( h == 0 ) h = 1;
         double lref = sqrt( w * w + h * h );
-        m_Curve.ToBinaryCubic( wingtype, 1e-6 * lref );
+        m_Curve.ToBinaryCubic( wingtype, 1e-6 * lref, 0.01, 2, 12, m_TEFlapFlag(), m_TEFlapT(), m_TEFlapDT() );
     }
 
     RotTransScale();

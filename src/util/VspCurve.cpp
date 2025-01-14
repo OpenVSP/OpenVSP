@@ -549,7 +549,7 @@ void VspCurve::InterpolateCSpline( const vector< vec3d > & input_pnt_vec, const 
 // atol -- angle tolerance used to detect corners before adaptation.  Smooth if:  abs(1-cos(theta)) <= atol
 // dmin -- minimum number of divisions of curve
 // dmax -- maximum number of divisions of curve
-void VspCurve::ToBinaryCubic( bool wingtype, double ttol, double atol, int dmin, int dmax )
+void VspCurve::ToBinaryCubic( bool wingtype, double ttol, double atol, int dmin, int dmax, bool flapflag, double flapT, double flapDT )
 {
     piecewise_binary_cubic_creator pbcc;
 
@@ -569,14 +569,51 @@ void VspCurve::ToBinaryCubic( bool wingtype, double ttol, double atol, int dmin,
         crv = rest;
         crv.split( up, teup, tmax - TMAGIC );
 
-        // Setup copies base curve into creator.
-        // tolerance, min adapt levels, max adapt levels
-        pbcc.setup( low, ttol, atol, dmin, dmax );
-        // Create makes new curve
-        pbcc.corner_create( low );
+        if ( !flapflag )
+        {
+            // Setup copies base curve into creator.
+            // tolerance, min adapt levels, max adapt levels
+            pbcc.setup( low, ttol, atol, dmin, dmax );
+            // Create makes new curve
+            pbcc.corner_create( low );
 
-        pbcc.setup( up, ttol, atol, dmin, dmax );
-        pbcc.corner_create( up );
+            pbcc.setup( up, ttol, atol, dmin, dmax );
+            pbcc.corner_create( up );
+        }
+        else
+        {
+            double tslow = tmin + TMAGIC + 2.0 * flapT;
+            double tsup = tmax - TMAGIC - 2.0 * flapT;
+
+            piecewise_curve_type clowrear, clowflap, clowfwd, cupfwd, cupflap, cuprear;
+            low.split( clowrear, rest, tslow );
+            rest.split( clowflap, clowfwd, tslow + 2.0 * flapDT );
+
+            up.split( cupfwd, rest, tsup - 2.0 * flapDT );
+            rest.split( cupflap, cuprear, tsup );
+
+            pbcc.setup( clowrear, ttol, atol, dmin, dmax );
+            pbcc.corner_create( clowrear );
+
+            pbcc.setup( clowfwd, ttol, atol, dmin, dmax );
+            pbcc.corner_create( clowfwd );
+
+            low = clowrear;
+            low.push_back( clowflap );
+            low.push_back( clowfwd );
+            low.set_tmax( tmid - TMAGIC );
+
+            pbcc.setup( cupfwd, ttol, atol, dmin, dmax );
+            pbcc.corner_create( cupfwd );
+
+            pbcc.setup( cuprear, ttol, atol, dmin, dmax );
+            pbcc.corner_create( cuprear );
+
+            up = cupfwd;
+            up.push_back( cupflap );
+            up.push_back( cuprear );
+            up.set_tmax( tmax - TMAGIC );
+        }
 
         m_Curve = telow;
         m_Curve.push_back( low );
