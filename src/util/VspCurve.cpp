@@ -2028,7 +2028,7 @@ void VspCurve::ToCubic( double tol )
     m_Curve.to_cubic( tol );
 }
 
-void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim )
+void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, bool topandbottom )
 {
     m_Curve.clear();
 
@@ -2154,10 +2154,13 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     pc1.reverse();
     m_Curve.push_back( pc1 );
 
-    pc1 = m_Curve;
-    pc1.reflect_xz();
-    pc1.reverse();
-    m_Curve.push_back( pc1 );
+    if ( topandbottom )
+    {
+        pc1 = m_Curve;
+        pc1.reflect_xz();
+        pc1.reverse();
+        m_Curve.push_back( pc1 );
+    }
 
     // Shift so origin is consistent with other curves.
     pt << W / 2.0, 0, 0;

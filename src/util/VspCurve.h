@@ -177,7 +177,7 @@ public:
 
     void ToCubic( double tol = 0.1 );
 
-    void CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim );
+    void CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, bool topandbottom = true );
 
 protected:
     piecewise_curve_type m_Curve;
