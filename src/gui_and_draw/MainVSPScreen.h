@@ -133,7 +133,7 @@ protected:
 
     ScreenMenuItem m_GeomMenuItem;
     ScreenMenuItem m_SetEditMenuItem;
-    ScreenMenuItem m_VarPresetEditorMenuItem;
+    ScreenMenuItem m_VarPresetMenuItem;
     ScreenMenuItem m_ModeEditMenuItem;
     ScreenMenuItem m_LinkMenuItem;
     ScreenMenuItem m_DesVarMenuItem;
@@ -145,7 +145,8 @@ protected:
     ScreenMenuItem m_UserParmMenuItem;
     ScreenMenuItem m_FitModelMenuItem;
     ScreenMenuItem m_SnapToMenuItem;
-    ScreenMenuItem m_VarPresetMenuItem;
+    ScreenMenuItem m_AttributeMenuItem;
+    ScreenMenuItem m_VehNotesMenuItem;
 
     ScreenMenuItem m_CompGeomMenuItem;
     ScreenMenuItem m_WaveDragMenuItem;

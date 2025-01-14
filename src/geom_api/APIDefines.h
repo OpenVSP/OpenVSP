@@ -874,7 +874,7 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
                       VSP_SURFACE_INTERSECTION_SCREEN,	/*!< Surface intersection screen */
                       VSP_SVG_OPTIONS_SCREEN,	/*!< SVG options screen */
                       VSP_USER_PARM_SCREEN,	/*!< User parameter screen */
-                      VSP_VAR_PRESET_EDITOR_SCREEN,	/*!< Variable presets editor screen */
+                      VSP_VAR_PRESET_SCREEN,	/*!< Variable presets editor screen */
                       VSP_VIEW_SCREEN,	/*!< Adjust viewpoint screen */
                       VSP_VSPAERO_PLOT_SCREEN,	/*!< VSPAERO results manager screen */
                       VSP_VSPAERO_SCREEN,	/*!< VSPAERO screen */
