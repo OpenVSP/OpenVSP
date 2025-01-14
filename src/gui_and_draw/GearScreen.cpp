@@ -57,8 +57,8 @@ bool Gearcreen::Update()
     //==== Update Pod Specific Parms ====//
     GearGeom* pod_ptr = dynamic_cast< GearGeom* >( geom_ptr );
     assert( pod_ptr );
-    m_LengthSlider.Update( pod_ptr->m_Length.GetID() );
-    m_FineSlider.Update( pod_ptr->m_FineRatio.GetID() );
+//    m_LengthSlider.Update( pod_ptr->m_Length.GetID() );
+//    m_FineSlider.Update( pod_ptr->m_FineRatio.GetID() );
 //  m_NumBaseSlider.Update( pod_ptr->m_BaseU.GetID() );
 
     return true;

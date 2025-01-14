@@ -14,6 +14,44 @@
 #include "Geom.h"
 #include "XSec.h"
 
+class Bogie : public ParmContainer
+{
+public:
+    Bogie();
+
+    // virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    // virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    void UpdateTireCurve();
+    void Update();
+
+    bool m_Visible;
+
+    VspCurve m_TireProfile;
+    VspSurf m_TireSurface;
+
+    Parm m_Width;
+    Parm m_Diameter;
+
+    BoolParm m_DrimFlag;
+    Parm m_DrimFrac;
+    Parm m_Drim;
+
+    BoolParm m_WrimFlag;
+    Parm m_WrimFrac;
+    Parm m_Wrim;
+
+    BoolParm m_WsFlag;
+    Parm m_WsFrac;
+    Parm m_Ws;
+
+    BoolParm m_HsFlag;
+    Parm m_HsFrac;
+    Parm m_Hs;
+
+
+};
+
 
 //==== Pod Geom ====//
 class GearGeom : public Geom
@@ -26,11 +64,34 @@ public:
     virtual void Scale();
     virtual void AddDefaultSources( double base_len = 1.0 );
 
-    Parm m_Length;                  // Length of Pod
-    Parm m_FineRatio;               // Fineness Ratio of Pod
+    Bogie * CreateAndAddBogie();
+    string CreateAndAddBogie( int foo );
+
+    Bogie * GetCurrentBogie();
+    std::vector < Bogie * > GetBogieVec();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    void SetCurrBogieIndex( int i )             { m_CurrBogieIndex = i; }
+    int GetCurrBogieIndex()                     { return m_CurrBogieIndex; }
+    void DelAllBogies();
+    void ShowAllBogies();
+    void HideAllBogies();
+    Bogie *  GetBogie( const string &id );
+    vector < string > GetAllBogies();
+    void DelBogie( const int &i );
+    void DelBogie( const string &id );
+
+
+
 
 protected:
     virtual void UpdateSurf();
+
+    std::vector < Bogie * > m_Bogies;
+    int m_CurrBogieIndex;
+
 };
 
 
