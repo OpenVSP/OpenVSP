@@ -110,15 +110,17 @@ void Bogie::UpdateTireCurve()
     double Cw = 0;
     double Cside = 0.25;
 
-    m_TireProfile.CreateTire( Do, W, Ds, Ws, Drim, Wrim, false );
+    m_TireProfile.CreateTire( Do, W, Ds, Ws, Drim, Wrim );
 }
 
 void Bogie::Update()
 {
     UpdateTireCurve();
 
-    m_TireSurface.CreateBodyRevolution( m_TireProfile, false, 1 );
-
+    m_TireSurface.CreateBodyRevolution( m_TireProfile, true, 1 );
+    m_TireSurface.SetMagicVParm( false );
+    m_TireSurface.SetHalfBOR( true );
+    m_TireSurface.FlipNormal();
 }
 
 //===============================================================================//
