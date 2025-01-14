@@ -2028,7 +2028,7 @@ void VspCurve::ToCubic( double tol )
     m_Curve.to_cubic( tol );
 }
 
-void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, bool topandbottom )
+void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim )
 {
     m_Curve.clear();
 
@@ -2148,19 +2148,16 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
 
     // First quadrant has been created.  Now, copy, reflect, and merge to complete curve.
 
-    m_Curve.reflect_xy();
+    // m_Curve.reflect_xy();
     pc1 = m_Curve;
     pc1.reflect_xz();
     pc1.reverse();
     m_Curve.push_back( pc1 );
 
-    if ( topandbottom )
-    {
-        pc1 = m_Curve;
-        pc1.reflect_xz();
-        pc1.reverse();
-        m_Curve.push_back( pc1 );
-    }
+    // pc1 = m_Curve;
+    // pc1.reflect_xz();
+    // pc1.reverse();
+    // m_Curve.push_back( pc1 );
 
     // Shift so origin is consistent with other curves.
     pt << 0, 0, 0;
