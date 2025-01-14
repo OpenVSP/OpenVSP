@@ -2078,24 +2078,24 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     carc.resize( 3 ); // Cubic
 
     // Wheel
-    pt << Wrim / 2.0, 0, 0;
+    pt << 0, Wrim / 2.0, 0;
     clin.set_control_point( pt, 0 );
-    pt << Wrim / 2.0, Drim / 2.0 + Hflange, 0;
+    pt << 0, Wrim / 2.0, Drim / 2.0 + Hflange;
     clin.set_control_point( pt, 1 );
     m_Curve.push_back( clin, 0.2 );
 
     // Flank
-    pt << xf0, yf0 - rf, 0;
+    pt << 0, xf0, yf0 - rf;
     carc.set_control_point( pt, 0 );
-    pt << xf0 + k * rf, yf0 - rf, 0;
+    pt << 0, xf0 + k * rf, yf0 - rf;
     carc.set_control_point( pt, 1 );
-    pt << W / 2, yf0 - k * rf, 0;
+    pt << 0, W / 2, yf0 - k * rf;
     carc.set_control_point( pt, 2 );
-    pt << W / 2, yf0, 0;
+    pt << 0, W / 2, yf0;
     carc.set_control_point( pt, 3 );
 
     x1d << -Wrim / 2;
-    c1d = carc.singledimensioncurve( 0 );
+    c1d = carc.singledimensioncurve( 1 );
     c1d.translate( x1d );
     eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
@@ -2103,17 +2103,17 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     m_Curve.push_back( c2, 0.2 );
 
     // Cheek
-    pt << W / 2.0, yc0, 0;
+    pt << 0, W / 2.0, yc0;
     carc.set_control_point( pt, 0 );
-    pt << W / 2.0, yc0 + k * rc, 0;
+    pt << 0, W / 2.0, yc0 + k * rc;
     carc.set_control_point( pt, 1 );
-    pt << xc0 + k * rc, yc0 + rc, 0;
+    pt << 0, xc0 + k * rc, yc0 + rc;
     carc.set_control_point( pt, 2 );
-    pt << xc0, yc0 + rc, 0;
+    pt << 0, xc0, yc0 + rc;
     carc.set_control_point( pt, 3 );
 
     x1d << -rs;
-    c1d = carc.singledimensioncurve( 0 );
+    c1d = carc.singledimensioncurve( 1 );
     c1d.translate( x1d );
     eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
@@ -2121,17 +2121,17 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     m_Curve.push_back( c1, 0.2 );
 
     // Shoulder
-    pt << xs0 + rs, ys0, 0;
+    pt << 0, xs0 + rs, ys0;
     carc.set_control_point( pt, 0 );
-    pt << xs0 + rs, ys0 + k * rs, 0;
+    pt << 0, xs0 + rs, ys0 + k * rs;
     carc.set_control_point( pt, 1 );
-    pt << xs0 + k * rs, Do / 2.0, 0;
+    pt << 0, xs0 + k * rs, Do / 2.0;
     carc.set_control_point( pt, 2 );
-    pt << xs0, Do / 2.0, 0;
+    pt << 0, xs0, Do / 2.0;
     carc.set_control_point( pt, 3 );
 
     x1d << -rs;
-    c1d = carc.singledimensioncurve( 0 );
+    c1d = carc.singledimensioncurve( 1 );
     c1d.translate( x1d );
     eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
@@ -2140,7 +2140,7 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
 
     // Flat
     clin.set_control_point( pt, 0 );
-    pt << 0, Do / 2.0, 0;
+    pt << 0, 0, Do / 2.0;
     clin.set_control_point( pt, 1 );
     m_Curve.push_back( clin, 0.2 );
 
@@ -2148,9 +2148,9 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
 
     // First quadrant has been created.  Now, copy, reflect, and merge to complete curve.
 
-    m_Curve.reflect_xz();
+    m_Curve.reflect_xy();
     pc1 = m_Curve;
-    pc1.reflect_yz();
+    pc1.reflect_xz();
     pc1.reverse();
     m_Curve.push_back( pc1 );
 
@@ -2163,6 +2163,6 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     }
 
     // Shift so origin is consistent with other curves.
-    pt << W / 2.0, 0, 0;
+    pt << 0, 0, 0;
     m_Curve.translate( pt );
 }
