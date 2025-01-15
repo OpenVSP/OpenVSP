@@ -7,10 +7,12 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include "AttributeManager.h"
 #include "IDMgr.h"
 #include "ParmMgr.h"
 #include "VspUtil.h"
 #include "VarPresetMgr.h"
+#include "VspUtil.h"
 
 using std::map;
 using std::string;
@@ -47,7 +49,8 @@ bool IDMgrSingleton::NonRandomID( const string &id )
     if( id.compare( "" ) == 0 ||
         id.compare( "NONE" ) == 0 ||
         id.substr( 0, 5 ) == "User_" ||         // User parameters.
-        id.substr( 0, 1 ) == "_" )              // Built-in FEA materials.
+        id.substr( 0, 1 ) == "_" ||             // Built-in FEA materials.
+        id.substr( 0, 5 ) == "_Attr" )           // Fixed Attr IDs
     {
         return true;
     }
@@ -82,11 +85,15 @@ string IDMgrSingleton::RemapID( const string & oldID, const string & suggestID, 
         // Lookup ID as Parm and ParmConatiner
         Parm* p = ParmMgr.FindParm( oldID );
         ParmContainer* pc = ParmMgr.FindParmContainer( oldID );
+        NameValData* a = AttributeMgr.GetAttributePtr( oldID );
+        AttributeCollection* ac = AttributeMgr.GetCollectionPtr( oldID );
         Setting *s = VarPresetMgr.FindSetting( oldID );
         SettingGroup *sg = VarPresetMgr.FindSettingGroup( oldID );
 
         if( ( p == NULL ) &&
             ( pc == NULL ) &&
+            ( a == NULL ) &&
+            ( ac == NULL ) &&
             ( s == NULL ) &&
             ( sg == NULL ) &&
             size == -1 )
