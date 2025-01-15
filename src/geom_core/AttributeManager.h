@@ -74,6 +74,7 @@ public:
     string GetObjectParent( const string & id );
 
     string GetChildCollection( const string &attachID );
+    string GetGeomSetCollection( const int & index );
 
     string GetAttributeName( const string &attrID );
     string GetAttributeID( const string &collID, const string &attributeName, int index );

@@ -473,6 +473,17 @@ string AttributeMgrSingleton::GetChildCollection( const string &attachID )
     return id;
 }
 
+string AttributeMgrSingleton::GetGeomSetCollection( const int & index )
+{
+    string ac_id = string("NONE");
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        ac_id = veh->GetGeomSetAttrColl( index );
+    }
+    return ac_id;
+}
+
 vector< string > AttributeMgrSingleton::FindAttributesInCollection( const string &collID )
 {
     vector< string > attribute_ids;
