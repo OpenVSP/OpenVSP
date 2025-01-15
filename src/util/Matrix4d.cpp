@@ -281,6 +281,12 @@ void Matrix4d::scalez( const double &scalez )
     mat[10] *= scalez;
 }
 
+void Matrix4d::mirrory()
+{
+    mat[5] *= -1.0;
+    mat[13] *= -1.0;
+}
+
 void Matrix4d::flipx()
 {
     mat[0] *= -1.0;
