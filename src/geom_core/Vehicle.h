@@ -11,6 +11,18 @@
 #if !defined(VEHICLE__INCLUDED_)
 #define VEHICLE__INCLUDED_
 
+#define ATTR_WM_GROUP "_AttrWMGroup"
+#define ATTR_WM_SHOW "_AttrWMShow"
+#define ATTR_WM_TEXT "_AttrWMText"
+#define ATTR_WM_TEXTSCALE "_AttrWMTextScale"
+#define ATTR_WM_TEXTCOLOR "_AttrWMTextColor"
+#define ATTR_WM_TEXTALPHA "_AttrWMTextAlpha"
+#define ATTR_WM_EDGECOLOR "_AttrWMEdgeColor"
+#define ATTR_WM_EDGEALPHA "_AttrWMEdgeAlpha"
+#define ATTR_WM_FILLCOLOR "_AttrWMFillColor"
+#define ATTR_WM_FILLALPHA "_AttrWMFillAlpha"
+#define ATTR_VEH_NOTES "_AttrVehNotes"
+
 #include "Defines.h"
 #include "Parm.h"
 #include "ParmContainer.h"

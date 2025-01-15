@@ -83,13 +83,18 @@ public:
     CScriptArray* GetProxyStringArray();
     CScriptArray* GetProxyIntArray();
     CScriptArray* GetProxyDoubleArray();
+    CScriptArray* GetProxyIntMatArray();
     CScriptArray* GetProxyDoubleMatArray();
 
     template < class T > static void FillASArray( vector < T > & in, CScriptArray* out );
     template < class T > static void FillSTLVector( CScriptArray* in, vector < T > & out );
+    template < class T > static void FillSTLMatrix( CScriptArray* in, vector < vector < T > > & out );
 
     //==== Common Types =====//
+    asITypeInfo* m_BoolArrayType;
     asITypeInfo* m_IntArrayType;
+    asITypeInfo* m_StrMatArrayType;
+    asITypeInfo* m_IntMatArrayType;
     asITypeInfo* m_DoubleArrayType;
     asITypeInfo* m_DoubleMatArrayType;
     asITypeInfo* m_Vec3dArrayType;
@@ -134,6 +139,8 @@ private:
     vector< string > m_ProxyStringArray;
     vector< int > m_ProxyIntArray;
     vector< double > m_ProxyDoubleArray;
+    vector< vector< string > > m_ProxyStrMatArray;
+    vector< vector< int > > m_ProxyIntMatArray;
     vector< vector< double > > m_ProxyDoubleMatArray;
 
     CScriptArray* GetGeomTypes();

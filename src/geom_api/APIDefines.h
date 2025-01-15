@@ -103,6 +103,37 @@ enum ATTACH_ROT_TYPE { ATTACH_ROT_NONE = 0,	/*!< No parent attachment for rotati
 /*!
 	\ingroup Enumerations
 */
+/*! Enum that entity type. */
+enum ATTRIBUTABLE_TYPE { ATTROBJ_PARM = 0,	/*!< Parm */
+                         ATTROBJ_GEOM,	/*!< Geom */
+                         ATTROBJ_VEH,	/*!< Vehicle */
+                         ATTROBJ_SUBSURF,	/*!< SubSurf */
+                         ATTROBJ_MEASURE,	/*!< Measure */
+                         ATTROBJ_LINK,	/*!< Link */
+                         ATTROBJ_ADVLINK,	/*!< Adv Link */
+                         ATTROBJ_ATTR,	/*!< Attribute  */
+                         ATTROBJ_COLLECTION,	/*!< Attribute Collection */
+                         ATTROBJ_XSEC,	/*!< Cross Section */
+                         ATTROBJ_SEC,	/*!< Wing Section */
+                         ATTROBJ_MODE,	/*!< Mode */
+                         ATTROBJ_SET,	/*!< Geom Set */
+                         ATTROBJ_VARGROUP,	/*!< Var Preset Group */
+                         ATTROBJ_VARSETTING,	/*!< Var Preset Setting*/
+                         ATTROBJ_FREE,	/*!< Unattached attribute */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for attribute event group. */
+enum ATTRIBUTE_EVENT_GROUP { ATTR_GROUP_NONE = -1,	/*!< No event (user attributes) */
+                             ATTR_GROUP_WATERMARK,	/*!< Watermark group */
+                             NUM_ATTR_EVENT_GROUPS	/*!< Number attribute event groups */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for Body of Revolution mode control. */
 enum BOR_MODE { BOR_FLOWTHROUGH,	/*!< Flowthrough mode (default) */
                 BOR_UPPER,	/*!< Upper surface mode */
@@ -143,7 +174,7 @@ enum CAP_TYPE { NO_END_CAP,	/*!< No end cap */
                 ROUND_END_CAP,	/*!< Round end cap */
                 EDGE_END_CAP,	/*!< Edge end cap */
                 SHARP_END_CAP,	/*!< Sharp end cap */
-                POINT_END_CAP,	
+                POINT_END_CAP,	/*!< Point end cap */
                 ROUND_EXT_END_CAP_NONE,	/*!< Extended round end cap, but not extended */
                 ROUND_EXT_END_CAP_LE,	/*!< Extended round end cap, extend LE */
                 ROUND_EXT_END_CAP_TE,	/*!< Extended round end cap, extend TE */
@@ -763,6 +794,7 @@ enum GDEV { GDEV_TAB,	/*!< Custom GUI Tab */
             GDEV_CHECK_BUTTON_BIT,	/*!< Custom GUI CheckButtonBit */
             GDEV_RADIO_BUTTON,	/*!< Custom GUI RadioButton */
             GDEV_TOGGLE_BUTTON,	/*!< Custom GUI ToggleButton */
+            GDEV_TOGGLE_BUTTON_FREE,	/*!< Custom GUI ToggleButton without Parm */
             GDEV_TOGGLE_RADIO_GROUP,	/*!< Custom GUI ToggleRadioGroup (NOT IMPLEMENTED) */  // TODO: Implement or remove
             GDEV_TRIGGER_BUTTON,	/*!< Custom GUI TriggerButton */
             GDEV_COUNTER,	/*!< Custom GUI Counter */
@@ -826,6 +858,7 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
                       VSP_AERO_STRUCT_SCREEN,	/*!< Aero / structural analysis screen */
                       VSP_AIRFOIL_CURVES_EXPORT_SCREEN,	/*!< Airfoil curves export screen */
                       VSP_AIRFOIL_POINTS_EXPORT_SCREEN,	/*!< Airfoil points screen */
+                      VSP_ATTRIBUTE_EXPLORER_SCREEN,	/*!< Attribute details screen */
                       VSP_BACKGROUND_SCREEN,	/*!< Background control screen */
                       VSP_BACKGROUND3D_SCREEN,	/*!< Background3D control screen */
                       VSP_BACKGROUND3D_PREVIEW_SCREEN,	/*!< Background3D preview screen */
@@ -875,6 +908,8 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
                       VSP_SVG_OPTIONS_SCREEN,	/*!< SVG options screen */
                       VSP_USER_PARM_SCREEN,	/*!< User parameter screen */
                       VSP_VAR_PRESET_SCREEN,	/*!< Variable presets editor screen */
+                      VSP_VEH_NOTES_SCREEN,	/*!< Vehicle notes screen */
+                      VSP_VEH_SCREEN,	/*!< Veh geom screen */
                       VSP_VIEW_SCREEN,	/*!< Adjust viewpoint screen */
                       VSP_VSPAERO_PLOT_SCREEN,	/*!< VSPAERO results manager screen */
                       VSP_VSPAERO_SCREEN,	/*!< VSPAERO screen */
@@ -1131,13 +1166,18 @@ enum REF_WING_TYPE { MANUAL_REF = 0,    /*!< Manually specify the reference area
 /*!
 	\ingroup Enumerations
 */
-/*! Enum representing the possible data types returned from the ResultsMgr. */
-enum RES_DATA_TYPE {    INVALID_TYPE = -1,	/*!< Invalid result data type */
-                        INT_DATA = 0,	/*!< Integer result data type */
-                        DOUBLE_DATA = 1,	/*!< Double result data type */
-                        STRING_DATA = 2,	/*!< String result data type */
-                        VEC3D_DATA = 3,	/*!< Vec3d result data type */
-                        DOUBLE_MATRIX_DATA = 4,	/*!< Double matrix result data type */
+/*! Enum representing the possible data types returned from the ResultsMgr. Datatypes are shared with Attribute Definitions */
+enum RES_DATA_TYPE {    INVALID_TYPE = -1,	/*!< Invalid data type */
+                        BOOL_DATA = 0,	/*!< Bool data type */
+                        INT_DATA = 1,	/*!< Integer data type */
+                        DOUBLE_DATA = 2,	/*!< Double data type */
+                        STRING_DATA = 3,	/*!< String data type */
+                        VEC3D_DATA = 4,	/*!< Vec3d data type */
+                        INT_MATRIX_DATA = 5,	/*!< Int matrix data type */
+                        DOUBLE_MATRIX_DATA = 6,	/*!< Double matrix data type */
+                        NAMEVAL_COLLECTION_DATA = 7,	/*!< NameVal collection data type */
+                        ATTR_COLLECTION_DATA = 8,	/*!< Attribute collection data type */
+                        PARM_REFERENCE_DATA = 9,	/*!< Parm reference data type */
 };
 
 /*!

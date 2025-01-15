@@ -102,6 +102,8 @@ void ScriptMgrSingleton::Init( )
     //==== Cache Some Common Types ====//
     m_IntArrayType    = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<int>" ) );
     assert( m_IntArrayType );
+    m_IntMatArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<array<int>@>" ) );
+    assert( m_IntMatArrayType );
     m_DoubleArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<double>" ) );
     assert( m_DoubleArrayType );
     m_DoubleMatArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<array<double>@>" ) );
@@ -520,6 +522,35 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_NUM_TYPES", ATTACH_ROT_NUM_TYPES );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "ATTRIBUTABLE_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_PARM", ATTROBJ_PARM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_GEOM", ATTROBJ_GEOM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_VEH", ATTROBJ_VEH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_SUBSURF", ATTROBJ_SUBSURF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_MEASURE", ATTROBJ_MEASURE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_LINK", ATTROBJ_LINK );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_ADVLINK", ATTROBJ_ADVLINK );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_ATTR", ATTROBJ_ATTR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_COLLECTION", ATTROBJ_COLLECTION );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_FREE", ATTROBJ_FREE );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "ATTRIBUTE_EVENT_GROUP" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTE_EVENT_GROUP", "ATTR_GROUP_NONE", ATTR_GROUP_NONE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTE_EVENT_GROUP", "ATTR_GROUP_WATERMARK", ATTR_GROUP_WATERMARK );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "BOR_MODE" );
     assert( r >= 0 );
@@ -1553,7 +1584,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_USER_PARM_SCREEN", VSP_USER_PARM_SCREEN );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_ATTRIBUTE_EXPLORER_SCREEN", VSP_ATTRIBUTE_EXPLORER_SCREEN );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_VAR_PRESET_SCREEN", VSP_VAR_PRESET_SCREEN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_VEH_NOTES_SCREEN", VSP_VEH_NOTES_SCREEN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_VEH_SCREEN", VSP_VEH_SCREEN );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_VIEW_SCREEN", VSP_VIEW_SCREEN );
     assert( r >= 0 );
@@ -1658,6 +1695,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "MASS_UNIT", "NUM_MASS_UNIT", NUM_MASS_UNIT );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "OBJ_ID_LENGTH" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_ATTR", ID_LENGTH_ATTR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_ATTRCOLL", ID_LENGTH_ATTRCOLL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_PARMCONTAINER", ID_LENGTH_PARMCONTAINER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_PARM", ID_LENGTH_PARM );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "PARM_TYPE" );
     assert( r >= 0 );
@@ -1852,6 +1899,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "STRING_DATA", STRING_DATA );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "VEC3D_DATA", VEC3D_DATA );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RES_DATA_TYPE", "INT_MATRIX_DATA", INT_MATRIX_DATA );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "DOUBLE_MATRIX_DATA", DOUBLE_MATRIX_DATA );
     assert( r >= 0 );
@@ -4837,6 +4886,21 @@ CScriptArray* ScriptMgrSingleton::GetProxyDoubleArray()
     return sarr;
 }
 
+CScriptArray* ScriptMgrSingleton::GetProxyIntMatArray()
+{
+    CScriptArray* sarr = CScriptArray::Create( m_IntMatArrayType, m_ProxyIntMatArray.size() );
+    for ( int i = 0; i < ( int )sarr->GetSize(); i++ )
+    {
+        CScriptArray* darr = CScriptArray::Create( m_IntArrayType, m_ProxyIntMatArray[i].size() );
+        for ( int j = 0; j < ( int )darr->GetSize(); j++ )
+        {
+            darr->SetValue( j, &m_ProxyIntMatArray[i][j]);
+        }
+        sarr->SetValue( i, &darr );
+    }
+    return sarr;
+}
+
 CScriptArray* ScriptMgrSingleton::GetProxyDoubleMatArray()
 {
     CScriptArray* sarr = CScriptArray::Create( m_DoubleMatArrayType, m_ProxyDoubleMatArray.size() );
@@ -4869,6 +4933,28 @@ void ScriptMgrSingleton::FillSTLVector( CScriptArray* in, vector < T > & out )
     for ( int i = 0 ; i < ( int )in->GetSize() ; i++ )
     {
         out[i] = * ( T* ) ( in->At( i ) );
+    }
+}
+
+// maybe don't template this fill matrix- do a FillDoubleMatrix and FillIntMatrix?
+template < class T >
+void ScriptMgrSingleton::FillSTLMatrix( CScriptArray* in, vector < vector < T > > & out )
+{
+    out.resize( in->GetSize() );
+    for ( int i = 0 ; i < ( int )in->GetSize() ; i++ )
+    {
+        CScriptArray* row = ( CScriptArray* ) ( in->At( i ) );
+
+        // CScriptArray* saferow = static_cast< CScriptArray* > ( in->At( i ) ); //void pointer/?? = old skool c. Universal typeless pointer- dynamic pointer CAN'T interpret this thingy.
+
+        //static cast *can* at least compile but ehhhhh it won't 
+        //dynamic cast incompatible with voidptr
+        // in[i];
+
+        if ( row )
+        {
+            FillSTLVector( row, out[i] );
+        }
     }
 }
 
