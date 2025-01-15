@@ -501,6 +501,7 @@ void GroupLayout::AddButton( ToggleButton& tbutton, const char* label, int used_
     tbutton.Init( m_Screen, flbutton );
 }
 
+
 //==== Create & Init Gui ToggleButton  ====//
 void GroupLayout::AddButton( CheckButtonBit& cbutton, const char* label, int value )
 {
@@ -1781,19 +1782,43 @@ ColResizeBrowser* GroupLayout::AddColResizeBrowser( int* width_array_ptr, size_t
 }
 
 //==== Add Fl Text Editor ====//
-Fl_Text_Editor* GroupLayout::AddFlTextEditor( int height )
+Fl_Text_Editor* GroupLayout::AddFlTextEditor( int height , bool resizable )
 {
     assert( m_Group && m_Screen );
 
     Fl_Text_Editor* text_editor = new Fl_Text_Editor (m_X, m_Y, m_W, height, "");
 
     m_Group->add( text_editor );
+    if (resizable)
+    {
+        m_Group->resizable( text_editor );
+    }
 
     AddY( height );
     NewLineX();
 
     return text_editor;
 }
+
+//==== Add Vsp Text Editor ====//
+VspTextEditor* GroupLayout::AddVspTextEditor( int height , bool resizable )
+{
+    assert( m_Group && m_Screen );
+
+    VspTextEditor* text_editor = new VspTextEditor (m_X, m_Y, m_W, height, "");
+
+    m_Group->add( text_editor );
+    if (resizable)
+    {
+        m_Group->resizable( text_editor );
+    }
+
+    AddY( height );
+    NewLineX();
+
+    return text_editor;
+}
+
 
 //==== Add Fl Text Display ====//
 Fl_Text_Display* GroupLayout::AddFlTextDisplay( int height )
@@ -1808,6 +1833,42 @@ Fl_Text_Display* GroupLayout::AddFlTextDisplay( int height )
     NewLineX();
 
     return text_display;
+}
+
+Fl_Tree* GroupLayout::AddFlTree( int height, bool resizable )
+{
+    assert( m_Group && m_Screen );
+
+    // Fl_Text_Editor* text_editor = new Fl_Text_Editor (m_X, m_Y, m_W, height, "");
+    Fl_Tree* tree = new Fl_Tree(m_X,m_Y,m_W,height,"");
+
+    m_Group->add( tree );
+    if (resizable)
+    {
+        m_Group->resizable( tree );
+    }
+
+    AddY( height );
+    NewLineX();
+
+    return tree;
+}
+
+TreeWithColumns* GroupLayout::AddTreeWithColumns( int height, bool resizable )
+{
+    assert( m_Group && m_Screen );
+
+    TreeWithColumns* tree = new TreeWithColumns(m_X,m_Y,m_W,height,"");
+
+    m_Group->add( tree );
+    if (resizable){
+        m_Group->resizable( tree );
+    }
+
+    AddY( height );
+    NewLineX();
+
+    return tree;
 }
 
 //==== Add Fl Scroll panel ====//

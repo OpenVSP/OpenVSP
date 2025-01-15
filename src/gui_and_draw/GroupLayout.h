@@ -22,6 +22,7 @@
 
 #include "GuiDevice.h"
 #include "SpreadSheetWidget.h"
+#include "TreeColumnWidget.h"
 
 #include <vector>
 #include <string>
@@ -170,8 +171,11 @@ public:
 
     Fl_Browser* AddFlBrowser( int height );
     ColResizeBrowser* AddColResizeBrowser( int* width_array_ptr, size_t num_col, int height );
-    Fl_Text_Editor* AddFlTextEditor( int height );
+    Fl_Text_Editor* AddFlTextEditor( int height , bool resizable = false );
+    VspTextEditor* AddVspTextEditor( int height, bool resizable = false );
     Fl_Text_Display* AddFlTextDisplay( int height );
+    Fl_Tree* AddFlTree( int height, bool resizable = false );
+    TreeWithColumns* AddTreeWithColumns( int height, bool resizable = false );
     Fl_Scroll* AddFlScroll( int height );
     Fl_Sys_Menu_Bar* AddFlMenuBar( int height );
 
