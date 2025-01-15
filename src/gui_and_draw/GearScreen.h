@@ -29,12 +29,35 @@ public:
 
 protected:
 
-    GroupLayout m_DesignLayout;
-    SliderInput m_NumPntsXSecSlider;
-    SliderAdjRangeInput m_LengthSlider;
-    SliderAdjRangeInput m_FineSlider;
+    GroupLayout m_TireGroup;
 
-    SliderInput m_NumBaseSlider;
+    SliderAdjRangeInput m_TireXSlider;
+    SliderAdjRangeInput m_TireYSlider;
+    SliderAdjRangeInput m_TireZSlider;
+
+    SliderAdjRangeInput m_TireDiameterSlider;
+    SliderAdjRangeInput m_TireWidthSlider;
+
+    ToggleButton m_DrimToggleButton;
+    ToggleButton m_DrimFracToggleButton;
+    ToggleRadioGroup m_DrimToggleGroup;
+    SliderAdjRange2Input m_DrimSlider;
+
+    ToggleButton m_WrimToggleButton;
+    ToggleButton m_WrimFracToggleButton;
+    ToggleRadioGroup m_WrimToggleGroup;
+    SliderAdjRange2Input m_WrimSlider;
+
+    ToggleButton m_HsToggleButton;
+    ToggleButton m_HsFracToggleButton;
+    ToggleRadioGroup m_HsToggleGroup;
+    SliderAdjRange2Input m_HsSlider;
+
+    ToggleButton m_WsToggleButton;
+    ToggleButton m_WsFracToggleButton;
+    ToggleRadioGroup m_WsToggleGroup;
+    SliderAdjRange2Input m_WsSlider;
+
 };
 
 
