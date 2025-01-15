@@ -318,6 +318,95 @@ public:
 		glEnd();
 	}
 
+	//Template function to output a scaled character array
+	template<class T> void DrawString (const T *text, float scalar,
+		float arW, float arH, float x, float y)
+	{
+		const T *i;
+		GLFontChar *glfont_char;
+		float width, height;
+
+		//Begin rendering quads
+		glBegin(GL_QUADS);
+
+		//Loop through characters
+		for (i = text; *i != (T)'\0'; i++)
+		{
+			//Make sure character is in range
+			if (*i < header.start_char || *i > header.end_char)
+				continue;
+
+			//Get pointer to glFont character
+			glfont_char = &header.chars[*i - header.start_char];
+
+			//Get width and height
+			width = (glfont_char->dx * header.tex_width) * scalar * arH;
+			height = (glfont_char->dy * header.tex_height) * scalar * arW;
+
+			//Specify vertices and texture coordinates
+			glTexCoord2f(glfont_char->tx1, glfont_char->ty1);
+			glVertex3f(x, y, 0.0F);
+			glTexCoord2f(glfont_char->tx1, glfont_char->ty2);
+			glVertex3f(x, y - height, 0.0F);
+			glTexCoord2f(glfont_char->tx2, glfont_char->ty2);
+			glVertex3f(x + width, y - height, 0.0F);
+			glTexCoord2f(glfont_char->tx2, glfont_char->ty1);
+			glVertex3f(x + width, y, 0.0F);
+
+			//Move to next character
+			x += width;
+		}
+
+		//Stop rendering quads
+		glEnd();
+	}
+
+	//Template function to output a scaled std::basic_string
+	template<class T> void DrawString (
+		const std::basic_string<T> &text, float scalar,
+		float arW, float arH, float x, float y)
+	{
+		unsigned int i;
+		T c;
+		GLFontChar *glfont_char;
+		float width, height;
+
+		//Begin rendering quads
+		glBegin(GL_QUADS);
+
+		//Loop through characters
+		for (i = 0; i < text.size(); i++)
+		{
+			//Make sure character is in range
+			c = text[i];
+			if (c < header.start_char || c > header.end_char)
+				continue;
+
+			//Get pointer to glFont character
+			glfont_char = &header.chars[c - header.start_char];
+
+			//Get width and height
+			width = (glfont_char->dx * header.tex_width) * scalar * arH;
+			height = (glfont_char->dy * header.tex_height) * scalar * arW;
+
+			//Specify vertices and texture coordinates
+			glTexCoord2f(glfont_char->tx1, glfont_char->ty1);
+			glVertex3f(x, y, 0.0F);
+			glTexCoord2f(glfont_char->tx1, glfont_char->ty2);
+			glVertex3f(x, y - height, 0.0F);
+			glTexCoord2f(glfont_char->tx2, glfont_char->ty2);
+			glVertex3f(x + width, y - height, 0.0F);
+			glTexCoord2f(glfont_char->tx2, glfont_char->ty1);
+			glVertex3f(x + width, y, 0.0F);
+
+			//Move to next character
+			x += width;
+		}
+
+		//Stop rendering quads
+		glEnd();
+	}
+
 	//Template function to output a colored character array
 	template<class T> void DrawString (const T *text, float x,
 		float y, const float *top_color,

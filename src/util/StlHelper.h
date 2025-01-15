@@ -6,6 +6,7 @@
 #if !defined(VSP_STL_HELPER__INCLUDED_)
 #define VSP_STL_HELPER__INCLUDED_
 
+#include <string>
 #include <vector>
 #include <deque>
 #include <map>
@@ -14,6 +15,7 @@
 using std::vector;
 using std::deque;
 #include <APIDefines.h>
+
 
 //==== Find Interval for Single Valued Increasing or Decreasing Array ===//
 int find_interval( const vector< double > & vals, double val );
