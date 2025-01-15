@@ -71,7 +71,7 @@ bool PickSetScreen::Update()
 {
     BasicScreen::Update();
 
-    m_ScreenMgr->LoadSetChoice( {&m_PickSetChoice}, {m_SelectedSetIndex} );
+    m_ScreenMgr->LoadSetChoice( {&m_PickSetChoice}, vector<int>({m_SelectedSetIndex}) );
 
     m_FLTK_Window->redraw();
     return true;

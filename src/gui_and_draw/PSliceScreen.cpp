@@ -102,7 +102,7 @@ bool PSliceScreen::Update()
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {m_SelectedSetIndex} );
+    m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, vector<int>({m_SelectedSetIndex}) );
 
     m_Norm.set_xyz( 0, 0, 0 );
     m_Norm[veh->m_PlanarAxisType.Get()] = 1;
