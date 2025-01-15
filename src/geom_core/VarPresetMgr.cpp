@@ -66,6 +66,11 @@ void Setting::EraseParmVal( int index )
     }
 }
 
+void Setting::ClearAllParmVals()
+{
+    m_ParmValVec.clear();
+}
+
 xmlNodePtr Setting::EncodeXml( xmlNodePtr &node )
 {
     xmlNodePtr setting_node = xmlNewChild( node, NULL, BAD_CAST "Setting", NULL );
@@ -136,7 +141,6 @@ bool SettingGroup::AddSetting( Setting* s, bool savevals )
 
 void SettingGroup::RemoveSetting( Setting* s )
 {
-    VarPresetMgr.RemoveSetting( s );
     vector_remove_val( m_SettingIDVec, s->GetID() );
 }
 
@@ -185,6 +189,21 @@ void SettingGroup::RemoveParm( const string &id )
         }
     }
 }
+
+void SettingGroup::RemoveAllParms()
+{
+    for ( int i = 0; i < m_SettingIDVec.size(); i++ )
+    {
+        Setting *s = VarPresetMgr.FindSetting( m_SettingIDVec[i] );
+        if ( s )
+        {
+            s->ClearAllParmVals();
+        }
+    }
+
+    m_ParmIDVec.clear();
+}
+
 
 void SettingGroup::ApplySetting( const string &id )
 {
@@ -463,20 +482,15 @@ void VarPresetMgrSingleton::DeleteSettingGroup( const string & gid )
 
     if ( sg )
     {
+        VarPresetMgr.DeleteAllSettingsInGroup( gid );
         VarPresetMgr.RemoveSettingGroup( sg );
-        vector < string > settings = sg->GetSettingIDVec();
-        for ( int i = 0; i < settings.size(); i++ )
-        {
-            Setting *s = VarPresetMgr.FindSetting( settings[i] );
-            if ( s )
-            {
-                VarPresetMgr.RemoveSetting( s );
-
-                delete s;
-            }
-        }
         delete sg;
     }
+}
+
+void VarPresetMgrSingleton::DeleteAllSettingGroups()
+{
+    Wype();
 }
 
 void VarPresetMgrSingleton::DeleteSetting( const string &gid, const string &sid )
@@ -489,8 +503,30 @@ void VarPresetMgrSingleton::DeleteSetting( const string &gid, const string &sid 
         if ( s )
         {
             sg->RemoveSetting( s );
+            RemoveSetting( s );
 
             delete s;
+        }
+    }
+}
+
+void VarPresetMgrSingleton::DeleteAllSettingsInGroup( const string &gid )
+{
+    SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+    if ( sg )
+    {
+        vector < string > settings = sg->GetSettingIDVec();
+        for ( int i = 0; i < settings.size(); i++ )
+        {
+            Setting *s = VarPresetMgr.FindSetting( settings[i] );
+            if ( s )
+            {
+                sg->RemoveSetting( s );
+                RemoveSetting( s );
+
+                delete s;
+            }
         }
     }
 }

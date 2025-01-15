@@ -44,6 +44,7 @@ public:
 
     void PushBackParmVal( double val );
     void EraseParmVal( int index );
+    void ClearAllParmVals();
 
     xmlNodePtr EncodeXml( xmlNodePtr &node );
     xmlNodePtr DecodeXml( xmlNodePtr &node );
@@ -76,6 +77,7 @@ public:
 
     bool AddParm( const string &id );
     void RemoveParm( const string &id );
+    void RemoveAllParms();
 
     void SetParmIDVec( const vector < string > &pid_vec )      { m_ParmIDVec = pid_vec; }
     vector < string > GetParmIDVec() const       { return m_ParmIDVec; }
@@ -124,7 +126,9 @@ public:
     SettingGroup* FindSettingGroup( const string & id ) const;
 
     void DeleteSettingGroup( const string & gid );
+    void DeleteAllSettingGroups();
     void DeleteSetting( const string &gid, const string &sid );
+    void DeleteAllSettingsInGroup( const string &gid );
 
     vector < string > GetAllSettingGroups();
 
