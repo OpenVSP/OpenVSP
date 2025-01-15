@@ -31,6 +31,10 @@ public:
     VspCurve m_TireProfile;
     VspSurf m_TireSurface;
 
+    Parm m_X;
+    Parm m_Y;
+    Parm m_Z;
+
     Parm m_Width;
     Parm m_Diameter;
 

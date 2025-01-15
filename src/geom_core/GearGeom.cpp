@@ -14,6 +14,10 @@
 
 Bogie::Bogie()
 {
+    m_X.Init( "X", "Tire", this, 0.0, -1e12, 1e12 );
+    m_Y.Init( "Y", "Tire", this, 0.0, -1e12, 1e12 );
+    m_Z.Init( "Z", "Tire", this, 0.0, -1e12, 1e12 );
+
     m_Diameter.Init( "Diameter", "Tire", this, 2.0, 0.0, 1.0e12 );
     m_Diameter.SetDescript( "Diameter of the tire" );
 
@@ -141,6 +145,14 @@ void Bogie::Update()
     m_TireSurface.SetMagicVParm( false );
     m_TireSurface.SetHalfBOR( true );
     m_TireSurface.FlipNormal();
+
+
+    Matrix4d xform;
+    xform.translatef( m_X(), m_Y(), m_Z() );
+
+    m_TireSurface.Transform( xform );
+
+
 }
 
 //===============================================================================//
