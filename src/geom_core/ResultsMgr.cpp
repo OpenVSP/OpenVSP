@@ -933,6 +933,9 @@ void Results::Copy( NameValData* nvd )
             Add( ( NameValData( nvd->GetName(), nvd->GetStringData(), nvd->GetDoc().c_str() ) ) );
             break;
         }
+        case ( vsp::INT_MATRIX_DATA ):
+            Add( ( NameValData( nvd->GetName(), nvd->GetIntMatData(), nvd->GetDoc().c_str() ) ) );
+            break;
         case ( vsp::DOUBLE_MATRIX_DATA ):
         {
             Add( ( NameValData( nvd->GetName(), nvd->GetDoubleMatData(), nvd->GetDoc().c_str() ) ) );
@@ -1305,6 +1308,22 @@ void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &resul
                 }
                 break;
             }
+            case vsp::RES_DATA_TYPE::INT_MATRIX_DATA :
+            {
+                vector< vector< int > > current_int_mat_val = GetIntMatResults( results_id, results_names[i_result_name], i_val );
+                for ( unsigned int row = 0; row < current_int_mat_val.size(); row++ )
+                {
+                    for ( unsigned int col = 0; col < current_int_mat_val[row].size(); col++ )
+                    {
+                        fprintf( outputStream, "%d ", current_int_mat_val[row][col] );
+                    }
+                    if ( row < current_int_mat_val.size() - 1 )
+                    {
+                        fprintf( outputStream, "\n\t\t%-20s \t\t \t", "");
+                    }
+                }
+                break;
+            }
             case vsp::RES_DATA_TYPE::DOUBLE_MATRIX_DATA :
             {
                 vector< vector< double > > current_double_mat_val = GetDoubleMatResults( results_id, results_names[i_result_name], i_val );
@@ -1431,6 +1450,25 @@ const vector<double> & ResultsMgrSingleton::GetDoubleResults( const string & res
     }
 
     return rd_ptr->GetDoubleData();
+}
+
+//==== Get Int Matrix Results Given Results ID and Name of Data and Index (Default 0) ====//
+const vector<vector<int>> & ResultsMgrSingleton::GetIntMatResults( const string &id, const string &name,
+                          int index )
+{
+    Results* results_ptr = FindResultsPtr( id );
+    if ( !results_ptr )
+    {
+        return m_DefaultIntMat;
+    }
+
+    NameValData* rd_ptr = results_ptr->FindPtr( name, index );
+    if ( !rd_ptr )
+    {
+        return m_DefaultIntMat;
+    }
+
+    return rd_ptr->GetIntMatData();
 }
 
 //==== Get Double Matrix Results Given Results ID and Name of Data and Index (Default 0) ====//

@@ -252,6 +252,7 @@ public:
 
     const vector<int> & GetIntResults( const string & id, const string & name, int index = 0 );
     const vector<double> & GetDoubleResults( const string & id, const string & name, int index = 0 );
+    const vector<vector<int> > & GetIntMatResults( const string & id, const string & name, int index = 0 );
     const vector<vector<double> > & GetDoubleMatResults( const string & id, const string & name, int index = 0 );
     const vector<string> & GetStringResults( const string & id, const string & name, int index = 0 );
     const vector<vec3d> & GetVec3dResults( const string & id, const string & name, int index = 0 );
@@ -279,6 +280,7 @@ private:
     vector< double > m_DefaultDoubleVec;
     vector< string > m_DefaultStringVec;
     vector< vec3d > m_DefaultVec3dVec;
+    vector< vector< int > > m_DefaultIntMat;
     vector< vector< double > > m_DefaultDoubleMat;
 
 
