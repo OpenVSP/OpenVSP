@@ -13,6 +13,7 @@
 
 #include "Vec3d.h"
 #include "XmlUtil.h"
+#include "APIDefines.h"
 
 #include <map>
 #include <list>
@@ -25,6 +26,7 @@ using std::string;
 
 //==== Results Data - Named Vectors Of Ints/Double/Strings or Vec3d ====//
 class NameValCollection;
+class AttributeCollection;
 
 class NameValData
 {
@@ -38,6 +40,7 @@ public:
     NameValData( const string & name, const string & s_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vec3d & v_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const NameValCollection &c_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const AttributeCollection &c_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< bool > & b_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< int > & i_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< double > & d_data, const string & doc, const string & id = string() );
@@ -46,6 +49,7 @@ public:
     NameValData( const string & name, const vector< vector< int > > &imat_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< vector< double > > &dmat_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< NameValCollection > &c_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const vector< AttributeCollection > &c_data, const string & doc, const string & id = string() );
 
     string GetName() const
     {
@@ -103,6 +107,10 @@ public:
     {
         return m_NameValCollectionData;
     }
+    const vector< AttributeCollection > & GetAttributeCollectionData() const
+    {
+        return m_AttributeCollectionData;
+    }
     vector<int> & GetBoolData()
     {
         return m_IntData;
@@ -146,6 +154,9 @@ public:
     vec3d GetVec3d( int index ) const;
     NameValCollection GetNameValCollection( int index ) const;
     NameValCollection* GetNameValCollectionPtr( int index );
+    AttributeCollection* GetAttributeCollectionPtr( int index );
+
+    void AddAttributeCollection();
 
     string GetAsString( bool inline_data_flag = false );
 
@@ -192,6 +203,11 @@ public:
     void SetNameValCollectionData( const vector< NameValCollection > & d )
     {
         m_NameValCollectionData = d;
+    }
+
+    void SetAttributeCollectionData( const vector< AttributeCollection > & d )
+    {
+        m_AttributeCollectionData = d;
     }
 
     void SetName( const string & name )
@@ -245,6 +261,8 @@ public:
 
     virtual void EncodeXml( xmlNodePtr & node );
     virtual void DecodeXml( xmlNodePtr & node, vector < string > name_vector = {} );
+    void ReRegisterNestedCollections();
+
 protected:
 
     void Init( const string & name, int type = 0, const string & id = string() );
@@ -261,17 +279,16 @@ protected:
     vector< vector< int > >  m_IntMatData;
     vector< vector< double > >  m_DoubleMatData;
     vector< NameValCollection > m_NameValCollectionData;
+    vector< AttributeCollection > m_AttributeCollectionData;
 
     bool m_ProtectFlag;
     string m_AttachID;
     int m_AttributeEventGroup;
 };
 
-
 //======================================================================================//
 //======================================================================================//
 //======================================================================================//
-
 
 //==== A Collection of Results Data From One Computation ====//
 class NameValCollection
@@ -334,6 +351,57 @@ protected:
     map< string, vector< NameValData* > > m_DataMap;
 
 };
+
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
+
+class AttributeCollection : public NameValCollection
+{
+public:
+
+    AttributeCollection();
+    AttributeCollection( const string & name, const string & id, const string & doc  );
+
+    void Add( const NameValData & d, const int & attr_event_group = vsp::ATTR_GROUP_NONE, bool set_event_group = false );
+
+    void Del( const string & name, int index = 0 );
+    void DelAttr( const string & id );
+
+    NameValData* GetAttrPtr( const string & id );
+    int GetAttrIndex( const string & id );
+
+    void SetCollAttach( const string & attachID , int attachType );
+
+    string GetNewAttrName( int attr_type );
+    void RenameAttr( const string & id, const string & newName );
+
+    string GetAttachID();
+    int GetAttachType();
+    bool GetAttrDataFlag();
+    int GetDataMapSize();
+
+    vector< string > GetAllAttrNames ();
+    vector< string > GetAllAttrIDs();
+
+    void BuildCollectorVec( vector < AttributeCollection* > & in_vec );
+
+    void ChangeID( const string & id );
+
+    virtual void EncodeXml( xmlNodePtr & node );
+    virtual void DecodeXml( xmlNodePtr & node, bool retainIDs = false );
+
+    void Wype();
+
+protected:
+
+    string m_AttachID;
+    int m_AttachType;
+};
+
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
 
 //==== A Collection of Results Data From One Computation ====//
 class Results : public NameValCollection

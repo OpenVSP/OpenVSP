@@ -1495,6 +1495,19 @@ vector< string > Vehicle::PasteClipboard()
     return pasted_ids;
 }
 
+//==== Return bool if id found in vehicle clipboard ====//
+bool Vehicle::IDinClipboard( const string & id )
+{
+    for ( int i = 0; i != m_ClipBoard.size(); ++i )
+    {
+        if ( m_ClipBoard.at( i ).compare( id ) == 0 )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 //==== Copy Geoms In Vec - Create New IDs But Keep Parent/Child ====//
 vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
 {
