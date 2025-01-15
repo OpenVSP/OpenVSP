@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "SnapToScreen.h"
+#include "ModeMgr.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -41,7 +42,38 @@ SnapToScreen::SnapToScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 380, "Snap
 
     m_BorderLayout.AddYGap();
     m_BorderLayout.AddDividerBox( "Collision Set And Method" );
-    m_BorderLayout.AddChoice( m_SetChoice, "Set:" );
+
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetSameLineFlag( true );
+
+    int bw = m_BorderLayout.GetChoiceButtonWidth();
+    m_BorderLayout.SetButtonWidth( bw );
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetChoiceButtonWidth( 0 );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.AddButton( m_SetToggle, "Set:" );
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice(m_SetChoice, "", bw);
+    m_BorderLayout.ForceNewLine();
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetChoiceButtonWidth( 0 );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.AddButton( m_ModeToggle, "Mode:" );
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice(m_ModeChoice, "", bw );
+    m_BorderLayout.ForceNewLine();
+
+    m_ModeSetToggleGroup.Init( this );
+    m_ModeSetToggleGroup.AddButton( m_SetToggle.GetFlButton() );
+    m_ModeSetToggleGroup.AddButton( m_ModeToggle.GetFlButton() );
+
+
+    m_BorderLayout.InitWidthHeightVals();
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.SetSameLineFlag( false );
+
     m_BorderLayout.AddChoice( m_MethodChoice, "Method:" );
     m_BorderLayout.AddYGap();
 
@@ -94,6 +126,44 @@ bool SnapToScreen::Update()
     m_ValSlider.Update( parm_id );
 
     m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, vector<int>({snap->m_CollisionSet}) );
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, snap->m_ModeID );
+
+    m_ModeSetToggleGroup.Update( snap->m_UseMode.GetID() );
+
+    if ( ModeMgr.GetNumModes() == 0 )
+    {
+        if ( snap->m_UseMode() )
+        {
+            snap->m_UseMode.Set( false );
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+        m_ModeToggle.Deactivate();
+    }
+    else
+    {
+        m_ModeToggle.Activate();
+    }
+
+    if ( snap->m_UseMode() )
+    {
+        m_ModeChoice.Activate();
+        m_SetChoice.Deactivate();
+
+        Mode *m = ModeMgr.GetMode( snap->m_ModeID );
+        if ( m )
+        {
+            if ( snap->m_CollisionSet != m->m_NormalSet() )
+            {
+                snap->m_CollisionSet = m->m_NormalSet();
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+        }
+    }
+    else
+    {
+        m_ModeChoice.Deactivate();
+        m_SetChoice.Activate();
+    }
 
     m_MethodChoice.ClearItems();
     m_MethodChoice.AddItem( "Mesh - Faster" );
@@ -118,6 +188,28 @@ bool SnapToScreen::Update()
 
 void SnapToScreen::Show()
 {
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    SnapTo *snap = veh->GetSnapToPtr();
+
+    if ( snap->m_UseMode() )
+    {
+        int indx = m_ModeChoice.GetVal();
+        if ( indx >= 0  && indx < m_ModeIDs.size() )
+        {
+            snap->m_ModeID = m_ModeIDs[ indx ];
+        }
+        else
+        {
+            snap->m_ModeID = "";
+        }
+
+        Mode *m = ModeMgr.GetMode( snap->m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+        }
+    }
+
     m_ScreenMgr->SetUpdateFlag( true );
     BasicScreen::Show();
 }
@@ -142,6 +234,27 @@ void SnapToScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_SetChoice )
     {
         snap->m_CollisionSet = m_SetChoice.GetVal();
+    }
+    else if ( device == &m_ModeChoice || device == &m_ModeSetToggleGroup )
+    {
+        if ( snap->m_UseMode() )
+        {
+            int indx = m_ModeChoice.GetVal();
+            if ( indx >= 0  && indx < m_ModeIDs.size() )
+            {
+                snap->m_ModeID = m_ModeIDs[ indx ];
+            }
+            else
+            {
+                snap->m_ModeID = "";
+            }
+
+            Mode *m = ModeMgr.GetMode( snap->m_ModeID );
+            if ( m )
+            {
+                m->ApplySettings();
+            }
+        }
     }
     else if ( device == &m_MethodChoice )
     {

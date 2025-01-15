@@ -35,6 +35,7 @@ public:
     bool ShowSnapToScreen();
 
 protected:
+    vector < string > m_ModeIDs;
 
     GroupLayout m_GenLayout;
     GroupLayout m_BorderLayout;
@@ -50,7 +51,13 @@ protected:
 
     TriggerButton m_CheckClearance;
 
+    ToggleButton m_SetToggle;
     Choice m_SetChoice;
+
+    ToggleRadioGroup m_ModeSetToggleGroup;
+    ToggleButton m_ModeToggle;
+    Choice m_ModeChoice;
+
     Choice m_MethodChoice;
 
 

@@ -4171,11 +4171,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //=== Register Snap To Functions ====//
 
-    r = se->RegisterGlobalFunction( "double ComputeMinClearanceDistance( const string & in geom_id, int set )", asFUNCTION( vsp::ComputeMinClearanceDistance ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double ComputeMinClearanceDistance( const string & in geom_id, int set, bool useMode = false, const string & in modeID = string() )", asFUNCTION( vsp::ComputeMinClearanceDistance ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double SnapParm( const string & in parm_id, double target_min_dist, bool inc_flag, int set )", asFUNCTION( vsp::SnapParm ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double SnapParm( const string & in parm_id, double target_min_dist, bool inc_flag, int set, bool useMode = false, const string & in modeID = string() )", asFUNCTION( vsp::SnapParm ), asCALL_CDECL );
     assert( r >= 0 );
 
     //=== Register Var Preset Functions ====//

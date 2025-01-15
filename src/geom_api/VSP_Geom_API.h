@@ -12934,10 +12934,12 @@ extern void DeleteAllUserParm();
     \endPythonOnly
     \param [in] geom_id string Geom ID
     \param [in] set Collision set enum (i.e. SET_ALL)
+    \param [in] useMode bool Flag determine if mode is used instead of sets
+    \param [in] modeID string ID of Mode to use
     \return Minimum clearance distance
 */
 
-extern double ComputeMinClearanceDistance( const std::string & geom_id, int set  = SET_ALL );
+extern double ComputeMinClearanceDistance( const std::string & geom_id, int set  = SET_ALL, bool useMode = false, const string &modeID = string() );
 
 /*!
     \ingroup SnapTo
@@ -12981,10 +12983,12 @@ extern double ComputeMinClearanceDistance( const std::string & geom_id, int set 
     \param [in] target_min_dist Target minimum clearance distance
     \param [in] inc_flag Direction indication flag. If true, upper parm limit is used and direction is set to positive
     \param [in] set Collision set enum (i.e. SET_ALL)
+    \param [in] useMode bool Flag determine if mode is used instead of sets
+    \param [in] modeID string ID of Mode to use
     \return Minimum clearance distance
 */ // TODO: Validate inc_flag description
 
-extern double SnapParm( const std::string & parm_id, double target_min_dist, bool inc_flag, int set = SET_ALL );
+extern double SnapParm( const std::string & parm_id, double target_min_dist, bool inc_flag, int set = SET_ALL, bool useMode = false, const string &modeID = string() );
 
 
 //======================== Variable Preset Functions ======================//

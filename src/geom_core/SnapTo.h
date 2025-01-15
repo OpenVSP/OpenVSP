@@ -34,6 +34,8 @@ public:
     //==== Collision Stuff ====//
     BoolParm m_CollisionDetection;
     int m_CollisionSet;
+    BoolParm m_UseMode;
+    string m_ModeID;
     Parm m_CollisionTargetDist;
     int m_CollisionErrorFlag;
     double m_CollisionMinDist;

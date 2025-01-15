@@ -7319,12 +7319,18 @@ void DeleteAllUserParm()
 //===================================================================//
 //===============           Snap To Functions          ==============//
 //===================================================================//
-double ComputeMinClearanceDistance( const string & geom_id, int set )
+double ComputeMinClearanceDistance( const string & geom_id, int set, bool useMode, const string &modeID )
 {
     Vehicle* veh = GetVehicle();
 
     int old_set = veh->GetSnapToPtr()->m_CollisionSet;
     veh->GetSnapToPtr()->m_CollisionSet = set;
+
+    bool old_useMode = veh->GetSnapToPtr()->m_UseMode();
+    veh->GetSnapToPtr()->m_UseMode = useMode;
+
+    string old_modeID = veh->GetSnapToPtr()->m_ModeID;
+    veh->GetSnapToPtr()->m_ModeID = modeID;
 
     vector< string > old_active_geom = veh->GetActiveGeomVec();
     veh->SetActiveGeom( geom_id );
@@ -7334,17 +7340,25 @@ double ComputeMinClearanceDistance( const string & geom_id, int set )
 
     //==== Restore State ====//
     veh->GetSnapToPtr()->m_CollisionSet = old_set;
+    veh->GetSnapToPtr()->m_UseMode = old_useMode;
+    veh->GetSnapToPtr()->m_ModeID = old_modeID;
     veh->SetActiveGeomVec( old_active_geom );
 
     return min_clearance_dist;
 }
 
-double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, int set )
+double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, int set, bool useMode, const string &modeID )
 {
     Vehicle* veh = GetVehicle();
 
     int old_set = veh->GetSnapToPtr()->m_CollisionSet;
     veh->GetSnapToPtr()->m_CollisionSet = set;
+
+    bool old_useMode = veh->GetSnapToPtr()->m_UseMode();
+    veh->GetSnapToPtr()->m_UseMode = useMode;
+
+    string old_modeID = veh->GetSnapToPtr()->m_ModeID;
+    veh->GetSnapToPtr()->m_ModeID = modeID;
 
     double old_min_dist = veh->GetSnapToPtr()->m_CollisionTargetDist();
     veh->GetSnapToPtr()->m_CollisionTargetDist = target_min_dist;
@@ -7354,6 +7368,8 @@ double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, 
 
     //==== Restore State ====//
     veh->GetSnapToPtr()->m_CollisionSet = old_set;
+    veh->GetSnapToPtr()->m_UseMode = old_useMode;
+    veh->GetSnapToPtr()->m_ModeID = old_modeID;
     veh->GetSnapToPtr()->m_CollisionTargetDist = old_min_dist;
 
     return min_clearance_dist;

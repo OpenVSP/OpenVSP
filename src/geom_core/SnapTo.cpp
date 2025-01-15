@@ -9,6 +9,7 @@
 #include "Vehicle.h"
 #include "ParmMgr.h"
 #include <cfloat>  //For DBL_EPSILON
+#include "ModeMgr.h"
 
 SnapTo::SnapTo() : ParmContainer()
 {
@@ -19,6 +20,9 @@ SnapTo::SnapTo() : ParmContainer()
     m_CollisionTargetDist.Init( "CollisionTargetDist", "Collision", this, 0, 1.0e-06, 1e6 );
     m_CollisionErrorFlag = vsp::COLLISION_OK;
     m_CollisionMinDist = 0.0;
+
+    m_UseMode.Init( "UseMode", "Collision", this, false, 0, 1 );
+    m_ModeID = "";
 
     m_LastParmVal = 0;
     m_LastMinDist = 0;
@@ -152,6 +156,18 @@ double SnapTo::FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const ve
 
 void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
 {
+    int set = m_CollisionSet;
+
+    if ( m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+        }
+    }
+
     Parm* parm_ptr = ParmMgr.FindParm( parm_id );
     if ( !parm_ptr )   return;
 
@@ -162,7 +178,7 @@ void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     //==== Find Other Geoms ====//
-    vector< string > geom_id_vec = veh->GetGeomSet( m_CollisionSet );
+    vector< string > geom_id_vec = veh->GetGeomSet( set );
     vector< string > other_geom_vec;
     for ( int i = 0 ; i < (int)geom_id_vec.size() ; i++ )
     {
@@ -400,6 +416,18 @@ void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
 
 void SnapTo::CheckClearance( )
 {
+    int set = m_CollisionSet;
+
+    if ( m_UseMode() )
+    {
+        Mode *m = ModeMgr.GetMode( m_ModeID );
+        if ( m )
+        {
+            m->ApplySettings();
+            set = m->m_NormalSet();
+        }
+    }
+
     Vehicle* veh = VehicleMgr.GetVehicle();
     vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
 
@@ -413,7 +441,7 @@ void SnapTo::CheckClearance( )
     string geom_id = geom_ptr->GetID();
  
     //==== Find Other Geoms ====//
-    vector< string > geom_id_vec = veh->GetGeomSet( m_CollisionSet );
+    vector< string > geom_id_vec = veh->GetGeomSet( set );
     vector< string > other_geom_vec;
     for ( int i = 0 ; i < (int)geom_id_vec.size() ; i++ )
     {
