@@ -46,15 +46,39 @@ public:
     void EraseParmVal( int index );
     void ClearAllParmVals();
 
+    void SetGroupID( const string &id )
+    {
+        m_GroupID = id;
+    }
+
+    string GetGroupID()
+    {
+        return m_GroupID;
+    }
+
     xmlNodePtr EncodeXml( xmlNodePtr &node );
     xmlNodePtr DecodeXml( xmlNodePtr &node );
+
+    void AttachAttrCollection()
+    {
+        m_AttributeCollection.SetCollAttach( m_ID, vsp::ATTROBJ_VARSETTING );
+    }
+
+    AttributeCollection* GetAttributeCollection()
+    {
+        return &m_AttributeCollection;
+    }
 
 protected:
     string GenerateID();
 
     string m_ID;
     string m_Name;
+    string m_GroupID;
     vector < double > m_ParmValVec;
+
+    AttributeCollection m_AttributeCollection;
+
 };
 
 class SettingGroup
@@ -92,6 +116,16 @@ public:
     xmlNodePtr EncodeXml( xmlNodePtr &node );
     xmlNodePtr DecodeXml( xmlNodePtr &node );
 
+    void AttachAttrCollection()
+    {
+        m_AttributeCollection.SetCollAttach( m_ID, vsp::ATTROBJ_VARGROUP );
+    }
+
+    AttributeCollection* GetAttributeCollection()
+    {
+        return &m_AttributeCollection;
+    }
+
 protected:
     string GenerateID();
 
@@ -100,6 +134,8 @@ protected:
 
     vector < string > m_ParmIDVec;
     vector < string > m_SettingIDVec;
+
+    AttributeCollection m_AttributeCollection;
 
 };
 

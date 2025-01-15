@@ -355,6 +355,7 @@ void XSecSurf::CopyXSec( int index )
     if ( saved_xs )
     {
         saved_xs->CopyFrom( xs );
+        saved_xs->SetParentContainer( "NONE" );
         m_SavedXSec = saved_xs->GetID();
     }
 }
@@ -383,6 +384,7 @@ void XSecSurf::PasteXSec( int index )
 
     //==== Copy Data ====//
     new_xs->CopyFrom( saved_xs );
+    new_xs->SetParentContainer( GetID() );
 
     //==== Copy Position from xsec being replaced ====//
     new_xs->CopyBasePos( xs );

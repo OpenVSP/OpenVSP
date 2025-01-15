@@ -49,6 +49,7 @@ bool ParmMgrSingleton::AddParm( Parm* p  )
 
     m_NumParmChanges++;
     m_ParmMap[id] = p;
+    AttributeMgr.RegisterCollID( m_ParmMap[id]->GetAttrCollection()->GetID(), m_ParmMap[id]->GetAttrCollection() );
 
     m_DirtyFlag = true;
 
@@ -65,6 +66,7 @@ void ParmMgrSingleton::RemoveParm( Parm* p  )
     {
         m_NumParmChanges++;
         m_ParmMap.erase( iter );
+        AttributeMgr.DeregisterCollID( p->GetAttrCollection()->GetID() );
     }
 
     m_DirtyFlag = true;
@@ -77,6 +79,7 @@ void ParmMgrSingleton::AddParmContainer( ParmContainer* pc  )
     {
         m_NumParmChanges++;
         m_ParmContainerMap[pc->GetID()] = pc;
+        AttributeMgr.RegisterCollID( pc->GetAttrCollection()->GetID(), pc->GetAttrCollection() );
     }
 
     m_DirtyFlag = true;
@@ -92,6 +95,7 @@ void ParmMgrSingleton::RemoveParmContainer( ParmContainer* pc  )
     {
         m_NumParmChanges++;
         m_ParmContainerMap.erase( iter );
+        AttributeMgr.DeregisterCollID( pc->GetAttrCollection()->GetID() );
     }
 
     m_DirtyFlag = true;

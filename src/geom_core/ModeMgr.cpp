@@ -24,6 +24,9 @@ Mode::Mode()
 
     m_DegenSet.Init( "DegenSet", "Sets", this, vsp::SET_NONE, vsp::SET_NONE, vsp::MAX_NUM_SETS - 1 );
     m_DegenSet.SetDescript( "Set number used in Mode for degen surface representation." );
+
+    SetParmContainerType( vsp::ATTROBJ_MODE );
+    AttachAttrCollection();
 }
 
 Mode::~Mode()

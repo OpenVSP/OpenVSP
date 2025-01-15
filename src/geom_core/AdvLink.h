@@ -51,7 +51,7 @@ public:
     bool DuplicateVarName( const string & name );
     string MakeVarNameUnique( const string & name );
 
-    void SetName( const string & name )                             { m_Name = name; }
+    void SetName( const string & name );
     string GetName()                                                { return m_Name; }
 
     void SetScriptCode( const string & code )                       { m_ScriptCode = code; }
@@ -105,6 +105,16 @@ public:
     void ReadCode( const string & file_name );
     void SearchReplaceCode( const string & from, const string & to );
 
+    void AttachAttrCollection()
+    {
+        m_AdvLinkAttrCollection.SetCollAttach( m_Name, vsp::ATTROBJ_ADVLINK );
+    }
+
+    AttributeCollection* GetAttrCollection()
+    {
+        return &m_AdvLinkAttrCollection;
+    }
+    AttributeCollection m_AdvLinkAttrCollection;
 
 protected:
 

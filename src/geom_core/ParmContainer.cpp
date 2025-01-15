@@ -69,6 +69,7 @@ ParmContainer::ParmContainer()
     m_ID = GenerateID();
     m_Name = string( "Default" );
     m_LateUpdateFlag = true; // Force update first time through.
+    m_ParmContainer_Type = vsp::ATTROBJ_FREE;
     ParmMgr.AddParmContainer( this );
 }
 
@@ -123,6 +124,7 @@ void ParmContainer::ChangeID( string id )
     }
 
     m_ID = id;
+    AttachAttrCollection();
 
     for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
     {
@@ -172,6 +174,7 @@ xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
     {
         XmlUtil::AddStringNode( parmcontain_node, "ID", m_ID );
         XmlUtil::AddStringNode( parmcontain_node, "Name", m_Name );
+        m_AttrCollection.EncodeXml( parmcontain_node );
     }
 
     xmlNodePtr gnode;
@@ -243,6 +246,7 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
             }
         }
     }
+    m_AttrCollection.DecodeXml( child_node );
 
     return child_node;
 

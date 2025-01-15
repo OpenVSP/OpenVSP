@@ -155,6 +155,12 @@ string AdvLink::MakeVarNameUnique( const string & name )
     return candidate;
 }
 
+void AdvLink::SetName( const string & name )
+{
+    m_Name = name;
+    AttachAttrCollection();
+}
+
 void AdvLink::AddVar( const string & parm_id, const string & var_name, bool input_flag )
 {
     Parm* parm_ptr = ParmMgr.FindParm( parm_id );
@@ -636,6 +642,10 @@ xmlNodePtr AdvLink::EncodeXml( xmlNodePtr & node )
     {
         m_OutputVars[i].EncodeXml( output_vars_node );
     }
+
+    //==== Attribute Data ====//
+    m_AdvLinkAttrCollection.EncodeXml( adv_link_node );
+
     return adv_link_node;
 }
 
@@ -667,6 +677,10 @@ xmlNodePtr AdvLink::DecodeXml( xmlNodePtr & adv_link_node )
             xmlNodePtr var_def_node = XmlUtil::GetNode( output_node, "VarDef", i );
             m_OutputVars[i].DecodeXml( var_def_node );
         }
+
+        //==== Attribute Data ====//
+        m_AdvLinkAttrCollection.DecodeXml( adv_link_node );
+
     }
 
     return adv_link_node;

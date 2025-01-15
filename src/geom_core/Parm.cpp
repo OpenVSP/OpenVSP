@@ -68,6 +68,8 @@ void Parm::Init( const string& name, const string& group_name, ParmContainer* co
     {
         m_Container->AddParm( m_ID );
     }
+
+    m_ParmAttrCollection.SetCollAttach( m_ID, vsp::ATTROBJ_PARM );
 }
 
 void Parm::ReSetLinkContainerID()
@@ -93,6 +95,7 @@ void Parm::ChangeID( const string& newID )
     ParmMgr.RemoveParm( this );
 
     m_ID = newID;
+    m_ParmAttrCollection.SetCollAttach( newID, vsp::ATTROBJ_PARM );
 
     ParmMgr.AddParm( this );
 
@@ -100,6 +103,7 @@ void Parm::ChangeID( const string& newID )
     {
         m_Container->AddParm( newID );
     }
+
 }
 
 //==== Get Display Group Name ====//
@@ -261,6 +265,7 @@ void Parm::EncodeXml( xmlNodePtr & node, bool detailed )
         xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar * )m_Name.c_str(), NULL );
         XmlUtil::SetDoubleProp( dnode, "Value", m_Val );
         XmlUtil::SetStringProp( dnode, "ID", m_ID );
+        m_ParmAttrCollection.EncodeXml( dnode );
     }
     else
     {
@@ -274,6 +279,7 @@ void Parm::EncodeXml( xmlNodePtr & node, bool detailed )
         XmlUtil::SetIntProp( dnode, "Type", m_Type );
         XmlUtil::SetDoubleProp( dnode, "UpperLimit", m_UpperLimit );
         XmlUtil::SetDoubleProp( dnode, "LowerLimit", m_LowerLimit );
+        m_ParmAttrCollection.EncodeXml( dnode );
     }
 }
 
@@ -315,6 +321,7 @@ void Parm::DecodeXml( xmlNodePtr & node, bool detailed )
             m_UpperLimit = XmlUtil::FindDoubleProp( n, "UpperLimit", m_UpperLimit );
             m_LowerLimit = XmlUtil::FindDoubleProp( n, "LowerLimit", m_LowerLimit );
         }
+        m_ParmAttrCollection.DecodeXml( n );
     }
 
     Set( val );

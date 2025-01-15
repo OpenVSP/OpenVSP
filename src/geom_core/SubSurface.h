@@ -18,6 +18,7 @@
 #include "Parm.h"
 #include "ParmContainer.h"
 #include "DrawObj.h"
+#include "ResultsMgr.h"
 #include "APIDefines.h"
 
 // SubSurface Line Segment

@@ -20,6 +20,7 @@
 Setting::Setting()
 {
     m_ID = GenerateID();
+    AttachAttrCollection();
 }
 
 Setting::~Setting()
@@ -32,6 +33,8 @@ void Setting::ChangeID( const string& newID )
     VarPresetMgr.RemoveSetting( this );
 
     m_ID = newID;
+
+    AttachAttrCollection();
 
     VarPresetMgr.AddSetting( this );
 }
@@ -79,6 +82,9 @@ xmlNodePtr Setting::EncodeXml( xmlNodePtr &node )
         XmlUtil::AddStringNode( setting_node, "ID", m_ID );
         XmlUtil::AddStringNode( setting_node, "Name", m_Name );
         XmlUtil::AddVectorDoubleNode( setting_node, "ParmVals", m_ParmValVec );
+
+        //==== Attribute Data ====//
+        m_AttributeCollection.EncodeXml( setting_node );
     }
     return node;
 }
@@ -90,6 +96,11 @@ xmlNodePtr Setting::DecodeXml( xmlNodePtr &setting_node )
         m_ID = IDMgr.RemapID( XmlUtil::FindString( setting_node, "ID", m_ID ) );
         m_Name = XmlUtil::FindString( setting_node, "Name", string() );
         m_ParmValVec = XmlUtil::ExtractVectorDoubleNode( setting_node, "ParmVals" );
+
+        AttachAttrCollection();
+
+        //==== Attribute Data ====//
+        m_AttributeCollection.DecodeXml( setting_node );
     }
     return setting_node;
 }
@@ -106,6 +117,7 @@ string Setting::GenerateID()
 SettingGroup::SettingGroup()
 {
     m_ID = GenerateID();
+    AttachAttrCollection();
 }
 
 SettingGroup::~SettingGroup()
@@ -118,6 +130,16 @@ void SettingGroup::ChangeID( const string& newID )
     VarPresetMgr.RemoveSettingGroup( this );
 
     m_ID = newID;
+    AttachAttrCollection();
+
+    for ( int i = 0; i != m_SettingIDVec.size(); ++i )
+    {
+        Setting* s = VarPresetMgr.FindSetting( m_SettingIDVec.at( i ) );
+        if ( s )
+        {
+            s->SetGroupID( m_ID );
+        }
+    }
 
     VarPresetMgr.AddSettingGroup( this );
 }
@@ -133,6 +155,7 @@ bool SettingGroup::AddSetting( Setting* s, bool savevals )
             SaveSetting( s->GetID() );
         }
         m_SettingIDVec.push_back( s->GetID() );
+        s->SetGroupID( m_ID );
 
         return true;
     }
@@ -142,6 +165,7 @@ bool SettingGroup::AddSetting( Setting* s, bool savevals )
 void SettingGroup::RemoveSetting( Setting* s )
 {
     vector_remove_val( m_SettingIDVec, s->GetID() );
+    s->SetGroupID("NONE");
 }
 
 bool SettingGroup::AddParm( const string &id )
@@ -300,6 +324,9 @@ xmlNodePtr SettingGroup::EncodeXml( xmlNodePtr &node )
                 s->EncodeXml( settinggroup_node );
             }
         }
+
+        //==== Attribute Data ====//
+        m_AttributeCollection.EncodeXml( settinggroup_node );
     }
     return node;
 }
@@ -338,6 +365,9 @@ xmlNodePtr SettingGroup::DecodeXml( xmlNodePtr &grp_node )
             }
         }
 
+        AttachAttrCollection();
+
+        m_AttributeCollection.DecodeXml( grp_node );
     }
 
     return grp_node;
@@ -371,6 +401,7 @@ void VarPresetMgrSingleton::Wype()
     unordered_map< string, Setting* >::iterator setting_iter;
     for ( setting_iter = m_SettingMap.begin(); setting_iter != m_SettingMap.end(); ++setting_iter )
     {
+        AttributeMgr.DeregisterCollID( setting_iter->second->GetAttributeCollection()->GetID() );
         delete setting_iter->second;
     }
     m_SettingMap.clear();
@@ -378,6 +409,7 @@ void VarPresetMgrSingleton::Wype()
     unordered_map< string, SettingGroup* >::iterator group_iter;
     for ( group_iter = m_SettingGroupMap.begin(); group_iter != m_SettingGroupMap.end(); ++group_iter )
     {
+        AttributeMgr.DeregisterCollID( group_iter->second->GetAttributeCollection()->GetID() );
         delete group_iter->second;
     }
     m_SettingGroupMap.clear();
@@ -405,6 +437,7 @@ bool VarPresetMgrSingleton::AddSetting( Setting* s )
     }
 
     m_SettingMap[id] = s;
+    AttributeMgr.RegisterCollID( s->GetAttributeCollection()->GetID(), s->GetAttributeCollection() );
 
     return true;
 }
@@ -416,6 +449,7 @@ void VarPresetMgrSingleton::RemoveSetting( Setting* s )
 
     if ( iter != m_SettingMap.end() && iter->second == s )
     {
+        AttributeMgr.DeregisterCollID( s->GetAttributeCollection()->GetID() );
         m_SettingMap.erase( iter );
     }
 }
@@ -454,6 +488,8 @@ bool VarPresetMgrSingleton::AddSettingGroup( SettingGroup* sg )
     m_SettingGroupMap[id] = sg;
     m_SettingGroupVec.push_back( sg->GetID() );
 
+    AttributeMgr.RegisterCollID( sg->GetAttributeCollection()->GetID(), sg->GetAttributeCollection() );
+
     return true;
 }
 
@@ -464,6 +500,7 @@ void VarPresetMgrSingleton::RemoveSettingGroup( SettingGroup* sg )
 
     if ( iter !=  m_SettingGroupMap.end() && iter->second == sg )
     {
+        AttributeMgr.DeregisterCollID( sg->GetAttributeCollection()->GetID() );
         m_SettingGroupMap.erase( iter );
         vector_remove_val( m_SettingGroupVec, sg->GetID() );
     }

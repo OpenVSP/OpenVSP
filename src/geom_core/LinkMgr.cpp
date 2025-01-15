@@ -112,6 +112,19 @@ Link* LinkMgrSingleton::GetLink( int index )
     return m_WorkingLink;
 }
 
+//==== Get Parm Link Given Index ====//
+Link* LinkMgrSingleton::GetLink( string id )
+{
+    for (int index = 0; index != m_LinkVec.size(); index++ )
+    {
+        if ( m_LinkVec[ index ]->GetID() == id )
+        {
+            return m_LinkVec[ index ];
+        }
+    }
+    return nullptr;
+}
+
 //==== Check All Links For Valid Parms ====//
 void LinkMgrSingleton::CheckLinks()
 {

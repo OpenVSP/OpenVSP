@@ -23,6 +23,8 @@
 SubSurface::SubSurface( const string& compID, int type )
 {
     m_Type = type;
+    SetParmContainerType( vsp::ATTROBJ_SUBSURF );
+    AttachAttrCollection();
     m_CompID = compID;
     m_Tag = 0;
     m_LineColor = vec3d( 0, 0, 0 );

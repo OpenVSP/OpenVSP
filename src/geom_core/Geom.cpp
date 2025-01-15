@@ -99,6 +99,9 @@ void GeomGuiDraw::SetMaterial( const std::string &name )
 //==== Constructor ====//
 GeomBase::GeomBase( Vehicle* vehicle_ptr )
 {
+    SetParmContainerType( vsp::ATTROBJ_GEOM );
+    AttachAttrCollection();
+
     m_Vehicle = vehicle_ptr;
 
     m_Name = "GeomBase";

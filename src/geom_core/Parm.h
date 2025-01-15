@@ -19,6 +19,7 @@
 #include "XmlUtil.h"
 #include "GuiDeviceEnums.h"
 #include "VspUtil.h"
+#include "AttributeManager.h"
 
 using std::string;
 using std::map;
@@ -159,6 +160,12 @@ public:
 
     virtual void EncodeXml( xmlNodePtr & node, bool detailed = false );
     virtual void DecodeXml( xmlNodePtr & node, bool detailed = false );
+
+    AttributeCollection* GetAttrCollection()
+    {
+        return &m_ParmAttrCollection;
+    }
+    AttributeCollection m_ParmAttrCollection;
 
 protected:
 

@@ -6,6 +6,7 @@
 #include "Vec2d.h"
 #include "Vec3d.h"
 #include "DrawObj.h"
+#include "AttributeManager.h"
 
 #include <string>
 

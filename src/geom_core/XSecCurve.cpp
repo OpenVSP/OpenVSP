@@ -177,6 +177,9 @@ XSecCurve::XSecCurve()
     m_ForceWingType = false;
 
     m_yscale = 1.0;
+
+    SetParmContainerType( vsp::ATTROBJ_XSEC );
+    AttachAttrCollection();
 }
 
 XSecCurve::~XSecCurve()

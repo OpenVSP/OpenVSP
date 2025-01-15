@@ -32,6 +32,7 @@
 #include "FeaStructure.h"
 #include "SimpleTess.h"
 #include "SimpleFeatureTess.h"
+#include "AttributeManager.h"
 
 #include <string>
 #include <vector>

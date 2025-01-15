@@ -11,6 +11,7 @@
 #include "ParmMgr.h"
 #include "StringUtil.h"
 #include "StlHelper.h"
+#include "AttributeManager.h"
 
 
 //==== Constructor ====//
@@ -31,6 +32,7 @@ void AdvLinkMgrSingleton::Wype()
     //==== Delete All Links ====//
     for ( int i = 0 ; i < (int)m_LinkVec.size() ; i++ )
     {
+        AttributeMgr.DeregisterCollID( m_LinkVec[i]->GetAttrCollection()->GetID() );
         delete m_LinkVec[i];
     }
     m_LinkVec.clear();
@@ -78,6 +80,8 @@ AdvLink* AdvLinkMgrSingleton::AddLink( const string & name )
     m_LinkVec.push_back( alink );
     m_EditLinkIndex = (int)m_LinkVec.size() - 1;
 
+    AttributeMgr.RegisterCollID( m_LinkVec.back()->GetAttrCollection()->GetID(), m_LinkVec.back()->GetAttrCollection() );
+
     return alink;
 }
 
@@ -95,6 +99,8 @@ void AdvLinkMgrSingleton::DelLink( AdvLink* link_ptr )
     m_EditLinkIndex = -1;
 
     vector_remove_val( m_LinkVec, link_ptr );
+    AttributeMgr.DeregisterCollID( link_ptr->GetAttrCollection()->GetID() );
+
     delete link_ptr;
 }
 
@@ -112,6 +118,7 @@ void AdvLinkMgrSingleton::DelAllLinks( )
 
     for ( int i = 0 ; i < (int)m_LinkVec.size() ; i++ )
     {
+        AttributeMgr.DeregisterCollID( m_LinkVec[i]->GetAttrCollection()->GetID() );
         delete m_LinkVec[i];
     }
     m_LinkVec.clear();
