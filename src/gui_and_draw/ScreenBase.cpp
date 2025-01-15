@@ -33,6 +33,8 @@ using namespace vsp;
 
 using std::map;
 
+#define MAX_WINDOW_PX_HEIGHT 800
+
 //==== Constructor ====//
 VspScreen::VspScreen( ScreenMgr* mgr )
 {
@@ -114,6 +116,11 @@ ActionScreen::~ActionScreen()
 //==== Constructor ====//
 BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile  ) : VspScreen( mgr )
 {
+    if ( h > MAX_WINDOW_PX_HEIGHT )
+    {
+        printf( "Screen %s is too tall %d.\n", title.c_str(), h );
+    }
+
     //==== Window ====//
     m_FLTK_Window = new VSP_Window( w, h );
     m_FLTK_Window->resizable( m_FLTK_Window );
