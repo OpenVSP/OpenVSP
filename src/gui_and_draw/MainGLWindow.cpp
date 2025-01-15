@@ -54,6 +54,7 @@
 #include "Vehicle.h"
 #include "VehicleMgr.h"
 #include "Viewport.h"
+#include "Watermark.h"
 #include "VSPAEROScreen.h"
 #include "WaveDragScreen.h"
 
@@ -279,6 +280,83 @@ void VspGlWindow::update()
                 zn = -zf;
 
                 camera->setZNearFar( zn, zf );
+            }
+
+            if ( m_initialized && AttributeMgr.GetDirtyFlag( vsp::ATTR_GROUP_WATERMARK ) )
+            {
+                AttributeMgr.ClearDirtyFlag( vsp::ATTR_GROUP_WATERMARK );
+
+                VSPGraphic::Viewport *vp = display->getViewport();
+                AttributeCollection* ac = vPtr->GetAttrCollection();
+
+                AttributeCollection* wm_ac = nullptr;
+                if ( AttributeMgr.GetAttributePtr( ATTR_WM_GROUP ) );
+                {
+                    wm_ac = AttributeMgr.GetAttributePtr( ATTR_WM_GROUP )->GetAttributeCollectionPtr( 0 );
+                }
+
+                if ( vp && wm_ac )
+                {
+                    VSPGraphic::Watermark * wm = display->getViewport()->getWatermark();
+
+                    if ( wm )
+                    {
+                        if ( AttributeMgr.GetAttributePtr( ATTR_WM_SHOW ) )
+                        {
+                            display->getViewport()->showWatermark( AttributeMgr.GetAttributePtr( ATTR_WM_SHOW )->GetBool( 0 ) );
+                            if ( AttributeMgr.GetAttributePtr( ATTR_WM_TEXT ) )
+                            {
+                                wm->setText( AttributeMgr.GetAttributePtr( ATTR_WM_TEXT )->GetString(0) );
+                            }
+
+                            if ( AttributeMgr.GetAttributePtr( ATTR_WM_TEXTSCALE ) )
+                            {
+                                wm->setTextScale( AttributeMgr.GetAttributePtr( ATTR_WM_TEXTSCALE )->GetDouble( 0 ) );
+                            }
+
+                            vec3d tc = vec3d(0.,0.,0.);
+                            vec3d bc = vec3d(0.,0.,0.);
+                            vec3d fc = vec3d(0.,0.,0.);
+                            double ta = 0.;
+                            double ba = 0.;
+                            double fa = 0.;
+
+                            if ( AttributeMgr.GetAttributePtr( ATTR_WM_TEXTCOLOR ) )
+                            {
+                                tc = AttributeMgr.GetAttributePtr( ATTR_WM_TEXTCOLOR )->GetVec3d( 0 );
+                            }
+                            if ( AttributeMgr.GetAttributePtr( ATTR_WM_TEXTALPHA ) )
+                            {
+                                ta = AttributeMgr.GetAttributePtr( ATTR_WM_TEXTALPHA )->GetDouble( 0 );
+                            }
+                            if ( AttributeMgr.GetAttributePtr( ATTR_WM_EDGECOLOR ) )
+                            {
+                                bc = AttributeMgr.GetAttributePtr( ATTR_WM_EDGECOLOR )->GetVec3d( 0 );
+                            }
+                            if ( AttributeMgr.GetAttributePtr( ATTR_WM_EDGEALPHA ) )
+                            {
+                                ba = AttributeMgr.GetAttributePtr( ATTR_WM_EDGEALPHA )->GetDouble( 0 );
+                            }
+                            if ( AttributeMgr.GetAttributePtr( ATTR_WM_FILLCOLOR ) )
+                            {
+                                fc = AttributeMgr.GetAttributePtr( ATTR_WM_FILLCOLOR )->GetVec3d( 0 );
+                            }
+                            if ( AttributeMgr.GetAttributePtr( ATTR_WM_FILLALPHA ) )
+                            {
+                                fa = AttributeMgr.GetAttributePtr( ATTR_WM_FILLALPHA )->GetDouble( 0 );
+                            }
+
+                            wm->setTextColor( tc.x(), tc.y(), tc.z(), ta );
+                            wm->setLineColor( bc.x(), bc.y(), bc.z(), ba );
+                            wm->setFillColor( fc.x(), fc.y(), fc.z(), fa );
+
+                        }
+                        else
+                        {
+                            display->getViewport()->showWatermark( false );
+                        }
+                    }
+                }
             }
         }
 

@@ -223,6 +223,8 @@ void LayoutMgr::draw( Scene * scene, int x, int y )
             _viewportList[i]->drawBorder( false );
         }
 
+        _viewportList[i]->drawWatermark();
+
         glDisable( GL_BLEND );
         glDisable( GL_ALPHA_TEST );
         glDisable( GL_DEPTH_TEST );

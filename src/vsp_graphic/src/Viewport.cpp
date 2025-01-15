@@ -10,6 +10,7 @@
 #include "ArcballCam.h"
 
 #include "Background.h"
+#include "Watermark.h"
 
 #define BORDER_LINEWIDTH 1.0f
 #define BORDER_OFFSET 0.009f
@@ -36,9 +37,12 @@ Viewport::Viewport( int x, int y, int width, int height )
 
     // can't initialize here because no context is created.
     _background = NULL;
+    _watermark = NULL;
 
     _showBorders = _showArrows = true;
     _showGrid = false;
+
+    _showWatermark = false;
 }
 Viewport::~Viewport()
 {
@@ -48,6 +52,11 @@ Viewport::~Viewport()
     if( _background )
     {
         delete _background;
+    }
+
+    if( _watermark )
+    {
+        delete _watermark;
     }
 }
 
@@ -321,6 +330,34 @@ void Viewport::drawBackground()
     _background->draw();
 }
 
+void Viewport::drawWatermark()
+{
+    if( !_showWatermark )
+    {
+        return;
+    }
+
+    if( !_watermark )
+    {
+        _watermark = new Watermark();
+    }
+
+    glMatrixMode( GL_PROJECTION );
+    glPushMatrix();
+    glLoadIdentity();
+
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+
+    _watermark->setWidthHeight( _vWidth, _vHeight, _screenSizeDiffRatio );
+    _watermark->draw_watermark( _textMgr );
+
+    glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
+
+    glMatrixMode( GL_MODELVIEW );
+}
+
 Camera* Viewport::getCamera()
 {
     return _camera;
@@ -344,6 +381,24 @@ void Viewport::clearBackground()
     _background = NULL;
 }
 
+Watermark * Viewport::getWatermark()
+{
+    if( !_watermark )
+    {
+        _watermark = new Watermark();
+    }
+    return _watermark;
+}
+
+void Viewport::clearWatermark()
+{
+    if ( _watermark )
+    {
+        delete _watermark;
+    }
+    _watermark = NULL;
+}
+
 void Viewport::clearFont()
 {
     _textMgr->clearFont();
@@ -362,6 +417,11 @@ void Viewport::showXYZArrows( bool showFlag )
 void Viewport::showGridOverlay( bool showFlag )
 {
     _showGrid = showFlag;
+}
+
+void Viewport::showWatermark( bool showFlag )
+{
+    _showWatermark = showFlag;
 }
 
 glm::vec3 Viewport::screenToWorld( const glm::vec2 &screenCoord)
