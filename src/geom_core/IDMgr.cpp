@@ -10,6 +10,7 @@
 #include "IDMgr.h"
 #include "ParmMgr.h"
 #include "VspUtil.h"
+#include "VarPresetMgr.h"
 
 using std::map;
 using std::string;
@@ -81,8 +82,14 @@ string IDMgrSingleton::RemapID( const string & oldID, const string & suggestID, 
         // Lookup ID as Parm and ParmConatiner
         Parm* p = ParmMgr.FindParm( oldID );
         ParmContainer* pc = ParmMgr.FindParmContainer( oldID );
+        Setting *s = VarPresetMgr.FindSetting( oldID );
+        SettingGroup *sg = VarPresetMgr.FindSettingGroup( oldID );
 
-        if( ( p == NULL ) && ( pc == NULL ) && size == -1 )
+        if( ( p == NULL ) &&
+            ( pc == NULL ) &&
+            ( s == NULL ) &&
+            ( sg == NULL ) &&
+            size == -1 )
         {
             newID = oldID;                                  //  reuse oldID.
         }
