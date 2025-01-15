@@ -727,27 +727,50 @@ void NameValData::SetAttrAttach( string attachID )
 //======================================================================================//
 
 
+NameValCollection::NameValCollection()
+{
+    m_ID = GenerateID();
+    m_DataMap.clear();
+}
+
 NameValCollection::NameValCollection( const string & name, const string & id, const string & doc )
 {
     m_Name = name;
     m_ID = id;
     m_Doc = doc;
+    m_DataMap.clear();
+}
+
+NameValCollection::~NameValCollection()
+{
+    vector < NameValData* > nvd_ptrs = GetAllPtrs();
+    for ( int i = 0; i != nvd_ptrs.size(); ++i )
+    {
+        delete nvd_ptrs[i];
+    }
+}
+
+string NameValCollection::GenerateID()
+{
+    return GenerateRandomID( vsp::ID_LENGTH_ATTRCOLL );
 }
 
 //==== Add Data To Results - Can Have Data With The Same Name =====//
 void NameValCollection::Add( const NameValData & d )
 {
-    //==== Find Name ====//
-    string name = d.GetName();
+    NameValData* nvd_copy = new NameValData( d );
 
-    map< string, vector< NameValData > >::iterator iter = m_DataMap.find( name );
-    if ( iter !=  m_DataMap.end() )     // Check For Duplicates
+    //==== Find Name ====//
+    string name = nvd_copy->GetName();
+
+    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
+    if ( iter != m_DataMap.end() )     // Check For Duplicates
     {
-        iter->second.push_back( d );
+        iter->second.push_back( nvd_copy );
     }
     else
     {
-        m_DataMap[name].push_back( d );
+        m_DataMap[name].push_back( nvd_copy );
     }
 }
 
@@ -773,59 +796,66 @@ void NameValCollection::Add(const vector<vector<vec3d> > & d, const string &pref
     }
 }
 
-//==== Get Number of Data Entries For This Name ====//
-int NameValCollection::GetNumData( const string & name )
-{
-    map< string, vector< NameValData > >::iterator iter = m_DataMap.find( name );
-    if ( iter ==  m_DataMap.end() )
-    {
-        return 0;
-    }
-
-    return iter->second.size();
-}
-
-//==== Get Data Names ====//
-vector< string > NameValCollection::GetAllDataNames()
-{
-    vector< string > name_vec;
-    map< string, vector< NameValData > >::iterator iter;
-
-    for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
-    {
-        name_vec.push_back( iter->first );
-    }
-    return name_vec;
-}
-
 //==== Find Res Data Given Name and Index ====//
-NameValData NameValCollection::Find( const string & name, int index )
+NameValData* NameValCollection::FindPtr( const string & name, int index )
 {
-    map< string, vector< NameValData > >::iterator iter = m_DataMap.find( name );
+    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
 
-    if ( iter !=  m_DataMap.end() )
+    if ( iter != m_DataMap.end() )
     {
         if ( index >= 0 && index < ( int )( iter->second.size() ) )
         {
             return iter->second[index];
         }
     }
-    return NameValData();
+
+    // due to prior implementation as a non-ptr finder, need to return a pointer to a default NameValData if not found in NameValCollection
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    return veh->GetBlankNvd();
 }
 
-//==== Find Res Data Given Name and Index ====//
-NameValData* NameValCollection::FindPtr( const string & name, int index )
+//==== Get Data Names ====//
+vector< NameValData* > NameValCollection::GetAllPtrs()
 {
-    map< string, vector< NameValData > >::iterator iter = m_DataMap.find( name );
+    vector< NameValData* > ptr_vec;
+    map< string, vector< NameValData* > >::iterator iter;
 
-    if ( iter !=  m_DataMap.end() )
+    for ( iter = m_DataMap.begin(); iter != m_DataMap.end(); ++iter )
     {
-        if ( index >= 0 && index < ( int )( iter->second.size() ) )
+        for ( int i = 0; i != iter->second.size(); ++i )
         {
-            return &( iter->second[index] );
+            ptr_vec.push_back( iter->second[i] );
         }
     }
-    return NULL;
+    return ptr_vec;
+}
+
+//==== Get Data Names ====//
+vector< string > NameValCollection::GetAllDataNames()
+{
+    vector< string > name_vec;
+    map< string, vector< NameValData* > >::iterator iter;
+
+    for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
+    {
+        for ( int j = 0; j != iter->second.size(); ++j ) 
+        {
+            name_vec.push_back( iter->first );
+        }
+    }
+    return name_vec;
+}
+
+//==== Get Number of Data Entries For This Name ====//
+int NameValCollection::GetNumData( const string & name )
+{
+    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
+    if ( iter == m_DataMap.end() )
+    {
+        return 0;
+    }
+
+    return iter->second.size();
 }
 
 
@@ -873,29 +903,44 @@ void Results::WriteCSVFile( FILE* fid )
         fprintf( fid, "Results_Date,%d,%d,%d\n", m_Month, m_Day, m_Year );
         fprintf( fid, "Results_Time,%d,%d,%d\n", m_Hour, m_Min, m_Sec );
 
-        map< string, vector< NameValData > >::iterator iter;
+        map< string, vector< NameValData* > >::iterator iter;
         for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
         {
             for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
             {
-                fprintf( fid, "%s", iter->second[i].GetName().c_str() );
-                if ( iter->second[i].GetType() == vsp::INT_DATA )
+                fprintf( fid, "%s", iter->second[i]->GetName().c_str() );
+                if ( iter->second[i]->GetType() == vsp::INT_DATA )
                 {
-                    for ( int d = 0 ; d < ( int )iter->second[i].GetIntData().size() ; d++ )
+                    for ( int d = 0 ; d < ( int )iter->second[i]->GetIntData().size() ; d++ )
                     {
-                        fprintf( fid, ",%d", iter->second[i].GetIntData()[d] );
+                        fprintf( fid, ",%d", iter->second[i]->GetIntData()[d] );
                     }
                 }
-                else if ( iter->second[i].GetType() == vsp::DOUBLE_DATA )
+                else if ( iter->second[i]->GetType() == vsp::DOUBLE_DATA )
                 {
-                    for ( int d = 0 ; d < ( int )iter->second[i].GetDoubleData().size() ; d++ )
+                    for ( int d = 0 ; d < ( int )iter->second[i]->GetDoubleData().size() ; d++ )
                     {
-                        fprintf( fid, ",%.*e", DBL_DIG + 3, iter->second[i].GetDoubleData()[d] );
+                        fprintf( fid, ",%.*e", DBL_DIG + 3, iter->second[i]->GetDoubleData()[d] );
                     }
                 }
-                else if ( iter->second[i].GetType() == vsp::DOUBLE_MATRIX_DATA )
+                else if ( iter->second[i]->GetType() == vsp::INT_MATRIX_DATA )
                 {
-                    vector< vector< double > > current_double_mat_val = iter->second[i].GetDoubleMatData();
+                    vector< vector< int > > current_int_mat_val = iter->second[i]->GetIntMatData();
+                    for ( unsigned int row = 0; row < current_int_mat_val.size(); row++ )
+                    {
+                        for ( unsigned int col = 0; col < current_int_mat_val[row].size(); col++ )
+                        {
+                            fprintf( fid, ",%d", current_int_mat_val[row][col] );
+                        }
+                        if ( row < current_int_mat_val.size() - 1 )
+                        {
+                            fprintf( fid, "\n ");
+                        }
+                    }
+                }
+                else if ( iter->second[i]->GetType() == vsp::DOUBLE_MATRIX_DATA )
+                {
+                    vector< vector< double > > current_double_mat_val = iter->second[i]->GetDoubleMatData();
                     for ( unsigned int row = 0; row < current_double_mat_val.size(); row++ )
                     {
                         for ( unsigned int col = 0; col < current_double_mat_val[row].size(); col++ )
@@ -908,29 +953,29 @@ void Results::WriteCSVFile( FILE* fid )
                         }
                     }
                 }
-                else if ( iter->second[i].GetType() == vsp::STRING_DATA )
+                else if ( iter->second[i]->GetType() == vsp::STRING_DATA )
                 {
                     // If this is a "ResultsVec" wrapper result replace result UIDs with result names
-                    if ( strcmp( iter->second[i].GetName().c_str(), "ResultsVec" ) == 0 )
+                    if ( strcmp( iter->second[i]->GetName().c_str(), "ResultsVec" ) == 0 )
                     {
-                        for ( int d = 0; d < (int)iter->second[i].GetStringData().size(); d++ )
+                        for ( int d = 0; d < (int)iter->second[i]->GetStringData().size(); d++ )
                         {
-                            fprintf( fid, ",%s", ResultsMgr.FindResultsPtr(iter->second[i].GetStringData()[d])->GetName().c_str() );
+                            fprintf( fid, ",%s", ResultsMgr.FindResultsPtr(iter->second[i]->GetStringData()[d])->GetName().c_str() );
                         }
                     }
                     else
                     {
-                        for ( int d = 0; d < (int)iter->second[i].GetStringData().size(); d++ )
+                        for ( int d = 0; d < (int)iter->second[i]->GetStringData().size(); d++ )
                         {
-                            fprintf( fid, ",%s", iter->second[i].GetStringData()[d].c_str() );
+                            fprintf( fid, ",%s", iter->second[i]->GetStringData()[d].c_str() );
                         }
                     }
                 }
-                else if ( iter->second[i].GetType() == vsp::VEC3D_DATA )
+                else if ( iter->second[i]->GetType() == vsp::VEC3D_DATA )
                 {
-                    for ( int d = 0 ; d < ( int )iter->second[i].GetVec3dData().size() ; d++ )
+                    for ( int d = 0 ; d < ( int )iter->second[i]->GetVec3dData().size() ; d++ )
                     {
-                        vec3d v = iter->second[i].GetVec3dData()[d];
+                        vec3d v = iter->second[i]->GetVec3dData()[d];
                         fprintf( fid, ",%.*e,%.*e,%.*e", DBL_DIG + 3, v.x(), DBL_DIG + 3, v.y(), DBL_DIG + 3, v.z() );
                     }
                 }
@@ -943,11 +988,11 @@ void Results::WriteCSVFile( FILE* fid )
         {
             for ( int i = 0; i < (int)iter->second.size(); i++ )
             {
-                if ( (iter->second[i].GetType() == vsp::STRING_DATA) && (strcmp( iter->second[i].GetName().c_str(), "ResultsVec" ) == 0) )
+                if ( (iter->second[i]->GetType() == vsp::STRING_DATA) && (strcmp( iter->second[i]->GetName().c_str(), "ResultsVec" ) == 0) )
                 {
-                    for ( int d = 0; d < (int)iter->second[i].GetStringData().size(); d++ )
+                    for ( int d = 0; d < (int)iter->second[i]->GetStringData().size(); d++ )
                     {
-                        Results * res = ResultsMgr.FindResultsPtr( iter->second[i].GetStringData()[d] );
+                        Results * res = ResultsMgr.FindResultsPtr( iter->second[i]->GetStringData()[d] );
                         if ( res )
                         {
                             res->WriteCSVFile( fid );
@@ -966,30 +1011,30 @@ void Results::WriteMassProp( const string & file_name )
     FILE* fid = fopen( file_name.c_str(), "w" );
     if ( fid )
     {
-        int num_removed =  Find( "Num_Degen_Triangles_Removed" ).GetInt( 0 );
+        int num_removed =  FindPtr( "Num_Degen_Triangles_Removed" )->GetInt( 0 );
         if ( num_removed != 0 )
         {
             fprintf( fid, "WARNING: %d degenerate triangle removed\n", num_removed );
         }
 
-        int num_open_remove = Find( "Num_Open_Meshes_Removed" ).GetInt( 0 );
+        int num_open_remove = FindPtr( "Num_Open_Meshes_Removed" )->GetInt( 0 );
         if ( num_open_remove != 0 )
         {
             fprintf( fid, "WARNING: %d open meshes remove\n", num_open_remove );
 
-            vector < string > remnames = Find( "Meshes_Removed_Names" ).GetStringData();
+            vector < string > remnames = FindPtr( "Meshes_Removed_Names" )->GetStringData();
             for ( int i = 0; i < remnames.size(); i++ )
             {
                 fprintf( fid, "     Removed: %s\n", remnames[i].c_str() );
             }
         }
 
-        int num_open_merge = Find( "Num_Open_Meshes_Merged" ).GetInt( 0 );
+        int num_open_merge = FindPtr( "Num_Open_Meshes_Merged" )->GetInt( 0 );
         if ( num_open_merge != 0 )
         {
             fprintf( fid, "WARNING: %d open meshes merged\n", num_open_merge );
 
-            vector < string > mernames = Find( "Meshes_Merged_Names" ).GetStringData();
+            vector < string > mernames = FindPtr( "Meshes_Merged_Names" )->GetStringData();
             for ( int i = 0; i < mernames.size(); i++ )
             {
                 fprintf( fid, "     Merged: %s\n", mernames[i].c_str() );
@@ -997,40 +1042,40 @@ void Results::WriteMassProp( const string & file_name )
         }
 
         fprintf( fid, "...Mass Properties...\n" );
-        int num_comps = Find( "Num_Comps" ).GetInt( 0 );
+        int num_comps = FindPtr( "Num_Comps" )->GetInt( 0 );
         fprintf( fid, "%d Num Comps\n", num_comps );
-        fprintf( fid, "%d Total Num Meshes\n", Find( "Num_Total_Meshes" ).GetInt( 0 ) );
-        fprintf( fid, "%d Total Num Tris\n", Find( "Num_Total_Tris" ).GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Meshes\n", FindPtr( "Num_Total_Meshes" )->GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Tris\n", FindPtr( "Num_Total_Tris" )->GetInt( 0 ) );
         fprintf( fid, "\n" );
-        fprintf( fid, "%.15e             Total Mass\n", Find( "Total_Mass" ).GetDouble( 0 ) );
-        vec3d total_cg = Find( "Total_CG" ).GetVec3d( 0 );
+        fprintf( fid, "%.15e             Total Mass\n", FindPtr( "Total_Mass" )->GetDouble( 0 ) );
+        vec3d total_cg = FindPtr( "Total_CG" )->GetVec3d( 0 );
         fprintf( fid, "%.15e %.15e %.15e       Center of Gravity\n", total_cg.x(), total_cg.y(), total_cg.z() );
-        double ixx =  Find( "Total_Ixx" ).GetDouble( 0 );
-        double iyy =  Find( "Total_Iyy" ).GetDouble( 0 );
-        double izz =  Find( "Total_Izz" ).GetDouble( 0 );
+        double ixx =  FindPtr( "Total_Ixx" )->GetDouble( 0 );
+        double iyy =  FindPtr( "Total_Iyy" )->GetDouble( 0 );
+        double izz =  FindPtr( "Total_Izz" )->GetDouble( 0 );
         fprintf( fid, "%.15e %.15e %.15e       Ixx, Iyy, Izz\n", ixx, iyy, izz );
-        double ixy =  Find( "Total_Ixy" ).GetDouble( 0 );
-        double ixz =  Find( "Total_Ixz" ).GetDouble( 0 );
-        double iyz =  Find( "Total_Iyz" ).GetDouble( 0 );
+        double ixy =  FindPtr( "Total_Ixy" )->GetDouble( 0 );
+        double ixz =  FindPtr( "Total_Ixz" )->GetDouble( 0 );
+        double iyz =  FindPtr( "Total_Iyz" )->GetDouble( 0 );
         fprintf( fid, "%.15e %.15e %.15e       Ixy, Ixz, Iyz\n", ixy, ixz, iyz );
-        fprintf( fid, "%.15e             Volume\n", Find( "Total_Volume" ).GetDouble( 0 ) );
+        fprintf( fid, "%.15e             Volume\n", FindPtr( "Total_Volume" )->GetDouble( 0 ) );
 
         fprintf( fid, "\n" );
         fprintf( fid, "Name\tMass\tcgX\tcgY\tcgZ\tIxx\tIyy\tIzz\tIxy\tIxz\tIyz\tVolume\n" );
 
         for ( int i = 0 ; i < num_comps; i++ )
         {
-            string comp_Id = Find( "Comp_ID" ).GetString( i );
-            string comp_name = Find( "Comp_Name" ).GetString( i );
-            double comp_mass = Find( "Comp_Mass" ).GetDouble( i );
-            vec3d comp_cg = Find( "Comp_CG" ).GetVec3d( i );
-            double compIxx = Find( "Comp_Ixx" ).GetDouble( i );
-            double compIyy = Find( "Comp_Iyy" ).GetDouble( i );
-            double compIzz = Find( "Comp_Izz" ).GetDouble( i );
-            double compIxy = Find( "Comp_Ixy" ).GetDouble( i );
-            double compIyz = Find( "Comp_Iyz" ).GetDouble( i );
-            double compIxz = Find( "Comp_Ixz" ).GetDouble( i );
-            double compVol = Find( "Comp_Vol" ).GetDouble( i );
+            string comp_Id = FindPtr( "Comp_ID" )->GetString( i );
+            string comp_name = FindPtr( "Comp_Name" )->GetString( i );
+            double comp_mass = FindPtr( "Comp_Mass" )->GetDouble( i );
+            vec3d comp_cg = FindPtr( "Comp_CG" )->GetVec3d( i );
+            double compIxx = FindPtr( "Comp_Ixx" )->GetDouble( i );
+            double compIyy = FindPtr( "Comp_Iyy" )->GetDouble( i );
+            double compIzz = FindPtr( "Comp_Izz" )->GetDouble( i );
+            double compIxy = FindPtr( "Comp_Ixy" )->GetDouble( i );
+            double compIyz = FindPtr( "Comp_Iyz" )->GetDouble( i );
+            double compIxz = FindPtr( "Comp_Ixz" )->GetDouble( i );
+            double compVol = FindPtr( "Comp_Vol" )->GetDouble( i );
 
             fprintf( fid, "%s\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\n",
                      comp_name.c_str(), comp_mass, comp_cg.x(), comp_cg.y(), comp_cg.z(),
@@ -1040,14 +1085,14 @@ void Results::WriteMassProp( const string & file_name )
 
         fprintf( fid, "Name\tMass\tcgX\tcgY\tcgZ\tIxx\tIyy\tIzz\tIxy\tIxz\tIyz\tVolume\n" );
         fprintf( fid, "%s\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\n",
-                 "Totals", Find( "Total_Mass" ).GetDouble( 0 ), total_cg.x(), total_cg.y(), total_cg.z(),
-                 ixx, iyy, izz, ixy, ixz, iyz, Find( "Total_Volume" ).GetDouble( 0 ) );
+                 "Totals", FindPtr( "Total_Mass" )->GetDouble( 0 ), total_cg.x(), total_cg.y(), total_cg.z(),
+                 ixx, iyy, izz, ixy, ixz, iyz, FindPtr( "Total_Volume" )->GetDouble( 0 ) );
 
 
 
         fprintf( fid, "\n...Filling Mass Properties (Volume Only -- No Shell or Point Mass)...\n" );
 
-        int num_slice = Find( "Num_Fill_Slice" ).GetInt( 0 );
+        int num_slice = FindPtr( "Num_Fill_Slice" )->GetInt( 0 );
 
         fprintf( fid, "%d Num Slice\n", num_slice );
 
@@ -1056,16 +1101,16 @@ void Results::WriteMassProp( const string & file_name )
 
         for ( int i = 0 ; i < num_slice ; i++ )
         {
-            double fillslice = Find( "Fill_Slice" ).GetDouble( i );
-            double fillmass = Find( "Fill_Mass" ).GetDouble( i );
-            vec3d fillcg = Find( "Fill_CG" ).GetVec3d( i );
-            double fillIxx = Find( "Fill_Ixx" ).GetDouble( i );
-            double fillIyy = Find( "Fill_Iyy" ).GetDouble( i );
-            double fillIzz = Find( "Fill_Izz" ).GetDouble( i );
-            double fillIxy = Find( "Fill_Ixy" ).GetDouble( i );
-            double fillIyz = Find( "Fill_Iyz" ).GetDouble( i );
-            double fillIxz = Find( "Fill_Ixz" ).GetDouble( i );
-            double fillVol = Find( "Fill_Vol" ).GetDouble( i );
+            double fillslice = FindPtr( "Fill_Slice" )->GetDouble( i );
+            double fillmass = FindPtr( "Fill_Mass" )->GetDouble( i );
+            vec3d fillcg = FindPtr( "Fill_CG" )->GetVec3d( i );
+            double fillIxx = FindPtr( "Fill_Ixx" )->GetDouble( i );
+            double fillIyy = FindPtr( "Fill_Iyy" )->GetDouble( i );
+            double fillIzz = FindPtr( "Fill_Izz" )->GetDouble( i );
+            double fillIxy = FindPtr( "Fill_Ixy" )->GetDouble( i );
+            double fillIyz = FindPtr( "Fill_Iyz" )->GetDouble( i );
+            double fillIxz = FindPtr( "Fill_Ixz" )->GetDouble( i );
+            double fillVol = FindPtr( "Fill_Vol" )->GetDouble( i );
 
             fprintf( fid, "%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\n",
                      fillslice, fillmass, fillcg.x(), fillcg.y(), fillcg.z(),
@@ -1085,27 +1130,27 @@ void Results::WriteCompGeomTxtFile( const string & file_name )
     if ( fid )
     {
         fprintf( fid, "...Comp Geom...\n" );
-        fprintf( fid, "%d Num Comps\n",        Find( "Num_Comps" ).GetInt( 0 ) );
-        fprintf( fid, "%d Total Num Meshes\n", Find( "Total_Num_Meshes" ).GetInt( 0 ) );
-        fprintf( fid, "%d Total Num Tris\n",   Find( "Total_Num_Tris" ).GetInt( 0 ) );
+        fprintf( fid, "%d Num Comps\n",        FindPtr( "Num_Comps" )->GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Meshes\n", FindPtr( "Total_Num_Meshes" )->GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Tris\n",   FindPtr( "Total_Num_Tris" )->GetInt( 0 ) );
         fprintf( fid, "\n" );
         fprintf( fid, "Theo_Area   Wet_Area   Theo_Vol    Wet_Vol  Name\n" );
 
-        int num_mesh = Find( "Num_Meshes" ).GetInt( 0 );
+        int num_mesh = FindPtr( "Num_Meshes" )->GetInt( 0 );
         for ( int i = 0 ; i < num_mesh ; i++ )
         {
             fprintf( fid, "%9.3f  %9.3f  %9.3f  %9.3f  %-15s\n",
-                     Find( "Theo_Area" ).GetDouble( i ), Find( "Wet_Area" ).GetDouble( i ),
-                     Find( "Theo_Vol" ).GetDouble( i ),  Find( "Wet_Vol" ).GetDouble( i ),
-                     Find( "Comp_Name" ).GetString( i ).c_str() );
+                     FindPtr( "Theo_Area" )->GetDouble( i ), FindPtr( "Wet_Area" )->GetDouble( i ),
+                     FindPtr( "Theo_Vol" )->GetDouble( i ),  FindPtr( "Wet_Vol" )->GetDouble( i ),
+                     FindPtr( "Comp_Name" )->GetString( i ).c_str() );
         }
 
         fprintf( fid, "-------------------------------------------------\n" );
         fprintf( fid, "%9.3f  %9.3f  %9.3f  %9.3f  %-15s\n",
-                 Find( "Total_Theo_Area" ).GetDouble( 0 ),   Find( "Total_Wet_Area" ).GetDouble( 0 ),
-                 Find( "Total_Theo_Vol" ).GetDouble( 0 ),    Find( "Total_Wet_Vol" ).GetDouble( 0 ), "Totals" );
+                 FindPtr( "Total_Theo_Area" )->GetDouble( 0 ),   FindPtr( "Total_Wet_Area" )->GetDouble( 0 ),
+                 FindPtr( "Total_Theo_Vol" )->GetDouble( 0 ),    FindPtr( "Total_Wet_Vol" )->GetDouble( 0 ), "Totals" );
 
-        int num_tag = Find( "Num_Tags" ).GetInt( 0 );
+        int num_tag = FindPtr( "Num_Tags" )->GetInt( 0 );
         if ( num_tag > 0 )
         {
             fprintf( fid, "\n" );
@@ -1114,30 +1159,30 @@ void Results::WriteCompGeomTxtFile( const string & file_name )
             for ( int i = 0 ; i < num_tag ; i++ )
             {
                 fprintf( fid, "    %9.3f      %9.3f    %-15s\n",
-                         Find( "Tag_Theo_Area" ).GetDouble( i ), Find( "Tag_Wet_Area" ).GetDouble( i ),
-                         Find( "Tag_Name" ).GetString( i ).c_str() );
+                         FindPtr( "Tag_Theo_Area" )->GetDouble( i ), FindPtr( "Tag_Wet_Area" )->GetDouble( i ),
+                         FindPtr( "Tag_Name" )->GetString( i ).c_str() );
             }
         }
 
-        if ( Find( "Num_Degen_Tris_Removed" ).GetInt( 0 ) )
+        if ( FindPtr( "Num_Degen_Tris_Removed" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d degenerate triangle removed\n", Find( "Num_Degen_Tris_Removed" ).GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d degenerate triangle removed\n", FindPtr( "Num_Degen_Tris_Removed" )->GetInt( 0 ) );
         }
-        if ( Find( "Num_Open_Meshes_Removed" ).GetInt( 0 ) )
+        if ( FindPtr( "Num_Open_Meshes_Removed" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d open meshes removed\n", Find( "Num_Open_Meshes_Removed" ).GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d open meshes removed\n", FindPtr( "Num_Open_Meshes_Removed" )->GetInt( 0 ) );
 
-            vector < string > remnames = Find( "Meshes_Removed_Names" ).GetStringData();
+            vector < string > remnames = FindPtr( "Meshes_Removed_Names" )->GetStringData();
             for ( int i = 0; i < remnames.size(); i++ )
             {
                 fprintf( fid, "     Removed: %s\n", remnames[i].c_str() );
             }
         }
-        if ( Find( "Num_Open_Meshes_Merged" ).GetInt( 0 ) )
+        if ( FindPtr( "Num_Open_Meshes_Merged" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d open meshes merged\n", Find( "Num_Open_Meshes_Merged" ).GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d open meshes merged\n", FindPtr( "Num_Open_Meshes_Merged" )->GetInt( 0 ) );
 
-            vector < string > mernames = Find( "Meshes_Merged_Names" ).GetStringData();
+            vector < string > mernames = FindPtr( "Meshes_Merged_Names" )->GetStringData();
             for ( int i = 0; i < mernames.size(); i++ )
             {
                 fprintf( fid, "     Merged: %s\n", mernames[i].c_str() );
@@ -1156,27 +1201,27 @@ void Results::WriteCompGeomCsvFile( const string & file_name )
     if ( fid )
     {
         fprintf( fid, "Name, Theo_Area, Wet_Area, Theo_Vol, Wet_Vol\n" );
-        int num_mesh = Find( "Num_Meshes" ).GetInt( 0 );
+        int num_mesh = FindPtr( "Num_Meshes" )->GetInt( 0 );
         for ( int i = 0 ; i < num_mesh ; i++ )
         {
             fprintf( fid, "%s,%f,%f,%f,%f\n",
-                     Find( "Comp_Name" ).GetString( i ).c_str(),
-                     Find( "Theo_Area" ).GetDouble( i ), Find( "Wet_Area" ).GetDouble( i ),
-                     Find( "Theo_Vol" ).GetDouble( i ),  Find( "Wet_Vol" ).GetDouble( i ) );
+                     FindPtr( "Comp_Name" )->GetString( i ).c_str(),
+                     FindPtr( "Theo_Area" )->GetDouble( i ), FindPtr( "Wet_Area" )->GetDouble( i ),
+                     FindPtr( "Theo_Vol" )->GetDouble( i ),  FindPtr( "Wet_Vol" )->GetDouble( i ) );
         }
         fprintf( fid, "%s,%f,%f,%f,%f\n", "Totals",
-                 Find( "Total_Theo_Area" ).GetDouble( 0 ),   Find( "Total_Wet_Area" ).GetDouble( 0 ),
-                 Find( "Total_Theo_Vol" ).GetDouble( 0 ),    Find( "Total_Wet_Vol" ).GetDouble( 0 ) );
+                 FindPtr( "Total_Theo_Area" )->GetDouble( 0 ),   FindPtr( "Total_Wet_Area" )->GetDouble( 0 ),
+                 FindPtr( "Total_Theo_Vol" )->GetDouble( 0 ),    FindPtr( "Total_Wet_Vol" )->GetDouble( 0 ) );
 
-        int num_tag = Find( "Num_Tags" ).GetInt( 0 );
+        int num_tag = FindPtr( "Num_Tags" )->GetInt( 0 );
         if ( num_tag > 0 )
         {
             fprintf( fid, "\nTag_Name, Tag_Theo_Area, Tag_Wet_Area\n" );
             for ( int i = 0 ; i < num_tag ; i++ )
             {
                 fprintf( fid, "%s,%f,%f\n",
-                         Find( "Tag_Name" ).GetString( i ).c_str(),
-                         Find( "Tag_Theo_Area" ).GetDouble( i ), Find( "Tag_Wet_Area" ).GetDouble( i ) );
+                         FindPtr( "Tag_Name" )->GetString( i ).c_str(),
+                         FindPtr( "Tag_Theo_Area" )->GetDouble( i ), FindPtr( "Tag_Wet_Area" )->GetDouble( i ) );
             }
         }
 
@@ -1195,19 +1240,19 @@ void Results::WriteDragBuildFile( const string & file_name )
         fprintf( fid, "Name\tTheo_Area\tWet_Area\tTheo_Vol\tWet_Vol\tMin_Chord\tAve_Chord\tMax_Chord\t" );
         fprintf( fid, "Min_TC_Ratio\tAvg_TC_Ratio\tMax_TC_Ratio\tAve_Sweep\tLength\tMax_Xsec_Area\tLen_Dia_Ratio\n" );
 
-        int num_mesh = Find( "Num_Meshes" ).GetInt( 0 );
+        int num_mesh = FindPtr( "Num_Meshes" )->GetInt( 0 );
         for ( int i = 0 ; i < num_mesh ; i++ )
         {
             fprintf( fid, "%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",
-                     Find( "Comp_Name" ).GetString( i ).c_str(),
-                     Find( "Theo_Area" ).GetDouble( i ), Find( "Wet_Area" ).GetDouble( i ),
-                     Find( "Theo_Vol" ).GetDouble( i ),  Find( "Wet_Vol" ).GetDouble( i ),
-                     Find( "Min_Chord" ).GetDouble( i ), Find( "Avg_Chord" ).GetDouble( i ), Find( "Max_Chord" ).GetDouble( i ),
-                     Find( "Min_TC" ).GetDouble( i ),    Find( "Avg_TC" ).GetDouble( i ),    Find( "Max_TC" ).GetDouble( i ),
-                     Find( "Avg_Sweep" ).GetDouble( i ),
-                     Find( "Length" ).GetDouble( i ),
-                     Find( "Max_Area" ).GetDouble( i ),
-                     Find( "Length_Dia" ).GetDouble( i ) );
+                     FindPtr( "Comp_Name" )->GetString( i ).c_str(),
+                     FindPtr( "Theo_Area" )->GetDouble( i ), FindPtr( "Wet_Area" )->GetDouble( i ),
+                     FindPtr( "Theo_Vol" )->GetDouble( i ),  FindPtr( "Wet_Vol" )->GetDouble( i ),
+                     FindPtr( "Min_Chord" )->GetDouble( i ), FindPtr( "Avg_Chord" )->GetDouble( i ), FindPtr( "Max_Chord" )->GetDouble( i ),
+                     FindPtr( "Min_TC" )->GetDouble( i ),    FindPtr( "Avg_TC" )->GetDouble( i ),    FindPtr( "Max_TC" )->GetDouble( i ),
+                     FindPtr( "Avg_Sweep" )->GetDouble( i ),
+                     FindPtr( "Length" )->GetDouble( i ),
+                     FindPtr( "Max_Area" )->GetDouble( i ),
+                     FindPtr( "Length_Dia" )->GetDouble( i ) );
         }
 
         fclose( fid );
@@ -1222,24 +1267,24 @@ void Results::WriteParasiteDragFile( const string & file_name )
     {
         fprintf(file_id, "PARASITE DRAG BUILD UP DATA \n\n");
 
-        string AltLabel = Find("Alt_Label").GetString(0);
-        string VinfLabel = Find("Vinf_Label").GetString(0);
-        string SrefLabel = Find("Sref_Label").GetString(0);
-        double mach = Find("FC_Mach").GetDouble(0);
-        double hinf = Find("FC_Alt").GetDouble(0);
-        double vinf = Find("FC_Vinf").GetDouble(0);
-        double sref = Find("FC_Sref").GetDouble(0);
+        string AltLabel = FindPtr("Alt_Label")->GetString(0);
+        string VinfLabel = FindPtr("Vinf_Label")->GetString(0);
+        string SrefLabel = FindPtr("Sref_Label")->GetString(0);
+        double mach = FindPtr("FC_Mach")->GetDouble(0);
+        double hinf = FindPtr("FC_Alt")->GetDouble(0);
+        double vinf = FindPtr("FC_Vinf")->GetDouble(0);
+        double sref = FindPtr("FC_Sref")->GetDouble(0);
         fprintf(file_id, "Mach, %s, %s, %s\n", AltLabel.c_str(), VinfLabel.c_str(), SrefLabel.c_str());
         fprintf(file_id, "%f, %f, %f, %f \n\n", mach, hinf, vinf, sref);
 
-        string TempLabel = Find("Temp_Label").GetString(0);
-        string PresLabel = Find("Pres_Label").GetString(0);
-        string RhoLabel = Find("Rho_Label").GetString(0);
-        double temp = Find("FC_Temp").GetDouble(0);
-        double pres = Find("FC_Pres").GetDouble(0);
-        double rho = Find("FC_Rho").GetDouble(0);
-        string lamcfeqnname = Find("LamCfEqnName").GetString(0);
-        string turbcfeqnname = Find("TurbCfEqnName").GetString(0);
+        string TempLabel = FindPtr("Temp_Label")->GetString(0);
+        string PresLabel = FindPtr("Pres_Label")->GetString(0);
+        string RhoLabel = FindPtr("Rho_Label")->GetString(0);
+        double temp = FindPtr("FC_Temp")->GetDouble(0);
+        double pres = FindPtr("FC_Pres")->GetDouble(0);
+        double rho = FindPtr("FC_Rho")->GetDouble(0);
+        string lamcfeqnname = FindPtr("LamCfEqnName")->GetString(0);
+        string turbcfeqnname = FindPtr("TurbCfEqnName")->GetString(0);
 
         fprintf(file_id, "%s, %s, %s \n", TempLabel.c_str(), PresLabel.c_str(), RhoLabel.c_str());
         fprintf(file_id, "%f, %f, %f \n\n", temp, pres, rho);
@@ -1248,38 +1293,38 @@ void Results::WriteParasiteDragFile( const string & file_name )
 
         fprintf(file_id, "\n");
 
-        string SwetLabel = Find("Swet_Label").GetString(0);
-        string LrefLabel = Find("Lref_Label").GetString(0);
-        string fLabel = Find("f_Label").GetString(0);
+        string SwetLabel = FindPtr("Swet_Label")->GetString(0);
+        string LrefLabel = FindPtr("Lref_Label")->GetString(0);
+        string fLabel = FindPtr("f_Label")->GetString(0);
 
         fprintf(file_id, "Component Name,%s,%s,t/c or d/l,FF,FF Eqn Type,Re,%% Lam,Cf,Q (Interference Factor),%s,Cd,%% Total \n",
             SwetLabel.c_str(), LrefLabel.c_str(), fLabel.c_str() );
 
-        int num_comp = Find("Num_Comp").GetInt(0);
+        int num_comp = FindPtr("Num_Comp")->GetInt(0);
         for (int i = 0; i < num_comp; i++)
         {
-            string label = Find("Comp_Label").GetString(i);
-            double swet = Find("Comp_Swet").GetDouble(i);
-            double lref = Find("Comp_Lref").GetDouble(i);
-            double fineRat = Find("Comp_FineRat").GetDouble(i);
-            int FFType = Find("Comp_FFEqn").GetInt(i);
+            string label = FindPtr("Comp_Label")->GetString(i);
+            double swet = FindPtr("Comp_Swet")->GetDouble(i);
+            double lref = FindPtr("Comp_Lref")->GetDouble(i);
+            double fineRat = FindPtr("Comp_FineRat")->GetDouble(i);
+            int FFType = FindPtr("Comp_FFEqn")->GetInt(i);
             double FF = 0;
             if (FFType == vsp::FF_B_MANUAL || FFType == vsp::FF_W_MANUAL)
             {
-                FF = Find("Comp_FFIn").GetDouble(i);
+                FF = FindPtr("Comp_FFIn")->GetDouble(i);
             }
             else
             {
-                FF = Find("Comp_FFOut").GetDouble(i);
+                FF = FindPtr("Comp_FFOut")->GetDouble(i);
             }
-            string FFEqnName = Find("Comp_FFEqnName").GetString(i);
-            double Re = Find("Comp_Re").GetDouble(i);
-            double PercLam = Find("Comp_PercLam").GetDouble(i);
-            double Cf = Find("Comp_Cf").GetDouble(i);
-            double Q = Find("Comp_Q").GetDouble(i);
-            double f = Find("Comp_f").GetDouble(i);
-            double CD = Find("Comp_CD").GetDouble(i);
-            double PercTotalCD = 100 * Find("Comp_PercTotalCD").GetDouble(i);
+            string FFEqnName = FindPtr("Comp_FFEqnName")->GetString(i);
+            double Re = FindPtr("Comp_Re")->GetDouble(i);
+            double PercLam = FindPtr("Comp_PercLam")->GetDouble(i);
+            double Cf = FindPtr("Comp_Cf")->GetDouble(i);
+            double Q = FindPtr("Comp_Q")->GetDouble(i);
+            double f = FindPtr("Comp_f")->GetDouble(i);
+            double CD = FindPtr("Comp_CD")->GetDouble(i);
+            double PercTotalCD = 100 * FindPtr("Comp_PercTotalCD")->GetDouble(i);
 
             fprintf(file_id, "%s,", label.c_str());
             fprintf(file_id, "%f, %f, %f,", swet, lref, fineRat);
@@ -1293,29 +1338,29 @@ void Results::WriteParasiteDragFile( const string & file_name )
         fprintf(file_id, "\n");
         fprintf(file_id, "Excrescences, Type, Input\n");
 
-        int num_excres = Find("Num_Excres").GetInt(0);
+        int num_excres = FindPtr("Num_Excres")->GetInt(0);
         for (int i = 0; i < num_excres; i++)
         {
-            string label = Find("Excres_Label").GetString(i);
-            string type = Find("Excres_Type").GetString(i);
-            double input = Find("Excres_Input").GetDouble(i);
-            double f = Find( "Excres_f" ).GetDouble( i );
-            double amount = Find("Excres_Amount").GetDouble(i);
-            double perctotalcd = 100 * Find("Excres_PercTotalCD").GetDouble(i);
+            string label = FindPtr("Excres_Label")->GetString(i);
+            string type = FindPtr("Excres_Type")->GetString(i);
+            double input = FindPtr("Excres_Input")->GetDouble(i);
+            double f = FindPtr( "Excres_f" )->GetDouble( i );
+            double amount = FindPtr("Excres_Amount")->GetDouble(i);
+            double perctotalcd = 100 * FindPtr("Excres_PercTotalCD")->GetDouble(i);
 
             fprintf(file_id, " %s, %s, %f, , , , , , , ,%f, %f, %f \n",
                 label.c_str(), type.c_str(), input, f, amount, perctotalcd);
         }
 
-        double geomftotal = Find("Geom_f_Total").GetDouble(0);
-        double geomcdtotal = Find("Geom_CD_Total").GetDouble(0);
-        double geomperctotal = 100 * Find("Geom_Perc_Total").GetDouble(0);
-        double excresftotal = Find("Excres_f_Total").GetDouble(0);
-        double excrescdtotal = Find("Excres_CD_Total").GetDouble(0);
-        double excresperctotal = 100 * Find("Excres_Perc_Total").GetDouble(0);
-        double totalftotal = Find("Total_f_Total").GetDouble(0);
-        double totalcdtotal = Find("Total_CD_Total").GetDouble(0);
-        double totalperctotal = 100 * Find("Total_Perc_Total").GetDouble(0);
+        double geomftotal = FindPtr("Geom_f_Total")->GetDouble(0);
+        double geomcdtotal = FindPtr("Geom_CD_Total")->GetDouble(0);
+        double geomperctotal = 100 * FindPtr("Geom_Perc_Total")->GetDouble(0);
+        double excresftotal = FindPtr("Excres_f_Total")->GetDouble(0);
+        double excrescdtotal = FindPtr("Excres_CD_Total")->GetDouble(0);
+        double excresperctotal = 100 * FindPtr("Excres_Perc_Total")->GetDouble(0);
+        double totalftotal = FindPtr("Total_f_Total")->GetDouble(0);
+        double totalcdtotal = FindPtr("Total_CD_Total")->GetDouble(0);
+        double totalperctotal = 100 * FindPtr("Total_Perc_Total")->GetDouble(0);
 
         fprintf(file_id, "\n");
         fprintf(file_id, " , , , , , , , , , %s, %f, %f, %f \n", "Geometry Sub-Total:", geomftotal, geomcdtotal, geomperctotal);
@@ -1331,25 +1376,25 @@ void Results::WriteSliceFile( const string & file_name )
     FILE* fid = fopen( file_name.c_str(), "w" );
     if ( fid )
     {
-        if ( Find( "Num_Degen_Tris_Removed" ).GetInt( 0 ) )
+        if ( FindPtr( "Num_Degen_Tris_Removed" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d degenerate triangle removed\n", Find( "Num_Degen_Tris_Removed" ).GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d degenerate triangle removed\n", FindPtr( "Num_Degen_Tris_Removed" )->GetInt( 0 ) );
         }
-        if ( Find( "Num_Open_Meshes_Removed" ).GetInt( 0 ) )
+        if ( FindPtr( "Num_Open_Meshes_Removed" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d open meshes removed\n", Find( "Num_Open_Meshes_Removed" ).GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d open meshes removed\n", FindPtr( "Num_Open_Meshes_Removed" )->GetInt( 0 ) );
 
-            vector < string > remnames = Find( "Meshes_Removed_Names" ).GetStringData();
+            vector < string > remnames = FindPtr( "Meshes_Removed_Names" )->GetStringData();
             for ( int i = 0; i < remnames.size(); i++ )
             {
                 fprintf( fid, "     Removed: %s\n", remnames[i].c_str() );
             }
         }
-        if ( Find( "Num_Open_Meshes_Merged" ).GetInt( 0 ) )
+        if ( FindPtr( "Num_Open_Meshes_Merged" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d open meshes merged\n", Find( "Num_Open_Meshes_Merged" ).GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d open meshes merged\n", FindPtr( "Num_Open_Meshes_Merged" )->GetInt( 0 ) );
 
-            vector < string > mernames = Find( "Meshes_Merged_Names" ).GetStringData();
+            vector < string > mernames = FindPtr( "Meshes_Merged_Names" )->GetStringData();
             for ( int i = 0; i < mernames.size(); i++ )
             {
                 fprintf( fid, "     Merged: %s\n", mernames[i].c_str() );
@@ -1357,19 +1402,19 @@ void Results::WriteSliceFile( const string & file_name )
         }
 
         fprintf( fid, "...Slice...\n" );
-        fprintf( fid, "%d Num Comps\n", Find( "Num_Comps" ).GetInt( 0 ) );
-        fprintf( fid, "%d Total Num Meshes\n", Find( "Num_Meshes" ).GetInt( 0 ) );
-        fprintf( fid, "%d Total Num Tris\n", Find( "Num_Tris" ).GetInt( 0 ) );
-        vec3d norm_axis = Find( "Axis_Vector" ).GetVec3d( 0 );
+        fprintf( fid, "%d Num Comps\n", FindPtr( "Num_Comps" )->GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Meshes\n", FindPtr( "Num_Meshes" )->GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Tris\n", FindPtr( "Num_Tris" )->GetInt( 0 ) );
+        vec3d norm_axis = FindPtr( "Axis_Vector" )->GetVec3d( 0 );
         fprintf( fid, "%1.5f %1.5f %1.5f Axis Vector\n", norm_axis.x(), norm_axis.y(), norm_axis.z() );
 
         fprintf( fid, "\n" );
         fprintf( fid, "    Loc    XCenter  YCenter  ZCenter         Area\n" );
-        for ( int s = 0 ; s <  Find( "Num_Slices" ).GetInt( 0 ) ; s++ )
+        for ( int s = 0 ; s <  FindPtr( "Num_Slices" )->GetInt( 0 ) ; s++ )
         {
-            vec3d area_center = Find( "Slice_Area_Center" ).GetVec3d( s );
-            fprintf( fid, "%9.3f %9.3f %9.3f %9.3f %9.3f\n", Find( "Slice_Loc" ).GetDouble( s ), area_center[0],
-                    area_center[1], area_center[2], Find( "Slice_Area" ).GetDouble( s ) );
+            vec3d area_center = FindPtr( "Slice_Area_Center" )->GetVec3d( s );
+            fprintf( fid, "%9.3f %9.3f %9.3f %9.3f %9.3f\n", FindPtr( "Slice_Loc" )->GetDouble( s ), area_center[0],
+                    area_center[1], area_center[2], FindPtr( "Slice_Area" )->GetDouble( s ) );
         }
 
         fclose( fid );
@@ -1384,33 +1429,33 @@ void Results::WriteWaveDragFile( const string & file_name )
     {
         fprintf( fid, "...Wave Drag Slice...\n" );
 
-        fprintf( fid, "Inlet Area: %f\n", Find( "Inlet_Area" ).GetDouble( 0 ) );
-        fprintf( fid, "Exit Area: %f\n", Find( "Exit_Area" ).GetDouble( 0 ) );
+        fprintf( fid, "Inlet Area: %f\n", FindPtr( "Inlet_Area" )->GetDouble( 0 ) );
+        fprintf( fid, "Exit Area: %f\n", FindPtr( "Exit_Area" )->GetDouble( 0 ) );
 
-        int num_cone_sections = Find( "Num_Cone_Sections" ).GetInt( 0 );
-        int num_slices = Find( "Num_Slices" ).GetInt( 0 );
+        int num_cone_sections = FindPtr( "Num_Cone_Sections" )->GetInt( 0 );
+        int num_slices = FindPtr( "Num_Slices" )->GetInt( 0 );
 
         fprintf( fid, "\n" );
         for ( int i = 0; i < num_cone_sections ; i++ )
         {
-            fprintf( fid, "Theta: %6.2f, Start: %6.2f, End: %6.2f\n", Find( "Theta" ).GetDouble( i ), Find( "Start_X" ).GetDouble( i ), Find( "End_X" ).GetDouble( i ) );
+            fprintf( fid, "Theta: %6.2f, Start: %6.2f, End: %6.2f\n", FindPtr( "Theta" )->GetDouble( i ), FindPtr( "Start_X" )->GetDouble( i ), FindPtr( "End_X" )->GetDouble( i ) );
 
             for ( int s = 0 ; s < num_slices ; s++ )
             {
-                fprintf( fid, "%19.8f, ", Find( "X_Norm" ).GetDouble( s ) );
-                fprintf( fid, "%19.8f", Find( "Slice_Area", i ).GetDouble( s ) );
+                fprintf( fid, "%19.8f, ", FindPtr( "X_Norm" )->GetDouble( s ) );
+                fprintf( fid, "%19.8f", FindPtr( "Slice_Area", i )->GetDouble( s ) );
                 fprintf( fid, "\n" );
             }
             fprintf( fid, "\n" );
         }
 
-        double CD0w = Find( "CDWave" ).GetDouble( 0 );
+        double CD0w = FindPtr( "CDWave" )->GetDouble( 0 );
         fprintf( fid, "CDWave: %19.8f \n", CD0w );
 
-        double Mach = Find( "Mach" ).GetDouble( 0 );
+        double Mach = FindPtr( "Mach" )->GetDouble( 0 );
         fprintf( fid, "Mach: %19.8f \n", Mach);
 
-        string Set_Name = Find( "Set_Name" ).GetString( 0 );
+        string Set_Name = FindPtr( "Set_Name" )->GetString( 0 );
         fprintf( fid, "Set Name: %s \n", Set_Name.c_str());
 
         fclose( fid );
@@ -1425,14 +1470,14 @@ void Results::WriteBEMFile( const string & file_name )
     {
         fprintf( fid, "...BEM Propeller...\n" );
 
-        int num_sect = Find( "Num_Sections" ).GetInt( 0 );
-        int num_blade = Find( "Num_Blade" ).GetInt( 0 );
-        double diam = Find( "Diameter" ).GetDouble( 0 );
-        double beta34 = Find( "Beta34" ).GetDouble( 0 );
-        double feather = Find( "Feather" ).GetDouble( 0 );
-        double precone = Find( "Pre_Cone" ).GetDouble( 0 );
-        vec3d cen = Find( "Center" ).GetVec3d( 0 );
-        vec3d norm = Find( "Normal" ).GetVec3d( 0 );
+        int num_sect = FindPtr( "Num_Sections" )->GetInt( 0 );
+        int num_blade = FindPtr( "Num_Blade" )->GetInt( 0 );
+        double diam = FindPtr( "Diameter" )->GetDouble( 0 );
+        double beta34 = FindPtr( "Beta34" )->GetDouble( 0 );
+        double feather = FindPtr( "Feather" )->GetDouble( 0 );
+        double precone = FindPtr( "Pre_Cone" )->GetDouble( 0 );
+        vec3d cen = FindPtr( "Center" )->GetVec3d( 0 );
+        vec3d norm = FindPtr( "Normal" )->GetVec3d( 0 );
 
         fprintf( fid, "Num_Sections: %d\n", num_sect );
         fprintf( fid, "Num_Blade: %d\n", num_blade );
@@ -1443,16 +1488,16 @@ void Results::WriteBEMFile( const string & file_name )
         fprintf( fid, "Center: %.8f, %.8f, %.8f\n", cen.x(), cen.y(), cen.z() );
         fprintf( fid, "Normal: %.8f, %.8f, %.8f\n", norm.x(), norm.y(), norm.z() );
 
-        vector < double > r_vec = Find( "Radius" ).GetDoubleData();
-        vector < double > chord_vec = Find( "Chord" ).GetDoubleData();
-        vector < double > twist_vec = Find( "Twist" ).GetDoubleData();
-        vector < double > rake_vec = Find( "Rake" ).GetDoubleData();
-        vector < double > skew_vec = Find( "Skew" ).GetDoubleData();
-        vector < double > sweep_vec = Find( "Sweep" ).GetDoubleData();
-        vector < double > thick_vec = Find( "Thick" ).GetDoubleData();
-        vector < double > cli_vec = Find( "CLi" ).GetDoubleData();
-        vector < double > axial_vec = Find( "Axial" ).GetDoubleData();
-        vector < double > tangential_vec = Find( "Tangential" ).GetDoubleData();
+        vector < double > r_vec = FindPtr( "Radius" )->GetDoubleData();
+        vector < double > chord_vec = FindPtr( "Chord" )->GetDoubleData();
+        vector < double > twist_vec = FindPtr( "Twist" )->GetDoubleData();
+        vector < double > rake_vec = FindPtr( "Rake" )->GetDoubleData();
+        vector < double > skew_vec = FindPtr( "Skew" )->GetDoubleData();
+        vector < double > sweep_vec = FindPtr( "Sweep" )->GetDoubleData();
+        vector < double > thick_vec = FindPtr( "Thick" )->GetDoubleData();
+        vector < double > cli_vec = FindPtr( "CLi" )->GetDoubleData();
+        vector < double > axial_vec = FindPtr( "Axial" )->GetDoubleData();
+        vector < double > tangential_vec = FindPtr( "Tangential" )->GetDoubleData();
 
         fprintf( fid, "\nRadius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi, Axial, Tangential\n" );
         for ( int i = 0; i < num_sect; i++ )
@@ -1464,8 +1509,8 @@ void Results::WriteBEMFile( const string & file_name )
         {
             char str[255];
             snprintf( str, sizeof( str ),  "%03d", i );
-            vector < double > xpts = Find( "XSection_" + string( str ) ).GetDoubleData();
-            vector < double > ypts = Find( "YSection_" + string( str ) ).GetDoubleData();
+            vector < double > xpts = FindPtr( "XSection_" + string( str ) )->GetDoubleData();
+            vector < double > ypts = FindPtr( "YSection_" + string( str ) )->GetDoubleData();
 
             fprintf( fid, "\nSection %d X, Y\n", i );
 
@@ -2174,8 +2219,8 @@ void ResultsMgrSingleton::TestSpeed()
 //  Results* test_res = FindLatestResult( "TestVec" );
 //  ResData pnt_vec_result = test_res->Find( "Pnt_Vec", 0 );
 //
-////    const vector< vec3d > & res_pnt_vec = pnt_vec_result.GetVec3dData();
-//  vector< vec3d > res_pnt_vec = pnt_vec_result.GetVec3dData();
+////    const vector< vec3d > & res_pnt_vec = pnt_vec_result->GetVec3dData();
+//  vector< vec3d > res_pnt_vec = pnt_vec_result->GetVec3dData();
 //
 //  //==== Sum Vectors ====//
 //  vec3d sum1;

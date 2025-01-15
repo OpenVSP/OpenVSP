@@ -40,6 +40,7 @@
 #include "MaterialMgr.h"
 #include "WaveDragMgr.h"
 #include "GroupTransformations.h"
+#include "ResultsMgr.h"
 
 #include <cassert>
 
@@ -324,6 +325,12 @@ public:
 
     double ComputeStructuresScaleFactor();
 
+    // ===== Getter for Blank NameValData ==== //
+    NameValData* GetBlankNvd()
+    {
+        return &(m_BlankNvd);
+    }
+
     //==== Mass Properties ====//
     vec3d m_IxxIyyIzz;
     vec3d m_IxyIxzIyz;
@@ -548,6 +555,8 @@ protected:
     vector< string > m_ClipBoard;               // Clipboard IDs
 
     vector< string > m_SetNameVec;
+
+    NameValData m_BlankNvd;
 
     vector< GeomType > m_GeomTypeVec;
 

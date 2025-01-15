@@ -277,35 +277,52 @@ protected:
 class NameValCollection
 {
 public:
-    NameValCollection() {};
+    NameValCollection();
     NameValCollection( const string & name, const string & id, const string & doc  );
+    ~NameValCollection();
+
+    string GenerateID();
 
     void Init( const char *name, const char *doc = "" )
     {
         m_Name = name;
         m_Doc = doc;
+        m_DataMap.clear();
     }
 
-    string GetName()
+    void SetName( const string & name )
+    {
+        m_Name = name;
+    }
+
+    void SetDoc( const string & doc )
+    {
+        m_Doc = doc;
+    }
+
+    string GetName() const
     {
         return m_Name;
     }
-    string GetID()
+
+    string GetID() const
     {
         return m_ID;
     }
+
     string GetDoc() const
     {
         return m_Doc;
     }
 
-    void Add( const NameValData & d );
-    void Add( const vector< vector< vec3d > > & d, const string &prefix, const string &doc );
+    virtual void Add( const NameValData & d );
+    virtual void Add( const vector< vector< vec3d > > & d, const string &prefix, const string &doc );
 
     int GetNumData( const string & name );
     vector< string > GetAllDataNames();
-    NameValData Find( const string & name, int index = 0 );
+
     NameValData* FindPtr( const string & name, int index = 0 );
+    vector< NameValData* > GetAllPtrs();
 
 protected:
 
@@ -314,7 +331,7 @@ protected:
     string m_Doc;
 
     //==== All The Data For This Computation Result =====//
-    map< string, vector< NameValData > > m_DataMap;
+    map< string, vector< NameValData* > > m_DataMap;
 
 };
 
