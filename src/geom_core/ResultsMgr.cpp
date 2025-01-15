@@ -17,10 +17,19 @@
 #include "VspUtil.h"
 #include "StlHelper.h"
 
+#include "IDMgr.h"
+#include "ParmMgr.h"
+
 //==== Default Results Data ====//
 NameValData::NameValData()
 {
     Init( "Undefined" );
+}
+
+//==== Copy Constructor ====//
+NameValData::NameValData( NameValData* nvd )
+{
+    CopyFrom( nvd );
 }
 
 //==== Constructor With Name =====//
@@ -30,84 +39,205 @@ NameValData::NameValData( const string & name )
 }
 
 //==== Constructors With Name & Data =====//
-NameValData::NameValData( const string & name, const int & i_data, const string & doc )
+NameValData::NameValData( const string & name, const bool & b_data, const string & doc, const string & id )
 {
-    Init( name, vsp::INT_DATA );
+    Init( name, vsp::BOOL_DATA, id );
+    m_IntData.push_back( b_data );
+    m_Doc = doc;
+}
+
+NameValData::NameValData( const string & name, const int & i_data, const string & doc, const string & id )
+{
+    Init( name, vsp::INT_DATA, id );
     m_IntData.push_back( i_data );
     m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const double & d_data, const string & doc )
+
+NameValData::NameValData( const string & name, const double & d_data, const string & doc, const string & id )
 {
-    Init( name, vsp::DOUBLE_DATA );
+    Init( name, vsp::DOUBLE_DATA, id );
     m_DoubleData.push_back( d_data );
     m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const string & s_data, const string & doc )
+
+NameValData::NameValData( const string & name, const string & s_data, const string & doc, const string & id )
 {
-    Init( name, vsp::STRING_DATA );
+    Init( name, vsp::STRING_DATA, id );
     m_StringData.push_back( s_data );
     m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const vec3d & v_data, const string & doc )
+
+NameValData::NameValData( const string & name, const vec3d & v_data, const string & doc, const string & id )
 {
-    Init( name, vsp::VEC3D_DATA );
+    Init( name, vsp::VEC3D_DATA, id );
     m_Vec3dData.push_back( v_data );
     m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const vector< int > & i_data, const string & doc )
+
+NameValData::NameValData( const string & name, const NameValCollection &c_data, const string & doc, const string & id )
 {
-    Init( name, vsp::INT_DATA );
+    Init( name, vsp::ATTR_COLLECTION_DATA, id );
+    m_NameValCollectionData.push_back(c_data);
+    m_Doc = doc;
+}
+
+NameValData::NameValData( const string & name, const vector< int > & i_data, const string & doc, const string & id )
+{
+    Init( name, vsp::INT_DATA, id );
     m_IntData = i_data;
     m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const vector< double > & d_data, const string & doc )
+
+NameValData::NameValData( const string & name, const vector< double > & d_data, const string & doc, const string & id )
 {
-    Init( name, vsp::DOUBLE_DATA );
+    Init( name, vsp::DOUBLE_DATA, id );
     m_DoubleData = d_data;
     m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const vector< string > & s_data, const string & doc )
+
+NameValData::NameValData( const string & name, const vector< string > & s_data, const string & doc, const string & id )
 {
-    Init( name, vsp::STRING_DATA );
+    Init( name, vsp::STRING_DATA, id );
     m_StringData = s_data;
     m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const vector< vec3d > & v_data, const string & doc )
+
+NameValData::NameValData( const string & name, const vector< vec3d > & v_data, const string & doc, const string & id )
 {
-    Init( name, vsp::VEC3D_DATA );
+    Init( name, vsp::VEC3D_DATA, id );
     m_Vec3dData = v_data;
     m_Doc = doc;
 }
-NameValData::NameValData( const string &name, const vector< vector< double > > &dmat_data, const string & doc )
+
+NameValData::NameValData( const string &name, const vector< vector< int > > &imat_data, const string & doc, const string & id )
 {
-    Init( name, vsp::DOUBLE_MATRIX_DATA );
+    Init( name, vsp::INT_MATRIX_DATA, id );
+    m_IntMatData = imat_data;
+    m_Doc = doc;
+}
+
+NameValData::NameValData( const string &name, const vector< vector< double > > &dmat_data, const string & doc, const string & id )
+{
+    Init( name, vsp::DOUBLE_MATRIX_DATA, id );
     m_DoubleMatData = dmat_data;
     m_Doc = doc;
 }
-void NameValData::Init( const string & name, int type, int index )
+
+NameValData::NameValData( const string & name, const vector< NameValCollection > &c_data, const string & doc, const string & id )
+{
+    Init( name, vsp::NAMEVAL_COLLECTION_DATA, id );
+    m_NameValCollectionData = c_data;
+    m_Doc = doc;
+}
+
+void NameValData::Init( const string & name, int type, const string & id )
 {
     m_Name = name;
     m_Type = type;
+
+    m_ID = id;
+    if ( id.empty() )
+    {
+        m_ID = GenerateID();
+    }
+
+    m_ProtectFlag = false;
+    m_AttachID = "NONE";
+    m_AttributeEventGroup = vsp::ATTR_GROUP_NONE;
 }
 
-string NameValData::GetTypeName() const
+string NameValData::GetTypeName() const{
+    return GetTypeName( m_Type );
+}
+
+string NameValData::GetTypeName( int type, bool capitalize, bool short_name )
 {
-    switch ( m_Type ){
+    string string_out;
+    string string_long;
+    string string_mini;
+
+    switch ( type ){
         case vsp::INVALID_TYPE:
-            return string( "invalid" );
+            string_long = "invalid";
+            string_mini = "N/A";
+            break;
+        case vsp::BOOL_DATA:
+            string_long = "boolean";
+            string_mini = "bool";
+            break;
         case vsp::INT_DATA:
-            return string( "integer" );
+            string_long = "integer";
+            string_mini = "int";
+            break;
         case vsp::DOUBLE_DATA:
-            return string( "double" );
+            string_long = "double";
+            string_mini = "dbl";
+            break;
         case vsp::STRING_DATA:
-            return string( "string" );
+            string_long = "string";
+            string_mini = "str";
+            break;
+        case vsp::PARM_REFERENCE_DATA:
+            string_long = "parm";
+            string_mini = "parm";
+            break;
         case vsp::VEC3D_DATA:
-            return string( "vec3d" );
+            string_long = "vec3d";
+            string_mini = "vec3d";
+            break;
+        case vsp::INT_MATRIX_DATA:
+            string_long = "int matrix";
+            string_mini = "imat";
+            break;
         case vsp::DOUBLE_MATRIX_DATA:
-            return string( "double matrix" );
+            string_long = "double matrix";
+            string_mini = "dmat";
+            break;
+        case vsp::NAMEVAL_COLLECTION_DATA:
+            string_long = "nameval collection";
+            string_mini = "nvc";
+            break;
+        case vsp::ATTR_COLLECTION_DATA:
+            string_long = "attribute group";
+            string_mini = "grp";
+            break;
         default:
-            return string( "unknown" );
+            string_long = "";
+            string_mini = "";
+            break;
     }
+
+    if ( short_name )
+    {
+        string_out = string_mini;
+    }
+    else
+    {
+        string_out = string_long;
+    }
+
+    if ( capitalize )
+    {
+        string_out[0] = toupper(string_out[0]);
+        int len = strlen(string_out.c_str())-1;
+        for (int i = 0; i < len; i++)
+        {
+            if (isspace(string_out[i]))
+            {
+                string_out[i+1] = toupper(string_out[i+1]);
+            }
+        }
+    }
+    return string_out;
+}
+
+bool NameValData::GetBool( int i ) const
+{
+    if ( i >= 0 && i < ( int )m_IntData.size() )
+    {
+        return m_IntData[i];
+    }
+    return false;
 }
 
 int NameValData::GetInt( int i ) const
@@ -118,6 +248,19 @@ int NameValData::GetInt( int i ) const
     }
     return 0;
 }
+
+int NameValData::GetInt( int row, int col ) const
+{
+    if ( row >= 0 && row < ( int )m_IntMatData.size() )
+    {
+        if ( col >= 0 && col < ( int )m_IntMatData[row].size() )
+        {
+            return m_IntMatData[row][col];
+        }
+    }
+    return 0;
+}
+
 double NameValData::GetDouble( int i ) const
 {
     if ( i >= 0 && i < ( int )m_DoubleData.size() )
@@ -126,6 +269,7 @@ double NameValData::GetDouble( int i ) const
     }
     return 0;
 }
+
 double NameValData::GetDouble( int row, int col ) const
 {
     if ( row >= 0 && row < ( int )m_DoubleMatData.size() )
@@ -137,11 +281,21 @@ double NameValData::GetDouble( int row, int col ) const
     }
     return 0;
 }
+
 string NameValData::GetString( int i ) const
 {
     if ( i >= 0 && i < ( int )m_StringData.size() )
     {
         return m_StringData[i];
+    }
+    return string();
+}
+
+string NameValData::GetParmID( int i ) const
+{
+    if ( i >= 0 && i < ( int )m_ParmIDData.size() )
+    {
+        return m_ParmIDData[i];
     }
     return string();
 }
@@ -154,6 +308,418 @@ vec3d NameValData::GetVec3d( int i ) const
     }
     return vec3d();
 }
+
+NameValCollection NameValData::GetNameValCollection( int i ) const
+{
+    NameValCollection default_coll;
+    if ( i >= 0 && i < ( int )m_NameValCollectionData.size() )
+    {
+        return m_NameValCollectionData[i];
+    }
+    return default_coll;
+}
+
+NameValCollection* NameValData::GetNameValCollectionPtr( int i )
+{
+    if ( i >= 0 && i < ( int )m_NameValCollectionData.size() )
+    {
+        return &m_NameValCollectionData[i];
+    }
+    return nullptr;
+}
+
+string NameValData::GenerateID()
+{
+    return GenerateRandomID( vsp::ID_LENGTH_ATTR );
+}
+
+void NameValData::ChangeID( string id ) //only for attributes
+{
+    m_ID = id;
+}
+
+//==== Copy NameValData ====//
+void NameValData::CopyFrom( NameValData* nvd, vector < string > name_vector )
+{
+    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Attributes" );
+
+    nvd->EncodeXml( root );
+    xmlNodePtr attr_node = XmlUtil::GetNode( root, "Attribute", 0 );
+    DecodeXml( attr_node, name_vector );
+
+    xmlFreeNode( root );
+    // xmlFreeNode( attr_node );
+
+}
+
+string NameValData::TruncateString( string str, int len )
+{
+    if ( str.length() > len )
+    {
+        str.resize( len );
+        return str.append( "..." );
+    }
+    return str;
+}
+
+void NameValData::EncodeXml( xmlNodePtr & node )
+{
+    string attrXmlName = "Attribute";
+    xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar * )attrXmlName.c_str(), NULL );
+    XmlUtil::SetStringProp( dnode, "ID", m_ID );
+    XmlUtil::SetStringProp( dnode, "AttachID", m_AttachID );
+    XmlUtil::SetStringProp( dnode, "Name", m_Name );
+    XmlUtil::SetIntProp( dnode, "Type", m_Type );
+    XmlUtil::SetIntProp( dnode, "EventGroup", m_AttributeEventGroup );
+    if ( m_Type == vsp::BOOL_DATA )
+    {
+        XmlUtil::SetIntProp( dnode, "BoolData", GetBool( 0 ) );
+    }
+    else if ( m_Type == vsp::INT_DATA )
+    {
+        XmlUtil::SetIntProp( dnode, "IntData", GetInt( 0 ) );
+    }
+    else if ( m_Type == vsp::DOUBLE_DATA )
+    {
+        XmlUtil::SetDoubleProp( dnode, "DblData", GetDouble( 0 ) );
+    }
+    else if ( m_Type == vsp::STRING_DATA )
+    {
+        XmlUtil::SetStringProp( dnode, "StrData", GetString( 0 ) );
+    }
+    else if ( m_Type == vsp::PARM_REFERENCE_DATA )
+    {
+        XmlUtil::SetStringProp( dnode, "ParmIDData", GetParmID( 0 ) );
+    }
+    else if ( m_Type == vsp::VEC3D_DATA )
+    {
+        XmlUtil::AddVectorVec3dNode( dnode, "Vec3dData", GetVec3dData() );
+    }
+    else if ( m_Type == vsp::INT_MATRIX_DATA )
+    {
+        int nrow = 0;
+        int ncol = 0;
+
+        nrow = m_IntMatData.size();
+        if ( nrow )
+        {
+            ncol = m_IntMatData[0].size();
+        }
+
+        std::vector < int > flatIntMatData;
+
+        for ( int i = 0; i != m_IntMatData.size(); ++i )
+        {
+            for ( int j = 0; j != m_IntMatData[i].size(); ++j )
+            {
+                flatIntMatData.push_back( m_IntMatData[i][j] );
+            }
+        }
+
+        XmlUtil::SetIntProp( dnode, "Rows", nrow );
+        XmlUtil::SetIntProp( dnode, "Cols", ncol );
+        XmlUtil::AddVectorIntNode( dnode, "IntMatData", flatIntMatData );
+    }
+    else if ( m_Type == vsp::DOUBLE_MATRIX_DATA )
+    {
+        int nrow = 0;
+        int ncol = 0;
+
+        nrow = m_DoubleMatData.size();
+        if ( nrow )
+        {
+            ncol = m_DoubleMatData[0].size();
+        }
+
+        std::vector < double > flatDblMatData;
+
+        for ( int i = 0; i != m_DoubleMatData.size(); ++i )
+        {
+            for ( int j = 0; j != m_DoubleMatData[i].size(); ++j )
+            {
+                flatDblMatData.push_back( m_DoubleMatData[i][j] );
+            }
+        }
+
+        XmlUtil::SetIntProp( dnode, "Rows", nrow );
+        XmlUtil::SetIntProp( dnode, "Cols", ncol );
+        XmlUtil::AddVectorDoubleNode( dnode, "DoubleMatData", flatDblMatData );
+
+    }
+
+    XmlUtil::SetStringProp( dnode, "Desc", m_Doc );
+    XmlUtil::SetIntProp( dnode, "Protection", m_ProtectFlag );
+}
+
+void NameValData::DecodeXml( xmlNodePtr & node, vector < string > name_vector )
+{
+    if ( node )
+    {
+        string default_str = "None";
+        int default_int = 0;
+        double default_dbl = 0.;
+
+        int i_attr = 0;
+
+        bool protect_flag = XmlUtil::FindIntProp( node, "Protection", default_int );
+
+        string ID = IDMgr.RemapID( XmlUtil::FindStringProp( node, "ID", default_str ) );
+        string attachID = IDMgr.RemapID( XmlUtil::FindStringProp( node, "AttachID", default_str ) );
+
+        m_Name = XmlUtil::FindStringProp( node, "Name", default_str );
+        m_Type = XmlUtil::FindIntProp( node, "Type", default_int );
+        m_Doc = XmlUtil::FindStringProp( node, "Desc", default_str );
+        m_AttributeEventGroup = XmlUtil::FindIntProp( node, "EventGroup", vsp::ATTR_GROUP_NONE );
+
+        ChangeID( ID );
+        SetAttrAttach( attachID );
+        SetProtection( protect_flag );
+
+        if ( m_Type == vsp::BOOL_DATA )
+        {
+            bool boolData = XmlUtil::FindIntProp( node, "BoolData", default_int );
+            SetBoolData( { boolData } );
+        }
+        else if ( m_Type == vsp::INT_DATA )
+        {
+            int intData = XmlUtil::FindIntProp( node, "IntData", default_int );
+            SetIntData( { intData } );
+        }
+        else if ( m_Type == vsp::DOUBLE_DATA )
+        {
+            double doubleData = XmlUtil::FindDoubleProp( node, "DblData", default_dbl );
+            SetDoubleData( { doubleData } );
+        }
+        else if ( m_Type == vsp::STRING_DATA )
+        {
+            string stringData = XmlUtil::FindStringProp( node, "StrData", default_str );
+            SetStringData( { stringData } );
+        }
+        else if ( m_Type == vsp::PARM_REFERENCE_DATA )
+        {
+            string parmIDData = XmlUtil::FindStringProp( node, "ParmIDData", default_str );
+            SetParmIDData( { parmIDData } );
+        }
+        else if ( m_Type == vsp::VEC3D_DATA )
+        {
+            string attrXmlName = "Vec3dData";
+            xmlNodePtr vec3dNode = XmlUtil::GetNode( node, attrXmlName.c_str(), 0 );
+            SetVec3dData( XmlUtil::GetVectorVec3dNode( vec3dNode ) );
+        }
+        else if ( m_Type == vsp::INT_MATRIX_DATA )
+        {
+            int nrow = XmlUtil::FindIntProp( node, "Rows", default_int );
+            int ncol = XmlUtil::FindIntProp( node, "Cols", default_int );
+
+            std::vector < int > flatMatData;
+            std::vector < std::vector < int > > matData;
+
+            flatMatData = XmlUtil::ExtractVectorIntNode( node, "IntMatData" );
+
+            int k = 0;
+            for ( int i = 0; i != nrow; ++i )
+            {
+                matData.push_back( {} );
+                for ( int j = 0; j != ncol; ++j )
+                {
+                    matData[i].push_back( flatMatData[k] );
+                    ++k;
+                }
+            }
+            SetIntMatData( matData );
+        }
+        else if ( m_Type == vsp::DOUBLE_MATRIX_DATA )
+        {
+            int nrow = XmlUtil::FindIntProp( node, "Rows", default_int );
+            int ncol = XmlUtil::FindIntProp( node, "Cols", default_int );
+
+            std::vector < double > flatMatData;
+            std::vector < std::vector < double > > matData;
+
+            flatMatData = XmlUtil::ExtractVectorDoubleNode( node, "DoubleMatData" );
+
+            int k = 0;
+            for ( int i = 0; i != nrow; ++i )
+            {
+                matData.push_back( {} );
+                for ( int j = 0; j != ncol; ++j )
+                {
+                    matData[i].push_back( flatMatData[k] );
+                    ++k;
+                }
+            }
+            SetDoubleMatData( matData );
+        }
+    }
+}
+
+string NameValData::GetAsString( bool inline_data_flag )
+{
+    char str[255];
+    string outstring;
+
+    int vec_row = 0;
+    int mat_row = 0;
+    int mat_col = 0;
+    int ac_size = 0;
+    std::vector < NameValData* > nvd_vec;
+
+    switch ( m_Type ){
+        case vsp::INVALID_TYPE:
+            outstring = "invalid";
+            break;
+        case vsp::BOOL_DATA:
+            for ( unsigned int i = 0; i < m_IntData.size(); i++ )
+            {
+                if ( m_IntData[i] )
+                {
+                    snprintf( str, sizeof( str ), "True" );
+                }
+                else
+                {
+                    snprintf( str, sizeof( str ), "False" );
+                }
+                outstring.append( str );
+            }
+            break;
+        case vsp::INT_DATA:
+            for ( unsigned int i = 0; i < m_IntData.size(); i++ )
+            {
+                snprintf( str, sizeof( str ), "%d ", m_IntData[i] );
+                outstring.append( str );
+            }
+            break;
+        case vsp::DOUBLE_DATA:
+            for ( unsigned int i = 0; i < m_DoubleData.size(); i++ )
+            {
+                snprintf( str, sizeof( str ), "%g ", m_DoubleData[i] );
+                outstring.append( str );
+            }
+            break;
+        case vsp::STRING_DATA:
+            for ( unsigned int i = 0; i < m_StringData.size(); i++ )
+            {
+                outstring.append( m_StringData[i] + " " );
+            }
+            break;
+        case vsp::PARM_REFERENCE_DATA:
+            if ( m_ParmIDData.empty() )
+            {
+                outstring.append( string("-") );
+            }
+            for ( unsigned int i = 0; i < m_ParmIDData.size(); i++ )
+            {
+                Parm* p = ParmMgr.FindParm( m_ParmIDData[i] );
+                if ( p )
+                {
+                    outstring.append( to_string( p->Get() ) );
+                }
+                else if ( !m_ParmIDData[i].empty() )
+                {
+                    outstring.append( string("INVALID PARM ID") );
+                }
+                else
+                {
+                    outstring.append( string("-") );
+                }
+            }
+            break;
+        case vsp::VEC3D_DATA:
+            if ( !inline_data_flag )
+            {
+                for ( unsigned int i = 0; i < m_Vec3dData.size(); i++ )
+                {
+                    snprintf( str, sizeof( str ), "%g,%g,%g ", m_Vec3dData[i].x(), m_Vec3dData[i].y(), m_Vec3dData[i].z() );
+                    outstring.append( str );
+                }
+            }
+            else
+            {
+                vec_row = m_Vec3dData.size();
+                if ( vec_row < 2 )
+                {
+                    snprintf( str, sizeof( str ), "%g,%g,%g ", m_Vec3dData[0].x(), m_Vec3dData[0].y(), m_Vec3dData[0].z() );
+                }
+                else
+                {
+                    snprintf( str, sizeof( str ), "(%d rows)", vec_row );
+                }
+                outstring.append( str );
+            }
+            break;
+        case vsp::INT_MATRIX_DATA:
+            if ( !inline_data_flag )
+            {
+                for ( unsigned int row = 0; row < m_IntMatData.size(); row++ )
+                {
+                    for ( unsigned int col = 0; col < m_IntMatData[row].size(); col++ )
+                    {
+                        snprintf( str, sizeof( str ), "%d ", m_IntMatData[row][col] );
+                        outstring.append( str );
+                    }
+                    if ( row < m_IntMatData.size() - 1 )
+                    {
+                        snprintf( str, sizeof( str ), "\n\t\t%-20s \t\t \t", "");
+                        outstring.append( str );
+                    }
+                }
+            }
+            else
+            {
+                mat_row = m_IntMatData.size();
+                if ( mat_row )
+                {
+                    mat_col = m_IntMatData[0].size();
+                }
+                snprintf( str, sizeof( str ), "(%d x %d)", mat_row, mat_col );
+                outstring.append( str );
+            }
+            break;
+        case vsp::DOUBLE_MATRIX_DATA:
+            if ( !inline_data_flag )
+            {
+                for ( unsigned int row = 0; row < m_DoubleMatData.size(); row++ )
+                {
+                    for ( unsigned int col = 0; col < m_DoubleMatData[row].size(); col++ )
+                    {
+                        snprintf( str, sizeof( str ), "%.*e ", DBL_DIG + 3, m_DoubleMatData[row][col] );
+                        outstring.append( str );
+                    }
+                    if ( row < m_DoubleMatData.size() - 1 )
+                    {
+                        snprintf( str, sizeof( str ), "\n\t\t%-20s \t\t \t", "");
+                        outstring.append( str );
+                    }
+                }
+            }
+            else
+            {
+                mat_row = m_DoubleMatData.size();
+                if ( mat_row )
+                {
+                    mat_col = m_DoubleMatData[0].size();
+                }
+                snprintf( str, sizeof( str ), "(%d x %d)", mat_row, mat_col );
+                outstring.append( str );
+            }
+            break;
+        default:
+            outstring = "unknown";
+            break;
+    }
+
+    return outstring;
+}
+
+
+//==== Update Attachment IDs ====//
+
+// define attached object ID
+void NameValData::SetAttrAttach( string attachID )
+{
+    m_AttachID = attachID;
+}
+
 
 
 //======================================================================================//

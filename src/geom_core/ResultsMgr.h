@@ -12,6 +12,7 @@
 #define RESULTSMGR__INCLUDED_
 
 #include "Vec3d.h"
+#include "XmlUtil.h"
 
 #include <map>
 #include <list>
@@ -23,38 +24,53 @@ using std::vector;
 using std::string;
 
 //==== Results Data - Named Vectors Of Ints/Double/Strings or Vec3d ====//
+class NameValCollection;
+
 class NameValData
 {
 public:
     NameValData();
+    NameValData( NameValData* nvd );
     NameValData( const string & name );
-    NameValData( const string & name, const int & i_data, const string & doc );
-    NameValData( const string & name, const double & d_data, const string & doc );
-    NameValData( const string & name, const string & s_data, const string & doc );
-    NameValData( const string & name, const vec3d & v_data, const string & doc );
-    NameValData( const string & name, const vector< int > & i_data, const string & doc );
-    NameValData( const string & name, const vector< double > & d_data, const string & doc );
-    NameValData( const string & name, const vector< string > & s_data, const string & doc );
-    NameValData( const string & name, const vector< vec3d > & v_data, const string & doc );
-    NameValData( const string & name, const vector< vector< double > > &dmat_data, const string & doc );
-
-    void Init( const string & name, int type = 0, int index = 0 );
+    NameValData( const string & name, const bool & b_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const int & i_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const double & d_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const string & s_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const vec3d & v_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const NameValCollection &c_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const vector< bool > & b_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const vector< int > & i_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const vector< double > & d_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const vector< string > & s_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const vector< vec3d > & v_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const vector< vector< int > > &imat_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const vector< vector< double > > &dmat_data, const string & doc, const string & id = string() );
+    NameValData( const string & name, const vector< NameValCollection > &c_data, const string & doc, const string & id = string() );
 
     string GetName() const
     {
         return m_Name;
+    }
+    string GetID() const
+    {
+        return m_ID;
     }
     int GetType() const
     {
         return m_Type;
     }
     string GetTypeName() const;
+    static string GetTypeName( int type, bool capitalize = false, bool short_name = false );
 
     string GetDoc() const
     {
         return m_Doc;
     }
 
+    const vector<int> & GetBoolData() const
+    {
+        return m_IntData;
+    }
     const vector<int> & GetIntData() const
     {
         return m_IntData;
@@ -67,53 +83,188 @@ public:
     {
         return m_StringData;
     }
+    const vector<string> & GetParmIDData() const
+    {
+        return m_ParmIDData;
+    }
     const vector<vec3d> & GetVec3dData() const
     {
         return m_Vec3dData;
+    }
+    const vector< vector< int > > & GetIntMatData() const
+    {
+        return m_IntMatData;
     }
     const vector< vector< double > > & GetDoubleMatData() const
     {
         return m_DoubleMatData;
     }
+    const vector< NameValCollection > & GetNameValCollectionData() const
+    {
+        return m_NameValCollectionData;
+    }
+    vector<int> & GetBoolData()
+    {
+        return m_IntData;
+    }
+    vector<int> & GetIntData()
+    {
+        return m_IntData;
+    }
+    vector<double> & GetDoubleData()
+    {
+        return m_DoubleData;
+    }
+    vector<string> & GetStringData()
+    {
+        return m_StringData;
+    }
+    vector<string> & GetParmIDData()
+    {
+        return m_ParmIDData;
+    }
+    vector<vec3d> & GetVec3dData()
+    {
+        return m_Vec3dData;
+    }
+    vector< vector< int > > & GetIntMatData()
+    {
+        return m_IntMatData;
+    }
+    vector< vector< double > > & GetDoubleMatData()
+    {
+        return m_DoubleMatData;
+    }
 
+    bool GetBool( int index ) const;
     int GetInt( int index ) const;
+    int GetInt( int row, int col ) const;
     double GetDouble( int index ) const;
     double GetDouble( int row, int col ) const;
     string GetString( int index ) const;
+    string GetParmID( int index ) const;
     vec3d GetVec3d( int index ) const;
+    NameValCollection GetNameValCollection( int index ) const;
+    NameValCollection* GetNameValCollectionPtr( int index );
+
+    string GetAsString( bool inline_data_flag = false );
+
+    void SetBoolData( const vector< int > & b )
+    {
+        m_IntData = b;
+    }
 
     void SetIntData( const vector< int > & d )
     {
         m_IntData = d;
     }
+
     void SetDoubleData( const vector< double > & d )
     {
         m_DoubleData = d;
     }
+
     void SetStringData( const vector< string > & d )
     {
         m_StringData = d;
     }
+
+    void SetParmIDData( const vector< string > & d )
+    {
+        m_ParmIDData = d;
+    }
+
     void SetVec3dData( const vector< vec3d > & d )
     {
         m_Vec3dData = d;
     }
+
+    void SetIntMatData( const vector< vector< int > > & i )
+    {
+        m_IntMatData = i;
+    }
+
     void SetDoubleMatData( const vector< vector< double > > & d )
     {
         m_DoubleMatData = d;
     }
 
+    void SetNameValCollectionData( const vector< NameValCollection > & d )
+    {
+        m_NameValCollectionData = d;
+    }
+
+    void SetName( const string & name )
+    {
+        m_Name = name;
+    }
+
+    void SetType( const int & type )
+    {
+        m_Type = type;
+    }
+
+    void SetDoc( const string & doc )
+    {
+        m_Doc = doc;
+    }
+
+    void SetAttrAttach( string attachID );
+
+    string GetAttachID() const
+    {
+        return m_AttachID;
+    }
+
+    void SetProtection( bool protect_flag )
+    {
+        m_ProtectFlag = protect_flag;
+    }
+
+    bool IsProtected() const
+    {
+        return m_ProtectFlag;
+    }
+
+    int GetAttributeEventGroup() const
+    {
+        return m_AttributeEventGroup;
+    }
+
+    void SetAttributeEventGroup( int g )
+    {
+        m_AttributeEventGroup = g;
+    }
+
+    string GenerateID();
+    void ChangeID( string id );
+
+    void CopyFrom( NameValData* nvd, vector < string > name_vector = {} );
+
+    static string TruncateString( string str , int len );
+
+    virtual void EncodeXml( xmlNodePtr & node );
+    virtual void DecodeXml( xmlNodePtr & node, vector < string > name_vector = {} );
 protected:
+
+    void Init( const string & name, int type = 0, const string & id = string() );
 
     string m_Name;
     int m_Type;
     string m_Doc;
+    string m_ID;
     vector< int > m_IntData;
     vector< double > m_DoubleData;
     vector< string > m_StringData;
+    vector< string > m_ParmIDData;
     vector< vec3d > m_Vec3dData;
+    vector< vector< int > >  m_IntMatData;
     vector< vector< double > >  m_DoubleMatData;
+    vector< NameValCollection > m_NameValCollectionData;
 
+    bool m_ProtectFlag;
+    string m_AttachID;
+    int m_AttributeEventGroup;
 };
 
 
