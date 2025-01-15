@@ -606,6 +606,9 @@ protected:
     // Color of lines in XSecViewScreen
     vec3d m_XSecLineColor;
 
+    // Default Vehicle Attributes
+    void AddDefaultAttributes();
+
 private:
 
     void Wype();
