@@ -541,6 +541,15 @@ public:
 
     IntParm m_NumUserSets;
 
+    // Attribute Explorer Screen
+
+    BoolParm m_AttrCaseSensitivity;
+    BoolParm m_AttrBoolButtonParm;
+
+    // Vehicle Note Screen
+
+    BoolParm m_ShowNotesScreenParm;
+
 protected:
 
     virtual void SetExportPropMainSurf( bool b );

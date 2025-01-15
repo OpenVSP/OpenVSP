@@ -309,6 +309,13 @@ Vehicle::Vehicle()
     m_NumUserSets.Init( "NumUserSets", "Sets", this, MIN_NUM_USER, MIN_NUM_USER, MAX_NUM_SETS - SET_FIRST_USER );
     m_NumUserSets.SetDescript( "Number of user sets in this model.\n" );
 
+    // ==== placeholder parms for Attribute Explorer Screen controls ==== //
+    m_AttrCaseSensitivity.Init( "CaseSens", "AttributeExplorerGUI", this, 0.0, 0.0, 1.0 );
+    m_AttrBoolButtonParm.Init( "AttrBool", "AttributeExplorerGUI", this, 0.0, 0.0, 1.0 );
+
+    // ==== parm to show model notes on file load ==== //
+    m_ShowNotesScreenParm.Init( "ShowNotes", "ModelNotesGUI", this, 0.0, 0.0, 1.0 );
+
     SetupPaths();
     m_VehProjectVec3d.resize( 3 );
     m_ColorCount = 0;
