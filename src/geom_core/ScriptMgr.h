@@ -183,6 +183,32 @@ private:
     CScriptArray* GetStringAnalysisInput( const string & analysis, const string & name, int index );
     CScriptArray* GetVec3dAnalysisInput( const string & analysis, const string & name, int index );
 
+    //==== Attribute Calls ====//
+    CScriptArray* FindAllAttributes();
+    CScriptArray* FindAttributedObjects();
+
+    CScriptArray* FindAttributesByName( const string & search_str );
+    CScriptArray* FindAttributeNamesInCollection( const string & collID );
+    CScriptArray* FindAttributesInCollection( const string & collID );
+
+    CScriptArray* GetAttributeBoolVal( const string & attrID );
+    CScriptArray* GetAttributeIntVal( const string & attrID );
+    CScriptArray* GetAttributeDoubleVal( const string & attrID );
+    CScriptArray* GetAttributeStringVal( const string & attrID );
+    CScriptArray* GetAttributeParmVal( const string & attrID );
+    CScriptArray* GetAttributeParmName( const string & attrID );
+    CScriptArray* GetAttributeVec3dVal( const string & attrID );
+    CScriptArray* GetAttributeIntMatrixVal( const string & attrID );
+    CScriptArray* GetAttributeDoubleMatrixVal( const string & attrID );
+
+    void SetAttributeVec3d( const string & attrID, CScriptArray* vec3dVector );
+    void SetAttributeIntMatrix( const string & attrID, CScriptArray* intMatrix );
+    void SetAttributeDoubleMatrix( const string & attrID, CScriptArray* dblMatrix );
+
+    CScriptArray* AddAttributeVec3d( const string & attrID, const string & attributeName, CScriptArray* vec3dVector );
+    CScriptArray* AddAttributeIntMatrix( const string & collID, const string & attributeName, CScriptArray* intMatrix );
+    CScriptArray* AddAttributeDoubleMatrix( const string & collID, const string & attributeName, CScriptArray* dblMatrix );
+
     CScriptArray* GetAllResultsNames();
     CScriptArray* GetAllDataNames( const string & results_id );
     CScriptArray* GetIntResults( const string & id, const string & name, int index );

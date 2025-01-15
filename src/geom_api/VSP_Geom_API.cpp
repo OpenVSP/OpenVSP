@@ -15,6 +15,7 @@
 
 #include "AdvLinkMgr.h"
 #include "AnalysisMgr.h"
+#include "AttributeManager.h"
 #include "Background3DMgr.h"
 #include "BORGeom.h"
 #include "CfdMeshMgr.h"
@@ -1395,6 +1396,265 @@ void PrintAnalysisDocs( const string & analysis_name )
     }
 
     AnalysisMgr.PrintAnalysisDocs( analysis_name );
+}
+
+//===================================================================//
+//===============       Attributes Functions         ===================//
+//===================================================================//
+
+string SummarizeAttributes()
+{
+    return AttributeMgr.SummarizeAttributes();
+}
+
+string SummarizeAttributesAsTree()
+{
+    return AttributeMgr.SummarizeAttributesAsTree();
+}
+
+vector < string > FindAllAttributes()
+{
+    return AttributeMgr.FindAllAttributes();
+}
+
+vector < string > FindAttributesByName( const string & search_str )
+{
+    return AttributeMgr.FindAttributesByName( search_str );
+}
+
+string FindAttributeByName( const string & search_str, int index )
+{
+    return AttributeMgr.FindAttributeByName( search_str, index );
+}
+
+string FindAttributeInCollection( const string & obj_id, const string & search_str, int index )
+{
+    return AttributeMgr.FindAttributeInCollection( obj_id, search_str, index );
+}
+
+vector< string > FindAttributeNamesInCollection( const string & collID )
+{
+    return AttributeMgr.FindAttributeNamesInCollection( collID );
+}
+
+vector< string > FindAttributesInCollection( const string & collID )
+{
+    return AttributeMgr.FindAttributesInCollection( collID );
+}
+
+vector< string > FindAttributedObjects()
+{
+    return AttributeMgr.FindAttributedObjects();
+}
+
+int GetObjectType( const string & id )
+{
+    return AttributeMgr.GetObjectType( id );
+}
+
+string GetObjectTypeName( const string & id )
+{
+    return AttributeMgr.GetObjectTypeName( id );
+}
+
+string GetObjectName( const string & id )
+{
+    return AttributeMgr.GetObjectName( id );
+}
+
+string GetObjectParent( const string & id )
+{
+    return AttributeMgr.GetObjectParent( id );
+}
+
+string GetChildCollection( const string & id )
+{
+    return AttributeMgr.GetChildCollection( id );
+}
+
+string GetGeomSetCollection( const int & index )
+{
+    return AttributeMgr.GetGeomSetCollection( index );
+}
+
+string GetAttributeName( const string & attrID )
+{
+    return AttributeMgr.GetAttributeName( attrID );
+}
+
+string GetAttributeID( const string & collID, const string & attributeName, int index )
+{
+    return AttributeMgr.GetAttributeID( collID, attributeName, index );
+}
+
+string GetAttributeDoc( const string & attrID )
+{
+    return AttributeMgr.GetAttributeDoc( attrID );
+}
+
+int GetAttributeType( const string & attrID )
+{
+    return AttributeMgr.GetAttributeType( attrID );
+}
+
+string GetAttributeTypeName( const string & attrID )
+{
+    return AttributeMgr.GetAttributeTypeName( attrID );
+}
+
+vector< int > GetAttributeBoolVal( const string & attrID )
+{
+    return AttributeMgr.GetAttributeBoolVal( attrID );
+}
+
+vector< int > GetAttributeIntVal( const string & attrID )
+{
+    return AttributeMgr.GetAttributeIntVal( attrID );
+}
+
+vector< double > GetAttributeDoubleVal( const string & attrID )
+{
+    return AttributeMgr.GetAttributeDoubleVal( attrID );
+}
+
+vector< string > GetAttributeStringVal( const string & attrID )
+{
+    return AttributeMgr.GetAttributeStringVal( attrID );
+}
+
+vector< double > GetAttributeParmVal( const string & attrID )
+{
+    return AttributeMgr.GetAttributeParmVal( attrID );
+}
+
+vector< string > GetAttributeParmName( const string & attrID )
+{
+    return AttributeMgr.GetAttributeParmName( attrID );
+}
+
+vector< vec3d > GetAttributeVec3dVal( const string & attrID )
+{
+    return AttributeMgr.GetAttributeVec3dVal( attrID );
+}
+
+vector< vector < int > > GetAttributeIntMatrixVal( const string & attrID )
+{
+    return AttributeMgr.GetAttributeIntMatrixVal( attrID );
+}
+
+vector< vector < double > > GetAttributeDoubleMatrixVal( const string & attrID )
+{
+    return AttributeMgr.GetAttributeDoubleMatrixVal( attrID );
+}
+
+void SetAttributeName( const string &attrID, const string &name )
+{
+    return AttributeMgr.SetAttributeName( attrID, name );
+}
+
+void SetAttributeDoc( const string & attrID, const string & doc )
+{
+    AttributeMgr.SetAttributeDoc( attrID, doc );
+}
+
+void SetAttributeBool( const string & attrID, bool value )
+{
+    AttributeMgr.SetAttributeBool( attrID, value );
+}
+
+void SetAttributeInt( const string & attrID, int value )
+{
+    AttributeMgr.SetAttributeInt( attrID, value );
+}
+
+void SetAttributeDouble( const string & attrID, double value )
+{
+    AttributeMgr.SetAttributeDouble( attrID, value );
+}
+
+void SetAttributeString( const string & attrID, const string & value )
+{
+    AttributeMgr.SetAttributeString( attrID, value );
+}
+
+void SetAttributeVec3d( const string & attrID, const vector < vec3d > value )
+{
+    AttributeMgr.SetAttributeVec3d( attrID, value );
+}
+
+void SetAttributeIntMatrix( const string & attrID, const vector< vector< int > > value )
+{
+    AttributeMgr.SetAttributeIntMatrix( attrID, value );
+}
+
+void SetAttributeDoubleMatrix( const string & attrID, const vector< vector< double > > value )
+{
+    AttributeMgr.SetAttributeDoubleMatrix( attrID, value );
+}
+
+void DeleteAttribute( const string & attrID )
+{
+    AttributeMgr.DeleteAttribute( attrID );
+}
+
+string AddAttributeBool( const string & collID, const string & attributeName, bool value )
+{
+    return AttributeMgr.AddAttributeBool( collID, attributeName, value );
+}
+
+string AddAttributeInt( const string & collID, const string & attributeName, int value )
+{
+    return AttributeMgr.AddAttributeInt( collID, attributeName, value );
+}
+
+string AddAttributeDouble( const string & collID, const string & attributeName, double value)
+{
+    return AttributeMgr.AddAttributeDouble( collID, attributeName, value );
+}
+
+string AddAttributeString( const string & collID, const string & attributeName, const string & value )
+{
+    return AttributeMgr.AddAttributeString( collID, attributeName, value );
+}
+
+string AddAttributeParm( const string & collID, const string & attributeName, const string & parmID )
+{
+    return AttributeMgr.AddAttributeParm( collID, attributeName, parmID );
+}
+
+string AddAttributeVec3d( const string & collID, const string & attributeName, vector < vec3d > value )
+{
+    return AttributeMgr.AddAttributeVec3d( collID, attributeName, value );
+}
+
+string AddAttributeIntMatrix( const string & collID, const string & attributeName, vector < vector < int > > value )
+{
+    return AttributeMgr.AddAttributeIntMatrix( collID, attributeName, value );
+}
+
+string AddAttributeDoubleMatrix( const string & collID, const string & attributeName, vector < vector < double > > value )
+{
+    return AttributeMgr.AddAttributeDoubleMatrix( collID, attributeName, value );
+}
+
+string AddAttributeGroup( const string & collID, const string & attributeName )
+{
+    return AttributeMgr.AddAttributeGroup( collID, attributeName );
+}
+
+int CopyAttribute( const string & attrID )
+{
+    return AttributeMgr.CopyAttribute( attrID );
+}
+
+void CutAttribute( const string & attrID )
+{
+    return AttributeMgr.CutAttribute( attrID );
+}
+
+void PasteAttribute( const string & objID )
+{
+    AttributeMgr.PasteAttribute( objID );
 }
 
 //===================================================================//
