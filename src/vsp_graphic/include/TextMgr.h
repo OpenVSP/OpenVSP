@@ -29,6 +29,8 @@ public:
 
     virtual void clearFont();
 
+    static double getBaseScale();
+
     /*!
     * Load font from file and return the font object.
     */
@@ -42,7 +44,7 @@ public:
     * x0, y0 - center location of the text.
     * xoffset, yoffset - offset from the center.
     */
-    static void drawText( glfont::GLFont * font, float scale, const std::string &str, float x0, float y0, float xoffset, float yoffset );
+    static void drawText( glfont::GLFont * font, float scale, const std::string &str, float x0, float y0, float xoffset, float yoffset, float arW = 1.f, float arH = 1.f );
 
 private:
 
