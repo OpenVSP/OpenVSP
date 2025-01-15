@@ -270,6 +270,11 @@ bool SettingGroup::CheckSetting( const string &id )
     return false; // Setting not found
 }
 
+bool SettingGroup::HasSetting( const string &id ) const
+{
+    return vector_contains_val( m_SettingIDVec, id );
+}
+
 xmlNodePtr SettingGroup::EncodeXml( xmlNodePtr &node )
 {
     xmlNodePtr settinggroup_node = xmlNewChild( node, NULL, BAD_CAST "SettingGroup", NULL );

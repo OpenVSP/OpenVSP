@@ -87,6 +87,7 @@ public:
     void ApplySetting( const string &id );
     void SaveSetting( const string &id );
     bool CheckSetting( const string &id );
+    bool HasSetting( const string &id ) const;
 
     xmlNodePtr EncodeXml( xmlNodePtr &node );
     xmlNodePtr DecodeXml( xmlNodePtr &node );
