@@ -185,6 +185,30 @@ protected:
 
 };
 
+//==== Vehicle Screen ====//
+class VehScreen : public TabScreen
+{
+public:
+    VehScreen( ScreenMgr* mgr, int w = 400, int h = 677 , const string & title = "Vehicle");
+
+    virtual ~VehScreen(){}
+
+    virtual bool Update( );
+    virtual void Show( );
+    virtual void CallBack( Fl_Widget *w );
+    static void staticScreenCB( Fl_Widget* w, void* data )
+    {
+        ( (VehScreen*)data )->CallBack( w );
+    }
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+
+    virtual void GetCollIDs( vector < string > &collIDVec );
+
+    //=====Attribute Editor Tab=====//
+    GroupLayout m_AttributeLayout;
+    AttributeEditor m_AttributeEditor;
+};
+
 //==== Geom Screen ====//
 class GeomScreen : public TabScreen
 {

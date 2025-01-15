@@ -31,6 +31,8 @@ AdvLinkScreen.cpp
 AdvLinkVarRenameScreen.cpp
 AeroStructScreen.cpp
 AirfoilExportScreen.cpp
+AttributeEditor.cpp
+AttributeScreen.cpp
 BlankScreen.cpp
 BEMOptionsScreen.cpp
 BORScreen.cpp
@@ -104,6 +106,7 @@ TreeColumnWidget.cpp
 CustomGeomExportScreen.cpp
 UserParmScreen.cpp
 VarPresetEditorScreen.cpp
+VehNotesScreen.cpp
 VSPAEROPlotScreen.cpp
 VSPAEROScreen.cpp
 VSPWindow.cpp
@@ -114,6 +117,8 @@ AdvLinkScreen.h
 AdvLinkVarRenameScreen.h
 AeroStructScreen.h
 AirfoilExportScreen.h
+AttributeEditor.h
+AttributeScreen.h
 BlankScreen.h
 BEMOptionsScreen.h
 BORScreen.h
@@ -187,6 +192,7 @@ TreeColumnWidget.h
 CustomGeomExportScreen.h
 UserParmScreen.h
 VarPresetEditorScreen.h
+VehNotesScreen.h
 VSPAEROPlotScreen.h
 VSPAEROScreen.h
 VSPWindow.h

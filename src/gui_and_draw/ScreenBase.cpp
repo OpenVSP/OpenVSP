@@ -338,6 +338,71 @@ Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh, int 
     return sub_group;
 }
 
+//=====================================================================//
+//=====================================================================//
+//=====================================================================//
+VehScreen::VehScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
+    TabScreen( mgr, w, h, title )
+{
+    // Set the window as a geom screen window
+    VSP_Window* vsp_win = dynamic_cast<VSP_Window*>(m_FLTK_Window);
+    vsp_win->SetGeomScreenFlag( true );
+
+    Fl_Group* attribute_tab = AddTab( "Attributes" );
+    Fl_Group* attribute_group = AddSubGroup( attribute_tab, 5 );
+    m_AttributeLayout.SetGroupAndScreen( attribute_group , this );
+    m_AttributeEditor.Init( mgr , &m_AttributeLayout , attribute_group, this, staticScreenCB, false, 0, 250 );
+};
+
+void VehScreen::Show( )
+{
+    if ( Update() )
+    {
+        VspScreen::Show( );
+    }
+};
+
+
+bool VehScreen::Update()
+{
+    assert( m_ScreenMgr );
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        SetTitle( veh->GetName() );
+    }
+
+    TabScreen::Update();
+
+    //==== Attributes ====//
+    if ( veh )
+    {
+        m_AttributeEditor.SetEditorCollID( veh->m_AttrCollection.GetID() );
+        m_AttributeEditor.Update();
+    }
+    return true;
+};
+
+void VehScreen::CallBack( Fl_Widget *w )
+{
+    assert( m_ScreenMgr );
+    m_AttributeEditor.DeviceCB( w );
+    m_ScreenMgr->SetUpdateFlag( true );
+};
+
+void VehScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    assert( m_ScreenMgr );
+    m_AttributeEditor.GuiDeviceCallBack( device );
+    m_ScreenMgr->SetUpdateFlag( true );
+};
+
+void VehScreen::GetCollIDs( vector < string > &collIDVec )
+{
+    collIDVec.push_back( m_AttributeEditor.GetAttrCollID() );
+}
 
 //=====================================================================//
 //=====================================================================//
