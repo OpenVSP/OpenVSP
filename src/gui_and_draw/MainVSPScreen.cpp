@@ -144,6 +144,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_TextureMenuItem.Init( mgr, m_MenuBar, "Model/Texture...", vsp::VSP_MANAGE_TEXTURE_SCREEN );
     m_AdvLinkMenuItem.Init( mgr, m_MenuBar, "Model/Adv Link...", vsp::VSP_ADV_LINK_SCREEN );
     m_UserParmMenuItem.Init( mgr, m_MenuBar, "Model/User Parms...", vsp::VSP_USER_PARM_SCREEN );
+    m_AttributeMenuItem.Init( mgr, m_MenuBar, "Model/Attribute Explorer...", vsp::VSP_ATTRIBUTE_EXPLORER_SCREEN );
+    m_VehNotesMenuItem.Init( mgr, m_MenuBar, "Model/Vehicle Notes...", vsp::VSP_VEH_NOTES_SCREEN );
     m_FitModelMenuItem.Init( mgr, m_MenuBar, "Model/Fit Model...", vsp::VSP_FIT_MODEL_SCREEN );
     m_SnapToMenuItem.Init( mgr, m_MenuBar, "Model/Snap To...", vsp::VSP_SNAP_TO_SCREEN );
 
@@ -358,6 +360,11 @@ void MainVSPScreen::ActionCB( void * data )
             VehicleMgr.GetVehicle()->Renew();
             VehicleMgr.GetVehicle()->SetVSP3FileName( openfile );
             VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
+
+            if ( VehicleMgr.GetVehicle()->m_ShowNotesScreenParm.Get() )
+            {
+                m_ScreenMgr->ShowScreen( vsp::VSP_VEH_NOTES_SCREEN );
+            }
 
             BndBox bbox = VehicleMgr.GetVehicle()->GetBndBox();
             vec3d p = bbox.GetCenter();

@@ -15,7 +15,7 @@
 
 
 //==== Constructor ====//
-AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Advanced Parameter Links", "AdvLink.html" )
+AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Advanced Parameter Links", "AdvLink.html" )
 {
     m_InputBrowserSelect = -1;
     m_OutputBrowserSelect = -1;
@@ -217,7 +217,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_BigGroup.SetSameLineFlag( false );
 
     //==== Code Editor ====//
-    m_CodeEditor = m_BigGroup.AddFlTextEditor( 210 );
+    m_CodeEditor = m_BigGroup.AddFlTextEditor( 260 );
 
     m_CodeBuffer = new Fl_Text_Buffer;
     m_CodeEditor->buffer( m_CodeBuffer );
@@ -227,6 +227,9 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_CodeBuffer->call_modify_callbacks();
 
     m_CodeBuffer->text( "" );
+
+    //==== Attributes GUI ====//
+    m_AdvLinkAttrEditor.Init( mgr, &m_BigGroup, m_FLTK_Window, this, staticScreenCB, true, m_BigGroup.GetY(), 90 );
 }
 
 AdvLinkScreen::~AdvLinkScreen()
@@ -332,7 +335,13 @@ bool AdvLinkScreen::Update()
     vector< AdvLink* > link_vec = AdvLinkMgr.GetLinks();
     for ( int i = 0 ; i < (int)link_vec.size() ; i++ )
     {
-        snprintf( str, sizeof( str ),  "  %s", link_vec[i]->GetName().c_str() );
+        string linkname = link_vec[i]->GetName();
+        string fontctrl = "";
+        if ( link_vec[i]->GetAttrCollection()->GetAttrDataFlag() )
+        {
+            fontctrl = "@C" + std::to_string(FL_DARK_MAGENTA)+"@.";
+        }
+        snprintf( str, sizeof( str ),  "%s  %s", fontctrl.c_str(), linkname.c_str() );
         m_LinkBrowser->add( str );
     }
 
@@ -435,6 +444,16 @@ bool AdvLinkScreen::Update()
         m_CodeBuffer->text( "" );
     }
 
+    if ( edit_link )
+    {
+        m_AdvLinkAttrEditor.SetEditorCollID( edit_link->m_AdvLinkAttrCollection.GetID() );
+    }
+    else
+    {
+        m_AdvLinkAttrEditor.SetEditorCollID();
+    }
+
+    m_AdvLinkAttrEditor.Update();
 
     m_FLTK_Window->redraw();
     return true;
@@ -658,10 +677,8 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
             }
         }
     }
-    else
-    {
-        return;
-    }
+
+    m_AdvLinkAttrEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -913,12 +930,15 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             }
         }
     }
-    else
-    {
-        return;
-    }
+
+    m_AdvLinkAttrEditor.GuiDeviceCallBack( gui_device );
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void AdvLinkScreen::GetCollIDs( vector < string > &collIDVec )
+{
+    collIDVec.push_back( m_AdvLinkAttrEditor.GetAttrCollID() );
 }
 
 void AdvLinkScreen::AddInput( const string & parmid, const string & name )

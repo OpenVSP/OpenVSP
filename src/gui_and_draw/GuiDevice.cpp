@@ -1142,6 +1142,18 @@ void ParmButton::Update( const string& parm_id )
             DebugLabelSize( m_Button );
         }
     }
+    Parm* parm_ptr = ParmMgr.FindParm( m_ParmID );
+    if ( parm_ptr )
+    {
+        if ( parm_ptr->m_ParmAttrCollection.GetAttrDataFlag() )
+        {
+            m_Button->labelcolor( FL_DARK_MAGENTA );
+        }
+        else
+        {
+            m_Button->labelcolor( FL_BLACK );
+        }
+    }
 }
 
 //==== Update Name ====//

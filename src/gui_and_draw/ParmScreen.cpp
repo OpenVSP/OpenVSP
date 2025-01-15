@@ -18,7 +18,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-ParmScreen::ParmScreen( ScreenMgr* mgr )  : TabScreen( mgr, 380, 250, "Parm" )
+ParmScreen::ParmScreen( ScreenMgr* mgr )  : TabScreen( mgr, 380, 400, "Parm" )
 {
     //==== Tabs And Groups ====//
     Fl_Group* info_tab = AddTab( "Info" );
@@ -42,16 +42,20 @@ ParmScreen::ParmScreen( ScreenMgr* mgr )  : TabScreen( mgr, 380, 250, "Parm" )
     m_InfoLayout.AddOutput( m_CurrValString, "Curr Val:" );
     m_InfoLayout.AddOutput( m_MaxValString, "Max Val:" );
 
+    //===== Attributes Section of Info Tab ====//
+    m_InfoLayout.AddYGap();
+    m_AttributeEditor.Init( mgr , &m_InfoLayout , info_group , this, staticScreenCB, false, 0, 175 );
+
     //===== Link ====//
     m_LinkLayout.SetGroupAndScreen( link_group, this );
     m_LinkLayout.AddDividerBox( "Link To" );
 
-    int width = ( m_LinkLayout.GetRemainX() - 10 ) / 3;
+    int link_width = ( m_LinkLayout.GetRemainX() - 10 ) / 3;
 
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
-    static int to_col_widths[] = { width, width, width, 0 }; // widths for each column
-    static int from_col_widths[] = { width, width, width, 0 }; // widths for each column
+    static int to_col_widths[] = { link_width, link_width, link_width, 0 }; // widths for each column
+    static int from_col_widths[] = { link_width, link_width, link_width, 0 }; // widths for each column
 
     m_LinkToBrowser = m_LinkLayout.AddColResizeBrowser( to_col_widths, 3, 75 );
     m_LinkToBrowser->callback( staticScreenCB, this );
@@ -70,8 +74,6 @@ ParmScreen::ParmScreen( ScreenMgr* mgr )  : TabScreen( mgr, 380, 250, "Parm" )
     m_AdvLinkLayout.AddDividerBox( "Adv Link Output" );
     m_AdvLinkOutputBrowser = m_AdvLinkLayout.AddFlBrowser( 75 );
 
-
-
     info_tab->show();
 }
 
@@ -87,6 +89,15 @@ bool ParmScreen::Update()
         Hide();
         return false;
     }
+
+    //==== Name Header of ParmScreen Tab ====//
+    if ( parm_ptr ){
+        std::string parm_name = parm_ptr->GetName();
+        std::string header_str = "Parm: " + parm_name; //QUESTION: use Dash or Hyphen?
+        SetTitle(header_str);
+    }
+
+
     string pid = parm_ptr->GetID();
 
     m_NameString.Update( parm_ptr->GetName() );
@@ -205,6 +216,10 @@ bool ParmScreen::Update()
 
     }
 
+    //==== Attributes ====//
+    m_AttributeEditor.SetEditorCollID( parm_ptr->m_ParmAttrCollection.GetID() );
+    m_AttributeEditor.Update();
+
     return true;
 }
 
@@ -213,7 +228,9 @@ void ParmScreen::Show()
 {
     if ( Update() )
     {
+        Parm* parm_ptr = ParmMgr.GetActiveParm();
         TabScreen::Show();
+        m_AttributeEditor.Show();
     }
 }
 
@@ -227,13 +244,22 @@ void ParmScreen::Hide()
 //==== Callbacks ====//
 void ParmScreen::CallBack( Fl_Widget *w )
 {
-
-
+    assert( m_ScreenMgr );
+    m_AttributeEditor.DeviceCB( w );
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void ParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
+    assert( m_ScreenMgr );
 
+    m_AttributeEditor.GuiDeviceCallBack( gui_device );
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void ParmScreen::GetCollIDs( vector < string > &collIDVec )
+{
+    collIDVec.push_back( m_AttributeEditor.GetAttrCollID() );
 }
 
 //void ParmScreen::update( Parm* p )

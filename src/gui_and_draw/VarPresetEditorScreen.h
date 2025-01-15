@@ -45,6 +45,8 @@ public:
 
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
+    virtual void GetCollIDs( vector < string > &collIDVec );
+
 protected:
 
     GroupLayout m_ChangeStateLayout;
@@ -74,6 +76,7 @@ protected:
 
     ColResizeBrowser* m_VarBrowser;
 
+    AttributeEditor m_GroupAttrEditor;
 
     // Setting tab
 
@@ -97,6 +100,7 @@ protected:
     vector < SliderAdjRangeInput > m_ParmSliderVec;
     std::size_t m_ParmListHash;
 
+    AttributeEditor m_SettingAttrEditor;
 
 
     int m_GroupIndex;

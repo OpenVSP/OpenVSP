@@ -4,6 +4,7 @@
 #include "ScreenBase.h"
 #include "DrawObj.h"
 #include "GuiDevice.h"
+#include "AttributeEditor.h"
 
 class ScreenMgr;
 
@@ -25,6 +26,7 @@ public:
 
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
+    virtual void GetCollIDs( vector < string > &collIDVec );
 
 
     static void Set( const vec3d &placement, const std::string &targetGeomId = "" );
@@ -42,6 +44,11 @@ protected:
     GroupLayout m_ProbeLayout;
     GroupLayout m_RSTProbeLayout;
     GroupLayout m_ProtractorLayout;
+
+    AttributeEditor m_RulerAttrEditor;
+    AttributeEditor m_ProbeAttrEditor;
+    AttributeEditor m_RSTAttrEditor;
+    AttributeEditor m_ProtAttrEditor;
 
     Choice m_RulerLengthUnitChoice;
     Choice m_RulerDirectionChoice;

@@ -30,6 +30,8 @@ public:
 
     virtual void RebuildCSTGroup( CSTAirfoil* cst_xs );
 
+    AttributeEditor m_XsecAttributeEditor;
+
 protected:
 
     GroupLayout m_DesignLayout;

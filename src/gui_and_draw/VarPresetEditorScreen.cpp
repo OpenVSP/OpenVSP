@@ -15,7 +15,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 600, "Variable Presets", "" )
+VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 750, "Variable Presets", "" )
 {
     Fl_Group* apply_tab = AddTab( "Apply" );
     apply_tab->callback( staticScreenCB, this );
@@ -41,7 +41,6 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_ChangeStateLayout.AddChoice( m_SettingChoice, "Setting");
     m_ChangeStateLayout.AddButton( m_ApplyButton, "Apply" );
     m_ChangeStateLayout.AddYGap();
-
 
     // Everything Relevant to "Crete" Tab
     m_GroupsLayout.SetGroupAndScreen( groups_group, this );
@@ -97,7 +96,8 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_VarBrowser = m_GroupsLayout.AddColResizeBrowser( col_widths, 3, browser_h );
     m_VarBrowser->callback( staticScreenCB, this );
 
-
+    m_GroupsLayout.AddYGap();
+    m_GroupAttrEditor.Init( mgr, &m_GroupsLayout, m_GroupsLayout.GetGroup(), this, staticScreenCB, false, 0, 140 );
 
     // Everything Relevant to "Setting" Tab
     m_SettingLayout.SetGroupAndScreen( setting_group, this );
@@ -137,13 +137,14 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_SettingLayout.AddYGap();
 
 
-    m_AdjustScrollGroup = AddSubScroll( m_SettingLayout.GetGroup(), 5, 0, m_SettingLayout.GetY() - m_SettingLayout.GetStartY() );
+    m_AdjustScrollGroup = AddSubScroll( m_SettingLayout.GetGroup(), 5, 165, m_SettingLayout.GetY() - m_SettingLayout.GetStartY() );
     m_AdjustScrollGroup->type( Fl_Scroll::VERTICAL_ALWAYS );
 
     m_AdjustLayout.SetGroupAndScreen( m_AdjustScrollGroup, this );
 
-
-
+    m_SettingLayout.SetY( m_SettingLayout.GetY() + m_AdjustLayout.GetY() );
+    m_SettingLayout.AddYGap();
+    m_SettingAttrEditor.Init( mgr, &m_SettingLayout, m_SettingLayout.GetGroup(), this, staticScreenCB, false, 0, 140 );
 
     apply_tab->show();
 
@@ -196,6 +197,14 @@ bool VarPresetEditorScreen::Update()
         m_PrevSID = s->GetID();
     }
 
+    string sg_ac_id = ( sg ) ? sg->GetAttributeCollection()->GetID() : string("");
+    string  s_ac_id = (  s ) ?  s->GetAttributeCollection()->GetID() : string("");
+
+    m_GroupAttrEditor.SetEditorCollID( sg_ac_id );
+    m_SettingAttrEditor.SetEditorCollID( s_ac_id );
+
+    m_GroupAttrEditor.Update();
+    m_SettingAttrEditor.Update();
 
     RebuildMenus();
 
@@ -526,6 +535,8 @@ void VarPresetEditorScreen::EnableDisableWidgets()
 void VarPresetEditorScreen::Show()
 {
     Update();
+    m_GroupAttrEditor.Show();
+    m_SettingAttrEditor.Show();
     TabScreen::Show();
 }
 
@@ -572,6 +583,9 @@ void VarPresetEditorScreen::CallBack( Fl_Widget* w )
     {
         m_SettingIndex = m_SettingBrowser->value() - 1;
     }
+
+    m_GroupAttrEditor.DeviceCB( w );
+    m_SettingAttrEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -788,5 +802,14 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
+    m_GroupAttrEditor.GuiDeviceCallBack( device );
+    m_SettingAttrEditor.GuiDeviceCallBack( device );
+
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void VarPresetEditorScreen::GetCollIDs( vector < string > &collIDVec )
+{
+    collIDVec.push_back( m_GroupAttrEditor.GetAttrCollID() );
+    collIDVec.push_back( m_SettingAttrEditor.GetAttrCollID() );
 }

@@ -48,6 +48,7 @@ public:
 
     void GuiDeviceCallBack( GuiDevice* gui_device );
 
+    virtual void GetCollIDs( vector < string > &collIDVec );
 
 protected:
 
@@ -119,6 +120,8 @@ protected:
 
     TriggerButton m_SaveCode;
     TriggerButton m_ReadCode;
+
+    AttributeEditor m_AdvLinkAttrEditor;
 
 };
 

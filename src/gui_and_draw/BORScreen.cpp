@@ -542,6 +542,30 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 680, "BOR" )
 
     DisplayGroup( &m_PointGroup );
 
+    //==== Add Attributes for Xsecs ====//
+    vector < int > y_vals;
+    y_vals.push_back( m_SuperGroup.GetY() );
+    y_vals.push_back( m_CircleGroup.GetY() );
+    y_vals.push_back( m_EllipseGroup.GetY() );
+    y_vals.push_back( m_RoundedRectGroup.GetY() );
+    y_vals.push_back( m_GenGroup.GetY() );
+    y_vals.push_back( m_FourSeriesGroup.GetY() );
+    y_vals.push_back( m_SixSeriesGroup.GetY() );
+    y_vals.push_back( m_BiconvexGroup.GetY() );
+    y_vals.push_back( m_WedgeGroup.GetY() );
+    y_vals.push_back( m_FuseFileGroup.GetY() );
+    y_vals.push_back( m_AfFileGroup.GetY() );
+    y_vals.push_back( m_CSTAirfoilGroup.GetY() );
+    y_vals.push_back( m_CSTLowCoeffLayout.GetY() );
+    y_vals.push_back( m_VKTGroup.GetY() );
+    y_vals.push_back( m_FourDigitModGroup.GetY() );
+    y_vals.push_back( m_FiveDigitGroup.GetY() );
+    y_vals.push_back( m_FiveDigitModGroup.GetY() );
+    y_vals.push_back( m_OneSixSeriesGroup.GetY() );
+
+    m_XSecLayout.SetY( *max_element( y_vals.begin(), y_vals.end() ) );
+    m_XsecAttributeEditor.Init( m_ScreenMgr, &m_XSecLayout, m_XSecLayout.GetGroup(), this, staticScreenCB, true, m_GenLayout.GetY(), 100 );
+
     //==== Modify ====//
 
     Fl_Group* modify_tab = AddTab( "Modify" );

@@ -9,7 +9,7 @@
 
 using namespace vsp;
 
-SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 400, "Set Editor", "SetEdit.html" )
+SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 560, "Set Editor", "SetEdit.html" )
 {
     //Variables to help get locations of widgets to look nice and clean
     int browserHeight = 200;
@@ -103,6 +103,12 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 400, 
     m_BorderLayout.ForceNewLine();
     m_BorderLayout.AddButton(m_CopySetToggle, "Copy Set Membership When Copying Geoms");
 
+    m_BorderLayout.ForceNewLine();
+    m_BorderLayout.SetSameLineFlag( false );
+    m_BorderLayout.AddYGap();
+
+    m_AttributeEditor.Init( mgr, &m_BorderLayout, m_BorderLayout.GetGroup(), this, staticScreenCB, false, 0, 150 );
+
     //Browser objects need to have there static callbacks set in SetEditorScreen's constructor
     m_SetBrowser->callback( staticScreenCB, this );
     m_SetSelectBrowser->callback( staticScreenCB, this );
@@ -169,8 +175,17 @@ bool SetEditorScreen::Update()
 
     //Updates what should be selected by utilizing m_SelectedSetIndex
     m_SetBrowser->select( m_SelectedSetIndex );
+
+
+
     //Updating the text in the input field by utilizing m_SelectedSetIndex
     m_SetNameInput.Update( set_name_vec[m_SelectedSetIndex] );
+
+    //Update the Attribute Editor
+    string ac_id = vehiclePtr->GetGeomSetAttrColl( m_SelectedSetIndex - SET_FIRST_USER );
+
+    m_AttributeEditor.SetEditorCollID( ac_id );
+    m_AttributeEditor.Update();
 
     ////==== Load Geometry ====//
 
@@ -199,6 +214,7 @@ bool SetEditorScreen::Update()
 void SetEditorScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
+    m_AttributeEditor.Show();
     BasicScreen::Show();
 }
 
@@ -247,6 +263,8 @@ void SetEditorScreen::CallBack( Fl_Widget *w )
         //We update m_SelectedSetIndex with selected value
         m_SelectedSetIndex = m_SetBrowser->value();
     }
+
+    m_AttributeEditor.DeviceCB( w );
 
     //To update values, we can utilize Update Function by setting flag to true
     m_ScreenMgr->SetUpdateFlag( true );
@@ -318,7 +336,13 @@ void SetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
         vehiclePtr->SetActiveGeomVec( activate_geom_vec );
     }
 
+    m_AttributeEditor.GuiDeviceCallBack( device );
+
     //Tells m_ScreenMgr to execute Update() function
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+void SetEditorScreen::GetCollIDs( vector < string > &collIDVec )
+{
+    collIDVec.push_back( m_AttributeEditor.GetAttrCollID() );
+}

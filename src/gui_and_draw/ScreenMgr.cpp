@@ -18,6 +18,7 @@
 #include "AdvLinkVarRenameScreen.h"
 #include "AeroStructScreen.h"
 #include "AirfoilExportScreen.h"
+#include "AttributeScreen.h"
 #include "BEMOptionsScreen.h"
 #include "CfdMeshScreen.h"
 #include "ClippingScreen.h"
@@ -66,6 +67,7 @@
 #include "ModeEditorScreen.h"
 #include "UserParmScreen.h"
 #include "VarPresetEditorScreen.h"
+#include "VehNotesScreen.h"
 #include "VSPAEROPlotScreen.h"
 #include "VSPAEROScreen.h"
 #include "WaveDragScreen.h"
@@ -763,6 +765,7 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_AERO_STRUCT_SCREEN] = new AeroStructScreen( this );
     m_ScreenVec[vsp::VSP_AIRFOIL_CURVES_EXPORT_SCREEN] = new BezierAirfoilExportScreen( this );
     m_ScreenVec[vsp::VSP_AIRFOIL_POINTS_EXPORT_SCREEN] = new SeligAirfoilExportScreen( this );
+    m_ScreenVec[vsp::VSP_ATTRIBUTE_EXPLORER_SCREEN] = new AttributeExplorer( this );
     m_ScreenVec[vsp::VSP_BACKGROUND_SCREEN] = new ManageBackgroundScreen( this );
     m_ScreenVec[vsp::VSP_BACKGROUND3D_SCREEN] = new ManageBackground3DScreen( this );
     m_ScreenVec[vsp::VSP_BACKGROUND3D_PREVIEW_SCREEN] = new Background3DPreviewScreen( this );
@@ -812,6 +815,8 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_SURFACE_INTERSECTION_SCREEN] = new SurfaceIntersectionScreen( this );
     m_ScreenVec[vsp::VSP_SVG_OPTIONS_SCREEN] = new SVGOptionsScreen( this );
     m_ScreenVec[vsp::VSP_USER_PARM_SCREEN] = new UserParmScreen( this );
+    m_ScreenVec[vsp::VSP_VEH_NOTES_SCREEN] = new VehNotesScreen( this );
+    m_ScreenVec[vsp::VSP_VEH_SCREEN] = new VehScreen( this );
     m_ScreenVec[vsp::VSP_VIEW_SCREEN] = new ManageViewScreen( this );
     m_ScreenVec[vsp::VSP_VAR_PRESET_SCREEN] = new VarPresetEditorScreen( this );
     m_ScreenVec[vsp::VSP_VSPAERO_PLOT_SCREEN] = new VSPAEROPlotScreen( this );
@@ -825,7 +830,7 @@ void ScreenMgr::FirstShow()
     m_ScreenVec[vsp::VSP_MAIN_SCREEN]->Show();
 
     // Set manage geom screen to show up to the main screen as the default.
-    int x,y,w,h1,h2;
+    int x,y,w,w1,h1,h2,h3;
     x = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->x();
     y = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->y();
     w = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->w();
@@ -836,6 +841,10 @@ void ScreenMgr::FirstShow()
 
     h2 = m_ScreenVec[vsp::VSP_XSEC_SCREEN]->GetFlWindow()->h();
     m_ScreenVec[vsp::VSP_XSEC_SCREEN]->GetFlWindow()->position( x + w + 5, y + h1 - h2 );
+
+    h3 = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->h();
+    w1 = m_ScreenVec[vsp::VSP_VEH_NOTES_SCREEN]->GetFlWindow()->w();
+    m_ScreenVec[vsp::VSP_VEH_NOTES_SCREEN]->GetFlWindow()->resize( x + w + 5, y + h3 + 35, w1, h1 - ( y + h3 + 35 ) );
 
     x = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->x();
     y = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->y();
@@ -918,6 +927,11 @@ VspScreen * ScreenMgr::GetScreen( int id )
     // Should not reach here.
     assert( false );
     return NULL;
+}
+
+vector < VspScreen* > ScreenMgr::GetAllScreens()
+{
+    return m_ScreenVec;
 }
 
 void ScreenMgr::LaunchSystemDefaultBrowser( const string &url )

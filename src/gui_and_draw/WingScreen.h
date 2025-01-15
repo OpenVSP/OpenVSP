@@ -27,10 +27,14 @@ public:
     virtual void Show();
     virtual bool Update();
 
+    virtual void GetCollIDs( vector < string > &collIDVec );
+
     virtual void CallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* d );
 
 protected:
+
+    AttributeEditor m_SecAttributeEditor;
 
     // Overall planform tab
     GroupLayout m_PlanLayout;

@@ -13,7 +13,7 @@
 
 using namespace vsp;
 
-ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600, "Mode Editor" )
+ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 775, "Mode Editor" )
 {
     int browserHeight = 150;
     int borderPaddingWidth = 5;
@@ -102,6 +102,11 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600
     m_GenLayout.AddButton( m_DeleteAllSettings, "Remove All Settings" );
     m_GenLayout.ForceNewLine();
 
+    m_GenLayout.SetSameLineFlag( false );
+    m_GenLayout.SetFitWidthFlag( true );
+    m_GenLayout.AddYGap();
+    m_AttributeEditor.Init( mgr , &m_GenLayout , m_GenLayout.GetGroup() , this, staticScreenCB, false, 0, 175 );
+
 }
 
 bool ModeEditorScreen::Update()
@@ -121,6 +126,12 @@ bool ModeEditorScreen::Update()
             m_ModeNameInput.Update( mod->GetName() );
             m_PrevMID = mod->GetID();
         }
+
+        AttributeCollection* ac = mod->GetAttrCollection();
+        string ac_id = ( ac )? ac->GetID() : "NONE";
+
+        m_AttributeEditor.SetEditorCollID( ac_id );
+        m_AttributeEditor.Update();
     }
 
     UpdateModeBrowser();
@@ -354,6 +365,7 @@ void ModeEditorScreen::UpdateVarPresetChoices()
 void ModeEditorScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
+    m_AttributeEditor.Show();
     BasicScreen::Show();
 }
 
@@ -422,6 +434,8 @@ void ModeEditorScreen::CallBack( Fl_Widget *w )
             }
         }
     }
+
+    m_AttributeEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -513,6 +527,12 @@ void ModeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
         m_SettingChoiceIndex = m_SettingChoice.GetVal();
     }
 
+    m_AttributeEditor.GuiDeviceCallBack( device );
+
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+void ModeEditorScreen::GetCollIDs( vector < string > &collIDVec )
+{
+    collIDVec.push_back( m_AttributeEditor.GetAttrCollID() );
+}

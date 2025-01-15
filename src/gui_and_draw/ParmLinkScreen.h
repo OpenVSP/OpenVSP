@@ -27,6 +27,8 @@ public:
         ( ( ParmLinkScreen* )data )->CallBack( w );
     }
 
+    virtual void GetCollIDs( vector < string > &collIDVec );
+
 protected:
 
     // Main group
@@ -63,6 +65,8 @@ protected:
     SliderAdjRangeInput m_UpperLimitSlider;
 
     ColResizeBrowser* m_LinkBrowser;
+
+    AttributeEditor m_LinkAttrEditor;
 private:
     set < int > m_SelectedLinks;
 };

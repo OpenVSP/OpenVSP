@@ -39,6 +39,8 @@ public:
 
     void GuiDeviceCallBack( GuiDevice* device );
 
+    virtual void GetCollIDs( vector < string > &collIDVec );
+
 protected:
 
     int m_SelectedModeIndex;
@@ -77,6 +79,8 @@ protected:
     TriggerButton m_AddSetting;
     TriggerButton m_DeleteSetting;
     TriggerButton m_DeleteAllSettings;
+
+    AttributeEditor m_AttributeEditor;
 
 };
 #endif //VSPMODEEDITORSCREEN__INCLUDED_

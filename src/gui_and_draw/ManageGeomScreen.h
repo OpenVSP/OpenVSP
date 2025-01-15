@@ -45,6 +45,7 @@ public:
     void Show();
     void Hide();
     bool Update();
+    virtual void GetCollIDs( vector < string > &collIDVec );
 
     void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
@@ -58,6 +59,11 @@ public:
     void ShowHideGeomScreens();
 
     void UpdateGeomScreens();
+
+    vector< VspScreen* > GetGeomScreenVec()
+    {
+        return m_GeomScreenVec;
+    }
 
     /*
     * Get Feedback Group's name.
@@ -140,6 +146,8 @@ protected:
 
     std::vector<DrawObj> m_PickList;
 
+    bool m_VehSelected;
+
     void AddGeom();
     void LoadBrowser();
     void LoadActiveGeomOutput();
@@ -147,7 +155,7 @@ protected:
     void LoadDisplayChoice();
     void UpdateDrawType();
     void GeomBrowserCallback();
-    void SelectGeomBrowser( const string &geom_id );
+    void SelectGeomBrowser( const string &geom_id = "NONE" );
     bool IsParentSelected( const string &geom_id, const vector< string > & selVec );
     void NoShowActiveGeoms( bool flag );
     void SelectAll();

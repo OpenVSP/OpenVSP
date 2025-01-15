@@ -36,6 +36,8 @@ public:
     //This callback responds to events from GUI Devices buttons and input fields
     void GuiDeviceCallBack( GuiDevice* device );
 
+    void GetCollIDs( vector < string > &collIDVec );
+
 protected:
 
     //This is used get user select and compare to existing sets. 
@@ -78,6 +80,8 @@ protected:
 
     //toggle for when copying geoms if we copy sets as well
     ToggleButton m_CopySetToggle;
+
+    AttributeEditor m_AttributeEditor;
 
 };
 #endif //VSPSETEDITORSCREEN__INCLUDED_

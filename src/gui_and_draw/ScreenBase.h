@@ -28,6 +28,8 @@
 #include "GroupLayout.h"
 #include "SubGLWindow.h"
 #include "VSPWindow.h"
+#include "AttributeEditor.h"
+#include "AttributeManager.h"
 
 class ScreenMgr;
 class Vehicle;
@@ -70,6 +72,8 @@ public:
     virtual bool IsShown();
     virtual void Hide();
     virtual bool Update();
+    virtual void GetCollIDs( vector < string > &collIDVec ) {};
+
     ScreenMgr* GetScreenMgr()
     {
         return m_ScreenMgr;
@@ -78,6 +82,11 @@ public:
     virtual void SetScreenType( int t )
     {
         m_ScreenType = t;
+    }
+
+    const int GetScreenType()
+    {
+        return m_ScreenType;
     }
 
     /*!
@@ -129,6 +138,7 @@ public:
         VspScreen::Update();
         return false;
     }
+    virtual void GetCollIDs( vector < string > &collIDVec ) {};
 
     void HelpCallBack( Fl_Widget *w );
     static void staticHelpCB( Fl_Widget *w, void* data )
@@ -159,6 +169,8 @@ public:
         BasicScreen::Update();
         return false;
     }
+
+    virtual void GetCollIDs( vector < string > &collIDVec ) {};
 
     virtual Fl_Group* AddTab( const string& title );
     virtual Fl_Group* AddTab( const string& title, int indx );
@@ -217,6 +229,7 @@ public:
     virtual ~GeomScreen()                               {}
 
     virtual bool Update( );
+    virtual void Show( );
     virtual void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget* w, void* data )
     {
@@ -226,6 +239,8 @@ public:
     virtual void SubSurfDispGroup( GroupLayout * group );
 
     virtual void UpdateMaterialNames();
+
+    virtual void GetCollIDs( vector < string > &collIDVec );
 
     //==== Group Layouts ====//
     GroupLayout m_GenLayout;
@@ -252,6 +267,9 @@ public:
     ToggleButton m_NegativeVolumeBtn;
 
     Fl_Check_Browser* m_SetBrowser;
+
+    //===== Attributes =====//
+    AttributeEditor m_AttributeEditor;
 
     //==== XForms ====//
     ToggleButton m_XFormAbsoluteToggle;
@@ -354,6 +372,7 @@ public:
     ToggleButton m_SSLine01Toggle;
     ToggleButton m_SSLine0NToggle;
     ToggleRadioGroup m_SSLineScaleToggleGroup;
+    AttributeEditor m_SSLineAttrEditor;
 
     // SS_Rectangle
     GroupLayout m_SSRecGroup;
@@ -365,6 +384,7 @@ public:
     ToggleButton m_SSRecInsideButton;
     ToggleButton m_SSRecOutsideButton;
     ToggleRadioGroup m_SSRecTestToggleGroup;
+    AttributeEditor m_SSRecAttrEditor;
 
     // SS_Ellipse
     GroupLayout m_SSEllGroup;
@@ -377,6 +397,7 @@ public:
     ToggleButton m_SSEllInsideButton;
     ToggleButton m_SSEllOutsideButton;
     ToggleRadioGroup m_SSEllTestToggleGroup;
+    AttributeEditor m_SSEllAttrEditor;
 
     // SS_Control
     GroupLayout m_SSConGroup;
@@ -413,12 +434,15 @@ public:
 
     SliderAdjRangeInput m_SSConTessSlider;
 
+    AttributeEditor m_SSConAttrEditor;
+
     // SS_FiniteLine
     GroupLayout m_SSFLineGroup;
     SliderAdjRangeInput m_SSFLineUStartSlider;
     SliderAdjRangeInput m_SSFLineUEndSlider;
     SliderAdjRangeInput m_SSFLineWStartSlider;
     SliderAdjRangeInput m_SSFLineWEndSlider;
+    AttributeEditor m_SSFLineAttrEditor;
 
     //======Mass Prop Tab=====//
     int m_MassPropTab_ind;
@@ -461,10 +485,14 @@ public:
         ((static_cast <XSecScreen*>(data))->CallBack(w));
     }
 
+    virtual void GetCollIDs( vector < string > &collIDVec );
+
     void AddXSecLayout(bool include_point_type = true); // Default flag to include point type but allow PropGeom to skip it
 
     virtual void DisplayGroup(GroupLayout* group);
     virtual void RebuildCSTGroup(CSTAirfoil* cst_xs);
+
+    AttributeEditor m_XsecAttributeEditor;
 
 protected:
     GroupLayout* m_CurrDisplayGroup;

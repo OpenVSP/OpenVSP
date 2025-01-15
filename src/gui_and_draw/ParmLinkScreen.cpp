@@ -11,7 +11,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 
-ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "Parm Link: ( A * Scale + Offset = B )" )
+ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615 + 100, "Parm Link: ( A * Scale + Offset = B )" )
 {
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_MainLayout.AddY( 25 );
@@ -126,9 +126,12 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "
     // Last column width must be 0
     static int col_widths[] = { 90, 90, 105, 20, 90, 90, 105, 0 }; // widths for each column
 
-    m_LinkBrowser = m_GenLayout.AddColResizeBrowser( col_widths, 7, 310 );
+    m_LinkBrowser = m_GenLayout.AddColResizeBrowser( col_widths, 7, 260 );
     m_LinkBrowser->callback( staticScreenCB, this );
     m_LinkBrowser->type( FL_MULTI_BROWSER );
+
+    m_GenLayout.AddYGap();
+    m_LinkAttrEditor.Init( mgr, &m_GenLayout, m_FLTK_Window , this, staticScreenCB , true, m_GenLayout.GetY(), 130 );
 }
 
 ParmLinkScreen::~ParmLinkScreen()
@@ -236,9 +239,16 @@ bool ParmLinkScreen::Update()
         ParmMgr.GetNames( pl->GetParmA(), c_name_A, g_name_A, p_name_A );
         ParmMgr.GetNames( pl->GetParmB(), c_name_B, g_name_B, p_name_B );
 
-        snprintf( str, sizeof( str ),  "%s:%s:%s:->:%s:%s:%s",
-                 c_name_A.c_str(), g_name_A.c_str(), p_name_A.c_str(),
-                 c_name_B.c_str(), g_name_B.c_str(), p_name_B.c_str() );
+        string fontctrl = "";
+        if ( pl->GetAttrCollection()->GetAttrDataFlag() )
+        {
+            fontctrl = "@C" + std::to_string(FL_DARK_MAGENTA)+"@.";
+        }
+
+        snprintf( str, sizeof( str ),  "%s%s:%s%s:%s%s:->:%s%s:%s%s:%s%s",
+                 fontctrl.c_str(), c_name_A.c_str(), fontctrl.c_str(), g_name_A.c_str(),
+                 fontctrl.c_str() ,p_name_A.c_str(), fontctrl.c_str(), c_name_B.c_str(),
+                 fontctrl.c_str(), g_name_B.c_str(), fontctrl.c_str(), p_name_B.c_str() );
 
         m_LinkBrowser->add( str );
 
@@ -250,6 +260,19 @@ bool ParmLinkScreen::Update()
 
     m_LinkBrowser->hposition( h_pos );
     m_LinkBrowser->vposition( v_pos );
+
+    //==== Update Attribute Editor GUI ====//
+
+    if ( currLink )
+    {
+        m_LinkAttrEditor.SetEditorCollID( currLink->m_AttrCollection.GetID() );
+    }
+    else
+    {
+        m_LinkAttrEditor.SetEditorCollID();
+    }
+
+    m_LinkAttrEditor.Update();
 
     m_FLTK_Window->redraw();
 
@@ -294,6 +317,8 @@ void ParmLinkScreen::CallBack( Fl_Widget* w )
             LinkMgr.SetParm( false, ParmID );
         }
     }
+
+    m_LinkAttrEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -439,5 +464,12 @@ void ParmLinkScreen::GuiDeviceCallBack( GuiDevice* device )
         m_SelectedLinks.clear();
     }
 
+    m_LinkAttrEditor.GuiDeviceCallBack( device );
+
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void ParmLinkScreen::GetCollIDs( vector < string > &collIDVec )
+{
+    collIDVec.push_back( m_LinkAttrEditor.GetAttrCollID() );
 }

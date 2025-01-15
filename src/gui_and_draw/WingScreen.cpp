@@ -12,7 +12,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 680 + 40, "Wing" )
+WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -208,6 +208,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 680 + 40, "Win
     m_SectionLayout.AddYGap();
     m_SectionLayout.AddButton( m_RotateThisFoilMatchDihedral, "Rotate Section Tip Foil To Match Dihedral" );
     m_SectionLayout.SetButtonWidth( 74 );
+
+    m_SecAttributeEditor.Init( mgr, &m_SectionLayout, m_SectionLayout.GetGroup(), this, staticScreenCB, true, m_SectionLayout.GetY(), 100 );
 
     // Xsec layout after index selector has been defined in base class
     m_XSecLayout.SetFitWidthFlag(false);
@@ -613,6 +615,10 @@ bool WingScreen::Update()
 
         m_SectProjSpanOutput.Update( wing_sect->m_ProjectedSpan.GetID() );
 
+        //==== Attributes ====//
+        m_SecAttributeEditor.SetEditorCollID( wing_sect->GetAttrCollection()->GetID() );
+        m_SecAttributeEditor.Update();
+
     }
 
     //==== XSec Index Display ===//
@@ -873,6 +879,12 @@ bool WingScreen::Update()
     return true;
 }
 
+void WingScreen::GetCollIDs( vector < string > &collIDVec )
+{
+    collIDVec.push_back( m_SecAttributeEditor.GetAttrCollID() );
+    XSecScreen::GetCollIDs( collIDVec );
+}
+
 void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
     //==== Find Fuselage Ptr ====//
@@ -938,11 +950,13 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         }
     }
 
+    m_SecAttributeEditor.GuiDeviceCallBack( gui_device );
     BlendScreen::GuiDeviceCallBack( gui_device );
 }
 
 //==== Fltk  Callbacks ====//
 void WingScreen::CallBack( Fl_Widget *w )
 {
+    m_SecAttributeEditor.DeviceCB( w );
     BlendScreen::CallBack(w);
 }

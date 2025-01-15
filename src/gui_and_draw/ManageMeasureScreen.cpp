@@ -4,7 +4,7 @@
 #include "VSP_Geom_API.h"
 #include "UnitConversion.h"
 
-ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 300, 700+35+50, "Measure" )
+ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 300, 700+35+50+100, "Measure" )
 {
     Fl_Group* ruler_tab = AddTab( "Rulers" );
     Fl_Group* ruler_group = AddSubGroup( ruler_tab, 5 );
@@ -130,6 +130,9 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 30
 
     m_RulerLayout.AddOutput( m_DistanceOutput, "Distance", "%6.5g" );
 
+    m_RulerLayout.AddYGap();
+
+    m_RulerAttrEditor.Init( mgr, &m_RulerLayout, ruler_group, this, staticScreenCB, true, m_RulerLayout.GetY(), 130 );
 
     /* Probe Layout  ***********************************************/
 
@@ -231,6 +234,10 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 30
     m_ProbeLayout.AddOutput( m_K2Output, "K Min", "%6.5g" );
     m_ProbeLayout.AddOutput( m_KaOutput, "K Mean", "%6.5g" );
     m_ProbeLayout.AddOutput( m_KgOutput, "K Gaussian", "%6.5g" );
+
+    m_ProbeLayout.AddYGap();
+
+    m_ProbeAttrEditor.Init( mgr, &m_ProbeLayout, probe_group, this, staticScreenCB, true, m_ProbeLayout.GetY(), 130 );
 
     /* RSTprobe Layout  ***********************************************/
 
@@ -334,6 +341,10 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 30
     m_RSTProbeLayout.AddOutput( m_RSTXOutput, "X", "%6.5g" );
     m_RSTProbeLayout.AddOutput( m_RSTYOutput, "Y", "%6.5g" );
     m_RSTProbeLayout.AddOutput( m_RSTZOutput, "Z", "%6.5g" );
+
+    m_RSTProbeLayout.AddYGap();
+
+    m_RSTAttrEditor.Init( mgr, &m_RSTProbeLayout, RSTprobe_group, this, staticScreenCB, true, m_RSTProbeLayout.GetY(), 130 );
 
     /* Protractor Layout  ***********************************************/
 
@@ -439,7 +450,9 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 30
 
     m_ProtractorLayout.AddOutput( m_ThetaOutput, "Theta", "%6.5g" );
 
+    m_ProtractorLayout.AddYGap();
 
+    m_ProtAttrEditor.Init( mgr, &m_ProtractorLayout, protractor_group, this, staticScreenCB, true, m_ProtractorLayout.GetY(), 130 );
 
     ruler_tab->show();
 }
@@ -476,7 +489,14 @@ bool ManageMeasureScreen::Update()
     // Add rulers to browser.
     for( int i = 0; i < ( int )rulers.size(); i++ )
     {
-        m_RulerBrowser->add( rulers[i]->GetName().c_str() );
+        string rulerName = "";
+        if ( rulers[i]->GetAttrCollection()->GetAttrDataFlag() )
+        {
+            rulerName = "@C" + std::to_string(FL_DARK_MAGENTA)+"@.";
+        }
+        rulerName += rulers[i]->GetName();
+
+        m_RulerBrowser->add( rulerName.c_str() );
     }
 
     int index = MeasureMgr.GetCurrRulerIndex();
@@ -574,6 +594,8 @@ bool ManageMeasureScreen::Update()
             }
             m_EndSurfChoice.SetVal( ruler->m_EndIndx() );
         }
+
+        m_RulerAttrEditor.SetEditorCollID( ruler->m_AttrCollection.GetID() );
     }
     else
     {
@@ -596,6 +618,8 @@ bool ManageMeasureScreen::Update()
         m_DeltaZOutput.Update( "" );
 
         m_DistanceOutput.Update( "" );
+
+        m_RulerAttrEditor.SetEditorCollID();
     }
 
     m_StartGeom.Update();
@@ -607,7 +631,14 @@ bool ManageMeasureScreen::Update()
     // Add probes to browser.
     for( int i = 0; i < ( int )probes.size(); i++ )
     {
-        m_ProbeBrowser->add( probes[i]->GetName().c_str() );
+        string probeName = "";
+        if ( probes[i]->GetAttrCollection()->GetAttrDataFlag() )
+        {
+            probeName = "@C" + std::to_string(FL_DARK_MAGENTA)+"@.";
+        }
+        probeName += probes[i]->GetName();
+
+        m_ProbeBrowser->add( probeName.c_str() );
     }
 
     index = MeasureMgr.GetCurrProbeIndex();
@@ -698,6 +729,8 @@ bool ManageMeasureScreen::Update()
         m_K2Output.Update( probe->m_K2.GetID() );
         m_KaOutput.Update( probe->m_Ka.GetID() );
         m_KgOutput.Update( probe->m_Kg.GetID() );
+
+        m_ProbeAttrEditor.SetEditorCollID( probe->m_AttrCollection.GetID() );
     }
     else
     {
@@ -721,6 +754,8 @@ bool ManageMeasureScreen::Update()
         m_K2Output.Update( "" );
         m_KaOutput.Update( "" );
         m_KgOutput.Update( "" );
+
+        m_ProbeAttrEditor.SetEditorCollID();
     }
 
     m_ProbeGeom.Update();
@@ -731,7 +766,14 @@ bool ManageMeasureScreen::Update()
     // Add probes to browser.
     for( int i = 0; i < ( int )RSTprobes.size(); i++ )
     {
-        m_RSTProbeBrowser->add( RSTprobes[i]->GetName().c_str() );
+        string rstName = "";
+        if ( RSTprobes[i]->GetAttrCollection()->GetAttrDataFlag() )
+        {
+            rstName = "@C" + std::to_string(FL_DARK_MAGENTA)+"@.";
+        }
+        rstName += RSTprobes[i]->GetName();
+
+        m_RSTProbeBrowser->add( rstName.c_str() );
     }
 
     index = MeasureMgr.GetCurrRSTProbeIndex();
@@ -826,6 +868,8 @@ bool ManageMeasureScreen::Update()
         m_RSTXOutput.Update( RSTprobe->m_X.GetID() );
         m_RSTYOutput.Update( RSTprobe->m_Y.GetID() );
         m_RSTZOutput.Update( RSTprobe->m_Z.GetID() );
+
+        m_RSTAttrEditor.SetEditorCollID( RSTprobe->m_AttrCollection.GetID() );
     }
     else
     {
@@ -841,6 +885,8 @@ bool ManageMeasureScreen::Update()
         m_RSTXOutput.Update( "" );
         m_RSTYOutput.Update( "" );
         m_RSTZOutput.Update( "" );
+
+        m_RSTAttrEditor.SetEditorCollID();
    }
 
     m_RSTProbeGeom.Update();
@@ -851,7 +897,14 @@ bool ManageMeasureScreen::Update()
     // Add protractors to browser.
     for( int i = 0; i < ( int )protractors.size(); i++ )
     {
-        m_ProtractorBrowser->add( protractors[i]->GetName().c_str() );
+        string protName = "";
+        if ( protractors[i]->GetAttrCollection()->GetAttrDataFlag() )
+        {
+            protName = "@C" + std::to_string(FL_DARK_MAGENTA)+"@.";
+        }
+        protName += protractors[i]->GetName();
+
+        m_ProtractorBrowser->add( protName.c_str() );
     }
 
     index = MeasureMgr.GetCurrProtractorIndex();
@@ -977,6 +1030,8 @@ bool ManageMeasureScreen::Update()
             }
             m_ProtractorEndSurfChoice.SetVal( protractor->m_EndIndx() );
         }
+
+        m_ProtAttrEditor.SetEditorCollID( protractor->m_AttrCollection.GetID() );
     }
     else
     {
@@ -1001,7 +1056,14 @@ bool ManageMeasureScreen::Update()
         m_ThetaZOutput.Update( "" );
 
         m_ThetaOutput.Update( "" );
+
+        m_ProtAttrEditor.SetEditorCollID();
     }
+
+    m_RulerAttrEditor.Update();
+    m_ProbeAttrEditor.Update();
+    m_RSTAttrEditor.Update();
+    m_ProtAttrEditor.Update();
 
     m_ProtractorStartGeom.Update();
     m_ProtractorMidGeom.Update();
@@ -1033,6 +1095,11 @@ void ManageMeasureScreen::CallBack( Fl_Widget * w )
         int sel = m_ProtractorBrowser->value();
         MeasureMgr.SetCurrProtractorIndex( sel - 1 );
     }
+
+    m_RulerAttrEditor.DeviceCB( w );
+    m_ProbeAttrEditor.DeviceCB( w );
+    m_RSTAttrEditor.DeviceCB( w );
+    m_ProtAttrEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -1288,7 +1355,20 @@ void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
         }
     }
 
+    m_RulerAttrEditor.GuiDeviceCallBack( device );
+    m_ProbeAttrEditor.GuiDeviceCallBack( device );
+    m_RSTAttrEditor.GuiDeviceCallBack( device );
+    m_ProtAttrEditor.GuiDeviceCallBack( device );
+
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void ManageMeasureScreen::GetCollIDs( vector < string > &collIDVec )
+{
+    collIDVec.push_back( m_RulerAttrEditor.GetAttrCollID() );
+    collIDVec.push_back( m_ProbeAttrEditor.GetAttrCollID() );
+    collIDVec.push_back( m_RSTAttrEditor.GetAttrCollID() );
+    collIDVec.push_back( m_ProtAttrEditor.GetAttrCollID() );
 }
 
 void ManageMeasureScreen::Set( const vec3d &placement, const std::string &targetGeomId )

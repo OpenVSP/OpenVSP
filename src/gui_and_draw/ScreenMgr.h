@@ -59,6 +59,7 @@ public:
     * Get Screen from id.  If id does not exist, return NULL.
     */
     VspScreen* GetScreen( int id );
+    vector < VspScreen* > GetAllScreens();
 
     virtual void MessageCallback( const MessageBase* from, const MessageData& data );
 
