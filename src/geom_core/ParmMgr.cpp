@@ -9,6 +9,7 @@
 
 #include "ParmMgr.h"
 #include "VspUtil.h"
+#include "IDMgr.h"
 
 using std::map;
 using std::string;
@@ -251,80 +252,24 @@ void ParmMgrSingleton::UnDo()
 
 string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID )
 {
-    return RemapID( oldID, suggestID, -1 );
+    return IDMgr.RemapID( oldID, suggestID, -1 );;
 }
 
 // ForceRemapID works as above, but makes no attempt to
 string ParmMgrSingleton::ForceRemapID( const string & oldID, int size )
 {
     string dummy;
-    return RemapID( oldID, dummy, size );
+    return IDMgr.RemapID( oldID, dummy, size );
 }
 
 string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID, int size )
 {
-    string newID;
-
-    // Check for special cases of non random ID's
-    if( oldID.compare( "" ) == 0 ||
-        oldID.compare( "NONE" ) == 0 ||
-        oldID.substr( 0, 5 ) == "User_" ||         // User parameters.
-        oldID.substr( 0, 1 ) == "_" )              // Built-in FEA materials.
-    {
-        return oldID;
-    }
-
-    newID = m_IDRemap[oldID];
-
-    if( newID.compare( "" ) == 0 )                          // oldID not yet in map
-    {
-        // Lookup ID as Parm and ParmConatiner
-        Parm* p = FindParm( oldID );
-        ParmContainer* pc = FindParmContainer( oldID );
-
-        if( ( p == NULL ) && ( pc == NULL ) && size == -1 ) // No collision, size set to default
-        {
-            newID = oldID;                                  //  reuse oldID.
-        }
-        else                                                // ID already used
-        {
-            if ( size != -1 )
-            {
-                newID = GenerateRandomID( size );                 //  generate new.
-            }
-            else if ( suggestID.compare( "" ) != 0 )        //  suggestion provided
-            {
-                newID = suggestID;
-            }
-            else
-            {
-                newID = GenerateRandomID( oldID.size() );    //  generate new.
-            }
-        }
-
-        // Place newID in map.
-        m_IDRemap[oldID] = newID;
-    }
-
-    return newID;
+    return IDMgr.RemapID( oldID, suggestID, size );
 }
 
 string ParmMgrSingleton::ResetRemapID( const string & lastReset )
 {
-    if ( lastReset != "" && lastReset != m_LastReset )
-    {
-        MessageData errMsgData;
-        errMsgData.m_String = "Error";
-        errMsgData.m_IntVec.push_back( vsp::VSP_UNEXPECTED_RESET_REMAP_ID );
-        errMsgData.m_StringVec.push_back( "Error:  Unexpected intermediate ResetRemapID.  This should be harmless, but please contact rob.a.mcdonald@gmail.com to help debug this issue." );
-
-        MessageMgr::getInstance().SendAll( errMsgData );
-    }
-
-    m_IDRemap.clear();
-
-    m_LastReset = GenerateRandomID( 3 );
-    return m_LastReset;
+    return IDMgr.ResetRemapID();
 }
 
 void ParmMgrSingleton::SwapIDs( const string &aID, const string &bID )

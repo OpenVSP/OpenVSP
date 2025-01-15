@@ -54,6 +54,7 @@ GridDensity.cpp
 GroupTransformations.cpp
 HingeGeom.cpp
 HumanGeom.cpp
+IDMgr.cpp
 Link.cpp
 LinkMgr.cpp
 MainThreadIDMgr.cpp
@@ -127,6 +128,7 @@ GroupTransformations.h
 HingeGeom.h
 HumanGeom.h
 HumanGeomData.h
+IDMgr.h
 Light.h
 LightMgr.h
 Link.h
