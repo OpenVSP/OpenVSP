@@ -49,6 +49,26 @@ Bogie::Bogie()
     m_Hs.SetDescript( "Tire shoulder height" );
 }
 
+//==== Parm Changed ====//
+void Bogie::ParmChanged( Parm* parm_ptr, int type )
+{
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+    }
+    else
+    {
+        Update();
+    }
+
+    //==== Notify Parent Container (XSec) ====//
+    ParmContainer* pc = GetParentContainerPtr();
+    if ( pc )
+    {
+        pc->ParmChanged( parm_ptr, type );
+    }
+}
+
 void Bogie::UpdateTireCurve()
 {
     // Tire dimensions
@@ -190,6 +210,8 @@ void GearGeom::AddDefaultSources( double base_len )
 Bogie * GearGeom::CreateAndAddBogie()
 {
     Bogie * bogie = new Bogie();
+
+    bogie->SetParentContainer( m_ID );
 
     m_Bogies.push_back( bogie );
 
