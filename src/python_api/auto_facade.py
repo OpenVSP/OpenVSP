@@ -119,7 +119,7 @@ CLIENT_END = """
             raise Exception(result[1])
         return result
 
-    def IsFacade():
+    def IsFacade(self):
         \"\"\"
         Returns True if the facade API is in use.
 
@@ -131,7 +131,7 @@ CLIENT_END = """
         \"\"\"
 
         return True
-    def IsGUIRunning(self,):
+    def IsGUIRunning(self):
         \"\"\"
         Returns True if the GUI event loop is running.
 
