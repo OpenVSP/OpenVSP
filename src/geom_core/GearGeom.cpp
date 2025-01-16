@@ -330,7 +330,7 @@ GearGeom::GearGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_TessU = 10;
     m_TessW = 8;
 
-    Bogie * mg =  CreateAndAddBogie();
+    // Bogie * mg =  CreateAndAddBogie();
 
 
     Update();
@@ -413,6 +413,9 @@ Bogie * GearGeom::CreateAndAddBogie()
     m_Bogies.push_back( bogie );
 
     m_CurrBogieIndex = m_Bogies.size() - 1;
+
+    m_SurfDirty = true;
+    Update();
     return bogie;
 }
 
@@ -488,8 +491,9 @@ void GearGeom::DelAllBogies()
         delete m_Bogies[i];
     }
     m_Bogies.clear();
-
+    m_SurfDirty = true;
     m_CurrBogieIndex = -1;
+    Update();
 }
 
 void GearGeom::ShowAllBogies()
@@ -543,7 +547,8 @@ void GearGeom::DelBogie( const int & i )
     Bogie* ruler = m_Bogies[i];
 
     m_Bogies.erase( m_Bogies.begin() +  i );
-
+    m_SurfDirty = true;
+    Update();
     delete ruler;
 }
 
