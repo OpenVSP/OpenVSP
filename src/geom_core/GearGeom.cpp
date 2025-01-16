@@ -36,10 +36,10 @@ Bogie::Bogie()
     m_YContactPt.Init( "YContactPt", "Tire", this, 0.0, -1e12, 1e12 );
     m_ZAboveGround.Init( "ZAboveGround", "Tire", this, 0.0, -1e12, 1e12 );
 
-    m_Diameter.Init( "Diameter", "Tire", this, 2.0, 0.0, 1.0e12 );
+    m_Diameter.Init( "Diameter", "Tire", this, 13.5, 0.0, 1.0e12 );
     m_Diameter.SetDescript( "Diameter of the tire" );
 
-    m_Width.Init( "Width", "Tire", this,  1.0, 0.0, 1.0e12 );
+    m_Width.Init( "Width", "Tire", this,  6.0, 0.0, 1.0e12 );
     m_Width.SetDescript( "Width of the tire" );
 
     m_SLRFlag.Init( "SLRFlag", "Tire", this, false, false, true );
@@ -49,11 +49,11 @@ Bogie::Bogie()
     m_StaticRadius.Init( "StaticRadius", "Tire", this, 0.75, 0.0, 1.0e12 );
     m_StaticRadius.SetDescript( "Static loaded radius" );
 
-    m_DrimFlag.Init( "DrimFlag", "Tire", this, true, false, true );
+    m_DrimFlag.Init( "DrimFlag", "Tire", this, false, false, true );
     m_DrimFlag.SetDescript( "Flag to use dimensional rim diameter" );
-    m_DrimFrac.Init( "DrimFrac", "Tire", this, 0.45, 0.0, 1.0 );
+    m_DrimFrac.Init( "DrimFrac", "Tire", this, 0.29, 0.0, 1.0 );
     m_DrimFrac.SetDescript( "Wheel rim diameter fraction of wheel diameter" );
-    m_Drim.Init( "Drim", "Tire", this, 0.88, 0.0, 1.0e12 );
+    m_Drim.Init( "Drim", "Tire", this, 4.0, 0.0, 1.0e12 );
     m_Drim.SetDescript( "Wheel rim diameter" );
 
     m_WrimFlag.Init( "WrimFlag", "Tire", this, false, false, true );
