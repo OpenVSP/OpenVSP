@@ -1,4 +1,6 @@
 import os
+import sys
+
 try:
     import openvsp_config
     load_graphics = openvsp_config.LOAD_GRAPHICS
@@ -13,9 +15,25 @@ except ModuleNotFoundError:
     ignore_imports = False
 
 if load_facade:
-    from .facade import *
+    from .facade import _vsp_server, vec3d, Matrix4d, ErrorMgrSingleton, ErrorObj
+    _single = _vsp_server("vsp_singleton")
+    thismodule = sys.modules[__name__]
+    for attr_name in dir(_single):
+        try:
+            getattr(_single, attr_name)
+            setattr(thismodule, attr_name, getattr(_single, attr_name))
+        except :
+            pass
 elif load_multi_facade:
-    print("multi facade not supporrted")
+    from .facade import _vsp_server, vec3d, Matrix4d, ErrorMgrSingleton, ErrorObj, vsp_servers
+    _single = _vsp_server("vsp_singleton")
+    thismodule = sys.modules[__name__]
+    for attr_name in dir(_single):
+        try:
+            getattr(_single, attr_name)
+            setattr(thismodule, attr_name, getattr(_single, attr_name))
+        except :
+            pass
 elif load_graphics:
     from .vsp_g import *
 else:
@@ -26,11 +44,9 @@ def setup_vspaero_path():
     if  CheckForVSPAERO( base_dir ):
         SetVSPAEROPath( base_dir )
 
-    if  CheckForVSPHelp( base_dir + "/help_vsp" ):
-        SetVSPHelpPath( base_dir + "/help_vsp" )
-
 if load_graphics:
-    InitGUI()
+    pass
+    # InitGUI()
 
 if ignore_imports:
     setup_vspaero_path()
@@ -41,5 +57,4 @@ elif not (load_facade or load_multi_facade):
     from .parasite_drag import *
     from .surface_patches import *
     from .utilities import *
-
     setup_vspaero_path()

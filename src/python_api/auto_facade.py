@@ -1,13 +1,6 @@
 import os
 import sys
 
-CLASSES_TO_REMOVE = [
-    "ErrorObj",
-    "ErrorMgrSingleton",
-    "vec3d",
-    "Matrix4d"
-]
-
 IS_FACADE_DOC = """
     \"\"\"
     Returns True if the facade API is in use.
@@ -34,7 +27,7 @@ IS_GUI_RUNNING_DOC = """
 PLACEHOLDER_FUNCS = "# **Placeholder start**\n" + "def IsFacade():" + IS_FACADE_DOC + "\n    return False\n"
 PLACEHOLDER_FUNCS += "def IsGUIRunning():" + IS_GUI_RUNNING_DOC + "\n    return False\n"
 
-CLIENT = r"""
+CLIENT_HEAD = r"""
 # Facade Code
 # **********************************************************************************
 import os
@@ -46,31 +39,16 @@ import pickle
 from openvsp.facade_server import pack_data, unpack_data
 from traceback import format_exception
 import openvsp_config
-
-# Starting the server
-sock = socket.socket()
-sock.bind(('', 0))
-HOST = 'localhost'
-PORT = sock.getsockname()[1]
-sock.close()
-
-python_exe = None
-if "python" in sys.executable:
-    python_exe = sys.executable
-elif "python" in os.__file__:
-    python_exe = os.__file__
+# Import the low-level C/C++ module
+if __package__ or "." in __name__:
+    from . import _vsp
 else:
-    python_exe = "python"
-
-
-server_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'facade_server.py')
-proc = subprocess.Popen([python_exe, server_file, str(PORT), str(openvsp_config.LOAD_GRAPHICS)])
-
-sleep(1)
-
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((HOST, PORT))
-
+    import _vsp
+# decorator for wrapping every function
+def client_wrap(func):
+    def wrapper(self, *args, **kwargs):
+        return self._send_recieve(func.__name__, args, kwargs)
+    return wrapper
 def _exception_hook(exc_type, exc_value, tb):
     regular_traceback = []
     facade_traceback = []
@@ -94,102 +72,151 @@ def _exception_hook(exc_type, exc_value, tb):
     for line in regular_traceback:
         print(line)
 
-# function to send and receive data from the facade server
-def _send_recieve(func_name, args, kwargs):
-    b_data = pack_data([func_name, args, kwargs], True)
-    sock.sendall(b_data)
-    result = None
-    b_result = []
-    while True:
-        packet = sock.recv(202400)
-        if not packet: break
-        b_result.append(packet)
-        try:
-            result = unpack_data(b_result)
-            break
-        except:
-            pass
-    if isinstance(result, list) and result[0] == "error":
-        sys.excepthook = _exception_hook
-        raise Exception(result[1])
-    return result
+class _vsp_server():
+    def __init__(self, name):
+        self.server_name = name
+        sock = socket.socket()
+        sock.bind(('', 0))
+        HOST = 'localhost'
+        PORT = sock.getsockname()[1]
+        sock.close()
 
-def IsFacade():"""+IS_FACADE_DOC+r"""
-    return True
-def IsGUIRunning():"""+IS_GUI_RUNNING_DOC+r"""
-    return _send_recieve('IsGUIRunning', [], {})
+        python_exe = None
+        if "python" in sys.executable:
+            python_exe = sys.executable
+        elif "python" in os.__file__:
+            python_exe = os.__file__
+        else:
+            python_exe = "python"
+
+        server_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'facade_server.py')
+        proc = subprocess.Popen([python_exe, server_file, str(PORT), str(openvsp_config.LOAD_GRAPHICS)])
+
+        sleep(1)
+
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.connect((HOST, PORT))
 """
 
-DECORATOR_CODE = """
-# decorator for wrapping every function
-def client_wrap(func):
-    def wrapper(*args, **kwargs):
-        return _send_recieve(func.__name__, args, kwargs)
-    return wrapper
+CLIENT_END = """
+    # function to send and recieve data from the facade server
+    def _send_recieve(self, func_name, args, kwargs):
+        b_data = pack_data([func_name, args, kwargs], True)
+        self.sock.sendall(b_data)
+        result = None
+        b_result = []
+        while True:
+            packet = self.sock.recv(202400)
+            if not packet: break
+            b_result.append(packet)
+            try:
+                result = unpack_data(b_result)
+                break
+            except:
+                pass
+        if isinstance(result, list) and result[0] == "error":
+            sys.excepthook = _exception_hook
+            raise Exception(result[1])
+        return result
+
+    def IsFacade():
+        \"\"\"
+        Returns True if the facade API is in use.
+
+
+        .. code-block:: python
+
+            is_facade = IsFacade()
+
+        \"\"\"
+
+        return True
+    def IsGUIRunning(self,):
+        \"\"\"
+        Returns True if the GUI event loop is running.
+
+
+        .. code-block:: python
+
+            is_gui_active = IsGUIRunning()
+
+        \"\"\"
+
+        return self._send_recieve('IsGUIRunning', [], {})
+class _server_controller():
+    def __init__(self) -> None:
+        print("server controller initialized")
+        self._servers = {}
+        self.name_num = 1
+    def start_vsp_instance(self, name=None) -> _vsp_server:
+
+        if not name:
+            name = f"default_name_{self.name_num}"
+            while name in self._servers:
+                self.name_num += 1
+                name = f"default_name_{self.name_num}"
+
+        assert isinstance(name,str), "Name must be a string"
+        assert not name in self._servers, f"Server with name {name} already exists"
+
+        self._servers[name] = new_server = _vsp_server(name)
+
+        return new_server
+
+    def get_vsp_instance(self, name):
+        return self._servers[name]
+
+    def close_vsp_instance(self, name):
+        del self._servers[name]
+
+from openvsp.vsp import ErrorObj
+from openvsp.vsp import ErrorMgrSingleton
+from openvsp.vsp import vec3d
+from openvsp.vsp import Matrix4d
+vsp_servers = _server_controller()
 """
-
-
 def write_facade(file_path):
     module_name = file_path.split(".")[0]
 
     print( "Writing facade for " + module_name + "." )
-    in_header_comment = True
-
-    in_class_list = {}
-    removed_class_list = {}
-    for class_name in CLASSES_TO_REMOVE:
-        in_class_list[class_name] = False
-        removed_class_list[class_name] = False
 
     new_facade_string = ''
-    new_facade_string += DECORATOR_CODE
+    new_facade_string += CLIENT_HEAD
 
     with open(file_path, 'r') as f:
+        in_swig_header = True
+        in_class = False
+        previous_indent = ''
         for line in f.readlines():
-            if "**Placeholder start**" in line:
-                break
-            # adds comment to header
-            if in_header_comment and not "#" in line:
-                in_header_comment = False
-                new_facade_string += "\n#\n# This file has been modified by the OpenVSP automated facade script\n"
+            if 'class ' in line:
+                in_class = True
+            elif in_class and len(line) > 0 and not line[0] in [' ', '\n', '\t']:
+                in_class = False
 
-
-            #removing classes
-            if "class" in line:
-                class_name = line.split()[1].split("(")[0]
-                if class_name in in_class_list:
-                    in_class_list[class_name] = True
-
-            #second part of removing classes
-            if any(in_class_list.values()):
-                #removes vec3d and matrix4d
-                if "swigregister" in line:
-                    class_name = line.split("(")[-1].strip()[:-1]
-                    if class_name in in_class_list:
-                        in_class_list[class_name] = False
-                        removed_class_list[class_name] = True
+            if in_class:
                 continue
+            elif 'swigregister' in line:
+                continue
+            #updating constants
+            elif " = _vsp." in line and not "swig" in line:
+                in_swig_header = False
+                new_facade_string += '        self.' + line
+                previous_indent = '        '
 
             #adding function decorator to every function
-            if (
+            elif (
                 "def " in line
                 and not "   def" in line
                 and not "swig" in line
             ):
-                new_facade_string += "@client_wrap\n"
+                new_facade_string += "    @client_wrap\n"
+                ind = line.index("(") + 1
+                new_facade_string += '    ' + line[:ind] + "self, " + line[ind:]
+                previous_indent = '    '
 
-            new_facade_string += line
-
-
-    #adding required code
-    new_facade_string += f"del _{module_name}\n"
-    for class_name in CLASSES_TO_REMOVE:
-        #special code that has not been made generalized
-        new_facade_string += f"from openvsp.{module_name} import {class_name}\n"
-
-
-    new_facade_string += CLIENT
-
+            elif not in_swig_header:
+                new_facade_string += previous_indent + line
+    new_facade_string += CLIENT_END
     with open('facade.py', 'w') as f:
         f.write(new_facade_string)
 
@@ -298,105 +325,97 @@ def start_server():
     global gui_active
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
-        socket_open = True
-        while socket_open:
-            print("Server Socket Thread: listening...")
-            s.listen()
-            conn, addr = s.accept()
-            with conn:
-                print("Server Socket Thread: Connected by %s, %s"%(addr[0], addr[1]))
+        print("Server Socket Thread: listening...")
+        s.listen()
+        conn, addr = s.accept()
+        with conn:
+            print("Server Socket Thread: Connected by %s, %s"%(addr[0], addr[1]))
+            while True:
+                b_data = []
+                data = []
+                # Wait for command
                 while True:
-                    b_data = []
-                    # Wait for command
-                    while True:
-                        try:
-                            packet = conn.recv(1024)
-                        except ConnectionResetError:
-                            print("Socket ConnectionResetError")
-                            socket_open = False
-                            break
-                        if not packet: break
-                        b_data.append(packet)
-                        try:
-                            data = unpack_data(b_data, is_command_list=True)
-                            break
-                        except (pickle.UnpicklingError, EOFError):
-                            pass
-                    if b_data == []:
-                        print("Server Socket Thread: Unable to recieve data from socket, closing server.")
-                        socket_open = False
+                    try:
+                        packet = conn.recv(1024)
+                    except ConnectionResetError:
+                        print("Socket ConnectionResetError")
                         break
+                    if not packet: break
+                    b_data.append(packet)
+                    try:
+                        data = unpack_data(b_data, is_command_list=True)
+                        break
+                    except (pickle.UnpicklingError, EOFError):
+                        pass
+                if b_data == [] or data == []:
+                    print("Server Socket Thread: Unable to recieve data from socket, closing server.")
+                    break
 
-                    # Special functionality for StartGUI
-                    if data[0] == 'StartGUI':
-                        if debug:
-                            print("Server Socket Thread: StartGUI called")
-                        if debug and event.is_set():
-                            print("Server Socket Thread: The OpenVSP GUI should already be running")
-                        result = 0
-                        b_result = pack_data(result)
-                        event.set()
-                        if module.IsGUIBuild():
-                            while not module.IsEventLoopRunning():
-                                sleep(.01)
+                # Special functionality for StartGUI
+                if data[0] == 'StartGUI':
+                    if debug:
+                        print("Server Socket Thread: StartGUI called")
+                    if debug and event.is_set():
+                        print("Server Socket Thread: The OpenVSP GUI should already be running")
+                    result = 0
+                    b_result = pack_data(result)
+                    event.set()
+                    if module.IsGUIBuild():
+                        while not module.IsEventLoopRunning():
+                            sleep(.01)
 
-                    # Special functionality for StopGUI
-                    elif data[0] == 'StopGUI':
-                        if debug and not event.is_set():
-                            print("Server Socket Thread: The OpenVSP GUI is not running")
-                        if module.IsEventLoopRunning():
-                            if debug:
-                                print("Server Socket Thread: About to call StopGUI()")
-                            module.StopGUI()
-                        gui_active = False
-                        if debug:
-                            print("Server Socket Thread: After StopGUI() called")
-                        result = 0
-                        b_result = pack_data(result)
+                # Special functionality for StopGUI
+                elif data[0] == 'StopGUI':
+                    if debug and not event.is_set():
+                        print("Server Socket Thread: The OpenVSP GUI is not running")
+                    if debug:
+                        print("Server Socket Thread: About to call StopGUI()")
+                    if module.IsEventLoopRunning():
+                        module.StopGUI()
+                    gui_active = False
+                    if debug:
+                        print("Server Socket Thread: After StopGUI() called")
+                    result = 0
+                    b_result = pack_data(result)
 
-                    # Special functionality for IsGUIRunning
-                    elif data[0] == 'IsGUIRunning':
-                        result = gui_active
-                        b_result = pack_data(result)
-                    # Special functionality for InitGUI (user shouldn't call this)
-                    elif data[0] == 'InitGUI':
-                        result = 0
-                        b_result = pack_data(result)
+                # Special functionality for IsGUIRunning
+                elif data[0] == 'IsGUIRunning':
+                    result = gui_active
+                    b_result = pack_data(result)
 
-                    # Regular functionality
-                    else:
-                        func_name = data[0]
-                        args = data[1]
-                        kwargs = data[2]
-                        foo = getattr(module, func_name)
-                        try:
-                            if debug:
-                                print("Server Socket Thread: A1 Waiting for Lock")
-                            if gui_active:
-                                module.Lock()
-                                if debug:
-                                    print("Server Socket Thread: A2 Lock obtained")
-                            result = foo(*args, **kwargs)
-                            if debug:
-                                print("Server Socket Thread: A3 VSP function called " + func_name)
-                            if gui_active:
-                                module.Unlock()
-                                if debug:
-                                    print("Server Socket Thread: A4 Lock released")
-                        except Exception as e:
-                            exc_info = sys.exc_info()
-                            result = ["error", ''.join(traceback.format_exception(*exc_info))]
-                        b_result = pack_data(result)
-
-                    # Try to send response back
+                # Regular functionality
+                else:
+                    func_name = data[0]
+                    args = data[1]
+                    kwargs = data[2]
+                    foo = getattr(module, func_name)
                     try:
                         if debug:
-                            print("Server Socket Thread: sending data back")
-                        conn.sendall(b_result)
-                    except (ConnectionResetError, BrokenPipeError) as e:
-                        print("Server Socket Thread: Unable to send data to socket, closing server.")
-                        socket_open = False
-                        break
+                            print("Server Socket Thread: A1 Waiting for Lock")
+                        if gui_active:
+                            module.Lock()
+                            if debug:
+                                print("Server Socket Thread: A2 Lock obtained")
+                        result = foo(*args, **kwargs)
+                        if debug:
+                            print("Server Socket Thread: A3 VSP function called")
+                        if gui_active:
+                            module.Unlock()
+                            if debug:
+                                print("Server Socket Thread: A4 Lock released")
+                    except Exception as e:
+                        exc_info = sys.exc_info()
+                        result = ["error", ''.join(traceback.format_exception(*exc_info))]
+                    b_result = pack_data(result)
+
+                # Try to send response back
+                try:
+                    if debug:
+                        print("Server Socket Thread: sending data back")
+                    conn.sendall(b_result)
+                except (ConnectionResetError, BrokenPipeError) as e:
+                    print("Server Socket Thread: Unable to send data to socket, closing server.")
+                    break
 
     print("Server Socket Thread: server closing")
     global gui_wait
