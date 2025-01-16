@@ -32,15 +32,22 @@ Bogie::Bogie()
     m_PitchGap.Init( "PitchGap", "Tire", this, 1.1, 0.0, 1e12 );
     m_PitchGapFrac.Init( "PitchGapFrac", "Tire", this, 0.1, 0.0, 99 );
 
-    m_X.Init( "X", "Tire", this, 0.0, -1e12, 1e12 );
-    m_Y.Init( "Y", "Tire", this, 0.0, -1e12, 1e12 );
-    m_Z.Init( "Z", "Tire", this, 0.0, -1e12, 1e12 );
+    m_XContactPt.Init( "XContactPt", "Tire", this, 0.0, -1e12, 1e12 );
+    m_YContactPt.Init( "YContactPt", "Tire", this, 0.0, -1e12, 1e12 );
+    m_ZAboveGround.Init( "ZAboveGround", "Tire", this, 0.0, -1e12, 1e12 );
 
     m_Diameter.Init( "Diameter", "Tire", this, 2.0, 0.0, 1.0e12 );
     m_Diameter.SetDescript( "Diameter of the tire" );
 
     m_Width.Init( "Width", "Tire", this,  1.0, 0.0, 1.0e12 );
     m_Width.SetDescript( "Width of the tire" );
+
+    m_SLRFlag.Init( "SLRFlag", "Tire", this, false, false, true );
+    m_SLRFlag.SetDescript( "Flag to use dimensional static loaded radius" );
+    m_DeflectionPct.Init( "DeflectionPct", "Tire", this, 0.35, 0.0, 1.0 );
+    m_DeflectionPct.SetDescript( "Static loaded deflection fraction" );
+    m_StaticRadius.Init( "StaticRadius", "Tire", this, 0.75, 0.0, 1.0e12 );
+    m_StaticRadius.SetDescript( "Static loaded radius" );
 
     m_DrimFlag.Init( "DrimFlag", "Tire", this, true, false, true );
     m_DrimFlag.SetDescript( "Flag to use dimensional rim diameter" );
@@ -154,6 +161,15 @@ void Bogie:: UpdateParms()
         m_Hs = m_HsFrac() * H;
     }
 
+    m_StaticRadius.SetLowerUpperLimits( 0.5 * Drim, 0.5 * Do );
+    if ( m_SLRFlag() )
+    {
+        m_DeflectionPct = ( 0.5 * Do - m_StaticRadius() ) / H ;
+    }
+    else
+    {
+        m_StaticRadius = 0.5 * Do - m_DeflectionPct() * H;
+    }
 
     switch ( m_SpacingType() )
     {
@@ -249,7 +265,7 @@ void Bogie::Update()
 void Bogie::AppendMainSurf( vector < VspSurf > &surfvec ) const
 {
     Matrix4d xform;
-    xform.translatef( m_X(), m_Y(), m_Z() );
+    xform.translatef( m_XContactPt(), m_YContactPt(), m_ZAboveGround() + m_StaticRadius() );
 
     int nsymm = 1;
     vector < double > smult = { 1.0 };
@@ -330,7 +346,7 @@ void GearGeom::UpdateSurf()
 {
     int nbogies = m_Bogies.size();
 
-    int nsurf = 0;
+    int nsurf = 1;
     for ( int i = 0; i < nbogies; i++ )
     {
         if ( m_Bogies[i] )
@@ -343,6 +359,10 @@ void GearGeom::UpdateSurf()
 
     m_MainSurfVec.clear();
     m_MainSurfVec.reserve( nsurf );
+
+    m_MainSurfVec.resize( 1 );
+    m_MainSurfVec[0].CreatePlane( -1, 1, -1, 1 );
+
 
     for ( int i = 0; i < nbogies; i++ )
     {

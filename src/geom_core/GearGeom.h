@@ -52,12 +52,16 @@ public:
     Parm m_PitchGap;
     Parm m_PitchGapFrac;
 
-    Parm m_X;
-    Parm m_Y;
-    Parm m_Z;
+    Parm m_XContactPt;
+    Parm m_YContactPt;
+    Parm m_ZAboveGround;
 
     Parm m_Width;
     Parm m_Diameter;
+
+    BoolParm m_SLRFlag;
+    Parm m_DeflectionPct;
+    Parm m_StaticRadius;
 
     BoolParm m_DrimFlag;
     Parm m_DrimFrac;

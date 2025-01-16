@@ -90,6 +90,12 @@ protected:
     ToggleRadioGroup m_WsToggleGroup;
     SliderAdjRange2Input m_WsSlider;
 
+    ToggleButton m_DeflectionToggleButton;
+    ToggleButton m_SLRToggleButton;
+    ToggleRadioGroup m_SLRToggleGroup;
+    SliderAdjRangeInput m_DeflectionSlider;
+    SliderAdjRangeInput m_SLRSlider;
+
 };
 
 

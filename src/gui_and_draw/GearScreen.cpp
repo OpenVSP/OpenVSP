@@ -15,7 +15,7 @@
 
 
 //==== Constructor ====//
-Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 525, "Gear" )
+Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 600, "Gear" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -46,48 +46,54 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 525, "Gear" )
     m_DesignLayout.AddButton( m_ShowAllBogiesButton, "Show All" );
     m_DesignLayout.AddButton( m_HideAllBogiesButton, "Hide All" );
 
+    m_DesignLayout.ForceNewLine();
+
+    m_DesignLayout.SetSameLineFlag( false );
+    m_DesignLayout.SetFitWidthFlag( true );
 
 
-    m_TireGroup.SetGroupAndScreen( tire_group, this );
+    m_DesignLayout.AddYGap();
 
-    m_TireGroup.AddDividerBox( "Configuration" );
+    m_DesignLayout.AddDividerBox( "Configuration" );
 
-    m_TireGroup.AddButton( m_SymmetricalButton, "Symmetrical" );
+    m_DesignLayout.AddButton( m_SymmetricalButton, "Symmetrical" );
 
-    m_TireGroup.AddYGap();
-    m_TireGroup.AddSlider( m_NAcrossSlider, "Num Across", 10, "%6.0f" );
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddSlider( m_NAcrossSlider, "Num Across", 10, "%6.0f" );
 
-    m_TireGroup.AddChoice( m_SpacingTypeChoice, "Mode" );
+    m_DesignLayout.AddChoice( m_SpacingTypeChoice, "Mode" );
     m_SpacingTypeChoice.AddItem( "Center Distance", vsp::BOGIE_CENTER_DIST );
     m_SpacingTypeChoice.AddItem( "Center Distance Fraction", vsp::BOGIE_CENTER_DIST_FRAC );
     m_SpacingTypeChoice.AddItem( "Gap", vsp::BOGIE_GAP );
     m_SpacingTypeChoice.AddItem( "Gap Fraction", vsp::BOGIE_GAP_FRAC );
     m_SpacingTypeChoice.UpdateItems();
 
-    m_TireGroup.AddSlider( m_SpacingSlider, "Spacing", 10, "%6.5f" );
-    m_TireGroup.AddSlider( m_SpacingGapSlider, "Spacing Gap", 10, "%6.5f" );
+    m_DesignLayout.AddSlider( m_SpacingSlider, "Spacing", 10, "%6.5f" );
+    m_DesignLayout.AddSlider( m_SpacingGapSlider, "Spacing Gap", 10, "%6.5f" );
 
-    m_TireGroup.AddYGap();
-    m_TireGroup.AddSlider( m_NTandemSlider, "Num Tandem", 10, "%6.0f" );
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddSlider( m_NTandemSlider, "Num Tandem", 10, "%6.0f" );
 
-    m_TireGroup.AddChoice( m_PitchTypeChoice, "Mode" );
+    m_DesignLayout.AddChoice( m_PitchTypeChoice, "Mode" );
     m_PitchTypeChoice.AddItem( "Center Distance", vsp::BOGIE_CENTER_DIST );
     m_PitchTypeChoice.AddItem( "Center Distance Fraction", vsp::BOGIE_CENTER_DIST_FRAC );
     m_PitchTypeChoice.AddItem( "Gap", vsp::BOGIE_GAP );
     m_PitchTypeChoice.AddItem( "Gap Fraction", vsp::BOGIE_GAP_FRAC );
     m_PitchTypeChoice.UpdateItems();
 
-    m_TireGroup.AddSlider( m_PitchSlider, "Pitch", 10, "%6.5f" );
-    m_TireGroup.AddSlider( m_PitchGapSlider, "Pitch Gap", 10, "%6.5f" );
+    m_DesignLayout.AddSlider( m_PitchSlider, "Pitch", 10, "%6.5f" );
+    m_DesignLayout.AddSlider( m_PitchGapSlider, "Pitch Gap", 10, "%6.5f" );
 
-    m_TireGroup.AddYGap();
-    m_TireGroup.AddDividerBox( "Contact Point" );
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddDividerBox( "Contact Point" );
 
-    m_TireGroup.AddSlider( m_TireXSlider, "X", 10, "%6.5f" );
-    m_TireGroup.AddSlider( m_TireYSlider, "Y", 10, "%6.5f" );
-    m_TireGroup.AddSlider( m_TireZSlider, "Z", 10, "%6.5f" );
+    m_DesignLayout.AddSlider( m_TireXSlider, "X Contact", 10, "%6.5f" );
+    m_DesignLayout.AddSlider( m_TireYSlider, "Y Contact", 10, "%6.5f" );
+    m_DesignLayout.AddSlider( m_TireZSlider, "Z Above Ground", 10, "%6.5f" );
 
-    m_TireGroup.AddYGap();
+
+    m_TireGroup.SetGroupAndScreen( tire_group, this );
+
     m_TireGroup.AddDividerBox( "Tire" );
 
     m_TireGroup.AddSlider( m_TireDiameterSlider, "Diameter", 10, "%6.5f" );
@@ -159,6 +165,28 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 525, "Gear" )
     m_WsToggleGroup.AddButton( m_WsToggleButton.GetFlButton() ); // true
 
     m_TireGroup.ForceNewLine();
+
+    m_TireGroup.AddYGap();
+
+    m_TireGroup.SetFitWidthFlag( false );
+    m_TireGroup.SetButtonWidth( toggleButtonWidth );
+    m_TireGroup.AddButton( m_DeflectionToggleButton, "" );
+    m_TireGroup.SetFitWidthFlag( true );
+    m_TireGroup.SetButtonWidth( bw );
+    m_TireGroup.AddSlider( m_DeflectionSlider, "Deflection", 1, "%6.5f" );
+
+    m_TireGroup.ForceNewLine();
+
+    m_TireGroup.SetFitWidthFlag( false );
+    m_TireGroup.SetButtonWidth( toggleButtonWidth );
+    m_TireGroup.AddButton( m_SLRToggleButton, "" );
+    m_TireGroup.SetFitWidthFlag( true );
+    m_TireGroup.SetButtonWidth( bw );
+    m_TireGroup.AddSlider( m_SLRSlider, "SLR", 1, "%6.5f" );
+
+    m_SLRToggleGroup.Init( this );
+    m_SLRToggleGroup.AddButton( m_DeflectionToggleButton.GetFlButton() ); // false
+    m_SLRToggleGroup.AddButton( m_SLRToggleButton.GetFlButton() ); // true
 
 }
 
@@ -299,9 +327,9 @@ bool Gearcreen::Update()
             m_PitchGapSlider.Deactivate();
         }
 
-        m_TireXSlider.Update( bogie_ptr->m_X.GetID() );
-        m_TireYSlider.Update( bogie_ptr->m_Y.GetID() );
-        m_TireZSlider.Update( bogie_ptr->m_Z.GetID() );
+        m_TireXSlider.Update( bogie_ptr->m_XContactPt.GetID() );
+        m_TireYSlider.Update( bogie_ptr->m_YContactPt.GetID() );
+        m_TireZSlider.Update( bogie_ptr->m_ZAboveGround.GetID() );
 
         m_TireDiameterSlider.Update( bogie_ptr->m_Diameter.GetID() );
         m_TireWidthSlider.Update( bogie_ptr->m_Width.GetID() );
@@ -345,6 +373,24 @@ bool Gearcreen::Update()
         {
             m_WsSlider.Update( 1, bogie_ptr->m_WsFrac.GetID(), bogie_ptr->m_Ws.GetID());
         }
+
+
+        m_SLRToggleGroup.Update( bogie_ptr->m_SLRFlag.GetID() );
+        m_DeflectionSlider.Update( bogie_ptr->m_DeflectionPct.GetID() );
+        m_SLRSlider.Update( bogie_ptr->m_StaticRadius.GetID() );
+
+
+        if ( bogie_ptr->m_SLRFlag() )
+        {
+            m_SLRSlider.Activate();
+            m_DeflectionSlider.Deactivate();
+        }
+        else
+        {
+            m_SLRSlider.Deactivate();
+            m_DeflectionSlider.Activate();
+        }
+
     }
 
     return true;
