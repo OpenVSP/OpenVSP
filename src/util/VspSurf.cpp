@@ -740,6 +740,26 @@ void VspSurf::CreateDisk( double dia, int ix, int iy )
     SkinC0( crv_vec, false );
 }
 
+void VspSurf::CreatePlane( double xmin, double xmax, double ymin, double ymax )
+{
+    surface_patch_type patch;
+    patch.resize( 1, 1 );
+
+    curve_point_type p0, p1, p2, p3;
+    p0 << xmin, ymin, 0;
+    p1 << xmax, ymin, 0;
+    p2 << xmin, ymax, 0;
+    p3 << xmax, ymax, 0;
+
+    patch.set_control_point( p0, 0, 0 );
+    patch.set_control_point( p1, 1, 0 );
+    patch.set_control_point( p2, 0, 1 );
+    patch.set_control_point( p3, 1, 1 );
+
+    m_Surface.init_uv( 1, 1 );
+    m_Surface.set( patch, 0, 0 );
+}
+
 void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag )
 {
     general_creator_type gc;
