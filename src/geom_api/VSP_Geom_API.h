@@ -14763,7 +14763,7 @@ extern void AddVarPresetParm( const std::string &group_id, const std::string &pa
 
     AddVarPresetParm( gid, p1 );
 
-    DeleteVarPresetGroup( gid )
+    DeleteVarPresetGroup( gid );
 
     \endcode
     \endforcpponly
@@ -14807,7 +14807,7 @@ extern void DeleteVarPresetGroup( const std::string &group_id );
 
     AddVarPresetParm( gid, p1 );
 
-    DeleteVarPresetSetting( gid, sid )
+    DeleteVarPresetSetting( gid, sid );
 
     \endcode
     \endforcpponly
@@ -14852,7 +14852,7 @@ extern void DeleteVarPresetSetting( const std::string &group_id, const std::stri
 
     AddVarPresetParm( gid, p1 );
 
-    DeleteVarPresetParm( gid, p1 )
+    DeleteVarPresetParm( gid, p1 );
 
     \endcode
     \endforcpponly
@@ -14897,7 +14897,7 @@ extern void DeleteVarPresetParm( const std::string &group_id, const std::string 
 
     AddVarPresetParm( gid, p1 );
 
-    SetVarPresetParmVal( gid, sid, p1, 51 )
+    SetVarPresetParmVal( gid, sid, p1, 51 );
 
     \endcode
     \endforcpponly
@@ -14944,7 +14944,7 @@ extern void SetVarPresetParmVal( const std::string &group_id, const std::string 
 
     AddVarPresetParm( gid, p1 );
 
-    double val = GetVarPresetParmVal( gid, sid, p1 )
+    double val = GetVarPresetParmVal( gid, sid, p1 );
 
     \endcode
     \endforcpponly
@@ -15469,14 +15469,14 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -15489,16 +15489,16 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -15541,14 +15541,14 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -15561,16 +15561,16 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -15626,14 +15626,14 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -15646,16 +15646,16 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -15700,14 +15700,14 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -15720,16 +15720,16 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -15784,14 +15784,14 @@ extern int GetNumModes();
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -15804,16 +15804,16 @@ extern int GetNumModes();
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -15858,14 +15858,14 @@ extern int GetNumModes();
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -15878,16 +15878,16 @@ extern int GetNumModes();
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -15942,14 +15942,14 @@ extern vector < string > GetAllModes();
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -15962,16 +15962,16 @@ extern vector < string > GetAllModes();
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -16016,14 +16016,14 @@ extern vector < string > GetAllModes();
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -16036,16 +16036,16 @@ extern vector < string > GetAllModes();
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -16100,14 +16100,14 @@ extern void DelMode( const string &mid );
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -16120,16 +16120,16 @@ extern void DelMode( const string &mid );
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -16174,14 +16174,14 @@ extern void DelMode( const string &mid );
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -16194,16 +16194,16 @@ extern void DelMode( const string &mid );
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -16257,14 +16257,14 @@ extern void DelAllModes();
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -16277,16 +16277,16 @@ extern void DelAllModes();
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -16329,14 +16329,14 @@ extern void DelAllModes();
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -16349,16 +16349,16 @@ extern void DelAllModes();
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -16411,14 +16411,14 @@ extern void ApplyModeSettings( const string &mid );
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -16431,16 +16431,16 @@ extern void ApplyModeSettings( const string &mid );
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -16485,14 +16485,14 @@ extern void ApplyModeSettings( const string &mid );
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -16505,16 +16505,16 @@ extern void ApplyModeSettings( const string &mid );
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -16569,14 +16569,14 @@ extern void ShowOnlyMode( const string &mid );
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -16589,16 +16589,16 @@ extern void ShowOnlyMode( const string &mid );
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -16641,14 +16641,14 @@ extern void ShowOnlyMode( const string &mid );
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -16661,16 +16661,16 @@ extern void ShowOnlyMode( const string &mid );
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -16725,14 +16725,14 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -16745,16 +16745,16 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -16799,14 +16799,14 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -16819,16 +16819,16 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -16885,14 +16885,14 @@ extern string ModeGetGroup( const string &mid, int indx );
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -16905,16 +16905,16 @@ extern string ModeGetGroup( const string &mid, int indx );
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -16959,14 +16959,14 @@ extern string ModeGetGroup( const string &mid, int indx );
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -16979,16 +16979,16 @@ extern string ModeGetGroup( const string &mid, int indx );
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -17045,14 +17045,14 @@ extern string ModeGetSetting( const string &mid, int indx );
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -17065,16 +17065,16 @@ extern string ModeGetSetting( const string &mid, int indx );
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -17119,14 +17119,14 @@ extern string ModeGetSetting( const string &mid, int indx );
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -17139,16 +17139,16 @@ extern string ModeGetSetting( const string &mid, int indx );
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -17204,14 +17204,14 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -17224,16 +17224,16 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -17278,14 +17278,14 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -17298,16 +17298,16 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -17363,14 +17363,14 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -17383,16 +17383,16 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -17437,14 +17437,14 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -17457,16 +17457,16 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -17522,14 +17522,14 @@ extern void RemoveGroupSetting( const string &mid, int indx );
     string p2 = FindParm( pod1, "Tess_W", "Shape" );
     AddVarPresetParm( gid, p2 );
 
-    string sid = AddVarPresetSetting( "Default" );
+    string sid = AddVarPresetSetting( gid, "Default" );
     SaveVarPresetParmVals( gid, sid );
 
     string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
-    string sid2 = AddVarPresetSetting( "Fine" );
+    string sid2 = AddVarPresetSetting( gid, "Fine" );
     SetVarPresetParmVal( gid, sid, p1, 35 );
     SetVarPresetParmVal( gid, sid, p2, 21 );
 
@@ -17542,16 +17542,16 @@ extern void RemoveGroupSetting( const string &mid, int indx );
     string p4 = FindParm( pod1, "FineRatio", "Design" );
     AddVarPresetParm( gid2, p4 );
 
-    string sid3 = AddVarPresetSetting( "Normal" );
+    string sid3 = AddVarPresetSetting( gid2, "Normal" );
     SaveVarPresetParmVals( gid2, sid3 );
 
-    string sid4 = AddVarPresetSetting( "ShortFat" );
+    string sid4 = AddVarPresetSetting( gid2, "ShortFat" );
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 );
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 );
 
-    string sid5 = AddVarPresetSetting( "LongThin" );
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 );
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 );
+    string sid5 = AddVarPresetSetting( gid2, "LongThin" );
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 );
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 );
 
     // End of setup boiler plate.
 
@@ -17596,14 +17596,14 @@ extern void RemoveGroupSetting( const string &mid, int indx );
     p2 = FindParm( pod1, "Tess_W", "Shape" )
     AddVarPresetParm( gid, p2 )
 
-    sid = AddVarPresetSetting( "Default" )
+    sid = AddVarPresetSetting( gid, "Default" )
     SaveVarPresetParmVals( gid, sid )
 
     sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
-    sid2 = AddVarPresetSetting( "Fine" )
+    sid2 = AddVarPresetSetting( gid, "Fine" )
     SetVarPresetParmVal( gid, sid, p1, 35 )
     SetVarPresetParmVal( gid, sid, p2, 21 )
 
@@ -17616,16 +17616,16 @@ extern void RemoveGroupSetting( const string &mid, int indx );
     p4 = FindParm( pod1, "FineRatio", "Design" )
     AddVarPresetParm( gid2, p4 )
 
-    sid3 = AddVarPresetSetting( "Normal" )
+    sid3 = AddVarPresetSetting( gid2, "Normal" )
     SaveVarPresetParmVals( gid2, sid3 )
 
-    sid4 = AddVarPresetSetting( "ShortFat" )
+    sid4 = AddVarPresetSetting( gid2, "ShortFat" )
     SetVarPresetParmVal( gid2, sid4, p3, 3.0 )
     SetVarPresetParmVal( gid2, sid4, p4, 5.0 )
 
-    sid5 = AddVarPresetSetting( "LongThin" )
-    SetVarPresetParmVal( gid2, si5, p3, 20.0 )
-    SetVarPresetParmVal( gid2, si5, p4, 35.0 )
+    sid5 = AddVarPresetSetting( gid2, "LongThin" )
+    SetVarPresetParmVal( gid2, sid5, p3, 20.0 )
+    SetVarPresetParmVal( gid2, sid5, p4, 35.0 )
 
     # End of setup boiler plate.
 
@@ -19687,15 +19687,15 @@ extern double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_ind
 
     vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t );
 
-    bool res = InsideSurf( geom_id, surf_indx, pt );
+    bool res = InsideSurf( geom_id, surf_indx, pnt );
 
     if ( res )
     {
-        print( "Inside" );
+        Print( "Inside" );
     }
     else
     {
-        print( "Outside" );
+        Print( "Outside" );
     }
 
     \endcode

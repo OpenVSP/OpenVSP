@@ -4512,13 +4512,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //=== Register Mode Functions ====//
 
-    r = se->RegisterGlobalFunction( "void CreateAndAddMode( const string & in name, int normal_set, int degen_set )", asFUNCTION( vsp::CreateAndAddMode ), asCALL_CDECL);
+    r = se->RegisterGlobalFunction( "string CreateAndAddMode( const string & in name, int normal_set, int degen_set )", asFUNCTION( vsp::CreateAndAddMode ), asCALL_CDECL);
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void GetNumModes()", asFUNCTION( vsp::GetNumModes ), asCALL_CDECL);
+    r = se->RegisterGlobalFunction( "int GetNumModes()", asFUNCTION( vsp::GetNumModes ), asCALL_CDECL);
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "array<double>@+ GetAllModes()", asMETHOD( ScriptMgrSingleton, GetAllModes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllModes()", asMETHOD( ScriptMgrSingleton, GetAllModes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void DelMode( const string & in mode_id )", asFUNCTION( vsp::DelMode ), asCALL_CDECL);
@@ -4542,10 +4542,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string ModeGetSetting( const string & in mode_id, int indx )", asFUNCTION( vsp::ModeGetSetting ), asCALL_CDECL);
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "array<double>@+ ModeGetAllGroups( const string & in mode_id )", asMETHOD( ScriptMgrSingleton, ModeGetAllGroups ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ ModeGetAllGroups( const string & in mode_id )", asMETHOD( ScriptMgrSingleton, ModeGetAllGroups ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "array<double>@+ ModeGetAllSettings( const string & in mode_id )", asMETHOD( ScriptMgrSingleton, ModeGetAllSettings ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ ModeGetAllSettings( const string & in mode_id )", asMETHOD( ScriptMgrSingleton, ModeGetAllSettings ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void RemoveGroupSetting( const string & in mode_id, int indx )", asFUNCTION( vsp::RemoveGroupSetting ), asCALL_CDECL);
