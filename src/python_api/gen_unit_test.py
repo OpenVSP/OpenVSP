@@ -117,7 +117,7 @@ def add_test(line):
     new_line = split_line[0] + '(self):'
     return new_line
 
-def generate_angelscript_unit_test(vsp_geom_api, angelscript_unittest_filepath):
+def generate_vspscript_unit_test(vsp_geom_api, vspscript_unittest_filepath):
     script = ""
     end_script = "int main()\n"
     end_script += "{\n"
@@ -161,7 +161,7 @@ def generate_angelscript_unit_test(vsp_geom_api, angelscript_unittest_filepath):
     end_script += "    return 0; // success\n"
     end_script += "}\n"
     script += end_script
-    with open(angelscript_unittest_filepath, 'w') as f:
+    with open(vspscript_unittest_filepath, 'w') as f:
         f.write(script)
 
 if __name__ == '__main__':
@@ -170,6 +170,6 @@ if __name__ == '__main__':
     openvsp_dir = os.path.join(base_dir, 'openvsp')
     vsp_file = os.path.join(openvsp_dir, 'vsp.py')
     unit_file = os.path.join(openvsp_dir, 'tests', 'test_vsp_api.py')
-    unit_file_angelscript = os.path.join(openvsp_dir, 'tests', 'test_vsp_api.angelscript')
+    unit_file_vspscript = os.path.join(openvsp_dir, 'tests', 'test_vsp_api.vspscript')
     generate_unit_test(vsp_file, unit_file)
-    generate_angelscript_unit_test(vsp_geom_api, unit_file_angelscript)
+    generate_vspscript_unit_test(vsp_geom_api, unit_file_vspscript)
