@@ -2933,6 +2933,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //==== Visualization Functions ====//
 
+    r = se->RegisterGlobalFunction( "void InitGUI()", asFUNCTION( vsp::InitGUI ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "void StartGUI()", asFUNCTION( vsp::StartGUI ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -2966,6 +2970,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
 
     r = se->RegisterGlobalFunction( "void Unlock()", asFUNCTION( vsp::Unlock ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "bool IsEventLoopRunning()", asFUNCTION( vsp::IsEventLoopRunning ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -3080,7 +3088,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "string ExportFile( const string & in file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = -1, bool useMode = false, const string & in modeID = "" )", asFUNCTION( vsp::ExportFile ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string ExportFile( const string & in file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = -1, bool useMode = false, const string & in modeID = \"\" )", asFUNCTION( vsp::ExportFile ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -4916,11 +4924,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string AddFeaBC( int fea_struct_ind, int type )", asFUNCTION( vsp::AddFeaBC ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddFeaBC( const string & in fea_struct_id, int type )", asFUNCTION( vsp::AddFeaBC ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DelFeaBC( int fea_struct_ind, const string & in ss_id )", asFUNCTION( vsp::DelFeaBC ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DelFeaBC( const string & in fea_struct_id, const string & in ss_id )", asFUNCTION( vsp::DelFeaBC ), asCALL_CDECL );
     assert( r >= 0 );
 
 
