@@ -14683,7 +14683,7 @@ extern string AddVarPresetGroup( const std::string &group_name );
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid =AddVarPresetSetting( "Coarse" );
+    string sid =AddVarPresetSetting( gid, "Coarse" );
 
     \endcode
     \endforcpponly
@@ -14694,7 +14694,7 @@ extern string AddVarPresetGroup( const std::string &group_name );
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     \endcode
     \endPythonOnly
@@ -14717,7 +14717,7 @@ extern string AddVarPresetSetting( const std::string &group_id, const std::strin
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -14731,7 +14731,7 @@ extern string AddVarPresetSetting( const std::string &group_id, const std::strin
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -14757,7 +14757,7 @@ extern void AddVarPresetParm( const std::string &group_id, const std::string &pa
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -14774,7 +14774,7 @@ extern void AddVarPresetParm( const std::string &group_id, const std::string &pa
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -14801,7 +14801,7 @@ extern void DeleteVarPresetGroup( const std::string &group_id );
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -14818,7 +14818,7 @@ extern void DeleteVarPresetGroup( const std::string &group_id );
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -14846,7 +14846,7 @@ extern void DeleteVarPresetSetting( const std::string &group_id, const std::stri
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -14863,7 +14863,7 @@ extern void DeleteVarPresetSetting( const std::string &group_id, const std::stri
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -14891,7 +14891,7 @@ extern void DeleteVarPresetParm( const std::string &group_id, const std::string 
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -14908,7 +14908,7 @@ extern void DeleteVarPresetParm( const std::string &group_id, const std::string 
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -14938,7 +14938,7 @@ extern void SetVarPresetParmVal( const std::string &group_id, const std::string 
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -14955,7 +14955,7 @@ extern void SetVarPresetParmVal( const std::string &group_id, const std::string 
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -15018,7 +15018,7 @@ extern std::string GetGroupName( const std::string &group_id );
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string name = GetSettingName( sid );
 
@@ -15031,7 +15031,7 @@ extern std::string GetGroupName( const std::string &group_id );
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     name = GetSettingName( sid )
 
@@ -15088,7 +15088,7 @@ extern void SetGroupName( const std::string &group_id, const std::string &group_
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     SetSettingName( sid, "Low" );
 
@@ -15101,7 +15101,7 @@ extern void SetGroupName( const std::string &group_id, const std::string &group_
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     SetSettingName( sid, "Low" )
 
@@ -15125,7 +15125,7 @@ extern void SetSettingName( const std::string &setting_id, const std::string &se
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -15142,7 +15142,7 @@ extern void SetSettingName( const std::string &setting_id, const std::string &se
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -15169,7 +15169,7 @@ extern std::vector< std::string > GetVarPresetGroups();
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -15186,7 +15186,7 @@ extern std::vector< std::string > GetVarPresetGroups();
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -15214,7 +15214,7 @@ extern std::vector< std::string > GetVarPresetSettings( const std::string &group
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -15231,7 +15231,7 @@ extern std::vector< std::string > GetVarPresetSettings( const std::string &group
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -15259,7 +15259,7 @@ extern std::vector< std::string > GetVarPresetParmIDs( const std::string &group_
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -15276,7 +15276,7 @@ extern std::vector< std::string > GetVarPresetParmIDs( const std::string &group_
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -15305,7 +15305,7 @@ extern std::vector< double > GetVarPresetParmVals( const std::string &setting_id
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -15324,7 +15324,7 @@ extern std::vector< double > GetVarPresetParmVals( const std::string &setting_id
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -15354,7 +15354,7 @@ extern void SetVarPresetParmVals( const std::string &setting_id, const std::vect
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -15371,7 +15371,7 @@ extern void SetVarPresetParmVals( const std::string &setting_id, const std::vect
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -15399,7 +15399,7 @@ extern void SaveVarPresetParmVals( const std::string &group_id, const std::strin
 
     string gid = AddVarPresetGroup( "Tess" );
 
-    string sid = AddVarPresetSetting( "Coarse" );
+    string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
@@ -15418,7 +15418,7 @@ extern void SaveVarPresetParmVals( const std::string &group_id, const std::strin
 
     gid = AddVarPresetGroup( "Tess" )
 
-    sid = AddVarPresetSetting( "Coarse" )
+    sid = AddVarPresetSetting( gid, "Coarse" )
 
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
@@ -15472,7 +15472,7 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -15544,7 +15544,7 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -15629,7 +15629,7 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -15703,7 +15703,7 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -15787,7 +15787,7 @@ extern int GetNumModes();
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -15861,7 +15861,7 @@ extern int GetNumModes();
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -15945,7 +15945,7 @@ extern vector < string > GetAllModes();
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -16019,7 +16019,7 @@ extern vector < string > GetAllModes();
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -16103,7 +16103,7 @@ extern void DelMode( const string &mid );
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -16177,7 +16177,7 @@ extern void DelMode( const string &mid );
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -16260,7 +16260,7 @@ extern void DelAllModes();
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -16332,7 +16332,7 @@ extern void DelAllModes();
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -16414,7 +16414,7 @@ extern void ApplyModeSettings( const string &mid );
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -16488,7 +16488,7 @@ extern void ApplyModeSettings( const string &mid );
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -16572,7 +16572,7 @@ extern void ShowOnlyMode( const string &mid );
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -16644,7 +16644,7 @@ extern void ShowOnlyMode( const string &mid );
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -16728,7 +16728,7 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -16802,7 +16802,7 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -16888,7 +16888,7 @@ extern string ModeGetGroup( const string &mid, int indx );
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -16962,7 +16962,7 @@ extern string ModeGetGroup( const string &mid, int indx );
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -17048,7 +17048,7 @@ extern string ModeGetSetting( const string &mid, int indx );
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -17122,7 +17122,7 @@ extern string ModeGetSetting( const string &mid, int indx );
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -17207,7 +17207,7 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -17281,7 +17281,7 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -17366,7 +17366,7 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -17440,7 +17440,7 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
@@ -17525,7 +17525,7 @@ extern void RemoveGroupSetting( const string &mid, int indx );
     string sid = AddVarPresetSetting( "Default" );
     SaveVarPresetParmVals( gid, sid );
 
-    string sid1 = AddVarPresetSetting( "Coarse" );
+    string sid1 = AddVarPresetSetting( gid, "Coarse" );
     SetVarPresetParmVal( gid, sid1, p1, 3 );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
@@ -17599,7 +17599,7 @@ extern void RemoveGroupSetting( const string &mid, int indx );
     sid = AddVarPresetSetting( "Default" )
     SaveVarPresetParmVals( gid, sid )
 
-    sid1 = AddVarPresetSetting( "Coarse" )
+    sid1 = AddVarPresetSetting( gid, "Coarse" )
     SetVarPresetParmVal( gid, sid1, p1, 3 )
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
