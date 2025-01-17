@@ -219,6 +219,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         COMMAND ${PYTHON_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/gen_unit_test.py
         ${CMAKE_BINARY_DIR}/python_pseudo/openvsp
+        ${VSP_SOURCE_DIR}/geom_api/VSP_Geom_API.h
     )
 
     if ( SPHINX_FOUND )

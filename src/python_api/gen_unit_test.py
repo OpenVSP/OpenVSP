@@ -117,9 +117,59 @@ def add_test(line):
     new_line = split_line[0] + '(self):'
     return new_line
 
+def generate_angelscript_unit_test(vsp_geom_api, angelscript_unittest_filepath):
+    script = ""
+    end_script = "int main()\n"
+    end_script += "{\n"
+    in_code_segment = False
+    code_segment = ""
+    function_names = []
+    with open(vsp_geom_api, 'r') as header:
+        for line in header:
+            line = line.replace("vector", "array").replace("std::", "")
+            if "\code{.cpp}" in line:
+                in_code_segment = True
+                code_segment = ""
+
+            elif in_code_segment:
+                if "\endcode" in line:
+                    in_code_segment = False
+                else:
+                    code_segment += line
+            elif "extern" in line and ");" in line:
+                line_split = line.split()
+                name_index = 2
+                for index, word in enumerate(line_split):
+                    if "(" in word:
+                        name_index = index
+                        break
+                function_name = "test_"+line_split[name_index][:line_split[name_index].index("(")]
+                while function_name in function_names:
+                    function_name += "1"
+                function_names.append(function_name)
+                script += f"int {function_name}()"
+                script += "\n{\n"
+                script += "    VSPRenew();\n"
+                script += code_segment
+                script += "\n    return 0;\n"
+                script += "}\n"
+
+                end_script += '    '
+                end_script +=  function_name + "();"
+                end_script += '\n'
+
+    end_script += "    return 0; // success\n"
+    end_script += "}\n"
+    script += end_script
+    with open(angelscript_unittest_filepath, 'w') as f:
+        f.write(script)
+
 if __name__ == '__main__':
     base_dir = sys.argv[1]
+    vsp_geom_api = sys.argv[2]
     openvsp_dir = os.path.join(base_dir, 'openvsp')
     vsp_file = os.path.join(openvsp_dir, 'vsp.py')
     unit_file = os.path.join(openvsp_dir, 'tests', 'test_vsp_api.py')
+    unit_file_angelscript = os.path.join(openvsp_dir, 'tests', 'test_vsp_api.angelscript')
     generate_unit_test(vsp_file, unit_file)
+    generate_angelscript_unit_test(vsp_geom_api, unit_file_angelscript)
