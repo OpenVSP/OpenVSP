@@ -41,9 +41,27 @@ protected:
 
 
     GroupLayout m_RulerLayout;
+
+    GroupLayout m_RulerCol1Layout;
+    GroupLayout m_RulerCol2Layout;
+    GroupLayout m_RulerCol3Layout;
+
     GroupLayout m_ProbeLayout;
+
+    GroupLayout m_ProbeCol1Layout;
+    GroupLayout m_ProbeCol2Layout;
+    GroupLayout m_ProbeCol3Layout;
+
     GroupLayout m_RSTProbeLayout;
+
+    GroupLayout m_RSTProbeCol1Layout;
+    GroupLayout m_RSTProbeCol2Layout;
+
     GroupLayout m_ProtractorLayout;
+
+    GroupLayout m_ProtractorCol1Layout;
+    GroupLayout m_ProtractorCol2Layout;
+    GroupLayout m_ProtractorCol3Layout;
 
     AttributeEditor m_RulerAttrEditor;
     AttributeEditor m_ProbeAttrEditor;
