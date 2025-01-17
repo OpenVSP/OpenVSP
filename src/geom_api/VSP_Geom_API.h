@@ -12798,8 +12798,8 @@ extern void SetSetName( int index, const std::string& name );
     \code{.cpp}
     SetSetName( 3, "SetFromScript" );
 
-    if GetSetName(3) != "SetFromScript":
-        print("---> Error: API Get/Set Set Name")
+    if (GetSetName(3) != "SetFromScript" )
+        print("---> Error: API Get/Set Set Name");
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -19793,7 +19793,7 @@ extern vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const
 
     double rout, sout, tout;
 
-    double d = FindRST( geom_id, surf_indx, pnt );
+    double d = FindRST( geom_id, surf_indx, pnt, rout, sout, tout );
 
     Print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout );
     \endcode
