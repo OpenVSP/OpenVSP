@@ -306,7 +306,7 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
     m_DblMatEntryLayout.ForceNewLine();
 
     //initialize pointers etc.
-    m_CurAttrGroup = &m_StringEntryLayout;
+    m_CurAttrGroup = nullptr;
 
     m_AttrIDs.clear();
     m_CollIDs.clear();
@@ -318,7 +318,7 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
     m_AttrTypeChoice.SetVal( vsp::STRING_DATA );
     m_AttrTypeSearchChoice.SetVal( vsp::INVALID_TYPE );
     m_ObjTypeSearchChoice.SetVal( vsp::ATTROBJ_FREE );
-    AttrTypeDispGroup( vsp::STRING_DATA, &m_StringEntryLayout );
+    AttrTypeDispGroup( vsp::STRING_DATA, nullptr );
 
     m_valid_collector_set = false;
     m_types_selected = 0;
@@ -913,9 +913,13 @@ void AttributeExplorer::AttrTypeDispGroup( int attr_type, GroupLayout * group )
         }
         data_name += "Data";
     }
-    else
+    else if ( m_types_selected > 1 )
     {
         data_name = "Multiple Data Types";
+    }
+    else
+    {
+        data_name = "No Attributes Selected";
     }
 
     NameValData* attr_ptr = nullptr;
