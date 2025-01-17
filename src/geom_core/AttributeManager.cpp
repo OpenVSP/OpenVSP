@@ -1183,21 +1183,19 @@ int AttributeMgrSingleton::CopyAttributeUtil( const string &attr_id, bool update
 int AttributeMgrSingleton::CopyAttributeUtil( const vector < string > &attr_ids, bool updateFlag )
 {
     // check vector of attribute ids for any copy errors before clearing the clipboard and copying onto it
-    int copy_error = 0;
+    NameValData* a = nullptr;
     vector < NameValData* > nvd_ptr_vec;
     for ( int i = 0; i != attr_ids.size(); ++ i )
     {
-        nvd_ptr_vec.push_back( GetAttributePtr( attr_ids.at( i ) ) );
-        if ( !nvd_ptr_vec.at( i ) || nvd_ptr_vec.at( i )->IsProtected() )
+        a = GetAttributePtr( attr_ids.at( i ) );
+        if ( a && !a->IsProtected() )
         {
-            copy_error = 1;
+            nvd_ptr_vec.push_back( a );
         }
-    }
-
-    // return from method if there are any errors
-    if ( copy_error )
-    {
-        return 1;
+        else
+        {
+            return 1;
+        }
     }
 
     // go through and populate the clipboard
@@ -1220,7 +1218,8 @@ int AttributeMgrSingleton::CopyAttributeUtil( const vector < string > &attr_ids,
 
 void AttributeMgrSingleton::CutAttributeUtil( const string &attr_id, bool updateFlag )
 {
-    CutAttributeUtil( { attr_id }, updateFlag );
+    vector < string > attr_id_vec = { attr_id };
+    CutAttributeUtil( attr_id_vec, updateFlag );
 }
 
 void AttributeMgrSingleton::CutAttributeUtil( const vector < string > &attr_ids, bool updateFlag )
@@ -1229,6 +1228,11 @@ void AttributeMgrSingleton::CutAttributeUtil( const vector < string > &attr_ids,
     if ( !copy_error )
     {
         DeleteAttribute( attr_ids, false );
+
+        for ( int i = 0; i != attr_ids.size(); ++i )
+        {
+            m_AttrClipboard.at( i ).ChangeID( attr_ids.at( i ) );
+        }
     }
     if ( updateFlag )
     {
@@ -1236,36 +1240,16 @@ void AttributeMgrSingleton::CutAttributeUtil( const vector < string > &attr_ids,
     }
 }
 
-void AttributeMgrSingleton::PasteAttributeUtil( const string &coll_id, bool updateFlag )
+vector < string > AttributeMgrSingleton::PasteAttributeUtil( const string &coll_id, bool updateFlag )
 {
-    AttributeCollection* ac_ptr = GetCollectionPtr( coll_id );
-    if ( ac_ptr )
-    {
-        string lastreset = IDMgr.ResetRemapID();
-        for ( int i = 0; i != m_AttrClipboard.size(); ++i )
-        {
-            NameValData nvd_ref = m_AttrClipboard[i];
-            NameValData nvd;
-            if ( &(nvd_ref) )
-            {
-                nvd.CopyFrom( &(nvd_ref) ,ac_ptr->GetAllAttrNames() );
-                nvd.SetAttrAttach( ac_ptr->GetID() );
-                string attrID = nvd.GetID();
-                ac_ptr->Add( nvd );
-                SetAttrDirtyFlag( attrID );
-                if ( updateFlag )
-                {
-                    Update();
-                }
-            }
-        }
-        IDMgr.ResetRemapID( lastreset );
-    }
+    vector < string > coll_ids = { coll_id };
+    return PasteAttributeUtil( coll_ids, updateFlag );
 }
 
-void AttributeMgrSingleton::PasteAttributeUtil( const vector < string > &coll_ids, bool updateFlag )
+vector < string > AttributeMgrSingleton::PasteAttributeUtil( const vector < string > &coll_ids, bool updateFlag )
 {
     int paste_error = 0;
+    vector < string > attr_paste_ids;
     vector < AttributeCollection* > ac_vec;
     for ( int i = 0 ; i != coll_ids.size(); ++i )
     {
@@ -1278,7 +1262,7 @@ void AttributeMgrSingleton::PasteAttributeUtil( const vector < string > &coll_id
 
     if ( paste_error )
     {
-        return;
+        return attr_paste_ids;
     }
 
     for ( int i = 0 ; i != ac_vec.size(); ++i )
@@ -1290,11 +1274,12 @@ void AttributeMgrSingleton::PasteAttributeUtil( const vector < string > &coll_id
             NameValData nvd;
             if ( &(nvd_ref) )
             {
-                nvd.CopyFrom( &(nvd_ref) ,ac_vec.at( i )->GetAllAttrNames() );
+                nvd.CopyFrom( &(nvd_ref) );
                 nvd.SetAttrAttach( ac_vec.at( i )->GetID() );
                 string attrID = nvd.GetID();
                 ac_vec.at( i )->Add( nvd );
                 SetAttrDirtyFlag( attrID );
+                attr_paste_ids.push_back( attrID );
             }
             IDMgr.ResetRemapID( lastreset );
         }
@@ -1303,6 +1288,7 @@ void AttributeMgrSingleton::PasteAttributeUtil( const vector < string > &coll_id
     {
         Update();
     }
+    return attr_paste_ids;
 }
 
 int AttributeMgrSingleton::CopyAttribute( const string &attr_id, bool updateFlag )
@@ -1315,7 +1301,7 @@ void AttributeMgrSingleton::CutAttribute( const string &attr_id, bool updateFlag
     CutAttributeUtil( attr_id, updateFlag );
 }
 
-void AttributeMgrSingleton::PasteAttribute( const string &obj_id, bool updateFlag )
+vector < string > AttributeMgrSingleton::PasteAttribute( const string &obj_id, bool updateFlag )
 {
     string coll_id = obj_id;
     AttributeCollection* ac = GetCollectionPtr( obj_id );
@@ -1324,7 +1310,7 @@ void AttributeMgrSingleton::PasteAttribute( const string &obj_id, bool updateFla
         ac = GetCollectionFromParentID( obj_id );
         coll_id = ac->GetID();
     }
-    PasteAttributeUtil( coll_id, updateFlag );
+    return PasteAttributeUtil( coll_id, updateFlag );
 }
 
 // extend a vector of strings with another vector of strings (concatenate) with option of adding a common root to the extension vector

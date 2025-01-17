@@ -255,12 +255,12 @@ public:
     string GenerateID();
     void ChangeID( string id );
 
-    void CopyFrom( NameValData* nvd, vector < string > name_vector = {} );
+    void CopyFrom( NameValData* nvd );
 
     static string TruncateString( string str , int len );
 
     virtual void EncodeXml( xmlNodePtr & node );
-    virtual void DecodeXml( xmlNodePtr & node, vector < string > name_vector = {} );
+    virtual void DecodeXml( xmlNodePtr & node );
     void ReRegisterNestedCollections();
 
 protected:

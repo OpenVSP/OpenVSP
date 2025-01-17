@@ -209,6 +209,8 @@ private:
     CScriptArray* AddAttributeIntMatrix( const string & collID, const string & attributeName, CScriptArray* intMatrix );
     CScriptArray* AddAttributeDoubleMatrix( const string & collID, const string & attributeName, CScriptArray* dblMatrix );
 
+    CScriptArray* PasteAttribute( const string & collID );
+
     CScriptArray* GetAllResultsNames();
     CScriptArray* GetAllDataNames( const string & results_id );
     CScriptArray* GetIntResults( const string & id, const string & name, int index );

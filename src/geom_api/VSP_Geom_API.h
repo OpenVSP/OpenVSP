@@ -3818,8 +3818,16 @@ extern int CopyAttribute( const string & attrID );
     \beginPythonOnly
     \code{.py}
     #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
+    VehID = vsp.GetVehicleID()
+    CollID = vsp.GetChildCollection( VehID )
+    AttrName = 'Example_String_Attr'
+    StringValue = 'Example_String_Attr_DataVal'
+    AttrID = vsp.AddAttributeString( CollID, AttrName, StringValue )
     vsp.CutAttribute( AttrID )
+
+    NewCollID = vsp.GetChildCollection( "_AttrWMGroup" )
+    NewAttrIDs = vsp.PasteAttribute( NewCollID )
+
     #==== Write Some Fake Test Results =====//
     # not implemented
     \endcode
@@ -3835,6 +3843,7 @@ extern void CutAttribute( const string & attrID );
 /*!
     Paste the attribute clipboard to the specified objectID
     ObjectID can be any OpenVSP entity that contains a AttributeCollection or simply the attributeCollectionID
+    Returns a vector of pasted attributes IDs, if any
     \forcpponly
     \code{.cpp}
     //==== Write Some Fake Test Results =====//
@@ -3845,16 +3854,16 @@ extern void CutAttribute( const string & attrID );
     \code{.py}
     VehID = vsp.GetVehicleID()
     CollID = vsp.GetChildCollection( VehID )
-    vsp.PasteAttribute( CollID )
+    NewAttrIDs = vsp.PasteAttribute( CollID )
     #==== Write Some Fake Test Results =====//
     # not implemented
 
     \endcode
     \endPythonOnly
-    \param [in] objID string ID of destination for pasting attribute into
+    \param [in] coll_id string ID of destination for pasting attribute into
 */
 
-extern void PasteAttribute( const string & objID );
+extern vector < string > PasteAttribute( const string & coll_id );
 
 //======================== Results ================================//
 /*!

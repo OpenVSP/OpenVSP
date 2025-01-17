@@ -3492,7 +3492,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void PasteAttribute( const string & in coll_id )", asFUNCTION( vsp::PasteAttribute ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "array<string>@+ PasteAttribute( const string & in coll_id )", asMETHOD( ScriptMgrSingleton, PasteAttribute ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -5513,6 +5513,12 @@ CScriptArray* ScriptMgrSingleton::AddAttributeDoubleMatrix( const string & collI
     FillSTLMatrix( dblMatrix, dbl_mat );
     string id = vsp::AddAttributeDoubleMatrix( collID, attributeName, dbl_mat );
     m_ProxyStringArray = { id };
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::PasteAttribute( const string & collID )
+{
+    m_ProxyStringArray = vsp::PasteAttribute( collID );
     return GetProxyStringArray();
 }
 

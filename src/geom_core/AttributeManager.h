@@ -122,14 +122,14 @@ public:
 
     int CopyAttribute( const string &attr_id, bool updateFlag = true );
     void CutAttribute( const string &attr_id, bool updateFlag = true );
-    void PasteAttribute( const string &obj_id, bool updateFlag = true );
+    vector < string > PasteAttribute( const string &obj_id, bool updateFlag = true );
 
     int CopyAttributeUtil( const string &attr_id, bool updateFlag = true );
     int CopyAttributeUtil( const vector < string > &attr_ids, bool updateFlag = true );
     void CutAttributeUtil( const string &attr_id, bool updateFlag = true );
     void CutAttributeUtil( const vector < string > &attr_ids, bool updateFlag = true );
-    void PasteAttributeUtil( const string &obj_id, bool updateFlag = true );
-    void PasteAttributeUtil( const vector < string > &obj_ids, bool updateFlag = true );
+    vector < string > PasteAttributeUtil( const string &obj_id, bool updateFlag = true );
+    vector < string > PasteAttributeUtil( const vector < string > &obj_ids, bool updateFlag = true );
 
     //tree things
     vector < vector < vector < string > > > GetAttrTreeVec( const string & root_id = "", vector < string > inc_ids = {}, bool exclude_clipboard = true, int attr_type = vsp::INVALID_TYPE, int attach_type = vsp::ATTROBJ_FREE, const string & attr_search = "", bool case_sens = false );

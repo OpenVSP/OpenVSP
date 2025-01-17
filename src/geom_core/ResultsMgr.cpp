@@ -394,13 +394,13 @@ void NameValData::ChangeID( string id ) //only for attributes
 }
 
 //==== Copy NameValData ====//
-void NameValData::CopyFrom( NameValData* nvd, vector < string > name_vector )
+void NameValData::CopyFrom( NameValData* nvd )
 {
     xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Attributes" );
 
     nvd->EncodeXml( root );
     xmlNodePtr attr_node = XmlUtil::GetNode( root, "Attribute", 0 );
-    DecodeXml( attr_node, name_vector );
+    DecodeXml( attr_node );
 
     xmlFreeNode( root );
     // xmlFreeNode( attr_node );
@@ -509,7 +509,7 @@ void NameValData::EncodeXml( xmlNodePtr & node )
     XmlUtil::SetIntProp( dnode, "Protection", m_ProtectFlag );
 }
 
-void NameValData::DecodeXml( xmlNodePtr & node, vector < string > name_vector )
+void NameValData::DecodeXml( xmlNodePtr & node )
 {
     if ( node )
     {

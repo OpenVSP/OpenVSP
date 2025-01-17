@@ -1649,12 +1649,12 @@ int CopyAttribute( const string & attrID )
 
 void CutAttribute( const string & attrID )
 {
-    return AttributeMgr.CutAttribute( attrID );
+    AttributeMgr.CutAttribute( attrID );
 }
 
-void PasteAttribute( const string & objID )
+vector < string > PasteAttribute( const string & objID )
 {
-    AttributeMgr.PasteAttribute( objID );
+    return AttributeMgr.PasteAttribute( objID );
 }
 
 //===================================================================//
