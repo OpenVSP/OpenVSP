@@ -25,7 +25,7 @@
 //===============================================================================//
 //===============================================================================//
 
-AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 680, "Attribute Explorer", "AttributeExplorer.md" )
+AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 680, "Attribute Explorer", "AttributeExplorer.html" )
 {
     m_ScreenMgr = mgr;
 
