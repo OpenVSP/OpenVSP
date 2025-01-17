@@ -14503,7 +14503,7 @@ extern string AddUserParm(int type, const string & name, const string & group );
     int n = GetNumPredefinedUserParms();
     array<string> @id_arr = GetAllUserParms();
 
-    if ( id_arr.size() > n )
+    if ( int( id_arr.size() ) > n )
     {
         DeleteUserParm( id_arr[n] );
     }
