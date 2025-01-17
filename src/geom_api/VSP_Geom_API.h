@@ -12808,7 +12808,7 @@ extern void SetSetName( int index, const std::string& name );
     SetSetName( 3, "SetFromScript" );
 
     if (GetSetName(3) != "SetFromScript" )
-        print("---> Error: API Get/Set Set Name");
+        Print("---> Error: API Get/Set Set Name");
     \endcode
     \endforcpponly
     \beginPythonOnly
