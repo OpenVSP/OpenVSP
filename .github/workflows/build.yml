@@ -121,7 +121,7 @@ jobs:
         make -j2
         
         cd $GITHUB_WORKSPACE/build
-        cmake -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DCMAKE_C_COMPILER=$(brew --prefix llvm@${{ matrix.llvm-version }})/bin/clang -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@${{ matrix.llvm-version }})/bin/clang++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
+        cmake -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DOpenMP_ROOT=$(brew --prefix libomp) -DCMAKE_C_COMPILER=$(brew --prefix llvm@${{ matrix.llvm-version }})/bin/clang -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@${{ matrix.llvm-version }})/bin/clang++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src
         make -j2 package
         
         ZIPFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-MacOS.zip
