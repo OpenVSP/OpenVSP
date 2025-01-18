@@ -3088,7 +3088,7 @@ extern vector< string > GetAttributeStringVal(const string & attrID);
     parm_array = GetGeomParmIDs( pid )
 
     AttrName = 'Example_Parm_Attr'
-    ParmID = Parm_Array[0];
+    ParmID = parm_array[0];
     vsp.AddAttributeParm( CollID, AttrName, ParmID )
 
     AttrID = vsp.GetAttributeID( CollID, AttrName, 0 )
@@ -3126,7 +3126,7 @@ extern vector < double > GetAttributeParmVal( const string &attrID );
     parm_array = GetGeomParmIDs( pid )
 
     AttrName = 'Example_Parm_Attr'
-    ParmID = Parm_Array[0];
+    ParmID = parm_array[0];
     vsp.AddAttributeBool( CollID, AttrName, ParmID )
 
     AttrID = vsp.GetAttributeID( CollID, AttrName, 0 )
@@ -15529,8 +15529,8 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -15688,8 +15688,8 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -15846,8 +15846,8 @@ extern int GetNumModes();
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -16004,8 +16004,8 @@ extern vector < string > GetAllModes();
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -16162,8 +16162,8 @@ extern void DelMode( const string &mid );
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -16317,8 +16317,8 @@ extern void DelAllModes();
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -16473,8 +16473,8 @@ extern void ApplyModeSettings( const string &mid );
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -16529,7 +16529,7 @@ extern void ApplyModeSettings( const string &mid );
     ApplyModeSettings( mid2 )
     Update()
 
-    ShowOnly( mid1 )
+    ShowOnlyMode( mid1 )
 
     \endcode
     \endPythonOnly
@@ -16629,8 +16629,8 @@ extern void ShowOnlyMode( const string &mid );
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -16787,8 +16787,8 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -16947,8 +16947,8 @@ extern string ModeGetGroup( const string &mid, int indx );
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -17107,8 +17107,8 @@ extern string ModeGetSetting( const string &mid, int indx );
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -17266,8 +17266,8 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -17425,8 +17425,8 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
@@ -17584,8 +17584,8 @@ extern void RemoveGroupSetting( const string &mid, int indx );
     SetSetName( SET_FIRST_USER, "NonLifting" )
     SetSetName( SET_FIRST_USER + 1, "Lifting" )
 
-    SetSetFlag( pod1, SET_FIRST_USER, true )
-    SetSetFlag( wing, SET_FIRST_USER + 1, true )
+    SetSetFlag( pod1, SET_FIRST_USER, True )
+    SetSetFlag( wing, SET_FIRST_USER + 1, True )
 
 
     gid = AddVarPresetGroup( "Tess" )
