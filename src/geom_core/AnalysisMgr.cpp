@@ -1832,28 +1832,24 @@ string VSPAEROSweepAnalysis::Execute()
         else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
         {
             VSPAEROMgr.Update(); // TODO: Check if Update() in VSPAEROMgr.CreateSetupFile() can allow this call to be removed
-            printf( "Wing Reference Parms: \n" );
 
             nvd = m_Inputs.FindPtr( "Sref", 0 );
             if ( nvd )
             {
                 VSPAEROMgr.m_Sref.Set( VSPAEROMgr.m_Sref.Get() );
             }
-            printf( " Sref: %7.3f \n", VSPAEROMgr.m_Sref.Get() );
+
             nvd = m_Inputs.FindPtr( "bref", 0 );
             if ( nvd )
             {
                 VSPAEROMgr.m_bref.Set( VSPAEROMgr.m_bref.Get() );
             }
-            printf( " bref: %7.3f \n", VSPAEROMgr.m_bref.Get() );
+
             nvd = m_Inputs.FindPtr( "cref", 0 );
             if ( nvd )
             {
                 VSPAEROMgr.m_cref.Set( VSPAEROMgr.m_cref.Get() );
             }
-            printf( " cref: %7.3f \n", VSPAEROMgr.m_cref.Get() );
-
-            printf( "\n" );
         }
 
         //    Mass properties
