@@ -895,6 +895,7 @@ double Vsp1DCurve::IntegrateCrv()
 double Vsp1DCurve::IntegrateCrv( double r0 )
 {
     double rmin = m_Curve.get_t0();
+    double rmax = m_Curve.get_tmax();
     if ( r0 < rmin )
     {
         r0 = rmin;
@@ -905,7 +906,7 @@ double Vsp1DCurve::IntegrateCrv( double r0 )
 
     eli::mutil::quad::simpson< double > quad;
 
-    return quad( fun, r0, 1.0 );
+    return quad( fun, r0, rmax );
 }
 
 // Calculate the integral of a given curve weighted by radius.
@@ -918,6 +919,7 @@ double Vsp1DCurve::IntegrateCrv_r()
 double Vsp1DCurve::IntegrateCrv_r( double r0 )
 {
     double rmin = m_Curve.get_t0();
+    double rmax = m_Curve.get_tmax();
     if ( r0 < rmin )
     {
         r0 = rmin;
@@ -928,7 +930,7 @@ double Vsp1DCurve::IntegrateCrv_r( double r0 )
 
     eli::mutil::quad::simpson< double > quad;
 
-    return quad( fun, r0, 1.0 );
+    return quad( fun, r0, rmax );
 }
 
 // Calculate the integral of a given curve weighted by radius squared.
@@ -941,6 +943,7 @@ double Vsp1DCurve::IntegrateCrv_rsq()
 double Vsp1DCurve::IntegrateCrv_rsq( double r0 )
 {
     double rmin = m_Curve.get_t0();
+    double rmax = m_Curve.get_tmax();
     if ( r0 < rmin )
     {
         r0 = rmin;
@@ -951,7 +954,7 @@ double Vsp1DCurve::IntegrateCrv_rsq( double r0 )
 
     eli::mutil::quad::simpson< double > quad;
 
-    return quad( fun, r0, 1.0 );
+    return quad( fun, r0, rmax );
 }
 
 // Calculate the integral of a given curve weighted by radius cubed.
@@ -964,6 +967,7 @@ double Vsp1DCurve::IntegrateCrv_rcub()
 double Vsp1DCurve::IntegrateCrv_rcub( double r0 )
 {
     double rmin = m_Curve.get_t0();
+    double rmax = m_Curve.get_tmax();
     if ( r0 < rmin )
     {
         r0 = rmin;
@@ -974,7 +978,7 @@ double Vsp1DCurve::IntegrateCrv_rcub( double r0 )
 
     eli::mutil::quad::simpson< double > quad;
 
-    return quad( fun, r0, 1.0 );
+    return quad( fun, r0, rmax );
 }
 
 double Vsp1DCurve::GetSegFirstPoint( int i ) const
