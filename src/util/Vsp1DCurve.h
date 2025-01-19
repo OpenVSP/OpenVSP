@@ -114,6 +114,8 @@ public:
     double IntegrateCrv_rcub( );
     double IntegrateCrv_rcub( double r0 );
 
+    double IntegrateSqrtCrv_Prod( Vsp1DCurve *c );
+
     double GetSegFirstPoint( int i ) const;
     double GetSegLastPoint( int i ) const;
 

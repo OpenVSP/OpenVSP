@@ -887,6 +887,16 @@ struct crv_rcub_functor
     Vsp1DCurve *m_crv;
 };
 
+struct crv_sqrt_prod_functor
+{
+    double operator()( const double &r )
+    {
+        return sqrt( m_crv1->CompPnt( r ) ) * m_crv2->CompPnt( r );
+    }
+    Vsp1DCurve *m_crv1;
+    Vsp1DCurve *m_crv2;
+};
+
 double Vsp1DCurve::IntegrateCrv()
 {
     return IntegrateCrv( 0 );
@@ -979,6 +989,20 @@ double Vsp1DCurve::IntegrateCrv_rcub( double r0 )
     eli::mutil::quad::simpson< double > quad;
 
     return quad( fun, r0, rmax );
+}
+
+double Vsp1DCurve::IntegrateSqrtCrv_Prod( Vsp1DCurve *c )
+{
+    double rmin = m_Curve.get_t0();
+    double rmax = m_Curve.get_tmax();
+
+    crv_sqrt_prod_functor fun;
+    fun.m_crv1 = this;
+    fun.m_crv2 = c;
+
+    eli::mutil::quad::simpson< double > quad;
+
+    return quad( fun, rmin, rmax );
 }
 
 double Vsp1DCurve::GetSegFirstPoint( int i ) const
