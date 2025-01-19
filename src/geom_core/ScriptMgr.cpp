@@ -3646,6 +3646,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "void SplitWingXSec( const string & in wing_id, int section_index )", asFUNCTION( vsp::SplitWingXSec ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "void SetDriverGroup( const string & in geom_id, int section_index, int driver_0, int driver_1 = -1, int driver_2 = -1)", asFUNCTION( vsp::SetDriverGroup ), asCALL_CDECL );
     assert( r >= 0 );
 

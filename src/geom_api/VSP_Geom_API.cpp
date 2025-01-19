@@ -3898,6 +3898,28 @@ void InsertXSec( const string & geom_id, int index, int type )
 //===================================================================//
 //===============       Wing Section Functions     ==================//
 //===================================================================//
+
+void SplitWingXSec( const string & wing_id, int section_index )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( wing_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SplitWingXSec::Can't Find Geom " + wing_id );
+        return;
+    }
+
+    WingGeom* wg = dynamic_cast<WingGeom*>( geom_ptr );
+    if ( !wg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SplitWingXSec::Geom not a WingGeom" + wing_id );
+        return;
+    }
+
+    wg->SplitWingSect( section_index );
+    ErrorMgr.NoError();
+}
+
 void SetDriverGroup( const string & geom_id, int section_index, int driver_0, int driver_1, int driver_2 )
 {
     Vehicle* veh = GetVehicle();

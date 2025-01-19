@@ -8946,6 +8946,39 @@ extern void InsertXSec( const std::string & geom_id, int index, int type );
 
 
 //======================== Wing Section Functions ===================//
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Split a given wing section.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING", "" );
+
+    //==== Set Wing Section Controls ====//
+    SplitWingXSec( wing_id, 1 );
+
+    Update();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING", "" )
+
+    #==== Set Wing Section Controls ====//
+    SplitWingXSec( wing_id, 1 )
+
+    Update()
+    \endcode
+    \endPythonOnly
+    \sa WING_DRIVERS, XSEC_DRIVERS
+    \param [in] wing_id string Geom ID
+    \param [in] section_index Wing section index
+*/
+
+extern void SplitWingXSec( const string & wing_id, int section_index );
+
 /*!
     \ingroup Geom
 */
