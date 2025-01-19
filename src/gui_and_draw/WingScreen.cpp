@@ -28,6 +28,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
     m_PlanLayout.AddSlider( m_PlanProjSpanSlider, "Proj Span", 10, "%6.5f" );
     m_PlanLayout.AddSlider( m_PlanChordSlider, "Chord", 10, "%6.5f" );
     m_PlanLayout.AddSlider( m_PlanAreaSlider, "Area", 10, "%6.5f" );
+    m_PlanLayout.AddOutput( m_PlanMACOutput, "MAC", "%6.5f" );
+    m_PlanLayout.AddOutput( m_PlanCurvedAreaOutput, "Curved Area", "%6.5f" );
     m_PlanLayout.AddOutput( m_PlanAROutput, "Aspect Ratio", "%6.5f" );
 
     m_PlanLayout.AddYGap();
@@ -454,6 +456,9 @@ bool WingScreen::Update()
 
     m_SmallPanelWOutput.Update( wing_ptr->m_SmallPanelW.GetID() );
     m_MaxGrowthOutput.Update( wing_ptr->m_MaxGrowth.GetID() );
+
+    m_PlanMACOutput.Update( wing_ptr->m_MAC.GetID() );
+    m_PlanCurvedAreaOutput.Update( wing_ptr->m_CurvedArea.GetID() );
     m_PlanAROutput.Update( wing_ptr->m_TotalAR.GetID() );
 
     m_RootCapTypeChoice.Update( wing_ptr->m_CapUMinOption.GetID() );

@@ -1284,6 +1284,12 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TotalAR.Init( "TotalAR", m_Name, this, 1.0, 1.0e-10, 1.0e12 );
     m_TotalAR.SetDescript( "Total Aspect Ratio" );
 
+    m_MAC.Init( "MAC", m_Name, this, 1.0, 0.0, 1000000.0 );
+    m_MAC.SetDescript( "Mean Aerodynamic Chord" );
+
+    m_CurvedArea.Init( "CurvedArea", m_Name, this, 1.0, 0.0, 1000000.0 );
+    m_CurvedArea.SetDescript( "Wing area considering curved LE/TE" );
+
     m_LECluster.Init( "LECluster", m_Name, this, 0.25, 1e-4, 10.0 );
     m_LECluster.SetDescript( "LE Tess Cluster Control" );
 
@@ -2146,6 +2152,7 @@ void WingGeom::UpdateSurf()
     //==== Load Totals ====//
     UpdateTotalParameters();
     double end_span = UpdateEta();
+    UpdateMAC( cle, cte, end_span );
 }
 
 void WingGeom::CalculateMeshMetrics()
@@ -2515,6 +2522,39 @@ double WingGeom::UpdateEta()
     m_TtoEta.InterpolateLinear( run_span, t, false );
     m_EtatoT.InterpolateLinear( t, run_span, false );
     return end_span;
+}
+
+void WingGeom::UpdateMAC( const piecewise_curve_type &cle, const piecewise_curve_type &cte, const double &end_span )
+{
+    piecewise_curve_type cdelta, csq3;
+    oned_piecewise_curve_type csq, deta, igrand, igral;
+    oned_curve_segment_type c;
+
+    cdelta.scaledsum( 1.0, cte, -1.0, cle );
+    csq3.square( cdelta );
+
+    csq = csq3.sumcompcurve();
+    deta.fp( m_TtoEta.GetCurve() );
+
+    Vsp1DCurve detaWrapped, csqWrapped;
+    csqWrapped.SetCurve( csq );
+    detaWrapped.SetCurve( deta );
+
+    double Sint = end_span * csqWrapped.IntegrateSqrtCrv_Prod( &detaWrapped );
+
+    igrand.product( csq, deta );
+    igral.integral( igrand );
+
+    igral.get( c, igral.number_segments() - 1 );
+
+    m_MAC = end_span * ( (c.get_control_point( c.degree() ))[0] ) / Sint;
+
+    if ( GetSymFlag() != 0 )
+    {
+        Sint *= 2.0;
+    }
+
+    m_CurvedArea = Sint;
 }
 
 double WingGeom::UtoEta( const double &u, bool ignoreCap )

@@ -43,6 +43,8 @@ protected:
     SliderAdjRangeInput m_PlanProjSpanSlider;
     SliderAdjRangeInput m_PlanChordSlider;
     SliderAdjRangeInput m_PlanAreaSlider;
+    Output m_PlanMACOutput;
+    Output m_PlanCurvedAreaOutput;
     Output m_PlanAROutput;
 
     Choice m_RootCapTypeChoice;

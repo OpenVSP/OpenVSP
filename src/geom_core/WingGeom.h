@@ -206,6 +206,9 @@ public:
     Parm m_TotalChord;
     Parm m_TotalArea;
     Parm m_TotalAR;
+    Parm m_MAC;
+    Parm m_CurvedArea;
+
 
     Parm m_LECluster;
     Parm m_TECluster;
@@ -243,6 +246,7 @@ protected:
 
     virtual double ComputeTotalSpan();
     virtual double UpdateEta();
+    virtual void UpdateMAC( const piecewise_curve_type &cle, const piecewise_curve_type &cte, const double &end_span );
     virtual double ComputeTotalProjSpan();
     virtual double ComputeTotalChord();
     virtual double ComputeTotalArea();
