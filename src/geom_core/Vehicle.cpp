@@ -202,7 +202,7 @@ Vehicle::Vehicle()
     m_CORZValue.Init( "CORZ", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
     m_PanXPosValue.Init( "PanX", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
     m_PanYPosValue.Init( "PanY", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
-    m_ZoomValue.Init( "Zoom", "AdjustView", this, 1e-3, 1e-6, 10 );
+    m_ZoomValue.Init( "Zoom", "AdjustView", this, 0.018, 1e-6, 10 );
     m_XRotationValue.Init( "RotationX", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
     m_YRotationValue.Init( "RotationY", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
     m_ZRotationValue.Init( "RotationZ", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
@@ -319,6 +319,8 @@ Vehicle::Vehicle()
     SetupPaths();
     m_VehProjectVec3d.resize( 3 );
     m_ColorCount = 0;
+
+    m_ViewDirty = true;
 
     // Protect required enum value.
     assert( CUSTOM_GEOM_TYPE == 9 );
@@ -506,6 +508,8 @@ void Vehicle::Init()
     m_exportDegenGeomCsvFile.Set( true );
     m_exportDegenGeomMFile.Set( true );
 
+    m_ViewDirty = true;
+
     AnalysisMgr.Init();
 }
 
@@ -617,6 +621,7 @@ void Vehicle::Wype()
     m_TotalMass = double();
     m_AttrCollection.Wype();
 
+    m_ViewDirty = true;
 
     // Private member variables
     m_Name = string();
@@ -853,6 +858,11 @@ void Vehicle::ParmChanged( Parm* parm_ptr, int type )
     if ( m_UpdatingBBox )
     {
         return;
+    }
+
+    if ( parm_ptr->GetGroupName() == string( "AdjustView" ) )
+    {
+        m_ViewDirty = true;
     }
 
     m_UpdatingBBox = true;

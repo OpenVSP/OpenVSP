@@ -24,6 +24,9 @@ class VspGlWindow;
 
 class SelectFileScreen;
 
+#define GL_WINDOW_DX 0
+#define GL_WINDOW_DY 25
+
 class MainVSPScreen : public ActionScreen
 {
 public:
@@ -44,8 +47,6 @@ public:
     {
         return m_GlWin;
     }
-
-    void UpdateViewScreen();
 
     static int ConvertViewEnums( int v );
     void SetAllViews( int view );

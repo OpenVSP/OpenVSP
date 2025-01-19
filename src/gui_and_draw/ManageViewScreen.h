@@ -34,42 +34,6 @@ public:
         ( ( ManageViewScreen* )data )->CallBack( w );
     }
 
-    /*!
-     * Updates Viewport GUI devices for changes that occur manually
-     * in the application; i.e: User manually resizes the window.
-     */
-    void UpdateViewport();
-
-    /*!
-     * Updates Center of Rotation GUI devices for changes that occur
-     * manually in the application; i.e: User presses 'r' key for
-     * manually selection.
-     */
-    void UpdateCOR();
-
-    /*!
-     * Updates Pan GUI device values for when user manually pans using
-     * the cursor.
-     */
-    void UpdatePan();
-
-    /*!
-     * Updates Zoom GUI device value for when user manually zooms using
-     * cursor or key presses.
-     */
-    void UpdateZoom();
-
-    /*!
-     * Updates Euler Rotation GUI device values when user manually rotates
-     * the scene with the cursor.
-     */
-    void UpdateRotations();
-
-    /*!
-     * Updates entire GUI device with updated values from the display.
-     */
-    void UpdateAll();
-
 protected:
 
     GroupLayout m_MainLayout;
@@ -100,9 +64,6 @@ protected:
     SliderAdjRangeInput m_TextSizeSlider;
 
     TriggerButton m_ResetCamera;
-
-    int m_windowDX;
-    int m_windowDY;
 
 };
 

@@ -96,37 +96,6 @@ void ManageViewScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
 
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
-    if( main )
-    {
-        Vehicle *veh = VehicleMgr.GetVehicle();
-
-        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
-
-        // Get OpenGL Pixel width/height
-        veh->m_ViewportSizeXValue.Set( glwin->pixel_w() );
-        veh->m_ViewportSizeYValue.Set( glwin->pixel_h() );
-
-        //===== Set current COR =====//
-        glm::vec3 currentCOR = glwin->getCOR();
-        veh->m_CORXValue.Set( currentCOR.x );
-        veh->m_CORYValue.Set( currentCOR.y );
-        veh->m_CORZValue.Set( currentCOR.z );
-
-        glm::vec2 currentPan = glwin->getPanValues();
-        veh->m_PanXPosValue.Set( currentPan.x );
-        veh->m_PanYPosValue.Set( currentPan.y );
-
-        veh->m_ZoomValue.Set( glwin->getRelativeZoomValue() );
-        m_Zoom.Update( veh->m_ZoomValue.GetID() );
-
-        UpdateRotations();
-
-        // Save differences in FLTK pixels
-        m_windowDX = main->GetFlWindow()->w() - glwin->w();
-        m_windowDY = main->GetFlWindow()->h() - glwin->h();
-    }
-
     BasicScreen::Show();
 }
 
@@ -140,25 +109,10 @@ bool ManageViewScreen::Update()
 {
     BasicScreen::Update();
 
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
-    if( !main )
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if( !veh )
     {
         return false;
-    }
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
-
-    double factor = glwin->pixels_per_unit();
-
-    // Added padding to screen
-    if (veh->m_ViewportSizeXValue.Get()/factor > Fl::w() - 10)
-    {
-        veh->m_ViewportSizeXValue.Set( (Fl::w() - 10) * factor );
-    }
-    if (veh->m_ViewportSizeYValue.Get()/factor > Fl::h() - 10)
-    {
-        veh->m_ViewportSizeYValue.Set( (Fl::h() - 10) * factor );
     }
 
     m_AxisLenSlider.Update( veh->m_AxisLength.GetID() );
@@ -181,118 +135,8 @@ bool ManageViewScreen::Update()
     m_YRotation.Update( veh->m_YRotationValue.GetID() );
     m_ZRotation.Update( veh->m_ZRotationValue.GetID() );
 
-    //===== Do glwin functions here after the updates of the sliders =====//
-
-    // Resize Viewport and window to your maximum screen size. Achieves any ratio.
-    main->ResizeWindow( veh->m_ViewportSizeXValue.Get()/factor + m_windowDX, veh->m_ViewportSizeYValue.Get()/factor + m_windowDY );
-
-    //===== Update Center of Rotation =====//
-    glwin->setCOR( glm::vec3( veh->m_CORXValue.Get(), veh->m_CORYValue.Get(), veh->m_CORZValue.Get() ) );
-
-    glwin->relativePan( veh->m_PanXPosValue.Get(), veh->m_PanYPosValue.Get() );
-
-    glwin->relativeZoom( veh->m_ZoomValue.Get() );
-
-    //===== LookAt Point Method =====//
-    glwin->rotateSphere( veh->m_XRotationValue.Get() * ( M_PI / 180.0 ),
-                         veh->m_YRotationValue.Get() * ( M_PI / 180.0 ),
-                         veh->m_ZRotationValue.Get() * ( M_PI / 180.0 ) );
-
     m_FLTK_Window->redraw();
     return false;
-}
-
-void ManageViewScreen::UpdateViewport()
-{
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
-    if( main )
-    {
-        Vehicle *veh = VehicleMgr.GetVehicle();
-        veh->m_ViewportSizeXValue.Set( main->GetGLWindow()->pixel_w() );
-        veh->m_ViewportSizeYValue.Set( main->GetGLWindow()->pixel_h() );
-
-        m_ViewportSizeX.Update( veh->m_ViewportSizeXValue.GetID() );
-        m_ViewportSizeY.Update( veh->m_ViewportSizeYValue.GetID() );
-    }
-}
-
-void ManageViewScreen::UpdateCOR()
-{
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if( main )
-    {
-        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
-
-        glm::vec3 center = glwin->getCOR();
-
-        veh->m_CORXValue.Set( center.x );
-        veh->m_CORYValue.Set( center.y );
-        veh->m_CORZValue.Set( center.z );
-
-        m_CORX.Update( veh->m_CORXValue.GetID() );
-        m_CORY.Update( veh->m_CORYValue.GetID() );
-        m_CORZ.Update( veh->m_CORZValue.GetID() );
-    }
-}
-
-void ManageViewScreen::UpdatePan()
-{
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if( main )
-    {
-        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
-
-        glm::vec2 currentPan = glwin->getPanValues();
-        veh->m_PanXPosValue.Set( currentPan.x );
-        veh->m_PanYPosValue.Set( currentPan.y );
-
-        m_PanXPos.Update( veh->m_PanXPosValue.GetID() );
-        m_PanYPos.Update( veh->m_PanYPosValue.GetID() );
-    }
-}
-
-void ManageViewScreen::UpdateZoom()
-{
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if( main )
-    {
-        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
-
-        veh->m_ZoomValue.Set( glwin->getRelativeZoomValue() );
-        m_Zoom.Update( veh->m_ZoomValue.GetID() );
-    }
-}
-
-//===== Attempt at Euler Angle Rotation =====//
-void ManageViewScreen::UpdateRotations()
-{
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if( main )
-    {
-        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
-
-        glm::vec3 eulerValues = glwin->getRotationEulerAngles();
-
-        veh->m_XRotationValue.Set( eulerValues[0] * ( 180.0 / M_PI ) );
-        veh->m_YRotationValue.Set( eulerValues[1] * ( 180.0 / M_PI ) );
-        veh->m_ZRotationValue.Set( eulerValues[2] * ( 180.0 / M_PI ) );
-
-        m_XRotation.Update( veh->m_XRotationValue.GetID() );
-        m_YRotation.Update( veh->m_YRotationValue.GetID() );
-        m_ZRotation.Update( veh->m_ZRotationValue.GetID() );
-    }
-}
-
-void ManageViewScreen::UpdateAll()
-{
-    UpdateCOR();
-    UpdatePan();
-    UpdateZoom();
-    UpdateRotations();
 }
 
 // Callback for Link Browser

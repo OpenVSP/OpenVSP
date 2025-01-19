@@ -487,6 +487,8 @@ public:
     Parm m_YRotationValue;
     Parm m_ZRotationValue;
 
+    bool m_ViewDirty;
+
     // ScreenshotScreen
     FractionParm m_NewRatioValue;
     IntParm m_NewWidthValue;

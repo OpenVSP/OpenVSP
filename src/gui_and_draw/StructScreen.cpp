@@ -5131,14 +5131,9 @@ void StructScreen::OrientStructure( VSPGraphic::Common::VSPenum type )
             glwin->getGraphicEngine()->getDisplay()->relativePan( 0.0f, 0.0f );
             glwin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
 
-            ManageViewScreen * viewScreen = dynamic_cast<ManageViewScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
-            if ( viewScreen )
-            {
-                viewScreen->UpdateCOR();
-                viewScreen->UpdatePan();
-                viewScreen->UpdateZoom();
-            }
+            glwin->UpdateCORParms();
+            glwin->UpdatePanParms();
+            glwin->UpdateZoomParms();
         }
     }
 }

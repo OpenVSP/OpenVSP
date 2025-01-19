@@ -175,10 +175,7 @@ void VspGlWindow::draw()
         ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
         ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
-        if ( viewScreen->IsShown() )
-        {
-            viewScreen->UpdateViewport();
-        }
+        UpdateViewportParms();
 
         //Make sure the current width and height update
         m_ScreenMgr->GetScreen( vsp::VSP_SCREENSHOT_SCREEN )->Update();
@@ -527,6 +524,76 @@ void VspGlWindow::clearScene()
     m_ids.clear();
     m_GEngine->getDisplay()->getViewport()->clearBackground();
     m_GEngine->getDisplay()->getViewport()->clearFont();
+}
+
+void VspGlWindow::UpdateViewportParms()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        veh->m_ViewportSizeXValue.Set( pixel_w() );
+        veh->m_ViewportSizeYValue.Set( pixel_h() );
+    }
+}
+
+void VspGlWindow::UpdateCORParms()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        glm::vec3 center = getCOR();
+
+        veh->m_CORXValue.Set( center.x );
+        veh->m_CORYValue.Set( center.y );
+        veh->m_CORZValue.Set( center.z );
+    }
+}
+
+void VspGlWindow::UpdatePanParms()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        glm::vec2 currentPan = getPanValues();
+        veh->m_PanXPosValue.Set( currentPan.x );
+        veh->m_PanYPosValue.Set( currentPan.y );
+    }
+}
+
+void VspGlWindow::UpdateZoomParms()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        veh->m_ZoomValue.Set( getRelativeZoomValue() );
+    }
+}
+
+void VspGlWindow::UpdateRotationParms()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        glm::vec3 eulerValues = getRotationEulerAngles();
+
+        veh->m_XRotationValue.Set( eulerValues[0] * ( 180.0 / M_PI ) );
+        veh->m_YRotationValue.Set( eulerValues[1] * ( 180.0 / M_PI ) );
+        veh->m_ZRotationValue.Set( eulerValues[2] * ( 180.0 / M_PI ) );
+    }
+}
+
+void VspGlWindow::UpdateAllViewParms()
+{
+    UpdateViewportParms();
+    UpdateCORParms();
+    UpdatePanParms();
+    UpdateZoomParms();
+    UpdateRotationParms();
 }
 
 void VspGlWindow::_initGLEW()
@@ -2235,7 +2302,7 @@ void VspGlWindow::OnDrag( int x, int y )
             ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
             ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
-            viewScreen->UpdateZoom();
+            UpdateZoomParms();
         }
         m_prevLBRB = glm::vec2( x, y );
     }
@@ -2273,10 +2340,7 @@ void VspGlWindow::OnDrag( int x, int y )
                 ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
                 ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
-                if ( viewScreen->IsShown() )
-                {
-                    viewScreen->UpdatePan();
-                }
+                UpdatePanParms();
             }
             m_prevAltLB = glm::vec2( x, y );
         }
@@ -2290,7 +2354,7 @@ void VspGlWindow::OnDrag( int x, int y )
                 ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
                 ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
-                viewScreen->UpdateZoom();
+                UpdateZoomParms();
             }
             m_prevCtrlLB = glm::vec2( x, y );
         }
@@ -2303,7 +2367,7 @@ void VspGlWindow::OnDrag( int x, int y )
                 ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
                 ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
-                viewScreen->UpdateZoom();
+                UpdateZoomParms();
             }
             m_prevMetaLB = glm::vec2( x, y );
         }
@@ -2317,7 +2381,7 @@ void VspGlWindow::OnDrag( int x, int y )
                 ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
                 ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
-                viewScreen->UpdateRotations();
+                UpdateRotationParms();
             }
             m_prevLB = glm::vec2( x, y );
         }
@@ -2332,7 +2396,7 @@ void VspGlWindow::OnDrag( int x, int y )
             ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
             ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
-            viewScreen->UpdateZoom();
+            UpdateZoomParms();
         }
         m_prevMB = glm::vec2( x, y );
     }
@@ -2346,10 +2410,7 @@ void VspGlWindow::OnDrag( int x, int y )
             ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
             ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
-            if ( viewScreen->IsShown() )
-            {
-                viewScreen->UpdatePan();
-            }
+            UpdatePanParms();
         }
         m_prevRB = glm::vec2( x, y );
     }
@@ -2432,10 +2493,8 @@ int VspGlWindow::OnKeyup( int x, int y )
             display->load( 0 );
 
             //===== Update Adjust View Screen with new values =====//
-            if ( viewScreen->IsShown() )
-            {
-                viewScreen->UpdateAll();
-            }
+            UpdateAllViewParms();
+
         }
         handled = 1;
         break;
@@ -2449,11 +2508,7 @@ int VspGlWindow::OnKeyup( int x, int y )
         {
             display->load( 1 );
 
-            //===== Update Adjust View Screen with new values =====//
-            if ( viewScreen->IsShown() )
-            {
-                viewScreen->UpdateAll();
-            }
+            UpdateAllViewParms();
         }
         handled = 1;
         break;
@@ -2467,11 +2522,7 @@ int VspGlWindow::OnKeyup( int x, int y )
         {
             display->load( 2 );
 
-            //===== Update Adjust View Screen with new values =====//
-            if ( viewScreen->IsShown() )
-            {
-                viewScreen->UpdateAll();
-            }
+            UpdateAllViewParms();
         }
         handled = 1;
         break;
@@ -2486,10 +2537,7 @@ int VspGlWindow::OnKeyup( int x, int y )
             display->load( 3 );
 
             //===== Update Adjust View Screen with new values =====//
-            if ( viewScreen->IsShown() )
-            {
-                viewScreen->UpdateAll();
-            }
+            UpdateAllViewParms();
         }
         handled = 1;
         break;
@@ -2619,11 +2667,8 @@ int VspGlWindow::OnWheelScroll( int dx, int dy, int x, int y )
 
         ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
-        if ( viewScreen )
-        {
-            viewScreen->UpdateZoom();
-            viewScreen->UpdatePan();
-        }
+        UpdateZoomParms();
+        UpdatePanParms();
 
         redraw();
     }
@@ -2725,10 +2770,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
                 ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
                 ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
-                if ( viewScreen->IsShown() )
-                {
-                    viewScreen->UpdateCOR();
-                }
+                UpdateCORParms();
 
                 m_GEngine->getDisplay()->center();
 

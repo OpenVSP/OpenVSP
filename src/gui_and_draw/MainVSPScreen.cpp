@@ -183,9 +183,17 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     BoldEntries( "Undo" );
     BoldEntries( "Help" );
 
-    int glh = m_GenLayout.GetRemainY() - 20;
+    int glh = m_GenLayout.GetRemainY() - GL_WINDOW_DY;
+    int glw = m_GenLayout.GetW() - GL_WINDOW_DX;
 
-    m_GlWin = new VSPGUI::VspGlWindow( m_GenLayout.GetX(), m_GenLayout.GetY(), m_GenLayout.GetW(), glh, mgr, DrawObj::VSP_MAIN_SCREEN );
+    m_GlWin = new VSPGUI::VspGlWindow( m_GenLayout.GetX(), m_GenLayout.GetY(), glw, glh, mgr, DrawObj::VSP_MAIN_SCREEN );
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->m_ViewportSizeXValue.Set( glw );
+        veh->m_ViewportSizeYValue.Set( glh );
+    }
 
     m_GenLayout.GetGroup()->add( m_GlWin );
     m_GenLayout.GetGroup()->resizable( m_GlWin );
@@ -247,6 +255,38 @@ void MainVSPScreen::Hide()
 bool MainVSPScreen::Update()
 {
     ActionScreen::Update();
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        if ( veh->m_ViewDirty && m_ScreenMgr && m_GlWin  )
+        {
+            ManageViewScreen* mvs = dynamic_cast<ManageViewScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
+
+            if ( mvs )
+            {
+                //===== Do glwin functions here after the updates of the sliders =====//
+                double factor = m_GlWin->pixels_per_unit();
+
+                // Resize Viewport and window to your maximum screen size. Achieves any ratio.
+                ResizeWindow( veh->m_ViewportSizeXValue.Get()/factor + GL_WINDOW_DX, veh->m_ViewportSizeYValue.Get()/factor + GL_WINDOW_DY );
+
+                //===== Update Center of Rotation =====//
+                m_GlWin->setCOR( glm::vec3( veh->m_CORXValue.Get(), veh->m_CORYValue.Get(), veh->m_CORZValue.Get() ) );
+
+                m_GlWin->relativePan( veh->m_PanXPosValue.Get(), veh->m_PanYPosValue.Get() );
+
+                m_GlWin->relativeZoom( veh->m_ZoomValue.Get() );
+
+                //===== LookAt Point Method =====//
+                m_GlWin->rotateSphere( veh->m_XRotationValue.Get() * ( M_PI / 180.0 ),
+                                       veh->m_YRotationValue.Get() * ( M_PI / 180.0 ),
+                                       veh->m_ZRotationValue.Get() * ( M_PI / 180.0 ) );
+            }
+            veh->m_ViewDirty = false;
+        }
+    }
 
     // Not sure all three of these are needed.
     m_GlWin->update();
@@ -554,7 +594,7 @@ void MainVSPScreen::ActionCB( void * data )
             vpts[i]->getCamera()->changeView( VSPGraphic::Common::VSP_CAM_CENTER );
         }
 
-        UpdateViewScreen();
+        m_GlWin->UpdateAllViewParms();
     }
     else if ( data == &m_SetCORMenuItem )
     {
@@ -667,23 +707,6 @@ void MainVSPScreen::SetBackground( double r, double g, double b )
     }
 }
 
-void MainVSPScreen::UpdateViewScreen()
-{
-    ManageViewScreen * viewScreen = NULL;
-    viewScreen = dynamic_cast< ManageViewScreen* >
-    ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
-    if( viewScreen )
-    {
-        if ( viewScreen->IsShown() )
-        {
-            viewScreen->UpdateCOR();
-            viewScreen->UpdatePan();
-            viewScreen->UpdateRotations();
-        }
-    }
-}
-
 int MainVSPScreen::ConvertViewEnums( int v )
 {
     return  VSPGraphic::Common::VSP_CAM_TOP + v - vsp::CAM_TOP;
@@ -698,7 +721,7 @@ void MainVSPScreen::SetAllViews( int view )
         vpts[i]->getCamera()->changeView( static_cast < VSPGraphic::Common::VSPenum > ( view ) );
     }
 
-    UpdateViewScreen();
+    m_GlWin->UpdateAllViewParms();
 }
 
 void MainVSPScreen::SetView( int viewport, int view )
@@ -710,14 +733,14 @@ void MainVSPScreen::SetView( int viewport, int view )
         vpts[ viewport ]->getCamera()->changeView( static_cast < VSPGraphic::Common::VSPenum > ( view ) );
     }
 
-    UpdateViewScreen();
+    m_GlWin->UpdateAllViewParms();
 }
 
 void MainVSPScreen::SetView( int view )
 {
     m_GlWin->setView( static_cast < VSPGraphic::Common::VSPenum > ( view ) );
 
-    UpdateViewScreen();
+    m_GlWin->UpdateAllViewParms();
 }
 
 void MainVSPScreen::FitView( bool all )
@@ -796,7 +819,7 @@ void MainVSPScreen::FitView( bool all )
             m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
         }
 
-        UpdateViewScreen();
+        m_GlWin->UpdateAllViewParms();
     }
 }
 
@@ -831,7 +854,7 @@ void MainVSPScreen::ResetViews()
         vpts[i]->getCamera()->changeView( vOrder[ i ] );
     }
 
-    UpdateViewScreen();
+    m_GlWin->UpdateAllViewParms();
 }
 
 void MainVSPScreen::SetWindowLayout( int r, int c )

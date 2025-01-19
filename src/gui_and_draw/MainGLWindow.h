@@ -138,6 +138,13 @@ public:
 
     virtual void clearScene();
 
+    void UpdateViewportParms();
+    void UpdateCORParms();
+    void UpdatePanParms();
+    void UpdateZoomParms();
+    void UpdateRotationParms();
+    void UpdateAllViewParms();
+
 // Private helper functions.
 private:
     void _initGLEW();
