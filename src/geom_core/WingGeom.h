@@ -242,7 +242,7 @@ protected:
     virtual void CalculateMeshMetrics();
 
     virtual double ComputeTotalSpan();
-    virtual void UpdateEta();
+    virtual double UpdateEta();
     virtual double ComputeTotalProjSpan();
     virtual double ComputeTotalChord();
     virtual double ComputeTotalArea();

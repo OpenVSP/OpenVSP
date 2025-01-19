@@ -2145,7 +2145,7 @@ void WingGeom::UpdateSurf()
 
     //==== Load Totals ====//
     UpdateTotalParameters();
-    UpdateEta();
+    double end_span = UpdateEta();
 }
 
 void WingGeom::CalculateMeshMetrics()
@@ -2491,7 +2491,7 @@ double WingGeom::ComputeTotalSpan()
 // include wing caps at the root or tip.  Since the U here is [0, N], the transformation from
 // t to/from U is a simple shift by 1.0.
 //
-void WingGeom::UpdateEta()
+double WingGeom::UpdateEta()
 {
     vector < double > run_span;
     vector < double > t;
@@ -2514,6 +2514,7 @@ void WingGeom::UpdateEta()
 
     m_TtoEta.InterpolateLinear( run_span, t, false );
     m_EtatoT.InterpolateLinear( t, run_span, false );
+    return end_span;
 }
 
 double WingGeom::UtoEta( const double &u, bool ignoreCap )
