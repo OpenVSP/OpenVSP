@@ -22,7 +22,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 #define VSPAERO_SCREEN_WIDTH 610
-#define VSPAERO_SCREEN_HEIGHT 670
+#define VSPAERO_SCREEN_HEIGHT 690
 #define VSPAERO_EXECUTE_CONSTANT_HEIGHT 210
 
 VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_WIDTH,
@@ -163,7 +163,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Reference Quantities
     m_LeftColumnLayout.AddSubGroupLayout( m_RefLengthLayout,
         m_LeftColumnLayout.GetW(),
-        6 * m_LeftColumnLayout.GetStdHeight() );
+        7 * m_LeftColumnLayout.GetStdHeight() );
     m_LeftColumnLayout.AddY( m_RefLengthLayout.GetH() );
 
     m_RefLengthLayout.AddDividerBox( "Reference Area, Lengths" );
@@ -175,6 +175,14 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_RefLengthLayout.AddButton( m_RefManualToggle, "Manual" );
     m_RefLengthLayout.AddButton( m_RefChoiceToggle, "From Model" );
+    m_RefLengthLayout.ForceNewLine();
+
+    m_RefLengthLayout.SetButtonWidth( m_RefLengthLayout.GetW() / 4 );
+
+    m_RefLengthLayout.AddButton( m_RefCaveToggle, "Cave" );
+    m_RefLengthLayout.AddButton( m_RefMACToggle, "MAC" );
+    m_RefLengthLayout.AddButton( m_RefStotToggle, "Stot" );
+    m_RefLengthLayout.AddButton( m_RefScurveToggle, "Scurve" );
     m_RefLengthLayout.ForceNewLine();
 
     m_RefLengthLayout.InitWidthHeightVals();
@@ -191,6 +199,14 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_RefToggle.Init( this );
     m_RefToggle.AddButton( m_RefManualToggle.GetFlButton() );
     m_RefToggle.AddButton( m_RefChoiceToggle.GetFlButton() );
+
+    m_CrefToggle.Init( this );
+    m_CrefToggle.AddButton( m_RefCaveToggle.GetFlButton() );
+    m_CrefToggle.AddButton( m_RefMACToggle.GetFlButton() );
+
+    m_SrefToggle.Init( this );
+    m_SrefToggle.AddButton( m_RefStotToggle.GetFlButton() );
+    m_SrefToggle.AddButton( m_RefScurveToggle.GetFlButton() );
 
     m_LeftColumnLayout.AddYGap();
 
@@ -1506,9 +1522,29 @@ void VSPAEROScreen::UpdateCaseSetupDevices()
 void VSPAEROScreen::UpdateReferenceQuantitiesDevices()
 {
     m_RefToggle.Update(VSPAEROMgr.m_RefFlag.GetID());
+    m_CrefToggle.Update(VSPAEROMgr.m_MACFlag.GetID());
+    m_SrefToggle.Update(VSPAEROMgr.m_SCurveFlag.GetID());
     m_SrefSlider.Update(VSPAEROMgr.m_Sref.GetID());
     m_brefSlider.Update(VSPAEROMgr.m_bref.GetID());
     m_crefSlider.Update(VSPAEROMgr.m_cref.GetID());
+
+
+    if ( VSPAEROMgr.m_RefFlag() )
+    {
+        m_RefMACToggle.Activate();
+        m_RefCaveToggle.Activate();
+        m_RefStotToggle.Activate();
+        m_RefScurveToggle.Activate();
+    }
+    else
+    {
+        m_RefMACToggle.Deactivate();
+        m_RefCaveToggle.Deactivate();
+        m_RefStotToggle.Deactivate();
+        m_RefScurveToggle.Deactivate();
+    }
+
+
 }
 
 void VSPAEROScreen::UpdateCGDevices()

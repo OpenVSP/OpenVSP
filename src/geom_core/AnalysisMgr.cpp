@@ -1702,6 +1702,8 @@ void VSPAEROSweepAnalysis::SetDefaults()
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           , "Flag to control how reference quantities are set." ) );
+        m_Inputs.Add( NameValData( "MACFlag",           VSPAEROMgr.m_MACFlag.Get()           , "Flag to use MAC instead of Cave for cref." ) );
+        m_Inputs.Add( NameValData( "ScurveFlag",        VSPAEROMgr.m_SCurveFlag.Get()        , "Flag to use Scurve instead of Stot for Sref." ) );
         m_Inputs.Add( NameValData( "WingID",            " "                                  , "Reference wing GeomID." ) );
         m_Inputs.Add( NameValData( "Sref",              VSPAEROMgr.m_Sref.Get()              , "Reference area." ) );
         m_Inputs.Add( NameValData( "bref",              VSPAEROMgr.m_bref.Get()              , "Reference span." ) );
@@ -1800,6 +1802,8 @@ string VSPAEROSweepAnalysis::Execute()
         double srefOrig    = VSPAEROMgr.m_Sref.Get();
         double brefOrig    = VSPAEROMgr.m_bref.Get();
         double crefOrig    = VSPAEROMgr.m_cref.Get();
+        bool macFlagOrig    = VSPAEROMgr.m_MACFlag.Get();
+        bool scurveFlagOrig    = VSPAEROMgr.m_SCurveFlag.Get();
         nvd = m_Inputs.FindPtr( "RefFlag", 0 );
         if ( nvd )
         {
@@ -1809,6 +1813,16 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_RefGeomID = nvd->GetString(0);
+        }
+        nvd = m_Inputs.FindPtr( "MACFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_MACFlag.Set( nvd->GetBool( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "SCurveFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_SCurveFlag.Set( nvd->GetBool( 0 ) );
         }
 
         if ( VSPAEROMgr.m_RefFlag.Get() == vsp::MANUAL_REF )
@@ -2238,6 +2252,8 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_Sref.Set( srefOrig );
         VSPAEROMgr.m_bref.Set( brefOrig );
         VSPAEROMgr.m_cref.Set( crefOrig );
+        VSPAEROMgr.m_MACFlag.Set( macFlagOrig );
+        VSPAEROMgr.m_SCurveFlag.Set( scurveFlagOrig );
 
         //    Mass properties
         VSPAEROMgr.m_CGGeomSet.Set(cgGeomSetOrig);

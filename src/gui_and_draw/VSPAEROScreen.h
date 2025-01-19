@@ -144,6 +144,12 @@ protected:
     ToggleButton m_RefManualToggle;
     ToggleButton m_RefChoiceToggle;
     ToggleRadioGroup m_RefToggle;
+    ToggleButton m_RefCaveToggle;
+    ToggleButton m_RefMACToggle;
+    ToggleRadioGroup m_CrefToggle;
+    ToggleButton m_RefStotToggle;
+    ToggleButton m_RefScurveToggle;
+    ToggleRadioGroup m_SrefToggle;
     SliderAdjRangeInput m_SrefSlider;
     SliderAdjRangeInput m_brefSlider;
     SliderAdjRangeInput m_crefSlider;

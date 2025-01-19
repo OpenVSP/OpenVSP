@@ -375,6 +375,8 @@ public:
     Parm m_cref;
     string m_RefGeomID;
     IntParm m_RefFlag;
+    BoolParm m_MACFlag;
+    BoolParm m_SCurveFlag;
 
     // Mass Properties Parms
     IntParm m_CGGeomSet;

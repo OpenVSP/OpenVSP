@@ -65,6 +65,12 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_RefFlag.Init( "RefFlag", groupname, this, vsp::MANUAL_REF, 0, vsp::NUM_REF_TYPES - 1 );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
+    m_MACFlag.Init( "MACFlag", groupname, this, false, false, true );
+    m_MACFlag.SetDescript( "Use MAC instead of Cave for cbar" );
+
+    m_SCurveFlag.Init( "SCurveFlag", groupname, this, false, false, true );
+    m_SCurveFlag.SetDescript( "Use Scurve instead of Stot for Sref" );
+
     m_CGGeomSet.Init( "MassSet", groupname, this, DEFAULT_SET, vsp::SET_NONE, vsp::MAX_NUM_SETS );
     m_CGGeomSet.SetDescript( "Mass property set" );
 
@@ -366,6 +372,8 @@ void VSPAEROMgrSingleton::Renew()
 
     m_RefGeomID = "";
     m_RefFlag.Set( vsp::MANUAL_REF );
+    m_MACFlag.Set( false );
+    m_SCurveFlag.Set( false );
     m_Sref.Set( 100 );
     m_bref.Set( 1.0 );
     m_cref.Set( 1.0 );
@@ -555,9 +563,26 @@ void VSPAEROMgrSingleton::UpdateSref()
             if( refgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
             {
                 WingGeom* refwing = ( WingGeom* ) refgeom;
-                m_Sref.Set( refwing->m_TotalArea() );
+
+                if ( m_SCurveFlag() )
+                {
+                    m_Sref.Set( refwing->m_CurvedArea() );
+                }
+                else
+                {
+                    m_Sref.Set( refwing->m_TotalArea() );
+                }
+
                 m_bref.Set( refwing->m_TotalSpan() );
-                m_cref.Set( refwing->m_TotalChord() );
+
+                if ( m_MACFlag() )
+                {
+                    m_cref.Set( refwing->m_MAC() );
+                }
+                else
+                {
+                    m_cref.Set( refwing->m_TotalChord() );
+                }
 
                 m_Sref.Deactivate();
                 m_bref.Deactivate();
