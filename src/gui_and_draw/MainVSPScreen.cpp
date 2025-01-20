@@ -14,6 +14,9 @@
 #define _HAS_STD_BYTE 0
 #endif
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "main.h"
 #include "MainVSPScreen.h"
 #include "MainGLWindow.h"
