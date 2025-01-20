@@ -1,3 +1,14 @@
+# [OpenVSP 3.42.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.42.1)
+
+2025-01-20
+
+Fixes:
+ - Fix vanishing window on Windows with high resolution display.
+
+
+---
+
+
 # [OpenVSP 3.42.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.42.0)
 
 2025-01-19
