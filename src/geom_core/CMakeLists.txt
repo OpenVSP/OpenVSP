@@ -57,6 +57,7 @@ GroupTransformations.cpp
 HingeGeom.cpp
 HumanGeom.cpp
 IDMgr.cpp
+InterferenceMgr.cpp
 Link.cpp
 LinkMgr.cpp
 MainThreadIDMgr.cpp
@@ -135,6 +136,7 @@ HingeGeom.h
 HumanGeom.h
 HumanGeomData.h
 IDMgr.h
+InterferenceMgr.h
 Light.h
 LightMgr.h
 Link.h

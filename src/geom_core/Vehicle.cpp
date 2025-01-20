@@ -32,6 +32,7 @@
 #include "FuselageGeom.h"
 #include "HingeGeom.h"
 #include "HumanGeom.h"
+#include "InterferenceMgr.h"
 #include "LinkMgr.h"
 #include "MeasureMgr.h"
 #include "MeshGeom.h"
@@ -711,6 +712,7 @@ void Vehicle::Wype()
     MeasureMgr.Renew();
     Background3DMgr.Renew();
     StructureMgr.Renew();
+    InterferenceMgr.Renew();
 
     ResultsMgr.DeleteAllResults();
 
@@ -2251,6 +2253,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     m_ISectSettings.EncodeXml( node );
     m_CfdGridDensity.EncodeXml( node );
     StructureMgr.EncodeXml( node );
+    InterferenceMgr.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
     WaveDragMgr.EncodeXml( node );
     ParasiteDragMgr.EncodeXml( node );
@@ -2426,6 +2429,7 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
     VarPresetMgr.ConvertOldToNew();
     ModeMgr.DecodeXml( node );
     StructureMgr.DecodeXml( node );
+    InterferenceMgr.DecodeXml( node );
     Background3DMgr.EncodeXml( node );
 
     return vehicle_node;
