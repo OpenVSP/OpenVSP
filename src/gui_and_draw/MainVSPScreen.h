@@ -41,7 +41,7 @@ public:
     virtual void CloseCallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
-    void ResizeWindow( int width, int height );
+    void ResizeWindow( int pixel_w, int pixel_h );
 
     VSPGUI::VspGlWindow * GetGLWindow()
     {

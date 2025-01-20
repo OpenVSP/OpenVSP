@@ -195,8 +195,8 @@ Vehicle::Vehicle()
     m_YComp.Init( "YComp", "Projection", this, 0.0, -1.0, 1.0 );
     m_ZComp.Init( "ZComp", "Projection", this, 0.0, -1.0, 1.0 );
 
-    m_ViewportSizeXValue.Init( "ViewportX", "AdjustView", this, 0.0, 0, 1.0e12 );
-    m_ViewportSizeYValue.Init( "ViewportY", "AdjustView", this, 0.0, 0, 1.0e12 );
+    m_ViewportSizeXValue.Init( "ViewportX", "AdjustView", this, -1, -1, 1.0e12 );
+    m_ViewportSizeYValue.Init( "ViewportY", "AdjustView", this, -1, -1, 1.0e12 );
     m_CORXValue.Init( "CORX", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
     m_CORYValue.Init( "CORY", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
     m_CORZValue.Init( "CORZ", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );

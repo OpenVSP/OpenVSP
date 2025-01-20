@@ -191,13 +191,6 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
     m_GlWin = new VSPGUI::VspGlWindow( m_GenLayout.GetX(), m_GenLayout.GetY(), glw, glh, mgr, DrawObj::VSP_MAIN_SCREEN );
 
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        veh->m_ViewportSizeXValue.Set( glw );
-        veh->m_ViewportSizeYValue.Set( glh );
-    }
-
     m_GenLayout.GetGroup()->add( m_GlWin );
     m_GenLayout.GetGroup()->resizable( m_GlWin );
     m_GenLayout.AddY( glh );
@@ -269,11 +262,11 @@ bool MainVSPScreen::Update()
 
             if ( mvs )
             {
-                //===== Do glwin functions here after the updates of the sliders =====//
-                double factor = m_GlWin->pixels_per_unit();
-
                 // Resize Viewport and window to your maximum screen size. Achieves any ratio.
-                ResizeWindow( veh->m_ViewportSizeXValue.Get()/factor + GL_WINDOW_DX, veh->m_ViewportSizeYValue.Get()/factor + GL_WINDOW_DY );
+                if ( veh->m_ViewportSizeXValue.Get() > 0 )
+                {
+                    ResizeWindow( veh->m_ViewportSizeXValue.Get(), veh->m_ViewportSizeYValue.Get() );
+                }
 
                 //===== Update Center of Rotation =====//
                 m_GlWin->setCOR( glm::vec3( veh->m_CORXValue.Get(), veh->m_CORYValue.Get(), veh->m_CORZValue.Get() ) );
@@ -305,9 +298,16 @@ bool MainVSPScreen::Update()
 }
 
 //==== Resize the main window ====//
-void MainVSPScreen::ResizeWindow( int width, int height )
+void MainVSPScreen::ResizeWindow( int pixel_w, int pixel_h )
 {
-    m_FLTK_Window->resize( m_FLTK_Window->x_root(), m_FLTK_Window->y_root(), width, height );
+    double factor = m_GlWin->pixels_per_unit();
+    int oldw = m_GlWin->pixel_w() / factor;
+    int oldh = m_GlWin->pixel_h() / factor;
+
+    int dw = m_FLTK_Window->w() - oldw;
+    int dh = m_FLTK_Window->h() - oldh;
+
+    m_FLTK_Window->size( pixel_w / factor + dw, pixel_h / factor + dh );
 }
 
 void MainVSPScreen::BoldEntries( const string &mpath )
