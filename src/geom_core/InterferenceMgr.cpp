@@ -10,11 +10,25 @@
 
 #include "InterferenceMgr.h"
 
+#include "ModeMgr.h"
 #include "StlHelper.h"
 #include "Vehicle.h"
+#include "ParmMgr.h"
 
 InterferenceCase::InterferenceCase()
 {
+    string groupname = "InterferenceCase";
+
+    m_PrimarySet.Init( "PrimarySet", groupname, this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
+    m_PrimarySet.SetDescript( "Selected primary set for operation" );
+
+    m_PrimaryType.Init( "PrimaryType", "Projection", this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_TGT_OPTIONS - 1 );
+
+
+    m_SecondarySet.Init( "SecondarySet", groupname, this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
+    m_SecondarySet.SetDescript( "Selected secondary set for operation" );
+
+    m_SecondaryType.Init( "SecondaryType", "Projection", this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_BNDY_OPTIONS - 2 ); // Note - 2, MODE_TARGET not allowed.
 
 }
 
@@ -22,11 +36,84 @@ void InterferenceCase::Update()
 {
 }
 
+string InterferenceCase::GetPrimaryName() const
+{
+    if ( m_PrimaryType() == vsp::SET_TARGET )
+    {
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            vector < string > setNameVec = veh->GetSetNameVec();
+            int pset = m_PrimarySet();
+            if ( pset >= 0 && pset < setNameVec.size() )
+            {
+                return setNameVec[ pset ];
+            }
+        }
+    }
+    else if ( m_PrimaryType() == vsp::GEOM_TARGET )
+    {
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            Geom *g = veh->FindGeom( m_PrimaryGeomID );
+            if ( g )
+            {
+                return g->GetName();
+            }
+        }
+    }
+    else if ( m_PrimaryType() == vsp::MODE_TARGET )
+    {
+        Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
+        if ( m )
+        {
+            return m->GetName();
+        }
+    }
+
+    return string();
+}
+
+string InterferenceCase::GetSecondaryName() const
+{
+    if ( m_SecondaryType() == vsp::SET_TARGET )
+    {
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            vector < string > setNameVec = veh->GetSetNameVec();
+            int pset = m_SecondarySet();
+            if ( pset >= 0 && pset < setNameVec.size() )
+            {
+                return setNameVec[ pset ];
+            }
+        }
+    }
+    else if ( m_SecondaryType() == vsp::GEOM_TARGET )
+    {
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            Geom *g = veh->FindGeom( m_SecondaryGeomID );
+            if ( g )
+            {
+                return g->GetName();
+            }
+        }
+    }
+
+    return string();
+}
+
 xmlNodePtr InterferenceCase::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr icase_node = xmlNewChild( node, NULL, BAD_CAST"InterferenceCase", NULL );
 
     ParmContainer::EncodeXml( icase_node );
+    XmlUtil::AddStringNode( icase_node, "PrimaryModeID", m_PrimaryModeID );
+    XmlUtil::AddStringNode( icase_node, "PrimaryGeomID", m_PrimaryGeomID );
+    XmlUtil::AddStringNode( icase_node, "SecondaryGeomID", m_SecondaryGeomID );
 
     return icase_node;
 }
@@ -34,6 +121,9 @@ xmlNodePtr InterferenceCase::EncodeXml( xmlNodePtr & node )
 xmlNodePtr InterferenceCase::DecodeXml( xmlNodePtr & node )
 {
     ParmContainer::DecodeXml( node );
+    m_PrimaryModeID = ParmMgr.RemapID( XmlUtil::FindString( node, "PrimaryModeID", m_PrimaryModeID ) );
+    m_PrimaryGeomID = ParmMgr.RemapID( XmlUtil::FindString( node, "PrimaryGeomID", m_PrimaryGeomID ) );
+    m_SecondaryGeomID = ParmMgr.RemapID( XmlUtil::FindString( node, "SecondaryGeomID", m_SecondaryGeomID ) );
 
     return node;
 }

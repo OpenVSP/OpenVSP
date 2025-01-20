@@ -44,6 +44,7 @@ protected:
 
     GroupLayout m_GenLayout;
     GroupLayout m_BorderLayout;
+    GroupLayout m_ICaseLayout;
 
     ColResizeBrowser* m_InterferenceCheckBrowser;
     int m_InterferenceBrowserSelect;
@@ -55,6 +56,25 @@ protected:
 
     StringInput m_ICNameInput;
 
+    ToggleRadioGroup m_PrimaryToggleGroup;
+    ToggleButton m_PrimarySetToggle;
+    Choice m_PrimarySetChoice;
+
+    ToggleButton m_PrimaryModeToggle;
+    Choice m_PrimaryModeChoice;
+    vector < string > m_ModeIDs;
+
+    ToggleButton m_PrimaryGeomToggle;
+    GeomPicker m_PrimaryGeomPicker;
+    vector < string > m_GeomIDs;
+
+
+    ToggleRadioGroup m_SecondaryToggleGroup;
+    ToggleButton m_SecondarySetToggle;
+    Choice m_SecondarySetChoice;
+
+    ToggleButton m_SecondaryGeomToggle;
+    GeomPicker m_SecondaryGeomPicker;
 };
 
 

@@ -368,14 +368,23 @@ void ProjectionScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ModeChoice || device == &m_TargetTypeGroup )
     {
-        int indx = m_ModeChoice.GetVal();
-        if ( indx >= 0  && indx < m_ModeIDs.size() )
+        if ( vehiclePtr->m_TargetType() == vsp::MODE_TARGET )
         {
-            ProjectionMgr.m_ModeID = m_ModeIDs[ indx ];
-        }
-        else
-        {
-            ProjectionMgr.m_ModeID = "";
+            int indx = m_ModeChoice.GetVal();
+            if ( indx >= 0  && indx < m_ModeIDs.size() )
+            {
+                ProjectionMgr.m_ModeID = m_ModeIDs[ indx ];
+            }
+            else
+            {
+                ProjectionMgr.m_ModeID = "";
+            }
+
+            Mode *m = ModeMgr.GetMode( ProjectionMgr.m_ModeID );
+            if ( m )
+            {
+                m->ApplySettings();
+            }
         }
     }
     else if ( device == &m_BoundarySet )

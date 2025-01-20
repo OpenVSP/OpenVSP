@@ -11,10 +11,10 @@
 #include "ParmMgr.h"
 #include <FL/fl_ask.H>
 
-
+#include "ModeMgr.h"
 
 //==== Constructor ====//
-InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 400, "Interference Checks" )
+InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600, "Interference Checks" )
 {
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
@@ -47,10 +47,93 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
     m_BorderLayout.SetSameLineFlag( false );
     m_BorderLayout.SetFitWidthFlag( true );
 
-    m_BorderLayout.AddYGap();
-    m_BorderLayout.AddDividerBox( "Interference Check" );
 
-    m_BorderLayout.AddInput( m_ICNameInput, "Name" );
+    m_BorderLayout.AddSubGroupLayout( m_ICaseLayout, m_BorderLayout.GetW(), m_BorderLayout.GetRemainY() );
+
+    m_ICaseLayout.AddYGap();
+    m_ICaseLayout.AddDividerBox( "Interference Check" );
+
+    m_ICaseLayout.AddInput( m_ICNameInput, "Name" );
+
+    m_ICaseLayout.AddYGap();
+
+    m_ICaseLayout.AddDividerBox( "Primary" );
+
+    m_ICaseLayout.SetSameLineFlag( true );
+    m_ICaseLayout.SetFitWidthFlag( false );
+
+    int bw = m_ICaseLayout.GetChoiceButtonWidth();
+    m_ICaseLayout.SetButtonWidth( bw );
+
+    m_ICaseLayout.SetSameLineFlag( true );
+    m_ICaseLayout.SetChoiceButtonWidth( 0 );
+    m_ICaseLayout.SetFitWidthFlag( false );
+    m_ICaseLayout.AddButton( m_PrimarySetToggle, "Set:" );
+    m_ICaseLayout.SetFitWidthFlag( true );
+    m_ICaseLayout.AddChoice(m_PrimarySetChoice, "", bw);
+    m_ICaseLayout.ForceNewLine();
+
+    m_ICaseLayout.SetSameLineFlag( true );
+    m_ICaseLayout.SetChoiceButtonWidth( 0 );
+    m_ICaseLayout.SetFitWidthFlag( false );
+    m_ICaseLayout.AddButton( m_PrimaryModeToggle, "Mode:" );
+    m_ICaseLayout.SetFitWidthFlag( true );
+    m_ICaseLayout.AddChoice(m_PrimaryModeChoice, "", bw );
+    m_ICaseLayout.ForceNewLine();
+
+    m_ICaseLayout.SetSameLineFlag( true );
+    m_ICaseLayout.SetChoiceButtonWidth( 0 );
+    m_ICaseLayout.SetFitWidthFlag( false );
+    m_ICaseLayout.AddButton( m_PrimaryGeomToggle, "Geom:" );
+    m_ICaseLayout.SetFitWidthFlag( true );
+    m_PrimaryGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+    m_PrimaryGeomPicker.AddExcludeType( BLANK_GEOM_TYPE );
+    m_PrimaryGeomPicker.AddExcludeType( HINGE_GEOM_TYPE );
+    m_ICaseLayout.AddGeomPicker( m_PrimaryGeomPicker, m_ICaseLayout.GetButtonWidth(), "" );
+    m_ICaseLayout.ForceNewLine();
+
+    m_PrimaryToggleGroup.Init( this );
+    m_PrimaryToggleGroup.AddButton( m_PrimarySetToggle.GetFlButton() ); // Order matters.
+    m_PrimaryToggleGroup.AddButton( m_PrimaryGeomToggle.GetFlButton() );
+    m_PrimaryToggleGroup.AddButton( m_PrimaryModeToggle.GetFlButton() );
+
+    m_ICaseLayout.SetSameLineFlag( false );
+    m_ICaseLayout.SetFitWidthFlag( true );
+
+    m_ICaseLayout.AddYGap();
+
+    m_ICaseLayout.AddDividerBox( "Secondary" );
+
+    m_ICaseLayout.SetSameLineFlag( true );
+    m_ICaseLayout.SetFitWidthFlag( false );
+
+    m_ICaseLayout.SetButtonWidth( bw );
+
+    m_ICaseLayout.SetSameLineFlag( true );
+    m_ICaseLayout.SetChoiceButtonWidth( 0 );
+    m_ICaseLayout.SetFitWidthFlag( false );
+    m_ICaseLayout.AddButton( m_SecondarySetToggle, "Set:" );
+    m_ICaseLayout.SetFitWidthFlag( true );
+    m_ICaseLayout.AddChoice(m_SecondarySetChoice, "", bw);
+    m_ICaseLayout.ForceNewLine();
+
+    m_ICaseLayout.SetSameLineFlag( true );
+    m_ICaseLayout.SetChoiceButtonWidth( 0 );
+    m_ICaseLayout.SetFitWidthFlag( false );
+    m_ICaseLayout.AddButton( m_SecondaryGeomToggle, "Geom:" );
+    m_ICaseLayout.SetFitWidthFlag( true );
+    m_SecondaryGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+    m_SecondaryGeomPicker.AddExcludeType( BLANK_GEOM_TYPE );
+    m_SecondaryGeomPicker.AddExcludeType( HINGE_GEOM_TYPE );
+    m_ICaseLayout.AddGeomPicker( m_SecondaryGeomPicker, m_ICaseLayout.GetButtonWidth(), "" );
+
+    m_ICaseLayout.ForceNewLine();
+
+    m_SecondaryToggleGroup.Init( this );
+    m_SecondaryToggleGroup.AddButton( m_SecondarySetToggle.GetFlButton() );
+    m_SecondaryToggleGroup.AddButton( m_SecondaryGeomToggle.GetFlButton() );
+
+
 
     m_InterferenceBrowserSelect = -1;
 }
@@ -75,14 +158,98 @@ bool InterferenceScreen::Update()
 
     if ( icase )
     {
-        m_ICNameInput.Activate();
+        m_ICaseLayout.GetGroup()->activate();
+
 
         m_ICNameInput.Update( icase->GetName() );
+
+
+
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            m_ScreenMgr->LoadSetChoice( {&m_PrimarySetChoice, &m_SecondarySetChoice}, {icase->m_PrimarySet.GetID(), icase->m_SecondarySet.GetID()} );
+
+            m_ScreenMgr->LoadModeChoice( m_PrimaryModeChoice, m_ModeIDs, icase->m_PrimaryModeID );
+
+            m_PrimaryGeomPicker.SetGeomChoice( icase->m_PrimaryGeomID );
+            m_SecondaryGeomPicker.SetGeomChoice( icase->m_SecondaryGeomID );
+
+
+            m_PrimaryToggleGroup.Update( icase->m_PrimaryType.GetID() );
+            m_SecondaryToggleGroup.Update( icase->m_SecondaryType.GetID() );
+
+            if ( ModeMgr.GetNumModes() == 0 )
+            {
+                if ( icase->m_PrimaryType() == vsp::MODE_TARGET )
+                {
+                    icase->m_PrimaryType = vsp::SET_TARGET;
+                    m_ScreenMgr->SetUpdateFlag( true );
+                }
+                m_PrimaryModeToggle.Deactivate();
+            }
+            else
+            {
+                m_PrimaryModeToggle.Activate();
+            }
+
+            if ( icase->m_PrimaryType() == vsp::MODE_TARGET )
+            {
+                m_PrimaryModeChoice.Activate();
+                m_PrimarySetChoice.Deactivate();
+                m_PrimaryGeomPicker.Deactivate();
+
+                Mode *m = ModeMgr.GetMode( icase->m_PrimaryModeID );
+                if ( m )
+                {
+                    if ( icase->m_PrimarySet() != m->m_NormalSet() )
+                    {
+                        icase->m_PrimarySet = m->m_NormalSet();
+                        m_ScreenMgr->SetUpdateFlag( true );
+                    }
+                }
+            }
+            else if ( icase->m_PrimaryType() == vsp::SET_TARGET )
+            {
+                m_PrimaryModeChoice.Deactivate();
+                m_PrimarySetChoice.Activate();
+                m_PrimaryGeomPicker.Deactivate();
+
+            }
+            else if ( icase->m_PrimaryType() == vsp::GEOM_TARGET )
+            {
+                m_PrimaryModeChoice.Deactivate();
+                m_PrimarySetChoice.Deactivate();
+                m_PrimaryGeomPicker.Activate();
+            }
+
+            if ( icase->m_SecondaryType() == vsp::SET_TARGET )
+            {
+                m_SecondarySetChoice.Activate();
+                m_SecondaryGeomPicker.Deactivate();
+
+            }
+            else if ( icase->m_SecondaryType() == vsp::GEOM_TARGET )
+            {
+                m_SecondarySetChoice.Deactivate();
+                m_SecondaryGeomPicker.Activate();
+            }
+
+
+        }
+
     }
     else
     {
-        m_ICNameInput.Deactivate();
+        m_ICaseLayout.GetGroup()->deactivate();
+
+        m_PrimaryGeomPicker.SetGeomChoice( "" );
+        m_SecondaryGeomPicker.SetGeomChoice( "" );
+
     }
+
+    m_PrimaryGeomPicker.Update();
+    m_SecondaryGeomPicker.Update();
 
     m_FLTK_Window->redraw();
     return true;
@@ -97,14 +264,14 @@ void InterferenceScreen::UpdateInterferenceCheckBrowser()
     m_InterferenceCheckBrowser->clear();
     m_InterferenceCheckBrowser->column_char( ':' );
 
-    snprintf( str, sizeof( str ),  "@b@.VAR_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
+    snprintf( str, sizeof( str ),  "@b@.NAME:@b@.PRIMARY:@b@.SECONDARY:@b@.RESULT" );
     m_InterferenceCheckBrowser->add( str );
     m_InterferenceCheckBrowser->addCopyText( "header" );
 
     vector < InterferenceCase* > icases = InterferenceMgr.GetAllInterferenceCases();
     for ( int i = 0 ; i < (int)icases.size() ; i++ )
     {
-        snprintf( str, sizeof( str ),  "%s: : : \n", icases[i]->GetName().c_str() );
+        snprintf( str, sizeof( str ),  "%s:%s:%s: \n", icases[i]->GetName().c_str(), icases[i]->GetPrimaryName().c_str(), icases[i]->GetSecondaryName().c_str() );
         m_InterferenceCheckBrowser->add( str );
     }
     if ( m_InterferenceBrowserSelect >= 0 && m_InterferenceBrowserSelect < (int)icases.size() )
@@ -176,6 +343,47 @@ void InterferenceScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( icase )
         {
             icase->SetName( m_ICNameInput.GetString() );
+        }
+    }
+    else if ( gui_device == &m_PrimaryModeChoice || gui_device == &m_PrimaryToggleGroup )
+    {
+        if ( icase )
+        {
+            if ( icase->m_PrimaryType() == vsp::MODE_TARGET )
+            {
+                int indx = m_PrimaryModeChoice.GetVal();
+                if ( indx >= 0  && indx < m_ModeIDs.size() )
+                {
+                    icase->m_PrimaryModeID = m_ModeIDs[ indx ];
+                }
+                else
+                {
+                    icase->m_PrimaryModeID = "";
+                }
+            }
+
+            // Include this code if we want to actively visualize the mode in real time.
+            /*
+            Mode *m = ModeMgr.GetMode( icase->m_BaseModeID );
+            if ( m )
+            {
+                m->ApplySettings();
+            }
+            */
+        }
+    }
+    else if ( gui_device == & m_PrimaryGeomPicker )
+    {
+        if ( icase )
+        {
+            icase->m_PrimaryGeomID = m_PrimaryGeomPicker.GetGeomChoice();
+        }
+    }
+    else if ( gui_device == & m_SecondaryGeomPicker )
+    {
+        if ( icase )
+        {
+            icase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetGeomChoice();
         }
     }
     else

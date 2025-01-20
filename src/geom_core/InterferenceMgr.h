@@ -12,6 +12,7 @@
 #define INTERFERENCEMGR__INCLUDED_
 
 #include "ParmContainer.h"
+#include "Parm.h"
 
 class InterferenceCase : public ParmContainer
 {
@@ -21,10 +22,22 @@ public:
 
     void Update();
 
+    string GetPrimaryName() const;
+    string GetSecondaryName() const;
 
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+
+    IntParm m_PrimarySet;
+    IntParm m_PrimaryType; // Mode, Set, or Geom
+    string m_PrimaryModeID;
+    string m_PrimaryGeomID;
+
+    IntParm m_SecondarySet;
+    IntParm m_SecondaryType; // Set or Geom
+    string m_SecondaryGeomID;
 
 };
 
