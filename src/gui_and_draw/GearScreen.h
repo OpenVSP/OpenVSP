@@ -19,17 +19,49 @@
 class Gearcreen : public GeomScreen
 {
 public:
-	Gearcreen( ScreenMgr* mgr );
+    Gearcreen( ScreenMgr* mgr );
     virtual ~Gearcreen()                            {}
 
     virtual void Show();
     virtual bool Update();
 
     virtual void CallBack( Fl_Widget *w );
+    static void staticScreenCB( Fl_Widget *w, void* data )
+    {
+        ( ( Gearcreen* )data )->CallBack( w );
+    }
+
+    virtual void GuiDeviceCallBack( GuiDevice* device );
 
 protected:
 
+    GroupLayout m_DesignLayout;
     GroupLayout m_TireGroup;
+
+
+    TriggerButton m_AddBogieButton;
+    TriggerButton m_RenameBogieButton;
+    TriggerButton m_RemoveBogieButton;
+    TriggerButton m_RemoveAllBogiesButton;
+
+    TriggerButton m_ShowAllBogiesButton;
+    TriggerButton m_HideAllBogiesButton;
+
+    StringInput m_BogieNameInput;
+    Fl_Browser* m_BogieBrowser;
+
+    ToggleButton m_SymmetricalButton;
+
+    SliderAdjRangeInput m_NAcrossSlider;
+    SliderAdjRangeInput m_NTandemSlider;
+
+    Choice m_SpacingTypeChoice;
+    SliderAdjRange2Input m_SpacingSlider;
+    SliderAdjRange2Input m_SpacingGapSlider;
+
+    Choice m_PitchTypeChoice;
+    SliderAdjRange2Input m_PitchSlider;
+    SliderAdjRange2Input m_PitchGapSlider;
 
     SliderAdjRangeInput m_TireXSlider;
     SliderAdjRangeInput m_TireYSlider;

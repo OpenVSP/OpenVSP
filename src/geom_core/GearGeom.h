@@ -23,13 +23,34 @@ public:
     // virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
+    int GetNumSurf() const;
+    void UpdateParms();
     void UpdateTireCurve();
     void Update();
+    void AppendMainSurf( vector < VspSurf > &surfvec ) const;
 
     bool m_Visible;
 
     VspCurve m_TireProfile;
     VspSurf m_TireSurface;
+
+
+    BoolParm m_Symmetrical;
+
+    IntParm m_NAcross;
+    IntParm m_NTandem;
+
+    IntParm m_SpacingType;
+    Parm m_Spacing;
+    Parm m_SpacingFrac;
+    Parm m_SpacingGap;
+    Parm m_SpacingGapFrac;
+
+    IntParm m_PitchType;
+    Parm m_Pitch;
+    Parm m_PitchFrac;
+    Parm m_PitchGap;
+    Parm m_PitchGapFrac;
 
     Parm m_X;
     Parm m_Y;

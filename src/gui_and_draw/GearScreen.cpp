@@ -17,16 +17,78 @@
 //==== Constructor ====//
 Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 525, "Gear" )
 {
+    Fl_Group* design_tab = AddTab( "Design" );
+    Fl_Group* design_group = AddSubGroup( design_tab, 5 );
+
     Fl_Group* tire_tab = AddTab( "Tire" );
     Fl_Group* tire_group = AddSubGroup( tire_tab, 5 );
 
+    m_DesignLayout.SetGroupAndScreen( design_group, this );
+
+    m_BogieBrowser = m_DesignLayout.AddFlBrowser( 100 );
+    m_BogieBrowser->callback( staticScreenCB, this );
+    m_DesignLayout.AddInput( m_BogieNameInput, "Name:" );
+
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.SetButtonWidth( m_DesignLayout.GetW() / 2.0 );
+
+    m_DesignLayout.AddButton( m_AddBogieButton, "Add" );
+    m_DesignLayout.AddButton( m_RemoveBogieButton, "Delete" );
+
+    m_DesignLayout.ForceNewLine();
+
+    m_DesignLayout.AddButton( m_RenameBogieButton, "Rename" );
+    m_DesignLayout.AddButton( m_RemoveAllBogiesButton, "Delete All" );
+
+    m_DesignLayout.ForceNewLine();
+
+    m_DesignLayout.AddButton( m_ShowAllBogiesButton, "Show All" );
+    m_DesignLayout.AddButton( m_HideAllBogiesButton, "Hide All" );
+
+
+
     m_TireGroup.SetGroupAndScreen( tire_group, this );
-    m_TireGroup.AddDividerBox( "Tire" );
+
+    m_TireGroup.AddDividerBox( "Configuration" );
+
+    m_TireGroup.AddButton( m_SymmetricalButton, "Symmetrical" );
+
+    m_TireGroup.AddYGap();
+    m_TireGroup.AddSlider( m_NAcrossSlider, "Num Across", 10, "%6.0f" );
+
+    m_TireGroup.AddChoice( m_SpacingTypeChoice, "Mode" );
+    m_SpacingTypeChoice.AddItem( "Center Distance", vsp::BOGIE_CENTER_DIST );
+    m_SpacingTypeChoice.AddItem( "Center Distance Fraction", vsp::BOGIE_CENTER_DIST_FRAC );
+    m_SpacingTypeChoice.AddItem( "Gap", vsp::BOGIE_GAP );
+    m_SpacingTypeChoice.AddItem( "Gap Fraction", vsp::BOGIE_GAP_FRAC );
+    m_SpacingTypeChoice.UpdateItems();
+
+    m_TireGroup.AddSlider( m_SpacingSlider, "Spacing", 10, "%6.5f" );
+    m_TireGroup.AddSlider( m_SpacingGapSlider, "Spacing Gap", 10, "%6.5f" );
+
+    m_TireGroup.AddYGap();
+    m_TireGroup.AddSlider( m_NTandemSlider, "Num Tandem", 10, "%6.0f" );
+
+    m_TireGroup.AddChoice( m_PitchTypeChoice, "Mode" );
+    m_PitchTypeChoice.AddItem( "Center Distance", vsp::BOGIE_CENTER_DIST );
+    m_PitchTypeChoice.AddItem( "Center Distance Fraction", vsp::BOGIE_CENTER_DIST_FRAC );
+    m_PitchTypeChoice.AddItem( "Gap", vsp::BOGIE_GAP );
+    m_PitchTypeChoice.AddItem( "Gap Fraction", vsp::BOGIE_GAP_FRAC );
+    m_PitchTypeChoice.UpdateItems();
+
+    m_TireGroup.AddSlider( m_PitchSlider, "Pitch", 10, "%6.5f" );
+    m_TireGroup.AddSlider( m_PitchGapSlider, "Pitch Gap", 10, "%6.5f" );
+
+    m_TireGroup.AddYGap();
+    m_TireGroup.AddDividerBox( "Contact Point" );
 
     m_TireGroup.AddSlider( m_TireXSlider, "X", 10, "%6.5f" );
     m_TireGroup.AddSlider( m_TireYSlider, "Y", 10, "%6.5f" );
     m_TireGroup.AddSlider( m_TireZSlider, "Z", 10, "%6.5f" );
 
+    m_TireGroup.AddYGap();
+    m_TireGroup.AddDividerBox( "Tire" );
 
     m_TireGroup.AddSlider( m_TireDiameterSlider, "Diameter", 10, "%6.5f" );
     m_TireGroup.AddSlider( m_TireWidthSlider, "Width", 10, "%6.5f" );
@@ -128,10 +190,115 @@ bool Gearcreen::Update()
     GearGeom* gear_ptr = dynamic_cast< GearGeom* >( geom_ptr );
     assert( gear_ptr );
 
+    std::vector < Bogie * > bogies = gear_ptr->GetBogieVec();
+
+    int h_pos = m_BogieBrowser->hposition();
+    int v_pos = m_BogieBrowser->vposition();
+    m_BogieBrowser->clear();
+    for( int i = 0; i < ( int )bogies.size(); i++ )
+    {
+        if ( bogies[i] )
+        {
+            string bogieName = bogies[i]->GetName();
+
+            m_BogieBrowser->add( bogieName.c_str() );
+        }
+    }
+
+    int index = gear_ptr->GetCurrBogieIndex();
+    if ( index >= 0 && index < ( int )bogies.size() )
+    {
+        m_BogieBrowser->select( index + 1 );
+    }
+    m_BogieBrowser->hposition( h_pos );
+    m_BogieBrowser->vposition( v_pos );
+
+
+
     Bogie* bogie_ptr = gear_ptr->GetCurrentBogie();
 
     if ( bogie_ptr )
     {
+
+        m_SymmetricalButton.Update( bogie_ptr->m_Symmetrical.GetID() );
+
+        m_NAcrossSlider.Update( bogie_ptr->m_NAcross.GetID() );
+
+        m_SpacingTypeChoice.Update( bogie_ptr->m_SpacingType.GetID() );
+
+        if ( bogie_ptr->m_SpacingType() == vsp::BOGIE_CENTER_DIST || bogie_ptr->m_SpacingType() == vsp::BOGIE_GAP )
+        {
+            m_SpacingSlider.Update( 1, bogie_ptr->m_Spacing.GetID(), bogie_ptr->m_SpacingFrac.GetID() );
+            m_SpacingGapSlider.Update( 1, bogie_ptr->m_SpacingGap.GetID(), bogie_ptr->m_SpacingGapFrac.GetID() );
+        }
+        else
+        {
+            m_SpacingSlider.Update( 2, bogie_ptr->m_Spacing.GetID(), bogie_ptr->m_SpacingFrac.GetID() );
+            m_SpacingGapSlider.Update( 2, bogie_ptr->m_SpacingGap.GetID(), bogie_ptr->m_SpacingGapFrac.GetID() );
+        }
+
+
+        if ( bogie_ptr->m_NAcross() > 1 )
+        {
+            m_SpacingTypeChoice.Activate();
+
+            if ( bogie_ptr->m_SpacingType() == vsp::BOGIE_CENTER_DIST || bogie_ptr->m_SpacingType() == vsp::BOGIE_CENTER_DIST_FRAC )
+            {
+                m_SpacingSlider.Activate();
+                m_SpacingGapSlider.Deactivate();
+            }
+            else
+            {
+                m_SpacingSlider.Deactivate();
+                m_SpacingGapSlider.Activate();
+            }
+        }
+        else
+        {
+            m_SpacingTypeChoice.Deactivate();
+            m_SpacingSlider.Deactivate();
+            m_SpacingGapSlider.Deactivate();
+        }
+
+
+
+        m_NTandemSlider.Update( bogie_ptr->m_NTandem.GetID() );
+
+        m_PitchTypeChoice.Update( bogie_ptr->m_PitchType.GetID() );
+
+        if ( bogie_ptr->m_PitchType() == vsp::BOGIE_CENTER_DIST || bogie_ptr->m_PitchType() == vsp::BOGIE_GAP )
+        {
+            m_PitchSlider.Update( 1, bogie_ptr->m_Pitch.GetID(), bogie_ptr->m_PitchFrac.GetID() );
+            m_PitchGapSlider.Update( 1, bogie_ptr->m_PitchGap.GetID(), bogie_ptr->m_PitchGapFrac.GetID() );
+        }
+        else
+        {
+            m_PitchSlider.Update( 2, bogie_ptr->m_Pitch.GetID(), bogie_ptr->m_PitchFrac.GetID() );
+            m_PitchGapSlider.Update( 2, bogie_ptr->m_PitchGap.GetID(), bogie_ptr->m_PitchGapFrac.GetID() );
+        }
+
+        if ( bogie_ptr->m_NTandem() > 1 )
+        {
+            m_PitchTypeChoice.Activate();
+
+            if ( bogie_ptr->m_PitchType() == vsp::BOGIE_CENTER_DIST || bogie_ptr->m_PitchType() == vsp::BOGIE_CENTER_DIST_FRAC )
+            {
+                m_PitchSlider.Activate();
+                m_PitchGapSlider.Deactivate();
+            }
+            else
+            {
+                m_PitchSlider.Deactivate();
+                m_PitchGapSlider.Activate();
+            }
+        }
+        else
+        {
+            m_PitchTypeChoice.Deactivate();
+            m_PitchSlider.Deactivate();
+            m_PitchGapSlider.Deactivate();
+        }
+
         m_TireXSlider.Update( bogie_ptr->m_X.GetID() );
         m_TireYSlider.Update( bogie_ptr->m_Y.GetID() );
         m_TireZSlider.Update( bogie_ptr->m_Z.GetID() );
@@ -187,9 +354,66 @@ bool Gearcreen::Update()
 //==== Non Menu Callbacks ====//
 void Gearcreen::CallBack( Fl_Widget *w )
 {
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+
+    GearGeom* gear_ptr = dynamic_cast< GearGeom* >( geom_ptr );
+
+    if ( w == m_BogieBrowser )
+    {
+        int sel = m_BogieBrowser->value();
+        gear_ptr->SetCurrBogieIndex( sel - 1 );
+
+        Bogie * bogie = gear_ptr->GetCurrentBogie();
+        if ( bogie )
+        {
+            m_BogieNameInput.Update( bogie->GetName() );
+        }
+    }
+
     GeomScreen::CallBack( w );
 }
 
+void Gearcreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+
+    GearGeom* gear_ptr = dynamic_cast< GearGeom* >( geom_ptr );
+
+    if ( device == &m_AddBogieButton )
+    {
+        Bogie * bogie = gear_ptr->CreateAndAddBogie();
+        if ( bogie )
+        {
+            bogie->SetName( m_BogieNameInput.GetString() );
+        }
+    }
+    else if ( device == &m_RemoveBogieButton )
+    {
+        gear_ptr->DelBogie( gear_ptr->GetCurrBogieIndex() );
+    }
+    else if ( device == &m_RemoveAllBogiesButton )
+    {
+        gear_ptr->DelAllBogies();
+    }
+    else if ( device == &m_ShowAllBogiesButton )
+    {
+        gear_ptr->ShowAllBogies();
+    }
+    else if ( device == &m_HideAllBogiesButton )
+    {
+        gear_ptr->HideAllBogies();
+    }
+    else if ( device == &m_RenameBogieButton )
+    {
+        Bogie * bogie = gear_ptr->GetCurrentBogie();
+        if ( bogie )
+        {
+            bogie->SetName( m_BogieNameInput.GetString() );
+        }
+    }
+
+    GeomScreen::GuiDeviceCallBack( device );
+}
 
 
 

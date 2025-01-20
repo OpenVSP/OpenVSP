@@ -14,6 +14,24 @@
 
 Bogie::Bogie()
 {
+
+    m_Symmetrical.Init( "Symmetrical", "Tire", this, false, false, true );
+
+    m_NAcross.Init( "NumAcross", "Tire", this, 1, 1, 100 );
+    m_NTandem.Init( "NumTandem", "Tire", this, 1, 1, 100 );
+
+    m_SpacingType.Init( "SpacingType", "Tire", this, vsp::BOGIE_GAP_FRAC, vsp::BOGIE_CENTER_DIST, vsp::NUM_BOGIE_SPACING_TYPE - 1 );
+    m_Spacing.Init( "Spacing", "Tire", this, 1.1, 0.0, 1e12 );
+    m_SpacingFrac.Init( "SpacingFrac", "Tire", this, 1.1, 1.0, 100 );
+    m_SpacingGap.Init( "SpacingGap", "Tire", this, 1.1, 0.0, 1e12 );
+    m_SpacingGapFrac.Init( "SpacingGapFrac", "Tire", this, 0.1, 0.0, 99 );
+
+    m_PitchType.Init( "PitchType", "Tire", this, vsp::BOGIE_GAP_FRAC, vsp::BOGIE_CENTER_DIST, vsp::NUM_BOGIE_SPACING_TYPE - 1 );
+    m_Pitch.Init( "Pitch", "Tire", this, 1.1, 0.0, 1e12 );
+    m_PitchFrac.Init( "PitchFrac", "Tire", this, 1.1, 1.0, 100 );
+    m_PitchGap.Init( "PitchGap", "Tire", this, 1.1, 0.0, 1e12 );
+    m_PitchGapFrac.Init( "PitchGapFrac", "Tire", this, 0.1, 0.0, 99 );
+
     m_X.Init( "X", "Tire", this, 0.0, -1e12, 1e12 );
     m_Y.Init( "Y", "Tire", this, 0.0, -1e12, 1e12 );
     m_Z.Init( "Z", "Tire", this, 0.0, -1e12, 1e12 );
@@ -73,7 +91,18 @@ void Bogie::ParmChanged( Parm* parm_ptr, int type )
     }
 }
 
-void Bogie::UpdateTireCurve()
+int Bogie::GetNumSurf() const
+{
+    int sym = 1;
+    if ( m_Symmetrical() )
+    {
+        sym = 2;
+    }
+
+    return m_NAcross() * m_NTandem() * sym;
+}
+
+void Bogie:: UpdateParms()
 {
     // Tire dimensions
     double Do = m_Diameter(); // 13.5;
@@ -125,6 +154,74 @@ void Bogie::UpdateTireCurve()
         m_Hs = m_HsFrac() * H;
     }
 
+
+    switch ( m_SpacingType() )
+    {
+        case vsp::BOGIE_CENTER_DIST:
+            m_SpacingFrac = m_Spacing() / W;
+            m_SpacingGap = m_Spacing() - W;
+            m_SpacingGapFrac = m_SpacingFrac() - 1;
+            break;
+        case vsp::BOGIE_CENTER_DIST_FRAC:
+            m_Spacing = m_SpacingFrac() * W;
+            m_SpacingGap = m_Spacing() - W;
+            m_SpacingGapFrac = m_SpacingFrac() - 1;
+            break;
+        case vsp::BOGIE_GAP:
+            m_Spacing = m_SpacingGap() + W;
+            m_SpacingFrac = m_Spacing() / W;
+            m_SpacingGapFrac = m_SpacingFrac() - 1;
+            break;
+        case vsp::BOGIE_GAP_FRAC:
+        default:
+            m_SpacingFrac = m_SpacingGapFrac() + 1;
+            m_Spacing = m_SpacingFrac() * W;
+            m_SpacingGap = m_SpacingGapFrac() * W;
+            break;
+    }
+
+    switch ( m_PitchType() )
+    {
+        case vsp::BOGIE_CENTER_DIST:
+            m_PitchFrac = m_Pitch() / Do;
+            m_PitchGap = m_Pitch() - Do;
+            m_PitchGapFrac = m_PitchFrac() - 1;
+            break;
+        case vsp::BOGIE_CENTER_DIST_FRAC:
+            m_Pitch = m_PitchFrac() * Do;
+            m_PitchGap = m_Pitch() - Do;
+            m_PitchGapFrac = m_PitchFrac() - 1;
+            break;
+        case vsp::BOGIE_GAP:
+            m_Pitch = m_PitchGap() + Do;
+            m_PitchFrac = m_Pitch() / Do;
+            m_PitchGapFrac = m_PitchFrac() - 1;
+            break;
+        case vsp::BOGIE_GAP_FRAC:
+        default:
+            m_PitchFrac = m_PitchGapFrac() + 1;
+            m_Pitch = m_PitchFrac() * Do;
+            m_PitchGap = m_PitchGapFrac() * Do;
+            break;
+    }
+
+
+}
+
+void Bogie::UpdateTireCurve()
+{
+    // Tire dimensions
+    double Do = m_Diameter();
+    double W = m_Width();
+
+    // Rim dimensions
+    double Drim = m_Drim();
+    double Wrim = m_Wrim();
+    // double Hflange = 0.55;
+
+    double H = 0.5 * ( Do - Drim );
+
+
     // Tire shoulder
     double Ws = m_Ws();
     double Ds = 2 * m_Hs() + Drim;
@@ -139,6 +236,7 @@ void Bogie::UpdateTireCurve()
 
 void Bogie::Update()
 {
+    UpdateParms();
     UpdateTireCurve();
 
     m_TireSurface.CreateBodyRevolution( m_TireProfile, true, 1 );
@@ -146,14 +244,60 @@ void Bogie::Update()
     m_TireSurface.SetHalfBOR( true );
     m_TireSurface.FlipNormal();
 
+}
 
+void Bogie::AppendMainSurf( vector < VspSurf > &surfvec ) const
+{
     Matrix4d xform;
     xform.translatef( m_X(), m_Y(), m_Z() );
 
-    m_TireSurface.Transform( xform );
+    int nsymm = 1;
+    vector < double > smult = { 1.0 };
+    if ( m_Symmetrical() )
+    {
+        nsymm = 2;
+        smult.push_back( -1.0 );
+    }
+    int na = m_NAcross();
+    int nt = m_NTandem();
 
+    double s = m_Spacing();
+    double p = m_Pitch();
+
+
+    double cenAcross = 0.5 * ( na - 1 ) * s;
+    double cenTandem = 0.5 * ( nt - 1 ) * p;
+
+    for ( int i = 0; i < na; i++ )
+    {
+        Matrix4d col = xform;
+        col.translatef( 0, i * s - cenAcross, 0 );
+
+        for ( int j = 0; j < nt; j++ )
+        {
+            Matrix4d row = col;
+            row.translatef( j * p - cenTandem, 0, 0 );
+
+            for ( int isymm = 0; isymm < nsymm; isymm++ )
+            {
+                if ( isymm > 0 )
+                {
+                    row.mirrory();
+                }
+
+                surfvec.push_back( m_TireSurface );
+                surfvec.back().Transform( row );
+
+                if ( isymm > 0 )
+                {
+                    surfvec.back().FlipNormal();
+                }
+            }
+        }
+    }
 
 }
+
 
 //===============================================================================//
 //===============================================================================//
@@ -185,7 +329,17 @@ GearGeom::~GearGeom()
 void GearGeom::UpdateSurf()
 {
     int nbogies = m_Bogies.size();
-    int nsurf = nbogies;
+
+    int nsurf = 0;
+    for ( int i = 0; i < nbogies; i++ )
+    {
+        if ( m_Bogies[i] )
+        {
+            m_Bogies[i]->Update();
+            nsurf += m_Bogies[i]->GetNumSurf();
+        }
+    }
+
 
     m_MainSurfVec.clear();
     m_MainSurfVec.reserve( nsurf );
@@ -194,9 +348,7 @@ void GearGeom::UpdateSurf()
     {
         if ( m_Bogies[i] )
         {
-            m_Bogies[i]->Update();
-
-            m_MainSurfVec.push_back( m_Bogies[i]->m_TireSurface );
+            m_Bogies[i]->AppendMainSurf( m_MainSurfVec );
         }
     }
 }
@@ -248,11 +400,16 @@ Bogie * GearGeom::GetCurrentBogie()
     return m_Bogies[ m_CurrBogieIndex ];
 }
 
+std::vector < Bogie * > GearGeom::GetBogieVec()
+{
+    return m_Bogies;
+}
+
 xmlNodePtr GearGeom::EncodeXml( xmlNodePtr & node )
 {
     char labelName[256];
 
-    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "Measure", NULL );
+    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "Gear", NULL );
 
     XmlUtil::AddIntNode( child_node, "Num_of_Bogies", m_Bogies.size() );
 
@@ -270,7 +427,7 @@ xmlNodePtr GearGeom::DecodeXml( xmlNodePtr & node )
 {
     char labelName[256];
 
-    xmlNodePtr label_root_node = XmlUtil::GetNode( node, "Measure", 0 );
+    xmlNodePtr label_root_node = XmlUtil::GetNode( node, "Gear", 0 );
 
     int numofLabels = XmlUtil::FindInt( label_root_node, "Num_of_Bogies", 0 );
     for ( int i = 0; i < numofLabels; i++ )

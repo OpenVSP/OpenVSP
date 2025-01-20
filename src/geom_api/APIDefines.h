@@ -134,6 +134,17 @@ enum ATTRIBUTE_EVENT_GROUP { ATTR_GROUP_NONE = -1,	/*!< No event (user attribute
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for bogie spacing control. */
+enum BOGIE_SPACING_TYPE { BOGIE_CENTER_DIST,	/*!< Distance between centers */
+                          BOGIE_CENTER_DIST_FRAC,	/*!< Fractional distance between centers */
+                          BOGIE_GAP,	/*!< Gap */
+                          BOGIE_GAP_FRAC,	/*!< Fractional gap */
+                          NUM_BOGIE_SPACING_TYPE,	/*!< Number of bogie spacing control modes */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for Body of Revolution mode control. */
 enum BOR_MODE { BOR_FLOWTHROUGH,	/*!< Flowthrough mode (default) */
                 BOR_UPPER,	/*!< Upper surface mode */
