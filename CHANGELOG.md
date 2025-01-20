@@ -1,3 +1,97 @@
+# [OpenVSP 3.42.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.42.0)
+
+2025-01-19
+
+Although this version comes less than two months after the last, the improvements
+it contains have been in the works for nearly a year.  This version contains a bunch
+of infrastructure changes that will be appreciated by serious OpenVSP users.  There
+are also a handful of smaller features and fixes that everyone will enjoy.
+
+The biggest feature in this version is the addition of Attributes.  Attributes were
+developed by Tim Cuatt -- thanks much Tim.  Attributes are a mechanism to add
+metadata to just bout anything in OpenVSP.  You can use this metadata for whatever
+you want.  Perhaps you want to make a note of where the value of a certain parameter
+came from, or perhaps you want to add auxiliary information that will be used by
+some downstream analysis tool.
+
+Attributes are Name / Value pairs that can be associated with Parms, Geoms, Vehicle,
+Measures, Advanced Links, etc.  Their value can be a string, bool, int, double, vec3d,
+a vector, or a matrix.  The user can interact with Attributes through the GUI or the
+API.
+
+A few special case Attributes have been built-in to models.  First is a Watermark
+capability.  You can set the text, color, and size of a text box that will be
+superimposed on top fo the 3D window.  You might use this to add proprietary
+markings to a file.  Second is a general Notes capability.  You can think of this
+as a journal that you keep with a file.
+
+It is always exciting to see what users do with new features -- Attributes will
+certainly be another example of this.  More than most things we add, Attributes
+are an unstructured feature meant to be used however the user deems fit.  Go forth
+and attribute!
+
+Sets and Variable Presets are two features that new users often find confusing, but
+that experienced users find essential.  Modes is a new feature that combines Sets
+and Variable Presets.  This will be even more powerful for experienced users -- but
+hopefully will be within reach of novices.  If you haven't ever used Sets or
+Variable Presets, now is the time to level-up, learn about them, and add Modes
+to your skillset.
+
+By popular demand, OpenVSP now calculates the MAC of a wing.  It also calculates a
+new reference area called Scurve.  Scurve will only differ from Stot when blending
+is used.  Scurve takes into account the curved LE and TE of the wing, while Stot
+is meerely the sum of the areas of the trapezoidal base segments for a wing.  The
+MAC and Scurve are now available for use as VSPAERO reference quantities.
+
+The Python API facade has been extended to support the 'Multi-Facade'.  The
+multi-facade will allow one Python process to interact with multiple OpenVSP
+models simultaneously via the API.  Each OpenVSP model resides in a separate instance,
+each loaded in a dedicated Python process.
+
+There are a scattering of more features and fixes all around.  The descriptions
+below are pretty self explanatory, so I won't belabor them here.  Update
+to the latest and enjoy.
+
+Features:
+ - Attributes added as means to attach metadata to many things in OpenVSP.
+ - Attribute interaction added throughout OpenVSP GUI.
+ - Modes added as concept combining Sets and Variable Presets.
+ - Modes interaction added to all analysis and export capabilities.
+ - Re-write Variable Presets to be ID based instead of index based.
+ - New Variable Presets GUI.
+ - Added Watermark that can be displayed on OpenVSP screen.
+ - Added Notes editor for tracking general model information.
+ - Added Multi-facade mode to Python API
+ - Added warning when GUI windows exceed 800 pixels tall.
+ - New Measure GUI to fit in 800 pixel limit.
+ - Improve resizability of numerous GUIs.
+ - Add new CHANGELOG.md file with release notes for all past versions.
+ - Add creation of vspscript test code from API documentation examples.
+ - Add SplitWingXSec to API.
+ - Calculate MAC for wings.
+ - Calculate Scurve, a Sref that includes curved LE/TE.
+ - Make MAC & Scurve available as reference quantities for VSPAERO.
+
+Library Updates:
+ - Update Code-Eli to support calculation of MAC.
+
+Build system:
+ - Build on MacOS with LLVM/CLang, not XCode.
+ - Now build VSPAERO on MacOS entirely with CLang & libomp, not GCC.
+
+Fixes:
+ - Fix view inconsistencies with ManageViewScreen open.
+ - Fix view updating from API.
+ - Fix problem with OpenGL detection on startup.
+ - Clean up verbose search for Help files.
+ - Silence echo of reference parameters from VSPAERO API Analysis.
+ - Fix conformal components on custom components.
+ - Fix many issues with API example code - both Python and C++
+
+
+---
+
+
 # [OpenVSP 3.41.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.41.2)
 
 2024-12-03
