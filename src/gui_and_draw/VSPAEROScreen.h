@@ -190,7 +190,6 @@ protected:
     //==== Advanced Tab ====//
     GroupLayout m_AdvancedLayout;
     GroupLayout m_AdvancedLeftLayout;
-    GroupLayout m_AdvancedMiddleLayout;
     GroupLayout m_AdvancedRightLayout;
     GroupLayout m_AdvancedCaseSetupLayout;
     GroupLayout m_WakeLayout;

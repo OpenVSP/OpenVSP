@@ -41,6 +41,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     int button_width = 100;
 
+    int togglewidth = 15;
+    int inputwidth = 50;
+
     //==== Constant Console Area ====//
     m_ConstantAreaLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_ConstantAreaLayout.AddY( m_ConstantAreaLayout.GetRemainY()
@@ -215,7 +218,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_CaseSetupLayout.SetButtonWidth( button_width );
 
-    m_CaseSetupLayout.AddSlider( m_NRefCounter, "N Ref", 10, "%3.0f" );
+    m_CaseSetupLayout.AddSlider( m_NRefCounter, "Num Ref.", 10, "%3.0f" );
 
     m_CaseSetupLayout.AddButton( m_ContinueCoPlanarWakesButton, "Continue CoPlanar Wakes" );
 
@@ -276,6 +279,39 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
 
 
+    m_LeftColumnLayout.AddYGap();
+
+    // Wake Layout
+    m_LeftColumnLayout.AddSubGroupLayout( m_WakeLayout,
+        m_LeftColumnLayout.GetW(),
+        6 * m_LeftColumnLayout.GetStdHeight() +
+        m_LeftColumnLayout.GetDividerHeight() );
+    m_LeftColumnLayout.AddY( m_WakeLayout.GetH() );
+
+    m_WakeLayout.SetButtonWidth( button_width );
+
+    m_WakeLayout.AddDividerBox( "Wake" );
+    m_WakeLayout.AddButton( m_FixedWakeToggle, "Fixed Wake" );
+
+
+    m_WakeLayout.AddSlider( m_WakeNumIterSlider, "Num It.", 10, "%3.0f" );
+    m_WakeLayout.AddSlider( m_NumWakeNodeSlider, "Num Nodes", 128, "%3.0f" );
+
+
+    m_WakeLayout.AddSlider( m_WakeRelaxSlider, "Relaxation", 1, "%5.3f" );
+    m_WakeLayout.AddSlider( m_FreezeWakeAtIterationSlider, "Freeze It.", 10, "%3.0f" );
+
+    m_WakeLayout.SetSameLineFlag( true );
+    m_WakeLayout.SetFitWidthFlag( false );
+
+    m_WakeLayout.SetButtonWidth( togglewidth );
+    m_WakeLayout.AddButton( m_ImplicitWakeToggle, "" );
+
+    m_WakeLayout.SetButtonWidth( button_width - togglewidth );
+    m_WakeLayout.SetFitWidthFlag( true );
+    m_WakeLayout.AddSlider( m_ImplicitWakeStartIterationSlider, "Implicit it.", 10, "%3.0f" );
+
+    m_WakeLayout.ForceNewLine();
 
     // Reference Quantities
     m_RightColumnLayout.AddSubGroupLayout( m_RefLengthLayout,
@@ -444,13 +480,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedLayout.SetGroupAndScreen( advanced_group, this );
 
-    int col_width = ( advanced_group->w() - 2 * window_border_width ) / 3;
+    int col_width = ( advanced_group->w() - window_border_width ) / 2;
 
     m_AdvancedLayout.AddSubGroupLayout( m_AdvancedLeftLayout,
-        col_width, advanced_group->h() );
-
-    m_AdvancedLayout.AddX( col_width + window_border_width );
-    m_AdvancedLayout.AddSubGroupLayout( m_AdvancedMiddleLayout,
         col_width, advanced_group->h() );
 
     m_AdvancedLayout.AddX( col_width + window_border_width );
@@ -459,82 +491,66 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
 
 
-
-    // Wake Layout
-    m_AdvancedLeftLayout.AddSubGroupLayout( m_WakeLayout,
-        m_AdvancedLeftLayout.GetW(),
-        8 * m_AdvancedLeftLayout.GetStdHeight() );
-    m_AdvancedLeftLayout.AddY( m_WakeLayout.GetH() );
-
-    m_WakeLayout.AddDividerBox( "Wake" );
-    m_WakeLayout.AddButton( m_FixedWakeToggle, "Fixed Wake" );
-
-    m_WakeLayout.SetButtonWidth( 80 ); // Match with m_NCPUSlider
-    m_WakeLayout.SetInputWidth( 50 );
-
-    m_WakeLayout.AddSlider( m_WakeNumIterSlider, "Num It.", 10, "%3.0f" );
-    m_WakeLayout.AddSlider( m_NumWakeNodeSlider, "Wake Nodes", 128, "%3.0f" );
-
-
-    m_WakeLayout.AddSlider( m_WakeRelaxSlider, "Wake Relaxation", 1, "%5.3f" );
-    m_WakeLayout.AddSlider( m_FreezeWakeAtIterationSlider, "Freeze Wake At Iteration", 10, "%3.0f" );
-    m_WakeLayout.AddButton( m_ImplicitWakeToggle, "Implicit Wake" );
-    m_WakeLayout.AddSlider( m_ImplicitWakeStartIterationSlider, "Start Implicit Wake At Iteration", 10, "%3.0f" );
-
-
-
-
     // Other Setup Parms Layout
-    m_AdvancedMiddleLayout.AddSubGroupLayout( m_OtherParmsLayout,
-        m_AdvancedMiddleLayout.GetW(),
-        13 * m_AdvancedMiddleLayout.GetStdHeight() +
-         5 * m_AdvancedMiddleLayout.GetDividerHeight() +
-         4 * m_AdvancedMiddleLayout.GetGapHeight() );
-    m_AdvancedMiddleLayout.AddY( m_OtherParmsLayout.GetH() );
+    m_AdvancedLeftLayout.AddSubGroupLayout( m_OtherParmsLayout,
+        m_AdvancedLeftLayout.GetW(),
+        13 * m_AdvancedLeftLayout.GetStdHeight() +
+         5 * m_AdvancedLeftLayout.GetDividerHeight() +
+         4 * m_AdvancedLeftLayout.GetGapHeight() );
+    m_AdvancedLeftLayout.AddY( m_OtherParmsLayout.GetH() );
 
-    int togglewidth = 15;
-    int labelwidth = 120;
-    int inputwidth = 50;
+
+    m_OtherParmsLayout.SetChoiceButtonWidth( button_width );
+    m_OtherParmsLayout.SetButtonWidth( button_width );
+
     m_OtherParmsLayout.AddDividerBox( "Other" );
-    m_OtherParmsLayout.SetButtonWidth( 80 ); // Match with m_NCPUSlider
-    m_OtherParmsLayout.SetInputWidth( 50 );
+
     m_OtherParmsLayout.AddChoice( m_StallChoice, "Stall Model" );
     m_StallChoice.AddItem( "Off", vsp::STALL_OFF );
     m_StallChoice.AddItem( "On", vsp::STALL_ON );
     m_StallChoice.UpdateItems();
-    m_OtherParmsLayout.SetButtonWidth( labelwidth + togglewidth );
+
     m_OtherParmsLayout.AddSlider( m_Clo2DSlider, "Clo2D", 10, "%2.3f" );
-    m_OtherParmsLayout.SetSameLineFlag(true);
-    m_OtherParmsLayout.SetFitWidthFlag(false);
-    m_OtherParmsLayout.SetInputWidth(inputwidth);
-    m_OtherParmsLayout.SetSliderWidth( m_OtherParmsLayout.GetW() - inputwidth - togglewidth - labelwidth - 20 );
-    m_OtherParmsLayout.SetButtonWidth(togglewidth);
+
+    m_OtherParmsLayout.SetSameLineFlag( true );
+    m_OtherParmsLayout.SetFitWidthFlag( false );
+
+
+    m_OtherParmsLayout.SetButtonWidth( togglewidth );
     m_OtherParmsLayout.AddButton( m_FarDistToggle, "" );
-    m_OtherParmsLayout.SetButtonWidth( labelwidth );
+    m_OtherParmsLayout.SetButtonWidth( button_width - togglewidth );
+    m_OtherParmsLayout.SetFitWidthFlag( true );
+
     m_OtherParmsLayout.AddSlider( m_FarDistSlider, "Far Field Dist", 1e3, "%7.2f" );
     m_OtherParmsLayout.ForceNewLine();
+
+    m_OtherParmsLayout.SetFitWidthFlag(false);
     m_OtherParmsLayout.SetButtonWidth( togglewidth );
     m_OtherParmsLayout.AddButton( m_GroundEffectToggle, "" );
-    m_OtherParmsLayout.SetButtonWidth( labelwidth );
-    m_OtherParmsLayout.AddSlider( m_GroundEffectSlider, "Ground Effect Dist", 1e3, "%7.2f" );
+    m_OtherParmsLayout.SetButtonWidth( button_width - togglewidth );
+    m_OtherParmsLayout.SetFitWidthFlag( true );
+
+    m_OtherParmsLayout.AddSlider( m_GroundEffectSlider, "Z Above Gnd.", 1e3, "%7.2f" );
     m_OtherParmsLayout.ForceNewLine();
     m_OtherParmsLayout.AddYGap();
 
     m_OtherParmsLayout.SetSameLineFlag( false );
     m_OtherParmsLayout.SetFitWidthFlag( true );
+    m_OtherParmsLayout.SetButtonWidth( button_width );
+
 
     m_OtherParmsLayout.AddDividerBox( "Convergence Factors" );
 
-    m_OtherParmsLayout.AddSlider( m_ForwardGMRESConvergenceFactorSlider, "Forward GMRES", 1, "%5.3f" );
-    m_OtherParmsLayout.AddSlider( m_AdjointGMRESConvergenceFactorSlider, "Adjoint GMRES", 1, "%5.3f" );
+    m_OtherParmsLayout.AddSlider( m_ForwardGMRESConvergenceFactorSlider, "Forward Mat", 1, "%5.3f" );
+    m_OtherParmsLayout.AddSlider( m_AdjointGMRESConvergenceFactorSlider, "Adjoint Mat", 1, "%5.3f" );
     m_OtherParmsLayout.AddSlider( m_NonLinearConvergenceFactorSlider, "Non-linear", 1, "%5.3f" );
-    m_OtherParmsLayout.AddSlider( m_CoreSizeFactorSlider, "Core Size Factor", 1, "%5.3f" );
+    m_OtherParmsLayout.AddSlider( m_CoreSizeFactorSlider, "Core Size", 1, "%5.3f" );
     m_OtherParmsLayout.AddYGap();
 
 
     m_OtherParmsLayout.AddDividerBox( "Multipole Control" );
 
-    m_OtherParmsLayout.AddSlider( m_FreezeMultiPoleAtIterationSlider, "Freeze Iteration", 10, "%3.0f" );
+    m_OtherParmsLayout.AddSlider( m_FreezeMultiPoleAtIterationSlider, "Freeze It.", 10, "%3.0f" );
     m_OtherParmsLayout.AddSlider( m_FarAwaySlider, "Far Away", 1, "%5.3f" );
     m_OtherParmsLayout.AddYGap();
 
@@ -545,10 +561,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_OtherParmsLayout.AddYGap();
 
     m_OtherParmsLayout.AddDividerBox( "Quad Tree" );
-    m_OtherParmsLayout.AddSlider( m_QuadTreeBufferLevelsSlider, "Quad Tree Buffer Levels", 10, "%3.0f" );
+    m_OtherParmsLayout.AddSlider( m_QuadTreeBufferLevelsSlider, "Num Levels", 10, "%3.0f" );
 
-
-    m_AdvancedMiddleLayout.AddDividerBox( "End" );
 
     // Propeller and Stability Setup
     m_AdvancedRightLayout.AddSubGroupLayout( m_PropAndStabLayout,
