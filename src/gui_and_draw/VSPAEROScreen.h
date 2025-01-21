@@ -132,7 +132,7 @@ protected:
     vector < string > m_ModeIDs;
 
     // Additional options
-    Counter m_NRefCounter;
+    SliderAdjRangeInput m_NRefCounter;
     SliderAdjRangeInput m_CullFracSlider;
     ToggleButton m_CullFracButton;
     ToggleButton m_ContinueCoPlanarWakesButton;

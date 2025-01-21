@@ -39,6 +39,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     int window_border_width = 5;
     int group_border_width = 2;
 
+    int button_width = 100;
+
     //==== Constant Console Area ====//
     m_ConstantAreaLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_ConstantAreaLayout.AddY( m_ConstantAreaLayout.GetRemainY()
@@ -102,13 +104,39 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Case Setup Layout
     m_LeftColumnLayout.AddSubGroupLayout( m_CaseSetupLayout,
         m_LeftColumnLayout.GetW(),
-        6 * m_CaseSetupLayout.GetStdHeight() +
-        3 * m_CaseSetupLayout.GetGapHeight() +
-        m_CaseSetupLayout.GetDividerHeight()
+        10 * m_CaseSetupLayout.GetStdHeight() +
+        2 * m_CaseSetupLayout.GetDividerHeight() +
+        2 * m_CaseSetupLayout.GetGapHeight()
     );
     m_LeftColumnLayout.AddY( m_CaseSetupLayout.GetH() );
 
     m_CaseSetupLayout.AddDividerBox( "Case Setup" );
+
+    // Compgeom output file selection
+
+    m_CaseSetupLayout.SetFitWidthFlag( false );
+    m_CaseSetupLayout.SetSameLineFlag( true );
+
+    //  CompGeom output file selection, used for Panel method only
+    m_CaseSetupLayout.SetButtonWidth( button_width );
+
+    int origIW = m_CaseSetupLayout.GetInputWidth();
+    int fileButtonWidth = 25;
+    int inputWidth = m_CaseSetupLayout.GetW() - button_width - fileButtonWidth;
+
+    m_CaseSetupLayout.SetInputWidth( inputWidth );
+    m_CaseSetupLayout.AddOutput( m_CompGeomFileName, "File" );
+
+    m_CaseSetupLayout.SetButtonWidth( fileButtonWidth );
+    m_CaseSetupLayout.AddButton( m_CompGeomFileButton, "..." );
+    m_CaseSetupLayout.ForceNewLine();
+
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+    m_CaseSetupLayout.SetSameLineFlag( false );
+
+    m_CaseSetupLayout.SetInputWidth( origIW );
+    m_CaseSetupLayout.SetButtonWidth( button_width );
+    m_CaseSetupLayout.SetChoiceButtonWidth( button_width );
 
     // Analysis method radio button group setup
     m_CaseSetupLayout.SetButtonWidth( m_CaseSetupLayout.GetW() / 2 );
@@ -146,24 +174,48 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.SetSameLineFlag( false );
     m_CaseSetupLayout.SetFitWidthFlag( true );
 
+    m_CaseSetupLayout.AddButton( m_PreviewVSPAEROButton, "Preview VSPAERO Geometry" );
+
     m_CaseSetupLayout.AddYGap();
 
-    m_CaseSetupLayout.SetButtonWidth( m_CaseSetupLayout.GetChoiceButtonWidth() );
 
-    m_CaseSetupLayout.AddCounter( m_NRefCounter, "N Ref" );
+    m_CaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
+
+    m_CaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
 
     m_CaseSetupLayout.SetSameLineFlag( true );
     m_CaseSetupLayout.SetFitWidthFlag( false );
+
+    m_CaseSetupLayout.SetButtonWidth( m_CaseSetupLayout.GetW() / 2 );
+
+    m_CaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM" );
+    m_CaseSetupLayout.AddButton(m_WriteTecplotToggle, "Write Tecplot File" );
+    m_CaseSetupLayout.ForceNewLine();
+
+    m_CaseSetupLayout.SetButtonWidth( button_width );
+
+    m_CaseSetupLayout.SetSameLineFlag( false );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+
+    m_CaseSetupLayout.AddYGap();
+
+    m_CaseSetupLayout.AddDividerBox( "Experimental" );
+
+    m_CaseSetupLayout.SetSameLineFlag( true );
+    m_CaseSetupLayout.SetFitWidthFlag( false );
+
     m_CaseSetupLayout.AddButton( m_CullFracButton, "Cull Orphans" );
     m_CaseSetupLayout.SetButtonWidth( 0 );
     m_CaseSetupLayout.SetFitWidthFlag( true );
     m_CaseSetupLayout.AddSlider( m_CullFracSlider, "", 1.0, "%5.3f" );
     m_CaseSetupLayout.ForceNewLine();
 
-    m_CaseSetupLayout.InitWidthHeightVals();
-
     m_CaseSetupLayout.SetSameLineFlag( false );
     m_CaseSetupLayout.SetFitWidthFlag( true );
+
+    m_CaseSetupLayout.SetButtonWidth( button_width );
+
+    m_CaseSetupLayout.AddSlider( m_NRefCounter, "N Ref", 10, "%3.0f" );
 
     m_CaseSetupLayout.AddButton( m_ContinueCoPlanarWakesButton, "Continue CoPlanar Wakes" );
 
@@ -228,7 +280,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Reference Quantities
     m_RightColumnLayout.AddSubGroupLayout( m_RefLengthLayout,
         m_RightColumnLayout.GetW(),
-        6 * m_RightColumnLayout.GetStdHeight() );
+        5 * m_RightColumnLayout.GetStdHeight() +
+        m_RightColumnLayout.GetDividerHeight() );
     m_RightColumnLayout.AddY( m_RefLengthLayout.GetH() );
 
     m_RefLengthLayout.AddDividerBox( "Reference Area, Lengths" );
@@ -251,6 +304,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_RefLengthLayout.ForceNewLine();
 
     m_RefLengthLayout.InitWidthHeightVals();
+
+    m_RefLengthLayout.SetButtonWidth( button_width );
+    m_RefLengthLayout.SetChoiceButtonWidth( button_width );
 
     m_RefLengthLayout.SetSameLineFlag( false );
     m_RefLengthLayout.SetFitWidthFlag( true );
@@ -290,8 +346,11 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_MomentRefLayout.SetChoiceButtonWidth( 0 );
 
     m_MomentRefLayout.SetSameLineFlag( true );
-    m_MomentRefLayout.SetFitWidthFlag( false );
 
+    m_MomentRefLayout.SetButtonWidth( button_width );
+    m_MomentRefLayout.SetChoiceButtonWidth( button_width );
+
+    m_MomentRefLayout.SetSameLineFlag( true );
     m_MomentRefLayout.AddButton( m_CGSetToggle, "Mass Set:" );
     m_MomentRefLayout.SetFitWidthFlag( true );
     m_MomentRefLayout.AddChoice( m_CGSetChoice, "", bw );
@@ -320,13 +379,23 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_MomentRefLayout.AddButton( m_MassPropButton, "Calc CG" );
 
     m_MomentRefLayout.InitWidthHeightVals();
+    m_MomentRefLayout.SetButtonWidth( button_width );
+    m_MomentRefLayout.SetChoiceButtonWidth( button_width );
 
     m_MassSliceDirChoice.AddItem( "X", vsp::X_DIR );
     m_MassSliceDirChoice.AddItem( "Y", vsp::Y_DIR );
     m_MassSliceDirChoice.AddItem( "Z", vsp::Z_DIR );
-    m_MomentRefLayout.AddChoice( m_MassSliceDirChoice, "Slice Direction:" );
 
+    m_MomentRefLayout.SetSameLineFlag( true );
+    m_MomentRefLayout.SetFitWidthFlag( true );
+
+    m_MomentRefLayout.AddChoice( m_MassSliceDirChoice, "Slice Direction:", m_MomentRefLayout.GetW() * 0.5 );
     m_MomentRefLayout.AddSlider( m_NumSliceSlider, "Num Slices", 100, "%4.0f" );
+
+    m_MomentRefLayout.ForceNewLine();
+
+    m_MomentRefLayout.SetSameLineFlag( false );
+    m_MomentRefLayout.SetFitWidthFlag( true );
 
     m_MomentRefLayout.AddSlider( m_XcgSlider, "Xref", 100.0, "%7.3f" );
     m_MomentRefLayout.AddSlider( m_YcgSlider, "Yref", 100.0, "%7.3f" );
@@ -337,15 +406,15 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Flow Condition
     m_RightColumnLayout.AddSubGroupLayout( m_FlowCondLayout,
         m_RightColumnLayout.GetW(),
-        m_RightColumnLayout.GetDividerHeight() +
-        4 * m_RightColumnLayout.GetStdHeight() );
+        4 * m_RightColumnLayout.GetStdHeight() +
+        m_RightColumnLayout.GetDividerHeight() );
     m_RightColumnLayout.AddY( m_FlowCondLayout.GetH() );
 
     m_FlowCondLayout.AddDividerBox( "Flow Condition" );
     m_FlowCondLayout.SetSameLineFlag( false );
     m_FlowCondLayout.SetFitWidthFlag( true );
 
-    m_FlowCondLayout.SetButtonWidth( m_FlowCondLayout.GetButtonWidth() + 10 );
+    m_FlowCondLayout.SetButtonWidth( button_width );
 
     m_FlowCondLayout.AddInputEvenSpacedVector( m_AlphaStartInput, m_AlphaEndInput, m_AlphaNptsInput, "Alpha", "%7.3f" );
     m_FlowCondLayout.AddInputEvenSpacedVector( m_BetaStartInput, m_BetaEndInput, m_BetaNptsInput, "Beta", "%7.3f" );
@@ -482,7 +551,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_AdvancedMiddleLayout.AddDividerBox( "End" );
 
     // Propeller and Stability Setup
-    int button_width = 130;
     m_AdvancedRightLayout.AddSubGroupLayout( m_PropAndStabLayout,
         m_AdvancedRightLayout.GetW(),
         4 * m_AdvancedRightLayout.GetStdHeight() );
