@@ -11,7 +11,7 @@
 #include "MeshGeom.h"
 #include "ModeMgr.h"
 
-DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 405, "Degen Geom - Compute Models, File IO" )
+DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 405 + 60, "Degen Geom - Compute Models, File IO" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -84,7 +84,20 @@ DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 405,
 
     m_BorderLayout.SetButtonWidth(m_BorderLayout.GetW() * 0.5 );
     m_BorderLayout.AddButton(m_Execute, "Execute");
-    m_BorderLayout.AddButton(m_MakeDegenMeshGeom, "Make MeshGeom");
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetFitWidthFlag( false );
+
+    m_BorderLayout.SetChoiceButtonWidth( m_BorderLayout.GetW() * 0.25 );
+
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddChoice( m_MeshTypeChoice, "Type", m_BorderLayout.GetW() * 0.5 );
+
+    m_BorderLayout.AddButton( m_MakeDegenMeshGeom, "Make Mesh", m_BorderLayout.GetW() * 0.5 );
+
+    m_MeshTypeChoice.AddItem( "Triangle", vsp::TRI_MESH_TYPE );
+    m_MeshTypeChoice.AddItem( "N-Gon", vsp::NGON_MESH_TYPE );
+    m_MeshTypeChoice.UpdateItems();
 
     m_SelectedSetIndex = DEFAULT_SET;
 }
@@ -163,6 +176,8 @@ bool DegenGeomScreen::Update()
     string mName = vehiclePtr->getExportFileName( vsp::DEGEN_GEOM_M_TYPE );
     m_CsvOutput.Update( StringUtil::truncateFileName( csvName, 40 ).c_str() );
     m_MOutput.Update( StringUtil::truncateFileName( mName, 40 ).c_str() );
+
+    m_MeshTypeChoice.Update( vehiclePtr->m_DegenGeomMeshType.GetID() );
 
     m_FLTK_Window->redraw();
     return false;

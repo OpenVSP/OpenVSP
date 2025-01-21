@@ -63,6 +63,7 @@ protected:
 
     TriggerButton m_Execute;
 
+    Choice m_MeshTypeChoice;
     TriggerButton m_MakeDegenMeshGeom;
 };
 #endif //DEGENGEOMSCREEN_H
