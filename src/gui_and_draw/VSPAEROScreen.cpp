@@ -39,7 +39,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     int window_border_width = 5;
     int group_border_width = 2;
 
-    int button_width = 100;
 
     int togglewidth = 15;
     int inputwidth = 50;
@@ -51,6 +50,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
         - 2 * m_ConstantAreaLayout.GetGapHeight() );
     m_ConstantAreaLayout.AddX( window_border_width );
     m_ConstantAreaLayout.AddYGap();
+
+    int bw = m_ConstantAreaLayout.GetChoiceButtonWidth();
+    int button_width = bw;
 
     // Console
     m_ConstantAreaLayout.AddSubGroupLayout( m_ConsoleLayout, m_ConstantAreaLayout.GetRemainX() - window_border_width,
@@ -125,41 +127,31 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     int origIW = m_CaseSetupLayout.GetInputWidth();
     int fileButtonWidth = 25;
-    int inputWidth = m_CaseSetupLayout.GetW() - button_width - fileButtonWidth;
+    int inputWidth = m_CaseSetupLayout.GetInputWidth();
 
-    m_CaseSetupLayout.SetInputWidth( inputWidth );
+    m_CaseSetupLayout.SetInputWidth( m_CaseSetupLayout.GetW() - button_width - fileButtonWidth );
     m_CaseSetupLayout.AddOutput( m_CompGeomFileName, "File" );
 
     m_CaseSetupLayout.SetButtonWidth( fileButtonWidth );
     m_CaseSetupLayout.AddButton( m_CompGeomFileButton, "..." );
     m_CaseSetupLayout.ForceNewLine();
 
+    m_CaseSetupLayout.SetInputWidth( inputWidth );
+
     m_CaseSetupLayout.SetFitWidthFlag( true );
     m_CaseSetupLayout.SetSameLineFlag( false );
 
-    m_CaseSetupLayout.SetInputWidth( origIW );
-    m_CaseSetupLayout.SetButtonWidth( button_width );
-    m_CaseSetupLayout.SetChoiceButtonWidth( button_width );
-
-    // Analysis method radio button group setup
-    m_CaseSetupLayout.SetButtonWidth( m_CaseSetupLayout.GetW() / 2 );
-
-    m_CaseSetupLayout.ForceNewLine();
-
-    m_CaseSetupLayout.InitWidthHeightVals();
-
-    int bw = m_CaseSetupLayout.GetChoiceButtonWidth();
     m_CaseSetupLayout.SetButtonWidth( bw );
     m_CaseSetupLayout.SetChoiceButtonWidth( bw );
 
     m_CaseSetupLayout.SetSameLineFlag( true );
     m_CaseSetupLayout.SetChoiceButtonWidth( 0 );
     m_CaseSetupLayout.SetFitWidthFlag( false );
-    m_CaseSetupLayout.AddButton( m_SetToggle, "Normal Set:" );
+    m_CaseSetupLayout.AddButton( m_SetToggle, "Thick Set:" );
     m_CaseSetupLayout.SetFitWidthFlag( true );
-    m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "", bw );
-    m_CaseSetupLayout.ForceNewLine();
-    m_CaseSetupLayout.AddChoice( m_GeomThinSetChoice, "Thin Set:" );
+    m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "", bw + m_CaseSetupLayout.GetW() * 0.5 );
+    m_CaseSetupLayout.SetChoiceButtonWidth( bw );
+    m_CaseSetupLayout.AddChoice( m_GeomThinSetChoice, "Thin Set:", m_CaseSetupLayout.GetW() * 0.5 );
     m_CaseSetupLayout.ForceNewLine();
 
     m_CaseSetupLayout.SetSameLineFlag( true );
@@ -184,6 +176,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_CaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
 
+    m_CaseSetupLayout.SetChoiceButtonWidth( bw );
     m_CaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
 
     m_CaseSetupLayout.SetSameLineFlag( true );
@@ -221,61 +214,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.AddSlider( m_NRefCounter, "Num Ref.", 10, "%3.0f" );
 
     m_CaseSetupLayout.AddButton( m_ContinueCoPlanarWakesButton, "Continue CoPlanar Wakes" );
-
-    m_CaseSetupLayout.AddButton( m_PreviewVSPAEROButton, "Preview VSPAERO Geometry" );
-
-    m_LeftColumnLayout.AddYGap();
-
-    // Advanced Case Setup Layout
-    m_LeftColumnLayout.AddSubGroupLayout( m_AdvancedCaseSetupLayout,
-        m_LeftColumnLayout.GetW(),
-        6 * m_LeftColumnLayout.GetStdHeight() +
-        m_LeftColumnLayout.GetGapHeight() +
-        m_LeftColumnLayout.GetDividerHeight() );
-
-    m_LeftColumnLayout.AddY( m_RefLengthLayout.GetH() );
-
-    m_LeftColumnLayout.AddY( m_AdvancedCaseSetupLayout.GetH() );
-
-
-    m_AdvancedCaseSetupLayout.AddDividerBox( "Advanced Case Setup" );
-    //  Degengeom output file selection, used for VLM & Panel methods
-    int labelButtonWidth = 60;
-    int fileButtonWidth = 25;
-    int inputWidth = m_AdvancedCaseSetupLayout.GetW() - labelButtonWidth - fileButtonWidth;
-    m_AdvancedCaseSetupLayout.SetFitWidthFlag( false );
-    m_AdvancedCaseSetupLayout.SetSameLineFlag( true );
-
-    //  CompGeom output file selection, used for Panel method only
-    m_AdvancedCaseSetupLayout.SetButtonWidth( labelButtonWidth );
-    m_AdvancedCaseSetupLayout.SetInputWidth( inputWidth );
-
-    m_AdvancedCaseSetupLayout.AddOutput( m_CompGeomFileName, "File" );
-
-    m_AdvancedCaseSetupLayout.SetButtonWidth( fileButtonWidth );
-
-    m_AdvancedCaseSetupLayout.AddButton( m_CompGeomFileButton, "..." );
-    m_AdvancedCaseSetupLayout.ForceNewLine();
-
-    m_AdvancedCaseSetupLayout.SetFitWidthFlag( true );
-    m_AdvancedCaseSetupLayout.SetSameLineFlag( false );
-
-    m_AdvancedCaseSetupLayout.AddYGap();
-
-    m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
-    m_AdvancedCaseSetupLayout.SetInputWidth( 50 );
-
-    m_AdvancedCaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
-
-    m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
-
-    m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
-
-    m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
-    m_AdvancedCaseSetupLayout.AddButton(m_WriteTecplotToggle, "Write Tecplot File");
-
-    m_LeftColumnLayout.AddYGap();
-    m_LeftColumnLayout.AddYGap();
 
 
 
@@ -335,7 +273,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Reference Quantities
     m_RightColumnLayout.AddSubGroupLayout( m_RefLengthLayout,
         m_RightColumnLayout.GetW(),
-        5 * m_RightColumnLayout.GetStdHeight() +
+        6 * m_RightColumnLayout.GetStdHeight() +
         m_RightColumnLayout.GetDividerHeight() );
     m_RightColumnLayout.AddY( m_RefLengthLayout.GetH() );
 
@@ -406,14 +344,14 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_MomentRefLayout.SetChoiceButtonWidth( button_width );
 
     m_MomentRefLayout.SetSameLineFlag( true );
-    m_MomentRefLayout.AddButton( m_CGSetToggle, "Mass Set:" );
+    m_MomentRefLayout.SetFitWidthFlag( false );
+    m_MomentRefLayout.AddButton( m_CGSetToggle, "Thick Set:" );
     m_MomentRefLayout.SetFitWidthFlag( true );
-    m_MomentRefLayout.AddChoice( m_CGSetChoice, "", bw );
-
-    m_MomentRefLayout.ForceNewLine();
+    m_MomentRefLayout.SetChoiceButtonWidth( 0 );
+    m_MomentRefLayout.AddChoice( m_CGSetChoice, "", bw + m_MomentRefLayout.GetW() * 0.5 );
 
     m_MomentRefLayout.SetChoiceButtonWidth( bw );
-    m_MomentRefLayout.AddChoice( m_CGDegenSetChoice, "Degen Set:" );
+    m_MomentRefLayout.AddChoice( m_CGDegenSetChoice, "Thin Set:", m_MomentRefLayout.GetW() * 0.5 );
     m_MomentRefLayout.SetChoiceButtonWidth( 0 );
 
     m_MomentRefLayout.ForceNewLine();
@@ -1009,7 +947,7 @@ bool VSPAEROScreen::Update()
 
         UpdateRefWing();
 
-        m_ScreenMgr->LoadSetChoice( {&m_GeomSetChoice, &m_CGSetChoice, &m_CGDegenSetChoice}, {VSPAEROMgr.m_GeomSet.GetID(), VSPAEROMgr.m_CGGeomSet.GetID(), VSPAEROMgr.m_CGDegenSet.GetID()}, true );
+        m_ScreenMgr->LoadSetChoice( {&m_GeomSetChoice, &m_GeomThinSetChoice, &m_CGSetChoice, &m_CGDegenSetChoice}, {VSPAEROMgr.m_GeomSet.GetID(), VSPAEROMgr.m_ThinGeomSet.GetID(), VSPAEROMgr.m_CGGeomSet.GetID(), VSPAEROMgr.m_CGDegenSet.GetID()}, true );
         m_ScreenMgr->LoadModeChoice( {&m_ModeChoice, &m_CGModeChoice}, m_ModeIDs, {VSPAEROMgr.m_ModeID, VSPAEROMgr.m_CGModeID} );
 
         m_ModeSetToggleGroup.Update( VSPAEROMgr.m_UseMode.GetID() );
@@ -1735,29 +1673,6 @@ void VSPAEROScreen::UpdateRefWing()
         VSPAEROMgr.Update();
     }
     m_RefWingChoice.SetVal(WingCompIDMap[refGeomID]);
-}
-
-void VSPAEROScreen::UpdateSetChoiceLists()
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    m_GeomSetChoice.ClearItems();
-    m_GeomThinSetChoice.ClearItems();
-    m_CGSetChoice.ClearItems();
-
-    vector <string> setVec = veh->GetSetNameVec( true );
-    for (int iSet = 0; iSet < setVec.size(); iSet++)
-    {
-        m_GeomSetChoice.AddItem( setVec[iSet], iSet - 1 );
-        m_GeomThinSetChoice.AddItem( setVec[iSet], iSet - 1 );
-        m_CGSetChoice.AddItem( setVec[iSet], iSet - 1 );
-    }
-    m_GeomSetChoice.UpdateItems();
-    m_GeomThinSetChoice.UpdateItems();
-    m_CGSetChoice.UpdateItems();
-
-    m_GeomSetChoice.SetVal( VSPAEROMgr.m_GeomSet() );
-    m_GeomThinSetChoice.SetVal( VSPAEROMgr.m_ThinGeomSet() );
-    m_CGSetChoice.SetVal( VSPAEROMgr.m_CGGeomSet() );
 }
 
 void VSPAEROScreen::UpdateReferenceQuantitiesDevices()

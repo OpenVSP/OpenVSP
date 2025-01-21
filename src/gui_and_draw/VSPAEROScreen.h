@@ -75,7 +75,6 @@ public:
 
     void UpdateCaseSetup();
     void UpdateRefWing();
-    void UpdateSetChoiceLists();
     void UpdateReferenceQuantitiesDevices();
     void UpdateCGDevices();
     void UpdateAdvancedTabDevices();
@@ -191,7 +190,6 @@ protected:
     GroupLayout m_AdvancedLayout;
     GroupLayout m_AdvancedLeftLayout;
     GroupLayout m_AdvancedRightLayout;
-    GroupLayout m_AdvancedCaseSetupLayout;
     GroupLayout m_WakeLayout;
     GroupLayout m_OtherParmsLayout;
     GroupLayout m_PropAndStabLayout;
