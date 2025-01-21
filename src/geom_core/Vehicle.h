@@ -556,6 +556,8 @@ public:
     BoolParm m_exportDegenGeomCsvFile;
     BoolParm m_exportDegenGeomMFile;
 
+    IntParm m_DegenGeomMeshType;
+
     Parm m_AxisLength;
     Parm m_TextSize;
     IntParm m_MeasureLenUnit;

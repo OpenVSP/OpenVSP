@@ -1793,6 +1793,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_PARM", ID_LENGTH_PARM );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "MESH_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_TYPE", "TRI_MESH_TYPE", TRI_MESH_TYPE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_TYPE", "QUAD_MESH_TYPE", QUAD_MESH_TYPE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_TYPE", "NGON_MESH_TYPE", NGON_MESH_TYPE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_TYPE", "NUM_MESH_TYPE", NUM_MESH_TYPE );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "PARM_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PARM_TYPE", "PARM_DOUBLE_TYPE", PARM_DOUBLE_TYPE );

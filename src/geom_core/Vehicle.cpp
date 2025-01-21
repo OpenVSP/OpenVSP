@@ -280,6 +280,8 @@ Vehicle::Vehicle()
     m_exportDegenGeomCsvFile.Init( "DegenGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomMFile.Init( "DegenGeom_M_Export", "ExportFlag", this, true, 0, 1 );
 
+    m_DegenGeomMeshType.Init( "DegenGeomMeshType", "DegenGeom", this, vsp::TRI_MESH_TYPE, vsp::TRI_MESH_TYPE, vsp::NUM_MESH_TYPE - 1 );
+
     m_CopySetsWithGeomsFlag.Init("CopySetsWithGeomsFlag", "SetEditor", this, true, false, true);
     m_CopySetsWithGeomsFlag.SetDescript("Flag if Geoms sets get copied with Geoms");
 

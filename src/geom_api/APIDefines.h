@@ -1098,6 +1098,16 @@ enum OBJ_ID_LENGTH { ID_LENGTH_PRESET_GROUP = 5,	/*!< ID for Var Preset Groups a
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for different mesh types. */
+enum MESH_TYPE { TRI_MESH_TYPE,	/*!< Triangle mesh */
+                 QUAD_MESH_TYPE,	/*!< Quadrilateral mesh */
+                 NGON_MESH_TYPE,	/*!< N-gon mesh */
+                 NUM_MESH_TYPE	/*!< Number of mesh types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for OpenVSP's various Parm class types. */
 enum PARM_TYPE { PARM_DOUBLE_TYPE,	/*!< Double Parm type (Parm) */
                  PARM_INT_TYPE,	/*!< Integer Parm type (IntParm) */
