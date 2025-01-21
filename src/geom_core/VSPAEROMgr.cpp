@@ -1237,9 +1237,17 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     int mesh_set = set;
 
+    bool compgeom_txt = veh->getExportCompGeomTxtFile();
+    veh->setExportCompGeomTxtFile( false );
+    bool compgeom_csv = veh->getExportCompGeomCsvFile();
+    veh->setExportCompGeomCsvFile( false );
+
     // Generate *.vspgeom geometry file for analysis
     // Compute intersected and trimmed geometry
     string mesh_geom_id = veh->CompGeomAndFlatten( set, halfFlag, 1 /*subsFlag*/, degenset, false, true );
+
+    veh->setExportCompGeomTxtFile( compgeom_txt );
+    veh->setExportCompGeomCsvFile( compgeom_csv );
 
     MeshGeom* mesh_geom = ( MeshGeom * ) veh->FindGeom( mesh_geom_id );
 
