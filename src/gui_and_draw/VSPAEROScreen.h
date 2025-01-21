@@ -73,6 +73,7 @@ public:
     // Solver thread kill flags (these must be public because they are accessed by the thread)
     bool m_SolverThreadIsRunning;
 
+    void UpdateCaseSetup();
     void UpdateRefWing();
     void UpdateSetChoiceLists();
     void UpdateReferenceQuantitiesDevices();
@@ -131,6 +132,9 @@ protected:
     vector < string > m_ModeIDs;
 
     // Additional options
+    SliderAdjRangeInput m_CullFracSlider;
+    ToggleButton m_CullFracButton;
+    ToggleButton m_ContinueCoPlanarWakesButton;
     TriggerButton m_PreviewVSPAEROButton;
 
     // Ref Length Layout

@@ -97,9 +97,10 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Case Setup Layout
     m_LeftColumnLayout.AddSubGroupLayout( m_CaseSetupLayout,
         m_LeftColumnLayout.GetW(),
-        m_LeftColumnLayout.GetDividerHeight() +
-        m_LeftColumnLayout.GetGapHeight() +
-        4 * m_LeftColumnLayout.GetStdHeight() );
+        5 * m_CaseSetupLayout.GetStdHeight() +
+        3 * m_CaseSetupLayout.GetGapHeight() +
+        m_CaseSetupLayout.GetDividerHeight()
+    );
     m_LeftColumnLayout.AddY( m_CaseSetupLayout.GetH() );
 
     m_CaseSetupLayout.AddDividerBox( "Case Setup" );
@@ -141,6 +142,22 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.SetFitWidthFlag( true );
 
     m_CaseSetupLayout.AddYGap();
+
+    m_CaseSetupLayout.SetButtonWidth( m_CaseSetupLayout.GetChoiceButtonWidth() );
+    m_CaseSetupLayout.SetSameLineFlag( true );
+    m_CaseSetupLayout.SetFitWidthFlag( false );
+    m_CaseSetupLayout.AddButton( m_CullFracButton, "Cull Orphans" );
+    m_CaseSetupLayout.SetButtonWidth( 0 );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+    m_CaseSetupLayout.AddSlider( m_CullFracSlider, "", 1.0, "%5.3f" );
+    m_CaseSetupLayout.ForceNewLine();
+
+    m_CaseSetupLayout.InitWidthHeightVals();
+
+    m_CaseSetupLayout.SetSameLineFlag( false );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+
+    m_CaseSetupLayout.AddButton( m_ContinueCoPlanarWakesButton, "Continue CoPlanar Wakes" );
 
     m_CaseSetupLayout.AddButton( m_PreviewVSPAEROButton, "Preview VSPAERO Geometry" );
 
@@ -842,6 +859,8 @@ bool VSPAEROScreen::Update()
 
     if (veh)
     {
+        UpdateCaseSetup();
+
         UpdateRefWing();
 
         m_ScreenMgr->LoadSetChoice( {&m_GeomSetChoice, &m_CGSetChoice, &m_CGDegenSetChoice}, {VSPAEROMgr.m_GeomSet.GetID(), VSPAEROMgr.m_CGGeomSet.GetID(), VSPAEROMgr.m_CGDegenSet.GetID()}, true );
@@ -1418,6 +1437,13 @@ Fl_Text_Display* VSPAEROScreen::GetDisplay( int id )
     {
         return nullptr;
     }
+}
+
+void VSPAEROScreen::UpdateCaseSetup()
+{
+    m_CullFracSlider.Update( VSPAEROMgr.m_CullFrac.GetID() );
+    m_CullFracButton.Update( VSPAEROMgr.m_CullFracFlag.GetID() );
+    m_ContinueCoPlanarWakesButton.Update( VSPAEROMgr.m_ContinueCoPlanarWakesFlag.GetID() );
 }
 
 void VSPAEROScreen::UpdateRefWing()
