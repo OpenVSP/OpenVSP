@@ -22,7 +22,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 #define VSPAERO_SCREEN_WIDTH 1000
-#define VSPAERO_SCREEN_HEIGHT 720
+#define VSPAERO_SCREEN_HEIGHT 800
 #define VSPAERO_EXECUTE_CONSTANT_HEIGHT 210
 
 VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_WIDTH,
@@ -171,12 +171,65 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_LeftColumnLayout.AddYGap();
 
-    // Reference Quantities
-    m_LeftColumnLayout.AddSubGroupLayout( m_RefLengthLayout,
+    // Advanced Case Setup Layout
+    m_LeftColumnLayout.AddSubGroupLayout( m_AdvancedCaseSetupLayout,
         m_LeftColumnLayout.GetW(),
-        m_LeftColumnLayout.GetDividerHeight() +
-        6 * m_LeftColumnLayout.GetStdHeight() );
+        6 * m_LeftColumnLayout.GetStdHeight() +
+        m_LeftColumnLayout.GetGapHeight() +
+        m_LeftColumnLayout.GetDividerHeight() );
+
     m_LeftColumnLayout.AddY( m_RefLengthLayout.GetH() );
+
+    m_LeftColumnLayout.AddY( m_AdvancedCaseSetupLayout.GetH() );
+
+
+    m_AdvancedCaseSetupLayout.AddDividerBox( "Advanced Case Setup" );
+    //  Degengeom output file selection, used for VLM & Panel methods
+    int labelButtonWidth = 60;
+    int fileButtonWidth = 25;
+    int inputWidth = m_AdvancedCaseSetupLayout.GetW() - labelButtonWidth - fileButtonWidth;
+    m_AdvancedCaseSetupLayout.SetFitWidthFlag( false );
+    m_AdvancedCaseSetupLayout.SetSameLineFlag( true );
+
+    //  CompGeom output file selection, used for Panel method only
+    m_AdvancedCaseSetupLayout.SetButtonWidth( labelButtonWidth );
+    m_AdvancedCaseSetupLayout.SetInputWidth( inputWidth );
+
+    m_AdvancedCaseSetupLayout.AddOutput( m_CompGeomFileName, "File" );
+
+    m_AdvancedCaseSetupLayout.SetButtonWidth( fileButtonWidth );
+
+    m_AdvancedCaseSetupLayout.AddButton( m_CompGeomFileButton, "..." );
+    m_AdvancedCaseSetupLayout.ForceNewLine();
+
+    m_AdvancedCaseSetupLayout.SetFitWidthFlag( true );
+    m_AdvancedCaseSetupLayout.SetSameLineFlag( false );
+
+    m_AdvancedCaseSetupLayout.AddYGap();
+
+    m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
+    m_AdvancedCaseSetupLayout.SetInputWidth( 50 );
+
+    m_AdvancedCaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
+
+    m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
+
+    m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
+
+    m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
+    m_AdvancedCaseSetupLayout.AddButton(m_WriteTecplotToggle, "Write Tecplot File");
+
+    m_LeftColumnLayout.AddYGap();
+    m_LeftColumnLayout.AddYGap();
+
+
+
+
+    // Reference Quantities
+    m_RightColumnLayout.AddSubGroupLayout( m_RefLengthLayout,
+        m_RightColumnLayout.GetW(),
+        6 * m_RightColumnLayout.GetStdHeight() );
+    m_RightColumnLayout.AddY( m_RefLengthLayout.GetH() );
 
     m_RefLengthLayout.AddDividerBox( "Reference Area, Lengths" );
 
@@ -221,13 +274,14 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_SrefToggle.AddButton( m_RefScurveToggle.GetFlButton() );
 
     m_LeftColumnLayout.AddYGap();
+    m_RightColumnLayout.AddYGap();
 
     // CG
-    m_LeftColumnLayout.AddSubGroupLayout( m_MomentRefLayout,
-        m_LeftColumnLayout.GetW(),
-        m_LeftColumnLayout.GetDividerHeight() +
-        9 * m_LeftColumnLayout.GetStdHeight() );
-    m_LeftColumnLayout.AddY( m_MomentRefLayout.GetH() );
+    m_RightColumnLayout.AddSubGroupLayout( m_MomentRefLayout,
+        m_RightColumnLayout.GetW(),
+        m_RightColumnLayout.GetDividerHeight() +
+        9 * m_RightColumnLayout.GetStdHeight() );
+    m_RightColumnLayout.AddY( m_MomentRefLayout.GetH() );
 
     m_MomentRefLayout.AddDividerBox( "Moment Reference Position" );
 
@@ -278,7 +332,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_MomentRefLayout.AddSlider( m_YcgSlider, "Yref", 100.0, "%7.3f" );
     m_MomentRefLayout.AddSlider( m_ZcgSlider, "Zref", 100.0, "%7.3f" );
 
-    m_LeftColumnLayout.AddYGap();
+    m_RightColumnLayout.AddYGap();
 
     // Flow Condition
     m_RightColumnLayout.AddSubGroupLayout( m_FlowCondLayout,
@@ -334,47 +388,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_AdvancedLayout.AddSubGroupLayout( m_AdvancedRightLayout,
         col_width, advanced_group->h() );
 
-    // Advanced Case Setup Layout
-    m_AdvancedLeftLayout.AddSubGroupLayout( m_AdvancedCaseSetupLayout,
-        m_AdvancedLeftLayout.GetW(),
-        9 * m_AdvancedLeftLayout.GetStdHeight() + m_AdvancedLeftLayout.GetGapHeight() );
-    m_AdvancedLeftLayout.AddY( m_AdvancedCaseSetupLayout.GetH() );
 
-    m_AdvancedCaseSetupLayout.AddDividerBox( "Advanced Case Setup" );
-    //  Degengeom output file selection, used for VLM & Panel methods
-    int labelButtonWidth = 60;
-    int fileButtonWidth = 25;
-    int inputWidth = m_AdvancedCaseSetupLayout.GetW() - labelButtonWidth - fileButtonWidth;
-    m_AdvancedCaseSetupLayout.SetFitWidthFlag( false );
-    m_AdvancedCaseSetupLayout.SetSameLineFlag( true );
 
-    //  CompGeom output file selection, used for Panel method only
-    m_AdvancedCaseSetupLayout.SetButtonWidth( labelButtonWidth );
-    m_AdvancedCaseSetupLayout.SetInputWidth( inputWidth );
-
-    m_AdvancedCaseSetupLayout.AddOutput( m_CompGeomFileName, "File" );
-
-    m_AdvancedCaseSetupLayout.SetButtonWidth( fileButtonWidth );
-
-    m_AdvancedCaseSetupLayout.AddButton( m_CompGeomFileButton, "..." );
-    m_AdvancedCaseSetupLayout.ForceNewLine();
-
-    m_AdvancedCaseSetupLayout.SetFitWidthFlag( true );
-    m_AdvancedCaseSetupLayout.SetSameLineFlag( false );
-
-    m_AdvancedCaseSetupLayout.AddYGap();
-
-    m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
-    m_AdvancedCaseSetupLayout.SetInputWidth( 50 );
-
-    m_AdvancedCaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
-
-    m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
-
-    m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
-
-    m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
-    m_AdvancedCaseSetupLayout.AddButton(m_WriteTecplotToggle, "Write Tecplot File");
 
     // Wake Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_WakeLayout,
