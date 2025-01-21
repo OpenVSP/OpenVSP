@@ -301,6 +301,7 @@ public:
     vector< DegenGeom > GetDegenGeomVec()    { return m_DegenGeomVec; }
     string WriteDegenGeomFile();
     void ClearDegenGeom()   { m_DegenGeomVec.clear(); }
+    string CreateDegenGeomMesh( int set );
 
     //=== Surface API ===//
     string ExportSurfacePatches( int set );

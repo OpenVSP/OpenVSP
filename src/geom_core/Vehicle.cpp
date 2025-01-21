@@ -6795,6 +6795,33 @@ string Vehicle::WriteDegenGeomFile()
     return outStr;
 }
 
+string Vehicle::CreateDegenGeomMesh( int set )
+{
+    string id = AddMeshGeom( vsp::SET_NONE, set );
+    if ( id.compare( "NONE" ) != 0 )
+    {
+        Geom* geom_ptr = FindGeom( id );
+        if ( geom_ptr )
+        {
+            MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+            mg->SubTagTris( true );
+
+            if ( m_DegenGeomMeshType() == vsp::NGON_MESH_TYPE )
+            {
+                string ngon_id = mg->CreateNGonMeshGeom();
+
+                DeleteGeomVec( vector< string >{ id } );
+                id = ngon_id;
+            }
+        }
+    }
+
+    Results *res = ResultsMgr.CreateResults( "DegenGeomMesh", "Degen geom mesh results." );
+    res->Add( new NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom or NGonMeshGeom created." ) );
+
+    return id;
+}
+
 // Method to add pnts and normals to results managers for all surfaces
 // in the selected set
 string Vehicle::ExportSurfacePatches( int set )
