@@ -2407,6 +2407,7 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_SCurveFlag.Set( nvd->GetBool( 0 ) );
         }
 
+        VSPAEROMgr.Update(); // TODO: Check if Update() in VSPAEROMgr.CreateSetupFile() can allow this call to be removed
         if ( VSPAEROMgr.m_RefFlag.Get() == vsp::MANUAL_REF )
         {
             nvd = m_Inputs.FindPtr( "Sref", 0 );
@@ -2427,25 +2428,7 @@ string VSPAEROSweepAnalysis::Execute()
         }
         else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
         {
-            VSPAEROMgr.Update(); // TODO: Check if Update() in VSPAEROMgr.CreateSetupFile() can allow this call to be removed
-
-            nvd = m_Inputs.FindPtr( "Sref", 0 );
-            if ( nvd )
-            {
-                VSPAEROMgr.m_Sref.Set( VSPAEROMgr.m_Sref.Get() );
-            }
-
-            nvd = m_Inputs.FindPtr( "bref", 0 );
-            if ( nvd )
-            {
-                VSPAEROMgr.m_bref.Set( VSPAEROMgr.m_bref.Get() );
-            }
-
-            nvd = m_Inputs.FindPtr( "cref", 0 );
-            if ( nvd )
-            {
-                VSPAEROMgr.m_cref.Set( VSPAEROMgr.m_cref.Get() );
-            }
+            // Values set by Update() call above.
         }
 
         //    Mass properties
