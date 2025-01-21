@@ -104,24 +104,11 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_CaseSetupLayout.AddDividerBox( "Case Setup" );
 
-    m_CaseSetupLayout.SetSameLineFlag( true );
-    m_CaseSetupLayout.SetFitWidthFlag( false );
-
     // Analysis method radio button group setup
     m_CaseSetupLayout.SetButtonWidth( m_CaseSetupLayout.GetW() / 2 );
-    m_CaseSetupLayout.AddButton( m_AeroMethodToggleVLM, "Vortex Lattice (VLM)" );
-    m_CaseSetupLayout.AddButton( m_AeroMethodTogglePanel, "Panel Method" );
-
-    m_AeroMethodToggleGroup.Init( this );
-    m_AeroMethodToggleGroup.AddButton( m_AeroMethodToggleVLM.GetFlButton() );
-    m_AeroMethodToggleGroup.AddButton( m_AeroMethodTogglePanel.GetFlButton() );
-
-    vector< int > val_map;
-    val_map.push_back( vsp::VORTEX_LATTICE );
-    val_map.push_back( vsp::PANEL );
-    m_AeroMethodToggleGroup.SetValMapVec( val_map );
 
     m_CaseSetupLayout.ForceNewLine();
+
     m_CaseSetupLayout.InitWidthHeightVals();
 
     int bw = m_CaseSetupLayout.GetChoiceButtonWidth();
@@ -329,21 +316,12 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     int inputWidth = m_AdvancedCaseSetupLayout.GetW() - labelButtonWidth - fileButtonWidth;
     m_AdvancedCaseSetupLayout.SetFitWidthFlag( false );
     m_AdvancedCaseSetupLayout.SetSameLineFlag( true );
-    m_AdvancedCaseSetupLayout.SetButtonWidth( labelButtonWidth );
-    m_AdvancedCaseSetupLayout.SetInputWidth( inputWidth );
-
-    m_AdvancedCaseSetupLayout.AddOutput( m_DegenFileName, "Degen" );
-
-    m_AdvancedCaseSetupLayout.SetButtonWidth( fileButtonWidth );
-
-    m_AdvancedCaseSetupLayout.AddButton( m_DegenFileButton, "..." );
-    m_AdvancedCaseSetupLayout.ForceNewLine();
 
     //  CompGeom output file selection, used for Panel method only
     m_AdvancedCaseSetupLayout.SetButtonWidth( labelButtonWidth );
     m_AdvancedCaseSetupLayout.SetInputWidth( inputWidth );
 
-    m_AdvancedCaseSetupLayout.AddOutput( m_CompGeomFileName, "Panel" );
+    m_AdvancedCaseSetupLayout.AddOutput( m_CompGeomFileName, "File" );
 
     m_AdvancedCaseSetupLayout.SetButtonWidth( fileButtonWidth );
 
@@ -353,7 +331,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_AdvancedCaseSetupLayout.SetFitWidthFlag( true );
     m_AdvancedCaseSetupLayout.SetSameLineFlag( false );
 
-    m_AdvancedCaseSetupLayout.AddButton( m_EnableAlternateFormat, "Use Alternate File Format" );
     m_AdvancedCaseSetupLayout.AddYGap();
 
     m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
@@ -926,8 +903,6 @@ bool VSPAEROScreen::Update()
             m_CGDegenSetChoice.Activate();
         }
 
-        UpdateCaseSetupDevices();
-
         UpdateReferenceQuantitiesDevices();
 
         UpdateCGDevices();
@@ -1224,33 +1199,15 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             int id = m_RefWingChoice.GetVal();
             VSPAEROMgr.m_RefGeomID = m_WingGeomVec[id];
         }
-        else if( device == &m_DegenFileButton )
+        else if( device == &m_GeomSetChoice )
         {
-            int file_type = vsp::DEGEN_GEOM_CSV_TYPE;
-            string file_ext = "*.csv";
-            string message = "Select degen geom CSV output file.";
-
-            if ( VSPAEROMgr.m_AlternateInputFormatFlag() )
-            {
-                file_type = vsp::VSPAERO_VSPGEOM_TYPE;
-                file_ext = "*.vspgeom";
-                message = "Select degen geom VSPGEOM output file.";
-            }
-
-            veh->setExportFileName( file_type, m_ScreenMgr->FileChooser( message.c_str(), file_ext.c_str(), vsp::SAVE ) );
+            VSPAEROMgr.m_GeomSet = m_GeomSetChoice.GetVal();
         }
         else if( device == &m_CompGeomFileButton )
         {
             int file_type = vsp::VSPAERO_VSPGEOM_TYPE;
             string file_ext = "*.vspgeom";
             string message = "Select comp geom VSPGEOM output file.";
-
-            if ( VSPAEROMgr.m_AlternateInputFormatFlag() )
-            {
-                file_type = vsp::VSPAERO_PANEL_TRI_TYPE;
-                file_ext = "*.tri";
-                message = "Select comp geom TRI output file.";
-            }
 
             veh->setExportFileName( file_type, m_ScreenMgr->FileChooser( message.c_str(), file_ext.c_str(), vsp::SAVE ) );
         }
@@ -1486,37 +1443,23 @@ void VSPAEROScreen::UpdateRefWing()
     m_RefWingChoice.SetVal(WingCompIDMap[refGeomID]);
 }
 
-void VSPAEROScreen::UpdateCaseSetupDevices()
+void VSPAEROScreen::UpdateSetChoiceLists()
 {
-    m_AeroMethodToggleGroup.Update(VSPAEROMgr.m_AnalysisMethod.GetID());
-    switch (VSPAEROMgr.m_AnalysisMethod.Get())
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    m_GeomSetChoice.ClearItems();
+    m_CGSetChoice.ClearItems();
+
+    vector <string> setVec = veh->GetSetNameVec();
+    for (int iSet = 0; iSet < setVec.size(); iSet++)
     {
-    case vsp::VORTEX_LATTICE:
-
-        m_DegenFileName.Activate();
-        m_DegenFileButton.Activate();
-        m_PreviewDegenButton.Activate();
-
-        m_CompGeomFileName.Deactivate();
-        m_CompGeomFileButton.Deactivate();
-
-        break;
-
-    case vsp::PANEL:
-
-        m_DegenFileName.Deactivate();
-        m_DegenFileButton.Deactivate();
-        m_PreviewDegenButton.Deactivate();
-
-        m_CompGeomFileName.Activate();
-        m_CompGeomFileButton.Activate();
-
-        break;
-
-    default:
-        //do nothing; this should not be reachable
-        break;
+        m_GeomSetChoice.AddItem(setVec[iSet]);
+        m_CGSetChoice.AddItem(setVec[iSet]);
     }
+    m_GeomSetChoice.UpdateItems();
+    m_CGSetChoice.UpdateItems();
+
+    m_GeomSetChoice.SetVal(VSPAEROMgr.m_GeomSet());
+    m_CGSetChoice.SetVal(VSPAEROMgr.m_CGGeomSet());
 }
 
 void VSPAEROScreen::UpdateReferenceQuantitiesDevices()
@@ -1560,23 +1503,13 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
-    if ( VSPAEROMgr.m_AlternateInputFormatFlag.Get() )
-    {
-        m_DegenFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
-        m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE ) );
-    }
-    else
-    {
-        m_DegenFileName.Update( veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE ) );
-        m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
-    }
+    m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
 
     m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
     m_PreconditionChoice.Update(VSPAEROMgr.m_Precondition.GetID());
     m_KTCorrectionToggle.Update( VSPAEROMgr.m_KTCorrection.GetID() );
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
     m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
-    m_EnableAlternateFormat.Update( VSPAEROMgr.m_AlternateInputFormatFlag.GetID() );
 
     // Wake Options
     m_FixedWakeToggle.Update( VSPAEROMgr.m_FixedWakeFlag.GetID() );

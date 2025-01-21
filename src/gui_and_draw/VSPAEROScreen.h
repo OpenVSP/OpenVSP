@@ -74,7 +74,7 @@ public:
     bool m_SolverThreadIsRunning;
 
     void UpdateRefWing();
-    void UpdateCaseSetupDevices();
+    void UpdateSetChoiceLists();
     void UpdateReferenceQuantitiesDevices();
     void UpdateCGDevices();
     void UpdateAdvancedTabDevices();
@@ -121,11 +121,6 @@ protected:
     GroupLayout m_ExecuteOptionsLayout;
 
     // Case Setup Layout
-    //  Radio buttons for analysis method selection VLM OR Panel
-    ToggleButton m_AeroMethodToggleVLM;
-    ToggleButton m_AeroMethodTogglePanel;
-    ToggleRadioGroup m_AeroMethodToggleGroup;
-
     ToggleButton m_SetToggle;
     Choice m_GeomSetChoice;
 
@@ -198,16 +193,11 @@ protected:
     GroupLayout m_CpSlicerSubLayout;
 
     // Advanced Case Setup Layout
-    //  Degengeom (VLM & Panel)
-    StringOutput m_DegenFileName;
-    TriggerButton m_DegenFileButton;
-    //  CompGeom (Panel only)
     StringOutput m_CompGeomFileName;
     TriggerButton m_CompGeomFileButton;
     SliderAdjRangeInput m_NCPUSlider;
     ToggleButton m_SymmetryToggle;
     ToggleButton m_Write2DFEMToggle;
-    ToggleButton m_EnableAlternateFormat;
     TriggerButton m_LoadExistingResultsButton;
     Choice m_PreconditionChoice;
     ToggleButton m_KTCorrectionToggle;
