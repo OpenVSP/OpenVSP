@@ -1243,9 +1243,11 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     bool compgeom_csv = veh->getExportCompGeomCsvFile();
     veh->setExportCompGeomCsvFile( false );
 
+    int n_ref = 1;
+
     // Generate *.vspgeom geometry file for analysis
     // Compute intersected and trimmed geometry
-    string mesh_geom_id = veh->CompGeomAndFlatten( set, halfFlag, 1 /*subsFlag*/, degenset, false, true );
+    string mesh_geom_id = veh->CompGeomAndFlatten( set, halfFlag, 1 /*subsFlag*/, degenset, false /*hideset*/, true /*suppressdisks*/, n_ref );
 
     veh->setExportCompGeomTxtFile( compgeom_txt );
     veh->setExportCompGeomCsvFile( compgeom_csv );

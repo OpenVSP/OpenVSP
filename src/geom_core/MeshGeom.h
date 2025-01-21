@@ -200,9 +200,9 @@ public:
         m_ScaleMatrix.scale( m_ScaleFromOrig() );
     }
 
-    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false, const int & n_ref = 0 );
 
-    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal ) const;
+    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
     virtual void FlattenTMeshVec();
     virtual void FlattenSliceVec();
     virtual Matrix4d GetTotalTransMat() const;

@@ -4505,7 +4505,7 @@ TMesh* MeshGeom::GetMeshByID( const string & id )
     return nullptr;
 }
 
-void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
+void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int & n_ref )
 {
     unsigned int num_meshes = m_TMeshVec.size();
 
@@ -4538,7 +4538,7 @@ void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
     }
 }
 
-vector<TMesh*> MeshGeom::CreateTMeshVec( bool skipnegflipnormal ) const
+vector<TMesh*> MeshGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
 {
     vector<TMesh*> retTMeshVec;
     retTMeshVec.resize( m_TMeshVec.size() );

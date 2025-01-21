@@ -1259,7 +1259,7 @@ string Vehicle::AddGeom( Geom* add_geom )
     return add_id;
 }
 
-string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, bool skipnegflipnormal )
+string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, bool skipnegflipnormal, int n_ref )
 {
     ClearActiveGeom();
 
@@ -1292,7 +1292,7 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
         {
             if ( g_ptr->GetSetFlag( normal_set ) )
             {
-                vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec( skipnegflipnormal );
+                vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec( skipnegflipnormal, n_ref );
                 for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
                 {
                     if ( suppressdisks && ( tMeshVec[j]->m_SurfType == vsp::DISK_SURF ) )
@@ -1313,7 +1313,7 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
                 {
                     vector< DegenGeom > DegenGeomVec; // Vector of geom in degenerate representation
 
-                    g_ptr->CreateDegenGeom( DegenGeomVec, true );
+                    g_ptr->CreateDegenGeom( DegenGeomVec, true, n_ref );
 
                     vector< TMesh* > tMeshVec;
                     for ( int j = 0; j < DegenGeomVec.size(); j++ )
@@ -5804,7 +5804,7 @@ void Vehicle::resetExportFileNames()
     }
 }
 
-string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, bool hideset, bool suppressdisks, bool useMode, const string &modeID )
+string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, bool hideset, bool suppressdisks, bool useMode, const string &modeID, int n_ref )
 {
     if ( useMode )
     {
@@ -5817,7 +5817,7 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
         }
     }
 
-    string id = AddMeshGeom( set, degenset, suppressdisks );
+    string id = AddMeshGeom( set, degenset, suppressdisks, false /* skipnegflipnormal */, n_ref );
     if ( id.compare( "NONE" ) == 0 )
     {
         return id;
@@ -5849,9 +5849,9 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
     return id;
 }
 
-string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int degenset, bool hideset, bool suppressdisks, bool useMode, const string &modeID )
+string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int degenset, bool hideset, bool suppressdisks, bool useMode, const string &modeID, int n_ref )
 {
-    string id = CompGeom( set, degenset, halfFlag, intSubsFlag, hideset, suppressdisks, useMode, modeID );
+    string id = CompGeom( set, degenset, halfFlag, intSubsFlag, hideset, suppressdisks, useMode, modeID, n_ref );
     Geom* geom = FindGeom( id );
     if ( !geom )
     {

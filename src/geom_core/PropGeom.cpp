@@ -1492,7 +1492,7 @@ void PropGeom::UpdateMainTessVec()
 void PropGeom::UpdateMainDegenGeomPreview()
 {
     DegenGeom degenGeom;
-    CreateDegenGeom( m_BladeSurf, 0, degenGeom, true );
+    CreateDegenGeom( m_BladeSurf, 0, degenGeom, true, 1 );
 
     int nmain = GetNumMainSurfs();
 
@@ -2203,8 +2203,7 @@ void PropGeom::EnforcePCurveOrder( double rfirst, double rlast )
     }
 }
 
-void PropGeom::UpdateTesselate( const VspSurf &surf, bool
-                                capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const
+void PropGeom::UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref ) const
 {
     vector < int > tessvec;
     vector < double > rootc;
@@ -2263,7 +2262,7 @@ void PropGeom::UpdateTesselate( const VspSurf &surf, bool
     }
 
     surf.SetRootTipClustering( rootc, tipc );
-    surf.Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, umerge );
+    surf.Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, umerge, n_ref );
 }
 
 void PropGeom::UpdateSplitTesselate( const VspSurf &surf, bool
@@ -2812,17 +2811,17 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
     }
 }
 
-vector< TMesh* > PropGeom::CreateTMeshVec( bool skipnegflipnormal ) const
+vector< TMesh* > PropGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
 {
     vector< TMesh* > TMeshVec;
 
     if ( m_ExportMainSurf )
     {
-        TMeshVec = Geom::CreateTMeshVec( m_MainSurfVec, skipnegflipnormal );
+        TMeshVec = Geom::CreateTMeshVec( m_MainSurfVec, skipnegflipnormal, n_ref );
     }
     else
     {
-        TMeshVec = Geom::CreateTMeshVec( skipnegflipnormal );
+        TMeshVec = Geom::CreateTMeshVec( skipnegflipnormal, n_ref );
     }
 
     return TMeshVec;

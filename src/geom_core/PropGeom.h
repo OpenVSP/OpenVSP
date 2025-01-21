@@ -141,7 +141,7 @@ public:
 
     virtual void WriteAirfoilFiles( FILE* meta_fid );
 
-    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal ) const;
+    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
 
     virtual void SetExportMainSurf( bool b )         { m_ExportMainSurf = b; }
 
@@ -248,10 +248,8 @@ protected:
     virtual void EnforceOrder( PropXSec* xs, int indx );
     virtual void EnforcePCurveOrder( double rfirst, double rlast );
 
-    virtual void UpdateTesselate( const VspSurf &surf, bool
-                                  capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const;
-    virtual void UpdateSplitTesselate( const VspSurf &surf, bool
-                                       capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
+    virtual void UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref = 0 ) const;
+    virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
     virtual void UpdatePreTess();
 
     virtual void ReserveBlades( int n );

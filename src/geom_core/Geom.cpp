@@ -1897,14 +1897,12 @@ void Geom::GetUWTess01( const int &indx, vector < double > &u, vector < double >
     }
 }
 
-void Geom::UpdateTesselate( const VspSurf &surf, bool
-                            capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const
+void Geom::UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref ) const
 {
-    surf.Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen );
+    surf.Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, n_ref );
 }
 
-void Geom::UpdateSplitTesselate( const VspSurf &surf, bool
-                                 capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
+void Geom::UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
 {
     surf.SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU() );
 }
@@ -3385,7 +3383,7 @@ void Geom::UpdateTessVec()
 void Geom::UpdateMainDegenGeomPreview()
 {
     m_MainDegenGeomPreviewVec.clear();
-    CreateMainDegenGeom( m_MainDegenGeomPreviewVec, true );
+    CreateMainDegenGeomPreview( m_MainDegenGeomPreviewVec );
 }
 
 void Geom::UpdateDegenGeomPreview()
@@ -4237,17 +4235,17 @@ Material * Geom::GetMaterial()
 //==== Create Degenerate Geometry ====//
 // When preview = true, this simplifies to generate only the
 // required degen plate,surface, and subsurface for updating the preview DrawObj vectors
-void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
+void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int & n_ref )
 {
-    CreateDegenGeom( m_SurfVec, GetNumTotalSurfs(), dgs, preview );
+    CreateDegenGeom( m_SurfVec, GetNumTotalSurfs(), dgs, preview, n_ref );
 }
 
-void Geom::CreateMainDegenGeom( vector<DegenGeom> &dgs, bool preview )
+void Geom::CreateMainDegenGeomPreview( vector<DegenGeom> &dgs )
 {
-    CreateDegenGeom( m_MainSurfVec, GetNumMainSurfs(),dgs, preview );
+    CreateDegenGeom( m_MainSurfVec, GetNumMainSurfs(),dgs, true, 1 );
 }
 
-void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool preview )
+void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool preview, const int & n_ref )
 {
     vector< vector< vec3d > > pnts;
     vector< vector< vec3d > > nrms;
@@ -4294,12 +4292,12 @@ void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool
     CreateDegenGeom( degenGeom, pnts, nrms, uwpnts, urootcap, isurf, preview, surf.GetFlipNormal(), surftype, surf.GetSurfCfdType(), surf.GetFoilSurf() );
 }
 
-void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector<DegenGeom> &dgs, bool preview )
+void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector<DegenGeom> &dgs, bool preview, const int & n_ref )
 {
     dgs.resize( nsurf );
     for ( int i = 0 ; i < nsurf ; i++ )
     {
-        CreateDegenGeom( surf_vec[i], i, dgs[i], preview );
+        CreateDegenGeom( surf_vec[i], i, dgs[i], preview, n_ref );
     }
 }
 
@@ -5586,12 +5584,12 @@ void Geom::WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma
 }
 
 //==== Create TMesh Vector ====//
-vector< TMesh* > Geom::CreateTMeshVec( bool skipnegflipnormal ) const
+vector< TMesh* > Geom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
 {
-    return CreateTMeshVec( m_SurfVec, skipnegflipnormal );
+    return CreateTMeshVec( m_SurfVec, skipnegflipnormal, n_ref );
 }
 
-vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec, bool skipnegflipnormal ) const
+vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec, bool skipnegflipnormal, const int & n_ref ) const
 {
     vector< TMesh* > TMeshVec;
     vector< vector<vec3d> > pnts;
@@ -5635,8 +5633,7 @@ vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec, bool ski
     {
         if ( surf_vec[i].GetNumSectU() != 0 && surf_vec[i].GetNumSectW() != 0 )
         {
-            UpdateTesselate( surf_vec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
-                             uw_pnts);
+            UpdateTesselate( surf_vec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms, uw_pnts, n_ref );
             surf_vec[i].ResetUSkip(); // Done with skip flags.
 
             bool thicksurf = true;

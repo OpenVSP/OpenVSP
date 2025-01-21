@@ -806,7 +806,7 @@ bool WireGeom::CheckInverted()
 }
 
 //==== Create TMesh Vector ====//
-vector< TMesh* > WireGeom::CreateTMeshVec() const
+vector< TMesh* > WireGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
 {
     vector < TMesh* > tmeshvec;
 
@@ -855,7 +855,7 @@ vector< TMesh* > WireGeom::CreateTMeshVec() const
 //==== Create Degenerate Geometry ====//
 // When preview = true, this simplifies to generate only the
 // required degen plate,surface, and subsurface for updating the preview DrawObj vectors
-void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
+void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int & n_ref )
 {
     unsigned int num_pnts, num_cross;
 

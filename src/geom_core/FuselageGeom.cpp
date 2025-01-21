@@ -200,8 +200,7 @@ void FuselageGeom::UpdateSurf()
     }
 }
 
-void FuselageGeom::UpdateTesselate( const VspSurf &surf, bool
-                                    capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const
+void FuselageGeom::UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref ) const
 {
     vector < int > tessvec;
     vector < double > fwdc;
@@ -228,8 +227,9 @@ void FuselageGeom::UpdateTesselate( const VspSurf &surf, bool
         aftc.push_back( 1.0 );
     }
 
+    std::vector<int> umerge = std::vector<int>();
     surf.SetRootTipClustering( fwdc, aftc );
-    surf.Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen );
+    surf.Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, umerge, n_ref );
 }
 
 void FuselageGeom::UpdateSplitTesselate( const VspSurf &surf, bool

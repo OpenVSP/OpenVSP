@@ -127,9 +127,9 @@ public:
     }
     virtual int GetNumTotalMeshs() const;
 
-    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false, const int & n_ref = 0 );
 
-    virtual vector< TMesh* > CreateTMeshVec() const;
+    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
 
     virtual void SetupMesh( Pinocchio::Mesh &m );
     template < typename vertmat > void SetupSkel( const vertmat & vm, Pinocchio::DataSkeleton &skeleton );

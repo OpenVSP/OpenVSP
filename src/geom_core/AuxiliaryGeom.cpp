@@ -543,7 +543,7 @@ void AuxiliaryGeom::UpdateMainDegenGeomPreview()
     m_MainDegenGeomPreviewVec.resize( 1 );
 
     // Update primary main surf tess.
-    CreateDegenGeom( m_MainSurfVec[ 0 ], 0, m_MainDegenGeomPreviewVec[ 0 ], true );
+    CreateDegenGeom( m_MainSurfVec[ 0 ], 0, m_MainDegenGeomPreviewVec[ 0 ], true, 1 );
 
     if ( m_ParentType == GEAR_GEOM_TYPE )
     {
@@ -926,7 +926,7 @@ void AuxiliaryGeom::DegenContact1( GearGeom * gear, double bogietheta )
         if ( b1 )
         {
             DegenGeom degenGeom;
-            CreateDegenGeom( b1->m_TireSurface, 0, degenGeom, true );
+            CreateDegenGeom( b1->m_TireSurface, 0, degenGeom, true, 1 );
 
             b1->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta );
         }
@@ -941,7 +941,7 @@ void AuxiliaryGeom::DegenContact2( GearGeom * gear, double bogietheta )
         if ( b2 )
         {
             DegenGeom degenGeom;
-            CreateDegenGeom( b2->m_TireSurface, 0, degenGeom, true );
+            CreateDegenGeom( b2->m_TireSurface, 0, degenGeom, true, 1 );
 
             b2->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
         }
@@ -956,7 +956,7 @@ void AuxiliaryGeom::DegenContact3( GearGeom * gear, double bogietheta )
         if ( b3 )
         {
             DegenGeom degenGeom;
-            CreateDegenGeom( b3->m_TireSurface, 0, degenGeom, true );
+            CreateDegenGeom( b3->m_TireSurface, 0, degenGeom, true, 1 );
 
             b3->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
         }

@@ -223,15 +223,15 @@ public:
     double GetRootCluster( const int &index ) const;
     double GetTipCluster( const int &index ) const;
 
-    void MakeUTess( vector < double > &u, const vector < int > &num_u, const std::vector < int > &umerge, const int &n_cap, const int &n_default ) const;
-    void MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const;
+    void MakeUTess( vector < double > &u, const vector < int > &num_u, const std::vector < int > &umerge, const int &n_cap, const int &n_default, const int & n_ref = 1 ) const;
+    void MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen, const int & n_ref = 1 ) const;
 
     //===== Tesselate ====//
     void TesselateTEforWake( std::vector< vector< vec3d > > & pnts ) const;
     void GetWakeTECurve( piecewise_curve_type& curve ) const;
 
-    void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, const int &n_default, bool degen ) const;
-    void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, const int &n_default, bool degen, const std::vector<int> & umerge = std::vector<int>() ) const;
+    void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, const int &n_default, bool degen, const int & n_ref = 0 ) const;
+    void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, const int &n_default, bool degen, const std::vector<int> & umerge = std::vector<int>(), const int & n_ref = 0 ) const;
 
     void SplitTesselate( int num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap, const int &n_default ) const;
     void SplitTesselate( const vector<int> &num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap, const int &n_default, const std::vector<int> & umerge = std::vector<int>() ) const;

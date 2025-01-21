@@ -1275,7 +1275,7 @@ void HumanGeom::ApplyScale()
 {
 }
 
-void HumanGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
+void HumanGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int & n_ref )
 {
     unsigned int num_meshes = GetNumTotalMeshs();
 
@@ -1306,7 +1306,7 @@ void HumanGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
     }
 }
 
-vector<TMesh*> HumanGeom::CreateTMeshVec() const
+vector<TMesh*> HumanGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
 {
     vector<TMesh*> retTMeshVec;
 

@@ -979,7 +979,7 @@ void GearGeom::UpdateMainDegenGeomPreview()
             if ( m_Bogies[i] )
             {
                 DegenGeom degenGeom;
-                CreateDegenGeom( m_Bogies[i]->m_TireSurface, 0, degenGeom, true );
+                CreateDegenGeom( m_Bogies[i]->m_TireSurface, 0, degenGeom, true, 1 );
 
                 m_Bogies[i]->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec );
             }
@@ -991,7 +991,7 @@ void GearGeom::UpdateMainDegenGeomPreview()
         if ( m_IncludeNominalGroundPlane() )
         {
             // Update degen preview for ground plane
-            CreateDegenGeom( m_MainSurfVec[0], 0, m_MainDegenGeomPreviewVec[0], true );
+            CreateDegenGeom( m_MainSurfVec[0], 0, m_MainDegenGeomPreviewVec[0], true, 1 );
         }
     }
 }

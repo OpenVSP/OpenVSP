@@ -1427,7 +1427,7 @@ void VspSurf::FlagDuplicate( const VspSurf &othersurf ) const
 
 }
 
-void VspSurf::MakeUTess( vector < double > &u, const vector < int > &num_u, const std::vector < int > &umerge, const int &n_cap, const int &n_default ) const
+void VspSurf::MakeUTess( vector < double > &u, const vector < int > &num_u, const std::vector < int > &umerge, const int &n_cap, const int &n_default, const int & n_ref ) const
 {
     if ( umerge.size() != 0 )
     {
@@ -1629,7 +1629,7 @@ void VspSurf::MakeUTess( vector < double > &u, const vector < int > &num_u, cons
     }
 }
 
-void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const
+void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen, const int & n_ref ) const
 {
     double vmin, vmax, vabsmin, vabsmax, vle, vlelow, vleup;
     surface_index_type nv( num_v );
@@ -1815,10 +1815,11 @@ void VspSurf::GetWakeTECurve( piecewise_curve_type & curve ) const
 
 // FeaDome::UpdateDrawObjs
 // Geom::UpdateTesselate
-void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms, vector< vector< vec3d > > & uw_pnts, const int &n_cap, const int &n_default, bool degen ) const
+void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms, vector< vector< vec3d > > & uw_pnts, const int &n_cap, const int &n_default, bool degen, const int & n_ref ) const
 {
     vector<int> num_u_vec( GetNumSectU(), num_u );
-    Tesselate( num_u_vec, num_v, pnts, norms, uw_pnts, n_cap, n_default, degen );
+    std::vector<int> umerge = std::vector<int>();
+    Tesselate( num_u_vec, num_v, pnts, norms, uw_pnts, n_cap, n_default, degen, umerge, n_ref );
 }
 
 // Geom::UpdateSplitTesselate
@@ -1833,7 +1834,7 @@ void VspSurf::SplitTesselate( int num_u, int num_v, vector< vector< vector< vec3
 // PropGeom::UpdateTesselate
 // StackGeom::UpdateTesselate
 // WingGeom::UpdateTesselate
-void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, const int &n_default, bool degen, const std::vector<int> & umerge ) const
+void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, const int &n_default, bool degen, const std::vector<int> & umerge, const int & n_ref ) const
 {
     if( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0 )
     {
@@ -1842,8 +1843,8 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
 
     std::vector<double> u, v;
 
-    MakeVTess( num_v, v, n_cap, degen );
-    MakeUTess( u, num_u, umerge, n_cap, n_default );
+    MakeVTess( num_v, v, n_cap, degen, n_ref );
+    MakeUTess( u, num_u, umerge, n_cap, n_default, n_ref );
 
     Tesselate( u, v, pnts, norms, uw_pnts );
 }
@@ -1862,8 +1863,8 @@ void VspSurf::SplitTesselate( const vector<int> &num_u, int num_v, std::vector< 
 
     std::vector<double> u, v;
 
-    MakeVTess( num_v, v, n_cap, false );
-    MakeUTess( u, num_u, umerge, n_cap, n_default );
+    MakeVTess( num_v, v, n_cap, false, 0 );
+    MakeUTess( u, num_u, umerge, n_cap, n_default, 0 );
 
     SplitTesselate( m_UFeature, m_WFeature, u, v, pnts, norms );
 }

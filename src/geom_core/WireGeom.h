@@ -31,9 +31,9 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual vector< TMesh* > CreateTMeshVec() const;
+    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
 
-    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false, const int & n_ref = 0 );
 
     virtual int GetNumTotalHrmSurfs() const;
     virtual void WriteXSecFile( int geom_no, FILE* dump_file );

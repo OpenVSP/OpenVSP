@@ -94,7 +94,7 @@ public:
     string CreateGeom( const GeomType & type );
     string AddGeom( const GeomType & type );
     string AddGeom( Geom* add_geom );
-    string AddMeshGeom( int normal_set, int degen_set = vsp::SET_NONE, bool suppressdisks = false, bool skipnegflipnormal = false );
+    string AddMeshGeom( int normal_set, int degen_set = vsp::SET_NONE, bool suppressdisks = false, bool skipnegflipnormal = false, int n_ref = 0 );
 
     vector< TMesh* > CreateTMeshVec( int normal_set );
     vector< TMesh* > CreateTMeshVec( const string &geomid );
@@ -289,8 +289,8 @@ public:
     string ImportV2File( const string & file_name );
 
     //Comp Geom
-    string CompGeom( int set, int degenset, int halfFlag, int intSubsFlag = 1, bool hideset = true, bool suppressdisks = false, bool useMode = false, const string &modeID = string() );
-    string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1, int degenset = vsp::SET_NONE, bool hideset = true, bool suppressdisks = false, bool useMode = false, const string &modeID = string() );
+    string CompGeom( int set, int degenset, int halfFlag, int intSubsFlag = 1, bool hideset = true, bool suppressdisks = false, bool useMode = false, const string &modeID = string(), int n_ref = 0 );
+    string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1, int degenset = vsp::SET_NONE, bool hideset = true, bool suppressdisks = false, bool useMode = false, const string &modeID = string(), int n_ref = 0 );
     string MassProps( int set, int degen_set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true, bool useMode = false, const string &modeID = string() );
     string MassPropsAndFlatten( int set, int degen_set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true, bool useMode = false, const string &modeID = string() );
     string PSlice( int set, int numSlices, const vec3d &norm, bool autoBoundsFlag, double start, double end, bool measureduct, bool useMode, const string &modeID );

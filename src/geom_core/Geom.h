@@ -557,8 +557,8 @@ public:
 
     virtual int GetSymFlag() const;
 
-    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal ) const;
-    vector< TMesh* > CreateTMeshVec( const vector<VspSurf> &surf_vec, bool skipnegflipnormal ) const;
+    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
+    vector< TMesh* > CreateTMeshVec( const vector<VspSurf> &surf_vec, bool skipnegflipnormal, const int & n_ref = 0 ) const;
 
     virtual BndBox GetBndBox() const
     {
@@ -628,10 +628,10 @@ public:
     }
 
     //===== Degenerate Geometry =====//
-    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
-    virtual void CreateMainDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
-    virtual void CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool preview = false );
-    virtual void CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector<DegenGeom> &dgs, bool preview = false );
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false, const int & n_ref = 0 );
+    virtual void CreateMainDegenGeomPreview( vector<DegenGeom> &dgs );
+    virtual void CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector<DegenGeom> &dgs, bool preview, const int & n_ref );
+    virtual void CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool preview, const int & n_ref );
     virtual void CreateDegenGeom( DegenGeom &degenGeom, const vector< vector< vec3d > > &pnts, const vector< vector< vec3d > > &nrms, const vector< vector< vec3d > > &uwpnts,
                                   bool urootcap, int isurf, bool preview, bool flipnormal, int surftype, int cfdsurftype, VspSurf *fs );
 
@@ -894,7 +894,7 @@ protected:
     virtual void UpdateMainDegenGeomPreview();
     virtual void UpdateDegenGeomPreview();
 
-    virtual void UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const;
+    virtual void UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref = 0 ) const;
 
     virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
 
