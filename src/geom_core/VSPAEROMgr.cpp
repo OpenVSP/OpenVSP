@@ -4179,7 +4179,7 @@ void VSPAEROMgrSingleton::SetCurrentUnsteadyGroupIndex( const string& id )
     }
 }
 
-map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeomIndexMap( int set_index )
+map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeomIndexMap( int set_index, int thin_set )
 {
     map < pair < string, int >, vector < int > > geom_index_map;
 
@@ -4189,11 +4189,19 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
         return geom_index_map;
     }
 
-    vector < pair < string, int > > surface_geoms, body_geoms;
+    vector < pair < string, int > > surface_geoms;
     int surf_cnt = 1;
 
+    // Get both sets.
     vector < string > all_geom_vec = veh->GetGeomSet( set_index );
+    vector <string> thingeomvec = veh->GetGeomSet( thin_set );
+    // Append them.
+    all_geom_vec.insert( all_geom_vec.end(), thingeomvec.begin(), thingeomvec.end() );
+
     vector < int > degen_type_vec = veh->GetDegenGeomTypeVec( set_index );
+    vector < int > thin_degen_type_vec = veh->GetDegenGeomTypeVec( thin_set );
+    // Append them.
+    degen_type_vec.insert( degen_type_vec.end(), thin_degen_type_vec.begin(), thin_degen_type_vec.end() );
 
     for ( size_t i = 0; i < all_geom_vec.size(); i++ )
     {
@@ -4210,7 +4218,7 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
             continue;
         }
 
-        if ( m_AnalysisMethod() == vsp::PANEL && geom->GetType().m_Type == MESH_GEOM_TYPE && ( i == all_geom_vec.size() - 1 ) )
+        if ( geom->GetType().m_Type == MESH_GEOM_TYPE && ( i == all_geom_vec.size() - 1 ) )
         {
             // Do not include the panel method mesh of the entire VSPAERO set 
             // This is done to prevent the the computed geometry form being included
@@ -4229,53 +4237,31 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
         for ( size_t s = 1; s <= num_sym; s++ )
         {
             // Human and Mesh types will run in VSPAERO panel method... support accordingly
-            if ( m_AnalysisMethod() == vsp::PANEL )
+            size_t num_surf = 0;
+            if ( geom->GetType().m_Type == HUMAN_GEOM_TYPE )
             {
-                size_t num_surf = 0;
-                if ( geom->GetType().m_Type == HUMAN_GEOM_TYPE )
-                {
-                    num_surf = 1;
-                }
-                else if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
-                {
-                    MeshGeom* mesh = dynamic_cast<MeshGeom*>( geom );
-                    assert( mesh );
-
-                    num_surf = mesh->GetNumIndexedParts();
-                }
-                else
-                {
-                    num_surf = geom->GetNumMainSurfs();
-                }
-
-                for ( size_t j = 0; j < num_surf; j++ )
-                {
-                    geom_index_map[std::make_pair( all_geom_vec[i], s )].push_back( surf_cnt );
-                    surf_cnt++;
-                }
+                num_surf = 1;
             }
-            else if ( geom->GetType().m_Type == HUMAN_GEOM_TYPE || geom->GetType().m_Type == MESH_GEOM_TYPE )
+            else if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
             {
-                continue; // No humans or meshes in VLM
+                MeshGeom* mesh = dynamic_cast<MeshGeom*>( geom );
+                assert( mesh );
+
+                num_surf = mesh->GetNumIndexedParts();
+            }
+            else
+            {
+                num_surf = geom->GetNumMainSurfs();
             }
 
-            if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE )
+            for ( size_t j = 0; j < num_surf; j++ )
             {
-                if ( degen_type_vec[i] == DegenGeom::BODY_TYPE )
-                {
-                    body_geoms.push_back( std::make_pair( all_geom_vec[i], s ) );
-                }
+                geom_index_map[std::make_pair( all_geom_vec[i], s )].push_back( surf_cnt );
+                surf_cnt++;
             }
+
         }
 
-        // Only write VLM lifting surfaces once.
-        if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE )
-        {
-            if ( degen_type_vec[i] == DegenGeom::SURFACE_TYPE )
-            {
-                surface_geoms.push_back( std::make_pair( all_geom_vec[i], 1 ) );
-            }
-        }
     }
 
     // Note: DISK_TYPE and MESH_TYPE are ignored since they are not supported as unsteady components
@@ -4283,11 +4269,6 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
     for ( size_t i = 0; i < surface_geoms.size(); i++ )
     {
         geom_index_map[surface_geoms[i]].push_back( i + 1 );
-    }
-
-    for ( size_t i = 0; i < body_geoms.size(); i++ )
-    {
-        geom_index_map[body_geoms[i]].push_back( i + surface_geoms.size() + 1 );
     }
 
     return geom_index_map;
@@ -4383,9 +4364,13 @@ void VSPAEROMgrSingleton::UpdateParmRestrictions()
     }
 }
 
+// TODO:  Not sure how this works.  It references m_GeomSet, but not yet m_ThinGeomSet.
+// it is also the last place that accesses m_AnalysisMethod() - if you include the GetVSPAEROGeomIndexMap()
+// that is only called from here.
 void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
 {
     int set = m_GeomSet();
+    int degenset = m_ThinGeomSet();
 
     if ( m_UseMode() )
     {
@@ -4394,7 +4379,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         {
             m->ApplySettings();
             set = m->m_NormalSet();
-            // degenset = m->m_DegenSet();
+            degenset = m->m_DegenSet();
         }
     }
 
@@ -4406,15 +4391,23 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
 
     vector < int > del_vec;
 
-    map < pair < string, int >, vector < int > > vspaero_geom_index_map = GetVSPAEROGeomIndexMap( set );
+    map < pair < string, int >, vector < int > > vspaero_geom_index_map = GetVSPAEROGeomIndexMap( set, degenset );
 
     // For the current VSPAERO set, identify if there are any props or fixed components 
     // that are not placed in an unsteady group
 
     // Note, this function will delete unsteady groups if the prop is no longer in the set or
     // changed to disk mode, causing the parms to be lost. This can be improved, but is the
-    // same behavior for rotor disks. 
+
+    // same behavior for rotor disks.
+
+    // Get both sets.
     vector < string > geom_set_vec = veh->GetGeomSet( set );
+    vector <string> thingeomvec = veh->GetGeomSet( degenset );
+
+    // Append them.
+    geom_set_vec.insert( geom_set_vec.end(), thingeomvec.begin(), thingeomvec.end() );
+
     vector < pair < string, int > > ungrouped_props, ungrouped_comps; // ungrouped Geom ID and symmetric surf index
 
     for ( size_t i = 0; i < geom_set_vec.size(); ++i )
@@ -4975,7 +4968,7 @@ void VSPAEROMgrSingleton::ReadRotorResFile( const string &filename, vector <stri
     // Station     S       Chord     Area      V/Vref   Diameter    RPM      TipVel       CNo_H         CSo_H         CTo_H         CQo_H         CPo_H         CN_H          CS_H          CT_H          CQ_H          CP_H
     int num_load_avg_data_col = 18;
 
-    // Station    Time       Angle     Xqc       Yqc       Zqc       S       Chord     Area      V/Vref   Diameter    RPM      TipVel       CNo_H         CSo_H         CTo_H         CQo_H         CPo_H         CN_H          CS_H          CT_H          CQ_H          CP_H 
+    // Station    Time       Angle     Xqc       Yqc       Zqc       S       Chord     Area      V/Vref   Diameter    RPM      TipVel       CNo_H         CSo_H         CTo_H         CQo_H         CPo_H         CN_H          CS_H          CT_H          CQ_H          CP_H
     int num_load_last_rev_data_col = 23;
 
     std::vector<string> data_string_array;

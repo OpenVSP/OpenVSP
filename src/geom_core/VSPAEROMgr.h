@@ -326,7 +326,7 @@ public:
     int NumUnsteadyGroups()                                  { return m_UnsteadyGroupVec.size(); }
     int NumUnsteadyRotorGroups();
     void HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_vec );
-    map < pair < string, int >, vector < int > > GetVSPAEROGeomIndexMap( int set_index );
+    map < pair < string, int >, vector < int > > GetVSPAEROGeomIndexMap( int set_index, int thin_set );
     string ExecuteNoiseAnalysis( FILE* logFile, int noise_type, int noise_unit );
 
     virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id );
