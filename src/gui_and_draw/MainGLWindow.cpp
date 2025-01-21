@@ -284,17 +284,10 @@ void VspGlWindow::update()
                 AttributeMgr.ClearDirtyFlag( vsp::ATTR_GROUP_WATERMARK );
 
                 VSPGraphic::Viewport *vp = display->getViewport();
-                AttributeCollection* ac = vPtr->GetAttrCollection();
 
-                AttributeCollection* wm_ac = nullptr;
-                if ( AttributeMgr.GetAttributePtr( ATTR_WM_GROUP ) );
+                if ( vp )
                 {
-                    wm_ac = AttributeMgr.GetAttributePtr( ATTR_WM_GROUP )->GetAttributeCollectionPtr( 0 );
-                }
-
-                if ( vp && wm_ac )
-                {
-                    VSPGraphic::Watermark * wm = display->getViewport()->getWatermark();
+                    VSPGraphic::Watermark * wm = vp->getWatermark();
 
                     if ( wm )
                     {
@@ -303,7 +296,7 @@ void VspGlWindow::update()
                             display->getViewport()->showWatermark( AttributeMgr.GetAttributePtr( ATTR_WM_SHOW )->GetBool( 0 ) );
                             if ( AttributeMgr.GetAttributePtr( ATTR_WM_TEXT ) )
                             {
-                                wm->setText( AttributeMgr.GetAttributePtr( ATTR_WM_TEXT )->GetString(0) );
+                                wm->setText( AttributeMgr.GetAttributePtr( ATTR_WM_TEXT )->GetString( 0 ) );
                             }
 
                             if ( AttributeMgr.GetAttributePtr( ATTR_WM_TEXTSCALE ) )
