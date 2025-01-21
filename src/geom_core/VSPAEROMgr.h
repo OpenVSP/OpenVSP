@@ -393,6 +393,10 @@ public:
     BoolParm m_CGUseMode;
     string m_CGModeID;
 
+    Parm m_CullFrac;
+    BoolParm m_CullFracFlag;
+    BoolParm m_ContinueCoPlanarWakesFlag;
+
     // Reference Area Parms
     Parm m_Sref;
     Parm m_bref;

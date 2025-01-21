@@ -52,6 +52,15 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CGUseMode.Init( "CGUseMode", groupname, this, false, false, true );
     m_CGUseMode.SetDescript( "Flag to control whether modes are used instead of sets or CG calc." );
 
+    m_CullFrac.Init( "CullFrac", groupname, this, 0.03, 0.0, 1.0 );
+    m_CullFrac.SetDescript( "Area fraction of thin orphan regions to cull." );
+
+    m_CullFracFlag.Init( "CullFracFlag", groupname, this, false, false, true );
+    m_CullFracFlag.SetDescript( "Flag to enable orphan culling." );
+
+    m_ContinueCoPlanarWakesFlag.Init( "ContinueCoPlanarWakesFlag", groupname, this, true, false, true );
+    m_ContinueCoPlanarWakesFlag.SetDescript( "Flag to continue coplanar wakes through bodies" );
+
     m_AnalysisMethod.Init( "AnalysisMethod", groupname, this, vsp::VORTEX_LATTICE, vsp::VORTEX_LATTICE, vsp::PANEL );
     m_AnalysisMethod.SetDescript( "Analysis method: 0=VLM, 1=Panel" );
 
@@ -357,6 +366,10 @@ void VSPAEROMgrSingleton::Renew()
 
     ClearUnsteadyGroupVec();
 
+
+    m_CullFrac = 0.03;
+    m_CullFracFlag = false;
+    m_ContinueCoPlanarWakesFlag = true;
 
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
