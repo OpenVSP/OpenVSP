@@ -4489,7 +4489,8 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         {
             // Check if Geom still exists and is in the current set
             Geom* parent = veh->FindGeom( comp_id_surf_ind_vec[j].first );
-            if ( parent && parent->GetSetFlag( set ) )
+
+            if ( parent && ( parent->GetSetFlag( set ) || parent->GetSetFlag( degenset ) ) )
             {
                 if ( parent->GetType().m_Type == PROP_GEOM_TYPE )
                 {
