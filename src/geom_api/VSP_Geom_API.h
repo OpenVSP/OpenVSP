@@ -2233,23 +2233,24 @@ extern void PrintAnalysisDocs( const std::string & analysis_name );
     Print a tab-delimited summary of all Attributes in the vehicle, denoting Name, Type, Data, Description, and path from Root of vehicle to Attribute
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: SummarizeAttributes ====//
+    string SummaryText = SummarizeAttributes();
+    Print( SummaryText );
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Summary_text = vsp.SummarizeAttributes();
-    print(Summary_text)
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: SummarizeAttributes ====##
+    SummaryText = SummarizeAttributes()
+    print( SummaryText )
 
     \endcode
     \endPythonOnly
     \return Tab-delimited summary of all Attributes in vehicle
 */
 
-string SummarizeAttributes();
+extern string SummarizeAttributes();
 
 /*!
     \ingroup Attributes
@@ -2258,23 +2259,23 @@ string SummarizeAttributes();
     Print a plain-text tree summary of all Attribute in the vehicle, each branch node showing the name and ID of the VSP object in the path to the attribute
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: SummarizeAttributesAsTree ====//
+    string SummaryTextTree = SummarizeAttributesAsTree();
+    Print( SummaryTextTree );
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Summary_text_tree = vsp.SummarizeAttributesAsTree();
-    print(Summary_text_tree)
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: SummarizeAttributesAsTree ====##
+    SummaryTextTree = SummarizeAttributesAsTree();
+    print( SummaryTextTree )
 
     \endcode
     \endPythonOnly
     \return Plain-text attribute tree of vehicle
 */
 
-string SummarizeAttributesAsTree();
+extern string SummarizeAttributesAsTree();
 
 /*!
     \ingroup Attributes
@@ -2283,17 +2284,21 @@ string SummarizeAttributesAsTree();
     Returns a vector of string IDs for all Attributes in the vehicle
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: FindAllAttributes ====//
+    array < string > @AttrIDs = FindAllAttributes();
+    for ( int i = 0; i < int( AttrIDs.size() ); ++i )
+    {
+        Print( AttrIDs[i] );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Attribute_IDs = vsp.FindAllAttributes();
-    for Attribute_ID in Attribute_IDs:
-        print( Attribute_ID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: FindAllAttributes ====##
+    AttrIDs = FindAllAttributes()
+    for AttrID in AttrIDs:
+        print( AttrID )
 
     \endcode
     \endPythonOnly
@@ -2311,17 +2316,21 @@ extern vector < string > FindAllAttributes();
     Returns all attributes that contain the string search_str within their name, case insensitive
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: FindAttributesByName ====//
+    array < string > @AttrIDs = FindAttributesByName( "Watermark" );
+    for ( int i = 0; i < int( AttrIDs.size() ); ++i )
+    {
+        Print( AttrIDs[i] );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Searched_Attribute_IDs = vsp.FindAttributesByName( "Watermark" )
-    for Attribute_ID in Searched_Attribute_IDs:
-        print( Attribute_ID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: FindAttributesByName ====##
+    AttrIDs = FindAttributesByName( "Watermark" )
+    for AttrID in AttrIDs:
+        print( AttrID )
 
     \endcode
     \endPythonOnly
@@ -2338,16 +2347,16 @@ extern vector < string > FindAttributesByName( const string & search_str );
     Searches all attributes that contain the search string, case insensitive, and returns the user-specified index
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: FindAttributeByName ====//
+    string AttrID = FindAttributeByName( "Watermark", 0 );
+    Print( AttrID );
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    First_Searched_Attribute_ID = vsp.FindAttributeByName( "Watermark", 0 )
-    print( First_Searched_Attribute_ID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: FindAttributeByName ====##
+    AttrID = FindAttributeByName( "Watermark", 0 )
+    print( AttrID )
 
     \endcode
     \endPythonOnly
@@ -2366,17 +2375,18 @@ extern string FindAttributeByName( const string & search_str, int index );
     Works either with the ID of an object that contains an attributeCollection or just the ID of an attributeCollection.
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: FindAttributeInCollection ====//
+    string VehID = GetVehicleID();
+    string AttrID = FindAttributeInCollection( VehID, "Watermark", 0 );
+    Print( AttrID );
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    VehID = vsp.GetVehicleID()
-    Attribute_ID = vsp.FindAttributeInCollection( VehID, 'Watermark', 0 )
-    print( Attribute_ID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: FindAttributeInCollection ====##
+    VehID = GetVehicleID()
+    AttrID = FindAttributeInCollection( VehID, 'Watermark', 0 )
+    print( AttrID )
 
     \endcode
     \endPythonOnly
@@ -2395,69 +2405,25 @@ extern string FindAttributeInCollection( const string & obj_id, const string & s
     Return a list of all attribute Names within an attribute collection
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: FindAttributeNamesInCollection ====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    array < string > @AttrNames = FindAttributeNamesInCollection( CollID );
+    for ( int i = 0; i < int( AttrNames.size() ); ++i )
+    {
+        Print( AttrNames[i] );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    # Example code to list all attributes in vehicle
-    attach_ids = vsp.FindAttributedObjects();
-    for id in attach_ids:
-        coll_id = vsp.GetChildCollection(id)
-
-        attach_name = vsp.GetObjectName(id)
-
-        # FindAttributeNamesInCollection used here, to search through the Names in a single collection!
-        attr_names = vsp.FindAttributeNamesInCollection(coll_id)
-
-        attr_ids = vsp.FindAttributesInCollection(coll_id)
-
-        print(f'\nAttribute Collection Name : {attach_name}\n')
-
-        for aname, aid in zip(attr_names, attr_ids):
-
-            atype = vsp.GetAttributeType( aid )
-            atypename = vsp.GetAttributeTypeName( aid )
-
-            #IMPORTANT: need to get ParentID twice to get to the VSP object. 1st will only get the ID of the Attribute Collection.
-            #once at the OpenVSP object level, parent IDs are trivial.
-
-            attribute_collection_id = vsp.GetObjectParent( coll_id ) #parent of an attribute is an Attribute Collection object
-            attribute_collection_parent_id = vsp.GetObjectParent( attribute_collection_id ) #then get that Collection object's parent ID to get the OpenVSP object that contains it!
-
-            # Structure:
-            # OpenVSP object -> Attribute Collection -> Attributes
-            # e.g. Geom->Parm->Attribute Collection -> Attributes
-
-            # aid = vsp.GetAttributeID( coll_id, aname, 0 ) #get the ID of this attribute for self-awareness
-
-            aname_same = vsp.GetObjectName( aid ) # get attributeAttachName of the attributes'ID will get you the same attribute name again
-
-            if atype == vsp.BOOL_DATA:
-                data = vsp.GetAttributeBoolVal( aid )
-            elif atype == vsp.INT_DATA:
-                data = vsp.GetAttributeIntVal( aid )
-            elif atype == vsp.DOUBLE_DATA:
-                data = vsp.GetAttributeDoubleVal( aid )
-            elif atype == vsp.STRING_DATA:
-                data = vsp.GetAttributeStringVal( aid )
-            elif atype == vsp.DOUBLE_MATRIX_DATA:
-                data = vsp.GetAttributeDoubleMatrixVal( aid )
-            elif atype == vsp.INT_MATRIX_DATA:
-                data = vsp.GetAttributeIntMatrixVal( aid )
-            elif atype == vsp.ATTR_COLLECTION_DATA:
-                data = '[Attribute Group]'
-            else:
-                data = '[no data extracted]'
-
-            doc = vsp.GetAttributeDoc( aid )
-
-            attribute_report = f'  Attribute Name : {aname}\n    Attribute Type : {atypename}\n    Attribute Data : {data}\n    Attribute Desc : {doc}'
-
-            print( attribute_report )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: FindAttributeNamesInCollection ====##
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    AttrNames = FindAttributeNamesInCollection( CollID )
+    for AttrName in AttrNames:
+        print( AttrName )
 
     \endcode
     \endPythonOnly
@@ -2474,69 +2440,25 @@ extern vector< string > FindAttributeNamesInCollection(const string & collID );
     Get all attribute IDs within a single AttributeCollection, referenced by collID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: FindAttributesInCollection ====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    array < string > @AttrIDs = FindAttributesInCollection( CollID );
+    for ( int i = 0; i < int( AttrIDs.size() ); ++i )
+    {
+        Print( AttrIDs[i] );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    # Example code to list all attributes in vehicle
-    attach_ids = vsp.FindAttributedObjects();
-    for id in attach_ids:
-        coll_id = vsp.GetChildCollection(id)
-
-        attach_name = vsp.GetObjectName(id)
-
-        attr_names = vsp.FindAttributeNamesInCollection(coll_id)
-
-        # FindAttributesInCollection used here, to search through the IDs in a single collection!
-        attr_ids = vsp.FindAttributesInCollection(coll_id)
-
-        print(f'\nAttribute Collection Name : {attach_name}\n')
-
-        for aname, aid in zip(attr_names, attr_ids):
-
-            atype = vsp.GetAttributeType( aid )
-            atypename = vsp.GetAttributeTypeName( aid )
-
-            #IMPORTANT: need to get ParentID twice to get to the VSP object. 1st will only get the ID of the Attribute Collection.
-            #once at the OpenVSP object level, parent IDs are trivial.
-
-            attribute_collection_id = vsp.GetObjectParent( coll_id ) #parent of an attribute is an Attribute Collection object
-            attribute_collection_parent_id = vsp.GetObjectParent( attribute_collection_id ) #then get that Collection object's parent ID to get the OpenVSP object that contains it!
-
-            # Structure:
-            # OpenVSP object -> Attribute Collection -> Attributes
-            # e.g. Geom->Parm->Attribute Collection -> Attributes
-
-            # aid = vsp.GetAttributeID( coll_id, aname, 0 ) #get the ID of this attribute for self-awareness
-
-            aname_same = vsp.GetObjectName( aid ) # get attributeAttachName of the attributes'ID will get you the same attribute name again
-
-            if atype == vsp.BOOL_DATA:
-                data = vsp.GetAttributeBoolVal( aid )
-            elif atype == vsp.INT_DATA:
-                data = vsp.GetAttributeIntVal( aid )
-            elif atype == vsp.DOUBLE_DATA:
-                data = vsp.GetAttributeDoubleVal( aid )
-            elif atype == vsp.STRING_DATA:
-                data = vsp.GetAttributeStringVal( aid )
-            elif atype == vsp.DOUBLE_MATRIX_DATA:
-                data = vsp.GetAttributeDoubleMatrixVal( aid )
-            elif atype == vsp.INT_MATRIX_DATA:
-                data = vsp.GetAttributeIntMatrixVal( aid )
-            elif atype == vsp.ATTR_COLLECTION_DATA:
-                data = '[Attribute Group]'
-            else:
-                data = '[no data extracted]'
-
-            doc = vsp.GetAttributeDoc( aid )
-
-            attribute_report = f'  Attribute Name : {aname}\n    Attribute Type : {atypename}\n    Attribute Data : {data}\n    Attribute Desc : {doc}'
-
-            print( attribute_report )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: FindAttributesInCollection ====##
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    AttrIDs = FindAttributesInCollection( CollID )
+    for AttrID in AttrIDs:
+        print( AttrID )
 
     \endcode
     \endPythonOnly
@@ -2554,67 +2476,21 @@ extern vector< string > FindAttributesInCollection(const string & collID );
     Includes attributeGroups
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: FindAttributedObjects ====//
+    array < string > @AttachIDs = FindAttributedObjects();
+    for ( int i = 0; i < int( AttachIDs.size() ); ++i )
+    {
+        Print( AttachIDs[i] );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    # Example code to list all attributes in vehicle
-    attach_ids = vsp.FindAttributedObjects();
-    for id in attach_ids:
-        coll_id = vsp.GetChildCollection(id)
-
-        attach_name = vsp.GetObjectName(id)
-
-        attr_names = vsp.FindAttributeNamesInCollection(coll_id)
-        attr_ids = vsp.FindAttributesInCollection(coll_id)
-
-        print(f'\nAttribute Collection Name : {attach_name}\n')
-
-        for aname, aid in zip(attr_names, attr_ids):
-
-            atype = vsp.GetAttributeType( aid )
-            atypename = vsp.GetAttributeTypeName( aid )
-
-            #IMPORTANT: need to get ParentID twice to get to the VSP object. 1st will only get the ID of the Attribute Collection.
-            #once at the OpenVSP object level, parent IDs are trivial.
-
-            attribute_collection_id = vsp.GetObjectParent( coll_id ) #parent of an attribute is an Attribute Collection object
-            attribute_collection_parent_id = vsp.GetObjectParent( attribute_collection_id ) #then get that Collection object's parent ID to get the OpenVSP object that contains it!
-
-            # Structure:
-            # OpenVSP object -> Attribute Collection -> Attributes
-            # e.g. Geom->Parm->Attribute Collection -> Attributes
-
-            # aid = vsp.GetAttributeID( coll_id, aname, 0 ) #get the ID of this attribute for self-awareness
-
-            aname_same = vsp.GetObjectName( aid ) # get attributeAttachName of the attributes'ID will get you the same attribute name again
-
-            if atype == vsp.BOOL_DATA:
-                data = vsp.GetAttributeBoolVal( aid )
-            elif atype == vsp.INT_DATA:
-                data = vsp.GetAttributeIntVal( aid )
-            elif atype == vsp.DOUBLE_DATA:
-                data = vsp.GetAttributeDoubleVal( aid )
-            elif atype == vsp.STRING_DATA:
-                data = vsp.GetAttributeStringVal( aid )
-            elif atype == vsp.DOUBLE_MATRIX_DATA:
-                data = vsp.GetAttributeDoubleMatrixVal( aid )
-            elif atype == vsp.INT_MATRIX_DATA:
-                data = vsp.GetAttributeIntMatrixVal( aid )
-            elif atype == vsp.ATTR_COLLECTION_DATA:
-                data = '[Attribute Group]'
-            else:
-                data = '[no data extracted]'
-
-            doc = vsp.GetAttributeDoc( aid )
-
-            attribute_report = f'  Attribute Name : {aname}\n    Attribute Type : {atypename}\n    Attribute Data : {data}\n    Attribute Desc : {doc}'
-
-            print( attribute_report )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: FindAttributedObjects ====##
+    AttachIDs = FindAttributedObjects()
+    for AttachID in AttachIDs:
+        print( AttachID )
 
     \endcode
     \endPythonOnly
@@ -2630,18 +2506,23 @@ extern vector< string > FindAttributedObjects();
     Get the type of an OpenVSP Entity by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: GetObjectType ====//
+    array < string > @AttachIDs = FindAttributedObjects();
+    for ( int i = 0; i < int( AttachIDs.size() ); ++i )
+    {
+        int ObjType = GetObjectType( AttachIDs[i] );
+        Print( ObjType );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    attach_ids = vsp.FindAttributedObjects();
-    for id in attach_ids:
-        int_type = vsp.GetObjectType( id )
-        print( int_type )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: GetObjectType ====##
+    AttachIDs = FindAttributedObjects()
+    for AttachID in AttachIDs:
+        ObjType = GetObjectType( AttachID )
+        print( ObjType )
 
     \endcode
     \endPythonOnly
@@ -2658,18 +2539,22 @@ extern int GetObjectType(const string & attachID);
     Get the named type of an OpenVSP Entity by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: GetObjectTypeName ====//
+    array < string > @AttachIDs = FindAttributedObjects();
+    for ( int i = 0; i < int( AttachIDs.size() ); ++i )
+    {
+        string ObjTypeName = GetObjectTypeName( AttachIDs[i] );
+        Print( ObjTypeName );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    attach_ids = vsp.FindAttributedObjects();
-    for id in attach_ids:
-        type_name = vsp.GetObjectTypeName( id )
-        print( type_name )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    AttachIDs = FindAttributedObjects()
+    for AttachID in AttachIDs:
+        ObjTypeName = GetObjectTypeName( AttachID )
+        print( ObjTypeName )
 
     \endcode
     \endPythonOnly
@@ -2686,18 +2571,23 @@ extern string GetObjectTypeName(const string & attachID);
     Get the name of an OpenVSP Entity by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: GetObjectName ====//
+    array < string > @AttachIDs = FindAttributedObjects();
+    for ( int i = 0; i < int( AttachIDs.size() ); ++i )
+    {
+        string ObjName = GetObjectName( AttachIDs[i] );
+        Print( ObjName );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    attach_ids = vsp.FindAttributedObjects();
-    for id in attach_ids:
-        name = vsp.GetObjectName( id )
-        print( name )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: GetObjectName ====##
+    AttachIDs = FindAttributedObjects()
+    for AttachID in AttachIDs:
+        ObjName = GetObjectName( AttachID )
+        print( ObjName )
 
     \endcode
     \endPythonOnly
@@ -2720,26 +2610,42 @@ extern string GetObjectName(const string & attachID);
     etc.
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: GetObjectParent ====//
+
+    string WingID = AddGeom( "WING" );
+    string PodID = AddGeom( "POD", WingID );
+    string ParentID = GetObjectParent( PodID );
+
+    if ( ParentID == WingID )
+    {
+        Print( "Parent of Pod is Wing");
+    }
+
+    // Get first attribute in vehicle as an example
+    array < string > @AttrIDs = FindAllAttributes();
+    string AttrID = AttrIDs[0];
+    string CollID = GetObjectParent( AttrID );
+    string CollParentObjID = GetObjectParent( CollID );
+    Print( CollParentObjID );
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    ##==== Attributes: GetObjectParent ====##
 
-    wing_id = AddGeom( "WING" )
-    pod_id = AddGeom( "POD", wing_id )
-    parent_id = vsp.GetObjectParent( pod_id )
+    WingID = AddGeom( "WING" )
+    PodID = AddGeom( "POD", WingID )
+    ParentID = GetObjectParent( PodID )
 
-    if parent_id == wing_id:
+    if ParentID == WingID:
         print( "Parent of Pod is Wing")
 
     #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    CollID = vsp.GetObjectParent( AttrID )
-    CollParentObjID = vsp.GetObjectParent( CollID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    AttrID = FindAllAttributes()[0]
+    CollID = GetObjectParent( AttrID )
+    CollParentObjID = GetObjectParent( CollID )
+    print( CollParentObjID )
 
     \endcode
     \endPythonOnly
@@ -2757,18 +2663,19 @@ extern string GetObjectParent( const string & id );
     If ID is an attribute group, return its nested collection
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: GetChildCollection =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    Print( CollID );
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    attach_ids = vsp.FindAttributedObjects();
-    for id in attach_ids:
-        collection_id = vsp.GetChildCollection( id )
-        attach_type = GetObjectType( collection_id )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: GetChildCollection =====##
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    print( CollID )
+
 
     \endcode
     \endPythonOnly
@@ -2785,16 +2692,16 @@ extern string GetChildCollection(const string & attachID );
     Get collection ID from a vehicle's GeomSet
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: GetGeomSetCollection =====//
+    string CollID = GetGeomSetCollection( 0 );
+    Print( CollID );
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    # get attributes from user geom set at index 0
-    collection_id = vsp.GetGeomSetCollection( 0 );
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: GetGeomSetCollection =====##
+    CollID = GetGeomSetCollection( 0 )
+    print( CollID )
 
     \endcode
     \endPythonOnly
@@ -2811,21 +2718,27 @@ extern string GetGeomSetCollection( const int & index );
     Return the name of an attribute by its ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: GetAttributeName =====//
+
+    array < string > @AttrIDs = FindAllAttributes();
+
+    for ( int i = 0; i < int( AttrIDs.size() ); ++i )
+    {
+        string AttrName = GetAttributeName( AttrIDs[i] );
+        Print( AttrName );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    ##==== Attributes: GetAttributeName =====##
 
-    all_attr_ids = vsp.FindAllAttributes()
+    AttrIDs = FindAllAttributes()
 
-    for id in all_attr_ids:
-        name = vsp.GetAttributeName( id )
-        print( name )
-
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    for AttrID in AttrIDs:
+        AttrName = GetAttributeName( AttrID )
+        print( AttrName )
 
     \endcode
     \endPythonOnly
@@ -2843,23 +2756,30 @@ extern string GetAttributeName( const string & attrID );
     Return the ID of an attribute by its name and collection ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: GetAttributeID =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    array < string > @AttrNames = FindAttributeNamesInCollection( CollID );
+    for ( int i = 0; i < int( AttrNames.size() ); ++i )
+    {
+        string AttrID = GetAttributeID( CollID, AttrNames[i], 0 );
+        Print( AttrID );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    attach_ids = vsp.FindAttributedObjects();
-    for id in attach_ids:
-        coll_id = vsp.GetChildCollection(id)
-        attach_name = vsp.GetObjectName(id)
-        attr_names = vsp.FindAttributeNamesInCollection(coll_id)
-        print(f'\nAttribute Collection Name : {attach_name}\n')
-        for aname in attr_names:
-            aid = vsp.GetAttributeID( coll_id, aname, 0 ) #get the ID of this attribute for self-awareness
+    ##==== Attributes: GetAttributeID =====##
 
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    AttrNames = FindAttributeNamesInCollection( CollID )
+    for AttrName in AttrNames:
+        AttrID = GetAttributeID( CollID, AttrName, 0 )
+        print( AttrID )
+
 
     \endcode
     \endPythonOnly
@@ -2877,18 +2797,20 @@ extern string GetAttributeID(const string & collID, const string & attributeName
     Return string doc of attribute by its ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: GetAttributeDoc =====//
+    array < string > @AttrIDs = FindAllAttributes();
+    string AttrID = AttrIDs[0];
+    string AttrDoc = GetAttributeDoc( AttrID );
+    Print( AttrDoc );
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    Attr_ID = vsp.FindAllAttributes()[0]
-    Attr_Doc = vsp.GetAttributeDoc(Attr_ID)
-    print( Attr_Doc )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: GetAttributeDoc =====##
+    AttrID = FindAllAttributes()[0]
+    AttrDoc = GetAttributeDoc(AttrID)
+    print( AttrDoc )
 
     \endcode
     \endPythonOnly
@@ -2904,28 +2826,32 @@ extern string GetAttributeDoc(const string & attrID);
 /*!
     Get int enum type of attribute by ID
     Use in conjunction with GetAttributeTypeName for getting strings or with the following enums
-        vsp.BOOL_DATA
-        vsp.INT_DATA
-        vsp.DOUBLE_DATA
-        vsp.STRING_DATA
-        vsp.VEC3D_DATA
-        vsp.INT_MATRIX_DATA
-        vsp.DOUBLE_MATRIX_DATA
-        vsp.NAMEVAL_COLLECTION_DATA
-        vsp.ATTR_COLLECTION_DATA
+        BOOL_DATA
+        INT_DATA
+        DOUBLE_DATA
+        STRING_DATA
+        VEC3D_DATA
+        INT_MATRIX_DATA
+        DOUBLE_MATRIX_DATA
+        NAMEVAL_COLLECTION_DATA
+        ATTR_COLLECTION_DATA
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
+    //==== Attributes: GetAttributeType =====//
+    array < string > @AttrIDs = FindAllAttributes();
+    string AttrID = AttrIDs[0];
+    int AttrType = GetAttributeType( AttrID );
+    Print( AttrType );
+
     // not implemented
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    AttributeType = vsp.GetAttributeType( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: GetAttributeType =====##
+    AttrID = FindAllAttributes()[0]
+    AttrType = GetAttributeType( AttrID )
+    print( AttrType )
 
     \endcode
     \endPythonOnly
@@ -2942,17 +2868,21 @@ extern int GetAttributeType( const string & attrID );
     Get the attribute's type as a string
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attributes: GetAttributeTypeName =====//
+    array < string > @AttrIDs = FindAllAttributes();
+    string AttrID = AttrIDs[0];
+    string AttrTypeName = GetAttributeTypeName( AttrID );
+    Print( AttrTypeName );
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    AttributeTypeName = vsp.GetAttributeTypeName( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attributes: GetAttributeTypeName =====##
+    AttrID = FindAllAttributes()[0]
+    AttributeTypeName = GetAttributeTypeName( AttrID )
+    print( AttributeTypeName )
+
 
     \endcode
     \endPythonOnly
@@ -2969,17 +2899,37 @@ extern string GetAttributeTypeName(const string & attrID);
     Get the boolean value of a bool-type attribute
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: GetAttributeBoolVal  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    bool InitVal = true;
+    string AttrID = AddAttributeBool( CollID, "TestBoolAttr", InitVal );
+
+    array < bool > @GetVal = GetAttributeBoolVal( AttrID );
+    if ( GetVal[0] == InitVal )
+    {
+        Print( "Got matching Bool Value from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeBoolVal error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    Bool_val = vsp.GetAttributeBoolVal( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: GetAttributeBoolVal  =====##
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = True
+    AttrID = AddAttributeBool( CollID, "TestBoolAttr", InitVal )
+
+    GetVal = GetAttributeBoolVal( AttrID )
+    if GetVal[0] == InitVal:
+        print( "Got matching Bool Value from Attribute" )
+    else:
+        print( "GetAttributeBoolVal error!" )
 
     \endcode
     \endPythonOnly
@@ -2996,17 +2946,37 @@ extern vector< int > GetAttributeBoolVal(const string & attrID);
     Get the integer value of an int-type attribute
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: GetAttributeIntVal  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    int InitVal = 55;
+    string AttrID = AddAttributeInt( CollID, "TestIntAttr", InitVal );
+
+    array < int > @GetVal = GetAttributeIntVal( AttrID );
+    if ( GetVal[0] == InitVal )
+    {
+        Print( "Got matching Int Value from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeIntVal error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    Int_val = vsp.GetAttributeIntVal( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: GetAttributeIntVal  =====//
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = 55
+    AttrID = AddAttributeInt( CollID, "TestIntAttr", InitVal )
+
+    GetVal = GetAttributeIntVal( AttrID )
+    if GetVal[0] == InitVal:
+        print( "Got matching Int Value from Attribute" )
+    else:
+        print( "GetAttributeIntVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3023,17 +2993,36 @@ extern vector< int > GetAttributeIntVal(const string & attrID);
     Get the double value of a double-type attribute
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: GetAttributeDoubleVal  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    double InitVal = 3.14159;
+    string AttrID = AddAttributeDouble( CollID, "TestDoubleAttr", InitVal );
+
+    array < double > @GetVal = GetAttributeDoubleVal( AttrID );
+    if ( GetVal[0] == InitVal )
+    {
+        Print( "Got matching Double Value from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeDoubleVal error!" );
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    Double_val = vsp.GetAttributeDoubleVal( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: GetAttributeDoubleVal  =====##
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = 3.14159
+    AttrID = AddAttributeDouble( CollID, "TestDoubleAttr", InitVal )
+
+    GetVal = GetAttributeDoubleVal( AttrID )
+    if GetVal[0] == InitVal:
+        print( "Got matching Double Value from Attribute" )
+    else:
+        print( "GetAttributeDoubleVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3050,17 +3039,36 @@ extern vector< double > GetAttributeDoubleVal(const string & attrID);
     Get the string value of a string-type attribute
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: GetAttributeStringVal  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string InitVal = "Hello_World_of_Attributes";
+    string AttrID = AddAttributeString( CollID, "TestStringAttr", InitVal );
+
+    array < string > @GetVal = GetAttributeStringVal( AttrID );
+    if ( GetVal[0] == InitVal )
+    {
+        Print( "Got matching String Value from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeStringVal error!" );
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    String_val = vsp.GetAttributeStringVal( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: GetAttributeStringVal  =====##
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = "Hello_World_of_Attributes"
+    AttrID = AddAttributeString( CollID, "TestStringAttr", InitVal )
+
+    GetVal = GetAttributeStringVal( AttrID )
+    if GetVal[0] == InitVal:
+        print( "Got matching String Value from Attribute" )
+    else:
+        print( "GetAttributeStringVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3070,7 +3078,64 @@ extern vector< double > GetAttributeDoubleVal(const string & attrID);
 
 extern vector< string > GetAttributeStringVal(const string & attrID);
 
-extern vector< string > GetAttributeParmID( const string & attrID );
+/*!
+    \ingroup Attributes
+*/
+/*!
+    Get the parm value of a parm-type attribute
+    \forcpponly
+    \code{.cpp}
+    //==== Attribute: GetAttributeParmID  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+
+    string PodID = AddGeom( "POD", "" );
+    Print( "---> Test Get Parm Val" );
+    array < string > @ParmArray = GetGeomParmIDs( PodID );
+
+    string ParmID = ParmArray[0];
+    string AttrID = AddAttributeParm( CollID, "TestParmAttr", ParmID );
+
+    array < string > @GetID = GetAttributeParmID( AttrID );
+
+    if ( GetID[0] == ParmID )
+    {
+        Print( "Got matching Parm ID from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeParmID error!" );
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ##==== Attribute: GetAttributeParmID  =====##
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+
+    PodID = AddGeom( "POD", "" )
+    print( "---> Test Get Parm Val" )
+    ParmArray = GetGeomParmIDs( PodID )
+
+    ParmID = ParmArray[0]
+    AttrID = AddAttributeParm( CollID, "TestParmAttr", ParmID )
+
+    GetID = GetAttributeParmID( AttrID )
+
+    if GetID[0] == ParmID:
+        print( "Got matching Parm ID from Attribute" )
+    else:
+        print( "GetAttributeParmID error!" )
+
+    \endcode
+    \endPythonOnly
+    \return Parm value of attribute
+    \param [in] attrID string ID of attribute
+*/
+
+extern vector< string > GetAttributeParmID(const string & attrID);
 
 /*!
     \ingroup Attributes
@@ -3079,28 +3144,51 @@ extern vector< string > GetAttributeParmID( const string & attrID );
     Get the parm value of a parm-type attribute
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: GetAttributeParmVal  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+
+    string PodID = AddGeom( "POD", "" );
+    Print( "---> Test Get Parm Val" );
+    array < string > @ParmArray = GetGeomParmIDs( PodID );
+
+    string ParmID = ParmArray[0];
+    string AttrID = AddAttributeParm( CollID, "TestParmAttr", ParmID );
+    
+    double InitVal = GetParmVal( ParmID );
+    array < double > @GetVal = GetAttributeParmVal( AttrID );
+    if ( GetVal[0] == InitVal )
+    {
+        Print( "Got matching Parm Value from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeParmVal error!" );
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Generate a parm attribute and get its value
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
+    ##==== Attribute: GetAttributeParmVal  =====##
 
-    pid = AddGeom( "POD", "" )
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+
+    PodID = AddGeom( "POD", "" )
     print( "---> Test Get Parm Val" )
-    parm_array = GetGeomParmIDs( pid )
+    ParmArray = GetGeomParmIDs( PodID )
 
-    AttrName = 'Example_Parm_Attr'
-    ParmID = parm_array[0];
-    vsp.AddAttributeParm( CollID, AttrName, ParmID )
+    ParmID = ParmArray[0]
+    AttrID = AddAttributeParm( CollID, "TestParmAttr", ParmID )
 
-    AttrID = vsp.GetAttributeID( CollID, AttrName, 0 )
-    Parm_val = vsp.GetAttributeParmVal( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    InitVal = GetParmVal( ParmID )
+    GetVal = GetAttributeParmVal( AttrID )
+
+    if GetVal[0] == InitVal:
+        print( "Got matching Parm Value from Attribute" )
+    else:
+        print( "GetAttributeParmVal error!" )
+
 
     \endcode
     \endPythonOnly
@@ -3117,28 +3205,50 @@ extern vector < double > GetAttributeParmVal( const string &attrID );
     Get the name of the referenced parm of a parm-type attribute
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: GetAttributeParmName  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+
+    string PodID = AddGeom( "POD", "" );
+    Print( "---> Test Get Parm Val" );
+    array < string > @ParmArray = GetGeomParmIDs( PodID );
+    string AttrName = "Example_Parm_Attr";
+    string ParmID = ParmArray[0];
+
+    AddAttributeParm( CollID, AttrName, ParmID );
+    string AttrID = GetAttributeID( CollID, AttrName, 0 );
+    string ParmName = GetAttributeParmName( AttrID )[0];
+
+    if ( ParmName == GetParmName( ParmID ) )
+    {
+        Print( "Got matching Parm Name from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeParmName error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Generate a parm attribute and get its value
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
+    ##==== Attribute: GetAttributeParmName  =====##
 
-    pid = AddGeom( "POD", "" )
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    PodID = AddGeom( "POD", "" )
     print( "---> Test Get Parm Val" )
-    parm_array = GetGeomParmIDs( pid )
-
+    ParmArray = GetGeomParmIDs( PodID )
     AttrName = 'Example_Parm_Attr'
-    ParmID = parm_array[0];
-    vsp.AddAttributeBool( CollID, AttrName, ParmID )
+    ParmID = ParmArray[0]
+    AddAttributeParm( CollID, AttrName, ParmID )
+    AttrID = GetAttributeID( CollID, AttrName, 0 )
+    ParmName = GetAttributeParmName( AttrID )[0]
+    if ParmName == GetParmName( ParmID ):
+        print( "Got matching Parm Name from Attribute" )
+    else:
+        print( "GetAttributeParmName error!" )
 
-    AttrID = vsp.GetAttributeID( CollID, AttrName, 0 )
-    Parm_name = vsp.GetAttributeParmName( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
 
     \endcode
     \endPythonOnly
@@ -3155,17 +3265,40 @@ extern vector < string > GetAttributeParmName( const string &attrID );
     Get the vec3d value of a string-type attribute
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: GetAttributeVec3dVal  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+
+    vec3d InitVal = vec3d( 1., 0.5, -4. );
+    string AttrID = AddAttributeVec3d( CollID, "TestVec3dAttr", {InitVal} );
+
+    array < vec3d > @Vec3dVal = GetAttributeVec3dVal( AttrID );
+    if ( Vec3dVal[0].x() == InitVal.x() and Vec3dVal[0].y() == InitVal.y() and Vec3dVal[0].z() == InitVal.z() )
+    {
+        Print( "Got matching Vec3d Value from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeVec3dVal error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    Vec3d_val = vsp.GetAttributeVec3dVal( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: GetAttributeVec3dVal  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = vec3d([1., 0.5, -4.])
+    AttrID = AddAttributeVec3d( CollID, "TestVec3dAttr", [InitVal] )
+
+    Vec3dVal = GetAttributeVec3dVal( AttrID )
+    if ( Vec3dVal[0].x() == InitVal.x() ) and ( Vec3dVal[0].y() == InitVal.y() ) and ( Vec3dVal[0].z() == InitVal.z() ):
+        print( "Got matching Vec3d Value from Attribute" )
+    else:
+        print( "GetAttributeVec3dVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3182,17 +3315,45 @@ extern vector< vec3d > GetAttributeVec3dVal(const string & attrID);
     Get the Int Matrix of an Int-matrix-type attribute
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: GetAttributeIntMatrixVal  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+
+    array < array < int > > InitVal = { {0, 1} , {-4, -1000} };
+    string AttrID = AddAttributeIntMatrix( CollID, "TestIntMatrixAttr", InitVal );
+
+    array < array < int > > IntMatrixVal = GetAttributeIntMatrixVal( AttrID );
+
+    // can also get object handle to the int array with an @ handle declaration!
+    array < array < int > > @IntMatrixValJHandle = GetAttributeIntMatrixVal( AttrID );
+
+    if ( IntMatrixVal == InitVal )
+    {
+        Print( "Got matching IntMatrix Value from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeIntMatrixVal error!" );
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    Int_matrix = vsp.GetAttributeIntMatrixVal( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: GetAttributeIntMatrixVal  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = [[0, 1,],[-4, -1000]]
+    AttrID = AddAttributeIntMatrix( CollID, "TestIntMatrixAttr", InitVal )
+
+    IntMatrixVal = GetAttributeIntMatrixVal( AttrID )
+    IntMatrixVal = [list(row) for row in IntMatrixVal]
+
+    if IntMatrixVal == InitVal:
+        print( "Got matching IntMatrix Value from Attribute" )
+    else:
+        print( "GetAttributeIntMatrixVal error!" )
+
 
     \endcode
     \endPythonOnly
@@ -3209,17 +3370,39 @@ extern vector< vector < int > > GetAttributeIntMatrixVal(const string & attrID);
     Get the Double Matrix of an Double-matrix-type attribute
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: GetAttributeDoubleMatrixVal  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    array < array < double > > InitVal = {{0., 1.},{-4., -1000.}};
+    string AttrID = AddAttributeDoubleMatrix( CollID, "TestDoubleMatrixAttr", InitVal );
+
+    array < array < double > > DblMatrixVal = GetAttributeDoubleMatrixVal( AttrID );
+
+    if ( DblMatrixVal == InitVal )
+    {
+        Print( "Got matching DoubleMatrix Value from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeDoubleMatrixVal error!" );
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    Double_matrix = vsp.GetAttributeDoubleMatrixVal( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: GetAttributeDoubleMatrixVal  =====##
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = [[0., 1.,],[-4., -1000.]]
+    AttrID = AddAttributeDoubleMatrix( CollID, "TestDoubleMatrixAttr", InitVal )
+
+    DblMatrixVal = GetAttributeDoubleMatrixVal( AttrID )
+    DblMatrixVal = [list(row) for row in DblMatrixVal]
+
+    if DblMatrixVal == InitVal:
+        print( "Got matching Double Matrix Value from Attribute" )
+    else:
+        print( "GetAttributeDoubleMatrixVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3236,18 +3419,44 @@ extern vector< vector < double > > GetAttributeDoubleMatrixVal(const string & at
     Set the name of an Attribute by ID
     \forcpponly
     \code{.cpp}
+    //==== Attribute: SetAttributeName  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string InitVal = "Hello_World_of_Attributes";
+    string AttrID = AddAttributeString( CollID, "TestStringAttr", InitVal );
+
+    string NameString = "NewName_Example";
+    SetAttributeName( AttrID, NameString );
+    string AttrName = GetAttributeName( AttrID );
+    if ( NameString == AttrName )
+    {
+        Print( "Got matching name from Attribute" );
+    }
+    else
+    {
+        Print( "SetAttributeName error!" );
+    }
+
     //==== Write Some Fake Test Results =====//
     // not implemented
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
+    ##==== Attribute: SetAttributeName  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = "Hello_World_of_Attributes"
+    AttrID = AddAttributeString( CollID, "TestStringAttr", InitVal )
+
     NameString = 'NewName_Example'
     SetAttributeName( AttrID, NameString )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    AttrName = GetAttributeName( AttrID )
+    if NameString == AttrName:
+        print( "Got matching name from Attribute")
+    else:
+        print( "SetAttributeName error!" )
 
     \endcode
     \endPythonOnly
@@ -3264,18 +3473,45 @@ extern void SetAttributeName( const string & attrID, const string & name );
     Set the docstring of an Attribute by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: SetAttributeDoc  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string InitVal = "Hello_World_of_Attributes";
+    string AttrID = AddAttributeString( CollID, "TestStringAttr", InitVal );
+
+    string DocString = "New_docstring_for_attribute";
+
+    SetAttributeDoc( AttrID, DocString );
+    string NewDocString = GetAttributeDoc( AttrID );
+
+    if ( NewDocString == DocString )
+    {
+        Print( "Got matching DocString from Attribute" );
+    }
+    else
+    {
+        Print( "SetAttributeDoc error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
+    ##==== Attribute: SetAttributeDoc  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = "Hello_World_of_Attributes"
+    AttrID = AddAttributeString( CollID, "TestStringAttr", InitVal )
+
     DocString = 'New_docstring_for_attribute'
+
     SetAttributeDoc( AttrID, DocString )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    NewDocString = GetAttributeDoc( AttrID )
+    if NewDocString == DocString:
+        print( "Got matching DocString from Attribute")
+    else:
+        print( "SetAttributeDoc error!" )
 
     \endcode
     \endPythonOnly
@@ -3293,18 +3529,44 @@ extern void SetAttributeDoc( const string & attrID, const string & doc );
     Set the Bool value of a bool-type Attribute by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: SetAttributeBool  =====//
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    bool InitVal = true;
+    string AttrID = AddAttributeBool( CollID, "TestBoolAttr", InitVal );
+
+    bool SetVal = false;
+    SetAttributeBool( AttrID, SetVal );
+
+    array < bool > @GetVal = GetAttributeBoolVal( AttrID );
+    if ( GetVal[0] == SetVal )
+    {
+        Print( "Set matching Bool Value from Attribute" );
+    }
+    else
+    {
+        Print( "SetAttributeBoolVal error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    BoolVal = True
-    SetAttributeBool( AttrID, BoolVal )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: SetAttributeBool  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = True
+    AttrID = AddAttributeBool( CollID, "TestBoolAttr", InitVal )
+
+    SetVal = False
+    SetAttributeBool( AttrID, SetVal )
+
+    GetVal = GetAttributeBoolVal( AttrID )
+    if GetVal[0] == SetVal:
+        print( "Set matching Bool Value from Attribute" )
+    else:
+        print( "SetAttributeBoolVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3321,18 +3583,44 @@ extern void SetAttributeBool( const string & attrID, bool value );
     Set the Int value of an int-type Attribute by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: SetAttributeInt  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    int InitVal = 55;
+    string AttrID = AddAttributeInt( CollID, "TestIntAttr", InitVal );
+
+    int NewIntVal = -55;
+
+    SetAttributeInt( AttrID, NewIntVal );
+    array < int > @GetVal = GetAttributeIntVal( AttrID );
+    if ( GetVal[0] == NewIntVal )
+    {
+        Print( "Set matching Int Value from Attribute" );
+    }
+    else
+    {
+        Print( "SetAttributeIntVal error!" );
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    IntVal = 55
-    SetAttributeInt( AttrID, IntVal )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: SetAttributeInt  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = 55
+    AttrID = AddAttributeInt( CollID, "TestIntAttr", InitVal )
+
+    NewIntVal = -55
+
+    SetAttributeInt( AttrID, NewIntVal )
+    GetVal = GetAttributeIntVal( AttrID )
+    if GetVal[0] == NewIntVal:
+        print( "Set matching Int Value from Attribute" )
+    else:
+        print( "SetAttributeIntVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3349,18 +3637,47 @@ extern void SetAttributeInt( const string & attrID, int value );
     Set the Double value of a double-type Attribute by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: SetAttributeDouble  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    double InitVal = 3.14159;
+    string AttrID = AddAttributeDouble( CollID, "TestDoubleAttr", InitVal );
+
+    double DoubleVal = 3.15;
+
+    SetAttributeDouble( AttrID, DoubleVal );
+
+    array < double > @GetVal = GetAttributeDoubleVal( AttrID );
+    if ( GetVal[0] == DoubleVal )
+    {
+        Print( "Set matching Double Value from Attribute" );
+    }
+    else
+    {
+        Print( "SetAttributeDoubleVal error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    DoubleVal = 3.14159
+    ##==== Attribute: SetAttributeDouble  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = 3.14159
+    AttrID = AddAttributeDouble( CollID, "TestDoubleAttr", InitVal )
+
+    DoubleVal = 3.15
+
     SetAttributeDouble( AttrID, DoubleVal )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+
+    GetVal = GetAttributeDoubleVal( AttrID )
+    if GetVal[0] == DoubleVal:
+        print( "Set matching Double Value from Attribute" )
+    else:
+        print( "SetAttributeDoubleVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3377,18 +3694,45 @@ extern void SetAttributeDouble( const string & attrID, double value );
     Set the String value of a string-type Attribute by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: SetAttributeString  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string InitVal = "Hello_World_of_Attributes";
+    string AttrID = AddAttributeString( CollID, "TestStringAttr", InitVal );
+
+    string StringVal = "Du bist supergeil!";
+    SetAttributeString( AttrID, StringVal );
+
+    array < string > @GetVal = GetAttributeStringVal( AttrID );
+    if ( GetVal[0] == StringVal )
+    {
+        Print( "Got matching String Value from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeStringVal error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    StringVal = 'Set_String_Value_to_this'
+    ##==== Attribute: SetAttributeString  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = "Hello_World_of_Attributes"
+    AttrID = AddAttributeString( CollID, "TestStringAttr", InitVal )
+
+    StringVal = "Du bist supergeil!"
     SetAttributeString( AttrID, StringVal )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+
+    GetVal = GetAttributeStringVal( AttrID )
+    if GetVal[0] == StringVal:
+        print( "Got matching String Value from Attribute" )
+    else:
+        print( "GetAttributeStringVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3405,15 +3749,55 @@ extern void SetAttributeString( const string & attrID, const string & value );
     Set the ParmID value of a Parm-type Attribute by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: SetAttributeParmID  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+
+    string PodID = AddGeom( "POD", "" );
+    Print( "---> Test Get Parm Val" );
+    array < string > @ParmArray = GetGeomParmIDs( PodID );
+
+    string ParmID = ParmArray[0];
+    string AttrID = AddAttributeParm( CollID, "TestParmAttr", ParmID );
+
+    string NewParmID = ParmArray[1];
+    SetAttributeParmID( AttrID, NewParmID );
+    array < string > @GetID = GetAttributeParmID( AttrID );
+
+    if ( GetID[0] == NewParmID )
+    {
+        Print( "Set matching Parm ID from Attribute" );
+    }
+    else
+    {
+        Print( "SetAttributeParmID error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: SetAttributeParmID  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+
+    PodID = AddGeom( "POD", "" )
+    print( "---> Test Get Parm Val" )
+    ParmArray = GetGeomParmIDs( PodID )
+
+    ParmID = ParmArray[0]
+    AttrID = AddAttributeParm( CollID, "TestParmAttr", ParmID )
+
+    NewParmID = ParmArray[1]
+    SetAttributeParmID( AttrID, NewParmID )
+    GetID = GetAttributeParmID( AttrID )
+
+    if GetID[0] == NewParmID:
+        print( "Set matching Parm ID from Attribute" )
+    else:
+        print( "SetAttributeParmID error!" )
 
     \endcode
     \endPythonOnly
@@ -3430,18 +3814,45 @@ extern void SetAttributeParmID( const string & attrID, const string & value );
     Set the Vec3d value of a Vec3d-type Attribute by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: SetAttributeVec3d  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    vec3d InitVal = vec3d( 1., 0.5, -4. );
+    string AttrID = AddAttributeVec3d( CollID, "TestVec3dAttr", { InitVal } );
+
+    vec3d Vec3dVal = vec3d( 0.5, 0.75, -0.4 );
+    SetAttributeVec3d( AttrID, {Vec3dVal} );
+
+    array < vec3d > @GetVal = GetAttributeVec3dVal( AttrID );
+    if ( GetVal[0].x() == Vec3dVal.x() and GetVal[0].y() == Vec3dVal.y() and GetVal[0].z() == Vec3dVal.z() )
+    {
+        Print( "Set matching Vec3d Value from Attribute" );
+    }
+    else
+    {
+        Print( "SetAttributeVec3dVal error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    Vec3dVal = vsp.vec3d( 0.5, 0.75, -0.4 )
+    ##==== Attribute: SetAttributeVec3d  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = vec3d([1., 0.5, -4.])
+    AttrID = AddAttributeVec3d( CollID, "TestVec3dAttr", [InitVal] )
+
+    Vec3dVal = vec3d([0.5, 0.75, -0.4])
     SetAttributeVec3d( AttrID, [Vec3dVal] )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+
+    GetVal = GetAttributeVec3dVal( AttrID )
+    if ( GetVal[0].x() == Vec3dVal.x() ) and ( GetVal[0].y() == Vec3dVal.y() ) and ( GetVal[0].z() == Vec3dVal.z() ):
+        print( "Set matching Vec3d Value from Attribute" )
+    else:
+        print( "SetAttributeVec3dVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3461,15 +3872,45 @@ extern void SetAttributeVec3d( const string & attrID, const vector < vec3d > val
     //==== Write Some Fake Test Results =====//
     // not implemented
     \endcode
-    \endforcpponly
-    \beginPythonOnly
+    //==== Attribute: SetAttributeIntMatrix  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    array < array < int > > InitVal = {{0, 1},{-4, -1000}};
+    string AttrID = AddAttributeIntMatrix( CollID, "TestIntMatrixAttr", InitVal );
+
+    array < array < int > > NewImatVal = [[1,5],[-8,0]];
+    SetAttributeIntMatrix( AttrID, NewImatVal );
+
+    array < array < int > > IntMatrixVal = GetAttributeIntMatrixVal( AttrID );
+
+    if ( IntMatrixVal == NewImatVal )
+    {
+        Print( "Set matching IntMatrix Value from Attribute" );
+    }
+    else
+    {
+        Print( "SetAttributeIntMatrixVal error!" );
+    }
+
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
+    ##==== Attribute: SetAttributeIntMatrix  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = [[0, 1,],[-4, -1000]]
+    AttrID = AddAttributeIntMatrix( CollID, "TestIntMatrixAttr", InitVal )
+
     ImatVal = [[1,5],[-8,0]]
     SetAttributeIntMatrix( AttrID, ImatVal )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+
+    IntMatrixVal = GetAttributeIntMatrixVal( AttrID )
+    IntMatrixVal = [list(row) for row in IntMatrixVal]
+
+    if IntMatrixVal == ImatVal:
+        print( "Set matching IntMatrix Value from Attribute" )
+    else:
+        print( "SetAttributeIntMatrixVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3486,18 +3927,48 @@ extern void SetAttributeIntMatrix( const string & attrID, const vector< vector< 
     Set the double matrix of a double-matrix-type Attribute by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: SetAttributeDoubleMatrix  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    array < array < double > > InitVal = {{0., 1.},{-4., -1000.}};
+    string AttrID = AddAttributeDoubleMatrix( CollID, "TestDoubleMatrixAttr", InitVal );
+
+    array < array < double > > NewDmatVal = {{0.,1.5},{8.4,1.1566}};
+    SetAttributeDoubleMatrix( AttrID, NewDmatVal );
+
+    array < array < double > > DblMatrixVal = GetAttributeDoubleMatrixVal( AttrID );
+
+    if ( DblMatrixVal == NewDmatVal )
+    {
+        Print( "Got matching Double Matrix Value from Attribute" );
+    }
+    else
+    {
+        Print( "GetAttributeDoubleMatrixVal error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    DmatVal = [[0.,1.5],[8.4,1.1566]]
-    SetAttributeDoubleMatrix( AttrID, DmatVal )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: SetAttributeDoubleMatrix  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = [[0., 1.,],[-4., -1000.]]
+    AttrID = AddAttributeDoubleMatrix( CollID, "TestDoubleMatrixAttr", InitVal )
+
+    NewDmatVal = [[0.,1.5],[8.4,1.1566]]
+    SetAttributeDoubleMatrix( AttrID, NewDmatVal )
+
+    DblMatrixVal = GetAttributeDoubleMatrixVal( AttrID )
+    DblMatrixVal = [list(row) for row in DblMatrixVal]
+
+    if DblMatrixVal == NewDmatVal:
+        print( "Got matching Double Matrix Value from Attribute" )
+    else:
+        print( "GetAttributeDoubleMatrixVal error!" )
 
     \endcode
     \endPythonOnly
@@ -3514,17 +3985,68 @@ extern void SetAttributeDoubleMatrix( const string & attrID, const vector< vecto
     Delete attribute by attribute ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: DeleteAttribute  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string InitVal = "This_Attribute_Will_Be_Deleted";
+    string AttrID = AddAttributeString( CollID, "TestStringAttr", InitVal );
+
+    bool AttrAdded = false;
+    bool AttrDeleted = true;
+
+    array < string > @AttrIDs = FindAllAttributes();
+    for ( int i = 0; i < int( AttrIDs.size() ); i++ )
+    {
+        if ( AttrID == AttrIDs[i] )
+        {
+            AttrAdded = true;
+        }
+    }
+
+    DeleteAttribute( AttrID );
+
+    array < string > @NewAttrIDs = FindAllAttributes();
+    for ( int i = 0; i < int( NewAttrIDs.size() ); i++ )
+    {
+        if ( AttrID == NewAttrIDs[i] )
+        {
+            AttrDeleted = false;
+        }
+    }
+
+    if ( AttrAdded and AttrDeleted )
+    {
+        Print( "Attribute successfully deleted" );
+    }
+    else
+    {
+        Print( "DeleteAttribute error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    vsp.DeleteAttribute( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: DeleteAttribute  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = "This_Attribute_Will_Be_Deleted"
+    AttrID = AddAttributeString( CollID, "TestStringAttr", InitVal )
+
+
+    AttrIDs = FindAllAttributes()
+    AttrAdded = AttrID in AttrIDs
+
+    DeleteAttribute( AttrID )
+    NewAttrIDs = FindAllAttributes()
+    AttrDeleted = AttrID not in NewAttrIDs
+
+    if AttrAdded and AttrDeleted:
+        print( "Attribute successfully deleted" )
+    else:
+        print( "DeleteAttribute error!" )
 
     \endcode
     \endPythonOnly
@@ -3540,19 +4062,38 @@ extern void DeleteAttribute( const string & attrID );
     Add a boolean attribute by name to an attribute collection
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: AddAttributeBool  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    bool InitVal = true;
+    string AttrID = AddAttributeBool( CollID, "TestBoolAttr", InitVal );
+
+    array < bool > @GetVal = GetAttributeBoolVal( AttrID );
+    if ( GetVal[0] == InitVal )
+    {
+        Print( "Added Bool Attribute" );
+    }
+    else
+    {
+        Print( "AddAttributeBool error!" );
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
-    AttrName = 'Example_Boolean_Attr'
-    BoolValue = True
-    vsp.AddAttributeBool( CollID, AttrName, BoolValue )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: AddAttributeBool  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = True
+    AttrID = AddAttributeBool( CollID, "TestBoolAttr", InitVal )
+
+    GetVal = GetAttributeBoolVal( AttrID )
+    if GetVal[0] == InitVal:
+        print( "Added Bool Attribute" )
+    else:
+        print( "AddAttributeBool error!" )
 
     \endcode
     \endPythonOnly
@@ -3570,19 +4111,39 @@ extern string AddAttributeBool( const string & collID, const string & attributeN
     Add a integer attribute by name to an attribute collection
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: AddAttributeInt  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    int InitVal = 55;
+    string AttrID = AddAttributeInt( CollID, "TestIntAttr", InitVal );
+
+    array < int > @GetVal = GetAttributeIntVal( AttrID );
+    if ( GetVal[0] == InitVal )
+    {
+        Print( "Added Int Attribute" );
+    }
+    else
+    {
+        Print( "AddAttributeInt error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
-    AttrName = 'Example_Int_Attr'
-    IntValue = 55
-    vsp.AddAttributeInt( CollID, AttrName, IntValue )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: AddAttributeInt  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    InitVal = 55
+    AttrID = AddAttributeInt( CollID, "TestIntAttr", InitVal )
+
+    GetVal = GetAttributeIntVal( AttrID )
+    if GetVal[0] == InitVal:
+        print( "Added Int Attribute" )
+    else:
+        print( "AddAttributeInt error!" )
 
     \endcode
     \endPythonOnly
@@ -3600,19 +4161,41 @@ extern string AddAttributeInt( const string & collID, const string & attributeNa
     Add a double attribute by name to an attribute collection
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: AddAttributeDouble  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string AttrName = 'Example_Double_Attr';
+    double DoubleValue = 3.14159;
+    string AttrID = AddAttributeDouble( CollID, AttrName, DoubleValue );
+
+    array < double > @GetVal = GetAttributeDoubleVal( AttrID );
+    if ( GetVal[0] == DoubleValue )
+    {
+        Print( "Added Double Attribute" );
+    }
+    else
+    {
+        Print( "AddAttributeDouble error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
+    ##==== Attribute: AddAttributeDouble  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
     AttrName = 'Example_Double_Attr'
     DoubleValue = 3.14159
-    vsp.AddAttributeDouble( CollID, AttrName, DoubleValue )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    AttrID = AddAttributeDouble( CollID, AttrName, DoubleValue )
+
+    GetVal = GetAttributeDoubleVal( AttrID )
+    if GetVal[0] == DoubleValue:
+        print( "Added Double Attribute" )
+    else:
+        print( "AddAttributeDouble error!" )
 
     \endcode
     \endPythonOnly
@@ -3630,19 +4213,40 @@ extern string AddAttributeDouble( const string & collID, const string & attribut
     Add a string attribute by name to an attribute collection
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: AddAttributeString  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string AttrName = "Example_String_Attr";
+    string StringValue = "Example_String_Attr_DataVal";
+    string AttrID = AddAttributeString( CollID, AttrName, StringValue );
+
+    array < string > @GetVal = GetAttributeStringVal( AttrID );
+    if ( GetVal[0] == StringValue )
+    {
+        Print( "Added String Attribute" );
+    }
+    else
+    {
+        Print( "AddAttributeString error!" );
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
+    ##==== Attribute: AddAttributeString  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
     AttrName = 'Example_String_Attr'
     StringValue = 'Example_String_Attr_DataVal'
-    vsp.AddAttributeString( CollID, AttrName, StringValue )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    AttrID = AddAttributeString( CollID, AttrName, StringValue )
+
+    GetVal = GetAttributeStringVal( AttrID )
+    if GetVal[0] == StringValue:
+        print( "Added String Attribute" )
+    else:
+        print( "AddAttributeString error!" )
 
     \endcode
     \endPythonOnly
@@ -3660,25 +4264,51 @@ extern string AddAttributeString( const string & collID, const string & attribut
     Add a parm attribute by name to an attribute collection
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: AddAttributeParm  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string PodID = AddGeom( "POD", "" );
+
+    Print( "---> Test Add Parm Attr" );
+
+    array < string > @ParmArray = GetGeomParmIDs( PodID );
+    string ParmID = ParmArray[0];
+
+    string AttrName = "Example_Parm_Attr";
+    string AttrID = AddAttributeParm( CollID, AttrName, ParmID );
+
+    array < string > @GetVal = GetAttributeParmID( AttrID );
+    if ( GetVal[0] == ParmID )
+    {
+        Print( "Added Parm Attribute" );
+    }
+    else
+    {
+        Print( "AddAttributeParm error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
+    ##==== Attribute: AddAttributeParm  =====##
 
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
     pid = AddGeom( "POD", "" )
     print( "---> Test Add Parm Attr" )
     parm_array = GetGeomParmIDs( pid )
-
     AttrName = 'Example_Parm_Attr'
-    ParmID = parm_array[0];
-    vsp.AddAttributeParm( CollID, AttrName, ParmID )
+    ParmID = parm_array[0]
+    AttrID = AddAttributeParm( CollID, AttrName, ParmID )
 
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    GetVal = GetAttributeParmID( AttrID )
+    if GetVal[0] == ParmID:
+        print( "Added Parm Attribute" )
+    else:
+        print( "AddAttributeParm error!" )
+
 
     \endcode
     \endPythonOnly
@@ -3694,22 +4324,45 @@ extern string AddAttributeParm( const string &collID, const string &attributeNam
 */
 /*!
     Add a Vec3d attribute by name to an attribute collection
-    use vsp.vec3d() to create a vec3d object to pass into the args!
+    use vec3d() to create a vec3d object to pass into the args!
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: AddAttributeVec3d  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string AttrName = "Example_Vec3D_Attr";
+    vec3d Vec3dVal = vec3d( 0.5, 0.75, -0.4 );
+    string AttrID = AddAttributeVec3d( CollID, AttrName, { Vec3dVal } );
+
+    array < vec3d > @GetVal = GetAttributeVec3dVal( AttrID );
+
+    if ( GetVal[0].x() == Vec3dVal.x() and GetVal[0].y() == Vec3dVal.y() and GetVal[0].z() == Vec3dVal.z() )
+    {
+        Print( "Added Vec3d Attribute" );
+    }
+    else
+    {
+        Print( "AddAttributeVec3d error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
+    ##==== Attribute: AddAttributeVec3d  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
     AttrName = 'Example_Vec3D_Attr'
-    Vec3dValue = vsp.vec3d( 0.5, 0.75, -0.4 )
-    vsp.AddAttributeVec3d( CollID, AttrName, [Vec3dValue] )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    Vec3dVal = vec3d( 0.5, 0.75, -0.4 )
+    AttrID = AddAttributeVec3d( CollID, AttrName, [Vec3dVal] )
+
+    GetVal = GetAttributeVec3dVal( AttrID )
+    if ( GetVal[0].x() == Vec3dVal.x() ) and ( GetVal[0].y() == Vec3dVal.y() ) and ( GetVal[0].z() == Vec3dVal.z() ):
+        print( "Added Vec3d Attribute" )
+    else:
+        print( "AddAttributeVec3d error!" )
 
     \endcode
     \endPythonOnly
@@ -3728,19 +4381,44 @@ extern string AddAttributeVec3d( const string & collID, const string & attribute
     use nested vectors/arrays of ints for matrix argument
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: AddAttributeIntMatrix  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string AttrName = "Example_IntMatrix_Attr";
+    array < array < int > > IntMatrix = {{1,5},{-8,0}};
+    string AttrID = AddAttributeIntMatrix( CollID, AttrName, IntMatrix );
+
+    array < array < int > > IntMatrixVal = GetAttributeIntMatrixVal( AttrID );
+
+    if ( IntMatrixVal == IntMatrix )
+    {
+        Print( "Added IntMatrix Attribute" );
+    }
+    else
+    {
+        Print( "AddAttributeIntMatrix error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
+    ##==== Attribute: AddAttributeIntMatrix  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
     AttrName = 'Example_IntMatrix_Attr'
     IntMatrix = [[1,5],[-8,0]]
-    vsp.AddAttributeIntMatrix( CollID, AttrName, IntMatrix )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    AttrID = AddAttributeIntMatrix( CollID, AttrName, IntMatrix )
+
+    IntMatrixVal = GetAttributeIntMatrixVal( AttrID )
+    IntMatrixVal = [list(row) for row in IntMatrixVal]
+
+    if IntMatrixVal == IntMatrix:
+        print( "Added IntMatrix Attribute" )
+    else:
+        print( "AddAttributeIntMatrix error!" )
 
     \endcode
     \endPythonOnly
@@ -3759,19 +4437,44 @@ extern string AddAttributeIntMatrix( const string & collID, const string & attri
     use nested vectors/arrays of ints for matrix argument
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: AddAttributeDoubleMatrix  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string AttrName = "Example_DoubleMat_Attr";
+    array < array < double > > DoubleMatrix = {{0.,1.5},{8.4,1.1566}};
+    string AttrID = AddAttributeDoubleMatrix( CollID, AttrName, DoubleMatrix );
+
+    array < array < double > > DoubleMatrixVal = GetAttributeDoubleMatrixVal( AttrID );
+
+    if ( DoubleMatrixVal == DoubleMatrix )
+    {
+        Print( "Added DoubleMatrix Attribute" );
+    }
+    else
+    {
+        Print( "AddAttributeDoubleMatrix error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
+    ##==== Attribute: AddAttributeDoubleMatrix  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
     AttrName = 'Example_DoubleMat_Attr'
     DoubleMatrix = [[0.,1.5],[8.4,1.1566]]
-    vsp.AddAttributeDoubleMatrix( CollID, AttrName, DoubleMatrix )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    AttrID = AddAttributeDoubleMatrix( CollID, AttrName, DoubleMatrix )
+
+    DoubleMatrixVal = GetAttributeDoubleMatrixVal( AttrID )
+    DoubleMatrixVal = [list(row) for row in DoubleMatrixVal]
+
+    if DoubleMatrixVal == DoubleMatrix:
+        print( "Added DoubleMatrix Attribute" )
+    else:
+        print( "AddAttributeDoubleMatrix error!" )
 
     \endcode
     \endPythonOnly
@@ -3789,18 +4492,37 @@ extern string AddAttributeDoubleMatrix( const string & collID, const string & at
     Add an empty Attribute Group-type attribute by name to an attribute collection
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: AddAttributeGroup  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string AttrName = "Example_Attr_Group";
+    string AttrID = AddAttributeGroup( CollID, AttrName );
+
+    if ( GetAttributeType( AttrID ) == RES_DATA_TYPE::ATTR_COLLECTION_DATA )
+    {
+        Print( "Added Attribute Group" );
+    }
+    else
+    {
+        Print( "AddAttributeGroup error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
+    ##==== Attribute: AddAttributeGroup  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
     AttrName = 'Example_Attr_Group'
-    vsp.AddAttributeGroup( CollID, AttrName )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    AttrID = AddAttributeGroup( CollID, AttrName )
+    if GetAttributeType( AttrID ) == ATTR_COLLECTION_DATA:
+        print( "Added Attribute Group" )
+    else:
+        print( "AddAttributeGroup error!" )
+
 
     \endcode
     \endPythonOnly
@@ -3817,17 +4539,41 @@ extern string AddAttributeGroup( const string & collID, const string & attribute
     Copy an attribute to the clipboard by attributeID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: CopyAttribute  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string AttrName = "Example_String_Attr";
+    string StringValue = "Example_String_Attr_DataVal";
+
+    string AttrID = AddAttributeString( CollID, AttrName, StringValue );
+    int CopyError = CopyAttribute( AttrID );
+
+    if ( CopyError == 0 )
+    {
+        Print("Successfully copied Attribute");
+    }
+    else
+    {
+        Print("CopyAttribute Error!");
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    AttrID = vsp.FindAllAttributes()[0]
-    vsp.CopyAttribute( AttrID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: CopyAttribute  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    AttrName = 'Example_String_Attr'
+    StringValue = 'Example_String_Attr_DataVal'
+    AttrID = AddAttributeString( CollID, AttrName, StringValue )
+    CopyError = CopyAttribute( AttrID )
+    if not CopyError:
+        print("Successfully copied Attribute")
+    else:
+        print("CopyAttribute Error!")
     \endcode
     \endPythonOnly
     \param [in] attrID string ID of attribute to be copied
@@ -3842,25 +4588,63 @@ extern int CopyAttribute( const string & attrID );
     Cut an attribute from its collection to the clipboard by attributeID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: CopyAttribute  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string AttrName = "Example_String_Attr";
+    string StringValue = "Example_String_Attr_DataVal";
+
+    string AttrID = AddAttributeString( CollID, AttrName, StringValue );
+    CutAttribute( AttrID );
+
+    string NewCollID = GetChildCollection( "_AttrWMGroup" );
+    array < string > @PastedAttrIDs = PasteAttribute( NewCollID );
+
+    bool MatchIDs = PastedAttrIDs[0] == AttrID;
+    bool AttrInColl = false;
+
+    array < string > OldAttrIDs = FindAttributesInCollection( CollID );
+    for ( int i = 0; i < int( OldAttrIDs.size() ); i++ )
+    {
+        if ( AttrID == OldAttrIDs[i] )
+        {
+            AttrInColl = true;
+        }
+    }
+    
+    if ( MatchIDs and not AttrInColl )
+    {
+        Print( "Successfully Cut Attribute" );
+    }
+    else
+    {
+        Print( "CutAttribute Error!" );
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #Get first attribute in vehicle as an example
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
+    ##==== Attribute: CopyAttribute  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
     AttrName = 'Example_String_Attr'
     StringValue = 'Example_String_Attr_DataVal'
-    AttrID = vsp.AddAttributeString( CollID, AttrName, StringValue )
-    vsp.CutAttribute( AttrID )
+    AttrID = AddAttributeString( CollID, AttrName, StringValue )
+    CutAttribute( AttrID )
 
-    NewCollID = vsp.GetChildCollection( "_AttrWMGroup" )
-    NewAttrIDs = vsp.PasteAttribute( NewCollID )
+    NewCollID = GetChildCollection( "_AttrWMGroup" )
+    NewAttrIDs = PasteAttribute( NewCollID )
 
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    MatchIDs = NewAttrIDs[0] == AttrID
+    Attr_Cut_Check = AttrID not in FindAttributesInCollection( CollID )
+    if MatchIDs and Attr_Cut_Check:
+        print("Successfully cut Attribute")
+    else:
+        print("CutAttribute Error!")
+
     \endcode
     \endPythonOnly
     \param [in] attrID string ID of attribute to be copied
@@ -3877,17 +4661,75 @@ extern void CutAttribute( const string & attrID );
     Returns a vector of pasted attributes IDs, if any
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
+    //==== Attribute: PasteAttribute  =====//
+
+    string VehID = GetVehicleID();
+    string CollID = GetChildCollection( VehID );
+    string AttrName = "Example_String_Attr";
+    string StringValue = "Example_String_Attr_DataVal";
+    string AttrID = AddAttributeString( CollID, AttrName, StringValue );
+    CutAttribute( AttrID );
+
+    string NewCollID = GetChildCollection( "_AttrWMGroup" );
+    array < string > @NewAttrIDs = PasteAttribute( NewCollID );
+
+    bool MatchIDs = false;
+    bool AttrInOldColl = false;
+    bool AttrInNewColl = false;
+
+    array < string > OldCollAttrs = FindAttributesInCollection( CollID );
+    array < string > NewCollAttrs = FindAttributesInCollection( NewCollID );
+
+    MatchIDs = NewAttrIDs[0] == AttrID;
+
+    for ( int i = 0; i < int( OldCollAttrs.size() ); i++ )
+    {
+        if ( AttrID == OldCollAttrs[i] )
+        {
+            AttrInOldColl = true;
+        }
+    }
+
+    for ( int i = 0; i < int( NewCollAttrs.size() ); i++ )
+    {
+        if ( AttrID == NewCollAttrs[i] )
+        {
+            AttrInNewColl = true;
+        }
+    }
+
+    if ( MatchIDs and !AttrInOldColl and AttrInNewColl )
+    {
+        Print("Successfully pasted Attribute");
+    }
+    else
+    {
+        Print("PasteAttribute Error!");
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    VehID = vsp.GetVehicleID()
-    CollID = vsp.GetChildCollection( VehID )
-    NewAttrIDs = vsp.PasteAttribute( CollID )
-    #==== Write Some Fake Test Results =====//
-    # not implemented
+    ##==== Attribute: PasteAttribute  =====##
+
+    VehID = GetVehicleID()
+    CollID = GetChildCollection( VehID )
+    AttrName = 'Example_String_Attr'
+    StringValue = 'Example_String_Attr_DataVal'
+    AttrID = AddAttributeString( CollID, AttrName, StringValue )
+    CutAttribute( AttrID )
+
+    NewCollID = GetChildCollection( "_AttrWMGroup" )
+    NewAttrIDs = PasteAttribute( NewCollID )
+
+    MatchIDs = NewAttrIDs[0] == AttrID
+    Attr_Cut_Check = AttrID not in FindAttributesInCollection( CollID )
+    Attr_Paste_Check = AttrID in FindAttributesInCollection( NewCollID )
+    if MatchIDs and Attr_Cut_Check and Attr_Paste_Check:
+        print("Successfully pasted Attribute")
+    else:
+        print("PasteAttribute Error!")
 
     \endcode
     \endPythonOnly
