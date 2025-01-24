@@ -76,6 +76,13 @@ def archive( path, vstring ):
             shutil.copy( f, dname )
 
 
+def archive_file( fname, vstring ):
+    fbase, ext = os.path.splitext( fname )
+    vfname = fbase + '_' + vstring + ext
+    shutil.copy( fname, vfname )
+    return vfname
+
+
 def merge_files( finlist, fout ):
     with open( fout, 'w') as outfile:
         for fname in finlist:
