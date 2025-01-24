@@ -41,7 +41,6 @@ public:
     NameValData( const string & name, const vec3d & v_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const NameValCollection &c_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const AttributeCollection &c_data, const string & doc, const string & id = string() );
-    NameValData( const string & name, const vector< bool > & b_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< int > & i_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< double > & d_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< string > & s_data, const string & doc, const string & id = string() );
@@ -488,6 +487,7 @@ public:
 
     const vector<int> & GetIntResults( const string & id, const string & name, int index = 0 );
     const vector<double> & GetDoubleResults( const string & id, const string & name, int index = 0 );
+    const vector<double> & GetParmResults( const string & id, const string & name, int index = 0 );
     const vector<vector<int> > & GetIntMatResults( const string & id, const string & name, int index = 0 );
     const vector<vector<double> > & GetDoubleMatResults( const string & id, const string & name, int index = 0 );
     const vector<string> & GetStringResults( const string & id, const string & name, int index = 0 );

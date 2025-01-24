@@ -751,6 +751,7 @@ string AttributeMgrSingleton::GuiAddAttribute( AttributeCollection* ac_ptr, cons
     {
     case vsp::BOOL_DATA:
         attrAdd = NameValData( attrName, attrDataBool, attrDesc );
+        attrAdd.SetType( vsp::BOOL_DATA );
         attrID = attrAdd.GetID();
         SetDirtyFlag( attrAdd.GetAttributeEventGroup() );
         ac_ptr->Add( attrAdd );
@@ -817,6 +818,7 @@ string AttributeMgrSingleton::AddAttributeBool( const string &collID, const stri
 {
     string id = string();
     NameValData attrAdd = NameValData( attributeName, value, "" );
+    attrAdd.SetType( vsp::BOOL_DATA );
     id = AddAttributeUtil( collID, attrAdd, updateFlag );
     return id;
 }

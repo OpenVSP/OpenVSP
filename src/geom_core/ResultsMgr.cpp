@@ -42,9 +42,13 @@ NameValData::NameValData( const string & name )
 //==== Constructors With Name & Data =====//
 NameValData::NameValData( const string & name, const bool & b_data, const string & doc, const string & id )
 {
-    Init( name, vsp::BOOL_DATA, id );
-    m_IntData.push_back( b_data );
-    m_Doc = doc;
+    // No bool constructor truly exists- due to old NameValData grandfathered in OpenVSP casting bools to ints already
+    // We need to preserve that behavior as existing OpenVSP ecosystem understands "bool" results are cast to ints
+    // Bool and Int NameValDatas are identical, casting to m_IntData in both cases anyways, but it changes the m_Type for the benefit of interpretation
+    // If desiring the m_Type to read "bool," please use SetType( vsp::BOOL_DATA ); after using this constructor
+
+    // Cast bool_data to int, use int constructor to preserve existing behavior
+    NameValData( name, (int) b_data, doc, id );
 }
 
 NameValData::NameValData( const string & name, const int & i_data, const string & doc, const string & id )
@@ -2440,6 +2444,24 @@ void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &resul
                 for ( unsigned int j_val = 0; j_val < current_vec3d_val.size(); j_val++ )
                 {
                     fprintf( outputStream, "%.*e,%.*e,%.*e ", DBL_DIG + 3, current_vec3d_val[j_val].x(), DBL_DIG + 3, current_vec3d_val[j_val].y(), DBL_DIG + 3, current_vec3d_val[j_val].z() );
+                }
+                break;
+            }
+
+            case vsp::RES_DATA_TYPE::NAMEVAL_COLLECTION_DATA :
+            {
+                fprintf( outputStream, "Unsupported data type " );
+            }
+            case vsp::RES_DATA_TYPE::ATTR_COLLECTION_DATA :
+            {
+                fprintf( outputStream, "Unsupported data type " );
+            }
+            case vsp::RES_DATA_TYPE::PARM_REFERENCE_DATA :
+            {
+                vector<double> current_double_val = GetDoubleResults( results_id, results_names[i_result_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_double_val.size(); j_val++ )
+                {
+                    fprintf( outputStream, "%.*e ", DBL_DIG + 3, current_double_val[j_val] );
                 }
                 break;
             }
