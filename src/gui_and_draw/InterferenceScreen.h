@@ -30,6 +30,9 @@ public:
     void Hide();
     bool Update();
     void UpdateInterferenceCheckBrowser();
+    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+    void MarkDOChanged();
+    bool GetVisBndBox( BndBox &bbox );
 
     void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )

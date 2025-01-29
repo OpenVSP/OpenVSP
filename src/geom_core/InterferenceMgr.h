@@ -14,6 +14,7 @@
 #include "ParmContainer.h"
 #include "Parm.h"
 #include "TMesh.h"
+#include "DrawObj.h"
 
 class InterferenceCase : public ParmContainer
 {
@@ -33,6 +34,9 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     string Evaluate();
+    void UpdateDrawObj();
+
+    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     IntParm m_PrimarySet;
     IntParm m_PrimaryType; // Mode, Set, or Geom
@@ -46,6 +50,10 @@ public:
     string m_LastResult;
     Parm m_LastResultValue;
 
+    vector< TMesh* > m_TMeshVec;
+
+
+    vector < DrawObj > m_MeshResultDO_vec;
 };
 
 

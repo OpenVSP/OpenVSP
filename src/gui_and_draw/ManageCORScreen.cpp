@@ -12,6 +12,7 @@
 #include "ScreenMgr.h"
 
 #include "CfdMeshScreen.h"
+#include "InterferenceScreen.h"
 #include "SurfaceIntersectionScreen.h"
 #include "StructScreen.h"
 #include "StructAssemblyScreen.h"
@@ -94,6 +95,14 @@ bool ManageCORScreen::Update()
     if( structAssemblyScreen )
     {
         structAssemblyScreen->LoadDrawObjs( geom_drawObj_vec );
+    }
+
+    // Load Render Objects for VSP AERO Screen
+    InterferenceScreen * InterfereScreen = dynamic_cast < InterferenceScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_INTERFERENCE_SCREEN ) );
+    if ( InterfereScreen )
+    {
+        InterfereScreen->LoadDrawObjs( geom_drawObj_vec );
     }
 
     for(int j = 0; j < (int)geom_drawObj_vec.size(); j++)

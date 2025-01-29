@@ -189,6 +189,9 @@ xmlNodePtr InterferenceCase::DecodeXml( xmlNodePtr & node )
 string InterferenceCase::Evaluate()
 {
     m_LastResultValue = 1.0;
+    m_LastResult.clear();
+
+    DeleteTMeshVec( m_TMeshVec );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -229,12 +232,71 @@ string InterferenceCase::Evaluate()
             res->Add( new NameValData( "Intersect", intersect_flag, "Intersection detection" ) );
 
             m_LastResult = res->GetID();
-            return m_LastResult;
         }
     }
 
-    m_LastResult.clear();
+    UpdateDrawObj();
+
     return m_LastResult;
+}
+
+void InterferenceCase::UpdateDrawObj()
+{
+    Material mat;
+    mat.SetMaterial( "Red Default" );
+    mat.m_Diff[3] = 0.25; // Make translucent
+
+    m_MeshResultDO_vec.resize( m_TMeshVec.size(), DrawObj() );
+
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        unsigned int num_tris = m_TMeshVec[i]->m_TVec.size();
+
+        unsigned int pi = 0;
+        vector<TTri*>& tris = m_TMeshVec[i]->m_TVec;
+        m_MeshResultDO_vec[i].m_PntVec.resize( num_tris * 3 );
+        m_MeshResultDO_vec[i].m_NormVec.resize( num_tris * 3 );
+        for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+        {
+            m_MeshResultDO_vec[i].m_PntVec[pi] = tris[t]->m_N0->m_Pnt;
+            m_MeshResultDO_vec[i].m_PntVec[pi + 1] = tris[t]->m_N1->m_Pnt;
+            m_MeshResultDO_vec[i].m_PntVec[pi + 2] = tris[t]->m_N2->m_Pnt;
+            m_MeshResultDO_vec[i].m_NormVec[pi] = tris[t]->m_Norm;
+            m_MeshResultDO_vec[i].m_NormVec[pi + 1] = tris[t]->m_Norm;
+            m_MeshResultDO_vec[i].m_NormVec[pi + 2] = tris[t]->m_Norm;
+            pi += 3;
+        }
+
+        // Flag the DrawObjects as changed
+        m_MeshResultDO_vec[i].m_GeomChanged = true;
+
+        for ( int j = 0; j < 4; j++ )
+        {
+            m_MeshResultDO_vec[i].m_MaterialInfo.Ambient[j] = (float)mat.m_Ambi[j];
+            m_MeshResultDO_vec[i].m_MaterialInfo.Diffuse[j] = (float)mat.m_Diff[j];
+            m_MeshResultDO_vec[i].m_MaterialInfo.Specular[j] = (float)mat.m_Spec[j];
+            m_MeshResultDO_vec[i].m_MaterialInfo.Emission[j] = (float)mat.m_Emis[j];
+        }
+        m_MeshResultDO_vec[i].m_MaterialInfo.Shininess = (float)mat.m_Shininess;
+
+        m_MeshResultDO_vec[i].m_LineColor = DrawObj::Color( DrawObj::RED );
+
+        char str[255];
+        snprintf( str, sizeof( str ),  "_%d", i );
+        m_MeshResultDO_vec[i].m_GeomID = m_ID + str;
+        m_MeshResultDO_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_MeshResultDO_vec[i].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
+    }
+}
+
+
+void InterferenceCase::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    for ( int i = 0 ; i < ( int )m_MeshResultDO_vec.size() ; i++ )
+    {
+        m_MeshResultDO_vec[i].m_Visible = true;
+        draw_obj_vec.push_back( &m_MeshResultDO_vec[i] );
+    }
 }
 
 //===============================================================================//

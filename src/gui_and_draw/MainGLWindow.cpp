@@ -26,6 +26,7 @@
 #include "GraphicEngine.h"
 #include "GraphicSingletons.h"
 #include "Image.h"
+#include "InterferenceScreen.h"
 #include "LayoutMgr.h"
 #include "Lighting.h"
 #include "ManageBackground3DScreen.h"
@@ -505,6 +506,14 @@ void VspGlWindow::LoadAllDrawObjs( vector< DrawObj* > & drawObjs )
         if ( AeroScreen )
         {
             AeroScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects for VSP AERO Screen
+        InterferenceScreen * InterfereScreen = dynamic_cast < InterferenceScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_INTERFERENCE_SCREEN ) );
+        if ( InterfereScreen )
+        {
+            InterfereScreen->LoadDrawObjs( drawObjs );
         }
     }
 }

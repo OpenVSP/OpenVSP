@@ -34,6 +34,7 @@
 #include "FileUtil.h"
 
 #include "CfdMeshScreen.h"
+#include "InterferenceScreen.h"
 #include "ParmMgr.h"
 #include "SurfaceIntersectionScreen.h"
 #include "StructScreen.h"
@@ -799,7 +800,16 @@ void MainVSPScreen::FitView( bool all )
         assemblyvisible = structAssemblyScreen->GetVisBndBox( bbox );
     }
 
-    if ( vehvisible || cfdvisible || surfvisible || structvisible || assemblyvisible ) // Check for any visible objects
+    bool interferencevisible = false;
+    // Load visible boundign box from InterferenceScreen.
+    InterferenceScreen * InterfereScreen = dynamic_cast< InterferenceScreen* >
+    ( m_ScreenMgr->GetScreen( vsp::VSP_INTERFERENCE_SCREEN ) );
+    if( InterfereScreen )
+    {
+        interferencevisible = InterfereScreen->GetVisBndBox( bbox );
+    }
+
+    if ( vehvisible || cfdvisible || surfvisible || structvisible || assemblyvisible || interferencevisible ) // Check for any visible objects
     {
         vec3d p = bbox.GetCenter();
         double d = bbox.DiagDist();

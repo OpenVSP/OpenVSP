@@ -297,9 +297,51 @@ void InterferenceScreen::UpdateInterferenceCheckBrowser()
     m_InterferenceCheckBrowser->hposition( h_pos );
 }
 
+void InterferenceScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    InterferenceCase* icase = InterferenceMgr.GetInterferenceCase( m_InterferenceBrowserSelect );
+
+    if ( icase )
+    {
+        icase->LoadDrawObjs( draw_obj_vec );
+    }
+}
+
+void InterferenceScreen::MarkDOChanged()
+{
+    vector< DrawObj* > draw_obj_vec;
+    LoadDrawObjs( draw_obj_vec );
+
+    for ( int i = 0; i < draw_obj_vec.size(); i++ )
+    {
+        draw_obj_vec[i]->m_GeomChanged = true;
+    }
+}
+
+bool InterferenceScreen::GetVisBndBox( BndBox &bbox )
+{
+    bool anyvisible = false;
+
+    vector< DrawObj* > draw_obj_vec;
+    LoadDrawObjs( draw_obj_vec );
+
+    for(int j = 0; j < (int)draw_obj_vec.size(); j++)
+    {
+        if(draw_obj_vec[j]->m_Visible)
+        {
+            bbox.Update( draw_obj_vec[j]->m_PntVec );
+            bbox.Update( draw_obj_vec[j]->m_PntMesh );
+            anyvisible = true;
+        }
+    }
+
+    return anyvisible;
+}
+
 //==== Show Screen ====//
 void InterferenceScreen::Show()
 {
+    MarkDOChanged();
     m_ScreenMgr->SetUpdateFlag( true );
     BasicScreen::Show();
 }
@@ -321,6 +363,7 @@ void InterferenceScreen::CallBack( Fl_Widget *w )
     {
         int sel = m_InterferenceCheckBrowser->value();
         m_InterferenceBrowserSelect = sel - 2;
+        MarkDOChanged();
     }
     else
     {
