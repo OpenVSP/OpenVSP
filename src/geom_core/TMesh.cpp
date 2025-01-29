@@ -4444,6 +4444,18 @@ void DeleteTMeshVec(  vector<TMesh*> &tmv )
     tmv.clear();
 }
 
+TMesh* MergeTMeshVec( vector<TMesh*> &tmv )
+{
+    TMesh *tm = new TMesh();
+
+    for ( int i = 0; i < tmv.size(); i++ )
+    {
+        tm->MergeTMeshes( tmv[i] );
+    }
+
+    return tm;
+}
+
 void LoadBndBox( vector< TMesh* > &tmv )
 {
     for ( int i = 0; i < tmv.size(); i++ )

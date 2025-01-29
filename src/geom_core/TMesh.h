@@ -532,6 +532,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
 void BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax );
 
 void DeleteTMeshVec(  vector<TMesh*> &tmv );
+TMesh* MergeTMeshVec( vector<TMesh*> &tmv );
 void LoadBndBox( vector< TMesh* > &tmv );
 void UpdateBBox( BndBox &bbox, vector<TMesh*> &tmv, const Matrix4d &transMat );
 void ApplyScale( double scalefac, vector<TMesh*> &tmv );
