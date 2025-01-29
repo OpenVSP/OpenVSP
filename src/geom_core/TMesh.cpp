@@ -751,96 +751,6 @@ void TMesh::Split()
 }
 
 void TMesh::SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf )
-bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB )
-{
-    // Always delete Stiffener tris
-    if ( aType == vsp::CFD_STIFFENER )
-    {
-        return true;
-    }
-
-    bool aInOneNormal = false;
-
-    for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
-    {
-        bool aInThisB = aInB[b];
-        int bType = bTypes[b];
-        bool bThick = thicksurf[b];
-
-        // Can make absolute decisions about deleting a triangle or not in the cases below
-        if ( aInThisB && bThick )
-        {
-            if( bType == vsp::CFD_NORMAL )
-            {
-                aInOneNormal = true;
-            }
-
-            // Normal(Positive) inside another Normal, or Negative inside another Negative
-            if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT && aType != vsp::CFD_STRUCTURE ) )
-            {
-                return true;
-            }
-            // Always delete Normal tris inside Negative surfaces
-            else if ( aType == vsp::CFD_NORMAL && bType == vsp::CFD_NEGATIVE )
-            {
-                return true;
-            }
-            // Never delete Transparent tris inside Negative surfaces
-            else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NEGATIVE )
-            {
-                return false;
-            }
-            // Always delete Structure tris inside Negative surfaces
-            else if ( aType == vsp::CFD_STRUCTURE && bType == vsp::CFD_NEGATIVE )
-            {
-                return true;
-            }
-        }
-    }
-
-    // Default condition for ignoretri.
-    // The default value is applied for a triangle that is not inside
-    // any other object.  I.e. an isolated thing in 'free space'.
-    //
-    // vsp::CFD_NORMAL, vsp::CFD_TRANSPARENT
-    int ignoretri = false;
-
-    // Flip sense of default value.  These things do not exist in 'free space'.
-    if ( aType == vsp::CFD_NEGATIVE ||
-         aType == vsp::CFD_STRUCTURE ||
-         aType == vsp::CFD_STIFFENER ||  // Stiffener is special case -- always true previously.
-         aType == vsp::CFD_MEASURE_DUCT )
-    {
-        ignoretri = true;
-    }
-
-    // Check non-absolute cases
-    for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
-    {
-        bool aInThisB = aInB[b];
-        int bType = bTypes[b];
-        bool bThick = thicksurf[b];
-
-        if ( aInThisB && bThick )
-        {
-            if ( ( aType == vsp::CFD_NEGATIVE || aType == vsp::CFD_STRUCTURE ) && bType == vsp::CFD_NORMAL )
-            {
-                return false;
-            }
-            else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NORMAL )
-            {
-                return true;
-            }
-            if ( aType == vsp::CFD_MEASURE_DUCT && aInOneNormal && bType == vsp::CFD_NEGATIVE )
-            {
-                return false;
-            }
-        }
-    }
-
-    return ignoretri;
-}
-
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
@@ -4987,4 +4897,94 @@ double FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TM
         }
     }
     return sqrt( max_dist );
+}
+
+bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB )
+{
+    // Always delete Stiffener tris
+    if ( aType == vsp::CFD_STIFFENER )
+    {
+        return true;
+    }
+
+    bool aInOneNormal = false;
+
+    for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
+    {
+        bool aInThisB = aInB[b];
+        int bType = bTypes[b];
+        bool bThick = thicksurf[b];
+
+        // Can make absolute decisions about deleting a triangle or not in the cases below
+        if ( aInThisB && bThick )
+        {
+            if( bType == vsp::CFD_NORMAL )
+            {
+                aInOneNormal = true;
+            }
+
+            // Normal(Positive) inside another Normal, or Negative inside another Negative
+            if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT && aType != vsp::CFD_STRUCTURE ) )
+            {
+                return true;
+            }
+            // Always delete Normal tris inside Negative surfaces
+            else if ( aType == vsp::CFD_NORMAL && bType == vsp::CFD_NEGATIVE )
+            {
+                return true;
+            }
+            // Never delete Transparent tris inside Negative surfaces
+            else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NEGATIVE )
+            {
+                return false;
+            }
+            // Always delete Structure tris inside Negative surfaces
+            else if ( aType == vsp::CFD_STRUCTURE && bType == vsp::CFD_NEGATIVE )
+            {
+                return true;
+            }
+        }
+    }
+
+    // Default condition for ignoretri.
+    // The default value is applied for a triangle that is not inside
+    // any other object.  I.e. an isolated thing in 'free space'.
+    //
+    // vsp::CFD_NORMAL, vsp::CFD_TRANSPARENT
+    int ignoretri = false;
+
+    // Flip sense of default value.  These things do not exist in 'free space'.
+    if ( aType == vsp::CFD_NEGATIVE ||
+         aType == vsp::CFD_STRUCTURE ||
+         aType == vsp::CFD_STIFFENER ||  // Stiffener is special case -- always true previously.
+         aType == vsp::CFD_MEASURE_DUCT )
+    {
+        ignoretri = true;
+    }
+
+    // Check non-absolute cases
+    for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
+    {
+        bool aInThisB = aInB[b];
+        int bType = bTypes[b];
+        bool bThick = thicksurf[b];
+
+        if ( aInThisB && bThick )
+        {
+            if ( ( aType == vsp::CFD_NEGATIVE || aType == vsp::CFD_STRUCTURE ) && bType == vsp::CFD_NORMAL )
+            {
+                return false;
+            }
+            else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NORMAL )
+            {
+                return true;
+            }
+            if ( aType == vsp::CFD_MEASURE_DUCT && aInOneNormal && bType == vsp::CFD_NEGATIVE )
+            {
+                return false;
+            }
+        }
+    }
+
+    return ignoretri;
 }

@@ -400,7 +400,6 @@ public:
     double MinDistance( TMesh* tm, double curr_min_dist );
     void Split();
 
-    bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB );
     void SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf );
     void IgnoreYLessThan( const double & ytol );
     void IgnoreAll();
@@ -550,6 +549,7 @@ double FindMinDistance(const vector< TMesh* > & tmesh_vec, const vector< TMesh* 
 double FindMaxMinDistance( const vector< TMesh* > & mesh_1, const vector< TMesh* > & mesh_2 );
 bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & other_tmesh_vec );
 bool CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec );
+bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB );
 
 
 #endif
