@@ -1741,7 +1741,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     // Perhaps this can be moved down there to match.
     if ( degen )
     {
-        MergeRemoveOpenMeshes( &info, deleteopen );
+        MergeRemoveOpenMeshes( m_TMeshVec, &info, deleteopen );
     }
 
     int numTris = 0;
@@ -1859,7 +1859,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         // Tag meshes before regular intersection
         SubTagTris( (bool)intSubsFlag );
 
-        MergeRemoveOpenMeshes( &info, deleteopen );
+        MergeRemoveOpenMeshes( m_TMeshVec, &info, deleteopen );
     }
 
     if ( halfFlag )
@@ -2201,7 +2201,7 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
     MeshInfo info;
-    MergeRemoveOpenMeshes( &info, false );
+    MergeRemoveOpenMeshes( m_TMeshVec, &info, false );
 
     //==== Create Results ====//
     Results* res = ResultsMgr.CreateResults( "Slice", "Planar slicing results." );
@@ -2647,7 +2647,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
 
     // Merge and remove any remaining open meshes
     MeshInfo info;
-    MergeRemoveOpenMeshes( &info );
+    MergeRemoveOpenMeshes( m_TMeshVec, &info, true );
 
     //==== Create Bnd Box for Mesh Geoms ====//
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
@@ -2860,7 +2860,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
     MeshInfo info;
-    MergeRemoveOpenMeshes( &info, deleteopen );
+    MergeRemoveOpenMeshes( m_TMeshVec, &info, deleteopen );
 
     //==== Create Results ====//
     Results *res = nullptr;
@@ -3848,11 +3848,6 @@ void MeshGeom::WaterTightCheck( FILE* fid )
 
     m_TMeshVec.clear();
     m_TMeshVec.push_back( oneMesh );
-}
-
-void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen )
-{
-    ::MergeRemoveOpenMeshes( m_TMeshVec, info, deleteopen );
 }
 
 void MeshGeom::DeleteMarkedMeshes()
