@@ -593,6 +593,8 @@ void Scene::draw()
         Entity * entity = dynamic_cast<Entity*>( it->second );
         if( entity && entity->isTransparent() && 
             ( entity->getRenderStyle() == Common::VSP_DRAW_SHADED ||
+              entity->getRenderStyle() == Common::VSP_DRAW_WIRE_FRAME_SHADED ||
+              entity->getRenderStyle() == Common::VSP_DRAW_WIRE_FRAME_TRANSPARENT_BACK ||
               entity->getRenderStyle() == Common::VSP_DRAW_TEXTURED ||
               entity->getRenderStyle() == Common::VSP_DRAW_TEXTURED_TRANSPARENT_BACK ))
         {
