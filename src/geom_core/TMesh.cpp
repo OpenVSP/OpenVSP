@@ -4552,6 +4552,22 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
     }
 }
 
+void DeleteTMeshVec(  vector<TMesh*> &tmv )
+{
+    for ( int i = 0; i < tmv.size(); i++ )
+    {
+        delete tmv[i];
+    }
+    tmv.clear();
+}
+
+void LoadBndBox( vector< TMesh* > &tmv )
+{
+    for ( int i = 0; i < tmv.size(); i++ )
+    {
+        tmv[i]->LoadBndBox();
+    }
+}
 
 void UpdateBBox( BndBox &bbox, vector<TMesh*> &tmv, const Matrix4d &transMat )
 {

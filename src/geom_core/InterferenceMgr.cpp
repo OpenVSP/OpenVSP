@@ -164,24 +164,6 @@ vector< TMesh* > InterferenceCase::GetSecondaryTMeshVec()
     return tmv;
 }
 
-void InterferenceCase::LoadBndBox( vector< TMesh* > &tmv )
-{
-    for ( int i = 0; i < tmv.size(); i++ )
-    {
-        tmv[i]->LoadBndBox();
-    }
-}
-
-
-void InterferenceCase::DeleteTMeshVec( vector< TMesh* > &tmv )
-{
-    for ( int i = 0; i < tmv.size(); i++ )
-    {
-        delete tmv[i];
-    }
-    tmv.clear();
-}
-
 xmlNodePtr InterferenceCase::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr icase_node = xmlNewChild( node, NULL, BAD_CAST"InterferenceCase", NULL );
