@@ -405,6 +405,7 @@ public:
     void IgnoreAll();
 
     void DeterIntExt( const vector< TMesh* >& meshVec );
+    void DeterIntExt( TMesh* mesh );
 
     void LoadBndBox();
 
@@ -550,6 +551,7 @@ bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & ot
 bool CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec );
 bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB );
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
+void DeterIntExtTri( TTri* tri, TMesh* mesh );
 
 
 #endif

@@ -843,6 +843,13 @@ void TMesh::DeterIntExt( const vector< TMesh* >& meshVec )
     }
 }
 
+void TMesh::DeterIntExt( TMesh* mesh )
+{
+    vector <TMesh*> tmv;
+    tmv.push_back( mesh );
+    DeterIntExt( tmv );
+}
+
 double TMesh::ComputeTheoArea()
 {
     m_TheoArea = 0;
@@ -4987,4 +4994,11 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
             }
         }
     }
+}
+
+void DeterIntExtTri( TTri* tri, TMesh* mesh )
+{
+    vector <TMesh*> tmv;
+    tmv.push_back( mesh );
+    DeterIntExtTri( tri, tmv );
 }
