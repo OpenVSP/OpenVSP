@@ -7992,7 +7992,7 @@ void ApplyModeSettings( const string &mid )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ApplyModeSettings::Counld not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ApplyModeSettings::Could not find mode." );
     }
 
     mod->ApplySettings();
@@ -8005,7 +8005,7 @@ void ShowOnlyMode( const string &mid )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ShowOnlyMode::Counld not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ShowOnlyMode::Could not find mode." );
     }
 
     mod->ShowOnly();
@@ -8018,7 +8018,7 @@ void ModeAddGroupSetting( const string &mid, const string &gid, const string &si
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ModeAddGroupSetting::Counld not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeAddGroupSetting::Could not find mode." );
     }
 
     mod->AddSetting( pair < string, string > ( gid, sid ) );
@@ -8031,7 +8031,7 @@ string ModeGetGroup( const string &mid, int indx )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetGroup::Counld not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetGroup::Could not find mode." );
         return string();
     }
 
@@ -8046,7 +8046,7 @@ string ModeGetSetting( const string &mid, int indx )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetSetting::Counld not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetSetting::Could not find mode." );
         return string();
     }
 
@@ -8062,7 +8062,7 @@ vector < string > ModeGetAllGroups( const string &mid )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetAllGroups::Counld not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetAllGroups::Could not find mode." );
         return ret;
     }
 
@@ -8078,7 +8078,7 @@ vector < string > ModeGetAllSettings( const string &mid )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetAllSettings::Counld not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetAllSettings::Could not find mode." );
         return ret;
     }
 
@@ -8093,7 +8093,7 @@ void RemoveGroupSetting( const string &mid, int indx )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "RemoveGroupSetting::Counld not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "RemoveGroupSetting::Could not find mode." );
         return;
     }
 
@@ -8107,7 +8107,7 @@ void RemoveAllGroupSettings( const string &mid )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "RemoveAllGroupSettings::Counld not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "RemoveAllGroupSettings::Could not find mode." );
         return;
     }
 
