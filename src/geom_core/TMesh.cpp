@@ -843,40 +843,6 @@ void TMesh::DeterIntExt( const vector< TMesh* >& meshVec )
     }
 }
 
-void TMesh::DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
-{
-    vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
-    orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
-    tri->m_IgnoreTriFlag = false;
-    int prior = -1;
-
-    vec3d dir( 1.0, 0.000001, 0.000001 );
-
-    int nmesh = meshVec.size();
-    tri->m_insideSurf.resize( nmesh, false );
-
-    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
-    {
-        if ( meshVec[m] != this && meshVec[m]->m_ThickSurf )
-        {
-            vector<double > tParmVec;
-            meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
-            if ( tParmVec.size() % 2 )
-            {
-                tri->m_insideSurf[m] = true;
-
-                // Priority assignment for wave drag.  Mass prop may need some adjustments.
-                if ( meshVec[m]->m_MassPrior > prior ) // Should possibly check that priority is only for vsp::CFD_NORMAL
-                {
-                    tri->m_ID = meshVec[m]->m_OriginGeomID;
-                    tri->m_Density = meshVec[m]->m_Density;
-                    prior = meshVec[m]->m_MassPrior;
-                }
-            }
-        }
-    }
-}
-
 double TMesh::ComputeTheoArea()
 {
     m_TheoArea = 0;
@@ -4987,4 +4953,38 @@ bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < b
     }
 
     return ignoretri;
+}
+
+void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
+{
+    vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
+    orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
+    tri->m_IgnoreTriFlag = false;
+    int prior = -1;
+
+    vec3d dir( 1.0, 0.000001, 0.000001 );
+
+    int nmesh = meshVec.size();
+    tri->m_insideSurf.resize( nmesh, false );
+
+    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
+    {
+        if ( meshVec[m] != tri->GetTMeshPtr() && meshVec[m]->m_ThickSurf )
+        {
+            vector<double > tParmVec;
+            meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
+            if ( tParmVec.size() % 2 )
+            {
+                tri->m_insideSurf[m] = true;
+
+                // Priority assignment for wave drag.  Mass prop may need some adjustments.
+                if ( meshVec[m]->m_MassPrior > prior ) // Should possibly check that priority is only for vsp::CFD_NORMAL
+                {
+                    tri->m_ID = meshVec[m]->m_OriginGeomID;
+                    tri->m_Density = meshVec[m]->m_Density;
+                    prior = meshVec[m]->m_MassPrior;
+                }
+            }
+        }
+    }
 }
