@@ -3150,7 +3150,7 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
     }
 }
 
-void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec )
+void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec ) const
 {
     int i;
 
