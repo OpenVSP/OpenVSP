@@ -750,6 +750,7 @@ void TMesh::Split()
     }
 }
 
+void TMesh::SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf )
 bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB )
 {
     // Always delete Stiffener tris
@@ -840,7 +841,6 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
     return ignoretri;
 }
 
-void TMesh::SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & bTypes, const vector < bool > & thicksurf )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {

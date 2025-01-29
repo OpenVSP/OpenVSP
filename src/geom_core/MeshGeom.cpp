@@ -1915,7 +1915,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     //==== Mark which triangles to ignore ====//
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        m_TMeshVec[i]->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
+        m_TMeshVec[i]->SetIgnoreTriFlag( bTypes, thicksurf );
     }
 
     //===== Reset Scale =====//
@@ -2295,7 +2295,7 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
         tm->DeterIntExt( m_TMeshVec );
 
         //==== Mark which triangles to ignore ====//
-        tm->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
+        tm->SetIgnoreTriFlag( bTypes, thicksurf );
 
     }
 
@@ -2814,7 +2814,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         tm->DeterIntExt( m_TMeshVec );
 
         //==== Mark which triangles to ignore ====//
-        tm->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
+        tm->SetIgnoreTriFlag( bTypes, thicksurf );
     }
 
     //==== Pushback slice and area results ====//
@@ -2950,7 +2950,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
         tm->DeterIntExt( m_TMeshVec );
 
         //==== Mark which triangles to ignore ====//
-        tm->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
+        tm->SetIgnoreTriFlag( bTypes, thicksurf );
 
     }
 
@@ -2978,7 +2978,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
     //==== Mark which triangles to ignore ====//
     for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
     {
-        m_TMeshVec[ i ]->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
+        m_TMeshVec[ i ]->SetIgnoreTriFlag( bTypes, thicksurf );
     }
 
     //==== Do Shell Calcs ====//

@@ -401,7 +401,7 @@ public:
     void Split();
 
     bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB );
-    void SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & bTypes, const vector < bool > & thicksurf );
+    void SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf );
     void IgnoreYLessThan( const double & ytol );
     void IgnoreAll();
 
