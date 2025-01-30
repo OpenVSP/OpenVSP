@@ -36,6 +36,9 @@ namespace vsp
 
 //======================== Error Object ================================//
 /*!
+    \ingroup APIError
+*/
+/*!
     ErrorObj is defined by an error code enum and associated error string. 
 */
 class ErrorObj
@@ -46,6 +49,9 @@ public:
     ErrorObj( const ErrorObj& from );
     ~ErrorObj()         {}
 
+/*!
+    \ingroup APIError
+*/
 /*!
     Get the ERROR_CODE enum of the last raised error
     \forcpponly
@@ -72,6 +78,9 @@ public:
     {
         return m_ErrorCode;
     }
+/*!
+    \ingroup APIError
+*/
 /*!
     Get the error string of the last raised error
     \forcpponly
@@ -119,7 +128,7 @@ class ErrorMgrSingleton : public MessageBase
 public:
 
 /*!
-	\ingroup APIError
+    \ingroup APIError
 */
 /*!
     Check if there was an error on the last call to the API
@@ -162,7 +171,7 @@ public:
     bool GetErrorLastCallFlag();                // Did the last call have an error?
 
 /*!
-	\ingroup APIError
+    \ingroup APIError
 */
 /*!
     Count the total number of errors on the stack
@@ -209,7 +218,7 @@ public:
     int  GetNumTotalErrors();                   // Total number of errors on stack
 
 /*!
-	\ingroup APIError
+    \ingroup APIError
 */
 /*!
     Pop (remove) and return the most recent error from the stack. Note, errors are printed on occurrence by default. 
@@ -256,7 +265,7 @@ public:
     ErrorObj PopLastError();                    // Pop last error off stack
 
 /*!
-	\ingroup APIError
+    \ingroup APIError
 */
 /*!
     Return the most recent error from the stack (does NOT pop error off the stack)
@@ -304,7 +313,7 @@ public:
     bool PopErrorAndPrint( FILE* stream );      // Check for error, pop and print to stream
 
 /*!
-	\ingroup APIError
+    \ingroup APIError
 */
 /*!
     Prevent errors from printing to stdout as they occur.
@@ -339,7 +348,7 @@ public:
     void SilenceErrors()    { m_PrintErrors = false; };
 
 /*!
-	\ingroup APIError
+    \ingroup APIError
 */
 /*!
     Cause errors to be printed to stdout as they occur.
