@@ -53,7 +53,7 @@ VspScreen::~VspScreen()
 //==== Show Window ====//
 void VspScreen::Show()
 {
-    if ( m_ScreenType > 0 && m_ScreenType != VSP_COR_SCREEN )
+    if ( m_ScreenType >= 0 && m_ScreenType != VSP_COR_SCREEN )
     {
         if ( m_ScreenMgr->IsGUIScreenDisabled( m_ScreenType ) )
         {
