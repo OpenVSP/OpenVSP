@@ -5027,6 +5027,97 @@ bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < b
     return ignoretri;
 }
 
+void IntersectSplitClassify( vector < TMesh * > &tmv )
+{
+    //==== Scale To 1000 Units ====//
+    BndBox bbox;
+    Matrix4d mat;
+    UpdateBBox( bbox, tmv, mat );
+
+    double scalefac = 1000.0 / bbox.GetLargestDist();
+    ApplyScale( scalefac, tmv );
+
+    bool intSubsFlag = false;
+    // Tag meshes before regular intersection
+    SubTagTris( (bool)intSubsFlag, tmv );
+
+    //==== Check For Open Meshes and Merge or Delete Them ====//
+    MeshInfo info;
+    MergeRemoveOpenMeshes( tmv, &info, /* deleteopen */ false );
+
+    //==== Create Bnd Box for  Mesh Geoms ====//
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->LoadBndBox();
+    }
+
+    //==== Intersect All Mesh Geoms ====//
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        for ( int j = i + 1 ; j < ( int )tmv.size() ; j++ )
+        {
+            tmv[i]->Intersect( tmv[j] );
+        }
+    }
+
+    //==== Split Intersected Tri in Mesh ====//
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->Split();
+    }
+
+    //==== Determine Which Triangle Are Interior/Exterior ====//
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->DeterIntExt( tmv );
+    }
+
+    //===== Reset Scale =====//
+    ApplyScale( 1.0 / scalefac, tmv );
+}
+
+void CSGMesh( vector < TMesh * > &tmv )
+{
+    IntersectSplitClassify( tmv );
+
+    // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
+    vector < int > bTypes( tmv.size() );
+    vector < bool > thicksurf( tmv.size() );
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        bTypes[i] = tmv[i]->m_SurfCfdType;
+        thicksurf[i] = tmv[i]->m_ThickSurf;
+    }
+
+    //==== Mark which triangles to ignore ====//
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->SetIgnoreTriFlag( bTypes, thicksurf );
+    }
+}
+
+void MeshUnion( vector < TMesh * > &tmv )
+{
+    IntersectSplitClassify( tmv );
+
+    //==== Mark which triangles to ignore ====//
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->SetIgnoreInsideAny();
+    }
+}
+
+void MeshIntersect( vector < TMesh * > &tmv )
+{
+    IntersectSplitClassify( tmv );
+
+    //==== Mark which triangles to ignore ====//
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->SetIgnoreOutsideAll();
+    }
+}
+
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
 {
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;

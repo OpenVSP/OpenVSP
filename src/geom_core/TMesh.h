@@ -555,6 +555,11 @@ double FindMaxMinDistance( const vector< TMesh* > & mesh_1, const vector< TMesh*
 bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & other_tmesh_vec );
 bool CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec );
 bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB );
+void IntersectSplitClassify( vector < TMesh * > &tmv );
+void CSGMesh( vector < TMesh* > & tmv );
+void MeshUnion( vector < TMesh* > & tmv );
+void MeshIntersect( vector < TMesh* > & tmv );
+
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
 void DeterIntExtTri( TTri* tri, TMesh* mesh );
 
