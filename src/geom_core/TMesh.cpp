@@ -5017,6 +5017,110 @@ double FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TM
     return sqrt( max_dist );
 }
 
+string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv )
+{
+    bool intersect_flag = false;
+    bool interference_flag = false;
+
+    CSGMesh( primary_tmv );
+    FlattenTMeshVec( primary_tmv );
+    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+    primary_tm->LoadBndBox();
+    double vol_primary = primary_tm->ComputeTheoVol();
+
+    CSGMesh( secondary_tmv );
+    FlattenTMeshVec( secondary_tmv );
+    TMesh *secondary_tm = MergeTMeshVec( secondary_tmv );
+    secondary_tm->LoadBndBox();
+    double vol_secondary = secondary_tm->ComputeTheoVol();
+
+    double min_dist = 1.0e12;
+    double con_dist = 1.0e12;
+    double con_vol = -1; // Not the true volume.
+    double vol = 0;
+
+    bool primary_in_secondary = false;
+    bool secondary_in_primary = true;
+    vector < vec3d > pts;
+
+
+    double vref = min( vol_primary, vol_secondary );
+
+    if ( primary_tm->CheckIntersect( secondary_tm ) )
+    {
+        intersect_flag = true;
+        interference_flag = true;
+
+        result_tmv.push_back( primary_tm );
+        result_tmv.push_back( secondary_tm );
+        MeshIntersect( result_tmv );
+        FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
+
+        min_dist = 0.0;
+        con_dist = 1.0;
+
+        for ( int i = 0; i < result_tmv.size(); i++ )
+        {
+            vol += result_tmv[i]->ComputeTrimVol();
+        }
+        con_vol = vol / vref;
+    }
+    else
+    {
+        pts.resize( 2 );
+        min_dist = primary_tm->MinDistance( secondary_tm, min_dist, pts[0], pts[1] );
+        con_dist = min_dist;
+
+        if ( !primary_tm->m_TVec.empty() && !secondary_tm->m_TVec.empty() )
+        {
+            TTri *tri = primary_tm->m_TVec[0];
+
+            if ( DeterIntExtTri( tri, secondary_tm ) ) // a inside b
+            {
+                primary_in_secondary = true;
+                interference_flag = true;
+                result_tmv.push_back( primary_tm );
+                con_vol = 1;
+                con_dist += 1.0;
+            }
+
+            if ( !interference_flag )
+            {
+                tri = secondary_tm->m_TVec[0];
+                if ( DeterIntExtTri( tri, primary_tm ) ) // b inside a
+                {
+                    secondary_in_primary = true;
+                    interference_flag = true;
+                    result_tmv.push_back( secondary_tm );
+                    con_vol = 1;
+                    con_dist += 1.0;
+                }
+            }
+        }
+    }
+
+    double gcon = con_dist * con_vol;
+
+    Results *res = ResultsMgr.CreateResults( "External_Interference", "External interference check." );
+    if( res )
+    {
+        // Populate results.
+        res->Add( new NameValData( "Interference", interference_flag, "Flag indicating the primary and secondary interfere." ) );
+        res->Add( new NameValData( "Intersection", intersect_flag, "Flag indicating the primary and secondary intersect." ) );
+        res->Add( new NameValData( "Primary_In_Secondary", primary_in_secondary, "Flag indicating the primary is contained within the secondary." ) );
+        res->Add( new NameValData( "Secondary_In_Primary", secondary_in_primary, "Flag indicating the secondary is contained within the primary." ) );
+        res->Add( new NameValData( "Min_Dist", min_dist, "Minimum distance between primary and secondary." ) );
+        res->Add( new NameValData( "Pts", pts, "Minimum distance line end points." ) );
+        res->Add( new NameValData( "InterferenceVol", vol, "Volume of interference." ) );
+        res->Add( new NameValData( "Vol_Primary", vol_primary, "Volume of primary." ) );
+        res->Add( new NameValData( "Vol_Secondary", vol_secondary, "Volume of secondary." ) );
+        res->Add( new NameValData( "Con_Val", gcon, "Constraint value" ) );
+        res->Add( new NameValData( "Result", gcon, "Interference result" ) );
+    }
+
+    return res->GetID();
+}
+
 bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB )
 {
     // Always delete Stiffener tris
