@@ -41,8 +41,12 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 775
     m_ModeBrowser = m_GenLayout.AddColResizeBrowser( mode_widths, 4, browserHeight );
     m_ModeBrowser->callback( staticScreenCB, this );
 
+    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.AddX( m_GenLayout.GetW() * 0.25 );
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetW() * 0.5 );
     m_GenLayout.AddButton( m_ApplyAndShowOnlyMode, "Apply and Show Only" );
 
+    m_GenLayout.SetFitWidthFlag( true );
 
     int bw = 100;
     m_GenLayout.SetChoiceButtonWidth( bw );
