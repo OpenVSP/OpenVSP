@@ -106,6 +106,10 @@
     \brief This group of API functions can be used to control the Ruler Tool through the API.
     \ref index "Click here to return to the main page"
 
+    \defgroup Mode Mode Functions
+    \brief This group of API functions are used to manipulate Modes -- a combination of Sets and Variable Presets
+    \ref index "Click here to return to the main page"
+
     \defgroup PCurve Propeller Blade Curve Functions
     \brief The following group of API functions may be used to control parametric propeller blade curves (PCurves).
     \ref index "Click here to return to the main page"
