@@ -258,6 +258,7 @@ public:
     virtual void CopyFrom( const TTri* tri );
     virtual bool SplitTri( bool dumpCase );              // Split Tri to Fit ISect Edges
 
+    virtual void FlipTri();
     virtual void OrientTri( vector < int > & tri );
     virtual void OrientConnList( vector < vector < int > > & cl );
     virtual bool CompConnList( const vector < vector < int > > & cla, const vector < vector < int > > & clb );

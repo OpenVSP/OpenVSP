@@ -1914,6 +1914,11 @@ bool TTri::SplitTri( bool dumpCase )
     return erflag;
 }
 
+void TTri::FlipTri()
+{
+    swap( m_N0, m_N1 );
+}
+
 void TTri::OrientTri( vector < int > & tri )
 {
     vec3d n0 = m_NVec[ tri[0] ]->GetXYZPnt();
