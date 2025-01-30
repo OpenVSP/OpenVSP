@@ -896,7 +896,20 @@ void ScreenMgr::ShowScreen( int id )
 {
     if ( id >= 0 && id < vsp::VSP_NUM_SCREENS )
     {
-        m_ScreenVec[id]->Show();
+        if ( IsGUIScreenDisabled( id ) )
+        {
+            BasicScreen *bs = dynamic_cast< BasicScreen* > ( m_ScreenVec[id] );
+            if ( bs )
+            {
+                Alert( bs->GetTitle() + " screen is disabled." );
+            }
+            else
+            {
+                Alert( "The selected screen is disabled." );
+            }
+        }
+
+        m_ScreenVec[id]->Show(); // Won't work if it is disabled.  Don't need condition here.
     }
 }
 
