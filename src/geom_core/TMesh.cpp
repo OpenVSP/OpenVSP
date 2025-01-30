@@ -772,6 +772,54 @@ void TMesh::SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool
     }
 }
 
+void TMesh::SetIgnoreInsideAny()
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            tri->m_IgnoreTriFlag = true;
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                vector < bool > vec = tri->m_SplitVec[s]->m_insideSurf;
+                tri->m_SplitVec[s]->m_IgnoreTriFlag = std::any_of(vec.begin(), vec.end(), [](bool v) { return v; });
+            }
+        }
+        else
+        {
+            vector < bool > vec = tri->m_insideSurf;
+            tri->m_IgnoreTriFlag = std::any_of(vec.begin(), vec.end(), [](bool v) { return v; });
+        }
+    }
+}
+
+void TMesh::SetIgnoreOutsideAll()
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            tri->m_IgnoreTriFlag = true;
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                vector < bool > vec = tri->m_SplitVec[s]->m_insideSurf;
+                tri->m_SplitVec[s]->m_IgnoreTriFlag = std::none_of(vec.begin(), vec.end(), [](bool v) { return v; });
+            }
+        }
+        else
+        {
+            vector < bool > vec = tri->m_insideSurf;
+            tri->m_IgnoreTriFlag = std::none_of(vec.begin(), vec.end(), [](bool v) { return v; });
+        }
+    }
+}
+
 void TMesh::IgnoreYLessThan( const double & ytol )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )

@@ -402,6 +402,9 @@ public:
     void Split();
 
     void SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf );
+    void SetIgnoreInsideAny();
+    void SetIgnoreOutsideAll();
+
     void IgnoreYLessThan( const double & ytol );
     void IgnoreAll();
 
