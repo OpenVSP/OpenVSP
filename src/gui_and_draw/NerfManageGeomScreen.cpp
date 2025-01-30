@@ -19,7 +19,7 @@ NerfManageGeomScreen::NerfManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr,
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
     m_LastTopLine = 0;
-    m_SetIndex = 0;
+    m_SetIndex = SET_FIRST_USER;
     m_CollapseFlag = false;
     m_LastSelectedGeomID = "NONE";
 

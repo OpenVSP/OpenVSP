@@ -18,7 +18,7 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 64
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
     m_LastTopLine = 0;
-    m_SetIndex = 0;
+    m_SetIndex = SET_FIRST_USER;
     m_TypeIndex = 0;
     m_CollapseFlag = false;
     m_LastSelectedGeomID = "NONE";
