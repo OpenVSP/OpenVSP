@@ -14,6 +14,9 @@
 
 
 /*!
+    \ingroup Matrix4d
+*/
+/*!
     Matrix4d is typically used to perform rotations, translations, scaling, projections, and other transformations in 3D space.
 */
 class Matrix4d
@@ -21,6 +24,9 @@ class Matrix4d
 public:
     Matrix4d();
 
+    /*!
+    \ingroup Matrix4d
+    */
     /*!
         Create a 4x4 identity matrix
         \forcpponly
@@ -47,6 +53,9 @@ public:
 
     static void setIdentity( double *m );
 
+    /*!
+    \ingroup Matrix4d
+    */
     /*!
         Translate the Matrix4d along the given axes values
         \forcpponly
@@ -81,6 +90,9 @@ public:
     void translatev( const vec3d &v );
 
     /*!
+    \ingroup Matrix4d
+    */
+    /*!
         Rotate the Matrix4d about the X axis
         \forcpponly
         \code{.cpp}
@@ -108,6 +120,9 @@ public:
 
     void rotateX( const double &ang );
 
+    /*!
+    \ingroup Matrix4d
+    */
     /*!
         Rotate the Matrix4d about the Y axis
         \forcpponly
@@ -137,6 +152,9 @@ public:
     void rotateY( const double &ang );
 
     /*!
+    \ingroup Matrix4d
+    */
+    /*!
         Rotate the Matrix4d about the Z axis
         \forcpponly
         \code{.cpp}
@@ -164,6 +182,9 @@ public:
 
     void rotateZ( const double &ang );
 
+    /*!
+    \ingroup Matrix4d
+    */
     /*!
         Rotate the Matrix4d about an arbitrary axis
         \forcpponly
@@ -200,6 +221,9 @@ public:
 
     void zeroTranslations();
 
+    /*!
+    \ingroup Matrix4d
+    */
     /*!
         Perform an affine transform on the Matrix4d
         \forcpponly
@@ -239,6 +263,9 @@ public:
 
     void affineInverse();
 
+    /*!
+    \ingroup Matrix4d
+    */
     /*!
         Multiply the Matrix4d by a scalar value
         \forcpponly
@@ -298,6 +325,9 @@ public:
     }
 
     /*!
+    \ingroup Matrix4d
+    */
+    /*!
         Load an identy Matrix4d and set the Y coordinate of the diagonal (index 5) to -1
         \forcpponly
         \code{.cpp}
@@ -324,6 +354,9 @@ public:
 
     void loadXZRef();
 
+    /*!
+    \ingroup Matrix4d
+    */
     /*!
         Load an identy Matrix4d and set the Z coordinate of the diagonal (index 10) to -1
         \forcpponly
@@ -352,6 +385,9 @@ public:
     void loadXYRef();
 
     /*!
+    \ingroup Matrix4d
+    */
+    /*!
         Load an identy Matrix4d and set the X coordinate of the diagonal (index 0) to -1
         \forcpponly
         \code{.cpp}
@@ -379,6 +415,9 @@ public:
     void loadYZRef();
 
 
+    /*!
+    \ingroup Matrix4d
+    */
     /*!
         Transform the Matrix4d by the given vector
         \forcpponly
@@ -418,6 +457,9 @@ public:
     void xformnormmat( std::vector < std::vector < vec3d > > &in ) const;
 
     /*!
+    \ingroup Matrix4d
+    */
+    /*!
         Calculate the Matrix4d's angles between the X, Y and Z axes
         \forcpponly
         \code{.cpp}
@@ -451,6 +493,9 @@ public:
 
     vec3d getTranslation() const;
 
+    /*!
+    \ingroup Matrix4d
+    */
     /*!
         Translate the Matrix4d to a given position and rotate it a about a given center of rotation
         \param [in] pos Position to translate to
