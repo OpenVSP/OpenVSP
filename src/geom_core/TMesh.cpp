@@ -5014,3 +5014,22 @@ void DeterIntExtTri( TTri* tri, TMesh* mesh )
     tmv.push_back( mesh );
     DeterIntExtTri( tri, tmv );
 }
+
+void WriteStl( const string &file_name, const vector< TMesh* >& meshVec )
+{
+    Matrix4d mat;
+
+    FILE* fid = fopen( file_name.c_str(), "w" );
+    if ( fid )
+    {
+        fprintf( fid, "solid\n" );
+
+        for ( int i = 0; i < (int) meshVec.size(); i++ )
+        {
+            meshVec[i]->WriteSTLTris( fid, mat );
+        }
+
+        fprintf( fid, "endsolid\n" );
+        fclose( fid );
+    }
+}

@@ -554,5 +554,7 @@ bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < b
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
 void DeterIntExtTri( TTri* tri, TMesh* mesh );
 
+void WriteStl( const string &file_name, const vector< TMesh* >& meshVec );
+
 
 #endif
