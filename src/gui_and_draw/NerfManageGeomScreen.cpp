@@ -89,6 +89,8 @@ NerfManageGeomScreen::NerfManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr,
     m_RightLayout.AddButton( m_SelectSetButton, "Select" );
 
     m_RightLayout.AddResizeBox();
+
+    m_VehSelected = false;
 }
 
 //==== Destructor ====//
@@ -145,7 +147,12 @@ void NerfManageGeomScreen::LoadBrowser()
 
     //==== Display Vehicle Name ====//
     m_GeomBrowser->clear();
-    m_GeomBrowser->add( m_VehiclePtr->GetName().c_str() );
+    string vstr = m_VehiclePtr->GetName().c_str();
+    if ( m_VehiclePtr->GetAttrCollection()->GetAttrDataFlag() )
+    {
+        vstr = "@C" + std::to_string(FL_DARK_MAGENTA)+"@." + vstr;
+    }
+    m_GeomBrowser->add( vstr.c_str() );
 
     //==== Get Geoms To Display ====//
     m_DisplayedGeomVec = m_VehiclePtr->GetGeomVec( true );
@@ -156,11 +163,16 @@ void NerfManageGeomScreen::LoadBrowser()
         Geom* gPtr = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[i] );
         if ( gPtr )
         {
+            bool has_attr = gPtr->GetAttrCollection()->GetAttrDataFlag();
             string str;
             //==== Check if Parent is Selected ====//
             if ( IsParentSelected( m_DisplayedGeomVec[i], activeVec ) )
             {
                 str.append( "@b@." );
+            }
+            else if ( has_attr )
+            {
+                str.append( "@C" + std::to_string(FL_DARK_MAGENTA)+"@." );
             }
 
             int numindents = gPtr->CountParents( 0 );
@@ -199,15 +211,31 @@ void NerfManageGeomScreen::LoadBrowser()
         }
     }
 
-    //==== Restore List of Selected Geoms ====//
-    for ( int i = 0 ; i < ( int )activeVec.size() ; i++ )
+    //==== Select Vehicle if Previously Clicked ====//
+    if ( m_VehSelected )
     {
-        SelectGeomBrowser( activeVec[i] );
+        SelectGeomBrowser();
+    }
+    else
+    {
+        //==== Restore List of Selected Geoms ====//
+        for ( int i = 0 ; i < ( int )activeVec.size() ; i++ )
+        {
+            SelectGeomBrowser( activeVec[i] );
+        }
     }
 }
 
 void NerfManageGeomScreen::SelectGeomBrowser( const string &geom_id )
 {
+    //==== Select Vehicle if Match ====//
+    if ( m_VehSelected )
+    {
+        int veh_select = 1;
+        m_GeomBrowser->select( veh_select );
+        m_GeomBrowser->topline( veh_select );
+        return;
+    }
     //==== Select If Match ====//
     for ( int i = 0 ; i < ( int )m_DisplayedGeomVec.size() ; i++ )
     {
@@ -341,8 +369,22 @@ void NerfManageGeomScreen::GeomBrowserCallback()
     //==== Find Vector of All Selections ====//
     vector< string > selVec = GetSelectedBrowserItems();
 
-    //==== Find Last Selected Geom ====//
     int last = m_GeomBrowser->value();
+
+    //==== Show Veh Screen if Applicable ====//
+    if ( last == 1 && selVec.empty() )
+    {
+        m_ScreenMgr->ShowScreen( vsp::VSP_VEH_SCREEN );
+        m_VehSelected = true;
+        SelectGeomBrowser();
+    }
+    else
+    {
+        m_ScreenMgr->HideScreen( vsp::VSP_VEH_SCREEN );
+        m_VehSelected = false;
+    }
+
+    //==== Find Last Selected Geom ====//
     if ( ( last >= 2 ) && Fl::event_state( FL_ALT ) )   // Select Children
     {
         Geom* lastSelGeom = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[last - 2] );

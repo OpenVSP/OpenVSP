@@ -125,12 +125,14 @@ protected:
 
     std::vector<DrawObj> m_PickList;
 
+    bool m_VehSelected;
+
     void LoadBrowser();
     void LoadActiveGeomOutput();
     void LoadDisplayChoice();
     void UpdateDrawType();
     void GeomBrowserCallback();
-    void SelectGeomBrowser( const string &geom_id );
+    void SelectGeomBrowser( const string &geom_id = "NONE" );
     bool IsParentSelected( const string &geom_id, const vector< string > & selVec );
     void NoShowActiveGeoms( bool flag );
     void SelectAll();
