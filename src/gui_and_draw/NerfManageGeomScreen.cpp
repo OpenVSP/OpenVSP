@@ -303,7 +303,7 @@ vector< string > NerfManageGeomScreen::GetSelectedBrowserItems()
 void NerfManageGeomScreen::LoadActiveGeomOutput()
 {
     vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
-    if ( activeVec.size() == 0 )
+    if ( m_VehSelected )
     {
         m_ActiveGeomOutput.Update( m_VehiclePtr->GetName().c_str() );
     }
@@ -315,9 +315,13 @@ void NerfManageGeomScreen::LoadActiveGeomOutput()
             m_ActiveGeomOutput.Update( gptr->GetName().c_str() );
         }
     }
-    else
+    else if ( activeVec.size() > 1 )
     {
         m_ActiveGeomOutput.Update( "<multiple>" );
+    }
+    else
+    {
+        m_ActiveGeomOutput.Update( "" );
     }
 }
 
@@ -372,7 +376,7 @@ void NerfManageGeomScreen::GeomBrowserCallback()
     int last = m_GeomBrowser->value();
 
     //==== Show Veh Screen if Applicable ====//
-    if ( last == 1 && selVec.empty() )
+    if ( last == 1 && selVec.empty() && m_GeomBrowser->selected( 1 ) )
     {
         m_ScreenMgr->ShowScreen( vsp::VSP_VEH_SCREEN );
         m_VehSelected = true;
