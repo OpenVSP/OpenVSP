@@ -2135,6 +2135,9 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 
 xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
 {
+    // Preserve viewport size.
+    double viewX = m_ViewportSizeXValue();
+    double viewY = m_ViewportSizeYValue();
     xmlNodePtr vehicle_node = XmlUtil::GetNode( node, "Vehicle", 0 );
     if ( vehicle_node )
     {
@@ -2144,6 +2147,13 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
         LightMgr.DecodeXml( vehicle_node );
 
     }
+    // Maintain viewport size
+    m_ViewportSizeXValue = viewX;    m_ViewportSizeYValue = viewY;
+    // Reset view to default.
+    m_CORXValue = 0;    m_CORYValue = 0;    m_CORZValue = 0;
+    m_PanXPosValue = 0;    m_PanYPosValue = 0;
+    m_ZoomValue = 0.018;
+    m_XRotationValue = 0;    m_YRotationValue = 0;    m_ZRotationValue = 0;
 
     // 'GeomsOnly' is a euphamism for those entities we want to read when 'inserting' a file.
     // It is mostly the Geoms, but also materials, presets, links, and advanced links.
