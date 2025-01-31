@@ -156,18 +156,24 @@ glm::vec3 ArcballCam::getRotationEulerAngles()
     //===== Getting Euler Values in YXZ Order =====//
     float x, y, z;
 
-    if ( _rMat[1][2] > 0.998 || _rMat[1][2] < -0.998 )
+    if ( _rMat[1][2] >= 1 )
     {
         x = atan2( -_rMat[2][0], _rMat[0][0] );
+        y = - M_PI / 2.0;
         z = 0;
     }
-    else
+    else if ( _rMat[1][2] <= -1 )
+    {
+        x = atan2( -_rMat[2][0], _rMat[0][0] );
+        y = M_PI / 2.0;
+        z = 0;
+    }
+    else // Nominal case.
     {
         x = atan2( _rMat[0][2], _rMat[2][2] );
+        y = - asin( _rMat[1][2] );
         z = atan2( _rMat[1][0], _rMat[1][1] );
     }
-
-    y = - asin( _rMat[1][2] );
 
     return glm::vec3( y, x, z );
 }
