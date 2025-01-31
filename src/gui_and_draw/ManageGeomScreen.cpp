@@ -365,7 +365,7 @@ vector< string > ManageGeomScreen::GetSelectedBrowserItems()
 void ManageGeomScreen::LoadActiveGeomOutput()
 {
     vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
-    if ( activeVec.size() == 0 )
+    if ( m_VehSelected )
     {
         m_ActiveGeomInput.Update( m_VehiclePtr->GetName().c_str() );
     }
@@ -377,9 +377,13 @@ void ManageGeomScreen::LoadActiveGeomOutput()
             m_ActiveGeomInput.Update( gptr->GetName().c_str() );
         }
     }
-    else
+    else if ( activeVec.size() > 1 )
     {
         m_ActiveGeomInput.Update( "<multiple>" );
+    }
+    else
+    {
+        m_ActiveGeomInput.Update( "" );
     }
 }
 
@@ -481,7 +485,7 @@ void ManageGeomScreen::GeomBrowserCallback()
     int last = m_GeomBrowser->value();
 
     //==== Show Veh Screen if Applicable ====//
-    if ( last == 1 && selVec.empty() )
+    if ( last == 1 && selVec.empty() && m_GeomBrowser->selected( 1 ) )
     {
         m_ScreenMgr->ShowScreen( vsp::VSP_VEH_SCREEN );
         m_VehSelected = true;
