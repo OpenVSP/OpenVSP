@@ -910,6 +910,8 @@ void Vehicle::Update( bool fullupdate )
         }
     }
 
+    UpdateBBox();
+
     MeasureMgr.Update();
     Background3DMgr.Update();
 }
