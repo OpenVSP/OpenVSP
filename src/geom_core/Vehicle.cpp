@@ -860,7 +860,7 @@ void Vehicle::ParmChanged( Parm* parm_ptr, int type )
         return;
     }
 
-    if ( parm_ptr->GetGroupName() == string( "AdjustView" ) )
+    if ( parm_ptr && parm_ptr->GetGroupName() == string( "AdjustView" ) )
     {
         m_ViewDirty = true;
     }
