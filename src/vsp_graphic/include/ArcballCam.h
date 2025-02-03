@@ -1,6 +1,9 @@
 #ifndef _VSP_GRAPHIC_ARCBALL_WITH_QUATERNION_H
 #define _VSP_GRAPHIC_ARCBALL_WITH_QUATERNION_H
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include <vector>
 
 #include "Camera.h"
