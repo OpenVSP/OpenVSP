@@ -36,6 +36,7 @@ elif load_multi_facade:
             pass
 elif load_graphics:
     from .vsp_g import *
+    InitGUI()
 else:
     from .vsp import *
 
@@ -43,10 +44,6 @@ def setup_vspaero_path():
     base_dir = os.path.dirname(__file__)
     if  CheckForVSPAERO( base_dir ):
         SetVSPAEROPath( base_dir )
-
-if load_graphics:
-    pass
-    # InitGUI()
 
 if ignore_imports:
     setup_vspaero_path()
