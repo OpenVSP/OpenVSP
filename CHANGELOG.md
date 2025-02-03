@@ -1,3 +1,33 @@
+# [OpenVSP 3.42.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.42.2)
+
+2025-02-03
+
+This is a bugfix release that addresses a bunch of recently introduced issues.  Some
+of these are pretty critical (crashes in common use cases).  Everyone should update.
+
+Features:
+ - Display alert message if accessing disabled screen is attempted.
+ - Make Mode 'Apply and Show Only' button more visually distinctive.
+
+Fixes:
+ - Fix advanced link sceen failing to be disabled.
+ - Various API documentation fixes.
+ - Make Set_0 show up in Geom Browser by default.
+ - Do not make Vehicle appear selected when it is not.
+ - Update NerfGeomManager to match GeomManager Attribute changes.
+ - Don't restore viewport size and view from file.
+ - Revert bool NameValData to int type.
+ - Ensure Vehicle BBox is up-to-date from API.
+ - Fix gimbal lock with rotation matrix.
+ - Only reset vehicle screen Parms from main screen.
+ - Fix crash when ParmChanged called with NULL Parm*.  Thanks Mike V.
+ - Improve facade search for host python executable.
+ - Automatically call InitGUI from graphics API.
+
+
+---
+
+
 # [OpenVSP 3.42.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.42.1)
 
 2025-01-20
