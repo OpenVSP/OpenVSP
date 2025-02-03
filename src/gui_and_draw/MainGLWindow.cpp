@@ -521,62 +521,111 @@ void VspGlWindow::clearScene()
 
 void VspGlWindow::UpdateViewportParms()
 {
-    Vehicle *veh = VehicleMgr.GetVehicle();
+    MainVSPScreen* main = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
 
-    if ( veh )
+    if ( main )
     {
-        veh->m_ViewportSizeXValue.Set( pixel_w() );
-        veh->m_ViewportSizeYValue.Set( pixel_h() );
+        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
+
+        if ( glwin == this )
+        {
+            Vehicle *veh = VehicleMgr.GetVehicle();
+            if ( veh )
+            {
+                veh->m_ViewportSizeXValue.Set( pixel_w() );
+                veh->m_ViewportSizeYValue.Set( pixel_h() );
+            }
+        }
     }
 }
 
 void VspGlWindow::UpdateCORParms()
 {
-    Vehicle *veh = VehicleMgr.GetVehicle();
+    MainVSPScreen* main = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
 
-    if ( veh )
+    if ( main )
     {
-        glm::vec3 center = getCOR();
+        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
-        veh->m_CORXValue.Set( center.x );
-        veh->m_CORYValue.Set( center.y );
-        veh->m_CORZValue.Set( center.z );
+        if ( glwin == this )
+        {
+            Vehicle *veh = VehicleMgr.GetVehicle();
+
+            if ( veh )
+            {
+                glm::vec3 center = getCOR();
+
+                veh->m_CORXValue.Set( center.x );
+                veh->m_CORYValue.Set( center.y );
+                veh->m_CORZValue.Set( center.z );
+            }
+        }
     }
 }
 
 void VspGlWindow::UpdatePanParms()
 {
-    Vehicle *veh = VehicleMgr.GetVehicle();
+    MainVSPScreen* main = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
 
-    if ( veh )
+    if ( main )
     {
-        glm::vec2 currentPan = getPanValues();
-        veh->m_PanXPosValue.Set( currentPan.x );
-        veh->m_PanYPosValue.Set( currentPan.y );
+        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
+
+        if ( glwin == this )
+        {
+            Vehicle *veh = VehicleMgr.GetVehicle();
+
+            if ( veh )
+            {
+                glm::vec2 currentPan = getPanValues();
+                veh->m_PanXPosValue.Set( currentPan.x );
+                veh->m_PanYPosValue.Set( currentPan.y );
+            }
+        }
     }
 }
 
 void VspGlWindow::UpdateZoomParms()
 {
-    Vehicle *veh = VehicleMgr.GetVehicle();
+    MainVSPScreen* main = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
 
-    if ( veh )
+    if ( main )
     {
-        veh->m_ZoomValue.Set( getRelativeZoomValue() );
+        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
+
+        if ( glwin == this )
+        {
+            Vehicle *veh = VehicleMgr.GetVehicle();
+
+            if ( veh )
+            {
+                veh->m_ZoomValue.Set( getRelativeZoomValue() );
+            }
+        }
     }
 }
 
 void VspGlWindow::UpdateRotationParms()
 {
-    Vehicle *veh = VehicleMgr.GetVehicle();
+    MainVSPScreen* main = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
 
-    if ( veh )
+    if ( main )
     {
-        glm::vec3 eulerValues = getRotationEulerAngles();
+        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
-        veh->m_XRotationValue.Set( eulerValues[0] * ( 180.0 / M_PI ) );
-        veh->m_YRotationValue.Set( eulerValues[1] * ( 180.0 / M_PI ) );
-        veh->m_ZRotationValue.Set( eulerValues[2] * ( 180.0 / M_PI ) );
+        if ( glwin == this )
+        {
+            Vehicle *veh = VehicleMgr.GetVehicle();
+
+            if ( veh )
+            {
+                glm::vec3 eulerValues = getRotationEulerAngles();
+
+                veh->m_XRotationValue.Set( eulerValues[0] * ( 180.0 / M_PI ) );
+                veh->m_YRotationValue.Set( eulerValues[1] * ( 180.0 / M_PI ) );
+                veh->m_ZRotationValue.Set( eulerValues[2] * ( 180.0 / M_PI ) );
+            }
+        }
     }
 }
 
