@@ -82,9 +82,9 @@ class _vsp_server():
         sock.close()
 
         python_exe = None
-        if "python" in sys.executable:
+        if "python" in os.path.basename(sys.executable):
             python_exe = sys.executable
-        elif "python" in os.__file__:
+        elif "python" in os.path.basename(os.__file__):
             python_exe = os.__file__
         else:
             python_exe = "python"
@@ -96,6 +96,7 @@ class _vsp_server():
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((HOST, PORT))
+
 """
 
 CLIENT_END = """
