@@ -159,13 +159,13 @@ glm::vec3 ArcballCam::getRotationEulerAngles()
     if ( _rMat[1][2] >= 1 )
     {
         x = atan2( -_rMat[2][0], _rMat[0][0] );
-        y = - M_PI / 2.0;
+        y = - 0.5 * M_PI;
         z = 0;
     }
     else if ( _rMat[1][2] <= -1 )
     {
         x = atan2( -_rMat[2][0], _rMat[0][0] );
-        y = M_PI / 2.0;
+        y = 0.5 * M_PI;
         z = 0;
     }
     else // Nominal case.
