@@ -3400,6 +3400,31 @@ extern void SetAttributeString( const string & attrID, const string & value );
     \ingroup Attributes
 */
 /*!
+    Set the ParmID value of a Parm-type Attribute by ID
+    \forcpponly
+    \code{.cpp}
+    //==== Write Some Fake Test Results =====//
+    // not implemented
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    
+    #==== Write Some Fake Test Results =====//
+    # not implemented
+
+    \endcode
+    \endPythonOnly
+    \param [in] attrID string of attribute ID
+    \param [in] value string value for attribute
+*/
+
+extern void SetAttributeParmID( const string & attrID, const string & value );
+
+/*!
+    \ingroup Attributes
+*/
+/*!
     Set the Vec3d value of a Vec3d-type Attribute by ID
     \forcpponly
     \code{.cpp}
@@ -3691,7 +3716,7 @@ extern string AddAttributeParm( const string &collID, const string &attributeNam
     \param [in] value Vec3d value of new attribute
 */
 
-extern string AddAttributeVec3d( const string & collID, const string & attributeName, const vector < vec3d > value );
+extern string AddAttributeVec3d( const string & collID, const string & attributeName, const vector < vec3d > & value );
 
 /*!
     \ingroup Attributes
@@ -3722,7 +3747,7 @@ extern string AddAttributeVec3d( const string & collID, const string & attribute
     \param [in] value int matrix value of new attribute
 */
 
-extern string AddAttributeIntMatrix( const string & collID, const string & attributeName, const vector < vector < int > > value );
+extern string AddAttributeIntMatrix( const string & collID, const string & attributeName, const vector < vector < int > > & value );
 
 /*!
     \ingroup Attributes
@@ -3753,7 +3778,7 @@ extern string AddAttributeIntMatrix( const string & collID, const string & attri
     \param [in] value Double matrix value of new attribute
 */
 
-extern string AddAttributeDoubleMatrix( const string & collID, const string & attributeName, const vector < vector < double > > value );
+extern string AddAttributeDoubleMatrix( const string & collID, const string & attributeName, const vector < vector < double > > & value );
 
 /*!
     \ingroup Attributes

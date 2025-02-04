@@ -88,6 +88,7 @@ public:
     vector < int > GetAttributeIntVal( const string &attrID );
     vector < double > GetAttributeDoubleVal( const string &attrID );
     vector < string > GetAttributeStringVal( const string &attrID );
+    vector < string > GetAttributeParmID( const string &attrID );
     vector < double > GetAttributeParmVal( const string &attrID );
     vector < string > GetAttributeParmName( const string &attrID );
     vector < vec3d > GetAttributeVec3dVal( const string &attrID );

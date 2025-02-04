@@ -1522,6 +1522,11 @@ vector< string > GetAttributeStringVal( const string & attrID )
     return AttributeMgr.GetAttributeStringVal( attrID );
 }
 
+vector< string >  GetAttributeParmID( const string & attrID )
+{
+    return AttributeMgr.GetAttributeParmID( attrID );
+}
+
 vector< double > GetAttributeParmVal( const string & attrID )
 {
     return AttributeMgr.GetAttributeParmVal( attrID );
@@ -1577,6 +1582,11 @@ void SetAttributeString( const string & attrID, const string & value )
     AttributeMgr.SetAttributeString( attrID, value );
 }
 
+void SetAttributeParmID( const string & attrID, const string & value )
+{
+    AttributeMgr.SetAttributeParmID( attrID, value );
+}
+
 void SetAttributeVec3d( const string & attrID, const vector < vec3d > value )
 {
     AttributeMgr.SetAttributeVec3d( attrID, value );
@@ -1622,17 +1632,17 @@ string AddAttributeParm( const string & collID, const string & attributeName, co
     return AttributeMgr.AddAttributeParm( collID, attributeName, parmID );
 }
 
-string AddAttributeVec3d( const string & collID, const string & attributeName, vector < vec3d > value )
+string AddAttributeVec3d( const string & collID, const string & attributeName, const vector < vec3d > & value )
 {
     return AttributeMgr.AddAttributeVec3d( collID, attributeName, value );
 }
 
-string AddAttributeIntMatrix( const string & collID, const string & attributeName, vector < vector < int > > value )
+string AddAttributeIntMatrix( const string & collID, const string & attributeName, const vector < vector < int > > & value )
 {
     return AttributeMgr.AddAttributeIntMatrix( collID, attributeName, value );
 }
 
-string AddAttributeDoubleMatrix( const string & collID, const string & attributeName, vector < vector < double > > value )
+string AddAttributeDoubleMatrix( const string & collID, const string & attributeName, const vector < vector < double > > & value )
 {
     return AttributeMgr.AddAttributeDoubleMatrix( collID, attributeName, value );
 }

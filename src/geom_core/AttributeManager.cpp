@@ -623,12 +623,9 @@ vector< string > AttributeMgrSingleton::GetAttributeStringVal( const string &att
     return attr_value;
 }
 
-vector < double > AttributeMgrSingleton::GetAttributeParmVal( const string &attrID )
+vector < string > AttributeMgrSingleton::GetAttributeParmID( const string &attrID )
 {
     vector< string > p_ids;
-    vector< double > p_vals;
-
-    Parm* p;
 
     NameValData* attribute_data = nullptr;
     attribute_data = GetAttributePtr( attrID );
@@ -636,6 +633,17 @@ vector < double > AttributeMgrSingleton::GetAttributeParmVal( const string &attr
     {
         p_ids = attribute_data->GetParmIDData();
     }
+
+    return p_ids;
+}
+
+vector < double > AttributeMgrSingleton::GetAttributeParmVal( const string &attrID )
+{
+    vector< string > p_ids;
+    vector< double > p_vals;
+    Parm* p;
+
+    p_ids = GetAttributeParmID( attrID );
 
     for ( int i = 0; i != p_ids.size(); ++i )
     {

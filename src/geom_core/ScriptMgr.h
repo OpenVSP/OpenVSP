@@ -195,6 +195,7 @@ private:
     CScriptArray* GetAttributeIntVal( const string & attrID );
     CScriptArray* GetAttributeDoubleVal( const string & attrID );
     CScriptArray* GetAttributeStringVal( const string & attrID );
+    CScriptArray* GetAttributeParmID( const string & attrID );
     CScriptArray* GetAttributeParmVal( const string & attrID );
     CScriptArray* GetAttributeParmName( const string & attrID );
     CScriptArray* GetAttributeVec3dVal( const string & attrID );
@@ -205,9 +206,9 @@ private:
     void SetAttributeIntMatrix( const string & attrID, CScriptArray* intMatrix );
     void SetAttributeDoubleMatrix( const string & attrID, CScriptArray* dblMatrix );
 
-    CScriptArray* AddAttributeVec3d( const string & attrID, const string & attributeName, CScriptArray* vec3dVector );
-    CScriptArray* AddAttributeIntMatrix( const string & collID, const string & attributeName, CScriptArray* intMatrix );
-    CScriptArray* AddAttributeDoubleMatrix( const string & collID, const string & attributeName, CScriptArray* dblMatrix );
+    string AddAttributeVec3d( const string & attrID, const string & attributeName, CScriptArray* vec3dVector );
+    string AddAttributeIntMatrix( const string & collID, const string & attributeName, CScriptArray* intMatrix );
+    string AddAttributeDoubleMatrix( const string & collID, const string & attributeName, CScriptArray* dblMatrix );
 
     CScriptArray* PasteAttribute( const string & collID );
 

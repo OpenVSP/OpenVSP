@@ -103,11 +103,11 @@ void ScriptMgrSingleton::Init( )
     //==== Cache Some Common Types ====//
     m_IntArrayType    = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<int>" ) );
     assert( m_IntArrayType );
-    m_IntMatArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<array<int>@>" ) );
+    m_IntMatArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<array<int>>" ) );
     assert( m_IntMatArrayType );
     m_DoubleArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<double>" ) );
     assert( m_DoubleArrayType );
-    m_DoubleMatArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<array<double>@>" ) );
+    m_DoubleMatArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<array<double>>" ) );
     assert( m_DoubleMatArrayType );
     m_StringArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<string>" ) );
     assert( m_StringArrayType );
@@ -3356,6 +3356,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "string GetGeomSetCollection( const int & in index )", asFUNCTION( vsp::GetGeomSetCollection ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "string GetAttributeName( const string & in attrID )", asFUNCTION( vsp::GetAttributeName ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -3392,6 +3396,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAttributeParmID( const string & in attrID )", asMETHOD( ScriptMgrSingleton, GetAttributeParmID ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "array<double>@+ GetAttributeParmVal( const string & in attrID )", asMETHOD( ScriptMgrSingleton, GetAttributeParmVal ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
@@ -3404,11 +3412,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<array<int>@>@+ GetAttributeIntMatrixVal( const string & in attrID )", asMETHOD( ScriptMgrSingleton, GetAttributeIntMatrixVal ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<array<int>>@+ GetAttributeIntMatrixVal( const string & in attrID )", asMETHOD( ScriptMgrSingleton, GetAttributeIntMatrixVal ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<array<double>@>@+ GetAttributeDoubleMatrixVal( const string & in attrID )", asMETHOD( ScriptMgrSingleton, GetAttributeDoubleMatrixVal ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<array<double>>@+ GetAttributeDoubleMatrixVal( const string & in attrID )", asMETHOD( ScriptMgrSingleton, GetAttributeDoubleMatrixVal ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
@@ -3436,15 +3444,19 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "void SetAttributeParmID( const string & in attrID, const string & in value )", asFUNCTION( vsp::SetAttributeParmID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    // check if we need @+ on the input- may be bad idea
     r = se->RegisterGlobalFunction( "void SetAttributeVec3d( const string & in attrID, array<vec3d>@+ value )", asMETHOD( ScriptMgrSingleton, SetAttributeVec3d ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetAttributeIntMatrix( const string & in attrID, array<array<int>> & value )", asMETHOD( ScriptMgrSingleton, SetAttributeIntMatrix ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "void SetAttributeIntMatrix( const string & in attrID, array<array<int>>@+ value )", asMETHOD( ScriptMgrSingleton, SetAttributeIntMatrix ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetAttributeDoubleMatrix( const string & in attrID, array<array<double>> & value )", asMETHOD( ScriptMgrSingleton, SetAttributeDoubleMatrix ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "void SetAttributeDoubleMatrix( const string & in attrID, array<array<double>>@+ value )", asMETHOD( ScriptMgrSingleton, SetAttributeDoubleMatrix ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
@@ -3468,15 +3480,19 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string AddAttributeVec3d( const string & in attrID, const string & in attributeName, array<vec3d>@+ value )", asMETHOD( ScriptMgrSingleton, AddAttributeVec3d ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "string AddAttributeParm( const string & in collID, const string & in attributeName, const string & in value )", asFUNCTION( vsp::AddAttributeParm ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string AddAttributeIntMatrix( const string & in collID, const string & in attributeName, array<array<int>> & value)", asMETHOD( ScriptMgrSingleton, AddAttributeIntMatrix ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "string AddAttributeVec3d( const string & in attrID, const string & in attributeName, const array<vec3d>@+ value )", asMETHOD( ScriptMgrSingleton, AddAttributeVec3d ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string AddAttributeDoubleMatrix( const string & in collID, const string & in attributeName, array<array<double>> & value)", asMETHOD( ScriptMgrSingleton, AddAttributeDoubleMatrix ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "string AddAttributeIntMatrix( const string & in collID, const string & in attributeName, const array<array<int>>@+ value)", asMETHOD( ScriptMgrSingleton, AddAttributeIntMatrix ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string AddAttributeDoubleMatrix( const string & in collID, const string & in attributeName, const array<array<double>>@+ value)", asMETHOD( ScriptMgrSingleton, AddAttributeDoubleMatrix ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
@@ -5105,7 +5121,7 @@ CScriptArray* ScriptMgrSingleton::GetProxyIntMatArray()
         {
             darr->SetValue( j, &m_ProxyIntMatArray[i][j]);
         }
-        sarr->SetValue( i, &darr );
+        sarr->SetValue( i, darr );
     }
     return sarr;
 }
@@ -5120,7 +5136,7 @@ CScriptArray* ScriptMgrSingleton::GetProxyDoubleMatArray()
         {
             darr->SetValue( j, &m_ProxyDoubleMatArray[i][j]);
         }
-        sarr->SetValue( i, &darr );
+        sarr->SetValue( i, darr );
     }
     return sarr;
 }
@@ -5153,13 +5169,6 @@ void ScriptMgrSingleton::FillSTLMatrix( CScriptArray* in, vector < vector < T > 
     for ( int i = 0 ; i < ( int )in->GetSize() ; i++ )
     {
         CScriptArray* row = ( CScriptArray* ) ( in->At( i ) );
-
-        // CScriptArray* saferow = static_cast< CScriptArray* > ( in->At( i ) ); //void pointer/?? = old skool c. Universal typeless pointer- dynamic pointer CAN'T interpret this thingy.
-
-        //static cast *can* at least compile but ehhhhh it won't 
-        //dynamic cast incompatible with voidptr
-        // in[i];
-
         if ( row )
         {
             FillSTLVector( row, out[i] );
@@ -5442,6 +5451,12 @@ CScriptArray* ScriptMgrSingleton::GetAttributeStringVal( const string & attrID )
     return GetProxyStringArray();
 }
 
+CScriptArray* ScriptMgrSingleton::GetAttributeParmID( const string & attrID )
+{
+    m_ProxyStringArray = vsp::GetAttributeParmID( attrID );
+    return GetProxyStringArray();
+}
+
 CScriptArray* ScriptMgrSingleton::GetAttributeParmVal( const string & attrID )
 {
     m_ProxyDoubleArray = vsp::GetAttributeParmVal( attrID );
@@ -5493,31 +5508,28 @@ void ScriptMgrSingleton::SetAttributeDoubleMatrix( const string & attrID, CScrip
     vsp::SetAttributeDoubleMatrix( attrID, dbl_mat );
 }
 
-CScriptArray* ScriptMgrSingleton::AddAttributeVec3d( const string & attrID, const string & attributeName, CScriptArray* vec3dVector )
+string ScriptMgrSingleton::AddAttributeVec3d( const string & attrID, const string & attributeName, CScriptArray* vec3dVector )
 {
     vector < vec3d > vec3d_vec;
     FillSTLVector( vec3dVector, vec3d_vec );
     string id = vsp::AddAttributeVec3d( attrID, attributeName, vec3d_vec );
-    m_ProxyStringArray = { id };
-    return GetProxyStringArray();
+    return id;
 }
 
-CScriptArray* ScriptMgrSingleton::AddAttributeIntMatrix( const string & collID, const string & attributeName, CScriptArray* intMatrix )
+string ScriptMgrSingleton::AddAttributeIntMatrix( const string & collID, const string & attributeName, CScriptArray* intMatrix )
 {
     vector < vector < int > > int_mat;
     FillSTLMatrix( intMatrix, int_mat );
     string id = vsp::AddAttributeIntMatrix( collID, attributeName, int_mat );
-    m_ProxyStringArray = { id };
-    return GetProxyStringArray();
+    return id;
 }
 
-CScriptArray* ScriptMgrSingleton::AddAttributeDoubleMatrix( const string & collID, const string & attributeName, CScriptArray* dblMatrix )
+string ScriptMgrSingleton::AddAttributeDoubleMatrix( const string & collID, const string & attributeName, CScriptArray* dblMatrix )
 {
     vector < vector < double > > dbl_mat;
     FillSTLMatrix( dblMatrix, dbl_mat );
     string id = vsp::AddAttributeDoubleMatrix( collID, attributeName, dbl_mat );
-    m_ProxyStringArray = { id };
-    return GetProxyStringArray();
+    return id;
 }
 
 CScriptArray* ScriptMgrSingleton::PasteAttribute( const string & collID )
