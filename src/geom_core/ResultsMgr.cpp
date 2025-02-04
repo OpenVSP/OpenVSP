@@ -1120,10 +1120,12 @@ void AttributeCollection::RenameAttr( const string & id, const string & newName 
     string oldName = ( nvd )? nvd->GetName() : string();
     int oldIndex = GetAttrIndex( id );
 
+    if ( oldIndex > -1 )
     {
         NameValData nvd_copy;
         nvd_copy.CopyFrom( m_DataMap[ oldName ].at( oldIndex ) );
         nvd_copy.SetName( newName );
+        nvd_copy.ChangeID( id );
 
         Del( oldName, oldIndex );
         Add( nvd_copy );
