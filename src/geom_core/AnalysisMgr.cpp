@@ -655,7 +655,7 @@ void BEMAnalysis::SetDefaults()
     {
         m_Inputs.Add( NameValData( "PropID", veh->m_BEMPropID, "GeomID of propeller." ) );
         m_Inputs.Add( NameValData( "ExportBEMFlag", false, "Flag to control whether a BEM file is written." ) );
-        m_Inputs.Add( NameValData( "BEMFileName", "", "File name for BEM file." ) );
+        m_Inputs.Add( NameValData( "BEMFileName", string( "" ), "File name for BEM file." ) );
     }
 }
 
@@ -726,7 +726,7 @@ void CompGeomAnalysis::SetDefaults()
     m_Inputs.Add( NameValData( "DegenSet", vsp::SET_NONE, "Degenerate geometry Set for analysis." ) );
     m_Inputs.Add( NameValData( "HalfMeshFlag", 0, "Flag to control whether Y >= 0 half mesh is generated." ) );
     m_Inputs.Add( NameValData( "SubSurfFlag", 1, "Flag to control whether subsurfaces are used in analysis." ) );
-    m_Inputs.Add( NameValData( "ModeID", "", "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
@@ -822,7 +822,7 @@ void DegenGeomAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
     m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
-    m_Inputs.Add( NameValData( "ModeID", "", "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
@@ -965,7 +965,7 @@ void MassPropAnalysis::SetDefaults()
     m_Inputs.Clear();
     m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
     m_Inputs.Add( NameValData( "DegenSet", vsp::SET_NONE, "Degenerate geometry Set for analysis." ) );
-    m_Inputs.Add( NameValData( "ModeID", "", "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -1059,7 +1059,7 @@ void PlanarSliceAnalysis::SetDefaults()
 
     m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
     m_Inputs.Add( NameValData( "NumSlices", veh->m_NumPlanerSlices.Get(), "Number of slices." ) );
-    m_Inputs.Add( NameValData( "ModeID", "", "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
     m_Inputs.Add( NameValData( "UseModeFlag", veh->m_UseModePlanarSlicesFlag(), "Flag to control whether Modes are used instead of Sets." ) );
 
     vec3d norm;
@@ -1188,10 +1188,10 @@ void ProjectionAnalysis::SetDefaults()
     m_Inputs.Add( NameValData( "TargetSet", vsp::SET_ALL, "Target geometry Set for analysis." ) );
     m_Inputs.Add( NameValData( "BoundarySet", vsp::SET_ALL, "Boundary geometry Set for analysis." ) );
 
-    m_Inputs.Add( NameValData( "TargetModeID", "", "ID for Mode to use for analysis." ) );
-    m_Inputs.Add( NameValData( "TargetGeomID", "", "Target GeomID." ) );
-    m_Inputs.Add( NameValData( "BoundaryGeomID", "", "Boundary GeomID." ) );
-    m_Inputs.Add( NameValData( "DirectionGeomID", "", "Direction GeomID." ) );
+    m_Inputs.Add( NameValData( "TargetModeID", string( "" ), "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( NameValData( "TargetGeomID", string( "" ), "Target GeomID." ) );
+    m_Inputs.Add( NameValData( "BoundaryGeomID", string( "" ), "Boundary GeomID." ) );
+    m_Inputs.Add( NameValData( "DirectionGeomID", string( "" ), "Direction GeomID." ) );
 
     m_Inputs.Add( NameValData( "Direction", vec3d( 1.0, 0.0, 0.0 ), "Direction vector." ) );
 }
@@ -1704,7 +1704,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           , "Flag to control how reference quantities are set." ) );
         m_Inputs.Add( NameValData( "MACFlag",           VSPAEROMgr.m_MACFlag.Get()           , "Flag to use MAC instead of Cave for cref." ) );
         m_Inputs.Add( NameValData( "ScurveFlag",        VSPAEROMgr.m_SCurveFlag.Get()        , "Flag to use Scurve instead of Stot for Sref." ) );
-        m_Inputs.Add( NameValData( "WingID",            " "                                  , "Reference wing GeomID." ) );
+        m_Inputs.Add( NameValData( "WingID",            string( "" )                         , "Reference wing GeomID." ) );
         m_Inputs.Add( NameValData( "Sref",              VSPAEROMgr.m_Sref.Get()              , "Reference area." ) );
         m_Inputs.Add( NameValData( "bref",              VSPAEROMgr.m_bref.Get()              , "Reference span." ) );
         m_Inputs.Add( NameValData( "cref",              VSPAEROMgr.m_cref.Get()              , "Reference chord." ) );
@@ -2396,7 +2396,7 @@ void ParasiteDragFullAnalysis::SetDefaults()
 
         // Reference Area
         m_Inputs.Add( NameValData( "RefFlag", ParasiteDragMgr.m_RefFlag.Get(), "Flag to control how reference quantities are set." ) );
-        m_Inputs.Add( NameValData( "WingID",  " ", "Reference wing GeomID." ) );
+        m_Inputs.Add( NameValData( "WingID",  string( "" ), "Reference wing GeomID." ) );
         m_Inputs.Add( NameValData( "Sref",    ParasiteDragMgr.m_Sref.Get(), "Reference area." ) );
 
         // Use previous Degen Geom

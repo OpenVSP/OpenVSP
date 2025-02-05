@@ -347,7 +347,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
     }
     else
     {
-        res->Add( NameValData( "Mesh_GeomID", "", "Empty GeomID.  Projection had no solution." ) );
+        res->Add( NameValData( "Mesh_GeomID", string( "" ), "Empty GeomID.  Projection had no solution." ) );
     }
 
     return res;
@@ -458,7 +458,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
     }
     else
     {
-        res->Add( NameValData( "Mesh_GeomID", "", "Empty GeomID.  Projection had no solution." ) );
+        res->Add( NameValData( "Mesh_GeomID", string( "" ), "Empty GeomID.  Projection had no solution." ) );
     }
 
     return res;

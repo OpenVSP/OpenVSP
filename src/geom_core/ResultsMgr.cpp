@@ -2669,7 +2669,7 @@ void ResultsMgrSingleton::WriteTestResults()
         res->Add( NameValData( "Test_Int", s + 1, "Test integer result." ) );
         res->Add( NameValData( "Test_Int", s + 2, "Test integer result." ) );
         res->Add( NameValData( "Test_Double", ( s + 1 ) * 0.1, "Test double result." ) );
-        res->Add( NameValData( "Test_String", "This Is A Test", "Test string result." ) );
+        res->Add( NameValData( "Test_String", string( "This Is A Test" ), "Test string result." ) );
         res->Add( NameValData( "Test_Vec3d", vec3d( s, s * 2, s * 4 ), "Test vec3d result." ) );
 
         vector< double > dvec;
