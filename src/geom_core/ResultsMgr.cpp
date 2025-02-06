@@ -40,7 +40,7 @@ NameValData::NameValData( const string & name )
 }
 
 //==== Constructors With Name & Data =====//
-NameValData::NameValData( const string & name, const bool & b_data, const string & doc, const string & id )
+NameValData::NameValData( const string & name, const bool & b_data, const string & doc, const string & id ) : NameValData( name, (int) b_data, doc, id )
 {
     // No bool constructor truly exists- due to old NameValData grandfathered in OpenVSP casting bools to ints already
     // We need to preserve that behavior as existing OpenVSP ecosystem understands "bool" results are cast to ints
@@ -48,7 +48,6 @@ NameValData::NameValData( const string & name, const bool & b_data, const string
     // If desiring the m_Type to read "bool," please use SetType( vsp::BOOL_DATA ); after using this constructor
 
     // Cast bool_data to int, use int constructor to preserve existing behavior
-    NameValData( name, (int) b_data, doc, id );
 }
 
 NameValData::NameValData( const string & name, const int & i_data, const string & doc, const string & id )
