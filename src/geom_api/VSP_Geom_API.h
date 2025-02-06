@@ -3070,6 +3070,8 @@ extern vector< double > GetAttributeDoubleVal(const string & attrID);
 
 extern vector< string > GetAttributeStringVal(const string & attrID);
 
+extern vector< string > GetAttributeParmID( const string & attrID );
+
 /*!
     \ingroup Attributes
 */
