@@ -308,9 +308,6 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
     //initialize pointers etc.
     m_CurAttrGroup = nullptr;
 
-    m_AttrIDs.clear();
-    m_CollIDs.clear();
-
     Vehicle* veh = VehicleMgr.GetVehicle();
     m_AttrBoolParmPtr = &veh->m_AttrBoolButtonParm;
     m_CaseSensParmPtr = &veh->m_AttrCaseSensitivity;
@@ -318,7 +315,6 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
     m_AttrTypeChoice.SetVal( vsp::STRING_DATA );
     m_AttrTypeSearchChoice.SetVal( vsp::INVALID_TYPE );
     m_ObjTypeSearchChoice.SetVal( vsp::ATTROBJ_FREE );
-    AttrTypeDispGroup( vsp::STRING_DATA, nullptr );
 
     m_valid_collector_set = false;
     m_types_selected = 0;
