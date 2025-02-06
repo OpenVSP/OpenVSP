@@ -1,3 +1,22 @@
+# [OpenVSP 3.42.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.42.3)
+
+2025-02-06
+
+Another small bugfix release that addresses some issues that were biting
+some users.
+
+Fixes:
+ - Fix casting of string literals to bool for NameValData.
+ - Fix RenameAttr in ResultsMgr enforces persistent AttrID.
+ - Attributes API revisions.
+ - Cleanup AttributeExplorer construction.
+ - Link pthread library to cartesian example on linux.
+ - Correctly delegate constructor for NVD bool case.
+
+
+---
+
+
 # [OpenVSP 3.42.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.42.2)
 
 2025-02-03
