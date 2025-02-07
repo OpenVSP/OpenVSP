@@ -344,6 +344,8 @@ Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh, int 
 VehScreen::VehScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     TabScreen( mgr, w, h, title )
 {
+    m_FLTK_Window->callback( staticCloseCB, this );
+
     // Set the window as a geom screen window
     VSP_Window* vsp_win = dynamic_cast<VSP_Window*>(m_FLTK_Window);
     vsp_win->SetGeomScreenFlag( true );
@@ -392,6 +394,12 @@ void VehScreen::CallBack( Fl_Widget *w )
     m_ScreenMgr->SetUpdateFlag( true );
 };
 
+void VehScreen::CloseCallBack( Fl_Widget *w )
+{
+    m_ScreenMgr->SetUpdateFlag( true );
+    Hide();
+}
+
 void VehScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
@@ -410,6 +418,8 @@ void VehScreen::GetCollIDs( vector < string > &collIDVec )
 GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
     TabScreen( mgr, w, h, title, helpfile )
 {
+    m_FLTK_Window->callback( staticCloseCB, this );
+
     // Set the window as a geom screen window
     VSP_Window* vsp_win = dynamic_cast<VSP_Window*>(m_FLTK_Window);
 
@@ -1772,6 +1782,12 @@ void GeomScreen::CallBack( Fl_Widget *w )
     m_SSFLineAttrEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void GeomScreen::CloseCallBack( Fl_Widget *w )
+{
+    m_ScreenMgr->SetUpdateFlag( true );
+    Hide();
 }
 
 void GeomScreen::GetCollIDs( vector < string > &collIDVec )

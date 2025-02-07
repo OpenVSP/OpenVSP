@@ -6,6 +6,8 @@
 
 ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 900, 680, "Measure" )
 {
+    m_FLTK_Window->callback( staticCloseCB, this );
+
     Fl_Group* ruler_tab = AddTab( "Rulers" );
     Fl_Group* ruler_group = AddSubGroup( ruler_tab, 5 );
     m_RulerLayout.SetGroupAndScreen( ruler_group, this );
@@ -1204,6 +1206,12 @@ void ManageMeasureScreen::CallBack( Fl_Widget * w )
     m_ProtAttrEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void ManageMeasureScreen::CloseCallBack( Fl_Widget *w )
+{
+    m_ScreenMgr->SetUpdateFlag( true );
+    Hide();
 }
 
 void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )

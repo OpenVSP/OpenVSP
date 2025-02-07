@@ -883,8 +883,11 @@ void ScreenMgr::UpdateAllScreens()
 //printf("Update Screens %d\n",  del_tics );
     for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
     {
-        //===== Force Update Of ManageGeomScreen ====//
-        if ( m_ScreenVec[i] && ( m_ScreenVec[i]->IsShown() || (i == vsp::VSP_MANAGE_GEOM_SCREEN) ) )
+        //===== Force Update Of ManageGeomScreen and Attribute Explorer Screen ====//
+        if ( m_ScreenVec[i]
+            && ( m_ScreenVec[i]->IsShown()
+            || ( i == vsp::VSP_MANAGE_GEOM_SCREEN ) )
+            )
         {
             m_ScreenVec[i]->Update();
         }

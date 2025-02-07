@@ -20,6 +20,8 @@
 
 ParmScreen::ParmScreen( ScreenMgr* mgr )  : TabScreen( mgr, 380, 400, "Parm" )
 {
+    m_FLTK_Window->callback( staticCloseCB, this );
+
     //==== Tabs And Groups ====//
     Fl_Group* info_tab = AddTab( "Info" );
     Fl_Group* info_group = AddSubGroup( info_tab, 5 );
@@ -247,6 +249,12 @@ void ParmScreen::CallBack( Fl_Widget *w )
     assert( m_ScreenMgr );
     m_AttributeEditor.DeviceCB( w );
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void ParmScreen::CloseCallBack( Fl_Widget *w )
+{
+    m_ScreenMgr->SetUpdateFlag( true );
+    Hide();
 }
 
 void ParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )

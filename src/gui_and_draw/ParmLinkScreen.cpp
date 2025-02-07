@@ -13,6 +13,8 @@
 
 ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615 + 100, "Parm Link: ( A * Scale + Offset = B )" )
 {
+    m_FLTK_Window->callback( staticCloseCB, this );
+
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_MainLayout.AddY( 25 );
     m_MainLayout.AddX( 5 );
@@ -321,6 +323,12 @@ void ParmLinkScreen::CallBack( Fl_Widget* w )
     m_LinkAttrEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void ParmLinkScreen::CloseCallBack( Fl_Widget *w )
+{
+    m_ScreenMgr->SetUpdateFlag( true );
+    Hide();
 }
 
 // Callback for all other GUI Devices

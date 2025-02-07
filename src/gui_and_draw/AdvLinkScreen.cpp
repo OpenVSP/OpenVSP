@@ -17,6 +17,8 @@
 //==== Constructor ====//
 AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Advanced Parameter Links", "AdvLink.html" )
 {
+    m_FLTK_Window->callback( staticCloseCB, this );
+
     m_InputBrowserSelect = -1;
     m_OutputBrowserSelect = -1;
 
@@ -684,6 +686,12 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     m_AdvLinkAttrEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void AdvLinkScreen::CloseCallBack( Fl_Widget *w )
+{
+    m_ScreenMgr->SetUpdateFlag( true );
+    Hide();
 }
 
 //==== Gui Device CallBacks ====//

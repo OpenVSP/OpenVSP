@@ -28,6 +28,7 @@ public:
     AttributeExplorer( ScreenMgr* mgr );
     virtual ~AttributeExplorer();
 
+    void Show();
     bool Update( );
 
     void SetAttrData( );

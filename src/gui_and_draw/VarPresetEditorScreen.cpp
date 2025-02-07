@@ -17,6 +17,8 @@
 
 VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 750, "Variable Presets", "" )
 {
+    m_FLTK_Window->callback( staticCloseCB, this );
+
     Fl_Group* apply_tab = AddTab( "Apply" );
     apply_tab->callback( staticScreenCB, this );
     Fl_Group* apply_group = AddSubGroup( apply_tab, 5 );
@@ -588,6 +590,12 @@ void VarPresetEditorScreen::CallBack( Fl_Widget* w )
     m_SettingAttrEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void VarPresetEditorScreen::CloseCallBack( Fl_Widget *w )
+{
+    m_ScreenMgr->SetUpdateFlag( true );
+    Hide();
 }
 
 void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )

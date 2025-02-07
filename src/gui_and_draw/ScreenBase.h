@@ -206,6 +206,7 @@ public:
     virtual bool Update( );
     virtual void Show( );
     virtual void CallBack( Fl_Widget *w );
+    virtual void CloseCallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget* w, void* data )
     {
         ( (VehScreen*)data )->CallBack( w );
@@ -229,6 +230,7 @@ public:
     virtual bool Update( );
     virtual void Show( );
     virtual void CallBack( Fl_Widget *w );
+    virtual void CloseCallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget* w, void* data )
     {
         ( (GeomScreen*)data )->CallBack( w );

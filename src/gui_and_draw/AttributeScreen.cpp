@@ -326,6 +326,12 @@ AttributeExplorer::~AttributeExplorer()
     delete m_DataBuffer;
 }
 
+void AttributeExplorer::Show()
+{
+    m_ScreenMgr->SetUpdateFlag( true );
+    BasicScreen::Show();
+}
+
 bool AttributeExplorer::Update()
 {
 

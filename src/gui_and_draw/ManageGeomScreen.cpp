@@ -15,6 +15,8 @@ using namespace vsp;
 //==== Constructor ====//
 ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 645, "Geom Browser" )
 {
+    m_FLTK_Window->callback( staticCloseCB, this );
+
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
     m_LastTopLine = 0;
@@ -777,6 +779,12 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void ManageGeomScreen::CloseCallBack( Fl_Widget *w )
+{
+    m_ScreenMgr->SetUpdateFlag( true );
+    Hide();
 }
 
 void ManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
