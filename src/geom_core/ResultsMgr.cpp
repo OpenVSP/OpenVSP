@@ -2009,42 +2009,6 @@ void Results::WriteBEMFile( const string & file_name )
     }
 }
 
-// Copy a NameValData pointer to this Result
-void Results::Copy( NameValData* nvd )
-{
-    switch ( nvd->GetType() )
-    {
-        case ( vsp::DOUBLE_DATA ):
-        {
-            Add( ( NameValData( nvd->GetName(), nvd->GetDoubleData(), nvd->GetDoc().c_str() ) ) );
-            break;
-        }
-        case ( vsp::INT_DATA ):
-        {
-            Add( ( NameValData( nvd->GetName(), nvd->GetIntData(), nvd->GetDoc().c_str() ) ) );
-            break;
-        }
-        case ( vsp::STRING_DATA ):
-        {
-            Add( ( NameValData( nvd->GetName(), nvd->GetStringData(), nvd->GetDoc().c_str() ) ) );
-            break;
-        }
-        case ( vsp::INT_MATRIX_DATA ):
-            Add( ( NameValData( nvd->GetName(), nvd->GetIntMatData(), nvd->GetDoc().c_str() ) ) );
-            break;
-        case ( vsp::DOUBLE_MATRIX_DATA ):
-        {
-            Add( ( NameValData( nvd->GetName(), nvd->GetDoubleMatData(), nvd->GetDoc().c_str() ) ) );
-            break;
-        }
-        case ( vsp::VEC3D_DATA ):
-        {
-            Add( ( NameValData( nvd->GetName(), nvd->GetVec3dData(), nvd->GetDoc().c_str() ) ) );
-            break;
-        }
-    }
-}
-
 //======================================================================================//
 //======================================================================================//
 //======================================================================================//

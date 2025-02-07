@@ -423,8 +423,6 @@ public:
     void WriteWaveDragFile( const string & file_name );
     void WriteBEMFile( const string & file_name );
 
-    void Copy( NameValData* nvd );
-
     time_t GetTimestamp()
     {
         return m_Timestamp;
@@ -488,7 +486,6 @@ public:
 
     const vector<int> & GetIntResults( const string & id, const string & name, int index = 0 );
     const vector<double> & GetDoubleResults( const string & id, const string & name, int index = 0 );
-    const vector<double> & GetParmResults( const string & id, const string & name, int index = 0 );
     const vector<vector<int> > & GetIntMatResults( const string & id, const string & name, int index = 0 );
     const vector<vector<double> > & GetDoubleMatResults( const string & id, const string & name, int index = 0 );
     const vector<string> & GetStringResults( const string & id, const string & name, int index = 0 );
