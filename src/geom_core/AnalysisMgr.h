@@ -28,6 +28,9 @@ class RWCollection : public NameValCollection
 public:
     RWCollection() {};
 
+    virtual void Add( const NameValData & d );
+    virtual void Add( const vector< vector< vec3d > > & d, const string &prefix, const string &doc );
+
     void Clear();
 
 };
@@ -94,6 +97,9 @@ public:
     const vector<double> & GetDoubleInputData( const string & analysis, const string & name, int index = 0 );
     const vector<string> & GetStringInputData( const string & analysis, const string & name, int index = 0 );
     const vector<vec3d> & GetVec3dInputData( const string & analysis, const string & name, int index = 0 );
+    const vector<vector<int> > & GetIntMatInputData( const string & analysis, const string & name, int index );
+    const vector<vector<double> > & GetDoubleMatInputData( const string & analysis, const string & name, int index );
+
 
     void SetAnalysisInputDefaults( const string & analysis );
     void SetIntAnalysisInput( const string & analysis, const string & name, const vector< int > & d, int index = 0 );
@@ -123,6 +129,8 @@ private:
     vector< double > m_DefaultDoubleVec;
     vector< string > m_DefaultStringVec;
     vector< vec3d > m_DefaultVec3dVec;
+    vector< vector< int > > m_DefaultIntMatVec;
+    vector< vector< double > > m_DefaultDoubleMatVec;
 
 };
 

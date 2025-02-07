@@ -24,6 +24,24 @@
 
 #include "VSP_Geom_API.h"
 
+// RWCollection has wrapper for NVC Add to gatekeep against unsupported datatypes
+void RWCollection::Add( const NameValData & d )
+{
+    if ( d.GetType() == vsp::ATTR_COLLECTION_DATA ||
+         d.GetType() == vsp::PARM_REFERENCE_DATA )
+    {
+        cout << "NameValData type " << d.GetTypeName() << " reserved for Attributes functionality\n";
+        return;
+    }
+    NameValCollection::Add( d );
+}
+
+void RWCollection::Add( const vector< vector< vec3d > > & d, const string &prefix, const string &doc )
+{
+    // wrapper needed to access NVC's overloaded method since virtual method used to supercede original method
+    NameValCollection::Add( d, prefix, doc );
+}
+
 void RWCollection::Clear()
 {
     m_DataMap.clear();
@@ -290,6 +308,15 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
         {
             switch( current_input_type )
             {
+            case vsp::BOOL_DATA :
+            {
+                vector<int> current_int_val = GetIntInputData( analysis_name, input_names[i_input_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_int_val.size(); j_val++ )
+                {
+                    fprintf( outputStream, "%d ", current_int_val[j_val] );
+                }
+                break;
+            }
             case vsp::INT_DATA :
             {
                 vector<int> current_int_val = GetIntInputData( analysis_name, input_names[i_input_name], i_val );
@@ -317,6 +344,11 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
                 }
                 break;
             }
+            case vsp::PARM_REFERENCE_DATA :
+            {
+                fprintf( outputStream, "NameValData type %s reserved for Attributes functionality", current_input_type_name.c_str() );
+                break;
+            }
             case vsp::VEC3D_DATA :
             {
                 vector<vec3d> current_vec3d_val = GetVec3dInputData( analysis_name, input_names[i_input_name], i_val );
@@ -324,6 +356,51 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
                 {
                     fprintf( outputStream, "%f,%f,%f ", current_vec3d_val[j_val].x(), current_vec3d_val[j_val].y(), current_vec3d_val[j_val].z() );
                 }
+                break;
+            }
+            case vsp::INT_MATRIX_DATA :
+            {
+                vector<vector<int> > current_imat_val = GetIntMatInputData( analysis_name, input_names[i_input_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_imat_val.size(); j_val++ )
+                {
+                    for ( unsigned int k_val = 0; k_val < current_imat_val[j_val].size(); k_val++ )
+                    {
+                        fprintf( outputStream, "%d", current_imat_val[j_val][k_val] );
+                        if ( k_val < current_imat_val[j_val].size() - 1 )
+                        {
+                            fprintf( outputStream, "," );
+                        }
+                    }
+                    if ( j_val < current_imat_val.size() - 1 )
+                    {
+                        fprintf( outputStream, ";" );
+                    }
+                }
+                break;
+            }
+            case vsp::DOUBLE_MATRIX_DATA :
+            {
+                vector<vector<double> > current_dmat_val = GetDoubleMatInputData( analysis_name, input_names[i_input_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_dmat_val.size(); j_val++ )
+                {
+                    for ( unsigned int k_val = 0; k_val < current_dmat_val[j_val].size(); k_val++ )
+                    {
+                        fprintf( outputStream, "%f", current_dmat_val[j_val][k_val] );
+                        if ( k_val < current_dmat_val[j_val].size() - 1 )
+                        {
+                            fprintf( outputStream, "," );
+                        }
+                    }
+                    if ( j_val < current_dmat_val.size() - 1 )
+                    {
+                        fprintf( outputStream, ";" );
+                    }
+                }
+                break;
+            }
+            case vsp::ATTR_COLLECTION_DATA :
+            {
+                fprintf( outputStream, "NameValData type %s reserved for Attributes functionality", current_input_type_name.c_str() );
                 break;
             }
             }    //end switch
@@ -440,6 +517,40 @@ const vector<vec3d> & AnalysisMgrSingleton::GetVec3dInputData( const string & an
     }
 
     return inpt_ptr->GetVec3dData();
+}
+
+const vector<vector<int> > & AnalysisMgrSingleton::GetIntMatInputData( const string & analysis, const string & name, int index )
+{
+    Analysis* analysis_ptr = FindAnalysis( analysis );
+    if ( !analysis_ptr )
+    {
+        return m_DefaultIntMatVec;
+    }
+
+    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name, index );
+    if ( !inpt_ptr )
+    {
+        return m_DefaultIntMatVec;
+    }
+
+    return inpt_ptr->GetIntMatData();
+}
+
+const vector<vector<double> > & AnalysisMgrSingleton::GetDoubleMatInputData( const string & analysis, const string & name, int index )
+{
+    Analysis* analysis_ptr = FindAnalysis( analysis );
+    if ( !analysis_ptr )
+    {
+        return m_DefaultDoubleMatVec;
+    }
+
+    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name, index );
+    if ( !inpt_ptr )
+    {
+        return m_DefaultDoubleMatVec;
+    }
+
+    return inpt_ptr->GetDoubleMatData();
 }
 
 void AnalysisMgrSingleton::SetAnalysisInputDefaults( const string & analysis )

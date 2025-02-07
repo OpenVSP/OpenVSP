@@ -407,6 +407,9 @@ public:
 
     Results( const string & name, const string & id, const string & doc );
 
+    virtual void Add( const NameValData & d );
+    virtual void Add( const vector< vector< vec3d > > & d, const string &prefix, const string &doc );
+
     void SetDateTime();
 
     void WriteCSVFile( const string & file_name );

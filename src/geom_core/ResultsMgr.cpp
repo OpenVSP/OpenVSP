@@ -1320,6 +1320,24 @@ Results::Results( const string & name, const string & id, const string & doc ) :
     SetDateTime();          // Set Time Stamp
 }
 
+// Results has wrapper for NVC Add to gatekeep against unsupported datatypes
+void Results::Add( const NameValData & d )
+{
+    if ( d.GetType() == vsp::ATTR_COLLECTION_DATA ||
+         d.GetType() == vsp::PARM_REFERENCE_DATA )
+    {
+        cout << "NameValData type " << d.GetTypeName() << " reserved for Attributes functionality\n";
+        return;
+    }
+    NameValCollection::Add( d );
+}
+
+void Results::Add( const vector< vector< vec3d > > & d, const string &prefix, const string &doc )
+{
+    // wrapper needed to access NVC's overloaded method since virtual method used to supercede original method
+    NameValCollection::Add( d, prefix, doc );
+}
+
 //===== Find Current Time and Set Stamp =====//
 void Results::SetDateTime()
 {
@@ -1361,6 +1379,13 @@ void Results::WriteCSVFile( FILE* fid )
             for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
             {
                 fprintf( fid, "%s", iter->second[i]->GetName().c_str() );
+                if ( iter->second[i]->GetType() == vsp::BOOL_DATA )
+                {
+                    for ( int d = 0 ; d < ( int )iter->second[i]->GetBoolData().size() ; d++ )
+                    {
+                        fprintf( fid, ",%d", iter->second[i]->GetBoolData()[d] );
+                    }
+                }
                 if ( iter->second[i]->GetType() == vsp::INT_DATA )
                 {
                     for ( int d = 0 ; d < ( int )iter->second[i]->GetIntData().size() ; d++ )
@@ -1430,6 +1455,14 @@ void Results::WriteCSVFile( FILE* fid )
                         vec3d v = iter->second[i]->GetVec3dData()[d];
                         fprintf( fid, ",%.*e,%.*e,%.*e", DBL_DIG + 3, v.x(), DBL_DIG + 3, v.y(), DBL_DIG + 3, v.z() );
                     }
+                }
+                else if ( iter->second[i]->GetType() == vsp::PARM_REFERENCE_DATA )
+                {
+                    fprintf( fid, "NameValData type %s reserved for Attributes functionality", iter->second[i]->GetTypeName().c_str() );
+                }
+                else if ( iter->second[i]->GetType() == vsp::ATTR_COLLECTION_DATA )
+                {
+                    fprintf( fid, "NameValData type %s reserved for Attributes functionality", iter->second[i]->GetTypeName().c_str() );
                 }
                 fprintf( fid, "\n" );
             }
@@ -2353,6 +2386,15 @@ void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &resul
         {
             switch( current_result_type )
             {
+            case vsp::RES_DATA_TYPE::BOOL_DATA :
+            {
+                vector<int> current_int_val = GetIntResults( results_id, results_names[i_result_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_int_val.size(); j_val++ )
+                {
+                    fprintf( outputStream, "%d ", current_int_val[j_val] );
+                }
+                break;
+            }
             case vsp::RES_DATA_TYPE::INT_DATA :
             {
                 vector<int> current_int_val = GetIntResults( results_id, results_names[i_result_name], i_val );
@@ -2430,18 +2472,14 @@ void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &resul
                 }
                 break;
             }
-
-            case vsp::RES_DATA_TYPE::ATTR_COLLECTION_DATA :
-            {
-                fprintf( outputStream, "Unsupported data type " );
-            }
             case vsp::RES_DATA_TYPE::PARM_REFERENCE_DATA :
             {
-                vector<double> current_double_val = GetDoubleResults( results_id, results_names[i_result_name], i_val );
-                for ( unsigned int j_val = 0; j_val < current_double_val.size(); j_val++ )
-                {
-                    fprintf( outputStream, "%.*e ", DBL_DIG + 3, current_double_val[j_val] );
-                }
+                fprintf( outputStream, "NameValData type %s reserved for Attributes functionality", current_result_type_name.c_str() );
+                break;
+            }
+            case vsp::RES_DATA_TYPE::ATTR_COLLECTION_DATA :
+            {
+                fprintf( outputStream, "NameValData type %s reserved for Attributes functionality", current_result_type_name.c_str() );
                 break;
             }
             }    //end switch
