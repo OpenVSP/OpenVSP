@@ -138,7 +138,6 @@ public:
         VspScreen::Update();
         return false;
     }
-    virtual void GetCollIDs( vector < string > &collIDVec ) {};
 
     void HelpCallBack( Fl_Widget *w );
     static void staticHelpCB( Fl_Widget *w, void* data )
@@ -170,7 +169,6 @@ public:
         return false;
     }
 
-    virtual void GetCollIDs( vector < string > &collIDVec ) {};
 
     virtual Fl_Group* AddTab( const string& title );
     virtual Fl_Group* AddTab( const string& title, int indx );
