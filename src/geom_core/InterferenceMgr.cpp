@@ -404,7 +404,10 @@ void InterferenceMgrSingleton::AddLinkableContainers( vector< string > & linkabl
 {
     for ( int i = 0; i < (int)m_ICaseVec.size(); i++ )
     {
-        m_ICaseVec[i]->AddLinkableContainers( linkable_container_vec );
+        if ( m_ICaseVec[i] )
+        {
+            m_ICaseVec[i]->AddLinkableContainers( linkable_container_vec );
+        }
     }
 }
 
