@@ -121,6 +121,7 @@ def generate_vspscript_unit_test(vsp_geom_api, vspscript_unittest_filepath):
     script = ""
     end_script = "int main()\n"
     end_script += "{\n"
+    end_script += "    int int_ret = 0;\n"
     in_code_segment = False
     code_segment = ""
     function_names = []
@@ -150,14 +151,26 @@ def generate_vspscript_unit_test(vsp_geom_api, vspscript_unittest_filepath):
                 script += f"int {function_name}()"
                 script += "\n{\n"
                 script += "    VSPRenew();\n"
+                script += "    int __failure = 0;\n"
+                script += f"    Print(\"//==== {function_name} ====//\");\n"
                 script += code_segment
-                script += "\n    return 0;\n"
+                script += "\n    return __failure;\n"
                 script += "}\n"
 
                 end_script += '    '
+                end_script += 'int_ret += '
                 end_script +=  function_name + "();"
                 end_script += '\n'
-
+    end_script += "    Print( \"\\n//==== ALL TEST SCRIPTS COMPLETED ====//\" );\n"
+    end_script += "    if ( int_ret == 0 )\n"
+    end_script += "    {\n"
+    end_script += "        Print(\"    All Scripts Run Successfully\");\n"
+    end_script += "    }\n"
+    end_script += "    else\n"
+    end_script += "    {\n"
+    end_script += "        string fail_message = \"    Number of failed scripts : \" + int_ret;\n"
+    end_script += "        Print( fail_message );\n"
+    end_script += "    }\n"
     end_script += "    return 0; // success\n"
     end_script += "}\n"
     script += end_script
