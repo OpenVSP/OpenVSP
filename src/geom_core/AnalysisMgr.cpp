@@ -21,6 +21,7 @@
 #include "ParasiteDragMgr.h"
 #include <cstdio>
 #include "ModeMgr.h"
+#include "InterferenceMgr.h"
 
 #include "VSP_Geom_API.h"
 
@@ -668,6 +669,13 @@ void AnalysisMgrSingleton::RegisterBuiltins()
         delete ema;
     }
 
+    InterferenceAnalysis *ia = new InterferenceAnalysis();
+
+    if ( ia && !RegisterAnalysis( ia ) )
+    {
+        delete ia;
+    }
+
     MassPropAnalysis *mpa = new MassPropAnalysis();
 
     if ( mpa && !RegisterAnalysis( mpa ) )
@@ -1138,6 +1146,61 @@ string EmintonLordAnalysis::Execute()
             res->Add( new NameValData( "Coeff", coeff, "Drag coefficient." ) );
             return res->GetID();
         }
+    }
+
+    return string();
+}
+
+//======================================================================================//
+//=========================== Interference Check Analysis ==============================//
+//======================================================================================//
+
+InterferenceAnalysis::InterferenceAnalysis() : Analysis( "InterferenceAnalysis", "Perform interference checks." )
+{
+}
+
+void InterferenceAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+
+    m_Inputs.Add( new NameValData( "CaseID", string( "ALL" ), "ID of interference case to run.  Or 'ALL' to run all cases." ) );
+}
+
+string InterferenceAnalysis::Execute()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        string caseID;
+
+        NameValData *nvd = NULL;
+
+        nvd = m_Inputs.FindPtr( "CaseID", 0 );
+        if ( nvd )
+        {
+            caseID = nvd->GetString( 0 );
+        }
+
+        string resid;
+        if ( caseID == "ALL" || caseID == "all" )
+        {
+            resid = InterferenceMgr.EvaluateAll();
+        }
+        else
+        {
+            InterferenceCase *icase = InterferenceMgr.GetInterferenceCase( caseID );
+            if ( icase )
+            {
+                resid = icase->Evaluate();
+            }
+            else
+            {
+                printf( "Could not find interference case %s\n", caseID.c_str() );
+            }
+        }
+
+        return resid;
     }
 
     return string();

@@ -190,6 +190,17 @@ public:
 
 };
 
+class InterferenceAnalysis : public Analysis
+{
+public:
+
+    InterferenceAnalysis();
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
 class MassPropAnalysis : public Analysis
 {
 public:
