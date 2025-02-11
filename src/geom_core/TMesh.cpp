@@ -5128,6 +5128,7 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
     vec3d dir( 1.0, 0.000001, 0.000001 );
 
     int nmesh = meshVec.size();
+    tri->m_insideSurf.clear();
     tri->m_insideSurf.resize( nmesh, false );
 
     for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
