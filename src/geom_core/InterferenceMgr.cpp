@@ -192,6 +192,7 @@ string InterferenceCase::Evaluate()
     m_LastResult.clear();
 
     DeleteTMeshVec( m_TMeshVec );
+    m_PtsVec.clear();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -216,6 +217,7 @@ string InterferenceCase::Evaluate()
         DeleteTMeshVec( secondary_tmv );
 
 
+        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
         vector < double > resvec = ResultsMgr.GetDoubleResults( m_LastResult, "Result", 0 );
         if ( resvec.size() > 0 )
         {
@@ -276,6 +278,15 @@ void InterferenceCase::UpdateDrawObj()
         m_MeshResultDO_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_MeshResultDO_vec[i].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
     }
+
+    m_LineResultDO.m_GeomID = m_ID + "Line";
+    m_LineResultDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_LineResultDO.m_Type = DrawObj::VSP_LINES;
+    m_LineResultDO.m_LineColor = DrawObj::Color( DrawObj::RED );
+    m_LineResultDO.m_LineWidth = 3.0;
+
+    m_LineResultDO.m_GeomChanged = true;
+    m_LineResultDO.m_PntVec = m_PtsVec;
 }
 
 
@@ -286,6 +297,9 @@ void InterferenceCase::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_MeshResultDO_vec[i].m_Visible = true;
         draw_obj_vec.push_back( &m_MeshResultDO_vec[i] );
     }
+
+    m_LineResultDO.m_Visible = true;
+    draw_obj_vec.push_back( &m_LineResultDO );
 }
 
 //===============================================================================//

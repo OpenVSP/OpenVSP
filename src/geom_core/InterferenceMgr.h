@@ -51,9 +51,11 @@ public:
     Parm m_LastResultValue;
 
     vector< TMesh* > m_TMeshVec;
+    vector < vec3d > m_PtsVec;
 
 
     vector < DrawObj > m_MeshResultDO_vec;
+    DrawObj m_LineResultDO;
 };
 
 
