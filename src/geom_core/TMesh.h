@@ -561,7 +561,7 @@ void MeshUnion( vector < TMesh* > & tmv );
 void MeshIntersect( vector < TMesh* > & tmv );
 
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
-void DeterIntExtTri( TTri* tri, TMesh* mesh );
+bool DeterIntExtTri( TTri* tri, TMesh* mesh );
 
 void WriteStl( const string &file_name, const vector< TMesh* >& meshVec );
 

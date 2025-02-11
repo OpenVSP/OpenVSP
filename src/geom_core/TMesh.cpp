@@ -5152,11 +5152,20 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
     }
 }
 
-void DeterIntExtTri( TTri* tri, TMesh* mesh )
+bool DeterIntExtTri( TTri* tri, TMesh* mesh )
 {
-    vector <TMesh*> tmv;
-    tmv.push_back( mesh );
-    DeterIntExtTri( tri, tmv );
+    if ( tri )
+    {
+        vector <TMesh*> tmv;
+        tmv.push_back( mesh );
+        DeterIntExtTri( tri, tmv );
+
+        if ( !tri->m_insideSurf.empty() )
+        {
+            return tri->m_insideSurf[0];
+        }
+    }
+    return false;
 }
 
 void WriteStl( const string &file_name, const vector< TMesh* >& meshVec )
