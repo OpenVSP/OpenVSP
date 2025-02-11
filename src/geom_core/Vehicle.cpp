@@ -5187,6 +5187,7 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 
     m_ClippingMgr.AddLinkableContainers( linkable_container_vec );
     StructureMgr.AddLinkableContainers( linkable_container_vec );
+    InterferenceMgr.AddLinkableContainers( linkable_container_vec );
 }
 
 // As m_BBox, but without EngineGeom modifications applied.
