@@ -378,7 +378,7 @@ void ScreenMgr::APIShowScreensImplementation()
     m_APIScreenOpenVec.clear();
 }
 
-void APIHideScreenHandler( void * data )
+void APIHideScreensHandler( void * data )
 {
     ScreenMgr * m_ScreenMgr = (ScreenMgr*) data;
     if ( m_ScreenMgr )
@@ -393,7 +393,7 @@ void APIHideScreenHandler( void * data )
     }
 }
 
-void APIShowScreenHandler( void * data )
+void APIShowScreensHandler( void * data )
 {
     ScreenMgr * m_ScreenMgr = (ScreenMgr*) data;
     if ( m_ScreenMgr )
@@ -415,7 +415,7 @@ void ScreenMgr::APIHideScreens()
     else
     {
         // Queue task to main thread.
-        Fl::awake( APIHideScreenHandler, ( void* )this );
+        Fl::awake( APIHideScreensHandler, ( void* )this );
 
         // Not sure why this unlock/lock pair is not needed here.  However, removing it
         // fixes CloseGUI() from the API.
@@ -440,7 +440,7 @@ void ScreenMgr::APIHideScreens()
 
 void ScreenMgr::APIShowScreens()
 {
-    Fl::awake( APIShowScreenHandler, ( void* )this );
+    Fl::awake( APIShowScreensHandler, ( void* )this );
 }
 
 void ScreenMgr::APIUpdateGUIImplementation()
