@@ -61,6 +61,13 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
 
     m_ICaseLayout.AddYGap();
 
+    m_ICaseLayout.AddChoice( m_InterferenceTypeChoice, "Type" );
+    m_InterferenceTypeChoice.AddItem( "External", vsp::EXTERNAL_INTERFERENCE );
+    m_InterferenceTypeChoice.AddItem( "Packaging", vsp::PACKAGING_INTERFERENCE );
+    m_InterferenceTypeChoice.UpdateItems();
+
+    m_ICaseLayout.AddYGap();
+
     m_ICaseLayout.AddDividerBox( "Primary" );
 
     m_ICaseLayout.SetSameLineFlag( true );
@@ -171,6 +178,8 @@ bool InterferenceScreen::Update()
 
 
         m_ICNameInput.Update( icase->GetName() );
+
+        m_InterferenceTypeChoice.Update( icase->m_IntererenceCheckType.GetID() );
 
         m_ResultOutput.Update( icase->m_LastResultValue.GetID() );
 

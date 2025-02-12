@@ -61,6 +61,8 @@ protected:
 
     StringInput m_ICNameInput;
 
+    Choice m_InterferenceTypeChoice;
+
     ToggleRadioGroup m_PrimaryToggleGroup;
     ToggleButton m_PrimarySetToggle;
     Choice m_PrimarySetChoice;
