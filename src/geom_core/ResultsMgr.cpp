@@ -78,13 +78,6 @@ NameValData::NameValData( const string & name, const vec3d & v_data, const strin
     m_Doc = doc;
 }
 
-NameValData::NameValData( const string & name, const NameValCollection &c_data, const string & doc, const string & id )
-{
-    Init( name, vsp::ATTR_COLLECTION_DATA, id );
-    m_NameValCollectionData.push_back(c_data);
-    m_Doc = doc;
-}
-
 NameValData::NameValData( const string & name, const AttributeCollection &c_data, const string & doc, const string & id )
 {
     Init( name, vsp::ATTR_COLLECTION_DATA, id );
@@ -132,13 +125,6 @@ NameValData::NameValData( const string &name, const vector< vector< double > > &
 {
     Init( name, vsp::DOUBLE_MATRIX_DATA, id );
     m_DoubleMatData = dmat_data;
-    m_Doc = doc;
-}
-
-NameValData::NameValData( const string & name, const vector< NameValCollection > &c_data, const string & doc, const string & id )
-{
-    Init( name, vsp::NAMEVAL_COLLECTION_DATA, id );
-    m_NameValCollectionData = c_data;
     m_Doc = doc;
 }
 
@@ -215,10 +201,6 @@ string NameValData::GetTypeName( int type, bool capitalize, bool short_name )
         case vsp::DOUBLE_MATRIX_DATA:
             string_long = "double matrix";
             string_mini = "dmat";
-            break;
-        case vsp::NAMEVAL_COLLECTION_DATA:
-            string_long = "nameval collection";
-            string_mini = "nvc";
             break;
         case vsp::ATTR_COLLECTION_DATA:
             string_long = "attribute group";
@@ -2449,10 +2431,6 @@ void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &resul
                 break;
             }
 
-            case vsp::RES_DATA_TYPE::NAMEVAL_COLLECTION_DATA :
-            {
-                fprintf( outputStream, "Unsupported data type " );
-            }
             case vsp::RES_DATA_TYPE::ATTR_COLLECTION_DATA :
             {
                 fprintf( outputStream, "Unsupported data type " );

@@ -39,7 +39,6 @@ public:
     NameValData( const string & name, const double & d_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const string & s_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vec3d & v_data, const string & doc, const string & id = string() );
-    NameValData( const string & name, const NameValCollection &c_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const AttributeCollection &c_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< int > & i_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< double > & d_data, const string & doc, const string & id = string() );
@@ -47,7 +46,6 @@ public:
     NameValData( const string & name, const vector< vec3d > & v_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< vector< int > > &imat_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< vector< double > > &dmat_data, const string & doc, const string & id = string() );
-    NameValData( const string & name, const vector< NameValCollection > &c_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const vector< AttributeCollection > &c_data, const string & doc, const string & id = string() );
 
     string GetName() const

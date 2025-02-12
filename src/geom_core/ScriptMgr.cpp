@@ -1893,6 +1893,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "INVALID_TYPE", INVALID_TYPE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "RES_DATA_TYPE", "BOOL_DATA", BOOL_DATA );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "INT_DATA", INT_DATA );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "DOUBLE_DATA", DOUBLE_DATA );
@@ -1904,6 +1906,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "INT_MATRIX_DATA", INT_MATRIX_DATA );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "DOUBLE_MATRIX_DATA", DOUBLE_MATRIX_DATA );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RES_DATA_TYPE", "ATTR_COLLECTION_DATA", ATTR_COLLECTION_DATA );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RES_DATA_TYPE", "PARM_REFERENCE_DATA", PARM_REFERENCE_DATA );
     assert( r >= 0 );
 
 
@@ -3428,7 +3434,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetAttributeBool( const string & in attrID, int value )", asFUNCTION( vsp::SetAttributeBool ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetAttributeBool( const string & in attrID, bool value )", asFUNCTION( vsp::SetAttributeBool ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -3464,7 +3470,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string AddAttributeBool( const string & in collID, const string & in attributeName, int value )", asFUNCTION( vsp::AddAttributeBool ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddAttributeBool( const string & in collID, const string & in attributeName, bool value )", asFUNCTION( vsp::AddAttributeBool ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -4714,27 +4720,27 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertRSTtoLMN( const string & in geom_id, const int & in surf_indx, const double & in r, const double & in s, const double & in t, double & out l_out, double & out m_out, double & out n_out )", asFUNCTION(vsp::ConvertRSTtoLMN), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ConvertRSTtoLMN( const string & in geom_id, const int & in surf_indx, const double & in r, const double & in s, const double & in t, double & out l_out, double & out m_out, double & out n_out )", asFUNCTION(vsp::ConvertRSTtoLMN), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertRtoL( const string & in geom_id, const int & in surf_indx, const double & in r, double & out l_out )", asFUNCTION(vsp::ConvertRtoL), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ConvertRtoL( const string & in geom_id, const int & in surf_indx, const double & in r, double & out l_out )", asFUNCTION(vsp::ConvertRtoL), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertLMNtoRST( const string & in geom_id, const int & in surf_indx, const double & in l, const double & in m, const double & in n, double & out r_out, double & out s_out, double & out t_out )", asFUNCTION(vsp::ConvertLMNtoRST), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ConvertLMNtoRST( const string & in geom_id, const int & in surf_indx, const double & in l, const double & in m, const double & in n, double & out r_out, double & out s_out, double & out t_out )", asFUNCTION(vsp::ConvertLMNtoRST), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertLtoR( const string & in geom_id, const int & in surf_indx, const double & in l, double & out r_out )", asFUNCTION(vsp::ConvertLtoR), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ConvertLtoR( const string & in geom_id, const int & in surf_indx, const double & in l, double & out r_out )", asFUNCTION(vsp::ConvertLtoR), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertUtoEta( const string & in geom_id, const double & in u, double & out eta )", asFUNCTION(vsp::ConvertUtoEta), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ConvertUtoEta( const string & in geom_id, const double & in u, double & out eta )", asFUNCTION(vsp::ConvertUtoEta), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertEtatoU( const string & in geom_id, const double & in eta, double & out u_out )", asFUNCTION(vsp::ConvertEtatoU), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ConvertEtatoU( const string & in geom_id, const double & in eta, double & out u_out )", asFUNCTION(vsp::ConvertEtatoU), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -4775,7 +4781,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<bool>@+  VecInsideSurf( const string & in geom_id, const int & in surf_indx, array<vec3d>@+ pts )", asFUNCTION(vsp::VecInsideSurf), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "array<bool>@+ VecInsideSurf( const string & in geom_id, const int & in surf_indx, array<vec3d>@+ pts )", asMETHOD( ScriptMgrSingleton, VecInsideSurf ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -6152,6 +6158,24 @@ void ScriptMgrSingleton::AxisProjVecPnt01Guess(const string &geom_id, const int 
     FillASArray( out_us, us );
     FillASArray( out_ws, ws );
     FillASArray( out_ds, ds );
+}
+
+CScriptArray* ScriptMgrSingleton::VecInsideSurf( const string &geom_id, const int &surf_indx, CScriptArray* pts )
+{
+    vector < vec3d > in_pts;
+    FillSTLVector( pts, in_pts );
+
+    vector < bool > temp_vec = vsp::VecInsideSurf( geom_id, surf_indx, in_pts );
+
+    m_ProxyIntArray.clear();
+    m_ProxyIntArray.resize( temp_vec.size() );
+    for ( size_t i = 0; i < temp_vec.size(); i++ )
+    {
+        // Cast bool to int
+        m_ProxyIntArray[i] = (int)temp_vec[i];
+    }
+
+    return GetProxyIntArray();
 }
 
 void ScriptMgrSingleton::FindRSTVec(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts, CScriptArray* ds )
