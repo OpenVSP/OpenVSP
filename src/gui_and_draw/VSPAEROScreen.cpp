@@ -22,7 +22,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 #define VSPAERO_SCREEN_WIDTH 610
-#define VSPAERO_SCREEN_HEIGHT 690
+#define VSPAERO_SCREEN_HEIGHT 720
 #define VSPAERO_EXECUTE_CONSTANT_HEIGHT 210
 
 VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_WIDTH,
@@ -94,13 +94,11 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     int right_col_width = m_OverviewLayout.GetRemainX();
     m_OverviewLayout.AddSubGroupLayout( m_RightColumnLayout, right_col_width, col_height );
 
-    // Set column YGap Width
-    m_LeftColumnLayout.SetGapHeight( group_border_width );
-    m_RightColumnLayout.SetGapHeight( group_border_width );
-
     // Case Setup Layout
     m_LeftColumnLayout.AddSubGroupLayout( m_CaseSetupLayout,
         m_LeftColumnLayout.GetW(),
+        m_LeftColumnLayout.GetDividerHeight() +
+        m_LeftColumnLayout.GetGapHeight() +
         4 * m_LeftColumnLayout.GetStdHeight() );
     m_LeftColumnLayout.AddY( m_CaseSetupLayout.GetH() );
 
@@ -158,12 +156,12 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.AddButton( m_PreviewDegenButton, "Preview VLM Geometry" );
 
     m_LeftColumnLayout.AddYGap();
-    m_LeftColumnLayout.AddYGap();
 
     // Reference Quantities
     m_LeftColumnLayout.AddSubGroupLayout( m_RefLengthLayout,
         m_LeftColumnLayout.GetW(),
-        7 * m_LeftColumnLayout.GetStdHeight() );
+        m_LeftColumnLayout.GetDividerHeight() +
+        6 * m_LeftColumnLayout.GetStdHeight() );
     m_LeftColumnLayout.AddY( m_RefLengthLayout.GetH() );
 
     m_RefLengthLayout.AddDividerBox( "Reference Area, Lengths" );
@@ -213,7 +211,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // CG
     m_LeftColumnLayout.AddSubGroupLayout( m_MomentRefLayout,
         m_LeftColumnLayout.GetW(),
-        7 * m_LeftColumnLayout.GetStdHeight() );
+        m_LeftColumnLayout.GetDividerHeight() +
+        9 * m_LeftColumnLayout.GetStdHeight() );
     m_LeftColumnLayout.AddY( m_MomentRefLayout.GetH() );
 
     m_MomentRefLayout.AddDividerBox( "Moment Reference Position" );
@@ -270,7 +269,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Flow Condition
     m_RightColumnLayout.AddSubGroupLayout( m_FlowCondLayout,
         m_RightColumnLayout.GetW(),
-        5 * m_RightColumnLayout.GetStdHeight() );
+        m_RightColumnLayout.GetDividerHeight() +
+        4 * m_RightColumnLayout.GetStdHeight() );
     m_RightColumnLayout.AddY( m_FlowCondLayout.GetH() );
 
     m_FlowCondLayout.AddDividerBox( "Flow Condition" );
