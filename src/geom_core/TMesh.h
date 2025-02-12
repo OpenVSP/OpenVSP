@@ -404,6 +404,8 @@ public:
     void SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf );
     void SetIgnoreInsideAny();
     void SetIgnoreOutsideAll();
+    void SetIgnoreMatchMask( const vector < bool > & mask );
+    void SetKeepMatchMask( const vector < bool > & mask );
 
     void IgnoreYLessThan( const double & ytol );
     void IgnoreAll();

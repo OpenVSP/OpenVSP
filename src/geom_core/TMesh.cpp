@@ -820,6 +820,50 @@ void TMesh::SetIgnoreOutsideAll()
     }
 }
 
+void TMesh::SetIgnoreMatchMask( const vector < bool > & mask )
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            tri->m_IgnoreTriFlag = true;
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                tri->m_SplitVec[s]->m_IgnoreTriFlag = ( mask == tri->m_SplitVec[s]->m_insideSurf );
+            }
+        }
+        else
+        {
+            tri->m_IgnoreTriFlag = ( mask == tri->m_insideSurf );
+        }
+    }
+}
+
+void TMesh::SetKeepMatchMask( const vector < bool > & mask )
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            tri->m_IgnoreTriFlag = true;
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                tri->m_SplitVec[s]->m_IgnoreTriFlag = ( mask != tri->m_SplitVec[s]->m_insideSurf );
+            }
+        }
+        else
+        {
+            tri->m_IgnoreTriFlag = ( mask != tri->m_insideSurf );
+        }
+    }
+}
+
 void TMesh::IgnoreYLessThan( const double & ytol )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
