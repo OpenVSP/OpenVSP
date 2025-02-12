@@ -31,6 +31,8 @@ InterferenceCase::InterferenceCase()
 
     m_SecondaryType.Init( "SecondaryType", "Projection", this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_BNDY_OPTIONS - 2 ); // Note - 2, MODE_TARGET not allowed.
 
+    m_IntererenceCheckType.Init( "IntererenceCheckType", groupname, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
+
     m_LastResultValue.Init( "LastResult", groupname, this, 0.0, -1e12, 1e12 );
 }
 
@@ -211,8 +213,19 @@ string InterferenceCase::Evaluate()
         vector< TMesh* > primary_tmv = GetPrimaryTMeshVec();
         vector< TMesh* > secondary_tmv = GetSecondaryTMeshVec();
 
-        m_LastResult = ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
-        //m_LastResult = PackagingInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
+        switch ( m_IntererenceCheckType() )
+        {
+            case vsp::EXTERNAL_INTERFERENCE:
+            {
+                m_LastResult = ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
+                break;
+            }
+            case vsp::PACKAGING_INTERFERENCE:
+            {
+                m_LastResult = PackagingInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
+                break;
+            }
+        }
 
         DeleteTMeshVec( primary_tmv );
         DeleteTMeshVec( secondary_tmv );

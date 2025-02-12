@@ -967,6 +967,15 @@ enum INIT_EDIT_XSEC_TYPE { EDIT_XSEC_CIRCLE,	/*!< Circle initialized as cubic Be
 /*!
 	\ingroup Enumerations
 */
+/*! Interference check types.. */
+enum INTERFERENCE_CHECK_TYPE { EXTERNAL_INTERFERENCE,	/*!< Interference between mutually external bodies */
+                               PACKAGING_INTERFERENCE,	/*!< Interference when one body is internal to another */
+                               NUM_INTERFERENCE_TYPES	/*!< Number of interference check types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for OpenVSP import types. */
 enum IMPORT_TYPE {  IMPORT_STL,	/*!< Stereolith (*.stl) import */
                     IMPORT_NASCART,	/*!< NASCART (*.dat) import */

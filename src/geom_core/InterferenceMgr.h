@@ -47,6 +47,8 @@ public:
     IntParm m_SecondaryType; // Set or Geom
     string m_SecondaryGeomID;
 
+    IntParm m_IntererenceCheckType;
+
     string m_LastResult;
     Parm m_LastResultValue;
 
