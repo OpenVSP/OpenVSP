@@ -563,6 +563,7 @@ void IntersectSplitClassify( vector < TMesh * > &tmv );
 void CSGMesh( vector < TMesh* > & tmv );
 void MeshUnion( vector < TMesh* > & tmv );
 void MeshIntersect( vector < TMesh* > & tmv );
+void MeshSubtract( vector < TMesh* > & tmv );
 
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
 bool DeterIntExtTri( TTri* tri, TMesh* mesh );

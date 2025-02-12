@@ -5188,6 +5188,23 @@ void MeshIntersect( vector < TMesh * > &tmv )
     }
 }
 
+// Subtract meshes i != 0 from mesh j == 0.
+void MeshSubtract( vector < TMesh* > & tmv )
+{
+    IntersectSplitClassify( tmv );
+
+    vector < bool > mask( tmv.size(), false );
+    mask[0] = true;
+
+    tmv[0]->SetIgnoreInsideAny();;
+    //==== Mark which triangles to ignore ====//
+    for ( int i = 1 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->SetKeepMatchMask( mask );
+        tmv[i]->FlipNormals();
+    }
+}
+
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
 {
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
