@@ -1989,6 +1989,8 @@ bool TTri::SplitTri( bool dumpCase )
 void TTri::FlipTri()
 {
     swap( m_N0, m_N1 );
+
+    m_Norm = -m_Norm;
 }
 
 void TTri::OrientTri( vector < int > & tri )
