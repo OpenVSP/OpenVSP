@@ -144,7 +144,7 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
 
     m_ICaseLayout.AddOutput( m_ResultOutput, "Result", "%6.5f" );
 
-    m_InterferenceBrowserSelect = -1;
+    m_InterferenceBrowserSelect = 0;
 }
 
 InterferenceScreen::~InterferenceScreen()
