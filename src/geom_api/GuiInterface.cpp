@@ -339,3 +339,23 @@ void GuiInterface::SetGeomScreenDisable( int s, bool state )
     }
 #endif
 }
+
+void GuiInterface::HideScreen ( int s )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->APIHideScreen( s );
+    }
+#endif
+}
+
+void GuiInterface::ShowScreen( int s )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->APIShowScreen( s );
+    }
+#endif
+}

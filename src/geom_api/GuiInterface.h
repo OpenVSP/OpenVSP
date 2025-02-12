@@ -63,6 +63,9 @@ public:
     void SetGUIElementDisable( int e, bool state );
     void SetGUIScreenDisable( int s, bool state );
     void SetGeomScreenDisable( int s, bool state );
+
+    void HideScreen( int s );
+    void ShowScreen( int s );
 };
 
 #endif // !defined(GUIINTERFACE__INCLUDED_)

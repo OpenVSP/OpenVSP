@@ -6413,6 +6413,46 @@ extern void SetGUIScreenDisable( int s, bool state );
 */
 extern void SetGeomScreenDisable( int s, bool state );
 
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Hide an OpenVSP GUI screen
+    \forcpponly
+    \code{.cpp}
+    HideScreen( VSP_INTERFERENCE_SCREEN );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    HideScreen( VSP_INTERFERENCE_SCREEN )
+    \endcode
+    \endPythonOnly
+    \param [in] s int GUI_VSP_SCREEN enum for screen
+*/
+
+extern void HideScreen( int s );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Show an OpenVSP GUI screen
+    \forcpponly
+    \code{.cpp}
+    ShowScreen( VSP_INTERFERENCE_SCREEN );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ShowScreen( VSP_INTERFERENCE_SCREEN )
+    \endcode
+    \endPythonOnly
+    \param [in] s int GUI_VSP_SCREEN enum for screen
+*/
+
+extern void ShowScreen( int s );
+
 
 //======================== Geom Functions ================================//
 /*!

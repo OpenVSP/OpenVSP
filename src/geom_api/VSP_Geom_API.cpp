@@ -2235,6 +2235,20 @@ void SetGeomScreenDisable( int s, bool state )
 #endif
 }
 
+void HideScreen( int s )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().HideScreen( s );
+#endif
+}
+
+void ShowScreen( int s )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().ShowScreen( s );
+#endif
+}
+
 //===================================================================//
 //===============       Geom Functions            ===================//
 //===================================================================//

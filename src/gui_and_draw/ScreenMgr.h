@@ -76,6 +76,11 @@ public:
     void APIHideScreens();
     void APIShowScreens();
 
+    void APIHideScreenImplementation( int s );
+    void APIShowScreenImplementation( int s );
+    void APIHideScreen( int s );
+    void APIShowScreen( int s );
+
     void APIUpdateGUIImplementation();
     void APIUpdateGUI();
 

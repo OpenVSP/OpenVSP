@@ -443,6 +443,141 @@ void ScreenMgr::APIShowScreens()
     Fl::awake( APIShowScreensHandler, ( void* )this );
 }
 
+void ScreenMgr::APIHideScreenImplementation( int s )
+{
+    HideScreen( s );
+    SetUpdateFlag( true );
+
+    // Set flag that task has been completed.
+    m_TaskComplete = true;
+}
+
+void ScreenMgr::APIShowScreenImplementation( int s )
+{
+    ShowScreen( s );
+    SetUpdateFlag( true );
+
+    SleepForMilliseconds( 100 );
+
+    // Set flag that task has been completed.
+    m_TaskComplete = true;
+}
+
+struct ScreenStruct {
+    int m_ScreenIndx;
+    ScreenMgr * m_ScrMgr;
+};
+
+void APIHideScreenHandler( void * data )
+{
+    ScreenStruct * ss = ( ScreenStruct * ) data;
+
+    if ( ss )
+    {
+        ScreenMgr * m_ScreenMgr = (ScreenMgr*) ss->m_ScrMgr;
+        if ( m_ScreenMgr )
+        {
+            m_ScreenMgr->APIHideScreenImplementation( ss->m_ScreenIndx );
+        }
+
+        delete ss;
+    }
+}
+
+void ScreenMgr::APIHideScreen( int s )
+{
+    // Mark that task has not been completed.
+    m_TaskComplete = false;
+
+    if ( MainThreadIDMgr.IsCurrentThreadMain() )
+    {
+        // Simple main thread code path.
+        APIHideScreenImplementation( s );
+    }
+    else
+    {
+        ScreenStruct *ss = new ScreenStruct;
+        ss->m_ScreenIndx = s;
+        ss->m_ScrMgr = this;
+
+        // Queue task to main thread.
+        Fl::awake( APIHideScreenHandler, ( void* )ss );
+
+        // Release lock to allow main thread to process queue.
+        Fl::unlock();
+
+        // Set up lock and mutex.
+        std::unique_lock lk( m_TaskMutex );
+
+        // Wait for change in task flag.
+        m_TaskCV.wait(lk, [this]
+            {
+                return m_TaskComplete;
+            });
+
+        // Re-acquire lock from main thread.
+        Fl::lock();
+    }
+}
+
+void APIShowScreenHandler( void * data )
+{
+    ScreenStruct * ss = ( ScreenStruct * ) data;
+
+    if ( ss )
+    {
+        ScreenMgr * m_ScreenMgr = (ScreenMgr*) ss->m_ScrMgr;
+        if ( m_ScreenMgr )
+        {
+            m_ScreenMgr->APIShowScreenImplementation( ss->m_ScreenIndx );
+        }
+
+        delete ss;
+    }
+}
+
+void ScreenMgr::APIShowScreen( int s )
+{
+    // Mark that task has not been completed.
+    m_TaskComplete = false;
+
+    if ( MainThreadIDMgr.IsCurrentThreadMain() )
+    {
+        printf( "ShowScreen main thread.\n" );
+        // Simple main thread code path.
+        APIShowScreenImplementation( s );
+    }
+    else
+    {
+        printf( "ShowScreen secondary thread.\n" );
+        ScreenStruct *ss = new ScreenStruct;
+        ss->m_ScreenIndx = s;
+        ss->m_ScrMgr = this;
+
+        // Queue task to main thread.
+        Fl::awake( APIShowScreenHandler, ( void* )ss );
+
+        // Not sure why this unlock/lock pair is not needed here.  However, removing it
+        // fixes CloseGUI() from the API.
+        // // Release lock to allow main thread to process queue.
+        Fl::unlock();
+
+        // Set up lock and mutex.
+        std::unique_lock lk( m_TaskMutex );
+
+        // Wait for change in task flag.
+        m_TaskCV.wait(lk, [this]
+            {
+                return m_TaskComplete;
+            });
+
+        // Not sure why this unlock/lock pair is not needed here.  However, removing it
+        // fixes CloseGUI() from the API.
+        // // Re-acquire lock from main thread.
+        Fl::lock();
+    }
+}
+
 void ScreenMgr::APIUpdateGUIImplementation()
 {
     ForceUpdate();

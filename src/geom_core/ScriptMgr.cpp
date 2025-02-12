@@ -3108,6 +3108,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void SetGeomScreenDisable( int s, bool state )", asFUNCTION( vsp::SetGeomScreenDisable ), asCALL_CDECL );
     assert( r >= 0 );
 
+
+    r = se->RegisterGlobalFunction( "void HideScreen( int s )", asFUNCTION( vsp::HideScreen ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void ShowScreen( int s )", asFUNCTION( vsp::ShowScreen ), asCALL_CDECL );
+    assert( r >= 0 );
+
     //==== Vehicle Functions ====//
 
     r = se->RegisterGlobalFunction( "void Update( bool update_managers = true)", asFUNCTION( vsp::Update ), asCALL_CDECL );
