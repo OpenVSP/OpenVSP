@@ -64,14 +64,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     Fl::screen_xywh( x, y, w, h );
 
     // Figure out which is smaller, half the screen width or the height
-    if ( 0.5 * w < 0.9 * h )
-    {
-        side = (int)(0.9 * h);
-    }
-    else
-    {
-        side = (int)(0.5 * w);
-    }
+    side = std::min( 0.5 * w, 0.9 * h );
 
     m_FLTK_Window->resize( x + 10, y + 30, side, side );
 
