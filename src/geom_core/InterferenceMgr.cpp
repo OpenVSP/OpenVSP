@@ -212,6 +212,7 @@ string InterferenceCase::Evaluate()
         vector< TMesh* > secondary_tmv = GetSecondaryTMeshVec();
 
         m_LastResult = ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
+        //m_LastResult = PackagingInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
 
         DeleteTMeshVec( primary_tmv );
         DeleteTMeshVec( secondary_tmv );
