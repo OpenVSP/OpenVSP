@@ -419,6 +419,8 @@ public:
     virtual double ComputeTheoVol();
     virtual double ComputeTrimVol();
 
+    virtual void FlipNormals();
+
     virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2 );
     virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm );
     virtual void AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm );

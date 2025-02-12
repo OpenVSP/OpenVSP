@@ -1063,6 +1063,30 @@ double TMesh::ComputeTrimVol()
     return trimVol;
 }
 
+void TMesh::FlipNormals()
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
+                {
+                    tri->m_SplitVec[s]->FlipTri();
+                }
+            }
+        }
+        else if ( !tri->m_IgnoreTriFlag )
+        {
+            tri->FlipTri();
+        }
+    }
+}
+
 // Wrapper
 void TMesh::AddTri( const vec3d & p0, const vec3d & p1, const vec3d & p2 )
 {
