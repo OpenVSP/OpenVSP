@@ -35,6 +35,10 @@ void Renderable::init()
 
     _lineWidth = _pointSize = _textSize = 1.0f;
 
+    _stippleFactor = 10;
+    _stipplePattern = 0xAAAA;
+    _stippleFlag = false;
+
     _meshColorBufferFlag = _lineColorBufferFlag = _eBufferFlag = false;
 
     _facingCWFlag = false;
@@ -155,6 +159,21 @@ void Renderable::setTextSize( float size )
     _textSize = size;
 }
 
+void Renderable::setStippleFactor( int factor )
+{
+    _stippleFactor = factor;
+}
+
+void Renderable::setStipplePattern( int pattern )
+{
+    _stipplePattern = pattern;
+}
+
+void Renderable::setStippleFlag( bool flag )
+{
+    _stippleFlag = flag;
+}
+
 void Renderable::setPrimType( Common::VSPenum type )
 {
     _type = type;
@@ -247,5 +266,20 @@ float Renderable::_getPointSize()
 float Renderable::_getTextSize()
 {
     return _textSize;
+}
+
+int Renderable::_getStippleFactor()
+{
+    return _stippleFactor;
+}
+
+int Renderable::_getStipplePattern()
+{
+    return _stipplePattern;
+}
+
+bool Renderable::_getStippleFlag()
+{
+    return _stippleFlag;
 }
 }

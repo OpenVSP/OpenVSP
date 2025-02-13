@@ -96,7 +96,20 @@ void Marker::_draw_Lines()
         _lineColorBuffer->bind();
     }
 
+    bool stippleEnabled = _getStippleFlag();
+
+    if ( stippleEnabled )
+    {
+        glEnable(GL_LINE_STIPPLE);
+        glLineStipple( _getStippleFactor(), _getStipplePattern() );
+    }
+
     _draw_Lines( color.red, color.green, color.blue, color.alpha );
+
+    if ( stippleEnabled )
+    {
+        glDisable(GL_LINE_STIPPLE);
+    }
 
     if( cBufferEnabled )
     {

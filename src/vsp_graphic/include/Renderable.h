@@ -128,6 +128,12 @@ public:
     */
     void setTextSize( float size );
 
+    void setStippleFactor( int factor );
+
+    void setStipplePattern( int pattern );
+
+    void setStippleFlag( bool flag );
+
 public:
     /*!
     * Set primitive type.
@@ -187,6 +193,10 @@ protected:
     float _getPointSize();
     float _getTextSize();
 
+    int _getStippleFactor();
+    int _getStipplePattern();
+    bool _getStippleFlag();
+
 protected:
     struct Color
     {
@@ -207,6 +217,10 @@ private:
 
     Color _meshColor, _lineColor, _pointColor, _textColor;
     float _lineWidth, _pointSize, _textSize;
+
+    int _stippleFactor, _stipplePattern;
+
+    bool _stippleFlag;
 
     bool _eBufferFlag, _lineColorBufferFlag, _meshColorBufferFlag;
 

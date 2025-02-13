@@ -237,6 +237,10 @@ DrawObj::DrawObj()
     m_LineWidth = 1.0;
     m_LineColor = vec3d( 0, 0, 1 );
 
+    m_StippleFactor = 10;
+    m_StipplePattern = 0xAAAA;
+    m_StippleFlag = false;
+
     m_PointSize = 10.0;
     m_PointColor = vec3d( 1, 0, 0 );
 

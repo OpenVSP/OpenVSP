@@ -1673,11 +1673,19 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         float red, green, blue;
         float lineWidth;
 
+        int stippleFactor;
+        int stipplePattern;
+        bool stippleFlag;
+
         red = ( float )objects[i]->m_LineColor.x();
         green = ( float )objects[i]->m_LineColor.y();
         blue = ( float )objects[i]->m_LineColor.z();
 
         lineWidth = ( float )objects[i]->m_LineWidth;
+
+        stippleFactor = objects[i]->m_StippleFactor;
+        stipplePattern = objects[i]->m_StipplePattern;
+        stippleFlag = objects[i]->m_StippleFlag;
 
         unsigned int id;
         ID * idPtr = _findID( objects[i]->m_GeomID );
@@ -1740,6 +1748,9 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 rObj->setPrimType( VSPGraphic::Common::VSP_LINES );
                 rObj->setLineColor( red, green, blue );
                 rObj->setLineWidth( lineWidth );
+                rObj->setStippleFactor( stippleFactor );
+                rObj->setStipplePattern( stipplePattern );
+                rObj->setStippleFlag( stippleFlag );
 
                 if( objects[i]->m_GeomChanged )
                 {
@@ -1765,6 +1776,9 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 rObj->setPrimType( VSPGraphic::Common::VSP_LINE_LOOP );
                 rObj->setLineColor( red, green, blue );
                 rObj->setLineWidth( lineWidth );
+                rObj->setStippleFactor( stippleFactor );
+                rObj->setStipplePattern( stipplePattern );
+                rObj->setStippleFlag( stippleFlag );
 
                 if( objects[i]->m_GeomChanged )
                 {
@@ -1790,6 +1804,9 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 rObj->setPrimType( VSPGraphic::Common::VSP_LINE_STRIP );
                 rObj->setLineColor( red, green, blue );
                 rObj->setLineWidth( lineWidth );
+                rObj->setStippleFactor( stippleFactor );
+                rObj->setStipplePattern( stipplePattern );
+                rObj->setStippleFlag( stippleFlag );
 
                 if( objects[i]->m_GeomChanged )
                 {

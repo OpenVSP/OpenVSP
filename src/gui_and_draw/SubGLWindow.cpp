@@ -130,6 +130,14 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
         // Load Settings.
         float red, green, blue, size;
 
+        int stippleFactor;
+        int stipplePattern;
+        bool stippleFlag;
+
+        stippleFactor = objects[i]->m_StippleFactor;
+        stipplePattern = objects[i]->m_StipplePattern;
+        stippleFlag = objects[i]->m_StippleFlag;
+
         unsigned int id;
         ID * idPtr = _findID( objects[i]->m_GeomID );
         if( idPtr )
@@ -207,6 +215,9 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
                 rObj->setPrimType( VSPGraphic::Common::VSP_LINES );
                 rObj->setLineColor( red, green, blue );
                 rObj->setLineWidth( size );
+                rObj->setStippleFactor( stippleFactor );
+                rObj->setStipplePattern( stipplePattern );
+                rObj->setStippleFlag( stippleFlag );
 
                 if( objects[i]->m_GeomChanged )
                 {

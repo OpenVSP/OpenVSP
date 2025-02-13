@@ -557,6 +557,10 @@ public:
     */
     vec3d m_LineColor;
 
+    int m_StippleFactor;
+    int m_StipplePattern;
+    bool m_StippleFlag;
+
     /*
     * Point Size.
     * PointSize is set to 5.0 by default.
