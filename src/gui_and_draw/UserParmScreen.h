@@ -34,11 +34,18 @@ public:
         ( ( UserParmScreen* )data )->CallBack( w );
     }
 
+    void ResizeCallBack( Fl_Widget *w );
+    static void staticResizeCB( Fl_Widget *w, void* data )
+    {
+        static_cast< UserParmScreen* >( data )->ResizeCallBack( w );
+    }
+
     void GuiDeviceCallBack( GuiDevice* gui_device );
 
 protected:
 
     GroupLayout m_PredefGroup;
+    GroupLayout m_PredefResizeGroup;
     GroupLayout m_CreateGroup;
     Choice m_ParmTypeChoice;
     StringInput m_ParmNameInput;

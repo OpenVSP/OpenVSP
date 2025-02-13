@@ -13,6 +13,8 @@
 //==== Constructor ====//
 UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "User Parms" )
 {
+    ((VSP_Window*)m_FLTK_Window)->SetResizeCallback( staticResizeCB, this );
+
     //==== Variables =====//
     m_NumParmsLast = 0;
     m_UserBrowserSelection = 0;
@@ -41,6 +43,11 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
     {
         m_PredefGroup.AddSlider( m_PredefSliderVec[i], "AUTO_UPDATE", 10, " % #.5g" );
     }
+    m_PredefGroup.AddYGap();
+
+    m_PredefGroup.AddSubGroupLayout( m_PredefResizeGroup,
+        m_PredefGroup.GetW(),
+        m_PredefResizeGroup.GetRemainY() );
 
     //===== Create ====//
     m_CreateGroup.SetGroupAndScreen( create_group, this );
@@ -94,6 +101,13 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
 
     predef_tab->show();
 
+    predef_group->resizable( m_PredefGroup.GetGroup() );
+    m_PredefGroup.GetGroup()->resizable( m_PredefResizeGroup.GetGroup() );
+
+    create_group->resizable( m_CreateGroup.GetGroup() );
+    m_CreateGroup.GetGroup()->resizable( m_UserDefinedBrowser );
+
+    adj_tab->resizable( m_AdjustScroll );
 }
 
 //==== Update Screen ====//
@@ -362,5 +376,11 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         return;
     }
 
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void UserParmScreen::ResizeCallBack( Fl_Widget *w )
+{
+    RebuildAdjustGroup();
     m_ScreenMgr->SetUpdateFlag( true );
 }
