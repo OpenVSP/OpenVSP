@@ -630,12 +630,16 @@ void GeomEngine::UpdateHighlightDrawObj()
                 m_OrigSurf.TessULine( eng_loc[i] * umax, m_EngineDrawObj_vec[i].m_PntVec, tol );
                 relTrans.xformvec( m_EngineDrawObj_vec[i].m_PntVec );
 
-                m_EngineDrawObj_vec[i].m_LineWidth = 5;
+                m_EngineDrawObj_vec[i].m_LineWidth = 7;
                 m_EngineDrawObj_vec[i].m_LineColor = DrawObj::Color( eng_color[i] );
                 m_EngineDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
                 m_EngineDrawObj_vec[i].m_GeomID = "ENG_" + m_ID + str;
                 m_EngineDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
                 m_EngineDrawObj_vec[i].m_GeomChanged = true;
+
+                m_EngineDrawObj_vec[i].m_StippleFactor = 20;
+                m_EngineDrawObj_vec[i].m_StipplePattern = 0xAAAA;
+                m_EngineDrawObj_vec[i].m_StippleFlag = true;
             }
         }
     }
