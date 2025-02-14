@@ -324,7 +324,7 @@ void SelectFileScreen::LoadFavsMenu()
     }
 }
 
-string SelectFileScreen::FileChooser( const string &title, const string &filter, int mode, const string &dir )
+string SelectFileScreen::FileChooser( const string &title, const string &filter, int mode, const string &preset_fname, const string &dir )
 {
     string file_name;
     m_AcceptFlag = false;
@@ -341,7 +341,7 @@ string SelectFileScreen::FileChooser( const string &title, const string &filter,
         forceext = false;
     }
 
-    m_FileName = string();
+    m_FileName = preset_fname;
 
     char filter_str[256];
     snprintf( filter_str, sizeof( filter_str ), "   (%s)", filter.c_str() );

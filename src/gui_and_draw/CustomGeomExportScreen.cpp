@@ -90,8 +90,9 @@ void CustomGeomExportScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             string module_name = mod_name_vec[m_ScriptIndex];
 
+            string preset_fname = module_name + ".vsppart";
             string dir = veh->GetWriteScriptDir();
-            string savefile = m_ScreenMgr->FileChooser( "Save Custom Geom Script", "*.vsppart", vsp::SAVE, dir );
+            string savefile = m_ScreenMgr->FileChooser( "Save Custom Geom Script", "*.vsppart", vsp::SAVE, preset_fname, dir );
 
             if ( savefile.size() != 0 && savefile[savefile.size() - 1] != '/' )
             {

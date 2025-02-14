@@ -48,7 +48,7 @@ public:
     void LaunchSystemDefaultBrowser( const string &url );
     void HelpSystemDefaultBrowser( const string &file );
 
-    string FileChooser( const string &title, const string &filter, int mode = vsp::OPEN, const string &dir = string() );
+    string FileChooser( const string &title, const string &filter, int mode = vsp::OPEN, const string &preset_fname = string(), const string &dir = string() );
 
     PickSetScreen* GetPickSetScreen()
     {
@@ -121,7 +121,7 @@ protected:
     vector< VspScreen* > m_ScreenVec;
     vector< bool > m_APIScreenOpenVec;
 
-    string NativeFileChooser( const string &title, const string &filter, int mode = vsp::OPEN, const string &dir = string() );
+    string NativeFileChooser( const string &title, const string &filter, int mode = vsp::OPEN, const string &preset_fname = string(), const string &dir = string() );
     Fl_Native_File_Chooser * m_NativeFileChooser;
 
     virtual void TimerCB();

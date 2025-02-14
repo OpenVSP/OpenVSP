@@ -973,7 +973,7 @@ void ScreenMgr::HelpSystemDefaultBrowser( const string &file )
     LaunchSystemDefaultBrowser( url );
 }
 
-string ScreenMgr::FileChooser( const string &title, const string &filter, int mode, const string &dir )
+string ScreenMgr::FileChooser( const string &title, const string &filter, int mode, const string &preset_fname, const string &dir)
 {
     Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
     Fl_Preferences app( prefs, "Application" );
@@ -984,15 +984,15 @@ string ScreenMgr::FileChooser( const string &title, const string &filter, int mo
     if ( fc_type == vsp::FC_OPENVSP )
     {
         SelectFileScreen * sfc = ( SelectFileScreen * ) m_ScreenVec[ vsp::VSP_SELECT_FILE_SCREEN ];
-        return sfc->FileChooser( title, filter, mode, dir );
+        return sfc->FileChooser( title, filter, mode, preset_fname, dir );
     }
     else // FC_NATIVE
     {
-        return NativeFileChooser( title, filter, mode, dir );
+        return NativeFileChooser( title, filter, mode, preset_fname, dir );
     }
 }
 
-string ScreenMgr::NativeFileChooser( const string &title, const string &filter, int mode, const string &dir )
+string ScreenMgr::NativeFileChooser( const string &title, const string &filter, int mode, const string &preset_fname, const string &dir )
 {
     if ( !m_NativeFileChooser )
     {
@@ -1013,6 +1013,11 @@ string ScreenMgr::NativeFileChooser( const string &title, const string &filter, 
     if ( !dir.empty() )
     {
         m_NativeFileChooser->directory( dir.c_str() );
+    }
+
+    if ( !preset_fname.empty() )
+    {
+        m_NativeFileChooser->preset_file( preset_fname.c_str() );
     }
 
     bool forceext = true;
