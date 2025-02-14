@@ -6,6 +6,8 @@
 
 #include "ControlSurface.H"
 
+#include <filesystem>
+
 #include "START_NAME_SPACE.H"
 
 /*##############################################################################
@@ -346,14 +348,18 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     double Mag;
     char FileNameWithExtension[2000], DumChar[2000];
     FILE *TagFile, *CSFFile;
-    
+
+    std::filesystem::path fpath( FileName );
+    fpath.remove_filename();
+
+
     // Save file name
     
     snprintf(Name_,sizeof(Name_)*sizeof(char),"%s",TagFileName);
     
     // Read in tag file data
     
-    snprintf(FileNameWithExtension,sizeof(FileNameWithExtension)*sizeof(char),"%s.tag",TagFileName);
+    snprintf(FileNameWithExtension,sizeof(FileNameWithExtension)*sizeof(char),"%s%s.tag",fpath.c_str(), TagFileName);
 
     if ( (TagFile = fopen(FileNameWithExtension,"r")) == NULL ) {
 
