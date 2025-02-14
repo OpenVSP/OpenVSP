@@ -8,9 +8,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include <cstdio>
-#include <cmath>
 #include <cfloat>
 #include <limits>
 
@@ -2059,7 +2060,7 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
 
 
 
-    double beta = 0.5 * PI;
+    double beta = 0.5 * M_PI;
     double k = eli::constants::math< double >::cubic_bezier_circle_const() * tan( beta * 0.25 );
 
     curve_segment_type clin, carc;
