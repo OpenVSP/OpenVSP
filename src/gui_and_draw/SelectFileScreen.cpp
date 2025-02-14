@@ -176,9 +176,6 @@ void SelectFileScreen::CallBack( Fl_Widget* w )
             m_DirString.append( "/" );
         }
         m_FileBrowser->load( m_DirString.c_str() );
-
-        //Clears file name when directory is changed
-        m_FileSelectInput.Update( "" );  
     }
     else if ( w == m_FavsMenuButton )
     {
@@ -218,18 +215,12 @@ void SelectFileScreen::CallBack( Fl_Widget* w )
             m_DirString = m_HomePath;
             m_FileBrowser->load( m_DirString.c_str() );
             m_DirInput->value( m_DirString.c_str() );
-
-            //Clears file name when directory is changed
-            m_FileSelectInput.Update( "" ); 
         }
         else if ( val == VSP )
         {
             m_DirString = m_ExePath;
             m_FileBrowser->load( m_DirString.c_str() );
             m_DirInput->value( m_DirString.c_str() );
-
-            //Clears file name when directory is changed
-            m_FileSelectInput.Update( "" ); 
         }
         else
         {
@@ -241,9 +232,6 @@ void SelectFileScreen::CallBack( Fl_Widget* w )
                 m_FileBrowser->load( m_DirString.c_str() );
                 m_DirInput->value( m_DirString.c_str() );
             }
-
-            //Clears file name when directory is changed
-            m_FileSelectInput.Update( "" ); 
         }
     }
 
