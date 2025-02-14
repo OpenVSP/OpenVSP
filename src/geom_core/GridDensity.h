@@ -12,6 +12,9 @@
 #define GRIDDENSITY_GRIDDENSITY__INCLUDED_
 
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Defines.h"
 #include <stdio.h>
 #include "Vec2d.h"
@@ -23,7 +26,6 @@
 #include "DrawObj.h"
 
 #include <assert.h>
-#include <cmath>
 
 #include <vector>
 #include <set>

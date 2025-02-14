@@ -7,10 +7,12 @@
 #ifndef _VSP_GUI_VIEW_MANAGER_SCREEN_H
 #define _VSP_GUI_VIEW_MANAGER_SCREEN_H
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Defines.h"
 #include "ScreenBase.h"
 #include "Parm.h"
-#include <cmath>
 
 using namespace std;
 

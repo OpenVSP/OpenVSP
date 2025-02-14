@@ -1,4 +1,6 @@
+#define _USE_MATH_DEFINES
 #include <cmath>
+
 #include "Quat.h"
 
 // New quat with out any initial values //

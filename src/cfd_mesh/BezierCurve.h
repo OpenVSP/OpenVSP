@@ -17,12 +17,14 @@
 #ifndef BEZIER_CURVE_H
 #define BEZIER_CURVE_H
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Vec3d.h"
 #include "Surf.h"
 
 #include <vector>               //jrg windows?? 
 #include <cstdio>
-#include <cmath>
 
 #include "eli/code_eli.hpp"
 

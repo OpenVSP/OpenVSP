@@ -10,6 +10,9 @@
 #ifndef WAVEDRAGSCREEN_H
 #define WAVEDRAGSCREEN_H
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Defines.h"
 #include "ScreenMgr.h"
 #include "ScreenBase.h"
@@ -17,7 +20,6 @@
 #include "Cartesian.H"
 #include "WaveDragMgr.h"
 
-#include <cmath>
 
 using namespace std;
 

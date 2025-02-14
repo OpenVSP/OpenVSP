@@ -13,6 +13,9 @@
 //
 //******************************************************************************
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -33,8 +36,6 @@
 
 #include "delabella.h"
 #include "StlHelper.h"
-
-#include <math.h>
 
 //===============================================//
 //                  TNode

@@ -7,9 +7,11 @@
 //
 //******************************************************************************
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "APIDefines.h"
 #include "UnitConversion.h"
-#include <cmath>
 
 //==================================//
 //=========== Velocity =============//

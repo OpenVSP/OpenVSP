@@ -10,9 +10,11 @@
 //   J.R. Gloudemans - 7/7/93
 //******************************************************************************
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Defines.h"
 #include <cfloat> //For DBL_EPSILON
-#include <cmath>
 #include "Vec3d.h"
 #include "VspUtil.h"
 

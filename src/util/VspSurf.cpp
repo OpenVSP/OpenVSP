@@ -8,9 +8,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include <cstdio>
-#include <cmath>
 #include <algorithm>
 #include <set>
 #include <cfloat>

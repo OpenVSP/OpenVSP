@@ -12,7 +12,9 @@
 //
 //******************************************************************************
 
+#define _USE_MATH_DEFINES
 #include <cmath>
+
 #include <cfloat>  //For DBL_EPSILON
 #include "Vec2d.h"
 

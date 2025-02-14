@@ -11,13 +11,15 @@
 #if !defined(INTERSECT_QUAD__INCLUDED_)
 #define INTERSECT_QUAD__INCLUDED_
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Vec2d.h"
 #include "Vec3d.h"
 #include "BndBox.h"
 #include "SurfPatch.h"
 
 #include <cassert>
-#include <cmath>
 #include <cfloat>
 
 #include <vector>

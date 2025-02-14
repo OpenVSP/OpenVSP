@@ -3,7 +3,9 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
+#define _USE_MATH_DEFINES
 #include <cmath>
+
 #include "StlHelper.h"
 using std::map;
 

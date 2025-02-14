@@ -11,12 +11,13 @@
 #if !defined(FACE_FACE__INCLUDED_)
 #define FACE_FACE__INCLUDED_
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Defines.h"
 #include "Vec2d.h"
 #include "Vec3d.h"
 
-#define _USE_MATH_DEFINES
-#include <cmath>
 #include <cassert>
 
 #include <list>
