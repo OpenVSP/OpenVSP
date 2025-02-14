@@ -2913,6 +2913,7 @@ extern string GetAttributeTypeName(const string & attrID);
     else
     {
         Print( "GetAttributeBoolVal error!" );
+        __failure++;
     }
 
     \endcode
@@ -2960,6 +2961,7 @@ extern vector< int > GetAttributeBoolVal(const string & attrID);
     else
     {
         Print( "GetAttributeIntVal error!" );
+        __failure++;
     }
 
     \endcode
@@ -3007,6 +3009,7 @@ extern vector< int > GetAttributeIntVal(const string & attrID);
     else
     {
         Print( "GetAttributeDoubleVal error!" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -3053,6 +3056,7 @@ extern vector< double > GetAttributeDoubleVal(const string & attrID);
     else
     {
         Print( "GetAttributeStringVal error!" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -3105,6 +3109,7 @@ extern vector< string > GetAttributeStringVal(const string & attrID);
     else
     {
         Print( "GetAttributeParmID error!" );
+        __failure++;
     }
 
     \endcode
@@ -3164,6 +3169,7 @@ extern vector< string > GetAttributeParmID(const string & attrID);
     else
     {
         Print( "GetAttributeParmVal error!" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -3226,6 +3232,7 @@ extern vector < double > GetAttributeParmVal( const string &attrID );
     else
     {
         Print( "GetAttributeParmName error!" );
+        __failure++;
     }
 
     \endcode
@@ -3281,6 +3288,7 @@ extern vector < string > GetAttributeParmName( const string &attrID );
     else
     {
         Print( "GetAttributeVec3dVal error!" );
+        __failure++;
     }
 
     \endcode
@@ -3334,6 +3342,7 @@ extern vector< vec3d > GetAttributeVec3dVal(const string & attrID);
     else
     {
         Print( "GetAttributeIntMatrixVal error!" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -3385,6 +3394,7 @@ extern vector< vector < int > > GetAttributeIntMatrixVal(const string & attrID);
     else
     {
         Print( "GetAttributeDoubleMatrixVal error!" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -3435,6 +3445,7 @@ extern vector< vector < double > > GetAttributeDoubleMatrixVal(const string & at
     else
     {
         Print( "SetAttributeName error!" );
+        __failure++;
     }
 
     //==== Write Some Fake Test Results =====//
@@ -3491,6 +3502,7 @@ extern void SetAttributeName( const string & attrID, const string & name );
     else
     {
         Print( "SetAttributeDoc error!" );
+        __failure++;
     }
 
     \endcode
@@ -3546,6 +3558,7 @@ extern void SetAttributeDoc( const string & attrID, const string & doc );
     else
     {
         Print( "SetAttributeBoolVal error!" );
+        __failure++;
     }
 
     \endcode
@@ -3601,6 +3614,7 @@ extern void SetAttributeBool( const string & attrID, bool value );
     else
     {
         Print( "SetAttributeIntVal error!" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -3656,6 +3670,7 @@ extern void SetAttributeInt( const string & attrID, int value );
     else
     {
         Print( "SetAttributeDoubleVal error!" );
+        __failure++;
     }
 
     \endcode
@@ -3712,6 +3727,7 @@ extern void SetAttributeDouble( const string & attrID, double value );
     else
     {
         Print( "GetAttributeStringVal error!" );
+        __failure++;
     }
 
     \endcode
@@ -3772,6 +3788,7 @@ extern void SetAttributeString( const string & attrID, const string & value );
     else
     {
         Print( "SetAttributeParmID error!" );
+        __failure++;
     }
 
     \endcode
@@ -3832,6 +3849,7 @@ extern void SetAttributeParmID( const string & attrID, const string & value );
     else
     {
         Print( "SetAttributeVec3dVal error!" );
+        __failure++;
     }
 
     \endcode
@@ -3891,6 +3909,7 @@ extern void SetAttributeVec3d( const string & attrID, const vector < vec3d > val
     else
     {
         Print( "SetAttributeIntMatrixVal error!" );
+        __failure++;
     }
 
     \code{.py}
@@ -3946,6 +3965,7 @@ extern void SetAttributeIntMatrix( const string & attrID, const vector< vector< 
     else
     {
         Print( "GetAttributeDoubleMatrixVal error!" );
+        __failure++;
     }
 
     \endcode
@@ -4022,6 +4042,7 @@ extern void SetAttributeDoubleMatrix( const string & attrID, const vector< vecto
     else
     {
         Print( "DeleteAttribute error!" );
+        __failure++;
     }
 
     \endcode
@@ -4077,6 +4098,7 @@ extern void DeleteAttribute( const string & attrID );
     else
     {
         Print( "AddAttributeBool error!" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -4126,6 +4148,7 @@ extern string AddAttributeBool( const string & collID, const string & attributeN
     else
     {
         Print( "AddAttributeInt error!" );
+        __failure++;
     }
 
     \endcode
@@ -4177,6 +4200,7 @@ extern string AddAttributeInt( const string & collID, const string & attributeNa
     else
     {
         Print( "AddAttributeDouble error!" );
+        __failure++;
     }
 
     \endcode
@@ -4229,6 +4253,7 @@ extern string AddAttributeDouble( const string & collID, const string & attribut
     else
     {
         Print( "AddAttributeString error!" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -4286,6 +4311,7 @@ extern string AddAttributeString( const string & collID, const string & attribut
     else
     {
         Print( "AddAttributeParm error!" );
+        __failure++;
     }
 
     \endcode
@@ -4344,6 +4370,7 @@ extern string AddAttributeParm( const string &collID, const string &attributeNam
     else
     {
         Print( "AddAttributeVec3d error!" );
+        __failure++;
     }
 
     \endcode
@@ -4398,6 +4425,7 @@ extern string AddAttributeVec3d( const string & collID, const string & attribute
     else
     {
         Print( "AddAttributeIntMatrix error!" );
+        __failure++;
     }
 
     \endcode
@@ -4454,6 +4482,7 @@ extern string AddAttributeIntMatrix( const string & collID, const string & attri
     else
     {
         Print( "AddAttributeDoubleMatrix error!" );
+        __failure++;
     }
 
     \endcode
@@ -4506,6 +4535,7 @@ extern string AddAttributeDoubleMatrix( const string & collID, const string & at
     else
     {
         Print( "AddAttributeGroup error!" );
+        __failure++;
     }
 
     \endcode
@@ -4556,6 +4586,7 @@ extern string AddAttributeGroup( const string & collID, const string & attribute
     else
     {
         Print("CopyAttribute Error!");
+        __failure++;
     }
 
     \endcode
@@ -4620,6 +4651,7 @@ extern int CopyAttribute( const string & attrID );
     else
     {
         Print( "CutAttribute Error!" );
+        __failure++;
     }
 
     \endcode
@@ -4705,6 +4737,7 @@ extern void CutAttribute( const string & attrID );
     else
     {
         Print("PasteAttribute Error!");
+        __failure++;
     }
 
     \endcode
