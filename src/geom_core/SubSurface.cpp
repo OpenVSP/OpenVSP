@@ -11,6 +11,7 @@
 #include "SubSurface.h"
 #include "Geom.h"
 #include "WingGeom.h"
+#include "PropGeom.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
 #include "StructureMgr.h"
@@ -1224,6 +1225,20 @@ void SSControlSurf::Update()
         {
             m_EtaStart = wing->UtoEta( m_UStart() * umax );
             m_EtaEnd = wing->UtoEta( m_UEnd() * umax );
+        }
+    }
+    else if ( PropGeom * prop = dynamic_cast< PropGeom* > ( geom ) )
+    {
+        m_EtaStart.SetLowerLimit( prop->GetR0() );
+        if ( m_EtaFlag() )
+        {
+            m_UStart = prop->EtatoU( m_EtaStart() ) / umax;
+            m_UEnd = prop->EtatoU( m_EtaEnd() ) / umax;
+        }
+        else
+        {
+            m_EtaStart = prop->UtoEta( m_UStart() * umax );
+            m_EtaEnd = prop->UtoEta( m_UEnd() * umax );
         }
     }
 
