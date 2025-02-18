@@ -2898,3 +2898,49 @@ void PropGeom::ResetThickness()
 
     m_ThickCurve.SetCurve( rvec, tcvec, PCHIP );
 }
+
+double PropGeom::GetR0()
+{
+    if (  PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( 0 ) )
+    {
+        return xs->m_RadiusFrac();
+    }
+    return 0.0;
+}
+
+// For a propeller, intrepret 'Eta' as r/R
+double PropGeom::UtoEta( const double &u, bool ignoreCap )
+{
+    double rfirst = GetR0();
+
+    double t = u;
+
+    int indx = 0;
+    if ( !ignoreCap && m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess.size() > 0 && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        t = t - 1.0;
+    }
+
+    double rt = rfirst + t * ( 1.0 - rfirst );
+
+    return rt;
+}
+
+double PropGeom::EtatoU( const double &eta, bool ignoreCap )
+{
+    double rfirst = GetR0();
+
+    double rt = eta;
+
+    double t = ( rt - rfirst ) / ( 1.0 - rfirst );
+
+    double u = t;
+
+    int indx = 0;
+    if ( !ignoreCap && m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess.size() > 0 && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        u = u + 1.0;
+    }
+
+    return u;
+}

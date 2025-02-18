@@ -151,6 +151,10 @@ public:
 
     virtual void ResetThickness();
 
+    virtual double GetR0();
+    virtual double UtoEta( const double &u, bool ignoreCap = false );
+    virtual double EtatoU( const double &eta, bool ignoreCap = false );
+
     Parm m_Diameter;
 
     Parm m_Rotate;
