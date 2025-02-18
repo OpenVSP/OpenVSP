@@ -940,11 +940,16 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSConGroup.SetFitWidthFlag(false);
     m_SSConGroup.SetSameLineFlag(true);
 
+    m_SSConGroup.SetButtonWidth( m_SSConGroup.GetW() - 2 * m_SSConGroup.GetInputWidth() );
+
+
+    m_SSConGroup.AddButton( m_SSConSEConstButton, "Constant" );
+    m_SSConGroup.SetButtonWidth( m_SSConGroup.GetInputWidth() );
+    m_SSConGroup.AddButton( m_SSConSRelButton, "L/C" );
+    m_SSConGroup.AddButton( m_SSConSAbsButton, "L" );
+
     m_SSConGroup.SetButtonWidth( m_SSConGroup.GetW() / 3 );
 
-    m_SSConGroup.AddButton( m_SSConSAbsButton, "Length" );
-    m_SSConGroup.AddButton( m_SSConSRelButton, "Length/C" );
-    m_SSConGroup.AddButton( m_SSConSEConstButton, "Constant" );
 
     m_SSConGroup.SetFitWidthFlag(true);
     m_SSConGroup.SetSameLineFlag(false);
@@ -955,10 +960,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSConSAbsRelToggleGroup.AddButton( m_SSConSRelButton.GetFlButton() );
 
     m_SSConGroup.AddSlider( m_SSConSLenSlider, "Start Length", 10.0, "%7.6f" );
-    m_SSConGroup.AddSlider( m_SSConSFracSlider, "Start Length/C", 1.0, "%7.6f");
-
     m_SSConGroup.AddSlider( m_SSConELenSlider, "End Length", 10.0, "%7.6f" );
-    m_SSConGroup.AddSlider( m_SSConEFracSlider, "End Length/C", 1.0, "%7.6f" );
 
     m_SSConGroup.AddYGap();
     m_SSConGroup.AddDividerBox( "Surface End Angle" );
@@ -1429,14 +1431,19 @@ bool GeomScreen::Update()
                 m_SSConEtaESlider.Deactivate();
             }
 
-            m_SSConSFracSlider.Update(sscon->m_StartLenFrac.GetID());
-            m_SSConSLenSlider.Update(sscon->m_StartLength.GetID());
-
-            m_SSConEFracSlider.Update(sscon->m_EndLenFrac.GetID());
-            m_SSConELenSlider.Update(sscon->m_EndLength.GetID());
-
             m_SSConSAbsRelToggleGroup.Update(sscon->m_AbsRelFlag.GetID());
             m_SSConSEConstButton.Update(sscon->m_ConstFlag.GetID());
+
+            if ( sscon->m_AbsRelFlag() == ABS )
+            {
+                m_SSConSLenSlider.Update( 2, sscon->m_StartLenFrac.GetID(), sscon->m_StartLength.GetID() );
+                m_SSConELenSlider.Update( 2, sscon->m_EndLenFrac.GetID(), sscon->m_EndLength.GetID() );
+            }
+            else
+            {
+                m_SSConSLenSlider.Update( 1, sscon->m_StartLenFrac.GetID(), sscon->m_StartLength.GetID() );
+                m_SSConELenSlider.Update( 1, sscon->m_EndLenFrac.GetID(), sscon->m_EndLength.GetID() );
+            }
 
             m_SSConSAngleButton.Update( sscon->m_StartAngleFlag.GetID() );
             m_SSConEAngleButton.Update( sscon->m_EndAngleFlag.GetID() );
@@ -1476,31 +1483,6 @@ bool GeomScreen::Update()
             }
 
             m_SSConLEFlagButton.Update(sscon->m_LEFlag.GetID());
-
-            m_SSConSFracSlider.Deactivate();
-            m_SSConSLenSlider.Deactivate();
-
-            m_SSConEFracSlider.Deactivate();
-            m_SSConELenSlider.Deactivate();
-
-            if ( sscon->m_AbsRelFlag() == ABS )
-            {
-                m_SSConSLenSlider.Activate();
-
-                if ( !sscon->m_ConstFlag() )
-                {
-                    m_SSConELenSlider.Activate();
-                }
-            }
-            else
-            {
-                m_SSConSFracSlider.Activate();
-
-                if ( !sscon->m_ConstFlag() )
-                {
-                    m_SSConEFracSlider.Activate();
-                }
-            }
 
             m_SSConSurfTypeChoice.Update(sscon->m_SurfType.GetID());
             SubSurfDispGroup(&m_SSConGroup);

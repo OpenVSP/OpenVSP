@@ -1191,6 +1191,12 @@ void SSControlSurf::Update()
         return;
     }
 
+    m_StartLength.Activate();
+    m_EndLength.Activate();
+
+    m_StartLenFrac.Activate();
+    m_EndLenFrac.Activate();
+
     // Build Control Surface as a rectangle with the points counter clockwise
 
     vec3d c_uws_upper, c_uws_lower, c_uwe_upper, c_uwe_lower;
@@ -1933,7 +1939,23 @@ void SSControlSurf::Update()
 
     //////////////////////////// Repeat Block
 
+    // Deactivate non driving parms and Activate driving parms
+    if ( m_AbsRelFlag() == vsp::ABS )
+    {
+        m_StartLenFrac.Deactivate();
+        m_EndLenFrac.Deactivate();
+    }
+    else
+    {
+        m_StartLength.Deactivate();
+        m_EndLength.Deactivate();
+    }
 
+    if ( m_ConstFlag.Get() )
+    {
+        m_EndLenFrac.Deactivate();
+        m_EndLength.Deactivate();
+    }
 
     // Build Control Surface
     vector< vec3d > up_pnt_vec;

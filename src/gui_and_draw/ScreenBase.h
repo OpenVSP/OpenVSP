@@ -408,10 +408,8 @@ public:
     SliderAdjRangeInput m_SSConEtaSSlider;
     SliderAdjRangeInput m_SSConEtaESlider;
 
-    SliderAdjRangeInput m_SSConSFracSlider;
-    SliderAdjRangeInput m_SSConSLenSlider;
-    SliderAdjRangeInput m_SSConEFracSlider;
-    SliderAdjRangeInput m_SSConELenSlider;
+    SliderAdjRange2Input m_SSConSLenSlider;
+    SliderAdjRange2Input m_SSConELenSlider;
 
     ToggleButton m_SSConSAbsButton;
     ToggleButton m_SSConSRelButton;
