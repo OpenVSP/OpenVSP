@@ -163,6 +163,7 @@ public:
     void UpdateBBox();
     BndBox UpdateOrigBBox( int set );
     bool GetVisibleBndBox( BndBox &b );
+    bool GetBndBoxSet( int set, BndBox &b );
 
     xmlNodePtr EncodeXml( xmlNodePtr & node, int set );
     xmlNodePtr DecodeXml( xmlNodePtr & node );

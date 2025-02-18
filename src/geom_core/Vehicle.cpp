@@ -5282,25 +5282,30 @@ void Vehicle::UpdateBBox()
 
 bool Vehicle::GetVisibleBndBox( BndBox &b )
 {
+    return GetBndBoxSet( vsp::SET_SHOWN, b );
+}
+
+bool Vehicle::GetBndBoxSet( int set, BndBox &b )
+{
     b.Reset();
 
     int ngeom;
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     ngeom = (int) geom_vec.size();
 
-    bool anyvisible = false;
+    bool sethasmembers = false;
 
     for ( int i = 0 ; i < ngeom ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( vsp::SET_SHOWN ) &&
+        if ( geom_vec[i]->GetSetFlag( set ) &&
              geom_vec[i]->GetType().m_Type != CLEARANCE_GEOM_TYPE ) // Ignore clearance type in Visible BBox.
         {
             b.Update( geom_vec[i]->GetBndBox() );
-            anyvisible = true;
+            sethasmembers = true;
         }
     }
 
-    return anyvisible;
+    return sethasmembers;
 }
 
 string Vehicle::getExportFileName( int type )
