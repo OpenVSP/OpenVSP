@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 755, "Propeller", string(), string(), "Airfoil Alias", false ) // combine xsec and xseccurve name controls
+PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 800, "Propeller", string(), string(), "Airfoil Alias", false ) // combine xsec and xseccurve name controls
 {
     m_CurrDisplayGroup = NULL;
 
