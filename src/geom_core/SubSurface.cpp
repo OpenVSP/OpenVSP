@@ -1207,8 +1207,7 @@ void SSControlSurf::Update()
 
     double umax = geom->GetUMax(0);
 
-    WingGeom * wing = dynamic_cast< WingGeom* > ( geom );
-    if ( wing )
+    if ( WingGeom * wing = dynamic_cast< WingGeom* > ( geom ) )
     {
         if ( m_EtaFlag() )
         {
