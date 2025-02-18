@@ -366,6 +366,13 @@ public:
     Parm m_BbYMin;
     Parm m_BbZMin;
 
+    Parm m_OrigBbXLen;
+    Parm m_OrigBbYLen;
+    Parm m_OrigBbZLen;
+    Parm m_OrigBbXMin;
+    Parm m_OrigBbYMin;
+    Parm m_OrigBbZMin;
+
     IntParm m_STEPLenUnit;
     Parm m_STEPTol;
     BoolParm m_STEPSplitSurfs;
