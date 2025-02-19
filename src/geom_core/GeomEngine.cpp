@@ -291,8 +291,10 @@ void GeomEngine::Extend( VspSurf &surf, const double & u, bool extbefore )
 
 void GeomEngine::UpdateBBox()
 {
+    // Fill m_BBox like normal
     Geom::UpdateBBox();
 
+    // Fill m_OrigBBox with positioned copies of m_OrigMainBBox
     vector < BndBox > mainBBvec;
     mainBBvec.push_back( m_OrigMainBBox );
 
