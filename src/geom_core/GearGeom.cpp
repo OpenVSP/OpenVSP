@@ -372,8 +372,10 @@ void GearGeom::UpdateSurf()
     }
 
 
-    BndBox bbox;
-    if ( VehicleMgr.GetVehicle()->GetVisibleBndBox( bbox ) )
+    BndBox emptybbox;
+    BndBox bbox = VehicleMgr.GetVehicle()->GetOrigBndBox();
+
+    if ( bbox != emptybbox )
     {
         bbox.Expand( 5.0 * bbox.DiagDist() );
         m_MainSurfVec[0].CreatePlane( bbox.GetMin( 0 ), bbox.GetMax( 0 ), bbox.GetMin( 1 ), bbox.GetMax( 1 ) );
@@ -569,5 +571,6 @@ void GearGeom::DelBogie( const string &id )
 
 void GearGeom::UpdateBBox( )
 {
+    // Fill m_BBox and m_OrigBBox while skipping ground plane
     Geom::UpdateBBox( 1 );
 }

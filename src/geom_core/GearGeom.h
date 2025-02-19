@@ -114,7 +114,7 @@ public:
     void DelBogie( const string &id );
 
     virtual void UpdateBBox();
-
+    virtual bool IsModelScaleSensitive()        { return true; }
 
 
 protected:
