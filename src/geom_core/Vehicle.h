@@ -160,9 +160,9 @@ public:
     void SetGeomType( int index, const GeomType & type );
 
     BndBox GetBndBox()                                        { return m_BBox; }
-    BndBox GetOrigBndBox()                                    { return m_OrigBBox; }
+    BndBox GetScaleIndependentBndBox()                        { return m_ScaleIndependentBBox; }
     void UpdateBBox();
-    bool UpdateOrigBBox( int set, BndBox &b );
+    bool GetScaleIndependentBBox( int set, BndBox &b );
     bool GetVisibleBndBox( BndBox &b );
     bool GetBndBoxSet( int set, BndBox &b );
 
@@ -368,12 +368,12 @@ public:
     Parm m_BbYMin;
     Parm m_BbZMin;
 
-    Parm m_OrigBbXLen;
-    Parm m_OrigBbYLen;
-    Parm m_OrigBbZLen;
-    Parm m_OrigBbXMin;
-    Parm m_OrigBbYMin;
-    Parm m_OrigBbZMin;
+    Parm m_ScaleIndependentBbXLen;
+    Parm m_ScaleIndependentBbYLen;
+    Parm m_ScaleIndependentBbZLen;
+    Parm m_ScaleIndependentBbXMin;
+    Parm m_ScaleIndependentBbYMin;
+    Parm m_ScaleIndependentBbZMin;
 
     IntParm m_STEPLenUnit;
     Parm m_STEPTol;
@@ -593,7 +593,7 @@ protected:
 
     bool m_UpdatingBBox;
     BndBox m_BBox;                              // Bounding Box Around All Geometries
-    BndBox m_OrigBBox;
+    BndBox m_ScaleIndependentBBox;
 
     void SetApplyAbsIgnoreFlag( const vector< string > &g_vec, bool val );
 

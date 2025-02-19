@@ -373,7 +373,7 @@ void GearGeom::UpdateSurf()
 
 
     BndBox emptybbox;
-    BndBox bbox = VehicleMgr.GetVehicle()->GetOrigBndBox();
+    BndBox bbox = VehicleMgr.GetVehicle()->GetScaleIndependentBndBox();
 
     if ( bbox != emptybbox )
     {
@@ -571,6 +571,6 @@ void GearGeom::DelBogie( const string &id )
 
 void GearGeom::UpdateBBox( )
 {
-    // Fill m_BBox and m_OrigBBox while skipping ground plane
+    // Fill m_BBox and m_ScaleIndependentBBox while skipping ground plane
     Geom::UpdateBBox( 1 );
 }

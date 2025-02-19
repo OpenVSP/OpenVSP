@@ -69,7 +69,7 @@ protected:
     VspSurf m_OrigSurf;
     vector<DrawObj> m_EngineDrawObj_vec;
 
-    BndBox m_OrigMainBBox;
+    BndBox m_ScaleIndependentMainBBox;
 };
 
 #endif // !defined(VSPGEOMENGINE__INCLUDED_)

@@ -294,21 +294,21 @@ void GeomEngine::UpdateBBox()
     // Fill m_BBox like normal
     Geom::UpdateBBox();
 
-    // Fill m_OrigBBox with positioned copies of m_OrigMainBBox
+    // Fill m_ScaleIndependentBBox with positioned copies of m_OrigMainBBox
     vector < BndBox > mainBBvec;
-    mainBBvec.push_back( m_OrigMainBBox );
+    mainBBvec.push_back( m_ScaleIndependentMainBBox );
 
     vector < BndBox > bbvec;
     ApplySymm( mainBBvec, bbvec );
 
-    m_OrigBBox.Reset();
-    m_OrigBBox.Update( bbvec );
+    m_ScaleIndependentBBox.Reset();
+    m_ScaleIndependentBBox.Update( bbvec );
 }
 
 void GeomEngine::UpdateEngine()
 {
-    m_OrigMainBBox.Reset();
-    m_MainSurfVec[0].GetBoundingBox( m_OrigMainBBox );
+    m_ScaleIndependentMainBBox.Reset();
+    m_MainSurfVec[0].GetBoundingBox( m_ScaleIndependentMainBBox );
 
     if ( m_EngineGeomIOType() != ENGINE_GEOM_NONE )
     {
@@ -319,7 +319,7 @@ void GeomEngine::UpdateEngine()
             if ( veh )
             {
                 BndBox setBox;
-                if ( veh->UpdateOrigBBox( m_AutoExtensionSet(), setBox ) )
+                if ( veh->GetScaleIndependentBBox( m_AutoExtensionSet(), setBox ) )
                 {
                     m_ExtensionDistance = setBox.GetMax( 0 ) - setBox.GetMin( 0 );
                 }
@@ -337,7 +337,7 @@ void GeomEngine::UpdateEngine()
         VspSurf surf3;
         bool usesurf3 = false;
 
-        vec3d ptoff( m_OrigMainBBox.DiagDist() * 1.0e-4, 0, 0 );
+        vec3d ptoff( m_ScaleIndependentMainBBox.DiagDist() * 1.0e-4, 0, 0 );
         vec3d zero( 0.0, 0.0, 0.0 );
 
         double umax = surf.GetUMax();

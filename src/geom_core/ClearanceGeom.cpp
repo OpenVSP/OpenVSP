@@ -99,7 +99,7 @@ void ClearanceGeom::UpdateSurf()
     if ( veh )
     {
         BndBox emptybbox;
-        BndBox b = VehicleMgr.GetVehicle()->GetOrigBndBox();
+        BndBox b = VehicleMgr.GetVehicle()->GetScaleIndependentBndBox();
         if ( b != emptybbox )
         {
             refLen = 1.5 * b.DiagDist();
@@ -297,6 +297,6 @@ void ClearanceGeom::UpdateBBox( )
     // Fill m_BBox like normal
     Geom::UpdateBBox();
 
-    // Reset m_OrigBBox to empty
-    m_OrigBBox.Reset();
+    // Reset m_ScaleIndependentBBox to empty
+    m_ScaleIndependentBBox.Reset();
 }

@@ -556,9 +556,9 @@ public:
     {
         return m_BBox;
     }
-    virtual BndBox GetOrigBndBox() const
+    virtual BndBox GetScaleIndependentBndBox() const
     {
-        return m_OrigBBox;
+        return m_ScaleIndependentBBox;
     }
 
     virtual void WriteAirfoilFiles( FILE* meta_fid );
@@ -921,10 +921,9 @@ protected:
     vector< DegenGeom > m_DegenGeomPreviewVec;
 
     BndBox m_BBox;
-    // Identical to m_BBox except in case of EngineGeom.  In which case, it is the bbox of the un-modified
-    // engine surface with with all symmetric copies accounted for.  This may actually be more conservative
-    // than m_BBox because of the way that it is.
-    BndBox m_OrigBBox;
+    // Similar to m_BBox, but it omits surfaces that automatically scale with the model size.  These include
+    // EngineGeom (for extended inlet / exhaust), GearGeom (ground plane), and ClearanceGeom (burst zones).
+    BndBox m_ScaleIndependentBBox;
 
     vector< bool > m_SetFlags;
 

@@ -255,18 +255,18 @@ Vehicle::Vehicle()
     m_BbZMin.Init( "Z_Min", "BBox", this, 0, -1e12, 1e12 );
     m_BbZMin.SetDescript( "Minimum Z coordinate of vehicle bounding box" );
 
-    m_OrigBbXLen.Init( "OrigX_Len", "BBox", this, 0, 0, 1e12 );
-    m_OrigBbXLen.SetDescript( "X length of vehicle original bounding box" );
-    m_OrigBbYLen.Init( "OrigY_Len", "BBox", this, 0, 0, 1e12 );
-    m_OrigBbYLen.SetDescript( "Y length of vehicle original bounding box" );
-    m_OrigBbZLen.Init( "OrigZ_Len", "BBox", this, 0, 0, 1e12 );
-    m_OrigBbZLen.SetDescript( "Z length of vehicle original bounding box" );
-    m_OrigBbXMin.Init( "OrigX_Min", "BBox", this, 0, -1e12, 1e12 );
-    m_OrigBbXMin.SetDescript( "Minimum X coordinate of vehicle original bounding box" );
-    m_OrigBbYMin.Init( "OrigY_Min", "BBox", this, 0, -1e12, 1e12 );
-    m_OrigBbYMin.SetDescript( "Minimum Y coordinate of vehicle original bounding box" );
-    m_OrigBbZMin.Init( "OrigZ_Min", "BBox", this, 0, -1e12, 1e12 );
-    m_OrigBbZMin.SetDescript( "Minimum Z coordinate of vehicle original bounding box" );
+    m_ScaleIndependentBbXLen.Init( "ScaleIndependentX_Len", "BBox", this, 0, 0, 1e12 );
+    m_ScaleIndependentBbXLen.SetDescript( "X length of vehicle scale independent bounding box" );
+    m_ScaleIndependentBbYLen.Init( "ScaleIndependentY_Len", "BBox", this, 0, 0, 1e12 );
+    m_ScaleIndependentBbYLen.SetDescript( "Y length of vehicle scale independent bounding box" );
+    m_ScaleIndependentBbZLen.Init( "ScaleIndependentZ_Len", "BBox", this, 0, 0, 1e12 );
+    m_ScaleIndependentBbZLen.SetDescript( "Z length of vehicle scale independent bounding box" );
+    m_ScaleIndependentBbXMin.Init( "ScaleIndependentX_Min", "BBox", this, 0, -1e12, 1e12 );
+    m_ScaleIndependentBbXMin.SetDescript( "Minimum X coordinate of vehicle scale independent bounding box" );
+    m_ScaleIndependentBbYMin.Init( "ScaleIndependentY_Min", "BBox", this, 0, -1e12, 1e12 );
+    m_ScaleIndependentBbYMin.SetDescript( "Minimum Y coordinate of vehicle scale independent bounding box" );
+    m_ScaleIndependentBbZMin.Init( "ScaleIndependentZ_Min", "BBox", this, 0, -1e12, 1e12 );
+    m_ScaleIndependentBbZMin.SetDescript( "Minimum Z coordinate of vehicle scale independent bounding box" );
 
     m_UseModeCompGeomFlag.Init( "UseModeCompGeomFlag", "CompGeom", this, false, 0, 1 );
     m_UseModeExportFlag.Init( "UseModeExportFlag", "ExportFlag", this, false, 0, 1 );
@@ -526,12 +526,12 @@ void Vehicle::Init()
     m_BbYMin.Set( 0 );
     m_BbZMin.Set( 0 );
 
-    m_OrigBbXLen.Set( 0 );
-    m_OrigBbYLen.Set( 0 );
-    m_OrigBbZLen.Set( 0 );
-    m_OrigBbXMin.Set( 0 );
-    m_OrigBbYMin.Set( 0 );
-    m_OrigBbZMin.Set( 0 );
+    m_ScaleIndependentBbXLen.Set( 0 );
+    m_ScaleIndependentBbYLen.Set( 0 );
+    m_ScaleIndependentBbZLen.Set( 0 );
+    m_ScaleIndependentBbXMin.Set( 0 );
+    m_ScaleIndependentBbYMin.Set( 0 );
+    m_ScaleIndependentBbZMin.Set( 0 );
 
     m_exportCompGeomCsvFile.Set( true );
     m_exportDegenGeomCsvFile.Set( true );
@@ -5210,8 +5210,8 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
     InterferenceMgr.AddLinkableContainers( linkable_container_vec );
 }
 
-// As m_BBox, but without EngineGeom modifications applied.
-bool Vehicle::UpdateOrigBBox( int set, BndBox & bbox )
+// As m_BBox, but without model scale dependent surfaces included.
+bool Vehicle::GetScaleIndependentBBox( int set, BndBox & bbox )
 {
     vector<string> geom_vec = GetGeomVec();
 
@@ -5223,7 +5223,7 @@ bool Vehicle::UpdateOrigBBox( int set, BndBox & bbox )
         {
             if ( g_ptr->GetSetFlag( set ) )
             {
-                bbox.Update( g_ptr->GetOrigBndBox() );
+                bbox.Update( g_ptr->GetScaleIndependentBndBox() );
                 sethasmembers = true;
             }
         }
@@ -5234,14 +5234,14 @@ bool Vehicle::UpdateOrigBBox( int set, BndBox & bbox )
 
 void Vehicle::UpdateBBox()
 {
-    BndBox new_box, o_box;
+    BndBox new_box, scale_independent_box;
     int ngeom;
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     ngeom = (int) geom_vec.size();
     for ( int i = 0 ; i < ngeom ; i++ )
     {
         new_box.Update( geom_vec[i]->GetBndBox() );
-        o_box.Update( geom_vec[i]->GetOrigBndBox() ); // Without scale-dependent stuff
+        scale_independent_box.Update( geom_vec[i]->GetScaleIndependentBndBox() ); // Without scale-dependent stuff
     }
 
     if( ngeom > 0 && ( new_box != m_BBox ) )
@@ -5254,16 +5254,16 @@ void Vehicle::UpdateBBox()
         m_BbYMin = new_box.GetMin( 1 );
         m_BbZMin = new_box.GetMin( 2 );
 
-        m_OrigBbXLen = o_box.GetMax( 0 ) - o_box.GetMin( 0 );
-        m_OrigBbYLen = o_box.GetMax( 1 ) - o_box.GetMin( 1 );
-        m_OrigBbZLen = o_box.GetMax( 2 ) - o_box.GetMin( 2 );
+        m_ScaleIndependentBbXLen = scale_independent_box.GetMax( 0 ) - scale_independent_box.GetMin( 0 );
+        m_ScaleIndependentBbYLen = scale_independent_box.GetMax( 1 ) - scale_independent_box.GetMin( 1 );
+        m_ScaleIndependentBbZLen = scale_independent_box.GetMax( 2 ) - scale_independent_box.GetMin( 2 );
 
-        m_OrigBbXMin = o_box.GetMin( 0 );
-        m_OrigBbYMin = o_box.GetMin( 1 );
-        m_OrigBbZMin = o_box.GetMin( 2 );
+        m_ScaleIndependentBbXMin = scale_independent_box.GetMin( 0 );
+        m_ScaleIndependentBbYMin = scale_independent_box.GetMin( 1 );
+        m_ScaleIndependentBbZMin = scale_independent_box.GetMin( 2 );
     }
 
-    if (ngeom > 0 && ( o_box != m_OrigBBox ) ) // Check if it has changed
+    if (ngeom > 0 && ( scale_independent_box != m_ScaleIndependentBBox ) ) // Check if it has changed
     {
         for ( int i = 0 ; i < ngeom ; i++ )
         {
@@ -5278,7 +5278,7 @@ void Vehicle::UpdateBBox()
     }
 
     m_BBox = new_box;
-    m_OrigBBox = o_box;
+    m_ScaleIndependentBBox = scale_independent_box;
 }
 
 bool Vehicle::GetVisibleBndBox( BndBox &b )
