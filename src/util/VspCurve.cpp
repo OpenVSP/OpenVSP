@@ -69,6 +69,90 @@ void VspCurve::Split( double u )
     m_Curve.split( u );
 }
 
+double VspCurve::Decompose( VspCurve &camber, VspCurve &halfthick )
+{
+    double ttol = 1e-6;
+    double atol = 0.01; // Ignore value, not using corner_create
+    int dmin = 2;
+    int dmax = 12;
+
+    piecewise_binary_cubic_creator pbcc;
+
+    double tmin, tmax, tmid;
+    tmin = m_Curve.get_parameter_min();
+    tmax = m_Curve.get_parameter_max();
+    tmid = ( tmin + tmax ) / 2.0;
+
+    piecewise_curve_type low, up;
+
+    m_Curve.split( low, up, tmid );
+
+    // Setup copies base curve into creator.
+    // tolerance, min adapt levels, max adapt levels
+    pbcc.setup( low, ttol, atol, dmin, dmax );
+    // Create makes new curve
+    pbcc.create( low ); // Not using corner_create
+
+    pbcc.setup( up, ttol, atol, dmin, dmax );
+    pbcc.create( up ); // Not using corner_create
+
+    up.reverse();
+
+    // Shift up so parameters align.
+    up.set_t0( low.get_t0() );
+
+    MatchParameterSplits( low, up );
+
+    piecewise_curve_type cam, deltaup;
+
+    // cam = 0.5 * ( low + up );
+    cam.scaledsum( 0.5, low, 0.5, up );
+
+    // deltaup = up - cam;
+    deltaup.scaledsum( 1.0, up, -1.0, cam );
+
+    camber.SetCurve( cam );
+    halfthick.SetCurve( deltaup );
+
+    // Calculate maximum thickness of airfoil
+    piecewise_curve_type deltasq;
+
+    deltasq.square( deltaup );
+
+    typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
+    onedpwc sumsq;
+
+    sumsq = deltasq.sumcompcurve();
+
+    // Negate to allow minimization instead of maximization.
+    sumsq.scale( -1.0 );
+
+    double utmax;
+    double tocmax = 2.0 * sqrt( -1.0 * eli::geom::intersect::minimum_dimension( utmax, sumsq, 0 ) );
+
+    return tocmax;
+}
+
+void VspCurve::Compose( const VspCurve &camber, const VspCurve &halfthick, const double &scale )
+{
+    m_Curve.clear();
+
+    piecewise_curve_type cam, deltaup;
+    cam = camber.GetCurve();
+    deltaup = halfthick.GetCurve();
+
+    // low = cam - scale * deltaup;
+    m_Curve.scaledsum( 1.0, cam, -scale, deltaup );
+
+    piecewise_curve_type up;
+    // up  = cam + scale * deltaup;
+    up.scaledsum( 1.0, cam, scale, deltaup );
+    up.reverse();
+
+    m_Curve.push_back( up );
+    m_Curve.set_tmax( 4.0 );
+}
+
 // Shift curve parameter to start curve at u
 // Assumes u is between umin, umax
 void VspCurve::Spin( double u )

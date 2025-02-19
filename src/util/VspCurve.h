@@ -50,6 +50,10 @@ public:
 
     void Copy( const VspCurve & input_crv );
     void Split( double u );
+
+    double Decompose( VspCurve &camber, VspCurve &halfthick );
+    void Compose( const VspCurve &camber, const VspCurve &halfthick, const double &scale );
+
     void Append( const VspCurve & input_crv ); // Append Curve
 
     void Spin( double u );
