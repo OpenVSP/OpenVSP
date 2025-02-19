@@ -372,7 +372,6 @@ public:
         m_UpperPnts = up_pnt_vec;
 
         MakeCurve();
-        m_BaseThickness.Set( CalculateThick() );
         m_ThickChord.Set( m_BaseThickness() );
     }
 
@@ -381,7 +380,6 @@ public:
         m_LowerPnts = low_pnt_vec;
 
         MakeCurve();
-        m_BaseThickness.Set( CalculateThick() );
         m_ThickChord.Set( m_BaseThickness() );
     }
 
@@ -391,7 +389,6 @@ public:
         m_LowerPnts = low_pnt_vec;
 
         MakeCurve();
-        m_BaseThickness.Set( CalculateThick() );
         m_ThickChord.Set( m_BaseThickness() );
     }
 
@@ -411,6 +408,8 @@ protected:
     vector< vec3d > m_UpperPnts;
     vector< vec3d > m_LowerPnts;
 
+    VspCurve m_CamberCurve;
+    VspCurve m_HalfThickCurve;
 };
 
 

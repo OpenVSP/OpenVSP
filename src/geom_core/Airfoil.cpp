@@ -1058,7 +1058,6 @@ FileAirfoil::FileAirfoil( ) : Airfoil( )
     }
 
     MakeCurve();
-    m_BaseThickness.Set( CalculateThick() );
     m_ThickChord.Set( m_BaseThickness() );
 }
 
@@ -1110,16 +1109,22 @@ void FileAirfoil::MakeCurve()
         arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
     }
 
-    m_Curve.InterpolatePCHIP( pnts, arclen, false );
+    VspCurve BaseCurve;
+    BaseCurve.InterpolatePCHIP( pnts, arclen, false );
+
+    double toc = BaseCurve.Decompose( m_CamberCurve, m_HalfThickCurve );
+
+    m_Curve.Compose( m_CamberCurve, m_HalfThickCurve, 1.0 );
+
+    m_BaseThickness.Set( toc );
 }
 
 //==== Update ====//
 void FileAirfoil::UpdateCurve( bool updateParms )
 {
-    MakeCurve();
-
     double rat = m_ThickChord() / m_BaseThickness();
-    m_Curve.ScaleY( rat );
+
+    m_Curve.Compose( m_CamberCurve, m_HalfThickCurve, rat );
 
     Airfoil::UpdateCurve( updateParms );
 }
@@ -1154,7 +1159,6 @@ xmlNodePtr FileAirfoil::DecodeXml( xmlNodePtr & node )
         m_LowerPnts = XmlUtil::ExtractVectorVec3dNode( child_node, "LowerPnts" );
 
         MakeCurve();
-        m_BaseThickness.Set( CalculateThick() );
 
         // Ver reports the version of the file being read from disk.
         // When working in memory (copy/paste), ver should equal -1.
@@ -1239,7 +1243,6 @@ bool FileAirfoil::ReadFile( const string &file_name )
     StringUtil::remove_trailing( m_AirfoilName, ' ' );
 
     MakeCurve();
-    m_BaseThickness.Set( CalculateThick() );
     m_ThickChord.Set( m_BaseThickness() );
 
     fclose( file_id );
@@ -1472,7 +1475,6 @@ void FileAirfoil::ReadV2File( xmlNodePtr &root )
     }
 
     MakeCurve();
-    m_BaseThickness.Set( CalculateThick() );
     m_ThickChord.Set( m_BaseThickness() );
 }
 
