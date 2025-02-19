@@ -5211,11 +5211,11 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 }
 
 // As m_BBox, but without EngineGeom modifications applied.
-BndBox Vehicle::UpdateOrigBBox( int set )
+bool Vehicle::UpdateOrigBBox( int set, BndBox & bbox )
 {
-    BndBox bbox;  // m_OrigBBox
-
     vector<string> geom_vec = GetGeomVec();
+
+    bool sethasmembers = false;
     for ( int i = 0 ; i < geom_vec.size() ; i++ )
     {
         Geom* g_ptr = FindGeom( geom_vec[i] );
@@ -5224,11 +5224,12 @@ BndBox Vehicle::UpdateOrigBBox( int set )
             if ( g_ptr->GetSetFlag( set ) )
             {
                 bbox.Update( g_ptr->GetOrigBndBox() );
+                sethasmembers = true;
             }
         }
     }
 
-    return bbox;
+    return sethasmembers;
 }
 
 void Vehicle::UpdateBBox()

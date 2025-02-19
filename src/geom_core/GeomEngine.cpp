@@ -316,11 +316,10 @@ void GeomEngine::UpdateEngine()
             Vehicle *veh = VehicleMgr.GetVehicle();
             if ( veh )
             {
-                BndBox setBox = veh->UpdateOrigBBox( m_AutoExtensionSet() );
-                double dx = setBox.GetMax( 0 ) - setBox.GetMin( 0 );
-                if ( dx > 0 )
+                BndBox setBox;
+                if ( veh->UpdateOrigBBox( m_AutoExtensionSet(), setBox ) )
                 {
-                    m_ExtensionDistance = dx;
+                    m_ExtensionDistance = setBox.GetMax( 0 ) - setBox.GetMin( 0 );
                 }
             }
         }

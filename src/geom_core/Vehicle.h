@@ -161,7 +161,7 @@ public:
 
     BndBox GetBndBox()                                        { return m_BBox; }
     void UpdateBBox();
-    BndBox UpdateOrigBBox( int set );
+    bool UpdateOrigBBox( int set, BndBox &b );
     bool GetVisibleBndBox( BndBox &b );
     bool GetBndBoxSet( int set, BndBox &b );
 
