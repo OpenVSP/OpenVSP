@@ -5298,8 +5298,7 @@ bool Vehicle::GetBndBoxSet( int set, BndBox &b )
 
     for ( int i = 0 ; i < ngeom ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( set ) &&
-             geom_vec[i]->GetType().m_Type != CLEARANCE_GEOM_TYPE ) // Ignore clearance type in Visible BBox.
+        if ( geom_vec[i]->GetSetFlag( set ) )
         {
             b.Update( geom_vec[i]->GetBndBox() );
             sethasmembers = true;
