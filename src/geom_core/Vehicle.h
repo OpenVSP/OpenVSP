@@ -160,6 +160,7 @@ public:
     void SetGeomType( int index, const GeomType & type );
 
     BndBox GetBndBox()                                        { return m_BBox; }
+    BndBox GetOrigBndBox()                                    { return m_OrigBBox; }
     void UpdateBBox();
     bool UpdateOrigBBox( int set, BndBox &b );
     bool GetVisibleBndBox( BndBox &b );
