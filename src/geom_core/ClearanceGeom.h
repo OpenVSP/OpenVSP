@@ -34,6 +34,8 @@ public:
 
     virtual void OffsetXSecs( double off );
 
+    virtual void UpdateBBox();
+    virtual bool IsModelScaleSensitive()        { return true; }
 
     IntParm m_ClearanceMode;
 

@@ -98,8 +98,9 @@ void ClearanceGeom::UpdateSurf()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        BndBox b;
-        if ( veh->GetVisibleBndBox( b ) ) // Checks for empty visible box.  Clearance Geom's ignored.
+        BndBox emptybbox;
+        BndBox b = VehicleMgr.GetVehicle()->GetOrigBndBox();
+        if ( b != emptybbox )
         {
             refLen = 1.5 * b.DiagDist();
         }
@@ -289,4 +290,13 @@ void ClearanceGeom::UpdateDrawObj()
 void ClearanceGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     Geom::LoadDrawObjs( draw_obj_vec );
+}
+
+void ClearanceGeom::UpdateBBox( )
+{
+    // Fill m_BBox like normal
+    Geom::UpdateBBox();
+
+    // Reset m_OrigBBox to empty
+    m_OrigBBox.Reset();
 }
