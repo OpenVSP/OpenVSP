@@ -66,8 +66,8 @@ public:
     virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
-    virtual double GetWidth();
-    virtual double GetHeight();
+    virtual double GetWidth() const;
+    virtual double GetHeight() const;
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                { return m_Chord.GetID(); }
     virtual string GetHeightParmID()                               { return m_ThickChord.GetID(); }

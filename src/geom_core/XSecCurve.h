@@ -89,11 +89,11 @@ public:
 
     virtual void CopyFrom( XSecCurve* from_crv );
 
-    virtual double GetWidth()
+    virtual double GetWidth() const
     {
         return 0.0;
     }
-    virtual double GetHeight()
+    virtual double GetHeight() const
     {
         return 0.0;
     }
@@ -289,11 +289,11 @@ public:
     virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
-    virtual double GetWidth()
+    virtual double GetWidth() const
     {
         return m_Diameter();
     }
-    virtual double GetHeight()
+    virtual double GetHeight() const
     {
         return m_Diameter();
     }
@@ -320,11 +320,11 @@ public:
     virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
-    virtual double GetWidth()
+    virtual double GetWidth() const
     {
         return m_Width();
     }
-    virtual double GetHeight()
+    virtual double GetHeight() const
     {
         return m_Height();
     }
@@ -349,11 +349,11 @@ public:
     virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
-    virtual double GetWidth()
+    virtual double GetWidth() const
     {
         return m_Width();
     }
-    virtual double GetHeight()
+    virtual double GetHeight() const
     {
         return m_Height();
     }
@@ -386,11 +386,11 @@ public:
     virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
-    virtual double GetWidth()
+    virtual double GetWidth() const
     {
         return m_Width();
     }
-    virtual double GetHeight()
+    virtual double GetHeight() const
     {
         return m_Height();
     }
@@ -431,11 +431,11 @@ public:
     virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
-    virtual double GetWidth()
+    virtual double GetWidth() const
     {
         return m_Width();
     }
-    virtual double GetHeight()
+    virtual double GetHeight() const
     {
         return m_Height();
     }
@@ -475,11 +475,11 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     //==== Values to Set/Get When Changing Types ====//
-    virtual double GetWidth()
+    virtual double GetWidth() const
     {
         return m_Width();
     }
-    virtual double GetHeight()
+    virtual double GetHeight() const
     {
         return m_Height();
     }
@@ -606,11 +606,11 @@ public:
 
     // Required functions for all XSec types. These allow for instance a wing chord to 
     // set the width of the XSec
-    virtual double GetWidth()
+    virtual double GetWidth() const
     {
         return m_Width();
     }
-    virtual double GetHeight()
+    virtual double GetHeight() const
     {
         return m_Height();
     }
@@ -688,11 +688,11 @@ public:
     virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
-    virtual double GetWidth()
+    virtual double GetWidth() const
     {
         return m_Width();
     }
-    virtual double GetHeight()
+    virtual double GetHeight() const
     {
         return m_Height();
     }

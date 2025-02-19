@@ -113,13 +113,13 @@ void Airfoil::UpdateCurve( bool updateParms )
 }
 
 //==== Get Width ====//
-double Airfoil::GetWidth()
+double Airfoil::GetWidth() const
 {
     return m_Chord();
 }
 
 //==== Get Height ====//
-double Airfoil::GetHeight()
+double Airfoil::GetHeight() const
 {
     return m_Chord() * m_ThickChord();
 }
