@@ -16,6 +16,7 @@
 #include "ParmMgr.h"
 #include "Vehicle.h"
 #include "XSec.h"
+#include "BORGeom.h"
 
 #include "VehicleMgr.h"
 #include "LinkMgr.h"
@@ -1472,15 +1473,17 @@ string AttributeMgrSingleton::GetObjectParent( const string & id )
                 ParmContainer* parent_pc = pc->GetParentContainerPtr();
                 if ( parent_pc )
                 {
-                    parent_pc = parent_pc->GetParentContainerPtr();
-                    if ( parent_pc )
+                    while ( parent_pc->GetParentContainerPtr() )
                     {
                         parent_pc = parent_pc->GetParentContainerPtr();
-                        if ( parent_pc )
+
+                        if ( parent_pc->GetParmContainerType() == vsp::ATTROBJ_GEOM )
                         {
-                            parent_id = parent_pc->GetID();
+                            break;
                         }
                     }
+
+                    parent_id = parent_pc->GetID();
                 }
             }
             else if ( pc_type == vsp::ATTROBJ_SEC )
@@ -1575,12 +1578,17 @@ string AttributeMgrSingleton::GetName( const string & id, bool return_name_input
                 if ( pc_parent )
                 {
                     XSecSurf* xsp_ptr = dynamic_cast<XSecSurf*>( pc_parent->GetParentContainerPtr() );
+                    BORGeom* bor_ptr = dynamic_cast<BORGeom*>( pc_parent );
                     if ( xsp_ptr )
                     {
                         int xs_i = xsp_ptr->FindXSecIndex( pc_parent->GetID() );
                         string name_str = string("Xsec_");
                         name_str += to_string(xs_i);
                         return name_str;
+                    }
+                    else if ( bor_ptr )
+                    {
+                        return string( "BOR_XSec" );
                     }
                 }
                 return string("ERROR XSEC NAME");

@@ -809,6 +809,9 @@ bool BORScreen::Update()
     XSecCurve* xsc = bor_ptr->GetXSecCurve();
     if ( xsc )
     {
+        m_XsecAttributeEditor.SetEditorCollID( xsc->GetAttrCollection()->GetID() );
+        m_XsecAttributeEditor.Update();
+
         m_XSecTypeChoice.SetVal( xsc->GetType() );
 
         if ( xsc->GetType() == vsp::XS_POINT )
@@ -1415,6 +1418,12 @@ bool BORScreen::Update()
     return true;
 }
 
+void BORScreen::GetCollIDs( vector < string > &collIDVec )
+{
+    collIDVec.push_back( m_XsecAttributeEditor.GetAttrCollID() );
+    GeomScreen::GetCollIDs( collIDVec );
+}
+
 void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
     //==== Find BOR Ptr ====//
@@ -1590,6 +1599,7 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             }
         }
     }
+    m_XsecAttributeEditor.GuiDeviceCallBack( gui_device );
 
     GeomScreen::GuiDeviceCallBack( gui_device );
 }
@@ -1597,6 +1607,7 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 //==== Non Menu Callbacks ====//
 void BORScreen::CallBack( Fl_Widget *w )
 {
+    m_XsecAttributeEditor.DeviceCB( w );
     GeomScreen::CallBack( w );
 }
 
