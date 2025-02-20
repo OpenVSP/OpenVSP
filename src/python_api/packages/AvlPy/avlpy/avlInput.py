@@ -828,7 +828,7 @@ class SurfaceForcesOutput:
 
 
 def create_input_from_degen_geom(degen_objects=None, degen_set=None, title="DegenAvl", mach=0.0, Sref=1.0, Bref=1.0,
-                                 Cref=1.0, cgRef=(0.0, 0.0, 0.0), cdp=0.0):
+                                 Cref=1.0, cgRef=(0.0, 0.0, 0.0), cdp=0.0, vsp_instance=None):
     """
     Creates an AvlInput object from a list of degen geometry objects
 
@@ -859,7 +859,9 @@ def create_input_from_degen_geom(degen_objects=None, degen_set=None, title="Dege
 
     if degen_objects is None:
         # Import vsp locally to limit module dependency on openvsp
-        import openvsp as vsp
+        import openvsp as vsp_module
+        vsp = vsp_module.get_instance(vsp_instance)
+
 
         # Turn off file exports
         vsp.SetIntAnalysisInput("DegenGeom", "WriteCSVFlag", [0], 0)
@@ -1045,7 +1047,7 @@ def runAvl(avlInput, alpha=None, beta=None, savePlots=False,
                 stripForces.append(s)
 
             results.stripForces = stripForces
-            
+
         except ValueError:
             warnings.warn("AVL strip force parsing failed.")
 
