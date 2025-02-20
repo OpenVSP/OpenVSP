@@ -1,5 +1,6 @@
 import os
 import sys
+import importlib
 
 try:
     import openvsp_config
@@ -45,13 +46,43 @@ def setup_vspaero_path():
     if  CheckForVSPAERO( base_dir ):
         SetVSPAEROPath( base_dir )
 
-if ignore_imports:
+if ignore_imports or not (load_facade or load_multi_facade):
     setup_vspaero_path()
 
+if not ignore_imports:
+    if load_multi_facade:
+        import inspect
+        import openvsp.degen_geom_parse as degen_geom_parse
+        import openvsp.parasite_drag as parasite_drag
+        import openvsp.surface_patches as surface_patches
+        import openvsp.utilities as utilities
 
-elif not (load_facade or load_multi_facade):
-    from .degen_geom_parse import *
-    from .parasite_drag import *
-    from .surface_patches import *
-    from .utilities import *
-    setup_vspaero_path()
+        functions = []
+
+        for mod in [degen_geom_parse, parasite_drag, surface_patches, utilities]:
+
+            for attribute in dir(mod):
+                if (
+                    inspect.isfunction(getattr(mod, attribute))
+                    or inspect.isclass(getattr(mod, attribute))
+                ):
+                    functions.append(getattr(mod, attribute))
+
+        vsp_servers.set_functions(functions + [vec3d, Matrix4d, ErrorMgrSingleton, ErrorObj])
+
+    else:
+        from .degen_geom_parse import *
+        from .parasite_drag import *
+        from .surface_patches import *
+        from .utilities import *
+
+def get_instance(vsp_instance):
+    if load_multi_facade:
+        if not vsp_instance:
+            return _single
+        instance = vsp_servers.get_vsp_instance(vsp_instance)
+        if instance:
+            return instance
+        return _single
+    else:
+        return importlib.import_module("openvsp")

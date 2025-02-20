@@ -73,7 +73,7 @@ def _exception_hook(exc_type, exc_value, tb):
         print(line)
 
 class _vsp_server():
-    def __init__(self, name):
+    def __init__(self, name, funcs=[]):
         self.server_name = name
         sock = socket.socket()
         sock.bind(('', 0))
@@ -96,6 +96,9 @@ class _vsp_server():
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((HOST, PORT))
+
+        for func in funcs:
+            setattr(self, func.__name__, (lambda  *args, func=func, **kwargs: self._run_func(func, *args, **kwargs)))
 
 """
 
@@ -144,11 +147,21 @@ CLIENT_END = """
         \"\"\"
 
         return self._send_recieve('IsGUIRunning', [], {})
+
+    def _run_func(self, func, *args, **kwargs):
+        try:
+            kwargs['vsp_instance'] = self
+            return func(*args, **kwargs)
+        except TypeError:
+            kwargs.pop("vsp_instance")
+            return func(*args, **kwargs)
+
 class _server_controller():
     def __init__(self) -> None:
         print("server controller initialized")
         self._servers = {}
         self.name_num = 1
+        self.funcs = []
     def start_vsp_instance(self, name=None) -> _vsp_server:
 
         if not name:
@@ -160,15 +173,29 @@ class _server_controller():
         assert isinstance(name,str), "Name must be a string"
         assert not name in self._servers, f"Server with name {name} already exists"
 
-        self._servers[name] = new_server = _vsp_server(name)
+        self._servers[name] = new_server = _vsp_server(name, self.funcs)
 
         return new_server
 
-    def get_vsp_instance(self, name):
-        return self._servers[name]
+    def get_vsp_instance(self, server):
+        try:
+            if isinstance(server, str):
+                return self._servers[server]
+            elif server in self._servers.values():
+                    return server
+        except:
+            pass
+        print("Warning: Could not find vsp_instance, returning singleton")
+        return None
 
     def close_vsp_instance(self, name):
+        if name == "vsp_singleton":
+            print("Can't close vsp_singleton")
+            return
         del self._servers[name]
+
+    def set_functions(self, funcs):
+        self.funcs = funcs
 
 from openvsp.vsp import ErrorObj
 from openvsp.vsp import ErrorMgrSingleton
