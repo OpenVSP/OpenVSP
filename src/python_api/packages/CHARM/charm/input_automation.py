@@ -39,7 +39,7 @@ from utilities.files import RunManager
 from utilities.transformations import TransMatrix
 import logging
 import utilities.uberlogging as ul
-import openvsp as vsp
+import openvsp as vsp_module
 import degen_geom as dg
 import numpy as np
 import os
@@ -949,13 +949,15 @@ def create_single_wing_info(wing_dg: dg.DegenComponent, settings: CharmRotorSett
     return wing_infos
 
 
-def create_all_wing_infos(degen_mgr: dg.DegenGeomMgr, settings: CharmRotorSettingsCollection):
+def create_all_wing_infos(degen_mgr: dg.DegenGeomMgr, settings: CharmRotorSettingsCollection, vsp_instance=None):
     """
     Creates a list of wing info objects from all wing objects in the degen geom manager
     :param degen_mgr: degen geom manager
     :param settings: settings for all wing objects
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: list of wing info objects
     """
+    vsp = vsp_module.get_instance(vsp_instance)
     wing_infos = []
     for wing_id, degen_component in degen_mgr.degen_objs.items():
         typ_name = vsp.GetGeomTypeName(wing_id)
@@ -965,12 +967,14 @@ def create_all_wing_infos(degen_mgr: dg.DegenGeomMgr, settings: CharmRotorSettin
     return wing_infos
 
 
-def remove_le_te_transformations(degen_blade: dg.DegenGeom):
+def remove_le_te_transformations(degen_blade: dg.DegenGeom, vsp_instance=None):
     """
     Removes transformations from leading and trailing edges of a blade
     :param degen_blade: degen geom object of a single blade
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: leading edge and trailing edge coordinates without transformations
     """
+    vsp = vsp_module.get_instance(vsp_instance)
 
     transform_inverse = degen_blade.transmat.get_inverse_transform()
     leading_edge_original = np.array(degen_blade.sticks[0].le)
@@ -1140,14 +1144,17 @@ def get_airfoil(af_data_location: AirfoilDataLocation, af_options=None):
         raise ValueError("Unhandled data location: {}".format(af_data_location))
 
 
-def create_airfoil_sections(prop_id, rotor_setting: CharmRotorSettingsCollection):
+def create_airfoil_sections(prop_id, rotor_setting: CharmRotorSettingsCollection, vsp_instance=None):
     """
     Creates a set CHARM airfoil sections based off of prop id
     :param prop_id: vsp geom id for propeller of interest
     :param rotor_setting: rotor settings for a single rotor. This is a :class:`CharmRotorSettingsCollection` object
     because it includes settings for symmetric copies
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: charm airfoil sections
     """
+    vsp = vsp_module.get_instance(vsp_instance)
+
     xsec_surf_id = vsp.GetXSecSurf(prop_id, 0)
     num_xsec = vsp.GetNumXSec(xsec_surf_id)
 
@@ -1174,7 +1181,7 @@ def create_airfoil_sections(prop_id, rotor_setting: CharmRotorSettingsCollection
 
 
 def create_rotor_wake_file_from_template(blade_degens, rotor_settings: CharmRotorSettings, num_psi,
-                                         num_syms, unit_factor=u.in2ft):
+                                         num_syms, unit_factor=u.in2ft, vsp_instance=None):
     """
     Modifies rotor wake template file and updates it with proper position of propeller/rotor along with
     input settings
@@ -1184,8 +1191,10 @@ def create_rotor_wake_file_from_template(blade_degens, rotor_settings: CharmRoto
     :param num_psi: number of azimuthal points in CHARM computation, required to determine precision of azimuthal offset
     :param num_syms: number of planar symmetries from original copy to this copy
     :param unit_factor: factor to convert from vsp units to CHARM units
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: string containing modified rotor wake file
     """
+    vsp = vsp_module.get_instance(vsp_instance)
 
     # Get number of blades
     num_blades = len(blade_degens)
@@ -1335,16 +1344,18 @@ def create_wing_rotor_wake_file_from_template(wing_info: CharmWingInfo, wing_set
         return f.getvalue()
 
 
-def build_default_rotor_settings(degen_mgr: dg.DegenGeomMgr, default_rpm=0.0, default_template=None)\
-        -> CharmRotorSettingsCollection:
+def build_default_rotor_settings(degen_mgr: dg.DegenGeomMgr, default_rpm=0.0, default_template=None,
+    vsp_instance=None) -> CharmRotorSettingsCollection:
     """
     Builds up a default collection of rotor settings
 
     :param degen_mgr: degen_mgr with objects desired for this charm run
     :param default_rpm: this value will be used as the rpm value for all rotors
     :param default_template: this will used as the template file by default for all rotors/propellers
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: CharmRotorsSettingsCollection object
     """
+    vsp = vsp_module.get_instance(vsp_instance)
 
     # provided default template current template is empty
     if default_template is None:
@@ -1378,14 +1389,17 @@ def build_default_rotor_settings(degen_mgr: dg.DegenGeomMgr, default_rpm=0.0, de
     return default_settings
 
 
-def build_default_wing_settings(degen_mgr: dg.DegenGeomMgr, default_template=None):
+def build_default_wing_settings(degen_mgr: dg.DegenGeomMgr, default_template=None, vsp_instance=None):
     """
     Builds a default settings collection of rotor settings for wing components
 
     :param degen_mgr: degen geom manager with objects desired for this charm run
     :param default_template: this will be used as the default template for all wing like objects
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: CharmRotorSettingsCollection object with settings for wing components
     """
+    vsp = vsp_module.get_instance(vsp_instance)
+
     # provided default template current template is empty
     if default_template is None:
         with open(os.path.join(os.path.dirname(__file__), "test", "prop_rw.inp")) as f:
@@ -1491,16 +1505,18 @@ def build_default_trim_settings(trim_template=None) -> CharmTrimSettings:
 
 
 def create_rotor_file_list(degen_mgr: dg.DegenGeomMgr, settings: CharmRotorSettingsCollection, num_psi,
-                           unit_factor=u.in2ft, **kwargs):
+                           unit_factor=u.in2ft, vsp_instance=None, **kwargs):
     """
     Creates a list of input files for charm based off of degen geom objects and rotor settings
     :param degen_mgr: degen objects containing components to export to charm
     :param settings: rotor settings relating to each rotor to be exported to charm
     :param num_psi: number of azimuthal points in CHARM computation
     :param unit_factor: unit conversion factor to get from vsp units to feet
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: dictionary of filename, file contents to write to disk, dictionary of rotorname to input filenames to be
     written in the run characteristics input file
     """
+    vsp = vsp_module.get_instance(vsp_instance)
 
     rotor_files = {}
     files_to_write = {}
@@ -1549,16 +1565,19 @@ def create_rotor_file_list(degen_mgr: dg.DegenGeomMgr, settings: CharmRotorSetti
     return files_to_write, rotor_files
 
 
-def create_wing_file_list(wing_infos, settings: CharmRotorSettings, num_psi, unit_factor=u.in2ft, **kwargs):
+def create_wing_file_list(wing_infos, settings: CharmRotorSettings, num_psi, unit_factor=u.in2ft,
+                          vsp_instance=None, **kwargs):
     """
 
     :param wing_infos: wing info objects
     :param settings: wing settings
     :param num_psi: azimuthal resolution
     :param unit_factor: unit conversion factor from vsp units to charm units
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :param kwargs:
     :return: files to write, and file list for run characteristics file
     """
+    vsp = vsp_module.get_instance(vsp_instance)
 
     wing_infos_dict = {}
     for wing_info in wing_infos:
