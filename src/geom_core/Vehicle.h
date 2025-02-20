@@ -164,7 +164,9 @@ public:
     void UpdateBBox();
     bool GetVisibleBndBox( BndBox &b );
     bool GetBndBoxSet( int set, BndBox &b );
+    bool GetBndBoxSet( int set, double & xmin_out, double & ymin_out, double & zmin_out, double & xlen_out, double & ylen_out, double & zlen_out );
     bool GetScaleIndependentBBoxSet( int set, BndBox &b );
+    bool GetScaleIndependentBBoxSet( int set, double & xmin_out, double & ymin_out, double & zmin_out, double & xlen_out, double & ylen_out, double & zlen_out );
 
     xmlNodePtr EncodeXml( xmlNodePtr & node, int set );
     xmlNodePtr DecodeXml( xmlNodePtr & node );

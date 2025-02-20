@@ -25,6 +25,7 @@ namespace std {
 }
 
 %apply std::vector<vec3d> &INPUT { std::vector<vec3d> & pnt_vec };
+%apply ( double& OUTPUT ) { double & xmin_out, double & ymin_out, double & zmin_out, double & xlen_out, double & ylen_out, double & zlen_out };
 %apply ( double& OUTPUT ) { double& u_out, double& w_out, double &k1_out, double &k2_out, double &ka_out, double &kg_out };
 %apply ( double& OUTPUT ) { double& r_out, double& s_out,  double& t_out };
 %apply ( double& OUTPUT ) { double& l_out, double& m_out,  double& n_out };

@@ -4396,6 +4396,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void CopyPasteSet(  int copyIndex, int pasteIndex  )", asFUNCTION( vsp::CopyPasteSet ), asCALL_CDECL );
     assert( r >= 0 );
 
+
+    r = se->RegisterGlobalFunction( "bool GetBBoxSet( int set, double & out xmin_out, double & out ymin_out, double & out zmin_out, double & out xlen_out, double & out ylen_out, double & out zlen_out )", asFUNCTION( vsp::GetBBoxSet ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "bool GetScaleIndependentBBoxSet( int set, double & out xmin_out, double & out ymin_out, double & out zmin_out, double & out xlen_out, double & out ylen_out, double & out zlen_out )", asFUNCTION( vsp::GetScaleIndependentBBoxSet ), asCALL_CDECL );
+    assert( r >= 0 );
+
     //=== Group Modifications ===//
 
     r = se->RegisterGlobalFunction( "void ScaleSet( int set_index, double scale )", asFUNCTION( vsp::ScaleSet ), asCALL_CDECL );

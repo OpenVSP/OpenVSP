@@ -5286,6 +5286,22 @@ bool Vehicle::GetBndBoxSet( int set, BndBox &b )
     return sethasmembers;
 }
 
+bool Vehicle::GetBndBoxSet( int set, double & xmin_out, double & ymin_out, double & zmin_out, double & xlen_out, double & ylen_out, double & zlen_out )
+{
+    BndBox bbox;
+    bool sethasmembers = GetBndBoxSet( set, bbox );
+
+    xlen_out = bbox.GetMax( 0 ) - bbox.GetMin( 0 );
+    ylen_out = bbox.GetMax( 1 ) - bbox.GetMin( 1 );
+    zlen_out = bbox.GetMax( 2 ) - bbox.GetMin( 2 );
+
+    xmin_out = bbox.GetMin( 0 );
+    ymin_out = bbox.GetMin( 1 );
+    zmin_out = bbox.GetMin( 2 );
+
+    return sethasmembers;
+}
+
 // As m_BBox, but without model scale dependent surfaces included.
 bool Vehicle::GetScaleIndependentBBoxSet( int set, BndBox & bbox )
 {
@@ -5304,6 +5320,22 @@ bool Vehicle::GetScaleIndependentBBoxSet( int set, BndBox & bbox )
             }
         }
     }
+
+    return sethasmembers;
+}
+
+bool Vehicle::GetScaleIndependentBBoxSet( int set, double & xmin_out, double & ymin_out, double & zmin_out, double & xlen_out, double & ylen_out, double & zlen_out )
+{
+    BndBox bbox;
+    bool sethasmembers = GetScaleIndependentBBoxSet( set, bbox );
+
+    xlen_out = bbox.GetMax( 0 ) - bbox.GetMin( 0 );
+    ylen_out = bbox.GetMax( 1 ) - bbox.GetMin( 1 );
+    zlen_out = bbox.GetMax( 2 ) - bbox.GetMin( 2 );
+
+    xmin_out = bbox.GetMin( 0 );
+    ymin_out = bbox.GetMin( 1 );
+    zmin_out = bbox.GetMin( 2 );
 
     return sethasmembers;
 }

@@ -7408,6 +7408,49 @@ void CopyPasteSet( int copy_index, int paste_index )
 
 }
 
+bool GetBBoxSet( int set, double & xmin_out, double & ymin_out, double & zmin_out, double & xlen_out, double & ylen_out, double & zlen_out  )
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBBoxSet::Can't Find Vehicle." );
+        xmin_out = 0.0;
+        ymin_out = 0.0;
+        zmin_out = 0.0;
+        xlen_out = 0.0;
+        ylen_out = 0.0;
+        zlen_out = 0.0;
+
+        return false;
+    }
+
+    bool sethasmembers = veh->GetBndBoxSet( set, xmin_out, ymin_out, zmin_out, xlen_out, ylen_out, zlen_out );
+    ErrorMgr.NoError();
+    return sethasmembers;
+}
+
+bool GetScaleIndependentBBoxSet( int set, double & xmin_out, double & ymin_out, double & zmin_out, double & xlen_out, double & ylen_out, double & zlen_out  )
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetScaleIndependentBBox::Can't Find Vehicle." );
+
+        xmin_out = 0.0;
+        ymin_out = 0.0;
+        zmin_out = 0.0;
+        xlen_out = 0.0;
+        ylen_out = 0.0;
+        zlen_out = 0.0;
+
+        return false;
+    }
+
+    bool sethasmembers = veh->GetScaleIndependentBBoxSet( set, xmin_out, ymin_out, zmin_out, xlen_out, ylen_out, zlen_out );
+    ErrorMgr.NoError();
+    return sethasmembers;
+}
+
 //================================================================//
 //=============== Group Modifications for Sets ===================//
 //================================================================//

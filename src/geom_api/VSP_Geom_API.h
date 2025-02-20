@@ -15090,6 +15090,81 @@ extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
 
 extern void CopyPasteSet( int copyIndex, int pasteIndex );
 
+/*!
+    \ingroup Sets
+*/
+/*!
+    Get the corners of the bounding box of the specified Set.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    double xmin, ymin, zmin, xlen, ylen, zlen;
+    bool sethasmembers = GetBBoxSet( SET_ALL, xmin, ymin, zmin, xlen, ylen, zlen );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    sethasmembers, xmin, ymin, zmin, xlen, ylen, zlen = GetBBoxSet( SET_ALL )
+    \endcode
+    \endPythonOnly
+    \param [in] set int Desired Set
+    \param [out] xmin_out double Minimum bounding box X coordinate
+    \param [out] ymin_out double Minimum bounding box Y coordinate
+    \param [out] zmin_out double Minimum bounding box Z coordinate
+    \param [out] xlen_out double Maximum bounding box X length
+    \param [out] ylen_out double Maximum bounding box Y length
+    \param [out] zlen_out double Maximum bounding box Z length
+    \return bool Flag indicating whether the set has members (is non-empty)
+*/
+
+extern bool GetBBoxSet( int set, double & xmin_out, double & ymin_out, double & zmin_out, double & xlen_out, double & ylen_out, double & zlen_out );
+
+/*!
+    \ingroup Sets
+*/
+/*!
+    Get the corners of the scale independent bounding box of the specified Set.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    double xmin, ymin, zmin, xlen, ylen, zlen;
+    bool sethasmembers = GetScaleIndependentBBoxSet( SET_ALL, xmin, ymin, zmin, xlen, ylen, zlen );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    sethasmembers, xmin, ymin, zmin, xlen, ylen, zlen = GetScaleIndependentBBoxSet( SET_ALL );
+    \endcode
+    \endPythonOnly
+    \param [in] set int Desired Set
+    \param [out] xmin_out double Minimum bounding box X coordinate
+    \param [out] ymin_out double Minimum bounding box Y coordinate
+    \param [out] zmin_out double Minimum bounding box Z coordinate
+    \param [out] xlen_out double Maximum bounding box X length
+    \param [out] ylen_out double Maximum bounding box Y length
+    \param [out] zlen_out double Maximum bounding box Z length
+    \return bool Flag indicating whether the set has members (is non-empty)
+*/
+
+extern bool GetScaleIndependentBBoxSet( int set, double & xmin_out, double & ymin_out, double & zmin_out, double & xlen_out, double & ylen_out, double & zlen_out );
 
 //======================== Group Modifications ================================//
 /*!
