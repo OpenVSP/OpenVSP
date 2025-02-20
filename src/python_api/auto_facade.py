@@ -47,7 +47,7 @@ else:
 # decorator for wrapping every function
 def client_wrap(func):
     def wrapper(self, *args, **kwargs):
-        return self._send_recieve(func.__name__, args, kwargs)
+        return self._send_receive(func.__name__, args, kwargs)
     return wrapper
 def _exception_hook(exc_type, exc_value, tb):
     regular_traceback = []
@@ -103,8 +103,8 @@ class _vsp_server():
 """
 
 CLIENT_END = """
-    # function to send and recieve data from the facade server
-    def _send_recieve(self, func_name, args, kwargs):
+    # function to send and receive data from the facade server
+    def _send_receive(self, func_name, args, kwargs):
         b_data = pack_data([func_name, args, kwargs], True)
         self.sock.sendall(b_data)
         result = None
@@ -146,7 +146,7 @@ CLIENT_END = """
 
         \"\"\"
 
-        return self._send_recieve('IsGUIRunning', [], {})
+        return self._send_receive('IsGUIRunning', [], {})
 
     def _run_func(self, func, *args, **kwargs):
         try:
@@ -376,7 +376,7 @@ def start_server():
                     except (pickle.UnpicklingError, EOFError):
                         pass
                 if b_data == [] or data == []:
-                    print("Server Socket Thread: Unable to recieve data from socket, closing server.")
+                    print("Server Socket Thread: Unable to receive data from socket, closing server.")
                     break
 
                 # Special functionality for StartGUI
