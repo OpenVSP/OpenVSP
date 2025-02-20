@@ -19,9 +19,10 @@
 # THE SOFTWARE.
 
 import degen_geom as dg
-import openvsp as vsp
+import openvsp as vsp_module
 
-def parse_degen_geom(degen_geom_res_id):
+def parse_degen_geom(degen_geom_res_id, vsp_instance=None):
+    vsp = vsp_module.get_instance(vsp_instance)
     # Get all of the degen geom results managers ids
     degen_ids = vsp.GetStringResults(degen_geom_res_id, "Degen_DegenGeoms")
 

@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import openvsp as vsp
+import openvsp as vsp_module
 
 
 class ParasiteDragResults:
@@ -125,7 +125,7 @@ class ParasiteDragResults:
 
 
 def parasitedrag_sweep(speeds, alts_ft, sref=None, length_unit=None,
-                       speed_unit=vsp.V_UNIT_MACH, set=None):
+                       speed_unit=vsp_module.V_UNIT_MACH, set=None, vsp_instance=None):
     """
     Runs a parasite drag sweep over a range of speeds and altitudes. For subsonic data only.
 
@@ -135,8 +135,11 @@ def parasitedrag_sweep(speeds, alts_ft, sref=None, length_unit=None,
     :param set: vsp geometry set to use for build up
     :param length_unit: length unit of the vsp model
     :param sref: reference area
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: named tuple with results
     """
+    vsp = vsp_module.get_instance(vsp_instance)
+
     # Reset default values to ensure values that have been read from a vsp file are used by default
     vsp.SetAnalysisInputDefaults('ParasiteDrag')
 

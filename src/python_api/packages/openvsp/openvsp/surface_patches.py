@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import openvsp as vsp
+import openvsp as vsp_module
 from typing import List
 
 
@@ -74,13 +74,16 @@ class SurfacePatch:
         self.nz = nz
 
 
-def export_surface_patches(export_set: int, remove_degenerate=True):
+def export_surface_patches(export_set: int, remove_degenerate=True, vsp_instance=None):
     """
     Function that export surfaces patches of current set
     :param export_set: vsp set to export
     :param remove_degenerate: if true, degenerate surface patches are removed
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: list components with surface patches
     """
+    vsp = vsp_module.get_instance(vsp_instance)
+
     import numpy as np
 
     components = []
@@ -119,14 +122,15 @@ def export_surface_patches(export_set: int, remove_degenerate=True):
     return components
 
 
-def plot_surface_components(components: List[SurfaceComponent], plot_normals=True, quiver_len=0.2):
+def plot_surface_components(components: List[SurfaceComponent], plot_normals=True, quiver_len=0.2, vsp_instance=None):
     """
     Plots a list of surface components
     :param components: list of surface components to plot
     :param plot_normals: set to true to plot normal vectors, set to false to turn off normal vector plotting
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: handle to plotted figure
     """
-
+    vsp = vsp_module.get_instance(vsp_instance)
     import  matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
 

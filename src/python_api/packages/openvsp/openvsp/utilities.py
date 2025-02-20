@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 
 from utilities import RunManager
-import openvsp as vsp
+import openvsp as vsp_module
 from collections import namedtuple
 import numpy as np
 
@@ -36,8 +36,8 @@ class PropInfo():
     def area(self):
         return np.pi * np.power(self.diameter/2, 2)
 
-def genX3d(file=None,set=vsp.SET_ALL, dims=[1000,400], **kwargs):
-
+def genX3d(file=None,set=vsp_module.SET_ALL, dims=[1000,400], vsp_instance=None, **kwargs):
+    vsp = vsp_module.get_instance(vsp_instance)
     if file is not None:
         vsp.ClearVSPModel()
         vsp.ReadVSPFile(file)
@@ -72,12 +72,15 @@ def convert_double_tuple_to_list_matrix(tuple_matrix):
     return [list(row) for row in tuple_matrix]
 
 
-def parse_results_object(res_id):
+def parse_results_object(res_id, vsp_instance=None):
     """
     Function to parse a generic results object from openvsp results manager
     :param res_id: id of the results object to parse
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: named tuple of results values
     """
+    vsp = vsp_module.get_instance(vsp_instance)
+
     names = vsp.GetAllDataNames(res_id)
     name = vsp.GetResultsName(res_id)
 
@@ -93,16 +96,16 @@ def parse_results_object(res_id):
         elif type == vsp.DOUBLE_DATA:
             d = list(vsp.GetDoubleResults(res_id, name))
         elif type == vsp.DOUBLE_MATRIX_DATA:
-            d = vsp.convert_double_tuple_to_list_matrix(vsp.GetDoubleMatResults(res_id, name))
+            d = convert_double_tuple_to_list_matrix(vsp.GetDoubleMatResults(res_id, name))
         elif type == vsp.VEC3D_DATA:
-            d = vsp.convert_vec3d_array_to_list_matrix(vsp.GetVec3dResults(res_id, name))
+            d = convert_vec3d_array_to_list_matrix(vsp.GetVec3dResults(res_id, name))
 
         data.append(d)
 
     return res_tuple(*data)
 
 
-def get_wing_reference_quantities(wing_name=None, wing_id=None):
+def get_wing_reference_quantities(wing_name=None, wing_id=None, vsp_instance=None):
     """
     Gets wing reference area, reference span, and reference chord (sref, bref, cref) from the TotalArea, TotalSpan, and
     TotalChord properties of Wing component
@@ -110,9 +113,10 @@ def get_wing_reference_quantities(wing_name=None, wing_id=None):
     :param wing_name: Name of the wing (will find the first wing with this name)
     :param wing_id: ID of the wing object, if None wing name will be used to find the wing id. Wing ID takes precedence
     over wing_name
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: sref, bref, and cref
     """
-
+    vsp = vsp_module.get_instance(vsp_instance)
     # Check that the wing_name and wing_id are not both none
     if wing_name is None and wing_id is None:
         raise ValueError("wing_name and wing_id cannot both be None")
@@ -133,17 +137,20 @@ def get_wing_reference_quantities(wing_name=None, wing_id=None):
     return sref, bref, cref
 
 
-def get_propeller_thrust_vectors(prop_set, alternate_rotation_direction=False):
+def get_propeller_thrust_vectors(prop_set, alternate_rotation_direction=False, vsp_instance=None):
     """
     Returns propeller thrust vector directions and rotation direction for all propellers in
     the input set
     :param prop_set: set containing all propellers (no other geometries should be included)
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: Named Tuple with (geom_id, thrust_vector, rotation_direction, hub_center)
     """
+    vsp = vsp_module.get_instance(vsp_instance)
+
     import degen_geom as dg
 
     # Run degen geom on the input set
-    degen_mgr = vsp.run_degen_geom(set_index=prop_set)
+    degen_mgr = run_degen_geom(set_index=prop_set)
 
     # loop over all geoms in degen_mgr
     results = []
@@ -161,13 +168,14 @@ def get_propeller_thrust_vectors(prop_set, alternate_rotation_direction=False):
     return results
 
 
-def get_single_propeller_info(prop_dg):
+def get_single_propeller_info(prop_dg, vsp_instance=None):
     """
     Gets propeller info for a single propeller degen geom object
     :param prop_dg: propeller degen geom object
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: propeller info named tuple
     """
-
+    vsp = vsp_module.get_instance(vsp_instance)
     # Define named tuple
     #PropInfo = namedtuple("PropInfo", "geom_id thrust_vector rotation_direction hub_center transmat diameter")
 
@@ -258,13 +266,15 @@ def plot_propeller_info(prop_infos, vector_scale=10.0, markersize=2.0, mutation_
     return fig
 
 
-def run_degen_geom(set_index=None, set_name=None):
+def run_degen_geom(set_index=None, set_name=None, vsp_instance=None):
     """
     Runs degen geom on input set
     :param set_index: set index, will take precedence if both set index and set name are specified
     :param set_name: name of set, will be used if set index is not specified
+    :param vsp_instance: optional instance of vsp if using the multifacade
     :return: degen geom manager object
     """
+    vsp = vsp_module.get_instance(vsp_instance)
     import degen_geom as dg
 
     if set_index is None and set_name is None:
@@ -322,7 +332,8 @@ def set_3d_axis_equal(ax):
     ax.set_zlim(zlims[0], zlims[1])
 
 
-def export_airfoils(set=vsp.SET_ALL, **kwargs):
+def export_airfoils(set=vsp_module.SET_ALL, vsp_instance=None, **kwargs):
+    vsp = vsp_module.get_instance(vsp_instance)
     import airfoils
     af_dict = dict()
     with RunManager(**kwargs) as r:
