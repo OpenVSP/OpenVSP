@@ -319,7 +319,7 @@ void GeomEngine::UpdateEngine()
             if ( veh )
             {
                 BndBox setBox;
-                if ( veh->GetScaleIndependentBBox( m_AutoExtensionSet(), setBox ) )
+                if ( veh->GetScaleIndependentBBoxSet( m_AutoExtensionSet(), setBox ) )
                 {
                     m_ExtensionDistance = setBox.GetMax( 0 ) - setBox.GetMin( 0 );
                 }

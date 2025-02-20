@@ -5210,28 +5210,6 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
     InterferenceMgr.AddLinkableContainers( linkable_container_vec );
 }
 
-// As m_BBox, but without model scale dependent surfaces included.
-bool Vehicle::GetScaleIndependentBBox( int set, BndBox & bbox )
-{
-    vector<string> geom_vec = GetGeomVec();
-
-    bool sethasmembers = false;
-    for ( int i = 0 ; i < geom_vec.size() ; i++ )
-    {
-        Geom* g_ptr = FindGeom( geom_vec[i] );
-        if ( g_ptr )
-        {
-            if ( g_ptr->GetSetFlag( set ) )
-            {
-                bbox.Update( g_ptr->GetScaleIndependentBndBox() );
-                sethasmembers = true;
-            }
-        }
-    }
-
-    return sethasmembers;
-}
-
 void Vehicle::UpdateBBox()
 {
     BndBox new_box, scale_independent_box;
@@ -5302,6 +5280,28 @@ bool Vehicle::GetBndBoxSet( int set, BndBox &b )
         {
             b.Update( geom_vec[i]->GetBndBox() );
             sethasmembers = true;
+        }
+    }
+
+    return sethasmembers;
+}
+
+// As m_BBox, but without model scale dependent surfaces included.
+bool Vehicle::GetScaleIndependentBBoxSet( int set, BndBox & bbox )
+{
+    vector<string> geom_vec = GetGeomVec();
+
+    bool sethasmembers = false;
+    for ( int i = 0 ; i < geom_vec.size() ; i++ )
+    {
+        Geom* g_ptr = FindGeom( geom_vec[i] );
+        if ( g_ptr )
+        {
+            if ( g_ptr->GetSetFlag( set ) )
+            {
+                bbox.Update( g_ptr->GetScaleIndependentBndBox() );
+                sethasmembers = true;
+            }
         }
     }
 

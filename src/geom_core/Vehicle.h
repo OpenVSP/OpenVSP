@@ -162,9 +162,9 @@ public:
     BndBox GetBndBox()                                        { return m_BBox; }
     BndBox GetScaleIndependentBndBox()                        { return m_ScaleIndependentBBox; }
     void UpdateBBox();
-    bool GetScaleIndependentBBox( int set, BndBox &b );
     bool GetVisibleBndBox( BndBox &b );
     bool GetBndBoxSet( int set, BndBox &b );
+    bool GetScaleIndependentBBoxSet( int set, BndBox &b );
 
     xmlNodePtr EncodeXml( xmlNodePtr & node, int set );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
