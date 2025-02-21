@@ -1,3 +1,4 @@
+-e airfoils
 -e utilities
 -e degen_geom
 -e openvsp_config
