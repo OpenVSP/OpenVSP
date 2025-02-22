@@ -916,6 +916,17 @@ void ManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+VspScreen* ManageGeomScreen::GetGeomScreen( int id )
+{
+    if( id >= 0 && id < vsp::NUM_GEOM_SCREENS )
+    {
+        return m_GeomScreenVec[id];
+    }
+    // Should not reach here.
+    assert( false );
+    return NULL;
+}
+
 std::string ManageGeomScreen::getFeedbackGroupName()
 {
     return std::string("GeomGUIGroup");

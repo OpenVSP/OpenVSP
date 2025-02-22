@@ -67,6 +67,8 @@ public:
         return m_GeomScreenVec;
     }
 
+    VspScreen* GetGeomScreen( int id );
+
     /*
     * Get Feedback Group's name.
     */
