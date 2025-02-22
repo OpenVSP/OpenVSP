@@ -41,6 +41,7 @@
 #include "Probe.h"
 #include "Protractor.h"
 #include "Renderable.h"
+#include "RoutingScreen.h"
 #include "Ruler.h"
 #include "Scene.h"
 #include "ScreenMgr.h"
@@ -460,6 +461,17 @@ void VspGlWindow::LoadAllDrawObjs( vector< DrawObj* > & drawObjs )
         if( geomScreen )
         {
             geomScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects for routing screen
+        if ( geomScreen )
+        {
+            RoutingScreen * routingScreen = dynamic_cast<RoutingScreen*>
+                ( geomScreen->GetGeomScreen( vsp::ROUTING_GEOM_SCREEN ) );
+            if ( routingScreen )
+            {
+                routingScreen->LoadDrawObjs( drawObjs );
+            }
         }
 
         // Load Render Objects from corScreen ( Center of Rotation ).
@@ -2815,6 +2827,39 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
         // focus.  The behavior locks up geometry selection process.  Set OpenGL
         // window back on focus so user can proceed without interruption.
         focus(this);
+    }
+
+    // Routing Screen Feedback
+    if ( geomScreen )
+    {
+        RoutingScreen * routingScreen = dynamic_cast<RoutingScreen*>
+            ( geomScreen->GetGeomScreen( vsp::ROUTING_GEOM_SCREEN ) );
+
+        if( routingScreen && routingScreen->getFeedbackGroupName() == selectedFeedbackName )
+        {
+            // Vertex feedback
+            // Cast selectable to SelectedPnt object, so that we can get Render Source Ptr.
+            SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
+            if( pnt )
+            {
+                VSPGraphic::Renderable * e = dynamic_cast<VSPGraphic::Renderable*>(pnt->getSource());
+                if(e)
+                {
+                    ID * id = _findID( e->getID() );
+                    if( id )
+                    {
+                        unsigned int index = id->geomID.find_first_of( '_' );
+                        std::string baseId = id->geomID.substr( 0, index );
+                        glm::vec3 placement = e->getVertexVec(pnt->getIndex());
+                        routingScreen->Set( vec3d( placement.x, placement.y, placement.z ), baseId );
+
+                        // Only one selection is needed for label, remove this 'selected' from selection list.
+                        m_GEngine->getScene()->removeSelected( selected );
+                        selected = NULL;
+                    }
+                }
+            }
+        }
     }
 
     // Center of rotation Screen Feedback

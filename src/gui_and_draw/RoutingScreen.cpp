@@ -34,6 +34,8 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 + 25,
     m_DesignLayout.AddButton( m_DelRoutingPoint, "Delete" );
     m_DesignLayout.AddButton( m_DelAllRoutingPoints, "Delete All" );
 
+    m_DesignLayout.AddButton( m_SetRoutingPoint, "Set Point" );
+
     m_DesignLayout.AddInput( m_PtNameInput, "Name" );
 
 
@@ -42,6 +44,8 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 + 25,
 
     m_DesignLayout.AddSlider( m_USlider, "U", 1.0, "%5.3f" );
     m_DesignLayout.AddSlider( m_WSlider, "W", 1.0, "%5.3f" );
+
+    m_SelectionFlag = false;
 }
 
 
@@ -210,6 +214,11 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             rpt->SetParentID( m_GeomPicker.GetGeomChoice() );
         }
     }
+    else if ( gui_device == & m_SetRoutingPoint )
+    {
+        m_SelectionFlag = true;
+        UpdatePickList();
+    }
     else
     {
         return;
@@ -218,7 +227,113 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( geom_ptr );
+
+    RoutingPoint* rpt = nullptr;
+
+    if ( routing_ptr )
+    {
+        rpt = routing_ptr->GetPt( m_RoutingPointBrowserSelect );
+    }
+
+    Geom * geom = nullptr;
+
+    if ( veh )
+    {
+        geom = veh->FindGeom( targetGeomId );
+    }
 
 
+    if( rpt && geom )
+    {
+        rpt->SetParentID( targetGeomId );
+
+        if ( geom->GetNumTotalSurfs() > 0 )
+        {
+            int index;
+            double u, w;
+            geom->ProjPnt01I( placement, index, u, w );
+
+            const VspSurf * surf = geom->GetSurfPtr( index );
+
+            double umapmax = surf->GetUMapMax();
+            double umax = surf->GetUMax();
+
+            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+
+            if ( uprm < 0 )
+            {
+                uprm = u;
+            }
+
+            rpt->m_U = uprm;
+            rpt->m_W = w;
+
+            // rpt->m_OriginIndx = index;
+        }
+        else
+        {
+            rpt->m_U = 1; // Set to dummy value to trigger update.
+            rpt->m_U = 0;
+            rpt->m_W = 0;
+            // rpt->m_OriginIndx = 0;
+        }
+        routing_ptr->UpdateParents();;
+        routing_ptr->Update();
+    }
+
+    m_SelectionFlag = false;
+    m_ScreenMgr->SetUpdateFlag( true );
+
+}
+
+std::string RoutingScreen::getFeedbackGroupName()
+{
+    return std::string( "RoutingGeomGUIGroup" );
+}
+
+void RoutingScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    if ( m_SelectionFlag )
+    {
+        for( int i = 0; i < ( int )m_PickList.size(); i++ )
+        {
+            draw_obj_vec.push_back( &m_PickList[i] );
+        }
+    }
+}
+
+void RoutingScreen::UpdatePickList()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
+
+    m_PickList.clear();
+
+    for ( int i = 0; i < ( int ) geom_vec.size(); i++ )
+    {
+        vector<DrawObj *> geom_drawObj_vec;
+        geom_vec[i]->LoadMainDrawObjs( geom_drawObj_vec );
+
+        for ( int j = 0; j < ( int ) geom_drawObj_vec.size(); j++ )
+        {
+            if ( geom_drawObj_vec[j]->m_Visible )
+            {
+                DrawObj pickDO;
+                pickDO.m_Type = DrawObj::VSP_PICK_VERTEX;
+                pickDO.m_GeomID = PICKVERTEXHEADER + geom_drawObj_vec[j]->m_GeomID;
+                pickDO.m_PickSourceID = geom_drawObj_vec[j]->m_GeomID;
+                pickDO.m_FeedbackGroup = getFeedbackGroupName();
+
+                m_PickList.push_back( pickDO );
+            }
+        }
+    }
+}
 
 

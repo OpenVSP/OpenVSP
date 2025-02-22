@@ -31,6 +31,14 @@ public:
 
     virtual void GuiDeviceCallBack( GuiDevice* gui_device );
 
+    void Set( const vec3d &placement, const std::string &targetGeomId );
+
+    virtual std::string getFeedbackGroupName();
+
+    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
+    void UpdatePickList();
+
 protected:
 
     GroupLayout m_DesignLayout;
@@ -43,12 +51,20 @@ protected:
     TriggerButton m_DelRoutingPoint;
     TriggerButton m_DelAllRoutingPoints;
 
+    TriggerButton m_SetRoutingPoint;
+
+
     StringInput m_PtNameInput;
 
     GeomPicker m_GeomPicker;
 
     SliderAdjRangeInput m_USlider;
     SliderAdjRangeInput m_WSlider;
+
+private:
+
+    bool m_SelectionFlag;
+    std::vector<DrawObj> m_PickList;
 
 };
 
