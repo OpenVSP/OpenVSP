@@ -2559,32 +2559,7 @@ string GetGeomTypeName( const string & geom_id )
 /// Get the parm id given container id, parm name, and group name
 string GetParm( const string & container_id, const string & name, const string & group )
 {
-    Vehicle* veh = GetVehicle();
-
-    if ( ParmMgr.GetDirtyFlag() )
-    {
-        LinkMgr.BuildLinkableParmData();        // Make Sure Name/Group Get Mapped To Parms
-    }
-
-    string parm_id;
-
-    ParmContainer* pc = ParmMgr.FindParmContainer( container_id );
-    if ( !pc )
-    {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetParm::Can't Find Container " + container_id );
-        return parm_id;
-    }
-
-    parm_id = pc->FindParm( name, group );
-
-    Parm* p = ParmMgr.FindParm( parm_id );
-    if ( !p )
-    {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParm::Can't Find Parm " + container_id + ":" + group + ":" + name );
-        return parm_id;
-    }
-    ErrorMgr.NoError();
-    return parm_id;
+    return FindParm( container_id, name, group );
 }
 
 // Get the parent of a Geom
