@@ -414,6 +414,9 @@ public:
     virtual void SetSetFlag( int index, bool f );
     virtual void UpdateSets();
 
+    virtual void Show();
+    virtual void NoShow();
+
     virtual const VspSurf* GetSurfPtr( int indx ) const;
 
     virtual const VspSurf* GetMainSurfPtr( int indx ) const;

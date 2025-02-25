@@ -1277,7 +1277,7 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks )
     }
     else
     {
-        mesh_geom->SetSetFlag( SET_SHOWN, true );    // Ensure Shown Flag is Set
+        mesh_geom->Show();    // Ensure Shown Flag is Set
     }
 
     // Create TMeshVec
@@ -1924,7 +1924,7 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
                         toPtr->SetSetFlag( j, false );
                     }
 
-                    toPtr->SetSetFlag( SET_SHOWN, true );
+                    toPtr->Show();
                 }
 
                 id = toPtr->GetID();
@@ -2054,10 +2054,14 @@ void Vehicle::ShowOnlySet( int index )
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        bool f = geom_vec[i]->GetSetFlag( index );
-
-        geom_vec[i]->SetSetFlag( SET_SHOWN, f );
-        geom_vec[i]->SetSetFlag( SET_NOT_SHOWN, !f );
+        if ( geom_vec[i]->GetSetFlag( index ) )
+        {
+            geom_vec[i]->Show();
+        }
+        else
+        {
+            geom_vec[i]->NoShow();
+        }
     }
 }
 
@@ -2070,8 +2074,7 @@ void Vehicle::NoShowSet( int index )
 
         if ( f )
         {
-            geom_vec[i]->SetSetFlag( SET_SHOWN, false );
-            geom_vec[i]->SetSetFlag( SET_NOT_SHOWN, true );
+            geom_vec[i]->NoShow();
         }
     }
 }
@@ -2085,8 +2088,7 @@ void Vehicle::ShowSet( int index )
 
         if ( f )
         {
-            geom_vec[i]->SetSetFlag( SET_SHOWN, true );
-            geom_vec[i]->SetSetFlag( SET_NOT_SHOWN, false );
+            geom_vec[i]->Show();
         }
     }
 }
@@ -2178,8 +2180,7 @@ void Vehicle::HideAllExcept( const string& id )
             if ( geom_ptr->GetID() != id )
             {
                 // No Show All Other Components
-                geom_ptr->SetSetFlag( SET_SHOWN, false ); //remove from shown
-                geom_ptr->SetSetFlag( SET_NOT_SHOWN, true ); //add to no show
+                geom_ptr->NoShow();
             }
         }
     }
@@ -2195,8 +2196,7 @@ void Vehicle::HideAll()
         if ( geom_ptr )
         {
             // No Show All Other Components
-            geom_ptr->SetSetFlag( SET_SHOWN, false ); //remove from shown
-            geom_ptr->SetSetFlag( SET_NOT_SHOWN, true ); //add to no show
+            geom_ptr->NoShow();
         }
     }
 }

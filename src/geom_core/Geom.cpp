@@ -1647,6 +1647,18 @@ void Geom::UpdateSets()
     }
 }
 
+void Geom::Show()
+{
+    m_SetFlags[SET_SHOWN] = true;
+    m_SetFlags[SET_NOT_SHOWN] = false;
+}
+
+void Geom::NoShow()
+{
+    m_SetFlags[SET_SHOWN] = false;
+    m_SetFlags[SET_NOT_SHOWN] = true;
+}
+
 //==== Copy Geometry ====//
 void Geom::CopyFrom( Geom* geom )
 {
