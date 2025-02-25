@@ -48,6 +48,10 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
     m_BorderLayout.AddButton( m_DelAllInterferenceChecks, "Del All" );
     m_BorderLayout.ForceNewLine();
 
+    m_BorderLayout.AddButton( m_ShowBoth, "Show" );
+    m_BorderLayout.AddButton( m_ShowOnlyBoth, "Show Only" );
+    m_BorderLayout.ForceNewLine();
+
     m_BorderLayout.SetSameLineFlag( false );
     m_BorderLayout.SetFitWidthFlag( true );
 
@@ -108,6 +112,13 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
     m_PrimaryToggleGroup.AddButton( m_PrimaryGeomToggle.GetFlButton() );
     m_PrimaryToggleGroup.AddButton( m_PrimaryModeToggle.GetFlButton() );
 
+    m_ICaseLayout.SetFitWidthFlag( false );
+
+    m_ICaseLayout.SetButtonWidth( m_ICaseLayout.GetW() * 0.5 );
+    m_ICaseLayout.AddButton( m_ShowPrimaryGeom, "Show" );
+    m_ICaseLayout.AddButton( m_ShowOnlyPrimaryGeom, "Show Only" );
+    m_ICaseLayout.ForceNewLine();
+
     m_ICaseLayout.SetSameLineFlag( false );
     m_ICaseLayout.SetFitWidthFlag( true );
 
@@ -144,8 +155,17 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
     m_SecondaryToggleGroup.AddButton( m_SecondarySetToggle.GetFlButton() );
     m_SecondaryToggleGroup.AddButton( m_SecondaryGeomToggle.GetFlButton() );
 
+    m_ICaseLayout.SetFitWidthFlag( false );
+
+    m_ICaseLayout.SetButtonWidth( m_ICaseLayout.GetW() * 0.5 );
+    m_ICaseLayout.AddButton( m_ShowSecondaryGeom, "Show" );
+    m_ICaseLayout.AddButton( m_ShowOnlySecondaryGeom, "Show Only" );
+    m_ICaseLayout.ForceNewLine();
+
     m_ICaseLayout.SetSameLineFlag( false );
     m_ICaseLayout.SetFitWidthFlag( true );
+
+    m_ICaseLayout.AddYGap();
 
     m_ICaseLayout.AddButton( m_Evaluate, "Evaluate" );
 
@@ -450,6 +470,48 @@ void InterferenceScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( icase )
         {
             icase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetGeomChoice();
+        }
+    }
+    else if ( gui_device == & m_ShowBoth )
+    {
+        if ( icase )
+        {
+            icase->ShowBoth();
+        }
+    }
+    else if ( gui_device == & m_ShowOnlyBoth )
+    {
+        if ( icase )
+        {
+            icase->ShowOnlyBoth();
+        }
+    }
+    else if ( gui_device == & m_ShowPrimaryGeom )
+    {
+        if ( icase )
+        {
+            icase->ShowPrimary();
+        }
+    }
+    else if ( gui_device == & m_ShowOnlyPrimaryGeom )
+    {
+        if ( icase )
+        {
+            icase->ShowOnlyPrimary();
+        }
+    }
+    else if ( gui_device == & m_ShowSecondaryGeom )
+    {
+        if ( icase )
+        {
+            icase->ShowSecondary();
+        }
+    }
+    else if ( gui_device == & m_ShowOnlySecondaryGeom )
+    {
+        if ( icase )
+        {
+            icase->ShowOnlySecondary();
         }
     }
     else if ( gui_device == &m_EvaluateAllInterferenceChecks )

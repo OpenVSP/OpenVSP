@@ -34,6 +34,14 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     string Evaluate();
+
+    void ShowBoth();
+    void ShowOnlyBoth();
+    void ShowPrimary();
+    void ShowOnlyPrimary();
+    void ShowSecondary();
+    void ShowOnlySecondary();
+
     void UpdateDrawObj();
 
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );

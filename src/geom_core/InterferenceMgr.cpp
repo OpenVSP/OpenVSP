@@ -245,6 +245,95 @@ string InterferenceCase::Evaluate()
     return m_LastResult;
 }
 
+void InterferenceCase::ShowBoth()
+{
+    ShowPrimary();
+    ShowSecondary();
+}
+
+void InterferenceCase::ShowOnlyBoth()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->NoShowSet( vsp::SET_ALL );
+
+        ShowBoth();
+    }
+}
+
+void InterferenceCase::ShowPrimary()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_PrimaryType() == vsp::SET_TARGET )
+        {
+            veh->ShowSet( m_PrimarySet() );
+        }
+        else if ( m_PrimaryType() == vsp::GEOM_TARGET )
+        {
+            Geom *g = veh->FindGeom( m_PrimaryGeomID );
+            if ( g )
+            {
+                g->Show();
+            }
+        }
+        else if ( m_PrimaryType() == vsp::MODE_TARGET )
+        {
+            Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
+            if ( m )
+            {
+                m->ApplySettings();
+
+                m->Show();
+            }
+        }
+    }
+}
+
+void InterferenceCase::ShowOnlyPrimary()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->NoShowSet( vsp::SET_ALL );
+
+        ShowPrimary();
+    }
+}
+
+void InterferenceCase::ShowSecondary()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_SecondaryType() == vsp::SET_TARGET )
+        {
+            veh->ShowSet( m_SecondarySet() );
+        }
+        else if ( m_SecondaryType() == vsp::GEOM_TARGET )
+        {
+            Geom *g = veh->FindGeom( m_SecondaryGeomID );
+            if ( g )
+            {
+                g->Show();
+            }
+        }
+    }
+}
+
+void InterferenceCase::ShowOnlySecondary()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->NoShowSet( vsp::SET_ALL );
+
+        ShowSecondary();
+    }
+}
+
 void InterferenceCase::UpdateDrawObj()
 {
     Material mat;

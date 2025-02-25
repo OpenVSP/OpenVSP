@@ -57,6 +57,9 @@ protected:
     TriggerButton m_DelInterferenceCheck;
     TriggerButton m_DelAllInterferenceChecks;
 
+    TriggerButton m_ShowBoth;
+    TriggerButton m_ShowOnlyBoth;
+
     TriggerButton m_EvaluateAllInterferenceChecks;
 
     StringInput m_ICNameInput;
@@ -75,6 +78,8 @@ protected:
     GeomPicker m_PrimaryGeomPicker;
     vector < string > m_GeomIDs;
 
+    TriggerButton m_ShowPrimaryGeom;
+    TriggerButton m_ShowOnlyPrimaryGeom;
 
     ToggleRadioGroup m_SecondaryToggleGroup;
     ToggleButton m_SecondarySetToggle;
@@ -82,6 +87,9 @@ protected:
 
     ToggleButton m_SecondaryGeomToggle;
     GeomPicker m_SecondaryGeomPicker;
+
+    TriggerButton m_ShowSecondaryGeom;
+    TriggerButton m_ShowOnlySecondaryGeom;
 
     TriggerButton m_Evaluate;
 

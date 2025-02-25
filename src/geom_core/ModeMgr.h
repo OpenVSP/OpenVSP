@@ -37,6 +37,7 @@ public:
 
     void ApplySettings();
     void ShowOnly();
+    void Show();
 
     vector < pair < string, string > > GetAllGroupSettings() const;
     void SetSettingVec( const vector < pair < string, string > > &sv );

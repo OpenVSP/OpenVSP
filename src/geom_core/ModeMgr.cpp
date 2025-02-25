@@ -111,6 +111,19 @@ void Mode::ShowOnly()
     }
 }
 
+void Mode::Show()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->SetNormalDisplayType( m_NormalSet() );
+        veh->SetDegenDisplayType( m_DegenSet() );
+
+        veh->ShowSet( m_NormalSet() );
+        veh->ShowSet( m_DegenSet() );
+    }
+}
+
 vector < pair < string, string > > Mode::GetAllGroupSettings() const
 {
     return m_GroupSettingVec;
