@@ -67,7 +67,7 @@ void ScreenMenuItem::ShowScreenCallBack( void* data )
 {
     assert( m_ScreenMgr );
     m_ScreenMgr->ShowScreen( m_ScreenID );
-    if ( m_SecondaryScreenID >= 0 )
+    if ( m_ScreenMgr->IsGUIScreenDisabled( m_ScreenID ) && m_SecondaryScreenID >= 0 )
     {
         m_ScreenMgr->ShowScreen( m_SecondaryScreenID );
     }
