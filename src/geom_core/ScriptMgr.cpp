@@ -1637,6 +1637,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "INTERFERENCE_CHECK_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "EXTERNAL_INTERFERENCE", EXTERNAL_INTERFERENCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "PACKAGING_INTERFERENCE", PACKAGING_INTERFERENCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "EXTERNAL_SELF_INTERFERENCE", EXTERNAL_SELF_INTERFERENCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "NUM_INTERFERENCE_TYPES", NUM_INTERFERENCE_TYPES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "IMPORT_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_STL", IMPORT_STL );
