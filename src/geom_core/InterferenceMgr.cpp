@@ -210,23 +210,28 @@ string InterferenceCase::Evaluate()
             }
         }
 
-        vector< TMesh* > primary_tmv = GetPrimaryTMeshVec();
-        vector< TMesh* > secondary_tmv = GetSecondaryTMeshVec();
+        vector< TMesh* > primary_tmv;
+        vector< TMesh* > secondary_tmv;
 
         switch ( m_IntererenceCheckType() )
         {
             case vsp::EXTERNAL_INTERFERENCE:
             {
+                primary_tmv = GetPrimaryTMeshVec();
+                secondary_tmv = GetSecondaryTMeshVec();
                 m_LastResult = ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
                 break;
             }
             case vsp::PACKAGING_INTERFERENCE:
             {
+                primary_tmv = GetPrimaryTMeshVec();
+                secondary_tmv = GetSecondaryTMeshVec();
                 m_LastResult = PackagingInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
                 break;
             }
         }
 
+        // These are safe for empty vectors.
         DeleteTMeshVec( primary_tmv );
         DeleteTMeshVec( secondary_tmv );
 
