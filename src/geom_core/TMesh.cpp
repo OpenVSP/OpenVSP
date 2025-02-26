@@ -4960,23 +4960,18 @@ void RefreshTagMaps( vector<TMesh*> &tmv )
 //===== Vectors of TMeshs with Bounding Boxes Already Set Up ====//
 bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & other_tmesh_vec )
 {
-    bool intsect_flag = false;
-
     for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
     {
         for ( int j = 0 ; j < (int)other_tmesh_vec.size() ; j++ )
         {
             if ( tmesh_vec[i]->CheckIntersect( other_tmesh_vec[j] ) )
             {
-                intsect_flag = true;
-                break;
+                return true;
             }
         }
-        if ( intsect_flag )
-            break;
     }
 
-    return intsect_flag;
+    return false;
 }
 
 //===== Vectors of TMeshs with Bounding Boxes Already Set Up ====//
