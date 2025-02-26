@@ -4588,6 +4588,19 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
     }
 }
 
+vector<TMesh*> CopyTMeshVec( const vector<TMesh*> &tmv )
+{
+    vector < TMesh* > tmv_out( tmv.size() );
+
+    for ( int i = 0; i < tmv.size(); i++ )
+    {
+        tmv_out[i] = new TMesh();
+        tmv_out[i]->CopyFlatten( tmv[i] );
+    }
+
+    return tmv_out;
+}
+
 void DeleteTMeshVec(  vector<TMesh*> &tmv )
 {
     for ( int i = 0; i < tmv.size(); i++ )

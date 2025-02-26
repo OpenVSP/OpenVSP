@@ -540,6 +540,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
 
 void BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax );
 
+vector<TMesh*> CopyTMeshVec( const vector<TMesh*> &tmv );
 void DeleteTMeshVec(  vector<TMesh*> &tmv );
 TMesh* MergeTMeshVec( vector<TMesh*> &tmv );
 void LoadBndBox( vector< TMesh* > &tmv );
