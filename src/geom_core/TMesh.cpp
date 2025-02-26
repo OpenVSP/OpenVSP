@@ -797,6 +797,32 @@ void TMesh::SetIgnoreInsideAny()
     }
 }
 
+void TMesh::SetIgnoreInsideNotOne()
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            tri->m_IgnoreTriFlag = true;
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                vector < bool > vec = tri->m_SplitVec[s]->m_insideSurf;
+                int c = std::count( vec.begin(), vec.end(), true );
+                tri->m_SplitVec[s]->m_IgnoreTriFlag = ( c != 1 );
+            }
+        }
+        else
+        {
+            vector < bool > vec = tri->m_insideSurf;
+            int c = std::count( vec.begin(), vec.end(), true );
+            tri->m_IgnoreTriFlag = ( c != 1 );
+        }
+    }
+}
+
 void TMesh::SetIgnoreOutsideAll()
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
