@@ -5419,7 +5419,7 @@ void MeshIntersect( vector < TMesh * > &tmv )
     //==== Mark which triangles to ignore ====//
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
     {
-        tmv[i]->SetIgnoreOutsideAll();
+        tmv[i]->SetIgnoreInsideNotOne();
     }
 }
 
