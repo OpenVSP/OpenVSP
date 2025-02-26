@@ -970,6 +970,7 @@ enum INIT_EDIT_XSEC_TYPE { EDIT_XSEC_CIRCLE,	/*!< Circle initialized as cubic Be
 /*! Interference check types.. */
 enum INTERFERENCE_CHECK_TYPE { EXTERNAL_INTERFERENCE,	/*!< Interference between mutually external bodies */
                                PACKAGING_INTERFERENCE,	/*!< Interference when one body is internal to another */
+                               EXTERNAL_SELF_INTERFERENCE,	/*!< Interference between multiple surfaces of one Geom / Set */
                                NUM_INTERFERENCE_TYPES	/*!< Number of interference check types */
 };
 

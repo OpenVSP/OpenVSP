@@ -229,6 +229,12 @@ string InterferenceCase::Evaluate()
                 m_LastResult = PackagingInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
                 break;
             }
+            case vsp::EXTERNAL_SELF_INTERFERENCE:
+            {
+                primary_tmv = GetPrimaryTMeshVec();
+                m_LastResult = ExteriorSelfInterferenceCheck( primary_tmv, m_TMeshVec );
+                break;
+            }
         }
 
         // These are safe for empty vectors.
