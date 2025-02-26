@@ -4995,6 +4995,27 @@ bool CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec )
     return intsect_flag;
 }
 
+bool CheckSelfIntersect( const vector<TMesh*> & tmesh_vec )
+{
+    for ( int i = 0 ; i < ( int )tmesh_vec.size() ; i++ )
+    {
+        tmesh_vec[i]->LoadBndBox();
+    }
+
+    for ( int i = 0 ; i < (int)tmesh_vec.size() - 1 ; i++ )
+    {
+        for ( int j = i + 1 ; j < (int)tmesh_vec.size() ; j++ )
+        {
+            if ( tmesh_vec[i]->CheckIntersect( tmesh_vec[j] ) )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 //==== Returns Large Neg Number If Error and 0.0 If Collision ====//
 double FindMinDistance( const vector< TMesh* > & tmesh_vec, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag )
 {
