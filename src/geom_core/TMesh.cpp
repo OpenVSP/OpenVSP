@@ -5271,6 +5271,74 @@ string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh
     return res->GetID();
 }
 
+string ExteriorSelfInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & result_tmv )
+{
+    bool intersect_flag = false;
+    bool interference_flag = false;
+
+    double min_dist = 1.0e12;
+    double con_dist = 1.0e12;
+    double con_vol = -1; // Not the true volume.
+    double vol = 0;
+
+    vector < vec3d > pts;
+
+    double vref = 1.0e12;
+    for ( int i = 0 ; i < ( int )primary_tmv.size() ; i++ )
+    {
+        vref = min( vref, primary_tmv[i]->ComputeTheoVol() );
+    }
+
+    if ( CheckSelfIntersect( primary_tmv ) )
+    {
+        intersect_flag = true;
+        interference_flag = true;
+
+        result_tmv = CopyTMeshVec( primary_tmv );
+
+        MeshIntersect( result_tmv );
+        FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
+
+        min_dist = 0.0;
+        con_dist = 1.0;
+
+        for ( int i = 0; i < result_tmv.size(); i++ )
+        {
+            vol += result_tmv[i]->ComputeTrimVol();
+        }
+        con_vol = vol / vref;
+    }
+    else
+    {
+        pts.resize( 2 );
+        for ( int i = 0 ; i < (int)primary_tmv.size() - 1 ; i++ )
+        {
+            for ( int j = i + 1 ; j < (int)primary_tmv.size() ; j++ )
+            {
+                min_dist = primary_tmv[i]->MinDistance( primary_tmv[j], min_dist, pts[0], pts[1] );
+            }
+        }
+        con_dist = min_dist;
+    }
+
+    double gcon = con_dist * con_vol;
+
+    Results *res = ResultsMgr.CreateResults( "External_Self_Interference", "External self interference check." );
+    if( res )
+    {
+        // Populate results.
+        res->Add( new NameValData( "Interference", interference_flag, "Flag indicating the primary and secondary interfere." ) );
+        res->Add( new NameValData( "Intersection", intersect_flag, "Flag indicating the primary and secondary intersect." ) );
+        res->Add( new NameValData( "Min_Dist", min_dist, "Minimum distance between primary and secondary." ) );
+        res->Add( new NameValData( "Pts", pts, "Minimum distance line end points." ) );
+        res->Add( new NameValData( "InterferenceVol", vol, "Volume of interference." ) );
+        res->Add( new NameValData( "Con_Val", gcon, "Constraint value" ) );
+        res->Add( new NameValData( "Result", gcon, "Interference result" ) );
+    }
+
+    return res->GetID();
+}
+
 bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB )
 {
     // Always delete Stiffener tris
