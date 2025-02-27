@@ -608,7 +608,7 @@ int TMesh::RemoveDegenerate()
 
 }
 
-void TMesh::CheckIfClosed()
+void TMesh::BuildEdges()
 {
     int n, s, t;
 
@@ -643,6 +643,13 @@ void TMesh::CheckIfClosed()
             }
         }
     }
+}
+
+void TMesh::CheckIfClosed()
+{
+    int t;
+
+    BuildEdges();
 
     //==== Check If All Tris Have 3 Edges ====//
     m_NonClosedTriVec.clear();
@@ -3850,37 +3857,9 @@ void TMesh::SwapEdges( double ang )
 
 void TMesh::CheckValid( FILE* fid )
 {
-    int n, s, t;
+    int t;
 
-    //==== Clear Refs to Tris ====//
-    for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
-    {
-        m_NVec[n]->m_TriVec.clear();
-    }
-
-    //==== Check If All Tris Have 3 Edges ====//
-    for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
-    {
-        m_TVec[t]->m_N0->m_TriVec.push_back( m_TVec[t] );
-        m_TVec[t]->m_N1->m_TriVec.push_back( m_TVec[t] );
-        m_TVec[t]->m_N2->m_TriVec.push_back( m_TVec[t] );
-        m_TVec[t]->m_E0 = 0;
-        m_TVec[t]->m_E1 = 0;
-        m_TVec[t]->m_E2 = 0;
-    }
-
-    //==== Create Edges For Adjacent Tris ====//
-    for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
-    {
-        TNode* n0 = m_NVec[n];
-        for ( t = 0 ; t < ( int )n0->m_TriVec.size() ; t++ )
-        {
-            for ( s = t + 1 ; s < ( int )n0->m_TriVec.size() ; s++ )
-            {
-                FindEdge( n0, n0->m_TriVec[t], n0->m_TriVec[s] );
-            }
-        }
-    }
+    BuildEdges();
 
     //==== Check If All Tris Have 3 Edges ====//
     vector< TTri* > ivTriVec;

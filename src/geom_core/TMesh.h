@@ -444,6 +444,7 @@ public:
 
     virtual void MergeNonClosed( TMesh* tm );
     virtual void MergeTMeshes( TMesh* tm );
+    virtual void BuildEdges();
     virtual void CheckIfClosed();
     virtual void BuildMergeMaps();
     virtual void BuildNodeMaps();
