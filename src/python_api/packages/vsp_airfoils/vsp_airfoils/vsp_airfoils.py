@@ -511,7 +511,7 @@ class VspSeligExport(airfoil):
         VSP Selig airfoil class
         :param file: VSP selig airfoil file
         '''
-        super().__init__(file, type=AirfoilType.selig, delimiter=",")
+        super().__init__(file, type=AirfoilType.selig, delimiter=" ")
 
         self.geom_name = None
         self.geom_id = None
