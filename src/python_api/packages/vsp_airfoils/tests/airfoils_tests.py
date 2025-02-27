@@ -20,7 +20,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import unittest
-from airfoils import airfoil, kulfanAirfoil, Naca16, Naca4
+from vsp_airfoils import airfoil, kulfanAirfoil, Naca16, Naca4
 import os
 
 

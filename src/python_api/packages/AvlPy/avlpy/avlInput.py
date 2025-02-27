@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 
 
-import airfoils
+import vsp_airfoils
 import os
 from subprocess import Popen, PIPE, STDOUT
 import re
@@ -350,7 +350,7 @@ class AvlSection:
         string_list.append('\n')
 
         if self.afile is not None:
-            if isinstance(self.afile, airfoils.Naca4):
+            if isinstance(self.afile, vsp_airfoils.Naca4):
                 string_list.append('NACA\t %f %f\n' % (self.afile_x1, self.afile_x2))
                 string_list.append('%s\n' % self.afile.to_naca_string())
                 string_list.append('#\n')

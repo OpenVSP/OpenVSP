@@ -36,5 +36,5 @@ setup(
     author='',
     author_email='',
     description='AVL with python wrapper',
-    install_requires=['airfoils', 'numpy', 'scipy', 'utilities', 'fortranformat'],
+    install_requires=['vsp_airfoils', 'numpy', 'scipy', 'utilities', 'fortranformat'],
 )

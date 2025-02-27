@@ -334,7 +334,7 @@ def set_3d_axis_equal(ax):
 
 def export_airfoils(set=vsp_module.SET_ALL, vsp_instance=None, **kwargs):
     vsp = vsp_module.get_instance(vsp_instance)
-    import airfoils
+    import vsp_airfoils
     af_dict = dict()
     with RunManager(**kwargs) as r:
         output_file = r.cwd + "/airfoils.csv"
@@ -351,7 +351,7 @@ def export_airfoils(set=vsp_module.SET_ALL, vsp_instance=None, **kwargs):
         while i < len(lines):
             if "Airfoil File Name" in lines[i]:
                 file = rootDir + lines[i].split(",")[1].strip()
-                af = airfoils.VspSeligExport(file)
+                af = vsp_airfoils.VspSeligExport(file)
 
                 i = i+1
 
