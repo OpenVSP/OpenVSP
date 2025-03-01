@@ -15,6 +15,7 @@
 
 #include "Vehicle.h"
 #include "MainThreadIDMgr.h"
+#include "predicates.h"
 
 bool VehicleMgrSingleton::m_firsttime = true;
 
@@ -23,6 +24,9 @@ VehicleMgrSingleton::VehicleMgrSingleton()
 {
     // Set up MainThreadID if this is entry point.
     MainThreadIDMgr.getInstance();
+
+    // Initialize robust geometric predicates.
+    exactinit();
 
     m_Vehicle = new Vehicle();
 }

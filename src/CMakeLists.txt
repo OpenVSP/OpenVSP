@@ -93,6 +93,7 @@ ENDIF()
 SET( VSP_COMMON_LIBRARIES
     cfd_mesh
     xmlvsp
+    robust
     sixseries
     util
     tritri
