@@ -3605,6 +3605,11 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
 
 double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicevec, bool mpslice, bool tesselate, bool autoBounds, double start, double end, int slctype )
 {
+    return ::MakeSlices( m_SliceVec, m_BBox, numSlices, swdir, slicevec, mpslice, tesselate, autoBounds, start, end, slctype );
+}
+
+double MeshGeom::MakeSlices( vector<TMesh*> &tmv, const BndBox & bbox, int numSlices, int swdir, vector < double > &slicevec, bool mpslice, bool tesselate, bool autoBounds, double start, double end, int slctype )
+{
     int s, i, j;
     double offset = 0.0001; // Amount to extend slicing bounds.
 
@@ -3629,8 +3634,8 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
     double swMax;
     if ( autoBounds )
     {
-        swMin = m_BBox.GetMin( swdir ) - offset;
-        swMax = m_BBox.GetMax( swdir ) + offset;
+        swMin = bbox.GetMin( swdir ) - offset;
+        swMax = bbox.GetMax( swdir ) + offset;
     }
     else
     {
@@ -3641,8 +3646,8 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
     // MassProp slice always uses autobounds.  Does not need offset because slices are later shifted by width/2.
     if ( mpslice )
     {
-        swMin = m_BBox.GetMin( swdir );
-        swMax = m_BBox.GetMax( swdir );
+        swMin = bbox.GetMin( swdir );
+        swMax = bbox.GetMax( swdir );
     }
 
     double sliceW;
@@ -3663,10 +3668,10 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
     }
     slicevec.resize( numSlices );
 
-    double del1 = 1.02 * ( m_BBox.GetMax( dir1 ) - m_BBox.GetMin( dir1 ) );
-    double s1   = m_BBox.GetMin( dir1 ) - 0.01 * del1;
-    double del2 = 1.02 * ( m_BBox.GetMax( dir2 ) - m_BBox.GetMin( dir2 ) );
-    double s2   = m_BBox.GetMin( dir2 ) - 0.01 * del2;
+    double del1 = 1.02 * ( bbox.GetMax( dir1 ) - bbox.GetMin( dir1 ) );
+    double s1   = bbox.GetMin( dir1 ) - 0.01 * del1;
+    double del2 = 1.02 * ( bbox.GetMax( dir2 ) - bbox.GetMin( dir2 ) );
+    double s2   = bbox.GetMin( dir2 ) - 0.01 * del2;
 
     vec3d n;
     n[ swdir ] = 1;
@@ -3678,7 +3683,7 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
         tm->m_ThickSurf = false;
         tm->m_SurfCfdType = slctype;
 
-        m_SliceVec.push_back( tm );
+        tmv.push_back( tm );
 
         double sw;
         if ( mpslice )
