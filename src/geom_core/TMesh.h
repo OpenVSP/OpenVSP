@@ -31,6 +31,8 @@
 #include <list>
 using namespace std;            //jrg windows??
 
+#include "APIDefines.h"
+
 //#ifndef DEBUG_TMESH
 //#define DEBUG_TMESH
 //#endif
@@ -576,6 +578,6 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
 bool DeterIntExtTri( TTri* tri, TMesh* mesh );
 
 void WriteStl( const string &file_name, const vector< TMesh* >& meshVec );
-
+double MakeSlices( vector<TMesh*> &tmv, const BndBox & bbox, int numSlices, int swdir, vector < double > &slicevec, bool mpslice = true, bool tesselate = true, bool autoBounds = true, double start = 0, double end = 0, int slctype = vsp::CFD_STRUCTURE );
 
 #endif

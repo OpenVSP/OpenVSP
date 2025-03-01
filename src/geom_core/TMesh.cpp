@@ -5585,3 +5585,153 @@ void WriteStl( const string &file_name, const vector< TMesh* >& meshVec )
         fclose( fid );
     }
 }
+
+double MakeSlices( vector<TMesh*> &tmv, const BndBox & bbox, int numSlices, int swdir, vector < double > &slicevec, bool mpslice, bool tesselate, bool autoBounds, double start, double end, int slctype )
+{
+    int s, i, j;
+    double offset = 0.0001; // Amount to extend slicing bounds.
+
+    int dir1, dir2;
+    if ( swdir == vsp::X_DIR )
+    {
+        dir1 = vsp::Y_DIR;
+        dir2 = vsp::Z_DIR;
+    }
+    else if ( swdir == vsp::Y_DIR )
+    {
+        dir1 = vsp::Z_DIR;
+        dir2 = vsp::X_DIR;
+    }
+    else
+    {
+        dir1 = vsp::X_DIR;
+        dir2 = vsp::Y_DIR;
+    }
+
+    double swMin;
+    double swMax;
+    if ( autoBounds )
+    {
+        swMin = bbox.GetMin( swdir ) - offset;
+        swMax = bbox.GetMax( swdir ) + offset;
+    }
+    else
+    {
+        swMin = start - offset;
+        swMax = end + offset;
+    }
+
+    // MassProp slice always uses autobounds.  Does not need offset because slices are later shifted by width/2.
+    if ( mpslice )
+    {
+        swMin = bbox.GetMin( swdir );
+        swMax = bbox.GetMax( swdir );
+    }
+
+    double sliceW;
+    if ( mpslice )
+    {
+        sliceW = ( swMax - swMin ) / ( double )( numSlices );
+    }
+    else
+    {
+        if ( numSlices > 1 )
+        {
+            sliceW = ( swMax - swMin ) / ( double )( numSlices - 1 );
+        }
+        else
+        {
+            sliceW = 0.0;
+        }
+    }
+    slicevec.resize( numSlices );
+
+    double del1 = 1.02 * ( bbox.GetMax( dir1 ) - bbox.GetMin( dir1 ) );
+    double s1   = bbox.GetMin( dir1 ) - 0.01 * del1;
+    double del2 = 1.02 * ( bbox.GetMax( dir2 ) - bbox.GetMin( dir2 ) );
+    double s2   = bbox.GetMin( dir2 ) - 0.01 * del2;
+
+    vec3d n;
+    n[ swdir ] = 1;
+
+    for ( s = 0 ; s < numSlices ; s++ )
+    {
+        TMesh* tm = new TMesh();
+
+        tm->m_ThickSurf = false;
+        tm->m_SurfCfdType = slctype;
+
+        tmv.push_back( tm );
+
+        double sw;
+        if ( mpslice )
+        {
+            sw = swMin + ( double )s * sliceW + 0.5 * sliceW;
+        }
+        else
+        {
+            sw = swMin + ( double )s * sliceW;
+        }
+        slicevec[s] = sw;
+
+        if ( tesselate )
+        {
+            int ntess = numSlices;
+            double ds = 1.0 / (double) ntess;
+            for ( i = 0 ; i < ntess ; i++ )
+            {
+                double d10 = s1 + del1 * ds * ( double )i;
+                double d11 = s1 + del1 * ds * ( double )( i + 1 );
+
+                for ( j = 0 ; j < ntess ; j++ )
+                {
+                    double d20 = s2 + del2 * ds * ( double )j;
+                    double d21 = s2 + del2 * ds * ( double )( j + 1 );
+
+                    vec3d p1, p2, p3, p4;
+                    p1[swdir] = sw;
+                    p1[dir1] = d10;
+                    p1[dir2] = d20;
+
+                    p2[swdir] = sw;
+                    p2[dir1] = d11;
+                    p2[dir2] = d20;
+
+                    p3[swdir] = sw;
+                    p3[dir1] = d11;
+                    p3[dir2] = d21;
+
+                    p4[swdir] = sw;
+                    p4[dir1] = d10;
+                    p4[dir2] = d21;
+
+                    tm->AddTri( p1, p2, p3, n );
+                    tm->AddTri( p1, p3, p4, n );
+                }
+            }
+        }
+        else
+        {
+            vec3d p1, p2, p3, p4;
+            p1[swdir] = sw;
+            p1[dir1] = s1;
+            p1[dir2] = s2;
+
+            p2[swdir] = sw;
+            p2[dir1] = s1 + del1;
+            p2[dir2] = s2;
+
+            p3[swdir] = sw;
+            p3[dir1] = s1 + del1;
+            p3[dir2] = s2 + del2;
+
+            p4[swdir] = sw;
+            p4[dir1] = s1;
+            p4[dir2] = s2 + del2;
+
+            tm->AddTri( p1, p2, p3, n );
+            tm->AddTri( p1, p3, p4, n );
+        }
+    }
+    return sliceW;
+}
