@@ -235,6 +235,14 @@ string InterferenceCase::Evaluate()
                 m_LastResult = ExteriorSelfInterferenceCheck( primary_tmv, m_TMeshVec );
                 break;
             }
+            case vsp::PLANE_STATIC_DISTANCE_INTERFERENCE:
+            {
+                vec3d org, norm;
+                norm.set_z( 1.0 );
+                primary_tmv = GetPrimaryTMeshVec();
+                m_LastResult = PlaneInterferenceCheck( primary_tmv, org, norm, m_TMeshVec );
+                break;
+            }
         }
 
         // These are safe for empty vectors.
