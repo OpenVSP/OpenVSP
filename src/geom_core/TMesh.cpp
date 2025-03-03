@@ -23,6 +23,7 @@
 #include "TMesh.h"
 
 #include "tri_tri_intersect.h"
+#include "predicates.h"
 
 #include "Geom.h"
 #include "SubSurfaceMgr.h"
@@ -930,6 +931,36 @@ void TMesh::IgnoreYLessThan( const double & ytol )
         {
             vec3d cen = tri->ComputeCenter();
             if ( cen.y() < ytol )
+            {
+                tri->m_IgnoreTriFlag = true;
+            }
+        }
+    }
+}
+
+void TMesh::SetIgnoreAbovePlane( const vector <vec3d> & threepts )
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                vec3d cen = tri->m_SplitVec[s]->ComputeCenter();
+
+                if ( orient3d( (double*) threepts[0].v, (double*) threepts[1].v, (double*) threepts[2].v, (double*) cen.v ) < 0 )
+                {
+                    tri->m_SplitVec[s]->m_IgnoreTriFlag = true;
+                }
+            }
+        }
+        else
+        {
+            vec3d cen = tri->ComputeCenter();
+            if ( orient3d( (double*) threepts[0].v, (double*) threepts[1].v, (double*) threepts[2].v, (double*) cen.v ) < 0 )
             {
                 tri->m_IgnoreTriFlag = true;
             }
@@ -5659,6 +5690,15 @@ void MeshSubtract( vector < TMesh* > & tmv )
         tmv[i]->FlipNormals();
     }
 }
+
+void MeshCutAbovePlane( vector < TMesh* > & tmv, const vector <vec3d> & threepts )
+{
+    IntersectSplitClassify( tmv );
+
+    tmv[0]->SetIgnoreOutsideAll();
+    tmv[1]->SetIgnoreAbovePlane( threepts );
+}
+
 
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
 {

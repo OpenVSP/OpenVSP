@@ -416,6 +416,7 @@ public:
     void SetKeepMatchMask( const vector < bool > & mask );
 
     void IgnoreYLessThan( const double & ytol );
+    void SetIgnoreAbovePlane( const vector <vec3d> & threepts );
     void IgnoreAll();
 
     void DeterIntExt( const vector< TMesh* >& meshVec );
@@ -581,6 +582,7 @@ void CSGMesh( vector < TMesh* > & tmv );
 void MeshUnion( vector < TMesh* > & tmv );
 void MeshIntersect( vector < TMesh* > & tmv );
 void MeshSubtract( vector < TMesh* > & tmv );
+void MeshCutAbovePlane( vector < TMesh* > & tmv, const vector <vec3d> & threepts );
 
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
 bool DeterIntExtTri( TTri* tri, TMesh* mesh );
