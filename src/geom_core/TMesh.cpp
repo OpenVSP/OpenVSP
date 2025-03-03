@@ -1165,6 +1165,56 @@ void TMesh::FlipNormals()
     }
 }
 
+void TMesh::Transform( const Matrix4d & TransMat )
+{
+    // Build Map of nodes
+    map< TNode*, int > nodeMap;
+    for ( int j = 0 ; j < ( int )m_NVec.size() ; j++ )
+    {
+        TNode* n = m_NVec[j];
+        nodeMap[n] = 1;
+    }
+    //==== Split Tris ====//
+    for ( int j = 0 ; j < ( int )m_TVec.size() ; j++ )
+    {
+        TTri* t = m_TVec[j];
+        for ( int k = 0 ; k < ( int )t->m_NVec.size() ; k++ )
+        {
+            TNode* n = t->m_NVec[k];
+            nodeMap[n] = 1;
+        }
+    }
+
+    // Apply Transformation to Nodes
+    map<TNode*, int >::const_iterator iter;
+    for ( iter = nodeMap.begin() ; iter != nodeMap.end() ; ++iter )
+    {
+        TNode* n = iter->first;
+        n->m_Pnt = TransMat.xform( n->m_Pnt );
+    }
+
+    // Apply Transformation to each triangle's normal vector
+    for ( int j = 0 ; j < ( int )m_TVec.size() ; j++ )
+    {
+        if ( m_TVec[j]->m_SplitVec.size() )
+        {
+            for ( int t = 0 ; t < ( int ) m_TVec[j]->m_SplitVec.size() ; t++ )
+            {
+                TTri* tri = m_TVec[j]->m_SplitVec[t];
+                tri->m_Norm = TransMat.xformnorm( tri->m_Norm );
+            }
+        }
+        else
+        {
+            TTri* tri = m_TVec[j];
+            tri->m_Norm = TransMat.xformnorm( tri->m_Norm );
+        }
+    }
+
+    // Apply Transformation to Mesh's area center
+    m_AreaCenter = TransMat.xform( m_AreaCenter );
+}
+
 // Wrapper
 void TMesh::AddTri( const vec3d & p0, const vec3d & p1, const vec3d & p2 )
 {

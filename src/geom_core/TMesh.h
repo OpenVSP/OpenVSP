@@ -425,6 +425,7 @@ public:
     virtual double ComputeTrimVol();
 
     virtual void FlipNormals();
+    virtual void Transform( const Matrix4d & TransMat );
 
     virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2 );
     virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm );
@@ -552,6 +553,7 @@ void ApplyScale( double scalefac, vector<TMesh*> &tmv );
 void MergeRemoveOpenMeshes( vector<TMesh*> &tmv, MeshInfo* info, bool deleteopen = true );
 void DeleteMarkedMeshes( vector<TMesh*> &tmv );
 void FlattenTMeshVec( vector<TMesh*> &tmv );
+void TransformMesh( TMesh* mesh, const Matrix4d & TransMat );
 void TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & TransMat );
 vector< string > GetTMeshNames( vector<TMesh*> &tmv );
 vector< string > GetTMeshIDs( vector<TMesh*> &tmv );
