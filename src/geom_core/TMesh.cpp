@@ -5730,6 +5730,103 @@ void WriteStl( const string &file_name, const vector< TMesh* >& meshVec )
     }
 }
 
+TMesh* MakeSlice( const int &swdir, const double & len )
+{
+    bool tesselate = true;
+    int ntess = 10;
+
+    int dir1, dir2;
+    if ( swdir == vsp::X_DIR )
+    {
+        dir1 = vsp::Y_DIR;
+        dir2 = vsp::Z_DIR;
+    }
+    else if ( swdir == vsp::Y_DIR )
+    {
+        dir1 = vsp::Z_DIR;
+        dir2 = vsp::X_DIR;
+    }
+    else
+    {
+        dir1 = vsp::X_DIR;
+        dir2 = vsp::Y_DIR;
+    }
+
+    double del1 = len;
+    double s1   = -0.5 * len;
+    double del2 = len;
+    double s2   = -0.5 * len;
+
+    vec3d n;
+    n[ swdir ] = 1;
+
+    TMesh* tm = new TMesh();
+
+    tm->m_ThickSurf = false;
+    tm->m_SurfCfdType = vsp::CFD_STRUCTURE;
+
+    if ( tesselate )
+    {
+
+        double ds = 1.0 / (double) ntess;
+        for ( int i = 0; i < ntess; i++ )
+        {
+            double d10 = s1 + del1 * ds * ( double )i;
+            double d11 = s1 + del1 * ds * ( double )( i + 1 );
+
+            for ( int j = 0; j < ntess; j++ )
+            {
+                double d20 = s2 + del2 * ds * ( double )j;
+                double d21 = s2 + del2 * ds * ( double )( j + 1 );
+
+                vec3d p1, p2, p3, p4;
+                p1[swdir] = 0;
+                p1[dir1] = d10;
+                p1[dir2] = d20;
+
+                p2[swdir] = 0;
+                p2[dir1] = d11;
+                p2[dir2] = d20;
+
+                p3[swdir] = 0;
+                p3[dir1] = d11;
+                p3[dir2] = d21;
+
+                p4[swdir] = 0;
+                p4[dir1] = d10;
+                p4[dir2] = d21;
+
+                tm->AddTri( p1, p2, p3, n );
+                tm->AddTri( p1, p3, p4, n );
+            }
+        }
+    }
+    else
+    {
+        vec3d p1, p2, p3, p4;
+        p1[swdir] = 0;
+        p1[dir1] = s1;
+        p1[dir2] = s2;
+
+        p2[swdir] = 0;
+        p2[dir1] = s1 + del1;
+        p2[dir2] = s2;
+
+        p3[swdir] = 0;
+        p3[dir1] = s1 + del1;
+        p3[dir2] = s2 + del2;
+
+        p4[swdir] = 0;
+        p4[dir1] = s1;
+        p4[dir2] = s2 + del2;
+
+        tm->AddTri( p1, p2, p3, n );
+        tm->AddTri( p1, p3, p4, n );
+    }
+
+    return tm;
+}
+
 double MakeSlices( vector<TMesh*> &tmv, const BndBox & bbox, int numSlices, int swdir, vector < double > &slicevec, bool mpslice, bool tesselate, bool autoBounds, double start, double end, int slctype )
 {
     int s, i, j;
