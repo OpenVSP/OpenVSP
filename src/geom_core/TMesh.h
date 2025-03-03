@@ -586,6 +586,7 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
 bool DeterIntExtTri( TTri* tri, TMesh* mesh );
 
 void WriteStl( const string &file_name, const vector< TMesh* >& meshVec );
+TMesh* MakeSlice( const vec3d & org, const vec3d & norm, const double & len );
 TMesh* MakeSlice( const int &swdir, const double & len );
 double MakeSlices( vector<TMesh*> &tmv, const BndBox & bbox, int numSlices, int swdir, vector < double > &slicevec, bool mpslice = true, bool tesselate = true, bool autoBounds = true, double start = 0, double end = 0, int slctype = vsp::CFD_STRUCTURE );
 

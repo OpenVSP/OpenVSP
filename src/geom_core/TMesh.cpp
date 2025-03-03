@@ -5730,6 +5730,22 @@ void WriteStl( const string &file_name, const vector< TMesh* >& meshVec )
     }
 }
 
+TMesh* MakeSlice( const vec3d & org, const vec3d & norm, const double & len )
+{
+    TMesh* tm = MakeSlice( vsp::X_DIR, len );
+
+    Matrix4d rot, trans;
+    rot.rotatealongX( norm );
+    rot.affineInverse();
+
+    trans.translatev( org );
+    rot.postMult( trans );
+
+    tm->Transform( rot );
+
+    return tm;
+}
+
 TMesh* MakeSlice( const int &swdir, const double & len )
 {
     bool tesselate = true;
