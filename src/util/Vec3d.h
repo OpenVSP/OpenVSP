@@ -1090,6 +1090,7 @@ public:
     friend double cos_angle( const vec3d& a, const vec3d& b );
     friend double radius_of_circle( const vec3d& p1, const vec3d& p2, const vec3d& p3 );
     friend void center_of_circle( const vec3d& p1, const vec3d& p2, const vec3d& p3, vec3d& center );
+    friend double signed_dist_pnt_2_plane( const vec3d& org, const vec3d& norm, const vec3d& pnt );
     friend double dist_pnt_2_plane( const vec3d& org, const vec3d& norm, const vec3d& pnt );
     friend double dist_pnt_2_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );
 //   friend double dist_pnt_2_line_seg( vec3d& line_pt1,  vec3d& line_pt2,  vec3d& pnt);

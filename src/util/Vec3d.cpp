@@ -606,15 +606,16 @@ void center_of_circle( const vec3d& p1, const vec3d& p2, const vec3d& p3, vec3d&
     }
 }
 
+double signed_dist_pnt_2_plane( const vec3d& org, const vec3d& norm, const vec3d& pnt )
+{
+    //===== NORM SHOULD BE NORMALIZED ====//
+    return dot( ( pnt - org ), norm );
+}
 
 //******* Dist Between Point And Plane ******//
 double dist_pnt_2_plane( const vec3d& org, const vec3d& norm, const vec3d& pnt )
 {
-    //===== NORM SHOULD BE NORMALIZED ====//
-    double d = dot( ( pnt - org ), norm );
-
-    return( std::abs( d ) );
-
+    return std::abs( signed_dist_pnt_2_plane( org, norm, pnt ) );
 }
 
 //******* Dist Between Point And Line ******//
