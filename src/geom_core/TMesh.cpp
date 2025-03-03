@@ -5730,6 +5730,25 @@ void WriteStl( const string &file_name, const vector< TMesh* >& meshVec )
     }
 }
 
+void MakeThreePts( const vec3d & org, const vec3d & norm, vector <vec3d> &threepts )
+{
+    threepts.clear();
+    threepts.reserve( 3 );
+
+    threepts.emplace_back( 0, 1.0, 1.0 );
+    threepts.emplace_back( 0, -1.0, 1.0 );
+    threepts.emplace_back( 0, -1.0, -1.0 );
+
+    Matrix4d rot, trans;
+    rot.rotatealongX( norm );
+    rot.affineInverse();
+
+    trans.translatev( org );
+    rot.postMult( trans );
+
+    rot.xformvec( threepts );
+}
+
 TMesh* MakeSlice( const vec3d & org, const vec3d & norm, const double & len )
 {
     TMesh* tm = MakeSlice( vsp::X_DIR, len );
