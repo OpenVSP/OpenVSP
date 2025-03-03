@@ -5247,8 +5247,6 @@ string PlaneInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org
 
     double vref = vol_primary;
 
-    double len = 20;
-
     vector < vec3d > threepts;
     MakeThreePts( org, norm, threepts );
 
@@ -5256,6 +5254,11 @@ string PlaneInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org
     {
         intersect_flag = true;
         interference_flag = true;
+
+        // Add origin to primary mesh bounding box.
+        BndBox bb = primary_tm->m_TBox.m_Box;
+        bb.Update( org );
+        double len = bb.DiagDist() * 2.1;
 
         TMesh * slice = MakeSlice( org, norm, len );
 
