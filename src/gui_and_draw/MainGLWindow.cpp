@@ -2825,13 +2825,10 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
                 glm::vec3 placement = entity->getVertexVec(pnt->getIndex());
 
                 m_GEngine->getDisplay()->setCOR( -placement.x, -placement.y, -placement.z );
-
-                ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-                ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
+                m_GEngine->getDisplay()->center();
 
                 UpdateCORParms();
-
-                m_GEngine->getDisplay()->center();
+                UpdatePanParms();
 
                 // This is a dummy call to let corScreen know the job is done.
                 corScreen->Set();
