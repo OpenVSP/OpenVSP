@@ -64,6 +64,9 @@ public:
     bool CheckPnt( const vec3d & pnt ) const;
     friend bool Compare( const BndBox& bb1, const BndBox& bb2, double tol );
 
+    bool IntersectPlane( const vec3d &org, const vec3d &norm );
+    void MinMaxDistPlane( const vec3d &org, const vec3d &norm, double &mind, double &maxd );
+
     std::vector< vec3d > GetBBoxDrawLines() const;
 
     void FlipNormal() {};

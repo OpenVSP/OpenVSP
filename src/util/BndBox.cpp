@@ -365,6 +365,60 @@ bool Compare( const BndBox& bb1, const BndBox& bb2, double tol )
     return true;
 }
 
+bool BndBox::IntersectPlane( const vec3d &org, const vec3d &norm )
+{
+    vec3d dMin, dMax;
+    //  Find points at end of diagonal
+    //  nearest plane normal
+    for ( int idir = 0; idir < 3; idir++ )
+    {
+        if ( norm[idir] >= 0 )
+        {
+            dMin[idir] = m_Min[idir];
+            dMax[idir] = m_Max[idir];
+        }
+        else
+        {
+            dMin[idir] = m_Max[idir];
+            dMax[idir] = m_Min[idir];
+        }
+    }
+
+    //  Check if minimal point on diagonal
+    //  is on positive side of plane
+    if ( dot( ( dMin - org ), norm ) >= 0 )
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+// Naive brute foce implementation.  Can likely be optimized substantially.
+void BndBox::MinMaxDistPlane( const vec3d &org, const vec3d &norm, double &mind, double &maxd )
+{
+    vec3d p0 = GetCornerPnt( 0 );
+
+    mind = dist_pnt_2_plane( org, norm, p0 );
+    maxd = mind;
+
+    for ( int i = 1; i < 8; i++ )
+    {
+        double d = dist_pnt_2_plane( org, norm, GetCornerPnt( i ) );
+
+        if ( d < mind )
+        {
+            mind = d;
+        }
+        if ( d > maxd )
+        {
+            maxd = d;
+        }
+    }
+}
+
 //==== Assemble Boundbox Draw Lines ====//
 std::vector< vec3d > BndBox::GetBBoxDrawLines() const
 {
