@@ -606,6 +606,61 @@ void center_of_circle( const vec3d& p1, const vec3d& p2, const vec3d& p3, vec3d&
     }
 }
 
+bool triangle_plane_intersect_test( const vec3d& org, const vec3d& norm, const vec3d& p1, const vec3d& p2, const vec3d& p3 )
+{
+    double d1 = signed_dist_pnt_2_plane( org, norm, p1 );
+    double d2 = signed_dist_pnt_2_plane( org, norm, p2 );
+    double d3 = signed_dist_pnt_2_plane( org, norm, p3 );
+
+    // On Plane
+    if ( d1 == 0 && d2 == 0 && d3 == 0 )
+    {
+        return true;
+    }
+
+    // Triangle in front of plane
+    if ( d1 > 0 && d2 > 0 && d3 > 0)
+    {
+        return false;
+    }
+
+    // Triangle behind plane
+    if ( d1 < 0 && d2 < 0 && d3 < 0)
+    {
+        return false;
+    }
+
+    return true; // Intersection
+}
+
+double triangle_plane_minimum_dist( const vec3d& org, const vec3d& norm, const vec3d& p1, const vec3d& p2, const vec3d& p3 )
+{
+    double d1 = signed_dist_pnt_2_plane( org, norm, p1 );
+    double d2 = signed_dist_pnt_2_plane( org, norm, p2 );
+    double d3 = signed_dist_pnt_2_plane( org, norm, p3 );
+
+    // On Plane
+    if ( d1 == 0 && d2 == 0 && d3 == 0 )
+    {
+        return 0;
+    }
+
+    // Triangle in front of plane, minimize
+    if ( d1 > 0 && d2 > 0 && d3 > 0)
+    {
+        return min( min( d1, d2 ), d3 );
+    }
+
+    // Triangle behind plane, maximize and flip sign
+    if ( d1 < 0 && d2 < 0 && d3 < 0)
+    {
+        return -max( max( d1, d2 ), d3 );
+    }
+
+    // Triangle intersects plane, min distance is zero.
+    return 0;
+}
+
 double signed_dist_pnt_2_plane( const vec3d& org, const vec3d& norm, const vec3d& pnt )
 {
     //===== NORM SHOULD BE NORMALIZED ====//
