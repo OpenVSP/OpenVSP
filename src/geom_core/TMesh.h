@@ -374,6 +374,9 @@ public:
     virtual bool CheckIntersect( TBndBox* iBox );
     virtual double MinDistance( TBndBox* iBox, double curr_min_dist, vec3d &p1, vec3d &p2 );
 
+    virtual bool CheckIntersect( const vec3d &org, const vec3d &norm );
+    virtual double MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist );
+
     BndBox m_Box;
     vector< TTri* > m_TriVec;
 
@@ -401,6 +404,8 @@ public:
     void Intersect( TMesh* tm, bool UWFlag = false );
     bool CheckIntersect( TMesh* tm );
     double MinDistance( TMesh* tm, double curr_min_dist, vec3d &p1, vec3d &p2 );
+    bool CheckIntersect( const vec3d &org, const vec3d &norm );
+    double MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist );
     void Split();
 
     void SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf );
@@ -564,6 +569,7 @@ void RefreshTagMaps( vector<TMesh*> &tmv );
 double FindMinDistance(const vector< TMesh* > & tmesh_vec, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag );
 double FindMaxMinDistance( const vector< TMesh* > & mesh_1, const vector< TMesh* > & mesh_2 );
 bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & other_tmesh_vec );
+bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vec3d &org, const vec3d &norm );
 bool CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec );
 bool CheckSelfIntersect( const vector<TMesh*> & tmesh_vec );
 string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv );

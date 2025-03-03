@@ -739,6 +739,16 @@ double TMesh::MinDistance( TMesh* tm, double curr_min_dist, vec3d &p1, vec3d &p2
     return m_TBox.MinDistance( &tm->m_TBox, curr_min_dist, p1, p2  );
 }
 
+bool TMesh::CheckIntersect( const vec3d &org, const vec3d &norm )
+{
+    return m_TBox.CheckIntersect( org, norm );
+}
+
+double TMesh::MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist )
+{
+    return m_TBox.MinDistance( org, norm, curr_min_dist );
+}
+
 void TMesh::Split()
 {
     int t;
@@ -3030,6 +3040,77 @@ double TBndBox::MinDistance( TBndBox* iBox, double curr_min_dist, vec3d &p1, vec
     return curr_min_dist;
 }
 
+bool TBndBox::CheckIntersect( const vec3d &org, const vec3d &norm )
+{
+    if ( !m_Box.IntersectPlane( org, norm ) )
+    {
+        return false;
+    }
+
+    //==== Recursively Check Sub Boxes ====//
+    if ( m_SBoxVec[0] )
+    {
+        for ( int i = 0 ; i < 8 ; i++ )
+        {
+            if ( m_SBoxVec[i]->CheckIntersect( org, norm ) )
+            {
+                return true;
+            }
+        }
+    }
+    else
+    {
+        //==== Check All Tris In Box ====//
+        for ( size_t i = 0 ; i < m_TriVec.size() ; i++ )
+        {
+            const TTri* t0 = m_TriVec[i];
+
+            if ( triangle_plane_intersect_test( org, norm, t0->m_N0->m_Pnt.v, t0->m_N1->m_Pnt.v, t0->m_N2->m_Pnt.v ) )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+double TBndBox::MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist )
+{
+    double mind, maxd;
+    m_Box.MinMaxDistPlane( org, norm, mind, maxd );
+
+    // Nearest point of box (closest possible for all items in box) is farther than already observed distance.
+    if ( mind > curr_min_dist )
+    {
+        return curr_min_dist;
+    }
+
+    //==== Recursively Check Sub Boxes ====//
+    if ( m_SBoxVec[0] )
+    {
+        for ( int i = 0 ; i < 8 ; i++ )
+        {
+            curr_min_dist = m_SBoxVec[i]->MinDistance( org, norm, curr_min_dist );
+        }
+    }
+    //==== Check All Points Against Other Points ====//
+    else
+    {
+        for ( size_t i = 0 ; i < ( int )m_TriVec.size() ; i++ )
+        {
+            TTri* t0 = m_TriVec[i];
+
+            double d = triangle_plane_minimum_dist( org, norm, t0->m_N0->m_Pnt, t0->m_N1->m_Pnt, t0->m_N2->m_Pnt );
+
+            if ( d < curr_min_dist )
+            {
+                curr_min_dist = d;
+            }
+        }
+    }
+
+    return curr_min_dist;
+}
 
 void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
 {
@@ -4997,6 +5078,19 @@ bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & ot
             {
                 return true;
             }
+        }
+    }
+
+    return false;
+}
+
+bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vec3d &org, const vec3d &norm )
+{
+    for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
+    {
+        if ( tmesh_vec[i]->CheckIntersect( org, norm ) )
+        {
+            return true;
         }
     }
 
