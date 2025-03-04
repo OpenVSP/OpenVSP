@@ -1761,9 +1761,14 @@ void Geom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< v
     surf_vec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen );
 }
 
+void Geom::UpdateSplitTesselate( const VspSurf &surf, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
+{
+    surf.SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU() );
+}
+
 void Geom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms) const
 {
-    surf_vec[indx].SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU() );
+    UpdateSplitTesselate( surf_vec[indx], pnts, norms );
 }
 
 void Geom::UpdateEndCaps()
