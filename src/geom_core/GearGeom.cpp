@@ -264,54 +264,7 @@ void Bogie::Update()
 
 void Bogie::AppendMainSurf( vector < VspSurf > &surfvec ) const
 {
-    Matrix4d xform;
-    xform.translatef( m_XContactPt(), m_YContactPt(), m_ZAboveGround() + m_StaticRadius() );
-
-    int nsymm = 1;
-    vector < double > smult = { 1.0 };
-    if ( m_Symmetrical() )
-    {
-        nsymm = 2;
-        smult.push_back( -1.0 );
-    }
-    int na = m_NAcross();
-    int nt = m_NTandem();
-
-    double s = m_Spacing();
-    double p = m_Pitch();
-
-
-    double cenAcross = 0.5 * ( na - 1 ) * s;
-    double cenTandem = 0.5 * ( nt - 1 ) * p;
-
-    for ( int i = 0; i < na; i++ )
-    {
-        Matrix4d col = xform;
-        col.translatef( 0, i * s - cenAcross, 0 );
-
-        for ( int j = 0; j < nt; j++ )
-        {
-            Matrix4d row = col;
-            row.translatef( j * p - cenTandem, 0, 0 );
-
-            for ( int isymm = 0; isymm < nsymm; isymm++ )
-            {
-                if ( isymm > 0 )
-                {
-                    row.mirrory();
-                }
-
-                surfvec.push_back( m_TireSurface );
-                surfvec.back().Transform( row );
-
-                if ( isymm > 0 )
-                {
-                    surfvec.back().FlipNormal();
-                }
-            }
-        }
-    }
-
+    TireToBogie( m_TireSurface, surfvec );
 }
 
 
