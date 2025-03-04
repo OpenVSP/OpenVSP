@@ -445,6 +445,8 @@ std::vector < Bogie * > GearGeom::GetBogieVec()
 
 xmlNodePtr GearGeom::EncodeXml( xmlNodePtr & node )
 {
+    Geom::EncodeXml( node );
+
     char labelName[256];
 
     xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "Gear", NULL );
@@ -463,6 +465,8 @@ xmlNodePtr GearGeom::EncodeXml( xmlNodePtr & node )
 
 xmlNodePtr GearGeom::DecodeXml( xmlNodePtr & node )
 {
+    Geom::DecodeXml( node );
+
     char labelName[256];
 
     xmlNodePtr label_root_node = XmlUtil::GetNode( node, "Gear", 0 );
