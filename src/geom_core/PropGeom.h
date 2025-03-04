@@ -229,7 +229,7 @@ protected:
     virtual void ChangeID( string id );
 
     virtual void UpdateSurf();
-    virtual void UpdateMainTessVec();
+    virtual void UpdateMainTessVec( bool firstonly );
     virtual void UpdateBladeAzimuth();
 
     virtual void BalanceBlades( vector < double > & thetavec );
@@ -258,6 +258,7 @@ protected:
 
     Vsp1DCurve m_rtou;
     VspSurf m_FoilSurf;
+    VspSurf m_BladeSurf;
 
     bool m_ExportMainSurf;
 

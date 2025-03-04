@@ -1083,8 +1083,6 @@ void PropGeom::UpdateSurf()
         }
     }
 
-    m_MainSurfVec.clear();
-
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
         // Find the union of stations required to approximate the blade parameters
@@ -1284,6 +1282,7 @@ void PropGeom::UpdateSurf()
         m_FoilSurf = VspSurf();
         m_FoilSurf.SkinC0(crv_vec, m_UPseudo, false );
 
+        m_MainSurfVec.clear();
         m_MainSurfVec.reserve( m_Nblade() + 1 );
         m_MainSurfVec.resize( 1 );
 
@@ -1311,14 +1310,16 @@ void PropGeom::UpdateSurf()
         // UpdateEndCaps here so we only have to cap one blade.
         UpdateEndCaps();
 
-        m_MainSurfVec.resize( m_Nblade(), m_MainSurfVec[0] );
+        m_BladeSurf = m_MainSurfVec[0];
+
+        m_MainSurfVec.resize( m_Nblade(), m_BladeSurf );
 
         // Duplicate capping variables
         m_CapUMinSuccess.resize( m_Nblade(), m_CapUMinSuccess[0] );
         m_CapUMaxSuccess.resize( m_Nblade(), m_CapUMaxSuccess[0] );
 
         m_MainBladeBBox.Reset();
-        m_MainSurfVec[0].GetBoundingBox( m_MainBladeBBox );
+        m_BladeSurf.GetBoundingBox( m_MainBladeBBox );
 
 
 
@@ -1394,45 +1395,75 @@ void PropGeom::UpdateSurf()
     }
 }
 
-void PropGeom::UpdateMainTessVec()
+void PropGeom::UpdateMainTessVec( bool firstonly )
 {
-    Geom::UpdateMainTessVec( true );
-
     int nmain = GetNumMainSurfs();
+    int nblade = m_Nblade();
 
-    m_MainTessVec.resize( nmain, m_MainTessVec[0] );
-    m_MainFeatureTessVec.resize( nmain, m_MainFeatureTessVec[0] );
+    m_MainTessVec.clear();
+    m_MainTessVec.reserve( nmain );
 
-    double rev = 1.0;
-    if ( m_ReverseFlag() )
+    m_MainFeatureTessVec.clear();
+    m_MainFeatureTessVec.reserve( nmain );
+
+    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
-        rev = -1.0;
+        // Copy non-surface data from m_MainSurfVec.  Geom::Update() does various 'things' to m_MainSurfVec
+        // between UpdateSurf() (when it is copied to m_BladeSurf) and here (UpdateMainTessVec).
+        // Some of these need to be applied to m_BladeSurf before the calls to UpdateSplitTesselate and
+        // TessU/WFeatureLine.  These include: VspSurf::InitUMapping(); and
+        // VspSurf::BuildFeatureLines( m_ForceXSecFlag );.  Rather than attempting to only copy exactly the
+        // required information, CopyNonSurfaceData takes an everything-but-the-kitchen-sink approach.
+        m_BladeSurf.CopyNonSurfaceData( m_MainSurfVec[ 0 ] );
+
+        SimpleTess bladeTess;
+        SimpleFeatureTess bladeFeatureTess;
+        UpdateTess( m_BladeSurf, m_CapUMinSuccess[ 0 ], m_CapUMaxSuccess[ 0 ], bladeTess, bladeFeatureTess );
+
+        m_MainTessVec.resize( nblade, bladeTess );
+        m_MainFeatureTessVec.resize( nblade, bladeFeatureTess );
+
+        double rev = 1.0;
+        if ( m_ReverseFlag() )
+        {
+            rev = -1.0;
+        }
+
+        Matrix4d rigid;
+        Matrix4d rot;
+        for ( int i = 0; i < nblade; i++ )
+        {
+            if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
+            {
+                RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
+            }
+            else
+            {
+                RigidBladeMotion( rigid, m_FoldAngle() );
+            }
+            m_MainTessVec[i].Transform( rigid );
+            m_MainFeatureTessVec[i].Transform( rigid );
+
+            if ( i > 0 )
+            {
+                double theta = -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get();
+                rot.loadIdentity();
+                rot.rotateX( theta );
+
+                m_MainTessVec[i].Transform( rot );
+                m_MainFeatureTessVec[i].Transform( rot );
+            }
+        }
     }
 
-    Matrix4d rigid;
-    Matrix4d rot;
-    for ( int i = 0; i < m_Nblade(); i++ )
+    if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
     {
-        if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
-        {
-            RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
-        }
-        else
-        {
-            RigidBladeMotion( rigid, m_FoldAngle() );
-        }
-        m_MainTessVec[i].Transform( rigid );
-        m_MainFeatureTessVec[i].Transform( rigid );
+        unsigned int idisk = nmain - 1;
 
-        if ( i > 0 )
-        {
-            double theta = -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get();
-            rot.loadIdentity();
-            rot.rotateX( theta );
+        m_MainTessVec.resize( nmain );
+        m_MainFeatureTessVec.resize( nmain );
 
-            m_MainTessVec[i].Transform( rot );
-            m_MainFeatureTessVec[i].Transform( rot );
-        }
+        UpdateTess( m_MainSurfVec[idisk], false, false, m_MainTessVec[idisk], m_MainFeatureTessVec[idisk] );
     }
 }
 
