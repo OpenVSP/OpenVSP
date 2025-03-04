@@ -413,6 +413,15 @@ void InterferenceScreen::CallBack( Fl_Widget *w )
     {
         int sel = m_InterferenceCheckBrowser->value();
         m_InterferenceBrowserSelect = sel - 2;
+
+        InterferenceCase* icase = InterferenceMgr.GetInterferenceCase( m_InterferenceBrowserSelect );
+
+        if ( icase )
+        {
+            m_PrimaryGeomPicker.SetGeomChoice( icase->m_PrimaryGeomID );
+            m_SecondaryGeomPicker.SetGeomChoice( icase->m_SecondaryGeomID );
+        }
+
         MarkDOChanged();
     }
     else
