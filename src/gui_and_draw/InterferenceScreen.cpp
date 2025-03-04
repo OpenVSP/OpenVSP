@@ -264,16 +264,35 @@ bool InterferenceScreen::Update()
                 m_PrimaryGeomPicker.Activate();
             }
 
-            if ( icase->m_SecondaryType() == vsp::SET_TARGET )
+
+            if ( icase->m_IntererenceCheckType() != vsp::EXTERNAL_SELF_INTERFERENCE )
             {
-                m_SecondarySetChoice.Activate();
+                m_SecondarySetToggle.Activate();
+                m_SecondaryGeomToggle.Activate();
+
+                m_ShowSecondaryGeom.Activate();
+                m_ShowOnlySecondaryGeom.Activate();
+
+                if ( icase->m_SecondaryType() == vsp::SET_TARGET )
+                {
+                    m_SecondarySetChoice.Activate();
+                    m_SecondaryGeomPicker.Deactivate();
+                }
+                else if ( icase->m_SecondaryType() == vsp::GEOM_TARGET )
+                {
+                    m_SecondarySetChoice.Deactivate();
+                    m_SecondaryGeomPicker.Activate();
+                }
+            }
+            else
+            {
+                m_SecondarySetToggle.Deactivate();
+                m_SecondaryGeomToggle.Deactivate();
+                m_SecondarySetChoice.Deactivate();
                 m_SecondaryGeomPicker.Deactivate();
 
-            }
-            else if ( icase->m_SecondaryType() == vsp::GEOM_TARGET )
-            {
-                m_SecondarySetChoice.Deactivate();
-                m_SecondaryGeomPicker.Activate();
+                m_ShowSecondaryGeom.Deactivate();
+                m_ShowOnlySecondaryGeom.Deactivate();
             }
 
 
