@@ -191,6 +191,8 @@ bool InterferenceScreen::Update()
 
     UpdateInterferenceCheckBrowser();
 
+    m_PrimaryGeomPicker.Update();
+    m_SecondaryGeomPicker.Update();
 
     InterferenceCase* icase = InterferenceMgr.GetInterferenceCase( m_InterferenceBrowserSelect );
 
@@ -312,8 +314,6 @@ bool InterferenceScreen::Update()
 
     }
 
-    m_PrimaryGeomPicker.Update();
-    m_SecondaryGeomPicker.Update();
 
     m_FLTK_Window->redraw();
     return true;
