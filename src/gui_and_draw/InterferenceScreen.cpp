@@ -215,8 +215,23 @@ bool InterferenceScreen::Update()
 
             m_ScreenMgr->LoadModeChoice( m_PrimaryModeChoice, m_ModeIDs, icase->m_PrimaryModeID );
 
-            m_PrimaryGeomPicker.SetGeomChoice( icase->m_PrimaryGeomID );
-            m_SecondaryGeomPicker.SetGeomChoice( icase->m_SecondaryGeomID );
+            if ( !veh->FindGeom( icase->m_PrimaryGeomID ) )
+            {
+                icase->m_PrimaryGeomID = m_PrimaryGeomPicker.GetGeomChoice();
+            }
+            else
+            {
+                m_PrimaryGeomPicker.SetGeomChoice( icase->m_PrimaryGeomID );
+            }
+
+            if ( !veh->FindGeom( icase->m_SecondaryGeomID ) )
+            {
+                icase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetGeomChoice();
+            }
+            else
+            {
+                m_SecondaryGeomPicker.SetGeomChoice( icase->m_SecondaryGeomID );
+            }
 
 
             m_PrimaryToggleGroup.Update( icase->m_PrimaryType.GetID() );
