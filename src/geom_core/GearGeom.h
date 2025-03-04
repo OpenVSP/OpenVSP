@@ -173,8 +173,10 @@ public:
 
 protected:
     virtual void UpdateSurf();
+    virtual void UpdateMainTessVec( bool firstonly );
 
     std::vector < Bogie * > m_Bogies;
+    std::vector < int > m_BogieMainSurfIndex;
     int m_CurrBogieIndex;
 
 };

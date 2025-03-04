@@ -315,11 +315,13 @@ void GearGeom::UpdateSurf()
 
     m_MainSurfVec.resize( 1 );
 
+    m_BogieMainSurfIndex.resize( nbogies );
 
     for ( int i = 0; i < nbogies; i++ )
     {
         if ( m_Bogies[i] )
         {
+            m_BogieMainSurfIndex[i] = m_MainSurfVec.size();
             m_Bogies[i]->AppendMainSurf( m_MainSurfVec );
         }
     }
@@ -339,6 +341,46 @@ void GearGeom::UpdateSurf()
     }
 
 
+}
+
+void GearGeom::UpdateMainTessVec( bool firstonly )
+{
+    double tol = 1e-3;
+
+    int nbogies = m_Bogies.size();
+
+    int nmain = GetNumMainSurfs();
+
+    m_MainTessVec.reserve( nmain );
+    m_MainFeatureTessVec.reserve( nmain );
+
+    // Update MTV for ground plane.
+    Geom::UpdateMainTessVec( true );
+
+
+
+    for ( int i = 0; i < nbogies; i++ )
+    {
+        if ( m_Bogies[i] )
+        {
+            // Copy non-surface data from m_MainSurfVec.  Geom::Update() does various 'things' to m_MainSurfVec
+            // between UpdateSurf() (when it is populated from m_TireSurface) and here (UpdateMainTessVec).
+            // Some of these need to be applied to m_TireSurface before the calls to UpdateSplitTesselate and
+            // TessU/WFeatureLine.  These include: VspSurf::InitUMapping(); and
+            // VspSurf::BuildFeatureLines( m_ForceXSecFlag );.  Rather than attempting to only copy exactly the
+            // required information, CopyNonSurfaceData takes an everything-but-the-kitchen-sink approach.
+            m_Bogies[i]->m_TireSurface.CopyNonSurfaceData( m_MainSurfVec[ m_BogieMainSurfIndex[i] ] );
+
+
+            SimpleTess tireTess;
+            SimpleFeatureTess tireFeatureTess;
+
+            UpdateTess( m_Bogies[i]->m_TireSurface, false, false, tireTess, tireFeatureTess );
+
+            m_Bogies[i]->TireToBogie( tireTess, m_MainTessVec );
+            m_Bogies[i]->TireToBogie( tireFeatureTess, m_MainFeatureTessVec );
+        }
+    }
 }
 
 //==== Compute Rotation Center ====//
