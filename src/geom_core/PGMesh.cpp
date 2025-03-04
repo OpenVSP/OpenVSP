@@ -688,7 +688,7 @@ bool PGEdge::Validate() const
     return valid;
 }
 
-bool PGEdge::WakeEdge( const PGMesh *m, const bool ContinueCoPlanarWakes ) const
+bool PGEdge::WingWakeEdge( const PGMesh *m, const bool ContinueCoPlanarWakes ) const
 {
     const double tol = 1e-12;
 
@@ -2338,7 +2338,7 @@ void PGMesh::IdentifyParents()
     }
 }
 
-void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n, const bool ContinueCoPlanarWakes )
+void PGMesh::ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n, const bool ContinueCoPlanarWakes )
 {
     e->m_InCurrentLoopFlag = true;
 
@@ -2349,14 +2349,14 @@ void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n,
         PGEdge * ei = n->m_EdgeVec[ i ];
         if ( ei && ei != e && !ei->m_InLoopFlag && !ei->m_InCurrentLoopFlag )
         {
-            if ( ei->WakeEdge( this, ContinueCoPlanarWakes ) )
+            if ( ei->WingWakeEdge( this, ContinueCoPlanarWakes ) )
             {
                 PGNode * ni = ei->OtherNode( n );
 
                 wake.push_back( ei );
                 ei->m_InLoopFlag = true;
 
-                ExtendWake( wake, ei, ni, ContinueCoPlanarWakes );
+                ExtendWingWake( wake, ei, ni, ContinueCoPlanarWakes );
                 return;
             }
         }
@@ -2366,32 +2366,32 @@ void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n,
 }
 
 
-void PGMesh::IdentifyWakes( const bool ContinueCoPlanarWakes )
+void PGMesh::IdentifyWingWakes( const bool ContinueCoPlanarWakes )
 {
-    m_WakeVec.clear();
+    m_WingWakeVec.clear();
 
     list< PGEdge* >::iterator e;
     for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
     {
-        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->WakeEdge( this, ContinueCoPlanarWakes ) )
+        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->WingWakeEdge( this, ContinueCoPlanarWakes ) )
         {
             (*e)->m_InLoopFlag = true;
 
             vector < PGEdge * > wake;
             wake.push_back( *e );
 
-            ExtendWake( wake, (*e), (*e)->m_N0, ContinueCoPlanarWakes );
+            ExtendWingWake( wake, (*e), (*e)->m_N0, ContinueCoPlanarWakes );
 
             std::reverse( wake.begin(), wake.end() );
 
-            ExtendWake( wake, (*e), (*e)->m_N1, ContinueCoPlanarWakes );
+            ExtendWingWake( wake, (*e), (*e)->m_N1, ContinueCoPlanarWakes );
 
 
-            m_WakeVec.push_back( wake );
+            m_WingWakeVec.push_back( wake );
         }
     }
 
-    // printf( "IdentifyWakes() %d wakes found.\n", m_WakeVec.size() );
+    // printf( "IdentifyWakes() %d wakes found.\n", m_WingWakeVec.size() );
 
     ResetEdgeLoopFlags();
 }
@@ -3071,14 +3071,14 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
 void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
 {
     int nWakeError = 0;
-    int nwake = m_WakeVec.size();
+    int nwake = m_WingWakeVec.size();
 
     fprintf( file_id, "%d\n", nwake );
 
     for ( int iwake = 0; iwake < nwake; iwake++ )
     {
         vector< PGNode* > nodVec;
-        GetNodes( m_WakeVec[iwake], nodVec );
+        GetNodes( m_WingWakeVec[iwake], nodVec );
 
         int nwn = nodVec.size();
         fprintf( file_id, "%d ", nwn );
@@ -3764,7 +3764,7 @@ void PGMulti::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
     for ( int imesh = m_MeshVec.size() - 1; imesh >= 0; imesh-- )
     {
         PGMesh *pgm = m_MeshVec[imesh];
-        fprintf( file_id, "%d %d %d\n", pgm->m_NodeList.size(), pgm->m_FaceList.size(), pgm->m_WakeVec.size() );
+        fprintf( file_id, "%d %d %d\n", pgm->m_NodeList.size(), pgm->m_FaceList.size(), pgm->m_WingWakeVec.size() );
     }
 
     WriteVSPGeomPnts( file_id, XFormMat );

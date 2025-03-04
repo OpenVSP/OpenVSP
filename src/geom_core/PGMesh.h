@@ -161,7 +161,7 @@ public:
 
     bool Validate() const;
 
-    bool WakeEdge( const PGMesh *m, bool ContinueCoPlanarWakes ) const;
+    bool WingWakeEdge( const PGMesh *m, bool ContinueCoPlanarWakes ) const;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -319,7 +319,7 @@ public:
 
     vector < PGNode* > m_DoubleBackNode;
     vector < vector < PGEdge * > > m_EdgeLoopVec;
-    vector < vector < PGEdge* > > m_WakeVec;
+    vector < vector < PGEdge* > > m_WingWakeVec;
 
     vector < PGFace* > m_Regions;
 
@@ -330,8 +330,8 @@ public:
 
     void ResetEdgeLoopFlags();
 
-    void ExtendWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n, bool ContinueCoPlanarWakes );
-    void IdentifyWakes( bool ContinueCoPlanarWakes );
+    void ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n, bool ContinueCoPlanarWakes );
+    void IdentifyWingWakes( bool ContinueCoPlanarWakes );
 
     void IdentifyParents();
 

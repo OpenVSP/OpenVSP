@@ -238,7 +238,7 @@ void NGonMeshGeom::UpdateDrawObj()
         }
     }
 
-    int nwake = pgm->m_WakeVec.size();
+    int nwake = pgm->m_WingWakeVec.size();
     m_WakeDrawObj_vec.resize( nwake );
 
     // Calculate constants for color sequence.
@@ -274,7 +274,7 @@ void NGonMeshGeom::UpdateDrawObj()
         m_WakeDrawObj_vec[iwake].m_GeomChanged = true;
 
         vector< PGNode* > nodVec;
-        GetNodes( pgm->m_WakeVec[iwake], nodVec );
+        GetNodes( pgm->m_WingWakeVec[iwake], nodVec );
 
         m_WakeDrawObj_vec[iwake].m_PntVec.resize( nodVec.size() );
         for ( int i = 0; i < nodVec.size(); i++ )
