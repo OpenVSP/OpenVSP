@@ -2533,14 +2533,14 @@ void PGMesh::IdentifyBodyWakes( )
 
 void PGMesh::IdentifyBodyNodeWakes( )
 {
-    m_BodyNodeVec.clear();
+    m_BodyNodeWakeVec.clear();
 
     list< PGNode* >::iterator n;
     for ( n = m_NodeList.begin(); n != m_NodeList.end(); ++n )
     {
         if ( ( *n )->BodyWakeNode( this ) )
         {
-            m_BodyNodeVec.push_back( *n );
+            m_BodyNodeWakeVec.push_back( *n );
         }
     }
 

@@ -240,7 +240,7 @@ void NGonMeshGeom::UpdateDrawObj()
 
     int nwwake = pgm->m_WingWakeVec.size();
     int nbwake = pgm->m_BodyWakeVec.size();
-    int nbpwake = pgm->m_BodyNodeVec.size();
+    int nbpwake = pgm->m_BodyNodeWakeVec.size();
 
     m_WakeEdgeDrawObj_vec.resize( nwwake + nbwake );
 
@@ -359,7 +359,7 @@ void NGonMeshGeom::UpdateDrawObj()
 
         m_WakeNodeDrawObj_vec[ibpwake].m_GeomChanged = true;
 
-        vec3d pt = trans.xform( pgm->m_BodyNodeVec[ibpwake]->m_Pt->m_Pnt );
+        vec3d pt = trans.xform( pgm->m_BodyNodeWakeVec[ibpwake]->m_Pt->m_Pnt );
         m_WakeNodeDrawObj_vec[ibpwake].m_PntVec.push_back( pt );
     }
 

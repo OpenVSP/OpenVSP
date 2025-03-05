@@ -323,7 +323,7 @@ public:
     vector < vector < PGEdge * > > m_EdgeLoopVec;
     vector < vector < PGEdge* > > m_WingWakeVec;
     vector < vector < PGEdge* > > m_BodyWakeVec;
-    vector < PGNode* > m_BodyNodeVec;
+    vector < PGNode* > m_BodyNodeWakeVec;
 
     vector < PGFace* > m_Regions;
 
