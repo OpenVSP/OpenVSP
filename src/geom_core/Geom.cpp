@@ -4103,15 +4103,15 @@ void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector
             surftype = DegenGeom::DISK_TYPE;
         }
 
-        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview, surf_vec[i].GetFlipNormal(), surftype, surf_vec[i].GetSurfCfdType(), surf_vec[i].GetFoilSurf() );
+        DegenGeom degenGeom;
+        CreateDegenGeom( degenGeom, pnts, nrms, uwpnts, urootcap, i, preview, surf_vec[i].GetFlipNormal(), surftype, surf_vec[i].GetSurfCfdType(), surf_vec[i].GetFoilSurf() );
+        dgs.push_back(degenGeom);
     }
 }
 
-
-void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d > > &pnts, const vector< vector< vec3d > > &nrms, const vector< vector< vec3d > > &uwpnts,
+void Geom::CreateDegenGeom( DegenGeom &degenGeom, const vector< vector< vec3d > > &pnts, const vector< vector< vec3d > > &nrms, const vector< vector< vec3d > > &uwpnts,
                             bool urootcap, int isurf, bool preview, bool flipnormal, int surftype, int cfdsurftype, VspSurf *fs )
 {
-    DegenGeom degenGeom;
     degenGeom.setParentGeom( this );
     degenGeom.setSurfNum( isurf );
     degenGeom.setFlipNormal( flipnormal );
@@ -4188,8 +4188,6 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d 
             }
         }
     }
-
-    dgs.push_back(degenGeom);
 }
 
 //==== Set Sym Flag ====//

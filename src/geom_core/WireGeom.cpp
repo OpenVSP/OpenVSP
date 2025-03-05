@@ -883,8 +883,9 @@ void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
         cfdsurftype = vsp::CFD_NEGATIVE;
     }
 
-    Geom::CreateDegenGeom( dgs, m_XFormPts, m_XFormNorm, uwpnts, false, 0, preview, m_InvertFlag(), surftype, cfdsurftype, NULL );
-
+    DegenGeom degenGeom;
+    Geom::CreateDegenGeom( degenGeom, m_XFormPts, m_XFormNorm, uwpnts, false, 0, preview, m_InvertFlag(), surftype, cfdsurftype, NULL );
+    dgs.push_back(degenGeom);
 }
 
 int WireGeom::GetNumTotalHrmSurfs() const
