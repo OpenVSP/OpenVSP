@@ -187,7 +187,7 @@ public:
     virtual ~GeomBase();                        // Destructor
 
     // Only used internally.  Do not need to move to API.
-    enum { NONE, XFORM, TESS, SURF, HIGHLIGHT };
+    enum { NONE, XFORM, TESS, SURF, HIGHLIGHT, GLOBAL_SCALE };
 
     virtual GeomType GetType()
     {
@@ -261,6 +261,7 @@ public:
     bool m_TessDirty;
     bool m_HighlightDirty;
     bool m_FeaDirty;
+    bool m_GlobalScaleDirty;
 
     void SetDirtyFlag( int dflag );
 

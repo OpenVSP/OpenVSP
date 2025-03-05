@@ -5250,6 +5250,8 @@ void Vehicle::UpdateBBox()
             {
                 // If yes, then set dirty surface flag & trigger update.
                 geom_vec[i]->SetDirtyFlag( GeomBase::SURF );
+                geom_vec[i]->SetDirtyFlag( GeomBase::GLOBAL_SCALE );
+
                 geom_vec[i]->Update();
             }
         }

@@ -114,6 +114,8 @@ GeomBase::GeomBase( Vehicle* vehicle_ptr )
     m_TessDirty = true;
     m_HighlightDirty = true;
     m_FeaDirty = true;
+    // This flag is only set true when global scale is updated.
+    m_GlobalScaleDirty = false;
 
     m_UpdateXForm = false;
     m_UpdateSurf = false;
@@ -232,6 +234,10 @@ void GeomBase::SetDirtyFlag( int dflag )
     else if ( dflag == HIGHLIGHT )
     {
         m_HighlightDirty = true;
+    }
+    else if ( dflag == GLOBAL_SCALE )
+    {
+        m_GlobalScaleDirty = true;
     }
 }
 
@@ -1827,6 +1833,8 @@ void Geom::Update( bool fullupdate )
     m_TessDirty = false;
 
     m_HighlightDirty = false;
+
+    m_GlobalScaleDirty = false;
 
     UpdateChildren( fullupdate );
     UpdateStepChildren( fullupdate );
