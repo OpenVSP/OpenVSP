@@ -1744,6 +1744,12 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
     UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, degen );
 }
 
+// Helper for ver. C
+void Geom::UpdateTesselate( const VspSurf &surf, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const
+{
+    surf.Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen );
+}
+
 // ver. C
 // Low-level version that allows passing an arbitrary surf_vec as an argument.  Designed to be called for
 // m_MainSurfVec or m_SurfVec interchangeably.
@@ -1758,7 +1764,7 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 void Geom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
                             vector< vector< vec3d > > &uw_pnts, bool degen ) const
 {
-    surf_vec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen );
+    UpdateTesselate( surf_vec[indx], pnts, norms, uw_pnts, degen );
 }
 
 void Geom::UpdateSplitTesselate( const VspSurf &surf, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
