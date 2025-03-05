@@ -286,7 +286,6 @@ GearGeom::GearGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     // Bogie * mg =  CreateAndAddBogie();
 
 
-    Update();
 }
 
 //==== Destructor ====//
