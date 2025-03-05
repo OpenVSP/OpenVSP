@@ -304,12 +304,16 @@ void GearGeom::UpdateSurf()
     {
         if ( m_Bogies[i] )
         {
+            if ( !m_GlobalScaleDirty )
+            {
             m_Bogies[i]->Update();
+            }
             nsurf += m_Bogies[i]->GetNumSurf();
         }
     }
 
-
+    if ( m_MainSurfVec.size() != nsurf || !m_GlobalScaleDirty )
+    {
     m_MainSurfVec.clear();
     m_MainSurfVec.reserve( nsurf );
 
@@ -324,6 +328,7 @@ void GearGeom::UpdateSurf()
             m_BogieMainSurfIndex[i] = m_MainSurfVec.size();
             m_Bogies[i]->AppendMainSurf( m_MainSurfVec );
         }
+    }
     }
 
 
@@ -345,20 +350,19 @@ void GearGeom::UpdateSurf()
 
 void GearGeom::UpdateMainTessVec( bool firstonly )
 {
-    double tol = 1e-3;
-
-    int nbogies = m_Bogies.size();
-
     int nmain = GetNumMainSurfs();
 
+    if ( m_MainTessVec.size() != nmain || !m_GlobalScaleDirty )
+    {
+    m_MainTessVec.clear();
+    m_MainFeatureTessVec.clear();
     m_MainTessVec.reserve( nmain );
     m_MainFeatureTessVec.reserve( nmain );
 
-    // Update MTV for ground plane.
-    Geom::UpdateMainTessVec( true );
+    m_MainTessVec.resize( 1 );
+    m_MainFeatureTessVec.resize( 1 );
 
-
-
+    int nbogies = m_Bogies.size();
     for ( int i = 0; i < nbogies; i++ )
     {
         if ( m_Bogies[i] )
@@ -381,6 +385,10 @@ void GearGeom::UpdateMainTessVec( bool firstonly )
             m_Bogies[i]->TireToBogie( tireFeatureTess, m_MainFeatureTessVec );
         }
     }
+    }
+
+    // Update MTV for ground plane.
+    UpdateTess( m_MainSurfVec[0], false, false, m_MainTessVec[0], m_MainFeatureTessVec[0] );
 }
 
 //==== Compute Rotation Center ====//
