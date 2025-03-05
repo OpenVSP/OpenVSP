@@ -4064,53 +4064,58 @@ void Geom::CreateMainDegenGeom( vector<DegenGeom> &dgs, bool preview )
     CreateDegenGeom( m_MainSurfVec, GetNumMainSurfs(),dgs, preview );
 }
 
-void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector<DegenGeom> &dgs, bool preview )
+void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool preview )
 {
     vector< vector< vec3d > > pnts;
     vector< vector< vec3d > > nrms;
     vector< vector< vec3d > > uwpnts;
 
+    bool urootcap = false;
+
+    surf.ResetUSkip();
+    if ( m_CapUMinSuccess[ m_SurfIndxVec[isurf] ] )
+    {
+        int nskip = 1;
+        if ( m_CapUMinOption() >= ROUND_EXT_END_CAP_NONE )
+        {
+            nskip++;
+        }
+        surf.SetUSkipFirst( nskip, true );
+        urootcap = true;
+    }
+    if ( m_CapUMaxSuccess[ m_SurfIndxVec[isurf] ] )
+    {
+        int nskip = 1;
+        if ( m_CapUMaxOption() >= ROUND_EXT_END_CAP_NONE )
+        {
+            nskip++;
+        }
+        surf.SetUSkipLast( nskip, true );
+    }
+
+    //==== Tesselate Surface ====//
+    UpdateTesselate( surf, pnts, nrms, uwpnts, true );
+    surf.ResetUSkip();
+
+    int surftype = DegenGeom::BODY_TYPE;
+    if( surf.GetSurfType() == vsp::WING_SURF )
+    {
+        surftype = DegenGeom::SURFACE_TYPE;
+    }
+    else if( surf.GetSurfType() == vsp::DISK_SURF )
+    {
+        surftype = DegenGeom::DISK_TYPE;
+    }
+
+    CreateDegenGeom( degenGeom, pnts, nrms, uwpnts, urootcap, isurf, preview, surf.GetFlipNormal(), surftype, surf.GetSurfCfdType(), surf.GetFoilSurf() );
+}
+
+void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector<DegenGeom> &dgs, bool preview )
+{
     for ( int i = 0 ; i < nsurf ; i++ )
     {
-        bool urootcap = false;
-
-        surf_vec[i].ResetUSkip();
-        if ( m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
-        {
-            int nskip = 1;
-            if ( m_CapUMinOption() >= ROUND_EXT_END_CAP_NONE )
-            {
-                nskip++;
-            }
-            surf_vec[i].SetUSkipFirst( nskip, true );
-            urootcap = true;
-        }
-        if ( m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
-        {
-            int nskip = 1;
-            if ( m_CapUMaxOption() >= ROUND_EXT_END_CAP_NONE )
-            {
-                nskip++;
-            }
-            surf_vec[i].SetUSkipLast( nskip, true );
-        }
-
-        //==== Tesselate Surface ====//
-        UpdateTesselate( surf_vec, i, pnts, nrms, uwpnts, true );
-        surf_vec[i].ResetUSkip();
-
-        int surftype = DegenGeom::BODY_TYPE;
-        if( surf_vec[i].GetSurfType() == vsp::WING_SURF )
-        {
-            surftype = DegenGeom::SURFACE_TYPE;
-        }
-        else if( surf_vec[i].GetSurfType() == vsp::DISK_SURF )
-        {
-            surftype = DegenGeom::DISK_TYPE;
-        }
-
         DegenGeom degenGeom;
-        CreateDegenGeom( degenGeom, pnts, nrms, uwpnts, urootcap, i, preview, surf_vec[i].GetFlipNormal(), surftype, surf_vec[i].GetSurfCfdType(), surf_vec[i].GetFoilSurf() );
+        CreateDegenGeom( surf_vec[i], i, degenGeom, preview );
         dgs.push_back(degenGeom);
     }
 }

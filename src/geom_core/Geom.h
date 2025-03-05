@@ -605,6 +605,7 @@ public:
     //===== Degenerate Geometry =====//
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
     virtual void CreateMainDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
+    virtual void CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool preview = false );
     virtual void CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector<DegenGeom> &dgs, bool preview = false );
     virtual void CreateDegenGeom( DegenGeom &degenGeom, const vector< vector< vec3d > > &pnts, const vector< vector< vec3d > > &nrms, const vector< vector< vec3d > > &uwpnts,
                                   bool urootcap, int isurf, bool preview, bool flipnormal, int surftype, int cfdsurftype, VspSurf *fs );
