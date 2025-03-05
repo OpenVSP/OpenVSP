@@ -3221,6 +3221,7 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
 
 void PGMesh::WriteVSPGeomEdgeWakes( FILE* file_id, const vector < vector < PGEdge* > > &ewake, int wingbodyflag ) const
 {
+    int nWakeError = 0;
     int nwake = ewake.size();
 
     for ( int iwake = 0; iwake < nwake; iwake++ )
@@ -3230,40 +3231,6 @@ void PGMesh::WriteVSPGeomEdgeWakes( FILE* file_id, const vector < vector < PGEdg
 
         int nwn = nodVec.size();
         fprintf( file_id, "%d ", nwn * wingbodyflag );
-
-        int iprt = 0;
-        for ( int i = 0; i < nwn; i++ )
-        {
-            fprintf( file_id, "%d", nodVec[i]->m_Pt->m_ID + 1 );
-
-            if ( iprt >= 9 || i == nwn - 1 )
-            {
-                fprintf( file_id, "\n" );
-                iprt = 0;
-            }
-            else
-            {
-                fprintf( file_id, " " );
-                iprt++;
-            }
-        }
-    }
-}
-
-void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
-{
-    int nWakeError = 0;
-    int nwake = m_WingWakeVec.size();
-
-    fprintf( file_id, "%d\n", nwake );
-
-    for ( int iwake = 0; iwake < nwake; iwake++ )
-    {
-        vector< PGNode* > nodVec;
-        GetNodes( m_WingWakeVec[iwake], nodVec );
-
-        int nwn = nodVec.size();
-        fprintf( file_id, "%d ", nwn );
 
         int iprt = 0;
         bool wakeError = false;
@@ -3306,6 +3273,15 @@ void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
     {
         printf( "%d Wakes have errors.\n", nWakeError );
     }
+}
+
+void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
+{
+    int nwake = m_WingWakeVec.size();
+
+    fprintf( file_id, "%d\n", nwake );
+
+    WriteVSPGeomEdgeWakes( file_id, m_WingWakeVec, 1 );
 }
 
 void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
