@@ -68,7 +68,6 @@ WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_SurfCopyIndx.resize( 1 );
     m_SurfCopyIndx[0] = 0;
 
-    Update();
 }
 
 //==== Destructor ====//

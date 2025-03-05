@@ -1335,7 +1335,6 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     ws->m_TipChord = 1.0;
     ws->m_Span = 9.0;
 
-    UpdateSurf();
 }
 
 //==== Destructor ====//

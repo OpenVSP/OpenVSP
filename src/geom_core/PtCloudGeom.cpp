@@ -29,7 +29,6 @@ PtCloudGeom::PtCloudGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ScaleMatrix.loadIdentity();
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12 );
 
-    Update();
 }
 
 //==== Destructor ====//
