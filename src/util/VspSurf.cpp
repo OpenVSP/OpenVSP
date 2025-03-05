@@ -86,6 +86,58 @@ VspSurf::~VspSurf()
 {
 }
 
+void VspSurf::CopyNonSurfaceData( const VspSurf & s )
+{
+    m_FlipNormal = s.m_FlipNormal;
+    m_MagicVParm = s.m_MagicVParm;
+    m_HalfBOR = s.m_HalfBOR;
+    m_SurfType = s.m_SurfType;
+    m_SurfCfdType = s.m_SurfCfdType;
+
+    m_FeaOrientationType = s.m_FeaOrientationType;
+    m_FeaOrientation = s.m_FeaOrientation;
+    m_FeaSymmIndex = s.m_FeaSymmIndex;
+
+    m_ThickSurf = s.m_ThickSurf;
+    m_PlateNum = s.m_PlateNum;
+    // Main surface, do not copy.
+    // m_Surface
+
+    m_UFeature = s.m_UFeature;
+    m_WFeature = s.m_WFeature;
+
+    m_UMapping = s.m_UMapping;
+    m_UMapMax = s.m_UMapMax;
+
+    m_Lmax = s.m_Lmax;
+    m_LCurve = s.m_LCurve;
+
+    m_LECluster = s.m_LECluster;
+    m_TECluster = s.m_TECluster;
+
+    //==== Store Skinning Inputs =====//
+    m_SkinType = s.m_SkinType;
+    m_BodyRevCurve = s.m_BodyRevCurve;
+    m_SkinRibVec = s.m_SkinRibVec;
+    m_SkinDegreeVec = s.m_SkinDegreeVec;
+    m_SkinParmVec = s.m_SkinParmVec;
+    m_SkinClosedFlag = s.m_SkinClosedFlag;
+
+    m_CloneIndex = s.m_CloneIndex;
+    m_CloneMat = s.m_CloneMat;
+
+    // Pointer, be careful.
+    m_FoilSurf = s.m_FoilSurf;
+
+    m_PlanarUWAspect = s.m_PlanarUWAspect;
+
+    // private:
+    m_USkip = s.m_USkip;
+
+    m_RootCluster = s.m_RootCluster;
+    m_TipCluster = s.m_TipCluster;
+}
+
 void VspSurf::SetClustering( const double &le, const double &te )
 {
     m_LECluster = le;

@@ -52,6 +52,8 @@ public:
     VspSurf();
     virtual ~VspSurf();
 
+    void CopyNonSurfaceData( const VspSurf & s );
+
     // create surface as a body of revolution using the specified curve
     void CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm = false );
 
