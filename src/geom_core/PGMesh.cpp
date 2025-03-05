@@ -3219,6 +3219,37 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
     }
 }
 
+void PGMesh::WriteVSPGeomEdgeWakes( FILE* file_id, const vector < vector < PGEdge* > > &ewake, int wingbodyflag ) const
+{
+    int nwake = ewake.size();
+
+    for ( int iwake = 0; iwake < nwake; iwake++ )
+    {
+        vector< PGNode* > nodVec;
+        GetNodes( ewake[iwake], nodVec );
+
+        int nwn = nodVec.size();
+        fprintf( file_id, "%d ", nwn * wingbodyflag );
+
+        int iprt = 0;
+        for ( int i = 0; i < nwn; i++ )
+        {
+            fprintf( file_id, "%d", nodVec[i]->m_Pt->m_ID + 1 );
+
+            if ( iprt >= 9 || i == nwn - 1 )
+            {
+                fprintf( file_id, "\n" );
+                iprt = 0;
+            }
+            else
+            {
+                fprintf( file_id, " " );
+                iprt++;
+            }
+        }
+    }
+}
+
 void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
 {
     int nWakeError = 0;

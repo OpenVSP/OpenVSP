@@ -374,6 +374,7 @@ public:
     void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomFaces( FILE* file_id );
     void WriteVSPGeomParts( FILE* file_id );
+    void WriteVSPGeomEdgeWakes( FILE* file_id, const vector < vector < PGEdge* > > &ewake, int wingbodyflag ) const;
     void WriteVSPGeomWakes( FILE* file_id ) const;
     void WriteVSPGeomAlternateTris( FILE* file_id );
     void WriteVSPGeomAlternateParts( FILE* file_id );
