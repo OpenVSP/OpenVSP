@@ -3277,11 +3277,21 @@ void PGMesh::WriteVSPGeomEdgeWakes( FILE* file_id, const vector < vector < PGEdg
 
 void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
 {
-    int nwake = m_WingWakeVec.size();
+    int nwwake = m_WingWakeVec.size();
+    int nbwake = m_BodyWakeVec.size();
+    int nbpwake = m_BodyNodeWakeVec.size();
+
+    int nwake = nwwake + nbwake + nbpwake;
 
     fprintf( file_id, "%d\n", nwake );
 
     WriteVSPGeomEdgeWakes( file_id, m_WingWakeVec, 1 );
+    WriteVSPGeomEdgeWakes( file_id, m_BodyWakeVec, -1 );
+
+    for ( int iwake = 0; iwake < nbpwake; iwake++ )
+    {
+        fprintf( file_id, "-1 %d\n", m_BodyNodeWakeVec[iwake]->m_Pt->m_ID + 1 );
+    }
 }
 
 void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
@@ -3922,7 +3932,9 @@ void PGMulti::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
     for ( int imesh = m_MeshVec.size() - 1; imesh >= 0; imesh-- )
     {
         PGMesh *pgm = m_MeshVec[imesh];
-        fprintf( file_id, "%d %d %d\n", pgm->m_NodeList.size(), pgm->m_FaceList.size(), pgm->m_WingWakeVec.size() );
+        fprintf( file_id, "%d %d %d\n", pgm->m_NodeList.size(),
+                                        pgm->m_FaceList.size(),
+                                        pgm->m_WingWakeVec.size() + pgm->m_BodyWakeVec.size() + pgm->m_BodyNodeWakeVec.size() );
     }
 
     WriteVSPGeomPnts( file_id, XFormMat );
