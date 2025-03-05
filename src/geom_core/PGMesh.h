@@ -103,6 +103,7 @@ public:
     bool FaceRemoveNodeTest( PGFace* f ) const;
     bool ColinearNode() const;
     bool Check() const;
+    bool BodyWakeNode( const PGMesh *m ) const;
 
     bool DoubleBackNode( int &i, int &j ) const;
     void SealDoubleBackNode( PGMesh *pgm );
@@ -322,6 +323,7 @@ public:
     vector < vector < PGEdge * > > m_EdgeLoopVec;
     vector < vector < PGEdge* > > m_WingWakeVec;
     vector < vector < PGEdge* > > m_BodyWakeVec;
+    vector < PGNode* > m_BodyNodeVec;
 
     vector < PGFace* > m_Regions;
 
@@ -336,6 +338,7 @@ public:
     void IdentifyWingWakes( bool ContinueCoPlanarWakes );
     void ExtendBodyWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n );
     void IdentifyBodyWakes();
+    void IdentifyBodyNodeWakes();
 
     void IdentifyParents();
 

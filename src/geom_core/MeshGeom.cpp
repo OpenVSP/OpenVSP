@@ -1925,6 +1925,7 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool Co
 
         pgm->IdentifyWingWakes( ContinueCoPlanarWakes );
         pgm->IdentifyBodyWakes();
+        pgm->IdentifyBodyNodeWakes();
 
         PGMesh *pgm_prev = pgm;
         for ( int iref = 0; iref < n_ref; iref++ )
@@ -1944,6 +1945,7 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool Co
 
             pgmi->IdentifyWingWakes( ContinueCoPlanarWakes );
             pgmi->IdentifyBodyWakes();
+            pgmi->IdentifyBodyNodeWakes();
 
             pgm_prev = pgmi;
         }

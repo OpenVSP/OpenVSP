@@ -240,10 +240,12 @@ void NGonMeshGeom::UpdateDrawObj()
 
     int nwwake = pgm->m_WingWakeVec.size();
     int nbwake = pgm->m_BodyWakeVec.size();
+    int nbpwake = pgm->m_BodyNodeVec.size();
+
     m_WakeEdgeDrawObj_vec.resize( nwwake + nbwake );
 
     // Calculate constants for color sequence.
-    const int ncgrp = nwwake + nbwake; // Number of basic colors
+    const int ncgrp = nwwake + nbwake + nbpwake; // Number of basic colors
     const int ncstep = 1;
     const double nctodeg = 360.0/(ncgrp*ncstep);
 
@@ -326,6 +328,39 @@ void NGonMeshGeom::UpdateDrawObj()
                 m_WakeEdgeDrawObj_vec[iwake].m_PntVec[i] = trans.xform( nodVec[i]->m_Pt->m_Pnt );
             }
         }
+    }
+
+
+    m_WakeNodeDrawObj_vec.resize( nbpwake );
+
+    for ( int ibpwake = 0; ibpwake < nbpwake; ibpwake++, iwake++ )
+    {
+        // Color sequence -- go around color wheel ncstep times with slight
+        // offset from ncgrp basic colors.
+        // Note, (cnt/ncgrp) uses integer division resulting in floor.
+        double deg = 0 + ( ( iwake % ncgrp ) * ncstep + ( iwake / ncgrp ) ) * nctodeg;
+
+        if ( deg > 360 )
+        {
+            deg = (int)deg % 360;
+        }
+
+        vec3d rgb = m_WakeEdgeDrawObj_vec[iwake].ColorWheel( deg );
+        rgb.normalize();
+
+        m_WakeNodeDrawObj_vec[ibpwake].m_Type = DrawObj::VSP_POINTS;
+        m_WakeNodeDrawObj_vec[ibpwake].m_PointSize = 8;
+        m_WakeNodeDrawObj_vec[ibpwake].m_PointColor = rgb;
+        m_WakeNodeDrawObj_vec[ibpwake].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        char str[255];
+        snprintf( str, sizeof( str ),  "_%d", iwake );
+        m_WakeNodeDrawObj_vec[ibpwake].m_GeomID = m_ID + "Feature_" + str;
+
+        m_WakeNodeDrawObj_vec[ibpwake].m_GeomChanged = true;
+
+        vec3d pt = trans.xform( pgm->m_BodyNodeVec[ibpwake]->m_Pt->m_Pnt );
+        m_WakeNodeDrawObj_vec[ibpwake].m_PntVec.push_back( pt );
     }
 
     //==== Bounding Box ====//
@@ -534,6 +569,12 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         m_WakeEdgeDrawObj_vec[i].m_Visible = !m_ShowNonManifoldEdges() && visible;
         draw_obj_vec.push_back( &m_WakeEdgeDrawObj_vec[i] );
+    }
+
+    for ( int i = 0; i < m_WakeNodeDrawObj_vec.size(); i++ )
+    {
+        m_WakeNodeDrawObj_vec[i].m_Visible = !m_ShowNonManifoldEdges() && visible;
+        draw_obj_vec.push_back( &m_WakeNodeDrawObj_vec[i] );
     }
 
     m_BadEdgeTooFewDO.m_Visible = m_ShowNonManifoldEdges() && visible;

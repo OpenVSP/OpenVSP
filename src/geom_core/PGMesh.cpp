@@ -306,6 +306,48 @@ bool PGNode::Check() const
     return true;
 }
 
+bool PGNode::BodyWakeNode( const PGMesh *m ) const
+{
+    const double tol = 1e-12;
+
+    std::map< int, vec2d >::const_iterator it;
+    for( it = m_TagUWMap.begin(); it != m_TagUWMap.end(); ++it )
+    {
+        int tag = it->first;
+        vec2d uw = it->second;
+
+        int part = m->m_PGMulti->GetPart( tag );
+        int type = m->m_PGMulti->GetType( part );
+        double uscale = m->m_PGMulti->GetUscale( part );
+        int thick = m->m_PGMulti->GetThickThin( part );
+
+        if ( type == vsp::NORMAL_SURF )
+        {
+            if ( uw.x() >= ( uscale - tol ) )  // this is a wake node.
+            {
+
+                for ( int ie = 0; ie < m_EdgeVec.size(); ie++ )
+                {
+                    PGEdge *e = m_EdgeVec[ ie ];
+
+                    PGNode *n = e->OtherNode( this );
+
+                    vec2d uw1;
+                    if ( n->GetUW( tag, uw1 ) )
+                    {
+                        if ( uw1.x() >= ( uscale - tol ) )  // this is also a wake node.
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 bool PGNode::DoubleBackNode( int &i, int &j ) const
 {
     double tol = 1e-10;
@@ -2487,6 +2529,22 @@ void PGMesh::IdentifyBodyWakes( )
     // printf( "IdentifyBodyWakes() %d wakes found.\n", m_BodyWakeVec.size() );
 
     ResetEdgeLoopFlags();
+}
+
+void PGMesh::IdentifyBodyNodeWakes( )
+{
+    m_BodyNodeVec.clear();
+
+    list< PGNode* >::iterator n;
+    for ( n = m_NodeList.begin(); n != m_NodeList.end(); ++n )
+    {
+        if ( ( *n )->BodyWakeNode( this ) )
+        {
+            m_BodyNodeVec.push_back( *n );
+        }
+    }
+
+    // printf( "IdentifyBodyNodeWakes() %d wakes found.\n", m_BodyNodeVec.size() );
 }
 
 void PGMesh::StartMatlab()
