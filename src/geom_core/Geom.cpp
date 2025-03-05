@@ -1715,40 +1715,11 @@ void Geom::GetUWTess01( const int &indx, vector < double > &u, vector < double >
     }
 }
 
-// ver. A
-// Legacy wrapper calls that do not require uw_pnts.  Could eliminate by putting dummy uw_pnts in each call location.
-//
-// Called from:
-// Geom::CreateGeomResults
-// Geom::WritePLOT3DFileExtents
-// Geom::WritePLOT3DFileXYZ
-// Geom::WritePMARCGeomFile
-// Geom::WritePovRay
-// Geom::WriteX3D
-// Geom::WriteXSecFile
-void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen ) const
-{
-    vector< vector< vec3d > > uw_pnts;
-    UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, degen );
-}
-
-// Helper for ver. C
 void Geom::UpdateTesselate( const VspSurf &surf, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const
 {
     surf.Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen );
 }
 
-// ver. C
-// Low-level version that allows passing an arbitrary surf_vec as an argument.  Designed to be called for
-// m_MainSurfVec or m_SurfVec interchangeably.
-//
-// Called from:
-// Geom::CreateDegenGeom
-// Geom::UpdateTesselate ver A
-// Geom::UpdateTesselate ver B
-//
-// Overridden by:
-// XXXGeom::UpdateTesselate to provide base functionality.
 void Geom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
                             vector< vector< vec3d > > &uw_pnts, bool degen ) const
 {
@@ -4881,8 +4852,9 @@ void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
         //==== Tessellate Surface ====//
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
+        vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( i, pnts, norms, false );
+        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
 
         //==== Write XSec Header ====//
         fprintf( dump_file, "\n" );
@@ -4919,8 +4891,9 @@ void Geom::WritePLOT3DFileExtents( FILE* dump_file )
         //==== Tessellate Surface ====//
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
+        vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( i, pnts, norms, false );
+        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
         //==== Write surface boundary extents ====//
         fprintf( dump_file, " %d %d %d\n", static_cast<int>( pnts[0].size() ), static_cast<int>( pnts.size() ), 1 );
     }
@@ -4933,8 +4906,9 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
         //==== Tessellate Surface ====//
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
+        vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( i, pnts, norms, false );
+        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
 
         //==== Write XSec Data ====//
         for ( int j = 0 ; j < ( int )pnts.size() ; j++ )
@@ -5005,8 +4979,9 @@ void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat, vector 
         //==== Tessellate Surface ====//
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
+        vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( i, pnts, norms, false );
+        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
 
         wstart[ipatch] = 0;
         wend[ipatch] = 0;
@@ -5138,7 +5113,8 @@ void Geom::CreateGeomResults( Results* res )
         //==== Tessellate Surface ====//
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
-        UpdateTesselate( i, pnts, norms, false );
+        vector< vector< vec3d > > uw_pnts;
+        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
 
         res->Add( NameValData( "Num_XSecs", static_cast<int>( pnts.size() ), "Number of cross sections." ) );
 
@@ -5175,7 +5151,8 @@ void Geom::WriteX3D( xmlNodePtr node )
     {
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
-        UpdateTesselate( i, pnts, norms, false );
+        vector< vector< vec3d > > uw_pnts;
+        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
         unsigned int num_xsecs = pnts.size();
         unsigned int num_pnts = pnts[0].size();
         bool f_norm = GetFlipNormal( i );
@@ -5244,7 +5221,8 @@ void Geom::WritePovRay( FILE* fid, int comp_num )
         vector< vector< vec3d > > norms;
         vec3d n0, n1, n2, n3, v0, v1, v2, v3;
 
-        UpdateTesselate( i, pnts, norms, false );
+        vector< vector< vec3d > > uw_pnts;
+        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
 
         for ( int xs = 0 ; xs < ( int )pnts.size() - 1 ; xs++ )
         {
