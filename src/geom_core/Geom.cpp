@@ -1697,7 +1697,7 @@ void Geom::GetUWTess01( const int &indx, vector < double > &u, vector < double >
     vector< vector< vec3d > > norms;
     vector< vector< vec3d > > uw_pnts;
 
-    UpdateTesselate( indx, pnts, norms, uw_pnts, false );
+    UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, false );
 
     double umx = GetUMax( indx );
     double wmx = GetWMax( indx );
@@ -1729,18 +1729,6 @@ void Geom::GetUWTess01( const int &indx, vector < double > &u, vector < double >
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen ) const
 {
     vector< vector< vec3d > > uw_pnts;
-    UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, degen );
-}
-
-// ver. B
-// Legacy wrapper calls that assume m_SurfVec and need uw_pnts.
-//
-// Called from:
-// Geom::CreateTMeshVec
-// Geom::GetUWTess01
-void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
-                            vector< vector< vec3d > > &uw_pnts, bool degen ) const
-{
     UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, degen );
 }
 
