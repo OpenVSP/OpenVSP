@@ -730,6 +730,40 @@ bool PGEdge::WingWakeEdge( const PGMesh *m, const bool ContinueCoPlanarWakes ) c
     return false;
 }
 
+bool PGEdge::BodyWakeEdge( const PGMesh *m ) const
+{
+    const double tol = 1e-12;
+
+    int nface = m_FaceVec.size();
+
+    for ( int i = 0; i < nface; i++ )
+    {
+        PGFace *f = m_FaceVec[i];
+
+        int tag = f->m_Tag;
+        int part = m->m_PGMulti->GetPart( tag );
+        int type = m->m_PGMulti->GetType( part );
+        double uscale = m->m_PGMulti->GetUscale( part );
+
+        int thick = m->m_PGMulti->GetThickThin( part );
+
+        if ( type == vsp::NORMAL_SURF )
+        {
+            vec2d uw0, uw1;
+            if ( m_N0->GetUW( tag, uw0 ) && m_N1->GetUW( tag, uw1 ) )  // Both nodes have needed tags.
+            {
+                if ( uw0.x() >= ( uscale - tol ) &&
+                     uw1.x() >= ( uscale - tol ) )
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
@@ -2392,6 +2426,65 @@ void PGMesh::IdentifyWingWakes( const bool ContinueCoPlanarWakes )
     }
 
     // printf( "IdentifyWakes() %d wakes found.\n", m_WingWakeVec.size() );
+
+    ResetEdgeLoopFlags();
+}
+
+
+void PGMesh::ExtendBodyWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n )
+{
+    e->m_InCurrentLoopFlag = true;
+
+    int nedg = n->m_EdgeVec.size();
+
+    for ( int i = 0; i < nedg; i++ )
+    {
+        PGEdge * ei = n->m_EdgeVec[ i ];
+        if ( ei && ei != e && !ei->m_InLoopFlag && !ei->m_InCurrentLoopFlag )
+        {
+            if ( ei->BodyWakeEdge( this ) )
+            {
+                PGNode * ni = ei->OtherNode( n );
+
+                wake.push_back( ei );
+                ei->m_InLoopFlag = true;
+
+                ExtendBodyWake( wake, ei, ni );
+                return;
+            }
+        }
+    }
+
+    e->m_InCurrentLoopFlag = false;
+}
+
+
+void PGMesh::IdentifyBodyWakes( )
+{
+    m_BodyWakeVec.clear();
+
+    list< PGEdge* >::iterator e;
+    for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    {
+        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->BodyWakeEdge( this ) )
+        {
+            (*e)->m_InLoopFlag = true;
+
+            vector < PGEdge * > wake;
+            wake.push_back( *e );
+
+            ExtendBodyWake( wake, (*e), (*e)->m_N0 );
+
+            std::reverse( wake.begin(), wake.end() );
+
+            ExtendBodyWake( wake, (*e), (*e)->m_N1 );
+
+
+            m_BodyWakeVec.push_back( wake );
+        }
+    }
+
+    // printf( "IdentifyBodyWakes() %d wakes found.\n", m_BodyWakeVec.size() );
 
     ResetEdgeLoopFlags();
 }

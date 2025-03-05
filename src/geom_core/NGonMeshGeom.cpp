@@ -238,15 +238,17 @@ void NGonMeshGeom::UpdateDrawObj()
         }
     }
 
-    int nwake = pgm->m_WingWakeVec.size();
-    m_WakeDrawObj_vec.resize( nwake );
+    int nwwake = pgm->m_WingWakeVec.size();
+    int nbwake = pgm->m_BodyWakeVec.size();
+    m_WakeDrawObj_vec.resize( nwwake + nbwake );
 
     // Calculate constants for color sequence.
-    const int ncgrp = nwake; // Number of basic colors
+    const int ncgrp = nwwake + nbwake; // Number of basic colors
     const int ncstep = 1;
     const double nctodeg = 360.0/(ncgrp*ncstep);
 
-    for ( int iwake = 0; iwake < nwake; iwake++ )
+    int iwake = 0;
+    for ( int iwwake = 0; iwwake < nwwake; iwwake++, iwake++ )
     {
 
         // Color sequence -- go around color wheel ncstep times with slight
@@ -274,7 +276,47 @@ void NGonMeshGeom::UpdateDrawObj()
         m_WakeDrawObj_vec[iwake].m_GeomChanged = true;
 
         vector< PGNode* > nodVec;
-        GetNodes( pgm->m_WingWakeVec[iwake], nodVec );
+        GetNodes( pgm->m_WingWakeVec[iwwake], nodVec );
+
+        m_WakeDrawObj_vec[iwake].m_PntVec.resize( nodVec.size() );
+        for ( int i = 0; i < nodVec.size(); i++ )
+        {
+            if ( nodVec[i] )
+            {
+                m_WakeDrawObj_vec[iwake].m_PntVec[i] = trans.xform( nodVec[i]->m_Pt->m_Pnt );
+            }
+        }
+    }
+
+    for ( int ibwake = 0; ibwake < nbwake; ibwake++, iwake++ )
+    {
+
+        // Color sequence -- go around color wheel ncstep times with slight
+        // offset from ncgrp basic colors.
+        // Note, (cnt/ncgrp) uses integer division resulting in floor.
+        double deg = 0 + ( ( iwake % ncgrp ) * ncstep + ( iwake / ncgrp ) ) * nctodeg;
+
+        if ( deg > 360 )
+        {
+            deg = (int)deg % 360;
+        }
+
+        vec3d rgb = m_WakeDrawObj_vec[iwake].ColorWheel( deg );
+        rgb.normalize();
+
+        m_WakeDrawObj_vec[iwake].m_Type = DrawObj::VSP_LINE_STRIP;
+        m_WakeDrawObj_vec[iwake].m_LineWidth = 5;
+        m_WakeDrawObj_vec[iwake].m_LineColor = rgb;
+        m_WakeDrawObj_vec[iwake].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        char str[255];
+        snprintf( str, sizeof( str ),  "_%d", iwake );
+        m_WakeDrawObj_vec[iwake].m_GeomID = m_ID + "Feature_" + str;
+
+        m_WakeDrawObj_vec[iwake].m_GeomChanged = true;
+
+        vector< PGNode* > nodVec;
+        GetNodes( pgm->m_BodyWakeVec[ibwake], nodVec );
 
         m_WakeDrawObj_vec[iwake].m_PntVec.resize( nodVec.size() );
         for ( int i = 0; i < nodVec.size(); i++ )
