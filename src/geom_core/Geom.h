@@ -867,6 +867,7 @@ protected:
 
     virtual void UpdatePreTess()   {};
 
+    virtual void UpdateTess( const VspSurf & surf, SimpleTess &tess, SimpleFeatureTess &featureTess );
     virtual void UpdateMainTessVec( bool firstonly = false );
     virtual void UpdateTessVec();
 

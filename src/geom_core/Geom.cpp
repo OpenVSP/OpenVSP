@@ -3116,6 +3116,37 @@ void Geom::UpdateDegenDrawObj()
     }
 }
 
+void Geom::UpdateTess( const VspSurf & surf, SimpleTess &tess, SimpleFeatureTess &featureTess )
+{
+    double tol = 1e-3;
+
+    UpdateSplitTesselate( surf, tess.m_pnts, tess.m_norms );
+
+    bool fn = surf.GetFlipNormal();
+    tess.m_FlipNormal = fn;
+    featureTess.m_FlipNormal = fn;
+
+    int nu = surf.GetNumUFeature();
+    int nw = surf.GetNumWFeature();
+
+    tess.m_nufeat = nu;
+    tess.m_nvfeat = nw;
+
+    tess.CalcTexCoords();
+
+    featureTess.m_ptline.resize( nu + nw );
+
+    for( int j = 0; j < nu; j++ )
+    {
+        surf.TessUFeatureLine( j, featureTess.m_ptline[j], tol );
+    }
+
+    for( int j = 0; j < nw; j++ )
+    {
+        surf.TessWFeatureLine( j, featureTess.m_ptline[j+nu], tol );
+    }
+}
+
 // Compute all the main surface tessellations
 // Also compute the main surface feature line tessellations
 // firstonly is a flag to only operate on the first element of m_MainTessVec.  This is a trick to only
@@ -3138,31 +3169,7 @@ void Geom::UpdateMainTessVec( bool firstonly )
 
     for ( int i = 0 ; i < nmain ; i++ )
     {
-        UpdateSplitTesselate( m_MainSurfVec, i, m_MainTessVec[i].m_pnts, m_MainTessVec[i].m_norms );
-
-        bool fn = m_MainSurfVec[i].GetFlipNormal();
-        m_MainTessVec[i].m_FlipNormal = fn;
-        m_MainFeatureTessVec[i].m_FlipNormal = fn;
-
-        int nu = m_MainSurfVec[i].GetNumUFeature();
-        int nw = m_MainSurfVec[i].GetNumWFeature();
-
-        m_MainTessVec[i].m_nufeat = nu;
-        m_MainTessVec[i].m_nvfeat = nw;
-
-        m_MainTessVec[i].CalcTexCoords();
-
-        m_MainFeatureTessVec[i].m_ptline.resize( nu + nw );
-
-        for( int j = 0; j < nu; j++ )
-        {
-            m_MainSurfVec[i].TessUFeatureLine( j, m_MainFeatureTessVec[i].m_ptline[j], tol );
-        }
-
-        for( int j = 0; j < nw; j++ )
-        {
-            m_MainSurfVec[i].TessWFeatureLine( j, m_MainFeatureTessVec[i].m_ptline[j+nu], tol );
-        }
+        UpdateTess( m_MainSurfVec[i], m_MainTessVec[i], m_MainFeatureTessVec[i] );
     }
 }
 
