@@ -1467,6 +1467,47 @@ void PropGeom::UpdateMainTessVec( bool firstonly )
     }
 }
 
+void PropGeom::UpdateMainDegenGeomPreview()
+{
+    DegenGeom degenGeom;
+    CreateDegenGeom( m_BladeSurf, 0, degenGeom, true );
+
+    int nmain = GetNumMainSurfs();
+
+    m_MainDegenGeomPreviewVec.clear();
+    m_MainDegenGeomPreviewVec.resize( nmain, degenGeom );
+
+    double rev = 1.0;
+    if ( m_ReverseFlag() )
+    {
+        rev = -1.0;
+    }
+
+    Matrix4d rigid;
+    Matrix4d rot;
+    for ( int i = 0; i < m_Nblade(); i++ )
+    {
+        if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
+        {
+            RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
+        }
+        else
+        {
+            RigidBladeMotion( rigid, m_FoldAngle() );
+        }
+        m_MainDegenGeomPreviewVec[i].Transform( rigid );
+
+        if ( i > 0 )
+        {
+            double theta = -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get();
+            rot.loadIdentity();
+            rot.rotateX( theta );
+
+            m_MainDegenGeomPreviewVec[i].Transform( rot );
+        }
+    }
+}
+
 void PropGeom::UpdateBladeAzimuth()
 {
     for ( int i = 1; i < m_Nblade(); i++ )

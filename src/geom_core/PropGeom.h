@@ -230,6 +230,7 @@ protected:
 
     virtual void UpdateSurf();
     virtual void UpdateMainTessVec( bool firstonly );
+    virtual void UpdateMainDegenGeomPreview();
     virtual void UpdateBladeAzimuth();
 
     virtual void BalanceBlades( vector < double > & thetavec );
