@@ -103,7 +103,7 @@ public:
     bool FaceRemoveNodeTest( PGFace* f ) const;
     bool ColinearNode() const;
     bool Check() const;
-    bool BodyWakeNode( const PGMesh *m ) const;
+    bool BodyWakeNode( const PGMesh *m, int &part ) const;
 
     bool DoubleBackNode( int &i, int &j ) const;
     void SealDoubleBackNode( PGMesh *pgm );
@@ -162,8 +162,8 @@ public:
 
     bool Validate() const;
 
-    bool WingWakeEdge( const PGMesh *m, bool ContinueCoPlanarWakes ) const;
-    bool BodyWakeEdge( const PGMesh *m ) const;
+    bool WingWakeEdge( const PGMesh *m, bool ContinueCoPlanarWakes, int &part ) const;
+    bool BodyWakeEdge( const PGMesh *m, int &part ) const;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -322,8 +322,11 @@ public:
     vector < PGNode* > m_DoubleBackNode;
     vector < vector < PGEdge * > > m_EdgeLoopVec;
     vector < vector < PGEdge* > > m_WingWakeVec;
+    vector < int > m_WingWakePartVec;
     vector < vector < PGEdge* > > m_BodyWakeVec;
+    vector < int > m_BodyWakePartVec;
     vector < PGNode* > m_BodyNodeWakeVec;
+    vector < int > m_BodyNodeWakePartVec;
 
     vector < PGFace* > m_Regions;
 
@@ -374,7 +377,7 @@ public:
     void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomFaces( FILE* file_id );
     void WriteVSPGeomParts( FILE* file_id );
-    void WriteVSPGeomEdgeWakes( FILE* file_id, const vector < vector < PGEdge* > > &ewake, int wingbodyflag ) const;
+    void WriteVSPGeomEdgeWakes( FILE* file_id, const vector < vector < PGEdge* > > &ewake, const vector < int > &partvec, int wingbodyflag ) const;
     void WriteVSPGeomWakes( FILE* file_id ) const;
     void WriteVSPGeomAlternateTris( FILE* file_id );
     void WriteVSPGeomAlternateParts( FILE* file_id );

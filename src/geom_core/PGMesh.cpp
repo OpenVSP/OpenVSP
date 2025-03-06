@@ -306,7 +306,7 @@ bool PGNode::Check() const
     return true;
 }
 
-bool PGNode::BodyWakeNode( const PGMesh *m ) const
+bool PGNode::BodyWakeNode( const PGMesh *m, int & part ) const
 {
     const double tol = 1e-12;
 
@@ -316,7 +316,7 @@ bool PGNode::BodyWakeNode( const PGMesh *m ) const
         int tag = it->first;
         vec2d uw = it->second;
 
-        int part = m->m_PGMulti->GetPart( tag );
+        part = m->m_PGMulti->GetPart( tag );
         int type = m->m_PGMulti->GetType( part );
         double uscale = m->m_PGMulti->GetUscale( part );
         int thick = m->m_PGMulti->GetThickThin( part );
@@ -730,7 +730,7 @@ bool PGEdge::Validate() const
     return valid;
 }
 
-bool PGEdge::WingWakeEdge( const PGMesh *m, const bool ContinueCoPlanarWakes ) const
+bool PGEdge::WingWakeEdge( const PGMesh *m, const bool ContinueCoPlanarWakes, int &part ) const
 {
     const double tol = 1e-12;
 
@@ -741,7 +741,7 @@ bool PGEdge::WingWakeEdge( const PGMesh *m, const bool ContinueCoPlanarWakes ) c
         PGFace *f = m_FaceVec[i];
 
         int tag = f->m_Tag;
-        int part = m->m_PGMulti->GetPart( tag );
+        part = m->m_PGMulti->GetPart( tag );
         int type = m->m_PGMulti->GetType( part );
         double wmin = m->m_PGMulti->GetWmin( part );
 
@@ -772,7 +772,7 @@ bool PGEdge::WingWakeEdge( const PGMesh *m, const bool ContinueCoPlanarWakes ) c
     return false;
 }
 
-bool PGEdge::BodyWakeEdge( const PGMesh *m ) const
+bool PGEdge::BodyWakeEdge( const PGMesh *m, int &part ) const
 {
     const double tol = 1e-12;
 
@@ -783,7 +783,7 @@ bool PGEdge::BodyWakeEdge( const PGMesh *m ) const
         PGFace *f = m_FaceVec[i];
 
         int tag = f->m_Tag;
-        int part = m->m_PGMulti->GetPart( tag );
+        part = m->m_PGMulti->GetPart( tag );
         int type = m->m_PGMulti->GetType( part );
         double uscale = m->m_PGMulti->GetUscale( part );
 
@@ -2425,7 +2425,8 @@ void PGMesh::ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode
         PGEdge * ei = n->m_EdgeVec[ i ];
         if ( ei && ei != e && !ei->m_InLoopFlag && !ei->m_InCurrentLoopFlag )
         {
-            if ( ei->WingWakeEdge( this, ContinueCoPlanarWakes ) )
+            int part = -1;
+            if ( ei->WingWakeEdge( this, ContinueCoPlanarWakes, part ) )
             {
                 PGNode * ni = ei->OtherNode( n );
 
@@ -2445,11 +2446,13 @@ void PGMesh::ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode
 void PGMesh::IdentifyWingWakes( const bool ContinueCoPlanarWakes )
 {
     m_WingWakeVec.clear();
+    m_WingWakePartVec.clear();
 
     list< PGEdge* >::iterator e;
     for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
     {
-        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->WingWakeEdge( this, ContinueCoPlanarWakes ) )
+        int part = -1;
+        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->WingWakeEdge( this, ContinueCoPlanarWakes, part ) )
         {
             (*e)->m_InLoopFlag = true;
 
@@ -2464,6 +2467,7 @@ void PGMesh::IdentifyWingWakes( const bool ContinueCoPlanarWakes )
 
 
             m_WingWakeVec.push_back( wake );
+            m_WingWakePartVec.push_back( part );
         }
     }
 
@@ -2484,7 +2488,8 @@ void PGMesh::ExtendBodyWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode
         PGEdge * ei = n->m_EdgeVec[ i ];
         if ( ei && ei != e && !ei->m_InLoopFlag && !ei->m_InCurrentLoopFlag )
         {
-            if ( ei->BodyWakeEdge( this ) )
+            int part = -1;
+            if ( ei->BodyWakeEdge( this, part ) )
             {
                 PGNode * ni = ei->OtherNode( n );
 
@@ -2504,11 +2509,13 @@ void PGMesh::ExtendBodyWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode
 void PGMesh::IdentifyBodyWakes( )
 {
     m_BodyWakeVec.clear();
+    m_BodyWakePartVec.clear();
 
     list< PGEdge* >::iterator e;
     for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
     {
-        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->BodyWakeEdge( this ) )
+        int part = -1;
+        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->BodyWakeEdge( this, part ) )
         {
             (*e)->m_InLoopFlag = true;
 
@@ -2523,6 +2530,7 @@ void PGMesh::IdentifyBodyWakes( )
 
 
             m_BodyWakeVec.push_back( wake );
+            m_BodyWakePartVec.push_back( part );
         }
     }
 
@@ -2534,13 +2542,16 @@ void PGMesh::IdentifyBodyWakes( )
 void PGMesh::IdentifyBodyNodeWakes( )
 {
     m_BodyNodeWakeVec.clear();
+    m_BodyNodeWakePartVec.clear();
 
     list< PGNode* >::iterator n;
     for ( n = m_NodeList.begin(); n != m_NodeList.end(); ++n )
     {
-        if ( ( *n )->BodyWakeNode( this ) )
+        int part = -1;
+        if ( ( *n )->BodyWakeNode( this, part ) )
         {
             m_BodyNodeWakeVec.push_back( *n );
+            m_BodyNodeWakePartVec.push_back( part );
         }
     }
 
@@ -3219,7 +3230,7 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
     }
 }
 
-void PGMesh::WriteVSPGeomEdgeWakes( FILE* file_id, const vector < vector < PGEdge* > > &ewake, int wingbodyflag ) const
+void PGMesh::WriteVSPGeomEdgeWakes( FILE* file_id, const vector < vector < PGEdge* > > &ewake, const vector < int > &partvec, int wingbodyflag ) const
 {
     int nWakeError = 0;
     int nwake = ewake.size();
@@ -3230,7 +3241,7 @@ void PGMesh::WriteVSPGeomEdgeWakes( FILE* file_id, const vector < vector < PGEdg
         GetNodes( ewake[iwake], nodVec );
 
         int nwn = nodVec.size();
-        fprintf( file_id, "%d ", nwn * wingbodyflag );
+        fprintf( file_id, "%d %d ", nwn * wingbodyflag, partvec[iwake] );
 
         int iprt = 0;
         bool wakeError = false;
@@ -3285,12 +3296,12 @@ void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
 
     fprintf( file_id, "%d\n", nwake );
 
-    WriteVSPGeomEdgeWakes( file_id, m_WingWakeVec, 1 );
-    WriteVSPGeomEdgeWakes( file_id, m_BodyWakeVec, -1 );
+    WriteVSPGeomEdgeWakes( file_id, m_WingWakeVec, m_WingWakePartVec, 1 );
+    WriteVSPGeomEdgeWakes( file_id, m_BodyWakeVec, m_BodyWakePartVec, -1 );
 
     for ( int iwake = 0; iwake < nbpwake; iwake++ )
     {
-        fprintf( file_id, "-1 %d\n", m_BodyNodeWakeVec[iwake]->m_Pt->m_ID + 1 );
+        fprintf( file_id, "-1 %d %d\n", m_BodyNodeWakePartVec[iwake], m_BodyNodeWakeVec[iwake]->m_Pt->m_ID + 1 );
     }
 }
 
