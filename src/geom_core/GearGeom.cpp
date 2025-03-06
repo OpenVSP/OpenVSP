@@ -513,8 +513,11 @@ xmlNodePtr GearGeom::DecodeXml( xmlNodePtr & node )
             xmlNodePtr parmcontain_node = XmlUtil::GetNode( label_node, "ParmContainer", 0 );
             if ( parmcontain_node )
             {
-                CreateAndAddBogie();
-                GetCurrentBogie()->DecodeXml( label_node );
+                Bogie * bogie = CreateAndAddBogie();
+                if ( bogie )
+                {
+                    bogie->DecodeXml( label_node );
+                }
             }
         }
     }
