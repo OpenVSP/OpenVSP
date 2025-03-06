@@ -6025,7 +6025,10 @@ void Vehicle::CreateDegenGeom( int set, bool useMode, const string &modeID )
             }
             else
             {
-                geom_vec[i]->CreateDegenGeom( m_DegenGeomVec );
+                vector < DegenGeom > dgs;
+                geom_vec[i]->CreateDegenGeom( dgs );
+                // m_DegenGeomVec accumulates here.
+                m_DegenGeomVec.insert( m_DegenGeomVec.end(), dgs.begin(), dgs.end() );
             }
         }
     }

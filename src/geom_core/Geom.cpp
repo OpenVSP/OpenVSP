@@ -4064,11 +4064,10 @@ void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool
 
 void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector<DegenGeom> &dgs, bool preview )
 {
+    dgs.resize( nsurf );
     for ( int i = 0 ; i < nsurf ; i++ )
     {
-        DegenGeom degenGeom;
-        CreateDegenGeom( surf_vec[i], i, degenGeom, preview );
-        dgs.push_back(degenGeom);
+        CreateDegenGeom( surf_vec[i], i, dgs[i], preview );
     }
 }
 

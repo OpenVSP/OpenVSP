@@ -4139,9 +4139,11 @@ void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
 {
     unsigned int num_meshes = m_TMeshVec.size();
 
+    dgs.resize( num_meshes );
+
     for ( int i = 0; i < num_meshes; i++ )
     {
-        DegenGeom degenGeom;
+        DegenGeom &degenGeom = dgs[i];
 
         degenGeom.setType( DegenGeom::MESH_TYPE );
 
@@ -4153,18 +4155,16 @@ void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
 
         Matrix4d trans = GetTotalTransMat();
 
-        vector < double > tmatvec;
+        vector < double > tmatvec( 16 );
         for ( int j = 0; j < 16; j++ )
         {
-            tmatvec.push_back( trans.data()[ j ] );
+            tmatvec[ j ] = trans.data()[ j ];
         }
         degenGeom.setTransMat( tmatvec );
 
         degenGeom.setNumXSecs( 0 );
         degenGeom.setNumPnts( 0 );
         degenGeom.setName( GetName() );
-
-        dgs.push_back(degenGeom);
     }
 }
 
