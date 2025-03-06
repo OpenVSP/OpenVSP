@@ -5231,6 +5231,10 @@ void Vehicle::UpdateBBox()
         m_BbXMin = new_box.GetMin( 0 );
         m_BbYMin = new_box.GetMin( 1 );
         m_BbZMin = new_box.GetMin( 2 );
+    }
+
+    if( ngeom > 0 && ( scale_independent_box != m_ScaleIndependentBBox ) )
+    {
 
         m_ScaleIndependentBbXLen = scale_independent_box.GetMax( 0 ) - scale_independent_box.GetMin( 0 );
         m_ScaleIndependentBbYLen = scale_independent_box.GetMax( 1 ) - scale_independent_box.GetMin( 1 );
@@ -5239,10 +5243,7 @@ void Vehicle::UpdateBBox()
         m_ScaleIndependentBbXMin = scale_independent_box.GetMin( 0 );
         m_ScaleIndependentBbYMin = scale_independent_box.GetMin( 1 );
         m_ScaleIndependentBbZMin = scale_independent_box.GetMin( 2 );
-    }
 
-    if (ngeom > 0 && ( scale_independent_box != m_ScaleIndependentBBox ) ) // Check if it has changed
-    {
         for ( int i = 0 ; i < ngeom ; i++ )
         {
             // If so, loop through all Geoms, asking if they are sensitive to overall model scale.
