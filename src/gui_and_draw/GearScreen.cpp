@@ -25,6 +25,11 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 600, "Gear" )
 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
 
+
+    m_DesignLayout.AddButton( m_AutoPlaneSizeToggle, "Auto" );
+    m_DesignLayout.AddSlider( m_PlaneSizeSlider, "Plane Size", 10.0, "%6.5f" );
+
+
     m_BogieBrowser = m_DesignLayout.AddFlBrowser( 100 );
     m_BogieBrowser->callback( staticScreenCB, this );
     m_DesignLayout.AddInput( m_BogieNameInput, "Name:" );
@@ -217,6 +222,19 @@ bool Gearcreen::Update()
     //==== Update Pod Specific Parms ====//
     GearGeom* gear_ptr = dynamic_cast< GearGeom* >( geom_ptr );
     assert( gear_ptr );
+
+
+    m_AutoPlaneSizeToggle.Update( gear_ptr->m_AutoPlaneFlag.GetID() );
+    m_PlaneSizeSlider.Update( gear_ptr->m_PlaneSize.GetID() );
+
+    if ( gear_ptr->m_AutoPlaneFlag() )
+    {
+        m_PlaneSizeSlider.Deactivate();
+    }
+    else
+    {
+        m_PlaneSizeSlider.Activate();
+    }
 
     std::vector < Bogie * > bogies = gear_ptr->GetBogieVec();
 

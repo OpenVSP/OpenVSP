@@ -39,6 +39,9 @@ protected:
     GroupLayout m_TireGroup;
 
 
+    ToggleButton m_AutoPlaneSizeToggle;
+    SliderAdjRangeInput m_PlaneSizeSlider;
+
     TriggerButton m_AddBogieButton;
     TriggerButton m_RenameBogieButton;
     TriggerButton m_RemoveBogieButton;

@@ -170,6 +170,8 @@ public:
     virtual void UpdateBBox();
     virtual bool IsModelScaleSensitive()        { return true; }
 
+    Parm m_PlaneSize;
+    BoolParm m_AutoPlaneFlag;
 
 protected:
     virtual void UpdateSurf();

@@ -279,6 +279,9 @@ GearGeom::GearGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Name = "Gear";
     m_Type.m_Type = GEAR_GEOM_TYPE;
 
+    m_PlaneSize.Init( "PlaneSize", "GroundPlane", this, 10.0, 0.0, 1e12 );
+    m_AutoPlaneFlag.Init( "AutoPlaneFlag", "GroundPlane", this, true, false, true );
+
     //==== Init Parms ====//
     m_TessU = 10;
     m_TessW = 8;
@@ -331,20 +334,19 @@ void GearGeom::UpdateSurf()
     }
 
 
-    BndBox emptybbox;
-    BndBox bbox = VehicleMgr.GetVehicle()->GetScaleIndependentBndBox();
+    if ( m_AutoPlaneFlag() )
+    {
+        BndBox bbox = VehicleMgr.GetVehicle()->GetScaleIndependentBndBox();
+        double diag = bbox.DiagDist();
 
-    if ( bbox != emptybbox )
-    {
-        bbox.Expand( 5.0 * bbox.DiagDist() );
-        m_MainSurfVec[0].CreatePlane( bbox.GetMin( 0 ), bbox.GetMax( 0 ), bbox.GetMin( 1 ), bbox.GetMax( 1 ) );
-    }
-    else
-    {
-        m_MainSurfVec[0].CreatePlane( -10, 10, -10, 10 );
+        if ( !bbox.IsEmpty() && diag != 0 )
+        {
+            m_PlaneSize = bbox.DiagDist();
+        }
     }
 
-
+    double d = m_PlaneSize();
+    m_MainSurfVec[0].CreatePlane( -d, d, -d, d );
 }
 
 void GearGeom::UpdateMainTessVec( bool firstonly )
