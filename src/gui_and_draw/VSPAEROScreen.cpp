@@ -2228,11 +2228,13 @@ void VSPAEROScreen::DisplayDegenVLMPreview()
                     geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_PLATE );
                 }
             }
-
             geom_vec[i]->m_GuiDraw.SetDrawType( vsp::DRAW_TYPE::GEOM_DRAW_SHADE );
             geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( true );
             geom_vec[i]->SetSetFlag( vsp::SET_SHOWN, true );
             geom_vec[i]->SetSetFlag( vsp::SET_NOT_SHOWN, false );
+
+            geom_vec[i]->SetDirtyFlag( GeomBase::TESS );
+            geom_vec[i]->Update();
         }
         else
         {

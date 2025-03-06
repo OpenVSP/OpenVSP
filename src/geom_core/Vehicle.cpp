@@ -1872,6 +1872,8 @@ void Vehicle::SetNormalDisplayType( int index )
             {
                 geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_BEZIER );
             }
+            geom_vec[i]->SetDirtyFlag( GeomBase::TESS );
+            geom_vec[i]->Update();
         }
     }
 }
@@ -1900,6 +1902,8 @@ void Vehicle::SetDegenDisplayType( int index )
                     geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_PLATE );
                 }
             }
+            geom_vec[i]->SetDirtyFlag( GeomBase::TESS );
+            geom_vec[i]->Update();
         }
     }
 }

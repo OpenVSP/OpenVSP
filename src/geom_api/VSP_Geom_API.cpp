@@ -2112,6 +2112,8 @@ void SetGeomDisplayType(const string &geom_id, int type)
         return;
     }
     geom_ptr->m_GuiDraw.SetDisplayType( type );
+    geom_ptr->SetDirtyFlag( GeomBase::TESS );
+    geom_ptr->SetLateUpdateFlag( true );
 
     ErrorMgr.NoError();
 }

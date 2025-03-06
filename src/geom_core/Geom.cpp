@@ -1641,15 +1641,27 @@ void Geom::Update( bool fullupdate )
         // Tessellate MainSurfVec
         if ( m_SurfDirty || m_TessDirty )
         {
-            UpdateMainTessVec();
-            UpdateMainDegenGeomPreview();
+            if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
+            {
+                UpdateMainTessVec();
+            }
+            else
+            {
+                UpdateMainDegenGeomPreview();
+            }
         }
 
         // Copy Tessellation for symmetry and XForm
         if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
         {
-            UpdateTessVec();
-            UpdateDegenGeomPreview();
+            if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
+            {
+                UpdateTessVec();
+            }
+            else
+            {
+                UpdateDegenGeomPreview();
+            }
         }
     }
 
@@ -2648,6 +2660,10 @@ void Geom::WriteProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox )
 void Geom::UpdateDrawObj()
 {
     m_FeatureDrawObj_vec.clear();
+    m_WireShadeDrawObj_vec.clear();
+
+    if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
+    {
     m_FeatureDrawObj_vec.resize(1);
     m_FeatureDrawObj_vec[0].m_GeomChanged = true;
     m_FeatureDrawObj_vec[0].m_LineWidth = 1.0;
@@ -2656,7 +2672,6 @@ void Geom::UpdateDrawObj()
     m_FeatureDrawObj_vec[0].m_GeomID = m_ID + "Feature_0";
     m_FeatureDrawObj_vec[0].m_Type = DrawObj::VSP_LINES;
 
-    m_WireShadeDrawObj_vec.clear();
     m_WireShadeDrawObj_vec.resize( 4 );
     m_WireShadeDrawObj_vec[0].m_FlipNormals = false;
     m_WireShadeDrawObj_vec[1].m_FlipNormals = true;
@@ -2729,6 +2744,7 @@ void Geom::UpdateDrawObj()
             }
         }
     }
+    }
 
     //==== Bounding Box ====//
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
@@ -2756,6 +2772,8 @@ void Geom::UpdateDrawObj()
         m_AxisDrawObj_vec[i].m_LineColor = c;
         m_AxisDrawObj_vec[i].m_GeomChanged = true;
     }
+
+    UpdateDegenDrawObj();
 }
 
 void Geom::UpdateDegenDrawObj()
@@ -2764,6 +2782,9 @@ void Geom::UpdateDegenDrawObj()
     m_DegenPlateDrawObj_vec.clear();
     m_DegenCamberPlateDrawObj_vec.clear();
     m_DegenSubSurfDrawObj_vec.clear();
+
+    if ( m_GuiDraw.GetDisplayType() != DISPLAY_TYPE::DISPLAY_BEZIER )
+    {
 
     for ( int i = 0; i < (int)m_DegenGeomPreviewVec.size(); i++ )
     {
@@ -3070,6 +3091,7 @@ void Geom::UpdateDegenDrawObj()
 
             m_DegenSubSurfDrawObj_vec.push_back( degen_subsurface_draw_obj );
         }
+    }
     }
 }
 
@@ -3706,11 +3728,6 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     char str[256];
 
     LoadMainDrawObjs( draw_obj_vec );
-
-    if ( m_GuiDraw.GetDisplayType() != DISPLAY_TYPE::DISPLAY_BEZIER )
-    {
-        UpdateDegenDrawObj();
-    }
 
     bool isactive = m_Vehicle->IsGeomActive( m_ID );
 

@@ -631,7 +631,8 @@ void ManageGeomScreen::SetGeomDisplayChoice( int type )
         if ( geom_vec[i] && type <= vsp::DISPLAY_TYPE::DISPLAY_DEGEN_CAMBER )
         {
             geom_vec[i]->m_GuiDraw.SetDisplayType( type );
-            geom_vec[i]->ResetGeomChangedFlag( true ); // Redraw the wire mesh
+            geom_vec[i]->SetDirtyFlag( GeomBase::TESS );
+            geom_vec[i]->SetLateUpdateFlag( true );
         }
     }
 

@@ -5091,6 +5091,9 @@ void StructScreen::OrientStructure( VSPGraphic::Common::VSPenum type )
             curr_geom->m_GuiDraw.SetDrawType( vsp::DRAW_TYPE::GEOM_DRAW_SHADE );
             curr_geom->m_GuiDraw.SetDispSubSurfFlag( true );
 
+            curr_geom->SetDirtyFlag( GeomBase::TESS );
+            curr_geom->Update();
+
             veh->ShowSet( 0 );
             veh->HideAllExcept( curr_struct->GetParentGeomID() );
             veh->ClearActiveGeom();
