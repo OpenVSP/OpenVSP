@@ -390,6 +390,37 @@ void GearGeom::UpdateMainTessVec( bool firstonly )
     UpdateTess( m_MainSurfVec[0], false, false, m_MainTessVec[0], m_MainFeatureTessVec[0] );
 }
 
+void GearGeom::UpdateMainDegenGeomPreview()
+{
+    int nmain = GetNumMainSurfs();
+
+    if ( m_MainDegenGeomPreviewVec.size() != nmain || !m_GlobalScaleDirty )
+    {
+        m_MainDegenGeomPreviewVec.clear();
+        m_MainDegenGeomPreviewVec.reserve( nmain );
+
+        m_MainDegenGeomPreviewVec.resize( 1 );
+
+        int nbogies = m_Bogies.size();
+        for ( int i = 0; i < nbogies; i++ )
+        {
+            if ( m_Bogies[i] )
+            {
+                DegenGeom degenGeom;
+                CreateDegenGeom( m_Bogies[i]->m_TireSurface, 0, degenGeom, true );
+
+                m_Bogies[i]->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec );
+            }
+        }
+    }
+
+    if ( nmain >= 1 )
+    {
+        // Update degen preview for ground plane
+        CreateDegenGeom( m_MainSurfVec[0], 0, m_MainDegenGeomPreviewVec[0], true );
+    }
+}
+
 //==== Compute Rotation Center ====//
 void GearGeom::ComputeCenter()
 {

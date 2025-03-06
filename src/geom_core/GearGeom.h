@@ -174,6 +174,7 @@ public:
 protected:
     virtual void UpdateSurf();
     virtual void UpdateMainTessVec( bool firstonly );
+    virtual void UpdateMainDegenGeomPreview();
 
     std::vector < Bogie * > m_Bogies;
     std::vector < int > m_BogieMainSurfIndex;
