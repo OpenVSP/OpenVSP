@@ -4082,10 +4082,10 @@ void Geom::CreateDegenGeom( DegenGeom &degenGeom, const vector< vector< vec3d > 
     degenGeom.setSymCopyInd( m_SurfCopyIndx[isurf] );
     degenGeom.setCfdSurfType( cfdsurftype );
 
-    vector < double > tmatvec;
+    vector < double > tmatvec( 16 );
     for ( int j = 0; j < 16; j++ )
     {
-        tmatvec.push_back( m_TransMatVec[isurf].data()[ j ] );
+        tmatvec[j] = m_TransMatVec[isurf].data()[ j ];
     }
     degenGeom.setTransMat( tmatvec );
 

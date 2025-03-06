@@ -319,22 +319,29 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
 {
     unsigned int platePnts = ( num_pnts + 1 ) / 2;
 
-    vector< vector <vec3d> > xMat;
-    vector< vector <vec3d> > xCMat;
-    vector< vector <vec3d> > nCamberMat;
-    vector< vector <double> > tMat;
-    vector< vector <double> > zMat;
+    int nxsec = nHigh - nLow;
 
-    vector<vec3d>   xVec(  platePnts );
-    vector<vec3d>   xCVec(  platePnts );
-    vector<vec3d>   nCVec( platePnts );
-    vector<double>  tVec(  platePnts );
-    vector<double>  zVec(  platePnts );
+    degenPlate.x.resize( nxsec );
+    degenPlate.xCamber.resize( nxsec );
+    degenPlate.nCamber.resize( nxsec );
+    degenPlate.t.resize( nxsec );
+    degenPlate.zcamber.resize( nxsec );
+    degenPlate.u.resize( nxsec );
+    degenPlate.wTop.resize( nxsec );
+    degenPlate.wBot.resize( nxsec );
+    degenPlate.nPlate.resize( nxsec );
 
     vec3d  lePnt, tePnt, topPnt, botPnt, camberPnt, chordPnt, nPlate;
 
+    int ixsec = 0;
     for ( int i = nLow; i < nHigh; i++ )
     {
+        vector<vec3d> &xVec = degenPlate.x[ ixsec ];          xVec.resize( platePnts );
+        vector<vec3d> &xCVec = degenPlate.xCamber[ ixsec ];   xCVec.resize( platePnts );
+        vector<vec3d> &nCVec = degenPlate.nCamber[ ixsec ];   nCVec.resize( platePnts );
+        vector<double> &tVec = degenPlate.t[ ixsec ];         tVec.resize( platePnts );
+        vector<double> &zVec = degenPlate.zcamber[ ixsec ];   zVec.resize( platePnts );
+
         lePnt = pntsarr[ i ][ startPnt ];
         tePnt = pntsarr[ i ][ startPnt + platePnts - 1 ];
 
@@ -368,7 +375,7 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
         // plate normal vector
         nPlate = cross( anv, rcv );
         nPlate.normalize();
-        degenPlate.nPlate.push_back( nPlate );
+        degenPlate.nPlate[ ixsec ] = nPlate;
 
         // normalized, unrotated chord vector (te->le)
         chordVec = tePnt - lePnt;
@@ -414,19 +421,15 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
             }
         }
 
-        xMat.push_back( xVec );
-        xCMat.push_back( xCVec );
-        nCamberMat.push_back( nCVec );
-        tMat.push_back( tVec );
-        zMat.push_back( zVec );
-
+        ixsec++;
     }
 
+    ixsec = 0;
     for ( int i = nLow; i < nHigh; i++ )
     {
-        vector<double>  uVec(  platePnts );
-        vector<double>  wTopVec(  platePnts );
-        vector<double>  wBotVec(  platePnts );
+        vector<double> &uVec = degenPlate.u[ixsec];           uVec.resize( platePnts );
+        vector<double> &wTopVec = degenPlate.wTop[ixsec];     wTopVec.resize( platePnts );
+        vector<double> &wBotVec = degenPlate.wBot[ixsec];     wBotVec.resize( platePnts );
 
         for ( int j = 0, k = startPnt + num_pnts - 1; j < platePnts; j++, k-- )
         {
@@ -441,16 +444,9 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
                 wTopVec[j] = uw_pnts[i][ k % ( num_pnts - 1 ) ].y();
             }
         }
-        degenPlate.u.push_back( uVec );
-        degenPlate.wTop.push_back( wTopVec );
-        degenPlate.wBot.push_back( wBotVec );
-    }
 
-    degenPlate.x        = xMat;
-    degenPlate.xCamber  = xCMat;
-    degenPlate.nCamber  = nCamberMat;
-    degenPlate.t        = tMat;
-    degenPlate.zcamber  = zMat;
+        ixsec++;
+    }
 }
 
 void DegenGeom::createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const VspSurf *foilSurf, const bool &urootcap )
