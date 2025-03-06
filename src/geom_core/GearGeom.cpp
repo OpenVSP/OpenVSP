@@ -450,7 +450,6 @@ Bogie * GearGeom::CreateAndAddBogie()
     m_CurrBogieIndex = m_Bogies.size() - 1;
 
     m_SurfDirty = true;
-    Update();
     return bogie;
 }
 

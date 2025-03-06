@@ -432,6 +432,7 @@ void Gearcreen::GuiDeviceCallBack( GuiDevice* device )
         {
             bogie->SetName( m_BogieNameInput.GetString() );
         }
+        gear_ptr->Update();
     }
     else if ( device == &m_RemoveBogieButton )
     {
