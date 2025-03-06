@@ -402,10 +402,6 @@ void VSPAEROMgrSingleton::Renew()
     ClearUnsteadyGroupVec();
 
 
-    m_CullFrac = 0.03;
-    m_CullFracFlag = false;
-    m_ContinueCoPlanarWakesFlag = true;
-
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
     m_LastSelectedType = -1;
