@@ -5224,6 +5224,8 @@ void Vehicle::UpdateBBox()
 
     if( ngeom > 0 && ( new_box != m_BBox ) )
     {
+        m_BBox = new_box;
+
         m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
         m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
         m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
@@ -5235,6 +5237,7 @@ void Vehicle::UpdateBBox()
 
     if( ngeom > 0 && ( scale_independent_box != m_ScaleIndependentBBox ) )
     {
+        m_ScaleIndependentBBox = scale_independent_box;
 
         m_ScaleIndependentBbXLen = scale_independent_box.GetMax( 0 ) - scale_independent_box.GetMin( 0 );
         m_ScaleIndependentBbYLen = scale_independent_box.GetMax( 1 ) - scale_independent_box.GetMin( 1 );
@@ -5257,9 +5260,6 @@ void Vehicle::UpdateBBox()
             }
         }
     }
-
-    m_BBox = new_box;
-    m_ScaleIndependentBBox = scale_independent_box;
 }
 
 bool Vehicle::GetVisibleBndBox( BndBox &b )
