@@ -240,8 +240,10 @@ protected:
     virtual void EnforceOrder( PropXSec* xs, int indx );
     virtual void EnforcePCurveOrder( double rfirst, double rlast );
 
-    virtual void UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const;
-    virtual void UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
+    virtual void UpdateTesselate( const VspSurf &surf, bool
+                                  capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const;
+    virtual void UpdateSplitTesselate( const VspSurf &surf, bool
+                                       capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
     virtual void UpdatePreTess();
 
     virtual void ReserveBlades( int n );

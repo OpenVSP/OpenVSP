@@ -2238,15 +2238,15 @@ void WingGeom::CalculateMeshMetrics()
     m_MaxGrowth = maxrat;
 }
 
-void WingGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
-                                vector< vector< vec3d > > &uw_pnts, bool degen ) const
+void WingGeom::UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess,
+                                bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const
 {
     vector < int > tessvec;
     vector < double > rootc;
     vector < double > tipc;
     vector < int > umerge;
 
-    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMinOption()!=NO_END_CAP && capUMinSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -2270,7 +2270,7 @@ void WingGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vecto
         umerge.push_back( m_UMergeVec[i] );
     }
 
-    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -2286,18 +2286,19 @@ void WingGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vecto
         }
     }
 
-    surf_vec[indx].SetRootTipClustering( rootc, tipc );
-    surf_vec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, umerge );
+    surf.SetRootTipClustering( rootc, tipc );
+    surf.Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, umerge );
 }
 
-void WingGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
+void WingGeom::UpdateSplitTesselate( const VspSurf &surf, bool
+                                     capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
 {
     vector < int > tessvec;
     vector < double > rootc;
     vector < double > tipc;
     vector < int > umerge;
 
-    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMinOption()!=NO_END_CAP && capUMinSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -2321,7 +2322,7 @@ void WingGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, 
         umerge.push_back( m_UMergeVec[i] );
     }
 
-    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -2337,8 +2338,8 @@ void WingGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, 
         }
     }
 
-    surf_vec[indx].SetRootTipClustering( rootc, tipc );
-    surf_vec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU(), umerge );
+    surf.SetRootTipClustering( rootc, tipc );
+    surf.SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU(), umerge );
 }
 
 void WingGeom::UpdatePreTess()

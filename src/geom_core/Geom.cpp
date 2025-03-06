@@ -1697,7 +1697,8 @@ void Geom::GetUWTess01( const int &indx, vector < double > &u, vector < double >
     vector< vector< vec3d > > norms;
     vector< vector< vec3d > > uw_pnts;
 
-    UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, false );
+    UpdateTesselate( m_SurfVec[indx], m_CapUMinSuccess[ m_SurfIndxVec[indx] ], m_CapUMaxSuccess[ m_SurfIndxVec[indx] ], false, pnts, norms,
+                     uw_pnts);
 
     double umx = GetUMax( indx );
     double wmx = GetWMax( indx );
@@ -1715,25 +1716,16 @@ void Geom::GetUWTess01( const int &indx, vector < double > &u, vector < double >
     }
 }
 
-void Geom::UpdateTesselate( const VspSurf &surf, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const
+void Geom::UpdateTesselate( const VspSurf &surf, bool
+                            capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const
 {
     surf.Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen );
 }
 
-void Geom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
-                            vector< vector< vec3d > > &uw_pnts, bool degen ) const
-{
-    UpdateTesselate( surf_vec[indx], pnts, norms, uw_pnts, degen );
-}
-
-void Geom::UpdateSplitTesselate( const VspSurf &surf, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
+void Geom::UpdateSplitTesselate( const VspSurf &surf, bool
+                                 capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
 {
     surf.SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU() );
-}
-
-void Geom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms) const
-{
-    UpdateSplitTesselate( surf_vec[indx], pnts, norms );
 }
 
 void Geom::UpdateEndCaps()
@@ -3081,11 +3073,11 @@ void Geom::UpdateDegenDrawObj()
     }
 }
 
-void Geom::UpdateTess( const VspSurf & surf, SimpleTess &tess, SimpleFeatureTess &featureTess )
+void Geom::UpdateTess( const VspSurf & surf, bool capUMinSuccess, bool capUMaxSuccess, SimpleTess &tess, SimpleFeatureTess &featureTess )
 {
     double tol = 1e-3;
 
-    UpdateSplitTesselate( surf, tess.m_pnts, tess.m_norms );
+    UpdateSplitTesselate( surf, capUMinSuccess, capUMaxSuccess, tess.m_pnts, tess.m_norms );
 
     bool fn = surf.GetFlipNormal();
     tess.m_FlipNormal = fn;
@@ -3134,7 +3126,7 @@ void Geom::UpdateMainTessVec( bool firstonly )
 
     for ( int i = 0 ; i < nmain ; i++ )
     {
-        UpdateTess( m_MainSurfVec[i], m_MainTessVec[i], m_MainFeatureTessVec[i] );
+        UpdateTess( m_MainSurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[ i ] ], m_CapUMaxSuccess[ m_SurfIndxVec[ i ] ], m_MainTessVec[i], m_MainFeatureTessVec[i]);
     }
 }
 
@@ -4053,7 +4045,8 @@ void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool
     }
 
     //==== Tesselate Surface ====//
-    UpdateTesselate( surf, pnts, nrms, uwpnts, true );
+    UpdateTesselate( surf, m_CapUMinSuccess[ m_SurfIndxVec[isurf] ], m_CapUMaxSuccess[ m_SurfIndxVec[isurf] ], true, pnts, nrms,
+                     uwpnts);
     surf.ResetUSkip();
 
     int surftype = DegenGeom::BODY_TYPE;
@@ -4854,7 +4847,8 @@ void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+                         uw_pnts);
 
         //==== Write XSec Header ====//
         fprintf( dump_file, "\n" );
@@ -4893,7 +4887,8 @@ void Geom::WritePLOT3DFileExtents( FILE* dump_file )
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+                         uw_pnts);
         //==== Write surface boundary extents ====//
         fprintf( dump_file, " %d %d %d\n", static_cast<int>( pnts[0].size() ), static_cast<int>( pnts.size() ), 1 );
     }
@@ -4908,7 +4903,8 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+                         uw_pnts);
 
         //==== Write XSec Data ====//
         for ( int j = 0 ; j < ( int )pnts.size() ; j++ )
@@ -4981,7 +4977,8 @@ void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat, vector 
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+                         uw_pnts);
 
         wstart[ipatch] = 0;
         wend[ipatch] = 0;
@@ -5114,7 +5111,8 @@ void Geom::CreateGeomResults( Results* res )
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
-        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+                         uw_pnts);
 
         res->Add( NameValData( "Num_XSecs", static_cast<int>( pnts.size() ), "Number of cross sections." ) );
 
@@ -5152,7 +5150,8 @@ void Geom::WriteX3D( xmlNodePtr node )
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
-        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+                         uw_pnts);
         unsigned int num_xsecs = pnts.size();
         unsigned int num_pnts = pnts[0].size();
         bool f_norm = GetFlipNormal( i );
@@ -5222,7 +5221,8 @@ void Geom::WritePovRay( FILE* fid, int comp_num )
         vec3d n0, n1, n2, n3, v0, v1, v2, v3;
 
         vector< vector< vec3d > > uw_pnts;
-        UpdateTesselate( m_SurfVec, i, pnts, norms, uw_pnts, false );
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts,
+                         norms, uw_pnts);
 
         for ( int xs = 0 ; xs < ( int )pnts.size() - 1 ; xs++ )
         {
@@ -5317,7 +5317,8 @@ vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec ) const
     {
         if ( surf_vec[i].GetNumSectU() != 0 && surf_vec[i].GetNumSectW() != 0 )
         {
-            UpdateTesselate( surf_vec, i, pnts, norms, uw_pnts, false );
+            UpdateTesselate( surf_vec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+                             uw_pnts);
             surf_vec[i].ResetUSkip(); // Done with skip flags.
 
             bool thicksurf = true;
@@ -5705,7 +5706,8 @@ void Geom::ExportSurfacePatches( vector<string> &surf_res_ids )
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
         vector< vector< vector< vec3d > > > pnts, norms;
-        UpdateSplitTesselate( m_SurfVec, i, pnts, norms );
+        UpdateSplitTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ],
+                              pnts, norms );
 
         // Add a results entity for each patch to the surface
         Results* res = ResultsMgr.CreateResults( "Surface", "Surfaces within a Geom." );

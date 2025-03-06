@@ -200,13 +200,14 @@ void FuselageGeom::UpdateSurf()
     }
 }
 
-void FuselageGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const
+void FuselageGeom::UpdateTesselate( const VspSurf &surf, bool
+                                    capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const
 {
     vector < int > tessvec;
     vector < double > fwdc;
     vector < double > aftc;
 
-    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMinOption()!=NO_END_CAP && capUMinSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         fwdc.push_back( 1.0 );
@@ -220,24 +221,25 @@ void FuselageGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, v
         aftc.push_back( m_AftClusterVec[i] );
     }
 
-    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         fwdc.push_back( 1.0 );
         aftc.push_back( 1.0 );
     }
 
-    surf_vec[indx].SetRootTipClustering( fwdc, aftc );
-    surf_vec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen );
+    surf.SetRootTipClustering( fwdc, aftc );
+    surf.Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen );
 }
 
-void FuselageGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
+void FuselageGeom::UpdateSplitTesselate( const VspSurf &surf, bool
+                                         capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
 {
     vector < int > tessvec;
     vector < double > fwdc;
     vector < double > aftc;
 
-    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMinOption()!=NO_END_CAP && capUMinSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         fwdc.push_back( 1.0 );
@@ -251,15 +253,15 @@ void FuselageGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int in
         aftc.push_back( m_AftClusterVec[i] );
     }
 
-    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         fwdc.push_back( 1.0 );
         aftc.push_back( 1.0 );
     }
 
-    surf_vec[indx].SetRootTipClustering( fwdc, aftc );
-    surf_vec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU() );
+    surf.SetRootTipClustering( fwdc, aftc );
+    surf.SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU() );
 }
 
 //==== Compute Rotation Center ====//

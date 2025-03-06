@@ -2106,16 +2106,17 @@ void PropGeom::EnforcePCurveOrder( double rfirst, double rlast )
     }
 }
 
-void PropGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const
+void PropGeom::UpdateTesselate( const VspSurf &surf, bool
+                                capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const
 {
     vector < int > tessvec;
     vector < double > rootc;
     vector < double > tipc;
     vector < int > umerge;
 
-    int nmerge = surf_vec[indx].GetNumSectU();
+    int nmerge = surf.GetNumSectU();
 
-    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMinOption()!=NO_END_CAP && capUMinSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -2133,7 +2134,7 @@ void PropGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vecto
         nmerge--;
     }
 
-    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
     {
         nmerge--;
 
@@ -2148,7 +2149,7 @@ void PropGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vecto
     tipc.push_back( m_TipCluster() );
     umerge.push_back( nmerge );
 
-    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -2164,20 +2165,21 @@ void PropGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vecto
         }
     }
 
-    surf_vec[indx].SetRootTipClustering( rootc, tipc );
-    surf_vec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, umerge );
+    surf.SetRootTipClustering( rootc, tipc );
+    surf.Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, umerge );
 }
 
-void PropGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
+void PropGeom::UpdateSplitTesselate( const VspSurf &surf, bool
+                                     capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
 {
     vector < int > tessvec;
     vector < double > rootc;
     vector < double > tipc;
     vector < int > umerge;
 
-    int nmerge = surf_vec[indx].GetNumSectU();
+    int nmerge = surf.GetNumSectU();
 
-    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMinOption()!=NO_END_CAP && capUMinSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -2195,7 +2197,7 @@ void PropGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, 
         nmerge--;
     }
 
-    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
     {
         nmerge--;
 
@@ -2210,7 +2212,7 @@ void PropGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, 
     tipc.push_back( m_TipCluster() );
     umerge.push_back( nmerge );
 
-    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -2226,8 +2228,8 @@ void PropGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, 
         }
     }
 
-    surf_vec[indx].SetRootTipClustering( rootc, tipc );
-    surf_vec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU(), umerge );
+    surf.SetRootTipClustering( rootc, tipc );
+    surf.SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU(), umerge );
 }
 
 void PropGeom::UpdatePreTess()

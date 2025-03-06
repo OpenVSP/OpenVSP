@@ -868,18 +868,16 @@ protected:
 
     virtual void UpdatePreTess()   {};
 
-    virtual void UpdateTess( const VspSurf & surf, SimpleTess &tess, SimpleFeatureTess &featureTess );
+    virtual void UpdateTess( const VspSurf & surf, bool capUMinSuccess, bool capUMaxSuccess, SimpleTess &tess, SimpleFeatureTess &featureTess );
     virtual void UpdateMainTessVec( bool firstonly = false );
     virtual void UpdateTessVec();
 
     virtual void UpdateMainDegenGeomPreview();
     virtual void UpdateDegenGeomPreview();
 
-    virtual void UpdateTesselate( const VspSurf &surf, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const;
-    virtual void UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const;
+    virtual void UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const;
 
-    virtual void UpdateSplitTesselate( const VspSurf &surf, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
-    virtual void UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
+    virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
 
     vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
