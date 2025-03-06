@@ -788,7 +788,9 @@ protected:
     {
         int num_main = GetNumMainSurfs();
         unsigned int num_surf = GetNumTotalSurfs();
-        dest.clear();
+        // Since the dest vector is .resized() and then all the entries are over-written
+        // via assignment (=), there is no explicit need to .clear().
+        // dest.clear();
 
         if ( source.size() != num_main )
         {
