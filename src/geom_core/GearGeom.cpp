@@ -306,7 +306,7 @@ void GearGeom::UpdateSurf()
         {
             if ( !m_GlobalScaleDirty )
             {
-            m_Bogies[i]->Update();
+                m_Bogies[i]->Update();
             }
             nsurf += m_Bogies[i]->GetNumSurf();
         }
@@ -314,21 +314,21 @@ void GearGeom::UpdateSurf()
 
     if ( m_MainSurfVec.size() != nsurf || !m_GlobalScaleDirty )
     {
-    m_MainSurfVec.clear();
-    m_MainSurfVec.reserve( nsurf );
+        m_MainSurfVec.clear();
+        m_MainSurfVec.reserve( nsurf );
 
-    m_MainSurfVec.resize( 1 );
+        m_MainSurfVec.resize( 1 );
 
-    m_BogieMainSurfIndex.resize( nbogies );
+        m_BogieMainSurfIndex.resize( nbogies );
 
-    for ( int i = 0; i < nbogies; i++ )
-    {
-        if ( m_Bogies[i] )
+        for ( int i = 0; i < nbogies; i++ )
         {
-            m_BogieMainSurfIndex[i] = m_MainSurfVec.size();
-            m_Bogies[i]->AppendMainSurf( m_MainSurfVec );
+            if ( m_Bogies[i] )
+            {
+                m_BogieMainSurfIndex[i] = m_MainSurfVec.size();
+                m_Bogies[i]->AppendMainSurf( m_MainSurfVec );
+            }
         }
-    }
     }
 
 
@@ -354,37 +354,37 @@ void GearGeom::UpdateMainTessVec( bool firstonly )
 
     if ( m_MainTessVec.size() != nmain || !m_GlobalScaleDirty )
     {
-    m_MainTessVec.clear();
-    m_MainFeatureTessVec.clear();
-    m_MainTessVec.reserve( nmain );
-    m_MainFeatureTessVec.reserve( nmain );
+        m_MainTessVec.clear();
+        m_MainFeatureTessVec.clear();
+        m_MainTessVec.reserve( nmain );
+        m_MainFeatureTessVec.reserve( nmain );
 
-    m_MainTessVec.resize( 1 );
-    m_MainFeatureTessVec.resize( 1 );
+        m_MainTessVec.resize( 1 );
+        m_MainFeatureTessVec.resize( 1 );
 
-    int nbogies = m_Bogies.size();
-    for ( int i = 0; i < nbogies; i++ )
-    {
-        if ( m_Bogies[i] )
+        int nbogies = m_Bogies.size();
+        for ( int i = 0; i < nbogies; i++ )
         {
-            // Copy non-surface data from m_MainSurfVec.  Geom::Update() does various 'things' to m_MainSurfVec
-            // between UpdateSurf() (when it is populated from m_TireSurface) and here (UpdateMainTessVec).
-            // Some of these need to be applied to m_TireSurface before the calls to UpdateSplitTesselate and
-            // TessU/WFeatureLine.  These include: VspSurf::InitUMapping(); and
-            // VspSurf::BuildFeatureLines( m_ForceXSecFlag );.  Rather than attempting to only copy exactly the
-            // required information, CopyNonSurfaceData takes an everything-but-the-kitchen-sink approach.
-            m_Bogies[i]->m_TireSurface.CopyNonSurfaceData( m_MainSurfVec[ m_BogieMainSurfIndex[i] ] );
+            if ( m_Bogies[i] )
+            {
+                // Copy non-surface data from m_MainSurfVec.  Geom::Update() does various 'things' to m_MainSurfVec
+                // between UpdateSurf() (when it is populated from m_TireSurface) and here (UpdateMainTessVec).
+                // Some of these need to be applied to m_TireSurface before the calls to UpdateSplitTesselate and
+                // TessU/WFeatureLine.  These include: VspSurf::InitUMapping(); and
+                // VspSurf::BuildFeatureLines( m_ForceXSecFlag );.  Rather than attempting to only copy exactly the
+                // required information, CopyNonSurfaceData takes an everything-but-the-kitchen-sink approach.
+                m_Bogies[i]->m_TireSurface.CopyNonSurfaceData( m_MainSurfVec[ m_BogieMainSurfIndex[i] ] );
 
 
-            SimpleTess tireTess;
-            SimpleFeatureTess tireFeatureTess;
+                SimpleTess tireTess;
+                SimpleFeatureTess tireFeatureTess;
 
-            UpdateTess( m_Bogies[i]->m_TireSurface, false, false, tireTess, tireFeatureTess );
+                UpdateTess( m_Bogies[i]->m_TireSurface, false, false, tireTess, tireFeatureTess );
 
-            m_Bogies[i]->TireToBogie( tireTess, m_MainTessVec );
-            m_Bogies[i]->TireToBogie( tireFeatureTess, m_MainFeatureTessVec );
+                m_Bogies[i]->TireToBogie( tireTess, m_MainTessVec );
+                m_Bogies[i]->TireToBogie( tireFeatureTess, m_MainFeatureTessVec );
+            }
         }
-    }
     }
 
     // Update MTV for ground plane.
