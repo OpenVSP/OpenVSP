@@ -106,19 +106,38 @@ void Parm::ChangeID( const string& newID )
 
 }
 
-//==== Get Display Group Name ====//
-string Parm::GetDisplayGroupName()
+void Parm::SetGroupAlias( const string & alias )
 {
-    string displayName = m_GroupName;
+    m_GroupAlias = alias;
+    ParmMgr.IncNumParmChanges();
+}
 
-    if ( m_GroupDisplaySuffix >= 0 )
+//==== Get Display Group Name ====//
+string Parm::GetDisplayGroupName( const string & group_name, const string & group_tag, const int & group_suffix )
+{
+    string displayName = group_name;
+
+    if ( group_suffix >= 0 )
     {
         char str[256];
-        snprintf( str, sizeof( str ), "_%d", m_GroupDisplaySuffix );
+        snprintf( str, sizeof( str ), "_%d", group_suffix );
+        displayName.append( str );
+    }
+
+    if ( !group_tag.empty() )
+    {
+        char str[256];
+        snprintf( str, sizeof( str ), "_%s", group_tag.c_str() );
         displayName.append( str );
     }
 
     return displayName;
+}
+
+string Parm::GetDisplayGroupName( bool include_alias )
+{
+    string group_alias = include_alias ? m_GroupAlias : string();
+    return GetDisplayGroupName( m_GroupName, group_alias, m_GroupDisplaySuffix );
 }
 
 //==== Set Val And Check Limits ====//
@@ -305,6 +324,7 @@ void Parm::DecodeXml( xmlNodePtr & node, bool detailed )
 
         string oldID = XmlUtil::FindStringProp( n, "ID", m_ID );
         string newID = ParmMgr.RemapID( oldID, m_ID );
+
 
         if( newID.compare( m_ID ) != 0 )        // they differ
         {

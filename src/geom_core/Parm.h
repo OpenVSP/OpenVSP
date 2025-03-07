@@ -41,11 +41,14 @@ public:
     virtual string GetName() const                       { return m_Name; }
     virtual void SetName( const string & name )          { m_Name = name; }
 
-    virtual string GetGroupName() const                  { return m_GroupName; }
-    virtual void SetGroupName( const string & name )     { m_GroupName = name; }
-    virtual void SetGroupDisplaySuffix( int num )        { m_GroupDisplaySuffix = num; }
+    virtual string GetGroupName() const                   { return m_GroupName; }
+    virtual void SetGroupName( const string & name )      { m_GroupName = name; }
+    virtual string GetGroupAlias()                   { return m_GroupAlias; }
+    virtual void SetGroupAlias( const string & alias );
+    virtual void SetGroupDisplaySuffix( int num )         { m_GroupDisplaySuffix = num; }
 
-    virtual string GetDisplayGroupName();
+    static string GetDisplayGroupName( const string & group_name, const string & group_tag = string(), const int & group_suffix = -1 );
+    virtual string GetDisplayGroupName( bool include_alias = true );
 
     virtual void SetDescript( const string& d )
     {
@@ -173,6 +176,7 @@ protected:
 
     string m_Name;
     string m_GroupName;
+    string m_GroupAlias;
     int m_GroupDisplaySuffix;
     ParmContainer* m_Container;
     int m_ChangeCnt;

@@ -1575,33 +1575,29 @@ string AttributeMgrSingleton::GetName( const string & id, bool return_name_input
             if ( pc_type == vsp::ATTROBJ_XSEC )
             {
                 pc_parent = pc_ptr->GetParentContainerPtr();
-                if ( pc_parent )
+
+                XSec* xs = dynamic_cast<XSec*>( pc_parent );
+                BORGeom* bor_ptr = dynamic_cast<BORGeom*>( pc_parent );
+                if ( xs )
                 {
-                    XSecSurf* xsp_ptr = dynamic_cast<XSecSurf*>( pc_parent->GetParentContainerPtr() );
-                    BORGeom* bor_ptr = dynamic_cast<BORGeom*>( pc_parent );
-                    if ( xsp_ptr )
+                    XSecCurve* xsc = xs->GetXSecCurve();
+                    if ( xsc )
                     {
-                        int xs_i = xsp_ptr->FindXSecIndex( pc_parent->GetID() );
-                        string name_str = string("Xsec_");
-                        name_str += to_string(xs_i);
-                        return name_str;
+                        return xsc->GetDisplayGroupName( "XSec" );
                     }
-                    else if ( bor_ptr )
-                    {
-                        return string( "BOR_XSec" );
-                    }
+                }
+                else if ( bor_ptr )
+                {
+                    return string( "BOR_XSec" );
                 }
                 return string("ERROR XSEC NAME");
             }
             else if ( pc_type == vsp::ATTROBJ_SEC )
             {
-                XSecSurf* xsp_ptr = dynamic_cast<XSecSurf*>( pc_ptr->GetParentContainerPtr() );
-                if ( xsp_ptr )
+                XSec* xs = dynamic_cast<XSec*>( pc_ptr );
+                if ( xs )
                 {
-                    int xs_i = xsp_ptr->FindXSecIndex( pc_ptr->GetID() );
-                    string name_str = string("Sect_");
-                    name_str += to_string(xs_i);
-                    return name_str;
+                    return xs->GetDisplayGroupName( "Sect" );
                 }
                 return string("ERROR SECT NAME");
             }

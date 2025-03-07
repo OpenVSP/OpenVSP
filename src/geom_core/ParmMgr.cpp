@@ -308,6 +308,27 @@ void ParmMgrSingleton::GetNames( const string& parm_id, string& container_name,
     }
 }
 
+//Overload for getting group alias
+void ParmMgrSingleton::GetNames( const string& parm_id, string& container_name,
+    string& group_name, string& group_alias, string& parm_name )
+{
+    Parm* p = FindParm( parm_id );
+    if ( p )
+    {
+        // As this overload accesses the group alias too, we ensure it's not part of the group_name variable
+        bool include_alias = false;
+        parm_name = p->GetName();
+        group_name = p->GetDisplayGroupName( include_alias );
+        group_alias = p->GetGroupAlias();
+
+        ParmContainer* pc = p->GetLinkContainer();
+        if ( pc )
+        {
+            container_name = pc->GetName();
+        }
+    }
+}
+
 //==== Create Parm and Add To Vector Of Parms ====//
 Parm* ParmMgrSingleton::CreateParm( int type )
 {

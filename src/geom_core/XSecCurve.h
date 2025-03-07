@@ -68,6 +68,9 @@ public:
     virtual void UpdateCurve( bool updateParms = true ) = 0;
 
     virtual void SetGroupDisplaySuffix( int num );
+    virtual void SetGroupAlias( const string & alias );
+    virtual string GetGroupAlias() const { return m_GroupAlias; }
+    string GetDisplayGroupName( const string & group_name_overwrite = string() );
 
     virtual string GetName();
 
@@ -249,6 +252,7 @@ protected:
     int m_Type;
 
     string m_GroupName;
+    string m_GroupAlias;
     int m_GroupSuffix;
 
     VspCurve m_Curve;

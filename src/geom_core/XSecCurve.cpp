@@ -248,6 +248,26 @@ void XSecCurve::SetGroupDisplaySuffix( int num )
     }
 }
 
+void XSecCurve::SetGroupAlias( const string & alias )
+{
+    m_GroupAlias = alias;
+    //==== Assign Group Suffix To All Parms ====//
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ ) // replace with just ParmVec...
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->SetGroupAlias( alias );
+        }
+    }
+}
+
+string XSecCurve::GetDisplayGroupName( const string & group_name_overwrite )
+{
+    string group_name = group_name_overwrite.empty()? m_GroupName : group_name_overwrite;
+    return Parm::GetDisplayGroupName( group_name, m_GroupAlias, m_GroupSuffix );
+}
+
 string XSecCurve::GetName()
 {
     ParmContainer* pc = GetParentContainerPtr();
@@ -477,6 +497,12 @@ xmlNodePtr XSecCurve::EncodeXml(  xmlNodePtr & node  )
     if ( xsec_node )
     {
         XmlUtil::AddIntNode( xsec_node, "Type", m_Type );
+        XmlUtil::AddStringNode( xsec_node, "GroupName", m_GroupName );
+
+        if ( !m_GroupAlias.empty() )
+        {
+            XmlUtil::AddStringNode( xsec_node, "GroupAlias", m_GroupAlias );
+        }
 
         m_DriverGroup->EncodeXml( xsec_node );
 
@@ -491,10 +517,14 @@ xmlNodePtr XSecCurve::EncodeXml(  xmlNodePtr & node  )
 xmlNodePtr XSecCurve::DecodeXml( xmlNodePtr & node )
 {
     ParmContainer::DecodeXml( node );
+    m_GroupName = XmlUtil::FindString( node, "GroupName", m_GroupName );
 
     xmlNodePtr xscrv_node = XmlUtil::GetNode( node, "XSecCurve", 0 );
     if( xscrv_node )
     {
+        string group_alias = XmlUtil::FindString(xscrv_node, "GroupAlias", m_GroupAlias);
+        SetGroupAlias( group_alias );
+
         m_DriverGroup->DecodeXml( xscrv_node );
         m_ImageFile = XmlUtil::FindString( xscrv_node, "ImageFile", m_ImageFile );
     }

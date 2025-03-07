@@ -40,8 +40,9 @@ public:
 
     virtual void SetGroupDisplaySuffix( int num );
 
-    virtual string GetName();
-
+    void SetGroupAlias( const string & alias );
+    string GetGroupAlias() const { return m_GroupAlias; };
+    string GetDisplayGroupName( const string & group_name_overwrite = string() );
 
     virtual VspCurve& GetUntransformedCurve();
     virtual VspCurve& GetCurve();
@@ -105,6 +106,7 @@ protected:
     int m_Type;
 
     string m_GroupName;
+    string m_GroupAlias;
     int m_GroupSuffix;
 
     VspCurve m_TransformedCurve;

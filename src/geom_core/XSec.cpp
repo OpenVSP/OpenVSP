@@ -86,17 +86,24 @@ void XSec::SetGroupDisplaySuffix( int num )
     }
 }
 
-string XSec::GetName()
+void XSec::SetGroupAlias( const string & alias )
 {
-    ParmContainer* pc = GetParentContainerPtr();
-
-    if ( pc )
+    m_GroupAlias = alias;
+    //==== Assign Group Suffix To All Parms ====//
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
     {
-        char str[256];
-        snprintf( str, sizeof( str ),  "_%d", m_GroupSuffix );
-        return pc->GetName() + " " + m_GroupName + string(str);
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->SetGroupAlias( alias );
+        }
     }
-    return ParmContainer::GetName();
+}
+
+string XSec::GetDisplayGroupName( const string & group_name_overwrite )
+{
+    string group_name = group_name_overwrite.empty()? m_GroupName : group_name_overwrite;
+    return Parm::GetDisplayGroupName( group_name, m_GroupAlias, m_GroupSuffix );
 }
 
 //==== Set Scale ====//
@@ -215,6 +222,11 @@ xmlNodePtr XSec::EncodeXml(  xmlNodePtr & node  )
         XmlUtil::AddIntNode( xsec_node, "Type", m_Type );
         XmlUtil::AddStringNode( xsec_node, "GroupName", m_GroupName );
 
+        if ( !m_GroupAlias.empty() )
+        {
+            XmlUtil::AddStringNode( xsec_node, "GroupAlias", m_GroupAlias );
+        }
+
         xmlNodePtr xscrv_node = xmlNewChild( xsec_node, NULL, BAD_CAST "XSecCurve", NULL );
         if ( xscrv_node )
         {
@@ -235,6 +247,8 @@ xmlNodePtr XSec::DecodeXml(  xmlNodePtr & node  )
     if ( child_node )
     {
         m_GroupName = XmlUtil::FindString( child_node, "GroupName", m_GroupName );
+        string group_alias = XmlUtil::FindString( child_node, "GroupAlias", m_GroupAlias );
+        SetGroupAlias( group_alias );
 
         xmlNodePtr xscrv_node = XmlUtil::GetNode( child_node, "XSecCurve", 0 );
         if ( xscrv_node )
