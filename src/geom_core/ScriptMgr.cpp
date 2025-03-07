@@ -3858,6 +3858,22 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //==== XSec Functions ====//
 
+    r = se->RegisterGlobalFunction( "void SetXSecAlias( const string & in id, const string & in alias )", asFUNCTION( vsp::SetXSecAlias ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string GetXSecAlias( const string & in id )", asFUNCTION( vsp::GetXSecAlias ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void SetXSecCurveAlias( const string & in id, const string & in alias )", asFUNCTION( vsp::SetXSecCurveAlias ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string GetXSecCurveAlias( const string & in id )", asFUNCTION( vsp::GetXSecCurveAlias ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "void CutXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CutXSec ), asCALL_CDECL );
     assert( r >= 0 );
 

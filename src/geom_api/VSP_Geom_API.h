@@ -9704,6 +9704,244 @@ extern void ComputeFeaMesh( const std::string & geom_id, int fea_struct_ind, int
 
 extern void ComputeFeaMesh( const std::string & struct_id, int file_type );
 
+/*!
+    \ingroup XSec
+*/
+/*!
+    Set XSec Alias by ID
+    \forcpponly
+    \code{.cpp}
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    // Identify XSec 1
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    // Set Alias and verify alias match
+    string alias = "XSec_One_Alias";
+
+    SetXSecAlias( xsec_1, alias );
+
+    string get_alias = GetXSecAlias( xsec_1 );
+
+    if ( alias != get_alias )
+    {
+        Print("SetXSecAlias/GetXSecAlias error!");
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Stack
+    sid = AddGeom( "STACK", "" )
+
+    # Get First (and Only) XSec Surf
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    # Identify XSec 1
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    # Set Alias and verify alias match
+    alias = "XSec_One_Alias"
+
+    SetXSecAlias( xsec_1, alias )
+
+    get_alias = GetXSecAlias( xsec_1 )
+
+    if alias != get_alias:
+        print("SetXSecAlias/GetXSecAlias error!")
+
+    \endcode
+    \endPythonOnly
+    \param [in] id XSec ID
+    \param [in] alias Xsec alias
+*/
+
+extern void SetXSecAlias( const string & id, const string & alias );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get XSec Alias by ID
+    \forcpponly
+    \code{.cpp}
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    // Identify XSec 1
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    // Set Alias and verify alias match
+    string alias = "XSec_One_Alias";
+
+    SetXSecAlias( xsec_1, alias );
+
+    string get_alias = GetXSecAlias( xsec_1 );
+
+    if ( alias != get_alias )
+    {
+        Print("SetXSecAlias/GetXSecAlias error!");
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Stack
+    sid = AddGeom( "STACK", "" )
+
+    # Get First (and Only) XSec Surf
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    # Identify XSec 1
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    # Set Alias and verify alias match
+    alias = "XSec_One_Alias"
+
+    SetXSecAlias( xsec_1, alias )
+
+    get_alias = GetXSecAlias( xsec_1 )
+
+    if alias != get_alias:
+        print("SetXSecAlias/GetXSecAlias error!")
+
+    \endcode
+    \endPythonOnly
+    \param [in] id XSec ID
+    \return Xsec alias
+*/
+
+extern string GetXSecAlias( const string & id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Set XSecCurve Alias by XSec ID
+    \forcpponly
+    \code{.cpp}
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    // Identify XSec 1
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    // Set Alias and verify alias match
+    string alias = "XSecCurve_One_Alias";
+
+    SetXSecCurveAlias( xsec_1, alias );
+
+    string get_alias = GetXSecCurveAlias( xsec_1 );
+
+    if ( alias != get_alias )
+    {
+        Print("SetXSecCurveAlias/GetXSecCurveAlias error!");
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Stack
+    sid = AddGeom( "STACK", "" )
+
+    # Get First (and Only) XSec Surf
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    # Identify XSec 1
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    # Set Alias and verify alias match
+    alias = "XSecCurve_One_Alias"
+
+    SetXSecCurveAlias( xsec_1, alias )
+
+    get_alias = GetXSecCurveAlias( xsec_1 )
+
+    if alias != get_alias:
+        print("SetXSecCurveAlias/GetXSecCurveAlias error!")
+
+    \endcode
+    \endPythonOnly
+    \param [in] id XSec ID
+    \param [in] alias XsecCurve alias
+*/
+
+extern void SetXSecCurveAlias( const string & id, const string & alias );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get XSecCurve Alias by XSec ID
+    \forcpponly
+    \code{.cpp}
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    // Identify XSec 1
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    // Set Alias and verify alias match
+    string alias = "XSecCurve_One_Alias";
+
+    SetXSecCurveAlias( xsec_1, alias );
+
+    string get_alias = GetXSecCurveAlias( xsec_1 );
+
+    if ( alias != get_alias )
+    {
+        Print("SetXSecCurveAlias/GetXSecCurveAlias error!");
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Stack
+    sid = AddGeom( "STACK", "" )
+
+    # Get First (and Only) XSec Surf
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    # Identify XSec 1
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    # Set Alias and verify alias match
+    alias = "XSecCurve_One_Alias"
+
+    SetXSecCurveAlias( xsec_1, alias )
+
+    get_alias = GetXSecCurveAlias( xsec_1 )
+
+    if alias != get_alias:
+        print("SetXSecCurveAlias/GetXSecCurveAlias error!")
+
+    \endcode
+    \endPythonOnly
+    \param [in] id XSec ID
+*/
+
+extern string GetXSecCurveAlias( const string & id );
 
 /*!
     \ingroup XSec

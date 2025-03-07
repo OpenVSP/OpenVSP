@@ -3823,6 +3823,58 @@ void ComputeFeaMesh( const string & struct_id, int file_type )
     ErrorMgr.NoError();
 }
 
+void SetXSecAlias( const string & id, const string & alias )
+{
+    XSec* xs = FindXSec( id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecAlias::Can't Find XSec " + id );
+    }
+
+    ErrorMgr.NoError();
+    xs->SetGroupAlias( alias );
+}
+
+string GetXSecAlias( const string & id )
+{
+    XSec* xs = FindXSec( id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecAlias::Can't Find XSec " + id );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return xs->GetGroupAlias();
+}
+
+void SetXSecCurveAlias( const string & id, const string & alias )
+{
+    XSec* xs = FindXSec( id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecCurveAlias::Can't Find XSec " + id );
+    }
+    XSecCurve* xsc = xs->GetXSecCurve();
+
+    ErrorMgr.NoError();
+    xsc->SetGroupAlias( alias );
+}
+
+string GetXSecCurveAlias( const string & id )
+{
+    XSec* xs = FindXSec( id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecCurveAlias::Can't Find XSec " + id );
+        return string();
+    }
+    XSecCurve* xsc = xs->GetXSecCurve();
+
+    ErrorMgr.NoError();
+    return xsc->GetGroupAlias();
+}
+
 void CutXSec( const string & geom_id, int index )
 {
     Vehicle* veh = GetVehicle();
