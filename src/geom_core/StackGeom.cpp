@@ -95,6 +95,21 @@ StackGeom::~StackGeom()
 
 }
 
+void StackGeom::UpdateDrawObj()
+{
+    GeomXSec::UpdateDrawObjUtil();
+}
+
+void StackGeom::UpdateHighlightDrawObj()
+{
+    GeomXSec::UpdateHighlightDrawObjUtil( m_ActiveXSec.Get() );
+}
+
+void StackGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    GeomXSec::LoadDrawObjsUtil( draw_obj_vec );
+}
+
 void StackGeom::ChangeID( string id )
 {
     Geom::ChangeID( id );

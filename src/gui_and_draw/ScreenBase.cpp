@@ -1803,7 +1803,7 @@ void GeomScreen::GetCollIDs( vector < string > &collIDVec )
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
-XSecScreen::XSecScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
+XSecScreen::XSecScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile, string xsnamelabel, string xscnamelabel, bool add_xs_btn ) :
     GeomScreen( mgr, w, h, title, helpfile )
 {
     m_XSecTab = AddTab( "XSec" );
@@ -1814,9 +1814,30 @@ XSecScreen::XSecScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_XSecDivider = m_XSecLayout.AddDividerBox( "Cross Section" );
 
     m_XSecLayout.AddIndexSelector( m_XSecIndexSelector );
+
+    // if XSec name input button has been intialized
+    m_XSecNameInputActive = add_xs_btn;
+    // if XSec name is controlled anywhere in the GUI for this geom (WingScreen for example has a separate XSec name controller)
+    m_XSecNameInputControlled = add_xs_btn;
+
+    m_XSecAliasLabel = xsnamelabel;
+    m_XSecCurveAliasLabel = xscnamelabel;
+
+    if ( m_XSecNameInputActive )
+    {
+        int stdwidth = m_XSecLayout.GetButtonWidth();
+        int btnwidth = 5 * stdwidth / 6;
+        m_XSecLayout.SetButtonWidth( 2 * btnwidth ); // 2x math operations here to get same rounding error as the IndexSelector buttonwidth
+        string label = m_XSecAliasLabel;
+        m_XSecLayout.AddInput( m_XSecNameInput, label.c_str() );
+        m_XSecLayout.SetButtonWidth( stdwidth );
+    }
+
     m_XSecLayout.AddYGap();
 
     // Differences in XSec Geom GUIs are applied between here and AddXSecLayout()
+
+
     m_XSecDriversActive = true;
 }
 
@@ -1886,6 +1907,9 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     m_XSecLayout.InitWidthHeightVals();
     m_XSecLayout.SetFitWidthFlag( true );
     m_XSecLayout.SetSameLineFlag( false );
+    m_XSecLayout.SetButtonWidth( convert_w );
+    string label = m_XSecCurveAliasLabel;
+    m_XSecLayout.AddInput( m_XSecCurveNameInput, label.c_str() );
 
     m_XSecLayout.AddYGap();
 
@@ -2400,6 +2424,7 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     y_vals.push_back( m_OneSixSeriesGroup.GetY() );
 
     m_XSecLayout.SetY( *max_element( y_vals.begin(), y_vals.end() ) );
+    m_XSecLayout.AddYGap();
     m_XsecAttributeEditor.Init( m_ScreenMgr, &m_XSecLayout, m_XSecLayout.GetGroup(), this, staticScreenCB, true, m_GenLayout.GetY(), 100 );
 
     DisplayGroup( &m_PointGroup );
@@ -2430,10 +2455,16 @@ bool XSecScreen::Update()
     XSec* xs = geomxsec_ptr->GetXSec( xsid );
     if (xs)
     {
+        if ( m_XSecNameInputActive )
+        {
+            m_XSecNameInput.Update( xs->GetGroupAlias() );
+        }
 
         XSecCurve* xsc = xs->GetXSecCurve();
         if (xsc)
         {
+            m_XSecCurveNameInput.Update( xsc->GetGroupAlias() );
+
             //==== Attributes ====//
             m_XsecAttributeEditor.SetEditorCollID( xsc->GetAttrCollection()->GetID() );
             m_XsecAttributeEditor.Update();
@@ -2954,8 +2985,36 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     GeomXSec* xsec_geom_ptr = dynamic_cast<GeomXSec*>(geom_ptr);
     assert( xsec_geom_ptr );
     // Note: BOR requires it's own GuiDeviceCallBack because it is not a GeomXSec
+    if (gui_device == &m_XSecNameInput)
+    {
+        XSec* xs = xsec_geom_ptr->GetXSec( xsec_geom_ptr->m_ActiveXSec() );
 
-    if (gui_device == &m_XSecTypeChoice)
+        if (xs)
+        {
+            xs->SetGroupAlias( m_XSecNameInput.GetString() );
+        }
+        ParmMgr.SetDirtyFlag( true );
+    }
+    else if ( gui_device == &m_XSecCurveNameInput )
+    {
+        XSec* xs = xsec_geom_ptr->GetXSec( xsec_geom_ptr->m_ActiveXSec() );
+
+        if (xs)
+        {
+            if ( !m_XSecNameInputControlled )
+            {
+                xs->SetGroupAlias( m_XSecCurveNameInput.GetString() );
+            }
+    
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                xsc->SetGroupAlias( m_XSecCurveNameInput.GetString() );
+            }
+        }
+        ParmMgr.SetDirtyFlag( true );
+    }
+    else if (gui_device == &m_XSecTypeChoice)
     {
         int t = m_XSecTypeChoice.GetVal();
         xsec_geom_ptr->SetActiveXSecType( t );
@@ -3251,7 +3310,7 @@ void XSecScreen::RebuildCSTGroup( CSTAirfoil* cst_xs )
 //=====================================================================//
 //=====================================================================//
 SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
-    XSecScreen( mgr, w, h, title, helpfile )
+    XSecScreen( mgr, w, h, title, helpfile, "Sect Alias", "Curve Alias" ) // do not combine xs and xsc
 {
     const char* angleFmt = "%5.2f";
     const char* strengthFmt = "%5.2f";
@@ -3271,6 +3330,12 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SkinLayout.AddIndexSelector( m_SkinIndexSelector );
 
 
+    int stdwidth = m_SkinLayout.GetButtonWidth();
+    int btnwidth = 5 * stdwidth / 6;
+    m_SkinLayout.SetButtonWidth( 2 * btnwidth ); // 2x math operations here to get same rounding error as the IndexSelector buttonwidth
+    string label = m_XSecCurveAliasLabel;
+    m_SkinLayout.AddInput( m_SkinXSecCurveNameInput, label.c_str() );
+    m_SkinLayout.SetButtonWidth( stdwidth );
     m_SkinLayout.AddYGap();
 
     m_SkinLayout.SetButtonWidth( 75 );
@@ -3366,6 +3431,12 @@ bool SkinScreen::Update()
     SkinXSec* xs = ( SkinXSec* ) geomxsec_ptr->GetXSec( xsid );
     if ( xs )
     {
+        XSecCurve* xsc = xs->GetXSecCurve();
+        if ( xsc )
+        {
+            m_SkinXSecCurveNameInput.Update( xsc->GetGroupAlias() );
+        }
+
         //==== Skin ====//
         // Update Symmetry flags to Parms.
         m_AllSymButton.Update( xs->m_AllSymFlag.GetID() );
@@ -3575,6 +3646,20 @@ void SkinScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             xs->Update();
             geomxsec_ptr->Update();
         }
+    }
+    else if ( gui_device == &m_SkinXSecCurveNameInput )
+    {
+        int xsid = geomxsec_ptr->m_ActiveXSec();
+        SkinXSec* xs = (SkinXSec*) geomxsec_ptr->GetXSec( xsid );
+        if ( xs )
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                xsc->SetGroupAlias( m_SkinXSecCurveNameInput.GetString() );
+            }
+        }
+        ParmMgr.SetDirtyFlag( true );
     }
 
     XSecScreen::GuiDeviceCallBack( gui_device );
@@ -3929,6 +4014,13 @@ ChevronScreen::ChevronScreen( ScreenMgr* mgr, int w, int h, const string & title
 
     m_ModifyLayout.AddIndexSelector( m_XsecModIndexSelector );
 
+    int stdwidth = m_ModifyLayout.GetButtonWidth();
+    int btnwidth = 5 * stdwidth / 6;
+    m_ModifyLayout.SetButtonWidth( 2 * btnwidth ); // 2x math operations here to get same rounding error as the IndexSelector buttonwidth
+    string label = m_XSecCurveAliasLabel;
+    m_ModifyLayout.AddInput( m_ChevronXSecCurveNameInput, label.c_str() );
+    m_ModifyLayout.SetButtonWidth( stdwidth );
+
     m_ModifyLayout.AddYGap();
 
     m_ModifyLayout.InitWidthHeightVals();
@@ -4106,6 +4198,7 @@ bool ChevronScreen::Update()
         XSecCurve* xsc = xs->GetXSecCurve();
         if ( xsc )
         {
+            m_ChevronXSecCurveNameInput.Update( xsc->GetGroupAlias() );
 
             m_ChevronModeChoice.Update( xsc->m_ChevronType.GetID() );
 
@@ -4153,6 +4246,32 @@ bool ChevronScreen::Update()
 void ChevronScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
     EngineModelScreen::GuiDeviceCallBack( gui_device );
+
+    if ( gui_device == &m_ChevronXSecCurveNameInput )
+    {
+        //==== Find Fuselage Ptr ====//
+        Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+        if (!geom_ptr)
+        {
+            return;
+        }
+        GeomXSec* xsec_geom_ptr = dynamic_cast<GeomXSec*>(geom_ptr);
+        assert( xsec_geom_ptr );
+        // Note: BOR requires it's own GuiDeviceCallBack because it is not a GeomXSec
+
+        XSec* xs = xsec_geom_ptr->GetXSec( xsec_geom_ptr->m_ActiveXSec() );
+
+        if (xs)
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                xsc->SetGroupAlias( m_ChevronXSecCurveNameInput.GetString() );
+            }
+        }
+        ParmMgr.SetDirtyFlag( true );
+    }
+
 }
 
 //==== Fltk  Callbacks ====//
@@ -4166,7 +4285,7 @@ void ChevronScreen::CallBack( Fl_Widget *w )
 //=====================================================================//
 //=====================================================================//
 BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
-    XSecScreen( mgr, w, h, title, helpfile )
+    XSecScreen( mgr, w, h, title, helpfile, "Sect Alias", "Airfoil Alias", false ) //combine xs and xsc
 {
     const char* angleFmt = "%5.2f";
     const char* strengthFmt = "%5.2f";
@@ -4185,6 +4304,14 @@ BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title, co
     m_BlendLayout.AddDividerBox( "Blend Airfoil" );
 
     m_BlendLayout.AddIndexSelector( m_BlendIndexSelector );
+
+    int stdwidth = m_BlendLayout.GetButtonWidth();
+    int btnwidth = 5 * stdwidth / 6;
+    m_BlendLayout.SetButtonWidth( 2 * btnwidth ); // 2x math operations here to get same rounding error as the IndexSelector buttonwidth
+    string label = m_XSecCurveAliasLabel;
+    m_BlendLayout.AddInput( m_BlendXSecCurveNameInput, label.c_str() );
+    m_BlendLayout.SetButtonWidth( stdwidth );
+    m_BlendLayout.AddYGap();
 
     m_BlendLayout.AddYGap();
 
@@ -4313,6 +4440,12 @@ bool BlendScreen::Update()
     BlendWingSect* xs = ( BlendWingSect* ) geomxsec_ptr->GetXSec( xsid );
     if ( xs )
     {
+        XSecCurve* xsc = xs->GetXSecCurve();
+        if ( xsc )
+        {
+            m_BlendXSecCurveNameInput.Update( xsc->GetGroupAlias() );
+        }
+
         bool firstxs = xsid == 0;
         bool lastxs = xsid == ( geomxsec_ptr->GetXSecSurf( 0 )->NumXSec() - 1 );
 
@@ -4572,6 +4705,34 @@ void BlendScreen::CallBack( Fl_Widget *w )
     XSecScreen::CallBack( w );
 }
 
+void BlendScreen::GuiDeviceCallBack( GuiDevice* gui_device )
+{
+    if ( gui_device == &m_BlendXSecCurveNameInput )
+    {
+        //==== Find Fuselage Ptr ====//
+        Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+        if (!geom_ptr)
+        {
+            return;
+        }
+        GeomXSec* xsec_geom_ptr = dynamic_cast<GeomXSec*>(geom_ptr);
+        assert( xsec_geom_ptr );
+
+        XSec* xs = xsec_geom_ptr->GetXSec( xsec_geom_ptr->m_ActiveXSec() );
+
+        if (xs)
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                xsc->SetGroupAlias( m_BlendXSecCurveNameInput.GetString() );
+            }
+        }
+
+        ParmMgr.SetDirtyFlag( true );
+    }
+    XSecScreen::GuiDeviceCallBack( gui_device );
+}
 
 //=====================================================================//
 //=====================================================================//

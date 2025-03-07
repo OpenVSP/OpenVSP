@@ -860,6 +860,11 @@ xmlNodePtr WingSect::EncodeXml(  xmlNodePtr & node  )
         XmlUtil::AddIntNode( xsec_node, "Type", m_Type );
         XmlUtil::AddStringNode( xsec_node, "GroupName", m_GroupName );
 
+        if ( !m_GroupAlias.empty() )
+        {
+            XmlUtil::AddStringNode( xsec_node, "GroupAlias", m_GroupAlias );
+        }
+
         m_DriverGroup.EncodeXml( xsec_node );
 
         xmlNodePtr xscrv_node = xmlNewChild( xsec_node, NULL, BAD_CAST "XSecCurve", NULL );
@@ -882,6 +887,8 @@ xmlNodePtr WingSect::DecodeXml(  xmlNodePtr & node  )
     if ( child_node )
     {
         m_GroupName = XmlUtil::FindString( child_node, "GroupName", m_GroupName );
+        string group_alias = XmlUtil::FindString(child_node, "GroupAlias", m_GroupAlias );
+        SetGroupAlias( group_alias );
 
          m_DriverGroup.DecodeXml( child_node );
 
@@ -2373,82 +2380,17 @@ void WingGeom::UpdatePreTess()
 
 void WingGeom::UpdateDrawObj()
 {
-    Geom::UpdateDrawObj();
-
-    Matrix4d relTrans;
-    relTrans = m_AttachMatrix;
-    relTrans.affineInverse();
-    relTrans.matMult( m_ModelMatrix.data() );
-    relTrans.postMult( m_AttachMatrix.data() );
-
-    unsigned int nxsec = m_XSecSurf.NumXSec();
-    m_XSecDrawObj_vec.resize( nxsec, DrawObj() );
-
-    //==== Tesselate Surface ====//
-    for ( int i = 0 ; i < nxsec ; i++ )
-    {
-        m_XSecDrawObj_vec[i].m_PntVec = m_XSecSurf.FindXSec( i )->GetDrawLines( relTrans );
-        m_XSecDrawObj_vec[i].m_GeomChanged = true;
-    }
+    GeomXSec::UpdateDrawObjUtil();
 }
 
 void WingGeom::UpdateHighlightDrawObj()
 {
-    Matrix4d attachMat;
-    Matrix4d relTrans;
-    relTrans = m_AttachMatrix;
-    relTrans.affineInverse();
-    relTrans.matMult( m_ModelMatrix.data() );
-    relTrans.postMult( m_AttachMatrix.data() );
-
-    m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetDrawLines( relTrans );
-    m_HighlightXSecDrawObj.m_GeomChanged = true;
-
-    double w = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetXSecCurve()->GetWidth();
-
-    Matrix4d mat;
-    m_XSecSurf.GetBasicTransformation( Z_DIR, X_DIR, XS_SHIFT_MID, false, 1.0, mat );
-    mat.scale( 1.0/w );
-
-    VspCurve crv = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetUntransformedCurve();
-    crv.Transform( mat );
-
-    vector< vec3d > pts;
-    crv.TessAdapt( pts, 1e-2, 10 );
-
-    m_CurrentXSecDrawObj.m_PntVec = pts;
-    m_CurrentXSecDrawObj.m_LineWidth = 1.5;
-    m_CurrentXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
-    m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_LINES;
-    m_CurrentXSecDrawObj.m_GeomChanged = true;
-
-
-    VspCurve inbd = m_XSecSurf.FindXSec( m_ActiveWingSection() - 1 )->GetCurve(); // FIXME: Crash when loading a model
-    inbd.Transform( relTrans );
-
-    VspCurve outbd = m_XSecSurf.FindXSec( m_ActiveWingSection() )->GetCurve();
-    outbd.Transform( relTrans );
-
-    BndBox iBBox, oBBox;
-    inbd.GetBoundingBox( iBBox );
-    outbd.GetBoundingBox( oBBox );
-    oBBox.Update( iBBox );
-
-    m_HighlightWingSecDrawObj.m_PntVec = oBBox.GetBBoxDrawLines();
-    m_HighlightWingSecDrawObj.m_GeomChanged = true;
+    GeomXSec::UpdateHighlightDrawObjUtil( m_ActiveWingSection.Get() );
 }
 
 void WingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    GeomXSec::LoadDrawObjs( draw_obj_vec );
-
-    m_HighlightWingSecDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_HighlightWingSecDrawObj.m_GeomID = BBOXHEADER + m_ID + "ACTIVE_SECT";
-    m_HighlightWingSecDrawObj.m_Visible = m_Vehicle->IsGeomActive( m_ID );
-    m_HighlightWingSecDrawObj.m_LineWidth = 4.0;
-    m_HighlightWingSecDrawObj.m_LineColor = vec3d( 0.0, 1.0, 0.0 );
-    m_HighlightWingSecDrawObj.m_Type = DrawObj::VSP_LINES;
-    draw_obj_vec.push_back( &m_HighlightWingSecDrawObj );
+    GeomXSec::LoadDrawObjsUtil( draw_obj_vec );
 }
 
 

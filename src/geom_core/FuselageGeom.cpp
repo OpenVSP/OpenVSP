@@ -96,6 +96,21 @@ FuselageGeom::~FuselageGeom()
 
 }
 
+void FuselageGeom::UpdateDrawObj()
+{
+    GeomXSec::UpdateDrawObjUtil();
+}
+
+void FuselageGeom::UpdateHighlightDrawObj()
+{
+    GeomXSec::UpdateHighlightDrawObjUtil( m_ActiveXSec.Get() );
+}
+
+void FuselageGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    GeomXSec::LoadDrawObjsUtil( draw_obj_vec );
+}
+
 void FuselageGeom::ChangeID( string id )
 {
     Geom::ChangeID( id );

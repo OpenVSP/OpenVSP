@@ -474,7 +474,7 @@ protected:
 class XSecScreen : public GeomScreen
 {
 public:
-    XSecScreen(ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string() );
+    XSecScreen(ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string(), string xsnamelabel = string("Sect Alias"), string xscnamelabel = string("XSec Alias"), bool add_xs_btn = true );
     virtual ~XSecScreen() {}
 
     virtual bool Update();
@@ -504,6 +504,8 @@ protected:
     Fl_Box* m_XSecDivider;
 
     IndexSelector m_XSecIndexSelector; // Not used for BORGeom
+    StringInput m_XSecNameInput;
+    StringInput m_XSecCurveNameInput;
 
     Choice m_XSecTypeChoice;
     TriggerButton m_ShowXSecButton;
@@ -728,6 +730,13 @@ protected:
     Counter m_OneSixSeriesDegreeCounter;
 
     // Variables used for slight differences in GUIs
+
+    string m_XSecAliasLabel;
+    string m_XSecCurveAliasLabel;
+
+    bool m_XSecNameInputActive; // Flag to determine if XSecNameInput is used in this level of XSecScreen vs. added later in a derived class
+    bool m_XSecNameInputControlled; // Flag to determine if the GUI has separate controls between XSec and XSecCurve name inputs
+
     bool m_XSecDriversActive; // Flag indicating if the width, area, etc. drivers should be shown
 
 };
@@ -752,6 +761,8 @@ protected:
     GroupLayout m_SkinLayout;
 
     IndexSelector m_SkinIndexSelector;
+
+    StringInput m_SkinXSecCurveNameInput;
 
     ToggleButton m_AllSymButton;
     SkinHeader m_TopHeader;
@@ -864,6 +875,8 @@ protected:
 
     IndexSelector m_XsecModIndexSelector;
 
+    StringInput m_ChevronXSecCurveNameInput;
+
     Choice m_ChevronModeChoice;
 
     SliderAdjRangeInput m_ChevTopAmpSlider;
@@ -913,6 +926,7 @@ public:
 
     virtual bool Update( );
     virtual void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* gui_device );
 
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
@@ -949,6 +963,7 @@ protected:
     SliderAdjRangeInput m_OutTEDihedral;
     SliderAdjRangeInput m_OutTEStrength;
 
+    StringInput m_BlendXSecCurveNameInput;
 };
 
 class XSecViewScreen : public BasicScreen

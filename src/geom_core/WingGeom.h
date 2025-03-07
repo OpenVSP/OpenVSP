@@ -264,8 +264,6 @@ protected:
 
     virtual double GetSumDihedral( int sect_id );
 
-    DrawObj m_HighlightWingSecDrawObj;
-
     vector<int> m_TessUVec;
     vector<int> m_UMergeVec;
 

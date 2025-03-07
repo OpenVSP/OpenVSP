@@ -961,12 +961,17 @@ public:
     IntParm m_ActiveXSec;
 
 protected:
+    void UpdateDrawObjUtil();
+    void UpdateHighlightDrawObjUtil( int bbox_index );
+    void LoadDrawObjsUtil( vector< DrawObj* > & draw_obj_vec );
+
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj();
 
     XSecSurf m_XSecSurf;
     vector<DrawObj> m_XSecDrawObj_vec;
     DrawObj m_HighlightXSecDrawObj;
+    DrawObj m_HighlightXSecLoftDrawObj;
 
     DrawObj m_CurrentXSecDrawObj;
 };

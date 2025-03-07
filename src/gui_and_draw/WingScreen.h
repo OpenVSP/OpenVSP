@@ -73,6 +73,7 @@ protected:
     GroupLayout m_SectionLayout;
 
     IndexSelector m_SectIndexSelector;
+    StringInput m_SectNameInput;
 
     StringOutput m_NumSectOutput;
 
@@ -122,6 +123,8 @@ protected:
     GroupLayout m_ModifyLayout;
 
     IndexSelector m_AfModIndexSelector;
+
+    StringInput m_AfModXSecCurveNameInput;
 
     Choice m_TECloseChoice;
     ToggleButton m_TECloseABSButton;

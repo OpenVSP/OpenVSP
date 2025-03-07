@@ -93,6 +93,7 @@ protected:
     ToggleButton m_GenDefNameToggle;
     ToggleButton m_DefNameContainerToggle;
     ToggleButton m_DefNameGroupToggle;
+    ToggleButton m_DefNameAliasToggle;
     TriggerButton m_DefNameParmDummy;
 
     TriggerButton m_MoveInputUpButton;

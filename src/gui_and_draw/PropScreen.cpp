@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 755, "Propeller" )
+PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 755, "Propeller", string(), string(), "Airfoil Alias", false ) // combine xsec and xseccurve name controls
 {
     m_CurrDisplayGroup = NULL;
 
@@ -225,6 +225,13 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 755, "Propeller
     m_ModifyLayout.AddDividerBox( "Cross Section" );
 
     m_ModifyLayout.AddIndexSelector( m_XSecModIndexSelector );
+
+    int stdwidth = m_ModifyLayout.GetButtonWidth();
+    int btnwidth = 5 * stdwidth / 6;
+    m_ModifyLayout.SetButtonWidth( 2 * btnwidth ); // 2x math operations here to get same rounding error as the IndexSelector buttonwidth
+    string label = m_XSecCurveAliasLabel;
+    m_ModifyLayout.AddInput( m_ModXSecCurveNameInput, label.c_str() );
+    m_ModifyLayout.SetButtonWidth( stdwidth );
 
     m_ModifyLayout.AddYGap();
 
@@ -859,6 +866,8 @@ bool PropScreen::Update()
                 printf( "Error\n" );
             }
 
+            m_ModXSecCurveNameInput.Update( xsc->GetGroupAlias() );
+
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
             m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
 
@@ -1148,6 +1157,23 @@ void PropScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         propeller_ptr->ResetThickness();
         propeller_ptr->Update();
+    }
+    else if ( gui_device == &m_ModXSecCurveNameInput )
+    {
+        GeomXSec* xsec_geom_ptr = dynamic_cast<GeomXSec*>(geom_ptr);
+        assert( xsec_geom_ptr );
+
+        XSec* xs = xsec_geom_ptr->GetXSec( xsec_geom_ptr->m_ActiveXSec() );
+
+        if (xs)
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                xsc->SetGroupAlias( m_ModXSecCurveNameInput.GetString() );
+            }
+        }
+        ParmMgr.SetDirtyFlag( true );
     }
 
     XSecScreen::GuiDeviceCallBack( gui_device );

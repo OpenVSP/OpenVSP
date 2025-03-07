@@ -84,6 +84,8 @@ protected:
 
     IndexSelector m_XSecModIndexSelector;
 
+    StringInput m_ModXSecCurveNameInput;
+
     Choice m_TECloseChoice;
     ToggleButton m_TECloseABSButton;
     ToggleButton m_TECloseRELButton;

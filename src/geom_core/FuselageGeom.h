@@ -57,6 +57,8 @@ public:
         return &m_XSecSurf;
     }
 
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     virtual void Scale();
     virtual void AddDefaultSources( double base_len = 1.0 );
@@ -89,6 +91,9 @@ public:
 
 
 protected:
+    virtual void UpdateDrawObj();
+    virtual void UpdateHighlightDrawObj();
+
     virtual void ChangeID( string id );
 
     virtual void UpdateSurf();

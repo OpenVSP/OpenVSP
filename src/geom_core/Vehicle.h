@@ -506,6 +506,7 @@ public:
     BoolParm m_AdvLinkGenDefName;
     BoolParm m_AdvLinkDefNameContainer;
     BoolParm m_AdvLinkDefNameGroup;
+    BoolParm m_AdvLinkDefNameAlias;
 
     // ManageBackgroundScreen
     FractionParm m_BGWidthScaleValue;

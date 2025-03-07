@@ -54,7 +54,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Ad
     int gap = 4;
 
     m_BigGroup.SetButtonWidth(110);
-    m_BigGroup.SetInputWidth( m_BigGroup.GetW() - ( 4 * m_BigGroup.GetW() / 10.0 ) - m_BigGroup.GetButtonWidth() - gap );
+    m_BigGroup.SetInputWidth( m_BigGroup.GetW() - ( 5 * m_BigGroup.GetW() / 10.0 ) - m_BigGroup.GetButtonWidth() - gap );
     m_BigGroup.AddYGap();
 
     m_BigGroup.SetFitWidthFlag( false );
@@ -68,6 +68,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Ad
     m_BigGroup.AddButton( m_GenDefNameToggle, "Auto" );
     m_BigGroup.AddButton( m_DefNameContainerToggle, "Container" );
     m_BigGroup.AddButton( m_DefNameGroupToggle, "Group" );
+    m_BigGroup.AddButton( m_DefNameAliasToggle, "Alias" );
     m_BigGroup.AddButton( m_DefNameParmDummy, "Parm" );
     m_BigGroup.ForceNewLine();
 
@@ -292,6 +293,7 @@ bool AdvLinkScreen::Update()
         m_GenDefNameToggle.Activate();
         m_DefNameContainerToggle.Activate();
         m_DefNameGroupToggle.Activate();
+        m_DefNameAliasToggle.Activate();
         m_DefNameParmDummy.Activate();
     }
     else
@@ -329,6 +331,7 @@ bool AdvLinkScreen::Update()
         m_GenDefNameToggle.Deactivate();
         m_DefNameContainerToggle.Deactivate();
         m_DefNameGroupToggle.Deactivate();
+        m_DefNameAliasToggle.Deactivate();
         m_DefNameParmDummy.Deactivate();
     }
 
@@ -354,18 +357,21 @@ bool AdvLinkScreen::Update()
     {
         m_DefNameContainerToggle.Update( veh->m_AdvLinkDefNameContainer.GetID() );
         m_DefNameGroupToggle.Update( veh->m_AdvLinkDefNameGroup.GetID() );
+        m_DefNameAliasToggle.Update( veh->m_AdvLinkDefNameAlias.GetID() );
         m_GenDefNameToggle.Update( veh->m_AdvLinkGenDefName.GetID() );
 
         if ( veh->m_AdvLinkGenDefName() )
         {
             m_DefNameContainerToggle.Activate();
             m_DefNameGroupToggle.Activate();
+            m_DefNameAliasToggle.Activate();
             m_DefNameParmDummy.Activate();
         }
         else
         {
             m_DefNameContainerToggle.Deactivate();
             m_DefNameGroupToggle.Deactivate();
+            m_DefNameAliasToggle.Deactivate();
             m_DefNameParmDummy.Deactivate();
         }
     }
@@ -487,17 +493,29 @@ string AdvLinkScreen::MakeDefaultName( const string & parmid )
     Parm *p = ParmMgr.FindParm( parmid );
     if ( p && veh )
     {
-        string c_name, g_name, p_name;
-        ParmMgr.GetNames( parmid, c_name, g_name, p_name );
+        string c_name, g_name, p_name, n_name;
+        ParmMgr.GetNames( parmid, c_name, g_name, n_name, p_name );
+
+        bool alias_failure = false;
 
         if ( veh->m_AdvLinkDefNameContainer() )
         {
             name = c_name + "_";
         }
 
-        if ( veh->m_AdvLinkDefNameGroup() )
+        if ( veh->m_AdvLinkDefNameAlias() && n_name.empty() )
+        {
+            alias_failure = true;
+        }
+
+        if ( veh->m_AdvLinkDefNameGroup() || alias_failure )
         {
             name += g_name + "_";
+        }
+
+        if ( veh->m_AdvLinkDefNameAlias() && !alias_failure )
+        {
+            name += n_name + "_";
         }
 
         name += p_name;

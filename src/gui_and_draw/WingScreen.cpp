@@ -14,6 +14,7 @@ using namespace vsp;
 //==== Constructor ====//
 WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
 {
+
     m_CurrDisplayGroup = NULL;
 
     Fl_Group* plan_tab = AddTab( "Plan", 4 );
@@ -127,7 +128,16 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
     m_SectionLayout.SetGroupAndScreen( sect_group, this );
     m_SectionLayout.AddDividerBox( "Wing Section" );
 
+    m_XSecNameInputControlled = true; // flag XSecScreen variable to enable separate control of XSec and XSecCurve names
+
     m_SectionLayout.AddIndexSelector( m_SectIndexSelector );
+
+    int stdwidth = m_SectionLayout.GetButtonWidth();
+    int btnwidth = 5 * stdwidth / 6;
+    m_SectionLayout.SetButtonWidth( 2 * btnwidth ); // 2x math operations here to get same rounding error as the IndexSelector buttonwidth
+    string label = m_XSecAliasLabel;
+    m_SectionLayout.AddInput( m_SectNameInput, label.c_str() );
+    m_SectionLayout.SetButtonWidth( stdwidth );
     m_SectionLayout.AddYGap();
 
     m_SectionLayout.SetFitWidthFlag( false );
@@ -241,6 +251,14 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
     m_ModifyLayout.AddDividerBox( "Airfoil Section" );
 
     m_ModifyLayout.AddIndexSelector( m_AfModIndexSelector );
+
+    int AFstdwidth = m_ModifyLayout.GetButtonWidth();
+    int AFbtnwidth = 5 * AFstdwidth / 6;
+    m_ModifyLayout.SetButtonWidth( 2 * AFbtnwidth ); // 2x math operations here to get same rounding error as the IndexSelector buttonwidth
+    string aflabel = m_XSecCurveAliasLabel;
+    m_ModifyLayout.AddInput( m_AfModXSecCurveNameInput, aflabel.c_str() );
+    m_ModifyLayout.SetButtonWidth( AFstdwidth );
+    m_ModifyLayout.AddYGap();
 
     m_ModifyLayout.AddYGap();
 
@@ -592,6 +610,7 @@ bool WingScreen::Update()
 
     if ( wing_sect )
     {
+        m_SectNameInput.Update( wing_sect->GetGroupAlias() );
         m_SectUTessSlider.Update( wing_sect->m_SectTessU.GetID() );
 
         m_RootClusterSlider.Update( wing_sect->m_RootCluster.GetID() );
@@ -636,6 +655,8 @@ bool WingScreen::Update()
         XSecCurve* xsc = ws->GetXSecCurve();
         if ( xsc )
         {
+            m_AfModXSecCurveNameInput.Update( xsc->GetGroupAlias() );
+
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
             m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
 
@@ -901,7 +922,33 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     WingGeom* wing_ptr = dynamic_cast< WingGeom* >( geom_ptr );
     assert( wing_ptr );
 
-    if ( gui_device == &m_SplitSectButton )
+    if ( gui_device == &m_SectNameInput )
+    {
+        int wsid = wing_ptr->m_ActiveWingSection();
+
+        WingSect* wing_sect = dynamic_cast<WingSect*>(wing_ptr->GetXSec( wsid ));
+
+        if ( wing_sect )
+        {
+            wing_sect->SetGroupAlias( m_SectNameInput.GetString() );
+        }
+        ParmMgr.SetDirtyFlag( true );
+    }
+    else if ( gui_device == &m_AfModXSecCurveNameInput )
+    {
+        int xsid = wing_ptr->m_ActiveXSec();  
+        XSec* xs = wing_ptr->GetXSec( xsid );
+        if ( xs )
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                xsc->SetGroupAlias( m_AfModXSecCurveNameInput.GetString() );
+            }
+        }
+        ParmMgr.SetDirtyFlag( true );
+    }
+    else if ( gui_device == &m_SplitSectButton )
     {
         int wsid = wing_ptr->m_ActiveWingSection();
         wing_ptr->SplitWingSect( wsid );
@@ -924,6 +971,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         int wsid = wing_ptr->m_ActiveWingSection();
         wing_ptr->PasteWingSect( wsid );
         wing_ptr->Update();
+        ParmMgr.SetDirtyFlag( true );
     }
     else if ( gui_device == &m_InsertSectButton )
     {
@@ -941,6 +989,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         int afid = wing_ptr->m_ActiveXSec();
         wing_ptr->PasteAirfoil( afid );
         wing_ptr->Update();
+        ParmMgr.SetDirtyFlag( true );
     }
     else if ( gui_device == &m_TestDriverGroupButton )
     {

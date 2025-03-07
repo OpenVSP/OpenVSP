@@ -220,6 +220,7 @@ Vehicle::Vehicle()
     m_AdvLinkGenDefName.Init( "AdvLinkGenDefName", "AdvLinkSettings", this, false, false, true );
     m_AdvLinkDefNameContainer.Init( "AdvLinkDefNameContainer", "AdvLinkSettings", this, true, false, true );
     m_AdvLinkDefNameGroup.Init( "AdvLinkDefNameGroup", "AdvLinkSettings", this, false, false, true );
+    m_AdvLinkDefNameAlias.Init( "AdvLinkDefNameAlias", "AdvLinkSettings", this, false, false, true );
 
     m_BGWidthScaleValue.Init( "WidthScale", "Background", this, 1.0, -1.0e12, 1.0e12 );
     m_BGHeightScaleValue.Init( "HeightScale", "Background", this, 1.0, -1.0e12, 1.0e12 );
