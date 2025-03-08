@@ -748,6 +748,54 @@ protected:
     ParmButton m_ParmButton;
 };
 
+//==== Slider 3 Input Combo ====//
+class SliderAdjRange3Input
+{
+public:
+    SliderAdjRange3Input();
+    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+                       Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2, Fl_Input* input3,
+                       double range, const char* format, VspButton* parm_button = NULL );
+    virtual void Update( int slider_id, const string& parm_id_in1, const string& parm_id_in2, const string& parm_id_in3 );
+    virtual void SetRange( double range )
+    {
+        m_Slider.SetRange( range );
+    }
+    virtual void SetFormat( const char* format )
+    {
+        m_Input1.SetFormat( format );
+        m_Input2.SetFormat( format );
+        m_Input3.SetFormat( format );
+    }
+    virtual void SetButtonNameUpdate( bool flag )
+    {
+        m_ParmButton.SetButtonNameUpdate( flag );
+    }
+    virtual void SetIndex( int index )
+    {
+        m_Slider.SetIndex( index );
+        m_Input1.SetIndex( index );
+        m_Input2.SetIndex( index );
+        m_Input3.SetIndex( index );
+        m_ParmButton.SetIndex( index );
+    }
+
+
+    virtual void Activate();
+    virtual void Deactivate();
+    virtual void ActivateInput1();
+    virtual void ActivateInput2();
+    virtual void ActivateInput3();
+
+protected:
+    SliderAdjRange m_Slider;
+    Input m_Input1;
+    Input m_Input2;
+    Input m_Input3;
+
+    bool m_ParmButtonFlag;
+    ParmButton m_ParmButton;
+};
 
 //==== Fract Slider Input Input Combo  ====//
 class FractParmSlider : public GuiDevice

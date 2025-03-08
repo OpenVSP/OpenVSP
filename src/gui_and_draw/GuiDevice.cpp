@@ -1063,6 +1063,109 @@ void SliderAdjRange2Input::ActivateInput2()
 }
 
 //=====================================================================//
+//===========       Slider Adjustable Range 3 Input Combo     ===========//
+//=====================================================================//
+
+SliderAdjRange3Input::SliderAdjRange3Input()
+{
+    m_ParmButtonFlag = false;
+}
+
+void SliderAdjRange3Input::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+                                 Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2, Fl_Input* input3,
+                                 double range, const char* format, VspButton* parm_button )
+{
+    m_ParmButtonFlag = false;
+    if ( parm_button )
+    {
+        m_ParmButtonFlag = true;
+        m_ParmButton.Init( screen, parm_button );
+    }
+
+    m_Slider.Init( screen, slider, lbutton, rbutton, range );
+    m_Input1.Init( screen, input1, format );
+    m_Input2.Init( screen, input2, format );
+    m_Input3.Init( screen, input3, format );
+
+}
+
+void SliderAdjRange3Input::Update( int slider_id, const string& parm_id_in1, const string& parm_id_in2, const string& parm_id_in3 )
+{
+    if ( slider_id == 1 )
+    {
+        m_Slider.Update( parm_id_in1 );
+        if ( m_ParmButtonFlag )
+        {
+            m_ParmButton.Update( parm_id_in1 );
+        }
+    }
+    else if ( slider_id == 2 )
+    {
+        m_Slider.Update( parm_id_in2 );
+        if ( m_ParmButtonFlag )
+        {
+            m_ParmButton.Update( parm_id_in2 );
+        }
+    }
+    else
+    {
+        m_Slider.Update( parm_id_in3 );
+        if ( m_ParmButtonFlag )
+        {
+            m_ParmButton.Update( parm_id_in3 );
+        }
+    }
+    m_Input1.Update( parm_id_in1 );
+    m_Input2.Update( parm_id_in2 );
+    m_Input3.Update( parm_id_in3 );
+}
+
+void SliderAdjRange3Input::Activate()
+{
+    m_Slider.Activate();
+    m_Input1.Activate();
+    m_Input2.Activate();
+    m_Input3.Activate();
+    if ( m_ParmButtonFlag )
+    {
+        m_ParmButton.Activate();
+    }
+}
+
+void SliderAdjRange3Input::Deactivate()
+{
+    m_Slider.Deactivate();
+    m_Input1.Deactivate();
+    m_Input2.Deactivate();
+    m_Input3.Deactivate();
+    if ( m_ParmButtonFlag )
+    {
+        m_ParmButton.Deactivate();
+    }
+}
+
+void SliderAdjRange3Input::ActivateInput1()
+{
+    m_Input1.Activate();
+    m_Input2.Deactivate();
+    m_Input3.Deactivate();
+}
+
+void SliderAdjRange3Input::ActivateInput2()
+{
+    m_Input1.Deactivate();
+    m_Input2.Activate();
+    m_Input3.Deactivate();
+}
+
+void SliderAdjRange3Input::ActivateInput3()
+{
+    m_Input1.Deactivate();
+    m_Input2.Deactivate();
+    m_Input3.Activate();
+}
+
+//=====================================================================//
 //======================           ParmButton        ==================//
 //=====================================================================//
 

@@ -140,6 +140,8 @@ public:
                      double range, const char* format, int used_w = 0, bool log_slider = false );
     void AddSlider(  SliderAdjRange2Input& slid_adj_input, const char* label,
                      double range, const char* format );
+    void AddSlider(  SliderAdjRange3Input& slid_adj_input, const char* label,
+                     double range, const char* format );
     void AddSlider(  FractParmSlider& slid_adj_input, const char* label,
                      double range, const char* format );
     void AddSlider( SliderInput & slider_input, const char* label, double range, const char* format, int used_w = 0, bool log_slider = false );

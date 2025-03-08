@@ -326,6 +326,83 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
 }
 
 //==== Create & Init Gui Slider Adjustable Range  ====//
+void GroupLayout::AddSlider( SliderAdjRange3Input& slid_adj_input,
+                             const char* label, double range, const char* format )
+{
+    assert( m_Group && m_Screen );
+
+    int init_used_w = m_X - m_Group->x();
+
+    //==== Parm Button ====//
+    VspButton* button = AddParmButton( label );
+
+    //==== Range Button ====//
+    Fl_Repeat_Button* lbutton = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, "<" );
+    lbutton->box( FL_THIN_UP_BOX );
+    lbutton->labelcolor( ( Fl_Color )4 );
+    m_Group->add( lbutton );
+    AddX( m_RangeButtonWidth );
+
+    //==== Slider ====//
+    int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 3 * m_InputWidth + init_used_w, m_SliderWidth );
+    Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    slider->type( FL_HOR_NICE_SLIDER );
+    slider->box( FL_THIN_DOWN_BOX );
+    slider->color( FL_BACKGROUND2_COLOR );
+    slider->selection_color( FL_SELECTION_COLOR );
+    m_Group->add( slider );
+    AddX( sw );
+
+    //==== Range Button ====//
+    Fl_Repeat_Button* rbutton = new Fl_Repeat_Button( m_X, m_Y,  m_RangeButtonWidth, m_StdHeight, "<" );
+    rbutton->box( FL_THIN_UP_BOX );
+    rbutton->labelcolor( ( Fl_Color )4 );
+    m_Group->add( rbutton );
+    AddX( m_RangeButtonWidth );
+
+    //==== Input ====//
+    Fl_Input* input1 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    input1->type( FL_FLOAT_INPUT );
+#endif
+    input1->box( FL_THIN_DOWN_BOX );
+    input1->textsize( 12 );
+    input1->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE);
+    m_Group->add( input1 );
+    AddX( m_InputWidth );
+
+    Fl_Input* input2 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    input2->type( FL_FLOAT_INPUT );
+#endif
+    input2->box( FL_THIN_DOWN_BOX );
+    input2->textsize( 12 );
+    input2->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE);
+    m_Group->add( input2 );
+    AddX( m_InputWidth );
+
+    Fl_Input* input3 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    input2->type( FL_FLOAT_INPUT );
+#endif
+    input3->box( FL_THIN_DOWN_BOX );
+    input3->textsize( 12 );
+    input3->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE);
+    m_Group->add( input3 );
+    AddX( m_InputWidth );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    slid_adj_input.Init( m_Screen, slider, lbutton, rbutton, input1, input2, input3, range, format, button );
+
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
+    {
+        slid_adj_input.SetButtonNameUpdate( true );
+    }
+}
+
+//==== Create & Init Gui Slider Adjustable Range  ====//
 void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
                              const char* label, double range, const char* format )
 {
