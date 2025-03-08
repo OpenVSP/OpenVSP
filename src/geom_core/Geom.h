@@ -783,20 +783,14 @@ protected:
     {
         int num_main = GetNumMainSurfs();
         unsigned int num_surf = GetNumTotalSurfs();
-        // Since the dest vector is .resized() and then all the entries are over-written
-        // via assignment (=), there is no explicit need to .clear().
-        // dest.clear();
 
         if ( source.size() != num_main )
         {
             return;
         }
 
+        dest = source;
         dest.resize( num_surf );
-        for ( int i = 0 ; i < ( int )num_main ; i++ )
-        {
-            dest[i] = source[i];
-        }
 
         // Copy main surfs
         int symFlag = GetSymFlag();
