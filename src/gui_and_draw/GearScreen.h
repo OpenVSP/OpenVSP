@@ -38,6 +38,7 @@ protected:
     GroupLayout m_DesignLayout;
     GroupLayout m_TireGroup;
 
+    Choice m_ModelUnitsChoice;
 
     ToggleButton m_AutoPlaneSizeToggle;
     SliderAdjRangeInput m_PlaneSizeSlider;
@@ -70,34 +71,46 @@ protected:
     SliderAdjRangeInput m_TireYSlider;
     SliderAdjRangeInput m_TireZSlider;
 
-    SliderAdjRangeInput m_TireDiameterSlider;
-    SliderAdjRangeInput m_TireWidthSlider;
+    ToggleButton m_TireDiameterInToggleButton;
+    ToggleButton m_TireDiameterModelToggleButton;
+    ToggleRadioGroup m_TireDiameterToggleGroup;
+    SliderAdjRange2Input m_TireDiameterSlider;
 
-    ToggleButton m_DrimToggleButton;
+    ToggleButton m_TireWidthInToggleButton;
+    ToggleButton m_TireWidthModelToggleButton;
+    ToggleRadioGroup m_TireWidthToggleGroup;
+    SliderAdjRange2Input m_TireWidthSlider;
+
+    ToggleButton m_DrimInToggleButton;
+    ToggleButton m_DrimModelToggleButton;
     ToggleButton m_DrimFracToggleButton;
     ToggleRadioGroup m_DrimToggleGroup;
-    SliderAdjRange2Input m_DrimSlider;
+    SliderAdjRange3Input m_DrimSlider;
 
-    ToggleButton m_WrimToggleButton;
+    ToggleButton m_WrimInToggleButton;
+    ToggleButton m_WrimModelToggleButton;
     ToggleButton m_WrimFracToggleButton;
     ToggleRadioGroup m_WrimToggleGroup;
-    SliderAdjRange2Input m_WrimSlider;
+    SliderAdjRange3Input m_WrimSlider;
 
-    ToggleButton m_HsToggleButton;
+    ToggleButton m_HsInToggleButton;
+    ToggleButton m_HsModelToggleButton;
     ToggleButton m_HsFracToggleButton;
     ToggleRadioGroup m_HsToggleGroup;
-    SliderAdjRange2Input m_HsSlider;
+    SliderAdjRange3Input m_HsSlider;
 
-    ToggleButton m_WsToggleButton;
+    ToggleButton m_WsInToggleButton;
+    ToggleButton m_WsModelToggleButton;
     ToggleButton m_WsFracToggleButton;
     ToggleRadioGroup m_WsToggleGroup;
-    SliderAdjRange2Input m_WsSlider;
+    SliderAdjRange3Input m_WsSlider;
 
+    ToggleButton m_SLRInToggleButton;
+    ToggleButton m_SLRModelToggleButton;
     ToggleButton m_DeflectionToggleButton;
-    ToggleButton m_SLRToggleButton;
     ToggleRadioGroup m_SLRToggleGroup;
     SliderAdjRangeInput m_DeflectionSlider;
-    SliderAdjRangeInput m_SLRSlider;
+    SliderAdjRange2Input m_SLRSlider;
 
 };
 

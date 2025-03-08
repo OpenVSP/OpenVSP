@@ -11,6 +11,7 @@
 #include "VspCurve.h"
 #include "VspSurf.h"
 #include "Vehicle.h"
+#include "UnitConversion.h"
 
 Bogie::Bogie()
 {
@@ -36,46 +37,64 @@ Bogie::Bogie()
     m_YContactPt.Init( "YContactPt", "Tire", this, 0.0, -1e12, 1e12 );
     m_ZAboveGround.Init( "ZAboveGround", "Tire", this, 0.0, -1e12, 1e12 );
 
-    m_Diameter.Init( "Diameter", "Tire", this, 13.5, 0.0, 1.0e12 );
-    m_Diameter.SetDescript( "Diameter of the tire" );
+    m_DiameterMode.Init( "DiameterMode", "Tire", this, vsp::TIRE_DIM_IN, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 2 ); // TIRE_DIM_FRAC not allowed
+    m_DiameterMode.SetDescript( "Mode to control diameter specification" );
+    m_DiameterIn.Init( "DiameterIn", "Tire", this, 13.5, 0.0, 1.0e12 );
+    m_DiameterIn.SetDescript( "Diameter of the tire in inches" );
+    m_DiameterModel.Init( "DiameterModel", "Tire", this, 13.5/12., 0.0, 1.0e12 );
+    m_DiameterModel.SetDescript( "Diameter of the tire in model units" );
 
-    m_Width.Init( "Width", "Tire", this,  6.0, 0.0, 1.0e12 );
-    m_Width.SetDescript( "Width of the tire" );
+    m_WidthMode.Init( "WidthMode", "Tire", this, vsp::TIRE_DIM_IN, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 2 ); // TIRE_DIM_FRAC not allowed
+    m_WidthMode.SetDescript( "Mode to control width specification" );
+    m_WidthIn.Init( "WidthIn", "Tire", this, 6.0, 0.0, 1.0e12 );
+    m_WidthIn.SetDescript( "Width of the tire in inches" );
+    m_WidthModel.Init( "WidthModel", "Tire", this, 6.0/12., 0.0, 1.0e12 );
+    m_WidthModel.SetDescript( "Width of the tire in model units" );
 
-    m_SLRFlag.Init( "SLRFlag", "Tire", this, false, false, true );
-    m_SLRFlag.SetDescript( "Flag to use dimensional static loaded radius" );
+    m_SLRMode.Init( "SLRMode", "Tire", this, vsp::TIRE_DIM_FRAC, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 1 );
+    m_SLRMode.SetDescript( "Mode to control static loaded radius specification" );
     m_DeflectionPct.Init( "DeflectionPct", "Tire", this, 0.35, 0.0, 1.0 );
     m_DeflectionPct.SetDescript( "Static loaded deflection fraction" );
-    m_StaticRadius.Init( "StaticRadius", "Tire", this, 0.75, 0.0, 1.0e12 );
-    m_StaticRadius.SetDescript( "Static loaded radius" );
+    m_StaticRadiusIn.Init( "StaticRadiusIn", "Tire", this, 0.75, 0.0, 1.0e12 );
+    m_StaticRadiusIn.SetDescript( "Static loaded radius in inches" );
+    m_StaticRadiusModel.Init( "StaticRadiusModel", "Tire", this, 0.75/12., 0.0, 1.0e12 );
+    m_StaticRadiusModel.SetDescript( "Static loaded radius in in model units" );
 
-    m_DrimFlag.Init( "DrimFlag", "Tire", this, false, false, true );
-    m_DrimFlag.SetDescript( "Flag to use dimensional rim diameter" );
+    m_DrimMode.Init( "DrimMode", "Tire", this, vsp::TIRE_DIM_FRAC, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 1 );
+    m_DrimMode.SetDescript( "Mode to control rim diameter specification" );
     m_DrimFrac.Init( "DrimFrac", "Tire", this, 0.29, 0.0, 1.0 );
     m_DrimFrac.SetDescript( "Wheel rim diameter fraction of wheel diameter" );
-    m_Drim.Init( "Drim", "Tire", this, 4.0, 0.0, 1.0e12 );
-    m_Drim.SetDescript( "Wheel rim diameter" );
+    m_DrimIn.Init( "DrimIn", "Tire", this, 4.0, 0.0, 1.0e12 );
+    m_DrimIn.SetDescript( "Wheel rim diameter in inches" );
+    m_DrimModel.Init( "DrimModel", "Tire", this, 4.0/12., 0.0, 1.0e12 );
+    m_DrimModel.SetDescript( "Wheel rim diameter in model units" );
 
-    m_WrimFlag.Init( "WrimFlag", "Tire", this, false, false, true );
-    m_WrimFlag.SetDescript( "Flag to use dimensional wheel rim width" );
+    m_WrimMode.Init( "WrimMode", "Tire", this, vsp::TIRE_DIM_FRAC, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 1 );
+    m_WrimMode.SetDescript( "Mode to control wheel rim width specification" );
     m_WrimFrac.Init( "WrimFrac", "Tire", this, 0.77, 0.0, 1.0 );
     m_WrimFrac.SetDescript( "Wheel rim fraction of tire width" );
-    m_Wrim.Init( "Wrim", "Tire", this, 0.88, 0.0, 1.0e12 );
-    m_Wrim.SetDescript( "Wheel rim width" );
+    m_WrimIn.Init( "WrimIn", "Tire", this, 0.88, 0.0, 1.0e12 );
+    m_WrimIn.SetDescript( "Wheel rim width in inches" );
+    m_WrimModel.Init( "WrimModel", "Tire", this, 0.88/12, 0.0, 1.0e12 );
+    m_WrimModel.SetDescript( "Wheel rim width in model units" );
 
-    m_WsFlag.Init( "WsFlag", "Tire", this, false, false, true );
-    m_WsFlag.SetDescript( "Flag to use dimensional shoulder width" );
+    m_WsMode.Init( "WsMode", "Tire", this, vsp::TIRE_DIM_FRAC, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 1 );
+    m_WsMode.SetDescript( "Mode to control shoulder width specification" );
     m_WsFrac.Init( "WsFrac", "Tire", this, 0.88, 0.0, 1.0 );
     m_WsFrac.SetDescript( "Tire shoulder fraction of width" );
-    m_Ws.Init( "Ws", "Tire", this, 0.88, 0.0, 1.0e12 );
-    m_Ws.SetDescript( "Tire shoulder width" );
+    m_WsIn.Init( "WsIn", "Tire", this, 0.88, 0.0, 1.0e12 );
+    m_WsIn.SetDescript( "Tire shoulder width in inches" );
+    m_WsModel.Init( "WsModel", "Tire", this, 0.88/12., 0.0, 1.0e12 );
+    m_WsModel.SetDescript( "Tire shoulder width in model units" );
 
-    m_HsFlag.Init( "HsFlag", "Tire", this, false, false, true );
-    m_HsFlag.SetDescript( "Flag to use dimensional shoulder height" );
+    m_HsMode.Init( "HsMode", "Tire", this, vsp::TIRE_DIM_FRAC, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 1 );
+    m_HsMode.SetDescript( "Mode to control shoulder height specification" );
     m_HsFrac.Init( "HsFrac", "Tire", this, 0.82, 0.0, 1.0 );
     m_HsFrac.SetDescript( "Tire shoulder height fraction of tire height" );
-    m_Hs.Init( "Hs", "Tire", this, 0.88, 0.0, 1.0e12 );
-    m_Hs.SetDescript( "Tire shoulder height" );
+    m_HsIn.Init( "HsIn", "Tire", this, 0.88, 0.0, 1.0e12 );
+    m_HsIn.SetDescript( "Tire shoulder height in inches" );
+    m_HsModel.Init( "HsModel", "Tire", this, 0.88/12., 0.0, 1.0e12 );
+    m_HsModel.SetDescript( "Tire shoulder height in model units" );
 }
 
 //==== Parm Changed ====//
@@ -111,113 +130,181 @@ int Bogie::GetNumSurf() const
 
 void Bogie:: UpdateParms()
 {
+    ParmContainer* pc = GetParentContainerPtr();
+    GearGeom *gear_geom = dynamic_cast < GearGeom * > ( pc );
+
+    double in2model = 1.0;
+    if ( gear_geom )
+    {
+        in2model = ConvertLength( 1, vsp::LEN_IN, gear_geom->m_ModelLenUnits() );
+    }
+    double model2in = 1.0 / in2model;
+
+
+    if ( m_DiameterMode() == vsp::TIRE_DIM_IN )
+    {
+        m_DiameterModel = m_DiameterIn() * in2model;
+    }
+    else // vsp::TIRE_DIM_MODEL
+    {
+        m_DiameterIn = m_DiameterModel() * model2in;
+    }
+
+    if ( m_WidthMode() == vsp::TIRE_DIM_IN )
+    {
+        m_WidthModel = m_WidthIn() * in2model;
+    }
+    else // vsp::TIRE_DIM_MODEL
+    {
+        m_WidthIn = m_WidthModel() * model2in;
+    }
+
     // Tire dimensions
-    double Do = m_Diameter(); // 13.5;
-    double W = m_Width(); // 6.0;
+    double Do = m_DiameterIn();
+    double W = m_WidthIn();
 
     // Rim
-    if ( m_WrimFlag() ) // Use dimensional Wrim.
+    if ( m_WrimMode() == vsp::TIRE_DIM_IN )
     {
-        m_WrimFrac = m_Wrim() / W;
+        m_WrimFrac = m_WrimIn() / W;
+        m_WrimModel = m_WrimIn() * in2model;
     }
-    else
+    else if ( m_WrimMode() == vsp::TIRE_DIM_MODEL )
     {
-        m_Wrim = m_WrimFrac() * W;
+        m_WrimIn = m_WrimModel() * model2in;
+        m_WrimFrac = m_WrimIn() / W;
+    }
+    else // TIRE_DIM_FRAC
+    {
+        m_WrimIn = m_WrimFrac() * W;
+        m_WrimModel = m_WrimIn() * in2model;
     }
 
-    if ( m_DrimFlag() ) // Use dimensional Drim.
+    if ( m_DrimMode() == vsp::TIRE_DIM_IN )
     {
-        m_DrimFrac = m_Drim() / Do;
+        m_DrimFrac = m_DrimIn() / Do;
+        m_DrimModel = m_DrimIn() * in2model;
     }
-    else
+    else if ( m_DrimMode() == vsp::TIRE_DIM_MODEL )
     {
-        m_Drim = m_DrimFrac() * Do;
+        m_DrimIn = m_DrimModel() * model2in;
+        m_DrimFrac = m_DrimIn() / Do;
+    }
+    else // TIRE_DIM_FRAC
+    {
+        m_DrimIn = m_DrimFrac() * Do;
+        m_DrimModel = m_DrimIn() * in2model;
     }
 
     // Rim dimensions
-    double Drim = m_Drim();
-    double Wrim = m_Wrim();
+    double Drim = m_DrimIn();
+    double Wrim = m_WrimIn();
     // double Hflange = 0.55;
 
     double H = 0.5 * ( Do - Drim );
 
 
 
-    if ( m_WsFlag() ) // Use dimensional Ws.
+    if ( m_WsMode() == vsp::TIRE_DIM_IN )
     {
-        m_WsFrac = m_Ws() / W;
+        m_WsFrac = m_WsIn() / W;
+        m_WsModel = m_WsIn() * in2model;
     }
-    else
+    else if ( m_WsMode() == vsp::TIRE_DIM_IN )
     {
-        m_Ws = m_WsFrac() * W;
+        m_WsIn = m_WsModel() * model2in;
+        m_WsFrac = m_WsIn() / W;
     }
-
-    if ( m_HsFlag() ) // Use dimensional Ws.
+    else // TIRE_DIM_FRAC
     {
-        m_HsFrac = m_Hs() / H;
-    }
-    else
-    {
-        m_Hs = m_HsFrac() * H;
+        m_WsIn = m_WsFrac() * W;
+        m_WsModel = m_WsIn() * in2model;
     }
 
-    m_StaticRadius.SetLowerUpperLimits( 0.5 * Drim, 0.5 * Do );
-    if ( m_SLRFlag() )
+    if ( m_HsMode() == vsp::TIRE_DIM_IN )
     {
-        m_DeflectionPct = ( 0.5 * Do - m_StaticRadius() ) / H ;
+        m_HsFrac = m_HsIn() / H;
+        m_HsModel = m_HsIn() * in2model;
     }
-    else
+    else if ( m_HsMode() == vsp::TIRE_DIM_IN )
     {
-        m_StaticRadius = 0.5 * Do - m_DeflectionPct() * H;
+        m_HsIn = m_HsModel() * model2in;
+        m_HsFrac = m_HsIn() / H;
     }
+    else // TIRE_DIM_FRAC
+    {
+        m_HsIn = m_HsFrac() * H;
+        m_HsModel = m_HsIn() * in2model;
+    }
+
+    m_StaticRadiusIn.SetLowerUpperLimits( 0.5 * Drim, 0.5 * Do );
+    m_StaticRadiusModel.SetLowerUpperLimits( 0.5 * Drim * in2model, 0.5 * Do * in2model );
+    if ( m_SLRMode() == vsp::TIRE_DIM_IN )
+    {
+        m_DeflectionPct = ( 0.5 * Do - m_StaticRadiusIn() ) / H ;
+        m_StaticRadiusModel = m_StaticRadiusIn() * in2model;
+    }
+    else if ( m_SLRMode() == vsp::TIRE_DIM_MODEL )
+    {
+        m_StaticRadiusIn = m_StaticRadiusModel() * model2in;
+        m_DeflectionPct = ( 0.5 * Do - m_StaticRadiusIn() ) / H ;
+    }
+    else // TIRE_DIM_FRAC
+    {
+        m_StaticRadiusIn = 0.5 * Do - m_DeflectionPct() * H;
+        m_StaticRadiusModel = m_StaticRadiusIn() * in2model;
+    }
+
+    double Wmodel = m_WidthModel();
+    double Dmodel = m_DiameterModel();
 
     switch ( m_SpacingType() )
     {
         case vsp::BOGIE_CENTER_DIST:
-            m_SpacingFrac = m_Spacing() / W;
-            m_SpacingGap = m_Spacing() - W;
+            m_SpacingFrac = m_Spacing() / Wmodel;
+            m_SpacingGap = m_Spacing() - Wmodel;
             m_SpacingGapFrac = m_SpacingFrac() - 1;
             break;
         case vsp::BOGIE_CENTER_DIST_FRAC:
-            m_Spacing = m_SpacingFrac() * W;
-            m_SpacingGap = m_Spacing() - W;
+            m_Spacing = m_SpacingFrac() * Wmodel;
+            m_SpacingGap = m_Spacing() - Wmodel;
             m_SpacingGapFrac = m_SpacingFrac() - 1;
             break;
         case vsp::BOGIE_GAP:
-            m_Spacing = m_SpacingGap() + W;
-            m_SpacingFrac = m_Spacing() / W;
+            m_Spacing = m_SpacingGap() + Wmodel;
+            m_SpacingFrac = m_Spacing() / Wmodel;
             m_SpacingGapFrac = m_SpacingFrac() - 1;
             break;
         case vsp::BOGIE_GAP_FRAC:
         default:
             m_SpacingFrac = m_SpacingGapFrac() + 1;
-            m_Spacing = m_SpacingFrac() * W;
-            m_SpacingGap = m_SpacingGapFrac() * W;
+            m_Spacing = m_SpacingFrac() * Wmodel;
+            m_SpacingGap = m_SpacingGapFrac() * Wmodel;
             break;
     }
 
     switch ( m_PitchType() )
     {
         case vsp::BOGIE_CENTER_DIST:
-            m_PitchFrac = m_Pitch() / Do;
-            m_PitchGap = m_Pitch() - Do;
+            m_PitchFrac = m_Pitch() / Dmodel;
+            m_PitchGap = m_Pitch() - Dmodel;
             m_PitchGapFrac = m_PitchFrac() - 1;
             break;
         case vsp::BOGIE_CENTER_DIST_FRAC:
-            m_Pitch = m_PitchFrac() * Do;
-            m_PitchGap = m_Pitch() - Do;
+            m_Pitch = m_PitchFrac() * Dmodel;
+            m_PitchGap = m_Pitch() - Dmodel;
             m_PitchGapFrac = m_PitchFrac() - 1;
             break;
         case vsp::BOGIE_GAP:
-            m_Pitch = m_PitchGap() + Do;
-            m_PitchFrac = m_Pitch() / Do;
+            m_Pitch = m_PitchGap() + Dmodel;
+            m_PitchFrac = m_Pitch() / Dmodel;
             m_PitchGapFrac = m_PitchFrac() - 1;
             break;
         case vsp::BOGIE_GAP_FRAC:
         default:
             m_PitchFrac = m_PitchGapFrac() + 1;
-            m_Pitch = m_PitchFrac() * Do;
-            m_PitchGap = m_PitchGapFrac() * Do;
+            m_Pitch = m_PitchFrac() * Dmodel;
+            m_PitchGap = m_PitchGapFrac() * Dmodel;
             break;
     }
 
@@ -227,20 +314,20 @@ void Bogie:: UpdateParms()
 void Bogie::UpdateTireCurve()
 {
     // Tire dimensions
-    double Do = m_Diameter();
-    double W = m_Width();
+    double Do = m_DiameterModel();
+    double W = m_WidthModel();
 
     // Rim dimensions
-    double Drim = m_Drim();
-    double Wrim = m_Wrim();
+    double Drim = m_DrimModel();
+    double Wrim = m_WrimModel();
     // double Hflange = 0.55;
 
     double H = 0.5 * ( Do - Drim );
 
 
     // Tire shoulder
-    double Ws = m_Ws();
-    double Ds = 2 * m_Hs() + Drim;
+    double Ws = m_WsModel();
+    double Ds = 2 * m_HsModel() + Drim;
 
 
     double Cr = 0;
@@ -278,6 +365,8 @@ GearGeom::GearGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Name = "GearGeom";
     m_Type.m_Name = "Gear";
     m_Type.m_Type = GEAR_GEOM_TYPE;
+
+    m_ModelLenUnits.Init( "m_ModelLenUnits", "Gear", this, vsp::LEN_FT, vsp::LEN_MM, vsp::NUM_LEN_UNIT - 2 ); // Do not allow LEN_UNITLESS
 
     m_PlaneSize.Init( "PlaneSize", "GroundPlane", this, 10.0, 0.0, 1e12 );
     m_AutoPlaneFlag.Init( "AutoPlaneFlag", "GroundPlane", this, true, false, true );

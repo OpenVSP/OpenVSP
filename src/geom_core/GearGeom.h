@@ -33,7 +33,7 @@ public:
     void TireToBogie( const T &source, vector<T> &dest ) const
     {
         Matrix4d xform;
-        xform.translatef( m_XContactPt(), m_YContactPt(), m_ZAboveGround() + m_StaticRadius() );
+        xform.translatef( m_XContactPt(), m_YContactPt(), m_ZAboveGround() + m_StaticRadiusModel() );
 
         int nsymm = 1;
         vector < double > smult = { 1.0 };
@@ -110,28 +110,38 @@ public:
     Parm m_YContactPt;
     Parm m_ZAboveGround;
 
-    Parm m_Width;
-    Parm m_Diameter;
+    BoolParm m_WidthMode;
+    Parm m_WidthIn;
+    Parm m_WidthModel;
 
-    BoolParm m_SLRFlag;
+    BoolParm m_DiameterMode;
+    Parm m_DiameterIn;
+    Parm m_DiameterModel;
+
+    IntParm m_SLRMode;
     Parm m_DeflectionPct;
-    Parm m_StaticRadius;
+    Parm m_StaticRadiusIn;
+    Parm m_StaticRadiusModel;
 
-    BoolParm m_DrimFlag;
+    IntParm m_DrimMode;
     Parm m_DrimFrac;
-    Parm m_Drim;
+    Parm m_DrimIn;
+    Parm m_DrimModel;
 
-    BoolParm m_WrimFlag;
+    IntParm m_WrimMode;
     Parm m_WrimFrac;
-    Parm m_Wrim;
+    Parm m_WrimIn;
+    Parm m_WrimModel;
 
-    BoolParm m_WsFlag;
+    IntParm m_WsMode;
     Parm m_WsFrac;
-    Parm m_Ws;
+    Parm m_WsIn;
+    Parm m_WsModel;
 
-    BoolParm m_HsFlag;
+    IntParm m_HsMode;
     Parm m_HsFrac;
-    Parm m_Hs;
+    Parm m_HsIn;
+    Parm m_HsModel;
 
 
 };
@@ -169,6 +179,8 @@ public:
 
     virtual void UpdateBBox();
     virtual bool IsModelScaleSensitive()        { return true; }
+
+    IntParm m_ModelLenUnits;
 
     Parm m_PlaneSize;
     BoolParm m_AutoPlaneFlag;

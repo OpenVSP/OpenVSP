@@ -15,7 +15,7 @@
 
 
 //==== Constructor ====//
-Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 600, "Gear" )
+Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 600, "Gear" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -25,6 +25,15 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 600, "Gear" )
 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
 
+    m_ModelUnitsChoice.AddItem( "mm", vsp::LEN_MM );
+    m_ModelUnitsChoice.AddItem( "cm", vsp::LEN_CM );
+    m_ModelUnitsChoice.AddItem( "m", vsp::LEN_M );
+    m_ModelUnitsChoice.AddItem( "in", vsp::LEN_IN );
+    m_ModelUnitsChoice.AddItem( "ft", vsp::LEN_FT );
+    m_ModelUnitsChoice.AddItem( "yd", vsp::LEN_YD );
+    m_ModelUnitsChoice.UpdateItems();
+
+    m_DesignLayout.AddChoice( m_ModelUnitsChoice, "Model Units" );
 
     m_DesignLayout.AddButton( m_AutoPlaneSizeToggle, "Auto" );
     m_DesignLayout.AddSlider( m_PlaneSizeSlider, "Plane Size", 10.0, "%6.5f" );
@@ -99,99 +108,156 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 600, "Gear" )
 
     m_TireGroup.SetGroupAndScreen( tire_group, this );
 
-    m_TireGroup.AddDividerBox( "Tire" );
-
-    m_TireGroup.AddSlider( m_TireDiameterSlider, "Diameter", 10, "%6.5f" );
-    m_TireGroup.AddSlider( m_TireWidthSlider, "Width", 10, "%6.5f" );
-
-    int toggleButtonWidth = 35;
+    int inToggleButtonWidth = 35;
+    int modelToggleButtonWidth = 60;
     int bw = m_TireGroup.GetButtonWidth();
 
-    m_TireGroup.AddYGap();
+
+    m_TireGroup.AddDividerBox( "Tire" );
     m_TireGroup.SetSameLineFlag( true );
 
     m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( toggleButtonWidth );
-    m_TireGroup.AddButton( m_DrimFracToggleButton, "01" );
-    m_TireGroup.AddButton( m_DrimToggleButton, "0D" );
+    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
+    m_TireGroup.AddButton( m_TireDiameterInToggleButton, "in" );
+    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
+    m_TireGroup.AddButton( m_TireDiameterModelToggleButton, "Model" );
+    m_TireGroup.SetFitWidthFlag( true );
+    m_TireGroup.SetButtonWidth( bw );
+    m_TireGroup.AddSlider( m_TireDiameterSlider, "Diameter", 1, "%6.5f" );
+
+    m_TireDiameterToggleGroup.Init( this );
+    m_TireDiameterToggleGroup.AddButton( m_TireDiameterInToggleButton.GetFlButton() );
+    m_TireDiameterToggleGroup.AddButton( m_TireDiameterModelToggleButton.GetFlButton() );
+
+
+    m_TireGroup.ForceNewLine();
+
+
+    m_TireGroup.SetFitWidthFlag( false );
+    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
+    m_TireGroup.AddButton( m_TireWidthInToggleButton, "in" );
+    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
+    m_TireGroup.AddButton( m_TireWidthModelToggleButton, "Model" );
+    m_TireGroup.SetFitWidthFlag( true );
+    m_TireGroup.SetButtonWidth( bw );
+    m_TireGroup.AddSlider( m_TireWidthSlider, "Width", 1, "%6.5f" );
+
+    m_TireWidthToggleGroup.Init( this );
+    m_TireWidthToggleGroup.AddButton( m_TireWidthInToggleButton.GetFlButton() );
+    m_TireWidthToggleGroup.AddButton( m_TireWidthModelToggleButton.GetFlButton() );
+
+
+    m_TireGroup.ForceNewLine();
+    m_TireGroup.AddYGap();
+
+    m_TireGroup.SetSameLineFlag( false );
+    m_TireGroup.AddDividerBox( "Rim" );
+    m_TireGroup.SetSameLineFlag( true );
+
+    m_TireGroup.SetFitWidthFlag( false );
+    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
+    m_TireGroup.AddButton( m_DrimInToggleButton, "in" );
+    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
+    m_TireGroup.AddButton( m_DrimModelToggleButton, "Model" );
+    m_TireGroup.AddButton( m_DrimFracToggleButton, "Frac D" );
     m_TireGroup.SetFitWidthFlag( true );
     m_TireGroup.SetButtonWidth( bw );
     m_TireGroup.AddSlider( m_DrimSlider, "Drim", 1, "%6.5f" );
 
     m_DrimToggleGroup.Init( this );
-    m_DrimToggleGroup.AddButton( m_DrimFracToggleButton.GetFlButton() ); // false
-    m_DrimToggleGroup.AddButton( m_DrimToggleButton.GetFlButton() ); // true
+    m_DrimToggleGroup.AddButton( m_DrimInToggleButton.GetFlButton() );
+    m_DrimToggleGroup.AddButton( m_DrimModelToggleButton.GetFlButton() );
+    m_DrimToggleGroup.AddButton( m_DrimFracToggleButton.GetFlButton() );
 
 
     m_TireGroup.ForceNewLine();
 
 
     m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( toggleButtonWidth );
-    m_TireGroup.AddButton( m_WrimFracToggleButton, "01" );
-    m_TireGroup.AddButton( m_WrimToggleButton, "0W" );
+    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
+    m_TireGroup.AddButton( m_WrimInToggleButton, "in" );
+    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
+    m_TireGroup.AddButton( m_WrimModelToggleButton, "Model" );
+    m_TireGroup.AddButton( m_WrimFracToggleButton, "Frac W" );
     m_TireGroup.SetFitWidthFlag( true );
     m_TireGroup.SetButtonWidth( bw );
     m_TireGroup.AddSlider( m_WrimSlider, "Wrim", 1, "%6.5f" );
 
     m_WrimToggleGroup.Init( this );
-    m_WrimToggleGroup.AddButton( m_WrimFracToggleButton.GetFlButton() ); // false
-    m_WrimToggleGroup.AddButton( m_WrimToggleButton.GetFlButton() ); // true
+    m_WrimToggleGroup.AddButton( m_WrimInToggleButton.GetFlButton() );
+    m_WrimToggleGroup.AddButton( m_WrimModelToggleButton.GetFlButton() );
+    m_WrimToggleGroup.AddButton( m_WrimFracToggleButton.GetFlButton() );
 
     m_TireGroup.ForceNewLine();
     m_TireGroup.AddYGap();
 
+    m_TireGroup.SetSameLineFlag( false );
+    m_TireGroup.AddDividerBox( "Shoulder" );
+    m_TireGroup.SetSameLineFlag( true );
 
     m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( toggleButtonWidth );
-    m_TireGroup.AddButton( m_HsFracToggleButton, "01" );
-    m_TireGroup.AddButton( m_HsToggleButton, "0H" );
+    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
+    m_TireGroup.AddButton( m_HsInToggleButton, "in" );
+    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
+    m_TireGroup.AddButton( m_HsModelToggleButton, "Model" );
+    m_TireGroup.AddButton( m_HsFracToggleButton, "Frac H" );
     m_TireGroup.SetFitWidthFlag( true );
     m_TireGroup.SetButtonWidth( bw );
     m_TireGroup.AddSlider( m_HsSlider, "Hs", 1, "%6.5f" );
 
     m_HsToggleGroup.Init( this );
-    m_HsToggleGroup.AddButton( m_HsFracToggleButton.GetFlButton() ); // false
-    m_HsToggleGroup.AddButton( m_HsToggleButton.GetFlButton() ); // true
+    m_HsToggleGroup.AddButton( m_HsInToggleButton.GetFlButton() );
+    m_HsToggleGroup.AddButton( m_HsModelToggleButton.GetFlButton() );
+    m_HsToggleGroup.AddButton( m_HsFracToggleButton.GetFlButton() );
 
     m_TireGroup.ForceNewLine();
 
 
     m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( toggleButtonWidth );
-    m_TireGroup.AddButton( m_WsFracToggleButton, "01" );
-    m_TireGroup.AddButton( m_WsToggleButton, "0W" );
+    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
+    m_TireGroup.AddButton( m_WsInToggleButton, "in" );
+    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
+    m_TireGroup.AddButton( m_WsModelToggleButton, "Model" );
+    m_TireGroup.AddButton( m_WsFracToggleButton, "Frac W" );
     m_TireGroup.SetFitWidthFlag( true );
     m_TireGroup.SetButtonWidth( bw );
     m_TireGroup.AddSlider( m_WsSlider, "Ws", 1, "%6.5f" );
 
     m_WsToggleGroup.Init( this );
-    m_WsToggleGroup.AddButton( m_WsFracToggleButton.GetFlButton() ); // false
-    m_WsToggleGroup.AddButton( m_WsToggleButton.GetFlButton() ); // true
+    m_WsToggleGroup.AddButton( m_WsInToggleButton.GetFlButton() );
+    m_WsToggleGroup.AddButton( m_WsModelToggleButton.GetFlButton() );
+    m_WsToggleGroup.AddButton( m_WsFracToggleButton.GetFlButton() );
 
     m_TireGroup.ForceNewLine();
-
     m_TireGroup.AddYGap();
 
+    m_TireGroup.SetSameLineFlag( false );
+    m_TireGroup.AddDividerBox( "Static Loaded Radius" );
+    m_TireGroup.SetSameLineFlag( true );
+
     m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( toggleButtonWidth );
-    m_TireGroup.AddButton( m_DeflectionToggleButton, "" );
+    m_TireGroup.SetButtonWidth( inToggleButtonWidth + modelToggleButtonWidth + bw );
+
+    m_TireGroup.AddButton( m_DeflectionToggleButton, "Delfection Frac H" );
     m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw );
-    m_TireGroup.AddSlider( m_DeflectionSlider, "Deflection", 1, "%6.5f" );
+    m_TireGroup.SetButtonWidth( 0 );
+    m_TireGroup.AddSlider( m_DeflectionSlider, "", 1, "%6.5f" );
 
     m_TireGroup.ForceNewLine();
 
     m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( toggleButtonWidth );
-    m_TireGroup.AddButton( m_SLRToggleButton, "" );
+    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
+    m_TireGroup.AddButton( m_SLRInToggleButton, "in" );
+    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
+    m_TireGroup.AddButton( m_SLRModelToggleButton, "Model" );
     m_TireGroup.SetFitWidthFlag( true );
     m_TireGroup.SetButtonWidth( bw );
     m_TireGroup.AddSlider( m_SLRSlider, "SLR", 1, "%6.5f" );
 
     m_SLRToggleGroup.Init( this );
-    m_SLRToggleGroup.AddButton( m_DeflectionToggleButton.GetFlButton() ); // false
-    m_SLRToggleGroup.AddButton( m_SLRToggleButton.GetFlButton() ); // true
+    m_SLRToggleGroup.AddButton( m_SLRInToggleButton.GetFlButton() );
+    m_SLRToggleGroup.AddButton( m_SLRModelToggleButton.GetFlButton() );
+    m_SLRToggleGroup.AddButton( m_DeflectionToggleButton.GetFlButton() );
 
 }
 
@@ -223,6 +289,7 @@ bool Gearcreen::Update()
     GearGeom* gear_ptr = dynamic_cast< GearGeom* >( geom_ptr );
     assert( gear_ptr );
 
+    m_ModelUnitsChoice.Update( gear_ptr->m_ModelLenUnits.GetID() );
 
     m_AutoPlaneSizeToggle.Update( gear_ptr->m_AutoPlaneFlag.GetID() );
     m_PlaneSizeSlider.Update( gear_ptr->m_PlaneSize.GetID() );
@@ -349,62 +416,122 @@ bool Gearcreen::Update()
         m_TireYSlider.Update( bogie_ptr->m_YContactPt.GetID() );
         m_TireZSlider.Update( bogie_ptr->m_ZAboveGround.GetID() );
 
-        m_TireDiameterSlider.Update( bogie_ptr->m_Diameter.GetID() );
-        m_TireWidthSlider.Update( bogie_ptr->m_Width.GetID() );
-
-        m_DrimToggleGroup.Update( bogie_ptr->m_DrimFlag.GetID() );
-        if ( bogie_ptr->m_DrimFlag() )
+        m_TireDiameterToggleGroup.Update( bogie_ptr->m_DiameterMode.GetID() );
+        if ( bogie_ptr->m_DiameterMode() == vsp::TIRE_DIM_IN )
         {
-            m_DrimSlider.Update( 2, bogie_ptr->m_DrimFrac.GetID(), bogie_ptr->m_Drim.GetID());
+            m_TireDiameterSlider.Update( 1, bogie_ptr->m_DiameterIn.GetID(), bogie_ptr->m_DiameterModel.GetID() );
+            m_TireDiameterSlider.ActivateInput1();
         }
-        else
+        else // TIRE_DIM_MODEL
         {
-            m_DrimSlider.Update( 1, bogie_ptr->m_DrimFrac.GetID(), bogie_ptr->m_Drim.GetID());
-        }
-
-        m_WrimToggleGroup.Update( bogie_ptr->m_WrimFlag.GetID() );
-        if ( bogie_ptr->m_WrimFlag() )
-        {
-            m_WrimSlider.Update( 2, bogie_ptr->m_WrimFrac.GetID(), bogie_ptr->m_Wrim.GetID());
-        }
-        else
-        {
-            m_WrimSlider.Update( 1, bogie_ptr->m_WrimFrac.GetID(), bogie_ptr->m_Wrim.GetID());
+            m_TireDiameterSlider.Update( 2, bogie_ptr->m_DiameterIn.GetID(), bogie_ptr->m_DiameterModel.GetID() );
+            m_TireDiameterSlider.ActivateInput2();
         }
 
-        m_HsToggleGroup.Update( bogie_ptr->m_HsFlag.GetID() );
-        if ( bogie_ptr->m_HsFlag() )
+        m_TireWidthToggleGroup.Update( bogie_ptr->m_WidthMode.GetID() );
+        if ( bogie_ptr->m_WidthMode() == vsp::TIRE_DIM_IN )
         {
-            m_HsSlider.Update( 2, bogie_ptr->m_HsFrac.GetID(), bogie_ptr->m_Hs.GetID());
+            m_TireWidthSlider.Update( 1, bogie_ptr->m_WidthIn.GetID(), bogie_ptr->m_WidthModel.GetID() );
+            m_TireWidthSlider.ActivateInput1();
         }
-        else
+        else // TIRE_DIM_MODEL
         {
-            m_HsSlider.Update( 1, bogie_ptr->m_HsFrac.GetID(), bogie_ptr->m_Hs.GetID());
-        }
-
-        m_WsToggleGroup.Update( bogie_ptr->m_WsFlag.GetID() );
-        if ( bogie_ptr->m_WsFlag() )
-        {
-            m_WsSlider.Update( 2, bogie_ptr->m_WsFrac.GetID(), bogie_ptr->m_Ws.GetID());
-        }
-        else
-        {
-            m_WsSlider.Update( 1, bogie_ptr->m_WsFrac.GetID(), bogie_ptr->m_Ws.GetID());
+            m_TireWidthSlider.Update( 2, bogie_ptr->m_WidthIn.GetID(), bogie_ptr->m_WidthModel.GetID() );
+            m_TireWidthSlider.ActivateInput2();
         }
 
-
-        m_SLRToggleGroup.Update( bogie_ptr->m_SLRFlag.GetID() );
-        m_DeflectionSlider.Update( bogie_ptr->m_DeflectionPct.GetID() );
-        m_SLRSlider.Update( bogie_ptr->m_StaticRadius.GetID() );
-
-
-        if ( bogie_ptr->m_SLRFlag() )
+        m_DrimToggleGroup.Update( bogie_ptr->m_DrimMode.GetID() );
+        if ( bogie_ptr->m_DrimMode() == vsp::TIRE_DIM_IN )
         {
+            m_DrimSlider.Update( 1, bogie_ptr->m_DrimIn.GetID(), bogie_ptr->m_DrimModel.GetID(), bogie_ptr->m_DrimFrac.GetID() );
+            m_DrimSlider.ActivateInput1();
+        }
+        else if ( bogie_ptr->m_DrimMode() == vsp::TIRE_DIM_MODEL )
+        {
+            m_DrimSlider.Update( 2, bogie_ptr->m_DrimIn.GetID(), bogie_ptr->m_DrimModel.GetID(), bogie_ptr->m_DrimFrac.GetID() );
+            m_DrimSlider.ActivateInput2();
+        }
+        else // TIRE_DIM_FRAC
+        {
+            m_DrimSlider.Update( 3, bogie_ptr->m_DrimIn.GetID(), bogie_ptr->m_DrimModel.GetID(), bogie_ptr->m_DrimFrac.GetID() );
+            m_DrimSlider.ActivateInput3();
+        }
+
+        m_WrimToggleGroup.Update( bogie_ptr->m_WrimMode.GetID() );
+        if ( bogie_ptr->m_WrimMode() == vsp::TIRE_DIM_IN )
+        {
+            m_WrimSlider.Update( 1, bogie_ptr->m_WrimIn.GetID(), bogie_ptr->m_WrimModel.GetID(), bogie_ptr->m_WrimFrac.GetID() );
+            m_WrimSlider.ActivateInput1();
+        }
+        else if ( bogie_ptr->m_WrimMode() == vsp::TIRE_DIM_MODEL )
+        {
+            m_WrimSlider.Update( 2, bogie_ptr->m_WrimIn.GetID(), bogie_ptr->m_WrimModel.GetID(), bogie_ptr->m_WrimFrac.GetID() );
+            m_WrimSlider.ActivateInput2();
+        }
+        else // TIRE_DIM_FRAC
+        {
+            m_WrimSlider.Update( 3, bogie_ptr->m_WrimIn.GetID(), bogie_ptr->m_WrimModel.GetID(), bogie_ptr->m_WrimFrac.GetID() );
+            m_WrimSlider.ActivateInput3();
+        }
+
+        m_HsToggleGroup.Update( bogie_ptr->m_HsMode.GetID() );
+        if ( bogie_ptr->m_HsMode() == vsp::TIRE_DIM_IN )
+        {
+            m_HsSlider.Update( 1, bogie_ptr->m_HsIn.GetID(), bogie_ptr->m_HsModel.GetID(), bogie_ptr->m_HsFrac.GetID() );
+            m_HsSlider.ActivateInput1();
+        }
+        else if ( bogie_ptr->m_HsMode() == vsp::TIRE_DIM_MODEL )
+        {
+            m_HsSlider.Update( 2, bogie_ptr->m_HsIn.GetID(), bogie_ptr->m_HsModel.GetID(), bogie_ptr->m_HsFrac.GetID() );
+            m_HsSlider.ActivateInput2();
+        }
+        else // TIRE_DIM_FRAC
+        {
+            m_HsSlider.Update( 3, bogie_ptr->m_HsIn.GetID(), bogie_ptr->m_HsModel.GetID(), bogie_ptr->m_HsFrac.GetID() );
+            m_HsSlider.ActivateInput3();
+        }
+
+        m_WsToggleGroup.Update( bogie_ptr->m_WsMode.GetID() );
+        if ( bogie_ptr->m_WsMode() == vsp::TIRE_DIM_IN )
+        {
+            m_WsSlider.Update( 1, bogie_ptr->m_WsIn.GetID(), bogie_ptr->m_WsModel.GetID(), bogie_ptr->m_WsFrac.GetID() );
+            m_WsSlider.ActivateInput1();
+        }
+        else if ( bogie_ptr->m_WsMode() == vsp::TIRE_DIM_MODEL )
+        {
+            m_WsSlider.Update( 2, bogie_ptr->m_WsIn.GetID(), bogie_ptr->m_WsModel.GetID(), bogie_ptr->m_WsFrac.GetID() );
+            m_WsSlider.ActivateInput2();
+        }
+        else // TIRE_DIM_FRAC
+        {
+            m_WsSlider.Update( 3, bogie_ptr->m_WsIn.GetID(), bogie_ptr->m_WsModel.GetID(), bogie_ptr->m_WsFrac.GetID() );
+            m_WsSlider.ActivateInput3();
+        }
+
+        m_SLRToggleGroup.Update( bogie_ptr->m_SLRMode.GetID() );
+        if ( bogie_ptr->m_SLRMode() == vsp::TIRE_DIM_IN )
+        {
+            m_SLRSlider.Update( 1, bogie_ptr->m_StaticRadiusIn.GetID(), bogie_ptr->m_StaticRadiusModel.GetID() );
+            m_DeflectionSlider.Update( bogie_ptr->m_DeflectionPct.GetID() );
+
             m_SLRSlider.Activate();
+            m_SLRSlider.ActivateInput1();
             m_DeflectionSlider.Deactivate();
         }
-        else
+        else if ( bogie_ptr->m_SLRMode() == vsp::TIRE_DIM_MODEL )
         {
+            m_SLRSlider.Update( 2, bogie_ptr->m_StaticRadiusIn.GetID(), bogie_ptr->m_StaticRadiusModel.GetID() );
+            m_DeflectionSlider.Update( bogie_ptr->m_DeflectionPct.GetID() );
+
+            m_SLRSlider.Activate();
+            m_SLRSlider.ActivateInput2();
+            m_DeflectionSlider.Deactivate();
+        }
+        else // TIRE_DIM_FRAC
+        {
+            m_SLRSlider.Update( 1, bogie_ptr->m_StaticRadiusIn.GetID(), bogie_ptr->m_StaticRadiusModel.GetID() );
+            m_DeflectionSlider.Update( bogie_ptr->m_DeflectionPct.GetID() );
+
             m_SLRSlider.Deactivate();
             m_DeflectionSlider.Activate();
         }

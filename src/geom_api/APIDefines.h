@@ -1381,6 +1381,16 @@ enum TEMP_UNITS { TEMP_UNIT_K = 0,	/*!< Kelvin */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for tire dimension modes. */
+enum TIRE_DIM_MODES { TIRE_DIM_IN,	/*!< Tire dimensions in inches */
+                      TIRE_DIM_MODEL,	/*!< Tire dimensions in model units */
+                      TIRE_DIM_FRAC,	/*!< Tire dimensions as fractions  */
+                      NUM_TIRE_DIM_MODES	/*!< Number of tire dimension choices  */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that describes units for velocity. */
 enum VEL_UNITS { V_UNIT_FT_S = 0,	/*!< Feet per second */
                  V_UNIT_M_S,	/*!< Meter per second */
