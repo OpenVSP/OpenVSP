@@ -807,13 +807,8 @@ protected:
     template <typename T>
     void ApplySymm( vector<T> const &source, vector<T> &dest )
     {
-        int num_main = GetNumMainSurfs();
-        unsigned int num_surf = GetNumTotalSurfs();
-
-        if ( source.size() != num_main )
-        {
-            return;
-        }
+        int num_main = source.size();
+        unsigned int num_surf = GetNumSymmCopies() * num_main;
 
         dest = source;
         dest.resize( num_surf );
@@ -824,7 +819,7 @@ protected:
         {
             int numShifts = -1;
 
-            int currentIndex = GetNumMainSurfs();
+            int currentIndex = num_main;
 
             for ( int i = 0 ; i < GetNumSymFlags() ; i ++ ) // Loop through each of the set sym flags
             {
