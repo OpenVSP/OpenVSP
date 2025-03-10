@@ -24,6 +24,7 @@ public:
 
     virtual void Show();
     virtual bool Update();
+    virtual void UpdateBogieBrowser();
 
     virtual void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
@@ -36,6 +37,7 @@ public:
 protected:
 
     GroupLayout m_DesignLayout;
+    GroupLayout m_BogieLayout;
     GroupLayout m_TireGroup;
 
     Choice m_ModelUnitsChoice;
@@ -43,6 +45,7 @@ protected:
     ToggleButton m_AutoPlaneSizeToggle;
     SliderAdjRangeInput m_PlaneSizeSlider;
 
+    // Bogie
     TriggerButton m_AddBogieButton;
     TriggerButton m_RenameBogieButton;
     TriggerButton m_RemoveBogieButton;
@@ -70,6 +73,9 @@ protected:
     SliderAdjRangeInput m_TireXSlider;
     SliderAdjRangeInput m_TireYSlider;
     SliderAdjRangeInput m_TireZSlider;
+
+    // Tire
+    Choice m_TireBogieChoice;
 
     ToggleButton m_TireDiameterInToggleButton;
     ToggleButton m_TireDiameterModelToggleButton;
