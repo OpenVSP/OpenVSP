@@ -27,6 +27,7 @@ typedef Eigen::Matrix< double, 1, 3 > threed_point_type;
     All 3 elements in the vector are of type double.
   */
 class vec3d;
+class Matrix4d;
 
 //==== Forward declare to get around MS Compiler bug ====//
 /*!
@@ -516,6 +517,9 @@ public:
     {
         return( v );
     }
+
+    void Transform( const Matrix4d &m );
+    void FlipNormal()                          {};
 
     // Rotate About Axis --> Change Internal Values
   /*!

@@ -17,6 +17,7 @@
 #include <cfloat> //For DBL_EPSILON
 #include "Vec3d.h"
 #include "VspUtil.h"
+#include "Matrix4d.h"
 
 using std::cout;
 using std::endl;
@@ -352,6 +353,11 @@ vec3d operator-( const vec3d & in )
 //    return ( out << "  " << a.v[0] << "  " <<
 //       a.v[1] << "  " << a.v[2] << "  " ) ;
 //}
+
+void vec3d::Transform( const Matrix4d &m )
+{
+    *this = m.xform( *this );
+}
 
 //******* distance between pnts ******//
 double dist( const vec3d& a, const vec3d& b )
