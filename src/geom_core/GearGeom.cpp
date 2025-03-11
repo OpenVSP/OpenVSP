@@ -15,28 +15,36 @@
 
 Bogie::Bogie()
 {
+    // Bogie
+    m_Symmetrical.Init( "Symmetrical", "Bogie", this, false, false, true );
 
-    m_Symmetrical.Init( "Symmetrical", "Tire", this, false, false, true );
+    m_NAcross.Init( "NumAcross", "Bogie", this, 1, 1, 100 );
+    m_NTandem.Init( "NumTandem", "Bogie", this, 1, 1, 100 );
 
-    m_NAcross.Init( "NumAcross", "Tire", this, 1, 1, 100 );
-    m_NTandem.Init( "NumTandem", "Tire", this, 1, 1, 100 );
+    m_SpacingType.Init( "SpacingType", "Bogie", this, vsp::BOGIE_GAP_FRAC, vsp::BOGIE_CENTER_DIST, vsp::NUM_BOGIE_SPACING_TYPE - 1 );
+    m_Spacing.Init( "Spacing", "Bogie", this, 1.1, 0.0, 1e12 );
+    m_SpacingFrac.Init( "SpacingFrac", "Bogie", this, 1.1, 1.0, 100 );
+    m_SpacingGap.Init( "SpacingGap", "Bogie", this, 1.1, 0.0, 1e12 );
+    m_SpacingGapFrac.Init( "SpacingGapFrac", "Bogie", this, 0.1, 0.0, 99 );
 
-    m_SpacingType.Init( "SpacingType", "Tire", this, vsp::BOGIE_GAP_FRAC, vsp::BOGIE_CENTER_DIST, vsp::NUM_BOGIE_SPACING_TYPE - 1 );
-    m_Spacing.Init( "Spacing", "Tire", this, 1.1, 0.0, 1e12 );
-    m_SpacingFrac.Init( "SpacingFrac", "Tire", this, 1.1, 1.0, 100 );
-    m_SpacingGap.Init( "SpacingGap", "Tire", this, 1.1, 0.0, 1e12 );
-    m_SpacingGapFrac.Init( "SpacingGapFrac", "Tire", this, 0.1, 0.0, 99 );
+    m_PitchType.Init( "PitchType", "Bogie", this, vsp::BOGIE_GAP_FRAC, vsp::BOGIE_CENTER_DIST, vsp::NUM_BOGIE_SPACING_TYPE - 1 );
+    m_Pitch.Init( "Pitch", "Bogie", this, 1.1, 0.0, 1e12 );
+    m_PitchFrac.Init( "PitchFrac", "Bogie", this, 1.1, 1.0, 100 );
+    m_PitchGap.Init( "PitchGap", "Bogie", this, 1.1, 0.0, 1e12 );
+    m_PitchGapFrac.Init( "PitchGapFrac", "Bogie", this, 0.1, 0.0, 99 );
 
-    m_PitchType.Init( "PitchType", "Tire", this, vsp::BOGIE_GAP_FRAC, vsp::BOGIE_CENTER_DIST, vsp::NUM_BOGIE_SPACING_TYPE - 1 );
-    m_Pitch.Init( "Pitch", "Tire", this, 1.1, 0.0, 1e12 );
-    m_PitchFrac.Init( "PitchFrac", "Tire", this, 1.1, 1.0, 100 );
-    m_PitchGap.Init( "PitchGap", "Tire", this, 1.1, 0.0, 1e12 );
-    m_PitchGapFrac.Init( "PitchGapFrac", "Tire", this, 0.1, 0.0, 99 );
+    m_XContactPt.Init( "XContactPt", "Bogie", this, 0.0, -1e12, 1e12 );
+    m_YContactPt.Init( "YContactPt", "Bogie", this, 0.0, -1e12, 1e12 );
+    m_ZAboveGround.Init( "ZAboveGround", "Bogie", this, 0.0, -1e12, 1e12 );
 
-    m_XContactPt.Init( "XContactPt", "Tire", this, 0.0, -1e12, 1e12 );
-    m_YContactPt.Init( "YContactPt", "Tire", this, 0.0, -1e12, 1e12 );
-    m_ZAboveGround.Init( "ZAboveGround", "Tire", this, 0.0, -1e12, 1e12 );
+    m_TravelX.Init( "TravelX", "Bogie", this, 0.0, -1e12, 1e12 );
+    m_TravelY.Init( "TravelY", "Bogie", this, 0.0, -1e12, 1e12 );
+    m_TravelZ.Init( "TravelZ", "Bogie", this, 1.0, -1e12, 1e12 );
 
+    m_TravelCompressed.Init( "TravelCompressed", "Bogie", this, 0.0, 0, 1e12 );
+    m_TravelExtended.Init( "TravelExtended", "Bogie", this, 0.0, 0, 1e12 );
+
+    //Tire
     m_DiameterMode.Init( "DiameterMode", "Tire", this, vsp::TIRE_DIM_IN, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 2 ); // TIRE_DIM_FRAC not allowed
     m_DiameterMode.SetDescript( "Mode to control diameter specification" );
     m_DiameterIn.Init( "DiameterIn", "Tire", this, 13.5, 0.0, 1.0e12 );
@@ -349,12 +357,124 @@ void Bogie::Update()
 
 }
 
-void Bogie::UpdateDrawObj()
+void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
 {
+    m_SuspensionTravelLinesDO.m_PntVec.clear();
+    m_SuspensionTravelPointsDO.m_PntVec.clear();
+
+    m_SuspensionTravelLinesDO.m_GeomID = m_ID + "LSuspension";
+    m_SuspensionTravelLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_SuspensionTravelLinesDO.m_LineWidth = 2.0;
+    m_SuspensionTravelLinesDO.m_Type = DrawObj::VSP_LINES;
+    m_SuspensionTravelLinesDO.m_LineColor = vec3d( 0, 1, 0 );
+    m_SuspensionTravelLinesDO.m_GeomChanged = true;
+
+    m_SuspensionTravelPointsDO.m_GeomID = m_ID + "PSuspension";
+    m_SuspensionTravelPointsDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_SuspensionTravelPointsDO.m_PointSize = 12.0;
+    m_SuspensionTravelPointsDO.m_Type = DrawObj::VSP_POINTS;
+    m_SuspensionTravelPointsDO.m_PointColor = vec3d( 0, 0, 0 );
+    m_SuspensionTravelPointsDO.m_GeomChanged = true;
+
+
+    int isymm = 0;
+
+    m_SuspensionTravelLinesDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_EXTENDED ) ) );
+    m_SuspensionTravelLinesDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_COMPRESSED ) ) );
+
+    m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_EXTENDED ) ) );
+    m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_NOMINAL ) ) );
+    m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_COMPRESSED ) ) );
+
+
+    if ( m_Symmetrical() )
+    {
+        isymm++;
+    }
 }
 
 void Bogie::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
+    draw_obj_vec.push_back( &m_SuspensionTravelLinesDO );
+    draw_obj_vec.push_back( &m_SuspensionTravelPointsDO );
+}
+
+double Bogie::GetTireRadius( int tiremode ) const
+{
+    switch ( tiremode )
+    {
+        case vsp::TIRE_NOMINAL_CONTACT:
+            return m_DiameterModel() * 0.5;
+            break;
+        case vsp::TIRE_GROWTH_CONTACT:  // Not correct at this time.  Need to do growth calculation based on speed.
+            return m_DiameterModel() * 0.5;
+            break;
+        case vsp::TIRE_FLAT_CONTACT:
+            return m_DrimModel() * 0.5;
+            break;
+        case vsp::TIRE_STATIC_LODED_CONTACT:
+        default:
+            return m_StaticRadiusModel();
+    }
+}
+
+vec3d Bogie::GetTireDeflection( int tiremode ) const
+{
+    return vec3d( 0, 0, m_StaticRadiusModel() - GetTireRadius( tiremode ) );
+}
+
+vec3d Bogie::GetCompressionUnitDirection( int isymm ) const
+{
+    vec3d dir( m_TravelX(), m_TravelY(), m_TravelZ() );
+    dir.normalize();
+
+    if ( isymm > 0 )
+    {
+        dir.scale_y( -1.0 );
+    }
+    return dir;
+}
+
+vec3d Bogie::GetSuspensionDeflection( int isymm, int suspensionmode ) const
+{
+    switch ( suspensionmode )
+    {
+        case vsp::GEAR_SUSPENSION_COMPRESSED:
+            return GetCompressionUnitDirection( isymm ) * m_TravelCompressed();
+        break;
+        case vsp::GEAR_SUSPENSION_EXTENDED:
+            return -1.0 * GetCompressionUnitDirection( isymm ) * m_TravelExtended();
+        break;
+        case vsp::GEAR_SUSPENSION_NOMINAL:
+        default:
+            return vec3d();
+    }
+}
+
+// Contact point in ground plane coordinate system.
+vec3d Bogie::GetNominalMeanContactPoint( int isymm ) const
+{
+    vec3d con = vec3d( m_XContactPt(), m_YContactPt(), m_ZAboveGround() );
+    if ( isymm > 0 )
+    {
+        con.scale_y( -1.0 );
+    }
+    return con;
+}
+
+vec3d Bogie::GetMeanContactPoint( int isymm, int tiremode, int suspensionmode ) const
+{
+    return GetNominalMeanContactPoint( isymm ) + GetTireDeflection( tiremode ) + GetSuspensionDeflection( isymm, suspensionmode );
+}
+
+vec3d Bogie::GetNominalPivotPoint( int isymm ) const
+{
+    return GetNominalMeanContactPoint( isymm ) + vec3d( 0, 0, m_StaticRadiusModel() );
+}
+
+vec3d Bogie::GetPivotPoint( int isymm, int suspensionmode ) const
+{
+    return GetNominalPivotPoint( isymm ) + GetSuspensionDeflection( isymm, suspensionmode );
 }
 
 void Bogie::AppendMainSurf( vector < VspSurf > &surfvec ) const
@@ -525,6 +645,11 @@ void GearGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
 
+    Matrix4d relTrans = m_AttachMatrix;
+    relTrans.affineInverse();
+    relTrans.matMult( m_ModelMatrix.data() );
+    relTrans.postMult( m_AttachMatrix.data() );
+
     int nbogies = m_Bogies.size();
 
     for ( int i = 0; i < nbogies; i++ )
@@ -533,7 +658,7 @@ void GearGeom::UpdateDrawObj()
         {
             if ( !m_GlobalScaleDirty )
             {
-                m_Bogies[i]->UpdateDrawObj();
+                m_Bogies[i]->UpdateDrawObj( relTrans );
             }
         }
     }

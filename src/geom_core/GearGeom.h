@@ -27,25 +27,39 @@ public:
     void UpdateParms();
     void UpdateTireCurve();
     void Update();
-    void UpdateDrawObj();
+    void UpdateDrawObj( const Matrix4d &relTrans );
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
+    double GetTireRadius( int tiremode ) const;
+    vec3d GetTireDeflection( int tiremode ) const;
+    vec3d GetCompressionUnitDirection( int isymm ) const;
+    vec3d GetSuspensionDeflection( int isymm, int suspensionmode ) const;
+    vec3d GetNominalMeanContactPoint( int isymm ) const;
+    vec3d GetMeanContactPoint( int isymm, int tiremode, int suspensionmode ) const;
+    vec3d GetNominalPivotPoint( int isymm ) const;
+    vec3d GetPivotPoint( int isymm, int suspensionmode ) const;
 
     // T must have methods .FlipNormal() and .Transform( Matrix4d )
     template <typename T>
-    void TireToBogie( const T &source, vector<T> &dest ) const
+    void TireToBogie( const T &source, vector<T> &dest, const vector <int> &tiremodes, const vector <int> &suspensionmodes ) const
     {
+        int idest = dest.size();
+
         Matrix4d xform;
-        xform.translatef( m_XContactPt(), m_YContactPt(), m_ZAboveGround() + m_StaticRadiusModel() );
+        // Tire center relative to contact point.
+        xform.translatef( 0, 0, m_StaticRadiusModel() );
 
         int nsymm = 1;
-        vector < double > smult = { 1.0 };
         if ( m_Symmetrical() )
         {
             nsymm = 2;
-            smult.push_back( -1.0 );
         }
         int na = m_NAcross();
         int nt = m_NTandem();
+
+        int n = nsymm * na * nt;
+
+        dest.resize( idest + n, source );
 
         double s = m_Spacing();
         double p = m_Pitch();
@@ -54,33 +68,49 @@ public:
         double cenAcross = 0.5 * ( na - 1 ) * s;
         double cenTandem = 0.5 * ( nt - 1 ) * p;
 
-        for ( int i = 0; i < na; i++ )
+        for ( int isymm = 0; isymm < nsymm; isymm++ )
         {
-            Matrix4d col = xform;
-            col.translatef( 0, i * s - cenAcross, 0 );
+            Matrix4d contact = xform;
 
-            for ( int j = 0; j < nt; j++ )
+            contact.translatev( GetMeanContactPoint( isymm, tiremodes[ isymm ], suspensionmodes[ isymm ] ) );
+
+            Matrix4d symm;
+            double ksymm = 1.0;
+            if ( isymm > 0 )
             {
-                Matrix4d row = col;
-                row.translatef( j * p - cenTandem, 0, 0 );
+                ksymm = -1.0;
+                symm.loadXZRef();
+            }
+            symm.postMult( contact );
 
-                for ( int isymm = 0; isymm < nsymm; isymm++ )
+            for ( int i = 0; i < na; i++ )
+            {
+                Matrix4d col = symm;
+                col.translatef( 0, ksymm * ( i * s - cenAcross ), 0 );
+
+                for ( int j = 0; j < nt; j++ )
                 {
-                    if ( isymm > 0 )
-                    {
-                        row.mirrory();
-                    }
+                    Matrix4d row = col;
+                    row.translatef( j * p - cenTandem, 0, 0 );
 
-                    dest.push_back( source );
-                    dest.back().Transform( row );
+                    dest[ idest ].Transform( row );
 
                     if ( isymm > 0 )
                     {
-                        dest.back().FlipNormal();
+                        dest[ idest ].FlipNormal();
                     }
+
+                    idest++;
                 }
             }
         }
+    }
+
+    template <typename T>
+    void TireToBogie( const T &source, vector<T> &dest ) const
+    {
+        TireToBogie( source, dest, { vsp::TIRE_STATIC_LODED_CONTACT, vsp::TIRE_STATIC_LODED_CONTACT },
+                                   { vsp::GEAR_SUSPENSION_NOMINAL, vsp::GEAR_SUSPENSION_NOMINAL } );
     }
 
     void AppendMainSurf( vector < VspSurf > &surfvec ) const;
@@ -90,7 +120,11 @@ public:
     VspCurve m_TireProfile;
     VspSurf m_TireSurface;
 
+    DrawObj m_SuspensionTravelLinesDO;
+    DrawObj m_SuspensionTravelPointsDO;
 
+
+    // Bogie
     BoolParm m_Symmetrical;
 
     IntParm m_NAcross;
@@ -112,6 +146,14 @@ public:
     Parm m_YContactPt;
     Parm m_ZAboveGround;
 
+    Parm m_TravelX;
+    Parm m_TravelY;
+    Parm m_TravelZ;
+
+    Parm m_TravelCompressed;
+    Parm m_TravelExtended;
+
+    // Tire
     BoolParm m_WidthMode;
     Parm m_WidthIn;
     Parm m_WidthModel;

@@ -15,7 +15,7 @@
 
 
 //==== Constructor ====//
-Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 600, "Gear" )
+Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 700, "Gear" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -129,6 +129,14 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 600, "Gear" )
     m_BogieLayout.AddSlider( m_TireYSlider, "Y Contact", 10, "%6.5f" );
     m_BogieLayout.AddSlider( m_TireZSlider, "Z Above Ground", 10, "%6.5f" );
 
+    m_BogieLayout.AddYGap();
+    m_BogieLayout.AddDividerBox( "Suspension Travel" );
+
+    m_BogieLayout.AddSlider( m_TravelXSlider, "X Compression Direction", 1, "%6.5f" );
+    m_BogieLayout.AddSlider( m_TravelYSlider, "Y Compression Direction", 1, "%6.5f" );
+    m_BogieLayout.AddSlider( m_TravelZSlider, "Z Compression Direction", 1, "%6.5f" );
+    m_BogieLayout.AddSlider( m_TravelCompressSlider, "Compression Travel", 10, "%6.5f" );
+    m_BogieLayout.AddSlider( m_TravelExtendSlider, "Extension Travel", 10, "%6.5f" );
 
     // Tire
     m_TireGroup.SetGroupAndScreen( tire_group, this );
@@ -354,6 +362,11 @@ bool Gearcreen::Update()
         m_TireXSlider.Activate();
         m_TireYSlider.Activate();
         m_TireZSlider.Activate();
+        m_TravelXSlider.Activate();
+        m_TravelYSlider.Activate();
+        m_TravelZSlider.Activate();
+        m_TravelCompressSlider.Activate();
+        m_TravelExtendSlider.Activate();
 
         // Tire
         m_TireDiameterToggleGroup.Activate();
@@ -489,6 +502,13 @@ bool Gearcreen::Update()
         m_TireXSlider.Update( bogie_ptr->m_XContactPt.GetID() );
         m_TireYSlider.Update( bogie_ptr->m_YContactPt.GetID() );
         m_TireZSlider.Update( bogie_ptr->m_ZAboveGround.GetID() );
+
+        m_TravelXSlider.Update( bogie_ptr->m_TravelX.GetID() );
+        m_TravelYSlider.Update( bogie_ptr->m_TravelY.GetID() );
+        m_TravelZSlider.Update( bogie_ptr->m_TravelZ.GetID() );
+        m_TravelCompressSlider.Update( bogie_ptr->m_TravelCompressed.GetID() );
+        m_TravelExtendSlider.Update( bogie_ptr->m_TravelExtended.GetID() );
+
 
         m_TireDiameterToggleGroup.Update( bogie_ptr->m_DiameterMode.GetID() );
         if ( bogie_ptr->m_DiameterMode() == vsp::TIRE_DIM_IN )
@@ -628,6 +648,11 @@ bool Gearcreen::Update()
         m_TireXSlider.Deactivate();
         m_TireYSlider.Deactivate();
         m_TireZSlider.Deactivate();
+        m_TravelXSlider.Deactivate();
+        m_TravelYSlider.Deactivate();
+        m_TravelZSlider.Deactivate();
+        m_TravelCompressSlider.Deactivate();
+        m_TravelExtendSlider.Deactivate();
 
         // Tire
         m_TireDiameterToggleGroup.Deactivate();

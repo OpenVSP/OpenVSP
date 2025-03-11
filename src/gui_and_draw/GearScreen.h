@@ -74,6 +74,13 @@ protected:
     SliderAdjRangeInput m_TireYSlider;
     SliderAdjRangeInput m_TireZSlider;
 
+    SliderAdjRangeInput m_TravelXSlider;
+    SliderAdjRangeInput m_TravelYSlider;
+    SliderAdjRangeInput m_TravelZSlider;
+
+    SliderAdjRangeInput m_TravelCompressSlider;
+    SliderAdjRangeInput m_TravelExtendSlider;
+
     // Tire
     Choice m_TireBogieChoice;
 

@@ -851,6 +851,16 @@ enum GDEV { GDEV_TAB,	/*!< Custom GUI Tab */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for tire dimension modes. */
+enum GEAR_SUSPENSION_MODES { GEAR_SUSPENSION_NOMINAL,	/*!< Gear suspension at nominal extension */
+                             GEAR_SUSPENSION_COMPRESSED,	/*!< Gear suspension is compressed */
+                             GEAR_SUSPENSION_EXTENDED,	/*!< Gear suspension is extended  */
+                             NUM_GEAR_SUSPENSION_MODES	/*!< Number of gear suspension choices  */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for OpenVSP Human component gender types. */
 enum GENDER { MALE,	/*!< Male Human component */
               FEMALE	/*!< Female Human component */
@@ -1376,6 +1386,17 @@ enum TEMP_UNITS { TEMP_UNIT_K = 0,	/*!< Kelvin */
                   TEMP_UNIT_F,	/*!< Fahrenheit  */
                   TEMP_UNIT_R,	/*!< Rankine  */
                   NUM_TEMP_UNIT	/*!< Number of temperature unit choices  */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for tire contact radius modes. */
+enum TIRE_CONTACT_MODES { TIRE_STATIC_LODED_CONTACT,	/*!< Tire static loaded radius */
+                          TIRE_NOMINAL_CONTACT,	/*!< Tire nominal radius */
+                          TIRE_GROWTH_CONTACT,	/*!< Tire growth (spinning) radius  */
+                          TIRE_FLAT_CONTACT,	/*!< Tire flat tire radius  */
+                          NUM_TIRE_CONTACT_MODES	/*!< Number of tire radius modes  */
 };
 
 /*!
