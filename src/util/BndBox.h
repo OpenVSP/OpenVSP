@@ -69,6 +69,8 @@ public:
 
     std::vector< vec3d > GetBBoxDrawLines() const;
 
+    bool IsEmpty() const;
+
     void FlipNormal() {};
     void Transform( const Matrix4d & mat );
 

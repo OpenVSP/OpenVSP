@@ -435,6 +435,11 @@ std::vector< vec3d > BndBox::GetBBoxDrawLines() const
     return lines;
 }
 
+bool BndBox::IsEmpty() const
+{
+    return m_Min.v[0] > m_Max.v[0];
+}
+
 void BndBox::Transform( const Matrix4d & mat )
 {
     std::vector< vec3d > corners = GetCornerPnts();
