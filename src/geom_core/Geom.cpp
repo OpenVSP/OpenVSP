@@ -2282,13 +2282,30 @@ void Geom::UpdateBBox( )
 
 void Geom::UpdateBBox( int istart, const BndBox & start_box )
 {
-    //==== Load Bounding Box ====//
     BndBox new_box = start_box;
-    for ( int i = istart ; i < GetNumTotalSurfs() ; i++ )
+
+    //==== Load Bounding Box ====//
+    BndBox main_box;
+    for ( int i = istart ; i < GetNumMainSurfs() ; i++ )
     {
         BndBox bb;
-        m_SurfVec[i].GetBoundingBox( bb );
-        new_box.Update( bb );
+        m_MainSurfVec[i].GetBoundingBox( bb );
+        if ( !bb.IsEmpty() )
+        {
+            main_box.Update( bb );
+        }
+    }
+
+    if ( !main_box.IsEmpty() )
+    {
+        BndBox placed_box;
+        for ( int isymm = 0; isymm < m_SymmTransMatVec.size(); isymm++ )
+        {
+            BndBox bb = main_box;
+            bb.Transform( m_SymmTransMatVec[ isymm ] );
+            placed_box.Update( bb );
+        }
+        new_box.Update( placed_box );
     }
 
     // If the surface vec size is zero ( like blank geom )
