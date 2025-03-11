@@ -29,6 +29,7 @@ BlankGeom::BlankGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_MassArea.Deactivate();
     m_MassPrior.Deactivate();
 
+    m_MainSurfVec.clear();
 }
 
 //==== Destructor ====//

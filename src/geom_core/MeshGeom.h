@@ -159,13 +159,8 @@ public:
 
     virtual void UpdateSurf()
     {
-        m_MainSurfVec.clear();
         m_ScaleMatrix.loadIdentity();
         m_ScaleMatrix.scale( m_ScaleFromOrig() );
-    }
-    virtual int GetNumMainSurfs() const
-    {
-        return 0;
     }
 
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );

@@ -18,11 +18,6 @@ public:
     BlankGeom( Vehicle* vehicle_ptr );
     virtual ~BlankGeom();
 
-    virtual int GetNumMainSurfs() const
-    {
-        return 0;
-    };
-
     virtual void UpdateSurf();
     virtual void UpdateDrawObj();
     virtual void LoadMainDrawObjs(vector< DrawObj* > & draw_obj_vec);

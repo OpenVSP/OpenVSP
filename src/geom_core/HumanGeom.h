@@ -113,11 +113,6 @@ public:
     }
     virtual int GetNumTotalMeshs() const;
 
-    virtual int GetNumMainSurfs() const
-    {
-        return 0;
-    }
-
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
 
     virtual vector< TMesh* > CreateTMeshVec() const;

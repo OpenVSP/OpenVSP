@@ -68,6 +68,7 @@ WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_SurfCopyIndx.resize( 1 );
     m_SurfCopyIndx[0] = 0;
 
+    m_MainSurfVec.clear();
 }
 
 //==== Destructor ====//
@@ -77,8 +78,6 @@ WireGeom::~WireGeom()
 
 void WireGeom::UpdateSurf()
 {
-    m_MainSurfVec.clear();
-
     int num_j, num_i;
 
     m_OtherInvertFlag = false;

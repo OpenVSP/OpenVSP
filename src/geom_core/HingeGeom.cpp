@@ -83,6 +83,7 @@ HingeGeom::HingeGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Ixz.Deactivate();
     m_Iyz.Deactivate();
 
+    m_MainSurfVec.clear();
 }
 
 //==== Destructor ====//

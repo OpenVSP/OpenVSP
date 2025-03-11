@@ -18,11 +18,6 @@ public:
     HingeGeom( Vehicle* vehicle_ptr );
     virtual ~HingeGeom();
 
-    virtual int GetNumMainSurfs() const
-    {
-        return 0;
-    };
-
     virtual void Scale();
 
     virtual void UpdateSurf();

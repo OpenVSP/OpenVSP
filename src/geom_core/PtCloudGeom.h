@@ -18,11 +18,6 @@ public:
     PtCloudGeom( Vehicle* vehicle_ptr );
     virtual ~PtCloudGeom();
 
-    virtual int GetNumMainSurfs() const
-    {
-        return 0;
-    };
-
     virtual void UpdateSurf();
     virtual void UpdateDrawObj();
     virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
