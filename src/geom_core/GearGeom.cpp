@@ -349,6 +349,14 @@ void Bogie::Update()
 
 }
 
+void Bogie::UpdateDrawObj()
+{
+}
+
+void Bogie::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+}
+
 void Bogie::AppendMainSurf( vector < VspSurf > &surfvec ) const
 {
     TireToBogie( m_TireSurface, surfvec );
@@ -510,6 +518,45 @@ void GearGeom::UpdateMainDegenGeomPreview()
     {
         // Update degen preview for ground plane
         CreateDegenGeom( m_MainSurfVec[0], 0, m_MainDegenGeomPreviewVec[0], true );
+    }
+}
+
+void GearGeom::UpdateDrawObj()
+{
+    Geom::UpdateDrawObj();
+
+    int nbogies = m_Bogies.size();
+
+    for ( int i = 0; i < nbogies; i++ )
+    {
+        if ( m_Bogies[i] )
+        {
+            if ( !m_GlobalScaleDirty )
+            {
+                m_Bogies[i]->UpdateDrawObj();
+            }
+        }
+    }
+}
+
+void GearGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    Geom::LoadDrawObjs( draw_obj_vec );
+
+    vector< DrawObj* > bogie_draw_obj_vec;
+    int nbogies = m_Bogies.size();
+    for ( int i = 0; i < nbogies; i++ )
+    {
+        if ( m_Bogies[i] )
+        {
+            m_Bogies[i]->LoadDrawObjs( bogie_draw_obj_vec );
+        }
+    }
+
+    for ( int i = 0; i < bogie_draw_obj_vec.size(); i++ )
+    {
+        bogie_draw_obj_vec[i]->m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+        draw_obj_vec.push_back( bogie_draw_obj_vec[i] );
     }
 }
 

@@ -27,6 +27,8 @@ public:
     void UpdateParms();
     void UpdateTireCurve();
     void Update();
+    void UpdateDrawObj();
+    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     // T must have methods .FlipNormal() and .Transform( Matrix4d )
     template <typename T>
@@ -189,6 +191,8 @@ protected:
     virtual void UpdateSurf();
     virtual void UpdateMainTessVec( bool firstonly );
     virtual void UpdateMainDegenGeomPreview();
+    virtual void UpdateDrawObj();
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     std::vector < Bogie * > m_Bogies;
     std::vector < int > m_BogieMainSurfIndex;
