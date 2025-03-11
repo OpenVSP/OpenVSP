@@ -436,6 +436,7 @@ void GearGeom::UpdateSurf()
 
     double d = m_PlaneSize();
     m_MainSurfVec[0].CreatePlane( -d, d, -d, d );
+    m_MainSurfVec[0].SetSurfCfdType( vsp::CFD_TRANSPARENT );
 }
 
 void GearGeom::UpdateMainTessVec( bool firstonly )
