@@ -222,7 +222,7 @@ public:
     void DelBogie( const string &id );
 
     virtual void UpdateBBox();
-    virtual bool IsModelScaleSensitive()        { return true; }
+    virtual bool IsModelScaleSensitive()        { return m_AutoPlaneFlag(); }
 
     IntParm m_ModelLenUnits;
 
