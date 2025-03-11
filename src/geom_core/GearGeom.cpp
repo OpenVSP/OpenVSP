@@ -701,6 +701,16 @@ void GearGeom::DelBogie( const string &id )
 
 void GearGeom::UpdateBBox( )
 {
-    // Fill m_BBox and m_ScaleIndependentBBox while skipping ground plane
-    Geom::UpdateBBox( 1 );
+    // Add GearGeom origin point to represent ground plane without scale.
+    BndBox gnd_box;
+    for ( int isymm = 0; isymm < m_SymmTransMatVec.size(); isymm++ )
+    {
+        vec3d origin;
+        origin.Transform( m_SymmTransMatVec[ isymm ] );
+        gnd_box.Update( origin );
+    }
+
+    // Fill m_BBox and m_ScaleIndependentBBox while skipping ground plane.
+    // Call at the end so m_Bb*Len and m_Bb*Min are updated correctly.
+    Geom::UpdateBBox( 1, gnd_box );
 }
