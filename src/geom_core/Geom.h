@@ -898,6 +898,7 @@ protected:
     vector<int> m_SurfIndxVec;
     vector< vector< int > > m_SurfSymmMap;
     vector<int> m_SurfCopyIndx;
+    vector< Matrix4d > m_SymmTransMatVec; // Transformation mats, one for each symmetry type.
     vector< Matrix4d > m_TransMatVec; // Vector of transformation matrixes
     vector< Matrix4d > m_FeaTransMatVec; // Vector of transformation matrixes
     vector< bool > m_FlipNormalVec;

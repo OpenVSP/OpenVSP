@@ -2129,6 +2129,18 @@ void Geom::UpdateSymmAttach()
         m_FeaTransMatVec[i] = m_TransMatVec[i];
         m_FeaTransMatVec[i].matMult( retrun_relTrans.data() ); // m_FeaTransMatVec does not include the relTrans matrix
     }
+
+    m_SymmTransMatVec.clear();
+    if ( !m_SurfSymmMap.empty() )
+    {
+        int nsymm = m_SurfSymmMap[0].size();
+        m_SymmTransMatVec.resize( nsymm );
+
+        for ( int isymm = 0; isymm < nsymm; isymm++ )
+        {
+            m_SymmTransMatVec[ isymm ] = m_TransMatVec[ m_SurfSymmMap[0][isymm] ];
+        }
+    }
 }
 
 void Geom::UpdateSurfVec()
