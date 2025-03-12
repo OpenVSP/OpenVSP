@@ -184,6 +184,11 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( routing_ptr )
         {
             routing_ptr->AddPt();
+            m_RoutingPointBrowserSelect = routing_ptr->GetNumPt() - 1;
+
+            routing_ptr->Update();
+            m_SelectionFlag = true;
+            UpdatePickList();
         }
     }
     else if ( gui_device == &m_DelRoutingPoint )
