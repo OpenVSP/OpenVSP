@@ -748,7 +748,14 @@ void Gearcreen::GuiDeviceCallBack( GuiDevice* device )
         Bogie * bogie = gear_ptr->CreateAndAddBogie();
         if ( bogie )
         {
-            bogie->SetName( m_BogieNameInput.GetString() );
+            if ( m_BogieNameInput.GetString().empty() )
+            {
+                bogie->SetName( "New Gear" );
+            }
+            else
+            {
+                bogie->SetName( m_BogieNameInput.GetString() );
+            }
         }
         gear_ptr->Update();
     }
