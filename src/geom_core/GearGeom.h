@@ -30,6 +30,11 @@ public:
     void UpdateDrawObj( const Matrix4d &relTrans );
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    string GetAcrossDesignation();
+    string GetConfigDesignation();
+    string GetTireDesignation();
+    string GetDesignation( const char* sep = " " );
+
     double GetTireRadius( int tiremode ) const;
     vec3d GetTireDeflection( int tiremode ) const;
     vec3d GetCompressionUnitDirection( int isymm ) const;

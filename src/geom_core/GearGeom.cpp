@@ -399,6 +399,48 @@ void Bogie::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     draw_obj_vec.push_back( &m_SuspensionTravelPointsDO );
 }
 
+string Bogie::GetAcrossDesignation()
+{
+    switch ( m_NAcross() )
+    {
+        case 1:
+            return string( "S" );
+        break;
+        case 2:
+            return string( "D" );
+        break;
+        case 3:
+            return string( "T" );
+        break;
+        case 4:
+            return string( "Q" );
+        break;
+        default:
+            return "," + to_string( m_NAcross() );
+    }
+}
+
+string Bogie::GetConfigDesignation()
+{
+    return to_string( m_NTandem() ) + GetAcrossDesignation();
+}
+
+string Bogie::GetTireDesignation()
+{
+    double k = 1000;
+    char buf[255];
+
+    snprintf( buf, sizeof( buf ), "%gx%g-%g", round( k * m_DiameterIn() ) / k,
+                                              round( k * m_WidthIn() ) / k,
+                                              round( k * m_DrimIn() ) / k );
+    return string( buf );
+}
+
+string Bogie::GetDesignation( const char* sep )
+{
+    return GetName() + sep + GetConfigDesignation() + sep + GetTireDesignation();
+}
+
 double Bogie::GetTireRadius( int tiremode ) const
 {
     switch ( tiremode )
