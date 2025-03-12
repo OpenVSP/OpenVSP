@@ -55,7 +55,8 @@ protected:
     TriggerButton m_HideAllBogiesButton;
 
     StringInput m_BogieNameInput;
-    Fl_Browser* m_BogieBrowser;
+
+    ColResizeBrowser* m_BogieBrowser;
 
     ToggleButton m_SymmetricalButton;
 

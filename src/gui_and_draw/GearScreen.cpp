@@ -62,8 +62,11 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 700, "Gear" )
     // Bogie
     m_BogieLayout.SetGroupAndScreen( bogie_group, this );
 
+    // Pointer for the widths of each column in the browser to support resizing
+    // Last column width must be 0
+    static int bogie_widths[] = { 200, 200, 200, 0 }; // widths for each column
 
-    m_BogieBrowser = m_BogieLayout.AddFlBrowser( 100 );
+    m_BogieBrowser = m_BogieLayout.AddColResizeBrowser( bogie_widths, 3, 100 );
     m_BogieBrowser->callback( staticScreenCB, this );
     m_BogieLayout.AddInput( m_BogieNameInput, "Name:" );
 
@@ -147,6 +150,7 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 700, "Gear" )
 
     m_TireGroup.AddChoice( m_TireBogieChoice, "Bogie" );
 
+    m_TireGroup.AddYGap();
 
     m_TireGroup.AddDividerBox( "Tire" );
     m_TireGroup.SetSameLineFlag( true );
@@ -677,6 +681,8 @@ bool Gearcreen::Update()
 
 void Gearcreen::UpdateBogieBrowser()
 {
+    char str[255];
+
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
 
     GearGeom* gear_ptr = dynamic_cast< GearGeom* >( geom_ptr );
@@ -691,15 +697,22 @@ void Gearcreen::UpdateBogieBrowser()
     int h_pos = m_BogieBrowser->hposition();
     int v_pos = m_BogieBrowser->vposition();
     m_BogieBrowser->clear();
+
+    m_BogieBrowser->column_char( ':' );
+
+    snprintf( str, sizeof( str ),  "@b@.NAME:@b@.CONFIGURATION:@b@.TIRE" );
+    m_BogieBrowser->add( str );
+
     m_TireBogieChoice.ClearItems();
     m_TireBogieChoice.AddItem( "None Selected", -1 );
     for( int i = 0; i < ( int )bogies.size(); i++ )
     {
         if ( bogies[i] )
         {
-            string bogieName = bogies[i]->GetName();
+            string bogieNamed = bogies[i]->GetDesignation( ":" );
+            string bogieName = bogies[i]->GetDesignation();
 
-            m_BogieBrowser->add( bogieName.c_str() );
+            m_BogieBrowser->add( bogieNamed.c_str() );
             m_TireBogieChoice.AddItem( bogieName.c_str(), i );
         }
     }
@@ -708,7 +721,7 @@ void Gearcreen::UpdateBogieBrowser()
     int index = gear_ptr->GetCurrBogieIndex();
     if ( index >= 0 && index < ( int )bogies.size() )
     {
-        m_BogieBrowser->select( index + 1 );
+        m_BogieBrowser->select( index + 2 );
         m_TireBogieChoice.SetVal( index );
     }
     m_BogieBrowser->hposition( h_pos );
@@ -725,7 +738,7 @@ void Gearcreen::CallBack( Fl_Widget *w )
     if ( w == m_BogieBrowser )
     {
         int sel = m_BogieBrowser->value();
-        gear_ptr->SetCurrBogieIndex( sel - 1 );
+        gear_ptr->SetCurrBogieIndex( sel - 2 );
 
         Bogie * bogie = gear_ptr->GetCurrentBogie();
         if ( bogie )
