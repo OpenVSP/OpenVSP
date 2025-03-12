@@ -73,6 +73,8 @@ public:
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    bool m_Picking;
+
 protected:
 
     virtual void UpdateSurf();
@@ -84,6 +86,8 @@ protected:
 
 
     DrawObj m_RouteLineDO;
+
+    DrawObj m_DynamicRouteDO;
 
     std::size_t m_ParentHash;
     vector < string > m_ParentVec;

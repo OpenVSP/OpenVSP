@@ -9,6 +9,8 @@
 
 #include <assert.h>
 
+#include "Routing.h"
+
 namespace VSPGraphic
 {
 LayoutMgr::LayoutMgr( int row, int column )
@@ -164,6 +166,7 @@ void LayoutMgr::draw( Scene * scene, int x, int y )
         Protractor::updateMouseLocation( mouseInWorld );
         Ruler::updateMouseLocation( mouseInWorld );
         Probe::updateMouseLocation( mouseInWorld );
+        Routing::updateMouseLocation( mouseInWorld );
 
         // Clear Color and Depth Buffer.
         glClearColor( 1.0f, 1.0f, 1.0f, 0.0f );

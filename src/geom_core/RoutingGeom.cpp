@@ -132,6 +132,7 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Name = "Routing";
     m_Type.m_Type = ROUTING_GEOM_TYPE;
 
+    m_Picking = false;
 }
 
 //==== Destructor ====//
@@ -393,6 +394,23 @@ void RoutingGeom::UpdateDrawObj()
     m_RouteLineDO.m_LineWidth = 2.0;
     m_RouteLineDO.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
+
+
+
+
+
+    m_DynamicRouteDO.m_PntVec.clear();
+    m_DynamicRouteDO.m_GeomChanged = true;
+
+    m_DynamicRouteDO.m_PntVec.reserve( npt );
+    for ( int i = 0; i < npt; i++ )
+    {
+        m_DynamicRouteDO.m_PntVec.push_back( m_RoutingPointVec[i]->GetPt() );
+    }
+
+    m_DynamicRouteDO.m_GeomID = "DyRte_" + m_ID;
+    m_DynamicRouteDO.m_Type = DrawObj::VSP_ROUTING;
+    m_DynamicRouteDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
 }
 
 
@@ -400,6 +418,9 @@ void RoutingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     Geom::LoadDrawObjs( draw_obj_vec );
 
-    m_RouteLineDO.m_Visible = true; // GetSetFlag( vsp::SET_SHOWN );
+    m_RouteLineDO.m_Visible = !m_Picking && GetSetFlag( vsp::SET_SHOWN );
     draw_obj_vec.push_back( &m_RouteLineDO );
+
+    m_DynamicRouteDO.m_Visible = m_Picking;
+    draw_obj_vec.push_back( &m_DynamicRouteDO );
 }

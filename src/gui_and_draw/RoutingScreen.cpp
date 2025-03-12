@@ -283,6 +283,7 @@ void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId
             rpt->m_W = 0;
             // rpt->m_OriginIndx = 0;
         }
+        routing_ptr->m_Picking = false;
         routing_ptr->UpdateParents();;
         routing_ptr->Update();
     }
@@ -331,6 +332,28 @@ void RoutingScreen::UpdatePickList()
                 pickDO.m_FeedbackGroup = getFeedbackGroupName();
 
                 m_PickList.push_back( pickDO );
+            }
+        }
+    }
+
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( geom_ptr );
+
+    if ( routing_ptr )
+    {
+        // Set picking to toggle visibility.
+        routing_ptr->m_Picking = true;
+
+        vector < DrawObj *> drawobj;
+        routing_ptr->LoadDrawObjs( drawobj );
+
+        for ( int i = 0; i < drawobj.size(); i++ )
+        {
+            DrawObj * currDrawObj = drawobj[i];
+
+            if ( currDrawObj->m_Type == DrawObj::VSP_ROUTING )
+            {
+                currDrawObj->m_Routing.LiveIndex = m_RoutingPointBrowserSelect;
             }
         }
     }

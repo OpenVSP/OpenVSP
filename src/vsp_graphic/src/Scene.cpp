@@ -7,6 +7,7 @@
 #include "Protractor.h"
 #include "Ruler.h"
 #include "Probe.h"
+#include "Routing.h"
 #include "PickablePnts.h"
 #include "PickableGeom.h"
 #include "PickableLoc.h"
@@ -85,6 +86,10 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out)
 
     case Common::VSP_OBJECT_PROBE:
         object = new Probe();
+        break;
+
+    case Common::VSP_OBJECT_ROUTING:
+        object = new Routing();
         break;
 
         default:

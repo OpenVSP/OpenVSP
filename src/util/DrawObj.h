@@ -236,6 +236,7 @@ public:
         VSP_PROBE,
         VSP_RULER,
         VSP_PROTRACTOR,
+        VSP_ROUTING,
         VSP_SETTING,
         VSP_PICK_GEOM,
         VSP_PICK_LOCATION,
@@ -383,6 +384,15 @@ public:
         float Offset;
         string Label;
         int Dir;
+    };
+
+    /*
+    * Routing Information.
+    * LiveIndex - Index of point in m_PntVec currently being placed.
+    */
+    struct Routing
+    {
+        int LiveIndex;
     };
 
     /*
@@ -545,6 +555,8 @@ public:
     Ruler m_Ruler;
 
     Protractor m_Protractor;
+
+    Routing m_Routing;
 
     /*
     * Line thickness.

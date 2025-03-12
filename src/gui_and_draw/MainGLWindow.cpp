@@ -40,6 +40,7 @@
 #include "PickablePnts.h"
 #include "Probe.h"
 #include "Protractor.h"
+#include "Routing.h"
 #include "Renderable.h"
 #include "RoutingScreen.h"
 #include "Ruler.h"
@@ -1358,6 +1359,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         VSPGraphic::Probe * probe;
         VSPGraphic::Ruler * ruler;
         VSPGraphic::Protractor * protractor;
+        VSPGraphic::Routing * routing;
 
         switch( objects[i]->m_Type )
         {
@@ -1563,6 +1565,39 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
 
                 default:
                     break;
+                }
+            }
+            break;
+
+        case DrawObj::VSP_ROUTING:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ROUTING, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+            routing = dynamic_cast<VSPGraphic::Routing*> ( m_GEngine->getScene()->getObject( id ) );
+            if( ruler )
+            {
+                routing->setVisibility( objects[i]->m_Visible );
+
+                routing->setLiveIndex( objects[i]->m_Routing.LiveIndex );
+
+                if( objects[i]->m_GeomChanged )
+                {
+                    routing->_v.clear();
+                    int npt = objects[i]->m_PntVec.size();
+                    routing->_v.reserve( npt );
+
+                    for ( int j = 0; j < npt; j++ )
+                    {
+                        vec3d &pt = objects[i]->m_PntVec[j];
+                        routing->_v.push_back( glm::vec3( pt.v[0], pt.v[1], pt.v[2] ) );
+                    }
+
                 }
             }
             break;
