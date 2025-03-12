@@ -45,6 +45,7 @@ protected:
 
     ColResizeBrowser* m_RoutingPointBrowser;
     int m_RoutingPointBrowserSelect;
+    int m_LiveIndex;
 
 
     TriggerButton m_AddRoutingPoint;
@@ -53,6 +54,8 @@ protected:
 
     TriggerButton m_SetRoutingPoint;
 
+    TriggerButton m_AddMultipleRoutingPoints;
+    TriggerButton m_StopAdding;
 
     StringInput m_PtNameInput;
 
@@ -64,6 +67,7 @@ protected:
 private:
 
     bool m_SelectionFlag;
+    bool m_AddMultipleFlag;
     std::vector<DrawObj> m_PickList;
 
 };

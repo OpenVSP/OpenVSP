@@ -36,6 +36,10 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 + 25,
 
     m_DesignLayout.AddButton( m_SetRoutingPoint, "Set Point" );
 
+    m_DesignLayout.AddButton( m_AddMultipleRoutingPoints, "Add Multiple" );
+    m_DesignLayout.AddButton( m_StopAdding, "Stop Adding" );
+
+
     m_DesignLayout.AddInput( m_PtNameInput, "Name" );
 
 
@@ -46,6 +50,7 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 + 25,
     m_DesignLayout.AddSlider( m_WSlider, "W", 1.0, "%5.3f" );
 
     m_SelectionFlag = false;
+    m_AddMultipleFlag = false;
 }
 
 
@@ -184,7 +189,8 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( routing_ptr )
         {
             routing_ptr->AddPt();
-            m_RoutingPointBrowserSelect = routing_ptr->GetNumPt() - 1;
+            m_LiveIndex = routing_ptr->GetNumPt() - 1;
+            m_RoutingPointBrowserSelect = m_LiveIndex;
 
             routing_ptr->Update();
             m_SelectionFlag = true;
@@ -221,8 +227,37 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == & m_SetRoutingPoint )
     {
+        m_LiveIndex = m_RoutingPointBrowserSelect;
         m_SelectionFlag = true;
         UpdatePickList();
+    }
+    else if ( gui_device == &m_AddMultipleRoutingPoints )
+    {
+        if ( routing_ptr )
+        {
+            routing_ptr->AddPt();
+            m_LiveIndex = routing_ptr->GetNumPt() - 1;
+            m_RoutingPointBrowserSelect = m_LiveIndex;
+
+            routing_ptr->Update();
+            m_SelectionFlag = true;
+            m_AddMultipleFlag = true;
+            UpdatePickList();
+        }
+    }
+    else if ( gui_device == & m_StopAdding )
+    {
+        if ( routing_ptr )
+        {
+            // Delete not-yet placed point.
+            routing_ptr->DelPt( m_LiveIndex );
+            routing_ptr->m_Picking = false;
+            routing_ptr->Update();
+            m_RoutingPointBrowserSelect = m_LiveIndex - 1;
+            m_LiveIndex = -1;
+        }
+        m_SelectionFlag = false;
+        m_AddMultipleFlag = false;
     }
     else
     {
@@ -243,57 +278,74 @@ void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId
 
     if ( routing_ptr )
     {
-        rpt = routing_ptr->GetPt( m_RoutingPointBrowserSelect );
-    }
+        rpt = routing_ptr->GetPt( m_LiveIndex );
 
-    Geom * geom = nullptr;
+        Geom * geom = nullptr;
 
-    if ( veh )
-    {
-        geom = veh->FindGeom( targetGeomId );
-    }
-
-
-    if( rpt && geom )
-    {
-        rpt->SetParentID( targetGeomId );
-
-        if ( geom->GetNumTotalSurfs() > 0 )
+        if ( veh )
         {
-            int index;
-            double u, w;
-            geom->ProjPnt01I( placement, index, u, w );
+            geom = veh->FindGeom( targetGeomId );
+        }
 
-            const VspSurf * surf = geom->GetSurfPtr( index );
 
-            double umapmax = surf->GetUMapMax();
-            double umax = surf->GetUMax();
+        if( rpt && geom )
+        {
+            rpt->SetParentID( targetGeomId );
 
-            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
-
-            if ( uprm < 0 )
+            if ( geom->GetNumTotalSurfs() > 0 )
             {
-                uprm = u;
+                int index;
+                double u, w;
+                geom->ProjPnt01I( placement, index, u, w );
+
+                const VspSurf * surf = geom->GetSurfPtr( index );
+
+                double umapmax = surf->GetUMapMax();
+                double umax = surf->GetUMax();
+
+                double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+
+                if ( uprm < 0 )
+                {
+                    uprm = u;
+                }
+
+                rpt->m_U = uprm;
+                rpt->m_W = w;
+
+                // rpt->m_OriginIndx = index;
+            }
+            else
+            {
+                rpt->m_U = 1; // Set to dummy value to trigger update.
+                rpt->m_U = 0;
+                rpt->m_W = 0;
+                // rpt->m_OriginIndx = 0;
             }
 
-            rpt->m_U = uprm;
-            rpt->m_W = w;
+        }
 
-            // rpt->m_OriginIndx = index;
+        if ( !m_AddMultipleFlag )
+        {
+            m_SelectionFlag = false;
+            routing_ptr->m_Picking = false;
+            routing_ptr->UpdateParents();
+            routing_ptr->Update();
+            m_LiveIndex = -1;
         }
         else
         {
-            rpt->m_U = 1; // Set to dummy value to trigger update.
-            rpt->m_U = 0;
-            rpt->m_W = 0;
-            // rpt->m_OriginIndx = 0;
-        }
-        routing_ptr->m_Picking = false;
-        routing_ptr->UpdateParents();;
-        routing_ptr->Update();
-    }
+            routing_ptr->AddPt();
+            m_LiveIndex++;
+            m_RoutingPointBrowserSelect = m_LiveIndex;
 
-    m_SelectionFlag = false;
+            routing_ptr->UpdateParents();
+            routing_ptr->Update();
+
+            UpdatePickList();
+        }
+
+    }
     m_ScreenMgr->SetUpdateFlag( true );
 
 }
@@ -358,7 +410,7 @@ void RoutingScreen::UpdatePickList()
 
             if ( currDrawObj->m_Type == DrawObj::VSP_ROUTING )
             {
-                currDrawObj->m_Routing.LiveIndex = m_RoutingPointBrowserSelect;
+                currDrawObj->m_Routing.LiveIndex = m_LiveIndex;
             }
         }
     }
