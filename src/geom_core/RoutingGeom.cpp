@@ -276,6 +276,7 @@ RoutingPoint* RoutingGeom::AddPt()
     rpt->SetParentContainer( m_ID );
 
     m_RoutingPointVec.push_back( rpt );
+    UpdateParents();
     return rpt;
 }
 

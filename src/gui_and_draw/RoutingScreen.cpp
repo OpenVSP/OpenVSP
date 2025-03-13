@@ -329,7 +329,6 @@ void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId
         {
             m_SelectionFlag = false;
             routing_ptr->m_Picking = false;
-            routing_ptr->UpdateParents();
             routing_ptr->Update();
             m_LiveIndex = -1;
         }
@@ -339,7 +338,6 @@ void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId
             m_LiveIndex++;
             m_RoutingPointBrowserSelect = m_LiveIndex;
 
-            routing_ptr->UpdateParents();
             routing_ptr->Update();
 
             UpdatePickList();
