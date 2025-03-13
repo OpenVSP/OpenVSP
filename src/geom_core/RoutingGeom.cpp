@@ -316,6 +316,17 @@ void RoutingGeom::DelAllPt()
     UpdateParents();
 }
 
+int RoutingGeom::MovePt( int index, int reorder_type )
+{
+    if ( index >= 0 && index < m_RoutingPointVec.size() )
+    {
+        int newindx = ReorderVectorIndex( m_RoutingPointVec, index, reorder_type );
+        UpdateParents();
+        return newindx;
+    }
+    return index;
+}
+
 RoutingPoint * RoutingGeom::GetPt( int index )
 {
     if ( index >= 0 && index < m_RoutingPointVec.size() )

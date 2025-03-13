@@ -69,6 +69,8 @@ public:
     virtual void DelPt( int index );
     virtual void DelAllPt();
 
+    virtual int MovePt( int index, int reorder_type );
+
     virtual RoutingPoint * GetPt( int index );
     virtual vector < RoutingPoint* > GetAllPt()      { return m_RoutingPointVec; };
 
