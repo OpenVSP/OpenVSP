@@ -202,6 +202,7 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( routing_ptr )
         {
             routing_ptr->DelPt( m_RoutingPointBrowserSelect );
+            routing_ptr->Update();
         }
     }
     else if ( gui_device == &m_DelAllRoutingPoints )
@@ -209,6 +210,7 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( routing_ptr )
         {
             routing_ptr->DelAllPt();
+            routing_ptr->Update();
         }
     }
     else if ( gui_device == &m_PtNameInput )
