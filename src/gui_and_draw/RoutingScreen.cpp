@@ -21,14 +21,42 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 + 25,
 
     //==== Design ====//
 
+    int movebw = 20;
+    int browser_h = 150;
+    int start_x = m_DesignLayout.GetX();
+    int start_y = m_DesignLayout.GetY();
+
+    m_DesignLayout.AddSubGroupLayout( m_MovePointLayout, 20, browser_h );
+
+    m_MovePointLayout.SetSameLineFlag( false );
+    m_MovePointLayout.SetFitWidthFlag( false );
+
+    m_MovePointLayout.SetButtonWidth( movebw );
+    m_MovePointLayout.AddButton( m_MovePntTopButton, "@2<<" );
+    m_MovePointLayout.AddYGap();
+    m_MovePointLayout.AddButton( m_MovePntUpButton, "@2<" );
+    m_MovePointLayout.AddY( browser_h - 4 * m_MovePointLayout.GetStdHeight() - 2 * m_MovePointLayout.GetGapHeight() );
+    m_MovePointLayout.AddButton( m_MovePntDownButton, "@2>" );
+    m_MovePointLayout.AddYGap();
+    m_MovePointLayout.AddButton( m_MovePntBotButton, "@2>>" );
+
+    m_DesignLayout.SetY( start_y );
+    m_DesignLayout.AddX( movebw );
+    m_DesignLayout.SetFitWidthFlag( true );
+
+
+    m_DesignLayout.AddSubGroupLayout( m_PointBrowserLayout, m_DesignLayout.GetRemainX(), browser_h );
+    m_DesignLayout.AddY( browser_h );
+
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
     static int col_widths[] = { 160, 85, 80, 85, 0 }; // widths for each column
 
-    m_RoutingPointBrowser = m_DesignLayout.AddColResizeBrowser( col_widths, 4, 100 );
+    m_RoutingPointBrowser = m_PointBrowserLayout.AddColResizeBrowser( col_widths, 4, browser_h );
     m_RoutingPointBrowser->callback( staticScreenCB, this );
     m_RoutingPointBrowser->type( FL_MULTI_BROWSER );
 
+    m_DesignLayout.SetX( start_x );
 
     m_DesignLayout.AddButton( m_AddRoutingPoint, "Add" );
     m_DesignLayout.AddButton( m_DelRoutingPoint, "Delete" );
@@ -305,6 +333,43 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             m_SelectionFlag = true;
             m_InsertMultipleFlag = true;
             UpdatePickList();
+        }
+    }
+    else if ( gui_device == &m_MovePntTopButton )
+    {
+        int npt = routing_ptr->GetNumPt();
+        if ( m_RoutingPointBrowserSelect >= 0 && m_RoutingPointBrowserSelect < npt )
+        {
+            m_RoutingPointBrowserSelect = routing_ptr->MovePt( m_RoutingPointBrowserSelect, vsp::REORDER_MOVE_TOP );
+            routing_ptr->Update();
+        }
+    }
+    else if ( gui_device == &m_MovePntUpButton )
+    {
+        int npt = routing_ptr->GetNumPt();
+        if ( m_RoutingPointBrowserSelect >= 0 && m_RoutingPointBrowserSelect < npt )
+        {
+            m_RoutingPointBrowserSelect = routing_ptr->MovePt( m_RoutingPointBrowserSelect, vsp::REORDER_MOVE_UP );
+            routing_ptr->Update();
+        }
+    }
+    else if ( gui_device == &m_MovePntDownButton )
+    {
+        int npt = routing_ptr->GetNumPt();
+        if ( m_RoutingPointBrowserSelect >= 0 && m_RoutingPointBrowserSelect < npt )
+        {
+            m_RoutingPointBrowserSelect = routing_ptr->MovePt( m_RoutingPointBrowserSelect, vsp::REORDER_MOVE_DOWN );
+            routing_ptr->Update();
+        }
+    }
+    else if ( gui_device == &m_MovePntBotButton )
+    {
+        int npt = routing_ptr->GetNumPt();
+        if ( m_RoutingPointBrowserSelect >= 0 && m_RoutingPointBrowserSelect < npt )
+        {
+            m_RoutingPointBrowserSelect = routing_ptr->MovePt( m_RoutingPointBrowserSelect, vsp::REORDER_MOVE_BOTTOM );
+            routing_ptr->Update();
+
         }
     }
     else

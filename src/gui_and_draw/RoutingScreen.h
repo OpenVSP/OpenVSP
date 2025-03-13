@@ -43,6 +43,10 @@ protected:
 
     GroupLayout m_DesignLayout;
 
+    GroupLayout m_MovePointLayout;
+    GroupLayout m_PointBrowserLayout;
+
+
     ColResizeBrowser* m_RoutingPointBrowser;
     int m_RoutingPointBrowserSelect;
     int m_LiveIndex;
@@ -59,6 +63,12 @@ protected:
 
     TriggerButton m_InsertRoutingPoint;
     TriggerButton m_InsertMultipleRoutingPoints;
+
+
+    TriggerButton m_MovePntUpButton;
+    TriggerButton m_MovePntDownButton;
+    TriggerButton m_MovePntTopButton;
+    TriggerButton m_MovePntBotButton;
 
     StringInput m_PtNameInput;
 
