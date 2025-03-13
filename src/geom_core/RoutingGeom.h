@@ -65,6 +65,7 @@ public:
 
     virtual int GetNumPt() const          { return m_RoutingPointVec.size(); };
     virtual RoutingPoint* AddPt();
+    virtual RoutingPoint* InsertPt( int index );
     virtual void DelPt( int index );
     virtual void DelAllPt();
 

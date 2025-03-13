@@ -280,6 +280,21 @@ RoutingPoint* RoutingGeom::AddPt()
     return rpt;
 }
 
+RoutingPoint* RoutingGeom::InsertPt( int index )
+{
+    if ( index >= 0 && index <= m_RoutingPointVec.size() )
+    {
+        RoutingPoint *rpt = new RoutingPoint();
+
+        rpt->SetParentContainer( m_ID );
+
+        m_RoutingPointVec.insert( m_RoutingPointVec.begin() + index, rpt );
+        UpdateParents();
+        return rpt;
+    }
+    return nullptr;
+}
+
 void RoutingGeom::DelPt( int index )
 {
     if ( index >= 0 && index < m_RoutingPointVec.size() )
