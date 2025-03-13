@@ -146,6 +146,10 @@ void RoutingScreen::UpdateBrowser()
     {
         m_RoutingPointBrowser->select( m_RoutingPointBrowserSelect + 2 );
     }
+    else
+    {
+        m_RoutingPointBrowserSelect = -1;
+    }
 
     m_RoutingPointBrowser->hposition( input_h_pos );
     m_RoutingPointBrowser->vposition( input_v_pos );
