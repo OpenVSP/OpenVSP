@@ -57,6 +57,9 @@ protected:
     TriggerButton m_AddMultipleRoutingPoints;
     TriggerButton m_StopAdding;
 
+    TriggerButton m_InsertRoutingPoint;
+    TriggerButton m_InsertMultipleRoutingPoints;
+
     StringInput m_PtNameInput;
 
     GeomPicker m_GeomPicker;
@@ -68,6 +71,7 @@ private:
 
     bool m_SelectionFlag;
     bool m_AddMultipleFlag;
+    bool m_InsertMultipleFlag;
     std::vector<DrawObj> m_PickList;
 
 };

@@ -39,6 +39,13 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 + 25,
     m_DesignLayout.AddButton( m_AddMultipleRoutingPoints, "Add Multiple" );
     m_DesignLayout.AddButton( m_StopAdding, "Stop Adding" );
 
+    m_DesignLayout.AddButton( m_InsertRoutingPoint, "Insert Before" );
+
+    m_DesignLayout.AddButton( m_InsertMultipleRoutingPoints, "Insert Multiple" );
+
+
+
+    m_DesignLayout.AddYGap();
 
     m_DesignLayout.AddInput( m_PtNameInput, "Name" );
 
@@ -51,6 +58,7 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 + 25,
 
     m_SelectionFlag = false;
     m_AddMultipleFlag = false;
+    m_InsertMultipleFlag = false;
 }
 
 
@@ -264,6 +272,40 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         }
         m_SelectionFlag = false;
         m_AddMultipleFlag = false;
+        m_InsertMultipleFlag = false;
+    }
+    else if ( gui_device == &m_InsertRoutingPoint )
+    {
+        if ( routing_ptr )
+        {
+            if ( m_RoutingPointBrowserSelect < 0 )
+            {
+                m_RoutingPointBrowserSelect = 0;
+            }
+            m_LiveIndex = m_RoutingPointBrowserSelect;
+            routing_ptr->InsertPt( m_LiveIndex );
+
+            routing_ptr->Update();
+            m_SelectionFlag = true;
+            UpdatePickList();
+        }
+    }
+    else if ( gui_device == &m_InsertMultipleRoutingPoints )
+    {
+        if ( routing_ptr )
+        {
+            if ( m_RoutingPointBrowserSelect < 0 )
+            {
+                m_RoutingPointBrowserSelect = 0;
+            }
+            m_LiveIndex = m_RoutingPointBrowserSelect;
+            routing_ptr->InsertPt( m_LiveIndex );
+
+            routing_ptr->Update();
+            m_SelectionFlag = true;
+            m_InsertMultipleFlag = true;
+            UpdatePickList();
+        }
     }
     else
     {
@@ -331,14 +373,7 @@ void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId
 
         }
 
-        if ( !m_AddMultipleFlag )
-        {
-            m_SelectionFlag = false;
-            routing_ptr->m_Picking = false;
-            routing_ptr->Update();
-            m_LiveIndex = -1;
-        }
-        else
+        if ( m_AddMultipleFlag )
         {
             routing_ptr->AddPt();
             m_LiveIndex++;
@@ -347,6 +382,23 @@ void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId
             routing_ptr->Update();
 
             UpdatePickList();
+        }
+        else if ( m_InsertMultipleFlag )
+        {
+            m_LiveIndex++;
+            m_RoutingPointBrowserSelect = m_LiveIndex;
+            routing_ptr->InsertPt( m_LiveIndex );
+
+            routing_ptr->Update();
+
+            UpdatePickList();
+        }
+        else // Normal adding.
+        {
+            m_SelectionFlag = false;
+            routing_ptr->m_Picking = false;
+            routing_ptr->Update();
+            m_LiveIndex = -1;
         }
 
     }
