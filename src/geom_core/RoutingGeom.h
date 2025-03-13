@@ -82,6 +82,7 @@ protected:
     virtual void DisableParms();
 
     virtual void UpdateDrawObj();
+    virtual void UpdateBBox();
 
     vector < RoutingPoint* > m_RoutingPointVec;
 

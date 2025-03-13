@@ -390,6 +390,32 @@ void RoutingGeom::DisableParms()
     m_SymRotN.Deactivate();
 }
 
+void RoutingGeom::UpdateBBox()
+{
+    //==== Load Bounding Box ====//
+    BndBox new_box;
+
+    int npt = m_RoutingPointVec.size();
+    for ( int i = 0; i < npt; i++ )
+    {
+        new_box.Update( m_RoutingPointVec[i]->GetPt() );
+    }
+
+    if ( new_box != m_BBox )
+    {
+        m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
+        m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
+        m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
+
+        m_BbXMin = new_box.GetMin( 0 );
+        m_BbYMin = new_box.GetMin( 1 );
+        m_BbZMin = new_box.GetMin( 2 );
+
+        m_BBox = new_box;
+        m_OrigBBox = m_BBox;
+    }
+}
+
 void RoutingGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
