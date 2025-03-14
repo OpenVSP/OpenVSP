@@ -736,11 +736,12 @@ void GeomXForm::UpdateAttachParms()
             double r, s, t;
             r = u;
             s = 2.0 * w;
+            t = 0.0;
             if ( w > 0.5 )
             {
                 s = 2.0 * ( 1.0 - w );
+                t = 1.0;
             }
-            t = 0.5;
 
             m_RLoc.Set( r );
             m_R0NLoc.Set( m_RLoc() * umax );
@@ -758,11 +759,12 @@ void GeomXForm::UpdateAttachParms()
             double r, s, t;
             r = u;
             s = 2.0 * w;
+            t = 0.0;
             if ( w > 0.5 )
             {
                 s = 2.0 * ( 1.0 - w );
+                t = 1.0;
             }
-            t = 0.5;
 
 
             double l, m, n;
