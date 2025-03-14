@@ -135,6 +135,14 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Picking = false;
     m_ActivePointIndex = -1;
 
+    m_RouteLineDO.m_Type = DrawObj::VSP_LINE_STRIP;
+    m_RouteLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_RouteLineDO.m_LineWidth = 2.0;
+    m_RouteLineDO.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+
+    m_DynamicRouteDO.m_Type = DrawObj::VSP_ROUTING;
+    m_DynamicRouteDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
     m_ActivePointDO.m_Type = DrawObj::VSP_POINTS;
     m_ActivePointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_ActivePointDO.m_PointSize = 10;
@@ -439,38 +447,23 @@ void RoutingGeom::UpdateDrawObj()
     Geom::UpdateDrawObj();
 
     m_RouteLineDO.m_PntVec.clear();
+    m_DynamicRouteDO.m_PntVec.clear();
+
     m_RouteLineDO.m_GeomChanged = true;
+    m_DynamicRouteDO.m_GeomChanged = true;
+
+    m_RouteLineDO.m_GeomID = "Rte_" + m_ID;
+    m_DynamicRouteDO.m_GeomID = "DyRte_" + m_ID;
 
     int npt = m_RoutingPointVec.size();
     m_RouteLineDO.m_PntVec.reserve( npt );
+    m_DynamicRouteDO.m_PntVec.reserve( npt );
+
     for ( int i = 0; i < npt; i++ )
     {
         m_RouteLineDO.m_PntVec.push_back( m_RoutingPointVec[i]->GetPt() );
-    }
-
-    m_RouteLineDO.m_GeomID = "Rte_" + m_ID;
-    m_RouteLineDO.m_Type = DrawObj::VSP_LINE_STRIP;
-    m_RouteLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_RouteLineDO.m_LineWidth = 2.0;
-    m_RouteLineDO.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
-
-
-
-
-
-
-    m_DynamicRouteDO.m_PntVec.clear();
-    m_DynamicRouteDO.m_GeomChanged = true;
-
-    m_DynamicRouteDO.m_PntVec.reserve( npt );
-    for ( int i = 0; i < npt; i++ )
-    {
         m_DynamicRouteDO.m_PntVec.push_back( m_RoutingPointVec[i]->GetPt() );
     }
-
-    m_DynamicRouteDO.m_GeomID = "DyRte_" + m_ID;
-    m_DynamicRouteDO.m_Type = DrawObj::VSP_ROUTING;
-    m_DynamicRouteDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
 }
 
 
