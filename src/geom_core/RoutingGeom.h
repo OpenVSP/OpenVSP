@@ -93,6 +93,7 @@ protected:
     DrawObj m_RouteLineDO;
 
     DrawObj m_DynamicRouteDO;
+    DrawObj m_ActivePointDO;
 
     std::size_t m_ParentHash;
     vector < string > m_ParentVec;

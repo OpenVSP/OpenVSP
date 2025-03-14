@@ -134,6 +134,12 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_Picking = false;
     m_ActivePointIndex = -1;
+
+    m_ActivePointDO.m_Type = DrawObj::VSP_POINTS;
+    m_ActivePointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_ActivePointDO.m_PointSize = 10;
+    m_ActivePointDO.m_PointColor = vec3d( 0, 0, 1 );
+
 }
 
 //==== Destructor ====//
@@ -477,4 +483,15 @@ void RoutingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     m_DynamicRouteDO.m_Visible = m_Picking;
     draw_obj_vec.push_back( &m_DynamicRouteDO );
+
+
+    m_ActivePointDO.m_PntVec.clear();
+    m_ActivePointDO.m_GeomChanged = true;
+    if ( m_ActivePointIndex >= 0 && m_ActivePointIndex < m_RoutingPointVec.size() )
+    {
+        m_ActivePointDO.m_GeomID = "AcRte_" + m_ID;;
+        m_ActivePointDO.m_PntVec.push_back( m_RoutingPointVec[m_ActivePointIndex]->GetPt() );
+        m_ActivePointDO.m_Visible = !m_Picking && GetSetFlag( vsp::SET_SHOWN );
+        draw_obj_vec.push_back( &m_ActivePointDO );
+    }
 }
