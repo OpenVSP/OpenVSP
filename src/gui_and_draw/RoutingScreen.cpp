@@ -59,18 +59,29 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Rou
 
     m_DesignLayout.SetX( start_x );
 
-    m_DesignLayout.AddButton( m_AddRoutingPoint, "Add" );
-    m_DesignLayout.AddButton( m_DelRoutingPoint, "Delete" );
-    m_DesignLayout.AddButton( m_DelAllRoutingPoints, "Delete All" );
+    int bw = m_DesignLayout.GetW() * 0.25;
+    m_DesignLayout.SetButtonWidth( bw );
+    m_DesignLayout.SetChoiceButtonWidth( bw );
 
-    m_DesignLayout.AddButton( m_SetRoutingPoint, "Set Point" );
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.SetSameLineFlag( true );
+
+    m_DesignLayout.AddButton( m_AddRoutingPoint, "Add" );
+    m_DesignLayout.AddButton( m_InsertRoutingPoint, "Insert Before" );
+    m_DesignLayout.AddButton( m_SetRoutingPoint, "Reset Point" );
+    m_DesignLayout.AddButton( m_DelRoutingPoint, "Delete" );
+
+    m_DesignLayout.ForceNewLine();
 
     m_DesignLayout.AddButton( m_AddMultipleRoutingPoints, "Add Multiple" );
+    m_DesignLayout.AddButton( m_InsertMultipleRoutingPoints, "Insert Multiple" );
+    m_DesignLayout.AddButton( m_DelAllRoutingPoints, "Delete All" );
     m_DesignLayout.AddButton( m_StopAdding, "Stop Adding" );
 
-    m_DesignLayout.AddButton( m_InsertRoutingPoint, "Insert Before" );
+    m_DesignLayout.ForceNewLine();
 
-    m_DesignLayout.AddButton( m_InsertMultipleRoutingPoints, "Insert Multiple" );
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.SetSameLineFlag( false );
 
 
 
