@@ -48,7 +48,6 @@ protected:
 
 
     ColResizeBrowser* m_RoutingPointBrowser;
-    int m_RoutingPointBrowserSelect;
     int m_LiveIndex;
 
 

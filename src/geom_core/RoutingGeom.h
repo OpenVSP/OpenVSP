@@ -76,6 +76,7 @@ public:
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    int m_ActivePointIndex;
     bool m_Picking;
 
 protected:

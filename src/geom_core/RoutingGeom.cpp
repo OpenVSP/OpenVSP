@@ -133,6 +133,7 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Type = ROUTING_GEOM_TYPE;
 
     m_Picking = false;
+    m_ActivePointIndex = -1;
 }
 
 //==== Destructor ====//
