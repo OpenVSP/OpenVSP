@@ -120,34 +120,37 @@ bool RoutingScreen::Update()
     RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( geom_ptr );
     assert( routing_ptr );
 
-    UpdateBrowser();
-
-
-    RoutingPoint* rpt = routing_ptr->GetPt( routing_ptr->m_ActivePointIndex );;
-
-    if ( rpt )
+    if ( routing_ptr )
     {
-        m_PtNameInput.Update( rpt->GetName() );
 
-        m_GeomPicker.SetGeomChoice( rpt->GetParentID() );
+        UpdateBrowser();
 
-        m_USlider.Update( rpt->m_U.GetID() );
-        m_WSlider.Update( rpt->m_W.GetID() );
+
+        RoutingPoint* rpt = routing_ptr->GetPt( routing_ptr->m_ActivePointIndex );;
+
+        if ( rpt )
+        {
+            m_PtNameInput.Update( rpt->GetName() );
+
+            m_GeomPicker.SetGeomChoice( rpt->GetParentID() );
+
+            m_USlider.Update( rpt->m_U.GetID() );
+            m_WSlider.Update( rpt->m_W.GetID() );
+
+
+
+        }
+        else
+        {
+            m_PtNameInput.Update( "" );
+            m_GeomPicker.SetGeomChoice( "" );
+        }
+
+        m_GeomPicker.Update();
 
 
 
     }
-    else
-    {
-        m_PtNameInput.Update( "" );
-        m_GeomPicker.SetGeomChoice( "" );
-    }
-
-    m_GeomPicker.Update();
-
-
-
-
     return true;
 }
 
@@ -157,38 +160,41 @@ void RoutingScreen::UpdateBrowser()
     RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( geom_ptr );
 
 
-    char str[255];
-
-    int input_h_pos = m_RoutingPointBrowser->hposition();
-    int input_v_pos = m_RoutingPointBrowser->vposition();
-
-    m_RoutingPointBrowser->clear();
-
-    m_RoutingPointBrowser->column_char( ':' );
-
-    snprintf( str, sizeof( str ),  "@b@.PT_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
-    m_RoutingPointBrowser->add( str );
-    m_RoutingPointBrowser->addCopyText( "header" );
-
-    vector < RoutingPoint* > pt_vec = routing_ptr->GetAllPt();
-
-    for ( int i = 0 ; i < (int)pt_vec.size() ; i++ )
+    if ( routing_ptr )
     {
-        snprintf( str, sizeof( str ),  "%s:::\n", pt_vec[i]->GetName().c_str() );
+        char str[255];
+
+        int input_h_pos = m_RoutingPointBrowser->hposition();
+        int input_v_pos = m_RoutingPointBrowser->vposition();
+
+        m_RoutingPointBrowser->clear();
+
+        m_RoutingPointBrowser->column_char( ':' );
+
+        snprintf( str, sizeof( str ),  "@b@.PT_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
         m_RoutingPointBrowser->add( str );
-    }
+        m_RoutingPointBrowser->addCopyText( "header" );
 
-    if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < (int)pt_vec.size() )
-    {
-        m_RoutingPointBrowser->select( routing_ptr->m_ActivePointIndex + 2 );
-    }
-    else
-    {
-        routing_ptr->m_ActivePointIndex = -1;
-    }
+        vector < RoutingPoint* > pt_vec = routing_ptr->GetAllPt();
 
-    m_RoutingPointBrowser->hposition( input_h_pos );
-    m_RoutingPointBrowser->vposition( input_v_pos );
+        for ( int i = 0 ; i < (int)pt_vec.size() ; i++ )
+        {
+            snprintf( str, sizeof( str ),  "%s:::\n", pt_vec[i]->GetName().c_str() );
+            m_RoutingPointBrowser->add( str );
+        }
+
+        if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < (int)pt_vec.size() )
+        {
+            m_RoutingPointBrowser->select( routing_ptr->m_ActivePointIndex + 2 );
+        }
+        else
+        {
+            routing_ptr->m_ActivePointIndex = -1;
+        }
+
+        m_RoutingPointBrowser->hposition( input_h_pos );
+        m_RoutingPointBrowser->vposition( input_v_pos );
+    }
 }
 
 
@@ -269,9 +275,12 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == & m_SetRoutingPoint )
     {
-        m_LiveIndex = routing_ptr->m_ActivePointIndex;
-        m_SelectionFlag = true;
-        UpdatePickList();
+        if ( routing_ptr )
+        {
+            m_LiveIndex = routing_ptr->m_ActivePointIndex;
+            m_SelectionFlag = true;
+            UpdatePickList();
+        }
     }
     else if ( gui_device == &m_AddMultipleRoutingPoints )
     {
@@ -337,39 +346,51 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_MovePntTopButton )
     {
-        int npt = routing_ptr->GetNumPt();
-        if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < npt )
+        if ( routing_ptr )
         {
-            routing_ptr->m_ActivePointIndex = routing_ptr->MovePt( routing_ptr->m_ActivePointIndex, vsp::REORDER_MOVE_TOP );
-            routing_ptr->Update();
+            int npt = routing_ptr->GetNumPt();
+            if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < npt )
+            {
+                routing_ptr->m_ActivePointIndex = routing_ptr->MovePt( routing_ptr->m_ActivePointIndex, vsp::REORDER_MOVE_TOP );
+                routing_ptr->Update();
+            }
         }
     }
     else if ( gui_device == &m_MovePntUpButton )
     {
-        int npt = routing_ptr->GetNumPt();
-        if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < npt )
+        if ( routing_ptr )
         {
-            routing_ptr->m_ActivePointIndex = routing_ptr->MovePt( routing_ptr->m_ActivePointIndex, vsp::REORDER_MOVE_UP );
-            routing_ptr->Update();
+            int npt = routing_ptr->GetNumPt();
+            if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < npt )
+            {
+                routing_ptr->m_ActivePointIndex = routing_ptr->MovePt( routing_ptr->m_ActivePointIndex, vsp::REORDER_MOVE_UP );
+                routing_ptr->Update();
+            }
         }
     }
     else if ( gui_device == &m_MovePntDownButton )
     {
-        int npt = routing_ptr->GetNumPt();
-        if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < npt )
+        if ( routing_ptr )
         {
-            routing_ptr->m_ActivePointIndex = routing_ptr->MovePt( routing_ptr->m_ActivePointIndex, vsp::REORDER_MOVE_DOWN );
-            routing_ptr->Update();
+            int npt = routing_ptr->GetNumPt();
+            if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < npt )
+            {
+                routing_ptr->m_ActivePointIndex = routing_ptr->MovePt( routing_ptr->m_ActivePointIndex, vsp::REORDER_MOVE_DOWN );
+                routing_ptr->Update();
+            }
         }
     }
     else if ( gui_device == &m_MovePntBotButton )
     {
-        int npt = routing_ptr->GetNumPt();
-        if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < npt )
+        if ( routing_ptr )
         {
-            routing_ptr->m_ActivePointIndex = routing_ptr->MovePt( routing_ptr->m_ActivePointIndex, vsp::REORDER_MOVE_BOTTOM );
-            routing_ptr->Update();
+            int npt = routing_ptr->GetNumPt();
+            if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < npt )
+            {
+                routing_ptr->m_ActivePointIndex = routing_ptr->MovePt( routing_ptr->m_ActivePointIndex, vsp::REORDER_MOVE_BOTTOM );
+                routing_ptr->Update();
 
+            }
         }
     }
     else
