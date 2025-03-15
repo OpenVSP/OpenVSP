@@ -48,11 +48,14 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Rou
     m_DesignLayout.AddSubGroupLayout( m_PointBrowserLayout, m_DesignLayout.GetRemainX(), browser_h );
     m_DesignLayout.AddY( browser_h );
 
+
+    int cw = ( m_DesignLayout.GetW() - movebw - 75 ) * 0.5;
+
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
-    static int col_widths[] = { 160, 85, 80, 85, 0 }; // widths for each column
+    static int col_widths[] = { cw, cw, 75, 0 }; // widths for each column
 
-    m_RoutingPointBrowser = m_PointBrowserLayout.AddColResizeBrowser( col_widths, 4, browser_h );
+    m_RoutingPointBrowser = m_PointBrowserLayout.AddColResizeBrowser( col_widths, 3, browser_h );
     m_RoutingPointBrowser->callback( staticScreenCB, this );
     m_RoutingPointBrowser->type( FL_MULTI_BROWSER );
 
@@ -436,7 +439,7 @@ void RoutingScreen::UpdateBrowser()
 
         m_RoutingPointBrowser->column_char( ':' );
 
-        snprintf( str, sizeof( str ),  "@b@.PT_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
+        snprintf( str, sizeof( str ),  "@b@.NAME:@b@.PARENT:@b@.SURF" );
         m_RoutingPointBrowser->add( str );
         m_RoutingPointBrowser->addCopyText( "header" );
 
@@ -444,8 +447,13 @@ void RoutingScreen::UpdateBrowser()
 
         for ( int i = 0 ; i < (int)pt_vec.size() ; i++ )
         {
-            snprintf( str, sizeof( str ),  "%s:::\n", pt_vec[i]->GetName().c_str() );
-            m_RoutingPointBrowser->add( str );
+            Geom* parent_geom = vPtr->FindGeom( pt_vec[i]->GetParentID() );
+
+            if ( parent_geom )
+            {
+                snprintf( str, sizeof( str ),  "%s:%s:%d\n", pt_vec[i]->GetName().c_str(), parent_geom->GetName().c_str(), pt_vec[i]->m_SurfIndx() );
+                m_RoutingPointBrowser->add( str );
+            }
         }
 
         if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < (int)pt_vec.size() )
