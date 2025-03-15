@@ -70,6 +70,7 @@ void RoutingPoint::SetParentID( const string &id )
         if ( rg )
         {
             rg->UpdateParents();
+            rg->Update();
         }
     }
 }
@@ -194,6 +195,8 @@ void RoutingGeom::ChangeID( string id )
 
 void RoutingGeom::UpdateParents()
 {
+    m_SurfDirty = true;
+
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     if ( !veh )
