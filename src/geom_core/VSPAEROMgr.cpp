@@ -680,6 +680,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     m_VSPGeomFileFull   = string();
     m_SetupFile         = string();
     m_AdbFile           = string();
+    m_AdbCasesFile      = string();
     m_HistoryFile       = string();
     m_PolarFile         = string();
     m_LoadFile          = string();
@@ -714,6 +715,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 
         m_SetupFile         = m_ModelNameBase + string( ".vspaero" );
         m_AdbFile           = m_ModelNameBase + string( ".adb" );
+        m_AdbCasesFile      = m_ModelNameBase + string( ".adb.cases" );
         m_HistoryFile       = m_ModelNameBase + string( ".history" );
         m_PolarFile         = m_ModelNameBase + string( ".polar" );
         m_LoadFile          = m_ModelNameBase + string( ".lod" );
@@ -1839,6 +1841,7 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
     {
 
         string adbFileName = m_AdbFile;
+        string adbCasesFileName = m_AdbCasesFile;
         string historyFileName = m_HistoryFile;
         string polarFileName = m_PolarFile;
         string loadFileName = m_LoadFile;
@@ -1889,6 +1892,10 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
         if ( FileExist( adbFileName ) )
         {
             remove( adbFileName.c_str() );
+        }
+        if ( FileExist( adbCasesFileName ) )
+        {
+            remove( adbCasesFileName.c_str() );
         }
         if ( FileExist( historyFileName ) )
         {

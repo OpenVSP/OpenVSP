@@ -373,6 +373,7 @@ public:
     string m_VSPGeomFileFull; // Experimental file format for mixed thick/thin surface representation
     string m_SetupFile;
     string m_AdbFile;
+    string m_AdbCasesFile;
     string m_HistoryFile;
     string m_PolarFile;
     string m_LoadFile;
