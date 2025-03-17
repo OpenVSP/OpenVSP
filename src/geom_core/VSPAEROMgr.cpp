@@ -1907,21 +1907,15 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
             remove( stabFileName.c_str() );
         }
 
-        for ( size_t j = 0; j < group_res_vec.size(); j++ )
-        {
-            if ( FileExist( group_res_vec[j] ) )
-            {
-                remove( group_res_vec[j].c_str() );
-            }
-        }
+        string groupresfile_wildcard = m_ModelNameBase + ".group.*";
+        std::vector < std::filesystem::path > groupresfiles;
+        groupresfiles = get_files_matching_pattern( groupresfile_wildcard );
+        remove_files( groupresfiles );
 
-        for ( size_t j = 0; j < rotor_res_vec.size(); j++ )
-        {
-            if ( FileExist( rotor_res_vec[j] ) )
-            {
-                remove( rotor_res_vec[j].c_str() );
-            }
-        }
+        string rotorresfile_wildcard = m_ModelNameBase + ".rotor.*";
+        std::vector < std::filesystem::path > rotorresfiles;
+        rotorresfiles = get_files_matching_pattern( rotorresfile_wildcard );
+        remove_files( rotorresfiles );
 
         //====== generate batch mode command to be executed by the system at the command prompt ======//
         vector<string> args;
