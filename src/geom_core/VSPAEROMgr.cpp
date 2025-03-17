@@ -1859,6 +1859,20 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 
         int ncpu = m_NCPU.Get();
 
+        if ( FileExist( m_SetupFile ) )
+        {
+            remove( m_SetupFile.c_str() );
+        }
+
+        if ( FileExist( m_CutsFile ) )
+        {
+            remove( m_CutsFile.c_str() );
+        }
+
+        if ( FileExist( m_GroupsFile ) )
+        {
+            remove( m_GroupsFile.c_str() );
+        }
 
         //====== Modify/Update the setup file ======//
         if ( m_Verbose ) { printf( "Writing vspaero setup file: %s\n", m_SetupFile.c_str() ); }
