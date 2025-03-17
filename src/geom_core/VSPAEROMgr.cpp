@@ -716,6 +716,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
         m_SetupFile         = m_ModelNameBase + string( ".vspaero" );
         m_AdbFile           = m_ModelNameBase + string( ".adb" );
         m_AdbCasesFile      = m_ModelNameBase + string( ".adb.cases" );
+        m_QuadCasesFile     = m_ModelNameBase + string( ".quad.cases" );
         m_HistoryFile       = m_ModelNameBase + string( ".history" );
         m_PolarFile         = m_ModelNameBase + string( ".polar" );
         m_LoadFile          = m_ModelNameBase + string( ".lod" );
@@ -1842,6 +1843,7 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 
         string adbFileName = m_AdbFile;
         string adbCasesFileName = m_AdbCasesFile;
+        string quadCasesFileName = m_QuadCasesFile;
         string historyFileName = m_HistoryFile;
         string polarFileName = m_PolarFile;
         string loadFileName = m_LoadFile;
@@ -1872,6 +1874,11 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
             remove( m_CutsFile.c_str() );
         }
 
+        if ( FileExist( m_SliceFile ) )
+        {
+            remove( m_SliceFile.c_str() );
+        }
+
         if ( FileExist( m_GroupsFile ) )
         {
             remove( m_GroupsFile.c_str() );
@@ -1896,6 +1903,10 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
         if ( FileExist( adbCasesFileName ) )
         {
             remove( adbCasesFileName.c_str() );
+        }
+        if ( FileExist( quadCasesFileName ) )
+        {
+            remove( quadCasesFileName.c_str() );
         }
         if ( FileExist( historyFileName ) )
         {
@@ -1923,6 +1934,11 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
         std::vector < std::filesystem::path > rotorresfiles;
         rotorresfiles = get_files_matching_pattern( rotorresfile_wildcard );
         remove_files( rotorresfiles );
+
+        string quadresfile_wildcard = m_ModelNameBase + ".case.*.quad.*.dat";
+        std::vector < std::filesystem::path > quadresfiles;
+        quadresfiles = get_files_matching_pattern( quadresfile_wildcard );
+        remove_files( quadresfiles );
 
         //====== generate batch mode command to be executed by the system at the command prompt ======//
         vector<string> args;
