@@ -2322,7 +2322,7 @@ void VSPAEROScreen::DisplayVSPAEROPreview()
     vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
     for ( size_t i = 0; i < (int)geom_vec.size(); i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( set ) )
+        if ( geom_vec[i]->GetSetFlag( degenset ) )
         {
             for ( size_t j = 0; j < geom_vec[i]->GetNumMainSurfs(); j++ )
             {
@@ -2355,7 +2355,7 @@ void VSPAEROScreen::DisplayVSPAEROPreview()
             {
                 int surf_type = geom_vec[i]->GetMainSurfType(j);
 
-                geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_BEZIER );
+                geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_SURF );
             }
 
             geom_vec[i]->m_GuiDraw.SetDrawType( vsp::DRAW_TYPE::GEOM_DRAW_SHADE );
