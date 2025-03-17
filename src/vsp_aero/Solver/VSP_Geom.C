@@ -3148,9 +3148,15 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
 
     for ( j = 1 ; j <= NumKuttaNodeLists ; j++ ) {
     
+       int WakePartNum;
        // Read in the Kutta nodes in this list
-       
-       fscanf(VSPGeom_File,"%d",&NumNodesInList);
+       fscanf(VSPGeom_File,"%d %d",&NumNodesInList, &WakePartNum);
+
+       bool BodyWakeFlag = false;
+       if ( NumNodesInList < 0 ) {
+          NumNodesInList = -NumNodesInList;
+          BodyWakeFlag = true;
+       }
        
     //   printf("NumNodesInList: %d \n",NumNodesInList);fflush(NULL);
        
