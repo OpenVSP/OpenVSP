@@ -5,6 +5,8 @@
 
 #include "FileUtil.h"
 #include "tinydir.h"
+#include <regex>
+
 
 #ifdef __APPLE__
 #include <mach-o/dyld.h>    /* _NSGetExecutablePath */
@@ -453,6 +455,74 @@ void EnforceFilter( string &in, const string & filter )
         if( ext != desiredlower ) // compare in lower case
         {
             in += desiredext;
+        }
+    }
+}
+
+std::vector< fs::path > get_files_matching_pattern( const std::string& full_pattern )
+{
+    string base_path, base_fname;
+    GetPathFile( full_pattern, base_path, base_fname );
+
+    return get_files_matching_pattern( base_path, base_fname );
+}
+
+// Function to get a list of files matching a wildcard pattern
+std::vector < fs::path > get_files_matching_pattern( const fs::path &directory, const std::string &pattern )
+{
+    std::vector < fs::path > matching_files;
+    // Convert wildcard pattern to regex
+    std::string regex_pattern = pattern;
+    // Escape special regex characters except * and ?
+    for ( size_t i = 0; i < regex_pattern.length(); ++i )
+    {
+        if ( regex_pattern[ i ] == '.' ||
+             regex_pattern[ i ] == '+' ||
+             regex_pattern[ i ] == '(' ||
+             regex_pattern[ i ] == ')' ||
+             regex_pattern[ i ] == '[' ||
+             regex_pattern[ i ] == ']' ||
+             regex_pattern[ i ] == '^' ||
+             regex_pattern[ i ] == '$' )
+        {
+            regex_pattern.insert( i, "\\" );
+            i++;
+        }
+
+        if ( regex_pattern[ i ] == '*' )
+        {
+            regex_pattern.insert( i, "." );
+            i++;
+        }
+    }
+
+    std::replace( regex_pattern.begin(), regex_pattern.end(), '?', '.' );
+    std::regex re( regex_pattern );
+
+    if ( fs::exists( directory ) && fs::is_directory( directory ) )
+    {
+        for ( const auto &entry: fs::directory_iterator( directory ) )
+        {
+            if ( fs::is_regular_file( entry ) && std::regex_match( entry.path().filename().string(), re ) )
+            {
+                matching_files.push_back( entry.path() );
+            }
+        }
+    }
+    return matching_files;
+}
+
+void remove_files( const std::vector< fs::path > &file_list )
+{
+    for ( const auto &file_path: file_list )
+    {
+        try
+        {
+            std::filesystem::remove( file_path );
+        }
+        catch ( const std::filesystem::filesystem_error &e )
+        {
+            // Error attempting to remove file.
         }
     }
 }

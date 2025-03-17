@@ -10,6 +10,8 @@
 #include <string>
 using std::vector;
 using std::string;
+#include <filesystem>
+namespace fs = std::filesystem;
 
 vector< string > ScanFolder( const char* dir_path );
 int ScanFolder();
@@ -29,6 +31,13 @@ void GetPathFile( const string &pathfile, string &path, string &file );
 void AppendFile_BtoA( FILE* fpa, FILE* fpb );
 
 void EnforceFilter( string &in, const string & filter );
+
+std::vector< fs::path > get_files_matching_pattern( const std::string& full_pattern );
+
+std::vector< fs::path > get_files_matching_pattern( const fs::path& directory, const std::string& pattern );
+
+void remove_files( const std::vector< fs::path > &file_list );
+
 
 #endif
 
