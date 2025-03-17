@@ -9,6 +9,7 @@
 #include "Vehicle.h"
 #include "SubSurfaceMgr.h"
 #include "MeshGeom.h"
+#include "FileUtil.h"
 
 //==== Constructor ====//
 NGonMeshGeom::NGonMeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
@@ -153,8 +154,51 @@ void NGonMeshGeom::ClearTris()
     pgm->ClearTris();
 }
 
+void NGonMeshGeom::RemovePotentialFiles( const string& file_name )
+{
+    // Main *.vspgeom file.
+    if ( FileExist( file_name ) )
+    {
+        remove( file_name.c_str() );
+    }
+
+    string base_name = GetBasename( file_name );
+
+    string key_name = base_name + ".vkey";
+    if ( FileExist( key_name ) )
+    {
+        remove( key_name.c_str() );
+    }
+
+    string csf_name = base_name + ".csf";
+    if ( FileExist( csf_name ) )
+    {
+        remove( csf_name.c_str() );
+    }
+
+    string taglist_name = base_name + ".ALL.taglist";
+    if ( FileExist( taglist_name ) )
+    {
+        remove( taglist_name.c_str() );
+    }
+
+    string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
+    if ( FileExist( csf_taglist_name ) )
+    {
+        remove( csf_taglist_name.c_str() );
+    }
+
+    string tagfile_wildcard = base_name + "*.tag";
+    std::vector < std::filesystem::path > tagfiles;
+    tagfiles = get_files_matching_pattern( tagfile_wildcard );
+    remove_files( tagfiles );
+}
+
+
 void NGonMeshGeom::WriteVSPGEOM( string fname, vector < string > &all_fnames )
 {
+    RemovePotentialFiles( fname );
+
     Matrix4d trans = GetTotalTransMat();
 
     FILE *file_id = fopen( fname.c_str(), "w" );

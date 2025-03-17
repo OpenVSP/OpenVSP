@@ -42,6 +42,7 @@ public:
     virtual void Report();
     virtual void ClearTris();
 
+    virtual void RemovePotentialFiles( const string& file_name );
     virtual void WriteVSPGEOM( string fname, vector < string > &all_fnames );
 
     virtual vector< TMesh* > CreateTMeshVec();
