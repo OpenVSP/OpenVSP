@@ -389,8 +389,16 @@ void GetPathFile( const string &pathfile, string &path, string &file )
 {
     std::string::size_type loc = pathfile.find_last_of( "/\\" );
 
-    path = pathfile.substr( 0, loc );  // No trailing slash.
-    file = pathfile.substr( loc + 1 ); // No leading slash.
+    if ( loc == string::npos ) // No slash found.
+    {
+        path = ".";
+        file = pathfile;
+    }
+    else
+    {
+        path = pathfile.substr( 0, loc );  // No trailing slash.
+        file = pathfile.substr( loc + 1 ); // No leading slash.
+    }
 }
 
 void AppendFile_BtoA( FILE* fpa, FILE* fpb )
