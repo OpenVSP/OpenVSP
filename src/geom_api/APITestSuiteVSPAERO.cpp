@@ -691,8 +691,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointUnsteady()
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
     std::vector< int> stabilityCalcType; stabilityCalcType.push_back( vsp::STABILITY_P_ANALYSIS );
     vsp::SetIntAnalysisInput( analysis_name, "UnsteadyType", stabilityCalcType );
-    std::vector< int > jacobiPrecondition; jacobiPrecondition.push_back( vsp::PRECON_JACOBI );
-    vsp::SetIntAnalysisInput( analysis_name, "Precondition", jacobiPrecondition );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf("COMPLETE\n");

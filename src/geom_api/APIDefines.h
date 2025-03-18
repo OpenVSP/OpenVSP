@@ -1519,14 +1519,6 @@ enum VSPAERO_NOISE_UNIT { NOISE_SI,	/*!< Assume geometry and VSPAERO inputs in S
                           NOISE_ENGLISH	/*!< Assume geometry and VSPAERO inputs in english (ft lbf slug s) units, will convert to SI (m N kg s) for PSU-WOPWOP */
 };
 
-/*!
-	\ingroup Enumerations
-*/
-/*! Enum for the types of preconditioner used in VSPAERO. */
-enum VSPAERO_PRECONDITION { PRECON_MATRIX = 0,	/*!< Matrix preconditioner */
-                            PRECON_JACOBI,	/*!< Jacobi preconditioner */
-                            PRECON_SSOR,	/*!< Symmetric successive over-relaxation preconditioner */
-};
 
 /*!
 	\ingroup Enumerations
