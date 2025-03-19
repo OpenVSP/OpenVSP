@@ -1598,8 +1598,10 @@ void VSPAEROScreen::UpdateCaseSetup()
     m_ImplicitWakeStartIterationSlider.Update( VSPAEROMgr.m_ImplicitWakeStartIteration.GetID() );
 
     bool time_dependent = false;
-    if ( VSPAEROMgr.m_RotateBladesFlag() || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_P_ANALYSIS ||
-         VSPAEROMgr.m_StabilityType() == vsp::STABILITY_Q_ANALYSIS || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
+    if ( VSPAEROMgr.m_RotateBladesFlag() ||
+         VSPAEROMgr.m_StabilityType() == vsp::STABILITY_P_ANALYSIS ||
+         VSPAEROMgr.m_StabilityType() == vsp::STABILITY_Q_ANALYSIS ||
+         VSPAEROMgr.m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
     {
         time_dependent = true;
     }

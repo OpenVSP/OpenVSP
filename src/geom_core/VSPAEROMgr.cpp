@@ -4360,7 +4360,8 @@ void VSPAEROMgrSingleton::UpdateParmRestrictions()
         m_RotateBladesFlag.Set( false );
     }
 
-    if ( m_RotateBladesFlag() || m_GroundEffectToggle() )
+    if ( m_RotateBladesFlag() ||
+         m_GroundEffectToggle() )
     {
         // Only 1 flow condition supported for unsteady analysis and ground effect calculations
         m_AlphaNpts.Set( 1 );
@@ -6232,8 +6233,10 @@ void UnsteadyGroup::ParmChanged( Parm* parm_ptr, int type )
 
     // Identify if unsteady prop RPM is changed. If so, update it to be the "master" that 
     // all other unsteady prop RPM will be set to
-    if ( VSPAEROMgr.m_RotateBladesFlag() && VSPAEROMgr.m_UniformPropRPMFlag() &&
-         &m_RPM == parm_ptr && m_GeomPropertyType() == UnsteadyGroup::GEOM_ROTOR )
+    if ( VSPAEROMgr.m_RotateBladesFlag() &&
+         VSPAEROMgr.m_UniformPropRPMFlag() &&
+         &m_RPM == parm_ptr &&
+         m_GeomPropertyType() == UnsteadyGroup::GEOM_ROTOR )
     {
         VSPAEROMgr.SetCurrentUnsteadyGroupIndex( m_ID );
     }
