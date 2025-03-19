@@ -538,8 +538,11 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Advanced Flow
     m_AdvancedRightLayout.AddSubGroupLayout( m_FlowCondLayout,
                                              m_AdvancedRightLayout.GetW(),
-                                             5 * m_AdvancedRightLayout.GetStdHeight() + 5 );
+                                             4 * m_AdvancedRightLayout.GetStdHeight() +
+                                             m_AdvancedRightLayout.GetDividerHeight() +
+                                             m_AdvancedRightLayout.GetGapHeight() );
     m_AdvancedRightLayout.AddY( m_FlowCondLayout.GetH() );
+    m_AdvancedRightLayout.AddYGap();
 
     m_FlowCondLayout.AddDividerBox( "Advanced Flow Conditions" );
     m_FlowCondLayout.AddSlider( m_VinfSlider, "Vinf", 100, "%7.2f" );
@@ -563,9 +566,12 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_FlowCondLayout.AddSlider( m_RhoSlider, "Rho", 1, "%2.5g" );
 
+    int CpBrowserHeight = 75;
     m_AdvancedRightLayout.AddSubGroupLayout( m_CpSlicerLayout,
                                              m_AdvancedRightLayout.GetW(),
-                                             10 * m_AdvancedRightLayout.GetStdHeight() );
+                                             2 * m_AdvancedRightLayout.GetStdHeight() +
+                                             m_AdvancedRightLayout.GetDividerHeight() +
+                                             CpBrowserHeight );
     m_AdvancedRightLayout.AddY( m_CpSlicerLayout.GetH() );
 
     m_CpSlicerLayout.AddDividerBox( "Slicer" );
@@ -586,7 +592,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Last column width must be 0
     static int cp_col_widths[] = { ( m_CpSlicerLayout.GetW() / 3 ) + 10, m_CpSlicerLayout.GetW() / 3, ( m_CpSlicerLayout.GetW() / 3 ) + 10, 0 }; // widths for each column
 
-    int CpBrowserHeight = 75;
     m_CpSliceBrowser = m_CpSlicerLayout.AddColResizeBrowser( cp_col_widths, 3, CpBrowserHeight );
     m_CpSliceBrowser->callback( staticScreenCB, this );
 
