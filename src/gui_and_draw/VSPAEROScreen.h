@@ -135,6 +135,7 @@ protected:
     SliderAdjRangeInput m_CullFracSlider;
     ToggleButton m_CullFracButton;
     ToggleButton m_ContinueCoPlanarWakesButton;
+    ToggleButton m_FindBodyWakesButton;
     TriggerButton m_PreviewVSPAEROButton;
 
     // Ref Length Layout

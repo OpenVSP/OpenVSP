@@ -109,7 +109,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Case Setup Layout
     m_LeftColumnLayout.AddSubGroupLayout( m_CaseSetupLayout,
         m_LeftColumnLayout.GetW(),
-        10 * m_CaseSetupLayout.GetStdHeight() +
+        11 * m_CaseSetupLayout.GetStdHeight() +
         2 * m_CaseSetupLayout.GetDividerHeight() +
         2 * m_CaseSetupLayout.GetGapHeight()
     );
@@ -214,7 +214,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.AddSlider( m_NRefCounter, "Num Ref.", 10, "%3.0f" );
 
     m_CaseSetupLayout.AddButton( m_ContinueCoPlanarWakesButton, "Continue CoPlanar Wakes" );
-
+    m_CaseSetupLayout.AddButton( m_FindBodyWakesButton, "Find Body Wakes" );
 
 
     m_LeftColumnLayout.AddYGap();
@@ -1564,6 +1564,7 @@ void VSPAEROScreen::UpdateCaseSetup()
     m_CullFracSlider.Update( VSPAEROMgr.m_CullFrac.GetID() );
     m_CullFracButton.Update( VSPAEROMgr.m_CullFracFlag.GetID() );
     m_ContinueCoPlanarWakesButton.Update( VSPAEROMgr.m_ContinueCoPlanarWakesFlag.GetID() );
+    m_FindBodyWakesButton.Update( VSPAEROMgr.m_FindBodyWakesFlag.GetID() );
 
     if ( VSPAEROMgr.m_ThinGeomSet() == vsp::SET_NONE )
     {
