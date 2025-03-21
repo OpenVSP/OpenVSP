@@ -881,7 +881,7 @@ void RoutingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         m_ActivePointDO.m_GeomID = "AcRte_" + m_ID;;
         m_ActivePointDO.m_PntVec.push_back( m_RoutingPointVec[m_ActivePointIndex]->GetPt() );
-        m_ActivePointDO.m_Visible = !m_Picking && GetSetFlag( vsp::SET_SHOWN );
+        m_ActivePointDO.m_Visible = !m_Picking && m_Vehicle->IsGeomActive( m_ID );
         draw_obj_vec.push_back( &m_ActivePointDO );
     }
 }
