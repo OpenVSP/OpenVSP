@@ -531,6 +531,9 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Name = "Routing";
     m_Type.m_Type = ROUTING_GEOM_TYPE;
 
+    m_Length.Init( "Length", "Results", this, 0, 0, 1e12 );
+    m_Length.SetDescript( "Length of route" );
+
     m_Picking = false;
     m_ActivePointIndex = -1;
 
@@ -771,10 +774,28 @@ void RoutingGeom::UpdateSurf()
 {
     DisableParms();
 
+    vector < vec3d > pts;
+    pts.reserve( m_RoutingPointVec.size() );
     for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
     {
         m_RoutingPointVec[i]->Update();
+
+        if ( m_RoutingPointVec[i]->IsPlaced() )
+        {
+            pts.push_back( m_RoutingPointVec[i]->GetPt() );
+        }
     }
+
+    double len = 0;
+    if ( pts.size() >= 2 )
+    {
+        for ( int i = 0; i < pts.size() - 1; i++ )
+        {
+            len += dist( pts[ i ], pts[ i + 1 ] );
+        }
+    }
+
+    m_Length = len;
 }
 
 

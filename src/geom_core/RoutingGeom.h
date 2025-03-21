@@ -120,6 +120,8 @@ public:
     int m_ActivePointIndex;
     bool m_Picking;
 
+    Parm m_Length;
+
 protected:
 
     virtual void UpdateSurf();
