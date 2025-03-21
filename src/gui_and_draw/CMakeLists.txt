@@ -104,6 +104,7 @@ SubGLWindow.cpp
 SurfaceIntersectionScreen.cpp
 SVGOptionsScreen.cpp
 TreeColumnWidget.cpp
+TreeIconWidget.cpp
 CustomGeomExportScreen.cpp
 UserParmScreen.cpp
 VarPresetEditorScreen.cpp
@@ -191,6 +192,7 @@ SubGLWindow.h
 SurfaceIntersectionScreen.h
 SVGOptionsScreen.h
 TreeColumnWidget.h
+TreeIconWidget.h
 CustomGeomExportScreen.h
 UserParmScreen.h
 VarPresetEditorScreen.h

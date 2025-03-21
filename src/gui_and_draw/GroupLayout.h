@@ -23,6 +23,7 @@
 #include "GuiDevice.h"
 #include "SpreadSheetWidget.h"
 #include "TreeColumnWidget.h"
+#include "TreeIconWidget.h"
 
 #include <vector>
 #include <string>
@@ -176,6 +177,8 @@ public:
     Fl_Text_Display* AddFlTextDisplay( int height );
     Fl_Tree* AddFlTree( int height, bool resizable = false );
     TreeWithColumns* AddTreeWithColumns( int height, bool resizable = false );
+    TreeWithIcons* AddTreeWithIcons( int height, bool resizable = false );
+
     Fl_Scroll* AddFlScroll( int height );
     Fl_Sys_Menu_Bar* AddFlMenuBar( int height );
 

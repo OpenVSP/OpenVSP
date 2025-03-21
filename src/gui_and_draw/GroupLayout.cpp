@@ -1871,6 +1871,23 @@ TreeWithColumns* GroupLayout::AddTreeWithColumns( int height, bool resizable )
     return tree;
 }
 
+TreeWithIcons* GroupLayout::AddTreeWithIcons( int height, bool resizable )
+{
+    assert( m_Group && m_Screen );
+
+    TreeWithIcons* tree = new TreeWithIcons(m_X,m_Y,m_W,height,"");
+
+    m_Group->add( tree );
+    if (resizable){
+        m_Group->resizable( tree );
+    }
+
+    AddY( height );
+    NewLineX();
+
+    return tree;
+}
+
 //==== Add Fl Scroll panel ====//
 Fl_Scroll* GroupLayout::AddFlScroll( int height )
 {
