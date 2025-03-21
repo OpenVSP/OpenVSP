@@ -106,6 +106,9 @@ protected:
     SliderAdjRange2Input m_RoutePtDeltaYSlider;
     SliderAdjRange2Input m_RoutePtDeltaZSlider;
 
+
+    Output m_LengthOutput;
+
 private:
 
     bool m_SelectionFlag;
