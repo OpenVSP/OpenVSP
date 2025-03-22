@@ -537,7 +537,7 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Picking = false;
     m_ActivePointIndex = -1;
 
-    m_RouteLineDO.m_Type = DrawObj::VSP_LINE_STRIP;
+    m_RouteLineDO.m_Type = DrawObj::VSP_LINES;
     m_RouteLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_RouteLineDO.m_LineWidth = 2.0;
     m_RouteLineDO.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
@@ -772,9 +772,10 @@ bool RoutingGeom::IsPlaced( int index ) const
 
 void RoutingGeom::UpdateSurf()
 {
-    DisableParms();
-
-    vector < vec3d > pts;
+    m_MainRouteTessVec.clear();
+    m_MainRouteTessVec.resize( 1 );
+    m_MainRouteTessVec[0].m_ptline.resize( 1 );
+    vector < vec3d > &pts = m_MainRouteTessVec[0].m_ptline[0];
     pts.reserve( m_RoutingPointVec.size() );
     for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
     {
@@ -802,9 +803,10 @@ void RoutingGeom::UpdateSurf()
 void RoutingGeom::DisableParms()
 {
     //==== Force Attached So Clearance Moves With Parent =====//
-    m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
-    m_RotAttachFlag = vsp::ATTACH_ROT_COMP;
+    m_TransAttachFlag = vsp::ATTACH_TRANS_NONE;
+    m_RotAttachFlag = vsp::ATTACH_ROT_NONE;
 
+    m_AbsRelFlag.Deactivate();
     m_TransAttachFlag.Deactivate();
     m_RotAttachFlag.Deactivate();
 
@@ -816,6 +818,24 @@ void RoutingGeom::DisableParms()
     m_LLoc.Deactivate();
     m_MLoc.Deactivate();
     m_NLoc.Deactivate();
+
+    m_XLoc.Deactivate();
+    m_YLoc.Deactivate();
+    m_ZLoc.Deactivate();
+
+    m_XRelLoc.Deactivate();
+    m_YRelLoc.Deactivate();
+    m_ZRelLoc.Deactivate();
+
+    m_XRot.Deactivate();
+    m_YRot.Deactivate();
+    m_ZRot.Deactivate();
+
+    m_XRelRot.Deactivate();
+    m_YRelRot.Deactivate();
+    m_ZRelRot.Deactivate();
+
+    m_Origin.Deactivate();
 
     // //==== Copy Cap Options ====//
     // m_CapUMinOption = geom_ptr->m_CapUMinOption();
@@ -846,11 +866,11 @@ void RoutingGeom::DisableParms()
     // m_SymAxFlag = geom_ptr->m_SymAxFlag();
     // m_SymRotN = geom_ptr->m_SymRotN();
 
-    m_SymAncestor.Deactivate();
-    m_SymAncestOriginFlag.Deactivate();
-    m_SymPlanFlag.Deactivate();
-    m_SymAxFlag.Deactivate();
-    m_SymRotN.Deactivate();
+    // m_SymAncestor.Deactivate();
+    // m_SymAncestOriginFlag.Deactivate();
+    // m_SymPlanFlag.Deactivate();
+    // m_SymAxFlag.Deactivate();
+    // m_SymRotN.Deactivate();
 }
 
 void RoutingGeom::UpdateBBox()
@@ -858,10 +878,15 @@ void RoutingGeom::UpdateBBox()
     //==== Load Bounding Box ====//
     BndBox new_box;
 
-    int npt = m_RoutingPointVec.size();
-    for ( int i = 0; i < npt; i++ )
+    for ( int i = 0 ; i < m_RouteTessVec.size() ; i++ )
     {
-        new_box.Update( m_RoutingPointVec[i]->GetPt() );
+        for( int j = 0; j < m_RouteTessVec[i].m_ptline.size(); j++ )
+        {
+            for ( int k = 0; k < m_RouteTessVec[i].m_ptline[j].size(); k++ )
+            {
+                new_box.Update( m_RouteTessVec[i].m_ptline[j][k] );
+            }
+        }
     }
 
     if ( new_box != m_BBox )
@@ -879,6 +904,21 @@ void RoutingGeom::UpdateBBox()
     }
 }
 
+void RoutingGeom::UpdateTessVec()
+{
+    Geom::UpdateTessVec();
+    ApplySymm( m_MainRouteTessVec, m_RouteTessVec );
+}
+
+void RoutingGeom::UpdateXForm()
+{
+    Geom::UpdateXForm();
+
+
+    DisableParms();
+}
+
+
 void RoutingGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
@@ -892,13 +932,24 @@ void RoutingGeom::UpdateDrawObj()
     m_RouteLineDO.m_GeomID = "Rte_" + m_ID;
     m_DynamicRouteDO.m_GeomID = "DyRte_" + m_ID;
 
-    int npt = m_RoutingPointVec.size();
-    m_RouteLineDO.m_PntVec.reserve( npt );
-    m_DynamicRouteDO.m_PntVec.reserve( npt );
+    for ( int i = 0 ; i < m_RouteTessVec.size() ; i++ )
+    {
+        for( int j = 0; j < m_RouteTessVec[i].m_ptline.size(); j++ )
+        {
+            for ( int k = 0; k < (int) m_RouteTessVec[i].m_ptline[j].size() - 1; k++ )
+            {
+                m_RouteLineDO.m_PntVec.push_back( m_RouteTessVec[i].m_ptline[j][ k ] );
+                m_RouteLineDO.m_PntVec.push_back( m_RouteTessVec[i].m_ptline[j][ k + 1 ] );
+            }
+        }
+    }
 
+
+    // Dynamic points need to include points currently being placed.
+    int npt = m_RoutingPointVec.size();
+    m_DynamicRouteDO.m_PntVec.reserve( npt );
     for ( int i = 0; i < npt; i++ )
     {
-        m_RouteLineDO.m_PntVec.push_back( m_RoutingPointVec[i]->GetPt() );
         m_DynamicRouteDO.m_PntVec.push_back( m_RoutingPointVec[i]->GetPt() );
     }
 }
@@ -917,10 +968,10 @@ void RoutingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     m_ActivePointDO.m_PntVec.clear();
     m_ActivePointDO.m_GeomChanged = true;
-    if ( m_ActivePointIndex >= 0 && m_ActivePointIndex < m_RoutingPointVec.size() )
+    if ( m_ActivePointIndex >= 0 && m_ActivePointIndex < m_MainRouteTessVec[0].m_ptline[0].size() )
     {
         m_ActivePointDO.m_GeomID = "AcRte_" + m_ID;;
-        m_ActivePointDO.m_PntVec.push_back( m_RoutingPointVec[m_ActivePointIndex]->GetPt() );
+        m_ActivePointDO.m_PntVec.push_back( m_MainRouteTessVec[0].m_ptline[0][ m_ActivePointIndex ] );
         m_ActivePointDO.m_Visible = !m_Picking && m_Vehicle->IsGeomActive( m_ID );
         draw_obj_vec.push_back( &m_ActivePointDO );
     }

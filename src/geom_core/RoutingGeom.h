@@ -129,6 +129,8 @@ protected:
 
     virtual void UpdateDrawObj();
     virtual void UpdateBBox();
+    virtual void UpdateTessVec();
+    virtual void UpdateXForm();
 
     vector < RoutingPoint* > m_RoutingPointVec;
 
@@ -141,6 +143,8 @@ protected:
     std::size_t m_ParentHash;
     vector < string > m_ParentVec;
 
+    vector <SimpleFeatureTess> m_MainRouteTessVec;
+    vector <SimpleFeatureTess> m_RouteTessVec;
 };
 
 #endif // !defined(VSPROUTINGGEOM__INCLUDED_)

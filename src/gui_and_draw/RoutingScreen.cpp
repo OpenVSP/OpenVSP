@@ -257,9 +257,6 @@ bool RoutingScreen::Update()
 
     GeomScreen::Update();
 
-    m_SymmLayout.GetGroup()->deactivate();
-    m_AttachLayout.GetGroup()->deactivate();
-
     //==== Update Clearance Specific Parms ====//
     RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( geom_ptr );
     assert( routing_ptr );
