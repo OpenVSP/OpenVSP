@@ -1149,10 +1149,10 @@ bool GeomScreen::Update()
     for( int i = 0; i < (int) ancestorNames.size(); i++ )
     {
         snprintf( str, sizeof( str ),  "%3d %s", i, ancestorNames[i].c_str() );
-        m_SymAncestorChoice.AddItem( str );
+        m_SymAncestorChoice.AddItem( str, i );
     }
     m_SymAncestorChoice.UpdateItems();
-    m_SymAncestorChoice.SetVal( geom_ptr->m_SymAncestor() );
+    m_SymAncestorChoice.Update( geom_ptr->m_SymAncestor.GetID() );
 
     m_SymAncestorOriginObjectToggle.Update( geom_ptr->m_SymAncestOriginFlag.GetID() );
     m_XYSymToggle.Update( geom_ptr->m_SymPlanFlag.GetID() );
@@ -1649,10 +1649,6 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             geom_ptr->SetMaterialToDefault();
         }
-    }
-    else if ( device == &m_SymAncestorChoice )
-    {
-        geom_ptr->m_SymAncestor.SetFromDevice( m_SymAncestorChoice.GetVal() );
     }
     else if ( device == &m_CustomMaterialButton )
     {
