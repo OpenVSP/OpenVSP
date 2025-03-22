@@ -108,6 +108,7 @@ protected:
 
 
     Output m_LengthOutput;
+    Output m_SymmLengthOutput;
 
 private:
 

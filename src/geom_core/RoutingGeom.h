@@ -121,6 +121,7 @@ public:
     bool m_Picking;
 
     Parm m_Length;
+    Parm m_SymmLength;
 
 protected:
 

@@ -12,7 +12,7 @@
 #include "APIDefines.h"
 
 //==== Constructor ====//
-RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 730, "Routing" )
+RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 750, "Routing" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -225,6 +225,7 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 730, "Rou
     m_DesignLayout.AddDividerBox( "Results" );
 
     m_DesignLayout.AddOutput( m_LengthOutput, "Length", " %7.6f" );
+    m_DesignLayout.AddOutput( m_SymmLengthOutput, "Symm Length", " %7.6f" );
 
 
     m_SelectionFlag = false;
@@ -267,6 +268,7 @@ bool RoutingScreen::Update()
         UpdateBrowser();
 
         m_LengthOutput.Update( routing_ptr->m_Length.GetID() );
+        m_SymmLengthOutput.Update( routing_ptr->m_SymmLength.GetID() );
 
         RoutingPoint* rpt = routing_ptr->GetPt( routing_ptr->m_ActivePointIndex );;
 

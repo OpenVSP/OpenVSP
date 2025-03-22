@@ -532,7 +532,10 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Type = ROUTING_GEOM_TYPE;
 
     m_Length.Init( "Length", "Results", this, 0, 0, 1e12 );
-    m_Length.SetDescript( "Length of route" );
+    m_Length.SetDescript( "Length of base route" );
+
+    m_SymmLength.Init( "SymmLength", "Results", this, 0, 0, 1e12 );
+    m_SymmLength.SetDescript( "Combined length of all copies of route due to symmetry" );
 
     m_Picking = false;
     m_ActivePointIndex = -1;
@@ -797,6 +800,11 @@ void RoutingGeom::UpdateSurf()
     }
 
     m_Length = len;
+
+    // m_Length changes with m_SurfDirty -- updated here in UpdateSurf()
+    // GetNumSymmCopies() changes with m_XFormDirty -- updated in UpdateXForm()
+    // Duplicate this calculation in UpdateXForm() to ensure correctness.
+    m_SymmLength = m_Length() * GetNumSymmCopies();
 }
 
 
@@ -914,6 +922,10 @@ void RoutingGeom::UpdateXForm()
 {
     Geom::UpdateXForm();
 
+    // m_Length changes with m_SurfDirty -- updated in UpdateSurf()
+    // GetNumSymmCopies() changes with m_XFormDirty -- updated here in UpdateXForm()
+    // Duplicate this calculation in UpdateSurf() to ensure correctness.
+    m_SymmLength = m_Length() * GetNumSymmCopies();
 
     DisableParms();
 }
