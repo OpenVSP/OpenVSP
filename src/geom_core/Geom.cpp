@@ -2020,6 +2020,40 @@ void Geom::UpdateSurfVec()
     ApplySymm( m_MainSurfVec, m_SurfVec );
 }
 
+// This routine performs a recursive search for grandchildren of a Geom that are symmetrical about the grandparent.
+// It will traverse down the full ancestry tree of the grandparent.  It only runs when the grandparent's XForm was
+// updated.  When it finds a match, it will mark XFormDirty in the descendent and trigger an update.
+void Geom::UpdateGrandChildren( Geom* grandparent, bool fullupdate )
+{
+    if ( grandparent )
+    {
+        // Loop over all children of this generation.
+        for ( int i = 0 ; i < (int)m_ChildIDVec.size() ; i++ )
+        {
+            Geom* child = m_Vehicle->FindGeom( m_ChildIDVec[i] );
+            // Child uses symmetry of some sort
+            if ( child && child->GetSymFlag() != 0 )
+            {
+                // Symmetry is about the grandparent
+                string ancestorid = child->GetAncestorID( child->m_SymAncestor() - 1 );
+                if ( grandparent->GetID() == ancestorid )
+                {
+                    child->m_XFormDirty = true;
+
+                    // Ignore the abs location values and only use rel values for children so a child
+                    // with abs button selected stays attached to parent if the parent moves
+                    child->m_ignoreAbsFlag = true;
+                    child->Update( fullupdate );
+                    child->m_ignoreAbsFlag = false;
+                }
+
+                // Recurse to child's children.
+                child->UpdateGrandChildren( grandparent, fullupdate );
+            }
+        }
+    }
+}
+
 //==== Check If Children Exist and Update ====//
 void Geom::UpdateChildren( bool fullupdate )
 {
@@ -2075,6 +2109,11 @@ void Geom::UpdateChildren( bool fullupdate )
 
     // Update Children Vec
     m_ChildIDVec = updated_child_vec;
+
+    if ( m_UpdateXForm )
+    {
+        UpdateGrandChildren( this, fullupdate );
+    }
 }
 
 void Geom::UpdateBBox()
