@@ -112,6 +112,9 @@ public:
     virtual RoutingPoint * GetPt( int index );
     virtual vector < RoutingPoint* > GetAllPt()      { return m_RoutingPointVec; };
 
+    virtual string GetPtID( int index ) const;
+    virtual vector < string > GetAllPtIds() const;
+
     void SetPlaced( int index, bool p );
     bool IsPlaced( int index ) const;
 

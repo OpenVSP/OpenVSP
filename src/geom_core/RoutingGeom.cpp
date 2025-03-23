@@ -756,6 +756,26 @@ RoutingPoint * RoutingGeom::GetPt( int index )
     return nullptr;
 }
 
+string RoutingGeom::GetPtID( int index ) const
+{
+    if ( index >= 0 && index < m_RoutingPointVec.size() )
+    {
+        return m_RoutingPointVec[ index ]->GetID();
+    }
+    return string();
+}
+
+vector < string > RoutingGeom::GetAllPtIds() const
+{
+    vector < string > ret;
+    ret.reserve( m_RoutingPointVec.size() );
+    for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
+    {
+        ret.push_back( m_RoutingPointVec[ i ]->GetID() );
+    }
+    return ret;
+}
+
 void RoutingGeom::SetPlaced( int index, bool p )
 {
     if ( index >= 0 && index < m_RoutingPointVec.size() )
