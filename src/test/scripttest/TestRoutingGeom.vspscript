@@ -1,0 +1,85 @@
+int main()
+{
+    int failure = 0;
+
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+    // string u1 = GetParm( rpt1, "U", "RoutePt");       // U,W=0.5 is default.
+    // SetParmVal(u1, 0.5);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+
+    Update();
+    if ( GetNumRoutingPts(routing_geom) != 3 ) failure++;
+    if ( !closeTo( GetParmVal(routing_geom, "Length", "Results"), 10.85254706406647, 1e-6) ) failure++;
+
+    string rptPre2 = InsertRoutingPt(routing_geom, 2, pod2, 0);
+    string uPre2 = GetParm( rptPre2, "U", "RoutePt");
+    SetParmVal(uPre2, 0.);
+    if ( GetNumRoutingPts(routing_geom) != 4 ) failure++;
+
+    Update();
+    if ( !closeTo( GetParmVal(routing_geom, "Length", "Results"), 20.668561209359325, 1e-6) ) failure++;
+
+    array<string> @rpts = GetAllRoutingPtIds(routing_geom);
+    if ( rpts[0] != rpt0 ) failure++;
+    if ( rpts[1] != rpt1 ) failure++;
+    if ( rpts[2] != rptPre2 ) failure++;
+    if ( rpts[3] != rpt2 ) failure++;
+
+    int newindx = MoveRoutingPt( routing_geom, 1, REORDER_MOVE_DOWN );
+    if ( newindx != 2 ) failure++;
+    if ( GetRoutingPtID(routing_geom, newindx) != rpt1 ) failure++;
+
+    rpts = GetAllRoutingPtIds(routing_geom);
+    if ( rpts[0] != rpt0 ) failure++;
+    if ( rpts[1] != rptPre2 ) failure++;
+    if ( rpts[2] != rpt1 ) failure++;
+    if ( rpts[3] != rpt2 ) failure++;
+
+    Update();
+    if ( !closeTo( GetParmVal(routing_geom, "Length", "Results"), 12.470522182173754, 1e-6) ) failure++;
+
+    DelRoutingPt( routing_geom, 1 );
+    if ( GetNumRoutingPts(routing_geom) != 3 ) failure++;
+    Update();
+    if ( !closeTo( GetParmVal(routing_geom, "Length", "Results"), 10.85254706406647, 1e-6) ) failure++;
+
+    if ( GetRoutingPtParentID(rpt1) != pod2 ) failure++;
+
+    SetRoutingPtParentID(rpt1, pod1);
+    Update();
+
+    if ( !closeTo( GetParmVal(routing_geom, "Length", "Results"), 10.088497300281038, 1e-6) ) failure++;
+
+    DelAllRoutingPt( routing_geom );
+    if ( GetNumRoutingPts(routing_geom) != 0 ) failure++;
+    Update();
+    if ( !closeTo( GetParmVal(routing_geom, "Length", "Results"), 0.0, 1e-6) ) failure++;
+
+    // WriteVSPFile("routingtest.vsp3");
+    // print( GetParmVal(routing_geom, "Length", "Results") );
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+        failure++;
+    }
+
+    return failure;
+}

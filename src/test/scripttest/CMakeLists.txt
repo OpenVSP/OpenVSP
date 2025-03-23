@@ -9,3 +9,4 @@ ADD_TEST( NAME TestChordAdjust
           COMMAND ${VSPSCRIPT} ${CMAKE_CURRENT_SOURCE_DIR}/TestChordAdjust/TestChordAdjust.vspscript
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestChordAdjust/ )
 
+ADD_TEST( RoutingGeom ${VSPSCRIPT} ${CMAKE_CURRENT_SOURCE_DIR}/TestRoutingGeom.vspscript )
