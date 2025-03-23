@@ -4188,6 +4188,38 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void SetBackground3DAbsolutePath( const string & in id, const string & in fname )", asFUNCTION( vsp::SetBackground3DAbsolutePath ), asCALL_CDECL );
     assert( r >= 0 );
 
+    //==== RoutingGeom Functions ====//
+
+    r = se->RegisterGlobalFunction( "int GetNumRoutingPts( const string & in routing_id )", asFUNCTION( vsp::GetNumRoutingPts ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string AddRoutingPt( const string & in routing_id, const string & in geom_id, int surf_index )", asFUNCTION( vsp::AddRoutingPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string InsertRoutingPt( const string & in routing_id, int index, const string & in geom_id, int surf_index )", asFUNCTION( vsp::InsertRoutingPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelRoutingPt( const string & in routing_id, int index  )", asFUNCTION( vsp::DelRoutingPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelAllRoutingPt( const string & in routing_id )", asFUNCTION( vsp::DelAllRoutingPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int MoveRoutingPt( const string & in routing_id, int index, int reorder_type )", asFUNCTION( vsp::MoveRoutingPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetRoutingPtID( const string & in routing_id, int index )", asFUNCTION( vsp::GetRoutingPtID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllRoutingPtIds( const string & in routing_id )", asMETHOD( ScriptMgrSingleton, GetAllRoutingPtIds ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetRoutingPtParentID( const string & in pt_id )", asFUNCTION( vsp::GetRoutingPtParentID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetRoutingPtParentID( const string & in pt_id, const string & in parent_id )", asFUNCTION( vsp::SetRoutingPtParentID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     //==== BOR Functions ====//
 
     r = se->RegisterGlobalFunction( "void ChangeBORXSecShape( const string & in geom_id, int type )", asFUNCTION( vsp::ChangeBORXSecShape ), asCALL_CDECL );
@@ -5672,6 +5704,12 @@ CScriptArray* ScriptMgrSingleton::GetLowerCSTCoefs( const string & xsec_id )
 {
     m_ProxyDoubleArray = vsp::GetLowerCSTCoefs( xsec_id );
     return GetProxyDoubleArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAllRoutingPtIds( const string &routing_id )
+{
+    m_ProxyStringArray = vsp::GetAllRoutingPtIds( routing_id );
+    return GetProxyStringArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetBORUpperCSTCoefs( const string & bor_id )

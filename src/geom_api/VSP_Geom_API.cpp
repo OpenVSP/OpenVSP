@@ -27,6 +27,7 @@
 #include "ParasiteDragMgr.h"
 #include "ParmMgr.h"
 #include "PropGeom.h"
+#include "RoutingGeom.h"
 #include "StructureMgr.h"
 #include "SubSurfaceMgr.h"
 #include "SurfaceIntersectionMgr.h"
@@ -5626,6 +5627,303 @@ void SetBackground3DAbsolutePath( const string &id, const string &fname )
 
     ErrorMgr.NoError();
     Background3DMgr.SetBackground3DAbsolutePath( id, fname );
+}
+
+//===================================================================//
+//==============      RoutingGeom Functions        ==================//
+//===================================================================//
+
+int GetNumRoutingPts( const string &routing_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( routing_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumRoutingPts::Can't Find Geom " + routing_id );
+        return -1;
+    }
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( geom_ptr );
+
+    if ( !routing_ptr || geom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetNumRoutingPts::Geom " + routing_id + " is not a RoutingGeom" );
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return routing_ptr->GetNumPt();
+}
+
+string AddRoutingPt( const string &routing_id, const string &geom_id, int surf_index )
+{
+    string ret_id;
+
+    Vehicle* veh = GetVehicle();
+    Geom* rgeom_ptr = veh->FindGeom( routing_id );
+    if ( !rgeom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddRoutingPt::Can't Find Geom " + routing_id );
+        return ret_id;
+    }
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+
+    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "AddRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
+        return ret_id;
+    }
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddRoutingPt::Can't Find Geom " + geom_id );
+        return ret_id;
+    }
+
+    RoutingPoint *rpt = routing_ptr->AddPt();
+    if ( !rpt )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddRoutingPt::Could not add routing point." );
+        return ret_id;
+    }
+
+    rpt->SetParentID( geom_id );
+    rpt->m_SurfIndx.Set( surf_index );
+
+    ret_id = rpt->GetID();
+
+    ErrorMgr.NoError();
+    return ret_id;
+}
+
+string InsertRoutingPt( const string &routing_id, int index, const string &geom_id, int surf_index )
+{
+    string ret_id;
+
+    Vehicle* veh = GetVehicle();
+    Geom* rgeom_ptr = veh->FindGeom( routing_id );
+    if ( !rgeom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertRoutingPt::Can't Find Geom " + routing_id );
+        return ret_id;
+    }
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+
+    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "InsertRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
+        return ret_id;
+    }
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertRoutingPt::Can't Find Geom " + geom_id );
+        return ret_id;
+    }
+
+    if ( index < 0 || index > routing_ptr->GetNumPt() ) // Note index can == size() for Insert
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "InsertRoutingPt::index " + to_string( index ) + " is out of range" );
+        return ret_id;
+    }
+
+    RoutingPoint *rpt = routing_ptr->InsertPt( index );
+    if ( !rpt )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertRoutingPt::Could not insert routing point." );
+        return ret_id;
+    }
+
+    rpt->SetParentID( geom_id );
+    rpt->m_SurfIndx.Set( surf_index );
+
+    ret_id = rpt->GetID();
+
+    ErrorMgr.NoError();
+    return ret_id;
+}
+
+void DelRoutingPt( const string &routing_id, int index )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* rgeom_ptr = veh->FindGeom( routing_id );
+    if ( !rgeom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelRoutingPt::Can't Find Geom " + routing_id );
+        return;
+    }
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+
+    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "DelRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
+        return;
+    }
+
+    if ( index < 0 || index >= routing_ptr->GetNumPt() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelRoutingPt::index " + to_string( index ) + " is out of range" );
+        return;
+    }
+
+    routing_ptr->DelPt( index );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+void DelAllRoutingPt( const string &routing_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* rgeom_ptr = veh->FindGeom( routing_id );
+    if ( !rgeom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelAllRoutingPt::Can't Find Geom " + routing_id );
+        return;
+    }
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+
+    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "DelAllRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
+        return;
+    }
+
+    routing_ptr->DelAllPt();
+
+    ErrorMgr.NoError();
+    return;
+}
+
+int MoveRoutingPt( const string &routing_id, int index, int reorder_type )
+{
+    int newindex = index;
+    Vehicle* veh = GetVehicle();
+    Geom* rgeom_ptr = veh->FindGeom( routing_id );
+    if ( !rgeom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "MoveRoutingPt::Can't Find Geom " + routing_id );
+        return newindex;
+    }
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+
+    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "MoveRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
+        return newindex;
+    }
+
+    if ( index < 0 || index >= routing_ptr->GetNumPt() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "MoveRoutingPt::index " + to_string( index ) + " is out of range" );
+        return newindex;
+    }
+
+    newindex = routing_ptr->MovePt( index, reorder_type );
+
+    ErrorMgr.NoError();
+    return newindex;
+}
+
+string GetRoutingPtID( const string &routing_id, int index )
+{
+    string ret_id;
+
+    Vehicle* veh = GetVehicle();
+    Geom* rgeom_ptr = veh->FindGeom( routing_id );
+    if ( !rgeom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetRoutingPtID::Can't Find Geom " + routing_id );
+        return ret_id;
+    }
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+
+    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetRoutingPtID::Geom " + routing_id + " is not a RoutingGeom" );
+        return ret_id;
+    }
+
+    if ( index < 0 || index >= routing_ptr->GetNumPt() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetRoutingPtID::index " + to_string( index ) + " is out of range" );
+        return ret_id;
+    }
+
+    ret_id = routing_ptr->GetPtID( index );
+
+    ErrorMgr.NoError();
+    return ret_id;
+}
+
+vector < string > GetAllRoutingPtIds( const string &routing_id )
+{
+    vector < string > ret_vec;
+
+    Vehicle* veh = GetVehicle();
+    Geom* rgeom_ptr = veh->FindGeom( routing_id );
+    if ( !rgeom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAllRoutingPtIds::Can't Find Geom " + routing_id );
+        return ret_vec;
+    }
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+
+    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetAllRoutingPtIds::Geom " + routing_id + " is not a RoutingGeom" );
+        return ret_vec;
+    }
+
+    ret_vec = routing_ptr->GetAllPtIds();
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
+string GetRoutingPtParentID( const string & pt_id )
+{
+    string ret_id;
+
+    Vehicle* veh = GetVehicle();
+    ParmContainer *pc = ParmMgr.FindParmContainer( pt_id );
+    RoutingPoint *rpt = dynamic_cast< RoutingPoint* > ( pc );
+    if ( !rpt )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetRoutingPtParentID::Could not find routing point." );
+        return ret_id;
+    }
+
+    ret_id = rpt->GetParentID();
+
+    ErrorMgr.NoError();
+    return ret_id;
+}
+
+void SetRoutingPtParentID( const string & pt_id, const string &parent_id )
+{
+    Vehicle* veh = GetVehicle();
+    ParmContainer *pc = ParmMgr.FindParmContainer( pt_id );
+    RoutingPoint *rpt = dynamic_cast< RoutingPoint* > ( pc );
+    if ( !rpt )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetRoutingPtParentID::Could not find routing point." );
+        return;
+    }
+
+    rpt->SetParentID( parent_id );
+
+    ErrorMgr.NoError();
+    return;
 }
 
 //===================================================================//

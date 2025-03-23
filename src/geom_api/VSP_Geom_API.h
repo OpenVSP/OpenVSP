@@ -12471,6 +12471,600 @@ extern void SetBackground3DRelativePath( const string &id, const string &fname )
 
 extern void SetBackground3DAbsolutePath( const string &id, const string &fname );
 
+
+//======================== RoutingGeom Functions ======================//
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Get the number of routing points in a RoutingGeom
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+
+    int npt = GetNumRoutingPts(routing_geom);
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = vsp.AddGeom('POD', '')
+
+    pod2 = vsp.AddGeom('POD', '')
+    ypod2 = vsp.GetParm(pod2, 'Y_Rel_Location', 'XForm')
+    vsp.SetParmVal(ypod2, 2.0)
+
+    routing_geom = vsp.AddGeom('ROUTING', '')
+
+    rpt0 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u0 = vsp.GetParm( rpt0, 'U', 'RoutePt')
+    vsp.SetParmVal(u0, 0.0)
+
+    rpt1 = vsp.AddRoutingPt(routing_geom, pod2, 0)
+
+    rpt2 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
+    vsp.SetParmVal(u2, 1.0)
+
+    npt = vsp.GetNumRoutingPts(routing_geom)
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelRoutingPt
+    \param [in] routing_id string RoutingGeom Geom ID
+    \return int Number of routing points in specified RoutingGeom
+*/
+
+extern int GetNumRoutingPts( const string &routing_id );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Add a routing point to a RoutingGeom.  The new point will be the last point in the route.  The new point will be
+    anchored to the specified geom and surface.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = vsp.AddGeom('POD', '')
+
+    pod2 = vsp.AddGeom('POD', '')
+    ypod2 = vsp.GetParm(pod2, 'Y_Rel_Location', 'XForm')
+    vsp.SetParmVal(ypod2, 2.0)
+
+    routing_geom = vsp.AddGeom('ROUTING', '')
+
+    rpt0 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u0 = vsp.GetParm( rpt0, 'U', 'RoutePt')
+    vsp.SetParmVal(u0, 0.0)
+
+    rpt1 = vsp.AddRoutingPt(routing_geom, pod2, 0)
+
+    rpt2 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
+    vsp.SetParmVal(u2, 1.0)
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelRoutingPt, InsertRoutingPt
+    \param [in] routing_id string RoutingGeom Geom ID
+    \param [in] geom_id string Geom ID of geom to anchor new routing point to
+    \param [in] surf_index int Index of surf to anchor new routing point to
+    \return string ParmContainer ID for the newly added routing point
+*/
+
+extern string AddRoutingPt( const string &routing_id, const string &geom_id, int surf_index );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Add a routing point to a RoutingGeom.  The new point will be inserted before the specified index.  The new point
+    will be anchored to the specified geom and surface.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+
+    int npt = GetNumRoutingPts(routing_geom);
+
+    string rptPre2 = InsertRoutingPt(routing_geom, 2, pod2, 0);
+    string uPre2 = GetParm( rptPre2, "U", "RoutePt");
+    SetParmVal(uPre2, 0.);
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = vsp.AddGeom('POD', '')
+
+    pod2 = vsp.AddGeom('POD', '')
+    ypod2 = vsp.GetParm(pod2, 'Y_Rel_Location', 'XForm')
+    vsp.SetParmVal(ypod2, 2.0)
+
+    routing_geom = vsp.AddGeom('ROUTING', '')
+
+    rpt0 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u0 = vsp.GetParm( rpt0, 'U', 'RoutePt')
+    vsp.SetParmVal(u0, 0.0)
+
+    rpt1 = vsp.AddRoutingPt(routing_geom, pod2, 0)
+
+    rpt2 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
+    vsp.SetParmVal(u2, 1.0)
+
+    npt = vsp.GetNumRoutingPts(routing_geom)
+    rptPre2 = vsp.InsertRoutingPt(routing_geom, 2, pod2, 0)
+    uPre2 = vsp.GetParm( rptPre2, 'U', 'RoutePt')
+    vsp.SetParmVal(uPre2, 0.)
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelRoutingPt
+    \param [in] routing_id string RoutingGeom Geom ID
+    \param [in] index int Index of routing point to insert new point before
+    \param [in] geom_id string Geom ID of geom to anchor new routing point to
+    \param [in] surf_index int Index of surf to anchor new routing point to
+    \return string ParmContainer ID for the newly added routing point
+*/
+
+extern string InsertRoutingPt( const string &routing_id, int index, const string &geom_id, int surf_index );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Delete a specified routing point from a RoutingGeom.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+
+    DelRoutingPt( routing_geom, 1 );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = vsp.AddGeom('POD', '')
+
+    pod2 = vsp.AddGeom('POD', '')
+    ypod2 = vsp.GetParm(pod2, 'Y_Rel_Location', 'XForm')
+    vsp.SetParmVal(ypod2, 2.0)
+
+    routing_geom = vsp.AddGeom('ROUTING', '')
+
+    rpt0 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u0 = vsp.GetParm( rpt0, 'U', 'RoutePt')
+    vsp.SetParmVal(u0, 0.0)
+
+    rpt1 = vsp.AddRoutingPt(routing_geom, pod2, 0)
+
+    rpt2 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
+    vsp.SetParmVal(u2, 1.0)
+
+    vsp.DelRoutingPt( routing_geom, 1 )
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelAllRoutingPt
+    \param [in] routing_id string RoutingGeom Geom ID
+    \param [in] index int Index of routing point to delete
+*/
+
+extern void DelRoutingPt( const string &routing_id, int index );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Delete all routing points from a RoutingGeom.
+    \forcpponly
+    \code{.cpp}
+
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+
+    DelAllRoutingPt( routing_geom );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = vsp.AddGeom('POD', '')
+
+    pod2 = vsp.AddGeom('POD', '')
+    ypod2 = vsp.GetParm(pod2, 'Y_Rel_Location', 'XForm')
+    vsp.SetParmVal(ypod2, 2.0)
+
+    routing_geom = vsp.AddGeom('ROUTING', '')
+
+    rpt0 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u0 = vsp.GetParm( rpt0, 'U', 'RoutePt')
+    vsp.SetParmVal(u0, 0.0)
+
+    rpt1 = vsp.AddRoutingPt(routing_geom, pod2, 0)
+
+    rpt2 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
+    vsp.SetParmVal(u2, 1.0)
+
+    vsp.DelAllRoutingPt( routing_geom )
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelRoutingPt
+    \param [in] routing_id string RoutingGeom Geom ID
+*/
+
+extern void DelAllRoutingPt( const string &routing_id );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Move a specified routing point within the route of a RoutingGeom.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+
+    int newindx = MoveRoutingPt( routing_geom, 1, REORDER_MOVE_DOWN );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = vsp.AddGeom('POD', '')
+
+    pod2 = vsp.AddGeom('POD', '')
+    ypod2 = vsp.GetParm(pod2, 'Y_Rel_Location', 'XForm')
+    vsp.SetParmVal(ypod2, 2.0)
+
+    routing_geom = vsp.AddGeom('ROUTING', '')
+
+    rpt0 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u0 = vsp.GetParm( rpt0, 'U', 'RoutePt')
+    vsp.SetParmVal(u0, 0.0)
+
+    rpt1 = vsp.AddRoutingPt(routing_geom, pod2, 0)
+
+    rpt2 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
+    vsp.SetParmVal(u2, 1.0)
+
+    newindx = vsp.MoveRoutingPt( routing_geom, 1, vsp.REORDER_MOVE_DOWN )
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelRoutingPt, REORDER_TYPE
+    \param [in] routing_id string RoutingGeom Geom ID
+    \param [in] index int Index of routing point to move
+    \param [in] reorder_type int Enum specifying reordering type (i.e. REORDER_MOVE_UP, REORDER_MOVE_DOWN, REORDER_MOVE_TOP, REORDER_MOVE_BOTTOM)
+*/
+
+extern int MoveRoutingPt( const string &routing_id, int index, int reorder_type );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Get the ParmContainer ID of a routing point within a RoutingGeom.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+
+    string rid = GetRoutingPtID(routing_geom, 2)
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = vsp.AddGeom('POD', '')
+
+    pod2 = vsp.AddGeom('POD', '')
+    ypod2 = vsp.GetParm(pod2, 'Y_Rel_Location', 'XForm')
+    vsp.SetParmVal(ypod2, 2.0)
+
+    routing_geom = vsp.AddGeom('ROUTING', '')
+
+    rpt0 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u0 = vsp.GetParm( rpt0, 'U', 'RoutePt')
+    vsp.SetParmVal(u0, 0.0)
+
+    rpt1 = vsp.AddRoutingPt(routing_geom, pod2, 0)
+
+    rpt2 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
+    vsp.SetParmVal(u2, 1.0)
+
+    rid = vsp.GetRoutingPtID(routing_geom, 2)
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelAllRoutingPt, GetAllRoutingPtIds
+    \param [in] routing_id string RoutingGeom Geom ID
+    \param [in] index int Index of routing point to ID to retreive
+    \return string ParmContainer ID for the specified routing point
+*/
+
+extern string GetRoutingPtID( const string &routing_id, int index );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Get the ParmContainer IDs of all the routing points within a RoutingGeom.  The vector will contain the IDs in order.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+
+    array<string> @rpts = GetAllRoutingPtIds(routing_geom);
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = vsp.AddGeom('POD', '')
+
+    pod2 = vsp.AddGeom('POD', '')
+    ypod2 = vsp.GetParm(pod2, 'Y_Rel_Location', 'XForm')
+    vsp.SetParmVal(ypod2, 2.0)
+
+    routing_geom = vsp.AddGeom('ROUTING', '')
+
+    rpt0 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u0 = vsp.GetParm( rpt0, 'U', 'RoutePt')
+    vsp.SetParmVal(u0, 0.0)
+
+    rpt1 = vsp.AddRoutingPt(routing_geom, pod2, 0)
+
+    rpt2 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
+    vsp.SetParmVal(u2, 1.0)
+
+    rpts = vsp.GetAllRoutingPtIds(routing_geom)
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelAllRoutingPt, GetRoutingPtId
+    \param [in] routing_id string RoutingGeom Geom ID
+    \return vector<string> Vector of routing point ParmConatiner IDs
+*/
+
+extern vector < string > GetAllRoutingPtIds( const string &routing_id );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Get the Geom ID of the geom a routing point is anchored to.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+
+    string gid = GetRoutingPtParentID(rpt1);
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = vsp.AddGeom('POD', '')
+
+    pod2 = vsp.AddGeom('POD', '')
+    ypod2 = vsp.GetParm(pod2, 'Y_Rel_Location', 'XForm')
+    vsp.SetParmVal(ypod2, 2.0)
+
+    routing_geom = vsp.AddGeom('ROUTING', '')
+
+    rpt0 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u0 = vsp.GetParm( rpt0, 'U', 'RoutePt')
+    vsp.SetParmVal(u0, 0.0)
+
+    rpt1 = vsp.AddRoutingPt(routing_geom, pod2, 0)
+
+    rpt2 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
+    vsp.SetParmVal(u2, 1.0)
+
+    gid = vsp.GetRoutingPtParentID(rpt1)
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelAllRoutingPt, GetAllRoutingPtIds
+    \param [in] pt_id string ParmContainer ID of desired routing point
+    \return string Geom ID for the geom the routing point is anchored to
+*/
+
+extern string GetRoutingPtParentID( const string & pt_id );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Set the Geom ID of the geom a routing point is anchored to.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+
+    SetRoutingPtParentID(rpt1, pod1);
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = vsp.AddGeom('POD', '')
+
+    pod2 = vsp.AddGeom('POD', '')
+    ypod2 = vsp.GetParm(pod2, 'Y_Rel_Location', 'XForm')
+    vsp.SetParmVal(ypod2, 2.0)
+
+    routing_geom = vsp.AddGeom('ROUTING', '')
+
+    rpt0 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u0 = vsp.GetParm( rpt0, 'U', 'RoutePt')
+    vsp.SetParmVal(u0, 0.0)
+
+    rpt1 = vsp.AddRoutingPt(routing_geom, pod2, 0)
+
+    rpt2 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
+    vsp.SetParmVal(u2, 1.0)
+
+    vsp.SetRoutingPtParentID(rpt1, pod1)
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelAllRoutingPt, GetAllRoutingPtIds
+    \param [in] pt_id string ParmContainer ID of desired routing point
+    \param [in] parent_id string Geom ID for the geom to anchor the routing point to
+*/
+
+extern void SetRoutingPtParentID( const string & pt_id, const string &parent_id );
+
 //======================== BOR Functions ======================//
 /*!
     \ingroup BOR
