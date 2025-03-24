@@ -72,9 +72,31 @@ protected:
     StringInput m_PtNameInput;
 
     GeomPicker m_GeomPicker;
+    Choice m_SurfChoice;
 
-    SliderAdjRangeInput m_USlider;
-    SliderAdjRangeInput m_WSlider;
+    Choice m_RoutePtCoordChoice;
+
+    ToggleButton m_RoutePtCoordU01Toggle;
+    ToggleButton m_RoutePtCoordU0NToggle;
+    ToggleRadioGroup m_RoutePtCoordUScaleToggleGroup;
+
+    ToggleButton m_RoutePtCoordR01Toggle;
+    ToggleButton m_RoutePtCoordR0NToggle;
+    ToggleRadioGroup m_RoutePtCoordRScaleToggleGroup;
+
+    ToggleButton m_RoutePtCoordL01Toggle;
+    ToggleButton m_RoutePtCoordL0LenToggle;
+    ToggleRadioGroup m_RoutePtCoordLScaleToggleGroup;
+
+    SliderAdjRange2Input m_RoutePtCoordUSlider;
+    SliderAdjRangeInput m_RoutePtCoordWSlider;
+    SliderAdjRange2Input m_RoutePtCoordRSlider;
+    SliderAdjRangeInput m_RoutePtCoordSSlider;
+    SliderAdjRangeInput m_RoutePtCoordTSlider;
+    SliderAdjRange2Input m_RoutePtCoordLSlider;
+    SliderAdjRangeInput m_RoutePtCoordMSlider;
+    SliderAdjRangeInput m_RoutePtCoordNSlider;
+    SliderAdjRangeInput m_RoutePtCoordEtaSlider;
 
 private:
 

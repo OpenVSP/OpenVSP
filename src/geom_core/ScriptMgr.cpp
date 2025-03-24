@@ -1947,6 +1947,22 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "ROUTE_PT_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ROUTE_PT_TYPE", "ROUTE_PT_COMP", ROUTE_PT_COMP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ROUTE_PT_TYPE", "ROUTE_PT_UV", ROUTE_PT_UV );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ROUTE_PT_TYPE", "ROUTE_PT_RST", ROUTE_PT_RST );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ROUTE_PT_TYPE", "ROUTE_PT_LMN", ROUTE_PT_LMN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ROUTE_PT_TYPE", "ROUTE_PT_EtaMN", ROUTE_PT_EtaMN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ROUTE_PT_TYPE", "ROUTE_PT_NUM_TYPES", ROUTE_PT_NUM_TYPES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "SET_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "SET_TYPE", "SET_NONE", SET_NONE );

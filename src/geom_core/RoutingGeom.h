@@ -28,12 +28,34 @@ public:
     string GetParentID() const { return m_ParentID; };
     void SetParentID( const string &id );
 
+    void UpdateParms();
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
+    IntParm m_SurfIndx;
+
+    IntParm m_CoordType;
+
     Parm m_U;
+    Parm m_U0N;
+    BoolParm m_U01Flag;
     Parm m_W;
+
+    Parm m_R;
+    BoolParm m_R01Flag;
+    Parm m_R0N;
+    Parm m_S;
+    Parm m_T;
+
+    Parm m_L;
+    BoolParm m_L01Flag;
+    Parm m_L0Len;
+    Parm m_M;
+    Parm m_N;
+
+    Parm m_Eta;
 
 protected:
     string m_ParentID;

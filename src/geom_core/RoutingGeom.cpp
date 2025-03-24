@@ -24,14 +24,34 @@ using namespace vsp;
 RoutingPoint::RoutingPoint()
 {
 
+    m_SurfIndx.Init( "SurfIndx", "RoutePt", this, 0, 0, 1e6 );
 
+    m_CoordType.Init( "CoordType", "RoutePt", this, vsp::ROUTE_PT_UV, vsp::ROUTE_PT_COMP, vsp::ROUTE_PT_NUM_TYPES - 1 );
 
     m_U.Init( "U", "RoutePt", this, 0.5, 0.0, 1.0 );
+    m_U0N.Init( "U0N", "RoutePt", this, 0, 0, 1e12 );
+    m_U01Flag.Init( "U_01Flag", "RoutePt", this, true, false, true );
     m_W.Init( "W", "RoutePt", this, 0.5, 0.0, 1.0 );
+
+    m_R.Init( "R", "RoutePt", this, 0.0, 0.0, 1.0 );
+    m_R01Flag.Init( "R_01", "RoutePt", this, true, false, true );
+    m_R0N.Init( "R0N", "RoutePt", this, 0, 0, 1e12 );
+    m_S.Init( "S", "RoutePt", this, 0.5, 0.0, 1.0 );
+    m_T.Init( "T", "RoutePt", this, 0.5, 0.0, 1.0 );
+
+    m_L.Init( "L", "RoutePt", this, 0.0, 0.0, 1.0 );
+    m_L01Flag.Init( "L_01", "RoutePt", this, true, false, true );
+    m_L0Len.Init( "L0Len", "RoutePt", this, 0, 0, 1e12 );
+    m_M.Init( "M", "RoutePt", this, 0.5, 0.0, 1.0 );
+    m_N.Init( "N", "RoutePt", this, 0.5, 0.0, 1.0 );
+
+    m_Eta.Init( "Eta", "RoutePt", this, 0.0, 0.0, 1.0 );
 }
 
 void RoutingPoint::Update()
 {
+    UpdateParms();
+
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     if ( veh )
@@ -40,7 +60,70 @@ void RoutingPoint::Update()
         if ( g )
         {
             Matrix4d transMat;
-            g->CompTransCoordSys( 0, m_U(), m_W(), transMat );
+
+            Matrix4d parentMat;
+            parentMat = g->getModelMatrix();
+            double tempMat[16];
+            parentMat.getMat( tempMat );
+
+            bool revertCompTrans = false;
+
+            WingGeom* wing_parent = dynamic_cast < WingGeom * > ( g );
+
+            // Parent CompXXXCoordSys methods query the positioned m_SurfVec[0] surface,
+            // not m_MainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
+            // these calculations and does not need to be applied again.
+            if ( m_CoordType() == vsp::ROUTE_PT_UV )
+            {
+                if ( !( g->CompTransCoordSys( m_SurfIndx(), m_U(), m_W(), transMat )) )
+                {
+                    revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+                }
+            }
+
+            if ( m_CoordType() == vsp::ROUTE_PT_RST )
+            {
+                if ( !( g->CompTransCoordSysRST( m_SurfIndx(), m_R(), m_S(), m_T(), transMat )) )
+                {
+                    revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+                }
+            }
+
+            if ( m_CoordType() == vsp::ROUTE_PT_LMN )
+            {
+                if ( !( g->CompTransCoordSysLMN( m_SurfIndx(), m_L(), m_M(), m_N(), transMat )) )
+                {
+                    revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+                }
+            }
+
+            if ( m_CoordType() == vsp::ROUTE_PT_EtaMN )
+            {
+                double l = m_Eta();
+
+                if ( wing_parent )
+                {
+                    double umax = g->GetMainUMapMax( m_SurfIndx() );
+                    double u = wing_parent->EtatoU( m_Eta() ) / umax;
+
+                    double r = u;
+                    g->ConvertRtoL( m_SurfIndx(), r, l );
+                }
+
+                if ( !( g->CompTransCoordSysLMN( m_SurfIndx(), l, m_M(), m_N(), transMat )) )
+                {
+                    revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+                }
+            }
+
+            if ( m_CoordType() == vsp::ROUTE_PT_COMP || revertCompTrans )
+            {
+                transMat.translatef( tempMat[12], tempMat[13], tempMat[14] );
+            }
+
+
+
+
             m_Pt = transMat.getTranslation();
         }
     }
@@ -72,6 +155,255 @@ void RoutingPoint::SetParentID( const string &id )
             rg->UpdateParents();
             rg->Update();
         }
+    }
+}
+
+void RoutingPoint::UpdateParms()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    Geom* parent = veh->FindGeom( GetParentID() );
+
+    if ( parent )
+    {
+        if ( parent->GetType().m_Type == MESH_GEOM_TYPE ||
+             parent->GetType().m_Type == WIRE_FRAME_GEOM_TYPE ||
+             parent->GetType().m_Type == BLANK_GEOM_TYPE ||
+             parent->GetType().m_Type == HINGE_GEOM_TYPE ||
+             parent->GetType().m_Type == HUMAN_GEOM_TYPE ||
+             parent->GetType().m_Type == PT_CLOUD_GEOM_TYPE )
+        {
+            return;
+        }
+
+        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+
+        double umax = parent->GetMainUMapMax( parent->GetMainSurfID( m_SurfIndx() ) );
+        double lmax = parent->GetMainSurfPtr( parent->GetMainSurfID( m_SurfIndx() ) )->GetLMax();
+
+        m_U0N.SetUpperLimit( umax );
+        m_R0N.SetUpperLimit( umax );
+        m_L0Len.SetUpperLimit( lmax );
+
+        if ( m_U01Flag.Get() )
+        {
+            m_U0N.Set( m_U() * umax );
+        }
+        else
+        {
+            double val = clamp( m_U0N(), 0.0, umax );
+            m_U0N.Set( val );
+            m_U.Set( val / umax );
+        }
+
+        if ( m_R01Flag.Get() )
+        {
+            m_R0N.Set( m_R() * umax );
+        }
+        else
+        {
+            double val = clamp( m_R0N(), 0.0, umax );
+            m_R0N.Set( val );
+            m_R.Set( val / umax );
+        }
+
+        if ( m_L01Flag.Get() )
+        {
+            m_L0Len.Set( m_L() * lmax );
+        }
+        else
+        {
+            double val = clamp( m_L0Len(), 0.0, lmax );
+            m_L0Len.Set( val );
+            m_L.Set( val / lmax );
+        }
+
+        if ( wing_parent )
+        {
+            if ( m_CoordType() == vsp::ROUTE_PT_EtaMN ) // Eta is active.
+            {
+                double u = wing_parent->EtatoU( m_Eta() ) / umax;
+
+                double r;
+                r = u;
+
+                double l;
+                parent->ConvertRtoL( m_SurfIndx(), r, l );
+
+                double s, t;
+                parent->ConvertLMNtoRST( m_SurfIndx(), l, m_M(), m_N(), r, s, t );
+
+                double w;
+                if ( t < 0.5 )
+                {
+                    w = 0.5 * s;
+                }
+                else
+                {
+                    w = 1.0 - 0.5 * s;
+                }
+
+                m_U.Set( u );
+                m_U0N.Set( m_U() * umax );
+                m_W.Set( w );
+
+                m_R.Set( r );
+                m_R0N.Set( m_R() * umax );
+                m_S.Set( s );
+                m_T.Set( t );
+
+                m_L.Set( l );
+                m_L0Len.Set( m_L() * lmax );
+            }
+            else if ( m_CoordType() == vsp::ROUTE_PT_UV ) // UV is active
+            {
+                m_Eta = wing_parent->UtoEta( m_U() * umax );
+            }
+            else if ( m_CoordType() == vsp::ROUTE_PT_RST ) // RST is active
+            {
+                double r = m_R();
+                double u = r;
+                m_Eta = wing_parent->UtoEta( u * umax );
+            }
+            else if ( m_CoordType() == vsp::ROUTE_PT_LMN ) // LMN is active
+            {
+                double l = m_L();
+                double r;
+                parent->ConvertLtoR( m_SurfIndx(), l, r );
+                double u = r;
+                m_Eta = wing_parent->UtoEta( u * umax );
+            }
+            else // Nothing is active, use U value anyway.
+            {
+                m_Eta = wing_parent->UtoEta( m_U() * umax );
+            }
+        }
+
+        if ( m_CoordType() == vsp::ROUTE_PT_UV )
+        {
+            double u, w;
+            u = m_U();
+            w = m_W();
+            double r, s, t;
+            r = u;
+            s = 2.0 * w;
+            t = 0.0;
+            if ( w > 0.5 )
+            {
+                s = 2.0 * ( 1.0 - w );
+                t = 1.0;
+            }
+
+            m_R.Set( r );
+            m_R0N.Set( m_R() * umax );
+            m_S.Set( s );
+            m_T.Set( t );
+
+            double l, m, n;
+
+            parent->ConvertRSTtoLMN( m_SurfIndx(), r, s, t, l, m, n );
+            m_L.Set( l );
+            m_L0Len.Set( m_L() * lmax );
+            m_M.Set( m );
+            m_N.Set( n );
+        }
+
+        if ( m_CoordType() == vsp::ROUTE_PT_RST )
+        {
+            double u, w;
+            double r = m_R();
+            double s = m_S();
+            double t = m_T();
+
+            u = r;
+            if ( t < 0.5 )
+            {
+                w = 0.5 * s;
+            }
+            else
+            {
+                w = 1.0 - 0.5 * s;
+            }
+
+            m_U.Set( u );
+            m_U0N.Set( m_U() * umax );
+            m_W.Set( w );
+
+            double l, m, n;
+            parent->ConvertRSTtoLMN( m_SurfIndx(), m_R(), m_S(), m_T(), l, m, n );
+            m_L.Set( l );
+            m_L0Len.Set( m_L() * lmax );
+            m_M.Set( m );
+            m_N.Set( n );
+        }
+
+        if ( m_CoordType() == vsp::ROUTE_PT_LMN )
+        {
+            double u, w;
+            double r, s, t;
+
+            parent->ConvertLMNtoRST( m_SurfIndx(), m_L(), m_M(), m_N(), r, s, t );
+
+            u = r;
+            if ( t < 0.5 )
+            {
+                w = 0.5 * s;
+            }
+            else
+            {
+                w = 1.0 - 0.5 * s;
+            }
+
+            m_U.Set( u );
+            m_U0N.Set( m_U() * umax );
+            m_W.Set( w );
+
+            parent->ConvertLMNtoRST( m_SurfIndx(), m_L(), m_M(), m_N(), r, s, t );
+            m_R.Set( r );
+            m_R0N.Set( m_R() * umax );
+            m_S.Set( s );
+            m_T.Set( t );
+        }
+    }
+
+    m_U.Activate();
+    m_U0N.Activate();
+    m_W.Activate();
+    m_R.Activate();
+    m_R0N.Activate();
+    m_S.Activate();
+    m_T.Activate();
+    m_L.Activate();
+    m_L0Len.Activate();
+    m_M.Activate();
+    m_N.Activate();
+    m_CoordType.Activate();
+
+    if ( m_U01Flag() )
+    {
+        m_U0N.Deactivate();
+    }
+    else
+    {
+        m_U.Deactivate();
+    }
+
+    if ( m_R01Flag() )
+    {
+        m_R0N.Deactivate();
+    }
+    else
+    {
+        m_R.Deactivate();
+    }
+
+    if ( m_L01Flag() )
+    {
+        m_L0Len.Deactivate();
+    }
+    else
+    {
+        m_L.Deactivate();
     }
 }
 
