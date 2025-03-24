@@ -1,5 +1,6 @@
 import openvsp as vsp
 import pytest
+import numpy as np
 
 def testRoutingGeom():
     errorMgr = vsp.ErrorMgrSingleton.getInstance()
@@ -55,6 +56,27 @@ def testRoutingGeom():
 
     vsp.Update()
     assert vsp.GetParmVal(routing_geom, 'Length', 'Results') == pytest.approx(12.470522182173754)
+
+    p1 = vsp.GetMainRoutingPtCoord(rpt1)
+    np1 = np.array([p1.x(), p1.y(), p1.z()])
+
+    cp1 = vsp.CompPnt01( pod2, 0, 0.5, 0.5 )
+    ncp1 = np.array([cp1.x(), cp1.y(), cp1.z()])
+
+    assert (np1 == ncp1).all()
+
+    p1b = vsp.GetRoutingPtCoord(routing_geom, 2, 0)
+    np1b = np.array([p1b.x(), p1b.y(), p1b.z()])
+
+    assert (np1b == ncp1).all()
+
+    pvec = vsp.GetAllRoutingPtCoords(routing_geom, 0)
+    npvec = np.array([[pnt.x(), pnt.y(), pnt.z()] for pnt in pvec])
+
+    for ipt in range(vsp.GetNumRoutingPts(routing_geom)):
+        pi = vsp.GetRoutingPtCoord(routing_geom, ipt, 0)
+        npi = np.array([pi.x(), pi.y(), pi.z()])
+        assert (npi == npvec[ipt]).all()
 
     vsp.DelRoutingPt( routing_geom, 1 )
     assert vsp.GetNumRoutingPts(routing_geom) == 3

@@ -53,6 +53,23 @@ int main()
     Update();
     if ( !closeTo( GetParmVal(routing_geom, "Length", "Results"), 12.470522182173754, 1e-6) ) failure++;
 
+    vec3d p1 = GetMainRoutingPtCoord(rpt1);
+    vec3d cp1 = CompPnt01( pod2, 0, 0.5, 0.5 );
+
+    for ( int i = 0; i < 3; i++ ) if ( !closeTo( p1.opIndex(i), cp1.opIndex(i), 1e-6 ) ) failure++;
+
+    vec3d p1b = GetRoutingPtCoord(routing_geom, 2, 0);
+
+    for ( int i = 0; i < 3; i++ ) if ( !closeTo( p1b.opIndex(i), cp1.opIndex(i), 1e-6 ) ) failure++;
+
+    array<vec3d> pvec = GetAllRoutingPtCoords(routing_geom, 0);
+
+    for ( int ipt = 0; ipt < GetNumRoutingPts(routing_geom); ipt++ )
+    {
+        vec3d pi = GetRoutingPtCoord(routing_geom, ipt, 0);
+        for ( int i = 0; i < 3; i++ ) if ( !closeTo( pi.opIndex(i), pvec[ipt].opIndex(i), 1e-6 ) ) failure++;
+    }
+
     DelRoutingPt( routing_geom, 1 );
     if ( GetNumRoutingPts(routing_geom) != 3 ) failure++;
     Update();
