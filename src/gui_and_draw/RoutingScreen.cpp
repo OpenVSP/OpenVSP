@@ -12,15 +12,14 @@
 #include "APIDefines.h"
 
 //==== Constructor ====//
-RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Routing" )
+RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Routing" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
-    m_DesignLayout.AddDividerBox( "Design" );
+    m_DesignLayout.AddDividerBox( "Routing Points" );
 
-    //==== Design ====//
 
     int movebw = 20;
     int browser_h = 150;
@@ -197,7 +196,26 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Rou
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Offset" );
 
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.AddLabel( "Coord System:", m_DesignLayout.GetW() - 2 * m_DesignLayout.GetInputWidth() );
+    m_DesignLayout.SetButtonWidth( m_DesignLayout.GetInputWidth() );
+    m_DesignLayout.AddButton( m_RoutePtDeltaRelativeToggle, "Rel" );
+    m_DesignLayout.AddButton( m_RoutePtDeltaAbsoluteToggle, "Abs" );
+    m_DesignLayout.ForceNewLine();
 
+    m_RoutePtDeltaAbsRelToggle.Init( this );
+    m_RoutePtDeltaAbsRelToggle.AddButton( m_RoutePtDeltaAbsoluteToggle.GetFlButton() );
+    m_RoutePtDeltaAbsRelToggle.AddButton( m_RoutePtDeltaRelativeToggle.GetFlButton() );
+
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.SetSameLineFlag( false );
+
+    m_DesignLayout.SetButtonWidth( normalButtonWidth );
+
+    m_DesignLayout.AddSlider( m_RoutePtDeltaXSlider, "Delta X", 1, " %7.6f" );
+    m_DesignLayout.AddSlider( m_RoutePtDeltaYSlider, "Delta Y", 1, " %7.6f" );
+    m_DesignLayout.AddSlider( m_RoutePtDeltaZSlider, "Delta Z", 1, " %7.6f" );
 
 
     m_SelectionFlag = false;
@@ -363,6 +381,21 @@ bool RoutingScreen::Update()
             }
 
 
+
+            m_RoutePtDeltaAbsRelToggle.Update( rpt->m_DeltaType.GetID() );
+
+            if ( rpt->m_DeltaType() == vsp::REL )
+            {
+                m_RoutePtDeltaXSlider.Update( 1, rpt->m_DeltaXRel.GetID(), rpt->m_DeltaX.GetID() );
+                m_RoutePtDeltaYSlider.Update( 1, rpt->m_DeltaYRel.GetID(), rpt->m_DeltaY.GetID() );
+                m_RoutePtDeltaZSlider.Update( 1, rpt->m_DeltaZRel.GetID(), rpt->m_DeltaZ.GetID() );
+            }
+            else // ABS
+            {
+                m_RoutePtDeltaXSlider.Update( 2, rpt->m_DeltaXRel.GetID(), rpt->m_DeltaX.GetID() );
+                m_RoutePtDeltaYSlider.Update( 2, rpt->m_DeltaYRel.GetID(), rpt->m_DeltaY.GetID() );
+                m_RoutePtDeltaZSlider.Update( 2, rpt->m_DeltaZRel.GetID(), rpt->m_DeltaZ.GetID() );
+            }
 
         }
         else

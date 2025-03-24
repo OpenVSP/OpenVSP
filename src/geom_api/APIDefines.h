@@ -1219,6 +1219,16 @@ enum ROUTE_PT_TYPE { ROUTE_PT_COMP,	/*!< Routing point relative to parent body a
 /*!
 	\ingroup Enumerations
 */
+/*! Enum that identifies the coordinate offset type used for a routing point. */
+enum ROUTE_PT_DELTA_TYPE { ROUTE_PT_DELTA_XYZ,	/*!< Routing point ofset in global axes */
+                           ROUTE_PT_DELTA_COMP,	/*!< Routing point offset in parent body frame */
+                           ROUTE_PT_DELTA_UVN,	/*!< Routing point offset in parent surface coordinate frame */
+                           ROUTE_PT_DELTA_NUM_TYPES	/*!< Number of routing point offset coordinate types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum representing the possible ways to scale a 3D background image. */
 enum SCALE_TYPE { SCALE_WIDTH,	/*!< Scale image to match desired width */
                   SCALE_HEIGHT,	/*!< Scale image to match desired height */

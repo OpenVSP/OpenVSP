@@ -1963,6 +1963,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "ROUTE_PT_DELTA_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ROUTE_PT_DELTA_TYPE", "ROUTE_PT_DELTA_XYZ", ROUTE_PT_DELTA_XYZ );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ROUTE_PT_DELTA_TYPE", "ROUTE_PT_DELTA_COMP", ROUTE_PT_DELTA_COMP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ROUTE_PT_DELTA_TYPE", "ROUTE_PT_DELTA_UVN", ROUTE_PT_DELTA_UVN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ROUTE_PT_DELTA_TYPE", "ROUTE_PT_DELTA_NUM_TYPES", ROUTE_PT_DELTA_NUM_TYPES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "SET_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "SET_TYPE", "SET_NONE", SET_NONE );

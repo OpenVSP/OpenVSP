@@ -57,6 +57,17 @@ public:
 
     Parm m_Eta;
 
+    IntParm m_DeltaType;
+
+    Parm m_DeltaX;
+    Parm m_DeltaY;
+    Parm m_DeltaZ;
+
+    Parm m_DeltaXRel;
+    Parm m_DeltaYRel;
+    Parm m_DeltaZRel;
+
+
 protected:
     string m_ParentID;
     vec3d m_Pt;

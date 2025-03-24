@@ -98,6 +98,14 @@ protected:
     SliderAdjRangeInput m_RoutePtCoordNSlider;
     SliderAdjRangeInput m_RoutePtCoordEtaSlider;
 
+    ToggleButton m_RoutePtDeltaAbsoluteToggle;
+    ToggleButton m_RoutePtDeltaRelativeToggle;
+    ToggleRadioGroup m_RoutePtDeltaAbsRelToggle;
+
+    SliderAdjRange2Input m_RoutePtDeltaXSlider;
+    SliderAdjRange2Input m_RoutePtDeltaYSlider;
+    SliderAdjRange2Input m_RoutePtDeltaZSlider;
+
 private:
 
     bool m_SelectionFlag;

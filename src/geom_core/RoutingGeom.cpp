@@ -27,6 +27,7 @@ RoutingPoint::RoutingPoint()
     m_SurfIndx.Init( "SurfIndx", "RoutePt", this, 0, 0, 1e6 );
 
     m_CoordType.Init( "CoordType", "RoutePt", this, vsp::ROUTE_PT_UV, vsp::ROUTE_PT_COMP, vsp::ROUTE_PT_NUM_TYPES - 1 );
+    m_DeltaType.Init( "DeltaType", "RoutePt", this, vsp::REL, vsp::ABS, vsp::REL );
 
     m_U.Init( "U", "RoutePt", this, 0.5, 0.0, 1.0 );
     m_U0N.Init( "U0N", "RoutePt", this, 0, 0, 1e12 );
@@ -46,6 +47,14 @@ RoutingPoint::RoutingPoint()
     m_N.Init( "N", "RoutePt", this, 0.5, 0.0, 1.0 );
 
     m_Eta.Init( "Eta", "RoutePt", this, 0.0, 0.0, 1.0 );
+
+    m_DeltaX.Init( "DeltaX", "RoutePt", this, 0.0, -1.0e12, 1.0e12 );
+    m_DeltaY.Init( "DeltaY", "RoutePt", this, 0.0, -1.0e12, 1.0e12 );
+    m_DeltaZ.Init( "DeltaZ", "RoutePt", this, 0.0, -1.0e12, 1.0e12 );
+
+    m_DeltaXRel.Init( "DeltaXRel", "RoutePt", this, 0.0, -1.0e12, 1.0e12 );
+    m_DeltaYRel.Init( "DeltaYRel", "RoutePt", this, 0.0, -1.0e12, 1.0e12 );
+    m_DeltaZRel.Init( "DeltaZRel", "RoutePt", this, 0.0, -1.0e12, 1.0e12 );
 }
 
 void RoutingPoint::Update()
@@ -60,71 +69,101 @@ void RoutingPoint::Update()
         if ( g )
         {
             Matrix4d transMat;
+            Matrix4d rotMat;
 
             Matrix4d parentMat;
             parentMat = g->getModelMatrix();
             double tempMat[16];
             parentMat.getMat( tempMat );
 
-            bool revertCompTrans = false;
-
             WingGeom* wing_parent = dynamic_cast < WingGeom * > ( g );
 
             // Parent CompXXXCoordSys methods query the positioned m_SurfVec[0] surface,
             // not m_MainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
             // these calculations and does not need to be applied again.
-            if ( m_CoordType() == vsp::ROUTE_PT_UV )
+
+            if ( m_SurfIndx() >= 0 && m_SurfIndx() < g->GetNumTotalSurfs() )
             {
-                if ( !( g->CompTransCoordSys( m_SurfIndx(), m_U(), m_W(), transMat )) )
+                switch ( m_CoordType() )
                 {
-                    revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+                    case vsp::ROUTE_PT_UV:
+                        g->CompTransCoordSys( m_SurfIndx(), m_U(), m_W(), transMat );
+                        g->CompRotCoordSys( m_SurfIndx(), m_U(), m_W(), rotMat );
+                        break;
+                    case vsp::ROUTE_PT_RST:
+                        g->CompTransCoordSysRST( m_SurfIndx(), m_R(), m_S(), m_T(), transMat );
+                        g->CompRotCoordSysRST( m_SurfIndx(), m_R(), m_S(), m_T(), rotMat );
+                        break;
+                    case vsp::ROUTE_PT_LMN:
+                        g->CompTransCoordSysLMN( m_SurfIndx(), m_L(), m_M(), m_N(), transMat );
+                        g->CompRotCoordSysLMN( m_SurfIndx(), m_L(), m_M(), m_N(), rotMat );
+                        break;
+                    case vsp::ROUTE_PT_EtaMN:
+                    {
+                        double l = m_Eta();
+
+                        if (wing_parent)
+                        {
+                            double umax = g->GetMainUMapMax( m_SurfIndx() );
+                            double u = wing_parent->EtatoU( m_Eta()) / umax;
+
+                            double r = u;
+                            g->ConvertRtoL( m_SurfIndx(), r, l );
+                        }
+
+                        g->CompTransCoordSysLMN( m_SurfIndx(), l, m_M(), m_N(), transMat );
+                        g->CompRotCoordSysLMN( m_SurfIndx(), l, m_M(), m_N(), rotMat );
+                    }
+                        break;
+                    case vsp::ROUTE_PT_COMP:
+                        transMat.translatef( tempMat[ 12 ], tempMat[ 13 ], tempMat[ 14 ] );
+
+                        tempMat[12] = tempMat[13] = tempMat[14] = 0;
+                        rotMat.initMat( tempMat );
+                        break;
                 }
             }
-
-            if ( m_CoordType() == vsp::ROUTE_PT_RST )
-            {
-                if ( !( g->CompTransCoordSysRST( m_SurfIndx(), m_R(), m_S(), m_T(), transMat )) )
-                {
-                    revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
-                }
-            }
-
-            if ( m_CoordType() == vsp::ROUTE_PT_LMN )
-            {
-                if ( !( g->CompTransCoordSysLMN( m_SurfIndx(), m_L(), m_M(), m_N(), transMat )) )
-                {
-                    revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
-                }
-            }
-
-            if ( m_CoordType() == vsp::ROUTE_PT_EtaMN )
-            {
-                double l = m_Eta();
-
-                if ( wing_parent )
-                {
-                    double umax = g->GetMainUMapMax( m_SurfIndx() );
-                    double u = wing_parent->EtatoU( m_Eta() ) / umax;
-
-                    double r = u;
-                    g->ConvertRtoL( m_SurfIndx(), r, l );
-                }
-
-                if ( !( g->CompTransCoordSysLMN( m_SurfIndx(), l, m_M(), m_N(), transMat )) )
-                {
-                    revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
-                }
-            }
-
-            if ( m_CoordType() == vsp::ROUTE_PT_COMP || revertCompTrans )
+            else
             {
                 transMat.translatef( tempMat[12], tempMat[13], tempMat[14] );
+
+                tempMat[12] = tempMat[13] = tempMat[14] = 0;
+                rotMat.initMat( tempMat );
+            }
+
+            Matrix4d absMat;
+            absMat.initMat( transMat.data() );
+            transMat.matMult( rotMat.data() );
+
+            vec3d pt;
+            if ( m_DeltaType() == vsp::REL )
+            {
+                pt = vec3d( m_DeltaXRel(), m_DeltaYRel(), m_DeltaZRel() );
+                m_Pt = transMat.xform( pt );
+
+                absMat.affineInverse();
+
+                vec3d abspt = absMat.xform( m_Pt );
+
+                m_DeltaX = abspt.x();
+                m_DeltaY = abspt.y();
+                m_DeltaZ = abspt.z();
+            }
+            else
+            {
+                pt = vec3d( m_DeltaX(), m_DeltaY(), m_DeltaZ() );
+                m_Pt = absMat.xform( pt );
+
+                transMat.affineInverse();
+
+                vec3d relpt = transMat.xform( m_Pt );
+
+                m_DeltaXRel = relpt.x();
+                m_DeltaYRel = relpt.y();
+                m_DeltaZRel = relpt.z();
             }
 
 
-
-
-            m_Pt = transMat.getTranslation();
         }
     }
 
@@ -178,62 +217,148 @@ void RoutingPoint::UpdateParms()
 
         WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
 
-        double umax = parent->GetMainUMapMax( parent->GetMainSurfID( m_SurfIndx() ) );
-        double lmax = parent->GetMainSurfPtr( parent->GetMainSurfID( m_SurfIndx() ) )->GetLMax();
+        const VspSurf * surf = parent->GetMainSurfPtr( parent->GetMainSurfID( m_SurfIndx() ) );
 
-        m_U0N.SetUpperLimit( umax );
-        m_R0N.SetUpperLimit( umax );
-        m_L0Len.SetUpperLimit( lmax );
+        if ( surf ) // May not be up-to-date if parent has not been updated.
+        {
+            double umax = surf->GetUMapMax();
+            double lmax = surf->GetLMax();
 
-        if ( m_U01Flag.Get() )
-        {
-            m_U0N.Set( m_U() * umax );
-        }
-        else
-        {
-            double val = clamp( m_U0N(), 0.0, umax );
-            m_U0N.Set( val );
-            m_U.Set( val / umax );
-        }
+            m_U0N.SetUpperLimit( umax );
+            m_R0N.SetUpperLimit( umax );
+            m_L0Len.SetUpperLimit( lmax );
 
-        if ( m_R01Flag.Get() )
-        {
-            m_R0N.Set( m_R() * umax );
-        }
-        else
-        {
-            double val = clamp( m_R0N(), 0.0, umax );
-            m_R0N.Set( val );
-            m_R.Set( val / umax );
-        }
-
-        if ( m_L01Flag.Get() )
-        {
-            m_L0Len.Set( m_L() * lmax );
-        }
-        else
-        {
-            double val = clamp( m_L0Len(), 0.0, lmax );
-            m_L0Len.Set( val );
-            m_L.Set( val / lmax );
-        }
-
-        if ( wing_parent )
-        {
-            if ( m_CoordType() == vsp::ROUTE_PT_EtaMN ) // Eta is active.
+            if ( m_U01Flag.Get() )
             {
-                double u = wing_parent->EtatoU( m_Eta() ) / umax;
+                m_U0N.Set( m_U() * umax );
+            }
+            else
+            {
+                double val = clamp( m_U0N(), 0.0, umax );
+                m_U0N.Set( val );
+                m_U.Set( val / umax );
+            }
 
-                double r;
+            if ( m_R01Flag.Get() )
+            {
+                m_R0N.Set( m_R() * umax );
+            }
+            else
+            {
+                double val = clamp( m_R0N(), 0.0, umax );
+                m_R0N.Set( val );
+                m_R.Set( val / umax );
+            }
+
+            if ( m_L01Flag.Get() )
+            {
+                m_L0Len.Set( m_L() * lmax );
+            }
+            else
+            {
+                double val = clamp( m_L0Len(), 0.0, lmax );
+                m_L0Len.Set( val );
+                m_L.Set( val / lmax );
+            }
+
+            if ( wing_parent )
+            {
+                if ( m_CoordType() == vsp::ROUTE_PT_EtaMN ) // Eta is active.
+                {
+                    double u = wing_parent->EtatoU( m_Eta() ) / umax;
+
+                    double r;
+                    r = u;
+
+                    double l;
+                    parent->ConvertRtoL( m_SurfIndx(), r, l );
+
+                    double s, t;
+                    parent->ConvertLMNtoRST( m_SurfIndx(), l, m_M(), m_N(), r, s, t );
+
+                    double w;
+                    if ( t < 0.5 )
+                    {
+                        w = 0.5 * s;
+                    }
+                    else
+                    {
+                        w = 1.0 - 0.5 * s;
+                    }
+
+                    m_U.Set( u );
+                    m_U0N.Set( m_U() * umax );
+                    m_W.Set( w );
+
+                    m_R.Set( r );
+                    m_R0N.Set( m_R() * umax );
+                    m_S.Set( s );
+                    m_T.Set( t );
+
+                    m_L.Set( l );
+                    m_L0Len.Set( m_L() * lmax );
+                }
+                else if ( m_CoordType() == vsp::ROUTE_PT_UV ) // UV is active
+                {
+                    m_Eta = wing_parent->UtoEta( m_U() * umax );
+                }
+                else if ( m_CoordType() == vsp::ROUTE_PT_RST ) // RST is active
+                {
+                    double r = m_R();
+                    double u = r;
+                    m_Eta = wing_parent->UtoEta( u * umax );
+                }
+                else if ( m_CoordType() == vsp::ROUTE_PT_LMN ) // LMN is active
+                {
+                    double l = m_L();
+                    double r;
+                    parent->ConvertLtoR( m_SurfIndx(), l, r );
+                    double u = r;
+                    m_Eta = wing_parent->UtoEta( u * umax );
+                }
+                else // Nothing is active, use U value anyway.
+                {
+                    m_Eta = wing_parent->UtoEta( m_U() * umax );
+                }
+            }
+
+            if ( m_CoordType() == vsp::ROUTE_PT_UV )
+            {
+                double u, w;
+                u = m_U();
+                w = m_W();
+                double r, s, t;
                 r = u;
+                s = 2.0 * w;
+                t = 0.0;
+                if ( w > 0.5 )
+                {
+                    s = 2.0 * ( 1.0 - w );
+                    t = 1.0;
+                }
 
-                double l;
-                parent->ConvertRtoL( m_SurfIndx(), r, l );
+                m_R.Set( r );
+                m_R0N.Set( m_R() * umax );
+                m_S.Set( s );
+                m_T.Set( t );
 
-                double s, t;
-                parent->ConvertLMNtoRST( m_SurfIndx(), l, m_M(), m_N(), r, s, t );
+                double l, m, n;
 
-                double w;
+                parent->ConvertRSTtoLMN( m_SurfIndx(), r, s, t, l, m, n );
+                m_L.Set( l );
+                m_L0Len.Set( m_L() * lmax );
+                m_M.Set( m );
+                m_N.Set( n );
+            }
+
+            if ( m_CoordType() == vsp::ROUTE_PT_RST )
+            {
+                double u, w;
+                double r = m_R();
+                double s = m_S();
+                double t = m_T();
+
+                u = r;
                 if ( t < 0.5 )
                 {
                     w = 0.5 * s;
@@ -247,122 +372,41 @@ void RoutingPoint::UpdateParms()
                 m_U0N.Set( m_U() * umax );
                 m_W.Set( w );
 
+                double l, m, n;
+                parent->ConvertRSTtoLMN( m_SurfIndx(), m_R(), m_S(), m_T(), l, m, n );
+                m_L.Set( l );
+                m_L0Len.Set( m_L() * lmax );
+                m_M.Set( m );
+                m_N.Set( n );
+            }
+
+            if ( m_CoordType() == vsp::ROUTE_PT_LMN )
+            {
+                double u, w;
+                double r, s, t;
+
+                parent->ConvertLMNtoRST( m_SurfIndx(), m_L(), m_M(), m_N(), r, s, t );
+
+                u = r;
+                if ( t < 0.5 )
+                {
+                    w = 0.5 * s;
+                }
+                else
+                {
+                    w = 1.0 - 0.5 * s;
+                }
+
+                m_U.Set( u );
+                m_U0N.Set( m_U() * umax );
+                m_W.Set( w );
+
+                parent->ConvertLMNtoRST( m_SurfIndx(), m_L(), m_M(), m_N(), r, s, t );
                 m_R.Set( r );
                 m_R0N.Set( m_R() * umax );
                 m_S.Set( s );
                 m_T.Set( t );
-
-                m_L.Set( l );
-                m_L0Len.Set( m_L() * lmax );
             }
-            else if ( m_CoordType() == vsp::ROUTE_PT_UV ) // UV is active
-            {
-                m_Eta = wing_parent->UtoEta( m_U() * umax );
-            }
-            else if ( m_CoordType() == vsp::ROUTE_PT_RST ) // RST is active
-            {
-                double r = m_R();
-                double u = r;
-                m_Eta = wing_parent->UtoEta( u * umax );
-            }
-            else if ( m_CoordType() == vsp::ROUTE_PT_LMN ) // LMN is active
-            {
-                double l = m_L();
-                double r;
-                parent->ConvertLtoR( m_SurfIndx(), l, r );
-                double u = r;
-                m_Eta = wing_parent->UtoEta( u * umax );
-            }
-            else // Nothing is active, use U value anyway.
-            {
-                m_Eta = wing_parent->UtoEta( m_U() * umax );
-            }
-        }
-
-        if ( m_CoordType() == vsp::ROUTE_PT_UV )
-        {
-            double u, w;
-            u = m_U();
-            w = m_W();
-            double r, s, t;
-            r = u;
-            s = 2.0 * w;
-            t = 0.0;
-            if ( w > 0.5 )
-            {
-                s = 2.0 * ( 1.0 - w );
-                t = 1.0;
-            }
-
-            m_R.Set( r );
-            m_R0N.Set( m_R() * umax );
-            m_S.Set( s );
-            m_T.Set( t );
-
-            double l, m, n;
-
-            parent->ConvertRSTtoLMN( m_SurfIndx(), r, s, t, l, m, n );
-            m_L.Set( l );
-            m_L0Len.Set( m_L() * lmax );
-            m_M.Set( m );
-            m_N.Set( n );
-        }
-
-        if ( m_CoordType() == vsp::ROUTE_PT_RST )
-        {
-            double u, w;
-            double r = m_R();
-            double s = m_S();
-            double t = m_T();
-
-            u = r;
-            if ( t < 0.5 )
-            {
-                w = 0.5 * s;
-            }
-            else
-            {
-                w = 1.0 - 0.5 * s;
-            }
-
-            m_U.Set( u );
-            m_U0N.Set( m_U() * umax );
-            m_W.Set( w );
-
-            double l, m, n;
-            parent->ConvertRSTtoLMN( m_SurfIndx(), m_R(), m_S(), m_T(), l, m, n );
-            m_L.Set( l );
-            m_L0Len.Set( m_L() * lmax );
-            m_M.Set( m );
-            m_N.Set( n );
-        }
-
-        if ( m_CoordType() == vsp::ROUTE_PT_LMN )
-        {
-            double u, w;
-            double r, s, t;
-
-            parent->ConvertLMNtoRST( m_SurfIndx(), m_L(), m_M(), m_N(), r, s, t );
-
-            u = r;
-            if ( t < 0.5 )
-            {
-                w = 0.5 * s;
-            }
-            else
-            {
-                w = 1.0 - 0.5 * s;
-            }
-
-            m_U.Set( u );
-            m_U0N.Set( m_U() * umax );
-            m_W.Set( w );
-
-            parent->ConvertLMNtoRST( m_SurfIndx(), m_L(), m_M(), m_N(), r, s, t );
-            m_R.Set( r );
-            m_R0N.Set( m_R() * umax );
-            m_S.Set( s );
-            m_T.Set( t );
         }
     }
 
@@ -378,6 +422,14 @@ void RoutingPoint::UpdateParms()
     m_M.Activate();
     m_N.Activate();
     m_CoordType.Activate();
+
+    m_DeltaX.Activate();
+    m_DeltaY.Activate();
+    m_DeltaZ.Activate();
+
+    m_DeltaXRel.Activate();
+    m_DeltaYRel.Activate();
+    m_DeltaZRel.Activate();
 
     if ( m_U01Flag() )
     {
@@ -404,6 +456,19 @@ void RoutingPoint::UpdateParms()
     else
     {
         m_L.Deactivate();
+    }
+
+    if ( m_DeltaType() == vsp::REL )
+    {
+        m_DeltaX.Deactivate();
+        m_DeltaY.Deactivate();
+        m_DeltaZ.Deactivate();
+    }
+    else
+    {
+        m_DeltaXRel.Deactivate();
+        m_DeltaYRel.Deactivate();
+        m_DeltaZRel.Deactivate();
     }
 }
 
