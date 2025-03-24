@@ -5926,6 +5926,95 @@ void SetRoutingPtParentID( const string & pt_id, const string &parent_id )
     return;
 }
 
+vec3d GetMainRoutingPtCoord( const string &pt_id )
+{
+    vec3d ret;
+
+    Vehicle* veh = GetVehicle();
+    ParmContainer *pc = ParmMgr.FindParmContainer( pt_id );
+    RoutingPoint *rpt = dynamic_cast< RoutingPoint* > ( pc );
+    if ( !rpt )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetRoutingPtCoord::Could not find routing point." );
+        return ret;
+    }
+
+    ret = rpt->GetPt();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vec3d GetRoutingPtCoord( const string &routing_id, int index, int symm_index )
+{
+    vec3d ret;
+
+    Vehicle* veh = GetVehicle();
+    Geom* rgeom_ptr = veh->FindGeom( routing_id );
+    if ( !rgeom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetRoutingPtCoord::Can't Find Geom " + routing_id );
+        return ret;
+    }
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+
+    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetRoutingPtCoord::Geom " + routing_id + " is not a RoutingGeom" );
+        return ret;
+    }
+
+    if ( index < 0 || index >= routing_ptr->GetNumPt() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetRoutingPtCoord::index " + to_string( index ) + " is out of range" );
+        return ret;
+    }
+
+    if ( symm_index < 0 || symm_index >= routing_ptr->GetNumSymmCopies() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetRoutingPtCoord::symm_index " + to_string( symm_index ) + " is out of range" );
+        return ret;
+    }
+
+    ret = routing_ptr->GetPtCoord( index,symm_index );
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vector < vec3d > GetAllRoutingPtCoords( const string &routing_id, int symm_index )
+{
+    vector < vec3d > ret_vec;
+
+    Vehicle* veh = GetVehicle();
+    Geom* rgeom_ptr = veh->FindGeom( routing_id );
+    if ( !rgeom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAllRoutingPtCoords::Can't Find Geom " + routing_id );
+        return ret_vec;
+    }
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+
+    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetAllRoutingPtCoords::Geom " + routing_id + " is not a RoutingGeom" );
+        return ret_vec;
+    }
+
+    if ( symm_index < 0 || symm_index >= routing_ptr->GetNumSymmCopies() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAllRoutingPtCoords::symm_index " + to_string( symm_index ) + " is out of range" );
+        return ret_vec;
+    }
+
+    ret_vec = routing_ptr->GetAllPtCoord( symm_index );
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
 //===================================================================//
 //==================      BOR Functions        ======================//
 //===================================================================//

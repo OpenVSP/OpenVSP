@@ -756,6 +756,33 @@ RoutingPoint * RoutingGeom::GetPt( int index )
     return nullptr;
 }
 
+vec3d RoutingGeom::GetPtCoord( int index, int symm_index )
+{
+    if ( symm_index >= 0 && symm_index < m_RouteTessVec.size() )
+    {
+        if ( m_RouteTessVec[symm_index].m_ptline.size() == 1 )
+        {
+            if ( index >= 0 && index < m_RouteTessVec[symm_index].m_ptline[0].size() )
+            {
+                return m_RouteTessVec[symm_index].m_ptline[0][index];
+            }
+        }
+    }
+    return vec3d();
+}
+
+vector < vec3d > RoutingGeom::GetAllPtCoord( int symm_index )
+{
+    if ( symm_index >= 0 && symm_index < m_RouteTessVec.size() )
+    {
+        if ( m_RouteTessVec[symm_index].m_ptline.size() == 1 )
+        {
+            return m_RouteTessVec[symm_index].m_ptline[0];
+        }
+    }
+    return vector < vec3d >();
+}
+
 string RoutingGeom::GetPtID( int index ) const
 {
     if ( index >= 0 && index < m_RoutingPointVec.size() )

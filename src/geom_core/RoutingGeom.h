@@ -112,6 +112,9 @@ public:
     virtual RoutingPoint * GetPt( int index );
     virtual vector < RoutingPoint* > GetAllPt()      { return m_RoutingPointVec; };
 
+    virtual vec3d GetPtCoord( int index, int symm_index );
+    virtual vector < vec3d > GetAllPtCoord( int symm_index );
+
     virtual string GetPtID( int index ) const;
     virtual vector < string > GetAllPtIds() const;
 

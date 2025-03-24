@@ -4220,6 +4220,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void SetRoutingPtParentID( const string & in pt_id, const string & in parent_id )", asFUNCTION( vsp::SetRoutingPtParentID ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "vec3d GetMainRoutingPtCoord( const string & in pt_id )", asFUNCTION( vsp::GetMainRoutingPtCoord ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "vec3d GetRoutingPtCoord( const string & in routing_id, int index, int symm_index )", asFUNCTION( vsp::GetRoutingPtCoord ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetAllRoutingPtCoords( const string & in routing_id, int symm_index )", asMETHOD( ScriptMgrSingleton, GetAllRoutingPtCoords ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     //==== BOR Functions ====//
 
     r = se->RegisterGlobalFunction( "void ChangeBORXSecShape( const string & in geom_id, int type )", asFUNCTION( vsp::ChangeBORXSecShape ), asCALL_CDECL );
@@ -5710,6 +5719,12 @@ CScriptArray* ScriptMgrSingleton::GetAllRoutingPtIds( const string &routing_id )
 {
     m_ProxyStringArray = vsp::GetAllRoutingPtIds( routing_id );
     return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAllRoutingPtCoords( const string &routing_id, int symm_index )
+{
+    m_ProxyVec3dArray = vsp::GetAllRoutingPtCoords( routing_id, symm_index );
+    return GetProxyVec3dArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetBORUpperCSTCoefs( const string & bor_id )
