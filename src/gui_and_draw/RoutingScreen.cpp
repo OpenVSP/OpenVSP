@@ -553,6 +553,7 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             routing_ptr->AddPt();
             m_LiveIndex = routing_ptr->GetNumPt() - 1;
             routing_ptr->m_ActivePointIndex = m_LiveIndex;
+            routing_ptr->SetPlaced( m_LiveIndex, false );
 
             routing_ptr->Update();
             m_SelectionFlag = true;
@@ -594,6 +595,8 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( routing_ptr )
         {
             m_LiveIndex = routing_ptr->m_ActivePointIndex;
+            routing_ptr->SetPlaced( m_LiveIndex, false );
+
             m_SelectionFlag = true;
             UpdatePickList();
         }
@@ -605,6 +608,7 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             routing_ptr->AddPt();
             m_LiveIndex = routing_ptr->GetNumPt() - 1;
             routing_ptr->m_ActivePointIndex = m_LiveIndex;
+            routing_ptr->SetPlaced( m_LiveIndex, false );
 
             routing_ptr->Update();
             m_SelectionFlag = true;
@@ -637,6 +641,7 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             }
             m_LiveIndex = routing_ptr->m_ActivePointIndex;
             routing_ptr->InsertPt( m_LiveIndex );
+            routing_ptr->SetPlaced( m_LiveIndex, false );
 
             routing_ptr->Update();
             m_SelectionFlag = true;
@@ -653,6 +658,7 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             }
             m_LiveIndex = routing_ptr->m_ActivePointIndex;
             routing_ptr->InsertPt( m_LiveIndex );
+            routing_ptr->SetPlaced( m_LiveIndex, false );
 
             routing_ptr->Update();
             m_SelectionFlag = true;
@@ -764,6 +770,7 @@ void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId
                 rpt->m_W = w;
 
                 rpt->m_SurfIndx = index;
+                rpt->SetPlaced( true );
             }
             else
             {
@@ -771,6 +778,7 @@ void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId
                 rpt->m_U = 0;
                 rpt->m_W = 0;
                 rpt->m_SurfIndx = 0;
+                rpt->SetPlaced( true );
             }
 
         }
@@ -780,6 +788,7 @@ void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId
             routing_ptr->AddPt();
             m_LiveIndex++;
             routing_ptr->m_ActivePointIndex = m_LiveIndex;
+            routing_ptr->SetPlaced( m_LiveIndex, false );
 
             routing_ptr->Update();
 
@@ -790,6 +799,7 @@ void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId
             m_LiveIndex++;
             routing_ptr->m_ActivePointIndex = m_LiveIndex;
             routing_ptr->InsertPt( m_LiveIndex );
+            routing_ptr->SetPlaced( m_LiveIndex, false );
 
             routing_ptr->Update();
 

@@ -55,6 +55,8 @@ RoutingPoint::RoutingPoint()
     m_DeltaXRel.Init( "DeltaXRel", "RoutePt", this, 0.0, -1.0e12, 1.0e12 );
     m_DeltaYRel.Init( "DeltaYRel", "RoutePt", this, 0.0, -1.0e12, 1.0e12 );
     m_DeltaZRel.Init( "DeltaZRel", "RoutePt", this, 0.0, -1.0e12, 1.0e12 );
+
+    m_Placed = true;
 }
 
 void RoutingPoint::Update()
@@ -746,6 +748,23 @@ RoutingPoint * RoutingGeom::GetPt( int index )
         return m_RoutingPointVec[ index ];
     }
     return nullptr;
+}
+
+void RoutingGeom::SetPlaced( int index, bool p )
+{
+    if ( index >= 0 && index < m_RoutingPointVec.size() )
+    {
+        m_RoutingPointVec[ index ]->SetPlaced( p );
+    }
+}
+
+bool RoutingGeom::IsPlaced( int index ) const
+{
+    if ( index >= 0 && index < m_RoutingPointVec.size() )
+    {
+        return m_RoutingPointVec[ index ]->IsPlaced();
+    }
+    return false; // Not sure if this is the right default.
 }
 
 void RoutingGeom::UpdateSurf()

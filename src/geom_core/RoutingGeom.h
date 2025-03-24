@@ -28,6 +28,9 @@ public:
     string GetParentID() const { return m_ParentID; };
     void SetParentID( const string &id );
 
+    void SetPlaced( bool p ) { m_Placed = p; };
+    bool IsPlaced() const { return m_Placed; };
+
     void UpdateParms();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
@@ -72,6 +75,8 @@ protected:
     string m_ParentID;
     vec3d m_Pt;
 
+    bool m_Placed;
+
 };
 
 
@@ -106,6 +111,9 @@ public:
 
     virtual RoutingPoint * GetPt( int index );
     virtual vector < RoutingPoint* > GetAllPt()      { return m_RoutingPointVec; };
+
+    void SetPlaced( int index, bool p );
+    bool IsPlaced( int index ) const;
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
