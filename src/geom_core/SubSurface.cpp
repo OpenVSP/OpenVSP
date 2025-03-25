@@ -189,17 +189,27 @@ void SubSurface::UpdateDrawObjs()
     m_SubSurfDO.m_GeomID = m_ID + string( "_ss_line" );
     m_SubSurfDO.m_LineWidth = 3.0;
     m_SubSurfDO.m_Type = DrawObj::VSP_LINES;
+    m_SubSurfDO.m_GeomChanged = true;
     if ( geom )
     {
         int ncopy = geom->GetNumSymmCopies();
 
-        m_SubSurfHighlightDO.resize( m_LVec.size()*ncopy, DrawObj() );
-        int ind;
-        for ( int ls = 0 ; ls < ( int )m_LVec.size() ; ls++ )
-        {
-            ind = 0;
-            int num_pnts = CompNumDrawPnts( geom );
+        m_SubSurfHighlightDO.resize( ncopy, DrawObj() );
+        int num_pnts = CompNumDrawPnts( geom );
+        int num_seg = m_LVec.size();
 
+        m_SubSurfDO.m_PntVec.reserve( num_seg * 2 * std::abs( num_pnts ) * ncopy );
+
+        for ( int s = 0 ; s < ncopy ; s++ )
+        {
+            m_SubSurfHighlightDO[s].m_PntVec.reserve( num_seg * 2 * std::abs( num_pnts ) );
+            m_SubSurfHighlightDO[s].m_Type = DrawObj::VSP_LINES;
+            m_SubSurfHighlightDO[s].m_LineWidth = 5.0;
+            m_SubSurfHighlightDO[s].m_GeomChanged = true;
+        }
+
+        for ( int ls = 0 ; ls < num_seg; ls++ )
+        {
             int isurf = m_MainSurfIndx();
 
             vector < int > symms;
@@ -213,15 +223,10 @@ void SubSurface::UpdateDrawObjs()
                 m_LVec[ls].GetDOPts( geom->GetSurfPtr( symms[s] ), geom, pts, num_pnts );
                 m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.end(), pts.begin(), pts.end() );
 
-                m_SubSurfHighlightDO[ind].m_PntVec.insert( m_SubSurfHighlightDO[ind].m_PntVec.end(), pts.begin(), pts.end());
-                m_SubSurfHighlightDO[ind].m_Type = DrawObj::VSP_LINES;
-                m_SubSurfHighlightDO[ind].m_LineWidth = 5.0;
-                m_SubSurfHighlightDO[ind].m_GeomChanged = true;
-                ++ind;
+                m_SubSurfHighlightDO[s].m_PntVec.insert( m_SubSurfHighlightDO[s].m_PntVec.end(), pts.begin(), pts.end());
             }
         }
     }
-    m_SubSurfDO.m_GeomChanged = true;
 }
 
 void SubSurface::Update()
