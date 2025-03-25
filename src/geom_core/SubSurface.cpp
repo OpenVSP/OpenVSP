@@ -250,11 +250,6 @@ void SubSurface::UpdateDrawObjs()
 
 void SubSurface::Update()
 {
-    if ( m_MainSurfIndx() < 0 )
-    {
-        return;
-    }
-
     // Attempt to update deprecated options to new versions with closest meaning.
     if ( m_IncludedElements() != vsp::FEA_DEPRECATED )
     {
@@ -338,6 +333,13 @@ void SubSurface::UpdateOrientation()
         return;
     }
 
+    int isurf = m_MainSurfIndx();
+    if ( isurf == -1 )
+    {
+        // When index == -1, treat as ALL, use Surf 0 orientation.
+        isurf = 0;
+    }
+
     vec3d orient;
     if ( m_FeaOrientationType() == vsp::FEA_ORIENT_GLOBAL_X ||
          m_FeaOrientationType() == vsp::FEA_ORIENT_GLOBAL_Y ||
@@ -365,15 +367,15 @@ void SubSurface::UpdateOrientation()
     }
     else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_R )
     {
-        orient = geom->CompTanR( m_MainSurfIndx(), 0.5, 0.25, 0.5 );
+        orient = geom->CompTanR( isurf, 0.5, 0.25, 0.5 );
     }
     else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_S )
     {
-        orient = geom->CompTanS( m_MainSurfIndx(), 0.5, 0.25, 0.5 );
+        orient = geom->CompTanS( isurf, 0.5, 0.25, 0.5 );
     }
     else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_T )
     {
-        orient = geom->CompTanT( m_MainSurfIndx(), 0.5, 0.25, 0.5 );
+        orient = geom->CompTanT( isurf, 0.5, 0.25, 0.5 );
     }
     else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_U ||
               m_FeaOrientationType() == vsp::FEA_ORIENT_PART_U )
@@ -383,7 +385,7 @@ void SubSurface::UpdateOrientation()
         // Control surface subsurfaces can have more than one polygon.  Use the first one either way.
         vec2d centroid = poly_centroid( m_PolyPntsVec[0] );
 
-        orient = geom->CompTanU( m_MainSurfIndx(), centroid.x(), centroid.y() );
+        orient = geom->CompTanU( isurf, centroid.x(), centroid.y() );
     }
     else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_V ||
               m_FeaOrientationType() == vsp::FEA_ORIENT_PART_V )
@@ -393,7 +395,7 @@ void SubSurface::UpdateOrientation()
         // Control surface subsurfaces can have more than one polygon.  Use the first one either way.
         vec2d centroid = poly_centroid( m_PolyPntsVec[0] );
 
-        orient = geom->CompTanW( m_MainSurfIndx(), centroid.x(), centroid.y() );
+        orient = geom->CompTanW( isurf, centroid.x(), centroid.y() );
     }
 
     orient.normalize();
@@ -405,7 +407,7 @@ void SubSurface::UpdateOrientation()
     m_FeaOrientationVec.resize( ncopy, orient );
 
     vector < int > symms;
-    geom->GetSymmIndexs( m_MainSurfIndx(), symms );
+    geom->GetSymmIndexs( isurf, symms );
     vector<Matrix4d> transMats = geom->GetFeaTransMatVec();
     for ( size_t j = 1; j < ncopy; j++ )
     {
@@ -723,7 +725,8 @@ void SSLineSeg::Update( Geom *geom, int indx )
 {
     if ( indx < 0 )
     {
-        return;
+        // When index == -1, treat as ALL, use Surf 0 for mapping and limits.
+        indx = 0;
     }
 
     double umax = geom->GetUMapMax( indx );
@@ -899,16 +902,24 @@ SSLine::~SSLine()
 void SSLine::Update()
 {
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
-    if ( !geom || m_MainSurfIndx() < 0 )
+    if ( !geom )
     {
         return;
+    }
+
+    int indx = m_MainSurfIndx();
+
+    if ( indx == -1 )
+    {
+        // When index == -1, treat as ALL, use Surf 0 for mapping and limits.
+        indx = 0;
     }
 
     // Using m_LVec[0] since SSLine should always only have one line segment
     // Update SSegLine points based on current values
     if ( m_ConstType() == vsp::CONST_U )
     {
-        double umax = geom->GetMainUMapMax( m_MainSurfIndx() );
+        double umax = geom->GetMainUMapMax( indx );
 
         if ( m_Val01.Get() ) // Use 01 basis
         {
@@ -926,7 +937,7 @@ void SSLine::Update()
     }
     else if ( m_ConstType() == vsp::CONST_W )
     {
-        double wmax = geom->GetMainWMax( m_MainSurfIndx() );
+        double wmax = geom->GetMainWMax( indx );
 
         if ( m_Val01.Get() ) // Use 01 basis
         {
@@ -951,13 +962,21 @@ void SSLine::Update()
 
 int SSLine::CompNumDrawPnts( Geom* geom )
 {
+    int indx = m_MainSurfIndx();
+
+    if ( indx == -1 )
+    {
+        // When index == -1, treat as ALL, use Surf 0 for mapping and limits.
+        indx = 0;
+    }
+
     if ( m_ConstType() == vsp::CONST_W )
     {
-        return ( int )( geom->GetMainUMax(m_MainSurfIndx()) * ( geom->m_TessU() - 2 ) );
+        return ( int )( geom->GetMainUMax( indx ) * ( geom->m_TessU() - 2 ) );
     }
     else if ( m_ConstType() == vsp::CONST_U )
     {
-        return ( int )( geom->GetMainWMax(m_MainSurfIndx()) * ( geom->m_TessW() - 4 ) );
+        return ( int )( geom->GetMainWMax( indx ) * ( geom->m_TessW() - 4 ) );
     }
 
     return -1;
@@ -1004,7 +1023,7 @@ SSRectangle::~SSRectangle()
 void SSRectangle::Update()
 {
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
-    if ( !geom || m_MainSurfIndx() < 0 )
+    if ( !geom )
     {
         return;
     }
@@ -1086,7 +1105,7 @@ SSEllipse::~SSEllipse()
 void SSEllipse::Update()
 {
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
-    if ( !geom || m_MainSurfIndx() < 0 )
+    if ( !geom )
     {
         return;
     }
@@ -1211,11 +1230,6 @@ SSControlSurf::~SSControlSurf()
 //==== Update Method ===//
 void SSControlSurf::Update()
 {
-    if ( m_MainSurfIndx() < 0 )
-    {
-        return;
-    }
-
     m_StartLength.Activate();
     m_EndLength.Activate();
 
@@ -2405,11 +2419,6 @@ SSLineArray::~SSLineArray()
 
 void SSLineArray::Update()
 {
-    if ( m_MainSurfIndx() < 0 )
-    {
-        return;
-    }
-
     CalcNumLines();
 
     m_LVec.resize( m_NumLines );
@@ -2579,11 +2588,6 @@ SSFiniteLine::~SSFiniteLine()
 
 void SSFiniteLine::Update()
 {
-    if ( m_MainSurfIndx() < 0 )
-    {
-        return;
-    }
-
     // Using m_LVec[0] since SSLine should always only have one line segment
     // Update SSegLine points based on current values
     m_LVec[0].SetSP0( vec3d( m_UStart(), m_WStart(), 0 ) );

@@ -73,7 +73,7 @@ vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( const string& comp_id,
 
     for ( int i = 0; i < all_vec.size(); i++ )
     {
-        if ( imain == all_vec[i]->m_MainSurfIndx() )
+        if ( all_vec[i]->m_MainSurfIndx() == -1 || imain == all_vec[i]->m_MainSurfIndx() )
         {
             ret_vec.push_back( all_vec[i] );
         }

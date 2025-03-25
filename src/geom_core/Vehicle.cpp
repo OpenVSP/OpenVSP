@@ -3795,7 +3795,7 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool label
                         SubSurface *sub = ssvec[ k ];
                         if ( sub )
                         {
-                            if( sub->m_MainSurfIndx() == mainid )
+                            if( sub->m_MainSurfIndx() == -1 || sub->m_MainSurfIndx() == mainid )
                             {
                                 if( sub->GetType() == vsp::SS_LINE )
                                 {
@@ -3992,7 +3992,7 @@ void Vehicle::WriteIGESFile( const string &file_name, int write_set, int lenUnit
                         SubSurface *sub = ssvec[ k ];
                         if ( sub )
                         {
-                            if( sub->m_MainSurfIndx() == mainid )
+                            if( sub->m_MainSurfIndx() == -1 || sub->m_MainSurfIndx() == mainid )
                             {
                                 if( sub->GetType() == vsp::SS_LINE )
                                 {

@@ -4145,7 +4145,7 @@ void Geom::CreateDegenGeom( DegenGeom &degenGeom, const vector< vector< vec3d > 
     // degenerate subsurfaces
     for ( int j = 0; j < m_SubSurfVec.size(); j++ )
     {
-        if ( m_SurfIndxVec[isurf] == m_SubSurfVec[j]->m_MainSurfIndx() )
+        if ( m_SubSurfVec[j]->m_MainSurfIndx() == -1 || m_SurfIndxVec[isurf] == m_SubSurfVec[j]->m_MainSurfIndx() )
         {
             degenGeom.addDegenSubSurf( m_SubSurfVec[j], isurf );    //TODO is there a way to eliminate having to send in the surf index "i"
 
