@@ -213,6 +213,8 @@ private:
     // Boolean for setting default opengl screen size once
     bool m_hasSetSize;
 
+    int m_prevViewport;
+
     glm::vec2 m_prevLB;
     glm::vec2 m_prevMB;
     glm::vec2 m_prevRB;

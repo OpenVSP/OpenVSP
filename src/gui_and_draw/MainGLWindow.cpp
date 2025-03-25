@@ -83,6 +83,7 @@ VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::
 
     m_initialized = false;
 
+    m_prevViewport = -1;
     m_prevLB = m_prevRB = m_prevMB = glm::vec2( 0xFFFFFFFF );
     m_prevAltLB = m_prevCtrlLB = m_prevMetaLB = glm::vec2( 0xFFFFFFFF );
     m_prevLBRB = glm::vec2( 0xFFFFFFFF );
@@ -2256,8 +2257,14 @@ void VspGlWindow::_setClipping( DrawObj * drawObj )
 void VspGlWindow::OnPush( int x, int y )
 {
     VSPGraphic::Display * display = m_GEngine->getDisplay();
-    display->selectViewport( x, y );
+    int ivp = display->selectViewport( x, y );
     Vehicle* vPtr = VehicleMgr.GetVehicle();
+
+    if ( ivp != m_prevViewport )
+    {
+        UpdateAllViewParms();
+        m_prevViewport = ivp;
+    }
 
     if( Fl::event_button1() && Fl::event_button3() )
     {
