@@ -777,7 +777,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SubSurfLayout.AddChoice( m_SubSurfSelectSurface, "Surface" );
     m_SubSurfLayout.AddButton( m_AddSubSurfButton, "Add" );
 
-    m_SSCurrMainSurfIndx = 0;
+    m_SSCurrMainSurfIndx = -1;
 
     m_SubSurfLayout.AddYGap();
 
@@ -1317,18 +1317,18 @@ bool GeomScreen::Update()
     //================= SubSurfaces Tab ===================//
 
     m_SubSurfSelectSurface.ClearItems();
-
+    m_SubSurfSelectSurface.AddItem( "ALL", -1 );
     int nmain = geom_ptr->GetNumMainSurfs();
     for ( int i = 0; i < nmain; ++i )
     {
         snprintf( str, sizeof( str ),  "Surf_%d", i );
-        m_SubSurfSelectSurface.AddItem( str );
+        m_SubSurfSelectSurface.AddItem( str, i );
     }
     m_SubSurfSelectSurface.UpdateItems();
 
-    if( m_SSCurrMainSurfIndx < 0 || m_SSCurrMainSurfIndx >= nmain )
+    if( m_SSCurrMainSurfIndx < -1 || m_SSCurrMainSurfIndx >= nmain )
     {
-        m_SSCurrMainSurfIndx = 0;
+        m_SSCurrMainSurfIndx = -1;
     }
     m_SubSurfSelectSurface.SetVal( m_SSCurrMainSurfIndx );
 
@@ -1568,7 +1568,14 @@ bool GeomScreen::Update()
         }
 
         ss_surf_ind = subsurf_vec[i]->m_MainSurfIndx.Get();
-        snprintf( str, sizeof( str ),  "%s:%s:Surf_%d", ss_name.c_str(), ss_type.c_str(), ss_surf_ind );
+        if ( ss_surf_ind == -1 )
+        {
+            snprintf( str, sizeof( str ),  "%s:%s:ALL", ss_name.c_str(), ss_type.c_str() );
+        }
+        else
+        {
+            snprintf( str, sizeof( str ),  "%s:%s:Surf_%d", ss_name.c_str(), ss_type.c_str(), ss_surf_ind );
+        }
         m_SubSurfBrowser->add( str );
     }
 
