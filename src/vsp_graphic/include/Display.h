@@ -132,7 +132,7 @@ public:
     /*!
     * Select Viewport at x, y mouse location.
     */
-    void selectViewport( int x, int y );
+    int selectViewport( int x, int y );
 
 public:
     /*

@@ -262,9 +262,9 @@ glm::vec3 Display::getCOR()
     return glm::vec3();
 }
 
-void Display::selectViewport( int x, int y )
+int Display::selectViewport( int x, int y )
 {
-    _currLayout->selectViewport( x, y );
+    return _currLayout->selectViewport( x, y );
 }
 
 

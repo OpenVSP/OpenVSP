@@ -65,7 +65,7 @@ public:
     * Select a Viewport base on mouse location.
     * If mouse location is outside viewports, unselect viewports.
     */
-    virtual void selectViewport( int x, int y );
+    virtual int selectViewport( int x, int y );
 
     /*
     * Get current selected Viewport.
