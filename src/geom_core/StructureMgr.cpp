@@ -15,7 +15,6 @@
 StructureMgrSingleton::StructureMgrSingleton()
 {
     InitFeaMaterials();
-    InitFeaProperties();
 
     m_FeaAssemblyCount = 0;
     m_FeaPropertyCount = 0;
@@ -131,7 +130,6 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
 
     }
 
-    InitFeaProperties();
 
     return node;
 }
