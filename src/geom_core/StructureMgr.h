@@ -36,6 +36,8 @@ public:
 
     virtual void Update();
 
+    void CleanUnusedDefaultProperties();
+
     void AddLinkableContainers( vector< string > & linkable_container_vec );
 
     //==== FeaStructure Management ====//

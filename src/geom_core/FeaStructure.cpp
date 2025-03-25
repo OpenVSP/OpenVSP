@@ -5074,6 +5074,8 @@ FeaProperty::FeaProperty() : ParmContainer()
     m_FeaMaterialIndex.SetDescript( "Deprecated FeaMaterial Index for FeaProperty" );
 
     m_FeaMaterialID = "_Al6061T6";
+
+    m_Used = false;
 }
 
 FeaProperty::~FeaProperty()

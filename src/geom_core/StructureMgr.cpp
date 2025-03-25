@@ -130,6 +130,7 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
 
     }
 
+    CleanUnusedDefaultProperties();
 
     return node;
 }
@@ -192,6 +193,83 @@ void StructureMgrSingleton::Update()
     {
         m_FeaAssemblyVec[i]->Update();
     }
+}
+
+// This routine should not be needed.  However, an earlier bug resulted in files with a large and growing number of
+// DefaultBeam and DefaultShell properties.  This routine will clean up the damage from that bug.
+void StructureMgrSingleton::CleanUnusedDefaultProperties()
+{
+    for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
+    {
+        m_FeaPropertyVec[i]->m_Used = false;
+    }
+
+    vector < FeaStructure* > allstructs = GetAllFeaStructs();
+
+    for ( int i = 0; i < (int)allstructs.size(); i++ )
+    {
+        FeaStructure* fea_struct = allstructs[i];
+        if ( fea_struct )
+        {
+            vector< FeaPart* > partvec = fea_struct->GetFeaPartVec();
+            for ( int j = 0; j < (int)partvec.size(); j++ )
+            {
+                FeaPart* fea_part = partvec[j];
+                if ( fea_part )
+                {
+                    FeaProperty* prop = GetFeaProperty( fea_part->m_FeaPropertyID );
+                    if ( prop )
+                    {
+                        prop->m_Used = true;
+                    }
+                }
+            }
+        }
+    }
+
+    vector < FeaProperty*> keep;
+    keep.reserve( m_FeaPropertyVec.size() );
+    vector < FeaProperty*> discard;
+    discard.reserve( m_FeaPropertyVec.size() );
+
+    bool keepFirstShell = true;
+    bool keepFirstBeam = true;
+    for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
+    {
+        if ( m_FeaPropertyVec[i] )
+        {
+            if ( m_FeaPropertyVec[i]->m_Used )
+            {
+                keep.push_back( m_FeaPropertyVec[i] );
+            }
+            else if ( keepFirstShell && m_FeaPropertyVec[i]->GetName() == "DefaultShell" )
+            {
+                keep.push_back( m_FeaPropertyVec[i] );
+                keepFirstShell = false;
+            }
+            else if ( keepFirstBeam && m_FeaPropertyVec[i]->GetName() == "DefaultBeam" )
+            {
+                keep.push_back( m_FeaPropertyVec[i] );
+                keepFirstBeam = false;
+            }
+            else
+            {
+                discard.push_back( m_FeaPropertyVec[i] );
+            }
+        }
+    }
+
+    if ( !discard.empty() )
+    {
+        printf( "Discarding %d unused default FEA properties.\n", discard.size() );
+
+        for ( int i = 0; i < (int)discard.size(); i++ )
+        {
+            delete discard[i];
+        }
+    }
+
+    m_FeaPropertyVec = keep;
 }
 
 void StructureMgrSingleton::AddLinkableContainers( vector< string > & linkable_container_vec )

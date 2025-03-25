@@ -697,6 +697,7 @@ public:
     Parm m_Dim5_FEM;
     Parm m_Dim6_FEM;
 
+    bool m_Used;
 protected:
 
 };
