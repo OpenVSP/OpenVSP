@@ -228,22 +228,22 @@ void SubSurface::UpdateDrawObjs()
         for ( int i = 0; i < surflist.size(); i++ )
         {
             int isurf = surflist[i];
-        for ( int ls = 0 ; ls < num_seg; ls++ )
-        {
-            vector < int > symms;
-            geom->GetSymmIndexs( isurf, symms );
-
-            assert( ncopy == symms.size() );
-
-            for ( int s = 0 ; s < ncopy ; s++ )
+            for ( int ls = 0 ; ls < num_seg; ls++ )
             {
-                vector < vec3d > pts;
-                m_LVec[ls].GetDOPts( geom->GetSurfPtr( symms[s] ), geom, pts, num_pnts );
-                m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.end(), pts.begin(), pts.end() );
+                vector < int > symms;
+                geom->GetSymmIndexs( isurf, symms );
 
-                m_SubSurfHighlightDO[s].m_PntVec.insert( m_SubSurfHighlightDO[s].m_PntVec.end(), pts.begin(), pts.end());
+                assert( ncopy == symms.size() );
+
+                for ( int s = 0 ; s < ncopy ; s++ )
+                {
+                    vector < vec3d > pts;
+                    m_LVec[ls].GetDOPts( geom->GetSurfPtr( symms[s] ), geom, pts, num_pnts );
+                    m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.end(), pts.begin(), pts.end() );
+
+                    m_SubSurfHighlightDO[s].m_PntVec.insert( m_SubSurfHighlightDO[s].m_PntVec.end(), pts.begin(), pts.end());
+                }
             }
-        }
         }
     }
 }
@@ -2227,38 +2227,38 @@ void SSControlSurf::UpdateDrawObjs()
         {
             int isurf = surflist[is];
 
-        vector < int > symms;
-        geom->GetSymmIndexs( isurf, symms );
+            vector < int > symms;
+            geom->GetSymmIndexs( isurf, symms );
 
-        assert( ncopy == symms.size() );
+            assert( ncopy == symms.size() );
 
-        int npt = m_UWStart01.size();
+            int npt = m_UWStart01.size();
 
-        for ( int s = 0 ; s < ncopy ; s++ )
-        {
-            const VspSurf* surf = geom->GetSurfPtr( symms[ s ] );
-
-            vec3d pst, pend;
-            for ( int i = 0; i < npt; i++ )
+            for ( int s = 0 ; s < ncopy ; s++ )
             {
-                pst = pst + surf->CompPnt01( m_UWStart01[i].x(), m_UWStart01[i].y() );
-                pend = pend + surf->CompPnt01( m_UWEnd01[i].x(), m_UWEnd01[i].y() );
+                const VspSurf* surf = geom->GetSurfPtr( symms[ s ] );
+
+                vec3d pst, pend;
+                for ( int i = 0; i < npt; i++ )
+                {
+                    pst = pst + surf->CompPnt01( m_UWStart01[i].x(), m_UWStart01[i].y() );
+                    pend = pend + surf->CompPnt01( m_UWEnd01[i].x(), m_UWEnd01[i].y() );
+                }
+                pst = pst / ( 1.0 * npt );
+                pend = pend / ( 1.0 * npt );
+
+                vec3d pmid = ( pst + pend ) * 0.5;
+
+                vec3d dir = pend - pst;
+                double len = dir.mag();
+                dir.normalize();
+
+                m_HingeDO.m_PntVec.push_back( pst );
+                m_HingeDO.m_PntVec.push_back( pend );
+
+                MakeCircleArrow( pmid, dir, 0.25 * axlen, 0.25 * axlen, m_HingeDO, m_ArrowDO );
             }
-            pst = pst / ( 1.0 * npt );
-            pend = pend / ( 1.0 * npt );
-
-            vec3d pmid = ( pst + pend ) * 0.5;
-
-            vec3d dir = pend - pst;
-            double len = dir.mag();
-            dir.normalize();
-
-            m_HingeDO.m_PntVec.push_back( pst );
-            m_HingeDO.m_PntVec.push_back( pend );
-
-            MakeCircleArrow( pmid, dir, 0.25 * axlen, 0.25 * axlen, m_HingeDO, m_ArrowDO );
-        }
-        m_ArrowDO.m_NormVec = vector <vec3d> ( m_ArrowDO.m_PntVec.size() );
+            m_ArrowDO.m_NormVec = vector <vec3d> ( m_ArrowDO.m_PntVec.size() );
         }
     }
 }
