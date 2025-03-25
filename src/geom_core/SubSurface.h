@@ -28,7 +28,7 @@ public:
     // SubSurface UW Line Type
     SSLineSeg();
 
-    virtual void Update( Geom *geom, const int &indx );
+    virtual void Update( Geom *geom, int indx );
 
     enum { GT, LT, NO };
     int m_TestType;

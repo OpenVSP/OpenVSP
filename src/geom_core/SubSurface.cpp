@@ -719,7 +719,7 @@ bool SSLineSeg::Subtag( TTri* tri ) const
     return Subtag( center );
 }
 
-void SSLineSeg::Update( Geom *geom, const int &indx )
+void SSLineSeg::Update( Geom *geom, int indx )
 {
     if ( indx < 0 )
     {
