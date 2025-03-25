@@ -192,6 +192,23 @@ void SubSurface::UpdateDrawObjs()
     m_SubSurfDO.m_GeomChanged = true;
     if ( geom )
     {
+        int imain = m_MainSurfIndx();
+        int nmain = geom->GetNumMainSurfs();
+
+        vector < int > surflist;
+        if ( imain == -1 )
+        {
+            surflist.resize( nmain );
+            for ( int i = 0; i < nmain; i++ )
+            {
+                surflist[i] = i;
+            }
+        }
+        else
+        {
+            surflist.push_back( imain );
+        }
+
         int ncopy = geom->GetNumSymmCopies();
 
         m_SubSurfHighlightDO.resize( ncopy, DrawObj() );
@@ -208,10 +225,11 @@ void SubSurface::UpdateDrawObjs()
             m_SubSurfHighlightDO[s].m_GeomChanged = true;
         }
 
+        for ( int i = 0; i < surflist.size(); i++ )
+        {
+            int isurf = surflist[i];
         for ( int ls = 0 ; ls < num_seg; ls++ )
         {
-            int isurf = m_MainSurfIndx();
-
             vector < int > symms;
             geom->GetSymmIndexs( isurf, symms );
 
@@ -225,6 +243,7 @@ void SubSurface::UpdateDrawObjs()
 
                 m_SubSurfHighlightDO[s].m_PntVec.insert( m_SubSurfHighlightDO[s].m_PntVec.end(), pts.begin(), pts.end());
             }
+        }
         }
     }
 }
@@ -2186,7 +2205,27 @@ void SSControlSurf::UpdateDrawObjs()
         m_ArrowDO.m_MaterialInfo.Shininess = 5.0f;
 
 
-        int isurf = m_MainSurfIndx();
+        int imain = m_MainSurfIndx();
+        int nmain = geom->GetNumMainSurfs();
+
+        vector < int > surflist;
+        if ( imain == -1 )
+        {
+            surflist.resize( nmain );
+            for ( int i = 0; i < nmain; i++ )
+            {
+                surflist[i] = i;
+            }
+        }
+        else
+        {
+            surflist.push_back( imain );
+        }
+
+
+        for ( int is = 0; is < surflist.size(); is++ )
+        {
+            int isurf = surflist[is];
 
         vector < int > symms;
         geom->GetSymmIndexs( isurf, symms );
@@ -2220,6 +2259,7 @@ void SSControlSurf::UpdateDrawObjs()
             MakeCircleArrow( pmid, dir, 0.25 * axlen, 0.25 * axlen, m_HingeDO, m_ArrowDO );
         }
         m_ArrowDO.m_NormVec = vector <vec3d> ( m_ArrowDO.m_PntVec.size() );
+        }
     }
 }
 
