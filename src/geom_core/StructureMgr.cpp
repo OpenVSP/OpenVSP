@@ -138,6 +138,18 @@ void StructureMgrSingleton::Renew()
 {
     Wype();
     InitFeaMaterials();
+
+    m_FeaAssemblyCount = 0;
+    m_FeaPropertyCount = 0;
+    m_FeaMatCount = 0;
+
+    m_CurrStructIndex = -1;
+
+    m_CurrPartIndex = -1;
+    m_CurrFeaMaterialIndex = -1;
+    m_CurrFeaPropertyIndex = -1;
+
+    m_FeaSliceOrientationIndex = 1;
 }
 
 void StructureMgrSingleton::Wype()
