@@ -820,35 +820,6 @@ public:
         v[idir] += offset;
     };
 
-    // Rotate About Axis : Assume Zero Coord --> Change Internal Values
-/*!
-    Rotate the vec3d about the Z axis assuming zero X coordinate value 
-    \param [in] cos_alpha Cosine of rotation angle
-    \param [in] sin_alpha Sine of rotation angle
-*/ // TODO: Example
-
-    void rotate_z_zero_x( double cos_alpha, double sin_alpha )
-
-    {
-        v[0] = sin_alpha * v[1] + v[0];
-        v[1] = cos_alpha * v[1];
-    }
-/*!
-    Rotate the vec3d about the Z axis assuming zero Y coordinate value 
-    \param [in] cos_alpha Cosine of rotation angle
-    \param [in] sin_alpha Sine of rotation angle
-*/ // TODO: Example
-
-    void rotate_z_zero_y( double cos_alpha, double sin_alpha )
-
-    {
-        v[0] = cos_alpha * v[0];
-        v[1] = -sin_alpha * v[0] + v[1];
-    }
-
-    // Transform Matrix
-    //vec3d transform(float mat[4][4]);
-    //vec3d transform(double mat[4][4]);
 /*!
     Reflect the vec3d across the XY plane
     \forcpponly
