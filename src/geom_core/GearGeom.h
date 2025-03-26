@@ -46,13 +46,11 @@ public:
 
     // T must have methods .FlipNormal() and .Transform( Matrix4d )
     template <typename T>
-    void TireToBogie( const T &source, vector<T> &dest, const vector <int> &tiremodes, const vector <int> &suspensionmodes ) const
+    void TireToBogie( const T &source, vector<T> &dest, const vector <int> &suspensionmodes ) const
     {
         int idest = dest.size();
 
         Matrix4d xform;
-        // Tire center relative to contact point.
-        xform.translatef( 0, 0, m_StaticRadiusModel() );
 
         int nsymm = 1;
         if ( m_Symmetrical() )
@@ -77,7 +75,7 @@ public:
         {
             Matrix4d contact = xform;
 
-            contact.translatev( GetMeanContactPoint( isymm, tiremodes[ isymm ], suspensionmodes[ isymm ] ) );
+            contact.translatev( GetPivotPoint( isymm, suspensionmodes[ isymm ] ) );
 
             Matrix4d symm;
             double ksymm = 1.0;
@@ -114,8 +112,7 @@ public:
     template <typename T>
     void TireToBogie( const T &source, vector<T> &dest ) const
     {
-        TireToBogie( source, dest, { vsp::TIRE_STATIC_LODED_CONTACT, vsp::TIRE_STATIC_LODED_CONTACT },
-                                   { vsp::GEAR_SUSPENSION_NOMINAL, vsp::GEAR_SUSPENSION_NOMINAL } );
+        TireToBogie( source, dest, { vsp::GEAR_SUSPENSION_NOMINAL, vsp::GEAR_SUSPENSION_NOMINAL } );
     }
 
     void AppendMainSurf( vector < VspSurf > &surfvec ) const;
