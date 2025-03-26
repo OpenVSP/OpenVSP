@@ -5749,14 +5749,14 @@ void EditCurveXSec::EnforceG1( int new_index )
                     next_rot = avg_theta - next_theta;
                     prev_rot = prev_theta - avg_theta;
                 }
-                next_to_center_vec.rotate_z( cos( next_rot ), sin( next_rot ) );
+                next_to_center_vec.rotate_z( next_rot );
                 vec3d new_prev_pnt = curr_pnt + prev_dist * next_to_center_vec;
 
                 m_XParmVec[prev_ind]->Set( new_prev_pnt.x() );
                 m_YParmVec[prev_ind]->Set( new_prev_pnt.y() );
                 m_ZParmVec[prev_ind]->Set( new_prev_pnt.z() );
 
-                prev_to_center_vec.rotate_z( cos( prev_rot ), sin( prev_rot ) );
+                prev_to_center_vec.rotate_z( prev_rot );
                 vec3d new_next_pnt = curr_pnt + next_dist * prev_to_center_vec;
 
                 m_XParmVec[next_ind]->Set( new_next_pnt.x() );

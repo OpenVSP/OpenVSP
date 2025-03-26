@@ -2714,9 +2714,9 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
             for ( int m = 0; m < ngp; m++ )
             {
                 // Rotate plane to Mach angle
-                gp[m].rotate_y( cos(-( 0.5*PI-sliceAngle)), sin(-( 0.5*PI-sliceAngle)) );
+                gp[m].rotate_y( -( 0.5 * PI - sliceAngle ) );
                 // Rotate plane to current theta
-                gp[m].rotate_x( cos(theta), sin(theta) );
+                gp[m].rotate_x( theta );
                 // Translate plane to current x
                 gp[m].offset_x( xcenter );
                 // Relocate to center YZ

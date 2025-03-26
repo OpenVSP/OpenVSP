@@ -524,8 +524,6 @@ public:
     // Rotate About Axis --> Change Internal Values
   /*!
     Rotate the vec3d about the X axis. 
-    \f{equation}{x = cos \textunderscore alpha * x + sin \textunderscore alpha * z\f}
-    \f{equation}{y = -sin \textunderscore alpha * old_y + cos \textunderscore alpha * z\f}
     \forcpponly
     \code{.cpp}
     //==== Test Vec3d ====//
@@ -534,7 +532,7 @@ public:
 
     a.set_xyz( 1.0, 0.0, 0.0 );
 
-    a.rotate_x( cos( 0.5 * PI ), sin( 0.5 * PI ) );
+    a.rotate_x( 0.5 * PI );
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -546,25 +544,17 @@ public:
 
     a.set_xyz( 1.0, 0.0, 0.0 )
 
-    a.rotate_x( math.cos( 0.5 * PI ), math.sin( 0.5 * PI ) )
+    a.rotate_x( 0.5 * PI )
 
     \endcode
     \endPythonOnly
-    \param [in] cos_alpha Cosine of rotation angle
-    \param [in] sin_alpha Sine of rotation angle
+    \param [in] theta double Rotation angle in radians
   */
 
-    void rotate_x( double cos_alpha, double sin_alpha )
+    void rotate_x( double theta );
 
-    {
-        double old_y = v[1];
-        v[1] = cos_alpha * v[1] + sin_alpha * v[2];
-        v[2] = -sin_alpha * old_y + cos_alpha * v[2];
-    }
   /*!
     Rotate the vec3d about the Y axis. 
-    \f{equation}{x = cos \textunderscore alpha * x - sin \textunderscore alpha * z\f}
-    \f{equation}{z =  sin \textunderscore alpha * old_x + cos \textunderscore alpha * z\f}
     \forcpponly
     \code{.cpp}
     //==== Test Vec3d ====//
@@ -573,7 +563,7 @@ public:
 
     a.set_xyz( 1.0, 0.0, 0.0 );
 
-    a.rotate_y( cos( 0.5 * PI ), sin( 0.5 * PI ) );
+    a.rotate_y( 0.5 * PI );
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -585,25 +575,17 @@ public:
 
     a.set_xyz( 1.0, 0.0, 0.0 )
 
-    a.rotate_y( math.cos( 0.5 * PI ), math.sin( 0.5 * PI ) )
+    a.rotate_y( 0.5 * PI )
 
     \endcode
     \endPythonOnly
-    \param [in] cos_alpha Cosine of rotation angle
-    \param [in] sin_alpha Sine of rotation angle
+    \param [in] theta double Rotation angle in radians
   */
 
-    void rotate_y( double cos_alpha, double sin_alpha )
+    void rotate_y( double theta );
 
-    {
-        double old_x = v[0];
-        v[0] = cos_alpha * v[0] - sin_alpha * v[2];
-        v[2] =  sin_alpha * old_x + cos_alpha * v[2];
-    }
   /*!
     Rotate the vec3d about the Z axis.
-    \f{equation}{x = cos \textunderscore alpha * x + sin \textunderscore alpha * y\f}
-    \f{equation}{y = -sin \textunderscore alpha * old_x + cos \textunderscore alpha * y\f}
     \forcpponly
     \code{.cpp}
     //==== Test Vec3d ====//
@@ -612,7 +594,7 @@ public:
 
     a.set_xyz( 1.0, 0.0, 0.0 );
 
-    a.rotate_z( cos( 0.5 * PI ), sin( 0.5 * PI ) );
+    a.rotate_z( 0.5 * PI );
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -624,21 +606,14 @@ public:
 
     a.set_xyz( 1.0, 0.0, 0.0 )
 
-    a.rotate_z( math.cos( 0.5 * PI ), math.sin( 0.5 * PI ) )
+    a.rotate_z( 0.5 * PI )
 
     \endcode
     \endPythonOnly
-    \param [in] cos_alpha Cosine of rotation angle
-    \param [in] sin_alpha Sine of rotation angle
+    \param [in] theta double Rotation angle in radians
   */
 
-    void rotate_z( double cos_alpha, double sin_alpha )
-
-    {
-        double old_x = v[0];
-        v[0] = cos_alpha * v[0] + sin_alpha * v[1];
-        v[1] = -sin_alpha * old_x + cos_alpha * v[1];
-    }
+    void rotate_z( double theta );
 
     // Scale Up Single Coord  --> Change Internal Values
 /*!

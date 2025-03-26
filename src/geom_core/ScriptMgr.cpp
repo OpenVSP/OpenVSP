@@ -2524,13 +2524,13 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
     r = se->RegisterObjectMethod( "vec3d", "vec3d& set_z(double z)", asMETHOD( vec3d, set_z ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_x(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_x ), asCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_x(double theta)", asMETHOD( vec3d, rotate_x ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_y(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_y ), asCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_y(double theta)", asMETHOD( vec3d, rotate_y ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_z(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_z ), asCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_z(double theta)", asMETHOD( vec3d, rotate_z ), asCALL_THISCALL );
     assert( r >= 0 );
 
     r = se->RegisterObjectMethod( "vec3d", "void scale_x(double scale)", asMETHOD( vec3d, scale_x ), asCALL_THISCALL );

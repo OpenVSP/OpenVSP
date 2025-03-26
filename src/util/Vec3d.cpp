@@ -359,6 +359,33 @@ void vec3d::Transform( const Matrix4d &m )
     *this = m.xform( *this );
 }
 
+void vec3d::rotate_x( double theta )
+{
+    double cos_alpha = cos( theta );
+    double sin_alpha = sin( theta );
+    double old_y = v[1];
+    v[1] = cos_alpha * v[1] + sin_alpha * v[2];
+    v[2] = -sin_alpha * old_y + cos_alpha * v[2];
+}
+
+void vec3d::rotate_y( double theta )
+{
+    double cos_alpha = cos( theta );
+    double sin_alpha = sin( theta );
+    double old_x = v[0];
+    v[0] = cos_alpha * v[0] - sin_alpha * v[2];
+    v[2] =  sin_alpha * old_x + cos_alpha * v[2];
+}
+
+void vec3d::rotate_z( double theta )
+{
+    double cos_alpha = cos( theta );
+    double sin_alpha = sin( theta );
+    double old_x = v[0];
+    v[0] = cos_alpha * v[0] + sin_alpha * v[1];
+    v[1] = -sin_alpha * old_x + cos_alpha * v[1];
+}
+
 //******* distance between pnts ******//
 double dist( const vec3d& a, const vec3d& b )
 {

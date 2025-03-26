@@ -188,9 +188,9 @@ void WaveDragSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     for ( int i = 0; i < nq; i++ )
     {
         // Rotate cutting plane visualizer to Mach angle
-        quads[i].rotate_y( cos(-( 0.5*PI-MAngle)), sin(-( 0.5*PI-MAngle)) );
+        quads[i].rotate_y( -( 0.5 * PI - MAngle ) );
         // Rotate cutting plane visualizer to current theta
-        quads[i].rotate_x( cos(theta), sin(theta) );
+        quads[i].rotate_x( theta );
         // Move cutting plane visualizer to current slice section location
         quads[i].offset_x( m_SlicingLoc.Get() );
         quads[i].offset_y( ycenter );
