@@ -40,9 +40,15 @@ public:
     vec3d GetCompressionUnitDirection( int isymm ) const;
     vec3d GetSuspensionDeflection( int isymm, int suspensionmode ) const;
     vec3d GetNominalMeanContactPoint( int isymm ) const;
-    vec3d GetMeanContactPoint( int isymm, int tiremode, int suspensionmode ) const;
+    vec3d GetMeanContactPoint( int isymm, int tiremode, int suspensionmode, double thetabogie ) const;
     vec3d GetNominalPivotPoint( int isymm ) const;
     vec3d GetPivotPoint( int isymm, int suspensionmode ) const;
+    double GetAxleArm() const;
+    vec3d GetAxleDisplacement( double thetabogie ) const;
+    vec3d GetFwdAxle( int isymm, int suspensionmode, double thetabogie ) const;
+    vec3d GetAftAxle( int isymm, int suspensionmode, double thetabogie ) const;
+    vec3d GetFwdContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel ) const;
+    vec3d GetAftContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel ) const;
 
     // T must have methods .FlipNormal() and .Transform( Matrix4d )
     template <typename T>

@@ -504,9 +504,14 @@ vec3d Bogie::GetNominalMeanContactPoint( int isymm ) const
     return con;
 }
 
-vec3d Bogie::GetMeanContactPoint( int isymm, int tiremode, int suspensionmode ) const
+vec3d Bogie::GetMeanContactPoint( int isymm, int tiremode, int suspensionmode, double thetabogie ) const
 {
-    return GetNominalMeanContactPoint( isymm ) + GetTireDeflection( tiremode ) + GetSuspensionDeflection( isymm, suspensionmode );
+    vec3d v( 0, 0, -GetTireRadius( tiremode ) );
+    if ( m_NTandem() > 1 )
+    {
+        v.rotate_y( thetabogie );
+    }
+    return GetPivotPoint( isymm, suspensionmode ) + v;
 }
 
 vec3d Bogie::GetNominalPivotPoint( int isymm ) const
@@ -517,6 +522,45 @@ vec3d Bogie::GetNominalPivotPoint( int isymm ) const
 vec3d Bogie::GetPivotPoint( int isymm, int suspensionmode ) const
 {
     return GetNominalPivotPoint( isymm ) + GetSuspensionDeflection( isymm, suspensionmode );
+}
+
+double Bogie::GetAxleArm() const
+{
+    return 0.5 * ( m_NTandem() - 1 ) * m_Pitch();
+}
+
+vec3d Bogie::GetAxleDisplacement( double thetabogie ) const
+{
+    vec3d v( GetAxleArm(), 0, 0 );
+    if ( m_NTandem() > 1 )
+    {
+        v.rotate_y( thetabogie );
+    }
+    return v;
+}
+
+vec3d Bogie::GetFwdAxle( int isymm, int suspensionmode, double thetabogie ) const
+{
+    return GetPivotPoint( isymm, suspensionmode ) - GetAxleDisplacement( thetabogie );
+}
+
+vec3d Bogie::GetAftAxle( int isymm, int suspensionmode, double thetabogie ) const
+{
+    return GetPivotPoint( isymm, suspensionmode ) + GetAxleDisplacement( thetabogie );
+}
+
+vec3d Bogie::GetFwdContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel ) const
+{
+    vec3d v( 0, 0, -GetTireRadius( tiremode ) );
+    v.rotate_y( thetawheel + thetabogie );
+    return GetFwdAxle( isymm, suspensionmode, thetabogie ) + v;
+}
+
+vec3d Bogie::GetAftContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel ) const
+{
+    vec3d v( 0, 0, -GetTireRadius( tiremode ) );
+    v.rotate_y( thetawheel + thetabogie );
+    return GetAftAxle( isymm, suspensionmode, thetabogie ) + v;
 }
 
 void Bogie::AppendMainSurf( vector < VspSurf > &surfvec ) const
