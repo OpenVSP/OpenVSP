@@ -17,24 +17,10 @@
 AttributeTree::AttributeTree()
 {
     m_Screen = NULL;
-    m_AttrRootCollID.clear();
-    m_AttrIDs.clear();
-    m_CollIDs.clear();
-    m_AutoSelectIDs.clear();
     m_FilterAttrType = vsp::INVALID_TYPE;
     m_FilterObjType = vsp::ATTROBJ_FREE;
-    m_FilterStr = "";
+    m_FilterStr = string( "" );
     m_RedrawFlag = true;
-}
-
-AttributeTree::~AttributeTree()
-{
-    m_TreeItemArray.clear();
-    m_MapTreeAttributes.clear();
-    m_MapTreeCollections.clear();
-    m_MapTreeFullIDs.clear();
-
-    m_SelectIDs.clear();
 }
 
 void AttributeTree::Init( ScreenMgr* mgr, GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start, int start_y, int browser_h )
@@ -99,7 +85,7 @@ void AttributeTree::UpdateTree()
 
     TreeRowItem* root;
     TreeRowItem* focus_item;
-    const TreeRowItem* child_item;
+    TreeRowItem* child_item;
 
     AttributeCollection* ac;
     NameValData* nvd;
@@ -111,9 +97,6 @@ void AttributeTree::UpdateTree()
     if ( m_AttrTree )
     {
         m_TreeItemArray.clear();
-        m_MapTreeAttributes.clear();
-        m_MapTreeCollections.clear();
-        m_MapTreeFullIDs.clear();
         m_AttrTree->clear();   //GUI element
     }
 
@@ -134,20 +117,10 @@ void AttributeTree::UpdateTree()
     vector < vector < string > > tree_id_vecs = tree_id_coll_vecs[0];
     vector < vector < string > > tree_coll_vecs = tree_id_coll_vecs[1];
 
+    string id;
     vector < string > id_vec;
 
-    int counter;
-    string last_id;
-    string id;
-    string map_id;
-    // iterate through each vector of ids
-    vector < string > unique_names = {
-        "Geoms",
-        "Measures",
-        "Links",
-    };
-
-    if ( m_AttrTree  )
+    if ( m_AttrTree )
     {
         for ( int i = 0; i != tree_id_vecs.size(); ++i )
         {
@@ -168,17 +141,7 @@ void AttributeTree::UpdateTree()
 
                 if ( focus_item )
                 {
-                    map < TreeRowItem*, vector < string > > :: iterator id_iter;
-
-                    bool exists = false;
-                    for ( id_iter = m_MapTreeFullIDs.begin(); id_iter != m_MapTreeFullIDs.end(); id_iter ++ )
-                    {
-                        if ( !exists && !CheckVecMatch( id_vec, id_iter->second ) )
-                        {
-                            child_item = id_iter->first;
-                            exists = true;
-                        }
-                    }
+                    child_item = m_AttrTree->GetItemByVecId( id_vec );
                 }
 
                 if ( !child_item )
@@ -198,15 +161,16 @@ void AttributeTree::UpdateTree()
                     child_item = m_AttrTree->AddRow( row_str.c_str(), focus_item );
 
                     // creating a child item inserts its id vec and tree item into the map of ID vectors, used to disambiguate same-named containers
-                    m_MapTreeFullIDs.insert( { const_cast< TreeRowItem* >( child_item ), id_vec } );
 
+                    // insert id vec into that child item...
+                    child_item->SetRefVecID( id_vec );
                     if ( nvd )
                     {
-                        m_MapTreeAttributes.insert( { const_cast< TreeRowItem* >( child_item ), id } );
+                        child_item->SetRefAttrID( id );
 
                         if ( nvd->GetType() == vsp::ATTR_COLLECTION_DATA )
                         {
-                            const_cast< TreeRowItem* >( child_item )->labelcolor( FL_DARK_MAGENTA );
+                            child_item->labelcolor( FL_DARK_MAGENTA );
                         }
                         else if ( nvd->GetType() == vsp::PARM_REFERENCE_DATA )
                         {
@@ -214,20 +178,20 @@ void AttributeTree::UpdateTree()
                             Parm* p = ParmMgr.FindParm( pid );
                             if ( !pid.empty() && !p )
                             {
-                                const_cast< TreeRowItem* >( child_item )->labelfont( FL_HELVETICA_BOLD );
-                                const_cast< TreeRowItem* >( child_item )->labelcolor( FL_RED );
+                                child_item->labelfont( FL_HELVETICA_BOLD );
+                                child_item->labelcolor( FL_RED );
                             }
                         }
                     }
                     else
                     {
-                        const_cast< TreeRowItem* >( child_item )->labelfont( FL_HELVETICA_BOLD );
-                        const_cast< TreeRowItem* >( child_item )->labelcolor( FL_DARK_MAGENTA );
+                        child_item->labelfont( FL_HELVETICA_BOLD );
+                        child_item->labelcolor( FL_DARK_MAGENTA );
                     }
 
                     if ( ac )
                     {
-                        m_MapTreeCollections.insert( { const_cast< TreeRowItem* >( child_item ), coll_id } );
+                        child_item->SetRefCollID( coll_id );
                     }
 
                     if ( nvd || ac )
@@ -236,10 +200,10 @@ void AttributeTree::UpdateTree()
                         {
                             for ( int k = 0; k != m_SelectIDs.size(); ++k )
                             {
-                                if ( !CheckVecMatch( m_SelectIDs.at( k ), id_vec ) )
+                                if ( !TreeWithColumns::CheckVecMatch( m_SelectIDs.at( k ), id_vec ) )
                                 {
-                                    m_AttrTree->select( const_cast< TreeRowItem* >( child_item ), 0 );
-                                    m_TreeItemArray.push_back( const_cast< TreeRowItem* >( child_item ) );
+                                    m_AttrTree->select( child_item, 0 );
+                                    m_TreeItemArray.push_back( child_item );
                                 }
                             }
                         }
@@ -249,8 +213,8 @@ void AttributeTree::UpdateTree()
                             {
                                 if ( id.compare( m_AutoSelectIDs.at( k ) ) == 0 )
                                 {
-                                    m_AttrTree->select( const_cast< TreeRowItem* >( child_item ), 0 );
-                                    m_TreeItemArray.push_back( const_cast< TreeRowItem* >( child_item ) );
+                                    m_AttrTree->select( child_item, 0 );
+                                    m_TreeItemArray.push_back( child_item );
                                 }
                             }
                         }
@@ -258,13 +222,13 @@ void AttributeTree::UpdateTree()
 
                     for ( int k = 0; k != m_CloseVec.size(); ++k )
                     {
-                        if ( !CheckVecMatch( m_CloseVec.at( k ), id_vec ) )
+                        if ( !TreeWithColumns::CheckVecMatch( m_CloseVec.at( k ), id_vec ) )
                         {
-                            m_AttrTree->close( const_cast< TreeRowItem* >( child_item ), false );
+                            m_AttrTree->close( child_item, false );
                         }
                     }
                 }
-                focus_item = const_cast< TreeRowItem* >( child_item );
+                focus_item = child_item;
             }
         }
         m_AutoSelectIDs.clear();
@@ -283,18 +247,15 @@ void AttributeTree::SetTreeAttrID()
 
     for ( int i = 0; i != m_TreeItemArray.size(); ++i )
     {
-        if ( m_MapTreeAttributes.count( m_TreeItemArray.at( i ) ) )
+        if ( !m_TreeItemArray.at( i )->GetRefAttrID().empty() )
         {
-            m_AttrIDs.push_back( m_MapTreeAttributes.at( m_TreeItemArray.at( i ) ) );
+            m_AttrIDs.push_back( m_TreeItemArray.at( i )->GetRefAttrID() );
         }
-        if ( m_MapTreeCollections.count( m_TreeItemArray.at( i ) ) )
+        if ( !m_TreeItemArray.at( i )->GetRefCollID().empty() )
         {
-            m_CollIDs.push_back( m_MapTreeCollections.at( m_TreeItemArray.at( i ) ) );
+            m_CollIDs.push_back( m_TreeItemArray.at( i )->GetRefCollID() );
         }
-        if ( m_MapTreeFullIDs.count( m_TreeItemArray.at( i ) ) )
-        {
-            m_SelectIDs.push_back( m_MapTreeFullIDs.at( m_TreeItemArray.at( i ) ) );
-        }
+        m_SelectIDs.push_back( m_TreeItemArray.at( i )->GetRefVecID() );
     }
 }
 
@@ -344,7 +305,7 @@ bool AttributeTree::ItemState( const vector < string > & id_vec )
 {
     for ( int i = 0; i != m_CloseVec.size(); ++i )
     {
-        if ( !CheckVecMatch( m_CloseVec.at( i ), id_vec ) )
+        if ( !TreeWithColumns::CheckVecMatch( m_CloseVec.at( i ), id_vec ) )
         {
             return false;
         }
@@ -354,14 +315,8 @@ bool AttributeTree::ItemState( const vector < string > & id_vec )
 
 bool AttributeTree::ItemState( TreeRowItem* tree_item )
 {
-    vector < string > id_vec;
-    bool item_state;
-
-    if ( m_MapTreeFullIDs.count( tree_item ) )
-    {
-        id_vec = m_MapTreeFullIDs.at( tree_item );
-    }
-    item_state = ItemState( id_vec );
+    vector < string > id_vec = tree_item->GetRefVecID();
+    bool item_state = ItemState( id_vec );
     return item_state;
 }
 
@@ -393,10 +348,13 @@ void AttributeTree::SetAllNodes( bool open_state )
     m_CloseVec.clear();
     if ( !open_state )
     {
-        map < TreeRowItem*, vector < string > > :: iterator id_iter;
-        for ( id_iter = m_MapTreeFullIDs.begin(); id_iter != m_MapTreeFullIDs.end(); id_iter ++ )
+        for ( Fl_Tree_Item *item = m_AttrTree->first(); item; item = m_AttrTree->next(item) )
         {
-            m_CloseVec.push_back( id_iter->second );
+            TreeRowItem* tr_item = static_cast< TreeRowItem* >( item );
+            if ( tr_item )
+            {
+                m_CloseVec.push_back( tr_item->GetRefVecID() );
+            }
         }
     }
 }
@@ -412,21 +370,24 @@ void AttributeTree::TrimCloseVec()
     string collid;
     string attachid;
 
-    map < TreeRowItem*, vector < string > > :: iterator map_iter;
-
     for ( int j = 0; j != m_OpenBranchVec.size(); ++j )
     {
         collid = m_OpenBranchVec[j];
         attachid = AttributeMgr.GetObjectParent( m_OpenBranchVec[j] );
         //find the map tree item with that ID, and get its vector to that point...
-        for ( map_iter = m_MapTreeFullIDs.begin(); map_iter != m_MapTreeFullIDs.end(); map_iter ++ )
+
+        for ( Fl_Tree_Item *item = m_AttrTree->first(); item; item = m_AttrTree->next(item) )
         {
-            //if the last item of the map vec == that of the open branch vec's ID, then we have id'd the vector to root.
-            if ( map_iter->second.back() == attachid )
+            TreeRowItem* tr_item = static_cast< TreeRowItem* >( item );
+            if ( tr_item )
             {
-                open_vec = map_iter->second;
-                open_vec.push_back( collid );
-                open_vec_update.push_back( open_vec );
+                vector < string > id_vec = tr_item->GetRefVecID();
+                if ( !id_vec.empty() && id_vec.back() == attachid )
+                {
+                    open_vec = id_vec;
+                    open_vec.push_back( collid );
+                    open_vec_update.push_back( open_vec );
+                }
             }
         }
     }
@@ -434,14 +395,12 @@ void AttributeTree::TrimCloseVec()
     for ( int i = 0; i != m_CloseVec.size(); ++i )
     {
         vec_found = false;
-        for ( map_iter = m_MapTreeFullIDs.begin(); map_iter != m_MapTreeFullIDs.end(); map_iter ++ )
+        // loop through the attrTree items...
+
+        TreeRowItem* tr_item_check = m_AttrTree->GetItemByVecId( m_CloseVec.at(i) );
+        if ( tr_item_check )
         {
-            if ( !CheckVecMatch( map_iter->second, m_CloseVec.at(i) ) )
-            {
-                // also if the map_iter doesn't contain any of the IDs from the OpenBranchVec...
-                // need the item that corresponds to the OpenBranchVec's IDs->Root
-                vec_found = true;
-            }
+            vec_found = true;
         }
 
         for ( int j = 0; j != open_vec_update.size(); ++j )
@@ -450,7 +409,7 @@ void AttributeTree::TrimCloseVec()
             if ( open_vec_update.at(j).size() >= m_CloseVec.at(i).size() )
             {
                 open_vec_slice = vector < string >( open_vec_update.at(j).begin(), open_vec_update.at(j).begin() + m_CloseVec.at(i).size() );
-                if ( !CheckVecMatch( open_vec_slice, m_CloseVec.at(i) ) )
+                if ( !TreeWithColumns::CheckVecMatch( open_vec_slice, m_CloseVec.at(i) ) )
                 {
                     vec_found = false;
                 }
@@ -470,31 +429,6 @@ void AttributeTree::ClearExtraIDs()
 {
     m_OpenBranchUpdate.clear();
     m_OpenBranchVec.clear();
-}
-
-// return pos int for failure states, 0 for perfect match
-int AttributeTree::CheckVecMatch( const vector < string > & vec1, const vector < string > & vec2 )
-{
-    if ( vec1.size() != vec2.size() )
-    {
-        // fail type 1 = unequal length of vectors
-        return 1;
-    }
-    string str1;
-    string str2;
-
-    for ( int i = 0; i != vec1.size(); ++i )
-    {
-        str1 = vec1.at(i);
-        str2 = vec2.at(i);
-        if ( str1.compare(str2) != 0 )
-        {
-            // fail type 2 = one of the internal strings doesn't match
-            return 2;
-        }
-    }
-    // if no failures detected, return 0 for exact match
-    return 0;
 }
 
 void AttributeTree::SetAutoSelectID( const vector < string > & ids )
@@ -522,15 +456,10 @@ void AttributeTree::DeviceCB( Fl_Widget *w )
     // if item is clicked on collapse icon, toggle it and store that in the open/close vecs
     if ( tree_item && tree_item->event_on_collapse_icon( m_AttrTree->prefs() ) )
     {
-        vector < string > id_vec;
-
-        if ( m_MapTreeFullIDs.count( tree_item ) )
-        {
-            id_vec = m_MapTreeFullIDs.at( tree_item );
-        }
+        vector < string > id_vec = tree_item->GetRefVecID();
 
         // if tree_item is in the openVec, then add it to the closed vec and remove it from openVec
-        if ( id_vec.size() )
+        if ( !id_vec.empty() )
         {
             ToggleState( id_vec );
         }

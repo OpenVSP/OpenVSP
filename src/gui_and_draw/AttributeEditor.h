@@ -24,7 +24,6 @@ class AttributeTree : public GuiDevice
 {
 public:
     AttributeTree();
-    ~AttributeTree();
     void Init( ScreenMgr* mgr, GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start = false, int start_y = 0, int browser_h = 150 );
     void Activate();
     void Deactivate();
@@ -55,8 +54,6 @@ public:
     void TrimCloseVec();
 
     void ClearExtraIDs();
-
-    static int CheckVecMatch( const vector < string > & vec1, const vector < string > & vec2 );
 
     void SetAutoSelectID( const vector < string > & ids );
 
@@ -130,12 +127,8 @@ protected:
 
 private:
 
-    map< TreeRowItem*, string > m_MapTreeAttributes;
-    map< TreeRowItem*, string > m_MapTreeCollections;
-    map< TreeRowItem*, vector < string > > m_MapTreeFullIDs;
-
-    TreeRowItem* m_TreeItem;
     vector < TreeRowItem* > m_TreeItemArray;
+
 };
 
 class AttributeEditor : public GuiDevice
