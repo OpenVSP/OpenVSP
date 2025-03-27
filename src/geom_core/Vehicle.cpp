@@ -2120,19 +2120,23 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
         }
     }
 
-    xmlNodePtr setattrnode = xmlNewChild( node, NULL, BAD_CAST"SetAttrs", NULL );
-    if ( setattrnode )
+    xmlNodePtr set_attr_node = xmlNewChild( node, NULL, BAD_CAST"SetAttrs", NULL );
+    if ( set_attr_node )
     {
         for ( int i = 0; i < m_SetAttrCollVec.size(); i++ )
         {
             int j = i + SET_FIRST_USER;
-            string set_name = m_SetNameVec[j];
-            xmlNodePtr setcollnode = xmlNewChild( setattrnode, NULL, BAD_CAST set_name.c_str(), NULL );
-            if ( setcollnode )
-            {
-                m_SetAttrCollVec[i]->EncodeXml( setcollnode );
-            }
 
+            if ( m_SetAttrCollVec[i]->GetAttrDataFlag() )
+            {
+                xmlNodePtr dnode = xmlNewChild( set_attr_node, NULL, BAD_CAST"Set", NULL );
+                if ( dnode )
+                {
+                    XmlUtil::SetStringProp( dnode, "SetName", m_SetNameVec[j] );
+                    XmlUtil::SetIntProp( dnode, "SetIndex", i );
+                    m_SetAttrCollVec[i]->EncodeXml( dnode );
+                }
+            }
         }
     }
 
@@ -2200,16 +2204,21 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
         m_SetAttrCollVec[i]->SetCollAttach( GetID(), vsp::ATTROBJ_SET );
     }
 
-    xmlNodePtr setattrnode = XmlUtil::GetNode( node, "SetAttrs", 0 );
-    if ( setattrnode )
+    xmlNodePtr set_attr_node = XmlUtil::GetNode( node, "SetAttrs", 0 );
+    if ( set_attr_node )
     {
-        for ( int i = 0; i < m_SetNameVec.size() - SET_FIRST_USER; i++ )
+        int def_int = -1;
+        string def_str = string();
+
+        int num_set_colls = XmlUtil::GetNumNames( set_attr_node, "Set" );
+        for ( int i = 0; i < num_set_colls; i++ )
         {
-            int j = i + SET_FIRST_USER;
-            xmlNodePtr collnode = XmlUtil::GetNode( setattrnode, m_SetNameVec[j].c_str(), 0 );
-            if ( collnode )
+            xmlNodePtr set_node = XmlUtil::GetNode( set_attr_node, "Set", i );
+            if ( set_node )
             {
-                m_SetAttrCollVec[i]->DecodeXml( collnode );
+                string set_name = XmlUtil::FindStringProp( set_node, "SetName", def_str );
+                int set_index = XmlUtil::FindIntProp( set_node, "SetIndex", def_int );
+                m_SetAttrCollVec[set_index]->DecodeXml( set_node );
             }
         }
     }
