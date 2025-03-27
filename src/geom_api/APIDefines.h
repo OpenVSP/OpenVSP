@@ -309,8 +309,8 @@ enum CHEVRON_TYPE { CHEVRON_NONE,	/*!< No chevron. */
 	\ingroup Enumerations
 */
 /*! Enum for Chevron W parameter modes. */
-enum CHEVRON_W01_MODES { CHEVRON_W01_SE, // Start and End	
-                         CHEVRON_W01_CW, // Center and Width	
+enum CHEVRON_W01_MODES { CHEVRON_W01_SE,	/*!< Start and End */
+                         CHEVRON_W01_CW,	/*!< Center and Width */
                          CHEVRON_W01_NUM_MODES	/*!< Number of chevron W parameter mode types. */
 };
 
@@ -1631,8 +1631,8 @@ enum XSEC_CRV_TYPE {XS_UNDEFINED = -1,
 	\ingroup Enumerations
 */
 /*! Enum for XSec drivers. */
-enum XSEC_DRIVERS { WIDTH_XSEC_DRIVER,     // First two are used for Circle.  Others are used for general XSecCurves	
-                    AREA_XSEC_DRIVER,      // Area must be second entry.	
+enum XSEC_DRIVERS { WIDTH_XSEC_DRIVER,	/*!< Width driver */     // First two are used for Circle.  Others are used for general XSecCurves
+                    AREA_XSEC_DRIVER,	/*!< Area driver */      // Area must be second entry.
                     HEIGHT_XSEC_DRIVER,	/*!< Height driver */
                     HWRATIO_XSEC_DRIVER,	/*!< Height/width ratio driver */
                     NUM_XSEC_DRIVER,	/*!< Number of XSec drivers */
