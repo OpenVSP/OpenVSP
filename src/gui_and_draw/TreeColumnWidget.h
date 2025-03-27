@@ -16,6 +16,7 @@
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Tree.H>
 
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -74,9 +75,38 @@ public:
        return m_LeftMargin;
     }
 
+    void SetRefAttrID( const string & id )
+    {
+        m_RefAttrID = id;
+    }
+    void SetRefCollID( const string & id )
+    {
+        m_RefCollID = id;
+    }
+    void SetRefVecID( const vector < string > & id_vec )
+    {
+        m_RefVecID = id_vec;
+    }
+
+    string GetRefAttrID()
+    {
+        return m_RefAttrID;
+    }
+    string GetRefCollID()
+    {
+        return m_RefCollID;
+    }
+    vector < string > GetRefVecID()
+    {
+        return m_RefVecID;
+    }
+
 protected:
 
     int m_LeftMargin;
+    string m_RefAttrID;
+    string m_RefCollID;
+    vector < string > m_RefVecID;
 };
 
 // Small convenience class to handle adding columns.
@@ -153,7 +183,15 @@ class TreeWithColumns : public Fl_Tree
 
         TreeRowItem *AddRow( const char *s, TreeRowItem *parent_item = nullptr );
 
+        TreeRowItem* GetItemByRefId( const string & attr_id = string(), const string & coll_id = string(), const vector < string > & id_vec = vector<string>() );
+
+        TreeRowItem* GetItemByAttrId( const string & attr_id );
+        TreeRowItem* GetItemByCollId( const string & coll_id );
+        TreeRowItem* GetItemByVecId( const vector < string > & id_vec );
+
         void GetSelectedItems( vector < TreeRowItem* > *item_vec );
+
+        static int CheckVecMatch( const vector < string > & vec1, const vector < string > & vec2 );
 
         // Manage column resizing
         int handle( int e );

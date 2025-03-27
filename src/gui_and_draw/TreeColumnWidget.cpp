@@ -208,6 +208,49 @@ TreeRowItem* TreeWithColumns::AddRow( const char *s, TreeRowItem *parent_item )
     return item;
 }
 
+TreeRowItem* TreeWithColumns::GetItemByRefId( const string & attr_id, const string & coll_id, const vector < string > & id_vec )
+{
+    TreeRowItem* ret_item = nullptr;
+
+    for ( Fl_Tree_Item *tree_item = first(); tree_item; tree_item = next(tree_item) )
+    {
+        TreeRowItem* tree_row_item = static_cast< TreeRowItem* >( tree_item );
+        if ( tree_row_item )
+        {
+            if ( !attr_id.empty() && tree_row_item->GetRefAttrID() == attr_id )
+            {
+                return tree_row_item;
+            }
+            else if ( !coll_id.empty() && tree_row_item->GetRefCollID() == coll_id )
+            {
+                return tree_row_item;
+            }
+            else if ( !id_vec.empty() && !CheckVecMatch( tree_row_item->GetRefVecID(), id_vec ) )
+            {
+                return tree_row_item;
+            }
+        }
+    }
+
+    return ret_item;
+}
+
+TreeRowItem* TreeWithColumns::GetItemByAttrId( const string & attr_id )
+{
+    return GetItemByRefId( attr_id, string(), vector<string>() );
+}
+
+TreeRowItem* TreeWithColumns::GetItemByCollId( const string & coll_id )
+{
+    return GetItemByRefId( string(), coll_id, vector<string>() );
+}
+
+TreeRowItem* TreeWithColumns::GetItemByVecId( const vector < string > & id_vec )
+{
+    return GetItemByRefId( string(), string(), id_vec );
+}
+
+
 void TreeWithColumns::GetSelectedItems( vector < TreeRowItem* > *item_vec )
 {
     Fl_Tree_Item_Array base_array;
@@ -222,6 +265,31 @@ void TreeWithColumns::GetSelectedItems( vector < TreeRowItem* > *item_vec )
             item_vec->push_back( treeRowItem );
         }
     }
+}
+
+// return pos int for failure states, 0 for perfect match
+int TreeWithColumns::CheckVecMatch( const vector < string > & vec1, const vector < string > & vec2 )
+{
+    if ( vec1.size() != vec2.size() )
+    {
+        // fail type 1 = unequal length of vectors
+        return 1;
+    }
+    string str1;
+    string str2;
+
+    for ( int i = 0; i != vec1.size(); ++i )
+    {
+        str1 = vec1.at(i);
+        str2 = vec2.at(i);
+        if ( str1.compare(str2) != 0 )
+        {
+            // fail type 2 = one of the internal strings doesn't match
+            return 2;
+        }
+    }
+    // if no failures detected, return 0 for exact match
+    return 0;
 }
 
 int TreeWithColumns::handle( int e )
