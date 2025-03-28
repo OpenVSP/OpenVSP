@@ -231,6 +231,8 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 750, "Rou
     m_SelectionFlag = false;
     m_AddMultipleFlag = false;
     m_InsertMultipleFlag = false;
+
+    RemoveTab( GetTab( m_SubSurfTab_ind ) );
 }
 
 
