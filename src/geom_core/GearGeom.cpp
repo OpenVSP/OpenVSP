@@ -41,8 +41,8 @@ Bogie::Bogie()
     m_TravelY.Init( "TravelY", "Bogie", this, 0.0, -1e12, 1e12 );
     m_TravelZ.Init( "TravelZ", "Bogie", this, 1.0, -1e12, 1e12 );
 
-    m_TravelCompressed.Init( "TravelCompressed", "Bogie", this, 0.0, 0, 1e12 );
-    m_TravelExtended.Init( "TravelExtended", "Bogie", this, 0.0, 0, 1e12 );
+    m_TravelCompressed.Init( "TravelCompressed", "Bogie", this, 1.0, 0, 1e12 );
+    m_TravelExtended.Init( "TravelExtended", "Bogie", this, 1.0, 0, 1e12 );
 
     //Tire
     m_DiameterMode.Init( "DiameterMode", "Tire", this, vsp::TIRE_DIM_IN, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 2 ); // TIRE_DIM_FRAC not allowed
