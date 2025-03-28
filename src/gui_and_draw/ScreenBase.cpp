@@ -497,8 +497,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_XFormLayout.SetFitWidthFlag( false );
     m_XFormLayout.SetSameLineFlag( true );
-    m_XFormLayout.AddLabel( "Coord System:", 170 );
-    m_XFormLayout.SetButtonWidth( m_XFormLayout.GetRemainX() / 2 );
+    m_XFormLayout.AddLabel( "Coord System:", m_XFormLayout.GetW() - 2 * m_XFormLayout.GetInputWidth() );
+    m_XFormLayout.SetButtonWidth( m_XFormLayout.GetInputWidth() );
     m_XFormLayout.AddButton( m_XFormRelativeToggle, "Rel" );
     m_XFormLayout.AddButton( m_XFormAbsoluteToggle, "Abs" );
     m_XFormLayout.ForceNewLine();
