@@ -296,6 +296,8 @@ bool RoutingScreen::Update()
 
             m_GeomPicker.SetGeomChoice( rpt->GetParentID() );
 
+            m_SurfChoice.Update( rpt->m_SurfIndx.GetID() );
+
             //==== Attachments ====//
             m_RoutePtCoordUSlider.Activate();
             m_RoutePtCoordUScaleToggleGroup.Activate();
