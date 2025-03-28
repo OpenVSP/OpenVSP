@@ -752,44 +752,44 @@ double Vsp1DCurve::Invert( double f ) const
 {
     if ( m_Curve.number_segments() > 0 )
     {
-    oned_curve_point_type p0;
-    p0 << -f;
+        oned_curve_point_type p0;
+        p0 << -f;
 
-    oned_piecewise_curve_type shifted = m_Curve;
-    shifted.translate( p0 );
+        oned_piecewise_curve_type shifted = m_Curve;
+        shifted.translate( p0 );
 
-    int n = shifted.number_segments();
-    oned_curve_segment_type c;
-    oned_curve_point_type p;
+        int n = shifted.number_segments();
+        oned_curve_segment_type c;
+        oned_curve_point_type p;
 
-    vector < double > tmap;
-    m_Curve.get_pmap( tmap );
+        vector < double > tmap;
+        m_Curve.get_pmap( tmap );
 
-    for ( int i = 0; i < n; i++ )
-    {
-        shifted.get( c, i );
-
-        int ncross = c.numzerocrossings();
-
-        if ( ncross < 0 )
+        for ( int i = 0; i < n; i++ )
         {
-            // function is zero everywhere.
-            double tmin = tmap[i];
-            double tmax = tmap[i+1];
-            return ( tmin + tmax ) * 0.5;
-        }
-        if ( ncross > 0 )
-        {
-            // function crosses zero ncross times.
-            double t;
-            double val;
-            val = eli::geom::intersect::find_zero( t, c, 0.5, 0, 1 );
+            shifted.get( c, i );
 
-            double tmin = tmap[i];
-            double dt = tmap[i+1] - tmin;
-            return tmin + t * dt;
+            int ncross = c.numzerocrossings();
+
+            if ( ncross < 0 )
+            {
+                // function is zero everywhere.
+                double tmin = tmap[i];
+                double tmax = tmap[i+1];
+                return ( tmin + tmax ) * 0.5;
+            }
+            if ( ncross > 0 )
+            {
+                // function crosses zero ncross times.
+                double t;
+                double val;
+                val = eli::geom::intersect::find_zero( t, c, 0.5, 0, 1 );
+
+                double tmin = tmap[i];
+                double dt = tmap[i+1] - tmin;
+                return tmin + t * dt;
+            }
         }
-    }
     }
     return f; // target value not found, return input value.
 }
