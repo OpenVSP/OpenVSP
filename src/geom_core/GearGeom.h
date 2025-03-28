@@ -224,7 +224,7 @@ public:
     void DelAllBogies();
     void ShowAllBogies();
     void HideAllBogies();
-    Bogie *  GetBogie( const string &id );
+    Bogie *  GetBogie( const string &id ) const;
     vector < string > GetAllBogies();
     void DelBogie( const int &i );
     void DelBogie( const string &id );

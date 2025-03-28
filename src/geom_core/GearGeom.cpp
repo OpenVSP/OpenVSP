@@ -927,7 +927,7 @@ void GearGeom::HideAllBogies()
     }
 }
 
-Bogie * GearGeom::GetBogie( const string &id )
+Bogie * GearGeom::GetBogie( const string &id ) const
 {
     for( int i = 0; i < ( int )m_Bogies.size(); i++ )
     {
