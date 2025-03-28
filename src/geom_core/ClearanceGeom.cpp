@@ -80,6 +80,8 @@ void ClearanceGeom::OffsetXSecs( double off )
 
 void ClearanceGeom::UpdateSurf()
 {
+    m_MainSurfVec[0] = VspSurf();
+
     //===== Find Parent ====//
     Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
     if ( !parent_geom )
@@ -140,87 +142,87 @@ void ClearanceGeom::UpdateSurf()
             }
 
         }
-    }
 
 
-    if ( m_ClearanceMode() == CLEARANCE_ROTOR_TIP_PATH )
-    {
-        double radius = m_Diameter() * 0.5;
-        double flapr = radius * m_FlapRadiusFract();
-        double bladelen = radius - flapr;
+        if ( m_ClearanceMode() == vsp::CLEARANCE_ROTOR_TIP_PATH )
+        {
+            double radius = m_Diameter() * 0.5;
+            double flapr = radius * m_FlapRadiusFract();
+            double bladelen = radius - flapr;
 
-        // Fraction of radius to place cubic control point
-        // f = k * tan( theta * 0.25 );
-        const double k = 1.332440737409712163877261103501904586378054505346634846763928262809148692267066998533212237794404131;
+            // Fraction of radius to place cubic control point
+            // f = k * tan( theta * 0.25 );
+            const double k = 1.332440737409712163877261103501904586378054505346634846763928262809148692267066998533212237794404131;
 
-        curve_segment_type linear_seg( 1 );
-        curve_segment_type cubic_seg( 3 );
+            curve_segment_type linear_seg( 1 );
+            curve_segment_type cubic_seg( 3 );
 
-        curve_segment_type::control_point_type thDir;
-        curve_segment_type::control_point_type antDir;
+            curve_segment_type::control_point_type thDir;
+            curve_segment_type::control_point_type antDir;
 
-        curve_segment_type::control_point_type cpOrigin;
-        curve_segment_type::control_point_type cpThrust, cpThrust1, cpThrust2;
-        curve_segment_type::control_point_type cpMid;
-        curve_segment_type::control_point_type cpAnti, cpAnti1, cpAnti2;
+            curve_segment_type::control_point_type cpOrigin;
+            curve_segment_type::control_point_type cpThrust, cpThrust1, cpThrust2;
+            curve_segment_type::control_point_type cpMid;
+            curve_segment_type::control_point_type cpAnti, cpAnti1, cpAnti2;
 
-        cpOrigin << 0.0, flapr, 0.0;
-        cpThrust << sin( -m_ThetaThrust() * PI / 180.0 ) * bladelen, flapr + cos( -m_ThetaThrust() * PI / 180.0 ) * bladelen, 0.0;
-        cpMid << 0.0, radius, 0.0;
-        cpAnti << sin( m_ThetaAntiThrust() * PI / 180.0 ) * bladelen, flapr + cos( m_ThetaAntiThrust() * PI / 180.0 ) * bladelen, 0.0;
+            cpOrigin << 0.0, flapr, 0.0;
+            cpThrust << sin( -m_ThetaThrust() * PI / 180.0 ) * bladelen, flapr + cos( -m_ThetaThrust() * PI / 180.0 ) * bladelen, 0.0;
+            cpMid << 0.0, radius, 0.0;
+            cpAnti << sin( m_ThetaAntiThrust() * PI / 180.0 ) * bladelen, flapr + cos( m_ThetaAntiThrust() * PI / 180.0 ) * bladelen, 0.0;
 
-        thDir << cos( -m_ThetaThrust() * PI / 180.0 ), -sin( -m_ThetaThrust() * PI / 180.0 ), 0.0;
-        cpThrust1 = cpThrust + thDir * k * bladelen * tan( m_ThetaThrust() * 0.25 * PI / 180.0 );
-        cpThrust2 << k * tan( -m_ThetaThrust() * 0.25 * PI / 180.0 ) * bladelen, radius, 0.0;;
+            thDir << cos( -m_ThetaThrust() * PI / 180.0 ), -sin( -m_ThetaThrust() * PI / 180.0 ), 0.0;
+            cpThrust1 = cpThrust + thDir * k * bladelen * tan( m_ThetaThrust() * 0.25 * PI / 180.0 );
+            cpThrust2 << k * tan( -m_ThetaThrust() * 0.25 * PI / 180.0 ) * bladelen, radius, 0.0;;
 
-        antDir << -cos( m_ThetaAntiThrust() * PI / 180.0 ), sin( m_ThetaAntiThrust() * PI / 180.0 ), 0.0;
-        cpAnti1 << k * tan( m_ThetaAntiThrust() * 0.25 * PI / 180.0 ) * bladelen, radius, 0.0;;
-        cpAnti2 = cpAnti + antDir * k * bladelen * tan( m_ThetaAntiThrust() * 0.25 * PI / 180.0 );
+            antDir << -cos( m_ThetaAntiThrust() * PI / 180.0 ), sin( m_ThetaAntiThrust() * PI / 180.0 ), 0.0;
+            cpAnti1 << k * tan( m_ThetaAntiThrust() * 0.25 * PI / 180.0 ) * bladelen, radius, 0.0;;
+            cpAnti2 = cpAnti + antDir * k * bladelen * tan( m_ThetaAntiThrust() * 0.25 * PI / 180.0 );
 
-        VspCurve crv;
-        linear_seg.set_control_point( cpOrigin, 0 );
-        linear_seg.set_control_point( cpThrust, 1 );
-        crv.AppendCurveSegment( linear_seg );
+            VspCurve crv;
+            linear_seg.set_control_point( cpOrigin, 0 );
+            linear_seg.set_control_point( cpThrust, 1 );
+            crv.AppendCurveSegment( linear_seg );
 
-        cubic_seg.set_control_point( cpThrust, 0 );
-        cubic_seg.set_control_point( cpThrust1, 1 );
-        cubic_seg.set_control_point( cpThrust2, 2 );
-        cubic_seg.set_control_point( cpMid, 3 );
-        crv.AppendCurveSegment( cubic_seg );
+            cubic_seg.set_control_point( cpThrust, 0 );
+            cubic_seg.set_control_point( cpThrust1, 1 );
+            cubic_seg.set_control_point( cpThrust2, 2 );
+            cubic_seg.set_control_point( cpMid, 3 );
+            crv.AppendCurveSegment( cubic_seg );
 
-        cubic_seg.set_control_point( cpMid, 0 );
-        cubic_seg.set_control_point( cpAnti1, 1 );
-        cubic_seg.set_control_point( cpAnti2, 2 );
-        cubic_seg.set_control_point( cpAnti, 3 );
-        crv.AppendCurveSegment( cubic_seg );
+            cubic_seg.set_control_point( cpMid, 0 );
+            cubic_seg.set_control_point( cpAnti1, 1 );
+            cubic_seg.set_control_point( cpAnti2, 2 );
+            cubic_seg.set_control_point( cpAnti, 3 );
+            crv.AppendCurveSegment( cubic_seg );
 
-        linear_seg.set_control_point( cpAnti, 0 );
-        linear_seg.set_control_point( cpOrigin, 1 );
-        crv.AppendCurveSegment( linear_seg );
+            linear_seg.set_control_point( cpAnti, 0 );
+            linear_seg.set_control_point( cpOrigin, 1 );
+            crv.AppendCurveSegment( linear_seg );
 
-        m_MainSurfVec[0].CreateBodyRevolution( crv, true );
-        m_MainSurfVec[0].SetMagicVParm( false );
-    }
-    else if ( m_ClearanceMode() == CLEARANCE_ROTOR_BURST )
-    {
-        double radius = m_Diameter() * 0.5;
+            m_MainSurfVec[0].CreateBodyRevolution( crv, true );
+            m_MainSurfVec[0].SetMagicVParm( false );
+        }
+        else if ( m_ClearanceMode() == vsp::CLEARANCE_ROTOR_BURST )
+        {
+            double radius = m_Diameter() * 0.5;
 
-        double xstart = -m_RootOffset() * m_RootLength();
-        double xend = xstart + m_RootLength();
+            double xstart = -m_RootOffset() * m_RootLength();
+            double xend = xstart + m_RootLength();
 
-        vector < vec3d > pts;
-        pts.emplace_back( vec3d( xstart, 0.0, 0.0 ) );
-        pts.emplace_back( vec3d( xstart + tan( -m_ThetaThrust() * PI / 180.0 ) * radius, radius, 0.0 ) );
-        pts.emplace_back( vec3d( xend + tan( m_ThetaAntiThrust() * PI / 180.0 ) * radius, radius, 0.0 ) );
-        pts.emplace_back( vec3d( xend, 0.0, 0.0 ) );
+            vector < vec3d > pts;
+            pts.emplace_back( vec3d( xstart, 0.0, 0.0 ) );
+            pts.emplace_back( vec3d( xstart + tan( -m_ThetaThrust() * PI / 180.0 ) * radius, radius, 0.0 ) );
+            pts.emplace_back( vec3d( xend + tan( m_ThetaAntiThrust() * PI / 180.0 ) * radius, radius, 0.0 ) );
+            pts.emplace_back( vec3d( xend, 0.0, 0.0 ) );
 
-        vector < double > ts = { 0, 4.0*1.0/3.0, 4.0*2.0/3.0, 4.0 };
+            vector < double > ts = { 0, 4.0*1.0/3.0, 4.0*2.0/3.0, 4.0 };
 
-        VspCurve crv;
-        crv.InterpolateLinear( pts, ts, false );
+            VspCurve crv;
+            crv.InterpolateLinear( pts, ts, false );
 
-        m_MainSurfVec[0].CreateBodyRevolution( crv, true );
-        m_MainSurfVec[0].SetMagicVParm( false );
+            m_MainSurfVec[0].CreateBodyRevolution( crv, true );
+            m_MainSurfVec[0].SetMagicVParm( false );
+        }
     }
 
 
