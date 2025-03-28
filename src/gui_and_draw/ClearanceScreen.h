@@ -22,31 +22,68 @@ public:
     ClearanceScreen( ScreenMgr* mgr );
     virtual ~ClearanceScreen()                            {}
 
+    virtual void DisplayGroup( GroupLayout* group );
+
     virtual void Show();
     virtual bool Update();
 
+    virtual void UpdateGroundPlaneChoices();
+
     virtual void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
 
 protected:
 
     GroupLayout m_DesignLayout;
 
+    GroupLayout m_RotorTipPathLayput;
+    GroupLayout m_RotorBurstLayout;
+    GroupLayout m_3ptGroundPlaneLayout;
 
 
     Choice m_ClearanceModeChoice;
 
-    ToggleButton m_AutoDiamToggleButton;
+    // Rotor Tip Path
+    ToggleButton m_RTP_AutoDiamToggleButton;
 
-    SliderAdjRangeInput m_DiameterSlider;
-    SliderAdjRangeInput m_FlapRadiusFractSlider;
+    SliderAdjRangeInput m_RTP_DiameterSlider;
+    SliderAdjRangeInput m_RTP_FlapRadiusFractSlider;
 
-    SliderAdjRangeInput m_RootLengthSlider;
-    SliderAdjRangeInput m_RootOffsetSlider;
+    SliderAdjRangeInput m_RTP_ThetaThrustSlider;
+    SliderAdjRangeInput m_RTP_ThetaAntiThrustSlider;
 
-    SliderAdjRangeInput m_ThetaThrustSlider;
-    SliderAdjRangeInput m_ThetaAntiThrustSlider;
+    // Rotor Burst
+    ToggleButton m_RB_AutoDiamToggleButton;
 
+    SliderAdjRangeInput m_RB_DiameterSlider;
+    SliderAdjRangeInput m_RB_FlapRadiusFractSlider;
 
+    SliderAdjRangeInput m_RB_ThetaThrustSlider;
+    SliderAdjRangeInput m_RB_ThetaAntiThrustSlider;
+
+    SliderAdjRangeInput m_RB_RootLengthSlider;
+    SliderAdjRangeInput m_RB_RootOffsetSlider;
+
+    // 3pt Ground Plane
+
+    vector < string > m_BogieIDVec;
+
+    Choice m_3ptBogie1Choice;
+    Choice m_3ptBogie1SymmChoice;
+    Choice m_3ptBogie1SuspensionModeChoice;
+    Choice m_3ptBogie1TireModeChoice;
+
+    Choice m_3ptBogie2Choice;
+    Choice m_3ptBogie2SymmChoice;
+    Choice m_3ptBogie2SuspensionModeChoice;
+    Choice m_3ptBogie2TireModeChoice;
+
+    Choice m_3ptBogie3Choice;
+    Choice m_3ptBogie3SymmChoice;
+    Choice m_3ptBogie3SuspensionModeChoice;
+    Choice m_3ptBogie3TireModeChoice;
+
+    GroupLayout* m_CurrDisplayGroup;
 };
 
 
