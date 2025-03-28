@@ -88,6 +88,9 @@ protected:
     ToggleButton m_SecondaryGeomToggle;
     GeomPicker m_SecondaryGeomPicker;
 
+    ToggleButton m_SecondaryUseZGroundToggle;
+    SliderAdjRangeInput m_SecondaryZGroundSlider;
+
     TriggerButton m_ShowSecondaryGeom;
     TriggerButton m_ShowOnlySecondaryGeom;
 

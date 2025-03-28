@@ -31,6 +31,9 @@ InterferenceCase::InterferenceCase()
 
     m_SecondaryType.Init( "SecondaryType", "Projection", this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_BNDY_OPTIONS - 2 ); // Note - 2, MODE_TARGET not allowed.
 
+    m_SecondaryZGround.Init( "SecondaryZGround", "Projection", this, 0.0, -1e12, 1e12 );
+    m_SecondaryUseZGround.Init( "SecondaryUseZGround", "Projection", this, true, false, true );
+
     m_IntererenceCheckType.Init( "IntererenceCheckType", groupname, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
 
     m_LastResultValue.Init( "LastResult", groupname, this, 0.0, -1e12, 1e12 );
@@ -237,9 +240,14 @@ string InterferenceCase::Evaluate()
             }
             case vsp::PLANE_STATIC_DISTANCE_INTERFERENCE:
             {
-                vec3d org, norm;
-                norm.set_z( 1.0 );
                 primary_tmv = GetPrimaryTMeshVec();
+
+                vec3d org, norm;
+                if ( m_SecondaryUseZGround() )
+                {
+                    org.set_z( m_SecondaryZGround() );
+                    norm.set_z( 1 );
+                }
                 m_LastResult = PlaneInterferenceCheck( primary_tmv, org, norm, m_TMeshVec );
                 break;
             }

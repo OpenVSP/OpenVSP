@@ -55,6 +55,9 @@ public:
     IntParm m_SecondaryType; // Set or Geom
     string m_SecondaryGeomID;
 
+    Parm m_SecondaryZGround;
+    BoolParm m_SecondaryUseZGround;
+
     IntParm m_IntererenceCheckType;
 
     string m_LastResult;

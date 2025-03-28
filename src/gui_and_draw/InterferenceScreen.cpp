@@ -157,6 +157,13 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
     m_SecondaryToggleGroup.AddButton( m_SecondarySetToggle.GetFlButton() );
     m_SecondaryToggleGroup.AddButton( m_SecondaryGeomToggle.GetFlButton() );
 
+    m_ICaseLayout.SetSameLineFlag( false );
+    m_ICaseLayout.SetFitWidthFlag( true );
+
+    m_ICaseLayout.AddButton( m_SecondaryUseZGroundToggle, "Use Z Plane" );
+    m_ICaseLayout.AddSlider( m_SecondaryZGroundSlider, "Z", 10, "%6.4f" );
+
+    m_ICaseLayout.SetSameLineFlag( true );
     m_ICaseLayout.SetFitWidthFlag( false );
 
     m_ICaseLayout.SetButtonWidth( m_ICaseLayout.GetW() * 0.5 );
@@ -207,6 +214,8 @@ bool InterferenceScreen::Update()
 
         m_ResultOutput.Update( icase->m_LastResultValue.GetID() );
 
+        m_SecondaryZGroundSlider.Update( icase->m_SecondaryZGround.GetID() );
+        m_SecondaryUseZGroundToggle.Update( icase->m_SecondaryUseZGround.GetID() );
 
         Vehicle *veh = VehicleMgr.GetVehicle();
         if ( veh )
