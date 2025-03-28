@@ -27,6 +27,7 @@
 #include "BORGeom.h"
 #include "ParmMgr.h"
 #include "Background3DMgr.h"
+#include "RoutingGeom.h"
 
 using namespace vsp;
 
@@ -1058,6 +1059,7 @@ bool GeomScreen::Update()
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     bool wing_parent = false;
+    bool routing_parent = false;
     if ( veh )
     {
         Geom* parent = veh->FindGeom( geom_ptr->GetParentID() );
@@ -1068,6 +1070,12 @@ bool GeomScreen::Update()
             if ( wing_ptr )
             {
                 wing_parent = true;
+            }
+
+            RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( parent );
+            if ( routing_ptr )
+            {
+                routing_parent = true;
             }
         }
     }
@@ -1288,7 +1296,7 @@ bool GeomScreen::Update()
     {
         Geom* parent = veh->FindGeom( geom_ptr->GetParentID() );
 
-        if ( parent )
+        if ( parent && !routing_parent )
         {
             m_AttachLayout.GetGroup()->activate();
         }
