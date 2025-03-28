@@ -721,12 +721,8 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             }
         }
     }
-    else
-    {
-        return;
-    }
 
-    m_ScreenMgr->SetUpdateFlag( true );
+    GeomScreen::GuiDeviceCallBack( gui_device );
 }
 
 void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId )
