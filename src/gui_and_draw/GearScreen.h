@@ -45,6 +45,8 @@ protected:
     ToggleButton m_AutoPlaneSizeToggle;
     SliderAdjRangeInput m_PlaneSizeSlider;
 
+    ToggleButton m_IncludeNominalGroundPlaneToggle;
+
     // Bogie
     TriggerButton m_AddBogieButton;
     TriggerButton m_RenameBogieButton;

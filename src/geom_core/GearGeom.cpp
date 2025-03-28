@@ -585,6 +585,8 @@ GearGeom::GearGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_PlaneSize.Init( "PlaneSize", "GroundPlane", this, 10.0, 0.0, 1e12 );
     m_AutoPlaneFlag.Init( "AutoPlaneFlag", "GroundPlane", this, true, false, true );
 
+    m_IncludeNominalGroundPlane.Init( "ShowNominalGroundPlane", "GroundPlane", this, true, false, true );
+
     //==== Init Parms ====//
     m_TessU = 10;
     m_TessW = 8;
@@ -604,7 +606,11 @@ void GearGeom::UpdateSurf()
 {
     int nbogies = m_Bogies.size();
 
-    int nsurf = 1;
+    int nsurf = 0;
+    if ( m_IncludeNominalGroundPlane() )
+    {
+        nsurf++;
+    }
     for ( int i = 0; i < nbogies; i++ )
     {
         if ( m_Bogies[i] )
@@ -622,7 +628,10 @@ void GearGeom::UpdateSurf()
         m_MainSurfVec.clear();
         m_MainSurfVec.reserve( nsurf );
 
-        m_MainSurfVec.resize( 1 );
+        if ( m_IncludeNominalGroundPlane() )
+        {
+            m_MainSurfVec.resize( 1 );
+        }
 
         m_BogieMainSurfIndex.resize( nbogies );
 
@@ -648,9 +657,12 @@ void GearGeom::UpdateSurf()
         }
     }
 
-    double d = m_PlaneSize();
-    m_MainSurfVec[0].CreatePlane( -d, d, -d, d );
-    m_MainSurfVec[0].SetSurfCfdType( vsp::CFD_TRANSPARENT );
+    if ( m_IncludeNominalGroundPlane() )
+    {
+        double d = m_PlaneSize();
+        m_MainSurfVec[0].CreatePlane( -d, d, -d, d );
+        m_MainSurfVec[0].SetSurfCfdType( vsp::CFD_TRANSPARENT );
+    }
 }
 
 void GearGeom::UpdateMainTessVec( bool firstonly )
@@ -664,8 +676,11 @@ void GearGeom::UpdateMainTessVec( bool firstonly )
         m_MainTessVec.reserve( nmain );
         m_MainFeatureTessVec.reserve( nmain );
 
-        m_MainTessVec.resize( 1 );
-        m_MainFeatureTessVec.resize( 1 );
+        if ( m_IncludeNominalGroundPlane() )
+        {
+            m_MainTessVec.resize( 1 );
+            m_MainFeatureTessVec.resize( 1 );
+        }
 
         int nbogies = m_Bogies.size();
         for ( int i = 0; i < nbogies; i++ )
@@ -692,8 +707,11 @@ void GearGeom::UpdateMainTessVec( bool firstonly )
         }
     }
 
-    // Update MTV for ground plane.
-    UpdateTess( m_MainSurfVec[0], false, false, m_MainTessVec[0], m_MainFeatureTessVec[0] );
+    if ( m_IncludeNominalGroundPlane() )
+    {
+        // Update MTV for ground plane.
+        UpdateTess( m_MainSurfVec[0], false, false, m_MainTessVec[0], m_MainFeatureTessVec[0] );
+    }
 }
 
 void GearGeom::UpdateMainDegenGeomPreview()
@@ -705,7 +723,10 @@ void GearGeom::UpdateMainDegenGeomPreview()
         m_MainDegenGeomPreviewVec.clear();
         m_MainDegenGeomPreviewVec.reserve( nmain );
 
-        m_MainDegenGeomPreviewVec.resize( 1 );
+        if ( m_IncludeNominalGroundPlane() )
+        {
+            m_MainDegenGeomPreviewVec.resize( 1 );
+        }
 
         int nbogies = m_Bogies.size();
         for ( int i = 0; i < nbogies; i++ )
@@ -722,8 +743,11 @@ void GearGeom::UpdateMainDegenGeomPreview()
 
     if ( nmain >= 1 )
     {
-        // Update degen preview for ground plane
-        CreateDegenGeom( m_MainSurfVec[0], 0, m_MainDegenGeomPreviewVec[0], true );
+        if ( m_IncludeNominalGroundPlane() )
+        {
+            // Update degen preview for ground plane
+            CreateDegenGeom( m_MainSurfVec[0], 0, m_MainDegenGeomPreviewVec[0], true );
+        }
     }
 }
 
@@ -971,5 +995,10 @@ void GearGeom::UpdateBBox( )
 
     // Fill m_BBox and m_ScaleIndependentBBox while skipping ground plane.
     // Call at the end so m_Bb*Len and m_Bb*Min are updated correctly.
-    Geom::UpdateBBox( 1, gnd_box );
+    int istart = 0;
+    if ( m_IncludeNominalGroundPlane() )
+    {
+        istart = 1;
+    }
+    Geom::UpdateBBox( istart, gnd_box );
 }

@@ -234,6 +234,8 @@ public:
 
     IntParm m_ModelLenUnits;
 
+    BoolParm m_IncludeNominalGroundPlane;
+
     Parm m_PlaneSize;
     BoolParm m_AutoPlaneFlag;
 

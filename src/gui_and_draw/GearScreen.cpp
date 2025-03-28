@@ -43,6 +43,8 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 700, "Gear" )
     m_DesignLayout.ForceNewLine();
     m_DesignLayout.SetSameLineFlag( false );
 
+    m_DesignLayout.AddButton( m_IncludeNominalGroundPlaneToggle, "Include Nominal Ground Plane" );
+
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Model Units" );
 
@@ -332,6 +334,8 @@ bool Gearcreen::Update()
 
     m_AutoPlaneSizeToggle.Update( gear_ptr->m_AutoPlaneFlag.GetID() );
     m_PlaneSizeSlider.Update( gear_ptr->m_PlaneSize.GetID() );
+
+    m_IncludeNominalGroundPlaneToggle.Update( gear_ptr->m_IncludeNominalGroundPlane.GetID() );
 
     if ( gear_ptr->m_AutoPlaneFlag() )
     {
