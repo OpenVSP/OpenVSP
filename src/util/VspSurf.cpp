@@ -3120,48 +3120,48 @@ void VspSurf::BuildMCurve( const double &r, Vsp1DCurve &mcurve ) const
 {
     if ( m_Surface.number_u_patches() > 0 && m_Surface.number_v_patches() > 0 )
     {
-    double umin, vmin, umax, vmax;
-    double vmid;
+        double umin, vmin, umax, vmax;
+        double vmid;
 
-    m_Surface.get_parameter_min( umin, vmin );
-    m_Surface.get_parameter_max( umax, vmax );
-    vmid = 0.5 * ( vmin + vmax );
+        m_Surface.get_parameter_min( umin, vmin );
+        m_Surface.get_parameter_max( umax, vmax );
+        vmid = 0.5 * ( vmin + vmax );
 
-    double u = r * umax;
+        double u = r * umax;
 
-    piecewise_curve_type cut, clow, cup, cspine;
-    m_Surface.get_uconst_curve( cut, u );
+        piecewise_curve_type cut, clow, cup, cspine;
+        m_Surface.get_uconst_curve( cut, u );
 
-    cut.split( clow, cup, vmid );
-    cup.reverse();
+        cut.split( clow, cup, vmid );
+        cup.reverse();
 
-    cspine.sum( clow, cup );
-    cspine.scale( 0.5 );
+        cspine.sum( clow, cup );
+        cspine.scale( 0.5 );
 
-    VspCurve spine;
-    spine.SetCurve( cspine );
+        VspCurve spine;
+        spine.SetCurve( cspine );
 
-    vector< vec3d > x;
-    vector< double > s;
-    spine.TessAdapt( x, s, 1e-2, 10 );
+        vector< vec3d > x;
+        vector< double > s;
+        spine.TessAdapt( x, s, 1e-2, 10 );
 
-    vector < double > m;
-    m.resize( x.size(), 0.0 );
-    for ( int i = 1; i < x.size(); i++ )
-    {
-        vec3d dx = x[i] - x[i-1];
-        m[i] = m[ i - 1 ] + dx.mag();
-    }
+        vector < double > m;
+        m.resize( x.size(), 0.0 );
+        for ( int i = 1; i < x.size(); i++ )
+        {
+            vec3d dx = x[i] - x[i-1];
+            m[i] = m[ i - 1 ] + dx.mag();
+        }
 
-    double mmax = m[ x.size() - 1 ];
-    double vvmax = s[ x.size() - 1 ];
+        double mmax = m[ x.size() - 1 ];
+        double vvmax = s[ x.size() - 1 ];
 
-    for ( int i = 0; i < x.size(); i++ )
-    {
-        m[i] /= mmax;
-        s[i] /= vvmax;
-    }
+        for ( int i = 0; i < x.size(); i++ )
+        {
+            m[i] /= mmax;
+            s[i] /= vvmax;
+        }
 
-    mcurve.InterpolateLinear( m, s, false );
+        mcurve.InterpolateLinear( m, s, false );
     }
 }
