@@ -4422,7 +4422,7 @@ vec3d Geom::CompTanT( const int &indx, const double &r, const double &s, const d
 bool Geom::CompRotCoordSys( const int &indx, const double &u, const double &w, Matrix4d &rotmat )
 {
     const VspSurf* surf_ptr = GetSurfPtr( indx );
-    if ( surf_ptr )
+    if ( surf_ptr && surf_ptr->GetNumSectU() > 0 && surf_ptr->GetNumSectW() > 0 )
     {
         rotmat = surf_ptr->CompRotCoordSys( u, w );
         return true;
@@ -4433,7 +4433,7 @@ bool Geom::CompRotCoordSys( const int &indx, const double &u, const double &w, M
 bool Geom::CompTransCoordSys( const int &indx, const double &u, const double &w, Matrix4d &transmat )
 {
     const VspSurf* surf_ptr = GetSurfPtr( indx );
-    if ( surf_ptr )
+    if ( surf_ptr && surf_ptr->GetNumSectU() > 0 && surf_ptr->GetNumSectW() > 0 )
     {
         transmat = surf_ptr->CompTransCoordSys( u, w );
         return true;
@@ -4444,7 +4444,7 @@ bool Geom::CompTransCoordSys( const int &indx, const double &u, const double &w,
 bool Geom::CompRotCoordSysRST( const int &indx, const double &r, const double &s, const double &t, Matrix4d &rotmat )
 {
     const VspSurf* surf_ptr = GetSurfPtr( indx );
-    if ( surf_ptr )
+    if ( surf_ptr && surf_ptr->GetNumSectU() > 0 && surf_ptr->GetNumSectW() > 0 )
     {
         rotmat = surf_ptr->CompRotCoordSysRST( r, s, t );
         return true;
@@ -4455,7 +4455,7 @@ bool Geom::CompRotCoordSysRST( const int &indx, const double &r, const double &s
 bool Geom::CompTransCoordSysRST( const int &indx, const double &r, const double &s, const double &t, Matrix4d &transmat )
 {
     const VspSurf* surf_ptr = GetSurfPtr( indx );
-    if ( surf_ptr )
+    if ( surf_ptr && surf_ptr->GetNumSectU() > 0 && surf_ptr->GetNumSectW() > 0 )
     {
         transmat = surf_ptr->CompTransCoordSysRST( r, s, t );
         return true;
@@ -4466,7 +4466,7 @@ bool Geom::CompTransCoordSysRST( const int &indx, const double &r, const double 
 bool Geom::CompRotCoordSysLMN( const int &indx, const double &l, const double &m, const double &n, Matrix4d &rotmat )
 {
     const VspSurf* surf_ptr = GetSurfPtr( indx );
-    if ( surf_ptr )
+    if ( surf_ptr && surf_ptr->GetNumSectU() > 0 && surf_ptr->GetNumSectW() > 0 )
     {
         rotmat = surf_ptr->CompRotCoordSysLMN( l, m, n );
         return true;
@@ -4477,7 +4477,7 @@ bool Geom::CompRotCoordSysLMN( const int &indx, const double &l, const double &m
 bool Geom::CompTransCoordSysLMN( const int &indx, const double &l, const double &m, const double &n, Matrix4d &transmat )
 {
     const VspSurf* surf_ptr = GetSurfPtr( indx );
-    if ( surf_ptr )
+    if ( surf_ptr && surf_ptr->GetNumSectU() > 0 && surf_ptr->GetNumSectW() > 0 )
     {
         transmat = surf_ptr->CompTransCoordSysLMN( l, m, n );
         return true;
@@ -4488,7 +4488,7 @@ bool Geom::CompTransCoordSysLMN( const int &indx, const double &l, const double 
 void Geom::ConvertRSTtoLMN( const int &indx, const double &r, const double &s, const double &t, double &l_out, double &m_out, double &n_out )
 {
     const VspSurf* surf_ptr = GetSurfPtr( indx );
-    if ( surf_ptr )
+    if ( surf_ptr && surf_ptr->GetNumSectU() > 0 && surf_ptr->GetNumSectW() > 0 )
     {
         surf_ptr->ConvertRSTtoLMN( r, s, t, l_out, m_out, n_out );
         return;
@@ -4501,7 +4501,7 @@ void Geom::ConvertRSTtoLMN( const int &indx, const double &r, const double &s, c
 void Geom::ConvertRtoL( const int &indx, const double &r, double &l_out )
 {
     const VspSurf* surf_ptr = GetSurfPtr( indx );
-    if ( surf_ptr )
+    if ( surf_ptr && surf_ptr->GetNumSectU() > 0 && surf_ptr->GetNumSectW() > 0 )
     {
         surf_ptr->ConvertRtoL( r, l_out );
         return;
@@ -4512,7 +4512,7 @@ void Geom::ConvertRtoL( const int &indx, const double &r, double &l_out )
 void Geom::ConvertLMNtoRST( const int &indx, const double &l, const double &m, const double &n, double &r, double &s, double &t )
 {
     const VspSurf* surf_ptr = GetSurfPtr( indx );
-    if ( surf_ptr )
+    if ( surf_ptr && surf_ptr->GetNumSectU() > 0 && surf_ptr->GetNumSectW() > 0 )
     {
         surf_ptr->ConvertLMNtoRST( l, m, n, r, s, t );
         return;
@@ -4525,7 +4525,7 @@ void Geom::ConvertLMNtoRST( const int &indx, const double &l, const double &m, c
 void Geom::ConvertLtoR( const int &indx, const double &l, double &r_out )
 {
     const VspSurf* surf_ptr = GetSurfPtr( indx );
-    if ( surf_ptr )
+    if ( surf_ptr && surf_ptr->GetNumSectU() > 0 && surf_ptr->GetNumSectW() > 0 )
     {
         surf_ptr->ConvertLtoR( l, r_out );
         return;
