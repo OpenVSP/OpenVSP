@@ -544,6 +544,11 @@ void Vsp1DCurve::AppendCurveSegment( const oned_curve_segment_type &c )
 //===== Compute Point  =====//
 double Vsp1DCurve::CompPnt( double u ) const
 {
+    if ( m_Curve.number_segments() <= 0 )
+    {
+        return 0.0;
+    }
+
     oned_curve_point_type v( m_Curve.f( u ) );
 
     return v.x();
@@ -552,6 +557,11 @@ double Vsp1DCurve::CompPnt( double u ) const
 //===== Compute Tangent  =====//
 double Vsp1DCurve::CompTan( double u ) const
 {
+    if ( m_Curve.number_segments() <= 0 )
+    {
+        return 0.0;
+    }
+
     oned_curve_point_type v( m_Curve.fp( u ) );
 
     return v.x();
@@ -740,6 +750,8 @@ void Vsp1DCurve::CapMin()
 
 double Vsp1DCurve::Invert( double f ) const
 {
+    if ( m_Curve.number_segments() > 0 )
+    {
     oned_curve_point_type p0;
     p0 << -f;
 
@@ -778,7 +790,7 @@ double Vsp1DCurve::Invert( double f ) const
             return tmin + t * dt;
         }
     }
-
+    }
     return f; // target value not found, return input value.
 }
 
