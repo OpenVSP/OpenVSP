@@ -503,6 +503,11 @@ bool vec3d::isfinite() const
     return true;
 }
 
+void vec3d::print( const char* label ) const
+{
+    printf( "%s%f %f %f\n", label, v[0], v[1], v[2] );
+}
+
 //******* Dot Product:  x = a.dot(b) ******//
 double dot( const vec3d& a, const vec3d& b )
 {

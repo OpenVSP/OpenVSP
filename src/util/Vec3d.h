@@ -1033,6 +1033,8 @@ public:
     bool isinf() const;
     bool isfinite() const;
 
+    void print( const char* label = "" ) const;
+
     friend double dot( const vec3d& a, const vec3d& b ); // x = dot(a,b)
     friend vec3d cross( const vec3d& a, const vec3d& b ); // a = cross(b,c)
     friend double angle( const vec3d& a, const vec3d& b );
