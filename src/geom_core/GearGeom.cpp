@@ -1077,3 +1077,9 @@ bool GearGeom::GetPtNormalInWorld( const string &cp1, int isymm1, int suspension
     normal = m_ModelMatrix.xformnorm( normal );
     return ret;
 }
+
+void GearGeom::GetNominalPtNormalInWorld( vec3d &pt, vec3d &normal ) const
+{
+    pt = m_ModelMatrix.xform( vec3d() );
+    normal = m_ModelMatrix.xformnorm( vec3d( 0, 0, 1 ) );
+}

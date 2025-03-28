@@ -246,6 +246,8 @@ public:
                                      const string &cp3, int isymm3, int suspension3, int tire3,
                                      vec3d &pt, vec3d &normal ) const;
 
+    virtual void GetNominalPtNormalInWorld( vec3d &pt, vec3d &normal ) const;
+
     IntParm m_ModelLenUnits;
 
     BoolParm m_IncludeNominalGroundPlane;
