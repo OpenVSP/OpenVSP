@@ -37,6 +37,15 @@ public:
     virtual void UpdateBBox();
     virtual bool IsModelScaleSensitive()        { return true; }
 
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void SetContactPt1ID( const std::string& id );
+    virtual void SetContactPt2ID( const std::string& id );
+    virtual void SetContactPt3ID( const std::string& id );
+
+    virtual void GetPtNormal( vec3d &pt, vec3d &normal ) const;
+
     IntParm m_ClearanceMode;
 
     BoolParm m_AutoDiam;
@@ -50,6 +59,22 @@ public:
     Parm m_ThetaAntiThrust;
 
     int m_ParentType;
+
+
+    string m_ContactPt1_ID;
+    IntParm m_ContactPt1_Isymm;
+    IntParm m_ContactPt1_SuspensionMode;
+    IntParm m_ContactPt1_TireMode;
+
+    string m_ContactPt2_ID;
+    IntParm m_ContactPt2_Isymm;
+    IntParm m_ContactPt2_SuspensionMode;
+    IntParm m_ContactPt2_TireMode;
+
+    string m_ContactPt3_ID;
+    IntParm m_ContactPt3_Isymm;
+    IntParm m_ContactPt3_SuspensionMode;
+    IntParm m_ContactPt3_TireMode;
 
 protected:
 
