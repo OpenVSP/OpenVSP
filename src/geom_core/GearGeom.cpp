@@ -1002,3 +1002,78 @@ void GearGeom::UpdateBBox( )
     }
     Geom::UpdateBBox( istart, gnd_box );
 }
+
+void GearGeom::BuildThreePtBasis( const string &cp1, int isymm1, int suspension1, int tire1,
+                                  const string &cp2, int isymm2, int suspension2, int tire2,
+                                  const string &cp3, int isymm3, int suspension3, int tire3,
+                                  Matrix4d &mat )
+{
+    mat.loadIdentity();
+
+    vec3d pcen, z;
+
+    if ( GetPtNormal( cp1, isymm1, suspension1, tire1,
+                      cp2, isymm2, suspension2, tire2,
+                      cp3, isymm3, suspension3, tire3,
+                      pcen, z ) )
+    {
+        const int iminor = z.minor_comp();
+
+        vec3d y;
+        y[ iminor ] = 1;
+
+        vec3d x = cross( y, z );
+        x.normalize();
+        y = cross( z, x );
+        y.normalize();
+
+        mat.translatev( pcen );
+        mat.setBasis( x, y, z );
+    }
+}
+
+bool GearGeom::GetPtNormal( const string &cp1, int isymm1, int suspension1, int tire1,
+                            const string &cp2, int isymm2, int suspension2, int tire2,
+                            const string &cp3, int isymm3, int suspension3, int tire3,
+                            vec3d &pt, vec3d &normal ) const
+{
+    const Bogie *b1 = GetBogie( cp1 );
+    const Bogie *b2 = GetBogie( cp2 );
+    const Bogie *b3 = GetBogie( cp3 );
+
+    if ( b1 && b2 && b3 )
+    {
+        const vec3d p1 = b1->GetMeanContactPoint( isymm1, tire1, suspension1, 0.0 );
+        const vec3d p2 = b2->GetMeanContactPoint( isymm2, tire2, suspension2, 0.0 );
+        const vec3d p3 = b3->GetMeanContactPoint( isymm3, tire3, suspension3, 0.0 );
+        pt = ( p1 + p2 + p3 ) / 3.0;
+
+        const vec3d v12 = p2 - p1;
+        const vec3d v13 = p3 - p1;
+
+        normal = cross( v12, v13 );
+        normal.normalize();
+
+        // Check that plane points mostly 'up' in GearGeom coordinate system.  Nominal ground plane will point
+        // straight up in these coordinates.  Changing the order of the contact points can change the orientation
+        // of the normal vector.  This sign check prevents us from requiring cw/ccw ordering by the user.
+        if ( normal.z() < 0 )
+        {
+            normal = -normal;
+        }
+
+        return true;
+    }
+    return false;
+}
+
+bool GearGeom::GetPtNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
+                                   const string &cp2, int isymm2, int suspension2, int tire2,
+                                   const string &cp3, int isymm3, int suspension3, int tire3,
+                                   vec3d &pt, vec3d &normal ) const
+{
+    bool ret = GetPtNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, cp3, isymm3, suspension3, tire3, pt, normal );
+    pt = m_ModelMatrix.xform( pt );
+    normal = m_ModelMatrix.xformnorm( normal );
+    return ret;
+}

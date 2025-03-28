@@ -232,6 +232,20 @@ public:
     virtual void UpdateBBox();
     virtual bool IsModelScaleSensitive()        { return m_AutoPlaneFlag(); }
 
+    virtual void BuildThreePtBasis( const string &cp1, int isymm1, int suspension1, int tire1,
+                                    const string &cp2, int isymm2, int suspension2, int tire2,
+                                    const string &cp3, int isymm3, int suspension3, int tire3,
+                                    Matrix4d &mat );
+    virtual bool GetPtNormal( const string &cp1, int isymm1, int suspension1, int tire1,
+                              const string &cp2, int isymm2, int suspension2, int tire2,
+                              const string &cp3, int isymm3, int suspension3, int tire3,
+                              vec3d &pt, vec3d &normal ) const;
+
+    virtual bool GetPtNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
+                                     const string &cp2, int isymm2, int suspension2, int tire2,
+                                     const string &cp3, int isymm3, int suspension3, int tire3,
+                                     vec3d &pt, vec3d &normal ) const;
+
     IntParm m_ModelLenUnits;
 
     BoolParm m_IncludeNominalGroundPlane;
