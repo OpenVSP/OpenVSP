@@ -16,6 +16,11 @@
 #include "ParmMgr.h"
 #include "SnapTo.h"
 
+#include "ClearanceGeom.h"
+#include "GearGeom.h"
+
+#include "MeshGeom.h"
+
 InterferenceCase::InterferenceCase()
 {
     string groupname = "InterferenceCase";
@@ -169,6 +174,30 @@ vector< TMesh* > InterferenceCase::GetSecondaryTMeshVec()
     return tmv;
 }
 
+void InterferenceCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_SecondaryType() == vsp::GEOM_TARGET )
+        {
+            Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+
+            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+            GearGeom* gear_ptr = dynamic_cast< GearGeom* >( geom );
+
+            if ( clearance_ptr )
+            {
+                clearance_ptr->GetPtNormal( pt, normal );
+            }
+            else if ( gear_ptr )
+            {
+                gear_ptr->GetNominalPtNormalInWorld( pt, normal );
+            }
+        }
+    }
+}
+
 xmlNodePtr InterferenceCase::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr icase_node = xmlNewChild( node, NULL, BAD_CAST"InterferenceCase", NULL );
@@ -248,6 +277,20 @@ string InterferenceCase::Evaluate()
                     org.set_z( m_SecondaryZGround() );
                     norm.set_z( 1 );
                 }
+                else
+                {
+                    GetSecondaryPtNormal( org, norm );
+                }
+
+                // Create MeshGeom of matching plane.
+                // Vehicle * veh = VehicleMgr.GetVehicle();
+                // string meshid = veh->AddMeshGeom( vsp::SET_NONE, vsp::SET_NONE, false );
+                // Geom* geom_ptr = veh->FindGeom( meshid );
+                // MeshGeom *mg = dynamic_cast<  MeshGeom* > ( geom_ptr );
+                // mg->m_TMeshVec.push_back( MakeSlice( org, norm, 10 ) );
+                // mg->m_SurfDirty = true;
+                // mg->Update();
+
                 m_LastResult = PlaneInterferenceCheck( primary_tmv, org, norm, m_TMeshVec );
                 break;
             }

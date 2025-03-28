@@ -30,6 +30,8 @@ public:
     vector< TMesh* > GetPrimaryTMeshVec();
     vector< TMesh* > GetSecondaryTMeshVec();
 
+    void GetSecondaryPtNormal( vec3d &pt, vec3d &normal );
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
