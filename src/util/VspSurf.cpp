@@ -3118,6 +3118,8 @@ void VspSurf::BuildLCurve()
 
 void VspSurf::BuildMCurve( const double &r, Vsp1DCurve &mcurve ) const
 {
+    if ( m_Surface.number_u_patches() > 0 && m_Surface.number_v_patches() > 0 )
+    {
     double umin, vmin, umax, vmax;
     double vmid;
 
@@ -3161,4 +3163,5 @@ void VspSurf::BuildMCurve( const double &r, Vsp1DCurve &mcurve ) const
     }
 
     mcurve.InterpolateLinear( m, s, false );
+    }
 }
