@@ -71,6 +71,9 @@ public:
     Parm m_DeltaZRel;
 
 
+    vec3d m_AttachOrigin;
+    vector < vec3d > m_AttachAxis;
+
 protected:
     string m_ParentID;
     vec3d m_Pt;
@@ -146,6 +149,7 @@ protected:
 
     DrawObj m_DynamicRouteDO;
     DrawObj m_ActivePointDO;
+    vector < DrawObj > m_ActivePointAxisDrawObj_vec;
 
     std::size_t m_ParentHash;
     vector < string > m_ParentVec;

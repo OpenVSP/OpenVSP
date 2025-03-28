@@ -64,9 +64,12 @@ void RoutingPoint::Update()
     UpdateParms();
 
     Vehicle* veh = VehicleMgr.GetVehicle();
+    double axlen = 1.0;
 
     if ( veh )
     {
+        axlen = veh->m_AxisLength();
+
         Geom * g = veh->FindGeom( m_ParentID );
         if ( g )
         {
@@ -137,9 +140,12 @@ void RoutingPoint::Update()
             absMat.initMat( transMat.data() );
             transMat.matMult( rotMat.data() );
 
+            Matrix4d attachMat;
+
             vec3d pt;
             if ( m_DeltaType() == vsp::REL )
             {
+                attachMat = transMat;
                 pt = vec3d( m_DeltaXRel(), m_DeltaYRel(), m_DeltaZRel() );
                 m_Pt = transMat.xform( pt );
 
@@ -153,6 +159,7 @@ void RoutingPoint::Update()
             }
             else
             {
+                attachMat = absMat;
                 pt = vec3d( m_DeltaX(), m_DeltaY(), m_DeltaZ() );
                 m_Pt = absMat.xform( pt );
 
@@ -166,6 +173,16 @@ void RoutingPoint::Update()
             }
 
 
+            m_AttachOrigin = attachMat.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
+            m_AttachAxis.clear();
+            m_AttachAxis.resize( 3 );
+            for ( int i = 0; i < 3; i++ )
+            {
+                vec3d pt = vec3d( 0.0, 0.0, 0.0 );
+                pt.v[i] = axlen;
+                m_AttachAxis[i] = attachMat.xform( pt );
+            }
         }
     }
 
@@ -1016,6 +1033,8 @@ void RoutingGeom::UpdateDrawObj()
 
 void RoutingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
+    char str[256];
+
     Geom::LoadDrawObjs( draw_obj_vec );
 
     m_RouteLineDO.m_Visible = !m_Picking && GetSetFlag( vsp::SET_SHOWN );
@@ -1033,5 +1052,33 @@ void RoutingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_ActivePointDO.m_PntVec.push_back( m_MainRouteTessVec[0].m_ptline[0][ m_ActivePointIndex ] );
         m_ActivePointDO.m_Visible = !m_Picking && m_Vehicle->IsGeomActive( m_ID );
         draw_obj_vec.push_back( &m_ActivePointDO );
+    }
+
+
+    //=== Axis ===//
+    m_ActivePointAxisDrawObj_vec.clear();
+    if ( m_ActivePointIndex >= 0 && m_ActivePointIndex < m_RoutingPointVec.size() )
+    {
+        RoutingPoint *rpt = m_RoutingPointVec[ m_ActivePointIndex ];
+
+        if ( rpt && rpt->m_AttachAxis.size() == 3 )
+        {
+            m_ActivePointAxisDrawObj_vec.resize( 3 );
+            for ( int i = 0; i < 3; i++ )
+            {
+                MakeDashedLine( rpt->m_AttachOrigin,  rpt->m_AttachAxis[i], 4, m_ActivePointAxisDrawObj_vec[i].m_PntVec );
+                vec3d c;
+                c.v[i] = 1.0;
+                m_ActivePointAxisDrawObj_vec[i].m_LineColor = c;
+                m_ActivePointAxisDrawObj_vec[i].m_GeomChanged = true;
+                m_ActivePointAxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+                snprintf( str, sizeof( str ),  "_%d", i );
+                m_ActivePointAxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
+                m_ActivePointAxisDrawObj_vec[i].m_Visible = !m_Picking && m_Vehicle->IsGeomActive( m_ID );
+                m_ActivePointAxisDrawObj_vec[i].m_LineWidth = 2.0;
+                m_ActivePointAxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+                draw_obj_vec.push_back( &m_ActivePointAxisDrawObj_vec[i] );
+            }
+        }
     }
 }
