@@ -1156,6 +1156,22 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
                 wit = wlist.begin();
                 continue;
             }
+            else if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N1 ) )
+            {
+                (*wit).SwapEdgeDirection();
+                wakes[iwake].push_back( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N0 ) )
+            {
+                (*wit).SwapEdgeDirection();
+                wakes[iwake].push_front( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
             wit++;
         }
     }
