@@ -337,7 +337,7 @@ def export_airfoils(set=vsp_module.SET_ALL, vsp_instance=None, **kwargs):
     import vsp_airfoils
     af_dict = dict()
     with RunManager(**kwargs) as r:
-        output_file = r.cwd + "/airfoils.csv"
+        output_file = r.wd + "/airfoils.csv"
         vsp.ExportFile(output_file, set, vsp.EXPORT_SELIG_AIRFOIL)
 
         #parse airfoils.csv
