@@ -134,6 +134,7 @@ SET( VSP_JUST_G_LIBRARIES
     cartesian
     ${GLEW_LIBRARY}
     fltk::gl
+    fltk::images
     ${OPENGL_LIBRARIES}
 )
 
