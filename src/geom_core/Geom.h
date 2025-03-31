@@ -552,11 +552,11 @@ public:
     virtual vector< TMesh* > CreateTMeshVec() const;
     vector< TMesh* > CreateTMeshVec( const vector<VspSurf> &surf_vec ) const;
 
-    virtual BndBox GetBndBox()
+    virtual BndBox GetBndBox() const
     {
         return m_BBox;
     }
-    virtual BndBox GetOrigBndBox()
+    virtual BndBox GetOrigBndBox() const
     {
         return m_OrigBBox;
     }
@@ -876,6 +876,7 @@ protected:
     virtual void UpdateGrandChildren( Geom* grandparent, bool fullupdate );
     virtual void UpdateChildren( bool fullupdate );
     virtual void UpdateStepChildren( bool fullupdate );
+    virtual void UpdateBBox( int istart );
     virtual void UpdateBBox();
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj()    {};

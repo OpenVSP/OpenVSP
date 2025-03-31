@@ -2242,12 +2242,17 @@ void Geom::UpdateStepChildren( bool fullupdate )
     m_StepChildIDVec = updated_child_vec;
 }
 
-void Geom::UpdateBBox()
+void Geom::UpdateBBox( )
+{
+    UpdateBBox( 0 );
+}
+
+void Geom::UpdateBBox( int istart )
 {
     //==== Load Bounding Box ====//
     BndBox new_box;
     BndBox bb;
-    for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
+    for ( int i = istart ; i < GetNumTotalSurfs() ; i++ )
     {
         m_SurfVec[i].GetBoundingBox( bb );
         new_box.Update( bb );

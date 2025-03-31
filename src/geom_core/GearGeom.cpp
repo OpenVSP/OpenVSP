@@ -361,7 +361,6 @@ void GearGeom::UpdateSurf()
     m_MainSurfVec.reserve( nsurf );
 
     m_MainSurfVec.resize( 1 );
-    m_MainSurfVec[0].CreatePlane( -1, 1, -1, 1 );
 
 
     for ( int i = 0; i < nbogies; i++ )
@@ -371,6 +370,20 @@ void GearGeom::UpdateSurf()
             m_Bogies[i]->AppendMainSurf( m_MainSurfVec );
         }
     }
+
+
+    BndBox bbox;
+    if ( VehicleMgr.GetVehicle()->GetVisibleBndBox( bbox ) )
+    {
+        bbox.Expand( 5.0 * bbox.DiagDist() );
+        m_MainSurfVec[0].CreatePlane( bbox.GetMin( 0 ), bbox.GetMax( 0 ), bbox.GetMin( 1 ), bbox.GetMax( 1 ) );
+    }
+    else
+    {
+        m_MainSurfVec[0].CreatePlane( -10, 10, -10, 10 );
+    }
+
+
 }
 
 //==== Compute Rotation Center ====//
@@ -547,4 +560,9 @@ void GearGeom::DelBogie( const string &id )
     }
 
     DelBogie( idel );
+}
+
+void GearGeom::UpdateBBox( )
+{
+    Geom::UpdateBBox( 1 );
 }

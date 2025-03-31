@@ -113,6 +113,7 @@ public:
     void DelBogie( const int &i );
     void DelBogie( const string &id );
 
+    virtual void UpdateBBox();
 
 
 
