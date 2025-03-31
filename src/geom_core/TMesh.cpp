@@ -154,14 +154,11 @@ TEdge::TEdge( TNode* n0, TNode* n1, TTri* par_tri )
     m_Tri0 = m_Tri1 = NULL;
 }
 
-// Sort edges in increasing U (du > 0), unless du is large, then flip.
-// For the case of a periodic wake (duct), one edge must close the curve and its u parameter
-// will jump from nearly the largest parameter back to zero.  Detect the large positive jump
-// and reverse the sort in this case.
+// Sort edges in increasing U (du > 0)
 void TEdge::SortNodesByU()
 {
     double du = m_N1->m_UWPnt.x() - m_N0->m_UWPnt.x();
-    if ( ( du < 0 && du > -1 ) || du > 1 )
+    if ( du < 0 )
     {
         TNode * ntmp = m_N1;
         m_N1 = m_N0;
