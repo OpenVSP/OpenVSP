@@ -217,6 +217,7 @@ public:
         return m_ParTri;
     }
 
+    virtual void SwapEdgeDirection();
     virtual void SortNodesByU();
 
     TNode* m_N0;

@@ -154,15 +154,20 @@ TEdge::TEdge( TNode* n0, TNode* n1, TTri* par_tri )
     m_Tri0 = m_Tri1 = NULL;
 }
 
+void TEdge::SwapEdgeDirection()
+{
+    TNode * ntmp = m_N1;
+    m_N1 = m_N0;
+    m_N0 = ntmp;
+}
+
 // Sort edges in increasing U (du > 0)
 void TEdge::SortNodesByU()
 {
     double du = m_N1->m_UWPnt.x() - m_N0->m_UWPnt.x();
     if ( du < 0 )
     {
-        TNode * ntmp = m_N1;
-        m_N1 = m_N0;
-        m_N0 = ntmp;
+        SwapEdgeDirection();
     }
 }
 
