@@ -2264,16 +2264,17 @@ void Geom::UpdateStepChildren( bool fullupdate )
 
 void Geom::UpdateBBox( )
 {
-    UpdateBBox( 0 );
+    BndBox empty_box;
+    UpdateBBox( 0, empty_box );
 }
 
-void Geom::UpdateBBox( int istart )
+void Geom::UpdateBBox( int istart, const BndBox & start_box )
 {
     //==== Load Bounding Box ====//
-    BndBox new_box;
-    BndBox bb;
+    BndBox new_box = start_box;
     for ( int i = istart ; i < GetNumTotalSurfs() ; i++ )
     {
+        BndBox bb;
         m_SurfVec[i].GetBoundingBox( bb );
         new_box.Update( bb );
     }
