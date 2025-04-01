@@ -5283,7 +5283,7 @@ string PlaneInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org
     else
     {
         pts.resize( 2 );
-        min_dist = primary_tm->MinDistance( org, norm, min_dist );
+        min_dist = primary_tm->MinDistance( org, norm, min_dist, pts[0], pts[1] );
         con_dist = min_dist;
 
         if ( !primary_tm->m_TVec.empty() )
