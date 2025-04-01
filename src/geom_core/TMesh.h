@@ -236,6 +236,7 @@ public:
 
     virtual void SwapEdgeDirection();
     virtual void SortNodesByU();
+    virtual TTri* GetOtherTri( TTri *t );
 
     TNode* m_N0;
     TNode* m_N1;
