@@ -745,9 +745,9 @@ bool TMesh::CheckIntersect( const vec3d &org, const vec3d &norm )
     return m_TBox.CheckIntersect( org, norm );
 }
 
-double TMesh::MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist )
+double TMesh::MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 )
 {
-    return m_TBox.MinDistance( org, norm, curr_min_dist );
+    return m_TBox.MinDistance( org, norm, curr_min_dist, p1, p2 );
 }
 
 void TMesh::Split()
@@ -3105,7 +3105,7 @@ bool TBndBox::CheckIntersect( const vec3d &org, const vec3d &norm )
     return false;
 }
 
-double TBndBox::MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist )
+double TBndBox::MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 )
 {
     double mind, maxd;
     m_Box.MinMaxDistPlane( org, norm, mind, maxd );
@@ -3121,7 +3121,7 @@ double TBndBox::MinDistance( const vec3d &org, const vec3d &norm, double curr_mi
     {
         for ( int i = 0 ; i < 8 ; i++ )
         {
-            curr_min_dist = m_SBoxVec[i]->MinDistance( org, norm, curr_min_dist );
+            curr_min_dist = m_SBoxVec[i]->MinDistance( org, norm, curr_min_dist, p1, p2 );
         }
     }
     //==== Check All Points Against Other Points ====//
@@ -3131,11 +3131,14 @@ double TBndBox::MinDistance( const vec3d &org, const vec3d &norm, double curr_mi
         {
             TTri* t0 = m_TriVec[i];
 
-            double d = triangle_plane_minimum_dist( org, norm, t0->m_N0->m_Pnt, t0->m_N1->m_Pnt, t0->m_N2->m_Pnt );
+            vec3d p1a, p2a;
+            double d = triangle_plane_minimum_dist( org, norm, t0->m_N0->m_Pnt, t0->m_N1->m_Pnt, t0->m_N2->m_Pnt, p1a, p2a );
 
             if ( d < curr_min_dist )
             {
                 curr_min_dist = d;
+                p1 = p1a;
+                p2 = p2a;
             }
         }
     }

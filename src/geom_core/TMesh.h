@@ -375,7 +375,7 @@ public:
     virtual double MinDistance( TBndBox* iBox, double curr_min_dist, vec3d &p1, vec3d &p2 );
 
     virtual bool CheckIntersect( const vec3d &org, const vec3d &norm );
-    virtual double MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist );
+    virtual double MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 );
 
     BndBox m_Box;
     vector< TTri* > m_TriVec;
@@ -405,7 +405,7 @@ public:
     bool CheckIntersect( TMesh* tm );
     double MinDistance( TMesh* tm, double curr_min_dist, vec3d &p1, vec3d &p2 );
     bool CheckIntersect( const vec3d &org, const vec3d &norm );
-    double MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist );
+    double MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 );
     void Split();
 
     void SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf );
