@@ -7011,6 +7011,60 @@ extern std::string GetParm( const std::string & geom_id, const std::string & nam
     Get the parent Geom ID for the input child Geom. "NONE" is returned if the Geom has no parent.
     \forcpponly
     \code{.cpp}
+    //==== Reparent two PodGeoms ====//
+    string pod1 = AddGeom( "POD" );
+    string pod2 = AddGeom( "POD", pod1 );
+    string pod3 = AddGeom ("POD" );
+
+    string veh_id = GetVehicleID();
+
+    SetGeomParent( pod2, veh_id );
+    SetGeomParent( pod3, pod1 );
+
+    string pod2_parent = GetGeomParent( pod2 );
+    string pod3_parent = GetGeomParent( pod3 );
+
+    if ( pod2_parent != string("NONE") || pod3_parent != pod1 )
+    {
+        Print( "SetGeomParent error!" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Reparent two PodGeoms ====#
+    pod1 = AddGeom( "POD" )
+    pod2 = AddGeom( "POD", pod1 )
+    pod3 = AddGeom ("POD" )
+
+    veh_id = GetVehicleID()
+
+    SetGeomParent( pod2, veh_id )
+    SetGeomParent( pod3, pod1 )
+
+    pod2_parent = GetGeomParent( pod2 )
+    pod3_parent = GetGeomParent( pod3 )
+
+    if ( pod2_parent != "NONE" or pod3_parent != pod1 ):
+        print( "SetGeomParent error!" )
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string Geom ID
+    \return string Parent Geom ID
+*/
+
+extern void SetGeomParent( const std::string& geom_id, const std::string& parent_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Get the parent Geom ID for the input child Geom. "NONE" is returned if the Geom has no parent.
+    \forcpponly
+    \code{.cpp}
     //==== Add Parent and Child Geometry ====//
     string pod1 = AddGeom( "POD" );
 

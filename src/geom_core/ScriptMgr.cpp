@@ -3690,6 +3690,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "void SetGeomParent( const string & in geom_id, const string & in parent_id )", asFUNCTION( vsp::SetGeomParent ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "string GetGeomParent( const string & in geom_id )", asFUNCTION( vsp::GetGeomParent ), asCALL_CDECL );
     assert( r >= 0 );
 

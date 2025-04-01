@@ -2563,6 +2563,14 @@ string GetParm( const string & container_id, const string & name, const string &
     return FindParm( container_id, name, group );
 }
 
+// Set the parent of a Geom; new_parent_id can be either the Vehicle's ID or another Geom's ID
+void SetGeomParent( const string& geom_id, const string& new_parent_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    geom_ptr->ChangeParentID( new_parent_id );
+}
+
 // Get the parent of a Geom
 string GetGeomParent( const string& geom_id )
 {
