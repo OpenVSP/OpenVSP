@@ -671,7 +671,7 @@ bool triangle_plane_intersect_test( const vec3d& org, const vec3d& norm, const v
     return true; // Intersection
 }
 
-double triangle_plane_minimum_dist( const vec3d& org, const vec3d& norm, const vec3d& p1, const vec3d& p2, const vec3d& p3 )
+double triangle_plane_minimum_dist( const vec3d& org, const vec3d& norm, const vec3d& p1, const vec3d& p2, const vec3d& p3, vec3d &pa, vec3d &pb )
 {
     double d1 = signed_dist_pnt_2_plane( org, norm, p1 );
     double d2 = signed_dist_pnt_2_plane( org, norm, p2 );
@@ -680,19 +680,112 @@ double triangle_plane_minimum_dist( const vec3d& org, const vec3d& norm, const v
     // On Plane
     if ( d1 == 0 && d2 == 0 && d3 == 0 )
     {
+        pa = ( p1 + p2 + p3 ) / 3.0;
+        pb = pa;
         return 0;
     }
 
     // Triangle in front of plane, minimize
     if ( d1 > 0 && d2 > 0 && d3 > 0)
     {
-        return min( min( d1, d2 ), d3 );
+        double dmin = 1e12;
+
+        if ( d1 == d2 && d1 == d3 )
+        {
+            dmin = d1;
+            pa = ( p1 + p2 + p3 ) / 3.0;
+        }
+        else if ( d1 < d2 && d1 < d3 )
+        {
+            dmin = d1;
+            pa = p1;
+        }
+        else if ( d2 < d1 && d2 < d3 )
+        {
+            dmin = d2;
+            pa = p2;
+        }
+        else
+        {
+            dmin = d3;
+            pa = p3;
+        }
+
+        pb = pa - dmin * norm;
+        return dmin;
     }
 
     // Triangle behind plane, maximize and flip sign
     if ( d1 < 0 && d2 < 0 && d3 < 0)
     {
-        return -max( max( d1, d2 ), d3 );
+        double dmin = 1e12;
+
+        if ( d1 == d2 && d1 == d3 )
+        {
+            dmin = d1;
+            pa = ( p1 + p2 + p3 ) / 3.0;
+        }
+        else if ( d1 > d2 && d1 > d3 )
+        {
+            dmin = d1;
+            pa = p1;
+        }
+        else if ( d2 > d1 && d2 > d3 )
+        {
+            dmin = d2;
+            pa = p2;
+        }
+        else
+        {
+            dmin = d3;
+            pa = p3;
+        }
+
+        pb = pa - dmin * norm;
+        return -dmin;
+    }
+
+    if ( d1 / d2 > 0 ) // d1 & d2 have same sign
+    {
+        double t;
+        vec3d v13 = p3 - p1;
+        plane_ray_intersect( org, norm, p1, v13, t );
+        vec3d p13 = p1 + t * v13;
+
+        vec3d v23 = p3 - p2;
+        plane_ray_intersect( org, norm, p2, v23, t );
+        vec3d p23 = p2 + t * v23;
+
+        pa = ( p13 + p23 ) * 0.5;
+        pb = pa;
+    }
+    else if ( d1 / d3 > 0 ) // d1 & d3 have same sign
+    {
+        double t;
+        vec3d v12 = p2 - p1;
+        plane_ray_intersect( org, norm, p1, v12, t );
+        vec3d p12 = p1 + t * v12;
+
+        vec3d v32 = p2 - p3;
+        plane_ray_intersect( org, norm, p3, v32, t );
+        vec3d p32 = p3 + t * v32;
+
+        pa = ( p12 + p32 ) * 0.5;
+        pb = pa;
+    }
+    else // d2 & d3 have same sign
+    {
+        double t;
+        vec3d v21 = p1 - p2;
+        plane_ray_intersect( org, norm, p2, v21, t );
+        vec3d p21 = p2 + t * v21;
+
+        vec3d v31 = p1 - p3;
+        plane_ray_intersect( org, norm, p3, v31, t );
+        vec3d p31 = p3 + t * v31;
+
+        pa = ( p21 + p31 ) * 0.5;
+        pb = pa;
     }
 
     // Triangle intersects plane, min distance is zero.
