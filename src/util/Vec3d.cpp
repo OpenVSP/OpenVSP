@@ -815,6 +815,52 @@ bool plane_plane_intersection( const vec3d &p0, const vec3d &n0, const vec3d &p1
     return true;
 }
 
+// ptplane and norm define a plane.
+// ptaxis and axis define an axis of rotation.
+// pt defines a point
+// Rotating pt around axis defines a plane of rotation.
+double angle_pnt_2_plane( const vec3d& ptplane, const vec3d& norm, const vec3d& ptaxis, const vec3d& axis, vec3d pt )
+{
+    double tol = 1e-6;
+
+    // Make sure normal and axis vectors are unit vectors.
+    norm.normalize();
+    axis.normalize();
+
+    // Find component of norm in axis direction.
+    const double ncomp = dot( norm, axis );
+
+    // First check that normal and axis are not parallel.
+    if ( 1.0 - std::fabs( ncomp ) > tol )
+    {
+        // Find components of normal vector parallel and perpendicular to axis.
+        const vec3d norm_par = ncomp * axis;
+        const vec3d norm_perp = norm - norm_par;
+
+        // Find point displacement vector and components parallel / perpendicular to axis.
+        const vec3d q = pt - ptaxis;
+        const double qcomp = dot( q, axis );
+        const vec3d q_par = qcomp * axis;
+        const vec3d q_perp = q - q_par;
+
+        const double phi = signed_angle( norm_perp, q_perp, axis );
+
+        const double a = dot( norm, ptplane );
+
+        const double psi = acos( ( dot( norm, ptaxis ) + std::fabs( ncomp ) * std::fabs( qcomp ) - a ) / ( norm_perp.mag() * q_perp.mag() ) );
+
+        // Direction of psi increment determined by ccw flag.
+        // Sign also flipped for optimization based on ccw flag.
+        // Negative to change perspective from 1) rotating point into plane to 2) rotating plane into point
+        const double theta = M_PI - ccw * ( phi + ( ccw * psi ) );
+
+        prot = ptaxis + RotateArbAxis( pt - ptaxis, ccw * theta, axis );
+
+        return theta;
+    }
+    return 1e12;
+}
+
 double signed_dist_pnt_2_plane( const vec3d& org, const vec3d& norm, const vec3d& pnt )
 {
     //===== NORM SHOULD BE NORMALIZED ====//
