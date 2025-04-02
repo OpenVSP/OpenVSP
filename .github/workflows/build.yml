@@ -60,6 +60,11 @@ jobs:
         brew install swig llvm@${{ matrix.llvm-version }} libomp doxygen graphviz pandoc
         pip install sphinx
 
+    - name: Install cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.x'
+
     - name:  Build Linux
       if: runner.os == 'Linux'
       env:
