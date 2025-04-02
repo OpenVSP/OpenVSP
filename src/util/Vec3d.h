@@ -1044,6 +1044,7 @@ public:
     friend void center_of_circle( const vec3d& p1, const vec3d& p2, const vec3d& p3, vec3d& center );
     friend bool triangle_plane_intersect_test( const vec3d& org, const vec3d& norm, const vec3d& p1, const vec3d& p2, const vec3d& p3 );
     friend double triangle_plane_minimum_dist( const vec3d& org, const vec3d& norm, const vec3d& p1, const vec3d& p2, const vec3d& p3, vec3d &pa, vec3d &pb );
+    friend bool plane_plane_intersection( const vec3d &p0, const vec3d &n0, const vec3d &p1, const vec3d &n1, vec3d &p, vec3d &v );
     friend double signed_dist_pnt_2_plane( const vec3d& org, const vec3d& norm, const vec3d& pnt );
     friend double dist_pnt_2_plane( const vec3d& org, const vec3d& norm, const vec3d& pnt );
     friend double dist_pnt_2_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );

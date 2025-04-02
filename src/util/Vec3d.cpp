@@ -792,6 +792,29 @@ double triangle_plane_minimum_dist( const vec3d& org, const vec3d& norm, const v
     return 0;
 }
 
+bool plane_plane_intersection( const vec3d &p0, const vec3d &n0, const vec3d &p1, const vec3d &n1, vec3d &p, vec3d &v )
+{
+    const double d = dot( n0, n1 );
+
+    // Planes are parallel or coincident.
+    if ( std::fabs( d ) >= 1.0 )
+    {
+        return false;
+    }
+
+    const double invDet = 1.0 / ( 1.0 - d * d );
+
+    const double p0c = dot( n0, p0 );
+    const double p1c = dot( n1, p1 );
+
+    const double c0 = ( p0c - d * p1c ) * invDet;
+    const double c1 = ( p1c - d * p0c ) * invDet;
+    p = c0 * n0 + c1 * n1;
+    v = cross( n0, n1 );
+    v.normalize();
+    return true;
+}
+
 double signed_dist_pnt_2_plane( const vec3d& org, const vec3d& norm, const vec3d& pnt )
 {
     //===== NORM SHOULD BE NORMALIZED ====//
