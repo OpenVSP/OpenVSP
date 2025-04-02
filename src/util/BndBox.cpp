@@ -419,6 +419,28 @@ void BndBox::MinMaxDistPlane( const vec3d &org, const vec3d &norm, double &mind,
     }
 }
 
+void BndBox::MinMaxAnglePlane( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double &mina, double &maxa )
+{
+    vec3d p0 = GetCornerPnt( 0 );
+
+    mina = angle_pnt_2_plane( org, norm, ptaxis, axis, p0 );
+    maxa = mina;
+
+    for ( int i = 1; i < 8; i++ )
+    {
+        double a = angle_pnt_2_plane( org, norm, ptaxis, axis, GetCornerPnt( i ) );
+
+        if ( a < mina )
+        {
+            mina = a;
+        }
+        if ( a > maxa )
+        {
+            maxa = a;
+        }
+    }
+}
+
 //==== Assemble Boundbox Draw Lines ====//
 std::vector< vec3d > BndBox::GetBBoxDrawLines() const
 {
