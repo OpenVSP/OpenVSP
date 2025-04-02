@@ -894,9 +894,6 @@ vec3d proj_pnt_on_ray( const vec3d& line_pt1, const vec3d& line_dir, const vec3d
 {
     vec3d p_ln1 = pnt - line_pt1;
 
-    vec3d p_ln2 = pnt - line_pt2;
-    vec3d ln1_ln2 = line_pt1 - line_pt2;
-
     double denom = line_dir.mag();
 
     if ( denom <= 0.000000000012 )
@@ -915,9 +912,6 @@ vec3d proj_pnt_on_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3
 {
     vec3d p_ln1 = pnt - line_pt1;
     vec3d ln2_ln1 = line_pt2 - line_pt1;
-
-    vec3d p_ln2 = pnt - line_pt2;
-    vec3d ln1_ln2 = line_pt1 - line_pt2;
 
     double denom = ln2_ln1.mag();
 
