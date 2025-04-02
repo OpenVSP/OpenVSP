@@ -87,6 +87,17 @@ template <typename T> T clampCyclic( T val, T max )
     return val;
 }
 
+// Clamp val from (-pi, pi]
+template < typename T > T clampAngle( T val )
+{
+    val = fmod( val, 2.0 * M_PI );
+    if ( val > M_PI )
+    {
+        val -= 2.0 * M_PI;
+    }
+    return val;
+}
+
 template < typename T >
 bool aboutequal( T a, T b, T tol = 1e-12 )
 {
