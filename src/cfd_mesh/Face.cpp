@@ -287,7 +287,7 @@ void Node::OptSmooth()
         Edge* far_edge = worst_face->FindEdgeWithout( this );
 
         //==== Find Target Pos ====//
-        vec3d proj = proj_pnt_on_ray( far_edge->n0->pnt, far_edge->n1->pnt, orig_pos );
+        vec3d proj = proj_pnt_on_line( far_edge->n0->pnt, far_edge->n1->pnt, orig_pos );
         vec3d dir = orig_pos - proj;
         dir.normalize();
 

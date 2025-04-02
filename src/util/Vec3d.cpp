@@ -890,24 +890,23 @@ vec3d proj_pnt_on_line_seg( const vec3d& line_pt1, const vec3d& line_pt2, const 
 }
 
 //******* Project Pnt Onto Ray ******//
-vec3d proj_pnt_on_ray( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt )
+vec3d proj_pnt_on_ray( const vec3d& line_pt1, const vec3d& line_dir, const vec3d& pnt )
 {
     vec3d p_ln1 = pnt - line_pt1;
-    vec3d ln2_ln1 = line_pt2 - line_pt1;
 
     vec3d p_ln2 = pnt - line_pt2;
     vec3d ln1_ln2 = line_pt1 - line_pt2;
 
-    double denom = ln2_ln1.mag();
+    double denom = line_dir.mag();
 
     if ( denom <= 0.000000000012 )
     {
         return ( line_pt1 );
     }
 
-    double numer =  cos_angle( p_ln1, ln2_ln1 ) * p_ln1.mag();
+    double numer =  cos_angle( p_ln1, line_dir ) * p_ln1.mag();
 
-    return( line_pt1 + ln2_ln1 * ( numer / denom ) );
+    return( line_pt1 + line_dir * ( numer / denom ) );
 
 }
 
@@ -947,7 +946,7 @@ vec3d proj_pnt_to_plane( const vec3d& org, const vec3d& plane_ln1, const vec3d& 
 {
     vec3d normal = cross( plane_ln1, plane_ln2 );
 
-    vec3d proj_pnt = proj_pnt_on_ray( org, org + normal, pnt );
+    vec3d proj_pnt = proj_pnt_on_ray( org, normal, pnt );
 
     vec3d proj_vec = org - proj_pnt;
 
