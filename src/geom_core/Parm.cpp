@@ -106,10 +106,44 @@ void Parm::ChangeID( const string& newID )
 
 }
 
+void Parm::SetName( const string & name )
+{
+    if ( name != m_Name )
+    {
+        m_Name = name;
+        ParmMgr.IncNumParmChanges();
+        ParmMgr.SetDirtyFlag( true );
+    }
+}
+
+void Parm::SetGroupName( const string & name )
+{
+    if ( name != m_GroupName )
+    {
+        m_GroupName = name;
+        ParmMgr.IncNumParmChanges();
+        ParmMgr.SetDirtyFlag( true );
+    }
+}
+
 void Parm::SetGroupAlias( const string & alias )
 {
-    m_GroupAlias = alias;
-    ParmMgr.IncNumParmChanges();
+    if ( alias != m_GroupAlias )
+    {
+        m_GroupAlias = alias;
+        ParmMgr.IncNumParmChanges();
+        ParmMgr.SetDirtyFlag( true );
+    }
+}
+
+void Parm::SetGroupDisplaySuffix( int num )
+{
+    if ( num != m_GroupDisplaySuffix )
+    {
+        m_GroupDisplaySuffix = num;
+        ParmMgr.IncNumParmChanges();
+        ParmMgr.SetDirtyFlag( true );
+    }
 }
 
 //==== Get Display Group Name ====//

@@ -39,13 +39,13 @@ public:
                        double val, double lower, double upper );
 
     virtual string GetName() const                       { return m_Name; }
-    virtual void SetName( const string & name )          { m_Name = name; }
+    virtual void SetName( const string & name );
 
     virtual string GetGroupName() const                   { return m_GroupName; }
-    virtual void SetGroupName( const string & name )      { m_GroupName = name; }
+    virtual void SetGroupName( const string & name );
     virtual string GetGroupAlias()                   { return m_GroupAlias; }
     virtual void SetGroupAlias( const string & alias );
-    virtual void SetGroupDisplaySuffix( int num )         { m_GroupDisplaySuffix = num; }
+    virtual void SetGroupDisplaySuffix( int num );
 
     static string GetDisplayGroupName( const string & group_name, const string & group_tag = string(), const int & group_suffix = -1 );
     virtual string GetDisplayGroupName( bool include_alias = true );
