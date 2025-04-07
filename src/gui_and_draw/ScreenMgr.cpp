@@ -93,6 +93,14 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
     Fl::add_timeout( UPDATE_TIME, StaticTimerCB, this );
     Fl::add_handler( GlobalHandler );
 
+    #ifdef _WIN32
+        // reset Windows fonts to pre-1.4.2 state
+        Fl::set_font(FL_HELVETICA,     " Arial");
+        Fl::set_font(FL_HELVETICA + 1, "BArial");
+        Fl::set_font(FL_HELVETICA + 2, "IArial");
+        Fl::set_font(FL_HELVETICA + 3, "PArial");
+    #endif
+
     m_NativeFileChooser = NULL;
 
     m_RunGUI = true;
