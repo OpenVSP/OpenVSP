@@ -45,6 +45,7 @@ public:
     virtual void SetContactPt3ID( const std::string& id );
 
     virtual void GetPtNormal( vec3d &pt, vec3d &normal ) const;
+    virtual void GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
 
     IntParm m_ClearanceMode;
 
@@ -76,6 +77,9 @@ public:
     IntParm m_ContactPt3_SuspensionMode;
     IntParm m_ContactPt3_TireMode;
 
+
+    Parm m_BogieTheta;
+    Parm m_WheelTheta;
 protected:
 
     virtual void UpdateSurf();
@@ -83,6 +87,8 @@ protected:
 
     virtual void UpdateDrawObj();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
+    vector < vec3d > m_ContactPts;
 
 };
 

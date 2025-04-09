@@ -62,6 +62,9 @@ ClearanceGeom::ClearanceGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ContactPt3_SuspensionMode.Init( "ContactPt3_SuspensionMode", "Design", this, vsp::GEAR_SUSPENSION_NOMINAL, vsp::GEAR_SUSPENSION_NOMINAL, vsp::NUM_GEAR_SUSPENSION_MODES - 1 );
     m_ContactPt3_TireMode.Init( "ContactPt3_TireMode", "Design", this, vsp::TIRE_STATIC_LODED_CONTACT, vsp::TIRE_STATIC_LODED_CONTACT, vsp::NUM_TIRE_CONTACT_MODES - 1 );
 
+    m_BogieTheta.Init( "BogieTheta", "Design", this, 0.0, -180.0, 180.0 );
+    m_WheelTheta.Init( "WheelTheta", "Design", this, 0.0, -180.0, 180.0 );
+
     m_ParentType = -1;
 
 }
@@ -256,6 +259,27 @@ void ClearanceGeom::UpdateSurf()
                 m_MainSurfVec[0].Transform( mat );
             }
         }
+        else if ( m_ClearanceMode() == vsp::CLEARANCE_TWO_PT_GROUND )
+        {
+            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            if ( gear )
+            {
+                Matrix4d basis;
+                m_ContactPts.resize( 2 );
+
+                gear->BuildTwoPtBasis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+                                       m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
+                                       m_BogieTheta() * M_PI / 180.0, basis, m_ContactPts[0], m_ContactPts[1] );
+
+
+                Matrix4d mat;
+
+                mat.matMult( basis );
+
+                m_MainSurfVec[0].CreatePlane( -refLen, refLen, -refLen, refLen );
+                m_MainSurfVec[0].Transform( mat );
+            }
+        }
     }
 }
 
@@ -400,6 +424,27 @@ void ClearanceGeom::GetPtNormal( vec3d &pt, vec3d &normal ) const
                                       m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
                                       m_ContactPt3_ID, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), m_ContactPt3_TireMode(),
                                       pt, normal );
+        }
+    }
+}
+
+void ClearanceGeom::GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis )
+{
+    if ( m_ClearanceMode() == vsp::CLEARANCE_TWO_PT_GROUND )
+    {
+        Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+
+        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        if ( gear )
+        {
+            gear->GetTwoPtMeanContactPtNormalInWorld( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+                                                      m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
+                                                      0, pt, normal );
+
+
+            gear->GetTwoPtPivotInWorld( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
+                                        m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(),
+                                        ptaxis, axis );
         }
     }
 }
