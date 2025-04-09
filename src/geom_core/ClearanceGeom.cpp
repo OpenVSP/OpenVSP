@@ -276,6 +276,19 @@ void ClearanceGeom::UpdateSurf()
 
                 mat.matMult( basis );
 
+
+                m_BasisOrigin = mat.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
+                m_BasisAxis.clear();
+                m_BasisAxis.resize( 3 );
+                for ( int i = 0; i < 3; i++ )
+                {
+                    vec3d pt = vec3d( 0.0, 0.0, 0.0 );
+                    pt.v[i] = 1;
+                    m_BasisAxis[i] = mat.xform( pt );
+                }
+
+
                 m_MainSurfVec[0].CreatePlane( -refLen, refLen, -refLen, refLen );
                 m_MainSurfVec[0].Transform( mat );
             }
@@ -341,12 +354,51 @@ void ClearanceGeom::CopyDataFrom( Geom* geom_ptr )
 void ClearanceGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
+
+    //=== Axis ===//
+    int n = m_BasisAxis.size();
+    m_BasisDrawObj_vec.clear();
+    m_BasisDrawObj_vec.resize( n );
+    for ( int i = 0; i < n; i++ )
+    {
+        MakeDashedLine( m_BasisOrigin,  m_BasisAxis[i], 4, m_BasisDrawObj_vec[i].m_PntVec );
+        vec3d c;
+        c.v[i] = 1.0;
+        m_BasisDrawObj_vec[i].m_LineColor = c;
+        m_BasisDrawObj_vec[i].m_GeomChanged = true;
+    }
+
+    m_ContactDrawObj.m_PntVec = m_ContactPts;
+
+    m_ContactDrawObj.m_GeomID = m_ID + "Contact";
+    m_ContactDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_ContactDrawObj.m_PointSize = 12.0;
+    m_ContactDrawObj.m_Type = DrawObj::VSP_POINTS;
+    m_ContactDrawObj.m_PointColor = vec3d( 0, 0, 1 );
+    m_ContactDrawObj.m_GeomChanged = true;
 }
 
 
 void ClearanceGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     Geom::LoadDrawObjs( draw_obj_vec );
+
+    char str[255];
+    bool isactive = m_Vehicle->IsGeomActive( m_ID );
+
+    for ( int i = 0; i < m_BasisDrawObj_vec.size(); i++ )
+    {
+        m_BasisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        snprintf( str, sizeof( str ),  "_%d", i );
+        m_BasisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
+        m_BasisDrawObj_vec[i].m_Visible = isactive;
+        m_BasisDrawObj_vec[i].m_LineWidth = 10.0;
+        m_BasisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_BasisDrawObj_vec[i] );
+    }
+
+
+    draw_obj_vec.push_back( &m_ContactDrawObj );
 }
 
 void ClearanceGeom::UpdateBBox( )

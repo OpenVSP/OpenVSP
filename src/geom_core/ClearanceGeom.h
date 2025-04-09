@@ -90,6 +90,11 @@ protected:
 
     vector < vec3d > m_ContactPts;
 
+    vec3d m_BasisOrigin;
+    vector < vec3d > m_BasisAxis;
+
+    vector<DrawObj> m_BasisDrawObj_vec;
+    DrawObj m_ContactDrawObj;
 };
 
 #endif // !defined(VSPCLEARANCEGEOM__INCLUDED_)
