@@ -320,6 +320,7 @@ enum CHEVRON_W01_MODES { CHEVRON_W01_SE,	/*!< Start and End */
 /*! Enum for clearance geom modes. */
 enum CLEARANCE_GEOM_MODE { CLEARANCE_ROTOR_TIP_PATH,	/*!< Rotor tip path */
                            CLEARANCE_ROTOR_BURST,	/*!< Rotor burst zone */
+                           CLEARANCE_THREE_PT_GROUND,	/*!< Three contact point ground plane */
                            NUM_CLEARANCE_MODES	/*!< Number of clearance geom modes. */
 };
 
