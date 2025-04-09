@@ -394,6 +394,12 @@ void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
     m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_COMPRESSED ) ) );
 
 
+    m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetMeanContactPoint( 0,  vsp::TIRE_STATIC_LODED_CONTACT, vsp::GEAR_SUSPENSION_NOMINAL, m_BogieTheta() * M_PI / 180.0 ) ) );
+    if ( m_Symmetrical() )
+    {
+        m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetMeanContactPoint( 1,  vsp::TIRE_STATIC_LODED_CONTACT, vsp::GEAR_SUSPENSION_NOMINAL, m_BogieTheta() * M_PI / 180.0 ) ) );
+    }
+
     if ( m_Symmetrical() )
     {
         isymm++;
