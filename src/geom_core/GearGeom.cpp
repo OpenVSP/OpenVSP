@@ -18,6 +18,8 @@ Bogie::Bogie()
     // Bogie
     m_Symmetrical.Init( "Symmetrical", "Bogie", this, false, false, true );
 
+    m_DrawNominal.Init( "DrawNominal", "Bogie", this, true, false, true );
+
     m_NAcross.Init( "NumAcross", "Bogie", this, 1, 1, 100 );
     m_NTandem.Init( "NumTandem", "Bogie", this, 1, 1, 100 );
 
@@ -41,8 +43,13 @@ Bogie::Bogie()
     m_TravelY.Init( "TravelY", "Bogie", this, 0.0, -1e12, 1e12 );
     m_TravelZ.Init( "TravelZ", "Bogie", this, 1.0, -1e12, 1e12 );
 
+    m_Travel.Init( "Travel", "Bogie", this, 0.0, -1e12, 1e12 );
     m_TravelCompressed.Init( "TravelCompressed", "Bogie", this, 1.0, 0, 1e12 );
     m_TravelExtended.Init( "TravelExtended", "Bogie", this, 1.0, 0, 1e12 );
+
+    m_BogieTheta.Init( "BogieTheta", "Bogie", this, 0.0, -180, 180 );
+    m_BogieThetaMax.Init( "BogieThetaMax", "Bogie", this, 20.0, -180, 180 );
+    m_BogieThetaMin.Init( "BogieThetaMin", "Bogie", this, -20.0, -180, 180 );
 
     //Tire
     m_DiameterMode.Init( "DiameterMode", "Tire", this, vsp::TIRE_DIM_IN, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 2 ); // TIRE_DIM_FRAC not allowed
@@ -1003,6 +1010,33 @@ void GearGeom::UpdateBBox( )
     Geom::UpdateBBox( istart, gnd_box );
 }
 
+void GearGeom::BuildTwoPtBasis( const string &cp1, int isymm1, int suspension1, int tire1,
+                                const string &cp2, int isymm2, int suspension2, int tire2,
+                                double thetabogie, Matrix4d &mat, vec3d &p1, vec3d &p2 )
+{
+    mat.loadIdentity();
+
+    vec3d pcen, z;
+
+    if ( GetTwoPtMeanContactPtNormal( cp1, isymm1, suspension1, tire1,
+                                      cp2, isymm2, suspension2, tire2,
+                                      thetabogie, pcen, z, p1, p2 ) )
+    {
+        const int iminor = z.minor_comp();
+
+        vec3d y;
+        y[ iminor ] = 1;
+
+        vec3d x = cross( y, z );
+        x.normalize();
+        y = cross( z, x );
+        y.normalize();
+
+        mat.translatev( pcen );
+        mat.setBasis( x, y, z );
+    }
+}
+
 void GearGeom::BuildThreePtBasis( const string &cp1, int isymm1, int suspension1, int tire1,
                                   const string &cp2, int isymm2, int suspension2, int tire2,
                                   const string &cp3, int isymm3, int suspension3, int tire3,
@@ -1030,6 +1064,127 @@ void GearGeom::BuildThreePtBasis( const string &cp1, int isymm1, int suspension1
         mat.translatev( pcen );
         mat.setBasis( x, y, z );
     }
+}
+
+bool GearGeom::GetTwoPtPivot( const string &cp1, int isymm1, int suspension1,
+                              const string &cp2, int isymm2, int suspension2,
+                              vec3d &ptaxis, vec3d &axis ) const
+{
+    const Bogie *b1 = GetBogie( cp1 );
+    const Bogie *b2 = GetBogie( cp2 );
+
+    if ( b1 && b2 )
+    {
+        const vec3d p1 = b1->GetPivotPoint( isymm1, suspension1 );
+        const vec3d p2 = b2->GetPivotPoint( isymm2, suspension2 );
+        ptaxis = ( p1 + p2 ) * 0.5;
+        axis = p2 - p1;
+        axis.normalize();
+
+        if ( axis.y() < 0 )
+        {
+            axis = -axis;
+        }
+
+        return true;
+    }
+    return false;
+}
+
+bool GearGeom::GetTwoPtAftAxleAxis( const string &cp1, int isymm1, int suspension1,
+                                    const string &cp2, int isymm2, int suspension2,
+                                    double thetabogie, vec3d &ptaxis, vec3d &axis ) const
+{
+    const Bogie *b1 = GetBogie( cp1 );
+    const Bogie *b2 = GetBogie( cp2 );
+
+    if ( b1 && b2 )
+    {
+        const vec3d p1 = b1->GetAftAxle( isymm1, suspension1, thetabogie );
+        const vec3d p2 = b2->GetAftAxle( isymm2, suspension2, thetabogie );
+        ptaxis = ( p1 + p2 ) * 0.5;
+        axis = p2 - p1;
+        axis.normalize();
+
+        if ( axis.y() < 0 )
+        {
+            axis = -axis;
+        }
+
+        return true;
+    }
+    return false;
+}
+
+bool GearGeom::GetTwoPtFwdAxleAxis( const string &cp1, int isymm1, int suspension1,
+                                    const string &cp2, int isymm2, int suspension2,
+                                    double thetabogie, vec3d &ptaxis, vec3d &axis ) const
+{
+    const Bogie *b1 = GetBogie( cp1 );
+    const Bogie *b2 = GetBogie( cp2 );
+
+    if ( b1 && b2 )
+    {
+        const vec3d p1 = b1->GetFwdAxle( isymm1, suspension1, thetabogie );
+        const vec3d p2 = b2->GetFwdAxle( isymm2, suspension2, thetabogie );
+        ptaxis = ( p1 + p2 ) * 0.5;
+        axis = p2 - p1;
+        axis.normalize();
+
+        if ( axis.y() < 0 )
+        {
+            axis = -axis;
+        }
+
+        return true;
+    }
+    return false;
+}
+
+bool GearGeom::GetTwoPtMeanContactPtNormal( const string &cp1, int isymm1, int suspension1, int tire1,
+                                            const string &cp2, int isymm2, int suspension2, int tire2,
+                                            double thetabogie, vec3d &pt, vec3d &normal, vec3d &p1, vec3d &p2 ) const
+{
+    const Bogie *b1 = GetBogie( cp1 );
+    const Bogie *b2 = GetBogie( cp2 );
+
+    if ( b1 && b2 )
+    {
+        const vec3d nnom( 0, 0, 1 );
+        p1 = b1->GetMeanContactPoint( isymm1, tire1, suspension1, thetabogie );
+        p2 = b2->GetMeanContactPoint( isymm2, tire2, suspension2, thetabogie );
+        pt = ( p1 + p2 ) * 0.5;
+
+        // Make sure axis points generally to the right.
+        vec3d v12 = p2 - p1;
+        if ( v12.y() < 0 )
+        {
+            v12 = -v12;
+        }
+
+        const vec3d u = cross( nnom, v12 );
+
+        normal = cross( v12, u );
+        normal.normalize();
+
+        // Check that plane points mostly 'up' in GearGeom coordinate system.  Nominal ground plane will point
+        // straight up in these coordinates.  Changing the order of the contact points can change the orientation
+        // of the normal vector.  This sign check prevents us from requiring cw/ccw ordering by the user.
+        if ( normal.z() < 0 )
+        {
+            normal = -normal;
+        }
+
+        Matrix4d mat;
+        if ( b1->m_NTandem() > 1 || b2->m_NTandem() > 1 )
+        {
+            mat.rotate( thetabogie, v12 );
+        }
+        normal = mat.xformnorm( normal );
+
+        return true;
+    }
+    return false;
 }
 
 bool GearGeom::GetPtNormal( const string &cp1, int isymm1, int suspension1, int tire1,
@@ -1065,6 +1220,47 @@ bool GearGeom::GetPtNormal( const string &cp1, int isymm1, int suspension1, int 
         return true;
     }
     return false;
+}
+
+bool GearGeom::GetTwoPtPivotInWorld( const string &cp1, int isymm1, int suspension1,
+                                     const string &cp2, int isymm2, int suspension2,
+                                     vec3d &ptaxis, vec3d &axis ) const
+{
+    bool ret = GetTwoPtPivot( cp1, isymm1, suspension1, cp2, isymm2, suspension2, ptaxis, axis );
+    ptaxis = m_ModelMatrix.xform( ptaxis );
+    axis = m_ModelMatrix.xformnorm( axis );
+    return ret;
+}
+
+bool GearGeom::GetTwoPtAftAxleAxisInWorld( const string &cp1, int isymm1, int suspension1,
+                                           const string &cp2, int isymm2, int suspension2,
+                                           double thetabogie, vec3d &ptaxis, vec3d &axis ) const
+{
+    bool ret = GetTwoPtAftAxleAxis( cp1, isymm1, suspension1, cp2, isymm2, suspension2, thetabogie, ptaxis, axis );
+    ptaxis = m_ModelMatrix.xform( ptaxis );
+    axis = m_ModelMatrix.xformnorm( axis );
+    return ret;
+}
+
+bool GearGeom::GetTwoPtFwdAxleAxisInWorld( const string &cp1, int isymm1, int suspension1,
+                                           const string &cp2, int isymm2, int suspension2,
+                                           double thetabogie, vec3d &ptaxis, vec3d &axis ) const
+{
+    bool ret = GetTwoPtFwdAxleAxis( cp1, isymm1, suspension1, cp2, isymm2, suspension2, thetabogie, ptaxis, axis );
+    ptaxis = m_ModelMatrix.xform( ptaxis );
+    axis = m_ModelMatrix.xformnorm( axis );
+    return ret;
+}
+
+bool GearGeom::GetTwoPtMeanContactPtNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
+                                                   const string &cp2, int isymm2, int suspension2, int tire2,
+                                                   double thetabogie, vec3d &pt, vec3d &normal ) const
+{
+    vec3d p1, p2;
+    bool ret = GetTwoPtMeanContactPtNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, thetabogie, pt, normal, p1, p2 );
+    pt = m_ModelMatrix.xform( pt );
+    normal = m_ModelMatrix.xformnorm( normal );
+    return ret;
 }
 
 bool GearGeom::GetPtNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,

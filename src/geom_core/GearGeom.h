@@ -56,8 +56,6 @@ public:
     {
         int idest = dest.size();
 
-        Matrix4d xform;
-
         int nsymm = 1;
         if ( m_Symmetrical() )
         {
@@ -79,9 +77,14 @@ public:
 
         for ( int isymm = 0; isymm < nsymm; isymm++ )
         {
-            Matrix4d contact = xform;
+            Matrix4d contact;
 
             contact.translatev( GetPivotPoint( isymm, suspensionmodes[ isymm ] ) );
+
+            if ( !m_DrawNominal() )
+            {
+                contact.rotateY( -m_BogieTheta() );
+            }
 
             Matrix4d symm;
             double ksymm = 1.0;
@@ -135,6 +138,8 @@ public:
     // Bogie
     BoolParm m_Symmetrical;
 
+    BoolParm m_DrawNominal;
+
     IntParm m_NAcross;
     IntParm m_NTandem;
 
@@ -158,8 +163,13 @@ public:
     Parm m_TravelY;
     Parm m_TravelZ;
 
+    Parm m_Travel;
     Parm m_TravelCompressed;
     Parm m_TravelExtended;
+
+    Parm m_BogieTheta;
+    Parm m_BogieThetaMax;
+    Parm m_BogieThetaMin;
 
     // Tire
     BoolParm m_WidthMode;
@@ -232,14 +242,51 @@ public:
     virtual void UpdateBBox();
     virtual bool IsModelScaleSensitive()        { return m_AutoPlaneFlag(); }
 
+    virtual void BuildTwoPtBasis( const string &cp1, int isymm1, int suspension1, int tire1,
+                                  const string &cp2, int isymm2, int suspension2, int tire2,
+                                  double thetabogie, Matrix4d &mat, vec3d &p1, vec3d &p2 );
+
     virtual void BuildThreePtBasis( const string &cp1, int isymm1, int suspension1, int tire1,
                                     const string &cp2, int isymm2, int suspension2, int tire2,
                                     const string &cp3, int isymm3, int suspension3, int tire3,
                                     Matrix4d &mat );
+
+    virtual bool GetTwoPtPivot( const string &cp1, int isymm1, int suspension1,
+                                    const string &cp2, int isymm2, int suspension2,
+                                    vec3d &ptaxis, vec3d &axis ) const;
+
+    virtual bool GetTwoPtAftAxleAxis( const string &cp1, int isymm1, int suspension1,
+                                      const string &cp2, int isymm2, int suspension2,
+                                      double thetabogie, vec3d &ptaxis, vec3d &axis ) const;
+
+    virtual bool GetTwoPtFwdAxleAxis( const string &cp1, int isymm1, int suspension1,
+                                      const string &cp2, int isymm2, int suspension2,
+                                      double thetabogie, vec3d &ptaxis, vec3d &axis ) const;
+
+    virtual bool GetTwoPtMeanContactPtNormal( const string &cp1, int isymm1, int suspension1, int tire1,
+                                              const string &cp2, int isymm2, int suspension2, int tire2,
+                                              double thetabogie, vec3d &pt, vec3d &normal, vec3d &p1, vec3d &p2 ) const;
+
     virtual bool GetPtNormal( const string &cp1, int isymm1, int suspension1, int tire1,
                               const string &cp2, int isymm2, int suspension2, int tire2,
                               const string &cp3, int isymm3, int suspension3, int tire3,
                               vec3d &pt, vec3d &normal ) const;
+
+    virtual bool GetTwoPtPivotInWorld( const string &cp1, int isymm1, int suspension1,
+                                           const string &cp2, int isymm2, int suspension2,
+                                           vec3d &ptaxis, vec3d &axis ) const;
+
+    virtual bool GetTwoPtAftAxleAxisInWorld( const string &cp1, int isymm1, int suspension1,
+                                             const string &cp2, int isymm2, int suspension2,
+                                             double thetabogie, vec3d &ptaxis, vec3d &axis ) const;
+
+    virtual bool GetTwoPtFwdAxleAxisInWorld( const string &cp1, int isymm1, int suspension1,
+                                             const string &cp2, int isymm2, int suspension2,
+                                             double thetabogie, vec3d &ptaxis, vec3d &axis ) const;
+
+    virtual bool GetTwoPtMeanContactPtNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
+                                                     const string &cp2, int isymm2, int suspension2, int tire2,
+                                                     double thetabogie, vec3d &pt, vec3d &normal ) const;
 
     virtual bool GetPtNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
                                      const string &cp2, int isymm2, int suspension2, int tire2,
