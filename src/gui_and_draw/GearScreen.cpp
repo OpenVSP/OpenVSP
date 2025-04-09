@@ -15,7 +15,7 @@
 
 
 //==== Constructor ====//
-Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 700, "Gear" )
+Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 700 + 100, "Gear" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -142,6 +142,17 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 700, "Gear" )
     m_BogieLayout.AddSlider( m_TravelZSlider, "Z Compression Direction", 1, "%6.5f" );
     m_BogieLayout.AddSlider( m_TravelCompressSlider, "Compression Travel", 10, "%6.5f" );
     m_BogieLayout.AddSlider( m_TravelExtendSlider, "Extension Travel", 10, "%6.5f" );
+
+    m_BogieLayout.AddYGap();
+    m_BogieLayout.AddDividerBox( "Bogie Rotation Limits" );
+    m_BogieLayout.AddSlider( m_BogieThetaMinSlider, "Min", 1, "%6.5f" );
+    m_BogieLayout.AddSlider( m_BogieThetaMaxSlider, "Max", 1, "%6.5f" );
+
+    m_BogieLayout.AddYGap();
+    m_BogieLayout.AddDividerBox( "Bogie Position" );
+    m_BogieLayout.AddButton( m_DrawNominalButton, "Draw Nominal" );
+    m_BogieLayout.AddSlider( m_TravelSlider, "Suspension Travel", 10, "%6.5f" );
+    m_BogieLayout.AddSlider( m_BogieThetaSlider, "Bogie Angle", 10, "%6.5f" );
 
     // Tire
     m_TireGroup.SetGroupAndScreen( tire_group, this );
@@ -516,6 +527,14 @@ bool Gearcreen::Update()
         m_TravelZSlider.Update( bogie_ptr->m_TravelZ.GetID() );
         m_TravelCompressSlider.Update( bogie_ptr->m_TravelCompressed.GetID() );
         m_TravelExtendSlider.Update( bogie_ptr->m_TravelExtended.GetID() );
+
+        m_BogieThetaMinSlider.Update( bogie_ptr->m_BogieThetaMin.GetID() );
+        m_BogieThetaMaxSlider.Update( bogie_ptr->m_BogieThetaMax.GetID() );
+
+        m_DrawNominalButton.Update( bogie_ptr->m_DrawNominal.GetID() );
+
+        m_TravelSlider.Update( bogie_ptr->m_Travel.GetID() );
+        m_BogieThetaSlider.Update( bogie_ptr->m_BogieTheta.GetID() );
 
 
         m_TireDiameterToggleGroup.Update( bogie_ptr->m_DiameterMode.GetID() );
