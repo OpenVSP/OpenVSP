@@ -271,8 +271,24 @@ void ClearanceGeom::UpdateSurf()
                                        m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
                                        m_BogieTheta() * M_PI / 180.0, basis, m_ContactPts[0], m_ContactPts[1] );
 
+                vec3d ptaxis, axis;
+                if ( m_WheelTheta() > 0 )
+                {
+                    gear->GetTwoPtAftAxleAxis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
+                                           m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(),
+                                           m_BogieTheta() * M_PI / 180.0, ptaxis, axis );
+                }
+                else
+                {
+                    gear->GetTwoPtFwdAxleAxis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
+                                           m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(),
+                                           m_BogieTheta() * M_PI / 180.0, ptaxis, axis );
+                }
 
                 Matrix4d mat;
+                mat.translatev( ptaxis );
+                mat.rotate( m_WheelTheta() * M_PI / 180.0, axis );
+                mat.translatev( -ptaxis );
 
                 mat.matMult( basis );
 
