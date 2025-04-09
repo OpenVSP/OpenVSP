@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// NerfManageGeomScreen: Create/Delete Geom Screen
+// ManageGeomScreen: Create/Delete Geom Screen
 // J.R Gloudemans
 //
 //////////////////////////////////////////////////////////////////////
@@ -15,23 +15,24 @@
 #include "GuiDevice.h"
 
 #include <FL/Fl.H>
-#include "PodScreen.h"
-#include "FuselageScreen.h"
-#include "WingScreen.h"
 #include "BlankScreen.h"
 #include "BORScreen.h"
-#include "MeshScreen.h"
-#include "StackScreen.h"
-#include "CustomScreen.h"
-#include "PtCloudScreen.h"
-#include "PropScreen.h"
-#include "HingeScreen.h"
-#include "DrawObj.h"
-#include "MultTransScreen.h"
 #include "ConformalScreen.h"
+#include "CustomScreen.h"
+#include "DrawObj.h"
 #include "EllipsoidScreen.h"
-#include "WireScreen.h"
+#include "FuselageScreen.h"
+#include "HingeScreen.h"
 #include "HumanGeomScreen.h"
+#include "MeshScreen.h"
+#include "MultTransScreen.h"
+#include "PodScreen.h"
+#include "PropScreen.h"
+#include "PtCloudScreen.h"
+#include "StackScreen.h"
+#include "TreeIconWidget.h"
+#include "WingScreen.h"
+#include "WireScreen.h"
 
 using std::string;
 using std::vector;
@@ -45,8 +46,10 @@ public:
     void Show();
     void Hide();
     bool Update();
+    virtual void GetCollIDs( vector < string > &collIDVec );
 
     void CallBack( Fl_Widget *w );
+    void CloseCallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
         ( ( NerfManageGeomScreen* )data )->CallBack( w );
@@ -55,6 +58,20 @@ public:
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
     void ShowHideGeomScreens();
+
+    void SetNeedsShowHideGeoms()
+    {
+        m_NeedsShowHideGeoms = true;
+    }
+
+    void SetRedrawFlag()
+    {
+        m_RedrawFlag = true;
+    }
+    void ClearRedrawFlag()
+    {
+        m_RedrawFlag = false;
+    }
 
     void UpdateGeomScreens();
 
@@ -85,11 +102,10 @@ protected:
 
     GroupLayout m_BodyLayout;
 
-    GroupLayout m_LeftLayout;
     GroupLayout m_MidLayout;
     GroupLayout m_RightLayout;
 
-    Fl_Browser * m_GeomBrowser;
+    TreeWithIcons* m_GeomBrowser;
 
     TriggerButton m_SelectAllButton;
     ToggleButton m_PickButton;
@@ -114,18 +130,19 @@ protected:
     TriggerButton m_NoShowSetButton;
     TriggerButton m_SelectSetButton;
 
-
-    int m_LastTopLine;
     int m_SetIndex;
-    bool m_CollapseFlag;
-    string m_LastSelectedGeomID;
     Vehicle* m_VehiclePtr;
 
-    vector< string > m_DisplayedGeomVec;
+    vector< string > m_GeomVec;
 
     std::vector<DrawObj> m_PickList;
 
     bool m_VehSelected;
+    bool m_VehOpen;
+    bool m_RedrawFlag;
+    bool m_NeedsShowHideGeoms;
+
+    vector < string > m_SelVec;
 
     void LoadBrowser();
     void LoadActiveGeomOutput();
@@ -148,7 +165,7 @@ protected:
     vector< string > GetSelectedBrowserItems();
 
     void UpdateDrawObjs();
-    
+
 };
 
 
