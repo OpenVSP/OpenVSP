@@ -66,7 +66,7 @@ public:
 
     bool IntersectPlane( const vec3d &org, const vec3d &norm );
     void MinMaxDistPlane( const vec3d &org, const vec3d &norm, double &mind, double &maxd );
-    void MinMaxAnglePlane( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double &mina, double &maxa );
+    void MinMaxAnglePlane( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, int ccw, double &mina, double &maxa );
 
     std::vector< vec3d > GetBBoxDrawLines() const;
 

@@ -750,9 +750,9 @@ double TMesh::MinDistance( const vec3d &org, const vec3d &norm, double curr_min_
     return m_TBox.MinDistance( org, norm, curr_min_dist, p1, p2 );
 }
 
-double TMesh::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, vec3d &p1, vec3d &p2 )
+double TMesh::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 )
 {
-    return m_TBox.MinAngle( org, norm, ptaxis, axis, curr_min_angle, p1, p2 );
+    return m_TBox.MinAngle( org, norm, ptaxis, axis, curr_min_angle, ccw, p1, p2 );
 }
 
 void TMesh::Split()
@@ -3151,10 +3151,10 @@ double TBndBox::MinDistance( const vec3d &org, const vec3d &norm, double curr_mi
     return curr_min_dist;
 }
 
-double TBndBox::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, vec3d &p1, vec3d &p2 )
+double TBndBox::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 )
 {
     double mina, maxa;
-    m_Box.MinMaxAnglePlane( org, norm, ptaxis, axis, mina, maxa );
+    m_Box.MinMaxAnglePlane( org, norm, ptaxis, axis, ccw, mina, maxa );
 
     // Nearest point of box (closest possible for all items in box) is farther than already observed distance.
     if ( mina > curr_min_angle )
@@ -3167,7 +3167,7 @@ double TBndBox::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptax
     {
         for ( int i = 0 ; i < 8 ; i++ )
         {
-            curr_min_angle = m_SBoxVec[i]->MinAngle( org, norm, ptaxis, axis, curr_min_angle, p1, p2 );
+            curr_min_angle = m_SBoxVec[i]->MinAngle( org, norm, ptaxis, axis, curr_min_angle, ccw, p1, p2 );
         }
     }
     //==== Check All Points Against Other Points ====//
@@ -3181,13 +3181,14 @@ double TBndBox::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptax
 
             for ( int j = 0; j < 3; j++ )
             {
-                double a = angle_pnt_2_plane( org, norm, ptaxis, axis, t0->GetTriNode( j )->m_Pnt );
+                vec3d prot;
+                double a = angle_pnt_2_plane( org, norm, ptaxis, axis, t0->GetTriNode( j )->m_Pnt, ccw, prot );
 
                 if ( a < curr_min_angle )
                 {
                     curr_min_angle = a;
-                    p1 = p1a;
-                    p2 = p2a;
+                    p1 = t0->GetTriNode( j )->m_Pnt;
+                    p2 = prot;
                 }
             }
         }

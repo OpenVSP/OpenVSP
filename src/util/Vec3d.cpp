@@ -819,7 +819,7 @@ bool plane_plane_intersection( const vec3d &p0, const vec3d &n0, const vec3d &p1
 // ptaxis and axis define an axis of rotation.
 // pt defines a point
 // Rotating pt around axis defines a plane of rotation.
-double angle_pnt_2_plane( const vec3d& ptplane, const vec3d& norm, const vec3d& ptaxis, const vec3d& axis, vec3d pt )
+double angle_pnt_2_plane( const vec3d& ptplane, vec3d norm, const vec3d& ptaxis, vec3d axis, const vec3d &pt, int ccw, vec3d &prot )
 {
     double tol = 1e-6;
 

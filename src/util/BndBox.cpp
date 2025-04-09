@@ -419,16 +419,17 @@ void BndBox::MinMaxDistPlane( const vec3d &org, const vec3d &norm, double &mind,
     }
 }
 
-void BndBox::MinMaxAnglePlane( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double &mina, double &maxa )
+void BndBox::MinMaxAnglePlane( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, int ccw, double &mina, double &maxa )
 {
     vec3d p0 = GetCornerPnt( 0 );
 
-    mina = angle_pnt_2_plane( org, norm, ptaxis, axis, p0 );
+    vec3d prot;
+    mina = angle_pnt_2_plane( org, norm, ptaxis, axis, p0, ccw, prot );
     maxa = mina;
 
     for ( int i = 1; i < 8; i++ )
     {
-        double a = angle_pnt_2_plane( org, norm, ptaxis, axis, GetCornerPnt( i ) );
+        double a = angle_pnt_2_plane( org, norm, ptaxis, axis, GetCornerPnt( i ), ccw, prot );
 
         if ( a < mina )
         {
