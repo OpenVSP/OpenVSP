@@ -5350,6 +5350,14 @@ void PlaneInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org, 
                 con_vol = 1;
                 con_dist += 1.0;
             }
+            else
+            {
+                delete primary_tm;
+            }
+        }
+        else
+        {
+            delete primary_tm;
         }
     }
 
