@@ -455,7 +455,7 @@ public:
     virtual void SwapEdge( TEdge* edge );
 
     virtual void MergeNonClosed( TMesh* tm );
-    virtual void MergeTMeshes( TMesh* tm );
+    virtual void MergeTMeshes( const TMesh* tm );
     virtual void BuildEdges();
     virtual void CheckIfClosed();
     virtual void BuildMergeMaps();
@@ -555,7 +555,7 @@ void BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax );
 
 vector<TMesh*> CopyTMeshVec( const vector<TMesh*> &tmv );
 void DeleteTMeshVec(  vector<TMesh*> &tmv );
-TMesh* MergeTMeshVec( vector<TMesh*> &tmv );
+TMesh* MergeTMeshVec( const vector<TMesh*> &tmv );
 void LoadBndBox( vector< TMesh* > &tmv );
 void UpdateBBox( BndBox &bbox, vector<TMesh*> &tmv, const Matrix4d &transMat );
 void ApplyScale( double scalefac, vector<TMesh*> &tmv );

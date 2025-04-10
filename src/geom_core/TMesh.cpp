@@ -709,7 +709,7 @@ void TMesh::MergeNonClosed( TMesh* tm )
     }
 }
 
-void TMesh::MergeTMeshes( TMesh* tm )
+void TMesh::MergeTMeshes( const TMesh* tm )
 {
     for ( int t = 0 ; t < ( int )tm->m_TVec.size() ; t++ )
     {
@@ -4805,7 +4805,7 @@ void DeleteTMeshVec(  vector<TMesh*> &tmv )
     tmv.clear();
 }
 
-TMesh* MergeTMeshVec( vector<TMesh*> &tmv )
+TMesh* MergeTMeshVec( const vector<TMesh*> &tmv )
 {
     TMesh *tm = new TMesh();
 
