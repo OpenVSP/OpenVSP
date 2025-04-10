@@ -274,6 +274,12 @@ string InterferenceCase::Evaluate()
                 {
                     m_LastResult = res->GetID();
                     primary_tmv = GetPrimaryTMeshVec();
+                    CSGMesh( primary_tmv );
+                    FlattenTMeshVec( primary_tmv );
+
+                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                    primary_tm->LoadBndBox();
+
 
                     vec3d org, norm;
                     if ( m_SecondaryUseZGround() )
@@ -295,7 +301,20 @@ string InterferenceCase::Evaluate()
                     // mg->m_SurfDirty = true;
                     // mg->Update();
 
-                    PlaneInterferenceCheck( primary_tmv, org, norm, m_LastResult, m_TMeshVec );
+                    PlaneInterferenceCheck( primary_tm, org, norm, m_LastResult, m_TMeshVec );
+
+                    bool interference_flag = true;
+                    NameValData* nvd = res->FindPtr( "Interference", 0 );
+                    if( nvd )
+                    {
+                        interference_flag = nvd->GetBool( 0 );
+                    }
+
+                    // When interference_flag is true, primary_tm has been placed in m_TMeshVec
+                    if ( !interference_flag )
+                    {
+                        delete primary_tm;
+                    }
                 }
                 break;
             }

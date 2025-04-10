@@ -5281,15 +5281,11 @@ double FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TM
     return sqrt( max_dist );
 }
 
-void PlaneInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org, const vec3d & norm, const string & resid, vector< TMesh* > & result_tmv )
+void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d & norm, const string & resid, vector< TMesh* > & result_tmv )
 {
     bool intersect_flag = false;
     bool interference_flag = false;
 
-    CSGMesh( primary_tmv );
-    FlattenTMeshVec( primary_tmv );
-    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
-    primary_tm->LoadBndBox();
     double vol_primary = primary_tm->ComputeTheoVol();
 
     double min_dist = 1.0e12;
@@ -5350,14 +5346,6 @@ void PlaneInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org, 
                 con_vol = 1;
                 con_dist += 1.0;
             }
-            else
-            {
-                delete primary_tm;
-            }
-        }
-        else
-        {
-            delete primary_tm;
         }
     }
 
