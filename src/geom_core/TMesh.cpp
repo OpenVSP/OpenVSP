@@ -5558,7 +5558,18 @@ string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh
                 result_tmv.push_back( secondary_tm );
                 con_vol = 1;
                 con_dist += 1.0;
+                delete primary_tm;
             }
+            else
+            {
+                delete primary_tm;
+                delete secondary_tm;
+            }
+        }
+        else
+        {
+            delete primary_tm;
+            delete secondary_tm;
         }
     }
 
