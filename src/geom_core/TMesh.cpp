@@ -5433,29 +5433,38 @@ string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh*
 
         if ( !primary_tm->m_TVec.empty() && !secondary_tm->m_TVec.empty() )
         {
-            TTri *tri = primary_tm->m_TVec[0];
+            TTri *trip = primary_tm->m_TVec[0];
+            TTri *tris = secondary_tm->m_TVec[0];
 
-            if ( DeterIntExtTri( tri, secondary_tm ) ) // a inside b
+
+            if ( DeterIntExtTri( trip, secondary_tm ) ) // a inside b
             {
                 primary_in_secondary = true;
                 interference_flag = true;
                 result_tmv.push_back( primary_tm );
                 con_vol = 1;
                 con_dist += 1.0;
+                delete secondary_tm;
             }
-
-            if ( !interference_flag )
+            else if ( DeterIntExtTri( tris, primary_tm ) ) // b inside a
             {
-                tri = secondary_tm->m_TVec[0];
-                if ( DeterIntExtTri( tri, primary_tm ) ) // b inside a
-                {
-                    secondary_in_primary = true;
-                    interference_flag = true;
-                    result_tmv.push_back( secondary_tm );
-                    con_vol = 1;
-                    con_dist += 1.0;
-                }
+                secondary_in_primary = true;
+                interference_flag = true;
+                result_tmv.push_back( secondary_tm );
+                con_vol = 1;
+                con_dist += 1.0;
+                delete primary_tm;
             }
+            else
+            {
+                delete primary_tm;
+                delete secondary_tm;
+            }
+        }
+        else
+        {
+            delete primary_tm;
+            delete secondary_tm;
         }
     }
 
