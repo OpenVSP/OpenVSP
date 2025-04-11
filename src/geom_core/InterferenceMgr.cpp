@@ -198,6 +198,63 @@ void InterferenceCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
     }
 }
 
+void InterferenceCase::GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_SecondaryType() == vsp::GEOM_TARGET )
+        {
+            Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+
+            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+
+            if ( clearance_ptr )
+            {
+                clearance_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
+            }
+        }
+    }
+}
+
+void InterferenceCase::GetSecondaryPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis  )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_SecondaryType() == vsp::GEOM_TARGET )
+        {
+            Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+
+            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+
+            if ( clearance_ptr )
+            {
+                clearance_ptr->GetPtNormalAftAxleAxis( thetabogie, pt, normal, ptaxis, axis );
+            }
+        }
+    }
+}
+
+void InterferenceCase::GetSecondaryPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis  )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_SecondaryType() == vsp::GEOM_TARGET )
+        {
+            Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+
+            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+
+            if ( clearance_ptr )
+            {
+                clearance_ptr->GetPtNormalFwdAxleAxis( thetabogie, pt, normal, ptaxis, axis );
+            }
+        }
+    }
+}
+
 xmlNodePtr InterferenceCase::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr icase_node = xmlNewChild( node, NULL, BAD_CAST"InterferenceCase", NULL );
