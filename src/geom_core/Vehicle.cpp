@@ -527,75 +527,100 @@ void Vehicle::AddDefaultAttributes()
     // for Vehicle attributes, initialize with a few protected attributes
 
     m_AttrCollection.SetCollAttach( GetID(), attachType );
+    string veh_coll_id = m_AttrCollection.GetID();
+    bool update_flag = true;
 
-    NameValData veh_notes = NameValData( "VSP::VehicleNotes", string(), "Vehicle level notes for users", ATTR_VEH_NOTES );
-    veh_notes.SetProtection( true );
+    AttributeMgr.AddAttributeString( veh_coll_id, string("VSP::VehicleNotes"), string(), update_flag, ATTR_VEH_NOTES );
+    AttributeMgr.AddAttributeGroup( veh_coll_id, "VSP::WatermarkGroup", update_flag, ATTR_WM_GROUP );
+    string wm_group_ac_id = AttributeMgr.GetChildCollection( ATTR_WM_GROUP );
 
-    m_AttrCollection.Add( veh_notes );
+    AttributeMgr.AddAttributeBool(
+        wm_group_ac_id,
+        string("VSP::ShowWatermark"),
+        false,
+        update_flag,
+        ATTR_WM_SHOW
+    );
+    AttributeMgr.AddAttributeString(
+        wm_group_ac_id,
+        string("VSP::Text"),
+        string("Watermark"),
+        update_flag,
+        ATTR_WM_TEXT
+    );
+    AttributeMgr.AddAttributeDouble(
+        wm_group_ac_id,
+        string("VSP::TextScale"),
+        2.0,
+        update_flag,
+        ATTR_WM_TEXTSCALE
+    );
+    AttributeMgr.AddAttributeVec3d(
+        wm_group_ac_id,
+        string("VSP::TextColor"),
+        { vec3d( 1, 1, 1 ) },
+        update_flag,
+        ATTR_WM_TEXTCOLOR
+    );
+    AttributeMgr.AddAttributeDouble(
+        wm_group_ac_id,
+        string("VSP::TextAlpha"),
+        1.0,
+        update_flag,
+        ATTR_WM_TEXTALPHA
+    );
+    AttributeMgr.AddAttributeVec3d(
+        wm_group_ac_id,
+        string("VSP::EdgeColor"),
+        { vec3d( 0, 0, 0 ) },
+        update_flag,
+        ATTR_WM_EDGECOLOR
+    );
+    AttributeMgr.AddAttributeDouble(
+        wm_group_ac_id,
+        string("VSP::EdgeAlpha"),
+        0.0,
+        update_flag,
+        ATTR_WM_EDGEALPHA
+    );
+    AttributeMgr.AddAttributeVec3d(
+        wm_group_ac_id,
+        string("VSP::FillColor"),
+        { vec3d( 0.01, 0.5, 0.32 ) },
+        update_flag,
+        ATTR_WM_FILLCOLOR
+    );
+    AttributeMgr.AddAttributeDouble(
+        wm_group_ac_id,
+        string("VSP::FillAlpha"),
+        1.0,
+        update_flag,
+        ATTR_WM_FILLALPHA
+    );
 
-    string wm_group_id = AttributeMgr.AddAttributeGroup( m_AttrCollection.GetID(), "VSP::WatermarkGroup" );
-    NameValData* wm_group_attr = AttributeMgr.GetAttributePtr( wm_group_id );
-    if ( wm_group_attr )
-    {
-        wm_group_attr->SetDoc( "Watermark attributes for text & display controls" );
-        wm_group_attr->ChangeID( ATTR_WM_GROUP );
-    }
+    AttributeMgr.SetAttributeDoc( ATTR_WM_GROUP, string("Watermark attributes for text & display control") );
+    AttributeMgr.SetAttributeDoc( ATTR_WM_SHOW, string("Toggle watermark display state") );
+    AttributeMgr.SetAttributeDoc( ATTR_WM_TEXT, string("Watermark text") );
+    AttributeMgr.SetAttributeDoc( ATTR_WM_TEXTSCALE, string("Scale factor for watermark text") );
+    AttributeMgr.SetAttributeDoc( ATTR_WM_TEXTCOLOR, string("RGB color for watermark text") );
+    AttributeMgr.SetAttributeDoc( ATTR_WM_TEXTALPHA, string("Alpha for watermark text") );
+    AttributeMgr.SetAttributeDoc( ATTR_WM_EDGECOLOR, string("RGB Color for watermark box") );
+    AttributeMgr.SetAttributeDoc( ATTR_WM_EDGEALPHA, string("Alpha for watermark box") );
+    AttributeMgr.SetAttributeDoc( ATTR_WM_FILLCOLOR, string("RGB Color for watermark fill") );
+    AttributeMgr.SetAttributeDoc( ATTR_WM_FILLALPHA, string("Alpha for watermark fill") );
+    AttributeMgr.SetAttributeDoc( ATTR_VEH_NOTES, string("Vehicle level notes for users") );
 
-    AttributeCollection* wm_group_ac_ptr = wm_group_attr->GetAttributeCollectionPtr();
-    wm_group_attr->SetProtection( true );
-
-    vector < NameValData > wm_data;
-
-    wm_data.push_back( NameValData( "VSP::ShowWatermark",
-                                      false,
-                                      "Toggle watermark display state",
-                                    ATTR_WM_SHOW ) );
-
-    wm_data.push_back( NameValData( "VSP::Text",
-                                      string("Watermark"),
-                                      "Watermark text",
-                                      ATTR_WM_TEXT ) );
-
-    wm_data.push_back( NameValData( "VSP::TextScale",
-                                    2.0,
-                                    "Scale factor for watermark text",
-                                    ATTR_WM_TEXTSCALE ) );
-
-    wm_data.push_back( NameValData( "VSP::TextColor",
-                                    vec3d( 1, 1, 1 ),
-                                    "RGB color for watermark text",
-                                    ATTR_WM_TEXTCOLOR ) );
-
-    wm_data.push_back( NameValData( "VSP::TextAlpha",
-                                    1.0,
-                                    "Alpha for watermark text",
-                                    ATTR_WM_TEXTALPHA ) );
-
-    wm_data.push_back( NameValData( "VSP::EdgeColor",
-                                    vec3d( 0, 0, 0 ),
-                                    "RGB Color for watermark box",
-                                    ATTR_WM_EDGECOLOR ) );
-
-    wm_data.push_back( NameValData( "VSP::EdgeAlpha",
-                                    0.0,
-                                    "Alpha for watermark box",
-                                    ATTR_WM_EDGEALPHA ) );
-
-    wm_data.push_back( NameValData( "VSP::FillColor",
-                                    vec3d( 0.01, 0.5, 0.32 ),
-                                    "RGB Color for watermark fill",
-                                    ATTR_WM_FILLCOLOR ) );
-
-    wm_data.push_back( NameValData( "VSP::FillAlpha",
-                                    1.0,
-                                    "Alpha for watermark fill",
-                                    ATTR_WM_FILLALPHA ) );
-
-    for ( int i = 0; i < wm_data.size(); i++ )
-    {
-        wm_data[i].SetProtection( true );
-        wm_group_ac_ptr->Add( wm_data[i], vsp::ATTR_GROUP_WATERMARK, true );
-    }
+    AttributeMgr.SetAttributeProtection( ATTR_WM_GROUP );
+    AttributeMgr.SetAttributeProtection( ATTR_WM_SHOW );
+    AttributeMgr.SetAttributeProtection( ATTR_WM_TEXT );
+    AttributeMgr.SetAttributeProtection( ATTR_WM_TEXTSCALE );
+    AttributeMgr.SetAttributeProtection( ATTR_WM_TEXTCOLOR );
+    AttributeMgr.SetAttributeProtection( ATTR_WM_TEXTALPHA );
+    AttributeMgr.SetAttributeProtection( ATTR_WM_EDGECOLOR );
+    AttributeMgr.SetAttributeProtection( ATTR_WM_EDGEALPHA );
+    AttributeMgr.SetAttributeProtection( ATTR_WM_FILLCOLOR );
+    AttributeMgr.SetAttributeProtection( ATTR_WM_FILLALPHA );
+    AttributeMgr.SetAttributeProtection( ATTR_VEH_NOTES );
 }
 
 //=== Wype ===//
