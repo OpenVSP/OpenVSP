@@ -307,6 +307,15 @@ void ClearanceGeom::UpdateSurf()
 
                 m_MainSurfVec[0].CreatePlane( -refLen, refLen, -refLen, refLen );
                 m_MainSurfVec[0].Transform( mat );
+
+                // Visualize fwd/aft contact point and axis on rotated bogie.
+                // vec3d pt, normal, ptaxis2, axis2;
+                // GetPtNormalAftAxleAxis( m_BogieTheta() * M_PI / 180.0, pt, normal, ptaxis2, axis2 );
+                // m_ContactPts.push_back( pt );
+                // m_ContactPts.push_back( ptaxis2 );
+                // GetPtNormalFwdAxleAxis( m_BogieTheta() * M_PI / 180.0, pt, normal, ptaxis2, axis2 );
+                // m_ContactPts.push_back( pt );
+                // m_ContactPts.push_back( ptaxis2 );
             }
         }
     }
