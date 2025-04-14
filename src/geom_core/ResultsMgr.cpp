@@ -30,7 +30,11 @@ NameValData::NameValData()
 //==== Copy Constructor ====//
 NameValData::NameValData( NameValData* nvd )
 {
-    CopyFrom( nvd );
+    Init( "Undefined" );
+    if ( nvd )
+    {
+        CopyFrom( nvd );
+    }
 }
 
 //==== Constructor With Name =====//
@@ -78,14 +82,6 @@ NameValData::NameValData( const string & name, const vec3d & v_data, const strin
     m_Doc = doc;
 }
 
-NameValData::NameValData( const string & name, const AttributeCollection &c_data, const string & doc, const string & id )
-{
-    Init( name, vsp::ATTR_COLLECTION_DATA, id );
-    m_AttributeCollectionData.push_back(c_data);
-    m_AttributeCollectionData[0].SetCollAttach( GetID(), vsp::ATTROBJ_ATTR );
-    m_Doc = doc;
-}
-
 NameValData::NameValData( const string & name, const vector< int > & i_data, const string & doc, const string & id )
 {
     Init( name, vsp::INT_DATA, id );
@@ -128,20 +124,18 @@ NameValData::NameValData( const string &name, const vector< vector< double > > &
     m_Doc = doc;
 }
 
-NameValData::NameValData( const string & name, const vector< AttributeCollection > &c_data, const string & doc, const string & id )
+NameValData::~NameValData()
 {
-    Init( name, vsp::ATTR_COLLECTION_DATA, id );
-    m_AttributeCollectionData = c_data;
-    for ( int i = 0; i != m_AttributeCollectionData.size(); ++i )
+    if ( m_AttributeCollection )
     {
-        m_AttributeCollectionData[i].SetCollAttach( GetID(), vsp::ATTROBJ_ATTR );
+        delete m_AttributeCollection;
     }
-    m_Doc = doc;
 }
 
 void NameValData::Init( const string & name, int type, const string & id )
 {
     m_Name = name;
+    m_Index = -1;
     m_Type = type;
 
     m_ID = id;
@@ -153,6 +147,7 @@ void NameValData::Init( const string & name, int type, const string & id )
     m_ProtectFlag = false;
     m_AttachID = "NONE";
     m_AttributeEventGroup = vsp::ATTR_GROUP_NONE;
+    m_AttributeCollection = nullptr;
 }
 
 string NameValData::GetTypeName() const{
@@ -314,41 +309,20 @@ vec3d NameValData::GetVec3d( int i ) const
     return vec3d();
 }
 
-NameValCollection NameValData::GetNameValCollection( int i ) const
+AttributeCollection* NameValData::GetAttributeCollectionPtr()
 {
-    NameValCollection default_coll;
-    if ( i >= 0 && i < ( int )m_NameValCollectionData.size() )
+    if ( !m_AttributeCollection )
     {
-        return m_NameValCollectionData[i];
+        AddAttributeCollection();
     }
-    return default_coll;
-}
-
-NameValCollection* NameValData::GetNameValCollectionPtr( int i )
-{
-    if ( i >= 0 && i < ( int )m_NameValCollectionData.size() )
-    {
-        return &m_NameValCollectionData[i];
-    }
-    return nullptr;
-}
-
-AttributeCollection* NameValData::GetAttributeCollectionPtr( int i )
-{
-    if ( i >= 0 && i < ( int )m_AttributeCollectionData.size() )
-    {
-        return &m_AttributeCollectionData[i];
-    }
-    return nullptr;
+    return m_AttributeCollection;
 }
 
 void NameValData::AddAttributeCollection()
 {
     m_Type = vsp::ATTR_COLLECTION_DATA;
-    AttributeCollection collAdd;
-    string id = GetID();
-    collAdd.SetCollAttach( id, vsp::ATTROBJ_ATTR );
-    m_AttributeCollectionData.push_back( collAdd );
+    m_AttributeCollection = new AttributeCollection();
+    m_AttributeCollection->SetCollAttach( GetID(), vsp::ATTROBJ_ATTR );
 }
 
 string NameValData::GenerateID()
@@ -371,16 +345,20 @@ void NameValData::ChangeID( string id ) //only for attributes
         m_ID = id;
     }
 
-    for ( int i = 0; i != m_AttributeCollectionData.size(); i++ )
+    if ( m_Type == vsp::ATTR_COLLECTION_DATA )
     {
-        AttributeCollection* attrCollPtr = GetAttributeCollectionPtr( i );
-        attrCollPtr->SetCollAttach( m_ID, vsp::ATTROBJ_ATTR );
+        GetAttributeCollectionPtr()->SetCollAttach( m_ID, vsp::ATTROBJ_ATTR );
     }
 }
 
 //==== Copy NameValData ====//
 void NameValData::CopyFrom( NameValData* nvd )
 {
+    if ( !nvd )
+    {
+        return;
+    }
+
     xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Attributes" );
 
     nvd->EncodeXml( root );
@@ -388,8 +366,6 @@ void NameValData::CopyFrom( NameValData* nvd )
     DecodeXml( attr_node );
 
     xmlFreeNode( root );
-    // xmlFreeNode( attr_node );
-
 }
 
 string NameValData::TruncateString( string str, int len )
@@ -402,7 +378,7 @@ string NameValData::TruncateString( string str, int len )
     return str;
 }
 
-void NameValData::EncodeXml( xmlNodePtr & node )
+void NameValData::EncodeXml( xmlNodePtr & node ) const
 {
     string attrXmlName = "Attribute";
     xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar * )attrXmlName.c_str(), NULL );
@@ -486,10 +462,11 @@ void NameValData::EncodeXml( xmlNodePtr & node )
         XmlUtil::AddVectorDoubleNode( dnode, "DoubleMatData", flatDblMatData );
 
     }
-    else if ( m_Type == vsp::ATTR_COLLECTION_DATA )
+    else if ( m_Type == vsp::ATTR_COLLECTION_DATA && m_AttributeCollection )
     {
-        GetAttributeCollectionPtr(0)->EncodeXml( dnode );
+        m_AttributeCollection->EncodeXml( dnode );
     }
+
     XmlUtil::SetStringProp( dnode, "Desc", m_Doc );
     XmlUtil::SetIntProp( dnode, "Protection", m_ProtectFlag );
 }
@@ -595,16 +572,8 @@ void NameValData::DecodeXml( xmlNodePtr & node )
         }
         else if ( m_Type == vsp::ATTR_COLLECTION_DATA )
         {
-            // add nested collection if needed
-            if ( !GetAttributeCollectionPtr( 0 ) )
-            {
-                AddAttributeCollection();
-            }
-            AttributeCollection* coll_ptr = GetAttributeCollectionPtr( 0 );
-            coll_ptr->DecodeXml( node );
-            coll_ptr->SetCollAttach( m_ID, vsp::ATTROBJ_ATTR );
-
-            ReRegisterNestedCollections();
+            GetAttributeCollectionPtr()->DecodeXml( node );
+            GetAttributeCollectionPtr()->SetCollAttach( m_ID, vsp::ATTROBJ_ATTR );
         }
         AttributeMgr.SetDirtyFlag( m_AttributeEventGroup );
     }
@@ -612,10 +581,9 @@ void NameValData::DecodeXml( xmlNodePtr & node )
 
 void NameValData::ReRegisterNestedCollections()
 {
-    for ( int i = 0; i != m_AttributeCollectionData.size(); i++ )
+    if ( m_Type == vsp::ATTR_COLLECTION_DATA )
     {
-        AttributeCollection* attrCollPtr = GetAttributeCollectionPtr( i );
-        attrCollPtr->SetCollAttach( m_ID, vsp::ATTROBJ_ATTR );
+        GetAttributeCollectionPtr()->SetCollAttach( m_ID, vsp::ATTROBJ_ATTR );
     }
 }
 
@@ -771,9 +739,12 @@ string NameValData::GetAsString( bool inline_data_flag )
             }
             break;
         case vsp::ATTR_COLLECTION_DATA:
-            ac = GetAttributeCollectionPtr( 0 );
-            ac_size = ac->GetDataMapSize();
-            nvd_vec = ac->GetAllPtrs();
+            ac = GetAttributeCollectionPtr();
+            if ( ac )
+            {
+                ac_size = ac->GetNumAttrs();
+                nvd_vec = ac->GetAllPtrs();
+            }
             if ( !inline_data_flag )
             {
                 for ( unsigned int i_attr = 0; i_attr < nvd_vec.size(); i_attr++ )
@@ -821,7 +792,6 @@ void NameValData::SetAttrAttach( string attachID )
 NameValCollection::NameValCollection()
 {
     m_ID = GenerateID();
-    m_DataMap.clear();
 }
 
 NameValCollection::NameValCollection( const string & name, const string & id, const string & doc )
@@ -829,16 +799,26 @@ NameValCollection::NameValCollection( const string & name, const string & id, co
     m_Name = name;
     m_ID = id;
     m_Doc = doc;
-    m_DataMap.clear();
 }
 
 NameValCollection::~NameValCollection()
 {
-    vector < NameValData* > nvd_ptrs = GetAllPtrs();
-    for ( int i = 0; i != nvd_ptrs.size(); ++i )
+    DeleteDataMap();
+}
+
+void NameValCollection::DeleteDataMap()
+{
+    map< string, vector< NameValData* > >::iterator iter;
+
+    for ( iter = m_DataMap.begin(); iter != m_DataMap.end(); ++iter )
     {
-        delete nvd_ptrs[i];
+        for ( int i = 0; i != iter->second.size(); ++i )
+        {
+            delete iter->second[i];
+        }
+        iter->second.clear();
     }
+    m_DataMap.clear();
 }
 
 string NameValCollection::GenerateID()
@@ -865,6 +845,32 @@ void NameValCollection::Add( const NameValData & d )
     }
 }
 
+void NameValCollection::Add( NameValData* d )
+{
+    if ( !d )
+    {
+        return;
+    }
+
+    //==== Find Name ====//
+    string name = d->GetName();
+
+    int index = 0;
+
+    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
+    if ( iter != m_DataMap.end() )     // Check For Duplicates
+    {
+        index = iter->second.size();
+        d->SetIndex( index );
+        iter->second.push_back( d );
+    }
+    else
+    {
+        d->SetIndex( index );
+        m_DataMap[name].push_back( d );
+    }
+}
+
 void NameValCollection::Add(const vector<vector<vec3d> > & d, const string &prefix, const string &doc )
 {
     string names[] = { prefix + "x", prefix + "y", prefix + "z"};
@@ -883,8 +889,60 @@ void NameValCollection::Add(const vector<vector<vec3d> > & d, const string &pref
             arr.push_back( row );
         }
 
-        Add( NameValData( names[dim], arr, doc ) );
+        Add( new NameValData( names[dim], arr, doc ) );
     }
+}
+
+void NameValCollection::Del( NameValData* d )
+{
+    if ( !d )
+    {
+        return;
+    }
+
+    // delete the pointer and remove it from the datamap
+    int error = Remove( d );
+    if ( !error )
+    {
+        delete d;
+    }
+}
+
+int NameValCollection::Remove( NameValData* d )
+{
+    // remove the pointer from datamap, and return that pointer
+    int error = 0;
+    // nvd must exist
+    if ( !d )
+    {
+        error++;
+        return error;
+    }
+
+    string name = d->GetName();
+    int index = d->GetIndex();
+
+    // erase pointer address from vector
+    m_DataMap[name].erase( m_DataMap[name].begin() + index );
+
+    // set index to -1 as placeholder
+    if ( !error )
+    {
+        d->SetIndex( -1 );
+    }
+
+    // reset indices of pointers in that datamap name entry
+    for ( int i = index; i < m_DataMap[name].size(); i++ )
+    {
+        m_DataMap[name].at( i )->SetIndex( i );
+    }
+
+    // erase name from datamap if now empty
+    if ( m_DataMap[name].empty() )
+    {
+        m_DataMap.erase( name );
+    }
+    return error;
 }
 
 //==== Find Res Data Given Name and Index ====//
@@ -970,10 +1028,10 @@ void AttributeCollection::Add( const NameValData & d, const int & attr_event_gro
 
     NameValCollection::Add( d );
 
-    NameValData* attr;
+    NameValData* attr = nullptr;
 
     map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
-    if ( iter != m_DataMap.end() )     // Check For Duplicates
+    if ( iter != m_DataMap.end() )
     {
         attr = iter->second.back();
     }
@@ -992,94 +1050,74 @@ void AttributeCollection::Add( const NameValData & d, const int & attr_event_gro
 
         if ( attr->GetType() == vsp::ATTR_COLLECTION_DATA )
         {
-            AttributeCollection* ac = attr->GetAttributeCollectionPtr( 0 );
+            AttributeCollection* ac = attr->GetAttributeCollectionPtr();
             AttributeMgr.RegisterCollID( ac->GetID(), ac );
         }
     }
 }
 
-//==== Delete Attribute from map by name ====//
-void AttributeCollection::Del( const string & name, int index )
+void AttributeCollection::Add( NameValData* d, const int & attr_event_group, bool set_event_group )
 {
-    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
-
-    if ( iter != m_DataMap.end() && index >= 0 && index < iter->second.size() )
+    if ( !d )
     {
-        // deregister the attribute if found from the AttributeMgr
-        NameValData* nvd_ptr = iter->second[ index ];
+        return;
+    }
 
-        if ( nvd_ptr )
+    NameValCollection::Add( d );
+
+    d->SetAttrAttach( GetID() );
+
+    if ( set_event_group )
+    {
+        d->SetAttributeEventGroup( attr_event_group );
+        AttributeMgr.SetDirtyFlag( attr_event_group );
+    }
+
+    AttributeMgr.RegisterAttrID( d->GetID(), d );
+
+    if ( d->GetType() == vsp::ATTR_COLLECTION_DATA )
+    {
+        AttributeCollection* ac = d->GetAttributeCollectionPtr();
+        if ( ac )
         {
-            if ( nvd_ptr->GetType() == vsp::ATTR_COLLECTION_DATA )
-            {
-                AttributeMgr.DeregisterCollID( nvd_ptr->GetAttributeCollectionPtr( 0 )->GetID() );
-            }
-            AttributeMgr.SetDirtyFlag( nvd_ptr->GetAttributeEventGroup() );
-            AttributeMgr.DeregisterAttrID( nvd_ptr->GetID() );
-
-            // clear original pointer from memory
-            delete nvd_ptr;
-
-            // erase pointer address from vector
-            iter->second.erase( iter->second.begin() + index );
-
-            // erase name from datamap if now empty
-            if ( !iter->second.size() )
-            {
-                m_DataMap.erase( name );
-            }
+            AttributeMgr.RegisterCollID( ac->GetID(), ac );
         }
     }
 }
 
-//==== Delete Attribute from map by ID ====//
-void AttributeCollection::DelAttr( const string & id )
+
+//==== Unregister attribute & nested collection ====//
+void AttributeCollection::Unregister( NameValData* d )
 {
-    NameValData* nvd = AttributeMgr.GetAttributePtr( id );
-    int attr_index = GetAttrIndex( id );
-    if ( nvd )
+    if ( !d )
     {
-        Del( nvd->GetName(), attr_index );
+        return;
     }
+
+    if ( d->GetType() == vsp::ATTR_COLLECTION_DATA )
+    {
+        AttributeMgr.DeregisterCollID( d->GetAttributeCollectionPtr()->GetID() );
+    }
+    AttributeMgr.SetDirtyFlag( d->GetAttributeEventGroup() );
+    AttributeMgr.DeregisterAttrID( d->GetID() );
 }
 
-//==== Get AttributePtr by ID if exists ====//
-NameValData* AttributeCollection::GetAttrPtr( const string & id )
+//==== Delete Attribute from map by ID and delete its object ====//
+void AttributeCollection::Del( NameValData* d )
 {
-    NameValData* attr_ptr = nullptr;
-
-    vector < NameValData* > nvd_vec = GetAllPtrs();
-    for ( int i = 0; i != nvd_vec.size(); i++ )
-    {
-        if ( nvd_vec[i] && nvd_vec[i]->GetID().compare( id ) == 0 )
-        {
-            attr_ptr = nvd_vec[i];
-        }
-    }
-
-    return attr_ptr;
+    Unregister( d );
+    NameValCollection::Del( d );
 }
 
-int AttributeCollection::GetAttrIndex( const string & id )
+//==== Remove Attribute from map by ID; original object survives ====//
+int AttributeCollection::Remove( NameValData* d )
 {
-    int default_index = -1;
-    NameValData* nvd = AttributeMgr.GetAttributePtr( id );
-    if ( nvd )
+    int error = NameValCollection::Remove( d );
+    if ( !error )
     {
-        map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( nvd->GetName() );
-        if ( iter !=  m_DataMap.end() ) //check if name exists
-        {
-            //iterate through this vec to see if we can find the ID
-            for ( int i = 0; i != iter->second.size(); i++ )
-            {
-                if ( iter->second.at( i ) && iter->second.at( i )->GetID() == id )
-                {
-                    return i;
-                }
-            }
-        }
+        Unregister( d );
     }
-    return default_index;
+    return error;
 }
 
 //==== Set Parent Object Properties ====//
@@ -1095,46 +1133,54 @@ string AttributeCollection::GetNewAttrName( int attrType )
     return NameValData::GetTypeName( attrType , capitalize );
 }
 
-void AttributeCollection::RenameAttr( const string & id, const string & newName )
+void AttributeCollection::RenameAttr( NameValData* attr, const string & newName )
 {
-    NameValData* nvd = AttributeMgr.GetAttributePtr( id );
-    string oldName = ( nvd )? nvd->GetName() : string();
-    int oldIndex = GetAttrIndex( id );
-
-    if ( oldIndex > -1 )
+    if ( !attr )
     {
-        NameValData nvd_copy;
-        nvd_copy.CopyFrom( m_DataMap[ oldName ].at( oldIndex ) );
-        nvd_copy.SetName( newName );
-        nvd_copy.ChangeID( id );
-
-        Del( oldName, oldIndex );
-        Add( nvd_copy );
+        return;
     }
+
+    int error = Remove( attr );
+
+    if ( error )
+    {
+        return;
+    }
+
+    attr->SetName( newName );
+    Add( attr );
 }
 
 //==== Get str ID of parent object (if applicable) ====//
-string AttributeCollection::GetAttachID() //method for getting m_AttachID
+string AttributeCollection::GetAttachID() const //method for getting m_AttachID
 {
     return m_AttachID;
 }
 
 //==== Get int type of parent object (if applicable) ====//
-int AttributeCollection::GetAttachType() //method for getting m_AttachID
+int AttributeCollection::GetAttachType() const //method for getting m_AttachID
 {
     return m_AttachType;
 }
 
 //==== Get boolean value of "contains attribute data" ====//
-bool AttributeCollection::GetAttrDataFlag()
+bool AttributeCollection::GetAttrDataFlag() const
 {
     return m_DataMap.size();
 }
 
 //==== Get number of keys in datamap ====//
-int AttributeCollection::GetDataMapSize()
+int AttributeCollection::GetNumAttrs() const
 {
-    return m_DataMap.size();
+    int map_size = 0;
+
+    map< string, vector< NameValData* > >::const_iterator iter;
+    for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
+    {
+        map_size += iter->second.size();
+    }
+
+    return map_size;
 }
 
 //==== Get the names of all contained attributes; AttributeCollections enforce a unique name for each contained attribute ====//
@@ -1180,9 +1226,10 @@ void AttributeCollection::BuildCollectorVec( vector < AttributeCollection* > & i
     {
         if ( nvd_vec[i] && nvd_vec[i]->GetType() == vsp::ATTR_COLLECTION_DATA )
         {
-            if ( nvd_vec[i]->GetAttributeCollectionPtr( 0 ) )
+            AttributeCollection* ac = nvd_vec[i]->GetAttributeCollectionPtr();
+            if ( ac )
             {
-                nvd_vec[i]->GetAttributeCollectionPtr( 0 )->BuildCollectorVec( in_vec );
+                ac->BuildCollectorVec( in_vec );
             }
         }
     }
@@ -1207,7 +1254,7 @@ void AttributeCollection::ChangeID( const string &id )
 }
 
 // ==== Encode Data To XML Data Structure ====//
-void AttributeCollection::EncodeXml( xmlNodePtr & node )
+void AttributeCollection::EncodeXml( xmlNodePtr & node ) const
 {
     //make child node with parent of "node", name fixed to "AttributeCollection"; hopefully fills in under the Parm or Object it's a part of
     if ( GetAttrDataFlag() )
@@ -1215,20 +1262,24 @@ void AttributeCollection::EncodeXml( xmlNodePtr & node )
 
         string attrXmlName = "AttributeCollection";
         xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar * )attrXmlName.c_str(), NULL ); //AttributeCollection XML Node
-        XmlUtil::SetStringProp( dnode, "ID", m_ID );
-        XmlUtil::SetStringProp( dnode, "AttachID", m_AttachID );
-        XmlUtil::SetIntProp( dnode, "AttachType", m_AttachType );
 
-        map< string, vector< NameValData* > >::iterator iter;
-
-        for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
+        if ( dnode )
         {
-            for ( int i = 0; i != iter->second.size(); i++ )
+            XmlUtil::SetStringProp( dnode, "ID", m_ID );
+            XmlUtil::SetStringProp( dnode, "AttachID", m_AttachID );
+            XmlUtil::SetIntProp( dnode, "AttachType", m_AttachType );
+
+            map< string, vector< NameValData* > >::const_iterator iter;
+
+            for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
             {
-                NameValData* attrData = iter->second[i];
-                if ( attrData )
+                for ( int i = 0; i != iter->second.size(); i++ )
                 {
-                attrData->EncodeXml( dnode );
+                    NameValData* attrData = iter->second[i];
+                    if ( attrData )
+                    {
+                    attrData->EncodeXml( dnode );
+                    }
                 }
             }
         }
@@ -1276,19 +1327,19 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node, bool retainIDs )
             xmlNodePtr attrNode = XmlUtil::GetNode( dnode, "Attribute", i );
             if ( attrNode )
             {
-                string attrID = XmlUtil::FindStringProp( attrNode, "ID", default_str );
-                NameValData* AttrMerge = AttributeMgr.GetAttributePtr( attrID );
+                string attrID = IDMgr.RemapID( XmlUtil::FindStringProp( attrNode, "ID", default_str ) );
+                NameValData* attr = AttributeMgr.GetAttributePtr( attrID );
 
                 // if there is an existing attribute with the same ID, it is a hardcoded attribute and will use the new XMLfile's attribute data on the existing attribute
-                if ( AttrMerge && IDMgr.NonRandomID( attrID ) )
+                if ( attr && IDMgr.NonRandomID( attrID ) )
                 {
-                    AttrMerge->DecodeXml( attrNode );
+                    attr->DecodeXml( attrNode );
                 }
                 else
                 {
-                    NameValData AttrAdd = NameValData();
-                    AttrAdd.DecodeXml( attrNode );
-                    Add( AttrAdd );
+                    attr = new NameValData();
+                    attr->DecodeXml( attrNode );
+                    Add( attr );
                 }
             }
         }
@@ -1302,12 +1353,12 @@ void AttributeCollection::Wype()
     if ( coll_in_map )
     {
         AttributeMgr.DeregisterCollID( GetID() );
-        m_DataMap.clear();
+        DeleteDataMap();
         AttributeMgr.RegisterCollID( GetID(), this );
     }
     else
     {
-        m_DataMap.clear();
+        DeleteDataMap();
     }
 }
 
@@ -1327,6 +1378,22 @@ void Results::Add( const NameValData & d )
          d.GetType() == vsp::PARM_REFERENCE_DATA )
     {
         cout << "NameValData type " << d.GetTypeName() << " reserved for Attributes functionality\n";
+        return;
+    }
+    NameValCollection::Add( d );
+}
+
+void Results::Add( NameValData* d )
+{
+    if ( !d )
+    {
+        return;
+    }
+
+    if ( d->GetType() == vsp::ATTR_COLLECTION_DATA ||
+         d->GetType() == vsp::PARM_REFERENCE_DATA )
+    {
+        cout << "NameValData type " << d->GetTypeName() << " reserved for Attributes functionality\n";
         return;
     }
     NameValCollection::Add( d );
@@ -2647,18 +2714,18 @@ void ResultsMgrSingleton::WriteTestResults()
 
 //      printf( "Timestamp = %d \n", res->GetTimestamp() );
 
-        res->Add( NameValData( "Test_Int", s + 1, "Test integer result." ) );
-        res->Add( NameValData( "Test_Int", s + 2, "Test integer result." ) );
-        res->Add( NameValData( "Test_Double", ( s + 1 ) * 0.1, "Test double result." ) );
-        res->Add( NameValData( "Test_String", string( "This Is A Test" ), "Test string result." ) );
-        res->Add( NameValData( "Test_Vec3d", vec3d( s, s * 2, s * 4 ), "Test vec3d result." ) );
+        res->Add( new NameValData( "Test_Int", s + 1, "Test integer result." ) );
+        res->Add( new NameValData( "Test_Int", s + 2, "Test integer result." ) );
+        res->Add( new NameValData( "Test_Double", ( s + 1 ) * 0.1, "Test double result." ) );
+        res->Add( new NameValData( "Test_String", string( "This Is A Test" ), "Test string result." ) );
+        res->Add( new NameValData( "Test_Vec3d", vec3d( s, s * 2, s * 4 ), "Test vec3d result." ) );
 
         vector< double > dvec;
         for ( int i = 0 ; i < 5 ; i++ )
         {
             dvec.push_back( i * ( s + 1 ) );
         }
-        res->Add( NameValData( "Test_Double_Vec", dvec, "Test double vector result." ) );
+        res->Add( new NameValData( "Test_Double_Vec", dvec, "Test double vector result." ) );
     }
 
 

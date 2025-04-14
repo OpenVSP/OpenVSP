@@ -533,17 +533,15 @@ void Vehicle::AddDefaultAttributes()
 
     m_AttrCollection.Add( veh_notes );
 
-    NameValData wm_group = NameValData(
-        "VSP::WatermarkGroup",
-        AttributeCollection(),
-        "Watermark attributes for text & display controls",
-        ATTR_WM_GROUP );
+    string wm_group_id = AttributeMgr.AddAttributeGroup( m_AttrCollection.GetID(), "VSP::WatermarkGroup" );
+    NameValData* wm_group_attr = AttributeMgr.GetAttributePtr( wm_group_id );
+    if ( wm_group_attr )
+    {
+        wm_group_attr->SetDoc( "Watermark attributes for text & display controls" );
+        wm_group_attr->ChangeID( ATTR_WM_GROUP );
+    }
 
-    m_AttrCollection.Add( wm_group, vsp::ATTR_GROUP_WATERMARK, true );
-
-    NameValData* wm_group_attr = AttributeMgr.GetAttributePtr( ATTR_WM_GROUP );
-
-    AttributeCollection* wm_group_ac_ptr = wm_group_attr->GetAttributeCollectionPtr( 0 );
+    AttributeCollection* wm_group_ac_ptr = wm_group_attr->GetAttributeCollectionPtr();
     wm_group_attr->SetProtection( true );
 
     vector < NameValData > wm_data;

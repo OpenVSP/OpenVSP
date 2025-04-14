@@ -159,7 +159,7 @@ void AttributeMgrSingleton::RegisterAttrID( const string &attrID, NameValData* a
 
     if ( attr->GetType() == vsp::ATTR_COLLECTION_DATA )
     {
-        AttributeCollection* ac = attr->GetAttributeCollectionPtr( 0 );
+        AttributeCollection* ac = attr->GetAttributeCollectionPtr();
         if ( ac )
         {
             vector < NameValData* > attr_vec = ac->GetAllPtrs();
@@ -178,7 +178,7 @@ void AttributeMgrSingleton::DeregisterAttrID( const string &attrID )
         NameValData* attr = m_AttrPtrMap.at( attrID );
         if ( attr->GetType() == vsp::ATTR_COLLECTION_DATA )
         {
-            AttributeCollection* ac = attr->GetAttributeCollectionPtr( 0 );
+            AttributeCollection* ac = attr->GetAttributeCollectionPtr();
             if ( ac )
             {
                 vector < NameValData* > attr_vec = ac->GetAllPtrs();
@@ -727,7 +727,7 @@ void AttributeMgrSingleton::DeleteAttribute( const string &attrID, bool updateFl
             {
                 Update();
             }
-            m_AttrCollMap.at( collID )->DelAttr( attrID );
+            m_AttrCollMap.at( collID )->Del( attribute_data );
         }
     }
 }
@@ -933,7 +933,7 @@ void AttributeMgrSingleton::SetAttributeName( const string &attrID, const string
 
     if ( attr && coll )
     {
-        coll->RenameAttr( attrID, name );
+        coll->RenameAttr( attr, name );
         SetAttrDirtyFlag( attrID );
         if ( updateFlag )
         {
@@ -1115,7 +1115,7 @@ AttributeCollection* AttributeMgrSingleton::GetCollectionFromParentID( const str
         NameValData* nvd_ptr = AttributeMgr.GetAttributePtr( id );
         if ( nvd_ptr && nvd_ptr->GetType() == vsp::ATTR_COLLECTION_DATA )
         {
-            return nvd_ptr->GetAttributeCollectionPtr( 0 );
+            return nvd_ptr->GetAttributeCollectionPtr();
         }
     }
 
