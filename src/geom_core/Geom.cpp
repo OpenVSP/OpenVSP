@@ -5169,8 +5169,8 @@ void Geom::WritePMARCWakeFile( FILE *fp, int &ipatch, vector<int> &idpat, vector
 
 void Geom::CreateGeomResults( Results* res )
 {
-    res->Add( NameValData( "Type", vsp::GEOM_XSECS, "Geom results type." ) );
-    res->Add( NameValData( "Num_Surfs", GetNumTotalSurfs(), "Number of surfaces." ) );
+    res->Add( new NameValData( "Type", vsp::GEOM_XSECS, "Geom results type." ) );
+    res->Add( new NameValData( "Num_Surfs", GetNumTotalSurfs(), "Number of surfaces." ) );
 
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
@@ -5181,11 +5181,11 @@ void Geom::CreateGeomResults( Results* res )
         UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
                          uw_pnts);
 
-        res->Add( NameValData( "Num_XSecs", static_cast<int>( pnts.size() ), "Number of cross sections." ) );
+        res->Add( new NameValData( "Num_XSecs", static_cast<int>( pnts.size() ), "Number of cross sections." ) );
 
         if ( pnts.size() )
         {
-            res->Add( NameValData( "Num_Pnts_Per_XSec", static_cast<int>( pnts[0].size() ), "Number of points per cross section." ) );
+            res->Add( new NameValData( "Num_Pnts_Per_XSec", static_cast<int>( pnts[0].size() ), "Number of points per cross section." ) );
         }
 
         //==== Write XSec Data ====//
@@ -5196,7 +5196,7 @@ void Geom::CreateGeomResults( Results* res )
             {
                 xsec_vec.push_back(  pnts[j][k] );
             }
-            res->Add( NameValData( "XSec_Pnts", xsec_vec, "Coordinates of surface points." ) );
+            res->Add( new NameValData( "XSec_Pnts", xsec_vec, "Coordinates of surface points." ) );
         }
     }
 }
@@ -5778,22 +5778,22 @@ void Geom::ExportSurfacePatches( vector<string> &surf_res_ids )
 
         // Add a results entity for each patch to the surface
         Results* res = ResultsMgr.CreateResults( "Surface", "Surfaces within a Geom." );
-        res->Add( NameValData( "comp_id", GetID(), "GeomID." ) );
-        res->Add( NameValData( "surf_index", i, "Surface index." ) );
+        res->Add( new NameValData( "comp_id", GetID(), "GeomID." ) );
+        res->Add( new NameValData( "surf_index", i, "Surface index." ) );
 
         vector< string > patch_ids;
         for ( int ipatch = 0 ; ipatch < ( int )pnts.size() ; ipatch++ )
         {
             Results* patch_res = ResultsMgr.CreateResults( "SurfacePatch", "Patches (determined by feature lines) within a surface." );
-            patch_res->Add( NameValData( "comp_id", GetID(), "GeomID." ) );
-            patch_res->Add( NameValData( "surf_index", i, "Surface index." ) );
-            patch_res->Add( NameValData( "patch_index", ipatch, "Patch index.") );
+            patch_res->Add( new NameValData( "comp_id", GetID(), "GeomID." ) );
+            patch_res->Add( new NameValData( "surf_index", i, "Surface index." ) );
+            patch_res->Add( new NameValData( "patch_index", ipatch, "Patch index.") );
             patch_res->Add( pnts[ipatch], "", "Patch node coordinates" );
             patch_res->Add( norms[ipatch], "n", "Patch node normal vector" );
             patch_ids.push_back( patch_res->GetID() );
         }
 
-        res->Add( NameValData( "patches", patch_ids, "ID's of patch results." ) );
+        res->Add( new NameValData( "patches", patch_ids, "ID's of patch results." ) );
 
         surf_res_ids.push_back( res->GetID() );
     }

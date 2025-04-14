@@ -8898,11 +8898,11 @@ void WriteAtmosphereCSVFile(const std::string & file_name, const int &atmos_type
         rho_ratio_vec.push_back( rho_ratio );
     }
     Results* res = ResultsMgr.CreateResults( "Atmosphere", "Standard atmosphere verification results." );
-    res->Add( NameValData( "Alt", AltTestPoints, "Altitude." ) );
-    res->Add( NameValData( "Temp", temp_vec, "Temperature." ) );
-    res->Add( NameValData( "Pres", pres_vec, "Pressure." ) );
-    res->Add( NameValData( "Pres_Ratio", pres_ratio_vec, "Pressure ratio." ) );
-    res->Add( NameValData( "Rho_Ratio", rho_ratio_vec, "Density ratio." ) );
+    res->Add( new NameValData( "Alt", AltTestPoints, "Altitude." ) );
+    res->Add( new NameValData( "Temp", temp_vec, "Temperature." ) );
+    res->Add( new NameValData( "Pres", pres_vec, "Pressure." ) );
+    res->Add( new NameValData( "Pres_Ratio", pres_ratio_vec, "Pressure ratio." ) );
+    res->Add( new NameValData( "Rho_Ratio", rho_ratio_vec, "Density ratio." ) );
     res->WriteCSVFile( file_name );
 }
 
@@ -8939,7 +8939,7 @@ void WriteBodyFFCSVFile(const std::string & file_name)
     char str[256];
     vector < double > body_ff_vec;
     vector < double > dol_array = linspace( 0.0, 0.3, 200 );
-    res->Add( NameValData( "D_L", dol_array, "D/L fineness ratio." ) );
+    res->Add( new NameValData( "D_L", dol_array, "D/L fineness ratio." ) );
 
     for (size_t body_ff_case = 0; body_ff_case <= vsp::FF_B_JENKINSON_AFT_FUSE_NACELLE; ++body_ff_case )
     {
@@ -8948,7 +8948,7 @@ void WriteBodyFFCSVFile(const std::string & file_name)
             body_ff_vec.push_back( ParasiteDragMgr.CalcFFBody( 1.0/dol_array[j], body_ff_case ) );
         }
         snprintf( str, sizeof( str ), "%s", ParasiteDragMgr.AssignFFBodyEqnName( body_ff_case ).c_str() );
-        res->Add( NameValData( str, body_ff_vec, "Form factor." ) );
+        res->Add( new NameValData( str, body_ff_vec, "Form factor." ) );
         body_ff_vec.clear();
     }
     res->WriteCSVFile( file_name );
@@ -8965,7 +8965,7 @@ void WriteWingFFCSVFile(const std::string & file_name)
     sweep25.push_back(30.0 * PI / 180.0);
     sweep50.push_back(30.0 * PI / 180.0);
     ParasiteDragMgr.m_Atmos.SetMach(0.8);
-    res->Add( NameValData( "T_C", toc_array, "Thickness to chord ratios" ) );
+    res->Add( new NameValData( "T_C", toc_array, "Thickness to chord ratios" ) );
     for (size_t wing_ff_case = 0; wing_ff_case < vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF; ++wing_ff_case )
     {
         for (size_t j = 0; j < toc_array.size(); ++j )
@@ -8973,7 +8973,7 @@ void WriteWingFFCSVFile(const std::string & file_name)
             wing_ff_vec.push_back( ParasiteDragMgr.CalcFFWing( toc_array[j], wing_ff_case, perc_lam[0], sweep25[0], sweep50[0]) );
         }
         snprintf( str, sizeof( str ), "%s", ParasiteDragMgr.AssignFFWingEqnName( wing_ff_case ).c_str() );
-        res->Add(NameValData( str, wing_ff_vec, "Form factor." ) );
+        res->Add( new NameValData( str, wing_ff_vec, "Form factor." ) );
         wing_ff_vec.clear();
     }
     res->WriteCSVFile( file_name );
@@ -9000,7 +9000,7 @@ void WriteCfEqnCSVFile(const std::string & file_name)
                 turb_cf_vec.push_back( ParasiteDragMgr.CalcTurbCf( ReyIn_array[j], ref_leng[0], cf_case, roughness[0], gamma[0], taw_tw_ratio[0], te_tw_ratio[0]) );
             }
             snprintf( str, sizeof( str ), "%s", ParasiteDragMgr.AssignTurbCfEqnName( cf_case ).c_str() );
-            res->Add( NameValData( str, turb_cf_vec, "Turbulent skin friction coefficient." ) );
+            res->Add( new NameValData( str, turb_cf_vec, "Turbulent skin friction coefficient." ) );
             turb_cf_vec.clear();
         }
     }
@@ -9012,12 +9012,12 @@ void WriteCfEqnCSVFile(const std::string & file_name)
             lam_cf_vec.push_back(ParasiteDragMgr.CalcLamCf(ReyIn_array[i], cf_case));
         }
         snprintf( str, sizeof( str ), "%s", ParasiteDragMgr.AssignLamCfEqnName( cf_case ).c_str() );
-        res->Add( NameValData( str, lam_cf_vec, "Laminar skin friction coefficient." ) );
+        res->Add( new NameValData( str, lam_cf_vec, "Laminar skin friction coefficient." ) );
         lam_cf_vec.clear();
     }
 
-    res->Add( NameValData( "ReyIn", ReyIn_array, "Reynolds number." ) );
-    res->Add( NameValData( "Ref_Leng", ref_leng, "Reference length." ) );
+    res->Add( new NameValData( "ReyIn", ReyIn_array, "Reynolds number." ) );
+    res->Add( new NameValData( "Ref_Leng", ref_leng, "Reference length." ) );
     res->WriteCSVFile( file_name );
 }
 
@@ -9041,14 +9041,14 @@ void WritePartialCfMethodCSVFile(const std::string & file_name)
             roughness[0], taw_tw_ratio[0], te_tw_ratio[0]) );
     }
 
-    res->Add( NameValData( "LamPerc", lam_perc_array, "Percent laminar flow." ) );
-    res->Add( NameValData( "Cf", cf_vec, "Skin friction coefficient." ) );
-    res->Add( NameValData( "ReyIn", ReyIn_array, "Reynolds number." ) );
-    res->Add( NameValData( "Ref_Leng", ref_leng, "Reference length." ) );
-    res->Add( NameValData( "Re/L", reql_array, "Reynolds number per length." ) );
-    res->Add( NameValData( "Roughness", roughness, "Surface roughness." ) );
-    res->Add( NameValData( "Taw/Tw", taw_tw_ratio, "Taw/Tw temperature ratio." ) );
-    res->Add( NameValData( "Te/Tw", te_tw_ratio, "Te/Tw temperature ratio." ) );
+    res->Add( new NameValData( "LamPerc", lam_perc_array, "Percent laminar flow." ) );
+    res->Add( new NameValData( "Cf", cf_vec, "Skin friction coefficient." ) );
+    res->Add( new NameValData( "ReyIn", ReyIn_array, "Reynolds number." ) );
+    res->Add( new NameValData( "Ref_Leng", ref_leng, "Reference length." ) );
+    res->Add( new NameValData( "Re/L", reql_array, "Reynolds number per length." ) );
+    res->Add( new NameValData( "Roughness", roughness, "Surface roughness." ) );
+    res->Add( new NameValData( "Taw/Tw", taw_tw_ratio, "Taw/Tw temperature ratio." ) );
+    res->Add( new NameValData( "Te/Tw", te_tw_ratio, "Te/Tw temperature ratio." ) );
     res->WriteCSVFile( file_name );
 }
 

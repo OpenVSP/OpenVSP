@@ -299,9 +299,9 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
         }
     }
 
-    res->Add( NameValData( "Comp_Names", namevec, "Names of target Geoms." ) );
-    res->Add( NameValData( "Comp_IDs", targetids, "GeomID's of target Geoms." ) );
-    res->Add( NameValData( "Direction", dir, "Projection direction vector." ) );
+    res->Add( new NameValData( "Comp_Names", namevec, "Names of target Geoms." ) );
+    res->Add( new NameValData( "Comp_IDs", targetids, "GeomID's of target Geoms." ) );
+    res->Add( new NameValData( "Direction", dir, "Projection direction vector." ) );
 
     AreaReport( res, "Comp_Areas", "Component projected areas.", utargetvec, scale );
 
@@ -320,7 +320,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
 
         for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
         {
-            res->Add( NameValData( "Planar_Path", m_SolutionPolyVec3d[i], "Path outline of projection in two-dimensional projected plane." ) );
+            res->Add( new NameValData( "Planar_Path", m_SolutionPolyVec3d[i], "Path outline of projection in two-dimensional projected plane." ) );
         }
 
         Poly3dToPoly2d( m_SolutionPolyVec3d, m_SolutionPolyVec2d );
@@ -332,14 +332,14 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
 
         for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
         {
-            res->Add( NameValData( "Path", m_SolutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
+            res->Add( new NameValData( "Path", m_SolutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
         }
 
         TransformMesh( m_SolutionTMeshVec, mat );
 
         string id = MakeMeshGeom();
 
-        res->Add( NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom of the projected area." ) );
+        res->Add( new NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom of the projected area." ) );
 
         // Clear pointers, they have been transferred to the MeshGeom.
         // Do not delete TMeshs.
@@ -347,7 +347,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
     }
     else
     {
-        res->Add( NameValData( "Mesh_GeomID", string( "" ), "Empty GeomID.  Projection had no solution." ) );
+        res->Add( new NameValData( "Mesh_GeomID", string( "" ), "Empty GeomID.  Projection had no solution." ) );
     }
 
     return res;
@@ -394,9 +394,9 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
         }
     }
 
-    res->Add( NameValData( "Comp_Names", namevec, "Names of target Geoms." ) );
-    res->Add( NameValData( "Comp_IDs", targetids, "GeomID's of target Geoms." ) );
-    res->Add( NameValData( "Direction", dir, "Projection direction vector." ) );
+    res->Add( new NameValData( "Comp_Names", namevec, "Names of target Geoms." ) );
+    res->Add( new NameValData( "Comp_IDs", targetids, "GeomID's of target Geoms." ) );
+    res->Add( new NameValData( "Direction", dir, "Projection direction vector." ) );
 
     AreaReport( res, "Comp_Areas", "Component projected areas.", utargetvec, scale );
 
@@ -431,7 +431,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
 
         for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
         {
-            res->Add( NameValData( "Planar_Path", m_SolutionPolyVec3d[i], "Path outline of projection in two-dimensional projected plane." ) );
+            res->Add( new NameValData( "Planar_Path", m_SolutionPolyVec3d[i], "Path outline of projection in two-dimensional projected plane." ) );
         }
 
         Poly3dToPoly2d( m_SolutionPolyVec3d, m_SolutionPolyVec2d );
@@ -443,14 +443,14 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
 
         for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
         {
-            res->Add( NameValData( "Path", m_SolutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
+            res->Add( new NameValData( "Path", m_SolutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
         }
 
         TransformMesh( m_SolutionTMeshVec, mat );
 
         string id = MakeMeshGeom();
 
-        res->Add( NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom of the projected area." ) );
+        res->Add( new NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom of the projected area." ) );
 
         // Clear pointers, they have been transferred to the MeshGeom.
         // Do not delete TMeshs.
@@ -458,7 +458,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
     }
     else
     {
-        res->Add( NameValData( "Mesh_GeomID", string( "" ), "Empty GeomID.  Projection had no solution." ) );
+        res->Add( new NameValData( "Mesh_GeomID", string( "" ), "Empty GeomID.  Projection had no solution." ) );
     }
 
     return res;
@@ -1199,7 +1199,7 @@ void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, co
         }
     }
 
-    res->Add( NameValData( resname, asum/(scale*scale), doc ) );
+    res->Add( new NameValData( resname, asum/(scale*scale), doc ) );
 }
 
 void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, const string &doc, const vector < Clipper2Lib::Paths64 > & pthsvec, double scale )
@@ -1218,5 +1218,5 @@ void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, co
         areavec[i] = asum/(scale*scale);
     }
 
-    res->Add( NameValData( resname, areavec, doc ) );
+    res->Add( new NameValData( resname, areavec, doc ) );
 }

@@ -6228,10 +6228,10 @@ string Vehicle::WriteDegenGeomFile()
             Results *blnk_res = ResultsMgr.CreateResults( "Degen_BlankGeom", "Blank component degen geom results." );
             blank_degen_result_ids.push_back( blnk_res->GetID() );
 
-            blnk_res->Add( NameValData( "name", m_DegenPtMassVec[i].name, "Name." ) );
-            blnk_res->Add( NameValData( "geom_id", m_DegenPtMassVec[i].geom_id, "GeomID." ) );
-            blnk_res->Add( NameValData( "X", m_DegenPtMassVec[i].x, "Coordinate." ) );
-            blnk_res->Add( NameValData( "mass", m_DegenPtMassVec[i].mass, "Mass." ) );
+            blnk_res->Add( new NameValData( "name", m_DegenPtMassVec[i].name, "Name." ) );
+            blnk_res->Add( new NameValData( "geom_id", m_DegenPtMassVec[i].geom_id, "GeomID." ) );
+            blnk_res->Add( new NameValData( "X", m_DegenPtMassVec[i].x, "Coordinate." ) );
+            blnk_res->Add( new NameValData( "mass", m_DegenPtMassVec[i].mass, "Mass." ) );
         }
     }
 
@@ -6240,8 +6240,8 @@ string Vehicle::WriteDegenGeomFile()
         m_DegenGeomVec[i].write_degenGeomResultsManager( degen_results_ids );
     }
 
-    res->Add( NameValData( "Degen_BlankGeoms", blank_degen_result_ids, "ID's of degen blanks." ) );
-    res->Add( NameValData( "Degen_DegenGeoms", degen_results_ids, "Believed unused." ) );  // TODO: check for removal.
+    res->Add( new NameValData( "Degen_BlankGeoms", blank_degen_result_ids, "ID's of degen blanks." ) );
+    res->Add( new NameValData( "Degen_DegenGeoms", degen_results_ids, "Believed unused." ) );  // TODO: check for removal.
     return outStr;
 }
 
@@ -6264,20 +6264,20 @@ string Vehicle::ExportSurfacePatches( int set )
             {
                 // Loop over all surfaces adding points to the results manager
                 Results* res = ResultsMgr.CreateResults( "ComponentSurfaces", "Geom group for surface patch results." );
-                res->Add( NameValData( "name", geom->GetName(), "Geom name." ) );
-                res->Add( NameValData( "id", geom->GetID(), "GeomID." ) );
+                res->Add( new NameValData( "name", geom->GetName(), "Geom name." ) );
+                res->Add( new NameValData( "id", geom->GetID(), "GeomID." ) );
 
                 vector< string > surfaces;
                 geom->ExportSurfacePatches( surfaces  );
 
-                res->Add( NameValData( "surfaces", surfaces, "ID's of surface results.") );
+                res->Add( new NameValData( "surfaces", surfaces, "ID's of surface results.") );
 
                 components.push_back( res->GetID() );
             }
         }
     }
 
-    veh_surfaces->Add( NameValData( "components", components, "ID's of component results." ) );
+    veh_surfaces->Add( new NameValData( "components", components, "ID's of component results." ) );
     return veh_surfaces->GetID();
 }
 

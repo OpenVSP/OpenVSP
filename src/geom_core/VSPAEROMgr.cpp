@@ -1392,33 +1392,33 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
         return string();
     }
-    res->Add( NameValData( "GeometrySet", set, "Geometry Set for analysis." ) );
-    res->Add( NameValData( "AnalysisMethod", m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
-    res->Add( NameValData( "DegenGeomFileName", m_DegenFileFull, "Degen geom file name." ) );
+    res->Add( new NameValData( "GeometrySet", set, "Geometry Set for analysis." ) );
+    res->Add( new NameValData( "AnalysisMethod", m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
+    res->Add( new NameValData( "DegenGeomFileName", m_DegenFileFull, "Degen geom file name." ) );
     if ( m_AnalysisMethod.Get() == vsp::PANEL )
     {
         if ( m_AlternateInputFormatFlag.Get() )
         {
-            res->Add( NameValData( "CompGeomFileName", m_CompGeomFileFull, "CompGeom *.tri file name." ) );
+            res->Add( new NameValData( "CompGeomFileName", m_CompGeomFileFull, "CompGeom *.tri file name." ) );
         }
         else
         {
-            res->Add( NameValData( "VSPGeomFileName", m_VSPGeomFileFull, "CompGeom *.vspgeom file name." ) );
+            res->Add( new NameValData( "VSPGeomFileName", m_VSPGeomFileFull, "CompGeom *.vspgeom file name." ) );
         }
-        res->Add( NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId, "MeshGeom GeomID of mesh created in process." ) );
+        res->Add( new NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId, "MeshGeom GeomID of mesh created in process." ) );
     }
     else
     {
         if ( m_AlternateInputFormatFlag.Get() )
         {
-            res->Add( NameValData( "VSPGeomFileName", m_VSPGeomFileFull, "Thin surface *.vspgeom file name." ) );
+            res->Add( new NameValData( "VSPGeomFileName", m_VSPGeomFileFull, "Thin surface *.vspgeom file name." ) );
         }
         else
         {
-            res->Add( NameValData( "CompGeomFileName", string(), "No *.tri file written." ) );
-            res->Add( NameValData( "Mesh_GeomID", string(), "No MeshGeom created." ) );
+            res->Add( new NameValData( "CompGeomFileName", string(), "No *.tri file written." ) );
+            res->Add( new NameValData( "Mesh_GeomID", string(), "No MeshGeom created." ) );
         }
-        res->Add( NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId, "MeshGeom GeomID of mesh created in process." ) );
+        res->Add( new NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId, "MeshGeom GeomID of mesh created in process." ) );
     }
 
     return res->GetID();
@@ -1670,7 +1670,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
     else
     {
-        res->Add( NameValData( "SetupFile", m_SetupFile, "Setup file name for case." ) );
+        res->Add( new NameValData( "SetupFile", m_SetupFile, "Setup file name for case." ) );
         retStr = res->GetID();
     }
 
@@ -1852,7 +1852,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
         return string();
     }
 
-    res->Add( NameValData( "ResultsVec", res_id_vec, "ID's of VSPAERO analysis results." ) );
+    res->Add( new NameValData( "ResultsVec", res_id_vec, "ID's of VSPAERO analysis results." ) );
     return res->GetID();
 }
 
@@ -2255,7 +2255,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
     }
     else
     {
-        res->Add( NameValData( "ResultsVec", res_id_vector, "ID's of VSPAERO sweep analysis results." ) );
+        res->Add( new NameValData( "ResultsVec", res_id_vector, "ID's of VSPAERO sweep analysis results." ) );
         return res->GetID();
     }
 }
@@ -2266,7 +2266,7 @@ void VSPAEROMgrSingleton::AddResultHeader( const string &res_id, double mach, do
     Results * res = ResultsMgr.FindResultsPtr( res_id );
     if ( res )
     {
-        res->Add( NameValData( "AnalysisMethod", analysisMethod, "Flag to indicate analysis method (thin vs. thick)." ) );
+        res->Add( new NameValData( "AnalysisMethod", analysisMethod, "Flag to indicate analysis method (thin vs. thick)." ) );
     }
 }
 
@@ -2333,7 +2333,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 return;
             }
 
-            res->Add( NameValData( "FC_ReCref_", recref, "Reynolds number." ) );
+            res->Add( new NameValData( "FC_ReCref_", recref, "Reynolds number." ) );
         }
 
         //READ wake iteration table
@@ -2484,56 +2484,56 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
             {
                 if ( unsteady_flag || unsteady_pqr )
                 {
-                    res->Add( NameValData( "Time", time, "Time in unsteady analysis." ) );
+                    res->Add( new NameValData( "Time", time, "Time in unsteady analysis." ) );
                 }
                 else
                 {
-                    res->Add( NameValData( "WakeIter", i, "Wake relaxation iteration." ) );
+                    res->Add( new NameValData( "WakeIter", i, "Wake relaxation iteration." ) );
                 }
-                res->Add( NameValData( "Mach", Mach, "Mach number." ) );
-                res->Add( NameValData( "Alpha", Alpha, "Angle of attack." ) );
-                res->Add( NameValData( "Beta", Beta, "Angle of sideslip." ) );
-                res->Add( NameValData( "CLo", CLo, "Parasite component of lift coefficient." ) );
-                res->Add( NameValData( "CLi", CLi, "Inviscid component of lift coefficient." ) );
-                res->Add( NameValData( "CL", CLtot, "Lift coefficient." ) );
-                res->Add( NameValData( "CDo", CDo, "Parasite drag coefficient." ) );
-                res->Add( NameValData( "CDi", CDi, "Induced drag coefficient." ) );
-                res->Add( NameValData( "CDtot", CDtot, "Total drag coefficient." ) );
-                res->Add( NameValData( "CDt", CDt, "Induced drag coefficient from Trefftz-like calculation." ) );
-                res->Add( NameValData( "CDtott", CDtott, "Total drag coefficient from Trefftz-like calculation." ) );
-                res->Add( NameValData( "CSo", CSo, "Parasite component of side force coefficient." ) );
-                res->Add( NameValData( "CSi", CSi, "Inviscid component of side force coefficient." ) );
-                res->Add( NameValData( "CS", CStot, "Side force coefficient." ) );
-                res->Add( NameValData( "L/D", LoD, "Lift to drag ratio." ) );
-                res->Add( NameValData( "E", E, "Oswald efficiency factor." ) );
-                res->Add( NameValData( "CFxo", CFxo, "Parasite component of X force coefficient." ) );
-                res->Add( NameValData( "CFyo", CFyo, "Parasite component of Y force coefficient." ) );
-                res->Add( NameValData( "CFzo", CFzo, "Parasite component of Z force coefficient." ) );
-                res->Add( NameValData( "CFxi", CFxi, "Inviscid component of X force coefficient." ) );
-                res->Add( NameValData( "CFyi", CFyi, "Inviscid component of Y force coefficient." ) );
-                res->Add( NameValData( "CFzi", CFzi, "Inviscid component of Z force coefficient." ) );
-                res->Add( NameValData( "CFx", CFxtot, "X force coefficient." ) );
-                res->Add( NameValData( "CFy", CFytot, "Y force coefficient." ) );
-                res->Add( NameValData( "CFz", CFztot, "Z force coefficient." ) );
-                res->Add( NameValData( "CMxo", CMxo, "Parasite component of X moment coefficient." ) );
-                res->Add( NameValData( "CMyo", CMyo, "Parasite component of Y moment coefficient." ) );
-                res->Add( NameValData( "CMzo", CMzo, "Parasite component of Z moment coefficient." ) );
-                res->Add( NameValData( "CMxi", CMxi, "Inviscid component of X moment coefficient." ) );
-                res->Add( NameValData( "CMyi", CMyi, "Inviscid component of Y moment coefficient." ) );
-                res->Add( NameValData( "CMzi", CMzi, "Inviscid component of Z moment coefficient." ) );
-                res->Add( NameValData( "CMx", CMxtot, "X moment coefficient." ) );
-                res->Add( NameValData( "CMy", CMytot, "Y moment coefficient." ) );
-                res->Add( NameValData( "CMz", CMztot, "Z moment coefficient." ) );
-                res->Add( NameValData( "T/QS", ToQS, "Thrust coefficient." ) );
+                res->Add( new NameValData( "Mach", Mach, "Mach number." ) );
+                res->Add( new NameValData( "Alpha", Alpha, "Angle of attack." ) );
+                res->Add( new NameValData( "Beta", Beta, "Angle of sideslip." ) );
+                res->Add( new NameValData( "CLo", CLo, "Parasite component of lift coefficient." ) );
+                res->Add( new NameValData( "CLi", CLi, "Inviscid component of lift coefficient." ) );
+                res->Add( new NameValData( "CL", CLtot, "Lift coefficient." ) );
+                res->Add( new NameValData( "CDo", CDo, "Parasite drag coefficient." ) );
+                res->Add( new NameValData( "CDi", CDi, "Induced drag coefficient." ) );
+                res->Add( new NameValData( "CDtot", CDtot, "Total drag coefficient." ) );
+                res->Add( new NameValData( "CDt", CDt, "Induced drag coefficient from Trefftz-like calculation." ) );
+                res->Add( new NameValData( "CDtott", CDtott, "Total drag coefficient from Trefftz-like calculation." ) );
+                res->Add( new NameValData( "CSo", CSo, "Parasite component of side force coefficient." ) );
+                res->Add( new NameValData( "CSi", CSi, "Inviscid component of side force coefficient." ) );
+                res->Add( new NameValData( "CS", CStot, "Side force coefficient." ) );
+                res->Add( new NameValData( "L/D", LoD, "Lift to drag ratio." ) );
+                res->Add( new NameValData( "E", E, "Oswald efficiency factor." ) );
+                res->Add( new NameValData( "CFxo", CFxo, "Parasite component of X force coefficient." ) );
+                res->Add( new NameValData( "CFyo", CFyo, "Parasite component of Y force coefficient." ) );
+                res->Add( new NameValData( "CFzo", CFzo, "Parasite component of Z force coefficient." ) );
+                res->Add( new NameValData( "CFxi", CFxi, "Inviscid component of X force coefficient." ) );
+                res->Add( new NameValData( "CFyi", CFyi, "Inviscid component of Y force coefficient." ) );
+                res->Add( new NameValData( "CFzi", CFzi, "Inviscid component of Z force coefficient." ) );
+                res->Add( new NameValData( "CFx", CFxtot, "X force coefficient." ) );
+                res->Add( new NameValData( "CFy", CFytot, "Y force coefficient." ) );
+                res->Add( new NameValData( "CFz", CFztot, "Z force coefficient." ) );
+                res->Add( new NameValData( "CMxo", CMxo, "Parasite component of X moment coefficient." ) );
+                res->Add( new NameValData( "CMyo", CMyo, "Parasite component of Y moment coefficient." ) );
+                res->Add( new NameValData( "CMzo", CMzo, "Parasite component of Z moment coefficient." ) );
+                res->Add( new NameValData( "CMxi", CMxi, "Inviscid component of X moment coefficient." ) );
+                res->Add( new NameValData( "CMyi", CMyi, "Inviscid component of Y moment coefficient." ) );
+                res->Add( new NameValData( "CMzi", CMzi, "Inviscid component of Z moment coefficient." ) );
+                res->Add( new NameValData( "CMx", CMxtot, "X moment coefficient." ) );
+                res->Add( new NameValData( "CMy", CMytot, "Y moment coefficient." ) );
+                res->Add( new NameValData( "CMz", CMztot, "Z moment coefficient." ) );
+                res->Add( new NameValData( "T/QS", ToQS, "Thrust coefficient." ) );
 
                 if ( unsteady_pqr )
                 {
-                    res->Add( NameValData( "UnstdyAng", UnstdAng, "Unsteady rotor angle." ) );
+                    res->Add( new NameValData( "UnstdyAng", UnstdAng, "Unsteady rotor angle." ) );
                 }
 
                 if ( unsteady_h )
                 {
-                    res->Add( NameValData( "H", H, "Unsteady heave." ) );
+                    res->Add( new NameValData( "H", H, "Unsteady heave." ) );
                 }
 
             }
@@ -2676,7 +2676,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
                                     Results* new_history_res = ResultsMgr.CreateResults( "VSPAERO_History", "VSPAERO additional history results to capture ReCref variation." );
                                     res_id_vector.push_back( new_history_res->GetID() );
 
-                                    new_history_res->Add( NameValData( "FC_ReCref_", ( 1e6 * Re_1e6.back() ), "Reynolds number." ) );
+                                    new_history_res->Add( new NameValData( "FC_ReCref_", ( 1e6 * Re_1e6.back() ), "Reynolds number." ) );
 
                                     int num_wake = (int)alpha_ptr->GetDoubleData().size();
 
@@ -2701,7 +2701,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
                                                 cdo_vec[k] = cdo_vec[k] - ( history_cdo_vec.back() - history_cdo_vec[k] );
                                             }
 
-                                            new_history_res->Add( ( NameValData( data_names[j].c_str(), cdo_vec, "Parasite drag coefficient." ) ) );
+                                            new_history_res->Add( new NameValData( data_names[j].c_str(), cdo_vec, "Parasite drag coefficient." ) );
                                         }
                                         else if ( cdtot_ptr && strcmp( data_names[j].c_str(), "CDtot" ) == 0 )
                                         {
@@ -2713,7 +2713,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
                                                 ctot_vec[k] = ctot_vec[k] - ( history_ctot_vec.back() - history_ctot_vec[k] );
                                             }
 
-                                            new_history_res->Add( ( NameValData( data_names[j].c_str(), ctot_vec, "Total drag coefficient." ) ) );
+                                            new_history_res->Add( new NameValData( data_names[j].c_str(), ctot_vec, "Total drag coefficient." ) );
                                         }
                                         else if ( l_d_ptr && strcmp( data_names[j].c_str(), "L/D" ) == 0 )
                                         {
@@ -2725,7 +2725,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
                                                 ld_vec[k] = ld_vec[k] - ( history_l_d_vec.back() - history_l_d_vec[k] );
                                             }
 
-                                            new_history_res->Add( ( NameValData( data_names[j].c_str(), ld_vec, "Lift to drag ratio." ) ) );
+                                            new_history_res->Add( new NameValData( data_names[j].c_str(), ld_vec, "Lift to drag ratio." ) );
                                         }
                                         else if ( strcmp( data_names[j].c_str(), "FC_ReCref_" ) != 0 )
                                         {
@@ -2735,7 +2735,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
                                                 continue;
                                             }
 
-                                            new_history_res->Add( nvd );
+                                            new_history_res->Add( new NameValData( nvd ) ); // q: do we need a copy here?
                                         }
                                     }
 
@@ -2747,29 +2747,29 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
                         data_string_array = ReadDelimLine( fp, seps );
                     }
 
-                    res->Add( NameValData( "Beta", Beta, "Angle of sideslip." ) );
-                    res->Add( NameValData( "Mach", Mach, "Mach number." ) );
-                    res->Add( NameValData( "Alpha", Alpha, "Angle of attack." ) );
-                    res->Add( NameValData( "Re_1e6", Re_1e6, "Reynolds number in millions." ) );
-                    res->Add( NameValData( "CL", CL, "Lift coefficient." ) );
-                    res->Add( NameValData( "CDo", CDo, "Parasite drag coefficient." ) );
-                    res->Add( NameValData( "CDi", CDi, "Induced drag coefficient." ) );
-                    res->Add( NameValData( "CDtot", CDtot, "Total drag coefficient." ) );
-                    res->Add( NameValData( "CDt", CDt, "Induced drag coefficient from Trefftz-like calculation." ) );
-                    res->Add( NameValData( "CDtott", CDtott, "Total drag coefficient from Trefftz-like calculation." ) );
-                    res->Add( NameValData( "CS", CS, "Side force coefficient." ) );
-                    res->Add( NameValData( "L_D", L_D, "Lift to drag ratio." ) );
-                    res->Add( NameValData( "E", E, "Oswald efficiency factor." ) );
-                    res->Add( NameValData( "CFx", CFx, "X force coefficient." ) );
-                    res->Add( NameValData( "CFy", CFy, "Y force coefficient." ) );
-                    res->Add( NameValData( "CFz", CFz, "Z force coefficient." ) );
-                    res->Add( NameValData( "CMx", CMx, "X moment coefficient." ) );
-                    res->Add( NameValData( "CMy", CMy, "Y moment coefficient." ) );
-                    res->Add( NameValData( "CMz", CMz, "Z moment coefficient." ) );
-                    res->Add( NameValData( "CMl", CMl, "L roll moment coefficient." ) );
-                    res->Add( NameValData( "CMm", CMm, "M pitch moment coefficient." ) );
-                    res->Add( NameValData( "CMn", CMn, "N yaw moment coefficient." ) );
-                    res->Add( NameValData( "Fopt", Fopt, "Objective function value." ) );
+                    res->Add( new NameValData( "Beta", Beta, "Angle of sideslip." ) );
+                    res->Add( new NameValData( "Mach", Mach, "Mach number." ) );
+                    res->Add( new NameValData( "Alpha", Alpha, "Angle of attack." ) );
+                    res->Add( new NameValData( "Re_1e6", Re_1e6, "Reynolds number in millions." ) );
+                    res->Add( new NameValData( "CL", CL, "Lift coefficient." ) );
+                    res->Add( new NameValData( "CDo", CDo, "Parasite drag coefficient." ) );
+                    res->Add( new NameValData( "CDi", CDi, "Induced drag coefficient." ) );
+                    res->Add( new NameValData( "CDtot", CDtot, "Total drag coefficient." ) );
+                    res->Add( new NameValData( "CDt", CDt, "Induced drag coefficient from Trefftz-like calculation." ) );
+                    res->Add( new NameValData( "CDtott", CDtott, "Total drag coefficient from Trefftz-like calculation." ) );
+                    res->Add( new NameValData( "CS", CS, "Side force coefficient." ) );
+                    res->Add( new NameValData( "L_D", L_D, "Lift to drag ratio." ) );
+                    res->Add( new NameValData( "E", E, "Oswald efficiency factor." ) );
+                    res->Add( new NameValData( "CFx", CFx, "X force coefficient." ) );
+                    res->Add( new NameValData( "CFy", CFy, "Y force coefficient." ) );
+                    res->Add( new NameValData( "CFz", CFz, "Z force coefficient." ) );
+                    res->Add( new NameValData( "CMx", CMx, "X moment coefficient." ) );
+                    res->Add( new NameValData( "CMy", CMy, "Y moment coefficient." ) );
+                    res->Add( new NameValData( "CMz", CMz, "Z moment coefficient." ) );
+                    res->Add( new NameValData( "CMl", CMl, "L roll moment coefficient." ) );
+                    res->Add( new NameValData( "CMm", CMm, "M pitch moment coefficient." ) );
+                    res->Add( new NameValData( "CMn", CMn, "N yaw moment coefficient." ) );
+                    res->Add( new NameValData( "Fopt", Fopt, "Objective function value." ) );
 
                     // Add results at the end to keep new VSPAERO_HIstory results together in the CSV export
                     res_id_vector.push_back( res->GetID() );
@@ -2910,32 +2910,32 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
             }
 
             // Finish up by adding the data to the result res
-            res->Add( NameValData( "WingId", WingId, "Wing ID." ) );
-            res->Add( NameValData( "S", S, "Non-dimensional spanwise coordinate." ) );
-            res->Add( NameValData( "Xavg", Xavg, "Section X coordinate." ) );
-            res->Add( NameValData( "Yavg", Yavg, "Section Y coordinate." ) ); // FIXME: Not found in file any more??
-            res->Add( NameValData( "Zavg", Zavg, "Section Z coordinate." ) );
-            res->Add( NameValData( "Chord", Chord, "Section chord." ) );
-            res->Add( NameValData( "V/Vref", VoVref, "Local velocity ratio." ) );
-            res->Add( NameValData( "cl", Cl, "Section lift coefficient." ) ); // FIXME: Not found in file any more??
-            res->Add( NameValData( "cd", Cd, "Section drag coefficient." ) );
-            res->Add( NameValData( "cs", Cs, "Section side force coefficient." ) );
-            res->Add( NameValData( "cx", Cx, "Section X force coefficient." ) );
-            res->Add( NameValData( "cy", Cy, "Section Y force coefficient." ) );
-            res->Add( NameValData( "cz", Cz, "Section Z force coefficient." ) );
-            res->Add( NameValData( "cmx", Cmx, "Section X moment coefficient." ) );
-            res->Add( NameValData( "cmy", Cmy, "Section Y moment coefficient." ) );
-            res->Add( NameValData( "cmz", Cmz, "Section Z moment coefficient." ) );
+            res->Add( new NameValData( "WingId", WingId, "Wing ID." ) );
+            res->Add( new NameValData( "S", S, "Non-dimensional spanwise coordinate." ) );
+            res->Add( new NameValData( "Xavg", Xavg, "Section X coordinate." ) );
+            res->Add( new NameValData( "Yavg", Yavg, "Section Y coordinate." ) ); // FIXME: Not found in file any more??
+            res->Add( new NameValData( "Zavg", Zavg, "Section Z coordinate." ) );
+            res->Add( new NameValData( "Chord", Chord, "Section chord." ) );
+            res->Add( new NameValData( "V/Vref", VoVref, "Local velocity ratio." ) );
+            res->Add( new NameValData( "cl", Cl, "Section lift coefficient." ) ); // FIXME: Not found in file any more??
+            res->Add( new NameValData( "cd", Cd, "Section drag coefficient." ) );
+            res->Add( new NameValData( "cs", Cs, "Section side force coefficient." ) );
+            res->Add( new NameValData( "cx", Cx, "Section X force coefficient." ) );
+            res->Add( new NameValData( "cy", Cy, "Section Y force coefficient." ) );
+            res->Add( new NameValData( "cz", Cz, "Section Z force coefficient." ) );
+            res->Add( new NameValData( "cmx", Cmx, "Section X moment coefficient." ) );
+            res->Add( new NameValData( "cmy", Cmy, "Section Y moment coefficient." ) );
+            res->Add( new NameValData( "cmz", Cmz, "Section Z moment coefficient." ) );
 
-            res->Add( NameValData( "cl*c/cref", Clc_cref, "Section lift scaled load." ) );
-            res->Add( NameValData( "cd*c/cref", Cdc_cref, "Section drag scaled load." ) );
-            res->Add( NameValData( "cs*c/cref", Csc_cref, "Section side scaled load." ) );
-            res->Add( NameValData( "cx*c/cref", Cxc_cref, "Section X scaled load." ) );
-            res->Add( NameValData( "cy*c/cref", Cyc_cref, "Section Y scaled load." ) );
-            res->Add( NameValData( "cz*c/cref", Czc_cref, "Section Z scaled load." ) );
-            res->Add( NameValData( "cmx*c/cref", Cmxc_cref, "Section X scaled moment." ) );
-            res->Add( NameValData( "cmy*c/cref", Cmyc_cref, "Section Y scaled moment." ) );
-            res->Add( NameValData( "cmz*c/cref", Cmzc_cref, "Section Z scaled moment." ) );
+            res->Add( new NameValData( "cl*c/cref", Clc_cref, "Section lift scaled load." ) );
+            res->Add( new NameValData( "cd*c/cref", Cdc_cref, "Section drag scaled load." ) );
+            res->Add( new NameValData( "cs*c/cref", Csc_cref, "Section side scaled load." ) );
+            res->Add( new NameValData( "cx*c/cref", Cxc_cref, "Section X scaled load." ) );
+            res->Add( new NameValData( "cy*c/cref", Cyc_cref, "Section Y scaled load." ) );
+            res->Add( new NameValData( "cz*c/cref", Czc_cref, "Section Z scaled load." ) );
+            res->Add( new NameValData( "cmx*c/cref", Cmxc_cref, "Section X scaled moment." ) );
+            res->Add( new NameValData( "cmy*c/cref", Cmyc_cref, "Section Y scaled moment." ) );
+            res->Add( new NameValData( "cmz*c/cref", Cmzc_cref, "Section Z scaled moment." ) );
 
             sectional_data_complete = true;
 
@@ -3000,20 +3000,20 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
             }
 
             // Finish up by adding the data to the result res
-            res->Add( NameValData( "Comp_ID", Comp, "Component ID." ) );
-            res->Add( NameValData( "Comp_Name", Comp_Name, "Component name." ) );
-            res->Add( NameValData( "Mach", Mach, "Mach number." ) );
-            res->Add( NameValData( "AoA", AoA, "Angle of attack." ) );
-            res->Add( NameValData( "Beta", Beta, "Angle of sideslip." ) );
-            res->Add( NameValData( "CL", CL, "Lift coefficient." ) );
-            res->Add( NameValData( "CDi", CDi, "Induced drag coefficient." ) );
-            res->Add( NameValData( "Cs", Cs, "Side force coefficient." ) );
-            res->Add( NameValData( "CFx", CFx, "X force coefficient." ) );
-            res->Add( NameValData( "CFy", CFy, "Y force coefficient." ) );
-            res->Add( NameValData( "CFz", CFz, "Z force coefficient." ) );
-            res->Add( NameValData( "Cmx", Cmx, "X moment coefficient." ) );
-            res->Add( NameValData( "Cmy", Cmy, "Y moment coefficient." ) );
-            res->Add( NameValData( "Cmz", Cmz, "Z moment coefficient." ) );
+            res->Add( new NameValData( "Comp_ID", Comp, "Component ID." ) );
+            res->Add( new NameValData( "Comp_Name", Comp_Name, "Component name." ) );
+            res->Add( new NameValData( "Mach", Mach, "Mach number." ) );
+            res->Add( new NameValData( "AoA", AoA, "Angle of attack." ) );
+            res->Add( new NameValData( "Beta", Beta, "Angle of sideslip." ) );
+            res->Add( new NameValData( "CL", CL, "Lift coefficient." ) );
+            res->Add( new NameValData( "CDi", CDi, "Induced drag coefficient." ) );
+            res->Add( new NameValData( "Cs", Cs, "Side force coefficient." ) );
+            res->Add( new NameValData( "CFx", CFx, "X force coefficient." ) );
+            res->Add( new NameValData( "CFy", CFy, "Y force coefficient." ) );
+            res->Add( new NameValData( "CFz", CFz, "Z force coefficient." ) );
+            res->Add( new NameValData( "Cmx", Cmx, "X moment coefficient." ) );
+            res->Add( new NameValData( "Cmy", Cmy, "Y moment coefficient." ) );
+            res->Add( new NameValData( "Cmz", Cmz, "Z moment coefficient." ) );
 
             sectional_data_complete = false;
         } // end total component table read
@@ -3055,7 +3055,7 @@ void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> 
         if ( CheckForCaseHeader( data_string_array ) )
         {
             res = ResultsMgr.CreateResults( "VSPAERO_Stab", "VSPAERO stability run results." );
-            res->Add( NameValData( "StabilityType", stabilityType, "Stability and control mode enum." ) );
+            res->Add( new NameValData( "StabilityType", stabilityType, "Stability and control mode enum." ) );
             res_id_vector.push_back( res->GetID() );
 
             if ( ReadVSPAEROCaseHeader( res, fp, analysisMethod ) != 0 )
@@ -3081,7 +3081,7 @@ void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> 
                     // assumption that the 2nd entry is a number
                     if ( sscanf( data_string_array[1].c_str(), "%lf", &value ) == 1 )
                     {
-                        res->Add( NameValData( data_string_array[0], value, "#Auto parsed stab result." ) );
+                        res->Add( new NameValData( data_string_array[0], value, "#Auto parsed stab result." ) );
                     }
                 }
 
@@ -3109,7 +3109,7 @@ void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> 
 
                         if ( result == 1 )
                         {
-                            res->Add( NameValData( name, temp_val, "#Auto parsed stab result." ) );
+                            res->Add( new NameValData( name, temp_val, "#Auto parsed stab result." ) );
                         }
                         else
                         {
@@ -3176,11 +3176,11 @@ void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> 
                             result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
                             if ( result == 1 )
                             {
-                                res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], temp_val, "#Auto parsed stab result." ) );
+                                res->Add( new NameValData( data_string_array[0] + "_" + table_column_names[i_field], temp_val, "#Auto parsed stab result." ) );
                             }
                             else
                             {
-                                res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], data_string_array[i_field], "#Auto parsed stab result." ) );
+                                res->Add( new NameValData( data_string_array[0] + "_" + table_column_names[i_field], data_string_array[i_field], "#Auto parsed stab result." ) );
                             }
                         }
                     } //end new table check
@@ -3286,7 +3286,7 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::V
             // assumption that the 2nd entry is a number
             if ( sscanf( data_string_array[1].c_str(), "%lf", &value ) == 1 )
             {
-                res->Add( NameValData( "FC_" + data_string_array[0], value, "#Auto parsed case flight condition." ) );
+                res->Add( new NameValData( "FC_" + data_string_array[0], value, "#Auto parsed case flight condition." ) );
 
                 // save flow condition information to be added to the header later
                 if ( strcmp( data_string_array[0].c_str(), "Mach_" ) == 0 )
@@ -3791,7 +3791,7 @@ string VSPAEROMgrSingleton::ComputeCpSlices( FILE * logFile )
     Results* res = ResultsMgr.FindResultsPtr( resID );
     if ( res )
     {
-        res->Add( NameValData( "CpSlice_Case_ID_Vec", resIDvec, "ID's of Cp slice results." ) );
+        res->Add( new NameValData( "CpSlice_Case_ID_Vec", resIDvec, "ID's of Cp slice results." ) );
     }
 
     return resID;
@@ -3854,7 +3854,7 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     else
     {
         int num_slice = m_CpSliceVec.size();
-        res->Add( NameValData( "Num_Cuts", num_slice, "Number of slices." ) );
+        res->Add( new NameValData( "Num_Cuts", num_slice, "Number of slices." ) );
     }
 
     return res->GetID();
@@ -4109,16 +4109,16 @@ void VSPAEROMgrSingleton::ReadSliceFile( const string &filename, vector <string>
                 res = ResultsMgr.CreateResults( "CpSlicer_Case", "VSPAERO Cp slicer results." );
                 res_id_vector.push_back( res->GetID() );
 
-                res->Add( NameValData( "Cut_Type", (int)( data_string_array[4][0] - 88 ), "Cut type (X,Y,Z)." ) ); // ASCII X: 88; Y: 89; Z: 90
-                res->Add( NameValData( "Cut_Loc", std::stod( data_string_array[5] ), "Cut location." ) );
-                res->Add( NameValData( "Cut_Num", std::stoi( data_string_array[2] ), "Cut number." ) );
+                res->Add( new NameValData( "Cut_Type", (int)( data_string_array[4][0] - 88 ), "Cut type (X,Y,Z)." ) ); // ASCII X: 88; Y: 89; Z: 90
+                res->Add( new NameValData( "Cut_Loc", std::stod( data_string_array[5] ), "Cut location." ) );
+                res->Add( new NameValData( "Cut_Num", std::stoi( data_string_array[2] ), "Cut number." ) );
             }
             else if ( res && strcmp( data_string_array[0].c_str(), "Case" ) == 0 )
             {
-                res->Add( NameValData( "Case", std::stoi( data_string_array[1] ), "Case number." ) );
-                res->Add( NameValData( "Mach", std::stod( data_string_array[4] ), "Mach number." ) );
-                res->Add( NameValData( "Alpha", std::stod( data_string_array[7] ), "Angle of attack." ) );
-                res->Add( NameValData( "Beta", std::stod( data_string_array[10] ), "Angle of sideslip." ) );
+                res->Add( new NameValData( "Case", std::stoi( data_string_array[1] ), "Case number." ) );
+                res->Add( new NameValData( "Mach", std::stod( data_string_array[4] ), "Mach number." ) );
+                res->Add( new NameValData( "Alpha", std::stod( data_string_array[7] ), "Angle of attack." ) );
+                res->Add( new NameValData( "Beta", std::stod( data_string_array[10] ), "Angle of sideslip." ) );
             }
             //READ slc table
             /* Example slc table
@@ -4148,17 +4148,17 @@ void VSPAEROMgrSingleton::ReadSliceFile( const string &filename, vector <string>
                 skip = true;
 
                 //Add to the results manager
-                res->Add( NameValData( "X_Loc", x_data_vec, "Slice data X vector." ) );
-                res->Add( NameValData( "Y_Loc", y_data_vec, "Slice data Y vector." ) );
-                res->Add( NameValData( "Z_Loc", z_data_vec, "Slice data Z vector." ) );
+                res->Add( new NameValData( "X_Loc", x_data_vec, "Slice data X vector." ) );
+                res->Add( new NameValData( "Y_Loc", y_data_vec, "Slice data Y vector." ) );
+                res->Add( new NameValData( "Z_Loc", z_data_vec, "Slice data Z vector." ) );
 
                 if ( m_CpSliceAnalysisType == vsp::VORTEX_LATTICE )
                 {
-                    res->Add( NameValData( "dCp", Cp_data_vec, "Slice delta Cp." ) );
+                    res->Add( new NameValData( "dCp", Cp_data_vec, "Slice delta Cp." ) );
                 }
                 else if ( m_CpSliceAnalysisType == vsp::PANEL )
                 {
-                    res->Add( NameValData( "Cp", Cp_data_vec, "Slice Cp." ) );
+                    res->Add( new NameValData( "Cp", Cp_data_vec, "Slice Cp." ) );
                 }
             } // end of cut data
         }
@@ -4963,8 +4963,8 @@ void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &re
         {
             res = ResultsMgr.CreateResults( "VSPAERO_Group", "VSPAERO Group file results." );
 
-            res->Add( NameValData( "Group_Num", group_num, "Unsteady group number." ) );
-            res->Add( NameValData( "Group_Name", group_name, "Unsteady group name." ) );
+            res->Add( new NameValData( "Group_Num", group_num, "Unsteady group number." ) );
+            res->Add( new NameValData( "Group_Name", group_name, "Unsteady group name." ) );
 
             res_id_vector.push_back( res->GetID() );
         }
@@ -5017,34 +5017,34 @@ void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &re
             }
 
             // Finish up by adding the data to the result res
-            res->Add( NameValData( "Time", Time, "Time in unsteady analysis." ) );
-            res->Add( NameValData( "Cx", Cx, "X force coefficient." ) );
-            res->Add( NameValData( "Cy", Cy, "Y force coefficient." ) );
-            res->Add( NameValData( "Cz", Cz, "Z force coefficient." ) );
-            res->Add( NameValData( "Cxo", Cxo, "X viscous force coefficient." ) );
-            res->Add( NameValData( "Cyo", Cyo, "Y viscous force coefficient." ) );
-            res->Add( NameValData( "Czo", Czo, "Z viscous force coefficient." ) );
-            res->Add( NameValData( "Cxi", Cxi, "X inviscid force coefficient." ) );
-            res->Add( NameValData( "Cyi", Cyi, "Y inviscid force coefficient." ) );
-            res->Add( NameValData( "Czi", Czi, "Z inviscid force coefficient." ) );
-            res->Add( NameValData( "Cmx", Cmx, "X moment coefficient." ) );
-            res->Add( NameValData( "Cmy", Cmy, "Y moment coefficient." ) );
-            res->Add( NameValData( "Cmz", Cmz, "Z moment coefficient." ) );
-            res->Add( NameValData( "Cmxo", Cmxo, "X viscous moment coefficient." ) );
-            res->Add( NameValData( "Cmyo", Cmyo, "Y viscous moment coefficient." ) );
-            res->Add( NameValData( "Cmzo", Cmzo, "Z viscous moment coefficient." ) );
-            res->Add( NameValData( "Cmxi", Cmxi, "X inviscid moment coefficient." ) );
-            res->Add( NameValData( "Cmyi", Cmyi, "Y inviscid moment coefficient." ) );
-            res->Add( NameValData( "Cmzi", Cmzi, "Z inviscid moment coefficient." ) );
-            res->Add( NameValData( "CL", CL, "Lift coefficient." ) );
-            res->Add( NameValData( "CD", CD, "Drag coefficient." ) );
-            res->Add( NameValData( "CS", CS, "Side force coefficient." ) );
-            res->Add( NameValData( "CLo", CLo, "Viscous contribution to lift coefficient." ) );
-            res->Add( NameValData( "CDo", CDo, "Viscous contribution to drag coefficient.") );
-            res->Add( NameValData( "CSo", CSo, "Viscous contribution to side force coefficient." ) );
-            res->Add( NameValData( "CLi", CLi, "Inviscid contribution to lift coefficient." ) );
-            res->Add( NameValData( "CDi", CDi, "Inviscid contribution to drag coefficient." ) );
-            res->Add( NameValData( "CDi", CSi, "Inviscid contribution to side force coefficient." ) );
+            res->Add( new NameValData( "Time", Time, "Time in unsteady analysis." ) );
+            res->Add( new NameValData( "Cx", Cx, "X force coefficient." ) );
+            res->Add( new NameValData( "Cy", Cy, "Y force coefficient." ) );
+            res->Add( new NameValData( "Cz", Cz, "Z force coefficient." ) );
+            res->Add( new NameValData( "Cxo", Cxo, "X viscous force coefficient." ) );
+            res->Add( new NameValData( "Cyo", Cyo, "Y viscous force coefficient." ) );
+            res->Add( new NameValData( "Czo", Czo, "Z viscous force coefficient." ) );
+            res->Add( new NameValData( "Cxi", Cxi, "X inviscid force coefficient." ) );
+            res->Add( new NameValData( "Cyi", Cyi, "Y inviscid force coefficient." ) );
+            res->Add( new NameValData( "Czi", Czi, "Z inviscid force coefficient." ) );
+            res->Add( new NameValData( "Cmx", Cmx, "X moment coefficient." ) );
+            res->Add( new NameValData( "Cmy", Cmy, "Y moment coefficient." ) );
+            res->Add( new NameValData( "Cmz", Cmz, "Z moment coefficient." ) );
+            res->Add( new NameValData( "Cmxo", Cmxo, "X viscous moment coefficient." ) );
+            res->Add( new NameValData( "Cmyo", Cmyo, "Y viscous moment coefficient." ) );
+            res->Add( new NameValData( "Cmzo", Cmzo, "Z viscous moment coefficient." ) );
+            res->Add( new NameValData( "Cmxi", Cmxi, "X inviscid moment coefficient." ) );
+            res->Add( new NameValData( "Cmyi", Cmyi, "Y inviscid moment coefficient." ) );
+            res->Add( new NameValData( "Cmzi", Cmzi, "Z inviscid moment coefficient." ) );
+            res->Add( new NameValData( "CL", CL, "Lift coefficient." ) );
+            res->Add( new NameValData( "CD", CD, "Drag coefficient." ) );
+            res->Add( new NameValData( "CS", CS, "Side force coefficient." ) );
+            res->Add( new NameValData( "CLo", CLo, "Viscous contribution to lift coefficient." ) );
+            res->Add( new NameValData( "CDo", CDo, "Viscous contribution to drag coefficient.") );
+            res->Add( new NameValData( "CSo", CSo, "Viscous contribution to side force coefficient." ) );
+            res->Add( new NameValData( "CLi", CLi, "Inviscid contribution to lift coefficient." ) );
+            res->Add( new NameValData( "CDi", CDi, "Inviscid contribution to drag coefficient." ) );
+            res->Add( new NameValData( "CDi", CSi, "Inviscid contribution to side force coefficient." ) );
 
         } //end for while !feof(fp)
     }
@@ -5106,8 +5106,8 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
         {
             res = ResultsMgr.CreateResults( "VSPAERO_Rotor", "VSPAERO Rotor results." );
 
-            res->Add( NameValData( "Rotor_Num", rotor_num, "Rotor number." ) );
-            res->Add( NameValData( "Group_Name", group_name, "Unsteady group name." ) );
+            res->Add( new NameValData( "Rotor_Num", rotor_num, "Rotor number." ) );
+            res->Add( new NameValData( "Group_Name", group_name, "Unsteady group name." ) );
 
             res_id_vector.push_back( res->GetID() );
         }
@@ -5115,9 +5115,9 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
         {
             res = ResultsMgr.CreateResults( "VSPAERO_Blade_Avg", "VSPAERO blade average rotor results." );
 
-            res->Add( NameValData( "Rotor_Num", rotor_num, "Rotor number." ) );
-            res->Add( NameValData( "Blade_Num", blade_load_avg_ind, "Blade number." ) );
-            res->Add( NameValData( "Group_Name", group_name, "Unsteady group name." ) );
+            res->Add( new NameValData( "Rotor_Num", rotor_num, "Rotor number." ) );
+            res->Add( new NameValData( "Blade_Num", blade_load_avg_ind, "Blade number." ) );
+            res->Add( new NameValData( "Group_Name", group_name, "Unsteady group name." ) );
 
             res_id_vector.push_back( res->GetID() );
             blade_load_avg_ind++;
@@ -5126,9 +5126,9 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
         {
             res = ResultsMgr.CreateResults( "VSPAERO_Blade_Last_Rev", "VSPAERO blade final revolution results." );
 
-            res->Add( NameValData( "Rotor_Num", rotor_num, "Rotor number." ) );
-            res->Add( NameValData( "Blade_Num", blade_load_last_rev_ind, "Blade number." ) );
-            res->Add( NameValData( "Group_Name", group_name, "Unsteady group name." ) );
+            res->Add( new NameValData( "Rotor_Num", rotor_num, "Rotor number." ) );
+            res->Add( new NameValData( "Blade_Num", blade_load_last_rev_ind, "Blade number." ) );
+            res->Add( new NameValData( "Group_Name", group_name, "Unsteady group name." ) );
 
             res_id_vector.push_back( res->GetID() );
             blade_load_last_rev_ind++;
@@ -5182,28 +5182,28 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
                 }
 
                 // Finish up by adding the data to the result res
-                res->Add( NameValData( "Time", Time, "Time in unsteady analysis." ) );
-                res->Add( NameValData( "Diameter", Diameter, "Prop diameter." ) );
-                res->Add( NameValData( "RPM", RPM, "Rotation speed, revolutions per minute." ) );
-                res->Add( NameValData( "Thrust", Thrust, "Rotor thrust." ) );
-                res->Add( NameValData( "Thrusto", Thrusto, "Viscous contribution to thrust." ) );
-                res->Add( NameValData( "Thrusti", Thrusti, "Inviscid contribution to thrust." ) );
-                res->Add( NameValData( "Power", Power, "Rotor power." ) );
-                res->Add( NameValData( "Powero", Powero, "Viscous contribution to power." ) );
-                res->Add( NameValData( "Poweri", Poweri, "Inviscid contribution to power." ) );
-                res->Add( NameValData( "Moment", Moment, "Rotor torque." ) );
-                res->Add( NameValData( "Momento", Momento, "Viscous contribution to torque." ) );
-                res->Add( NameValData( "Momenti", Momenti, "Inviscid contribution to torque." ) );
-                res->Add( NameValData( "J", J, "Advance ratio J=V/(n*D)." ) );
-                res->Add( NameValData( "CT", CT, "Thrust coefficient, propeller convention." ) );
-                res->Add( NameValData( "CQ", CQ, "Torque coefficient, propeller convention." ) );
-                res->Add( NameValData( "CP", CP, "Power coefficient, propeller convention." ) );
-                res->Add( NameValData( "EtaP", EtaP, "Propeller efficiency." ) );
-                res->Add( NameValData( "CT_H", CT_H, "Thrust coefficient, helicopter convention." ) );
-                res->Add( NameValData( "CQ_H", CQ_H, "Torque coefficient, helicopter convention." ) );
-                res->Add( NameValData( "CP_H", CP_H, "Power coefficient, helicopter convention." ) );
-                res->Add( NameValData( "FOM", FOM, "Figure of merit." ) );
-                res->Add( NameValData( "Angle", Angle, "Rotation angle." ) );
+                res->Add( new NameValData( "Time", Time, "Time in unsteady analysis." ) );
+                res->Add( new NameValData( "Diameter", Diameter, "Prop diameter." ) );
+                res->Add( new NameValData( "RPM", RPM, "Rotation speed, revolutions per minute." ) );
+                res->Add( new NameValData( "Thrust", Thrust, "Rotor thrust." ) );
+                res->Add( new NameValData( "Thrusto", Thrusto, "Viscous contribution to thrust." ) );
+                res->Add( new NameValData( "Thrusti", Thrusti, "Inviscid contribution to thrust." ) );
+                res->Add( new NameValData( "Power", Power, "Rotor power." ) );
+                res->Add( new NameValData( "Powero", Powero, "Viscous contribution to power." ) );
+                res->Add( new NameValData( "Poweri", Poweri, "Inviscid contribution to power." ) );
+                res->Add( new NameValData( "Moment", Moment, "Rotor torque." ) );
+                res->Add( new NameValData( "Momento", Momento, "Viscous contribution to torque." ) );
+                res->Add( new NameValData( "Momenti", Momenti, "Inviscid contribution to torque." ) );
+                res->Add( new NameValData( "J", J, "Advance ratio J=V/(n*D)." ) );
+                res->Add( new NameValData( "CT", CT, "Thrust coefficient, propeller convention." ) );
+                res->Add( new NameValData( "CQ", CQ, "Torque coefficient, propeller convention." ) );
+                res->Add( new NameValData( "CP", CP, "Power coefficient, propeller convention." ) );
+                res->Add( new NameValData( "EtaP", EtaP, "Propeller efficiency." ) );
+                res->Add( new NameValData( "CT_H", CT_H, "Thrust coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CQ_H", CQ_H, "Torque coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CP_H", CP_H, "Power coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "FOM", FOM, "Figure of merit." ) );
+                res->Add( new NameValData( "Angle", Angle, "Rotation angle." ) );
             }
             else if ( data_string_array.size() == num_load_avg_data_col )
             {
@@ -5240,24 +5240,24 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
                 }
 
                 // Finish up by adding the data to the result res
-                res->Add( NameValData( "Station", Station, "Blade station index." ) );
-                res->Add( NameValData( "S", S, "Non-dimensional blade station coordinate." ) );
-                res->Add( NameValData( "Chord", Chord, "Section chord." ) );
-                res->Add( NameValData( "Area", Area, "Section area." ) );
-                res->Add( NameValData( "V_Vref", V_Vref, "Local velocity ratio." ) );
-                res->Add( NameValData( "Diameter", Diameter, "Rotor diameter." ) );
-                res->Add( NameValData( "RPM", RPM, "Rotation speed, revolutions per minute." ) );
-                res->Add( NameValData( "TipVel", TipVel, "Rotor tip speed." ) );
-                res->Add( NameValData( "CNo_H", CNo_H, "Viscous contribution to normal force coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CSo_H", CSo_H, "Viscous contribution to side force coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CTo_H", CTo_H, "Viscous contribution to thrust coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CQo_H", CQo_H, "Viscous contribution to torque coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CPo_H", CPo_H, "Viscous contribution to power coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CN_H", CN_H, "Normal force coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CS_H", CS_H, "Side force coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CT_H", CT_H, "Thrust coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CQ_H", CQ_H, "Torque coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CP_H", CP_H, "Power coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "Station", Station, "Blade station index." ) );
+                res->Add( new NameValData( "S", S, "Non-dimensional blade station coordinate." ) );
+                res->Add( new NameValData( "Chord", Chord, "Section chord." ) );
+                res->Add( new NameValData( "Area", Area, "Section area." ) );
+                res->Add( new NameValData( "V_Vref", V_Vref, "Local velocity ratio." ) );
+                res->Add( new NameValData( "Diameter", Diameter, "Rotor diameter." ) );
+                res->Add( new NameValData( "RPM", RPM, "Rotation speed, revolutions per minute." ) );
+                res->Add( new NameValData( "TipVel", TipVel, "Rotor tip speed." ) );
+                res->Add( new NameValData( "CNo_H", CNo_H, "Viscous contribution to normal force coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CSo_H", CSo_H, "Viscous contribution to side force coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CTo_H", CTo_H, "Viscous contribution to thrust coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CQo_H", CQo_H, "Viscous contribution to torque coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CPo_H", CPo_H, "Viscous contribution to power coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CN_H", CN_H, "Normal force coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CS_H", CS_H, "Side force coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CT_H", CT_H, "Thrust coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CQ_H", CQ_H, "Torque coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CP_H", CP_H, "Power coefficient, helicoter convention." ) );
             }
             else if ( data_string_array.size() == num_load_last_rev_data_col )
             {
@@ -5310,29 +5310,29 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
                 }
 
                 // Finish up by adding the data to the result res
-                res->Add( NameValData( "Station", Station, "Blade station index." ) );
-                res->Add( NameValData( "Time", Time, "Time in unsteady analysis." ) );
-                res->Add( NameValData( "Angle", Angle, "Rotation angle." ) );
-                res->Add( NameValData( "Xqc", Xqc, "X coordinate of section quarter chord." ) );
-                res->Add( NameValData( "Yqc", Yqc, "Y coordinate of section quarter chord." ) );
-                res->Add( NameValData( "Zqc", Zqc, "Z coordinate of section quarter chord." ) );
-                res->Add( NameValData( "S", S, "Non dimensional blade station coordinate." ) );
-                res->Add( NameValData( "Chord", Chord, "Section chord." ) );
-                res->Add( NameValData( "Area", Area, "Section area." ) );
-                res->Add( NameValData( "V_Vref", V_Vref, "Local velocity ratio." ) );
-                res->Add( NameValData( "Diameter", Diameter, "Rotor diameter" ) );
-                res->Add( NameValData( "RPM", RPM, "Rotation speed, revolutions per minute." ) );
-                res->Add( NameValData( "TipVel", TipVel, "Rotor tip speed." ) );
-                res->Add( NameValData( "CNo_H", CNo_H, "Viscous contribution to normal force coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CSo_H", CSo_H, "Viscous contribution to side force coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CTo_H", CTo_H, "Viscous contribution to thrust coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CQo_H", CQo_H, "Viscous contribution to torque coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CPo_H", CPo_H, "Viscous contribution to power coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CN_H", CN_H, "Normal force coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CS_H", CS_H, "Side force coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CT_H", CT_H, "Thrust coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CQ_H", CQ_H, "Torque coefficient, helicoter convention." ) );
-                res->Add( NameValData( "CP_H", CP_H, "Power coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "Station", Station, "Blade station index." ) );
+                res->Add( new NameValData( "Time", Time, "Time in unsteady analysis." ) );
+                res->Add( new NameValData( "Angle", Angle, "Rotation angle." ) );
+                res->Add( new NameValData( "Xqc", Xqc, "X coordinate of section quarter chord." ) );
+                res->Add( new NameValData( "Yqc", Yqc, "Y coordinate of section quarter chord." ) );
+                res->Add( new NameValData( "Zqc", Zqc, "Z coordinate of section quarter chord." ) );
+                res->Add( new NameValData( "S", S, "Non dimensional blade station coordinate." ) );
+                res->Add( new NameValData( "Chord", Chord, "Section chord." ) );
+                res->Add( new NameValData( "Area", Area, "Section area." ) );
+                res->Add( new NameValData( "V_Vref", V_Vref, "Local velocity ratio." ) );
+                res->Add( new NameValData( "Diameter", Diameter, "Rotor diameter" ) );
+                res->Add( new NameValData( "RPM", RPM, "Rotation speed, revolutions per minute." ) );
+                res->Add( new NameValData( "TipVel", TipVel, "Rotor tip speed." ) );
+                res->Add( new NameValData( "CNo_H", CNo_H, "Viscous contribution to normal force coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CSo_H", CSo_H, "Viscous contribution to side force coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CTo_H", CTo_H, "Viscous contribution to thrust coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CQo_H", CQo_H, "Viscous contribution to torque coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CPo_H", CPo_H, "Viscous contribution to power coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CN_H", CN_H, "Normal force coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CS_H", CS_H, "Side force coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CT_H", CT_H, "Thrust coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CQ_H", CQ_H, "Torque coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CP_H", CP_H, "Power coefficient, helicoter convention." ) );
             }
         }
     } //end for while !feof(fp)

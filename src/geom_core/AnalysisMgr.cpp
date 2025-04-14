@@ -186,7 +186,7 @@ string AnalysisMgrSingleton::ExecAnalysis( const string & analysis )
     Results* res_ptr = ResultsMgr.FindResultsPtr( res );
     if ( res_ptr )
     {
-        res_ptr->Add( NameValData( "Analysis_Duration_Sec", m_AnalysisExecutionDuration, "Time to execute analysis in seconds." ) );
+        res_ptr->Add( new NameValData( "Analysis_Duration_Sec", m_AnalysisExecutionDuration, "Time to execute analysis in seconds." ) );
     }
 
     return res;
@@ -780,9 +780,9 @@ void BEMAnalysis::SetDefaults()
 
     if ( veh )
     {
-        m_Inputs.Add( NameValData( "PropID", veh->m_BEMPropID, "GeomID of propeller." ) );
-        m_Inputs.Add( NameValData( "ExportBEMFlag", false, "Flag to control whether a BEM file is written." ) );
-        m_Inputs.Add( NameValData( "BEMFileName", string( "" ), "File name for BEM file." ) );
+        m_Inputs.Add( new NameValData( "PropID", veh->m_BEMPropID, "GeomID of propeller." ) );
+        m_Inputs.Add( new NameValData( "ExportBEMFlag", false, "Flag to control whether a BEM file is written." ) );
+        m_Inputs.Add( new NameValData( "BEMFileName", string( "" ), "File name for BEM file." ) );
     }
 }
 
@@ -849,18 +849,18 @@ CompGeomAnalysis::CompGeomAnalysis() : Analysis( "CompGeom", "Compute watertight
 void CompGeomAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
-    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Normal geometry Set for analysis." ) );
-    m_Inputs.Add( NameValData( "DegenSet", vsp::SET_NONE, "Degenerate geometry Set for analysis." ) );
-    m_Inputs.Add( NameValData( "HalfMeshFlag", 0, "Flag to control whether Y >= 0 half mesh is generated." ) );
-    m_Inputs.Add( NameValData( "SubSurfFlag", 1, "Flag to control whether subsurfaces are used in analysis." ) );
-    m_Inputs.Add( NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( new NameValData( "Set", vsp::SET_ALL, "Normal geometry Set for analysis." ) );
+    m_Inputs.Add( new NameValData( "DegenSet", vsp::SET_NONE, "Degenerate geometry Set for analysis." ) );
+    m_Inputs.Add( new NameValData( "HalfMeshFlag", 0, "Flag to control whether Y >= 0 half mesh is generated." ) );
+    m_Inputs.Add( new NameValData( "SubSurfFlag", 1, "Flag to control whether subsurfaces are used in analysis." ) );
+    m_Inputs.Add( new NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( veh )
     {
-        m_Inputs.Add( NameValData( "WriteCSVFlag", veh->getExportCompGeomCsvFile(), "Flag to control whether CSV file is written." ) );
-        m_Inputs.Add( NameValData( "UseModeFlag", veh->m_UseModeCompGeomFlag(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( new NameValData( "WriteCSVFlag", veh->getExportCompGeomCsvFile(), "Flag to control whether CSV file is written." ) );
+        m_Inputs.Add( new NameValData( "UseModeFlag", veh->m_UseModeCompGeomFlag(), "Flag to control whether Modes are used instead of Sets." ) );
     }
 }
 
@@ -948,16 +948,16 @@ DegenGeomAnalysis::DegenGeomAnalysis() : Analysis( "DegenGeom", "Compute degener
 void DegenGeomAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
-    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
-    m_Inputs.Add( NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( new NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
+    m_Inputs.Add( new NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( veh )
     {
-        m_Inputs.Add( NameValData( "WriteCSVFlag", veh->getExportDegenGeomCsvFile(), "Flag to control whether CSV file is written." ) );
-        m_Inputs.Add( NameValData( "WriteMFileFlag", veh->getExportDegenGeomMFile(), "Flag to control whether Matlab file is written." ) );
-        m_Inputs.Add( NameValData( "UseModeFlag", veh->m_UseModeDegenGeomFlag(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( new NameValData( "WriteCSVFlag", veh->getExportDegenGeomCsvFile(), "Flag to control whether CSV file is written." ) );
+        m_Inputs.Add( new NameValData( "WriteMFileFlag", veh->getExportDegenGeomMFile(), "Flag to control whether Matlab file is written." ) );
+        m_Inputs.Add( new NameValData( "UseModeFlag", veh->m_UseModeDegenGeomFlag(), "Flag to control whether Modes are used instead of Sets." ) );
 
     }
 }
@@ -1035,8 +1035,8 @@ void EmintonLordAnalysis::SetDefaults()
     m_Inputs.Clear();
     vector < double > x_vec;
     vector < double > area_vec;
-    m_Inputs.Add( NameValData( "X_vec", x_vec, "Stations for area observations." ) );
-    m_Inputs.Add( NameValData( "Area_vec", area_vec, "Area distribution observations." ) );
+    m_Inputs.Add( new NameValData( "X_vec", x_vec, "Stations for area observations." ) );
+    m_Inputs.Add( new NameValData( "Area_vec", area_vec, "Area distribution observations." ) );
 }
 
 string EmintonLordAnalysis::Execute()
@@ -1070,8 +1070,8 @@ string EmintonLordAnalysis::Execute()
         Results* res = ResultsMgr.CreateResults( "EmintonLord", "Eminton Lord wave drag integral results." );
         if ( res )
         {
-            res->Add( NameValData( "Donq", Donq, "Drag area." ) );
-            res->Add( NameValData( "Coeff", coeff, "Drag coefficient." ) );
+            res->Add( new NameValData( "Donq", Donq, "Drag area." ) );
+            res->Add( new NameValData( "Coeff", coeff, "Drag coefficient." ) );
             return res->GetID();
         }
     }
@@ -1090,16 +1090,16 @@ MassPropAnalysis::MassPropAnalysis() : Analysis( "MassProp", "Compute mass prope
 void MassPropAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
-    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
-    m_Inputs.Add( NameValData( "DegenSet", vsp::SET_NONE, "Degenerate geometry Set for analysis." ) );
-    m_Inputs.Add( NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( new NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
+    m_Inputs.Add( new NameValData( "DegenSet", vsp::SET_NONE, "Degenerate geometry Set for analysis." ) );
+    m_Inputs.Add( new NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        m_Inputs.Add( NameValData( "NumMassSlices", veh->m_NumMassSlices.Get(), "Number of slices." ) );
-        m_Inputs.Add( NameValData( "MassSliceDir", veh->m_MassSliceDir.Get(), "Direction for mass property slicing." ) );
-        m_Inputs.Add( NameValData( "UseModeFlag", veh->m_UseModeMassFlag(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( new NameValData( "NumMassSlices", veh->m_NumMassSlices.Get(), "Number of slices." ) );
+        m_Inputs.Add( new NameValData( "MassSliceDir", veh->m_MassSliceDir.Get(), "Direction for mass property slicing." ) );
+        m_Inputs.Add( new NameValData( "UseModeFlag", veh->m_UseModeMassFlag(), "Flag to control whether Modes are used instead of Sets." ) );
     }
 }
 
@@ -1184,19 +1184,19 @@ void PlanarSliceAnalysis::SetDefaults()
 
     m_Inputs.Clear();
 
-    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
-    m_Inputs.Add( NameValData( "NumSlices", veh->m_NumPlanerSlices.Get(), "Number of slices." ) );
-    m_Inputs.Add( NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
-    m_Inputs.Add( NameValData( "UseModeFlag", veh->m_UseModePlanarSlicesFlag(), "Flag to control whether Modes are used instead of Sets." ) );
+    m_Inputs.Add( new NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
+    m_Inputs.Add( new NameValData( "NumSlices", veh->m_NumPlanerSlices.Get(), "Number of slices." ) );
+    m_Inputs.Add( new NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( new NameValData( "UseModeFlag", veh->m_UseModePlanarSlicesFlag(), "Flag to control whether Modes are used instead of Sets." ) );
 
     vec3d norm;
     norm[veh->m_PlanarAxisType.Get()] = 1;
 
-    m_Inputs.Add( NameValData( "Norm", norm, "Slice normal vector." ) );
-    m_Inputs.Add( NameValData( "AutoBoundFlag", veh->m_AutoBoundsFlag.Get(), "Flag to enable automatic bounds calculation." ) );
-    m_Inputs.Add( NameValData( "StartVal", veh->m_PlanarStartLocation.Get(), "Starting coordinate for slicing." ) );
-    m_Inputs.Add( NameValData( "EndVal", veh->m_PlanarEndLocation.Get(), "Ending coordinate for slicing." ) );
-    m_Inputs.Add( NameValData( "MeasureDuct", veh->m_PlanarMeasureDuct.Get(), "Flag to enable measure duct mode." ) );
+    m_Inputs.Add( new NameValData( "Norm", norm, "Slice normal vector." ) );
+    m_Inputs.Add( new NameValData( "AutoBoundFlag", veh->m_AutoBoundsFlag.Get(), "Flag to enable automatic bounds calculation." ) );
+    m_Inputs.Add( new NameValData( "StartVal", veh->m_PlanarStartLocation.Get(), "Starting coordinate for slicing." ) );
+    m_Inputs.Add( new NameValData( "EndVal", veh->m_PlanarEndLocation.Get(), "Ending coordinate for slicing." ) );
+    m_Inputs.Add( new NameValData( "MeasureDuct", veh->m_PlanarMeasureDuct.Get(), "Flag to enable measure duct mode." ) );
 }
 
 string PlanarSliceAnalysis::Execute()
@@ -1308,19 +1308,19 @@ void ProjectionAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
 
-    m_Inputs.Add( NameValData( "TargetType", vsp::SET_TARGET, "Target type enum." ) );
-    m_Inputs.Add( NameValData( "BoundaryType", vsp::NO_BOUNDARY, "Boundary type enum." ) );
-    m_Inputs.Add( NameValData( "DirectionType", vsp::X_PROJ, "Projection direction enum." ) );
+    m_Inputs.Add( new NameValData( "TargetType", vsp::SET_TARGET, "Target type enum." ) );
+    m_Inputs.Add( new NameValData( "BoundaryType", vsp::NO_BOUNDARY, "Boundary type enum." ) );
+    m_Inputs.Add( new NameValData( "DirectionType", vsp::X_PROJ, "Projection direction enum." ) );
 
-    m_Inputs.Add( NameValData( "TargetSet", vsp::SET_ALL, "Target geometry Set for analysis." ) );
-    m_Inputs.Add( NameValData( "BoundarySet", vsp::SET_ALL, "Boundary geometry Set for analysis." ) );
+    m_Inputs.Add( new NameValData( "TargetSet", vsp::SET_ALL, "Target geometry Set for analysis." ) );
+    m_Inputs.Add( new NameValData( "BoundarySet", vsp::SET_ALL, "Boundary geometry Set for analysis." ) );
 
-    m_Inputs.Add( NameValData( "TargetModeID", string( "" ), "ID for Mode to use for analysis." ) );
-    m_Inputs.Add( NameValData( "TargetGeomID", string( "" ), "Target GeomID." ) );
-    m_Inputs.Add( NameValData( "BoundaryGeomID", string( "" ), "Boundary GeomID." ) );
-    m_Inputs.Add( NameValData( "DirectionGeomID", string( "" ), "Direction GeomID." ) );
+    m_Inputs.Add( new NameValData( "TargetModeID", string( "" ), "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( new NameValData( "TargetGeomID", string( "" ), "Target GeomID." ) );
+    m_Inputs.Add( new NameValData( "BoundaryGeomID", string( "" ), "Boundary GeomID." ) );
+    m_Inputs.Add( new NameValData( "DirectionGeomID", string( "" ), "Direction GeomID." ) );
 
-    m_Inputs.Add( NameValData( "Direction", vec3d( 1.0, 0.0, 0.0 ), "Direction vector." ) );
+    m_Inputs.Add( new NameValData( "Direction", vec3d( 1.0, 0.0, 0.0 ), "Direction vector." ) );
 }
 
 
@@ -1471,7 +1471,7 @@ SurfacePatchAnalysis::SurfacePatchAnalysis() : Analysis( "SurfacePatches", "Comp
 void SurfacePatchAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
-    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
+    m_Inputs.Add( new NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
 }
 
 string SurfacePatchAnalysis::Execute()
@@ -1508,14 +1508,14 @@ WaveDragAnalysis::WaveDragAnalysis() : Analysis( "WaveDrag", "Compute the wave d
 void WaveDragAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
-    m_Inputs.Add( NameValData( "Set", WaveDragMgr.m_SelectedSetIndex.Get(), "Geometry Set for analysis." ) );
-    m_Inputs.Add( NameValData( "NumSlices", WaveDragMgr.m_NumSlices.Get(), "Number if axial slices." ) );
-    m_Inputs.Add( NameValData( "NumRotSects", WaveDragMgr.m_NumRotSects.Get(), "Number of slices around influence cone." ) );
-    m_Inputs.Add( NameValData( "Mach", WaveDragMgr.m_MachNumber.Get(), "Mach number." ) );
-    m_Inputs.Add( NameValData( "SSFlow_vec", WaveDragMgr.m_SSFlow_vec, "Propulsive face subsurface ID's." ) );
-    m_Inputs.Add( NameValData( "SymmFlag", WaveDragMgr.m_SymmFlag.Get(), "Symmetry flag." ) );
-    m_Inputs.Add( NameValData( "ModeID", WaveDragMgr.m_ModeID, "ID for Mode to use for analysis." ) );
-    m_Inputs.Add( NameValData( "UseModeFlag", WaveDragMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+    m_Inputs.Add( new NameValData( "Set", WaveDragMgr.m_SelectedSetIndex.Get(), "Geometry Set for analysis." ) );
+    m_Inputs.Add( new NameValData( "NumSlices", WaveDragMgr.m_NumSlices.Get(), "Number if axial slices." ) );
+    m_Inputs.Add( new NameValData( "NumRotSects", WaveDragMgr.m_NumRotSects.Get(), "Number of slices around influence cone." ) );
+    m_Inputs.Add( new NameValData( "Mach", WaveDragMgr.m_MachNumber.Get(), "Mach number." ) );
+    m_Inputs.Add( new NameValData( "SSFlow_vec", WaveDragMgr.m_SSFlow_vec, "Propulsive face subsurface ID's." ) );
+    m_Inputs.Add( new NameValData( "SymmFlag", WaveDragMgr.m_SymmFlag.Get(), "Symmetry flag." ) );
+    m_Inputs.Add( new NameValData( "ModeID", WaveDragMgr.m_ModeID, "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( new NameValData( "UseModeFlag", WaveDragMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
 
 }
 
@@ -1608,10 +1608,10 @@ void VSPAERODegenGeomAnalysis::SetDefaults()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Geometry Set for analysis."  ) );
+        m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Geometry Set for analysis."  ) );
 
-        m_Inputs.Add( NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
-        m_Inputs.Add( NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
+        m_Inputs.Add( new NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( new NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
     }
     else
     {
@@ -1675,13 +1675,13 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Geometry Set for analysis."  ) );
-        m_Inputs.Add( NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
-        m_Inputs.Add( NameValData( "Symmetry", VSPAEROMgr.m_Symmetry.Get(), "Symmetry mode enum." ) );
-        m_Inputs.Add( NameValData( "AlternateInputFormatFlag", VSPAEROMgr.m_AlternateInputFormatFlag.Get(), "Flag to use alternate input file format." ) );
+        m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Geometry Set for analysis."  ) );
+        m_Inputs.Add( new NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
+        m_Inputs.Add( new NameValData( "Symmetry", VSPAEROMgr.m_Symmetry.Get(), "Symmetry mode enum." ) );
+        m_Inputs.Add( new NameValData( "AlternateInputFormatFlag", VSPAEROMgr.m_AlternateInputFormatFlag.Get(), "Flag to use alternate input file format." ) );
 
-        m_Inputs.Add( NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
-        m_Inputs.Add( NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
+        m_Inputs.Add( new NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( new NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
     }
     else
     {
@@ -1794,87 +1794,87 @@ void VSPAEROSweepAnalysis::SetDefaults()
     {
 
         // Output redirection
-        m_Inputs.Add( NameValData( "RedirectFile",                  string( "stdout" )                                , "File to redirect output ('stdout' to console,  '' to suppress)." ) );
+        m_Inputs.Add( new NameValData( "RedirectFile",                  string( "stdout" )                                , "File to redirect output ('stdout' to console,  '' to suppress)." ) );
 
         //Case Setup
-        m_Inputs.Add( NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Geometry Set for analysis." ) );
-        m_Inputs.Add( NameValData( "UseModeFlag",                   VSPAEROMgr.m_UseMode.Get()                         , "Flag to control whether Modes are used instead of Sets." ) );
-        m_Inputs.Add( NameValData( "ModeID",                        VSPAEROMgr.m_ModeID                               , "ID for Mode to use for analysis." ) );
-        m_Inputs.Add( NameValData( "AnalysisMethod",                VSPAEROMgr.m_AnalysisMethod.Get()                 , "Flag to indicate analysis method (thin vs. thick)." ) );
-        m_Inputs.Add( NameValData( "AlternateInputFormatFlag",      VSPAEROMgr.m_AlternateInputFormatFlag.Get()       , "Flag to use alternate input file format." ) );
-        m_Inputs.Add( NameValData( "NCPU",                          VSPAEROMgr.m_NCPU.Get()                           , "Number of processors to use for computation." ) );
-        m_Inputs.Add( NameValData( "FixedWakeFlag",                 VSPAEROMgr.m_FixedWakeFlag.Get()                  , "Flag to use fixed wake with no relaxation." ) );
-        m_Inputs.Add( NameValData( "WakeNumIter",                   VSPAEROMgr.m_WakeNumIter.Get()                    , "Number of wake iterations." ) );
-        m_Inputs.Add( NameValData( "NumWakeNodes",                  VSPAEROMgr.m_NumWakeNodes.Get()                   , "Number of wake nodes." ) );
-        m_Inputs.Add( NameValData( "UnsteadyType",                  VSPAEROMgr.m_StabilityType.Get()                  , "Stability and control mode enum." ) );
-        m_Inputs.Add( NameValData( "Precondition",                  VSPAEROMgr.m_Precondition.Get()                   , "Matrix preconditioner mode enum." ) );
-        m_Inputs.Add( NameValData( "Symmetry",                      VSPAEROMgr.m_Symmetry.Get()                       , "Symmetry mode enum." ) );
-        m_Inputs.Add( NameValData( "2DFEMFlag",                     VSPAEROMgr.m_Write2DFEMFlag.Get()                 , "Flag to write 2D FEM file." ) );
-        m_Inputs.Add( NameValData( "KTCorrection",                  VSPAEROMgr.m_KTCorrection.Get()                   , "Compressibility correction enum." ) );
-        m_Inputs.Add( NameValData( "FromSteadyState",               VSPAEROMgr.m_FromSteadyState.Get()                , "Start unsteady solution from steady state." ) );
-        m_Inputs.Add( NameValData( "GroundEffectToggle",            VSPAEROMgr.m_GroundEffectToggle.Get()             , "Flag to enable ground effect model." ) );
-        m_Inputs.Add( NameValData( "GroundEffect",                  VSPAEROMgr.m_GroundEffect.Get()                   , "Height aboe ground." ) );
-        m_Inputs.Add( NameValData( "Vinf",                          VSPAEROMgr.m_Vinf.Get()                           , "Freestream airspeed." ) );
-        m_Inputs.Add( NameValData( "Rho",                           VSPAEROMgr.m_Rho.Get()                            , "Freestream density." ) );
-        m_Inputs.Add( NameValData( "ReCref",                        VSPAEROMgr.m_ReCrefStart.Get()                    , "Reynolds number sweep starting point." ) );
-        m_Inputs.Add( NameValData( "ReCrefEnd",                     VSPAEROMgr.m_ReCrefEnd.Get()                      , "Reynolds number sweep end point." ) );
-        m_Inputs.Add( NameValData( "ReCrefNpts",                    VSPAEROMgr.m_ReCrefNpts.Get()                     , "Number of points in Reynolds number sweep." ) );
+        m_Inputs.Add( new NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Geometry Set for analysis." ) );
+        m_Inputs.Add( new NameValData( "UseModeFlag",                   VSPAEROMgr.m_UseMode.Get()                         , "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( new NameValData( "ModeID",                        VSPAEROMgr.m_ModeID                               , "ID for Mode to use for analysis." ) );
+        m_Inputs.Add( new NameValData( "AnalysisMethod",                VSPAEROMgr.m_AnalysisMethod.Get()                 , "Flag to indicate analysis method (thin vs. thick)." ) );
+        m_Inputs.Add( new NameValData( "AlternateInputFormatFlag",      VSPAEROMgr.m_AlternateInputFormatFlag.Get()       , "Flag to use alternate input file format." ) );
+        m_Inputs.Add( new NameValData( "NCPU",                          VSPAEROMgr.m_NCPU.Get()                           , "Number of processors to use for computation." ) );
+        m_Inputs.Add( new NameValData( "FixedWakeFlag",                 VSPAEROMgr.m_FixedWakeFlag.Get()                  , "Flag to use fixed wake with no relaxation." ) );
+        m_Inputs.Add( new NameValData( "WakeNumIter",                   VSPAEROMgr.m_WakeNumIter.Get()                    , "Number of wake iterations." ) );
+        m_Inputs.Add( new NameValData( "NumWakeNodes",                  VSPAEROMgr.m_NumWakeNodes.Get()                   , "Number of wake nodes." ) );
+        m_Inputs.Add( new NameValData( "UnsteadyType",                  VSPAEROMgr.m_StabilityType.Get()                  , "Stability and control mode enum." ) );
+        m_Inputs.Add( new NameValData( "Precondition",                  VSPAEROMgr.m_Precondition.Get()                   , "Matrix preconditioner mode enum." ) );
+        m_Inputs.Add( new NameValData( "Symmetry",                      VSPAEROMgr.m_Symmetry.Get()                       , "Symmetry mode enum." ) );
+        m_Inputs.Add( new NameValData( "2DFEMFlag",                     VSPAEROMgr.m_Write2DFEMFlag.Get()                 , "Flag to write 2D FEM file." ) );
+        m_Inputs.Add( new NameValData( "KTCorrection",                  VSPAEROMgr.m_KTCorrection.Get()                   , "Compressibility correction enum." ) );
+        m_Inputs.Add( new NameValData( "FromSteadyState",               VSPAEROMgr.m_FromSteadyState.Get()                , "Start unsteady solution from steady state." ) );
+        m_Inputs.Add( new NameValData( "GroundEffectToggle",            VSPAEROMgr.m_GroundEffectToggle.Get()             , "Flag to enable ground effect model." ) );
+        m_Inputs.Add( new NameValData( "GroundEffect",                  VSPAEROMgr.m_GroundEffect.Get()                   , "Height aboe ground." ) );
+        m_Inputs.Add( new NameValData( "Vinf",                          VSPAEROMgr.m_Vinf.Get()                           , "Freestream airspeed." ) );
+        m_Inputs.Add( new NameValData( "Rho",                           VSPAEROMgr.m_Rho.Get()                            , "Freestream density." ) );
+        m_Inputs.Add( new NameValData( "ReCref",                        VSPAEROMgr.m_ReCrefStart.Get()                    , "Reynolds number sweep starting point." ) );
+        m_Inputs.Add( new NameValData( "ReCrefEnd",                     VSPAEROMgr.m_ReCrefEnd.Get()                      , "Reynolds number sweep end point." ) );
+        m_Inputs.Add( new NameValData( "ReCrefNpts",                    VSPAEROMgr.m_ReCrefNpts.Get()                     , "Number of points in Reynolds number sweep." ) );
 
-        m_Inputs.Add( NameValData( "ClmaxToggle",       VSPAEROMgr.m_ClMaxToggle.Get()          , "Flag to enable stall model." ) );
-        m_Inputs.Add( NameValData( "Clmax",             VSPAEROMgr.m_ClMax.Get()                , "CL max value." ) );
-        m_Inputs.Add( NameValData( "MaxTurnToggle",     VSPAEROMgr.m_MaxTurnToggle.Get()        , "Flag to enable max turning model." ) );
-        m_Inputs.Add( NameValData( "MaxTurnAngle",      VSPAEROMgr.m_MaxTurnAngle.Get()         , "Max turning angle value." ) );
-        m_Inputs.Add( NameValData( "FarDistToggle",     VSPAEROMgr.m_FarDistToggle.Get()        , "Far field distance toggle." ) );
-        m_Inputs.Add( NameValData( "FarDist",           VSPAEROMgr.m_FarDist.Get()              , "Far field distance." ) );
+        m_Inputs.Add( new NameValData( "ClmaxToggle",       VSPAEROMgr.m_ClMaxToggle.Get()          , "Flag to enable stall model." ) );
+        m_Inputs.Add( new NameValData( "Clmax",             VSPAEROMgr.m_ClMax.Get()                , "CL max value." ) );
+        m_Inputs.Add( new NameValData( "MaxTurnToggle",     VSPAEROMgr.m_MaxTurnToggle.Get()        , "Flag to enable max turning model." ) );
+        m_Inputs.Add( new NameValData( "MaxTurnAngle",      VSPAEROMgr.m_MaxTurnAngle.Get()         , "Max turning angle value." ) );
+        m_Inputs.Add( new NameValData( "FarDistToggle",     VSPAEROMgr.m_FarDistToggle.Get()        , "Far field distance toggle." ) );
+        m_Inputs.Add( new NameValData( "FarDist",           VSPAEROMgr.m_FarDist.Get()              , "Far field distance." ) );
 
         //Reference area, lengths
-        m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           , "Flag to control how reference quantities are set." ) );
-        m_Inputs.Add( NameValData( "MACFlag",           VSPAEROMgr.m_MACFlag.Get()           , "Flag to use MAC instead of Cave for cref." ) );
-        m_Inputs.Add( NameValData( "ScurveFlag",        VSPAEROMgr.m_SCurveFlag.Get()        , "Flag to use Scurve instead of Stot for Sref." ) );
-        m_Inputs.Add( NameValData( "WingID",            string( "" )                         , "Reference wing GeomID." ) );
-        m_Inputs.Add( NameValData( "Sref",              VSPAEROMgr.m_Sref.Get()              , "Reference area." ) );
-        m_Inputs.Add( NameValData( "bref",              VSPAEROMgr.m_bref.Get()              , "Reference span." ) );
-        m_Inputs.Add( NameValData( "cref",              VSPAEROMgr.m_cref.Get()              , "Reference chord." ) );
+        m_Inputs.Add( new NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           , "Flag to control how reference quantities are set." ) );
+        m_Inputs.Add( new NameValData( "MACFlag",           VSPAEROMgr.m_MACFlag.Get()           , "Flag to use MAC instead of Cave for cref." ) );
+        m_Inputs.Add( new NameValData( "ScurveFlag",        VSPAEROMgr.m_SCurveFlag.Get()        , "Flag to use Scurve instead of Stot for Sref." ) );
+        m_Inputs.Add( new NameValData( "WingID",            string( "" )                         , "Reference wing GeomID." ) );
+        m_Inputs.Add( new NameValData( "Sref",              VSPAEROMgr.m_Sref.Get()              , "Reference area." ) );
+        m_Inputs.Add( new NameValData( "bref",              VSPAEROMgr.m_bref.Get()              , "Reference span." ) );
+        m_Inputs.Add( new NameValData( "cref",              VSPAEROMgr.m_cref.Get()              , "Reference chord." ) );
 
         //Moment center
         //TODO add flag to identify if this is manual or computed
-        m_Inputs.Add( NameValData( "CGGeomSet",         VSPAEROMgr.m_CGGeomSet.Get()         , "Geometry set for center of gravity computation." ) );
-        m_Inputs.Add( NameValData( "CGDegenSet",        VSPAEROMgr.m_CGDegenSet.Get()        , "Geometry degen set for center of gravity computation." ) );
-        m_Inputs.Add( NameValData( "UseCGModeFlag",     VSPAEROMgr.m_CGUseMode.Get()         , "Flag to control whether Modes are used instead of Sets for mass properties." ) );
-        m_Inputs.Add( NameValData( "CGModeID",          VSPAEROMgr.m_CGModeID                , "ID for Mode to use for analysis." ) );
-        m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      , "Number of slices for CG computation." ) );
-        m_Inputs.Add( NameValData( "MassSliceDir",    VSPAEROMgr.m_MassSliceDir.Get()        , "Slicing direction for mass properties." ) );
-        m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               , "X moment reference point." ) );
-        m_Inputs.Add( NameValData( "Ycg",               VSPAEROMgr.m_Ycg.Get()               , "Y moment reference point." ) );
-        m_Inputs.Add( NameValData( "Zcg",               VSPAEROMgr.m_Zcg.Get()               , "Z moment reference point." ) );
+        m_Inputs.Add( new NameValData( "CGGeomSet",         VSPAEROMgr.m_CGGeomSet.Get()         , "Geometry set for center of gravity computation." ) );
+        m_Inputs.Add( new NameValData( "CGDegenSet",        VSPAEROMgr.m_CGDegenSet.Get()        , "Geometry degen set for center of gravity computation." ) );
+        m_Inputs.Add( new NameValData( "UseCGModeFlag",     VSPAEROMgr.m_CGUseMode.Get()         , "Flag to control whether Modes are used instead of Sets for mass properties." ) );
+        m_Inputs.Add( new NameValData( "CGModeID",          VSPAEROMgr.m_CGModeID                , "ID for Mode to use for analysis." ) );
+        m_Inputs.Add( new NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      , "Number of slices for CG computation." ) );
+        m_Inputs.Add( new NameValData( "MassSliceDir",    VSPAEROMgr.m_MassSliceDir.Get()        , "Slicing direction for mass properties." ) );
+        m_Inputs.Add( new NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               , "X moment reference point." ) );
+        m_Inputs.Add( new NameValData( "Ycg",               VSPAEROMgr.m_Ycg.Get()               , "Y moment reference point." ) );
+        m_Inputs.Add( new NameValData( "Zcg",               VSPAEROMgr.m_Zcg.Get()               , "Z moment reference point." ) );
 
         //Flow Condition
-        m_Inputs.Add( NameValData( "AlphaStart",        VSPAEROMgr.m_AlphaStart.Get()        , "Alpha sweep starting point." ) );
-        m_Inputs.Add( NameValData( "AlphaEnd",          VSPAEROMgr.m_AlphaEnd.Get()          , "Alpha sweep end point." ) );
-        m_Inputs.Add( NameValData( "AlphaNpts",         VSPAEROMgr.m_AlphaNpts.Get()         , "Number of points in alpha sweep." ) );
-        m_Inputs.Add( NameValData( "BetaStart",         VSPAEROMgr.m_BetaStart.Get()         , "Beta sweep starting point." ) );
-        m_Inputs.Add( NameValData( "BetaEnd",           VSPAEROMgr.m_BetaEnd.Get()           , "Beta sweep end point." ) );
-        m_Inputs.Add( NameValData( "BetaNpts",          VSPAEROMgr.m_BetaNpts.Get()          , "Number of points in Beta sweep." ) );
-        m_Inputs.Add( NameValData( "MachStart",         VSPAEROMgr.m_MachStart.Get()         , "Mach number sweep starting point." ) );
-        m_Inputs.Add( NameValData( "MachEnd",           VSPAEROMgr.m_MachEnd.Get()           , "Mach number sweep end point." ) );
-        m_Inputs.Add( NameValData( "MachNpts",          VSPAEROMgr.m_MachNpts.Get()          , "Number of points in Mach number sweep." ) );
+        m_Inputs.Add( new NameValData( "AlphaStart",        VSPAEROMgr.m_AlphaStart.Get()        , "Alpha sweep starting point." ) );
+        m_Inputs.Add( new NameValData( "AlphaEnd",          VSPAEROMgr.m_AlphaEnd.Get()          , "Alpha sweep end point." ) );
+        m_Inputs.Add( new NameValData( "AlphaNpts",         VSPAEROMgr.m_AlphaNpts.Get()         , "Number of points in alpha sweep." ) );
+        m_Inputs.Add( new NameValData( "BetaStart",         VSPAEROMgr.m_BetaStart.Get()         , "Beta sweep starting point." ) );
+        m_Inputs.Add( new NameValData( "BetaEnd",           VSPAEROMgr.m_BetaEnd.Get()           , "Beta sweep end point." ) );
+        m_Inputs.Add( new NameValData( "BetaNpts",          VSPAEROMgr.m_BetaNpts.Get()          , "Number of points in Beta sweep." ) );
+        m_Inputs.Add( new NameValData( "MachStart",         VSPAEROMgr.m_MachStart.Get()         , "Mach number sweep starting point." ) );
+        m_Inputs.Add( new NameValData( "MachEnd",           VSPAEROMgr.m_MachEnd.Get()           , "Mach number sweep end point." ) );
+        m_Inputs.Add( new NameValData( "MachNpts",          VSPAEROMgr.m_MachNpts.Get()          , "Number of points in Mach number sweep." ) );
 
-        m_Inputs.Add( NameValData( "RotateBladesFlag",  VSPAEROMgr.m_RotateBladesFlag.Get()  , "Flag to model propellers or rotors as unsteady rotating blades." ) );
-        m_Inputs.Add( NameValData( "ActuatorDiskFlag",  VSPAEROMgr.m_ActuatorDiskFlag.Get()  , "Flag to model propellers or rotors as actuator disks." ) );
+        m_Inputs.Add( new NameValData( "RotateBladesFlag",  VSPAEROMgr.m_RotateBladesFlag.Get()  , "Flag to model propellers or rotors as unsteady rotating blades." ) );
+        m_Inputs.Add( new NameValData( "ActuatorDiskFlag",  VSPAEROMgr.m_ActuatorDiskFlag.Get()  , "Flag to model propellers or rotors as actuator disks." ) );
 
         // Unsteady Parms
-        m_Inputs.Add( NameValData( "HoverRampFlag",     VSPAEROMgr.m_HoverRampFlag.Get()    , "Flag to enable hover ramp." ) );
-        m_Inputs.Add( NameValData( "HoverRamp",         VSPAEROMgr.m_HoverRamp.Get()        , "Hover ramp value." ) );
-        m_Inputs.Add( NameValData( "NumTimeSteps",      VSPAEROMgr.m_NumTimeSteps.Get()     , "Number of time steps in unsteady simulation." ) );
-        m_Inputs.Add( NameValData( "TimeStepSize",      VSPAEROMgr.m_TimeStepSize.Get()     , "Unsteady time step." ) );
-        m_Inputs.Add( NameValData( "AutoTimeStepFlag",  VSPAEROMgr.m_AutoTimeStepFlag.Get() , "Flag to automatically determine time step." ) );
-        m_Inputs.Add( NameValData( "AutoTimeNumRevs",   VSPAEROMgr.m_AutoTimeNumRevs.Get()  , "Number of desired revolutions for computing automatic time step." ) );
-        m_Inputs.Add( NameValData( "Machref",           VSPAEROMgr.m_Machref.Get()          , "Reference Mach number." ) );
-        m_Inputs.Add( NameValData( "Vref",              VSPAEROMgr.m_Vref.Get()             , "Reference airspeed." ) );
-        m_Inputs.Add( NameValData( "ManualVrefFlag",    VSPAEROMgr.m_ManualVrefFlag.Get()   , "Flag to enable setting Vref different from Vinf." ) );
-        m_Inputs.Add( NameValData( "NoiseCalcFlag",     VSPAEROMgr.m_NoiseCalcFlag.Get()    , "Flag to enable noise calculations." ) );
-        m_Inputs.Add( NameValData( "NoiseCalcType",     VSPAEROMgr.m_NoiseCalcType.Get()    , "Noise calculation type enum." ) );
-        m_Inputs.Add( NameValData( "NoiseUnits",        VSPAEROMgr.m_NoiseUnits.Get()       , "Units ot use for noise calculations." ) );
+        m_Inputs.Add( new NameValData( "HoverRampFlag",     VSPAEROMgr.m_HoverRampFlag.Get()    , "Flag to enable hover ramp." ) );
+        m_Inputs.Add( new NameValData( "HoverRamp",         VSPAEROMgr.m_HoverRamp.Get()        , "Hover ramp value." ) );
+        m_Inputs.Add( new NameValData( "NumTimeSteps",      VSPAEROMgr.m_NumTimeSteps.Get()     , "Number of time steps in unsteady simulation." ) );
+        m_Inputs.Add( new NameValData( "TimeStepSize",      VSPAEROMgr.m_TimeStepSize.Get()     , "Unsteady time step." ) );
+        m_Inputs.Add( new NameValData( "AutoTimeStepFlag",  VSPAEROMgr.m_AutoTimeStepFlag.Get() , "Flag to automatically determine time step." ) );
+        m_Inputs.Add( new NameValData( "AutoTimeNumRevs",   VSPAEROMgr.m_AutoTimeNumRevs.Get()  , "Number of desired revolutions for computing automatic time step." ) );
+        m_Inputs.Add( new NameValData( "Machref",           VSPAEROMgr.m_Machref.Get()          , "Reference Mach number." ) );
+        m_Inputs.Add( new NameValData( "Vref",              VSPAEROMgr.m_Vref.Get()             , "Reference airspeed." ) );
+        m_Inputs.Add( new NameValData( "ManualVrefFlag",    VSPAEROMgr.m_ManualVrefFlag.Get()   , "Flag to enable setting Vref different from Vinf." ) );
+        m_Inputs.Add( new NameValData( "NoiseCalcFlag",     VSPAEROMgr.m_NoiseCalcFlag.Get()    , "Flag to enable noise calculations." ) );
+        m_Inputs.Add( new NameValData( "NoiseCalcType",     VSPAEROMgr.m_NoiseCalcType.Get()    , "Noise calculation type enum." ) );
+        m_Inputs.Add( new NameValData( "NoiseUnits",        VSPAEROMgr.m_NoiseUnits.Get()       , "Units ot use for noise calculations." ) );
     }
     else
     {
@@ -2485,49 +2485,49 @@ void ParasiteDragFullAnalysis::SetDefaults()
     if ( veh )
     {
         // File Name
-        m_Inputs.Add( NameValData( "FileName",          ParasiteDragMgr.m_FileName, "File name." ) );
+        m_Inputs.Add( new NameValData( "FileName",          ParasiteDragMgr.m_FileName, "File name." ) );
 
         // Geometry to Degen
-        m_Inputs.Add( NameValData( "GeomSet",           ParasiteDragMgr.m_SetChoice.Get(), "Geometry Set for analysis."  ) );
+        m_Inputs.Add( new NameValData( "GeomSet",           ParasiteDragMgr.m_SetChoice.Get(), "Geometry Set for analysis."  ) );
 
-        m_Inputs.Add( NameValData( "UseModeFlag",       ParasiteDragMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
-        m_Inputs.Add( NameValData( "ModeID",           ParasiteDragMgr.m_ModeID, "ID for Mode to use for analysis." ) );
+        m_Inputs.Add( new NameValData( "UseModeFlag",       ParasiteDragMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( new NameValData( "ModeID",           ParasiteDragMgr.m_ModeID, "ID for Mode to use for analysis." ) );
 
         // Friction Coefficient Eqn Choice
-        m_Inputs.Add( NameValData( "LamCfEqnChoice",    ParasiteDragMgr.m_LamCfEqnType.Get(), "Laminar skin friction coefficient equation enum." ) );
-        m_Inputs.Add( NameValData( "TurbCfEqnChoice",   ParasiteDragMgr.m_TurbCfEqnType.Get(), "Trubulent skin friction coefficient equation enum." ) );
+        m_Inputs.Add( new NameValData( "LamCfEqnChoice",    ParasiteDragMgr.m_LamCfEqnType.Get(), "Laminar skin friction coefficient equation enum." ) );
+        m_Inputs.Add( new NameValData( "TurbCfEqnChoice",   ParasiteDragMgr.m_TurbCfEqnType.Get(), "Trubulent skin friction coefficient equation enum." ) );
 
         // Unit Choice
-        m_Inputs.Add( NameValData( "LengthUnit",        ParasiteDragMgr.m_LengthUnit.Get(), "Model length unit enum." ) );
-        m_Inputs.Add( NameValData( "VelocityUnit",      ParasiteDragMgr.m_VinfUnitType.Get(), "Airspeed unit enum." ) );
-        m_Inputs.Add( NameValData( "TempUnit",          ParasiteDragMgr.m_TempUnit.Get(), "Temperature unit enum." ) );
-        m_Inputs.Add( NameValData( "AltLengthUnit",     ParasiteDragMgr.m_AltLengthUnit.Get(), "Altitude length unit enum." ) );
-        m_Inputs.Add( NameValData( "PresUnit",          ParasiteDragMgr.m_PresUnit.Get(), "Pressure unit enum." ) );
+        m_Inputs.Add( new NameValData( "LengthUnit",        ParasiteDragMgr.m_LengthUnit.Get(), "Model length unit enum." ) );
+        m_Inputs.Add( new NameValData( "VelocityUnit",      ParasiteDragMgr.m_VinfUnitType.Get(), "Airspeed unit enum." ) );
+        m_Inputs.Add( new NameValData( "TempUnit",          ParasiteDragMgr.m_TempUnit.Get(), "Temperature unit enum." ) );
+        m_Inputs.Add( new NameValData( "AltLengthUnit",     ParasiteDragMgr.m_AltLengthUnit.Get(), "Altitude length unit enum." ) );
+        m_Inputs.Add( new NameValData( "PresUnit",          ParasiteDragMgr.m_PresUnit.Get(), "Pressure unit enum." ) );
 
         // Sub-Components
-        m_Inputs.Add( NameValData( "ExportSubCompFlag",    ParasiteDragMgr.m_ExportSubCompFlag.Get(), "Flag to export sub components." ) );
+        m_Inputs.Add( new NameValData( "ExportSubCompFlag",    ParasiteDragMgr.m_ExportSubCompFlag.Get(), "Flag to export sub components." ) );
 
         // Freestream Props
-        m_Inputs.Add( NameValData( "FreestreamPropChoice", ParasiteDragMgr.m_FreestreamType.Get(), "Freestream property input mode choice." ) );
-        m_Inputs.Add( NameValData( "Vinf",                 ParasiteDragMgr.m_Vinf.Get(), "Airspeed." ) );
-        m_Inputs.Add( NameValData( "Altitude",             ParasiteDragMgr.m_Hinf.Get(), "Altitude." ) );
-        m_Inputs.Add( NameValData( "DeltaTemp",            ParasiteDragMgr.m_DeltaT.Get(), "Temperature deviation." ) );
-        m_Inputs.Add( NameValData( "Temperature",          ParasiteDragMgr.m_Temp.Get(), "Temperature." ) );
-        m_Inputs.Add( NameValData( "Pressure",             ParasiteDragMgr.m_Pres.Get(), "Pressure." ) );
-        m_Inputs.Add( NameValData( "Density",              ParasiteDragMgr.m_Rho.Get(), "Density." ) );
-        m_Inputs.Add( NameValData( "DynaVisc",           ParasiteDragMgr.m_DynaVisc.Get(), "Dynamic viscoscity" ) );
-        m_Inputs.Add( NameValData( "SpecificHeatRatio",  ParasiteDragMgr.m_SpecificHeatRatio.Get(), "Ratio of specific heats" ) );
-        m_Inputs.Add( NameValData( "KineVisc",           ParasiteDragMgr.m_KineVisc.Get(), "Kinematic viscoscity" ) );
-        m_Inputs.Add( NameValData( "Mach",               ParasiteDragMgr.m_Mach.Get(), "Mach." ) );
-        m_Inputs.Add( NameValData( "Re_L",               ParasiteDragMgr.m_ReqL.Get(), "Reynolds number per unit length." ) );
+        m_Inputs.Add( new NameValData( "FreestreamPropChoice", ParasiteDragMgr.m_FreestreamType.Get(), "Freestream property input mode choice." ) );
+        m_Inputs.Add( new NameValData( "Vinf",                 ParasiteDragMgr.m_Vinf.Get(), "Airspeed." ) );
+        m_Inputs.Add( new NameValData( "Altitude",             ParasiteDragMgr.m_Hinf.Get(), "Altitude." ) );
+        m_Inputs.Add( new NameValData( "DeltaTemp",            ParasiteDragMgr.m_DeltaT.Get(), "Temperature deviation." ) );
+        m_Inputs.Add( new NameValData( "Temperature",          ParasiteDragMgr.m_Temp.Get(), "Temperature." ) );
+        m_Inputs.Add( new NameValData( "Pressure",             ParasiteDragMgr.m_Pres.Get(), "Pressure." ) );
+        m_Inputs.Add( new NameValData( "Density",              ParasiteDragMgr.m_Rho.Get(), "Density." ) );
+        m_Inputs.Add( new NameValData( "DynaVisc",           ParasiteDragMgr.m_DynaVisc.Get(), "Dynamic viscoscity" ) );
+        m_Inputs.Add( new NameValData( "SpecificHeatRatio",  ParasiteDragMgr.m_SpecificHeatRatio.Get(), "Ratio of specific heats" ) );
+        m_Inputs.Add( new NameValData( "KineVisc",           ParasiteDragMgr.m_KineVisc.Get(), "Kinematic viscoscity" ) );
+        m_Inputs.Add( new NameValData( "Mach",               ParasiteDragMgr.m_Mach.Get(), "Mach." ) );
+        m_Inputs.Add( new NameValData( "Re_L",               ParasiteDragMgr.m_ReqL.Get(), "Reynolds number per unit length." ) );
 
         // Reference Area
-        m_Inputs.Add( NameValData( "RefFlag", ParasiteDragMgr.m_RefFlag.Get(), "Flag to control how reference quantities are set." ) );
-        m_Inputs.Add( NameValData( "WingID",  string( "" ), "Reference wing GeomID." ) );
-        m_Inputs.Add( NameValData( "Sref",    ParasiteDragMgr.m_Sref.Get(), "Reference area." ) );
+        m_Inputs.Add( new NameValData( "RefFlag", ParasiteDragMgr.m_RefFlag.Get(), "Flag to control how reference quantities are set." ) );
+        m_Inputs.Add( new NameValData( "WingID",  string( "" ), "Reference wing GeomID." ) );
+        m_Inputs.Add( new NameValData( "Sref",    ParasiteDragMgr.m_Sref.Get(), "Reference area." ) );
 
         // Use previous Degen Geom
-        m_Inputs.Add( NameValData( "RecomputeGeom", true, "Flag to recompute geometry." ) );
+        m_Inputs.Add( new NameValData( "RecomputeGeom", true, "Flag to recompute geometry." ) );
     }
     else
     {
@@ -2813,12 +2813,12 @@ void CpSlicerAnalysis::SetDefaults()
 
     if ( veh )
     {
-        m_Inputs.Add( NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
+        m_Inputs.Add( new NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
 
         // Cuts
-        m_Inputs.Add( NameValData( "XSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR ), "Vector of X slices." ) );
-        m_Inputs.Add( NameValData( "YSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR ), "Vector of Y slices." ) );
-        m_Inputs.Add( NameValData( "ZSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Z_DIR ), "Vector of Z slices." ) );
+        m_Inputs.Add( new NameValData( "XSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR ), "Vector of X slices." ) );
+        m_Inputs.Add( new NameValData( "YSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR ), "Vector of Y slices." ) );
+        m_Inputs.Add( new NameValData( "ZSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Z_DIR ), "Vector of Z slices." ) );
     }
     else
     {
