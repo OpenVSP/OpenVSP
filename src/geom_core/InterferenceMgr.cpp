@@ -309,6 +309,7 @@ string InterferenceCase::Evaluate()
                 primary_tmv = GetPrimaryTMeshVec();
                 secondary_tmv = GetSecondaryTMeshVec();
                 m_LastResult = ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
+                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 break;
             }
             case vsp::PACKAGING_INTERFERENCE:
@@ -316,12 +317,14 @@ string InterferenceCase::Evaluate()
                 primary_tmv = GetPrimaryTMeshVec();
                 secondary_tmv = GetSecondaryTMeshVec();
                 m_LastResult = PackagingInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
+                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 break;
             }
             case vsp::EXTERNAL_SELF_INTERFERENCE:
             {
                 primary_tmv = GetPrimaryTMeshVec();
                 m_LastResult = ExteriorSelfInterferenceCheck( primary_tmv, m_TMeshVec );
+                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 break;
             }
             case vsp::PLANE_STATIC_DISTANCE_INTERFERENCE:
@@ -359,6 +362,7 @@ string InterferenceCase::Evaluate()
                     // mg->Update();
 
                     PlaneInterferenceCheck( primary_tm, org, norm, m_LastResult, m_TMeshVec );
+                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
 
                     bool interference_flag = true;
                     NameValData* nvd = res->FindPtr( "Interference", 0 );
@@ -382,7 +386,6 @@ string InterferenceCase::Evaluate()
         DeleteTMeshVec( secondary_tmv );
 
 
-        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
         vector < double > resvec = ResultsMgr.GetDoubleResults( m_LastResult, "Result", 0 );
         if ( resvec.size() > 0 )
         {
