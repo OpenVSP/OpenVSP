@@ -2972,6 +2972,11 @@ void TBndBox::AddTri( TTri* t )
 
 bool TBndBox::CheckIntersect( TBndBox* iBox  )
 {
+    if ( m_Box.IsEmpty() )
+    {
+        return false;
+    }
+
     int i, j;
 
     //==== Compare Bounding Boxes ====//
@@ -3026,6 +3031,11 @@ bool TBndBox::CheckIntersect( TBndBox* iBox  )
 
 double TBndBox::MinDistance( TBndBox* iBox, double curr_min_dist, vec3d &p1, vec3d &p2 )
 {
+    if ( m_Box.IsEmpty() )
+    {
+        return curr_min_dist;
+    }
+
     int i, j;
 
     //==== Compare Bounding Boxes ====//
@@ -3078,6 +3088,11 @@ double TBndBox::MinDistance( TBndBox* iBox, double curr_min_dist, vec3d &p1, vec
 
 bool TBndBox::CheckIntersect( const vec3d &org, const vec3d &norm )
 {
+    if ( m_Box.IsEmpty() )
+    {
+        return false;
+    }
+
     if ( !m_Box.IntersectPlane( org, norm ) )
     {
         return false;
@@ -3112,6 +3127,11 @@ bool TBndBox::CheckIntersect( const vec3d &org, const vec3d &norm )
 
 double TBndBox::MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 )
 {
+    if ( m_Box.IsEmpty() )
+    {
+        return curr_min_dist;
+    }
+
     double mind, maxd;
     m_Box.MinMaxDistPlane( org, norm, mind, maxd );
 
@@ -3153,6 +3173,11 @@ double TBndBox::MinDistance( const vec3d &org, const vec3d &norm, double curr_mi
 
 double TBndBox::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 )
 {
+    if ( m_Box.IsEmpty() )
+    {
+        return curr_min_angle;
+    }
+
     double mina, maxa;
     m_Box.MinMaxAnglePlane( org, norm, ptaxis, axis, ccw, mina, maxa );
 
@@ -3202,6 +3227,11 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
 #ifdef DEBUG_TMESH
     static int fig = 0;
 #endif
+
+    if ( m_Box.IsEmpty() )
+    {
+        return;
+    }
 
     int i;
 
@@ -3410,6 +3440,11 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
 
 void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec ) const
 {
+    if ( m_Box.IsEmpty() )
+    {
+        return;
+    }
+
     int i;
 
     double coord[3];
