@@ -33,7 +33,6 @@
 //==== Attribute Manager ====//
 AttributeMgrSingleton::AttributeMgrSingleton()
 {
-    m_AttrClipboard.clear();
     m_DirtyFlags.resize( vsp::NUM_ATTR_EVENT_GROUPS, false );
 }
 
@@ -44,12 +43,29 @@ AttributeMgrSingleton::~AttributeMgrSingleton()
 
 void AttributeMgrSingleton::Wype()
 {
-    m_AttrClipboard.clear();
-
+    WypeClipboard();
     m_AttrPtrMap.clear();
 
     m_DirtyFlags.clear();
     m_DirtyFlags.resize( vsp::NUM_ATTR_EVENT_GROUPS, false );
+}
+
+void AttributeMgrSingleton::WypeClipboard()
+{
+    // delete dangling unregistered attributes from clipboard
+    for ( int i = 0; i < m_AttrClipboard.size(); i++ )
+    {
+        if ( m_AttrClipboard[i] )
+        {
+            string id = m_AttrClipboard[i]->GetID();
+            bool reg_attr = GetAttrRegistration( id );
+            if ( !reg_attr ) // logic issue = make sure we don't wype attrs away during a cut/paste
+            {
+                delete m_AttrClipboard[i];
+            }
+        }
+    }
+    m_AttrClipboard.clear();
 }
 
 
@@ -162,6 +178,7 @@ void AttributeMgrSingleton::RegisterAttrID( const string &attrID, NameValData* a
         AttributeCollection* ac = attr->GetAttributeCollectionPtr();
         if ( ac )
         {
+            RegisterCollID( ac->GetID(), ac );
             vector < NameValData* > attr_vec = ac->GetAllPtrs();
             for ( int i = 0; i != attr_vec.size(); ++i )
             {
@@ -181,6 +198,7 @@ void AttributeMgrSingleton::DeregisterAttrID( const string &attrID )
             AttributeCollection* ac = attr->GetAttributeCollectionPtr();
             if ( ac )
             {
+                DeregisterCollID( ac->GetID() );
                 vector < NameValData* > attr_vec = ac->GetAllPtrs();
                 for ( int i = 0; i != attr_vec.size(); ++i )
                 {
@@ -714,20 +732,24 @@ vector< vector< double > > AttributeMgrSingleton::GetAttributeDoubleMatrixVal( c
 
 void AttributeMgrSingleton::DeleteAttribute( const string &attrID, bool updateFlag )
 {
-    NameValData* attribute_data = nullptr;
-    attribute_data = GetAttributePtr( attrID );
+    NameValData* attr = nullptr;
+    attr = GetAttributePtr( attrID );
 
-    if ( attribute_data )
+    if ( attr )
     {
-        string collID = attribute_data->GetAttachID();
+        string collID = attr->GetAttachID();
         if ( m_AttrCollMap.count( collID ) == 1 )
         {
-            SetAttrDirtyFlag( attrID );
-            if ( updateFlag )
+            AttributeCollection* coll = m_AttrCollMap.at( collID );
+            if ( coll )
             {
-                Update();
+                SetAttrDirtyFlag( attrID );
+                if ( updateFlag )
+                {
+                    Update();
+                }
+                coll->Del( attr );
             }
-            m_AttrCollMap.at( collID )->Del( attribute_data );
         }
     }
 }
@@ -740,178 +762,235 @@ void AttributeMgrSingleton::DeleteAttribute( const vector < string > &attrIDs, b
     }
 }
 
+NameValData* AttributeMgrSingleton::RemoveAttribute( const string &attrID, bool updateFlag )
+{
+    NameValData* attr;
+    int rem_error = 1;
+
+    attr = GetAttributePtr( attrID );
+
+    if ( !attr )
+    {
+        return nullptr;
+    }
+
+    string collID = attr->GetAttachID();
+    AttributeCollection* coll = GetCollectionPtr( collID );
+
+    if ( coll )
+    {
+        SetAttrDirtyFlag( attrID );
+        if ( updateFlag )
+        {
+            Update();
+        }
+
+        rem_error = coll->Remove( attr );
+        if ( rem_error )
+        {
+            return nullptr;
+        }
+    }
+
+
+    return attr;
+}
+
+vector < NameValData* > AttributeMgrSingleton::RemoveAttribute( const vector < string > &attrIDs, bool updateFlag )
+{
+    NameValData* attr;
+    vector < NameValData* > ret_attr_vec;
+
+    for ( int i = 0; i != attrIDs.size(); ++i )
+    {
+        attr = RemoveAttribute( attrIDs[i], updateFlag );
+        if ( attr )
+        {
+            ret_attr_vec.push_back( attr );
+        }
+    }
+
+    return ret_attr_vec;
+}
+
 string AttributeMgrSingleton::GuiAddAttribute( AttributeCollection* ac_ptr, const int & attrType, bool updateFlag )
 {
-    string attrID = string();
-    string attrName = ac_ptr->GetNewAttrName( attrType );
-    string attrDesc = "";
+    string id = string();
+    string name = ac_ptr->GetNewAttrName( attrType );
+    string doc = string("");
 
-    bool attrDataBool = false;
-    string attrDataString;
-    int attrDataInt = 0;
-    double attrDataDouble = 0.0;
-    NameValData* attrAddPtr;
-    vec3d attrDataVec3d(0., 0., 0.);
-    vector< vector< int > > attrDataIntMat = {{0 ,0 ,0 },{0 ,0 ,0 },{0 ,0 ,0 }};
-    vector< vector< double > > attrDataDblMat = {{0.,0.,0.},{0.,0.,0.},{0.,0.,0.}};
+    NameValData* attr;
 
-    NameValData attrAdd;
     switch ( attrType )
     {
     case vsp::BOOL_DATA:
-        attrAdd = NameValData( attrName, attrDataBool, attrDesc );
-        attrAdd.SetType( vsp::BOOL_DATA );
-        attrID = attrAdd.GetID();
-        SetDirtyFlag( attrAdd.GetAttributeEventGroup() );
-        ac_ptr->Add( attrAdd );
-        break;
+        {
+            bool attrDataBool = false;
+            attr = new NameValData( name, attrDataBool, doc );
+            attr->SetType( vsp::BOOL_DATA );
+            id = attr->GetID();
+            SetDirtyFlag( attr->GetAttributeEventGroup() );
+            ac_ptr->Add( attr );
+            break;
+        }
     case vsp::INT_DATA:
-        attrAdd = NameValData( attrName, attrDataInt, attrDesc );
-        attrID = attrAdd.GetID();
-        SetDirtyFlag( attrAdd.GetAttributeEventGroup() );
-        ac_ptr->Add( attrAdd );
-        break;
+        {
+            int attrDataInt = 0;
+            attr = new NameValData( name, attrDataInt, doc );
+            id = attr->GetID();
+            SetDirtyFlag( attr->GetAttributeEventGroup() );
+            ac_ptr->Add( attr );
+            break;
+        }
     case vsp::DOUBLE_DATA:
-        attrAdd = NameValData( attrName, attrDataDouble, attrDesc );
-        attrID = attrAdd.GetID();
-        SetDirtyFlag( attrAdd.GetAttributeEventGroup() );
-        ac_ptr->Add( attrAdd );
-        break;
+        {
+            double attrDataDouble = 0.0;
+            attr = new NameValData( name, attrDataDouble, doc );
+            id = attr->GetID();
+            SetDirtyFlag( attr->GetAttributeEventGroup() );
+            ac_ptr->Add( attr );
+            break;
+        }
     case vsp::STRING_DATA:
-        attrAdd = NameValData( attrName, attrDataString, attrDesc );
-        attrID = attrAdd.GetID();
-        SetDirtyFlag( attrAdd.GetAttributeEventGroup() );
-        ac_ptr->Add( attrAdd );
-        break;
+        {
+            string attrDataString = string();
+            attr = new NameValData( name, attrDataString, doc );
+            id = attr->GetID();
+            SetDirtyFlag( attr->GetAttributeEventGroup() );
+            ac_ptr->Add( attr );
+            break;
+        }
     case vsp::PARM_REFERENCE_DATA:
-        attrAdd = NameValData( attrName );
-        attrAdd.SetType( vsp::PARM_REFERENCE_DATA );
-        attrID = attrAdd.GetID();
-        SetDirtyFlag( attrAdd.GetAttributeEventGroup() );
-        ac_ptr->Add( attrAdd );
-        break;
+        {
+            attr = new NameValData( name );
+            attr->SetType( vsp::PARM_REFERENCE_DATA );
+            id = attr->GetID();
+            SetDirtyFlag( attr->GetAttributeEventGroup() );
+            ac_ptr->Add( attr );
+            break;
+        }
     case vsp::ATTR_COLLECTION_DATA:
-        attrAdd = NameValData( attrName );
-        attrID = attrAdd.GetID();
-        attrAdd.AddAttributeCollection();
-        SetDirtyFlag( attrAdd.GetAttributeEventGroup() );
-        ac_ptr->Add( attrAdd );
-        break;
+        {
+            attr = new NameValData( name );
+            id = attr->GetID();
+            attr->SetType( vsp::ATTR_COLLECTION_DATA );
+            SetDirtyFlag( attr->GetAttributeEventGroup() );
+            ac_ptr->Add( attr );
+            break;
+        }
     case vsp::VEC3D_DATA:
-        attrAdd = NameValData( attrName, attrDataVec3d, attrDesc );
-        attrID = attrAdd.GetID();
-        SetDirtyFlag( attrAdd.GetAttributeEventGroup() );
-        ac_ptr->Add( attrAdd );
-        break;
+        {
+            vec3d attrDataVec3d(0., 0., 0.);
+            attr = new NameValData( name, attrDataVec3d, doc );
+            id = attr->GetID();
+            SetDirtyFlag( attr->GetAttributeEventGroup() );
+            ac_ptr->Add( attr );
+            break;
+        }
     case vsp::INT_MATRIX_DATA:
-        attrAdd = NameValData( attrName, attrDataIntMat, attrDesc );
-        attrID = attrAdd.GetID();
-        SetDirtyFlag( attrAdd.GetAttributeEventGroup() );
-        ac_ptr->Add( attrAdd );
-        break;
+        {
+            vector< vector< int > > attrDataIntMat = {{0 ,0 ,0 },{0 ,0 ,0 },{0 ,0 ,0 }};
+            attr = new NameValData( name, attrDataIntMat, doc );
+            id = attr->GetID();
+            SetDirtyFlag( attr->GetAttributeEventGroup() );
+            ac_ptr->Add( attr );
+            break;
+        }
     case vsp::DOUBLE_MATRIX_DATA:
-        attrAdd = NameValData( attrName, attrDataDblMat, attrDesc );
-        attrID = attrAdd.GetID();
-        SetDirtyFlag( attrAdd.GetAttributeEventGroup() );
-        ac_ptr->Add( attrAdd );
-        break;
+        {
+            vector< vector< double > > attrDataDblMat = {{0.,0.,0.},{0.,0.,0.},{0.,0.,0.}};
+            attr = new NameValData( name, attrDataDblMat, doc );
+            id = attr->GetID();
+            SetDirtyFlag( attr->GetAttributeEventGroup() );
+            ac_ptr->Add( attr );
+            break;
+        }
     }
     if ( updateFlag )
     {
         Update();
     }
-    return attrID;
-}
-
-string AttributeMgrSingleton::AddAttributeBool( const string &collID, const string &attributeName, int value, bool updateFlag )
-{
-    string id = string();
-    NameValData attrAdd = NameValData( attributeName, value, "" );
-    attrAdd.SetType( vsp::BOOL_DATA );
-    id = AddAttributeUtil( collID, attrAdd, updateFlag );
     return id;
 }
 
-string AttributeMgrSingleton::AddAttributeInt( const string &collID, const string &attributeName, int value, bool updateFlag )
+string AttributeMgrSingleton::AddAttributeBool( const string &collID, const string &attributeName, int value, bool updateFlag, const string &id )
 {
-    string id = string();
-    NameValData attrAdd = NameValData( attributeName, value, "" );
-    id = AddAttributeUtil( collID, attrAdd, updateFlag );
-    return id;
+    NameValData* attr = new NameValData( attributeName, value, "", id );
+    attr->SetType( vsp::BOOL_DATA );
+    string ret_id = AddAttributeUtil( collID, attr, updateFlag );
+    return ret_id;
 }
 
-string AttributeMgrSingleton::AddAttributeDouble( const string &collID, const string &attributeName, double value, bool updateFlag )
+string AttributeMgrSingleton::AddAttributeInt( const string &collID, const string &attributeName, int value, bool updateFlag, const string &id )
 {
-    string id = string();
-    NameValData attrAdd = NameValData( attributeName, value, "" );
-    id = AddAttributeUtil( collID, attrAdd, updateFlag );
-    return id;
+    NameValData* attr = new NameValData( attributeName, value, "", id );
+    string ret_id = AddAttributeUtil( collID, attr, updateFlag );
+    return ret_id;
 }
 
-string AttributeMgrSingleton::AddAttributeString( const string &collID, const string &attributeName, const string &value, bool updateFlag )
+string AttributeMgrSingleton::AddAttributeDouble( const string &collID, const string &attributeName, double value, bool updateFlag, const string &id )
 {
-    string id = string();
-    NameValData attrAdd = NameValData( attributeName, value, "" );
-    id = AddAttributeUtil( collID, attrAdd, updateFlag );
-    return id;
+    NameValData* attr = new NameValData( attributeName, value, "", id );
+    string ret_id = AddAttributeUtil( collID, attr, updateFlag );
+    return ret_id;
 }
 
-string AttributeMgrSingleton::AddAttributeParm( const string &collID, const string &attributeName, const string &parmID, bool updateFlag )
+string AttributeMgrSingleton::AddAttributeString( const string &collID, const string &attributeName, const string &value, bool updateFlag, const string &id )
 {
-    string id = string();
-    NameValData attrAdd = NameValData( attributeName );
-    attrAdd.SetType( vsp::PARM_REFERENCE_DATA );
-    attrAdd.SetParmIDData( { parmID } );
-    id = AddAttributeUtil( collID, attrAdd, updateFlag );
-    return id;
+    NameValData* attr = new NameValData( attributeName, value, "", id );
+    string ret_id = AddAttributeUtil( collID, attr, updateFlag );
+    return ret_id;
 }
 
-string AttributeMgrSingleton::AddAttributeVec3d( const string &collID, const string &attributeName, const vector < vec3d > &value, bool updateFlag )
+string AttributeMgrSingleton::AddAttributeParm( const string &collID, const string &attributeName, const string &parmID, bool updateFlag, const string &id )
 {
-    string id = string();
-    NameValData attrAdd = NameValData( attributeName, value, "" );
-    id = AddAttributeUtil( collID, attrAdd, updateFlag );
-    return id;
+    NameValData* attr = new NameValData( attributeName );
+    attr->SetType( vsp::PARM_REFERENCE_DATA );
+    attr->SetParmIDData( { parmID } );
+    attr->ChangeID( id );
+    string ret_id = AddAttributeUtil( collID, attr, updateFlag );
+    return ret_id;
 }
 
-string AttributeMgrSingleton::AddAttributeIntMatrix( const string &collID, const string &attributeName, const vector< vector< int > > &value, bool updateFlag )
+string AttributeMgrSingleton::AddAttributeVec3d( const string &collID, const string &attributeName, const vector < vec3d > &value, bool updateFlag, const string &id )
 {
-    string id = string();
-    NameValData attrAdd = NameValData( attributeName, value, "" );
-    id = AddAttributeUtil( collID, attrAdd, updateFlag );
-    return id;
+    NameValData* attr = new NameValData( attributeName, value, "", id );
+    string ret_id = AddAttributeUtil( collID, attr, updateFlag );
+    return ret_id;
 }
 
-string AttributeMgrSingleton::AddAttributeDoubleMatrix( const string &collID, const string &attributeName, const vector< vector< double > > &value, bool updateFlag )
+string AttributeMgrSingleton::AddAttributeIntMatrix( const string &collID, const string &attributeName, const vector< vector< int > > &value, bool updateFlag, const string &id )
 {
-    string id = string();
-    NameValData attrAdd = NameValData( attributeName, value, "" );
-    id = AddAttributeUtil( collID, attrAdd, updateFlag );
-    return id;
+    NameValData* attr = new NameValData( attributeName, value, "", id );
+    string ret_id = AddAttributeUtil( collID, attr, updateFlag );
+    return ret_id;
 }
 
-string AttributeMgrSingleton::AddAttributeGroup( const string &collID, const string &attributeName, bool updateFlag )
+string AttributeMgrSingleton::AddAttributeDoubleMatrix( const string &collID, const string &attributeName, const vector< vector< double > > &value, bool updateFlag, const string &id )
 {
-    string id = string();
-    NameValData attrAdd = NameValData( attributeName );
-    attrAdd.AddAttributeCollection();
-    id = AddAttributeUtil( collID, attrAdd, false );
-    if ( updateFlag )
-    {
-        Update();
-    }
-    return id;
+    NameValData* attr = new NameValData( attributeName, value, "", id );
+    string ret_id = AddAttributeUtil( collID, attr, updateFlag );
+    return ret_id;
 }
 
-string AttributeMgrSingleton::AddAttributeUtil( const string &collID, NameValData &attrAdd, bool updateFlag )
+string AttributeMgrSingleton::AddAttributeGroup( const string &collID, const string &attributeName, bool updateFlag, const string &id )
+{
+    NameValData* attr = new NameValData( attributeName );
+    attr->SetType( vsp::ATTR_COLLECTION_DATA );
+    attr->ChangeID( id );
+    string ret_id = AddAttributeUtil( collID, attr, updateFlag );
+    return ret_id;
+}
+
+string AttributeMgrSingleton::AddAttributeUtil( const string &collID, NameValData* attr, bool updateFlag )
 {
     string id = string();
     if ( m_AttrCollMap.count( collID ) == 1 )
     {
-        attrAdd.SetAttrAttach( collID );
-        SetDirtyFlag( attrAdd.GetAttributeEventGroup() );
-        id = attrAdd.GetID();
-        m_AttrCollMap.at( collID )->Add( attrAdd );
+        attr->SetAttrAttach( collID );
+        SetDirtyFlag( attr->GetAttributeEventGroup() );
+        id = attr->GetID();
+        m_AttrCollMap.at( collID )->Add( attr );
         if ( updateFlag )
         {
             Update();
@@ -1172,51 +1251,37 @@ vector < AttributeCollection* > AttributeMgrSingleton::GetAllCollectionPtrs( int
     return AttrColls;
 }
 
-int AttributeMgrSingleton::CopyAttributeUtil( const string &attr_id, bool updateFlag )
+int AttributeMgrSingleton::CheckCopyError( const vector < string > &attr_ids )
 {
-    NameValData* nvd_ptr = GetAttributePtr( attr_id );
-    if ( !nvd_ptr || nvd_ptr->IsProtected() )
+    // check vector of attribute ids for any copy errors before clearing the clipboard and copying onto it
+    NameValData* a = nullptr;
+    vector < NameValData* > temp_clipboard;
+    for ( int i = 0; i != attr_ids.size(); ++ i )
     {
-        return 1;
-    }
-    m_AttrClipboard.clear();
-    NameValData nvd;
-    nvd.CopyFrom( nvd_ptr );
-    m_AttrClipboard.push_back( nvd );
-    SetAttrDirtyFlag( nvd.GetID() );
-    if ( updateFlag )
-    {
-        Update();
+        a = GetAttributePtr( attr_ids.at( i ) );
+        if ( !a || a->IsProtected() )
+        {
+            return 1;
+        }
     }
     return 0;
 }
 
 int AttributeMgrSingleton::CopyAttributeUtil( const vector < string > &attr_ids, bool updateFlag )
 {
-    // check vector of attribute ids for any copy errors before clearing the clipboard and copying onto it
-    NameValData* a = nullptr;
-    vector < NameValData* > nvd_ptr_vec;
-    for ( int i = 0; i != attr_ids.size(); ++ i )
+    if ( CheckCopyError( attr_ids ) )
     {
-        a = GetAttributePtr( attr_ids.at( i ) );
-        if ( a && !a->IsProtected() )
-        {
-            nvd_ptr_vec.push_back( a );
-        }
-        else
-        {
-            return 1;
-        }
+        return 1;
     }
 
     // go through and populate the clipboard
-    m_AttrClipboard.clear();
+    WypeClipboard();
+    NameValData* a = nullptr;
     for ( int i = 0; i != attr_ids.size(); ++ i )
     {
-        NameValData nvd;
-        nvd.CopyFrom( nvd_ptr_vec.at( i ) );
-        m_AttrClipboard.push_back( nvd );
-        SetAttrDirtyFlag( nvd.GetID() );
+        a = GetAttributePtr( attr_ids[i] );
+        m_AttrClipboard.push_back( a );
+        SetAttrDirtyFlag( attr_ids[i] );
     }
 
     if ( updateFlag )
@@ -1235,16 +1300,16 @@ void AttributeMgrSingleton::CutAttributeUtil( const string &attr_id, bool update
 
 void AttributeMgrSingleton::CutAttributeUtil( const vector < string > &attr_ids, bool updateFlag )
 {
-    int copy_error = CopyAttributeUtil( attr_ids, false );
-    if ( !copy_error )
+    if ( CheckCopyError( attr_ids ) )
     {
-        DeleteAttribute( attr_ids, false );
-
-        for ( int i = 0; i != attr_ids.size(); ++i )
-        {
-            m_AttrClipboard.at( i ).ChangeID( attr_ids.at( i ) );
-        }
+        return;
     }
+
+    WypeClipboard();
+
+    bool update_each = false;
+    m_AttrClipboard = RemoveAttribute( attr_ids, update_each );
+
     if ( updateFlag )
     {
         Update();
@@ -1281,17 +1346,14 @@ vector < string > AttributeMgrSingleton::PasteAttributeUtil( const vector < stri
         for ( int j = 0; j != m_AttrClipboard.size(); ++j )
         {
             string lastreset = IDMgr.ResetRemapID();
-            NameValData nvd_ref = m_AttrClipboard[j];
-            NameValData nvd;
-            if ( &(nvd_ref) )
-            {
-                nvd.CopyFrom( &(nvd_ref) );
-                nvd.SetAttrAttach( ac_vec.at( i )->GetID() );
-                string attrID = nvd.GetID();
-                ac_vec.at( i )->Add( nvd );
-                SetAttrDirtyFlag( attrID );
-                attr_paste_ids.push_back( attrID );
-            }
+
+            NameValData* nvd = new NameValData( m_AttrClipboard[j] );
+            nvd->SetAttrAttach( ac_vec.at( i )->GetID() );
+            string attrID = nvd->GetID();
+            ac_vec.at( i )->Add( nvd );
+            SetAttrDirtyFlag( attrID );
+            attr_paste_ids.push_back( attrID );
+
             IDMgr.ResetRemapID( lastreset );
         }
     }
@@ -1304,7 +1366,8 @@ vector < string > AttributeMgrSingleton::PasteAttributeUtil( const vector < stri
 
 int AttributeMgrSingleton::CopyAttribute( const string &attr_id, bool updateFlag )
 {
-    return CopyAttributeUtil( attr_id, updateFlag );
+    vector < string > attr_id_vec = { attr_id };
+    return CopyAttributeUtil( attr_id_vec, updateFlag );
 }
 
 void AttributeMgrSingleton::CutAttribute( const string &attr_id, bool updateFlag )
@@ -1322,6 +1385,15 @@ vector < string > AttributeMgrSingleton::PasteAttribute( const string &obj_id, b
         coll_id = ac->GetID();
     }
     return PasteAttributeUtil( coll_id, updateFlag );
+}
+
+void AttributeMgrSingleton::SetAttributeProtection( const string &attr_id, bool protect_flag )
+{
+    NameValData* attr = GetAttributePtr( attr_id );
+    if ( attr )
+    {
+        attr->SetProtection( protect_flag );
+    }
 }
 
 // extend a vector of strings with another vector of strings (concatenate) with option of adding a common root to the extension vector
@@ -1651,6 +1723,15 @@ string AttributeMgrSingleton::ToLower( const string & str )
         lower_str += tolower( str.at(i) );
     }
     return lower_str;
+}
+
+bool AttributeMgrSingleton::AttrInClipboard( NameValData* attr )
+{
+    if ( find( m_AttrClipboard.begin(), m_AttrClipboard.end(), attr ) != m_AttrClipboard.end() )
+    {
+        return true;
+    }
+    return false;
 }
 
 bool AttributeMgrSingleton::VecInClipboard( const vector < string > & stringVec )

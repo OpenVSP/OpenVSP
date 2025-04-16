@@ -110,27 +110,28 @@ public:
     void DeleteAttribute( const vector < string > &attrIDs, bool updateFlag = true );
 
     string GuiAddAttribute( AttributeCollection* ac_ptr, const int & attrType, bool updateFlag = true );
-    string AddAttributeBool( const string &collID, const string &attributeName, int value, bool updateFlag = true );
-    string AddAttributeInt( const string &collID, const string &attributeName, int value, bool updateFlag = true );
-    string AddAttributeDouble( const string &collID, const string &attributeName, double value, bool updateFlag = true );
-    string AddAttributeString( const string &collID, const string &attributeName, const string &value, bool updateFlag = true );
-    string AddAttributeParm( const string &collID, const string &attributeName, const string &parmID, bool updateFlag = true );
-    string AddAttributeVec3d( const string &collID, const string &attributeName, const vector < vec3d > &value, bool updateFlag = true );
-    string AddAttributeIntMatrix( const string &collID, const string &attributeName, const vector< vector< int > > &value, bool updateFlag = true );
-    string AddAttributeDoubleMatrix( const string &collID, const string &attributeName, const vector< vector< double > > &value, bool updateFlag = true );
-    string AddAttributeGroup( const string &collID, const string &attributeName, bool updateFlag = true );
-    string AddAttributeUtil( const string &collID, NameValData &attrAdd, bool updateFlag = true );
+    string AddAttributeBool( const string &collID, const string &attributeName, int value, bool updateFlag = true, const string &id = string() );
+    string AddAttributeInt( const string &collID, const string &attributeName, int value, bool updateFlag = true, const string &id = string() );
+    string AddAttributeDouble( const string &collID, const string &attributeName, double value, bool updateFlag = true, const string &id = string() );
+    string AddAttributeString( const string &collID, const string &attributeName, const string &value, bool updateFlag = true, const string &id = string() );
+    string AddAttributeParm( const string &collID, const string &attributeName, const string &parmID, bool updateFlag = true, const string &id = string() );
+    string AddAttributeVec3d( const string &collID, const string &attributeName, const vector < vec3d > &value, bool updateFlag = true, const string &id = string() );
+    string AddAttributeIntMatrix( const string &collID, const string &attributeName, const vector< vector< int > > &value, bool updateFlag = true, const string &id = string() );
+    string AddAttributeDoubleMatrix( const string &collID, const string &attributeName, const vector< vector< double > > &value, bool updateFlag = true, const string &id = string() );
+    string AddAttributeGroup( const string &collID, const string &attributeName, bool updateFlag = true, const string &id = string() );
+    string AddAttributeUtil( const string &collID, NameValData* attr, bool updateFlag = true );
 
     int CopyAttribute( const string &attr_id, bool updateFlag = true );
     void CutAttribute( const string &attr_id, bool updateFlag = true );
     vector < string > PasteAttribute( const string &obj_id, bool updateFlag = true );
 
-    int CopyAttributeUtil( const string &attr_id, bool updateFlag = true );
     int CopyAttributeUtil( const vector < string > &attr_ids, bool updateFlag = true );
     void CutAttributeUtil( const string &attr_id, bool updateFlag = true );
     void CutAttributeUtil( const vector < string > &attr_ids, bool updateFlag = true );
     vector < string > PasteAttributeUtil( const string &obj_id, bool updateFlag = true );
     vector < string > PasteAttributeUtil( const vector < string > &obj_ids, bool updateFlag = true );
+
+    void SetAttributeProtection( const string &attr_id, bool protect_flag = true );
 
     //tree things
     vector < vector < vector < string > > > GetAttrTreeVec( const string & root_id = "", vector < string > inc_ids = {}, bool exclude_clipboard = true, int attr_type = vsp::INVALID_TYPE, int attach_type = vsp::ATTROBJ_FREE, const string & attr_search = "", bool case_sens = false );
@@ -138,6 +139,7 @@ public:
     vector < vector < string > > GetCollParentVecs( const vector < vector < string > > & vecs_ids );
     vector < string > GetCollParentVec( const vector < string > & vec_ids );
     static string GetName( const string & id, bool return_name_input = true );
+    bool AttrInClipboard( NameValData* attr );
     bool VecInClipboard( const vector < string > & stringVec );
     bool VecInClipboard( const vector < vector < string > > & stringVec );
     bool VecInClipboard( const vector < vector < vector < string > > > & stringVec );
@@ -151,13 +153,18 @@ public:
     static vector < vector < string > > ExtendNestedStringVector( vector < vector < string > > vec, vector < vector < string > > vec_add );
 
 protected:
+    NameValData* RemoveAttribute( const string &attrID, bool updateFlag = true );
+    vector < NameValData* > RemoveAttribute( const vector < string > &attrIDs, bool updateFlag = true );
 
     static bool NestedVecSorter( const vector < vector < string > > & v1, const vector < vector < string > > & v2 );
+
+    void WypeClipboard();
+    int CheckCopyError( const vector < string > &attr_ids );
 
     map< string, AttributeCollection*> m_AttrCollMap;
     map< string, NameValData*> m_AttrPtrMap;
 
-    vector < NameValData > m_AttrClipboard;
+    vector < NameValData* > m_AttrClipboard;
     vector < bool > m_DirtyFlags;
 
 private:

@@ -284,7 +284,7 @@ public:
     NameValCollection( const string & name, const string & id, const string & doc  );
     ~NameValCollection();
 
-    void DeleteDataMap();
+    void Wype();
 
     string GenerateID();
 
@@ -324,6 +324,7 @@ public:
     virtual void Add( NameValData* d );
     virtual void Add( const vector< vector< vec3d > > & d, const string &prefix, const string &doc );
 
+    virtual void Unregister( NameValData* d ){};
     virtual void Del( NameValData* d );
     virtual int Remove( NameValData* d );
 
@@ -354,6 +355,7 @@ public:
 
     AttributeCollection();
     AttributeCollection( const string & name, const string & id, const string & doc  );
+    ~AttributeCollection();
 
     void Add( const NameValData & d, const int & attr_event_group = vsp::ATTR_GROUP_NONE, bool set_event_group = false );
     void Add( NameValData* d, const int & attr_event_group = vsp::ATTR_GROUP_NONE, bool set_event_group = false );
@@ -382,8 +384,6 @@ public:
 
     virtual void EncodeXml( xmlNodePtr & node ) const;
     virtual void DecodeXml( xmlNodePtr & node, bool retainIDs = false );
-
-    void Wype();
 
 protected:
 

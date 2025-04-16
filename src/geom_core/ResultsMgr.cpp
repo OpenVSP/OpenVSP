@@ -803,10 +803,11 @@ NameValCollection::NameValCollection( const string & name, const string & id, co
 
 NameValCollection::~NameValCollection()
 {
-    DeleteDataMap();
+    Wype();
 }
 
-void NameValCollection::DeleteDataMap()
+//==== Erase Collection Data ====//
+void NameValCollection::Wype()
 {
     map< string, vector< NameValData* > >::iterator iter;
 
@@ -814,7 +815,15 @@ void NameValCollection::DeleteDataMap()
     {
         for ( int i = 0; i != iter->second.size(); ++i )
         {
-            delete iter->second[i];
+            NameValData* attr = iter->second[i];
+            if ( attr )
+            {
+                Unregister( attr );
+                if( !AttributeMgr.AttrInClipboard( attr ) )
+                {
+                    delete attr;
+                }
+            }
         }
         iter->second.clear();
     }
@@ -902,7 +911,7 @@ void NameValCollection::Del( NameValData* d )
 
     // delete the pointer and remove it from the datamap
     int error = Remove( d );
-    if ( !error )
+    if ( !error && !AttributeMgr.AttrInClipboard( d ) )
     {
         delete d;
     }
@@ -1022,38 +1031,9 @@ AttributeCollection::AttributeCollection( const string & name, const string & id
     SetCollAttach( "NONE", vsp::ATTROBJ_FREE );
 }
 
-void AttributeCollection::Add( const NameValData & d, const int & attr_event_group, bool set_event_group )
+AttributeCollection::~AttributeCollection()
 {
-    string name = d.GetName();
-
-    NameValCollection::Add( d );
-
-    NameValData* attr = nullptr;
-
-    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
-    if ( iter != m_DataMap.end() )
-    {
-        attr = iter->second.back();
-    }
-
-    if ( attr )
-    {
-        attr->SetAttrAttach( GetID() );
-
-        if ( set_event_group )
-        {
-            attr->SetAttributeEventGroup( attr_event_group );
-            AttributeMgr.SetDirtyFlag( attr_event_group );
-        }
-
-        AttributeMgr.RegisterAttrID( attr->GetID(), attr );
-
-        if ( attr->GetType() == vsp::ATTR_COLLECTION_DATA )
-        {
-            AttributeCollection* ac = attr->GetAttributeCollectionPtr();
-            AttributeMgr.RegisterCollID( ac->GetID(), ac );
-        }
-    }
+    Wype();
 }
 
 void AttributeCollection::Add( NameValData* d, const int & attr_event_group, bool set_event_group )
@@ -1343,22 +1323,6 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node, bool retainIDs )
                 }
             }
         }
-    }
-}
-
-//==== Erase Collection Data ====//
-void AttributeCollection::Wype()
-{
-    bool coll_in_map = AttributeMgr.GetCollRegistration( GetID() );
-    if ( coll_in_map )
-    {
-        AttributeMgr.DeregisterCollID( GetID() );
-        DeleteDataMap();
-        AttributeMgr.RegisterCollID( GetID(), this );
-    }
-    else
-    {
-        DeleteDataMap();
     }
 }
 
