@@ -604,10 +604,10 @@ void StructAssemblyScreen::UpdateConnectionTab()
 
     if ( m_FixPtIDs.size() > 0 )
     {
-        FeaPart* fpstart = StructureMgr.GetFeaPart( m_FixPtIDs[ m_ConnectionStartIndex ] );
+        FeaFixPoint *fpstart = dynamic_cast< FeaFixPoint* >( StructureMgr.GetFeaPart( m_FixPtIDs[ m_ConnectionStartIndex ] ) );
         if ( fpstart )
         {
-            int num = fpstart->NumFeaPartSurfs();
+            int num = fpstart->NumFixPoints();
 
             for ( int i = 0; i < num; i ++ )
             {
@@ -618,10 +618,10 @@ void StructAssemblyScreen::UpdateConnectionTab()
         m_ConnectionStartSurfIndxChoice.SetVal( m_ConnectionStartSurfIndex );
 
 
-        FeaPart* fpend = StructureMgr.GetFeaPart( m_FixPtIDs[ m_ConnectionEndIndex ] );
+        FeaFixPoint* fpend = dynamic_cast< FeaFixPoint* >( StructureMgr.GetFeaPart( m_FixPtIDs[ m_ConnectionEndIndex ] ) );
         if ( fpend )
         {
-            int num = fpend->NumFeaPartSurfs();
+            int num = fpend->NumFixPoints();
 
             for ( int i = 0; i < num; i ++ )
             {
