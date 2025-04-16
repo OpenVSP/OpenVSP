@@ -1117,7 +1117,7 @@ void FeaMesh::WriteNASTRANSPC1( FILE *bdf_fp )
                 {
                     if ( m_FeaNodeVecUsed[ j ] )
                     {
-                        if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag && m_FeaNodeVec[j]->HasTag( i ) )
+                        if ( m_FeaNodeVec[j]->m_Tags.size() > 0 && m_FeaNodeVec[j]->m_FixedPointFlag && m_FeaNodeVec[j]->HasTag( i ) )
                         {
                             if ( m_FeaNodeVec[ j ]->m_BCs.AsNum() > 0 )
                             {
