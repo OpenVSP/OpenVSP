@@ -46,6 +46,9 @@ public:
     NameValData( const string & name, const vector< vector< double > > &dmat_data, const string & doc, const string & id = string() );
     ~NameValData();
 
+    NameValData( const NameValData &nvd ) = delete;
+    bool operator== ( const NameValData &nvd ) const = delete;
+
     string GetName() const
     {
         return m_Name;
