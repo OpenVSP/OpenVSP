@@ -3707,6 +3707,39 @@ int FeaFixPoint::NumFeaPartSurfs()
     return 0;
 }
 
+int FeaFixPoint::NumFixPoints()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( m_FixedPointType() == vsp::FEA_FIX_PT_ON_BODY ||
+         m_FixedPointType() == vsp::FEA_FIX_PT_DELTA_XYZ ||
+         m_FixedPointType() == vsp::FEA_FIX_PT_DELTA_UVN )
+    {
+        FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
+
+        if ( parent_part )
+        {
+            return parent_part->NumFeaPartSurfs();
+        }
+    }
+    else if ( m_FixedPointType() == vsp::FEA_FIX_PT_GLOBAL_XYZ )
+    {
+        return 1;
+    }
+    else if ( m_FixedPointType() == vsp::FEA_FIX_PT_GEOM_ORIGIN ||
+              m_FixedPointType() == vsp::FEA_FIX_PT_GEOM_CG )
+    {
+        Geom *other_geom = veh->FindGeom( m_OtherGeomID );
+
+        if ( other_geom )
+        {
+            return other_geom->GetNumTotalSurfs();
+        }
+    }
+
+    return 0;
+}
+
 ////////////////////////////////////////////////////
 //================= FeaPartTrim ==================//
 ////////////////////////////////////////////////////

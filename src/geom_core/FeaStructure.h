@@ -428,6 +428,7 @@ public:
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
     virtual int NumFeaPartSurfs();
+    virtual int NumFixPoints();
 
     Parm m_PosU;
     Parm m_PosW;
