@@ -2735,7 +2735,10 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
                                                 continue;
                                             }
 
-                                            new_history_res->Add( new NameValData( nvd ) ); // q: do we need a copy here?
+                                            NameValData* nvdcopy = new NameValData();
+                                            nvdcopy->CopyFrom( nvd );
+
+                                            new_history_res->Add( nvdcopy ); // q: do we need a copy here?
                                         }
                                     }
 

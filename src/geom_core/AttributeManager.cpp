@@ -1347,7 +1347,9 @@ vector < string > AttributeMgrSingleton::PasteAttributeUtil( const vector < stri
         {
             string lastreset = IDMgr.ResetRemapID();
 
-            NameValData* nvd = new NameValData( m_AttrClipboard[j] );
+            NameValData* nvd = new NameValData();
+            nvd->CopyFrom( m_AttrClipboard[j]  );
+
             nvd->SetAttrAttach( ac_vec.at( i )->GetID() );
             string attrID = nvd->GetID();
             ac_vec.at( i )->Add( nvd );
