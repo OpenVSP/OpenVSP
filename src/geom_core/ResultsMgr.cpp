@@ -883,13 +883,10 @@ void NameValCollection::Del( NameValData* d )
 
 int NameValCollection::Remove( NameValData* d )
 {
-    // remove the pointer from datamap, and return that pointer
-    int error = 0;
     // nvd must exist
     if ( !d )
     {
-        error++;
-        return error;
+        return 1;
     }
 
     string name = d->GetName();
@@ -902,7 +899,7 @@ int NameValCollection::Remove( NameValData* d )
     {
         m_DataMap.erase( name );
     }
-    return error;
+    return 0;
 }
 
 //==== Find Res Data Given Name and Index ====//
