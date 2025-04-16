@@ -874,7 +874,10 @@ void NameValCollection::Del( NameValData* d )
     int error = Remove( d );
     if ( !error && !AttributeMgr.AttrInClipboard( d ) )
     {
-        delete d;
+        if ( d )
+        {
+            delete d;
+        }
     }
 }
 
