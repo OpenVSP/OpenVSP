@@ -978,7 +978,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int 
             }
 
             // Write FEA part node set
-            name = m_FeaPartNameVec[i] + "_" + m_StructName + "_FixedGridpoints";
+            name = m_FeaPartNameVec[fxpt.m_FeaPartIndex] + "_" + m_StructName + "_FixedGridpoints";
             WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
 
