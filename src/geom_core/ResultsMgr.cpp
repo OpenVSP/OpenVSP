@@ -572,14 +572,6 @@ void NameValData::DecodeXml( xmlNodePtr & node )
     }
 }
 
-void NameValData::ReRegisterNestedCollections()
-{
-    if ( m_Type == vsp::ATTR_COLLECTION_DATA )
-    {
-        GetAttributeCollectionPtr()->SetCollAttach( m_ID, vsp::ATTROBJ_ATTR );
-    }
-}
-
 string NameValData::GetAsString( bool inline_data_flag )
 {
     char str[255];

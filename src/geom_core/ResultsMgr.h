@@ -248,7 +248,6 @@ public:
 
     virtual void EncodeXml( xmlNodePtr & node ) const;
     virtual void DecodeXml( xmlNodePtr & node );
-    void ReRegisterNestedCollections();
 
 protected:
 
