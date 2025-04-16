@@ -27,16 +27,6 @@ NameValData::NameValData()
     Init( "Undefined" );
 }
 
-//==== Copy Constructor ====//
-NameValData::NameValData( NameValData* nvd )
-{
-    Init( "Undefined" );
-    if ( nvd )
-    {
-        CopyFrom( nvd );
-    }
-}
-
 //==== Constructor With Name =====//
 NameValData::NameValData( const string & name )
 {

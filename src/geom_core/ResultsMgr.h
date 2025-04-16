@@ -32,7 +32,6 @@ class NameValData
 {
 public:
     NameValData();
-    NameValData( NameValData* nvd );
     NameValData( const string & name );
     NameValData( const string & name, const bool & b_data, const string & doc, const string & id = string() );
     NameValData( const string & name, const int & i_data, const string & doc, const string & id = string() );
