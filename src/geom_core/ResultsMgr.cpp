@@ -125,7 +125,6 @@ NameValData::~NameValData()
 void NameValData::Init( const string & name, int type, const string & id )
 {
     m_Name = name;
-    m_Index = -1;
     m_Type = type;
 
     m_ID = id;
@@ -831,18 +830,13 @@ void NameValCollection::Add( NameValData* d )
     //==== Find Name ====//
     string name = d->GetName();
 
-    int index = 0;
-
     map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
     if ( iter != m_DataMap.end() )     // Check For Duplicates
     {
-        index = iter->second.size();
-        d->SetIndex( index );
         iter->second.push_back( d );
     }
     else
     {
-        d->SetIndex( index );
         m_DataMap[name].push_back( d );
     }
 }
@@ -896,22 +890,9 @@ int NameValCollection::Remove( NameValData* d )
     }
 
     string name = d->GetName();
-    int index = d->GetIndex();
 
     // erase pointer address from vector
-    m_DataMap[name].erase( m_DataMap[name].begin() + index );
-
-    // set index to -1 as placeholder
-    if ( !error )
-    {
-        d->SetIndex( -1 );
-    }
-
-    // reset indices of pointers in that datamap name entry
-    for ( int i = index; i < m_DataMap[name].size(); i++ )
-    {
-        m_DataMap[name].at( i )->SetIndex( i );
-    }
+    vector_remove_val( m_DataMap[name], d );
 
     // erase name from datamap if now empty
     if ( m_DataMap[name].empty() )

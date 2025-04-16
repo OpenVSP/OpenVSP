@@ -53,10 +53,6 @@ public:
     {
         return m_Name;
     }
-    int GetIndex() const
-    {
-        return m_Index;
-    }
     string GetID() const
     {
         return m_ID;
@@ -197,11 +193,6 @@ public:
         m_Name = name;
     }
 
-    void SetIndex( const int & index )
-    {
-        m_Index = index;
-    }
-
     void SetType( const int & type )
     {
         m_Type = type;
@@ -254,7 +245,6 @@ protected:
     void Init( const string & name, int type = 0, const string & id = string() );
 
     string m_Name;
-    int m_Index;
     int m_Type;
     string m_Doc;
     string m_ID;
