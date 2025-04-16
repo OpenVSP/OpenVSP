@@ -3698,13 +3698,7 @@ bool FeaFixPoint::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen,
 
 int FeaFixPoint::NumFeaPartSurfs()
 {
-    FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
-
-    if ( parent_part )
-    {
-        return parent_part->NumFeaPartSurfs();
-    }
-    return 0;
+    return NumFixPoints();
 }
 
 int FeaFixPoint::NumFixPoints()
