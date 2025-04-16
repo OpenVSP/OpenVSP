@@ -150,6 +150,14 @@ int Vsp_Canvas::handle( int event )
     return Ca_Canvas::handle( event );
 }
 
+void Vsp_Canvas::resize( int X, int Y, int W, int H )
+{
+    m_Wwide = W;
+    m_Wnarrow = W;
+
+    Ca_Canvas::resize( X, Y, W, H );
+}
+
 void Vsp_Canvas::SetMainY()
 {
     current_y( m_Ymain );

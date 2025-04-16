@@ -128,6 +128,8 @@ public:
 
     int handle( int event );
 
+    virtual void resize(int x, int y, int w, int h);
+
     void SetMainY();
     void SetSecondaryY();
     void HideSecondaryY();
