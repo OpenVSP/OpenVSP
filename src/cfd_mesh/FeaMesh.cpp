@@ -1773,26 +1773,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                     {
                         for ( int ichain = 0; ichain < m_FeaPartNumChainsVec[i]; ichain++ )
                         {
-                        fprintf( fp, "*ELEMENT, TYPE=B32R, ELSET=EB%s_%s_%d_%d_CAP\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf, ichain );
-
-                        for ( int j = 0; j < m_FeaElementVec.size(); j++ )
-                        {
-                            if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
-                                 m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
-                                 m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
-                                 m_FeaElementVec[j]->GetChainIndex() == ichain &&
-                                 m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
-                            {
-                                elem_id++;
-                                m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
-                            }
-                        }
-
-                        if ( m_StructSettings.m_BeamPerElementNormal )
-                        {
-                            // Write Normal Vectors
-                            fprintf( fp, "\n" );
-                            fprintf( fp, "*NORMAL\n" );
+                            fprintf( fp, "*ELEMENT, TYPE=B32R, ELSET=EB%s_%s_%d_%d_CAP\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf, ichain );
 
                             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                             {
@@ -1802,14 +1783,33 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                                      m_FeaElementVec[j]->GetChainIndex() == ichain &&
                                      m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                                 {
-                                    FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
-                                    assert( beam );
-                                    beam->WriteCalculixNormal( fp, noffset, eoffset );
+                                    elem_id++;
+                                    m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
                                 }
                             }
-                        }
 
-                        fprintf( fp, "\n" );
+                            if ( m_StructSettings.m_BeamPerElementNormal )
+                            {
+                                // Write Normal Vectors
+                                fprintf( fp, "\n" );
+                                fprintf( fp, "*NORMAL\n" );
+
+                                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                                {
+                                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
+                                         m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
+                                         m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
+                                         m_FeaElementVec[j]->GetChainIndex() == ichain &&
+                                         m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                                    {
+                                        FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
+                                        assert( beam );
+                                        beam->WriteCalculixNormal( fp, noffset, eoffset );
+                                    }
+                                }
+                            }
+
+                            fprintf( fp, "\n" );
                         }
                     }
                 }
@@ -1868,27 +1868,8 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                     for ( int ichain = 0; ichain < m_FeaPartNumChainsVec[i]; ichain++ )
                     {
 
-                    fprintf( fp, "\n" );
-                    fprintf( fp, "*ELEMENT, TYPE=B32R, ELSET=EB%s_%s_%d_%d_CAP\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf, ichain );
-
-                    for ( int j = 0; j < m_FeaElementVec.size(); j++ )
-                    {
-                        if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
-                             m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
-                             m_FeaElementVec[j]->GetChainIndex() == ichain &&
-                             m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
-                        {
-                            elem_id++;
-                            m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
-                        }
-                    }
-
-
-                    if ( m_StructSettings.m_BeamPerElementNormal )
-                    {
-                        // Write Normal Vectors
                         fprintf( fp, "\n" );
-                        fprintf( fp, "*NORMAL\n" );
+                        fprintf( fp, "*ELEMENT, TYPE=B32R, ELSET=EB%s_%s_%d_%d_CAP\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf, ichain );
 
                         for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                         {
@@ -1897,14 +1878,33 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                                  m_FeaElementVec[j]->GetChainIndex() == ichain &&
                                  m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                             {
-                                FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
-                                assert( beam );
-                                beam->WriteCalculixNormal( fp, noffset, eoffset );
+                                elem_id++;
+                                m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
                             }
                         }
-                    }
 
-                    fprintf( fp, "\n" );
+
+                        if ( m_StructSettings.m_BeamPerElementNormal )
+                        {
+                            // Write Normal Vectors
+                            fprintf( fp, "\n" );
+                            fprintf( fp, "*NORMAL\n" );
+
+                            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                            {
+                                if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
+                                     m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
+                                     m_FeaElementVec[j]->GetChainIndex() == ichain &&
+                                     m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                                {
+                                    FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
+                                    assert( beam );
+                                    beam->WriteCalculixNormal( fp, noffset, eoffset );
+                                }
+                            }
+                        }
+
+                        fprintf( fp, "\n" );
                     }
                 }
             }
@@ -1988,27 +1988,27 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
                         for ( int ichain = 0; ichain < m_FeaPartNumChainsVec[i]; ichain++ )
                         {
 
-                        fprintf( fp, "\n" );
-                        snprintf( str, sizeof( str ), "EB%s_%s_%d_%d_CAP", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf, ichain );
-                        FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
+                            fprintf( fp, "\n" );
+                            snprintf( str, sizeof( str ), "EB%s_%s_%d_%d_CAP", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf, ichain );
+                            FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
 
-                        if ( !m_StructSettings.m_BeamPerElementNormal )
-                        {
-                            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                            if ( !m_StructSettings.m_BeamPerElementNormal )
                             {
-                                if ( m_FeaElementVec[ j ]->GetFeaPartIndex() == i &&
-                                     m_FeaElementVec[ j ]->GetElementType() == FeaElement::FEA_BEAM &&
-                                     m_FeaElementVec[ j ]->GetFeaSSIndex() < 0 &&
-                                     m_FeaElementVec[ j ]->GetChainIndex() == ichain &&
-                                     m_FeaElementVec[ j ]->GetFeaPartSurfNum() == isurf )
+                                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                                 {
-                                    FeaBeam *beam = dynamic_cast<FeaBeam *>( m_FeaElementVec[ j ] );
-                                    assert( beam );
-                                    beam->WriteCalculixNormal( fp );
-                                    break;
+                                    if ( m_FeaElementVec[ j ]->GetFeaPartIndex() == i &&
+                                         m_FeaElementVec[ j ]->GetElementType() == FeaElement::FEA_BEAM &&
+                                         m_FeaElementVec[ j ]->GetFeaSSIndex() < 0 &&
+                                         m_FeaElementVec[ j ]->GetChainIndex() == ichain &&
+                                         m_FeaElementVec[ j ]->GetFeaPartSurfNum() == isurf )
+                                    {
+                                        FeaBeam *beam = dynamic_cast<FeaBeam *>( m_FeaElementVec[ j ] );
+                                        assert( beam );
+                                        beam->WriteCalculixNormal( fp );
+                                        break;
+                                    }
                                 }
                             }
-                        }
                         }
                     }
                 }
