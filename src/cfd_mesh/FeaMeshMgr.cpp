@@ -297,6 +297,7 @@ void FeaMeshMgrSingleton::TransferFeaData()
         GetMeshPtr()->m_FeaPartCapPropertyIndexVec.resize( GetMeshPtr()->m_NumFeaParts );
         GetMeshPtr()->m_FeaPartPropertyIDVec.resize( GetMeshPtr()->m_NumFeaParts );
         GetMeshPtr()->m_FeaPartCapPropertyIDVec.resize( GetMeshPtr()->m_NumFeaParts );
+        GetMeshPtr()->m_FeaPartNumChainsVec.resize( GetMeshPtr()->m_NumFeaParts );
 
         for ( size_t i = 0; i < fea_part_vec.size(); i++ )
         {
@@ -310,6 +311,7 @@ void FeaMeshMgrSingleton::TransferFeaData()
             GetMeshPtr()->m_FeaPartCapPropertyIndexVec[i] = vector_find_val( prop_id_vec, fea_part_vec[i]->m_CapFeaPropertyID );
             GetMeshPtr()->m_FeaPartPropertyIDVec[i] = fea_part_vec[i]->m_FeaPropertyID;
             GetMeshPtr()->m_FeaPartCapPropertyIDVec[i] = fea_part_vec[i]->m_CapFeaPropertyID;
+            GetMeshPtr()->m_FeaPartNumChainsVec[i] = 0;
         }
     }
 }
@@ -1326,6 +1328,9 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                 }
             }
 
+            int ichain = GetMeshPtr()->m_FeaPartNumChainsVec[ FeaPartIndex ];
+            GetMeshPtr()->m_FeaPartNumChainsVec[ FeaPartIndex ]++;
+
             int normsurfindx = vector_find_val( m_SurfVec, NormSurf );
             // Define FeaBeam elements
             for ( int j = 1; j < (int)ipntVec.size(); j++ )
@@ -1386,6 +1391,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                 beam->SetFeaPartIndex( FeaPartIndex );
                 beam->SetFeaSSIndex( ssindexVec[j] );
                 beam->SetFeaPartSurfNum( m_SurfVec[normsurfindx]->GetFeaPartSurfNum() );
+                beam->SetChainIndex( ichain );
                 GetMeshPtr()->m_FeaElementVec.push_back( beam );
                 GetMeshPtr()->m_NumBeams++;
             }

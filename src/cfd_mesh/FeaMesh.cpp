@@ -80,6 +80,7 @@ void FeaMesh::Cleanup()
     m_FeaPartCreateBeamElementsVec.clear();
     m_FeaPartPropertyIndexVec.clear();
     m_FeaPartCapPropertyIndexVec.clear();
+    m_FeaPartNumChainsVec.clear();
 
     m_NumEls = 0;
     m_NumTris = 0;

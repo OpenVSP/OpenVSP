@@ -93,6 +93,14 @@ public:
     {
         return m_reason;
     }
+    virtual void SetChainIndex( int ichain )
+    {
+        m_ChainIndex = ichain;
+    }
+    virtual int GetChainIndex()
+    {
+        return m_ChainIndex;
+    }
 
     virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset ) = 0;
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset ) = 0;
@@ -124,6 +132,7 @@ protected:
     int m_FeaSSIndex; // Corresponds to index in FeaStructure m_FeaSubSurfVec
     int m_FeaPartSurfNum; // corresponds to m_SurfVec->GetFeaPartSurfNum();
     int m_reason;
+    int m_ChainIndex;
 };
 
 //==== 6 Point Triangle Element ====//

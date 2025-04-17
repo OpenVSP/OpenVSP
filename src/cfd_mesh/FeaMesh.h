@@ -144,6 +144,7 @@ public:
     vector < bool > m_FeaPartCreateBeamElementsVec;
     vector < int > m_FeaPartPropertyIndexVec;
     vector < int > m_FeaPartCapPropertyIndexVec;
+    vector < int > m_FeaPartNumChainsVec;
     vector < string > m_FeaPartPropertyIDVec;
     vector < string > m_FeaPartCapPropertyIDVec;
 
