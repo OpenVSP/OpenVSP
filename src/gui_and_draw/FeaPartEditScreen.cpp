@@ -19,10 +19,19 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_CurFeaPartDispGroup = NULL;
 
-    //=== FEA Parts ===//
-    m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    int borderPaddingWidth = 5;
+    int yPadding = 7;
 
-    m_GenLayout.AddY( m_GenLayout.GetStdHeight() + m_GenLayout.GetGapHeight() );
+    //=== FEA Parts ===//
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+
+    //This sets position below heading with position at far left
+    m_MainLayout.ForceNewLine();
+    //Adds padding on left and top of position
+    m_MainLayout.AddY( yPadding );
+    m_MainLayout.AddX( borderPaddingWidth );
+
+    m_MainLayout.AddSubGroupLayout( m_GenLayout, m_MainLayout.GetRemainX() - borderPaddingWidth, m_MainLayout.GetRemainY() - borderPaddingWidth);
 
     m_GenLayout.AddInput( m_FeaPartNameInput, "Part Name" );
 
@@ -340,75 +349,109 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_PolySparEditLayout.AddDividerBox( "PolySpar" );
 
-    m_PolySparEditLayout.SetButtonWidth( m_PolySparEditLayout.GetRemainX() / 2 );
+    int movebw = 20;
+    int browser_h = 150;
+    int start_x = m_PolySparEditLayout.GetX();
+    start_y = m_PolySparEditLayout.GetY();
 
-    input_width = m_PolySparEditLayout.GetInputWidth();
+    m_PolySparEditLayout.AddSubGroupLayout( m_MovePointLayout, 20, browser_h );
 
-    m_PolySparEditLayout.AddButton( m_PolySparSectionLimitToggle, "Limit PolySpar to Section" );
+    m_MovePointLayout.SetSameLineFlag( false );
+    m_MovePointLayout.SetFitWidthFlag( false );
 
-    m_PolySparEditLayout.SetSameLineFlag( true );
-    m_PolySparEditLayout.SetFitWidthFlag( false );
+    m_MovePointLayout.SetButtonWidth( movebw );
+    m_MovePointLayout.AddButton( m_MovePntTopButton, "@2<<" );
+    m_MovePointLayout.AddYGap();
+    m_MovePointLayout.AddButton( m_MovePntUpButton, "@2<" );
+    m_MovePointLayout.AddY( browser_h - 4 * m_MovePointLayout.GetStdHeight() - 2 * m_MovePointLayout.GetGapHeight() );
+    m_MovePointLayout.AddButton( m_MovePntDownButton, "@2>" );
+    m_MovePointLayout.AddYGap();
+    m_MovePointLayout.AddButton( m_MovePntBotButton, "@2>>" );
 
-    m_PolySparEditLayout.SetButtonWidth( m_PolySparEditLayout.GetRemainX() / 11 );
-    m_PolySparEditLayout.SetInputWidth( m_PolySparEditLayout.GetRemainX() / 12 );
-
-    labelwidth = m_PolySparEditLayout.GetRemainX() / 9;
-    gap = m_PolySparEditLayout.GetRemainX() / 34;
-
-    m_PolySparEditLayout.AddLabel( "Start:", labelwidth );
-    m_PolySparEditLayout.AddIndexSelector( m_PolySparStartSectIndexSelector );
-    m_PolySparEditLayout.AddX( gap );
-    m_PolySparEditLayout.AddLabel( "End:", labelwidth );
-    m_PolySparEditLayout.AddIndexSelector( m_PolySparEndSectIndexSelector );
-
-    m_PolySparEditLayout.ForceNewLine();
-    m_PolySparEditLayout.AddYGap();
-
-    m_PolySparEditLayout.AddLabel( "Distance:", m_PolySparEditLayout.GetRemainX() / 3 );
-    m_PolySparEditLayout.SetButtonWidth( m_PolySparEditLayout.GetRemainX() / 2 );
-    m_PolySparEditLayout.AddButton( m_PolySparPosRelToggle, "Relative" );
-    m_PolySparEditLayout.AddButton( m_PolySparPosAbsToggle, "Model" );
-
-    m_PolySparPosTypeToggleGroup.Init( this );
-    m_PolySparPosTypeToggleGroup.AddButton( m_PolySparPosAbsToggle.GetFlButton() );
-    m_PolySparPosTypeToggleGroup.AddButton( m_PolySparPosRelToggle.GetFlButton() );
-
-    m_PolySparEditLayout.ForceNewLine();
-    m_PolySparEditLayout.SetSameLineFlag( false );
+    m_PolySparEditLayout.SetY( start_y );
+    m_PolySparEditLayout.AddX( movebw );
     m_PolySparEditLayout.SetFitWidthFlag( true );
 
-    m_PolySparEditLayout.AddButton( m_PolySparSetPerChordToggle, "Parameterize by Chord" );
 
-    m_PolySparEditLayout.AddYGap();
-    m_PolySparEditLayout.SetSameLineFlag( true );
+    m_PolySparEditLayout.AddSubGroupLayout( m_PointBrowserLayout, m_PolySparEditLayout.GetRemainX(), browser_h );
+    m_PolySparEditLayout.AddY( browser_h );
+
+    // Pointer for the widths of each column in the browser to support resizing
+    // Last column width must be 0
+    static int col_widths[] = { 160, 85, 80, 85, 0 }; // widths for each column
+
+    m_PolySparPointBrowser = m_PointBrowserLayout.AddColResizeBrowser( col_widths, 4, browser_h );
+    m_PolySparPointBrowser->callback( staticScreenCB, this );
+    m_PolySparPointBrowser->type( FL_MULTI_BROWSER );
+
+    m_PolySparEditLayout.SetX( start_x );
+
+    int bw = m_PolySparEditLayout.GetButtonWidth();
+
+    m_PolySparEditLayout.SetButtonWidth( m_PolySparEditLayout.GetW() * 0.5 );
+
     m_PolySparEditLayout.SetFitWidthFlag( false );
+    m_PolySparEditLayout.SetSameLineFlag( true );
 
-    m_PolySparEditLayout.SetSliderWidth( m_PolySparEditLayout.GetRemainX() / 5 );
-    m_PolySparEditLayout.SetInputWidth( input_width );
-
-    m_PolySparEditLayout.AddSlider( m_PolySparPosSlider, "Location", 0.5, "%5.3f" );
-
-    m_PolySparEditLayout.SetButtonWidth( m_PolySparEditLayout.GetRemainX() );
-    m_PolySparEditLayout.AddButton( m_PolySparPosUnit, "" );
-    m_PolySparPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_PolySparPosUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_PolySparEditLayout.AddButton( m_AddPolySparPoint, "Add" );
+    m_PolySparEditLayout.AddButton( m_DelPolySparPoint, "Delete" );
 
     m_PolySparEditLayout.ForceNewLine();
-    m_PolySparEditLayout.SetSameLineFlag( false );
+
+    m_PolySparEditLayout.AddButton( m_InsertPolySparPoint, "Insert Before" );
+    m_PolySparEditLayout.AddButton( m_DelAllPolySparPoints, "Delete All" );
+
+    m_PolySparEditLayout.SetButtonWidth( bw );
+
+    m_PolySparEditLayout.ForceNewLine();
+    m_PolySparEditLayout.AddYGap();
+
     m_PolySparEditLayout.SetFitWidthFlag( true );
+    m_PolySparEditLayout.SetSameLineFlag( false );
 
-    m_PolySparEditLayout.SetButtonWidth( m_PolySparEditLayout.GetRemainX() / 3 );
+    m_PolySparEditLayout.AddInput( m_PolySparPtNameInput, "Name" );
+    m_PolySparEditLayout.AddYGap();
 
-    m_PolySparEditLayout.AddSlider( m_PolySparThetaSlider, "Rotation", 25, "%5.3f" );
+    int toggle_bw = 15;
+
+    m_PolySparEditLayout.SetSameLineFlag( true );
+
+    m_PolySparEditLayout.SetFitWidthFlag( false );
+    m_PolySparEditLayout.SetButtonWidth( toggle_bw );
+    m_PolySparEditLayout.AddButton( m_PolySparPointU01Toggle, "" );
+    m_PolySparEditLayout.SetFitWidthFlag( true );
+    m_PolySparEditLayout.SetButtonWidth( bw - toggle_bw );
+    m_PolySparEditLayout.AddSlider( m_PolySparPointU01Slider, "U01", 1.0, "%5.3f" );
+    m_PolySparEditLayout.ForceNewLine();
+
+    m_PolySparEditLayout.SetFitWidthFlag( false );
+    m_PolySparEditLayout.SetButtonWidth( toggle_bw );
+    m_PolySparEditLayout.AddButton( m_PolySparPointU0NToggle, "" );
+    m_PolySparEditLayout.SetFitWidthFlag( true );
+    m_PolySparEditLayout.SetButtonWidth( bw - toggle_bw );
+    m_PolySparEditLayout.AddSlider( m_PolySparPointU0NSlider, "U0N", 1.0, "%5.3f" );
+    m_PolySparEditLayout.ForceNewLine();
+
+    m_PolySparEditLayout.SetFitWidthFlag( false );
+    m_PolySparEditLayout.SetButtonWidth( toggle_bw );
+    m_PolySparEditLayout.AddButton( m_PolySparPointEtaToggle, "" );
+    m_PolySparEditLayout.SetFitWidthFlag( true );
+    m_PolySparEditLayout.SetButtonWidth( bw - toggle_bw );
+    m_PolySparEditLayout.AddSlider( m_PolySparPointEtaSlider, "Eta", 1.0, "%5.3f" );
+    m_PolySparEditLayout.ForceNewLine();
+
+    m_PolySparPointTypeToggleGroup.Init( this );
+    m_PolySparPointTypeToggleGroup.AddButton( m_PolySparPointU01Toggle.GetFlButton() );
+    m_PolySparPointTypeToggleGroup.AddButton( m_PolySparPointU0NToggle.GetFlButton() );
+    m_PolySparPointTypeToggleGroup.AddButton( m_PolySparPointEtaToggle.GetFlButton() );
+
+    m_PolySparEditLayout.SetSameLineFlag( false );
 
     m_PolySparEditLayout.AddYGap();
 
-    m_PolySparEditLayout.AddSlider( m_PolySparRootChordSlider, "Root X/C", 0.5, "%5.3f" );
-    m_PolySparEditLayout.AddSlider( m_PolySparTipChordSlider, "Tip X/C", 0.5, "%5.3f" );
+    m_PolySparEditLayout.SetButtonWidth( bw );
+    m_PolySparEditLayout.AddSlider( m_PolySparPointXoCSlider, "XoC", 1.0, "%5.3f" );
 
-    m_PolySparEditLayout.AddYGap();
-
-    m_PolySparEditLayout.AddButton( m_PolySparTrimToBBoxToggle, "Trim to Bounding Box" );
 
     //==== FeaFixPoint ====//
     m_GenLayout.AddSubGroupLayout( m_FixPointEditLayout, m_GenLayout.GetRemainX(), m_GenLayout.GetRemainY() );
@@ -1412,68 +1455,72 @@ bool FeaPartEditScreen::Update()
                     else if ( feaprt->GetType() == vsp::FEA_POLY_SPAR )
                     {
                         FeaPolySpar* polyspar = dynamic_cast<FeaPolySpar*>( feaprt );
-                        assert( spar );
+                        assert( polyspar );
 
-                        m_PolySparPosTypeToggleGroup.Update( polyspar->m_AbsRelParmFlag.GetID() );
-
-                        m_PolySparSectionLimitToggle.Update( polyspar->m_LimitSparToSectionFlag.GetID() );
-                        m_PolySparStartSectIndexSelector.Update( polyspar->m_StartWingSection.GetID() );
-                        m_PolySparEndSectIndexSelector.Update( polyspar->m_EndWingSection.GetID() );
-
-                        if ( polyspar->m_LimitSparToSectionFlag() )
-                        {
-                            m_PolySparStartSectIndexSelector.Activate();
-                            m_PolySparEndSectIndexSelector.Activate();
-                        }
-                        else
-                        {
-                            m_PolySparStartSectIndexSelector.Deactivate();
-                            m_PolySparEndSectIndexSelector.Deactivate();
-                        }
-
-                        m_PolySparSetPerChordToggle.Update( polyspar->m_UsePercentChord.GetID() );
-                        m_PolySparRootChordSlider.Update( polyspar->m_PercentRootChord.GetID() );
-                        m_PolySparTipChordSlider.Update( polyspar->m_PercentTipChord.GetID() );
-                        m_PolySparThetaSlider.Update( polyspar->m_Theta.GetID() );
-
-                        if ( polyspar->m_AbsRelParmFlag() == vsp::REL )
-                        {
-                            if ( !polyspar->m_UsePercentChord() )
-                            {
-                                m_PolySparPosSlider.Activate();
-                                polyspar->m_RelCenterLocation.Activate();
-                                polyspar->m_AbsCenterLocation.Deactivate();
-                            }
-                            m_PolySparPosSlider.Update( 1, polyspar->m_RelCenterLocation.GetID(), polyspar->m_AbsCenterLocation.GetID() );
-                        }
-                        else
-                        {
-                            if ( !polyspar->m_UsePercentChord() )
-                            {
-                                m_PolySparPosSlider.Activate();
-                                polyspar->m_AbsCenterLocation.Activate();
-                                polyspar->m_RelCenterLocation.Deactivate();
-                            }
-                            m_PolySparPosSlider.Update( 2, polyspar->m_RelCenterLocation.GetID(), polyspar->m_AbsCenterLocation.GetID() );
-                        }
-
-                        if ( polyspar->m_UsePercentChord() )
-                        {
-                            m_PolySparPosSlider.Deactivate();
-                            m_PolySparThetaSlider.Deactivate();
-                            m_PolySparRootChordSlider.Activate();
-                            m_PolySparTipChordSlider.Activate();
-                        }
-                        else
-                        {
-                            m_PolySparThetaSlider.Activate();
-                            m_PolySparRootChordSlider.Deactivate();
-                            m_PolySparTipChordSlider.Deactivate();
-                        }
-
-                        m_PolySparTrimToBBoxToggle.Update( polyspar->m_BndBoxTrimFlag.GetID() );
                         m_CreateBeamElementsToggle.Update( polyspar->m_CreateBeamElements.GetID() );
                         m_KeepDelShellElementsToggleGroup.Update( polyspar->m_KeepDelShellElements.GetID() );
+
+                        UpdatePolySparPointBrowser( polyspar );
+
+                        PolySparPoint* spt = polyspar->GetPt( m_PolySparPointBrowserSelect );;
+
+                        if ( spt )
+                        {
+                            m_PolySparPtNameInput.Update( spt->GetName() );
+
+                            m_PolySparPointTypeToggleGroup.Update( spt->m_SpanMode.GetID() );
+
+                            m_PolySparPointU01Slider.Update( spt->m_U01.GetID() );
+                            m_PolySparPointU0NSlider.Update( spt->m_U0N.GetID() );
+                            m_PolySparPointEtaSlider.Update( spt->m_Eta.GetID() );
+
+                            m_PolySparPointXoCSlider.Update( spt->m_XoC.GetID() );
+                            m_PolySparPointXoCSlider.Activate();
+
+                            m_PolySparPointU01Toggle.Activate();
+                            m_PolySparPointU0NToggle.Activate();
+                            m_PolySparPointEtaToggle.Activate();
+
+                            m_DelPolySparPoint.Activate();
+
+                            m_PolySparPtNameInput.Activate();
+
+                            if ( spt->m_SpanMode() == vsp::POLY_SPAR_POINT_U01 )
+                            {
+                                m_PolySparPointU01Slider.Activate();
+                                m_PolySparPointU0NSlider.Deactivate();
+                                m_PolySparPointEtaSlider.Deactivate();
+                            }
+                            else if ( spt->m_SpanMode() == vsp::POLY_SPAR_POINT_U0N )
+                            {
+                                m_PolySparPointU01Slider.Deactivate();
+                                m_PolySparPointU0NSlider.Activate();
+                                m_PolySparPointEtaSlider.Deactivate();
+                            }
+                            else // if ( spt->m_SpanMode() == vsp::POLY_SPAR_POINT_ETA )
+                            {
+                                m_PolySparPointU01Slider.Deactivate();
+                                m_PolySparPointU0NSlider.Deactivate();
+                                m_PolySparPointEtaSlider.Activate();
+                            }
+                        }
+                        else
+                        {
+                            m_PolySparPtNameInput.Update( "" );
+                            m_PolySparPtNameInput.Deactivate();
+
+                            m_PolySparPointXoCSlider.Deactivate();
+
+                            m_PolySparPointU01Slider.Deactivate();
+                            m_PolySparPointU0NSlider.Deactivate();
+                            m_PolySparPointEtaSlider.Deactivate();
+
+                            m_PolySparPointU01Toggle.Deactivate();
+                            m_PolySparPointU0NToggle.Deactivate();
+                            m_PolySparPointEtaToggle.Deactivate();
+
+                            m_DelPolySparPoint.Deactivate();
+                        }
 
                         FeaPartDispGroup( &m_PolySparEditLayout );
                     }
@@ -2266,7 +2313,85 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                 }
             }
         }
+
+
+        FeaPolySpar* polyspar = dynamic_cast<FeaPolySpar*>( feaprt );
+        if ( polyspar )
+        {
+            if ( device == &m_AddPolySparPoint )
+            {
+                polyspar->AddPt();
+                m_PolySparPointBrowserSelect = polyspar->GetNumPt() - 1;
+                polyspar->m_SurfDirty = true;
+            }
+            else if ( device == &m_InsertPolySparPoint )
+            {
+                if ( m_PolySparPointBrowserSelect < 0 )
+                {
+                    m_PolySparPointBrowserSelect = 0;
+                }
+                polyspar->InsertPt( m_PolySparPointBrowserSelect );
+                polyspar->m_SurfDirty = true;
+            }
+            else if ( device == &m_DelPolySparPoint )
+            {
+                polyspar->DelPt( m_PolySparPointBrowserSelect );
+                polyspar->m_SurfDirty = true;
+            }
+            else if ( device == &m_DelAllPolySparPoints )
+            {
+                polyspar->DelAllPt();
+                polyspar->m_SurfDirty = true;
+                m_PolySparPointBrowserSelect = -1;
+            }
+            else if ( device == &m_PolySparPtNameInput )
+            {
+                PolySparPoint* spt = polyspar->GetPt( m_PolySparPointBrowserSelect );;
+
+                if ( spt )
+                {
+                    spt->SetName( m_PolySparPtNameInput.GetString() );
+                }
+            }
+            else if ( device == &m_MovePntTopButton )
+            {
+                int npt = polyspar->GetNumPt();
+                if ( m_PolySparPointBrowserSelect >= 0 && m_PolySparPointBrowserSelect < npt )
+                {
+                    m_PolySparPointBrowserSelect = polyspar->MovePt( m_PolySparPointBrowserSelect, vsp::REORDER_MOVE_TOP );
+                    polyspar->m_SurfDirty = true;
+                }
+            }
+            else if ( device == &m_MovePntUpButton )
+            {
+                int npt = polyspar->GetNumPt();
+                if ( m_PolySparPointBrowserSelect >= 0 && m_PolySparPointBrowserSelect < npt )
+                {
+                    m_PolySparPointBrowserSelect = polyspar->MovePt( m_PolySparPointBrowserSelect, vsp::REORDER_MOVE_UP );
+                    polyspar->m_SurfDirty = true;
+                }
+            }
+            else if ( device == &m_MovePntDownButton )
+            {
+                int npt = polyspar->GetNumPt();
+                if ( m_PolySparPointBrowserSelect >= 0 && m_PolySparPointBrowserSelect < npt )
+                {
+                    m_PolySparPointBrowserSelect = polyspar->MovePt( m_PolySparPointBrowserSelect, vsp::REORDER_MOVE_DOWN );
+                    polyspar->m_SurfDirty = true;
+                }
+            }
+            else if ( device == &m_MovePntBotButton )
+            {
+                int npt = polyspar->GetNumPt();
+                if ( m_PolySparPointBrowserSelect >= 0 && m_PolySparPointBrowserSelect < npt )
+                {
+                    m_PolySparPointBrowserSelect = polyspar->MovePt( m_PolySparPointBrowserSelect, vsp::REORDER_MOVE_BOTTOM );
+                    polyspar->m_SurfDirty = true;
+                }
+            }
+        }
     }
+
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -2309,6 +2434,10 @@ void FeaPartEditScreen::CallBack( Fl_Widget* w )
                 }
             }
         }
+    }
+    else if ( w == m_PolySparPointBrowser )
+    {
+        m_PolySparPointBrowserSelect = m_PolySparPointBrowser->value() - 2;
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -2626,6 +2755,7 @@ void FeaPartEditScreen::FeaPartDispGroup( GroupLayout* group )
     m_SliceEditLayout.Hide();
     m_RibEditLayout.Hide();
     m_SparEditLayout.Hide();
+    m_PolySparEditLayout.Hide();
     m_FixPointEditLayout.Hide();
     m_DomeEditLayout.Hide();
     m_RibArrayEditLayout.Hide();
@@ -2783,5 +2913,40 @@ void FeaPartEditScreen::UpdateUnitLabels()
                 }
             }
         }
+    }
+}
+
+void FeaPartEditScreen::UpdatePolySparPointBrowser( FeaPolySpar* polyspar )
+{
+    if ( polyspar )
+    {
+        char str[255];
+
+        int input_h_pos = m_PolySparPointBrowser->hposition();
+        int input_v_pos = m_PolySparPointBrowser->vposition();
+
+        m_PolySparPointBrowser->clear();
+
+        m_PolySparPointBrowser->column_char( ':' );
+
+        snprintf( str, sizeof( str ),  "@b@.PT_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
+        m_PolySparPointBrowser->add( str );
+        m_PolySparPointBrowser->addCopyText( "header" );
+
+        vector < PolySparPoint* > pt_vec = polyspar->GetAllPt();
+
+        for ( int i = 0 ; i < (int)pt_vec.size() ; i++ )
+        {
+            snprintf( str, sizeof( str ),  "%s:::\n", pt_vec[i]->GetName().c_str() );
+            m_PolySparPointBrowser->add( str );
+        }
+
+        if ( m_PolySparPointBrowserSelect >= 0 && m_PolySparPointBrowserSelect < (int)pt_vec.size() )
+        {
+            m_PolySparPointBrowser->select( m_PolySparPointBrowserSelect + 2 );
+        }
+
+        m_PolySparPointBrowser->hposition( input_h_pos );
+        m_PolySparPointBrowser->vposition( input_v_pos );
     }
 }

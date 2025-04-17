@@ -37,9 +37,11 @@ public:
     virtual void UpdateFixPointParentChoice();
     virtual void UpdateTrimPartChoice();
     virtual void UpdateUnitLabels();
+    virtual void UpdatePolySparPointBrowser( FeaPolySpar* polyspar );
 
 private:
 
+    GroupLayout m_MainLayout;
     GroupLayout m_GenLayout;
     GroupLayout* m_CurFeaPartDispGroup;
     GroupLayout m_SkinEditLayout;
@@ -47,6 +49,8 @@ private:
     GroupLayout m_RibEditLayout;
     GroupLayout m_SparEditLayout;
     GroupLayout m_PolySparEditLayout;
+    GroupLayout m_MovePointLayout;
+    GroupLayout m_PointBrowserLayout;
     GroupLayout m_FixPointEditLayout;
     GroupLayout m_DomeEditLayout;
     GroupLayout m_RibArrayEditLayout;
@@ -128,19 +132,30 @@ private:
     ToggleButton m_SparTrimToBBoxToggle;
 
     //===== PolySpar =====//
-    ToggleButton m_PolySparPosRelToggle;
-    ToggleButton m_PolySparPosAbsToggle;
-    ToggleRadioGroup m_PolySparPosTypeToggleGroup;
-    SliderAdjRange2Input m_PolySparPosSlider;
-    ToggleButton m_PolySparSetPerChordToggle;
-    SliderAdjRangeInput m_PolySparRootChordSlider;
-    SliderAdjRangeInput m_PolySparTipChordSlider;
-    TriggerButton m_PolySparPosUnit;
-    ToggleButton m_PolySparSectionLimitToggle;
-    IndexSelector m_PolySparStartSectIndexSelector;
-    IndexSelector m_PolySparEndSectIndexSelector;
-    SliderAdjRangeInput m_PolySparThetaSlider;
-    ToggleButton m_PolySparTrimToBBoxToggle;
+    ColResizeBrowser* m_PolySparPointBrowser;
+    int m_PolySparPointBrowserSelect;
+
+    TriggerButton m_AddPolySparPoint;
+    TriggerButton m_InsertPolySparPoint;
+    TriggerButton m_DelPolySparPoint;
+    TriggerButton m_DelAllPolySparPoints;
+    StringInput m_PolySparPtNameInput;
+
+    TriggerButton m_MovePntUpButton;
+    TriggerButton m_MovePntDownButton;
+    TriggerButton m_MovePntTopButton;
+    TriggerButton m_MovePntBotButton;
+
+    ToggleButton m_PolySparPointU01Toggle;
+    ToggleButton m_PolySparPointU0NToggle;
+    ToggleButton m_PolySparPointEtaToggle;
+
+    ToggleRadioGroup m_PolySparPointTypeToggleGroup;
+
+    SliderAdjRangeInput m_PolySparPointU01Slider;
+    SliderAdjRangeInput m_PolySparPointU0NSlider;
+    SliderAdjRangeInput m_PolySparPointEtaSlider;
+    SliderAdjRangeInput m_PolySparPointXoCSlider;
 
     //===== Fix Point =====//
     Choice m_FixPointTypeChoice;

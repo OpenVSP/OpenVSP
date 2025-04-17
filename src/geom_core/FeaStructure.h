@@ -35,6 +35,7 @@ typedef Eigen::Matrix< long double, 3, 1 > vec3;
 // Forward declaration
 class FeaPart;
 class FeaBC;
+class WingGeom;
 
 class FeaStructure : public ParmContainer
 {
@@ -363,30 +364,52 @@ private:
 
 };
 
+class PolySparPoint : public ParmContainer
+{
+public:
+    PolySparPoint();
+
+    void Update( WingGeom *wing );
+
+    void ParmChanged( Parm* parm_ptr, int type ) override;
+
+    IntParm m_SpanMode;
+    Parm m_Eta;
+    Parm m_U01;
+    Parm m_U0N;
+
+    Parm m_XoC;
+};
+
 class FeaPolySpar : public FeaSlice
 {
 public:
 
     FeaPolySpar( const string &geomID, const string &structID, int type = vsp::FEA_POLY_SPAR );
-    virtual ~FeaPolySpar()    {};
+    virtual ~FeaPolySpar();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+    virtual void ChangeID( string id );
 
     virtual void UpdateSurface();
     virtual void UpdateParms();
 
     virtual void ComputePlanarSurf();
 
-    Parm m_Theta;
-    BoolParm m_LimitSparToSectionFlag;
-    IntParm m_StartWingSection;
-    IntParm m_EndWingSection;
-    BoolParm m_BndBoxTrimFlag;
-    BoolParm m_UsePercentChord;
-    Parm m_PercentRootChord;
-    Parm m_PercentTipChord;
+    virtual int GetNumPt() const          { return m_SparPointVec.size(); };
+    virtual PolySparPoint* AddPt();
+    virtual PolySparPoint* InsertPt( int index );
+    virtual void DelPt( int index );
+    virtual void DelAllPt();
+    virtual int MovePt( int index, int reorder_type );
+
+    virtual PolySparPoint * GetPt( int index );
+    virtual vector < PolySparPoint* > GetAllPt()      { return m_SparPointVec; };
 
 private:
 
-    double m_U_sec_min, m_U_sec_max;
+    vector < PolySparPoint* > m_SparPointVec;
 
 };
 
