@@ -1289,7 +1289,6 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
                 shell_elem_id_vec.clear();
-                beam_elem_id_vec.clear();
 
                 int property_id = m_FeaPartPropertyIndexVec[i];
                 int cap_property_id = m_FeaPartCapPropertyIndexVec[i];
@@ -1317,6 +1316,15 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
                     }
                 }
 
+                // Write shell element set
+                name = m_FeaPartNameVec[i] + "_" + m_StructName + "_ShellElements";
+                WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
+
+                for ( int ichain = 0; ichain < m_FeaPartNumChainsVec[ i ]; ichain++ )
+                {
+
+                beam_elem_id_vec.clear();
+
                 // Write beam elements
                 partheader = false;
 
@@ -1324,6 +1332,7 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
                 {
                     if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
                          m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
+                         m_FeaElementVec[j]->GetChainIndex() == ichain &&
                          m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
                     {
                         if ( !partheader )
@@ -1331,7 +1340,7 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
                             partheader = true;
 
                             fprintf( bdf_fp, "\n" );
-                            fprintf( bdf_fp, "$ %s %s beam\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str()  );
+                            fprintf( bdf_fp, "$ %s %s %d beam\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), ichain );
                         }
 
                         m_FeaElementVec[j]->WriteNASTRAN( bdf_fp, elem_id, cap_property_id, noffset, eoffset );
@@ -1341,14 +1350,10 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
                         elem_id++;
                     }
                 }
-
-                // Write shell element set
-                name = m_FeaPartNameVec[i] + "_" + m_StructName + "_ShellElements";
-                WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
-
                 // Write beam element set
-                name = m_FeaPartNameVec[i] + "_" + m_StructName + "_BeamElements";
+                name = m_FeaPartNameVec[i] + "_" + m_StructName + "_" + to_string( ichain ) + "_BeamElements";
                 WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
+                }
             }
         }
 
@@ -1359,7 +1364,6 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
             int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
 
             shell_elem_id_vec.clear();
-            beam_elem_id_vec.clear();
 
             // Write shell elements
             bool ssheader = false;
@@ -1384,12 +1388,22 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
                 }
             }
 
+            // Write shell element set
+            name = m_SimpleSubSurfaceVec[i].GetName() + "_" + m_StructName + "_ShellElements";
+            WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
+
+            for ( int ichain = 0; ichain < m_FeaPartNumChainsVec[ i ]; ichain++ )
+            {
+
+            beam_elem_id_vec.clear();
+
             // Write beam elements
             ssheader = false;
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
                 if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
+                     m_FeaElementVec[j]->GetChainIndex() == ichain &&
                      m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
                 {
                     if ( !ssheader )
@@ -1397,7 +1411,7 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
                         ssheader = true;
 
                         fprintf( bdf_fp, "\n" );
-                        fprintf( bdf_fp, "$ %s %s beam\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+                        fprintf( bdf_fp, "$ %s %s %d beam\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), ichain );
                     }
 
                     m_FeaElementVec[j]->WriteNASTRAN( bdf_fp, elem_id, cap_property_id, noffset, eoffset );
@@ -1407,14 +1421,10 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
                     elem_id++;
                 }
             }
-
-            // Write shell element set
-            name = m_SimpleSubSurfaceVec[i].GetName() + "_" + m_StructName + "_ShellElements";
-            WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
-
             // Write beam element set
-            name = m_SimpleSubSurfaceVec[i].GetName() + "_" + m_StructName + "_BeamElements";
+            name = m_SimpleSubSurfaceVec[i].GetName() + "_" + m_StructName + "_" + to_string( ichain ) + "_BeamElements";
             WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
+            }
         }
     }
 }
