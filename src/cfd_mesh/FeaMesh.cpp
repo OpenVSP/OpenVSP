@@ -1321,7 +1321,9 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
-                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
+                         m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
+                         m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
                     {
                         if ( !partheader )
                         {
@@ -1386,7 +1388,8 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
-                if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
+                     m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
                 {
                     if ( !ssheader )
                     {
