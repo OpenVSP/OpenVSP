@@ -2594,7 +2594,11 @@ void FeaPartEditScreen::UpdateUnitLabels()
                 FeaPart* feaprt = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
                 if ( feaprt )
                 {
-                    if ( feaprt->GetType() == vsp::FEA_SLICE || feaprt->GetType() == vsp::FEA_RIB || feaprt->GetType() == vsp::FEA_SPAR || feaprt->GetType() == vsp::FEA_RIB_ARRAY || feaprt->GetType() == vsp::FEA_SLICE_ARRAY ) // TODO: Switch to different check
+                    if ( feaprt->GetType() == vsp::FEA_SLICE ||
+                         feaprt->GetType() == vsp::FEA_RIB ||
+                         feaprt->GetType() == vsp::FEA_SPAR ||
+                         feaprt->GetType() == vsp::FEA_RIB_ARRAY ||
+                         feaprt->GetType() == vsp::FEA_SLICE_ARRAY ) // TODO: Switch to different check
                     {
                         m_SlicePosUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
                         m_SparPosUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
