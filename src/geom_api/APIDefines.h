@@ -670,6 +670,7 @@ enum FEA_PART_TYPE { FEA_SLICE = 0,	/*!< Slice FEA Part type */
                      FEA_SLICE_ARRAY,	/*!< Slice array FEA Part type */
                      FEA_SKIN,	/*!< Skin FEA Part type */
                      FEA_TRIM,	/*!< Trim FEA Part type */
+                     FEA_POLY_SPAR,	/*!< Poly Spar FEA Part type */
                      FEA_NUM_TYPES	/*!< Number of FEA Part types */
 };
 

@@ -2454,6 +2454,7 @@ void StructScreen::UpdateFeaPartChoice()
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SLICE ), vsp::FEA_SLICE );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ), vsp::FEA_RIB );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ), vsp::FEA_SPAR );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_POLY_SPAR ), vsp::FEA_POLY_SPAR );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ), vsp::FEA_FIX_POINT );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_DOME ), vsp::FEA_DOME );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB_ARRAY ), vsp::FEA_RIB_ARRAY );
@@ -2475,6 +2476,7 @@ void StructScreen::UpdateFeaPartChoice()
                     {
                         m_FeaPartChoice.SetFlagByVal( vsp::FEA_RIB, 0 ); // FEA_RIB
                         m_FeaPartChoice.SetFlagByVal( vsp::FEA_SPAR, 0 ); // FEA_SPAR
+                        m_FeaPartChoice.SetFlagByVal( vsp::FEA_POLY_SPAR, 0 ); // FEA_POLY_PAR
                         m_FeaPartChoice.SetFlagByVal( vsp::FEA_RIB_ARRAY, 0 ); // FEA_RIB_ARRAY
                         m_FeaPartChoice.SetFlagByVal( vsp::SS_CONTROL + m_FeaPartChoiceSubSurfOffset, 0 ); // SS_CONTROL
                     }
@@ -2482,6 +2484,7 @@ void StructScreen::UpdateFeaPartChoice()
                     {
                         m_FeaPartChoice.SetFlagByVal( vsp::FEA_RIB, FL_MENU_INACTIVE );
                         m_FeaPartChoice.SetFlagByVal( vsp::FEA_SPAR, FL_MENU_INACTIVE );
+                        m_FeaPartChoice.SetFlagByVal( vsp::FEA_POLY_SPAR, FL_MENU_INACTIVE );
                         m_FeaPartChoice.SetFlagByVal( vsp::FEA_RIB_ARRAY, FL_MENU_INACTIVE );
                         m_FeaPartChoice.SetFlagByVal( vsp::SS_CONTROL + m_FeaPartChoiceSubSurfOffset, FL_MENU_INACTIVE );
                     }

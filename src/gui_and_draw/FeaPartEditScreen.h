@@ -46,6 +46,7 @@ private:
     GroupLayout m_SliceEditLayout;
     GroupLayout m_RibEditLayout;
     GroupLayout m_SparEditLayout;
+    GroupLayout m_PolySparEditLayout;
     GroupLayout m_FixPointEditLayout;
     GroupLayout m_DomeEditLayout;
     GroupLayout m_RibArrayEditLayout;
@@ -125,6 +126,21 @@ private:
     IndexSelector m_SparEndSectIndexSelector;
     SliderAdjRangeInput m_SparThetaSlider;
     ToggleButton m_SparTrimToBBoxToggle;
+
+    //===== PolySpar =====//
+    ToggleButton m_PolySparPosRelToggle;
+    ToggleButton m_PolySparPosAbsToggle;
+    ToggleRadioGroup m_PolySparPosTypeToggleGroup;
+    SliderAdjRange2Input m_PolySparPosSlider;
+    ToggleButton m_PolySparSetPerChordToggle;
+    SliderAdjRangeInput m_PolySparRootChordSlider;
+    SliderAdjRangeInput m_PolySparTipChordSlider;
+    TriggerButton m_PolySparPosUnit;
+    ToggleButton m_PolySparSectionLimitToggle;
+    IndexSelector m_PolySparStartSectIndexSelector;
+    IndexSelector m_PolySparEndSectIndexSelector;
+    SliderAdjRangeInput m_PolySparThetaSlider;
+    ToggleButton m_PolySparTrimToBBoxToggle;
 
     //===== Fix Point =====//
     Choice m_FixPointTypeChoice;

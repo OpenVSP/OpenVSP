@@ -334,6 +334,82 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_SparEditLayout.AddButton( m_SparTrimToBBoxToggle, "Trim to Bounding Box" );
 
+    //==== FeaPolySpar ====//
+    m_GenLayout.AddSubGroupLayout( m_PolySparEditLayout, m_GenLayout.GetRemainX(), m_GenLayout.GetRemainY() );
+    m_PolySparEditLayout.SetY( start_y );
+
+    m_PolySparEditLayout.AddDividerBox( "PolySpar" );
+
+    m_PolySparEditLayout.SetButtonWidth( m_PolySparEditLayout.GetRemainX() / 2 );
+
+    input_width = m_PolySparEditLayout.GetInputWidth();
+
+    m_PolySparEditLayout.AddButton( m_PolySparSectionLimitToggle, "Limit PolySpar to Section" );
+
+    m_PolySparEditLayout.SetSameLineFlag( true );
+    m_PolySparEditLayout.SetFitWidthFlag( false );
+
+    m_PolySparEditLayout.SetButtonWidth( m_PolySparEditLayout.GetRemainX() / 11 );
+    m_PolySparEditLayout.SetInputWidth( m_PolySparEditLayout.GetRemainX() / 12 );
+
+    labelwidth = m_PolySparEditLayout.GetRemainX() / 9;
+    gap = m_PolySparEditLayout.GetRemainX() / 34;
+
+    m_PolySparEditLayout.AddLabel( "Start:", labelwidth );
+    m_PolySparEditLayout.AddIndexSelector( m_PolySparStartSectIndexSelector );
+    m_PolySparEditLayout.AddX( gap );
+    m_PolySparEditLayout.AddLabel( "End:", labelwidth );
+    m_PolySparEditLayout.AddIndexSelector( m_PolySparEndSectIndexSelector );
+
+    m_PolySparEditLayout.ForceNewLine();
+    m_PolySparEditLayout.AddYGap();
+
+    m_PolySparEditLayout.AddLabel( "Distance:", m_PolySparEditLayout.GetRemainX() / 3 );
+    m_PolySparEditLayout.SetButtonWidth( m_PolySparEditLayout.GetRemainX() / 2 );
+    m_PolySparEditLayout.AddButton( m_PolySparPosRelToggle, "Relative" );
+    m_PolySparEditLayout.AddButton( m_PolySparPosAbsToggle, "Model" );
+
+    m_PolySparPosTypeToggleGroup.Init( this );
+    m_PolySparPosTypeToggleGroup.AddButton( m_PolySparPosAbsToggle.GetFlButton() );
+    m_PolySparPosTypeToggleGroup.AddButton( m_PolySparPosRelToggle.GetFlButton() );
+
+    m_PolySparEditLayout.ForceNewLine();
+    m_PolySparEditLayout.SetSameLineFlag( false );
+    m_PolySparEditLayout.SetFitWidthFlag( true );
+
+    m_PolySparEditLayout.AddButton( m_PolySparSetPerChordToggle, "Parameterize by Chord" );
+
+    m_PolySparEditLayout.AddYGap();
+    m_PolySparEditLayout.SetSameLineFlag( true );
+    m_PolySparEditLayout.SetFitWidthFlag( false );
+
+    m_PolySparEditLayout.SetSliderWidth( m_PolySparEditLayout.GetRemainX() / 5 );
+    m_PolySparEditLayout.SetInputWidth( input_width );
+
+    m_PolySparEditLayout.AddSlider( m_PolySparPosSlider, "Location", 0.5, "%5.3f" );
+
+    m_PolySparEditLayout.SetButtonWidth( m_PolySparEditLayout.GetRemainX() );
+    m_PolySparEditLayout.AddButton( m_PolySparPosUnit, "" );
+    m_PolySparPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PolySparPosUnit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_PolySparEditLayout.ForceNewLine();
+    m_PolySparEditLayout.SetSameLineFlag( false );
+    m_PolySparEditLayout.SetFitWidthFlag( true );
+
+    m_PolySparEditLayout.SetButtonWidth( m_PolySparEditLayout.GetRemainX() / 3 );
+
+    m_PolySparEditLayout.AddSlider( m_PolySparThetaSlider, "Rotation", 25, "%5.3f" );
+
+    m_PolySparEditLayout.AddYGap();
+
+    m_PolySparEditLayout.AddSlider( m_PolySparRootChordSlider, "Root X/C", 0.5, "%5.3f" );
+    m_PolySparEditLayout.AddSlider( m_PolySparTipChordSlider, "Tip X/C", 0.5, "%5.3f" );
+
+    m_PolySparEditLayout.AddYGap();
+
+    m_PolySparEditLayout.AddButton( m_PolySparTrimToBBoxToggle, "Trim to Bounding Box" );
+
     //==== FeaFixPoint ====//
     m_GenLayout.AddSubGroupLayout( m_FixPointEditLayout, m_GenLayout.GetRemainX(), m_GenLayout.GetRemainY() );
     m_FixPointEditLayout.SetY( start_y );
@@ -1332,6 +1408,74 @@ bool FeaPartEditScreen::Update()
                         m_KeepDelShellElementsToggleGroup.Update( spar->m_KeepDelShellElements.GetID() );
 
                         FeaPartDispGroup( &m_SparEditLayout );
+                    }
+                    else if ( feaprt->GetType() == vsp::FEA_POLY_SPAR )
+                    {
+                        FeaPolySpar* polyspar = dynamic_cast<FeaPolySpar*>( feaprt );
+                        assert( spar );
+
+                        m_PolySparPosTypeToggleGroup.Update( polyspar->m_AbsRelParmFlag.GetID() );
+
+                        m_PolySparSectionLimitToggle.Update( polyspar->m_LimitSparToSectionFlag.GetID() );
+                        m_PolySparStartSectIndexSelector.Update( polyspar->m_StartWingSection.GetID() );
+                        m_PolySparEndSectIndexSelector.Update( polyspar->m_EndWingSection.GetID() );
+
+                        if ( polyspar->m_LimitSparToSectionFlag() )
+                        {
+                            m_PolySparStartSectIndexSelector.Activate();
+                            m_PolySparEndSectIndexSelector.Activate();
+                        }
+                        else
+                        {
+                            m_PolySparStartSectIndexSelector.Deactivate();
+                            m_PolySparEndSectIndexSelector.Deactivate();
+                        }
+
+                        m_PolySparSetPerChordToggle.Update( polyspar->m_UsePercentChord.GetID() );
+                        m_PolySparRootChordSlider.Update( polyspar->m_PercentRootChord.GetID() );
+                        m_PolySparTipChordSlider.Update( polyspar->m_PercentTipChord.GetID() );
+                        m_PolySparThetaSlider.Update( polyspar->m_Theta.GetID() );
+
+                        if ( polyspar->m_AbsRelParmFlag() == vsp::REL )
+                        {
+                            if ( !polyspar->m_UsePercentChord() )
+                            {
+                                m_PolySparPosSlider.Activate();
+                                polyspar->m_RelCenterLocation.Activate();
+                                polyspar->m_AbsCenterLocation.Deactivate();
+                            }
+                            m_PolySparPosSlider.Update( 1, polyspar->m_RelCenterLocation.GetID(), polyspar->m_AbsCenterLocation.GetID() );
+                        }
+                        else
+                        {
+                            if ( !polyspar->m_UsePercentChord() )
+                            {
+                                m_PolySparPosSlider.Activate();
+                                polyspar->m_AbsCenterLocation.Activate();
+                                polyspar->m_RelCenterLocation.Deactivate();
+                            }
+                            m_PolySparPosSlider.Update( 2, polyspar->m_RelCenterLocation.GetID(), polyspar->m_AbsCenterLocation.GetID() );
+                        }
+
+                        if ( polyspar->m_UsePercentChord() )
+                        {
+                            m_PolySparPosSlider.Deactivate();
+                            m_PolySparThetaSlider.Deactivate();
+                            m_PolySparRootChordSlider.Activate();
+                            m_PolySparTipChordSlider.Activate();
+                        }
+                        else
+                        {
+                            m_PolySparThetaSlider.Activate();
+                            m_PolySparRootChordSlider.Deactivate();
+                            m_PolySparTipChordSlider.Deactivate();
+                        }
+
+                        m_PolySparTrimToBBoxToggle.Update( polyspar->m_BndBoxTrimFlag.GetID() );
+                        m_CreateBeamElementsToggle.Update( polyspar->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( polyspar->m_KeepDelShellElements.GetID() );
+
+                        FeaPartDispGroup( &m_PolySparEditLayout );
                     }
                     else if ( feaprt->GetType() == vsp::FEA_FIX_POINT )
                     {
@@ -2597,6 +2741,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
                     if ( feaprt->GetType() == vsp::FEA_SLICE ||
                          feaprt->GetType() == vsp::FEA_RIB ||
                          feaprt->GetType() == vsp::FEA_SPAR ||
+                         feaprt->GetType() == vsp::FEA_POLY_SPAR ||
                          feaprt->GetType() == vsp::FEA_RIB_ARRAY ||
                          feaprt->GetType() == vsp::FEA_SLICE_ARRAY ) // TODO: Switch to different check
                     {

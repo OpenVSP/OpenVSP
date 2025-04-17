@@ -363,6 +363,33 @@ private:
 
 };
 
+class FeaPolySpar : public FeaSlice
+{
+public:
+
+    FeaPolySpar( const string &geomID, const string &structID, int type = vsp::FEA_POLY_SPAR );
+    virtual ~FeaPolySpar()    {};
+
+    virtual void UpdateSurface();
+    virtual void UpdateParms();
+
+    virtual void ComputePlanarSurf();
+
+    Parm m_Theta;
+    BoolParm m_LimitSparToSectionFlag;
+    IntParm m_StartWingSection;
+    IntParm m_EndWingSection;
+    BoolParm m_BndBoxTrimFlag;
+    BoolParm m_UsePercentChord;
+    Parm m_PercentRootChord;
+    Parm m_PercentTipChord;
+
+private:
+
+    double m_U_sec_min, m_U_sec_max;
+
+};
+
 class FeaRib : public FeaSlice
 {
 public:

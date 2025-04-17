@@ -1220,6 +1220,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_PART_TYPE", "FEA_SKIN", FEA_SKIN );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_PART_TYPE", "FEA_POLY_SPAR", FEA_POLY_SPAR );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_PART_TYPE", "FEA_NUM_TYPES", FEA_NUM_TYPES );
     assert( r >= 0 );
 
