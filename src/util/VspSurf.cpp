@@ -2044,6 +2044,11 @@ void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax,
     }
 }
 
+void VspSurf::BuildSimpleFeatureLines()
+{
+    m_Surface.get_pmap_uv( m_UFeature, m_WFeature );
+}
+
 void VspSurf::BuildFeatureLines( bool force_xsec_flag)
 {
     if ( m_Surface.number_u_patches() > 0 && m_Surface.number_v_patches() > 0 )

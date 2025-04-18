@@ -194,6 +194,7 @@ public:
     {
         return m_WFeature.size();
     }
+    void BuildSimpleFeatureLines();
     void BuildFeatureLines( bool force_xsec_flag = false );
     vector < double > GetUFeature() const
     {
