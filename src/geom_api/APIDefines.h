@@ -708,6 +708,16 @@ enum FEA_SLICE_TYPE { XY_BODY = 0,	/*!< Slice is parallel to parent Geom body XY
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for FEA Poly spar point types. */
+enum FEA_POLY_SPAR_POINT { POLY_SPAR_POINT_U01,	/*!< Spar points span specified in U01 */
+                           POLY_SPAR_POINT_U0N,	/*!< Spar points span specified in U0N */
+                           POLY_SPAR_POINT_ETA,	/*!< Spar points span specified in eta */
+                           NUM_POLY_SPAR_POINT_TYPES	/*!< Number of poly spar point types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum used to identify the FEA Mesh unit system (length, mass). */
 enum FEA_UNIT_TYPE { SI_UNIT = 0, /*!< FEA Files output in (m, kg) */
                      CGS_UNIT, /*!< FEA Files output in (cm, g) */

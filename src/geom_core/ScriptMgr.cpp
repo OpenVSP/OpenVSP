@@ -1263,6 +1263,17 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FEA_SLICE_TYPE", "SPINE_NORMAL", SPINE_NORMAL );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "FEA_POLY_SPAR_POINT" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_POLY_SPAR_POINT", "POLY_SPAR_POINT_U01", POLY_SPAR_POINT_U01 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_POLY_SPAR_POINT", "POLY_SPAR_POINT_U0N", POLY_SPAR_POINT_U0N );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_POLY_SPAR_POINT", "POLY_SPAR_POINT_ETA", POLY_SPAR_POINT_ETA );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_POLY_SPAR_POINT", "NUM_POLY_SPAR_POINT_TYPES", NUM_POLY_SPAR_POINT_TYPES );
+    assert( r >= 0 );
+
 
     r = se->RegisterEnum( "FEA_UNIT_TYPE" );
     assert( r >= 0 );
