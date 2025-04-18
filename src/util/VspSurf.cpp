@@ -2952,6 +2952,38 @@ void VspSurf::MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &pt
     m_Surface.set( patch, 0, 0 );
 }
 
+void VspSurf::MakePolyPlaneSurf( const vector < vec3d > &up_pts, const vector < vec3d > &low_pts )
+{
+    int npts = up_pts.size();
+    assert( npts == low_pts.size() );
+
+    m_Surface.init_uv( npts - 1, 1 );
+
+    for ( int i = 0; i < npts - 1; i++ )
+    {
+        surface_patch_type patch;
+        patch.resize( 1, 1 );
+
+        threed_point_type pt0, pt1, pt2, pt3;
+
+        up_pts[ i ].get_pnt( pt0 );
+        up_pts[ i + 1 ].get_pnt( pt1 );
+        low_pts[ i ].get_pnt( pt2 );
+        low_pts[ i + 1 ].get_pnt( pt3 );
+
+        patch.set_control_point( pt0, 0, 0 );
+        patch.set_control_point( pt1, 1, 0 );
+        patch.set_control_point( pt2, 0, 1 );
+        patch.set_control_point( pt3, 1, 1 );
+
+        // patch.octave_print( i + 1 );
+
+        m_Surface.set( patch, i, 0 );
+    }
+
+    // m_Surface.octave_print( npts );
+}
+
 void VspSurf::DegenCamberSurf( const VspSurf & parent )
 {
     piecewise_surface_type s1, s2;
