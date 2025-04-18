@@ -1054,19 +1054,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_STEP_STRUCTURE", EXPORT_STEP_STRUCTURE );
     assert( r >= 0 );
 
-
-    r = se->RegisterEnum( "FEA_BC_TYPE" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_BC_STRUCTURE", FEA_BC_STRUCTURE );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_BC_PART", FEA_BC_PART );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_BC_SUBSURF", FEA_BC_SUBSURF );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_NUM_BC_TYPES", FEA_NUM_BC_TYPES );
-    assert( r >= 0 );
-
-
     r = se->RegisterEnum( "FEA_BC_MODE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_BC_MODE", "FEA_BCM_USER", FEA_BCM_USER );
@@ -1082,6 +1069,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FEA_BC_MODE", "FEA_NUM_BCM_MODES", FEA_NUM_BCM_MODES );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "FEA_BC_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_BC_STRUCTURE", FEA_BC_STRUCTURE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_BC_PART", FEA_BC_PART );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_BC_SUBSURF", FEA_BC_SUBSURF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_BC_TYPE", "FEA_NUM_BC_TYPES", FEA_NUM_BC_TYPES );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "FEA_CROSS_SECT_TYPE" );
     assert( r >= 0 );
@@ -1203,16 +1200,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterEnum( "FEA_SHELL_TREATMENT_TYPE" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_SHELL_TREATMENT_TYPE", "FEA_KEEP", FEA_KEEP );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_SHELL_TREATMENT_TYPE", "FEA_DELETE", FEA_DELETE );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_SHELL_TREATMENT_TYPE", "FEA_NUM_SHELL_TREATMENT_TYPES", FEA_NUM_SHELL_TREATMENT_TYPES );
-    assert( r >= 0 );
-
-
     r = se->RegisterEnum( "FEA_PART_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_PART_TYPE", "FEA_SLICE", FEA_SLICE );
@@ -1234,6 +1221,28 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FEA_PART_TYPE", "FEA_SKIN", FEA_SKIN );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_PART_TYPE", "FEA_NUM_TYPES", FEA_NUM_TYPES );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "FEA_RIB_NORMAL" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "NO_NORMAL", NO_NORMAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "LE_NORMAL", LE_NORMAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "TE_NORMAL", TE_NORMAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "SPAR_NORMAL", SPAR_NORMAL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "FEA_SHELL_TREATMENT_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_SHELL_TREATMENT_TYPE", "FEA_KEEP", FEA_KEEP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_SHELL_TREATMENT_TYPE", "FEA_DELETE", FEA_DELETE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_SHELL_TREATMENT_TYPE", "FEA_NUM_SHELL_TREATMENT_TYPES", FEA_NUM_SHELL_TREATMENT_TYPES );
     assert( r >= 0 );
 
 
@@ -1266,18 +1275,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FEA_UNIT_TYPE", "BFT_UNIT", BFT_UNIT );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_UNIT_TYPE", "BIN_UNIT", BIN_UNIT );
-    assert( r >= 0 );
-
-
-    r = se->RegisterEnum( "FEA_RIB_NORMAL" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "NO_NORMAL", NO_NORMAL );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "LE_NORMAL", LE_NORMAL );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "TE_NORMAL", TE_NORMAL );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "SPAR_NORMAL", SPAR_NORMAL );
     assert( r >= 0 );
 
 

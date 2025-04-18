@@ -552,16 +552,6 @@ enum EXPORT_TYPE {  EXPORT_FELISA,	/*!< FELISA export type (NOT IMPLEMENTED) */ 
 /*!
 	\ingroup Enumerations
 */
-/*! Enum used to indicate FEA boundary condition definition type. */
-enum FEA_BC_TYPE { FEA_BC_STRUCTURE,	/*!< FEA boundary condition assigned to structure. */
-                   FEA_BC_PART,	/*!< FEA boundary condition assigned to part. */
-                   FEA_BC_SUBSURF,	/*!< FEA boundary condition assigned to subsurface. */
-                   FEA_NUM_BC_TYPES	/*!< Number of FEA boundary condition definition types. */
-};
-
-/*!
-	\ingroup Enumerations
-*/
 /*! Enum used to indicate FEA boundary condition constraint type. */
 enum FEA_BC_MODE { FEA_BCM_USER,	/*!< FEA boundary condition constraints user defined. */
                    FEA_BCM_ALL,	/*!< FEA boundary condition constrains all DOF. */
@@ -569,6 +559,16 @@ enum FEA_BC_MODE { FEA_BCM_USER,	/*!< FEA boundary condition constraints user de
                    FEA_BCM_SYMM,	/*!< FEA boundary condition symmetrical constraints. */
                    FEA_BCM_ASYMM,	/*!< FEA boundary condition antisymmetrical constraints. */
                    FEA_NUM_BCM_MODES	/*!< Number of FEA boundary condition constraint types. */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum used to indicate FEA boundary condition definition type. */
+enum FEA_BC_TYPE { FEA_BC_STRUCTURE,	/*!< FEA boundary condition assigned to structure. */
+                   FEA_BC_PART,	/*!< FEA boundary condition assigned to part. */
+                   FEA_BC_SUBSURF,	/*!< FEA boundary condition assigned to subsurface. */
+                   FEA_NUM_BC_TYPES	/*!< Number of FEA boundary condition definition types. */
 };
 
 /*!
@@ -660,15 +660,6 @@ enum FEA_PART_ELEMENT_TYPE { FEA_DEPRECATED = -1,	/*!< Flag for deprecated eleme
 /*!
 	\ingroup Enumerations
 */
-/*! Enum for FEA Shell treatment types. */
-enum FEA_SHELL_TREATMENT_TYPE { FEA_KEEP = 0,	/*!< Keep shell elements */
-                                FEA_DELETE,	/*!< Delete shell elements */
-                                FEA_NUM_SHELL_TREATMENT_TYPES	/*!< Number of FEA subsurface treatment choices */
-};
-
-/*!
-	\ingroup Enumerations
-*/
 /*! Enum used to identify the available FEA Part types. */
 enum FEA_PART_TYPE { FEA_SLICE = 0,	/*!< Slice FEA Part type */
                      FEA_RIB,	/*!< Rib FEA Part type */
@@ -680,6 +671,25 @@ enum FEA_PART_TYPE { FEA_SLICE = 0,	/*!< Slice FEA Part type */
                      FEA_SKIN,	/*!< Skin FEA Part type */
                      FEA_TRIM,	/*!< Trim FEA Part type */
                      FEA_NUM_TYPES	/*!< Number of FEA Part types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum that defines the type of edge to set the initial position of FEA Ribs and FEA Rib Arrays to. */
+enum FEA_RIB_NORMAL { NO_NORMAL,	/*!< FEA Rib or Rib Array has no set perpendicular edge */
+                      LE_NORMAL,	/*!< FEA Rib or Rib Array is set perpendicular to the leading edge */
+                      TE_NORMAL,	/*!< FEA Rib or Rib Array is set perpendicular to the trailing edge */
+                      SPAR_NORMAL	/*!< FEA Rib or Rib Array is set perpendicular to an FEA Spar */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for FEA Shell treatment types. */
+enum FEA_SHELL_TREATMENT_TYPE { FEA_KEEP = 0,	/*!< Keep shell elements */
+                                FEA_DELETE,	/*!< Delete shell elements */
+                                FEA_NUM_SHELL_TREATMENT_TYPES	/*!< Number of FEA subsurface treatment choices */
 };
 
 /*!
@@ -704,16 +714,6 @@ enum FEA_UNIT_TYPE { SI_UNIT = 0, /*!< FEA Files output in (m, kg) */
                      MPA_UNIT, /*!< FEA Files output in (mm, tonne) */
                      BFT_UNIT, /*!< FEA Files output in (ft, slug) */
                      BIN_UNIT /*!< FEA Files output in (in, lbf*sec^2/in) */
-};
-
-/*!
-	\ingroup Enumerations
-*/
-/*! Enum that defines the type of edge to set the initial position of FEA Ribs and FEA Rib Arrays to. */
-enum FEA_RIB_NORMAL { NO_NORMAL,	/*!< FEA Rib or Rib Array has no set perpendicular edge */
-                      LE_NORMAL,	/*!< FEA Rib or Rib Array is set perpendicular to the leading edge */
-                      TE_NORMAL,	/*!< FEA Rib or Rib Array is set perpendicular to the trailing edge */
-                      SPAR_NORMAL	/*!< FEA Rib or Rib Array is set perpendicular to an FEA Spar */
 };
 
 /*!
