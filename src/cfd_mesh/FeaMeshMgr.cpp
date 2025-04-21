@@ -1135,25 +1135,6 @@ void FeaMeshMgrSingleton::BuildMeshOrientationLookup()
     }
 }
 
-// Although this appears to be an angle comparison (via the dot product), it is actually the signed distance
-// between the point and the plane.  Hence, a comparison to the mesh minimum length as a tolerance is appropriate.
-bool FeaMeshMgrSingleton::CullPtByTrimGroup( const vec3d &pt, const vector < vec3d > & pplane, const vector < vec3d > & nplane )
-{
-    double tol = 0.01 * GetGridDensityPtr()->m_MinLen;
-    // Number of planes in this trim group.
-    int numplane = pplane.size();
-    for ( int iplane = 0; iplane < numplane; iplane++ )
-    {
-        vec3d u = pt - pplane[ iplane ];
-        double dp = dot( u, nplane[ iplane ] );  // nplane is always a unit vector.
-        if ( dp < tol )
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
 void FeaMeshMgrSingleton::RemoveTrimTris()
 {
     if ( !GetMeshPtr() )
@@ -1161,6 +1142,7 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
         return;
     }
 
+    double trimtol = 0.01 * GetGridDensityPtr()->m_MinLen;
     if ( GetMeshPtr()->m_TrimVec.size() > 0 ) // Skip if there are no trim groups.
     {
         for ( int s = 0; s < ( int ) m_SurfVec.size(); ++s ) // every surface
@@ -1175,7 +1157,7 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
                 for ( int i = 0; i < GetMeshPtr()->m_TrimVec.size(); i++ )
                 {
                     // This seems convoluted, but it needs to be cumulative.
-                    if ( m_SurfVec[s]->GetFeaSymmIndex() == GetMeshPtr()->m_TrimVec[ i ].m_TrimSymm && CullPtByTrimGroup( cp, GetMeshPtr()->m_TrimVec[ i ].m_TrimPt, GetMeshPtr()->m_TrimVec[ i ].m_TrimNorm ) )
+                    if ( m_SurfVec[s]->GetFeaSymmIndex() == GetMeshPtr()->m_TrimVec[ i ].m_TrimSymm && GetMeshPtr()->m_TrimVec[i].CullPtByTrimGroup( cp, trimtol ) )
                     {
                         ( *t )->deleteFlag = true;
                         delSomeTris = true;
@@ -1258,6 +1240,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     }
 
     bool highorder = GetMeshPtr()->m_StructSettings.m_HighOrderElementFlag;
+    double trimtol = 0.01 * GetGridDensityPtr()->m_MinLen;
 
     //==== Collect All Nodes and Tris ====//
     vector < vec2d > all_uw_vec;
@@ -1397,7 +1380,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                     for ( int i = 0; i < GetMeshPtr()->m_TrimVec.size(); i++ )
                     {
                         // This seems convoluted, but it needs to be cumulative.
-                        if ( NormSurf->GetFeaSymmIndex() == GetMeshPtr()->m_TrimVec[ i ].m_TrimSymm && CullPtByTrimGroup( mid_pnt, GetMeshPtr()->m_TrimVec[ i ].m_TrimPt, GetMeshPtr()->m_TrimVec[ i ].m_TrimNorm ) )
+                        if ( NormSurf->GetFeaSymmIndex() == GetMeshPtr()->m_TrimVec[ i ].m_TrimSymm && GetMeshPtr()->m_TrimVec[i].CullPtByTrimGroup( mid_pnt, trimtol ) )
                         {
                             skipElement = true;
                             break; // Once flagged for deletion, don't check further trim groups, go to next beam segment.

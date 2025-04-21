@@ -15,6 +15,9 @@ void CloseNASTRAN( FILE *dat_fp, FILE *bdf_header_fp, FILE *bdf_fp, FILE *nkey_f
 class PartTrim
 {
 public:
+    bool CullPtByTrimGroup( const vec3d &pt, double tol );
+
+
     // Groups of trimming planes.
     vector < vec3d > m_TrimPt;
     vector < vec3d > m_TrimNorm;

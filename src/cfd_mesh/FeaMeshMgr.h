@@ -111,7 +111,6 @@ public:
     virtual void ForceSurfaceFixPoints( int surf_indx, vector < vec2d > &adduw );
     virtual void AddStructureTrimPlanes();
     virtual void BuildMeshOrientationLookup();
-    virtual bool CullPtByTrimGroup( const vec3d &pt, const vector < vec3d > & pplane, const vector < vec3d > & nplane );
     virtual void RemoveTrimTris();
     virtual void SetFixPointSurfaceNodes();
     virtual void SetFixPointBorderNodes();

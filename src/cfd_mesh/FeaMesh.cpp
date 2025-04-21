@@ -9,6 +9,24 @@
 #include "FileUtil.h"
 #include "StringUtil.h"
 
+// Although this appears to be an angle comparison (via the dot product), it is actually the signed distance
+// between the point and the plane.  Hence, a comparison to the mesh minimum length as a tolerance is appropriate.
+bool PartTrim::CullPtByTrimGroup( const vec3d &pt, double tol )
+{
+    // Number of planes in this trim group.
+    int numplane = m_TrimPt.size();
+    for ( int iplane = 0; iplane < numplane; iplane++ )
+    {
+        vec3d u = pt - m_TrimPt[ iplane ];
+        double dp = dot( u, m_TrimNorm[ iplane ] );  // m_TrimNorm is always a unit vector.
+        if ( dp < tol )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 FeaMesh::FeaMesh( const string & struct_id )
 {
     m_ID = struct_id;
