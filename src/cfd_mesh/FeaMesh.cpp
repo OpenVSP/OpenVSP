@@ -29,6 +29,24 @@ bool PartTrim::CullPtByTrimGroup( const vec3d &pt, int isymm, double tol )
             return false;
         }
     }
+
+    for ( int isurf = 0; isurf < m_TrimSurf.size(); isurf++ )
+    {
+        VspSurf &surf = m_TrimSurf[ isurf ];
+        double u, w;
+        surf.FindNearest( u, w, pt );
+        vec3d p, n;
+        p = surf.CompPnt( u, w );
+        n = surf.CompAveNorm( u, w );
+
+        vec3d v = pt - p;
+        double dp = dot( v, n );
+        if ( dp < tol )
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
