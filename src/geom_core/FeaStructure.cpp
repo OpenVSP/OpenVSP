@@ -4145,7 +4145,7 @@ void FeaPartTrim::UpdateDrawObjs()
                 VspSurf s = parent_surf_vec[i];
 
                 vec3d cen = s.CompPnt01( 0.5, 0.5 );
-                vec3d dir = s.CompNorm01( 0.5, 0.5 );
+                vec3d dir = s.CompAveNorm01( 0.5, 0.5 );
 
                 if ( ipart < m_FlipFlagVec.size() )
                 {
