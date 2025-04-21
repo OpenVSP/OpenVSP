@@ -4324,21 +4324,21 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
                          parent_part->GetType() != vsp::FEA_SKIN )
                     {
 
-                    vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
+                        vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
 
-                    VspSurf s = parent_surf_vec[isymm];
+                        VspSurf s = parent_surf_vec[isymm];
 
-                    vec3d cen = s.CompPnt01( 0.5, 0.5 );
-                    vec3d dir = s.CompNorm01( 0.5, 0.5 );
+                        vec3d cen = s.CompPnt01( 0.5, 0.5 );
+                        vec3d dir = s.CompNorm01( 0.5, 0.5 );
 
-                    if ( m_FlipFlagVec[ipart]->Get() )
-                    {
-                        dir = -1.0 * dir;
-                    }
+                        if ( m_FlipFlagVec[ipart]->Get() )
+                        {
+                            dir = -1.0 * dir;
+                        }
 
-                    pt[isymm][iplanar] = cen * scale;
-                    norm[isymm][iplanar] = dir;
-                    iplanar++;
+                        pt[isymm][iplanar] = cen * scale;
+                        norm[isymm][iplanar] = dir;
+                        iplanar++;
                     }
                 }
             }
