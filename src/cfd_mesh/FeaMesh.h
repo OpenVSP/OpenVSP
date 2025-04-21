@@ -21,6 +21,7 @@ public:
     // Groups of trimming planes.
     vector < vec3d > m_TrimPt;
     vector < vec3d > m_TrimNorm;
+    vector < VspSurf > m_TrimSurf;
     int m_TrimSymm;
 };
 

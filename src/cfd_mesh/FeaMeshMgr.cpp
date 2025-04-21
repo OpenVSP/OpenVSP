@@ -1090,8 +1090,9 @@ void FeaMeshMgrSingleton::AddStructureTrimPlanes()
             {
                 vector < vector < vec3d > > pti;
                 vector < vector < vec3d > > normi;
+                vector < vector < VspSurf > > surfi;
 
-                trim->FetchTrimPlanes( pti, normi, GetMeshPtr()->m_LenScale );
+                trim->FetchTrimPlanes( pti, normi, surfi, GetMeshPtr()->m_LenScale );
 
                 int nadd = pti.size();
 
@@ -1100,6 +1101,7 @@ void FeaMeshMgrSingleton::AddStructureTrimPlanes()
                     PartTrim t;
                     t.m_TrimPt = pti[j];
                     t.m_TrimNorm = normi[j];
+                    t.m_TrimSurf = surfi[j];
                     t.m_TrimSymm = j;
 
                     GetMeshPtr()->m_TrimVec.push_back( t );

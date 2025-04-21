@@ -531,7 +531,7 @@ public:
     virtual void SetDrawObjHighlight ( bool highlight );
 
     virtual int CountTrimPlanes();
-    virtual void FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, const double & scale );
+    virtual void FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, vector < vector < VspSurf > > &surf, const double & scale );
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 

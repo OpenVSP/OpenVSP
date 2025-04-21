@@ -4245,7 +4245,7 @@ int FeaPartTrim::CountTrimPlanes()
     return nsymm;
 }
 
-void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, const double & scale )
+void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, vector < vector < VspSurf > > &surf, const double & scale )
 {
     // This nested loop is most naturally accessed with ipart as the outer loop.  However, going forward we will
     // need pt and norm set up with ipart as the inner loop.  First we loop through to check that the referenced
@@ -4281,6 +4281,7 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
     {
         pt.resize( nsymm );
         norm.resize( nsymm );
+        surf.resize( nsymm );
 
         int npart = m_TrimFeaPartIDVec.size();
 
@@ -4288,6 +4289,7 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
         {
 
             int nplanar = 0;
+            int nsurf = 0;
             for ( unsigned int ipart = 0; ipart < npart; ipart++ )
             {
                 FeaPart *parent_part = StructureMgr.GetFeaPart( m_TrimFeaPartIDVec[ ipart ] );
@@ -4303,13 +4305,19 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
                     {
                         nplanar++;
                     }
+                    else if ( parent_part->GetType() == vsp::FEA_POLY_SPAR )
+                    {
+                        nsurf++;
+                    }
                 }
             }
 
             pt[isymm].resize( nplanar );
             norm[isymm].resize( nplanar );
+            surf[isymm].resize( nsurf );
 
             int iplanar = 0;
+            int isurf = 0;
             for ( unsigned int ipart = 0; ipart < npart; ipart++ )
             {
                 FeaPart *parent_part = StructureMgr.GetFeaPart( m_TrimFeaPartIDVec[ ipart ] );
@@ -4339,6 +4347,22 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
                         pt[isymm][iplanar] = cen * scale;
                         norm[isymm][iplanar] = dir;
                         iplanar++;
+                    }
+                    else if ( parent_part->GetType() == vsp::FEA_POLY_SPAR )
+                    {
+                        vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
+
+                        VspSurf s = parent_surf_vec[isymm];
+                        s.Scale( scale );
+
+                        if ( m_FlipFlagVec[ipart]->Get() )
+                        {
+                            s.FlipNormal();
+                        }
+
+                        surf[isymm][isurf] = s;
+
+                        isurf++;
                     }
                 }
             }
