@@ -60,6 +60,8 @@ void FeaMesh::Cleanup()
 
     m_FixPntVec.clear();
 
+    m_TrimVec.clear();
+
     m_FeaNodeVecUsed.clear();
 
     m_StructName = "";

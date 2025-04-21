@@ -34,6 +34,7 @@ typedef Eigen::Matrix< long double, 3, 1 > vec3;
 
 // Forward declaration
 class FeaPart;
+class FeaPartTrim;
 class FeaBC;
 class WingGeom;
 
@@ -80,7 +81,7 @@ public:
         return m_FeaPartVec.size();
     }
 
-    virtual int FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, vector < int > &symm, const double & scale );
+    void FetchAllTrimPlanes( vector < FeaPartTrim * > &trims );
 
     vector< FeaPart* > GetFeaPartVecType( int type );
 
@@ -529,6 +530,7 @@ public:
     virtual void UpdateDrawObjs();
     virtual void SetDrawObjHighlight ( bool highlight );
 
+    virtual int CountTrimPlanes();
     virtual void FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, const double & scale );
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );

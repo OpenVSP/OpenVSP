@@ -562,12 +562,8 @@ string FeaStructure::GetFeaPartName( int ind )
     return name;
 }
 
-int FeaStructure::FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, vector < int > &symm, const double & scale )
+void FeaStructure::FetchAllTrimPlanes( vector < FeaPartTrim * > &trims )
 {
-    pt.clear();
-    norm.clear();
-
-    int ntrimpart = 0;
     for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
     {
         if ( FeaPartIsTrim( i ) )
@@ -576,29 +572,10 @@ int FeaStructure::FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < 
 
             if ( trim )
             {
-                ntrimpart++;
-
-                vector < vector < vec3d > > pti;
-                vector < vector < vec3d > > normi;
-
-                trim->FetchTrimPlanes( pti, normi, scale );
-
-                int nadd = pti.size();
-
-                pt.reserve( pt.size() + nadd );
-                norm.reserve( norm.size() + nadd );
-                symm.reserve( symm.size() + nadd );
-
-                for ( int j = 0; j < nadd; j++ )
-                {
-                    pt.push_back( pti[j] );
-                    norm.push_back( normi[j] );
-                    symm.push_back( j );
-                }
+                trims.push_back( trim );
             }
         }
     }
-    return ntrimpart;
 }
 
 vector< FeaPart* > FeaStructure::GetFeaPartVecType( int type )
@@ -4238,6 +4215,34 @@ void FeaPartTrim::SetDrawObjHighlight( bool highlight )
             m_FeaPartDO[j].m_MaterialInfo.Ambient[0] = 0.2;
         }
     }
+}
+
+int FeaPartTrim::CountTrimPlanes()
+{
+    // Determine number of symmetrical copies.
+    int nsymm = -1;
+    for ( unsigned int ipart = 0; ipart < m_TrimFeaPartIDVec.size(); ipart++ )
+    {
+        FeaPart *parent_part = StructureMgr.GetFeaPart( m_TrimFeaPartIDVec[ ipart ] );
+
+        if ( parent_part )
+        {
+            vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
+
+            if ( nsymm < 0 )
+            {
+                nsymm = parent_surf_vec.size();
+            }
+            else
+            {
+                if ( nsymm != parent_surf_vec.size() )
+                {
+                    printf( "Error, parts used by FEA Trim do not have the same number of symmetrical copies\n" );
+                }
+            }
+        }
+    }
+    return nsymm;
 }
 
 void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, const double & scale )

@@ -12,6 +12,15 @@
 
 void CloseNASTRAN( FILE *dat_fp, FILE *bdf_header_fp, FILE *bdf_fp, FILE *nkey_fp );
 
+class PartTrim
+{
+public:
+    // Groups of trimming planes.
+    vector < vec3d > m_TrimPt;
+    vector < vec3d > m_TrimNorm;
+    int m_TrimSymm;
+};
+
 class FixPoint
 {
 public:
@@ -170,9 +179,7 @@ public:
     vector < FixPoint > m_FixPntVec; // Fix point data map.
 
     // Groups of trimming planes.
-    vector < vector < vec3d > > m_TrimPt;
-    vector < vector < vec3d > > m_TrimNorm;
-    vector < int > m_TrimSymm;
+    vector < PartTrim > m_TrimVec;
 
     vector < SimpleBC > m_BCVec;
 

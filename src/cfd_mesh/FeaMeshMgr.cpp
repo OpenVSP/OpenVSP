@@ -1061,7 +1061,51 @@ void FeaMeshMgrSingleton::AddStructureTrimPlanes()
 
     if ( fea_struct && GetMeshPtr() )
     {
-        GetMeshPtr()->m_NumFeaTrimParts = fea_struct->FetchAllTrimPlanes( GetMeshPtr()->m_TrimPt, GetMeshPtr()->m_TrimNorm, GetMeshPtr()->m_TrimSymm, GetMeshPtr()->m_LenScale );
+        vector < FeaPartTrim * > trims;
+        fea_struct->FetchAllTrimPlanes( trims );
+
+
+        int ntrimpart = trims.size();
+        GetMeshPtr()->m_NumFeaTrimParts = ntrimpart;
+
+        int ntrimgroup = 0;
+        for ( int i = 0; i < ntrimpart; i++ )
+        {
+            FeaPartTrim * trim = trims[i];
+
+            if ( trim )
+            {
+                ntrimgroup += trim->CountTrimPlanes();
+            }
+        }
+
+
+        GetMeshPtr()->m_TrimVec.reserve( ntrimgroup );
+
+        for ( int i = 0; i < ntrimpart; i++ )
+        {
+            FeaPartTrim * trim = trims[i];
+
+            if ( trim )
+            {
+                vector < vector < vec3d > > pti;
+                vector < vector < vec3d > > normi;
+
+                trim->FetchTrimPlanes( pti, normi, GetMeshPtr()->m_LenScale );
+
+                int nadd = pti.size();
+
+                for ( int j = 0; j < nadd; j++ )
+                {
+                    PartTrim t;
+                    t.m_TrimPt = pti[j];
+                    t.m_TrimNorm = normi[j];
+                    t.m_TrimSymm = j;
+
+                    GetMeshPtr()->m_TrimVec.push_back( t );
+                }
+            }
+        }
     }
 }
 
@@ -1117,7 +1161,7 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
         return;
     }
 
-    if ( GetMeshPtr()->m_TrimPt.size() > 0 ) // Skip if there are no trim groups.
+    if ( GetMeshPtr()->m_TrimVec.size() > 0 ) // Skip if there are no trim groups.
     {
         for ( int s = 0; s < ( int ) m_SurfVec.size(); ++s ) // every surface
         {
@@ -1128,10 +1172,10 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
             {
                 vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[ s ] );
 
-                for ( int i = 0; i < GetMeshPtr()->m_TrimPt.size(); i++ )
+                for ( int i = 0; i < GetMeshPtr()->m_TrimVec.size(); i++ )
                 {
                     // This seems convoluted, but it needs to be cumulative.
-                    if ( m_SurfVec[s]->GetFeaSymmIndex() == GetMeshPtr()->m_TrimSymm[i] && CullPtByTrimGroup( cp, GetMeshPtr()->m_TrimPt[ i ], GetMeshPtr()->m_TrimNorm[ i ] ) )
+                    if ( m_SurfVec[s]->GetFeaSymmIndex() == GetMeshPtr()->m_TrimVec[ i ].m_TrimSymm && CullPtByTrimGroup( cp, GetMeshPtr()->m_TrimVec[ i ].m_TrimPt, GetMeshPtr()->m_TrimVec[ i ].m_TrimNorm ) )
                     {
                         ( *t )->deleteFlag = true;
                         delSomeTris = true;
@@ -1345,15 +1389,15 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                     break;
                 }
 
-                if ( GetMeshPtr()->m_TrimPt.size() > 0 ) // Skip if there are no trim groups.
+                if ( GetMeshPtr()->m_TrimVec.size() > 0 ) // Skip if there are no trim groups.
                 {
                     bool skipElement = false;
                     vec3d mid_pnt = 0.5 * ( start_pnt + end_pnt );
 
-                    for ( int i = 0; i < GetMeshPtr()->m_TrimPt.size(); i++ )
+                    for ( int i = 0; i < GetMeshPtr()->m_TrimVec.size(); i++ )
                     {
                         // This seems convoluted, but it needs to be cumulative.
-                        if ( NormSurf->GetFeaSymmIndex() == GetMeshPtr()->m_TrimSymm[i] && CullPtByTrimGroup( mid_pnt, GetMeshPtr()->m_TrimPt[ i ], GetMeshPtr()->m_TrimNorm[ i ] ) )
+                        if ( NormSurf->GetFeaSymmIndex() == GetMeshPtr()->m_TrimVec[ i ].m_TrimSymm && CullPtByTrimGroup( mid_pnt, GetMeshPtr()->m_TrimVec[ i ].m_TrimPt, GetMeshPtr()->m_TrimVec[ i ].m_TrimNorm ) )
                         {
                             skipElement = true;
                             break; // Once flagged for deletion, don't check further trim groups, go to next beam segment.
