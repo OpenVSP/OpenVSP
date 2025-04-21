@@ -4305,7 +4305,8 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
                     {
                         nplanar++;
                     }
-                    else if ( parent_part->GetType() == vsp::FEA_POLY_SPAR )
+                    else if ( parent_part->GetType() == vsp::FEA_POLY_SPAR ||
+                              parent_part->GetType() == vsp::FEA_DOME )
                     {
                         nsurf++;
                     }
@@ -4348,7 +4349,8 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
                         norm[isymm][iplanar] = dir;
                         iplanar++;
                     }
-                    else if ( parent_part->GetType() == vsp::FEA_POLY_SPAR )
+                    else if ( parent_part->GetType() == vsp::FEA_POLY_SPAR ||
+                              parent_part->GetType() == vsp::FEA_DOME )
                     {
                         vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
 
