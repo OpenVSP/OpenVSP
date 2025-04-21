@@ -4286,15 +4286,44 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
 
         for ( size_t isymm = 0; isymm < nsymm; isymm++ )
         {
-            pt[isymm].resize( npart );
-            norm[isymm].resize( npart );
 
+            int nplanar = 0;
             for ( unsigned int ipart = 0; ipart < npart; ipart++ )
             {
                 FeaPart *parent_part = StructureMgr.GetFeaPart( m_TrimFeaPartIDVec[ ipart ] );
 
                 if ( parent_part )
                 {
+                    if ( parent_part->GetType() != vsp::FEA_DOME &&
+                         parent_part->GetType() != vsp::FEA_FIX_POINT &&
+                         parent_part->GetType() != vsp::FEA_RIB_ARRAY &&
+                         parent_part->GetType() != vsp::FEA_SLICE_ARRAY &&
+                         parent_part->GetType() != vsp::FEA_POLY_SPAR &&
+                         parent_part->GetType() != vsp::FEA_SKIN )
+                    {
+                        nplanar++;
+                    }
+                }
+            }
+
+            pt[isymm].resize( nplanar );
+            norm[isymm].resize( nplanar );
+
+            int iplanar = 0;
+            for ( unsigned int ipart = 0; ipart < npart; ipart++ )
+            {
+                FeaPart *parent_part = StructureMgr.GetFeaPart( m_TrimFeaPartIDVec[ ipart ] );
+
+                if ( parent_part )
+                {
+                    if ( parent_part->GetType() != vsp::FEA_DOME &&
+                         parent_part->GetType() != vsp::FEA_FIX_POINT &&
+                         parent_part->GetType() != vsp::FEA_RIB_ARRAY &&
+                         parent_part->GetType() != vsp::FEA_SLICE_ARRAY &&
+                         parent_part->GetType() != vsp::FEA_POLY_SPAR &&
+                         parent_part->GetType() != vsp::FEA_SKIN )
+                    {
+
                     vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
 
                     VspSurf s = parent_surf_vec[isymm];
@@ -4307,8 +4336,10 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
                         dir = -1.0 * dir;
                     }
 
-                    pt[isymm][ipart] = cen * scale;
-                    norm[isymm][ipart] = dir;
+                    pt[isymm][iplanar] = cen * scale;
+                    norm[isymm][iplanar] = dir;
+                    iplanar++;
+                    }
                 }
             }
         }
