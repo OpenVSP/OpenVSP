@@ -1157,7 +1157,7 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
                 for ( int i = 0; i < GetMeshPtr()->m_TrimVec.size(); i++ )
                 {
                     // This seems convoluted, but it needs to be cumulative.
-                    if ( m_SurfVec[s]->GetFeaSymmIndex() == GetMeshPtr()->m_TrimVec[ i ].m_TrimSymm && GetMeshPtr()->m_TrimVec[i].CullPtByTrimGroup( cp, trimtol ) )
+                    if ( GetMeshPtr()->m_TrimVec[i].CullPtByTrimGroup( cp, m_SurfVec[s]->GetFeaSymmIndex(), trimtol ) )
                     {
                         ( *t )->deleteFlag = true;
                         delSomeTris = true;
@@ -1380,7 +1380,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                     for ( int i = 0; i < GetMeshPtr()->m_TrimVec.size(); i++ )
                     {
                         // This seems convoluted, but it needs to be cumulative.
-                        if ( NormSurf->GetFeaSymmIndex() == GetMeshPtr()->m_TrimVec[ i ].m_TrimSymm && GetMeshPtr()->m_TrimVec[i].CullPtByTrimGroup( mid_pnt, trimtol ) )
+                        if ( GetMeshPtr()->m_TrimVec[i].CullPtByTrimGroup( mid_pnt, NormSurf->GetFeaSymmIndex(), trimtol ) )
                         {
                             skipElement = true;
                             break; // Once flagged for deletion, don't check further trim groups, go to next beam segment.

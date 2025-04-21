@@ -11,8 +11,13 @@
 
 // Although this appears to be an angle comparison (via the dot product), it is actually the signed distance
 // between the point and the plane.  Hence, a comparison to the mesh minimum length as a tolerance is appropriate.
-bool PartTrim::CullPtByTrimGroup( const vec3d &pt, double tol )
+bool PartTrim::CullPtByTrimGroup( const vec3d &pt, int isymm, double tol )
 {
+    if ( isymm != m_TrimSymm )
+    {
+        return false;
+    }
+
     // Number of planes in this trim group.
     int numplane = m_TrimPt.size();
     for ( int iplane = 0; iplane < numplane; iplane++ )
