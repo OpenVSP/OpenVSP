@@ -181,7 +181,9 @@ public:
     vec3d CompTanUW01( double u, double v ) const;
 
     vec3d CompNorm( double u, double v ) const;
+    vec3d CompAveNorm( double u, double v ) const;
     vec3d CompNorm01( double u, double v ) const;
+    vec3d CompAveNorm01( double u, double v ) const;
 
     void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const;
     void CompCurvature01( double u, double w, double& k1, double& k2, double& ka, double& kg ) const;

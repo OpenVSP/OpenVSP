@@ -1142,10 +1142,29 @@ vec3d VspSurf::CompNorm( double u, double v ) const
     return rtn;
 }
 
+vec3d VspSurf::CompAveNorm( double u, double v ) const
+{
+    vec3d rtn;
+    surface_point_type p( m_Surface.average_normal( u, v ) );
+
+    if ( m_FlipNormal )
+    {
+        p = -p;
+    }
+
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
+}
+
 //===== Compute Normal  0->1.0  =====//
 vec3d VspSurf::CompNorm01( double u01, double v01 ) const
 {
     return CompNorm( u01 * GetUMax(), v01 * GetWMax() );
+}
+
+vec3d VspSurf::CompAveNorm01( double u01, double v01 ) const
+{
+    return CompAveNorm( u01 * GetUMax(), v01 * GetWMax() );
 }
 
 //===== Compute Surface Curvature Metrics Given  U W =====//
