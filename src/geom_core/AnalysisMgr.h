@@ -28,7 +28,6 @@ class RWCollection : public NameValCollection
 public:
     RWCollection() {};
 
-    virtual void Add( const NameValData & d );
     virtual void Add( NameValData* d );
     virtual void Add( const vector< vector< vec3d > > & d, const string &prefix, const string &doc );
 

@@ -320,7 +320,6 @@ public:
         return m_Doc;
     }
 
-    virtual void Add( const NameValData & d );
     virtual void Add( NameValData* d );
     virtual void Add( const vector< vector< vec3d > > & d, const string &prefix, const string &doc );
 
@@ -357,7 +356,6 @@ public:
     AttributeCollection( const string & name, const string & id, const string & doc  );
     ~AttributeCollection();
 
-    void Add( const NameValData & d, const int & attr_event_group = vsp::ATTR_GROUP_NONE, bool set_event_group = false );
     void Add( NameValData* d, const int & attr_event_group = vsp::ATTR_GROUP_NONE, bool set_event_group = false );
 
 
@@ -402,7 +400,6 @@ public:
 
     Results( const string & name, const string & id, const string & doc );
 
-    virtual void Add( const NameValData & d );
     virtual void Add( NameValData* d );
     virtual void Add( const vector< vector< vec3d > > & d, const string &prefix, const string &doc );
 

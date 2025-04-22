@@ -836,24 +836,6 @@ string NameValCollection::GenerateID()
 }
 
 //==== Add Data To Results - Can Have Data With The Same Name =====//
-void NameValCollection::Add( const NameValData & d )
-{
-    NameValData* nvd_copy = new NameValData( d );
-
-    //==== Find Name ====//
-    string name = nvd_copy->GetName();
-
-    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
-    if ( iter != m_DataMap.end() )     // Check For Duplicates
-    {
-        iter->second.push_back( nvd_copy );
-    }
-    else
-    {
-        m_DataMap[name].push_back( nvd_copy );
-    }
-}
-
 void NameValCollection::Add( NameValData* d )
 {
     if ( !d )
@@ -1336,17 +1318,6 @@ Results::Results( const string & name, const string & id, const string & doc ) :
 }
 
 // Results has wrapper for NVC Add to gatekeep against unsupported datatypes
-void Results::Add( const NameValData & d )
-{
-    if ( d.GetType() == vsp::ATTR_COLLECTION_DATA ||
-         d.GetType() == vsp::PARM_REFERENCE_DATA )
-    {
-        cout << "NameValData type " << d.GetTypeName() << " reserved for Attributes functionality\n";
-        return;
-    }
-    NameValCollection::Add( d );
-}
-
 void Results::Add( NameValData* d )
 {
     if ( !d )

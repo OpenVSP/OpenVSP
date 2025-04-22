@@ -25,17 +25,6 @@
 #include "VSP_Geom_API.h"
 
 // RWCollection has wrapper for NVC Add to gatekeep against unsupported datatypes
-void RWCollection::Add( const NameValData & d )
-{
-    if ( d.GetType() == vsp::ATTR_COLLECTION_DATA ||
-         d.GetType() == vsp::PARM_REFERENCE_DATA )
-    {
-        cout << "NameValData type " << d.GetTypeName() << " reserved for Attributes functionality\n";
-        return;
-    }
-    NameValCollection::Add( d );
-}
-
 void RWCollection::Add( NameValData* d )
 {
     if ( !d )
