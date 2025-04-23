@@ -2670,6 +2670,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
 
             if ( ind >= 0 )
             {
+                // printf("Renumbering fixed point %d to %d\n", (int) (GetMeshPtr()->m_FeaNodeVec[ ind ]->m_Index), (int) (ifixpt + 1) );
                 vector < long long int > matches = pnCloud.GetMatches( ind );
                 for ( size_t i = 0; i < matches.size(); i++ )
                 {
