@@ -12,6 +12,7 @@
 #include <map>
 #include <algorithm>
 #include <limits>
+#include <unordered_set>
 using std::vector;
 using std::deque;
 #include <APIDefines.h>
@@ -319,6 +320,28 @@ int ReorderVectorIndex( vector < T > &vec, int index, int action )
     vec = new_vec;
 
     return new_index;
+}
+
+template <class T>
+void vector_remove_duplicates( vector< T > & vec )
+{
+    std::sort( vec.begin(), vec.end() );
+    auto it = std::unique( vec.begin(), vec.end() );
+    vec.erase( it, vec.end() );
+}
+
+template <class T>
+void vector_remove_duplicates_preserve_order( vector< T > & vec )
+{
+    std::unordered_set < T > data_set;
+    auto it = std::stable_partition( vec.begin(), vec.end(), [&]( T n )
+    {
+        bool ret = !data_set.count( n ); // returns true if the item has not been "seen"
+        data_set.insert( n );
+        return ret;
+    } );
+
+    vec.erase( it, vec.end() );
 }
 
 std::string string_vec_serialize( const vector < std::string > & str_vec );
