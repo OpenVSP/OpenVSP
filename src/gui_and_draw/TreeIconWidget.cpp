@@ -589,6 +589,14 @@ int TreeIconItem::IconHandle()
         ret = 2;
     }
     
+    if ( ret > 0 )
+    {
+        TreeWithIcons* parent_tree = static_cast< TreeWithIcons* >( tree() );
+        if ( parent_tree )
+        {
+            parent_tree->SetEventItem( this );
+        }
+    }
     return ret;
 }
 
@@ -641,7 +649,12 @@ void TreeIconItem::update_icon()
 
 int TreeIconItem::event_inside(int v[4])
 {
-    return Fl::event_inside(v[0],v[1],v[2],v[3]);
+    int ret = 0;
+    if ( is_visible_r() )
+    {
+        ret = Fl::event_inside(v[0],v[1],v[2],v[3]);
+    }
+    return ret;
 }
 
 int TreeIconItem::CheckParent( TreeIconItem* parent_item )
@@ -665,6 +678,7 @@ TreeWithIcons::TreeWithIcons( int X, int Y, int W, int H, const char *L ) : Fl_T
     connectorstyle( FL_TREE_CONNECTOR_DOTTED );
     openicon( new Fl_Pixmap( mini_tree_open_xpm ) );
     closeicon( new Fl_Pixmap( mini_tree_close_xpm ) );
+    ClearEventItem();
 }
 
 TreeIconItem* TreeWithIcons::AddRow( const char *s, TreeIconItem *parent_item )

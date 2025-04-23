@@ -180,10 +180,26 @@ class TreeWithIcons : public Fl_Tree
         TreeIconItem* GetItemByRefId( const string & ref_id );
         void GetSelectedItems( vector < TreeIconItem* > *item_vec );
 
+        void SetEventItem( TreeIconItem* event_item )
+        {
+            m_EventItem = event_item;
+        }
+        void ClearEventItem()
+        {
+            m_EventItem = nullptr;
+        }
+        TreeIconItem* GetEventItem()
+        {
+            return m_EventItem;
+        }
+
         int handle( int e );
 
         // Hide these base class methods from the API; we don't want app using them,
         // as we expect all items in the tree to be TreeIconItems, not Fl_Tree_Items.
+    protected:
+        TreeIconItem* m_EventItem;
+
     private:
         using Fl_Tree::add;
 };
