@@ -167,13 +167,17 @@ bool ManageGeomScreen::Update()
 
     if ( IsShown() )
     {
-        m_GeomVec = m_VehiclePtr->GetGeomVec();
+        // generate temporary pointer map for fast access to geometry
+        MakeGeomCache();
+
         LoadBrowser();
         LoadActiveGeomOutput();
         m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, vector<int>({m_SetIndex}), false, SET_FIRST_USER );
         LoadTypeChoice();
         LoadDisplayChoice();
         UpdateDrawType();
+
+        ClearGeomCache();
     }
 
     UpdateGeomScreens();
@@ -248,17 +252,14 @@ void ManageGeomScreen::LoadBrowser()
         geom_tree_item = m_GeomBrowser->AddRow( vid_str.c_str(), nullptr );
         geom_tree_item->SetRefID( vid_str );
 
-        //==== Get Geoms To Display ====//
-        vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( m_GeomVec );
-
-        //==== Step Thru Comps ====//
-        for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+        //==== Step Thru Geoms ====//
+        for ( int i = 0 ; i < ( int )m_GeomPtrVec.size() ; i++ )
         {
-            if ( geom_vec[i] )
+            if ( m_GeomPtrVec[i] )
             {
-                string id_str = geom_vec[i]->GetID();
+                string id_str = m_GeomPtrVec[i]->GetID();
                 TreeIconItem* parent_item = nullptr;
-                string parent_id = geom_vec[i]->GetParentID();
+                string parent_id = m_GeomPtrVec[i]->GetParentID();
                 
                 // Note to DEVS: if geom_vec is ALWAYS hierachically provided, this method works, but issue is what if a child is read before its parent is registered?
                 if ( parent_id != string( "NONE" ) )
@@ -288,9 +289,15 @@ void ManageGeomScreen::LoadBrowser()
         {
             string id = geom_tree_item->GetRefID();
 
-            Geom* gPtr = m_VehiclePtr->FindGeom( id );
+            Geom* gPtr = nullptr;
+            if ( m_GeomPtrMap.count( id ) )
+            {
+                gPtr = m_GeomPtrMap[id];
+            }
+
             Vehicle* vPtr = ( id == m_VehiclePtr->GetID() ) ? m_VehiclePtr : nullptr;
 
+            // Set icons for vehicle item, set to indeterminate if vehicles' geoms have multiple states of show or surf
             if ( vPtr )
             {
                 string vstr = vPtr->GetName();
@@ -305,10 +312,21 @@ void ManageGeomScreen::LoadBrowser()
                     m_GeomBrowser->close( const_cast< TreeIconItem* >( geom_tree_item ), false );
                 }
 
-
-                vector < Geom* > geom_vec = vPtr->FindGeomVec( m_GeomVec );
                 bool indet_show = false;
                 bool indet_surf = false;
+
+                vector < Geom* > geom_vec;
+                bool veh_in_vec = ( find( m_SelVec.begin(), m_SelVec.end(), id ) != m_SelVec.end() );
+                if ( m_SelVec.size() > 1 && veh_in_vec )
+                {
+                    geom_vec = m_VehiclePtr->FindGeomVec( m_SelVec );
+                }
+                else
+                {
+                    geom_vec = m_GeomPtrVec;
+                }
+
+                // if at least one geom in vehicle with valid pointer, initialize vehicle icons to its show/surf state
                 if ( !geom_vec.empty() && geom_vec[0] )
                 {
                     geom_tree_item->SetShowState( geom_vec[0]->GetSetFlag( vsp::SET_SHOWN ) );
@@ -320,11 +338,12 @@ void ManageGeomScreen::LoadBrowser()
                     {
                         if ( geom_vec[0] && geom_vec[i] )
                         {
-                            if ( geom_vec[i]->GetSetFlag( vsp::SET_SHOWN ) != geom_vec[0]->GetSetFlag( vsp::SET_SHOWN ) )
+                            // if any of the subsequent geoms have conflicting state, set show / surf to indeterminate state for vehicle item
+                            if ( !indet_show && geom_vec[i]->GetSetFlag( vsp::SET_SHOWN ) != geom_vec[0]->GetSetFlag( vsp::SET_SHOWN ) )
                             {
                                 indet_show = true;
                             }
-                            if ( geom_vec[i]->m_GuiDraw.GetDrawType() != geom_vec[0]->m_GuiDraw.GetDrawType() )
+                            if ( !indet_surf && geom_vec[i]->m_GuiDraw.GetDrawType() != geom_vec[0]->m_GuiDraw.GetDrawType() )
                             {
                                 indet_surf = true;
                             }
@@ -339,33 +358,41 @@ void ManageGeomScreen::LoadBrowser()
             {
                 //==== Update Geom Labels ====//
 
-                bool parent_selected = IsParentSelected( id, activeVec );
                 bool orphaned_attach = false;
                 bool has_attr = gPtr->GetAttrCollection()->GetAttrDataFlag();
 
                 string label_str;
-                //==== Check if Parent is Selected ====//
 
+                // Is this geom a HINGE? Change its child lines to double style
                 HingeGeom* hPtr = dynamic_cast < HingeGeom* > ( gPtr );
-                if ( gPtr->IsParentJoint() )
-                {
-                    geom_tree_item->SetHConnLine( TREE_LINE_CONN::STYLE_DOUBLE );
-                    geom_tree_item->SetVConnLine( TREE_LINE_CONN::STYLE_DOUBLE );
-                }
-                else if ( hPtr )
+                if ( hPtr )
                 {
                     geom_tree_item->SetChildVConnLine( TREE_LINE_CONN::STYLE_DOUBLE );
                 }
-
-                else if ( gPtr->m_TransAttachFlag() != vsp::ATTACH_TRANS_NONE ||
-                        gPtr->m_RotAttachFlag() != vsp::ATTACH_ROT_NONE )
+                else
                 {
-                    geom_tree_item->SetHConnLine( TREE_LINE_CONN::STYLE_THICK );
-                    geom_tree_item->SetHConnLineColor( fl_lighter( m_GeomBrowser->prefs().connectorcolor() ) );
-
                     string parent_id = gPtr->GetParentID();
-                    Geom* parentPtr = m_VehiclePtr->FindGeom( parent_id );
-                    orphaned_attach = !( parentPtr );
+                    Geom* parent_ptr = nullptr;
+                    if ( m_GeomPtrMap.count( parent_id ) )
+                    {
+                        parent_ptr = m_GeomPtrMap[ parent_id ];
+                    }
+                    if ( parent_ptr )
+                    {
+                        // Is this geom ATTACHED to a hinge? Change its attachment lines to double style
+                        HingeGeom* parent_hPtr = dynamic_cast < HingeGeom* > ( parent_ptr );
+                        if ( parent_hPtr )
+                        {
+                            geom_tree_item->SetHConnLine( TREE_LINE_CONN::STYLE_DOUBLE );
+                            geom_tree_item->SetVConnLine( TREE_LINE_CONN::STYLE_DOUBLE );
+                        }
+                    }
+                    // Is this geom parentless AND has an attach flag? Set orphan flag to true to lighten the font color
+                    else if ( gPtr->m_TransAttachFlag() != vsp::ATTACH_TRANS_NONE ||
+                            gPtr->m_RotAttachFlag() != vsp::ATTACH_ROT_NONE )
+                    {
+                        orphaned_attach = true;
+                    }
                 }
 
                 bool indet_show = false;
@@ -380,6 +407,7 @@ void ManageGeomScreen::LoadBrowser()
                         Geom* gChild = m_VehiclePtr->FindGeom( g_vec[i] );
                         if ( gChild )
                         {
+                            // if any children of a collapsed geom item conflict show/surf state, set its icon as indeterminate
                             if ( gChild->GetSetFlag( vsp::SET_SHOWN ) != gPtr->GetSetFlag( vsp::SET_SHOWN ) )
                             {
                                 indet_show = true ;
@@ -394,23 +422,23 @@ void ManageGeomScreen::LoadBrowser()
                 geom_tree_item->SetIndetShowState( indet_show );
                 geom_tree_item->SetIndetSurfState( indet_surf );
 
+                // Set label to geom name
                 label_str.append( gPtr->GetName() );
 
+                // Set icons of tree based on geom's show/surf state (to be shown if not indeterminate)
                 geom_tree_item->SetShowState( gPtr->GetSetFlag( vsp::SET_SHOWN ) );
                 geom_tree_item->SetSurfState( gPtr->m_GuiDraw.GetDrawType() );
                 geom_tree_item->label( label_str.c_str() );
 
-                int label_font = parent_selected ? FL_HELVETICA_BOLD : FL_HELVETICA;
-
+                // Set label color if it has attributes or is orphaned
                 int label_color = has_attr ? FL_DARK_MAGENTA : FL_FOREGROUND_COLOR;
                 if ( orphaned_attach )
                 {
                     label_color = fl_lighter( label_color );
                 }
-
-                geom_tree_item->labelfont( label_font );
                 geom_tree_item->labelcolor( label_color );
 
+                // Close item if display children flag false
                 if ( !gPtr->m_GuiDraw.GetDisplayChildrenFlag() )
                 {
                     m_GeomBrowser->close( const_cast< TreeIconItem* >( geom_tree_item ), false );
@@ -612,13 +640,13 @@ void ManageGeomScreen::GeomBrowserCallback()
     TreeIconItem* tree_item = static_cast< TreeIconItem* >( m_GeomBrowser->callback_item() );
     if ( tree_item )
     {
-        id = tree_item->GetRefID();
-        g = m_VehiclePtr->FindGeom( id );
-        Vehicle* vPtr = ( id == m_VehiclePtr->GetID() ) ? m_VehiclePtr : nullptr;
-
-        // if item is clicked on collapse icon, toggle it and store that in the open/close vecs
+        // if item is clicked on collapse icon, toggle it and set that bool to the geom/vehicle's DisplayChildrenFlag
         if ( tree_item->event_on_collapse_icon( m_GeomBrowser->prefs() ) )
         {
+            id = tree_item->GetRefID();
+            g = m_VehiclePtr->FindGeom( id );
+            Vehicle* vPtr = ( id == m_VehiclePtr->GetID() ) ? m_VehiclePtr : nullptr;
+
             bool open_flag = tree_item->is_open();
             if( g )
             {
@@ -644,11 +672,11 @@ void ManageGeomScreen::GeomBrowserCallback()
         }
     }
 
-    // check if any tree items have an active icon event
+    // Get the tree item associated with the event, if any
     string icon_event_id = string();
-    for ( Fl_Tree_Item *tree_item_iter = m_GeomBrowser->first(); tree_item_iter; tree_item_iter = m_GeomBrowser->next(tree_item_iter) )
+    TreeIconItem* tree_icon_item = m_GeomBrowser->GetEventItem();
+    if ( tree_icon_item )
     {
-        TreeIconItem* tree_icon_item = static_cast< TreeIconItem* >( tree_item_iter );
         int e = tree_icon_item->GetIconEvent();
         if ( e > 0 )
         {
@@ -658,6 +686,7 @@ void ManageGeomScreen::GeomBrowserCallback()
             surf_state = tree_icon_item->GetSurfState();
             icon_event_id = tree_icon_item->GetRefID();
         }
+        m_GeomBrowser->ClearEventItem();
     }
 
     //==== Find Vector of All Selections ====//
@@ -711,42 +740,45 @@ void ManageGeomScreen::GeomBrowserCallback()
     }
 
     //==== Handle show/surf icon event with selVec geom vector ====//
-    for ( int i = 0; i < selVec.size(); i++ )
+    if ( icon_event > 0 )
     {
-        id = selVec[i];
-        g = m_VehiclePtr->FindGeom( id );
+        for ( int i = 0; i < selVec.size(); i++ )
+        {
+            id = selVec[i];
+            g = m_VehiclePtr->FindGeom( id );
 
-        vector < string > hidden_id_vec;
+            vector < string > hidden_id_vec;
 
-        if ( g )
-        {
-            if ( g->m_GuiDraw.GetDisplayChildrenFlag() )
+            if ( g )
             {
-                hidden_id_vec.push_back( id );
-            }
-            else
-            {
-                bool check_display_flag = false;
-                g->LoadIDAndChildren( hidden_id_vec, check_display_flag );
-            }
-        }
-        else if ( id == m_VehiclePtr->GetID() )
-        {
-            hidden_id_vec = m_GeomVec;
-        }
-        for ( int i = 0; i < hidden_id_vec.size(); i++ )
-        {
-            g = m_VehiclePtr->FindGeom( hidden_id_vec[i] );
-            if( g )
-            {
-                if ( icon_event == 1 )
+                if ( g->m_GuiDraw.GetDisplayChildrenFlag() )
                 {
-                    g->SetSetFlag( SET_SHOWN , show_state );
-                    g->SetSetFlag( SET_NOT_SHOWN , !show_state );
+                    hidden_id_vec.push_back( id );
                 }
-                else if ( icon_event == 2)
+                else
                 {
-                    g->m_GuiDraw.SetDrawType( surf_state );
+                    bool check_display_flag = false;
+                    g->LoadIDAndChildren( hidden_id_vec, check_display_flag );
+                }
+            }
+            else if ( id == m_VehiclePtr->GetID() && selVec.size() == 1 )
+            {
+                hidden_id_vec = m_VehiclePtr->GetGeomVec();
+            }
+            for ( int i = 0; i < hidden_id_vec.size(); i++ )
+            {
+                g = m_VehiclePtr->FindGeom( hidden_id_vec[i] );
+                if( g )
+                {
+                    if ( icon_event == 1 )
+                    {
+                        g->SetSetFlag( SET_SHOWN , show_state );
+                        g->SetSetFlag( SET_NOT_SHOWN , !show_state );
+                    }
+                    else if ( icon_event == 2)
+                    {
+                        g->m_GuiDraw.SetDrawType( surf_state );
+                    }
                 }
             }
         }
@@ -808,12 +840,15 @@ void ManageGeomScreen::NoShowActiveGeoms( bool flag )
 //===== Select All Geoms ====//
 void ManageGeomScreen::SelectAll()
 {
-    m_VehiclePtr->SetActiveGeomVec( m_GeomVec );
+    vector < string > geom_vec = m_VehiclePtr->GetGeomVec();
+    m_VehiclePtr->SetActiveGeomVec( geom_vec );
+
+    m_VehSelected = false;
 
     //==== Restore List of Selected Geoms ====//
-    for ( int i = 0 ; i < ( int )m_GeomVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        SelectGeomBrowser( m_GeomVec[i] );
+        SelectGeomBrowser( geom_vec[i] );
     }
 
     LoadActiveGeomOutput();
@@ -998,6 +1033,25 @@ void ManageGeomScreen::SetFeatureDrawFlag( bool f )
     }
 
     m_VehiclePtr->Update();
+}
+
+void ManageGeomScreen::MakeGeomCache()
+{
+    vector < string > geom_vec = m_VehiclePtr->GetGeomVec();
+    m_GeomPtrVec = m_VehiclePtr->FindGeomVec( geom_vec );
+    m_GeomPtrMap.clear();
+    for ( int i = 0; i < geom_vec.size(); i++ )
+    {
+        string id = geom_vec[i];
+        Geom* g = m_GeomPtrVec[i];
+        m_GeomPtrMap.insert( { id, g } );
+    }
+}
+
+void ManageGeomScreen::ClearGeomCache()
+{
+    m_GeomPtrVec.clear();
+    m_GeomPtrMap.clear();
 }
 
 //==== Callbacks ====//

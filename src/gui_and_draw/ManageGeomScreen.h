@@ -160,7 +160,8 @@ protected:
     Vehicle* m_VehiclePtr;
     vector< VspScreen* > m_GeomScreenVec;
 
-    vector< string > m_GeomVec;
+    vector< Geom* > m_GeomPtrVec;
+    map< string, Geom*> m_GeomPtrMap;
 
     std::vector<DrawObj> m_PickList;
 
@@ -188,6 +189,9 @@ protected:
     void EditName( const string &name );
     void SetSubDrawFlag( bool f );
     void SetFeatureDrawFlag( bool f );
+
+    void MakeGeomCache();
+    void ClearGeomCache();
 
     vector< string > GetActiveGeoms();
 
