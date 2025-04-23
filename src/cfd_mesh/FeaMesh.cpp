@@ -1026,6 +1026,38 @@ void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int 
             WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
 
+        //==== Write Spider Points ====//
+        for ( size_t i = 0; i < m_NumFeaFixPoints; i++ )
+        {
+            FixPoint fxpt = m_FixPntVec[ i ];
+
+            if ( fxpt.m_OnBody )
+            {
+                node_id_vec.clear();
+
+                for ( unsigned int j = 0; j < (int)fxpt.m_Pnt.size(); j++ )
+                {
+                    if ( fxpt.m_NodeIndex[ j ] >= 0 )
+                    {
+                        fprintf( bdf_fp, "\n" );
+                        fprintf( bdf_fp, "$ Node %d spider points\n", (int) ( fxpt.m_NodeIndex[ j ] + noffset ) );
+
+                        for ( int ispider = 0; ispider < fxpt.m_SpiderIndex[ j ].size(); ispider++ )
+                        {
+                            int spider_ind = (int) fxpt.m_SpiderIndex[ j ][ ispider ];
+
+                            m_FeaNodeVec[ spider_ind ]->WriteNASTRAN( bdf_fp, noffset );
+                            node_id_vec.push_back( m_FeaNodeVec[ spider_ind ]->m_Index );
+                        }
+
+                        // Write FEA part node set
+                        name = "Node_" + to_string( fxpt.m_NodeIndex[ j ] + noffset ) + "_SpiderPoints";
+                        WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
+                    }
+                }
+            }
+        }
+
         // FeaPart Nodes
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
@@ -1037,7 +1069,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int 
             {
                 for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
                 {
-                    if ( m_FeaNodeVecUsed[ j ] )
+                    if ( m_FeaNodeVecUsed[ j ] && m_FeaNodeVec[ j ]->m_Index > m_FixPtOffset )
                     {
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
                         {
@@ -1070,7 +1102,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int 
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
-                if ( m_FeaNodeVecUsed[ j ] )
+                if ( m_FeaNodeVecUsed[ j ] && m_FeaNodeVec[ j ]->m_Index > m_FixPtOffset )
                 {
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
                     {
@@ -1098,7 +1130,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int 
         bool IntersectHeader = false;
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
-            if ( m_FeaNodeVecUsed[ j ] )
+            if ( m_FeaNodeVecUsed[ j ] && m_FeaNodeVec[ j ]->m_Index > m_FixPtOffset )
             {
                 if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && !m_FeaNodeVec[j]->m_FixedPointFlag )
                 {
@@ -1126,7 +1158,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int 
         {
             node_id_vec.clear();
 
-            if ( m_FeaNodeVecUsed[ i ] && m_FeaNodeVec[i]->m_Tags.size() == 0 )
+            if ( m_FeaNodeVecUsed[ i ] && m_FeaNodeVec[i]->m_Tags.size() == 0 && m_FeaNodeVec[ i ]->m_Index > m_FixPtOffset )
             {
                 if ( !RemainingHeader )
                 {
