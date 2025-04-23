@@ -83,7 +83,6 @@ void MultTransScreen::Show()
     {
         TabScreen::Show();
     }
-    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 bool MultTransScreen::Update()

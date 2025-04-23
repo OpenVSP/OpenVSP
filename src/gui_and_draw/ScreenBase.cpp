@@ -1060,6 +1060,9 @@ bool GeomScreen::Update()
 
     bool wing_parent = false;
     bool routing_parent = false;
+    bool orphaned_trans = false;
+    bool orphaned_rot = false;
+
     if ( veh )
     {
         Geom* parent = veh->FindGeom( geom_ptr->GetParentID() );
@@ -1298,12 +1301,60 @@ bool GeomScreen::Update()
 
         if ( parent && !routing_parent )
         {
-            m_AttachLayout.GetGroup()->activate();
+            m_TransToggleGroup.Activate();
+            m_RotToggleGroup.Activate();
+            m_UScaleToggleGroup.Activate();
+            m_RScaleToggleGroup.Activate();
+            m_LScaleToggleGroup.Activate();
+
+            m_AttachUSlider.Activate();
+            m_AttachVSlider.Activate();
+            m_AttachRSlider.Activate();
+            m_AttachSSlider.Activate();
+            m_AttachTSlider.Activate();
+            m_AttachLSlider.Activate();
+            m_AttachMSlider.Activate();
+            m_AttachNSlider.Activate();
+            m_AttachEtaSlider.Activate();
         }
         else
         {
-            m_AttachLayout.GetGroup()->deactivate();
+            m_TransToggleGroup.Deactivate();
+            m_RotToggleGroup.Deactivate();
+            m_UScaleToggleGroup.Deactivate();
+            m_RScaleToggleGroup.Deactivate();
+            m_LScaleToggleGroup.Deactivate();
+
+            m_AttachUSlider.Deactivate();
+            m_AttachVSlider.Deactivate();
+            m_AttachRSlider.Deactivate();
+            m_AttachSSlider.Deactivate();
+            m_AttachTSlider.Deactivate();
+            m_AttachLSlider.Deactivate();
+            m_AttachMSlider.Deactivate();
+            m_AttachNSlider.Deactivate();
+            m_AttachEtaSlider.Deactivate();
         }
+
+        // Handle orphaned trans/rot attachment flags; activate the "none" buttons for user to de-orphan geom
+        if ( !parent && geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_NONE )
+        {
+            orphaned_trans = true;
+        }
+        if ( !parent && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_TRANS_NONE )
+        {
+            orphaned_rot = true;
+        }
+
+    }
+
+    if ( orphaned_trans )
+    {
+        m_TransNoneButton.Activate();
+    }
+    if ( orphaned_rot )
+    {
+        m_RotNoneButton.Activate();
     }
 
     m_NumUSlider.Update( geom_ptr->m_TessU.GetID() );

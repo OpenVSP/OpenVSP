@@ -15,24 +15,26 @@
 #include "GuiDevice.h"
 
 #include <FL/Fl.H>
-#include "PodScreen.h"
-#include "FuselageScreen.h"
-#include "WingScreen.h"
 #include "BlankScreen.h"
 #include "BORScreen.h"
-#include "MeshScreen.h"
-#include "StackScreen.h"
-#include "CustomScreen.h"
-#include "PtCloudScreen.h"
-#include "PropScreen.h"
-#include "HingeScreen.h"
-#include "DrawObj.h"
-#include "MultTransScreen.h"
 #include "ConformalScreen.h"
+#include "CustomScreen.h"
+#include "DrawObj.h"
 #include "EllipsoidScreen.h"
-#include "WireScreen.h"
+#include "FuselageScreen.h"
+#include "HingeScreen.h"
 #include "HumanGeomScreen.h"
+#include "MeshScreen.h"
+#include "MultTransScreen.h"
+#include "PodScreen.h"
+#include "PropScreen.h"
+#include "PtCloudScreen.h"
 #include "RoutingScreen.h"
+#include "StackScreen.h"
+#include "TreeIconWidget.h"
+#include "WingScreen.h"
+#include "WireScreen.h"
+
 
 using std::string;
 using std::vector;
@@ -59,6 +61,20 @@ public:
 
     void CreateScreens();
     void ShowHideGeomScreens();
+
+    void SetNeedsShowHideGeoms()
+    {
+        m_NeedsShowHideGeoms = true;
+    }
+
+    void SetRedrawFlag()
+    {
+        m_RedrawFlag = true;
+    }
+    void ClearRedrawFlag()
+    {
+        m_RedrawFlag = false;
+    }
 
     void UpdateGeomScreens();
 
@@ -104,10 +120,12 @@ protected:
 
     TriggerButton m_MoveTopButton;
     TriggerButton m_MoveUpButton;
+    TriggerButton m_UpParentButton;
+    TriggerButton m_DownParentButton;
     TriggerButton m_MoveDownButton;
     TriggerButton m_MoveBotButton;
 
-    Fl_Browser * m_GeomBrowser;
+    TreeWithIcons* m_GeomBrowser;
 
     TriggerButton m_DeleteButton;
     TriggerButton m_CopyButton;
@@ -137,20 +155,21 @@ protected:
     TriggerButton m_NoShowSetButton;
     TriggerButton m_SelectSetButton;
 
-
-    int m_LastTopLine;
     int m_SetIndex;
     int m_TypeIndex;
-    bool m_CollapseFlag;
-    string m_LastSelectedGeomID;
     Vehicle* m_VehiclePtr;
     vector< VspScreen* > m_GeomScreenVec;
 
-    vector< string > m_DisplayedGeomVec;
+    vector< string > m_GeomVec;
 
     std::vector<DrawObj> m_PickList;
 
     bool m_VehSelected;
+    bool m_VehOpen;
+    bool m_RedrawFlag;
+    bool m_NeedsShowHideGeoms;
+
+    vector < string > m_SelVec;
 
     void AddGeom();
     void LoadBrowser();
@@ -175,7 +194,7 @@ protected:
     vector< string > GetSelectedBrowserItems();
 
     void UpdateDrawObjs();
-    
+
 };
 
 

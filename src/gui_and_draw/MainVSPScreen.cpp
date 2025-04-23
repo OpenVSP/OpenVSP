@@ -525,7 +525,7 @@ void MainVSPScreen::ActionCB( void * data )
         ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
         if( geomScreen )
         {
-            geomScreen->ShowHideGeomScreens();
+            geomScreen->SetNeedsShowHideGeoms();
         }
     }
     else if ( data == &m_PickMenuItem )
