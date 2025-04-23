@@ -63,8 +63,24 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
     Fl::screen_xywh( x, y, w, h );
 
-    // Figure out which is smaller, half the screen width or the height
-    side = std::min( 0.5 * w, 0.9 * h );
+    //==== Determine remaining screen width after geombrowser + geomscreen usage ====//
+    int geom_group_width = 0;
+    ManageGeomScreen* mgs = static_cast< ManageGeomScreen* >( mgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
+    if ( mgs )
+    {
+        vector< VspScreen* > geomscreen_vec = mgs->GetGeomScreenVec();
+        for ( int i = 0; i < geomscreen_vec.size(); i++ )
+        {
+            geom_group_width = std::max( geom_group_width, geomscreen_vec[i]->GetFlWindow()->w() );
+        }
+    }
+    // Add ManageGeomScreen's width
+    geom_group_width += mgs->GetFlWindow()->w();
+
+    //==== Figure out which is smaller, remaining width or the height ====//
+    int w_allow = w - geom_group_width - 20;
+    int h_allow = 0.9 * h;
+    side = std::min( w_allow, h_allow );
 
     m_FLTK_Window->resize( x + 10, y + 30, side, side );
 

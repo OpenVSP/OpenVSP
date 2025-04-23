@@ -799,7 +799,6 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_IMPORT_SCREEN] = new ImportScreen( this );
     m_ScreenVec[vsp::VSP_MEASURE_SCREEN] = new ManageMeasureScreen( this );
     m_ScreenVec[vsp::VSP_LIGHTING_SCREEN] = new ManageLightingScreen( this );
-    m_ScreenVec[vsp::VSP_MAIN_SCREEN] = new MainVSPScreen( this  );
     m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN] = new ManageGeomScreen( this );
     m_ScreenVec[vsp::VSP_MANAGE_TEXTURE_SCREEN] = new ManageTextureScreen( this );
     m_ScreenVec[vsp::VSP_MASS_PROP_SCREEN] = new MassPropScreen( this );
@@ -834,6 +833,9 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_VSPAERO_SCREEN] = new VSPAEROScreen( this );
     m_ScreenVec[vsp::VSP_WAVEDRAG_SCREEN] = new WaveDragScreen( this );
     m_ScreenVec[vsp::VSP_XSEC_SCREEN] = new XSecViewScreen( this );
+
+    //==== Init Main Screen last as it checks for other screens' sizes to set its own size ====//
+    m_ScreenVec[vsp::VSP_MAIN_SCREEN] = new MainVSPScreen( this  );
 }
 
 void ScreenMgr::FirstShow()
