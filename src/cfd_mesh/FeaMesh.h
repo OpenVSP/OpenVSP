@@ -182,6 +182,7 @@ public:
     vector < bool > m_FeaNodeVecUsed;
 
     vector < FixPoint > m_FixPntVec; // Fix point data map.
+    int m_FixPtOffset;
 
     // Groups of trimming planes.
     vector < PartTrim > m_TrimVec;

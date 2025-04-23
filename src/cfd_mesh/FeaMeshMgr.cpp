@@ -2599,6 +2599,9 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         return;
     }
 
+    // Number of spider points to find for on-body fixed points.
+    int nspider = 6;
+
     //==== Collect All FeaNodes ====//
     GetMeshPtr()->m_FeaNodeVec.clear();
 
@@ -2635,17 +2638,24 @@ void FeaMeshMgrSingleton::TagFeaNodes()
     }
 
     // Count fixed points for additional offset.
-    long long int numfixpt = 0;
+    long long int fixptoffset = 0;
     for ( size_t j = 0; j < GetMeshPtr()->m_NumFeaFixPoints; j++ )
     {
-        numfixpt += GetMeshPtr()->m_FixPntVec[j].m_Pnt.size();
+        int spidermult = 1;
+        if ( GetMeshPtr()->m_FixPntVec[j].m_OnBody )
+        {
+            spidermult += nspider;
+        }
+
+        fixptoffset += spidermult * GetMeshPtr()->m_FixPntVec[j].m_Pnt.size();
     }
+    GetMeshPtr()->m_FixPtOffset = fixptoffset;
 
     //==== Assign Index Numbers to Nodes ====//
     for ( int i = 0; i < (int)GetMeshPtr()->m_FeaNodeVec.size(); i++ )
     {
         GetMeshPtr()->m_FeaNodeVec[i]->m_Tags.clear();
-        GetMeshPtr()->m_FeaNodeVec[i]->m_Index = pnCloud.GetNodeUsedIndex( i ) + 1 + numfixpt;
+        GetMeshPtr()->m_FeaNodeVec[i]->m_Index = pnCloud.GetNodeUsedIndex( i ) + 1 + fixptoffset;
     }
 
     // Override index numbers for fixed points.  Also set other fixed point settings and add mass elements.
