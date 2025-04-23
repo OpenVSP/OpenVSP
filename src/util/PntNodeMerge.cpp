@@ -107,6 +107,32 @@ long long int PntNodeCloud::LookupPntUsed( const vec3d & pnt )
     return -1;
 }
 
+void PntNodeCloud::LookupPntBase( const vec3d & pnt, int num_results, vector < long long int > & results_vec )
+{
+    results_vec.clear();
+    vector < unsigned int > ret_index( num_results );
+    vector < double > out_dist_sqr( num_results );
+
+    num_results = m_index->knnSearch( &pnt[0], num_results, &ret_index[0], &out_dist_sqr[0] );
+
+    // In case of less points in the tree than requested:
+    ret_index.resize( num_results );
+    out_dist_sqr.resize( num_results );
+
+    if ( ret_index.size() >= 1 )
+    {
+        results_vec.resize( ret_index.size() );
+        for ( size_t i = 0; i < ret_index.size(); i++ )
+        {
+            results_vec[i] = GetNodeBaseIndex( ret_index[i] );
+        }
+    }
+    else
+    {
+        printf( "Can't find point in LookupPntBase\n" );
+    }
+}
+
 long long int PntNodeCloud::LookupPntBase( const vec3d & pnt )
 {
     long long int num_results = 1;

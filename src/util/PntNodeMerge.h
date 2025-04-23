@@ -102,6 +102,7 @@ struct PntNodeCloud
     vector < long long int > GetMatches( long long int i );
 
     long long int LookupPntUsed( const vec3d & pnt );
+    void LookupPntBase( const vec3d & pnt, int num_results, vector < long long int > & results_vec );
     long long int LookupPntBase( const vec3d & pnt );
 
 };
