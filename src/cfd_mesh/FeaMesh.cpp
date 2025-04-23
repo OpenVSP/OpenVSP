@@ -1648,6 +1648,32 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
             fprintf( fp, "\n" );
         }
 
+        //==== Write Spider Points ====//
+        for ( size_t i = 0; i < m_NumFeaFixPoints; i++ )
+        {
+            FixPoint fxpt = m_FixPntVec[i];
+
+            if ( fxpt.m_OnBody )
+            {
+                for ( unsigned int j = 0; j < (int)fxpt.m_Pnt.size(); j++ )
+                {
+                    if ( fxpt.m_NodeIndex[j] >= 0 )
+                    {
+                        fprintf( fp, "** Spider points for node: %d\n", (int) ( fxpt.m_NodeIndex[ j ] + noffset ) );
+                        fprintf( fp, "*NODE, NSET=N_%d_Spider\n", (int) ( fxpt.m_NodeIndex[ j ] + noffset ) );
+
+                        for ( int ispider = 0; ispider < fxpt.m_SpiderIndex[ j ].size(); ispider++ )
+                        {
+                            int spider_ind = (int) fxpt.m_SpiderIndex[ j ][ ispider ];
+                            m_FeaNodeVec[ spider_ind ]->WriteCalculix( fp, noffset );
+                        }
+                    }
+                }
+
+                fprintf( fp, "\n" );
+            }
+        }
+
         //==== Write nodes from FeaParts ====//
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
@@ -1657,7 +1683,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
 
                 for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
                 {
-                    if ( m_FeaNodeVecUsed[ j ] )
+                    if ( m_FeaNodeVecUsed[ j ] && m_FeaNodeVec[ j ]->m_Index > m_FixPtOffset )
                     {
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
                         {
@@ -1683,7 +1709,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
-                if ( m_FeaNodeVecUsed[ j ] )
+                if ( m_FeaNodeVecUsed[ j ] && m_FeaNodeVec[ j ]->m_Index > m_FixPtOffset )
                 {
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
                     {
@@ -1704,7 +1730,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
         bool IntersectHeader = false;
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
-            if ( m_FeaNodeVecUsed[ j ] )
+            if ( m_FeaNodeVecUsed[ j ] && m_FeaNodeVec[ j ]->m_Index > m_FixPtOffset )
             {
                 if ( m_FeaNodeVec[j]->m_Tags.size() > 1 &&
                      !m_FeaNodeVec[j]->m_FixedPointFlag )
@@ -1729,7 +1755,8 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
         for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
         {
             if ( m_FeaNodeVecUsed[ i ] &&
-                 m_FeaNodeVec[i]->m_Tags.size() == 0 )
+                 m_FeaNodeVec[ i ]->m_Tags.size() == 0 &&
+                 m_FeaNodeVec[ i ]->m_Index > m_FixPtOffset )
             {
                 if ( !RemainingHeader )
                 {
