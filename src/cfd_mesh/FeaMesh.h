@@ -211,6 +211,7 @@ public:
     vector< DrawObj > m_SSCapNormDO;
     DrawObj m_BCNodeDO;
 
+    DrawObj m_FeaSpiderNodeDO;
 
 private:
     string m_ID;
