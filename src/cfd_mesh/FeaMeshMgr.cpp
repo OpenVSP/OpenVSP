@@ -942,6 +942,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
 
                 if ( fixpnt->m_FixedPointType() == vsp::FEA_FIX_PT_ON_BODY )
                 {
+                    fxpt.m_FeaParentPartIndex = fea_struct->GetFeaPartIndex( fixpnt->m_ParentFeaPartID );
                     fxpt.m_OnBody = true;
                     vec2d uw = fixpnt->GetUW();
                     fxpt.m_UW = uw;
@@ -1017,6 +1018,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                 else
                 {
                     fxpt.m_OnBody = false;
+                    fxpt.m_FeaParentPartIndex = -1;
                 }
 
                 GetMeshPtr()->m_FixPntVec.push_back( fxpt );

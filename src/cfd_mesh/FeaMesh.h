@@ -32,6 +32,7 @@ public:
     bool m_OnBody;
     vec2d m_UW;                          // UW coordinates for FeaFixPoints
     int m_FeaPartIndex;                  // FixPoint FeaPart index
+    int m_FeaParentPartIndex;
     vector < int > m_BorderFlag;         // Indicates if the FixPoint lies on a surface, border, or intersection
     vector < vector < int > > m_SurfInd; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec (Note: not the surf ID)
     bool m_PtMassFlag;
