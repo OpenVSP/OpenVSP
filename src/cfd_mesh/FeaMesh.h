@@ -38,6 +38,8 @@ public:
     bool m_PtMassFlag;
     double m_PtMass;
     vector < int > m_NodeIndex;          // Index of node in mesh.
+
+    vector < vector < long long int > > m_SpiderIndex;
 };
 
 class FeaMesh

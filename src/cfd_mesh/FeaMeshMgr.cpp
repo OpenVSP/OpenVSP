@@ -939,6 +939,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
 
                 // Initialize node vector to -1.  Set in TagFeaNodes
                 fxpt.m_NodeIndex.resize( npt, -1 );
+                fxpt.m_SpiderIndex.resize( npt );
 
                 if ( fixpnt->m_FixedPointType() == vsp::FEA_FIX_PT_ON_BODY )
                 {
@@ -2756,6 +2757,69 @@ void FeaMeshMgrSingleton::TagFeaNodes()
             else
             {
                 printf( "Point not found.\n" );
+            }
+        }
+    }
+
+    // Find 'spider' points
+    // Needs to be after tags are applied for classification.
+    for ( size_t j = 0; j < GetMeshPtr()->m_NumFeaFixPoints; j++ )
+    {
+        FixPoint fxpt = GetMeshPtr()->m_FixPntVec[j];
+        if ( fxpt.m_OnBody )
+        {
+            for ( size_t k = 0; k < fxpt.m_Pnt.size(); k++ )
+            {
+                int ind = pnCloud.LookupPntBase( fxpt.m_Pnt[k] );
+
+                // Find nearest N points.
+                // N is over-sized to deal with duplicates.
+                vector < long long int > results_vec;
+                pnCloud.LookupPntBase( fxpt.m_Pnt[k], 6*6*6, results_vec );
+
+                // Eliminate duplicates
+                // Points are in distance order
+                vector_remove_duplicates_preserve_order( results_vec );
+
+                // Remove center point.
+                vector_remove_val( results_vec, (long long int ) ind );
+
+                // Filter to only used points on parent point
+                vector < long long int > keep_vec;
+                for ( int i = 0; i < (int)results_vec.size(); i++ )
+                {
+                    int ires = results_vec[i];
+                    if (  GetMeshPtr()->m_FeaNodeVecUsed[ ires ] &&
+                          GetMeshPtr()->m_FeaNodeVec[ ires ]->HasTag( fxpt.m_FeaParentPartIndex ) )
+                    {
+                        keep_vec.push_back( ires );
+                    }
+                }
+                results_vec = keep_vec;
+
+                // Trim to six nearest points
+                results_vec.resize( 6 );
+
+                // Store spider points.
+                GetMeshPtr()->m_FixPntVec[ j ].m_SpiderIndex[ k ] = results_vec;
+
+                // Renumber spider nodes
+                for ( int i = 0; i < results_vec.size(); i++ )
+                {
+                    int ires = results_vec[i];
+                    if ( GetMeshPtr()->m_FeaNodeVec[ ires ]->m_Index > fixptoffset )
+                    {
+                        // printf("Renumbering spider point %d to %d\n", (int) (GetMeshPtr()->m_FeaNodeVec[ ires ]->m_Index), (int) (ifixpt + 1) );
+
+                        vector < long long int > matches = pnCloud.GetMatches( ires );
+                        for ( size_t imatch = 0; imatch < matches.size(); imatch++ )
+                        {
+                            // Override index numbers for spider points.
+                            GetMeshPtr()->m_FeaNodeVec[ matches[imatch] ]->m_Index = ifixpt + 1;
+                        }
+                        ifixpt++;
+                    }
+                }
             }
         }
     }
