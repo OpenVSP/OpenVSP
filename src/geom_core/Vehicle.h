@@ -109,12 +109,15 @@ public:
 
     bool IsGeomActive( const string & geom_id );
     void ReorderActiveGeom( int direction );
+    void ReparentActiveGeom( int direction );
 
     void CutActiveGeomVec();
     void DeleteActiveGeomVec();
     void CopyActiveGeomVec();
     void DeleteGeomVec( const vector<string> & del_vec );
     void DeleteGeom( const string & geom_id );
+    void AddTopGeomID( const string & geom_id, const string &insert_after_id = string() );
+    void RemoveTopGeomID( const string & geom_id );
     void CutGeomVec( const vector<string> & cut_vec );
     void RemoveGeomVecFromHierarchy( const vector<string> & cut_vec );
     void DeleteClipBoard();

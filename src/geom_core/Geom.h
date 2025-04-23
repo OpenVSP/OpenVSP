@@ -66,9 +66,16 @@ public:
 
     void CopyFrom( const GeomType & t );
 
+    bool GetAdoptableFlag()
+    {
+        return m_AdoptableFlag;
+    }
+
     int m_Type;
     string m_Name;
     bool m_FixedFlag;
+
+    bool m_AdoptableFlag;
 
     string m_GeomID;
     string m_ModuleName;
@@ -208,12 +215,10 @@ public:
     {
         return m_ParentID;
     }
+    void ChangeParentID( const string &id, const string &sibling_id = string() );
     virtual string GetAncestorID( int gen );
     virtual void BuildAncestorList( vector< string > &ancestors );
-    virtual void AddChildID( const string &id )
-    {
-        m_ChildIDVec.push_back( id );
-    }
+    virtual void AddChildID( const string &id, const string &insert_after_id = string() );
     virtual void RemoveChildID( string id );
     virtual vector< string > GetChildIDVec()
     {

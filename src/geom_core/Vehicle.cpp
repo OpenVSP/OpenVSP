@@ -1520,7 +1520,108 @@ void Vehicle::ReorderActiveGeom( int action )
 
 }
 
-//==== Delete Active Geom ====//
+void Vehicle::ReparentActiveGeom( int action )
+{
+    //==== Find Active Geom ====//
+    vector< string > active_geom_vec = GetActiveGeomVec();
+    if ( active_geom_vec.size() != 1 )
+    {
+        return;
+    }
+
+    string active_geom_id = active_geom_vec[0];
+    Geom* active_geom = FindGeom( active_geom_id );
+    if ( !active_geom )
+    {
+        return;
+    }
+
+    //move geom up one level in hierarchy
+    //get parent geom's parent, promote to child of current grandparent, if applicable
+
+    if ( action == vsp::REORDER_MOVE_UP )
+    {
+        // if no parentID, geom already in TopGeom vec and cannot move up
+        if ( active_geom->GetParentID() == string("NONE") )
+        {
+            return;
+        }
+
+        // try and see if there is a grandparent geom; if not then promote to vehicle top geom
+        int gen = 2;
+        string grandparent_id = active_geom->GetAncestorID( gen );
+        Geom* grandparent_geom = FindGeom( grandparent_id );
+
+        // get location of parent id in its local child vector
+        vector < string > sibling_vector;
+        vector < string > ::iterator index_iter;
+        string new_sibling_id = string();
+
+        if ( grandparent_geom )
+        {
+            sibling_vector = grandparent_geom->GetChildIDVec();
+        }
+        else
+        {
+            sibling_vector = m_TopGeom;
+        }
+
+        index_iter = find( sibling_vector.begin(), sibling_vector.end(), active_geom->GetParentID() );
+        if ( index_iter != sibling_vector.end() )
+        {
+            new_sibling_id = *(index_iter);
+        }
+
+        if ( grandparent_geom )
+        {
+            active_geom->ChangeParentID( grandparent_id, new_sibling_id );
+        }
+        else
+        {
+            active_geom->ChangeParentID( GetID(), new_sibling_id );
+        }
+    }
+
+    else if ( action == vsp::REORDER_MOVE_DOWN )
+    {
+        // Get geomIDvec from TopGeomVec or geom's parent's ChildVec
+        // move into TOP of childVec of next id above the active geom
+
+        string parent_id = active_geom->GetParentID();
+
+        Geom* parent_geom = FindGeom( parent_id );
+
+        // if geom is child of another geom, access the geom neighbor from the parent's childvec
+        vector < string > sibling_vector;
+
+        if ( parent_geom )
+        {
+            sibling_vector = parent_geom->GetChildIDVec();
+        }
+        // if geom is at top level in vehicle, access neighbor from vehicle TopGeom vector
+        else
+        {
+            sibling_vector = m_TopGeom;
+        }
+
+        vector < string > ::iterator index_iter;
+
+        //where the active geom is in the sibling vector
+        index_iter = find( sibling_vector.begin(), sibling_vector.end(), active_geom_id );
+
+        if ( index_iter != sibling_vector.begin() )
+        {
+            string new_parent_id = *(index_iter-1);
+            Geom* new_parent_geom = FindGeom( new_parent_id );
+            if ( new_parent_geom )
+            {
+                active_geom->ChangeParentID( new_parent_id );
+            }
+        }
+    }
+}
+
+//==== \Delete Active Geom ====//
 void Vehicle::DeleteActiveGeomVec()
 {
     vector< string > sel_vec = GetActiveGeomVec();
@@ -1587,6 +1688,26 @@ void Vehicle::DeleteGeom( const string & geom_id )
         delete gPtr;
     }
 
+}
+
+void Vehicle::AddTopGeomID( const string & geom_id, const string &insert_after_id )
+{
+    vector < string > ::iterator index_iter;
+    index_iter = find( m_TopGeom.begin(), m_TopGeom.end(), insert_after_id );
+
+    if ( insert_after_id.empty() || index_iter == m_TopGeom.end() )
+    {
+        m_TopGeom.push_back( geom_id );
+    }
+    else
+    {
+        m_TopGeom.insert( index_iter + 1, geom_id );
+    }
+}
+
+void Vehicle::RemoveTopGeomID( const string & geom_id )
+{
+    vector_remove_val( m_TopGeom, geom_id );
 }
 
 //==== Paste All Geoms in Clipboard ====//

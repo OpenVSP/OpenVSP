@@ -26,7 +26,7 @@ GeomType::GeomType()
     m_Type = POD_GEOM_TYPE;
     m_Name = "Pod";
     m_FixedFlag = false;
-
+    m_AdoptableFlag = true;
 }
 
 //==== Constructor ====//
@@ -332,6 +332,80 @@ bool GeomBase::IsParentJoint()
     return false;
 }
 
+//==== Changes parent of existing Geom, places in new parent's child vector & removes from old parent's child vector ====//
+void GeomBase::ChangeParentID( const string& reparent_id, const string& sibling_id )
+{
+    // check if geom type can change parents
+    if ( !m_Type.m_AdoptableFlag )
+    {
+        return;
+    }
+
+    // check if geom_id is valid
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    // ensure geom_id different than new_parent_id
+    if ( GetID() == reparent_id )
+    {
+        return;
+    }
+
+    // then check if the new_parent_id is valid, either as a geom or the vehicle
+    Geom* reparent_geom = veh->FindGeom( reparent_id );
+    Vehicle* reparent_veh = nullptr;
+    if ( veh->GetID() == reparent_id )
+    {
+        reparent_veh = veh;
+    }
+
+    if ( !reparent_geom && !reparent_veh )
+    {
+        return;
+    }
+
+    // get the existing parent geom or veh
+    Geom* old_parent_geom = veh->FindGeom( GetParentID() );
+    Vehicle* old_parent_veh = nullptr;
+    {
+        old_parent_veh = veh;
+    }
+
+    // check that the parent_id is in fact valid
+    if ( !old_parent_geom && !old_parent_veh )
+    {
+        return;
+    }
+
+    // 3 options for reparenting:
+    // 1: go from parent geom to parent geom
+    // 2: go from parent geom to parent veh
+    // 3: go from parent veh  to parent geom
+    if ( old_parent_geom && reparent_geom )
+    {
+        old_parent_geom->RemoveChildID( GetID() );
+        reparent_geom->AddChildID( GetID(), sibling_id );
+        SetParentID( reparent_id );
+
+        Update();
+    }
+    else if ( old_parent_geom && reparent_veh )
+    {
+        old_parent_geom->RemoveChildID( GetID() );
+        reparent_veh->AddTopGeomID( GetID(), sibling_id );
+        SetParentID( string("NONE") );
+
+        Update();
+    }
+    else if ( old_parent_veh && reparent_geom )
+    {
+        old_parent_veh->RemoveTopGeomID( GetID() );
+        reparent_geom->AddChildID( GetID(), sibling_id );
+        SetParentID( reparent_id );
+
+        Update();
+    }
+}
+
 string GeomBase::GetAncestorID( int gen )
 {
     if ( gen == 0 )
@@ -373,6 +447,22 @@ bool GeomBase::IsMatch( const string& id_string )
     }
 
     return true;
+}
+
+//==== Add ID to Child Vec with optional argument to place adjacent to existing geom in childVec ====//
+void GeomBase::AddChildID( const string &id, const string &insert_after_id )
+{
+    vector < string > ::iterator index_iter;
+    index_iter = find( m_ChildIDVec.begin(), m_ChildIDVec.end(), insert_after_id );
+
+    if ( insert_after_id.empty() || index_iter == m_ChildIDVec.end() )
+    {
+        m_ChildIDVec.push_back( id );
+    }
+    else
+    {
+        m_ChildIDVec.insert( index_iter + 1, id );
+    }
 }
 
 //==== Remove ID From Child Vec ====//
