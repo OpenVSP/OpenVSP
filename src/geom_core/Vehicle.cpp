@@ -2145,30 +2145,6 @@ void Vehicle::SetGeomType( int index, const GeomType & type )
     }
 }
 
-//==== Add Type From Geometry ====//
-void Vehicle::AddType( const string & geom_id )
-{
-    Geom* gptr = FindGeom( geom_id );
-    if ( gptr && gptr->GetType().m_Type != CUSTOM_GEOM_TYPE )
-    {
-        GeomType type( gptr->GetType().m_Type, gptr->GetName(), false, gptr->GetType().m_ModuleName, gptr->GetType().m_DisplayName );
-
-        //===== Create Geom ====//
-        GeomType t = gptr->GetType();
-        string id = CreateGeom( t );
-        Geom* toPtr = FindGeom( id );
-        if ( toPtr )
-        {
-            toPtr->CopyFrom( gptr );
-            toPtr->Update();
-        }
-
-        type.m_GeomID = id;
-        m_GeomTypeVec.push_back( type );
-    }
-
-}
-
 //==== Get Vector of Geom IDs That Are Valid For Types ====//
 vector< string > Vehicle::GetValidTypeGeoms()
 {
@@ -2198,31 +2174,6 @@ vector< GeomType > Vehicle::GetEditableGeomTypes()
     }
     return type_vec;
 }
-
-
-//==== Delete Type ====//
-void Vehicle::DeleteType( int index )
-{
-     if ( index < 0 || index >= (int)m_GeomTypeVec.size() )
-        return;
-
-    GeomType type = GetGeomType( index );
-
-    if ( type.m_FixedFlag )
-    {
-        return;
-    }
-
-    Geom* gPtr = FindGeom( type.m_GeomID );
-    if ( gPtr )
-    {
-        vector_remove_val( m_GeomStoreVec, gPtr );
-        delete gPtr;
-    }
-
-    m_GeomTypeVec.erase( m_GeomTypeVec.begin() + index );
-}
-
 
 xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 {

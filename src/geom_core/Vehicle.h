@@ -148,8 +148,6 @@ public:
     //==== Geom Type Data =====//
     vector< string > GetValidTypeGeoms();
     vector< GeomType > GetEditableGeomTypes();
-    void AddType( const string & geom_id );
-    void DeleteType( int index );
 
     int GetNumGeomTypes()                                    { return ( int )m_GeomTypeVec.size(); }
     int GetNumFixedGeomTypes();
