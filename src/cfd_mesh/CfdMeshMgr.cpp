@@ -2472,51 +2472,27 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
 void CfdMeshMgrSingleton::InitMesh( )
 {
-    bool PrintProgress = false;
-#ifdef DEBUG_CFD_MESH
-    PrintProgress = true;
-#endif
-
-    if ( PrintProgress )
-    {
-        addOutputText( "MatchWakes\n" );
-    }
+    addOutputText( "MatchWakes\n" );
     MatchWakes();
 
-    if ( PrintProgress )
-    {
-        addOutputText( "TessellateChains\n" );
-    }
+    addOutputText( "TessellateChains\n" );
     TessellateChains();
 
 //DebugWriteChains( "Tess_UW", true );
 
-    if ( PrintProgress )
-    {
-        addOutputText( "MergeBorderEndPoints\n" );
-    }
+    addOutputText( "MergeBorderEndPoints\n" );
     MergeBorderEndPoints();
 
     AddWakeCoPlanarSurfaceChains();
 
-    if ( PrintProgress )
-    {
-        // addOutputText( "BuildMesh\n" );  Output in BuildMesh
-    }
+    // addOutputText( "BuildMesh\n" );  Output in BuildMesh
     BuildMesh();
 
-    if ( PrintProgress )
-    {
-        addOutputText( "RemoveInteriorTris\n" );
-    }
+    addOutputText( "RemoveInteriorTris\n" );
     RemoveInteriorTris();
 
-    if ( PrintProgress )
-    {
-        addOutputText( "RemoveTrimTris\n" );
-    }
+    addOutputText( "RemoveTrimTris\n" );
     RemoveTrimTris();
-
 }
 
 void CfdMeshMgrSingleton::TessellateChains()
