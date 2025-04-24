@@ -1299,7 +1299,7 @@ bool GeomScreen::Update()
     {
         Geom* parent = veh->FindGeom( geom_ptr->GetParentID() );
 
-        if ( parent && !routing_parent )
+        if ( parent && !routing_parent && !geom_ptr->IsParentJoint() )
         {
             m_TransToggleGroup.Activate();
             m_RotToggleGroup.Activate();

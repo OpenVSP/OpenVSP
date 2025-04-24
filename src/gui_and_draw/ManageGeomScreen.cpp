@@ -352,10 +352,24 @@ void ManageGeomScreen::LoadBrowser()
             {
                 //==== Update Geom Labels ====//
 
+                string label_str;
+
                 bool orphaned_attach = false;
                 bool has_attr = gPtr->GetAttrCollection()->GetAttrDataFlag();
 
-                string label_str;
+                string parent_id = gPtr->GetParentID();
+                Geom* parent_ptr = m_VehiclePtr->FindGeom( parent_id );
+
+                if ( gPtr->m_TransAttachFlag() != vsp::ATTACH_TRANS_NONE ||
+                     gPtr->m_RotAttachFlag() != vsp::ATTACH_ROT_NONE )
+                {
+                    geom_tree_item->SetHConnLine( TREE_LINE_CONN::STYLE_THICK );
+
+                    if ( !parent_ptr )
+                    {
+                        orphaned_attach = true;
+                    }
+                }
 
                 // Is this geom a HINGE? Change its child lines to double style
                 HingeGeom* hPtr = dynamic_cast < HingeGeom* > ( gPtr );
@@ -363,25 +377,15 @@ void ManageGeomScreen::LoadBrowser()
                 {
                     geom_tree_item->SetChildVConnLine( TREE_LINE_CONN::STYLE_DOUBLE );
                 }
-                else
+
+                if ( parent_ptr )
                 {
-                    string parent_id = gPtr->GetParentID();
-                    Geom* parent_ptr = m_VehiclePtr->FindGeom( parent_id );
-                    if ( parent_ptr )
+                    // Is this geom ATTACHED to a hinge? Change its attachment lines to double style
+                    HingeGeom* parent_hPtr = dynamic_cast < HingeGeom* > ( parent_ptr );
+                    if ( parent_hPtr )
                     {
-                        // Is this geom ATTACHED to a hinge? Change its attachment lines to double style
-                        HingeGeom* parent_hPtr = dynamic_cast < HingeGeom* > ( parent_ptr );
-                        if ( parent_hPtr )
-                        {
-                            geom_tree_item->SetHConnLine( TREE_LINE_CONN::STYLE_DOUBLE );
-                            geom_tree_item->SetVConnLine( TREE_LINE_CONN::STYLE_DOUBLE );
-                        }
-                    }
-                    // Is this geom parentless AND has an attach flag? Set orphan flag to true to lighten the font color
-                    else if ( gPtr->m_TransAttachFlag() != vsp::ATTACH_TRANS_NONE ||
-                            gPtr->m_RotAttachFlag() != vsp::ATTACH_ROT_NONE )
-                    {
-                        orphaned_attach = true;
+                        geom_tree_item->SetHConnLine( TREE_LINE_CONN::STYLE_DOUBLE );
+                        geom_tree_item->SetVConnLine( TREE_LINE_CONN::STYLE_DOUBLE );
                     }
                 }
 
