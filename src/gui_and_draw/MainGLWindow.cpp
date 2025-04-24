@@ -1898,6 +1898,9 @@ void VspGlWindow::_updateBuffer( const std::vector<DrawObj *> &objects )
     std::vector<ID> idsToRemove;
     std::vector<ID> idsToKeep;
 
+    idsToKeep.reserve( objects.size() );
+    idsToRemove.reserve( objects.size() );
+
     // Figure out if any buffer object no longer exists in DrawObjs.
     for( int i = 0; i < ( int )m_ids.size(); i++ )
     {
