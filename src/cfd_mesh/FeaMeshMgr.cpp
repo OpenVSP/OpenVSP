@@ -1360,8 +1360,12 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                 }
             }
 
-            int ichain = GetMeshPtr()->m_FeaPartNumChainsVec[ FeaPartIndex ];
-            GetMeshPtr()->m_FeaPartNumChainsVec[ FeaPartIndex ]++;
+            int ichain = 0;
+            if ( FeaPartIndex >=0 )
+            {
+                ichain = GetMeshPtr()->m_FeaPartNumChainsVec[ FeaPartIndex ];
+                GetMeshPtr()->m_FeaPartNumChainsVec[ FeaPartIndex ]++;
+            }
 
             int normsurfindx = vector_find_val( m_SurfVec, NormSurf );
             // Define FeaBeam elements
