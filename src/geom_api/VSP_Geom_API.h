@@ -12911,7 +12911,7 @@ extern int MoveRoutingPt( const string &routing_id, int index, int reorder_type 
     string u2 = GetParm( rpt2, "U", "RoutePt");
     SetParmVal(u2, 1.0);
 
-    string rid = GetRoutingPtID(routing_geom, 2)
+    string rid = GetRoutingPtID(routing_geom, 2);
     \endcode
     \endforcpponly
     \beginPythonOnly
