@@ -419,23 +419,6 @@ void NerfManageGeomScreen::SelectGeomBrowser( const string &geom_id )
     }
 }
 
-//==== Is Parent (or Higher) Selected ====//
-bool NerfManageGeomScreen::IsParentSelected( const string &geom_id, const vector< string > & selVec )
-{
-    Geom* checkGeom = m_VehiclePtr->FindGeom( geom_id );
-    while ( checkGeom )
-    {
-        if ( vector_contains_val( selVec, checkGeom->GetID() ) )
-        {
-            return true;
-        }
-
-        string parent_id = checkGeom->GetParentID();
-        checkGeom = m_VehiclePtr->FindGeom( parent_id );
-    }
-    return false;
-}
-
 vector< string > NerfManageGeomScreen::GetSelectedBrowserItems()
 {
     vector< TreeIconItem* > tree_items;
