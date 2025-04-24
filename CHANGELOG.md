@@ -1,3 +1,140 @@
+# [OpenVSP 3.43.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.43.0)
+
+2025-04-24
+
+Lots more good stuff here.  Several cool features as well as some pretty
+critical bug fixes.  Everyone should update.
+
+Under the Geom pull-down, you'll find a new kind of Geom.  The Routing
+geom is for modeling subsystems that are routed around the vehicle.  Think
+wiring, pneumatics, hydraulics, shafting, etc.  The routing geom is a
+3D poly-line that can be anchored to multiple Geoms along its route.  The
+length of the route will be calculated.  For now, the route has no volume
+(it is just a polyline) and the corners are sharp.  It does not participate
+in analysis (such as mass properties) or export.  It is useful for
+visualization and calculating the overall length of a route.  More
+capabilities may be added later.
+
+While Routing Geom may seem simple, under the hood there is subtle
+complexity.  Normally a Geom can only depend on its immediate parent
+(think attachment or Conformal).  Updates propagate parent to child
+down the tree as needed.  Conversely, a Routing Geom can depend on
+multiple Geoms that can be scattered around the tree.  This required
+fairly fundamental changes to the way OpenVSP works.  It also means
+that you can't attach things to a Routing Geom -- we don't want infinite
+loops, do you?
+
+You can now assign nicknames or aliases to XSecs on a Stack, Fuse, or
+Wing.  You can name a cross section ('Bulkhead' or 'PlanBreak') or
+you can name the space between cross sections ('Cockpit' or 'Wingtip').
+These names should make it easier to be organized for tasks like setting
+up Advanced Links.
+
+You can now change the parent of Geom without resorting to cut/paste.
+There are now left/right arrows in the Geom Browser that will
+promote/demote a Geom in the tree.  Cut/paste of a Geom would destroy
+the ParmID's, which would break any Links and Advanced Links involving
+those Geoms.  This capability allows you to re-organize your model
+without breaking links and things.
+
+The Geom Browser has received an overhaul.  Insted of custom code with
+ASCII art connections, the Geom Browser now uses the FLTK native tree
+with pretty line drawing.  Visibility and surface mode icons have been
+added to each row to display and control how Geoms are viewed.
+
+The Python Multifacade has received some fixes and upgrades.  The
+Multifacade enables using multiple OpenVSP models from one Python process.
+This helps complex MDO problems and also enables coarse parallelization.
+
+Propellers now support control surface subsurfaces.  Subsurfaces now
+have an option to apply to all surfaces of a geom.
+
+Several performance improvements for high tessellation levels and objects
+with repeated surfaces (props and symmetry).  Also some performance
+improvements for models with high part counts.
+
+There are a bunch of FEA / Structures modeling improvements.
+A new poly-spar part will improve the parameterization of spars and will
+fix the spar continuity problems people have had. Beam and shell elements
+are now written separately for NASTRAN files.  Groups of beam elements
+are now split into chain segments.  'Spider' points associated with
+on-part fixed points are now detected and identified.  Later these will
+be used to improve how assembly connections are set up.
+
+The new CMake 4.0 breaks significant backward compatibility.  While this
+is not a big deal for OpenVSP itself, it breaks many of our library
+dependencies.  If you compile OpenVSP yourself, you must stick with
+CMake 3.X for now.  I've updated several of our libraries to work with
+4.0, but two will require more extensive work.  Hopefully this will be
+sorted by the next major release.
+
+There are a lot of fixes in this release, some for pretty significant
+issues including some crashes and model correctness problems.  There
+are also fixes for some creature comforts - multi-view jumping, rotation
+center change not re-centering, prop curve editor resizing, window size
+on portrait displays, etc.
+
+The way Attributes applied to Sets are stored in the XML file has been
+changed, so if you have Attributes on your Sets, you'll need to re-do
+them.
+
+There are a handful of FEA / Structures modeling fixes too.  NASTRAN
+PSHELL property cards now sport a MID3 value.  BC's can now be applied
+to off-body fixed points.  Symmetrical fixed points can now be used
+when building assembly connections.
+
+
+Features:
+- Routing Geom
+- Aliases for XSecs, connected to Advanced Linking
+- Geom Browser refresh, visibility and surface mode icons added
+- Change parent/child of Geom without destruction, preserves ParmIDs
+- Performance improvements with large Geom count
+- General speedups to Update process, particularly high tess & symmetry
+- Multifacade support matured across package
+- Unit test infrastructure improved, Python and AngelScript sample code
+- Prop direction of rotation marker location adjustable
+- Add 'all' option to subsurface surface ID for multi-surface geoms
+- Support control surface subsurfaces for Props
+- Write beam and shell elements separately for NASTRAN
+- Break FEA beam element groups into chain segments
+- Add FEA Poly Spar to fix spar continuity problems
+- Make FEA trimming support Poly Spar
+- Find and identify fixed point spider points for future use
+
+Library Updates:
+- Update various libraries to support CMake 4.0
+- Update Code-Eli to version that supports average_normal computation
+
+Build System:
+- Force CMake 3.X for GitHub Actions build
+
+Fixes:
+- Fix storage of NVD collections
+- Fix treatment of propeller curve editor resizing
+- Fix out-of-date Link-able Parm List
+- Fix wake identification for VSPAERO
+- Fix storage of Sets with Attributes
+- Fix PropGeom::UpdateMainTessVec() not getting called
+- Fix and clean up proliferation of DeaultShell/Beam
+- Fixes view jumping when changing views with multi-view. Thanks Chris S.
+- Fix re-centering of view when changing center of rotation
+- Fix missed update of Geoms with ancestral symmetry
+- Fix calculation of t parameter from uv.
+- VSPAERO GUI moment reference point inaccessible
+- Fix default window size on portrait displays
+- Stipple engine highlight curves to improve visibility
+- Make file choosers work with suggested file name
+- Don't clear filename when changing directories in SelectFileScreen
+- Fix NASTRAN PSHELL property cards MID3 value
+- Allow writing BC's on of-body fixed points
+- Correct fixed point Set name in NASTRAN dat file
+- Fix choice of symmetrical fixed points when building assembly connections
+
+
+---
+
+
 # [OpenVSP 3.42.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.42.3)
 
 2025-02-06
