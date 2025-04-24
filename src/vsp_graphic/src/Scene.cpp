@@ -43,12 +43,12 @@ Scene::~Scene()
 void Scene::clearScene()
 {
     // Clean Scene Objects.
-    for(int i = 0; i < (int)_sceneList.size(); i++)
+    for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
     {
-        _recycleBin.push_back(_sceneList[i]->getID());
-        delete _sceneList[i];
+        _recycleBin.push_back( it->first );
+        delete it->second;
     }
-    _sceneList.clear();
+    _sceneMap.clear();
 
     // Clean all selections.
     for(int i = 0; i < (int)_selections.size(); i++)
@@ -104,7 +104,7 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out)
 
         // Store object and cache id.
         object->setID(*id_out);
-        _sceneList.push_back(object);
+        _sceneMap[ object->getID() ] = object;
     }
 }
 
@@ -147,7 +147,7 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out, unsi
 
         // Store object and cache id.
         object->setID(*id_out);
-        _sceneList.push_back(object);
+        _sceneMap[ object->getID() ] = object;
     }
 
     // Check if picking still needed.
@@ -156,25 +156,22 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out, unsi
 
 void Scene::removeObject(unsigned int id)
 {
-    for(int i = 0; i < (int)_sceneList.size(); i++)
+    auto it = _sceneMap.find( id );
+    if ( it != _sceneMap.end() )
     {
-        if(_sceneList[i]->getID() == id)
+        // Recycle id.
+        _recycleBin.push_back( id );
+
+        // Remove selections on this object.
+        Renderable * rObj = dynamic_cast<Renderable*>( it->second );
+        if(rObj)
         {
-            // Recycle id.
-            _recycleBin.push_back(_sceneList[i]->getID());
-
-            // Remove selections on this object.
-            Renderable * rObj = dynamic_cast<Renderable*>(_sceneList[i]);
-            if(rObj)
-            {
-                _removeSelections(rObj);
-            }
-
-            // Clean up.
-            delete _sceneList[i];
-            _sceneList.erase(_sceneList.begin() + i);
-            break;
+            _removeSelections(rObj);
         }
+
+        // Clean up.
+        delete it->second;
+        _sceneMap.erase( id );
     }
     // Check picking still needed.
     _updateFlags();
@@ -182,14 +179,12 @@ void Scene::removeObject(unsigned int id)
 
 SceneObject * Scene::getObject(unsigned int id)
 {
-    for(int i = 0; i < (int)_sceneList.size(); i++)
+    auto it = _sceneMap.find( id );
+    if( it == _sceneMap.end() )
     {
-        if(_sceneList[i]->getID() == id)
-        {
-            return _sceneList[i];
-        }
+        return nullptr;
     }
-    return NULL;
+    return it->second;
 }
 
 Lighting * Scene::getLights()
@@ -204,11 +199,13 @@ Clipping * Scene::GetClipping()
 
 std::vector<unsigned int> Scene::getIds()
 {
-    std::vector<unsigned int> ids( _sceneList.size() );
+    std::vector<unsigned int> ids( _sceneMap.size() );
 
-    for(int i = 0; i < (int)_sceneList.size(); i++)
+    int i = 0;
+    for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
     {
-        ids[i] = _sceneList[i]->getID();
+        ids[ i ] = it->first;
+        i++;
     }
     return ids;
 }
@@ -226,9 +223,9 @@ void Scene::activatePicking(int x, int y)
 
     if(id)
     {
-        for(int i = 0; i < (int)_sceneList.size(); i++)
+        for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
         {
-            Pickable * pickable = dynamic_cast<Pickable*>(_sceneList[i]);
+            Pickable * pickable = dynamic_cast<Pickable*>( it->second );
             if(pickable)
             {
                 PickablePnts * pkpts = dynamic_cast<PickablePnts*>(pickable);
@@ -295,9 +292,9 @@ void Scene::preSelectBox(int x1, int y1, int x2, int y2)
         }
     }
 
-    for(int k = 0; k < (int)_sceneList.size(); k++)
+    for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
     {
-        PickablePnts * pickable = dynamic_cast<PickablePnts*>(_sceneList[k]);
+        PickablePnts * pickable = dynamic_cast<PickablePnts*>( it->second );
         if(pickable)
         {
             pickable->reset();
@@ -309,9 +306,9 @@ void Scene::preSelectBox(int x1, int y1, int x2, int y2)
     {
         unsigned int id = (*it);
 
-        for(int k = 0; k < (int)_sceneList.size(); k++)
+        for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
         {
-            PickablePnts * pickable = dynamic_cast<PickablePnts*>(_sceneList[k]);
+            PickablePnts * pickable = dynamic_cast<PickablePnts*>( it->second );
             if(pickable)
             {
                 if( pickable->processPickingResult(id) )
@@ -393,9 +390,9 @@ bool Scene::selectLocation(double x, double y, double z)
 
     // Set first PLoc in the scene list as the pickable target.
     PickableLoc * picked;
-    for(int i = 0; i < (int)_sceneList.size(); i++)
+    for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
     {
-        picked = dynamic_cast<PickableLoc*>(_sceneList[i]);
+        picked = dynamic_cast<PickableLoc*>( it->second );
         if(picked)
         {
             SelectedLoc * selected = new SelectedLoc(x, y, z);
@@ -543,9 +540,9 @@ void Scene::_updateFlags()
 
     // First to check if PLoc object exist.  If it does, enable picking
     // and location selection.
-    for(int i = 0; i < (int)_sceneList.size(); i++)
+    for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
     {
-        PickableLoc * match = dynamic_cast<PickableLoc*>(_sceneList[i]);
+        PickableLoc * match = dynamic_cast<PickableLoc*>( it->second );
         if(match)
         {
             _toPick = true;
@@ -556,9 +553,9 @@ void Scene::_updateFlags()
 
     // Check if scene list has pickable objects or not.  If there are none,
     // disable picking.
-    for(int i = 0; i < (int)_sceneList.size(); i++)
+    for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
     {
-        Pickable * match = dynamic_cast<Pickable*>(_sceneList[i]);
+        Pickable * match = dynamic_cast<Pickable*>( it->second );
         if(match)
         {
             _toPick = true;
@@ -572,9 +569,9 @@ void Scene::_updateFlags()
 
 void Scene::predraw()
 {
-    for(int i = 0; i < (int)_sceneList.size(); i++)
+    for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
     {
-        _sceneList[i]->predraw();
+        it->second->predraw();
     }
 
     for(int i = 0; i < (int)_selections.size(); i++)
@@ -592,19 +589,19 @@ void Scene::draw()
     _clip->predraw();
 
     // Draw markers and entities that are not transparent.  Store transparent entities to render later.
-    for( int i = 0; i < (int)_sceneList.size(); i++ )
+    for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
     {
-        Entity * entity = dynamic_cast<Entity*>( _sceneList[i] );
+        Entity * entity = dynamic_cast<Entity*>( it->second );
         if( entity && entity->isTransparent() && 
             ( entity->getRenderStyle() == Common::VSP_DRAW_SHADED ||
               entity->getRenderStyle() == Common::VSP_DRAW_TEXTURED ||
               entity->getRenderStyle() == Common::VSP_DRAW_TEXTURED_TRANSPARENT_BACK ))
         {
-            alphaList.push_back( _sceneList[i] );
+            alphaList.push_back( it->second );
         }
         else
         {
-            _sceneList[i]->draw();
+            it->second->draw();
         }
     }
 

@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <map>
 
 #include "Common.h"
 
@@ -162,7 +163,7 @@ private:
     void _removeSelections(Renderable * source);
 
 private:
-    std::vector<SceneObject*> _sceneList;
+    std::map< int, SceneObject* > _sceneMap;
     std::vector<Selectable*> _selections;
     std::vector<unsigned int> _recycleBin;
 
