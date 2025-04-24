@@ -65,7 +65,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
     //==== Determine remaining screen width after geombrowser + geomscreen usage ====//
     int geom_group_width = 0;
-    ManageGeomScreen* mgs = static_cast< ManageGeomScreen* >( mgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
+    ManageGeomScreen* mgs = dynamic_cast< ManageGeomScreen* >( mgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
     if ( mgs )
     {
         vector< VspScreen* > geomscreen_vec = mgs->GetGeomScreenVec();

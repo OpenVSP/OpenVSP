@@ -591,7 +591,7 @@ int TreeIconItem::IconHandle()
     
     if ( ret > 0 )
     {
-        TreeWithIcons* parent_tree = static_cast< TreeWithIcons* >( tree() );
+        TreeWithIcons* parent_tree = dynamic_cast< TreeWithIcons* >( tree() );
         if ( parent_tree )
         {
             parent_tree->SetEventItem( this );
@@ -717,7 +717,7 @@ TreeIconItem* TreeWithIcons::GetItemByRefId( const string & ref_id )
 
     for ( Fl_Tree_Item *tree_item = first(); tree_item; tree_item = next(tree_item) )
     {
-        TreeIconItem* tree_icon_item = static_cast< TreeIconItem* >( tree_item );
+        TreeIconItem* tree_icon_item = dynamic_cast< TreeIconItem* >( tree_item );
         if ( tree_icon_item && tree_icon_item->GetRefID() == ref_id )
         {
             return tree_icon_item;
@@ -735,7 +735,7 @@ void TreeWithIcons::GetSelectedItems( vector < TreeIconItem* > *item_vec )
 
     for( int i = 0; i != base_array.total(); ++i )
     {
-        TreeIconItem* tree_icon_item = static_cast < TreeIconItem* >( base_array[ i ] );
+        TreeIconItem* tree_icon_item = dynamic_cast < TreeIconItem* >( base_array[ i ] );
         if ( tree_icon_item )
         {
             item_vec->push_back( tree_icon_item );
@@ -754,7 +754,7 @@ int TreeWithIcons::handle( int e )
             // Icon events MUST precede standard events in the geomtree to avoid successive errant callbacks from deselect method
             for ( Fl_Tree_Item *tree_item = first(); tree_item; tree_item = next(tree_item) )
             {
-                TreeIconItem* tree_icon_item = static_cast< TreeIconItem* >( tree_item );
+                TreeIconItem* tree_icon_item = dynamic_cast< TreeIconItem* >( tree_item );
 
                 // check for positive icon event; trigger icon callback for first successful event detection
                 if ( tree_icon_item->IconHandle() )

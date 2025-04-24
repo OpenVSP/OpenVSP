@@ -403,7 +403,7 @@ void AttributeExplorer::GetEmptyColls()
 
         if ( screen_vec[i]->GetScreenType() == vsp::VSP_MANAGE_GEOM_SCREEN )
         {
-            vector < VspScreen* > geom_screen_vec = static_cast< ManageGeomScreen* >( screen_vec[i] )->GetGeomScreenVec();
+            vector < VspScreen* > geom_screen_vec = dynamic_cast< ManageGeomScreen* >( screen_vec[i] )->GetGeomScreenVec();
 
             for ( int j = 0; j != geom_screen_vec.size(); ++j )
             {
@@ -780,7 +780,7 @@ void AttributeExplorer::AttributeModify( GuiDevice* gui_device, Fl_Widget *w )
                 }
 
                 //modify string data
-                else if ( static_cast<Fl_Text_Editor * >( w ) == m_DataText && attrType == vsp::STRING_DATA )
+                else if ( dynamic_cast<Fl_Text_Editor * >( w ) == m_DataText && attrType == vsp::STRING_DATA )
                 {
                     AttributeMgr.SetAttributeString( attr_id, m_DataBuffer->text() );
                 }
@@ -987,7 +987,7 @@ void AttributeExplorer::AttrTypeDispGroup( int attr_type, GroupLayout * group )
 void AttributeExplorer::CallBack( Fl_Widget *w )
 {
     // if either text editor is called, run AttributeModify without changing the name
-    if ( static_cast<Fl_Text_Editor * >( w ) == m_DataText )
+    if ( dynamic_cast<Fl_Text_Editor * >( w ) == m_DataText )
     {
         AttributeModify( nullptr, m_DataText );
     }

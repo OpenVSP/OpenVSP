@@ -87,10 +87,10 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Ad
     m_BigGroup.AddX( m_BigGroup.GetW() / 2 + 2 );
     m_BigGroup.AddSubGroupLayout( m_OutputGroup, m_BigGroup.GetW() / 2 - 2, 150 );
 
-    ( static_cast <Vsp_Group*> ( m_InputGroup.GetGroup() ) )->SetAllowDrop( true );
+    ( dynamic_cast <Vsp_Group*> ( m_InputGroup.GetGroup() ) )->SetAllowDrop( true );
     m_InputGroup.GetGroup()->callback( staticScreenCB, this );
 
-    ( static_cast <Vsp_Group*> ( m_OutputGroup.GetGroup() ) )->SetAllowDrop( true );
+    ( dynamic_cast <Vsp_Group*> ( m_OutputGroup.GetGroup() ) )->SetAllowDrop( true );
     m_OutputGroup.GetGroup()->callback( staticScreenCB, this );
 
     m_InputGroup.AddDividerBox("Input Parms");

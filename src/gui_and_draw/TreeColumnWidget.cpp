@@ -214,7 +214,7 @@ TreeRowItem* TreeWithColumns::GetItemByRefId( const string & attr_id, const stri
 
     for ( Fl_Tree_Item *tree_item = first(); tree_item; tree_item = next(tree_item) )
     {
-        TreeRowItem* tree_row_item = static_cast< TreeRowItem* >( tree_item );
+        TreeRowItem* tree_row_item = dynamic_cast< TreeRowItem* >( tree_item );
         if ( tree_row_item )
         {
             if ( !attr_id.empty() && tree_row_item->GetRefAttrID() == attr_id )
@@ -259,7 +259,7 @@ void TreeWithColumns::GetSelectedItems( vector < TreeRowItem* > *item_vec )
 
     for( int i = 0; i != base_array.total(); ++i )
     {
-        TreeRowItem* treeRowItem = static_cast < TreeRowItem* >( base_array[ i ] );
+        TreeRowItem* treeRowItem = dynamic_cast < TreeRowItem* >( base_array[ i ] );
         if ( treeRowItem )
         {
             item_vec->push_back( treeRowItem );

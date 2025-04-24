@@ -282,7 +282,7 @@ void ManageGeomScreen::LoadBrowser()
     //==== Update Tree Items' Label Fonts & Colors ====//
     for ( Fl_Tree_Item *tree_item = m_GeomBrowser->first(); tree_item; tree_item = m_GeomBrowser->next(tree_item) )
     {
-        TreeIconItem* geom_tree_item = static_cast< TreeIconItem* >( tree_item );
+        TreeIconItem* geom_tree_item = dynamic_cast< TreeIconItem* >( tree_item );
         if ( geom_tree_item )
         {
             string id = geom_tree_item->GetRefID();
@@ -610,7 +610,7 @@ void ManageGeomScreen::GeomBrowserCallback()
     int surf_state;
 
     // Check if any tree icons are triggered and handle open/close here; show/surf icon handling after selVec populated.
-    TreeIconItem* tree_item = static_cast< TreeIconItem* >( m_GeomBrowser->callback_item() );
+    TreeIconItem* tree_item = dynamic_cast< TreeIconItem* >( m_GeomBrowser->callback_item() );
     if ( tree_item )
     {
         // if item is clicked on collapse icon, toggle it and set that bool to the geom/vehicle's DisplayChildrenFlag

@@ -350,7 +350,7 @@ void AttributeTree::SetAllNodes( bool open_state )
     {
         for ( Fl_Tree_Item *item = m_AttrTree->first(); item; item = m_AttrTree->next(item) )
         {
-            TreeRowItem* tr_item = static_cast< TreeRowItem* >( item );
+            TreeRowItem* tr_item = dynamic_cast< TreeRowItem* >( item );
             if ( tr_item )
             {
                 m_CloseVec.push_back( tr_item->GetRefVecID() );
@@ -378,7 +378,7 @@ void AttributeTree::TrimCloseVec()
 
         for ( Fl_Tree_Item *item = m_AttrTree->first(); item; item = m_AttrTree->next(item) )
         {
-            TreeRowItem* tr_item = static_cast< TreeRowItem* >( item );
+            TreeRowItem* tr_item = dynamic_cast< TreeRowItem* >( item );
             if ( tr_item )
             {
                 vector < string > id_vec = tr_item->GetRefVecID();
@@ -448,7 +448,7 @@ void AttributeTree::SetTreeRootID( const string & attrCollectionID )
 
 void AttributeTree::DeviceCB( Fl_Widget *w )
 {
-    TreeRowItem* tree_item = static_cast < TreeRowItem* >( m_AttrTree->find_clicked() );
+    TreeRowItem* tree_item = dynamic_cast < TreeRowItem* >( m_AttrTree->find_clicked() );
 
     m_TreeItemArray.clear();
     m_AttrTree->GetSelectedItems( &(m_TreeItemArray) );
@@ -519,7 +519,7 @@ void AttributeEditor::DeviceCB( Fl_Widget* w )
             vector < string > ids = m_AttrTreeWidget.GetSelectedID();
             if ( ids.size() == 1 )
             {
-                static_cast< AttributeExplorer* >( m_ScreenMgr->GetScreen( vsp::VSP_ATTRIBUTE_EXPLORER_SCREEN ) )->SetTreeAutoSelectID( ids.front() );
+                dynamic_cast< AttributeExplorer* >( m_ScreenMgr->GetScreen( vsp::VSP_ATTRIBUTE_EXPLORER_SCREEN ) )->SetTreeAutoSelectID( ids.front() );
             }
             m_ScreenMgr->ShowScreen( vsp::VSP_ATTRIBUTE_EXPLORER_SCREEN );
         }

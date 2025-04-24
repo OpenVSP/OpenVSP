@@ -120,7 +120,7 @@ bool VehNotesScreen::Update()
 void VehNotesScreen::CallBack( Fl_Widget *w )
 {
     // if either text editor is called, run AttributeModify without changing the name
-    if ( static_cast<Fl_Text_Editor * >( w ) == m_DataText )
+    if ( dynamic_cast<Fl_Text_Editor * >( w ) == m_DataText )
     {
         AttributeMgr.SetAttributeString( ATTR_VEH_NOTES, m_DataBuffer->text() );
     }
