@@ -1345,8 +1345,6 @@ vector < string > AttributeMgrSingleton::PasteAttributeUtil( const vector < stri
     {
         for ( int j = 0; j != m_AttrClipboard.size(); ++j )
         {
-            string lastreset = IDMgr.ResetRemapID();
-
             NameValData* nvd = new NameValData();
             nvd->CopyFrom( m_AttrClipboard[j]  );
 
@@ -1355,8 +1353,6 @@ vector < string > AttributeMgrSingleton::PasteAttributeUtil( const vector < stri
             ac_vec.at( i )->Add( nvd );
             SetAttrDirtyFlag( attrID );
             attr_paste_ids.push_back( attrID );
-
-            IDMgr.ResetRemapID( lastreset );
         }
     }
     if ( updateFlag )
