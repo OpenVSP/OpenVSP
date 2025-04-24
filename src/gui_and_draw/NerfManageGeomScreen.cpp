@@ -126,16 +126,11 @@ bool NerfManageGeomScreen::Update()
 
     if ( IsShown() )
     {
-        // generate temporary pointer map for fast access to geometry
-        MakeGeomCache();
-
         LoadBrowser();
         LoadActiveGeomOutput();
         m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, vector<int>({m_SetIndex}), false, SET_FIRST_USER );
         LoadDisplayChoice();
         UpdateDrawType();
-
-        ClearGeomCache();
     }
 
     UpdateGeomScreens();
@@ -187,6 +182,9 @@ void NerfManageGeomScreen::LoadBrowser()
     //==== Save List of Selected Geoms ====//
     vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
 
+    vector < string > geom_id_vec = m_VehiclePtr->GetGeomVec();
+    vector < Geom* > geom_ptr_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+
     //==== Rebuild Tree if Redraw Required ====//
     if ( m_RedrawFlag )
     {
@@ -205,13 +203,13 @@ void NerfManageGeomScreen::LoadBrowser()
         geom_tree_item->SetRefID( vid_str );
 
         //==== Step Thru Geoms ====//
-        for ( int i = 0 ; i < ( int )m_GeomPtrVec.size() ; i++ )
+        for ( int i = 0 ; i < ( int )geom_ptr_vec.size() ; i++ )
         {
-            if ( m_GeomPtrVec[i] )
+            if ( geom_ptr_vec[i] )
             {
-                string id_str = m_GeomPtrVec[i]->GetID();
+                string id_str = geom_ptr_vec[i]->GetID();
                 TreeIconItem* parent_item = nullptr;
-                string parent_id = m_GeomPtrVec[i]->GetParentID();
+                string parent_id = geom_ptr_vec[i]->GetParentID();
                 
                 // Note to DEVS: if geom_vec is ALWAYS hierachically provided, this method works, but issue is what if a child is read before its parent is registered?
                 if ( parent_id != string( "NONE" ) )
@@ -241,11 +239,7 @@ void NerfManageGeomScreen::LoadBrowser()
         {
             string id = geom_tree_item->GetRefID();
 
-            Geom* gPtr = nullptr;
-            if ( m_GeomPtrMap.count( id ) )
-            {
-                gPtr = m_GeomPtrMap[id];
-            }
+            Geom* gPtr = m_VehiclePtr->FindGeom( id );
 
             Vehicle* vPtr = ( id == m_VehiclePtr->GetID() ) ? m_VehiclePtr : nullptr;
 
@@ -275,7 +269,7 @@ void NerfManageGeomScreen::LoadBrowser()
                 }
                 else
                 {
-                    geom_vec = m_GeomPtrVec;
+                    geom_vec = geom_ptr_vec;
                 }
 
                 // if at least one geom in vehicle with valid pointer, initialize vehicle icons to its show/surf state
@@ -324,11 +318,7 @@ void NerfManageGeomScreen::LoadBrowser()
                 else
                 {
                     string parent_id = gPtr->GetParentID();
-                    Geom* parent_ptr = nullptr;
-                    if ( m_GeomPtrMap.count( parent_id ) )
-                    {
-                        parent_ptr = m_GeomPtrMap[ parent_id ];
-                    }
+                    Geom* parent_ptr = m_VehiclePtr->FindGeom( parent_id );
                     if ( parent_ptr )
                     {
                         // Is this geom ATTACHED to a hinge? Change its attachment lines to double style
@@ -899,25 +889,6 @@ void NerfManageGeomScreen::SetFeatureDrawFlag( bool f )
     }
 
     m_VehiclePtr->Update();
-}
-
-void NerfManageGeomScreen::MakeGeomCache()
-{
-    vector < string > geom_vec = m_VehiclePtr->GetGeomVec();
-    m_GeomPtrVec = m_VehiclePtr->FindGeomVec( geom_vec );
-    m_GeomPtrMap.clear();
-    for ( int i = 0; i < geom_vec.size(); i++ )
-    {
-        string id = geom_vec[i];
-        Geom* g = m_GeomPtrVec[i];
-        m_GeomPtrMap.insert( { id, g } );
-    }
-}
-
-void NerfManageGeomScreen::ClearGeomCache()
-{
-    m_GeomPtrVec.clear();
-    m_GeomPtrMap.clear();
 }
 
 //==== Callbacks ====//

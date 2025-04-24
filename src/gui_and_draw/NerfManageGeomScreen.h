@@ -133,9 +133,6 @@ protected:
     int m_SetIndex;
     Vehicle* m_VehiclePtr;
 
-    vector< Geom* > m_GeomPtrVec;
-    map< string, Geom*> m_GeomPtrMap;
-
     std::vector<DrawObj> m_PickList;
 
     bool m_VehSelected;
@@ -160,9 +157,6 @@ protected:
     void EditName( const string &name );
     void SetSubDrawFlag( bool f );
     void SetFeatureDrawFlag( bool f );
-
-    void MakeGeomCache();
-    void ClearGeomCache();
 
     vector< string > GetActiveGeoms();
 
