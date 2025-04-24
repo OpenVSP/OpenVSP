@@ -226,7 +226,7 @@ private:
 
 protected:
 
-    void _update( std::vector<DrawObj*> objects );
+    void _update( const std::vector<DrawObj*> & objects );
 
     ScreenMgr* m_ScreenMgr;
     int m_mouse_x;

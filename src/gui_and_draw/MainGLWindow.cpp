@@ -662,7 +662,7 @@ void VspGlWindow::_initGLEW()
     }
 }
 
-void VspGlWindow::_update( std::vector<DrawObj *> objects )
+void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
 {
     // Check for changes in DrawObjs and adjust accordingly.
     _updateBuffer( objects );
