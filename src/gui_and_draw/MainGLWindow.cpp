@@ -1895,6 +1895,12 @@ VspGlWindow::ID * VspGlWindow::_findID( unsigned int bufferID )
 
 void VspGlWindow::_updateBuffer( const std::vector<DrawObj *> &objects )
 {
+    std::map< std::string, DrawObj * > objects_map;
+    for( int j = 0; j < ( int )objects.size(); j++ )
+    {
+        objects_map[ objects[j]->m_GeomID ] = objects[j];
+    }
+
     std::vector<ID> idsToRemove;
     std::vector<ID> idsToKeep;
 
@@ -1904,19 +1910,17 @@ void VspGlWindow::_updateBuffer( const std::vector<DrawObj *> &objects )
     // Figure out if any buffer object no longer exists in DrawObjs.
     for( int i = 0; i < ( int )m_ids.size(); i++ )
     {
-        bool exist = false;
-        for( int j = 0; j < ( int )objects.size(); j++ )
+        if ( m_ids[i].geomID != std::string( "Default" ) )
         {
-            if( m_ids[i].geomID == objects[j]->m_GeomID && m_ids[i].geomID != std::string( "Default" ) )
+            auto it = objects_map.find( m_ids[i].geomID );
+            if( it != objects_map.end() )
             {
                 idsToKeep.push_back( m_ids[i] );
-                exist = true;
-                break;
             }
-        }
-        if( !exist )
-        {
-            idsToRemove.push_back( m_ids[i] );
+            else
+            {
+                idsToRemove.push_back( m_ids[i] );
+            }
         }
     }
 
