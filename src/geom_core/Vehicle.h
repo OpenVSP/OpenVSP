@@ -86,6 +86,8 @@ public:
     static void UpdateGUI();
     static int RunScript( const string & file_name, const string & function_name = "main" );
 
+    void ChangeGeomID( const string &oldid, const string &newid );
+
     Geom* FindGeom( const string & geom_id );
     vector< Geom* > FindGeomVec( const vector< string > & geom_id_vec );
 
@@ -98,7 +100,7 @@ public:
 
     //==== Get All Geoms (Does NOT Return Collapsed Geoms if check_display_flag == true) ====//
     vector< string > GetGeomVec( bool check_display_flag = false );
-    vector< Geom* > GetGeomStoreVec()                                { return m_GeomStoreVec; }
+    vector< Geom* > GetGeomStoreVec();
     vector < int > GetDegenGeomTypeVec( int set_index );
     void AddActiveGeom( const string & id );
     void SetActiveGeom( const string & id );
@@ -558,7 +560,7 @@ protected:
 
     virtual void SetExportPropMainSurf( bool b );
 
-    vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs
+    map < string, Geom* > m_GeomStoreMap;                 // All Geom Ptrs
 
     vector< DegenGeom > m_DegenGeomVec;         // Vector of components in degenerate representation
     vector< DegenPtMass > m_DegenPtMassVec;

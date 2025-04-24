@@ -333,10 +333,11 @@ Vehicle::~Vehicle()
 {
     LinkMgr.UnRegisterContainer( this->GetID() );
 
-    for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
+    for ( auto it = m_GeomStoreMap.begin(); it != m_GeomStoreMap.end(); ++it )
     {
-        delete m_GeomStoreVec[i];
+        delete it->second;
     }
+    m_GeomStoreMap.clear();
 }
 
 //=== Init ====//
@@ -658,12 +659,11 @@ void Vehicle::Wype()
 
     m_BEMPropID = string();
 
-    for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
+    for ( auto it = m_GeomStoreMap.begin(); it != m_GeomStoreMap.end(); ++it )
     {
-        delete m_GeomStoreVec[i];
+        delete it->second;
     }
-
-    m_GeomStoreVec.clear();
+    m_GeomStoreMap.clear();
 
     m_ActiveGeom.clear();
     m_TopGeom.clear();
@@ -964,9 +964,9 @@ void Vehicle::UpdateGeom( const string &geom_id )
 
 void Vehicle::ForceUpdate( int dirtyflag )
 {
-    for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
+    for ( auto it = m_GeomStoreMap.begin(); it != m_GeomStoreMap.end(); ++it )
     {
-        Geom* g_ptr = m_GeomStoreVec[i];
+        Geom* g_ptr = it->second;
         if ( g_ptr )
         {
             g_ptr->SetLateUpdateFlag( true );
@@ -985,6 +985,16 @@ int Vehicle::RunScript( const string & file_name, const string & function_name )
     return ScriptMgr.ReadExecuteScriptFile( file_name, function_name );
 }
 
+void Vehicle::ChangeGeomID( const string &oldid, const string &newid )
+{
+    auto it = m_GeomStoreMap.find( oldid );
+    if ( it != m_GeomStoreMap.end() )
+    {
+        Geom* g_ptr = it->second;
+        m_GeomStoreMap.erase( it );
+        m_GeomStoreMap[ newid ] = g_ptr;
+    }
+}
 
 //==== Find Geom Based on GeomID ====//
 Geom* Vehicle::FindGeom( const string & geom_id )
@@ -993,12 +1003,11 @@ Geom* Vehicle::FindGeom( const string & geom_id )
     {
         return NULL;
     }
-    for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
+
+    auto it = m_GeomStoreMap.find( geom_id );
+    if ( it != m_GeomStoreMap.end() )
     {
-        if ( m_GeomStoreVec[i]->IsMatch( geom_id ) )
-        {
-            return m_GeomStoreVec[i];
-        }
+        return it->second;
     }
     return NULL;
 }
@@ -1095,7 +1104,7 @@ string Vehicle::CreateGeom( const GeomType & type )
         return "NONE";
     }
 
-    m_GeomStoreVec.push_back( new_geom );
+    m_GeomStoreMap[ new_geom->GetID() ] = new_geom;
 
     Geom* type_geom_ptr = FindGeom( type.m_GeomID );
     if ( type_geom_ptr )
@@ -1300,6 +1309,17 @@ vector< string > Vehicle::GetGeomVec( bool check_display_flag )
         {
             g_ptr->LoadIDAndChildren( geom_vec, check_display_flag );
         }
+    }
+    return geom_vec;
+}
+
+vector< Geom* > Vehicle::GetGeomStoreVec()
+{
+    vector< Geom* > geom_vec;
+    geom_vec.reserve( m_GeomStoreMap.size() );
+    for ( auto it = m_GeomStoreMap.begin(); it != m_GeomStoreMap.end(); it++ )
+    {
+        geom_vec.push_back( it->second );
     }
     return geom_vec;
 }
@@ -1668,11 +1688,15 @@ void Vehicle::DeleteClipBoard()
 {
     for ( int i = 0 ; i < ( int )m_ClipBoard.size() ; i++ )
     {
-        Geom* gPtr = FindGeom( m_ClipBoard[i] );
-        if ( gPtr )
+        auto it = m_GeomStoreMap.find( m_ClipBoard[ i ] );
+        if ( it != m_GeomStoreMap.end() )
         {
-            vector_remove_val( m_GeomStoreVec, gPtr );
-            delete gPtr;
+            Geom *gPtr = it->second;
+            if ( gPtr )
+            {
+                m_GeomStoreMap.erase( it );
+                delete gPtr;
+            }
         }
     }
     m_ClipBoard.clear();
@@ -1680,14 +1704,17 @@ void Vehicle::DeleteClipBoard()
 
 void Vehicle::DeleteGeom( const string & geom_id )
 {
-    Geom* gPtr = FindGeom( geom_id );
-    if ( gPtr )
+    auto it = m_GeomStoreMap.find( geom_id );
+    if ( it != m_GeomStoreMap.end() )
     {
-        vector_remove_val( m_GeomStoreVec, gPtr );
-        vector_remove_val( m_ActiveGeom, geom_id );
-        delete gPtr;
+        Geom *gPtr = it->second;
+        if ( gPtr )
+        {
+            m_GeomStoreMap.erase( it );
+            vector_remove_val( m_ActiveGeom, geom_id );
+            delete gPtr;
+        }
     }
-
 }
 
 void Vehicle::AddTopGeomID( const string & geom_id, const string &insert_after_id )

@@ -5498,6 +5498,13 @@ void Geom::AddLinkableParms( vector< string > & linkable_parm_vec, const string 
 
 void Geom::ChangeID( string id )
 {
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        veh->ChangeGeomID( m_ID, id );
+    }
+
     ParmContainer::ChangeID( id );
 
     for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i ++ )
