@@ -204,7 +204,7 @@ private:
             return NULL;
         }
     };
-    std::vector<ID> m_ids;
+    std::map < std::string, ID > m_idMap;
 
     DrawObj::ScreenEnum m_LinkedScreen;
 

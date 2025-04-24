@@ -528,7 +528,7 @@ void VspGlWindow::ResetDrawObjsGeomChangedFlags( bool flag )
 void VspGlWindow::clearScene()
 {
     m_GEngine->getScene()->clearScene();
-    m_ids.clear();
+    m_idMap.clear();
     m_GEngine->getDisplay()->getViewport()->clearBackground();
     m_GEngine->getDisplay()->getViewport()->clearFont();
 }
@@ -746,7 +746,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -777,7 +777,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -807,7 +807,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -837,7 +837,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -867,7 +867,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -897,7 +897,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -927,7 +927,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -957,7 +957,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -987,7 +987,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -1017,7 +1017,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -1047,7 +1047,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -1077,7 +1077,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if ( eObj )
@@ -1105,7 +1105,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if ( eObj )
@@ -1135,7 +1135,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if ( eObj )
@@ -1165,7 +1165,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if ( eObj )
@@ -1195,7 +1195,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if ( eObj )
@@ -1225,7 +1225,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -1253,7 +1253,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -1281,7 +1281,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -1310,7 +1310,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
@@ -1371,7 +1371,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             protractor = dynamic_cast<VSPGraphic::Protractor*> ( m_GEngine->getScene()->getObject( id ) );
             if( protractor )
@@ -1455,7 +1455,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             ruler = dynamic_cast<VSPGraphic::Ruler*> ( m_GEngine->getScene()->getObject( id ) );
             if( ruler )
@@ -1520,7 +1520,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             probe = dynamic_cast<VSPGraphic::Probe*> ( m_GEngine->getScene()->getObject( id ) );
             if( probe )
@@ -1577,7 +1577,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             routing = dynamic_cast<VSPGraphic::Routing*> ( m_GEngine->getScene()->getObject( id ) );
             if( ruler )
@@ -1648,7 +1648,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     ID idInfo;
                     idInfo.bufferID = id;
                     idInfo.geomID = objects[i]->m_GeomID;
-                    m_ids.push_back( idInfo );
+                    m_idMap[ idInfo.geomID ] = idInfo;
                 }
             }
             pObj = dynamic_cast<Pickable*> ( m_GEngine->getScene()->getObject( id ) );
@@ -1671,7 +1671,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     ID idInfo;
                     idInfo.bufferID = id;
                     idInfo.geomID = objects[i]->m_GeomID;
-                    m_ids.push_back( idInfo );
+                    m_idMap[ idInfo.geomID ] = idInfo;
                 }
             }
             ppntObj = dynamic_cast<PickablePnts*> ( m_GEngine->getScene()->getObject( id ) );
@@ -1692,7 +1692,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             pObj = dynamic_cast<Pickable*> ( m_GEngine->getScene()->getObject( id ) );
             if( pObj )
@@ -1758,7 +1758,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
 
             rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
@@ -1786,7 +1786,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
 
             rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
@@ -1815,7 +1815,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
             if( rObj )
@@ -1843,7 +1843,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 ID idInfo;
                 idInfo.bufferID = id;
                 idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
+                m_idMap[ idInfo.geomID ] = idInfo;
             }
             rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
             if( rObj )
@@ -1871,23 +1871,21 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
 
 VspGlWindow::ID * VspGlWindow::_findID( const std::string &geomID )
 {
-    for( int i = 0; i < ( int )m_ids.size(); i++ )
+    auto it = m_idMap.find( geomID );
+    if( it == m_idMap.end() )
     {
-        if( m_ids[i].geomID == geomID )
-        {
-            return &m_ids[i];
-        }
+        return nullptr;
     }
-    return NULL;
+    return &( it->second );
 }
 
 VspGlWindow::ID * VspGlWindow::_findID( unsigned int bufferID )
 {
-    for( int i = 0; i < ( int )m_ids.size(); i++ )
+    for ( auto it = m_idMap.begin(); it != m_idMap.end(); ++it )
     {
-        if( m_ids[i].bufferID == bufferID )
+        if ( it->second.bufferID ==  bufferID )
         {
-            return &m_ids[i];
+            return &( it->second );
         }
     }
     return NULL;
@@ -1901,36 +1899,28 @@ void VspGlWindow::_updateBuffer( const std::vector<DrawObj *> &objects )
         objects_map[ objects[j]->m_GeomID ] = objects[j];
     }
 
-    std::vector<ID> idsToRemove;
-    std::vector<ID> idsToKeep;
-
-    idsToKeep.reserve( objects.size() );
-    idsToRemove.reserve( objects.size() );
+    // Copy map ID's into vector so we can iterate on vector while removing from map.
+    std::vector < std::string > idvec;
+    idvec.reserve( m_idMap.size() );
+    for ( auto mit = m_idMap.begin(); mit != m_idMap.end(); ++mit )
+    {
+        idvec.push_back( mit->first );
+    }
 
     // Figure out if any buffer object no longer exists in DrawObjs.
-    for( int i = 0; i < ( int )m_ids.size(); i++ )
+    for ( int i = 0; i < idvec.size(); i++ )
     {
-        if ( m_ids[i].geomID != std::string( "Default" ) )
+        const string &id = idvec[i];
+        if ( id != std::string( "Default" ) )
         {
-            auto it = objects_map.find( m_ids[i].geomID );
-            if( it != objects_map.end() )
+            auto it = objects_map.find( id );
+            if( it == objects_map.end() )
             {
-                idsToKeep.push_back( m_ids[i] );
-            }
-            else
-            {
-                idsToRemove.push_back( m_ids[i] );
+                m_GEngine->getScene()->removeObject( m_idMap[ id ].bufferID );
+                m_idMap.erase( id );
             }
         }
     }
-
-    // Remove unnecessary buffers.
-    for( int i = 0; i < ( int )idsToRemove.size(); i++ )
-    {
-        m_GEngine->getScene()->removeObject( idsToRemove[i].bufferID );
-    }
-
-    m_ids = idsToKeep;
 }
 
 void VspGlWindow::_updateTextures( DrawObj * drawObj )
