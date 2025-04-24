@@ -220,23 +220,23 @@ void FeaMesh::UpdateDrawObjs()
 
     char str[256];
 
-    snprintf( str, sizeof( str ), "%s_Spider_Node_Tag", GetID().c_str() );
-    m_FeaSpiderNodeDO.m_GeomID = string( str );
-    m_FeaSpiderNodeDO.m_GeomChanged = true;
-    m_FeaSpiderNodeDO.m_PntVec.clear();
-
-    for ( int ifix = 0; ifix < m_FixPntVec.size(); ifix++ )
-    {
-        FixPoint fp = m_FixPntVec[ifix];
-
-        for ( int ispider = 0; ispider < fp.m_SpiderIndex.size(); ispider++ )
-        {
-            for ( int jspider = 0; jspider < fp.m_SpiderIndex[ ispider ].size(); jspider++ )
-            {
-                m_FeaSpiderNodeDO.m_PntVec.push_back( m_FeaNodeVec[ fp.m_SpiderIndex[ ispider ][ jspider ] ]->m_Pnt );
-            }
-        }
-    }
+    // snprintf( str, sizeof( str ), "%s_Spider_Node_Tag", GetID().c_str() );
+    // m_FeaSpiderNodeDO.m_GeomID = string( str );
+    // m_FeaSpiderNodeDO.m_GeomChanged = true;
+    // m_FeaSpiderNodeDO.m_PntVec.clear();
+    //
+    // for ( int ifix = 0; ifix < m_FixPntVec.size(); ifix++ )
+    // {
+    //     FixPoint fp = m_FixPntVec[ifix];
+    //
+    //     for ( int ispider = 0; ispider < fp.m_SpiderIndex.size(); ispider++ )
+    //     {
+    //         for ( int jspider = 0; jspider < fp.m_SpiderIndex[ ispider ].size(); jspider++ )
+    //         {
+    //             m_FeaSpiderNodeDO.m_PntVec.push_back( m_FeaNodeVec[ fp.m_SpiderIndex[ ispider ][ jspider ] ]->m_Pnt );
+    //         }
+    //     }
+    // }
 
 
     for ( int iprt = 0; iprt < m_NumFeaParts; iprt++ )
@@ -583,11 +583,11 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
         return;
     }
 
-    m_FeaSpiderNodeDO.m_Type = DrawObj::VSP_POINTS;
-    m_FeaSpiderNodeDO.m_PointSize = 12.0;
-    m_FeaSpiderNodeDO.m_PointColor = vec3d( 0.0, 0.0, 0.0 );
-    m_FeaSpiderNodeDO.m_Visible = true;
-    draw_obj_vec.push_back( &m_FeaSpiderNodeDO );
+    // m_FeaSpiderNodeDO.m_Type = DrawObj::VSP_POINTS;
+    // m_FeaSpiderNodeDO.m_PointSize = 12.0;
+    // m_FeaSpiderNodeDO.m_PointColor = vec3d( 0.0, 0.0, 0.0 );
+    // m_FeaSpiderNodeDO.m_Visible = true;
+    // draw_obj_vec.push_back( &m_FeaSpiderNodeDO );
 
     if ( m_DrawElementFlagVec.size() == m_NumFeaParts + m_NumFeaSubSurfs )
     {
