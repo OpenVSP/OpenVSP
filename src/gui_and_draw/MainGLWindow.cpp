@@ -1923,12 +1923,7 @@ void VspGlWindow::_updateBuffer( const std::vector<DrawObj *> &objects )
         m_GEngine->getScene()->removeObject( idsToRemove[i].bufferID );
     }
 
-    // Update m_ids.
-    m_ids.clear();
-    for( int i = 0; i < ( int )idsToKeep.size(); i++ )
-    {
-        m_ids.push_back( idsToKeep[i] );
-    }
+    m_ids = idsToKeep;
 }
 
 void VspGlWindow::_updateTextures( DrawObj * drawObj )
