@@ -393,6 +393,8 @@ public:
     BoolParm m_CGUseMode;
     string m_CGModeID;
 
+    IntParm m_NRef;
+
     Parm m_CullFrac;
     BoolParm m_CullFracFlag;
     BoolParm m_ContinueCoPlanarWakesFlag;

@@ -52,6 +52,9 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CGUseMode.Init( "CGUseMode", groupname, this, false, false, true );
     m_CGUseMode.SetDescript( "Flag to control whether modes are used instead of sets or CG calc." );
 
+    m_NRef.Init( "NRef", groupname, this, 0, 0, 6 );
+    m_NRef.SetDescript( "Number of mesh refinements to generate" );
+
     m_CullFrac.Init( "CullFrac", groupname, this, 0.03, 0.0, 1.0 );
     m_CullFrac.SetDescript( "Area fraction of thin orphan regions to cull." );
 
@@ -385,6 +388,13 @@ void VSPAEROMgrSingleton::Renew()
     m_CGModeID = "";
 
     m_RefGeomID = "";
+
+    m_NRef.Set( 0 );
+
+    m_CullFrac.Set( 0.03 );
+    m_CullFracFlag.Set( false );
+    m_ContinueCoPlanarWakesFlag.Set( true );
+
     m_RefFlag.Set( vsp::MANUAL_REF );
     m_MACFlag.Set( false );
     m_SCurveFlag.Set( false );
@@ -1243,11 +1253,9 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     bool compgeom_csv = veh->getExportCompGeomCsvFile();
     veh->setExportCompGeomCsvFile( false );
 
-    int n_ref = 2; // 4; // Number of doublings of mesh.
-
     // Generate *.vspgeom geometry file for analysis
     // Compute intersected and trimmed geometry
-    string mesh_geom_id = veh->CompGeomAndFlatten( set, halfFlag, 1 /*subsFlag*/, degenset, false /*hideset*/, true /*suppressdisks*/, n_ref );
+    string mesh_geom_id = veh->CompGeomAndFlatten( set, halfFlag, 1 /*subsFlag*/, degenset, false /*hideset*/, true /*suppressdisks*/, m_NRef() );
 
     veh->setExportCompGeomTxtFile( compgeom_txt );
     veh->setExportCompGeomCsvFile( compgeom_csv );
@@ -1256,7 +1264,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     if ( mesh_geom )
     {
-        m_LastPanelMeshGeomId = mesh_geom->CreateNGonMeshGeom( m_CullFracFlag(), m_CullFrac(), m_ContinueCoPlanarWakesFlag(), n_ref );
+        m_LastPanelMeshGeomId = mesh_geom->CreateNGonMeshGeom( m_CullFracFlag(), m_CullFrac(), m_ContinueCoPlanarWakesFlag(), m_NRef() );
 
         NGonMeshGeom* ngon_mesh_geom = ( NGonMeshGeom * ) veh->FindGeom( m_LastPanelMeshGeomId );
 

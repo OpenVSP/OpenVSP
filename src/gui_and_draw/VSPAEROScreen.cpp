@@ -100,7 +100,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Case Setup Layout
     m_LeftColumnLayout.AddSubGroupLayout( m_CaseSetupLayout,
         m_LeftColumnLayout.GetW(),
-        5 * m_CaseSetupLayout.GetStdHeight() +
+        6 * m_CaseSetupLayout.GetStdHeight() +
         3 * m_CaseSetupLayout.GetGapHeight() +
         m_CaseSetupLayout.GetDividerHeight()
     );
@@ -147,6 +147,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.AddYGap();
 
     m_CaseSetupLayout.SetButtonWidth( m_CaseSetupLayout.GetChoiceButtonWidth() );
+
+    m_CaseSetupLayout.AddCounter( m_NRefCounter, "N Ref" );
+
     m_CaseSetupLayout.SetSameLineFlag( true );
     m_CaseSetupLayout.SetFitWidthFlag( false );
     m_CaseSetupLayout.AddButton( m_CullFracButton, "Cull Orphans" );
@@ -1455,6 +1458,8 @@ Fl_Text_Display* VSPAEROScreen::GetDisplay( int id )
 
 void VSPAEROScreen::UpdateCaseSetup()
 {
+    m_NRefCounter.Update( VSPAEROMgr.m_NRef.GetID() );
+
     m_CullFracSlider.Update( VSPAEROMgr.m_CullFrac.GetID() );
     m_CullFracButton.Update( VSPAEROMgr.m_CullFracFlag.GetID() );
     m_ContinueCoPlanarWakesButton.Update( VSPAEROMgr.m_ContinueCoPlanarWakesFlag.GetID() );

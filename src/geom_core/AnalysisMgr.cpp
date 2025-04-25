@@ -1984,6 +1984,7 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
     {
         m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Thick surface geometry Set for analysis."  ) );
         m_Inputs.Add( new NameValData( "ThinGeomSet", VSPAEROMgr.m_ThinGeomSet.Get(), "Thin surface geometry Set for analysis."  ) );
+        m_Inputs.Add( new NameValData( "NRef", VSPAEROMgr.m_NRef.Get(), "Number of mesh refinements to generate." ) );
         m_Inputs.Add( new NameValData( "Symmetry", VSPAEROMgr.m_Symmetry.Get(), "Symmetry mode enum." ) );
 
         m_Inputs.Add( new NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
@@ -2038,6 +2039,13 @@ string VSPAEROComputeGeometryAnalysis::Execute()
             VSPAEROMgr.m_ModeID = nvd->GetString( 0 );
         }
 
+        int nrefOrig = VSPAEROMgr.m_NRef.Get();
+        nvd = m_Inputs.FindPtr( "Nref", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_NRef.Set( nvd->GetInt( 0 ) );
+        }
+
         bool symmetryOrig = VSPAEROMgr.m_Symmetry.Get();
         nvd = m_Inputs.FindPtr( "Symmetry", 0 );
         if ( nvd )
@@ -2074,6 +2082,7 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         VSPAEROMgr.m_ThinGeomSet.Set( geomThinSetOrig );
         VSPAEROMgr.m_UseMode.Set( useModeOrig );
         VSPAEROMgr.m_ModeID = modeIDOrig;
+        VSPAEROMgr.m_NRef.Set( nrefOrig );
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
         VSPAEROMgr.m_CullFrac.Set( cullfracOrig );
         VSPAEROMgr.m_CullFracFlag.Set( cullfracflagOrig );
