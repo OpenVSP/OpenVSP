@@ -2772,7 +2772,6 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
     Results* res = nullptr;
     std::vector< std::string > data_string_array;
     bool sectional_data_complete = false; // flag indicating if the sectional data section of the Lod file has been read
-    bool remnant_data_complete = false;
 
     double cref = 1.0;
 
@@ -2799,28 +2798,20 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
 
         // Sectional distribution table
         int nSectionalDataTableCols = 36;
-        int nCompDataTableCols = 15;
-        if ( data_string_array.size() == nSectionalDataTableCols && ( !sectional_data_complete || !remnant_data_complete ) && !isdigit( data_string_array[0][0] ) )
+        if ( data_string_array.size() == nSectionalDataTableCols && !sectional_data_complete && !isdigit( data_string_array[0][0] ) )
         {
-
-            if ( sectional_data_complete )
-            {
-                res = ResultsMgr.CreateResults( "VSPAERO_Remnant_Load", "VSPAERO remnant loads from lod file results." );
-                res_id_vector.push_back( res->GetID());
-            }
-
             //discard the header row and read the next line assuming that it is numeric
             data_string_array = ReadDelimLine( fp, seps );
 
             // Raw data vectors
-            std::vector<int> SpanLoadSet;
-            std::vector<int> Surface;
-            std::vector<double> S;
+            std::vector<int> VortexSheet;
+            std::vector<int> TrailVort;
             std::vector<double> Xavg;
             std::vector<double> Yavg;
             std::vector<double> Zavg;
-            std::vector<double> Area;
+            std::vector<double> Span;
             std::vector<double> Chord;
+            std::vector<double> Area;
             std::vector<double> VoVref;
             std::vector<double> Cl;
             std::vector<double> Cd;
@@ -2885,14 +2876,14 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             while ( data_string_array.size() == nSectionalDataTableCols )
             {
                 // Store the raw data
-                SpanLoadSet.push_back( std::stoi( data_string_array[0] ) );
-                Surface.push_back(     std::stoi( data_string_array[1] ) );
-                S.push_back(           std::stod( data_string_array[2] ) );
-                Xavg.push_back(        std::stod( data_string_array[3] ) );
-                Yavg.push_back(        std::stod( data_string_array[4] ) );
-                Zavg.push_back(        std::stod( data_string_array[5] ) );
-                Area.push_back(        std::stod( data_string_array[6] ) );
-                Chord.push_back(       std::stod( data_string_array[7] ) );
+                VortexSheet.push_back( std::stoi( data_string_array[0] ) );
+                TrailVort.push_back(   std::stoi( data_string_array[1] ) );
+                Xavg.push_back(        std::stod( data_string_array[2] ) );
+                Yavg.push_back(        std::stod( data_string_array[3] ) );
+                Zavg.push_back(        std::stod( data_string_array[4] ) );
+                Span.push_back(        std::stod( data_string_array[5] ) );
+                Chord.push_back(       std::stod( data_string_array[6] ) );
+                Area.push_back(        std::stod( data_string_array[7] ) );
                 VoVref.push_back(      std::stod( data_string_array[8] ) );
                 Cl.push_back(          std::stod( data_string_array[9] ) );
                 Cd.push_back(          std::stod( data_string_array[10] ) );
@@ -2958,14 +2949,14 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             }
 
             // Finish up by adding the data to the result res
-            res->Add( new NameValData( "SpanLoadSet", SpanLoadSet, "Span load distribution set." ) );
-            res->Add( new NameValData( "Surface", Surface, "Surface for span load set." ) );
-            res->Add( new NameValData( "S", S, "Non-dimensional spanwise coordinate." ) );
+            res->Add( new NameValData( "VortexSheet", VortexSheet, "Span load distribution set." ) );
+            res->Add( new NameValData( "TrailVort", TrailVort, "Surface for span load set." ) );
             res->Add( new NameValData( "Xavg", Xavg, "Section X coordinate." ) );
             res->Add( new NameValData( "Yavg", Yavg, "Section Y coordinate." ) );
             res->Add( new NameValData( "Zavg", Zavg, "Section Z coordinate." ) );
-            res->Add( new NameValData( "Area", Area, "Section area." ) );
+            res->Add( new NameValData( "Span", Span, "Section span.." ) );
             res->Add( new NameValData( "Chord", Chord, "Section chord." ) );
+            res->Add( new NameValData( "Area", Area, "Section area." ) );
             res->Add( new NameValData( "V/Vref", VoVref, "Local velocity ratio." ) );
             res->Add( new NameValData( "cl", Cl, "Section lift coefficient." ) );
             res->Add( new NameValData( "cd", Cd, "Section drag coefficient." ) );
@@ -3028,93 +3019,8 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
                 // First time through.
                 sectional_data_complete = true;
             }
-            else
-            {
-                // Second time through
-                remnant_data_complete = true;
-            }
 
         } // end sectional and remnant table read
-        else if ( data_string_array.size() == nCompDataTableCols && sectional_data_complete && remnant_data_complete )
-        {
-            // "Comp" section of *.lod file
-            res = ResultsMgr.CreateResults( "VSPAERO_Comp_Load", "VSPAERO component loads from lod file results." );
-            res_id_vector.push_back( res->GetID() );
-
-            //discard the header row and read the next line assuming that it is numeric
-            data_string_array = ReadDelimLine( fp, seps );
-
-            // Raw data vectors
-            std::vector<int> SpanLoadSet;
-            std::vector<int> Surface;
-            std::vector<string> Comp_Name;
-            std::vector<double> Mach;
-            std::vector<double> AoA;
-            std::vector<double> Beta;
-            std::vector<double> CL;
-            std::vector<double> CDi;
-            std::vector<double> Cs;
-            std::vector<double> CFx;
-            std::vector<double> CFy;
-            std::vector<double> CFz;
-            std::vector<double> Cmx;
-            std::vector<double> Cmy;
-            std::vector<double> Cmz;
-
-            // read the data rows
-            while ( ( data_string_array.size() >= nCompDataTableCols - 1 ) && ( data_string_array.size() <= nCompDataTableCols ) )
-            {
-                // Store the raw data
-                size_t j = 0;
-                SpanLoadSet.push_back( std::stoi( data_string_array[j++] ) );
-                Surface.push_back( std::stoi( data_string_array[j++] ) );
-
-                if ( data_string_array.size() == nCompDataTableCols - 1 )
-                {
-                    // Condition if no body-type components in *.vspgeom input
-                    Comp_Name.emplace_back( "NONE" );
-                }
-                else
-                {
-                    Comp_Name.push_back( data_string_array[j++] );
-                }
-
-                Mach.push_back( std::stod( data_string_array[j++] ) );
-                AoA.push_back( std::stod( data_string_array[j++] ) );
-                Beta.push_back( std::stod( data_string_array[j++] ) );
-                CL.push_back( std::stod( data_string_array[j++] ) );
-                CDi.push_back( std::stod( data_string_array[j++] ) );
-                Cs.push_back( std::stod( data_string_array[j++] ) );
-                CFx.push_back( std::stod( data_string_array[j++] ) );
-                CFy.push_back( std::stod( data_string_array[j++] ) );
-                CFz.push_back( std::stod( data_string_array[j++] ) );
-                Cmx.push_back( std::stod( data_string_array[j++] ) );
-                Cmy.push_back( std::stod( data_string_array[j++] ) );
-                Cmz.push_back( std::stod( data_string_array[j++] ) );
-
-                // Read the next line and loop
-                data_string_array = ReadDelimLine( fp, seps );
-            }
-
-            // Finish up by adding the data to the result res
-            res->Add( new NameValData( "SpanLoadSet", SpanLoadSet, "Span load distribution set." ) );
-            res->Add( new NameValData( "Surface", Surface, "Surface for span load set." ) );
-            res->Add( new NameValData( "Comp_Name", Comp_Name, "Component name." ) );
-            res->Add( new NameValData( "Mach", Mach, "Mach number." ) );
-            res->Add( new NameValData( "AoA", AoA, "Angle of attack." ) );
-            res->Add( new NameValData( "Beta", Beta, "Angle of sideslip." ) );
-            res->Add( new NameValData( "CL", CL, "Lift coefficient." ) );
-            res->Add( new NameValData( "CDi", CDi, "Induced drag coefficient." ) );
-            res->Add( new NameValData( "Cs", Cs, "Side force coefficient." ) );
-            res->Add( new NameValData( "CFx", CFx, "X force coefficient." ) );
-            res->Add( new NameValData( "CFy", CFy, "Y force coefficient." ) );
-            res->Add( new NameValData( "CFz", CFz, "Z force coefficient." ) );
-            res->Add( new NameValData( "Cmx", Cmx, "X moment coefficient." ) );
-            res->Add( new NameValData( "Cmy", Cmy, "Y moment coefficient." ) );
-            res->Add( new NameValData( "Cmz", Cmz, "Z moment coefficient." ) );
-
-            sectional_data_complete = false;
-        } // end total component table read
 
     } // end file loop
 

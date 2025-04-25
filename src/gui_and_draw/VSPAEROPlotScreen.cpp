@@ -2749,7 +2749,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
 
         if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE )
         {
-            spanLoadSetResultDataPtr = res->FindPtr( "SpanLoadSet" );
+            spanLoadSetResultDataPtr = res->FindPtr( "VortexSheet" );
             xResultDataPtr = res->FindPtr( "Yavg" );
             y_label = "Span Location: Y";
         }
