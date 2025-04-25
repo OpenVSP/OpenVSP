@@ -2252,7 +2252,6 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "Symmetry",                      VSPAEROMgr.m_Symmetry.Get()                       , "Symmetry mode enum." ) );
         m_Inputs.Add( new NameValData( "2DFEMFlag",                     VSPAEROMgr.m_Write2DFEMFlag.Get()                 , "Flag to write 2D FEM file." ) );
         m_Inputs.Add( new NameValData( "TecplotFlag",                   VSPAEROMgr.m_WriteTecplotFlag.Get()               , "Flag to write Tecplot file." ) );
-        m_Inputs.Add( new NameValData( "KTCorrection",                  VSPAEROMgr.m_KTCorrection.Get()                   , "Compressibility correction enum." ) );
         m_Inputs.Add( new NameValData( "FromSteadyState",               VSPAEROMgr.m_FromSteadyState.Get()                , "Start unsteady solution from steady state." ) );
         m_Inputs.Add( new NameValData( "GroundEffectToggle",            VSPAEROMgr.m_GroundEffectToggle.Get()             , "Flag to enable ground effect model." ) );
         m_Inputs.Add( new NameValData( "GroundEffect",                  VSPAEROMgr.m_GroundEffect.Get()                   , "Height aboe ground." ) );
@@ -2570,7 +2569,6 @@ string VSPAEROSweepAnalysis::Execute()
         bool symmetryOrig            = VSPAEROMgr.m_Symmetry.Get();
         bool write2DFEMOrig          = VSPAEROMgr.m_Write2DFEMFlag.Get();
         bool writeTecplotOrig        = VSPAEROMgr.m_WriteTecplotFlag.Get();
-        bool ktCorrectionOrig        = VSPAEROMgr.m_KTCorrection.Get();
         bool fromSteadyStateOrig     = VSPAEROMgr.m_FromSteadyState.Get();
         bool groundEffectToggleOrig  = VSPAEROMgr.m_GroundEffectToggle.Get();
         double groundEffectOrig      = VSPAEROMgr.m_GroundEffect.Get();
@@ -2619,11 +2617,6 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_WriteTecplotFlag.Set( nvd->GetInt( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "KTCorrection", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_KTCorrection.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "FromSteadyState", 0 );
         if ( nvd )
@@ -2949,7 +2942,6 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
         VSPAEROMgr.m_Write2DFEMFlag.Set( write2DFEMOrig );
         VSPAEROMgr.m_WriteTecplotFlag.Set( writeTecplotOrig );
-        VSPAEROMgr.m_KTCorrection.Set( ktCorrectionOrig );
         VSPAEROMgr.m_FromSteadyState.Set( fromSteadyStateOrig );
         VSPAEROMgr.m_GroundEffectToggle.Set( groundEffectToggleOrig );
         VSPAEROMgr.m_GroundEffect.Set( groundEffectOrig );

@@ -220,8 +220,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 
     m_Machref.Init( "Machref", groupname, this, 0.3, 0, 1e12 );
     m_Machref.SetDescript( "Reference Mach Number. Set to Rotor Tip Mach Number for Hover Analysis (Vinf = 0)" );
-    m_KTCorrection.Init( "KTCorrection", groupname, this, false, false, true );
-    m_KTCorrection.SetDescript( "Activate 2nd Order Karman-Tsien Mach Number Correction" );
     m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
     m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
@@ -456,7 +454,6 @@ void VSPAEROMgrSingleton::Renew()
     m_BetaStart.Set( 0.0 ); m_BetaEnd.Set( 0.0 ); m_BetaNpts.Set( 1 );
     m_MachStart.Set( 0.0 ); m_MachEnd.Set( 0.0 ); m_MachNpts.Set( 1 );
 
-    m_KTCorrection.Set( false );
     m_Symmetry.Set( false );
     m_StabilityType.Set( vsp::STABILITY_OFF );
 

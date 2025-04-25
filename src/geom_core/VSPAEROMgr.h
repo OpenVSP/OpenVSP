@@ -435,7 +435,6 @@ public:
     Parm m_Machref;
     Parm m_Vref;
     BoolParm m_ManualVrefFlag;
-    BoolParm m_KTCorrection;
     BoolParm m_Symmetry;
     BoolParm m_Write2DFEMFlag;
     BoolParm m_WriteTecplotFlag;
