@@ -2299,7 +2299,6 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "MachNpts",          VSPAEROMgr.m_MachNpts.Get()          , "Number of points in Mach number sweep." ) );
 
         m_Inputs.Add( new NameValData( "RotateBladesFlag",  VSPAEROMgr.m_RotateBladesFlag.Get()  , "Flag to model propellers or rotors as unsteady rotating blades." ) );
-        m_Inputs.Add( new NameValData( "ActuatorDiskFlag",  VSPAEROMgr.m_ActuatorDiskFlag.Get()  , "Flag to model propellers or rotors as actuator disks." ) );
 
         m_Inputs.Add( new NameValData( "FreezeMultiPoleAtIteration",      VSPAEROMgr.m_FreezeMultiPoleAtIteration.Get()         , "Freeze the multipole expansion update" ) );
         m_Inputs.Add( new NameValData( "FreezeWakeAtIteration",           VSPAEROMgr.m_FreezeWakeAtIteration.Get()              , "Freeze the wake after this number of iterations" ) );
@@ -2756,7 +2755,6 @@ string VSPAEROSweepAnalysis::Execute()
 
         // Unsteady Parms
         bool rotateBladesFlagOrig   = VSPAEROMgr.m_RotateBladesFlag.Get();
-        bool actuatorDiskFlagOrig   = VSPAEROMgr.m_ActuatorDiskFlag.Get();
         bool hoverRampFlagOrig      = VSPAEROMgr.m_HoverRampFlag.Get();
         double hoverRamp            = VSPAEROMgr.m_HoverRamp.Get();
         int numTimeStepOrig         = VSPAEROMgr.m_NumTimeSteps.Get();
@@ -2775,11 +2773,6 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_RotateBladesFlag.Set( nvd->GetInt( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "ActuatorDiskFlag", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_ActuatorDiskFlag.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "HoverRampFlag", 0 );
         if ( nvd )
@@ -2959,7 +2952,6 @@ string VSPAEROSweepAnalysis::Execute()
 
         // Unsteady Parms
         VSPAEROMgr.m_RotateBladesFlag.Set( rotateBladesFlagOrig );
-        VSPAEROMgr.m_ActuatorDiskFlag.Set( actuatorDiskFlagOrig );
         VSPAEROMgr.m_HoverRampFlag.Set( hoverRampFlagOrig );
         VSPAEROMgr.m_HoverRamp.Set( hoverRamp );
         VSPAEROMgr.m_NumTimeSteps.Set( numTimeStepOrig );

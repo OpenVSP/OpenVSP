@@ -274,6 +274,8 @@ public:
     // Getter Methods
     int GetCurrentRotorDiskIndex() const                          { return m_CurrentRotorDiskIndex; }
     vector <RotorDisk*> GetRotorDiskVec()                      { return m_RotorDiskVec; };
+    bool ExistRotorDisk() const                                { return !m_RotorDiskVec.empty(); }
+
     vector < VspAeroControlSurf > GetActiveCSVec()          { return m_ActiveControlSurfaceVec; }
     vector < VspAeroControlSurf > GetCompleteCSVec()        { return m_CompleteControlSurfaceVec; }
     vector < VspAeroControlSurf > GetAvailableCSVec();
@@ -446,7 +448,6 @@ public:
     Parm m_GroundEffect;
 
     BoolParm m_RotateBladesFlag;
-    BoolParm m_ActuatorDiskFlag;
     IntParm m_StabilityType;
 
 

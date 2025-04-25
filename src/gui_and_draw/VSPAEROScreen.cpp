@@ -573,7 +573,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_PropAndStabLayout.SetSameLineFlag( true );
     m_PropAndStabLayout.SetFitWidthFlag( false );
-    m_PropAndStabLayout.AddButton( m_ActuatorDiskToggle, "Actuator Disk" );
     m_PropAndStabLayout.AddButton( m_RotateBladesToggle, "Rotating Blades" );
     m_PropAndStabLayout.ForceNewLine();
 
@@ -1818,17 +1817,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
 
     m_StabilityTypeChoice.Update( VSPAEROMgr.m_StabilityType.GetID() );
 
-    m_ActuatorDiskToggle.Update( VSPAEROMgr.m_ActuatorDiskFlag.GetID() );
     m_RotateBladesToggle.Update( VSPAEROMgr.m_RotateBladesFlag.GetID() );
-
-    if ( VSPAEROMgr.GetRotorDiskVec().empty() )
-    {
-        m_ActuatorDiskToggle.Deactivate();
-    }
-    else
-    {
-        m_ActuatorDiskToggle.Activate();
-    }
 
     if ( VSPAEROMgr.NumUnsteadyRotorGroups() == 0 )
     {
@@ -1842,16 +1831,18 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     if ( VSPAEROMgr.m_RotateBladesFlag.Get() )
     {
         m_PropellerTab->activate();
-        m_RotorDiskTab->deactivate();
-    }
-    else if ( VSPAEROMgr.m_ActuatorDiskFlag.Get() )
-    {
-        m_PropellerTab->deactivate();
-        m_RotorDiskTab->activate();
     }
     else
     {
         m_PropellerTab->deactivate();
+    }
+
+    if ( VSPAEROMgr.ExistRotorDisk() )
+    {
+        m_RotorDiskTab->activate();
+    }
+    else
+    {
         m_RotorDiskTab->deactivate();
     }
 
@@ -2122,7 +2113,7 @@ void VSPAEROScreen::UpdateOtherSetupParms()
     }
 
     if ( VSPAEROMgr.m_RotateBladesFlag.Get() ||
-         VSPAEROMgr.m_ActuatorDiskFlag.Get() ||
+         VSPAEROMgr.ExistRotorDisk() ||
        ( VSPAEROMgr.m_StabilityType.Get() > vsp::STABILITY_OFF && VSPAEROMgr.m_StabilityType.Get() < vsp::STABILITY_PITCH ) )
     {
         m_VinfSlider.Activate();

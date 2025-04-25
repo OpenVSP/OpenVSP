@@ -243,7 +243,6 @@ protected:
     SliderAdjRangeInput m_FarDistSlider;
     SliderAdjRangeInput m_GroundEffectSlider;
 
-    ToggleButton m_ActuatorDiskToggle;
     ToggleButton m_RotateBladesToggle;
 
     // Stability Setup

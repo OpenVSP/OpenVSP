@@ -241,9 +241,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_GroundEffect.SetDescript( "Ground Effect Distance" );
     m_GroundEffectToggle.Init( "GroundEffectToggle", groupname, this, false, false, true );
 
-    m_ActuatorDiskFlag.Init( "ActuatorDiskFlag", groupname, this, false, false, true );
-    m_ActuatorDiskFlag.SetDescript( "Flag for VSPAERO to Analyze Actuator Disks (Disk tab)" );
-
     m_RotateBladesFlag.Init( "RotateBladesFlag", groupname, this, false, false, true );
     m_RotateBladesFlag.SetDescript( "Flag for VSPAERO to Analyze Unsteady Rotating Propellers (Propeller tab)" );
 
@@ -374,16 +371,6 @@ void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
     {
         veh->ParmChanged( parm_ptr, type );
     }
-
-    // Only allow rotor blades or actuator disk representation, but not both
-    if ( &m_RotateBladesFlag == parm_ptr && m_ActuatorDiskFlag() == true && parm_ptr->Get() == true )
-    {
-        m_ActuatorDiskFlag.Set( false );
-    }
-    else if ( &m_ActuatorDiskFlag == parm_ptr && m_RotateBladesFlag() == true && parm_ptr->Get() == true )
-    {
-        m_RotateBladesFlag.Set( false );
-    }
 }
 
 void VSPAEROMgrSingleton::Renew()
@@ -459,7 +446,6 @@ void VSPAEROMgrSingleton::Renew()
     m_Symmetry.Set( false );
     m_StabilityType.Set( vsp::STABILITY_OFF );
 
-    m_ActuatorDiskFlag.Set( false );
     m_RotateBladesFlag.Set( false );
 
     m_NCPU.Set( 4 );
@@ -1436,7 +1422,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
 
     // RotorDisks
-    if ( m_ActuatorDiskFlag() )
+    if ( ExistRotorDisk() )
     {
         unsigned int numRotors = m_RotorDiskVec.size();
         fprintf( case_file, "NumberOfRotors = %u \n", numRotors );
@@ -4336,11 +4322,6 @@ void VSPAEROMgrSingleton::UpdateParmRestrictions()
     if ( !m_ManualVrefFlag() )
     {
         m_Vref.Set( m_Vinf() );
-    }
-
-    if ( m_RotorDiskVec.empty() )
-    {
-        m_ActuatorDiskFlag.Set( false );
     }
 
     if ( NumUnsteadyRotorGroups() == 0 )
