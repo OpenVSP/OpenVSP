@@ -2338,13 +2338,11 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterEnum( "VSPAERO_CLMAX_TYPE" );
+    r = se->RegisterEnum( "VSPAERO_STALL_TYPE" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_CLMAX_TYPE", "CLMAX_OFF", CLMAX_OFF );
+    r = se->RegisterEnumValue( "VSPAERO_STALL_TYPE", "STALL_OFF", STALL_OFF );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_CLMAX_TYPE", "CLMAX_2D", CLMAX_2D );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_CLMAX_TYPE", "CLMAX_CARLSON", CLMAX_CARLSON );
+    r = se->RegisterEnumValue( "VSPAERO_STALL_TYPE", "STALL_ON", STALL_ON );
     assert( r >= 0 );
 
 

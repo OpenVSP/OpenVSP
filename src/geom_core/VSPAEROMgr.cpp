@@ -228,13 +228,12 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
     m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
     m_Write2DFEMFlag.SetDescript( "Toggle File Write for 2D FEM" );
-    m_ClMax.Init( "Clmax", groupname, this, -1, -1, 1e3 );
-    m_ClMax.SetDescript( "Cl Max of Aircraft" );
-    m_ClMaxToggle.Init( "ClmaxToggle", groupname, this, vsp::CLMAX_OFF, vsp::CLMAX_OFF, vsp::CLMAX_CARLSON );
-    m_ClMaxToggle.SetDescript( "Stall Modeling Option" );
-    m_MaxTurnAngle.Init( "MaxTurnAngle", groupname, this, -1, -1, 360 );
-    m_MaxTurnAngle.SetDescript( "Max Turning Angle of Aircraft" );
-    m_MaxTurnToggle.Init( "MaxTurnToggle", groupname, this, false, false, true );
+    m_WriteTecplotFlag.Init( "WriteTecplotFlag", groupname, this, false, false, true );
+    m_WriteTecplotFlag.SetDescript( "Toggle to write Tecplot file" );
+    m_Clo2D.Init( "Clo2D", groupname, this, 0, -1e3, 1e3 );
+    m_Clo2D.SetDescript( "Zero alpha Cl for airfoil" );
+    m_StallModel.Init( "StallModel", groupname, this, vsp::STALL_OFF, vsp::STALL_OFF, vsp::STALL_ON );
+    m_StallModel.SetDescript( "Stall Modeling Option" );
     m_FarDist.Init( "FarDist", groupname, this, -1, -1, 1e6 );
     m_FarDist.SetDescript( "Far Field Distance for Wake Adaptation" );
     m_FarDistToggle.Init( "FarDistToggle", groupname, this, false, false, true );
@@ -253,12 +252,57 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_StabilityType.Init( "UnsteadyType", groupname, this, vsp::STABILITY_OFF, vsp::STABILITY_OFF, vsp::STABILITY_NUM_TYPES - 1 );
     m_StabilityType.SetDescript( "Unsteady Calculation Type" );
 
+    m_FreezeMultiPoleAtIteration.Init( "FreezeMultiPoleAtIteration", groupname, this, 10000, 0, 1e12 );
+    m_FreezeMultiPoleAtIteration.SetDescript( "Freeze the multipole expansion update" );
+
+    m_FreezeWakeAtIteration.Init( "m_FreezeWakeAtIteration", groupname, this, 10000, 0, 1e12 );
+    m_FreezeWakeAtIteration.SetDescript( "Freeze the wake after this number of iterations" );
+
+    m_FreezeWakeRootVortices.Init( "FreezeWakeRootVortices", groupname, this, false, false, true );
+    m_FreezeWakeRootVortices.SetDescript( "Freeze the root wake vortices" );
+
+    m_ImplicitWake.Init( "ImplicitWake", groupname, this, false, false, true );
+    m_ImplicitWake.SetDescript( "Turn on implicit wake" );
+
+    m_ImplicitWakeStartIteration.Init( "ImplicitWakeStartIteration", groupname, this, 0, 0, 1e12 );
+    m_ImplicitWakeStartIteration.SetDescript( "Iteration at which to start implicit wake solve" );
+
+    m_WakeRelax.Init( "WakeRelax", groupname, this, 1, 0, 1.0 );
+    m_WakeRelax.SetDescript( "Wake relaxation factor" );
+
+    m_ForwardGMRESConvergenceFactor.Init( "ForwardGMRESConvergenceFactor", groupname, this, 1, 0, 1e12 );
+    m_ForwardGMRESConvergenceFactor.SetDescript( "User Forward GMRES residual reduction factor... this scales the default residual reduction" );
+
+    m_AdjointGMRESConvergenceFactor.Init( "AdjointGMRESConvergenceFactor", groupname, this, 1, 0, 1e12 );
+    m_AdjointGMRESConvergenceFactor.SetDescript( "User Adjoint GMRES residual reduction factor... this scales the default residual reduction" );
+
+    m_NonLinearConvergenceFactor.Init( "NonLinearConvergenceFactor", groupname, this, 1, 0, 1e12 );
+    m_NonLinearConvergenceFactor.SetDescript( "User non-linear residual reduction factor on solution of overall nonlinear system... this scales the default residual reduction" );
+
+    m_CoreSizeFactor.Init( "CoreSizeFactor", groupname, this, 1, 0, 1e12 );
+    m_CoreSizeFactor.SetDescript( "Adjust the wake core size model up or down, default value is 1." );
+
+    m_FarAway.Init( "FarAway", groupname, this, 1, 0, 1e12 );
+    m_FarAway.SetDescript( "Set the multipole far away value" );
+
+    m_UpdateMatrixPreconditioner.Init( "UpdateMatrixPreconditioner", groupname, this, false, false, true );
+    m_UpdateMatrixPreconditioner.SetDescript( "Force update of matrix preconditioners every newton iteration" );
+
+    m_UseWakeNodeMatrixPreconditioner.Init( "UseWakeNodeMatrixPreconditioner", groupname, this, false, false, true );
+    m_UseWakeNodeMatrixPreconditioner.SetDescript( "Turn on the wake matrix preconditioner" );
+
+    m_QuadTreeBufferLevels.Init( "QuadTreeBufferLevels", groupname, this, 0, 0, 100 );
+    m_QuadTreeBufferLevels.SetDescript( "Set number of buffer levels for quad tree... the higher the level, the more cells" );
+
     // Unsteady
     m_TimeStepSize.Init( "TimeStepSize", groupname, this, 1e-3, 0, 1e9 );
     m_TimeStepSize.SetDescript( "Size of Time Step for Unsteady Analysis" );
 
     m_NumTimeSteps.Init( "NumTimeSteps", groupname, this, 25, 0, 1e9 );
     m_NumTimeSteps.SetDescript( "Number of Time Steps for Unsteady Analysis" );
+
+    m_StartAveragingTimeStep.Init( "StartAveragingTimeStep", groupname, this, 1, 0, 1e12 );
+    m_StartAveragingTimeStep.SetDescript( "Set the time step to start averaging time accurate forces." );
 
     m_AutoTimeStepFlag.Init( "AutoTimeStepFlag", groupname, this, true, false, true );
     m_AutoTimeStepFlag.SetDescript( "Flag for VSPAERO to Automatically Calculate the Time Step for the Slowest Rotor to Complete a Set Number of Revolutions" );
@@ -428,9 +472,7 @@ void VSPAEROMgrSingleton::Renew()
 
     m_WakeNumIter.Set( 5 );
 
-    m_ClMaxToggle.Set( vsp::CLMAX_OFF );
-    m_MaxTurnToggle.Set( false );
-    m_FarDistToggle.Set( false );
+    m_StallModel.Set( vsp::STALL_OFF );
     m_GroundEffectToggle.Set( false );
     m_FromSteadyState.Set( false );
     m_NumWakeNodes.Set( 64 );
@@ -624,36 +666,6 @@ void VSPAEROMgrSingleton::UpdateSref()
 
 void VSPAEROMgrSingleton::UpdateSetupParmLimits()
 {
-    if ( m_ClMaxToggle.Get() == vsp::CLMAX_2D )
-    {
-        m_ClMax.SetLowerLimit( 0.0 );
-        m_ClMax.Activate();
-    }
-    else if ( m_ClMaxToggle.Get() == vsp::CLMAX_OFF )
-    {
-        m_ClMax.SetLowerLimit( -1.0 );
-        m_ClMax.Set( -1.0 );
-        m_ClMax.Deactivate();
-    }
-    else if (m_ClMaxToggle.Get() == vsp::CLMAX_CARLSON)
-    {
-        m_ClMax.SetLowerLimit( -999 );
-        m_ClMax.Set( -999 );
-        m_ClMax.Deactivate();
-    }
-
-    if ( m_MaxTurnToggle() )
-    {
-        m_MaxTurnAngle.SetLowerLimit( 0.0 );
-        m_MaxTurnAngle.Activate();
-    }
-    else
-    {
-        m_MaxTurnAngle.SetLowerLimit( -1.0 );
-        m_MaxTurnAngle.Set( -1.0 );
-        m_MaxTurnAngle.Deactivate();
-    }
-
     if ( m_FarDistToggle() )
     {
         m_FarDist.SetLowerLimit( 0.0 );
@@ -1378,11 +1390,12 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
     fprintf( case_file, "%lf \n", betaVec[i++] );
 
-    string sym;
-    if ( m_Symmetry() )
-    { sym = "Y"; }
-    else
-    { sym = "NO"; }
+    fprintf( case_file, "ReCref = " );
+    for ( i = 0; i < recrefVec.size() - 1; i++ )
+    {
+        fprintf( case_file, "%lf, ", recrefVec[i] );
+    }
+    fprintf( case_file, "%lf \n", recrefVec[i++] );
 
     fprintf( case_file, "Vinf = %lf \n", m_Vinf() );
 
@@ -1393,17 +1406,17 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
 
     fprintf( case_file, "Rho = %lf \n", m_Rho() );
+    fprintf( case_file, "StallModel = %d \n", m_StallModel() );
+    fprintf( case_file, "Clo2D = %lf \n", m_Clo2D() );
 
-    fprintf( case_file, "ReCref = " );
-    for ( i = 0; i < recrefVec.size() - 1; i++ )
-    {
-        fprintf( case_file, "%lf, ", recrefVec[i] );
-    }
-    fprintf( case_file, "%lf \n", recrefVec[i++] );
+    fprintf( case_file, "Symmetry = %d \n", m_Symmetry() );
 
-    fprintf( case_file, "ClMax = %lf \n", m_ClMax() );
-    fprintf( case_file, "MaxTurningAngle = %lf \n", m_MaxTurnAngle() );
-    fprintf( case_file, "Symmetry = %s \n", sym.c_str() );
+    fprintf( case_file, "FreezeMultiPoleAtIteration = %d \n", m_FreezeMultiPoleAtIteration() );
+    fprintf( case_file, "FreezeWakeAtIteration = %d \n", m_FreezeWakeAtIteration() );
+    fprintf( case_file, "FreezeWakeRootVortices = %d \n", m_FreezeWakeRootVortices() );
+    fprintf( case_file, "ImplicitWake = %d \n", m_ImplicitWake() );
+    fprintf( case_file, "ImplicitWakeStartIteration = %d \n", m_ImplicitWakeStartIteration() );
+
     fprintf( case_file, "FarDist = %lf \n", m_FarDist() );
     fprintf( case_file, "NumWakeNodes = %d \n", m_NumWakeNodes() );
 
@@ -1416,20 +1429,39 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         fprintf( case_file, "WakeIters = %d \n", m_WakeNumIter.Get() );
     }
 
-    // RotorDisks
-    if ( m_ActuatorDiskFlag() )
-    {
-        unsigned int numRotors = m_RotorDiskVec.size();
-        fprintf( case_file, "NumberOfRotors = %u \n", numRotors );
-        int iPropElement = 0;
-        for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
-        {
-            iPropElement++;
-            fprintf( case_file, "PropElement_%d\n", iPropElement );     //read in by, but not used, in vspaero and begins at 1
-            fprintf( case_file, "%d\n", iPropElement );                 //read in by, but not used, in vspaero
-            m_RotorDiskVec[iRotor]->Write_STP_Data( case_file );
-        }
-    }
+    fprintf( case_file, "WakeRelax = %lf \n", m_WakeRelax() );
+
+    fprintf( case_file, "ForwardGMRESConvergenceFactor = %lf \n", m_ForwardGMRESConvergenceFactor() );
+    fprintf( case_file, "AdjointGMRESConvergenceFactor = %lf \n", m_AdjointGMRESConvergenceFactor() );
+    fprintf( case_file, "NonLinearConvergenceFactor = %lf \n", m_NonLinearConvergenceFactor() );
+    fprintf( case_file, "CoreSizeFactor = %lf \n", m_CoreSizeFactor() );
+    fprintf( case_file, "FarAway = %lf \n", m_FarAway() );
+
+
+    fprintf( case_file, "UpdateMatrixPreconditioner = %d \n", m_UpdateMatrixPreconditioner() );
+    fprintf( case_file, "UseWakeNodeMatrixPreconditioner = %d \n", m_UseWakeNodeMatrixPreconditioner() );
+
+
+    // fprintf( case_file, "AdjointSolutionForceType = %d \n", m_AdjointSolutionForceType() );
+    //
+    // fprintf( case_file, "AdjointSolveForThisForceMomentCase = " );
+    // for ( i = 0; i < adjointFMVec.size() - 1; i++ )
+    // {
+    //     fprintf( case_file, "%d, ", adjointFMVec[i] );
+    // }
+    // fprintf( case_file, "%d \n", adjointFMVec[i++] );
+    //
+    // fprintf( case_file, "AdjointComponentList = " );
+    // for ( i = 0; i < adjointCompVec.size() - 1; i++ )
+    // {
+    //     fprintf( case_file, "%d, ", adjointCompVec[i] );
+    // }
+    // fprintf( case_file, "%d \n", adjointCompVec[i++] );
+
+
+    fprintf( case_file, "Write2DFEMFile = %d \n", m_Write2DFEMFlag() );
+    fprintf( case_file, "WriteTecplotFile = %d \n", m_WriteTecplotFlag() );
+
 
     // ControlSurfaceGroups
     unsigned int numUsedCSGs = 0;
@@ -1451,21 +1483,80 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         }
     }
 
+    // RotorDisks
+    if ( m_ActuatorDiskFlag() )
+    {
+        unsigned int numRotors = m_RotorDiskVec.size();
+        fprintf( case_file, "NumberOfRotors = %u \n", numRotors );
+        int iPropElement = 0;
+        for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
+        {
+            iPropElement++;
+            fprintf( case_file, "PropElement_%d\n", iPropElement );     //read in by, but not used, in vspaero and begins at 1
+            fprintf( case_file, "%d\n", iPropElement );                 //read in by, but not used, in vspaero
+            m_RotorDiskVec[iRotor]->Write_STP_Data( case_file );
+        }
+    }
+
+    // Field survey points.  Not done from GUI at this time.
+    //
+    fprintf( case_file, "NumberofSurveyPoints = 0 \n" );
+    // 1 x1 y1 z1
+    // 2 x2 y2 z2
+    // ...
+    // N xN yN zN
+    //
+    // NumberOfSurveyTimeSteps = Ntstep
+
+
+    if ( m_CpSliceFlag() && !m_CpSliceVec.empty() )
+    {
+        fprintf( case_file, "QuadTreeBufferLevels = %d \n", m_QuadTreeBufferLevels() );
+        fprintf( case_file, "NumberOfQuadTrees = %zu \n", m_CpSliceVec.size() );
+
+        for ( i = 0; i < m_CpSliceVec.size(); i++ )
+        {
+            CpSlice* slice = m_CpSliceVec[i];
+            if ( slice )
+            {
+                fprintf( case_file, "%d %d %lf \n", i + 1, slice->m_CutType() + 1, slice->m_CutPosition() );
+            }
+        }
+    }
+
+    fprintf( case_file, "NumberOfInlets = 0 \n" );
+    // i, Surface#, MassFlow
+
+    fprintf( case_file, "NumberOfNozzles = 0 \n" );
+    // i, Surface#, Velocity, DeltaCp
+    // x, y, z
+    // nx, ny, nz
+    // radius
+
+
     if ( m_RotateBladesFlag() )
     {
         if ( m_AutoTimeStepFlag() )
         {
-            fprintf( case_file, "TimeStep = -1 \n" );
             fprintf( case_file, "NumberOfTimeSteps = %d \n", ( -1 * m_AutoTimeNumRevs.Get() ) );
+            fprintf( case_file, "TimeStep = -1 \n" );
         }
         else
         {
-            fprintf( case_file, "TimeStep = %lf \n", m_TimeStepSize() );
             fprintf( case_file, "NumberOfTimeSteps = %d \n", m_NumTimeSteps.Get() );
+            fprintf( case_file, "TimeStep = %lf \n", m_TimeStepSize() );
         }
+        fprintf( case_file, "StartAveragingTimeStep = %d \n", m_StartAveragingTimeStep.Get() );
     }
 
-    // The following additions to the setup file are not read by VSPAERO, and therefore must 
+
+    // We write all command line options to the bottom of this file in a way that is ignored
+    // by VSPAERO, but that OpenVSP can read back in to understand what options were used
+    // when a case was run.
+
+
+/*
+    // The following additions to the setup file are not read by VSPAERO, and therefore must
     // be placed at the end of the file.
 
     // Preconditioner
@@ -1503,20 +1594,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         fprintf( case_file, "Num Unsteady Groups = %d \n", NumUnsteadyGroups() ); // Number of unsteady groups
         fprintf( case_file, "Num Unsteady Props = %d \n", NumUnsteadyRotorGroups() ); // number of unsteady propellers
     }
-
-    if ( m_CpSliceFlag() && !m_CpSliceVec.empty() )
-    {
-        fprintf( case_file, "NumberOfQuadTrees = %zu \n", m_CpSliceVec.size() );
-
-        for ( i = 0; i < m_CpSliceVec.size(); i++ )
-        {
-            CpSlice* slice = m_CpSliceVec[i];
-            if ( slice )
-            {
-                fprintf( case_file, "%d %d %lf \n", i + 1, slice->m_CutType() + 1, slice->m_CutPosition() );
-            }
-        }
-    }
+*/
 
     //Finish up by closing the file and making sure that it appears in the file system
     fclose( case_file );
@@ -1981,10 +2059,13 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 #pragma clang diagnostic pop
         }
 
-        if ( m_FromSteadyState() )
+        if ( m_RotateBladesFlag() )
         {
-            args.emplace_back( "-fromsteadystate" );
+            args.emplace_back( "-unsteady" );
         }
+
+        // -adjoint
+
 
         if ( m_GroundEffectToggle() )
         {
@@ -1992,35 +2073,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             args.push_back( StringUtil::double_to_string( m_GroundEffect(), "%f" ) );
         }
 
-        if( m_Write2DFEMFlag() )
-        {
-            args.emplace_back( "-write2dfem" );
-        }
-
-        if ( m_Precondition() == vsp::PRECON_JACOBI )
-        {
-            args.emplace_back( "-jacobi" );
-        }
-        else if ( m_Precondition() == vsp::PRECON_SSOR )
-        {
-            args.emplace_back( "-ssor" );
-        }
-
-        if ( m_KTCorrection() )
-        {
-            args.emplace_back( "-dokt" );
-        }
-
-        if ( m_RotateBladesFlag() )
-        {
-            args.emplace_back( "-unsteady" );
-
-            if ( m_HoverRampFlag() )
-            {
-                args.emplace_back( "-hoverramp" );
-                args.push_back( StringUtil::double_to_string( m_HoverRamp(), "%f" ) );
-            }
-        }
 
         // Add model file name
         args.push_back( modelNameBase );

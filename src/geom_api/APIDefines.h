@@ -1544,10 +1544,9 @@ enum VSPAERO_STABILITY_TYPE { STABILITY_OFF = 0,	/*!< No stability analysis (off
 /*!
 	\ingroup Enumerations
 */
-/*! Enum for the VSPAERO stall modeling options (Cl Max VSPAERO input). */
-enum VSPAERO_CLMAX_TYPE { CLMAX_OFF,	/*!< Stall modeling off (Cl Max = 0) */
-                          CLMAX_2D,	/*!< 2D Cl Max stall modeling with user defined value */
-                          CLMAX_CARLSON    /*!< Carlson's Pressure Correlation */
+/*! Enum for the VSPAERO stall modeling options. */
+enum VSPAERO_STALL_TYPE { STALL_OFF,	/*!< Stall modeling off */
+                          STALL_ON,	/*!< Stall modeling on */
 };
 
 /*!

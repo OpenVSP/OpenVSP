@@ -374,6 +374,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedCaseSetupLayout.AddButton( m_KTCorrectionToggle, "2nd Order Karman-Tsien Mach Correction" );
     m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
+    m_AdvancedCaseSetupLayout.AddButton(m_WriteTecplotToggle, "Write Tecplot File");
 
     // Wake Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_WakeLayout,
@@ -402,22 +403,16 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_OtherParmsLayout.AddDividerBox( "Other" );
     m_OtherParmsLayout.SetButtonWidth( 80 ); // Match with m_NCPUSlider
     m_OtherParmsLayout.SetInputWidth( 50 );
-    m_OtherParmsLayout.AddChoice( m_ClmaxChoice, "Stall Model" );
-    m_ClmaxChoice.AddItem( "Off", vsp::CLMAX_OFF );
-    m_ClmaxChoice.AddItem( "2D Clmax", vsp::CLMAX_2D );
-    m_ClmaxChoice.AddItem( "Carlson Pressure Correlation", vsp::CLMAX_CARLSON );
-    m_ClmaxChoice.UpdateItems();
+    m_OtherParmsLayout.AddChoice( m_StallChoice, "Stall Model" );
+    m_StallChoice.AddItem( "Off", vsp::STALL_OFF );
+    m_StallChoice.AddItem( "On", vsp::STALL_ON );
+    m_StallChoice.UpdateItems();
     m_OtherParmsLayout.SetButtonWidth( labelwidth + togglewidth );
-    m_OtherParmsLayout.AddSlider( m_ClmaxSlider, "Clmax", 10, "%2.3f" );
+    m_OtherParmsLayout.AddSlider( m_Clo2DSlider, "Clo2D", 10, "%2.3f" );
     m_OtherParmsLayout.SetSameLineFlag(true);
     m_OtherParmsLayout.SetFitWidthFlag(false);
     m_OtherParmsLayout.SetInputWidth(inputwidth);
     m_OtherParmsLayout.SetSliderWidth( m_OtherParmsLayout.GetW() - inputwidth - togglewidth - labelwidth - 20 );
-    m_OtherParmsLayout.SetButtonWidth(togglewidth);
-    m_OtherParmsLayout.AddButton( m_MaxTurningToggle, "" );
-    m_OtherParmsLayout.SetButtonWidth( labelwidth );
-    m_OtherParmsLayout.AddSlider( m_MaxTurningSlider, "Max Turning Angle", 100, "%3.3f" );
-    m_OtherParmsLayout.ForceNewLine();
     m_OtherParmsLayout.SetButtonWidth(togglewidth);
     m_OtherParmsLayout.AddButton( m_FarDistToggle, "" );
     m_OtherParmsLayout.SetButtonWidth( labelwidth );
@@ -1602,6 +1597,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_KTCorrectionToggle.Update( VSPAEROMgr.m_KTCorrection.GetID() );
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
     m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
+    m_WriteTecplotToggle.Update( VSPAEROMgr.m_WriteTecplotFlag.GetID() );
 
     // Wake Options
     m_FixedWakeToggle.Update( VSPAEROMgr.m_FixedWakeFlag.GetID() );
@@ -1634,10 +1630,8 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     }
 
     // Other Set Up Parms
-    m_ClmaxChoice.Update( VSPAEROMgr.m_ClMaxToggle.GetID() );
-    m_ClmaxSlider.Update( VSPAEROMgr.m_ClMax.GetID() );
-    m_MaxTurningToggle.Update( VSPAEROMgr.m_MaxTurnToggle.GetID() );
-    m_MaxTurningSlider.Update( VSPAEROMgr.m_MaxTurnAngle.GetID() );
+    m_StallChoice.Update( VSPAEROMgr.m_StallModel.GetID() );
+    m_Clo2DSlider.Update( VSPAEROMgr.m_Clo2D.GetID() );
     m_FarDistToggle.Update( VSPAEROMgr.m_FarDistToggle.GetID() );
     m_FarDistSlider.Update( VSPAEROMgr.m_FarDist.GetID() );
     m_GroundEffectToggle.Update( VSPAEROMgr.m_GroundEffectToggle.GetID() );

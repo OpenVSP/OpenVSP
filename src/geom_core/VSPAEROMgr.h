@@ -439,10 +439,11 @@ public:
     BoolParm m_KTCorrection;
     BoolParm m_Symmetry;
     BoolParm m_Write2DFEMFlag;
-    IntParm m_ClMaxToggle;
-    Parm m_ClMax;
-    BoolParm m_MaxTurnToggle;
-    Parm m_MaxTurnAngle;
+    BoolParm m_WriteTecplotFlag;
+
+    IntParm m_StallModel;
+    Parm m_Clo2D;
+
     BoolParm m_FarDistToggle;
     Parm m_FarDist;
     BoolParm m_GroundEffectToggle;
@@ -452,9 +453,30 @@ public:
     BoolParm m_ActuatorDiskFlag;
     IntParm m_StabilityType;
 
+
+    IntParm m_FreezeMultiPoleAtIteration;
+    IntParm m_FreezeWakeAtIteration;
+    BoolParm m_FreezeWakeRootVortices;
+    BoolParm m_ImplicitWake;
+    IntParm m_ImplicitWakeStartIteration;
+
+    Parm m_WakeRelax;
+
+    Parm m_ForwardGMRESConvergenceFactor;
+    Parm m_AdjointGMRESConvergenceFactor;
+    Parm m_NonLinearConvergenceFactor;
+    Parm m_CoreSizeFactor;
+    Parm m_FarAway;
+
+    BoolParm m_UpdateMatrixPreconditioner;
+    BoolParm m_UseWakeNodeMatrixPreconditioner;
+
+    IntParm m_QuadTreeBufferLevels;
+
     // Unsteady
     Parm m_TimeStepSize;
     IntParm m_NumTimeSteps;
+    IntParm m_StartAveragingTimeStep;
     BoolParm m_AutoTimeStepFlag;
     IntParm m_AutoTimeNumRevs;
     BoolParm m_HoverRampFlag;

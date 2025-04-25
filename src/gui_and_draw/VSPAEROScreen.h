@@ -205,6 +205,7 @@ protected:
     SliderAdjRangeInput m_NCPUSlider;
     ToggleButton m_SymmetryToggle;
     ToggleButton m_Write2DFEMToggle;
+    ToggleButton m_WriteTecplotToggle;
     TriggerButton m_LoadExistingResultsButton;
     Choice m_PreconditionChoice;
     ToggleButton m_KTCorrectionToggle;
@@ -216,11 +217,11 @@ protected:
     SliderAdjRangeInput m_NumWakeNodeSlider;
 
     // Other Setup Parms Setup
-    Choice m_ClmaxChoice;
+    Choice m_StallChoice;
     ToggleButton m_MaxTurningToggle;
     ToggleButton m_FarDistToggle;
     ToggleButton m_GroundEffectToggle;
-    SliderAdjRangeInput m_ClmaxSlider;
+    SliderAdjRangeInput m_Clo2DSlider;
     SliderAdjRangeInput m_MaxTurningSlider;
     SliderAdjRangeInput m_FarDistSlider;
     SliderAdjRangeInput m_GroundEffectSlider;

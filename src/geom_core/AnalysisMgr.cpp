@@ -2237,7 +2237,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         // Output redirection
         m_Inputs.Add( new NameValData( "RedirectFile",                  string( "stdout" )                                , "File to redirect output ('stdout' to console,  '' to suppress)." ) );
 
-        m_Inputs.Add( NameValData( "StopBeforeRun",                 false                                             , "Flag to stop after writing files, but before running VSPAERO." ) );
+        m_Inputs.Add( new NameValData( "StopBeforeRun",                 false                                             , "Flag to stop after writing files, but before running VSPAERO." ) );
 
         //Case Setup
         m_Inputs.Add( new NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Thick surface geometry Set for analysis."  ) );
@@ -2252,6 +2252,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "Precondition",                  VSPAEROMgr.m_Precondition.Get()                   , "Matrix preconditioner mode enum." ) );
         m_Inputs.Add( new NameValData( "Symmetry",                      VSPAEROMgr.m_Symmetry.Get()                       , "Symmetry mode enum." ) );
         m_Inputs.Add( new NameValData( "2DFEMFlag",                     VSPAEROMgr.m_Write2DFEMFlag.Get()                 , "Flag to write 2D FEM file." ) );
+        m_Inputs.Add( new NameValData( "TecplotFlag",                   VSPAEROMgr.m_WriteTecplotFlag.Get()               , "Flag to write Tecplot file." ) );
         m_Inputs.Add( new NameValData( "KTCorrection",                  VSPAEROMgr.m_KTCorrection.Get()                   , "Compressibility correction enum." ) );
         m_Inputs.Add( new NameValData( "FromSteadyState",               VSPAEROMgr.m_FromSteadyState.Get()                , "Start unsteady solution from steady state." ) );
         m_Inputs.Add( new NameValData( "GroundEffectToggle",            VSPAEROMgr.m_GroundEffectToggle.Get()             , "Flag to enable ground effect model." ) );
@@ -2262,10 +2263,8 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "ReCrefEnd",                     VSPAEROMgr.m_ReCrefEnd.Get()                      , "Reynolds number sweep end point." ) );
         m_Inputs.Add( new NameValData( "ReCrefNpts",                    VSPAEROMgr.m_ReCrefNpts.Get()                     , "Number of points in Reynolds number sweep." ) );
 
-        m_Inputs.Add( new NameValData( "ClmaxToggle",       VSPAEROMgr.m_ClMaxToggle.Get()          , "Flag to enable stall model." ) );
-        m_Inputs.Add( new NameValData( "Clmax",             VSPAEROMgr.m_ClMax.Get()                , "CL max value." ) );
-        m_Inputs.Add( new NameValData( "MaxTurnToggle",     VSPAEROMgr.m_MaxTurnToggle.Get()        , "Flag to enable max turning model." ) );
-        m_Inputs.Add( new NameValData( "MaxTurnAngle",      VSPAEROMgr.m_MaxTurnAngle.Get()         , "Max turning angle value." ) );
+        m_Inputs.Add( new NameValData( "StallModel",        VSPAEROMgr.m_StallModel.Get()           , "Flag to enable stall model." ) );
+        m_Inputs.Add( new NameValData( "Clo2D",            VSPAEROMgr.m_Clo2D.Get()                 , "Zero alpha cl for airfoil." ) );
         m_Inputs.Add( new NameValData( "FarDistToggle",     VSPAEROMgr.m_FarDistToggle.Get()        , "Far field distance toggle." ) );
         m_Inputs.Add( new NameValData( "FarDist",           VSPAEROMgr.m_FarDist.Get()              , "Far field distance." ) );
 
@@ -2304,10 +2303,26 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "RotateBladesFlag",  VSPAEROMgr.m_RotateBladesFlag.Get()  , "Flag to model propellers or rotors as unsteady rotating blades." ) );
         m_Inputs.Add( new NameValData( "ActuatorDiskFlag",  VSPAEROMgr.m_ActuatorDiskFlag.Get()  , "Flag to model propellers or rotors as actuator disks." ) );
 
+        m_Inputs.Add( new NameValData( "FreezeMultiPoleAtIteration",      VSPAEROMgr.m_FreezeMultiPoleAtIteration.Get()         , "Freeze the multipole expansion update" ) );
+        m_Inputs.Add( new NameValData( "FreezeWakeAtIteration",           VSPAEROMgr.m_FreezeWakeAtIteration.Get()              , "Freeze the wake after this number of iterations" ) );
+        m_Inputs.Add( new NameValData( "FreezeWakeRootVortices",          VSPAEROMgr.m_FreezeWakeRootVortices.Get()             , "Freeze the root wake vortices" ) );
+        m_Inputs.Add( new NameValData( "ImplicitWake",                    VSPAEROMgr.m_ImplicitWake.Get()                       , "Turn on implicit wake" ) );
+        m_Inputs.Add( new NameValData( "ImplicitWakeStartIteration",      VSPAEROMgr.m_ImplicitWakeStartIteration.Get()         , "Iteration at which to start implicit wake solve" ) );
+        m_Inputs.Add( new NameValData( "WakeRelax",                       VSPAEROMgr.m_WakeRelax.Get()                         , "Wake relaxation factor" ) );
+        m_Inputs.Add( new NameValData( "ForwardGMRESConvergenceFactor",   VSPAEROMgr.m_ForwardGMRESConvergenceFactor.Get()     , "User Forward GMRES residual reduction factor... this scales the default residual reduction" ) );
+        m_Inputs.Add( new NameValData( "AdjointGMRESConvergenceFactor",   VSPAEROMgr.m_AdjointGMRESConvergenceFactor.Get()     , "User Adjoint GMRES residual reduction factor... this scales the default residual reduction" ) );
+        m_Inputs.Add( new NameValData( "NonLinearConvergenceFactor",      VSPAEROMgr.m_NonLinearConvergenceFactor.Get()        , "User non-linear residual reduction factor on solution of overall nonlinear system... this scales the default residual reduction" ) );
+        m_Inputs.Add( new NameValData( "CoreSizeFactor",                  VSPAEROMgr.m_CoreSizeFactor.Get()                    , "Adjust the wake core size model up or down, default value is 1." ) );
+        m_Inputs.Add( new NameValData( "FarAway",                         VSPAEROMgr.m_FarAway.Get()                           , "Set the multipole far away value" ) );
+        m_Inputs.Add( new NameValData( "UpdateMatrixPreconditioner",       VSPAEROMgr.m_UpdateMatrixPreconditioner.Get()        , "Force update of matrix preconditioners every newton iteration" ) );
+        m_Inputs.Add( new NameValData( "UseWakeNodeMatrixPreconditioner",  VSPAEROMgr.m_UseWakeNodeMatrixPreconditioner.Get()   , "Turn on the wake matrix preconditioner" ) );
+        m_Inputs.Add( new NameValData( "QuadTreeBufferLevels",             VSPAEROMgr.m_QuadTreeBufferLevels.Get()              , "Set number of buffer levels for quad tree... the higher the level, the more cells" ) );
+
         // Unsteady Parms
         m_Inputs.Add( new NameValData( "HoverRampFlag",     VSPAEROMgr.m_HoverRampFlag.Get()    , "Flag to enable hover ramp." ) );
         m_Inputs.Add( new NameValData( "HoverRamp",         VSPAEROMgr.m_HoverRamp.Get()        , "Hover ramp value." ) );
         m_Inputs.Add( new NameValData( "NumTimeSteps",      VSPAEROMgr.m_NumTimeSteps.Get()     , "Number of time steps in unsteady simulation." ) );
+        m_Inputs.Add( new NameValData( "StartAveragingTimeStep",      VSPAEROMgr.m_StartAveragingTimeStep.Get()     , "Set the time step to start averaging time accurate forces." ) );
         m_Inputs.Add( new NameValData( "TimeStepSize",      VSPAEROMgr.m_TimeStepSize.Get()     , "Unsteady time step." ) );
         m_Inputs.Add( new NameValData( "AutoTimeStepFlag",  VSPAEROMgr.m_AutoTimeStepFlag.Get() , "Flag to automatically determine time step." ) );
         m_Inputs.Add( new NameValData( "AutoTimeNumRevs",   VSPAEROMgr.m_AutoTimeNumRevs.Get()  , "Number of desired revolutions for computing automatic time step." ) );
@@ -2556,6 +2571,7 @@ string VSPAEROSweepAnalysis::Execute()
         int preconditionOrig         = VSPAEROMgr.m_Precondition.Get();
         bool symmetryOrig            = VSPAEROMgr.m_Symmetry.Get();
         bool write2DFEMOrig          = VSPAEROMgr.m_Write2DFEMFlag.Get();
+        bool writeTecplotOrig        = VSPAEROMgr.m_WriteTecplotFlag.Get();
         bool ktCorrectionOrig        = VSPAEROMgr.m_KTCorrection.Get();
         bool fromSteadyStateOrig     = VSPAEROMgr.m_FromSteadyState.Get();
         bool groundEffectToggleOrig  = VSPAEROMgr.m_GroundEffectToggle.Get();
@@ -2606,6 +2622,11 @@ string VSPAEROSweepAnalysis::Execute()
         {
             VSPAEROMgr.m_Write2DFEMFlag.Set( nvd->GetInt( 0 ) );
         }
+        nvd = m_Inputs.FindPtr( "TecplotFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_WriteTecplotFlag.Set( nvd->GetInt( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "KTCorrection", 0 );
         if ( nvd )
         {
@@ -2652,32 +2673,20 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_ReCrefNpts.Set( nvd->GetInt( 0 ) );
         }
 
-        int clMaxToggleOrig     = VSPAEROMgr.m_ClMaxToggle.Get();
-        double clMaxOrig        = VSPAEROMgr.m_ClMax.Get();
-        int maxTurnToggleOrig   = VSPAEROMgr.m_MaxTurnToggle.Get();
-        double maxTurnAngleOrig = VSPAEROMgr.m_MaxTurnAngle.Get();
+        int stallModelOrig     = VSPAEROMgr.m_StallModel.Get();
+        double clo2DOrig        = VSPAEROMgr.m_Clo2D.Get();
         int farDistToggleOrig   = VSPAEROMgr.m_FarDistToggle.Get();
         double farDistOrig      = VSPAEROMgr.m_FarDist.Get();
 
-        nvd = m_Inputs.FindPtr( "ClmaxToggle", 0 );
+        nvd = m_Inputs.FindPtr( "StallModel", 0 );
         if ( nvd )
         {
-            VSPAEROMgr.m_ClMaxToggle.Set( nvd->GetInt( 0 ) );
+            VSPAEROMgr.m_StallModel.Set( nvd->GetInt( 0 ) );
         }
-        nvd = m_Inputs.FindPtr( "Clmax", 0 );
+        nvd = m_Inputs.FindPtr( "Clo2D", 0 );
         if ( nvd )
         {
-            VSPAEROMgr.m_ClMax.Set( nvd->GetDouble( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "MaxTurnToggle", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_MaxTurnToggle.Set( nvd->GetInt( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "MaxTurnAngle", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_MaxTurnAngle.Set( nvd->GetDouble( 0 ) );
+            VSPAEROMgr.m_Clo2D.Set( nvd->GetDouble( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "FarDistToggle", 0 );
         if ( nvd )
@@ -2690,12 +2699,99 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_FarDist.Set( nvd->GetDouble( 0 ) );
         }
 
+        int freezeMultiPoleAtIterationOrig        = VSPAEROMgr.m_FreezeMultiPoleAtIteration.Get();
+        int freezeWakeAtIterationOrig             = VSPAEROMgr.m_FreezeWakeAtIteration.Get();
+        bool freezeWakeRootVorticesOrig           = VSPAEROMgr.m_FreezeWakeRootVortices.Get();
+        bool implicitWakeOrig                     = VSPAEROMgr.m_ImplicitWake.Get();
+        int implicitWakeStartIterationOrig        = VSPAEROMgr.m_ImplicitWakeStartIteration.Get();
+        double wakeRelaxOrig                      = VSPAEROMgr.m_WakeRelax.Get();
+        double forwardGMRESConvergenceFactorOrig  = VSPAEROMgr.m_ForwardGMRESConvergenceFactor.Get();
+        double adjointGMRESConvergenceFactorOrig  = VSPAEROMgr.m_AdjointGMRESConvergenceFactor.Get();
+        double nonLinearConvergenceFactorOrig     = VSPAEROMgr.m_NonLinearConvergenceFactor.Get();
+        double coreSizeFactorOrig                 = VSPAEROMgr.m_CoreSizeFactor.Get();
+        double farAwayOrig                        = VSPAEROMgr.m_FarAway.Get();
+        bool updateMatrixPreconditionerOrig       = VSPAEROMgr.m_UpdateMatrixPreconditioner.Get();
+        bool useWakeNodeMatrixPreconditionerOrig  = VSPAEROMgr.m_UseWakeNodeMatrixPreconditioner.Get();
+        int quadTreeBufferLevelsOrig              = VSPAEROMgr.m_QuadTreeBufferLevels.Get();
+
+        nvd = m_Inputs.FindPtr( "FreezeMultiPoleAtIteration", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_FreezeMultiPoleAtIteration.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "FreezeWakeAtIteration", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_FreezeWakeAtIteration.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "FreezeWakeRootVortices", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_FreezeWakeRootVortices.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ImplicitWake", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ImplicitWake.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ImplicitWakeStartIteration", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ImplicitWakeStartIteration.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "WakeRelax", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_WakeRelax.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ForwardGMRESConvergenceFactor", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ForwardGMRESConvergenceFactor.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "AdjointGMRESConvergenceFactor", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_AdjointGMRESConvergenceFactor.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "NonLinearConvergenceFactor", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_NonLinearConvergenceFactor.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "CoreSizeFactor", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_CoreSizeFactor.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "FarAway", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_FarAway.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "UpdateMatrixPreconditioner", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_UpdateMatrixPreconditioner.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "UseWakeNodeMatrixPreconditioner", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_UseWakeNodeMatrixPreconditioner.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "QuadTreeBufferLevels", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_QuadTreeBufferLevels.Set( nvd->GetInt( 0 ) );
+        }
+
         // Unsteady Parms
         bool rotateBladesFlagOrig   = VSPAEROMgr.m_RotateBladesFlag.Get();
         bool actuatorDiskFlagOrig   = VSPAEROMgr.m_ActuatorDiskFlag.Get();
         bool hoverRampFlagOrig      = VSPAEROMgr.m_HoverRampFlag.Get();
         double hoverRamp            = VSPAEROMgr.m_HoverRamp.Get();
         int numTimeStepOrig         = VSPAEROMgr.m_NumTimeSteps.Get();
+        int startAveragingTimeStepOrig = VSPAEROMgr.m_StartAveragingTimeStep.Get();
         double timeStepSizeOrig     = VSPAEROMgr.m_TimeStepSize.Get();
         double autoTimeStepFlagOrig = VSPAEROMgr.m_AutoTimeStepFlag.Get();
         int autoTimeNumRevsOrig     = VSPAEROMgr.m_AutoTimeNumRevs.Get();
@@ -2730,6 +2826,11 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_NumTimeSteps.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "StartAveragingTimeStep", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_StartAveragingTimeStep.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "TimeStepSize", 0 );
         if ( nvd )
@@ -2855,6 +2956,7 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_Precondition.Set( preconditionOrig );
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
         VSPAEROMgr.m_Write2DFEMFlag.Set( write2DFEMOrig );
+        VSPAEROMgr.m_WriteTecplotFlag.Set( writeTecplotOrig );
         VSPAEROMgr.m_KTCorrection.Set( ktCorrectionOrig );
         VSPAEROMgr.m_FromSteadyState.Set( fromSteadyStateOrig );
         VSPAEROMgr.m_GroundEffectToggle.Set( groundEffectToggleOrig );
@@ -2865,12 +2967,25 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_ReCrefEnd.Set( reCrefEndOrig );
         VSPAEROMgr.m_ReCrefNpts.Set( reCrefNptsOrig );
 
-        VSPAEROMgr.m_ClMaxToggle.Set( clMaxToggleOrig );
-        VSPAEROMgr.m_ClMax.Set( clMaxOrig );
-        VSPAEROMgr.m_MaxTurnToggle.Set( maxTurnToggleOrig );
-        VSPAEROMgr.m_MaxTurnAngle.Set( maxTurnAngleOrig );
+        VSPAEROMgr.m_StallModel.Set( stallModelOrig );
+        VSPAEROMgr.m_Clo2D.Set( clo2DOrig );
         VSPAEROMgr.m_FarDistToggle.Set( farDistToggleOrig );
         VSPAEROMgr.m_FarDist.Set( farDistOrig );
+
+        VSPAEROMgr.m_FreezeMultiPoleAtIteration.Set( freezeMultiPoleAtIterationOrig );
+        VSPAEROMgr.m_FreezeWakeAtIteration.Set( freezeWakeAtIterationOrig );
+        VSPAEROMgr.m_FreezeWakeRootVortices.Set( freezeWakeRootVorticesOrig );
+        VSPAEROMgr.m_ImplicitWake.Set( implicitWakeOrig );
+        VSPAEROMgr.m_ImplicitWakeStartIteration.Set( implicitWakeStartIterationOrig );
+        VSPAEROMgr.m_WakeRelax.Set( wakeRelaxOrig );
+        VSPAEROMgr.m_ForwardGMRESConvergenceFactor.Set( forwardGMRESConvergenceFactorOrig );
+        VSPAEROMgr.m_AdjointGMRESConvergenceFactor.Set( adjointGMRESConvergenceFactorOrig) ;
+        VSPAEROMgr.m_NonLinearConvergenceFactor.Set( nonLinearConvergenceFactorOrig );
+        VSPAEROMgr.m_CoreSizeFactor.Set( coreSizeFactorOrig );
+        VSPAEROMgr.m_FarAway.Set( farAwayOrig );
+        VSPAEROMgr.m_UpdateMatrixPreconditioner.Set( updateMatrixPreconditionerOrig );
+        VSPAEROMgr.m_UseWakeNodeMatrixPreconditioner.Set( useWakeNodeMatrixPreconditionerOrig );
+        VSPAEROMgr.m_QuadTreeBufferLevels.Set( quadTreeBufferLevelsOrig );
 
         // Unsteady Parms
         VSPAEROMgr.m_RotateBladesFlag.Set( rotateBladesFlagOrig );
@@ -2878,6 +2993,7 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_HoverRampFlag.Set( hoverRampFlagOrig );
         VSPAEROMgr.m_HoverRamp.Set( hoverRamp );
         VSPAEROMgr.m_NumTimeSteps.Set( numTimeStepOrig );
+        VSPAEROMgr.m_StartAveragingTimeStep.Set( startAveragingTimeStepOrig );
         VSPAEROMgr.m_TimeStepSize.Set( timeStepSizeOrig );
         VSPAEROMgr.m_AutoTimeStepFlag.Set( autoTimeStepFlagOrig );
         VSPAEROMgr.m_AutoTimeNumRevs.Set( autoTimeNumRevsOrig );
