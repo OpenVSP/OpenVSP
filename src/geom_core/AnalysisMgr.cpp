@@ -1979,7 +1979,6 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
     {
         m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Geometry Set for analysis."  ) );
         m_Inputs.Add( new NameValData( "Symmetry", VSPAEROMgr.m_Symmetry.Get(), "Symmetry mode enum." ) );
-        m_Inputs.Add( new NameValData( "AlternateInputFormatFlag", VSPAEROMgr.m_AlternateInputFormatFlag.Get(), "Flag to use alternate input file format." ) );
 
         m_Inputs.Add( new NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
         m_Inputs.Add( new NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
@@ -2029,13 +2028,6 @@ string VSPAEROComputeGeometryAnalysis::Execute()
             VSPAEROMgr.m_Symmetry.Set( nvd->GetInt( 0 ) );
         }
 
-        bool alternateFileOrig = VSPAEROMgr.m_AlternateInputFormatFlag.Get();
-        nvd = m_Inputs.FindPtr( "AlternateInputFormatFlag", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_AlternateInputFormatFlag.Set( nvd->GetInt( 0 ) );
-        }
-
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeGeometry();
 
@@ -2044,7 +2036,6 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         VSPAEROMgr.m_UseMode.Set( useModeOrig );
         VSPAEROMgr.m_ModeID = modeIDOrig;
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
-        VSPAEROMgr.m_AlternateInputFormatFlag.Set( alternateFileOrig );
     }
 
     return resId;
@@ -2178,7 +2169,6 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Geometry Set for analysis." ) );
         m_Inputs.Add( new NameValData( "UseModeFlag",                   VSPAEROMgr.m_UseMode.Get()                         , "Flag to control whether Modes are used instead of Sets." ) );
         m_Inputs.Add( new NameValData( "ModeID",                        VSPAEROMgr.m_ModeID                               , "ID for Mode to use for analysis." ) );
-        m_Inputs.Add( new NameValData( "AlternateInputFormatFlag",      VSPAEROMgr.m_AlternateInputFormatFlag.Get()       , "Flag to use alternate input file format." ) );
         m_Inputs.Add( new NameValData( "NCPU",                          VSPAEROMgr.m_NCPU.Get()                           , "Number of processors to use for computation." ) );
         m_Inputs.Add( new NameValData( "FixedWakeFlag",                 VSPAEROMgr.m_FixedWakeFlag.Get()                  , "Flag to use fixed wake with no relaxation." ) );
         m_Inputs.Add( new NameValData( "WakeNumIter",                   VSPAEROMgr.m_WakeNumIter.Get()                    , "Number of wake iterations." ) );
@@ -2478,7 +2468,6 @@ string VSPAEROSweepAnalysis::Execute()
         //Case Setup
         int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
         bool fixedWakeFlagOrig       = VSPAEROMgr.m_FixedWakeFlag.Get();
-        bool alternateFlagOrig       = VSPAEROMgr.m_AlternateInputFormatFlag.Get();
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
         int numWakeNodesOrig         = VSPAEROMgr.m_NumWakeNodes.Get();
         int stabilityTypeOrig        = VSPAEROMgr.m_StabilityType.Get();
@@ -2504,11 +2493,6 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_FixedWakeFlag.Set( nvd->GetInt( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "AlternateInputFormatFlag", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_AlternateInputFormatFlag.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "WakeNumIter" );
         if ( nvd )
@@ -2776,7 +2760,6 @@ string VSPAEROSweepAnalysis::Execute()
         //    Case Setup
         VSPAEROMgr.m_NCPU.Set( ncpuOrig );
         VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
-        VSPAEROMgr.m_AlternateInputFormatFlag.Set( alternateFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
         VSPAEROMgr.m_NumWakeNodes.Set( numWakeNodesOrig );
         VSPAEROMgr.m_StabilityType.Set( stabilityTypeOrig );

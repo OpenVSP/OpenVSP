@@ -4609,7 +4609,7 @@ int VSPAEROMgrSingleton::CreateGroupsFile()
 
     for ( size_t i = 0; i < numgroups; i++ )
     {
-        m_UnsteadyGroupVec[ i ]->WriteGroup( group_file, m_AlternateInputFormatFlag() );
+        m_UnsteadyGroupVec[ i ]->WriteGroup( group_file );
     }
 
     //Finish up by closing the file and making sure that it appears in the file system
@@ -5826,7 +5826,7 @@ void UnsteadyGroup::Update()
     m_Rz.Set( r_vec.z() );
 }
 
-int UnsteadyGroup::WriteGroup( FILE *group_file, bool alternatefile )
+int UnsteadyGroup::WriteGroup( FILE *group_file )
 {
     if ( !group_file )
     {
