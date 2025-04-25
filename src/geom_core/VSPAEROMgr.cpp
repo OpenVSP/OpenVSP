@@ -2266,32 +2266,20 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
 
         //READ wake iteration table
         /* Example wake iteration table
-      Iter             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CDt            CDtot_t           CSo              CSi            CStot               L/D              E               CFxo             CFyo             CFzo             CFxi             CFyi             CFzi             CFxtot           CFytot           CFztot           CMxo             CMyo             CMzo             CMxi             CMyi             CMzi             CMxtot           CMytot           CMztot          T/QS
-               1   0.001000000000  10.000000000000   0.000000000000  -0.002045979010   1.014947981124   1.012902002114   0.012476073687   0.051479459485   0.063955533173   0.046529859616   0.059005933303   0.000017342556  -0.000483613705  -0.000466271149  15.869588302617   0.884649651914   0.012641814621   0.000017342556   0.000151551469  -0.125546496527  -0.000483613705   1.008467955042  -0.112904681906  -0.000466271149   1.008619506511   0.000000066648  -0.002024085230   0.000019540874  -0.001310492462  -2.099444030482  -0.000281526352  -0.001310425814  -2.101468115712  -0.000261985478   0.000000000000
-               2   0.001000000000  10.000000000000   0.000000000000  -0.002046524971   1.013995626911   1.011949101941   0.012472078545   0.051266503048   0.063738581593   0.046141207128   0.058613285674   0.000000421857  -0.000084496014  -0.000084074158  15.908663192154   0.886658109538   0.012637974980   0.000000421857   0.000150320053  -0.125590843104  -0.000084496014   1.007493089733  -0.112952868125  -0.000084074158   1.007643409786  -0.000000020250  -0.002020759170   0.000001308592  -0.000114914460  -2.099867836603  -0.000052447483  -0.000114934710  -2.101888595773  -0.000051138891   0.000000000000
+      Iter             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CSo              CSi            CStot               L/D              E               CMox             CMoy             CMoz             CMix             CMiy             CMiz             CMxtot           CMytot           CMztot           CFox             CFoy             CFoz             CFix             CFiy             CFiz             CFxtot           CFytot           CFztot           CLwtot           CDwtot           CSwtot           CLiw             CDiw             CSiwtot          CFwxtot          CFwytot          CFwztot         CFiwx            CFiwy            CFiwz           LoDw              Ew              T/QS         L2 Residual      Max Residual     Wall_Time
+               1   0.001000000000  10.000000000000   0.000000000000  -0.001152999646   0.000000000000  -0.001152999646   0.006538985928   0.000000000000   0.006538985928   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000  -0.000000000000  -0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000  -0.000000000000  -0.000000000000   0.000000000000   0.006639860326   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.006639860326   0.000000000000   0.000000000000  -0.001152999646  -0.001152999646  -0.001152999646   0.000000000000   0.000000000000   0.000000000000   0.006639860326   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000   1.031142080452   1.239670230012   0.066092967987
+               2   0.001000000000  10.000000000000   0.000000000000  -0.001489590476   0.757468273093   0.755978682618   0.008447887383   0.024942762544   0.033390649927   0.000000004671   0.000001838256   0.000001842927  22.685041314113   1.016955765538   0.000000000000  -0.000000000000  -0.000000008979   0.000002173191  -0.864386607606   0.000001180335   0.000002173191  -0.864386607606   0.000001171356   0.008578209663   0.000000004671   0.000000000000  -0.106969159328   0.000001838256   0.750291893265  -0.098390949666   0.000001842927   0.750291893265   0.752057414332   0.752057414332   0.752057414332   0.753547004808   0.027620814694   0.000000382808  -0.095072662053   0.000000387479   0.746895236731  -0.103650871716   0.000000382808   0.746895236731  20.891991156327   0.908870344115   0.000000000000  -1.696220296929  -0.790162226445   0.188454151154
         ...
         */
         int wake_iter_table_columns = 36;
         int num_unsteady_pqr_col = 37;
         bool unsteady_flag = false;
-        bool unsteady_h = false;
-        bool unsteady_pqr = false;
 
         if ( data_string_array.size() == num_unsteady_pqr_col )
         {
             if ( strcmp( data_string_array[ 0 ].c_str(), "Time" ) == 0 )
             {
                 unsteady_flag = true;
-
-                if ( strcmp( data_string_array.back().c_str(), "H" ) == 0 )
-                {
-                    unsteady_h = true;
-                }
-
-                if ( strcmp( data_string_array.back().c_str(), "UnstdyAng" ) == 0 )
-                {
-                    unsteady_pqr = true;
-                }
             }
         }
 
@@ -2312,22 +2300,11 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
             std::vector<double> CDo;
             std::vector<double> CDi;
             std::vector<double> CDtot;
-            std::vector<double> CDt;
-            std::vector<double> CDtott;
             std::vector<double> CSo;
             std::vector<double> CSi;
             std::vector<double> CStot;
             std::vector<double> LoD;
             std::vector<double> E;
-            std::vector<double> CFxo;
-            std::vector<double> CFyo;
-            std::vector<double> CFzo;
-            std::vector<double> CFxi;
-            std::vector<double> CFyi;
-            std::vector<double> CFzi;
-            std::vector<double> CFxtot;
-            std::vector<double> CFytot;
-            std::vector<double> CFztot;
             std::vector<double> CMxo;
             std::vector<double> CMyo;
             std::vector<double> CMzo;
@@ -2337,9 +2314,39 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
             std::vector<double> CMxtot;
             std::vector<double> CMytot;
             std::vector<double> CMztot;
+            std::vector<double> CFxo;
+            std::vector<double> CFyo;
+            std::vector<double> CFzo;
+            std::vector<double> CFxi;
+            std::vector<double> CFyi;
+            std::vector<double> CFzi;
+            std::vector<double> CFxtot;
+            std::vector<double> CFytot;
+            std::vector<double> CFztot;
+
+            std::vector<double> CLwtot;
+            std::vector<double> CDwtot;
+            std::vector<double> CSwtot;
+            std::vector<double> CLiw;
+            std::vector<double> CDiw;
+            std::vector<double> CSiw;
+
+            std::vector<double> CFxwtot;
+            std::vector<double> CFywtot;
+            std::vector<double> CFzwtot;
+            std::vector<double> CFxiw;
+            std::vector<double> CFyiw;
+            std::vector<double> CFziw;
+
+            std::vector<double> LoDw;
+            std::vector<double> Ew;
             std::vector<double> ToQS;
-            std::vector<double> UnstdAng;
-            std::vector<double> H;
+
+            std::vector<double> l10L2Resid;
+            std::vector<double> l10MaxResid;
+
+            std::vector<double> CPUTime;
+
 
             while ( data_string_array.size() >= wake_iter_table_columns )
             {
@@ -2363,24 +2370,12 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
                 CDo.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                 CDi.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                 CDtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                CDt.push_back(      std::stod( data_string_array[icol] ) ); icol++;
-                CDtott.push_back(   std::stod( data_string_array[icol] ) ); icol++;
                 CSo.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                 CSi.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                 CStot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
 
                 LoD.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                 E.push_back(        std::stod( data_string_array[icol] ) ); icol++;
-
-                CFxo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
-                CFyo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
-                CFzo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
-                CFxi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
-                CFyi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
-                CFzi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
-                CFxtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
-                CFytot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
-                CFztot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
 
                 CMxo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
                 CMyo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
@@ -2392,17 +2387,44 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
                 CMytot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
                 CMztot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
 
+                CFxo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFyo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFzo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFxi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFyi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFzi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFxtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                CFytot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                CFztot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+
+                if ( unsteady_flag )
+                {
+                    CLwtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                    CDwtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                    CSwtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                }
+                CLiw.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CDiw.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CSiw.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+
+                if ( unsteady_flag )
+                {
+                    CFxwtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                    CFywtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                    CFzwtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                }
+                CFxiw.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFyiw.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFziw.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+
+                LoDw.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                Ew.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+
                 ToQS.push_back(      std::stod( data_string_array[icol] ) ); icol++;
 
-                if ( unsteady_pqr ) // Additional columns for pqr analysis
-                {
-                    UnstdAng.push_back( std::stod( data_string_array[icol] ) ); icol++;
-                }
-
-                if ( unsteady_h ) // Additional columns for h analysis
-                {
-                    H.push_back( std::stod( data_string_array[icol] ) ); icol++;
-                }
+                l10L2Resid.push_back( std::stod( data_string_array[icol] ) ); icol++;
+                l10MaxResid.push_back( std::stod( data_string_array[icol] ) ); icol++;
+                CPUTime.push_back(     std::stod( data_string_array[icol] ) ); icol++;
 
                 data_string_array = ReadDelimLine( fp, seps );
             }
@@ -2410,7 +2432,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
             //add to the results manager
             if ( res )
             {
-                if ( unsteady_flag || unsteady_pqr )
+                if ( unsteady_flag )
                 {
                     res->Add( new NameValData( "Time", time, "Time in unsteady analysis." ) );
                 }
@@ -2418,52 +2440,67 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
                 {
                     res->Add( new NameValData( "WakeIter", i, "Wake relaxation iteration." ) );
                 }
+
                 res->Add( new NameValData( "Mach", Mach, "Mach number." ) );
                 res->Add( new NameValData( "Alpha", Alpha, "Angle of attack." ) );
                 res->Add( new NameValData( "Beta", Beta, "Angle of sideslip." ) );
                 res->Add( new NameValData( "CLo", CLo, "Parasite component of lift coefficient." ) );
                 res->Add( new NameValData( "CLi", CLi, "Inviscid component of lift coefficient." ) );
-                res->Add( new NameValData( "CL", CLtot, "Lift coefficient." ) );
+                res->Add( new NameValData( "CLtot", CLtot, "Total lift coefficient." ) );
                 res->Add( new NameValData( "CDo", CDo, "Parasite drag coefficient." ) );
                 res->Add( new NameValData( "CDi", CDi, "Induced drag coefficient." ) );
                 res->Add( new NameValData( "CDtot", CDtot, "Total drag coefficient." ) );
-                res->Add( new NameValData( "CDt", CDt, "Induced drag coefficient from Trefftz-like calculation." ) );
-                res->Add( new NameValData( "CDtott", CDtott, "Total drag coefficient from Trefftz-like calculation." ) );
                 res->Add( new NameValData( "CSo", CSo, "Parasite component of side force coefficient." ) );
                 res->Add( new NameValData( "CSi", CSi, "Inviscid component of side force coefficient." ) );
-                res->Add( new NameValData( "CS", CStot, "Side force coefficient." ) );
+                res->Add( new NameValData( "CStot", CStot, "Total side force coefficient." ) );
                 res->Add( new NameValData( "L/D", LoD, "Lift to drag ratio." ) );
                 res->Add( new NameValData( "E", E, "Oswald efficiency factor." ) );
-                res->Add( new NameValData( "CFxo", CFxo, "Parasite component of X force coefficient." ) );
-                res->Add( new NameValData( "CFyo", CFyo, "Parasite component of Y force coefficient." ) );
-                res->Add( new NameValData( "CFzo", CFzo, "Parasite component of Z force coefficient." ) );
-                res->Add( new NameValData( "CFxi", CFxi, "Inviscid component of X force coefficient." ) );
-                res->Add( new NameValData( "CFyi", CFyi, "Inviscid component of Y force coefficient." ) );
-                res->Add( new NameValData( "CFzi", CFzi, "Inviscid component of Z force coefficient." ) );
-                res->Add( new NameValData( "CFx", CFxtot, "X force coefficient." ) );
-                res->Add( new NameValData( "CFy", CFytot, "Y force coefficient." ) );
-                res->Add( new NameValData( "CFz", CFztot, "Z force coefficient." ) );
                 res->Add( new NameValData( "CMxo", CMxo, "Parasite component of X moment coefficient." ) );
                 res->Add( new NameValData( "CMyo", CMyo, "Parasite component of Y moment coefficient." ) );
                 res->Add( new NameValData( "CMzo", CMzo, "Parasite component of Z moment coefficient." ) );
                 res->Add( new NameValData( "CMxi", CMxi, "Inviscid component of X moment coefficient." ) );
                 res->Add( new NameValData( "CMyi", CMyi, "Inviscid component of Y moment coefficient." ) );
                 res->Add( new NameValData( "CMzi", CMzi, "Inviscid component of Z moment coefficient." ) );
-                res->Add( new NameValData( "CMx", CMxtot, "X moment coefficient." ) );
-                res->Add( new NameValData( "CMy", CMytot, "Y moment coefficient." ) );
-                res->Add( new NameValData( "CMz", CMztot, "Z moment coefficient." ) );
+                res->Add( new NameValData( "CMxtot", CMxtot, "Total X moment coefficient." ) );
+                res->Add( new NameValData( "CMytot", CMytot, "Total Y moment coefficient." ) );
+                res->Add( new NameValData( "CMztot", CMztot, "Total Z moment coefficient." ) );
+                res->Add( new NameValData( "CFxo", CFxo, "Parasite component of X force coefficient." ) );
+                res->Add( new NameValData( "CFyo", CFyo, "Parasite component of Y force coefficient." ) );
+                res->Add( new NameValData( "CFzo", CFzo, "Parasite component of Z force coefficient." ) );
+                res->Add( new NameValData( "CFxi", CFxi, "Inviscid component of X force coefficient." ) );
+                res->Add( new NameValData( "CFyi", CFyi, "Inviscid component of Y force coefficient." ) );
+                res->Add( new NameValData( "CFzi", CFzi, "Inviscid component of Z force coefficient." ) );
+                res->Add( new NameValData( "CFxtot", CFxtot, "Total X force coefficient." ) );
+                res->Add( new NameValData( "CFytot", CFytot, "Total Y force coefficient." ) );
+                res->Add( new NameValData( "CFztot", CFztot, "Total Z force coefficient." ) );
+
+                if ( unsteady_flag )
+                {
+                    res->Add( new NameValData( "CLwtot", CLwtot, "Total lift coefficient using wake calculation." ) );
+                    res->Add( new NameValData( "CDwtot", CDwtot, "Total drag coefficient using wake calculation." ) );
+                    res->Add( new NameValData( "CSwtot", CSwtot, "Total side force coefficient using wake calculation." ) );
+                }
+                res->Add( new NameValData( "CLiw", CLiw, "Inviscid component of lift coefficient wake calculation." ) );
+                res->Add( new NameValData( "CDiw", CDiw, "Induced drag coefficient wake calculation." ) );
+                res->Add( new NameValData( "CSiw", CSiw, "Inviscid component of side force coefficient wake calculation." ) );
+
+                if ( unsteady_flag )
+                {
+                    res->Add( new NameValData( "CFxwtot", CFxwtot, "Total X force coefficient using wake calculation." ) );
+                    res->Add( new NameValData( "CFywtot", CFywtot, "Total Y force coefficient using wake calculation." ) );
+                    res->Add( new NameValData( "CFzwtot", CFzwtot, "Total Z force coefficient using wake calculation." ) );
+                }
+                res->Add( new NameValData( "CFxiw", CFxiw, "Inviscid component of X force coefficient wake calculation." ) );
+                res->Add( new NameValData( "CFyiw", CFyiw, "Inviscid component of Y force coefficient wake calculation." ) );
+                res->Add( new NameValData( "CFziw", CFziw, "Inviscid component of Z force coefficient wake calculation." ) );
+
                 res->Add( new NameValData( "T/QS", ToQS, "Thrust coefficient." ) );
+                res->Add( new NameValData( "L/Dw", LoDw, "Lift to drag ratio using wake calculation." ) );
+                res->Add( new NameValData( "Ew", Ew, "Oswald efficiency factor using wake calculation." ) );
 
-                if ( unsteady_pqr )
-                {
-                    res->Add( new NameValData( "UnstdyAng", UnstdAng, "Unsteady rotor angle." ) );
-                }
-
-                if ( unsteady_h )
-                {
-                    res->Add( new NameValData( "H", H, "Unsteady heave." ) );
-                }
-
+                res->Add( new NameValData( "log10( L2Residual )", l10L2Resid, "log10( L2Residual )" ) );
+                res->Add( new NameValData( "log10( MaxResidual )", l10MaxResid, "log10( MaxResidual )" ) );
+                res->Add( new NameValData( "CPUTime", CPUTime, "Current CPU Time" ) );
             }
 
         } // end of wake iteration
