@@ -367,11 +367,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
 
-    m_PreconditionChoice.AddItem( "Matrix" );
-    m_PreconditionChoice.AddItem( "Jacobi" );
-    m_PreconditionChoice.AddItem( "SSOR" );
-    m_AdvancedCaseSetupLayout.AddChoice( m_PreconditionChoice, "Preconditioner");
-
     m_AdvancedCaseSetupLayout.AddButton( m_KTCorrectionToggle, "2nd Order Karman-Tsien Mach Correction" );
     m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
     m_AdvancedCaseSetupLayout.AddButton(m_WriteTecplotToggle, "Write Tecplot File");
@@ -1593,7 +1588,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
 
     m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
-    m_PreconditionChoice.Update(VSPAEROMgr.m_Precondition.GetID());
+
     m_KTCorrectionToggle.Update( VSPAEROMgr.m_KTCorrection.GetID() );
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
     m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );

@@ -2249,7 +2249,6 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "WakeNumIter",                   VSPAEROMgr.m_WakeNumIter.Get()                    , "Number of wake iterations." ) );
         m_Inputs.Add( new NameValData( "NumWakeNodes",                  VSPAEROMgr.m_NumWakeNodes.Get()                   , "Number of wake nodes." ) );
         m_Inputs.Add( new NameValData( "UnsteadyType",                  VSPAEROMgr.m_StabilityType.Get()                  , "Stability and control mode enum." ) );
-        m_Inputs.Add( new NameValData( "Precondition",                  VSPAEROMgr.m_Precondition.Get()                   , "Matrix preconditioner mode enum." ) );
         m_Inputs.Add( new NameValData( "Symmetry",                      VSPAEROMgr.m_Symmetry.Get()                       , "Symmetry mode enum." ) );
         m_Inputs.Add( new NameValData( "2DFEMFlag",                     VSPAEROMgr.m_Write2DFEMFlag.Get()                 , "Flag to write 2D FEM file." ) );
         m_Inputs.Add( new NameValData( "TecplotFlag",                   VSPAEROMgr.m_WriteTecplotFlag.Get()               , "Flag to write Tecplot file." ) );
@@ -2568,7 +2567,6 @@ string VSPAEROSweepAnalysis::Execute()
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
         int numWakeNodesOrig         = VSPAEROMgr.m_NumWakeNodes.Get();
         int stabilityTypeOrig        = VSPAEROMgr.m_StabilityType.Get();
-        int preconditionOrig         = VSPAEROMgr.m_Precondition.Get();
         bool symmetryOrig            = VSPAEROMgr.m_Symmetry.Get();
         bool write2DFEMOrig          = VSPAEROMgr.m_Write2DFEMFlag.Get();
         bool writeTecplotOrig        = VSPAEROMgr.m_WriteTecplotFlag.Get();
@@ -2606,11 +2604,6 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_StabilityType.Set( nvd->GetInt( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "Precondition", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_Precondition.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "Symmetry", 0 );
         if ( nvd )
@@ -2953,7 +2946,6 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
         VSPAEROMgr.m_StabilityType.Set( stabilityTypeOrig );
-        VSPAEROMgr.m_Precondition.Set( preconditionOrig );
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
         VSPAEROMgr.m_Write2DFEMFlag.Set( write2DFEMOrig );
         VSPAEROMgr.m_WriteTecplotFlag.Set( writeTecplotOrig );
