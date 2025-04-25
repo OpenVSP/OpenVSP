@@ -2270,7 +2270,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           , "Flag to control how reference quantities are set." ) );
         m_Inputs.Add( new NameValData( "MACFlag",           VSPAEROMgr.m_MACFlag.Get()           , "Flag to use MAC instead of Cave for cref." ) );
         m_Inputs.Add( new NameValData( "ScurveFlag",        VSPAEROMgr.m_SCurveFlag.Get()        , "Flag to use Scurve instead of Stot for Sref." ) );
-        m_Inputs.Add( new NameValData( "WingID",            string( "" )                         , "Reference wing GeomID." ) );
+        m_Inputs.Add( new NameValData( "WingID",            VSPAEROMgr.m_RefGeomID               , "Reference wing GeomID." ) );
         m_Inputs.Add( new NameValData( "Sref",              VSPAEROMgr.m_Sref.Get()              , "Reference area." ) );
         m_Inputs.Add( new NameValData( "bref",              VSPAEROMgr.m_bref.Get()              , "Reference span." ) );
         m_Inputs.Add( new NameValData( "cref",              VSPAEROMgr.m_cref.Get()              , "Reference chord." ) );
