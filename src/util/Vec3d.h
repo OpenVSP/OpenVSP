@@ -1098,6 +1098,8 @@ public:
     friend vec3d ToSpherical( const vec3d & v );
     friend vec3d ToSpherical2( const vec3d & v, const vec3d & vdet );
     friend vec3d ToCartesian( const vec3d & v );
+
+    friend void FitPlane( const std::vector < vec3d > & pts, vec3d & cen, vec3d & norm );
 };
 
 /*!
@@ -1439,6 +1441,8 @@ string to_string( const vec3d &v);
 }
 
 vec3d slerp( const vec3d& a, const vec3d& b, const double &t );
+
+void FitPlane( const std::vector < vec3d > & pts, vec3d & cen, vec3d & norm );
 
 #endif
 

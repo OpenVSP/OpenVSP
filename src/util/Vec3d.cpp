@@ -2102,3 +2102,61 @@ vec3d ToCartesian( const vec3d & v )
 
     return vec3d( x, y, z );;
 }
+
+void FitPlane( const std::vector < vec3d > & pts, vec3d & cen, vec3d & norm )
+{
+    const int n = pts.size();
+
+    cen = vec3d();
+    for ( int i = 0; i < n; i++ )
+    {
+        cen += pts[ i ];
+    }
+    cen = cen / ( 1.0 * n );
+
+    double SumXX = 0.0, SumXY = 0.0, SumXZ = 0.0;
+    double SumYY = 0.0, SumYZ = 0.0, SumZZ = 0.0;
+
+    for ( int i = 0; i < n; i++ )
+    {
+        vec3d p = pts[ i ] - cen;
+
+        SumXX += (p.v[0] * p.v[0]);
+        SumXY += (p.v[0] * p.v[1]);
+        SumXZ += (p.v[0] * p.v[2]);
+        SumYY += (p.v[1] * p.v[1]);
+        SumYZ += (p.v[1] * p.v[2]);
+        SumZZ += (p.v[2] * p.v[2]);
+    }
+
+    Eigen::Matrix3d mat;
+    mat(0,0) = SumXX;
+    mat(0,1) = SumXY;
+    mat(0,2) = SumXZ;
+    mat(1,0) = SumXY;
+    mat(1,1) = SumYY;
+    mat(1,2) = SumYZ;
+    mat(2,0) = SumXZ;
+    mat(2,1) = SumYZ;
+    mat(2,2) = SumZZ;
+
+    Eigen::EigenSolver < Eigen::Matrix3d > es;
+    es.compute( mat );
+    auto eval = es.eigenvalues();
+    auto evec = es.eigenvectors();
+
+    int iemin = -1;
+    double evmin = DBL_MAX;
+    for ( int i = 0; i < eval.size(); i++ )
+    {
+        if ( eval( i ).real() < evmin )
+        {
+            iemin = i;
+            evmin = eval( i ).real();
+        }
+    }
+
+    //norm = vec3d( evec( iemin, 0 ).real(), evec( iemin, 1 ).real(), evec( iemin, 2 ).real() );
+    norm = vec3d( evec( 0, iemin ).real(), evec( 1, iemin ).real(), evec( 2, iemin ).real() );
+    norm.normalize();
+}
