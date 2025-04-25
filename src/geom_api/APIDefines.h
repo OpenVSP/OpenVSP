@@ -1519,6 +1519,15 @@ enum VSPAERO_NOISE_UNIT { NOISE_SI,	/*!< Assume geometry and VSPAERO inputs in S
                           NOISE_ENGLISH	/*!< Assume geometry and VSPAERO inputs in english (ft lbf slug s) units, will convert to SI (m N kg s) for PSU-WOPWOP */
 };
 
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for the ways VSPAERO can treat propeller blades. */
+enum VSPAERO_PROP_MODE { VSPAERO_PROP_STATIC,	/*!< Model propellers as static, non-rotating blades -- i.e. used as a wing. */
+                         VSPAERO_PROP_UNSTEADY,	/*!< Model propellers as unsteady rotating blades */
+                         VSPAERO_PROP_PSEUDO_STEADY,	/*!< Model propellers with pseudo steady model */
+                         VSPAERO_PROP_NUM_MODES,	/*!< Number of ways to model propeller blades in VSPAERO */
+};
 
 /*!
 	\ingroup Enumerations

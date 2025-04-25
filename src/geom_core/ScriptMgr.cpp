@@ -2323,6 +2323,19 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSPAERO_NOISE_UNIT", "NOISE_ENGLISH", NOISE_ENGLISH );
     assert( r >= 0 );
 
+
+    r = se->RegisterEnum( "VSPAERO_PROP_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_PROP_MODE", "VSPAERO_PROP_STATIC", VSPAERO_PROP_STATIC );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_PROP_MODE", "VSPAERO_PROP_UNSTEADY", VSPAERO_PROP_UNSTEADY );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_PROP_MODE", "VSPAERO_PROP_PSEUDO_STEADY", VSPAERO_PROP_PSEUDO_STEADY );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_PROP_MODE", "VSPAERO_PROP_NUM_MODES", VSPAERO_PROP_NUM_MODES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "VSPAERO_STABILITY_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_OFF", STABILITY_OFF );

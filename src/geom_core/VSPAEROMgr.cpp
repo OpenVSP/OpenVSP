@@ -244,8 +244,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_GroundEffect.SetDescript( "Ground Effect Distance" );
     m_GroundEffectToggle.Init( "GroundEffectToggle", groupname, this, false, false, true );
 
-    m_RotateBladesFlag.Init( "RotateBladesFlag", groupname, this, false, false, true );
-    m_RotateBladesFlag.SetDescript( "Flag for VSPAERO to Analyze Unsteady Rotating Propellers (Propeller tab)" );
+    m_PropBladesMode.Init( "m_PropBladesMode", groupname, this, vsp::VSPAERO_PROP_STATIC, vsp::VSPAERO_PROP_STATIC, vsp::VSPAERO_PROP_NUM_MODES - 1 );
+    m_PropBladesMode.SetDescript( "Mode for VSPAERO treatment of prop/rotor blades." );
 
     m_StabilityType.Init( "UnsteadyType", groupname, this, vsp::STABILITY_OFF, vsp::STABILITY_OFF, vsp::STABILITY_NUM_TYPES - 1 );
     m_StabilityType.SetDescript( "Unsteady Calculation Type" );
@@ -446,7 +446,7 @@ void VSPAEROMgrSingleton::Renew()
     m_Symmetry.Set( false );
     m_StabilityType.Set( vsp::STABILITY_OFF );
 
-    m_RotateBladesFlag.Set( false );
+    m_PropBladesMode.Set( vsp::VSPAERO_PROP_STATIC );
 
     m_NCPU.Set( 4 );
 
@@ -1475,7 +1475,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     // radius
 
 
-    if ( m_RotateBladesFlag() )
+    if ( m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC )
     {
         if ( m_AutoTimeStepFlag() )
         {
@@ -1500,7 +1500,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
 
     fprintf( case_file, "VSP_StabilityType = %d \n", m_StabilityType() ); // Stability Type
 
-    if ( m_RotateBladesFlag() )
+    if ( m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC )
     {
         fprintf( case_file, "VSP_NumUnsteadyGroups = %d \n", NumUnsteadyGroups() ); // Number of unsteady groups
         fprintf( case_file, "VSP_NumUnsteadyProps = %d \n", NumUnsteadyRotorGroups() ); // number of unsteady propellers
@@ -1854,7 +1854,7 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
         vector < string > rotor_res_vec = m_RotorResFiles;
         vector < string > unsteady_group_name_vec = m_UnsteadyGroupResNames;
 
-        bool unsteady_flag = m_RotateBladesFlag.Get();
+        bool rotating_blades_flag = ( VSPAEROMgr.m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC );
         vsp::VSPAERO_STABILITY_TYPE stabilityType = ( vsp::VSPAERO_STABILITY_TYPE )m_StabilityType.Get();
         bool noise_flag = m_NoiseCalcFlag.Get();
         int noise_type = m_NoiseCalcType.Get();
@@ -1889,7 +1889,7 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
         CreateSetupFile();
 
         //====== Modify/Update the groups file for unsteady analysis ======//
-        if ( m_RotateBladesFlag() )
+        if ( m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC )
         {
             if ( m_Verbose ) { printf( "Writing vspaero groups file: %s\n", m_GroupsFile.c_str() ); }
             CreateGroupsFile();
@@ -1998,7 +1998,7 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 #pragma clang diagnostic pop
         }
 
-        if ( m_RotateBladesFlag() )
+        if ( m_PropBladesMode() == vsp::VSPAERO_PROP_UNSTEADY )
         {
             args.emplace_back( "-unsteady" );
         }
@@ -2073,7 +2073,7 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
             res_id_vector.push_back( slice_res_id );
         }
 
-        if ( unsteady_flag )
+        if ( rotating_blades_flag ) // Either unsteady or pseudo-steady rotating blades.
         {
             for ( size_t j = 0; j < group_res_vec.size(); j++ )
             {
@@ -3808,7 +3808,7 @@ void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
     // Add model file name
     args.emplace_back( "-interrogate" );
 
-    if ( m_RotateBladesFlag() ||
+    if ( m_PropBladesMode() != vsp::VSPAERO_PROP_UNSTEADY ||
        ( m_StabilityType.Get() > vsp::STABILITY_DEFAULT && m_StabilityType.Get() < vsp::STABILITY_PITCH ) )
     {
         args.emplace_back( "-unsteady" );
@@ -4357,10 +4357,10 @@ void VSPAEROMgrSingleton::UpdateParmRestrictions()
 
     if ( NumUnsteadyRotorGroups() == 0 )
     {
-        m_RotateBladesFlag.Set( false );
+        m_PropBladesMode.Set( vsp::VSPAERO_PROP_STATIC );
     }
 
-    if ( m_RotateBladesFlag() ||
+    if ( m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC ||
          m_GroundEffectToggle() )
     {
         // Only 1 flow condition supported for unsteady analysis and ground effect calculations
@@ -6233,7 +6233,7 @@ void UnsteadyGroup::ParmChanged( Parm* parm_ptr, int type )
 
     // Identify if unsteady prop RPM is changed. If so, update it to be the "master" that 
     // all other unsteady prop RPM will be set to
-    if ( VSPAEROMgr.m_RotateBladesFlag() &&
+    if ( VSPAEROMgr.m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC &&
          VSPAEROMgr.m_UniformPropRPMFlag() &&
          &m_RPM == parm_ptr &&
          m_GeomPropertyType() == UnsteadyGroup::GEOM_ROTOR )

@@ -504,25 +504,25 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Propeller and Stability Setup
     m_AdvancedRightLayout.AddSubGroupLayout( m_PropAndStabLayout,
         m_AdvancedRightLayout.GetW(),
-        4 * m_AdvancedRightLayout.GetStdHeight() );
+        2 * m_AdvancedRightLayout.GetDividerHeight() +
+        m_AdvancedRightLayout.GetGapHeight() +
+        2 * m_AdvancedRightLayout.GetStdHeight() );
     m_AdvancedRightLayout.AddY( m_PropAndStabLayout.GetH() );
-    m_PropAndStabLayout.SetButtonWidth( m_PropAndStabLayout.GetRemainX() / 2 );
-    m_PropAndStabLayout.AddDividerBox( "Propeller Representation" );
-
-    m_PropAndStabLayout.SetSameLineFlag( true );
-    m_PropAndStabLayout.SetFitWidthFlag( false );
-    m_PropAndStabLayout.AddButton( m_RotateBladesToggle, "Rotating Blades" );
-    m_PropAndStabLayout.ForceNewLine();
-
-    m_PropAndStabLayout.AddYGap();
-    m_PropAndStabLayout.SetSameLineFlag( false );
-    m_PropAndStabLayout.SetFitWidthFlag( true );
-    m_PropAndStabLayout.AddDividerBox( "Run Mode" );
-    m_PropAndStabLayout.SetSameLineFlag( true );
-    m_PropAndStabLayout.SetFitWidthFlag( false );
+    m_AdvancedRightLayout.AddYGap();
 
     m_PropAndStabLayout.SetChoiceButtonWidth( m_PropAndStabLayout.GetRemainX() / 2 );
-    m_PropAndStabLayout.SetSliderWidth( m_PropAndStabLayout.GetRemainX() / 2 );
+
+    m_PropAndStabLayout.AddDividerBox( "Propeller Representation" );
+
+    m_PropAndStabLayout.AddChoice( m_PropellerBladesModeChoice, "Propeller Blade Mode" );
+
+    m_PropellerBladesModeChoice.AddItem( "Static Blades", vsp::VSPAERO_PROP_STATIC );
+    m_PropellerBladesModeChoice.AddItem( "Unsteady Rotating", vsp::VSPAERO_PROP_UNSTEADY );
+    m_PropellerBladesModeChoice.AddItem( "Pseudo Steady Rotating", vsp::VSPAERO_PROP_PSEUDO_STEADY );
+    m_PropellerBladesModeChoice.UpdateItems();
+
+    m_PropAndStabLayout.AddYGap();
+    m_PropAndStabLayout.AddDividerBox( "Run Mode" );
 
     m_PropAndStabLayout.AddChoice( m_StabilityTypeChoice, "Stability Type" );
     m_StabilityTypeChoice.AddItem( "Off", vsp::STABILITY_OFF );
@@ -1598,7 +1598,7 @@ void VSPAEROScreen::UpdateCaseSetup()
     m_ImplicitWakeStartIterationSlider.Update( VSPAEROMgr.m_ImplicitWakeStartIteration.GetID() );
 
     bool time_dependent = false;
-    if ( VSPAEROMgr.m_RotateBladesFlag() ||
+    if ( VSPAEROMgr.m_PropBladesMode() == vsp::VSPAERO_PROP_UNSTEADY ||
          VSPAEROMgr.m_StabilityType() == vsp::STABILITY_P_ANALYSIS ||
          VSPAEROMgr.m_StabilityType() == vsp::STABILITY_Q_ANALYSIS ||
          VSPAEROMgr.m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
@@ -1747,18 +1747,18 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
 
     m_StabilityTypeChoice.Update( VSPAEROMgr.m_StabilityType.GetID() );
 
-    m_RotateBladesToggle.Update( VSPAEROMgr.m_RotateBladesFlag.GetID() );
+    m_PropellerBladesModeChoice.Update( VSPAEROMgr.m_PropBladesMode.GetID() );
 
     if ( VSPAEROMgr.NumUnsteadyRotorGroups() == 0 )
     {
-        m_RotateBladesToggle.Deactivate();
+        m_PropellerBladesModeChoice.Deactivate();
     }
     else
     {
-        m_RotateBladesToggle.Activate();
+        m_PropellerBladesModeChoice.Deactivate();
     }
 
-    if ( VSPAEROMgr.m_RotateBladesFlag.Get() )
+    if ( VSPAEROMgr.m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC )
     {
         m_PropellerTab->activate();
     }
@@ -2017,7 +2017,7 @@ void VSPAEROScreen::UpdateOtherSetupParms()
         m_MachRefSlider.Activate();
     }
 
-    if ( VSPAEROMgr.m_RotateBladesFlag() )
+    if ( VSPAEROMgr.m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC )
     {
         m_AlphaNptsInput.Deactivate();
         m_BetaNptsInput.Deactivate();
@@ -2032,7 +2032,7 @@ void VSPAEROScreen::UpdateOtherSetupParms()
         m_StabilityTypeChoice.Activate();
     }
 
-    if ( VSPAEROMgr.m_RotateBladesFlag() ||
+    if ( VSPAEROMgr.m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC ||
        ( VSPAEROMgr.m_StabilityType.Get() >= vsp::STABILITY_P_ANALYSIS && VSPAEROMgr.m_StabilityType.Get() <= vsp::STABILITY_R_ANALYSIS ) )
     {
         m_ReCrefNptsInput.Deactivate();
@@ -2042,7 +2042,7 @@ void VSPAEROScreen::UpdateOtherSetupParms()
         m_ReCrefNptsInput.Activate();
     }
 
-    if ( VSPAEROMgr.m_RotateBladesFlag.Get() ||
+    if ( VSPAEROMgr.m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC ||
          VSPAEROMgr.ExistRotorDisk() ||
        ( VSPAEROMgr.m_StabilityType.Get() > vsp::STABILITY_OFF && VSPAEROMgr.m_StabilityType.Get() < vsp::STABILITY_PITCH ) )
     {
@@ -2468,7 +2468,7 @@ void VSPAEROScreen::UpdateUnsteadyGroups()
     // m_NoiseCalcChoice.Update( VSPAEROMgr.m_NoiseCalcType.GetID() );
     m_UniformRPMToggle.Update( VSPAEROMgr.m_UniformPropRPMFlag.GetID() );
 
-    if ( VSPAEROMgr.m_RotateBladesFlag() )
+    if ( VSPAEROMgr.m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC )
     {
 
         if ( !VSPAEROMgr.m_HoverRampFlag.Get() )

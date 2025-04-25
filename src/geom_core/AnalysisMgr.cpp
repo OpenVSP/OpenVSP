@@ -2307,7 +2307,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "MachEnd",           VSPAEROMgr.m_MachEnd.Get()           , "Mach number sweep end point." ) );
         m_Inputs.Add( new NameValData( "MachNpts",          VSPAEROMgr.m_MachNpts.Get()          , "Number of points in Mach number sweep." ) );
 
-        m_Inputs.Add( new NameValData( "RotateBladesFlag",  VSPAEROMgr.m_RotateBladesFlag.Get()  , "Flag to model propellers or rotors as unsteady rotating blades." ) );
+        m_Inputs.Add( new NameValData( "PropBladesMode",    VSPAEROMgr.m_PropBladesMode.Get()    , "Mode to use for representing propeller blades." ) );
 
         m_Inputs.Add( new NameValData( "FreezeMultiPoleAtIteration",      VSPAEROMgr.m_FreezeMultiPoleAtIteration.Get()         , "Freeze the multipole expansion update" ) );
         m_Inputs.Add( new NameValData( "FreezeWakeAtIteration",           VSPAEROMgr.m_FreezeWakeAtIteration.Get()              , "Freeze the wake after this number of iterations" ) );
@@ -2763,7 +2763,7 @@ string VSPAEROSweepAnalysis::Execute()
         }
 
         // Unsteady Parms
-        bool rotateBladesFlagOrig   = VSPAEROMgr.m_RotateBladesFlag.Get();
+        int propBladesModeOrig   = VSPAEROMgr.m_PropBladesMode.Get();
         bool hoverRampFlagOrig      = VSPAEROMgr.m_HoverRampFlag.Get();
         double hoverRamp            = VSPAEROMgr.m_HoverRamp.Get();
         int numTimeStepOrig         = VSPAEROMgr.m_NumTimeSteps.Get();
@@ -2778,10 +2778,10 @@ string VSPAEROSweepAnalysis::Execute()
         int noiseCalcTypeOrig       = VSPAEROMgr.m_NoiseCalcType.Get();
         int noiseUnitsOrig          = VSPAEROMgr.m_NoiseUnits.Get();
 
-        nvd = m_Inputs.FindPtr( "RotateBladesFlag", 0 );
+        nvd = m_Inputs.FindPtr( "PropBladesMode", 0 );
         if ( nvd )
         {
-            VSPAEROMgr.m_RotateBladesFlag.Set( nvd->GetInt( 0 ) );
+            VSPAEROMgr.m_PropBladesMode.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "HoverRampFlag", 0 );
         if ( nvd )
@@ -2958,7 +2958,7 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_QuadTreeBufferLevels.Set( quadTreeBufferLevelsOrig );
 
         // Unsteady Parms
-        VSPAEROMgr.m_RotateBladesFlag.Set( rotateBladesFlagOrig );
+        VSPAEROMgr.m_PropBladesMode.Set( propBladesModeOrig );
         VSPAEROMgr.m_HoverRampFlag.Set( hoverRampFlagOrig );
         VSPAEROMgr.m_HoverRamp.Set( hoverRamp );
         VSPAEROMgr.m_NumTimeSteps.Set( numTimeStepOrig );

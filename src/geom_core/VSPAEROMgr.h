@@ -450,7 +450,7 @@ public:
     BoolParm m_GroundEffectToggle;
     Parm m_GroundEffect;
 
-    BoolParm m_RotateBladesFlag;
+    IntParm m_PropBladesMode;
     IntParm m_StabilityType;
 
 

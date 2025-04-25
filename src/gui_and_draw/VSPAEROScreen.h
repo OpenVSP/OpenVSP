@@ -242,7 +242,7 @@ protected:
     SliderAdjRangeInput m_FarDistSlider;
     SliderAdjRangeInput m_GroundEffectSlider;
 
-    ToggleButton m_RotateBladesToggle;
+    Choice m_PropellerBladesModeChoice;
 
     // Stability Setup
     Choice m_StabilityTypeChoice;
