@@ -655,7 +655,6 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 {
     // Initialize these to blanks.  if any of the checks fail the variables will at least contain an empty string
     m_ModelNameBase     = string();
-    m_DegenFileFull     = string();
     m_CompGeomFileFull  = string();     // TODO this is set from the get export name
     m_VSPGeomFileFull   = string();
     m_SetupFile         = string();
@@ -695,7 +694,6 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 
         m_CompGeomFileFull = m_ModelNameBase + string( ".tri" );
 
-        m_DegenFileFull     = m_ModelNameBase + string( "_DegenGeom.csv" );
         m_SetupFile         = m_ModelNameBase + string( ".vspaero" );
         m_AdbFile           = m_ModelNameBase + string( ".adb" );
         m_HistoryFile       = m_ModelNameBase + string( ".history" );
@@ -1222,7 +1220,6 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         return string();
     }
     res->Add( new NameValData( "GeometrySet", set, "Geometry Set for analysis." ) );
-    res->Add( new NameValData( "DegenGeomFileName", m_DegenFileFull, "Degen geom file name." ) );
     res->Add( new NameValData( "VSPGeomFileName", m_VSPGeomFileFull, "CompGeom *.vspgeom file name." ) );
     res->Add( new NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId, "MeshGeom GeomID of mesh created in process." ) );
 

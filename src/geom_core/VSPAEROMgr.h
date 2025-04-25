@@ -344,7 +344,6 @@ public:
 
     // File Names
     string m_ModelNameBase; // this is the name used in the execution string
-    string m_DegenFileFull; //degengeom file name WITH .csv file extension
     string m_CompGeomFileFull; //geometry file used for panel method
     string m_VSPGeomFileFull; // Experimental file format for mixed thick/thin surface representation
     string m_SetupFile;
