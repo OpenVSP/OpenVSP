@@ -950,8 +950,6 @@ void CpSlicerAnalysis::SetDefaults()
 
     if ( veh )
     {
-        m_Inputs.Add( new NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
-
         // Cuts
         m_Inputs.Add( new NameValData( "XSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR ), "Vector of X slices." ) );
         m_Inputs.Add( new NameValData( "YSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR ), "Vector of Y slices." ) );
@@ -973,10 +971,6 @@ string CpSlicerAnalysis::Execute()
     {
         NameValData *nvd = nullptr;
 
-        int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
-        nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
-        if ( nvd ) VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
-
         // Cuts
         vector < double > xcutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR );
         vector < double > ycutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR );
@@ -996,8 +990,6 @@ string CpSlicerAnalysis::Execute()
         // Execute analysis
         res_id = VSPAEROMgr.ComputeCpSlices( stdout );
 
-
-        VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
 
         VSPAEROMgr.ClearCpSliceVec();
 
@@ -1986,7 +1978,6 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
     if ( veh )
     {
         m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Geometry Set for analysis."  ) );
-        m_Inputs.Add( new NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
         m_Inputs.Add( new NameValData( "Symmetry", VSPAEROMgr.m_Symmetry.Get(), "Symmetry mode enum." ) );
         m_Inputs.Add( new NameValData( "AlternateInputFormatFlag", VSPAEROMgr.m_AlternateInputFormatFlag.Get(), "Flag to use alternate input file format." ) );
 
@@ -2031,13 +2022,6 @@ string VSPAEROComputeGeometryAnalysis::Execute()
             VSPAEROMgr.m_ModeID = nvd->GetString( 0 );
         }
 
-        int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
-        nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
-        }
-
         bool symmetryOrig = VSPAEROMgr.m_Symmetry.Get();
         nvd = m_Inputs.FindPtr( "Symmetry", 0 );
         if ( nvd )
@@ -2059,7 +2043,6 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
         VSPAEROMgr.m_UseMode.Set( useModeOrig );
         VSPAEROMgr.m_ModeID = modeIDOrig;
-        VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
         VSPAEROMgr.m_AlternateInputFormatFlag.Set( alternateFileOrig );
     }
@@ -2195,7 +2178,6 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Geometry Set for analysis." ) );
         m_Inputs.Add( new NameValData( "UseModeFlag",                   VSPAEROMgr.m_UseMode.Get()                         , "Flag to control whether Modes are used instead of Sets." ) );
         m_Inputs.Add( new NameValData( "ModeID",                        VSPAEROMgr.m_ModeID                               , "ID for Mode to use for analysis." ) );
-        m_Inputs.Add( new NameValData( "AnalysisMethod",                VSPAEROMgr.m_AnalysisMethod.Get()                 , "Flag to indicate analysis method (thin vs. thick)." ) );
         m_Inputs.Add( new NameValData( "AlternateInputFormatFlag",      VSPAEROMgr.m_AlternateInputFormatFlag.Get()       , "Flag to use alternate input file format." ) );
         m_Inputs.Add( new NameValData( "NCPU",                          VSPAEROMgr.m_NCPU.Get()                           , "Number of processors to use for computation." ) );
         m_Inputs.Add( new NameValData( "FixedWakeFlag",                 VSPAEROMgr.m_FixedWakeFlag.Get()                  , "Flag to use fixed wake with no relaxation." ) );
@@ -2309,13 +2291,6 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_ModeID = nvd->GetString( 0 );
-        }
-
-        int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
-        nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
         }
 
         //    Regerence area, length parameters
@@ -2766,7 +2741,6 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
         VSPAEROMgr.m_UseMode.Set( useModeOrig );
         VSPAEROMgr.m_ModeID = modeIDOrig;
-        VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
 
         //    Regerence area, length parameters
         VSPAEROMgr.m_RefFlag.Set( refFlagOrig );
