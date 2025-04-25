@@ -1931,6 +1931,34 @@ Fl_Tree* GroupLayout::AddFlTree( int height, bool resizable )
     return tree;
 }
 
+//==== Add Fl Terminal ====//
+Fl_Terminal* GroupLayout::AddFlTerminal( int height )
+{
+    assert( m_Group && m_Screen );
+
+    Fl_Terminal* terminal = new Fl_Terminal ( m_X, m_Y, m_W, height );
+
+    terminal->textfont( FL_SCREEN ); // Default FL_COURIER Must be monospaced
+    terminal->textsize( 12 ); // Default 14
+    terminal->color( FL_WHITE );
+    terminal->textbgcolor( FL_WHITE );
+    terminal->textbgcolor_default( FL_WHITE );
+    terminal->textfgcolor( FL_BLACK );
+    terminal->textfgcolor_default( FL_BLACK );
+
+    terminal->cursorbgcolor( FL_WHITE );
+    terminal->cursorfgcolor( FL_BLACK );
+
+    terminal->scrollbar->linesize( 2 ); // Default 16.
+
+    m_Group->add( terminal );
+
+    AddY( height );
+    NewLineX();
+
+    return terminal;
+}
+
 TreeWithColumns* GroupLayout::AddTreeWithColumns( int height, bool resizable )
 {
     assert( m_Group && m_Screen );

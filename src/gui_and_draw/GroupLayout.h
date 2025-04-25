@@ -19,6 +19,7 @@
 #include <FL/Fl_Radio_Button.H>
 #include <FL/Fl_Color_Chooser.H>
 #include <FL/Fl_Sys_Menu_Bar.H>
+#include <FL/Fl_Terminal.H>
 
 #include "GuiDevice.h"
 #include "SpreadSheetWidget.h"
@@ -180,6 +181,7 @@ public:
     Fl_Tree* AddFlTree( int height, bool resizable = false );
     TreeWithColumns* AddTreeWithColumns( int height, bool resizable = false );
     TreeWithIcons* AddTreeWithIcons( int height, bool resizable = false );
+    Fl_Terminal* AddFlTerminal( int height );
 
     Fl_Scroll* AddFlScroll( int height );
     Fl_Sys_Menu_Bar* AddFlMenuBar( int height );
