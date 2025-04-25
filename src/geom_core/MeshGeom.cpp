@@ -2402,8 +2402,12 @@ void MeshGeom::PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, in
         res->Add( new NameValData( "Meshes_Removed_Names", info.m_DeletedMeshes, "Names of removed meshes." ) );
         res->Add( new NameValData( "Meshes_Merged_Names", info.m_MergedMeshes, "Names of merged meshes." ) );
 
-        string txtfn = m_Vehicle->getExportFileName( vsp::COMP_GEOM_TXT_TYPE );
-        res->WriteCompGeomTxtFile( txtfn );
+        //==== Write TXT File ====//
+        if ( m_Vehicle->getExportCompGeomTxtFile() )
+        {
+            string txtfn = m_Vehicle->getExportFileName( vsp::COMP_GEOM_TXT_TYPE );
+            res->WriteCompGeomTxtFile( txtfn );
+        }
 
         //==== Write CSV File ====//
         if ( m_Vehicle->getExportCompGeomCsvFile() )

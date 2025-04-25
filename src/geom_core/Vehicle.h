@@ -273,6 +273,8 @@ public:
     void setExportFileName( int type, const string &f_name );
     void resetExportFileNames();
 
+    bool getExportCompGeomTxtFile() const                    { return m_exportCompGeomTxtFile(); }
+    void setExportCompGeomTxtFile( bool b )            { m_exportCompGeomTxtFile.Set( b ); }
     bool getExportCompGeomCsvFile() const                    { return m_exportCompGeomCsvFile(); }
     void setExportCompGeomCsvFile( bool b )            { m_exportCompGeomCsvFile.Set( b ); }
 
@@ -549,6 +551,7 @@ public:
     BoolParm m_UseModeExportFlag;
     BoolParm m_UseModeDegenGeomFlag;
 
+    BoolParm m_exportCompGeomTxtFile;
     BoolParm m_exportCompGeomCsvFile;
     BoolParm m_exportDegenGeomCsvFile;
     BoolParm m_exportDegenGeomMFile;

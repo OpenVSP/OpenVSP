@@ -856,6 +856,7 @@ void CompGeomAnalysis::SetDefaults()
 
     if ( veh )
     {
+        m_Inputs.Add( new NameValData( "WriteTXTFlag", veh->getExportCompGeomTxtFile(), "Flag to control whether TXT file is written." ) );
         m_Inputs.Add( new NameValData( "WriteCSVFlag", veh->getExportCompGeomCsvFile(), "Flag to control whether CSV file is written." ) );
         m_Inputs.Add( new NameValData( "UseModeFlag", veh->m_UseModeCompGeomFlag(), "Flag to control whether Modes are used instead of Sets." ) );
     }
@@ -908,6 +909,12 @@ string CompGeomAnalysis::Execute()
         if ( nvd )
         {
             veh->setExportCompGeomCsvFile( !!nvd->GetInt( 0 ) );
+        }
+
+        nvd = m_Inputs.FindPtr( "WriteTXTFlag", 0 );
+        if ( nvd )
+        {
+            veh->setExportCompGeomTxtFile( !!nvd->GetInt( 0 ) );
         }
 
         nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );

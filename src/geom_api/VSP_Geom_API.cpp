@@ -499,6 +499,12 @@ string ComputeCompGeom( int set, bool half_mesh, int file_export_types )
         veh->setExportCompGeomCsvFile( true );
     }
 
+    veh->setExportCompGeomTxtFile( false );
+    if ( file_export_types & COMP_GEOM_TXT_TYPE )
+    {
+        veh->setExportCompGeomTxtFile( true );
+    }
+
     string id = veh->CompGeomAndFlatten( set, half_mesh );
 
     if ( id.size() == 0 )

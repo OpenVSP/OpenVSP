@@ -43,6 +43,7 @@ protected:
     GroupLayout m_MainLayout;
     GroupLayout m_BorderLayout;
 
+    ToggleButton m_TxtToggle;
     ToggleButton m_CsvToggle;
 
     StringOutput m_TxtOutput;

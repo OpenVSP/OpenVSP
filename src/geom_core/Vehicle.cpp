@@ -275,6 +275,7 @@ Vehicle::Vehicle()
     m_UseModeExportFlag.Init( "UseModeExportFlag", "ExportFlag", this, false, 0, 1 );
     m_UseModeDegenGeomFlag.Init( "UseModeDegenGeomFlag", "DegenGeom", this, false, 0, 1 );
 
+    m_exportCompGeomTxtFile.Init( "CompGeom_TXT_Export", "ExportFlag", this, true, 0, 1 );
     m_exportCompGeomCsvFile.Init( "CompGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomCsvFile.Init( "DegenGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomMFile.Init( "DegenGeom_M_Export", "ExportFlag", this, true, 0, 1 );
@@ -536,6 +537,7 @@ void Vehicle::Init()
     m_ScaleIndependentBbYMin.Set( 0 );
     m_ScaleIndependentBbZMin.Set( 0 );
 
+    m_exportCompGeomTxtFile.Set( true );
     m_exportCompGeomCsvFile.Set( true );
     m_exportDegenGeomCsvFile.Set( true );
     m_exportDegenGeomMFile.Set( true );

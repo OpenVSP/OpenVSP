@@ -29,7 +29,8 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 470, "
 
     m_BorderLayout.SetButtonWidth(50);
     m_BorderLayout.SetInputWidth(265);
-    m_BorderLayout.AddOutput(m_TxtOutput, ".txt");
+    m_BorderLayout.AddButton(m_TxtToggle, ".txt");
+    m_BorderLayout.AddOutput(m_TxtOutput);
     m_BorderLayout.AddButton(m_TxtSelect, "...");
     m_BorderLayout.ForceNewLine();
     m_BorderLayout.AddYGap();
@@ -140,6 +141,7 @@ bool CompGeomScreen::Update()
     m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
 
     //===== Update File Toggle Buttons =====//
+    m_TxtToggle.Update( vehiclePtr->m_exportCompGeomTxtFile.GetID() );
     m_CsvToggle.Update( vehiclePtr->m_exportCompGeomCsvFile.GetID() );
 
     //===== Update File Output Text =====//
