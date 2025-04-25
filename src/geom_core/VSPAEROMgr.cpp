@@ -2486,7 +2486,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
                                                 cdo_vec[k] = cdo_vec[k] - ( history_cdo_vec.back() - history_cdo_vec[k] );
                                             }
 
-                                            new_history_res->Add( new NameValData( data_names[j].c_str(), cdo_vec, "Parasite drag coefficient." ) );
+                                            new_history_res->Add( new NameValData( data_names[j], cdo_vec, "Parasite drag coefficient." ) );
                                         }
                                         else if ( cdtot_ptr && strcmp( data_names[j].c_str(), "CDtot" ) == 0 )
                                         {
@@ -2498,7 +2498,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
                                                 ctot_vec[k] = ctot_vec[k] - ( history_ctot_vec.back() - history_ctot_vec[k] );
                                             }
 
-                                            new_history_res->Add( new NameValData( data_names[j].c_str(), ctot_vec, "Total drag coefficient." ) );
+                                            new_history_res->Add( new NameValData( data_names[j], ctot_vec, "Total drag coefficient." ) );
                                         }
                                         else if ( l_d_ptr && strcmp( data_names[j].c_str(), "L/D" ) == 0 )
                                         {
@@ -2510,7 +2510,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
                                                 ld_vec[k] = ld_vec[k] - ( history_l_d_vec.back() - history_l_d_vec[k] );
                                             }
 
-                                            new_history_res->Add( new NameValData( data_names[j].c_str(), ld_vec, "Lift to drag ratio." ) );
+                                            new_history_res->Add( new NameValData( data_names[j], ld_vec, "Lift to drag ratio." ) );
                                         }
                                         else if ( strcmp( data_names[j].c_str(), "FC_ReCref_" ) != 0 )
                                         {
@@ -5866,7 +5866,7 @@ xmlNodePtr RotorDisk::EncodeXml( xmlNodePtr & node )
     if ( node )
     {
         ParmContainer::EncodeXml( node );
-        XmlUtil::AddStringNode( node, "ParentID", m_ParentGeomId.c_str() );
+        XmlUtil::AddStringNode( node, "ParentID", m_ParentGeomId );
         XmlUtil::AddIntNode( node, "SurfIndex", m_ParentGeomSurfNdx );
     }
 
@@ -5978,15 +5978,15 @@ xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
 {
     if ( node )
     {
-        XmlUtil::AddStringNode( node, "ParentGeomBase", m_ParentGeomBaseID.c_str() );
+        XmlUtil::AddStringNode( node, "ParentGeomBase", m_ParentGeomBaseID );
 
         XmlUtil::AddIntNode( node, "NumberOfControlSubSurfaces", m_ControlSurfVec.size() );
         for ( size_t i = 0; i < m_ControlSurfVec.size(); ++i )
         {
             xmlNodePtr csnode = xmlNewChild( node, nullptr, BAD_CAST "Control_Surface" , nullptr );
 
-            XmlUtil::AddStringNode( csnode, "SSID", m_ControlSurfVec[i].SSID.c_str() );
-            XmlUtil::AddStringNode( csnode, "ParentGeomID", m_ControlSurfVec[i].parentGeomId.c_str() );
+            XmlUtil::AddStringNode( csnode, "SSID", m_ControlSurfVec[i].SSID );
+            XmlUtil::AddStringNode( csnode, "ParentGeomID", m_ControlSurfVec[i].parentGeomId );
             XmlUtil::AddIntNode( csnode, "iReflect", m_ControlSurfVec[i].iReflect );
         }
 
@@ -6168,7 +6168,7 @@ xmlNodePtr UnsteadyGroup::EncodeXml( xmlNodePtr& node )
         for ( size_t i = 0; i < m_ComponentSurfPairVec.size(); ++i )
         {
             xmlNodePtr csnode = xmlNewChild( node, nullptr, BAD_CAST "Component", nullptr );
-            XmlUtil::AddStringNode( csnode, "CompID", m_ComponentSurfPairVec[i].first.c_str() );
+            XmlUtil::AddStringNode( csnode, "CompID", m_ComponentSurfPairVec[i].first );
             XmlUtil::AddIntNode( csnode, "SurfIndex", m_ComponentSurfPairVec[i].second );
         }
 
