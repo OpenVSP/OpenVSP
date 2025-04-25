@@ -867,6 +867,7 @@ enum GUI_GEOM_SCREEN { POD_GEOM_SCREEN,	/*!< Pod geom screen */
                        HUMAN_GEOM_SCREEN,	/*!< Human geom screen */
                        ROUTING_GEOM_SCREEN,	/*!< Routing geom screen */
                        CLEARANCE_GEOM_SCREEN,	/*!< Clearance geom screen */
+                       GEAR_GEOM_SCREEN,	/*!< Gear geom screen */
                        NUM_GEOM_SCREENS,	/*!< Number of geom screens */
                        ALL_GEOM_SCREENS	/*!< All geom screens */
 };

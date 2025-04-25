@@ -23,6 +23,7 @@
 #include "DrawObj.h"
 #include "EllipsoidScreen.h"
 #include "FuselageScreen.h"
+#include "GearScreen.h"
 #include "HingeScreen.h"
 #include "HumanGeomScreen.h"
 #include "MeshScreen.h"

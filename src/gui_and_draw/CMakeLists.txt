@@ -51,6 +51,7 @@ ExportScreen.cpp
 FeaPartEditScreen.cpp
 FitModelScreen.cpp
 FuselageScreen.cpp
+GearScreen.cpp
 GroupLayout.cpp
 GuiDevice.cpp
 HingeScreen.cpp
@@ -141,6 +142,7 @@ EllipsoidScreen.h
 FeaPartEditScreen.h
 FitModelScreen.h
 FuselageScreen.h
+GearScreen.h
 GroupLayout.h
 GuiDevice.h
 HingeScreen.h

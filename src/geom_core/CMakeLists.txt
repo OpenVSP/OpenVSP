@@ -49,6 +49,7 @@ EllipsoidGeom.cpp
 FeaStructure.cpp
 FitModelMgr.cpp
 FuselageGeom.cpp
+GearGeom.cpp
 Geom.cpp
 GeomCoreTestSuite.cpp
 GeomEngine.cpp
@@ -127,6 +128,7 @@ EllipsoidGeom.h
 FeaStructure.h
 FitModelMgr.h
 FuselageGeom.h
+GearGeom.h
 Geom.h
 GeomCoreTestSuite.h
 GeomEngine.h
