@@ -78,6 +78,7 @@ MeshScreen.cpp
 ModeEditorScreen.cpp
 MultTransScreen.cpp
 NerfManageGeomScreen.cpp
+NGonMeshScreen.cpp
 ParasiteDragScreen.cpp
 ParmDebugScreen.cpp
 ParmLinkScreen.cpp
@@ -170,6 +171,7 @@ MeshScreen.h
 ModeEditorScreen.h
 MultTransScreen.h
 NerfManageGeomScreen.h
+NGonMeshScreen.h
 ParasiteDragScreen.h
 ParmDebugScreen.h
 ParmLinkScreen.h

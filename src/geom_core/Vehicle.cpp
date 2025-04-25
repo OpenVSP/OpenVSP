@@ -38,6 +38,7 @@
 #include "MeasureMgr.h"
 #include "MeshGeom.h"
 #include "ModeMgr.h"
+#include "NGonMeshGeom.h"
 #include "ParasiteDragMgr.h"
 #include "ParmMgr.h"
 #include "PodGeom.h"
@@ -1096,6 +1097,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     {
         new_geom = new MeshGeom( this );
     }
+    else if ( type.m_Name == "NGonMesh" || type.m_Name == "NGON" )
+    {
+        new_geom = new NGonMeshGeom( this );
+    }
     else if ( type.m_Name == "Stack" || type.m_Name == "STACK" )
     {
         new_geom = new StackGeom( this );
@@ -1190,6 +1195,7 @@ string Vehicle::AddGeom( const GeomType & type )
                      par->GetType().m_Type == MESH_GEOM_TYPE ||
                      par->GetType().m_Type == HUMAN_GEOM_TYPE ||
                      par->GetType().m_Type == PT_CLOUD_GEOM_TYPE ||
+                     par->GetType().m_Type == NGON_GEOM_TYPE ||
                      par->GetType().m_Type == HINGE_GEOM_TYPE ||
                      par->GetType().m_Type == CONFORMAL_GEOM_TYPE ||
                      par->GetType().m_Type == WIRE_FRAME_GEOM_TYPE )

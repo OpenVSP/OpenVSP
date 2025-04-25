@@ -28,6 +28,7 @@
 #include "HumanGeomScreen.h"
 #include "MeshScreen.h"
 #include "MultTransScreen.h"
+#include "NGonMeshScreen.h"
 #include "PodScreen.h"
 #include "PropScreen.h"
 #include "PtCloudScreen.h"

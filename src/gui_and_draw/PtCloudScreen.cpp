@@ -30,6 +30,7 @@ PtCloudScreen::PtCloudScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Poi
     m_GeomPicker.AddExcludeType( WIRE_FRAME_GEOM_TYPE );
     m_GeomPicker.AddExcludeType( BLANK_GEOM_TYPE );
     m_GeomPicker.AddExcludeType( HINGE_GEOM_TYPE );
+    m_GeomPicker.AddExcludeType( NGON_GEOM_TYPE );
     m_ProjectLayout.AddGeomPicker( m_GeomPicker );
 
     m_ProjectLayout.AddChoice( m_SurfChoice, "Surface" );

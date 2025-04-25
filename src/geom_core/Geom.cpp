@@ -2371,7 +2371,7 @@ void Geom::UpdateFlags( )
 {
     if ( GetType().m_Type == MESH_GEOM_TYPE || GetType().m_Type == BLANK_GEOM_TYPE ||
          GetType().m_Type == PT_CLOUD_GEOM_TYPE || GetType().m_Type == HUMAN_GEOM_TYPE ||
-         GetType().m_Type == HINGE_GEOM_TYPE )
+         GetType().m_Type == HINGE_GEOM_TYPE || GetType().m_Type == NGON_GEOM_TYPE )
     {
         // m_MainSurfVec.size() == 0
         return;
@@ -5812,7 +5812,7 @@ FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
 
     if ( GetType().m_Type != BLANK_GEOM_TYPE && GetType().m_Type != PT_CLOUD_GEOM_TYPE &&
          GetType().m_Type != HINGE_GEOM_TYPE && GetType().m_Type != MESH_GEOM_TYPE &&
-         GetType().m_Type != HUMAN_GEOM_TYPE )
+         GetType().m_Type != HUMAN_GEOM_TYPE && GetType().m_Type != NGON_GEOM_TYPE )
     {
         feastruct = new FeaStructure( GetID(), surf_index );
 

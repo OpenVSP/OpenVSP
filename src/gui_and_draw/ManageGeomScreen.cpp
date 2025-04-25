@@ -951,6 +951,7 @@ void ManageGeomScreen::CreateScreens()
     m_GeomScreenVec[vsp::MS_WING_GEOM_SCREEN] = new WingScreen( m_ScreenMgr );
     m_GeomScreenVec[vsp::BLANK_GEOM_SCREEN] = new BlankScreen( m_ScreenMgr );
     m_GeomScreenVec[vsp::MESH_GEOM_SCREEN] = new MeshScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::NGON_MESH_GEOM_SCREEN] = new NGonMeshScreen( m_ScreenMgr );
     m_GeomScreenVec[vsp::STACK_GEOM_SCREEN] = new StackScreen( m_ScreenMgr );
     m_GeomScreenVec[vsp::CUSTOM_GEOM_SCREEN] = new CustomScreen( m_ScreenMgr );
     m_GeomScreenVec[vsp::PT_CLOUD_GEOM_SCREEN] = new PtCloudScreen( m_ScreenMgr );

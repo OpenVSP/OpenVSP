@@ -900,6 +900,7 @@ enum GUI_GEOM_SCREEN { POD_GEOM_SCREEN,	/*!< Pod geom screen */
                        MS_WING_GEOM_SCREEN,	/*!< Wing geom screen */
                        BLANK_GEOM_SCREEN,	/*!< Blank geom screen */
                        MESH_GEOM_SCREEN,	/*!< Mesh geom screen */
+                       NGON_MESH_GEOM_SCREEN,	/*!< NGon Mesh geom screen */
                        STACK_GEOM_SCREEN,	/*!< Stack geom screen */
                        CUSTOM_GEOM_SCREEN,	/*!< Custom geom screen */
                        PT_CLOUD_GEOM_SCREEN,	/*!< Point cloud geom screen */

@@ -70,6 +70,7 @@ MeasureMgr.cpp
 MeshCommonSettings.cpp
 MeshGeom.cpp
 ModeMgr.cpp
+NGonMeshGeom.cpp
 ParasiteDragMgr.cpp
 Parm.cpp
 ParmContainer.cpp
@@ -154,6 +155,7 @@ MeasureMgr.h
 MeshCommonSettings.h
 MeshGeom.h
 ModeMgr.h
+NGonMeshGeom.h
 ParasiteDragMgr.h
 Parm.h
 ParmContainer.h

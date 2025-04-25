@@ -2145,7 +2145,8 @@ void StructScreen::LoadGeomChoice()
                  geom_type != PT_CLOUD_GEOM_TYPE &&
                  geom_type != HINGE_GEOM_TYPE &&
                  geom_type != MESH_GEOM_TYPE &&
-                 geom_type != HUMAN_GEOM_TYPE )
+                 geom_type != HUMAN_GEOM_TYPE &&
+                 geom_type != NGON_GEOM_TYPE )
             {
                 m_GeomChoice.AddItem( disp_geom_name );
                 CompIDMap[geom_vec[i]->GetID()] = icomp;
