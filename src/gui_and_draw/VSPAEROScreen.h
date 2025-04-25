@@ -123,6 +123,7 @@ protected:
     // Case Setup Layout
     ToggleButton m_SetToggle;
     Choice m_GeomSetChoice;
+    Choice m_GeomThinSetChoice;
 
     ToggleRadioGroup m_ModeSetToggleGroup;
     ToggleButton m_ModeToggle;

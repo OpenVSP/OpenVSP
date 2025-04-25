@@ -40,8 +40,11 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Name = "VSPAEROSettings";
     string groupname = "VSPAERO";
 
-    m_GeomSet.Init( "GeomSet", groupname, this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
-    m_GeomSet.SetDescript( "Geometry set" );
+    m_GeomSet.Init( "GeomSet", groupname, this, DEFAULT_SET, vsp::SET_NONE, vsp::MAX_NUM_SETS );
+    m_GeomSet.SetDescript( "Thick surface geometry set" );
+
+    m_ThinGeomSet.Init( "ThinGeomSet", groupname, this, vsp::SET_NONE, vsp::SET_NONE, vsp::MAX_NUM_SETS );
+    m_ThinGeomSet.SetDescript( "Thin surface geometry set" );
 
     m_UseMode.Init( "UseMode", groupname, this, false, false, true );
     m_UseMode.SetDescript( "Flag to control whether modes are used instead of sets." );
@@ -359,8 +362,8 @@ void VSPAEROMgrSingleton::Renew()
     m_CurrentRotorDiskIndex = -1;
     m_LastSelectedType = -1;
 
-    m_AnalysisMethod.Set( vsp::VORTEX_LATTICE );
     m_GeomSet.Set( DEFAULT_SET );
+    m_ThinGeomSet.Set( vsp::SET_NONE );
 
     m_UseMode.Set( false );
     m_ModeID = "";
@@ -752,6 +755,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 void VSPAEROMgrSingleton::UpdateRotorDisks()
 {
     int set = m_GeomSet();
+    int degenset = m_ThinGeomSet();
 
     if ( m_UseMode() )
     {
@@ -760,7 +764,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
         {
             m->ApplySettings();
             set = m->m_NormalSet();
-            // degenset = m->m_DegenSet();
+            degenset = m->m_DegenSet();
         }
     }
 
@@ -772,7 +776,12 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
         vector < RotorDisk* > temp;
         bool contained = false;
 
+        // Get both sets.
         vector <string> currgeomvec = veh->GetGeomSet( set );
+        vector <string> thingeomvec = veh->GetGeomSet( degenset );
+
+        // Append them.
+        currgeomvec.insert( currgeomvec.end(), thingeomvec.begin(), thingeomvec.end() );
 
         // Ensure that a deleted component is still not in the DegenGeom vector
         vector < Geom* > geom_ptr_vec = veh->FindGeomVec( currgeomvec );
@@ -1108,6 +1117,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     }
 
     int set = m_GeomSet();
+    int degenset = m_ThinGeomSet();
 
     if ( m_UseMode() )
     {
@@ -1116,7 +1126,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         {
             m->ApplySettings();
             set = m->m_NormalSet();
-            // degenset = m->m_DegenSet();
+            degenset = m->m_DegenSet();
         }
     }
 
@@ -1132,7 +1142,6 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         last_mesh = nullptr;
         m_LastPanelMeshGeomId = "";
     }
-
 
     //Update information derived from the degenerate geometry
     UpdateRotorDisks();
@@ -1151,8 +1160,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     // Generate *.vspgeom geometry file for analysis
     // Compute intersected and trimmed geometry
-    string mesh_geom_id = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag, 1 /*subsFlag*/, vsp::SET_NONE, false, true );
-    mesh_set = vsp::SET_SHOWN; // Only MeshGeom is shown after geometry is computed
+    string mesh_geom_id = veh->CompGeomAndFlatten( set, halfFlag, 1 /*subsFlag*/, degenset, false, true );
 
     MeshGeom* mesh_geom = ( MeshGeom * ) veh->FindGeom( mesh_geom_id );
 
@@ -1195,7 +1203,8 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
         return string();
     }
-    res->Add( new NameValData( "GeometrySet", set, "Geometry Set for analysis." ) );
+    res->Add( new NameValData( "GeometrySet", set, "Thick surface geometry Set for analysis." ) );
+    res->Add( new NameValData( "ThinGeometrySet", degenset, "Thin surface geometry Set for analysis." ) );
     res->Add( new NameValData( "VSPGeomFileName", m_VSPGeomFileFull, "CompGeom *.vspgeom file name." ) );
     res->Add( new NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId, "MeshGeom GeomID of mesh created in process." ) );
 

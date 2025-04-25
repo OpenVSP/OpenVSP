@@ -122,6 +122,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.SetFitWidthFlag( true );
     m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "", bw );
     m_CaseSetupLayout.ForceNewLine();
+    m_CaseSetupLayout.AddChoice( m_GeomThinSetChoice, "Thin Set:" );
+    m_CaseSetupLayout.ForceNewLine();
 
     m_CaseSetupLayout.SetSameLineFlag( true );
     m_CaseSetupLayout.SetChoiceButtonWidth( 0 );
@@ -140,7 +142,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_CaseSetupLayout.AddYGap();
 
-    m_CaseSetupLayout.AddButton( m_PreviewDegenButton, "Preview VLM Geometry" );
+    m_CaseSetupLayout.AddButton( m_PreviewVSPAEROButton, "Preview VSPAERO Geometry" );
 
     m_LeftColumnLayout.AddYGap();
 
@@ -1203,6 +1205,10 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             VSPAEROMgr.m_GeomSet = m_GeomSetChoice.GetVal();
         }
+        else if( device == &m_GeomThinSetChoice )
+        {
+            VSPAEROMgr.m_ThinGeomSet = m_GeomThinSetChoice.GetVal();
+        }
         else if( device == &m_CompGeomFileButton )
         {
             int file_type = vsp::VSPAERO_VSPGEOM_TYPE;
@@ -1447,19 +1453,23 @@ void VSPAEROScreen::UpdateSetChoiceLists()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
     m_GeomSetChoice.ClearItems();
+    m_GeomThinSetChoice.ClearItems();
     m_CGSetChoice.ClearItems();
 
-    vector <string> setVec = veh->GetSetNameVec();
+    vector <string> setVec = veh->GetSetNameVec( true );
     for (int iSet = 0; iSet < setVec.size(); iSet++)
     {
-        m_GeomSetChoice.AddItem(setVec[iSet]);
-        m_CGSetChoice.AddItem(setVec[iSet]);
+        m_GeomSetChoice.AddItem( setVec[iSet], iSet - 1 );
+        m_GeomThinSetChoice.AddItem( setVec[iSet], iSet - 1 );
+        m_CGSetChoice.AddItem( setVec[iSet], iSet - 1 );
     }
     m_GeomSetChoice.UpdateItems();
+    m_GeomThinSetChoice.UpdateItems();
     m_CGSetChoice.UpdateItems();
 
-    m_GeomSetChoice.SetVal(VSPAEROMgr.m_GeomSet());
-    m_CGSetChoice.SetVal(VSPAEROMgr.m_CGGeomSet());
+    m_GeomSetChoice.SetVal( VSPAEROMgr.m_GeomSet() );
+    m_GeomThinSetChoice.SetVal( VSPAEROMgr.m_ThinGeomSet() );
+    m_CGSetChoice.SetVal( VSPAEROMgr.m_CGGeomSet() );
 }
 
 void VSPAEROScreen::UpdateReferenceQuantitiesDevices()
@@ -2127,6 +2137,7 @@ void VSPAEROScreen::DisplayVSPAEROPreview()
     }
 
     int set = VSPAEROMgr.m_GeomSet();
+    int degenset = VSPAEROMgr.m_ThinGeomSet();
 
     if ( VSPAEROMgr.m_UseMode() )
     {
@@ -2135,7 +2146,7 @@ void VSPAEROScreen::DisplayVSPAEROPreview()
         {
             m->ApplySettings();
             set = m->m_NormalSet();
-            // degenset = m->m_DegenSet();
+            degenset = m->m_DegenSet();
         }
     }
 
@@ -2168,6 +2179,20 @@ void VSPAEROScreen::DisplayVSPAEROPreview()
 
             geom_vec[i]->SetDirtyFlag( GeomBase::TESS );
             geom_vec[i]->Update();
+        }
+        else if ( geom_vec[i]->GetSetFlag( set ) )
+        {
+            for ( size_t j = 0; j < geom_vec[i]->GetNumMainSurfs(); j++ )
+            {
+                int surf_type = geom_vec[i]->GetMainSurfType(j);
+
+                geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_BEZIER );
+            }
+
+            geom_vec[i]->m_GuiDraw.SetDrawType( vsp::DRAW_TYPE::GEOM_DRAW_SHADE );
+            geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( true );
+            geom_vec[i]->SetSetFlag( vsp::SET_SHOWN, true );
+            geom_vec[i]->SetSetFlag( vsp::SET_NOT_SHOWN, false );
         }
         else
         {

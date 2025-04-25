@@ -360,6 +360,7 @@ public:
     vector < string > m_UnsteadyGroupResNames;
 
     IntParm m_GeomSet;
+    IntParm m_ThinGeomSet;
 
     BoolParm m_UseMode;
     string m_ModeID;

@@ -1977,7 +1977,8 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Geometry Set for analysis."  ) );
+        m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Thick surface geometry Set for analysis."  ) );
+        m_Inputs.Add( new NameValData( "ThinGeomSet", VSPAEROMgr.m_ThinGeomSet.Get(), "Thin surface geometry Set for analysis."  ) );
         m_Inputs.Add( new NameValData( "Symmetry", VSPAEROMgr.m_Symmetry.Get(), "Symmetry mode enum." ) );
 
         m_Inputs.Add( new NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
@@ -2007,6 +2008,13 @@ string VSPAEROComputeGeometryAnalysis::Execute()
             VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
         }
 
+        int geomThinSetOrig = VSPAEROMgr.m_ThinGeomSet.Get();
+        nvd = m_Inputs.FindPtr( "ThinGeomSet", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ThinGeomSet.Set( nvd->GetInt(0) );
+        }
+
         int useModeOrig = VSPAEROMgr.m_UseMode.Get();
         nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
         if ( nvd )
@@ -2033,6 +2041,7 @@ string VSPAEROComputeGeometryAnalysis::Execute()
 
         //==== Restore Original Values ====//
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_ThinGeomSet.Set( geomThinSetOrig );
         VSPAEROMgr.m_UseMode.Set( useModeOrig );
         VSPAEROMgr.m_ModeID = modeIDOrig;
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
@@ -2052,7 +2061,8 @@ void VSPAERODegenGeomAnalysis::SetDefaults()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Geometry Set for analysis."  ) );
+        m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Thick surface geometry Set for analysis."  ) );
+        m_Inputs.Add( new NameValData( "ThinGeomSet", VSPAEROMgr.m_ThinGeomSet.Get(), "Thin surface geometry Set for analysis."  ) );
 
         m_Inputs.Add( new NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
         m_Inputs.Add( new NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
@@ -2081,6 +2091,13 @@ string VSPAERODegenGeomAnalysis::Execute()
             VSPAEROMgr.m_GeomSet.Set( nvd->GetInt( 0 ) );
         }
 
+        nvd = m_Inputs.FindPtr( "ThinGeomSet", 0 );
+        int geomThinSetOrig    = VSPAEROMgr.m_ThinGeomSet.Get();
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ThinGeomSet.Set( nvd->GetInt(0) );
+        }
+
         int useModeOrig = VSPAEROMgr.m_UseMode.Get();
         nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
         if ( nvd )
@@ -2100,6 +2117,7 @@ string VSPAERODegenGeomAnalysis::Execute()
 
         //Restore original values that were overwritten by analysis inputs
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_ThinGeomSet.Set( geomThinSetOrig );
         VSPAEROMgr.m_UseMode.Set( useModeOrig );
         VSPAEROMgr.m_ModeID = modeIDOrig;
 
@@ -2166,7 +2184,8 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "RedirectFile",                  string( "stdout" )                                , "File to redirect output ('stdout' to console,  '' to suppress)." ) );
 
         //Case Setup
-        m_Inputs.Add( new NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Geometry Set for analysis." ) );
+        m_Inputs.Add( new NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Thick surface geometry Set for analysis."  ) );
+        m_Inputs.Add( new NameValData( "ThinGeomSet",                   VSPAEROMgr.m_ThinGeomSet.Get()                    , "Thin surface geometry Set for analysis."  ) );
         m_Inputs.Add( new NameValData( "UseModeFlag",                   VSPAEROMgr.m_UseMode.Get()                         , "Flag to control whether Modes are used instead of Sets." ) );
         m_Inputs.Add( new NameValData( "ModeID",                        VSPAEROMgr.m_ModeID                               , "ID for Mode to use for analysis." ) );
         m_Inputs.Add( new NameValData( "NCPU",                          VSPAEROMgr.m_NCPU.Get()                           , "Number of processors to use for computation." ) );
@@ -2267,6 +2286,13 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+        }
+
+        int geomThinSetOrig = VSPAEROMgr.m_ThinGeomSet.Get();
+        nvd = m_Inputs.FindPtr( "ThinGeomSet", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ThinGeomSet.Set( nvd->GetInt(0) );
         }
 
         int useModeOrig = VSPAEROMgr.m_UseMode.Get();
@@ -2723,6 +2749,7 @@ string VSPAEROSweepAnalysis::Execute()
         //==== Restore Original Values ====//
         //    Geometry set
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_ThinGeomSet.Set( geomThinSetOrig );
         VSPAEROMgr.m_UseMode.Set( useModeOrig );
         VSPAEROMgr.m_ModeID = modeIDOrig;
 
