@@ -398,6 +398,7 @@ public:
     Parm m_CullFrac;
     BoolParm m_CullFracFlag;
     BoolParm m_ContinueCoPlanarWakesFlag;
+    BoolParm m_FindBodyWakesFlag;
 
     // Reference Area Parms
     Parm m_Sref;

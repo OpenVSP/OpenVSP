@@ -64,6 +64,9 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_ContinueCoPlanarWakesFlag.Init( "ContinueCoPlanarWakesFlag", groupname, this, true, false, true );
     m_ContinueCoPlanarWakesFlag.SetDescript( "Flag to continue coplanar wakes through bodies" );
 
+    m_FindBodyWakesFlag.Init( "FindBodyWakesFlag", groupname, this, false, false, true );
+    m_FindBodyWakesFlag.SetDescript( "Flag to control whether body wakes are detected." );
+
     m_LastPanelMeshGeomId = string();
 
     m_Sref.Init( "Sref", groupname, this, 100.0, 0.0, 1e12 );
@@ -423,6 +426,7 @@ void VSPAEROMgrSingleton::Renew()
     m_CullFrac.Set( 0.03 );
     m_CullFracFlag.Set( false );
     m_ContinueCoPlanarWakesFlag.Set( true );
+    m_FindBodyWakesFlag.Set( false );
 
     m_RefFlag.Set( vsp::MANUAL_REF );
     m_MACFlag.Set( false );
@@ -1214,7 +1218,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     if ( mesh_geom )
     {
-        m_LastPanelMeshGeomId = mesh_geom->CreateNGonMeshGeom( m_CullFracFlag(), m_CullFrac(), m_ContinueCoPlanarWakesFlag(), m_NRef() );
+        m_LastPanelMeshGeomId = mesh_geom->CreateNGonMeshGeom( m_CullFracFlag(), m_CullFrac(), m_ContinueCoPlanarWakesFlag(), m_NRef(), m_FindBodyWakesFlag() );
 
         NGonMeshGeom* ngon_mesh_geom = ( NGonMeshGeom * ) veh->FindGeom( m_LastPanelMeshGeomId );
 

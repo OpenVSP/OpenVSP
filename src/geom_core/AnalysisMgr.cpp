@@ -2057,6 +2057,7 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "CullFrac", VSPAEROMgr.m_CullFrac.Get(), "Area fraction of thin orphan regions to cull." ) );
         m_Inputs.Add( new NameValData( "CullFracFlag", VSPAEROMgr.m_CullFracFlag.Get(), "Flag to enable orphan culling." ) );
         m_Inputs.Add( new NameValData( "ContinueCoPlanarWakesFlag", VSPAEROMgr.m_ContinueCoPlanarWakesFlag.Get(), "Flag to continue coplanar wakes through bodies." ) );
+        m_Inputs.Add( new NameValData( "FindBodyWakesFlag", VSPAEROMgr.m_FindBodyWakesFlag.Get(), "Flag to control whether body wakes are detected." ) );
     }
     else
     {
@@ -2138,6 +2139,13 @@ string VSPAEROComputeGeometryAnalysis::Execute()
             VSPAEROMgr.m_ContinueCoPlanarWakesFlag.Set( nvd->GetInt( 0 ) );
         }
 
+        bool findbodywakesflagOrig = VSPAEROMgr.m_FindBodyWakesFlag.Get();
+        nvd = m_Inputs.FindPtr( "FindBodyWakesFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_FindBodyWakesFlag.Set( nvd->GetInt( 0 ) );
+        }
+
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeGeometry();
 
@@ -2151,6 +2159,7 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         VSPAEROMgr.m_CullFrac.Set( cullfracOrig );
         VSPAEROMgr.m_CullFracFlag.Set( cullfracflagOrig );
         VSPAEROMgr.m_ContinueCoPlanarWakesFlag.Set( continuecoplanarwakesflagOrig );
+        VSPAEROMgr.m_FindBodyWakesFlag.Set( findbodywakesflagOrig );
     }
 
     return resId;
