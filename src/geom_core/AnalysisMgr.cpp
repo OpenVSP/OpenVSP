@@ -1966,7 +1966,7 @@ string SurfacePatchAnalysis::Execute()
 //================================= VSPAERO ============================================//
 //======================================================================================//
 
-VSPAEROComputeGeometryAnalysis::VSPAEROComputeGeometryAnalysis() : Analysis( "VSPAEROComputeGeometry", "Prepare a watertight triangle mesh for VSPAERO analysis." )
+VSPAEROComputeGeometryAnalysis::VSPAEROComputeGeometryAnalysis() : Analysis( "VSPAEROComputeGeometry", "Prepare a polygon mesh for VSPAERO analysis." )
 {
 }
 
@@ -1983,6 +1983,10 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
 
         m_Inputs.Add( new NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
         m_Inputs.Add( new NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
+
+        m_Inputs.Add( new NameValData( "CullFrac", VSPAEROMgr.m_CullFrac.Get(), "Area fraction of thin orphan regions to cull." ) );
+        m_Inputs.Add( new NameValData( "CullFracFlag", VSPAEROMgr.m_CullFracFlag.Get(), "Flag to enable orphan culling." ) );
+        m_Inputs.Add( new NameValData( "ContinueCoPlanarWakesFlag", VSPAEROMgr.m_ContinueCoPlanarWakesFlag.Get(), "Flag to continue coplanar wakes through bodies." ) );
     }
     else
     {
@@ -2036,6 +2040,27 @@ string VSPAEROComputeGeometryAnalysis::Execute()
             VSPAEROMgr.m_Symmetry.Set( nvd->GetInt( 0 ) );
         }
 
+        double cullfracOrig = VSPAEROMgr.m_CullFrac.Get();
+        nvd = m_Inputs.FindPtr( "CullFrac", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_CullFrac.Set( nvd->GetDouble(0) );
+        }
+
+        bool cullfracflagOrig = VSPAEROMgr.m_CullFracFlag.Get();
+        nvd = m_Inputs.FindPtr( "CullFracFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_CullFracFlag.Set( nvd->GetInt( 0 ) );
+        }
+
+        bool continuecoplanarwakesflagOrig = VSPAEROMgr.m_ContinueCoPlanarWakesFlag.Get();
+        nvd = m_Inputs.FindPtr( "ContinueCoPlanarWakesFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ContinueCoPlanarWakesFlag.Set( nvd->GetInt( 0 ) );
+        }
+
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeGeometry();
 
@@ -2045,6 +2070,9 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         VSPAEROMgr.m_UseMode.Set( useModeOrig );
         VSPAEROMgr.m_ModeID = modeIDOrig;
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
+        VSPAEROMgr.m_CullFrac.Set( cullfracOrig );
+        VSPAEROMgr.m_CullFracFlag.Set( cullfracflagOrig );
+        VSPAEROMgr.m_ContinueCoPlanarWakesFlag.Set( continuecoplanarwakesflagOrig );
     }
 
     return resId;
