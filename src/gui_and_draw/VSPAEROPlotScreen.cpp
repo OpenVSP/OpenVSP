@@ -1846,7 +1846,8 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
             if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 )   != 0 )  &&
                     ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &&
                     ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &&
-                    ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )  &&
+                    ( strcmp( dataNames[iDataName].c_str(), "SpanLoadSet" )   != 0 )  &&
+                    ( strcmp( dataNames[iDataName].c_str(), "Surface" )   != 0 )  &&
                     ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) &&
                     ( strcmp( dataNames[iDataName].c_str(), "Station" ) != 0 ) &&
                     ( strcmp( dataNames[iDataName].c_str(), "Group_Name" ) != 0 ) &&
@@ -2755,7 +2756,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
     }
     else if ( strcmp( res->GetName().c_str(), "VSPAERO_Load" ) == 0 || strcmp( res->GetName().c_str(), "VSPAERO_Blade_Avg" ) == 0 )
     {
-        NameValData* wingIdResultDataPtr = 0;
+        NameValData* spanLoadSetResultDataPtr = 0;
         NameValData* xResultDataPtr = 0;
         NameValData* yResultDataPtr = 0;
         vector <double> xDoubleData_orig;
@@ -2763,7 +2764,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
 
         if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE )
         {
-            wingIdResultDataPtr = res->FindPtr( "WingId" );
+            spanLoadSetResultDataPtr = res->FindPtr( "SpanLoadSet" );
             xResultDataPtr = res->FindPtr( "Yavg" );
             y_label = "Span Location: Y";
         }
@@ -2800,22 +2801,22 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
                 Fl_Color c = ColorWheel( m_LoadDistiPlot, m_LoadDistNLines );
                 string legendstr;
 
-                if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE && wingIdResultDataPtr )
+                if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE && spanLoadSetResultDataPtr )
                 {
                     // get unique indicies and generate loop over unique wings
-                    vector <int> wingIdIntDataRaw = wingIdResultDataPtr->GetIntData();
-                    vector <int> wingIdIntDataUnique;
-                    std::unique_copy( wingIdIntDataRaw.begin(), wingIdIntDataRaw.end(), std::back_inserter( wingIdIntDataUnique ) );
+                    vector <int> spanLoadSetIntDataRaw = spanLoadSetResultDataPtr->GetIntData();
+                    vector <int> spanLoadSetIntDataUnique;
+                    std::unique_copy( spanLoadSetIntDataRaw.begin(), spanLoadSetIntDataRaw.end(), std::back_inserter( spanLoadSetIntDataUnique ) );
 
                     // Collect data for each wing and plot individual line for each wing (assumes unsorted list)
-                    for ( int iWing = 0; iWing < wingIdIntDataUnique.size(); iWing++ )
+                    for ( int ispanLoadSet = 0; ispanLoadSet < spanLoadSetIntDataUnique.size(); ispanLoadSet++ )
                     {
                         //collect the data for each wing checking each point
                         vector <double> xDoubleData;
                         vector <double> yDoubleData;
-                        for ( unsigned int iPt = 0; iPt < wingIdIntDataRaw.size(); iPt++ )
+                        for ( unsigned int iPt = 0; iPt < spanLoadSetIntDataRaw.size(); iPt++ )
                         {
-                            if ( wingIdIntDataRaw[iPt] == wingIdIntDataUnique[iWing] )
+                            if ( spanLoadSetIntDataRaw[iPt] == spanLoadSetIntDataUnique[ispanLoadSet] )
                             {
                                 xDoubleData.push_back( xResultDataPtr->GetDouble( iPt ) );
                                 yDoubleData.push_back( yResultDataPtr->GetDouble( iPt ) );

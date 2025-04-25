@@ -2574,6 +2574,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
     Results* res = nullptr;
     std::vector< std::string > data_string_array;
     bool sectional_data_complete = false; // flag indicating if the sectional data section of the Lod file has been read
+    bool remnant_data_complete = false;
 
     double cref = 1.0;
 
@@ -2599,64 +2600,129 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
         }
 
         // Sectional distribution table
-        int nSectionalDataTableCols = 16;
-        int nCompDataTableCols = 14;
-        if ( data_string_array.size() == nSectionalDataTableCols && !sectional_data_complete && !isdigit( data_string_array[0][0] ) )
+        int nSectionalDataTableCols = 36;
+        int nCompDataTableCols = 15;
+        if ( data_string_array.size() == nSectionalDataTableCols && ( !sectional_data_complete || !remnant_data_complete ) && !isdigit( data_string_array[0][0] ) )
         {
+
+            if ( sectional_data_complete )
+            {
+                res = ResultsMgr.CreateResults( "VSPAERO_Remnant_Load", "VSPAERO remnant loads from lod file results." );
+                res_id_vector.push_back( res->GetID());
+            }
+
             //discard the header row and read the next line assuming that it is numeric
             data_string_array = ReadDelimLine( fp, seps );
 
             // Raw data vectors
-            std::vector<int> WingId;
+            std::vector<int> SpanLoadSet;
+            std::vector<int> Surface;
             std::vector<double> S;
             std::vector<double> Xavg;
-            std::vector<double> Yavg; // FIXME: Not found in file any more???
+            std::vector<double> Yavg;
             std::vector<double> Zavg;
+            std::vector<double> Area;
             std::vector<double> Chord;
             std::vector<double> VoVref;
             std::vector<double> Cl;
             std::vector<double> Cd;
             std::vector<double> Cs;
+            std::vector<double> Clo;
+            std::vector<double> Cdo;
+            std::vector<double> Cso;
+            std::vector<double> Cli;
+            std::vector<double> Cdi;
+            std::vector<double> Csi;
             std::vector<double> Cx;
             std::vector<double> Cy;
             std::vector<double> Cz;
+            std::vector<double> Cxo;
+            std::vector<double> Cyo;
+            std::vector<double> Czo;
+            std::vector<double> Cxi;
+            std::vector<double> Cyi;
+            std::vector<double> Czi;
             std::vector<double> Cmx;
             std::vector<double> Cmy;
             std::vector<double> Cmz;
+            std::vector<double> Cmxo;
+            std::vector<double> Cmyo;
+            std::vector<double> Cmzo;
+            std::vector<double> Cmxi;
+            std::vector<double> Cmyi;
+            std::vector<double> Cmzi;
 
             //normalized by local chord
             std::vector<double> Clc_cref;
             std::vector<double> Cdc_cref;
             std::vector<double> Csc_cref;
+            std::vector<double> Cloc_cref;
+            std::vector<double> Cdoc_cref;
+            std::vector<double> Csoc_cref;
+            std::vector<double> Clic_cref;
+            std::vector<double> Cdic_cref;
+            std::vector<double> Csic_cref;
             std::vector<double> Cxc_cref;
             std::vector<double> Cyc_cref;
             std::vector<double> Czc_cref;
+            std::vector<double> Cxoc_cref;
+            std::vector<double> Cyoc_cref;
+            std::vector<double> Czoc_cref;
+            std::vector<double> Cxic_cref;
+            std::vector<double> Cyic_cref;
+            std::vector<double> Czic_cref;
             std::vector<double> Cmxc_cref;
             std::vector<double> Cmyc_cref;
             std::vector<double> Cmzc_cref;
+            std::vector<double> Cmxoc_cref;
+            std::vector<double> Cmyoc_cref;
+            std::vector<double> Cmzoc_cref;
+            std::vector<double> Cmxic_cref;
+            std::vector<double> Cmyic_cref;
+            std::vector<double> Cmzic_cref;
 
             double chordRatio;
 
             // read the data rows
-            while ( data_string_array.size() == nSectionalDataTableCols && data_string_array[0].find( "Comp" ) == std::string::npos )
+            while ( data_string_array.size() == nSectionalDataTableCols )
             {
                 // Store the raw data
-                WingId.push_back( std::stoi( data_string_array[0] ) );
-                S.push_back( std::stod( data_string_array[1] ) );
-                Xavg.push_back( std::stod( data_string_array[2] ) );
-                Yavg.push_back(   std::stod( data_string_array[3] ) );
-                Zavg.push_back( std::stod( data_string_array[4] ) );
-                Chord.push_back(  std::stod( data_string_array[5] ) );
-                VoVref.push_back( std::stod( data_string_array[6] ) );
-                Cl.push_back(     std::stod( data_string_array[7] ) );
-                Cd.push_back(     std::stod( data_string_array[8] ) );
-                Cs.push_back(     std::stod( data_string_array[9] ) );
-                Cx.push_back(     std::stod( data_string_array[10] ) );
-                Cy.push_back(     std::stod( data_string_array[11] ) );
-                Cz.push_back(     std::stod( data_string_array[12] ) );
-                Cmx.push_back(    std::stod( data_string_array[13] ) );
-                Cmy.push_back(    std::stod( data_string_array[14] ) );
-                Cmz.push_back(    std::stod( data_string_array[15] ) );
+                SpanLoadSet.push_back( std::stoi( data_string_array[0] ) );
+                Surface.push_back(     std::stoi( data_string_array[1] ) );
+                S.push_back(           std::stod( data_string_array[2] ) );
+                Xavg.push_back(        std::stod( data_string_array[3] ) );
+                Yavg.push_back(        std::stod( data_string_array[4] ) );
+                Zavg.push_back(        std::stod( data_string_array[5] ) );
+                Area.push_back(        std::stod( data_string_array[6] ) );
+                Chord.push_back(       std::stod( data_string_array[7] ) );
+                VoVref.push_back(      std::stod( data_string_array[8] ) );
+                Cl.push_back(          std::stod( data_string_array[9] ) );
+                Cd.push_back(          std::stod( data_string_array[10] ) );
+                Cs.push_back(          std::stod( data_string_array[11] ) );
+                Clo.push_back(         std::stod( data_string_array[12] ) );
+                Cdo.push_back(         std::stod( data_string_array[13] ) );
+                Cso.push_back(         std::stod( data_string_array[14] ) );
+                Cli.push_back(         std::stod( data_string_array[15] ) );
+                Cdi.push_back(         std::stod( data_string_array[16] ) );
+                Csi.push_back(         std::stod( data_string_array[17] ) );
+                Cx.push_back(          std::stod( data_string_array[18] ) );
+                Cy.push_back(          std::stod( data_string_array[19] ) );
+                Cz.push_back(          std::stod( data_string_array[20] ) );
+                Cxo.push_back(         std::stod( data_string_array[21] ) );
+                Cyo.push_back(         std::stod( data_string_array[22] ) );
+                Czo.push_back(         std::stod( data_string_array[23] ) );
+                Cxi.push_back(         std::stod( data_string_array[24] ) );
+                Cyi.push_back(         std::stod( data_string_array[25] ) );
+                Czi.push_back(         std::stod( data_string_array[26] ) );
+                Cmx.push_back(         std::stod( data_string_array[27] ) );
+                Cmy.push_back(         std::stod( data_string_array[28] ) );
+                Cmz.push_back(         std::stod( data_string_array[29] ) );
+                Cmxo.push_back(        std::stod( data_string_array[30] ) );
+                Cmyo.push_back(        std::stod( data_string_array[31] ) );
+                Cmzo.push_back(        std::stod( data_string_array[32] ) );
+                Cmxi.push_back(        std::stod( data_string_array[33] ) );
+                Cmyi.push_back(        std::stod( data_string_array[34] ) );
+                Cmzi.push_back(        std::stod( data_string_array[35] ) );
 
                 chordRatio = Chord.back() / cref;
 
@@ -2664,49 +2730,114 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
                 Clc_cref.push_back( Cl.back() * chordRatio );
                 Cdc_cref.push_back( Cd.back() * chordRatio );
                 Csc_cref.push_back( Cs.back() * chordRatio );
+                Cloc_cref.push_back( Clo.back() * chordRatio );
+                Cdoc_cref.push_back( Cdo.back() * chordRatio );
+                Csoc_cref.push_back( Cso.back() * chordRatio );
+                Clic_cref.push_back( Cli.back() * chordRatio );
+                Cdic_cref.push_back( Cdi.back() * chordRatio );
+                Csic_cref.push_back( Csi.back() * chordRatio );
                 Cxc_cref.push_back( Cx.back() * chordRatio );
                 Cyc_cref.push_back( Cy.back() * chordRatio );
                 Czc_cref.push_back( Cz.back() * chordRatio );
+                Cxoc_cref.push_back( Cxo.back() * chordRatio );
+                Cyoc_cref.push_back( Cyo.back() * chordRatio );
+                Czoc_cref.push_back( Czo.back() * chordRatio );
+                Cxic_cref.push_back( Cxi.back() * chordRatio );
+                Cyic_cref.push_back( Cyi.back() * chordRatio );
+                Czic_cref.push_back( Czi.back() * chordRatio );
                 Cmxc_cref.push_back( Cmx.back() * chordRatio );
                 Cmyc_cref.push_back( Cmy.back() * chordRatio );
                 Cmzc_cref.push_back( Cmz.back() * chordRatio );
+                Cmxoc_cref.push_back( Cmxo.back() * chordRatio );
+                Cmyoc_cref.push_back( Cmyo.back() * chordRatio );
+                Cmzoc_cref.push_back( Cmzo.back() * chordRatio );
+                Cmxic_cref.push_back( Cmxi.back() * chordRatio );
+                Cmyic_cref.push_back( Cmyi.back() * chordRatio );
+                Cmzic_cref.push_back( Cmzi.back() * chordRatio );
 
                 // Read the next line and loop
                 data_string_array = ReadDelimLine( fp, seps );
             }
 
             // Finish up by adding the data to the result res
-            res->Add( new NameValData( "WingId", WingId, "Wing ID." ) );
+            res->Add( new NameValData( "SpanLoadSet", SpanLoadSet, "Span load distribution set." ) );
+            res->Add( new NameValData( "Surface", Surface, "Surface for span load set." ) );
             res->Add( new NameValData( "S", S, "Non-dimensional spanwise coordinate." ) );
             res->Add( new NameValData( "Xavg", Xavg, "Section X coordinate." ) );
-            res->Add( new NameValData( "Yavg", Yavg, "Section Y coordinate." ) ); // FIXME: Not found in file any more??
+            res->Add( new NameValData( "Yavg", Yavg, "Section Y coordinate." ) );
             res->Add( new NameValData( "Zavg", Zavg, "Section Z coordinate." ) );
+            res->Add( new NameValData( "Area", Area, "Section area." ) );
             res->Add( new NameValData( "Chord", Chord, "Section chord." ) );
             res->Add( new NameValData( "V/Vref", VoVref, "Local velocity ratio." ) );
-            res->Add( new NameValData( "cl", Cl, "Section lift coefficient." ) ); // FIXME: Not found in file any more??
+            res->Add( new NameValData( "cl", Cl, "Section lift coefficient." ) );
             res->Add( new NameValData( "cd", Cd, "Section drag coefficient." ) );
             res->Add( new NameValData( "cs", Cs, "Section side force coefficient." ) );
+            res->Add( new NameValData( "clo", Clo, "Section lift coefficient.  Parasite part." ) );
+            res->Add( new NameValData( "cdo", Cdo, "Section drag coefficient.  Parasite part." ) );
+            res->Add( new NameValData( "cso", Cso, "Section side force coefficient.  Parasite part." ) );
+            res->Add( new NameValData( "cli", Cli, "Section lift coefficient.  Induced part." ) );
+            res->Add( new NameValData( "cdi", Cdi, "Section drag coefficient.  Induced part." ) );
+            res->Add( new NameValData( "csi", Csi, "Section side force coefficient.  Induced part." ) );
             res->Add( new NameValData( "cx", Cx, "Section X force coefficient." ) );
             res->Add( new NameValData( "cy", Cy, "Section Y force coefficient." ) );
             res->Add( new NameValData( "cz", Cz, "Section Z force coefficient." ) );
+            res->Add( new NameValData( "cxo", Cxo, "Section X force coefficient.  Parasite part." ) );
+            res->Add( new NameValData( "cyo", Cyo, "Section Y force coefficient.  Parasite part." ) );
+            res->Add( new NameValData( "czo", Czo, "Section Z force coefficient.  Parasite part." ) );
+            res->Add( new NameValData( "cxi", Cxi, "Section X force coefficient.  Induced part." ) );
+            res->Add( new NameValData( "cyi", Cyi, "Section Y force coefficient.  Induced part." ) );
+            res->Add( new NameValData( "czi", Czi, "Section Z force coefficient.  Induced part." ) );
             res->Add( new NameValData( "cmx", Cmx, "Section X moment coefficient." ) );
             res->Add( new NameValData( "cmy", Cmy, "Section Y moment coefficient." ) );
             res->Add( new NameValData( "cmz", Cmz, "Section Z moment coefficient." ) );
+            res->Add( new NameValData( "cmxo", Cmxo, "Section X moment coefficient.  Parasite part." ) );
+            res->Add( new NameValData( "cmyo", Cmyo, "Section Y moment coefficient.  Parasite part." ) );
+            res->Add( new NameValData( "cmzo", Cmzo, "Section Z moment coefficient.  Parasite part." ) );
+            res->Add( new NameValData( "cmxi", Cmxi, "Section X moment coefficient.  Induced part." ) );
+            res->Add( new NameValData( "cmyi", Cmyi, "Section Y moment coefficient.  Induced part." ) );
+            res->Add( new NameValData( "cmzi", Cmzi, "Section Z moment coefficient.  Induced part." ) );
 
             res->Add( new NameValData( "cl*c/cref", Clc_cref, "Section lift scaled load." ) );
             res->Add( new NameValData( "cd*c/cref", Cdc_cref, "Section drag scaled load." ) );
             res->Add( new NameValData( "cs*c/cref", Csc_cref, "Section side scaled load." ) );
+            res->Add( new NameValData( "clo*c/cref", Cloc_cref, "Section lift scaled load.  Parasite part." ) );
+            res->Add( new NameValData( "cdo*c/cref", Cdoc_cref, "Section drag scaled load.  Parasite part." ) );
+            res->Add( new NameValData( "cso*c/cref", Csoc_cref, "Section side scaled load.  Parasite part." ) );
+            res->Add( new NameValData( "cli*c/cref", Clic_cref, "Section lift scaled load.  Induced part." ) );
+            res->Add( new NameValData( "cdi*c/cref", Cdic_cref, "Section drag scaled load.  Induced part." ) );
+            res->Add( new NameValData( "csi*c/cref", Csic_cref, "Section side scaled load.  Induced part." ) );
             res->Add( new NameValData( "cx*c/cref", Cxc_cref, "Section X scaled load." ) );
             res->Add( new NameValData( "cy*c/cref", Cyc_cref, "Section Y scaled load." ) );
             res->Add( new NameValData( "cz*c/cref", Czc_cref, "Section Z scaled load." ) );
+            res->Add( new NameValData( "cxo*c/cref", Cxoc_cref, "Section X scaled load.  Parasite part." ) );
+            res->Add( new NameValData( "cyo*c/cref", Cyoc_cref, "Section Y scaled load.  Parasite part." ) );
+            res->Add( new NameValData( "czo*c/cref", Czoc_cref, "Section Z scaled load.  Parasite part." ) );
+            res->Add( new NameValData( "cxi*c/cref", Cxic_cref, "Section X scaled load.  Induced part." ) );
+            res->Add( new NameValData( "cyi*c/cref", Cyic_cref, "Section Y scaled load.  Induced part." ) );
+            res->Add( new NameValData( "czi*c/cref", Czic_cref, "Section Z scaled load.  Induced part." ) );
             res->Add( new NameValData( "cmx*c/cref", Cmxc_cref, "Section X scaled moment." ) );
             res->Add( new NameValData( "cmy*c/cref", Cmyc_cref, "Section Y scaled moment." ) );
             res->Add( new NameValData( "cmz*c/cref", Cmzc_cref, "Section Z scaled moment." ) );
+            res->Add( new NameValData( "cmxo*c/cref", Cmxoc_cref, "Section X scaled moment.  Parasite part." ) );
+            res->Add( new NameValData( "cmyo*c/cref", Cmyoc_cref, "Section Y scaled moment.  Parasite part." ) );
+            res->Add( new NameValData( "cmzo*c/cref", Cmzoc_cref, "Section Z scaled moment.  Parasite part." ) );
+            res->Add( new NameValData( "cmxi*c/cref", Cmxic_cref, "Section X scaled moment.  Induced part." ) );
+            res->Add( new NameValData( "cmyi*c/cref", Cmyic_cref, "Section Y scaled moment.  Induced part." ) );
+            res->Add( new NameValData( "cmzi*c/cref", Cmzic_cref, "Section Z scaled moment.  Induced part." ) );
 
-            sectional_data_complete = true;
+            if ( !sectional_data_complete )
+            {
+                // First time through.
+                sectional_data_complete = true;
+            }
+            else
+            {
+                // Second time through
+                remnant_data_complete = true;
+            }
 
-        } // end sectional table read
-        else if ( data_string_array.size() == nCompDataTableCols && sectional_data_complete && data_string_array[0].find( "Comp" ) != std::string::npos )
+        } // end sectional and remnant table read
+        else if ( data_string_array.size() == nCompDataTableCols && sectional_data_complete && remnant_data_complete )
         {
             // "Comp" section of *.lod file
             res = ResultsMgr.CreateResults( "VSPAERO_Comp_Load", "VSPAERO component loads from lod file results." );
@@ -2716,7 +2847,8 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             data_string_array = ReadDelimLine( fp, seps );
 
             // Raw data vectors
-            std::vector<int> Comp;
+            std::vector<int> SpanLoadSet;
+            std::vector<int> Surface;
             std::vector<string> Comp_Name;
             std::vector<double> Mach;
             std::vector<double> AoA;
@@ -2736,7 +2868,8 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             {
                 // Store the raw data
                 size_t j = 0;
-                Comp.push_back( std::stoi( data_string_array[j++] ) );
+                SpanLoadSet.push_back( std::stoi( data_string_array[j++] ) );
+                Surface.push_back( std::stoi( data_string_array[j++] ) );
 
                 if ( data_string_array.size() == nCompDataTableCols - 1 )
                 {
@@ -2766,7 +2899,8 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             }
 
             // Finish up by adding the data to the result res
-            res->Add( new NameValData( "Comp_ID", Comp, "Component ID." ) );
+            res->Add( new NameValData( "SpanLoadSet", SpanLoadSet, "Span load distribution set." ) );
+            res->Add( new NameValData( "Surface", Surface, "Surface for span load set." ) );
             res->Add( new NameValData( "Comp_Name", Comp_Name, "Component name." ) );
             res->Add( new NameValData( "Mach", Mach, "Mach number." ) );
             res->Add( new NameValData( "AoA", AoA, "Angle of attack." ) );
