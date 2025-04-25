@@ -17,6 +17,7 @@
 #include <FL/Fl.H>
 #include "BlankScreen.h"
 #include "BORScreen.h"
+#include "ClearanceScreen.h"
 #include "ConformalScreen.h"
 #include "CustomScreen.h"
 #include "DrawObj.h"

@@ -39,6 +39,7 @@ Background3D.cpp
 Background3DMgr.cpp
 BlankGeom.cpp
 BORGeom.cpp
+ClearanceGeom.cpp
 ClippingMgr.cpp
 ConformalGeom.cpp
 CustomGeom.cpp
@@ -113,6 +114,7 @@ Background3D.h
 Background3DMgr.h
 BlankGeom.h
 BORGeom.h
+ClearanceGeom.h
 ClippingMgr.h
 Color.h
 ColorMgr.h
