@@ -793,7 +793,7 @@ NameValCollection::~NameValCollection()
 //==== Erase Collection Data ====//
 void NameValCollection::Wype()
 {
-    map< string, vector< NameValData* > >::iterator iter;
+    unordered_map< string, vector< NameValData* > >::iterator iter;
 
     for ( iter = m_DataMap.begin(); iter != m_DataMap.end(); ++iter )
     {
@@ -830,7 +830,7 @@ void NameValCollection::Add( NameValData* d )
     //==== Find Name ====//
     string name = d->GetName();
 
-    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
+    unordered_map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
     if ( iter != m_DataMap.end() )     // Check For Duplicates
     {
         iter->second.push_back( d );
@@ -905,7 +905,7 @@ int NameValCollection::Remove( NameValData* d )
 //==== Find Res Data Given Name and Index ====//
 NameValData* NameValCollection::FindPtr( const string & name, int index )
 {
-    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
+    unordered_map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
 
     if ( iter != m_DataMap.end() )
     {
@@ -924,7 +924,7 @@ NameValData* NameValCollection::FindPtr( const string & name, int index )
 vector< NameValData* > NameValCollection::GetAllPtrs()
 {
     vector< NameValData* > ptr_vec;
-    map< string, vector< NameValData* > >::iterator iter;
+    unordered_map< string, vector< NameValData* > >::iterator iter;
 
     for ( iter = m_DataMap.begin(); iter != m_DataMap.end(); ++iter )
     {
@@ -940,7 +940,7 @@ vector< NameValData* > NameValCollection::GetAllPtrs()
 vector< string > NameValCollection::GetAllDataNames()
 {
     vector< string > name_vec;
-    map< string, vector< NameValData* > >::iterator iter;
+    unordered_map< string, vector< NameValData* > >::iterator iter;
 
     for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
     {
@@ -955,7 +955,7 @@ vector< string > NameValCollection::GetAllDataNames()
 //==== Get Number of Data Entries For This Name ====//
 int NameValCollection::GetNumData( const string & name )
 {
-    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
+    unordered_map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
     if ( iter == m_DataMap.end() )
     {
         return 0;
@@ -1102,7 +1102,7 @@ int AttributeCollection::GetNumAttrs() const
 {
     int map_size = 0;
 
-    map< string, vector< NameValData* > >::const_iterator iter;
+    unordered_map< string, vector< NameValData* > >::const_iterator iter;
     for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
     {
         map_size += iter->second.size();
@@ -1115,7 +1115,7 @@ int AttributeCollection::GetNumAttrs() const
 vector< string > AttributeCollection::GetAllAttrNames()
 {
     vector< string > id_vec;
-    map< string, vector< NameValData* > >::iterator iter;
+    unordered_map< string, vector< NameValData* > >::iterator iter;
 
     for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
     {
@@ -1131,7 +1131,7 @@ vector< string > AttributeCollection::GetAllAttrNames()
 vector< string > AttributeCollection::GetAllAttrIDs()
 {
     vector< string > id_vec;
-    map< string, vector< NameValData* > >::iterator iter;
+    unordered_map< string, vector< NameValData* > >::iterator iter;
 
     for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
     {
@@ -1197,7 +1197,7 @@ void AttributeCollection::EncodeXml( xmlNodePtr & node ) const
             XmlUtil::SetStringProp( dnode, "AttachID", m_AttachID );
             XmlUtil::SetIntProp( dnode, "AttachType", m_AttachType );
 
-            map< string, vector< NameValData* > >::const_iterator iter;
+            unordered_map< string, vector< NameValData* > >::const_iterator iter;
 
             for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
             {
@@ -1353,7 +1353,7 @@ void Results::WriteCSVFile( FILE* fid )
         fprintf( fid, "Results_Date,%d,%d,%d\n", m_Month, m_Day, m_Year );
         fprintf( fid, "Results_Time,%d,%d,%d\n", m_Hour, m_Min, m_Sec );
 
-        map< string, vector< NameValData* > >::iterator iter;
+        unordered_map< string, vector< NameValData* > >::iterator iter;
         for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
         {
             for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
@@ -2045,7 +2045,7 @@ string ResultsMgrSingleton::CreateGeomResults( const string & geom_id, const str
 void ResultsMgrSingleton::DeleteAllResults()
 {
     //==== Delete All Created Results =====//
-    map< string, Results* >::iterator iter;
+    unordered_map< string, Results* >::iterator iter;
     for ( iter = m_ResultsMap.begin() ; iter != m_ResultsMap.end() ; ++iter )
     {
         delete iter->second;
@@ -2058,7 +2058,7 @@ void ResultsMgrSingleton::DeleteAllResults()
 void ResultsMgrSingleton:: DeleteResult( const string & id )
 {
     //==== Find Name Given ID ====//
-    map< string, vector< string > >::iterator iter;
+    unordered_map< string, vector< string > >::iterator iter;
 
     //==== Find Name To Match ID And Remove====//
     for ( iter = m_NameIDMap.begin() ; iter != m_NameIDMap.end() ; ++iter )
@@ -2084,7 +2084,7 @@ void ResultsMgrSingleton:: DeleteResult( const string & id )
     }
 
     //==== Delete All Created Results =====//
-    map< string, Results* >::iterator res_iter;
+    unordered_map< string, Results* >::iterator res_iter;
 
     res_iter = m_ResultsMap.find( id );
 
@@ -2099,7 +2099,7 @@ void ResultsMgrSingleton:: DeleteResult( const string & id )
 //==== Find The Number of Results Given Name ====//
 int ResultsMgrSingleton::GetNumResults( const string & name )
 {
-    map< string, vector< string > >::iterator iter = m_NameIDMap.find( name );
+    unordered_map< string, vector< string > >::iterator iter = m_NameIDMap.find( name );
 
     if ( iter == m_NameIDMap.end() )
     {
@@ -2112,7 +2112,7 @@ int ResultsMgrSingleton::GetNumResults( const string & name )
 //==== Find Results ID Given Name and Optional Index =====//
 string ResultsMgrSingleton::FindResultsID( const string & name, int index )
 {
-    map< string, vector< string > >::iterator iter = m_NameIDMap.find( name );
+    unordered_map< string, vector< string > >::iterator iter = m_NameIDMap.find( name );
     if ( iter == m_NameIDMap.end() )
     {
         return string();
@@ -2129,7 +2129,7 @@ string ResultsMgrSingleton::FindResultsID( const string & name, int index )
 //==== Find The Latest Results ID For the Given Name
 string ResultsMgrSingleton::FindLatestResultsID( const string & name )
 {
-    map< string, vector< string > >::iterator iter = m_NameIDMap.find( name );
+    unordered_map< string, vector< string > >::iterator iter = m_NameIDMap.find( name );
     if ( iter == m_NameIDMap.end() )
     {
         return string();
@@ -2155,7 +2155,7 @@ string ResultsMgrSingleton::FindLatestResultsID( const string & name )
 //==== Find Results Ptr Given ID =====//
 Results* ResultsMgrSingleton::FindResultsPtr( const string & id )
 {
-    map< string, Results* >::iterator id_iter = m_ResultsMap.find( id );
+    unordered_map< string, Results* >::iterator id_iter = m_ResultsMap.find( id );
 
     if ( id_iter ==  m_ResultsMap.end() )
     {
@@ -2176,7 +2176,7 @@ Results* ResultsMgrSingleton::FindResults( const string & name, int index )
 //==== Get Results TimeStamp Given ID ====//
 time_t ResultsMgrSingleton::GetResultsTimestamp( const string & results_id )
 {
-    map< string, Results* >::iterator iter = m_ResultsMap.find( results_id );
+    unordered_map< string, Results* >::iterator iter = m_ResultsMap.find( results_id );
 
     if ( iter ==  m_ResultsMap.end() )
     {
@@ -2254,7 +2254,7 @@ string ResultsMgrSingleton::GetResultsEntryDoc( const string & results_id, const
 vector< string > ResultsMgrSingleton::GetAllResultsNames()
 {
     vector< string > name_vec;
-    map< string, vector< string > >::iterator iter;
+    unordered_map< string, vector< string > >::iterator iter;
     for ( iter = m_NameIDMap.begin() ; iter != m_NameIDMap.end() ; ++iter )
     {
         name_vec.push_back( iter->first );
@@ -2279,7 +2279,7 @@ vector< string > ResultsMgrSingleton::GetAllResultsIDs()
 {
     vector < string > res_ids;
 
-    map< string, Results* >::iterator iter;
+    unordered_map< string, Results* >::iterator iter;
     for ( iter = m_ResultsMap.begin() ; iter != m_ResultsMap.end() ; ++iter )
     {
         res_ids.push_back( iter->first );

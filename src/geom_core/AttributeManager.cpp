@@ -306,7 +306,7 @@ string TextTreeNode::PrintMe( const string &prior_lines )
         tree_text += '\n';
     }
 
-    map< string, TextTreeNode*>::iterator child_iter;
+    unordered_map< string, TextTreeNode*>::iterator child_iter;
     TextTreeNode* child = nullptr;
     for ( child_iter = m_Children.begin(); child_iter != m_Children.end(); ++child_iter )
     {
@@ -362,7 +362,7 @@ string AttributeMgrSingleton::SummarizeAttributesAsTree()
 vector < string > AttributeMgrSingleton::FindAllAttributes()
 {
     vector< string > attribute_ids;
-    map < string, NameValData* > ::iterator attrIter;
+    unordered_map < string, NameValData* > ::iterator attrIter;
     for ( attrIter = m_AttrPtrMap.begin(); attrIter != m_AttrPtrMap.end(); ++attrIter )
     {
         attribute_ids.push_back( attrIter->first );
@@ -377,7 +377,7 @@ vector < string > AttributeMgrSingleton::FindAttributesByName( const string & se
     string lower_str = ToLower( search_str );
     string lower_aname;
 
-    map < string, NameValData* > ::iterator attrIter;
+    unordered_map < string, NameValData* > ::iterator attrIter;
     for ( attrIter = m_AttrPtrMap.begin(); attrIter != m_AttrPtrMap.end(); ++attrIter )
     {
         lower_aname = ToLower( attrIter->second->GetName() );
@@ -461,7 +461,7 @@ string AttributeMgrSingleton::FindAttributeInCollection( const string & obj_id, 
 vector< string > AttributeMgrSingleton::FindAttributedObjects()
 {
     vector< string > attach_ids;
-    map< string, AttributeCollection*>::iterator collIter;
+    unordered_map< string, AttributeCollection*>::iterator collIter;
     AttributeCollection* coll;
     for ( collIter = m_AttrCollMap.begin(); collIter != m_AttrCollMap.end(); ++collIter )
     {
@@ -1240,7 +1240,7 @@ vector < AttributeCollection* > AttributeMgrSingleton::GetAllCollectionPtrs( int
 {
     vector < AttributeCollection* > AttrColls;
 
-    map< string, AttributeCollection*>:: iterator collIter;
+    unordered_map< string, AttributeCollection*>:: iterator collIter;
 
     AttributeCollection* coll;
 

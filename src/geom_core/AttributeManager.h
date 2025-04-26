@@ -162,8 +162,8 @@ protected:
     void WypeClipboard();
     int CheckCopyError( const vector < string > &attr_ids );
 
-    map< string, AttributeCollection*> m_AttrCollMap;
-    map< string, NameValData*> m_AttrPtrMap;
+    unordered_map< string, AttributeCollection*> m_AttrCollMap;
+    unordered_map< string, NameValData*> m_AttrPtrMap;
 
     vector < NameValData* > m_AttrClipboard;
     vector < bool > m_DirtyFlags;
@@ -186,7 +186,7 @@ public:
 
     ~TextTreeNode()
     {
-        map< string, TextTreeNode*>::iterator child_iter;
+        unordered_map< string, TextTreeNode*>::iterator child_iter;
         for ( child_iter = m_Children.begin(); child_iter != m_Children.end(); ++child_iter )
         {
             delete child_iter->second;
@@ -246,7 +246,7 @@ public:
     string PrintMe( const string &prior_lines = "" );
 
 protected:
-    map < string, TextTreeNode* > m_Children;
+    unordered_map < string, TextTreeNode* > m_Children;
     string m_ID;
     string m_Name;
     int m_Depth;

@@ -15,12 +15,12 @@
 #include "XmlUtil.h"
 #include "APIDefines.h"
 
-#include <map>
+#include <unordered_map>
 #include <list>
 #include <vector>
 #include <string>
 
-using std::map;
+using std::unordered_map;
 using std::vector;
 using std::string;
 
@@ -331,7 +331,7 @@ protected:
     string m_Doc;
 
     //==== All The Data For This Computation Result =====//
-    map< string, vector< NameValData* > > m_DataMap;
+    unordered_map< string, vector< NameValData* > > m_DataMap;
 
 };
 
@@ -490,8 +490,8 @@ private:
     ResultsMgrSingleton( ResultsMgrSingleton const& copy ) = delete;          // Not Implemented
     ResultsMgrSingleton& operator=( ResultsMgrSingleton const& copy ) = delete; // Not Implemented
 
-    map< string, Results* > m_ResultsMap;                   // Map ID to Results
-    map< string, vector< string > > m_NameIDMap;            // Map Name to ID
+    unordered_map< string, Results* > m_ResultsMap;                   // Map ID to Results
+    unordered_map< string, vector< string > > m_NameIDMap;            // Map Name to ID
 
     //==== Default Return Vectors ====//
     vector< int > m_DefaultIntVec;
