@@ -120,7 +120,7 @@ private:
     AnalysisMgrSingleton( AnalysisMgrSingleton const& copy ) = delete;          // Not Implemented
     AnalysisMgrSingleton& operator=( AnalysisMgrSingleton const& copy ) = delete; // Not Implemented
 
-    map < string, Analysis* > m_AnalysisMap;    // Map unique name to analysis.
+    unordered_map < string, Analysis* > m_AnalysisMap;    // Map unique name to analysis.
 
     double m_AnalysisExecutionDuration; // Time to execute most recent analysis
 

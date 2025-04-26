@@ -78,7 +78,7 @@ void AnalysisMgrSingleton::Init()
 
 void AnalysisMgrSingleton::Wype()
 {
-    map < string, Analysis* >::const_iterator it;
+    unordered_map < string, Analysis* >::const_iterator it;
 
     for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); ++it )
     {
@@ -96,7 +96,7 @@ void AnalysisMgrSingleton::Renew()
 
 void AnalysisMgrSingleton::ResetDefaults()
 {
-    map < string, Analysis* >::const_iterator it;
+    unordered_map < string, Analysis* >::const_iterator it;
 
     for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); ++it )
     {
@@ -113,7 +113,7 @@ vector < string > AnalysisMgrSingleton::ListAnalysis() const
 {
     vector < string > ret;
 
-    map < string, Analysis* >::const_iterator it;
+    unordered_map < string, Analysis* >::const_iterator it;
 
     for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); ++it )
     {
@@ -125,7 +125,7 @@ vector < string > AnalysisMgrSingleton::ListAnalysis() const
 
 Analysis* AnalysisMgrSingleton::FindAnalysis( const string & name ) const
 {
-    map < string, Analysis* >::const_iterator it;
+    unordered_map < string, Analysis* >::const_iterator it;
 
     it = m_AnalysisMap.find( name );
 
