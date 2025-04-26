@@ -98,11 +98,11 @@ public:
     void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );
 
     std::set< std::vector<int> > m_TagCombos;
-    std::map< int, std::string > m_TagNames;
-    std::map< int, std::string > m_TagIDs;
+    std::unordered_map< int, std::string > m_TagNames;
+    std::unordered_map< int, std::string > m_TagIDs;
     std::vector< std::string > m_CompNames;
     std::vector< std::string > m_CompIDs;
-    std::map< std::string, int > m_ThickMap;
+    std::unordered_map< std::string, int > m_ThickMap;
 
 protected:
     int m_CurrSurfInd;

@@ -384,7 +384,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         int gnum = distance( gids.begin(), gids.find( gid ) );
 
         int thickthin = -1;
-        map<string,int>::iterator it;
+        unordered_map<string,int>::iterator it;
         it = m_ThickMap.find( gid_bare );
         if ( it != m_ThickMap.end() )
         {
@@ -482,7 +482,7 @@ void SubSurfaceMgrSingleton::WriteNascartKeyFile( const string & filename )
 string SubSurfaceMgrSingleton::GetTagNames( const vector<int> & tags )
 {
     string comp_list;
-    map< int, string >::iterator si;
+    unordered_map< int, string >::iterator si;
 
     int tag = GetTag( tags );
 
@@ -527,7 +527,7 @@ string SubSurfaceMgrSingleton::GetTagNames( int indx )
 string SubSurfaceMgrSingleton::GetTagIDs( const vector<int>& tags )
 {
     string comp_list;
-    map< int, string >::iterator si;
+    unordered_map< int, string >::iterator si;
 
     int tag = GetTag( tags );
 

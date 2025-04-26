@@ -1424,7 +1424,7 @@ void MeshGeom::UpdateDrawObj()
         {
             // make map from tag to wire draw obj
 
-            map<int, DrawObj*> tag_dobj_map;
+            unordered_map<int, DrawObj*> tag_dobj_map;
             map< std::vector<int>, int >::const_iterator mit;
             map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
             int cnt = 0;
@@ -4323,9 +4323,9 @@ vector< string > MeshGeom::GetTMeshIDs()
     return ids;
 }
 
-map< string, int > MeshGeom::GetThicks()
+unordered_map< string, int > MeshGeom::GetThicks()
 {
-    map < string, int > thick;
+    unordered_map < string, int > thick;
 
     for ( int i = 0; i < (int)m_TMeshVec.size(); i++ )
     {
