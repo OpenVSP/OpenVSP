@@ -163,7 +163,7 @@ private:
     void _removeSelections(Renderable * source);
 
 private:
-    std::map< int, SceneObject* > _sceneMap;
+    std::unordered_map< int, SceneObject* > _sceneMap;
     std::vector<Selectable*> _selections;
     std::vector<unsigned int> _recycleBin;
 
