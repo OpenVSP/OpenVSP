@@ -2134,7 +2134,7 @@ void StructScreen::LoadGeomChoice()
         vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
 
         // TODO:  This looks like it would be much easier to use a GeomPicker and the AddExcludeType() method.
-        map <string, int> CompIDMap;
+        unordered_map <string, int> CompIDMap;
         int icomp = 0;
         for ( int i = 0; i < (int)geom_vec.size(); ++i )
         {

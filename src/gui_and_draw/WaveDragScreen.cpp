@@ -278,7 +278,7 @@ bool WaveDragScreen::Update()
 
         m_RefWingChoice.ClearItems();
         m_WingGeomVec.clear();
-        map <string, int> WingCompIDMap;
+        unordered_map <string, int> WingCompIDMap;
         int iwing = 0;
 
         if (!WaveDragMgr.m_RefFlag())

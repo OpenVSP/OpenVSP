@@ -136,7 +136,7 @@ bool ManageTextureScreen::Update()
     m_GeomChoice.ClearItems();
     m_GeomIDVec.clear();
 
-    map <string, int> CompIDMap; // map of Geom IDs to index in geom_vec
+    unordered_map <string, int> CompIDMap; // map of Geom IDs to index in geom_vec
     int icomp = 0;
 
     for ( int i = 0; i < ( int )geom_vec.size(); i++ )

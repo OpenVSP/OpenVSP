@@ -836,7 +836,7 @@ void ParasiteDragScreen::UpdateSrefChoice()
     // Adding Items to Rerefence Wing Choice Setting Val if Necessary
     m_RefWingChoice.ClearItems();
     m_WingGeomVec.clear();
-    map <string, int> WingCompIDMap;
+    unordered_map <string, int> WingCompIDMap;
     int iwing = 0;
 
     // Find Geoms from any set.  User may have a reference wing not included in analysis set.

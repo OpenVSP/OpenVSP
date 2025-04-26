@@ -1443,7 +1443,7 @@ void VSPAEROScreen::UpdateRefWing()
 
     m_RefWingChoice.ClearItems();
     m_WingGeomVec.clear();
-    map <string, int> WingCompIDMap;
+    unordered_map <string, int> WingCompIDMap;
     int iwing = 0;
 
     if (!VSPAEROMgr.m_RefFlag())

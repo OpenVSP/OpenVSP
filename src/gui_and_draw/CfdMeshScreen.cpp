@@ -795,8 +795,8 @@ bool CfdMeshScreen::Update()
     m_ComponentChoice.ClearItems();
     m_Comp.ClearItems();
 
-    map< string, int > compIDMap;
-    map< string, int > wingCompIDMap;
+    unordered_map< string, int > compIDMap;
+    unordered_map< string, int > wingCompIDMap;
     m_WingGeomVec.clear();
 
 
