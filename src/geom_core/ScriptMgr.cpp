@@ -190,7 +190,7 @@ string ScriptMgrSingleton::ReadScriptFromMemory( const string &  module_name, co
 {
     int r;
     string updated_module_name = module_name;
-    map< string, string >::iterator iter;
+    unordered_map< string, string >::iterator iter;
 
     //==== Check If Module Name Already Exists ====//
     iter = m_ModuleContentMap.find(updated_module_name);
@@ -251,7 +251,7 @@ string ScriptMgrSingleton::ExtractContent( const string & file_name )
 bool ScriptMgrSingleton::RemoveScript( const string &  module_name )
 {
     //==== Find Module ====//
-    map< string, string >::iterator iter;
+    unordered_map< string, string >::iterator iter;
     iter = m_ModuleContentMap.find(module_name);
     if ( iter == m_ModuleContentMap.end() )
     {
@@ -325,7 +325,7 @@ int ScriptMgrSingleton::ExecuteScript( const char* module_name, const char* func
 //==== Return Script Content Given Module Name ====//
 string ScriptMgrSingleton::FindModuleContent( const string &  module_name )
 {
-    map< string, string >::iterator iter;
+    unordered_map< string, string >::iterator iter;
     iter = m_ModuleContentMap.find( module_name );
 
     string file_string;
@@ -339,7 +339,7 @@ string ScriptMgrSingleton::FindModuleContent( const string &  module_name )
 //==== Write Script Content To File ====//
 int ScriptMgrSingleton::SaveScriptContentToFile( const string & module_name, const string & file_name )
 {
-    map< string, string >::iterator iter;
+    unordered_map< string, string >::iterator iter;
     iter = m_ModuleContentMap.find( module_name );
 
     if ( iter == m_ModuleContentMap.end() )

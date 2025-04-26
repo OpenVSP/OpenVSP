@@ -31,9 +31,9 @@
 #include <cassert>
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 using std::string;
-using std::map;
+using std::unordered_map;
 using std::vector;
 
 class ScriptMgrSingleton
@@ -130,7 +130,7 @@ private:
     asIScriptEngine* m_ScriptEngine;
 //    map< string, CScriptBuilder > m_BuilderMap;
     CScriptBuilder m_ScriptBuilder;
-    map< string, string > m_ModuleContentMap;
+    unordered_map< string, string > m_ModuleContentMap;
     string m_ScriptMessages;
 
     //==== Test Proxy Stuff ====//
