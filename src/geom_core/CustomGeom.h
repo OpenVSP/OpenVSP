@@ -40,8 +40,8 @@ CustomGeomMgr - store parsed scripts
 #include "XSec.h"
 #include "XSecSurf.h"
 
-#include <map>
-using std::map;
+#include <unordered_map>
+using std::unordered_map;
 
 
 //====Custom Geom Manager ====//

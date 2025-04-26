@@ -13,11 +13,11 @@
 
 #include "ResultsMgr.h"
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <string>
 
-using std::map;
+using std::unordered_map;
 using std::vector;
 using std::string;
 

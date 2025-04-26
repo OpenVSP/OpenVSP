@@ -12,7 +12,7 @@
 #define VSP_PARM__INCLUDED_
 
 #include <string>
-#include <map>
+#include <unordered_map>
 
 #include <climits>
 
@@ -22,7 +22,7 @@
 #include "AttributeManager.h"
 
 using std::string;
-using std::map;
+using std::unordered_map;
 
 class ParmContainer;
 

@@ -438,9 +438,6 @@ void SubSurfaceMgrSingleton::WriteTKeyFile(const string & file_name )
     fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
     fprintf( fid, "\n" );
 
-    map< vector<int>, int >::iterator ii;
-    map< int, string >::iterator si;
-
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
         string comp_list = GetTagNames( m_TagKeys[i] );
