@@ -177,7 +177,7 @@ protected:
     Choice m_ZCpSlicePosTypeChoice;
     Fl_Browser * m_CpSliceCaseBrowser;
     vector< string > m_CpSliceCaseSelectedResultIDs;
-    map < int, vector < string > >  m_CpSliceCutResultIDMap;
+    unordered_map < int, vector < string > >  m_CpSliceCutResultIDMap;
     vector< string > m_CpSliceCutSelectedResultIDs;
 
     ToggleButton m_CpSliceManualXMinToggle;
