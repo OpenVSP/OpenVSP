@@ -1893,7 +1893,7 @@ VspGlWindow::ID * VspGlWindow::_findID( unsigned int bufferID )
 
 void VspGlWindow::_updateBuffer( const std::vector<DrawObj *> &objects )
 {
-    std::map< std::string, DrawObj * > objects_map;
+    std::unordered_map< std::string, DrawObj * > objects_map;
     for( int j = 0; j < ( int )objects.size(); j++ )
     {
         objects_map[ objects[j]->m_GeomID ] = objects[j];
