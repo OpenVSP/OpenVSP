@@ -3526,7 +3526,7 @@ void TMesh::BuildEdgeMaps()
     }
 
     // Loop through triangles sharing nodes to find alias edges
-    map< TNode*, list<TNode*> >::iterator mit; // map iterator
+    unordered_map< TNode*, list<TNode*> >::iterator mit; // map iterator
 
     for ( mit = m_NAMap.begin(); mit != m_NAMap.end() ; ++mit ) // Loop over all master nodes
     {
@@ -3655,7 +3655,7 @@ void TMesh::DeleteDupNodes()
     }
 
     int t;
-    map< TNode*, list< TNode* > >::iterator mit;
+    unordered_map< TNode*, list< TNode* > >::iterator mit;
     list< TNode* >::iterator lit;
 
     //==== Go Thru All Tri And Set All Nodes to their Master ====//
