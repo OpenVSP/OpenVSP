@@ -1743,14 +1743,13 @@ void MeshGeom::ApplyScale()
         return;
     }
 
-    map< TNode*, int > nodeMap;
+    unordered_set < TNode* > nodeSet;
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         for ( int j = 0 ; j < ( int )m_TMeshVec[i]->m_NVec.size() ; j++ )
         {
             TNode* n = m_TMeshVec[i]->m_NVec[j];
-            nodeMap[n] = 1;
-//          n->pnt = n->pnt*( scaleFactor()/m_lastScale );
+            nodeSet.insert( n );
         }
         //==== Split Tris ====//
         for ( int j = 0 ; j < ( int )m_TMeshVec[i]->m_TVec.size() ; j++ )
@@ -1759,8 +1758,7 @@ void MeshGeom::ApplyScale()
             for ( int k = 0 ; k < ( int )t->m_NVec.size() ; k++ )
             {
                 TNode* n = t->m_NVec[k];
-                nodeMap[n] = 1;
-//              n->pnt = n->pnt*( scaleFactor()/m_lastScale );
+                nodeSet.insert( n );
             }
         }
 
@@ -1772,10 +1770,8 @@ void MeshGeom::ApplyScale()
             }
         }
     }
-    map<TNode*, int >::const_iterator iter;
-    for ( iter = nodeMap.begin() ; iter != nodeMap.end() ; ++iter )
+    for ( const auto& n : nodeSet )
     {
-        TNode* n = iter->first;
         n->m_Pnt = n->m_Pnt * ( m_Scale() / m_LastScale() );
     }
 
@@ -1785,13 +1781,13 @@ void MeshGeom::ApplyScale()
 void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & TransMat ) const
 {
     // Build Map of nodes
-    map< TNode*, int > nodeMap;
+    unordered_set < TNode* > nodeSet;
     for ( int i = 0 ; i < ( int )meshVec.size() ; i++ )
     {
         for ( int j = 0 ; j < ( int )meshVec[i]->m_NVec.size() ; j++ )
         {
             TNode* n = meshVec[i]->m_NVec[j];
-            nodeMap[n] = 1;
+            nodeSet.insert( n );
         }
         //==== Split Tris ====//
         for ( int j = 0 ; j < ( int )meshVec[i]->m_TVec.size() ; j++ )
@@ -1800,16 +1796,14 @@ void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & Tran
             for ( int k = 0 ; k < ( int )t->m_NVec.size() ; k++ )
             {
                 TNode* n = t->m_NVec[k];
-                nodeMap[n] = 1;
+                nodeSet.insert( n );
             }
         }
     }
 
     // Apply Transformation to Nodes
-    map<TNode*, int >::const_iterator iter;
-    for ( iter = nodeMap.begin() ; iter != nodeMap.end() ; ++iter )
+    for ( const auto& n : nodeSet )
     {
-        TNode* n = iter->first;
         n->m_Pnt = TransMat.xform( n->m_Pnt );
     }
 
