@@ -111,7 +111,7 @@ protected:
     string m_ParentContainer;
 
     vector< string > m_GroupNames;                      // Linkable Group Names
-    map< string, vector< string > > m_GroupParmMap;     // Group names mapped to vectors of parms
+    unordered_map< string, vector< string > > m_GroupParmMap;     // Group names mapped to vectors of parms
 
     int m_ParmContainer_Type;                           // Enumerated type for setting collection attachments (geom, veh, link, etc.)
 
