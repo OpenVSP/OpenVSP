@@ -36,7 +36,7 @@ protected:
     GuiDevice* FindGuiDevice( const string & custom_type_name, int index );
 
     GroupLayout m_Layout;
-    map< string, vector< GuiDevice* > > m_DeviceVecMap;
+    unordered_map< string, vector< GuiDevice* > > m_DeviceVecMap;
 
     bool m_SameLineFlag;
     vector< GuiDevice* > m_SameLineVec;

@@ -33,7 +33,7 @@ void CustomScreen::InitGui( Geom* geom_ptr )
     string custom_type_name = custom_geom->GetScriptModuleName();
 
     //==== Check The Gui Is Already Defined For This Type ====//
-    map< string, vector< GuiDevice* > >::iterator iter = m_DeviceVecMap.find( custom_type_name );
+    unordered_map< string, vector< GuiDevice* > >::iterator iter = m_DeviceVecMap.find( custom_type_name );
 
     if ( iter == m_DeviceVecMap.end() )
     {
@@ -63,7 +63,7 @@ void CustomScreen::InitGuiDeviceVec( Geom* geom_ptr )
 
 GuiDevice* CustomScreen::FindGuiDevice( const string & custom_type_name, int index )
 {
-    map< string, vector< GuiDevice* > >::iterator iter = m_DeviceVecMap.find( custom_type_name );
+    unordered_map< string, vector< GuiDevice* > >::iterator iter = m_DeviceVecMap.find( custom_type_name );
 
     if ( iter != m_DeviceVecMap.end() )
     {
@@ -247,7 +247,7 @@ void CustomScreen::ShowTabs( const string & custom_type_name )
         return;
     }
 
-    map< string, vector< GuiDevice* > >::iterator iter;
+    unordered_map< string, vector< GuiDevice* > >::iterator iter;
 
     //==== Remove Add Tabs ====//
     for ( iter = m_DeviceVecMap.begin() ; iter != m_DeviceVecMap.end() ; iter++ )
