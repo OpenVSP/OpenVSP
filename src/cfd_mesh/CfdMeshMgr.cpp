@@ -3860,9 +3860,9 @@ void CfdMeshMgrSingleton::UpdateBBoxDOSymSplit( const BndBox &box )
 void CfdMeshMgrSingleton::SubTagTris()
 {
     SubSurfaceMgr.ClearTagMaps();
-    map< string, int > tag_map;
-    map< string, set<int> > geom_comp_map;
-    map< int, int >  comp_num_map; // map from an unmerged component number to the surface number of geom
+    unordered_map< string, int > tag_map;
+    unordered_map< string, set<int> > geom_comp_map;
+    unordered_map< int, int >  comp_num_map; // map from an unmerged component number to the surface number of geom
     int tag_number = 0;
     int fea_part_cnt = 1;
 

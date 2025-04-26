@@ -636,7 +636,7 @@ void FitModelMgrSingleton::BuildPtrVec()
         usedgeoms.insert( tpt->GetMatchGeom() );
     }
 
-    map<string,SurfData> geomdata;
+    unordered_map<string,SurfData> geomdata;
     for ( it = usedgeoms.begin(); it != usedgeoms.end(); ++it )
     {
         const string& id = *it;

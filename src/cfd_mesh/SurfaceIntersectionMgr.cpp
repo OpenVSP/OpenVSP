@@ -793,7 +793,7 @@ void SurfaceIntersectionSingleton::CleanMergeSurfs(  bool skip_duplicate_removal
     }
 
     //==== Combine Components With Matching Surface Edges ====//
-    map< int, int > mergeCompMap;
+    unordered_map< int, int > mergeCompMap;
     for ( int s = 0 ; s < ( int )m_SurfVec.size() - 1 ; s++ )
     {
         for ( int t = s + 1 ; t < ( int )m_SurfVec.size() ; t++ )

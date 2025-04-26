@@ -2437,7 +2437,7 @@ void Mesh::ConvertToQuads()
 
     // Map containing information about each edge split -- keyed by the edge.  This allows us to recall this information
     // each time the edge is used.
-    map< Edge*, splitData > splitEdgeMap;
+    unordered_map< Edge*, splitData > splitEdgeMap;
 
     // Loop over all edges.
     for ( list< Edge* >::iterator e = origEdgeList.begin() ; e != origEdgeList.end(); ++e )

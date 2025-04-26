@@ -159,7 +159,7 @@ void SubSurfaceMgrSingleton::ReSuffixGroupNames( const string& comp_id )
 {
     vector< SubSurface* > ss_vec = GetSubSurfs( comp_id );
 
-    map< int, int > t_map;
+    unordered_map< int, int > t_map;
 
     for ( int i = 0 ; i < vsp::SS_NUM_TYPES; i++ )
     {
