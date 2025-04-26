@@ -54,7 +54,7 @@ public:
     void Remesh();
     void LoadSimpFaces();
     void CondenseSimpFaces();
-    static int CheckDupOrAdd( int ind, map< int, vector< int > > & indMap, const vector< vec3d > & pntVec );
+    static int CheckDupOrAdd( int ind, unordered_map< int, vector< int > > & indMap, const vector< vec3d > & pntVec );
 
 
     int Split( int num_iter );

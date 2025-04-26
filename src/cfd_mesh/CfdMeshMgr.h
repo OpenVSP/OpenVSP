@@ -159,7 +159,7 @@ public:
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );
 
     virtual string CheckWaterTight();
-    virtual Edge* FindAddEdge( map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 );
+    virtual Edge* FindAddEdge( unordered_map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 );
 
     virtual void BuildDomain();
     void BuildGrid() override;

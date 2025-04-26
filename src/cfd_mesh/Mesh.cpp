@@ -269,7 +269,7 @@ void Mesh::CondenseSimpFaces()
     //==== Map Coincedent Point ====//
     vector< int > reMap;
     reMap.reserve( simpFaceVec.size() * 4 );
-    map< int, vector< int > > indMap;
+    unordered_map< int, vector< int > > indMap;
     for ( int i = 0 ; i < ( int )simpFaceVec.size() ; i++ )
     {
         reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind0, indMap, simpPntVec ) );
@@ -341,11 +341,11 @@ void Mesh::StretchSimpPnts( double start_x, double end_x, double scale, double a
 }
 
 // TODO: Re-write with nanoflann
-int Mesh::CheckDupOrAdd( int ind, map< int, vector< int > > & indMap, const vector< vec3d > & pntVec )
+int Mesh::CheckDupOrAdd( int ind, unordered_map< int, vector< int > > & indMap, const vector< vec3d > & pntVec )
 {
     double tol = 1.0e-8;
     int combind = ( int )( ( pntVec[ind].x() + pntVec[ind].y() + pntVec[ind].z() ) * 10000.0 );
-    map<int, vector<int> >::const_iterator iter;
+    unordered_map<int, vector<int> >::const_iterator iter;
     iter = indMap.find( combind );
     if ( iter == indMap.end() ) // Add Index
     {

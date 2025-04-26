@@ -2100,7 +2100,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
 
     //==== Create Edges and Tris ====//
     int moreThanTwoTriPerEdge = 0;
-    map< int, vector<Edge*> > edgeMap;
+    unordered_map< int, vector<Edge*> > edgeMap;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         if( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT || m_SurfVec[i]->GetFarFlag() || m_SurfVec[i]->GetSymPlaneFlag() )
@@ -2172,7 +2172,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
 
     //==== Find Border Edges ====//
     int num_border_edges = 0;
-    map<int, vector<Edge*> >::const_iterator iter;
+    unordered_map<int, vector<Edge*> >::const_iterator iter;
     for ( iter = edgeMap.begin() ; iter != edgeMap.end() ; ++iter )
     {
         for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
@@ -2222,10 +2222,10 @@ string CfdMeshMgrSingleton::CheckWaterTight()
 
 }
 
-Edge* CfdMeshMgrSingleton::FindAddEdge( map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 )
+Edge* CfdMeshMgrSingleton::FindAddEdge( unordered_map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 )
 {
     Edge* e = nullptr;
-    map<int, vector<Edge*> >::const_iterator iter;
+    unordered_map<int, vector<Edge*> >::const_iterator iter;
     int combind = ind1 + ind2;
     iter = edgeMap.find( combind );
 
@@ -3233,10 +3233,10 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
     // Render Tag Colors
     unsigned int num_tags = SubSurfaceMgr.GetNumTags();
     m_TagDO.resize( num_tags * 2 );
-    map<int, DrawObj*> tag_tri_dobj_map;
-    map<int, DrawObj*> tag_quad_dobj_map;
+    unordered_map<int, DrawObj*> tag_tri_dobj_map;
+    unordered_map<int, DrawObj*> tag_quad_dobj_map;
     map< std::vector<int>, int >::const_iterator mit;
-    map< int, DrawObj* >::const_iterator dmit;
+    unordered_map< int, DrawObj* >::const_iterator dmit;
     map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
 
     int cnt = 0;
@@ -3622,10 +3622,10 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         }
     }
 
-    map<int, DrawObj*> tag_tri_dobj_map;
-    map<int, DrawObj*> tag_quad_dobj_map;
+    unordered_map<int, DrawObj*> tag_tri_dobj_map;
+    unordered_map<int, DrawObj*> tag_quad_dobj_map;
     map< std::vector<int>, int >::const_iterator mit;
-    map< int, DrawObj* >::const_iterator dmit;
+    unordered_map< int, DrawObj* >::const_iterator dmit;
     map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
     int cnt = 0;
 

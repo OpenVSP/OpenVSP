@@ -210,10 +210,10 @@ protected:
 
     // Organize a vector of NURBS curves into a map of ordered chains, where all NURBS curves 
     // for a map index are connected.
-    map< int, vector < pair < NURBS_Curve, bool > > > BuildOrderedChains( vector < NURBS_Curve > chain_vec );
+    unordered_map< int, vector < pair < NURBS_Curve, bool > > > BuildOrderedChains( vector < NURBS_Curve > chain_vec );
 
     // Transform vectors of connected NURBS curves into individual NURBS loops.  
-    vector < NURBS_Loop > MergeOrderedChains( map< int, vector < pair < NURBS_Curve, bool > > > ordered_chain_map );
+    vector < NURBS_Loop > MergeOrderedChains( unordered_map< int, vector < pair < NURBS_Curve, bool > > > ordered_chain_map );
 
     // NURBS Surface definition
     piecewise_surface_type* m_Surf;

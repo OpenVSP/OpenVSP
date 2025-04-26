@@ -328,14 +328,14 @@ SdaiSurface* NURBS_Surface::WriteSTEPSurf( STEPutil* step, const string& label, 
     return ret_surf;
 }
 
-map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::BuildOrderedChains( vector < NURBS_Curve > chain_vec )
+unordered_map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::BuildOrderedChains( vector < NURBS_Curve > chain_vec )
 {
     // Starting with 1 NURBS curve, march along the others to form an ordered chain.
     int map_ind = 0; // each map index represents a group of attached NURBS_Curve chains
 
     double tol = m_BBox.DiagDist() * 1e-2; // Note: This tolerance is kept large in order to still form loops when there are large gaps in intersection curves
 
-    map< int, vector < pair < NURBS_Curve, bool > > > return_curve_map;
+    unordered_map< int, vector < pair < NURBS_Curve, bool > > > return_curve_map;
 
     while ( chain_vec.size() > 0 )
     {
@@ -413,11 +413,11 @@ map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::BuildOrderedCha
     return return_curve_map;
 }
 
-vector < NURBS_Loop > NURBS_Surface::MergeOrderedChains( map< int, vector < pair < NURBS_Curve, bool > > > ordered_chain_map )
+vector < NURBS_Loop > NURBS_Surface::MergeOrderedChains( unordered_map< int, vector < pair < NURBS_Curve, bool > > > ordered_chain_map )
 {
     vector < NURBS_Loop > loop_vec( ordered_chain_map.size() );
 
-    map< int, vector < pair < NURBS_Curve, bool > > >::iterator it;
+    unordered_map< int, vector < pair < NURBS_Curve, bool > > >::iterator it;
 
     for ( it = ordered_chain_map.begin(); it != ordered_chain_map.end(); ++it )
     {
@@ -537,8 +537,8 @@ void NURBS_Surface::BuildNURBSLoopMap()
         }
     }
 
-    map< int, vector < pair < NURBS_Curve, bool > > > ordered_internal_curve_map = BuildOrderedChains( internal_curve_vec );
-    map< int, vector < pair < NURBS_Curve, bool > > > ordered_external_curve_map = BuildOrderedChains( external_curve_vec );
+    unordered_map< int, vector < pair < NURBS_Curve, bool > > > ordered_internal_curve_map = BuildOrderedChains( internal_curve_vec );
+    unordered_map< int, vector < pair < NURBS_Curve, bool > > > ordered_external_curve_map = BuildOrderedChains( external_curve_vec );
 
     vector < NURBS_Loop > internal_loop_vec = MergeOrderedChains( ordered_internal_curve_map );
     for ( size_t i = 0; i < internal_loop_vec.size(); i++ )

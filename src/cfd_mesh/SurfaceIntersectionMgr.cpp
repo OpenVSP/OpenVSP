@@ -973,7 +973,7 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
     FILE* fp = fopen( filename.c_str(), "w" );
     if ( fp )
     {
-        map< int, vector< int > > compMap;
+        unordered_map< int, vector< int > > compMap;
         for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i ++ )
         {
             int surfId = m_SurfVec[i]->GetSurfID();
@@ -986,7 +986,7 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
 
         fprintf( fp, "%d		// Number of Components \n", ( int )compMap.size() );
 
-        map< int, vector< int > > :: iterator iter;
+        unordered_map< int, vector< int > > :: iterator iter;
 
         for ( iter = compMap.begin() ; iter != compMap.end() ; ++iter )
         {
@@ -1365,7 +1365,7 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
     vector < vector < int > > comp_id_group_vec = GetCompIDGroupVec();
 
     vector < vector < SdaiAdvanced_face* > > adv_vec( comp_id_group_vec.size() );
-    map < string, vector < SdaiSurface* > > geom_surf_label_map;
+    unordered_map < string, vector < SdaiSurface* > > geom_surf_label_map;
 
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
@@ -1438,7 +1438,7 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
         }
     }
 
-    map < string, vector < SdaiSurface* > >::iterator it;
+    unordered_map < string, vector < SdaiSurface* > >::iterator it;
 
     for ( it = geom_surf_label_map.begin(); it != geom_surf_label_map.end(); ++it )
     {
@@ -1469,7 +1469,7 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
 vector < vector < int > > SurfaceIntersectionSingleton::GetCompIDGroupVec()
 {
     // Identify the unique sets of intersected components
-    map < int, vector < int > > intersection_comp_id_map;
+    unordered_map < int, vector < int > > intersection_comp_id_map;
     list< ISegChain* >::iterator i_seg;
 
     for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
@@ -1488,7 +1488,7 @@ vector < vector < int > > SurfaceIntersectionSingleton::GetCompIDGroupVec()
         }
     }
 
-    map< int, vector < int > >::iterator i_map;
+    unordered_map< int, vector < int > >::iterator i_map;
     vector < vector < int > > comp_id_group_vec;
 
     for ( i_map = intersection_comp_id_map.begin(); i_map != intersection_comp_id_map.end(); ++i_map )
