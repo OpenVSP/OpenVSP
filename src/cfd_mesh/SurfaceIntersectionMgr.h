@@ -423,7 +423,7 @@ protected:
     // m_ISegChainList translated to a vector of NURBS curves
     vector < NURBS_Curve > m_NURBSCurveVec;
 
-    map < int, string > m_CompIDNameMap;
+    unordered_map < int, string > m_CompIDNameMap;
 
     string m_WakeGeomID;
 
