@@ -523,7 +523,7 @@ vector< string > CustomGeomMgrSingleton::GetCustomScriptModuleNames()
 {
     vector< string > module_name_vec;
 
-    map< string, string >::iterator iter;
+    unordered_map< string, string >::iterator iter;
     for ( iter = m_ModuleGeomIDMap.begin() ; iter != m_ModuleGeomIDMap.end() ; ++iter )
     {
         module_name_vec.push_back( iter->first );
@@ -775,7 +775,7 @@ void CustomGeom::UpdateFlags()
         }
     }
 
-    map< int, int >::const_iterator iter;
+    unordered_map< int, int >::const_iterator iter;
     for ( iter = m_VspSurfTypeMap.begin() ; iter != m_VspSurfTypeMap.end() ; ++iter )
     {
         int index = iter->first;

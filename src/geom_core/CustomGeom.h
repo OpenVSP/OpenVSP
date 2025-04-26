@@ -125,7 +125,7 @@ private:
 
     string m_CurrGeom;
     vector< GeomType > m_CustomTypeVec;
-    map< string, string > m_ModuleGeomIDMap;
+    unordered_map< string, string > m_ModuleGeomIDMap;
 
 };
 
@@ -239,9 +239,9 @@ protected:
     vector< SourceData > m_DefaultSourceVec;
 
     int m_VspSurfType;
-    map< int, int > m_VspSurfTypeMap;
+    unordered_map< int, int > m_VspSurfTypeMap;
     int m_VspSurfCfdType;
-    map< int, int > m_VspSurfCfdTypeMap;
+    unordered_map< int, int > m_VspSurfCfdTypeMap;
 
 
     virtual void UpdateSurf();
