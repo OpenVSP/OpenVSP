@@ -5,7 +5,7 @@
 #include <cassert>
 
 #include "MessageMgr.h"
-using std::map;
+using std::unordered_map;
 using std::string;
 using std::deque;
 
@@ -103,7 +103,7 @@ void MessageMgr::Send( const string& to_name, const MessageData& data )
  */
 void MessageMgr::Send( const string& to_name, const MessageBase* from_base, const MessageData& data  )
 {
-    map< string, deque< MessageBase* > >::iterator iter;
+    unordered_map< string, deque< MessageBase* > >::iterator iter;
 
     iter = m_MessageRegMap.find( to_name );
     if ( iter != m_MessageRegMap.end() )
@@ -142,7 +142,7 @@ void MessageMgr::SendAll( const MessageData& data )
  */
 void MessageMgr::SendAll( const MessageBase* from_base, const MessageData& data  )
 {
-    map< string, deque< MessageBase* > >::iterator iter;
+    unordered_map< string, deque< MessageBase* > >::iterator iter;
 
     for ( iter = m_MessageRegMap.begin(); iter != m_MessageRegMap.end(); ++iter )
     {
