@@ -204,7 +204,7 @@ private:
             return nullptr;
         }
     };
-    std::map < std::string, ID > m_idMap;
+    std::unordered_map < std::string, ID > m_idMap;
 
     DrawObj::ScreenEnum m_LinkedScreen;
 
