@@ -1046,7 +1046,7 @@ double TMesh::ComputeWetArea()
     return m_WetArea;
 }
 
-double TMesh::ComputeWaveDragArea( const std::map< string, int > &idmap )
+double TMesh::ComputeWaveDragArea( const std::unordered_map< string, int > &idmap )
 {
     m_WetArea = 0;
     m_AreaCenter = vec3d(0,0,0);
@@ -1067,7 +1067,7 @@ double TMesh::ComputeWaveDragArea( const std::map< string, int > &idmap )
                     m_AreaCenter = m_AreaCenter + tri->m_SplitVec[s]->ComputeCenter()*area;
                     m_WetArea += area;
 
-                    std::map<string, int>::const_iterator it = idmap.find( tri->m_SplitVec[s]->m_ID );
+                    std::unordered_map<string, int>::const_iterator it = idmap.find( tri->m_SplitVec[s]->m_ID );
                     if ( it != idmap.end() )
                     {
                         m_CompAreaVec[ it->second ] += area;
@@ -1081,7 +1081,7 @@ double TMesh::ComputeWaveDragArea( const std::map< string, int > &idmap )
             m_AreaCenter = m_AreaCenter + tri->ComputeCenter()*area;
             m_WetArea += area;
 
-            std::map<string, int>::const_iterator it = idmap.find( tri->m_ID );
+            std::unordered_map<string, int>::const_iterator it = idmap.find( tri->m_ID );
             if ( it != idmap.end() )
             {
                 m_CompAreaVec[ it->second ] += area;

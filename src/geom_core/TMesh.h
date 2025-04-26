@@ -397,7 +397,7 @@ public:
 
     virtual double ComputeTheoArea();
     virtual double ComputeWetArea();
-    virtual double ComputeWaveDragArea( const std::map< string, int > &idmap );
+    virtual double ComputeWaveDragArea( const std::unordered_map< string, int > &idmap );
     virtual double ComputeTheoVol();
     virtual double ComputeTrimVol();
 

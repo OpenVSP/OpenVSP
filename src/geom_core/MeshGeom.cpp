@@ -2925,7 +2925,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
 
     //==== Pushback slice and area results ====//
     // Make ID lookup map.
-    std::map< string, int > compIdMap;
+    std::unordered_map< string, int > compIdMap;
     for ( int icomp = 0; icomp < compIdVec.size(); icomp++ )
     {
         compIdMap[ compIdVec[icomp] ] = icomp;
