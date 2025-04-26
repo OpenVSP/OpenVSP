@@ -2613,7 +2613,7 @@ void CfdMeshMgrSingleton::AddWakeCoPlanarSurfaceChains()
 
 
     //==== Find Wake Surfaces ====//
-    map< Surf*, vector< Surf* > >::iterator iter;
+    unordered_map< Surf*, vector< Surf* > >::iterator iter;
 
     for ( iter = m_PossCoPlanarSurfMap.begin() ; iter != m_PossCoPlanarSurfMap.end() ; ++iter )
     {

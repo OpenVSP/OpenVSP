@@ -413,7 +413,7 @@ protected:
     SimpleIntersectSettings m_IntersectSettings;
 
     //==== Vector of Surfs that may have a border that lies on Surf A ====//
-    map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
+    unordered_map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
 
     string m_MessageName; // Either "SurfIntersectMessage", "CFDMessage", or "FEAMessage"
 
