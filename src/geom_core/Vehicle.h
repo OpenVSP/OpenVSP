@@ -589,7 +589,7 @@ protected:
     string m_VSP3FileName;
 
     //==== Export Files ====//
-    map< int, string > m_ExportFileNames;
+    unordered_map< int, string > m_ExportFileNames;
 
     // File Version Number
     int m_FileOpenVersion;
