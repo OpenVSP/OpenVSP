@@ -560,7 +560,7 @@ protected:
 
     virtual void SetExportPropMainSurf( bool b );
 
-    map < string, Geom* > m_GeomStoreMap;                 // All Geom Ptrs
+    unordered_map < string, Geom* > m_GeomStoreMap;                 // All Geom Ptrs
 
     vector< DegenGeom > m_DegenGeomVec;         // Vector of components in degenerate representation
     vector< DegenPtMass > m_DegenPtMassVec;
