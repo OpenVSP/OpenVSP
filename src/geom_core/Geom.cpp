@@ -1707,11 +1707,11 @@ void Geom::Update( bool fullupdate )
 
     UpdateSets();
 
-    if ( m_SurfDirty )
-        UpdateSurf();       // Must be implemented by subclass.
-
     if ( m_XFormDirty )
         UpdateXForm();
+
+    if ( m_SurfDirty )
+        UpdateSurf();       // Must be implemented by subclass.
 
     if ( m_SurfDirty )
         UpdateEndCaps();
