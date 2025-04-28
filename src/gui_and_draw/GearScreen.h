@@ -47,6 +47,20 @@ protected:
 
     ToggleButton m_IncludeNominalGroundPlaneToggle;
 
+    ToggleButton m_CGLocalToggle;
+    ToggleButton m_CGGlobalToggle;
+    ToggleRadioGroup m_CGRadioGroup;
+
+    SliderAdjRange2Input m_XCGMinSlider;
+    SliderAdjRange2Input m_XCGNominalSlider;
+    SliderAdjRange2Input m_XCGMaxSlider;
+    SliderAdjRange2Input m_YCGMinSlider;
+    SliderAdjRange2Input m_YCGNominalSlider;
+    SliderAdjRange2Input m_YCGMaxSlider;
+    SliderAdjRange2Input m_ZCGMinSlider;
+    SliderAdjRange2Input m_ZCGNominalSlider;
+    SliderAdjRange2Input m_ZCGMaxSlider;
+
     // Bogie
     TriggerButton m_AddBogieButton;
     TriggerButton m_RenameBogieButton;

@@ -603,6 +603,29 @@ GearGeom::GearGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_IncludeNominalGroundPlane.Init( "ShowNominalGroundPlane", "GroundPlane", this, true, false, true );
 
+
+    m_CGLocalFlag.Init( "CGLocalFlag", "GroundPlane", this, true, false, true );
+
+    m_XCGMinLocal.Init( "XCGMinLocal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_XCGMaxLocal.Init( "XCGMaxLocal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_XCGNominalLocal.Init( "XCGNominalLocal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_YCGMinLocal.Init( "YCGMinLocal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_YCGMaxLocal.Init( "YCGMaxLocal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_YCGNominalLocal.Init( "YCGNominalLocal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_ZCGMinLocal.Init( "ZCGMinLocal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_ZCGMaxLocal.Init( "ZCGMaxLocal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_ZCGNominalLocal.Init( "ZCGNominalLocal", "GroundPlane", this, 0, -1e12, 1e12 );
+
+    m_XCGMinGlobal.Init( "XCGMinGlobal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_XCGMaxGlobal.Init( "XCGMaxGlobal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_XCGNominalGlobal.Init( "XCGNominalGlobal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_YCGMinGlobal.Init( "YCGMinGlobal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_YCGMaxGlobal.Init( "YCGMaxGlobal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_YCGNominalGlobal.Init( "YCGNominalGlobal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_ZCGMinGlobal.Init( "ZCGMinGlobal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_ZCGMaxGlobal.Init( "ZCGMaxGlobal", "GroundPlane", this, 0, -1e12, 1e12 );
+    m_ZCGNominalGlobal.Init( "ZCGNominalGlobal", "GroundPlane", this, 0, -1e12, 1e12 );
+
     //==== Init Parms ====//
     m_TessU = 10;
     m_TessW = 8;
@@ -620,6 +643,76 @@ GearGeom::~GearGeom()
 
 void GearGeom::UpdateSurf()
 {
+
+    m_MainNominalCGPointVec.resize( 1 );
+
+    Matrix4d relTrans;
+
+    relTrans = m_AttachMatrix;
+    relTrans.affineInverse();
+    relTrans.matMult( m_ModelMatrix.data() );
+    relTrans.postMult( m_AttachMatrix.data() );
+
+    // Set local based on global.
+    if ( !m_CGLocalFlag() )
+    {
+        Matrix4d invRelTrans = relTrans;
+        invRelTrans.affineInverse();
+
+        vec3d cgminglobal( m_XCGMinGlobal(), m_YCGMinGlobal(), m_ZCGMinGlobal() );
+        vec3d cgglobal( m_XCGNominalGlobal(), m_YCGNominalGlobal(), m_ZCGNominalGlobal() );
+        vec3d cgmaxglobal( m_XCGMaxGlobal(), m_YCGMaxGlobal(), m_ZCGMaxGlobal() );
+
+        m_MainMinCGPoint = invRelTrans.xform( cgminglobal );
+        m_MainNominalCGPointVec[0] = invRelTrans.xform( cgglobal );
+        m_MainMaxCGPoint = invRelTrans.xform( cgmaxglobal );
+
+        m_XCGNominalLocal = m_MainNominalCGPointVec[0].x();
+        m_YCGNominalLocal = m_MainNominalCGPointVec[0].y();
+        m_ZCGNominalLocal = m_MainNominalCGPointVec[0].z();
+
+        m_XCGMinLocal = m_MainMinCGPoint.x();
+        m_YCGMinLocal = m_MainMinCGPoint.y();
+        m_ZCGMinLocal = m_MainMinCGPoint.z();
+
+        m_XCGMaxLocal = m_MainMaxCGPoint.x();
+        m_YCGMaxLocal = m_MainMaxCGPoint.y();
+        m_ZCGMaxLocal = m_MainMaxCGPoint.z();
+    }
+
+    // Make sure local obeys limits.
+    m_XCGMinLocal.SetUpperLimit( m_XCGNominalLocal() );
+    m_XCGMaxLocal.SetLowerLimit( m_XCGNominalLocal() );
+
+    m_YCGMinLocal.SetUpperLimit( m_YCGNominalLocal() );
+    m_YCGMaxLocal.SetLowerLimit( m_YCGNominalLocal() );
+
+    m_ZCGMinLocal.SetUpperLimit( m_ZCGNominalLocal() );
+    m_ZCGMaxLocal.SetLowerLimit( m_ZCGNominalLocal() );
+
+    // Grab points
+    m_MainMinCGPoint = vec3d( m_XCGMinLocal(), m_YCGMinLocal(), m_ZCGMinLocal() );
+    m_MainNominalCGPointVec[0] = vec3d( m_XCGNominalLocal(), m_YCGNominalLocal(), m_ZCGNominalLocal() );
+    m_MainMaxCGPoint = vec3d( m_XCGMaxLocal(), m_YCGMaxLocal(), m_ZCGMaxLocal() );
+
+    // Set global from local (obeying local limits)
+    vec3d cgminglobal = relTrans.xform( m_MainMinCGPoint );
+    vec3d cgglobal = relTrans.xform( m_MainNominalCGPointVec[0] );
+    vec3d cgmaxglobal = relTrans.xform( m_MainMaxCGPoint );
+
+    m_XCGMinGlobal = cgminglobal.x();
+    m_YCGMinGlobal = cgminglobal.y();
+    m_ZCGMinGlobal = cgminglobal.z();
+
+    m_XCGNominalGlobal = cgglobal.x();
+    m_YCGNominalGlobal = cgglobal.y();
+    m_ZCGNominalGlobal = cgglobal.z();
+
+    m_XCGMaxGlobal = cgmaxglobal.x();
+    m_YCGMaxGlobal = cgmaxglobal.y();
+    m_ZCGMaxGlobal = cgmaxglobal.z();
+
+
     int nbogies = m_Bogies.size();
 
     int nsurf = 0;
@@ -730,6 +823,21 @@ void GearGeom::UpdateMainTessVec( bool firstonly )
     }
 }
 
+void GearGeom::UpdateTessVec()
+{
+    Geom::UpdateTessVec();
+    ApplySymm( m_MainNominalCGPointVec, m_NominalCGPointVec );
+
+
+    BndBox cgbox;
+    cgbox.Update( m_MainMinCGPoint );
+    cgbox.Update( m_MainMaxCGPoint );
+    vector < SimpleFeatureTess > tessvec(1);
+    tessvec[0].m_ptline.push_back( cgbox.GetBBoxDrawLines() );
+
+    ApplySymm( tessvec, m_LimitsCGPointVec );
+}
+
 void GearGeom::UpdateMainDegenGeomPreview()
 {
     int nmain = GetNumMainSurfs();
@@ -788,6 +896,22 @@ void GearGeom::UpdateDrawObj()
             }
         }
     }
+
+
+    m_CGNominalDrawObj.m_PntVec = m_NominalCGPointVec;
+    m_CGNominalDrawObj.m_GeomChanged = true;
+
+
+    m_CGLimitsDrawObj.m_PntVec.clear();
+    for ( int i = 0 ; i < m_LimitsCGPointVec.size() ; i++ )
+    {
+        for( int j = 0; j < m_LimitsCGPointVec[i].m_ptline.size(); j++ )
+        {
+            m_CGLimitsDrawObj.m_PntVec.insert( m_CGLimitsDrawObj.m_PntVec.end(), m_LimitsCGPointVec[i].m_ptline[j].begin(), m_LimitsCGPointVec[i].m_ptline[j].end() );
+        }
+    }
+    m_CGLimitsDrawObj.m_GeomChanged = true;
+
 }
 
 void GearGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -809,6 +933,22 @@ void GearGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         bogie_draw_obj_vec[i]->m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
         draw_obj_vec.push_back( bogie_draw_obj_vec[i] );
     }
+
+    m_CGNominalDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_CGNominalDrawObj.m_GeomID = m_ID + string( "cgnominal" );
+    m_CGNominalDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
+    m_CGNominalDrawObj.m_PointSize = 10.0;
+    m_CGNominalDrawObj.m_PointColor = vec3d( 0.5, 0.5, 0.5 );
+    m_CGNominalDrawObj.m_Type = DrawObj::VSP_POINTS;
+    draw_obj_vec.push_back( &m_CGNominalDrawObj );
+
+    m_CGLimitsDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_CGLimitsDrawObj.m_GeomID = m_ID + string( "cgrange" );
+    m_CGLimitsDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
+    m_CGLimitsDrawObj.m_LineWidth = 4.0;
+    m_CGLimitsDrawObj.m_LineColor = vec3d( 0.5, 0.5, 0.5 );
+    m_CGLimitsDrawObj.m_Type = DrawObj::VSP_LINES;
+    draw_obj_vec.push_back( &m_CGLimitsDrawObj );
 }
 
 //==== Compute Rotation Center ====//

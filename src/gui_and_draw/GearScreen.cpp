@@ -59,6 +59,41 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 700 + 100, "Gear"
     m_DesignLayout.AddChoice( m_ModelUnitsChoice, "Model Units" );
 
 
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddDividerBox( "Center of Gravity" );
+
+
+
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.AddLabel( "Coord System:", m_DesignLayout.GetW() - 2 * m_DesignLayout.GetInputWidth() );
+    m_DesignLayout.SetButtonWidth( m_DesignLayout.GetInputWidth() );
+    m_DesignLayout.AddButton( m_CGLocalToggle, "Local" );
+    m_DesignLayout.AddButton( m_CGGlobalToggle, "Global" );
+    m_DesignLayout.ForceNewLine();
+
+    m_CGRadioGroup.Init( this );
+    m_CGRadioGroup.AddButton( m_CGGlobalToggle.GetFlButton() ); // False
+    m_CGRadioGroup.AddButton( m_CGLocalToggle.GetFlButton() );  // True
+
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.SetSameLineFlag( false );
+
+    m_DesignLayout.SetButtonWidth( m_DesignLayout.GetChoiceButtonWidth() );
+
+    m_DesignLayout.AddSlider( m_XCGMinSlider, "X Min", 100, "%6.5f" );
+    m_DesignLayout.AddSlider( m_XCGNominalSlider, "X Nominal", 100, "%6.5f" );
+    m_DesignLayout.AddSlider( m_XCGMaxSlider, "X Max", 100, "%6.5f" );
+
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddSlider( m_YCGMinSlider, "Y Min", 100, "%6.5f" );
+    m_DesignLayout.AddSlider( m_YCGNominalSlider, "Y Nominal", 100, "%6.5f" );
+    m_DesignLayout.AddSlider( m_YCGMaxSlider, "Y Max", 100, "%6.5f" );
+
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddSlider( m_ZCGMinSlider, "Z Min", 100, "%6.5f" );
+    m_DesignLayout.AddSlider( m_ZCGNominalSlider, "Z Nominal", 100, "%6.5f" );
+    m_DesignLayout.AddSlider( m_ZCGMaxSlider, "Z Max", 100, "%6.5f" );
 
 
     // Bogie
@@ -356,6 +391,62 @@ bool Gearcreen::Update()
     {
         m_PlaneSizeSlider.Activate();
     }
+
+    m_CGRadioGroup.Update( gear_ptr->m_CGLocalFlag.GetID() );
+
+    if ( gear_ptr->m_CGLocalFlag() )
+    {
+        m_XCGMinSlider.Update( 1, gear_ptr->m_XCGMinLocal.GetID(), gear_ptr->m_XCGMinGlobal.GetID() );
+        m_XCGNominalSlider.Update( 1, gear_ptr->m_XCGNominalLocal.GetID(), gear_ptr->m_XCGNominalGlobal.GetID() );
+        m_XCGMaxSlider.Update( 1, gear_ptr->m_XCGMaxLocal.GetID(), gear_ptr->m_XCGMaxGlobal.GetID() );
+
+        m_YCGMinSlider.Update( 1, gear_ptr->m_YCGMinLocal.GetID(), gear_ptr->m_YCGMinGlobal.GetID() );
+        m_YCGNominalSlider.Update( 1, gear_ptr->m_YCGNominalLocal.GetID(), gear_ptr->m_YCGNominalGlobal.GetID() );
+        m_YCGMaxSlider.Update( 1, gear_ptr->m_YCGMaxLocal.GetID(), gear_ptr->m_YCGMaxGlobal.GetID() );
+
+        m_ZCGMinSlider.Update( 1, gear_ptr->m_ZCGMinLocal.GetID(), gear_ptr->m_ZCGMinGlobal.GetID() );
+        m_ZCGNominalSlider.Update( 1, gear_ptr->m_ZCGNominalLocal.GetID(), gear_ptr->m_ZCGNominalGlobal.GetID() );
+        m_ZCGMaxSlider.Update( 1, gear_ptr->m_ZCGMaxLocal.GetID(), gear_ptr->m_ZCGMaxGlobal.GetID() );
+
+        m_XCGMinSlider.ActivateInput1();
+        m_XCGNominalSlider.ActivateInput1();
+        m_XCGMaxSlider.ActivateInput1();
+
+        m_YCGMinSlider.ActivateInput1();
+        m_YCGNominalSlider.ActivateInput1();
+        m_YCGMaxSlider.ActivateInput1();
+
+        m_ZCGMinSlider.ActivateInput1();
+        m_ZCGNominalSlider.ActivateInput1();
+        m_ZCGMaxSlider.ActivateInput1();
+    }
+    else
+    {
+        m_XCGMinSlider.Update( 2, gear_ptr->m_XCGMinLocal.GetID(), gear_ptr->m_XCGMinGlobal.GetID() );
+        m_XCGNominalSlider.Update( 2, gear_ptr->m_XCGNominalLocal.GetID(), gear_ptr->m_XCGNominalGlobal.GetID() );
+        m_XCGMaxSlider.Update( 2, gear_ptr->m_XCGMaxLocal.GetID(), gear_ptr->m_XCGMaxGlobal.GetID() );
+
+        m_YCGMinSlider.Update( 2, gear_ptr->m_YCGMinLocal.GetID(), gear_ptr->m_YCGMinGlobal.GetID() );
+        m_YCGNominalSlider.Update( 2, gear_ptr->m_YCGNominalLocal.GetID(), gear_ptr->m_YCGNominalGlobal.GetID() );
+        m_YCGMaxSlider.Update( 2, gear_ptr->m_YCGMaxLocal.GetID(), gear_ptr->m_YCGMaxGlobal.GetID() );
+
+        m_ZCGMinSlider.Update( 2, gear_ptr->m_ZCGMinLocal.GetID(), gear_ptr->m_ZCGMinGlobal.GetID() );
+        m_ZCGNominalSlider.Update( 2, gear_ptr->m_ZCGNominalLocal.GetID(), gear_ptr->m_ZCGNominalGlobal.GetID() );
+        m_ZCGMaxSlider.Update( 2, gear_ptr->m_ZCGMaxLocal.GetID(), gear_ptr->m_ZCGMaxGlobal.GetID() );
+
+        m_XCGMinSlider.ActivateInput2();
+        m_XCGNominalSlider.ActivateInput2();
+        m_XCGMaxSlider.ActivateInput2();
+
+        m_YCGMinSlider.ActivateInput2();
+        m_YCGNominalSlider.ActivateInput2();
+        m_YCGMaxSlider.ActivateInput2();
+
+        m_ZCGMinSlider.ActivateInput2();
+        m_ZCGNominalSlider.ActivateInput2();
+        m_ZCGMaxSlider.ActivateInput2();
+    }
+
 
     std::vector < Bogie * > bogies = gear_ptr->GetBogieVec();
 

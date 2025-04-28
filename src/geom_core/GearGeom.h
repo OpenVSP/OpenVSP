@@ -318,9 +318,32 @@ public:
     Parm m_PlaneSize;
     BoolParm m_AutoPlaneFlag;
 
+    BoolParm m_CGLocalFlag;
+
+    Parm m_XCGMinLocal;
+    Parm m_XCGMaxLocal;
+    Parm m_XCGNominalLocal;
+    Parm m_YCGMinLocal;
+    Parm m_YCGMaxLocal;
+    Parm m_YCGNominalLocal;
+    Parm m_ZCGMinLocal;
+    Parm m_ZCGMaxLocal;
+    Parm m_ZCGNominalLocal;
+
+    Parm m_XCGMinGlobal;
+    Parm m_XCGMaxGlobal;
+    Parm m_XCGNominalGlobal;
+    Parm m_YCGMinGlobal;
+    Parm m_YCGMaxGlobal;
+    Parm m_YCGNominalGlobal;
+    Parm m_ZCGMinGlobal;
+    Parm m_ZCGMaxGlobal;
+    Parm m_ZCGNominalGlobal;
+
 protected:
     virtual void UpdateSurf();
     virtual void UpdateMainTessVec( bool firstonly );
+    virtual void UpdateTessVec();
     virtual void UpdateMainDegenGeomPreview();
     virtual void UpdateDrawObj();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
@@ -328,6 +351,16 @@ protected:
     std::vector < Bogie * > m_Bogies;
     std::vector < int > m_BogieMainSurfIndex;
     int m_CurrBogieIndex;
+
+    vector < vec3d > m_MainNominalCGPointVec;
+    vec3d m_MainMinCGPoint;
+    vec3d m_MainMaxCGPoint;
+
+    vector < vec3d > m_NominalCGPointVec;
+    vector < SimpleFeatureTess > m_LimitsCGPointVec;
+
+    DrawObj m_CGNominalDrawObj;
+    DrawObj m_CGLimitsDrawObj;
 
 };
 
