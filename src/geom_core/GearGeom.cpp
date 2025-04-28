@@ -54,6 +54,8 @@ Bogie::Bogie()
     m_BogieThetaMax.Init( "BogieThetaMax", "Bogie", this, 20.0, -180, 180 );
     m_BogieThetaMin.Init( "BogieThetaMin", "Bogie", this, -20.0, -180, 180 );
 
+    m_SteeringAngle.Init( "SteeringAngle", "Bogie", this, 0.0, 0, 90 );
+
     //Tire
     m_DiameterMode.Init( "DiameterMode", "Tire", this, vsp::TIRE_DIM_IN, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 2 ); // TIRE_DIM_FRAC not allowed
     m_DiameterMode.SetDescript( "Mode to control diameter specification" );

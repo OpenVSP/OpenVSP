@@ -171,6 +171,9 @@ public:
     Parm m_BogieThetaMax;
     Parm m_BogieThetaMin;
 
+    Parm m_SteeringAngle;
+
+
     // Tire
     BoolParm m_WidthMode;
     Parm m_WidthIn;

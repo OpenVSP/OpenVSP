@@ -95,6 +95,8 @@ protected:
     SliderAdjRangeInput m_TravelYSlider;
     SliderAdjRangeInput m_TravelZSlider;
 
+    SliderAdjRangeInput m_SteeringAngleSlider;
+
     SliderAdjRangeInput m_TravelCompressSlider;
     SliderAdjRangeInput m_TravelExtendSlider;
 

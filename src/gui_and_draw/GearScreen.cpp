@@ -170,6 +170,11 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 700 + 100, "Gear"
     m_BogieLayout.AddSlider( m_TireZSlider, "Z Above Ground", 10, "%6.5f" );
 
     m_BogieLayout.AddYGap();
+    m_BogieLayout.AddDividerBox( "Steering" );
+
+    m_BogieLayout.AddSlider( m_SteeringAngleSlider, "Steering Angle", 1, "%6.5f" );
+
+    m_BogieLayout.AddYGap();
     m_BogieLayout.AddDividerBox( "Suspension Travel" );
 
     m_BogieLayout.AddSlider( m_TravelXSlider, "X Compression Direction", 1, "%6.5f" );
@@ -612,6 +617,8 @@ bool Gearcreen::Update()
         m_TireXSlider.Update( bogie_ptr->m_XContactPt.GetID() );
         m_TireYSlider.Update( bogie_ptr->m_YContactPt.GetID() );
         m_TireZSlider.Update( bogie_ptr->m_ZAboveGround.GetID() );
+
+        m_SteeringAngleSlider.Update( bogie_ptr->m_SteeringAngle.GetID() );
 
         m_TravelXSlider.Update( bogie_ptr->m_TravelX.GetID() );
         m_TravelYSlider.Update( bogie_ptr->m_TravelY.GetID() );
