@@ -8,6 +8,9 @@
 // Rob McDonald
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "InterferenceMgr.h"
 
 #include "ModeMgr.h"

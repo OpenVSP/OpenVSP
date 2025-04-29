@@ -5,6 +5,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "GearGeom.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
