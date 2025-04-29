@@ -63,6 +63,8 @@ public:
     Parm m_SecondaryZGround;
     BoolParm m_SecondaryUseZGround;
 
+    BoolParm m_SecondaryCCWFlag;
+
     IntParm m_IntererenceCheckType;
 
     string m_LastResult;

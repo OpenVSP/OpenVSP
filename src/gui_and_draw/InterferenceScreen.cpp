@@ -14,7 +14,7 @@
 #include "ModeMgr.h"
 
 //==== Constructor ====//
-InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 600, "Interference Checks" )
+InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 700, "Interference Checks" )
 {
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
@@ -164,6 +164,16 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
     m_ICaseLayout.AddButton( m_SecondaryUseZGroundToggle, "Use Z Plane" );
     m_ICaseLayout.AddSlider( m_SecondaryZGroundSlider, "Z", 10, "%6.4f" );
 
+    m_ICaseLayout.AddYGap();
+
+    m_ICaseLayout.AddButton( m_CCWToggle, "CCW" );
+    m_ICaseLayout.AddButton( m_CWToggle, "CW" );
+    m_ICaseLayout.ForceNewLine();
+
+    m_CCWToggleGroup.Init( this );
+    m_CCWToggleGroup.AddButton( m_CCWToggle.GetFlButton() );
+    m_CCWToggleGroup.AddButton( m_CWToggle.GetFlButton() );
+
     m_ICaseLayout.SetSameLineFlag( true );
     m_ICaseLayout.SetFitWidthFlag( false );
 
@@ -217,6 +227,8 @@ bool InterferenceScreen::Update()
 
         m_SecondaryZGroundSlider.Update( icase->m_SecondaryZGround.GetID() );
         m_SecondaryUseZGroundToggle.Update( icase->m_SecondaryUseZGround.GetID() );
+
+        m_CCWToggleGroup.Update( icase->m_SecondaryCCWFlag.GetID() );
 
         Vehicle *veh = VehicleMgr.GetVehicle();
         if ( veh )

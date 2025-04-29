@@ -91,6 +91,10 @@ protected:
     ToggleButton m_SecondaryUseZGroundToggle;
     SliderAdjRangeInput m_SecondaryZGroundSlider;
 
+    ToggleButton m_CCWToggle;
+    ToggleButton m_CWToggle;
+    ToggleRadioGroup m_CCWToggleGroup;
+
     TriggerButton m_ShowSecondaryGeom;
     TriggerButton m_ShowOnlySecondaryGeom;
 
