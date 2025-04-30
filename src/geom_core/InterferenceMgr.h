@@ -30,6 +30,9 @@ public:
     vector< TMesh* > GetPrimaryTMeshVec();
     vector< TMesh* > GetSecondaryTMeshVec();
 
+    void GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
+    void GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds );
+
     void GetSecondaryPtNormal( vec3d &pt, vec3d &normal );
     void GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );
     void GetSecondaryPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );

@@ -179,6 +179,44 @@ vector< TMesh* > InterferenceCase::GetSecondaryTMeshVec()
     return tmv;
 }
 
+void InterferenceCase::GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_PrimaryType() == vsp::GEOM_TARGET )
+        {
+            Geom* geom = veh->FindGeom( m_PrimaryGeomID );
+
+            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+
+            if ( clearance_ptr )
+            {
+                clearance_ptr->GetContactPointVecNormal( ptvec, normal );
+            }
+        }
+    }
+}
+
+void InterferenceCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_PrimaryType() == vsp::GEOM_TARGET )
+        {
+            Geom* geom = veh->FindGeom( m_PrimaryGeomID );
+
+            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+
+            if ( clearance_ptr )
+            {
+                clearance_ptr->GetCG( cgnom, cgbounds );
+            }
+        }
+    }
+}
+
 void InterferenceCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
