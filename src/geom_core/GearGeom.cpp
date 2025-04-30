@@ -15,6 +15,7 @@
 #include "VspSurf.h"
 #include "Vehicle.h"
 #include "UnitConversion.h"
+#include "StlHelper.h"
 
 Bogie::Bogie()
 {
@@ -1448,6 +1449,53 @@ bool GearGeom::GetTwoPtFwdContactPtNormal( const string &cp1, int isymm1, int su
     return false;
 }
 
+bool GearGeom::GetTwoPtSideContactPtsNormal( const string &cp1, int isymm1, int suspension1, int tire1,
+                                             const string &cp2, int isymm2, int suspension2, int tire2,
+                                             vec3d &p1, vec3d &p2, vec3d &normal ) const
+{
+    const Bogie *b1 = GetBogie( cp1 );
+    const Bogie *b2 = GetBogie( cp2 );
+    if ( b1 && b2 )
+    {
+        // Grab mean contact points
+        p1 = b1->GetMeanContactPoint( isymm1, tire1, suspension1, /* thetabogie */ 0.0 );
+        p2 = b2->GetMeanContactPoint( isymm2, tire2, suspension2, /* thetabogie */ 0.0 );
+
+        // Assign ysign to match wheel furthest from center line.
+        int ysign = 0;
+        if ( std::abs( p1.y() ) > std::abs( p2.y() ) )
+        {
+            ysign = sgn( p1.y() );
+        }
+        else
+        {
+            ysign = sgn( p2.y() );
+        }
+
+        p1 = b1->GetSideContactPoint( isymm1, suspension1, tire1, /* thetabogie */ 0.0, ysign );
+        p2 = b2->GetSideContactPoint( isymm2, suspension2, tire2, /* thetabogie */ 0.0, ysign );
+
+
+        vec3d v12 = p2 - p1;
+        const vec3d nnom( 0, 0, 1 );
+        const vec3d u = cross( nnom, v12 );
+
+        normal = cross( v12, u );
+        normal.normalize();
+
+        // Check that plane points mostly 'up' in GearGeom coordinate system.  Nominal ground plane will point
+        // straight up in these coordinates.  Changing the order of the contact points can change the orientation
+        // of the normal vector.  This sign check prevents us from requiring cw/ccw ordering by the user.
+        if ( normal.z() < 0 )
+        {
+            normal = -normal;
+        }
+
+        return true;
+    }
+    return false;
+}
+
 bool GearGeom::GetPtNormal( const string &cp1, int isymm1, int suspension1, int tire1,
                             const string &cp2, int isymm2, int suspension2, int tire2,
                             const string &cp3, int isymm3, int suspension3, int tire3,
@@ -1542,6 +1590,17 @@ bool GearGeom::GetTwoPtFwdContactPtNormalInWorld( const string &cp1, int isymm1,
     vec3d p1, p2;
     bool ret = GetTwoPtFwdContactPtNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, thetabogie, thetawheel, pt, normal, p1, p2 );
     pt = m_ModelMatrix.xform( pt );
+    normal = m_ModelMatrix.xformnorm( normal );
+    return ret;
+}
+
+bool GearGeom::GetTwoPtSideContactPtsNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
+                                                    const string &cp2, int isymm2, int suspension2, int tire2,
+                                                    vec3d &p1, vec3d &p2, vec3d &normal ) const
+{
+    bool ret = GetTwoPtSideContactPtsNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, p1, p2, normal );
+    p1 = m_ModelMatrix.xform( p1 );
+    p2 = m_ModelMatrix.xform( p2 );
     normal = m_ModelMatrix.xformnorm( normal );
     return ret;
 }
