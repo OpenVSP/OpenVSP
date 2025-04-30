@@ -314,6 +314,8 @@ public:
 
     virtual void GetNominalPtNormalInWorld( vec3d &pt, vec3d &normal ) const;
 
+    virtual void GetCGInWorld( vec3d &cgnom, vector < vec3d > &cgbounds ) const;
+
     IntParm m_ModelLenUnits;
 
     BoolParm m_IncludeNominalGroundPlane;

@@ -44,6 +44,7 @@ public:
     virtual void SetContactPt2ID( const std::string& id );
     virtual void SetContactPt3ID( const std::string& id );
 
+    virtual void GetCG( vec3d &cgnom, vector < vec3d > &cgbounds );
     virtual void GetPtNormal( vec3d &pt, vec3d &normal ) const;
     virtual void GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );
     virtual void GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );

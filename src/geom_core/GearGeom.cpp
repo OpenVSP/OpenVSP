@@ -1551,3 +1551,15 @@ void GearGeom::GetNominalPtNormalInWorld( vec3d &pt, vec3d &normal ) const
     pt = m_ModelMatrix.xform( vec3d() );
     normal = m_ModelMatrix.xformnorm( vec3d( 0, 0, 1 ) );
 }
+
+void GearGeom::GetCGInWorld( vec3d &cgnom, vector < vec3d > &cgbounds ) const
+{
+    cgnom = m_ModelMatrix.xform( m_MainNominalCGPointVec[0] );
+
+    BndBox cgbox;
+    cgbox.Update( m_MainMinCGPoint );
+    cgbox.Update( m_MainMaxCGPoint );
+
+    cgbounds = cgbox.GetCornerPnts();
+    m_ModelMatrix.xformvec( cgbounds );
+}

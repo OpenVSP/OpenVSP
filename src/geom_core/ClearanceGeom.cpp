@@ -488,6 +488,21 @@ void ClearanceGeom::SetContactPt3ID( const std::string& id )
     Update();
 }
 
+void ClearanceGeom::GetCG( vec3d &cgnom, vector < vec3d > &cgbounds )
+{
+    if ( m_ClearanceMode() == vsp::CLEARANCE_THREE_PT_GROUND ||
+         m_ClearanceMode() == vsp::CLEARANCE_TWO_PT_GROUND )
+    {
+        Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+
+        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        if ( gear )
+        {
+            gear->GetCGInWorld( cgnom, cgbounds );
+        }
+    }
+}
+
 void ClearanceGeom::GetPtNormal( vec3d &pt, vec3d &normal ) const
 {
     if ( m_ClearanceMode() == vsp::CLEARANCE_THREE_PT_GROUND )
