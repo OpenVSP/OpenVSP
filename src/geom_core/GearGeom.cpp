@@ -586,6 +586,12 @@ vec3d Bogie::GetAftContactPoint( int isymm, int suspensionmode, int tiremode, do
     return GetAftAxle( isymm, suspensionmode, thetabogie ) + v;
 }
 
+vec3d Bogie::GetSideContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, int ysign ) const
+{
+    vec3d v( 0, ysign * GetBogieSemiWidth(), 0 );
+    return GetMeanContactPoint( isymm, tiremode, suspensionmode, thetabogie ) + v;
+}
+
 void Bogie::AppendMainSurf( vector < VspSurf > &surfvec ) const
 {
     TireToBogie( m_TireSurface, surfvec );

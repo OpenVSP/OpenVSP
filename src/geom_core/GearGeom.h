@@ -50,6 +50,7 @@ public:
     vec3d GetAftAxle( int isymm, int suspensionmode, double thetabogie ) const;
     vec3d GetFwdContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel ) const;
     vec3d GetAftContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel ) const;
+    vec3d GetSideContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, int ysign ) const;
 
     // T must have methods .FlipNormal() and .Transform( Matrix4d )
     template <typename T>
