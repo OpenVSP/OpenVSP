@@ -75,6 +75,7 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
     m_InterferenceTypeChoice.AddItem( "Plane 1pt Angle", vsp::PLANE_1PT_ANGLE_INTERFERENCE );
     m_InterferenceTypeChoice.AddItem( "Weight Distribution", vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS );
     m_InterferenceTypeChoice.AddItem( "Tipover", vsp::GEAR_TIPOVER_ANALYSIS );
+    m_InterferenceTypeChoice.AddItem( "Ground Maneuverability", vsp::GEAR_TURN_ANALYSIS );
     m_InterferenceTypeChoice.UpdateItems();
 
     m_ICaseLayout.AddYGap();

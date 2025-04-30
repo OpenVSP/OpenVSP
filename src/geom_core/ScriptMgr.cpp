@@ -1673,6 +1673,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "GEAR_TIPOVER_ANALYSIS", GEAR_TIPOVER_ANALYSIS );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "GEAR_TURN_ANALYSIS", GEAR_TURN_ANALYSIS );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "NUM_INTERFERENCE_TYPES", NUM_INTERFERENCE_TYPES );
     assert( r >= 0 );
 

@@ -852,6 +852,64 @@ string InterferenceCase::Evaluate()
                 m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 break;
             }
+            case vsp::GEAR_TURN_ANALYSIS:
+            {
+                Results *res = ResultsMgr.CreateResults( "Gear_Turn", "Gear turn analysis." );
+                if( res )
+                {
+                    m_LastResult = res->GetID();
+                    primary_tmv = GetPrimaryTMeshVec();
+                    CSGMesh( primary_tmv );
+                    FlattenTMeshVec( primary_tmv );
+
+                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                    primary_tm->LoadBndBox();
+
+                    if ( m_SecondaryType() == vsp::GEOM_TARGET )
+                    {
+                        Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+
+                        ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+                        if ( clearance_ptr )
+                        {
+                            vec3d cor;
+                            vec3d normal;
+                            vector < double > rvec;
+                            clearance_ptr->CalculateTurn(cor, normal, rvec);
+
+
+                            vector < vec3d > distpts(2);
+                            double min_dist = -1;
+                            double max_dist = primary_tm->MaxDistanceRay( cor, normal, min_dist, distpts[0], distpts[1] );
+
+
+                            vector < vec3d > pts;
+                            pts.push_back( cor );
+                            pts.push_back( cor + normal );
+
+                            int nseg = 36;
+
+                            vector < vec3d > cirpts;
+                            for ( int i = 0; i < rvec.size(); ++i )
+                            {
+                                MakeCircle( cor, normal, rvec[i], cirpts, nseg );
+                                pts.insert( pts.end(), cirpts.begin(), cirpts.end() );
+                            }
+
+                            MakeCircle( distpts[0], normal, max_dist, cirpts, nseg );
+                            pts.insert( pts.end(), cirpts.begin(), cirpts.end() );
+
+                            res->Add( new NameValData( "Pts", pts, "Visualization of rotation axis and swept circles." ) );
+                            res->Add( new NameValData( "COR", cor, "Center of rotation." ) );
+                            res->Add( new NameValData( "Axis", normal, "Axis of rotation." ) );
+                        }
+                    }
+
+                }
+
+                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                break;
+            }
         }
 
         // These are safe for empty vectors.

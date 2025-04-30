@@ -990,6 +990,7 @@ enum INTERFERENCE_CHECK_TYPE { EXTERNAL_INTERFERENCE,	/*!< Interference between 
                                PLANE_1PT_ANGLE_INTERFERENCE,	/*!< Interference roll angle between surfaces and a plane */
                                GEAR_WEIGHT_DISTRIBUTION_ANALYSIS,	/*!< Calculate distribution of weight across landing gear */
                                GEAR_TIPOVER_ANALYSIS,	/*!< Calculate tipover angle */
+                               GEAR_TURN_ANALYSIS,	/*!< Calculate ground manueveribility */
                                NUM_INTERFERENCE_TYPES	/*!< Number of interference check types */
 };
 
