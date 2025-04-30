@@ -1563,3 +1563,55 @@ void GearGeom::GetCGInWorld( vec3d &cgnom, vector < vec3d > &cgbounds ) const
     cgbounds = cgbox.GetCornerPnts();
     m_ModelMatrix.xformvec( cgbounds );
 }
+
+bool GearGeom::GetContactPointVecNormal( const string &cp1, int isymm1, int suspension1, int tire1,
+                                         const string &cp2, int isymm2, int suspension2, int tire2,
+                                         const string &cp3, int isymm3, int suspension3, int tire3,
+                                         vector < vec3d > &ptvec, vec3d &normal ) const
+{
+    const Bogie *b1 = GetBogie( cp1 );
+    const Bogie *b2 = GetBogie( cp2 );
+    const Bogie *b3 = GetBogie( cp3 );
+
+    ptvec.resize( 3 );
+
+    if ( b1 && b2 && b3 )
+    {
+        ptvec[0] = b1->GetMeanContactPoint( isymm1, tire1, suspension1, 0.0 );
+        ptvec[1] = b2->GetMeanContactPoint( isymm2, tire2, suspension2, 0.0 );
+        ptvec[2] = b3->GetMeanContactPoint( isymm3, tire3, suspension3, 0.0 );
+
+        const vec3d v12 = ptvec[1]- ptvec[0] ;
+        const vec3d v13 = ptvec[2] - ptvec[0] ;
+
+        normal = cross( v12, v13 );
+        normal.normalize();
+
+        // Check that plane points mostly 'up' in GearGeom coordinate system.  Nominal ground plane will point
+        // straight up in these coordinates.  Changing the order of the contact points can change the orientation
+        // of the normal vector.  This sign check prevents us from requiring cw/ccw ordering by the user.
+        if ( normal.z() < 0 )
+        {
+            normal = -normal;
+        }
+
+        return true;
+    }
+    return false;
+}
+
+bool GearGeom::GetContactPointVecNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
+                                                const string &cp2, int isymm2, int suspension2, int tire2,
+                                                const string &cp3, int isymm3, int suspension3, int tire3,
+                                                vector < vec3d > &ptvec, vec3d &normal ) const
+{
+    bool ret = GetContactPointVecNormal( cp1,  isymm1,  suspension1,  tire1,
+                                         cp2,  isymm2,  suspension2, tire2,
+                                         cp3,  isymm3,  suspension3, tire3,
+                                         ptvec, normal );
+
+    m_ModelMatrix.xformvec( ptvec );
+    normal = m_ModelMatrix.xformnorm( normal );
+
+    return ret;
+}

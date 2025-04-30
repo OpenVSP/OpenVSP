@@ -316,6 +316,16 @@ public:
 
     virtual void GetCGInWorld( vec3d &cgnom, vector < vec3d > &cgbounds ) const;
 
+    virtual bool GetContactPointVecNormal( const string &cp1, int isymm1, int suspension1, int tire1,
+                                           const string &cp2, int isymm2, int suspension2, int tire2,
+                                           const string &cp3, int isymm3, int suspension3, int tire3,
+                                           vector < vec3d > &ptvec, vec3d &normal ) const;
+
+    virtual bool GetContactPointVecNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
+                                                  const string &cp2, int isymm2, int suspension2, int tire2,
+                                                  const string &cp3, int isymm3, int suspension3, int tire3,
+                                                  vector < vec3d > &ptvec, vec3d &normal ) const;
+
     IntParm m_ModelLenUnits;
 
     BoolParm m_IncludeNominalGroundPlane;
