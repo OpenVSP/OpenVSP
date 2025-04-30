@@ -689,6 +689,83 @@ string InterferenceCase::Evaluate()
                 }
                 break;
             }
+            case vsp::GEAR_TIPOVER_ANALYSIS:
+            {
+                Results *res = ResultsMgr.CreateResults( "Gear_Tipover", "Gear tipover analysis." );
+                if( res )
+                {
+                    m_LastResult = res->GetID();
+
+                    vec3d cgnom;
+                    vector < vec3d > cgbounds;
+                    GetPrimaryCG( cgnom, cgbounds );
+
+                    vec3d pa, pb, normal;
+                    GetPrimaryTwoPtSideContactPtsNormal( pa, pb, normal );
+
+                    vec3d ax = pb - pa;
+                    ax.normalize();
+
+                    vec3d p0, p1, p2;
+                    double anglenominal = tipover( cgnom, normal, pa, ax, p0, p1 );
+
+                    double l = dist( p0, cgnom );
+
+                    vector < vec3d > tip_pts;
+                    tip_pts.reserve( 12 );
+
+                    tip_pts.push_back( p0 );
+                    tip_pts.push_back( p1 );
+
+                    tip_pts.push_back( p0 );
+                    tip_pts.push_back( cgnom );
+
+                    double anglemin = 10;
+                    double anglemax = -10;
+                    vec3d p0min, p1min;
+                    vec3d p0max, p1max;
+                    int imin;
+                    int imax;
+
+                    for ( int i = 0; i < cgbounds.size(); ++i )
+                    {
+                        double angle = tipover( cgbounds[i], normal, pa, ax, p0, p1 );
+                        if ( angle < anglemin )
+                        {
+                            anglemin = angle;
+                            p0min = p0;
+                            p1min = p1;
+                            imin = i;
+                        }
+                        if ( angle > anglemax )
+                        {
+                            anglemax = angle;
+                            p0max = p0;
+                            p1max = p1;
+                            imax = i;
+                        }
+                    }
+
+                    tip_pts.push_back( p0min );
+                    tip_pts.push_back( p1min );
+                    tip_pts.push_back( p0min );
+                    tip_pts.push_back( cgbounds[ imin ] );
+
+                    tip_pts.push_back( p0max );
+                    tip_pts.push_back( p1max );
+                    tip_pts.push_back( p0max );
+                    tip_pts.push_back( cgbounds[ imax ] );
+
+                    res->Add( new NameValData( "NominalTip", anglenominal * 180.0 / M_PI, "Nominal tipover angle." ) );
+                    res->Add( new NameValData( "MinTip", anglemin * 180.0 / M_PI, "Minimum tipover angle." ) );
+                    res->Add( new NameValData( "MaxTip", anglemax * 180.0 / M_PI, "Maximum tipover angle." ) );
+                    res->Add( new NameValData( "Pts", tip_pts, "Tipover arc end points." ) );
+                    res->Add( new NameValData( "Result", anglenominal * 180.0 / M_PI, "Interference result" ) );
+                }
+
+                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                break;
+            }
         }
 
         // These are safe for empty vectors.
