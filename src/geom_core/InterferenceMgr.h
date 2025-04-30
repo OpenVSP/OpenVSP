@@ -46,6 +46,7 @@ public:
 
     vec3d weightdist( const vec3d &cg, const vector < vec3d > &ptvec, const vec3d &normal );
     double tipback( const vec3d &cg, const vec3d &normal, const vec3d &ptaxis, const vec3d &axis, vec3d &p0, vec3d &p1 );
+    double tipover( const vec3d &cg, const vec3d &normal, const vec3d &ptaxis, const vec3d &axis, vec3d &p0, vec3d &p1 );
 
     void ShowBoth();
     void ShowOnlyBoth();

@@ -758,6 +758,21 @@ double InterferenceCase::tipback( const vec3d &cg, const vec3d &normal, const ve
     return signed_angle( vperp, normal, axis );
 }
 
+double InterferenceCase::tipover( const vec3d &cg, const vec3d &normal, const vec3d &ptaxis, const vec3d &axis, vec3d &p0, vec3d &p1 )
+{
+    const vec3d v = cg - ptaxis;
+
+    const vec3d vpar = dot( v, axis ) * axis;
+    const vec3d vperp = v - vpar;
+
+    const vec3d vup = dot( vperp, normal ) * normal;
+    const vec3d vrem = vperp - vup;
+
+    p0 = ptaxis + vpar;
+    p1 = p0 + vrem;
+    return angle( vperp, vrem );
+}
+
 void InterferenceCase::ShowBoth()
 {
     ShowPrimary();
