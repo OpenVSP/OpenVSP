@@ -655,6 +655,42 @@ string InterferenceCase::Evaluate()
     return m_LastResult;
 }
 
+vec3d InterferenceCase::weightdist( const vec3d &cg, const vector < vec3d > &ptvec, const vec3d &normal )
+{
+    typedef Eigen::Matrix< double, 3, 3 > mat3;
+    typedef Eigen::Matrix< double, 4, 3 > mat43;
+    typedef Eigen::Matrix< double, 1, 3 > row3;
+    typedef Eigen::Matrix< double, 3, 1 > vec3;
+
+    mat3 moments = mat3::Zero();
+    for ( unsigned int i = 0; i < ptvec.size(); ++i )
+    {
+        vec3d v = ptvec[i] - cg;
+        vec3d m = cross( normal, v );
+
+        row3 col;
+        m.get_pnt( col );
+
+        moments.col( i ) = col.transpose();
+    }
+
+    row3 forces;
+    forces << 1, 1, 1;
+
+    mat43 sys;
+    sys.topRows( 1 ) = forces;
+    sys.bottomRows( 3 ) = moments;
+
+    Eigen::Matrix< double, 4, 1 > rhs;
+    rhs << 1, 0, 0, 0;
+
+    Eigen::JacobiSVD < mat43 > svd( sys, Eigen::ComputeThinU | Eigen::ComputeThinV );
+    vec3 sol = svd.solve( rhs );
+
+    vec3d res( sol );
+    return res;
+}
+
 double InterferenceCase::tipback( const vec3d &cg, const vec3d &normal, const vec3d &ptaxis, const vec3d &axis, vec3d &p0, vec3d &p1 )
 {
     const vec3d v = cg - ptaxis;
