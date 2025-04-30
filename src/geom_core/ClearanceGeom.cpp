@@ -599,6 +599,22 @@ void ClearanceGeom::GetPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d 
     }
 }
 
+void ClearanceGeom::GetTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal )
+{
+    if ( m_ClearanceMode() == vsp::CLEARANCE_TWO_PT_GROUND )
+    {
+        Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+
+        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        if ( gear )
+        {
+            gear->GetTwoPtSideContactPtsNormalInWorld( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+                                                     m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
+                                                     p1, p2, normal );
+        }
+    }
+}
+
 void ClearanceGeom::GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal )
 {
     if ( m_ClearanceMode() == vsp::CLEARANCE_THREE_PT_GROUND )
