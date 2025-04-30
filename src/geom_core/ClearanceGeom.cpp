@@ -520,6 +520,22 @@ void ClearanceGeom::GetPtNormal( vec3d &pt, vec3d &normal ) const
     }
 }
 
+void ClearanceGeom::GetPtPivotAxis( vec3d &ptaxis, vec3d &axis )
+{
+    if ( m_ClearanceMode() == vsp::CLEARANCE_TWO_PT_GROUND )
+    {
+        Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+
+        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        if ( gear )
+        {
+            gear->GetTwoPtPivotInWorld( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
+                                        m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(),
+                                        ptaxis, axis );
+        }
+    }
+}
+
 void ClearanceGeom::GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
 {
     if ( m_ClearanceMode() == vsp::CLEARANCE_TWO_PT_GROUND )
