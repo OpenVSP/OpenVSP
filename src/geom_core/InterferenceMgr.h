@@ -30,6 +30,7 @@ public:
     vector< TMesh* > GetPrimaryTMeshVec();
     vector< TMesh* > GetSecondaryTMeshVec();
 
+    void GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );
     void GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
     void GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds );
 
