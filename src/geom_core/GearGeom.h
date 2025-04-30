@@ -44,6 +44,7 @@ public:
     vec3d GetNominalPivotPoint( int isymm ) const;
     vec3d GetPivotPoint( int isymm, int suspensionmode ) const;
     double GetAxleArm() const;
+    double GetBogieSemiWidth() const;
     vec3d GetAxleDisplacement( double thetabogie ) const;
     vec3d GetFwdAxle( int isymm, int suspensionmode, double thetabogie ) const;
     vec3d GetAftAxle( int isymm, int suspensionmode, double thetabogie ) const;

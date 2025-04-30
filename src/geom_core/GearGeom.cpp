@@ -547,6 +547,11 @@ double Bogie::GetAxleArm() const
     return 0.5 * ( m_NTandem() - 1 ) * m_Pitch();
 }
 
+double Bogie::GetBogieSemiWidth() const
+{
+    return 0.5 * ( m_NAcross() - 1 ) * m_Spacing();
+}
+
 vec3d Bogie::GetAxleDisplacement( double thetabogie ) const
 {
     vec3d v( GetAxleArm(), 0, 0 );
