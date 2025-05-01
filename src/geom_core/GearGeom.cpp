@@ -1509,6 +1509,40 @@ bool GearGeom::GetTwoPtSideContactPtsNormal( const string &cp1, int isymm1, int 
     return false;
 }
 
+bool GearGeom::GetOnePtSideContactPtAxisNormal( const string &cp1, int isymm1, int suspension1, int tire1,
+                                                double thetabogie, double thetawheel, double thetaroll, vec3d &p1, vec3d &axis, vec3d &normal, int &ysign ) const
+{
+    const Bogie *b1 = GetBogie( cp1 );
+    if ( b1 )
+    {
+        // Grab mean contact point to determine ysign
+        p1 = b1->GetMeanContactPoint( isymm1, tire1, suspension1, 0 );
+
+        // Assign ysign to match wheel position relative to center line.
+        ysign = sgn( p1.y() );
+
+        p1 = b1->GetSideContactPoint( isymm1, suspension1, tire1, thetabogie, thetawheel, ysign);
+
+        vec3d y( 0, 1, 0 );
+        axis.set_xyz( 1, 0, 0 );
+        normal.set_xyz( 0, 0, 1 );
+
+        Matrix4d mat;
+        if ( b1->m_NTandem() > 1 )
+        {
+            mat.rotate( thetabogie, y );
+        }
+        mat.rotate( thetawheel, y );
+        mat.rotate( thetaroll, axis );
+
+        axis = mat.xformnorm( axis );
+        normal = mat.xformnorm( normal );
+
+        return true;
+    }
+    return false;
+}
+
 bool GearGeom::GetPtNormal( const string &cp1, int isymm1, int suspension1, int tire1,
                             const string &cp2, int isymm2, int suspension2, int tire2,
                             const string &cp3, int isymm3, int suspension3, int tire3,
@@ -1614,6 +1648,16 @@ bool GearGeom::GetTwoPtSideContactPtsNormalInWorld( const string &cp1, int isymm
     bool ret = GetTwoPtSideContactPtsNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, p1, p2, normal );
     p1 = m_ModelMatrix.xform( p1 );
     p2 = m_ModelMatrix.xform( p2 );
+    normal = m_ModelMatrix.xformnorm( normal );
+    return ret;
+}
+
+bool GearGeom::GetOnePtSideContactPtAxisNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
+                                                       double thetabogie, double thetawheel, double thetaroll, vec3d &p1, vec3d &axis, vec3d &normal, int &ysign ) const
+{
+    bool ret = GetOnePtSideContactPtAxisNormal( cp1, isymm1, suspension1, tire1, thetabogie, thetawheel, thetaroll, p1, axis, normal, ysign);
+    p1 = m_ModelMatrix.xform( p1 );
+    axis = m_ModelMatrix.xformnorm( axis );
     normal = m_ModelMatrix.xformnorm( normal );
     return ret;
 }

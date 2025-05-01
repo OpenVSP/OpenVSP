@@ -284,6 +284,9 @@ public:
                                                const string &cp2, int isymm2, int suspension2, int tire2,
                                                vec3d &p1, vec3d &p2, vec3d &normal ) const;
 
+    virtual bool GetOnePtSideContactPtAxisNormal( const string &cp1, int isymm1, int suspension1, int tire1,
+                                                  double thetabogie, double thetawheel, double thetaroll, vec3d &p1, vec3d &axis, vec3d &normal, int &ysign ) const;
+
     virtual bool GetPtNormal( const string &cp1, int isymm1, int suspension1, int tire1,
                               const string &cp2, int isymm2, int suspension2, int tire2,
                               const string &cp3, int isymm3, int suspension3, int tire3,
@@ -316,6 +319,9 @@ public:
     virtual bool GetTwoPtSideContactPtsNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
                                                       const string &cp2, int isymm2, int suspension2, int tire2,
                                                       vec3d &p1, vec3d &p2, vec3d &normal ) const;
+
+    virtual bool GetOnePtSideContactPtAxisNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
+                                                         double thetabogie, double thetawheel, double thetaroll, vec3d &p1, vec3d &axis, vec3d &normal, int &ysign ) const;
 
     virtual bool GetPtNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
                                      const string &cp2, int isymm2, int suspension2, int tire2,
