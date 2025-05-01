@@ -791,6 +791,20 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "CLEARANCE_GEOM_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "CLEARANCE_ROTOR_TIP_PATH", CLEARANCE_ROTOR_TIP_PATH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "CLEARANCE_ROTOR_BURST", CLEARANCE_ROTOR_BURST );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "CLEARANCE_THREE_PT_GROUND", CLEARANCE_THREE_PT_GROUND );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "CLEARANCE_TWO_PT_GROUND", CLEARANCE_TWO_PT_GROUND );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "NUM_CLEARANCE_MODES", NUM_CLEARANCE_MODES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "COLLISION_ERRORS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COLLISION_ERRORS", "COLLISION_OK", COLLISION_OK );
