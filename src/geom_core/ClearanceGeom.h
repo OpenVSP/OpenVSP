@@ -86,6 +86,7 @@ public:
 
     Parm m_BogieTheta;
     Parm m_WheelTheta;
+    Parm m_RollTheta;
 protected:
 
     virtual void UpdateSurf();

@@ -64,6 +64,7 @@ ClearanceGeom::ClearanceGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_BogieTheta.Init( "BogieTheta", "Design", this, 0.0, -180.0, 180.0 );
     m_WheelTheta.Init( "WheelTheta", "Design", this, 0.0, -180.0, 180.0 );
+    m_RollTheta.Init( "RollTheta", "Design", this, 0.0, -180.0, 180.0 );
 
     m_ParentType = -1;
 
