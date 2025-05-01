@@ -261,6 +261,26 @@ void InterferenceCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
     }
 }
 
+void InterferenceCase::GetSecondarySideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_SecondaryType() == vsp::GEOM_TARGET )
+        {
+            Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+
+            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+
+            if ( clearance_ptr )
+            {
+                clearance_ptr->GetSideContactPtRollAxisNormal( pt, axis, normal, ysign );
+            }
+        }
+    }
+}
+
+
 void InterferenceCase::GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
