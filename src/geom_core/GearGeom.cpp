@@ -1186,6 +1186,23 @@ void GearGeom::UpdateBBox( )
     Geom::UpdateBBox( istart, gnd_box );
 }
 
+void GearGeom::BuildOnePtBasis( const string &cp1, int isymm1, int suspension1, int tire1,
+                                double thetabogie, double thetawheel, double thetaroll, Matrix4d &mat, vec3d &p1 )
+{
+    mat.loadIdentity();
+
+    vec3d axis, normal;
+    int ysign;
+    if ( GetOnePtSideContactPtAxisNormal( cp1, isymm1, suspension1, tire1, thetabogie, thetawheel, thetaroll, p1, axis, normal, ysign) )
+    {
+        vec3d y = cross( normal, axis );
+        y.normalize();
+
+        mat.translatev( p1 );
+        mat.setBasis( axis, y, normal );
+    }
+}
+
 void GearGeom::BuildTwoPtBasis( const string &cp1, int isymm1, int suspension1, int tire1,
                                 const string &cp2, int isymm2, int suspension2, int tire2,
                                 double thetabogie, Matrix4d &mat, vec3d &p1, vec3d &p2 )

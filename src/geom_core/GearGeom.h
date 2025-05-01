@@ -247,6 +247,9 @@ public:
     virtual void UpdateBBox();
     virtual bool IsModelScaleSensitive()        { return m_AutoPlaneFlag(); }
 
+    virtual void BuildOnePtBasis( const string &cp1, int isymm1, int suspension1, int tire1,
+                                  double thetabogie, double thetawheel, double thetaroll, Matrix4d &mat, vec3d &p1 );
+
     virtual void BuildTwoPtBasis( const string &cp1, int isymm1, int suspension1, int tire1,
                                   const string &cp2, int isymm2, int suspension2, int tire2,
                                   double thetabogie, Matrix4d &mat, vec3d &p1, vec3d &p2 );
