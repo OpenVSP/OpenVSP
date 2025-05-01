@@ -48,6 +48,7 @@ public:
     virtual void GetPtNormal( vec3d &pt, vec3d &normal ) const;
     virtual void GetPtPivotAxis( vec3d &ptaxis, vec3d &axis );
     virtual void GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );
+    virtual void GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign );
     virtual void GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
     virtual void GetPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
     virtual void GetTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );

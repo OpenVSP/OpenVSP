@@ -558,6 +558,21 @@ void ClearanceGeom::GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal,
     }
 }
 
+void ClearanceGeom::GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign )
+{
+    if ( m_ClearanceMode() == vsp::CLEARANCE_ONE_PT_GROUND )
+    {
+        Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+
+        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        if ( gear )
+        {
+            gear->GetOnePtSideContactPtAxisNormalInWorld( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+                                                          m_BogieTheta() * M_PI / 180.0, m_WheelTheta() * M_PI / 180, 0, pt, axis, normal, ysign);
+        }
+    }
+}
+
 void ClearanceGeom::GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis )
 {
     if ( m_ClearanceMode() == vsp::CLEARANCE_TWO_PT_GROUND )
