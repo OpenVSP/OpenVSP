@@ -801,6 +801,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "CLEARANCE_TWO_PT_GROUND", CLEARANCE_TWO_PT_GROUND );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "CLEARANCE_ONE_PT_GROUND", CLEARANCE_ONE_PT_GROUND );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "NUM_CLEARANCE_MODES", NUM_CLEARANCE_MODES );
     assert( r >= 0 );
 

@@ -28,6 +28,7 @@ ClearanceScreen::ClearanceScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 +
     m_ClearanceModeChoice.AddItem( "Rotor Burst", vsp::CLEARANCE_ROTOR_BURST );
     m_ClearanceModeChoice.AddItem( "3pt Ground Plane", vsp::CLEARANCE_THREE_PT_GROUND );
     m_ClearanceModeChoice.AddItem( "2pt Ground Plane", vsp::CLEARANCE_TWO_PT_GROUND );
+    m_ClearanceModeChoice.AddItem( "1pt Ground Plane", vsp::CLEARANCE_ONE_PT_GROUND );
     m_ClearanceModeChoice.AddItem( "Rotor 1/3 Fragment", vsp::CLEARANCE_ROTOR_BURST );
     m_ClearanceModeChoice.AddItem( "Rotor Intermediate Fragment", vsp::CLEARANCE_ROTOR_BURST );
     m_ClearanceModeChoice.AddItem( "Tire Spray Cone", vsp::CLEARANCE_ROTOR_BURST );
@@ -43,6 +44,7 @@ ClearanceScreen::ClearanceScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 +
     m_DesignLayout.AddSubGroupLayout( m_RotorBurstLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_3ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_2ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
+    m_DesignLayout.AddSubGroupLayout( m_1ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
 
     m_RotorTipPathLayput.AddButton( m_RTP_AutoDiamToggleButton, "Automatic Diameter" );
     m_RotorTipPathLayput.AddSlider( m_RTP_DiameterSlider, "Diameter", 1.0, "%5.4f" );
@@ -151,6 +153,26 @@ ClearanceScreen::ClearanceScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 +
     m_2ptGroundPlaneLayout.AddSlider( m_2ptBogieThetaSlider, "Bogie Theta", 10, "%5.4f" );
     m_2ptGroundPlaneLayout.AddSlider( m_2ptWheelThetaSlider, "Wheel Theta", 10, "%5.4f" );
 
+    m_1ptBogie1SuspensionModeChoice.AddItem( "Nominal", vsp::GEAR_SUSPENSION_NOMINAL );
+    m_1ptBogie1SuspensionModeChoice.AddItem( "Compressed", vsp::GEAR_SUSPENSION_COMPRESSED );
+    m_1ptBogie1SuspensionModeChoice.AddItem( "Extended", vsp::GEAR_SUSPENSION_EXTENDED );
+    m_1ptBogie1SuspensionModeChoice.UpdateItems();
+
+    m_1ptBogie1TireModeChoice.AddItem( "Static Load", vsp::TIRE_STATIC_LODED_CONTACT );
+    m_1ptBogie1TireModeChoice.AddItem( "Unloaded", vsp::TIRE_NOMINAL_CONTACT );
+    m_1ptBogie1TireModeChoice.AddItem( "Grown", vsp::TIRE_GROWTH_CONTACT );
+    m_1ptBogie1TireModeChoice.AddItem( "Flat", vsp::TIRE_FLAT_CONTACT );
+    m_1ptBogie1TireModeChoice.UpdateItems();
+
+    m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1Choice, "Bogie 1" );
+    m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1SymmChoice, "I Symm" );
+    m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1SuspensionModeChoice, "Suspension Mode" );
+    m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1TireModeChoice, "Tire Mode" );
+
+    m_1ptGroundPlaneLayout.AddSlider( m_1ptBogieThetaSlider, "Bogie Theta", 10, "%5.4f" );
+    m_1ptGroundPlaneLayout.AddSlider( m_1ptWheelThetaSlider, "Wheel Theta", 10, "%5.4f" );
+    m_1ptGroundPlaneLayout.AddSlider( m_1ptRollThetaSlider, "Roll Theta", 10, "%5.4f" );
+
     DisplayGroup( nullptr );
 }
 
@@ -165,6 +187,7 @@ void ClearanceScreen::DisplayGroup( GroupLayout* group )
     m_RotorBurstLayout.Hide();
     m_3ptGroundPlaneLayout.Hide();
     m_2ptGroundPlaneLayout.Hide();
+    m_1ptGroundPlaneLayout.Hide();
 
     m_CurrDisplayGroup = group;
 
@@ -263,6 +286,19 @@ bool ClearanceScreen::Update()
             m_2ptBogieThetaSlider.Update( clearance_ptr->m_BogieTheta.GetID() );
             m_2ptWheelThetaSlider.Update( clearance_ptr->m_WheelTheta.GetID() );
         }
+        else if ( clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_ONE_PT_GROUND )
+        {
+            DisplayGroup( &m_1ptGroundPlaneLayout );
+
+            m_1ptBogie1SymmChoice.Update( clearance_ptr->m_ContactPt1_Isymm.GetID() );
+            m_1ptBogie1SuspensionModeChoice.Update( clearance_ptr->m_ContactPt1_SuspensionMode.GetID() );
+            m_1ptBogie1TireModeChoice.Update( clearance_ptr->m_ContactPt1_TireMode.GetID() );
+
+            m_1ptBogieThetaSlider.Update( clearance_ptr->m_BogieTheta.GetID() );
+            m_1ptWheelThetaSlider.Update( clearance_ptr->m_WheelTheta.GetID() );
+            m_1ptRollThetaSlider.Update( clearance_ptr->m_RollTheta.GetID() );
+
+        }
     }
 
     return true;
@@ -287,9 +323,11 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
     m_3ptBogie3Choice.ClearItems();
     m_2ptBogie1Choice.ClearItems();
     m_2ptBogie2Choice.ClearItems();
+    m_1ptBogie1Choice.ClearItems();
 
     if ( clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_THREE_PT_GROUND ||
-         clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_TWO_PT_GROUND)
+         clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_TWO_PT_GROUND ||
+         clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_ONE_PT_GROUND )
     {
         Geom* parent_geom = veh->FindGeom( clearance_ptr->GetParentID() );
 
@@ -307,24 +345,28 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
                 m_3ptBogie3Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_2ptBogie1Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_2ptBogie2Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
+                m_1ptBogie1Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
             }
             m_3ptBogie1Choice.UpdateItems();
             m_3ptBogie2Choice.UpdateItems();
             m_3ptBogie3Choice.UpdateItems();
             m_2ptBogie1Choice.UpdateItems();
             m_2ptBogie2Choice.UpdateItems();
+            m_1ptBogie1Choice.UpdateItems();
 
             int indx = vector_find_val( m_BogieIDVec, clearance_ptr->m_ContactPt1_ID );
             if ( indx >= 0 && indx < m_BogieIDVec.size() )
             {
                 m_3ptBogie1Choice.SetVal( indx );
                 m_2ptBogie1Choice.SetVal( indx );
+                m_1ptBogie1Choice.SetVal( indx );
             }
             else if ( m_BogieIDVec.size() > 0 )
             {
                 clearance_ptr->m_ContactPt1_ID = m_BogieIDVec[0];
                 m_3ptBogie1Choice.SetVal( 0 );
                 m_2ptBogie1Choice.SetVal( 0 );
+                m_1ptBogie1Choice.SetVal( 0 );
             }
 
             indx = vector_find_val( m_BogieIDVec, clearance_ptr->m_ContactPt2_ID );
@@ -355,22 +397,27 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
 
             m_3ptBogie1SymmChoice.ClearItems();
             m_2ptBogie1SymmChoice.ClearItems();
+            m_1ptBogie1SymmChoice.ClearItems();
 
             Bogie *b1 = gear->GetBogie( clearance_ptr->m_ContactPt1_ID );
             if ( b1 )
             {
                 m_3ptBogie1SymmChoice.AddItem( "ISym = 0", 0 );
                 m_2ptBogie1SymmChoice.AddItem( "ISym = 0", 0 );
+                m_1ptBogie1SymmChoice.AddItem( "ISym = 0", 0 );
                 if ( b1->m_Symmetrical() )
                 {
                     m_3ptBogie1SymmChoice.AddItem( "ISym = 1", 1 );
                     m_2ptBogie1SymmChoice.AddItem( "ISym = 1", 1 );
+                    m_1ptBogie1SymmChoice.AddItem( "ISym = 1", 1 );
                 }
             }
             m_3ptBogie1SymmChoice.UpdateItems();
             m_3ptBogie1SymmChoice.SetVal( clearance_ptr->m_ContactPt1_Isymm() );
             m_2ptBogie1SymmChoice.UpdateItems();
             m_2ptBogie1SymmChoice.SetVal( clearance_ptr->m_ContactPt1_Isymm() );
+            m_1ptBogie1SymmChoice.UpdateItems();
+            m_1ptBogie1SymmChoice.SetVal( clearance_ptr->m_ContactPt1_Isymm() );
 
 
             m_3ptBogie2SymmChoice.ClearItems();
@@ -491,6 +538,18 @@ void ClearanceScreen::GuiDeviceCallBack( GuiDevice* device )
         else
         {
             clearance_ptr->SetContactPt2ID( "" );
+        }
+    }
+    else if ( device == &m_1ptBogie1Choice )
+    {
+        int val = m_1ptBogie1Choice.GetVal();
+        if ( val >= 0 && val < m_BogieIDVec.size() )
+        {
+            clearance_ptr->SetContactPt1ID( m_BogieIDVec[ val ] );
+        }
+        else
+        {
+            clearance_ptr->SetContactPt1ID( "" );
         }
     }
 }

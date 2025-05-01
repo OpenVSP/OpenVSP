@@ -40,6 +40,7 @@ protected:
     GroupLayout m_RotorBurstLayout;
     GroupLayout m_3ptGroundPlaneLayout;
     GroupLayout m_2ptGroundPlaneLayout;
+    GroupLayout m_1ptGroundPlaneLayout;
 
 
     Choice m_ClearanceModeChoice;
@@ -98,6 +99,18 @@ protected:
 
     SliderAdjRangeInput m_2ptBogieThetaSlider;
     SliderAdjRangeInput m_2ptWheelThetaSlider;
+
+    // 1pt Ground Plane
+
+    Choice m_1ptBogie1Choice;
+    Choice m_1ptBogie1SymmChoice;
+    Choice m_1ptBogie1SuspensionModeChoice;
+    Choice m_1ptBogie1TireModeChoice;
+
+    SliderAdjRangeInput m_1ptBogieThetaSlider;
+    SliderAdjRangeInput m_1ptWheelThetaSlider;
+    SliderAdjRangeInput m_1ptRollThetaSlider;
+
 
     GroupLayout* m_CurrDisplayGroup;
 };

@@ -319,6 +319,35 @@ void ClearanceGeom::UpdateSurf()
                 // m_ContactPts.push_back( ptaxis2 );
             }
         }
+        else if ( m_ClearanceMode() == vsp::CLEARANCE_ONE_PT_GROUND )
+        {
+            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            if ( gear )
+            {
+                Matrix4d basis;
+                m_ContactPts.resize( 2 );
+
+                vec3d p1;
+
+                gear->BuildOnePtBasis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+                                       m_BogieTheta() * M_PI / 180.0, m_WheelTheta() * M_PI / 180.0, m_RollTheta() * M_PI / 180.0, basis, p1);
+
+                m_BasisOrigin = basis.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
+                m_BasisAxis.clear();
+                m_BasisAxis.resize( 3 );
+                for ( int i = 0; i < 3; i++ )
+                {
+                    vec3d pt = vec3d( 0.0, 0.0, 0.0 );
+                    pt.v[i] = 1;
+                    m_BasisAxis[i] = basis.xform( pt );
+                }
+
+
+                m_MainSurfVec[0].CreatePlane( -refLen, refLen, -refLen, refLen );
+                m_MainSurfVec[0].Transform( basis );
+            }
+        }
     }
 }
 
