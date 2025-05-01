@@ -587,10 +587,23 @@ vec3d Bogie::GetAftContactPoint( int isymm, int suspensionmode, int tiremode, do
     return GetAftAxle( isymm, suspensionmode, thetabogie ) + v;
 }
 
-vec3d Bogie::GetSideContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, int ysign ) const
+vec3d Bogie::GetSideContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel, int ysign ) const
 {
     vec3d v( 0, ysign * GetBogieSemiWidth(), 0 );
-    return GetMeanContactPoint( isymm, tiremode, suspensionmode, thetabogie ) + v;
+    vec3d origin;
+    if ( thetawheel > 0 )
+    {
+        origin = GetAftContactPoint( isymm, suspensionmode, tiremode, thetabogie, thetawheel );
+    }
+    else if ( thetawheel < 0 )
+    {
+        origin = GetFwdContactPoint( isymm, suspensionmode, tiremode, thetabogie, thetawheel );
+    }
+    else
+    {
+        origin = GetMeanContactPoint( isymm, tiremode, suspensionmode, thetabogie );
+    }
+    return origin + v;
 }
 
 void Bogie::AppendMainSurf( vector < VspSurf > &surfvec ) const
@@ -1472,8 +1485,8 @@ bool GearGeom::GetTwoPtSideContactPtsNormal( const string &cp1, int isymm1, int 
             ysign = sgn( p2.y() );
         }
 
-        p1 = b1->GetSideContactPoint( isymm1, suspension1, tire1, /* thetabogie */ 0.0, ysign );
-        p2 = b2->GetSideContactPoint( isymm2, suspension2, tire2, /* thetabogie */ 0.0, ysign );
+        p1 = b1->GetSideContactPoint( isymm1, suspension1, tire1, /* thetabogie */ 0.0, /* thetawheel */ 0.0, ysign);
+        p2 = b2->GetSideContactPoint( isymm2, suspension2, tire2, /* thetabogie */ 0.0, /* thetawheel */ 0.0, ysign);
 
 
         vec3d v12 = p2 - p1;
