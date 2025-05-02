@@ -14,6 +14,7 @@
 #include "GearGeom.h"
 #include "Geom.h"
 #include "ParmMgr.h"
+#include "StlHelper.h"
 #include <cfloat>  //For DBL_EPSILON
 
 using namespace vsp;
@@ -673,6 +674,114 @@ void ClearanceGeom::GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &no
                                                    m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
                                                    m_ContactPt3_ID, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), m_ContactPt3_TireMode(),
                                                    ptvec, normal );
+        }
+    }
+}
+
+void ClearanceGeom::CalculateTurn( vec3d &cor, vec3d &normal, vector<double> &rvec )
+{
+    if ( m_ClearanceMode() == vsp::CLEARANCE_THREE_PT_GROUND )
+    {
+        Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+
+        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        if ( gear )
+        {
+            vector < vec3d > ptvec;
+            gear->GetContactPointVecNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+                                            m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
+                                            m_ContactPt3_ID, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), m_ContactPt3_TireMode(),
+                                            ptvec, normal );
+
+            int isteer;
+            double steerangle;
+            gear->GetSteerAngle( m_ContactPt1_ID, m_ContactPt2_ID, m_ContactPt3_ID, isteer, steerangle );
+
+            // Identify normal wheels as non-steering wheels.
+            vector < int > inormal = {0, 1, 2};
+            vector_remove_val( inormal, isteer );
+
+            // Construct axle axis between two 'normal' wheels.
+            vec3d axle = ptvec[ inormal[0] ] - ptvec[ inormal[ 1 ] ];
+            axle.normalize();
+
+            // Directions in nominal gear coordinates.
+            vec3d up( 0, 0, 1 );
+            // Steering axle before rotating.
+            vec3d steeraxle( 0, 1, 0 );
+
+            double steerideal = 0;
+            for( int i = 0; i < ptvec.size(); ++i )
+            {
+                if ( i != isteer )
+                {
+                    // better to do some sort of projection / rejection to find angle in plane of rotation of gear.
+                    vec3d v = ptvec[ i ] - ptvec[ isteer ];
+
+                    vec3d vperp = proj_u_on_v( v, up );
+                    vec3d vpar = v - vperp;
+
+                    double si = signed_angle( vpar, steeraxle, up );
+
+                    if ( si > M_PI * 0.5 )
+                    {
+                        si -= M_PI;
+                    }
+
+                    if ( std::abs( si ) > steerideal )
+                    {
+                        steerideal = si;
+                    }
+                }
+            }
+
+            // If steerable bogie is capable of turning more than ideal angle, limit turn to ideal angle.
+            if ( steerangle > std::abs( steerideal ) )
+            {
+                steerangle = steerideal;
+            }
+            else // Turn in direction of ideal angle.
+            {
+                steerangle *= sgn( steerideal );
+            }
+
+            steeraxle.rotate_z( steerangle );
+
+            vec3d steerperp = proj_u_on_v( steeraxle, normal );
+            vec3d steerpar = steeraxle - steerperp;
+
+            // Need to project rotated steeraxle into plane.
+
+            cor.set_xyz( 0, 0, 0 );
+            for( int i = 0; i < ptvec.size(); ++i )
+            {
+                vec3d psteer1 = ptvec[isteer];
+                vec3d psteer2 = psteer1 + steerpar;
+
+                if ( i != isteer )
+                {
+                    vec3d p1 = ptvec[i];
+                    vec3d p2 = p1 + axle;
+
+                    double s, t;
+                    line_line_intersect( psteer1, psteer2, p1, p2, &s, &t );
+                    vec3d pint = psteer1 + s * steerpar;
+
+                    cor = cor + pint;
+                }
+            }
+            cor = cor * 0.5;
+
+            rvec.resize( ptvec.size() );
+            for( int i = 0; i < ptvec.size(); ++i )
+            {
+                rvec[i] = dist( ptvec[ i ], cor );
+            }
+
+            // Return results in world coordinates
+            Matrix4d world = gear->getModelMatrix();
+            normal = world.xformnorm( normal );
+            cor = world.xform( cor );
         }
     }
 }
