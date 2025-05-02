@@ -442,6 +442,29 @@ void BndBox::MinMaxAnglePlane( const vec3d &org, const vec3d &norm, const vec3d&
     }
 }
 
+// Naive brute foce implementation.  Can likely be optimized substantially.
+void BndBox::MinMaxDistRay( const vec3d &org, const vec3d &norm, double &mind, double &maxd )
+{
+    vec3d p0 = GetCornerPnt( 0 );
+
+    mind = dist_pnt_2_ray( org, norm, p0 );
+    maxd = mind;
+
+    for ( int i = 1; i < 8; i++ )
+    {
+        double d = dist_pnt_2_ray( org, norm, GetCornerPnt( i ) );
+
+        if ( d < mind )
+        {
+            mind = d;
+        }
+        if ( d > maxd )
+        {
+            maxd = d;
+        }
+    }
+}
+
 //==== Assemble Boundbox Draw Lines ====//
 std::vector< vec3d > BndBox::GetBBoxDrawLines() const
 {
