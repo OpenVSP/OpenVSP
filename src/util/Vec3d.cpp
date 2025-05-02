@@ -894,6 +894,15 @@ double dist_pnt_2_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3
     return( cross( A_B, C_B ).mag() / denom );
 }
 
+//******* Dist Between Point And Ray ******//
+double dist_pnt_2_ray( const vec3d& line_pt1, const vec3d& dir_unit_vec, const vec3d& pnt )
+{
+    vec3d A_B = pnt - line_pt1;
+
+    // This calculation only works when direction is a unit vector.
+    return cross( A_B, dir_unit_vec ).mag();
+}
+
 //******* Distance Between Point And Line Segment ******//
 /*
 double dist_pnt_2_line_seg(vec3d& line_pt1, vec3d& line_pt2, vec3d& pnt)
