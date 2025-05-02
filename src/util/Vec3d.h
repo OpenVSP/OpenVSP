@@ -990,6 +990,8 @@ public:
 
     double mag() const;                // x = a.mag()
 
+    double magsq() const;
+
 /*!
     Normalize the vec3d
     \forcpponly

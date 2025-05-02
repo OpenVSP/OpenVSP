@@ -411,6 +411,11 @@ double vec3d::mag() const
     return( sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] ) );
 }
 
+double vec3d::magsq() const
+{
+    return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+}
+
 //****** Normalize:   a.normalize()  ******//
 void vec3d::normalize()
 {
