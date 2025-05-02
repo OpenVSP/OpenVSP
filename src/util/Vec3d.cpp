@@ -919,6 +919,11 @@ double dist_pnt_2_line_seg(vec3d& line_pt1, vec3d& line_pt2, vec3d& pnt)
 }
 */
 
+vec3d proj_u_on_v( const vec3d& u, const vec3d& v )
+{
+    return v * dot( u, v ) / v.magsq();
+}
+
 //******* Project Pnt Onto Line Seg ******//
 vec3d proj_pnt_on_line_seg( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt )
 {
