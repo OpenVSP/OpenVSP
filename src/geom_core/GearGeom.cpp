@@ -1595,6 +1595,28 @@ bool GearGeom::GetPtNormal( const string &cp1, int isymm1, int suspension1, int 
     return false;
 }
 
+bool GearGeom::GetSteerAngle( const string &cp1, const string &cp2, const string &cp3, int &isteer, double &steerangle ) const
+{
+    const Bogie *b1 = GetBogie( cp1 );
+    const Bogie *b2 = GetBogie( cp2 );
+    const Bogie *b3 = GetBogie( cp3 );
+
+    if ( b1 && b2 && b3 )
+    {
+        vector < double > turnvec( 3 );
+        turnvec[0] = b1->m_SteeringAngle();
+        turnvec[1] = b2->m_SteeringAngle();
+        turnvec[3] = b3->m_SteeringAngle();
+
+        isteer = vector_find_maximum( turnvec );
+        steerangle = turnvec[ isteer ] * M_PI / 180.0;
+        return true;
+    }
+    isteer = -1;
+    steerangle = 0;
+    return false;
+}
+
 bool GearGeom::GetTwoPtPivotInWorld( const string &cp1, int isymm1, int suspension1,
                                      const string &cp2, int isymm2, int suspension2,
                                      vec3d &ptaxis, vec3d &axis ) const

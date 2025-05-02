@@ -295,6 +295,8 @@ public:
                               const string &cp3, int isymm3, int suspension3, int tire3,
                               vec3d &pt, vec3d &normal ) const;
 
+    virtual bool GetSteerAngle( const string &cp1, const string &cp2, const string &cp3, int &isteer, double &steerangle ) const;
+
     virtual bool GetTwoPtPivotInWorld( const string &cp1, int isymm1, int suspension1,
                                            const string &cp2, int isymm2, int suspension2,
                                            vec3d &ptaxis, vec3d &axis ) const;
