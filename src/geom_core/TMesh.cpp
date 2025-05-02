@@ -3171,6 +3171,56 @@ double TBndBox::MinDistance( const vec3d &org, const vec3d &norm, double curr_mi
     return curr_min_dist;
 }
 
+double TBndBox::MaxDistanceRay( const vec3d &org, const vec3d &norm, double curr_max_dist, vec3d &p1, vec3d &p2 )
+{
+    if ( m_Box.IsEmpty() )
+    {
+        return curr_max_dist;
+    }
+
+    double mind, maxd;
+    m_Box.MinMaxDistRay( org, norm, mind, maxd );
+
+    // Farthest point of box (farthest possible for all items in box) is closer than already observed distance.
+    if ( maxd < curr_max_dist )
+    {
+        return curr_max_dist;
+    }
+
+    //==== Recursively Check Sub Boxes ====//
+    if ( m_SBoxVec[0] )
+    {
+        for ( int i = 0 ; i < 8 ; i++ )
+        {
+            curr_max_dist = m_SBoxVec[i]->MaxDistanceRay( org, norm, curr_max_dist, p1, p2 );
+        }
+    }
+    //==== Check All Points Against Other Points ====//
+    else
+    {
+        for ( size_t i = 0 ; i < ( int )m_TriVec.size() ; i++ )
+        {
+            TTri* t0 = m_TriVec[i];
+
+            for ( int inode = 0; inode < 3; inode++ )
+            {
+                TNode *n = t0->GetTriNode( inode );
+
+                double d = dist_pnt_2_ray( org, norm, n->m_Pnt );
+                if ( d > curr_max_dist )
+                {
+                    curr_max_dist = d;
+                    p2 = n->m_Pnt;
+                    p1 = proj_pnt_on_ray( org, norm, p2 );
+                }
+            }
+        }
+    }
+
+    return curr_max_dist;
+}
+
+
 double TBndBox::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 )
 {
     if ( m_Box.IsEmpty() )
