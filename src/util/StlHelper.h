@@ -129,6 +129,22 @@ int vector_find_minimum( const vector < T > & vec )
 }
 
 template <class T>
+int vector_find_maximum( const vector < T > & vec )
+{
+    int imin = 0;
+    T vmin = vec[imin];
+    for ( int i = 1; i < vec.size(); i++ )
+    {
+        if ( vec[i] > vmin )
+        {
+            imin = i;
+            vmin = vec[imin];
+        }
+    }
+    return imin;
+}
+
+template <class T>
 void vector_insert_after( vector< T > & vec, int indx , T const & val )
 {
     vector< T > new_vector;
