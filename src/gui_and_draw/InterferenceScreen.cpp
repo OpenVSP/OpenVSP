@@ -70,6 +70,7 @@ InterferenceScreen::InterferenceScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600
     m_InterferenceTypeChoice.AddItem( "Packaging", vsp::PACKAGING_INTERFERENCE );
     m_InterferenceTypeChoice.AddItem( "Self External", vsp::EXTERNAL_SELF_INTERFERENCE );
     m_InterferenceTypeChoice.AddItem( "Plane Distance", vsp::PLANE_STATIC_DISTANCE_INTERFERENCE );
+    m_InterferenceTypeChoice.AddItem( "Plane 2pt Angle", vsp::PLANE_2PT_ANGLE_INTERFERENCE );
     m_InterferenceTypeChoice.UpdateItems();
 
     m_ICaseLayout.AddYGap();

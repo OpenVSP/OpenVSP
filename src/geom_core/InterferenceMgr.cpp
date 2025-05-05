@@ -379,6 +379,165 @@ string InterferenceCase::Evaluate()
                 }
                 break;
             }
+            case vsp::PLANE_2PT_ANGLE_INTERFERENCE:
+            {
+                Results *res = ResultsMgr.CreateResults( "Plane_2pt_Angle_Interference", "Two point plane angle interference check." );
+                if( res )
+                {
+                    m_LastResult = res->GetID();
+                    primary_tmv = GetPrimaryTMeshVec();
+                    CSGMesh( primary_tmv );
+                    FlattenTMeshVec( primary_tmv );
+                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                    primary_tm->LoadBndBox();
+
+                    vec3d pivot_org, pivot_norm;
+                    vec3d pivot_ptaxis, pivot_axis;
+                    bool usepivot = false;
+                    double mintheta, maxtheta;
+                    GetSecondaryPtNormalMeanContactPivotAxis( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, usepivot, mintheta, maxtheta );
+
+                    // Check un-rotated for collision
+                    // If violated, intersect mesh, calculate volume, etc.
+                    PlaneInterferenceCheck( primary_tm, pivot_org, pivot_norm, m_LastResult, m_TMeshVec );
+
+                    bool interference_flag = true;
+                    NameValData* nvd = res->FindPtr( "Interference", 0 );
+                    if( nvd )
+                    {
+                        interference_flag = nvd->GetBool( 0 );
+                    }
+
+                    if ( !interference_flag )
+                    {
+                        int ccw = 1;
+
+                        vector < vec3d > tipback_pts( 2 );
+                        vec3d p1, p2;
+
+                        double tipback_bogie = 1e12 * M_PI / 180;
+                        double tipback_wheel = 1e12 * M_PI / 180;;
+
+                        bool skipwheel = false;
+
+                        // Find if there are wheels (at lest) in tandem on bogie.
+                        if ( usepivot )
+                        {
+                            // Do tilt analysis
+                            tipback_bogie = ccw * primary_tm->MinAngle( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, tipback_bogie, ccw, p1, p2 );
+
+                            // Check back tilt limit
+                            if ( tipback_bogie > maxtheta )
+                            {
+                                // If exceeded, set bogietheta to limit
+                                tipback_bogie = maxtheta;
+                            }
+                            else
+                            {
+                                tipback_pts.push_back( p1 );
+                                tipback_pts.push_back( p2 );
+                                skipwheel = true;
+                            }
+                        }
+                        else
+                        {
+                            tipback_bogie = 0;
+                        }
+
+                        if ( !skipwheel )
+                        {
+                            vec3d aft_org, aft_norm;
+                            vec3d aft_ptaxis, aft_axis;
+
+                            // Get aft axle parms
+                            GetSecondaryPtNormalAftAxleAxis( tipback_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
+
+                            // Do tilt analysis
+                            tipback_wheel = ccw * primary_tm->MinAngle( aft_org, aft_norm, aft_ptaxis, aft_axis, tipback_wheel, ccw, p1, p2 );
+                            tipback_pts.push_back( p1 );
+                            tipback_pts.push_back( p2 );
+
+                            vec3d p3 = pivot_ptaxis + RotateArbAxis( p2 - pivot_ptaxis, tipback_bogie, pivot_axis );
+                            tipback_pts.push_back( p2 );
+                            tipback_pts.push_back( p3 );
+                        }
+                        else
+                        {
+                            tipback_wheel = 0;
+                        }
+
+                        res->Add( new NameValData( "TipbackBogie", tipback_bogie * 180.0 / M_PI, "Bogie tipback angle to contact." ) );
+                        res->Add( new NameValData( "TipbackWheel", tipback_wheel * 180.0 / M_PI, "Wheel tipback angle to contact." ) );
+                        res->Add( new NameValData( "Tipback", ( tipback_bogie + tipback_wheel ) * 180.0 / M_PI, "Total tipback angle to contact." ) );
+                        res->Add( new NameValData( "TipbackPts", tipback_pts, "Tipback contact arc end points." ) );
+
+
+                        ccw = -1;
+                        vector < vec3d > tipfwd_pts( 2 );
+
+                        double tipfwd_bogie = 1e12 * M_PI / 180;
+                        double tipfwd_wheel = 1e12 * M_PI / 180;;
+
+                        skipwheel = false;
+
+                        // Find if there are wheels (at lest) in tandem on bogie.
+                        if ( usepivot )
+                        {
+                            // Do tilt analysis
+                            tipfwd_bogie = ccw * primary_tm->MinAngle( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, tipfwd_bogie, ccw, p1, p2 );
+
+                            // Check forward tilt limit
+                            if ( tipfwd_bogie < mintheta )
+                            {
+                                // If exceeded, set bogietheta to limit
+                                tipfwd_bogie = mintheta;
+                            }
+                            else
+                            {
+                                tipfwd_pts.push_back( p1 );
+                                tipfwd_pts.push_back( p2 );
+                                skipwheel = true;
+                            }
+                        }
+                        else
+                        {
+                            tipfwd_bogie = 0;
+                        }
+
+                        if ( !skipwheel )
+                        {
+                            vec3d fwd_org, fwd_norm;
+                            vec3d fwd_ptaxis, fwd_axis;
+                            // Get fwd axle parms
+                            GetSecondaryPtNormalFwdAxleAxis( tipfwd_bogie, fwd_org, fwd_norm, fwd_ptaxis, fwd_axis );
+
+                            // Do tilt analysis
+                            tipfwd_wheel = ccw * primary_tm->MinAngle( fwd_org, fwd_norm, fwd_ptaxis, fwd_axis, tipfwd_wheel, ccw, p1, p2 );
+                            tipfwd_pts.push_back( p1 );
+                            tipfwd_pts.push_back( p2 );
+
+                            vec3d p3 = pivot_ptaxis + RotateArbAxis( p2 - pivot_ptaxis, tipfwd_bogie, pivot_axis );
+                            tipback_pts.push_back( p2 );
+                            tipback_pts.push_back( p3 );
+                        }
+                        else
+                        {
+                            tipfwd_wheel = 0;
+                        }
+
+                        res->Add( new NameValData( "TipfwdBogie", tipfwd_bogie * 180.0 / M_PI, "Bogie tipfwd angle to contact." ) );
+                        res->Add( new NameValData( "TipfwdWheel", tipfwd_wheel * 180.0 / M_PI, "Wheel tipfwd angle to contact." ) );
+                        res->Add( new NameValData( "Tipfwd", ( tipfwd_bogie + tipfwd_wheel ) * 180.0 / M_PI, "Total tipfwd angle to contact." ) );
+                        res->Add( new NameValData( "TipfwdPts", tipfwd_pts, "Tipfwd contact arc end points." ) );
+
+                        m_PtsVec.insert( m_PtsVec.end(), tipback_pts.begin(), tipback_pts.end() );
+                        m_PtsVec.insert( m_PtsVec.end(), tipfwd_pts.begin(), tipfwd_pts.end() );
+
+                        delete primary_tm;
+                    }
+                }
+                break;
+            }
         }
 
         // These are safe for empty vectors.
