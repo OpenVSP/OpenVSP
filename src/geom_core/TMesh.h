@@ -593,6 +593,8 @@ void MeshIntersect( vector < TMesh* > & tmv );
 void MeshSubtract( vector < TMesh* > & tmv );
 void MeshCutAbovePlane( vector < TMesh* > & tmv, const vector <vec3d> & threepts );
 
+TMesh* MakeConvexHull(const vector< TMesh* > & tmesh_vec );
+
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
 bool DeterIntExtTri( TTri* tri, TMesh* mesh );
 

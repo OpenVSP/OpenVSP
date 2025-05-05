@@ -24,6 +24,7 @@
 
 #include "tri_tri_intersect.h"
 #include "predicates.h"
+#include "Mathematics/ConvexHull3.h"
 
 #include "Geom.h"
 #include "SubSurfaceMgr.h"
@@ -5999,6 +6000,82 @@ void MeshCutAbovePlane( vector < TMesh* > & tmv, const vector <vec3d> & threepts
     tmv[1]->SetIgnoreAbovePlane( threepts );
 }
 
+TMesh* MakeConvexHull(const vector< TMesh* > & tmesh_vec )
+{
+    TMesh* tMesh = nullptr;
+
+    int npts = 0;
+    for ( int i = 0; i < ( int )tmesh_vec.size() ; i++ )
+    {
+        npts += tmesh_vec[ i ]->m_NVec.size();
+    }
+    gte::Vector3 < double > *pts = new gte::Vector3 < double > [ npts ];
+
+    int k = 0;
+    for ( int i = 0; i < ( int )tmesh_vec.size() ; i++ )
+    {
+        for ( int j = 0; j < tmesh_vec[ i ]->m_NVec.size(); j++ )
+        {
+            pts[ k ][ 0 ] = tmesh_vec[ i ]->m_NVec[ j ]->m_Pnt.x();
+            pts[ k ][ 1 ] = tmesh_vec[ i ]->m_NVec[ j ]->m_Pnt.y();
+            pts[ k ][ 2 ] = tmesh_vec[ i ]->m_NVec[ j ]->m_Pnt.z();
+            k++;
+        }
+    }
+
+    gte::ConvexHull3 < double > ch;
+
+    ch( npts, pts, 0 );
+
+    if ( ch.GetDimension() == 3 )
+    {
+        tMesh = new TMesh();
+
+        if ( tMesh )
+        {
+            std::vector < size_t > hull = ch.GetHull();
+
+            vector < bool > vused( npts, false );
+            for ( int i = 0; i < hull.size(); i++ )
+            {
+                vused[ hull[ i ] ] = true;
+            }
+
+            vector < int > vxref( npts, -1 );
+            int iused = 0;
+            for ( int i = 0 ; i < ( int )npts ; i++ )
+            {
+                if ( vused[ i ] )
+                {
+                    TNode *n = new TNode();
+                    n->m_Pnt = vec3d( pts[ i ][ 0 ], pts[ i ][ 1 ], pts[ i ][ 2 ] );
+                    n->m_ID = i;
+                    tMesh->m_NVec.push_back( n );
+                    vxref[ i ] = iused;
+                    iused++;
+                }
+            }
+
+            int nFaces = hull.size() / 3;
+            tMesh->m_TVec.reserve( nFaces );
+
+            for ( int i = 0; i < nFaces; i++ )
+            {
+                TTri *t = new TTri( tMesh );
+
+                t->m_N0 = tMesh->m_NVec[ vxref[ hull[ 3 * i + 0 ] ] ];
+                t->m_N1 = tMesh->m_NVec[ vxref[ hull[ 3 * i + 1 ] ] ];
+                t->m_N2 = tMesh->m_NVec[ vxref[ hull[ 3 * i + 2 ] ] ];
+
+                t->CompNorm();
+                tMesh->m_TVec.push_back( t );
+            }
+        }
+    }
+
+    delete[] pts;
+    return tMesh;
+}
 
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
 {
