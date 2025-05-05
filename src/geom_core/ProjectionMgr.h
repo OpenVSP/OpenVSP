@@ -79,8 +79,6 @@ public:
 
 protected:
 
-    virtual void CleanMesh( vector < TMesh* > & tmv );
-
     virtual void TransformMesh( vector < TMesh* > & tmv, const Matrix4d & mat );
     virtual void TransformPolyVec( vector < vector < vec3d > > & polyvec, const Matrix4d & mat );
 

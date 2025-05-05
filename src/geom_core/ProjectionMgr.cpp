@@ -187,7 +187,7 @@ Results* ProjectionMgrSingleton::Project( int tset, const vec3d & dir )
     vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tset );
 
     Results* res = Project( targetTMeshVec, dir );
-    CleanMesh( targetTMeshVec );
+    DeleteTMeshVec( targetTMeshVec );
     return res;
 }
 
@@ -200,8 +200,8 @@ Results* ProjectionMgrSingleton::Project( int tset, int bset, const vec3d & dir 
 
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
 
-    CleanMesh( targetTMeshVec );
-    CleanMesh( boundaryTMeshVec );
+    DeleteTMeshVec( targetTMeshVec );
+    DeleteTMeshVec( boundaryTMeshVec );
     return res;
 }
 
@@ -214,8 +214,8 @@ Results* ProjectionMgrSingleton::Project( int tset, const string &bgeom, const v
 
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
 
-    CleanMesh( targetTMeshVec );
-    CleanMesh( boundaryTMeshVec );
+    DeleteTMeshVec( targetTMeshVec );
+    DeleteTMeshVec( boundaryTMeshVec );
     return res;
 }
 
@@ -226,7 +226,7 @@ Results* ProjectionMgrSingleton::Project( const string &tgeom, const vec3d & dir
     vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tgeom );
 
     Results* res = Project( targetTMeshVec, dir );
-    CleanMesh( targetTMeshVec );
+    DeleteTMeshVec( targetTMeshVec );
     return res;
 }
 
@@ -239,8 +239,8 @@ Results* ProjectionMgrSingleton::Project( const string &tgeom, int bset, const v
 
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
 
-    CleanMesh( targetTMeshVec );
-    CleanMesh( boundaryTMeshVec );
+    DeleteTMeshVec( targetTMeshVec );
+    DeleteTMeshVec( boundaryTMeshVec );
     return res;
 }
 
@@ -252,8 +252,8 @@ Results* ProjectionMgrSingleton::Project( const string &tgeom, const string &bge
     vector < TMesh* > boundaryTMeshVec = veh->CreateTMeshVec( bgeom );
 
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
-    CleanMesh( targetTMeshVec );
-    CleanMesh( boundaryTMeshVec );
+    DeleteTMeshVec( targetTMeshVec );
+    DeleteTMeshVec( boundaryTMeshVec );
     return res;
 }
 
@@ -568,15 +568,6 @@ void ProjectionMgrSingleton::TransformPolyVec( vector < vector < vec3d > > & pol
             polyvec[i][j] = mat.xform( polyvec[i][j] );
         }
     }
-}
-
-void ProjectionMgrSingleton::CleanMesh( vector < TMesh* > & tmv )
-{
-    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
-    {
-        delete tmv[i];
-    }
-    tmv.clear();
 }
 
 void ProjectionMgrSingleton::UpdateBBox( vector < TMesh* > & tmv )
