@@ -40,6 +40,8 @@ public:
 
     string Evaluate();
 
+    double tipback( const vec3d &cg, const vec3d &normal, const vec3d &ptaxis, const vec3d &axis, vec3d &p0, vec3d &p1 );
+
     void ShowBoth();
     void ShowOnlyBoth();
     void ShowPrimary();
