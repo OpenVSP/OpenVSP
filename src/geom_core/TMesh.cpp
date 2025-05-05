@@ -5281,7 +5281,7 @@ double FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TM
     return sqrt( max_dist );
 }
 
-string PlaneInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org, const vec3d & norm, vector< TMesh* > & result_tmv )
+void PlaneInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org, const vec3d & norm, const string & resid, vector< TMesh* > & result_tmv )
 {
     bool intersect_flag = false;
     bool interference_flag = false;
@@ -5355,7 +5355,7 @@ string PlaneInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org
 
     double gcon = con_dist * con_vol;
 
-    Results *res = ResultsMgr.CreateResults( "Static_Plane_Distance_Interference", "Static point plane distance interference check." );
+    Results *res = ResultsMgr.FindResultsPtr( resid );
     if( res )
     {
         // Populate results.
@@ -5367,8 +5367,6 @@ string PlaneInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org
         res->Add( new NameValData( "Con_Val", gcon, "Constraint value" ) );
         res->Add( new NameValData( "Result", gcon, "Interference result" ) );
     }
-
-    return res->GetID();
 }
 
 string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv )

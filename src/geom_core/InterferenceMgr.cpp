@@ -269,29 +269,34 @@ string InterferenceCase::Evaluate()
             }
             case vsp::PLANE_STATIC_DISTANCE_INTERFERENCE:
             {
-                primary_tmv = GetPrimaryTMeshVec();
-
-                vec3d org, norm;
-                if ( m_SecondaryUseZGround() )
+                Results *res = ResultsMgr.CreateResults( "Static_Plane_Distance_Interference", "Static point plane distance interference check." );
+                if( res )
                 {
-                    org.set_z( m_SecondaryZGround() );
-                    norm.set_z( 1 );
-                }
-                else
-                {
-                    GetSecondaryPtNormal( org, norm );
-                }
+                    m_LastResult = res->GetID();
+                    primary_tmv = GetPrimaryTMeshVec();
 
-                // Create MeshGeom of matching plane.
-                // Vehicle * veh = VehicleMgr.GetVehicle();
-                // string meshid = veh->AddMeshGeom( vsp::SET_NONE, vsp::SET_NONE, false );
-                // Geom* geom_ptr = veh->FindGeom( meshid );
-                // MeshGeom *mg = dynamic_cast<  MeshGeom* > ( geom_ptr );
-                // mg->m_TMeshVec.push_back( MakeSlice( org, norm, 10 ) );
-                // mg->m_SurfDirty = true;
-                // mg->Update();
+                    vec3d org, norm;
+                    if ( m_SecondaryUseZGround() )
+                    {
+                        org.set_z( m_SecondaryZGround() );
+                        norm.set_z( 1 );
+                    }
+                    else
+                    {
+                        GetSecondaryPtNormal( org, norm );
+                    }
 
-                m_LastResult = PlaneInterferenceCheck( primary_tmv, org, norm, m_TMeshVec );
+                    // Create MeshGeom of matching plane.
+                    // Vehicle * veh = VehicleMgr.GetVehicle();
+                    // string meshid = veh->AddMeshGeom( vsp::SET_NONE, vsp::SET_NONE, false );
+                    // Geom* geom_ptr = veh->FindGeom( meshid );
+                    // MeshGeom *mg = dynamic_cast<  MeshGeom* > ( geom_ptr );
+                    // mg->m_TMeshVec.push_back( MakeSlice( org, norm, 10 ) );
+                    // mg->m_SurfDirty = true;
+                    // mg->Update();
+
+                    PlaneInterferenceCheck( primary_tmv, org, norm, m_LastResult, m_TMeshVec );
+                }
                 break;
             }
         }
