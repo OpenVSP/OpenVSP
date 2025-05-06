@@ -52,6 +52,24 @@ GeometryAnalysisCase::GeometryAnalysisCase()
 
 void GeometryAnalysisCase::Update()
 {
+    // Single-geometry analyses that require special geometry or a single geometry only
+    if ( m_GeometryAnalysisType() == vsp::EXTERNAL_SELF_INTERFERENCE ||
+         m_GeometryAnalysisType() == vsp::GEAR_CG_TIPBACK_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS )
+    {
+        m_PrimaryType = vsp::GEOM_TARGET;
+    }
+
+    // Dual-geometry analyses that require special geometry
+    if ( m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE ||
+         m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
+         m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
+         m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS )
+    {
+        m_SecondaryType = vsp::GEOM_TARGET;
+    }
+
 }
 
 string GeometryAnalysisCase::GetPrimaryName() const

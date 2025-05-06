@@ -14,7 +14,7 @@
 #include "ModeMgr.h"
 
 //==== Constructor ====//
-GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 700, "Geometry Analyses" )
+GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 540, "Geometry Analyses" )
 {
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
@@ -80,112 +80,129 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_GCaseLayout.AddYGap();
 
-    m_GCaseLayout.AddDividerBox( "Primary" );
+    int geomH = 100;
+    int geomW = ( m_GCaseLayout.GetW() - 5 ) * 0.5;
+    m_GCaseLayout.AddSubGroupLayout( m_PrimaryLayout, geomW, geomH );
+    m_GCaseLayout.AddX( geomW + 5 );
+    m_GCaseLayout.AddSubGroupLayout( m_SecondaryLayout, geomW, geomH );
+    m_GCaseLayout.AddY( geomH );
 
-    m_GCaseLayout.SetSameLineFlag( true );
-    m_GCaseLayout.SetFitWidthFlag( false );
-
-    int bw = m_GCaseLayout.GetChoiceButtonWidth();
-    m_GCaseLayout.SetButtonWidth( bw );
-
-    m_GCaseLayout.SetSameLineFlag( true );
-    m_GCaseLayout.SetChoiceButtonWidth( 0 );
-    m_GCaseLayout.SetFitWidthFlag( false );
-    m_GCaseLayout.AddButton( m_PrimarySetToggle, "Set:" );
-    m_GCaseLayout.SetFitWidthFlag( true );
-    m_GCaseLayout.AddChoice(m_PrimarySetChoice, "", bw);
     m_GCaseLayout.ForceNewLine();
 
-    m_GCaseLayout.SetSameLineFlag( true );
-    m_GCaseLayout.SetChoiceButtonWidth( 0 );
-    m_GCaseLayout.SetFitWidthFlag( false );
-    m_GCaseLayout.AddButton( m_PrimaryModeToggle, "Mode:" );
-    m_GCaseLayout.SetFitWidthFlag( true );
-    m_GCaseLayout.AddChoice(m_PrimaryModeChoice, "", bw );
-    m_GCaseLayout.ForceNewLine();
+    m_PrimaryLayout.AddDividerBox( "Primary" );
 
-    m_GCaseLayout.SetSameLineFlag( true );
-    m_GCaseLayout.SetChoiceButtonWidth( 0 );
-    m_GCaseLayout.SetFitWidthFlag( false );
-    m_GCaseLayout.AddButton( m_PrimaryGeomToggle, "Geom:" );
-    m_GCaseLayout.SetFitWidthFlag( true );
+    m_PrimaryLayout.SetSameLineFlag( true );
+    m_PrimaryLayout.SetFitWidthFlag( false );
+
+    int bw = m_PrimaryLayout.GetChoiceButtonWidth();
+    m_PrimaryLayout.SetButtonWidth( bw );
+
+    m_PrimaryLayout.SetSameLineFlag( true );
+    m_PrimaryLayout.SetChoiceButtonWidth( 0 );
+    m_PrimaryLayout.SetFitWidthFlag( false );
+    m_PrimaryLayout.AddButton( m_PrimarySetToggle, "Set:" );
+    m_PrimaryLayout.SetFitWidthFlag( true );
+    m_PrimaryLayout.AddChoice(m_PrimarySetChoice, "", bw);
+    m_PrimaryLayout.ForceNewLine();
+
+    m_PrimaryLayout.SetSameLineFlag( true );
+    m_PrimaryLayout.SetChoiceButtonWidth( 0 );
+    m_PrimaryLayout.SetFitWidthFlag( false );
+    m_PrimaryLayout.AddButton( m_PrimaryModeToggle, "Mode:" );
+    m_PrimaryLayout.SetFitWidthFlag( true );
+    m_PrimaryLayout.AddChoice(m_PrimaryModeChoice, "", bw );
+    m_PrimaryLayout.ForceNewLine();
+
+    m_PrimaryLayout.SetSameLineFlag( true );
+    m_PrimaryLayout.SetChoiceButtonWidth( 0 );
+    m_PrimaryLayout.SetFitWidthFlag( false );
+    m_PrimaryLayout.AddButton( m_PrimaryGeomToggle, "Geom:" );
+    m_PrimaryLayout.SetFitWidthFlag( true );
     m_PrimaryGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
     m_PrimaryGeomPicker.AddExcludeType( BLANK_GEOM_TYPE );
     m_PrimaryGeomPicker.AddExcludeType( HINGE_GEOM_TYPE );
-    m_GCaseLayout.AddGeomPicker( m_PrimaryGeomPicker, m_GCaseLayout.GetButtonWidth(), "" );
-    m_GCaseLayout.ForceNewLine();
+    m_PrimaryLayout.AddGeomPicker( m_PrimaryGeomPicker, m_PrimaryLayout.GetButtonWidth(), "" );
+    m_PrimaryLayout.ForceNewLine();
 
     m_PrimaryToggleGroup.Init( this );
     m_PrimaryToggleGroup.AddButton( m_PrimarySetToggle.GetFlButton() ); // Order matters.
     m_PrimaryToggleGroup.AddButton( m_PrimaryGeomToggle.GetFlButton() );
     m_PrimaryToggleGroup.AddButton( m_PrimaryModeToggle.GetFlButton() );
 
-    m_GCaseLayout.SetFitWidthFlag( false );
+    m_PrimaryLayout.SetFitWidthFlag( false );
 
-    m_GCaseLayout.SetButtonWidth( m_GCaseLayout.GetW() * 0.5 );
-    m_GCaseLayout.AddButton( m_ShowPrimaryGeom, "Show" );
-    m_GCaseLayout.AddButton( m_ShowOnlyPrimaryGeom, "Show Only" );
-    m_GCaseLayout.ForceNewLine();
+    m_PrimaryLayout.ForceNewLine();
+    m_PrimaryLayout.AddYGap();
 
-    m_GCaseLayout.SetSameLineFlag( false );
-    m_GCaseLayout.SetFitWidthFlag( true );
+    m_PrimaryLayout.SetButtonWidth( m_PrimaryLayout.GetW() * 0.5 );
+    m_PrimaryLayout.AddButton( m_ShowPrimaryGeom, "Show" );
+    m_PrimaryLayout.AddButton( m_ShowOnlyPrimaryGeom, "Show Only" );
+    m_PrimaryLayout.ForceNewLine();
 
-    m_GCaseLayout.AddYGap();
+    m_PrimaryLayout.SetSameLineFlag( false );
+    m_PrimaryLayout.SetFitWidthFlag( true );
 
-    m_GCaseLayout.AddDividerBox( "Secondary" );
+    m_PrimaryLayout.AddYGap();
 
-    m_GCaseLayout.SetSameLineFlag( true );
-    m_GCaseLayout.SetFitWidthFlag( false );
+    m_SecondaryLayout.AddDividerBox( "Secondary" );
 
-    m_GCaseLayout.SetButtonWidth( bw );
+    m_SecondaryLayout.SetSameLineFlag( true );
+    m_SecondaryLayout.SetFitWidthFlag( false );
 
-    m_GCaseLayout.SetSameLineFlag( true );
-    m_GCaseLayout.SetChoiceButtonWidth( 0 );
-    m_GCaseLayout.SetFitWidthFlag( false );
-    m_GCaseLayout.AddButton( m_SecondarySetToggle, "Set:" );
-    m_GCaseLayout.SetFitWidthFlag( true );
-    m_GCaseLayout.AddChoice(m_SecondarySetChoice, "", bw);
-    m_GCaseLayout.ForceNewLine();
+    m_SecondaryLayout.SetButtonWidth( bw );
 
-    m_GCaseLayout.SetSameLineFlag( true );
-    m_GCaseLayout.SetChoiceButtonWidth( 0 );
-    m_GCaseLayout.SetFitWidthFlag( false );
-    m_GCaseLayout.AddButton( m_SecondaryGeomToggle, "Geom:" );
-    m_GCaseLayout.SetFitWidthFlag( true );
+    m_SecondaryLayout.SetSameLineFlag( true );
+    m_SecondaryLayout.SetChoiceButtonWidth( 0 );
+    m_SecondaryLayout.SetFitWidthFlag( false );
+    m_SecondaryLayout.AddButton( m_SecondarySetToggle, "Set:" );
+    m_SecondaryLayout.SetFitWidthFlag( true );
+    m_SecondaryLayout.AddChoice(m_SecondarySetChoice, "", bw);
+    m_SecondaryLayout.ForceNewLine();
+
+    m_SecondaryLayout.SetSameLineFlag( true );
+    m_SecondaryLayout.SetChoiceButtonWidth( 0 );
+    m_SecondaryLayout.SetFitWidthFlag( false );
+    m_SecondaryLayout.AddButton( m_SecondaryGeomToggle, "Geom:" );
+    m_SecondaryLayout.SetFitWidthFlag( true );
     m_SecondaryGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
     m_SecondaryGeomPicker.AddExcludeType( BLANK_GEOM_TYPE );
     m_SecondaryGeomPicker.AddExcludeType( HINGE_GEOM_TYPE );
-    m_GCaseLayout.AddGeomPicker( m_SecondaryGeomPicker, m_GCaseLayout.GetButtonWidth(), "" );
+    m_SecondaryLayout.AddGeomPicker( m_SecondaryGeomPicker, m_SecondaryLayout.GetButtonWidth(), "" );
 
-    m_GCaseLayout.ForceNewLine();
+    m_SecondaryLayout.ForceNewLine();
 
     m_SecondaryToggleGroup.Init( this );
     m_SecondaryToggleGroup.AddButton( m_SecondarySetToggle.GetFlButton() );
     m_SecondaryToggleGroup.AddButton( m_SecondaryGeomToggle.GetFlButton() );
 
-    m_GCaseLayout.SetSameLineFlag( false );
-    m_GCaseLayout.SetFitWidthFlag( true );
+    m_SecondaryLayout.SetSameLineFlag( true );
+    m_SecondaryLayout.SetFitWidthFlag( false );
 
-    m_GCaseLayout.AddButton( m_SecondaryUseZGroundToggle, "Use Z Plane" );
-    m_GCaseLayout.AddSlider( m_SecondaryZGroundSlider, "Z", 10, "%6.4f" );
+    m_SecondaryLayout.AddButton( m_SecondaryUseZGroundToggle, "Z Plane" );
+    m_SecondaryLayout.SetFitWidthFlag( true );
+    m_SecondaryLayout.SetButtonWidth( 0 );
+    m_SecondaryLayout.AddSlider( m_SecondaryZGroundSlider, "", 10, "%6.4f" );
+    m_SecondaryZGroundSlider.SetButtonNameUpdate( false );
+    m_SecondaryLayout.ForceNewLine();
+    m_SecondaryLayout.SetButtonWidth( bw );
 
-    m_GCaseLayout.AddYGap();
+    m_SecondaryLayout.SetFitWidthFlag( false );
 
-    m_GCaseLayout.AddButton( m_CCWToggle, "CCW" );
-    m_GCaseLayout.AddButton( m_CWToggle, "CW" );
-    m_GCaseLayout.ForceNewLine();
+    m_SecondaryLayout.SetButtonWidth( m_SecondaryLayout.GetW() * 0.5 );
+    m_SecondaryLayout.AddButton( m_CCWToggle, "CCW" );
+    m_SecondaryLayout.AddButton( m_CWToggle, "CW" );
+    m_SecondaryLayout.ForceNewLine();
 
     m_CCWToggleGroup.Init( this );
     m_CCWToggleGroup.AddButton( m_CCWToggle.GetFlButton() );
     m_CCWToggleGroup.AddButton( m_CWToggle.GetFlButton() );
 
-    m_GCaseLayout.SetSameLineFlag( true );
-    m_GCaseLayout.SetFitWidthFlag( false );
+    m_SecondaryLayout.AddYGap();
 
-    m_GCaseLayout.SetButtonWidth( m_GCaseLayout.GetW() * 0.5 );
-    m_GCaseLayout.AddButton( m_ShowSecondaryGeom, "Show" );
-    m_GCaseLayout.AddButton( m_ShowOnlySecondaryGeom, "Show Only" );
-    m_GCaseLayout.ForceNewLine();
+    m_SecondaryLayout.SetButtonWidth( m_SecondaryLayout.GetW() * 0.5 );
+    m_SecondaryLayout.AddButton( m_ShowSecondaryGeom, "Show" );
+    m_SecondaryLayout.AddButton( m_ShowOnlySecondaryGeom, "Show Only" );
+    m_SecondaryLayout.ForceNewLine();
 
     m_GCaseLayout.SetSameLineFlag( false );
     m_GCaseLayout.SetFitWidthFlag( true );
@@ -209,13 +226,14 @@ bool GeometryAnalysisScreen::Update()
     BasicScreen::Update();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return false;
+    }
 
     GeometryAnalysisMgr.Update();
 
     UpdateGeometryAnalysisBrowser();
-
-    m_PrimaryGeomPicker.Update();
-    m_SecondaryGeomPicker.Update();
 
     GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
 
@@ -235,112 +253,148 @@ bool GeometryAnalysisScreen::Update()
 
         m_CCWToggleGroup.Update( gcase->m_SecondaryCCWFlag.GetID() );
 
-        Vehicle *veh = VehicleMgr.GetVehicle();
-        if ( veh )
+        m_ScreenMgr->LoadSetChoice( {&m_PrimarySetChoice, &m_SecondarySetChoice}, {gcase->m_PrimarySet.GetID(), gcase->m_SecondarySet.GetID()} );
+
+        m_ScreenMgr->LoadModeChoice( m_PrimaryModeChoice, m_ModeIDs, gcase->m_PrimaryModeID );
+
+        // Handle single geom that require special types.
+        m_PrimaryGeomPicker.ClearIncludeType();
+        if ( gcase->m_GeometryAnalysisType() == vsp::GEAR_CG_TIPBACK_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS )
         {
-            m_ScreenMgr->LoadSetChoice( {&m_PrimarySetChoice, &m_SecondarySetChoice}, {gcase->m_PrimarySet.GetID(), gcase->m_SecondarySet.GetID()} );
+            m_PrimaryGeomPicker.AddIncludeType( AUXILIARY_GEOM_TYPE );
 
-            m_ScreenMgr->LoadModeChoice( m_PrimaryModeChoice, m_ModeIDs, gcase->m_PrimaryModeID );
+            // Many of these don't support Gear yet.  Probably needs a more sophisticted test.
+            m_PrimaryGeomPicker.AddIncludeType( GEAR_GEOM_TYPE );
+        }
+        m_PrimaryGeomPicker.Update();
 
-            if ( !veh->FindGeom( gcase->m_PrimaryGeomID ) )
-            {
-                gcase->m_PrimaryGeomID = m_PrimaryGeomPicker.GetGeomChoice();
-            }
-            else
-            {
-                m_PrimaryGeomPicker.SetGeomChoice( gcase->m_PrimaryGeomID );
-            }
+        if ( !veh->FindGeom( gcase->m_PrimaryGeomID ) )
+        {
+            gcase->m_PrimaryGeomID = m_PrimaryGeomPicker.GetGeomChoice();
+        }
+        else
+        {
+            m_PrimaryGeomPicker.SetGeomChoice( gcase->m_PrimaryGeomID );
+        }
 
-            if ( !veh->FindGeom( gcase->m_SecondaryGeomID ) )
-            {
-                gcase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetGeomChoice();
-            }
-            else
-            {
-                m_SecondaryGeomPicker.SetGeomChoice( gcase->m_SecondaryGeomID );
-            }
+        // Handle dual geom that require special types.
+        m_SecondaryGeomPicker.ClearIncludeType();
+        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE ||
+             gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
+             gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
+             gcase->m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS )
+        {
+            m_SecondaryGeomPicker.AddIncludeType( AUXILIARY_GEOM_TYPE );
+
+            // Many of these don't support Gear yet.  Probably needs a more sophisticted test.
+            m_SecondaryGeomPicker.AddIncludeType( GEAR_GEOM_TYPE );
+        }
+        m_SecondaryGeomPicker.Update();
+
+        if ( !veh->FindGeom( gcase->m_SecondaryGeomID ) )
+        {
+            gcase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetGeomChoice();
+        }
+        else
+        {
+            m_SecondaryGeomPicker.SetGeomChoice( gcase->m_SecondaryGeomID );
+        }
 
 
-            m_PrimaryToggleGroup.Update( gcase->m_PrimaryType.GetID() );
-            m_SecondaryToggleGroup.Update( gcase->m_SecondaryType.GetID() );
+        m_PrimaryToggleGroup.Update( gcase->m_PrimaryType.GetID() );
+        m_SecondaryToggleGroup.Update( gcase->m_SecondaryType.GetID() );
 
-            if ( ModeMgr.GetNumModes() == 0 )
-            {
-                if ( gcase->m_PrimaryType() == vsp::MODE_TARGET )
-                {
-                    gcase->m_PrimaryType = vsp::SET_TARGET;
-                    m_ScreenMgr->SetUpdateFlag( true );
-                }
-                m_PrimaryModeToggle.Deactivate();
-            }
-            else
-            {
-                m_PrimaryModeToggle.Activate();
-            }
-
+        if ( ModeMgr.GetNumModes() == 0 )
+        {
             if ( gcase->m_PrimaryType() == vsp::MODE_TARGET )
             {
-                m_PrimaryModeChoice.Activate();
-                m_PrimarySetChoice.Deactivate();
-                m_PrimaryGeomPicker.Deactivate();
+                gcase->m_PrimaryType = vsp::SET_TARGET;
+                m_ScreenMgr->SetUpdateFlag( true );
+            }
+            m_PrimaryModeToggle.Deactivate();
+        }
+        else
+        {
+            m_PrimaryModeToggle.Activate();
+        }
 
-                Mode *m = ModeMgr.GetMode( gcase->m_PrimaryModeID );
-                if ( m )
+        if ( gcase->m_PrimaryType() == vsp::MODE_TARGET )
+        {
+            m_PrimaryModeChoice.Activate();
+            m_PrimarySetChoice.Deactivate();
+            m_PrimaryGeomPicker.Deactivate();
+
+            Mode *m = ModeMgr.GetMode( gcase->m_PrimaryModeID );
+            if ( m )
+            {
+                if ( gcase->m_PrimarySet() != m->m_NormalSet() )
                 {
-                    if ( gcase->m_PrimarySet() != m->m_NormalSet() )
-                    {
-                        gcase->m_PrimarySet = m->m_NormalSet();
-                        m_ScreenMgr->SetUpdateFlag( true );
-                    }
+                    gcase->m_PrimarySet = m->m_NormalSet();
+                    m_ScreenMgr->SetUpdateFlag( true );
                 }
             }
-            else if ( gcase->m_PrimaryType() == vsp::SET_TARGET )
-            {
-                m_PrimaryModeChoice.Deactivate();
-                m_PrimarySetChoice.Activate();
-                m_PrimaryGeomPicker.Deactivate();
-
-            }
-            else if ( gcase->m_PrimaryType() == vsp::GEOM_TARGET )
-            {
-                m_PrimaryModeChoice.Deactivate();
-                m_PrimarySetChoice.Deactivate();
-                m_PrimaryGeomPicker.Activate();
-            }
-
-
-            if ( gcase->m_GeometryAnalysisType() != vsp::EXTERNAL_SELF_INTERFERENCE )
-            {
-                m_SecondarySetToggle.Activate();
-                m_SecondaryGeomToggle.Activate();
-
-                m_ShowSecondaryGeom.Activate();
-                m_ShowOnlySecondaryGeom.Activate();
-
-                if ( gcase->m_SecondaryType() == vsp::SET_TARGET )
-                {
-                    m_SecondarySetChoice.Activate();
-                    m_SecondaryGeomPicker.Deactivate();
-                }
-                else if ( gcase->m_SecondaryType() == vsp::GEOM_TARGET )
-                {
-                    m_SecondarySetChoice.Deactivate();
-                    m_SecondaryGeomPicker.Activate();
-                }
-            }
-            else
-            {
-                m_SecondarySetToggle.Deactivate();
-                m_SecondaryGeomToggle.Deactivate();
-                m_SecondarySetChoice.Deactivate();
-                m_SecondaryGeomPicker.Deactivate();
-
-                m_ShowSecondaryGeom.Deactivate();
-                m_ShowOnlySecondaryGeom.Deactivate();
-            }
-
+        }
+        else if ( gcase->m_PrimaryType() == vsp::SET_TARGET )
+        {
+            m_PrimaryModeChoice.Deactivate();
+            m_PrimarySetChoice.Activate();
+            m_PrimaryGeomPicker.Deactivate();
 
         }
+        else if ( gcase->m_PrimaryType() == vsp::GEOM_TARGET )
+        {
+            m_PrimaryModeChoice.Deactivate();
+            m_PrimarySetChoice.Deactivate();
+            m_PrimaryGeomPicker.Activate();
+        }
+
+        if ( gcase->m_SecondaryType() == vsp::SET_TARGET )
+        {
+            m_SecondarySetChoice.Activate();
+            m_SecondaryGeomPicker.Deactivate();
+        }
+        else if ( gcase->m_SecondaryType() == vsp::GEOM_TARGET )
+        {
+            m_SecondarySetChoice.Deactivate();
+            m_SecondaryGeomPicker.Activate();
+        }
+
+        // Single-geometry cases.
+        if ( gcase->m_GeometryAnalysisType() == vsp::EXTERNAL_SELF_INTERFERENCE ||
+             gcase->m_GeometryAnalysisType() == vsp::GEAR_CG_TIPBACK_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS )
+        {
+            m_SecondaryLayout.GetGroup()->deactivate();
+        }
+        else // Dual-geometry cases
+        {
+            m_SecondaryLayout.GetGroup()->activate();
+        }
+
+        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE )
+        {
+            m_SecondaryUseZGroundToggle.Activate();
+            m_SecondaryZGroundSlider.Activate();
+        }
+        else
+        {
+            m_SecondaryUseZGroundToggle.Deactivate();
+            m_SecondaryZGroundSlider.Deactivate();
+        }
+
+        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE )
+        {
+            m_CCWToggleGroup.Activate();
+        }
+        else
+        {
+            m_CCWToggleGroup.Deactivate();
+        }
+
+
 
     }
     else
@@ -350,10 +404,6 @@ bool GeometryAnalysisScreen::Update()
         m_GANameInput.Update( "" );
 
         m_ResultOutput.Update( "" );
-
-        m_PrimaryGeomPicker.SetGeomChoice( "" );
-        m_SecondaryGeomPicker.SetGeomChoice( "" );
-
     }
 
 
@@ -377,7 +427,16 @@ void GeometryAnalysisScreen::UpdateGeometryAnalysisBrowser()
     vector < GeometryAnalysisCase* > gcases = GeometryAnalysisMgr.GetAllGeometryAnalyses();
     for ( int i = 0 ; i < (int)gcases.size() ; i++ )
     {
-        snprintf( str, sizeof( str ),  "%s:%s:%s:%f: \n", gcases[i]->GetName().c_str(), gcases[i]->GetPrimaryName().c_str(), gcases[i]->GetSecondaryName().c_str(), gcases[i]->m_LastResultValue() );
+        string secondary;
+        if ( gcases[i]->m_GeometryAnalysisType() != vsp::EXTERNAL_SELF_INTERFERENCE &&
+             gcases[i]->m_GeometryAnalysisType() != vsp::GEAR_CG_TIPBACK_ANALYSIS &&
+             gcases[i]->m_GeometryAnalysisType() != vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS &&
+             gcases[i]->m_GeometryAnalysisType() != vsp::GEAR_TIPOVER_ANALYSIS )
+        {
+            secondary = gcases[i]->GetSecondaryName();
+        }
+
+        snprintf( str, sizeof( str ),  "%s:%s:%s:%f: \n", gcases[i]->GetName().c_str(), gcases[i]->GetPrimaryName().c_str(), secondary.c_str(), gcases[i]->m_LastResultValue() );
         m_GeometryAnalysisBrowser->add( str );
     }
     if ( m_GeometryBrowserSelect >= 0 && m_GeometryBrowserSelect < (int)gcases.size() )

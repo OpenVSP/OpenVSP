@@ -48,6 +48,8 @@ protected:
     GroupLayout m_GenLayout;
     GroupLayout m_BorderLayout;
     GroupLayout m_GCaseLayout;
+    GroupLayout m_PrimaryLayout;
+    GroupLayout m_SecondaryLayout;
 
     ColResizeBrowser* m_GeometryAnalysisBrowser;
     int m_GeometryBrowserSelect;
