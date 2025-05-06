@@ -570,6 +570,20 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "BOGIE_SPACING_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "BOGIE_SPACING_TYPE", "BOGIE_CENTER_DIST", BOGIE_CENTER_DIST );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "BOGIE_SPACING_TYPE", "BOGIE_CENTER_DIST_FRAC", BOGIE_CENTER_DIST_FRAC );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "BOGIE_SPACING_TYPE", "BOGIE_GAP", BOGIE_GAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "BOGIE_SPACING_TYPE", "BOGIE_GAP_FRAC", BOGIE_GAP_FRAC );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "BOGIE_SPACING_TYPE", "NUM_BOGIE_SPACING_TYPE", NUM_BOGIE_SPACING_TYPE );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "BOR_MODE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "BOR_MODE", "BOR_FLOWTHROUGH", BOR_FLOWTHROUGH );
