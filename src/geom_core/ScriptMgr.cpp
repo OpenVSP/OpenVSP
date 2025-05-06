@@ -1465,6 +1465,32 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "GEOMETRY_ANALYSIS_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "EXTERNAL_INTERFERENCE", EXTERNAL_INTERFERENCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "PACKAGING_INTERFERENCE", PACKAGING_INTERFERENCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "EXTERNAL_SELF_INTERFERENCE", EXTERNAL_SELF_INTERFERENCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "PLANE_STATIC_DISTANCE_INTERFERENCE", PLANE_STATIC_DISTANCE_INTERFERENCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "PLANE_2PT_ANGLE_INTERFERENCE", PLANE_2PT_ANGLE_INTERFERENCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "GEAR_CG_TIPBACK_ANALYSIS", GEAR_CG_TIPBACK_ANALYSIS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "PLANE_1PT_ANGLE_INTERFERENCE", PLANE_1PT_ANGLE_INTERFERENCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "GEAR_WEIGHT_DISTRIBUTION_ANALYSIS", GEAR_WEIGHT_DISTRIBUTION_ANALYSIS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "GEAR_TIPOVER_ANALYSIS", GEAR_TIPOVER_ANALYSIS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "GEAR_TURN_ANALYSIS", GEAR_TURN_ANALYSIS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "NUM_INTERFERENCE_TYPES", NUM_INTERFERENCE_TYPES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "GUI_GEOM_SCREEN" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "POD_GEOM_SCREEN", POD_GEOM_SCREEN );
@@ -1650,32 +1676,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_ELLIPSE", EDIT_XSEC_ELLIPSE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_RECTANGLE", EDIT_XSEC_RECTANGLE );
-    assert( r >= 0 );
-
-
-    r = se->RegisterEnum( "INTERFERENCE_CHECK_TYPE" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "EXTERNAL_INTERFERENCE", EXTERNAL_INTERFERENCE );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "PACKAGING_INTERFERENCE", PACKAGING_INTERFERENCE );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "EXTERNAL_SELF_INTERFERENCE", EXTERNAL_SELF_INTERFERENCE );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "PLANE_STATIC_DISTANCE_INTERFERENCE", PLANE_STATIC_DISTANCE_INTERFERENCE );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "PLANE_2PT_ANGLE_INTERFERENCE", PLANE_2PT_ANGLE_INTERFERENCE );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "GEAR_CG_TIPBACK_ANALYSIS", GEAR_CG_TIPBACK_ANALYSIS );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "PLANE_1PT_ANGLE_INTERFERENCE", PLANE_1PT_ANGLE_INTERFERENCE );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "GEAR_WEIGHT_DISTRIBUTION_ANALYSIS", GEAR_WEIGHT_DISTRIBUTION_ANALYSIS );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "GEAR_TIPOVER_ANALYSIS", GEAR_TIPOVER_ANALYSIS );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "GEAR_TURN_ANALYSIS", GEAR_TURN_ANALYSIS );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "INTERFERENCE_CHECK_TYPE", "NUM_INTERFERENCE_TYPES", NUM_INTERFERENCE_TYPES );
     assert( r >= 0 );
 
 

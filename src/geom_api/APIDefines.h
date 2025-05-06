@@ -872,6 +872,23 @@ enum GENDER { MALE,	/*!< Male Human component */
 /*!
 	\ingroup Enumerations
 */
+/*! Geometry analysis types.. */
+enum GEOMETRY_ANALYSIS_TYPE { EXTERNAL_INTERFERENCE,	/*!< Interference between mutually external bodies */
+                              PACKAGING_INTERFERENCE,	/*!< Interference when one body is internal to another */
+                              EXTERNAL_SELF_INTERFERENCE,	/*!< Interference between multiple surfaces of one Geom / Set */
+                              PLANE_STATIC_DISTANCE_INTERFERENCE,	/*!< Interference between surfaces and a plane */
+                              PLANE_2PT_ANGLE_INTERFERENCE,	/*!< Interference angle between surfaces and a plane */
+                              GEAR_CG_TIPBACK_ANALYSIS,	/*!< Calculate tipback angle */
+                              PLANE_1PT_ANGLE_INTERFERENCE,	/*!< Interference roll angle between surfaces and a plane */
+                              GEAR_WEIGHT_DISTRIBUTION_ANALYSIS,	/*!< Calculate distribution of weight across landing gear */
+                              GEAR_TIPOVER_ANALYSIS,	/*!< Calculate tipover angle */
+                              GEAR_TURN_ANALYSIS,	/*!< Calculate ground manueveribility */
+                              NUM_INTERFERENCE_TYPES	/*!< Number of interference check types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for geom screen types. */
 enum GUI_GEOM_SCREEN { POD_GEOM_SCREEN,	/*!< Pod geom screen */
                        FUSELAGE_GEOM_SCREEN,	/*!< Fuselage geom screen */
@@ -975,23 +992,6 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
 enum INIT_EDIT_XSEC_TYPE { EDIT_XSEC_CIRCLE,	/*!< Circle initialized as cubic Bezier type */
                            EDIT_XSEC_ELLIPSE,	/*!< Ellipse initialized as PCHIP type */
                            EDIT_XSEC_RECTANGLE	/*!< Rectangle initialized as linear type */
-};
-
-/*!
-	\ingroup Enumerations
-*/
-/*! Interference check types.. */
-enum INTERFERENCE_CHECK_TYPE { EXTERNAL_INTERFERENCE,	/*!< Interference between mutually external bodies */
-                               PACKAGING_INTERFERENCE,	/*!< Interference when one body is internal to another */
-                               EXTERNAL_SELF_INTERFERENCE,	/*!< Interference between multiple surfaces of one Geom / Set */
-                               PLANE_STATIC_DISTANCE_INTERFERENCE,	/*!< Interference between surfaces and a plane */
-                               PLANE_2PT_ANGLE_INTERFERENCE,	/*!< Interference angle between surfaces and a plane */
-                               GEAR_CG_TIPBACK_ANALYSIS,	/*!< Calculate tipback angle */
-                               PLANE_1PT_ANGLE_INTERFERENCE,	/*!< Interference roll angle between surfaces and a plane */
-                               GEAR_WEIGHT_DISTRIBUTION_ANALYSIS,	/*!< Calculate distribution of weight across landing gear */
-                               GEAR_TIPOVER_ANALYSIS,	/*!< Calculate tipover angle */
-                               GEAR_TURN_ANALYSIS,	/*!< Calculate ground manueveribility */
-                               NUM_INTERFERENCE_TYPES	/*!< Number of interference check types */
 };
 
 /*!
