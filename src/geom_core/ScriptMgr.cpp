@@ -553,6 +553,23 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "ATTRIBUTE_EVENT_GROUP", "ATTR_GROUP_WATERMARK", ATTR_GROUP_WATERMARK );
     assert( r >= 0 );
 
+
+    r = se->RegisterEnum( "AUX_GEOM_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_ROTOR_TIP_PATH", AUX_GEOM_ROTOR_TIP_PATH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_ROTOR_BURST", AUX_GEOM_ROTOR_BURST );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_THREE_PT_GROUND", AUX_GEOM_THREE_PT_GROUND );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_TWO_PT_GROUND", AUX_GEOM_TWO_PT_GROUND );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_ONE_PT_GROUND", AUX_GEOM_ONE_PT_GROUND );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "AUX_GEOM_MODE", "NUM_AUX_GEOM_MODES", NUM_AUX_GEOM_MODES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "BOR_MODE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "BOR_MODE", "BOR_FLOWTHROUGH", BOR_FLOWTHROUGH );
@@ -788,22 +805,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "CHEVRON_W01_MODES", "CHEVRON_W01_CW", CHEVRON_W01_CW );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CHEVRON_W01_MODES", "CHEVRON_W01_NUM_MODES", CHEVRON_W01_NUM_MODES );
-    assert( r >= 0 );
-
-
-    r = se->RegisterEnum( "CLEARANCE_GEOM_MODE" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "CLEARANCE_ROTOR_TIP_PATH", CLEARANCE_ROTOR_TIP_PATH );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "CLEARANCE_ROTOR_BURST", CLEARANCE_ROTOR_BURST );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "CLEARANCE_THREE_PT_GROUND", CLEARANCE_THREE_PT_GROUND );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "CLEARANCE_TWO_PT_GROUND", CLEARANCE_TWO_PT_GROUND );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "CLEARANCE_ONE_PT_GROUND", CLEARANCE_ONE_PT_GROUND );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "CLEARANCE_GEOM_MODE", "NUM_CLEARANCE_MODES", NUM_CLEARANCE_MODES );
     assert( r >= 0 );
 
 

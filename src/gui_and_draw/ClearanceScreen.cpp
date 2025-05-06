@@ -24,16 +24,16 @@ ClearanceScreen::ClearanceScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 +
 
     //==== Design ====//
 
-    m_ClearanceModeChoice.AddItem( "Rotor Tip Path", vsp::CLEARANCE_ROTOR_TIP_PATH );
-    m_ClearanceModeChoice.AddItem( "Rotor Burst", vsp::CLEARANCE_ROTOR_BURST );
-    m_ClearanceModeChoice.AddItem( "3pt Ground Plane", vsp::CLEARANCE_THREE_PT_GROUND );
-    m_ClearanceModeChoice.AddItem( "2pt Ground Plane", vsp::CLEARANCE_TWO_PT_GROUND );
-    m_ClearanceModeChoice.AddItem( "1pt Ground Plane", vsp::CLEARANCE_ONE_PT_GROUND );
-    m_ClearanceModeChoice.AddItem( "Rotor 1/3 Fragment", vsp::CLEARANCE_ROTOR_BURST );
-    m_ClearanceModeChoice.AddItem( "Rotor Intermediate Fragment", vsp::CLEARANCE_ROTOR_BURST );
-    m_ClearanceModeChoice.AddItem( "Tire Spray Cone", vsp::CLEARANCE_ROTOR_BURST );
-    m_ClearanceModeChoice.AddItem( "Pilot Vision", vsp::CLEARANCE_ROTOR_BURST );
-    m_ClearanceModeChoice.AddItem( "Conical Field Of View", vsp::CLEARANCE_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "Rotor Tip Path", vsp::AUX_GEOM_ROTOR_TIP_PATH );
+    m_ClearanceModeChoice.AddItem( "Rotor Burst", vsp::AUX_GEOM_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "3pt Ground Plane", vsp::AUX_GEOM_THREE_PT_GROUND );
+    m_ClearanceModeChoice.AddItem( "2pt Ground Plane", vsp::AUX_GEOM_TWO_PT_GROUND );
+    m_ClearanceModeChoice.AddItem( "1pt Ground Plane", vsp::AUX_GEOM_ONE_PT_GROUND );
+    m_ClearanceModeChoice.AddItem( "Rotor 1/3 Fragment", vsp::AUX_GEOM_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "Rotor Intermediate Fragment", vsp::AUX_GEOM_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "Tire Spray Cone", vsp::AUX_GEOM_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "Pilot Vision", vsp::AUX_GEOM_ROTOR_BURST );
+    m_ClearanceModeChoice.AddItem( "Conical Field Of View", vsp::AUX_GEOM_ROTOR_BURST );
     m_ClearanceModeChoice.UpdateItems();
 
     m_DesignLayout.AddChoice( m_ClearanceModeChoice, "Mode" );
@@ -233,7 +233,7 @@ bool ClearanceScreen::Update()
     {
         m_ClearanceModeChoice.Update( clearance_ptr->m_ClearanceMode.GetID() );
 
-        if ( clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_ROTOR_TIP_PATH )
+        if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_ROTOR_TIP_PATH )
         {
             DisplayGroup( &m_RotorTipPathLayput );
 
@@ -243,7 +243,7 @@ bool ClearanceScreen::Update()
             m_RTP_ThetaThrustSlider.Update( clearance_ptr->m_ThetaThrust.GetID() );
             m_RTP_ThetaAntiThrustSlider.Update( clearance_ptr->m_ThetaAntiThrust.GetID() );
         }
-        else if ( clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_ROTOR_BURST )
+        else if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_ROTOR_BURST )
         {
             DisplayGroup( &m_RotorBurstLayout );
 
@@ -255,7 +255,7 @@ bool ClearanceScreen::Update()
             m_RB_RootLengthSlider.Update( clearance_ptr->m_RootLength.GetID() );
             m_RB_RootOffsetSlider.Update( clearance_ptr->m_RootOffset.GetID() );
         }
-        else if ( clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_THREE_PT_GROUND )
+        else if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
         {
             DisplayGroup( &m_3ptGroundPlaneLayout );
 
@@ -271,7 +271,7 @@ bool ClearanceScreen::Update()
             m_3ptBogie3SuspensionModeChoice.Update( clearance_ptr->m_ContactPt3_SuspensionMode.GetID() );
             m_3ptBogie3TireModeChoice.Update( clearance_ptr->m_ContactPt3_TireMode.GetID() );
         }
-        else if ( clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_TWO_PT_GROUND )
+        else if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
         {
             DisplayGroup( &m_2ptGroundPlaneLayout );
 
@@ -286,7 +286,7 @@ bool ClearanceScreen::Update()
             m_2ptBogieThetaSlider.Update( clearance_ptr->m_BogieTheta.GetID() );
             m_2ptWheelThetaSlider.Update( clearance_ptr->m_WheelTheta.GetID() );
         }
-        else if ( clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_ONE_PT_GROUND )
+        else if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
         {
             DisplayGroup( &m_1ptGroundPlaneLayout );
 
@@ -325,9 +325,9 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
     m_2ptBogie2Choice.ClearItems();
     m_1ptBogie1Choice.ClearItems();
 
-    if ( clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_THREE_PT_GROUND ||
-         clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_TWO_PT_GROUND ||
-         clearance_ptr->m_ClearanceMode() == vsp::CLEARANCE_ONE_PT_GROUND )
+    if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
+         clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_TWO_PT_GROUND ||
+         clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
     {
         Geom* parent_geom = veh->FindGeom( clearance_ptr->GetParentID() );
 

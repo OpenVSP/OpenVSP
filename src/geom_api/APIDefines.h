@@ -134,6 +134,18 @@ enum ATTRIBUTE_EVENT_GROUP { ATTR_GROUP_NONE = -1,	/*!< No event (user attribute
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for auxiliary geom modes. */
+enum AUX_GEOM_MODE { AUX_GEOM_ROTOR_TIP_PATH,	/*!< Rotor tip path */
+                     AUX_GEOM_ROTOR_BURST,	/*!< Rotor burst zone */
+                     AUX_GEOM_THREE_PT_GROUND,	/*!< Three contact point ground plane */
+                     AUX_GEOM_TWO_PT_GROUND,	/*!< Two contact point ground plane */
+                     AUX_GEOM_ONE_PT_GROUND,	/*!< One contact point ground plane */
+                     NUM_AUX_GEOM_MODES	/*!< Number of auxiliary geom modes. */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for bogie spacing control. */
 enum BOGIE_SPACING_TYPE { BOGIE_CENTER_DIST,	/*!< Distance between centers */
                           BOGIE_CENTER_DIST_FRAC,	/*!< Fractional distance between centers */
@@ -312,18 +324,6 @@ enum CHEVRON_TYPE { CHEVRON_NONE,	/*!< No chevron. */
 enum CHEVRON_W01_MODES { CHEVRON_W01_SE,	/*!< Start and End */
                          CHEVRON_W01_CW,	/*!< Center and Width */
                          CHEVRON_W01_NUM_MODES	/*!< Number of chevron W parameter mode types. */
-};
-
-/*!
-	\ingroup Enumerations
-*/
-/*! Enum for clearance geom modes. */
-enum CLEARANCE_GEOM_MODE { CLEARANCE_ROTOR_TIP_PATH,	/*!< Rotor tip path */
-                           CLEARANCE_ROTOR_BURST,	/*!< Rotor burst zone */
-                           CLEARANCE_THREE_PT_GROUND,	/*!< Three contact point ground plane */
-                           CLEARANCE_TWO_PT_GROUND,	/*!< Two contact point ground plane */
-                           CLEARANCE_ONE_PT_GROUND,	/*!< One contact point ground plane */
-                           NUM_CLEARANCE_MODES	/*!< Number of clearance geom modes. */
 };
 
 /*!
