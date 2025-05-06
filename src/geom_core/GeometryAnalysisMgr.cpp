@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// InterferenceMgr.cpp
+// GeometryAnalysisMgr.cpp
 //
 // Rob McDonald
 //////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #include <cmath>
 #include <Eigen/SVD>
 
-#include "InterferenceMgr.h"
+#include "GeometryAnalysisMgr.h"
 
 #include "ModeMgr.h"
 #include "StlHelper.h"
@@ -25,7 +25,7 @@
 
 #include "MeshGeom.h"
 
-InterferenceCase::InterferenceCase()
+GeometryAnalysisCase::GeometryAnalysisCase()
 {
     string groupname = "InterferenceCase";
 
@@ -45,16 +45,16 @@ InterferenceCase::InterferenceCase()
 
     m_SecondaryCCWFlag.Init( "SecondaryCCWFlag", "Projection", this, false, false, true );
 
-    m_IntererenceCheckType.Init( "IntererenceCheckType", groupname, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
+    m_GeometryAnalysisType.Init( "IntererenceCheckType", groupname, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
 
     m_LastResultValue.Init( "LastResult", groupname, this, 0.0, -1e12, 1e12 );
 }
 
-void InterferenceCase::Update()
+void GeometryAnalysisCase::Update()
 {
 }
 
-string InterferenceCase::GetPrimaryName() const
+string GeometryAnalysisCase::GetPrimaryName() const
 {
     if ( m_PrimaryType() == vsp::SET_TARGET )
     {
@@ -93,7 +93,7 @@ string InterferenceCase::GetPrimaryName() const
     return string();
 }
 
-string InterferenceCase::GetSecondaryName() const
+string GeometryAnalysisCase::GetSecondaryName() const
 {
     if ( m_SecondaryType() == vsp::SET_TARGET )
     {
@@ -124,7 +124,7 @@ string InterferenceCase::GetSecondaryName() const
     return string();
 }
 
-vector< TMesh* > InterferenceCase::GetPrimaryTMeshVec()
+vector< TMesh* > GeometryAnalysisCase::GetPrimaryTMeshVec()
 {
     vector< TMesh* > tmv;
 
@@ -159,7 +159,7 @@ vector< TMesh* > InterferenceCase::GetPrimaryTMeshVec()
     return tmv;
 }
 
-vector< TMesh* > InterferenceCase::GetSecondaryTMeshVec()
+vector< TMesh* > GeometryAnalysisCase::GetSecondaryTMeshVec()
 {
     vector< TMesh* > tmv;
     Vehicle *veh = VehicleMgr.GetVehicle();
@@ -180,7 +180,7 @@ vector< TMesh* > InterferenceCase::GetSecondaryTMeshVec()
     return tmv;
 }
 
-void InterferenceCase::GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal )
+void GeometryAnalysisCase::GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -199,7 +199,7 @@ void InterferenceCase::GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2
     }
 }
 
-void InterferenceCase::GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal )
+void GeometryAnalysisCase::GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -218,7 +218,7 @@ void InterferenceCase::GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec,
     }
 }
 
-void InterferenceCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds )
+void GeometryAnalysisCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -237,7 +237,7 @@ void InterferenceCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds )
     }
 }
 
-void InterferenceCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
+void GeometryAnalysisCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -261,7 +261,7 @@ void InterferenceCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
     }
 }
 
-void InterferenceCase::GetSecondarySideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign )
+void GeometryAnalysisCase::GetSecondarySideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -281,7 +281,7 @@ void InterferenceCase::GetSecondarySideContactPtRollAxisNormal( vec3d &pt, vec3d
 }
 
 
-void InterferenceCase::GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
+void GeometryAnalysisCase::GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -300,7 +300,7 @@ void InterferenceCase::GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, vec3
     }
 }
 
-void InterferenceCase::GetSecondaryPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis  )
+void GeometryAnalysisCase::GetSecondaryPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis  )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -319,7 +319,7 @@ void InterferenceCase::GetSecondaryPtNormalAftAxleAxis( double thetabogie, vec3d
     }
 }
 
-void InterferenceCase::GetSecondaryPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis  )
+void GeometryAnalysisCase::GetSecondaryPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis  )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -338,19 +338,19 @@ void InterferenceCase::GetSecondaryPtNormalFwdAxleAxis( double thetabogie, vec3d
     }
 }
 
-xmlNodePtr InterferenceCase::EncodeXml( xmlNodePtr & node )
+xmlNodePtr GeometryAnalysisCase::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr icase_node = xmlNewChild( node, NULL, BAD_CAST"InterferenceCase", NULL );
+    xmlNodePtr gcase_node = xmlNewChild( node, NULL, BAD_CAST"GeometryAnalysis", NULL );
 
-    ParmContainer::EncodeXml( icase_node );
-    XmlUtil::AddStringNode( icase_node, "PrimaryModeID", m_PrimaryModeID );
-    XmlUtil::AddStringNode( icase_node, "PrimaryGeomID", m_PrimaryGeomID );
-    XmlUtil::AddStringNode( icase_node, "SecondaryGeomID", m_SecondaryGeomID );
+    ParmContainer::EncodeXml( gcase_node );
+    XmlUtil::AddStringNode( gcase_node, "PrimaryModeID", m_PrimaryModeID );
+    XmlUtil::AddStringNode( gcase_node, "PrimaryGeomID", m_PrimaryGeomID );
+    XmlUtil::AddStringNode( gcase_node, "SecondaryGeomID", m_SecondaryGeomID );
 
-    return icase_node;
+    return gcase_node;
 }
 
-xmlNodePtr InterferenceCase::DecodeXml( xmlNodePtr & node )
+xmlNodePtr GeometryAnalysisCase::DecodeXml( xmlNodePtr & node )
 {
     ParmContainer::DecodeXml( node );
     m_PrimaryModeID = ParmMgr.RemapID( XmlUtil::FindString( node, "PrimaryModeID", m_PrimaryModeID ) );
@@ -360,7 +360,7 @@ xmlNodePtr InterferenceCase::DecodeXml( xmlNodePtr & node )
     return node;
 }
 
-string InterferenceCase::Evaluate()
+string GeometryAnalysisCase::Evaluate()
 {
     m_LastResultValue = 1.0;
     m_LastResult.clear();
@@ -385,7 +385,7 @@ string InterferenceCase::Evaluate()
         vector< TMesh* > primary_tmv;
         vector< TMesh* > secondary_tmv;
 
-        switch ( m_IntererenceCheckType() )
+        switch ( m_GeometryAnalysisType() )
         {
             case vsp::EXTERNAL_INTERFERENCE:
             {
@@ -930,7 +930,7 @@ string InterferenceCase::Evaluate()
     return m_LastResult;
 }
 
-vec3d InterferenceCase::weightdist( const vec3d &cg, const vector < vec3d > &ptvec, const vec3d &normal )
+vec3d GeometryAnalysisCase::weightdist( const vec3d &cg, const vector < vec3d > &ptvec, const vec3d &normal )
 {
     typedef Eigen::Matrix< double, 3, 3 > mat3;
     typedef Eigen::Matrix< double, 4, 3 > mat43;
@@ -966,7 +966,7 @@ vec3d InterferenceCase::weightdist( const vec3d &cg, const vector < vec3d > &ptv
     return res;
 }
 
-double InterferenceCase::tipback( const vec3d &cg, const vec3d &normal, const vec3d &ptaxis, const vec3d &axis, vec3d &p0, vec3d &p1 )
+double GeometryAnalysisCase::tipback( const vec3d &cg, const vec3d &normal, const vec3d &ptaxis, const vec3d &axis, vec3d &p0, vec3d &p1 )
 {
     const vec3d v = cg - ptaxis;
 
@@ -979,7 +979,7 @@ double InterferenceCase::tipback( const vec3d &cg, const vec3d &normal, const ve
     return signed_angle( vperp, normal, axis );
 }
 
-double InterferenceCase::tipover( const vec3d &cg, const vec3d &normal, const vec3d &ptaxis, const vec3d &axis, vec3d &p0, vec3d &p1 )
+double GeometryAnalysisCase::tipover( const vec3d &cg, const vec3d &normal, const vec3d &ptaxis, const vec3d &axis, vec3d &p0, vec3d &p1 )
 {
     const vec3d v = cg - ptaxis;
 
@@ -994,13 +994,13 @@ double InterferenceCase::tipover( const vec3d &cg, const vec3d &normal, const ve
     return angle( vperp, vrem );
 }
 
-void InterferenceCase::ShowBoth()
+void GeometryAnalysisCase::ShowBoth()
 {
     ShowPrimary();
     ShowSecondary();
 }
 
-void InterferenceCase::ShowOnlyBoth()
+void GeometryAnalysisCase::ShowOnlyBoth()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -1011,7 +1011,7 @@ void InterferenceCase::ShowOnlyBoth()
     }
 }
 
-void InterferenceCase::ShowPrimary()
+void GeometryAnalysisCase::ShowPrimary()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -1041,7 +1041,7 @@ void InterferenceCase::ShowPrimary()
     }
 }
 
-void InterferenceCase::ShowOnlyPrimary()
+void GeometryAnalysisCase::ShowOnlyPrimary()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -1052,7 +1052,7 @@ void InterferenceCase::ShowOnlyPrimary()
     }
 }
 
-void InterferenceCase::ShowSecondary()
+void GeometryAnalysisCase::ShowSecondary()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -1072,7 +1072,7 @@ void InterferenceCase::ShowSecondary()
     }
 }
 
-void InterferenceCase::ShowOnlySecondary()
+void GeometryAnalysisCase::ShowOnlySecondary()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -1083,7 +1083,7 @@ void InterferenceCase::ShowOnlySecondary()
     }
 }
 
-void InterferenceCase::UpdateDrawObj()
+void GeometryAnalysisCase::UpdateDrawObj()
 {
     Material mat;
     mat.SetMaterial( "Red Default" );
@@ -1142,7 +1142,7 @@ void InterferenceCase::UpdateDrawObj()
 }
 
 
-void InterferenceCase::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+void GeometryAnalysisCase::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     for ( int i = 0 ; i < ( int )m_MeshResultDO_vec.size() ; i++ )
     {
@@ -1159,52 +1159,52 @@ void InterferenceCase::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 //===============================================================================//
 
 
-InterferenceMgrSingleton::InterferenceMgrSingleton()
+GeometryAnalysisMgrSingleton::GeometryAnalysisMgrSingleton()
 {
 
 }
 
-InterferenceMgrSingleton::~InterferenceMgrSingleton()
+GeometryAnalysisMgrSingleton::~GeometryAnalysisMgrSingleton()
 {
     Wype();
 }
 
-xmlNodePtr InterferenceMgrSingleton::EncodeXml( xmlNodePtr & node )
+xmlNodePtr GeometryAnalysisMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr interferencemgr_node = xmlNewChild( node, NULL, BAD_CAST"InterferenceMgr", NULL );
+    xmlNodePtr geometryanalysismgr_node = xmlNewChild( node, NULL, BAD_CAST"GeometryAnalysisMgr", NULL );
 
-    if ( interferencemgr_node )
+    if ( geometryanalysismgr_node )
     {
-        for ( int i = 0; i < m_ICaseVec.size(); i++ )
+        for ( int i = 0; i < m_GeometryAnalysisVec.size(); i++ )
         {
-            m_ICaseVec[i]->EncodeXml( interferencemgr_node );
+            m_GeometryAnalysisVec[i]->EncodeXml( geometryanalysismgr_node );
         }
     }
 
-    return interferencemgr_node;
+    return geometryanalysismgr_node;
 }
 
-xmlNodePtr InterferenceMgrSingleton::DecodeXml( xmlNodePtr & node )
+xmlNodePtr GeometryAnalysisMgrSingleton::DecodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr interferencemgr_node = XmlUtil::GetNode( node, "InterferenceMgr", 0 );
+    xmlNodePtr geometryanalysismgr_node = XmlUtil::GetNode( node, "GeometryAnalysisMgr", 0 );
 
-    if ( interferencemgr_node )
+    if ( geometryanalysismgr_node )
     {
 
 
-        int num_icase = XmlUtil::GetNumNames( interferencemgr_node, "InterferenceCase" );
-        for ( int i = 0; i < num_icase; i++ )
+        int num_gcase = XmlUtil::GetNumNames( geometryanalysismgr_node, "GeometryAnalysis" );
+        for ( int i = 0; i < num_gcase; i++ )
         {
-            xmlNodePtr icasenode = XmlUtil::GetNode( interferencemgr_node, "InterferenceCase", i );
+            xmlNodePtr gcasenode = XmlUtil::GetNode( geometryanalysismgr_node, "GeometryAnalysis", i );
 
-            if ( icasenode )
+            if ( gcasenode )
             {
-                string id = AddInterferenceCase();
-                InterferenceCase* icase = GetInterferenceCase( id );
+                string id = AddGeometryAnalysis();
+                GeometryAnalysisCase* gcase = GetGeometryAnalysis( id );
 
-                if ( icase )
+                if ( gcase )
                 {
-                    icase->DecodeXml( icasenode );
+                    gcase->DecodeXml( gcasenode );
                 }
             }
         }
@@ -1213,119 +1213,119 @@ xmlNodePtr InterferenceMgrSingleton::DecodeXml( xmlNodePtr & node )
     return node;
 }
 
-void InterferenceMgrSingleton::Renew()
+void GeometryAnalysisMgrSingleton::Renew()
 {
     Wype();
 }
 
-void InterferenceMgrSingleton::Wype()
+void GeometryAnalysisMgrSingleton::Wype()
 {
-    for ( int i = 0; i < (int)m_ICaseVec.size(); i++ )
+    for ( int i = 0; i < (int)m_GeometryAnalysisVec.size(); i++ )
     {
-        delete m_ICaseVec[i];
+        delete m_GeometryAnalysisVec[i];
     }
-    m_ICaseVec.clear();
+    m_GeometryAnalysisVec.clear();
 }
 
-void InterferenceMgrSingleton::Update()
+void GeometryAnalysisMgrSingleton::Update()
 {
-    for ( int i = 0; i < (int)m_ICaseVec.size(); i++ )
+    for ( int i = 0; i < (int)m_GeometryAnalysisVec.size(); i++ )
     {
-        m_ICaseVec[i]->Update();
+        m_GeometryAnalysisVec[i]->Update();
     }
 
 }
 
-string InterferenceMgrSingleton::EvaluateAll()
+string GeometryAnalysisMgrSingleton::EvaluateAll()
 {
     std::vector <string> res_id_vector;
 
-    for ( int i = 0; i < (int)m_ICaseVec.size(); i++ )
+    for ( int i = 0; i < (int)m_GeometryAnalysisVec.size(); i++ )
     {
-        string rid = m_ICaseVec[i]->Evaluate();
+        string rid = m_GeometryAnalysisVec[i]->Evaluate();
         res_id_vector.push_back( rid );
     }
 
-    Results *res = ResultsMgr.CreateResults( "InterferenceCheckAll", "All interference check results for model." );
+    Results *res = ResultsMgr.CreateResults( "GeometryAnalysisAll", "All geometry analysis results for model." );
     if( res )
     {
-        res->Add( new NameValData( "ResultsVec", res_id_vector, "ID's of interference check analysis results." ) );
+        res->Add( new NameValData( "ResultsVec", res_id_vector, "ID's of geometry analysis results." ) );
         return res->GetID();
     }
     return string();
 }
 
-void InterferenceMgrSingleton::AddLinkableContainers( vector< string > & linkable_container_vec )
+void GeometryAnalysisMgrSingleton::AddLinkableContainers( vector< string > & linkable_container_vec )
 {
-    for ( int i = 0; i < (int)m_ICaseVec.size(); i++ )
+    for ( int i = 0; i < (int)m_GeometryAnalysisVec.size(); i++ )
     {
-        if ( m_ICaseVec[i] )
+        if ( m_GeometryAnalysisVec[i] )
         {
-            m_ICaseVec[i]->AddLinkableContainers( linkable_container_vec );
+            m_GeometryAnalysisVec[i]->AddLinkableContainers( linkable_container_vec );
         }
     }
 }
 
-string InterferenceMgrSingleton::AddInterferenceCase()
+string GeometryAnalysisMgrSingleton::AddGeometryAnalysis()
 {
-    InterferenceCase* ic = new InterferenceCase();
+    GeometryAnalysisCase* ic = new GeometryAnalysisCase();
 
-    m_ICaseVec.push_back( ic );
+    m_GeometryAnalysisVec.push_back( ic );
     return ic->GetID();
 }
 
-void InterferenceMgrSingleton::DeleteInterferenceCase( const string &id )
+void GeometryAnalysisMgrSingleton::DeleteGeometryAnalysis( const string &id )
 {
-    int indx = GetInterferenceCaseIndex( id );
-    DeleteInterferenceCase( indx );
+    int indx = GetGeometryAnalysisIndex( id );
+    DeleteGeometryAnalysis( indx );
 }
 
-void InterferenceMgrSingleton::DeleteInterferenceCase( int indx )
+void GeometryAnalysisMgrSingleton::DeleteGeometryAnalysis( int indx )
 {
-    if ( indx >= 0 && indx < m_ICaseVec.size() )
+    if ( indx >= 0 && indx < m_GeometryAnalysisVec.size() )
     {
-        delete m_ICaseVec[ indx ];
+        delete m_GeometryAnalysisVec[ indx ];
 
-        m_ICaseVec.erase( m_ICaseVec.begin() + indx );
+        m_GeometryAnalysisVec.erase( m_GeometryAnalysisVec.begin() + indx );
     }
 }
 
-void InterferenceMgrSingleton::DeleteAllInterferenceCases()
+void GeometryAnalysisMgrSingleton::DeleteAllGeometryAnalyses()
 {
-    for ( int i = 0; i < (int)m_ICaseVec.size(); i++ )
+    for ( int i = 0; i < (int)m_GeometryAnalysisVec.size(); i++ )
     {
-        delete m_ICaseVec[i];
+        delete m_GeometryAnalysisVec[i];
     }
-    m_ICaseVec.clear();
+    m_GeometryAnalysisVec.clear();
 }
 
-InterferenceCase * InterferenceMgrSingleton::GetInterferenceCase( int indx ) const
+GeometryAnalysisCase * GeometryAnalysisMgrSingleton::GetGeometryAnalysis( int indx ) const
 {
-    if ( indx >= 0 && indx < m_ICaseVec.size() )
+    if ( indx >= 0 && indx < m_GeometryAnalysisVec.size() )
     {
-        return m_ICaseVec[ indx ];
+        return m_GeometryAnalysisVec[ indx ];
     }
     return nullptr;
 }
 
-InterferenceCase * InterferenceMgrSingleton::GetInterferenceCase( const string &id ) const
+GeometryAnalysisCase * GeometryAnalysisMgrSingleton::GetGeometryAnalysis( const string &id ) const
 {
-    for ( int i = 0; i < (int)m_ICaseVec.size(); i++ )
+    for ( int i = 0; i < (int)m_GeometryAnalysisVec.size(); i++ )
     {
-        if ( m_ICaseVec[i]->GetID() == id )
+        if ( m_GeometryAnalysisVec[i]->GetID() == id )
         {
-            return m_ICaseVec[i];
+            return m_GeometryAnalysisVec[i];
         }
     }
 
     return nullptr;
 }
 
-int InterferenceMgrSingleton::GetInterferenceCaseIndex( const string &id ) const
+int GeometryAnalysisMgrSingleton::GetGeometryAnalysisIndex( const string &id ) const
 {
-    for ( int i = 0; i < (int)m_ICaseVec.size(); i++ )
+    for ( int i = 0; i < (int)m_GeometryAnalysisVec.size(); i++ )
     {
-        if ( m_ICaseVec[i]->GetID() == id )
+        if ( m_GeometryAnalysisVec[i]->GetID() == id )
         {
             return i;
         }

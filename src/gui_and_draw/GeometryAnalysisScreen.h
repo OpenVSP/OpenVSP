@@ -3,17 +3,17 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// Create Edit Interference Checks
+// Create Edit Geometry Analyses
 // Rob McDonald
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(VSPTYPEINTERFERENCESCREEN__INCLUDED_)
-#define VSPTYPEINTERFERENCESCREEN__INCLUDED_
+#if !defined(VSPTYPEGEOMETRYANALYSISSCREEN__INCLUDED_)
+#define VSPTYPEGEOMETRYANALYSISSCREEN__INCLUDED_
 
 #include "ScreenBase.h"
 #include "GuiDevice.h"
-#include "InterferenceMgr.h"
+#include "GeometryAnalysisMgr.h"
 
 #include <FL/Fl.H>
 #include <FL/Fl_Text_Buffer.H>
@@ -21,15 +21,15 @@
 using std::string;
 using std::vector;
 
-class InterferenceScreen : public BasicScreen
+class GeometryAnalysisScreen : public BasicScreen
 {
 public:
-    InterferenceScreen( ScreenMgr* mgr );
-    virtual ~InterferenceScreen();
+    GeometryAnalysisScreen( ScreenMgr* mgr );
+    virtual ~GeometryAnalysisScreen();
     void Show();
     void Hide();
     bool Update();
-    void UpdateInterferenceCheckBrowser();
+    void UpdateGeometryAnalysisBrowser();
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
     void MarkDOChanged();
     bool GetVisBndBox( BndBox &bbox );
@@ -37,7 +37,7 @@ public:
     void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
-        ( static_cast <InterferenceScreen*> ( data ) )->CallBack( w );
+        ( static_cast <GeometryAnalysisScreen*> ( data ) )->CallBack( w );
     }
 
     void GuiDeviceCallBack( GuiDevice* gui_device );
@@ -47,24 +47,24 @@ protected:
 
     GroupLayout m_GenLayout;
     GroupLayout m_BorderLayout;
-    GroupLayout m_ICaseLayout;
+    GroupLayout m_GCaseLayout;
 
-    ColResizeBrowser* m_InterferenceCheckBrowser;
-    int m_InterferenceBrowserSelect;
+    ColResizeBrowser* m_GeometryAnalysisBrowser;
+    int m_GeometryBrowserSelect;
 
 
-    TriggerButton m_AddInterferenceCheck;
-    TriggerButton m_DelInterferenceCheck;
-    TriggerButton m_DelAllInterferenceChecks;
+    TriggerButton m_AddGeometryAnalysis;
+    TriggerButton m_DelGeometryAnalysis;
+    TriggerButton m_DelAllGeometryAnalyses;
 
     TriggerButton m_ShowBoth;
     TriggerButton m_ShowOnlyBoth;
 
-    TriggerButton m_EvaluateAllInterferenceChecks;
+    TriggerButton m_EvaluateAllGeometryAnalyses;
 
-    StringInput m_ICNameInput;
+    StringInput m_GANameInput;
 
-    Choice m_InterferenceTypeChoice;
+    Choice m_GeometryAnalysisTypeChoice;
 
     ToggleRadioGroup m_PrimaryToggleGroup;
     ToggleButton m_PrimarySetToggle;

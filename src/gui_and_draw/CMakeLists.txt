@@ -52,6 +52,7 @@ FeaPartEditScreen.cpp
 FitModelScreen.cpp
 FuselageScreen.cpp
 GearScreen.cpp
+GeometryAnalysisScreen.cpp
 GroupLayout.cpp
 GuiDevice.cpp
 HingeScreen.cpp
@@ -59,7 +60,6 @@ HumanGeomScreen.cpp
 IGESOptionsScreen.cpp
 IGESStructureOptionsScreen.cpp
 ImportScreen.cpp
-InterferenceScreen.cpp
 MainGLWindow.cpp
 MainGLWindow.cpp
 MainVSPScreen.cpp
@@ -143,6 +143,7 @@ FeaPartEditScreen.h
 FitModelScreen.h
 FuselageScreen.h
 GearScreen.h
+GeometryAnalysisScreen.h
 GroupLayout.h
 GuiDevice.h
 HingeScreen.h
@@ -150,7 +151,6 @@ HumanGeomScreen.h
 IGESOptionsScreen.h
 IGESStructureOptionsScreen.h
 ImportScreen.h
-InterferenceScreen.h
 MainGLWindow.h
 MainGLWindow.h
 MainVSPScreen.h

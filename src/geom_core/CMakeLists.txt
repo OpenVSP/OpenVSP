@@ -53,6 +53,7 @@ FitModelMgr.cpp
 FuselageGeom.cpp
 GearGeom.cpp
 Geom.cpp
+GeometryAnalysisMgr.cpp
 GeomCoreTestSuite.cpp
 GeomEngine.cpp
 GridDensity.cpp
@@ -60,7 +61,6 @@ GroupTransformations.cpp
 HingeGeom.cpp
 HumanGeom.cpp
 IDMgr.cpp
-InterferenceMgr.cpp
 Link.cpp
 LinkMgr.cpp
 MainThreadIDMgr.cpp
@@ -132,6 +132,7 @@ FitModelMgr.h
 FuselageGeom.h
 GearGeom.h
 Geom.h
+GeometryAnalysisMgr.h
 GeomCoreTestSuite.h
 GeomEngine.h
 GridDensity.h
@@ -140,7 +141,6 @@ HingeGeom.h
 HumanGeom.h
 HumanGeomData.h
 IDMgr.h
-InterferenceMgr.h
 Light.h
 LightMgr.h
 Link.h

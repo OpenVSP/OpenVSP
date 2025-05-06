@@ -23,10 +23,10 @@
 #include "Display.h"
 #include "Entity.h"
 #include "FitModelScreen.h"
+#include "GeometryAnalysisScreen.h"
 #include "GraphicEngine.h"
 #include "GraphicSingletons.h"
 #include "Image.h"
-#include "InterferenceScreen.h"
 #include "LayoutMgr.h"
 #include "Lighting.h"
 #include "ManageBackground3DScreen.h"
@@ -508,9 +508,9 @@ void VspGlWindow::LoadAllDrawObjs( vector< DrawObj* > & drawObjs )
             AeroScreen->LoadDrawObjs( drawObjs );
         }
 
-        // Load Render Objects for VSP AERO Screen
-        InterferenceScreen * InterfereScreen = dynamic_cast < InterferenceScreen* >
-            ( m_ScreenMgr->GetScreen( vsp::VSP_INTERFERENCE_SCREEN ) );
+        // Load Render Objects for Geometry Analysis
+        GeometryAnalysisScreen * InterfereScreen = dynamic_cast < GeometryAnalysisScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_GEOMETRY_ANALYSIS_SCREEN ) );
         if ( InterfereScreen )
         {
             InterfereScreen->LoadDrawObjs( drawObjs );

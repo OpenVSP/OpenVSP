@@ -942,8 +942,8 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
                       VSP_IGES_OPTIONS_SCREEN,	/*!< IGES options screen */
                       VSP_IGES_STRUCTURE_OPTIONS_SCREEN,	/*!< IGES structure options screen */
                       VSP_EXPORT_CUSTOM_SCRIPT,	/*!< Custom geom export screen */
+                      VSP_GEOMETRY_ANALYSIS_SCREEN,	/*!< Geometry analysis screen */
                       VSP_IMPORT_SCREEN,	/*!< Import screen */
-                      VSP_INTERFERENCE_SCREEN,	/*!< Interference screen */
                       VSP_LIGHTING_SCREEN,	/*!< Lighting screen */
                       VSP_MANAGE_GEOM_SCREEN,	/*!< Manage geom screen */
                       VSP_MANAGE_TEXTURE_SCREEN,	/*!< Texture mapping screen */

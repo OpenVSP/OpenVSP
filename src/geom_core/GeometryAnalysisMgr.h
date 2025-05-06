@@ -3,24 +3,24 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// InterferenceMgr.h
+// GeometryAnalysisMgr.h
 //
 // Rob McDonald
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(INTERFERENCEMGR__INCLUDED_)
-#define INTERFERENCEMGR__INCLUDED_
+#if !defined(GEOMETRYANALYSISMGR__INCLUDED_)
+#define GEOMETRYANALYSISMGR__INCLUDED_
 
 #include "ParmContainer.h"
 #include "Parm.h"
 #include "TMesh.h"
 #include "DrawObj.h"
 
-class InterferenceCase : public ParmContainer
+class GeometryAnalysisCase : public ParmContainer
 {
 public:
 
-    InterferenceCase();
+    GeometryAnalysisCase();
 
     void Update();
 
@@ -74,7 +74,7 @@ public:
 
     BoolParm m_SecondaryCCWFlag;
 
-    IntParm m_IntererenceCheckType;
+    IntParm m_GeometryAnalysisType;
 
     string m_LastResult;
     Parm m_LastResultValue;
@@ -88,20 +88,20 @@ public:
 };
 
 
-class InterferenceMgrSingleton
+class GeometryAnalysisMgrSingleton
 {
 protected:
-    InterferenceMgrSingleton();
+    GeometryAnalysisMgrSingleton();
 
 public:
 
-    static InterferenceMgrSingleton& getInstance()
+    static GeometryAnalysisMgrSingleton& getInstance()
     {
-        static InterferenceMgrSingleton instance;
+        static GeometryAnalysisMgrSingleton instance;
         return instance;
     }
 
-    virtual ~InterferenceMgrSingleton();
+    virtual ~GeometryAnalysisMgrSingleton();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -116,23 +116,23 @@ public:
     void AddLinkableContainers( vector< string > & linkable_container_vec );
 
 
-    string AddInterferenceCase();
-    void DeleteInterferenceCase( const string &id );
-    void DeleteInterferenceCase( int indx );
-    void DeleteAllInterferenceCases();
+    string AddGeometryAnalysis();
+    void DeleteGeometryAnalysis( const string &id );
+    void DeleteGeometryAnalysis( int indx );
+    void DeleteAllGeometryAnalyses();
 
-    InterferenceCase * GetInterferenceCase( int indx ) const;
-    InterferenceCase * GetInterferenceCase( const string &id ) const;
-    int GetInterferenceCaseIndex( const string &id ) const;
+    GeometryAnalysisCase * GetGeometryAnalysis( int indx ) const;
+    GeometryAnalysisCase * GetGeometryAnalysis( const string &id ) const;
+    int GetGeometryAnalysisIndex( const string &id ) const;
 
-    vector < InterferenceCase* > GetAllInterferenceCases() const            { return m_ICaseVec; };
+    vector < GeometryAnalysisCase* > GetAllGeometryAnalyses() const            { return m_GeometryAnalysisVec; };
 
 
 protected:
-    vector < InterferenceCase* > m_ICaseVec;
+    vector < GeometryAnalysisCase* > m_GeometryAnalysisVec;
 
 };
 
-#define InterferenceMgr InterferenceMgrSingleton::getInstance()
+#define GeometryAnalysisMgr GeometryAnalysisMgrSingleton::getInstance()
 
 #endif

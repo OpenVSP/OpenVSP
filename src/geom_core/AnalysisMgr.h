@@ -190,11 +190,11 @@ public:
 
 };
 
-class InterferenceAnalysis : public Analysis
+class GeometryAnalysisAnalysis : public Analysis
 {
 public:
 
-    InterferenceAnalysis();
+    GeometryAnalysisAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();

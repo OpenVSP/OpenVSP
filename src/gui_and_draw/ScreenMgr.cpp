@@ -30,10 +30,10 @@
 #include "ExportScreen.h"
 #include "FeaPartEditScreen.h"
 #include "FitModelScreen.h"
+#include "GeometryAnalysisScreen.h"
 #include "IGESOptionsScreen.h"
 #include "IGESStructureOptionsScreen.h"
 #include "ImportScreen.h"
-#include "InterferenceScreen.h"
 #include "ManageBackgroundScreen.h"
 #include "ManageBackground3DScreen.h"
 #include "ManageCORScreen.h"
@@ -932,8 +932,8 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_IGES_OPTIONS_SCREEN] = new IGESOptionsScreen( this );
     m_ScreenVec[vsp::VSP_IGES_STRUCTURE_OPTIONS_SCREEN] = new IGESStructureOptionsScreen( this );
     m_ScreenVec[vsp::VSP_EXPORT_CUSTOM_SCRIPT] = new CustomGeomExportScreen( this );
+    m_ScreenVec[vsp::VSP_GEOMETRY_ANALYSIS_SCREEN] = new GeometryAnalysisScreen( this );
     m_ScreenVec[vsp::VSP_IMPORT_SCREEN] = new ImportScreen( this );
-    m_ScreenVec[vsp::VSP_INTERFERENCE_SCREEN] = new InterferenceScreen( this );
     m_ScreenVec[vsp::VSP_MEASURE_SCREEN] = new ManageMeasureScreen( this );
     m_ScreenVec[vsp::VSP_LIGHTING_SCREEN] = new ManageLightingScreen( this );
     m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN] = new ManageGeomScreen( this );

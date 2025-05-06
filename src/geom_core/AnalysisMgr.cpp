@@ -21,7 +21,7 @@
 #include "ParasiteDragMgr.h"
 #include <cstdio>
 #include "ModeMgr.h"
-#include "InterferenceMgr.h"
+#include "GeometryAnalysisMgr.h"
 
 #include "VSP_Geom_API.h"
 
@@ -669,7 +669,7 @@ void AnalysisMgrSingleton::RegisterBuiltins()
         delete ema;
     }
 
-    InterferenceAnalysis *ia = new InterferenceAnalysis();
+    GeometryAnalysisAnalysis *ia = new GeometryAnalysisAnalysis();
 
     if ( ia && !RegisterAnalysis( ia ) )
     {
@@ -1152,21 +1152,21 @@ string EmintonLordAnalysis::Execute()
 }
 
 //======================================================================================//
-//=========================== Interference Check Analysis ==============================//
+//=============================== Geometry Analysis ====================================//
 //======================================================================================//
 
-InterferenceAnalysis::InterferenceAnalysis() : Analysis( "InterferenceAnalysis", "Perform interference checks." )
+GeometryAnalysisAnalysis::GeometryAnalysisAnalysis() : Analysis( "GeometryAnalysis", "Perform interference checks." )
 {
 }
 
-void InterferenceAnalysis::SetDefaults()
+void GeometryAnalysisAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
 
-    m_Inputs.Add( new NameValData( "CaseID", string( "ALL" ), "ID of interference case to run.  Or 'ALL' to run all cases." ) );
+    m_Inputs.Add( new NameValData( "CaseID", string( "ALL" ), "ID of geometry analysis case to run.  Or 'ALL' to run all cases." ) );
 }
 
-string InterferenceAnalysis::Execute()
+string GeometryAnalysisAnalysis::Execute()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
@@ -1185,18 +1185,18 @@ string InterferenceAnalysis::Execute()
         string resid;
         if ( caseID == "ALL" || caseID == "all" )
         {
-            resid = InterferenceMgr.EvaluateAll();
+            resid = GeometryAnalysisMgr.EvaluateAll();
         }
         else
         {
-            InterferenceCase *icase = InterferenceMgr.GetInterferenceCase( caseID );
-            if ( icase )
+            GeometryAnalysisCase *gcase = GeometryAnalysisMgr.GetGeometryAnalysis( caseID );
+            if ( gcase )
             {
-                resid = icase->Evaluate();
+                resid = gcase->Evaluate();
             }
             else
             {
-                printf( "Could not find interference case %s\n", caseID.c_str() );
+                printf( "Could not find geometry analysis case %s\n", caseID.c_str() );
             }
         }
 

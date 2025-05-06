@@ -33,7 +33,7 @@
 #include "FuselageGeom.h"
 #include "HingeGeom.h"
 #include "HumanGeom.h"
-#include "InterferenceMgr.h"
+#include "GeometryAnalysisMgr.h"
 #include "LinkMgr.h"
 #include "MeasureMgr.h"
 #include "MeshGeom.h"
@@ -736,7 +736,7 @@ void Vehicle::Wype()
     MeasureMgr.Renew();
     Background3DMgr.Renew();
     StructureMgr.Renew();
-    InterferenceMgr.Renew();
+    GeometryAnalysisMgr.Renew();
 
     ResultsMgr.DeleteAllResults();
 
@@ -2315,7 +2315,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     m_ISectSettings.EncodeXml( node );
     m_CfdGridDensity.EncodeXml( node );
     StructureMgr.EncodeXml( node );
-    InterferenceMgr.EncodeXml( node );
+    GeometryAnalysisMgr.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
     WaveDragMgr.EncodeXml( node );
     ParasiteDragMgr.EncodeXml( node );
@@ -2491,7 +2491,7 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
     VarPresetMgr.ConvertOldToNew();
     ModeMgr.DecodeXml( node );
     StructureMgr.DecodeXml( node );
-    InterferenceMgr.DecodeXml( node );
+    GeometryAnalysisMgr.DecodeXml( node );
     Background3DMgr.EncodeXml( node );
 
     return vehicle_node;
@@ -5209,7 +5209,7 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 
     m_ClippingMgr.AddLinkableContainers( linkable_container_vec );
     StructureMgr.AddLinkableContainers( linkable_container_vec );
-    InterferenceMgr.AddLinkableContainers( linkable_container_vec );
+    GeometryAnalysisMgr.AddLinkableContainers( linkable_container_vec );
 }
 
 void Vehicle::UpdateBBox()
