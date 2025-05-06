@@ -593,6 +593,72 @@ string InterferenceCase::Evaluate()
                 }
                 break;
             }
+            case vsp::PLANE_1PT_ANGLE_INTERFERENCE:
+            {
+                Results *res = ResultsMgr.CreateResults( "Plane_1pt_Angle_Interference", "One point plane angle interference check." );
+                if( res )
+                {
+                    m_LastResult = res->GetID();
+                    primary_tmv = GetPrimaryTMeshVec();
+                    CSGMesh( primary_tmv );
+                    FlattenTMeshVec( primary_tmv );
+                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                    primary_tm->LoadBndBox();
+
+                    vec3d pt, normal;
+                    vec3d roll_axis;
+                    int ysign;
+                    GetSecondarySideContactPtRollAxisNormal( pt, roll_axis, normal, ysign );
+
+                    // Check un-rotated for collision
+                    // If violated, intersect mesh, calculate volume, etc.
+                    PlaneInterferenceCheck( primary_tm, pt, normal, m_LastResult, m_TMeshVec );
+
+                    bool interference_flag = true;
+                    NameValData* nvd = res->FindPtr( "Interference", 0 );
+                    if( nvd )
+                    {
+                        interference_flag = nvd->GetBool( 0 );
+                    }
+
+                    if ( !interference_flag )
+                    {
+                        int ccw = -ysign;
+
+                        vector < vec3d > tip_pts;
+                        vec3d p1, p2;
+
+                        double roll = 1e12 * M_PI / 180;
+
+                        // Do tilt analysis
+                        roll = ccw * primary_tm->MinAngle( pt, normal, pt, roll_axis, roll, ccw, p1, p2 );
+
+                        tip_pts.push_back( p1 );
+                        tip_pts.push_back( p2 );
+
+                        res->Add( new NameValData( "RollAngle", roll * 180.0 / M_PI, "Roll angle to contact." ) );
+                        res->Add( new NameValData( "RollPts", tip_pts, "Roll contact arc end points." ) );
+
+                        // Over-write previous results values from planar distance check
+                        nvd = res->FindPtr( "Con_Val", 0 );
+                        if ( nvd )
+                        {
+                            nvd->SetDoubleData( { roll * 180.0 / M_PI } );
+                        }
+
+                        nvd = res->FindPtr( "Result", 0 );
+                        if ( nvd )
+                        {
+                            nvd->SetDoubleData( { roll * 180.0 / M_PI } );
+                        }
+
+                        m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
+
+                        delete primary_tm;
+                    }
+                }
+                break;
+            }
             case vsp::GEAR_CG_TIPBACK_ANALYSIS:
             {
                 Results *res = ResultsMgr.CreateResults( "Gear_CG_Tipback", "Gear / CG tipback angle analysis." );
