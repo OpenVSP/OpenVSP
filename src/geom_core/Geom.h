@@ -269,7 +269,7 @@ public:
 
 protected:
 
-    void SetDirtyFlags( Parm* parm_ptr );
+    virtual void SetDirtyFlags( Parm* parm_ptr );
 
     Vehicle* m_Vehicle;
 

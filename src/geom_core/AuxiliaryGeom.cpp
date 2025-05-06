@@ -96,6 +96,22 @@ void AuxiliaryGeom::OffsetXSecs( double off )
 {
 }
 
+void AuxiliaryGeom::SetDirtyFlags( Parm* parm_ptr )
+{
+    if ( !parm_ptr )
+    {
+        return;
+    }
+
+    Geom::SetDirtyFlags( parm_ptr );
+
+    if ( parm_ptr == &m_AuxuliaryGeomMode )
+    {
+        m_XFormDirty = true;
+        m_SurfDirty = true;
+    }
+}
+
 void AuxiliaryGeom::UpdateSurf()
 {
     m_MainSurfVec[0] = VspSurf();

@@ -91,6 +91,8 @@ public:
     Parm m_RollTheta;
 protected:
 
+    virtual void SetDirtyFlags( Parm* parm_ptr );
+
     virtual void UpdateSurf();
     virtual void CopyDataFrom( Geom* geom_ptr );
 
