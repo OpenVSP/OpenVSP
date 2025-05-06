@@ -920,6 +920,8 @@ string GeometryAnalysisCase::Evaluate()
                             res->Add( new NameValData( "Pts", pts, "Visualization of rotation axis and swept circles." ) );
                             res->Add( new NameValData( "COR", cor, "Center of rotation." ) );
                             res->Add( new NameValData( "Axis", normal, "Axis of rotation." ) );
+                            res->Add( new NameValData( "GearTurnRadii", rvec, "Radii of gear turning circles." ) );
+                            res->Add( new NameValData( "MaxRadii", max_dist, "Maximum turning radius of primary geometry." ) );
                         }
                     }
 
