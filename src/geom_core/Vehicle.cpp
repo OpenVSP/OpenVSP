@@ -18,10 +18,10 @@
 #include "AeroStructMgr.h"
 #include "AnalysisMgr.h"
 #include "AttributeManager.h"
+#include "AuxiliaryGeom.h"
 #include "Background3DMgr.h"
 #include "BlankGeom.h"
 #include "BORGeom.h"
-#include "ClearanceGeom.h"
 #include "ConformalGeom.h"
 #include "CustomGeom.h"
 #include "DesignVarMgr.h"
@@ -423,7 +423,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( HINGE_GEOM_TYPE, "HINGE", true ) );
     m_GeomTypeVec.push_back( GeomType( CONFORMAL_GEOM_TYPE, "CONFORMAL", true ) );
     m_GeomTypeVec.push_back( GeomType( ROUTING_GEOM_TYPE, "ROUTING", true ) );
-    m_GeomTypeVec.push_back( GeomType( CLEARANCE_GEOM_TYPE, "CLEARANCE", true ) );
+    m_GeomTypeVec.push_back( GeomType( AUXILIARY_GEOM_TYPE, "AUXILIARY", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -1136,9 +1136,9 @@ string Vehicle::CreateGeom( const GeomType & type )
     {
         new_geom = new RoutingGeom( this );
     }
-    else if ( type.m_Name == "Clearance" || type.m_Name == "CLEARANCE" )
+    else if ( type.m_Name == "Auxiliary" || type.m_Name == "AUXILIARY" )
     {
-        new_geom = new ClearanceGeom( this );
+        new_geom = new AuxiliaryGeom( this );
     }
     else if ( type.m_Name == "Gear" || type.m_Name == "GEAR" )
     {

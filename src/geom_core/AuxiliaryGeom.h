@@ -3,15 +3,15 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// ClearanceGeom.h:
+// AuxiliaryGeom.h:
 // Rob McDonald
 //
 //////////////////////////////////////////////////////////////////////
 
 
 
-#if !defined(VSPCLEARANCEGEOM__INCLUDED_)
-#define VSPCLEARANCEGEOM__INCLUDED_
+#if !defined(VSPAUXILIARYGEOM__INCLUDED_)
+#define VSPAUXILIARYGEOM__INCLUDED_
 
 #include "Defines.h"
 #include "Geom.h"
@@ -19,12 +19,12 @@
 #include "XSecSurf.h"
 
 
-//==== Clearance Geom ====//
-class ClearanceGeom : public Geom
+//==== Auxiliary Geom ====//
+class AuxiliaryGeom : public Geom
 {
 public:
-    ClearanceGeom( Vehicle* vehicle_ptr );
-    virtual ~ClearanceGeom();
+    AuxiliaryGeom( Vehicle* vehicle_ptr );
+    virtual ~AuxiliaryGeom();
 
     virtual void ComputeCenter();
 
@@ -55,7 +55,7 @@ public:
     virtual void GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
     virtual void CalculateTurn( vec3d &cor, vec3d &normal, vector<double> &rvec );
 
-    IntParm m_ClearanceMode;
+    IntParm m_AuxuliaryGeomMode;
 
     BoolParm m_AutoDiam;
     Parm m_Diameter;
@@ -106,4 +106,4 @@ protected:
     DrawObj m_ContactDrawObj;
 };
 
-#endif // !defined(VSPCLEARANCEGEOM__INCLUDED_)
+#endif // !defined(VSPAUXILIARYGEOM__INCLUDED_)

@@ -15,9 +15,9 @@
 #include "GuiDevice.h"
 
 #include <FL/Fl.H>
+#include "AuxiliaryGeomScreen.h"
 #include "BlankScreen.h"
 #include "BORScreen.h"
-#include "ClearanceScreen.h"
 #include "ConformalScreen.h"
 #include "CustomScreen.h"
 #include "DrawObj.h"

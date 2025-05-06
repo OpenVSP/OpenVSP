@@ -37,11 +37,11 @@ Airfoil.cpp
 AnalysisMgr.cpp
 Atmosphere.cpp
 AttributeManager.cpp
+AuxiliaryGeom.cpp
 Background3D.cpp
 Background3DMgr.cpp
 BlankGeom.cpp
 BORGeom.cpp
-ClearanceGeom.cpp
 ClippingMgr.cpp
 ConformalGeom.cpp
 CustomGeom.cpp
@@ -114,11 +114,11 @@ Airfoil.h
 AnalysisMgr.h
 Atmosphere.h
 AttributeManager.h
+AuxiliaryGeom.h
 Background3D.h
 Background3DMgr.h
 BlankGeom.h
 BORGeom.h
-ClearanceGeom.h
 ClippingMgr.h
 Color.h
 ColorMgr.h

@@ -53,7 +53,7 @@ enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_
        MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE,
        PT_CLOUD_GEOM_TYPE, PROP_GEOM_TYPE, HINGE_GEOM_TYPE, CONFORMAL_GEOM_TYPE,
        ELLIPSOID_GEOM_TYPE, BOR_GEOM_TYPE, WIRE_FRAME_GEOM_TYPE, HUMAN_GEOM_TYPE,
-       ROUTING_GEOM_TYPE, CLEARANCE_GEOM_TYPE, GEAR_GEOM_TYPE, NUM_GEOM_TYPE
+       ROUTING_GEOM_TYPE, AUXILIARY_GEOM_TYPE, GEAR_GEOM_TYPE, NUM_GEOM_TYPE
      };
 
 class GeomType
@@ -922,7 +922,7 @@ protected:
 
     BndBox m_BBox;
     // Similar to m_BBox, but it omits surfaces that automatically scale with the model size.  These include
-    // EngineGeom (for extended inlet / exhaust), GearGeom (ground plane), and ClearanceGeom (burst zones).
+    // EngineGeom (for extended inlet / exhaust), GearGeom (ground plane), and AuxiliaryGeom (burst zones).
     BndBox m_ScaleIndependentBBox;
 
     vector< bool > m_SetFlags;

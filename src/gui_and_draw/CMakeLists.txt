@@ -33,11 +33,11 @@ AeroStructScreen.cpp
 AirfoilExportScreen.cpp
 AttributeEditor.cpp
 AttributeScreen.cpp
+AuxiliaryGeomScreen.cpp
 BlankScreen.cpp
 BEMOptionsScreen.cpp
 BORScreen.cpp
 CfdMeshScreen.cpp
-ClearanceScreen.cpp
 ClippingScreen.cpp
 CompGeomScreen.cpp
 ConformalScreen.cpp
@@ -124,11 +124,11 @@ AeroStructScreen.h
 AirfoilExportScreen.h
 AttributeEditor.h
 AttributeScreen.h
+AuxiliaryGeomScreen.h
 BlankScreen.h
 BEMOptionsScreen.h
 BORScreen.h
 CfdMeshScreen.h
-ClearanceScreen.h
 ClippingScreen.h
 CompGeomScreen.h
 ConformalScreen.h

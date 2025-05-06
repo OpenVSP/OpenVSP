@@ -7,7 +7,7 @@
 
 #include "APIDefines.h"
 #include "VspUtil.h"
-#include "ClearanceGeom.h"
+#include "AuxiliaryGeom.h"
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"
 #include "PropGeom.h"
@@ -20,21 +20,21 @@
 using namespace vsp;
 
 //==== Constructor ====//
-ClearanceGeom::ClearanceGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
+AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 {
-    m_Name = "ClearanceGeom";
-    m_Type.m_Name = "Clearance";
-    m_Type.m_Type = CLEARANCE_GEOM_TYPE;
+    m_Name = "AuxiliaryGeom";
+    m_Type.m_Name = "Auxiliary";
+    m_Type.m_Type = AUXILIARY_GEOM_TYPE;
 
 
-    m_ClearanceMode.Init( "ClearanceType", "Design", this, AUX_GEOM_ROTOR_TIP_PATH, AUX_GEOM_ROTOR_TIP_PATH, NUM_AUX_GEOM_MODES - 1 );
-    m_ClearanceMode.SetDescript( "Type of clearance geometry." );
+    m_AuxuliaryGeomMode.Init( "AuxiliaryGeomType", "Design", this, AUX_GEOM_ROTOR_TIP_PATH, AUX_GEOM_ROTOR_TIP_PATH, NUM_AUX_GEOM_MODES - 1 );
+    m_AuxuliaryGeomMode.SetDescript( "Type of auxiliary geometry." );
 
     m_AutoDiam.Init( "AutoDiam", "Design", this, true, false, true );
     m_AutoDiam.SetDescript( "Flag to set the diameter automatically." );
 
     m_Diameter.Init( "Diameter", "Design", this, 30.0, 0.0, 1.0e12 );
-    m_Diameter.SetDescript( "Diameter of clearance geometry" );
+    m_Diameter.SetDescript( "Diameter of auxiliary geometry" );
 
     m_FlapRadiusFract.Init( "FlapRadiusFract", "Design", this, 0.0, 0.0, 1.0 );
     m_FlapRadiusFract.SetDescript( "Radius fraction for the flappling hinge location" );
@@ -72,31 +72,31 @@ ClearanceGeom::ClearanceGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 }
 
 //==== Destructor ====//
-ClearanceGeom::~ClearanceGeom()
+AuxiliaryGeom::~AuxiliaryGeom()
 {
 
 }
 
-void ClearanceGeom::ComputeCenter()
+void AuxiliaryGeom::ComputeCenter()
 {
 }
 
-void ClearanceGeom::Scale()
+void AuxiliaryGeom::Scale()
 {
     double currentScale = m_Scale() / m_LastScale();
 
     m_LastScale = m_Scale();
 }
 
-void ClearanceGeom::AddDefaultSources( double base_len )
+void AuxiliaryGeom::AddDefaultSources( double base_len )
 {
 }
 
-void ClearanceGeom::OffsetXSecs( double off )
+void AuxiliaryGeom::OffsetXSecs( double off )
 {
 }
 
-void ClearanceGeom::UpdateSurf()
+void AuxiliaryGeom::UpdateSurf()
 {
     m_MainSurfVec[0] = VspSurf();
 
@@ -135,7 +135,7 @@ void ClearanceGeom::UpdateSurf()
         {
             if ( m_AutoDiam() )
             {
-                if ( m_ClearanceMode() == AUX_GEOM_ROTOR_TIP_PATH )
+                if ( m_AuxuliaryGeomMode() == AUX_GEOM_ROTOR_TIP_PATH )
                 {
                     m_Diameter.Set( parent_prop->m_Diameter() );
                 }
@@ -150,7 +150,7 @@ void ClearanceGeom::UpdateSurf()
                 m_Diameter.Activate();
             }
 
-            if ( m_ClearanceMode() == AUX_GEOM_ROTOR_TIP_PATH )
+            if ( m_AuxuliaryGeomMode() == AUX_GEOM_ROTOR_TIP_PATH )
             {
                 m_FlapRadiusFract.Activate();
             }
@@ -162,7 +162,7 @@ void ClearanceGeom::UpdateSurf()
         }
 
 
-        if ( m_ClearanceMode() == vsp::AUX_GEOM_ROTOR_TIP_PATH )
+        if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_TIP_PATH )
         {
             double radius = m_Diameter() * 0.5;
             double flapr = radius * m_FlapRadiusFract();
@@ -220,7 +220,7 @@ void ClearanceGeom::UpdateSurf()
             m_MainSurfVec[0].CreateBodyRevolution( crv, true );
             m_MainSurfVec[0].SetMagicVParm( false );
         }
-        else if ( m_ClearanceMode() == vsp::AUX_GEOM_ROTOR_BURST )
+        else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_BURST )
         {
             double radius = m_Diameter() * 0.5;
 
@@ -244,7 +244,7 @@ void ClearanceGeom::UpdateSurf()
     }
     if ( m_ParentType == GEAR_GEOM_TYPE )
     {
-        if ( m_ClearanceMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+        if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
         {
             GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
             if ( gear )
@@ -261,7 +261,7 @@ void ClearanceGeom::UpdateSurf()
                 m_MainSurfVec[0].Transform( mat );
             }
         }
-        else if ( m_ClearanceMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
+        else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
         {
             GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
             if ( gear )
@@ -320,7 +320,7 @@ void ClearanceGeom::UpdateSurf()
                 // m_ContactPts.push_back( ptaxis2 );
             }
         }
-        else if ( m_ClearanceMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
+        else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
         {
             GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
             if ( gear )
@@ -353,9 +353,9 @@ void ClearanceGeom::UpdateSurf()
 }
 
 
-void ClearanceGeom::CopyDataFrom( Geom* geom_ptr )
+void AuxiliaryGeom::CopyDataFrom( Geom* geom_ptr )
 {
-    //==== Force Attached So Clearance Moves With Parent =====//
+    //==== Force Attached So Auxiliary Moves With Parent =====//
     m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
     m_RotAttachFlag = vsp::ATTACH_ROT_COMP;
 
@@ -407,7 +407,7 @@ void ClearanceGeom::CopyDataFrom( Geom* geom_ptr )
     m_SymRotN.Deactivate();
 }
 
-void ClearanceGeom::UpdateDrawObj()
+void AuxiliaryGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
 
@@ -435,7 +435,7 @@ void ClearanceGeom::UpdateDrawObj()
 }
 
 
-void ClearanceGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+void AuxiliaryGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     Geom::LoadDrawObjs( draw_obj_vec );
 
@@ -457,7 +457,7 @@ void ClearanceGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     draw_obj_vec.push_back( &m_ContactDrawObj );
 }
 
-void ClearanceGeom::UpdateBBox( )
+void AuxiliaryGeom::UpdateBBox( )
 {
     // Fill m_BBox like normal
     Geom::UpdateBBox();
@@ -466,11 +466,11 @@ void ClearanceGeom::UpdateBBox( )
     m_ScaleIndependentBBox.Reset();
 }
 
-xmlNodePtr ClearanceGeom::EncodeXml( xmlNodePtr & node )
+xmlNodePtr AuxiliaryGeom::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr geom_node = Geom::EncodeXml( node );
 
-    xmlNodePtr child_node = xmlNewChild( geom_node, NULL, BAD_CAST "Clearance", NULL );
+    xmlNodePtr child_node = xmlNewChild( geom_node, NULL, BAD_CAST "Auxiliary", NULL );
 
     if ( child_node )
     {
@@ -482,11 +482,11 @@ xmlNodePtr ClearanceGeom::EncodeXml( xmlNodePtr & node )
     return child_node;
 }
 
-xmlNodePtr ClearanceGeom::DecodeXml( xmlNodePtr & node )
+xmlNodePtr AuxiliaryGeom::DecodeXml( xmlNodePtr & node )
 {
     xmlNodePtr geom_node = Geom::DecodeXml( node );
 
-    xmlNodePtr child_node = XmlUtil::GetNode( geom_node, "Clearance", 0 );
+    xmlNodePtr child_node = XmlUtil::GetNode( geom_node, "Auxiliary", 0 );
 
     if ( child_node )
     {
@@ -498,31 +498,31 @@ xmlNodePtr ClearanceGeom::DecodeXml( xmlNodePtr & node )
     return child_node;
 }
 
-void ClearanceGeom::SetContactPt1ID( const std::string& id )
+void AuxiliaryGeom::SetContactPt1ID( const std::string& id )
 {
     m_ContactPt1_ID = id;
     m_SurfDirty = true;
     Update();
 }
 
-void ClearanceGeom::SetContactPt2ID( const std::string& id )
+void AuxiliaryGeom::SetContactPt2ID( const std::string& id )
 {
     m_ContactPt2_ID = id;
     m_SurfDirty = true;
     Update();
 }
 
-void ClearanceGeom::SetContactPt3ID( const std::string& id )
+void AuxiliaryGeom::SetContactPt3ID( const std::string& id )
 {
     m_ContactPt3_ID = id;
     m_SurfDirty = true;
     Update();
 }
 
-void ClearanceGeom::GetCG( vec3d &cgnom, vector < vec3d > &cgbounds )
+void AuxiliaryGeom::GetCG( vec3d &cgnom, vector < vec3d > &cgbounds )
 {
-    if ( m_ClearanceMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
-         m_ClearanceMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
+         m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -534,9 +534,9 @@ void ClearanceGeom::GetCG( vec3d &cgnom, vector < vec3d > &cgbounds )
     }
 }
 
-void ClearanceGeom::GetPtNormal( vec3d &pt, vec3d &normal ) const
+void AuxiliaryGeom::GetPtNormal( vec3d &pt, vec3d &normal ) const
 {
-    if ( m_ClearanceMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -551,9 +551,9 @@ void ClearanceGeom::GetPtNormal( vec3d &pt, vec3d &normal ) const
     }
 }
 
-void ClearanceGeom::GetPtPivotAxis( vec3d &ptaxis, vec3d &axis )
+void AuxiliaryGeom::GetPtPivotAxis( vec3d &ptaxis, vec3d &axis )
 {
-    if ( m_ClearanceMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -567,9 +567,9 @@ void ClearanceGeom::GetPtPivotAxis( vec3d &ptaxis, vec3d &axis )
     }
 }
 
-void ClearanceGeom::GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
+void AuxiliaryGeom::GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
 {
-    if ( m_ClearanceMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -588,9 +588,9 @@ void ClearanceGeom::GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal,
     }
 }
 
-void ClearanceGeom::GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign )
+void AuxiliaryGeom::GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign )
 {
-    if ( m_ClearanceMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -603,9 +603,9 @@ void ClearanceGeom::GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3
     }
 }
 
-void ClearanceGeom::GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis )
+void AuxiliaryGeom::GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis )
 {
-    if ( m_ClearanceMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -624,9 +624,9 @@ void ClearanceGeom::GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d 
     }
 }
 
-void ClearanceGeom::GetPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis )
+void AuxiliaryGeom::GetPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis )
 {
-    if ( m_ClearanceMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -645,9 +645,9 @@ void ClearanceGeom::GetPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d 
     }
 }
 
-void ClearanceGeom::GetTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal )
+void AuxiliaryGeom::GetTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal )
 {
-    if ( m_ClearanceMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -661,9 +661,9 @@ void ClearanceGeom::GetTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &n
     }
 }
 
-void ClearanceGeom::GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal )
+void AuxiliaryGeom::GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal )
 {
-    if ( m_ClearanceMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -678,9 +678,9 @@ void ClearanceGeom::GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &no
     }
 }
 
-void ClearanceGeom::CalculateTurn( vec3d &cor, vec3d &normal, vector<double> &rvec )
+void AuxiliaryGeom::CalculateTurn( vec3d &cor, vec3d &normal, vector<double> &rvec )
 {
-    if ( m_ClearanceMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 

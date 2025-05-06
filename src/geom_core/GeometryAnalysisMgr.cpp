@@ -20,7 +20,7 @@
 #include "ParmMgr.h"
 #include "SnapTo.h"
 
-#include "ClearanceGeom.h"
+#include "AuxiliaryGeom.h"
 #include "GearGeom.h"
 
 #include "MeshGeom.h"
@@ -189,11 +189,11 @@ void GeometryAnalysisCase::GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d
         {
             Geom* geom = veh->FindGeom( m_PrimaryGeomID );
 
-            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
 
-            if ( clearance_ptr )
+            if ( auxiliary_ptr )
             {
-                clearance_ptr->GetTwoPtSideContactPtsNormal( p1, p2, normal );
+                auxiliary_ptr->GetTwoPtSideContactPtsNormal( p1, p2, normal );
             }
         }
     }
@@ -208,11 +208,11 @@ void GeometryAnalysisCase::GetPrimaryContactPointVecNormal( vector < vec3d > &pt
         {
             Geom* geom = veh->FindGeom( m_PrimaryGeomID );
 
-            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
 
-            if ( clearance_ptr )
+            if ( auxiliary_ptr )
             {
-                clearance_ptr->GetContactPointVecNormal( ptvec, normal );
+                auxiliary_ptr->GetContactPointVecNormal( ptvec, normal );
             }
         }
     }
@@ -227,11 +227,11 @@ void GeometryAnalysisCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbound
         {
             Geom* geom = veh->FindGeom( m_PrimaryGeomID );
 
-            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
 
-            if ( clearance_ptr )
+            if ( auxiliary_ptr )
             {
-                clearance_ptr->GetCG( cgnom, cgbounds );
+                auxiliary_ptr->GetCG( cgnom, cgbounds );
             }
         }
     }
@@ -246,12 +246,12 @@ void GeometryAnalysisCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
         {
             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
             GearGeom* gear_ptr = dynamic_cast< GearGeom* >( geom );
 
-            if ( clearance_ptr )
+            if ( auxiliary_ptr )
             {
-                clearance_ptr->GetPtNormal( pt, normal );
+                auxiliary_ptr->GetPtNormal( pt, normal );
             }
             else if ( gear_ptr )
             {
@@ -270,11 +270,11 @@ void GeometryAnalysisCase::GetSecondarySideContactPtRollAxisNormal( vec3d &pt, v
         {
             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
 
-            if ( clearance_ptr )
+            if ( auxiliary_ptr )
             {
-                clearance_ptr->GetSideContactPtRollAxisNormal( pt, axis, normal, ysign );
+                auxiliary_ptr->GetSideContactPtRollAxisNormal( pt, axis, normal, ysign );
             }
         }
     }
@@ -290,11 +290,11 @@ void GeometryAnalysisCase::GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, 
         {
             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
 
-            if ( clearance_ptr )
+            if ( auxiliary_ptr )
             {
-                clearance_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
+                auxiliary_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
             }
         }
     }
@@ -309,11 +309,11 @@ void GeometryAnalysisCase::GetSecondaryPtNormalAftAxleAxis( double thetabogie, v
         {
             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
 
-            if ( clearance_ptr )
+            if ( auxiliary_ptr )
             {
-                clearance_ptr->GetPtNormalAftAxleAxis( thetabogie, pt, normal, ptaxis, axis );
+                auxiliary_ptr->GetPtNormalAftAxleAxis( thetabogie, pt, normal, ptaxis, axis );
             }
         }
     }
@@ -328,11 +328,11 @@ void GeometryAnalysisCase::GetSecondaryPtNormalFwdAxleAxis( double thetabogie, v
         {
             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-            ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
+            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
 
-            if ( clearance_ptr )
+            if ( auxiliary_ptr )
             {
-                clearance_ptr->GetPtNormalFwdAxleAxis( thetabogie, pt, normal, ptaxis, axis );
+                auxiliary_ptr->GetPtNormalFwdAxleAxis( thetabogie, pt, normal, ptaxis, axis );
             }
         }
     }
@@ -670,17 +670,17 @@ string GeometryAnalysisCase::Evaluate()
                     {
                         Geom* geom = veh->FindGeom( m_PrimaryGeomID );
 
-                        ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
-                        if ( clearance_ptr )
+                        AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
+                        if ( auxiliary_ptr )
                         {
                             vec3d pt, normal, ptaxis, axis;
                             bool usepivot;
                             double mintheta, maxtheta;
-                            clearance_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
+                            auxiliary_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
 
                             vec3d cgnom;
                             vector < vec3d > cgbounds;
-                            clearance_ptr->GetCG( cgnom, cgbounds );
+                            auxiliary_ptr->GetCG( cgnom, cgbounds );
 
                             vec3d p0, p1;
                             double anglenominal = tipback( cgnom, normal, ptaxis, axis, p0, p1 );
@@ -869,13 +869,13 @@ string GeometryAnalysisCase::Evaluate()
                     {
                         Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-                        ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom );
-                        if ( clearance_ptr )
+                        AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
+                        if ( auxiliary_ptr )
                         {
                             vec3d cor;
                             vec3d normal;
                             vector < double > rvec;
-                            clearance_ptr->CalculateTurn(cor, normal, rvec);
+                            auxiliary_ptr->CalculateTurn(cor, normal, rvec);
 
 
                             vector < vec3d > distpts(2);

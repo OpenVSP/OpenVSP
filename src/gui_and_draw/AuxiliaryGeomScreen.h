@@ -3,24 +3,24 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// ClearanceScreen.h: UI for Clearance Geom
+// AuxiliaryGeomScreen.h: UI for Auxiliary Geom
 // Rob McDonald
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(CLEARANCESCREEN__INCLUDED_)
-#define CLEARANCESCREEN__INCLUDED_
+#if !defined(AUXILIARYGEOMSCREEN__INCLUDED_)
+#define AUXILIARYGEOMSCREEN__INCLUDED_
 
 #include "ScreenBase.h"
 #include "GuiDevice.h"
 
 #include <FL/Fl.H>
 
-class ClearanceScreen : public GeomScreen
+class AuxiliaryGeomScreen : public GeomScreen
 {
 public:
-    ClearanceScreen( ScreenMgr* mgr );
-    virtual ~ClearanceScreen()                            {}
+    AuxiliaryGeomScreen( ScreenMgr* mgr );
+    virtual ~AuxiliaryGeomScreen()                            {}
 
     virtual void DisplayGroup( GroupLayout* group );
 
@@ -43,7 +43,7 @@ protected:
     GroupLayout m_1ptGroundPlaneLayout;
 
 
-    Choice m_ClearanceModeChoice;
+    Choice m_AuxiliaryGeomModeChoice;
 
     // Rotor Tip Path
     ToggleButton m_RTP_AutoDiamToggleButton;
@@ -116,4 +116,4 @@ protected:
 };
 
 
-#endif // !defined(CLEARANCESCREEN__INCLUDED_)
+#endif // !defined(AUXILIARYGEOMSCREEN__INCLUDED_)

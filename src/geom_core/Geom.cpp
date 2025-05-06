@@ -2215,9 +2215,9 @@ void Geom::UpdateChildren( bool fullupdate )
                 child->m_XFormDirty = true;
             }
 
-            // If the child is a Conformal or Clearance
+            // If the child is a Conformal or Auxiliary
             if ( child->GetType().m_Type == CONFORMAL_GEOM_TYPE ||
-                 child->GetType().m_Type == CLEARANCE_GEOM_TYPE)
+                 child->GetType().m_Type == AUXILIARY_GEOM_TYPE)
             {
                 // m_UpdateXForm here captures changes in parent symmetry.
                 if ( m_UpdateSurf || m_UpdateXForm )

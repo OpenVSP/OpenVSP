@@ -5,16 +5,16 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "ClearanceScreen.h"
+#include "AuxiliaryGeomScreen.h"
 #include "ScreenMgr.h"
-#include "ClearanceGeom.h"
+#include "AuxiliaryGeom.h"
 #include "APIDefines.h"
 #include "Display.h"
 #include "GearGeom.h"
 #include "StlHelper.h"
 
 //==== Constructor ====//
-ClearanceScreen::ClearanceScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 + 25, "Clearance" )
+AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 + 25, "Auxiliary" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -24,19 +24,19 @@ ClearanceScreen::ClearanceScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 +
 
     //==== Design ====//
 
-    m_ClearanceModeChoice.AddItem( "Rotor Tip Path", vsp::AUX_GEOM_ROTOR_TIP_PATH );
-    m_ClearanceModeChoice.AddItem( "Rotor Burst", vsp::AUX_GEOM_ROTOR_BURST );
-    m_ClearanceModeChoice.AddItem( "3pt Ground Plane", vsp::AUX_GEOM_THREE_PT_GROUND );
-    m_ClearanceModeChoice.AddItem( "2pt Ground Plane", vsp::AUX_GEOM_TWO_PT_GROUND );
-    m_ClearanceModeChoice.AddItem( "1pt Ground Plane", vsp::AUX_GEOM_ONE_PT_GROUND );
-    m_ClearanceModeChoice.AddItem( "Rotor 1/3 Fragment", vsp::AUX_GEOM_ROTOR_BURST );
-    m_ClearanceModeChoice.AddItem( "Rotor Intermediate Fragment", vsp::AUX_GEOM_ROTOR_BURST );
-    m_ClearanceModeChoice.AddItem( "Tire Spray Cone", vsp::AUX_GEOM_ROTOR_BURST );
-    m_ClearanceModeChoice.AddItem( "Pilot Vision", vsp::AUX_GEOM_ROTOR_BURST );
-    m_ClearanceModeChoice.AddItem( "Conical Field Of View", vsp::AUX_GEOM_ROTOR_BURST );
-    m_ClearanceModeChoice.UpdateItems();
+    m_AuxiliaryGeomModeChoice.AddItem( "Rotor Tip Path", vsp::AUX_GEOM_ROTOR_TIP_PATH );
+    m_AuxiliaryGeomModeChoice.AddItem( "Rotor Burst", vsp::AUX_GEOM_ROTOR_BURST );
+    m_AuxiliaryGeomModeChoice.AddItem( "3pt Ground Plane", vsp::AUX_GEOM_THREE_PT_GROUND );
+    m_AuxiliaryGeomModeChoice.AddItem( "2pt Ground Plane", vsp::AUX_GEOM_TWO_PT_GROUND );
+    m_AuxiliaryGeomModeChoice.AddItem( "1pt Ground Plane", vsp::AUX_GEOM_ONE_PT_GROUND );
+    m_AuxiliaryGeomModeChoice.AddItem( "Rotor 1/3 Fragment", vsp::AUX_GEOM_ROTOR_BURST );
+    m_AuxiliaryGeomModeChoice.AddItem( "Rotor Intermediate Fragment", vsp::AUX_GEOM_ROTOR_BURST );
+    m_AuxiliaryGeomModeChoice.AddItem( "Tire Spray Cone", vsp::AUX_GEOM_ROTOR_BURST );
+    m_AuxiliaryGeomModeChoice.AddItem( "Pilot Vision", vsp::AUX_GEOM_ROTOR_BURST );
+    m_AuxiliaryGeomModeChoice.AddItem( "Conical Field Of View", vsp::AUX_GEOM_ROTOR_BURST );
+    m_AuxiliaryGeomModeChoice.UpdateItems();
 
-    m_DesignLayout.AddChoice( m_ClearanceModeChoice, "Mode" );
+    m_DesignLayout.AddChoice( m_AuxiliaryGeomModeChoice, "Mode" );
 
     m_DesignLayout.AddYGap();
 
@@ -176,7 +176,7 @@ ClearanceScreen::ClearanceScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 +
     DisplayGroup( nullptr );
 }
 
-void ClearanceScreen::DisplayGroup( GroupLayout* group )
+void AuxiliaryGeomScreen::DisplayGroup( GroupLayout* group )
 {
     if ( m_CurrDisplayGroup == group )
     {
@@ -198,7 +198,7 @@ void ClearanceScreen::DisplayGroup( GroupLayout* group )
 }
 
 //==== Show Pod Screen ====//
-void ClearanceScreen::Show()
+void AuxiliaryGeomScreen::Show()
 {
     if ( Update() )
     {
@@ -207,12 +207,12 @@ void ClearanceScreen::Show()
 }
 
 //==== Update Pod Screen ====//
-bool ClearanceScreen::Update()
+bool AuxiliaryGeomScreen::Update()
 {
     assert( m_ScreenMgr );
 
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
-    if ( !geom_ptr || geom_ptr->GetType().m_Type != CLEARANCE_GEOM_TYPE )
+    if ( !geom_ptr || geom_ptr->GetType().m_Type != AUXILIARY_GEOM_TYPE )
     {
         Hide();
         return false;
@@ -225,78 +225,78 @@ bool ClearanceScreen::Update()
     m_SymmLayout.GetGroup()->deactivate();
     m_AttachLayout.GetGroup()->deactivate();
 
-    //==== Update Clearance Specific Parms ====//
-    ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom_ptr );
-    assert( clearance_ptr );
+    //==== Update Auxiliary Specific Parms ====//
+    AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom_ptr );
+    assert( auxiliary_ptr );
 
-    if ( clearance_ptr )
+    if ( auxiliary_ptr )
     {
-        m_ClearanceModeChoice.Update( clearance_ptr->m_ClearanceMode.GetID() );
+        m_AuxiliaryGeomModeChoice.Update( auxiliary_ptr->m_AuxuliaryGeomMode.GetID() );
 
-        if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_ROTOR_TIP_PATH )
+        if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_TIP_PATH )
         {
             DisplayGroup( &m_RotorTipPathLayput );
 
-            m_RTP_AutoDiamToggleButton.Update( clearance_ptr->m_AutoDiam.GetID() );
-            m_RTP_DiameterSlider.Update( clearance_ptr->m_Diameter.GetID() );
-            m_RTP_FlapRadiusFractSlider.Update( clearance_ptr->m_FlapRadiusFract.GetID() );
-            m_RTP_ThetaThrustSlider.Update( clearance_ptr->m_ThetaThrust.GetID() );
-            m_RTP_ThetaAntiThrustSlider.Update( clearance_ptr->m_ThetaAntiThrust.GetID() );
+            m_RTP_AutoDiamToggleButton.Update( auxiliary_ptr->m_AutoDiam.GetID() );
+            m_RTP_DiameterSlider.Update( auxiliary_ptr->m_Diameter.GetID() );
+            m_RTP_FlapRadiusFractSlider.Update( auxiliary_ptr->m_FlapRadiusFract.GetID() );
+            m_RTP_ThetaThrustSlider.Update( auxiliary_ptr->m_ThetaThrust.GetID() );
+            m_RTP_ThetaAntiThrustSlider.Update( auxiliary_ptr->m_ThetaAntiThrust.GetID() );
         }
-        else if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_ROTOR_BURST )
+        else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_BURST )
         {
             DisplayGroup( &m_RotorBurstLayout );
 
-            m_RB_AutoDiamToggleButton.Update( clearance_ptr->m_AutoDiam.GetID() );
-            m_RB_DiameterSlider.Update( clearance_ptr->m_Diameter.GetID() );
-            m_RB_FlapRadiusFractSlider.Update( clearance_ptr->m_FlapRadiusFract.GetID() );
-            m_RB_ThetaThrustSlider.Update( clearance_ptr->m_ThetaThrust.GetID() );
-            m_RB_ThetaAntiThrustSlider.Update( clearance_ptr->m_ThetaAntiThrust.GetID() );
-            m_RB_RootLengthSlider.Update( clearance_ptr->m_RootLength.GetID() );
-            m_RB_RootOffsetSlider.Update( clearance_ptr->m_RootOffset.GetID() );
+            m_RB_AutoDiamToggleButton.Update( auxiliary_ptr->m_AutoDiam.GetID() );
+            m_RB_DiameterSlider.Update( auxiliary_ptr->m_Diameter.GetID() );
+            m_RB_FlapRadiusFractSlider.Update( auxiliary_ptr->m_FlapRadiusFract.GetID() );
+            m_RB_ThetaThrustSlider.Update( auxiliary_ptr->m_ThetaThrust.GetID() );
+            m_RB_ThetaAntiThrustSlider.Update( auxiliary_ptr->m_ThetaAntiThrust.GetID() );
+            m_RB_RootLengthSlider.Update( auxiliary_ptr->m_RootLength.GetID() );
+            m_RB_RootOffsetSlider.Update( auxiliary_ptr->m_RootOffset.GetID() );
         }
-        else if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+        else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
         {
             DisplayGroup( &m_3ptGroundPlaneLayout );
 
-            m_3ptBogie1SymmChoice.Update( clearance_ptr->m_ContactPt1_Isymm.GetID() );
-            m_3ptBogie1SuspensionModeChoice.Update( clearance_ptr->m_ContactPt1_SuspensionMode.GetID() );
-            m_3ptBogie1TireModeChoice.Update( clearance_ptr->m_ContactPt1_TireMode.GetID() );
+            m_3ptBogie1SymmChoice.Update( auxiliary_ptr->m_ContactPt1_Isymm.GetID() );
+            m_3ptBogie1SuspensionModeChoice.Update( auxiliary_ptr->m_ContactPt1_SuspensionMode.GetID() );
+            m_3ptBogie1TireModeChoice.Update( auxiliary_ptr->m_ContactPt1_TireMode.GetID() );
 
-            m_3ptBogie2SymmChoice.Update( clearance_ptr->m_ContactPt2_Isymm.GetID() );
-            m_3ptBogie2SuspensionModeChoice.Update( clearance_ptr->m_ContactPt2_SuspensionMode.GetID() );
-            m_3ptBogie2TireModeChoice.Update( clearance_ptr->m_ContactPt2_TireMode.GetID() );
+            m_3ptBogie2SymmChoice.Update( auxiliary_ptr->m_ContactPt2_Isymm.GetID() );
+            m_3ptBogie2SuspensionModeChoice.Update( auxiliary_ptr->m_ContactPt2_SuspensionMode.GetID() );
+            m_3ptBogie2TireModeChoice.Update( auxiliary_ptr->m_ContactPt2_TireMode.GetID() );
 
-            m_3ptBogie3SymmChoice.Update( clearance_ptr->m_ContactPt3_Isymm.GetID() );
-            m_3ptBogie3SuspensionModeChoice.Update( clearance_ptr->m_ContactPt3_SuspensionMode.GetID() );
-            m_3ptBogie3TireModeChoice.Update( clearance_ptr->m_ContactPt3_TireMode.GetID() );
+            m_3ptBogie3SymmChoice.Update( auxiliary_ptr->m_ContactPt3_Isymm.GetID() );
+            m_3ptBogie3SuspensionModeChoice.Update( auxiliary_ptr->m_ContactPt3_SuspensionMode.GetID() );
+            m_3ptBogie3TireModeChoice.Update( auxiliary_ptr->m_ContactPt3_TireMode.GetID() );
         }
-        else if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
+        else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
         {
             DisplayGroup( &m_2ptGroundPlaneLayout );
 
-            m_2ptBogie1SymmChoice.Update( clearance_ptr->m_ContactPt1_Isymm.GetID() );
-            m_2ptBogie1SuspensionModeChoice.Update( clearance_ptr->m_ContactPt1_SuspensionMode.GetID() );
-            m_2ptBogie1TireModeChoice.Update( clearance_ptr->m_ContactPt1_TireMode.GetID() );
+            m_2ptBogie1SymmChoice.Update( auxiliary_ptr->m_ContactPt1_Isymm.GetID() );
+            m_2ptBogie1SuspensionModeChoice.Update( auxiliary_ptr->m_ContactPt1_SuspensionMode.GetID() );
+            m_2ptBogie1TireModeChoice.Update( auxiliary_ptr->m_ContactPt1_TireMode.GetID() );
 
-            m_2ptBogie2SymmChoice.Update( clearance_ptr->m_ContactPt2_Isymm.GetID() );
-            m_2ptBogie2SuspensionModeChoice.Update( clearance_ptr->m_ContactPt2_SuspensionMode.GetID() );
-            m_2ptBogie2TireModeChoice.Update( clearance_ptr->m_ContactPt2_TireMode.GetID() );
+            m_2ptBogie2SymmChoice.Update( auxiliary_ptr->m_ContactPt2_Isymm.GetID() );
+            m_2ptBogie2SuspensionModeChoice.Update( auxiliary_ptr->m_ContactPt2_SuspensionMode.GetID() );
+            m_2ptBogie2TireModeChoice.Update( auxiliary_ptr->m_ContactPt2_TireMode.GetID() );
 
-            m_2ptBogieThetaSlider.Update( clearance_ptr->m_BogieTheta.GetID() );
-            m_2ptWheelThetaSlider.Update( clearance_ptr->m_WheelTheta.GetID() );
+            m_2ptBogieThetaSlider.Update( auxiliary_ptr->m_BogieTheta.GetID() );
+            m_2ptWheelThetaSlider.Update( auxiliary_ptr->m_WheelTheta.GetID() );
         }
-        else if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
+        else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
         {
             DisplayGroup( &m_1ptGroundPlaneLayout );
 
-            m_1ptBogie1SymmChoice.Update( clearance_ptr->m_ContactPt1_Isymm.GetID() );
-            m_1ptBogie1SuspensionModeChoice.Update( clearance_ptr->m_ContactPt1_SuspensionMode.GetID() );
-            m_1ptBogie1TireModeChoice.Update( clearance_ptr->m_ContactPt1_TireMode.GetID() );
+            m_1ptBogie1SymmChoice.Update( auxiliary_ptr->m_ContactPt1_Isymm.GetID() );
+            m_1ptBogie1SuspensionModeChoice.Update( auxiliary_ptr->m_ContactPt1_SuspensionMode.GetID() );
+            m_1ptBogie1TireModeChoice.Update( auxiliary_ptr->m_ContactPt1_TireMode.GetID() );
 
-            m_1ptBogieThetaSlider.Update( clearance_ptr->m_BogieTheta.GetID() );
-            m_1ptWheelThetaSlider.Update( clearance_ptr->m_WheelTheta.GetID() );
-            m_1ptRollThetaSlider.Update( clearance_ptr->m_RollTheta.GetID() );
+            m_1ptBogieThetaSlider.Update( auxiliary_ptr->m_BogieTheta.GetID() );
+            m_1ptWheelThetaSlider.Update( auxiliary_ptr->m_WheelTheta.GetID() );
+            m_1ptRollThetaSlider.Update( auxiliary_ptr->m_RollTheta.GetID() );
 
         }
     }
@@ -304,7 +304,7 @@ bool ClearanceScreen::Update()
     return true;
 }
 
-void ClearanceScreen::UpdateGroundPlaneChoices()
+void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
@@ -314,8 +314,8 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
         return;
     }
 
-    ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom_ptr );
-    assert( clearance_ptr );
+    AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom_ptr );
+    assert( auxiliary_ptr );
 
     m_BogieIDVec.clear();
     m_3ptBogie1Choice.ClearItems();
@@ -325,11 +325,11 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
     m_2ptBogie2Choice.ClearItems();
     m_1ptBogie1Choice.ClearItems();
 
-    if ( clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
-         clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_TWO_PT_GROUND ||
-         clearance_ptr->m_ClearanceMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
+    if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
+         auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND ||
+         auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
     {
-        Geom* parent_geom = veh->FindGeom( clearance_ptr->GetParentID() );
+        Geom* parent_geom = veh->FindGeom( auxiliary_ptr->GetParentID() );
 
         GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
         if ( gear )
@@ -354,7 +354,7 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
             m_2ptBogie2Choice.UpdateItems();
             m_1ptBogie1Choice.UpdateItems();
 
-            int indx = vector_find_val( m_BogieIDVec, clearance_ptr->m_ContactPt1_ID );
+            int indx = vector_find_val( m_BogieIDVec, auxiliary_ptr->m_ContactPt1_ID );
             if ( indx >= 0 && indx < m_BogieIDVec.size() )
             {
                 m_3ptBogie1Choice.SetVal( indx );
@@ -363,13 +363,13 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
             }
             else if ( m_BogieIDVec.size() > 0 )
             {
-                clearance_ptr->m_ContactPt1_ID = m_BogieIDVec[0];
+                auxiliary_ptr->m_ContactPt1_ID = m_BogieIDVec[0];
                 m_3ptBogie1Choice.SetVal( 0 );
                 m_2ptBogie1Choice.SetVal( 0 );
                 m_1ptBogie1Choice.SetVal( 0 );
             }
 
-            indx = vector_find_val( m_BogieIDVec, clearance_ptr->m_ContactPt2_ID );
+            indx = vector_find_val( m_BogieIDVec, auxiliary_ptr->m_ContactPt2_ID );
             if ( indx >= 0 && indx < m_BogieIDVec.size() )
             {
                 m_3ptBogie2Choice.SetVal( indx );
@@ -377,19 +377,19 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
             }
             else if ( m_BogieIDVec.size() > 0 )
             {
-                clearance_ptr->m_ContactPt2_ID = m_BogieIDVec[0];
+                auxiliary_ptr->m_ContactPt2_ID = m_BogieIDVec[0];
                 m_3ptBogie2Choice.SetVal( 0 );
                 m_2ptBogie2Choice.SetVal( 0 );
             }
 
-            indx = vector_find_val( m_BogieIDVec, clearance_ptr->m_ContactPt3_ID );
+            indx = vector_find_val( m_BogieIDVec, auxiliary_ptr->m_ContactPt3_ID );
             if ( indx >= 0 && indx < m_BogieIDVec.size() )
             {
                 m_3ptBogie3Choice.SetVal( indx );
             }
             else if ( m_BogieIDVec.size() > 0 )
             {
-                clearance_ptr->m_ContactPt3_ID = m_BogieIDVec[0];
+                auxiliary_ptr->m_ContactPt3_ID = m_BogieIDVec[0];
                 m_3ptBogie3Choice.SetVal( 0 );
             }
 
@@ -399,7 +399,7 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
             m_2ptBogie1SymmChoice.ClearItems();
             m_1ptBogie1SymmChoice.ClearItems();
 
-            Bogie *b1 = gear->GetBogie( clearance_ptr->m_ContactPt1_ID );
+            Bogie *b1 = gear->GetBogie( auxiliary_ptr->m_ContactPt1_ID );
             if ( b1 )
             {
                 m_3ptBogie1SymmChoice.AddItem( "ISym = 0", 0 );
@@ -413,17 +413,17 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
                 }
             }
             m_3ptBogie1SymmChoice.UpdateItems();
-            m_3ptBogie1SymmChoice.SetVal( clearance_ptr->m_ContactPt1_Isymm() );
+            m_3ptBogie1SymmChoice.SetVal( auxiliary_ptr->m_ContactPt1_Isymm() );
             m_2ptBogie1SymmChoice.UpdateItems();
-            m_2ptBogie1SymmChoice.SetVal( clearance_ptr->m_ContactPt1_Isymm() );
+            m_2ptBogie1SymmChoice.SetVal( auxiliary_ptr->m_ContactPt1_Isymm() );
             m_1ptBogie1SymmChoice.UpdateItems();
-            m_1ptBogie1SymmChoice.SetVal( clearance_ptr->m_ContactPt1_Isymm() );
+            m_1ptBogie1SymmChoice.SetVal( auxiliary_ptr->m_ContactPt1_Isymm() );
 
 
             m_3ptBogie2SymmChoice.ClearItems();
             m_2ptBogie2SymmChoice.ClearItems();
 
-            Bogie *b2 = gear->GetBogie( clearance_ptr->m_ContactPt2_ID );
+            Bogie *b2 = gear->GetBogie( auxiliary_ptr->m_ContactPt2_ID );
             if ( b2 )
             {
                 m_3ptBogie2SymmChoice.AddItem( "ISym = 0", 0 );
@@ -435,14 +435,14 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
                 }
             }
             m_3ptBogie2SymmChoice.UpdateItems();
-            m_3ptBogie2SymmChoice.SetVal( clearance_ptr->m_ContactPt2_Isymm() );
+            m_3ptBogie2SymmChoice.SetVal( auxiliary_ptr->m_ContactPt2_Isymm() );
             m_2ptBogie2SymmChoice.UpdateItems();
-            m_2ptBogie2SymmChoice.SetVal( clearance_ptr->m_ContactPt2_Isymm() );
+            m_2ptBogie2SymmChoice.SetVal( auxiliary_ptr->m_ContactPt2_Isymm() );
 
 
             m_3ptBogie3SymmChoice.ClearItems();
 
-            Bogie *b3 = gear->GetBogie( clearance_ptr->m_ContactPt3_ID );
+            Bogie *b3 = gear->GetBogie( auxiliary_ptr->m_ContactPt3_ID );
             if ( b3 )
             {
                 m_3ptBogie3SymmChoice.AddItem( "ISym = 0", 0 );
@@ -452,7 +452,7 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
                 }
             }
             m_3ptBogie3SymmChoice.UpdateItems();
-            m_3ptBogie3SymmChoice.SetVal( clearance_ptr->m_ContactPt3_Isymm() );
+            m_3ptBogie3SymmChoice.SetVal( auxiliary_ptr->m_ContactPt3_Isymm() );
 
 
         }
@@ -462,12 +462,12 @@ void ClearanceScreen::UpdateGroundPlaneChoices()
 }
 
 //==== Non Menu Callbacks ====//
-void ClearanceScreen::CallBack( Fl_Widget *w )
+void AuxiliaryGeomScreen::CallBack( Fl_Widget *w )
 {
     GeomScreen::CallBack( w );
 }
 
-void ClearanceScreen::GuiDeviceCallBack( GuiDevice* device )
+void AuxiliaryGeomScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     GeomScreen::GuiDeviceCallBack( device );
 
@@ -477,19 +477,19 @@ void ClearanceScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
-    ClearanceGeom* clearance_ptr = dynamic_cast< ClearanceGeom* >( geom_ptr );
-    assert( clearance_ptr );
+    AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom_ptr );
+    assert( auxiliary_ptr );
 
     if ( device == &m_3ptBogie1Choice )
     {
         int val = m_3ptBogie1Choice.GetVal();
         if ( val >= 0 && val < m_BogieIDVec.size() )
         {
-            clearance_ptr->SetContactPt1ID( m_BogieIDVec[ val ] );
+            auxiliary_ptr->SetContactPt1ID( m_BogieIDVec[ val ] );
         }
         else
         {
-            clearance_ptr->SetContactPt1ID( "" );
+            auxiliary_ptr->SetContactPt1ID( "" );
         }
     }
     else if ( device == &m_3ptBogie2Choice )
@@ -497,11 +497,11 @@ void ClearanceScreen::GuiDeviceCallBack( GuiDevice* device )
         int val = m_3ptBogie2Choice.GetVal();
         if ( val >= 0 && val < m_BogieIDVec.size() )
         {
-            clearance_ptr->SetContactPt2ID( m_BogieIDVec[ val ] );
+            auxiliary_ptr->SetContactPt2ID( m_BogieIDVec[ val ] );
         }
         else
         {
-            clearance_ptr->SetContactPt2ID( "" );
+            auxiliary_ptr->SetContactPt2ID( "" );
         }
     }
     else if ( device == &m_3ptBogie3Choice )
@@ -509,11 +509,11 @@ void ClearanceScreen::GuiDeviceCallBack( GuiDevice* device )
         int val = m_3ptBogie3Choice.GetVal();
         if ( val >= 0 && val < m_BogieIDVec.size() )
         {
-            clearance_ptr->SetContactPt3ID( m_BogieIDVec[ val ] );
+            auxiliary_ptr->SetContactPt3ID( m_BogieIDVec[ val ] );
         }
         else
         {
-            clearance_ptr->SetContactPt3ID( "" );
+            auxiliary_ptr->SetContactPt3ID( "" );
         }
     }
     else if ( device == &m_2ptBogie1Choice )
@@ -521,11 +521,11 @@ void ClearanceScreen::GuiDeviceCallBack( GuiDevice* device )
         int val = m_2ptBogie1Choice.GetVal();
         if ( val >= 0 && val < m_BogieIDVec.size() )
         {
-            clearance_ptr->SetContactPt1ID( m_BogieIDVec[ val ] );
+            auxiliary_ptr->SetContactPt1ID( m_BogieIDVec[ val ] );
         }
         else
         {
-            clearance_ptr->SetContactPt1ID( "" );
+            auxiliary_ptr->SetContactPt1ID( "" );
         }
     }
     else if ( device == &m_2ptBogie2Choice )
@@ -533,11 +533,11 @@ void ClearanceScreen::GuiDeviceCallBack( GuiDevice* device )
         int val = m_2ptBogie2Choice.GetVal();
         if ( val >= 0 && val < m_BogieIDVec.size() )
         {
-            clearance_ptr->SetContactPt2ID( m_BogieIDVec[ val ] );
+            auxiliary_ptr->SetContactPt2ID( m_BogieIDVec[ val ] );
         }
         else
         {
-            clearance_ptr->SetContactPt2ID( "" );
+            auxiliary_ptr->SetContactPt2ID( "" );
         }
     }
     else if ( device == &m_1ptBogie1Choice )
@@ -545,11 +545,11 @@ void ClearanceScreen::GuiDeviceCallBack( GuiDevice* device )
         int val = m_1ptBogie1Choice.GetVal();
         if ( val >= 0 && val < m_BogieIDVec.size() )
         {
-            clearance_ptr->SetContactPt1ID( m_BogieIDVec[ val ] );
+            auxiliary_ptr->SetContactPt1ID( m_BogieIDVec[ val ] );
         }
         else
         {
-            clearance_ptr->SetContactPt1ID( "" );
+            auxiliary_ptr->SetContactPt1ID( "" );
         }
     }
 }
