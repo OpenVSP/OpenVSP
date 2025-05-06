@@ -465,6 +465,8 @@ void AttributeExplorer::UpdateAttrFields()
     string attrParmValStr = "";
 
     string attrBufferText = "";
+
+    char str[255];
     string attrInlineText = "";
 
     string name_str = "";
@@ -596,10 +598,12 @@ void AttributeExplorer::UpdateAttrFields()
                 }
                 break;
             case vsp::INT_DATA:
-                attrInlineText = to_string( attrDataInt );
+                snprintf( str, sizeof( str ), "%d", attrDataInt );
+                attrInlineText.append( str );
                 break;
             case vsp::DOUBLE_DATA:
-                attrInlineText = to_string( attrDataDbl );
+                snprintf( str, sizeof( str ), "%g", attrDataDbl );
+                attrInlineText.append( str );
                 break;
             case vsp::ATTR_COLLECTION_DATA:
                 break;
