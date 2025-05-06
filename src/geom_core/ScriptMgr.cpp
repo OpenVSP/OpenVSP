@@ -2149,6 +2149,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "TIRE_DIM_MODES" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TIRE_DIM_MODES", "TIRE_DIM_IN", TIRE_DIM_IN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TIRE_DIM_MODES", "TIRE_DIM_MODEL", TIRE_DIM_MODEL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TIRE_DIM_MODES", "TIRE_DIM_FRAC", TIRE_DIM_FRAC );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TIRE_DIM_MODES", "NUM_TIRE_DIM_MODES", NUM_TIRE_DIM_MODES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "VEL_UNITS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_FT_S", V_UNIT_FT_S );
