@@ -10,6 +10,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <Eigen/SVD>
 
 #include "InterferenceMgr.h"
 
@@ -633,6 +634,40 @@ string InterferenceCase::Evaluate()
                 }
 
                 m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                break;
+            }
+            case vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS:
+            {
+                Results *res = ResultsMgr.CreateResults( "Gear_Weight_Distribution", "Gear weight distribution analysis." );
+                if( res )
+                {
+                    m_LastResult = res->GetID();
+
+                    vec3d cgnom;
+                    vector < vec3d > cgbounds;
+                    GetPrimaryCG( cgnom, cgbounds );
+
+                    vector < vec3d > ptvec;
+                    vec3d normal;
+                    GetPrimaryContactPointVecNormal( ptvec, normal );
+
+                    vec3d resnom = weightdist( cgnom, ptvec, normal );
+                    double minnom = resnom[ resnom.minor_comp() ];
+
+                    vector < vec3d > resvec;
+                    resvec.resize( cgbounds.size() );
+                    for ( int i = 0; i < cgbounds.size(); ++i )
+                    {
+                        resvec[i] = weightdist( cgbounds[i], ptvec, normal );
+                    }
+
+                    // Empty points vector for results.
+                    vector < vec3d > pts;
+                    res->Add( new NameValData( "NominalReactions", resnom, "Gear reactions for nominal CG." ) );
+                    res->Add( new NameValData( "ExcursionReactions", resvec, "Gear reactions for CG range." ) );
+                    res->Add( new NameValData( "Pts", pts, "Not used." ) );
+                    res->Add( new NameValData( "Result", minnom, "Smallest reaction for nominal CG (typically nose gear reaction)." ) );
+                }
                 break;
             }
         }
