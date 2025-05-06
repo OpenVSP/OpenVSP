@@ -712,7 +712,8 @@ void GeomXForm::UpdateAttachParms()
              parent->GetType().m_Type == BLANK_GEOM_TYPE ||
              parent->GetType().m_Type == HINGE_GEOM_TYPE ||
              parent->GetType().m_Type == HUMAN_GEOM_TYPE ||
-             parent->GetType().m_Type == PT_CLOUD_GEOM_TYPE )
+             parent->GetType().m_Type == PT_CLOUD_GEOM_TYPE ||
+             parent->GetNumMainSurfs() == 0 )
         {
             return;
         }
