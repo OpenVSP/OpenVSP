@@ -83,7 +83,7 @@ protected:
 };
 
 
-//==== Clearance Geom ====//
+//==== Routing Geom ====//
 class RoutingGeom : public Geom
 {
 public:

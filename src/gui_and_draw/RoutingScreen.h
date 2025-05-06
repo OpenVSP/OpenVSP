@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// ClearanceScreen.h: UI for Clearance Geom
+// RoutingScreen.h: UI for Routing Geom
 // Rob McDonald
 //
 //////////////////////////////////////////////////////////////////////

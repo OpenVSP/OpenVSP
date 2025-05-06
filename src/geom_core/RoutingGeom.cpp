@@ -883,7 +883,6 @@ void RoutingGeom::UpdateSurf()
 
 void RoutingGeom::DisableParms()
 {
-    //==== Force Attached So Clearance Moves With Parent =====//
     m_TransAttachFlag = vsp::ATTACH_TRANS_NONE;
     m_RotAttachFlag = vsp::ATTACH_ROT_NONE;
 

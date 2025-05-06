@@ -260,7 +260,7 @@ bool RoutingScreen::Update()
 
     GeomScreen::Update();
 
-    //==== Update Clearance Specific Parms ====//
+    //==== Update Routing Specific Parms ====//
     RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( geom_ptr );
     assert( routing_ptr );
 
