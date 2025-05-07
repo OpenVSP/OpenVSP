@@ -284,23 +284,24 @@ void AuxiliaryGeom::UpdateSurf()
             {
                 Matrix4d basis;
                 m_ContactPts.resize( 2 );
+                double bogietheta = m_BogieTheta() * M_PI / 180.0;
 
                 gear->BuildTwoPtBasis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
                                        m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
-                                       m_BogieTheta() * M_PI / 180.0, basis, m_ContactPts[0], m_ContactPts[1] );
+                                       bogietheta, basis, m_ContactPts[0], m_ContactPts[1] );
 
                 vec3d ptaxis, axis;
                 if ( m_WheelTheta() > 0 )
                 {
                     gear->GetTwoPtAftAxleAxis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
                                            m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(),
-                                           m_BogieTheta() * M_PI / 180.0, ptaxis, axis );
+                                           bogietheta, ptaxis, axis );
                 }
                 else
                 {
                     gear->GetTwoPtFwdAxleAxis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
                                            m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(),
-                                           m_BogieTheta() * M_PI / 180.0, ptaxis, axis );
+                                           bogietheta, ptaxis, axis );
                 }
 
                 Matrix4d mat;
@@ -347,9 +348,10 @@ void AuxiliaryGeom::UpdateSurf()
             {
                 Matrix4d basis;
                 vec3d p1;
+                double bogietheta = m_BogieTheta() * M_PI / 180.0;
 
                 gear->BuildOnePtBasis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
-                                       m_BogieTheta() * M_PI / 180.0, m_WheelTheta() * M_PI / 180.0, m_RollTheta() * M_PI / 180.0, basis, p1);
+                                       bogietheta, m_WheelTheta() * M_PI / 180.0, m_RollTheta() * M_PI / 180.0, basis, p1);
 
                 m_BasisOrigin = basis.xform( vec3d( 0.0, 0.0, 0.0 ) );
 
