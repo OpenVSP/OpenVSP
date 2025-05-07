@@ -472,7 +472,8 @@ void AuxiliaryGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 
 
-    draw_obj_vec.push_back( &m_ContactDrawObj );
+    // Debug visualization of contact points for two-point landing gear only.
+    // draw_obj_vec.push_back( &m_ContactDrawObj );
 }
 
 void AuxiliaryGeom::UpdateBBox( )
