@@ -54,19 +54,14 @@ public:
 
     // T must have methods .FlipNormal() and .Transform( Matrix4d )
     template <typename T>
-    void TireToBogie( const T &source, vector<T> &dest, const vector <int> &suspensionmodes ) const
+    void TireToBogie( const T &source, vector<T> &dest, int isymm, int suspensionmode ) const
     {
         int idest = dest.size();
 
-        int nsymm = 1;
-        if ( m_Symmetrical() )
-        {
-            nsymm = 2;
-        }
         int na = m_NAcross();
         int nt = m_NTandem();
 
-        int n = nsymm * na * nt;
+        int n = na * nt;
 
         dest.resize( idest + n, source );
 
@@ -77,11 +72,9 @@ public:
         double cenAcross = 0.5 * ( na - 1 ) * s;
         double cenTandem = 0.5 * ( nt - 1 ) * p;
 
-        for ( int isymm = 0; isymm < nsymm; isymm++ )
-        {
             Matrix4d contact;
 
-            contact.translatev( GetPivotPoint( isymm, suspensionmodes[ isymm ] ) );
+            contact.translatev( GetPivotPoint( isymm, suspensionmode ) );
 
             if ( !m_DrawNominal() )
             {
@@ -117,13 +110,22 @@ public:
                     idest++;
                 }
             }
-        }
     }
 
     template <typename T>
     void TireToBogie( const T &source, vector<T> &dest ) const
     {
-        TireToBogie( source, dest, { vsp::GEAR_SUSPENSION_NOMINAL, vsp::GEAR_SUSPENSION_NOMINAL } );
+        int nsymm = 1;
+        if ( m_Symmetrical() )
+        {
+            nsymm = 2;
+        }
+
+        for ( int isymm = 0; isymm < nsymm; isymm++ )
+        {
+            TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL );
+
+        }
     }
 
     void AppendMainSurf( vector < VspSurf > &surfvec ) const;
