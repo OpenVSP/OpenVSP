@@ -124,7 +124,6 @@ public:
         for ( int isymm = 0; isymm < nsymm; isymm++ )
         {
             TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL );
-
         }
     }
 
