@@ -468,7 +468,8 @@ void AuxiliaryGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_BasisDrawObj_vec[i].m_Visible = isactive;
         m_BasisDrawObj_vec[i].m_LineWidth = 10.0;
         m_BasisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-        draw_obj_vec.push_back( &m_BasisDrawObj_vec[i] );
+        // Debug visualization of basis for two-point and one-point landing gear.
+        // draw_obj_vec.push_back( &m_BasisDrawObj_vec[i] );
     }
 
 
