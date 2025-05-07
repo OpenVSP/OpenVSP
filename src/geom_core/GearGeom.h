@@ -72,44 +72,44 @@ public:
         double cenAcross = 0.5 * ( na - 1 ) * s;
         double cenTandem = 0.5 * ( nt - 1 ) * p;
 
-            Matrix4d contact;
+        Matrix4d contact;
 
-            contact.translatev( GetPivotPoint( isymm, suspensionmode ) );
+        contact.translatev( GetPivotPoint( isymm, suspensionmode ) );
 
-            if ( !m_DrawNominal() )
+        if ( !m_DrawNominal() )
+        {
+            contact.rotateY( -m_BogieTheta() );
+        }
+
+        Matrix4d symm;
+        double ksymm = 1.0;
+        if ( isymm > 0 )
+        {
+            ksymm = -1.0;
+            symm.loadXZRef();
+        }
+        symm.postMult( contact );
+
+        for ( int i = 0; i < na; i++ )
+        {
+            Matrix4d col = symm;
+            col.translatef( 0, ksymm * ( i * s - cenAcross ), 0 );
+
+            for ( int j = 0; j < nt; j++ )
             {
-                contact.rotateY( -m_BogieTheta() );
-            }
+                Matrix4d row = col;
+                row.translatef( j * p - cenTandem, 0, 0 );
 
-            Matrix4d symm;
-            double ksymm = 1.0;
-            if ( isymm > 0 )
-            {
-                ksymm = -1.0;
-                symm.loadXZRef();
-            }
-            symm.postMult( contact );
+                dest[ idest ].Transform( row );
 
-            for ( int i = 0; i < na; i++ )
-            {
-                Matrix4d col = symm;
-                col.translatef( 0, ksymm * ( i * s - cenAcross ), 0 );
-
-                for ( int j = 0; j < nt; j++ )
+                if ( isymm > 0 )
                 {
-                    Matrix4d row = col;
-                    row.translatef( j * p - cenTandem, 0, 0 );
-
-                    dest[ idest ].Transform( row );
-
-                    if ( isymm > 0 )
-                    {
-                        dest[ idest ].FlipNormal();
-                    }
-
-                    idest++;
+                    dest[ idest ].FlipNormal();
                 }
+
+                idest++;
             }
+        }
     }
 
     template <typename T>
