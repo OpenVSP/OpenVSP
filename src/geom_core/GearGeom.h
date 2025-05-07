@@ -54,7 +54,7 @@ public:
 
     // T must have methods .FlipNormal() and .Transform( Matrix4d )
     template <typename T>
-    void TireToBogie( const T &source, vector<T> &dest, int isymm, int suspensionmode ) const
+    void TireToBogie( const T &source, vector<T> &dest, int isymm, int suspensionmode, double bogietheta ) const
     {
         int idest = dest.size();
 
@@ -76,10 +76,7 @@ public:
 
         contact.translatev( GetPivotPoint( isymm, suspensionmode ) );
 
-        if ( !m_DrawNominal() )
-        {
-            contact.rotateY( -m_BogieTheta() );
-        }
+        contact.rotateY( -bogietheta );
 
         Matrix4d symm;
         double ksymm = 1.0;
@@ -121,9 +118,15 @@ public:
             nsymm = 2;
         }
 
+        double bogietheta = 0;
+        if ( !m_DrawNominal() )
+        {
+            bogietheta = m_BogieTheta();
+        }
+
         for ( int isymm = 0; isymm < nsymm; isymm++ )
         {
-            TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL );
+            TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta );
         }
     }
 
