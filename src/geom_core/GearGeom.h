@@ -72,11 +72,11 @@ public:
         double cenAcross = 0.5 * ( na - 1 ) * s;
         double cenTandem = 0.5 * ( nt - 1 ) * p;
 
-        Matrix4d contact;
+        Matrix4d pivot;
 
-        contact.translatev( GetPivotPoint( isymm, suspensionmode ) );
+        pivot.translatev( GetPivotPoint( isymm, suspensionmode ) );
 
-        contact.rotateY( -bogietheta );
+        pivot.rotateY( -bogietheta );
 
         Matrix4d symm;
         double ksymm = 1.0;
@@ -85,7 +85,7 @@ public:
             ksymm = -1.0;
             symm.loadXZRef();
         }
-        symm.postMult( contact );
+        symm.postMult( pivot );
 
         for ( int i = 0; i < na; i++ )
         {
