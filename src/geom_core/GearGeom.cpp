@@ -801,7 +801,7 @@ void GearGeom::UpdateSurf()
     }
 }
 
-void GearGeom::UpdateMainTessVec( bool firstonly )
+void GearGeom::UpdateMainTessVec()
 {
     int nmain = GetNumMainSurfs();
 

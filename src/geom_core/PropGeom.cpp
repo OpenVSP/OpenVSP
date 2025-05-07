@@ -1418,7 +1418,7 @@ void PropGeom::UpdateSurf()
     }
 }
 
-void PropGeom::UpdateMainTessVec( bool firstonly )
+void PropGeom::UpdateMainTessVec()
 {
     int nmain = GetNumMainSurfs();
     int nblade = m_Nblade();

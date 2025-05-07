@@ -236,7 +236,7 @@ protected:
     virtual void ChangeID( const string &id );
 
     virtual void UpdateSurf();
-    virtual void UpdateMainTessVec( bool firstonly );
+    virtual void UpdateMainTessVec();
     virtual void UpdateMainDegenGeomPreview();
     virtual void UpdateBladeAzimuth();
 

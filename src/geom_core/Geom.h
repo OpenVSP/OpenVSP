@@ -883,7 +883,7 @@ protected:
     virtual void UpdatePreTess()   {};
 
     virtual void UpdateTess( const VspSurf & surf, bool capUMinSuccess, bool capUMaxSuccess, SimpleTess &tess, SimpleFeatureTess &featureTess );
-    virtual void UpdateMainTessVec( bool firstonly = false );
+    virtual void UpdateMainTessVec();
     virtual void UpdateTessVec();
 
     virtual void UpdateMainDegenGeomPreview();

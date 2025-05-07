@@ -382,7 +382,7 @@ public:
 
 protected:
     virtual void UpdateSurf();
-    virtual void UpdateMainTessVec( bool firstonly );
+    virtual void UpdateMainTessVec();
     virtual void UpdateTessVec();
     virtual void UpdateMainDegenGeomPreview();
     virtual void UpdateDrawObj();

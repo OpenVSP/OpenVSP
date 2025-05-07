@@ -3334,20 +3334,11 @@ void Geom::UpdateTess( const VspSurf & surf, bool capUMinSuccess, bool capUMaxSu
 
 // Compute all the main surface tessellations
 // Also compute the main surface feature line tessellations
-// firstonly is a flag to only operate on the first element of m_MainTessVec.  This is a trick to only
-// work on the first blade of a propeller.  PropGeom overrides UpdateMainTessVec with a routine that
-// calls this with firstonly=true and then copies and transforms the results of this operation for
-// multiple blades.
-void Geom::UpdateMainTessVec( bool firstonly )
+void Geom::UpdateMainTessVec()
 {
     double tol = 1e-3;
 
     int nmain = GetNumMainSurfs();
-
-    if ( firstonly && nmain > 0 )
-    {
-        nmain = 1;
-    }
 
     m_MainTessVec.resize( nmain );
     m_MainFeatureTessVec.resize( nmain );
