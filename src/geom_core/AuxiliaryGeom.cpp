@@ -326,6 +326,10 @@ void AuxiliaryGeom::UpdateSurf()
                 m_MainSurfVec[0].CreatePlane( -refLen, refLen, -refLen, refLen );
                 m_MainSurfVec[0].Transform( mat );
 
+                // Return results in world coordinates
+                Matrix4d world = gear->getModelMatrix();
+                world.xformvec( m_ContactPts );
+
                 // Visualize fwd/aft contact point and axis on rotated bogie.
                 // vec3d pt, normal, ptaxis2, axis2;
                 // GetPtNormalAftAxleAxis( m_BogieTheta() * M_PI / 180.0, pt, normal, ptaxis2, axis2 );
