@@ -342,8 +342,6 @@ void AuxiliaryGeom::UpdateSurf()
             if ( gear )
             {
                 Matrix4d basis;
-                m_ContactPts.resize( 2 );
-
                 vec3d p1;
 
                 gear->BuildOnePtBasis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
