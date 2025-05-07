@@ -55,6 +55,7 @@
 #include "PreferencesScreen.h"
 #include "ProjectionScreen.h"
 #include "PSliceScreen.h"
+#include "ResultsViewer.h"
 #include "ScreenshotScreen.h"
 #include "SetEditorScreen.h"
 #include "STEPOptionsScreen.h"
@@ -951,6 +952,7 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_PREFERENCES_SCREEN] = new PreferencesScreen( this );
     m_ScreenVec[vsp::VSP_PROJECTION_SCREEN] = new ProjectionScreen( this );
     m_ScreenVec[vsp::VSP_PSLICE_SCREEN] = new PSliceScreen( this );
+    m_ScreenVec[vsp::VSP_RESULTS_VIEWER_SCREEN] = new ResultsViewer( this );
     m_ScreenVec[vsp::VSP_SCREENSHOT_SCREEN] = new ScreenshotScreen( this );
     m_ScreenVec[vsp::VSP_SELECT_FILE_SCREEN] = new SelectFileScreen( this );
     m_ScreenVec[vsp::VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );

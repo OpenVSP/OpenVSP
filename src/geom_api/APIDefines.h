@@ -961,6 +961,7 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
                       VSP_PREFERENCES_SCREEN,	/*!< Preferences screen */
                       VSP_PROJECTION_SCREEN,	/*!< Projected area screen */
                       VSP_PSLICE_SCREEN,	/*!< Planar slicing screen */
+                      VSP_RESULTS_VIEWER_SCREEN,	/*!< Results viewing screen */
                       VSP_SCREENSHOT_SCREEN,	/*!< Screenshot screen */
                       VSP_SELECT_FILE_SCREEN,	/*!< Select file screen */
                       VSP_SET_EDITOR_SCREEN,	/*!< Set editor screen */

@@ -8,6 +8,7 @@
 #include "GeometryAnalysisScreen.h"
 #include "GeometryAnalysisMgr.h"
 #include "ScreenMgr.h"
+#include "ResultsViewer.h"
 #include "ParmMgr.h"
 #include <FL/fl_ask.H>
 
@@ -204,14 +205,20 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_SecondaryLayout.AddButton( m_ShowOnlySecondaryGeom, "Show Only" );
     m_SecondaryLayout.ForceNewLine();
 
-    m_GCaseLayout.SetSameLineFlag( false );
-    m_GCaseLayout.SetFitWidthFlag( true );
-
     m_GCaseLayout.AddYGap();
+    m_GCaseLayout.AddDividerBox( "Analysis" );
+
+    m_GCaseLayout.SetSameLineFlag( true );
+    m_GCaseLayout.SetFitWidthFlag( false );
+
+    m_GCaseLayout.SetButtonWidth( (( m_GCaseLayout.GetW() - 5 ) * 0.5 - 5) * 0.5 );
 
     m_GCaseLayout.AddButton( m_Evaluate, "Evaluate" );
-
-    m_GCaseLayout.AddOutput( m_ResultOutput, "Result", "%6.5f" );
+    m_GCaseLayout.AddX( 5 );
+    m_GCaseLayout.AddButton( m_ShowResultsViewer, "Show Results" );
+    m_GCaseLayout.AddX( 5 );
+    m_GCaseLayout.SetFitWidthFlag( true );
+    m_GCaseLayout.AddOutput( m_ResultOutput, "Result", "%6.5f", m_GCaseLayout.GetW() - m_GCaseLayout.GetRemainX() );
 
     m_GeometryBrowserSelect = -1;
 }
@@ -521,6 +528,12 @@ void GeometryAnalysisScreen::CallBack( Fl_Widget *w )
         {
             m_PrimaryGeomPicker.SetGeomChoice( gcase->m_PrimaryGeomID );
             m_SecondaryGeomPicker.SetGeomChoice( gcase->m_SecondaryGeomID );
+
+            ResultsViewer * rv = dynamic_cast < ResultsViewer* > ( m_ScreenMgr->GetScreen( vsp::VSP_RESULTS_VIEWER_SCREEN ) );
+            if ( rv )
+            {
+                rv->SetSelectedResult( gcase->m_LastResult );
+            }
         }
 
         MarkDOChanged();
@@ -654,6 +667,19 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( gcase )
         {
             gcase->Evaluate();
+        }
+    }
+    else if ( gui_device == &m_ShowResultsViewer )
+    {
+        m_ScreenMgr->ShowScreen( vsp::VSP_RESULTS_VIEWER_SCREEN );
+
+        if ( gcase )
+        {
+            ResultsViewer * rv = dynamic_cast < ResultsViewer* > ( m_ScreenMgr->GetScreen( vsp::VSP_RESULTS_VIEWER_SCREEN ) );
+            if ( rv )
+            {
+                rv->SetSelectedResult( gcase->m_LastResult );
+            }
         }
     }
     else

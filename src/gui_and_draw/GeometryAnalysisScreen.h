@@ -101,6 +101,7 @@ protected:
     TriggerButton m_ShowOnlySecondaryGeom;
 
     TriggerButton m_Evaluate;
+    TriggerButton m_ShowResultsViewer;
 
     Output m_ResultOutput;
 

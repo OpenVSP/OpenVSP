@@ -1636,6 +1636,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_PSLICE_SCREEN", VSP_PSLICE_SCREEN );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_RESULTS_VIEWER_SCREEN", VSP_RESULTS_VIEWER_SCREEN );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_SCREENSHOT_SCREEN", VSP_SCREENSHOT_SCREEN );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_SELECT_FILE_SCREEN", VSP_SELECT_FILE_SCREEN );
