@@ -5483,16 +5483,19 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
     double vol_primary = primary_tm->ComputeTheoVol();
 
     double min_dist = 1.0e12;
+    double max_dist = -1.0e12;
     double con_dist = 1.0e12;
     double con_vol = -1; // Not the true volume.
     double vol = 0;
 
-    vector < vec3d > pts;
+    vector < vec3d > pts( 2 );
 
     double vref = vol_primary;
 
     vector < vec3d > threepts;
     MakeThreePts( org, norm, threepts );
+
+    max_dist = primary_tm->MaxDistance( org, norm, max_dist, pts[0], pts[1] );
 
     if ( primary_tm->CheckIntersect( org, norm ) )
     {
@@ -5523,8 +5526,8 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
     }
     else
     {
-        pts.resize( 2 );
-        min_dist = primary_tm->MinDistance( org, norm, min_dist, pts[0], pts[1] );
+        pts.resize( 4 );
+        min_dist = primary_tm->MinDistance( org, norm, min_dist, pts[2], pts[3] );
         con_dist = min_dist;
 
         if ( !primary_tm->m_TVec.empty() )
@@ -5552,7 +5555,8 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
         res->Add( new NameValData( "Interference", interference_flag, "Flag indicating the primary and secondary interfere." ) );
         res->Add( new NameValData( "Intersection", intersect_flag, "Flag indicating the primary and secondary intersect." ) );
         res->Add( new NameValData( "Min_Dist", min_dist, "Minimum distance between primary and secondary." ) );
-        res->Add( new NameValData( "Pts", pts, "Minimum distance line end points." ) );
+        res->Add( new NameValData( "Max_Dist", max_dist, "Maximum distance between primary and secondary." ) );
+        res->Add( new NameValData( "Pts", pts, "Min/max distance line end points." ) );
         res->Add( new NameValData( "InterferenceVol", vol, "Volume of interference." ) );
         res->Add( new NameValData( "Con_Val", gcon, "Constraint value" ) );
         res->Add( new NameValData( "Result", gcon, "Interference result" ) );
