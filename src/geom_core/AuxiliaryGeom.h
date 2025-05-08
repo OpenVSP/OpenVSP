@@ -18,6 +18,7 @@
 #include "XSec.h"
 #include "XSecSurf.h"
 
+class GearGeom;
 
 //==== Auxiliary Geom ====//
 class AuxiliaryGeom : public Geom
@@ -94,10 +95,24 @@ protected:
     virtual void SetDirtyFlags( Parm* parm_ptr );
 
     virtual void UpdateSurf();
+    virtual void UpdateMainTessVec();
+    virtual void UpdateMainDegenGeomPreview();
     virtual void CopyDataFrom( Geom* geom_ptr );
 
     virtual void UpdateDrawObj();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
+    void AppendContact1Surfs( GearGeom * gear, double bogietheta = 0 );
+    void AppendContact2Surfs( GearGeom * gear, double bogietheta = 0 );
+    void AppendContact3Surfs( GearGeom * gear, double bogietheta = 0 );
+
+    void TessContact1( GearGeom * gear, double bogietheta = 0 );
+    void TessContact2( GearGeom * gear, double bogietheta = 0 );
+    void TessContact3( GearGeom * gear, double bogietheta = 0 );
+
+    void DegenContact1( GearGeom * gear, double bogietheta = 0 );
+    void DegenContact2( GearGeom * gear, double bogietheta = 0 );
+    void DegenContact3( GearGeom * gear, double bogietheta = 0 );
 
     vector < vec3d > m_ContactPts;
 

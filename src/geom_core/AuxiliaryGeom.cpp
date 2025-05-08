@@ -114,6 +114,7 @@ void AuxiliaryGeom::SetDirtyFlags( Parm* parm_ptr )
 
 void AuxiliaryGeom::UpdateSurf()
 {
+    m_MainSurfVec.resize( 1 );
     m_MainSurfVec[0] = VspSurf();
 
     //===== Find Parent ====//
@@ -275,6 +276,10 @@ void AuxiliaryGeom::UpdateSurf()
 
                 m_MainSurfVec[0].CreatePlane( -refLen, refLen, -refLen, refLen );
                 m_MainSurfVec[0].Transform( mat );
+
+                AppendContact1Surfs( gear );
+                AppendContact2Surfs( gear );
+                AppendContact3Surfs( gear );
             }
         }
         else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
@@ -327,6 +332,9 @@ void AuxiliaryGeom::UpdateSurf()
                 m_MainSurfVec[0].CreatePlane( -refLen, refLen, -refLen, refLen );
                 m_MainSurfVec[0].Transform( mat );
 
+                AppendContact1Surfs( gear, m_BogieTheta() );
+                AppendContact2Surfs( gear, m_BogieTheta() );
+
                 // Return results in world coordinates
                 Matrix4d world = gear->getModelMatrix();
                 world.xformvec( m_ContactPts );
@@ -367,11 +375,91 @@ void AuxiliaryGeom::UpdateSurf()
 
                 m_MainSurfVec[0].CreatePlane( -refLen, refLen, -refLen, refLen );
                 m_MainSurfVec[0].Transform( basis );
+
+                AppendContact1Surfs( gear, m_BogieTheta() );
             }
         }
     }
 }
 
+void AuxiliaryGeom::UpdateMainTessVec()
+{
+    double tol = 1e-3;
+
+    int nmain = GetNumMainSurfs();
+
+    m_MainTessVec.clear();
+    m_MainFeatureTessVec.clear();
+
+    m_MainTessVec.reserve( nmain );
+    m_MainFeatureTessVec.reserve( nmain );
+
+    m_MainTessVec.resize( 1 );
+    m_MainFeatureTessVec.resize( 1 );
+
+    // Update primary main surf tess.
+    UpdateTess( m_MainSurfVec[ 0 ], m_CapUMinSuccess[ m_SurfIndxVec[ 0 ] ], m_CapUMaxSuccess[ m_SurfIndxVec[ 0 ] ], m_MainTessVec[ 0 ], m_MainFeatureTessVec[ 0 ] );
+
+    if ( m_ParentType == GEAR_GEOM_TYPE )
+    {
+        Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        if ( gear )
+        {
+            if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+            {
+                TessContact1( gear );
+                TessContact2( gear );
+                TessContact3( gear );
+            }
+            else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
+            {
+                TessContact1( gear, m_BogieTheta() );
+                TessContact2( gear, m_BogieTheta() );
+            }
+            else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
+            {
+                TessContact1( gear, m_BogieTheta() );
+            }
+        }
+    }
+}
+
+void AuxiliaryGeom::UpdateMainDegenGeomPreview()
+{
+    int nmain = GetNumMainSurfs();
+
+    m_MainDegenGeomPreviewVec.clear();
+    m_MainDegenGeomPreviewVec.reserve( nmain );
+    m_MainDegenGeomPreviewVec.resize( 1 );
+
+    // Update primary main surf tess.
+    CreateDegenGeom( m_MainSurfVec[ 0 ], 0, m_MainDegenGeomPreviewVec[ 0 ], true );
+
+    if ( m_ParentType == GEAR_GEOM_TYPE )
+    {
+        Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        if ( gear )
+        {
+            if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+            {
+                DegenContact1( gear );
+                DegenContact2( gear );
+                DegenContact3( gear );
+            }
+            else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
+            {
+                DegenContact1( gear, m_BogieTheta() );
+                DegenContact2( gear, m_BogieTheta() );
+            }
+            else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
+            {
+                DegenContact1( gear, m_BogieTheta() );
+            }
+        }
+    }
+}
 
 void AuxiliaryGeom::CopyDataFrom( Geom* geom_ptr )
 {
@@ -477,6 +565,141 @@ void AuxiliaryGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     // Debug visualization of contact points for two-point landing gear only.
     // draw_obj_vec.push_back( &m_ContactDrawObj );
+}
+
+void AuxiliaryGeom::AppendContact1Surfs( GearGeom * gear, double bogietheta )
+{
+    if ( gear )
+    {
+        Bogie *b1 = gear->GetBogie( m_ContactPt1_ID );
+        if ( b1 )
+        {
+            b1->TireToBogie( b1->m_TireSurface, m_MainSurfVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta );
+        }
+    }
+}
+
+void AuxiliaryGeom::AppendContact2Surfs( GearGeom * gear, double bogietheta )
+{
+    if ( gear )
+    {
+        Bogie *b2 = gear->GetBogie( m_ContactPt2_ID );
+        if ( b2 )
+        {
+            b2->TireToBogie( b2->m_TireSurface, m_MainSurfVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+        }
+    }
+}
+
+void AuxiliaryGeom::AppendContact3Surfs( GearGeom * gear, double bogietheta )
+{
+    if ( gear )
+    {
+        Bogie *b3 = gear->GetBogie( m_ContactPt3_ID );
+        if ( b3 )
+        {
+            b3->TireToBogie( b3->m_TireSurface, m_MainSurfVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+        }
+    }
+}
+
+void AuxiliaryGeom::TessContact1( GearGeom * gear, double bogietheta )
+{
+    if ( gear )
+    {
+        Bogie *b1 = gear->GetBogie( m_ContactPt1_ID );
+        if ( b1 )
+        {
+            SimpleTess tireTess;
+            SimpleFeatureTess tireFeatureTess;
+
+            UpdateTess( b1->m_TireSurface, false, false, tireTess, tireFeatureTess );
+
+            b1->TireToBogie( tireTess, m_MainTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta );
+            b1->TireToBogie( tireFeatureTess, m_MainFeatureTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta );
+        }
+    }
+}
+
+void AuxiliaryGeom::TessContact2( GearGeom * gear, double bogietheta )
+{
+    if ( gear )
+    {
+        Bogie *b2 = gear->GetBogie( m_ContactPt2_ID );
+        if ( b2 )
+        {
+            SimpleTess tireTess;
+            SimpleFeatureTess tireFeatureTess;
+
+            UpdateTess( b2->m_TireSurface, false, false, tireTess, tireFeatureTess );
+
+            b2->TireToBogie( tireTess, m_MainTessVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+            b2->TireToBogie( tireFeatureTess, m_MainFeatureTessVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+        }
+    }
+}
+
+void AuxiliaryGeom::TessContact3( GearGeom * gear, double bogietheta )
+{
+    if ( gear )
+    {
+        Bogie *b3 = gear->GetBogie( m_ContactPt3_ID );
+        if ( b3 )
+        {
+            SimpleTess tireTess;
+            SimpleFeatureTess tireFeatureTess;
+
+            UpdateTess( b3->m_TireSurface, false, false, tireTess, tireFeatureTess );
+
+            b3->TireToBogie( tireTess, m_MainTessVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+            b3->TireToBogie( tireFeatureTess, m_MainFeatureTessVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+        }
+    }
+}
+
+void AuxiliaryGeom::DegenContact1( GearGeom * gear, double bogietheta )
+{
+    if ( gear )
+    {
+        Bogie *b1 = gear->GetBogie( m_ContactPt1_ID );
+        if ( b1 )
+        {
+            DegenGeom degenGeom;
+            CreateDegenGeom( b1->m_TireSurface, 0, degenGeom, true );
+
+            b1->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta );
+        }
+    }
+}
+
+void AuxiliaryGeom::DegenContact2( GearGeom * gear, double bogietheta )
+{
+    if ( gear )
+    {
+        Bogie *b2 = gear->GetBogie( m_ContactPt2_ID );
+        if ( b2 )
+        {
+            DegenGeom degenGeom;
+            CreateDegenGeom( b2->m_TireSurface, 0, degenGeom, true );
+
+            b2->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+        }
+    }
+}
+
+void AuxiliaryGeom::DegenContact3( GearGeom * gear, double bogietheta )
+{
+    if ( gear )
+    {
+        Bogie *b3 = gear->GetBogie( m_ContactPt3_ID );
+        if ( b3 )
+        {
+            DegenGeom degenGeom;
+            CreateDegenGeom( b3->m_TireSurface, 0, degenGeom, true );
+
+            b3->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+        }
+    }
 }
 
 void AuxiliaryGeom::UpdateBBox( )
