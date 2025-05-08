@@ -103,6 +103,8 @@ protected:
     TriggerButton m_Evaluate;
     TriggerButton m_ShowResultsViewer;
 
+    TriggerButton m_ApplyRotation;
+
     Output m_ResultOutput;
 
 };

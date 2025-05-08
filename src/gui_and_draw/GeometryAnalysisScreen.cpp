@@ -11,6 +11,7 @@
 #include "ResultsViewer.h"
 #include "ParmMgr.h"
 #include <FL/fl_ask.H>
+#include "AuxiliaryGeom.h"
 
 #include "ModeMgr.h"
 
@@ -215,10 +216,12 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_GCaseLayout.AddButton( m_Evaluate, "Evaluate" );
     m_GCaseLayout.AddX( 5 );
-    m_GCaseLayout.AddButton( m_ShowResultsViewer, "Show Results" );
+    m_GCaseLayout.AddButton( m_ApplyRotation, "Apply Rotation" );
     m_GCaseLayout.AddX( 5 );
+    m_GCaseLayout.AddButton( m_ShowResultsViewer, "Show Results" );
     m_GCaseLayout.SetFitWidthFlag( true );
-    m_GCaseLayout.AddOutput( m_ResultOutput, "Result", "%6.5f", m_GCaseLayout.GetW() - m_GCaseLayout.GetRemainX() );
+    m_GCaseLayout.SetButtonWidth( 0 );
+    m_GCaseLayout.AddOutput( m_ResultOutput, "", "%6.5f", m_GCaseLayout.GetW() - m_GCaseLayout.GetRemainX() );
 
     m_GeometryBrowserSelect = -1;
 }
@@ -679,6 +682,36 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             if ( rv )
             {
                 rv->SetSelectedResult( gcase->m_LastResult );
+            }
+        }
+    }
+    else if ( gui_device == &m_ApplyRotation )
+    {
+        Geom* parent_geom = veh->FindGeom( gcase->m_SecondaryGeomID );
+        AuxiliaryGeom * aux = dynamic_cast< AuxiliaryGeom* > ( parent_geom );
+        if ( aux )
+        {
+            if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE )
+            {
+                vector < double > tipbogie = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "TipBogie", 0 );
+                if ( tipbogie.size() > 0 )
+                {
+                    aux->m_BogieTheta.SetFromDevice( tipbogie[ 0 ] );
+                }
+
+                vector < double > tipwheel = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "TipWheel", 0 );
+                if ( tipwheel.size() > 0 )
+                {
+                    aux->m_WheelTheta.SetFromDevice( tipwheel[ 0 ] );
+                }
+            }
+            else if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE )
+            {
+                vector < double > roll = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "RollAngle", 0 );
+                if ( roll.size() > 0 )
+                {
+                    aux->m_RollTheta.SetFromDevice( roll[ 0 ] );
+                }
             }
         }
     }
