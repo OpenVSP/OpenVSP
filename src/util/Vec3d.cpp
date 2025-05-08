@@ -797,6 +797,34 @@ double triangle_plane_minimum_dist( const vec3d& org, const vec3d& norm, const v
     return 0;
 }
 
+double triangle_plane_maximum_dist( const vec3d& org, const vec3d& norm, const vec3d& p1, const vec3d& p2, const vec3d& p3, vec3d &pa, vec3d &pb )
+{
+    double d1 = signed_dist_pnt_2_plane( org, norm, p1 );
+    double d2 = signed_dist_pnt_2_plane( org, norm, p2 );
+    double d3 = signed_dist_pnt_2_plane( org, norm, p3 );
+
+    double dmax = 0;
+    if ( d1 > d2 && d1 > d3 )
+    {
+        dmax = d1;
+        pa = p1;
+    }
+    else if ( d2 > d1 && d2 > d3 )
+    {
+        dmax = d2;
+        pa = p2;
+    }
+    else
+    {
+        dmax = d3;
+        pa = p3;
+    }
+
+    pb = pa - dmax * norm;
+
+    return dmax;
+}
+
 bool plane_plane_intersection( const vec3d &p0, const vec3d &n0, const vec3d &p1, const vec3d &n1, vec3d &p, vec3d &v )
 {
     const double d = dot( n0, n1 );
