@@ -664,12 +664,24 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_EvaluateAllGeometryAnalyses )
     {
         GeometryAnalysisMgr.EvaluateAll();
+
+        ResultsViewer * rv = dynamic_cast < ResultsViewer* > ( m_ScreenMgr->GetScreen( vsp::VSP_RESULTS_VIEWER_SCREEN ) );
+        if ( rv )
+        {
+            rv->SetSelectedResult( ResultsMgr.FindLatestResultsID( "GeometryAnalysisAll" ) );
+        }
     }
     else if ( gui_device == &m_Evaluate )
     {
         if ( gcase )
         {
             gcase->Evaluate();
+
+            ResultsViewer * rv = dynamic_cast < ResultsViewer* > ( m_ScreenMgr->GetScreen( vsp::VSP_RESULTS_VIEWER_SCREEN ) );
+            if ( rv )
+            {
+                rv->SetSelectedResult( gcase->m_LastResult );
+            }
         }
     }
     else if ( gui_device == &m_ShowResultsViewer )
