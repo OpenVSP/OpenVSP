@@ -413,6 +413,7 @@ public:
     double MinDistance( TMesh* tm, double curr_min_dist, vec3d &p1, vec3d &p2 );
     bool CheckIntersect( const vec3d &org, const vec3d &norm );
     double MinDistance( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 );
+    double MaxDistance( const vec3d &org, const vec3d &norm, double curr_max_dist, vec3d &p1, vec3d &p2 );
     double MaxDistanceRay( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 );
     double MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 );
     void Split();

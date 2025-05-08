@@ -802,6 +802,11 @@ double TMesh::MinDistance( const vec3d &org, const vec3d &norm, double curr_min_
     return m_TBox.MinDistance( org, norm, curr_min_dist, p1, p2 );
 }
 
+double TMesh::MaxDistance( const vec3d &org, const vec3d &norm, double curr_max_dist, vec3d &p1, vec3d &p2 )
+{
+    return m_TBox.MaxDistance( org, norm, curr_max_dist, p1, p2 );
+}
+
 double TMesh::MaxDistanceRay( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 )
 {
     return m_TBox.MaxDistanceRay( org, norm, curr_min_dist, p1, p2 );
