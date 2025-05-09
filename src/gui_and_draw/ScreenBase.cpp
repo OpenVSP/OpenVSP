@@ -25,6 +25,7 @@
 #include "StructureMgr.h"
 #include "WingGeom.h"
 #include "BORGeom.h"
+#include "SuperConeGeom.h"
 #include "ParmMgr.h"
 #include "Background3DMgr.h"
 #include "RoutingGeom.h"
@@ -4897,6 +4898,12 @@ bool XSecViewScreen::Update()
     if ( bg )
     {
         xsc = bg->GetXSecCurve();
+    }
+
+    SuperConeGeom* sc = dynamic_cast< SuperConeGeom* > ( geom );
+    if ( sc )
+    {
+        xsc = sc->GetXSecCurve();
     }
 
     if( !xsc )

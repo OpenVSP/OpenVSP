@@ -51,6 +51,7 @@
 #include "StringUtil.h"
 #include "StructureMgr.h"
 #include "SubSurfaceMgr.h"
+#include "SuperConeGeom.h"
 #include "SVGUtil.h"
 #include "VarPresetMgr.h"
 #include "VSPAEROMgr.h"
@@ -420,6 +421,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( HUMAN_GEOM_TYPE, "HUMAN", true ) );
     m_GeomTypeVec.push_back( GeomType( PROP_GEOM_TYPE, "PROP", true ) );
     m_GeomTypeVec.push_back( GeomType( GEAR_GEOM_TYPE, "GEAR", true ) );
+    m_GeomTypeVec.push_back( GeomType( SUPER_CONE_GEOM_TYPE, "SUPERCONE", true ) );
     m_GeomTypeVec.push_back( GeomType( HINGE_GEOM_TYPE, "HINGE", true ) );
     m_GeomTypeVec.push_back( GeomType( CONFORMAL_GEOM_TYPE, "CONFORMAL", true ) );
     m_GeomTypeVec.push_back( GeomType( ROUTING_GEOM_TYPE, "ROUTING", true ) );
@@ -1143,6 +1145,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     else if ( type.m_Name == "Gear" || type.m_Name == "GEAR" )
     {
         new_geom = new GearGeom( this );
+    }
+    else if ( type.m_Name == "SuperCone" || type.m_Name == "SUPERCONE" )
+    {
+        new_geom = new SuperConeGeom( this );
     }
 
     if ( !new_geom )

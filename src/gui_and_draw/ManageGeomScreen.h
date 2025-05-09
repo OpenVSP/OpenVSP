@@ -33,6 +33,7 @@
 #include "PtCloudScreen.h"
 #include "RoutingScreen.h"
 #include "StackScreen.h"
+#include "SuperConeScreen.h"
 #include "TreeIconWidget.h"
 #include "WingScreen.h"
 #include "WireScreen.h"

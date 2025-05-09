@@ -106,6 +106,7 @@ STEPStructureOptionsScreen.cpp
 STLOptionsScreen.cpp
 SubGLWindow.cpp
 SurfaceIntersectionScreen.cpp
+SuperConeScreen.cpp
 SVGOptionsScreen.cpp
 TreeColumnWidget.cpp
 TreeIconWidget.cpp
@@ -198,6 +199,7 @@ STEPStructureOptionsScreen.h
 STLOptionsScreen.h
 SubGLWindow.h
 SurfaceIntersectionScreen.h
+SuperConeScreen.h
 SVGOptionsScreen.h
 TreeColumnWidget.h
 TreeIconWidget.h

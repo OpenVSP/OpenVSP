@@ -14,6 +14,7 @@
 #include "CurveEditScreen.h"
 #include "BORGeom.h"
 #include "WingGeom.h"
+#include "SuperConeGeom.h"
 
 #include "GraphicEngine.h"
 #include "Display.h"
@@ -417,6 +418,17 @@ XSecCurve* CurveEditScreen::GetXSecCurve()
         }
 
         xsc = bor_geom->GetXSecCurve();
+    }
+    else if ( geom_ptr->GetType().m_Type == SUPER_CONE_GEOM_TYPE )
+    {
+        SuperConeGeom* cone_geom = dynamic_cast <SuperConeGeom*> ( geom_ptr );
+
+        if ( !cone_geom )
+        {
+            return NULL;
+        }
+
+        xsc = cone_geom->GetXSecCurve();
     }
     else
     {

@@ -88,6 +88,7 @@ StackGeom.cpp
 StructureMgr.cpp
 SubSurface.cpp
 SubSurfaceMgr.cpp
+SuperConeGeom.cpp
 SVGUtil.cpp
 Texture.cpp
 TextureMgr.cpp
@@ -170,6 +171,7 @@ StackGeom.h
 StructureMgr.h
 SubSurface.h
 SubSurfaceMgr.h
+SuperConeGeom.h
 SWIGDefines.h
 SVGUtil.h
 Texture.h
