@@ -24,7 +24,6 @@ typedef piecewise_curve_type::point_type curve_point_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
 typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
 
-typedef eli::geom::curve::piecewise_point_creator<double, 3, curve_tolerance_type> piecewise_point_creator;
 typedef eli::geom::curve::piecewise_circle_creator<double, 3, curve_tolerance_type> piecewise_circle_creator;
 typedef eli::geom::curve::piecewise_ellipse_creator<double, 3, curve_tolerance_type> piecewise_ellipse_creator;
 typedef eli::geom::curve::piecewise_superellipse_creator<double, 3, curve_tolerance_type> piecewise_superellipse_creator;
@@ -2549,29 +2548,9 @@ PointXSec::PointXSec( ) : XSecCurve( )
 //==== Update Geometry ====//
 void PointXSec::UpdateCurve( bool updateParms )
 {
-    piecewise_curve_type c;
-    curve_point_type pt;
-    pt << 0, 0, 0;
-
-    // create point with 4 segments
-    piecewise_point_creator ppc( 4 );
-
-    // set point, make sure have 4 sections that go from 0 to 4
-    ppc.set_point( pt );
-    ppc.set_t0( 0 );
-    ppc.set_segment_dt( 1, 0 );
-    ppc.set_segment_dt( 1, 1 );
-    ppc.set_segment_dt( 1, 2 );
-    ppc.set_segment_dt( 1, 3 );
-    if ( !ppc.create( c ) )
-    {
-        std::cerr << "Failed to create point XSec. " << __LINE__ << std::endl;
-    }
-    else
-    {
-        m_Curve.SetCurve( c );
-    }
+    m_Curve.MakePoint();
 }
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//

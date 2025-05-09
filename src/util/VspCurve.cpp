@@ -37,6 +37,7 @@ typedef eli::geom::curve::piecewise<eli::geom::curve::bezier, double, 1> oned_pi
 typedef oned_piecewise_curve_type::point_type oned_curve_point_type;
 
 
+typedef eli::geom::curve::piecewise_point_creator<double, 3, curve_tolerance_type> piecewise_point_creator;
 typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, curve_tolerance_type> piecewise_cubic_spline_creator_type;
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_type> piecewise_linear_creator_type;
 typedef eli::geom::curve::piecewise_binary_cubic_creator<double, 3, curve_tolerance_type> piecewise_binary_cubic_creator;
@@ -1032,6 +1033,32 @@ double VspCurve::GetCurveDt( int i ) const
 void VspCurve::AppendCurveSegment( const curve_segment_type &c )
 {
     m_Curve.push_back( c, 1 );
+}
+
+void VspCurve::MakePoint()
+{
+    piecewise_curve_type c;
+    curve_point_type pt;
+    pt << 0, 0, 0;
+
+    // create point with 4 segments
+    piecewise_point_creator ppc( 4 );
+
+    // set point, make sure have 4 sections that go from 0 to 4
+    ppc.set_point( pt );
+    ppc.set_t0( 0 );
+    ppc.set_segment_dt( 1, 0 );
+    ppc.set_segment_dt( 1, 1 );
+    ppc.set_segment_dt( 1, 2 );
+    ppc.set_segment_dt( 1, 3 );
+    if ( !ppc.create( c ) )
+    {
+        std::cerr << "Failed to create point curve. " << __LINE__ << std::endl;
+    }
+    else
+    {
+        SetCurve( c );
+    }
 }
 
 double VspCurve::FindDistant( double &u, const vec3d &pt, const double &d, const double &u0 ) const

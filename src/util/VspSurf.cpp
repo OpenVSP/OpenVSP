@@ -685,29 +685,11 @@ void VspSurf::CreateDisk( double dia, int ix, int iy )
 {
     vector< VspCurve > crv_vec(2);
 
+    crv_vec[0].MakePoint();
+
     piecewise_curve_type c;
     curve_point_type origin;
     origin << 0, 0, 0;
-
-    // create point with 4 segments
-    piecewise_point_creator ppc( 4 );
-
-    // set point, make sure have 4 sections that go from 0 to 4
-    ppc.set_point( origin );
-    ppc.set_t0( 0 );
-    ppc.set_segment_dt( 1, 0 );
-    ppc.set_segment_dt( 1, 1 );
-    ppc.set_segment_dt( 1, 2 );
-    ppc.set_segment_dt( 1, 3 );
-
-    if ( !ppc.create( c ) )
-    {
-        std::cerr << "Failed to create point for disk. " << __LINE__ << std::endl;
-    }
-    else
-    {
-        crv_vec[0].SetCurve( c );
-    }
 
     piecewise_circle_creator pcc( 4 );
     curve_point_type start, xdir, ydir;

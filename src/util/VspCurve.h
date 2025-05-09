@@ -86,6 +86,8 @@ public:
     void SetCurve( const piecewise_curve_type &c );
     void AppendCurveSegment( const curve_segment_type &c );
 
+    void MakePoint();
+
     double FindDistant( double &u, const vec3d &pt, const double &d, const double &u0 ) const;
     double FindDistant( double &u, const vec3d &pt, const double &d ) const;
     double FindDistant( double &u, const vec3d &pt, const double &d, const double &umin, const double &umax ) const;
