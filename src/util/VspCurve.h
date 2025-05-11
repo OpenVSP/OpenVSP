@@ -141,6 +141,7 @@ public:
     void OffsetZ( double Z );
 
     void ProjectOntoCylinder( double r, bool wingtype, double ttol = 1e-6, double atol = 0.01, int dmin = 2, int dmax =  15 );
+    void EvaluateOnSphere( bool wingtype, double ttol = 1e-6, double atol = 0.01, int dmin = 2, int dmax = 8 );
 
     void RotateX( double ang );
     void RotateY( double ang );

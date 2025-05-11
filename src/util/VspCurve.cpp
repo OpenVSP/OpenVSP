@@ -42,6 +42,7 @@ typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, curve_tolera
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_type> piecewise_linear_creator_type;
 typedef eli::geom::curve::piecewise_binary_cubic_creator<double, 3, curve_tolerance_type> piecewise_binary_cubic_creator;
 typedef eli::geom::curve::piecewise_binary_cubic_cylinder_projector<double, 3, curve_tolerance_type> piecewise_binary_cubic_cylinder_projector;
+typedef eli::geom::curve::piecewise_binary_cubic_sphere_projector<double, 3, curve_tolerance_type> piecewise_binary_cubic_sphere_projector;
 //=============================================================================//
 //============================= VspCurve      =================================//
 //=============================================================================//
@@ -1577,6 +1578,70 @@ void VspCurve::ProjectOntoCylinder( double r, bool wingtype, double ttol, double
         pbccp.corner_create( m_Curve );
 
         pbccp.setup( up, r, ttol, atol, dmin, dmax );
+        pbccp.corner_create( up );
+
+        m_Curve.push_back( up );
+
+        m_Curve.set_tmax( tmax );
+    }
+}
+
+void VspCurve::EvaluateOnSphere( bool wingtype, double ttol, double atol, int dmin, int dmax )
+{
+    piecewise_binary_cubic_sphere_projector pbccp;
+
+    double tmin, tmax, tmid;
+    tmin = m_Curve.get_parameter_min();
+    tmax = m_Curve.get_parameter_max();
+    tmid = ( tmin + tmax ) / 2.0;
+
+    if ( wingtype )
+    {
+        piecewise_curve_type crv, telow, teup, le, low, up, rest;
+
+        m_Curve.split( telow, crv, tmin + TMAGIC );
+        crv.split( low, rest, tmid - TMAGIC );
+        crv = rest;
+        crv.split( le, rest, tmid + TMAGIC );
+        crv = rest;
+        crv.split( up, teup, tmax - TMAGIC );
+
+        pbccp.setup( telow, ttol, atol, dmin, dmax );
+        pbccp.corner_create( telow );
+
+        pbccp.setup( low, ttol, atol, dmin, dmax );
+        pbccp.corner_create( low );
+
+        pbccp.setup( le, ttol, atol, dmin, dmax );
+        pbccp.corner_create( le );
+
+        pbccp.setup( up, ttol, atol, dmin, dmax );
+        pbccp.corner_create( up );
+
+        pbccp.setup( teup, ttol, atol, dmin, dmax );
+        pbccp.corner_create( teup );
+
+        m_Curve = telow;
+        m_Curve.push_back( low );
+        m_Curve.push_back( le );
+        m_Curve.push_back( up );
+        m_Curve.push_back( teup );
+
+        m_Curve.set_tmax( tmax );
+    }
+    else
+    {
+        piecewise_curve_type low, up;
+
+        m_Curve.split( low, up, tmid );
+
+        // Setup copies base curve into creator.
+        // tolerance, min adapt levels, max adapt levels
+        pbccp.setup( low, ttol, atol, dmin, dmax );
+        // Create makes new curve
+        pbccp.corner_create( m_Curve );
+
+        pbccp.setup( up, ttol, atol, dmin, dmax );
         pbccp.corner_create( up );
 
         m_Curve.push_back( up );
