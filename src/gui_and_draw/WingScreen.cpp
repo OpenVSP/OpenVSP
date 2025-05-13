@@ -260,8 +260,6 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
     m_ModifyLayout.SetButtonWidth( AFstdwidth );
     m_ModifyLayout.AddYGap();
 
-    m_ModifyLayout.AddYGap();
-
     m_ModifyLayout.InitWidthHeightVals();
     m_ModifyLayout.AddDividerBox( "Shift, Rotate, & Scale" );
 
@@ -423,6 +421,36 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
 
     m_ModifyLayout.AddSlider( m_TrimTEXSlider, "X", 10.0, "%6.5f" );
     m_ModifyLayout.AddSlider( m_TrimTEThickSlider, "T", 10.0, "%6.5f" );
+
+    m_ModifyLayout.AddYGap();
+
+    m_TEFlapChoice.AddItem( "NONE" );
+    m_TEFlapChoice.AddItem( "PLAIN" );
+
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( true );
+
+    m_ModifyLayout.AddChoice( m_TEFlapChoice, "Flap:", m_ModifyLayout.GetButtonWidth() * 2 );
+
+    m_ModifyLayout.SetFitWidthFlag( false );
+    m_ModifyLayout.AddButton( m_TEFlapABSButton, "Abs" );
+    m_ModifyLayout.AddButton( m_TEFlapRELButton, "Rel" );
+
+    m_TEFlapGroup.Init( this );
+    m_TEFlapGroup.AddButton( m_TEFlapABSButton.GetFlButton() );
+    m_TEFlapGroup.AddButton( m_TEFlapRELButton.GetFlButton() );
+
+    m_TEFlapGroup.SetValMapVec( trim_val_map );
+
+    m_ModifyLayout.ForceNewLine();
+
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( false );
+
+    m_ModifyLayout.AddSlider( m_FlapTEXSlider, "X", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_FlapTEYSlider, "Y/T", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_FlapTEDeflectionSlider, "Deflection", 10.0, "%6.5f" );
+
 
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ), vsp::SS_CONTROL );
     m_SubSurfChoice.UpdateItems();
@@ -894,6 +922,54 @@ bool WingScreen::Update()
                     m_LECapStrengthSlider.Activate();
                     break;
             }
+
+
+            m_TEFlapChoice.Update( xsc->m_TEFlapType.GetID() );
+            m_TEFlapGroup.Update( xsc->m_TEFlapAbsRel.GetID() );
+
+            m_FlapTEXSlider.Deactivate();
+            m_FlapTEYSlider.Deactivate();
+            m_FlapTEDeflectionSlider.Deactivate();
+            m_TEFlapABSButton.Deactivate();
+            m_TEFlapRELButton.Deactivate();
+
+            xsc->m_TEFlapX.Deactivate();
+            xsc->m_TEFlapXChord.Deactivate();
+            xsc->m_TEFlapYFrac.Deactivate();
+            xsc->m_TEFlapDeflection.Deactivate();
+
+            if ( xsc->m_TEFlapType() != TRIM_NONE )
+            {
+                m_FlapTEYSlider.Activate();
+                m_FlapTEDeflectionSlider.Activate();
+                m_TEFlapABSButton.Activate();
+                m_TEFlapRELButton.Activate();
+
+                xsc->m_TEFlapYFrac.Activate();
+                xsc->m_TEFlapDeflection.Activate();
+
+                if ( xsc->m_TEFlapAbsRel() == ABS )
+                {
+                    xsc->m_TEFlapX.Activate();
+                }
+                else
+                {
+                    xsc->m_TEFlapXChord.Activate();
+                }
+            }
+
+            if ( xsc->m_TEFlapAbsRel() == ABS )
+            {
+                m_FlapTEXSlider.Update( 1, xsc->m_TEFlapX.GetID(), xsc->m_TEFlapXChord.GetID() );
+            }
+            else
+            {
+                m_FlapTEXSlider.Update( 2, xsc->m_TEFlapX.GetID(), xsc->m_TEFlapXChord.GetID() );
+            }
+
+            m_FlapTEYSlider.Update( xsc->m_TEFlapYFrac.GetID() );
+            m_FlapTEDeflectionSlider.Update( xsc->m_TEFlapDeflection.GetID() );
+
 
             m_AFThetaSlider.Update( xsc->m_Theta.GetID() );
             m_AFScaleSlider.Update( xsc->m_Scale.GetID() );
