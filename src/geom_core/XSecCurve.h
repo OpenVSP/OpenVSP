@@ -119,6 +119,8 @@ public:
     virtual double ComputeArea();
     virtual double AreaNoUpdate();
 
+    virtual double EstimateFlapArcLen();
+
     virtual void CloseTE( bool wingtype );
     virtual void CloseLE( bool wingtype );
     virtual void TrimTE( bool wingtype );

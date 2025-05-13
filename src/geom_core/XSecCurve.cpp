@@ -614,6 +614,54 @@ double XSecCurve::AreaNoUpdate()
     return std::abs( m_Curve.CompArea( vsp::X_DIR, vsp::Y_DIR ) );
 }
 
+double XSecCurve::EstimateFlapArcLen()
+{
+    double arclen = 0.0;
+
+    if ( m_Type == XS_POINT || m_TEFlapType() != FLAP_PLAIN )
+    {
+        return arclen;
+    }
+
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+        m_LateUpdateFlag = true;
+    }
+
+    const double tmin = m_BaseEditCurve.GetUMin();
+    const double tmax = m_BaseEditCurve.GetUMax();
+
+    const double tmid = ( tmin + tmax ) * 0.5;
+
+    const double s = m_TEFlapXChord();
+
+    const double tslow = tmin + TMAGIC + s * ( tmid - TMAGIC - ( tmin + TMAGIC ) );
+    const double tsup = tmax - TMAGIC - s * ( tmax - TMAGIC - ( tmid + TMAGIC ) );
+
+    const vec3d plow = m_BaseEditCurve.CompPnt( tslow );
+    const vec3d pup = m_BaseEditCurve.CompPnt( tsup );
+
+    const vec3d phinge = plow + m_TEFlapYFrac() * ( pup - plow );
+
+    const double ang = std::abs( m_TEFlapDeflection() * M_PI / 180.0 );
+
+    if ( m_TEFlapDeflection() > 0 )
+    {
+        const double r = dist( phinge, pup );
+
+        arclen = r * ang / GetWidth();
+    }
+    else
+    {
+        const double r = dist( phinge, plow );
+
+        arclen = r * ang / GetWidth();
+    }
+
+    return arclen;
+}
+
 void XSecCurve::CloseTE( bool wingtype )
 {
     if ( m_Type ==  XS_POINT )
