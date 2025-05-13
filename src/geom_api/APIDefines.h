@@ -1577,6 +1577,15 @@ enum XSEC_DRIVERS { WIDTH_XSEC_DRIVER,     // First two are used for Circle.  Ot
 /*!
 	\ingroup Enumerations
 */
+/*! Enum used to identify XSec flap type. */
+enum XSEC_FLAP_TYPE { FLAP_NONE,	/*!< No flap */
+                      FLAP_PLAIN,	/*!< Plain flap */
+                      FLAP_NUM_TYPES	/*!< Number of flap types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for XSec side types. */
 enum XSEC_SIDES_TYPE {  XSEC_BOTH_SIDES,	/*!< Both sides */
                         XSEC_LEFT_SIDE,	/*!< Left side */

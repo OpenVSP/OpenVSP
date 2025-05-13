@@ -2390,6 +2390,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "XSEC_FLAP_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_FLAP_TYPE", "FLAP_NONE", FLAP_NONE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_FLAP_TYPE", "FLAP_PLAIN", FLAP_PLAIN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_FLAP_TYPE", "FLAP_NUM_TYPES", FLAP_NUM_TYPES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "XSEC_SIDES_TYPE" );  // TODO: improve these comments
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_SIDES_TYPE", "XSEC_BOTH_SIDES", XSEC_BOTH_SIDES );
