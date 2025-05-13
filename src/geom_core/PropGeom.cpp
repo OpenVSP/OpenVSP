@@ -888,6 +888,8 @@ void PropGeom::UpdateSurf()
 
     CheckBalance();
 
+    NormalizeFlaps();
+
     if ( !m_IndividualBladeFoldFlag() )
     {
         m_ActiveBlade.Set( 1 );

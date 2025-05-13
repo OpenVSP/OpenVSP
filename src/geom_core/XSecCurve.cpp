@@ -124,6 +124,9 @@ XSecCurve::XSecCurve()
     m_TEFlapDeflection.Init( "TE_Flap_Deflection", "Flap", this, 0, -180, 180 );
     m_TEFlapDeflection.SetDescript( "Trailing edge flap deflection angle" );
 
+    m_TEFlapFlag.Init( "TE_Flap_Flag", "Flap", this, false, false, true );
+    m_TEFlapT.Init( "TE_Flap_T", "Flap", this, 0.2, 0, 1 );
+    m_TEFlapDT.Init( "TE_Flap_DT", "Flap", this, 0.0, 0, 1 );
 
     m_Theta.Init( "Theta", m_GroupName, this, 0, -180.0, 180.0 );
     m_Scale.Init( "Scale", m_GroupName, this, 1.0, 1e-12, 1e12 );

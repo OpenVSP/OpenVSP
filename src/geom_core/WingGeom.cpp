@@ -1733,6 +1733,8 @@ void WingGeom::UpdateSurf()
     //==== Make Sure Chord Match For Adjacent Wing Sections ====//
     MatchWingSections();
 
+    NormalizeFlaps();
+
     m_ActiveWingSection = active_sect;            // Restore Active Section
 
 

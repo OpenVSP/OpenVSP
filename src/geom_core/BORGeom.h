@@ -65,6 +65,8 @@ protected:
     virtual void UpdateDrawObj();
     virtual void UpdatePreTess();
 
+    virtual void NormalizeFlaps();
+
     double m_Xoff;
 
     XSecCurve *m_XSCurve;

@@ -991,6 +991,8 @@ protected:
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj();
 
+    virtual void NormalizeFlaps();
+
     XSecSurf m_XSecSurf;
     vector<DrawObj> m_XSecDrawObj_vec;
     DrawObj m_HighlightXSecDrawObj;

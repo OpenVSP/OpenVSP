@@ -185,6 +185,12 @@ public:
     Parm m_TEFlapYFrac;
     Parm m_TEFlapDeflection;
 
+    // Not user-set, but using Parms instead of primitive variables so curve will get marked as needing an update
+    // when these values change.
+    BoolParm m_TEFlapFlag;
+    Parm m_TEFlapT;
+    Parm m_TEFlapDT;
+
     Parm m_Theta;
     Parm m_Scale;
     Parm m_DeltaX;

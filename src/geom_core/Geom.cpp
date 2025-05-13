@@ -6229,3 +6229,81 @@ void GeomXSec::OffsetXSecs( double off )
         }
     }
 }
+
+void GeomXSec::NormalizeFlaps()
+{
+    int nflap = 0;
+    double flapdeflection = 0;
+    double flapxchord = 0;
+    double arclen = 0;
+    int nxsec = m_XSecSurf.NumXSec();
+
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( i );
+        if ( ws )
+        {
+            XSecCurve* xsc = ws->GetXSecCurve();
+            if ( xsc )
+            {
+                string width_id = xsc->GetWidthParmID();
+                Parm* width_parm = ParmMgr.FindParm( width_id );
+
+                double w = ws->m_TipChord();
+
+                if ( width_parm && xsc->m_TEFlapType() != vsp::FLAP_NONE )
+                {
+                    nflap++;
+                    flapdeflection += std::abs( xsc->m_TEFlapDeflection() );
+                    arclen += xsc->EstimateFlapArcLen();
+
+                    if ( xsc->m_TEFlapAbsRel() == ABS )
+                    {
+                        flapxchord += xsc->m_TEFlapX() / w;
+                    }
+                    else
+                    {
+                        flapxchord += xsc->m_TEFlapXChord();
+                    }
+                }
+            }
+        }
+    }
+
+    if ( nflap > 0 )
+    {
+        flapdeflection = flapdeflection / nflap;
+        flapxchord = flapxchord / nflap;
+        arclen = arclen / nflap;
+        double fac = 100;
+        flapxchord = round( flapxchord * fac ) / fac;
+        double fac2 = 1000;
+        arclen = round( arclen * fac2 ) / fac2;
+    }
+
+
+
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( i );
+        if ( ws )
+        {
+            XSecCurve* xsc = ws->GetXSecCurve();
+            if ( xsc )
+            {
+                if ( nflap > 0 )
+                {
+                    xsc->m_TEFlapFlag = true;
+                    xsc->m_TEFlapT = flapxchord;
+                    xsc->m_TEFlapDT = arclen;
+                }
+                else
+                {
+                    xsc->m_TEFlapFlag = false;
+                    xsc->m_TEFlapT = 0.2;
+                    xsc->m_TEFlapDT = 0.0;
+                }
+            }
+        }
+    }
+}

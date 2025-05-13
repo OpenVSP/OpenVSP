@@ -68,6 +68,8 @@ void BORGeom::UpdateSurf()
         return;
     }
 
+    NormalizeFlaps();
+
     m_XSCurve->Update(); // May not need to force Update here()
 
     VspCurve stringer;
@@ -180,6 +182,45 @@ void BORGeom::UpdatePreTess()
     // Update clustering before symmetry is applied for m_SurfVec
     m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
     m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
+}
+
+void BORGeom::NormalizeFlaps()
+{
+    if ( m_XSCurve )
+    {
+        if ( m_XSCurve->m_TEFlapType() != vsp::FLAP_NONE )
+        {
+            double flapxchord = 0;
+            double arclen = m_XSCurve->EstimateFlapArcLen();
+
+            double flapdeflection = std::abs( m_XSCurve->m_TEFlapDeflection() );
+
+            if ( m_XSCurve->m_TEFlapAbsRel() == vsp::ABS )
+            {
+                flapxchord = m_XSCurve->m_TEFlapX() / m_XSCurve->GetWidth();
+            }
+            else
+            {
+                flapxchord = m_XSCurve->m_TEFlapXChord();
+            }
+
+            double fac = 100;
+            flapxchord = round( flapxchord * fac ) / fac;
+
+            double fac2 = 1000;
+            arclen = round( arclen * fac2 ) / fac2;
+
+            m_XSCurve->m_TEFlapFlag = true;
+            m_XSCurve->m_TEFlapT = flapxchord;
+            m_XSCurve->m_TEFlapDT = arclen;
+        }
+        else
+        {
+            m_XSCurve->m_TEFlapFlag = false;
+            m_XSCurve->m_TEFlapT = 0.2;
+            m_XSCurve->m_TEFlapDT = 0.0;
+        }
+    }
 }
 
 //==== Compute Rotation Center ====//
