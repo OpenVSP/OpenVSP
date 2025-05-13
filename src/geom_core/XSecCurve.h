@@ -121,6 +121,8 @@ public:
 
     virtual double EstimateFlapArcLen();
 
+    virtual void DeflectTE( bool wingtype );
+
     virtual void CloseTE( bool wingtype );
     virtual void CloseLE( bool wingtype );
     virtual void TrimTE( bool wingtype );

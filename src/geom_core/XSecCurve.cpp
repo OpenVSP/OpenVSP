@@ -17,9 +17,12 @@
 #include "StlHelper.h"
 #include "eli/geom/curve/length.hpp"
 
+#include "eli/geom/intersect/intersect_curve.hpp"
+
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
+typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
 
 typedef eli::geom::curve::piecewise_point_creator<double, 3, curve_tolerance_type> piecewise_point_creator;
 typedef eli::geom::curve::piecewise_circle_creator<double, 3, curve_tolerance_type> piecewise_circle_creator;
@@ -454,6 +457,7 @@ void XSecCurve::Update()
     // Order of these curve modifiers matters.
     CloseTE( wingtype );
     TrimTE( wingtype );
+    DeflectTE( wingtype );
 
     CloseLE( wingtype );
     TrimLE( wingtype );
@@ -663,6 +667,292 @@ double XSecCurve::EstimateFlapArcLen()
     }
 
     return arclen;
+}
+
+void XSecCurve::DeflectTE( bool wingtype )
+{
+    if ( m_Type == XS_POINT || !wingtype || !m_TEFlapFlag() )
+    {
+        return;
+    }
+
+    double tflap = 0.0;
+    double xflap = 0.0;
+
+    piecewise_curve_type crv = m_Curve.GetCurve();
+
+    double tmin, tmax;
+    tmin = crv.get_parameter_min();
+    tmax = crv.get_parameter_max();
+
+    double umin, umax, umid, delta;
+    umin = tmin + TMAGIC;
+    umax = tmax - TMAGIC;
+    umid = ( umin + umax ) * 0.5;
+
+    vec3d telow = m_Curve.CompPnt( umin );
+    vec3d teup = m_Curve.CompPnt( umax );
+    vec3d te = ( telow + teup ) * 0.5;
+
+
+    if ( m_UseFakeWidth )
+    {
+        xflap = m_TEFlapX() * GetWidth() / GetFakeWidth();
+    }
+    else
+    {
+        xflap = m_TEFlapX();
+    }
+
+    if ( m_TEFlapAbsRel() == REL )
+    {
+        xflap = m_TEFlapXChord() * GetWidth();
+    }
+
+    piecewise_curve_type ctelow, cteup, clow, cup, crest;
+
+    crv.split( ctelow, crest, tmin + TMAGIC );
+    crv = crest;
+    crv.split( clow, crest, umid );
+    crv = crest;
+    crv.split( cup, cteup, tmax - TMAGIC );
+
+    if ( m_TEFlapType() == FLAP_PLAIN )
+    {
+        double s = xflap / GetWidth();
+        double tslow0 = tmin + TMAGIC + s * ( umid - ( tmin + TMAGIC ) );
+        double tsup0 = tmax - TMAGIC - s * ( tmax - TMAGIC - umid );
+
+        double tslow = tslow0;
+        double tsup = tsup0;
+
+        threed_point_type ptelow, pteup;
+        telow.get_pnt( ptelow );
+        eli::geom::intersect::specified_distance( tslow, clow, ptelow, xflap, tslow0 );
+        tslow = clamp( tslow, umin, umid );
+
+        teup.get_pnt( pteup );
+        eli::geom::intersect::specified_distance( tsup, cup, pteup, xflap, tsup0 );
+        tsup = clamp( tsup, umid, umax );
+
+
+        threed_point_type plow = clow.f( tslow );
+        threed_point_type pup = cup.f( tsup );
+
+        threed_point_type phinge = plow + m_TEFlapYFrac() * ( pup - plow );
+
+
+        eli::geom::intersect::minimum_distance( tslow, clow, phinge, tslow );
+        tslow = clamp( tslow, umin, umid );
+        plow = clow.f( tslow );
+
+        eli::geom::intersect::minimum_distance( tsup, cup, phinge, tsup );
+        tsup = clamp( tsup, umid, umax );
+        pup = cup.f( tsup );
+
+
+        piecewise_curve_type clowrear, clowfwd, cupfwd, cuprear;
+        clow.split( clowrear, clowfwd, tslow );
+        cup.split( cupfwd, cuprear, tsup );
+
+
+        double ang = m_TEFlapDeflection() * M_PI / 180.0;
+        double cosang = cos( ang );
+        double sinang = sin( ang );
+
+        curve_rotation_matrix_type rot;
+        rot <<  cosang, sinang, 0,
+               -sinang, cosang, 0,
+                0,      0,      1;
+
+        ctelow.rotate( rot, phinge );
+        clowrear.rotate( rot, phinge );
+        cuprear.rotate( rot, phinge );
+        cteup.rotate( rot, phinge );
+
+        double k = eli::constants::math< double >::cubic_bezier_circle_const() * tan( std::abs( ang ) * 0.25 );
+
+        if ( ang > 0 )
+        {
+            double r = eli::geom::point::distance( phinge, pup );
+
+            // Handle upper curve with arc.
+            threed_point_type parcend = cuprear.f( tsup );
+
+            threed_point_type dupfwd = cup.fp( tsup );
+            dupfwd.normalize();
+            threed_point_type duprear = cuprear.fp( tsup );
+            duprear.normalize();
+
+            curve_segment_type carc;
+            carc.resize( 3 ); // Cubic
+
+            carc.set_control_point( pup, 0 );
+            carc.set_control_point( pup + k * r * dupfwd, 1 );
+            carc.set_control_point( parcend - k * r * duprear, 2 );
+            carc.set_control_point( parcend, 3 );
+
+            cupfwd.scale_t( umid, tmax - TMAGIC - 2.0 * m_TEFlapT() - 2.0 * m_TEFlapDT() );
+            cuprear.scale_t( tmax - TMAGIC - 2.0 * m_TEFlapT(), tmax - TMAGIC );
+
+            // Re-assemble upper
+            cup = cupfwd;
+            cup.push_back( carc, 2.0 * m_TEFlapDT() );
+            cup.push_back( cuprear );
+            cup.set_tmax( tmax - TMAGIC );
+
+
+
+
+            // Handle lower curve with sharp corner.
+            double t1, t2;
+            int ret;
+            double d = eli::geom::intersect::intersect( t1, t2, clowrear, clowfwd, tslow - .001, tslow + .001, ret );
+            threed_point_type psplit = clowrear.f( t1 );
+
+            curve_segment_type clin;
+            clin.resize( 3 );
+
+            clin.set_control_point( psplit, 0 );
+            clin.set_control_point( psplit, 1 );
+            clin.set_control_point( psplit, 2 );
+            clin.set_control_point( psplit, 3 );
+
+            piecewise_curve_type clr1, clr2;
+            clowrear.split( clr1, clr2, t1 );
+            clowrear = clr1;
+            clowrear.scale_t( tmin + TMAGIC, tmin + TMAGIC + 2.0 * m_TEFlapT() );
+
+            piecewise_curve_type clf1, clf2;
+            clowfwd.split( clf1, clf2, t2 );
+            clowfwd = clf2;
+            clowfwd.scale_t( tmin + TMAGIC + 2.0 * m_TEFlapT() + 2.0 * m_TEFlapDT(), umid );
+
+            // Re-assemble lower
+            clow = clowrear;
+            clow.push_back( clin, 2.0 * m_TEFlapDT() );
+            clow.push_back( clowfwd );
+            clow.set_tmax( umid );
+        }
+        else
+        {
+            double r = eli::geom::point::distance( phinge, plow );
+
+            // Handle lower curve with arc.
+            threed_point_type parcend = clowrear.f( tslow );
+
+            threed_point_type dlowfwd = clow.fp( tslow );
+            dlowfwd.normalize();
+            threed_point_type dlowrear = clowrear.fp( tslow );
+            dlowrear.normalize();
+
+            curve_segment_type carc;
+            carc.resize( 3 ); // Cubic
+
+            carc.set_control_point( parcend, 0 );
+            carc.set_control_point( parcend + k * r * dlowrear, 1 );
+            carc.set_control_point( plow - k * r * dlowfwd, 2 );
+            carc.set_control_point( plow, 3 );
+
+            clowfwd.scale_t( tmin + TMAGIC + 2.0 * m_TEFlapT() + 2.0 * m_TEFlapDT(), umid );
+            clowrear.scale_t( tmin + TMAGIC, tmin + TMAGIC + 2.0 * m_TEFlapT() );
+
+            // Re-assemble lower
+            clow = clowrear;
+            clow.push_back( carc, 2.0 * m_TEFlapDT() );
+            clow.push_back( clowfwd );
+            clow.set_tmax( umid );
+
+
+
+
+            // Handle upper curve with sharp corner.
+            double t1, t2;
+            int ret;
+            double d = eli::geom::intersect::intersect( t1, t2, cupfwd, cuprear, tsup - .001, tsup + .001, ret );
+            threed_point_type psplit = cuprear.f( t2 );
+
+            curve_segment_type clin;
+            clin.resize( 3 );
+
+            clin.set_control_point( psplit, 0 );
+            clin.set_control_point( psplit, 1 );
+            clin.set_control_point( psplit, 2 );
+            clin.set_control_point( psplit, 3 );
+
+            piecewise_curve_type cur1, cur2;
+            cuprear.split( cur1, cur2, t2 );
+            cuprear = cur2;
+            cuprear.scale_t( tmax - TMAGIC - 2.0 * m_TEFlapT(), tmax - TMAGIC );
+
+            piecewise_curve_type cuf1, cuf2;
+            cupfwd.split( cuf1, cuf2, t1 );
+            cupfwd = cuf1;
+            cupfwd.scale_t( umid, tmax - TMAGIC - 2.0 * m_TEFlapT() - 2.0 * m_TEFlapDT() );
+
+            // Re-assemble upper
+            cup = cupfwd;
+            cup.push_back( clin, 2.0 * m_TEFlapDT() );
+            cup.push_back( cuprear );
+            cup.set_tmax( tmax - TMAGIC );
+        }
+    }
+    else
+    {
+        double tslow = tmin + TMAGIC + 2.0 * m_TEFlapT();
+        double tsup = tmax - TMAGIC - 2.0 * m_TEFlapT();
+
+        threed_point_type plow = clow.f( tslow );
+        threed_point_type pup = cup.f( tsup );
+
+        piecewise_curve_type clowrear, clowfwd, cupfwd, cuprear;
+        clow.split( clowrear, clowfwd, tslow );
+        cup.split( cupfwd, cuprear, tsup );
+
+        curve_segment_type clinlow, clinup;
+        clinlow.resize( 3 );
+        clinup.resize( 3 );
+
+        clinlow.set_control_point( plow, 0 );
+        clinlow.set_control_point( plow, 1 );
+        clinlow.set_control_point( plow, 2 );
+        clinlow.set_control_point( plow, 3 );
+
+        clinup.set_control_point( pup, 0 );
+        clinup.set_control_point( pup, 1 );
+        clinup.set_control_point( pup, 2 );
+        clinup.set_control_point( pup, 3 );
+
+
+        cupfwd.scale_t( umid, tsup - 2.0 * m_TEFlapDT() );
+        cuprear.scale_t( tsup, tmax - TMAGIC );
+
+        // Re-assemble upper
+        cup = cupfwd;
+        cup.push_back( clinup, 2.0 * m_TEFlapDT() );
+        cup.push_back( cuprear );
+        cup.set_tmax( tmax - TMAGIC );
+
+
+        clowrear.scale_t( tmin + TMAGIC, tslow );
+        clowfwd.scale_t( tslow + 2.0 * m_TEFlapDT(), umid );
+
+        // Re-assemble lower
+        clow = clowrear;
+        clow.push_back( clinlow, 2.0 * m_TEFlapDT() );
+        clow.push_back( clowfwd );
+        clow.set_tmax( umid );
+    }
+
+    // Re-assemble curve
+    crv = ctelow;
+    crv.push_back( clow );
+    crv.push_back( cup );
+    crv.push_back( cteup );
+
+    crv.set_tmax( tmax );
+
+    m_Curve.SetCurve( crv );
 }
 
 void XSecCurve::CloseTE( bool wingtype )
