@@ -455,11 +455,14 @@ void XSecCurve::Update()
     bool wingtype = DetermineWingType();
 
     // Order of these curve modifiers matters.
+    // No TMAGIC yet.
     CloseTE( wingtype );
+    // TMAGIC for TE only.
     TrimTE( wingtype );
     DeflectTE( wingtype );
 
     CloseLE( wingtype );
+    // Now TMAGIC for LE also.
     TrimLE( wingtype );
 
     CapTE( wingtype );
