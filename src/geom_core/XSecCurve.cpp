@@ -109,6 +109,22 @@ XSecCurve::XSecCurve()
     m_LECapOffset.Init( "LE_Cap_Offset", "Cap", this, 0, -20, 20 );
     m_LECapStrength.Init( "LE_Cap_Strength", "Cap", this, 0.5, 0, 1);
 
+    m_TEFlapType.Init( "TE_Flap_Type", "Flap", this, FLAP_NONE, FLAP_NONE, FLAP_NUM_TYPES - 1 );
+    m_TEFlapAbsRel.Init( "TE_Trim_AbsRel", "Flap", this, REL, ABS, REL );
+
+    m_TEFlapX.Init( "TE_Flap_X", "Flap", this, 0, 0, 1e12 );
+    m_TEFlapX.SetDescript( "X length to lap trailing edge" );
+
+    m_TEFlapXChord.Init( "TE_Flap_X_Chord", "Flap", this, 0.2, 0, 0.999 );
+    m_TEFlapXChord.SetDescript( "X/C length to flap trailing edge" );
+
+    m_TEFlapYFrac.Init( "TE_Flap_Y_Frc", "Flap", this, 0.5, 0, 1.0 );
+    m_TEFlapYFrac.SetDescript( "Y/t Position of trailing edge flap hinge in thickness direction" );
+
+    m_TEFlapDeflection.Init( "TE_Flap_Deflection", "Flap", this, 0, -180, 180 );
+    m_TEFlapDeflection.SetDescript( "Trailing edge flap deflection angle" );
+
+
     m_Theta.Init( "Theta", m_GroupName, this, 0, -180.0, 180.0 );
     m_Scale.Init( "Scale", m_GroupName, this, 1.0, 1e-12, 1e12 );
     m_DeltaX.Init( "DeltaX", m_GroupName, this, 0, -1e3, 1e3 );

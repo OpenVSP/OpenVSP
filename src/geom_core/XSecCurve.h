@@ -175,6 +175,14 @@ public:
     Parm m_LECapOffset;
     Parm m_LECapStrength;
 
+    IntParm m_TEFlapType;
+    IntParm m_TEFlapAbsRel;
+
+    Parm m_TEFlapX;
+    Parm m_TEFlapXChord;
+    Parm m_TEFlapYFrac;
+    Parm m_TEFlapDeflection;
+
     Parm m_Theta;
     Parm m_Scale;
     Parm m_DeltaX;
