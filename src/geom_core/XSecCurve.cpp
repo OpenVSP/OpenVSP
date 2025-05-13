@@ -1655,6 +1655,9 @@ void XSecCurve::TrimLE( bool wingtype )
     umidlow = umid - TMAGIC;
     umidup = umid + TMAGIC;
 
+    double uflaplow = umin + 2.0 * m_TEFlapT() + 2.0 * m_TEFlapDT();
+    double uflapup = umax - 2.0 * m_TEFlapT() - 2.0 * m_TEFlapDT();
+
     double ts1 = umidlow;
     double ts2 = umidup;
 
@@ -1818,8 +1821,27 @@ void XSecCurve::TrimLE( bool wingtype )
         c_low_main.split( c1, c2, ts1 );
         c_up_main.split( c3, c4, ts2 );
 
-        c1.scale_t( umin, umidlow );
-        c4.scale_t( umidup, umax );
+        if ( m_TEFlapFlag() )
+        {
+            piecewise_curve_type c1_fwd, c1_aft, c4_fwd, c4_aft;
+
+            c1.split( c1_aft, c1_fwd, uflaplow );
+            c4.split( c4_fwd, c4_aft, uflapup );
+
+            c1_fwd.scale_t( uflaplow , umidlow );
+            c4_fwd.scale_t( umidup, uflapup );
+
+            c1 = c1_aft;
+            c1.push_back( c1_fwd );
+
+            c4 = c4_fwd;
+            c4.push_back( c4_aft );
+        }
+        else
+        {
+            c1.scale_t( umin, umidlow );
+            c4.scale_t( umidup, umax );
+        }
 
         piecewise_linear_creator_type plc( 2 );
 
