@@ -1265,8 +1265,27 @@ void XSecCurve::CloseLE( bool wingtype )
     c_low.split( c_low_te, c_low_main, TMAGIC );
     c_up.split( c_up_main, c_up_te, tmax - TMAGIC );
 
-    c_low_main.scale_t( TMAGIC, tle - TMAGIC );
-    c_up_main.scale_t( tle + TMAGIC, tmax - TMAGIC );
+    if ( m_TEFlapFlag() )
+    {
+        piecewise_curve_type c_up_fwd, c_up_aft, c_low_fwd, c_low_aft;
+
+        c_low_main.split( c_low_aft, c_low_fwd, TMAGIC + 2.0 * m_TEFlapT() + 2.0 * m_TEFlapDT() );
+        c_up_main.split( c_up_fwd, c_up_aft, tmax - TMAGIC - 2.0 * m_TEFlapT() - 2.0 * m_TEFlapDT() );
+
+        c_low_fwd.scale_t( TMAGIC + 2.0 * m_TEFlapT() + 2.0 * m_TEFlapDT() , tle - TMAGIC );
+        c_up_fwd.scale_t( tle + TMAGIC, tmax - TMAGIC - 2.0 * m_TEFlapT() - 2.0 * m_TEFlapDT() );
+
+        c_low_main = c_low_aft;
+        c_low_main.push_back( c_low_fwd );
+
+        c_up_main = c_up_fwd;
+        c_up_main.push_back( c_up_aft );
+    }
+    else
+    {
+        c_low_main.scale_t( TMAGIC, tle - TMAGIC );
+        c_up_main.scale_t( tle + TMAGIC, tmax - TMAGIC );
+    }
 
     threed_point_type p1 = c_low_main.f( tle - TMAGIC );
     threed_point_type p3 = c_up_main.f( tle + TMAGIC );
