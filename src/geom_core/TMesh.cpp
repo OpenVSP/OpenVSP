@@ -2125,7 +2125,8 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
 {
     vector < vector < int > > othercl;
     vector < vector < int > > cl_DBA;
-    TriangulateSplit_DBA( flattenAxis, ptvec, false, cl_DBA, othercl );
+    // TriangulateSplit_DBA( flattenAxis, ptvec, false, cl_DBA, othercl );
+    TriangulateSplit_TRI( flattenAxis, ptvec, false, cl_DBA );
     OrientConnList( cl_DBA );
     SortConnList( cl_DBA );
 
