@@ -118,7 +118,7 @@ XSecCurve::XSecCurve()
     m_TEFlapX.Init( "TE_Flap_X", "Flap", this, 0, 0, 1e12 );
     m_TEFlapX.SetDescript( "X length to lap trailing edge" );
 
-    m_TEFlapXChord.Init( "TE_Flap_X_Chord", "Flap", this, 0.2, 0, 0.999 );
+    m_TEFlapXChord.Init( "TE_Flap_X_Chord", "Flap", this, 0.2, 0, 0.95 );
     m_TEFlapXChord.SetDescript( "X/C length to flap trailing edge" );
 
     m_TEFlapYFrac.Init( "TE_Flap_Y_Frc", "Flap", this, 0.5, 0, 1.0 );
@@ -700,10 +700,12 @@ void XSecCurve::DeflectTE( bool wingtype )
 
     if ( m_UseFakeWidth )
     {
+        m_TEFlapX.SetUpperLimit( 0.95 * GetFakeWidth() );
         xflap = m_TEFlapX() * GetWidth() / GetFakeWidth();
     }
     else
     {
+        m_TEFlapX.SetUpperLimit( 0.95 * GetWidth() );
         xflap = m_TEFlapX();
     }
 
@@ -956,6 +958,32 @@ void XSecCurve::DeflectTE( bool wingtype )
     crv.set_tmax( tmax );
 
     m_Curve.SetCurve( crv );
+
+
+    double div = GetWidth();
+    if ( div == 0.0 )
+    {
+        div = 1.0;
+    }
+
+    if ( m_UseFakeWidth )
+    {
+        div = GetFakeWidth();
+        if ( div == 0.0 )
+        {
+            div = 1.0;
+        }
+    }
+
+    if ( m_TEFlapAbsRel() == ABS )
+    {
+        m_TEFlapXChord = xflap / div;
+    }
+    else
+    {
+        m_TEFlapX = xflap;
+    }
+
 }
 
 void XSecCurve::CloseTE( bool wingtype )
