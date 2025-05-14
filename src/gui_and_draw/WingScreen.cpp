@@ -424,8 +424,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
 
     m_ModifyLayout.AddYGap();
 
-    m_TEFlapChoice.AddItem( "NONE" );
-    m_TEFlapChoice.AddItem( "PLAIN" );
+    m_TEFlapChoice.AddItem( "NONE", vsp::FLAP_NONE );
+    m_TEFlapChoice.AddItem( "PLAIN", vsp::FLAP_PLAIN );
 
     m_ModifyLayout.SetFitWidthFlag( true );
     m_ModifyLayout.SetSameLineFlag( true );
@@ -938,7 +938,7 @@ bool WingScreen::Update()
             xsc->m_TEFlapYFrac.Deactivate();
             xsc->m_TEFlapDeflection.Deactivate();
 
-            if ( xsc->m_TEFlapType() != TRIM_NONE )
+            if ( xsc->m_TEFlapType() != vsp::TRIM_NONE )
             {
                 m_FlapTEYSlider.Activate();
                 m_FlapTEDeflectionSlider.Activate();
@@ -948,7 +948,7 @@ bool WingScreen::Update()
                 xsc->m_TEFlapYFrac.Activate();
                 xsc->m_TEFlapDeflection.Activate();
 
-                if ( xsc->m_TEFlapAbsRel() == ABS )
+                if ( xsc->m_TEFlapAbsRel() == vsp::ABS )
                 {
                     xsc->m_TEFlapX.Activate();
                 }
@@ -958,7 +958,7 @@ bool WingScreen::Update()
                 }
             }
 
-            if ( xsc->m_TEFlapAbsRel() == ABS )
+            if ( xsc->m_TEFlapAbsRel() == vsp::ABS )
             {
                 m_FlapTEXSlider.Update( 1, xsc->m_TEFlapX.GetID(), xsc->m_TEFlapXChord.GetID() );
             }

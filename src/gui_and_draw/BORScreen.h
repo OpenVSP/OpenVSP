@@ -305,6 +305,15 @@ protected:
     SliderAdjRangeInput m_LECapOffsetSlider;
     SliderAdjRangeInput m_LECapStrengthSlider;
 
+    Choice m_TEFlapChoice;
+    ToggleButton m_TEFlapABSButton;
+    ToggleButton m_TEFlapRELButton;
+    ToggleRadioGroup m_TEFlapGroup;
+
+    SliderAdjRange2Input m_FlapTEXSlider;
+    SliderAdjRangeInput m_FlapTEYSlider;
+    SliderAdjRangeInput m_FlapTEDeflectionSlider;
+
     SliderAdjRangeInput m_AFThetaSlider;
     SliderAdjRangeInput m_AFScaleSlider;
     SliderAdjRangeInput m_AFDeltaXSlider;
