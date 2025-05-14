@@ -2523,6 +2523,11 @@ void XSecCurve::Interp( XSecCurve *start, XSecCurve *end, double frac )
     INTERP_PARM( start, end, frac, m_LECapOffset );
     INTERP_PARM( start, end, frac, m_LECapStrength );
 
+    INTERP_PARM( start, end, frac, m_TEFlapX );
+    INTERP_PARM( start, end, frac, m_TEFlapXChord );
+    INTERP_PARM( start, end, frac, m_TEFlapYFrac );
+    INTERP_PARM( start, end, frac, m_TEFlapDeflection );
+
     INTERP_PARM( start, end, frac, m_Theta );
     INTERP_PARM( start, end, frac, m_Scale );
     INTERP_PARM( start, end, frac, m_DeltaX );
