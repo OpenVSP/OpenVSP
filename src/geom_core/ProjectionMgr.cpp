@@ -674,7 +674,7 @@ void ProjectionMgrSingleton::MeshToPaths( const vector < TMesh* > & tmv, Clipper
             for ( int k = 0; k < 3; k++ )
             {
                 vec3d p = tmv[i]->m_TVec[j]->GetTriNode( k )->m_Pnt;
-                pths[itri][k] = Clipper2Lib::Point64( (int) p.y(), (int) p.z() );
+                pths[itri][k] = Clipper2Lib::Point64( (int64_t) p.y(), (int64_t) p.z() );
             }
 
             if ( !Clipper2Lib::IsPositive( pths[itri] ) )
@@ -704,7 +704,7 @@ void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vect
             for ( int k = 0; k < 3; k++ )
             {
                 vec3d p = tmv[i]->m_TVec[j]->GetTriNode( k )->m_Pnt;
-                pthvec[i][j][k] = Clipper2Lib::Point64( (int) p.v[keepdir1], (int) p.v[keepdir2] );
+                pthvec[i][j][k] = Clipper2Lib::Point64( (int64_t) p.v[keepdir1], (int64_t) p.v[keepdir2] );
             }
 
             if ( !Clipper2Lib::IsPositive( pthvec[i][j] ) )
@@ -756,7 +756,7 @@ void ProjectionMgrSingleton::Poly3dToPoly2d( vector < vector < vec3d > > & invec
 double ProjectionMgrSingleton::BuildToFromClipper( Matrix4d & toclip, Matrix4d & fromclip, bool translate_to_max )
 {
     vec3d center = m_BBox.GetCenter();
-    double scale = 1e8 / m_BBox.GetLargestDist();
+    double scale = 1e15 / m_BBox.GetLargestDist();
 
     toclip.loadIdentity();
     toclip.scale( scale );
