@@ -113,6 +113,7 @@ protected:
 
     virtual bool PtInHole( const vec2d &p );
 
+    virtual void MarkHoles( const Clipper2Lib::Paths64 & pths );
     virtual void AreaReport( Results* res, const string &resname, const string &doc, const Clipper2Lib::Paths64 & pths, double scale, bool holerpt = false );
 
     virtual void AreaReport( Results* res, const string &resname, const string &doc, const vector < Clipper2Lib::Paths64 > & pthsvec, double scale );

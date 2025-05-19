@@ -1252,6 +1252,25 @@ string ProjectionMgrSingleton::MakeMeshGeom()
     return id;
 }
 
+void ProjectionMgrSingleton::MarkHoles( const Clipper2Lib::Paths64 & pths )
+{
+    m_IsHole.resize( pths.size() );
+
+    for ( int i = 0; i < pths.size(); i++ )
+    {
+        double area = Clipper2Lib::Area( pths[i] );
+
+        if ( area < 0.0 )
+        {
+            m_IsHole[i] = true;
+        }
+        else
+        {
+            m_IsHole[i] = false;
+        }
+    }
+}
+
 void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, const string &doc, const Clipper2Lib::Paths64 & pths, double scale, bool holerpt )
 {
     if ( holerpt )
