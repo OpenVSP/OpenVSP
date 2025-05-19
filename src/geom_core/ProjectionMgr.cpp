@@ -893,9 +893,55 @@ void ProjectionMgrSingleton::Intersect( vector < Clipper2Lib::Paths64 > & pthsve
     }
 }
 
-void ProjectionMgrSingleton::Triangulate()
+void ProjectionMgrSingleton::Triangulate( const bool addspherepoints, const double r )
 {
     vector < vec3d > addpts;
+
+    if ( addspherepoints )
+    {
+        int naz = 20;
+        int nel = 20;
+        for ( int iaz = 0; iaz < naz; iaz++ )
+        {
+            // -pi to pi
+            double az = ( -1.0 + 2.0 * ( double ) iaz / ( double ) naz ) * M_PI;
+            for ( int iel = 0; iel < nel; iel++ )
+            {
+                // -pi/2 to pi/2
+                double el = ( -0.5 + (double) iel / (double) nel ) * M_PI;
+                vec2d p2d = vec2d( az, el );
+
+                if ( !PtInHole( p2d ) )
+                {
+                    vec3d p( r, az, el );
+                    addpts.push_back( p );
+                }
+            }
+        }
+
+        // // Add points according to a Fibonacci lattice
+        // // https://extremelearning.com.au/how-to-evenly-distribute-points-on-a-sphere-more-effectively-than-the-canonical-fibonacci-lattice/
+        // // This works very well.  However, the Delaunay triangulation done in polar coordinates does an ugly job
+        // // connecting the points near the poles.  The simple globe-like distribution above gives better results
+        // // overall.
+        // double goldenRatio = 0.5 * ( 1.0 + sqrt( 5.0 ) );
+        // double epsilon = 0.36; // empirical factor for good average nearest point distance optimization.
+        //
+        // int nadd = 400;
+        //
+        // for ( int i = 0; i < nadd; i++ )
+        // {
+        //     double az = clampAngle( 2.0 * M_PI * (double) i / goldenRatio );
+        //     double el = 0.5 * M_PI - ( acos( 1.0 - 2.0 * ( (double) i + epsilon ) / ( (double) nadd - 1.0 + 2.0 * epsilon ) ) );
+        //
+        //     vec2d p2d = vec2d( az, el );
+        //     if ( !PtInHole( p2d ) )
+        //     {
+        //         vec3d p( r, az, el );
+        //         addpts.push_back( p );
+        //     }
+        // }
+    }
 
     vector < vector < int > > connlist;
 
@@ -916,6 +962,13 @@ void ProjectionMgrSingleton::Triangulate()
                 n->m_Pnt = m_SolutionPolyVec3d[ i ][ j ];
                 tMesh->m_NVec.push_back( n );
             }
+        }
+
+        for ( int i = 0; i < addpts.size(); i++ )
+        {
+            TNode *n = new TNode();
+            n->m_Pnt = addpts[ i ];
+            tMesh->m_NVec.push_back( n );
         }
 
         //==== Load Triangles if No New Point Created ====//
