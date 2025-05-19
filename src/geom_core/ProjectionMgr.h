@@ -115,6 +115,9 @@ protected:
     virtual Results* Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir );
     virtual Results* Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir );
 
+    virtual void Dump( vector < vector < vec3d > > & pthsvec, const string & fname );
+    virtual void Dump( Clipper2Lib::Paths64 & pthsvec, const string & fname );
+
     BndBox m_BBox;
 
 private:

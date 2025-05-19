@@ -1163,3 +1163,35 @@ void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, co
 
     res->Add( new NameValData( resname, areavec, doc ) );
 }
+
+void ProjectionMgrSingleton::Dump( vector < vector < vec3d > > & pthsvec, const string & fname )
+{
+    FILE *fp = fopen( fname.c_str(), "w" );
+
+    fprintf( fp, "clear all\nformat compact\nclose all\n\n" );
+
+    for ( int i = 0; i < pthsvec.size(); i++ )
+    {
+        fprintf( fp, "l%d = [", i );
+        for ( int k = 0; k < pthsvec[ i ].size(); k++ )
+        {
+            vec3d p = pthsvec[ i ][ k ];
+            fprintf( fp, "%f %f %f;\n", p.x(), p.y(), p.z() );
+        }
+        // Repeat first point.
+        vec3d p = pthsvec[ i ][ 0 ];
+        fprintf( fp, "%f %f %f];\n\n", p.x(), p.y(), p.z() );
+
+        // fprintf( fp, "plot( l%d(:,2), l%d(:,3) );\nhold on\n\n", i, i );
+        fprintf( fp, "fill( l%d(:,2), l%d(:,3), 'b' );\nhold on\n\n", i, i );
+    }
+    fclose( fp );
+}
+
+void ProjectionMgrSingleton::Dump( Clipper2Lib::Paths64 & pth, const string & fname )
+{
+    vector < vector < vec3d > > polyvec;
+    PathsToPolyVec( pth, polyvec, 1, 2 );
+
+    Dump( polyvec, fname );
+}
