@@ -810,6 +810,38 @@ void ProjectionMgrSingleton::PathsToPolyVec( const Clipper2Lib::Paths64 & pths, 
     }
 }
 
+void ProjectionMgrSingleton::RefinePolyVec( vector < vector < vec3d > > & polyvec, const double & scalerad )
+{
+    double thtol = scalerad * M_PI / 180.0; // degrees of arc per edge.
+
+    for ( int i = 0; i < polyvec.size(); i++ )
+    {
+        vector < vec3d > pv;
+        for ( int j = 0; j < polyvec[ i ].size() - 1; j++ )
+        {
+            vec3d s = polyvec[ i ][ j ];
+            s.set_x( 0 );
+            vec3d e = polyvec[ i ][ j + 1 ];
+            e.set_x( 0 );
+            double th = dist( s, e );
+
+            // Always at least 1, but less than ceil()
+            int nref = std::max( 1, (int) round( th / thtol ) );
+
+            for ( int k = 0; k < nref; k++ )
+            {
+                double frac = (double) k / (double) nref;
+                vec3d p = s + frac * ( e - s );
+                pv.push_back( p );
+            }
+        }
+        // Place last point of last edge.
+        pv.push_back( polyvec[ i ].back() );
+        // Replace polyvec with refined version.
+        polyvec[ i ] = pv;
+    }
+}
+
 void ProjectionMgrSingleton::Poly3dToPoly2d( vector < vector < vec3d > > & invec, vector < vector < vec2d > > & outvec )
 {
     outvec.resize( invec.size() );

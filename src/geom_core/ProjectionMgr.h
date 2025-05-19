@@ -94,6 +94,7 @@ protected:
     virtual void MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Paths64 & pth, const double &scalerad );
 
     virtual void PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, int keepdir1 = 1, int keepdir2 = 2 );
+    virtual void RefinePolyVec( vector < vector < vec3d > > & polyvec, const double & scalerad );
 
     virtual void Poly3dToPoly2d( vector < vector < vec3d > > & invec, vector < vector < vec2d > > & outvec );
 
