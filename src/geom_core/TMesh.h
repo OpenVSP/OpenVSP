@@ -437,6 +437,7 @@ public:
     void DeterIntExt( TMesh* mesh );
 
     void LoadBndBox();
+    void UpdateBBox( BndBox &bbox, const Matrix4d &transMat = Matrix4d() );
 
     virtual double ComputeTheoArea();
     virtual double ComputeWetArea();

@@ -1473,6 +1473,18 @@ void TMesh::LoadBndBox()
     m_TBox.SplitBox();
 }
 
+void TMesh::UpdateBBox( BndBox &bbox, const Matrix4d &transMat )
+{
+    int j;
+
+    for ( j = 0 ; j < ( int )m_TVec.size() ; j++ )
+    {
+        bbox.Update( transMat.xform( m_TVec[j]->m_N0->m_Pnt ) );
+        bbox.Update( transMat.xform( m_TVec[j]->m_N1->m_Pnt ) );
+        bbox.Update( transMat.xform( m_TVec[j]->m_N2->m_Pnt ) );
+    }
+}
+
 //==== Write STL Tris =====//
 void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
 {
@@ -5027,12 +5039,7 @@ void UpdateBBox( BndBox &bbox, vector<TMesh*> &tmv, const Matrix4d &transMat )
     {
         for ( i = 0 ; i < ( int )tmv.size() ; i++ )
         {
-            for ( j = 0 ; j < ( int )tmv[i]->m_TVec.size() ; j++ )
-            {
-                bbox.Update( transMat.xform( tmv[i]->m_TVec[j]->m_N0->m_Pnt ) );
-                bbox.Update( transMat.xform( tmv[i]->m_TVec[j]->m_N1->m_Pnt ) );
-                bbox.Update( transMat.xform( tmv[i]->m_TVec[j]->m_N2->m_Pnt ) );
-            }
+            tmv[i]->UpdateBBox( bbox, transMat );
         }
     }
     else
