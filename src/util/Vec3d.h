@@ -1095,6 +1095,9 @@ public:
 
     friend vec3d slerp( const vec3d& a, const vec3d& b, const double &t );
     friend void printpt( const vec3d & v );
+    friend vec3d ToSpherical( const vec3d & v );
+    friend vec3d ToSpherical2( const vec3d & v, const vec3d & vdet );
+    friend vec3d ToCartesian( const vec3d & v );
 };
 
 /*!

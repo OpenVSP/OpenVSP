@@ -2056,3 +2056,49 @@ void printpt( const vec3d & v )
 {
     printf( "x: %g Y: %g Z: %g\n", v[0], v[1], v[2] );
 }
+
+vec3d ToSpherical( const vec3d & v )
+{
+    const double &x = v[0];
+    const double &y = v[1];
+    const double &z = v[2];
+
+    const double h = sqrt( ( x * x ) + ( y * y ) );
+    const double r = v.mag();
+    const double el = atan2( z, h );
+    const double az = atan2( y, x );
+
+    return vec3d( r, az, el );
+}
+
+vec3d ToSpherical2( const vec3d & v, const vec3d & vdet )
+{
+    const double &x = v[0];
+    const double &y = v[1];
+    const double &z = v[2];
+    const double &xdet = vdet[0];
+    const double &ydet = vdet[1];
+    const double &zdet = vdet[2];
+
+    const double h = sqrt( ( x * x ) + ( y * y ) );
+    const double hdet = sqrt( ( xdet * xdet ) + ( ydet * ydet ) );
+    const double r = v.mag();
+    const double el = atan4( z, h, zdet, hdet );
+    const double az = atan4( y, x, ydet, xdet );
+
+    return vec3d( r, az, el );
+}
+
+vec3d ToCartesian( const vec3d & v )
+{
+    const double &r = v[0];
+    const double &az = v[1];
+    const double &el = v[2];
+
+    const double z = r * sin( el );
+    const double rcoselev = r * cos( el );
+    const double x = rcoselev * cos( az );
+    const double y = rcoselev * sin( az );
+
+    return vec3d( x, y, z );;
+}
