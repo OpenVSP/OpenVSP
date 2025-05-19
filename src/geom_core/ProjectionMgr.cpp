@@ -16,8 +16,6 @@
 #include "triangle.h"
 #include "triangle_api.h"
 
-#include "delabella.h"
-
 //==== Constructor ====//
 ProjectionMgrSingleton::ProjectionMgrSingleton()
 {
@@ -876,7 +874,7 @@ void ProjectionMgrSingleton::Intersect( vector < Clipper2Lib::Paths64 > & pthsve
 void ProjectionMgrSingleton::Triangulate()
 {
     vector < vector < int > > connlist;
-    Triangulate_DBA( connlist );
+    Triangulate_TRI( connlist );
 
 
     int ntri = connlist.size();
@@ -1059,82 +1057,6 @@ void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlis
     // cleanup
     triangle_context_destroy( ctx );
 
-}
-
-void ProjectionMgrSingleton::Triangulate_DBA( vector < vector < int > > &connlist )
-{
-    int npt = 0;
-    for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
-    {
-        npt += m_SolutionPolyVec3d[i].size() - 1; // Subtract off repeated first point.
-    }
-
-    int nedg = npt;
-
-    dba_point* cloud = new dba_point[npt];
-    dba_edge* bounds = new dba_edge[nedg];
-
-    int ptcnt = 0;
-    int segcnt = 0;
-    for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
-    {
-        int firstseg = segcnt;
-        for ( int j = 0 ; j < ( int )m_SolutionPolyVec3d[i].size() - 1 ; j++ )
-        {
-            vec3d pnt = m_SolutionPolyVec3d[i][j];
-
-            cloud[ptcnt].x = pnt.y();
-            cloud[ptcnt].y = pnt.z();
-            ptcnt++;
-
-            bounds[segcnt].a = segcnt;
-            if ( j == m_SolutionPolyVec3d[i].size() - 2 )
-            {
-                bounds[segcnt].b = firstseg;
-            }
-            else
-            {
-                bounds[segcnt].b = segcnt + 1;
-            }
-
-            segcnt++;
-        }
-    }
-
-    IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
-
-    int verts = idb->Triangulate( npt, &cloud->x, &cloud->y, sizeof( dba_point ) );
-
-    if ( verts > 0 )
-    {
-        idb->ConstrainEdges( nedg, &bounds->a, &bounds->b, sizeof( dba_edge ) );
-
-        int tris = idb->FloodFill( false, 0, 1 );
-
-        const IDelaBella2<double>::Simplex* dela = idb->GetFirstDelaunaySimplex();
-
-        connlist.clear();
-        connlist.resize( tris );
-        for ( int i = 0; i < tris; i++ )
-        {
-            // Note winding order!
-            connlist[i].push_back( dela->v[ 0 ]->i );
-            connlist[i].push_back( dela->v[ 1 ]->i );
-            connlist[i].push_back( dela->v[ 2 ]->i );
-
-            dela = dela->next;
-        }
-    }
-    else
-    {
-        printf( "DLB Error! %d\n", verts );
-    }
-
-
-    delete[] cloud;
-    delete[] bounds;
-
-    idb->Destroy();
 }
 
 bool ProjectionMgrSingleton::PtInHole( const vec2d &p )

@@ -105,7 +105,6 @@ protected:
 
     virtual void Triangulate();
     virtual void Triangulate_TRI( vector < vector < int > > &connlist );
-    virtual void Triangulate_DBA( vector < vector < int > > &connlist );
 
     virtual bool PtInHole( const vec2d &p );
 
