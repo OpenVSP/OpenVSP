@@ -98,6 +98,33 @@ template < typename T > T clampAngle( T val )
     return val;
 }
 
+template < typename T > T atan4( T y, T x, T ydet, T xdet )
+{
+    T thdet = std::atan2( ydet, xdet );
+
+    T th = std::atan2( y, x );
+
+    if ( thdet < 0 && th > 0 )
+    {
+        th = th - 2.0 * M_PI;
+    }
+    else if ( thdet > 0 && th < 0 )
+    {
+        th = th + 2.0 * M_PI;
+    }
+
+    if ( th > M_PI )
+    {
+        th = th - 2.0 * M_PI;
+    }
+    else if ( th < -M_PI )
+    {
+        th = th + 2.0 * M_PI;
+    }
+
+    return th;
+}
+
 template < typename T >
 bool aboutequal( T a, T b, T tol = 1e-12 )
 {
