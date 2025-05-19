@@ -737,6 +737,54 @@ void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vect
     }
 }
 
+void ProjectionMgrSingleton::MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Paths64 & pth, const double &scalerad )
+{
+    pth.resize( tm->m_TVec.size() );
+
+    double thtol = 1.0 * M_PI / 180.0; // degrees of arc per edge.
+
+    for ( int j = 0 ; j < ( int )tm->m_TVec.size() ; j++ )
+    {
+        TTri *t = tm->m_TVec[j];
+
+        vector < vec3d > ptlist;
+
+        for ( int k = 0; k < 3; k++ )
+        {
+            vec3d s = t->GetTriNode( k )->m_Pnt;
+            vec3d e = t->GetTriNode( k + 1 )->m_Pnt;
+            double th = angle( s, e );
+            int nref = ceil( th / thtol );
+
+            for ( int i = 0; i < nref; i++ )
+            {
+                double frac = ( double )i / ( double )nref;
+                vec3d p = s + frac * ( e - s );
+                ptlist.push_back( p );
+            }
+        }
+
+        pth[j].resize( ptlist.size() );
+
+        // Get triangle center to determine octant for transformation.
+        vec3d pcen = t->ComputeCenter();
+
+        for ( int k = 0; k < ptlist.size(); k++ )
+        {
+            vec3d s = ToSpherical2( ptlist[k], pcen );
+
+            pth[j][k] = Clipper2Lib::Point64( ( int64_t ) ( scalerad * s.y() ), ( int64_t ) ( scalerad * s.z() ) );
+        }
+
+        if ( !Clipper2Lib::IsPositive( pth[j] ) )
+        {
+            std::reverse( pth[j].begin(), pth[j].end() );
+        }
+    }
+
+
+}
+
 void ProjectionMgrSingleton::PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, int keepdir1, int keepdir2 )
 {
     polyvec.clear();
