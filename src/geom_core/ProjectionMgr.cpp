@@ -612,6 +612,28 @@ void ProjectionMgrSingleton::ExportProjectLines( vector < TMesh* > targetTMeshVe
     }
 }
 
+void ProjectionMgrSingleton::MeshToCartesian( vector < TMesh* > & tmv )
+{
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        for ( int j = 0 ; j < ( int )tmv[i]->m_NVec.size() ; j++ )
+        {
+            tmv[i]->m_NVec[j]->m_Pnt = ToCartesian( tmv[i]->m_NVec[j]->m_Pnt );
+        }
+    }
+}
+
+void ProjectionMgrSingleton::PolyVecToCartesian( vector < vector < vec3d > > & polyvec )
+{
+    for ( int i = 0 ; i < ( int )polyvec.size() ; i++ )
+    {
+        for ( int j = 0 ; j < ( int )polyvec[i].size() ; j++ )
+        {
+            polyvec[i][j] = ToCartesian( polyvec[i][j] );
+        }
+    }
+}
+
 void ProjectionMgrSingleton::TransformMesh( vector < TMesh* > & tmv, const Matrix4d & mat )
 {
     vec3d zeroV = mat.xform( vec3d( 0.0, 0.0, 0.0 ) );
