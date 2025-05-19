@@ -598,6 +598,7 @@ void MeshUnion( vector < TMesh* > & tmv );
 void MeshIntersect( vector < TMesh* > & tmv );
 void MeshSubtract( vector < TMesh* > & tmv );
 void MeshCutAbovePlane( vector < TMesh* > & tmv, const vector <vec3d> & threepts );
+TMesh* OctantSplitMesh( TMesh* tm );
 
 TMesh* MakeConvexHull(const vector< TMesh* > & tmesh_vec );
 

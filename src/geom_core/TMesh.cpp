@@ -6055,6 +6055,35 @@ void MeshCutAbovePlane( vector < TMesh* > & tmv, const vector <vec3d> & threepts
     tmv[1]->SetIgnoreAbovePlane( threepts );
 }
 
+TMesh* OctantSplitMesh( TMesh* tm )
+{
+    tm->LoadBndBox();
+    BndBox bb = tm->m_TBox.m_Box;
+    bb.Update( vec3d() ); // Make sure origin is in BBox
+    double len = 2.1 * bb.DiagDist();
+
+    // Slice along X, Y, Z = 0 planes to make sure all triangles lie in a single octant.
+    for ( int idir = 0; idir < 3; idir++ )
+    {
+        vec3d org, norm;
+        norm.v[ idir ] = 1;
+        TMesh * slice = MakeSlice( org, norm, len );
+
+        slice->LoadBndBox();
+
+        tm->Intersect( slice );
+
+        delete slice;
+    }
+    tm->Split();
+
+    TMesh *flat_tm = new TMesh;
+    flat_tm->CopyFlatten( tm );
+    delete tm;
+
+    return flat_tm;
+}
+
 TMesh* MakeConvexHull(const vector< TMesh* > & tmesh_vec )
 {
     TMesh* tMesh = nullptr;
