@@ -375,7 +375,8 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
     Clipper2Lib::Paths64 solution;
     Union( utargetvec, solution );
 
-    AreaReport( res, "Area", "Projected area.", solution, scale, true );
+    vector < bool > isHole;
+    AreaReport( res, "Area", "Projected area.", solution, scale, isHole, true );
 
     if ( solution.size() > 0 )
     {
@@ -390,9 +391,10 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
             res->Add( new NameValData( "Planar_Path", m_SolutionPolyVec3d[i], "Path outline of projection in two-dimensional projected plane." ) );
         }
 
-        Poly3dToPoly2d( m_SolutionPolyVec3d, m_SolutionPolyVec2d );
+        vector < vector < vec2d > > solutionPolyVec2d;
+        Poly3dToPoly2d( m_SolutionPolyVec3d, solutionPolyVec2d );
 
-        vector < TMesh* > solutionTMeshVec = Triangulate();
+        vector < TMesh* > solutionTMeshVec = Triangulate( solutionPolyVec2d, isHole );
 
         mat.affineInverse();
         TransformPolyVec( m_SolutionPolyVec3d, mat );
@@ -475,7 +477,8 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
 
     Union( boundary, bunion );
 
-    AreaReport( res, "Boundary_Area", "Boundary projected area.", bunion, scale );
+    vector < bool > isHole;
+    AreaReport( res, "Boundary_Area", "Boundary projected area.", bunion, scale, isHole );
 
     vector < Clipper2Lib::Paths64 > solvec;
     Intersect( utargetvec, bunion, solvec );
@@ -486,7 +489,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
 
     Union( solvec, solution );
 
-    AreaReport( res, "Area", "Bounded projected area.", solution, scale, true );
+    AreaReport( res, "Area", "Bounded projected area.", solution, scale, isHole, true );
 
     if ( solution.size() > 0 )
     {
@@ -501,9 +504,10 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
             res->Add( new NameValData( "Planar_Path", m_SolutionPolyVec3d[i], "Path outline of projection in two-dimensional projected plane." ) );
         }
 
-        Poly3dToPoly2d( m_SolutionPolyVec3d, m_SolutionPolyVec2d );
+        vector < vector < vec2d > > solutionPolyVec2d;
+        Poly3dToPoly2d( m_SolutionPolyVec3d, solutionPolyVec2d );
 
-        vector < TMesh* > solutionTMeshVec = Triangulate();
+        vector < TMesh* > solutionTMeshVec = Triangulate( solutionPolyVec2d, isHole );
 
         mat.affineInverse();
         TransformPolyVec( m_SolutionPolyVec3d, mat );
@@ -973,7 +977,7 @@ void ProjectionMgrSingleton::Intersect( vector < Clipper2Lib::Paths64 > & pthsve
     }
 }
 
-vector < TMesh* > ProjectionMgrSingleton::Triangulate( const bool addspherepoints, const double r )
+vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < vec2d > > &solutionPolyVec2d, const vector < bool > &isHole, const bool addspherepoints, const double r )
 {
     vector < TMesh * > tmv;
     vector < vec3d > addpts;
@@ -992,7 +996,7 @@ vector < TMesh* > ProjectionMgrSingleton::Triangulate( const bool addspherepoint
                 double el = ( -0.5 + (double) iel / (double) nel ) * M_PI;
                 vec2d p2d = vec2d( az, el );
 
-                if ( !PtInHole( p2d ) )
+                if ( !PtInHole( p2d, solutionPolyVec2d, isHole ) )
                 {
                     vec3d p( r, az, el );
                     addpts.push_back( p );
@@ -1068,7 +1072,7 @@ vector < TMesh* > ProjectionMgrSingleton::Triangulate( const bool addspherepoint
             vec3d c = tPtr->ComputeCenter();
             vec2d c2d = vec2d( c.y(), c.z() );
 
-            if ( PtInHole( c2d ) )
+            if ( PtInHole( c2d, solutionPolyVec2d, isHole ) )
             {
                 delete tPtr;
             }
@@ -1230,18 +1234,18 @@ void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlis
 
 }
 
-bool ProjectionMgrSingleton::PtInHole( const vec2d &p )
+bool ProjectionMgrSingleton::PtInHole( const vec2d &p, const vector < vector < vec2d > > &polyvec2d, const vector < bool > &isHole )
 {
     int incount = 0;
-    for ( int i = 0; i < m_SolutionPolyVec2d.size(); i++ )
+    for ( int i = 0; i < polyvec2d.size(); i++ )
     {
-        bool in = PointInPolygon( p, m_SolutionPolyVec2d[i] );
+        bool in = PointInPolygon( p, polyvec2d[i] );
 
-        if ( in && m_IsHole[i] )
+        if ( in && isHole[i] )
         {
             incount -= 1;
         }
-        else if ( in && !m_IsHole[i] )
+        else if ( in && !isHole[i] )
         {
             incount += 1;
         }
@@ -1283,9 +1287,9 @@ string ProjectionMgrSingleton::MakeMeshGeom( const vector < TMesh* > &tmv )
     return id;
 }
 
-void ProjectionMgrSingleton::MarkHoles( const Clipper2Lib::Paths64 & pths )
+void ProjectionMgrSingleton::MarkHoles( const Clipper2Lib::Paths64 & pths, vector < bool > &isHole )
 {
-    m_IsHole.resize( pths.size() );
+    isHole.resize( pths.size() );
 
     for ( int i = 0; i < pths.size(); i++ )
     {
@@ -1293,20 +1297,20 @@ void ProjectionMgrSingleton::MarkHoles( const Clipper2Lib::Paths64 & pths )
 
         if ( area < 0.0 )
         {
-            m_IsHole[i] = true;
+            isHole[i] = true;
         }
         else
         {
-            m_IsHole[i] = false;
+            isHole[i] = false;
         }
     }
 }
 
-void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, const string &doc, const Clipper2Lib::Paths64 & pths, double scale, bool holerpt )
+void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, const string &doc, const Clipper2Lib::Paths64 & pths, double scale, vector < bool > &isHole, bool holerpt )
 {
     if ( holerpt )
     {
-        m_IsHole.resize( pths.size() );
+        isHole.resize( pths.size() );
     }
 
     double asum = 0;
@@ -1319,11 +1323,11 @@ void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, co
         {
             if ( area < 0.0 )
             {
-                m_IsHole[i] = true;
+                isHole[i] = true;
             }
             else
             {
-                m_IsHole[i] = false;
+                isHole[i] = false;
             }
         }
     }
