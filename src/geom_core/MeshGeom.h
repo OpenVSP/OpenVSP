@@ -91,8 +91,8 @@ public:
     virtual void WriteStl( FILE* pov_file );
     virtual void WriteStl( FILE* stl_file, int tag );
 
-    virtual void InitIndexedMesh( const vector < TMesh* > &meshvec, int & offset );
-    virtual void BuildIndexedMesh( int partOffset );
+    virtual void InitIndexedMesh( const vector < TMesh* > &meshvec );
+    virtual void BuildIndexedMesh();
     virtual int  GetNumIndexedPnts() const
     {
         return m_IndexedNodeVec.size();

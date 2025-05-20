@@ -626,7 +626,7 @@ int MeshGeom::ReadTriFile( const char * file_name )
     return 1;
 }
 
-void MeshGeom::InitIndexedMesh( const vector < TMesh* > &meshvec, int & offset )
+void MeshGeom::InitIndexedMesh( const vector < TMesh* > &meshvec )
 {
     //==== Find All Exterior and Split Tris =====//
     for ( int m = 0 ; m < meshvec.size() ; m++ )
@@ -640,41 +640,32 @@ void MeshGeom::InitIndexedMesh( const vector < TMesh* > &meshvec, int & offset )
                 {
                     if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
                     {
-                        char str[80];
-                        snprintf( str, sizeof( str ),  "%d", offset );
-                        tri->m_SplitVec[s]->m_ID = string( str );
                         m_IndexedTriVec.push_back( tri->m_SplitVec[s] );
                     }
                 }
             }
             else if ( !tri->m_IgnoreTriFlag )
             {
-                char str[80];
-                snprintf( str, sizeof( str ),  "%d", offset );
-                tri->m_ID = string( str );
                 m_IndexedTriVec.push_back( tri );
             }
         }
-        offset++;
     }
 }
 
 //==== Build Indexed Mesh ====//
-void MeshGeom::BuildIndexedMesh( int partOffset )
+void MeshGeom::BuildIndexedMesh()
 {
     m_IndexedTriVec.clear();
     m_IndexedNodeVec.clear();
 
-    partOffset++;
-
     if ( m_ViewMeshFlag() )
     {
-        InitIndexedMesh( m_TMeshVec, partOffset );
+        InitIndexedMesh( m_TMeshVec );
     }
 
     if ( m_ViewSliceFlag() )
     {
-        InitIndexedMesh( m_SliceVec, partOffset );
+        InitIndexedMesh( m_SliceVec );
     }
 
     //==== Collect All Points ====//
@@ -1620,7 +1611,7 @@ void MeshGeom::CreateGeomResults( Results* res )
     //==== Add Index Tris =====//
     if ( m_TMeshVec.size() )
     {
-        BuildIndexedMesh( 0 );
+        BuildIndexedMesh();
 
         vector< vec3d > pvec;
         Matrix4d XFormMat = GetTotalTransMat();
@@ -1678,7 +1669,7 @@ void MeshGeom::CreateGeomResults( Results* res )
 
 void MeshGeom::CreatePtCloudGeom()
 {
-    BuildIndexedMesh( 0 );
+    BuildIndexedMesh();
     vector < TNode* > nvec = m_IndexedNodeVec;
     unsigned int npts = nvec.size();
 

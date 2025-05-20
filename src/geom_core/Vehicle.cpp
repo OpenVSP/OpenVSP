@@ -2892,7 +2892,7 @@ string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set, i
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            mg->BuildIndexedMesh( num_parts );
+            mg->BuildIndexedMesh();
             num_parts += mg->GetNumIndexedParts();
             num_pnts += mg->GetNumIndexedPnts();
             num_tris += mg->GetNumIndexedTris();
@@ -2991,7 +2991,7 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set, int sub
             if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
             {
                 MeshGeom* mg = (MeshGeom*)geom_vec[i];            // Cast
-                mg->BuildIndexedMesh( num_parts );
+                mg->BuildIndexedMesh();
                 num_parts += mg->GetNumIndexedParts();
                 num_pnts += mg->GetNumIndexedPnts();
             }
@@ -3101,7 +3101,7 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsF
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            mg->BuildIndexedMesh( num_parts );
+            mg->BuildIndexedMesh();
             num_parts += mg->GetNumIndexedParts();
             num_pnts += mg->GetNumIndexedPnts();
             num_tris += mg->GetNumIndexedTris();
@@ -3214,7 +3214,7 @@ string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsF
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            mg->BuildIndexedMesh( num_parts );
+            mg->BuildIndexedMesh();
             num_parts += mg->GetNumIndexedParts();
             num_pnts += mg->GetNumIndexedPnts();
             num_tris += mg->GetNumIndexedTris();
@@ -3363,7 +3363,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
             && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-            mg->BuildIndexedMesh( num_parts );
+            mg->BuildIndexedMesh();
             num_parts += mg->GetNumIndexedParts();
             num_pnts += mg->GetNumIndexedPnts();
             num_tris += mg->GetNumIndexedTris();
@@ -3492,7 +3492,7 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int 
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            mg->BuildIndexedMesh( num_parts );
+            mg->BuildIndexedMesh();
             num_parts += mg->GetNumIndexedParts();
             num_pnts += mg->GetNumIndexedPnts();
             num_tris += mg->GetNumIndexedTris();
@@ -3600,7 +3600,7 @@ string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subs
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            mg->BuildIndexedMesh( num_parts );
+            mg->BuildIndexedMesh();
             num_parts += mg->GetNumIndexedParts();
             num_pnts += mg->GetNumIndexedPnts();
             num_tris += mg->GetNumIndexedTris();
