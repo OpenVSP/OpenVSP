@@ -749,12 +749,16 @@ void ProjectionMgrSingleton::MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Pa
 
     double thtol = 1.0 * M_PI / 180.0; // degrees of arc per edge.
 
+    double tol = 1e-6;
+    Clipper2Lib::Paths64 polepths;
+
     for ( int j = 0 ; j < ( int )tm->m_TVec.size() ; j++ )
     {
         TTri *t = tm->m_TVec[j];
 
         vector < vec3d > ptlist;
 
+        int polepoint = -1;
         for ( int k = 0; k < 3; k++ )
         {
             vec3d s = t->GetTriNode( k )->m_Pnt;
@@ -767,6 +771,11 @@ void ProjectionMgrSingleton::MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Pa
                 double frac = ( double )i / ( double )nref;
                 vec3d p = s + frac * ( e - s );
                 ptlist.push_back( p );
+            }
+
+            if ( std::abs( s.x() ) < tol && std::abs( s.y() ) < tol )
+            {
+                polepoint = k;
             }
         }
 
@@ -786,9 +795,36 @@ void ProjectionMgrSingleton::MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Pa
         {
             std::reverse( pth[j].begin(), pth[j].end() );
         }
+
+        if ( polepoint >= 0 ) // Add triangles to fill out az,el domain around pole.
+        {
+            for ( int i = 0; i < 2; i++ )
+            {
+                constexpr int incr[] = {-1, 1};
+
+                int o = polepoint + incr[i];
+
+                vec3d pole = ToSpherical2( t->GetTriNode( polepoint )->m_Pnt, pcen );
+                vec3d other = ToSpherical2( t->GetTriNode( o )->m_Pnt, pcen );
+
+                vec3d o2 = other;
+                o2.set_z( pole.z() );
+
+                Clipper2Lib::Path64 p;
+                p.resize( 3 );
+                p[0] = Clipper2Lib::Point64( ( int64_t ) ( scalerad * pole.y() ), ( int64_t ) ( scalerad * pole.z() ) );
+                p[1] = Clipper2Lib::Point64( ( int64_t ) ( scalerad * o2.y() ), ( int64_t ) ( scalerad * o2.z() ) );
+                p[2] = Clipper2Lib::Point64( ( int64_t ) ( scalerad * other.y() ), ( int64_t ) ( scalerad * other.z() ) );
+
+                if ( !Clipper2Lib::IsPositive( p ) )
+                {
+                    std::reverse( p.begin(), p.end() );
+                }
+                polepths.push_back( p );
+            }
+        }
     }
-
-
+    pth.insert( pth.end(), polepths.begin(), polepths.end() );
 }
 
 void ProjectionMgrSingleton::SphericalDomainPath( Clipper2Lib::Paths64 & pth, const double &scalerad )
