@@ -626,7 +626,7 @@ int MeshGeom::ReadTriFile( const char * file_name )
     return 1;
 }
 
-void MeshGeom::InitIndexedMesh( const vector < TMesh* > &meshvec )
+void MeshGeom::BuildTriVec( const vector < TMesh* > &meshvec, vector< TTri* > &trivec )
 {
     //==== Find All Exterior and Split Tris =====//
     for ( int m = 0 ; m < meshvec.size() ; m++ )
@@ -640,16 +640,21 @@ void MeshGeom::InitIndexedMesh( const vector < TMesh* > &meshvec )
                 {
                     if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
                     {
-                        m_IndexedTriVec.push_back( tri->m_SplitVec[s] );
+                        trivec.push_back( tri->m_SplitVec[s] );
                     }
                 }
             }
             else if ( !tri->m_IgnoreTriFlag )
             {
-                m_IndexedTriVec.push_back( tri );
+                trivec.push_back( tri );
             }
         }
     }
+}
+
+void MeshGeom::InitIndexedMesh( const vector < TMesh* > &meshvec )
+{
+    BuildTriVec( meshvec, m_IndexedTriVec );
 }
 
 //==== Build Indexed Mesh ====//

@@ -91,6 +91,7 @@ public:
     virtual void WriteStl( FILE* pov_file );
     virtual void WriteStl( FILE* stl_file, int tag );
 
+    static void BuildTriVec( const vector < TMesh* > &meshvec, vector< TTri* > &trivec );
     virtual void InitIndexedMesh( const vector < TMesh* > &meshvec );
     virtual void BuildIndexedMesh();
     virtual int  GetNumIndexedPnts() const
