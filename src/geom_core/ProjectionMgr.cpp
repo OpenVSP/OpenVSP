@@ -382,31 +382,32 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
     {
         ClosePaths( solution );
 
-        PathsToPolyVec( solution, m_SolutionPolyVec3d );
+        vector < vector < vec3d > > solutionPolyVec3d;
+        PathsToPolyVec( solution, solutionPolyVec3d );
 
-        TransformPolyVec( m_SolutionPolyVec3d, fromclipper );
+        TransformPolyVec( solutionPolyVec3d, fromclipper );
 
-        for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
+        for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
         {
-            res->Add( new NameValData( "Planar_Path", m_SolutionPolyVec3d[i], "Path outline of projection in two-dimensional projected plane." ) );
+            res->Add( new NameValData( "Planar_Path", solutionPolyVec3d[i], "Path outline of projection in two-dimensional projected plane." ) );
         }
 
         vector < vector < vec2d > > solutionPolyVec2d;
-        Poly3dToPoly2d( m_SolutionPolyVec3d, solutionPolyVec2d );
+        Poly3dToPoly2d( solutionPolyVec3d, solutionPolyVec2d );
 
-        vector < TMesh* > solutionTMeshVec = Triangulate( solutionPolyVec2d, isHole );
+        vector < TMesh* > solutionTMeshVec = Triangulate( solutionPolyVec2d, solutionPolyVec3d, isHole );
 
         mat.affineInverse();
-        TransformPolyVec( m_SolutionPolyVec3d, mat );
+        TransformPolyVec( solutionPolyVec3d, mat );
 
-        for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
+        for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
         {
-            res->Add( new NameValData( "Path", m_SolutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
+            res->Add( new NameValData( "Path", solutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
         }
 
         TransformMesh( solutionTMeshVec, mat );
 
-        string id = MakeMeshGeom( solutionTMeshVec);
+        string id = MakeMeshGeom( solutionTMeshVec, solutionPolyVec3d );
 
         res->Add( new NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom of the projected area." ) );
 
@@ -495,31 +496,32 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
     {
         ClosePaths( solution );
 
-        PathsToPolyVec( solution, m_SolutionPolyVec3d );
+        vector < vector < vec3d > > solutionPolyVec3d;
+        PathsToPolyVec( solution, solutionPolyVec3d );
 
-        TransformPolyVec( m_SolutionPolyVec3d, fromclipper );
+        TransformPolyVec( solutionPolyVec3d, fromclipper );
 
-        for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
+        for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
         {
-            res->Add( new NameValData( "Planar_Path", m_SolutionPolyVec3d[i], "Path outline of projection in two-dimensional projected plane." ) );
+            res->Add( new NameValData( "Planar_Path", solutionPolyVec3d[i], "Path outline of projection in two-dimensional projected plane." ) );
         }
 
         vector < vector < vec2d > > solutionPolyVec2d;
-        Poly3dToPoly2d( m_SolutionPolyVec3d, solutionPolyVec2d );
+        Poly3dToPoly2d( solutionPolyVec3d, solutionPolyVec2d );
 
-        vector < TMesh* > solutionTMeshVec = Triangulate( solutionPolyVec2d, isHole );
+        vector < TMesh* > solutionTMeshVec = Triangulate( solutionPolyVec2d, solutionPolyVec3d, isHole );
 
         mat.affineInverse();
-        TransformPolyVec( m_SolutionPolyVec3d, mat );
+        TransformPolyVec( solutionPolyVec3d, mat );
 
-        for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
+        for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
         {
-            res->Add( new NameValData( "Path", m_SolutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
+            res->Add( new NameValData( "Path", solutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
         }
 
         TransformMesh( solutionTMeshVec, mat );
 
-        string id =  MakeMeshGeom( solutionTMeshVec );
+        string id =  MakeMeshGeom( solutionTMeshVec, solutionPolyVec3d );
 
         res->Add( new NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom of the projected area." ) );
 
@@ -977,7 +979,7 @@ void ProjectionMgrSingleton::Intersect( vector < Clipper2Lib::Paths64 > & pthsve
     }
 }
 
-vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < vec2d > > &solutionPolyVec2d, const vector < bool > &isHole, const bool addspherepoints, const double r )
+vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < vec2d > > &solutionPolyVec2d, const vector < vector < vec3d > > &solutionPolyVec3d, const vector < bool > &isHole, const bool addspherepoints, const double r )
 {
     vector < TMesh * > tmv;
     vector < vec3d > addpts;
@@ -1030,7 +1032,7 @@ vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < v
 
     vector < vector < int > > connlist;
 
-    Triangulate_TRI( connlist, addpts );
+    Triangulate_TRI( solutionPolyVec3d, connlist, addpts );
 
     int ntri = connlist.size();
 
@@ -1039,12 +1041,12 @@ vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < v
         TMesh *tMesh = new TMesh();
         tmv.push_back( tMesh );
 
-        for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
+        for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
         {
-            for ( int j = 0; j < ( int ) m_SolutionPolyVec3d[ i ].size() - 1; j++ )
+            for ( int j = 0; j < ( int ) solutionPolyVec3d[ i ].size() - 1; j++ )
             {
                 TNode *n = new TNode();
-                n->m_Pnt = m_SolutionPolyVec3d[ i ][ j ];
+                n->m_Pnt = solutionPolyVec3d[ i ][ j ];
                 tMesh->m_NVec.push_back( n );
             }
         }
@@ -1086,12 +1088,12 @@ vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < v
     return tmv;
 }
 
-void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlist, const vector < vec3d > &addpts )
+void ProjectionMgrSingleton::Triangulate_TRI( const vector < vector < vec3d > > &solutionPolyVec3d, vector < vector < int > > &connlist, const vector < vec3d > &addpts )
 {
     int nseg = 0;
-    for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
+    for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
     {
-        nseg += m_SolutionPolyVec3d[i].size() - 1; // Subtract off repeated first point.
+        nseg += solutionPolyVec3d[i].size() - 1; // Subtract off repeated first point.
     }
 
     int nadd = addpts.size();
@@ -1135,12 +1137,12 @@ void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlis
 
     int ptcnt = 0;
     int segcnt = 0;
-    for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
+    for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
     {
         int firstseg = segcnt;
-        for ( int j = 0 ; j < ( int )m_SolutionPolyVec3d[i].size() - 1 ; j++ )
+        for ( int j = 0 ; j < ( int )solutionPolyVec3d[i].size() - 1 ; j++ )
         {
-            vec3d pnt = m_SolutionPolyVec3d[i][j];
+            vec3d pnt = solutionPolyVec3d[i][j];
 
             in.pointlist[ptcnt] = pnt.y();
             ptcnt++;
@@ -1148,7 +1150,7 @@ void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlis
             ptcnt++;
 
             in.segmentlist[2 * segcnt] = segcnt;
-            if ( j == m_SolutionPolyVec3d[i].size() - 2 )
+            if ( j == solutionPolyVec3d[i].size() - 2 )
             {
                 in.segmentlist[2 * segcnt + 1] = firstseg;
             }
@@ -1264,7 +1266,7 @@ bool ProjectionMgrSingleton::PtInHole( const vec2d &p, const vector < vector < v
     return false;
 }
 
-string ProjectionMgrSingleton::MakeMeshGeom( const vector < TMesh* > &tmv )
+string ProjectionMgrSingleton::MakeMeshGeom( const vector < TMesh* > &tmv, const vector < vector < vec3d > > &solutionPolyVec3d )
 {
     Vehicle* vehiclePtr = VehicleMgr.GetVehicle();
 
@@ -1275,7 +1277,7 @@ string ProjectionMgrSingleton::MakeMeshGeom( const vector < TMesh* > &tmv )
     {
         MeshGeom* mesh_geom = ( MeshGeom* )( geom_ptr );
 
-        mesh_geom->m_PolyVec = m_SolutionPolyVec3d;
+        mesh_geom->m_PolyVec = solutionPolyVec3d;
 
         mesh_geom->m_TMeshVec = tmv;
         mesh_geom->m_SurfDirty = true;

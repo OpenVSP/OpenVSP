@@ -57,7 +57,7 @@ public:
     virtual Results* Project( const string &tgeom, bool thullflag, int bset, bool bhullflag, const vec3d & dir );
     virtual Results* Project( const string &tgeom, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir );
 
-    virtual string MakeMeshGeom( const vector < TMesh * > &tmv );
+    virtual string MakeMeshGeom( const vector < TMesh * > &tmv, const vector < vector < vec3d > > &solutionPolyVec3d );
 
     virtual void ExportProjectLines( vector < TMesh* > targetTMeshVec );
 
@@ -68,9 +68,6 @@ public:
     string m_TargetGeomID;
     string m_BoundaryGeomID;
     string m_DirectionGeomID;
-
-
-    vector < vector < vec3d > > m_SolutionPolyVec3d;
 
 protected:
 
@@ -104,8 +101,8 @@ protected:
     virtual void Intersect( Clipper2Lib::Paths64 & pthA, Clipper2Lib::Paths64 & pthB, Clipper2Lib::Paths64 & sol );
     virtual void Intersect( vector < Clipper2Lib::Paths64 > & pthsvecA, Clipper2Lib::Paths64 & pthB, vector < Clipper2Lib::Paths64 > & solvec );
 
-    vector < TMesh * > Triangulate( const vector < vector < vec2d > > &solutionPolyVec2d, const vector < bool > &isHole, bool addspherepoints = false, double r = 0.0 );
-    virtual void Triangulate_TRI( vector < vector < int > > &connlist, const vector < vec3d > & addpts );
+    vector < TMesh * > Triangulate( const vector < vector < vec2d > > &solutionPolyVec2d, const vector < vector < vec3d > > &solutionPolyVec3d, const vector < bool > &isHole, bool addspherepoints = false, double r = 0.0 );
+    virtual void Triangulate_TRI( const vector < vector < vec3d > > &solutionPolyVec3d, vector < vector < int > > &connlist, const vector < vec3d > & addpts );
 
     virtual bool PtInHole( const vec2d &p, const vector < vector < vec2d > > &polyvec2d, const vector < bool > &isHole );
 
