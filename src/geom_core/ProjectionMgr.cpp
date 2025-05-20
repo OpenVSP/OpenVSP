@@ -392,7 +392,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
 
         Poly3dToPoly2d( m_SolutionPolyVec3d, m_SolutionPolyVec2d );
 
-        Triangulate();
+        vector < TMesh* > solutionTMeshVec = Triangulate();
 
         mat.affineInverse();
         TransformPolyVec( m_SolutionPolyVec3d, mat );
@@ -402,15 +402,15 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
             res->Add( new NameValData( "Path", m_SolutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
         }
 
-        TransformMesh( m_SolutionTMeshVec, mat );
+        TransformMesh( solutionTMeshVec, mat );
 
-        string id = MakeMeshGeom();
+        string id = MakeMeshGeom( solutionTMeshVec);
 
         res->Add( new NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom of the projected area." ) );
 
         // Clear pointers, they have been transferred to the MeshGeom.
         // Do not delete TMeshs.
-        m_SolutionTMeshVec.clear();
+        solutionTMeshVec.clear();
     }
     else
     {
@@ -503,7 +503,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
 
         Poly3dToPoly2d( m_SolutionPolyVec3d, m_SolutionPolyVec2d );
 
-        Triangulate();
+        vector < TMesh* > solutionTMeshVec = Triangulate();
 
         mat.affineInverse();
         TransformPolyVec( m_SolutionPolyVec3d, mat );
@@ -513,15 +513,15 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
             res->Add( new NameValData( "Path", m_SolutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
         }
 
-        TransformMesh( m_SolutionTMeshVec, mat );
+        TransformMesh( solutionTMeshVec, mat );
 
-        string id = MakeMeshGeom();
+        string id =  MakeMeshGeom( solutionTMeshVec );
 
         res->Add( new NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom of the projected area." ) );
 
         // Clear pointers, they have been transferred to the MeshGeom.
         // Do not delete TMeshs.
-        m_SolutionTMeshVec.clear();
+        solutionTMeshVec.clear();
     }
     else
     {
@@ -973,8 +973,9 @@ void ProjectionMgrSingleton::Intersect( vector < Clipper2Lib::Paths64 > & pthsve
     }
 }
 
-void ProjectionMgrSingleton::Triangulate( const bool addspherepoints, const double r )
+vector < TMesh* > ProjectionMgrSingleton::Triangulate( const bool addspherepoints, const double r )
 {
+    vector < TMesh * > tmv;
     vector < vec3d > addpts;
 
     if ( addspherepoints )
@@ -1032,7 +1033,7 @@ void ProjectionMgrSingleton::Triangulate( const bool addspherepoints, const doub
     if ( ntri > 0 )
     {
         TMesh *tMesh = new TMesh();
-        m_SolutionTMeshVec.push_back( tMesh );
+        tmv.push_back( tMesh );
 
         for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
         {
@@ -1077,6 +1078,8 @@ void ProjectionMgrSingleton::Triangulate( const bool addspherepoints, const doub
             }
         }
     }
+
+    return tmv;
 }
 
 void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlist, const vector < vec3d > &addpts )
@@ -1257,7 +1260,7 @@ bool ProjectionMgrSingleton::PtInHole( const vec2d &p )
     return false;
 }
 
-string ProjectionMgrSingleton::MakeMeshGeom()
+string ProjectionMgrSingleton::MakeMeshGeom( const vector < TMesh* > &tmv )
 {
     Vehicle* vehiclePtr = VehicleMgr.GetVehicle();
 
@@ -1270,11 +1273,7 @@ string ProjectionMgrSingleton::MakeMeshGeom()
 
         mesh_geom->m_PolyVec = m_SolutionPolyVec3d;
 
-        mesh_geom->m_TMeshVec.resize( m_SolutionTMeshVec.size() );
-        for ( int i = 0; i < m_SolutionTMeshVec.size(); i++ )
-        {
-            mesh_geom->m_TMeshVec[i] = m_SolutionTMeshVec[i];
-        }
+        mesh_geom->m_TMeshVec = tmv;
         mesh_geom->m_SurfDirty = true;
         mesh_geom->Update();
 
