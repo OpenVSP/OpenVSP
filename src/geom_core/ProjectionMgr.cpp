@@ -791,6 +791,21 @@ void ProjectionMgrSingleton::MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Pa
 
 }
 
+void ProjectionMgrSingleton::SphericalDomainPath( Clipper2Lib::Paths64 & pth, const double &scalerad )
+{
+    pth.resize( 1 );
+    pth[0].resize( 5 );
+
+    const double scaledeg = scalerad * M_PI / 180.0;
+    const double daz = scaledeg * 5.0;
+
+    pth[0][0] = Clipper2Lib::Point64( ( int64_t ) ( 180.0 * scaledeg ), ( int64_t ) -( 90.0 * scaledeg ) );
+    pth[0][1] = Clipper2Lib::Point64( ( int64_t ) ( 180.0 * scaledeg ), ( int64_t ) ( 90.0 * scaledeg ) );
+    pth[0][2] = Clipper2Lib::Point64( ( int64_t ) -( 180.0 * scaledeg ), ( int64_t ) ( 90.0 * scaledeg ) );
+    pth[0][3] = Clipper2Lib::Point64( ( int64_t ) -( 180.0 * scaledeg ), ( int64_t ) -( 90.0 * scaledeg ) );
+    pth[0][4] = pth[0][0];
+}
+
 void ProjectionMgrSingleton::PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, int keepdir1, int keepdir2 )
 {
     polyvec.clear();
