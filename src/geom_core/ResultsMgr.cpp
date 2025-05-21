@@ -944,10 +944,7 @@ vector< string > NameValCollection::GetAllDataNames()
 
     for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
     {
-        for ( int j = 0; j != iter->second.size(); ++j ) 
-        {
-            name_vec.push_back( iter->first );
-        }
+        name_vec.push_back( iter->first );
     }
     return name_vec;
 }
