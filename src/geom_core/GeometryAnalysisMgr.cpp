@@ -19,6 +19,7 @@
 #include "Vehicle.h"
 #include "ParmMgr.h"
 #include "SnapTo.h"
+#include "ProjectionMgr.h"
 
 #include "AuxiliaryGeom.h"
 #include "GearGeom.h"
@@ -967,6 +968,15 @@ string GeometryAnalysisCase::Evaluate()
 
                 }
 
+                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                break;
+            }
+            case vsp::VISIBLE_FROM_POINT_ANALYSIS:
+            {
+                primary_tmv = GetPrimaryTMeshVec();
+                vec3d cen;
+                GetSecondaryPt( cen );
+                m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag() );
                 m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 break;
             }

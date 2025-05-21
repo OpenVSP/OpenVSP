@@ -78,6 +78,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GeometryAnalysisTypeChoice.AddItem( "Weight Distribution", vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Tipover", vsp::GEAR_TIPOVER_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Ground Maneuverability", vsp::GEAR_TURN_ANALYSIS );
+    m_GeometryAnalysisTypeChoice.AddItem( "From Point Visibility", vsp::VISIBLE_FROM_POINT_ANALYSIS );
     m_GeometryAnalysisTypeChoice.UpdateItems();
 
     m_GCaseLayout.AddYGap();
@@ -431,6 +432,26 @@ bool GeometryAnalysisScreen::Update()
             m_CCWToggleGroup.Deactivate();
         }
 
+        if ( gcase->m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS )
+        {
+            m_PolyVisibleToggleGroup.Activate();
+            m_SubSurfCutoutBrowser->activate();
+
+            m_SecondaryUsePointToggle.Activate();
+            m_SecondaryXSlider.Activate();
+            m_SecondaryYSlider.Activate();
+            m_SecondaryZSlider.Activate();
+        }
+        else
+        {
+            m_PolyVisibleToggleGroup.Deactivate();
+            m_SubSurfCutoutBrowser->deactivate();
+
+            m_SecondaryUsePointToggle.Deactivate();
+            m_SecondaryXSlider.Deactivate();
+            m_SecondaryYSlider.Deactivate();
+            m_SecondaryZSlider.Deactivate();
+        }
 
 
     }

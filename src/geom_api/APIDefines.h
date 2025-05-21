@@ -883,6 +883,7 @@ enum GEOMETRY_ANALYSIS_TYPE { EXTERNAL_INTERFERENCE,	/*!< Interference between m
                               GEAR_WEIGHT_DISTRIBUTION_ANALYSIS,	/*!< Calculate distribution of weight across landing gear */
                               GEAR_TIPOVER_ANALYSIS,	/*!< Calculate tipover angle */
                               GEAR_TURN_ANALYSIS,	/*!< Calculate ground manueveribility */
+                              VISIBLE_FROM_POINT_ANALYSIS,	/*!< Calculate az,el domain visible from a point */
                               NUM_INTERFERENCE_TYPES	/*!< Number of interference check types */
 };
 
