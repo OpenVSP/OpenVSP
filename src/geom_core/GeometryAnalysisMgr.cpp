@@ -22,6 +22,7 @@
 
 #include "AuxiliaryGeom.h"
 #include "GearGeom.h"
+#include "HumanGeom.h"
 
 #include "MeshGeom.h"
 
@@ -258,6 +259,37 @@ void GeometryAnalysisCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbound
             if ( auxiliary_ptr )
             {
                 auxiliary_ptr->GetCG( cgnom, cgbounds );
+            }
+        }
+    }
+}
+
+void GeometryAnalysisCase::GetSecondaryPt( vec3d &pt )
+{
+    if ( m_SecondaryUsePoint() )
+    {
+        pt.set_xyz( m_SecondaryX(), m_SecondaryY(), m_SecondaryZ() );
+    }
+    else
+    {
+        pt.set_xyz( 0, 0, 1 );
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            if ( m_SecondaryType() == vsp::GEOM_TARGET )
+            {
+                Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+
+                HumanGeom* human_ptr = dynamic_cast< HumanGeom* >( geom );
+
+                if ( human_ptr )
+                {
+                    // human_ptr->GetEyePt( pt );
+                }
+                else if ( geom )
+                {
+                    // geom->GetPoint( pt );
+                }
             }
         }
     }
