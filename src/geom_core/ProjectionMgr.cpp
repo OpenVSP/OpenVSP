@@ -864,6 +864,31 @@ void ProjectionMgrSingleton::SphericalDomainPath( Clipper2Lib::Paths64 & pth, co
     pth[0][4] = pth[0][0];
 }
 
+void ProjectionMgrSingleton::OctantDomainPath( int ioct, Clipper2Lib::Paths64 & pth, const double &scalerad, string & label )
+{
+    // Set up arrays to index through octants.
+    const double az[] = {-180, -90, 0, 90, -180, -90, 0, 90 };
+    const double el[] = { 0, 0, 0, 0, -90, -90, -90, -90 }; // Lower then upper.
+    const char ud[] = { 'U', 'U', 'U', 'U', 'D', 'D', 'D', 'D'};
+    const char fa[] = { 'A', 'F', 'F', 'A', 'A', 'F', 'F', 'A' };
+    const char lr[] = { 'R', 'R', 'L', 'L', 'R', 'R', 'L', 'L' };
+
+    label = string( 1, ud[ioct] ) + string( 1, fa[ioct] ) + string( 1, lr[ioct] );
+
+    const int64_t azmin = ( int64_t ) ( az[ ioct ] * scalerad * M_PI / 180.0 );
+    const int64_t azmax = ( int64_t ) ( ( az[ ioct ] + 90.0 ) * scalerad * M_PI / 180.0 );
+    const int64_t elmin = ( int64_t ) ( el[ ioct ] * scalerad * M_PI / 180.0 );
+    const int64_t elmax = ( int64_t ) ( ( el[ ioct ] + 90.0 ) * scalerad * M_PI / 180.0 );
+
+    pth.resize( 1 );
+    pth[0].resize( 5 );
+    pth[0][0] = Clipper2Lib::Point64( azmax, elmin );
+    pth[0][1] = Clipper2Lib::Point64( azmax, elmax );
+    pth[0][2] = Clipper2Lib::Point64( azmin, elmax );
+    pth[0][3] = Clipper2Lib::Point64( azmin, elmin );
+    pth[0][4] = pth[0][0];
+}
+
 void ProjectionMgrSingleton::PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, int keepdir1, int keepdir2 )
 {
     polyvec.clear();
