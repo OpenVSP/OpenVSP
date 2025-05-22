@@ -16,6 +16,8 @@
 #include "triangle.h"
 #include "triangle_api.h"
 
+#include "StlHelper.h"
+
 //==== Constructor ====//
 ProjectionMgrSingleton::ProjectionMgrSingleton()
 {
@@ -201,6 +203,232 @@ inline double SphericalArea( const vector < vec3d > & azel )
         a += E_4;
     }
     return a;
+}
+
+string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVec, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible )
+{
+    Matrix4d centranslatemat;
+    // Equivalent to 180 deg rotation about Z, but without floating point error.
+    centranslatemat.scalex( -1.0 );
+    centranslatemat.scaley( -1.0 );
+
+    centranslatemat.translatev( -cen );
+
+    TransformMesh( targetTMeshVec, centranslatemat );
+
+    CSGMesh( targetTMeshVec );
+    FlattenTMeshVec( targetTMeshVec );
+
+    TMesh *target_tm = MergeTMeshVec( targetTMeshVec );
+
+    target_tm = OctantSplitMesh( target_tm );
+
+    constexpr double scalerad = 1.0e15 / M_PI;
+    BndBox bb;
+    target_tm->UpdateBBox( bb );
+    bb.Update( vec3d() ); // Make sure origin is in BBox
+    const double r = std::max( 1.0, bb.DiagDist() );
+
+    Matrix4d clipper2sphericalmat;
+    clipper2sphericalmat.translatef( r, 0, 0 );
+    clipper2sphericalmat.scaley( 1.0 / scalerad );
+    clipper2sphericalmat.scalez( 1.0 / scalerad );
+
+    Clipper2Lib::Paths64 targetvec;
+    MeshToSphericalPathsVec( target_tm, targetvec, scalerad );
+
+    Dump( targetvec, "before.m" );
+
+    Clipper2Lib::Paths64 solution;
+    Union( targetvec, solution );
+
+    // Calculate 'inverse sphere' -- draw polygon around visible region instead of occluded region.
+    if ( poly_visible )
+    {
+        Clipper2Lib::Paths64 sphdomain;
+        SphericalDomainPath( sphdomain, scalerad );
+
+        Clipper2Lib::Clipper64 clpr;
+        clpr.PreserveCollinear( false );
+        clpr.AddSubject( sphdomain );
+        clpr.AddClip( solution );
+
+        Clipper2Lib::Paths64 sol;
+        if ( !clpr.Execute( Clipper2Lib::ClipType::Difference, Clipper2Lib::FillRule::NonZero, sol ) )
+        {
+            printf( "Clipper error\n" );
+        }
+        solution = sol;
+    }
+
+    ClosePaths( solution );
+
+    // Remove small polygons.
+    // In some circumstances, near zero-area slivers can be created.  This filters them out.
+    // If the slivers remain, Triangle will crash when trying to triangulate the domain.
+    Clipper2Lib::Paths64 clean;
+    for ( int i = 0; i < solution.size(); i++ )
+    {
+        // This 'area' is calculated in scaled azimuth/elevation space and then un-scaled.
+        // The full domain has an area of 2 pi^2 ~= 19.7 when un-scaled.
+        // Typical slivers are observed with an area of 10-16 or smaller.
+        double area = Clipper2Lib::Area( solution[i] ) / ( scalerad * scalerad );
+        if ( std::abs( area ) > 1.0e-10 )
+        {
+            clean.push_back( solution[i] );
+        }
+    }
+    solution = clean;
+
+    // Calculate elevation bounds of visibility domain at zero azimuth
+    vector < double > fwdbounds;
+    for ( int i = 0; i < solution.size(); i++ )
+    {
+        for ( int j = 0; j < solution[i].size() - 1; j++ )
+        {
+            if ( solution[i][j].x == 0 )
+            {
+                fwdbounds.push_back( solution[i][j].y / scalerad * 180.0 / M_PI );
+            }
+            else if (  solution[i][j+1].x != 0 && sgn( solution[i][j].x ) != sgn( solution[i][j + 1].x ) )
+            {
+                double f = ( 0.0 - solution[i][j].x ) / ( solution[i][j+1].x - solution[i][j].x );
+                double y = solution[i][j].y + f * ( solution[i][j+1].y - solution[i][j].y );
+                fwdbounds.push_back( y / scalerad * 180.0 / M_PI );
+            }
+        }
+    }
+
+    // Find first forward visibility bound below the horizon.
+    double overnose = -90.0;
+    for ( int i = 0; i < fwdbounds.size(); i++ )
+    {
+        if ( fwdbounds[i] < 0.0 )
+        {
+            overnose = std::max( overnose, fwdbounds[i] );
+        }
+    }
+
+
+
+    vector < vector < vec3d > > solutionPolyVec3d;
+    vector < vector < vec3d > > solutionPolyVecSpherical;
+    vector < double > oct_area;
+    vector < string > oct_label;
+
+   // if ( solution.size() > 0 )
+    {
+        // Calculate per-octant area fractions.
+        for ( int ioct = 0; ioct < 8; ioct++ )
+        {
+            Clipper2Lib::Paths64 sphdomain;
+            string label;
+            OctantDomainPath( ioct, sphdomain, scalerad, label );
+
+            Clipper2Lib::Clipper64 clpr;
+            clpr.PreserveCollinear( false );
+            clpr.AddSubject( sphdomain );
+            clpr.AddClip( solution );
+
+            Clipper2Lib::Paths64 sol;
+            if ( !clpr.Execute( Clipper2Lib::ClipType::Intersection, Clipper2Lib::FillRule::NonZero, sol ) )
+            {
+                printf( "Clipper error\n" );
+            }
+            ClosePaths( sol );
+
+            vector < vector < vec3d > > solPolyVec3d;
+
+            PathsToPolyVec( sol, solPolyVec3d, 1, 2 ); // put az, el results in 1, 2 components of vec3d
+            TransformPolyVec( solPolyVec3d, clipper2sphericalmat );
+
+            double asum = 0;
+            for ( int i = 0; i < solPolyVec3d.size(); i++ )
+            {
+                double area = SphericalArea( solPolyVec3d[i] );
+                asum += area;
+            }
+
+            oct_area.push_back( 2.0 * asum / M_PI ); // Area fraction.
+            oct_label.push_back( label );
+        }
+
+        vector < bool > isHole;
+        MarkHoles( solution, isHole );
+
+        PathsToPolyVec( solution, solutionPolyVec3d, 1, 2 ); // put az, el results in 1, 2 components of vec3d
+
+        RefinePolyVec( solutionPolyVec3d, scalerad );
+
+        TransformPolyVec( solutionPolyVec3d, clipper2sphericalmat );
+
+        // Put y,z coordinates into 2d vec
+        vector < vector < vec2d > > solutionPolyVec2d;
+        Poly3dToPoly2d( solutionPolyVec3d, solutionPolyVec2d );
+
+        // Copy spherical polyvec
+        solutionPolyVecSpherical = solutionPolyVec3d;
+
+        Matrix4d spherical2degmat;
+        spherical2degmat.scaley( 180.0 / M_PI );
+        spherical2degmat.scalez( 180.0 / M_PI );
+
+        TransformPolyVec( solutionPolyVecSpherical, spherical2degmat );
+
+        Dump( solutionPolyVecSpherical, "tri.m" );
+
+        result_tmv = Triangulate( solutionPolyVec2d, solutionPolyVec3d, isHole, true, r );
+
+        MeshToCartesian( result_tmv );
+
+        PolyVecToCartesian( solutionPolyVec3d );
+
+        centranslatemat.affineInverse();
+        TransformMesh( result_tmv, centranslatemat );
+
+        TransformPolyVec( solutionPolyVec3d, centranslatemat );
+    }
+
+    int npt = 0;
+    for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
+    {
+        npt += 2 * solutionPolyVec3d[i].size();
+    }
+
+    vector < vec3d > pts;
+    pts.reserve( npt );
+    for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
+    {
+        for ( int j = 0; j < solutionPolyVec3d[i].size() - 1; j++ )
+        {
+            pts.push_back( solutionPolyVec3d[i][j] );
+            pts.push_back( solutionPolyVec3d[i][j + 1] );
+        }
+    }
+
+    //==== Create Results ====//
+    Results* res = ResultsMgr.CreateResults( "Point_Visibility", "Visibility from a point." );
+    if ( res )
+    {
+        res->Add( new NameValData( "Center", cen, "Visibility center point." ) );
+        res->Add( new NameValData( "Pts", pts, "Visibility domain boundary in cartesian coordinates." ) );
+        res->Add( new NameValData( "Poly_Visible", poly_visible, "Flag for domain boundary to contain visible region (true) instead of occluded region (false)." ) );
+
+        res->Add( new NameValData( "Octant_Area_Frac", oct_area, "Fraction of solid angle enclosed in domain boundary in each octant." ) );
+        res->Add( new NameValData( "Octant_Labels", oct_label, "Labels for octants (Up/Down, Fore/Aft, Left/Right)." ) );
+
+        res->Add( new NameValData( "Fwd_Bounds", fwdbounds, "Forward elevation bounds of visibility domain (degrees)." ) );
+        res->Add( new NameValData( "Over_Nose", overnose, "Elevation of first forward visibility domain boundary down from the horizon (degrees)." ) );
+
+        res->Add( new NameValData( "Result", overnose, "Point visibility result" ) );
+
+        for ( int i = 0; i < solutionPolyVecSpherical.size(); i++ )
+        {
+            res->Add( new NameValData( "Vis_Boundary", solutionPolyVecSpherical[i], "Visibility domain boundary in spherical coordinates (r, az, el)." ) );
+        }
+    }
+
+    return res->GetID();
 }
 
 Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, const vec3d & dir )
