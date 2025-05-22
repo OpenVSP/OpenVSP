@@ -181,6 +181,28 @@ Results* ProjectionMgrSingleton::Project( )
     return nullptr;
 }
 
+inline double SphericalArea( const vector < vec3d > & azel )
+{
+    size_t cnt = azel.size();
+    if ( cnt < 3 ) return 0.0;
+    double a = 0.0;
+
+    for ( size_t i = 0; i < cnt - 1; i++ )
+    {
+        // Order appears flipped to change direction of integration to fix sign of result.
+        const double & az_2 = azel[i].y();
+        const double & az_1 = azel[i + 1].y();
+        const double & el_2 = azel[i].z();
+        const double & el_1 = azel[i + 1].z();
+
+        // Area of the trapezoid between the equator and a segment in az,el spherical coordinates.
+        // https://en.wikipedia.org/wiki/Spherical_trigonometry#From_latitude_and_longitude
+        const double E_4 = 2.0 * atan( tan( 0.5 * ( az_2 - az_1 ) ) * sin( 0.5 * ( el_2 + el_1 ) ) / cos( 0.5 * ( el_2 - el_1 ) ) );
+        a += E_4;
+    }
+    return a;
+}
+
 Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, const vec3d & dir )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
