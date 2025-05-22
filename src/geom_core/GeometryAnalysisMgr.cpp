@@ -70,6 +70,7 @@ void GeometryAnalysisCase::Update()
         m_SecondaryType = vsp::GEOM_TARGET;
     }
 
+    UpdateDrawObj_Live();
 }
 
 string GeometryAnalysisCase::GetPrimaryName() const
@@ -945,7 +946,7 @@ string GeometryAnalysisCase::Evaluate()
 
     }
 
-    UpdateDrawObj();
+    UpdateDrawObj_PostAnalysis();
 
     return m_LastResult;
 }
@@ -1103,7 +1104,7 @@ void GeometryAnalysisCase::ShowOnlySecondary()
     }
 }
 
-void GeometryAnalysisCase::UpdateDrawObj()
+void GeometryAnalysisCase::UpdateDrawObj_PostAnalysis()
 {
     Material mat;
     mat.SetMaterial( "Red Default" );
@@ -1159,6 +1160,10 @@ void GeometryAnalysisCase::UpdateDrawObj()
 
     m_LineResultDO.m_GeomChanged = true;
     m_LineResultDO.m_PntVec = m_PtsVec;
+}
+
+void GeometryAnalysisCase::UpdateDrawObj_Live()
+{
 }
 
 

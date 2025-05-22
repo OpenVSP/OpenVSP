@@ -56,7 +56,8 @@ public:
     void ShowSecondary();
     void ShowOnlySecondary();
 
-    void UpdateDrawObj();
+    void UpdateDrawObj_PostAnalysis();
+    void UpdateDrawObj_Live();
 
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
