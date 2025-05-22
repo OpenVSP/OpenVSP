@@ -16,7 +16,7 @@
 #include "ModeMgr.h"
 
 //==== Constructor ====//
-GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 540, "Geometry Analyses" )
+GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 700, "Geometry Analyses" )
 {
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
@@ -82,7 +82,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_GCaseLayout.AddYGap();
 
-    int geomH = 100;
+    int geomH = 200;
     int geomW = ( m_GCaseLayout.GetW() - 5 ) * 0.5;
     m_GCaseLayout.AddSubGroupLayout( m_PrimaryLayout, geomW, geomH );
     m_GCaseLayout.AddX( geomW + 5 );
@@ -199,7 +199,27 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_CCWToggleGroup.AddButton( m_CCWToggle.GetFlButton() );
     m_CCWToggleGroup.AddButton( m_CWToggle.GetFlButton() );
 
+    m_SecondaryLayout.AddButton( m_PolyVisibleToggle, "Visible" );
+    m_SecondaryLayout.AddButton( m_PolyOccludedToggle, "Occluded" );
+    m_SecondaryLayout.ForceNewLine();
+
+    m_PolyVisibleToggleGroup.Init( this );
+    m_PolyVisibleToggleGroup.AddButton( m_PolyOccludedToggle.GetFlButton() ); // false first
+    m_PolyVisibleToggleGroup.AddButton( m_PolyVisibleToggle.GetFlButton() );  // true
+
+    m_SecondaryLayout.SetSameLineFlag( false );
+    m_SecondaryLayout.SetFitWidthFlag( true );
+
+    m_SecondaryLayout.AddButton( m_SecondaryUsePointToggle, "Point" );
+
+    m_SecondaryLayout.AddSlider( m_SecondaryXSlider, "X", 10, "%6.4f" );
+    m_SecondaryLayout.AddSlider( m_SecondaryYSlider, "Y", 10, "%6.4f" );
+    m_SecondaryLayout.AddSlider( m_SecondaryZSlider, "Z", 10, "%6.4f" );
+
     m_SecondaryLayout.AddYGap();
+
+    m_SecondaryLayout.SetSameLineFlag( true );
+    m_SecondaryLayout.SetFitWidthFlag( false );
 
     m_SecondaryLayout.SetButtonWidth( m_SecondaryLayout.GetW() * 0.5 );
     m_SecondaryLayout.AddButton( m_ShowSecondaryGeom, "Show" );
@@ -262,6 +282,13 @@ bool GeometryAnalysisScreen::Update()
         m_SecondaryUseZGroundToggle.Update( gcase->m_SecondaryUseZGround.GetID() );
 
         m_CCWToggleGroup.Update( gcase->m_SecondaryCCWFlag.GetID() );
+
+        m_PolyVisibleToggleGroup.Update( gcase->m_PolyVisibleFlag.GetID() );
+
+        m_SecondaryUsePointToggle.Update( gcase->m_SecondaryUsePoint.GetID() );
+        m_SecondaryXSlider.Update( gcase->m_SecondaryX.GetID() );
+        m_SecondaryYSlider.Update( gcase->m_SecondaryY.GetID() );
+        m_SecondaryZSlider.Update( gcase->m_SecondaryZ.GetID() );
 
         m_ScreenMgr->LoadSetChoice( {&m_PrimarySetChoice, &m_SecondarySetChoice}, {gcase->m_PrimarySet.GetID(), gcase->m_SecondarySet.GetID()} );
 

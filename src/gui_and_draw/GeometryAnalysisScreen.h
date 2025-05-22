@@ -97,6 +97,15 @@ protected:
     ToggleButton m_CWToggle;
     ToggleRadioGroup m_CCWToggleGroup;
 
+    ToggleButton m_PolyVisibleToggle;
+    ToggleButton m_PolyOccludedToggle;
+    ToggleRadioGroup m_PolyVisibleToggleGroup;
+
+    ToggleButton m_SecondaryUsePointToggle;
+    SliderAdjRangeInput m_SecondaryXSlider;
+    SliderAdjRangeInput m_SecondaryYSlider;
+    SliderAdjRangeInput m_SecondaryZSlider;
+
     TriggerButton m_ShowSecondaryGeom;
     TriggerButton m_ShowOnlySecondaryGeom;
 
