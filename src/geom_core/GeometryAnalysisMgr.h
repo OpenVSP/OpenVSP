@@ -94,6 +94,8 @@ public:
 
     vector < DrawObj > m_MeshResultDO_vec;
     DrawObj m_LineResultDO;
+
+    DrawObj m_SecondaryVizPointDO;
 };
 
 

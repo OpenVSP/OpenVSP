@@ -1203,6 +1203,18 @@ void GeometryAnalysisCase::UpdateDrawObj_PostAnalysis()
 
 void GeometryAnalysisCase::UpdateDrawObj_Live()
 {
+    m_SecondaryVizPointDO.m_PntVec.clear();
+    if ( m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS )
+    {
+        m_SecondaryVizPointDO.m_GeomID = m_ID + "VizPoint";
+        m_SecondaryVizPointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_SecondaryVizPointDO.m_Type = DrawObj::VSP_POINTS;
+        m_SecondaryVizPointDO.m_PntVec.resize( 1 );
+        GetSecondaryPt( m_SecondaryVizPointDO.m_PntVec[ 0 ] );
+        m_SecondaryVizPointDO.m_PointColor = DrawObj::Color( DrawObj::RED );
+        m_SecondaryVizPointDO.m_PointSize = 20.0;
+        m_SecondaryVizPointDO.m_GeomChanged = true;
+    }
 }
 
 
@@ -1216,6 +1228,16 @@ void GeometryAnalysisCase::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     m_LineResultDO.m_Visible = true;
     draw_obj_vec.push_back( &m_LineResultDO );
+
+    if ( m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS )
+    {
+        m_SecondaryVizPointDO.m_Visible = true;
+        draw_obj_vec.push_back( &m_SecondaryVizPointDO );
+    }
+    else
+    {
+        m_SecondaryVizPointDO.m_Visible = false;
+    }
 }
 
 //===============================================================================//
