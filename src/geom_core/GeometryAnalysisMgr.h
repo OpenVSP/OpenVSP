@@ -75,6 +75,13 @@ public:
 
     BoolParm m_SecondaryCCWFlag;
 
+    BoolParm m_PolyVisibleFlag;
+
+    BoolParm m_SecondaryUsePoint;
+    Parm m_SecondaryX;
+    Parm m_SecondaryY;
+    Parm m_SecondaryZ;
+
     IntParm m_GeometryAnalysisType;
 
     string m_LastResult;

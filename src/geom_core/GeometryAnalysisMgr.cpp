@@ -45,6 +45,13 @@ GeometryAnalysisCase::GeometryAnalysisCase()
 
     m_SecondaryCCWFlag.Init( "SecondaryCCWFlag", "Projection", this, false, false, true );
 
+    m_PolyVisibleFlag.Init( "PolyVisibleFlag", "Projection", this, false, false, true );
+
+    m_SecondaryUsePoint.Init( "SecondaryUsePoint", "Projection", this, false, false, true );
+    m_SecondaryX.Init( "SecondaryX", "Projection", this, 0.0, -1e12, 1e12 );
+    m_SecondaryY.Init( "SecondaryY", "Projection", this, 0.0, -1e12, 1e12 );
+    m_SecondaryZ.Init( "SecondaryZ", "Projection", this, 0.0, -1e12, 1e12 );
+
     m_GeometryAnalysisType.Init( "IntererenceCheckType", groupname, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
 
     m_LastResultValue.Init( "LastResult", groupname, this, 0.0, -1e12, 1e12 );
