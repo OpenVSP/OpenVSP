@@ -187,7 +187,7 @@ public:
     Fl_Color_Chooser* AddFlColorChooser( int height );
 
     template < typename T >
-    SpreadSheet<T> * AddSpreadSheet( int height );
+    SpreadSheet<T> * AddSpreadSheet( int height, const char *format );
 
     //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
     //==== Subgroups can be Used To Create Multiple Column Layouts ====//
@@ -243,11 +243,12 @@ void DebugLabelSize( Fl_Widget *widget );
 
 
 template < typename T >
-SpreadSheet<T> * GroupLayout::AddSpreadSheet( int height )
+SpreadSheet<T> * GroupLayout::AddSpreadSheet( int height, const char *format )
 {
     assert( m_Group && m_Screen );
 
     SpreadSheet<T> * sheet = new SpreadSheet<T>( m_X, m_Y, m_W, height, "" );
+    sheet->SetFormat( format );
 
     m_Group->add( sheet );
 

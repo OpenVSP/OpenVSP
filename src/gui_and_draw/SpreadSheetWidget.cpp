@@ -26,7 +26,7 @@ string SpreadSheet< int >::get_value( int R, int C )
     if ( m_Data && (*m_Data).size() )
     {
         char s[255];
-        snprintf( s, sizeof( s ), "%d", (*m_Data)[ R ] );
+        snprintf( s, sizeof( s ), m_Format.c_str(), (*m_Data)[ R ] );
         return string( s );
     }
     return string();
@@ -49,7 +49,7 @@ string SpreadSheet< double >::get_value( int R, int C )
     if ( m_Data && (*m_Data).size() )
     {
         char s[255];
-        snprintf( s, sizeof( s ), "%f", (*m_Data)[ R ] );
+        snprintf( s, sizeof( s ), m_Format.c_str(), (*m_Data)[ R ] );
         return string( s );
     }
     return string();
@@ -105,7 +105,7 @@ string SpreadSheet< vec3d >::get_value( int R, int C )
     if ( m_Data && (*m_Data).size() )
     {
         char s[255];
-        snprintf( s, sizeof( s ), "%f", (*m_Data)[ R ][ C ] );
+        snprintf( s, sizeof( s ), m_Format.c_str(), (*m_Data)[ R ][ C ] );
         return string( s );
     }
     return string();
@@ -184,7 +184,7 @@ string SpreadSheet< vector < int > >::get_value( int R, int C )
     if ( m_Data && (*m_Data).size() )
     {
         char s[255];
-        snprintf( s, sizeof( s ), "%d", (*m_Data)[ R ][ C ] );
+        snprintf( s, sizeof( s ), m_Format.c_str(), (*m_Data)[ R ][ C ] );
         return string( s );
     }
     return string();
@@ -275,7 +275,7 @@ string SpreadSheet< vector < double > >::get_value( int R, int C )
     if ( m_Data && (*m_Data).size() )
     {
         char s[255];
-        snprintf( s, sizeof( s ), "%f", (*m_Data)[ R ][ C ] );
+        snprintf( s, sizeof( s ), m_Format.c_str(), (*m_Data)[ R ][ C ] );
         return string( s );
     }
     return string();

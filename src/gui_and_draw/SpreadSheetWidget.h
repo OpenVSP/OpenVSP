@@ -71,6 +71,11 @@ public:
     void set_row_user_header_flag( bool headerFlag );
     void set_col_user_header_flag( bool headerFlag );
 
+    virtual void SetFormat( const char* format )
+    {
+        m_Format = format;
+    }
+
 protected:
 
     int handle( int event ) override;
@@ -121,6 +126,8 @@ protected:
 
     vector < T > *m_Data;
 
+    string m_Format;
+
     Fl_Callback* m_ChangeCallback;
     void* m_ChangeCallbackData;
 };
@@ -159,6 +166,8 @@ SpreadSheet<T>::SpreadSheet( int X, int Y, int W, int H, const char* L ) : Fl_Ta
     m_ChangeCallbackData = nullptr;
 
     m_UserColHeaderFlag = false;
+
+    m_Format = string( " %7.5f" );
 }
 
 // Apply value from input widget to values[row][col] array and hide (done editing)
