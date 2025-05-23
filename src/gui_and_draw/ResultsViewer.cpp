@@ -49,19 +49,19 @@ ResultsViewer::ResultsViewer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 700, "Re
     m_BorderLayout.AddSubGroupLayout( m_IntVectorLayout, m_BorderLayout.GetW(), m_BorderLayout.GetRemainY() );
     m_IntVectorLayout.AddDividerBox( "Vector of Integers" );
 
-    m_IntVectorSpreadColumn = m_IntVectorLayout.AddSpreadSheet < int > ( m_IntVectorLayout.GetRemainY() );
+    m_IntVectorSpreadColumn = m_IntVectorLayout.AddSpreadSheet < int > ( m_IntVectorLayout.GetRemainY(), " %d");
     m_IntVectorSpreadColumn->set_AllowPasteGrowCols( false );
 
     m_BorderLayout.AddSubGroupLayout( m_DoubleVectorLayout, m_BorderLayout.GetW(), m_BorderLayout.GetRemainY() );
     m_DoubleVectorLayout.AddDividerBox( "Vector of Doubles" );
 
-    m_DoubleVectorSpreadColumn = m_DoubleVectorLayout.AddSpreadSheet < double > ( m_DoubleVectorLayout.GetRemainY() );
+    m_DoubleVectorSpreadColumn = m_DoubleVectorLayout.AddSpreadSheet < double > ( m_DoubleVectorLayout.GetRemainY(), " %7.5f");
     m_DoubleVectorSpreadColumn->set_AllowPasteGrowCols( false );
 
     m_BorderLayout.AddSubGroupLayout( m_StringVectorLayout, m_BorderLayout.GetW(), m_BorderLayout.GetRemainY() );
     m_StringVectorLayout.AddDividerBox( "Vector of Strings" );
 
-    m_StringVectorSpreadColumn = m_StringVectorLayout.AddSpreadSheet < string > ( m_StringVectorLayout.GetRemainY() );
+    m_StringVectorSpreadColumn = m_StringVectorLayout.AddSpreadSheet < string > ( m_StringVectorLayout.GetRemainY(), " %s");
     m_StringVectorSpreadColumn->set_LabelAlign( FL_ALIGN_LEFT | FL_ALIGN_WRAP );
     m_StringVectorSpreadColumn->set_AllowPasteGrowCols( false );
 
@@ -76,14 +76,14 @@ ResultsViewer::ResultsViewer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 700, "Re
     m_BorderLayout.AddSubGroupLayout( m_Vec3dVectorLayout, m_BorderLayout.GetW(), m_BorderLayout.GetRemainY() );
     m_Vec3dVectorLayout.AddDividerBox( "Vector of Vec3d" );
 
-    m_Vec3dVectorSpreadColumn = m_Vec3dVectorLayout.AddSpreadSheet < vec3d > ( m_Vec3dVectorLayout.GetRemainY() );
+    m_Vec3dVectorSpreadColumn = m_Vec3dVectorLayout.AddSpreadSheet < vec3d > ( m_Vec3dVectorLayout.GetRemainY(), " %7.5f");
     m_Vec3dVectorSpreadColumn->set_AllowPasteGrowCols( false );
     m_Vec3dVectorSpreadColumn->set_HeaderOffset( 'X' - 'A' ); // start columns at X.
 
     m_BorderLayout.AddSubGroupLayout( m_DoubleMatrixLayout, m_BorderLayout.GetW(), m_BorderLayout.GetRemainY() );
     m_DoubleMatrixLayout.AddDividerBox( "Matrix of Doubles" );
 
-    m_DoubleMatrixSpreadSheet = m_DoubleMatrixLayout.AddSpreadSheet< vector < double > > ( m_DoubleMatrixLayout.GetRemainY() );
+    m_DoubleMatrixSpreadSheet = m_DoubleMatrixLayout.AddSpreadSheet< vector < double > > ( m_DoubleMatrixLayout.GetRemainY(), " %7.5f");
 
 
 
