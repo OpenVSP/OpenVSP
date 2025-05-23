@@ -292,6 +292,11 @@ void HumanGeom::CopyVertsToSkel( const vector < vec3d > & sv )
     }
 }
 
+vec3d HumanGeom::GetDesignEye() const
+{
+    return m_ModelMatrix.xform( m_PoseSkelVerts[ DES_EYE ] );
+}
+
 double HumanGeom::Get_mm2UX()
 {
     double sf = 1.0;
