@@ -285,11 +285,12 @@ void GeometryAnalysisCase::GetSecondaryPt( vec3d &pt )
 
                 if ( human_ptr )
                 {
-                    // human_ptr->GetEyePt( pt );
+                    pt = human_ptr->GetDesignEye();
                 }
                 else if ( geom )
                 {
-                    // geom->GetPoint( pt );
+                    Matrix4d mat = geom->getModelMatrix();
+                    pt = mat.xform( vec3d() );
                 }
             }
         }
