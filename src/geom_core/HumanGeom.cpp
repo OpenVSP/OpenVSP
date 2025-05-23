@@ -1022,7 +1022,7 @@ void HumanGeom::UpdateDrawObj()
         m_FeatureDrawObj_vec[0].m_PntVec.resize( ( NUM_SKEL - 1 ) * 2 );
         m_FeatureDrawObj_vec[1].m_PntVec.resize( ( NUM_SKEL - 1 ) * 2 );
 
-        const int prevarr[] = {-1, 0, 1, 0, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 0, 15, 16};
+        const int prevarr[] = {-1, 0, 1, 0, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 0, 15, 16, 20, 20, 3};
 
         for ( int i = 1; i < NUM_SKEL; i++ )
         {
@@ -1350,9 +1350,9 @@ template < typename vertmat >
 void HumanGeom::SetupSkel( const vertmat & vm, Pinocchio::DataSkeleton &skeleton )
 {
     // m_SkelVerts
-    // const int HumanGeom::m_skel_indx[NUM_SKEL] = {0, 1, 2, 3, -4, -5, -6, -7, 4, 5, 6, 7, -8, -9, -10, 8, 9, 10};
+    // const int HumanGeom::m_skel_indx[NUM_SKEL] = {0, 1, 2, 3, -4, -5, -6, -7, 4, 5, 6, 7, -8, -9, -10, 8, 9, 10}; // , 11, -11, 12};
 
-    const int prevarr[] = {-1, 0, 1, 0, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 0, 15, 16};
+    const int prevarr[] = {-1, 0, 1, 0, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 0, 15, 16, 20, 20, 3};
 
     std::vector < int > previd( NUM_SKEL );
     std::vector < Vector3 > skel_pts( NUM_SKEL );
@@ -1383,6 +1383,8 @@ void HumanGeom::SetupSkel( const vertmat & vm, Pinocchio::DataSkeleton &skeleton
     skeleton.makeSymmetric( LSHOULDER, RSHOULDER );
     skeleton.makeSymmetric( LELBOW, RELBOW );
     skeleton.makeSymmetric( LHAND, RHAND );
+
+    skeleton.makeSymmetric( LEYE, REYE );
 
     skeleton.initCompressed();
 

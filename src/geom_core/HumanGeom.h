@@ -31,8 +31,8 @@
 #define NUM_MESH_TRI 2885
 #define NUM_MESH_VERT 1488
 
-#define NUM_SKEL 18
-#define NUM_SKEL_VERT 11
+#define NUM_SKEL 21
+#define NUM_SKEL_VERT 13
 
 class HumanGeom : public Geom {
 public:
@@ -59,8 +59,11 @@ public:
           LHAND,       // 14
           RSHOULDER,   // 15
           RELBOW,      // 16
-          RHAND        // 17
-    };
+          RHAND,       // 17
+          REYE,        // 18
+          LEYE,        // 19
+          DES_EYE      // 20
+  };
 
     enum bones {
         UPSPINE,        // 0
