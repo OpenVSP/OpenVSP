@@ -157,7 +157,7 @@ nwpt = ones(nwake,1);
 wedata = cell(nwake, 1);
 for iw = 1:nwake
     nwpt(iw) = fscanf(fp, '%d', 1 );
-    wedata{iw} = fscanf(fp, '%d', nwpt(iw) );
+    wedata{iw} = fscanf(fp, '%d', abs( nwpt(iw) ) );
 end
 
 altfaceid = [];
