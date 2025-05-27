@@ -20,6 +20,8 @@
 
 #include "predicates.h"
 
+#include <Eigen/Core>
+
 //****** Constructor:  vec2d x() ******//
 vec2d::vec2d()
 {

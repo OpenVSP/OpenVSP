@@ -18,8 +18,13 @@
 #include <iostream>
 #include <vector>
 
-#include <Eigen/Core>
-typedef Eigen::Matrix< double, 1, 2 > twod_point_type;
+namespace Eigen
+{
+    template < typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols >
+    class Matrix;
+}
+
+typedef Eigen::Matrix< double, 1, 2, 0x1, 1, 2 > twod_point_type;
 
 class vec2d;
 
