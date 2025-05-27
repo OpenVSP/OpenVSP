@@ -207,14 +207,13 @@
 #endif
 
 #include "APIErrorMgr.h"
-#include "APIUpdateCountMgr.h"
-#include "Vec3d.h"
-#include "Matrix4d.h"
 
 #include <string>
 #include <stack>
 #include <vector>
 
+class vec3d;
+class Matrix4d;
 
 using std::string;
 using std::stack;

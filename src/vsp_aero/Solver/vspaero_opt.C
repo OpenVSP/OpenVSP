@@ -23,7 +23,7 @@
 // OpenVSP headers
 
 #include "VSP_Geom_API.h"
-
+#include "Vec3d.h"
 
 class PARAMETER_DATA {
    

@@ -48,6 +48,7 @@
 #include <cstdlib>
 #include <csignal>
 
+#include "APIUpdateCountMgr.h"
 #include "eli/mutil/quad/simpson.hpp"
 
 #ifdef __JETBRAINS_IDE__
