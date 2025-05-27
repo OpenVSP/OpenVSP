@@ -9,6 +9,7 @@
 
 #include <vector>
 #include "Vec3d.h"
+#include "Vec2d.h"
 using namespace std;
 
 #ifndef MAX

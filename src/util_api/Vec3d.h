@@ -14,7 +14,6 @@
 #define VSPVEC3D_H
 
 
-#include "Vec2d.h"
 
 namespace Eigen
 {
@@ -27,6 +26,8 @@ typedef Eigen::Matrix< double, 1, 3, 0x1, 1, 3 > threed_point_type;
 
 #include <iostream>
 #include <vector>
+
+class vec2d;
 
   /*!
     vec3d is typically used to describe coordinate points and vectors in 3D space.

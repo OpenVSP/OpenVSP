@@ -7,6 +7,7 @@
 #include "VSP_Geom_API.h"
 #include "SWIGDefines.h"
 #include "Vec3d.h"
+#include "Vec2d.h"
 #include "Matrix4d.h"
 %}
 
@@ -52,4 +53,5 @@ namespace std {
 %include "VSP_Geom_API.h"
 %include "SWIGDefines.h"
 %include "Vec3d.h"
+%include "Vec2d.h"
 %include "Matrix4d.h"

@@ -15,6 +15,7 @@
 
 #include <cfloat> //For DBL_EPSILON
 #include "Vec3d.h"
+#include "Vec2d.h"
 
 #include "Matrix4d.h"
 
