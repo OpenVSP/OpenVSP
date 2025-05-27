@@ -41,6 +41,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         ${STEPCODE_INCLUDE_DIR}
         ${TRIANGLE_INCLUDE_DIR}
         ${UTIL_INCLUDE_DIR}
+        ${UTIL_API_INCLUDE_DIR}
         ${XMLVSP_INCLUDE_DIR}
         ${VSP_SOURCE_DIR}
      )
@@ -50,7 +51,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         ${GEOM_API_INCLUDE_DIR}/APIErrorMgr.h
         ${GEOM_API_INCLUDE_DIR}/VSP_Geom_API.h
         ${GEOM_CORE_INCLUDE_DIR}/SWIGDefines.h
-        ${UTIL_INCLUDE_DIR}/Vec3d.h
+        ${UTIL_API_INCLUDE_DIR}/Vec3d.h
     )
 
     set(I_FILES
@@ -97,7 +98,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
             ${GEOM_API_INCLUDE_DIR}/APIErrorMgr.h
             ${GEOM_API_INCLUDE_DIR}/VSP_Geom_API.h
             ${GEOM_CORE_INCLUDE_DIR}/SWIGDefines.h
-            ${UTIL_INCLUDE_DIR}/Vec3d.h
+            ${UTIL_API_INCLUDE_DIR}/Vec3d.h
         )
 
         set(I_FILES_g

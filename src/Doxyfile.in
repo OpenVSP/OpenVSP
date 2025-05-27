@@ -950,8 +950,8 @@ INPUT                  = APIReadme.md \
                          @CMAKE_CURRENT_SOURCE_DIR@/geom_api/APIErrorMgr.h \
                          @CMAKE_CURRENT_SOURCE_DIR@/geom_api/APIDefines.h \
                          @CMAKE_CURRENT_SOURCE_DIR@/geom_core/CustomGeom.h \
-                         @CMAKE_CURRENT_SOURCE_DIR@/util/Matrix4d.h \
-                         @CMAKE_CURRENT_SOURCE_DIR@/util/Vec3d.h \
+                         @CMAKE_CURRENT_SOURCE_DIR@/util_api/Matrix4d.h \
+                         @CMAKE_CURRENT_SOURCE_DIR@/util_api/Vec3d.h \
                          @CMAKE_CURRENT_SOURCE_DIR@/geom_api/VSP_Geom_API.h
 
 # This tag can be used to specify the character encoding of the source files

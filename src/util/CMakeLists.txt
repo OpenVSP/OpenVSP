@@ -8,6 +8,7 @@ IF (MSVC)
 ENDIF()
 
 INCLUDE_DIRECTORIES(
+    ${UTIL_API_INCLUDE_DIR}
     ${LIBXML2_INCLUDE_DIR}
     ${NANOFLANN_INCLUDE_DIR}
     ${XMLVSP_INCLUDE_DIR}
@@ -19,7 +20,6 @@ INCLUDE_DIRECTORIES(
     ${GEOM_API_INCLUDE_DIR}
     ${LIBIGES_INCLUDE_DIR}
     ${PCGCPP_INCLUDE_DIR}
-    ${ROBUST_INCLUDE_DIR}
     )
 
 ADD_LIBRARY(util
@@ -29,8 +29,6 @@ Cluster.cpp
 DrawObj.cpp
 DXFUtil.cpp
 FileUtil.cpp
-Matrix4d.cpp
-MessageMgr.cpp
 PntNodeMerge.cpp
 ProcessUtil.cpp
 Quat.cpp
@@ -41,8 +39,6 @@ StringUtil.cpp
 SuperEllipse.cpp
 UnitConversion.cpp
 UtilTestSuite.cpp
-Vec2d.cpp
-Vec3d.cpp
 VKTAirfoil.cpp
 Vsp1DCurve.cpp
 VspCurve.cpp
@@ -57,8 +53,6 @@ DrawObj.h
 DXFUtil.h
 FileUtil.h
 GuiDeviceEnums.h
-Matrix4d.h
-MessageMgr.h
 PntNodeMerge.h
 ProcessUtil.h
 Quat.h
@@ -72,8 +66,6 @@ tinydir.h
 UnitConversion.h
 UtilTestSuite.h
 UsingCpp11.h
-Vec2d.h
-Vec3d.h
 VKTAirfoil.h
 Vsp1DCurve.h
 VspCurve.h

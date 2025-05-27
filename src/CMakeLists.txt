@@ -73,6 +73,12 @@ IF( NOT VSP_NO_GRAPHICS )
 ENDIF()
 
 SET(GEOM_API_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/geom_api)
+SET(UTIL_API_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/util_api)
+ADD_SUBDIRECTORY( util_api )
+
+MESSAGE( STATUS "UTIL_API_INCLUDE_DIR = ${UTIL_API_INCLUDE_DIR}")
+
+
 ADD_SUBDIRECTORY( util )
 ADD_SUBDIRECTORY( xmlvsp )
 ADD_SUBDIRECTORY( geom_core )
@@ -98,6 +104,7 @@ SET( VSP_COMMON_LIBRARIES
     robust
     sixseries
     util
+    util_api
     tritri
     wavedragEL
     stb_image

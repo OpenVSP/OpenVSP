@@ -15,7 +15,7 @@
 
 #include <cfloat> //For DBL_EPSILON
 #include "Vec3d.h"
-#include "VspUtil.h"
+
 #include "Matrix4d.h"
 
 #include <Eigen/Core>
@@ -2080,6 +2080,33 @@ vec3d ToSpherical( const vec3d & v )
     return vec3d( r, az, el );
 }
 
+template < typename T > T atan4( T y, T x, T ydet, T xdet )
+{
+    T thdet = std::atan2( ydet, xdet );
+
+    T th = std::atan2( y, x );
+
+    if ( thdet < 0 && th > 0 )
+    {
+        th = th - 2.0 * M_PI;
+    }
+    else if ( thdet > 0 && th < 0 )
+    {
+        th = th + 2.0 * M_PI;
+    }
+
+    if ( th > M_PI )
+    {
+        th = th - 2.0 * M_PI;
+    }
+    else if ( th < -M_PI )
+    {
+        th = th + 2.0 * M_PI;
+    }
+
+    return th;
+}
+
 vec3d ToSpherical2( const vec3d & v, const vec3d & vdet )
 {
     const double &x = v[0];
@@ -2168,4 +2195,24 @@ void FitPlane( const std::vector < vec3d > & pts, vec3d & cen, vec3d & norm )
     //norm = vec3d( evec( iemin, 0 ).real(), evec( iemin, 1 ).real(), evec( iemin, 2 ).real() );
     norm = vec3d( evec( 0, iemin ).real(), evec( 1, iemin ).real(), evec( 2, iemin ).real() );
     norm.normalize();
+}
+
+// Simple implementation required for vec3d
+// More complex templated implementation requires branching based on the magnitude of values.
+// This does not make sense for a vec3d.
+vec3d compsum( const vector < vec3d > &x )
+{
+    vec3d e; // constructor must set to zero
+    vec3d sum;
+
+    for ( int i = 0; i < x.size(); i++ )
+    {
+        vec3d d = x[ i ] + e;
+        vec3d n = sum + d;
+        e = d - ( n - sum );
+        sum = n;
+    }
+    sum += e;
+
+    return sum;
 }

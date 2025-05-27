@@ -100,33 +100,6 @@ template < typename T > T clampAngle( T val )
     return val;
 }
 
-template < typename T > T atan4( T y, T x, T ydet, T xdet )
-{
-    T thdet = std::atan2( ydet, xdet );
-
-    T th = std::atan2( y, x );
-
-    if ( thdet < 0 && th > 0 )
-    {
-        th = th - 2.0 * M_PI;
-    }
-    else if ( thdet > 0 && th < 0 )
-    {
-        th = th + 2.0 * M_PI;
-    }
-
-    if ( th > M_PI )
-    {
-        th = th - 2.0 * M_PI;
-    }
-    else if ( th < -M_PI )
-    {
-        th = th + 2.0 * M_PI;
-    }
-
-    return th;
-}
-
 template < typename T >
 bool aboutequal( T a, T b, T tol = 1e-12 )
 {
@@ -134,35 +107,6 @@ bool aboutequal( T a, T b, T tol = 1e-12 )
 }
 
 int toint( double x );
-
-// Vector version that does not branch on magnitude of values.
-vec3d compsum( const vector < vec3d > &x );
-
-// Perform compensated summation of a vector of values.  Should be robust to rounding errors when some elements of x
-// are substantially smaller than the running sum.  And vis-versa.
-template < typename T >
-T compsum( const vector < T > &x )
-{
-    T e(0.0); // constructor must set to zero
-    T sum(0.0);
-
-    for ( int i = 0; i < x.size(); i++ )
-    {
-        T t = sum + x[i];
-        if ( std::abs( sum ) >= std::abs( x[i] ) )
-        {
-            e += ( sum - t ) + x[i];
-        }
-        else
-        {
-            e += ( x[i] - t ) + sum;
-        }
-        sum = t;
-    }
-    sum += e;
-
-    return sum;
-}
 
 #endif
 

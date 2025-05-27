@@ -1439,6 +1439,35 @@ vec3d slerp( const vec3d& a, const vec3d& b, const double &t );
 
 void FitPlane( const std::vector < vec3d > & pts, vec3d & cen, vec3d & norm );
 
+// Vector version that does not branch on magnitude of values.
+vec3d compsum( const std::vector < vec3d > &x );
+
+// Perform compensated summation of a vector of values.  Should be robust to rounding errors when some elements of x
+// are substantially smaller than the running sum.  And vis-versa.
+template < typename T >
+T compsum( const std::vector < T > &x )
+{
+    T e(0.0); // constructor must set to zero
+    T sum(0.0);
+
+    for ( int i = 0; i < x.size(); i++ )
+    {
+        T t = sum + x[i];
+        if ( std::abs( sum ) >= std::abs( x[i] ) )
+        {
+            e += ( sum - t ) + x[i];
+        }
+        else
+        {
+            e += ( x[i] - t ) + sum;
+        }
+        sum = t;
+    }
+    sum += e;
+
+    return sum;
+}
+
 #endif
 
 
