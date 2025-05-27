@@ -18,6 +18,7 @@
 
 #include "AdvLinkMgr.h"
 #include "AnalysisMgr.h"
+#include "APIErrorMgr.h"
 #include "AttributeManager.h"
 #include "Background3DMgr.h"
 #include "BORGeom.h"

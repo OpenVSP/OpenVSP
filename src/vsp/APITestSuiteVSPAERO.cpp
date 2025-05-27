@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "VSP_Geom_API.h"
+#include "APIErrorMgr.h"
 #include "APITestSuiteVSPAERO.h"
 #include <float.h>
 

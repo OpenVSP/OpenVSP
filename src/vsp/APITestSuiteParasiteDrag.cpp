@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "VSP_Geom_API.h"
+#include "APIErrorMgr.h"
 #include "APITestSuiteParasiteDrag.h"
 #include <float.h>
 

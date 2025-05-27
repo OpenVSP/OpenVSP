@@ -206,7 +206,7 @@
 
 #endif
 
-#include "APIErrorMgr.h"
+#include "APIDefines.h"
 
 #include <string>
 #include <stack>

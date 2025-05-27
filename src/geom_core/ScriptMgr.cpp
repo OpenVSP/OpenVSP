@@ -17,6 +17,7 @@
 #include "Parm.h"
 #include "Matrix4d.h"
 #include "VSP_Geom_API.h"
+#include "APIErrorMgr.h"
 #include "CustomGeom.h"
 #include "AdvLinkMgr.h"
 #include "AttributeManager.h"

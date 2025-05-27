@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "VSP_Geom_API.h"
+#include "APIErrorMgr.h"
 #include "APITestSuiteCFDMesh.h"
 #include "APIDefines.h"
 

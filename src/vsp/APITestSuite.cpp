@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "VSP_Geom_API.h"
+#include "APIErrorMgr.h"
 #include "APITestSuite.h"
 #include <float.h>
 #include "Vec3d.h"
