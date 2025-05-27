@@ -10,6 +10,7 @@
 
 #include "BndBox.h"
 
+#include <assert.h>
 
 //===== Constructor =====//
 BndBox::BndBox()

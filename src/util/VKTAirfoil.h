@@ -13,6 +13,8 @@
 
 #include "Vec3d.h"
 
+#include <complex>
+
 typedef std::complex< double > doublec;
 
 vec3d vkt_airfoil_point( double theta, double epsilon, double kappa, double tau );
