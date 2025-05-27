@@ -194,6 +194,13 @@ vec3d& vec3d::set_refz( const vec3d &a )
     return *this;
 }
 
+void vec3d::get_pnt( threed_point_type &pnt ) const
+{
+    pnt[0] = v[0];
+    pnt[1] = v[1];
+    pnt[2] = v[2];
+}
+
 ////******* Transform *******//
 // vec3d vec3d::transform(float mat[4][4])
 //{

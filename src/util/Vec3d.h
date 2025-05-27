@@ -394,12 +394,7 @@ public:
         pnt[1] = ( float )v[1];
         pnt[2] = ( float )v[2];
     }
-    void get_pnt( threed_point_type &pnt ) const
-    {
-        pnt[0] = v[0];
-        pnt[1] = v[1];
-        pnt[2] = v[2];
-    }
+    void get_pnt( threed_point_type &pnt ) const;
 
   /*!
     Get the X coordinate (index 0) of the vec3d
