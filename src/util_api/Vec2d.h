@@ -18,13 +18,6 @@
 #include <iostream>
 #include <vector>
 
-namespace Eigen
-{
-    template < typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols >
-    class Matrix;
-}
-
-
 class vec2d;
 
 //==== Forward declare to get around MS Compiler bug ====//
