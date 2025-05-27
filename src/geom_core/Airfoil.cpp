@@ -24,6 +24,8 @@
 using std::string;
 using namespace vsp;
 
+typedef Eigen::Matrix< double, 1, 2 > twod_point_type;
+
 /* Equations for NACA 4-Digit camber line derived using computer algebra software maxima.
 x: (1-cos(theta))/2;
 thp: %pi-acos(2*p-1);
@@ -207,8 +209,8 @@ void NACABase::BuildCurve( const naca_airfoil_type & af )
     vector< vec3d > pnts( npts );
     vector< double > arclen( npts );
 
-    vec2d p2d;
-    p2d = af.f( t );
+    twod_point_type tmp = af.f( t );
+    vec2d p2d( tmp.x(), tmp.y() );
     pnts[0] = p2d;
     arclen[0] = 0.0;
     for ( int i = 1 ; i < npts ; i++ )
@@ -228,7 +230,8 @@ void NACABase::BuildCurve( const naca_airfoil_type & af )
 
         double tc = sgn( t ) * Cluster( std::abs( t ), 0.01, 0.1 );
 
-        p2d = af.f( tc );
+        tmp = af.f( tc );
+        p2d = vec2d ( tmp.x(), tmp.y() );
         pnts[i] = p2d;
 
         double ds = dist( pnts[i], pnts[i-1] );

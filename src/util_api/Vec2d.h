@@ -24,7 +24,6 @@ namespace Eigen
     class Matrix;
 }
 
-typedef Eigen::Matrix< double, 1, 2, 0x1, 1, 2 > twod_point_type;
 
 class vec2d;
 
@@ -53,7 +52,6 @@ public:
 
     vec2d& operator=( const vec2d& a ); // x = y
     vec2d& operator=( double a );      // x = 35.
-    vec2d& operator=( const twod_point_type &a );
 
     double& operator [] ( int i )
     {
