@@ -18,6 +18,8 @@
 #include "VspUtil.h"
 #include "Matrix4d.h"
 
+#include <Eigen/Eigenvalues>
+
 using std::cout;
 using std::endl;
 using std::vector;

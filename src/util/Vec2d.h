@@ -18,7 +18,7 @@
 #include <iostream>
 #include <vector>
 
-#include "eli/code_eli.hpp"
+#include <Eigen/Core>
 typedef Eigen::Matrix< double, 1, 2 > twod_point_type;
 
 class vec2d;

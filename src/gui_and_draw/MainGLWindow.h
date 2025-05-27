@@ -5,6 +5,7 @@
 #include <FL/Fl_Gl_Window.H>
 #include <vector>
 #include <string>
+#include <map>
 
 #include <glm/glm.hpp>
 

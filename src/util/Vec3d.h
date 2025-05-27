@@ -16,7 +16,7 @@
 
 #include "Vec2d.h"
 
-#include "eli/code_eli.hpp"
+#include <Eigen/Core>
 typedef Eigen::Matrix< double, 1, 3 > threed_point_type;
 
 #include <iostream>
