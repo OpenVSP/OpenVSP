@@ -319,8 +319,8 @@ void Bezier_curve::GetBBox( BndBox &box )
     curve_bounding_box_type bbox;
     m_Curve.get_bounding_box( bbox );
 
-    box.Update( bbox.get_max() );
-    box.Update( bbox.get_min() );
+    box.Update( vec3d( bbox.get_max() ) );
+    box.Update( vec3d( bbox.get_min() ) );
 }
 
 //===== Tesselate =====//
@@ -337,8 +337,8 @@ void Bezier_curve::TessAdaptXYZ( const Surf &srf, vector< vec3d > & output, doub
 
 void Bezier_curve::TessAdaptXYZ( const Surf &srf, double umin, double umax, std::vector< vec3d > & pnts, double tol, int Nlimit, std::vector< double >& uvec )
 {
-    vec3d uwmin = m_Curve.f( umin );
-    vec3d uwmax = m_Curve.f( umax );
+    vec3d uwmin = vec3d( m_Curve.f( umin ) );
+    vec3d uwmax = vec3d( m_Curve.f( umax ) );
     vec3d pmin = srf.CompPnt( uwmin.x(), uwmin.y() );
     vec3d pmax = srf.CompPnt( uwmax.x(), uwmax.y() );
 
@@ -352,7 +352,7 @@ void Bezier_curve::TessAdaptXYZ( const Surf &srf, double umin, double umax, cons
 {
     double umid = ( umin + umax ) * 0.5;
 
-    vec3d uwmid = m_Curve.f( umid );
+    vec3d uwmid = vec3d( m_Curve.f( umid ) );
     vec3d pmid = srf.CompPnt( uwmid.x(), uwmid.y() );
 
     double d = dist_pnt_2_line( pmin, pmax, pmid ) / dist( pmin, pmax );

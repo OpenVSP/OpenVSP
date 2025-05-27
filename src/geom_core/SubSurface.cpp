@@ -1536,7 +1536,7 @@ void SSControlSurf::Update()
     le = c.f( vle );
 
     double chord, d;
-    chord = dist( le, te );
+    chord = dist( vec3d( le ), vec3d(te ) );
 
     if ( m_AbsRelFlag() == vsp::REL )
     {
@@ -1588,13 +1588,13 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_StartAngle() * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, teup, udir, d, m_StartAngle() * M_PI / 180.0, ucs + du, vteup - dv ); // reverse v
+                surf->FindDistanceAngle( u, v, vec3d( teup ), udir, d, m_StartAngle() * M_PI / 180.0, ucs + du, vteup - dv ); // reverse v
                 c_uws_upper = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, teup, udir, d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + du / 3.0, vteup - dv / 3.0 ); // reverse v
+                surf->FindDistanceAngle( u, v, vec3d( teup ), udir, d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + du / 3.0, vteup - dv / 3.0 ); // reverse v
                 c_uws1_upper = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, teup, udir, 2.0 * d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vteup - 2.0 * dv / 3.0 ); // reverse v
+                surf->FindDistanceAngle( u, v, vec3d( teup ), udir, 2.0 * d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vteup - 2.0 * dv / 3.0 ); // reverse v
                 c_uws2_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -1621,13 +1621,13 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_StartAngle() * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, leup, udir, d, m_StartAngle() * M_PI / 180.0, ucs + du, vleup + dv );
+                surf->FindDistanceAngle( u, v, vec3d( leup ), udir, d, m_StartAngle() * M_PI / 180.0, ucs + du, vleup + dv );
                 c_uws_upper = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, leup, udir, d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + du / 3.0, vleup + dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( leup ), udir, d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + du / 3.0, vleup + dv / 3.0 );
                 c_uws1_upper = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, leup, udir, 2.0 * d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vleup + 2.0 * dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( leup ), udir, 2.0 * d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vleup + 2.0 * dv / 3.0 );
                 c_uws2_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -1659,13 +1659,13 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_StartAngle() * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, telow, udir, d, m_StartAngle() * M_PI / 180.0, ucs + du, vtelow + dv );
+                surf->FindDistanceAngle( u, v, vec3d( telow ), udir, d, m_StartAngle() * M_PI / 180.0, ucs + du, vtelow + dv );
                 c_uws_lower = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, telow, udir, d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + du / 3.0, vtelow + dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( telow ), udir, d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + du / 3.0, vtelow + dv / 3.0 );
                 c_uws1_lower = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, telow, udir, 2.0 * d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vtelow + 2.0 * dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( telow ), udir, 2.0 * d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vtelow + 2.0 * dv / 3.0 );
                 c_uws2_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -1692,13 +1692,13 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_StartAngle() * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, lelow, udir, d, m_StartAngle() * M_PI / 180.0, ucs + du, vlelow - dv );
+                surf->FindDistanceAngle( u, v, vec3d( lelow ), udir, d, m_StartAngle() * M_PI / 180.0, ucs + du, vlelow - dv );
                 c_uws_lower = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, lelow, udir, d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + du / 3.0, vlelow - dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( lelow ), udir, d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + du / 3.0, vlelow - dv / 3.0 );
                 c_uws1_lower = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, lelow, udir, 2.0 * d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vlelow - 2.0 * dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( lelow ), udir, 2.0 * d / 3.0, m_StartAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vlelow - 2.0 * dv / 3.0 );
                 c_uws2_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -1747,7 +1747,7 @@ void SSControlSurf::Update()
     te = c.f( vmin );
     le = c.f( vle );
 
-    chord = dist( le, te );
+    chord = dist( vec3d( le ), vec3d( te ) );
 
 
     if ( m_AbsRelFlag() == vsp::REL )
@@ -1780,13 +1780,13 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_EndAngle() * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, teup, udir, d, m_EndAngle() * M_PI / 180.0, ucs + du, vteup - dv ); // reverse v
+                surf->FindDistanceAngle( u, v, vec3d( teup ), udir, d, m_EndAngle() * M_PI / 180.0, ucs + du, vteup - dv ); // reverse v
                 c_uwe_upper = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, teup, udir, d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + du / 3.0, vteup - dv / 3.0 ); // reverse v
+                surf->FindDistanceAngle( u, v, vec3d( teup ), udir, d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + du / 3.0, vteup - dv / 3.0 ); // reverse v
                 c_uwe1_upper = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, teup, udir, 2.0 * d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vteup - 2.0 * dv / 3.0 ); // reverse v
+                surf->FindDistanceAngle( u, v, vec3d( teup ), udir, 2.0 * d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vteup - 2.0 * dv / 3.0 ); // reverse v
                 c_uwe2_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -1813,13 +1813,13 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_EndAngle() * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, leup, udir, d, m_EndAngle() * M_PI / 180.0, ucs + du, vleup + dv );
+                surf->FindDistanceAngle( u, v, vec3d( leup ), udir, d, m_EndAngle() * M_PI / 180.0, ucs + du, vleup + dv );
                 c_uwe_upper = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, leup, udir, d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + du / 3.0, vleup + dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( leup ), udir, d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + du / 3.0, vleup + dv / 3.0 );
                 c_uwe1_upper = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, leup, udir, 2.0 * d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vleup + 2.0 * dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( leup ), udir, 2.0 * d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vleup + 2.0 * dv / 3.0 );
                 c_uwe2_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -1851,13 +1851,13 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_EndAngle() * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, telow, udir, d, m_EndAngle() * M_PI / 180.0, ucs + du, vtelow + dv );
+                surf->FindDistanceAngle( u, v, vec3d( telow ), udir, d, m_EndAngle() * M_PI / 180.0, ucs + du, vtelow + dv );
                 c_uwe_lower = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, telow, udir, d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + du / 3.0, vtelow + dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( telow ), udir, d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + du / 3.0, vtelow + dv / 3.0 );
                 c_uwe1_lower = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, telow, udir, 2.0 * d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vtelow + 2.0 * dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( telow ), udir, 2.0 * d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vtelow + 2.0 * dv / 3.0 );
                 c_uwe2_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -1884,13 +1884,13 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_EndAngle() * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, lelow, udir, d, m_EndAngle() * M_PI / 180.0, ucs + du, vlelow - dv );
+                surf->FindDistanceAngle( u, v, vec3d( lelow ), udir, d, m_EndAngle() * M_PI / 180.0, ucs + du, vlelow - dv );
                 c_uwe_lower = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, lelow, udir, d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + du / 3.0, vlelow - dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( lelow ), udir, d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + du / 3.0, vlelow - dv / 3.0 );
                 c_uwe1_lower = vec3d( u / umax, v / vmax, 0 );
 
-                surf->FindDistanceAngle( u, v, lelow, udir, 2.0 * d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vlelow - 2.0 * dv / 3.0 );
+                surf->FindDistanceAngle( u, v, vec3d( lelow ), udir, 2.0 * d / 3.0, m_EndAngle() * M_PI / 180.0, ucs + 2.0 * du / 3.0, vlelow - 2.0 * dv / 3.0 );
                 c_uwe2_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -2022,7 +2022,7 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, teup, udir, d, midangle * M_PI / 180.0, ucs + du, vteup - dv ); // reverse v
+                surf->FindDistanceAngle( u, v, vec3d( teup ), udir, d, midangle * M_PI / 180.0, ucs + du, vteup - dv ); // reverse v
                 c_uwm_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -2043,7 +2043,7 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, leup, udir, d, midangle * M_PI / 180.0, ucs + du, vleup + dv );
+                surf->FindDistanceAngle( u, v, vec3d( leup ), udir, d, midangle * M_PI / 180.0, ucs + du, vleup + dv );
                 c_uwm_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -2068,7 +2068,7 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, telow, udir, d, midangle * M_PI / 180.0, ucs + du, vtelow + dv );
+                surf->FindDistanceAngle( u, v, vec3d( telow ), udir, d, midangle * M_PI / 180.0, ucs + du, vtelow + dv );
                 c_uwm_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -2089,7 +2089,7 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, lelow, udir, d, midangle * M_PI / 180.0, ucs + du, vlelow - dv );
+                surf->FindDistanceAngle( u, v, vec3d( lelow ), udir, d, midangle * M_PI / 180.0, ucs + du, vlelow - dv );
                 c_uwm_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -2134,7 +2134,7 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, teup, udir, d, midangle * M_PI / 180.0, ucs + du, vteup - dv ); // reverse v
+                surf->FindDistanceAngle( u, v, vec3d( teup ), udir, d, midangle * M_PI / 180.0, ucs + du, vteup - dv ); // reverse v
                 c_uwm_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -2155,7 +2155,7 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, leup, udir, d, midangle * M_PI / 180.0, ucs + du, vleup + dv );
+                surf->FindDistanceAngle( u, v, vec3d( leup ), udir, d, midangle * M_PI / 180.0, ucs + du, vleup + dv );
                 c_uwm_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -2180,7 +2180,7 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, telow, udir, d, midangle * M_PI / 180.0, ucs + du, vtelow + dv );
+                surf->FindDistanceAngle( u, v, vec3d( telow ), udir, d, midangle * M_PI / 180.0, ucs + du, vtelow + dv );
                 c_uwm_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else
@@ -2201,7 +2201,7 @@ void SSControlSurf::Update()
                 double du, dv;
                 surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * M_PI / 180.0 );
                 udir.normalize();
-                surf->FindDistanceAngle( u, v, lelow, udir, d, midangle * M_PI / 180.0, ucs + du, vlelow - dv );
+                surf->FindDistanceAngle( u, v, vec3d( lelow ), udir, d, midangle * M_PI / 180.0, ucs + du, vlelow - dv );
                 c_uwm_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else

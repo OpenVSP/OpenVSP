@@ -325,7 +325,7 @@ vec3d ConformalGeom::ComputeCenter( curve_type & crv )
     for ( int i = 0 ; i < 4 ; i++ )
     {
         double w0 = (double)i/4.0;
-        vec3d pnt = crv.f( w0*tmax );
+        vec3d pnt = vec3d( crv.f( w0 * tmax ) );
         sum = sum + pnt;
     }
     sum = sum*(1.0/4.0);
@@ -405,11 +405,11 @@ bool ConformalGeom::CheckIfRibIsPoint( rib_data_type & rib )
     const piecewise_curve_type& crv = rib.get_f();
 
     double tmax = crv.get_tmax();
-    vec3d first_pnt = crv.f( 0.0 );
+    vec3d first_pnt = vec3d( crv.f( 0.0 ) );
     for ( int i = 1 ; i < 10 ; i++ )
     {
         double w0 = (double)i/10.0;
-        vec3d pnt = crv.f( w0*tmax );
+        vec3d pnt = vec3d( crv.f( w0*tmax ) );
 
         if ( dist( first_pnt, pnt ) > 1.0e-12 )
         {
@@ -1087,7 +1087,7 @@ void ConformalGeom::FindDists( const VspSurf & surf, piecewise_curve_type & curv
     for ( int i = 0 ; i < num_samps ; i++ )
     {
         double w0 = (double)i/(double)num_samps;
-        vec3d pnt = curve.f( w0*tmax );
+        vec3d pnt = vec3d( curve.f( w0*tmax ) );
 
         dist_vec[i] = surf.FindNearest( u, w, pnt, u0, w0*tmax );
     }
