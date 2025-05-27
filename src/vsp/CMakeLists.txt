@@ -45,11 +45,11 @@ IF( NOT VSP_NO_GRAPHICS )
 
     ADD_EXECUTABLE(apitest_g
     apitest_main.cpp
-    ../geom_api/APITestSuite.cpp
-    ../geom_api/APITestSuiteMassProp.cpp
-    ../geom_api/APITestSuiteVSPAERO.cpp
-    ../geom_api/APITestSuiteParasiteDrag.cpp
-    ../geom_api/APITestSuiteCFDMesh.cpp
+    APITestSuite.cpp
+    APITestSuiteMassProp.cpp
+    APITestSuiteVSPAERO.cpp
+    APITestSuiteParasiteDrag.cpp
+    APITestSuiteCFDMesh.cpp
     ../vsp/main.h.in
     )
 
@@ -65,11 +65,11 @@ ENDIF()
 
 ADD_EXECUTABLE(apitest
 apitest_main.cpp
-../geom_api/APITestSuite.cpp
-../geom_api/APITestSuiteMassProp.cpp
-../geom_api/APITestSuiteVSPAERO.cpp
-../geom_api/APITestSuiteParasiteDrag.cpp
-../geom_api/APITestSuiteCFDMesh.cpp
+APITestSuite.cpp
+APITestSuiteMassProp.cpp
+APITestSuiteVSPAERO.cpp
+APITestSuiteParasiteDrag.cpp
+APITestSuiteCFDMesh.cpp
 ../vsp/main.h.in
 )
 
