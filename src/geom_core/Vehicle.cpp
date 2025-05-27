@@ -10,6 +10,9 @@
 #define _HAS_STD_BYTE 0
 #endif
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include <filesystem>
 
 #include "Vehicle.h"
@@ -3946,7 +3949,7 @@ void Vehicle::WriteX3DViewpoints( xmlNodePtr node )
 
     // Set the names and vectors to the different viewpoints //
     string x3d_views[] = {"iso", "front", "top", "right"};
-    double view_degree[4][4] = { { -1, -1, 1, -PI / 4 } , { -1, 0, 0, -PI / 2}, {0, 0, 1, 0}, {0, -1, 0, 0} };
+    double view_degree[4][4] = { { -1, -1, 1, -M_PI / 4 } , { -1, 0, 0, -M_PI / 2}, {0, 0, 1, 0}, {0, -1, 0, 0} };
     vec3d k = vec3d( 0, 0, 1 );
 
     for( int i = 0; i < sizeof( view_degree ) / sizeof( double[4] ) ; i++ )

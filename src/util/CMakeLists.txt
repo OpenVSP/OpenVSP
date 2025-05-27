@@ -53,7 +53,6 @@ BndBox.h
 CADutil.h
 Cluster.h
 Combination.h
-Defines.h
 DrawObj.h
 DXFUtil.h
 FileUtil.h

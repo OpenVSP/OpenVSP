@@ -1,4 +1,7 @@
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "VKTAirfoil.h"
 
 doublec cmplx_potential( doublec zeta, double alpha, double beta, double a, doublec mu )
@@ -40,7 +43,7 @@ vec3d vkt_airfoil_point( double theta, double epsilon, double kappa, double tau 
 
     double beta = asin( ell * kappa / a );
 
-    double n = 2.0 - tau / PI;
+    double n = 2.0 - tau / M_PI;
 
     doublec mu = doublec( -ell * epsilon,  ell * kappa );
 

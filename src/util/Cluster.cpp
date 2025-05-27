@@ -5,7 +5,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include "Defines.h"
+
 
 #include "Cluster.h"
 
@@ -186,7 +186,7 @@ double asinc_approx( const double &y )
         double c5 = -13.2055008110734;
         double c6 = 11.7260952338351;
 
-        x = PI * ( ( ( ( ( ( c6 * y + c5 ) * y + c4) * y + c3 ) * y + 1.0 ) * y - 1.0 ) * y + 1.0 );
+        x = M_PI * ( ( ( ( ( ( c6 * y + c5 ) * y + c4) * y + c3 ) * y + 1.0 ) * y - 1.0 ) * y + 1.0 );
     }
     else
     {

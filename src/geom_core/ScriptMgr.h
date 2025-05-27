@@ -11,7 +11,7 @@
 #if !defined(SCRIPTMGR__INCLUDED_)
 #define SCRIPTMGR__INCLUDED_
 
-#include "Defines.h"
+
 
 #include <angelscript.h>
 #include <autowrapper/aswrappedcall.h>
@@ -106,8 +106,8 @@ public:
     void Print( double data, bool new_line );
     void Print( int data, bool new_line );
 
-    double Rad2Deg( double r )                      { return r*RAD_2_DEG; }
-    double Deg2Rad( double d )                      { return d*DEG_2_RAD; }
+    double Rad2Deg( double r )                      { return r*( 180.0 / M_PI ); }
+    double Deg2Rad( double d )                      { return d*( M_PI / 180.0 ); }
     double Min( double x, double y )                { return  (x < y ) ? x : y; }
     double Max( double x, double y )                { return  (x > y ) ? x : y; }
 

@@ -13,7 +13,7 @@
 #ifndef VSPVEC3D_H
 #define VSPVEC3D_H
 
-#include "Defines.h"
+
 #include "Vec2d.h"
 
 #include "eli/code_eli.hpp"

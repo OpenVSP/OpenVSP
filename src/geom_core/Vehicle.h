@@ -23,7 +23,7 @@
 #define ATTR_WM_FILLALPHA "_AttrWMFillAlpha"
 #define ATTR_VEH_NOTES "_AttrVehNotes"
 
-#include "Defines.h"
+
 #include "Parm.h"
 #include "ParmContainer.h"
 #include "ParmUndo.h"

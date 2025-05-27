@@ -5,6 +5,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "PropGeom.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
@@ -91,14 +94,14 @@ void PropPositioner::Update()
     // Position section for prop shaping.
 
     double xb = m_RootChord * ( 0.5 - m_FeatherAxis );
-    mat.translatef( xb * sin( m_RootTwist * PI / 180.0), 0, m_Reverse * xb * cos( m_RootTwist * PI / 180.0) );
+    mat.translatef( xb * sin( m_RootTwist * M_PI / 180.0), 0, m_Reverse * xb * cos( m_RootTwist * M_PI / 180.0) );
 
     mat.rotateX( m_Reverse * m_Sweep ); // About axis of rotation
 
     mat.translatef( 0, m_Radius, 0 );
 
     double x = -m_RootChord * ( 0.5 - m_Construct );
-    mat.translatef( x * sin( m_RootTwist * PI / 180.0), 0, m_Reverse * x * cos( m_RootTwist * PI / 180.0) );
+    mat.translatef( x * sin( m_RootTwist * M_PI / 180.0), 0, m_Reverse * x * cos( m_RootTwist * M_PI / 180.0) );
 
     mat.translatef( m_Axial, 0, m_Reverse * m_Tangential );
 
@@ -978,9 +981,9 @@ void PropGeom::UpdateSurf()
     m_TChord.Set( 3.0 * m_ChordCurve.IntegrateCrv_rsq( rfirst ) / ( 1.0 - r03 ) );
     m_PChord.Set( 4.0 * m_ChordCurve.IntegrateCrv_rcub( rfirst ) / ( 1.0 - r04 ) );
 
-    m_Solidity.Set( m_Chord() * m_Nblade() / PI );
-    m_TSolidity.Set( m_TChord() * m_Nblade() / PI );
-    m_PSolidity.Set( m_PChord() * m_Nblade() / PI );
+    m_Solidity.Set( m_Chord() * m_Nblade() / M_PI );
+    m_TSolidity.Set( m_TChord() * m_Nblade() / M_PI );
+    m_PSolidity.Set( m_PChord() * m_Nblade() / M_PI );
 
     if ( m_UseBeta34Flag() == 1 )
     {
@@ -1197,7 +1200,7 @@ void PropGeom::UpdateSurf()
                 xs->m_PropPos.m_RootTwist = twroot;
 
                 xs->m_PropPos.m_Twist = m_TwistCurve.Comp( r );
-                xs->m_PropPos.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) - m_AxialCurve.Compdt( r ) ) * 180.0 / PI;
+                xs->m_PropPos.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) - m_AxialCurve.Compdt( r ) ) * 180.0 / M_PI;
 
                 xs->m_PropPos.m_Rake = m_RakeCurve.Comp( r ) * radius;
                 xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
@@ -1274,7 +1277,7 @@ void PropGeom::UpdateSurf()
             pp.m_RootChord = croot;
             pp.m_RootTwist = twroot;
 
-            pp.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) - m_AxialCurve.Compdt( r ) ) * 180.0 / PI;
+            pp.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) - m_AxialCurve.Compdt( r ) ) * 180.0 / M_PI;
 
             pp.m_Rake = m_RakeCurve.Comp( r ) * radius;
             pp.m_Skew = m_SkewCurve.Comp( r ) * radius;
@@ -1591,7 +1594,7 @@ void PropGeom::UpdateBladeAzimuth()
                     m_BladeAzimuthParmVec[ i - 1 ]->Set( theta_nom + m_BladeDeltaAzimuthParmVec[ i - 1 ]->Get() );
                     m_BladeAzimuthParmVec[ i - 1 ]->Deactivate();
                 }
-                thetavec[i] = m_BladeAzimuthParmVec[ i - 1 ]->Get() * PI / 180.0;
+                thetavec[i] = m_BladeAzimuthParmVec[ i - 1 ]->Get() * M_PI / 180.0;
             }
 
             BalanceBlades( thetavec );
@@ -1601,7 +1604,7 @@ void PropGeom::UpdateBladeAzimuth()
             {
                 double theta_nom = 360.0 * i / ( double )m_Nblade();
 
-                m_BladeAzimuthParmVec[ i - 1 ]->Set( thetavec[i] * 180.0 / PI );
+                m_BladeAzimuthParmVec[ i - 1 ]->Set( thetavec[i] * 180.0 / M_PI );
                 m_BladeDeltaAzimuthParmVec[ i - 1 ]->Set( m_BladeAzimuthParmVec[ i - 1 ]->Get() - theta_nom );
 
                 m_BladeDeltaAzimuthParmVec[ i - 1 ]->Deactivate();
@@ -1704,7 +1707,7 @@ void PropGeom::CheckBalance()
     // Add rest of blades.
     for ( int i = 1; i < n; i++ )
     {
-        double th = -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get() * PI / 180.0;
+        double th = -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get() * M_PI / 180.0;
         s += sin( th );
         c += cos( th );
     }
@@ -1729,7 +1732,7 @@ void PropGeom::RigidBladeMotion( Matrix4d & mat, double foldangle )
     mat.rotateZ( m_Precone() );
 
     mat.translatef( m_FoldAxOrigin.x(), m_FoldAxOrigin.y(), m_FoldAxOrigin.z() );
-    mat.rotate( foldangle * PI / 180.0, m_FoldAxDirection );
+    mat.rotate( foldangle * M_PI / 180.0, m_FoldAxDirection );
     mat.translatef( -m_FoldAxOrigin.x(), -m_FoldAxOrigin.y(), -m_FoldAxOrigin.z() );
 
 }

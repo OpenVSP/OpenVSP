@@ -14,7 +14,6 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include "Defines.h"
 #include "Vec2d.h"
 #include "Vec3d.h"
 

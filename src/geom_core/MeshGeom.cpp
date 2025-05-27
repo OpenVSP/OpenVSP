@@ -13,6 +13,9 @@
 //
 //******************************************************************************
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "MeshGeom.h"
 
 #include <utility>
@@ -2702,7 +2705,7 @@ void MeshGeom::WaveStartEnd( const double &sliceAngle, const vec3d &center )
                 {
                     vec3d pt = m_TMeshVec[i]->m_TVec[j]->GetTriNode(k)->m_Pnt;
 
-                    double xcon = beta * cos( theta - 0.5 * PI ) * ( pt.y() - center.y() ) + beta * sin( theta + 0.5 * PI ) * ( pt.z() - center.z() );
+                    double xcon = beta * cos( theta - 0.5 * M_PI ) * ( pt.y() - center.y() ) + beta * sin( theta + 0.5 * M_PI ) * ( pt.z() - center.z() );
                     double xwave = pt.x() - xcon;
                     if ( xwave < WaveDragMgr.m_StartX[itheta] )
                     {
@@ -2752,7 +2755,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         double endX_global = *(max_element( WaveDragMgr.m_EndX.begin(), WaveDragMgr.m_EndX.end() ));
 
         // Set flow-through extension start/end locations
-        double tubedist = 0.5 * size * sin( 0.5*PI - sliceAngle) / sin( sliceAngle );
+        double tubedist = 0.5 * size * sin( 0.5*M_PI - sliceAngle) / sin( sliceAngle );
         tubestart = startX_global - tubedist * 1.1;
         tubeend = endX_global + tubedist * 1.1;
     }
@@ -3072,7 +3075,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
             for ( int m = 0; m < ngp; m++ )
             {
                 // Rotate plane to Mach angle
-                gp[m].rotate_y( -( 0.5 * PI - sliceAngle ) );
+                gp[m].rotate_y( -( 0.5 * M_PI - sliceAngle ) );
                 // Rotate plane to current theta
                 gp[m].rotate_x( theta );
                 // Translate plane to current x

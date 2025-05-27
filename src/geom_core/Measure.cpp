@@ -8,7 +8,8 @@
 #define _HAS_STD_BYTE 0
 #endif
 
-#include "Defines.h"
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include "Measure.h"
 #include "Vehicle.h"
@@ -795,11 +796,11 @@ void Protractor::Update()
         }
         arcpts.push_back( mid );
 
-        m_Theta = angle( u, v ) * 180.0 / PI;
+        m_Theta = angle( u, v ) * 180.0 / M_PI;
 
-        m_ThetaX = thetas.x() * 180.0 / PI;
-        m_ThetaY = thetas.y() * 180.0 / PI;
-        m_ThetaZ = thetas.z() * 180.0 / PI;
+        m_ThetaX = thetas.x() * 180.0 / M_PI;
+        m_ThetaY = thetas.y() * 180.0 / M_PI;
+        m_ThetaZ = thetas.z() * 180.0 / M_PI;
 
         char str[255];
         snprintf( str, sizeof( str ), "%s%.*f deg", dir, m_Precision(), m_Theta() );

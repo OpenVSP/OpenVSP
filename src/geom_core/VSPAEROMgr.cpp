@@ -12,7 +12,9 @@
 #define _HAS_STD_BYTE 0
 #endif
 
-#include "Defines.h"
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "APIDefines.h"
 #include "LinkMgr.h"
 #include "MeshGeom.h"
@@ -5493,7 +5495,7 @@ void PropDriverGroup::UpdateGroup( vector< string > parmIDs )
         {
             if ( uptodate[ vsp::CP_PROP_DRIVER ] )
             {
-                CQ->Set( CP->Get() / ( 2.0 * PI ) );
+                CQ->Set( CP->Get() / ( 2.0 * M_PI ) );
                 uptodate[ vsp::CQ_PROP_DRIVER ] = true;
             }
             else if ( uptodate[ vsp::Q_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
@@ -5509,7 +5511,7 @@ void PropDriverGroup::UpdateGroup( vector< string > parmIDs )
         {
             if ( uptodate[ vsp::CQ_PROP_DRIVER ] )
             {
-                CP->Set( CQ->Get() * 2.0 * PI );
+                CP->Set( CQ->Get() * 2.0 * M_PI );
                 uptodate[ vsp::CP_PROP_DRIVER ] = true;
             }
             else if ( uptodate[ vsp::P_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
@@ -5554,7 +5556,7 @@ void PropDriverGroup::UpdateGroup( vector< string > parmIDs )
             else if ( uptodate[ vsp::P_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
             {
                 double nrps = rpm->Get() / 60.0;
-                torque->Set( power->Get() / ( nrps * 2.0 * PI ) );
+                torque->Set( power->Get() / ( nrps * 2.0 * M_PI ) );
                 uptodate[ vsp::Q_PROP_DRIVER ] = true;
             }
         }
@@ -5571,7 +5573,7 @@ void PropDriverGroup::UpdateGroup( vector< string > parmIDs )
             else if ( uptodate[ vsp::Q_PROP_DRIVER] && uptodate[ vsp::RPM_PROP_DRIVER ] )
             {
                 double nrps = rpm->Get() / 60.0;
-                power->Set( torque->Get() * nrps * 2.0 * PI );
+                power->Set( torque->Get() * nrps * 2.0 * M_PI );
                 uptodate[ vsp::P_PROP_DRIVER ] = true;
             }
             else if ( uptodate[ vsp::ETA_PROP_DRIVER ] && uptodate[ vsp::T_PROP_DRIVER ] )
@@ -5834,7 +5836,7 @@ void RotorDisk::Update( double V, double rho )
 //
 //    double T = CT * rho * n2 * D4;
 //    double P = CP * rho * n3 * D5;
-//    double CQ = CP / ( 2.0 * PI );
+//    double CQ = CP / ( 2.0 * M_PI );
 //    double Q = CQ * rho * n2 * D5;
 //
 //    m_T = T;
@@ -6371,7 +6373,7 @@ int UnsteadyGroup::WriteGroup( FILE *group_file )
         geom_rotor = true;
     }
 
-    double omega = m_RPM() * PI / 30;
+    double omega = m_RPM() * M_PI / 30;
     if ( m_ReverseFlag )
     {
         omega *= -1;

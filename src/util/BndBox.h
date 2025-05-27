@@ -19,7 +19,7 @@
 class BndBox;
 bool Compare( const BndBox& bb1, const BndBox& bb2, double tol = 1.0e-12 );
 
-class VSPDLL BndBox
+class BndBox
 {
 public:
 

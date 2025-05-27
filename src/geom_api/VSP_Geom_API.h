@@ -206,8 +206,6 @@
 
 #endif
 
-#include "Defines.h"
-
 #include "APIErrorMgr.h"
 #include "APIUpdateCountMgr.h"
 #include "Vec3d.h"

@@ -7,6 +7,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "XSecCurve.h"
 #include "Geom.h"
 //#include "SuperEllipse.h"
@@ -2354,10 +2357,10 @@ void XSecCurve::Chevron()
 
     // Build control curve.
     vector< curve_point_type > angles(5);
-    angles[0] << m_ChevRightAngle() * PI / 180.0, m_ChevRightSlew() * PI / 180.0, 0.0;
-    angles[1] << m_ChevBottomAngle() * PI / 180.0, -m_ChevBottomSlew() * PI / 180.0, 0.0;
-    angles[2] << m_ChevLeftAngle() * PI / 180.0, -m_ChevLeftSlew() * PI / 180.0, 0.0;
-    angles[3] << m_ChevTopAngle() * PI / 180.0, m_ChevTopSlew() * PI / 180.0, 0.0;
+    angles[0] << m_ChevRightAngle() * M_PI / 180.0, m_ChevRightSlew() * M_PI / 180.0, 0.0;
+    angles[1] << m_ChevBottomAngle() * M_PI / 180.0, -m_ChevBottomSlew() * M_PI / 180.0, 0.0;
+    angles[2] << m_ChevLeftAngle() * M_PI / 180.0, -m_ChevLeftSlew() * M_PI / 180.0, 0.0;
+    angles[3] << m_ChevTopAngle() * M_PI / 180.0, m_ChevTopSlew() * M_PI / 180.0, 0.0;
     angles[4] << angles[0];
 
     vector< curve_point_type > amplitudes(5);
@@ -2403,7 +2406,7 @@ void XSecCurve::Chevron()
         Matrix4d basis;
         vec3d dum1, dum2, dir;
         // Mimic the construction of the skinning angle with a fake circle
-        basis.rotate( 2.0 * PI * s / 4.0, vec3d(0.0, 0.0, 1.0 ) );
+        basis.rotate( 2.0 * M_PI * s / 4.0, vec3d(0.0, 0.0, 1.0 ) );
         basis.rotate( -angle.x(), vec3d( 0.0, 1.0, 0.0 ) );
         basis.rotate( -angle.y(), vec3d( 1.0, 0.0, 0.0 ) );
 
@@ -2447,7 +2450,7 @@ void XSecCurve::Chevron()
 void XSecCurve::RotTransScale()
 {
 
-    double ttheta = m_Theta() * PI / 180.0;
+    double ttheta = m_Theta() * M_PI / 180.0;
     double ct(std::cos(ttheta)), st(std::sin(ttheta));
     double tscale = m_Scale();
 
@@ -3052,8 +3055,8 @@ void GeneralFuseXSec::UpdateCurve( bool updateParms )
     y = m_MaxWidthLoc() * m_Height() / 2.0;
     vec3d tp3( x, y, 0.0 );
 
-    x = ( m_UpStr() * m_Height() * cos( DEG_2_RAD * m_TopTanAngle() ) ) / 3.0;
-    y = ( -m_UpStr() * m_Height() * sin( DEG_2_RAD * m_TopTanAngle() ) ) / 3.0;
+    x = ( m_UpStr() * m_Height() * cos( ( M_PI / 180.0 ) * m_TopTanAngle() ) ) / 3.0;
+    y = ( -m_UpStr() * m_Height() * sin( ( M_PI / 180.0 ) * m_TopTanAngle() ) ) / 3.0;
     vec3d tp2 = tp3 - vec3d( x, y, 0.0 );
 
     //==== Bot Control Points ====//
@@ -3061,8 +3064,8 @@ void GeneralFuseXSec::UpdateCurve( bool updateParms )
     y = m_MaxWidthLoc() * m_Height() / 2.0;
     vec3d bp0( x, y, 0.0 );
 
-    x = ( double )( -m_LowStr() * m_Height() * cos( DEG_2_RAD * m_BotTanAngle() ) ) / 3.0;
-    y = ( double )( -m_LowStr() * m_Height() * sin( DEG_2_RAD * m_BotTanAngle() ) ) / 3.0;
+    x = ( double )( -m_LowStr() * m_Height() * cos( ( M_PI / 180.0 ) * m_BotTanAngle() ) ) / 3.0;
+    y = ( double )( -m_LowStr() * m_Height() * sin( ( M_PI / 180.0 ) * m_BotTanAngle() ) ) / 3.0;
     vec3d bp1 = bp0 + vec3d( x, y, 0.0 );
 
     vec3d bp3( 0.0, -m_Height() / 2.0, 0.0 );
@@ -3163,7 +3166,7 @@ FileXSec::FileXSec( ) : XSecCurve( )
     int n = 21;
     for ( int i = 0; i < n; i++ )
     {
-        double theta = -2.0*PI*i/(n-1);
+        double theta = -2.0*M_PI*i/(n-1);
         m_UnityFilePnts.push_back( vec3d( 0.5*cos(theta), 0.5*sin(theta), 0.0 ) );
     }
 

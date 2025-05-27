@@ -217,17 +217,17 @@ void AuxiliaryGeom::UpdateSurf()
             curve_segment_type::control_point_type cpAnti, cpAnti1, cpAnti2;
 
             cpOrigin << 0.0, flapr, 0.0;
-            cpThrust << sin( -m_ThetaThrust() * PI / 180.0 ) * bladelen, flapr + cos( -m_ThetaThrust() * PI / 180.0 ) * bladelen, 0.0;
+            cpThrust << sin( -m_ThetaThrust() * M_PI / 180.0 ) * bladelen, flapr + cos( -m_ThetaThrust() * M_PI / 180.0 ) * bladelen, 0.0;
             cpMid << 0.0, radius, 0.0;
-            cpAnti << sin( m_ThetaAntiThrust() * PI / 180.0 ) * bladelen, flapr + cos( m_ThetaAntiThrust() * PI / 180.0 ) * bladelen, 0.0;
+            cpAnti << sin( m_ThetaAntiThrust() * M_PI / 180.0 ) * bladelen, flapr + cos( m_ThetaAntiThrust() * M_PI / 180.0 ) * bladelen, 0.0;
 
-            thDir << cos( -m_ThetaThrust() * PI / 180.0 ), -sin( -m_ThetaThrust() * PI / 180.0 ), 0.0;
-            cpThrust1 = cpThrust + thDir * k * bladelen * tan( m_ThetaThrust() * 0.25 * PI / 180.0 );
-            cpThrust2 << k * tan( -m_ThetaThrust() * 0.25 * PI / 180.0 ) * bladelen, radius, 0.0;;
+            thDir << cos( -m_ThetaThrust() * M_PI / 180.0 ), -sin( -m_ThetaThrust() * M_PI / 180.0 ), 0.0;
+            cpThrust1 = cpThrust + thDir * k * bladelen * tan( m_ThetaThrust() * 0.25 * M_PI / 180.0 );
+            cpThrust2 << k * tan( -m_ThetaThrust() * 0.25 * M_PI / 180.0 ) * bladelen, radius, 0.0;;
 
-            antDir << -cos( m_ThetaAntiThrust() * PI / 180.0 ), sin( m_ThetaAntiThrust() * PI / 180.0 ), 0.0;
-            cpAnti1 << k * tan( m_ThetaAntiThrust() * 0.25 * PI / 180.0 ) * bladelen, radius, 0.0;;
-            cpAnti2 = cpAnti + antDir * k * bladelen * tan( m_ThetaAntiThrust() * 0.25 * PI / 180.0 );
+            antDir << -cos( m_ThetaAntiThrust() * M_PI / 180.0 ), sin( m_ThetaAntiThrust() * M_PI / 180.0 ), 0.0;
+            cpAnti1 << k * tan( m_ThetaAntiThrust() * 0.25 * M_PI / 180.0 ) * bladelen, radius, 0.0;;
+            cpAnti2 = cpAnti + antDir * k * bladelen * tan( m_ThetaAntiThrust() * 0.25 * M_PI / 180.0 );
 
             VspCurve crv;
             linear_seg.set_control_point( cpOrigin, 0 );
@@ -262,8 +262,8 @@ void AuxiliaryGeom::UpdateSurf()
 
             vector < vec3d > pts;
             pts.emplace_back( vec3d( xstart, 0.0, 0.0 ) );
-            pts.emplace_back( vec3d( xstart + tan( -m_ThetaThrust() * PI / 180.0 ) * radius, radius, 0.0 ) );
-            pts.emplace_back( vec3d( xend + tan( m_ThetaAntiThrust() * PI / 180.0 ) * radius, radius, 0.0 ) );
+            pts.emplace_back( vec3d( xstart + tan( -m_ThetaThrust() * M_PI / 180.0 ) * radius, radius, 0.0 ) );
+            pts.emplace_back( vec3d( xend + tan( m_ThetaAntiThrust() * M_PI / 180.0 ) * radius, radius, 0.0 ) );
             pts.emplace_back( vec3d( xend, 0.0, 0.0 ) );
 
             vector < double > ts = { 0, 4.0*1.0/3.0, 4.0*2.0/3.0, 4.0 };

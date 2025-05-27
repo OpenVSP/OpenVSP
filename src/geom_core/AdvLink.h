@@ -11,7 +11,7 @@
 #if !defined(VSP_ADVLINK__INCLUDED_)
 #define VSP_ADVLINK__INCLUDED_
 
-#include "Defines.h"
+
 
 #include <string>
 #include <limits.h>

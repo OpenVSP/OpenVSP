@@ -13,6 +13,9 @@
 #define _HAS_STD_BYTE 0
 #endif
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "AdvLinkMgr.h"
 #include "AnalysisMgr.h"
 #include "AttributeManager.h"
@@ -4692,7 +4695,7 @@ LLT_Data GetHersheyLLTData( const unsigned int &npts, const long double &alpha, 
     {
         for ( size_t j = 0; j < npts; j++ )
         {
-            c_mat( i, j ) = sin( theta_vec[j] * (double)odd_vec[i] ) * ( PI * c * odd_vec[i] / 4.0l / ( span / 2.0l ) + sin( theta_vec[j] ) );
+            c_mat( i, j ) = sin( theta_vec[j] * (double)odd_vec[i] ) * ( M_PI * c * odd_vec[i] / 4.0l / ( span / 2.0l ) + sin( theta_vec[j] ) );
         }
     }
 
@@ -4816,7 +4819,7 @@ std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, cons
 
     double a = ell * sqrt( ( 1.0 + epsilon ) * ( 1.0 + epsilon ) + kappa * kappa ); // Radius of circle
     double beta = asin( ell * kappa / a ); // Angle of TE location (rad)
-    double n = 2.0 - tau / PI;
+    double n = 2.0 - tau / M_PI;
     doublec mu = doublec( -ell * epsilon, ell * kappa ); // Center of circle
 
     if ( ( ell * kappa / a ) > 1.0 )
@@ -4832,7 +4835,7 @@ std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, cons
     for ( size_t p = 0; p < npts; p++ )
     {
         // Clockwise from TE
-        double theta = 2.0 * PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
+        double theta = 2.0 * M_PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
 
         double xi = a * cos( theta - beta ) + mu.real();
         double eta = a * sin( theta - beta ) + mu.imag();
@@ -4885,7 +4888,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsi
 
     double a = ell * sqrt( ( 1.0 + epsilon ) * ( 1.0 + epsilon ) + kappa * kappa ); // Radius of circle
     double beta = asin( ell * kappa / a ); // Angle of TE location (rad)
-    double n = 2.0 - tau / PI;
+    double n = 2.0 - tau / M_PI;
     doublec mu = doublec( -ell * epsilon, ell * kappa ); // Center of circle
 
     if ( ( ell * kappa / a ) > 1.0 )
@@ -4901,7 +4904,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsi
     for ( size_t p = 0; p < npts; p++ )
     {
         // Clockwise from TE
-        double theta = 2.0 * PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
+        double theta = 2.0 * M_PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
 
         double xi = a * cos( theta - beta ) + mu.real();
         double eta = a * sin( theta - beta ) + mu.imag();
@@ -4916,7 +4919,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsi
 
         double u, v;
 
-        if ( std::abs( theta ) <= FLT_EPSILON || std::abs( theta - 2.0 * PI ) <= FLT_EPSILON ) // Special treatment at the trailing edge (theta = 0.0 or 2*pi)
+        if ( std::abs( theta ) <= FLT_EPSILON || std::abs( theta - 2.0 * M_PI ) <= FLT_EPSILON ) // Special treatment at the trailing edge (theta = 0.0 or 2*pi)
         {
             if ( std::abs( tau ) <= FLT_EPSILON ) // Joukowski airfoil (cusped trailing edge: tau = 0.0 )
             {
@@ -4962,10 +4965,10 @@ std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d &center, const vec3d &abc_r
     phi_vec.resize( w_npts );
 
     theta_vec[0] = 0.0; // theta: [0,2PI]
-    phi_vec[0] = 0.0; // phi: [0,PI]
+    phi_vec[0] = 0.0; // phi: [0,M_PI]
 
-    const double theta_step = 2 * PI / ( u_npts - 1 );
-    const double phi_step = PI / ( w_npts - 1 );
+    const double theta_step = 2 * M_PI / ( u_npts - 1 );
+    const double phi_step = M_PI / ( w_npts - 1 );
 
     for ( size_t i = 1; i < u_npts; i++ )
     {
@@ -9035,8 +9038,8 @@ void WriteWingFFCSVFile(const std::string & file_name)
     vector < double > toc_array = linspace( 0.0, 0.205, 200 );
     vector < double > perc_lam, sweep25, sweep50;
     perc_lam.push_back(0.0);
-    sweep25.push_back(30.0 * PI / 180.0);
-    sweep50.push_back(30.0 * PI / 180.0);
+    sweep25.push_back(30.0 * M_PI / 180.0);
+    sweep50.push_back(30.0 * M_PI / 180.0);
     ParasiteDragMgr.m_Atmos.SetMach(0.8);
     res->Add( new NameValData( "T_C", toc_array, "Thickness to chord ratios" ) );
     for (size_t wing_ff_case = 0; wing_ff_case < vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF; ++wing_ff_case )

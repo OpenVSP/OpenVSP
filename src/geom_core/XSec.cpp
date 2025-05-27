@@ -7,6 +7,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "XSec.h"
 #include "Geom.h"
 #include "ParmMgr.h"
@@ -330,7 +333,7 @@ void XSec::GetBasis( double t, Matrix4d &basis )
     // Rotate basis around principal direction to point along curve
     // according to parameter and assumed circle.
     Matrix4d rmat;
-    rmat.rotate( 2.0*PI*(t-tmin)/(tmax-tmin), pdir );
+    rmat.rotate( 2.0*M_PI*(t-tmin)/(tmax-tmin), pdir );
     basis.postMult( rmat.data() );
 }
 
@@ -488,12 +491,12 @@ void XSec::GetAngStrCrv( double t, int irib,
     vec3d tanL = surf.CompTanU( uribL, t );
     vec3d tanR = surf.CompTanU( uribR, t );
 
-    thetaL =  (PI/2.0) - signed_angle( tanL, wdir, updir );
-    phiL = signed_angle( updir, tanL, wdir ) - (PI/2.0);
+    thetaL =  (M_PI/2.0) - signed_angle( tanL, wdir, updir );
+    phiL = signed_angle( updir, tanL, wdir ) - (M_PI/2.0);
     strengthL = tanL.mag();
 
-    thetaR = (PI/2.0) - signed_angle( tanR, wdir, updir );
-    phiR = signed_angle( updir, tanR, wdir ) - (PI/2.0);
+    thetaR = (M_PI/2.0) - signed_angle( tanR, wdir, updir );
+    phiR = signed_angle( updir, tanR, wdir ) - (M_PI/2.0);
     strengthR = tanR.mag();
 
     vec3d uuL = surf.CompTanUU( uribL, t );
@@ -1118,16 +1121,16 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
     // Use 'wrong' side of first cross section to set right side.
     if ( first && ( m_TopLAngleSet() || m_TopLCurveSet() ) )
     {
-        angles[0] = m_RightLAngle()*PI/180.0;
-        angles[1] = m_BottomLAngle()*PI/180.0;
-        angles[2] = m_LeftLAngle()*PI/180.0;
-        angles[3] = m_TopLAngle()*PI/180.0;
+        angles[0] = m_RightLAngle()*M_PI/180.0;
+        angles[1] = m_BottomLAngle()*M_PI/180.0;
+        angles[2] = m_LeftLAngle()*M_PI/180.0;
+        angles[3] = m_TopLAngle()*M_PI/180.0;
         angles[4] = angles[0];
 
-        slews[0] = m_RightLSlew()*PI/180.0;
-        slews[1] = -m_BottomLSlew()*PI/180.0;
-        slews[2] = -m_LeftLSlew()*PI/180.0;
-        slews[3] = m_TopLSlew()*PI/180.0;
+        slews[0] = m_RightLSlew()*M_PI/180.0;
+        slews[1] = -m_BottomLSlew()*M_PI/180.0;
+        slews[2] = -m_LeftLSlew()*M_PI/180.0;
+        slews[3] = m_TopLSlew()*M_PI/180.0;
         slews[4] = slews[0];
 
         strengths[0] = m_RightLStrength() * scale;
@@ -1152,16 +1155,16 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
     if( !first && ( m_TopLAngleSet() || m_TopLCurveSet() ) )
     {
 
-        angles[0] = m_RightLAngle()*PI/180.0;
-        angles[1] = m_BottomLAngle()*PI/180.0;
-        angles[2] = m_LeftLAngle()*PI/180.0;
-        angles[3] = m_TopLAngle()*PI/180.0;
+        angles[0] = m_RightLAngle()*M_PI/180.0;
+        angles[1] = m_BottomLAngle()*M_PI/180.0;
+        angles[2] = m_LeftLAngle()*M_PI/180.0;
+        angles[3] = m_TopLAngle()*M_PI/180.0;
         angles[4] = angles[0];
 
-        slews[0] = m_RightLSlew()*PI/180.0;
-        slews[1] = -m_BottomLSlew()*PI/180.0;
-        slews[2] = -m_LeftLSlew()*PI/180.0;
-        slews[3] = m_TopLSlew()*PI/180.0;
+        slews[0] = m_RightLSlew()*M_PI/180.0;
+        slews[1] = -m_BottomLSlew()*M_PI/180.0;
+        slews[2] = -m_LeftLSlew()*M_PI/180.0;
+        slews[3] = m_TopLSlew()*M_PI/180.0;
         slews[4] = slews[0];
 
         strengths[0] = m_RightLStrength() * scale;
@@ -1186,16 +1189,16 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
     // Set the right side of a rib.
     if( !first && !last && ( m_TopRAngleSet() || m_TopRCurveSet() ) )
     {
-        angles[0] = m_RightRAngle()*PI/180.0;
-        angles[1] = m_BottomRAngle()*PI/180.0;
-        angles[2] = m_LeftRAngle()*PI/180.0;
-        angles[3] = m_TopRAngle()*PI/180.0;
+        angles[0] = m_RightRAngle()*M_PI/180.0;
+        angles[1] = m_BottomRAngle()*M_PI/180.0;
+        angles[2] = m_LeftRAngle()*M_PI/180.0;
+        angles[3] = m_TopRAngle()*M_PI/180.0;
         angles[4] = angles[0];
 
-        slews[0] = m_RightRSlew()*PI/180.0;
-        slews[1] = -m_BottomRSlew()*PI/180.0;
-        slews[2] = -m_LeftRSlew()*PI/180.0;
-        slews[3] = m_TopRSlew()*PI/180.0;
+        slews[0] = m_RightRSlew()*M_PI/180.0;
+        slews[1] = -m_BottomRSlew()*M_PI/180.0;
+        slews[2] = -m_LeftRSlew()*M_PI/180.0;
+        slews[3] = m_TopRSlew()*M_PI/180.0;
         slews[4] = slews[0];
 
         strengths[0] = m_RightRStrength() * scale;
@@ -1329,13 +1332,13 @@ void SkinXSec::SetUnsetParms( double t, bool flipslew, int irib, const VspSurf &
         phiR = -phiR;
     }
 
-    if( !LAngleSet() ) LAngle = thetaL*180.0/PI;
-    if( !LSlewSet() ) LSlew = phiL*180.0/PI;
+    if( !LAngleSet() ) LAngle = thetaL*180.0/M_PI;
+    if( !LSlewSet() ) LSlew = phiL*180.0/M_PI;
     if( !LStrengthSet() ) LStrength = strengthL/scale;
     if( !LCurveSet() ) LCurve = curvatureL/scale;
 
-    if( !RAngleSet() ) RAngle = thetaR*180.0/PI;
-    if( !RSlewSet() ) RSlew = phiR*180.0/PI;
+    if( !RAngleSet() ) RAngle = thetaR*180.0/M_PI;
+    if( !RSlewSet() ) RSlew = phiR*180.0/M_PI;
     if( !RStrengthSet() ) RStrength = strengthR/scale;
     if( !RCurveSet() ) RCurve = curvatureR/scale;
 }
@@ -1678,7 +1681,7 @@ void SkinXSec::ReadV2FileFuse1( xmlNodePtr &root )
     m_AllSymFlag = 1;
 
     //==== Profile Stuff ====//
-    m_TopLAngle = atan( XmlUtil::FindDouble( root, "Profile_Tan_Ang", 0.0 ) ) * 180.0 / PI;
+    m_TopLAngle = atan( XmlUtil::FindDouble( root, "Profile_Tan_Ang", 0.0 ) ) * 180.0 / M_PI;
     m_TopLStrength = 3.0 * XmlUtil::FindDouble( root, "Profile_Tan_Str_1", m_TopLStrength() / 3.0 );
     m_TopRStrength = 3.0 * XmlUtil::FindDouble( root, "Profile_Tan_Str_2", m_TopRStrength() / 3.0 );
 

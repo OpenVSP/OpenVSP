@@ -5,6 +5,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "WingGeom.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
@@ -163,8 +166,8 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
             }
             else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TAPER_WSECT_DRIVER] && !parallel)
             {
-                double tan1 = tan( sweep->Get() * DEG_2_RAD );
-                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                double tan1 = tan( sweep->Get() * ( M_PI / 180.0 ) );
+                double tan2 = tan( secsw->Get() * ( M_PI / 180.0 ) );
                 AR->Set( -2.0 * ( ( 1.0 - taper->Get() ) / ( 1.0 + taper->Get() )) * ( sweeploc->Get() - secswloc->Get() ) / ( tan1 - tan2 ) );
                 uptodate[AR_WSECT_DRIVER] = true;
             }
@@ -194,8 +197,8 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
             }
             else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[ROOTC_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] && !parallel)
             {
-                double tan1 = tan( sweep->Get() * DEG_2_RAD );
-                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                double tan1 = tan( sweep->Get() * ( M_PI / 180.0 ) );
+                double tan2 = tan( secsw->Get() * ( M_PI / 180.0 ) );
                 span->Set( ( rootC->Get() - tipC->Get() ) * ( sweeploc->Get() - secswloc->Get() ) / ( tan2 - tan1 ) );
                 uptodate[SPAN_WSECT_DRIVER] = true;
             }
@@ -235,8 +238,8 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
             }
             else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TAPER_WSECT_DRIVER] && uptodate[SPAN_WSECT_DRIVER] && !parallel)
             {
-                double tan1 = tan( sweep->Get() * DEG_2_RAD );
-                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                double tan1 = tan( sweep->Get() * ( M_PI / 180.0 ) );
+                double tan2 = tan( secsw->Get() * ( M_PI / 180.0 ) );
                 aveC->Set( -span->Get() * ( tan1 - tan2 ) * ( 1.0 + taper->Get() ) / ( 2.0 * ( sweeploc->Get() - secswloc->Get() ) * ( 1 - taper->Get() ) ) );
                 uptodate[AVEC_WSECT_DRIVER] = true;
             }
@@ -266,15 +269,15 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
             }
             else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[ROOTC_WSECT_DRIVER] && uptodate[SPAN_WSECT_DRIVER] )
             {
-                double tan1 = tan( sweep->Get() * DEG_2_RAD );
-                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                double tan1 = tan( sweep->Get() * ( M_PI / 180.0 ) );
+                double tan2 = tan( secsw->Get() * ( M_PI / 180.0 ) );
                 tipC->Set( rootC->Get() + span->Get() * ( tan1 - tan2 ) / ( sweeploc->Get() - secswloc->Get() ) );
                 uptodate[TIPC_WSECT_DRIVER] = true;
             }
             else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[ROOTC_WSECT_DRIVER] && uptodate[AREA_WSECT_DRIVER] )
             {
-                double tan1 = tan( sweep->Get() * DEG_2_RAD );
-                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                double tan1 = tan( sweep->Get() * ( M_PI / 180.0 ) );
+                double tan2 = tan( secsw->Get() * ( M_PI / 180.0 ) );
                 double coeff = 2.0 * area->Get() * ( tan1 - tan2 ) / ( sweeploc->Get() - secswloc->Get() );
                 tipC->Set( sqrt( -1.0 * ( rootC->Get() * rootC->Get() + coeff ) ) );
                 uptodate[TIPC_WSECT_DRIVER] = true;
@@ -300,15 +303,15 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
             }
             else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] && uptodate[SPAN_WSECT_DRIVER] )
             {
-                double tan1 = tan( sweep->Get() * DEG_2_RAD );
-                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                double tan1 = tan( sweep->Get() * ( M_PI / 180.0 ) );
+                double tan2 = tan( secsw->Get() * ( M_PI / 180.0 ) );
                 rootC->Set( tipC->Get() - span->Get() * ( tan1 - tan2 ) / ( sweeploc->Get() - secswloc->Get() ) );
                 uptodate[ROOTC_WSECT_DRIVER] = true;
             }
             else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] && uptodate[AREA_WSECT_DRIVER] )
             {
-                double tan1 = tan( sweep->Get() * DEG_2_RAD );
-                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                double tan1 = tan( sweep->Get() * ( M_PI / 180.0 ) );
+                double tan2 = tan( secsw->Get() * ( M_PI / 180.0 ) );
                 double coeff = 2.0 * area->Get() * ( tan1 - tan2 ) / ( sweeploc->Get() - secswloc->Get() );
                 rootC->Set( sqrt( tipC->Get() * tipC->Get() - coeff ) );
                 uptodate[ROOTC_WSECT_DRIVER] = true;
@@ -338,8 +341,8 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
             }
             else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[AR_WSECT_DRIVER] )
             {
-                double tan1 = tan( sweep->Get() * DEG_2_RAD );
-                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                double tan1 = tan( sweep->Get() * ( M_PI / 180.0 ) );
+                double tan2 = tan( secsw->Get() * ( M_PI / 180.0 ) );
                 double coeff = AR->Get() * ( tan1 - tan2 ) / ( 2.0 * ( sweeploc->Get() - secswloc->Get() ) );
                 taper->Set( ( 1.0 + coeff ) / ( 1.0 - coeff ) );
                 uptodate[TAPER_WSECT_DRIVER] = true;
@@ -351,14 +354,14 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
             if( uptodate[TAPER_WSECT_DRIVER] && uptodate[AR_WSECT_DRIVER] )
             {
                 double tan2 = CalcTanSweepAt( secswloc->Get(), sweep->Get(), sweeploc->Get(), AR->Get(), taper->Get() );
-                secsw->Set( atan( tan2 ) * RAD_2_DEG );
+                secsw->Set( atan( tan2 ) * ( 180.0 / M_PI ) );
                 uptodate[SECSWEEP_WSECT_DRIVER] = true;
             }
             else if( uptodate[ROOTC_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] && uptodate[SPAN_WSECT_DRIVER] )
             {
-                double tan1 = tan( sweep->Get() * DEG_2_RAD );
+                double tan1 = tan( sweep->Get() * ( M_PI / 180.0 ) );
                 double tan2 = tan1 + ( rootC->Get() - tipC->Get() ) * ( sweeploc->Get() - secswloc->Get() ) / span->Get();
-                secsw->Set( atan( tan2 ) * RAD_2_DEG );
+                secsw->Set( atan( tan2 ) * ( 180.0 / M_PI ) );
                 uptodate[SECSWEEP_WSECT_DRIVER] = true;
             }
         }
@@ -839,7 +842,7 @@ void WingSect::ForceAspectTaperArea( double aspect, double taper, double area )
 
 double CalcTanSweepAt( double loc, double sweep, double baseloc, double aspect, double taper )
 {
-    double tan_sweep = tan( sweep * DEG_2_RAD );
+    double tan_sweep = tan( sweep * ( M_PI / 180.0 ) );
     double tan_sweep_at = tan_sweep - ( 2.0 / aspect ) * ( loc - baseloc ) * ( 1.0 - taper ) / ( 1.0 + taper ) ;
 
     return ( tan_sweep_at );
@@ -1013,7 +1016,7 @@ void WingSect::GetJoints( bool first, bool last,
         case BLEND_MATCH_IN_ANGLES :
         case BLEND_MATCH_LE_ANGLES :
         {
-            GetTanNormVec(tle, -m_InLESweep() * PI / 180.0, -m_InLEDihedral() * PI / 180.0, tangent, normal);
+            GetTanNormVec(tle, -m_InLESweep() * M_PI / 180.0, -m_InLEDihedral() * M_PI / 180.0, tangent, normal);
             tangent = tangent * m_InLEStrength() * le_in_str;
             tangent.get_pnt(tgt);
             le_joint.set_left_fp(tgt);
@@ -1054,7 +1057,7 @@ void WingSect::GetJoints( bool first, bool last,
         case BLEND_MATCH_IN_ANGLES :
         case BLEND_MATCH_LE_ANGLES :
         {
-            GetTanNormVec( tte, m_InTESweep()*PI/180.0, m_InTEDihedral()*PI/180.0, tangent, normal );
+            GetTanNormVec( tte, m_InTESweep()*M_PI/180.0, m_InTEDihedral()*M_PI/180.0, tangent, normal );
             tangent = tangent * m_InTEStrength() * te_in_str;
             tangent.get_pnt( tgt );
             te_joint.set_left_fp( tgt );
@@ -1096,7 +1099,7 @@ void WingSect::GetJoints( bool first, bool last,
         case BLEND_MATCH_IN_ANGLES :
         case BLEND_MATCH_LE_ANGLES :
         {
-            GetTanNormVec(tle, -m_OutLESweep() * PI / 180.0, m_OutLEDihedral() * PI / 180.0, tangent, normal);
+            GetTanNormVec(tle, -m_OutLESweep() * M_PI / 180.0, m_OutLEDihedral() * M_PI / 180.0, tangent, normal);
             tangent = tangent * m_OutLEStrength() * le_out_str;
             tangent.get_pnt(tgt);
             le_joint.set_right_fp(tgt);
@@ -1137,7 +1140,7 @@ void WingSect::GetJoints( bool first, bool last,
         case BLEND_MATCH_IN_ANGLES :
         case BLEND_MATCH_LE_ANGLES :
         {
-            GetTanNormVec( tte, m_OutTESweep()*PI/180.0, -m_OutTEDihedral()*PI/180.0, tangent, normal );
+            GetTanNormVec( tte, m_OutTESweep()*M_PI/180.0, -m_OutTEDihedral()*M_PI/180.0, tangent, normal );
             tangent = tangent * m_OutTEStrength() * te_out_str;
             tangent.get_pnt( tgt );
             te_joint.set_right_fp( tgt );
@@ -1199,8 +1202,8 @@ void WingSect::SetUnsetParms( int irib, const VspSurf &surf, const double &te_in
 
     if ( m_InTEMode() != BLEND_ANGLES && m_InTEMode() != BLEND_MATCH_LE_ANGLES )
     {
-        m_InTESweep = 180.0-thetaL*180.0/PI;
-        m_InTEDihedral = asin ( sin ( phiL ) / cos( m_InTESweep() * PI / 180.0 ) ) * 180.0 / PI;
+        m_InTESweep = 180.0-thetaL*180.0/M_PI;
+        m_InTEDihedral = asin ( sin ( phiL ) / cos( m_InTESweep() * M_PI / 180.0 ) ) * 180.0 / M_PI;
     }
 
     if ( m_InTEMode() == BLEND_FREE )
@@ -1210,8 +1213,8 @@ void WingSect::SetUnsetParms( int irib, const VspSurf &surf, const double &te_in
 
     if ( m_OutTEMode() != BLEND_ANGLES && m_OutTEMode() != BLEND_MATCH_IN_ANGLES && m_OutTEMode() != BLEND_MATCH_LE_ANGLES )
     {
-        m_OutTESweep = 180.0-thetaR*180.0/PI;
-        m_OutTEDihedral = -asin ( sin ( phiR ) / cos( m_OutTESweep() * PI / 180.0 ) ) * 180.0 / PI;
+        m_OutTESweep = 180.0-thetaR*180.0/M_PI;
+        m_OutTEDihedral = -asin ( sin ( phiR ) / cos( m_OutTESweep() * M_PI / 180.0 ) ) * 180.0 / M_PI;
     }
 
     if ( m_OutTEMode() == BLEND_FREE )
@@ -1226,8 +1229,8 @@ void WingSect::SetUnsetParms( int irib, const VspSurf &surf, const double &te_in
 
     if ( m_InLEMode() != BLEND_ANGLES )
     {
-        m_InLESweep = -(180.0-thetaL*180.0/PI);
-        m_InLEDihedral = -asin ( sin ( phiL ) / cos( m_InLESweep() * PI / 180.0 ) ) * 180.0 / PI;
+        m_InLESweep = -(180.0-thetaL*180.0/M_PI);
+        m_InLEDihedral = -asin ( sin ( phiL ) / cos( m_InLESweep() * M_PI / 180.0 ) ) * 180.0 / M_PI;
     }
 
     if ( m_InLEMode() == BLEND_FREE )
@@ -1237,8 +1240,8 @@ void WingSect::SetUnsetParms( int irib, const VspSurf &surf, const double &te_in
 
     if ( m_OutLEMode() != BLEND_ANGLES && m_OutLEMode() != BLEND_MATCH_IN_ANGLES )
     {
-        m_OutLESweep = -(180.0-thetaR*180.0/PI);
-        m_OutLEDihedral = asin ( sin ( phiR) / cos( m_OutLESweep() * PI / 180.0 ) ) * 180.0 / PI;
+        m_OutLESweep = -(180.0-thetaR*180.0/M_PI);
+        m_OutLEDihedral = asin ( sin ( phiR) / cos( m_OutLESweep() * M_PI / 180.0 ) ) * 180.0 / M_PI;
     }
 
     if ( m_OutLEMode() == BLEND_FREE )
@@ -1769,8 +1772,8 @@ void WingGeom::UpdateSurf()
             ws->SetGroupDisplaySuffix( i );
 
             double rad = ws->m_Span();
-            double ty = rad*cos(GetSumDihedral(i)*DEG_2_RAD);
-            double tz = rad*sin(GetSumDihedral(i)*DEG_2_RAD);
+            double ty = rad*cos(GetSumDihedral(i)*( M_PI / 180.0 ));
+            double tz = rad*sin(GetSumDihedral(i)*( M_PI / 180.0 ));
 
             double tan_le  = ws->GetTanSweepAt( ws->m_Sweep(), 0.0 );
             double toff    = tan_le*rad;                    // Tip X Offset
@@ -1881,7 +1884,7 @@ void WingGeom::UpdateSurf()
                 {
                     if ( i != 0 && i !=  ( m_XSecSurf.NumXSec() - 1 ) ) // Not first or last foils.
                     {
-                        foil_scale = 1.0 / cos( ( dihead_rot - previous_dihead_rot ) * DEG_2_RAD );
+                        foil_scale = 1.0 / cos( ( dihead_rot - previous_dihead_rot ) * ( M_PI / 180.0 ) );
                     }
                 }
             }
@@ -2535,7 +2538,7 @@ double WingGeom::ComputeTotalProjSpan()
     vector< WingSect* > ws_vec = GetWingSectVec();
     for ( int i = 1 ; i < (int)ws_vec.size() ; i++ )
     {
-            ts += ws_vec[i]->m_Span()*cos( GetSumDihedral( i ) * DEG_2_RAD);
+            ts += ws_vec[i]->m_Span()*cos( GetSumDihedral( i ) * ( M_PI / 180.0 ));
     }
 
     if ( GetSymFlag() != 0 )

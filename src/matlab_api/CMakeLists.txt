@@ -36,7 +36,6 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
     # TODO get both Matrix.h files included in vspMATLAB_wrap.cxx
 
     SET( SWIG_MODULE_vsp_EXTRA_DEPS
-        ${UTIL_INCLUDE_DIR}/Defines.h
         ${GEOM_API_INCLUDE_DIR}/APIDefines.h
         ${GEOM_API_INCLUDE_DIR}/APIErrorMgr.h
         ${GEOM_API_INCLUDE_DIR}/VSP_Geom_API.h

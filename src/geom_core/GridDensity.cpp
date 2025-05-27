@@ -7,6 +7,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "GridDensity.h"
 #include "Geom.h"
 #include "Vehicle.h"
@@ -338,8 +341,8 @@ vector< vec3d > BaseSimpleSource::CreateSphere( double rad, const vec3d& loc )
 
     for ( i = 0; i < num_ptsperloop * num_loops; i++ )
     {
-        double lat = PI * ( -0.5 + ( double )i / (num_ptsperloop*num_loops) );
-        double lng = 2 * PI * ( double )i / num_loops;
+        double lat = M_PI * ( -0.5 + ( double )i / (num_ptsperloop*num_loops) );
+        double lng = 2 * M_PI * ( double )i / num_loops;
 
         double z  = rad * sin( lat );
         double zr = rad * cos( lat );
@@ -1339,7 +1342,7 @@ double GridDensity::GetRadFrac( bool farflag )
 
         if( m_NCircSeg() > 2.0 )
         {
-            radFrac = 2.0 * sin( PI / m_NCircSeg() );
+            radFrac = 2.0 * sin( M_PI / m_NCircSeg() );
         }
         else  // Switch to 4/n behavior below well defined range.
         {
@@ -1360,7 +1363,7 @@ double GridDensity::GetFarRadFrac()
 
     if( m_FarNCircSeg() > 2.0 )
     {
-        radFrac = 2.0 * sin( PI / m_FarNCircSeg() );
+        radFrac = 2.0 * sin( M_PI / m_FarNCircSeg() );
     }
     else  // Switch to 4/n behavior below well defined range.
     {

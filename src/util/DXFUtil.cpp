@@ -8,6 +8,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "DXFUtil.h"
 #include "main.h"
 
@@ -175,7 +178,7 @@ void FeatureLinesManipulate( vector < vector < vec3d > > &allflines, int view, i
         RotShiftVec.set_y( NewShiftVec.x() );
     }
 
-    double rad = ang * DEG_2_RAD;
+    double rad = ang * ( M_PI / 180.0 );
 
     for ( unsigned int l = 0; l < allflines.size(); l++ )
     {

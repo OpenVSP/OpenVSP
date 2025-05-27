@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-#include "Defines.h"
+
 
 #include "Background3D.h"
 #include "Background3DMgr.h"

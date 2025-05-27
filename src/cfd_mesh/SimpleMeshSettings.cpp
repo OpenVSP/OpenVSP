@@ -12,6 +12,9 @@
 
 #include "SimpleMeshSettings.h"
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 //////////////////////////////////////////////////////
 //=========== SimpleMeshCommonSettings =============//
 //////////////////////////////////////////////////////
@@ -372,7 +375,7 @@ double SimpleGridDensity::GetRadFrac( bool farflag )
 
         if ( m_NCircSeg > 2.0 )
         {
-            radFrac = 2.0 * sin( PI / m_NCircSeg );
+            radFrac = 2.0 * sin( M_PI / m_NCircSeg );
         }
         else  // Switch to 4/n behavior below well defined range.
         {
@@ -393,7 +396,7 @@ double SimpleGridDensity::GetFarRadFrac()
 
     if ( m_FarNCircSeg > 2.0 )
     {
-        radFrac = 2.0 * sin( PI / m_FarNCircSeg );
+        radFrac = 2.0 * sin( M_PI / m_FarNCircSeg );
     }
     else  // Switch to 4/n behavior below well defined range.
     {

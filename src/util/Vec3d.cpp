@@ -13,7 +13,6 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include "Defines.h"
 #include <cfloat> //For DBL_EPSILON
 #include "Vec3d.h"
 #include "VspUtil.h"
@@ -539,7 +538,7 @@ double angle( const vec3d& a, const vec3d& b )
     }
     else if ( angle < 0.0 )
     {
-        return PI;
+        return M_PI;
     }
     else
     {

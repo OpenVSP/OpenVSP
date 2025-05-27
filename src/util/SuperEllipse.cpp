@@ -8,6 +8,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include "SuperEllipse.h"
 
@@ -91,8 +93,8 @@ void SuperEllipse::BuildCosSinTables( int num_pnts )
         for ( int i = 0 ; i < num_pnts ; i++ )
         {
             double u = ( double )i / ( double )( num_pnts - 1 );
-            m_CosU[i] = cos( u * 2.0 * PI );
-            m_SinU[i] = sin( u * 2.0 * PI );
+            m_CosU[i] = cos( u * 2.0 * M_PI );
+            m_SinU[i] = sin( u * 2.0 * M_PI );
         }
     }
 }

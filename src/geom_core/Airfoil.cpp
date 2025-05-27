@@ -7,6 +7,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Airfoil.h"
 #include "ParmMgr.h"
 #include "StringUtil.h"
@@ -47,7 +50,7 @@ double CalcFourDigitCLi( double m, double p )
     double p4 = p2 * p2;
 
     double CLi = -((m-2.0*m*p)*sin(2.0*acos(2.0*p-1.0))+(2.0*m-4.0*m*p)*acos(2.0*p-1.0)+
-    sqrt(4.0*p-4.0*p2)*(16.0*m*p2-16.0*m*p+4.0*m)-2.0*PI*m*p2+4.0*PI*m*p-2.0*PI*m)
+    sqrt(4.0*p-4.0*p2)*(16.0*m*p2-16.0*m*p+4.0*m)-2.0*M_PI*m*p2+4.0*M_PI*m*p-2.0*M_PI*m)
     /(2.0*p4-4.0*p3+2.0*p2);
 
     return CLi;
@@ -1045,9 +1048,9 @@ FileAirfoil::FileAirfoil( ) : Airfoil( )
     int n = 21;
     for ( int i = 0; i < n; i++ )
     {
-        double theta = PI-PI*i/(n-1);
+        double theta = M_PI-M_PI*i/(n-1);
         m_UpperPnts.push_back( vec3d( 0.5 + 0.5*cos(theta), 0.5*sin(theta), 0.0 ) );
-        theta = PI+PI*i/(n-1);
+        theta = M_PI+M_PI*i/(n-1);
         m_LowerPnts.push_back( vec3d( 0.5 + 0.5*cos(theta), 0.5*sin(theta), 0.0 ) );
     }
 
@@ -1703,7 +1706,7 @@ void CSTAirfoil::FitCurve( const VspCurve &c, int deg )
     cst_fitter.create( cst, transform_out, translate_out, actual_leading_edge_t );
 
     m_Scale = 1.0 / transform_out(2,2);
-    m_Theta = std::asin( -transform_out(1,0) * m_Scale() ) * 180.0 / PI;
+    m_Theta = std::asin( -transform_out(1,0) * m_Scale() ) * 180.0 / M_PI;
 
     translate_out = (translate_out*m_Scale())*transform_out*m_Scale();
     m_DeltaX = -translate_out.x();
@@ -2060,8 +2063,8 @@ void VKTAirfoil::UpdateCurve( bool updateParms )
     for ( int i = 0; i < npts - 1; i++ )
     {
         // Clockwise from TE
-        double theta = 2.0 * PI * (1.0 - i * 1.0 / ( npts - 1 ) );
-        pnts[i] = vkt_airfoil_point( theta, m_Epsilon(), m_Kappa(), m_Tau() * PI / 180.0 );
+        double theta = 2.0 * M_PI * (1.0 - i * 1.0 / ( npts - 1 ) );
+        pnts[i] = vkt_airfoil_point( theta, m_Epsilon(), m_Kappa(), m_Tau() * M_PI / 180.0 );
 
         double d = dist( pnts[i], pnts[0] );
         if ( d > dmax )

@@ -7,6 +7,9 @@
 // Michael Waddington
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Vehicle.h"
 #include "MeshGeom.h"
 #include "WingGeom.h"
@@ -188,7 +191,7 @@ void WaveDragSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     for ( int i = 0; i < nq; i++ )
     {
         // Rotate cutting plane visualizer to Mach angle
-        quads[i].rotate_y( -( 0.5 * PI - MAngle ) );
+        quads[i].rotate_y( -( 0.5 * M_PI - MAngle ) );
         // Rotate cutting plane visualizer to current theta
         quads[i].rotate_x( theta );
         // Move cutting plane visualizer to current slice section location
@@ -343,10 +346,10 @@ void WaveDragSingleton::SetupTheta( int ntheta )
 
     for ( int i = 0; i < m_NTheta; i++ )
     {
-        m_ThetaRad[i] = ( 2.0 * PI * (double)i ) / ( m_NTheta );
+        m_ThetaRad[i] = ( 2.0 * M_PI * (double)i ) / ( m_NTheta );
         if ( m_SymmFlag() )
         {
-            m_ThetaRad[i] = ( PI * (double)i ) / ( m_NTheta - 1 );
+            m_ThetaRad[i] = ( M_PI * (double)i ) / ( m_NTheta - 1 );
         }
     }
 }
@@ -587,7 +590,7 @@ void WaveDragSingleton::PushSliceResults( Results* res )
     vector <double> theta_deg( m_NTheta );
     for ( int i = 0; i < m_NTheta; i++ )
     {
-        theta_deg[i] = m_ThetaRad[i] * 180.0 / PI;
+        theta_deg[i] = m_ThetaRad[i] * 180.0 / M_PI;
 
         res->Add( new NameValData( "Slice_Area", m_SliceAreaDist[i], "Slice area distribution for given theta." ) );
     }
@@ -650,7 +653,7 @@ void WaveDragSingleton::EvalELCurve( const vector < double > & conpnts, const ve
     {
         double S2sum = 0;
         double theta = acos( 1 - 2*x[i] );
-        double Ssum = Sstart + 0.25 * (4.0 / PI) * ( Send - Sstart ) * (theta - sin( theta ) * cos( theta ) );
+        double Ssum = Sstart + 0.25 * (4.0 / M_PI) * ( Send - Sstart ) * (theta - sin( theta ) * cos( theta ) );
         for ( int r2=2; r2<n+1; r2++ )
         {
             Ssum += 0.25 * ( sin( ((double)r2 - 1.0 ) * theta ) / ((double)r2 - 1.0 ) - sin( ((double)r2 + 1.0 ) * theta ) / ((double)r2 + 1.0 ) ) * a[r2-1];
@@ -676,7 +679,7 @@ void WaveDragSingleton::SearsHaack( const vector < double > &xvec, vector < doub
     for ( unsigned int i = 0; i < n; i++ )
     {
         double x = xvec[i];
-        Svec[i] = ( 16.0 * Vol / ( 3.0 * PI * len ) ) * pow( ( ( 4.0 * x ) * ( 1.0 - x ) ), 1.5 );
+        Svec[i] = ( 16.0 * Vol / ( 3.0 * M_PI * len ) ) * pow( ( ( 4.0 * x ) * ( 1.0 - x ) ), 1.5 );
     }
 }
 
@@ -688,7 +691,7 @@ void WaveDragSingleton::vonKarman( const vector < double > &xvec, vector < doubl
     for ( unsigned int i = 0; i < n; i++ )
     {
         double x = xvec[i];
-        Svec[i] = ( 2.0 / PI ) * Sbase * ( asin( sqrt( x ) ) - ( 1.0 - 2.0 * x ) * sqrt( x * ( 1.0 - x ) ) );
+        Svec[i] = ( 2.0 / M_PI ) * Sbase * ( asin( sqrt( x ) ) - ( 1.0 - 2.0 * x ) * sqrt( x * ( 1.0 - x ) ) );
     }
 }
 

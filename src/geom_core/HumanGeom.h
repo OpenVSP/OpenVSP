@@ -16,7 +16,7 @@
 
 #include "Geom.h"
 #include "XSec.h"
-#include "Defines.h"
+
 #include "Vec3d.h"
 #include "Vec2d.h"
 #include "VspUtil.h"

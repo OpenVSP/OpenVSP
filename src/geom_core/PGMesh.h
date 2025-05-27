@@ -16,7 +16,7 @@
 #ifndef PGMesh_H
 #define PGMesh_H
 
-#include "Defines.h"
+
 #include "Vec2d.h"
 #include "Vec3d.h"
 #include "Matrix4d.h"

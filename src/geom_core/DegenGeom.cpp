@@ -1,3 +1,7 @@
+
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "DegenGeom.h"
 #include "Geom.h"
 #include "WriteMatlab.h"
@@ -620,7 +624,7 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
 
             if( downNormal.mag() > 0.5 && vle.mag() > 0.5 )
             {
-                degenStick.sweeple.push_back( RAD_2_DEG * signed_angle( downNormal, vle, n * -1.0 ) );
+                degenStick.sweeple.push_back( ( 180.0 / M_PI ) * signed_angle( downNormal, vle, n * -1.0 ) );
             }
             else
             {
@@ -629,7 +633,7 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
 
             if( downNormal.mag() > 0.5 && vte.mag() > 0.5 )
             {
-                degenStick.sweepte.push_back( RAD_2_DEG * signed_angle( downNormal, vte, n * -1.0 ) );
+                degenStick.sweepte.push_back( ( 180.0 / M_PI ) * signed_angle( downNormal, vte, n * -1.0 ) );
             }
             else
             {
@@ -640,11 +644,11 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
         {
             vec3d vref1 = cross( vdownstream, vle );
             vec3d vref2 = cross( vref1, vdownstream );
-            degenStick.sweeple.push_back( RAD_2_DEG * signed_angle( vref2, vle, vref1 * -1.0 ) );
+            degenStick.sweeple.push_back( ( 180.0 / M_PI ) * signed_angle( vref2, vle, vref1 * -1.0 ) );
 
             vref1 = cross( vdownstream, vte );
             vref2 = cross( vref1, vdownstream );
-            degenStick.sweepte.push_back( RAD_2_DEG * signed_angle( vref2, vte, vref1 * -1.0 ) );
+            degenStick.sweepte.push_back( ( 180.0 / M_PI ) * signed_angle( vref2, vte, vref1 * -1.0 ) );
         }
 
 
@@ -678,8 +682,8 @@ void DegenGeom::augmentFoilSurfDegenStick( DegenStick &degenStick, const VspSurf
         double tloc;
         double t = c.CalculateThick( tloc );
 
-        double te_angle = c.Angle( TMAGIC, VspCurve::AFTER, 4.0 - TMAGIC, VspCurve::BEFORE, true ) * 180.0 / PI;
-        double le_angle = c.Angle( 2.0 + TMAGIC, VspCurve::AFTER, 2.0-TMAGIC, VspCurve::BEFORE, true ) * 180.0 / PI;
+        double te_angle = c.Angle( TMAGIC, VspCurve::AFTER, 4.0 - TMAGIC, VspCurve::BEFORE, true ) * 180.0 / M_PI;
+        double le_angle = c.Angle( 2.0 + TMAGIC, VspCurve::AFTER, 2.0-TMAGIC, VspCurve::BEFORE, true ) * 180.0 / M_PI;
 
         double le_crv_low = c.CompCurve( 2.0 - TMAGIC, VspCurve::BEFORE );
         double le_crv_up = c.CompCurve( 2.0 + TMAGIC, VspCurve::AFTER );
@@ -718,12 +722,12 @@ void DegenGeom::augmentFoilSurfDegenStick( DegenStick &degenStick, const vector<
         vec3d ute0 = pntsarr[ i ][ jte0 + 1 ] - pntsarr[ i ][ jte0 ];
         vec3d ute1 = pntsarr[ i ][ jte1 - 1 ] - pntsarr[ i ][ jte1 ];
 
-        double te_angle = angle( ute0, ute1 ) * 180.0 / PI;
+        double te_angle = angle( ute0, ute1 ) * 180.0 / M_PI;
 
         vec3d ule0 = pntsarr[ i ][ jle + 1 ] - pntsarr[ i ][ jle ];
         vec3d ule1 = pntsarr[ i ][ jle - 1 ] - pntsarr[ i ][ jle ];
 
-        double le_angle = angle( ule0, ule1 ) * 180.0 / PI;
+        double le_angle = angle( ule0, ule1 ) * 180.0 / M_PI;
 
         double le_rad = radius_of_circle( pntsarr[ i ][ jle + 1 ], pntsarr[ i ][ jle ], pntsarr[ i ][ jle - 1 ] );
         le_rad = le_rad / degenStick.chord[i];

@@ -7,6 +7,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Vehicle.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
@@ -950,7 +953,7 @@ double ParasiteDragMgrSingleton::CalculateFinessRatioAndTOC( int isurf, int irow
         max_xsecarea = *it;
 
         // Use Max X-Sectional Area to find "Nominal" Diameter
-        dia = 2.0 * sqrt( max_xsecarea / PI );
+        dia = 2.0 * sqrt( max_xsecarea / M_PI );
 
         finerat = m_geo_lref[irow] / dia;
     }
@@ -1081,14 +1084,14 @@ void ParasiteDragMgrSingleton::Calculate_AvgSweep( const vector<DegenStick> &deg
                 ( ( degenSticks[0].perimTop[j] + degenSticks[0].perimTop[j + 1] ) / 2.0 );
 
         // Section Quarter Chord Sweep
-        secSweep25 = atan( tan( degenSticks[0].sweeple[j] * PI / 180.0 ) +
+        secSweep25 = atan( tan( degenSticks[0].sweeple[j] * M_PI / 180.0 ) +
                            ( 0.25 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1] ) / width ) ) ) *
-                     180.0 / PI;
+                     180.0 / M_PI;
 
         // Section Half Chord Sweep
-        secSweep50 = atan( tan( degenSticks[0].sweeple[j] * PI / 180.0 ) +
+        secSweep50 = atan( tan( degenSticks[0].sweeple[j] * M_PI / 180.0 ) +
                            ( 0.50 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1] ) / width ) ) ) *
-                     180.0 / PI;
+                     180.0 / M_PI;
 
         // Section Area
         secArea = degenSticks[0].chord[j] * width;
@@ -1102,8 +1105,8 @@ void ParasiteDragMgrSingleton::Calculate_AvgSweep( const vector<DegenStick> &deg
     }
 
     // Calculate Sweep @ c/4 & c/2
-    m_Sweep25 = weighted25Sum / totalArea * PI / 180.0; // Into Radians
-    m_Sweep50 = weighted50Sum / totalArea * PI / 180.0; // Into Radians
+    m_Sweep25 = weighted25Sum / totalArea * M_PI / 180.0; // Into Radians
+    m_Sweep50 = weighted50Sum / totalArea * M_PI / 180.0; // Into Radians
 }
 
 void ParasiteDragMgrSingleton::Calculate_f()

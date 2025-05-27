@@ -13,7 +13,7 @@
 #if !defined(VSPROUTINGGEOM__INCLUDED_)
 #define VSPROUTINGGEOM__INCLUDED_
 
-#include "Defines.h"
+
 #include "Geom.h"
 #include "XSec.h"
 #include "XSecSurf.h"

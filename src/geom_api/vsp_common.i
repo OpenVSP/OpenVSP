@@ -1,7 +1,7 @@
 /* File : vsp_common.i */
 %include typemaps.i
 %{
-#include "Defines.h"
+
 #include "APIDefines.h"
 #include "APIErrorMgr.h"
 #include "VSP_Geom_API.h"

@@ -8,6 +8,9 @@
 // Justin Gravett
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "FeaElement.h"
 #include "StructureMgr.h"
 #include "FeaMeshMgr.h"
@@ -220,7 +223,7 @@ void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index, long long int n
     vec3d norm = cross( v01, v12);
     norm.normalize();
 
-    double theta_material = RAD_2_DEG * signed_angle( v01, m_Orientation, norm );
+    double theta_material = ( 180.0 / M_PI ) * signed_angle( v01, m_Orientation, norm );
 
     if ( theta_material < 0 )
     {
@@ -373,7 +376,7 @@ void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index, long long int 
     vec3d norm = cross( v01, v12);
     norm.normalize();
 
-    double theta_material = RAD_2_DEG * signed_angle( v01, m_Orientation, norm );
+    double theta_material = ( 180.0 / M_PI ) * signed_angle( v01, m_Orientation, norm );
 
     if ( theta_material < 0 )
     {

@@ -7,6 +7,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include "VSP_Geom_API.h"
 #include "APITestSuiteMassProp.h"
@@ -525,9 +527,9 @@ void APITestSuiteMassProp::TestCylindricalShell()
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Tess_W", "Shape", 73 ), 73, TEST_TOL );
 
     //==== Analytical Mass Properties ====//
-    double diskSA = PI * pow( radius, 2.0 );
+    double diskSA = M_PI * pow( radius, 2.0 );
     double diskMass = rho_A * diskSA;
-    double shellSA = 2.0 * PI * radius * length;
+    double shellSA = 2.0 * M_PI * radius * length;
     double shellMass = rho_A * shellSA;
     double diskIxx = diskMass * pow( radius, 2.0 ) / 2.0;
     double diskIyy = diskMass * pow( radius, 2.0 ) / 4.0 + diskMass * pow( ( length / 2.0 ), 2.0 );
@@ -1062,8 +1064,8 @@ void APITestSuiteMassProp::TestShellCone()
     vsp::SetParmVal( xutess_id1, 20 );
 
     //==== Analytical Mass Properties ====//
-    double diskSA = PI * pow( radius, 2.0 );
-    double shellSA = PI * radius * sqrt( pow( length, 2.0 ) + pow( radius, 2.0 ) );
+    double diskSA = M_PI * pow( radius, 2.0 );
+    double shellSA = M_PI * radius * sqrt( pow( length, 2.0 ) + pow( radius, 2.0 ) );
     double SA = diskSA + shellSA;
     double diskMass = rho_A * diskSA;
     double shellMass = rho_A * shellSA;

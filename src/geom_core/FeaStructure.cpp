@@ -8,6 +8,9 @@
 // Justin Gravett
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "FeaStructure.h"
 
 #include "Vehicle.h"
@@ -1815,8 +1818,8 @@ VspSurf FeaSlice::ComputeSliceSurf()
             // TODO: Improve initial size and resize after rotations
 
             // TODO: Improve 45 deg assumption
-            vec3d y_prime = max_length * y_axis * cos( PI / 4 ) + max_length * z_axis * sin( PI / 4 );
-            vec3d z_prime = max_length * -1 * y_axis * sin( PI / 4 ) + max_length * z_axis * cos( PI / 4 );
+            vec3d y_prime = max_length * y_axis * cos( M_PI / 4 ) + max_length * z_axis * sin( M_PI / 4 );
+            vec3d z_prime = max_length * -1 * y_axis * sin( M_PI / 4 ) + max_length * z_axis * cos( M_PI / 4 );
 
             cornerA = m_Center + y_prime;
             cornerB = m_Center - z_prime;
@@ -1842,84 +1845,84 @@ VspSurf FeaSlice::ComputeSliceSurf()
                 // Resize for Y rotation
                 if ( m_YRot() > 0 )
                 {
-                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / ( del_z - 2 * z_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_YRot() ) > atan( ( del_x + 2 * x_off ) / ( del_z - 2 * z_off ) ) )
                     {
-                        del_z_plus += std::abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_z_plus += std::abs( ( del_x + 2 * x_off ) / sin( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                     else
                     {
-                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / ( del_z + 2 * z_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_YRot() ) > atan( ( del_x - 2 * x_off ) / ( del_z + 2 * z_off ) ) )
                     {
-                        del_z_minus += std::abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_z_minus += std::abs( ( del_x - 2 * x_off ) / sin( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                     else
                     {
-                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                 }
                 else
                 {
-                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / ( del_z - 2 * z_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_YRot() ) > atan( ( del_x - 2 * x_off ) / ( del_z - 2 * z_off ) ) )
                     {
-                        del_z_plus += std::abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_z_plus += std::abs( ( del_x - 2 * x_off ) / sin( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                     else
                     {
-                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / ( del_z + 2 * z_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_YRot() ) > atan( ( del_x + 2 * x_off ) / ( del_z + 2 * z_off ) ) )
                     {
-                        del_z_minus += std::abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_z_minus += std::abs( ( del_x + 2 * x_off ) / sin( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                     else
                     {
-                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                 }
 
                 // Resize for Z rotation
                 if ( m_ZRot() > 0 )
                 {
-                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / ( del_y - 2 * y_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / ( del_y - 2 * y_off ) ) )
                     {
-                        del_y_minus += std::abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_y_minus += std::abs( ( del_x + 2 * x_off ) / sin( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                     else
                     {
-                        del_y_minus += std::abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_y_minus += std::abs( ( del_y - 2 * y_off ) / cos( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / ( del_y + 2 * y_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / ( del_y + 2 * y_off ) ) )
                     {
-                        del_y_plus += std::abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_y_plus += std::abs( ( del_x - 2 * x_off ) / sin( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                     else
                     {
-                        del_y_plus += std::abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_y_plus += std::abs( ( del_y + 2 * y_off ) / cos( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                 }
                 else
                 {
-                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / ( del_y + 2 * y_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / ( del_y + 2 * y_off ) ) )
                     {
-                        del_y_plus += std::abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_y_plus += std::abs( ( del_x + 2 * x_off ) / sin( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                     else
                     {
-                        del_y_plus += std::abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_y_plus += std::abs( ( del_y + 2 * y_off ) / cos( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / ( del_y - 2 * y_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / ( del_y - 2 * y_off ) ) )
                     {
-                        del_y_minus += std::abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_y_minus += std::abs( ( del_x - 2 * x_off ) / sin( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                     else
                     {
-                        del_y_minus += std::abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_y_minus += std::abs( ( del_y - 2 * y_off ) / cos( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                 }
 
@@ -1940,84 +1943,84 @@ VspSurf FeaSlice::ComputeSliceSurf()
                 // Resize for Y rotation
                 if ( m_YRot() > 0 )
                 {
-                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / ( del_x - 2 * x_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_YRot() ) > atan( ( del_z + 2 * z_off ) / ( del_x - 2 * x_off ) ) )
                     {
-                        del_x_minus += std::abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_x_minus += std::abs( ( del_z + 2 * z_off ) / sin( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                     else
                     {
-                        del_x_minus += std::abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_x_minus += std::abs( ( del_x - 2 * x_off ) / cos( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / ( del_x + 2 * x_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_YRot() ) > atan( ( del_z - 2 * z_off ) / ( del_x + 2 * x_off ) ) )
                     {
-                        del_x_plus += std::abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_x_plus += std::abs( ( del_z - 2 * z_off ) / sin( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                     else
                     {
-                        del_x_plus += std::abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_x_plus += std::abs( ( del_x + 2 * x_off ) / cos( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                 }
                 else
                 {
-                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / ( del_x + 2 * x_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_YRot() ) > atan( ( del_z + 2 * z_off ) / ( del_x + 2 * x_off ) ) )
                     {
-                        del_x_plus += std::abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_x_plus += std::abs( ( del_z + 2 * z_off ) / sin( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                     else
                     {
-                        del_x_plus += std::abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_x_plus += std::abs( ( del_x + 2 * x_off ) / cos( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / ( del_x - 2 * x_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_YRot() ) > atan( ( del_z - 2 * z_off ) / ( del_x - 2 * x_off ) ) )
                     {
-                        del_x_minus += std::abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_x_minus += std::abs( ( del_z - 2 * z_off ) / sin( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                     else
                     {
-                        del_x_minus += std::abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_x_minus += std::abs( ( del_x - 2 * x_off ) / cos( ( M_PI / 180.0 ) * m_YRot() ) );
                     }
                 }
 
                 // Resize for X rotation
                 if ( m_XRot() > 0 )
                 {
-                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / ( del_y - 2 * y_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_XRot() ) > atan( ( del_z + 2 * z_off ) / ( del_y - 2 * y_off ) ) )
                     {
-                        del_y_plus += std::abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_y_plus += std::abs( ( del_z + 2 * z_off ) / sin( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                     else
                     {
-                        del_y_plus += std::abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_y_plus += std::abs( ( del_y - 2 * y_off ) / cos( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / ( del_y + 2 * y_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_XRot() ) > atan( ( del_z - 2 * z_off ) / ( del_y + 2 * y_off ) ) )
                     {
-                        del_y_minus += std::abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_y_minus += std::abs( ( del_z - 2 * z_off ) / sin( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                     else
                     {
-                        del_y_minus += std::abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_y_minus += std::abs( ( del_y + 2 * y_off ) / cos( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                 }
                 else
                 {
-                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / ( del_y - 2 * y_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_XRot() ) > atan( ( del_z - 2 * z_off ) / ( del_y - 2 * y_off ) ) )
                     {
-                        del_y_plus += std::abs( ( del_z -2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_y_plus += std::abs( ( del_z -2 * z_off ) / sin( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                     else
                     {
-                        del_y_plus += std::abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_y_plus += std::abs( ( del_y - 2 * y_off ) / cos( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / ( del_y + 2 * y_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_XRot() ) > atan( ( del_z + 2 * z_off ) / ( del_y + 2 * y_off ) ) )
                     {
-                        del_y_minus += std::abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_y_minus += std::abs( ( del_z + 2 * z_off ) / sin( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                     else
                     {
-                        del_y_minus += std::abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_y_minus += std::abs( ( del_y + 2 * y_off ) / cos( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                 }
 
@@ -2038,84 +2041,84 @@ VspSurf FeaSlice::ComputeSliceSurf()
                 // Resize for Z rotation
                 if ( m_ZRot() > 0 )
                 {
-                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / ( del_x - 2 * x_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / ( del_x - 2 * x_off ) ) )
                     {
-                        del_x_plus += std::abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_x_plus += std::abs( ( del_y + 2 * y_off ) / sin( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                     else
                     {
-                        del_x_plus += std::abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_x_plus += std::abs( ( del_x - 2 * x_off ) / cos( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / ( del_x + 2 * x_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / ( del_x + 2 * x_off ) ) )
                     {
-                        del_x_minus += std::abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_x_minus += std::abs( ( del_y - 2 * y_off ) / sin( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                     else
                     {
-                        del_x_minus += std::abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_x_minus += std::abs( ( del_x + 2 * x_off ) / cos( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                 }
                 else 
                 {
-                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / ( del_x - 2 * x_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / ( del_x - 2 * x_off ) ) )
                     {
-                        del_x_plus += std::abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_x_plus += std::abs( ( del_y - 2 * y_off ) / sin( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                     else
                     {
-                        del_x_plus += std::abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_x_plus += std::abs( ( del_x - 2 * x_off ) / cos( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / ( del_x + 2 * x_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / ( del_x + 2 * x_off ) ) )
                     {
-                        del_x_minus += std::abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_x_minus += std::abs( ( del_y + 2 * y_off ) / sin( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                     else
                     {
-                        del_x_minus += std::abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_x_minus += std::abs( ( del_x + 2 * x_off ) / cos( ( M_PI / 180.0 ) * m_ZRot() ) );
                     }
                 }
 
                 // Resize for X rotation
                 if ( m_XRot() > 0 )
                 {
-                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / ( del_z - 2 * z_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_XRot() ) > atan( ( del_y + 2 * y_off ) / ( del_z - 2 * z_off ) ) )
                     {
-                        del_z_plus += std::abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_z_plus += std::abs( ( del_y + 2 * y_off ) / sin( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                     else
                     {
-                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / ( del_z + 2 * z_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_XRot() ) > atan( ( del_y - 2 * y_off ) / ( del_z + 2 * z_off ) ) )
                     {
-                        del_z_minus += std::abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_z_minus += std::abs( ( del_y - 2 * y_off ) / sin( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                     else
                     {
-                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                 }
                 else
                 {
-                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / ( del_z - 2 * z_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_XRot() ) > atan( ( del_y - 2 * y_off ) / ( del_z - 2 * z_off ) ) )
                     {
-                        del_z_plus += std::abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_z_plus += std::abs( ( del_y - 2 * y_off ) / sin( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                     else
                     {
-                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
 
-                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / ( del_z + 2 * z_off ) ) )
+                    if ( std::abs( ( M_PI / 180.0 ) * m_XRot() ) > atan( ( del_y + 2 * y_off ) / ( del_z + 2 * z_off ) ) )
                     {
-                        del_z_minus += std::abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_z_minus += std::abs( ( del_y + 2 * y_off ) / sin( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                     else
                     {
-                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( ( M_PI / 180.0 ) * m_XRot() ) );
                     }
                 }
 
@@ -2149,15 +2152,15 @@ VspSurf FeaSlice::ComputeSliceSurf()
         slice_surf.Transform( trans_mat_1 );
 
         rot_mat_x.loadIdentity();
-        rot_mat_x.rotate( DEG_2_RAD * m_XRot(), x_axis );
+        rot_mat_x.rotate( ( M_PI / 180.0 ) * m_XRot(), x_axis );
         slice_surf.Transform( rot_mat_x );
 
         rot_mat_y.loadIdentity();
-        rot_mat_y.rotate( DEG_2_RAD * m_YRot(), y_axis );
+        rot_mat_y.rotate( ( M_PI / 180.0 ) * m_YRot(), y_axis );
         slice_surf.Transform( rot_mat_y );
 
         rot_mat_z.loadIdentity();
-        rot_mat_z.rotate( DEG_2_RAD * m_ZRot(), z_axis );
+        rot_mat_z.rotate( ( M_PI / 180.0 ) * m_ZRot(), z_axis );
         slice_surf.Transform( rot_mat_z );
 
         trans_mat_2.loadIdentity();
@@ -2402,7 +2405,7 @@ void FeaSpar::ComputePlanarSurf()
 
         normal_vec.normalize();
 
-        double alpha_0 = ( PI / 2 ) - signed_angle( inner_edge_vec, center_to_outer_edge, normal_vec ); // Initial rotation
+        double alpha_0 = ( M_PI / 2 ) - signed_angle( inner_edge_vec, center_to_outer_edge, normal_vec ); // Initial rotation
         double theta;
 
         if( m_UsePercentChord() )
@@ -2422,7 +2425,7 @@ void FeaSpar::ComputePlanarSurf()
 
             double alpha_f = signed_angle( inner_edge_vec, center_to_outer_pnt, normal_vec );
 
-            m_Theta.Set( -1 * ( RAD_2_DEG * ( ( PI / 2 ) - alpha_f - alpha_0 ) ) );
+            m_Theta.Set( -1 * ( ( 180.0 / M_PI ) * ( ( M_PI / 2 ) - alpha_f - alpha_0 ) ) );
 
             if( m_AbsRelParmFlag() == vsp::REL )
             {
@@ -2435,7 +2438,7 @@ void FeaSpar::ComputePlanarSurf()
         }
         else
         {
-            theta = DEG_2_RAD * m_Theta(); // User defined angle converted to Rad
+            theta = ( M_PI / 180.0 ) * m_Theta(); // User defined angle converted to Rad
 
             vec3d mid_lead_edge = orig_surf.CompPnt01( u_mid, V_leading_edge / V_max );
             vec3d mid_trail_edge = orig_surf.CompPnt01( u_mid, 0.0 );
@@ -2494,7 +2497,7 @@ void FeaSpar::ComputePlanarSurf()
                 temp_slice->SetCenter( center );
                 temp_slice->SetSectionBBox( sect_bbox );
                 temp_slice->m_OrientationPlane.Set( vsp::YZ_BODY );
-                temp_slice->m_ZRot.Set( RAD_2_DEG * ( theta + alpha_0 ) );
+                temp_slice->m_ZRot.Set( ( 180.0 / M_PI ) * ( theta + alpha_0 ) );
 
                 // Update Slice Relative Center Location
                 double rel_center_location = ( center.x() - sect_bbox.GetMin( 0 ) ) / ( sect_bbox.GetMax( 0 ) - sect_bbox.GetMin( 0 ) );
@@ -2525,7 +2528,7 @@ void FeaSpar::ComputePlanarSurf()
             double max_angle_outer_te = signed_angle( center_to_te_out_vec, center_to_outer_edge, normal_vec );
 
             double beta_te = -1 * signed_angle( center_to_outer_edge, trail_edge_vec, normal_vec ); // Angle between spar and trailing edge
-            double beta_le = -1 * PI + signed_angle( center_to_inner_edge, lead_edge_vec, normal_vec ); // Angle between spar and leading edge
+            double beta_le = -1 * M_PI + signed_angle( center_to_inner_edge, lead_edge_vec, normal_vec ); // Angle between spar and leading edge
 
             // Slightly oversize spar length
             double length_spar_in = 1e-6;
@@ -3269,7 +3272,7 @@ double FeaRib::GetRibTotalRotation( )
                 vec3d trail_edge_dir_vec = trail_edge_out - trail_edge_in;
                 trail_edge_dir_vec.normalize();
 
-                alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, trail_edge_dir_vec, m_WingNorm );
+                alpha = ( M_PI / 2 ) - signed_angle( chord_dir_vec, trail_edge_dir_vec, m_WingNorm );
             }
             else if ( m_PerpendicularEdgeType() == vsp::LE_NORMAL )
             {
@@ -3280,7 +3283,7 @@ double FeaRib::GetRibTotalRotation( )
                 vec3d lead_edge_dir_vec = lead_edge_out - lead_edge_in;
                 lead_edge_dir_vec.normalize();
 
-                alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, lead_edge_dir_vec, m_WingNorm );
+                alpha = ( M_PI / 2 ) - signed_angle( chord_dir_vec, lead_edge_dir_vec, m_WingNorm );
             }
             else if ( m_PerpendicularEdgeType() == vsp::SPAR_NORMAL )
             {
@@ -3297,11 +3300,11 @@ double FeaRib::GetRibTotalRotation( )
                     vec3d spar_dir_vec = edge2 - edge1;
                     spar_dir_vec.normalize();
 
-                    alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, spar_dir_vec, m_WingNorm );
+                    alpha = ( M_PI / 2 ) - signed_angle( chord_dir_vec, spar_dir_vec, m_WingNorm );
                 }
             }
 
-            m_TotRot = alpha + m_Theta() * DEG_2_RAD;
+            m_TotRot = alpha + m_Theta() * ( M_PI / 180.0 );
         }
     }
 
@@ -3441,7 +3444,7 @@ VspSurf FeaRib::ComputeRibSurf()
                 temp_slice->SetCenter( center );
                 temp_slice->SetSectionBBox( sect_bbox );
                 temp_slice->m_OrientationPlane.Set( vsp::XZ_BODY );
-                temp_slice->m_ZRot.Set( RAD_2_DEG * m_TotRot );
+                temp_slice->m_ZRot.Set( ( 180.0 / M_PI ) * m_TotRot );
                 temp_slice->m_XRot.Set( -1 * x_rot );
 
                 // Update Slice Relative Center Location
@@ -3482,16 +3485,16 @@ VspSurf FeaRib::ComputeRibSurf()
             center_to_te_max_vec.normalize();
 
             // Get maximum angles for rib to intersect wing edges
-            double max_angle_inner_le = -PI + signed_angle( center_to_le_min_vec, center_to_lead_edge, m_WingNorm );
+            double max_angle_inner_le = -M_PI + signed_angle( center_to_le_min_vec, center_to_lead_edge, m_WingNorm );
             double max_angle_inner_te = signed_angle( center_to_te_min_vec, center_to_trail_edge, m_WingNorm );
-            double max_angle_outer_le = PI - signed_angle( center_to_lead_edge, center_to_le_max_vec, m_WingNorm );
+            double max_angle_outer_le = M_PI - signed_angle( center_to_lead_edge, center_to_le_max_vec, m_WingNorm );
             double max_angle_outer_te = signed_angle( center_to_te_max_vec, center_to_trail_edge, m_WingNorm );
 
             double sweep_te = -1 * signed_angle( trail_edge_vec, center_to_trail_edge, m_WingNorm ); // Trailing edge sweep
             double sweep_le = -1 * signed_angle( lead_edge_vec, center_to_lead_edge, m_WingNorm ); // Leading edge sweep
 
-            double phi_te = PI - ( m_TotRot + sweep_te ); // Total angle for trailing edge side of rib
-            double phi_le = PI - ( m_TotRot + sweep_le );// Total angle for leading edge side of rib
+            double phi_te = M_PI - ( m_TotRot + sweep_te ); // Total angle for trailing edge side of rib
+            double phi_le = M_PI - ( m_TotRot + sweep_le );// Total angle for leading edge side of rib
 
             double perp_dist;
             double length_rib_te = 1e-6;
@@ -4603,15 +4606,15 @@ void FeaDome::BuildDomeSurf()
         z_axis.set_z( 1.0 );
 
         rot_mat_x.loadIdentity();
-        rot_mat_x.rotate( DEG_2_RAD * m_XRot(), x_axis );
+        rot_mat_x.rotate( ( M_PI / 180.0 ) * m_XRot(), x_axis );
         m_MainFeaPartSurfVec[0].Transform( rot_mat_x );
 
         rot_mat_y.loadIdentity();
-        rot_mat_y.rotate( DEG_2_RAD * m_YRot(), y_axis );
+        rot_mat_y.rotate( ( M_PI / 180.0 ) * m_YRot(), y_axis );
         m_MainFeaPartSurfVec[0].Transform( rot_mat_y );
 
         rot_mat_z.loadIdentity();
-        rot_mat_z.rotate( DEG_2_RAD * m_ZRot(), z_axis );
+        rot_mat_z.rotate( ( M_PI / 180.0 ) * m_ZRot(), z_axis );
         m_MainFeaPartSurfVec[0].Transform( rot_mat_z );
 
         m_MainFeaPartSurfVec[0].OffsetX( m_XLoc() );
@@ -5822,7 +5825,7 @@ xmlNodePtr FeaLayer::DecodeXml( xmlNodePtr & node )
 
 void FeaLayer::GetTransMat( mat3 & T )
 {
-    long double ttheta = m_Theta() * PI / 180.0;
+    long double ttheta = m_Theta() * M_PI / 180.0;
     long double c( std::cos( ttheta ) ), s(std::sin( ttheta ) );
     long double c2( c * c ), s2( s * s ), sc( c * s );
 
@@ -5833,7 +5836,7 @@ void FeaLayer::GetTransMat( mat3 & T )
 
 void FeaLayer::GetInvTransMat( mat3 & Tinv )
 {
-    long double ttheta = m_Theta() * PI / 180.0;
+    long double ttheta = m_Theta() * M_PI / 180.0;
     long double c( std::cos( ttheta ) ), s(std::sin( ttheta ) );
     long double c2( c * c ), s2( s * s ), sc( c * s );
 

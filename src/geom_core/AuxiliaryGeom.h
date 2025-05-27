@@ -13,7 +13,9 @@
 #if !defined(VSPAUXILIARYGEOM__INCLUDED_)
 #define VSPAUXILIARYGEOM__INCLUDED_
 
-#include "Defines.h"
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Geom.h"
 #include "XSec.h"
 #include "XSecSurf.h"

@@ -18,7 +18,7 @@
 #define MESH_GEOM_H
 
 
-#include "Defines.h"
+
 #include "Vec2d.h"
 #include "Geom.h"
 #include "VspUtil.h"

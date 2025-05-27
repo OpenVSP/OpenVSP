@@ -5,6 +5,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "BORGeom.h"
 #include "Vehicle.h"
 
@@ -89,22 +92,22 @@ void BORGeom::UpdateSurf()
 
     if ( m_Mode() == vsp::BOR_FLOWTHROUGH )
     {
-        stringer.RotateZ(m_Angle() * PI / 180.0);
+        stringer.RotateZ(m_Angle() * M_PI / 180.0);
         stringer.OffsetY( m_Diameter() * 0.5 ); // Offset is a radius
 
         double r = stringer.CompPnt01( 0.0 ).y();
-        m_Ae.Set( PI * r * r );
+        m_Ae.Set( M_PI * r * r );
         m_Ae.Deactivate();
 
         double tmin;
         r = stringer.FindMinimumDimension( tmin, vsp::Y_DIR );
         m_AminW.Set( tmin / 4.0 );
         m_AminW.Deactivate();
-        m_Amin.Set( PI * r * r );
+        m_Amin.Set( M_PI * r * r );
         m_Amin.Deactivate();
 
         r = stringer.CompPnt01( 0.5 ).y();
-        m_A0.Set( PI * r * r );
+        m_A0.Set( M_PI * r * r );
         m_A0.Deactivate();
     }
     else if ( m_Mode() == vsp::BOR_LOWER || m_Mode() == vsp::BOR_UPPER )

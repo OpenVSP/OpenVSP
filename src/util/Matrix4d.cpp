@@ -3,6 +3,9 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Matrix4d.h"
 
 Matrix4d::Matrix4d()
@@ -53,7 +56,7 @@ void Matrix4d::translatev( const vec3d &v )
 void Matrix4d::rotateX( const double &ang )
 {
     double tmat[16];
-    double rang = ang * ( double )PI / 180.0f;
+    double rang = ang * ( double )M_PI / 180.0f;
     double ca = ( double )cos( rang );
     double sa = ( double )sin( rang );
 
@@ -69,7 +72,7 @@ void Matrix4d::rotateX( const double &ang )
 void Matrix4d::rotateY( const double &ang )
 {
     double tmat[16];
-    double rang = ang * ( double )PI / 180.0f;
+    double rang = ang * ( double )M_PI / 180.0f;
     double ca = ( double )cos( rang );
     double sa = ( double )sin( rang );
 
@@ -85,7 +88,7 @@ void Matrix4d::rotateY( const double &ang )
 void Matrix4d::rotateZ( const double &ang )
 {
     double tmat[16];
-    double rang = ang * ( double )PI / 180.0f;
+    double rang = ang * ( double )M_PI / 180.0f;
     double ca = ( double )cos( rang );
     double sa = ( double )sin( rang );
 
@@ -361,17 +364,17 @@ vec3d Matrix4d::getAngles() const
     }
     else if ( mat[8] == 1 )
     {
-        angles.set_y( PI / 2 );
+        angles.set_y( M_PI / 2 );
         angles.set_x( atan2( mat[1], mat[5] ) );
         angles.set_z( 0 );
     }
     else if ( mat[8] == -1 )
     {
-        angles.set_y( -PI / 2 );
+        angles.set_y( -M_PI / 2 );
         angles.set_x( atan2( mat[6], mat[2] ) );
         angles.set_z( 0 );
     }
-    return angles * RAD_2_DEG;
+    return angles * ( 180.0 / M_PI );
 }
 
 vec3d Matrix4d::getTranslation() const

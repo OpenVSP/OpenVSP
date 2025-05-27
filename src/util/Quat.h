@@ -3,7 +3,7 @@
 #ifndef QUAT_H
 #define QUAT_H
 
-#include "Defines.h"
+
 
 #include "Vec3d.h"
 
@@ -13,7 +13,7 @@ using namespace std;
 class quat;
 
 
-class VSPDLL quat
+class quat
 {
 private:
 

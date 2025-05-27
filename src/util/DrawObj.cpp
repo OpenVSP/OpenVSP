@@ -8,6 +8,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include "DrawObj.h"
 #include "Matrix4d.h"
@@ -117,9 +119,9 @@ void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vect
     pts.reserve( pts.size() + 2 * nseg );
     for ( int i = 0; i < nseg; i++ )
     {
-        double theta = i * 2.0 * PI / nseg;
+        double theta = i * 2.0 * M_PI / nseg;
         pts.push_back( RotateArbAxis( pstart, theta, norm ) + pcen );
-        theta = ( i + 1 ) * 2.0 * PI / nseg;
+        theta = ( i + 1 ) * 2.0 * M_PI / nseg;
         pts.push_back( RotateArbAxis( pstart, theta, norm ) + pcen );
     }
 }

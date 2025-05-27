@@ -7,6 +7,8 @@
 // Michael Waddington
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include "WaveDragScreen.h"
 #include "SubSurfaceMgr.h"
@@ -348,7 +350,7 @@ bool WaveDragScreen::Update()
         double tdval = 0.0;
         if ( itheta < WaveDragMgr.m_ThetaRad.size() )
         {
-            tdval = WaveDragMgr.m_ThetaRad[ itheta ] * 180.0 / PI;
+            tdval = WaveDragMgr.m_ThetaRad[ itheta ] * 180.0 / M_PI;
         }
 
         snprintf( str, sizeof( str ), "%.1f", tdval );
