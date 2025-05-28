@@ -225,6 +225,8 @@ FOREACH( T IN ITEMS ${VSP_LIBRARIES_API_FIRST} )
             ${VSP_API_DIR}/lib/${T_FNAME}
         )
 
+        ADD_DEPENDENCIES( copy_api ${T} )
+
         LIST( APPEND VSP_LIB ${VSP_API_DIR}/lib/lib${T}.a )
     ELSE()
         GET_FILENAME_COMPONENT( T_FNAME ${T} NAME )
