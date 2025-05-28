@@ -210,7 +210,7 @@ IF( NOT VSP_NO_HELP )
     ADD_SUBDIRECTORY( help )
 ENDIF()
 
-INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
+# INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
 
 SET( CPACK_PACKAGE_NAME OpenVSP )
 SET( CPACK_PACKAGE_VERSION_MAJOR ${VSPVER_MAJOR} )
