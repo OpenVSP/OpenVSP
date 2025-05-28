@@ -45,6 +45,7 @@ else()
         CMAKE_ARGS -DCMAKE_C_COMPILER=${C_OMP_COMPILER}
             -DCMAKE_CXX_COMPILER=${CXX_OMP_COMPILER}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DVSP_NO_VSPAERO_OPT=${VSP_NO_VSPAERO_OPT}
             -DVSP_LIB_ESCAPED=${vsp_lib_escaped}
             -DVSP_API_DIR=${VSP_API_DIR}
             -DEP_BUILD=TRUE
@@ -65,8 +66,45 @@ else()
         DEPENDERS configure
     )
 
+    ADD_CUSTOM_TARGET( copy_vspaero ALL
+            COMMENT "Copying VSPAERO files."
+    )
+    ADD_DEPENDENCIES( copy_vspaero SOLVER )
+
     INSTALL( PROGRAMS ${BINARY_DIR}/vspaero DESTINATION . )
-    INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_opt DESTINATION . )
+
+    ADD_CUSTOM_COMMAND(TARGET copy_vspaero POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${BINARY_DIR}/vspaero
+            ${CMAKE_BINARY_DIR}/src/vsp/${conf_suffix}vspaero )
+
+    IF( NOT VSP_NO_VSPAERO_OPT )
+        INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_opt DESTINATION . )
+
+        ADD_CUSTOM_COMMAND(TARGET copy_vspaero POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${BINARY_DIR}/vspaero_opt
+                ${CMAKE_BINARY_DIR}/src/vsp/${conf_suffix}vspaero_opt )
+    ENDIF()
+
+    IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
+        INSTALL( PROGRAMS ${BINARY_DIR}/vspaero DESTINATION python/openvsp/openvsp )
+
+        ADD_CUSTOM_COMMAND(TARGET copy_vspaero POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${BINARY_DIR}/vspaero
+                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vspaero )
+
+        IF( NOT VSP_NO_VSPAERO_OPT )
+            INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_opt DESTINATION python/openvsp/openvsp )
+
+            ADD_CUSTOM_COMMAND(TARGET copy_vspaero POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy
+                    ${BINARY_DIR}/vspaero_opt
+                    ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vspaero_opt )
+        ENDIF()
+
+    ENDIF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
   else()
     set(BUILD_VSPAERO true)
