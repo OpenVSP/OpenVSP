@@ -4,9 +4,7 @@ if ( EP_BUILD )
     PROJECT( VSPAERO_SOLVER )
     SET( CMAKE_CXX_STANDARD 17 )
 
-    string( REPLACE "__VSP_DELIMETER__" ";" VSP_LIBRARIES_API_FIRST "${vsp_lib_escaped}" )
-
-    string( REPLACE "__VSP_DELIMETER__" ";" CodeEli_INCLUDE_DIRS  "${CodeEli_INCLUDE_DIRS_escaped}" )
+    string( REPLACE "__VSP_DELIMETER__" ";" VSP_LIB "${VSP_LIB_ESCAPED}" )
 endif()
 
 if( APPLE )
@@ -40,39 +38,18 @@ else()
 
     INCLUDE( ExternalProject )
 
-    set( vsp_lib_string )
-    foreach( lib ${VSP_LIBRARIES_API_FIRST} )
-
-        string( COMPARE EQUAL "${lib}" "OpenABF::OpenABF" isOpenABF )
-
-        if ( isOpenABF )
-            # Do nothing
-        elseif ( TARGET ${lib} )
-            get_target_property( libpath ${lib} BINARY_DIR )
-            list( APPEND vsp_lib_string ${libpath}/lib${lib}.a )
-        else()
-            list( APPEND vsp_lib_string ${lib} )
-        endif()
-    endforeach()
-
-    string( REPLACE ";" "__VSP_DELIMETER__" vsp_lib_escaped "${vsp_lib_string}" )
-
-    string( REPLACE ";" "__VSP_DELIMETER__" CodeEli_INCLUDE_DIRS_escaped "${CodeEli_INCLUDE_DIRS}" )
-
+    string( REPLACE ";" "__VSP_DELIMETER__" vsp_lib_escaped "${VSP_LIB}" )
 
     ExternalProject_Add( SOLVER
         DOWNLOAD_COMMAND ""
         CMAKE_ARGS -DCMAKE_C_COMPILER=${C_OMP_COMPILER}
             -DCMAKE_CXX_COMPILER=${CXX_OMP_COMPILER}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -Dvsp_lib_escaped=${vsp_lib_escaped}
-            -DCodeEli_INCLUDE_DIRS_escaped=${CodeEli_INCLUDE_DIRS_escaped}
-            -DGEOM_API_INCLUDE_DIR=${GEOM_API_INCLUDE_DIR}
-            -DUTIL_INCLUDE_DIR=${UTIL_INCLUDE_DIR}
-            -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR}
+            -DVSP_LIB_ESCAPED=${vsp_lib_escaped}
+            -DVSP_API_DIR=${VSP_API_DIR}
             -DEP_BUILD=TRUE
         INSTALL_COMMAND ""
-        DEPENDS cfd_mesh xmlvsp sixseries util tritri wavedragEL stb_image geom_core geom_api
+        DEPENDS copy_api
     )
     ExternalProject_Get_Property( SOLVER BINARY_DIR )
     ExternalProject_Get_Property( SOLVER SOURCE_DIR )
@@ -192,24 +169,25 @@ if(BUILD_VSPAERO)
     vspaero.C
   )
 
+  TARGET_LINK_LIBRARIES( vspaero PUBLIC vspaero_lib )
+
   IF( NOT VSP_NO_VSPAERO_OPT )
     ADD_EXECUTABLE( vspaero_opt
       vspaero_opt.C
     )
-  ENDIF()
 
-  TARGET_LINK_LIBRARIES( vspaero PUBLIC vspaero_lib )
-
-  IF( NOT VSP_NO_VSPAERO_OPT )
     TARGET_LINK_LIBRARIES( vspaero_opt PUBLIC vspaero_lib )
 
-    TARGET_LINK_LIBRARIES( vspaero_opt PUBLIC ${VSP_LIBRARIES_API_FIRST} )
+    TARGET_LINK_LIBRARIES( vspaero_opt PUBLIC ${VSP_LIB} )
 
     TARGET_INCLUDE_DIRECTORIES( vspaero_opt PUBLIC
-      ${GEOM_API_INCLUDE_DIR}
-      ${UTIL_API_INCLUDE_DIR}
+      ${VSP_API_DIR}/include
     )
-  ENDIF()
+
+    IF( NOT EP_BUILD )
+        ADD_DEPENDENCIES( vspaero_opt copy_api )
+    ENDIF()
+ENDIF()
 
 
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
