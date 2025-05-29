@@ -4206,7 +4206,6 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
         return geom_index_map;
     }
 
-    vector < pair < string, int > > surface_geoms;
     int surf_cnt = 1;
 
     // Get both sets.
@@ -4279,11 +4278,6 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
     }
 
     // Note: DISK_TYPE and MESH_TYPE are ignored since they are not supported as unsteady components
-
-    for ( size_t i = 0; i < surface_geoms.size(); i++ )
-    {
-        geom_index_map[surface_geoms[i]].push_back( i + 1 );
-    }
 
     return geom_index_map;
 }
