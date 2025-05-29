@@ -11,7 +11,6 @@
 #if !defined(GRIDDENSITY_GRIDDENSITY__INCLUDED_)
 #define GRIDDENSITY_GRIDDENSITY__INCLUDED_
 
-
 #define _USE_MATH_DEFINES
 #include <cmath>
 

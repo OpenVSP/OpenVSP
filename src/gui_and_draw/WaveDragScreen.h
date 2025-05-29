@@ -19,7 +19,6 @@
 #include "Cartesian.H"
 #include "WaveDragMgr.h"
 
-
 using namespace std;
 
 class WaveDragScreen : public TabScreen

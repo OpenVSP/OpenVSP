@@ -13,6 +13,9 @@
 //
 //******************************************************************************
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "PGMesh.h"
 #include "StlHelper.h"
 #include "Matrix4d.h"

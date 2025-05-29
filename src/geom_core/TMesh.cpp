@@ -20,6 +20,9 @@
 #include <windows.h>
 #endif
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "TMesh.h"
 #include "PGMesh.h"
 

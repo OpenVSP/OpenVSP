@@ -5,10 +5,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include "ScriptMgr.h"
 #include "APIDefines.h"
 #include "CustomGeom.h"
 #include "ParmMgr.h"
-#include "ScriptMgr.h"
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"
 

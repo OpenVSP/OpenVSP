@@ -7,6 +7,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+
 #include "Face.h"
 #include "Surf.h"
 
