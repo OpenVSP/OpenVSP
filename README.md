@@ -259,6 +259,11 @@
    - `VSP_INSTALL_API_TEST` -- Set to include the `apitest` executable
      in the installation package.
 
+   - `VSP_COPY_API` -- Copy OpenVSP API libraries and headers to
+     `api` directory in the build directory.  This makes it easier to
+     develop external C++ programs that use the OpenVSP API.  This
+     option currently only works on MacOS and Linux.
+
 ##### OpenVSP project variables:
 
    - `VSP_LIBRARY_PATH` -- Set this variable to point at the

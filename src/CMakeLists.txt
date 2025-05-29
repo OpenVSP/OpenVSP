@@ -202,64 +202,66 @@ IF( NOT VSP_NO_API_WRAPPERS )
     ENDIF( SWIG_FOUND )
 ENDIF( NOT VSP_NO_API_WRAPPERS )
 
-ADD_CUSTOM_TARGET( copy_api ALL
-    COMMENT "Copying API files."
-)
-
-SET( VSP_API_DIR ${CMAKE_BINARY_DIR}/api )
-SET( VSP_LIB )
-FOREACH( T IN ITEMS ${VSP_LIBRARIES_API_FIRST} )
-    string( COMPARE EQUAL "${T}" "OpenABF::OpenABF" isOpenABF )
-
-    if ( isOpenABF )
-        # Header only, do nothing.
-    ELSEIF( TARGET ${T} )
-        GET_TARGET_PROPERTY( T_PATH ${T} BINARY_DIR )
-        SET( T_FILE ${T_PATH}/lib${T}.a )
-
-        GET_FILENAME_COMPONENT( T_FNAME ${T_FILE} NAME )
-
-        ADD_CUSTOM_COMMAND( TARGET copy_api POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            ${T_FILE}
-            ${VSP_API_DIR}/lib/${T_FNAME}
-        )
-
-        ADD_DEPENDENCIES( copy_api ${T} )
-
-        LIST( APPEND VSP_LIB ${VSP_API_DIR}/lib/lib${T}.a )
-    ELSE()
-        GET_FILENAME_COMPONENT( T_FNAME ${T} NAME )
-
-        ADD_CUSTOM_COMMAND( TARGET copy_api POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            ${T}
-            ${VSP_API_DIR}/lib/${T_FNAME}
-        )
-
-        LIST( APPEND VSP_LIB ${VSP_API_DIR}/lib/${T_FNAME} )
-    ENDIF()
-ENDFOREACH()
-
-STRING( REPLACE ";" "\n" VSP_LIB_SPLIT "${VSP_LIB}" )
-STRING( APPEND VSP_LIB_SPLIT "\n" )
-
-FILE( GENERATE OUTPUT ${VSP_API_DIR}/liblist.txt CONTENT "${VSP_LIB_SPLIT}" )
-
-FILE( GLOB API_INCLUDES
-    ${GEOM_API_INCLUDE_DIR}/*.h
-    ${UTIL_API_INCLUDE_DIR}/*.h
-)
-
-FOREACH( H IN ITEMS ${API_INCLUDES} )
-    GET_FILENAME_COMPONENT( H_FNAME  ${H} NAME )
-
-    ADD_CUSTOM_COMMAND( TARGET copy_api POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            ${H}
-            ${VSP_API_DIR}/include/${H_FNAME}
+IF( VSP_COPY_API )
+    ADD_CUSTOM_TARGET( copy_api ALL
+        COMMENT "Copying API files."
     )
-ENDFOREACH()
+
+    SET( VSP_API_DIR ${CMAKE_BINARY_DIR}/api )
+    SET( VSP_LIB )
+    FOREACH( T IN ITEMS ${VSP_LIBRARIES_API_FIRST} )
+        string( COMPARE EQUAL "${T}" "OpenABF::OpenABF" isOpenABF )
+
+        if ( isOpenABF )
+            # Header only, do nothing.
+        ELSEIF( TARGET ${T} )
+            GET_TARGET_PROPERTY( T_PATH ${T} BINARY_DIR )
+            SET( T_FILE ${T_PATH}/lib${T}.a )
+
+            GET_FILENAME_COMPONENT( T_FNAME ${T_FILE} NAME )
+
+            ADD_CUSTOM_COMMAND( TARGET copy_api POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${T_FILE}
+                ${VSP_API_DIR}/lib/${T_FNAME}
+            )
+
+            ADD_DEPENDENCIES( copy_api ${T} )
+
+            LIST( APPEND VSP_LIB ${VSP_API_DIR}/lib/lib${T}.a )
+        ELSE()
+            GET_FILENAME_COMPONENT( T_FNAME ${T} NAME )
+
+            ADD_CUSTOM_COMMAND( TARGET copy_api POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${T}
+                ${VSP_API_DIR}/lib/${T_FNAME}
+            )
+
+            LIST( APPEND VSP_LIB ${VSP_API_DIR}/lib/${T_FNAME} )
+        ENDIF()
+    ENDFOREACH()
+
+    STRING( REPLACE ";" "\n" VSP_LIB_SPLIT "${VSP_LIB}" )
+    STRING( APPEND VSP_LIB_SPLIT "\n" )
+
+    FILE( GENERATE OUTPUT ${VSP_API_DIR}/liblist.txt CONTENT "${VSP_LIB_SPLIT}" )
+
+    FILE( GLOB API_INCLUDES
+        ${GEOM_API_INCLUDE_DIR}/*.h
+        ${UTIL_API_INCLUDE_DIR}/*.h
+    )
+
+    FOREACH( H IN ITEMS ${API_INCLUDES} )
+        GET_FILENAME_COMPONENT( H_FNAME  ${H} NAME )
+
+        ADD_CUSTOM_COMMAND( TARGET copy_api POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${H}
+                ${VSP_API_DIR}/include/${H_FNAME}
+        )
+    ENDFOREACH()
+ENDIF()
 
 IF( NOT VSP_NO_VSPAERO )
     ADD_SUBDIRECTORY( vsp_aero )
