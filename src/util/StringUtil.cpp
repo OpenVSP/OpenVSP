@@ -7,6 +7,7 @@
 #include "APIDefines.h"
 #include <cctype>
 #include <algorithm>
+#include <cstring>
 
 void StringUtil::change_from_to( char *str, const char &from, const char &to )
 {

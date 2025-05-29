@@ -7,6 +7,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "VSP_Geom_API.h"
 #include "APIErrorMgr.h"
 #include "APITestSuiteVSPAERO.h"
