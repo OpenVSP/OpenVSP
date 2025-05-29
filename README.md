@@ -53,7 +53,7 @@
    main platforms.  For Windows, we require Visual Studio 2010 Express
    or newer.  For Mac OSX or Linux/BSD, we support LLVM and GCC.
 
-   - [CMake 3.1](http://www.cmake.org) - Cross-platform build system.  CMake
+   - [CMake 3.24](http://www.cmake.org) - Cross-platform build system.  CMake
    generates platform-native build files which control compilation of
    OpenVSP.  CMake is available as a standard package on most Linux
    systems and binary installers are available for many other platforms
@@ -73,73 +73,88 @@
 
 ##### Bundled with OpenVSP, but system libraries may substitute.
 
+   - [AngelScript](http://www.angelcode.com/angelscript) - Embedded scripting
+   language for C++.  Used for user-defined components.
+
+   - [Clipper2](http://www.angusj.com/clipper2/Docs/Overview.htm) - An open
+   source library for clipping and offsetting 2D lines and polygons.
+
+   - [CMinpack](http://devernay.free.fr/hacks/cminpack/) - C/C++ port of
+   standard Fortran Levenberg-Marquardt implementation.
+
    - [Code-Eli](http://github.com/ddmarshall/Code-Eli) - Curve & surface library.
    Code-Eli was developed by David Marshall to meet OpenVSP's needs.
    It is a header-only library that must be available to build.  It is
    not likely to be packaged on any system.
 
+   - [CppTest](http://cpptest.sourceforge.net) - C++ Unit testing framework.
+
+   - [delabella](https://github.com/msokalski/delabella) - A c++ Delaunay
+   triangulation library.
+
    - [Eigen3](http://eigen.tuxfamily.org) - Template library for linear algebra.
    This header-only library is required by Code-Eli.  Eigen3 is likely
    to be available as a standard package on Linux.
 
-   - [CppTest](http://cpptest.sourceforge.net) - C++ Unit testing framework.
-
-   - [Libxml2](http://www.xmlsoft.org) - XML parser and toolkit.  Libxml2 most
-   likely comes pre-installed with most Linux distributions and 
-   Mac OS X systems.  Windows users must download the source and
-   build this library following the Libxml2 instructions.
-
-   - [Clipper2](http://www.angusj.com/clipper2/Docs/Overview.htm) - An open
-  source library for clipping and offsetting 2D lines and polygons.
-
-   - [CMinpack](http://devernay.free.fr/hacks/cminpack/) - C/C++ port of
-   standard Fortran Levenberg-Marquardt implementation.
+   - [exprparse](http://github.com/amgary/exprparse) - A simple c++ library to
+   compute values from simple math expressions stored as strings.
 
    - [FLTK](http://www.fltk.org) - Cross-platform windowing library.  FLTK should
    be available as a standard package on most Linux systems and can
    be installed from source on Windows and Mac OS X according to the
    FLTK instructions.  GRAPHICS_ONLY
 
-   - [GLM](http://glm.g-truc.net) - OpenGL math library.  GRAPHICS_ONLY
-
    - [GLEW](http://glew.sourceforge.net) - OpenGL Extension Wrangler Library.  This
    library is used to access any modern OpenGL features.  GRAPHICS_ONLY
 
+   - [GLM](http://glm.g-truc.net) - OpenGL math library.  GRAPHICS_ONLY
+
    - [libIGES](http://github.com/cbernardo/libIGES) - Library for working with
    IGES files.  This is not likely to be packaged on any system.  OpenVSP
-   uses a version modified by [Rob McDonald](https://github.com/ramcdona/libIGES) 
-   or [Justin Gravett](https://github.com/justingravett/libIGES.git) for CMake 
-   2.8 compatibility
+   uses a version modified by [Rob McDonald](https://github.com/ramcdona/libIGES)
+   or [Justin Gravett](https://github.com/justingravett/libIGES.git) for CMake
+   compatibility
+
+   - [Libxml2](http://www.xmlsoft.org) - XML parser and toolkit.  Libxml2 most
+   likely comes pre-installed with most Linux distributions and
+   Mac OS X systems.  Windows users must download the source and
+   build this library following the Libxml2 instructions.
+
+   - [OpenABF](https://gitlab.com/educelab/OpenABF) - A c++ Angle based
+   flattening mesh parameterization library.
+
+   - [Pinocchio](https://github.com/elrond79/Pinocchio) - The pinocchio
+   auto-rigging / weighting tool.
 
    - [STEPcode](http://stepcode.github.io/) - Library for working with STEP 
    standard files.  Based on an old library developed by NIST.  This is a
    relatively new library, in constant development.  Not likely
    to be packaged on any system.
 
-   - [exprparse](http://github.com/amgary/exprparse) - A simple c++ library to
-    compute values from simple math expressions stored as strings.
-
-   - [delabella](https://github.com/msokalski/delabella) - A c++ Delaunay
-   triangulation library.
-
-   - [OpenABF](https://gitlab.com/educelab/OpenABF) - A c++ Angle based
-   flattening mesh parameterization library.
+   - [Triangle by Jonathan Shewchuk](http://www.cs.cmu.edu/~quake/triangle.html)
+   2D Delaunay triangulator.
+     - [CMake Library](https://github.com/ramcdona/Triangle) version used by OpenVSP
 
 ##### Bundled with OpenVSP.
 
-   - [AngelScript](http://www.angelcode.com/angelscript) - Embedded scripting
-   language for C++.  Used for user-defined components.
+   - [cartesian](https://sourceforge.net/p/rfltk/code/HEAD/tree/cartesian/) -
+   Simple 2D plotting library for FLTK.  GRAPHICS_ONLY
+
+   - [glFont2 by Brad Fish (was: students.cs.byu.edu/~bfish/glfont2.php)](http://web.archive.org/web/*/https://students.cs.byu.edu/~bfish/glfont2.php) -
+   2D OpenGL font tool.  glFont2 has been included in this source
+   distribution.  GRAPHICS_ONLY
 
    - [nanoflann](http://code.google.com/p/nanoflann) - Fast nearest neighbors
    library.
 
+   - [pcg-cpp](https://github.com/imneme/pcg-cpp) - Random number generator
+
    - sixseries - NASA 6-Series airfoil generation Fortran code released
    to the public domain from NASA TM X 3069 September, 1974.
    Converted to C using F2C.
-   
-   - [Triangle by Jonathan Shewchuk](http://www.cs.cmu.edu/~quake/triangle.html) 
-   2D Delaunay triangulator.  
-   		- [CMake Library](https://github.com/wo80/Triangle) version used by OpenVSP
+
+   - [stb](https://github.com/nothings/stb) - Single-file libraries for
+   C/C++ for reading and writing image files.  GRAPHICS_ONLY
    
    - [Robust Geometric Predicates by Jonathan Shewchuk](https://github.com/libigl/libigl-predicates)
    Routines that provide orient2d, orient3d, incircle, and insphere tests.
@@ -159,19 +174,6 @@
 	  Overlap Test using Orientation Predicates", Journal of Graphics Tools, 
 	  Vol. 8, Iss. 1, 2003.
   
-   - [glFont2 by Brad Fish (was: students.cs.byu.edu/~bfish/glfont2.php)](http://web.archive.org/web/*/https://students.cs.byu.edu/~bfish/glfont2.php) - 
-   2D OpenGL font tool.  glFont2 has been included in this source
-   distribution.  GRAPHICS_ONLY
-
-   - [cartesian](https://sourceforge.net/p/rfltk/code/HEAD/tree/cartesian/) -
-   Simple 2D plotting library for FLTK.  GRAPHICS_ONLY
-
-   - [Pinocchio](https://github.com/elrond79/Pinocchio) - The pinocchio
-   auto-rigging / weighting tool.
-
-   - [stb](https://github.com/nothings/stb) - Single-file libraries for
-   C/C++ for reading and writing image files.  GRAPHICS_ONLY
-
    - wavedragEL -  Standalone version of the Eminton-Lord procedure for
    obtaining the zero-lift wavedrag D/Q written by Sriram Rallabhandi
 
@@ -254,15 +256,6 @@
    - `VSP_NO_PYDOC` -- Set this variable to disable
      Python documentation generation.
 
-   - `XXX_OMP_COMPILER` -- Set these variables to point at secondary
-     compilers to use when the primary compiler does not support
-     OpenMP.  This will allow the VSPAERO solver to be built as
-     a multithreaded program.  Expected versions of this variable
-     are:
-
-      - `C_OMP_COMPILER`
-      - `CXX_OMP_COMPILER`
-
    - `VSP_INSTALL_API_TEST` -- Set to include the `apitest` executable
      in the installation package.
 
@@ -280,7 +273,7 @@
      not use these variables with `VSP_LIBRARY_PATH`, it will
      overwrite them.  Acceptable versions of this variable are:
 
-      - `Adept2_INSTALL_DIR`
+      - `ANGELSCRIPT_INSTALL_DIR`
       - `CLIPPER2_INSTALL_DIR`
       - `CMINPACK_INSTALL_DIR`
       - `CODEELI_INSTALL_DIR`
@@ -306,7 +299,7 @@
      particular library rather than use the bundled versions.
      Acceptable versions of this variable are:
 
-      - `VSP_USE_SYSTEM_ADEPT2`
+      - `VSP_USE_SYSTEM_ANGELSCRIPT`
       - `VSP_USE_SYSTEM_CLIPPER2`
       - `VSP_USE_SYSTEM_CMINPACK`
       - `VSP_USE_SYSTEM_CODEELI`
