@@ -211,9 +211,12 @@ IF( VSP_COPY_API )
     SET( VSP_LIB )
     FOREACH( T IN ITEMS ${VSP_LIBRARIES_API_FIRST} )
         string( COMPARE EQUAL "${T}" "OpenABF::OpenABF" isOpenABF )
+        string( COMPARE EQUAL "${T}" "pthread" ispthread )
 
         if ( isOpenABF )
             # Header only, do nothing.
+        ELSEIF( ispthread )
+            # System library.  Do nothing.
         ELSEIF( TARGET ${T} )
             GET_TARGET_PROPERTY( T_PATH ${T} BINARY_DIR )
             SET( T_FILE ${T_PATH}/lib${T}.a )
