@@ -4245,28 +4245,27 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
             }
         }
 
-        int num_sym = geom->GetNumSymmCopies();
+        // Human and Mesh types will run in VSPAERO panel method... support accordingly
+        size_t num_surf = 0;
+        if ( geom->GetType().m_Type == HUMAN_GEOM_TYPE )
+        {
+            num_surf = 1;
+        }
+        else if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            MeshGeom* mesh = dynamic_cast<MeshGeom*>( geom );
+            assert( mesh );
 
+            num_surf = mesh->GetNumIndexedParts();
+        }
+        else
+        {
+            num_surf = geom->GetNumMainSurfs();
+        }
+
+        int num_sym = geom->GetNumSymmCopies();
         for ( size_t s = 1; s <= num_sym; s++ )
         {
-            // Human and Mesh types will run in VSPAERO panel method... support accordingly
-            size_t num_surf = 0;
-            if ( geom->GetType().m_Type == HUMAN_GEOM_TYPE )
-            {
-                num_surf = 1;
-            }
-            else if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
-            {
-                MeshGeom* mesh = dynamic_cast<MeshGeom*>( geom );
-                assert( mesh );
-
-                num_surf = mesh->GetNumIndexedParts();
-            }
-            else
-            {
-                num_surf = geom->GetNumMainSurfs();
-            }
-
             for ( size_t j = 0; j < num_surf; j++ )
             {
                 geom_index_map[std::make_pair( all_geom_vec[i], s )].push_back( surf_cnt );
