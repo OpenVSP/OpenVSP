@@ -66,7 +66,7 @@ public:
 
     std::vector < bool > AsBoolVec( int n )
     {
-        std::vector < bool > boolvec( n, 0 );
+        std::vector < bool > boolvec( n, false );
 
         for ( int i = 0; i < n; i++ )
         {

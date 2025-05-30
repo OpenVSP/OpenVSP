@@ -487,7 +487,7 @@ void Vehicle::Init()
     m_NewRatioValue.Set( 1.0 );
     m_NewWidthValue.Set( 1.0 );
     m_NewHeightValue.Set( 1.0 );
-    m_TransparentBGFlag.Set( 1 );
+    m_TransparentBGFlag.Set( true );
     m_AutoCropFlag.Set( false );
 
     m_STLMultiSolid.Set( false );

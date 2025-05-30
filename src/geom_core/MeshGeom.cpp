@@ -2565,7 +2565,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
 
             // Create tube extension location
             double tloc = 0;
-            bool ambflag = 0;
+            bool ambflag = false;
             for ( int ssm = 0 ; ssm < ( int )sub_surf_meshes.size() ; ssm++ )
             {
                 // Build merge maps
@@ -2611,7 +2611,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
                 if ( negnorm > 0 && posnorm > 0 )
                 {
                     // Subsurf mesh direction is ambiguous. Set flag to true, advance count.
-                    ambflag = 1;
+                    ambflag = true;
                     ambcount += 1;
                 }
                 else if ( negnorm > 0 )
@@ -2677,7 +2677,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         }
     }
     // Tag meshes before regular intersection
-    SubTagTris( 1 );
+    SubTagTris( true );
 
     if ( ambcount > 0 )
     {
