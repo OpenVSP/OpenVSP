@@ -282,6 +282,7 @@ private:
     FitModelMgrSingleton();
     FitModelMgrSingleton( FitModelMgrSingleton const& copy );            // Not Implemented
     FitModelMgrSingleton& operator=( FitModelMgrSingleton const& copy ); // Not Implemented
+    ~FitModelMgrSingleton();
 
     void Init();
     void Wype();

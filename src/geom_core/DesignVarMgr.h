@@ -82,6 +82,7 @@ private:
     DesignVarMgrSingleton();
     DesignVarMgrSingleton( DesignVarMgrSingleton const& copy );          // Not Implemented
     DesignVarMgrSingleton& operator=( DesignVarMgrSingleton const& copy ); // Not Implemented
+    ~DesignVarMgrSingleton();
 
     void Init();
     void Wype();

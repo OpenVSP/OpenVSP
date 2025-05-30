@@ -29,6 +29,11 @@ DesignVarMgrSingleton::DesignVarMgrSingleton()
     Init();
 }
 
+DesignVarMgrSingleton::~DesignVarMgrSingleton()
+{
+    DelAllVars();
+}
+
 void DesignVarMgrSingleton::Init()
 {
     m_CurrVarIndex = 0;

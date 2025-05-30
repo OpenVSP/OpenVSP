@@ -302,6 +302,11 @@ FitModelMgrSingleton::FitModelMgrSingleton()
     Init();
 }
 
+FitModelMgrSingleton::~FitModelMgrSingleton()
+{
+    DelAllTargetPts();
+}
+
 void FitModelMgrSingleton::Init()
 {
     m_WorkingParmID = "";
