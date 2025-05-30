@@ -985,7 +985,7 @@ void COMPONENT_GROUP::LoadData(FILE *File)
               
     // Parse the group data file              
               
-    fscanf(File,"GroupName = %s \n",GroupName_);
+    fscanf(File,"GroupName = %1999s \n",GroupName_);
     
     PRINTF ("GroupName_: %s \n",GroupName_);
 

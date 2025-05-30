@@ -1380,7 +1380,7 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
        
     }
     
-    fscanf(case_file,"Symmetry = %s \n",SymmetryFlag);
+    fscanf(case_file,"Symmetry = %1999s \n",SymmetryFlag);
     fscanf(case_file,"FarDist = %lf \n",&FarDist_);
     fscanf(case_file,"NumWakeNodes = %d \n",&NumberOfWakeNodes_);
     fscanf(case_file,"WakeIters = %d \n",&WakeIterations_);

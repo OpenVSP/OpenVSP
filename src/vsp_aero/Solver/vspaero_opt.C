@@ -1972,7 +1972,7 @@ double *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables)
 
     for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
 
-       fscanf(DesignFile,"%s%lf\n",Variable,&(ParameterValues[i]));
+       fscanf(DesignFile,"%1999s%lf\n",Variable,&(ParameterValues[i]));
 
     }
     
@@ -2041,7 +2041,7 @@ void CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, double *Para
     
     for ( i = 1 ; i <= NumVars ; i++ ) {
 
-       fscanf(DesignFile,"%s%lf\n",Variable,&Value);
+       fscanf(DesignFile,"%1999s%lf\n",Variable,&Value);
 
        fprintf(OptDesFile,"%s %20.10e\n",Variable,ParameterValues[i]);
        

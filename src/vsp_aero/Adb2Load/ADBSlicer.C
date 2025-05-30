@@ -1633,7 +1633,7 @@ void ADBSLICER::LoadCutsFile(void)
        
        for ( i = 1 ; i <= NumberOfCutPlanes ; i++ ) {
           
-          fscanf(cut_file,"%s %f \n",CutType,&(CutPlaneValue[i]));
+          fscanf(cut_file,"%199s %f \n",CutType,&(CutPlaneValue[i]));
           
           printf("CutType: %s ... Value: %f \n",CutType,CutPlaneValue[i]);
           
