@@ -117,7 +117,7 @@ PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 510, "Plan
 
 PSliceScreen::~PSliceScreen()
 {
-    m_TextDisplay->buffer( NULL );
+    m_TextDisplay->buffer( nullptr );
     delete m_TextBuffer;
 }
 

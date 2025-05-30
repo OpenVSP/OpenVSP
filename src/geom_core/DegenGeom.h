@@ -141,7 +141,7 @@ public:
         type = BODY_TYPE;
         num_pnts = 0;
         num_xsecs = 0;
-        parentGeom = NULL;
+        parentGeom = nullptr;
         surfNum = -1;
         flip_normal = false;
         main_surf_ind = 0;

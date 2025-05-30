@@ -171,7 +171,7 @@ Protractor * MeasureMgrSingleton::GetCurrentProtractor()
 {
     if ( m_CurrProtractorIndex < 0 || m_CurrProtractorIndex >= ( int )m_Protractors.size() )
     {
-        return NULL;
+        return nullptr;
     }
 
     return m_Protractors[ m_CurrProtractorIndex ];
@@ -181,7 +181,7 @@ Ruler * MeasureMgrSingleton::GetCurrentRuler()
 {
     if ( m_CurrRulerIndex < 0 || m_CurrRulerIndex >= ( int )m_Rulers.size() )
     {
-        return NULL;
+        return nullptr;
     }
 
     return m_Rulers[ m_CurrRulerIndex ];
@@ -191,7 +191,7 @@ Probe * MeasureMgrSingleton::GetCurrentProbe()
 {
     if ( m_CurrProbeIndex < 0 || m_CurrProbeIndex >= ( int )m_Probes.size() )
     {
-        return NULL;
+        return nullptr;
     }
 
     return m_Probes[ m_CurrProbeIndex ];
@@ -201,7 +201,7 @@ RSTProbe * MeasureMgrSingleton::GetCurrentRSTProbe()
 {
     if (m_CurrRSTProbeIndex < 0 || m_CurrRSTProbeIndex >= ( int )m_RSTProbes.size() )
     {
-        return NULL;
+        return nullptr;
     }
 
     return m_RSTProbes[ m_CurrRSTProbeIndex ];
@@ -231,14 +231,14 @@ xmlNodePtr MeasureMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
     char labelName[256];
 
-    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "Measure", NULL );
+    xmlNodePtr child_node = xmlNewChild( node, nullptr, BAD_CAST "Measure", nullptr );
 
     XmlUtil::AddIntNode( child_node, "Num_of_Protractors", m_Protractors.size() );
 
     for ( int i = 0; i < ( int )m_Protractors.size(); i++ )
     {
         snprintf( labelName, sizeof( labelName ), "Protractor_%d", i );
-        xmlNodePtr label_node = xmlNewChild( child_node, NULL, BAD_CAST labelName, NULL );
+        xmlNodePtr label_node = xmlNewChild( child_node, nullptr, BAD_CAST labelName, nullptr );
         m_Protractors[i]->EncodeXml( label_node );
     }
 
@@ -247,7 +247,7 @@ xmlNodePtr MeasureMgrSingleton::EncodeXml( xmlNodePtr & node )
     for ( int i = 0; i < ( int )m_Rulers.size(); i++ )
     {
         snprintf( labelName, sizeof( labelName ), "Ruler_%d", i );
-        xmlNodePtr label_node = xmlNewChild( child_node, NULL, BAD_CAST labelName, NULL );
+        xmlNodePtr label_node = xmlNewChild( child_node, nullptr, BAD_CAST labelName, nullptr );
         m_Rulers[i]->EncodeXml( label_node );
     }
 
@@ -256,7 +256,7 @@ xmlNodePtr MeasureMgrSingleton::EncodeXml( xmlNodePtr & node )
     for ( int i = 0; i < ( int )m_Probes.size(); i++ )
     {
         snprintf( labelName, sizeof( labelName ), "Probe_%d", i );
-        xmlNodePtr label_node = xmlNewChild( child_node, NULL, BAD_CAST labelName, NULL );
+        xmlNodePtr label_node = xmlNewChild( child_node, nullptr, BAD_CAST labelName, nullptr );
         m_Probes[i]->EncodeXml( label_node );
     }
 
@@ -265,7 +265,7 @@ xmlNodePtr MeasureMgrSingleton::EncodeXml( xmlNodePtr & node )
     for (int i = 0; i < ( int )m_RSTProbes.size(); i++ )
     {
         snprintf( labelName, sizeof( labelName ), "RSTprobe_%d", i );
-        xmlNodePtr label_node = xmlNewChild( child_node, NULL, BAD_CAST labelName, NULL );
+        xmlNodePtr label_node = xmlNewChild( child_node, nullptr, BAD_CAST labelName, nullptr );
         m_RSTProbes[i]->EncodeXml(label_node );
     }
 
@@ -466,7 +466,7 @@ Protractor * MeasureMgrSingleton::GetProtractor( const string &id )
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 vector < string > MeasureMgrSingleton::GetAllProtractors()
@@ -547,7 +547,7 @@ Ruler * MeasureMgrSingleton::GetRuler( const string &id )
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 vector < string > MeasureMgrSingleton::GetAllRulers()
@@ -628,7 +628,7 @@ Probe * MeasureMgrSingleton::GetProbe( const string &id )
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 vector < string > MeasureMgrSingleton::GetAllProbes()
@@ -709,7 +709,7 @@ RSTProbe * MeasureMgrSingleton::GetRSTProbe(const string &id )
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 vector < string > MeasureMgrSingleton::GetAllRSTProbes()

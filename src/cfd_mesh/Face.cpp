@@ -92,7 +92,7 @@ Edge * Node::FindEdge( Node* n )
             return edgeVec[k];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 bool Node::AllInteriorConnectedFaces()
@@ -266,7 +266,7 @@ void Node::OptSmooth()
     }
 
     double worst_qual = 0.0;
-    Face* worst_face = NULL;
+    Face* worst_face = nullptr;
     for ( int i = 0 ; i < ( int )connectFaces.size() ; i++ )
     {
         double q = connectFaces[i]->ComputeCosSmallAng();
@@ -373,11 +373,11 @@ void Edge::RemoveFace( Face* f )
 {
     if ( f0 == f )
     {
-        f0 = NULL;
+        f0 = nullptr;
     }
     else
     {
-        f1 = NULL;
+        f1 = nullptr;
     }
 }
 
@@ -409,7 +409,7 @@ Face* Edge::OtherFace( Face* f )
 {
     if ( !f || !f0 || !f1 )
     {
-        return NULL;
+        return nullptr;
     }
 
     if ( f == f0 )
@@ -421,14 +421,14 @@ Face* Edge::OtherFace( Face* f )
         return f0;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Node* Edge::OtherNode( Node* n )
 {
     if ( !n || !n0 || !n1 )
     {
-        return NULL;
+        return nullptr;
     }
 
     if ( n == n0 )
@@ -444,7 +444,7 @@ Node* Edge::OtherNode( Node* n )
         assert( 0 );
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void Edge::ReplaceNode( Node* curr_node, Node* replace_node )
@@ -477,8 +477,8 @@ void Edge::ReplaceFace( Face* f, Face* replace_f )
 
 bool Edge::BothAdjoiningFacesInterior()
 {
-    if (( f0 && f0->deleteFlag ) || ( f0 == NULL ) )
-        if (( f1 && f1->deleteFlag ) || ( f1 == NULL ) )
+    if (( f0 && f0->deleteFlag ) || ( f0 == nullptr ) )
+        if (( f1 && f1->deleteFlag ) || ( f1 == nullptr ) )
         {
             return true;
         }
@@ -498,8 +498,8 @@ Face::Face()
 {
     m_DeleteMeFlag = false;
     debugFlag = false;
-    n0 = n1 = n2 = n3 = NULL;
-    e0 = e1 = e2 = e3 = NULL;
+    n0 = n1 = n2 = n3 = nullptr;
+    e0 = e1 = e2 = e3 = nullptr;
     deleteFlag = false;
     rgb[0] = rgb[1] = rgb[2] = 0;
 }
@@ -529,11 +529,11 @@ void Face::SetNodesEdges( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1,
     n0 = nn0;
     n1 = nn1;
     n2 = nn2;
-    n3 = NULL;
+    n3 = nullptr;
     e0 = ee0;
     e1 = ee1;
     e2 = ee2;
-    e3 = NULL;
+    e3 = nullptr;
 }
 
 void Face::SetNodesEdges( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge* ee1, Edge* ee2, Edge* ee3 )
@@ -594,7 +594,7 @@ Edge* Face::FindEdge( Node* nn0, Node* nn1 )
             return e3;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 Edge* Face::FindEdgeWithout( Node* node_ptr )
@@ -619,7 +619,7 @@ Edge* Face::FindEdgeWithout( Node* node_ptr )
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Edge* Face::FindShortEdge()
@@ -631,12 +631,12 @@ Edge* Face::FindShortEdge()
 
     if ( !e0a || !e1a || !e2a )
     {
-        return NULL;
+        return nullptr;
     }
 
     if ( !e0a->n0 || !e1a->n0 || !e2a->n0 || !e0a->n1 || !e1a->n1 || !e2a->n1 )
     {
-        return NULL;
+        return nullptr;
     }
 
     double dsqr0 = dist_squared( e0a->n0->pnt, e0a->n1->pnt );
@@ -726,7 +726,7 @@ double Face::ComputeTriQual()
     {
         printf( "Attempt Tri quality calculation on Quad.\n" );
         // Force error in Address Sanitizer
-        int *p = NULL;
+        int *p = nullptr;
         *p = 1;
     }
     return ComputeTriQual( n0, n1, n2 );
@@ -857,14 +857,14 @@ Node* Face::OtherNodeTri( Node* a, Node* b )
     {
         printf( "Attempt OtherNodeTri on Quad.\n" );
         // Force error in Address Sanitizer
-        int *p = NULL;
+        int *p = nullptr;
         *p = 1;
-        return NULL;
+        return nullptr;
     }
 
     if ( !a || !b || !n0 || !n1 || !n2 )
     {
-        return NULL;
+        return nullptr;
     }
 
     return (Node *) ((uintptr_t) n0 ^ (uintptr_t) n1 ^ (uintptr_t) n2 ^ (uintptr_t) a ^ (uintptr_t) b);
@@ -1053,7 +1053,7 @@ void Face::LoadAdjFaces( int num_levels, set< Face* > & faceSet )
 
 void Face::AddBorderNodes( vector< Node* > &nodeVec )
 {
-    if ( e0->OtherFace( this ) == NULL )
+    if ( e0->OtherFace( this ) == nullptr )
     {
         if ( e0->n0 )
         {
@@ -1064,7 +1064,7 @@ void Face::AddBorderNodes( vector< Node* > &nodeVec )
             nodeVec.push_back( e0->n1 );
         }
     }
-    if ( e1->OtherFace( this ) == NULL )
+    if ( e1->OtherFace( this ) == nullptr )
     {
         if ( e1->n0 )
         {
@@ -1075,7 +1075,7 @@ void Face::AddBorderNodes( vector< Node* > &nodeVec )
             nodeVec.push_back( e1->n1 );
         }
     }
-    if ( e2->OtherFace( this ) == NULL )
+    if ( e2->OtherFace( this ) == nullptr )
     {
         if ( e2->n0 )
         {
@@ -1089,7 +1089,7 @@ void Face::AddBorderNodes( vector< Node* > &nodeVec )
 
     if ( e3 )
     {
-        if ( e3->OtherFace( this ) == NULL )
+        if ( e3->OtherFace( this ) == nullptr )
         {
             if ( e3->n0 )
             {
@@ -1156,19 +1156,19 @@ void Face::EdgeForgetFace()
 {
     if ( e0 )
     {
-        e0->ReplaceFace( this, NULL );
+        e0->ReplaceFace( this, nullptr );
     }
     if ( e1 )
     {
-        e1->ReplaceFace( this, NULL );
+        e1->ReplaceFace( this, nullptr );
     }
     if ( e2 )
     {
-        e2->ReplaceFace( this, NULL );
+        e2->ReplaceFace( this, nullptr );
     }
     if ( e3 )
     {
-        e3->ReplaceFace( this, NULL );
+        e3->ReplaceFace( this, nullptr );
     }
 }
 

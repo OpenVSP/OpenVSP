@@ -311,7 +311,7 @@ string StringUtil::NasFmt( double input )
 // ... modified to fix 'const' and 'static' attributes, remove superfluous variable 'tkn'
 char *paxtok( std::string * str, const char *seps )
 {
-    static char *pos = NULL;
+    static char *pos = nullptr;
     char *tpos;
     static char savech;
 
@@ -327,9 +327,9 @@ char *paxtok( std::string * str, const char *seps )
     {
         // Subsequent calls, check we've done first.
 
-        if (pos == NULL)
+        if (pos == nullptr)
         {
-            return NULL;
+            return nullptr;
         }
         // Then put character back and advance.
 
@@ -344,7 +344,7 @@ char *paxtok( std::string * str, const char *seps )
 
     if ( savech == '\0' )
     {
-        return NULL;
+        return nullptr;
     }
 
     // Now we have pos pointing to first character.

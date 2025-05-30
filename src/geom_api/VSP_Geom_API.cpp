@@ -95,7 +95,7 @@ XSecSurf* FindXSecSurf( const string & id )
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 // Find the pointer to a XSec given its id
@@ -105,7 +105,7 @@ XSec* FindXSec( const string & id )
 
     if ( !pc )
     {
-        return NULL;
+        return nullptr;
     }
 
     XSec* xs = dynamic_cast<XSec*>( pc );
@@ -253,7 +253,7 @@ void SetVSP3FileName( const string & file_name )
 string GetVSPFileName()
 {
     Vehicle* veh = GetVehicle();
-    if ( !veh ) return string("NULL");
+    if ( !veh ) return string("nullptr");
 
     ErrorMgr.NoError();
     return veh->GetVSP3FileName();
@@ -269,7 +269,7 @@ void InsertVSPFile( const string & file_name, const string & parent )
 {
     Vehicle* veh = GetVehicle();
 
-    Geom* parent_geom = NULL;
+    Geom* parent_geom = nullptr;
     if ( parent.size() > 0 )
     {
         parent_geom = veh->FindGeom( parent );
@@ -300,7 +300,7 @@ void InsertVSPFile( const string & file_name, const string & parent )
 string ImportFile( const string & file_name, int file_type, const string & parent  )
 {
     Vehicle* veh = GetVehicle();
-    Geom* parent_geom = NULL;
+    Geom* parent_geom = nullptr;
     if ( parent.size() > 0 )
     {
         parent_geom = veh->FindGeom( parent );
@@ -2281,7 +2281,7 @@ string AddGeom( const string & type, const string & parent  )
         return ret_id;
     }
 
-    Geom* parent_geom = NULL;
+    Geom* parent_geom = nullptr;
     if ( parent.size() > 0 )
     {
         parent_geom = veh->FindGeom( parent );
@@ -2373,7 +2373,7 @@ vector< string > PasteGeomClipboard( const string & parent )
 {
     Vehicle* veh = GetVehicle();
 
-    Geom* parent_geom = NULL;
+    Geom* parent_geom = nullptr;
     if ( parent.size() > 0 )
     {
         parent_geom = veh->FindGeom( parent );
@@ -2731,7 +2731,7 @@ string AddSubSurf( const string & geom_id, int type, int surfindex )
         return string();
     }
 
-    SubSurface* ssurf = NULL;
+    SubSurface* ssurf = nullptr;
     ssurf = geom_ptr->AddSubSurf( type, surfindex );
     if ( !ssurf )
     {
@@ -2753,7 +2753,7 @@ string GetSubSurf( const string & geom_id, int index )
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Can't Find Geom " + geom_id  );
         return string();
     }
-    SubSurface* ssurf = NULL;
+    SubSurface* ssurf = nullptr;
     ssurf = geom_ptr->GetSubSurf( index );
     if ( !ssurf )
     {
@@ -2848,7 +2848,7 @@ void SetSubSurfName( const std::string & geom_id, const std::string & sub_id, co
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Can't Find Geom " + geom_id );
         return;
     }
-    SubSurface* ssurf = NULL;
+    SubSurface* ssurf = nullptr;
     ssurf = geom_ptr->GetSubSurf( sub_id );
     if ( !ssurf )
     {
@@ -2882,7 +2882,7 @@ std::string GetSubSurfName( const std::string & geom_id, const std::string & sub
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Can't Find Geom " + geom_id );
         return string();
     }
-    SubSurface* ssurf = NULL;
+    SubSurface* ssurf = nullptr;
     ssurf = geom_ptr->GetSubSurf( sub_id );
     if ( !ssurf )
     {
@@ -3036,7 +3036,7 @@ int AddFeaStruct( const string & geom_id, bool init_skin, int surfindex )
         return -1;
     }
 
-    FeaStructure* feastruct = NULL;
+    FeaStructure* feastruct = nullptr;
     feastruct = geom_ptr->AddFeaStruct( init_skin, surfindex );
     if ( !feastruct )
     {
@@ -3223,7 +3223,7 @@ string AddFeaPart( const string & geom_id, int fea_struct_ind, int type )
         return string();
     }
 
-    FeaStructure* feastruct = NULL;
+    FeaStructure* feastruct = nullptr;
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
@@ -3231,7 +3231,7 @@ string AddFeaPart( const string & geom_id, int fea_struct_ind, int type )
         return string();
     }
 
-    FeaPart* feapart = NULL;
+    FeaPart* feapart = nullptr;
     feapart = feastruct->AddFeaPart( type );
     if ( !feapart )
     {
@@ -3258,7 +3258,7 @@ void DeleteFeaPart( const string & geom_id, int fea_struct_ind, const string & p
         return;
     }
 
-    FeaStructure* feastruct = NULL;
+    FeaStructure* feastruct = nullptr;
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
@@ -3279,7 +3279,7 @@ void DeleteFeaPart( const string & geom_id, int fea_struct_ind, const string & p
 
 string GetFeaPartID( const string & fea_struct_id, int fea_part_index )
 {
-    FeaStructure* feastruct = NULL;
+    FeaStructure* feastruct = nullptr;
     feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
     if ( !feastruct )
     {
@@ -3445,7 +3445,7 @@ string AddFeaSubSurf( const string & geom_id, int fea_struct_ind, int type )
         return string();
     }
 
-    FeaStructure* feastruct = NULL;
+    FeaStructure* feastruct = nullptr;
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
@@ -3453,7 +3453,7 @@ string AddFeaSubSurf( const string & geom_id, int fea_struct_ind, int type )
         return string();
     }
 
-    SubSurface* feasubsurf = NULL;
+    SubSurface* feasubsurf = nullptr;
     feasubsurf = feastruct->AddFeaSubSurf( type );
     if ( !feasubsurf )
     {
@@ -3480,7 +3480,7 @@ void DeleteFeaSubSurf( const string & geom_id, int fea_struct_ind, const string 
         return;
     }
 
-    FeaStructure* feastruct = NULL;
+    FeaStructure* feastruct = nullptr;
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
@@ -3672,7 +3672,7 @@ int NumFeaBCs( const string & fea_struct_id )
 /// Add an FeaMaterial, return FeaMaterial ID
 string AddFeaMaterial()
 {
-    FeaMaterial* feamat = NULL;
+    FeaMaterial* feamat = nullptr;
     feamat = StructureMgr.AddFeaMaterial();
     if ( !feamat )
     {
@@ -3686,7 +3686,7 @@ string AddFeaMaterial()
 /// Add an FeaProperty, return FeaProperty ID. The default is shell property type
 string AddFeaProperty( int property_type )
 {
-    FeaProperty* feaprop = NULL;
+    FeaProperty* feaprop = nullptr;
     feaprop = StructureMgr.AddFeaProperty( property_type );
     if ( !feaprop )
     {
@@ -3713,7 +3713,7 @@ void SetFeaMeshVal( const string & geom_id, int fea_struct_ind, int type, double
         return;
     }
 
-    FeaStructure* feastruct = NULL;
+    FeaStructure* feastruct = nullptr;
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
@@ -3760,7 +3760,7 @@ void SetFeaMeshFileName( const string & geom_id, int fea_struct_ind, int file_ty
         return;
     }
 
-    FeaStructure* feastruct = NULL;
+    FeaStructure* feastruct = nullptr;
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
@@ -4009,7 +4009,7 @@ void SetDriverGroup( const string & geom_id, int section_index, int driver_0, in
     {
         GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
 
-        XSecCurve* xsc = NULL;
+        XSecCurve* xsc = nullptr;
         if ( gxs ) // Proceed as GeomXSec
         {
             xsc = gxs->GetXSec( section_index )->GetXSecCurve();
@@ -4205,7 +4205,7 @@ void SetXSecWidthHeight( const string& xsec_id, double w, double h )
         return;
     }
     xs->GetXSecCurve()->SetWidthHeight( w, h );
-    xs->ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force Update
+    xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force Update
     ErrorMgr.NoError();
 }
 
@@ -7121,7 +7121,7 @@ void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d
     edit_xs->m_YParmVec[indx]->Set( new_pnt.y() );
     edit_xs->m_ZParmVec[indx]->Set( new_pnt.z() );
 
-    edit_xs->ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update
+    edit_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update
 
     ErrorMgr.NoError();
 }
@@ -7415,7 +7415,7 @@ void ScaleSet( int set_index, double scale )
     group_trans->ReInitialize();
 
     group_trans->m_GroupScale.Set( scale );
-    group_trans->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+    group_trans->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
 
     veh->ClearActiveGeom();
     group_trans->ReInitialize();
@@ -7440,7 +7440,7 @@ void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_
     group_trans->m_GroupXRot.Set( x_rot_deg );
     group_trans->m_GroupYRot.Set( y_rot_deg );
     group_trans->m_GroupZRot.Set( z_rot_deg );
-    group_trans->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+    group_trans->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
 
     veh->ClearActiveGeom();
     group_trans->ReInitialize();
@@ -7465,7 +7465,7 @@ void TranslateSet( int set_index, const vec3d &translation_vec )
     group_trans->m_GroupXLoc.Set( translation_vec.x() );
     group_trans->m_GroupYLoc.Set( translation_vec.y() );
     group_trans->m_GroupZLoc.Set( translation_vec.z() );
-    group_trans->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+    group_trans->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
 
     veh->ClearActiveGeom();
     group_trans->ReInitialize();
@@ -7495,7 +7495,7 @@ void TransformSet( int set_index, const vec3d &translation_vec, double x_rot_deg
     group_trans->m_GroupZRot.Set( z_rot_deg );
     group_trans->m_GroupScale.Set( scale );
     group_trans->m_scaleGroupTranslations.Set( scale_translations_flag );
-    group_trans->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+    group_trans->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
 
     veh->ClearActiveGeom();
     group_trans->ReInitialize();
@@ -8570,7 +8570,7 @@ void SetPCurve( const string & geom_id, const int & pcurveid, const vector < dou
     }
 
     PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    PCurve *pc = NULL;
+    PCurve *pc = nullptr;
 
     if ( prop_ptr )
     {
@@ -8604,7 +8604,7 @@ void PCurveConvertTo( const string & geom_id, const int & pcurveid, const int & 
     }
 
     PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    PCurve *pc = NULL;
+    PCurve *pc = nullptr;
 
     if ( prop_ptr )
     {
@@ -8638,7 +8638,7 @@ int PCurveGetType( const std::string & geom_id, const int & pcurveid )
     }
 
     PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    PCurve *pc = NULL;
+    PCurve *pc = nullptr;
 
     if ( prop_ptr )
     {
@@ -8674,7 +8674,7 @@ vector < double > PCurveGetTVec( const string & geom_id, const int & pcurveid )
     }
 
     PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    PCurve *pc = NULL;
+    PCurve *pc = nullptr;
 
     if ( prop_ptr )
     {
@@ -8712,7 +8712,7 @@ vector < double > PCurveGetValVec( const string & geom_id, const int & pcurveid 
     }
 
     PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    PCurve *pc = NULL;
+    PCurve *pc = nullptr;
 
     if ( prop_ptr )
     {
@@ -8748,7 +8748,7 @@ void PCurveDeletePt( const string & geom_id, const int & pcurveid, const int & i
     }
 
     PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    PCurve *pc = NULL;
+    PCurve *pc = nullptr;
 
     if ( prop_ptr )
     {
@@ -8782,7 +8782,7 @@ int PCurveSplit( const string & geom_id, const int & pcurveid, const double & ts
     }
 
     PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    PCurve *pc = NULL;
+    PCurve *pc = nullptr;
 
     if ( prop_ptr )
     {

@@ -118,7 +118,7 @@ int _tinydir_file_cmp( const void *a, const void *b );
 _TINYDIR_FUNC
 int tinydir_open( tinydir_dir *dir, const char *path )
 {
-    if ( dir == NULL || path == NULL || strlen( path ) == 0 )
+    if ( dir == nullptr || path == nullptr || strlen( path ) == 0 )
     {
         errno = EINVAL;
         return -1;
@@ -130,11 +130,11 @@ int tinydir_open( tinydir_dir *dir, const char *path )
     }
 
     /* initialise dir */
-    dir->_files = NULL;
+    dir->_files = nullptr;
 #ifdef _MSC_VER
     dir->_h = INVALID_HANDLE_VALUE;
 #else
-    dir->_d = NULL;
+    dir->_d = nullptr;
 #endif
     tinydir_close( dir );
 
@@ -146,7 +146,7 @@ int tinydir_open( tinydir_dir *dir, const char *path )
     if ( dir->_h == INVALID_HANDLE_VALUE )
 #else
     dir->_d = opendir( path );
-    if ( dir->_d == NULL )
+    if ( dir->_d == nullptr )
 #endif
     {
         errno = ENOENT;
@@ -157,7 +157,7 @@ int tinydir_open( tinydir_dir *dir, const char *path )
     dir->has_next = 1;
 #ifndef _MSC_VER
     dir->_e = readdir( dir->_d );
-    if ( dir->_e == NULL )
+    if ( dir->_e == nullptr )
     {
         dir->has_next = 0;
     }
@@ -184,7 +184,7 @@ int tinydir_open_sorted( tinydir_dir *dir, const char *path )
         tinydir_file *p_file;
         dir->n_files++;
         dir->_files = ( tinydir_file * )realloc( dir->_files, sizeof( tinydir_file ) * dir->n_files );
-        if ( dir->_files == NULL )
+        if ( dir->_files == nullptr )
         {
             errno = ENOMEM;
             goto bail;
@@ -214,7 +214,7 @@ bail:
 _TINYDIR_FUNC
 void tinydir_close( tinydir_dir *dir )
 {
-    if ( dir == NULL )
+    if ( dir == nullptr )
     {
         return;
     }
@@ -222,11 +222,11 @@ void tinydir_close( tinydir_dir *dir )
     memset( dir->path, 0, sizeof( dir->path ) );
     dir->has_next = 0;
     dir->n_files = -1;
-    if ( dir->_files != NULL )
+    if ( dir->_files != nullptr )
     {
         free( dir->_files );
     }
-    dir->_files = NULL;
+    dir->_files = nullptr;
 #ifdef _MSC_VER
     if ( dir->_h != INVALID_HANDLE_VALUE )
     {
@@ -238,15 +238,15 @@ void tinydir_close( tinydir_dir *dir )
     {
         closedir( dir->_d );
     }
-    dir->_d = NULL;
-    dir->_e = NULL;
+    dir->_d = nullptr;
+    dir->_e = nullptr;
 #endif
 }
 
 _TINYDIR_FUNC
 int tinydir_next( tinydir_dir *dir )
 {
-    if ( dir == NULL )
+    if ( dir == nullptr )
     {
         errno = EINVAL;
         return -1;
@@ -261,7 +261,7 @@ int tinydir_next( tinydir_dir *dir )
     if ( FindNextFile( dir->_h, &dir->_f ) == 0 )
 #else
     dir->_e = readdir( dir->_d );
-    if ( dir->_e == NULL )
+    if ( dir->_e == nullptr )
 #endif
     {
         dir->has_next = 0;
@@ -282,7 +282,7 @@ int tinydir_next( tinydir_dir *dir )
 _TINYDIR_FUNC
 int tinydir_readfile( const tinydir_dir *dir, tinydir_file *file )
 {
-    if ( dir == NULL || file == NULL )
+    if ( dir == nullptr || file == nullptr )
     {
         errno = EINVAL;
         return -1;
@@ -290,7 +290,7 @@ int tinydir_readfile( const tinydir_dir *dir, tinydir_file *file )
 #ifdef _MSC_VER
     if ( dir->_h == INVALID_HANDLE_VALUE )
 #else
-    if ( dir->_e == NULL )
+    if ( dir->_e == nullptr )
 #endif
     {
         errno = ENOENT;
@@ -369,7 +369,7 @@ int tinydir_readfile( const tinydir_dir *dir, tinydir_file *file )
 _TINYDIR_FUNC
 int tinydir_readfile_n( const tinydir_dir *dir, tinydir_file *file, int i )
 {
-    if ( dir == NULL || file == NULL || i < 0 )
+    if ( dir == nullptr || file == nullptr || i < 0 )
     {
         errno = EINVAL;
         return -1;
@@ -389,7 +389,7 @@ _TINYDIR_FUNC
 int tinydir_open_subdir_n( tinydir_dir *dir, int i )
 {
     char path[_TINYDIR_PATH_MAX];
-    if ( dir == NULL || i < 0 )
+    if ( dir == nullptr || i < 0 )
     {
         errno = EINVAL;
         return -1;

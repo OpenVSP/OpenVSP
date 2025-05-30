@@ -854,7 +854,7 @@ double WingSect::GetTanSweepAt( double sweep, double loc  )
 xmlNodePtr WingSect::EncodeXml(  xmlNodePtr & node  )
 {
     ParmContainer::EncodeXml( node );
-    xmlNodePtr xsec_node = xmlNewChild( node, NULL, BAD_CAST "XSec", NULL );
+    xmlNodePtr xsec_node = xmlNewChild( node, nullptr, BAD_CAST "XSec", nullptr );
     if ( xsec_node )
     {
         XmlUtil::AddIntNode( xsec_node, "Type", m_Type );
@@ -867,7 +867,7 @@ xmlNodePtr WingSect::EncodeXml(  xmlNodePtr & node  )
 
         m_DriverGroup.EncodeXml( xsec_node );
 
-        xmlNodePtr xscrv_node = xmlNewChild( xsec_node, NULL, BAD_CAST "XSecCurve", NULL );
+        xmlNodePtr xscrv_node = xmlNewChild( xsec_node, nullptr, BAD_CAST "XSecCurve", nullptr );
         if ( xscrv_node )
         {
             m_XSCurve->EncodeXml( xscrv_node );
@@ -1507,7 +1507,7 @@ void WingGeom::AddDefaultSources( double base_len )
 xmlNodePtr WingGeom::EncodeXml( xmlNodePtr & node )
 {
     Geom::EncodeXml( node );
-    xmlNodePtr wing_node = xmlNewChild( node, NULL, BAD_CAST "WingGeom", NULL );
+    xmlNodePtr wing_node = xmlNewChild( node, nullptr, BAD_CAST "WingGeom", nullptr );
     if ( wing_node )
     {
         m_XSecSurf.EncodeXml( wing_node );
@@ -1556,7 +1556,7 @@ WingSect* WingGeom::GetWingSect( int index )
         WingSect* ws = dynamic_cast< WingSect* >(xs);
         return ws;
     }
-    return NULL;
+    return nullptr;
 }
 
 //==== Override Geom Cut/Copy/Insert/Paste ====//
@@ -2793,10 +2793,10 @@ void WingGeom::ReadV2File( xmlNodePtr &root )
 
         for ( i = 0 ; i < num_af ; i++ )
         {
-            xmlNodePtr af_node = NULL;
+            xmlNodePtr af_node = nullptr;
             af_node = XmlUtil::GetNode( af_list_node, "Airfoil", i );
 
-            xmlNodePtr sec_node = NULL;
+            xmlNodePtr sec_node = nullptr;
             if ( i > 0 )
             {
                 sec_node = XmlUtil::GetNode( sec_list_node, "Section", i - 1 );
@@ -2810,7 +2810,7 @@ void WingGeom::ReadV2File( xmlNodePtr &root )
             {
                 int af_type = XmlUtil::FindInt( af_node, "Type", 0 );
 
-                XSec* xsec_ptr = NULL;
+                XSec* xsec_ptr = nullptr;
 
                 switch ( af_type )
                 {

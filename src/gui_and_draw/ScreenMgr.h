@@ -56,7 +56,7 @@ public:
     }
 
     /*!
-    * Get Screen from id.  If id does not exist, return NULL.
+    * Get Screen from id.  If id does not exist, return nullptr.
     */
     VspScreen* GetScreen( int id );
     vector < VspScreen* > GetAllScreens();

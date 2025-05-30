@@ -13,7 +13,7 @@ namespace VSPGraphic
 {
     TextMgr::TextMgr()
     {
-        _font = NULL;
+        _font = nullptr;
         texID = 0;
     }
     TextMgr::~TextMgr()
@@ -27,7 +27,7 @@ namespace VSPGraphic
         {
             glDeleteTextures(1, &(this->texID) );
             delete _font;
-            _font = NULL;
+            _font = nullptr;
             texID = 0;
         }
     }

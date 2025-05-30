@@ -40,7 +40,7 @@ public:
     /*!
     * Get light info at index.  The range of index
     * is defined by the value in NUMOFLIGHTS. Return
-    * NULL if index is not valid.
+    * nullptr if index is not valid.
     */
     Light * Get( unsigned int index );
 

@@ -83,7 +83,7 @@ void Link::ParmChanged( Parm* parm_ptr, int type )
 
 xmlNodePtr Link::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr link_node = xmlNewChild( node, NULL, BAD_CAST"Link", NULL );
+    xmlNodePtr link_node = xmlNewChild( node, nullptr, BAD_CAST"Link", nullptr );
 
     if ( link_node )
     {

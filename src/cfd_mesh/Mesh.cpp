@@ -35,8 +35,8 @@ Mesh::Mesh()
     m_HighlightNodeIndex = 0;
     m_HighlightEdgeIndex = 2;
 
-    m_Surf = NULL;
-    m_GridDensity = NULL;
+    m_Surf = nullptr;
+    m_GridDensity = nullptr;
 }
 
 Mesh::~Mesh()
@@ -575,7 +575,7 @@ Node* Mesh::FindNode( const vec3d& p )
             return ( *n );
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 Edge* Mesh::AddEdge( Node* n0, Node* n1 )
@@ -631,7 +631,7 @@ Edge* Mesh::FindEdge( Node* n0, Node* n1 )
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
@@ -1116,7 +1116,7 @@ bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace )
 
 void Mesh::CollapseHighlightEdge()
 {
-    Edge* hedge = NULL;
+    Edge* hedge = nullptr;
     int cnt = 0;
     list< Edge* >::iterator e;
     for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
@@ -1225,13 +1225,13 @@ void Mesh::CollapseEdge( Edge* edge )
         if( ea0->ns )
         {
             eca->ns = ea0->ns;
-            ea0->ns = NULL;
+            ea0->ns = nullptr;
         }
 
         if( ea1->ns )
         {
             eca->ns = ea1->ns;
-            ea1->ns = NULL;
+            ea1->ns = nullptr;
         }
     }
     if ( eb0->border || eb1->border )
@@ -1241,13 +1241,13 @@ void Mesh::CollapseEdge( Edge* edge )
         if( eb0->ns )
         {
             ecb->ns = eb0->ns;
-            eb0->ns = NULL;
+            eb0->ns = nullptr;
         }
 
         if( eb1->ns )
         {
             ecb->ns = eb1->ns;
-            eb1->ns = NULL;
+            eb1->ns = nullptr;
         }
     }
     if ( ea0->ridge  || ea1->ridge )
@@ -1387,7 +1387,7 @@ void Mesh::OptSmooth( int num_iter )
 bool Mesh::SetFixPoint( const vec3d &fix_pnt, vec2d fix_uw )
 {
     double min_dist = DBL_MAX;
-    Node* closest_node = NULL;
+    Node* closest_node = nullptr;
 
     list< Node* >::iterator n;
     for ( n = nodeList.begin(); n != nodeList.end(); ++n )
@@ -1562,8 +1562,8 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
 #ifdef DEBUG_CFD_MESH
     static int namecnt = 0;
-    FILE* fp = NULL;
-    static FILE* fpmas = NULL;
+    FILE* fp = nullptr;
+    static FILE* fpmas = nullptr;
 
     if ( namecnt == 0 )
     {
@@ -1629,7 +1629,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         fprintf( fpmas, "hold off\n" );
 
         fclose( fpmas );
-        fpmas = NULL;
+        fpmas = nullptr;
     }
 #endif
 
@@ -1642,7 +1642,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
 #ifdef DEBUG_CFD_MESH
 
-    static FILE* fpmas2 = NULL;
+    static FILE* fpmas2 = nullptr;
 
     if ( namecnt == 0 )
     {
@@ -1710,7 +1710,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         fprintf( fpmas2, "hold off\n" );
 
         fclose( fpmas2 );
-        fpmas2 = NULL;
+        fpmas2 = nullptr;
     }
 #endif
 
@@ -1729,24 +1729,24 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
     //==== PreAllocate Data For In/Out ====//
     in.pointlist    = ( REAL * ) malloc( num_pnts * 2 * sizeof( REAL ) );
-    out.pointlist   = NULL;
+    out.pointlist   = nullptr;
 
     in.segmentlist  = ( int * ) malloc( num_edges * 2 * sizeof( int ) );
-    out.segmentlist  = NULL;
-    out.trianglelist  = NULL;
+    out.segmentlist  = nullptr;
+    out.trianglelist  = nullptr;
 
     in.numberofpointattributes = 0;
-    in.pointattributelist = NULL;
-    in.pointmarkerlist = NULL;
+    in.pointattributelist = nullptr;
+    in.pointmarkerlist = nullptr;
     in.numberofholes = 0;
     in.numberoftriangles = 0;
     in.numberofpointattributes = 0;
     in.numberofedges = 0;
-    in.trianglelist = NULL;
-    in.trianglearealist = NULL;
-    in.edgelist = NULL;
-    in.edgemarkerlist = NULL;
-    in.segmentmarkerlist = NULL;
+    in.trianglelist = nullptr;
+    in.trianglearealist = nullptr;
+    in.edgelist = nullptr;
+    in.edgemarkerlist = nullptr;
+    in.segmentmarkerlist = nullptr;
 
     //==== Load Points into Triangle Struct ====//
     in.numberofpoints = num_pnts;
@@ -1910,7 +1910,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 
 #ifdef DEBUG_CFD_MESH
-        static FILE* fpmas3 = NULL;
+        static FILE* fpmas3 = nullptr;
 
         if ( namecnt == 0 )
         {
@@ -2138,7 +2138,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
             fprintf( fpmas3, "hold off\n" );
 
             fclose( fpmas3 );
-            fpmas3 = NULL;
+            fpmas3 = nullptr;
         }
 
         namecnt++;
@@ -2321,7 +2321,7 @@ void Mesh::ReadSTL( const char* file_name )
     list< Edge* >::iterator e;
     for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
-        if (( *e )->f0 == NULL || ( *e )->f1 == NULL )
+        if (( *e )->f0 == nullptr || ( *e )->f1 == nullptr )
         {
             ( *e )->ridge = true;
             ( *e )->n0->fixed = true;
@@ -2445,7 +2445,7 @@ void Mesh::ConvertToQuads()
         Node* n0 = ( *e )->n0;
         Node* n1 = ( *e )->n1;
 
-        Node* ns = NULL;
+        Node* ns = nullptr;
 
         if( ( *e )->ns )
         {
@@ -2613,7 +2613,7 @@ void Mesh::Draw()
     glLineWidth( 1.0 );
     glBegin( GL_LINES );
 
-    Edge* hl_edge = NULL;
+    Edge* hl_edge = nullptr;
     int edge_cnt = 0;
     list< Edge* >::iterator e;
     for ( e = edgeList.begin() ; e != edgeList.end(); e++ )

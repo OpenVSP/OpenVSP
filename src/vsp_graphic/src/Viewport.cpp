@@ -36,8 +36,8 @@ Viewport::Viewport( int x, int y, int width, int height )
     _textMgr = new TextMgr();
 
     // can't initialize here because no context is created.
-    _background = NULL;
-    _watermark = NULL;
+    _background = nullptr;
+    _watermark = nullptr;
 
     _showBorders = _showArrows = true;
     _showGrid = false;
@@ -378,7 +378,7 @@ void Viewport::clearBackground()
     {
         delete _background;
     }
-    _background = NULL;
+    _background = nullptr;
 }
 
 Watermark * Viewport::getWatermark()
@@ -396,7 +396,7 @@ void Viewport::clearWatermark()
     {
         delete _watermark;
     }
-    _watermark = NULL;
+    _watermark = nullptr;
 }
 
 void Viewport::clearFont()

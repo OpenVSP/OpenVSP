@@ -289,7 +289,7 @@ void FuselageGeom::ComputeCenter()
 xmlNodePtr FuselageGeom::EncodeXml( xmlNodePtr & node )
 {
     Geom::EncodeXml( node );
-    xmlNodePtr fuselage_node = xmlNewChild( node, NULL, BAD_CAST "FuselageGeom", NULL );
+    xmlNodePtr fuselage_node = xmlNewChild( node, nullptr, BAD_CAST "FuselageGeom", nullptr );
     if ( fuselage_node )
     {
         m_XSecSurf.EncodeXml( fuselage_node );
@@ -576,13 +576,13 @@ void FuselageGeom::ReadV2FileFuse2( xmlNodePtr &root )
         int num_xsecs = XmlUtil::GetNumNames( xsec_list_node, "Cross_Section" );
 
         xmlNodePtr xsec_node = node->xmlChildrenNode;
-        while( xsec_node != NULL )
+        while( xsec_node != nullptr )
         {
             if ( !xmlStrcmp( xsec_node->name, ( const xmlChar * )"Cross_Section" ) )
             {
                 int xstype = XmlUtil::FindInt( xsec_node, "Type", 0 );
 
-                XSec* xsec_ptr = NULL;
+                XSec* xsec_ptr = nullptr;
 
                 switch ( xstype )
                 {
@@ -678,14 +678,14 @@ void FuselageGeom::ReadV2FileFuse1( xmlNodePtr &root )
         int num_xsecs = XmlUtil::GetNumNames( xsec_list_node, "Cross_Section" );
 
         xmlNodePtr xsec_node = node->xmlChildrenNode;
-        while( xsec_node != NULL )
+        while( xsec_node != nullptr )
         {
             if ( !xmlStrcmp( xsec_node->name, ( const xmlChar * )"Cross_Section" ) )
             {
                 xmlNodePtr omlNode = XmlUtil::GetNode( xsec_node, "OML_Parms", 0 );
                 int xstype = XmlUtil::FindInt( omlNode, "Type", -1 );
 
-                XSec* xsec_ptr = NULL;
+                XSec* xsec_ptr = nullptr;
 
                 switch ( xstype )
                 {

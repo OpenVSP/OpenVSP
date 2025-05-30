@@ -492,7 +492,7 @@ void RoutingPoint::UpdateParms()
 
 xmlNodePtr RoutingPoint::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr routingpoint_node = xmlNewChild( node, NULL, BAD_CAST"RoutingPoint", NULL );
+    xmlNodePtr routingpoint_node = xmlNewChild( node, nullptr, BAD_CAST"RoutingPoint", nullptr );
 
     ParmContainer::EncodeXml( routingpoint_node );
 
@@ -586,7 +586,7 @@ xmlNodePtr RoutingGeom::EncodeXml( xmlNodePtr & node )
 {
     Geom::EncodeXml( node );
 
-    xmlNodePtr routingpoints_node = xmlNewChild( node, NULL, BAD_CAST "RoutingPoints", NULL );
+    xmlNodePtr routingpoints_node = xmlNewChild( node, nullptr, BAD_CAST "RoutingPoints", nullptr );
 
     for ( int i = 0; i < ( int )m_RoutingPointVec.size(); i++ )
     {

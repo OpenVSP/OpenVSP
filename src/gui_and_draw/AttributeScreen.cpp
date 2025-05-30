@@ -322,7 +322,7 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
 
 AttributeExplorer::~AttributeExplorer()
 {
-    m_DataText->buffer( NULL );
+    m_DataText->buffer( nullptr );
     delete m_DataBuffer;
 }
 

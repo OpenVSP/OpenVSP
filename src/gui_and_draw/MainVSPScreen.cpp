@@ -46,8 +46,8 @@ using namespace vsp;
 //==== Constructor ====//
 MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 {
-    m_FLTK_Window = NULL;
-    m_GlWin = NULL;
+    m_FLTK_Window = nullptr;
+    m_GlWin = nullptr;
 
     m_ShowXYZArrow = true;
     m_ShowBorder = true;
@@ -321,7 +321,7 @@ void MainVSPScreen::ResizeWindow( int pixel_w, int pixel_h )
 
 void MainVSPScreen::BoldEntries( const string &mpath )
 {
-    Fl_Menu_Item* item = NULL;
+    Fl_Menu_Item* item = nullptr;
     item = (Fl_Menu_Item*) m_MenuBar->find_item( mpath.c_str() );
     if ( item )
     {
@@ -520,7 +520,7 @@ void MainVSPScreen::ActionCB( void * data )
     {
         VehicleMgr.GetVehicle()->SetActiveGeomVec( VehicleMgr.GetVehicle()->GetGeomVec() );
 
-        ManageGeomScreen * geomScreen = NULL;
+        ManageGeomScreen * geomScreen = nullptr;
         geomScreen = dynamic_cast<ManageGeomScreen *>
         ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
         if( geomScreen )
@@ -530,7 +530,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_PickMenuItem )
     {
-        ManageGeomScreen * geomScreen = NULL;
+        ManageGeomScreen * geomScreen = nullptr;
         geomScreen = dynamic_cast<ManageGeomScreen *>
         ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
         if( geomScreen )
@@ -611,7 +611,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_SetCORMenuItem )
     {
-        ManageCORScreen * corScreen = NULL;
+        ManageCORScreen * corScreen = nullptr;
         corScreen = dynamic_cast<ManageCORScreen *>
         ( m_ScreenMgr->GetScreen( vsp::VSP_COR_SCREEN ) );
         if( corScreen )

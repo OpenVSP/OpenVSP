@@ -149,7 +149,7 @@ xmlNodePtr Mode::EncodeXml( xmlNodePtr &node )
 
     if ( parmcontain_node )
     {
-        xmlNodePtr settings_node = xmlNewChild( parmcontain_node, NULL, BAD_CAST "Settings", NULL );
+        xmlNodePtr settings_node = xmlNewChild( parmcontain_node, nullptr, BAD_CAST "Settings", nullptr );
 
         if ( settings_node )
         {
@@ -157,7 +157,7 @@ xmlNodePtr Mode::EncodeXml( xmlNodePtr &node )
             {
                 pair < string, string > set_pair = m_GroupSettingVec[i];
 
-                xmlNodePtr setting_node = xmlNewChild( settings_node, NULL, BAD_CAST "Setting", NULL );
+                xmlNodePtr setting_node = xmlNewChild( settings_node, nullptr, BAD_CAST "Setting", nullptr );
                 if ( setting_node )
                 {
                     XmlUtil::AddStringNode( setting_node, "SettingGroupID", set_pair.first );
@@ -260,7 +260,7 @@ Mode * ModeMgrSingleton::GetMode( const string &id )
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Mode * ModeMgrSingleton::GetMode( int index )
@@ -321,11 +321,11 @@ void ModeMgrSingleton::DelMode( const string &id )
 
 xmlNodePtr ModeMgrSingleton::EncodeXml( xmlNodePtr &node ) const
 {
-    xmlNodePtr ModeMgr_node = xmlNewChild( node, NULL, BAD_CAST"Modes", NULL );
+    xmlNodePtr ModeMgr_node = xmlNewChild( node, nullptr, BAD_CAST"Modes", nullptr );
 
     for ( int i = 0; i < m_ModeVec.size(); i++ )
     {
-        xmlNodePtr mode_node = xmlNewChild( ModeMgr_node, NULL, BAD_CAST "Mode", NULL );
+        xmlNodePtr mode_node = xmlNewChild( ModeMgr_node, nullptr, BAD_CAST "Mode", nullptr );
 
         if ( mode_node )
         {

@@ -25,7 +25,7 @@ int find_interval( const vector< double > & vals, double val );
 double interpolate( const vector< double > & vals, double val, int interval );
 
 //==== Interpolate in Map ====//
-double interpolate( const std::map< double, int > & val_map, double key, bool * in_range = NULL );
+double interpolate( const std::map< double, int > & val_map, double key, bool * in_range = nullptr );
 
 //==== Check If Vector Contains Val =====//
 template <class T>

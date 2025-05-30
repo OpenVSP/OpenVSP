@@ -19,7 +19,7 @@ SurfPatch::SurfPatch()
 {
     u_min = w_min = 0.0;
     u_max = w_max = 1.0;
-    m_SurfPtr = NULL;
+    m_SurfPtr = nullptr;
     sub_depth = 0;
 
     m_wasplanar = false;
@@ -30,7 +30,7 @@ SurfPatch::SurfPatch( int n, int m, int d ) : m_Patch( n, m )
 {
     u_min = w_min = 0.0;
     u_max = w_max = 1.0;
-    m_SurfPtr = NULL;
+    m_SurfPtr = nullptr;
     sub_depth = d;
 
     m_wasplanar = false;

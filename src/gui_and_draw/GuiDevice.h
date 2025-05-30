@@ -226,7 +226,7 @@ class Input : public GuiDevice
 {
 public:
     Input();
-    virtual void Init( VspScreen* screen, Fl_Input* input, const char* format, VspButton* parm_button = NULL );
+    virtual void Init( VspScreen* screen, Fl_Input* input, const char* format, VspButton* parm_button = nullptr );
 
     virtual void SetFormat( const char* format )
     {
@@ -266,7 +266,7 @@ class Output : public GuiDevice
 public:
     Output();
     virtual void DeviceCB( Fl_Widget* w )               {}
-    virtual void Init( VspScreen* screen, Fl_Output* output, const char* format, VspButton* parm_button = NULL );
+    virtual void Init( VspScreen* screen, Fl_Output* output, const char* format, VspButton* parm_button = nullptr );
 
     virtual void SetFormat( const char* format )
     {
@@ -514,7 +514,7 @@ class Counter : public GuiDevice
 public:
     Counter();
     virtual ~Counter() {}
-    virtual void Init( VspScreen* screen, Fl_Counter* counter, VspButton* parm_button = NULL );
+    virtual void Init( VspScreen* screen, Fl_Counter* counter, VspButton* parm_button = nullptr );
     virtual void DeviceCB( Fl_Widget* w );
 
 protected:
@@ -533,7 +533,7 @@ class Choice : public GuiDevice
 public:
 
     Choice();
-    virtual void Init( VspScreen* screen, Fl_Choice* fl_choice, VspButton* parm_button = NULL );
+    virtual void Init( VspScreen* screen, Fl_Choice* fl_choice, VspButton* parm_button = nullptr );
     virtual void DeviceCB( Fl_Widget* w );
 
     virtual void SetVal( int val );
@@ -603,7 +603,7 @@ public:
     SliderInput();
 
     virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, Fl_Input* input,
-                       double range, const char* format, VspButton* parm_button = NULL,
+                       double range, const char* format, VspButton* parm_button = nullptr,
                        bool log_slider = false );
     virtual void Update( const string& parm_id );
     virtual void SetRange( double range )
@@ -645,7 +645,7 @@ public:
     SliderAdjRangeInput();
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input, double range, const char* format,
-                       VspButton* parm_button = NULL, bool log_slider = false );
+                       VspButton* parm_button = nullptr, bool log_slider = false );
 
     virtual void Update( const string& parm_id );
     virtual void SetRange( double range )
@@ -710,7 +710,7 @@ public:
     SliderAdjRange2Input();
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2,
-                       double range, const char* format, VspButton* parm_button = NULL );
+                       double range, const char* format, VspButton* parm_button = nullptr );
     virtual void Update( int slider_id, const string& parm_id_in1, const string& parm_id_in2 );
     virtual void SetRange( double range )
     {
@@ -757,7 +757,7 @@ public:
 
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* fract_input, Fl_Input* result_input,
-                       double range, const char* format, VspButton* parm_button = NULL );
+                       double range, const char* format, VspButton* parm_button = nullptr );
 
     virtual void Update( const string& parm_id );
     virtual void SetRange( double range )
@@ -820,7 +820,7 @@ public:
     StringInput()
     {
         m_String = "";
-        m_Input = NULL;
+        m_Input = nullptr;
     }
     virtual void DeviceCB( Fl_Widget* w );
 
@@ -852,11 +852,11 @@ public:
     StringOutput()
     {
         m_String = "";
-        m_Output = NULL;
+        m_Output = nullptr;
     }
     virtual void DeviceCB( Fl_Widget* w )               {}
 
-    virtual void Init( VspScreen* screen, Fl_Output* output, Fl_Button* button = NULL );
+    virtual void Init( VspScreen* screen, Fl_Output* output, Fl_Button* button = nullptr );
     virtual void Update( const string & val );
 
     virtual string GetString()
@@ -890,7 +890,7 @@ public:
     IndexSelector();
     virtual void Init( VspScreen* screen, Fl_Button* ll_but,  Fl_Button* l_but,
                        Fl_Int_Input* input, Fl_Button* r_but, Fl_Button* rr_but,
-                       VspButton* parm_button = NULL );
+                       VspButton* parm_button = nullptr );
     virtual void DeviceCB( Fl_Widget* w );
 
     virtual void Update( const string & val );

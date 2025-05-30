@@ -137,7 +137,7 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     m_XSecLayout.SetFitWidthFlag( true );
     m_XSecLayout.InitWidthHeightVals();
 
-    m_XSecLayout.AddIndexSelector( m_PntSelector, NULL );
+    m_XSecLayout.AddIndexSelector( m_PntSelector, nullptr );
 
     m_XSecLayout.AddYGap();
 
@@ -379,13 +379,13 @@ void CurveEditScreen::Show()
 //==== Get the Active XSec Curve ====//
 XSecCurve* CurveEditScreen::GetXSecCurve()
 {
-    XSecCurve* xsc = NULL;
+    XSecCurve* xsc = nullptr;
 
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
 
     if ( !geom_ptr )
     {
-        return NULL;
+        return nullptr;
     }
 
     if ( geom_ptr->GetType().m_Type == MS_WING_GEOM_TYPE )
@@ -394,7 +394,7 @@ XSecCurve* CurveEditScreen::GetXSecCurve()
 
         if ( !wing_ptr )
         {
-            return NULL;
+            return nullptr;
         }
 
         int aid = wing_ptr->m_ActiveXSec();
@@ -402,7 +402,7 @@ XSecCurve* CurveEditScreen::GetXSecCurve()
 
         if ( !xs )
         {
-            return NULL;
+            return nullptr;
         }
 
         xsc = xs->GetXSecCurve();
@@ -413,7 +413,7 @@ XSecCurve* CurveEditScreen::GetXSecCurve()
 
         if ( !bor_geom )
         {
-            return NULL;
+            return nullptr;
         }
 
         xsc = bor_geom->GetXSecCurve();
@@ -423,7 +423,7 @@ XSecCurve* CurveEditScreen::GetXSecCurve()
         GeomXSec* geom_xsec = dynamic_cast <GeomXSec*> ( geom_ptr );
         if ( !geom_xsec )
         {
-            return NULL;
+            return nullptr;
         }
 
         int xsid = geom_xsec->m_ActiveXSec();
@@ -431,7 +431,7 @@ XSecCurve* CurveEditScreen::GetXSecCurve()
 
         if ( !xs )
         {
-            return NULL;
+            return nullptr;
         }
 
         xsc = xs->GetXSecCurve();
@@ -1001,7 +1001,7 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         edit_curve_xs->ReparameterizeEqualArcLength();
         // Force update the parent Geom after reparameterization
-        edit_curve_xs->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+        edit_curve_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
     }
     else if ( gui_device == &m_SplitButton )
     {

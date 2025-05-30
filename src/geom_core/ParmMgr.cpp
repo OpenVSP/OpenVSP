@@ -111,7 +111,7 @@ Parm* ParmMgrSingleton::FindParm( const string & id )
     {
         return iter->second;
     }
-    return NULL;
+    return nullptr;
 }
 
 //==== Find Parm Container GivenID ====//
@@ -124,7 +124,7 @@ ParmContainer* ParmMgrSingleton::FindParmContainer( const string & id )
     {
         return iter->second;
     }
-    return NULL;
+    return nullptr;
 }
 
 bool ParmMgrSingleton::ValidateParmMap()
@@ -332,7 +332,7 @@ void ParmMgrSingleton::GetNames( const string& parm_id, string& container_name,
 //==== Create Parm and Add To Vector Of Parms ====//
 Parm* ParmMgrSingleton::CreateParm( int type )
 {
-    Parm* p = NULL;
+    Parm* p = nullptr;
     if ( type == vsp::PARM_DOUBLE_TYPE )
     {
         p = new Parm();

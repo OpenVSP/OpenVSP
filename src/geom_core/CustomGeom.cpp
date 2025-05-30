@@ -875,7 +875,7 @@ XSecSurf* CustomGeom::GetXSecSurf( int index )
 {
     if ( index < 0 || index >= ( int )m_XSecSurfVec.size() )
     {
-        return NULL;
+        return nullptr;
     }
     return m_XSecSurfVec[index];
 }
@@ -1000,7 +1000,7 @@ void CustomGeom::SetVspSurfCfdType( int type, int surf_id )
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr CustomGeom::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr custom_node = xmlNewChild( node, NULL, BAD_CAST "CustomGeom", NULL );
+    xmlNodePtr custom_node = xmlNewChild( node, nullptr, BAD_CAST "CustomGeom", nullptr );
     if ( custom_node )
     {
         string file_contents = ScriptMgr.FindModuleContent( GetScriptModuleName() );

@@ -91,7 +91,7 @@ DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 405,
 
 DegenGeomScreen::~DegenGeomScreen()
 {
-    m_TextDisplay->buffer( NULL );
+    m_TextDisplay->buffer( nullptr );
     delete m_TextBuffer;
 }
 

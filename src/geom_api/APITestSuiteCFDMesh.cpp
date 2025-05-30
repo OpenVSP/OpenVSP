@@ -345,7 +345,7 @@ void APITestSuiteCFDMesh::FEAMeshAnalysisTest()
 
     //==== Add Some Structural Entities ====//
     string floor_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_SLICE );
-    TEST_ASSERT( floor_id.c_str() != NULL );
+    TEST_ASSERT( floor_id.c_str() != nullptr );
 
     vsp::SetParmVal( vsp::FindParm( floor_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL );
     vsp::SetParmVal( vsp::FindParm( floor_id, "RelCenterLocation", "FeaPart" ), 0.65 );
@@ -353,7 +353,7 @@ void APITestSuiteCFDMesh::FEAMeshAnalysisTest()
 
     //==== Add Dome ====//
     string dome_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_DOME );
-    TEST_ASSERT( dome_id.c_str() != NULL );
+    TEST_ASSERT( dome_id.c_str() != nullptr );
 
     vsp::SetParmVal( vsp::FindParm( dome_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL );
     vsp::SetParmVal( vsp::FindParm( dome_id, "X_Location", "FeaDome" ), 0.2 * length );
@@ -361,7 +361,7 @@ void APITestSuiteCFDMesh::FEAMeshAnalysisTest()
 
     //==== Add Stiffener ====//
     string stiffener_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_SLICE );
-    TEST_ASSERT( stiffener_id.c_str() != NULL );
+    TEST_ASSERT( stiffener_id.c_str() != nullptr );
 
     vsp::SetParmVal( vsp::FindParm( stiffener_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM );
     vsp::SetParmVal( vsp::FindParm( stiffener_id, "RelCenterLocation", "FeaPart" ), 0.25 );
@@ -369,7 +369,7 @@ void APITestSuiteCFDMesh::FEAMeshAnalysisTest()
 
     //==== Add Sub-Surfacae ====//
     string ss_id = vsp::AddFeaSubSurf( pod_id, struct_ind, vsp::SS_ELLIPSE );
-    TEST_ASSERT( ss_id.c_str() != NULL );
+    TEST_ASSERT( ss_id.c_str() != nullptr );
 
     vsp::SetParmVal( vsp::FindParm( ss_id, "IncludedElements", "SubSurface" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM );
     vsp::SetParmVal( vsp::FindParm( ss_id, "Center_U", "SS_Ellipse" ), 0.35 );

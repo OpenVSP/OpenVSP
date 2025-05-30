@@ -30,7 +30,7 @@ Scene::Scene()
 
     _showSelection = true;
 
-    _highlighted = NULL;
+    _highlighted = nullptr;
 }
 Scene::~Scene()
 {
@@ -60,7 +60,7 @@ void Scene::clearScene()
 
 void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out)
 {
-    SceneObject * object = NULL;
+    SceneObject * object = nullptr;
 
     switch(objectType)
     {
@@ -110,8 +110,8 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out)
 
 void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out, unsigned int sourceId)
 {
-    SceneObject * object = NULL;
-    Renderable * sourceObj = NULL;
+    SceneObject * object = nullptr;
+    Renderable * sourceObj = nullptr;
 
     switch(objectType)
     {
@@ -212,7 +212,7 @@ std::vector<unsigned int> Scene::getIds()
 
 void Scene::activatePicking(int x, int y)
 {		
-    _highlighted = NULL;
+    _highlighted = nullptr;
 
     unsigned char index[4] = {0x00, 0x00, 0x00, 0x00};
     unsigned int id = 0;
@@ -464,7 +464,7 @@ Selectable * Scene::getLastSelected( const std::string &group)
             return _selections[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 std::vector<Selectable*> Scene::getSelected( const std::string &group)

@@ -41,7 +41,7 @@ void APITestSuite::CreateGeometry()
         //==== Create geometry =====//
         string geom_id = vsp::AddGeom( types[i_geom_type] );
         printf( "\t%s", geom_id.c_str() );
-        TEST_ASSERT( geom_id.c_str() != NULL );
+        TEST_ASSERT( geom_id.c_str() != nullptr );
         TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
         //==== Set Name ====//
@@ -153,7 +153,7 @@ void APITestSuite::ChangePodParams()
 
     //==== Add Pod Geom =====//
     string pod_id = vsp::AddGeom( "POD" );
-    TEST_ASSERT( pod_id.c_str() != NULL );
+    TEST_ASSERT( pod_id.c_str() != nullptr );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Set Name ====//
@@ -214,12 +214,12 @@ void APITestSuite::CopyPasteGeometry()
 
     //==== Add Fuselage Geom =====//
     string fuse_id = vsp::AddGeom( "FUSELAGE" );
-    TEST_ASSERT( fuse_id.c_str() != NULL );
+    TEST_ASSERT( fuse_id.c_str() != nullptr );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Add Pod Geom and set some parameters =====//
     string first_pod_id = vsp::AddGeom( "POD", fuse_id );
-    TEST_ASSERT( first_pod_id.c_str() != NULL );
+    TEST_ASSERT( first_pod_id.c_str() != nullptr );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Change First Pod Parameters (name, length, finess ratio, y location, x location, symmetry) ====//
@@ -308,7 +308,7 @@ void APITestSuite::TestAnalysesWithPod()
 
     //==== Add Pod Geom and set some parameters =====//
     string pod_id = vsp::AddGeom( "POD" );
-    TEST_ASSERT( pod_id.c_str() != NULL );
+    TEST_ASSERT( pod_id.c_str() != nullptr );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Change Pod Parameters (name, length, finess ratio, y location, x location, symmetry) ====//
@@ -362,7 +362,7 @@ void APITestSuite::TestDXFExport()
 
     //==== Add Wing Geom and set some parameters =====//
     string wing_id = vsp::AddGeom( "WING" );
-    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT( wing_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 30.0 ), 30.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL );
@@ -371,7 +371,7 @@ void APITestSuite::TestDXFExport()
 
     //==== Add Fuselage Geom and set some parameters =====//
     string fus_id = vsp::AddGeom( "FUSELAGE" );
-    TEST_ASSERT( fus_id.c_str() != NULL );
+    TEST_ASSERT( fus_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fus_id, "X_Rel_Location", "XForm", -9.0 ), -9.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fus_id, "Z_Rel_Location", "XForm", -1.0 ), -1.0, TEST_TOL );
     vsp::Update();
@@ -441,7 +441,7 @@ void APITestSuite::TestSVGExport()
 
     //==== Add Wing Geom and set some parameters =====//
     string wing_id = vsp::AddGeom( "WING" );
-    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT( wing_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 30.0 ), 30.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL );
@@ -450,7 +450,7 @@ void APITestSuite::TestSVGExport()
 
     //==== Add Fuselage Geom and set some parameters =====//
     string fus_id = vsp::AddGeom( "FUSELAGE" );
-    TEST_ASSERT( fus_id.c_str() != NULL );
+    TEST_ASSERT( fus_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fus_id, "X_Rel_Location", "XForm", -9.0 ), -9.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fus_id, "Z_Rel_Location", "XForm", -1.0 ), -1.0, TEST_TOL );
     vsp::Update();
@@ -518,15 +518,15 @@ void APITestSuite::TestFacetExport()
 
     //==== Add Pod Geom and set some parameters =====//
     string pod_id = vsp::AddGeom( "POD" );
-    TEST_ASSERT( pod_id.c_str() != NULL );
+    TEST_ASSERT( pod_id.c_str() != nullptr );
 
 
     //==== Add SubSurfaces and set some parameters ====/
     string subsurf_ellipse_id = vsp::AddSubSurf( pod_id, vsp::SS_ELLIPSE, 0 );
-    TEST_ASSERT( subsurf_ellipse_id.c_str() != NULL );
+    TEST_ASSERT( subsurf_ellipse_id.c_str() != nullptr );
 
     string subsurf_rectangle_id = vsp::AddSubSurf( pod_id, vsp::SS_RECTANGLE, 0 );
-    TEST_ASSERT( subsurf_rectangle_id.c_str() != NULL );
+    TEST_ASSERT( subsurf_rectangle_id.c_str() != nullptr );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( subsurf_rectangle_id, "Center_U", "SS_Rectangle" ), 0.6 ), 0.6, TEST_TOL );
 
@@ -568,7 +568,7 @@ void APITestSuite::TestSaveLoad()
 
     //==== Add Wing Geom and set some parameters =====//
     string wing_id = vsp::AddGeom( "WING" );
-    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT( wing_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 30.0 ), 30.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL );
@@ -577,7 +577,7 @@ void APITestSuite::TestSaveLoad()
 
     //==== Add Fuselage Geom and set some parameters =====//
     string fus_id = vsp::AddGeom( "FUSELAGE" );
-    TEST_ASSERT( fus_id.c_str() != NULL );
+    TEST_ASSERT( fus_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fus_id, "X_Rel_Location", "XForm", -9.0 ), -9.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fus_id, "Z_Rel_Location", "XForm", -1.0 ), -1.0, TEST_TOL );
     vsp::Update();
@@ -625,7 +625,7 @@ void APITestSuite::TestFEAMesh()
     //==== Add Pod Geometry ====//
     printf( "\tAdding Geometry and Creating FeaStructure\n" );
     string pod_id = vsp::AddGeom( "POD" );
-    TEST_ASSERT( pod_id.c_str() != NULL );
+    TEST_ASSERT( pod_id.c_str() != nullptr );
 
     double length = 15.0;
 
@@ -646,7 +646,7 @@ void APITestSuite::TestFEAMesh()
 
     //==== Create FeaMaterial ====//
     string mat_id = vsp::AddFeaMaterial();
-    TEST_ASSERT( mat_id.c_str() != NULL );
+    TEST_ASSERT( mat_id.c_str() != nullptr );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( mat_id, "MassDensity", "FeaMaterial" ), 0.016 ), 0.016, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( mat_id, "ElasticModulus", "FeaMaterial" ), 2.0e6 ), 2.0e6, TEST_TOL );
@@ -654,7 +654,7 @@ void APITestSuite::TestFEAMesh()
 
     //==== Create FeaProperty ====//
     string prop_id = vsp::AddFeaProperty();
-    TEST_ASSERT( prop_id.c_str() != NULL );
+    TEST_ASSERT( prop_id.c_str() != nullptr );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( prop_id, "FeaMaterialIndex", "FeaProperty" ), 4 ), 4, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( prop_id, "Thickness", "FeaProperty" ), 0.01 ), 0.01, TEST_TOL );
@@ -665,7 +665,7 @@ void APITestSuite::TestFEAMesh()
 
     //==== Add Floor ====//
     string floor_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_SLICE );
-    TEST_ASSERT( floor_id.c_str() != NULL );
+    TEST_ASSERT( floor_id.c_str() != nullptr );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( floor_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( floor_id, "RelCenterLocation", "FeaPart" ), 0.34 ), 0.34, TEST_TOL );
@@ -675,7 +675,7 @@ void APITestSuite::TestFEAMesh()
 
     //==== Add Bulkead ====//
     string bulkhead_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_SLICE );
-    TEST_ASSERT( bulkhead_id.c_str() != NULL );
+    TEST_ASSERT( bulkhead_id.c_str() != nullptr );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "RelCenterLocation", "FeaPart" ), 0.15 ), 0.15, TEST_TOL );
@@ -683,7 +683,7 @@ void APITestSuite::TestFEAMesh()
 
     //==== Add Dome ====//
     string dome_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_DOME );
-    TEST_ASSERT( dome_id.c_str() != NULL );
+    TEST_ASSERT( dome_id.c_str() != nullptr );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( dome_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( dome_id, "X_Location", "FeaDome" ), 0.7 * length ), 0.7 * length, TEST_TOL );
@@ -691,7 +691,7 @@ void APITestSuite::TestFEAMesh()
 
     //==== Add Stiffener ====//
     string stiffener_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_SLICE );
-    TEST_ASSERT( stiffener_id.c_str() != NULL );
+    TEST_ASSERT( stiffener_id.c_str() != nullptr );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "RelCenterLocation", "FeaPart" ), 0.45 ), 0.45, TEST_TOL );
@@ -699,7 +699,7 @@ void APITestSuite::TestFEAMesh()
 
     //==== Add LineArray ====//
     string line_array_id = vsp::AddFeaSubSurf( pod_id, struct_ind, vsp::SS_LINE_ARRAY );
-    TEST_ASSERT( line_array_id.c_str() != NULL );
+    TEST_ASSERT( line_array_id.c_str() != nullptr );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( line_array_id, "ConstLineType", "SS_LineArray" ), 1 ), 1, TEST_TOL ); // Constant W
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( line_array_id, "Spacing", "SS_LineArray" ), 0.25 ), 0.25, TEST_TOL );
@@ -707,7 +707,7 @@ void APITestSuite::TestFEAMesh()
 
     //==== Add Hole ====//
     string hole_id = vsp::AddFeaSubSurf( pod_id, struct_ind, vsp::SS_RECTANGLE );
-    TEST_ASSERT( hole_id.c_str() != NULL );
+    TEST_ASSERT( hole_id.c_str() != nullptr );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "IncludedElements", "SubSurface" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "Center_U", "SS_Rectangle" ), 0.65 ), 0.65, TEST_TOL );
@@ -754,13 +754,13 @@ void APITestSuite::TestEditXSec()
 
     // Add Stack
     string sid = vsp::AddGeom( "STACK", "" );
-    TEST_ASSERT( sid.c_str() != NULL );
+    TEST_ASSERT( sid.c_str() != nullptr );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( sid, "Tess_W", "Shape", 41 ), 41, TEST_TOL );
 
     // Get First (and Only) XSec Surf
     string xsec_surf = vsp::GetXSecSurf( sid, 0 );
-    TEST_ASSERT( xsec_surf.c_str() != NULL );
+    TEST_ASSERT( xsec_surf.c_str() != nullptr );
 
     // Set XSec 1 & 2 to Edit Curve type
     vsp::ChangeXSecShape( xsec_surf, 1, vsp::XS_EDIT_CURVE );
@@ -772,7 +772,7 @@ void APITestSuite::TestEditXSec()
 
     // Identify XSec 1
     string xsec_1 = vsp::GetXSec( xsec_surf, 1 );
-    TEST_ASSERT( xsec_1.c_str() != NULL );
+    TEST_ASSERT( xsec_1.c_str() != nullptr );
 
     // Set XSec 1 to Cubic Bezier (default)
     vsp::EditXSecConvertTo( xsec_1, vsp::CEDIT );
@@ -797,7 +797,7 @@ void APITestSuite::TestEditXSec()
 
     // Identify XSec 2
     string xsec_2 = vsp::GetXSec( xsec_surf, 2 );
-    TEST_ASSERT( xsec_2.c_str() != NULL );
+    TEST_ASSERT( xsec_2.c_str() != nullptr );
 
     // Turn off R/L symmetry
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::GetXSecParm( xsec_2, "SymType" ), vsp::SYM_NONE ), vsp::SYM_NONE, TEST_TOL ); // TODO: Use enum
@@ -874,7 +874,7 @@ void APITestSuite::TestEditXSec()
     for ( int i = 0; i < num_xsecs; i++ )
     {
         string xsec = vsp::GetXSec( xsec_surf, i );
-        TEST_ASSERT( xsec.c_str() != NULL );
+        TEST_ASSERT( xsec.c_str() != nullptr );
         vsp::SetXSecTanAngles( xsec, vsp::XSEC_BOTH_SIDES, 0, -1.0e12, -1.0e12, -1.0e12 );       // Set Tangent Angles At Cross Section
         vsp::SetXSecTanStrengths( xsec, vsp::XSEC_BOTH_SIDES, 0, -1.0e12, -1.0e12, -1.0e12 );  // Set Tangent Strengths At Cross Section
     }

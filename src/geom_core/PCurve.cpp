@@ -97,10 +97,10 @@ void PCurve::SetCurveName( const string & name )
 
 xmlNodePtr PCurve::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr curve_node = xmlNewChild( node, NULL, BAD_CAST m_CurveName.c_str(), NULL );
+    xmlNodePtr curve_node = xmlNewChild( node, nullptr, BAD_CAST m_CurveName.c_str(), nullptr );
     if ( curve_node )
     {
-        xmlNodePtr child_node = xmlNewChild( curve_node, NULL, BAD_CAST "PCurve", NULL );
+        xmlNodePtr child_node = xmlNewChild( curve_node, nullptr, BAD_CAST "PCurve", nullptr );
         if ( child_node )
         {
             XmlUtil::AddIntNode( child_node, "NumPts", m_TParmVec.size() );
@@ -218,7 +218,7 @@ void PCurve::DeletePt( int indx )
         m_SelectPntID = 0;
 
         m_LateUpdateFlag = true;
-        ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+        ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
     }
 }
 
@@ -257,13 +257,13 @@ void PCurve::ParmChanged( Parm* parm_ptr, int type )
                     // Adjust the value of the neighboring control points if GUI slider is adjusted (not used for a click-and-drag event)
                     double dv = v_parm->Get() - v_parm->GetLastVal();
 
-                    Parm* vprev = NULL;
+                    Parm* vprev = nullptr;
                     if ( i > 0 )
                     {
                         vprev = m_ValParmVec[i - 1];
                         vprev->Set( vprev->Get() + dv );
                     }
-                    Parm* vnext = NULL;
+                    Parm* vnext = nullptr;
                     if ( i < m_ValParmVec.size() - 1 )
                     {
                         vnext = m_ValParmVec[i + 1];
@@ -385,7 +385,7 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
         int npt = m_TParmVec.size();
         int nseg = ( npt - 1 ) / 3;
 
-        Parm * pprev = NULL;
+        Parm * pprev = nullptr;
         for ( int i = 0; i < nseg; i++ )
         {
             int istart = i * 3;
@@ -438,11 +438,11 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
     }
     else  // LINEAR or PCHIP
     {
-        Parm *pprev = NULL;
+        Parm *pprev = nullptr;
         for ( int j = 0; j < m_TParmVec.size(); j++ )
         {
             Parm *p = m_TParmVec[j];
-            Parm *pnxt = NULL;
+            Parm *pnxt = nullptr;
             if ( j < m_TParmVec.size() - 1 )
             {
                 pnxt = m_TParmVec[j + 1];
@@ -674,13 +674,13 @@ void PCurve::SetPt( double t, double v, int indx, bool force_update )
 
                 double dv = v - vp->Get();
 
-                Parm *vprev = NULL;
+                Parm *vprev = nullptr;
                 if ( indx > 0 )
                 {
                     vprev = m_ValParmVec[ indx - 1 ];
                     vprev->Set( vprev->Get() + dv );
                 }
-                Parm *vnext = NULL;
+                Parm *vnext = nullptr;
                 if ( indx < m_ValParmVec.size() - 1 )
                 {
                     vnext = m_ValParmVec[ indx + 1 ];
@@ -700,7 +700,7 @@ void PCurve::SetPt( double t, double v, int indx, bool force_update )
 
         if ( force_update )
         {
-            ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+            ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
         }
     }
 }
@@ -843,7 +843,7 @@ int PCurve::Split( const double & tsplit )
     RenameParms();
 
     m_LateUpdateFlag = true;
-    ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+    ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
 
     return m_SelectPntID;
 }
@@ -1010,7 +1010,7 @@ void PCurve::ConvertTo( int newtype )
     m_SelectPntID = 0;
 
     m_LateUpdateFlag = true;
-    ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+    ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
 }
 
 void PCurve::InitCurve( const vector < double > & tvec, const vector < double > & valvec, vector < bool > g1vec )

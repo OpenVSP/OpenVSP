@@ -13,7 +13,7 @@
 //==== Constructor ====//
 BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 680, "BOR" )
 {
-    m_CurrDisplayGroup = NULL;
+    m_CurrDisplayGroup = nullptr;
 
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -816,7 +816,7 @@ bool BORScreen::Update()
 
         if ( xsc->GetType() == vsp::XS_POINT )
         {
-            DisplayGroup( NULL );
+            DisplayGroup( nullptr );
         }
         else if ( xsc->GetType() == vsp::XS_SUPER_ELLIPSE )
         {
@@ -1160,7 +1160,7 @@ bool BORScreen::Update()
         {
             m_EditCEDITGroup.Show();
             m_ConvertCEDITGroup.Hide();
-            DisplayGroup( NULL );
+            DisplayGroup( nullptr );
         }
 
         if ( xsc->GetType() != vsp::XS_EDIT_CURVE )

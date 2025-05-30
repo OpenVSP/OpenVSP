@@ -2,7 +2,7 @@
 
 namespace VSPGraphic
 {
-PickableLoc::PickableLoc() : Pickable(NULL)
+PickableLoc::PickableLoc() : Pickable(nullptr)
 {
 }
 PickableLoc::~PickableLoc()

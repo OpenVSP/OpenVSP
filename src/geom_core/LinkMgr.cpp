@@ -19,7 +19,7 @@ bool LinkMgrSingleton::m_firsttime = true;
 LinkMgrSingleton::LinkMgrSingleton()
 {
     m_CurrLinkIndex = -1;
-    m_WorkingLink = NULL;
+    m_WorkingLink = nullptr;
     m_NumPredefinedUserParms = 16;
     m_UserParms.SetNumPredefined( m_NumPredefinedUserParms );
     m_UserParms.Renew(m_NumPredefinedUserParms);
@@ -46,7 +46,7 @@ void LinkMgrSingleton::Wype()
     // private members
     m_CurrLinkIndex = int();
     delete( m_WorkingLink );
-    m_WorkingLink = NULL;
+    m_WorkingLink = nullptr;
 
     DelAllLinks();
 
@@ -242,7 +242,7 @@ bool LinkMgrSingleton::AddLink( const string& pidA, const string& pidB, bool ini
     Parm* pA = ParmMgr.FindParm( pidA );
     Parm* pB = ParmMgr.FindParm( pidB );
 
-    if ( pA == NULL || pB == NULL )
+    if ( pA == nullptr || pB == nullptr )
     {
         return false;
     }
@@ -573,7 +573,7 @@ ParmContainer* LinkMgrSingleton::FindParmContainer( int index )
         return ParmMgr.FindParmContainer( id );
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void LinkMgrSingleton::SetParm( bool flagA, int container_ind, int group_ind, int parm_ind )
@@ -729,7 +729,7 @@ xmlNodePtr LinkMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
     m_UserParms.EncodeXml( node );
 
-    xmlNodePtr linkmgr_node = xmlNewChild( node, NULL, BAD_CAST"LinkMgr", NULL );
+    xmlNodePtr linkmgr_node = xmlNewChild( node, nullptr, BAD_CAST"LinkMgr", nullptr );
 
     for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
     {

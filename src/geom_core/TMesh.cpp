@@ -142,8 +142,8 @@ void TNode::SetUWPnt( const vec3d & pnt )
 TEdge::TEdge()
 {
     m_N0 = m_N1 = 0;
-    m_ParTri = NULL;
-    m_Tri0 = m_Tri1 = NULL;
+    m_ParTri = nullptr;
+    m_Tri0 = m_Tri1 = nullptr;
 }
 
 TEdge::TEdge( TNode* n0, TNode* n1, TTri* par_tri )
@@ -151,7 +151,7 @@ TEdge::TEdge( TNode* n0, TNode* n1, TTri* par_tri )
     m_N0 = n0;
     m_N1 = n1;
     m_ParTri = par_tri;
-    m_Tri0 = m_Tri1 = NULL;
+    m_Tri0 = m_Tri1 = nullptr;
 }
 
 void TEdge::SwapEdgeDirection()
@@ -450,7 +450,7 @@ void TMesh::CopyAttributes( TMesh* m )
 
 xmlNodePtr TMesh::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr tmesh_node = xmlNewChild( node, NULL, BAD_CAST "TMesh", NULL );
+    xmlNodePtr tmesh_node = xmlNewChild( node, nullptr, BAD_CAST "TMesh", nullptr );
     XmlUtil::AddIntNode( tmesh_node, "Num_Tris", ( int )m_TVec.size() );
     EncodeTriList( tmesh_node );
     return tmesh_node;
@@ -458,7 +458,7 @@ xmlNodePtr TMesh::EncodeXml( xmlNodePtr & node )
 
 xmlNodePtr TMesh::EncodeTriList( xmlNodePtr & node )
 {
-    xmlNodePtr tri_list_node = xmlNewChild( node, NULL, BAD_CAST "Tri_List", NULL );
+    xmlNodePtr tri_list_node = xmlNewChild( node, nullptr, BAD_CAST "Tri_List", nullptr );
     vector<vec3d> tri;
     tri.resize( 4 );
     for ( int i = 0 ; i < ( int ) m_TVec.size() ; i++ )
@@ -503,7 +503,7 @@ void TMesh::DecodeTriList( xmlNodePtr & node, int num_tris )
     iter_node = node->xmlChildrenNode;
 
     int i = 0;
-    while( iter_node != NULL )
+    while( iter_node != nullptr )
     {
         if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )"Tri" ) )
         {
@@ -1391,7 +1391,7 @@ TTri::TTri( TMesh* tmesh )
     m_InvalidFlag  = 0;
     m_Density = 1.0;
     m_TMesh = tmesh;
-    m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = NULL;
+    m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = nullptr;
 }
 
 TTri::~TTri()
@@ -1472,10 +1472,10 @@ void TTri::BuildPermEdges()
         for ( int i = 0 ; i < 3 ; i++ )
         {
             delete m_PEArr[i];
-            m_PEArr[i] = NULL;
+            m_PEArr[i] = nullptr;
         }
     }
-    if ( m_N0 != NULL && m_N1 != NULL && m_N2 != NULL )
+    if ( m_N0 != nullptr && m_N1 != nullptr && m_N2 != nullptr )
     {
         m_PEArr[0] = new TEdge( m_N0, m_N1, this );
         m_PEArr[1] = new TEdge( m_N1, m_N2, this );
@@ -2192,24 +2192,24 @@ void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec,
 
     //==== PreAllocate Data For In/Out ====//
     in.pointlist    = ( REAL * ) malloc( m_NVec.size() * 2 * sizeof( REAL ) );
-    out.pointlist   = NULL;
+    out.pointlist   = nullptr;
 
     in.segmentlist  = ( int * ) malloc( m_EVec.size() * 2 * sizeof( int ) );
-    out.segmentlist  = NULL;
-    out.trianglelist  = NULL;
+    out.segmentlist  = nullptr;
+    out.trianglelist  = nullptr;
 
     in.numberofpointattributes = 0;
-    in.pointattributelist = NULL;
-    in.pointmarkerlist = NULL;
+    in.pointattributelist = nullptr;
+    in.pointmarkerlist = nullptr;
     in.numberofholes = 0;
     in.numberoftriangles = 0;
     in.numberofpointattributes = 0;
     in.numberofedges = 0;
-    in.trianglelist = NULL;
-    in.trianglearealist = NULL;
-    in.edgelist = NULL;
-    in.edgemarkerlist = NULL;
-    in.segmentmarkerlist = NULL;
+    in.trianglelist = nullptr;
+    in.trianglearealist = nullptr;
+    in.edgelist = nullptr;
+    in.edgemarkerlist = nullptr;
+    in.segmentmarkerlist = nullptr;
 
     //==== Load Points into Triangle Struct ====//
     in.numberofpoints = m_NVec.size();
@@ -2506,7 +2506,7 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
 #ifdef DEBUG_TMESH
     if ( dumpCase )
     {
-        FILE *fpdump = NULL;
+        FILE *fpdump = nullptr;
 
         string fname = string( "dlbtest_" ) + to_string( idump ) + string( ".txt" );
         fpdump = fopen( fname.c_str(), "w" );
@@ -2615,7 +2615,7 @@ int TTri::OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t )
     }
 
     double tn;
-    if ( t == NULL )
+    if ( t == nullptr )
     {
         t = &tn;
     }
@@ -3340,7 +3340,7 @@ void TMesh::FindEdge( TNode* node, TTri* tri0, TTri* tri1 )
     TNode* t1n0;
     TNode* t1n1;
 
-    t0n0 = t0n1 = t1n0 = t1n1 = NULL;
+    t0n0 = t0n1 = t1n0 = t1n1 = nullptr;
 
     if ( tri0->m_N0 == node )
     {
@@ -4088,11 +4088,11 @@ void TMesh::StressTest()
         {
             printf( "Stress Test Iter = %d\n", i );
         }
-        TTri* t0 = new TTri( NULL );
+        TTri* t0 = new TTri( nullptr );
         t0->m_N0   = new TNode();
         t0->m_N1   = new TNode();
         t0->m_N2   = new TNode();
-        TTri* t1 = new TTri( NULL );
+        TTri* t1 = new TTri( nullptr );
         t1->m_N0   = new TNode();
         t1->m_N1   = new TNode();
         t1->m_N2   = new TNode();
@@ -4221,16 +4221,16 @@ void TMesh::SplitAliasEdges( TTri* orig_tri, TEdge* isect_edge )
     exyzs[0] = isect_edge->m_N0->GetXYZPnt();
     exyzs[1] = isect_edge->m_N1->GetXYZPnt();
 
-    if ( orig_tri->m_PEArr[0] != NULL )
+    if ( orig_tri->m_PEArr[0] != nullptr )
     {
         double edgeTol = ON_EDGE_TOL;
 
         vec3d * nn;
-        TEdge * orig_e = NULL;
+        TEdge * orig_e = nullptr;
         double t;
         for ( int pei = 0 ; pei < 3 ; pei++ )
         {
-            nn = NULL;
+            nn = nullptr;
             orig_e = orig_tri->m_PEArr[pei];
 
             for( int ei = 0; ei < 2; ei++ )

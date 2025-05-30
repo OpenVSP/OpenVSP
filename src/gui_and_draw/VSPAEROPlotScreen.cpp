@@ -2402,7 +2402,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
             {
                 if ( m_CpSliceCutSelectedResultIDs[iCut] == m_CpSliceCaseSelectedResultIDs[iCase] )
                 {
-                    NameValData* tResultDataPtr = NULL;
+                    NameValData* tResultDataPtr = nullptr;
                     vector <double> CpData, locData;
                     int type = 0;
                     int cut_num = 0;
@@ -2630,7 +2630,7 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
         vector <double> xDoubleData_orig;
         NameValData* xResultDataPtr;
         xResultDataPtr = res->FindPtr( "WakeIter" );
-        if ( (xResultDataPtr != NULL) )
+        if ( (xResultDataPtr != nullptr) )
         {
             vector <int> tIntData = xResultDataPtr->GetIntData();
             copy( tIntData.begin(), tIntData.end(), back_inserter( xDoubleData_orig ) );
@@ -2641,7 +2641,7 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
         for ( int iDataSet = 0; iDataSet < ( int )yDataSetNames.size(); iDataSet++ )
         {
             yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
-            if (  yResultDataPtr != NULL  )
+            if (  yResultDataPtr != nullptr  )
             {
                 vector <double> xDoubleData = xDoubleData_orig;
                 vector <double> yDoubleData;
@@ -2789,7 +2789,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
             xResultDataPtr = res->FindPtr( "Station" );
             y_label = "Station";
 
-            if ( ( xResultDataPtr != NULL ) )
+            if ( ( xResultDataPtr != nullptr ) )
             {
                 vector <int> tIntData = xResultDataPtr->GetIntData();
                 copy( tIntData.begin(), tIntData.end(), back_inserter( xDoubleData_orig ) );
@@ -2944,7 +2944,7 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
         NameValData* xResultDataPtr;
         xResultDataPtr = res->FindPtr( "Time" );
 
-        if ( ( xResultDataPtr != NULL ) )
+        if ( ( xResultDataPtr != nullptr ) )
         {
             vector <double> tDoubledata = xResultDataPtr->GetDoubleData();
             copy( tDoubledata.begin(), tDoubledata.end(), back_inserter( xDoubleData_orig ) );
@@ -2974,7 +2974,7 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
         for ( int iDataSet = 0; iDataSet < (int)yDataSetNames.size(); iDataSet++ )
         {
             yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
-            if ( yResultDataPtr != NULL )
+            if ( yResultDataPtr != nullptr )
             {
                 const vector <double> & xDoubleData = xDoubleData_orig;
                 vector <double> yDoubleData;

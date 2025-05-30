@@ -240,7 +240,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Ad
 
 AdvLinkScreen::~AdvLinkScreen()
 {
-    m_CodeEditor->buffer( NULL );
+    m_CodeEditor->buffer( nullptr );
     delete m_CodeBuffer;
 }
 

@@ -57,7 +57,7 @@ SurfaceIntersectionScreen::SurfaceIntersectionScreen( ScreenMgr* mgr ) : TabScre
 
 SurfaceIntersectionScreen::~SurfaceIntersectionScreen()
 {
-    m_ConsoleDisplay->buffer( NULL );
+    m_ConsoleDisplay->buffer( nullptr );
     delete m_ConsoleBuffer;
 }
 
@@ -648,7 +648,7 @@ void SurfaceIntersectionScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_IntersectAndExport )
     {
         SurfaceIntersectionMgr.SetMeshInProgress( true );
-        m_IntersectProcess.StartThread( surfint_thread_fun, NULL );
+        m_IntersectProcess.StartThread( surfint_thread_fun, nullptr );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

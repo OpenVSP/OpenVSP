@@ -401,7 +401,7 @@ void Image::_loadImage( std::string fileName )
         _image.width = 0;
         _image.height = 0;
         _image.type = 0;
-        _image.data = NULL;
+        _image.data = nullptr;
     }
 }
 

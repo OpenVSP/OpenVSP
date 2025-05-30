@@ -17,7 +17,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
-    m_CurFeaPartDispGroup = NULL;
+    m_CurFeaPartDispGroup = nullptr;
 
     int borderPaddingWidth = 5;
     int yPadding = 7;
@@ -2131,8 +2131,8 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
         vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
         FeaStructure *structure = structvec[ StructureMgr.m_CurrStructIndex() ];
 
-        FeaPart* feaprt = NULL;
-        SubSurface* subsurf = NULL;
+        FeaPart* feaprt = nullptr;
+        SubSurface* subsurf = nullptr;
 
         if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
         {

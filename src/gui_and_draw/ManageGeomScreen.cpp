@@ -1185,7 +1185,7 @@ VspScreen* ManageGeomScreen::GetGeomScreen( int id )
     }
     // Should not reach here.
     assert( false );
-    return NULL;
+    return nullptr;
 }
 
 std::string ManageGeomScreen::getFeedbackGroupName()

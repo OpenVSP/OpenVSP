@@ -37,7 +37,7 @@ private:
     void XmlTest();
     void MeshIOTest();
     void CompareMeshes( Vehicle & veh, const string &mesh_a, const string &mesh_b );
-    void CompareVec3ds( const vec3d & v1, const vec3d & v2, const char * msg = NULL );
+    void CompareVec3ds( const vec3d & v1, const vec3d & v2, const char * msg = nullptr );
 
     static void WritePnts( const std::vector< vec3d > & pnt_vec, const std::string &file_name );
 

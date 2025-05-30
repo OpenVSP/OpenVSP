@@ -100,7 +100,7 @@ AeroStructScreen::AeroStructScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 60
 
 AeroStructScreen::~AeroStructScreen()
 {
-    m_ConsoleDisplay->buffer( NULL );
+    m_ConsoleDisplay->buffer( nullptr );
     delete m_ConsoleBuffer;
 }
 
@@ -414,7 +414,7 @@ void * asmonitorfun( void *data )
 
 #ifdef WIN32
             CloseHandle( pu->m_StdoutPipe[0] );
-            pu->m_StdoutPipe[0] = NULL;
+            pu->m_StdoutPipe[0] = nullptr;
 #else
             close( pu->m_StdoutPipe[0] );
             pu->m_StdoutPipe[0] = -1;

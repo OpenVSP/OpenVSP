@@ -67,7 +67,7 @@ public:
         {
             return GetMeshPtr()->GetGridDensityPtr();
         }
-        return NULL;
+        return nullptr;
     }
 
     virtual SimpleMeshCommonSettings* GetSettingsPtr()
@@ -76,7 +76,7 @@ public:
         {
             return (SimpleMeshCommonSettings* ) GetMeshPtr()->GetStructSettingsPtr();
         }
-        return NULL;
+        return nullptr;
     }
 
     virtual SimpleAssemblySettings* GetAssemblySettingsPtr()

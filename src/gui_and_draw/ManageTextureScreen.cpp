@@ -176,7 +176,7 @@ bool ManageTextureScreen::Update()
     assert( viewport );
     viewport->getBackground()->removeImage();
 
-    Texture* currtex = NULL; // Pointer to the currently selected texture
+    Texture* currtex = nullptr; // Pointer to the currently selected texture
 
     if ( currgeom )
     {

@@ -1001,7 +1001,7 @@ Geom* Vehicle::FindGeom( const string & geom_id )
 {
     if ( geom_id == string( "NONE" ) )
     {
-        return NULL;
+        return nullptr;
     }
 
     auto it = m_GeomStoreMap.find( geom_id );
@@ -1009,7 +1009,7 @@ Geom* Vehicle::FindGeom( const string & geom_id )
     {
         return it->second;
     }
-    return NULL;
+    return nullptr;
 }
 
 //==== Find Vector of Geom Ptrs Based on GeomID ====//
@@ -1019,7 +1019,7 @@ vector< Geom* > Vehicle::FindGeomVec( const vector< string > & geom_id_vec )
     for ( int i = 0 ; i < ( int )geom_id_vec.size() ; i++ )
     {
         Geom* gptr = FindGeom( geom_id_vec[i] );
-        if ( gptr != NULL )
+        if ( gptr != nullptr )
         {
             geom_vec.push_back( gptr );
         }
@@ -1031,7 +1031,7 @@ vector< Geom* > Vehicle::FindGeomVec( const vector< string > & geom_id_vec )
 //=== Create Geom of Type, Add To Storage and Return ID ====//
 string Vehicle::CreateGeom( const GeomType & type )
 {
-    Geom* new_geom = NULL;
+    Geom* new_geom = nullptr;
 
     if ( type.m_Type == CUSTOM_GEOM_TYPE )     // Match Custom on number
     {
@@ -1866,7 +1866,7 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
         {
             Geom* par = FindGeom( geom->GetParentID() );
 
-            if ( par == NULL )
+            if ( par == nullptr )
             {
                 geom->SetParentID( "NONE" );
             }
@@ -1877,7 +1877,7 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
             {
                 Geom* child = FindGeom( childvec[j] );
 
-                if ( child == NULL )
+                if ( child == nullptr )
                 {
                     geom->RemoveChildID( childvec[j] );
                 }
@@ -2204,7 +2204,7 @@ vector< GeomType > Vehicle::GetEditableGeomTypes()
 
 xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 {
-    xmlNodePtr vehicle_node = xmlNewChild( node, NULL, BAD_CAST"Vehicle", NULL );
+    xmlNodePtr vehicle_node = xmlNewChild( node, nullptr, BAD_CAST"Vehicle", nullptr );
 
     ParmContainer::EncodeXml( vehicle_node );
 
@@ -2240,7 +2240,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     AeroStructMgr.EncodeXml( node );
     Background3DMgr.EncodeXml( node );
 
-    xmlNodePtr setnamenode = xmlNewChild( node, NULL, BAD_CAST"SetNames", NULL );
+    xmlNodePtr setnamenode = xmlNewChild( node, nullptr, BAD_CAST"SetNames", nullptr );
     if ( setnamenode )
     {
         for ( int i = 0; i < m_SetNameVec.size(); i++ )
@@ -2249,7 +2249,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
         }
     }
 
-    xmlNodePtr set_attr_node = xmlNewChild( node, NULL, BAD_CAST"SetAttrs", NULL );
+    xmlNodePtr set_attr_node = xmlNewChild( node, nullptr, BAD_CAST"SetAttrs", nullptr );
     if ( set_attr_node )
     {
         for ( int i = 0; i < m_SetAttrCollVec.size(); i++ )
@@ -2258,7 +2258,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 
             if ( m_SetAttrCollVec[i]->GetAttrDataFlag() )
             {
-                xmlNodePtr dnode = xmlNewChild( set_attr_node, NULL, BAD_CAST"Set", NULL );
+                xmlNodePtr dnode = xmlNewChild( set_attr_node, nullptr, BAD_CAST"Set", nullptr );
                 if ( dnode )
                 {
                     XmlUtil::SetStringProp( dnode, "SetName", m_SetNameVec[j] );
@@ -2423,7 +2423,7 @@ bool Vehicle::WriteXMLFile( const string & file_name, int set )
 {
     xmlDocPtr doc = xmlNewDoc( ( const xmlChar * )"1.0" );
 
-    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Geometry" );
+    xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
     xmlDocSetRootElement( doc, root );
     XmlUtil::AddIntNode( root, "Version", CURRENT_FILE_VER );
 
@@ -2457,14 +2457,14 @@ int Vehicle::ReadXMLFile( const string & file_name )
 
     //==== Build an XML tree from a the file ====//
     doc = xmlParseFile( file_name.c_str() );
-    if ( doc == NULL )
+    if ( doc == nullptr )
     {
         fprintf( stderr, "could not parse XML document\n" );
         return 1;
     }
 
     xmlNodePtr root = xmlDocGetRootElement( doc );
-    if ( root == NULL )
+    if ( root == nullptr )
     {
         fprintf( stderr, "empty document\n" );
         xmlFreeDoc( doc );
@@ -2519,14 +2519,14 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
 
     //==== Build an XML tree from a the file ====//
     doc = xmlParseFile( file_name.c_str() );
-    if ( doc == NULL )
+    if ( doc == nullptr )
     {
         fprintf( stderr, "could not parse XML document\n" );
         return 1;
     }
 
     xmlNodePtr root = xmlDocGetRootElement( doc );
-    if ( root == NULL )
+    if ( root == nullptr )
     {
         fprintf( stderr, "empty document\n" );
         xmlFreeDoc( doc );
@@ -3584,10 +3584,10 @@ void Vehicle::WriteX3DFile( const string & file_name, int write_set, bool useMod
 
     xmlDocPtr doc = xmlNewDoc( BAD_CAST "1.0" );
 
-    xmlNodePtr root = xmlNewNode( NULL, BAD_CAST "X3D" );
+    xmlNodePtr root = xmlNewNode( nullptr, BAD_CAST "X3D" );
     xmlDocSetRootElement( doc, root );
 
-    xmlNodePtr scene_node = xmlNewChild( root, NULL, BAD_CAST "Scene", NULL );
+    xmlNodePtr scene_node = xmlNewChild( root, nullptr, BAD_CAST "Scene", nullptr );
 
     WriteX3DViewpoints( scene_node );
 
@@ -3596,9 +3596,9 @@ void Vehicle::WriteX3DFile( const string & file_name, int write_set, bool useMod
     {
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type != BLANK_GEOM_TYPE && geom_vec[i]->GetType().m_Type != HINGE_GEOM_TYPE )
         {
-            xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, BAD_CAST "Shape", NULL );
+            xmlNodePtr shape_node = xmlNewChild( scene_node, nullptr, BAD_CAST "Shape", nullptr );
 
-            xmlNodePtr app_node = xmlNewChild( shape_node, NULL, BAD_CAST "Appearance", NULL );
+            xmlNodePtr app_node = xmlNewChild( shape_node, nullptr, BAD_CAST "Appearance", nullptr );
 
             WriteX3DMaterial( app_node, geom_vec[i]->GetMaterial() ); // Default until materials are implemented in Geom
 
@@ -3669,12 +3669,12 @@ void Vehicle::WriteX3DViewpoints( xmlNodePtr node )
         // write first viewpoint twice so viewpoint buttons will work correctly //
         if ( i == 0 )
         {
-            xmlNodePtr first_view_node = xmlNewChild( node, NULL, BAD_CAST "Viewpoint", BAD_CAST " " );
+            xmlNodePtr first_view_node = xmlNewChild( node, nullptr, BAD_CAST "Viewpoint", BAD_CAST " " );
             WriteX3DViewpointProps( first_view_node, orients, cents, posits, sfov, string( "first" ) );
         }
 
         // write each viewpoint node's properties //
-        xmlNodePtr viewpoint_node = xmlNewChild( node, NULL, BAD_CAST "Viewpoint", BAD_CAST " " );
+        xmlNodePtr viewpoint_node = xmlNewChild( node, nullptr, BAD_CAST "Viewpoint", BAD_CAST " " );
         WriteX3DViewpointProps( viewpoint_node, orients, cents, posits, sfov, x3d_views[i].c_str() );
     }
 }
@@ -3696,7 +3696,7 @@ void Vehicle::WriteX3DMaterial( xmlNodePtr node, Material * material )
     string diffs, emisss, specs;
     char numstr[255];
     vec3d dif,emi,spec,amb;
-    xmlNodePtr mat_node = xmlNewChild( node, NULL, BAD_CAST "Material", BAD_CAST " " );
+    xmlNodePtr mat_node = xmlNewChild( node, nullptr, BAD_CAST "Material", BAD_CAST " " );
 
     material->GetDiffuse(dif);
     dif = dif/255.0;
@@ -3855,7 +3855,7 @@ void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &
             int num_surf = geom_vec[i]->GetNumTotalSurfs();
 
             vector<VspSurf> surf_vec;
-            const vector<VspSurf> *surf_vec_ptr = NULL;
+            const vector<VspSurf> *surf_vec_ptr = nullptr;
 
             if ( innormalset )
             {
@@ -4557,7 +4557,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set, bool useMod
 
     xmlDocPtr doc = xmlNewDoc( ( const xmlChar * )"1.0" );
 
-    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"svg" );
+    xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"svg" );
     doc->standalone=0;
 
     xmlDocSetRootElement( doc, root );
@@ -5379,7 +5379,7 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
     }
 
     MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
-    if ( mesh_ptr == NULL )
+    if ( mesh_ptr == nullptr )
     {
         return id;
     }
@@ -5435,7 +5435,7 @@ string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool
     }
 
     MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
-    if ( mesh_ptr == NULL )
+    if ( mesh_ptr == nullptr )
     {
         return id;
     }
@@ -5540,7 +5540,7 @@ string Vehicle::PSlice( int set, int numSlices, const vec3d &axis, bool autoBoun
     HideAllExcept( id );
 
     MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
-    if ( mesh_ptr == NULL )
+    if ( mesh_ptr == nullptr )
     {
         return id;
     }
@@ -5648,7 +5648,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
         char str[256] = {};
 
         //==== Make Sure File Exists ====//
-        if ( ( fp = fopen( file_name.c_str(), "r" ) ) == ( FILE * )NULL )
+        if ( ( fp = fopen( file_name.c_str(), "r" ) ) == ( FILE * )nullptr )
         {
             return id;
         }
@@ -5710,7 +5710,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
         FILE *fp;
 
         //==== Make Sure File Exists ====//
-        if ( ( fp = fopen( file_name.c_str(), "r" ) ) == ( FILE * )NULL )
+        if ( ( fp = fopen( file_name.c_str(), "r" ) ) == ( FILE * )nullptr )
         {
             return id;
         }
@@ -5832,10 +5832,10 @@ string Vehicle::ImportV2File( const string & file_name )
 
     //==== Build an XML tree from a the file ====//
     doc = xmlParseFile( file_name.c_str() );
-    if ( doc == NULL ) return 0;
+    if ( doc == nullptr ) return 0;
 
     xmlNodePtr root = xmlDocGetRootElement( doc );
-    if ( root == NULL )
+    if ( root == nullptr )
     {
         fprintf( stderr, "Empty document\n" );
         xmlFreeDoc( doc );
@@ -6181,7 +6181,7 @@ void Vehicle::CreateDegenGeom( int set, bool useMode, const string &modeID )
     if ( id.compare( "NONE" ) != 0 )
     {
         MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
-        if ( mesh_ptr != NULL )
+        if ( mesh_ptr != nullptr )
         {
             mesh_ptr->IntersectTrim( m_DegenGeomVec, true, 0, false );
             DeleteGeom( id );
@@ -6193,7 +6193,7 @@ void Vehicle::CreateDegenGeom( int set, bool useMode, const string &modeID )
     if ( id.compare( "NONE" ) != 0 )
     {
         MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
-        if ( mesh_ptr != NULL )
+        if ( mesh_ptr != nullptr )
         {
             mesh_ptr->MassSlice( m_DegenGeomVec, true, 25, vsp::X_DIR, false );
             DeleteGeom( id );

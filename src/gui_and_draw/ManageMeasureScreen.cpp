@@ -1485,7 +1485,7 @@ void ManageMeasureScreen::Set( const vec3d &placement, const std::string &target
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
-    Geom * geom = NULL;
+    Geom * geom = nullptr;
 
     if ( veh )
     {

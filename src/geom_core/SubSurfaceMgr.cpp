@@ -33,7 +33,7 @@ Geom* SubSurfaceMgrSingleton::GetGeom( const string &comp_id )
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
-        return NULL;
+        return nullptr;
     }
 
     return veh->FindGeom( comp_id );
@@ -122,7 +122,7 @@ vector< SubSurface* > SubSurfaceMgrSingleton::GetSubSurfs()
 //==== Get subsurface pointer from subsurface id ====//
 SubSurface* SubSurfaceMgrSingleton::GetSubSurf( const string& subsurf_id )
 {
-    SubSurface* ret_ptr = NULL;
+    SubSurface* ret_ptr = nullptr;
     Vehicle* veh = VehicleMgr.GetVehicle();
     if( !veh )
     {

@@ -21,7 +21,7 @@
 
 unordered_set < int > HumanGeom::m_VertCopySet;
 Pinocchio::Mesh HumanGeom::m_MasterMesh;
-Pinocchio::Attachment *HumanGeom::m_MasterAttach = NULL;
+Pinocchio::Attachment *HumanGeom::m_MasterAttach = nullptr;
 Vsp1DCurve HumanGeom::m_MaleStatureECDF;
 Vsp1DCurve HumanGeom::m_FemaleStatureECDF;
 Vsp1DCurve HumanGeom::m_MaleBMIECDF;

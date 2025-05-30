@@ -19,9 +19,9 @@
 
 STEPutil::STEPutil( const int & len, const double & tol )
 {
-    context = NULL;
-    shape_rep = NULL;
-    pshape = NULL;
+    context = nullptr;
+    shape_rep = nullptr;
+    pshape = nullptr;
 
     // The registry contains information about types present in the current schema; SchemaInit is a function in the schema-specific SDAI library
     registry = new Registry( SchemaInit );
@@ -102,7 +102,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         if( !strcmp( stepcomplex->EntityName(), "Si_Unit" ) )
         {
             stepcomplex->ResetAttributes();
-            while( ( attr = stepcomplex->NextAttribute() ) != NULL )
+            while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
             {
                 if( !strcmp( attr->Name(), "prefix" ) )
                 {
@@ -186,7 +186,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
             if( !strcmp( stepcomplex->EntityName(), "Conversion_Based_Unit" ) )
             {
                 stepcomplex->ResetAttributes();
-                while( ( attr = stepcomplex->NextAttribute() ) != NULL )
+                while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
                 {
                     if( !strcmp( attr->Name(), "name" ) )
                     {
@@ -202,7 +202,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
             if( !strcmp( stepcomplex->EntityName(), "Named_Unit" ) )
             {
                 stepcomplex->ResetAttributes();
-                while( ( attr = stepcomplex->NextAttribute() ) != NULL )
+                while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
                 {
                     if( !strcmp( attr->Name(), "dimensions" ) )
                     {
@@ -224,7 +224,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
     SdaiUnit * tol_unit = new SdaiUnit( ( SdaiNamed_unit * ) ua_length );
     uncertainty->ResetAttributes();
     {
-        while( ( attr = uncertainty->NextAttribute() ) != NULL )
+        while( ( attr = uncertainty->NextAttribute() ) != nullptr )
         {
             if( !strcmp( attr->Name(), "unit_component" ) )
             {
@@ -252,7 +252,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         if( !strcmp( stepcomplex->EntityName(), "Si_Unit" ) )
         {
             stepcomplex->ResetAttributes();
-            while( ( attr = stepcomplex->NextAttribute() ) != NULL )
+            while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
             {
                 if( !strcmp( attr->Name(), "name" ) )
                 {
@@ -291,7 +291,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
             if( !strcmp( stepcomplex->EntityName(), "Conversion_Based_Unit" ) )
             {
                 stepcomplex->ResetAttributes();
-                while( ( attr = stepcomplex->NextAttribute() ) != NULL )
+                while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
                 {
                     if( !strcmp( attr->Name(), "name" ) )
                     {
@@ -307,7 +307,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
             if( !strcmp( stepcomplex->EntityName(), "Named_Unit" ) )
             {
                 stepcomplex->ResetAttributes();
-                while( ( attr = stepcomplex->NextAttribute() ) != NULL )
+                while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
                 {
                     if( !strcmp( attr->Name(), "dimensions" ) )
                     {
@@ -330,7 +330,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         if( !strcmp( stepcomplex->EntityName(), "Si_Unit" ) )
         {
             stepcomplex->ResetAttributes();
-            while( ( attr = stepcomplex->NextAttribute() ) != NULL )
+            while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
             {
                 if( !strcmp( attr->Name(), "name" ) )
                 {
@@ -354,7 +354,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         if( !strcmp( stepcomplex->EntityName(), "Geometric_Representation_Context" ) )
         {
             stepcomplex->ResetAttributes();
-            while( ( attr = stepcomplex->NextAttribute() ) != NULL )
+            while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
             {
                 if( !strcmp( attr->Name(), "coordinate_space_dimension" ) )
                 {
@@ -366,7 +366,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         if( !strcmp( stepcomplex->EntityName(), "Global_Uncertainty_Assigned_Context" ) )
         {
             stepcomplex->ResetAttributes();
-            while( ( attr = stepcomplex->NextAttribute() ) != NULL )
+            while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
             {
                 if( !strcmp( attr->Name(), "uncertainty" ) )
                 {
@@ -381,7 +381,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         if( !strcmp( stepcomplex->EntityName(), "Global_Unit_Assigned_Context" ) )
         {
             stepcomplex->ResetAttributes();
-            while( ( attr = stepcomplex->NextAttribute() ) != NULL )
+            while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
             {
                 if( !strcmp( attr->Name(), "units" ) )
                 {
@@ -397,7 +397,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         if( !strcmp( stepcomplex->EntityName(), "Representation_Context" ) )
         {
             stepcomplex->ResetAttributes();
-            while( ( attr = stepcomplex->NextAttribute() ) != NULL )
+            while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
             {
                 if( !strcmp( attr->Name(), "context_identifier" ) )
                 {

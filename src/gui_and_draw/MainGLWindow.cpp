@@ -1888,7 +1888,7 @@ VspGlWindow::ID * VspGlWindow::_findID( unsigned int bufferID )
             return &( it->second );
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void VspGlWindow::_updateBuffer( const std::vector<DrawObj *> &objects )
@@ -2801,7 +2801,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
 
             // Only one selection is needed for label, remove this 'selected' from selection list.
             m_GEngine->getScene()->removeSelected( selected );
-            selected = NULL;
+            selected = nullptr;
         }
 
         // Vertex feedback
@@ -2822,7 +2822,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
 
                     // Only one selection is needed for label, remove this 'selected' from selection list.
                     m_GEngine->getScene()->removeSelected( selected );
-                    selected = NULL;
+                    selected = nullptr;
                 }
             }
         }
@@ -2846,7 +2846,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
 
                 // Only one selection is needed for Geom, remove this 'selected' from selection list.
                 m_GEngine->getScene()->removeSelected( selected );
-                selected = NULL;
+                selected = nullptr;
             }
         }
         // Mac Fix:  On Mac, FLTK window is always focus on the last shown GUI.  In
@@ -2882,7 +2882,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
 
                         // Only one selection is needed for label, remove this 'selected' from selection list.
                         m_GEngine->getScene()->removeSelected( selected );
-                        selected = NULL;
+                        selected = nullptr;
                     }
                 }
             }
@@ -2914,7 +2914,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
 
                 // Only one selection is needed for Center of Rotation, remove this 'selected' from selection list.
                 m_GEngine->getScene()->removeSelected( selected );
-                selected = NULL;
+                selected = nullptr;
             }
         }
     }
@@ -2932,7 +2932,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
                 FitModelMgr.SelectPoint( mid->geomID, pnt->getIndex() );
 
                 m_GEngine->getScene()->removeSelected( selected );
-                selected = NULL;
+                selected = nullptr;
             }
         }
     }
@@ -3091,7 +3091,7 @@ int EditXSecWindow::handle( int fl_event )
     {
         curve_editor->SetFreezeAxis( false );
         // Force update the parent Geom once the point is released
-        edit_curve_xs->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+        edit_curve_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
     }
 
     if ( fl_event == FL_RELEASE || fl_event == FL_DRAG || fl_event == FL_PUSH )

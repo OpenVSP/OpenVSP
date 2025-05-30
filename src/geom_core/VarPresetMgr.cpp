@@ -76,7 +76,7 @@ void Setting::ClearAllParmVals()
 
 xmlNodePtr Setting::EncodeXml( xmlNodePtr &node )
 {
-    xmlNodePtr setting_node = xmlNewChild( node, NULL, BAD_CAST "Setting", NULL );
+    xmlNodePtr setting_node = xmlNewChild( node, nullptr, BAD_CAST "Setting", nullptr );
     if ( setting_node )
     {
         XmlUtil::AddStringNode( setting_node, "ID", m_ID );
@@ -301,7 +301,7 @@ bool SettingGroup::HasSetting( const string &id ) const
 
 xmlNodePtr SettingGroup::EncodeXml( xmlNodePtr &node )
 {
-    xmlNodePtr settinggroup_node = xmlNewChild( node, NULL, BAD_CAST "SettingGroup", NULL );
+    xmlNodePtr settinggroup_node = xmlNewChild( node, nullptr, BAD_CAST "SettingGroup", nullptr );
     if ( settinggroup_node )
     {
         XmlUtil::AddStringNode( settinggroup_node, "ID", m_ID );
@@ -309,7 +309,7 @@ xmlNodePtr SettingGroup::EncodeXml( xmlNodePtr &node )
 
         for ( int i = 0; i < m_ParmIDVec.size(); i++ )
         {
-            xmlNodePtr n = xmlNewChild( settinggroup_node, NULL, BAD_CAST "Parm", NULL );
+            xmlNodePtr n = xmlNewChild( settinggroup_node, nullptr, BAD_CAST "Parm", nullptr );
             if ( n )
             {
                 XmlUtil::AddStringNode( n, "ID", m_ParmIDVec[i] );
@@ -620,7 +620,7 @@ void VarPresetMgrSingleton::ConvertOldToNew()
 
 xmlNodePtr VarPresetMgrSingleton::EncodeXml( xmlNodePtr &node ) const
 {
-    xmlNodePtr varpresetmgr_node = xmlNewChild( node, NULL, BAD_CAST"VariablePresets", NULL );
+    xmlNodePtr varpresetmgr_node = xmlNewChild( node, nullptr, BAD_CAST"VariablePresets", nullptr );
 
     for ( int i = 0; i < m_SettingGroupVec.size(); i++ )
     {
@@ -838,9 +838,9 @@ xmlNodePtr OldVarPresetMgrSingleton::DecodeXml( xmlNodePtr & node )
     xmlNodePtr varpresetnode = XmlUtil::GetNode( node, "VariablePresets", 0 );
 
     // If Not Exist - Return
-    if ( varpresetnode == NULL )
+    if ( varpresetnode == nullptr )
     {
-        return NULL;
+        return nullptr;
     }
 
     // Decode # of Presets

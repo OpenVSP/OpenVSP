@@ -48,7 +48,7 @@ ClippingMgr::~ClippingMgr()
 
 xmlNodePtr ClippingMgr::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr cfdsetnode = xmlNewChild( node, NULL, BAD_CAST"ClippingMgr", NULL );
+    xmlNodePtr cfdsetnode = xmlNewChild( node, nullptr, BAD_CAST"ClippingMgr", nullptr );
 
     ParmContainer::EncodeXml( cfdsetnode );
 

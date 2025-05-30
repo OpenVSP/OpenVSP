@@ -19,7 +19,7 @@ void GeomCoreTestSuite::GeomXFormTest()
 void GeomCoreTestSuite::ParmTest()
 {
     Parm p;
-    p.Init( "Test", "Group1", NULL, 1.0, 0.0, 2.0 );
+    p.Init( "Test", "Group1", nullptr, 1.0, 0.0, 2.0 );
     TEST_ASSERT_DELTA( 1.0, p.Get(), 1.0e-12 );
     p.SetLowerLimit( 2.0 );
     TEST_ASSERT_DELTA( 2.0, p.Get(), 1.0e-12 );
@@ -36,7 +36,7 @@ void GeomCoreTestSuite::ParmTest()
     TEST_ASSERT_DELTA( 100.9, p(), 1.0e-12 );
 
     IntParm ip;
-    ip.Init( "Test", "Group2", NULL, 1, 2, 10 );
+    ip.Init( "Test", "Group2", nullptr, 1, 2, 10 );
     TEST_ASSERT( ip() == 2 );
 
     BoolParm bp;
@@ -154,7 +154,7 @@ void GeomCoreTestSuite::WritePnts( const std::vector< vec3d > & pnt_vec, const s
 
 void GeomCoreTestSuite::XmlTest()
 {
-    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Geometry" );
+    xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
 
     //==== Encode XML ====//
     vector< int > int_vec;

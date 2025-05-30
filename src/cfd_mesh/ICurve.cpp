@@ -13,7 +13,7 @@
 //////////////////////////////////////////////////////////////////////
 ICurve::ICurve()
 {
-    m_SCurve_A = m_SCurve_B = NULL;
+    m_SCurve_A = m_SCurve_B = nullptr;
     m_PlaneBorderIntersectFlag = false;
 }
 

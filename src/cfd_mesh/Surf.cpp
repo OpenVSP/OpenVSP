@@ -874,7 +874,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceInte
 {
     bool repeat_curve = false;
     bool null_ICurve = false;
-    if ( brdPtr->GetICurve() != NULL )
+    if ( brdPtr->GetICurve() != nullptr )
     {
         for ( int j = 0 ; j < (int)m_SCurveVec.size() ; j++ )
         {
@@ -932,7 +932,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceInte
         {
             for ( int i = 0 ; i < (int)ICurves.size() ; i++ )
             {
-                if ( ICurves[i]->m_SCurve_A == brdPtr && ICurves[i]->m_SCurve_B == NULL )
+                if ( ICurves[i]->m_SCurve_A == brdPtr && ICurves[i]->m_SCurve_B == nullptr )
                 {
                     ICurves[i]->m_SCurve_B = pSCurve;
                     ICurves[i]->m_PlaneBorderIntersectFlag = true;

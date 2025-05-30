@@ -412,7 +412,7 @@ void VSPAEROMgrSingleton::Renew()
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr VSPAEROsetnode = xmlNewChild( node, NULL, BAD_CAST"VSPAEROSettings", NULL );
+    xmlNodePtr VSPAEROsetnode = xmlNewChild( node, nullptr, BAD_CAST"VSPAEROSettings", nullptr );
 
     ParmContainer::EncodeXml( VSPAEROsetnode ); // Encode VSPAEROMgr Parms
 
@@ -424,7 +424,7 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
     XmlUtil::AddIntNode( VSPAEROsetnode, "ControlSurfaceGroupCount", m_ControlSurfaceGroupVec.size() );
     for ( size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i )
     {
-        xmlNodePtr csgnode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "Control_Surface_Group", NULL );
+        xmlNodePtr csgnode = xmlNewChild( VSPAEROsetnode, nullptr, BAD_CAST "Control_Surface_Group", nullptr );
         m_ControlSurfaceGroupVec[i]->EncodeXml( csgnode );
     }
 
@@ -432,7 +432,7 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
     XmlUtil::AddIntNode( VSPAEROsetnode, "RotorDiskCount", m_RotorDiskVec.size() );
     for ( size_t i = 0; i < m_RotorDiskVec.size(); ++i )
     {
-        xmlNodePtr rotornode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "Rotor", NULL );
+        xmlNodePtr rotornode = xmlNewChild( VSPAEROsetnode, nullptr, BAD_CAST "Rotor", nullptr );
         m_RotorDiskVec[i]->EncodeXml( rotornode );
     }
 
@@ -440,7 +440,7 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
     XmlUtil::AddIntNode( VSPAEROsetnode, "CpSliceCount", m_CpSliceVec.size() );
     for ( size_t i = 0; i < m_CpSliceVec.size(); ++i )
     {
-        xmlNodePtr cpslicenode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "CpSlice", NULL );
+        xmlNodePtr cpslicenode = xmlNewChild( VSPAEROsetnode, nullptr, BAD_CAST "CpSlice", nullptr );
         m_CpSliceVec[i]->EncodeXml( cpslicenode );
     }
 
@@ -448,7 +448,7 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
     XmlUtil::AddIntNode( VSPAEROsetnode, "UnsteadyGroupCount", m_UnsteadyGroupVec.size() );
     for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
     {
-        xmlNodePtr unsteady_node = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "Unsteady_Group", NULL );
+        xmlNodePtr unsteady_node = xmlNewChild( VSPAEROsetnode, nullptr, BAD_CAST "Unsteady_Group", nullptr );
         m_UnsteadyGroupVec[i]->EncodeXml( unsteady_node );
     }
 
@@ -1029,7 +1029,7 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
             // Remove Deleted Sub Surfaces and Sub Surfaces with Parent Geoms That No Longer Exist
             Geom* parent = VehicleMgr.GetVehicle()->FindGeom( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].parentGeomId );
 
-            SubSurface* ss = NULL;
+            SubSurface* ss = nullptr;
             if ( parent ) ss = parent->GetSubSurf( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID );
 
             if ( !parent || !ss || ( ss && parent->GetNumSymmCopies() <= m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect ) )
@@ -1278,7 +1278,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         {
             // Remove the previous mesh, which has been updated
             veh->DeleteGeomVec( vector< string >{ m_LastPanelMeshGeomId } );
-            last_mesh = NULL;
+            last_mesh = nullptr;
         }
         else // VLM
         {
@@ -1286,7 +1286,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
             {
                 // Remove the previous mesh, which has been updated
                 veh->DeleteGeomVec( vector< string >{ m_LastPanelMeshGeomId } );
-                last_mesh = NULL;
+                last_mesh = nullptr;
             }
         }
     }
@@ -1446,7 +1446,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
 
 
     FILE * case_file = fopen( m_SetupFile.c_str(), "w" );
-    if ( case_file == NULL )
+    if ( case_file == nullptr )
     {
         fprintf( stderr, "ERROR %d: Unable to create case file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, m_SetupFile.c_str(), __FILE__, __LINE__ );
         return retStr;
@@ -1677,7 +1677,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     // Send the message to update the screens
     MessageData data;
     data.m_String = "UpdateAllScreens";
-    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+    MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
 
     return retStr;
 
@@ -1694,14 +1694,14 @@ void VSPAEROMgrSingleton::ReadSetupFile()
     m_PreviousNumUnsteadyProps = -1;
 
     FILE* case_file = fopen( m_SetupFile.c_str(), "r" );
-    if ( case_file == NULL )
+    if ( case_file == nullptr )
     {
         fprintf( stderr, "ERROR %d: Unable to find existing VSPAERO setup file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_SetupFile.c_str(), __FILE__, __LINE__ );
         return;
     }
 
     char strbuff[1024]; // buffer for entire line in file
-    while ( fgets( strbuff, 1024, case_file ) != NULL )
+    while ( fgets( strbuff, 1024, case_file ) != nullptr )
     {
         if ( string( strbuff ).find( "Stability Type" ) != string::npos )
         {
@@ -1743,7 +1743,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
     else
     {
         data.m_StringVec = vector < string >{ "Error: VSPAERO History file " + m_HistoryFile + " not found \n" };
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
         no_errors = false;
     }
 
@@ -1756,7 +1756,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
         else
         {
             data.m_StringVec = vector < string >{ "Error: VSPAERO Polar file " + m_PolarFile + " not found \n" };
-            MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+            MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
             no_errors = false;
         }
     }
@@ -1768,7 +1768,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
     else
     {
         data.m_StringVec = vector < string >{ "Error: VSPAERO Load file " + m_LoadFile + " not found \n" };
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
         no_errors = false;
     }
 
@@ -1800,7 +1800,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
         else
         {
             data.m_StringVec = vector < string >{ "Error: VSPAERO Stab file " + stab_file + " not found \n" };
-            MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+            MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
             no_errors = false;
         }
     }
@@ -1816,7 +1816,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
             else
             {
                 data.m_StringVec = vector < string >{ "Error: VSPAERO Group file " + m_GroupResFiles[i] + " not found \n" };
-                MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+                MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
                 no_errors = false;
             }
         }
@@ -1833,7 +1833,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
             else
             {
                 data.m_StringVec = vector < string >{ "Error: VSPAERO Rotor file " + m_RotorResFiles[i] + " not found \n" };
-                MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+                MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
                 no_errors = false;
             }
         }
@@ -1842,7 +1842,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
     if ( no_errors )
     {
         data.m_StringVec = vector < string >{ "All previous VSPAERO results successfully read \n" };
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
 
     // Create "wrapper" result to contain a vector of result IDs (this maintains compatibility to return a single result after computation)
@@ -2180,7 +2180,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             MessageData data;
             data.m_String = "VSPAEROSolverMessage";
             data.m_StringVec.push_back( cmdStr );
-            MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+            MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
         }
 
         // Execute VSPAero
@@ -2243,7 +2243,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         // Send the message to update the screens
         MessageData data;
         data.m_String = "UpdateAllScreens";
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
 
     }
 
@@ -2300,20 +2300,20 @@ TODO:
 void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, double recref )
 {
     //TODO return success or failure
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     //size_t result;
     bool read_success = false;
 
     //HISTORY file
     WaitForFile( filename );
     fp = fopen( filename.c_str(), "r" );
-    if ( fp == NULL )
+    if ( fp == nullptr )
     {
         fprintf( stderr, "ERROR %d: Could not open History file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_HistoryFile.c_str(), __FILE__, __LINE__ );
         return;
     }
 
-    Results* res = NULL;
+    Results* res = nullptr;
     std::vector<string> data_string_array;
 
     char seps[]   = " :,\t\n";
@@ -2553,17 +2553,17 @@ See: VSP_Solver.C in vspaero project
 *******************************************************/
 void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string> &res_id_vector, double recref )
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     bool read_success = false;
     WaitForFile( filename );
     fp = fopen( filename.c_str(), "r" );
-    if ( fp == NULL )
+    if ( fp == nullptr )
     {
         fprintf( stderr, "ERROR %d: Could not open Polar file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_PolarFile.c_str(), __FILE__, __LINE__ );
         return;
     }
 
-    Results* res = NULL;
+    Results* res = nullptr;
 
     std::vector<string> data_string_array;
 
@@ -2796,19 +2796,19 @@ TODO:
 *******************************************************/
 void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     bool read_success = false;
 
     //LOAD file
     WaitForFile( filename );
     fp = fopen( filename.c_str(), "r" );
-    if ( fp == NULL )
+    if ( fp == nullptr )
     {
         fprintf( stderr, "ERROR %d: Could not open Load file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_LoadFile.c_str(), __FILE__, __LINE__ );
         return;
     }
 
-    Results* res = NULL;
+    Results* res = nullptr;
     std::vector< std::string > data_string_array;
     bool sectional_data_complete = false; // flag indicating if the sectional data section of the Lod file has been read
 
@@ -3034,17 +3034,17 @@ See: VSP_Solver.C in vspaero project
 *******************************************************/
 void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType )
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     bool read_success = false;
     WaitForFile( filename );
     fp = fopen( filename.c_str() , "r" );
-    if ( fp == NULL )
+    if ( fp == nullptr )
     {
         fprintf( stderr, "ERROR %d: Could not open Stab file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_StabFile.c_str(), __FILE__, __LINE__ );
         return;
     }
 
-    Results* res = NULL;
+    Results* res = nullptr;
 
     std::vector<string> table_column_names;
     std::vector<string> data_string_array;
@@ -3208,13 +3208,13 @@ vector <string> VSPAEROMgrSingleton::ReadDelimLine( FILE * fp, char * delimiters
     dataStringVector.clear();
 
     char strbuff[1024];                // buffer for entire line in file
-    if ( fgets( strbuff, 1024, fp ) != NULL )
+    if ( fgets( strbuff, 1024, fp ) != nullptr )
     {
         char * pch = strtok ( strbuff, delimiters );
-        while ( pch != NULL )
+        while ( pch != nullptr )
         {
             dataStringVector.push_back( pch );
-            pch = strtok ( NULL, delimiters );
+            pch = strtok ( nullptr, delimiters );
         }
     }
 
@@ -3250,13 +3250,13 @@ bool VSPAEROMgrSingleton::CheckForResultHeader( const std::vector<string> &heade
 int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
 {
     // check input arguments
-    if ( res == NULL )
+    if ( res == nullptr )
     {
         // Bad pointer
         fprintf( stderr, "ERROR %d: Invalid results pointer\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
         return -1;
     }
-    if ( fp == NULL )
+    if ( fp == nullptr )
     {
         // Bad pointer
         fprintf( stderr, "ERROR %d: Invalid file pointer\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
@@ -3411,7 +3411,7 @@ RotorDisk* VSPAEROMgrSingleton::GetRotorDisk( int index )
     {
         return m_RotorDiskVec[index];
     }
-    return NULL; // error
+    return nullptr; // error
 }
 
 void VSPAEROMgrSingleton::UpdateControlSurfaceGroupSuffix()
@@ -3838,7 +3838,7 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
         MessageData data;
         data.m_String = "VSPAEROSolverMessage";
         data.m_StringVec.push_back( cmdStr );
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
 
     //====== Execute VSPAERO Slicer ======//
@@ -3920,7 +3920,7 @@ void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
         MessageData data;
         data.m_String = "VSPAEROSolverMessage";
         data.m_StringVec.push_back( cmdStr );
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
 
     //====== Execute VSPAERO Slicer ======//
@@ -3959,7 +3959,7 @@ void VSPAEROMgrSingleton::CreateCutsFile()
     }
 
     FILE * cut_file = fopen( m_CutsFile.c_str(), "w" );
-    if ( cut_file == NULL )
+    if ( cut_file == nullptr )
     {
         fprintf( stderr, "ERROR %d: Unable to create cuts file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, m_CutsFile.c_str(), __FILE__, __LINE__ );
         return;
@@ -4034,7 +4034,7 @@ void VSPAEROMgrSingleton::DelCpSlice( int ind )
 
 CpSlice* VSPAEROMgrSingleton::AddCpSlice( )
 {
-    CpSlice* slice = NULL;
+    CpSlice* slice = nullptr;
     slice = new CpSlice();
 
     if ( slice )
@@ -4053,7 +4053,7 @@ CpSlice* VSPAEROMgrSingleton::GetCpSlice( int ind )
     {
         return m_CpSliceVec[ind];
     }
-    return NULL;
+    return nullptr;
 }
 
 int VSPAEROMgrSingleton::GetCpSliceIndex( const string & id )
@@ -4079,17 +4079,17 @@ void VSPAEROMgrSingleton::ClearCpSliceVec()
 
 void VSPAEROMgrSingleton::ReadSliceFile( const string &filename, vector <string> &res_id_vector )
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     bool read_success = false;
     WaitForFile( filename );
     fp = fopen( filename.c_str(), "r" );
-    if ( fp == NULL )
+    if ( fp == nullptr )
     {
         fprintf( stderr, "ERROR %d: Could not open Slice file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_SliceFile.c_str(), __FILE__, __LINE__ );
         return;
     }
 
-    Results* res = NULL;
+    Results* res = nullptr;
     std::vector<string> data_string_array;
     int num_table_columns = 4;
 
@@ -4223,7 +4223,7 @@ UnsteadyGroup* VSPAEROMgrSingleton::GetUnsteadyGroup( int index )
     {
         return m_UnsteadyGroupVec[index];
     }
-    return NULL;
+    return nullptr;
 }
 
 int VSPAEROMgrSingleton::GetUnsteadyGroupIndex( const string& id )
@@ -4695,7 +4695,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
     // Make sure the fixed compomnet group is always first
     if ( m_UnsteadyGroupVec.size() > NumUnsteadyRotorGroups() && m_UnsteadyGroupVec[0]->m_GeomPropertyType() != UnsteadyGroup::GEOM_FIXED )
     {
-        UnsteadyGroup* fixed_group = NULL;
+        UnsteadyGroup* fixed_group = nullptr;
         int fixed_group_index = -1;
         for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
         {
@@ -4905,7 +4905,7 @@ string VSPAEROMgrSingleton::ExecuteNoiseAnalysis( FILE* logFile, int noise_type,
         MessageData data;
         data.m_String = "VSPAEROSolverMessage";
         data.m_StringVec.push_back( cmdStr );
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
 
     // Execute VSPAero
@@ -4932,17 +4932,17 @@ See: VSP_Solver.C in vspaero project
 *******************************************************/
 void VSPAEROMgrSingleton::ReadGroupResFile( const string &filename, vector <string> &res_id_vector, const string &group_name )
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     bool read_success = false;
     WaitForFile( filename );
     fp = fopen( filename.c_str(), "r" );
-    if ( fp == NULL )
+    if ( fp == nullptr )
     {
         fprintf( stderr, "ERROR %d: Could not open Group file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, filename.c_str(), __FILE__, __LINE__ );
         return;
     }
 
-    Results* res = NULL;
+    Results* res = nullptr;
 
     // Get group index
     size_t last_index = filename.find_last_not_of( "0123456789" );
@@ -5063,17 +5063,17 @@ See: VSP_Solver.C in vspaero project
 *******************************************************/
 void VSPAEROMgrSingleton::ReadRotorResFile( const string &filename, vector <string> &res_id_vector, const string &group_name )
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     bool read_success = false;
     WaitForFile( filename );
     fp = fopen( filename.c_str(), "r" );
-    if ( fp == NULL )
+    if ( fp == nullptr )
     {
         fprintf( stderr, "ERROR %d: Could not open Rotor file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, filename.c_str(), __FILE__, __LINE__ );
         return;
     }
 
-    Results* res = NULL;
+    Results* res = nullptr;
 
     // Get group index
     size_t last_index = filename.find_last_not_of( "0123456789" );
@@ -5725,7 +5725,7 @@ xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
         XmlUtil::AddIntNode( node, "NumberOfControlSubSurfaces", m_ControlSurfVec.size() );
         for ( size_t i = 0; i < m_ControlSurfVec.size(); ++i )
         {
-            xmlNodePtr csnode = xmlNewChild( node, NULL, BAD_CAST "Control_Surface" , NULL );
+            xmlNodePtr csnode = xmlNewChild( node, nullptr, BAD_CAST "Control_Surface" , nullptr );
 
             XmlUtil::AddStringNode( csnode, "SSID", m_ControlSurfVec[i].SSID.c_str() );
             XmlUtil::AddStringNode( csnode, "ParentGeomID", m_ControlSurfVec[i].parentGeomId.c_str() );
@@ -5909,7 +5909,7 @@ xmlNodePtr UnsteadyGroup::EncodeXml( xmlNodePtr& node )
 
         for ( size_t i = 0; i < m_ComponentSurfPairVec.size(); ++i )
         {
-            xmlNodePtr csnode = xmlNewChild( node, NULL, BAD_CAST "Component", NULL );
+            xmlNodePtr csnode = xmlNewChild( node, nullptr, BAD_CAST "Component", nullptr );
             XmlUtil::AddStringNode( csnode, "CompID", m_ComponentSurfPairVec[i].first.c_str() );
             XmlUtil::AddIntNode( csnode, "SurfIndex", m_ComponentSurfPairVec[i].second );
         }

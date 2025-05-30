@@ -134,9 +134,9 @@ public:
     {
         m_BeginInd = 0;
         m_EndInd = 0;
-        m_SubBox[0] = m_SubBox[1] = NULL;
-        m_ChainPtr = NULL;
-        m_Surf = NULL;
+        m_SubBox[0] = m_SubBox[1] = nullptr;
+        m_ChainPtr = nullptr;
+        m_Surf = nullptr;
     }
     virtual ~ISegBox();
 

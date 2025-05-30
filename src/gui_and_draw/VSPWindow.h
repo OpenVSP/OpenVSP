@@ -52,7 +52,7 @@ public:
     void resizeFromChild( int X, int Y, int W, int H, VSP_Window * child);
     void show();
     int handle( int fl_event );
-    virtual void UpdateChildren( VSP_Window* child = NULL);
+    virtual void UpdateChildren( VSP_Window* child = nullptr);
     virtual void UpdateParent();
 
     static void SetGeomX( int X )

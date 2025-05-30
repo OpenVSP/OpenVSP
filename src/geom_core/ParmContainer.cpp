@@ -169,7 +169,7 @@ void ParmContainer::SetName( const string& name, bool removeslashes )
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr parmcontain_node = xmlNewChild( node, NULL, BAD_CAST "ParmContainer", NULL );
+    xmlNodePtr parmcontain_node = xmlNewChild( node, nullptr, BAD_CAST "ParmContainer", nullptr );
     if ( parmcontain_node )
     {
         XmlUtil::AddStringNode( parmcontain_node, "ID", m_ID );
@@ -186,7 +186,7 @@ xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
     for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; ++groupIter )
     {
         string name = groupIter->first;
-        gnode = xmlNewChild( parmcontain_node, NULL, BAD_CAST name.c_str(), NULL );
+        gnode = xmlNewChild( parmcontain_node, nullptr, BAD_CAST name.c_str(), nullptr );
 
         if ( gnode )
         {

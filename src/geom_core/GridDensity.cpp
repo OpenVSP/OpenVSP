@@ -42,7 +42,7 @@ void BaseSource::ParmChanged( Parm* parm_ptr, int type )
 //==== Encode XML ====//
 xmlNodePtr BaseSource::EncodeXml(  xmlNodePtr & node  )
 {
-    xmlNodePtr src_node = xmlNewChild( node, NULL, BAD_CAST "Source", NULL );
+    xmlNodePtr src_node = xmlNewChild( node, nullptr, BAD_CAST "Source", nullptr );
     if ( src_node )
     {
         XmlUtil::AddIntNode( src_node, "Type", m_Type );
@@ -870,7 +870,7 @@ ConstLineSimpleSource::ConstLineSimpleSource()
     m_LinesDO.m_LineWidth = 1.0;
     m_LinesDO.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
 
-    m_GeomPtr = NULL;
+    m_GeomPtr = nullptr;
 }
 
 void ConstLineSimpleSource::CopyFrom( BaseSource* s )
@@ -1282,7 +1282,7 @@ GridDensity::~GridDensity()
 
 xmlNodePtr GridDensity::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr gridnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
+    xmlNodePtr gridnode = xmlNewChild( node, nullptr, BAD_CAST m_Name.c_str(), nullptr );
 
     ParmContainer::EncodeXml( gridnode );
 

@@ -31,7 +31,7 @@ GuiInterface::GuiInterface()
 
     m_EventLoopRunning = false;
 
-    m_ScreenMgr = NULL;
+    m_ScreenMgr = nullptr;
 }
 
 //==== Destructor ====//

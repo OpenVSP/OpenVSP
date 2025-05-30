@@ -14,7 +14,7 @@ using namespace vsp;
 //==== Constructor ====//
 StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 460, 800, "Stack" )
 {
-    m_CurrDisplayGroup = NULL;
+    m_CurrDisplayGroup = nullptr;
 
     Fl_Group* design_tab = AddTab( "Design", 4 );
 
@@ -289,7 +289,7 @@ bool StackScreen::Update()
 
             if ( lastxs && stackgeom_ptr->m_OrderPolicy() == StackGeom::STACK_LOOP )
             {
-                DisplayGroup ( NULL);
+                DisplayGroup ( nullptr);
             }
 
         }

@@ -82,7 +82,7 @@ void MessageMgr::Send( const string& to_name, const string& msg )
 {
     MessageData data;
     data.m_String = msg;
-    Send( to_name, NULL, data );
+    Send( to_name, nullptr, data );
 }
 
 /** @brief Send MessageData message to designated receiver, from undesignated sender.
@@ -92,7 +92,7 @@ void MessageMgr::Send( const string& to_name, const string& msg )
  */
 void MessageMgr::Send( const string& to_name, const MessageData& data )
 {
-    Send( to_name, NULL, data );
+    Send( to_name, nullptr, data );
 }
 
 /** @brief Send MessageData message to designated receiver, from designated sender.
@@ -123,7 +123,7 @@ void MessageMgr::SendAll( const string& msg )
 {
     MessageData data;
     data.m_String = msg;
-    SendAll( NULL, data );
+    SendAll( nullptr, data );
 }
 
 /** @brief Send MessageData message to all receivers, from undesignated sender.
@@ -132,7 +132,7 @@ void MessageMgr::SendAll( const string& msg )
  */
 void MessageMgr::SendAll( const MessageData& data )
 {
-    SendAll(  NULL, data );
+    SendAll(  nullptr, data );
 }
 
 /** @brief Send MessageData message to all receivers, from designated sender.

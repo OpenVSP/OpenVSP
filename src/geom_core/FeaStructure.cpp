@@ -89,7 +89,7 @@ void FeaStructure::ParmChanged( Parm* parm_ptr, int type )
 
 xmlNodePtr FeaStructure::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr fea_info = xmlNewChild( node, NULL, BAD_CAST "FeaStructureInfo", NULL );
+    xmlNodePtr fea_info = xmlNewChild( node, nullptr, BAD_CAST "FeaStructureInfo", nullptr );
 
     ParmContainer::EncodeXml( fea_info );
 
@@ -103,7 +103,7 @@ xmlNodePtr FeaStructure::EncodeXml( xmlNodePtr & node )
 
     for ( unsigned int i = 0; i < m_FeaSubSurfVec.size(); i++ )
     {
-        xmlNodePtr sub_node = xmlNewChild( fea_info, NULL, BAD_CAST "FeaSubSurface", NULL );
+        xmlNodePtr sub_node = xmlNewChild( fea_info, nullptr, BAD_CAST "FeaSubSurface", nullptr );
 
         if ( sub_node )
         {
@@ -241,7 +241,7 @@ void FeaStructure::ReSuffixGroupNames()
 
 FeaPart* FeaStructure::AddFeaPart( int type )
 {
-    FeaPart* feaprt = NULL;
+    FeaPart* feaprt = nullptr;
 
     if ( type == vsp::FEA_SLICE )
     {
@@ -359,7 +359,7 @@ void FeaStructure::RecolorFeaSubSurfs( const vector < int > &active_ind_vec )
 
 SubSurface* FeaStructure::AddFeaSubSurf( int type )
 {
-    SubSurface* ssurf = NULL;
+    SubSurface* ssurf = nullptr;
 
     if ( type == vsp::SS_LINE )
     {
@@ -430,7 +430,7 @@ SubSurface* FeaStructure::GetFeaSubSurf( int ind )
     {
         return m_FeaSubSurfVec[ind];
     }
-    return NULL;
+    return nullptr;
 }
 
 SubSurface* FeaStructure::GetFeaSubSurf( const string &id )
@@ -442,7 +442,7 @@ SubSurface* FeaStructure::GetFeaSubSurf( const string &id )
             return m_FeaSubSurfVec[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void FeaStructure::ReorderFeaSubSurf( int ind, int action )
@@ -535,7 +535,7 @@ FeaPart* FeaStructure::GetFeaPart( int ind )
     {
         return m_FeaPartVec[ind];
     }
-    return NULL;
+    return nullptr;
 }
 
 int FeaStructure::GetFeaPartIndex( const string &id )
@@ -782,7 +782,7 @@ FeaPart* FeaStructure::GetFeaSkin()
             return m_FeaPartVec[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 int FeaStructure::GetFeaPartIndex( FeaPart* fea_prt )
@@ -807,7 +807,7 @@ void FeaStructure::BuildSuppressList()
     m_Usuppress.clear();
     m_Wsuppress.clear();
 
-    FeaSkin* skin = NULL;
+    FeaSkin* skin = nullptr;
     FeaPart* pskin = GetFeaSkin();
     if ( pskin )
     {
@@ -920,7 +920,7 @@ FeaBC* FeaStructure::GetFeaBC( int ind )
     {
         return m_FeaBCVec[ind];
     }
-    return NULL;
+    return nullptr;
 }
 
 int FeaStructure::GetFeaBCIndex( const string &id )
@@ -1215,7 +1215,7 @@ void FeaPart::SetDirtyFlags( Parm* parm_ptr )
 
 xmlNodePtr FeaPart::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr part_info = xmlNewChild( node, NULL, BAD_CAST "FeaPartInfo", NULL );
+    xmlNodePtr part_info = xmlNewChild( node, nullptr, BAD_CAST "FeaPartInfo", nullptr );
 
     XmlUtil::AddIntNode( part_info, "FeaPartType", m_FeaPartType );
 
@@ -1524,7 +1524,7 @@ void FeaPart::SetDrawObjHighlight( bool highlight )
 
 const VspSurf* FeaPart::GetMainSurf()
 {
-    const VspSurf* retsurf = NULL;
+    const VspSurf* retsurf = nullptr;
 
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -2481,7 +2481,7 @@ void FeaSpar::ComputePlanarSurf()
                 sect_bbox = wing_bbox;
             }
 
-            FeaSlice* temp_slice = NULL;
+            FeaSlice* temp_slice = nullptr;
             temp_slice = new FeaSlice( m_ParentGeomID, m_StructID );
 
             if ( temp_slice )
@@ -2759,11 +2759,11 @@ xmlNodePtr FeaPolySpar::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr ps_node = FeaSlice::EncodeXml( node );
 
-    xmlNodePtr sparpoints_node = xmlNewChild( ps_node, NULL, BAD_CAST "SparPoints", NULL );
+    xmlNodePtr sparpoints_node = xmlNewChild( ps_node, nullptr, BAD_CAST "SparPoints", nullptr );
 
     for ( int i = 0; i < ( int )m_SparPointVec.size(); i++ )
     {
-        xmlNodePtr sparpoint_node = xmlNewChild( sparpoints_node, NULL, BAD_CAST"SparPoint", NULL );
+        xmlNodePtr sparpoint_node = xmlNewChild( sparpoints_node, nullptr, BAD_CAST"SparPoint", nullptr );
         m_SparPointVec[i]->EncodeXml( sparpoint_node );
     }
 
@@ -3428,7 +3428,7 @@ VspSurf FeaRib::ComputeRibSurf()
                 sect_bbox = wing_bbox;
             }
 
-            FeaSlice* temp_slice = NULL;
+            FeaSlice* temp_slice = nullptr;
             temp_slice = new FeaSlice( m_ParentGeomID, m_StructID );
 
             if ( temp_slice )
@@ -4082,16 +4082,16 @@ void FeaPartTrim::UpdateSurface()
 
 xmlNodePtr FeaPartTrim::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr part_info = xmlNewChild( node, NULL, BAD_CAST "FeaPartInfo", NULL );
+    xmlNodePtr part_info = xmlNewChild( node, nullptr, BAD_CAST "FeaPartInfo", nullptr );
 
     if ( part_info )
     {
         XmlUtil::AddIntNode( part_info, "FeaPartType", m_FeaPartType );
 
-        xmlNodePtr tlist_node = xmlNewChild( part_info, NULL, BAD_CAST "TrimList", NULL );
+        xmlNodePtr tlist_node = xmlNewChild( part_info, nullptr, BAD_CAST "TrimList", nullptr );
         for ( int i = 0 ; i < ( int )m_TrimFeaPartIDVec.size() ; i++ )
         {
-            xmlNodePtr trim_node = xmlNewChild( tlist_node, NULL, BAD_CAST "TrimPart", NULL );
+            xmlNodePtr trim_node = xmlNewChild( tlist_node, nullptr, BAD_CAST "TrimPart", nullptr );
             XmlUtil::AddStringNode( trim_node, "ID", m_TrimFeaPartIDVec[i] );
         }
 
@@ -4395,7 +4395,7 @@ void FeaPartTrim::AddTrimPart( const string &partID )
 
     m_SurfDirty = true;
     m_LateUpdateFlag = true;
-    ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+    ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
 }
 
 void FeaPartTrim::DeleteTrimPart( int indx )
@@ -4411,7 +4411,7 @@ void FeaPartTrim::DeleteTrimPart( int indx )
 
         m_SurfDirty = true;
         m_LateUpdateFlag = true;
-        ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+        ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
     }
 }
 
@@ -4955,7 +4955,7 @@ void FeaRibArray::CreateFeaRibArray()
             }
 
             // Create a rib to calculate surface from
-            FeaRib* rib = NULL;
+            FeaRib* rib = nullptr;
             rib = new FeaRib( m_ParentGeomID, m_StructID );
             if ( !rib )
             {
@@ -5324,7 +5324,7 @@ void FeaSliceArray::CreateFeaSliceArray()
             }
 
             // Create a temporary slice to calculate surface from
-            FeaSlice* slice = NULL;
+            FeaSlice* slice = nullptr;
             slice = new FeaSlice( m_ParentGeomID, m_StructID );
             if ( !slice )
             {
@@ -5662,7 +5662,7 @@ void FeaProperty::Update()
 
 xmlNodePtr FeaProperty::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr prop_info = xmlNewChild( node, NULL, BAD_CAST "FeaPropertyInfo", NULL );
+    xmlNodePtr prop_info = xmlNewChild( node, nullptr, BAD_CAST "FeaPropertyInfo", nullptr );
 
     ParmContainer::EncodeXml( prop_info );
 
@@ -5791,7 +5791,7 @@ void FeaLayer::Update( int cur_len_unit )
 
 xmlNodePtr FeaLayer::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr prop_info = xmlNewChild( node, NULL, BAD_CAST "FeaLayerInfo", NULL );
+    xmlNodePtr prop_info = xmlNewChild( node, nullptr, BAD_CAST "FeaLayerInfo", nullptr );
 
     ParmContainer::EncodeXml( prop_info );
 
@@ -6716,7 +6716,7 @@ void FeaMaterial::ParmChanged( Parm* parm_ptr, int type )
 
 xmlNodePtr FeaMaterial::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr mat_info = xmlNewChild( node, NULL, BAD_CAST "FeaMaterialInfo", NULL );
+    xmlNodePtr mat_info = xmlNewChild( node, nullptr, BAD_CAST "FeaMaterialInfo", nullptr );
 
     ParmContainer::EncodeXml( mat_info );
 
@@ -6789,7 +6789,7 @@ FeaLayer * FeaMaterial::GetCurrLayer()
         return m_LayerVec[ GetCurrLayerIndex() ];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool FeaMaterial::DeleteLayer( const string &id )
@@ -6840,7 +6840,7 @@ FeaLayer* FeaMaterial::GetFeaLayer( const string &id )
 {
     if ( id == string( "NONE" ) )
     {
-        return NULL;
+        return nullptr;
     }
     for ( int i = 0 ; i < ( int )m_LayerVec.size() ; i++ )
     {
@@ -6849,7 +6849,7 @@ FeaLayer* FeaMaterial::GetFeaLayer( const string &id )
             return m_LayerVec[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 int FeaMaterial::GetCurrLayerIndex()
@@ -7121,7 +7121,7 @@ void FeaConnection::Update( )
 
 xmlNodePtr FeaConnection::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr conn_node = xmlNewChild( node, NULL, BAD_CAST "Connection", NULL );
+    xmlNodePtr conn_node = xmlNewChild( node, nullptr, BAD_CAST "Connection", nullptr );
 
     if ( conn_node )
     {
@@ -7286,20 +7286,20 @@ void FeaAssembly::Update()
 
 xmlNodePtr FeaAssembly::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr assy_node = xmlNewChild( node, NULL, BAD_CAST "FeaAssembly", NULL );
+    xmlNodePtr assy_node = xmlNewChild( node, nullptr, BAD_CAST "FeaAssembly", nullptr );
 
     if ( assy_node )
     {
         ParmContainer::EncodeXml( assy_node );
 
-        xmlNodePtr structlist_node = xmlNewChild( assy_node, NULL, BAD_CAST "Structure_List", NULL );
+        xmlNodePtr structlist_node = xmlNewChild( assy_node, nullptr, BAD_CAST "Structure_List", nullptr );
         for ( int i = 0 ; i < ( int )m_StructIDVec.size() ; i++ )
         {
-            xmlNodePtr struct_node = xmlNewChild( structlist_node, NULL, BAD_CAST "Structure", NULL );
+            xmlNodePtr struct_node = xmlNewChild( structlist_node, nullptr, BAD_CAST "Structure", nullptr );
             XmlUtil::AddStringNode( struct_node, "ID", m_StructIDVec[i] );
         }
 
-        xmlNodePtr conlist_node = xmlNewChild( assy_node, NULL, BAD_CAST "Connection_List", NULL );
+        xmlNodePtr conlist_node = xmlNewChild( assy_node, nullptr, BAD_CAST "Connection_List", nullptr );
         for ( int i = 0 ; i < ( int )m_ConnectionVec.size() ; i++ )
         {
             FeaConnection* conn = m_ConnectionVec[i];
@@ -7481,7 +7481,7 @@ void FeaBC::ParmChanged( Parm* parm_ptr, int type )
 
 xmlNodePtr FeaBC::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr bc_info = xmlNewChild( node, NULL, BAD_CAST "FeaBCInfo", NULL );
+    xmlNodePtr bc_info = xmlNewChild( node, nullptr, BAD_CAST "FeaBCInfo", nullptr );
 
     xmlNodePtr conn_node = ParmContainer::EncodeXml( bc_info );
 

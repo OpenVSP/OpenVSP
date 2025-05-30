@@ -97,10 +97,10 @@ bail:
 
 //DIR *dir;
 //struct dirent *ent;
-//if ((dir = opendir ("c:\\")) != NULL)
+//if ((dir = opendir ("c:\\")) != nullptr)
 //{
 //  /* print all the files and directories within directory */
-//  while ((ent = readdir (dir)) != NULL)
+//  while ((ent = readdir (dir)) != nullptr)
 //  {
 //      printf ("%s\n", ent->d_name);
 //  }
@@ -118,7 +118,7 @@ string PathToExe()
 {
 
     int bufsize = 255;
-    char *path = NULL;
+    char *path = nullptr;
     bool done = false;
 
 #ifdef __FreeBSD__
@@ -132,8 +132,8 @@ string PathToExe()
 // Pre-loop initialization.
 #ifdef WIN32
     // Will contain exe path
-    HMODULE hModule = GetModuleHandle(NULL);
-    if (hModule != NULL)
+    HMODULE hModule = GetModuleHandle(nullptr);
+    if (hModule != nullptr)
     {
 #endif
 
@@ -173,8 +173,8 @@ string PathToExe()
 #endif
         if ( done )
         {
-            char* cpath = NULL;
-            cpath = realpath( path, NULL );
+            char* cpath = nullptr;
+            cpath = realpath( path, nullptr );
             if ( cpath )
             {
                 free( path );
@@ -272,7 +272,7 @@ bool CheckForFile( const string &path, const string &file )
 
 bool FileExist( const string & file )
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
 
     fp = fopen( file.c_str(), "r" );
 
@@ -373,11 +373,11 @@ string GetFilename( const string &pathfile )
     char strbuf[1000];
     strcpy( strbuf, pathfile.c_str() );
     pch = strtok ( strbuf, sepToken.c_str() );
-    while ( pch != NULL )
+    while ( pch != nullptr )
     {
         n_parts++;
         fileParts.emplace_back( pch );
-        pch = strtok ( NULL, sepToken.c_str() );
+        pch = strtok ( nullptr, sepToken.c_str() );
     }
 
     return fileParts.back();
@@ -415,7 +415,7 @@ void AppendFile_BtoA( FILE* fpa, FILE* fpb )
 
         // Allocate memory to contain the whole file:
         char * buffer = (char*)malloc( sizeof( char )*lSize + 1 );
-        if ( buffer == NULL )
+        if ( buffer == nullptr )
         {
             printf( "AppendFile_BtoA memory error\n" );
             return;

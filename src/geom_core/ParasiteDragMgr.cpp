@@ -29,7 +29,7 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_RefGeomID = "";
     m_ModeID = "";
     m_CurrentExcresIndex = -1;
-    m_CompGeomResults = NULL;
+    m_CompGeomResults = nullptr;
 
     // ==== Parm Initialize and Description Setting ==== //
     // Reference Qualities Parms
@@ -146,7 +146,7 @@ void ParasiteDragMgrSingleton::Renew()
     m_ExcresRowVec.clear();
 
     m_DegenGeomVec.clear();
-    m_CompGeomResults = NULL;
+    m_CompGeomResults = nullptr;
 
     SetDefaultStruct();
 
@@ -3370,20 +3370,20 @@ void ParasiteDragMgrSingleton::ClearOutputVectors()
 xmlNodePtr ParasiteDragMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
     char str[256];
-    xmlNodePtr ParasiteDragnode = xmlNewChild( node, NULL, BAD_CAST"ParasiteDragMgr", NULL );
+    xmlNodePtr ParasiteDragnode = xmlNewChild( node, nullptr, BAD_CAST"ParasiteDragMgr", nullptr );
 
     ParmContainer::EncodeXml( ParasiteDragnode );
     XmlUtil::AddStringNode( ParasiteDragnode, "ReferenceGeomID", m_RefGeomID );
     XmlUtil::AddStringNode( ParasiteDragnode, "ModeID", m_ModeID );
 
-    xmlNodePtr ExcresDragnode = xmlNewChild( ParasiteDragnode, NULL, BAD_CAST"Excrescence", NULL );
+    xmlNodePtr ExcresDragnode = xmlNewChild( ParasiteDragnode, nullptr, BAD_CAST"Excrescence", nullptr );
 
     XmlUtil::AddIntNode( ExcresDragnode, "NumExcres", m_ExcresRowVec.size() );
 
     for ( size_t i = 0; i < m_ExcresRowVec.size(); ++i )
     {
         snprintf( str, sizeof( str ),  "Excres_%zu", i );
-        xmlNodePtr excresqualnode = xmlNewChild( ExcresDragnode, NULL, BAD_CAST str, NULL );
+        xmlNodePtr excresqualnode = xmlNewChild( ExcresDragnode, nullptr, BAD_CAST str, nullptr );
 
         XmlUtil::AddStringNode( excresqualnode, "Label", m_ExcresRowVec[i].Label );
         XmlUtil::AddIntNode( excresqualnode, "Type", m_ExcresRowVec[i].Type );

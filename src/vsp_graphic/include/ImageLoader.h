@@ -37,7 +37,7 @@ struct ImageData
         width = 0;
         height = 0;
         type = 0;
-        data = NULL;
+        data = nullptr;
     }
 };
 

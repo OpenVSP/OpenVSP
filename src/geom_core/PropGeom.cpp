@@ -29,7 +29,7 @@ using namespace vsp;
 
 PropPositioner::PropPositioner()
 {
-    m_ParentProp = NULL;
+    m_ParentProp = nullptr;
 
     m_Chord = 1.0;
 
@@ -1021,7 +1021,7 @@ void PropGeom::UpdateSurf()
 
     //==== Cross Section Curves & joint info ====//
     vector< XSecCurve* > xsc_vec;
-    xsc_vec.resize( nxsec, NULL );
+    xsc_vec.resize( nxsec, nullptr );
 
     vector< VspCurve > base_crv_vec;
     base_crv_vec.resize( nxsec );
@@ -1903,7 +1903,7 @@ void PropGeom::ComputeCenter()
 xmlNodePtr PropGeom::EncodeXml( xmlNodePtr & node )
 {
     Geom::EncodeXml( node );
-    xmlNodePtr propeller_node = xmlNewChild( node, NULL, BAD_CAST "PropellerGeom", NULL );
+    xmlNodePtr propeller_node = xmlNewChild( node, nullptr, BAD_CAST "PropellerGeom", nullptr );
     if ( propeller_node )
     {
         // m_VecViz.EncodeXml( propeller_node );
@@ -2589,7 +2589,7 @@ PCurve* PropGeom::GetPCurve( int curveid )
     {
         return m_pcurve_vec[ curveid ];
     }
-    return NULL;
+    return nullptr;
 }
 
 void PropGeom::WriteAirfoilFiles( FILE* meta_fid )

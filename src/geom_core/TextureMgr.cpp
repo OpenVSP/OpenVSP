@@ -42,7 +42,7 @@ Texture * TextureMgr::FindTexture( const std::string &texture_id )
             return m_TextureList[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 std::vector<std::string> TextureMgr::GetTextureVec()
@@ -74,13 +74,13 @@ xmlNodePtr TextureMgr::EncodeXml( xmlNodePtr node )
 {
     char texName[256];
 
-    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "Textures", NULL );
+    xmlNodePtr child_node = xmlNewChild( node, nullptr, BAD_CAST "Textures", nullptr );
     XmlUtil::AddIntNode( child_node, "Num_of_Tex", m_TextureList.size() );
 
     for( int i = 0; i < (int)m_TextureList.size(); i++ )
     {
         snprintf( texName, sizeof( texName ), "Texture%d", i );
-        xmlNodePtr tex_node = xmlNewChild( child_node, NULL, BAD_CAST texName, NULL );
+        xmlNodePtr tex_node = xmlNewChild( child_node, nullptr, BAD_CAST texName, nullptr );
         m_TextureList[i]->EncodeXml( tex_node );
     }
     return child_node;

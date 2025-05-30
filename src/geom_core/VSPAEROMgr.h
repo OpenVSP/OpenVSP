@@ -264,8 +264,8 @@ public:
     // VSP Aero Functionality and Variables
     string ComputeGeometry();
     string CreateSetupFile();                          // natively creates a *.vspaero template setup file
-    string ComputeSolver( FILE * logFile = NULL ); // returns a result with a vector of results id's under the name ResultVec
-    string ComputeSolverBatch( FILE * logFile = NULL );
+    string ComputeSolver( FILE * logFile = nullptr ); // returns a result with a vector of results id's under the name ResultVec
+    string ComputeSolverBatch( FILE * logFile = nullptr );
     ProcessUtil* GetSolverProcess();
     bool IsSolverRunning();
     void KillSolver();
@@ -275,10 +275,10 @@ public:
     string LoadExistingVSPAEROResults();
 
     // CpSlicer Functionality and Variables
-    string ComputeCpSlices( FILE * logFile = NULL );
-    string ExecuteCpSlicer( FILE * logFile = NULL );
-    void ComputeQuadTreeSlices( FILE * logFile = NULL );
-    void ExecuteQuadTreeSlicer( FILE * logFile = NULL );
+    string ComputeCpSlices( FILE * logFile = nullptr );
+    string ExecuteCpSlicer( FILE * logFile = nullptr );
+    void ComputeQuadTreeSlices( FILE * logFile = nullptr );
+    void ExecuteQuadTreeSlicer( FILE * logFile = nullptr );
     static void ClearCpSliceResults();
     void CreateCutsFile();
     void AddCpSlice( CpSlice* slice )                      { m_CpSliceVec.push_back( slice ); }

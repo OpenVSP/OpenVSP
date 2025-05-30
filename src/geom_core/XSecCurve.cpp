@@ -493,7 +493,7 @@ VspCurve& XSecCurve::GetCurve()
 xmlNodePtr XSecCurve::EncodeXml(  xmlNodePtr & node  )
 {
     ParmContainer::EncodeXml( node );
-    xmlNodePtr xsec_node = xmlNewChild( node, NULL, BAD_CAST "XSecCurve", NULL );
+    xmlNodePtr xsec_node = xmlNewChild( node, nullptr, BAD_CAST "XSecCurve", nullptr );
     if ( xsec_node )
     {
         XmlUtil::AddIntNode( xsec_node, "Type", m_Type );
@@ -537,7 +537,7 @@ xmlNodePtr XSecCurve::DecodeXml( xmlNodePtr & node )
 void XSecCurve::CopyFrom( XSecCurve* from_crv )
 {
     string lastreset = ParmMgr.ResetRemapID();
-    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Geometry" );
+    xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
 
     from_crv->EncodeXml( root );
     DecodeXml( root );
@@ -2795,7 +2795,7 @@ void FileXSec::UpdateCurve( bool updateParms )
 xmlNodePtr FileXSec::EncodeXml(  xmlNodePtr & node  )
 {
     XSecCurve::EncodeXml( node );
-    xmlNodePtr child_node  = xmlNewChild( node, NULL, BAD_CAST "FileXSec", NULL );
+    xmlNodePtr child_node  = xmlNewChild( node, nullptr, BAD_CAST "FileXSec", nullptr );
     if ( child_node )
     {
         XmlUtil::AddVectorVec3dNode( child_node, "UnityFilePnts", m_UnityFilePnts );
@@ -2820,7 +2820,7 @@ xmlNodePtr FileXSec::DecodeXml(  xmlNodePtr & node  )
 bool FileXSec::ReadXsecFile( const string &file_name )
 {
     FILE* file_id =  fopen( file_name.c_str(), "r" );
-    if ( file_id == ( FILE * )NULL )
+    if ( file_id == ( FILE * )nullptr )
     {
         return false;
     }
@@ -3266,7 +3266,7 @@ void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
 
 xmlNodePtr EditCurveXSec::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "EditCurveXSec", NULL );
+    xmlNodePtr child_node = xmlNewChild( node, nullptr, BAD_CAST "EditCurveXSec", nullptr );
     if ( child_node )
     {
         XmlUtil::AddIntNode( child_node, "NumPts", (int)m_XParmVec.size() );
@@ -3723,7 +3723,7 @@ void EditCurveXSec::EnforcePtOrder( double rfirst, double rlast )
         int npt = (int)m_UParmVec.size();
         int nseg = ( npt - 1 ) / 3;
 
-        Parm* pprev = NULL;
+        Parm* pprev = nullptr;
         for ( int i = 0; i < nseg; i++ )
         {
             int istart = i * 3;
@@ -3779,11 +3779,11 @@ void EditCurveXSec::EnforcePtOrder( double rfirst, double rlast )
     }
     else  // LINEAR or PCHIP
     {
-        Parm* pprev = NULL;
+        Parm* pprev = nullptr;
         for ( int j = 0; j < m_UParmVec.size(); j++ )
         {
             Parm* p = m_UParmVec[j];
-            Parm* pnxt = NULL;
+            Parm* pnxt = nullptr;
             if ( j < m_UParmVec.size() - 1 )
             {
                 pnxt = m_UParmVec[j + 1];
@@ -4402,7 +4402,7 @@ void EditCurveXSec::ConvertTo( int newtype )
     m_SelectPntID = 0;
 
     m_LateUpdateFlag = true;
-    ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+    ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
 }
 
 void EditCurveXSec::ReparameterizeEqualArcLength()
@@ -4671,7 +4671,7 @@ void EditCurveXSec::MovePnt( int index, const vec3d &new_pnt, bool force_update 
 
     if ( force_update )
     {
-        ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+        ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
     }
 }
 
@@ -4707,7 +4707,7 @@ void EditCurveXSec::MovePnt( double x, double y, double z, bool neighbors_only )
                         // Adjust the X coordinates of the neighboring control points
                         double dx = x - xp->Get();
 
-                        Parm* xprev = NULL;
+                        Parm* xprev = nullptr;
                         if ( m_SelectPntID > 0 )
                         {
                             xprev = m_XParmVec[m_SelectPntID - 1];
@@ -4719,7 +4719,7 @@ void EditCurveXSec::MovePnt( double x, double y, double z, bool neighbors_only )
                             xprev->Set( xprev->Get() + dx );
                         }
 
-                        Parm* xnext = NULL;
+                        Parm* xnext = nullptr;
                         if ( m_SelectPntID < m_XParmVec.size() - 1 )
                         {
                             xnext = m_XParmVec[m_SelectPntID + 1];
@@ -4740,7 +4740,7 @@ void EditCurveXSec::MovePnt( double x, double y, double z, bool neighbors_only )
                     // Adjust the Y coordinates of the neighboring control points
                     double dy = y - yp->Get();
 
-                    Parm *yprev = NULL;
+                    Parm *yprev = nullptr;
                     if ( m_SelectPntID > 0 )
                     {
                         yprev = m_YParmVec[m_SelectPntID - 1];
@@ -4751,7 +4751,7 @@ void EditCurveXSec::MovePnt( double x, double y, double z, bool neighbors_only )
                         yprev = m_YParmVec[m_YParmVec.size() - 2];
                         yprev->Set( yprev->Get() + dy );
                     }
-                    Parm *ynext = NULL;
+                    Parm *ynext = nullptr;
                     if ( m_SelectPntID < m_YParmVec.size() - 1 )
                     {
                         ynext = m_YParmVec[m_SelectPntID + 1];
@@ -4766,7 +4766,7 @@ void EditCurveXSec::MovePnt( double x, double y, double z, bool neighbors_only )
                     // Adjust the Z coordinates of the neighboring control points
                     double dz = z - zp->Get();
 
-                    Parm *zprev = NULL;
+                    Parm *zprev = nullptr;
                     if ( m_SelectPntID > 0 )
                     {
                         zprev = m_ZParmVec[m_SelectPntID - 1];
@@ -4777,7 +4777,7 @@ void EditCurveXSec::MovePnt( double x, double y, double z, bool neighbors_only )
                         zprev = m_ZParmVec[m_ZParmVec.size() - 2];
                         zprev->Set( zprev->Get() + dz );
                     }
-                    Parm *znext = NULL;
+                    Parm *znext = nullptr;
                     if ( m_SelectPntID < m_ZParmVec.size() - 1 )
                     {
                         znext = m_ZParmVec[m_SelectPntID + 1];
@@ -4927,7 +4927,7 @@ void EditCurveXSec::SetPntVecs( const vector<double> &u_vec, const vector<double
     if ( force_update )
     {
         m_LateUpdateFlag = true;
-        ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+        ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
     }
 }
 
@@ -5012,7 +5012,7 @@ void EditCurveXSec::DeletePt( int indx )
         m_SelectPntID = 0;
 
         m_LateUpdateFlag = true;
-        ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+        ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
     }
 }
 
@@ -5431,7 +5431,7 @@ void InterpXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
 
 XSecCurveDriverGroup::XSecCurveDriverGroup( int Nvar, int Nchoice ) : DriverGroup( Nvar, Nchoice )
 {
-    m_Parent = NULL;
+    m_Parent = nullptr;
 
     m_prevArea = -1.0;
     m_Name = "XSecCurveDriverGroup";

@@ -15,7 +15,7 @@ using namespace vsp;
 WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
 {
 
-    m_CurrDisplayGroup = NULL;
+    m_CurrDisplayGroup = nullptr;
 
     Fl_Group* plan_tab = AddTab( "Plan", 4 );
     Fl_Group* plan_group = AddSubGroup( plan_tab, 5 );

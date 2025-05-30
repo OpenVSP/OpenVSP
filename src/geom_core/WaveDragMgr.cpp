@@ -69,7 +69,7 @@ WaveDragSingleton::WaveDragSingleton() : ParmContainer()
 
 xmlNodePtr WaveDragSingleton::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr WaveDragnode = xmlNewChild( node, NULL, BAD_CAST"WaveDragMgr", NULL );
+    xmlNodePtr WaveDragnode = xmlNewChild( node, nullptr, BAD_CAST"WaveDragMgr", nullptr );
 
     ParmContainer::EncodeXml( WaveDragnode );
 
@@ -77,10 +77,10 @@ xmlNodePtr WaveDragSingleton::EncodeXml( xmlNodePtr & node )
     XmlUtil::AddStringNode( WaveDragnode, "ModeID", m_ModeID );
 
     //===== Flow-Through Subsurfaces ====//
-    xmlNodePtr flowSS_list_node = xmlNewChild( WaveDragnode, NULL, ( const xmlChar * )"FlowSS_List", NULL );
+    xmlNodePtr flowSS_list_node = xmlNewChild( WaveDragnode, nullptr, ( const xmlChar * )"FlowSS_List", nullptr );
     for ( int i = 0 ; i < ( int )m_SSFlow_vec.size() ; i++ )
     {
-        xmlNodePtr flowSS_node = xmlNewChild( flowSS_list_node, NULL, ( const xmlChar * )"FlowSS", NULL );
+        xmlNodePtr flowSS_node = xmlNewChild( flowSS_list_node, nullptr, ( const xmlChar * )"FlowSS", nullptr );
         XmlUtil::AddStringNode( flowSS_node, "flowSS_ID", m_SSFlow_vec[i] );
     }
 

@@ -16,7 +16,7 @@ using namespace vsp;
 //==== Constructor ====//
 FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 460, 800, "Fuselage" )
 {
-    m_CurrDisplayGroup = NULL;
+    m_CurrDisplayGroup = nullptr;
 
     Fl_Group* design_tab = AddTab( "Design", 4 );
 
@@ -290,7 +290,7 @@ bool FuselageScreen::Update()
 
             if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )
             {
-                DisplayGroup( NULL );
+                DisplayGroup( nullptr );
             }
         }
 

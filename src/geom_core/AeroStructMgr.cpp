@@ -32,7 +32,7 @@ AeroStructSingleton::AeroStructSingleton() : ParmContainer()
 
 xmlNodePtr AeroStructSingleton::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr AeroStructnode = xmlNewChild( node, NULL, BAD_CAST"AeroStructMgr", NULL );
+    xmlNodePtr AeroStructnode = xmlNewChild( node, nullptr, BAD_CAST"AeroStructMgr", nullptr );
 
     ParmContainer::EncodeXml( AeroStructnode );
 
@@ -269,7 +269,7 @@ void AeroStructSingleton::TransferLoads( FILE * logFile )
         MessageData data;
         data.m_String = "AeroStructMessage";
         data.m_StringVec.push_back( cmdStr );
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
 
     m_LoadsProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );
@@ -302,7 +302,7 @@ void AeroStructSingleton::ComputeStructure( FILE * logFile )
         MessageData data;
         data.m_String = "AeroStructMessage";
         data.m_StringVec.push_back( cmdStr );
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
 
     m_CalculiXProcess.ForkCmd( m_CalculiXPath, m_CalculiXCmd, args );

@@ -201,7 +201,7 @@ private:
                     return &textureIDs[i];
                 }
             }
-            return NULL;
+            return nullptr;
         }
     };
     std::map < std::string, ID > m_idMap;

@@ -18,7 +18,7 @@ unsigned int XmlUtil::GetNumNames( xmlNodePtr node, const char * name )
     iter_node = node->xmlChildrenNode;
 
     //==== Parse This Level ====//
-    while( iter_node != NULL )
+    while( iter_node != nullptr )
     {
         if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )name ) )
         {
@@ -36,9 +36,9 @@ xmlNodePtr XmlUtil::GetNodeDbg( xmlNodePtr node, const char * name, int id, cons
     int num;
     xmlNodePtr iter_node;
 
-    if ( node == NULL )
+    if ( node == nullptr )
     {
-        return NULL;
+        return nullptr;
     }
 
     static bool once = false;
@@ -52,7 +52,7 @@ xmlNodePtr XmlUtil::GetNodeDbg( xmlNodePtr node, const char * name, int id, cons
     iter_node = node->xmlChildrenNode;
 
     //==== Parse This Level ====//
-    while( iter_node != NULL )
+    while( iter_node != nullptr )
     {
         if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )name ) )
         {
@@ -67,7 +67,7 @@ xmlNodePtr XmlUtil::GetNodeDbg( xmlNodePtr node, const char * name, int id, cons
     }
 
 //  printf("xmlGetNode: Can't find %s in node %s\n", name, node->name );
-    return NULL;
+    return nullptr;
 }
 
 //==== Extract Double From Node  ====//
@@ -115,7 +115,7 @@ double XmlUtil::FindDouble( xmlNodePtr node, const char * name, double def )
 {
     xmlNodePtr n;
 
-    if ( node == NULL )
+    if ( node == nullptr )
     {
         return def;
     }
@@ -134,7 +134,7 @@ int XmlUtil::FindInt( xmlNodePtr node, const char * name, int def )
 {
     xmlNodePtr n;
 
-    if ( node == NULL )
+    if ( node == nullptr )
     {
         return def;
     }
@@ -153,7 +153,7 @@ string XmlUtil::FindString( xmlNodePtr node, const char * name, const string & d
 {
     xmlNodePtr n;
 
-    if ( node == NULL )
+    if ( node == nullptr )
     {
         return def;
     }
@@ -173,7 +173,7 @@ string XmlUtil::FindString( xmlNodePtr node, const char * name, const string & d
 double XmlUtil::FindDoubleProp( xmlNodePtr node, const char * name, double def )
 {
     char* str;
-    if ( node == NULL )
+    if ( node == nullptr )
     {
         return def;
     }
@@ -192,7 +192,7 @@ string XmlUtil::FindStringProp( xmlNodePtr node, const char * name, const string
 {
     char* str;
 
-    if ( node == NULL )
+    if ( node == nullptr )
     {
         return def;
     }
@@ -212,7 +212,7 @@ string XmlUtil::FindStringProp( xmlNodePtr node, const char * name, const string
 int XmlUtil::FindIntProp( xmlNodePtr node, const char * name, int def )
 {
     char* str;
-    if ( node == NULL )
+    if ( node == nullptr )
     {
         return def;
     }
@@ -230,7 +230,7 @@ int XmlUtil::FindIntProp( xmlNodePtr node, const char * name, int def )
 xmlNodePtr XmlUtil::AddIntNode( xmlNodePtr root, const char * name, int val )
 {
     char str[255];
-    xmlNodePtr node = xmlNewChild( root, NULL, ( const xmlChar * )name, NULL );
+    xmlNodePtr node = xmlNewChild( root, nullptr, ( const xmlChar * )name, nullptr );
 
     snprintf( str, sizeof( str ), "%d", val );
     xmlNodeSetContent( node, ( const xmlChar * )str );
@@ -242,7 +242,7 @@ xmlNodePtr XmlUtil::AddIntNode( xmlNodePtr root, const char * name, int val )
 xmlNodePtr XmlUtil::AddDoubleNode( xmlNodePtr root, const char * name, double val )
 {
     char str[255];
-    xmlNodePtr node = xmlNewChild( root, NULL, ( const xmlChar * )name, NULL );
+    xmlNodePtr node = xmlNewChild( root, nullptr, ( const xmlChar * )name, nullptr );
 
     snprintf( str, sizeof( str ), "%.*e", DBL_DIG + 3, val );
 
@@ -254,7 +254,7 @@ xmlNodePtr XmlUtil::AddDoubleNode( xmlNodePtr root, const char * name, double va
 //==== Add String Val With Name To Node ====//
 xmlNodePtr XmlUtil::AddStringNode( xmlNodePtr root, const char * name, const string & val )
 {
-    xmlNodePtr node = xmlNewChild( root, NULL, ( const xmlChar * )name, NULL );
+    xmlNodePtr node = xmlNewChild( root, nullptr, ( const xmlChar * )name, nullptr );
 
     xmlNodeSetContent( node, ( const xmlChar * )val.c_str() );
 
@@ -286,7 +286,7 @@ int XmlUtil::GetNumArray( xmlNodePtr node, const char &sep )
     char* str;
     int i, len, num, elemcnt;
 
-    if ( node == NULL )
+    if ( node == nullptr )
     {
         return 0;
     }
@@ -325,7 +325,7 @@ int XmlUtil::ExtractDoubleArray( xmlNodePtr node, const char &sep, double * arra
     char* str;
     int i, len, num, elemcnt;
 
-    if ( node == NULL )
+    if ( node == nullptr )
     {
         return 0;
     }
@@ -371,7 +371,7 @@ int XmlUtil::ExtractIntArray( xmlNodePtr node, const char &sep, int * array, int
     char* str;
     int i, len, num, elemcnt;
 
-    if ( node == NULL )
+    if ( node == nullptr )
     {
         return 0;
     }

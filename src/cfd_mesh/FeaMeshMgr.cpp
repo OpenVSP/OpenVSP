@@ -43,7 +43,7 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
     m_IntersectComplete = false;
 
     m_FeaStructID = string();
-    m_ActiveMesh = NULL;
+    m_ActiveMesh = nullptr;
 }
 
 FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
@@ -73,7 +73,7 @@ void FeaMeshMgrSingleton::CleanMeshMap()
     {
         if ( m_ActiveMesh == it->second )
         {
-            m_ActiveMesh = NULL;
+            m_ActiveMesh = nullptr;
         }
         delete it->second;
         it++;
@@ -100,7 +100,7 @@ FeaMesh* FeaMeshMgrSingleton::GetMeshPtr( const string &struct_id )
 
     if ( it == m_MeshPtrMap.end() )
     {
-        return NULL;
+        return nullptr;
     }
     return m_MeshPtrMap[ struct_id ];
 }
@@ -1276,7 +1276,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             vector < vec3d > ipntVec, inormVec;
             vector < vec2d > iuwVec;
             vector < int > ssindexVec;
-            Surf* NormSurf = NULL;
+            Surf* NormSurf = nullptr;
             int FeaPartIndex = -1;
 
             // Check if one surface is a skin and one is an FeaPart (m_CompID = -9999)
@@ -1564,7 +1564,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             uw_guess.set_y( m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->GetMidW() );
         }
 
-        FeaElement* elem = NULL;
+        FeaElement* elem = nullptr;
         if( all_face_vec[i].m_isQuad )
         {
             elem = new FeaQuad;
@@ -1751,8 +1751,8 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                                 closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j] );
                             }
 
-                            Puw* p0 = NULL;
-                            Puw* p1 = NULL;
+                            Puw* p0 = nullptr;
+                            Puw* p1 = nullptr;
 
                             if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
                             {
@@ -1828,8 +1828,8 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                 list< ISegChain* >::iterator c;
                 for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
                 {
-                    Puw* p0 = NULL;
-                    Puw* p1 = NULL;
+                    Puw* p0 = nullptr;
+                    Puw* p1 = nullptr;
                     bool success = false;
                     double tol = 1e-3;
 
@@ -2987,7 +2987,7 @@ Surf* FeaMeshMgrSingleton::GetFeaSurf( int FeaPartID, int surf_num )
             return m_SurfVec[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void FeaMeshMgrSingleton::MeshUnMeshed( const vector < string > & idvec )
@@ -3503,7 +3503,7 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( const string &assembly_id, const
 
     if ( dat_fp && bdf_header_fp && bdf_fp )
     {
-        FILE* nkey_fp = NULL;
+        FILE* nkey_fp = nullptr;
         if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME ) )
         {
             string nkey_fname = m_AssemblySettings.GetExportFileName( vsp::FEA_NKEY_FILE_NAME );

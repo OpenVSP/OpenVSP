@@ -15,8 +15,8 @@
 GroupLayout::GroupLayout()
 {
     Init();
-    m_Screen = NULL;
-    m_Group  = NULL;
+    m_Screen = nullptr;
+    m_Group  = nullptr;
 }
 
 //==== Constructor ====//
@@ -24,7 +24,7 @@ GroupLayout::GroupLayout( VspScreen* screen )
 {
     Init();
     m_Screen = screen;
-    m_Group  = NULL;
+    m_Group  = nullptr;
 }
 
 GroupLayout::GroupLayout( VspScreen* screen, Fl_Group* group )
@@ -145,7 +145,7 @@ int GroupLayout::FitWidth( int used_w, int default_w )
 
         Fl_Scroll* s = dynamic_cast< Fl_Scroll* >( m_Group );
 
-        if ( s == NULL ) // Group is not a Fl_Scroll
+        if ( s == nullptr ) // Group is not a Fl_Scroll
         {
             return w;
         }
@@ -834,7 +834,7 @@ void GroupLayout::AddOutput( StringOutput& string_output)
     AddY( m_StdHeight );
     NewLineX();
 
-    string_output.Init( m_Screen, output, NULL );
+    string_output.Init( m_Screen, output, nullptr );
 }
 
 //==== Create & Init Text Output  ====//
@@ -843,7 +843,7 @@ void GroupLayout::AddOutput( StringOutput& string_output, const char* label, int
     assert( m_Group && m_Screen );
 
     //==== Button ====//
-    VspButton* button = NULL;
+    VspButton* button = nullptr;
 
     if ( m_ButtonWidth > 0 )
     {
@@ -872,7 +872,7 @@ void GroupLayout::AddOutput( Output& output, const char* label, const char* form
     assert( m_Group && m_Screen );
 
     //==== Parm Button ====//
-    VspButton* button = NULL;
+    VspButton* button = nullptr;
 
     if ( m_ButtonWidth > 0 )
     {
@@ -903,7 +903,7 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format,
     assert( m_Group && m_Screen );
 
     //==== Parm Button ====//
-    VspButton* button = NULL;
+    VspButton* button = nullptr;
 
     if ( m_ButtonWidth > 0 )
     {
@@ -979,7 +979,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, 
 
     int butw = 5 * m_ButtonWidth / 6;
 
-    VspButton* button = NULL;
+    VspButton* button = nullptr;
     if ( label )
     {
         button = AddParmButton( label );
@@ -1113,7 +1113,7 @@ void GroupLayout::AddChoice( Choice & choice, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
-    VspButton* button = NULL;
+    VspButton* button = nullptr;
 
     if ( m_ChoiceButtonWidth > 0 )
     {
@@ -1162,7 +1162,7 @@ void GroupLayout::AddCounter( Counter & count, const char* label, int used_w )
 
     //==== Counter Button ====//
     int bw = 0;
-    VspButton* button = NULL;
+    VspButton* button = nullptr;
     if ( strcmp( label, "" ) != 0 )
     {
         button = AddParmButton( label );
@@ -1509,7 +1509,7 @@ void GroupLayout::AddSkinHeader( SkinHeader & skin_header, bool addcontchoice )
     m_FitWidthFlag = false;
     m_SameLineFlag = true;
 
-    Choice* cont_choice = NULL;
+    Choice* cont_choice = nullptr;
 
     if( addcontchoice )
     {
@@ -1631,7 +1631,7 @@ void GroupLayout::AddPCurveEditor( PCurveEditor& curve_editor )
     AddYGap();
 
     int canvas_w = FitWidth( 0, m_CanvasWidth ) - 5;
-    Vsp_Canvas* canvas = NULL;
+    Vsp_Canvas* canvas = nullptr;
     string split_label;
 
     AddY( 25 );
@@ -1691,7 +1691,7 @@ void GroupLayout::AddPCurveEditor( PCurveEditor& curve_editor )
 
     SetFitWidthFlag( true );
 
-    AddIndexSelector( curve_editor.m_PntSelector, NULL , 2 * ( m_ButtonWidth + 15 ) );
+    AddIndexSelector( curve_editor.m_PntSelector, nullptr , 2 * ( m_ButtonWidth + 15 ) );
 
     m_ButtonWidth += 15;
 

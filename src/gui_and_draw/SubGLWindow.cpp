@@ -569,7 +569,7 @@ VspSubGlWindow::ID * VspSubGlWindow::_findID( const std::string &geomID )
             return &m_ids[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 VspSubGlWindow::ID * VspSubGlWindow::_findID( unsigned int bufferID )
@@ -581,7 +581,7 @@ VspSubGlWindow::ID * VspSubGlWindow::_findID( unsigned int bufferID )
             return &m_ids[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void VspSubGlWindow::_updateBuffer( const std::vector<DrawObj *> &objects )

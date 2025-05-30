@@ -15,7 +15,7 @@ namespace VSPGraphic
 {
 Entity::Entity() : Renderable()
 {
-    _lighting = NULL;
+    _lighting = nullptr;
 }
 Entity::Entity( Lighting * lights ) : Renderable()
 {

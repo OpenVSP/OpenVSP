@@ -15,7 +15,7 @@ Material::~Material()
 
 xmlNodePtr Material::EncodeNameXml( xmlNodePtr & node )
 {
-    xmlNodePtr material_node = xmlNewChild( node, NULL, BAD_CAST "Material", NULL );
+    xmlNodePtr material_node = xmlNewChild( node, nullptr, BAD_CAST "Material", nullptr );
     if ( material_node )
     {
         XmlUtil::AddStringNode( material_node, "Name", m_Name );
@@ -36,7 +36,7 @@ xmlNodePtr Material::DecodeNameXml( xmlNodePtr & node )
 
 xmlNodePtr Material::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr material_node = xmlNewChild( node, NULL, BAD_CAST "Material", NULL );
+    xmlNodePtr material_node = xmlNewChild( node, nullptr, BAD_CAST "Material", nullptr );
     if ( material_node )
     {
         XmlUtil::AddStringNode( material_node, "Name", m_Name );
@@ -622,7 +622,7 @@ void MaterialMgrSingleton::AddMaterial( const Material &mat )
 
 xmlNodePtr MaterialMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr materials_node = xmlNewChild( node, NULL, BAD_CAST "Materials", NULL );
+    xmlNodePtr materials_node = xmlNewChild( node, nullptr, BAD_CAST "Materials", nullptr );
     if ( materials_node )
     {
         for( int i = 0; i < (int)m_Materials.size(); i++ )

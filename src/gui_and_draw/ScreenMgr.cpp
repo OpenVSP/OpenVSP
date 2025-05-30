@@ -101,7 +101,7 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
         Fl::set_font(FL_HELVETICA + 3, "PArial");
     #endif
 
-    m_NativeFileChooser = NULL;
+    m_NativeFileChooser = nullptr;
 
     m_RunGUI = true;
 
@@ -942,7 +942,7 @@ Geom* ScreenMgr::GetCurrGeom()
 
     if ( select_vec.size() != 1 )
     {
-        return NULL;
+        return nullptr;
     }
     return select_vec[0];
 }
@@ -955,7 +955,7 @@ VspScreen * ScreenMgr::GetScreen( int id )
     }
     // Should not reach here.
     assert( false );
-    return NULL;
+    return nullptr;
 }
 
 vector < VspScreen* > ScreenMgr::GetAllScreens()
@@ -968,8 +968,8 @@ void ScreenMgr::LaunchSystemDefaultBrowser( const string &url )
 #if     defined(__APPLE__)
         system( string( "open " + url ).c_str() );
 #elif   defined(_WIN32) || defined(WIN32)
-        ShellExecute( NULL, "open", url.c_str(),
-                      NULL, NULL, SW_SHOWNORMAL );
+        ShellExecute( nullptr, "open", url.c_str(),
+                      nullptr, nullptr, SW_SHOWNORMAL );
 #else
         system( string( "xdg-open " + url ).c_str() );
 #endif

@@ -68,7 +68,7 @@ DesignVar* DesignVarMgrSingleton::GetVar( int index )
     {
         return m_VarVec[ index ];
     }
-    return NULL;
+    return nullptr;
 }
 
 //==== Add Curr Variable ====//
@@ -127,7 +127,7 @@ bool DesignVarMgrSingleton::AddVar( const string& parm_id, int xddmtype )
     //==== Check If ParmIDs Are Valid ====//
     Parm* p = ParmMgr.FindParm( parm_id );
 
-    if ( p == NULL )
+    if ( p == nullptr )
     {
         return false;
     }
@@ -297,7 +297,7 @@ void DesignVarMgrSingleton::WriteDesVarsXDDM( const string &newfile )
 {
     xmlDocPtr doc = xmlNewDoc( ( const xmlChar * )"1.0" );
 
-    xmlNodePtr model_node = xmlNewNode( NULL, ( const xmlChar * )"Model" );
+    xmlNodePtr model_node = xmlNewNode( nullptr, ( const xmlChar * )"Model" );
     xmlDocSetRootElement( doc, model_node );
 
     xmlSetProp( model_node, ( const xmlChar * )"ID", ( const xmlChar * ) VehicleMgr.GetVehicle()->GetVSP3FileName().c_str() );
@@ -312,11 +312,11 @@ void DesignVarMgrSingleton::WriteDesVarsXDDM( const string &newfile )
 
         if( m_VarVec[i]->m_XDDM_Type == vsp::XDDM_VAR )
         {
-            var_node = xmlNewChild( model_node, NULL, ( const xmlChar * )"Variable", NULL );
+            var_node = xmlNewChild( model_node, nullptr, ( const xmlChar * )"Variable", nullptr );
         }
         else
         {
-            var_node = xmlNewChild( model_node, NULL, ( const xmlChar * )"Constant", NULL );
+            var_node = xmlNewChild( model_node, nullptr, ( const xmlChar * )"Constant", nullptr );
         }
 
         string c_name, g_name, p_name;
@@ -350,10 +350,10 @@ void DesignVarMgrSingleton::ReadDesVarsXDDM( const string &newfile )
 
     //==== Build an XML tree from a the file ====//
     doc = xmlParseFile( newfile.c_str() );
-//  if (doc == NULL) return 0;
+//  if (doc == nullptr) return 0;
 
     xmlNodePtr root = xmlDocGetRootElement( doc );
-    if ( root == NULL )
+    if ( root == nullptr )
     {
         fprintf( stderr, "empty document\n" );
         xmlFreeDoc( doc );

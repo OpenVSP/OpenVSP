@@ -288,7 +288,7 @@ void StackGeom::ComputeCenter()
 xmlNodePtr StackGeom::EncodeXml( xmlNodePtr & node )
 {
     Geom::EncodeXml( node );
-    xmlNodePtr fuselage_node = xmlNewChild( node, NULL, BAD_CAST "FuselageGeom", NULL );
+    xmlNodePtr fuselage_node = xmlNewChild( node, nullptr, BAD_CAST "FuselageGeom", nullptr );
     if ( fuselage_node )
     {
         m_XSecSurf.EncodeXml( fuselage_node );

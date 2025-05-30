@@ -26,7 +26,7 @@ XSecSurf::XSecSurf()
     m_WidthShift = -1;
     m_FlipUD = false;
     m_CutMinNumXSecs = 2;
-    m_SavedXSecCurve = NULL;
+    m_SavedXSecCurve = nullptr;
 
     // Assign default values different from -1 above.
     SetXSecType( XSEC_FUSE );
@@ -63,7 +63,7 @@ XSec* XSecSurf::FindXSec( const string &id ) const
             return m_XSecPtrVec[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 const XSec* XSecSurf::FindConstXSec( const string &id ) const
@@ -126,7 +126,7 @@ void XSecSurf::ChangeXSecID( const string &oldID, const string &newID )
 
 XSecCurve* XSecSurf::CreateXSecCurve( int type )
 {
-    XSecCurve* xscrv_ptr = NULL;
+    XSecCurve* xscrv_ptr = nullptr;
     if ( type == XS_POINT )
     {
         xscrv_ptr = new PointXSec( );
@@ -212,7 +212,7 @@ XSec* XSecSurf::CreateXSec( int type )
 {
     XSecCurve* xscrv_ptr = CreateXSecCurve( type );
 
-    XSec* xsec_ptr = NULL;
+    XSec* xsec_ptr = nullptr;
     if ( xscrv_ptr )
     {
         if ( m_XSecType == XSEC_FUSE )
@@ -264,7 +264,7 @@ void XSecSurf::DeleteAllXSecs()
     if ( m_SavedXSecCurve )
     {
         delete m_SavedXSecCurve;
-        m_SavedXSecCurve = NULL;
+        m_SavedXSecCurve = nullptr;
     }
 }
 
@@ -342,7 +342,7 @@ void XSecSurf::CopyXSec( int index )
     {
         vector_remove_val( m_XSecPtrVec, saved_xs );
         delete saved_xs;
-        saved_xs = NULL;
+        saved_xs = nullptr;
     }
 
     //==== Saved XSec ====//
@@ -407,7 +407,7 @@ void XSecSurf::CopyXSecCurve( int index )
     if ( m_SavedXSecCurve && m_SavedXSecCurve->GetType() != xs->GetXSecCurve()->GetType() )
     {
         delete m_SavedXSecCurve;
-        m_SavedXSecCurve = NULL;
+        m_SavedXSecCurve = nullptr;
     }
 
     if ( !m_SavedXSecCurve )
@@ -579,7 +579,7 @@ xmlNodePtr XSecSurf::EncodeXml( xmlNodePtr & node )
 {
     ParmContainer::EncodeXml( node );
 
-    xmlNodePtr xsecsurf_node = xmlNewChild( node, NULL, BAD_CAST "XSecSurf", NULL );
+    xmlNodePtr xsecsurf_node = xmlNewChild( node, nullptr, BAD_CAST "XSecSurf", nullptr );
     if ( xsecsurf_node )
     {
         for ( int i = 0 ; i < NumXSec() ; i++ )
@@ -607,13 +607,13 @@ xmlNodePtr XSecSurf::DecodeXml( xmlNodePtr & node )
         int num = XmlUtil::GetNumNames( xsecsurf_node, "XSec" );
 
         xmlNodePtr xsec_node = xsecsurf_node->xmlChildrenNode;
-        while( xsec_node != NULL )
+        while( xsec_node != nullptr )
         {
             if ( !xmlStrcmp( xsec_node->name, ( const xmlChar * )"XSec" ) )
             {
                 if ( xsec_node )
                 {
-                    xmlNodePtr temp_node = NULL;
+                    xmlNodePtr temp_node = nullptr;
                     temp_node = XmlUtil::GetNode( xsec_node, "XSec", 0 );
 
                     if ( temp_node )

@@ -2111,14 +2111,14 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
     // Set initial values
     m_FeaCurrMainSurfIndx = 0;
     m_SelectedFeaPartChoice = 0;
-    m_CurrDispGroup = NULL;
+    m_CurrDispGroup = nullptr;
     m_SelectedBCPartChoice = 0;
     m_SelectedBCSubSurfChoice = 0;
 }
 
 StructScreen::~StructScreen()
 {
-    m_ConsoleDisplay->buffer( NULL );
+    m_ConsoleDisplay->buffer( nullptr );
     delete m_ConsoleBuffer;
 }
 
@@ -3175,7 +3175,7 @@ bool StructScreen::Update()
 
     if ( veh )
     {
-        FeaStructDispGroup( NULL ); // Hide all initially
+        FeaStructDispGroup( nullptr ); // Hide all initially
 
         m_ModelUnitChoice.Update( veh->m_StructModelUnit.GetID() );
         m_StructUnitChoice.Update( veh->m_StructUnit.GetID() );
@@ -3347,7 +3347,7 @@ bool StructScreen::Update()
         }
         else
         {
-            FeaPropertyDispGroup( NULL );
+            FeaPropertyDispGroup( nullptr );
         }
 
 
@@ -3800,7 +3800,7 @@ bool StructScreen::Update()
             }
             else
             {
-                FeaStructDispGroup( NULL );
+                FeaStructDispGroup( nullptr );
             }
 
             if ( m_SelectedPartIndexVec.size() == 1 )
@@ -3828,7 +3828,7 @@ bool StructScreen::Update()
                     }
                     else
                     {
-                        FeaStructDispGroup( NULL );
+                        FeaStructDispGroup( nullptr );
                     }
                 }
                 else if ( m_SelectedPartIndexVec[0] >= curr_struct->NumFeaParts() )
@@ -3842,12 +3842,12 @@ bool StructScreen::Update()
                     }
                     else
                     {
-                        FeaStructDispGroup( NULL );
+                        FeaStructDispGroup( nullptr );
                     }
                 }
                 else
                 {
-                    FeaStructDispGroup( NULL );
+                    FeaStructDispGroup( nullptr );
                 }
             }
 
@@ -4138,7 +4138,7 @@ void StructScreen::LaunchFEAMesh()
         // Identify which structure to mesh
         FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
 
-        m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
+        m_FeaMeshProcess.StartThread( feamesh_thread_fun, nullptr );
 
         vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
@@ -4181,7 +4181,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             // Identify which structure to mesh
             FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
 
-            m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
+            m_FeaMeshProcess.StartThread( feamesh_thread_fun, nullptr );
         }
     }
     else if ( device == &m_ExportCADButton )
@@ -4358,7 +4358,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( m_FeaPartChoice.GetVal() < m_FeaPartChoiceSubSurfOffset )
             {
-                FeaPart* feaprt = NULL;
+                FeaPart* feaprt = nullptr;
 
                 feaprt = structvec[StructureMgr.m_CurrStructIndex()]->AddFeaPart( m_FeaPartChoice.GetVal() );
 
@@ -4379,7 +4379,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             }
             else
             {
-                SubSurface* ssurf = NULL;
+                SubSurface* ssurf = nullptr;
 
                 ssurf = structvec[StructureMgr.m_CurrStructIndex()]->AddFeaSubSurf( m_FeaPartChoice.GetVal() - m_FeaPartChoiceSubSurfOffset );
 

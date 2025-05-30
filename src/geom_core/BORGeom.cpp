@@ -50,7 +50,7 @@ BORGeom::BORGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_Xoff = 0.0;
 
-    m_XSCurve = NULL;
+    m_XSCurve = nullptr;
     SetXSecCurveType( vsp::XS_CIRCLE );
 
 }
@@ -286,7 +286,7 @@ xmlNodePtr BORGeom::EncodeXml(  xmlNodePtr & node  )
 {
     Geom::EncodeXml( node );
 
-    xmlNodePtr xscrv_node = xmlNewChild( node, NULL, BAD_CAST "XSecCurve", NULL );
+    xmlNodePtr xscrv_node = xmlNewChild( node, nullptr, BAD_CAST "XSecCurve", nullptr );
     if ( xscrv_node )
     {
         m_XSCurve->EncodeXml( xscrv_node );

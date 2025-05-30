@@ -45,8 +45,8 @@ public:
     string GetCGXPath()                                      { return m_CGXPath; }
     string GetCGXCmd()                                       { return m_CGXCmd; }
 
-    void TransferLoads( FILE * logFile = NULL );
-    void ComputeStructure( FILE * logFile = NULL );
+    void TransferLoads( FILE * logFile = nullptr );
+    void ComputeStructure( FILE * logFile = nullptr );
 
     Parm m_DynPress;
 

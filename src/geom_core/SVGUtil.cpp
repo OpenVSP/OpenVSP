@@ -36,7 +36,7 @@ void WriteSVGHeader( xmlNodePtr root, const BndBox &svgbox )
     double width = x_view - stroke_width;
     double height = y_view - 2 * stroke_width;
 
-    xmlNodePtr rect_node = xmlNewChild( root, NULL, BAD_CAST "rect", NULL );
+    xmlNodePtr rect_node = xmlNewChild( root, nullptr, BAD_CAST "rect", nullptr );
 
     XmlUtil::SetDoubleProp( rect_node, "x", x_min );
     XmlUtil::SetDoubleProp( rect_node, "y", y_min );
@@ -85,7 +85,7 @@ void WriteSVGScaleBar( xmlNodePtr root, const int &View, const BndBox &svgbox, c
     double xtrans_left = scale * 2;
     double ytrans = scale * 3.75;
 
-    xmlNodePtr trans_node = xmlNewChild( root, NULL, BAD_CAST "g", NULL );
+    xmlNodePtr trans_node = xmlNewChild( root, nullptr, BAD_CAST "g", nullptr );
 
     if ( View == vsp::VIEW_NUM::VIEW_4 || View == vsp::VIEW_NUM::VIEW_2HOR )
     {
@@ -102,7 +102,7 @@ void WriteSVGScaleBar( xmlNodePtr root, const int &View, const BndBox &svgbox, c
     double height = convert_scale / 22;
     double width = convert_scale;
 
-    xmlNodePtr rect_node1 = xmlNewChild( trans_node, NULL, BAD_CAST "rect", NULL );
+    xmlNodePtr rect_node1 = xmlNewChild( trans_node, nullptr, BAD_CAST "rect", nullptr );
 
     xmlSetProp( rect_node1, BAD_CAST "x", BAD_CAST "0" );
     xmlSetProp( rect_node1, BAD_CAST "y", BAD_CAST "0" );
@@ -113,7 +113,7 @@ void WriteSVGScaleBar( xmlNodePtr root, const int &View, const BndBox &svgbox, c
 
     double width_eighth = convert_scale / 8.0;
 
-    xmlNodePtr rect_node2 = xmlNewChild( trans_node, NULL, BAD_CAST "rect", NULL );
+    xmlNodePtr rect_node2 = xmlNewChild( trans_node, nullptr, BAD_CAST "rect", nullptr );
 
     XmlUtil::SetDoubleProp( rect_node2, "x", width_eighth );
     xmlSetProp( rect_node2, BAD_CAST "y", BAD_CAST "0" );
@@ -126,7 +126,7 @@ void WriteSVGScaleBar( xmlNodePtr root, const int &View, const BndBox &svgbox, c
 
     double width_tot = double( convert_scale );
 
-    xmlNodePtr rect_node3 = xmlNewChild( trans_node, NULL, BAD_CAST "rect", NULL );
+    xmlNodePtr rect_node3 = xmlNewChild( trans_node, nullptr, BAD_CAST "rect", nullptr );
 
     xmlSetProp( rect_node3, BAD_CAST "x", BAD_CAST "0" );
     XmlUtil::SetDoubleProp( rect_node3, "y", height );
@@ -135,7 +135,7 @@ void WriteSVGScaleBar( xmlNodePtr root, const int &View, const BndBox &svgbox, c
 
     AddDefaultScalBarProps( rect_node3, convert_scale );
 
-    xmlNodePtr rect_node4 = xmlNewChild( trans_node, NULL, BAD_CAST "rect", NULL );
+    xmlNodePtr rect_node4 = xmlNewChild( trans_node, nullptr, BAD_CAST "rect", nullptr );
 
     XmlUtil::SetDoubleProp( rect_node4, "x", width_eighth );
     XmlUtil::SetDoubleProp( rect_node4, "y", height );
@@ -144,7 +144,7 @@ void WriteSVGScaleBar( xmlNodePtr root, const int &View, const BndBox &svgbox, c
 
     AddDefaultScalBarProps( rect_node4, convert_scale );
 
-    xmlNodePtr rect_node5 = xmlNewChild( trans_node, NULL, BAD_CAST "rect", NULL );
+    xmlNodePtr rect_node5 = xmlNewChild( trans_node, nullptr, BAD_CAST "rect", nullptr );
 
     XmlUtil::SetDoubleProp( rect_node5, "x", x_mid );
     xmlSetProp( rect_node5, BAD_CAST "y", BAD_CAST "0" );
@@ -153,7 +153,7 @@ void WriteSVGScaleBar( xmlNodePtr root, const int &View, const BndBox &svgbox, c
 
     AddDefaultScalBarProps( rect_node5, convert_scale );
 
-    xmlNodePtr rect_node6 = xmlNewChild( trans_node, NULL, BAD_CAST "rect", NULL );
+    xmlNodePtr rect_node6 = xmlNewChild( trans_node, nullptr, BAD_CAST "rect", nullptr );
 
     XmlUtil::SetDoubleProp( rect_node6, "x", x_mid  );
     XmlUtil::SetDoubleProp( rect_node6, "y", height );
@@ -255,18 +255,18 @@ void WriteSVGPolylines2D( xmlNodePtr root, const vector < vector < vec3d > > &al
 
     string transform = "translate(" + std::to_string( x_trans ) + ", " + std::to_string( y_trans ) + ")";
 
-    xmlNodePtr trans_node = xmlNewChild( root, NULL, BAD_CAST "g", NULL );
+    xmlNodePtr trans_node = xmlNewChild( root, nullptr, BAD_CAST "g", nullptr );
     
     xmlSetProp( trans_node, BAD_CAST "transform", BAD_CAST transform.c_str() );
 
     //Feature Line Points:
-    xmlNodePtr group_node = xmlNewChild( trans_node, NULL, BAD_CAST "g", NULL );
+    xmlNodePtr group_node = xmlNewChild( trans_node, nullptr, BAD_CAST "g", nullptr );
 
     double stroke_width = scale / 300;
 
     for ( unsigned int l = 0; l < allflines.size(); l++ )
     {        
-        xmlNodePtr poly_node = xmlNewChild( group_node, NULL, BAD_CAST "polyline", NULL );
+        xmlNodePtr poly_node = xmlNewChild( group_node, nullptr, BAD_CAST "polyline", nullptr );
 
         xmlSetProp( poly_node, BAD_CAST "fill", BAD_CAST "none" );
         xmlSetProp( poly_node, BAD_CAST "stroke", BAD_CAST "black" );

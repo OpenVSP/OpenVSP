@@ -183,7 +183,7 @@ void ConformalGeom::UpdateSurf()
 
     for ( int i = 0 ; i < (int)m_MainSurfVec.size() ; i++ )
     {
-        m_MainSurfVec[i].SetFoilSurf( NULL );
+        m_MainSurfVec[i].SetFoilSurf( nullptr );
 
         if ( m_MainSurfVec[i].IsClone() )
         {

@@ -254,7 +254,7 @@ bool TargetPt::IsValid()
 
 xmlNodePtr TargetPt::WrapXml( xmlNodePtr & node )
 {
-    xmlNodePtr targetpt_node = xmlNewChild( node, NULL, BAD_CAST "TargetPt", NULL );
+    xmlNodePtr targetpt_node = xmlNewChild( node, nullptr, BAD_CAST "TargetPt", nullptr );
     if ( targetpt_node )
     {
         XmlUtil::AddIntNode( targetpt_node, "UType", m_UType );
@@ -402,7 +402,7 @@ bool FitModelMgrSingleton::AddVar( const string& parm_id )
     //==== Check If ParmIDs Are Valid ====//
     Parm* p = ParmMgr.FindParm( parm_id );
 
-    if ( p == NULL )
+    if ( p == nullptr )
     {
         return false;
     }
@@ -508,7 +508,7 @@ void FitModelMgrSingleton::AddTargetPt( TargetPt *tpt )
 
 TargetPt* FitModelMgrSingleton::GetCurrTargetPt()
 {
-    TargetPt* tpt = NULL;
+    TargetPt* tpt = nullptr;
 
     if ( m_CurrTargetPtIndex < 0 || m_CurrTargetPtIndex >= ( int )m_TargetPts.size() )
     {
@@ -526,7 +526,7 @@ TargetPt* FitModelMgrSingleton::GetTargetPt( int index )
     {
         return m_TargetPts[ index ];
     }
-    return NULL;
+    return nullptr;
 }
 
 void FitModelMgrSingleton::DelCurrTargetPt()
@@ -960,7 +960,7 @@ int FitModelMgrSingleton::Optimize()
     double *wa;
     wa = new double[lwa];
 
-    int info = lmder1( fcn, NULL, m, nvar, x, y, fjac, ldfjac, tol, ipvt, wa, lwa );
+    int info = lmder1( fcn, nullptr, m, nvar, x, y, fjac, ldfjac, tol, ipvt, wa, lwa );
 
     XtoParm( x );
     VehicleMgr.GetVehicle()->ForceUpdate( GeomBase::SURF ); // Update tesselation to ensure Geom is drawn properly
@@ -1361,7 +1361,7 @@ bool FitModelMgrSingleton::Save()
 {
     xmlDocPtr doc = xmlNewDoc( ( const xmlChar * )"1.0" );
 
-    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_FitModel" );
+    xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_FitModel" );
     xmlDocSetRootElement( doc, root );
     XmlUtil::AddIntNode( root, "Version", CURRENT_FIT_FILE_VER);
 
@@ -1374,7 +1374,7 @@ bool FitModelMgrSingleton::Save()
     //Wrap Variables into a xml file
     for (int index = 0; index < m_VarVec.size(); ++index)
     {
-        xmlNodePtr variable_node = xmlNewChild( root, NULL, BAD_CAST "Variable", NULL );
+        xmlNodePtr variable_node = xmlNewChild( root, nullptr, BAD_CAST "Variable", nullptr );
         if ( variable_node )
         {
             XmlUtil::AddStringNode(variable_node, "ParmID", m_VarVec[index]);
@@ -1403,14 +1403,14 @@ int FitModelMgrSingleton::Load()
 
     //==== Build an XML tree from a the file ====//
     doc = xmlParseFile( m_LoadFitFileName.c_str() );
-    if ( doc == NULL )
+    if ( doc == nullptr )
     {
         fprintf( stderr, "could not parse XML document\n" );
         return 1;
     }
 
     xmlNodePtr root = xmlDocGetRootElement( doc );
-    if ( root == NULL )
+    if ( root == nullptr )
     {
         fprintf( stderr, "empty document\n" );
         xmlFreeDoc( doc );
@@ -1438,7 +1438,7 @@ int FitModelMgrSingleton::Load()
 
     xmlNodePtr iter_node = root->xmlChildrenNode;
 
-    while( iter_node != NULL )
+    while( iter_node != nullptr )
     {
         if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )"TargetPt" ) )
         {
@@ -1454,7 +1454,7 @@ int FitModelMgrSingleton::Load()
 
     iter_node = root->xmlChildrenNode;
 
-    while( iter_node != NULL )
+    while( iter_node != nullptr )
     {
         if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )"Variable" ) )
         {

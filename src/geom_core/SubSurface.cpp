@@ -449,7 +449,7 @@ xmlNodePtr SubSurface::EncodeXml( xmlNodePtr & node )
 {
     ParmContainer::EncodeXml( node );
 
-    xmlNodePtr ss_info = xmlNewChild( node, NULL, BAD_CAST "SubSurfaceInfo", NULL );
+    xmlNodePtr ss_info = xmlNewChild( node, nullptr, BAD_CAST "SubSurfaceInfo", nullptr );
     XmlUtil::AddIntNode( ss_info, "Type", m_Type );
 
     XmlUtil::AddStringNode( node, "FeaPropertyID", m_FeaPropertyID );

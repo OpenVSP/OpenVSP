@@ -156,7 +156,7 @@ public:
     void AddOutput( StringOutput& string_output );
     void AddOutput( StringOutput& string_output, const char* label, int used_w = 0 );
     void AddOutput( Output& output, const char* label, const char* format, int used_w = 0 );
-    void AddIndexSelector( IndexSelector& selector, const char* label = NULL, int used_w = 0 );
+    void AddIndexSelector( IndexSelector& selector, const char* label = nullptr, int used_w = 0 );
     void AddColorPicker( ColorPicker& picker );
     void AddChoice( Choice & choice, const char* label, int used_w = 0 );
     void AddCounter( Counter & count, const char* label = "", int used_w = 0 );

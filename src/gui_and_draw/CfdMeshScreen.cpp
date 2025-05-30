@@ -59,7 +59,7 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 642, "CFD 
 
 CfdMeshScreen::~CfdMeshScreen()
 {
-    m_ConsoleDisplay->buffer( NULL );
+    m_ConsoleDisplay->buffer( nullptr );
     delete m_ConsoleBuffer;
 }
 
@@ -1344,7 +1344,7 @@ void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_MeshAndExport )
     {
         CfdMeshMgr.SetMeshInProgress( true );
-        m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, NULL );
+        m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, nullptr );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

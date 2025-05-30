@@ -40,7 +40,7 @@ using std::map;
 VspScreen::VspScreen( ScreenMgr* mgr )
 {
     m_ScreenMgr = mgr;
-    m_FLTK_Window = NULL;
+    m_FLTK_Window = nullptr;
     m_ScreenType = -1;
 }
 
@@ -153,7 +153,7 @@ BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title, co
     }
     else
     {
-        m_MasterHelpButton = NULL;
+        m_MasterHelpButton = nullptr;
         m_HelpFile = "";
     }
 
@@ -288,7 +288,7 @@ Fl_Group* TabScreen::GetTab( int index )
         return m_TabGroupVec[index];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //==== Add A Sub Group To Tab ====//
@@ -296,7 +296,7 @@ Fl_Group* TabScreen::AddSubGroup( Fl_Group* group, int border )
 {
     if ( !group )
     {
-        return NULL;
+        return nullptr;
     }
 
     int rx, ry, rw, rh;
@@ -320,7 +320,7 @@ Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh, int 
 {
     if ( !group )
     {
-        return NULL;
+        return nullptr;
     }
 
     int rx, ry, rw, rh;
@@ -747,7 +747,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
 
     //=============== SubSurface Tab ===================//
-    m_CurSubDispGroup = NULL;
+    m_CurSubDispGroup = nullptr;
     m_SubSurfLayout.SetGroupAndScreen( subsurf_group, this );
     m_SubSurfLayout.AddDividerBox( "Sub-Surface List" );
 
@@ -1574,7 +1574,7 @@ bool GeomScreen::Update()
         m_SSConAttrEditor.SetEditorCollID();
         m_SSFLineAttrEditor.SetEditorCollID();
 
-        SubSurfDispGroup( NULL );
+        SubSurfDispGroup( nullptr );
     }
 
     //==== SubSurfBrowser ====//
@@ -1729,7 +1729,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_AddSubSurfButton )
     {
-        SubSurface* ssurf = NULL;
+        SubSurface* ssurf = nullptr;
         ssurf = geom_ptr->AddSubSurf( m_SubSurfChoice.GetVal(), m_SSCurrMainSurfIndx );
 
         if ( ssurf )
@@ -2517,7 +2517,7 @@ bool XSecScreen::Update()
 
             if (xsc->GetType() == XS_POINT)
             {
-                DisplayGroup( NULL );
+                DisplayGroup( nullptr );
             }
             else if (xsc->GetType() == XS_SUPER_ELLIPSE)
             {
@@ -4876,7 +4876,7 @@ bool XSecViewScreen::Update()
 
     BasicScreen::Update();
 
-    XSecCurve* xsc = NULL;
+    XSecCurve* xsc = nullptr;
 
     Geom* geom = geom_vec[0];
     GeomXSec* geom_xsec = dynamic_cast<GeomXSec*>( geom );
@@ -4994,7 +4994,7 @@ void XSecViewScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
-    XSecCurve* xsc = NULL;
+    XSecCurve* xsc = nullptr;
 
     Geom* geom = geom_vec[0];
     GeomXSec* geom_xsec = dynamic_cast<GeomXSec*>( geom );

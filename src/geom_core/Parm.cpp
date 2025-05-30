@@ -21,7 +21,7 @@ using std::string;
 //==== Constructor ====//
 Parm::Parm()
 {
-    m_Container = NULL;
+    m_Container = nullptr;
     m_Name = string( "Default_Name" );
     m_GroupName = string( "Default_Group_Name" );
     m_GroupDisplaySuffix = -1;
@@ -315,14 +315,14 @@ void Parm::EncodeXml( xmlNodePtr & node, bool detailed )
 {
     if ( !detailed )
     {
-        xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar * )m_Name.c_str(), NULL );
+        xmlNodePtr dnode = xmlNewChild( node, nullptr, ( const xmlChar * )m_Name.c_str(), nullptr );
         XmlUtil::SetDoubleProp( dnode, "Value", m_Val );
         XmlUtil::SetStringProp( dnode, "ID", m_ID );
         m_ParmAttrCollection.EncodeXml( dnode );
     }
     else
     {
-        xmlNodePtr dnode = xmlNewChild( node, NULL, BAD_CAST "UserParm", NULL );
+        xmlNodePtr dnode = xmlNewChild( node, nullptr, BAD_CAST "UserParm", nullptr );
         XmlUtil::SetDoubleProp( dnode, "Value", m_Val );
         XmlUtil::SetStringProp( dnode, "ID", m_ID );
         XmlUtil::SetStringProp( dnode, "Name", m_Name );
@@ -802,7 +802,7 @@ bool DriverGroup::IsDriver( int dvar )
 //==== Encode Data To XML Data Structure ====//
 void DriverGroup::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar *)m_Name.c_str(), NULL );
+    xmlNodePtr dnode = xmlNewChild( node, nullptr, ( const xmlChar *)m_Name.c_str(), nullptr );
 
     XmlUtil::AddIntNode( dnode, "NumVar", m_Nvar );
     XmlUtil::AddIntNode( dnode, "NumChoices", m_Nchoice );

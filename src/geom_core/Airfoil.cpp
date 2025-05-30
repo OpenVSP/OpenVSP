@@ -1123,7 +1123,7 @@ xmlNodePtr FileAirfoil::EncodeXml( xmlNodePtr & node )
 {
     Airfoil::EncodeXml( node );
 
-    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "FileAirfoil", NULL );
+    xmlNodePtr child_node = xmlNewChild( node, nullptr, BAD_CAST "FileAirfoil", nullptr );
     if ( child_node )
     {
         XmlUtil::AddStringNode( child_node, "AirfoilName", m_AirfoilName );
@@ -1191,7 +1191,7 @@ bool FileAirfoil::ReadFile( const string &file_name )
 {
     //==== Open File ====//
     FILE* file_id =  fopen( file_name.c_str(), "r" );
-    if ( file_id == ( FILE * )NULL )
+    if ( file_id == ( FILE * )nullptr )
     {
         return false;
     }
@@ -1940,7 +1940,7 @@ void CSTAirfoil::ReserveLowDeg( int d )
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr CSTAirfoil::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "CSTAirfoil", NULL );
+    xmlNodePtr child_node = xmlNewChild( node, nullptr, BAD_CAST "CSTAirfoil", nullptr );
     if ( child_node )
     {
         XmlUtil::AddIntNode( child_node, "NumUpCoeff", m_UpCoeffParmVec.size() );

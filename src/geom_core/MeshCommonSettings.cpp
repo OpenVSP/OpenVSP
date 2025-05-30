@@ -120,7 +120,7 @@ IntersectSettings::~IntersectSettings()
 
 xmlNodePtr IntersectSettings::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr structsettingnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
+    xmlNodePtr structsettingnode = xmlNewChild( node, nullptr, BAD_CAST m_Name.c_str(), nullptr );
 
     XmlUtil::AddStringNode( structsettingnode, "ModeID", m_ModeID );
 
@@ -286,7 +286,7 @@ CfdMeshSettings::~CfdMeshSettings()
 
 xmlNodePtr CfdMeshSettings::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr cfdsettingnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
+    xmlNodePtr cfdsettingnode = xmlNewChild( node, nullptr, BAD_CAST m_Name.c_str(), nullptr );
 
     XmlUtil::AddStringNode( cfdsettingnode, "FarGeomID", m_FarGeomID );
     XmlUtil::AddStringNode( cfdsettingnode, "ModeID", m_ModeID );
@@ -489,7 +489,7 @@ StructSettings::~StructSettings()
 
 xmlNodePtr StructSettings::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr structsettingnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
+    xmlNodePtr structsettingnode = xmlNewChild( node, nullptr, BAD_CAST m_Name.c_str(), nullptr );
 
     MeshCommonSettings::EncodeXml( structsettingnode );
 
@@ -619,7 +619,7 @@ AssemblySettings::~AssemblySettings()
 
 xmlNodePtr AssemblySettings::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr assemblysettingnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
+    xmlNodePtr assemblysettingnode = xmlNewChild( node, nullptr, BAD_CAST m_Name.c_str(), nullptr );
 
     ParmContainer::EncodeXml( assemblysettingnode );
 

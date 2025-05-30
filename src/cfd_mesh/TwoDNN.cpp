@@ -11,7 +11,7 @@
 
 TwoDNodeCloud::TwoDNodeCloud()
 {
-    m_index = NULL;
+    m_index = nullptr;
     m_NumUsedPts = 0;
 }
 
@@ -26,7 +26,7 @@ void TwoDNodeCloud::Cleanup()
     if ( m_index )
     {
         delete m_index;
-        m_index = NULL;
+        m_index = nullptr;
     }
 }
 

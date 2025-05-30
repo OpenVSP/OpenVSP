@@ -23,7 +23,7 @@ const Color * ColorMgr::GetWireColor() const
 
 xmlNodePtr ColorMgr::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "Wire_Color", NULL );
+    xmlNodePtr child_node = xmlNewChild( node, nullptr, BAD_CAST "Wire_Color", nullptr );
 
     m_WireColor.EncodeXml( child_node );
 

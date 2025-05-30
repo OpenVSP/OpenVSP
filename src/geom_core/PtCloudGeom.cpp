@@ -251,13 +251,13 @@ void PtCloudGeom::InitPts()
 xmlNodePtr PtCloudGeom::EncodeXml( xmlNodePtr & node )
 {
     Geom::EncodeXml( node );
-    xmlNodePtr ptcloud_node = xmlNewChild( node, NULL, BAD_CAST "PtCloudGeom", NULL );
+    xmlNodePtr ptcloud_node = xmlNewChild( node, nullptr, BAD_CAST "PtCloudGeom", nullptr );
 
     // Previous encoding -- all points as a large vector.
     // required too much memory to read in.
     // XmlUtil::AddVectorVec3dNode( ptcloud_node, "Points" , m_Pts );
 
-    xmlNodePtr pt_list_node = xmlNewChild( ptcloud_node, NULL, BAD_CAST "Pt_List", NULL );
+    xmlNodePtr pt_list_node = xmlNewChild( ptcloud_node, nullptr, BAD_CAST "Pt_List", nullptr );
     for ( int i = 0 ; i < ( int ) m_Pts.size() ; i++ )
     {
         XmlUtil::AddVec3dNode( pt_list_node, "Pt", m_Pts[i] );
@@ -286,7 +286,7 @@ xmlNodePtr PtCloudGeom::DecodeXml( xmlNodePtr & node )
 
             xmlNodePtr iter_node = pt_list_node->xmlChildrenNode;
 
-            while( iter_node != NULL )
+            while( iter_node != nullptr )
             {
                 if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )"Pt" ) )
                 {

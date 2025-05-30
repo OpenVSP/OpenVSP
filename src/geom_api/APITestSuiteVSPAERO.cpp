@@ -32,7 +32,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     printf( "\tAdding WING (MainWing)..." );
     string wing_id = vsp::AddGeom( "WING" );
     vsp::SetGeomName( wing_id, "MainWing" );
-    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT( wing_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "TotalSpan", "WingGeom", 17.0 ), 17.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "Z_Rel_Location", "XForm", 0.5 ), 0.5, TEST_TOL );
     // Adjust chordwise Tessellation
@@ -75,7 +75,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     // Add aileron control surface
     string aileron_id = AddSubSurf( wing_id, vsp::SS_CONTROL );
     vsp::SetSubSurfName( wing_id, aileron_id, "Aileron" );
-    TEST_ASSERT( aileron_id.c_str() != NULL );
+    TEST_ASSERT( aileron_id.c_str() != nullptr );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf( "COMPLETE\n" );
 
@@ -83,7 +83,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     printf( "\tAdding WING (Vert)..." );
     string vert_id = vsp::AddGeom( "WING" );
     vsp::SetGeomName( vert_id, "Vert" );
-    TEST_ASSERT( vert_id.c_str() != NULL );
+    TEST_ASSERT( vert_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "TotalArea", "WingGeom", 10.0 ), 10.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "X_Rel_Location", "XForm", 8.5 ), 8.5, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "Z_Rel_Location", "XForm", 0.2 ), 0.2, TEST_TOL );
@@ -100,7 +100,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     // Add rudder control surface
     string rudder_id = AddSubSurf( vert_id, vsp::SS_CONTROL );
     vsp::SetSubSurfName( vert_id, rudder_id, "Rudder" );
-    TEST_ASSERT( rudder_id.c_str() != NULL );
+    TEST_ASSERT( rudder_id.c_str() != nullptr );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf( "COMPLETE\n" );
 
@@ -108,7 +108,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     printf( "\tAdding WING (Horiz)..." );
     string horiz_id = vsp::AddGeom( "WING" );
     vsp::SetGeomName( horiz_id, "Horiz" );
-    TEST_ASSERT( horiz_id.c_str() != NULL );
+    TEST_ASSERT( horiz_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "TotalArea", "WingGeom", 10.0 ), 10.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "X_Rel_Location", "XForm", 8.5 ), 8.5, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "Z_Rel_Location", "XForm", 0.2 ), 0.2, TEST_TOL );
@@ -123,14 +123,14 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     // Add elevator control surface
     string elevator_id = AddSubSurf( horiz_id, vsp::SS_CONTROL );
     vsp::SetSubSurfName( horiz_id, elevator_id, "Elevator" );
-    TEST_ASSERT( elevator_id.c_str() != NULL );
+    TEST_ASSERT( elevator_id.c_str() != nullptr );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf( "COMPLETE\n" );
 
     //==== Add Pod and set some parameters =====//
     printf( "\tAdding POD..." );
     string pod_id = vsp::AddGeom( "POD" );
-    TEST_ASSERT( pod_id.c_str() != NULL );
+    TEST_ASSERT( pod_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Length", "Design", 14.5 ), 14.5, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", -3.0 ), -3.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "Tess_U", "Shape", 15 ), 15, TEST_TOL ); //lengthwise Tessellation
@@ -212,7 +212,7 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeom()
     vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
     if ( m_vspfname_for_vspaerotests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        TEST_FAIL( "m_vspfname_for_vspaerotests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeom" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -262,7 +262,7 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
     if ( m_vspfname_for_vspaerotests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        TEST_FAIL( "m_vspfname_for_vspaerotests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeom" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -294,7 +294,7 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     // Edit Control Surface Group Angle and Contained Control Surface Gains
     printf("\tEditing Aileron Control Surface Deflection Gains and Angle...");
     string csg_id = vsp::FindContainer( "VSPAEROSettings", 0 );
-    TEST_ASSERT( csg_id.c_str() != NULL );
+    TEST_ASSERT( csg_id.c_str() != nullptr );
     string deflection_angle_id = vsp::FindParm( csg_id, "DeflectionAngle", "ControlSurfaceGroup_0" );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_angle_id, 1.0 ), 1.0, TEST_TOL );
     string surf0_gain_id = vsp::FindParm( csg_id, "Surf_" + aileron_id + "_0_Gain", "ControlSurfaceGroup_0" );
@@ -365,7 +365,7 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeomPanel()
     vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
     if ( m_vspfname_for_vspaerotests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        TEST_FAIL( "m_vspfname_for_vspaerotests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeom" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -418,7 +418,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
     if ( m_vspfname_for_vspaerotests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeomPanel" );
+        TEST_FAIL( "m_vspfname_for_vspaerotests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeomPanel" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -501,7 +501,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePoint()
     vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
     if ( m_vspfname_for_vspaerotests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        TEST_FAIL( "m_vspfname_for_vspaerotests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeom" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -577,7 +577,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointStab()
     vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
     if ( m_vspfname_for_vspaerotests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        TEST_FAIL( "m_vspfname_for_vspaerotests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeom" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -661,7 +661,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointUnsteady()
     vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
     if ( m_vspfname_for_vspaerotests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        TEST_FAIL( "m_vspfname_for_vspaerotests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeom" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -743,7 +743,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSweep()
     vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
     if ( m_vspfname_for_vspaerotests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        TEST_FAIL( "m_vspfname_for_vspaerotests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeom" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -834,7 +834,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
     if ( m_vspfname_for_vspaerotests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        TEST_FAIL( "m_vspfname_for_vspaerotests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeom" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -928,7 +928,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     printf( "--> Generating Geometries\n" );
 
     string wing_id = vsp::AddGeom( "WING" );
-    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT( wing_id.c_str() != nullptr );
 
     // Get Wing Section IDs
     string wingxsurf_id = vsp::GetXSecSurf( wing_id, 0 );
@@ -1083,7 +1083,7 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     printf( "--> Generating Geometries\n" );
 
     string wing_id = vsp::AddGeom( "WING" );
-    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT( wing_id.c_str() != nullptr );
 
     // Get Wing Section IDs
     string wingxsurf_id = vsp::GetXSecSurf( wing_id, 0 );
@@ -1251,7 +1251,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     printf( "--> Generating Geometry\n" );
 
     string wing_id = vsp::AddGeom( "WING" );
-    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT( wing_id.c_str() != nullptr );
 
     // Get Wing Section IDs
     string wingxsurf_id = vsp::GetXSecSurf( wing_id, 0 );
@@ -1391,12 +1391,12 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateFunctionalityModel()
     printf( "\tAdding WING (MainWing)..." );
     string wing_id = vsp::AddGeom( "WING" );
     vsp::SetGeomName( wing_id, "MainWing" );
-    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT( wing_id.c_str() != nullptr );
 
     // Add aileron control surfaces
     string aileron1_id = AddSubSurf( wing_id, vsp::SS_CONTROL );
     vsp::SetSubSurfName( wing_id, aileron1_id, "Inner Aileron" );
-    TEST_ASSERT( aileron1_id.c_str() != NULL );
+    TEST_ASSERT( aileron1_id.c_str() != nullptr );
     string tessstart = vsp::GetParm( wing_id, "UStart", "SS_Control_1");
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( tessstart, 0.35 ), 0.35, TEST_TOL );
     string tessend = vsp::GetParm( wing_id, "UEnd", "SS_Control_1" );
@@ -1404,7 +1404,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateFunctionalityModel()
 
     string aileron2_id = AddSubSurf( wing_id, vsp::SS_CONTROL );
     vsp::SetSubSurfName( wing_id, aileron2_id, "Outer Aileron" );
-    TEST_ASSERT( aileron2_id.c_str() != NULL );
+    TEST_ASSERT( aileron2_id.c_str() != nullptr );
     tessstart = vsp::GetParm( wing_id, "UStart", "SS_Control_2");
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( tessstart, 0.47 ), 0.47, TEST_TOL );
     tessend = vsp::GetParm( wing_id, "UEnd", "SS_Control_2");
@@ -1417,14 +1417,14 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateFunctionalityModel()
     printf( "\tAdding WING (Horiz)..." );
     string horiz_id = vsp::AddGeom( "WING" );
     vsp::SetGeomName( horiz_id, "Tail" );
-    TEST_ASSERT( horiz_id.c_str() != NULL );
+    TEST_ASSERT( horiz_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "TotalArea", "WingGeom", 10.0 ), 10.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "X_Rel_Location", "XForm", 8.5 ), 8.5, TEST_TOL );
 
     // Add elevator control surface
     string elevator_id = AddSubSurf( horiz_id, vsp::SS_CONTROL );
     vsp::SetSubSurfName( horiz_id, elevator_id, "Elevator" );
-    TEST_ASSERT( elevator_id.c_str() != NULL );
+    TEST_ASSERT( elevator_id.c_str() != nullptr );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf( "COMPLETE\n" );
 
@@ -1521,7 +1521,7 @@ void APITestSuiteVSPAERO::TestVSPAeroReadControlSurfaceGroupsFromFile()
     vsp::ReadVSPFile( m_vspfname_for_vspaerofunctionalitytests );
     if ( m_vspfname_for_vspaerofunctionalitytests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerofunctionalitytests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        TEST_FAIL( "m_vspfname_for_vspaerofunctionalitytests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeom" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -1623,7 +1623,7 @@ void APITestSuiteVSPAERO::TestVSPAeroParmContainersAccessibleAfterSave()
     vsp::ReadVSPFile( m_vspfname_for_vspaerofunctionalitytests );
     if ( m_vspfname_for_vspaerofunctionalitytests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerofunctionalitytests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        TEST_FAIL( "m_vspfname_for_vspaerofunctionalitytests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeom" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -1721,7 +1721,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCpSlicer()
     vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
     if ( m_vspfname_for_vspaerotests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeomPanel" );
+        TEST_FAIL( "m_vspfname_for_vspaerotests = nullptr, need to run: APITestSuite::TestVSPAeroComputeGeomPanel" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )

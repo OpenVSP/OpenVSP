@@ -63,7 +63,7 @@ void MessageCallback( const asSMessageInfo *msg, void *param )
 ScriptMgrSingleton::ScriptMgrSingleton()
 {
     m_SaveInt = 0;
-    m_ScriptEngine = NULL;
+    m_ScriptEngine = nullptr;
     m_ScriptMessages = "";
 
     m_IntArrayType = nullptr;
@@ -280,7 +280,7 @@ int ScriptMgrSingleton::ExecuteScript( const char* module_name, const char* func
         return 1;
     }
 
-    asIScriptFunction *func = NULL;
+    asIScriptFunction *func = nullptr;
     if ( by_decl )
     {
         func = mod->GetFunctionByDecl( function_name );

@@ -82,9 +82,9 @@ class Edge
 public:
     Edge()
     {
-        n0 = n1 = NULL;
-        f0 = f1 = NULL;
-        ns = NULL;
+        n0 = n1 = nullptr;
+        f0 = f1 = nullptr;
+        ns = nullptr;
         ridge = border = debugFlag = m_DeleteMeFlag = false;
         target_len = 0;
         m_Length = 0;
@@ -93,8 +93,8 @@ public:
     {
         n0 = node0;
         n1 = node1;
-        ns = NULL;
-        f0 = f1 = NULL;
+        ns = nullptr;
+        f0 = f1 = nullptr;
         ridge = border = debugFlag = m_DeleteMeFlag = false;
         target_len = 0;
         m_Length = 0;

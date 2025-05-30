@@ -953,7 +953,7 @@ void FeaMesh::WriteNASTRAN()
 
     if ( dat_fp && bdf_header_fp && bdf_fp )
     {
-        FILE* nkey_fp = NULL;
+        FILE* nkey_fp = nullptr;
         if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME ) )
         {
             string nkey_fname = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NKEY_FILE_NAME );
@@ -2533,7 +2533,7 @@ FixPoint* FeaMesh::GetFixPointByID( const string &id )
             return &m_FixPntVec[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void FeaMesh::UpdateDisplaySettings()

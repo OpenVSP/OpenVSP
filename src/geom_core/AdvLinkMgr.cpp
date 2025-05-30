@@ -17,7 +17,7 @@
 //==== Constructor ====//
 AdvLinkMgrSingleton::AdvLinkMgrSingleton()
 {
-    m_ActiveLink = NULL;
+    m_ActiveLink = nullptr;
     m_EditLinkIndex = 0;
 
 }
@@ -36,7 +36,7 @@ void AdvLinkMgrSingleton::Wype()
         delete m_LinkVec[i];
     }
     m_LinkVec.clear();
-    m_ActiveLink = NULL;
+    m_ActiveLink = nullptr;
     m_EditLinkIndex = 0;
 }
 
@@ -94,7 +94,7 @@ void AdvLinkMgrSingleton::DelLink( AdvLink* link_ptr )
 
     if ( m_ActiveLink == link_ptr )
     {
-        m_ActiveLink = NULL;
+        m_ActiveLink = nullptr;
     }
     m_EditLinkIndex = -1;
 
@@ -114,7 +114,7 @@ void AdvLinkMgrSingleton::DelLink( int index )
 void AdvLinkMgrSingleton::DelAllLinks( )
 {
     m_EditLinkIndex = -1;
-    m_ActiveLink = NULL;
+    m_ActiveLink = nullptr;
 
     for ( int i = 0 ; i < (int)m_LinkVec.size() ; i++ )
     {
@@ -149,7 +149,7 @@ AdvLink* AdvLinkMgrSingleton::GetLink( int index )
     {
         return m_LinkVec[index];
     }
-    return NULL;
+    return nullptr;
 
 }
 
@@ -283,7 +283,7 @@ void AdvLinkMgrSingleton::ForceUpdate()
 
 xmlNodePtr AdvLinkMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr linkmgr_node = xmlNewChild( node, NULL, BAD_CAST"AdvLinkMgr", NULL );
+    xmlNodePtr linkmgr_node = xmlNewChild( node, nullptr, BAD_CAST"AdvLinkMgr", nullptr );
 
     for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
     {

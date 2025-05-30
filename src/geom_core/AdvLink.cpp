@@ -21,7 +21,7 @@
 //===== Encode Variable Def =====//
 xmlNodePtr VarDef::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr var_node =  xmlNewChild( node, NULL, BAD_CAST"VarDef", NULL );
+    xmlNodePtr var_node =  xmlNewChild( node, nullptr, BAD_CAST"VarDef", nullptr );
 
     XmlUtil::SetStringProp( var_node, "Name", m_VarName );
     XmlUtil::SetStringProp( var_node, "ParmID", m_ParmID );
@@ -626,18 +626,18 @@ vector< string > AdvLink::GetOutputParms()
 //==== Encode Contents of Adv Link Into XML Tree ====//
 xmlNodePtr AdvLink::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr adv_link_node = xmlNewChild( node, NULL, BAD_CAST"AdvLink", NULL );
+    xmlNodePtr adv_link_node = xmlNewChild( node, nullptr, BAD_CAST"AdvLink", nullptr );
 
     XmlUtil::SetStringProp( adv_link_node, "Name", m_Name );
     string safe_script_code = XmlUtil::ConvertToXMLSafeChars( m_ScriptCode );
     XmlUtil::AddStringNode( adv_link_node, "ScriptCode", safe_script_code  );
 
-    xmlNodePtr input_vars_node = xmlNewChild( adv_link_node, NULL, BAD_CAST"InputVars", NULL );
+    xmlNodePtr input_vars_node = xmlNewChild( adv_link_node, nullptr, BAD_CAST"InputVars", nullptr );
     for ( int i = 0 ; i < (int)m_InputVars.size() ; i++ )
     {
         m_InputVars[i].EncodeXml( input_vars_node );
     }
-    xmlNodePtr output_vars_node = xmlNewChild( adv_link_node, NULL, BAD_CAST"OutputVars", NULL );
+    xmlNodePtr output_vars_node = xmlNewChild( adv_link_node, nullptr, BAD_CAST"OutputVars", nullptr );
     for ( int i = 0 ; i < (int)m_OutputVars.size() ; i++ )
     {
         m_OutputVars[i].EncodeXml( output_vars_node );

@@ -483,7 +483,7 @@ void Background3D::UpdateImageInfo()
     int w, h, bpp;
     unsigned char *data = stbi_load( m_BGFile.c_str(), &w, &h, &bpp, 0 );
 
-    if ( data == NULL )
+    if ( data == nullptr )
     {
         m_ImageReady = false;
         return;

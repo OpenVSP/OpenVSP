@@ -124,9 +124,9 @@ void SelectFileScreen::CallBack( Fl_Widget* w )
     {
         m_FileBrowserIndex = m_FileBrowser->value();
         
-        // Check for NULL Char pointer
+        // Check for nullptr Char pointer
         const char * text = m_FileBrowser->text( m_FileBrowserIndex );
-        if ( text == NULL )
+        if ( text == nullptr )
         {
             return;
         }
@@ -283,9 +283,9 @@ void SelectFileScreen::LoadFavsMenu()
 
     m_FavDirVec.clear();
     m_FavsMenuButton->add( "Add to Favorites" );
-    m_FavsMenuButton->add( "Delete All Favorites", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
+    m_FavsMenuButton->add( "Delete All Favorites", 0, nullptr, ( void* )0, FL_MENU_DIVIDER );
     m_FavsMenuButton->add( "Home" );
-    m_FavsMenuButton->add( "VSP Path", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
+    m_FavsMenuButton->add( "VSP Path", 0, nullptr, ( void* )0, FL_MENU_DIVIDER );
 
     //==== Preferences ====//
     Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );

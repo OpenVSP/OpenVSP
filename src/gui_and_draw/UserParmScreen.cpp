@@ -155,7 +155,7 @@ bool UserParmScreen::Update()
     m_UserDefinedBrowser->select( m_UserBrowserSelection );
 
     //==== Set Inputs ====//
-    Parm* user_parm_ptr = NULL;
+    Parm* user_parm_ptr = nullptr;
     int index = m_UserBrowserSelection - 1;
     if ( index >= 0 && index < (int)m_UserParmBrowserVec.size() )
     {

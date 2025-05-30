@@ -20,7 +20,7 @@ ImageData MultiImageLoader::load( std::string fileName )
     int w, h, bpp;
     unsigned char *data = stbi_load( fileName.c_str(), &w, &h, &bpp, 0 );
 
-    if ( data == NULL )
+    if ( data == nullptr )
     {
         iData.valid = false;
         return iData;

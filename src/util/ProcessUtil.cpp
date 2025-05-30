@@ -37,14 +37,14 @@ ProcessUtil::ProcessUtil()
 {
 #ifdef WIN32
     m_ThreadID = 0;
-    m_Handle = NULL;
+    m_Handle = nullptr;
 
     ZeroMemory( &si, sizeof(si) );
     si.cb = sizeof(si);
     ZeroMemory( &pi, sizeof(pi) );
 
-    m_StdoutPipe[PIPE_READ] = NULL;
-    m_StdoutPipe[PIPE_WRITE] = NULL;
+    m_StdoutPipe[PIPE_READ] = nullptr;
+    m_StdoutPipe[PIPE_WRITE] = nullptr;
 #else
     childPid = -1;
 
@@ -56,7 +56,7 @@ ProcessUtil::ProcessUtil()
 #ifndef WIN32
 // Wrapper for handling arguments for exec*** routines.
 // Note, this automatically makes cmd the first argument in the list.
-// This also automatically NULL terminates the list of arguments.
+// This also automatically nullptr terminates the list of arguments.
 const char** opt2argv( const string &cmd, const vector< string > &options )
 {
     int narg = options.size();
@@ -68,7 +68,7 @@ const char** opt2argv( const string &cmd, const vector< string > &options )
     {
         argv[i+1] = options[i].c_str();
     }
-    argv[narg + 1] = NULL;
+    argv[narg + 1] = nullptr;
 
     return argv;
 }
@@ -191,7 +191,7 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
 
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
     saAttr.bInheritHandle = TRUE;
-    saAttr.lpSecurityDescriptor = NULL;
+    saAttr.lpSecurityDescriptor = nullptr;
 
     if ( !CreatePipe( &m_StdoutPipe[PIPE_READ], &m_StdoutPipe[PIPE_WRITE], &saAttr, 0 ) )
     {
@@ -228,14 +228,14 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
 
     ZeroMemory( &pi, sizeof(pi) );
 
-    if( !CreateProcess( NULL,    // No module name (use command line).
+    if( !CreateProcess( nullptr,    // No module name (use command line).
         TEXT( cmdstr ),          // Command line.
-        NULL,                    // Process handle not inheritable.
-        NULL,                    // Thread handle not inheritable.
+        nullptr,                    // Process handle not inheritable.
+        nullptr,                    // Thread handle not inheritable.
         TRUE,                    // Set handle inheritance to FALSE.
         0,                       // No creation flags.
-        NULL,                    // Use parent's environment block.
-        NULL,                    // Use parent's starting directory.
+        nullptr,                    // Use parent's environment block.
+        nullptr,                    // Use parent's starting directory.
         &si,                     // Pointer to STARTUPINFO structure.
         &pi )                    // Pointer to PROCESS_INFORMATION structure.
     )
@@ -310,7 +310,7 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
 
 #ifdef WIN32
     CloseHandle( m_StdoutPipe[PIPE_WRITE] );
-    m_StdoutPipe[PIPE_WRITE] = NULL;
+    m_StdoutPipe[PIPE_WRITE] = nullptr;
 
     free( cmdstr );
 #else
@@ -418,7 +418,7 @@ void ProcessUtil::StartThread( LPTHREAD_START_ROUTINE threadfun, LPVOID data )
 {
     HANDLE m_Handle = CreateThread( 0, 0, threadfun, data, 0, &m_ThreadID );
 
-    if(m_Handle==NULL)
+    if(m_Handle==nullptr)
     {
         //THREAD CREATION FAILED
         printf("ERROR: Thread creation failed \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
@@ -435,7 +435,7 @@ void ProcessUtil::StartThread( void *(*threadfun)( void *data ), void *data )
 //    pthread_attr_getstacksize( &thread_attr , &tmp_size );
 //    pthread_create( &m_Thread, &thread_attr, threadfun, data );
 
-    pthread_create( &m_Thread, NULL, threadfun, data );
+    pthread_create( &m_Thread, nullptr, threadfun, data );
 
     //TODO return thread creation success/failure
 }
@@ -445,7 +445,7 @@ void ProcessUtil::ReadStdoutPipe(char * bufptr, int bufsize, BUF_READ_TYPE * nre
 {
     bufptr[0] = 0;
 #ifdef WIN32
-    ReadFile( m_StdoutPipe[PIPE_READ], bufptr, bufsize, nreadptr, NULL);
+    ReadFile( m_StdoutPipe[PIPE_READ], bufptr, bufsize, nreadptr, nullptr);
 #else
     *nreadptr = read( m_StdoutPipe[PIPE_READ], bufptr, bufsize );
 #endif
@@ -518,7 +518,7 @@ void MonitorProcess( FILE * logFile, ProcessUtil *process, const string &msgLabe
                     MessageData data;
                     data.m_String = msgLabel;
                     data.m_StringVec.push_back( string( buf ) );
-                    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+                    MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
                 }
             }
         }
@@ -536,12 +536,12 @@ void MonitorProcess( FILE * logFile, ProcessUtil *process, const string &msgLabe
         MessageData data;
         data.m_String = msgLabel;
         data.m_StringVec.push_back( string( "Done\n" ) );
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
 
 #ifdef WIN32
     CloseHandle( process->m_StdoutPipe[0] );
-    process->m_StdoutPipe[0] = NULL;
+    process->m_StdoutPipe[0] = nullptr;
 #else
     close( process->m_StdoutPipe[0] );
     process->m_StdoutPipe[0] = -1;

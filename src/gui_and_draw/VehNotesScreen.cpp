@@ -87,7 +87,7 @@ VehNotesScreen::VehNotesScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 125, "
 
 VehNotesScreen::~VehNotesScreen()
 {
-    m_DataText->buffer( NULL );
+    m_DataText->buffer( nullptr );
     delete m_DataBuffer;
 }
 

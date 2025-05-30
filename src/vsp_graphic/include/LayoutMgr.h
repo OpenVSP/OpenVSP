@@ -69,7 +69,7 @@ public:
 
     /*
     * Get current selected Viewport.
-    * If no viewport is selected, return NULL pointer.
+    * If no viewport is selected, return nullptr pointer.
     */
     Viewport * getViewport();
 

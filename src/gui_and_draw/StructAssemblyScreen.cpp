@@ -330,7 +330,7 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
 
 StructAssemblyScreen::~StructAssemblyScreen()
 {
-    m_ConsoleDisplay->buffer( NULL );
+    m_ConsoleDisplay->buffer( nullptr );
     delete m_ConsoleBuffer;
 }
 
@@ -818,7 +818,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
-    FeaAssembly *curr_assy = NULL;
+    FeaAssembly *curr_assy = nullptr;
     if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
     {
         curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
@@ -1033,7 +1033,7 @@ void StructAssemblyScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, bool 
 
     if ( IsShown() )
     {
-        FeaAssembly *curr_assy = NULL;
+        FeaAssembly *curr_assy = nullptr;
         if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
         {
             curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );

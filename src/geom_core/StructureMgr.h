@@ -157,7 +157,7 @@ public:
             return m_FeaMaterialVec[ GetCurrMaterialIndex() ];
         }
 
-        return NULL;
+        return nullptr;
     }
 
     void SetCurrPropertyIndex( int ind )
@@ -176,7 +176,7 @@ public:
             return m_FeaPropertyVec[ GetCurrPropertyIndex() ];
         }
 
-        return NULL;
+        return nullptr;
     }
 
     void SetCurrBCIndex( int ind )

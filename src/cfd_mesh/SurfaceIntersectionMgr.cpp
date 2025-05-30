@@ -642,7 +642,7 @@ void SurfaceIntersectionSingleton::addOutputText( string str, int output_type )
         MessageData data;
         data.m_String = m_MessageName;
         data.m_StringVec.push_back( str );
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
 }
 
@@ -1263,7 +1263,7 @@ Surf* SurfaceIntersectionSingleton::FindSurf( int surf_id )
             return m_SurfVec[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int len_unit,
@@ -2027,7 +2027,7 @@ void SurfaceIntersectionSingleton::BuildChains()
             else
             {
                 delete chain;
-                chain = NULL;
+                chain = nullptr;
             }
         }
     }
@@ -2390,7 +2390,7 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain, PNTree* PN_tre
             testIPnt = chain->m_ISegDeque.back()->m_IPnt[1];
         }
 
-        IPnt* matchIPnt = NULL;
+        IPnt* matchIPnt = nullptr;
 
         const double query_pt[3] = { testIPnt->m_Pnt.x(), testIPnt->m_Pnt.y(), testIPnt->m_Pnt.z() };
         size_t ret_index[num_results];
@@ -2780,7 +2780,7 @@ void SurfaceIntersectionSingleton::LoadBorderCurves()
         else
         {
             delete chain;
-            chain = NULL;
+            chain = nullptr;
         }
     }
 
@@ -2830,7 +2830,7 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
             {
                 vector< SSLineSeg >& segs = segsvec[i];
 
-                ISegChain* chain = NULL;
+                ISegChain* chain = nullptr;
 
                 bool new_chain = true;
                 bool is_poly = ss_vec[ss].GetPolyFlag();
@@ -2852,7 +2852,7 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                         else
                         {
                             delete chain;
-                            chain = NULL;
+                            chain = nullptr;
                         }
                     }
 
@@ -2955,7 +2955,7 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                     else
                     {
                         delete chain;
-                        chain = NULL;
+                        chain = nullptr;
                     }
                 }
             }

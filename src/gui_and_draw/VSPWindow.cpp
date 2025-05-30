@@ -17,21 +17,21 @@ int VSP_Window::m_y = 1;
 VSP_Window::VSP_Window(int w, int h, const char* title) : Fl_Double_Window( w, h, title )
 {
     m_GeomScreen = false;
-    m_Parent = NULL;
+    m_Parent = nullptr;
     m_AttachType = WIN_ATT_NONE;
     m_AlignType = WIN_ALN_NONE;
-    m_ResizeCB = NULL;
-    m_ResizeData = NULL;
+    m_ResizeCB = nullptr;
+    m_ResizeData = nullptr;
 }
 
 VSP_Window::VSP_Window(int x, int y, int w, int h, const char* l) : Fl_Double_Window(x , y, w, h, l)
 {
     m_GeomScreen = false;
-    m_Parent = NULL;
+    m_Parent = nullptr;
     m_AttachType = WIN_ATT_NONE;
     m_AlignType = WIN_ALN_NONE;
-    m_ResizeCB = NULL;
-    m_ResizeData = NULL;
+    m_ResizeCB = nullptr;
+    m_ResizeData = nullptr;
 }
 
 void VSP_Window::SetAlignType( int t )
@@ -69,7 +69,7 @@ void VSP_Window::RemoveChild( VSP_Window* win )
         if ( m_Children[c] == win )
         {
             m_Children.erase( m_Children.begin()+c );
-            win->SetParent(NULL);
+            win->SetParent(nullptr);
             return;
         }
     }

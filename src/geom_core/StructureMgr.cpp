@@ -36,7 +36,7 @@ StructureMgrSingleton::~StructureMgrSingleton()
 
 xmlNodePtr StructureMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr structmgr_node = xmlNewChild( node, NULL, BAD_CAST"StructureMgr", NULL );
+    xmlNodePtr structmgr_node = xmlNewChild( node, nullptr, BAD_CAST"StructureMgr", nullptr );
 
     ParmContainer::EncodeXml( structmgr_node );
 
@@ -340,7 +340,7 @@ void StructureMgrSingleton::ResetAllExportFileNames()
 //==== Get FeaStructure from Total Structure Index ====//
 FeaStructure* StructureMgrSingleton::GetFeaStruct( int total_struct_ind )
 {
-    FeaStructure* fea_struct = NULL;
+    FeaStructure* fea_struct = nullptr;
 
     vector < FeaStructure* > struct_vec = GetAllFeaStructs();
 
@@ -354,7 +354,7 @@ FeaStructure* StructureMgrSingleton::GetFeaStruct( int total_struct_ind )
 //==== Get FeaStructure from Structure ID ====//
 FeaStructure* StructureMgrSingleton::GetFeaStruct( const string & struct_id )
 {
-    FeaStructure* fea_struct = NULL;
+    FeaStructure* fea_struct = nullptr;
 
     vector < FeaStructure* > struct_vec = GetAllFeaStructs();
 
@@ -429,7 +429,7 @@ int StructureMgrSingleton::GetGeomFeaStructIndex( const string & struct_id )
 //==== Get FeaPart pointer from FeaPart ID ====//
 FeaPart* StructureMgrSingleton::GetFeaPart( const string & feapart_id )
 {
-    FeaPart* ret_ptr = NULL;
+    FeaPart* ret_ptr = nullptr;
 
     vector < FeaStructure* > fea_struct_vec = GetAllFeaStructs();
 
@@ -452,7 +452,7 @@ FeaPart* StructureMgrSingleton::GetFeaPart( const string & feapart_id )
 //==== Get FeaPart pointer from FeaPart ID ====//
 SubSurface* StructureMgrSingleton::GetFeaSubSurf( const string & feasubsurf_id )
 {
-    SubSurface* ret_ptr = NULL;
+    SubSurface* ret_ptr = nullptr;
 
     vector < FeaStructure* > fea_struct_vec = GetAllFeaStructs();
 
@@ -612,7 +612,7 @@ FeaProperty* StructureMgrSingleton::GetFeaProperty( const string &id )
 {
     if ( id == string( "NONE" ) )
     {
-        return NULL;
+        return nullptr;
     }
     for ( int i = 0 ; i < ( int )m_FeaPropertyVec.size() ; i++ )
     {
@@ -621,7 +621,7 @@ FeaProperty* StructureMgrSingleton::GetFeaProperty( const string &id )
             return m_FeaPropertyVec[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 string StructureMgrSingleton::MakeDefaultShellProperty()
@@ -794,7 +794,7 @@ FeaMaterial* StructureMgrSingleton::GetFeaMaterial( const string &id )
 {
     if ( id == string( "NONE" ) )
     {
-        return NULL;
+        return nullptr;
     }
     for ( int i = 0 ; i < ( int )m_FeaMaterialVec.size() ; i++ )
     {
@@ -803,7 +803,7 @@ FeaMaterial* StructureMgrSingleton::GetFeaMaterial( const string &id )
             return m_FeaMaterialVec[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void StructureMgrSingleton::InitFeaMaterials()
@@ -853,7 +853,7 @@ FeaAssembly* StructureMgrSingleton::GetFeaAssembly( const string & assyid )
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 //==== Add FeaProperty =====//
@@ -900,5 +900,5 @@ FeaAssembly* StructureMgrSingleton::GetFeaAssembly( int index )
     {
         return m_FeaAssemblyVec[index];
     }
-    return NULL;
+    return nullptr;
 }

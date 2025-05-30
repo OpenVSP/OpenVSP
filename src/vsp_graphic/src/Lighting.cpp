@@ -193,7 +193,7 @@ LightSource * Lighting::getLightSource( unsigned int index )
 {
     if( index >= _lightSources.size() )
     {
-        return NULL;
+        return nullptr;
     }
 
     return _lightSources[index];

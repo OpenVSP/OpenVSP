@@ -11,15 +11,15 @@
 
 SCurve::SCurve()
 {
-    m_Surf = NULL;
-    m_ICurve = NULL;
+    m_Surf = nullptr;
+    m_ICurve = nullptr;
     num_segs = 0;
 }
 
 SCurve::SCurve( Surf* s )
 {
     m_Surf = s;
-    m_ICurve = NULL;
+    m_ICurve = nullptr;
     num_segs = 0;
 }
 

@@ -177,7 +177,7 @@ Results* ProjectionMgrSingleton::Project( )
             break;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Results* ProjectionMgrSingleton::Project( int tset, const vec3d & dir )
@@ -924,24 +924,24 @@ void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlis
 
     //==== PreAllocate Data For In/Out ====//
     in.pointlist    = ( REAL * ) malloc( npt * 2 * sizeof( REAL ) );
-    out.pointlist   = NULL;
+    out.pointlist   = nullptr;
 
     in.segmentlist  = ( int * ) malloc( npt * 2 * sizeof( int ) );
-    out.segmentlist  = NULL;
-    out.trianglelist  = NULL;
+    out.segmentlist  = nullptr;
+    out.trianglelist  = nullptr;
 
     in.numberofpointattributes = 0;
-    in.pointattributelist = NULL;
-    in.pointmarkerlist = NULL;
+    in.pointattributelist = nullptr;
+    in.pointmarkerlist = nullptr;
     in.numberofholes = 0;
     in.numberoftriangles = 0;
     in.numberofpointattributes = 0;
     in.numberofedges = 0;
-    in.trianglelist = NULL;
-    in.trianglearealist = NULL;
-    in.edgelist = NULL;
-    in.edgemarkerlist = NULL;
-    in.segmentmarkerlist = NULL;
+    in.trianglelist = nullptr;
+    in.trianglearealist = nullptr;
+    in.edgelist = nullptr;
+    in.edgemarkerlist = nullptr;
+    in.segmentmarkerlist = nullptr;
 
     //==== Load Points into Triangle Struct ====//
     in.numberofpoints = npt;

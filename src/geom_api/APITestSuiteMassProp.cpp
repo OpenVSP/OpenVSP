@@ -75,7 +75,7 @@ void APITestSuiteMassProp::TestSolidCylinder()
 
     //==== Add Fuselage Geom and Set Parameters =====//
     string fus_id = vsp::AddGeom( "FUSELAGE" );
-    TEST_ASSERT( fus_id.c_str() != NULL );
+    TEST_ASSERT( fus_id.c_str() != nullptr );
 
     //  Adjust Fuselage length to 12:
     double length = 12;

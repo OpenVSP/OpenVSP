@@ -644,7 +644,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
 ParasiteDragScreen::~ParasiteDragScreen()
 {
-    m_TextDisplay->buffer( NULL );
+    m_TextDisplay->buffer( nullptr );
     delete m_TextBuffer;
 }
 

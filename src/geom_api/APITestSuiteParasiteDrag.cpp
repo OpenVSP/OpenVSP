@@ -29,13 +29,13 @@ void APITestSuiteParasiteDrag::TestParasiteDragCreateModel()
     printf( "\tAdding WING (Main)\n" );
     string wing_id = vsp::AddGeom( "WING" );
     vsp::SetGeomName( wing_id, "MainWing" );
-    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT( wing_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 17.0 ), 17.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "Z_Rel_Location", "XForm", 0.5 ), 0.5, TEST_TOL );
 
     printf( "\tAdding POD\n" );
     string pod_id = vsp::AddGeom( "POD" );
-    TEST_ASSERT( pod_id.c_str() != NULL );
+    TEST_ASSERT( pod_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "Length", "Design", 14.5 ), 14.5, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "X_Rel_Location", "XForm", -3.0 ), -3.0, TEST_TOL );
 
@@ -80,7 +80,7 @@ void APITestSuiteParasiteDrag::TestFirstParasiteDragCalc()
     vsp::ReadVSPFile( m_vspfname_for_parasitedragtests );
     if ( m_vspfname_for_parasitedragtests == string() )
     {
-        TEST_FAIL( "m_vspfname_for_parasitedragtests = NULL, need to run: APITestSuite::TestParasiteDragCreateModel" );
+        TEST_FAIL( "m_vspfname_for_parasitedragtests = nullptr, need to run: APITestSuite::TestParasiteDragCreateModel" );
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -316,27 +316,27 @@ void APITestSuiteParasiteDrag::TestSubSurfaceHandling()
     printf( "\tAdding WING (Main)\n" );
     string wing_id = vsp::AddGeom( "WING" );
     vsp::SetGeomName( wing_id, "MainWing" );
-    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT( wing_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 17.0 ), 17.0, TEST_TOL );
 
     printf( "\tAdding SUBSURFACE (Outside Aileron)\n" );
     string outside_ailerson_ssid = vsp::AddSubSurf( wing_id, vsp::SS_CONTROL );
     vsp::SetSubSurfName( wing_id, outside_ailerson_ssid, "Outside Aileron" );
-    TEST_ASSERT( outside_ailerson_ssid.c_str() != NULL );
+    TEST_ASSERT( outside_ailerson_ssid.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "UStart", "SS_Control_1", 0.52 ), 0.52, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "UEnd", "SS_Control_1", 0.65 ), 0.65, TEST_TOL );
 
     printf( "\tAdding SUBSURFACE (Inside Aileron)\n" );
     string inside_aileron_ssid = vsp::AddSubSurf( wing_id, vsp::SS_CONTROL );
     vsp::SetSubSurfName( wing_id, inside_aileron_ssid, "Inside Aileron" );
-    TEST_ASSERT( inside_aileron_ssid.c_str() != NULL );
+    TEST_ASSERT( inside_aileron_ssid.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "UStart", "SS_Control_2", 0.4 ), 0.4, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "UEnd", "SS_Control_2", 0.5 ), 0.5, TEST_TOL );
 
     printf( "\tAdding WING (Tail)\n" );
     string tail_id = vsp::AddGeom( "WING" );
     vsp::SetGeomName( tail_id, "Tail" );
-    TEST_ASSERT( tail_id.c_str() != NULL );
+    TEST_ASSERT( tail_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  tail_id, "TotalSpan", "WingGeom", 9.0 ), 9.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  tail_id, "X_Rel_Location", "XForm", 5.0 ), 5.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  tail_id, "TotalChord", "WingGeom", 1.5 ), 1.5, TEST_TOL );
@@ -344,7 +344,7 @@ void APITestSuiteParasiteDrag::TestSubSurfaceHandling()
     printf( "\tAdding SUBSURFACE (Elevator)\n" );
     string elevator_ssid = vsp::AddSubSurf( tail_id, vsp::SS_CONTROL );
     vsp::SetSubSurfName( tail_id, elevator_ssid, "Elevator" );
-    TEST_ASSERT( elevator_ssid.c_str() != NULL );
+    TEST_ASSERT( elevator_ssid.c_str() != nullptr );
 
     // Convert Sub Surfaces to all forms of sub surface drag types
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "IncludeFlag", "SubSurface_1", vsp::SS_INC_ZERO_DRAG ), vsp::SS_INC_ZERO_DRAG, TEST_TOL );
@@ -424,13 +424,13 @@ void APITestSuiteParasiteDrag::TestGeometryGrouping()
     printf( "\tAdding FUSELAGE (Fuse)\n" );
     string fuse_id = vsp::AddGeom( "FUSELAGE" );
     vsp::SetGeomName( fuse_id, "Fuse" );
-    TEST_ASSERT( fuse_id.c_str() != NULL );
+    TEST_ASSERT( fuse_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fuse_id, "Length", "Design", 15.0 ), 15.0, TEST_TOL );
 
     printf( "\tAdding POD (Gear Pod)\n" );
     string pod_id = vsp::AddGeom( "POD", fuse_id );
     vsp::SetGeomName( pod_id, "Gear Pod" );
-    TEST_ASSERT( pod_id.c_str() != NULL );
+    TEST_ASSERT( pod_id.c_str() != nullptr );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "Z_Rel_Location", "XForm", -1.0 ), -1.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "X_Rel_Location", "XForm", 5.0 ), 5.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "Length", "Design", 5.0 ), 5.0, TEST_TOL );

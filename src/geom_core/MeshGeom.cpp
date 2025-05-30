@@ -105,7 +105,7 @@ MeshGeom::~MeshGeom()
 xmlNodePtr MeshGeom::EncodeXml( xmlNodePtr & node )
 {
     Geom::EncodeXml( node );
-    xmlNodePtr mesh_node = xmlNewChild( node, NULL, BAD_CAST "MeshGeom", NULL );
+    xmlNodePtr mesh_node = xmlNewChild( node, nullptr, BAD_CAST "MeshGeom", nullptr );
     XmlUtil::AddIntNode( mesh_node, "Num_Meshes", ( int )m_TMeshVec.size() );
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
@@ -167,7 +167,7 @@ int MeshGeom::ReadXSec( const char* file_name )
     char str[256] = {};
 
     //==== Make Sure File Exists ====//
-    if ( ( fp = fopen( file_name, "r" ) ) == ( FILE * )NULL )
+    if ( ( fp = fopen( file_name, "r" ) ) == ( FILE * )nullptr )
     {
         return 0;
     }
@@ -1253,7 +1253,7 @@ void MeshGeom::WritePovRay( FILE* fid, int comp_num )
 
 void MeshGeom::WriteX3D( xmlNodePtr node )
 {
-    xmlNodePtr set_node = xmlNewChild( node, NULL, BAD_CAST "IndexedFaceSet", NULL );
+    xmlNodePtr set_node = xmlNewChild( node, nullptr, BAD_CAST "IndexedFaceSet", nullptr );
     xmlSetProp( set_node, BAD_CAST "solid", BAD_CAST "true" );
     xmlSetProp( set_node, BAD_CAST "creaseAngle", BAD_CAST "0.5"  );
     Matrix4d transMat = GetTotalTransMat();
@@ -1289,7 +1289,7 @@ void MeshGeom::WriteX3D( xmlNodePtr node )
 
     xmlSetProp( set_node, BAD_CAST "coordIndex", BAD_CAST indstr.c_str() );
 
-    xmlNodePtr coord_node = xmlNewChild( set_node, NULL, BAD_CAST "Coordinate", BAD_CAST " " );
+    xmlNodePtr coord_node = xmlNewChild( set_node, nullptr, BAD_CAST "Coordinate", BAD_CAST " " );
     xmlSetProp( coord_node, BAD_CAST "point", BAD_CAST crdstr.c_str() );
 }
 
@@ -1881,7 +1881,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         }
     }
 
-    Results* res = NULL;
+    Results* res = nullptr;
     if ( !degen )
     {
         //==== Create Results ====//
@@ -2975,7 +2975,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
     MergeRemoveOpenMeshes( &info, deleteopen );
 
     //==== Create Results ====//
-    Results *res = NULL;
+    Results *res = nullptr;
     int numTris = 0;
 
     if ( !degen )
@@ -4148,7 +4148,7 @@ TMesh* MeshGeom::GetMeshByID( const string & id )
             return m_TMeshVec[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )

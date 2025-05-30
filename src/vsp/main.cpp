@@ -80,7 +80,7 @@ void* CheckVersionNumber( void *threadid )
 {
     //==== Init Nano HTTP ====//
     xmlNanoHTTPInit();
-    xmlNanoHTTPScanProxy( NULL );
+    xmlNanoHTTPScanProxy( nullptr );
 
     //==== Compute Version Number ====//
     int ver_no = 10000 * VSP_VERSION_MAJOR + 100 * VSP_VERSION_MINOR + VSP_VERSION_CHANGE;
@@ -97,7 +97,7 @@ void* CheckVersionNumber( void *threadid )
     const char*  headers = "Content-Type: application/x-www-form-urlencoded \n";
 
     void * ctx = 0;
-    ctx = xmlNanoHTTPMethod( "http://www.openvsp.org/vspuse_post.php", "POST", poststr, NULL, headers, poststrlen );
+    ctx = xmlNanoHTTPMethod( "http://www.openvsp.org/vspuse_post.php", "POST", poststr, nullptr, headers, poststrlen );
 
     if ( ctx )
     {
@@ -114,7 +114,7 @@ void* CheckVersionNumber( void *threadid )
         char str[256];
         fgets( str, 256, vsptime_fp );
         int vsp_time = atoi( str );
-        int del_time =  ( int )time( NULL ) - vsp_time;
+        int del_time =  ( int )time( nullptr ) - vsp_time;
         if ( del_time < 60 * 60 * 24 * 7 )          // Check Every Week
         {
             check_version_flag = false;
@@ -165,7 +165,7 @@ void* CheckVersionNumber( void *threadid )
         FILE* vsptime_fpw = fopen( ".vsptime", "w" );
         if ( vsptime_fpw )
         {
-            fprintf( vsptime_fpw, "%d", ( int )time( NULL ) );
+            fprintf( vsptime_fpw, "%d", ( int )time( nullptr ) );
             fclose( vsptime_fpw );
         }
     }
@@ -190,7 +190,7 @@ void ThreadCheckVersionNumber()
 
     long t = 0;
     pthread_t thread;
-    pthread_create( &thread, NULL, CheckVersionNumber, ( void * )t );
+    pthread_create( &thread, nullptr, CheckVersionNumber, ( void * )t );
 #endif
 }
 

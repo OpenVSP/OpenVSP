@@ -272,7 +272,7 @@ Viewport * LayoutMgr::getViewport()
 {
     if( _selected < 0 )
     {
-        return NULL;
+        return nullptr;
     }
     return _viewportList[_selected];
 }

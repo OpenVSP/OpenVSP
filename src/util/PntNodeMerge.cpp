@@ -16,7 +16,7 @@
 PntNodeCloud::PntNodeCloud()
 {
     m_NumUsedPts = 0;
-    m_index = NULL;
+    m_index = nullptr;
 }
 
 PntNodeCloud::~PntNodeCloud()
@@ -30,7 +30,7 @@ void PntNodeCloud::Cleanup()
     if ( m_index )
     {
         delete m_index;
-        m_index = NULL;
+        m_index = nullptr;
     }
 }
 

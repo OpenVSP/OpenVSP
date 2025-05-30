@@ -39,7 +39,7 @@ VBO::VBO( GLenum type )
 
     // Initialize buffer.
     glBindBuffer( _buffer_Type, _id );
-    glBufferData( _buffer_Type, BUFFER_INITIAL, NULL, GL_DYNAMIC_DRAW );
+    glBufferData( _buffer_Type, BUFFER_INITIAL, nullptr, GL_DYNAMIC_DRAW );
     glBindBuffer( _buffer_Type, 0 );
 
     _start = _end = 0;
@@ -113,7 +113,7 @@ bool VBO::_extend( unsigned int mem_size )
 {
     void * temp = malloc( _size );
 
-    if( temp == NULL )
+    if( temp == nullptr )
     {
         assert( false ); // Failed to allocate memory.
         return false;
@@ -129,7 +129,7 @@ bool VBO::_extend( unsigned int mem_size )
 
     glGenBuffers( 1, &_id );
     glBindBuffer( _buffer_Type, _id );
-    glBufferData( _buffer_Type, _size, NULL, GL_DYNAMIC_DRAW );
+    glBufferData( _buffer_Type, _size, nullptr, GL_DYNAMIC_DRAW );
     glBufferSubData( _buffer_Type, 0, oldSize, temp );
     glBindBuffer( _buffer_Type, 0 );
     free( temp );

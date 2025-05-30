@@ -44,7 +44,7 @@ int dba_errlog( void* stream, const char* fmt, ...)
 
 int main( int argc, char* argv[] )
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
 
     if (argc<2)
     {

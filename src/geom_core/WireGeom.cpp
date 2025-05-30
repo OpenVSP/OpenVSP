@@ -661,14 +661,14 @@ xmlNodePtr WireGeom::EncodeXml( xmlNodePtr & node )
         int num_pnts = m_WirePts[0].size();
         if ( num_pnts > 0 )
         {
-            xmlNodePtr wire_node = xmlNewChild( node, NULL, BAD_CAST "WireGeom", NULL );
+            xmlNodePtr wire_node = xmlNewChild( node, nullptr, BAD_CAST "WireGeom", nullptr );
 
             if ( wire_node )
             {
                 XmlUtil::AddIntNode( wire_node, "Num_Cross", num_cross );
                 XmlUtil::AddIntNode( wire_node, "Num_Pnts", num_pnts );
 
-                xmlNodePtr pt_list_node = xmlNewChild( wire_node, NULL, BAD_CAST "Pt_List", NULL );
+                xmlNodePtr pt_list_node = xmlNewChild( wire_node, nullptr, BAD_CAST "Pt_List", nullptr );
 
                 for ( int i = 0 ; i < num_cross ; i++ )
                 {
@@ -706,7 +706,7 @@ xmlNodePtr WireGeom::DecodeXml( xmlNodePtr & node )
                 tmppts.reserve( num_pts );
 
                 xmlNodePtr iter_node = pt_list_node->xmlChildrenNode;
-                while ( iter_node != NULL )
+                while ( iter_node != nullptr )
                 {
                     if ( !xmlStrcmp(iter_node->name, (const xmlChar *) "Pt") )
                     {
@@ -883,7 +883,7 @@ void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
     }
 
     dgs.resize( 1 );
-    Geom::CreateDegenGeom( dgs[0], m_XFormPts, m_XFormNorm, uwpnts, false, 0, preview, m_InvertFlag(), surftype, cfdsurftype, NULL );
+    Geom::CreateDegenGeom( dgs[0], m_XFormPts, m_XFormNorm, uwpnts, false, 0, preview, m_InvertFlag(), surftype, cfdsurftype, nullptr );
 }
 
 int WireGeom::GetNumTotalHrmSurfs() const

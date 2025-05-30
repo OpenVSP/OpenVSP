@@ -350,7 +350,7 @@ void NameValData::CopyFrom( NameValData* nvd )
 
     string lastreset = ParmMgr.ResetRemapID();
 
-    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Attributes" );
+    xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Attributes" );
 
     nvd->EncodeXml( root );
     xmlNodePtr attr_node = XmlUtil::GetNode( root, "Attribute", 0 );
@@ -373,7 +373,7 @@ string NameValData::TruncateString( string str, int len )
 void NameValData::EncodeXml( xmlNodePtr & node ) const
 {
     string attrXmlName = "Attribute";
-    xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar * )attrXmlName.c_str(), NULL );
+    xmlNodePtr dnode = xmlNewChild( node, nullptr, ( const xmlChar * )attrXmlName.c_str(), nullptr );
     XmlUtil::SetStringProp( dnode, "ID", m_ID );
     XmlUtil::SetStringProp( dnode, "AttachID", m_AttachID );
     XmlUtil::SetStringProp( dnode, "Name", m_Name );
@@ -1189,7 +1189,7 @@ void AttributeCollection::EncodeXml( xmlNodePtr & node ) const
     {
 
         string attrXmlName = "AttributeCollection";
-        xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar * )attrXmlName.c_str(), NULL ); //AttributeCollection XML Node
+        xmlNodePtr dnode = xmlNewChild( node, nullptr, ( const xmlChar * )attrXmlName.c_str(), nullptr ); //AttributeCollection XML Node
 
         if ( dnode )
         {
@@ -2147,7 +2147,7 @@ Results* ResultsMgrSingleton::FindResultsPtr( const string & id )
 
     if ( id_iter ==  m_ResultsMap.end() )
     {
-        return NULL;
+        return nullptr;
     }
 
     return id_iter->second;

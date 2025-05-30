@@ -90,12 +90,12 @@ string IDMgrSingleton::RemapID( const string & oldID, const string & suggestID, 
         Setting *s = VarPresetMgr.FindSetting( oldID );
         SettingGroup *sg = VarPresetMgr.FindSettingGroup( oldID );
 
-        if( ( p == NULL ) &&
-            ( pc == NULL ) &&
-            ( a == NULL ) &&
-            ( ac == NULL ) &&
-            ( s == NULL ) &&
-            ( sg == NULL ) &&
+        if( ( p == nullptr ) &&
+            ( pc == nullptr ) &&
+            ( a == nullptr ) &&
+            ( ac == nullptr ) &&
+            ( s == nullptr ) &&
+            ( sg == nullptr ) &&
             size == -1 )
         {
             newID = oldID;                                  //  reuse oldID.

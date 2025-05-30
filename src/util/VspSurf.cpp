@@ -69,7 +69,7 @@ VspSurf::VspSurf()
 
     SetClustering( 1.0, 1.0 );
 
-    m_FoilSurf = NULL;
+    m_FoilSurf = nullptr;
     m_LECluster = 1.0;
     m_TECluster = 1.0;
     m_SkinClosedFlag = 0;

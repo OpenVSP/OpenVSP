@@ -122,7 +122,7 @@ int UserParmContainer::GetUserParmIndex( const string & id )
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr UserParmContainer::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr userparmcontain_node = xmlNewChild( node, NULL, BAD_CAST "UserParmContainer", NULL );
+    xmlNodePtr userparmcontain_node = xmlNewChild( node, nullptr, BAD_CAST "UserParmContainer", nullptr );
     if ( userparmcontain_node )
     {
        XmlUtil::AddIntNode( userparmcontain_node, "NumUserParms", (int)m_UserParmVec.size() );

@@ -77,7 +77,7 @@ string CfdMeshAnalysis::Execute()
 
     if( veh )
     {
-        NameValData* nvd = NULL;
+        NameValData* nvd = nullptr;
 
         double baseLenOrig = veh->GetCfdGridDensityPtr()->m_BaseLen();
         nvd = m_Inputs.FindPtr( "BaseLen", 0 );
@@ -250,8 +250,8 @@ void FeaMeshAnalysis::SetDefaults()
 
     FeaStructure* curr_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetFeaMeshStructID() );
 
-    GridDensity* density_settings = NULL;
-    StructSettings* struct_settings = NULL;
+    GridDensity* density_settings = nullptr;
+    StructSettings* struct_settings = nullptr;
 
     StructSettings temp_settings;
     FeaGridDensity temp_density;
@@ -338,7 +338,7 @@ string FeaMeshAnalysis::Execute()
 
     if( curr_struct )
     {
-        NameValData* nvd = NULL;
+        NameValData* nvd = nullptr;
 
         double baseLenOrig = curr_struct->GetFeaGridDensityPtr()->m_BaseLen();
         nvd = m_Inputs.FindPtr( "BaseLen", 0 );
@@ -633,7 +633,7 @@ string SurfaceIntersectionAnalysis::Execute()
 
     if( veh )
     {
-        NameValData* nvd = NULL;
+        NameValData* nvd = nullptr;
 
         bool exportRawFlagOrig = veh->GetISectSettingsPtr()->m_ExportRawFlag();
         nvd = m_Inputs.FindPtr( "ExportRawFlag", 0 );

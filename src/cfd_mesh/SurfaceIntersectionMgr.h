@@ -347,7 +347,7 @@ public:
 
     virtual SimpleGridDensity* GetGridDensityPtr()
     {
-        return NULL;
+        return nullptr;
     }
 
     bool GetMeshInProgress()

@@ -26,10 +26,10 @@ NURBS_Curve::NURBS_Curve()
     m_SurfB_ID = -1;
     m_MergeTol = 0;
     m_Deg = 1;
-    m_STEP_Start_Vert = NULL;
-    m_STEP_End_Vert = NULL;
-    m_STEP_Edge = NULL;
-    m_IGES_Edge = NULL;
+    m_STEP_Start_Vert = nullptr;
+    m_STEP_End_Vert = nullptr;
+    m_STEP_Edge = nullptr;
+    m_IGES_Edge = nullptr;
     m_BBox = BndBox();
     m_Label = string();
     m_WakeFlag = false;
@@ -170,7 +170,7 @@ SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, const string& label, b
     if ( !m_ClosedFlag )
     {
         printf( "ERROR: Incomplete STEP Loop \n" );
-        return NULL;
+        return nullptr;
     }
 
     vector < SdaiOriented_edge* > or_edge_vec;
@@ -209,7 +209,7 @@ SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, const string& label, b
     // https://github.com/stepcode/stepcode/issues/251
     //
     // Why doesn't SdaiEdge_loop's edge_list_() function give use
-    // the edge_list from the SdaiPath??  Initialized to NULL and
+    // the edge_list from the SdaiPath??  Initialized to nullptr and
     // crashes - what good is it?  Have to get at the internal
     // SdaiPath directly to build something that STEPwrite will output.
     SdaiPath* e_loop_path = (SdaiPath*)loop->GetNextMiEntity();
@@ -250,7 +250,7 @@ BndBox NURBS_Loop::GetBndBox()
 NURBS_Surface::NURBS_Surface()
 {
     m_SurfID = -1;
-    m_Surf = NULL;
+    m_Surf = nullptr;
     m_IsPlanar = false;
     m_SurfType = vsp::CFD_NORMAL;
     m_Label = string();
@@ -300,7 +300,7 @@ DLL_IGES_ENTITY_128 NURBS_Surface::WriteIGESSurf( IGESutil* iges, const string& 
 
 SdaiSurface* NURBS_Surface::WriteSTEPSurf( STEPutil* step, const string& label, bool mergepts )
 {
-    SdaiSurface* ret_surf = NULL;
+    SdaiSurface* ret_surf = nullptr;
 
     string new_label = label;
     if ( m_WakeFlag && label.size() > 0 )

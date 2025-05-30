@@ -429,9 +429,9 @@ void VarPresetEditorScreen::CheckSaveStatus()
 
 void VarPresetEditorScreen::EnableDisableWidgets()
 {
-    SettingGroup *sg = NULL;
-    Setting *s = NULL;
-    Parm *p = NULL;
+    SettingGroup *sg = nullptr;
+    Setting *s = nullptr;
+    Parm *p = nullptr;
 
     if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
     {

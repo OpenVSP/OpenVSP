@@ -134,7 +134,7 @@ Analysis* AnalysisMgrSingleton::FindAnalysis( const string & name ) const
         return it->second;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool AnalysisMgrSingleton::RegisterAnalysis( Analysis* asys )
@@ -786,7 +786,7 @@ string BEMAnalysis::Execute()
         string propid, file_name;
         int export_flag = 0;
 
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
 
         nvd = m_Inputs.FindPtr( "PropID", 0 );
         if ( nvd )
@@ -870,7 +870,7 @@ string CompGeomAnalysis::Execute()
 
         int prevCsvFile = veh->getExportCompGeomCsvFile();
 
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
 
         nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
@@ -1037,7 +1037,7 @@ string EmintonLordAnalysis::Execute()
         vector < double > x_vec;
         vector < double > area_vec;
 
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
 
         nvd = m_Inputs.FindPtr( "X_vec", 0 );
         if ( nvd )
@@ -1107,7 +1107,7 @@ string MassPropAnalysis::Execute()
         int useModeFlag = 0;
         string modeID;
 
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
 
         nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
@@ -1205,7 +1205,7 @@ string PlanarSliceAnalysis::Execute()
         int useMode = 0;
         string modeID;
 
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
 
         nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
@@ -1315,7 +1315,7 @@ void ProjectionAnalysis::SetDefaults()
 
 string ProjectionAnalysis::Execute()
 {
-    NameValData *nvd = NULL;
+    NameValData *nvd = nullptr;
 
     int targetType = vsp::SET_TARGET;
     nvd = m_Inputs.FindPtr( "TargetType", 0 );
@@ -1403,7 +1403,7 @@ string ProjectionAnalysis::Execute()
         }
     }
 
-    Results* res = NULL;
+    Results* res = nullptr;
 
     switch ( boundaryType )
     {
@@ -1473,7 +1473,7 @@ string SurfacePatchAnalysis::Execute()
     {
         int set = vsp::SET_ALL;
 
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
         nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
         {
@@ -1525,7 +1525,7 @@ string WaveDragAnalysis::Execute()
         int useMode = WaveDragMgr.m_UseMode.Get();
         string modeID = WaveDragMgr.m_ModeID;
 
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
 
         nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
@@ -1616,7 +1616,7 @@ string VSPAERODegenGeomAnalysis::Execute()
 
     if ( veh )
     {
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
 
         // Apply current analysis input values
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
@@ -1686,7 +1686,7 @@ string VSPAEROComputeGeometryAnalysis::Execute()
 
     if ( veh )
     {
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
 
         //==== Apply current analysis input values ====//
         int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
@@ -1880,7 +1880,7 @@ string VSPAEROSweepAnalysis::Execute()
     if ( veh )
     {
 
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
 
         //==== Apply current analysis input values ====//
         //    Geometry set
@@ -2341,7 +2341,7 @@ string VSPAEROSweepAnalysis::Execute()
 
         if ( fname == string() )
         {
-            resId = VSPAEROMgr.ComputeSolver( NULL );
+            resId = VSPAEROMgr.ComputeSolver( nullptr );
         }
         else if ( fname != string( "stdout" ) )
         {
@@ -2532,7 +2532,7 @@ string ParasiteDragFullAnalysis::Execute()
 
     if ( veh )
     {
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
 
         // File Name
         string fileNameOrig = ParasiteDragMgr.m_FileName;
@@ -2823,7 +2823,7 @@ string CpSlicerAnalysis::Execute()
 
     if ( veh )
     {
-        NameValData *nvd = NULL;
+        NameValData *nvd = nullptr;
 
         int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
         nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );

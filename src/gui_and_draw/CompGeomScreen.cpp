@@ -113,7 +113,7 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 470, "
 
 CompGeomScreen::~CompGeomScreen()
 {
-    m_TextDisplay->buffer( NULL );
+    m_TextDisplay->buffer( nullptr );
     delete m_TextBuffer;
 }
 

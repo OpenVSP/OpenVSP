@@ -15,7 +15,7 @@ CustomScreen::CustomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 677, "Custo
 {
     m_FLTK_Window->copy_label( "Custom Geom" );
     m_SameLineFlag = false;
-    m_LastChoiceGui = NULL;
+    m_LastChoiceGui = nullptr;
     m_ForceWidthFlag = false;
     m_ForceWidth = 10;
     m_Format = "%7.3f";
@@ -72,14 +72,14 @@ GuiDevice* CustomScreen::FindGuiDevice( const string & custom_type_name, int ind
             return iter->second.at( index );
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 
 
 GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
 {
-    GuiDevice* gui_dev = NULL;
+    GuiDevice* gui_dev = nullptr;
 
     if ( def.m_Type == vsp::GDEV_TAB )
     {

@@ -283,7 +283,7 @@ public:
             return m_N1;
         if ( i == 2 )
             return m_N2;
-        return NULL;
+        return nullptr;
     }
 
     virtual void ComputeCosAngles( double* ang0, double* ang1, double* ang2 );
@@ -302,7 +302,7 @@ public:
     virtual void BuildPermEdges();
 
     virtual bool InTri( const vec3d & p );
-    virtual int OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t = NULL );
+    virtual int OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t = nullptr );
     virtual vec3d CompPnt( const vec3d & uw_pnt );
     virtual vec3d CompUW( const vec3d & pnt );
 

@@ -113,13 +113,13 @@ public:
 
     /*!
     * Get current selected viewport.
-    * Return NULL if no viewport is selected.
+    * Return nullptr if no viewport is selected.
     */
     Viewport * getViewport();
 
     /*!
     * Get camera of selected viewport.
-    * Return NULL if no viewport is selected.
+    * Return nullptr if no viewport is selected.
     */
     Camera * getCamera();
 

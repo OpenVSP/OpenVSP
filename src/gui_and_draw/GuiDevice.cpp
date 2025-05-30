@@ -129,8 +129,8 @@ int Vsp_Group::handle(int event)
 
 Vsp_Canvas::Vsp_Canvas( int x, int y, int w, int h, const char *label ) : Ca_Canvas( x, y, w, h, label )
 {
-    m_Ymain = NULL;
-    m_Ysecondary = NULL;
+    m_Ymain = nullptr;
+    m_Ysecondary = nullptr;
 }
 
 int Vsp_Canvas::handle( int event )
@@ -189,7 +189,7 @@ GuiDevice::GuiDevice()
 {
     m_Type = -1;
     m_Index = -1;
-    m_Screen = NULL;
+    m_Screen = nullptr;
     m_ParmID = string( "NOT_DEFINED" );
     m_NewParmFlag = true;
     m_LastVal = 0.0;
@@ -372,7 +372,7 @@ void GuiDevice::OffsetX( int x )
 Input::Input() : GuiDevice()
 {
     m_Type = vsp::GDEV_INPUT;
-    m_Input = NULL;
+    m_Input = nullptr;
     m_Format = string( " %7.5f" );
     m_ParmButtonFlag = false;
 }
@@ -485,7 +485,7 @@ void Input::DeviceCB( Fl_Widget* w )
 Output::Output() : GuiDevice()
 {
     m_Type = vsp::GDEV_OUTPUT;
-    m_Output = NULL;
+    m_Output = nullptr;
     m_Format = string( " %7.5f" );
     m_Suffix = string();
     m_NewFormat = true;
@@ -549,7 +549,7 @@ void Output::SetValAndLimits( Parm* parm_ptr )
 Slider::Slider( ) : GuiDevice()
 {
     m_Type = vsp::GDEV_SLIDER;
-    m_Slider = NULL;
+    m_Slider = nullptr;
     m_Range = 10.0;
     m_MinBound = 0.0;
     m_MaxBound = 0.0;
@@ -671,8 +671,8 @@ void Slider::DeviceCB( Fl_Widget* w )
 SliderAdjRange::SliderAdjRange( ) : Slider()
 {
     m_Type = vsp::GDEV_SLIDER_ADJ_RANGE;
-    m_MinButton = NULL;
-    m_MaxButton = NULL;
+    m_MinButton = nullptr;
+    m_MaxButton = nullptr;
     m_MinStopState = SAR_NO_STOP;
     m_MaxStopState = SAR_NO_STOP;
     m_ButtonChangeFract = 0.1;
@@ -1070,7 +1070,7 @@ void SliderAdjRange2Input::ActivateInput2()
 ParmButton::ParmButton( ) : GuiDevice()
 {
     m_Type = vsp::GDEV_PARM_BUTTON;
-    m_Button = NULL;
+    m_Button = nullptr;
     m_ButtonNameUpdate = false;
 }
 
@@ -1214,7 +1214,7 @@ void ParmButton::DeviceCB( Fl_Widget* w )
 CheckButton::CheckButton( ) : GuiDevice()
 {
     m_Type = vsp::GDEV_CHECK_BUTTON;
-    m_Button = NULL;
+    m_Button = nullptr;
 }
 
 //==== Init ====//
@@ -1287,7 +1287,7 @@ void CheckButton::DeviceCB( Fl_Widget* w )
 CheckButtonBit::CheckButtonBit() : GuiDevice()
 {
     m_Type = vsp::GDEV_CHECK_BUTTON_BIT;
-    m_Button = NULL;
+    m_Button = nullptr;
     m_value = 0;
 }
 
@@ -1378,7 +1378,7 @@ void CheckButtonBit::DeviceCB( Fl_Widget* w )
 RadioButton::RadioButton() : GuiDevice()
 {
     m_Type = vsp::GDEV_RADIO_BUTTON;
-    m_Button = NULL;
+    m_Button = nullptr;
     m_value = 0;
 }
 
@@ -1447,7 +1447,7 @@ void RadioButton::DeviceCB( Fl_Widget* w )
 ToggleButton::ToggleButton() : GuiDevice()
 {
     m_Type = vsp::GDEV_TOGGLE_BUTTON;
-    m_Button = NULL;
+    m_Button = nullptr;
 }
 
 //==== Init ====//
@@ -1639,7 +1639,7 @@ void ToggleRadioGroup::SetValMapVec( vector< int > & val_map_vec )
 TriggerButton::TriggerButton() : GuiDevice()
 {
     m_Type = vsp::GDEV_TRIGGER_BUTTON;
-    m_Button = NULL;
+    m_Button = nullptr;
 }
 
 //==== Init ====//
@@ -1737,7 +1737,7 @@ void TriggerButton::DeviceCB( Fl_Widget* w )
 Counter::Counter() : GuiDevice()
 {
     m_Type = vsp::GDEV_COUNTER;
-    m_Counter = NULL;
+    m_Counter = nullptr;
 }
 
 //==== Init ====//
@@ -1803,7 +1803,7 @@ void Counter::DeviceCB( Fl_Widget* w )
 Choice::Choice( ) : GuiDevice()
 {
     m_Type = vsp::GDEV_CHOICE;
-    m_Choice = NULL;
+    m_Choice = nullptr;
 }
 
 //==== Init ====//
@@ -2028,7 +2028,7 @@ int Choice::IndexToVal( int indx )
 FractParmSlider::FractParmSlider() : GuiDevice()
 {
     m_Type = vsp::GDEV_FRACT_PARM_SLIDER;
-    m_ResultFlInput = NULL;
+    m_ResultFlInput = nullptr;
     m_Format = string( " %7.5f" );
 }
 
@@ -2325,8 +2325,8 @@ int VspTextEditor::kf_accept(int, Fl_Text_Editor* e)
 IndexSelector::IndexSelector()
 {
     m_Type = vsp::GDEV_INDEX_SELECTOR;
-    m_Screen = NULL;
-    m_Input = NULL;
+    m_Screen = nullptr;
+    m_Input = nullptr;
     m_Index = 0;
     m_MinIndex = 0;
     m_MaxIndex = 1000000;
@@ -2498,7 +2498,7 @@ void IndexSelector::SetValAndLimits( Parm* parm_ptr )
 ColorPicker::ColorPicker()
 {
     m_Type = vsp::GDEV_COLOR_PICKER;
-    m_Screen = NULL;
+    m_Screen = nullptr;
 }
 
 void ColorPicker::Init( VspScreen* screen, Fl_Button* title, Fl_Button* result,
@@ -2626,7 +2626,7 @@ void ColorPicker::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 ParmPicker::ParmPicker()
 {
-    m_Screen = NULL;
+    m_Screen = nullptr;
 }
 
 void ParmPicker::Init( VspScreen* screen, Fl_Choice* container_choice,
@@ -2755,7 +2755,7 @@ vector< string > ParmPicker::FindParmNames(const vector< string > & parm_id_vec 
 //=====================================================================//
 ParmTreePicker::ParmTreePicker()
 {
-    m_Screen = NULL;
+    m_Screen = nullptr;
     m_EventType = NONE;
     m_EventParm = "";
 }
@@ -3241,8 +3241,8 @@ void ParmTreePicker::UpdateParmTree()
 //=====================================================================//
 DriverGroupBank::DriverGroupBank()
 {
-    m_Screen = NULL;
-    m_DriverGroup = NULL;
+    m_Screen = nullptr;
+    m_DriverGroup = nullptr;
 }
 
 void DriverGroupBank::Init( VspScreen* screen, const vector < vector < Fl_Button * > > & buttons, const vector < SliderAdjRangeInput * > & sliders )
@@ -3407,7 +3407,7 @@ bool DriverGroupBank::WhichButton( Fl_Widget *w, int &imatch, int &jmatch )
 //=====================================================================//
 SkinControl::SkinControl()
 {
-    m_Screen = NULL;
+    m_Screen = nullptr;
 
 }
 
@@ -3558,9 +3558,9 @@ void SkinControl::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 SkinHeader::SkinHeader()
 {
-    m_Screen = NULL;
+    m_Screen = nullptr;
 
-    m_ContChoice = NULL;
+    m_ContChoice = nullptr;
 }
 
 SkinHeader::~SkinHeader()
@@ -3641,7 +3641,7 @@ void SkinHeader::DeviceCB( Fl_Widget* w )
 Group::Group()
 {
     m_Type = vsp::GDEV_GROUP;
-    m_Group = NULL;
+    m_Group = nullptr;
 }
 
 void Group::Hide()
@@ -3672,7 +3672,7 @@ Tab::Tab()
 //=====================================================================//
 GeomPicker::GeomPicker()
 {
-    m_Screen = NULL;
+    m_Screen = nullptr;
     m_Vehicle = VehicleMgr.GetVehicle();
 }
 
@@ -3823,14 +3823,14 @@ void GeomPicker::ClearIncludeType()
 
 PCurveEditor::PCurveEditor()
 {
-    m_canvas = NULL;
-    m_PtLayout = NULL;
-    m_ConvertButton = NULL;
-    m_DelButton = NULL;
-    m_DelPickButton = NULL;
-    m_PtScroll = NULL;
-    m_SplitButton = NULL;
-    m_SplitPickButton = NULL;
+    m_canvas = nullptr;
+    m_PtLayout = nullptr;
+    m_ConvertButton = nullptr;
+    m_DelButton = nullptr;
+    m_DelPickButton = nullptr;
+    m_PtScroll = nullptr;
+    m_SplitButton = nullptr;
+    m_SplitPickButton = nullptr;
 
     m_LastHit = -1;
 
@@ -3844,8 +3844,8 @@ PCurveEditor::PCurveEditor()
     m_PrevIndex = 0;
     m_PrevCurveType = 0;
 
-    m_Curve = NULL;
-    m_CurveB = NULL;
+    m_Curve = nullptr;
+    m_CurveB = nullptr;
     m_SliderVecVec.resize( 2 );
 }
 
@@ -4205,7 +4205,7 @@ void PCurveEditor::DeviceCB( Fl_Widget* w )
         if ( Fl::event() == FL_RELEASE )
         {
             m_FreezeAxis = false;
-            m_Curve->ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update the parent Geom once the point is released
+            m_Curve->ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update the parent Geom once the point is released
         }
     }
     else if ( w == m_SplitButton )
@@ -4256,7 +4256,7 @@ void PCurveEditor::Update( PCurve *curve, PCurve *curveb, const string &labelb )
 void PCurveEditor::Update( PCurve *curve )
 {
     m_Curve = curve;
-    m_CurveB = NULL;
+    m_CurveB = nullptr;
     Update();
 }
 
@@ -4435,7 +4435,7 @@ ColResizeBrowser::ColResizeBrowser( int X, int Y, int W, int H, const char* L ) 
     m_LastCursor = FL_CURSOR_DEFAULT;
     m_ShowColSepFlag = true; // Show columns by default
     m_DragCol = -1;
-    m_Widths = NULL;
+    m_Widths = nullptr;
     m_NumCol = 0;
     m_HPos = 0;
 }
@@ -4563,7 +4563,7 @@ int ColResizeBrowser::which_col_near_mouse()
     int X, Y, W, H;
     Fl_Browser::bbox( X, Y, W, H );            // area inside browser's box()
 
-    // EVENT NOT INSIDE BROWSER AREA? (eg. on a scrollbar) or NULL width pointer
+    // EVENT NOT INSIDE BROWSER AREA? (eg. on a scrollbar) or nullptr width pointer
     if ( !Fl::event_inside( X, Y, W, H ) || !m_Widths )
     {
         return( -1 );

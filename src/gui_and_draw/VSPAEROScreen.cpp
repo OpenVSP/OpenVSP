@@ -833,9 +833,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
 VSPAEROScreen::~VSPAEROScreen()
 {
-    m_SolverDisplay->buffer( NULL );
+    m_SolverDisplay->buffer( nullptr );
     delete m_SolverBuffer;
-    m_ViewerDisplay->buffer( NULL );
+    m_ViewerDisplay->buffer( nullptr );
     delete m_ViewerBuffer;
 }
 
@@ -1056,7 +1056,7 @@ void * monitorfun( void *data )
 
 #ifdef WIN32
             CloseHandle( pu->m_StdoutPipe[0] );
-            pu->m_StdoutPipe[0] = NULL;
+            pu->m_StdoutPipe[0] = nullptr;
 #else
             close( pu->m_StdoutPipe[0] );
             pu->m_StdoutPipe[0] = -1;
@@ -1373,7 +1373,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if ( device == &m_NoiseCalcTrigger )
         {
-            VSPAEROMgr.ExecuteNoiseAnalysis( NULL, VSPAEROMgr.m_NoiseCalcType(), VSPAEROMgr.m_NoiseUnits() );
+            VSPAEROMgr.ExecuteNoiseAnalysis( nullptr, VSPAEROMgr.m_NoiseCalcType(), VSPAEROMgr.m_NoiseUnits() );
         }
 
     }
@@ -1414,7 +1414,7 @@ ProcessUtil* VSPAEROScreen::GetProcess( int id )
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1430,7 +1430,7 @@ Fl_Text_Display* VSPAEROScreen::GetDisplay( int id )
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 

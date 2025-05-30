@@ -64,7 +64,7 @@ Light * LightMgrSingleton::Get(unsigned int index )
     {
         return m_Lights[index];
     }
-    return NULL;
+    return nullptr;
 }
 
 std::vector< Light* > LightMgrSingleton::GetVec()
@@ -76,13 +76,13 @@ xmlNodePtr LightMgrSingleton::EncodeXml(xmlNodePtr node )
 {
     char lightName[256];
 
-    xmlNodePtr light_root_node = xmlNewChild( node, NULL, BAD_CAST "Lights", NULL );
+    xmlNodePtr light_root_node = xmlNewChild( node, nullptr, BAD_CAST "Lights", nullptr );
     XmlUtil::AddIntNode( light_root_node, "Num_of_Lights", NUMOFLIGHTS );
 
     for ( int i = 0; i < (int)m_Lights.size(); i++ )
     {
         snprintf( lightName, sizeof( lightName ), "Light%d", i );
-        xmlNodePtr light_node = xmlNewChild( light_root_node, NULL, BAD_CAST lightName, NULL );
+        xmlNodePtr light_node = xmlNewChild( light_root_node, nullptr, BAD_CAST lightName, nullptr );
         m_Lights[i]->EncodeXml( light_node );
     }
     return light_root_node;

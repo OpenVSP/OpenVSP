@@ -21,7 +21,7 @@ XSec::XSec( XSecCurve *xsc )
 {
     m_Name = "XSec";
 
-    if ( xsc == NULL )
+    if ( xsc == nullptr )
     {
         //==== Create A Default Curve ====//
         xsc = new CircleXSec();
@@ -195,7 +195,7 @@ Matrix4d* XSec::GetTransform()
 void XSec::CopyFrom( XSec* xs )
 {
     string lastreset = ParmMgr.ResetRemapID();
-    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Geometry" );
+    xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
     if ( xs->GetType() == GetType() && xs->GetXSecCurve()->GetType() == GetXSecCurve()->GetType() )
     {
         xs->EncodeXml( root );
@@ -216,7 +216,7 @@ void XSec::CopyFrom( XSec* xs )
 xmlNodePtr XSec::EncodeXml(  xmlNodePtr & node  )
 {
     ParmContainer::EncodeXml( node );
-    xmlNodePtr xsec_node = xmlNewChild( node, NULL, BAD_CAST "XSec", NULL );
+    xmlNodePtr xsec_node = xmlNewChild( node, nullptr, BAD_CAST "XSec", nullptr );
     if ( xsec_node )
     {
         XmlUtil::AddIntNode( xsec_node, "Type", m_Type );
@@ -227,7 +227,7 @@ xmlNodePtr XSec::EncodeXml(  xmlNodePtr & node  )
             XmlUtil::AddStringNode( xsec_node, "GroupAlias", m_GroupAlias );
         }
 
-        xmlNodePtr xscrv_node = xmlNewChild( xsec_node, NULL, BAD_CAST "XSecCurve", NULL );
+        xmlNodePtr xscrv_node = xmlNewChild( xsec_node, nullptr, BAD_CAST "XSecCurve", nullptr );
         if ( xscrv_node )
         {
             m_XSCurve->EncodeXml( xscrv_node );
@@ -262,7 +262,7 @@ xmlNodePtr XSec::DecodeXml(  xmlNodePtr & node  )
 //==== Encode XSec ====//
 xmlNodePtr XSec::EncodeXSec(  xmlNodePtr & node  )
 {
-    xmlNodePtr xsec_node = xmlNewChild( node, NULL, BAD_CAST "XSec", NULL );
+    xmlNodePtr xsec_node = xmlNewChild( node, nullptr, BAD_CAST "XSec", nullptr );
     if ( xsec_node )
     {
         EncodeXml( xsec_node );

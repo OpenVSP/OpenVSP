@@ -534,7 +534,7 @@ public:
     }
     virtual XSecSurf* GetXSecSurf( int index )
     {
-        return NULL;
+        return nullptr;
     }
 
     virtual void CopyFrom( Geom* geom );

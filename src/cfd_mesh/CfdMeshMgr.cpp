@@ -344,7 +344,7 @@ void CfdMeshMgrSingleton::GUI_Val( const string &name, const string &val )
 
 BaseSource* CfdMeshMgrSingleton::GetCurrSource()
 {
-    BaseSource* s = NULL;
+    BaseSource* s = nullptr;
     Geom* g = m_Vehicle->FindGeom( m_CurrSourceGeomID );
     if( g )
     {
@@ -361,8 +361,8 @@ BaseSource* CfdMeshMgrSingleton::GetCurrSource()
 
 BaseSource* CfdMeshMgrSingleton::AddSource( int type )
 {
-    BaseSource* ret_source = NULL;
-    Geom* curr_geom = NULL;
+    BaseSource* ret_source = nullptr;
+    Geom* curr_geom = nullptr;
     curr_geom = m_Vehicle->FindGeom( m_CurrSourceGeomID );
     if ( !curr_geom )
     {
@@ -458,7 +458,7 @@ BaseSource* CfdMeshMgrSingleton::AddSource( int type )
 
 void CfdMeshMgrSingleton::DeleteCurrSource()
 {
-    Geom* curr_geom = NULL;
+    Geom* curr_geom = nullptr;
 
     curr_geom = m_Vehicle->FindGeom( m_CurrSourceGeomID );
 
@@ -627,7 +627,7 @@ void CfdMeshMgrSingleton::AddDefaultSources()
 
 void CfdMeshMgrSingleton::AddDefaultSourcesCurrGeom()
 {
-    Geom* curr_geom = NULL;
+    Geom* curr_geom = nullptr;
     curr_geom = m_Vehicle->FindGeom( m_CurrSourceGeomID );
     if ( !curr_geom )
     {
@@ -2115,7 +2115,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
 
                 Edge *e0 = nullptr, *e1 = nullptr, *e2 = nullptr, *e3 = nullptr;
 
-                Face* face = NULL;
+                Face* face = nullptr;
                 if ( sFaceVec[f].m_isQuad )
                 {
                     int ind4 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind3] );
@@ -2224,7 +2224,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
 
 Edge* CfdMeshMgrSingleton::FindAddEdge( map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 )
 {
-    Edge* e = NULL;
+    Edge* e = nullptr;
     map<int, vector<Edge*> >::const_iterator iter;
     int combind = ind1 + ind2;
     iter = edgeMap.find( combind );
@@ -2500,7 +2500,7 @@ void CfdMeshMgrSingleton::TessellateChains()
     list< ISegChain* >::iterator c;
     for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
-        if( ( *c )->GetWakeAttachChain() == NULL ) // Non wake-attach chains.
+        if( ( *c )->GetWakeAttachChain() == nullptr ) // Non wake-attach chains.
         {
             ( *c )->Tessellate();
             ( *c )->TransferTess();
@@ -2510,7 +2510,7 @@ void CfdMeshMgrSingleton::TessellateChains()
 
     for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
-        if( ( *c )->GetWakeAttachChain() != NULL ) // Only wake-attach chains.
+        if( ( *c )->GetWakeAttachChain() != nullptr ) // Only wake-attach chains.
         {
             vector< double > u = ( *c )->GetWakeAttachChain()->m_ACurve.GetUTessPnts();
             ( *c )->m_ACurve.Tesselate( u ); // Copy tessellation from matching chain.
@@ -4166,7 +4166,7 @@ void CfdMeshMgrSingleton::AddDegenCornerChains()
             else
             {
                 delete chain;
-                chain = NULL;
+                chain = nullptr;
             }
         }
     }

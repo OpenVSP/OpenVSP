@@ -120,7 +120,7 @@ private:
                     return &textureIDs[i];
                 }
             }
-            return NULL;
+            return nullptr;
         }
     };
     std::vector<ID> m_ids;

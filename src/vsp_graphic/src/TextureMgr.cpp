@@ -14,7 +14,7 @@ static std::vector<unsigned int> _recycleBin;
 
 TextureMgr::TextureMgr()
 {
-    _lights = NULL;
+    _lights = nullptr;
     _textureMode = Common::VSP_TEXTURE_LAYERED;
     _blendAlpha = false;
 }
@@ -148,7 +148,7 @@ void TextureMgr::bind()
     if( numOfTextures != 0 )
     {
         // Push Uniform Variables to Shader.
-        Shader * shader = NULL;
+        Shader * shader = nullptr;
 
         if( !_lights )
         {

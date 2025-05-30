@@ -55,7 +55,7 @@ Background3D * Background3DMgrSingleton::GetCurrentBackground3D()
 {
     if ( m_CurrBackground3DIndex < 0 || m_CurrBackground3DIndex >= ( int )m_Background3Ds.size() )
     {
-        return NULL;
+        return nullptr;
     }
 
     return m_Background3Ds[ m_CurrBackground3DIndex ];
@@ -70,14 +70,14 @@ xmlNodePtr Background3DMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
     char labelName[256];
 
-    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "Background3D", NULL );
+    xmlNodePtr child_node = xmlNewChild( node, nullptr, BAD_CAST "Background3D", nullptr );
 
     XmlUtil::AddIntNode( child_node, "Num_of_Background3Ds", m_Background3Ds.size() );
 
     for ( int i = 0; i < ( int )m_Background3Ds.size(); i++ )
     {
         snprintf( labelName, sizeof( labelName ), "Background3D_%d", i );
-        xmlNodePtr label_node = xmlNewChild( child_node, NULL, BAD_CAST labelName, NULL );
+        xmlNodePtr label_node = xmlNewChild( child_node, nullptr, BAD_CAST labelName, nullptr );
         m_Background3Ds[i]->EncodeXml( label_node );
     }
 
@@ -169,7 +169,7 @@ Background3D * Background3DMgrSingleton::GetBackground3D( const string &id )
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 vector < string > Background3DMgrSingleton::GetAllBackground3Ds()

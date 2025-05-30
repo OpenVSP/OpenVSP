@@ -405,7 +405,7 @@ bool WaveDragScreen::Update()
         for ( int i = (int)WaveDragMgr.m_SSFlow_vec.size()-1; i >= 0 ; i--)
         {
             SubSurface* subsurf = SubSurfaceMgr.GetSubSurf( WaveDragMgr.m_SSFlow_vec[i] );
-            if ( subsurf == NULL )
+            if ( subsurf == nullptr )
             {
                 vector_remove_val( WaveDragMgr.m_SSFlow_vec, WaveDragMgr.m_SSFlow_vec[i] );
             }

@@ -481,11 +481,11 @@ void GeomBase::RemoveStepChildID( const string &id )
 //{
 //  //xmlDocPtr doc = xmlNewDoc((const xmlChar *)"1.0");
 //
-//  xmlNodePtr root = xmlNewNode(NULL,(const xmlChar *)"Vsp_Geometry");
+//  xmlNodePtr root = xmlNewNode(nullptr,(const xmlChar *)"Vsp_Geometry");
 //  //xmlDocSetRootElement(doc, root);
 //
 //
-////    xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "Data" );
+////    xmlNodePtr node = xmlNewNode(nullptr, BAD_CAST "Data" );
 //  geom->EncodeGeom( root );
 //  DecodeGeom( root );
 //
@@ -500,7 +500,7 @@ void GeomBase::RemoveStepChildID( const string &id )
 xmlNodePtr GeomBase::EncodeXml( xmlNodePtr & node )
 {
     ParmContainer::EncodeXml( node );
-    xmlNodePtr geombase_node = xmlNewChild( node, NULL, BAD_CAST "GeomBase", NULL );
+    xmlNodePtr geombase_node = xmlNewChild( node, nullptr, BAD_CAST "GeomBase", nullptr );
     if ( geombase_node )
     {
         XmlUtil::AddStringNode( geombase_node, "TypeName", m_Type.m_Name );
@@ -508,17 +508,17 @@ xmlNodePtr GeomBase::EncodeXml( xmlNodePtr & node )
         XmlUtil::AddIntNode( geombase_node, "TypeFixed", m_Type.m_FixedFlag );
         XmlUtil::AddStringNode( geombase_node, "ParentID", m_ParentID );
 
-        xmlNodePtr clist_node = xmlNewChild( geombase_node, NULL, BAD_CAST "Child_List", NULL );
+        xmlNodePtr clist_node = xmlNewChild( geombase_node, nullptr, BAD_CAST "Child_List", nullptr );
         for ( int i = 0 ; i < ( int )m_ChildIDVec.size() ; i++ )
         {
-            xmlNodePtr child_node = xmlNewChild( clist_node, NULL, BAD_CAST "Child", NULL );
+            xmlNodePtr child_node = xmlNewChild( clist_node, nullptr, BAD_CAST "Child", nullptr );
             XmlUtil::AddStringNode( child_node, "ID", m_ChildIDVec[i] );
         }
 
-        xmlNodePtr sclist_node = xmlNewChild( geombase_node, NULL, BAD_CAST "Step_Child_List", NULL );
+        xmlNodePtr sclist_node = xmlNewChild( geombase_node, nullptr, BAD_CAST "Step_Child_List", nullptr );
         for ( int i = 0 ; i < ( int )m_StepChildIDVec.size() ; i++ )
         {
-            xmlNodePtr schild_node = xmlNewChild( sclist_node, NULL, BAD_CAST "Step_Child", NULL );
+            xmlNodePtr schild_node = xmlNewChild( sclist_node, nullptr, BAD_CAST "Step_Child", nullptr );
             XmlUtil::AddStringNode( schild_node, "ID", m_StepChildIDVec[i] );
         }
     }
@@ -1650,7 +1650,7 @@ void Geom::UpdateSets()
 //==== Copy Geometry ====//
 void Geom::CopyFrom( Geom* geom )
 {
-    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Geometry" );
+    xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
 
     geom->EncodeGeom( root );
     DecodeGeom( root );
@@ -3333,7 +3333,7 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
     // Encode Texture Info.
     m_GuiDraw.getTextureMgr()->EncodeXml( node );
 
-    xmlNodePtr geom_node = xmlNewChild( node, NULL, BAD_CAST "Geom", NULL );
+    xmlNodePtr geom_node = xmlNewChild( node, nullptr, BAD_CAST "Geom", nullptr );
     if ( geom_node )
     {
         XmlUtil::AddVectorBoolNode( geom_node, "Set_List", GetSetFlags() );
@@ -3343,13 +3343,13 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
             m_MainSourceVec[i]->EncodeXml( geom_node );
         }
 
-        xmlNodePtr subsurfs_node = xmlNewChild( geom_node, NULL, BAD_CAST "SubSurfaces", NULL );
+        xmlNodePtr subsurfs_node = xmlNewChild( geom_node, nullptr, BAD_CAST "SubSurfaces", nullptr );
 
         if ( subsurfs_node )
         {
             for( int i = 0 ; i < ( int ) m_SubSurfVec.size() ; i++ )
             {
-                xmlNodePtr sub_node = xmlNewChild( subsurfs_node, NULL, BAD_CAST "SubSurface", NULL );
+                xmlNodePtr sub_node = xmlNewChild( subsurfs_node, nullptr, BAD_CAST "SubSurface", nullptr );
                 if ( sub_node )
                 {
                     m_SubSurfVec[i]->EncodeXml( sub_node );
@@ -3357,7 +3357,7 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
             }
         }
 
-        xmlNodePtr structvecnode = xmlNewChild( geom_node, NULL, BAD_CAST"FeaStructures", NULL );
+        xmlNodePtr structvecnode = xmlNewChild( geom_node, nullptr, BAD_CAST"FeaStructures", nullptr );
         if ( structvecnode )
         {
             for ( int i = 0; i < m_FeaStructVec.size(); i++ )
@@ -3477,7 +3477,7 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr Geom::EncodeGeom( xmlNodePtr & node )
 {
-    xmlNodePtr geom_node = xmlNewChild( node, NULL, BAD_CAST "Geom", NULL );
+    xmlNodePtr geom_node = xmlNewChild( node, nullptr, BAD_CAST "Geom", nullptr );
     if ( geom_node )
     {
         EncodeXml( geom_node );
@@ -4324,7 +4324,7 @@ const VspSurf* Geom::GetSurfPtr( int indx ) const
         return &m_SurfVec[ indx ];
     }
     assert( true );
-    return NULL;
+    return nullptr;
 }
 
 //==== Return Pointer to Surface indx ====//
@@ -4335,7 +4335,7 @@ const VspSurf* Geom::GetMainSurfPtr( int indx ) const
         return &m_MainSurfVec[ indx ];
     }
     assert( true );
-    return NULL;
+    return nullptr;
 }
 
 //==== Count Number of Sym Surfaces ====//
@@ -5294,7 +5294,7 @@ void Geom::CreateGeomResults( Results* res )
 
 void Geom::WriteX3D( xmlNodePtr node )
 {
-    xmlNodePtr set_node = xmlNewChild( node, NULL, BAD_CAST "IndexedFaceSet", NULL );
+    xmlNodePtr set_node = xmlNewChild( node, nullptr, BAD_CAST "IndexedFaceSet", nullptr );
     xmlSetProp( set_node, BAD_CAST "solid", BAD_CAST "true" );
     xmlSetProp( set_node, BAD_CAST "creaseAngle", BAD_CAST "0.5"  );
 
@@ -5358,7 +5358,7 @@ void Geom::WriteX3D( xmlNodePtr node )
 
     xmlSetProp( set_node, BAD_CAST "coordIndex", BAD_CAST indstr.c_str() );
 
-    xmlNodePtr coord_node = xmlNewChild( set_node, NULL, BAD_CAST "Coordinate", BAD_CAST " " );
+    xmlNodePtr coord_node = xmlNewChild( set_node, nullptr, BAD_CAST "Coordinate", BAD_CAST " " );
     xmlSetProp( coord_node, BAD_CAST "point", BAD_CAST crdstr.c_str() );
 }
 
@@ -5540,7 +5540,7 @@ void Geom::DelSubSurf( int ind )
 
 SubSurface* Geom::AddSubSurf( int type, int surfindex )
 {
-    SubSurface* ssurf = NULL;
+    SubSurface* ssurf = nullptr;
 
     if ( m_MainSurfVec.size() == 0 )
     {
@@ -5591,7 +5591,7 @@ SubSurface* Geom::GetSubSurf( int ind )
     {
         return m_SubSurfVec[ind];
     }
-    return NULL;
+    return nullptr;
 }
 
 SubSurface* Geom::GetSubSurf( const string & id )
@@ -5604,7 +5604,7 @@ SubSurface* Geom::GetSubSurf( const string & id )
                 return m_SubSurfVec[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 int Geom::GetSubSurfIndex( const string & id )
@@ -5648,7 +5648,7 @@ void Geom::RecolorSubSurfs( int active_ind )
 //==== Add FeaStructure =====//
 FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
 {
-    FeaStructure* feastruct = NULL;
+    FeaStructure* feastruct = nullptr;
 
     if ( m_MainSurfVec.size() == 0 || surf_index > m_MainSurfVec.size() || surf_index < 0 )
     {
@@ -5690,7 +5690,7 @@ FeaStructure* Geom::GetFeaStruct( int fea_struct_ind )
     {
         return m_FeaStructVec[fea_struct_ind];
     }
-    return NULL;
+    return nullptr;
 }
 
 int Geom::GetFeaStructIndex( const string & structure_id )
@@ -5780,7 +5780,7 @@ void Geom::UpdateSources()
 
 BaseSource* Geom::CreateSource( int type )
 {
-    BaseSource* src_ptr = NULL;
+    BaseSource* src_ptr = nullptr;
     if ( type == POINT_SOURCE )
     {
         src_ptr = new PointSource();
@@ -5807,7 +5807,7 @@ BaseSource* Geom::CreateSource( int type )
 
 BaseSimpleSource* Geom::CreateSimpleSource( int type )
 {
-    BaseSimpleSource* src_ptr = NULL;
+    BaseSimpleSource* src_ptr = nullptr;
     if ( type ==POINT_SOURCE )
     {
         src_ptr = new PointSimpleSource();

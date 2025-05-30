@@ -79,7 +79,7 @@ void Display::selectViewport( int index )
 
 void Display::changeView( Common::VSPenum type )
 {
-    // Get current selected viewport, ptr is NULL if
+    // Get current selected viewport, ptr is nullptr if
     // no viewport is selected.
     Viewport * selectedVP = _currLayout->getViewport();
     if( selectedVP )
@@ -95,7 +95,7 @@ Viewport * Display::getViewport()
 
 Camera * Display::getCamera()
 {
-    // Get current selected viewport, ptr is NULL if
+    // Get current selected viewport, ptr is nullptr if
     // no viewport is selected.
     Viewport * selectedVP = _currLayout->getViewport();
 
@@ -104,7 +104,7 @@ Camera * Display::getCamera()
         return selectedVP->getCamera();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 LayoutMgr * Display::getLayoutMgr()

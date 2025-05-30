@@ -15,7 +15,7 @@
 //////////////////////////////////////////////////////////////////////
 Puw::Puw()
 {
-    m_Surf = NULL;
+    m_Surf = nullptr;
 }
 
 Puw::Puw( Surf* s, const vec2d &uw )
@@ -183,7 +183,7 @@ Puw* IPnt::GetPuw( Surf* surf )
             return m_Puws[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void IPnt::AddPuws( IPnt* ip )
@@ -245,8 +245,8 @@ void IPntGroup::AddGroup( IPntGroup* g )
 //////////////////////////////////////////////////////////////////////
 ISeg::ISeg()
 {
-    m_SurfA = m_SurfB = NULL;
-    m_IPnt[0] = m_IPnt[1] = NULL;
+    m_SurfA = m_SurfB = nullptr;
+    m_IPnt[0] = m_IPnt[1] = nullptr;
 }
 
 ISeg::~ISeg()
@@ -400,7 +400,7 @@ ISeg* ISeg::Split( Surf* sPtr, vec2d & uw, SurfaceIntersectionSingleton *MeshMgr
         return sseg;
     }
 
-    return NULL;
+    return nullptr;
 
 }
 
@@ -587,9 +587,9 @@ void ISegBox::AppendLineSegs( vector < vec3d > &lsegs )
 //////////////////////////////////////////////////////////////////////
 ISegChain::ISegChain()
 {
-    m_SurfA = m_SurfB = NULL;
+    m_SurfA = m_SurfB = nullptr;
     m_BorderFlag = false;
-    m_WakeAttachChain = NULL;
+    m_WakeAttachChain = nullptr;
     m_SSIntersectIndex = -1;
 }
 
