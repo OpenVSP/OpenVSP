@@ -282,7 +282,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CoreSizeFactor.Init( "CoreSizeFactor", groupname, this, 1, 0, 1e12 );
     m_CoreSizeFactor.SetDescript( "Adjust the wake core size model up or down, default value is 1." );
 
-    m_FarAway.Init( "FarAway", groupname, this, 1, 0, 1e12 );
+    m_FarAway.Init( "FarAway", groupname, this, 5, 0, 1e12 );
     m_FarAway.SetDescript( "Set the multipole far away value" );
 
     m_UpdateMatrixPreconditioner.Init( "UpdateMatrixPreconditioner", groupname, this, false, false, true );
