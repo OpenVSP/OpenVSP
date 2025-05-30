@@ -162,11 +162,11 @@ int AdvLinkMgrSingleton::GetLinkIndex( const string & name )
 
 vector< string > AdvLinkMgrSingleton::GetLinkNames()
 {
-    vector < string > link_names;
+    vector < string > link_names( m_LinkVec.size() );
 
     for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
     {
-        link_names.push_back( m_LinkVec[i]->GetName() );
+        link_names[i] = m_LinkVec[i]->GetName();
     }
     return link_names;
 }

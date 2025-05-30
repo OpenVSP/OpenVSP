@@ -133,7 +133,7 @@ bool AdvLink::DuplicateVarName( const string & name )
 string AdvLink::MakeVarNameUnique( const string & name )
 {
     string base_name = name;
-    std::string::size_type loc = base_name.find_last_of( "_" );
+    std::string::size_type loc = base_name.find_last_of( '_' );
     if ( loc != base_name.npos )
     {
         string suffix = base_name.substr( loc + 1 );
@@ -574,11 +574,11 @@ void AdvLink::ForceUpdate()
 vector< string > AdvLink::GetInputNames()
 {
     vector< VarDef > in_vars = GetInputVars();
-    vector < string > in_names;
+    vector < string > in_names( in_vars.size() );
 
     for ( int i = 0; i < in_vars.size(); i++ )
     {
-        in_names.push_back( in_vars[i].m_VarName );
+        in_names[i] = in_vars[i].m_VarName;
     }
 
     return in_names;
@@ -587,11 +587,11 @@ vector< string > AdvLink::GetInputNames()
 vector< string > AdvLink::GetInputParms()
 {
     vector< VarDef > in_vars = GetInputVars();
-    vector < string > in_parms;
+    vector < string > in_parms( in_vars.size() );
 
     for ( int i = 0; i < in_vars.size(); i++ )
     {
-        in_parms.push_back( in_vars[i].m_ParmID );
+        in_parms[i] = in_vars[i].m_ParmID;
     }
 
     return in_parms;
@@ -600,11 +600,11 @@ vector< string > AdvLink::GetInputParms()
 vector< string > AdvLink::GetOutputNames()
 {
     vector< VarDef > out_vars = GetOutputVars();
-    vector < string > out_names;
+    vector < string > out_names( out_vars.size() );
 
     for ( int i = 0; i < out_vars.size(); i++ )
     {
-        out_names.push_back( out_vars[i].m_VarName );
+        out_names[i] = out_vars[i].m_VarName;
     }
 
     return out_names;
@@ -613,11 +613,11 @@ vector< string > AdvLink::GetOutputNames()
 vector< string > AdvLink::GetOutputParms()
 {
     vector< VarDef > out_vars = GetOutputVars();
-    vector < string > out_parms;
+    vector < string > out_parms( out_vars.size() );
 
     for ( int i = 0; i < out_vars.size(); i++ )
     {
-        out_parms.push_back( out_vars[i].m_ParmID );
+        out_parms[i] = out_vars[i].m_ParmID;
     }
 
     return out_parms;
