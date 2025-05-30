@@ -107,7 +107,7 @@ public:
     // Do not allow assignment operator for Parms.  Copying Parms causes hard to find bugs.
     Parm& operator= ( const Parm& p ) = delete;
 
-    double operator= ( double val )
+    virtual double operator= ( double val )
     {
         return Set( val );
     }
@@ -208,7 +208,7 @@ public:
     virtual void SetRefVal( double val );
     virtual double GetRefVal()                      { return m_RefVal; }
 
-    double operator= ( double val )
+    virtual double operator= ( double val )
     {
         return Set( val );
     }
