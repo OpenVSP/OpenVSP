@@ -30,8 +30,8 @@ class ParmMgrSingleton
 {
 private:
     ParmMgrSingleton();
-    ParmMgrSingleton( ParmMgrSingleton const& copy );          // Not Implemented
-    ParmMgrSingleton& operator=( ParmMgrSingleton const& copy ); // Not Implemented
+    ParmMgrSingleton( ParmMgrSingleton const& copy ) = delete;          // Not Implemented
+    ParmMgrSingleton& operator=( ParmMgrSingleton const& copy ) = delete; // Not Implemented
 
     bool m_LastUndoFlag;
     ParmUndo m_LastUndo;

@@ -117,8 +117,8 @@ public:
 private:
     AnalysisMgrSingleton();
     ~AnalysisMgrSingleton();
-    AnalysisMgrSingleton( AnalysisMgrSingleton const& copy );          // Not Implemented
-    AnalysisMgrSingleton& operator=( AnalysisMgrSingleton const& copy ); // Not Implemented
+    AnalysisMgrSingleton( AnalysisMgrSingleton const& copy ) = delete;          // Not Implemented
+    AnalysisMgrSingleton& operator=( AnalysisMgrSingleton const& copy ) = delete; // Not Implemented
 
     map < string, Analysis* > m_AnalysisMap;    // Map unique name to analysis.
 

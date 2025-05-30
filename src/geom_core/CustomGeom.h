@@ -120,8 +120,8 @@ public:
 private:
 
     CustomGeomMgrSingleton();
-    CustomGeomMgrSingleton( CustomGeomMgrSingleton const& copy );          // Not Implemented
-    CustomGeomMgrSingleton& operator=( CustomGeomMgrSingleton const& copy ); // Not Implemented
+    CustomGeomMgrSingleton( CustomGeomMgrSingleton const& copy ) = delete;          // Not Implemented
+    CustomGeomMgrSingleton& operator=( CustomGeomMgrSingleton const& copy ) = delete; // Not Implemented
 
     string m_CurrGeom;
     vector< GeomType > m_CustomTypeVec;

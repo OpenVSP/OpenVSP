@@ -402,8 +402,8 @@ private:
 
     ErrorMgrSingleton();
     ~ErrorMgrSingleton();
-    ErrorMgrSingleton( ErrorMgrSingleton const& copy );          // Not Implemented
-    ErrorMgrSingleton& operator=( ErrorMgrSingleton const& copy ); // Not Implemented
+    ErrorMgrSingleton( ErrorMgrSingleton const& copy ) = delete;          // Not Implemented
+    ErrorMgrSingleton& operator=( ErrorMgrSingleton const& copy ) = delete; // Not Implemented
 };
 
 #define ErrorMgr ErrorMgrSingleton::getInstance()

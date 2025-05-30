@@ -131,8 +131,8 @@ protected:
 private:
 
     //==== Cannot Copy Link Because Of Parm Registration With ParmMgr ====//
-    AdvLink( AdvLink const& copy );             // Not Implemented
-    AdvLink& operator=( AdvLink const& copy );  // Not Implemented
+    AdvLink( AdvLink const& copy ) = delete;             // Not Implemented
+    AdvLink& operator=( AdvLink const& copy ) = delete;  // Not Implemented
 };
 
 

@@ -60,8 +60,8 @@ private:
 
 
     Background3DMgrSingleton();
-    Background3DMgrSingleton( Background3DMgrSingleton const& copy );          // Not Implemented
-    Background3DMgrSingleton& operator=( Background3DMgrSingleton const& copy ); // Not Implemented
+    Background3DMgrSingleton( Background3DMgrSingleton const& copy ) = delete;          // Not Implemented
+    Background3DMgrSingleton& operator=( Background3DMgrSingleton const& copy ) = delete; // Not Implemented
 
     static void Init();
     void Wype();

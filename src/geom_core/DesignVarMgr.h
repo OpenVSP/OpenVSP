@@ -80,8 +80,8 @@ public:
 private:
 
     DesignVarMgrSingleton();
-    DesignVarMgrSingleton( DesignVarMgrSingleton const& copy );          // Not Implemented
-    DesignVarMgrSingleton& operator=( DesignVarMgrSingleton const& copy ); // Not Implemented
+    DesignVarMgrSingleton( DesignVarMgrSingleton const& copy ) = delete;          // Not Implemented
+    DesignVarMgrSingleton& operator=( DesignVarMgrSingleton const& copy ) = delete; // Not Implemented
     ~DesignVarMgrSingleton();
 
     void Init();

@@ -18,8 +18,8 @@ class VehicleMgrSingleton
 {
 private:
     VehicleMgrSingleton();
-    VehicleMgrSingleton( VehicleMgrSingleton const& copy );          // Not Implemented
-    VehicleMgrSingleton& operator=( VehicleMgrSingleton const& copy ); // Not Implemented
+    VehicleMgrSingleton( VehicleMgrSingleton const& copy ) = delete;          // Not Implemented
+    VehicleMgrSingleton& operator=( VehicleMgrSingleton const& copy ) = delete; // Not Implemented
 
     Vehicle* m_Vehicle;
 

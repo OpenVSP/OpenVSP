@@ -87,8 +87,8 @@ public:
 
 private:
     ModeMgrSingleton();
-    ModeMgrSingleton( ModeMgrSingleton const& copy );             // Not Implemented
-    ModeMgrSingleton& operator=( ModeMgrSingleton const& copy );  // Not Implemented
+    ModeMgrSingleton( ModeMgrSingleton const& copy ) = delete;             // Not Implemented
+    ModeMgrSingleton& operator=( ModeMgrSingleton const& copy ) = delete;  // Not Implemented
 
     vector < Mode* > m_ModeVec;
 

@@ -156,8 +156,8 @@ public:
 private:
 
     WaveDragSingleton();
-    WaveDragSingleton( WaveDragSingleton const& copy );            // Not Implemented
-    WaveDragSingleton& operator=( WaveDragSingleton const& copy ); // Not Implemented
+    WaveDragSingleton( WaveDragSingleton const& copy ) = delete;            // Not Implemented
+    WaveDragSingleton& operator=( WaveDragSingleton const& copy ) = delete; // Not Implemented
 
 };
 

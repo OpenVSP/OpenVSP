@@ -16,8 +16,8 @@ public:
 
 private:
     MainThreadIDMgrSingleton();
-    MainThreadIDMgrSingleton( MainThreadIDMgrSingleton const& copy );            // Not Implemented
-    MainThreadIDMgrSingleton& operator=( MainThreadIDMgrSingleton const& copy ); // Not Implemented
+    MainThreadIDMgrSingleton( MainThreadIDMgrSingleton const& copy ) = delete;            // Not Implemented
+    MainThreadIDMgrSingleton& operator=( MainThreadIDMgrSingleton const& copy ) = delete; // Not Implemented
 
     std::thread::id m_MainThreadID;
 };

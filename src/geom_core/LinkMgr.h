@@ -110,8 +110,8 @@ public:
 private:
 
     LinkMgrSingleton();
-    LinkMgrSingleton( LinkMgrSingleton const& copy );          // Not Implemented
-    LinkMgrSingleton& operator=( LinkMgrSingleton const& copy ); // Not Implemented
+    LinkMgrSingleton( LinkMgrSingleton const& copy ) = delete;          // Not Implemented
+    LinkMgrSingleton& operator=( LinkMgrSingleton const& copy ) = delete; // Not Implemented
 
     void Init();
     void Wype();

@@ -67,8 +67,8 @@ protected:
 private:
 
     //==== Cannot Copy Link Because Of Parm Registration With ParmMgr ====//
-    Link( Link const& copy );               // Not Implemented
-    Link& operator=( Link const& copy );    // Not Implemented
+    Link( Link const& copy ) = delete;               // Not Implemented
+    Link& operator=( Link const& copy ) = delete;    // Not Implemented
 
 
 };

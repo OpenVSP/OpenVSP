@@ -126,8 +126,8 @@ protected:
 private:
 
     ProjectionMgrSingleton();
-    ProjectionMgrSingleton( ProjectionMgrSingleton const& copy );            // Not Implemented
-    ProjectionMgrSingleton& operator=( ProjectionMgrSingleton const& copy ); // Not Implemented
+    ProjectionMgrSingleton( ProjectionMgrSingleton const& copy ) = delete;            // Not Implemented
+    ProjectionMgrSingleton& operator=( ProjectionMgrSingleton const& copy ) = delete; // Not Implemented
 
     static void Init();
     static void Wype();

@@ -109,8 +109,8 @@ private:
 
 
     MeasureMgrSingleton();
-    MeasureMgrSingleton( MeasureMgrSingleton const& copy );          // Not Implemented
-    MeasureMgrSingleton& operator=( MeasureMgrSingleton const& copy ); // Not Implemented
+    MeasureMgrSingleton( MeasureMgrSingleton const& copy ) = delete;          // Not Implemented
+    MeasureMgrSingleton& operator=( MeasureMgrSingleton const& copy ) = delete; // Not Implemented
 
     static void Init();
     void Wype();

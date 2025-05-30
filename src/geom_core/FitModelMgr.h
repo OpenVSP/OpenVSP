@@ -280,8 +280,8 @@ public:
 private:
 
     FitModelMgrSingleton();
-    FitModelMgrSingleton( FitModelMgrSingleton const& copy );            // Not Implemented
-    FitModelMgrSingleton& operator=( FitModelMgrSingleton const& copy ); // Not Implemented
+    FitModelMgrSingleton( FitModelMgrSingleton const& copy ) = delete;            // Not Implemented
+    FitModelMgrSingleton& operator=( FitModelMgrSingleton const& copy ) = delete; // Not Implemented
     ~FitModelMgrSingleton();
 
     void Init();

@@ -226,8 +226,8 @@ private:
     int m_CanvasWidth;
     int m_CanvasHeight;
 
-    GroupLayout( GroupLayout const& copy );          // Not Implemented
-    GroupLayout& operator=( GroupLayout const& copy ); // Not Implemented
+    GroupLayout( GroupLayout const& copy ) = delete;          // Not Implemented
+    GroupLayout& operator=( GroupLayout const& copy ) = delete; // Not Implemented
 
     vector< SliderAdjRangeInput* > m_Slider_Cleanup;
 };

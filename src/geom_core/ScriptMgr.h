@@ -114,8 +114,8 @@ public:
 private:
 
     ScriptMgrSingleton();
-    ScriptMgrSingleton( ScriptMgrSingleton const& copy );          // Not Implemented
-    ScriptMgrSingleton& operator=( ScriptMgrSingleton const& copy ); // Not Implemented
+    ScriptMgrSingleton( ScriptMgrSingleton const& copy ) = delete;          // Not Implemented
+    ScriptMgrSingleton& operator=( ScriptMgrSingleton const& copy ) = delete; // Not Implemented
 
     static void RegisterEnums( asIScriptEngine* se );
     static void RegisterVec3d( asIScriptEngine* se );

@@ -44,8 +44,8 @@ private:
 
     UpdateCountMgrSingleton();
     ~UpdateCountMgrSingleton();
-    UpdateCountMgrSingleton( UpdateCountMgrSingleton const& copy );          // Not Implemented
-    UpdateCountMgrSingleton& operator=( UpdateCountMgrSingleton const& copy ); // Not Implemented
+    UpdateCountMgrSingleton( UpdateCountMgrSingleton const& copy ) = delete;          // Not Implemented
+    UpdateCountMgrSingleton& operator=( UpdateCountMgrSingleton const& copy ) = delete; // Not Implemented
 };
 
 #define UpdateCountMgr UpdateCountMgrSingleton::getInstance()

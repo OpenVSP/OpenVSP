@@ -23,8 +23,8 @@ class GuiInterface
 private:
     GuiInterface();
     ~GuiInterface();
-    GuiInterface( GuiInterface const& copy );          // Not Implemented
-    GuiInterface& operator=( GuiInterface const& copy ); // Not Implemented
+    GuiInterface( GuiInterface const& copy ) = delete;          // Not Implemented
+    GuiInterface& operator=( GuiInterface const& copy ) = delete; // Not Implemented
 
     ScreenMgr* m_ScreenMgr;
     bool m_EventLoopRunning;

@@ -68,8 +68,8 @@ public:
 private:
 
     AdvLinkMgrSingleton();
-    AdvLinkMgrSingleton( AdvLinkMgrSingleton const& copy );             // Not Implemented
-    AdvLinkMgrSingleton& operator=( AdvLinkMgrSingleton const& copy );  // Not Implemented
+    AdvLinkMgrSingleton( AdvLinkMgrSingleton const& copy ) = delete;             // Not Implemented
+    AdvLinkMgrSingleton& operator=( AdvLinkMgrSingleton const& copy ) = delete;  // Not Implemented
 
     void AddInputOutput( const string & parm_id, const string & var_name, bool input_flag );
     int m_EditLinkIndex;

@@ -68,8 +68,8 @@ public:
 private:
 
     AeroStructSingleton();
-    AeroStructSingleton( AeroStructSingleton const& copy );            // Not Implemented
-    AeroStructSingleton& operator=( AeroStructSingleton const& copy ); // Not Implemented
+    AeroStructSingleton( AeroStructSingleton const& copy ) = delete;            // Not Implemented
+    AeroStructSingleton& operator=( AeroStructSingleton const& copy ) = delete; // Not Implemented
 
     bool m_CalculiXFound;
     string m_CalculiXPath;

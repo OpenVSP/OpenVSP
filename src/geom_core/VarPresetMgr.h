@@ -176,8 +176,8 @@ public:
 
 private:
     VarPresetMgrSingleton();
-    VarPresetMgrSingleton( VarPresetMgrSingleton const& copy );             // Not Implemented
-    VarPresetMgrSingleton& operator=( VarPresetMgrSingleton const& copy );  // Not Implemented
+    VarPresetMgrSingleton( VarPresetMgrSingleton const& copy ) = delete;             // Not Implemented
+    VarPresetMgrSingleton& operator=( VarPresetMgrSingleton const& copy ) = delete;  // Not Implemented
 
     unordered_map< string, Setting* > m_SettingMap;                         // ID->Setting Map
     unordered_map< string, SettingGroup* > m_SettingGroupMap;               // ID->Setting Group Map
@@ -243,8 +243,8 @@ public:
 
 private:
     OldVarPresetMgrSingleton();
-    OldVarPresetMgrSingleton( OldVarPresetMgrSingleton const& copy );          // Not Implemented
-    OldVarPresetMgrSingleton& operator=( OldVarPresetMgrSingleton const& copy ); // Not Implemented
+    OldVarPresetMgrSingleton( OldVarPresetMgrSingleton const& copy ) = delete;          // Not Implemented
+    OldVarPresetMgrSingleton& operator=( OldVarPresetMgrSingleton const& copy ) = delete; // Not Implemented
 
     void Init();
     void Wype();

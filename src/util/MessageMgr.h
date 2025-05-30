@@ -110,8 +110,8 @@ class MessageMgr
 {
 private:
     MessageMgr();
-    MessageMgr( MessageMgr const& copy );          // Not Implemented
-    MessageMgr& operator=( MessageMgr const& copy ); // Not Implemented
+    MessageMgr( MessageMgr const& copy ) = delete;          // Not Implemented
+    MessageMgr& operator=( MessageMgr const& copy ) = delete; // Not Implemented
 
     std::map< string, std::deque< MessageBase* > > m_MessageRegMap;
 

@@ -535,8 +535,8 @@ protected:
 
 private:
     VSPAEROMgrSingleton();
-    VSPAEROMgrSingleton( VSPAEROMgrSingleton const& copy );            // Not Implemented
-    VSPAEROMgrSingleton& operator=( VSPAEROMgrSingleton const& copy ); // Not Implemented
+    VSPAEROMgrSingleton( VSPAEROMgrSingleton const& copy ) = delete;            // Not Implemented
+    VSPAEROMgrSingleton& operator=( VSPAEROMgrSingleton const& copy ) = delete; // Not Implemented
     ~VSPAEROMgrSingleton();
 
     vector< RotorDisk* > m_RotorDiskVec;

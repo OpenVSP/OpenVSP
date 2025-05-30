@@ -487,8 +487,8 @@ public:
 private:
     ResultsMgrSingleton();
     ~ResultsMgrSingleton();
-    ResultsMgrSingleton( ResultsMgrSingleton const& copy );          // Not Implemented
-    ResultsMgrSingleton& operator=( ResultsMgrSingleton const& copy ); // Not Implemented
+    ResultsMgrSingleton( ResultsMgrSingleton const& copy ) = delete;          // Not Implemented
+    ResultsMgrSingleton& operator=( ResultsMgrSingleton const& copy ) = delete; // Not Implemented
 
     map< string, Results* > m_ResultsMap;                   // Map ID to Results
     map< string, vector< string > > m_NameIDMap;            // Map Name to ID
