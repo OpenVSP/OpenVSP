@@ -107,7 +107,7 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 560, 
     m_BorderLayout.SetSameLineFlag( false );
     m_BorderLayout.AddYGap();
 
-    m_AttributeEditor.Init( mgr, &m_BorderLayout, m_BorderLayout.GetGroup(), this, staticScreenCB, false, 0, 150 );
+    m_AttributeEditor.Init( &m_BorderLayout, m_BorderLayout.GetGroup(), this, staticScreenCB, false, 0, 150);
 
     //Browser objects need to have there static callbacks set in SetEditorScreen's constructor
     m_SetBrowser->callback( staticScreenCB, this );

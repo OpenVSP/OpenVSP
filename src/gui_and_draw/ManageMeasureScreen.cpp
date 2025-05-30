@@ -155,7 +155,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_RulerLayout.AddYGap();
 
-    m_RulerAttrEditor.Init( mgr, &m_RulerLayout, ruler_group, this, staticScreenCB, true, m_RulerLayout.GetY(), 130 );
+    m_RulerAttrEditor.Init( &m_RulerLayout, ruler_group, this, staticScreenCB, true, m_RulerLayout.GetY(), 130);
 
     /* Probe Layout  ***********************************************/
 
@@ -278,7 +278,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_ProbeLayout.AddYGap();
 
-    m_ProbeAttrEditor.Init( mgr, &m_ProbeLayout, probe_group, this, staticScreenCB, true, m_ProbeLayout.GetY(), 130 );
+    m_ProbeAttrEditor.Init( &m_ProbeLayout, probe_group, this, staticScreenCB, true, m_ProbeLayout.GetY(), 130);
 
     /* RSTprobe Layout  ***********************************************/
 
@@ -401,7 +401,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_RSTProbeLayout.AddYGap();
 
-    m_RSTAttrEditor.Init( mgr, &m_RSTProbeLayout, RSTprobe_group, this, staticScreenCB, true, m_RSTProbeLayout.GetY(), 130 );
+    m_RSTAttrEditor.Init( &m_RSTProbeLayout, RSTprobe_group, this, staticScreenCB, true, m_RSTProbeLayout.GetY(), 130);
 
     /* Protractor Layout  ***********************************************/
 
@@ -532,7 +532,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_ProtractorLayout.AddYGap();
 
-    m_ProtAttrEditor.Init( mgr, &m_ProtractorLayout, protractor_group, this, staticScreenCB, true, m_ProtractorLayout.GetY(), 130 );
+    m_ProtAttrEditor.Init( &m_ProtractorLayout, protractor_group, this, staticScreenCB, true, m_ProtractorLayout.GetY(), 130);
 
     ruler_tab->show();
 }

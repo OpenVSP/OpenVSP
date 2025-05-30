@@ -16,15 +16,15 @@
 //==== Attribute Tree GUI ====//
 AttributeTree::AttributeTree()
 {
-    m_Screen = NULL;
     m_FilterAttrType = vsp::INVALID_TYPE;
     m_FilterObjType = vsp::ATTROBJ_FREE;
     m_FilterStr = string( "" );
     m_RedrawFlag = true;
 }
 
-void AttributeTree::Init( ScreenMgr* mgr, GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start, int start_y, int browser_h )
+void AttributeTree::Init( GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start, int start_y, int browser_h )
 {
+    GuiDevice::Init( screen );
 
     m_AttrTree = layout->AddTreeWithColumns( browser_h );
     m_AttrTree->showroot( true );
@@ -46,9 +46,6 @@ void AttributeTree::Init( ScreenMgr* mgr, GroupLayout * layout, Fl_Group* group,
 
     int fontsize = 12;
     m_AttrTree->item_labelsize( fontsize );
-
-    m_Screen = screen;
-    m_ScreenMgr = mgr;
 }
 
 void AttributeTree::Activate()
@@ -473,11 +470,9 @@ void AttributeTree::DeviceCB( Fl_Widget *w )
 }
 
 // ==== Attribute Editor ==== //
-void AttributeEditor::Init( ScreenMgr* mgr, GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start, int start_y, int browser_h )
+void AttributeEditor::Init( GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start, int start_y, int browser_h )
 {
     GuiDevice::Init( screen );
-
-    m_ScreenMgr = mgr;
 
     // ==== build layout ==== //
     layout->AddDividerBox( "Attributes (Double Click For Explorer)" );
@@ -488,7 +483,7 @@ void AttributeEditor::Init( ScreenMgr* mgr, GroupLayout * layout, Fl_Group* grou
         m_AttrCommonGroup.SetY( start_y );
     }
 
-    m_AttrTreeWidget.Init( mgr, layout, group, screen, cb, true, m_AttrCommonGroup.GetY(), browser_h );
+    m_AttrTreeWidget.Init( layout, group, screen, cb, true, m_AttrCommonGroup.GetY(), browser_h);
     m_ShowState = false;
 }
 
@@ -518,18 +513,18 @@ void AttributeEditor::DeviceCB( Fl_Widget* w )
             vector < string > ids = m_AttrTreeWidget.GetSelectedID();
             if ( ids.size() == 1 )
             {
-                dynamic_cast< AttributeExplorer* >( m_ScreenMgr->GetScreen( vsp::VSP_ATTRIBUTE_EXPLORER_SCREEN ) )->SetTreeAutoSelectID( ids.front() );
+                dynamic_cast< AttributeExplorer* >( m_Screen->GetScreenMgr()->GetScreen( vsp::VSP_ATTRIBUTE_EXPLORER_SCREEN ) )->SetTreeAutoSelectID( ids.front() );
             }
-            m_ScreenMgr->ShowScreen( vsp::VSP_ATTRIBUTE_EXPLORER_SCREEN );
+            m_Screen->GetScreenMgr()->ShowScreen( vsp::VSP_ATTRIBUTE_EXPLORER_SCREEN );
         }
         m_AttrTreeWidget.ClearRedrawFlag();
     }
-    m_ScreenMgr->SetUpdateFlag( true );
+    m_Screen->GetScreenMgr()->SetUpdateFlag( true );
 }
 
 void AttributeEditor::GuiDeviceCallBack( GuiDevice* gui_device )
 {
-    m_ScreenMgr->SetUpdateFlag( true );
+    m_Screen->GetScreenMgr()->SetUpdateFlag( true );
 }
 
 bool AttributeEditor::canMakeInt( const::string& str )

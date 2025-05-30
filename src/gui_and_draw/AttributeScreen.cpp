@@ -114,7 +114,7 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
 
     m_TreeGroupLayout.ForceNewLine();
 
-    m_AttrTreeWidget.Init( mgr, &m_TreeGroupLayout, m_FLTK_Window, this, staticScreenCB, true, m_TreeGroupLayout.GetY(), editor_ht );
+    m_AttrTreeWidget.Init( &m_TreeGroupLayout, m_FLTK_Window, this, staticScreenCB, true, m_TreeGroupLayout.GetY(), editor_ht);
     m_TreeGroupLayout.GetGroup()->resizable( m_AttrTreeWidget.GetTreeWidget() );
 
     m_TreeGroupLayout.SetY( m_TreeGroupLayout.GetY() + editor_ht );

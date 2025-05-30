@@ -564,7 +564,7 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 680, "BOR" )
     y_vals.push_back( m_OneSixSeriesGroup.GetY() );
 
     m_XSecLayout.SetY( *max_element( y_vals.begin(), y_vals.end() ) );
-    m_XsecAttributeEditor.Init( m_ScreenMgr, &m_XSecLayout, m_XSecLayout.GetGroup(), this, staticScreenCB, true, m_GenLayout.GetY(), 100 );
+    m_XsecAttributeEditor.Init( &m_XSecLayout, m_XSecLayout.GetGroup(), this, staticScreenCB, true, m_GenLayout.GetY(), 100);
 
     //==== Modify ====//
 

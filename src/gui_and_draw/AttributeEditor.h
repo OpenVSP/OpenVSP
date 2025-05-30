@@ -24,7 +24,7 @@ class AttributeTree : public GuiDevice
 {
 public:
     AttributeTree();
-    void Init( ScreenMgr* mgr, GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start = false, int start_y = 0, int browser_h = 150 );
+    void Init( GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start = false, int start_y = 0, int browser_h = 150 );
     void Activate();
     void Deactivate();
     void Update();
@@ -120,9 +120,6 @@ protected:
 
     TreeWithColumns* m_AttrTree;
 
-    VspScreen* m_Screen;
-    ScreenMgr* m_ScreenMgr;
-
     bool m_RedrawFlag;
 
 private:
@@ -135,7 +132,7 @@ class AttributeEditor : public GuiDevice
 {
 public:
     // Initialize the member GUI devices and set their callbacks
-    void Init( ScreenMgr* mgr, GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start = false, int start_y = 0, int browser_h = 150 );
+    void Init( GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start = false, int start_y = 0, int browser_h = 150 );
     void Show();
     void Update();
     void SetEditorCollID( string collID = "" );
@@ -165,9 +162,6 @@ protected:
     GroupLayout m_AttrCommonGroup;
     GroupLayout m_AttrStrGroup;
     GroupLayout m_AttrToggleGroup;
-
-    VspScreen* m_Screen;
-    ScreenMgr* m_ScreenMgr;
 
     bool m_ShowState;
 

@@ -354,7 +354,7 @@ VehScreen::VehScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     Fl_Group* attribute_tab = AddTab( "Attributes" );
     Fl_Group* attribute_group = AddSubGroup( attribute_tab, 5 );
     m_AttributeLayout.SetGroupAndScreen( attribute_group , this );
-    m_AttributeEditor.Init( mgr , &m_AttributeLayout , attribute_group, this, staticScreenCB, false, 0, 250 );
+    m_AttributeEditor.Init( &m_AttributeLayout , attribute_group , this, staticScreenCB, false, 0, 250);
 };
 
 void VehScreen::Show( )
@@ -486,7 +486,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     // //===== Attributes ====//
     m_GenLayout.AddYGap();
-    m_AttributeEditor.Init( mgr, &m_GenLayout, gen_group, this, staticScreenCB, true, m_GenLayout.GetY(), attrColHt );
+    m_AttributeEditor.Init( &m_GenLayout, gen_group, this, staticScreenCB, true, m_GenLayout.GetY(), attrColHt);
 
     gen_tab->show();
 
@@ -832,7 +832,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSLineGroup.AddSlider( m_SSLineConstSlider0N, "Value0N", 1, "%7.6f" );
 
     m_SSLineGroup.AddYGap();
-    m_SSLineAttrEditor.Init( mgr , &m_SSLineGroup , subsurf_group, this, staticScreenCB , true , m_SSLineGroup.GetY() , attr_h );
+    m_SSLineAttrEditor.Init( &m_SSLineGroup , subsurf_group , this, staticScreenCB, true , m_SSLineGroup.GetY() , attr_h);
 
     //==== SSRectangle ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSRecGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
@@ -860,7 +860,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSRecGroup.AddSlider( m_SSRecThetaSlider, "Theta", 25, "%7.6f" );
 
     m_SSRecGroup.AddYGap();
-    m_SSRecAttrEditor.Init( mgr , &m_SSRecGroup , subsurf_group , this, staticScreenCB , true , m_SSRecGroup.GetY() , attr_h );
+    m_SSRecAttrEditor.Init( &m_SSRecGroup , subsurf_group , this , staticScreenCB, true , m_SSRecGroup.GetY() , attr_h);
 
     //==== SS_Ellipse ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSEllGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
@@ -889,7 +889,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSEllGroup.AddSlider( m_SSEllThetaSlider, "Theta", 25, "%7.6f" );
 
     m_SSEllGroup.AddYGap();
-    m_SSEllAttrEditor.Init( mgr , &m_SSEllGroup , subsurf_group , this, staticScreenCB , true , m_SSEllGroup.GetY() , attr_h );
+    m_SSEllAttrEditor.Init( &m_SSEllGroup , subsurf_group , this , staticScreenCB, true , m_SSEllGroup.GetY() , attr_h);
 
     //===== SSControl ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSConGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
@@ -983,7 +983,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSConGroup.AddSlider( m_SSConTessSlider, "Num Points", 100, "%5.0f" );
 
     m_SSConGroup.AddYGap();
-    m_SSConAttrEditor.Init( mgr , &m_SSConGroup , subsurf_group , this, staticScreenCB , true , m_SSConGroup.GetY() , attr_h );
+    m_SSConAttrEditor.Init( &m_SSConGroup , subsurf_group , this , staticScreenCB, true , m_SSConGroup.GetY() , attr_h);
 
     //==== SSFiniteLine ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSFLineGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
@@ -1001,7 +1001,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_RotActive = true;
 
     m_SSFLineGroup.AddYGap();
-    m_SSFLineAttrEditor.Init( mgr , &m_SSFLineGroup , subsurf_group , this, staticScreenCB , true , m_SSFLineGroup.GetY() , attr_h );
+    m_SSFLineAttrEditor.Init( &m_SSFLineGroup , subsurf_group , this , staticScreenCB, true , m_SSFLineGroup.GetY() , attr_h);
 
     //=============== MassProp Tab ===================//
     m_MassPropLayout.SetGroupAndScreen( massprop_group, this );
@@ -2469,7 +2469,7 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
 
     m_XSecLayout.SetY( *max_element( y_vals.begin(), y_vals.end() ) );
     m_XSecLayout.AddYGap();
-    m_XsecAttributeEditor.Init( m_ScreenMgr, &m_XSecLayout, m_XSecLayout.GetGroup(), this, staticScreenCB, true, m_GenLayout.GetY(), 100 );
+    m_XsecAttributeEditor.Init( &m_XSecLayout, m_XSecLayout.GetGroup(), this, staticScreenCB, true, m_GenLayout.GetY(), 100);
 
     DisplayGroup( &m_PointGroup );
 }
