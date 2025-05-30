@@ -1498,13 +1498,12 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     list < pair < int, int > > wlist( wedges.begin(), wedges.end() );
 
     vector < deque < pair < int, int > > > wakes;
-    int iwake = 0;
 
     while ( !wlist.empty() )
     {
         list < pair < int, int > >::iterator wit = wlist.begin();
 
-        iwake = wakes.size();
+        int iwake = wakes.size();
         wakes.resize( iwake + 1 );
         wakes[iwake].push_back( *wit );
         wit = wlist.erase( wit );
