@@ -1187,7 +1187,7 @@ void FileAirfoil::OffsetCurve( double offset_val )
 }
 
 //==== Read Airfoil File ====//
-bool FileAirfoil::ReadFile( string file_name )
+bool FileAirfoil::ReadFile( const string &file_name )
 {
     //==== Open File ====//
     FILE* file_id =  fopen( file_name.c_str(), "r" );
@@ -1663,7 +1663,7 @@ void CSTAirfoil::DemoteLower()
     CSTtoParms( cst );
 }
 
-void CSTAirfoil::FitCurve( VspCurve c, int deg )
+void CSTAirfoil::FitCurve( const VspCurve &c, int deg )
 {
     piecewise_curve_type pwc;
     pwc = c.GetCurve();

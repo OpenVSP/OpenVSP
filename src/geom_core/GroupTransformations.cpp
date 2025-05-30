@@ -261,8 +261,8 @@ void GroupTransformations::SetMaterial( const Material & material )
 
         // Assign the material values to each geom
         geom->SetMaterial( m_GroupMaterial.m_Name, m_GroupMaterial.m_Ambi,
-            m_GroupMaterial.m_Diff, m_GroupMaterial.m_Spec, m_GroupMaterial.m_Emis,
-            m_GroupMaterial.m_Shininess );
+                           m_GroupMaterial.m_Diff, m_GroupMaterial.m_Spec, m_GroupMaterial.m_Emis,
+                           m_GroupMaterial.m_Shininess );
     }
 }
 

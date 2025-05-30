@@ -233,7 +233,7 @@ public:
     Parm m_PChord;
 
 protected:
-    virtual void ChangeID( string id );
+    virtual void ChangeID( const string &id );
 
     virtual void UpdateSurf();
     virtual void UpdateMainTessVec( bool firstonly );

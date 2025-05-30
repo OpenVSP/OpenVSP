@@ -260,7 +260,7 @@ void CfdMeshMgrSingleton::AdjustAllSourceRad( double mult )
     }
 }
 
-void CfdMeshMgrSingleton::GUI_Val( string name, double val )
+void CfdMeshMgrSingleton::GUI_Val( const string &name, double val )
 {
     BaseSource* source = GetCurrSource();
     if ( name == "GlobalEdgeSize"  )
@@ -312,7 +312,7 @@ void CfdMeshMgrSingleton::GUI_Val( string name, double val )
     }
 }
 
-void CfdMeshMgrSingleton::GUI_Val( string name, int val )
+void CfdMeshMgrSingleton::GUI_Val( const string &name, int val )
 {
     if ( name == "SourceID" )
     {
@@ -330,7 +330,7 @@ void CfdMeshMgrSingleton::GUI_Val( string name, int val )
 
 }
 
-void CfdMeshMgrSingleton::GUI_Val( string name, string val )
+void CfdMeshMgrSingleton::GUI_Val( const string &name, const string &val )
 {
     if ( name == "SourceName" )
     {
@@ -1037,9 +1037,9 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
 
                 if ( t == tags[itag] )
                 {
-                    vec3d p0 = allUsedPntVec[sface->ind0];
-                    vec3d p1 = allUsedPntVec[sface->ind1];
-                    vec3d p2 = allUsedPntVec[sface->ind2];
+                    const vec3d& p0 = allUsedPntVec[sface->ind0];
+                    const vec3d& p1 = allUsedPntVec[sface->ind1];
+                    const vec3d& p2 = allUsedPntVec[sface->ind2];
                     vec3d v01 = p1 - p0;
                     vec3d v12 = p2 - p1;
                     vec3d norm = cross( v01, v12 );
@@ -1263,7 +1263,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
     fprintf( fp, "%d\n", ( int )interiorPntVec.size() );
     for ( int i = 0 ; i < ( int )interiorPntVec.size() ; i++ )
     {
-        vec3d p = interiorPntVec[i];
+        const vec3d& p = interiorPntVec[i];
         fprintf( fp, "%d  %.16g %.16g %.16g\n", i + 1, p.x(), p.y(), p.z()  );
     }
 
@@ -3703,7 +3703,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     draw_obj_vec.push_back( &m_DegenCornerEdgeDO );
 }
 
-void CfdMeshMgrSingleton::UpdateBBoxDO( BndBox box )
+void CfdMeshMgrSingleton::UpdateBBoxDO( const BndBox &box )
 {
     vec3d temp = vec3d( box.GetMin( 0 ), box.GetMin( 1 ), box.GetMin( 2 ) );
 
@@ -3765,7 +3765,7 @@ void CfdMeshMgrSingleton::UpdateBBoxDO( BndBox box )
     }
 }
 
-void CfdMeshMgrSingleton::UpdateBBoxDOSymSplit( BndBox box )
+void CfdMeshMgrSingleton::UpdateBBoxDOSymSplit( const BndBox &box )
 {
     vec3d temp = vec3d( box.GetMin( 0 ), box.GetMin( 1 ), box.GetMin( 2 ) );
     vector< vec3d > symLinestrip, symLine;

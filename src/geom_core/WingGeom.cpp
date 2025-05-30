@@ -1380,7 +1380,7 @@ void WingGeom::UpdateTotalParameters()
 }
 
 //==== Change IDs =====//
-void WingGeom::ChangeID( string id )
+void WingGeom::ChangeID( const string &id )
 {
     Geom::ChangeID( id );
     m_XSecSurf.SetParentContainer( GetID() );
@@ -2634,10 +2634,10 @@ void WingGeom::UpdateTotalChord()
     {
         vector< WingSect* > ws_vec = GetWingSectVec();
 
-        vector< double > new_tc_vals;
+        vector< double > new_tc_vals( ws_vec.size() );
         for ( int i = 0 ; i < (int)ws_vec.size() ; i++ )
         {
-            new_tc_vals.push_back( ws_vec[i]->m_TipChord()*fract );
+            new_tc_vals[i] = ws_vec[i]->m_TipChord()*fract;
         }
 
         for ( int i = 1 ; i < (int)ws_vec.size() ; i++ )
@@ -2889,10 +2889,10 @@ void WingGeom::OffsetXSecs( double off )
     }
 
     //==== Load Up New Tc Vals ====//
-    vector< double > new_tc_vals;
+    vector< double > new_tc_vals( ws_vec.size() );
     for ( int i = 0 ; i < (int)ws_vec.size() ; i++ )
     {
-        new_tc_vals.push_back( ws_vec[i]->m_TipChord() - 2.0*off );
+        new_tc_vals[i] = ws_vec[i]->m_TipChord() - 2.0*off;
     }
 
     //==== Change Chord Vals ====//

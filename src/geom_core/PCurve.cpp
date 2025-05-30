@@ -1032,7 +1032,7 @@ void PCurve::SetDispNames( const string & xname, const string & yname )
     m_YDispName = yname;
 }
 
-void PCurve::SetCurve( const vector < double > & tvec, const vector < double > & valvec, int newtype, vector < bool > g1vec )
+void PCurve::SetCurve( const vector < double > & tvec, const vector < double > & valvec, int newtype, const vector<bool> &g1vec )
 {
     m_CurveType = newtype;
     InitCurve( tvec, valvec, g1vec );

@@ -51,7 +51,7 @@ ScreenMenuItem::ScreenMenuItem()
     m_SecondaryScreenID = -1;
 }
 
-void ScreenMenuItem::Init( ScreenMgr *mgr, Fl_Sys_Menu_Bar *mbar, std::string mpath, int sid, int secondary_sid )
+void ScreenMenuItem::Init( ScreenMgr *mgr, Fl_Sys_Menu_Bar *mbar, const std::string &mpath, int sid, int secondary_sid )
 {
     m_ScreenMgr = mgr;
     m_MenuBar = mbar;
@@ -78,7 +78,7 @@ ActionMenuItem::ActionMenuItem()
     m_ActionScreen = nullptr;
 }
 
-void ActionMenuItem::Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, std::string mpath, int scut )
+void ActionMenuItem::Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, const std::string &mpath, int scut )
 {
     m_ActionScreen = ascreen;
     m_MenuBar = mbar;
@@ -93,7 +93,7 @@ void ActionMenuItem::ActionCallBack( void* data )
     m_ActionScreen->ActionCB( data );
 }
 
-void VSPCheckMenuItem::Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, std::string mpath, int scut )
+void VSPCheckMenuItem::Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, const std::string &mpath, int scut )
 {
     m_ActionScreen = ascreen;
     m_MenuBar = mbar;

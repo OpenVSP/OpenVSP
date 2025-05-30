@@ -70,7 +70,7 @@ protected:
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj();
 
-    virtual void ChangeID( string id );
+    virtual void ChangeID( const string &id );
 
     virtual void UpdateSurf();
     virtual void UpdateTesselate( const VspSurf &surf, bool

@@ -771,7 +771,7 @@ void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     draw_obj_vec.push_back( &m_ArrowHeadDO );
 }
 
-void PropGeom::ChangeID( string id )
+void PropGeom::ChangeID( const string &id )
 {
     Geom::ChangeID( id );
     m_XSecSurf.SetParentContainer( GetID() );

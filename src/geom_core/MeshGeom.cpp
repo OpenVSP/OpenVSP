@@ -14,6 +14,8 @@
 //******************************************************************************
 
 #include "MeshGeom.h"
+
+#include <utility>
 #include "PtCloudGeom.h"
 #include "LinkMgr.h"
 #include "Vehicle.h"
@@ -4035,7 +4037,7 @@ void MeshGeom::DeleteMarkedMeshes()
     m_TMeshVec = newTMeshVec;
 }
 
-void MeshGeom::AddHalfBox( string id )
+void MeshGeom::AddHalfBox( const string &id )
 {
     //==== Find Bound Box ====//
     BndBox box;

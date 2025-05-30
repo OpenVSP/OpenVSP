@@ -26,17 +26,17 @@ public:
     * Attach a texture to geometry.  fileName is the file path plus texture file name.
     * Return an id for this texture.
     */
-    virtual std::string AttachTexture( std::string fileName );
+    virtual std::string AttachTexture( const std::string &fileName );
 
     /*!
     * Remove one attached texture.  texture_id is the id generated from AttachTexture().
     */
-    virtual void RemoveTexture( std::string texture_id );
+    virtual void RemoveTexture( const std::string &texture_id );
 
     /*!
     * Find Texture Reference.  texture_id is the id generated from AttachTexture().
     */
-    virtual Texture * FindTexture( std::string texture_id );
+    virtual Texture * FindTexture( const std::string &texture_id );
 
     /*!
     * Get all texture ids.

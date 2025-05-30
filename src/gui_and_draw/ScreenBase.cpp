@@ -1847,7 +1847,7 @@ void GeomScreen::GetCollIDs( vector < string > &collIDVec )
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
-XSecScreen::XSecScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile, string xsnamelabel, string xscnamelabel, bool add_xs_btn ) :
+XSecScreen::XSecScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile, const string & xsnamelabel, const string & xscnamelabel, bool add_xs_btn ) :
     GeomScreen( mgr, w, h, title, helpfile )
 {
     m_XSecTab = AddTab( "XSec" );

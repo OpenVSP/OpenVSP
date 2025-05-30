@@ -219,7 +219,7 @@ public:
     virtual string GetAncestorID( int gen );
     virtual void BuildAncestorList( vector< string > &ancestors );
     virtual void AddChildID( const string &id, const string &insert_after_id = string() );
-    virtual void RemoveChildID( string id );
+    virtual void RemoveChildID( const string &id );
     virtual vector< string > GetChildIDVec()
     {
         return m_ChildIDVec;
@@ -233,7 +233,7 @@ public:
     {
         m_StepChildIDVec.push_back( id );
     }
-    virtual void RemoveStepChildID( string id );
+    virtual void RemoveStepChildID( const string &id );
     virtual vector< string > GetStepChildIDVec()
     {
         return m_StepChildIDVec;
@@ -403,7 +403,7 @@ public:
     virtual vec3d GetColor() const;
 
     virtual void SetMaterialToDefault();
-    virtual void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
+    virtual void SetMaterial( const std::string &name, double ambi[], double diff[], double spec[], double emis[], double shin );
     virtual Material * GetMaterial();
 
     virtual bool GetSetFlag( int index ) const;
@@ -580,7 +580,7 @@ public:
     virtual void CreateGeomResults( Results* res );
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
-    virtual void ChangeID( string id );
+    virtual void ChangeID( const string &id );
 
     //==== Sub Surface Management Methods ====//
     virtual void AddSubSurf( SubSurface* sub_surf )

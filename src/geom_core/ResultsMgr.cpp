@@ -319,7 +319,7 @@ string NameValData::GenerateID()
     return GenerateRandomID( vsp::ID_LENGTH_ATTR );
 }
 
-void NameValData::ChangeID( string id ) //only for attributes
+void NameValData::ChangeID( const string &id ) //only for attributes
 {
     bool attr_in_map = AttributeMgr.GetAttrRegistration( m_ID );
 
@@ -763,7 +763,7 @@ string NameValData::GetAsString( bool inline_data_flag )
 //==== Update Attachment IDs ====//
 
 // define attached object ID
-void NameValData::SetAttrAttach( string attachID )
+void NameValData::SetAttrAttach( const string &attachID )
 {
     m_AttachID = attachID;
 }
@@ -2621,10 +2621,10 @@ void ResultsMgrSingleton::WriteTestResults()
         res->Add( new NameValData( "Test_String", string( "This Is A Test" ), "Test string result." ) );
         res->Add( new NameValData( "Test_Vec3d", vec3d( s, s * 2, s * 4 ), "Test vec3d result." ) );
 
-        vector< double > dvec;
+        vector< double > dvec( 5 );
         for ( int i = 0 ; i < 5 ; i++ )
         {
-            dvec.push_back( i * ( s + 1 ) );
+            dvec[i] = i * ( s + 1 );
         }
         res->Add( new NameValData( "Test_Double_Vec", dvec, "Test double vector result." ) );
     }

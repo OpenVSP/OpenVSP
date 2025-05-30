@@ -383,7 +383,7 @@ void AttributeExplorer::SetAttrData()
     m_types_selected = NumAttrTypes();
 };
 
-void AttributeExplorer::AddEmptyCollID( vector < string > coll_ids )
+void AttributeExplorer::AddEmptyCollID( const vector<string> &coll_ids )
 {
     m_AttrTreeWidget.AddEmptyCollID( coll_ids );
 };

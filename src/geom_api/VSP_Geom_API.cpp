@@ -2246,10 +2246,10 @@ vector< string > GetGeomTypes()
     Vehicle* veh = GetVehicle();
 
     //==== Load All Type Names ====//
-    vector< string > ret_vec;
+    vector< string > ret_vec( veh->GetNumGeomTypes() );
     for ( int i = 0 ; i < veh->GetNumGeomTypes() ; i++ )
     {
-        ret_vec.push_back( veh->GetGeomType( i ).m_Name );
+        ret_vec[i] = veh->GetGeomType( i ).m_Name;
     }
 
     ErrorMgr.NoError();

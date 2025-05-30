@@ -254,7 +254,7 @@ public:
     {
         return m_FeaPartSurfVec;
     }
-    virtual void AddFeaPartSurf( VspSurf fea_surf )
+    virtual void AddFeaPartSurf( const VspSurf &fea_surf )
     {
         m_FeaPartSurfVec.push_back( fea_surf );
     }
@@ -315,12 +315,12 @@ public:
 
     virtual VspSurf ComputeSliceSurf();
 
-    virtual void SetSectionBBox( BndBox box )
+    virtual void SetSectionBBox( const BndBox &box )
     {
         m_SectBBox = box;
     }
 
-    virtual void SetCenter( vec3d center )
+    virtual void SetCenter( const vec3d &center )
     {
         m_Center = center;
     }
@@ -391,7 +391,7 @@ public:
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
-    virtual void ChangeID( string id );
+    virtual void ChangeID( const string &id );
 
     virtual void UpdateSurface();
     virtual void UpdateParms();
@@ -535,7 +535,7 @@ public:
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
-    virtual void AddTrimPart( string partID );
+    virtual void AddTrimPart( const string &partID );
     virtual void DeleteTrimPart( int indx );
     virtual void RenameParms();
 
@@ -790,7 +790,7 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual void MakeMaterial( string id );
+    virtual void MakeMaterial( const string &id );
 
     double GetShearModulus();
     double GetShearModulus_FEM();

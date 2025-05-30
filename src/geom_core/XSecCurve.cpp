@@ -4664,7 +4664,7 @@ void EditCurveXSec::SetSelectPntID( int id )
     m_SelectPntID = id;
 }
 
-void EditCurveXSec::MovePnt( int index, vec3d new_pnt, bool force_update )
+void EditCurveXSec::MovePnt( int index, const vec3d &new_pnt, bool force_update )
 {
     SetSelectPntID( index );
     MovePnt( new_pnt.x(), new_pnt.y(), new_pnt.z() );
@@ -4855,7 +4855,8 @@ vector < vec3d > EditCurveXSec::GetCtrlPntVec( bool non_dimensional, bool skip_l
     return return_vec;
 }
 
-void EditCurveXSec::SetPntVecs( vector < double > u_vec, vector < vec3d > pnt_vec, vector < double > r_vec, vector < bool > g1_vec, vector < bool > fix_u_vec, bool force_update )
+void EditCurveXSec::SetPntVecs( const vector<double> &u_vec, const vector<vec3d> &pnt_vec, const vector<double> &r_vec, vector<bool> g1_vec, vector<
+                                bool> fix_u_vec, bool force_update )
 {
     vector < double > x_vec( pnt_vec.size() );
     vector < double > y_vec( pnt_vec.size() );
@@ -4871,7 +4872,8 @@ void EditCurveXSec::SetPntVecs( vector < double > u_vec, vector < vec3d > pnt_ve
     SetPntVecs( u_vec, x_vec, y_vec, z_vec, r_vec, g1_vec, fix_u_vec, force_update );
 }
 
-void EditCurveXSec::SetPntVecs( vector < double > u_vec, vector < double > x_pnt_vec, vector < double > y_pnt_vec, vector < double > z_pnt_vec, vector < double > r_vec, vector < bool > g1_vec, vector < bool > fix_u_vec, bool force_update )
+void EditCurveXSec::SetPntVecs( const vector<double> &u_vec, const vector<double> &x_pnt_vec, const vector<double> &y_pnt_vec, const vector<double> &
+                                z_pnt_vec, const vector<double> &r_vec, vector<bool> g1_vec, vector<bool> fix_u_vec, bool force_update )
 {
     // TODO: Limit the number of times this function is called, since it will cause parm IDs to be reset, 
     // causing links design variables, etc. to become broken.

@@ -233,7 +233,7 @@ public:
 
 protected:
 
-    virtual void ChangeID( string id );
+    virtual void ChangeID( const string &id );
     virtual void UpdateSurf();
     virtual void UpdateTesselate( const VspSurf &surf, bool
                                   capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts ) const;

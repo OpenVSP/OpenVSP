@@ -88,7 +88,7 @@ void CustomGeomExportScreen::GuiDeviceCallBack( GuiDevice* device )
         vector< string > mod_name_vec = CustomGeomMgr.GetCustomScriptModuleNames();
         if ( m_ScriptIndex >= 0 && m_ScriptIndex < (int)mod_name_vec.size() )
         {
-            string module_name = mod_name_vec[m_ScriptIndex];
+            const string& module_name = mod_name_vec[m_ScriptIndex];
 
             string preset_fname = module_name + ".vsppart";
             string dir = veh->GetWriteScriptDir();

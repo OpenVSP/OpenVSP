@@ -383,17 +383,16 @@ void Image::autotransparent()
 void Image::_loadImage( std::string fileName )
 {
     bool succeed;
-    std::string name = fileName;
 
-    std::string::size_type extIndex = name.find_last_of( '.' );
+    std::string::size_type extIndex = fileName.find_last_of( '.' );
     if( extIndex == std::string::npos )
     {
-        succeed = _loadWithoutExt( name );
+        succeed = _loadWithoutExt( fileName );
     }
     else
     {
-        std::string ext = name.substr( extIndex, name.size() - extIndex );
-        succeed = _loadWithExt( name, ext );
+        std::string ext = fileName.substr( extIndex, fileName.size() - extIndex );
+        succeed = _loadWithExt( fileName, ext );
     }
 
     if( !succeed )

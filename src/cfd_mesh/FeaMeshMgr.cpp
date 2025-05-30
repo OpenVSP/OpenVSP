@@ -81,7 +81,7 @@ void FeaMeshMgrSingleton::CleanMeshMap()
     m_MeshPtrMap.clear();
 }
 
-void FeaMeshMgrSingleton::SetActiveMesh( string struct_id )
+void FeaMeshMgrSingleton::SetActiveMesh( const string &struct_id )
 {
     meshmaptype::iterator it = m_MeshPtrMap.find( struct_id );
 
@@ -94,7 +94,7 @@ void FeaMeshMgrSingleton::SetActiveMesh( string struct_id )
     m_ActiveMesh = m_MeshPtrMap[ struct_id ];
 }
 
-FeaMesh* FeaMeshMgrSingleton::GetMeshPtr( string struct_id )
+FeaMesh* FeaMeshMgrSingleton::GetMeshPtr( const string &struct_id )
 {
     meshmaptype::iterator it = m_MeshPtrMap.find( struct_id );
 
@@ -637,7 +637,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
-void FeaMeshMgrSingleton::ExportFeaMesh( string structID )
+void FeaMeshMgrSingleton::ExportFeaMesh( const string &structID )
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( structID );
     FeaMesh* mesh = GetMeshPtr( structID );
@@ -1530,7 +1530,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         vec3d avg_pnt;
         if ( all_face_vec[i].m_isQuad )
         {
-            vec3d pnt3 = node_vec[all_face_vec[i].ind3];
+            const vec3d& pnt3 = node_vec[all_face_vec[i].ind3];
             avg_pnt = ( pnt0 + pnt1 + pnt2 + pnt3 ) / 4.0;
         }
         else
@@ -1603,7 +1603,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                 int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
                 vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
                 int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
-                vec3d defaultorientation = ovec[ surf_num ];
+                const vec3d& defaultorientation = ovec[ surf_num ];
                 orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
             }
             if ( false ) // else
@@ -1623,7 +1623,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                 int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
                 vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
                 int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
-                vec3d defaultorientation = ovec[ surf_num ];
+                const vec3d& defaultorientation = ovec[ surf_num ];
                 orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
             }
             if ( false ) // else

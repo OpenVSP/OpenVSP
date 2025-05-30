@@ -220,7 +220,7 @@ string AttributeMgrSingleton::SummarizeAttributes()
     vector < vector < vector < string > > > tree_id_coll_vecs = AttributeMgr.GetAttrTreeVec();
 
     //vector to all attribute IDs
-    vector < vector < string > > tree_id_vecs = tree_id_coll_vecs[0];
+    const vector < vector < string > >& tree_id_vecs = tree_id_coll_vecs[0];
 
 
     text_str += "AttrID\tAttrName\tAttrType\tAttrData\tAttrDesc\tAttrPath\n";
@@ -267,7 +267,7 @@ string AttributeMgrSingleton::SummarizeAttributes()
     return text_str;
 }
 
-string TextTreeNode::PrintMe( string prior_lines )
+string TextTreeNode::PrintMe( const string &prior_lines )
 {
     // 1. print self name
     // 2. print self name of first child
@@ -324,7 +324,7 @@ string AttributeMgrSingleton::SummarizeAttributesAsTree()
     string new_id;
 
     vector < vector < vector < string > > > tree_id_coll_vecs = AttributeMgr.GetAttrTreeVec();
-    vector < vector < string > > tree_id_vecs = tree_id_coll_vecs[0];
+    const vector < vector < string > >& tree_id_vecs = tree_id_coll_vecs[0];
 
     TextTreeNode tree( "Root", "Root", 0 );
     TextTreeNode* cur_node;
@@ -1155,7 +1155,7 @@ void AttributeMgrSingleton::SetAttributeDoubleMatrix( const string &attrID, cons
     }
 }
 
-AttributeCollection* AttributeMgrSingleton::GetCollectionPtr( string collID, bool only_populated_collections )
+AttributeCollection* AttributeMgrSingleton::GetCollectionPtr( const string &collID, bool only_populated_collections )
 {
     AttributeCollection* attrPtr = nullptr;
     if ( ( m_AttrCollMap.count( collID ) == 1 ) && ( collID.size() > 0 ) )
@@ -1395,7 +1395,7 @@ void AttributeMgrSingleton::SetAttributeProtection( const string &attr_id, bool 
 }
 
 // extend a vector of strings with another vector of strings (concatenate) with option of adding a common root to the extension vector
-vector < string > AttributeMgrSingleton::ExtendStringVector( vector < string > vec, vector < string > vec_add, string string_root, bool skip_empty_strings )
+vector < string > AttributeMgrSingleton::ExtendStringVector( vector < string > vec, const vector<string> &vec_add, const string &string_root, bool skip_empty_strings )
 {
     for ( int i = 0; i != vec_add.size(); i++ )
     {
@@ -1408,7 +1408,7 @@ vector < string > AttributeMgrSingleton::ExtendStringVector( vector < string > v
 }
 
 // repeat base vec with different appended element each time
-vector < vector < string > > AttributeMgrSingleton::TransposeExtendStringVector( vector < string > base_vec, vector < string > vec_add )
+vector < vector < string > > AttributeMgrSingleton::TransposeExtendStringVector( const vector<string> &base_vec, const vector<string> &vec_add )
 {
     vector < vector < string > > output_nested_vec;
 
@@ -1923,7 +1923,7 @@ int AttributeMgrSingleton::GetObjectType( const string & id )
     return vsp::ATTROBJ_FREE;
 }
 
-vector< vector< vector< string > > > AttributeMgrSingleton::GetAttrTreeVec( const string & root_id, vector < string > inc_ids, bool exclude_clipboard, int filter_attr_type, int filter_attach_type, const string & filter_attr_string, bool filter_attr_case_sens )
+vector< vector< vector< string > > > AttributeMgrSingleton::GetAttrTreeVec( const string & root_id, const vector<string> &inc_ids, bool exclude_clipboard, int filter_attr_type, int filter_attach_type, const string & filter_attr_string, bool filter_attr_case_sens )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 

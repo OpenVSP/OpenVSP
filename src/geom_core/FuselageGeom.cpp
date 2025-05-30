@@ -111,7 +111,7 @@ void FuselageGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     GeomXSec::LoadDrawObjsUtil( draw_obj_vec );
 }
 
-void FuselageGeom::ChangeID( string id )
+void FuselageGeom::ChangeID( const string &id )
 {
     Geom::ChangeID( id );
     m_XSecSurf.SetParentContainer( GetID() );

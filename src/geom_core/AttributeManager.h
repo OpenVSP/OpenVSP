@@ -50,7 +50,7 @@ public:
 
     void Update();
 
-    AttributeCollection* GetCollectionPtr( string collID, bool only_populated_collections = false );
+    AttributeCollection* GetCollectionPtr( const string &collID, bool only_populated_collections = false );
     static AttributeCollection* GetCollectionFromParentID( const string & id );
     vector < AttributeCollection* > GetAllCollectionPtrs( int permit_empty_collection_type = -2, vector < string > inc_ids = {} );
 
@@ -134,7 +134,7 @@ public:
     void SetAttributeProtection( const string &attr_id, bool protect_flag = true );
 
     //tree things
-    vector < vector < vector < string > > > GetAttrTreeVec( const string & root_id = "", vector < string > inc_ids = {}, bool exclude_clipboard = true, int attr_type = vsp::INVALID_TYPE, int attach_type = vsp::ATTROBJ_FREE, const string & attr_search = "", bool case_sens = false );
+    vector < vector < vector < string > > > GetAttrTreeVec( const string & root_id = "", const vector<string> &inc_ids = {}, bool exclude_clipboard = true, int attr_type = vsp::INVALID_TYPE, int attach_type = vsp::ATTROBJ_FREE, const string & attr_search = "", bool case_sens = false );
 
     vector < vector < string > > GetCollParentVecs( const vector < vector < string > > & vecs_ids );
     vector < string > GetCollParentVec( const vector < string > & vec_ids );
@@ -148,8 +148,8 @@ public:
     static bool AllUpper( const string & str );
     static string ToLower( const string & str );
 
-    static vector < string > ExtendStringVector( vector < string > vec, vector < string > vec_add, string string_root = "", bool skip_empty_strings = true );
-    static vector < vector < string > > TransposeExtendStringVector( vector < string > base_vec, vector < string > vec_add );
+    static vector < string > ExtendStringVector( vector < string > vec, const vector<string> &vec_add, const string &string_root = "", bool skip_empty_strings = true );
+    static vector < vector < string > > TransposeExtendStringVector( const vector<string> &base_vec, const vector<string> &vec_add );
     static vector < vector < string > > ExtendNestedStringVector( vector < vector < string > > vec, vector < vector < string > > vec_add );
 
 protected:
@@ -174,7 +174,7 @@ private:
 class TextTreeNode
 {
 public:
-    TextTreeNode( string id, string name, int depth )
+    TextTreeNode( const string &id, const string &name, int depth )
     {
         m_ID = id;
         m_Name = name;
@@ -194,11 +194,11 @@ public:
         m_Children.clear();
     }
 
-    void SetName( string name )
+    void SetName( const string &name )
     {
         m_Name = name;
     }
-    void SetID( string id )
+    void SetID( const string &id )
     {
         m_ID = id;
     }
@@ -206,7 +206,7 @@ public:
     {
         m_Depth = depth;
     }
-    void AddChild( string child_id, string child_name )
+    void AddChild( const string & child_id, const string & child_name )
     {
         if ( m_Children.count( child_id ) == 0 )
         {
@@ -232,7 +232,7 @@ public:
     {
         return m_Depth;
     }
-    TextTreeNode* GetChild( string child_id )
+    TextTreeNode* GetChild( const string & child_id )
     {
         TextTreeNode* child = nullptr;
         if ( m_Children.count( child_id ) )
@@ -242,7 +242,7 @@ public:
         return child;
     }
 
-    string PrintMe( string prior_lines = "" );
+    string PrintMe( const string &prior_lines = "" );
 
 protected:
     map < string, TextTreeNode* > m_Children;

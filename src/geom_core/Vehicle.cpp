@@ -1193,7 +1193,7 @@ string Vehicle::AddGeom( Geom* add_geom )
     vector< string > active_vec = GetActiveGeomVec();
     if ( active_vec.size()  )
     {
-        string parent_id = active_vec.back();           // Parent
+        const string& parent_id = active_vec.back();           // Parent
         Geom* parent_geom = FindGeom( parent_id );
         if ( parent_geom )
         {
@@ -1388,7 +1388,7 @@ void Vehicle::DeleteGeomVec( const vector< string > & del_vec )
 
     for ( int c = 0 ; c < ( int )del_vec.size() ; c++ )
     {
-        string id = del_vec[c];
+        const string& id = del_vec[c];
         DeleteGeom( id );
     }
 }
@@ -1400,7 +1400,7 @@ void Vehicle::CutGeomVec( const vector< string > & cut_vec )
     //=== All Geoms To Be Cut ====//
     for ( int c = 0 ; c < ( int )cut_vec.size() ; c++ )
     {
-        string id = cut_vec[c];
+        const string& id = cut_vec[c];
         Geom* gPtr = FindGeom( id );
         if ( gPtr )
         {
@@ -1423,7 +1423,7 @@ void Vehicle::RemoveGeomVecFromHierarchy( const vector< string > & cut_vec )
     //=== All Geoms To Be Cut ====//
     for ( int c = 0 ; c < ( int )cut_vec.size() ; c++ )
     {
-        string id = cut_vec[c];
+        const string& id = cut_vec[c];
         Geom* gPtr = FindGeom( id );
         if ( gPtr )
         {
@@ -1447,7 +1447,7 @@ void Vehicle::RemoveGeomVecFromHierarchy( const vector< string > & cut_vec )
     //=== All Geoms To Be Cut ====//
     for ( int c = 0 ; c < ( int )cut_vec.size() ; c++ )
     {
-        string id = cut_vec[c];
+        const string& id = cut_vec[c];
         Geom* gPtr = FindGeom( id );
         if ( gPtr )
         {
@@ -1467,7 +1467,7 @@ void Vehicle::RemoveGeomVecFromHierarchy( const vector< string > & cut_vec )
             vector< string > child_vec = gPtr->GetChildIDVec();
             for ( int i = 0 ; i < ( int )child_vec.size() ; i++ )
             {
-                string child_id = child_vec[i];
+                const string& child_id = child_vec[i];
                 if ( !vector_contains_val( cut_vec, child_id ) )        // Child is outside cut list.
                 {
                     Geom* childPtr = FindGeom( child_id );
@@ -1507,7 +1507,7 @@ void Vehicle::ReorderActiveGeom( int action )
         return;
     }
 
-    string active_geom_id = active_geom_vec[0];
+    const string& active_geom_id = active_geom_vec[0];
     Geom* active_geom = FindGeom( active_geom_id );
     if ( !active_geom )
     {
@@ -1549,7 +1549,7 @@ void Vehicle::ReparentActiveGeom( int action )
         return;
     }
 
-    string active_geom_id = active_geom_vec[0];
+    const string& active_geom_id = active_geom_vec[0];
     Geom* active_geom = FindGeom( active_geom_id );
     if ( !active_geom )
     {
@@ -3441,7 +3441,7 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int 
     fclose( file_id );
 
     string key_name = file_name;
-    std::string::size_type loc = key_name.find_last_of( "." );
+    std::string::size_type loc = key_name.find_last_of( '.' );
     if ( loc == key_name.npos )
     {
         key_name = string( "bodyin.key" );
@@ -3763,7 +3763,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set, bool use
 
     //==== Figure Out Basename ====//
     string base_name = file_name;
-    std::string::size_type loc = base_name.find_last_of( "." );
+    std::string::size_type loc = base_name.find_last_of( '.' );
     if ( loc != base_name.npos )
     {
         base_name = base_name.substr( 0, loc );

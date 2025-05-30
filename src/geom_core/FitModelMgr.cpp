@@ -639,7 +639,7 @@ void FitModelMgrSingleton::BuildPtrVec()
     map<string,SurfData> geomdata;
     for ( it = usedgeoms.begin(); it != usedgeoms.end(); ++it )
     {
-        string id = *it;
+        const string& id = *it;
         SurfData s;
         s.m_GeomPtr = VehicleMgr.GetVehicle()->FindGeom( id );
         s.m_UClosed = s.m_GeomPtr->GetSurfPtr(0)->IsClosedU();
@@ -1068,7 +1068,7 @@ void FitModelMgrSingleton::SelectAllShown()
 
     for ( int i = 0; i < ( int ) ptclouds.size(); i++ )
     {
-        string gid = ptclouds[i];
+        const string& gid = ptclouds[i];
         Geom *g = veh->FindGeom( gid );
 
         if ( g->GetSetFlag( vsp::SET_SHOWN ) )
@@ -1092,7 +1092,7 @@ void FitModelMgrSingleton::SelectNone()
 
     for ( int i = 0; i < ( int ) ptclouds.size(); i++ )
     {
-        string gid = ptclouds[i];
+        const string& gid = ptclouds[i];
         Geom *g = veh->FindGeom( gid );
 
         if ( g->GetSetFlag( vsp::SET_SHOWN ) )
@@ -1117,7 +1117,7 @@ void FitModelMgrSingleton::SelectInv()
 
     for ( int i = 0; i < ( int ) ptclouds.size(); i++ )
     {
-        string gid = ptclouds[i];
+        const string& gid = ptclouds[i];
         Geom *g = veh->FindGeom( gid );
 
         if ( g->GetSetFlag( vsp::SET_SHOWN ) )
@@ -1141,7 +1141,7 @@ void FitModelMgrSingleton::HideSelection()
 
     for ( int i = 0; i < ( int ) ptclouds.size(); i++ )
     {
-        string gid = ptclouds[i];
+        const string& gid = ptclouds[i];
         Geom *g = veh->FindGeom( gid );
 
         if ( g->GetSetFlag( vsp::SET_SHOWN ) )
@@ -1165,7 +1165,7 @@ void FitModelMgrSingleton::HideUnselected()
 
     for ( int i = 0; i < ( int ) ptclouds.size(); i++ )
     {
-        string gid = ptclouds[i];
+        const string& gid = ptclouds[i];
         Geom *g = veh->FindGeom( gid );
 
         if ( g->GetSetFlag( vsp::SET_SHOWN ) )
@@ -1188,7 +1188,7 @@ void FitModelMgrSingleton::HideAll()
 
     for ( int i = 0; i < ( int ) ptclouds.size(); i++ )
     {
-        string gid = ptclouds[i];
+        const string& gid = ptclouds[i];
         Geom *g = veh->FindGeom( gid );
 
         if ( g->GetSetFlag( vsp::SET_SHOWN ) )
@@ -1212,7 +1212,7 @@ void FitModelMgrSingleton::HideInv()
 
     for ( int i = 0; i < ( int ) ptclouds.size(); i++ )
     {
-        string gid = ptclouds[i];
+        const string& gid = ptclouds[i];
         Geom *g = veh->FindGeom( gid );
 
         if ( g->GetSetFlag( vsp::SET_SHOWN ) )
@@ -1236,7 +1236,7 @@ void FitModelMgrSingleton::ShowAll()
 
     for ( int i = 0; i < ( int ) ptclouds.size(); i++ )
     {
-        string gid = ptclouds[i];
+        const string& gid = ptclouds[i];
         Geom *g = veh->FindGeom( gid );
 
         if ( g->GetSetFlag( vsp::SET_SHOWN ) )
@@ -1320,7 +1320,7 @@ void FitModelMgrSingleton::AddSelectedPts( const string &tgtGeomID )
 
         for ( int i = 0; i < ( int ) ptclouds.size(); i++ )
         {
-            string gid = ptclouds[i];
+            const string& gid = ptclouds[i];
             Geom *g = veh->FindGeom( gid );
 
             if ( g->GetSetFlag( vsp::SET_SHOWN ) )
@@ -1337,7 +1337,7 @@ void FitModelMgrSingleton::AddSelectedPts( const string &tgtGeomID )
 
     for ( int i = 0; i < ( int )targetCandidates.size(); i++ )
     {
-        vec3d pt = targetCandidates[i];
+        const vec3d& pt = targetCandidates[i];
         vec2d uw( veh->m_UTargetPt.Get(), veh->m_WTargetPt.Get() );
 
         TargetPt *tpt = new TargetPt();

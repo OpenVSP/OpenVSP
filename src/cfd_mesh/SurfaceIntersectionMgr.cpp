@@ -573,7 +573,7 @@ void SurfaceIntersectionSingleton::TransferSubSurfData()
 }
 
 //==== Get vector of SimpleSubSurfaces from geom by ID and surf number ====//
-vector< SimpleSubSurface > SurfaceIntersectionSingleton::GetSimpSubSurfs( string geom_id, int surfnum, int comp_id )
+vector< SimpleSubSurface > SurfaceIntersectionSingleton::GetSimpSubSurfs( const string &geom_id, int surfnum, int comp_id )
 {
     vector< SimpleSubSurface > ret_vec;
 
@@ -614,7 +614,7 @@ vector< SimpleSubSurface > SurfaceIntersectionSingleton::GetSimpSubSurfs( string
     return ret_vec;
 }
 
-int SurfaceIntersectionSingleton::GetSimpSubSurfIndex( string ss_id )
+int SurfaceIntersectionSingleton::GetSimpSubSurfIndex( const string &ss_id )
 {
     for ( int i = 0; i < m_SimpleSubSurfaceVec.size(); i++ )
     {
@@ -1048,11 +1048,11 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
             fprintf( fp, "%d		// Surface A ID \n", surfA->GetSurfID() );
             fprintf( fp, "%d		// Surface B ID \n", surfB->GetSurfID() );
 
-            vector< IPnt* > ipntVec;
+            vector< IPnt* > ipntVec( border_curves[i]->m_ISegDeque.size() );
 
             for ( int j = 0 ; j < ( int )border_curves[i]->m_ISegDeque.size() ; j++ )
             {
-                ipntVec.push_back( border_curves[i]->m_ISegDeque[j]->m_IPnt[0] );
+                ipntVec[j] = border_curves[i]->m_ISegDeque[j]->m_IPnt[0];
             }
             ipntVec.push_back( border_curves[i]->m_ISegDeque.back()->m_IPnt[1] );
 
@@ -1105,11 +1105,11 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
             fprintf( fp, "%d		// Surface A ID \n", surfA->GetSurfID() );
             fprintf( fp, "%d		// Surface B ID \n", surfB->GetSurfID() );
 
-            vector< IPnt* > ipntVec;
+            vector< IPnt* > ipntVec( intersect_curves[i]->m_ISegDeque.size() );
 
             for ( int j = 0 ; j < ( int )intersect_curves[i]->m_ISegDeque.size() ; j++ )
             {
-                ipntVec.push_back( intersect_curves[i]->m_ISegDeque[j]->m_IPnt[0] );
+                ipntVec[j] = intersect_curves[i]->m_ISegDeque[j]->m_IPnt[0];
             }
             ipntVec.push_back( intersect_curves[i]->m_ISegDeque.back()->m_IPnt[1] );
 
@@ -1189,7 +1189,7 @@ void SurfaceIntersectionSingleton::WriteGridToolCurvFile( const string &filename
 
             for ( int i = 0; i < ptvec.size(); i++ )
             {
-                vec3d pt = ptvec[i];
+                const vec3d& pt = ptvec[i];
                 fprintf( fp, "%21.15e %21.15e %21.15e\n", pt.x(), pt.y(), pt.z() );
             }
 
@@ -1268,7 +1268,7 @@ Surf* SurfaceIntersectionSingleton::FindSurf( int surf_id )
 
 void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int len_unit,
                                                   bool label_id, bool label_surf_num, bool label_split_num,
-                                                  bool label_name, string label_delim )
+                                                  bool label_name, const string &label_delim )
 {
     BuildNURBSSurfMap();
 
@@ -1338,7 +1338,7 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
 
 void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int len_unit, double tol,
                                                   bool merge_pnts, bool label_id, bool label_surf_num, bool label_split_num,
-                                                  bool label_name, string label_delim, int representation  )
+                                                  bool label_name, const string &label_delim, int representation )
 {
     STEPutil step( len_unit, tol );
 

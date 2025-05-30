@@ -1558,7 +1558,7 @@ bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int
         {
             double d;
 
-            vec3d p = pnts[i];
+            const vec3d & p = pnts[i];
             d = dist_pnt_2_plane( o, n, p );
 
             if ( d > dmax )
@@ -2795,7 +2795,7 @@ xmlNodePtr FeaPolySpar::DecodeXml( xmlNodePtr & node )
     return ps_node;
 }
 
-void FeaPolySpar::ChangeID( string id )
+void FeaPolySpar::ChangeID( const string &id )
 {
     FeaSlice::ChangeID( id );
 
@@ -4111,7 +4111,7 @@ xmlNodePtr FeaPartTrim::DecodeXml( xmlNodePtr & node )
     for ( int i = 0 ; i < num_trim ; i++ )
     {
         xmlNodePtr n = XmlUtil::GetNode( tl_node, "TrimPart", i );
-        AddTrimPart( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+        AddTrimPart(ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
     }
 
     ParmContainer::DecodeXml( node );
@@ -4142,7 +4142,7 @@ void FeaPartTrim::UpdateDrawObjs()
 
             for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
             {
-                VspSurf s = parent_surf_vec[i];
+                const VspSurf &s = parent_surf_vec[i];
 
                 vec3d cen = s.CompPnt01( 0.5, 0.5 );
                 vec3d dir = s.CompAveNorm01( 0.5, 0.5 );
@@ -4335,7 +4335,7 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
 
                         vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
 
-                        VspSurf s = parent_surf_vec[isymm];
+                        const VspSurf &s = parent_surf_vec[isymm];
 
                         vec3d cen = s.CompPnt01( 0.5, 0.5 );
                         vec3d dir = s.CompNorm01( 0.5, 0.5 );
@@ -4377,7 +4377,7 @@ bool FeaPartTrim::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen,
     return false;
 }
 
-void FeaPartTrim::AddTrimPart( string partID )
+void FeaPartTrim::AddTrimPart( const string &partID )
 {
     BoolParm* bp = dynamic_cast<BoolParm*>( ParmMgr.CreateParm( vsp::PARM_BOOL_TYPE ) );
     if ( bp )
@@ -6081,7 +6081,7 @@ void FeaMaterial::Update()
     }
 }
 
-void FeaMaterial::MakeMaterial( string id )
+void FeaMaterial::MakeMaterial( const string &id )
 {
     if ( id == "_Al7075T6" )
     {

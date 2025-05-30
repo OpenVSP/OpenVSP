@@ -466,12 +466,12 @@ void GeomBase::AddChildID( const string &id, const string &insert_after_id )
 }
 
 //==== Remove ID From Child Vec ====//
-void GeomBase::RemoveChildID( string id )
+void GeomBase::RemoveChildID( const string &id )
 {
     vector_remove_val( m_ChildIDVec, id );
 }
 
-void GeomBase::RemoveStepChildID( string id )
+void GeomBase::RemoveStepChildID( const string &id )
 {
     vector_remove_val( m_StepChildIDVec, id );
 }
@@ -4150,7 +4150,7 @@ void Geom::SetMaterialToDefault()
     m_GuiDraw.SetMaterialToDefault();
 }
 
-void Geom::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )
+void Geom::SetMaterial( const std::string &name, double ambi[], double diff[], double spec[], double emis[], double shin )
 {
     m_GuiDraw.SetMaterial( name, ambi, diff, spec, emis, shin );
 }
@@ -5281,10 +5281,10 @@ void Geom::CreateGeomResults( Results* res )
         //==== Write XSec Data ====//
         for ( int j = 0 ; j < ( int )pnts.size() ; j++ )
         {
-            vector< vec3d > xsec_vec;
+            vector< vec3d > xsec_vec( pnts[j].size() );
             for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
             {
-                xsec_vec.push_back(  pnts[j][k] );
+                xsec_vec[k] = pnts[j][k];
             }
             res->Add( new NameValData( "XSec_Pnts", xsec_vec, "Coordinates of surface points." ) );
         }
@@ -5496,7 +5496,7 @@ void Geom::AddLinkableParms( vector< string > & linkable_parm_vec, const string 
     }
 }
 
-void Geom::ChangeID( string id )
+void Geom::ChangeID( const string &id )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 

@@ -77,7 +77,7 @@ PointSource::PointSource()
     m_Name = "Point_Name";
 }
 
-void PointSource::SetNamedVal( string name, double val )
+void PointSource::SetNamedVal( const string &name, double val )
 {
     if ( name == "U1" )
     {

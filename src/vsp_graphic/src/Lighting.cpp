@@ -180,11 +180,11 @@ void Lighting::update()
 
 std::vector<bool> Lighting::getLightEnableStatus()
 {
-    std::vector<bool> statusList;
+    std::vector<bool> statusList( _lightSources.size() );
 
     for( int i = 0; i < ( int )_lightSources.size(); i++ )
     {
-        statusList.push_back( _lightSources[i]->isEnabled() );
+        statusList[i] = _lightSources[i]->isEnabled();
     }
     return statusList;
 }

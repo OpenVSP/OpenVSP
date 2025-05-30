@@ -113,7 +113,7 @@ Link* LinkMgrSingleton::GetLink( int index )
 }
 
 //==== Get Parm Link Given Index ====//
-Link* LinkMgrSingleton::GetLink( string id )
+Link* LinkMgrSingleton::GetLink( const string &id )
 {
     for (int index = 0; index != m_LinkVec.size(); index++ )
     {

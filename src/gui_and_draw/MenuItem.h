@@ -34,7 +34,7 @@ class ScreenMenuItem : BaseMenuItem
 public:
     ScreenMenuItem();
 
-    virtual void Init( ScreenMgr *mgr, Fl_Sys_Menu_Bar *mbar, std::string mpath, int sid, int secondary_sid = -1 );
+    virtual void Init( ScreenMgr *mgr, Fl_Sys_Menu_Bar *mbar, const std::string &mpath, int sid, int secondary_sid = -1 );
 
     void ShowScreenCallBack( void* data );
 
@@ -56,7 +56,7 @@ class ActionMenuItem : public BaseMenuItem
 {
 public:
     ActionMenuItem();
-    virtual void Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, std::string mpath, int scut = 0 );
+    virtual void Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, const std::string &mpath, int scut = 0 );
 
     void ActionCallBack( void* data );
     static void staticActionCB( Fl_Widget *w, void* data )
@@ -74,7 +74,7 @@ class VSPCheckMenuItem : ActionMenuItem
 {
 public:
 
-    void Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, std::string mpath, int scut = 0 );
+    void Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, const std::string &mpath, int scut = 0 );
 
     static void staticActionCB( Fl_Widget *w, void* data )
     {

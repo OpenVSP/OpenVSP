@@ -52,7 +52,7 @@ XSec::~XSec()
     delete m_XSCurve;
 }
 
-void XSec::ChangeID( string newid )
+void XSec::ChangeID( const string &newid )
 {
     string oldid = m_ID;
     ParmContainer::ChangeID( newid );
@@ -448,9 +448,11 @@ void XSec::GetTanNormCrv( const vector< double > &thetas,
         const vector< double > &angstr, const vector< double > &crvstr,
         piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
 {
-    vector< double > ts;
+    vector< double > ts( 5 );
     for ( int i = 0 ; i < 5 ; i++ )
-        ts.push_back( (double)i );
+    {
+        ts[i] = (double) i;
+    }
 
     assert( thetas.size() == 5 );
     assert( phis.size() == 5 );

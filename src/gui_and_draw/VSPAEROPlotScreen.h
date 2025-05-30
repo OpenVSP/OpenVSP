@@ -91,7 +91,7 @@ protected:
     void UpdateConvergenceYDataBrowser();
 
     void RedrawConvergencePlot();
-    void PlotConvergence( string resultID, vector <string> yDataSetNames, bool expand_only, int icase );
+    void PlotConvergence( const string &resultID, vector <string> yDataSetNames, bool expand_only, int icase );
 
     //==== Load Distribution Tab ====//
     Fl_Group* m_LoadDistTab;
@@ -127,7 +127,7 @@ protected:
     void UpdateLoadDistYDataBrowser();
     void UpdateLoadDistSelectionBrowser();
     void RedrawLoadDistPlot();
-    void PlotLoadDistribution( string resultID, vector <string> yDataSetNames, bool expand_only, int icase );
+    void PlotLoadDistribution( const string &resultID, vector <string> yDataSetNames, bool expand_only, int icase );
 
     vector < int > m_LoadSelectedBladeVec; // vector of selected rotor blades
 
@@ -232,7 +232,7 @@ protected:
     void UpdateUnsteadySelectionBrowser();
 
     void RedrawUnsteadyPlot();
-    void PlotUnsteady( string resultID, vector <string> yDataSetNames, bool expand_only, int icase );
+    void PlotUnsteady( const string &resultID, vector <string> yDataSetNames, bool expand_only, int icase );
 
     ToggleRadioGroup m_UnsteadyDataTypeRadio;
     ToggleButton m_UnsteadyHistoryToggle;

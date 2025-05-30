@@ -63,7 +63,7 @@ void ProjectionMgrSingleton::SetGeomIDs( const string &tid, const string &bid, c
     m_DirectionGeomID = did;
 }
 
-vec3d ProjectionMgrSingleton::GetDirection( int dirtype, string dirid )
+vec3d ProjectionMgrSingleton::GetDirection( int dirtype, const string &dirid )
 {
     vec3d dir;
 
@@ -206,7 +206,7 @@ Results* ProjectionMgrSingleton::Project( int tset, int bset, const vec3d & dir 
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( int tset, string bgeom, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( int tset, const string &bgeom, const vec3d & dir )
 {
     vector < TMesh* > targetTMeshVec;
     vector < TMesh* > boundaryTMeshVec;
@@ -247,7 +247,7 @@ Results* ProjectionMgrSingleton::Project( const string &tgeom, int bset, const v
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( const string &tgeom, string bgeom, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( const string &tgeom, const string &bgeom, const vec3d & dir )
 {
     vector < TMesh* > targetTMeshVec;
     vector < TMesh* > boundaryTMeshVec;
@@ -569,7 +569,7 @@ void ProjectionMgrSingleton::GetMesh( int set, vector < TMesh* > & tmv )
     }
 }
 
-void ProjectionMgrSingleton::GetMesh( string geom, vector < TMesh* > & tmv )
+void ProjectionMgrSingleton::GetMesh( const string &geom, vector < TMesh* > & tmv )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 

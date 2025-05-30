@@ -207,7 +207,7 @@ public:
     virtual vector < string > GetParmIDs()                      { return m_ParmIDVec; }
     virtual vector < double > GetParmVals( int set_index )      { return m_ParmValVec[ set_index ]; }
 
-    virtual void NewSet( const string &set_name, vector < double > p_ValVec );
+    virtual void NewSet( const string &set_name, const vector<double> &p_ValVec );
 
     virtual OldPreset DecodeXml( xmlNodePtr &varpresetnode, int i );
 

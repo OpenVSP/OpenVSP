@@ -95,7 +95,7 @@ public:
 
 protected:
 
-    virtual void ChangeID( string id );
+    virtual void ChangeID( const string &id );
 
     XSec* CreateXSec( int type );
 

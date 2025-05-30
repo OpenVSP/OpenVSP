@@ -625,7 +625,7 @@ void VspCurve::SetCubicControlPoints( const vector< vec3d > & cntrl_pts )
         {
             int k = i * 3 + j;
 
-            vec3d p = cntrl_pts[k];
+            const vec3d& p = cntrl_pts[k];
 
             curve_point_type cp;
             cp << p.x(), p.y(), p.z();
@@ -655,7 +655,7 @@ void VspCurve::SetCubicControlPoints( const vector< vec3d >& cntrl_pts, const ve
         {
             int k = i * 3 + j;
 
-            vec3d p = cntrl_pts[k];
+            const vec3d& p = cntrl_pts[k];
 
             curve_point_type cp;
             cp << p.x(), p.y(), p.z();

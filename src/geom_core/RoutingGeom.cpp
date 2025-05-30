@@ -620,7 +620,7 @@ xmlNodePtr RoutingGeom::DecodeXml( xmlNodePtr & node )
     return routingpoints_node;
 }
 
-void RoutingGeom::ChangeID( string id )
+void RoutingGeom::ChangeID( const string &id )
 {
     Geom::ChangeID( id );
 

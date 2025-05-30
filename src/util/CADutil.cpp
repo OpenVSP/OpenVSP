@@ -867,7 +867,7 @@ SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, const string& label,
         {
             if ( pnCloud.UsedNode( i ) )
             {
-                vec3d p = allPntVec[i];
+                const vec3d& p = allPntVec[i];
                 SdaiCartesian_point* pt = MakePoint( p.x(), p.y(), p.z() );
                 usedPts.push_back( pt );
             }
@@ -877,7 +877,7 @@ SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, const string& label,
     {
         for ( int i = 0; i < (int)allPntVec.size(); i++ )
         {
-            vec3d p = allPntVec[i];
+            const vec3d& p = allPntVec[i];
             SdaiCartesian_point* pt = MakePoint( p.x(), p.y(), p.z() );
             usedPts.push_back( pt );
         }
@@ -989,7 +989,7 @@ SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( const vector < vec3d > &cp_v
         {
             if ( pnCloud.UsedNode( j ) || j == cp_vec.size() - 1 )
             {
-                vec3d p = cp_vec[j];
+                const vec3d& p = cp_vec[j];
                 SdaiCartesian_point* pt = MakePoint( p.x(), p.y(), p.z() );
                 usedPts.push_back( pt );
             }
@@ -999,7 +999,7 @@ SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( const vector < vec3d > &cp_v
     {
         for ( int j = 0; j < (int)cp_vec.size(); j++ )
         {
-            vec3d p = cp_vec[j];
+            const vec3d& p = cp_vec[j];
             SdaiCartesian_point* pt = MakePoint( p.x(), p.y(), p.z() );
             usedPts.push_back( pt );
         }

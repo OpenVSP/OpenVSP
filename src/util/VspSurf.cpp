@@ -2570,7 +2570,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
     int ivalid = 0;
     for ( int isect = 0; isect < num_sections; isect++ )
     {
-        piecewise_surface_type surf = surfvec[isect];
+        const piecewise_surface_type & surf = surfvec[isect];
 
         if ( !CheckValidPatch( surf ) )
         {

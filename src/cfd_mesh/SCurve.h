@@ -46,7 +46,7 @@ public:
         return m_Surf;
     }
 
-    double GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, vec3d p, const vec3d &uw, double u, int &reason );
+    double GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, const vec3d &p, const vec3d &uw, double u, int &reason );
 
     void BorderTesselate( );
     void CheapTesselate( );

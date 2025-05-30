@@ -39,19 +39,19 @@ public:
     virtual TMesh* CreateTMesh() const;
     virtual void AddToTMesh( TMesh* tmesh ) const;
 
-    virtual void SetSP0( vec3d pnt )
+    virtual void SetSP0( const vec3d & pnt )
     {
         m_SP0 = pnt;
     }
-    virtual void SetSP1( vec3d pnt )
+    virtual void SetSP1( const vec3d & pnt )
     {
         m_SP1 = pnt;
     }
-    virtual void SetP0( vec3d pnt )
+    virtual void SetP0( const vec3d & pnt )
     {
         m_P0 = pnt;
     }
-    virtual void SetP1( vec3d pnt )
+    virtual void SetP1( const vec3d & pnt )
     {
         m_P1 = pnt;
     }
@@ -109,13 +109,13 @@ public:
         return m_PolyPntsVec;
     }
     virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
-    virtual void LoadPartialColoredDrawObjs( const string & ss_id, int surf_num, std::vector < DrawObj * > & draw_obj_vec, vec3d color );
+    virtual void LoadPartialColoredDrawObjs( const string & ss_id, int surf_num, std::vector < DrawObj * > & draw_obj_vec, const vec3d &color );
     virtual void SetUpdateDraw( bool flag )
     {
         m_UpdateDrawFlag = flag;
     }
 
-    virtual void SetLineColor( vec3d color )
+    virtual void SetLineColor( const vec3d & color )
     {
         m_LineColor = color;
     }

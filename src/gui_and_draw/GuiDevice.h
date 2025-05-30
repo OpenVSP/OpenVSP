@@ -277,7 +277,7 @@ public:
         }
     }
 
-    virtual void SetSuffix( string sfx )
+    virtual void SetSuffix( const string &sfx )
     {
         if ( m_Suffix.compare( sfx ) != 0 )
         {
@@ -1125,7 +1125,7 @@ public:
 
     virtual void DeviceCB( Fl_Widget *w );
 
-    virtual void Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders );
+    virtual void Init( VspScreen* screen, const vector < vector < Fl_Button * > > & buttons, const vector < SliderAdjRangeInput * > & sliders );
 
     virtual void Update( vector< string > & parm_ids );
     virtual void Activate();
@@ -1308,7 +1308,7 @@ public:
     virtual int ihit( int mx, int my, int r );
 
     virtual void Update( PCurve *curve );
-    virtual void Update( PCurve *curve, PCurve *curveb, string labelb );
+    virtual void Update( PCurve *curve, PCurve *curveb, const string &labelb );
 
     // GUI devices for the curve editor
     SliderAdjRangeInput m_SplitPtSlider;

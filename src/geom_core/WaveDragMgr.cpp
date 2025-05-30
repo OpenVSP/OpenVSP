@@ -320,7 +320,7 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
 
     vector< string > set_name_vec = veh->GetSetNameVec();
 
-    string set_name = set_name_vec[set];
+    const string & set_name = set_name_vec[set];
     res->Add( new NameValData( "Set_Name", set_name, "Set name." ) );
 
     string to_insert = "_" + str_mach + "_" + set_name;

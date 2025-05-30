@@ -111,8 +111,8 @@ void AttributeTree::UpdateTree()
 
     vector < vector < vector < string > > > tree_id_coll_vecs = AttributeMgr.GetAttrTreeVec( root_id , m_OpenBranchVec, true, m_FilterAttrType, m_FilterObjType, m_FilterStr, m_FilterCase ); //
 
-    vector < vector < string > > tree_id_vecs = tree_id_coll_vecs[0];
-    vector < vector < string > > tree_coll_vecs = tree_id_coll_vecs[1];
+    const vector < vector < string > > & tree_id_vecs = tree_id_coll_vecs[0];
+    const vector < vector < string > > & tree_coll_vecs = tree_id_coll_vecs[1];
 
     vector < string > id_vec;
 
@@ -497,7 +497,7 @@ void AttributeEditor::Update()
     m_AttrTreeWidget.Update();
 }
 
-void AttributeEditor::SetEditorCollID( string collID )
+void AttributeEditor::SetEditorCollID( const string& collID )
 {
     m_AttrCollID = collID;
     m_AttrTreeWidget.SetTreeRootID( collID );

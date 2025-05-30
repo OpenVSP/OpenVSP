@@ -304,7 +304,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
     bool writethickthin = false;
     // figure out basename
     string base_name = file_name;
-    std::string::size_type loc = base_name.find_last_of( "." );
+    std::string::size_type loc = base_name.find_last_of( '.' );
     if ( loc != base_name.npos )
     {
         base_name = base_name.substr( 0, loc );
@@ -355,7 +355,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         string snum, ssnames, ssids;
 
         // Find position of first comma
-        int cpos = comp_list.find( "," );
+        int cpos = comp_list.find( ',' );
         if ( cpos != std::string::npos )
         {
             snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
@@ -374,7 +374,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         string gid_bare = gid.substr( 0, 10 );
 
         // Find position of first comma
-        cpos = id_list.find( "," );
+        cpos = id_list.find( ',' );
         if ( cpos != std::string::npos )
         {
             ssids = id_list.substr( cpos );
@@ -419,7 +419,7 @@ void SubSurfaceMgrSingleton::WriteTKeyFile(const string & file_name )
 {
     // figure out basename
     string base_name = file_name;
-    std::string::size_type loc = base_name.find_last_of( "." );
+    std::string::size_type loc = base_name.find_last_of( '.' );
     if ( loc != base_name.npos )
     {
         base_name = base_name.substr( 0, loc );
@@ -679,7 +679,7 @@ void SubSurfaceMgrSingleton::GetPartData( vector < string > &gidvec, vector < in
         string snum, ssnames;
 
         // Find position of first comma
-        int cpos = comp_list.find( "," );
+        int cpos = comp_list.find( ',' );
         if ( cpos != std::string::npos )
         {
             snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );

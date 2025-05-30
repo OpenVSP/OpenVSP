@@ -2796,7 +2796,7 @@ void ParmTreePicker::Update( const vector< string > &selected_ids )
 
     for ( int i = 0; i < selected_ids.size(); i++ )
     {
-        string pID = selected_ids[i];
+        const string& pID = selected_ids[i];
         Parm *p = ParmMgr.FindParm( pID );
         if ( p )
         {
@@ -3102,7 +3102,7 @@ void ParmTreePicker::UpdateParmTree()
 
     for ( i = 0 ; i < ( int )containerVec.size() ; i++ )
     {
-        string cID = containerVec[i];
+        const string& cID = containerVec[i];
 
         ParmContainer* pc = ParmMgr.FindParmContainer( cID );
         if ( pc )
@@ -3131,7 +3131,7 @@ void ParmTreePicker::UpdateParmTree()
             ParmTreeIt pit;
             for ( j = 0; j < ( int ) parms.size() ; j++ )
             {
-                string pID = parms[j];
+                const string& pID = parms[j];
 
                 pit =  (*cit).second.m_ParmMap.find( pID );
                 if ( pit != (*cit).second.m_ParmMap.end() )
@@ -3174,7 +3174,7 @@ void ParmTreePicker::UpdateParmTree()
             // Loop over all parms, verifying group usage.
             for ( j = 0; j < ( int ) parms.size() ; j++ )
             {
-                string pID = parms[j];
+                const string& pID = parms[j];
                 Parm *p = ParmMgr.FindParm( parms[j] );
                 if ( p )
                 {
@@ -3200,7 +3200,7 @@ void ParmTreePicker::UpdateParmTree()
             // Loop over parms, creating entries as needed.
             for ( j = 0; j < ( int ) parms.size() ; j++ )
             {
-                string pID = parms[j];
+                const string& pID = parms[j];
                 Parm *p = ParmMgr.FindParm( parms[j] );
                 if ( p )
                 {
@@ -3245,7 +3245,7 @@ DriverGroupBank::DriverGroupBank()
     m_DriverGroup = NULL;
 }
 
-void DriverGroupBank::Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders )
+void DriverGroupBank::Init( VspScreen* screen, const vector < vector < Fl_Button * > > & buttons, const vector < SliderAdjRangeInput * > & sliders )
 {
     GuiDevice::Init( screen );
 
@@ -4244,7 +4244,7 @@ void PCurveEditor::DeviceCB( Fl_Widget* w )
     m_Screen->GuiDeviceCallBack( this );
 }
 
-void PCurveEditor::Update( PCurve *curve, PCurve *curveb, string labelb )
+void PCurveEditor::Update( PCurve *curve, PCurve *curveb, const string &labelb )
 {
     m_Curve = curve;
     m_CurveB = curveb;

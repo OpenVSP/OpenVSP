@@ -2297,7 +2297,7 @@ line 4407 - void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
 TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 *******************************************************/
-void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, double recref )
+void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, double recref )
 {
     //TODO return success or failure
     FILE *fp = NULL;
@@ -2551,7 +2551,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 Read .polar file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_id_vector, double recref )
+void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string> &res_id_vector, double recref )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -2794,7 +2794,7 @@ line 2851 - void VSP_SOLVER::CalculateSpanWiseLoading(void)
 TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 *******************************************************/
-void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -4930,7 +4930,7 @@ string VSPAEROMgrSingleton::ExecuteNoiseAnalysis( FILE* logFile, int noise_type,
 Read *.group.* file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &res_id_vector, string group_name )
+void VSPAEROMgrSingleton::ReadGroupResFile( const string &filename, vector <string> &res_id_vector, const string &group_name )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -5061,7 +5061,7 @@ void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &re
 Read *.rotor.* file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &res_id_vector, string group_name )
+void VSPAEROMgrSingleton::ReadRotorResFile( const string &filename, vector <string> &res_id_vector, const string &group_name )
 {
     FILE *fp = NULL;
     bool read_success = false;

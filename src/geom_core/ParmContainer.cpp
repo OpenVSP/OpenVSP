@@ -113,7 +113,7 @@ string ParmContainer::GenerateID()
     return GenerateRandomID( vsp::ID_LENGTH_PARMCONTAINER );
 }
 
-void ParmContainer::ChangeID( string id )
+void ParmContainer::ChangeID( const string &id )
 {
     ParmMgr.RemoveParmContainer( this );
 
@@ -274,7 +274,7 @@ void ParmContainer::LoadGroupParmVec( vector< string > & parm_vec, bool displayn
     //==== Map Parms To Group Names ====//
     for ( int i = 0 ; i < ( int )parm_vec.size() ; i++ )
     {
-        string pid = parm_vec[i];
+        const string& pid = parm_vec[i];
         Parm* p = ParmMgr.FindParm( pid );
         if ( p )
         {
@@ -427,7 +427,7 @@ void ParmContainer::GetGroupNames( vector< string > & group_names )
 }
 
 //==== Get Vector of Group Names And Index For Given Parm ID  ====//
-int ParmContainer::GetGroupNames( string parm_id, vector< string > & group_names )
+int ParmContainer::GetGroupNames( const string &parm_id, vector< string > & group_names )
 {
     int index = 0;
 
@@ -452,7 +452,7 @@ int ParmContainer::GetGroupNames( string parm_id, vector< string > & group_names
 }
 
 //==== Get Vector Parm IDs And Index For Given Parm ID  ====//
-int ParmContainer::GetParmIDs( string parm_id, vector< string > & parm_ids )
+int ParmContainer::GetParmIDs( const string &parm_id, vector< string > & parm_ids )
 {
     int index = 0;
 

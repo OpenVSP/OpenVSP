@@ -398,7 +398,7 @@ void ConformalGeom::ReSkin( VspSurf & surf, vector< rib_data_type > & rib_vec )
 //==== Check For Point XSec ====//
 bool ConformalGeom::CheckIfRibIsPoint( rib_data_type & rib )
 {
-    piecewise_curve_type crv = rib.get_f();
+    const piecewise_curve_type& crv = rib.get_f();
 
     double tmax = crv.get_tmax();
     vec3d first_pnt = crv.f( 0.0 );

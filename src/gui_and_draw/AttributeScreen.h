@@ -32,7 +32,7 @@ public:
     bool Update( );
 
     void SetAttrData( );
-    void AddEmptyCollID( vector < string > coll_ids );
+    void AddEmptyCollID( const vector<string> &coll_ids );
     void GetEmptyColls();
 
     int NumAttrTypes();

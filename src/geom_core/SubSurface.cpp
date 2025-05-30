@@ -127,7 +127,7 @@ void SubSurface::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
     draw_obj_vec.push_back( &m_SubSurfDO );
 }
 
-void SubSurface::LoadPartialColoredDrawObjs( const string & ss_id, int surf_num, std::vector < DrawObj* > & draw_obj_vec, vec3d color )
+void SubSurface::LoadPartialColoredDrawObjs( const string & ss_id, int surf_num, std::vector < DrawObj* > & draw_obj_vec, const vec3d &color )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )

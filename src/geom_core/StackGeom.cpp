@@ -110,7 +110,7 @@ void StackGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     GeomXSec::LoadDrawObjsUtil( draw_obj_vec );
 }
 
-void StackGeom::ChangeID( string id )
+void StackGeom::ChangeID( const string &id )
 {
     Geom::ChangeID( id );
     m_XSecSurf.SetParentContainer( GetID() );

@@ -43,7 +43,7 @@ XSecSurf::~XSecSurf()
     DeleteAllXSecs();
 }
 
-void XSecSurf::ChangeID( string id )
+void XSecSurf::ChangeID( const string &id )
 {
     ParmContainer::ChangeID( id );
 

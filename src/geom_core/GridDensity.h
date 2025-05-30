@@ -63,7 +63,7 @@ public:
     virtual void AdjustLen( double val );
     virtual void AdjustRad( double val );
 
-    virtual void SetNamedVal( string name, double val )         {}
+    virtual void SetNamedVal( const string &name, double val )         {}
 
     virtual int GetType()
     {
@@ -93,7 +93,7 @@ public:
     PointSource();
     virtual ~PointSource()      {}
 
-    virtual void SetNamedVal( string name, double val );
+    virtual void SetNamedVal( const string &name, double val );
 
     virtual void ReadV2File( xmlNodePtr &root );
 

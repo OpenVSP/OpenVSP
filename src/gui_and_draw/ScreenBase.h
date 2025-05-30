@@ -472,7 +472,7 @@ protected:
 class XSecScreen : public GeomScreen
 {
 public:
-    XSecScreen(ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string(), string xsnamelabel = string("Sect Alias"), string xscnamelabel = string("XSec Alias"), bool add_xs_btn = true );
+    XSecScreen(ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string(), const string & xsnamelabel = string("Sect Alias"), const string & xscnamelabel = string("XSec Alias"), bool add_xs_btn = true );
     virtual ~XSecScreen() {}
 
     virtual bool Update();

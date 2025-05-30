@@ -135,7 +135,7 @@ public:
     void Init( GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start = false, int start_y = 0, int browser_h = 150 );
     void Show();
     void Update();
-    void SetEditorCollID( string collID = "" );
+    void SetEditorCollID( const string & collID = "" );
     string GetAttrCollID()
     {
         return m_AttrCollID;

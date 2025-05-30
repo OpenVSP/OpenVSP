@@ -84,19 +84,19 @@ public:
         return &m_AssemblySettings;
     }
 
-    virtual void SetActiveMesh( string struct_id );
+    virtual void SetActiveMesh( const string &struct_id );
 
     virtual FeaMesh* GetMeshPtr()
     {
         return m_ActiveMesh;
     }
 
-    virtual FeaMesh* GetMeshPtr( string struct_id );
+    virtual FeaMesh* GetMeshPtr( const string &struct_id );
 
     virtual bool LoadSurfaces();
     virtual void LoadSkins();
     virtual void GenerateFeaMesh();
-    virtual void ExportFeaMesh( string structID );
+    virtual void ExportFeaMesh( const string &structID );
     virtual void ExportCADFiles();
     virtual void TransferMeshSettings();
     virtual void IdentifyCompIDNames();
@@ -122,7 +122,7 @@ public:
     virtual void RemoveSubSurfFeaTris();
     virtual void TagFeaNodes();
 
-    virtual void SetFeaMeshStructID( string struct_id )
+    virtual void SetFeaMeshStructID( const string &struct_id )
     {
         if ( m_FeaStructID == struct_id )  // Already set, do nothing.
         {

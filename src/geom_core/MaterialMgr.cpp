@@ -601,11 +601,11 @@ bool MaterialMgrSingleton::FindMaterial( int index, Material& mat_out )
 
 std::vector<std::string> MaterialMgrSingleton::GetNames()
 {
-    std::vector<std::string> names;
+    std::vector<std::string> names( m_Materials.size() );
 
     for( int i = 0; i < (int)m_Materials.size(); i++ )
     {
-        names.push_back(m_Materials[i].m_Name);
+        names[i] = m_Materials[i].m_Name;
     }
 
     return names;

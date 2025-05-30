@@ -12,7 +12,7 @@ TextureMgr::~TextureMgr()
     }
 }
 
-std::string TextureMgr::AttachTexture( std::string fileName )
+std::string TextureMgr::AttachTexture( const std::string &fileName )
 {
     Texture * texture = new Texture( fileName );
 
@@ -20,7 +20,7 @@ std::string TextureMgr::AttachTexture( std::string fileName )
     return texture->GetID(); 
 }
 
-void TextureMgr::RemoveTexture( std::string texture_id )
+void TextureMgr::RemoveTexture( const std::string &texture_id )
 {
     for( int i = 0; i < (int)m_TextureList.size(); i++ )
     {
@@ -33,7 +33,7 @@ void TextureMgr::RemoveTexture( std::string texture_id )
     }
 }
 
-Texture * TextureMgr::FindTexture( std::string texture_id )
+Texture * TextureMgr::FindTexture( const std::string &texture_id )
 {
     for( int i = 0; i < (int)m_TextureList.size(); i++ )
     {
@@ -47,11 +47,11 @@ Texture * TextureMgr::FindTexture( std::string texture_id )
 
 std::vector<std::string> TextureMgr::GetTextureVec()
 {
-    std::vector<std::string> ids;
+    std::vector<std::string> ids( m_TextureList.size() );
 
     for( int i = 0; i < (int)m_TextureList.size(); i++ )
     {
-        ids.push_back( m_TextureList[i]->GetID() );
+        ids[i] = m_TextureList[i]->GetID();
     }
     return ids;
 }

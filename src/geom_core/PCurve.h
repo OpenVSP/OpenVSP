@@ -78,7 +78,7 @@ public:
 
     virtual void InitCurve( const vector < double >& tvec, const vector < double >& valvec, vector < bool > c1vec = {} );
 
-    virtual void SetCurve( const vector < double > & tvec, const vector < double > & valvec, int newtype, vector < bool > c1vec = {} );
+    virtual void SetCurve( const vector < double > & tvec, const vector < double > & valvec, int newtype, const vector<bool> &c1vec = {} );
 
     virtual void SetDispNames( const string & xname, const string & yname );
     virtual string GetXDsipName()    { return m_XDispName; }

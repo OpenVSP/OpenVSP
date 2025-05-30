@@ -2270,7 +2270,7 @@ void VSPAEROPlotScreen::RedrawLoadDistPlot()
         {
             for ( unsigned int iCase = 0; iCase < m_LoadSelectedBladeVec.size(); iCase++ )
             {
-                PlotLoadDistribution( ResultsMgr.FindResultsID( "VSPAERO_Blade_Avg", m_LoadSelectedBladeVec[iCase] ), yDataSetNames, expandOnly, iCase );
+                PlotLoadDistribution(ResultsMgr.FindResultsID( "VSPAERO_Blade_Avg", m_LoadSelectedBladeVec[iCase] ), yDataSetNames, expandOnly, iCase );
                 expandOnly = true;
             }
         }
@@ -2575,7 +2575,7 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
         {
             for ( unsigned int iCase = 0; iCase < m_UnsteadySelectedTypeVec.size(); iCase++ )
             {
-                PlotUnsteady( ResultsMgr.FindResultsID( "VSPAERO_Group", m_UnsteadySelectedTypeVec[iCase] ), yDataSetNames, expandOnly, iCase );
+                PlotUnsteady(ResultsMgr.FindResultsID( "VSPAERO_Group", m_UnsteadySelectedTypeVec[iCase] ), yDataSetNames, expandOnly, iCase );
                 expandOnly = true;
             }
         }
@@ -2583,7 +2583,7 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
         {
             for ( unsigned int iCase = 0; iCase < m_UnsteadySelectedTypeVec.size(); iCase++ )
             {
-                PlotUnsteady( ResultsMgr.FindResultsID( "VSPAERO_Rotor", m_UnsteadySelectedTypeVec[iCase] ), yDataSetNames, expandOnly, iCase );
+                PlotUnsteady(ResultsMgr.FindResultsID( "VSPAERO_Rotor", m_UnsteadySelectedTypeVec[iCase] ), yDataSetNames, expandOnly, iCase );
                 expandOnly = true;
             }
         }
@@ -2603,17 +2603,17 @@ string VSPAEROPlotScreen::MakeAxisLabelStr( const vector <string> &dataSetNames 
     string labelStr;
     for ( int iDataSet = 0; iDataSet < dataSetNames.size(); iDataSet++ )
     {
-        labelStr = labelStr + dataSetNames[iDataSet].c_str();
+        labelStr += dataSetNames[iDataSet].c_str();
         if ( iDataSet < ( int )dataSetNames.size() - 1 )
         {
-            labelStr = labelStr + ", ";
+            labelStr += ", ";
         }
     }
     return labelStr;
 }
 
 
-void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataSetNames, bool expandOnly, int icase )
+void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string> yDataSetNames, bool expandOnly, int icase )
 {
 
     Results* res = ResultsMgr.FindResultsPtr( resultID );
@@ -2761,7 +2761,7 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
 
 }
 
-void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> yDataSetNames, bool expandOnly, int icase )
+void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <string> yDataSetNames, bool expandOnly, int icase )
 {
     Results* res = ResultsMgr.FindResultsPtr( resultID );
     if ( !res )
@@ -2928,7 +2928,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> y
     }
 }
 
-void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetNames, bool expandOnly, int icase )
+void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yDataSetNames, bool expandOnly, int icase )
 {
     Results* res = ResultsMgr.FindResultsPtr( resultID );
     if ( !res )
@@ -2976,7 +2976,7 @@ void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetN
             yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
             if ( yResultDataPtr != NULL )
             {
-                vector <double> xDoubleData = xDoubleData_orig;
+                const vector <double> & xDoubleData = xDoubleData_orig;
                 vector <double> yDoubleData;
                 if ( yResultDataPtr->GetType() == vsp::INT_DATA )
                 {

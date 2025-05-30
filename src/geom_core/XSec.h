@@ -117,7 +117,7 @@ protected:
 
     XSecCurve *m_XSCurve;
 
-    virtual void ChangeID( string id );
+    virtual void ChangeID( const string &id );
 };
 
 class SkinXSec : public XSec

@@ -109,9 +109,9 @@ public:
 
     void TransferMeshSettings() override;
 
-    virtual void GUI_Val( string name, double val );
-    virtual void GUI_Val( string name, int val );
-    virtual void GUI_Val( string name, string val );
+    virtual void GUI_Val( const string &name, double val );
+    virtual void GUI_Val( const string &name, int val );
+    virtual void GUI_Val( const string &name, const string &val );
 
     virtual string GetCurrSourceGeomID()
     {
@@ -220,8 +220,8 @@ protected:
     /*
     * Update Bounding Box DrawObjs.
     */
-    virtual void UpdateBBoxDO( BndBox box );
-    virtual void UpdateBBoxDOSymSplit( BndBox box );
+    virtual void UpdateBBoxDO( const BndBox &box );
+    virtual void UpdateBBoxDOSymSplit( const BndBox &box );
 
     string m_CurrSourceGeomID;
     int m_CurrMainSurfIndx;

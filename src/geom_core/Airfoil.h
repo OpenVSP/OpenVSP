@@ -350,7 +350,7 @@ public:
 
     virtual void OffsetCurve( double offset_val );
 
-    virtual bool ReadFile( string file_name );
+    virtual bool ReadFile( const string &file_name );
 
     virtual string GetAirfoilName()
     {
@@ -438,7 +438,7 @@ public:
     virtual void DemoteUpper();
     virtual void DemoteLower();
 
-    virtual void FitCurve( VspCurve c, int deg );
+    virtual void FitCurve( const VspCurve &c, int deg );
 
     virtual vector < double > GetUpperCST();
     virtual vector < double > GetLowerCST();

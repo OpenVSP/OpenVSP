@@ -219,8 +219,8 @@ public:
     virtual void IdentifyCompIDNames();
 
     virtual void TransferSubSurfData();
-    virtual vector < SimpleSubSurface > GetSimpSubSurfs( string geom_id, int surfnum, int comp_id );
-    virtual int GetSimpSubSurfIndex( string ss_id );
+    virtual vector < SimpleSubSurface > GetSimpSubSurfs( const string &geom_id, int surfnum, int comp_id );
+    virtual int GetSimpSubSurfIndex( const string &ss_id );
 
     void addOutputText( string str, int output_type = VOCAL_OUTPUT );
 
@@ -240,10 +240,10 @@ public:
     virtual void WritePlot3DFile( const string &filename, bool rawflag );
     virtual void WriteIGESFile( const string &filename, int len_unit,
                                 bool label_id = false, bool label_surf_num = false, bool label_split_num = false,
-                                bool label_name = false, string label_delim = "" );
+                                bool label_name = false, const string &label_delim = "" );
     virtual void WriteSTEPFile( const string& filename, int len_unit, double tol, bool merge_pnts,
                                 bool label_id = false, bool label_surf_num = false, bool label_split_num = false,
-                                bool label_name = false, string label_delim = "", int representation = 0 );
+                                bool label_name = false, const string &label_delim = "", int representation = 0 );
 
     virtual void ExportFiles();
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );

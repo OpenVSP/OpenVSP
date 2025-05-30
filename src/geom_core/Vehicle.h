@@ -326,7 +326,7 @@ public:
     }
 
     virtual vec3d GetXSecLineColor()                    { return m_XSecLineColor; }
-    virtual void SetXSecLineColor( vec3d color )        { m_XSecLineColor = color; }
+    virtual void SetXSecLineColor( const vec3d &color )        { m_XSecLineColor = color; }
 
     double ComputeStructuresScaleFactor();
 

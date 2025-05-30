@@ -159,7 +159,7 @@ public:
     void SetVSPAEROIndexVec( const vector < int > &vepaero_index_vec )                      { m_ComponentVSPAEROIndexVec = vepaero_index_vec; }
     void SetGeomIDsInGroup( const vector < string > &gidvec )                               { m_GeomIDsInGroup = gidvec; }
 
-    void AddComp( string comp_id, int surf_ind )                                            { m_ComponentSurfPairVec.push_back( std::make_pair( comp_id, surf_ind ) ); }
+    void AddComp( const string & comp_id, int surf_ind )                                            { m_ComponentSurfPairVec.push_back( std::make_pair( comp_id, surf_ind ) ); }
 
     enum GEOM_PROPERTY_TYPE
     {
@@ -511,9 +511,9 @@ protected:
     bool m_SolverProcessKill;
 
     // helper functions for VSPAERO files
-    void ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, double recref );
-    void ReadPolarFile( string filename, vector <string> &res_id_vector, double recref );
-    void ReadLoadFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    void ReadHistoryFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, double recref );
+    void ReadPolarFile( const string &filename, vector <string> &res_id_vector, double recref );
+    void ReadLoadFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
     void ReadStabFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType );
     static vector <string> ReadDelimLine( FILE * fp, char * delimiters );
     static bool CheckForCaseHeader( const std::vector<string> &headerStr );
@@ -521,8 +521,8 @@ protected:
     static int ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
     void ReadSetupFile(); // Read the VSPAERO setup file to identify VSPAERO inputs needed to generate existing VSPAERO results
     void ReadSliceFile( const string &filename, vector <string> &res_id_vector );
-    void ReadGroupResFile( string filename, vector <string> &res_id_vector, string group_name = "" );
-    void ReadRotorResFile( string filename, vector <string> &res_id_vector, string group_name = "" );
+    void ReadGroupResFile( const string &filename, vector <string> &res_id_vector, const string &group_name = "" );
+    void ReadRotorResFile( const string &filename, vector <string> &res_id_vector, const string &group_name = "" );
     static void AddResultHeader( const string &res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
 
     DrawObj m_HighlightDrawObj;

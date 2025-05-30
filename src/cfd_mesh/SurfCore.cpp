@@ -631,8 +631,8 @@ void SurfCore::MakeWakeSurf( const piecewise_curve_type& lecrv, double endx, dou
     Bezier_curve tecrv;
     tecrv.BuildWakeTECurve( lecrv, endx, angle, start_stretch_x, scale );
 
-    piecewise_curve_type le = lecrv;
-    piecewise_curve_type te = tecrv.GetCurve();
+    const piecewise_curve_type &le = lecrv;
+    const piecewise_curve_type &te = tecrv.GetCurve();
 
     int nuseg = le.number_segments();
 

@@ -686,7 +686,7 @@ void OldPreset::Init( const string &group_name, const vector < string > &p_IDvec
 }
 
 //==== New Setting ====//
-void OldPreset::NewSet( const string &set_name, vector < double > p_ValVec)
+void OldPreset::NewSet( const string &set_name, const vector<double> &p_ValVec )
 {
     m_SettingNameVec.push_back( set_name );
 

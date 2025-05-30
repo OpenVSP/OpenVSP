@@ -56,7 +56,7 @@ public:
 
     virtual int GetNumLinks()                               { return ( int )m_LinkVec.size(); }
     virtual Link* GetLink( int index );
-    virtual Link* GetLink( string id );
+    virtual Link* GetLink( const string &id );
 
     virtual void SetParm( bool flagA, string parm_id );
     virtual void SetParm( bool flagA, int container_ind, int group_ind, int parm_ind );

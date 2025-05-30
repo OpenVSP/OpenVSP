@@ -421,7 +421,7 @@ void ModeEditorScreen::CallBack( Fl_Widget *w )
 
             if ( m_SelectedSettingIndex >= 0 && m_SelectedSettingIndex < settingvec.size() )
             {
-                pair < string, string > setting = settingvec[ m_SelectedSettingIndex ];
+                const pair < string, string >& setting = settingvec[ m_SelectedSettingIndex ];
                 string gid = setting.first;
                 m_GroupChoiceIndex = vector_find_val( m_GroupIDs, gid );
 

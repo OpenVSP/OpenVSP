@@ -384,7 +384,7 @@ void UtilTestSuite::WritePntVecs( const vector< vector< vec3d > > & pnt_vecs, co
 
 
 //==== WriteCurve =====//
-void UtilTestSuite::WriteCurve( VspCurve& crv, string file_name )
+void UtilTestSuite::WriteCurve( VspCurve& crv, const string &file_name )
 {
 #if 0
     FILE* fp = fopen( file_name.c_str(), "w" );

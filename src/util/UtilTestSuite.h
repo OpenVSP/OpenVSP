@@ -54,7 +54,7 @@ private:
     void NumbersTest();
 
     static void WritePntVecs( const vector< vector< vec3d > > & pnt_vecs, const string &file_name );
-    void WriteCurve( VspCurve& crv, string file_name );
+    void WriteCurve( VspCurve& crv, const string &file_name );
 //  void WriteSurf( vector< vector< PntNorm > > & pnt_norm_vec, string file_name );
     static void WriteControlPnts( const vector< vector< vec3d > > & control_pnts, const string &file_name );
 };

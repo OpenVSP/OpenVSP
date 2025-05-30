@@ -547,14 +547,16 @@ public:
     virtual vector< vec3d > GetCtrlPntVec( bool non_dimensional = false, bool skip_last = false );
 
     // Functions to set the control point vector, parameterization, and G1 enforcement vector
-    virtual void SetPntVecs( vector < double > u_vec, vector < double > x_pnt_vec, vector < double > y_pnt_vec, vector < double > z_pnt_vec, vector < double > r_vec, vector < bool > g1_vec = {}, vector < bool > fix_u_vec = {}, bool force_update = true );
-    virtual void SetPntVecs( vector < double > u_vec, vector < vec3d > pnt_vec, vector < double > r_vec, vector < bool > g1_vec = {}, vector < bool > fix_u_vec = {}, bool force_update = true );
+    virtual void SetPntVecs( const vector<double> &u_vec, const vector<double> &x_pnt_vec, const vector<double> &y_pnt_vec, const vector<double> &
+                             z_pnt_vec, const vector<double> &r_vec, vector<bool> g1_vec = {}, vector<bool> fix_u_vec = {}, bool force_update = true );
+    virtual void SetPntVecs( const vector<double> &u_vec, const vector<vec3d> &pnt_vec, const vector<double> &r_vec, vector<bool> g1_vec =
+                                     {}, vector<bool> fix_u_vec = {}, bool force_update = true );
 
     // Move a control point of input index to a new 2D location. If the point moving is 
     // cubic Bezier and located on the curve, the neighboring points will move with it. 
     // Note, this is an anlternative to directly adjusting the parm values. The force_update
     // flag is automatically set to true when called from the API.
-    virtual void MovePnt( int index, vec3d new_pnt, bool force_update = false );
+    virtual void MovePnt( int index, const vec3d &new_pnt, bool force_update = false );
     // Move the currently selected control point to the new x and y position. The 
     // neighbors_only flag is used to move CEDIT neighbors when the point on the
     // curve is set by GUI elements

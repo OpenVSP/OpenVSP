@@ -63,7 +63,7 @@ void SCurve::GetBorderCurve( Bezier_curve & crv ) const
     m_Surf->GetBorderCurve( uw0, uw1, crv );
 }
 
-double SCurve::GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, vec3d p, const vec3d &uw, double u, int &reason )
+double SCurve::GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, const vec3d &p, const vec3d &uw, double u, int &reason )
 {
     bool limitFlag = false;
     if ( m_Surf->GetFarFlag() )

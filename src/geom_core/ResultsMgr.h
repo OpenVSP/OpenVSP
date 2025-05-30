@@ -203,7 +203,7 @@ public:
         m_Doc = doc;
     }
 
-    void SetAttrAttach( string attachID );
+    void SetAttrAttach( const string &attachID );
 
     string GetAttachID() const
     {
@@ -231,7 +231,7 @@ public:
     }
 
     string GenerateID();
-    void ChangeID( string id );
+    void ChangeID( const string &id );
 
     void CopyFrom( NameValData* nvd );
 

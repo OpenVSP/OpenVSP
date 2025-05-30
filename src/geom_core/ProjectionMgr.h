@@ -38,7 +38,7 @@ public:
 
     virtual void SetGeomIDs( const string &tid, const string &bid, const string &did );
 
-    virtual vec3d GetDirection( int dirtype, string dirid );
+    virtual vec3d GetDirection( int dirtype, const string &dirid );
 
     virtual void UpdateDirection();
     virtual vec3d GetDirection();
@@ -51,11 +51,11 @@ public:
 
     virtual Results* Project( int tset, const vec3d & dir );
     virtual Results* Project( int tset, int bset, const vec3d & dir );
-    virtual Results* Project( int tset, string bgeom, const vec3d & dir );
+    virtual Results* Project( int tset, const string &bgeom, const vec3d & dir );
 
     virtual Results* Project( const string &tgeom, const vec3d & dir );
     virtual Results* Project( const string &tgeom, int bset, const vec3d & dir );
-    virtual Results* Project( const string &tgeom, string bgeom, const vec3d & dir );
+    virtual Results* Project( const string &tgeom, const string &bgeom, const vec3d & dir );
 
     virtual string MakeMeshGeom();
 
@@ -85,7 +85,7 @@ protected:
     virtual void TransformPolyVec( vector < vector < vec3d > > & polyvec, const Matrix4d & mat );
 
     virtual void GetMesh( int set, vector < TMesh* > & tmv );
-    virtual void GetMesh( string geom, vector < TMesh* > & tmv );
+    virtual void GetMesh( const string &geom, vector < TMesh* > & tmv );
 
     virtual void UpdateBBox( vector < TMesh* > & tmv );
 

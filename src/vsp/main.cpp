@@ -53,8 +53,8 @@ bool ExtractVersionNumber( string & str, int* major, int* minor, int* change )
         return false;
     }
 
-    size_t period1 = verstr.find( "." );
-    size_t period2 = verstr.find( ".", period1 + 1 );
+    size_t period1 = verstr.find( '.' );
+    size_t period2 = verstr.find( '.', period1 + 1 );
 
     //==== Extract Major/Minor/Change Numbers ====//
     *major  = atoi( verstr.substr( 0, period1 ).c_str() );
