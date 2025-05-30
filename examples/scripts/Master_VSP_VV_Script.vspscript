@@ -1332,7 +1332,7 @@ class HTML
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("0.0");
                 data_mat[0][4] = m_hvv.m_MachVec[0];
-                data_mat[0][5] = string("1 to 5");;
+                data_mat[0][5] = string("1 to 5");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -2536,7 +2536,7 @@ class HersheyVV : VV_Base
     
     void HersheyBarStudy()
     {
-        m_runflag = true;;
+        m_runflag = true;
         
         //====Generate Hershey Bar Wings====//
         GenerateHersheyBarWings();

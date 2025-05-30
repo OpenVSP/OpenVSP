@@ -6896,7 +6896,7 @@ void FitBORAfCST( const string & bor_id, int deg )
 
     bor_ptr->SetXSecCurveType( XS_CST_AIRFOIL );
 
-    XSecCurve* newxsc = bor_ptr->GetXSecCurve();;
+    XSecCurve* newxsc = bor_ptr->GetXSecCurve();
     if ( !newxsc )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "FitBORAfCST::Can't Get New XSecCurve" );

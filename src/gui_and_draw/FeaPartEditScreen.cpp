@@ -1462,7 +1462,7 @@ bool FeaPartEditScreen::Update()
 
                         UpdatePolySparPointBrowser( polyspar );
 
-                        PolySparPoint* spt = polyspar->GetPt( m_PolySparPointBrowserSelect );;
+                        PolySparPoint* spt = polyspar->GetPt( m_PolySparPointBrowserSelect );
 
                         if ( spt )
                         {
@@ -2346,7 +2346,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
             }
             else if ( device == &m_PolySparPtNameInput )
             {
-                PolySparPoint* spt = polyspar->GetPt( m_PolySparPointBrowserSelect );;
+                PolySparPoint* spt = polyspar->GetPt( m_PolySparPointBrowserSelect );
 
                 if ( spt )
                 {

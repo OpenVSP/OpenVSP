@@ -1047,7 +1047,7 @@ void RoutingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     m_ActivePointDO.m_GeomChanged = true;
     if ( m_ActivePointIndex >= 0 && m_ActivePointIndex < m_MainRouteTessVec[0].m_ptline[0].size() )
     {
-        m_ActivePointDO.m_GeomID = "AcRte_" + m_ID;;
+        m_ActivePointDO.m_GeomID = "AcRte_" + m_ID;
         m_ActivePointDO.m_PntVec.push_back( m_MainRouteTessVec[0].m_ptline[0][ m_ActivePointIndex ] );
         m_ActivePointDO.m_Visible = !m_Picking && m_Vehicle->IsGeomActive( m_ID );
         draw_obj_vec.push_back( &m_ActivePointDO );

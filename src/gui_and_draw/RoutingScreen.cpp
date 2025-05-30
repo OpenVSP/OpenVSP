@@ -272,7 +272,7 @@ bool RoutingScreen::Update()
         m_LengthOutput.Update( routing_ptr->m_Length.GetID() );
         m_SymmLengthOutput.Update( routing_ptr->m_SymmLength.GetID() );
 
-        RoutingPoint* rpt = routing_ptr->GetPt( routing_ptr->m_ActivePointIndex );;
+        RoutingPoint* rpt = routing_ptr->GetPt( routing_ptr->m_ActivePointIndex );
 
         if ( rpt )
         {
@@ -481,7 +481,7 @@ void RoutingScreen::UpdateBrowser()
 
 
         m_SurfChoice.ClearItems();
-        RoutingPoint* rpt = routing_ptr->GetPt( routing_ptr->m_ActivePointIndex );;
+        RoutingPoint* rpt = routing_ptr->GetPt( routing_ptr->m_ActivePointIndex );
         if ( rpt )
         {
             Geom* parent_geom = vPtr->FindGeom( rpt->GetParentID() );

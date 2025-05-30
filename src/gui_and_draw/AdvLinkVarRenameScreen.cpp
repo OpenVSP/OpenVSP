@@ -101,7 +101,7 @@ void AdvLinkVarRenameScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( edit_link )
         {
-            string name = m_VarNameInput.GetString();;
+            string name = m_VarNameInput.GetString();
 
             bool cancel = false;
             if ( edit_link->DuplicateVarName( name ) )
@@ -136,7 +136,7 @@ void AdvLinkVarRenameScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( edit_link )
         {
-            string name = m_VarNameInput.GetString();;
+            string name = m_VarNameInput.GetString();
 
             bool cancel = false;
             if ( edit_link->DuplicateVarName( name ) )

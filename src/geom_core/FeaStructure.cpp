@@ -4471,7 +4471,7 @@ void FeaSkin::BuildSkinSurf()
             m_MainFeaPartSurfVec[0] = *( currgeom->GetSurfPtr( m_MainSurfIndx ) );
 
             m_CapUMinSuccess = currgeom->GetCapUMinSuccess( m_MainSurfIndx );
-            m_CapUMaxSuccess = currgeom->GetCapUMaxSuccess( m_MainSurfIndx );;
+            m_CapUMaxSuccess = currgeom->GetCapUMaxSuccess( m_MainSurfIndx );
             m_UMax = m_MainFeaPartSurfVec[0].GetUMax();
         }
     }
@@ -5162,7 +5162,7 @@ void FeaSliceArray::CalcNumSlices()
         Matrix4d model_matrix = current_geom->getModelMatrix();
         model_matrix.affineInverse();
 
-        VspSurf orig_surf = *( current_geom->GetSurfPtr( m_MainSurfIndx ) );;
+        VspSurf orig_surf = *( current_geom->GetSurfPtr( m_MainSurfIndx ) );
         orig_surf.Transform( model_matrix );
 
         BndBox geom_bbox;

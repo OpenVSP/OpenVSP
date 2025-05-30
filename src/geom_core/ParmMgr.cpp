@@ -256,7 +256,7 @@ void ParmMgrSingleton::UnDo()
 
 string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID )
 {
-    return IDMgr.RemapID( oldID, suggestID, -1 );;
+    return IDMgr.RemapID( oldID, suggestID, -1 );
 }
 
 // ForceRemapID works as above, but makes no attempt to

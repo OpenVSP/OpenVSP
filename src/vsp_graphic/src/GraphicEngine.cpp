@@ -43,7 +43,7 @@ void GraphicEngine::dumpScreenImage( const std::string &fileName, int width, int
     GLuint fbo;
     int oldWidth, oldHeight;
     // width * height * RGBA
-    Image image( width, height, 4 );;
+    Image image( width, height, 4 );
 
     std::vector< VSPGraphic::Viewport * > vports = _display->getLayoutMgr()->getViewports();
     if ( transparentBG )
