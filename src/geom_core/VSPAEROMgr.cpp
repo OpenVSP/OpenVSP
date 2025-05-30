@@ -4467,7 +4467,6 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
     {
         vector < pair < string, int > > new_comp_pair_vec;
         vector < pair < string, int > > comp_id_surf_ind_vec = m_UnsteadyGroupVec[i]->GetCompSurfPairVec();
-        vector < int > vspaero_index_vec;
 
         for ( size_t j = 0; j < comp_id_surf_ind_vec.size(); j++ )
         {
@@ -4495,7 +4494,6 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
                 if ( !vspaero_geom_index_map[comp_id_surf_ind_vec[j]].empty() )
                 {
                     new_comp_pair_vec.emplace_back( std::make_pair( comp_id_surf_ind_vec[j].first, comp_id_surf_ind_vec[j].second ) );
-                    vspaero_index_vec.insert( vspaero_index_vec.end(), vspaero_geom_index_map[comp_id_surf_ind_vec[j]].begin(), vspaero_geom_index_map[comp_id_surf_ind_vec[j]].end() );
                 }
             }
         }
@@ -4505,7 +4503,6 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
             for ( size_t j = 0; j < ungrouped_comps.size(); j++ )
             {
                 new_comp_pair_vec.emplace_back( std::make_pair( ungrouped_comps[j].first, ungrouped_comps[j].second ) );
-                vspaero_index_vec.insert( vspaero_index_vec.end(), vspaero_geom_index_map[ungrouped_comps[j]].begin(), vspaero_geom_index_map[ungrouped_comps[j]].end() );
             }
             ungrouped_comps.clear();
         }
@@ -4516,7 +4513,6 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         }
 
         m_UnsteadyGroupVec[i]->SetCompSurfPairVec( new_comp_pair_vec );
-        m_UnsteadyGroupVec[i]->SetVSPAEROIndexVec( vspaero_index_vec );
         m_UnsteadyGroupVec[i]->Update();
     }
 
@@ -4530,13 +4526,6 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
 
         group->SetCompSurfPairVec( ungrouped_comps );
 
-        vector < int > vspaero_index_vec;
-        for ( size_t j = 0; j < ungrouped_comps.size(); j++ )
-        {
-            vspaero_index_vec.insert( vspaero_index_vec.end(), vspaero_geom_index_map[ungrouped_comps[j]].begin(), vspaero_geom_index_map[ungrouped_comps[j]].end() );
-        }
-
-        group->SetVSPAEROIndexVec( vspaero_index_vec );
         group->m_GeomPropertyType.Set( UnsteadyGroup::GEOM_FIXED );
         group->SetName( "FixedGroup" );
         group->Update();
@@ -4547,7 +4536,6 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
     {
         UnsteadyGroup* group = AddUnsteadyGroup();
 
-        group->SetVSPAEROIndexVec( vspaero_geom_index_map[ungrouped_props[i]] );
         group->m_GeomPropertyType.Set( UnsteadyGroup::GEOM_ROTOR );
         group->AddComp( ungrouped_props[i].first, ungrouped_props[i].second );
         group->Update();
