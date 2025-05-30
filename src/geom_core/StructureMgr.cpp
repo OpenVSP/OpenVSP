@@ -261,7 +261,7 @@ void StructureMgrSingleton::CleanUnusedDefaultProperties()
 
     if ( !discard.empty() )
     {
-        printf( "Discarding %d unused default FEA properties.\n", discard.size() );
+        printf( "Discarding %d unused default FEA properties.\n", (int) discard.size() );
 
         for ( int i = 0; i < (int)discard.size(); i++ )
         {
