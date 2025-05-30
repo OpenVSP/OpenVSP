@@ -517,9 +517,6 @@ void AttributeExplorer::UpdateAttrFields()
 
     // if single attribute selected, populate editor fields
 
-    NameValData* attr_ptr = nullptr;
-    AttributeCollection* ac_ptr = nullptr;
-
     if ( m_AttrIDs.size() == 1 && m_CollIDs.size() == 1 )
     {
         NameValData* attr_ptr = AttributeMgr.GetAttributePtr( m_AttrIDs.front() );
