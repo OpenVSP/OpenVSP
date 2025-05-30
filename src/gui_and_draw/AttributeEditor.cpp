@@ -117,7 +117,6 @@ void AttributeTree::UpdateTree()
     vector < vector < string > > tree_id_vecs = tree_id_coll_vecs[0];
     vector < vector < string > > tree_coll_vecs = tree_id_coll_vecs[1];
 
-    string id;
     vector < string > id_vec;
 
     if ( m_AttrTree )
