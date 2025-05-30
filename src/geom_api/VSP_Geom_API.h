@@ -348,7 +348,7 @@ extern void VSPExit( int error_code );
 */
 /*!
     Cause OpenVSP to crash in a variety of ways.
-    \param [in] int crash_type Type of crash to attempt.
+    \param [in] crash_type int Type of crash to attempt.
 */
 
 extern void VSPCrash( int crash_type );
@@ -2706,7 +2706,7 @@ extern string GetChildCollection(const string & attachID );
     \endcode
     \endPythonOnly
     \return String ID of attribute collection associated with the geom set
-    \param [in] attachID string ID of an OpenVSP object
+    \param [in] index int Geom set
 */
 
 extern string GetGeomSetCollection( const int & index );
@@ -2785,7 +2785,8 @@ extern string GetAttributeName( const string & attrID );
     \endPythonOnly
     \return String ID of attribute based on collectionID and name
     \param [in] collID string ID of an attribute collection
-    \param [in] attributeName name of an attribute in that collection
+    \param [in] attributeName string name of an attribute in that collection
+    \param [in] index int index of attribute in collection
 */
 
 extern string GetAttributeID(const string & collID, const string & attributeName, int index);
@@ -3472,7 +3473,7 @@ extern vector< vector < double > > GetAttributeDoubleMatrixVal(const string & at
     \endcode
     \endPythonOnly
     \param [in] attrID string of attribute ID
-    \param [in] doc string of documentation for attribute
+    \param [in] name string name for attribute
 */
 
 extern void SetAttributeName( const string & attrID, const string & name );
@@ -4340,7 +4341,7 @@ extern string AddAttributeString( const string & collID, const string & attribut
     \endPythonOnly
     \param [in] collID string ID of attribute collection
     \param [in] attributeName string name of new attribute
-    \param [in] value string value of new attribute
+    \param [in] parmID string Parm ID to add to attribute
 */
 
 extern string AddAttributeParm( const string &collID, const string &attributeName, const string &parmID );
@@ -6187,7 +6188,7 @@ extern void SetGeomMaterialName( const string &geom_id, const string &name );
     \param [in] ambient vec3d Ambient color RGB triple on scale [0, 255]
     \param [in] diffuse vec3d Diffuse color RGB triple on scale [0, 255]
     \param [in] specular vec3d Specular color RGB triple on scale [0, 255]
-    \param [in] emmissive vec3d Emissive color RGB triple on scale [0, 255]
+    \param [in] emissive vec3d Emissive color RGB triple on scale [0, 255]
     \param [in] shininess double Shininess exponent on scale [0, 127]
     \param [in] alpha double Transparency factor on scale [0, 1]
 */
@@ -6283,6 +6284,7 @@ extern void SetAllViews( int view );
 
     \endcode
     \endPythonOnly
+    \param [in] viewport int Viewport to set view
     \param [in] view int CAMERA_VIEW enum
 */
 
@@ -6386,7 +6388,7 @@ extern void SetGUIElementDisable( int e, bool state );
     SetGUIScreenDisable( VSP_CFD_MESH_SCREEN, True )
     \endcode
     \endPythonOnly
-    \param [in] e int GUI_VSP_SCREEN enum for screen
+    \param [in] s int GUI_VSP_SCREEN enum for screen
     \param [in] state bool True to disable screen
 */
 
@@ -6407,7 +6409,7 @@ extern void SetGUIScreenDisable( int s, bool state );
     SetGeomScreenDisable( ALL_GEOM_SCREENS, True )
     \endcode
     \endPythonOnly
-    \param [in] e int GUI_GEOM_SCREEN enum for geom screen
+    \param [in] s int GUI_GEOM_SCREEN enum for geom screen
     \param [in] state bool True to disable geom screen
 */
 extern void SetGeomScreenDisable( int s, bool state );
@@ -7053,7 +7055,7 @@ extern std::string GetParm( const std::string & geom_id, const std::string & nam
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \return string Parent Geom ID
+    \param [in] parent_id string Parent Geom ID
 */
 
 extern void SetGeomParent( const std::string& geom_id, const std::string& parent_id );
@@ -9355,8 +9357,8 @@ extern int NumFeaSubSurfs( const std::string & fea_struct_id );
     \endcode
     \endPythonOnly
     \sa FEA_BC_TYPE
-    \param [in] string fea_struct_id FEA Structure ID
-    \param [in] string type FEA BC type enum ( i.e. FEA_BC_STRUCTURE )
+    \param [in] fea_struct_id string FEA Structure ID
+    \param [in] type int FEA BC type enum ( i.e. FEA_BC_STRUCTURE )
     \return FEA BC ID
 */
 
@@ -9402,8 +9404,8 @@ extern std::string AddFeaBC( const string & fea_struct_id, int type = -1 );
     \endcode
     \endPythonOnly
     \sa FEA_BC_TYPE
-    \param [in] string fea_struct_id FEA Structure ID
-    \param [in] string bc_id FEA BC ID
+    \param [in] fea_struct_id string FEA Structure ID
+    \param [in] bc_id int FEA BC ID
 */
 
 extern void DelFeaBC( const string & fea_struct_id, const std::string &bc_id );
@@ -9448,7 +9450,7 @@ extern void DelFeaBC( const string & fea_struct_id, const std::string &bc_id );
 
     \endcode
     \endPythonOnly
-    \param [in] string fea_struct_id FEA Structure ID
+    \param [in] fea_struct_id string FEA Structure ID
     \return Array of FEA BC IDs
 */
 
@@ -9494,7 +9496,7 @@ extern std::vector< std::string > GetFeaBCIDVec( const string & fea_struct_id );
 
     \endcode
     \endPythonOnly
-    \param [in] string fea_struct_id FEA Structure ID
+    \param [in] fea_struct_id string FEA Structure ID
     \return Number of FEA BCs
 */
 
@@ -17346,7 +17348,7 @@ extern std::vector< double > GetVarPresetParmVals( const std::string &setting_id
     \endcode
     \endPythonOnly
     \param [in] setting_id string Var Preset Setting ID
-    \return array<double> Array of Variable Preset Group Parm values
+    \param [in] parm_vals array<double> Array of Variable Preset Group Parm values
 */
 
 extern void SetVarPresetParmVals( const std::string &setting_id, const std::vector< double > &parm_vals );

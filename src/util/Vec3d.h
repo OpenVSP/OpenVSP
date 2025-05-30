@@ -289,9 +289,9 @@ public:
 
     \endcode
     \endPythonOnly
-    \param [in] x New X value
-    \param [in] y New Y value
-    \param [in] z New Z value
+    \param [in] xx New X value
+    \param [in] yy New Y value
+    \param [in] zz New Z value
     \return Updated vec3d
   */
 
@@ -319,7 +319,7 @@ public:
 
     \endcode
     \endPythonOnly
-    \param [in] x New X value
+    \param [in] xx New X value
     \return Updated vec3d
   */
 
@@ -344,7 +344,7 @@ public:
 
     \endcode
     \endPythonOnly
-    \param [in] y New Y value
+    \param [in] yy New Y value
     \return Updated vec3d
   */
 
@@ -369,7 +369,7 @@ public:
 
     \endcode
     \endPythonOnly
-    \param [in] z in double new z value
+    \param [in] zz in double new z value
     \return vec3d result
   */
 
@@ -1461,7 +1461,7 @@ double cos_angle( const vec3d& a, const vec3d& b );
     \endPythonOnly
     \param [in] p Coordinate point to rotate
     \param [in] theta Angle of rotation in Radians
-    \param [in] axis Reference axis for rotation
+    \param [in] r Reference axis for rotation
     \return Coordinates of rotated point
 */
 

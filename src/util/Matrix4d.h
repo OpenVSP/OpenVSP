@@ -210,7 +210,7 @@ public:
 
         \endcode
         \endPythonOnly
-        \param [in] ang Angle of rotation (rad)
+        \param [in] angle Angle of rotation (rad)
         \param [in] axis Vector to rotate about
     */
 
@@ -441,7 +441,7 @@ public:
 
         \endcode
         \endPythonOnly
-        \param [in] v Transformation vector
+        \param [in] in Transformation vector
     */
 
     vec3d xform( const vec3d &in ) const;
