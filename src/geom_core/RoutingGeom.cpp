@@ -142,11 +142,10 @@ void RoutingPoint::Update()
 
             Matrix4d attachMat;
 
-            vec3d pt;
             if ( m_DeltaType() == vsp::REL )
             {
                 attachMat = transMat;
-                pt = vec3d( m_DeltaXRel(), m_DeltaYRel(), m_DeltaZRel() );
+                vec3d pt = vec3d( m_DeltaXRel(), m_DeltaYRel(), m_DeltaZRel() );
                 m_Pt = transMat.xform( pt );
 
                 absMat.affineInverse();
@@ -160,7 +159,7 @@ void RoutingPoint::Update()
             else
             {
                 attachMat = absMat;
-                pt = vec3d( m_DeltaX(), m_DeltaY(), m_DeltaZ() );
+                vec3d pt = vec3d( m_DeltaX(), m_DeltaY(), m_DeltaZ() );
                 m_Pt = absMat.xform( pt );
 
                 transMat.affineInverse();

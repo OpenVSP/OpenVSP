@@ -241,8 +241,8 @@ void ModeEditorScreen::UpdateModeBrowser()
                 Setting *s = VarPresetMgr.FindSetting( sid );
                 if ( s )
                 {
-                    string sname = s->GetName();
-                    settingstr.append( sname );
+                    string settingname = s->GetName();
+                    settingstr.append( settingname );
 
                     if ( j < m_NumSetting - 1 )
                     {

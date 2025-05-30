@@ -1841,8 +1841,6 @@ void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & Tran
 
 void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag )
 {
-    int i, j;
-
     // Temporary variable -- likely pass up to top levels and make an option.
     bool deleteopen = false;
 
@@ -1860,7 +1858,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     if ( !degen )
     {
         //==== Count Tris ====//
-        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+        for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
             numTris += m_TMeshVec[i]->m_TVec.size();
         }
@@ -1868,7 +1866,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
 
     //==== Count Components ====//
     vector< string > compIdVec;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         string id = m_TMeshVec[i]->m_OriginGeomID;
         vector<string>::iterator iter;
@@ -1904,7 +1902,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         //==== Intersect Subsurfaces to make clean lines ====//
         if ( intSubsFlag )
         {
-            for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+            for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
             {
                 vector < double > uvec;
                 vector < double > vvec;
@@ -1980,14 +1978,14 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     }
 
     //==== Create Bnd Box for  Mesh Geoms ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         m_TMeshVec[i]->LoadBndBox();
     }
 
     //==== Update Bnd Box for  Combined ====//
     BndBox b;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         b.Update( m_TMeshVec[i]->m_TBox.m_Box );
     }
@@ -1995,22 +1993,22 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     //update_xformed_bbox();          // Load Xform BBox
 
     //==== Intersect All Mesh Geoms ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        for ( j = i + 1 ; j < ( int )m_TMeshVec.size() ; j++ )
+        for ( int j = i + 1 ; j < ( int )m_TMeshVec.size() ; j++ )
         {
             m_TMeshVec[i]->Intersect( m_TMeshVec[j] );
         }
     }
 
     //==== Split Intersected Tri in Mesh ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         m_TMeshVec[i]->Split();
     }
 
     //==== Determine Which Triangle Are Interior/Exterior ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         m_TMeshVec[i]->DeterIntExt( m_TMeshVec );
     }
@@ -2018,14 +2016,14 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( m_TMeshVec.size() );
     vector < bool > thicksurf( m_TMeshVec.size() );
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         bTypes[i] = m_TMeshVec[i]->m_SurfCfdType;
         thicksurf[i] = m_TMeshVec[i]->m_ThickSurf;
     }
 
     //==== Mark which triangles to ignore ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         m_TMeshVec[i]->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
     }
@@ -2047,7 +2045,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
 
     //==== Compute Areas ====//
     m_TotalTheoArea = m_TotalWetArea = 0.0;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         m_TotalTheoArea += m_TMeshVec[i]->ComputeTheoArea();
         m_TotalWetArea  += m_TMeshVec[i]->ComputeWetArea();
@@ -2055,20 +2053,20 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
 
     //==== Compute Theo Vols ====//
     m_TotalTheoVol = 0;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         m_TotalTheoVol += m_TMeshVec[i]->ComputeTheoVol();
     }
 
     //==== Compute Total Volume ====//
     m_TotalWetVol = 0.0;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         m_TotalWetVol += m_TMeshVec[i]->ComputeTrimVol();
     }
 
     double guessTotalWetVol = 0;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         m_TMeshVec[i]->m_GuessVol = m_TMeshVec[i]->m_TheoVol * m_TMeshVec[i]->m_WetArea / m_TMeshVec[i]->m_TheoArea;      // Guess
         m_TMeshVec[i]->m_WetVol = 0.0;
@@ -2082,7 +2080,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         leftOverCnt--;
 
         double sumWetVol = 0.0;
-        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+        for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
             double perWetVol = m_TMeshVec[i]->m_GuessVol / guessTotalWetVol;
             m_TMeshVec[i]->m_WetVol += perWetVol * ( leftOver );
@@ -2120,13 +2118,13 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         bool matchFlag;
         vector< bool > matchVec( m_TMeshVec.size(), false );
         // For each degenGeom
-        for ( i = 0; i < ( int )degenGeom.size(); i++ )
+        for ( int i = 0; i < ( int )degenGeom.size(); i++ )
         {
             matchFlag = false;
             DegenPoint degenPoint = degenGeom[i].getDegenPoint();
 
             // Loop through tmesh vector
-            for ( j = 0; j < m_TMeshVec.size(); j++ )
+            for ( int j = 0; j < m_TMeshVec.size(); j++ )
             {
                 if ( matchVec[j] == false )
                 {
@@ -2174,16 +2172,16 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
             tagNameVec.resize( ntags );
             tagIDVec.resize( ntags );
 
-            for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+            for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
             {
-                for ( j = 0; j < ntags; j++ )
+                for ( int j = 0; j < ntags; j++ )
                 {
                     tagTheoAreaVec[j] += m_TMeshVec[i]->m_TagTheoAreaVec[j];
                     tagWetAreaVec[j] += m_TMeshVec[i]->m_TagWetAreaVec[j];
                 }
             }
 
-            for ( j = 0; j < ntags; j++ )
+            for ( int j = 0; j < ntags; j++ )
             {
                 tagNameVec[j] = SubSurfaceMgr.GetTagNames( j );
                 tagIDVec[j] = SubSurfaceMgr.GetTagIDs( j );
@@ -2198,7 +2196,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         vector< double > wet_vol_vec;
 
         res->Add( new NameValData( "Num_Meshes", ( int )m_TMeshVec.size(), "Number of components." ) );
-        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+        for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
             TMesh* tmsh = m_TMeshVec[i];
             name_vec.push_back( tmsh->m_NameStr );

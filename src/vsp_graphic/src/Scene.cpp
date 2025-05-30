@@ -275,7 +275,6 @@ void Scene::preSelectBox(int x1, int y1, int x2, int y2)
 
 
     std::set< unsigned int > ids;
-    std::set< unsigned int >::iterator it;
 
     for ( int i = 0; i < h + 1; i++ )
     {
@@ -302,9 +301,9 @@ void Scene::preSelectBox(int x1, int y1, int x2, int y2)
     }
 
 
-    for ( it = ids.begin(); it != ids.end(); ++it )
+    for ( auto idit = ids.begin(); idit != ids.end(); ++idit )
     {
-        unsigned int id = (*it);
+        unsigned int id = (*idit);
 
         for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
         {
