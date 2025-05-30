@@ -2742,9 +2742,8 @@ extern string GetGeomSetCollection( const int & index );
 
     \endcode
     \endPythonOnly
-    \return String ID of attribute based on collectionID and name
-    \param [in] collID string ID of an attribute collection
-    \param [in] attributeName name of an attribute in that collection
+    \param [in] attrID string ID of an attribute
+    \return string name of attribute
 */
 
 extern string GetAttributeName( const string & attrID );
