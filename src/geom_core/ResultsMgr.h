@@ -273,7 +273,7 @@ class NameValCollection
 public:
     NameValCollection();
     NameValCollection( const string & name, const string & id, const string & doc  );
-    ~NameValCollection();
+    virtual ~NameValCollection();
 
     void Wype();
 
@@ -345,7 +345,7 @@ public:
 
     AttributeCollection();
     AttributeCollection( const string & name, const string & id, const string & doc  );
-    ~AttributeCollection();
+    virtual ~AttributeCollection();
 
     void Add( NameValData* d, const int & attr_event_group = vsp::ATTR_GROUP_NONE, bool set_event_group = false );
 
