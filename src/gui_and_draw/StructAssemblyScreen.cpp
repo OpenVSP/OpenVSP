@@ -582,18 +582,18 @@ void StructAssemblyScreen::UpdateConnectionTab()
         {
             st_name = fea_struct->GetName();
             st_name += "_";
-        }
 
-        FeaPart* fp = allfp[i];
-        if ( fp )
-        {
-            st_name += fp->GetName();
+            FeaPart* fp = allfp[i];
+            if ( fp )
+            {
+                st_name += fp->GetName();
 
-            m_FixPtIDs.push_back( fp->GetID() );
-            m_FixPtStructIDs.push_back( fea_struct->GetID() );
+                m_FixPtIDs.push_back( fp->GetID() );
+                m_FixPtStructIDs.push_back( fea_struct->GetID() );
 
-            m_ConnectionStartChoice.AddItem( st_name, i );
-            m_ConnectionEndChoice.AddItem( st_name, i );
+                m_ConnectionStartChoice.AddItem( st_name, i );
+                m_ConnectionEndChoice.AddItem( st_name, i );
+            }
         }
     }
     m_ConnectionStartChoice.UpdateItems();

@@ -179,6 +179,11 @@ void NerfManageGeomScreen::Hide()
 //==== Load Geom Browser ====//
 void NerfManageGeomScreen::LoadBrowser()
 {
+    if ( !m_VehiclePtr )
+    {
+        return;
+    }
+
     //==== Save List of Selected Geoms ====//
     vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
 
@@ -512,6 +517,11 @@ void NerfManageGeomScreen::LoadDisplayChoice()
 //==== Item in Geom Browser Was Selected ====//
 void NerfManageGeomScreen::GeomBrowserCallback()
 {
+    if ( !m_VehiclePtr )
+    {
+        return;
+    }
+
     string id;
     Geom* g = nullptr;
     int icon_event = 0;

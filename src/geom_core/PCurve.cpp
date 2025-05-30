@@ -414,12 +414,12 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
             {
                 pstart->SetUpperLimit( pend->Get() - offset );
                 pend->SetLowerLimit( pstart->Get() + offset );
-            }
 
-            // Keep intermediate points valid.
-            double dt = pend->Get() - pstart->Get();
-            m_TParmVec[iend - 1]->Set( pend->Get() - dt/3.0 );
-            m_TParmVec[istart + 1]->Set( pstart->Get() + dt/3.0 );
+                // Keep intermediate points valid.
+                double dt = pend->Get() - pstart->Get();
+                m_TParmVec[iend - 1]->Set( pend->Get() - dt/3.0 );
+                m_TParmVec[istart + 1]->Set( pstart->Get() + dt/3.0 );
+            }
         }
 
         // Deactivate interior control points without setting limits.
