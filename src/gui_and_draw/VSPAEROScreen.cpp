@@ -1760,7 +1760,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     }
     else
     {
-        m_PropellerBladesModeChoice.Deactivate();
+        m_PropellerBladesModeChoice.Activate();
     }
 
     if ( VSPAEROMgr.m_PropBladesMode() != vsp::VSPAERO_PROP_STATIC )
