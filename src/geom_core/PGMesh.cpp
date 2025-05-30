@@ -4207,18 +4207,34 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
 
     // Build GeomID set to have unique integer index instead of GeomID.
     std::set< string, greater< string > > gids;
+
+    auto pairgreaterless = []( const std::pair< string, int > &a, const std::pair< string, int > &b )
+    {
+        if ( a.first != b.first )
+        {
+            return a.first > b.first;
+        }
+        return a.second < b.second;
+    };
+    std::set < std::pair< string, int >, decltype( pairgreaterless ) >  gcset( pairgreaterless );
+
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
         string id_list = GetTagIDs( m_TagKeys[i] );
         int pos = id_list.find( "_Surf" );
         string gid = id_list.substr( 0, pos );
         gids.insert( gid );
+
+        int part = GetPart( m_TagKeys[i] );
+        int copyindex = GetCopyIndex( part );
+
+        gcset.insert( std::pair< string, int >( gid, copyindex ) );
     }
 
     fprintf( fid, "%d\n", npart );
     fprintf( fid, "\n" );
 
-    fprintf( fid, "# part#,geom#,surf#,gname,gid,thick,plate\n" );
+    fprintf( fid, "# part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#\n" );
 
 
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
@@ -4271,6 +4287,10 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
         int thickthin = GetThickThin( part );
 
         int plate = GetPlate( part ) + 1; // (-1=S, 0=V,C, 1=H) + 1
+        int copyindex = GetCopyIndex( part );
+
+        int gcnum = distance( gcset.begin(), gcset.find( std::pair< string, int > ( gid, copyindex ) ) );
+
         int type = GetType( part );
 
         if ( type != vsp::NORMAL_SURF && plate != 0 )  // Not NORMAL and Not a S -- i.e. WING and C
@@ -4280,7 +4300,7 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
         // At this point, plate = 0 = S, 1 = V, 2 = H, 3 = C
 
         // Write tag number and surface list to file
-        fprintf( fid, "%d,%d,%s,%s,%s,%d,%d\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin, plate );
+        fprintf( fid, "%d,%d,%s,%s,%s,%d,%d,%d,%d\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin, plate, copyindex + 1, gcnum + 1 );
     }
 
     fprintf( fid, "\n" );

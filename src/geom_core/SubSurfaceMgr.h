@@ -26,6 +26,18 @@
 #include <unordered_map>
 #include <set>
 
+struct PairGreaterLess
+{
+    bool operator() ( const std::pair< string, int >& a, const std::pair< string, int >& b ) const
+    {
+        if ( a.first != b.first )
+        {
+            return a.first > b.first;
+        }
+        return a.second < b.second;
+    }
+};
+
 class SubSurfaceMgrSingleton
 {
 private:
@@ -79,6 +91,7 @@ public:
     std::vector< std::vector<int> > GetTagKeys() { return m_TagKeys; }
 
     int FindGNum( const string &gid );
+    int FindGCNum( const string &gid, int s );
 
     // Write Tag Key File
     void WriteVSPGEOMKeyFile(const string & file_name );
@@ -119,6 +132,9 @@ protected:
 
     std::vector< std::vector<int> > m_TagKeys;
     std::map< std::vector<int>, int > m_SingleTagMap;
+
+    std::set< string, greater< string > > m_GeomIDs;
+    std::set < std::pair< string, int >, PairGreaterLess >  m_GeomCopySet;
 
     static Geom* GetGeom( const std::string &comp_id );
 };

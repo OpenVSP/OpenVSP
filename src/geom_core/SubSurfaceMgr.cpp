@@ -286,26 +286,42 @@ void SubSurfaceMgrSingleton::BuildSingleTagMap()
             m_SingleTagMap[m_TagKeys[i]] = i + 1;
         }
     }
-}
 
-int SubSurfaceMgrSingleton::FindGNum( const string &gid )
-{
-    // Build GeomID set to have unique integer index instead of GeomID.
-    std::set< string, greater< string > > gids;
+    // Build m_GeomIDs set to have unique integer index instead of GeomID.
+    // Build m_GeomCopySet to have unique integer index for GeomID,symmetry pair.
+    m_GeomIDs.clear();
+    m_GeomCopySet.clear();
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
         string id_list = GetTagIDs( m_TagKeys[i] );
         int pos = id_list.find_first_of( "_" );
         string g = id_list.substr( 0, pos );
-        gids.insert( g );
-    }
+        m_GeomIDs.insert( g );
 
+        int part = GetPart( m_TagKeys[i] );
+
+        int copyindex = m_CompCopyIndex[ part - 1 ];
+
+        m_GeomCopySet.insert( std::pair< string, int >( g, copyindex ) );
+    }
+}
+
+int SubSurfaceMgrSingleton::FindGNum( const string &gid )
+{
     int pos = gid.find_first_of( "_" );
     string g = gid.substr( 0, pos );
 
-    int gnum = distance( gids.begin(), gids.find( g ) );
+    int gnum = distance( m_GeomIDs.begin(), m_GeomIDs.find( g ) );
 
     return gnum;
+}
+
+int SubSurfaceMgrSingleton::FindGCNum( const string &gid, int s )
+{
+    int gsnum = distance( m_GeomCopySet.begin(), m_GeomCopySet.find( std::pair< string, int >( gid, s ) ) );
+
+    // printf( "%d = FindGCNum( %s, %d)\n", gsnum, gid.c_str(), s );
+    return gsnum;
 }
 
 //==== Write Key File ====//
@@ -334,20 +350,10 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
     fprintf( fid, "# VSPGEOM v3 Tag Key File\n" );
     fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
 
-    // Build GeomID set to have unique integer index instead of GeomID.
-    std::set< string, greater< string > > gids;
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
-    {
-        string id_list = GetTagIDs( m_TagKeys[i] );
-        int pos = id_list.find( "_Surf" );
-        string gid = id_list.substr( 0, pos );
-        gids.insert( gid );
-    }
-
     fprintf( fid, "%d\n", npart );
     fprintf( fid, "\n" );
 
-    fprintf( fid, "# part#,geom#,surf#,gname,gid,thick,plate\n" );
+    fprintf( fid, "# part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#\n" );
 
 
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
@@ -395,11 +401,13 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         }
 
         // Lookup Geom number
-        int gnum = distance( gids.begin(), gids.find( gid ) );
+        int gnum = FindGNum( gid );
 
         int thickthin = m_CompThick[ part - 1 ];
 
         int plate = m_CompPlate[ part - 1] + 1; // (-1=S, 0=V,C, 1=H) + 1
+        int copyindex = m_CompCopyIndex[ part - 1 ];
+        int gcnum = FindGCNum( gid, copyindex );
         int type = m_CompTypes[ part - 1];
 
         if ( type != vsp::NORMAL_SURF && plate != 0 )  // Not NORMAL and Not a S -- i.e. WING and C
@@ -409,7 +417,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         // At this point, plate = 0 = S, 1 = V, 2 = H, 3 = C
 
         // Write tag number and surface list to file
-        fprintf( fid, "%d,%d,%s,%s,%s,%d,%d\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin, plate );
+        fprintf( fid, "%d,%d,%s,%s,%s,%d,%d,%d,%d\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin, plate, copyindex + 1, gcnum + 1 );
     }
 
     fprintf( fid, "\n" );
