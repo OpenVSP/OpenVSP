@@ -1003,7 +1003,7 @@ void AttributeMgrSingleton::SetAttributeName( const string &attrID, const string
 {
     NameValData* attr = GetAttributePtr( attrID );
 
-    AttributeCollection* coll;
+    AttributeCollection* coll = nullptr;
     if ( attr )
     {
         string collID = attr->GetAttachID();

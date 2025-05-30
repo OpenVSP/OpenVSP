@@ -2113,7 +2113,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
                 int ind2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind1] );
                 int ind3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind2] );
 
-                Edge *e0, *e1, *e2, *e3;
+                Edge *e0 = nullptr, *e1 = nullptr, *e2 = nullptr, *e3 = nullptr;
 
                 Face* face = NULL;
                 if ( sFaceVec[f].m_isQuad )
