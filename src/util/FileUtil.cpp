@@ -418,6 +418,7 @@ void AppendFile_BtoA( FILE* fpa, FILE* fpb )
         if ( buffer == NULL )
         {
             printf( "AppendFile_BtoA memory error\n" );
+            return;
         }
 
         // Copy B file into the buffer:

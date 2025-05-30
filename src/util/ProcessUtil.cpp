@@ -494,6 +494,10 @@ void MonitorProcess( FILE * logFile, ProcessUtil *process, const string &msgLabe
     int bufsize = 1000;
     char *buf;
     buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
+    if ( !buf )
+    {
+        return;
+    }
     BUF_READ_TYPE nread = 1;
     bool runflag = process->IsRunning();
     while ( runflag || nread > 0 )
