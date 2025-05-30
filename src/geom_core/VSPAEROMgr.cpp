@@ -6335,13 +6335,6 @@ int UnsteadyGroup::WriteGroup( FILE *group_file )
 
     fprintf( group_file, "GroupName = %s\n", name.c_str() );
 
-    // 'Old' way of setting up number of components.
-    // fprintf( group_file, "NumberOfComponents = %d\n", m_ComponentVSPAEROIndexVec.size() );
-    // for ( size_t i = 0; i < m_ComponentVSPAEROIndexVec.size(); i++ )
-    // {
-    //     fprintf( group_file, "%d\n", m_ComponentVSPAEROIndexVec[i] );
-    // }
-
     fprintf( group_file, "NumberOfComponents = %d\n", (int) m_ComponentSurfPairVec.size() );
     for ( size_t i = 0; i < m_ComponentSurfPairVec.size(); i++ )
     {
