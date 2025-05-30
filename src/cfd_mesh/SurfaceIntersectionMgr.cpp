@@ -706,6 +706,7 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, dou
         surfPtr->SetSurfaceThickSurf(xfersurfs[i].m_ThickSurf);
 
         surfPtr->SetSurfacePlateNum(xfersurfs[i].m_PlateNum);
+        surfPtr->SetSurfaceCopyIndex(xfersurfs[i].m_CopyIndex);
 
         surfPtr->SetPlanarUWAspect( xfersurfs[i].m_PlanarUWAspect );
 

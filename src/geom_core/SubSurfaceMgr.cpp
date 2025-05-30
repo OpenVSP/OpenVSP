@@ -186,6 +186,7 @@ void SubSurfaceMgrSingleton::ClearTagMaps()
     m_CompThick.clear();
     m_CompTypes.clear();
     m_CompPlate.clear();
+    m_CompCopyIndex.clear();
     m_CompWmin.clear();
     m_CompUscale.clear();
     m_CompWscale.clear();

@@ -1378,7 +1378,7 @@ void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid, const
     for ( int p = 0; p < m_FeaPartSurfVec.size(); p++ )
     {
         // CFD_STRUCTURE and CFD_STIFFENER type surfaces have m_CompID starting at -9999
-        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_Name, m_MainSurfIndx, compid, p, xfersurfs, usuppress, wsuppress );
+        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_Name, m_MainSurfIndx, compid, m_FeaPartSurfVec[p].GetFeaSymmIndex(), p, xfersurfs, usuppress, wsuppress);
     }
 }
 

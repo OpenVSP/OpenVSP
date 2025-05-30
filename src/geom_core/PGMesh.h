@@ -454,6 +454,7 @@ public:
     vector< int > GetTagVec( const int &t );
     int GetType( int part ) const;
     int GetPlate( int part ) const;
+    int GetCopyIndex( int part ) const;
     int GetThickThin( int part ) const;
     double GetWmin( int part ) const;
     double GetUscale( int part ) const;
@@ -478,6 +479,7 @@ public:
     std::vector< int > m_ThickVec;
     std::vector< int > m_TypeVec;
     std::vector< int > m_PlateVec;
+    std::vector< int > m_CopyIndxVec;
     std::vector< double > m_WminVec;
     std::vector< double > m_UscaleVec;
     std::vector< double > m_WscaleVec;

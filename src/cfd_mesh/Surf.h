@@ -301,6 +301,15 @@ public:
         return m_PlateNum;
     }
 
+    void SetSurfaceCopyIndex( int c )
+    {
+        m_CopyIndex = c;
+    }
+    int GetSurfaceCopyIndex() const
+    {
+        return m_CopyIndex;
+    }
+
     virtual void SetSymPlaneFlag( bool flag );
     bool GetSymPlaneFlag()
     {
@@ -386,6 +395,7 @@ protected:
     int m_SurfVspType;
     bool m_ThickSurf;
     int m_PlateNum;
+    int m_CopyIndex;
 
     double m_PlanarUWAspect;
 

@@ -218,6 +218,7 @@ public:
     virtual vector< int > GetTMeshThicks();
     virtual vector< int > GetTMeshTypes();
     virtual vector< int > GetTMeshPlateNum();
+    virtual vector< int > GetTMeshCopyIndex();
     virtual vector< double > GetTMeshWmins();
     virtual vector< double > GetTMeshUscale();
     virtual vector< double > GetTMeshWscale();

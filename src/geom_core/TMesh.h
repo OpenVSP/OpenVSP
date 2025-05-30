@@ -588,6 +588,7 @@ public:
     string m_NameStr;
     int m_SurfNum; // To keep track of geoms with multiple surfaces
     int m_PlateNum; // To keep track of degen plate number.  -1 for normal surfaces.
+    int m_CopyIndex; // To keep track of which copy (usually symmetry) of the main surface.
     int m_MaterialID;
     int m_SurfCfdType;
     int m_ThickSurf;
@@ -679,6 +680,7 @@ vector< string > GetTMeshIDs( vector<TMesh*> &tmv );
 vector< int > GetTMeshThicks( vector<TMesh*> &tmv );
 vector< int > GetTMeshTypes( vector<TMesh*> &tmv );
 vector< int > GetTMeshPlateNum( vector<TMesh*> &tmv );
+vector< int > GetTMeshCopyIndex( vector<TMesh*> &tmv );
 vector< double > GetTMeshWmins( vector<TMesh*> &tmv );
 vector< double > GetTMeshUscale( vector<TMesh*> &tmv );
 vector< double > GetTMeshWscale( vector<TMesh*> &tmv );

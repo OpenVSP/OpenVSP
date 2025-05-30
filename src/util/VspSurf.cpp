@@ -2661,7 +2661,7 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
     return true;
 }
 
-void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress ) const
+void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress ) const
 {
     vector < piecewise_surface_type > surfvec;
     surfvec.push_back( m_Surface );
@@ -2693,6 +2693,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         xsurf.m_FeaOrientation = m_FeaOrientation;
         xsurf.m_ThickSurf = m_ThickSurf;
         xsurf.m_PlateNum = m_PlateNum;
+        xsurf.m_CopyIndex = copyindex;
         xsurf.m_PlanarUWAspect = m_PlanarUWAspect;
         xsurf.m_CompIndx = comp_ind;
         xsurf.m_FeaPartSurfNum = part_surf_num;

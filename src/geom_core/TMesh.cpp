@@ -435,6 +435,7 @@ void TMesh::Init()
     m_TheoVol    = m_WetVol = 0.0;
     m_SurfNum = 0;
     m_PlateNum = -1;
+    m_CopyIndex = -1;
     m_AreaCenter = vec3d(0,0,0);
     m_GuessVol = 0;
     m_Wmin = DBL_MAX;
@@ -670,6 +671,7 @@ void TMesh::CopyAttributes( TMesh* m )
     m_OriginGeomID     = m->m_OriginGeomID;
     m_SurfNum   = m->m_SurfNum;
     m_PlateNum = m->m_PlateNum;
+    m_CopyIndex = m->m_CopyIndex;
     m_NameStr   = m->m_NameStr;
     m_MaterialID = m->m_MaterialID;
     m_SurfCfdType = m->m_SurfCfdType;
@@ -6127,6 +6129,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
     TMeshVec[itmesh]->m_FlatPatch = flatpatch;
     TMeshVec[itmesh]->m_SurfType = surftype;
     TMeshVec[itmesh]->m_SurfNum = indx;
+    TMeshVec[itmesh]->m_CopyIndex = geom->GetSurfCopyIndx( indx );
     TMeshVec[itmesh]->m_PlateNum = platenum;
     TMeshVec[itmesh]->m_UWPnts = uw_pnts;
     TMeshVec[itmesh]->m_XYZPnts = pnts;
@@ -6831,6 +6834,17 @@ vector< int > GetTMeshPlateNum( vector<TMesh*> &tmv )
     return plate;
 }
 
+vector< int > GetTMeshCopyIndex( vector<TMesh*> &tmv )
+{
+    vector< int > copy_indx;
+    for ( int i = 0; i < (int)tmv.size(); i++ )
+    {
+        copy_indx.push_back( tmv[i]->m_CopyIndex );
+    }
+
+    return copy_indx;
+}
+
 vector< double > GetTMeshWmins( vector<TMesh*> &tmv )
 {
     vector < double > wmin( tmv.size(), 0.0 );
@@ -6872,6 +6886,7 @@ void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & s
     SubSurfaceMgr.m_CompIDs = GetTMeshIDs( tmv );
     SubSurfaceMgr.m_CompTypes = GetTMeshTypes( tmv );
     SubSurfaceMgr.m_CompPlate = GetTMeshPlateNum( tmv );
+    SubSurfaceMgr.m_CompCopyIndex = GetTMeshCopyIndex( tmv );
     SubSurfaceMgr.m_CompWmin = GetTMeshWmins( tmv );
     SubSurfaceMgr.m_CompUscale = GetTMeshUscale( tmv );
     SubSurfaceMgr.m_CompWscale = GetTMeshWscale( tmv );

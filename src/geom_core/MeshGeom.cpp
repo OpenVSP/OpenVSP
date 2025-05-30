@@ -4679,6 +4679,11 @@ vector< int > MeshGeom::GetTMeshPlateNum()
     return ::GetTMeshPlateNum( m_TMeshVec );
 }
 
+vector< int > MeshGeom::GetTMeshCopyIndex()
+{
+    return ::GetTMeshCopyIndex( m_TMeshVec );
+}
+
 vector< double > MeshGeom::GetTMeshWmins()
 {
     return ::GetTMeshWmins( m_TMeshVec );

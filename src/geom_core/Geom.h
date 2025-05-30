@@ -487,7 +487,7 @@ public:
         }
     }
 
-    virtual int GetSurfCopyIndx( int surfnum )
+    virtual int GetSurfCopyIndx( int surfnum ) const
     {
         if ( surfnum >= 0 && surfnum < m_SurfCopyIndx.size() )
         {

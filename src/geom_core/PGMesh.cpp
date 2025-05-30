@@ -3520,6 +3520,7 @@ void PGMesh::BuildFromTMesh( const TMesh* tmi )
     m_PGMulti->m_ThickVec = SubSurfaceMgr.m_CompThick;
     m_PGMulti->m_TypeVec = SubSurfaceMgr.m_CompTypes;
     m_PGMulti->m_PlateVec = SubSurfaceMgr.m_CompPlate;
+    m_PGMulti->m_CopyIndxVec = SubSurfaceMgr.m_CompCopyIndex;
     m_PGMulti->m_WminVec = SubSurfaceMgr.m_CompWmin;
     m_PGMulti->m_UscaleVec = SubSurfaceMgr.m_CompUscale;
     m_PGMulti->m_WscaleVec = SubSurfaceMgr.m_CompWscale;
@@ -3592,6 +3593,7 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
     m_PGMulti->m_ThickVec = SubSurfaceMgr.m_CompThick;
     m_PGMulti->m_TypeVec = SubSurfaceMgr.m_CompTypes;
     m_PGMulti->m_PlateVec = SubSurfaceMgr.m_CompPlate;
+    m_PGMulti->m_CopyIndxVec = SubSurfaceMgr.m_CompCopyIndex;
     m_PGMulti->m_WminVec = SubSurfaceMgr.m_CompWmin;
     m_PGMulti->m_UscaleVec = SubSurfaceMgr.m_CompUscale;
     m_PGMulti->m_WscaleVec = SubSurfaceMgr.m_CompWscale;
@@ -3673,6 +3675,7 @@ void PGMesh::BuildFromPGMesh( const PGMesh* pgm )
     m_PGMulti->m_ThickVec = pgm->m_PGMulti->m_ThickVec;
     m_PGMulti->m_TypeVec = pgm->m_PGMulti->m_TypeVec;
     m_PGMulti->m_PlateVec = pgm->m_PGMulti->m_PlateVec;
+    m_PGMulti->m_CopyIndxVec = pgm->m_PGMulti->m_CopyIndxVec;
     m_PGMulti->m_WminVec = pgm->m_PGMulti->m_WminVec;
     m_PGMulti->m_UscaleVec = pgm->m_PGMulti->m_UscaleVec;
     m_PGMulti->m_WscaleVec = pgm->m_PGMulti->m_WscaleVec;
@@ -4541,6 +4544,11 @@ int PGMulti::GetType( const int part ) const
 int PGMulti::GetPlate( const int part ) const
 {
     return m_PlateVec[ part - 1 ];
+}
+
+int PGMulti::GetCopyIndex( int part ) const
+{
+    return m_CopyIndxVec[ part - 1 ];
 }
 
 int PGMulti::GetThickThin( const int part ) const
