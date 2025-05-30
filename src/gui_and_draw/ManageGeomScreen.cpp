@@ -244,8 +244,6 @@ void ManageGeomScreen::LoadBrowser()
         //==== Clear old tree ====//
         m_GeomBrowser->clear();
 
-        TreeIconItem* parent_item;
-
         //==== Display Vehicle Name ====//
         string vid_str = m_VehiclePtr->GetID();
         string vstr = m_VehiclePtr->GetName();
@@ -618,7 +616,6 @@ void ManageGeomScreen::GeomBrowserCallback()
     }
 
     string id;
-    Geom* g = nullptr;
     int icon_event = 0;
     bool show_state;
     int surf_state;
@@ -631,7 +628,7 @@ void ManageGeomScreen::GeomBrowserCallback()
         if ( tree_item->event_on_collapse_icon( m_GeomBrowser->prefs() ) )
         {
             id = tree_item->GetRefID();
-            g = m_VehiclePtr->FindGeom( id );
+            Geom* g = m_VehiclePtr->FindGeom( id );
             Vehicle* vPtr = ( id == m_VehiclePtr->GetID() ) ? m_VehiclePtr : nullptr;
 
             bool open_flag = tree_item->is_open();
@@ -732,7 +729,7 @@ void ManageGeomScreen::GeomBrowserCallback()
         for ( int i = 0; i < selVec.size(); i++ )
         {
             id = selVec[i];
-            g = m_VehiclePtr->FindGeom( id );
+            Geom* g = m_VehiclePtr->FindGeom( id );
 
             vector < string > hidden_id_vec;
 
@@ -752,19 +749,19 @@ void ManageGeomScreen::GeomBrowserCallback()
             {
                 hidden_id_vec = m_VehiclePtr->GetGeomVec();
             }
-            for ( int i = 0; i < hidden_id_vec.size(); i++ )
+            for ( int j = 0; j < hidden_id_vec.size(); j++ )
             {
-                g = m_VehiclePtr->FindGeom( hidden_id_vec[i] );
-                if( g )
+                Geom* hg = m_VehiclePtr->FindGeom( hidden_id_vec[j] );
+                if( hg )
                 {
                     if ( icon_event == 1 )
                     {
-                        g->SetSetFlag( SET_SHOWN , show_state );
-                        g->SetSetFlag( SET_NOT_SHOWN , !show_state );
+                        hg->SetSetFlag( SET_SHOWN , show_state );
+                        hg->SetSetFlag( SET_NOT_SHOWN , !show_state );
                     }
                     else if ( icon_event == 2)
                     {
-                        g->m_GuiDraw.SetDrawType( surf_state );
+                        hg->m_GuiDraw.SetDrawType( surf_state );
                     }
                 }
             }
