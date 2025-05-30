@@ -150,7 +150,7 @@ public:
 
     static vector < string > ExtendStringVector( vector < string > vec, const vector<string> &vec_add, const string &string_root = "", bool skip_empty_strings = true );
     static vector < vector < string > > TransposeExtendStringVector( const vector<string> &base_vec, const vector<string> &vec_add );
-    static vector < vector < string > > ExtendNestedStringVector( vector < vector < string > > vec, vector < vector < string > > vec_add );
+    static vector < vector < string > > ExtendNestedStringVector( vector < vector < string > > vec, const vector < vector < string > > & vec_add );
 
 protected:
     NameValData* RemoveAttribute( const string &attrID, bool updateFlag = true );

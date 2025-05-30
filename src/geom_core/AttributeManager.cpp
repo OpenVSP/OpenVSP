@@ -1420,7 +1420,7 @@ vector < vector < string > > AttributeMgrSingleton::TransposeExtendStringVector(
 }
 
 // extend a vector of vectors of strings with another vector of vectors of strings (concatenate)
-vector < vector < string > > AttributeMgrSingleton::ExtendNestedStringVector( vector < vector < string > > vec, vector < vector < string > > vec_add )
+vector < vector < string > > AttributeMgrSingleton::ExtendNestedStringVector( vector < vector < string > > vec, const vector < vector < string > > & vec_add )
 {
     for ( int i = 0; i != vec_add.size(); i++ )
     {
