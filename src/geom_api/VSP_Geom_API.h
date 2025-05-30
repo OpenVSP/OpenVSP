@@ -3879,7 +3879,7 @@ extern void SetAttributeParmID( const string & attrID, const string & value );
     \param [in] value vec3d value for attribute
 */
 
-extern void SetAttributeVec3d( const string & attrID, const vector < vec3d > value );
+extern void SetAttributeVec3d( const string & attrID, const vector < vec3d > & value );
 
 /*!
     \ingroup Attributes
@@ -3938,7 +3938,7 @@ extern void SetAttributeVec3d( const string & attrID, const vector < vec3d > val
     \param [in] value int matrix value for attribute
 */
 
-extern void SetAttributeIntMatrix( const string & attrID, const vector< vector< int > > value );
+extern void SetAttributeIntMatrix( const string & attrID, const vector < vector < int > > & value );
 
 /*!
     \ingroup Attributes
@@ -3997,7 +3997,7 @@ extern void SetAttributeIntMatrix( const string & attrID, const vector< vector< 
     \param [in] value double matrix value for attribute
 */
 
-extern void SetAttributeDoubleMatrix( const string & attrID, const vector< vector< double > > value );
+extern void SetAttributeDoubleMatrix( const string & attrID, const vector< vector< double > > & value );
 
 /*!
     \ingroup Attributes
@@ -4176,7 +4176,7 @@ extern string AddAttributeBool( const string & collID, const string & attributeN
     \param [in] value integer value of new attribute
 */
 
-extern string AddAttributeInt( const string & collID, const string & attributeName, const int value );
+extern string AddAttributeInt( const string & collID, const string & attributeName, int value );
 
 /*!
     \ingroup Attributes
@@ -4229,7 +4229,7 @@ extern string AddAttributeInt( const string & collID, const string & attributeNa
     \param [in] value double value of new attribute
 */
 
-extern string AddAttributeDouble( const string & collID, const string & attributeName, const double value);
+extern string AddAttributeDouble( const string & collID, const string & attributeName, double value );
 
 /*!
     \ingroup Attributes

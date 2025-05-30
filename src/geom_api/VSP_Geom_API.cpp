@@ -1588,17 +1588,17 @@ void SetAttributeParmID( const string & attrID, const string & value )
     AttributeMgr.SetAttributeParmID( attrID, value );
 }
 
-void SetAttributeVec3d( const string & attrID, const vector < vec3d > value )
+void SetAttributeVec3d( const string & attrID, const vector < vec3d > & value )
 {
     AttributeMgr.SetAttributeVec3d( attrID, value );
 }
 
-void SetAttributeIntMatrix( const string & attrID, const vector< vector< int > > value )
+void SetAttributeIntMatrix( const string & attrID, const vector < vector < int > > &value )
 {
     AttributeMgr.SetAttributeIntMatrix( attrID, value );
 }
 
-void SetAttributeDoubleMatrix( const string & attrID, const vector< vector< double > > value )
+void SetAttributeDoubleMatrix( const string & attrID, const vector< vector< double > > & value )
 {
     AttributeMgr.SetAttributeDoubleMatrix( attrID, value );
 }
