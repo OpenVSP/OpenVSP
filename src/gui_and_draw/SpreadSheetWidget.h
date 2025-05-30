@@ -31,7 +31,6 @@ class SpreadSheet : public Fl_Table
 public:
     SpreadSheet( int X, int Y, int W, int H, const char* L = 0 );
 
-    SpreadSheet() {}
 
     // Apply value from input widget to values[row][col] array and hide (done editing)
     void set_value_hide();
