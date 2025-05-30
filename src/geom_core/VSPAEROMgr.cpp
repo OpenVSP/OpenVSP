@@ -6342,11 +6342,11 @@ int UnsteadyGroup::WriteGroup( FILE *group_file )
     //     fprintf( group_file, "%d\n", m_ComponentVSPAEROIndexVec[i] );
     // }
 
-    fprintf( group_file, "NumberOfComponents = %d\n", m_GeomIDsInGroup.size() );
-    for ( size_t i = 0; i < m_GeomIDsInGroup.size(); i++ )
+    fprintf( group_file, "NumberOfComponents = %d\n", (int) m_ComponentSurfPairVec.size() );
+    for ( size_t i = 0; i < m_ComponentSurfPairVec.size(); i++ )
     {
-        int gnum = SubSurfaceMgr.FindGNum( m_GeomIDsInGroup[i] );
-        fprintf( group_file, "%d\n", gnum + 1 );
+        int gcnum = SubSurfaceMgr.FindGCNum( m_ComponentSurfPairVec[i].first, m_ComponentSurfPairVec[i].second - 1 );
+        fprintf( group_file, "%d\n", gcnum + 1 );
     }
 
     bool geom_fixed = false;
