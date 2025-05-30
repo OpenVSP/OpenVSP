@@ -171,7 +171,7 @@ int MeshGeom::ReadXSec( const char* file_name )
     }
 
     //==== Read first Line of file and compare against expected header ====//
-    fscanf( fp, "%s INPUT FILE\n\n", str );
+    fscanf( fp, "%255s INPUT FILE\n\n", str );
     if ( strcmp( "HERMITE", str ) != 0 )
     {
         fclose( fp );
@@ -320,7 +320,7 @@ int MeshGeom::ReadSTL( const char* file_name )
                 fpos_t pos;
                 fgetpos( file_id, &pos );
 
-                if ( EOF == fscanf( file_id, "%s %*s\n", str ) )
+                if ( EOF == fscanf( file_id, "%255s %*s\n", str ) )
                 {
                     break;
                 }

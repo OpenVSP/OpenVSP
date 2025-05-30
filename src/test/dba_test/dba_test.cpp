@@ -84,7 +84,7 @@ int main( int argc, char* argv[] )
     }
 
     char buff[256];
-    fscanf( fp, "%s", buff );
+    fscanf( fp, "%255s", buff );
 
     int ntDLB;
     fscanf( fp, "%d", &ntDLB );
@@ -96,7 +96,7 @@ int main( int argc, char* argv[] )
         fscanf( fp, "%d %d %d %d", &indx, &(tDLB[i].v[0]), &(tDLB[i].v[1]), &(tDLB[i].v[2]) );
     }
 
-    fscanf( fp, "%s", buff );
+    fscanf( fp, "%255s", buff );
 
     int ntTRI;
     fscanf( fp, "%d", &ntTRI );

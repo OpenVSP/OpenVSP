@@ -5654,7 +5654,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
         }
 
         //==== Read first Line of file and compare against expected header ====//
-        fscanf( fp, "%s INPUT FILE\n\n", str );
+        fscanf( fp, "%255s INPUT FILE\n\n", str );
         if ( strcmp( "HERMITE", str ) != 0 )
         {
             fclose ( fp );
