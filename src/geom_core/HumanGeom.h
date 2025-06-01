@@ -28,11 +28,11 @@
 
 #define REAL_T float
 
-#define NUM_MESH_TRI 2885
-#define NUM_MESH_VERT 1488
+#define NUM_MESH_TRI 5768
+#define NUM_MESH_VERT 2943
 
-#define NUM_SKEL 21
-#define NUM_SKEL_VERT 13
+#define NUM_SKEL 25
+#define NUM_SKEL_VERT 17
 
 class HumanGeom : public Geom {
 public:
@@ -56,13 +56,17 @@ public:
           RTOE,        // 11
           LSHOULDER,   // 12
           LELBOW,      // 13
-          LHAND,       // 14
-          RSHOULDER,   // 15
-          RELBOW,      // 16
-          RHAND,       // 17
-          REYE,        // 18
-          LEYE,        // 19
-          DES_EYE      // 20
+          LWRIST,      // 14
+          LFINGER,     // 15
+          RSHOULDER,   // 16
+          RELBOW,      // 17
+          RWRIST,      // 18
+          RFINGER,     // 19
+          REYE,        // 20
+          LEYE,        // 21
+          DES_EYE,     // 22
+          RWRISTAX,    // 23
+          LWRISTAX
   };
 
     enum bones {
@@ -80,9 +84,16 @@ public:
         LCLAV,          // 11
         LBICEP,         // 12
         LFOREARM,       // 13
-        RCLAV,          // 14
-        RBICEP,         // 15
-        RFOREARM        // 16
+        LHAND,          // 14
+        RCLAV,          // 15
+        RBICEP,         // 16
+        RFOREARM,       // 17
+        RHAND,          // 18
+        SKULL,          // 19
+        LORBITAL,       // 20
+        RORBITAL,       // 21
+        RWRISTBASE,     // 22
+        LWRISTBASE,     // 23
     };
 
     enum PRESET_POSE {
