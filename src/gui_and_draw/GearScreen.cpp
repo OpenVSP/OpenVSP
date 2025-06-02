@@ -240,9 +240,12 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 700 + 200, "Gear"
 
 
     m_TireGroup.ForceNewLine();
-    m_TireGroup.AddYGap();
 
     m_TireGroup.SetSameLineFlag( false );
+    m_TireGroup.AddSlider( m_PlyRatingSlider, "Ply Rating", 10, "%6.5f" );
+
+    m_TireGroup.AddYGap();
+
     m_TireGroup.AddDividerBox( "Rim" );
     m_TireGroup.SetSameLineFlag( true );
 
@@ -692,6 +695,8 @@ bool Gearcreen::Update()
             m_WrimSlider.Update( 3, bogie_ptr->m_WrimIn.GetID(), bogie_ptr->m_WrimModel.GetID(), bogie_ptr->m_WrimFrac.GetID() );
             m_WrimSlider.ActivateInput3();
         }
+
+        m_PlyRatingSlider.Update( bogie_ptr->m_PlyRating.GetID() );
 
         m_HsToggleGroup.Update( bogie_ptr->m_HsMode.GetID() );
         if ( bogie_ptr->m_HsMode() == vsp::TIRE_DIM_IN )

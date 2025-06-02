@@ -133,6 +133,8 @@ protected:
     ToggleRadioGroup m_WrimToggleGroup;
     SliderAdjRange3Input m_WrimSlider;
 
+    SliderAdjRangeInput m_PlyRatingSlider;
+
     ToggleButton m_HsInToggleButton;
     ToggleButton m_HsModelToggleButton;
     ToggleButton m_HsFracToggleButton;

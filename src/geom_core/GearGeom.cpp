@@ -92,12 +92,15 @@ Bogie::Bogie()
 
     m_WrimMode.Init( "WrimMode", "Tire", this, vsp::TIRE_DIM_FRAC, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 1 );
     m_WrimMode.SetDescript( "Mode to control wheel rim width specification" );
-    m_WrimFrac.Init( "WrimFrac", "Tire", this, 0.77, 0.0, 1.0 );
-    m_WrimFrac.SetDescript( "Wheel rim fraction of tire width" );
+    m_WrimFrac.Init( "WrimFrac", "Tire", this, 0.775, 0.0, 1.0 );
+    m_WrimFrac.SetDescript( "Wheel rim width between flanges fraction of tire width" );
     m_WrimIn.Init( "WrimIn", "Tire", this, 0.88, 0.0, 1.0e12 );
-    m_WrimIn.SetDescript( "Wheel rim width in inches" );
+    m_WrimIn.SetDescript( "Wheel rim width between flanges in inches" );
     m_WrimModel.Init( "WrimModel", "Tire", this, 0.88/12, 0.0, 1.0e12 );
-    m_WrimModel.SetDescript( "Wheel rim width in model units" );
+    m_WrimModel.SetDescript( "Wheel rim width between flanges in model units" );
+
+    m_PlyRating.Init( "PlyRating", "Tire", this, 20.0, 5.0, 100 );
+    m_PlyRating.SetDescript( "Tire ply rating" );
 
     m_WsMode.Init( "WsMode", "Tire", this, vsp::TIRE_DIM_FRAC, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 1 );
     m_WsMode.SetDescript( "Mode to control shoulder width specification" );
@@ -147,6 +150,31 @@ int Bogie::GetNumSurf() const
     }
 
     return m_NAcross() * m_NTandem() * sym;
+}
+
+// Flange height equation from Tire and Rim ASsociation Aircraft Engineering Design Information Book AC-30-B.
+// PR - Ply rating
+// H  - Tire height (in)
+// LR - Lift ratio
+double FlangeHeight( double PR, double H, double LR )
+{
+    double a = 0.54959;
+    double b = 0.0053275;
+    double c = 0.00034202;
+    double d = 0.0000034138;
+    double e = -0.05286;
+    double f = 0.0024187;
+    double g = -0.0041179;
+    double h = 0.00023336;
+    double i = -0.14303;
+    double j = 0.0079038;
+    double k = -0.00017004;
+
+    double PRp4 = PR + 4.0;
+    double HoLR = H / LR;
+
+    return ( a + b * PRp4 + c * pow( PRp4, 2 ) + d * pow( PRp4,3 ) + e * HoLR + f * pow(HoLR, 2 ) ) /
+           ( 1.0 + g * PRp4 + h * pow( PRp4,2 ) + i * HoLR + j * pow( HoLR,2 ) + k * pow( HoLR,3 ) );
 }
 
 void Bogie:: UpdateParms()
@@ -334,16 +362,43 @@ void Bogie:: UpdateParms()
 
 void Bogie::UpdateTireCurve()
 {
+    ParmContainer* pc = GetParentContainerPtr();
+    GearGeom *gear_geom = dynamic_cast < GearGeom * > ( pc );
+
+    double in2model = 1.0;
+    if ( gear_geom )
+    {
+        in2model = ConvertLength( 1, vsp::LEN_IN, gear_geom->m_ModelLenUnits() );
+    }
+
     // Tire dimensions
     double Do = m_DiameterModel();
+    double Doin = m_DiameterIn();
     double W = m_WidthModel();
 
     // Rim dimensions
     double Drim = m_DrimModel();
-    double Wrim = m_WrimModel();
-    // double Hflange = 0.55;
+    double Drimin = m_DrimIn();
+    double Wrim = m_WrimModel(); // Width between flanges
 
-    double H = 0.5 * ( Do - Drim );
+    // Tire height (in)
+    double Hin = 0.5 * ( Doin - Drimin );
+
+    // Lift ratio
+    double LR = Doin / Drimin;
+
+    // Flange height (in)
+    double Hflangein = FlangeHeight( m_PlyRating(), Hin, LR );
+
+    // Flange height in model units.
+    double Hflange = Hflangein * in2model;
+
+    // Flange radius
+    double Rflange = 0.5 * Hflange;
+    // Flange width
+    double B = 1.3 * Rflange;
+    // Width of wheel to outside of flanges
+    double Wflange = Wrim + 2.0 * B;
 
 
     // Tire shoulder
@@ -355,7 +410,7 @@ void Bogie::UpdateTireCurve()
     double Cw = 0;
     double Cside = 0.25;
 
-    m_TireProfile.CreateTire( Do, W, Ds, Ws, Drim, Wrim );
+    m_TireProfile.CreateTire( Do, W, Ds, Ws, Drim, Wflange, Hflange );
 }
 
 void Bogie::Update()

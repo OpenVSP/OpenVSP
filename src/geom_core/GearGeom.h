@@ -204,6 +204,8 @@ public:
     Parm m_WrimIn;
     Parm m_WrimModel;
 
+    Parm m_PlyRating;
+
     IntParm m_WsMode;
     Parm m_WsFrac;
     Parm m_WsIn;

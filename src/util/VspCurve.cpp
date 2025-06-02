@@ -2121,12 +2121,9 @@ void VspCurve::ToCubic( double tol )
     m_Curve.to_cubic( tol );
 }
 
-void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim )
+void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wflange, double Hflange )
 {
     m_Curve.clear();
-
-    // Could be used if width of flange is also known.
-    double Hflange = 0;
 
     // Tire height
     double H = 0.5 * ( Do - Drim );
@@ -2147,7 +2144,7 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     // Flank origin
     double yf0 = yc0;
     double dyf = 0.5 * H - Hflange;
-    double xf0 = ( 0.25 * ( Wrim * Wrim - W * W ) + dyf * dyf) / ( Wrim - W );;
+    double xf0 = ( 0.25 * ( Wflange * Wflange - W * W ) + dyf * dyf) / ( Wflange - W );;
     double rf = 0.5 * W - xf0;
 
 
@@ -2171,9 +2168,9 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     carc.resize( 3 ); // Cubic
 
     // Wheel
-    pt << 0, Wrim / 2.0, 0;
+    pt << 0, Wflange / 2.0, 0;
     clin.set_control_point( pt, 0 );
-    pt << 0, Wrim / 2.0, Drim / 2.0 + Hflange;
+    pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
     clin.set_control_point( pt, 1 );
     m_Curve.push_back( clin, 0.2 );
 
@@ -2187,7 +2184,7 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     pt << 0, W / 2, yf0;
     carc.set_control_point( pt, 3 );
 
-    x1d << -Wrim / 2;
+    x1d << -Wflange / 2;
     c1d = carc.singledimensioncurve( 1 );
     c1d.translate( x1d );
     eli::geom::intersect::find_zero( t, c1d, 0.5 );
