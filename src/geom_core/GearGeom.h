@@ -218,6 +218,11 @@ public:
 
     Parm m_DFlangeModel;
 
+    Parm m_WGModel;
+    Parm m_DGModel;
+    Parm m_WsGModel;
+    Parm m_DsGModel;
+
 };
 
 

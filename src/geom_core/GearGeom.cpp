@@ -122,6 +122,15 @@ Bogie::Bogie()
 
     m_DFlangeModel.Init( "DFlangeModel", "Tire", this, 0.0, 0.0, 1.0e12 );
     m_DFlangeModel.SetDescript( "Wheel diameter at flanges in model units" );
+
+    m_WGModel.Init( "WGModel", "Tire", this, 0.0, 0.0, 1.0e12 );
+    m_WGModel.SetDescript( "Grown tire width in model units" );
+    m_DGModel.Init( "DGModel", "Tire", this, 0.0, 0.0, 1.0e12 );
+    m_DGModel.SetDescript( "Grown tire diameter in model units" );
+    m_WsGModel.Init( "WsGModel", "Tire", this, 0.0, 0.0, 1.0e12 );
+    m_WsGModel.SetDescript( "Grown tire shoulder width in model units" );
+    m_DsGModel.Init( "DsGModel", "Tire", this, 0.0, 0.0, 1.0e12 );
+    m_DsGModel.SetDescript( "Grown tire shoulder diameter in model units" );
 }
 
 //==== Parm Changed ====//
@@ -318,6 +327,29 @@ void Bogie:: UpdateParms()
         m_StaticRadiusIn = 0.5 * Do - m_DeflectionPct() * Haboveflange;
         m_StaticRadiusModel = m_StaticRadiusIn() * in2model;
     }
+
+    // Tire aspect ratio.
+    double AR = H / W;
+
+    // Section height growth factor
+    double GH = 1.115 - ( 0.075 * AR );
+
+    // Section width growth factor
+    double GW = 1.04;
+
+    // Grown width
+    double WG = GW * W;
+    // Grown diameter
+    double DG = Drim + 2.0 * GH * H;
+    // Grown width at shoulder
+    double WSG = GW * m_WsIn();
+    // Grown diameter at shoulder
+    double DSG = Drim + 2.0 * GH * m_HsIn();
+
+    m_WGModel = WG * in2model;
+    m_DGModel = DG * in2model;
+    m_WsGModel = WSG * in2model;
+    m_DsGModel = DSG * in2model;
 
     double Wmodel = m_WidthModel();
     double Dmodel = m_DiameterModel();
@@ -537,8 +569,8 @@ double Bogie::GetTireRadius( int tiremode ) const
         case vsp::TIRE_NOMINAL_CONTACT:
             return m_DiameterModel() * 0.5;
             break;
-        case vsp::TIRE_GROWTH_CONTACT:  // Not correct at this time.  Need to do growth calculation based on speed.
-            return m_DiameterModel() * 0.5;
+        case vsp::TIRE_GROWTH_CONTACT:
+            return m_DGModel() * 0.5;
             break;
         case vsp::TIRE_FLAT_CONTACT:
             return m_DFlangeModel() * 0.5;
