@@ -285,21 +285,33 @@ void Bogie:: UpdateParms()
         m_HsModel = m_HsIn() * in2model;
     }
 
-    m_StaticRadiusIn.SetLowerUpperLimits( 0.5 * Drim, 0.5 * Do );
-    m_StaticRadiusModel.SetLowerUpperLimits( 0.5 * Drim * in2model, 0.5 * Do * in2model );
+    // Lift ratio
+    double LR = Do / Drim;
+
+    // Flange height (in)
+    double Hflange = FlangeHeight( m_PlyRating(), H, LR );
+
+    // Diameter to flanges.
+    double Dflange = Drim + 2.0 * Hflange;
+
+    // Tire height above flanges.
+    double Haboveflange = 0.5 * ( Do - Dflange );
+
+    m_StaticRadiusIn.SetLowerUpperLimits( 0.5 * Dflange, 0.5 * Do );
+    m_StaticRadiusModel.SetLowerUpperLimits( 0.5 * Dflange * in2model, 0.5 * Do * in2model );
     if ( m_SLRMode() == vsp::TIRE_DIM_IN )
     {
-        m_DeflectionPct = ( 0.5 * Do - m_StaticRadiusIn() ) / H ;
+        m_DeflectionPct = ( 0.5 * Do - m_StaticRadiusIn() ) / Haboveflange ;
         m_StaticRadiusModel = m_StaticRadiusIn() * in2model;
     }
     else if ( m_SLRMode() == vsp::TIRE_DIM_MODEL )
     {
         m_StaticRadiusIn = m_StaticRadiusModel() * model2in;
-        m_DeflectionPct = ( 0.5 * Do - m_StaticRadiusIn() ) / H ;
+        m_DeflectionPct = ( 0.5 * Do - m_StaticRadiusIn() ) / Haboveflange ;
     }
     else // TIRE_DIM_FRAC
     {
-        m_StaticRadiusIn = 0.5 * Do - m_DeflectionPct() * H;
+        m_StaticRadiusIn = 0.5 * Do - m_DeflectionPct() * Haboveflange;
         m_StaticRadiusModel = m_StaticRadiusIn() * in2model;
     }
 
