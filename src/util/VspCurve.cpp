@@ -2121,12 +2121,19 @@ void VspCurve::ToCubic( double tol )
     m_Curve.to_cubic( tol );
 }
 
-void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wflange, double Hflange )
+void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, double Hflange )
 {
     m_Curve.clear();
 
     // Tire height
     double H = 0.5 * ( Do - Drim );
+
+    // Flange radius
+    double Rflange = 0.5 * Hflange;
+    // Flange width
+    double B = 1.3 * Rflange;
+    // Width of wheel to outside of flanges
+    double Wflange = Wrim + 2.0 * B;
 
     // Shoulder origin
     double Hs = Ds - Do;
@@ -2134,6 +2141,8 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     double xs0 = rs - sqrt( 0.25 * ( - Hs * Hs - 2 * Ws * Hs ) );
     double ys0 = 0.5 * ( Do - Ws );
 
+    double xs = 0.5 * Ws;
+    double ys = 0.5 * Ds;
 
     // Cheek origin
     double yc0 = 0.5 * Drim + 0.5 * H;
@@ -2141,12 +2150,28 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     double xc0 = ( 0.25 * ( Ws * Ws - W * W ) + dy * dy) / ( Ws - W );
     double rc = 0.5 * W - xc0;
 
+    // Solve for mutually tangent point between flange and flank
+    // flange center point
+    double x1 = 0.5 * Wrim + Rflange;
+    double y1 = 0.5 * Drim + Rflange;
+
+    // Deltas to tire width point -- cheek/flank intersection
+    double dx1 = 0.5 * W - x1;
+    double dy1 = yc0 - y1;
+
+    // Flank radius
+    double rflank = ( dx1*dx1 + dy1*dy1 - Rflange*Rflange ) / ( 2.0 * ( Rflange + dx1 ) );
+
     // Flank origin
     double yf0 = yc0;
-    double dyf = 0.5 * H - Hflange;
-    double xf0 = ( 0.25 * ( Wflange * Wflange - W * W ) + dyf * dyf) / ( Wflange - W );;
-    double rf = 0.5 * W - xf0;
+    double xf0 = 0.5 * W - rflank;
 
+    // Triangle scale fraction.
+    double f = rflank / ( Rflange + rflank );
+
+    // Point of tangency.
+    double xt = xf0 + f * ( x1 - xf0 );
+    double yt = yf0 + f * ( y1 - yf0 );
 
 
     double beta = 0.5 * M_PI;
@@ -2167,30 +2192,68 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     clin.resize( 1 ); // Linear
     carc.resize( 3 ); // Cubic
 
+
+    double dt = 1.0 / 7.0;
+
     // Wheel
     pt << 0, Wflange / 2.0, 0;
     clin.set_control_point( pt, 0 );
     pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
     clin.set_control_point( pt, 1 );
-    m_Curve.push_back( clin, 0.2 );
+    m_Curve.push_back( clin, dt );
 
-    // Flank
-    pt << 0, xf0, yf0 - rf;
+    // Flange flat
+    pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
+    clin.set_control_point( pt, 0 );
+    pt << 0, Wflange / 2.0 - 0.3 * Rflange, Drim / 2.0 + Hflange;
+    clin.set_control_point( pt, 1 );
+    m_Curve.push_back( clin, dt );
+
+
+    // Flange face
+    pt << 0, x1, y1 + Rflange;
     carc.set_control_point( pt, 0 );
-    pt << 0, xf0 + k * rf, yf0 - rf;
+    pt << 0, x1 - k * Rflange, y1 + Rflange;
     carc.set_control_point( pt, 1 );
-    pt << 0, W / 2, yf0 - k * rf;
+    pt << 0, x1 - Rflange, y1 + k * Rflange;
     carc.set_control_point( pt, 2 );
-    pt << 0, W / 2, yf0;
+    pt << 0, x1 - Rflange, y1;
     carc.set_control_point( pt, 3 );
 
-    x1d << -Wflange / 2;
+    x1d << -xt;
     c1d = carc.singledimensioncurve( 1 );
     c1d.translate( x1d );
     eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
     carc.split( c1, c2, t );
-    m_Curve.push_back( c2, 0.2 );
+
+    // Force tangent point.
+    pt << 0, xt, yt;
+    c1.set_control_point( pt, 3 );
+    m_Curve.push_back( c1, dt );
+
+
+    // Flank
+    pt << 0, xf0, yf0 - rflank;
+    carc.set_control_point( pt, 0 );
+    pt << 0, xf0 + k * rflank, yf0 - rflank;
+    carc.set_control_point( pt, 1 );
+    pt << 0, W / 2, yf0 - k * rflank;
+    carc.set_control_point( pt, 2 );
+    pt << 0, W / 2, yf0;
+    carc.set_control_point( pt, 3 );
+
+    x1d << -xt;
+    c1d = carc.singledimensioncurve( 1 );
+    c1d.translate( x1d );
+    eli::geom::intersect::find_zero( t, c1d, 0.5 );
+
+    carc.split( c1, c2, t );
+
+    // Force tangent point.
+    pt << 0, xt, yt;
+    c2.set_control_point( pt, 0 );
+    m_Curve.push_back( c2, dt );
 
     // Cheek
     pt << 0, W / 2.0, yc0;
@@ -2208,7 +2271,11 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
     carc.split( c1, c2, t );
-    m_Curve.push_back( c1, 0.2 );
+
+    // Force shoulder point.
+    pt << 0, xs, ys;
+    c1.set_control_point( pt, 3 );
+    m_Curve.push_back( c1, dt );
 
     // Shoulder
     pt << 0, xs0 + rs, ys0;
@@ -2226,13 +2293,18 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
     carc.split( c1, c2, t );
-    m_Curve.push_back( c2, 0.2 );
+
+    // Force shoulder point.
+    pt << 0, xs, ys;
+    c2.set_control_point( pt, 0 );
+    m_Curve.push_back( c2, dt );
 
     // Flat
+    pt << 0, xs0, Do / 2.0;
     clin.set_control_point( pt, 0 );
     pt << 0, 0, Do / 2.0;
     clin.set_control_point( pt, 1 );
-    m_Curve.push_back( clin, 0.2 );
+    m_Curve.push_back( clin, dt );
 
 
 

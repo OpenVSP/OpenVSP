@@ -431,14 +431,6 @@ void Bogie::UpdateTireCurve()
     // Flange height in model units.
     double Hflange = 0.5 * ( Dflange - Drim );
 
-    // Flange radius
-    double Rflange = 0.5 * Hflange;
-    // Flange width
-    double B = 1.3 * Rflange;
-    // Width of wheel to outside of flanges
-    double Wflange = Wrim + 2.0 * B;
-
-
     // Tire shoulder
     double Ws = m_WsModel();
     double Ds = 2 * m_HsModel() + Drim;
@@ -448,7 +440,7 @@ void Bogie::UpdateTireCurve()
     double Cw = 0;
     double Cside = 0.25;
 
-    m_TireProfile.CreateTire( Do, W, Ds, Ws, Drim, Wflange, Hflange );
+    m_TireProfile.CreateTire( Do, W, Ds, Ws, Drim, Wrim, Hflange );
 }
 
 void Bogie::Update()
