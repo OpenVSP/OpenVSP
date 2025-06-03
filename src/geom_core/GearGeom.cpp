@@ -420,25 +420,16 @@ void Bogie::UpdateTireCurve()
 
     // Tire dimensions
     double Do = m_DiameterModel();
-    double Doin = m_DiameterIn();
     double W = m_WidthModel();
 
     // Rim dimensions
     double Drim = m_DrimModel();
-    double Drimin = m_DrimIn();
     double Wrim = m_WrimModel(); // Width between flanges
 
-    // Tire height (in)
-    double Hin = 0.5 * ( Doin - Drimin );
-
-    // Lift ratio
-    double LR = Doin / Drimin;
-
-    // Flange height (in)
-    double Hflangein = FlangeHeight( m_PlyRating(), Hin, LR );
-
+    // Diameter at flanges
+    double Dflange = m_DFlangeModel();
     // Flange height in model units.
-    double Hflange = Hflangein * in2model;
+    double Hflange = 0.5 * ( Dflange - Drim );
 
     // Flange radius
     double Rflange = 0.5 * Hflange;
