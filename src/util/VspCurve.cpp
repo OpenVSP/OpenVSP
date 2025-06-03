@@ -2213,58 +2213,58 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     }
     else
     {
-    // Flange flat
-    pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
-    clin.set_control_point( pt, 0 );
-    pt << 0, Wflange / 2.0 - 0.3 * Rflange, Drim / 2.0 + Hflange;
-    clin.set_control_point( pt, 1 );
-    m_Curve.push_back( clin, dt );
+        // Flange flat
+        pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
+        clin.set_control_point( pt, 0 );
+        pt << 0, Wflange / 2.0 - 0.3 * Rflange, Drim / 2.0 + Hflange;
+        clin.set_control_point( pt, 1 );
+        m_Curve.push_back( clin, dt );
 
 
-    // Flange face
-    pt << 0, x1, y1 + Rflange;
-    carc.set_control_point( pt, 0 );
-    pt << 0, x1 - k * Rflange, y1 + Rflange;
-    carc.set_control_point( pt, 1 );
-    pt << 0, x1 - Rflange, y1 + k * Rflange;
-    carc.set_control_point( pt, 2 );
-    pt << 0, x1 - Rflange, y1;
-    carc.set_control_point( pt, 3 );
+        // Flange face
+        pt << 0, x1, y1 + Rflange;
+        carc.set_control_point( pt, 0 );
+        pt << 0, x1 - k * Rflange, y1 + Rflange;
+        carc.set_control_point( pt, 1 );
+        pt << 0, x1 - Rflange, y1 + k * Rflange;
+        carc.set_control_point( pt, 2 );
+        pt << 0, x1 - Rflange, y1;
+        carc.set_control_point( pt, 3 );
 
-    x1d << -xt;
-    c1d = carc.singledimensioncurve( 1 );
-    c1d.translate( x1d );
-    eli::geom::intersect::find_zero( t, c1d, 0.5 );
+        x1d << -xt;
+        c1d = carc.singledimensioncurve( 1 );
+        c1d.translate( x1d );
+        eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
-    carc.split( c1, c2, t );
+        carc.split( c1, c2, t );
 
-    // Force tangent point.
-    pt << 0, xt, yt;
-    c1.set_control_point( pt, 3 );
-    m_Curve.push_back( c1, dt );
+        // Force tangent point.
+        pt << 0, xt, yt;
+        c1.set_control_point( pt, 3 );
+        m_Curve.push_back( c1, dt );
 
 
-    // Flank
-    pt << 0, xf0, yf0 - rflank;
-    carc.set_control_point( pt, 0 );
-    pt << 0, xf0 + k * rflank, yf0 - rflank;
-    carc.set_control_point( pt, 1 );
-    pt << 0, W / 2, yf0 - k * rflank;
-    carc.set_control_point( pt, 2 );
-    pt << 0, W / 2, yf0;
-    carc.set_control_point( pt, 3 );
+        // Flank
+        pt << 0, xf0, yf0 - rflank;
+        carc.set_control_point( pt, 0 );
+        pt << 0, xf0 + k * rflank, yf0 - rflank;
+        carc.set_control_point( pt, 1 );
+        pt << 0, W / 2, yf0 - k * rflank;
+        carc.set_control_point( pt, 2 );
+        pt << 0, W / 2, yf0;
+        carc.set_control_point( pt, 3 );
 
-    x1d << -xt;
-    c1d = carc.singledimensioncurve( 1 );
-    c1d.translate( x1d );
-    eli::geom::intersect::find_zero( t, c1d, 0.5 );
+        x1d << -xt;
+        c1d = carc.singledimensioncurve( 1 );
+        c1d.translate( x1d );
+        eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
-    carc.split( c1, c2, t );
+        carc.split( c1, c2, t );
 
-    // Force tangent point.
-    pt << 0, xt, yt;
-    c2.set_control_point( pt, 0 );
-    m_Curve.push_back( c2, dt );
+        // Force tangent point.
+        pt << 0, xt, yt;
+        c2.set_control_point( pt, 0 );
+        m_Curve.push_back( c2, dt );
     }
 
     // Cheek
