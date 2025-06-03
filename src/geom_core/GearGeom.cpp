@@ -247,9 +247,8 @@ void Bogie:: UpdateParms()
 
     // Rim dimensions
     double Drim = m_DrimIn();
-    double Wrim = m_WrimIn();
-    // double Hflange = 0.55;
 
+    // Tire height
     double H = 0.5 * ( Do - Drim );
 
 
