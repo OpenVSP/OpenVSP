@@ -244,6 +244,8 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 700 + 200, "Gear"
     m_TireGroup.SetSameLineFlag( false );
     m_TireGroup.AddSlider( m_PlyRatingSlider, "Ply Rating", 10, "%6.5f" );
 
+    m_TireGroup.AddButton( m_FairedFlangeButton, "Fair Wheel" );
+
     m_TireGroup.AddYGap();
 
     m_TireGroup.AddDividerBox( "Rim" );
@@ -637,6 +639,7 @@ bool Gearcreen::Update()
         m_TravelSlider.Update( bogie_ptr->m_Travel.GetID() );
         m_BogieThetaSlider.Update( bogie_ptr->m_BogieTheta.GetID() );
 
+        m_FairedFlangeButton.Update( bogie_ptr->m_FairedFlange.GetID() );
 
         m_TireDiameterToggleGroup.Update( bogie_ptr->m_DiameterMode.GetID() );
         if ( bogie_ptr->m_DiameterMode() == vsp::TIRE_DIM_IN )

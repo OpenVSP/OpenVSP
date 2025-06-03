@@ -111,6 +111,8 @@ protected:
     // Tire
     Choice m_TireBogieChoice;
 
+    ToggleButton m_FairedFlangeButton;
+
     ToggleButton m_TireDiameterInToggleButton;
     ToggleButton m_TireDiameterModelToggleButton;
     ToggleRadioGroup m_TireDiameterToggleGroup;

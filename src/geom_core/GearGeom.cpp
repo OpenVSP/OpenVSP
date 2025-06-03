@@ -58,6 +58,10 @@ Bogie::Bogie()
     m_SteeringAngle.Init( "SteeringAngle", "Bogie", this, 0.0, 0, 90 );
 
     //Tire
+
+    m_FairedFlange.Init( "FairedFlange", "Tire", this, false, false, true );
+    m_FairedFlange.SetDescript( "Flag to cause fairing over wheel flange details" );
+
     m_DiameterMode.Init( "DiameterMode", "Tire", this, vsp::TIRE_DIM_IN, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 2 ); // TIRE_DIM_FRAC not allowed
     m_DiameterMode.SetDescript( "Mode to control diameter specification" );
     m_DiameterIn.Init( "DiameterIn", "Tire", this, 13.5, 0.0, 1.0e12 );
@@ -440,7 +444,7 @@ void Bogie::UpdateTireCurve()
     double Cw = 0;
     double Cside = 0.25;
 
-    m_TireProfile.CreateTire( Do, W, Ds, Ws, Drim, Wrim, Hflange );
+    m_TireProfile.CreateTire( Do, W, Ds, Ws, Drim, Wrim, Hflange, m_FairedFlange() );
 }
 
 void Bogie::Update()

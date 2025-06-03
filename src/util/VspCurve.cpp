@@ -2121,7 +2121,7 @@ void VspCurve::ToCubic( double tol )
     m_Curve.to_cubic( tol );
 }
 
-void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, double Hflange )
+void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, double Hflange, bool faired )
 {
     m_Curve.clear();
 
@@ -2202,6 +2202,17 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     clin.set_control_point( pt, 1 );
     m_Curve.push_back( clin, dt );
 
+    if ( faired )
+    {
+        // Faired over flange and flank
+        pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
+        clin.set_control_point( pt, 0 );
+        pt << 0, W / 2.0, yf0;
+        clin.set_control_point( pt, 1 );
+        m_Curve.push_back( clin, 3 * dt );
+    }
+    else
+    {
     // Flange flat
     pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
     clin.set_control_point( pt, 0 );
@@ -2254,6 +2265,7 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     pt << 0, xt, yt;
     c2.set_control_point( pt, 0 );
     m_Curve.push_back( c2, dt );
+    }
 
     // Cheek
     pt << 0, W / 2.0, yc0;
