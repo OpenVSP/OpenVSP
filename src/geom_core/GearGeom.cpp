@@ -119,6 +119,9 @@ Bogie::Bogie()
     m_HsIn.SetDescript( "Tire shoulder height in inches" );
     m_HsModel.Init( "HsModel", "Tire", this, 0.88/12., 0.0, 1.0e12 );
     m_HsModel.SetDescript( "Tire shoulder height in model units" );
+
+    m_DFlangeModel.Init( "DFlangeModel", "Tire", this, 0.0, 0.0, 1.0e12 );
+    m_DFlangeModel.SetDescript( "Wheel diameter at flanges in model units" );
 }
 
 //==== Parm Changed ====//
@@ -293,6 +296,7 @@ void Bogie:: UpdateParms()
 
     // Diameter to flanges.
     double Dflange = Drim + 2.0 * Hflange;
+    m_DFlangeModel = Dflange * in2model;
 
     // Tire height above flanges.
     double Haboveflange = 0.5 * ( Do - Dflange );
@@ -537,7 +541,7 @@ double Bogie::GetTireRadius( int tiremode ) const
             return m_DiameterModel() * 0.5;
             break;
         case vsp::TIRE_FLAT_CONTACT:
-            return m_DrimModel() * 0.5;
+            return m_DFlangeModel() * 0.5;
             break;
         case vsp::TIRE_STATIC_LODED_CONTACT:
         default:

@@ -216,6 +216,7 @@ public:
     Parm m_HsIn;
     Parm m_HsModel;
 
+    Parm m_DFlangeModel;
 
 };
 
