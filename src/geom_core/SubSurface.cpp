@@ -235,13 +235,16 @@ void SubSurface::UpdateDrawObjs()
 
                 assert( ncopy == symms.size() );
 
-                for ( int s = 0 ; s < ncopy ; s++ )
+                for ( int s = 0; s < symms.size(); s++ )
                 {
-                    vector < vec3d > pts;
-                    m_LVec[ls].GetDOPts( geom->GetSurfPtr( symms[s] ), geom, pts, num_pnts );
-                    m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.end(), pts.begin(), pts.end() );
+                    if ( geom->GetSurfPtr( symms[s] ) )
+                    {
+                        vector < vec3d > pts;
+                        m_LVec[ls].GetDOPts( geom->GetSurfPtr( symms[s] ), geom, pts, num_pnts );
+                        m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.end(), pts.begin(), pts.end() );
 
-                    m_SubSurfHighlightDO[s].m_PntVec.insert( m_SubSurfHighlightDO[s].m_PntVec.end(), pts.begin(), pts.end());
+                        m_SubSurfHighlightDO[s].m_PntVec.insert( m_SubSurfHighlightDO[s].m_PntVec.end(), pts.begin(), pts.end() );
+                    }
                 }
             }
         }
