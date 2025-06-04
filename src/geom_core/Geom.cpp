@@ -4465,57 +4465,101 @@ vector<VspSurf> Geom::GetDegenSurfVec()
 
 int Geom::GetSurfType( int indx ) const
 {
-    return GetMainSurfType( m_SurfIndxVec[indx] );
+    if ( indx >=0 && indx < m_SurfIndxVec.size() )
+    {
+        return GetMainSurfType( m_SurfIndxVec[indx] );
+    }
+    return vsp::NORMAL_SURF;
 }
 
 int Geom::GetMainSurfType( int indx ) const
 {
-    return m_MainSurfVec[indx].GetSurfType();
+    if ( indx >=0 && indx < m_MainSurfVec.size() )
+    {
+        return m_MainSurfVec[indx].GetSurfType();
+    }
+    return vsp::NORMAL_SURF;
 }
 
 int Geom::GetMainCFDSurfType( int indx ) const
 {
-    return m_MainSurfVec[indx].GetSurfCfdType();
+    if ( indx >=0 && indx < m_MainSurfVec.size() )
+    {
+        return m_MainSurfVec[indx].GetSurfCfdType();
+    }
+    return vsp::CFD_NORMAL;
 }
 
 bool Geom::GetFlipNormal( int indx ) const
 {
-    return m_FlipNormalVec[indx];
+    if ( indx >=0 && indx < m_FlipNormalVec.size() )
+    {
+        return m_FlipNormalVec[indx];
+    }
+    return false;
 }
 
 bool Geom::GetMainFlipNormal( int indx ) const
 {
-    return m_MainSurfVec[indx].GetFlipNormal();
+    if ( indx >=0 && indx < m_MainSurfVec.size() )
+    {
+        return m_MainSurfVec[indx].GetFlipNormal();
+    }
+    return false;
 }
 
 double Geom::GetUMax( int indx ) const
 {
-    return GetMainUMax( m_SurfIndxVec[indx] );
+    if ( indx >=0 && indx < m_SurfIndxVec.size() )
+    {
+        return GetMainUMax( m_SurfIndxVec[indx] );
+    }
+    return 0.0;
 }
 
 double Geom::GetMainUMax( int indx ) const
 {
-    return m_MainSurfVec[indx].GetUMax();
+    if ( indx >=0 && indx < m_MainSurfVec.size() )
+    {
+        return m_MainSurfVec[indx].GetUMax();
+    }
+    return 0.0;
 }
 
 double Geom::GetUMapMax( int indx ) const
 {
-    return GetMainUMapMax( m_SurfIndxVec[indx] );
+    if ( indx >=0 && indx < m_SurfIndxVec.size() )
+    {
+        return GetMainUMapMax( m_SurfIndxVec[indx] );
+    }
+    return 0.0;
 }
 
 double Geom::GetMainUMapMax( int indx ) const
 {
-    return m_MainSurfVec[indx].GetUMapMax();
+    if ( indx >=0 && indx < m_MainSurfVec.size() )
+    {
+        return m_MainSurfVec[indx].GetUMapMax();
+    }
+    return 0.0;
 }
 
 double Geom::GetWMax( int indx ) const
 {
-    return GetMainWMax( m_SurfIndxVec[indx] );
+    if ( indx >=0 && indx < m_SurfIndxVec.size() )
+    {
+        return GetMainWMax( m_SurfIndxVec[indx] );
+    }
+    return 0.0;
 }
 
 double Geom::GetMainWMax( int indx ) const
 {
-    return m_MainSurfVec[indx].GetWMax();
+    if ( indx >=0 && indx < m_MainSurfVec.size() )
+    {
+        return m_MainSurfVec[indx].GetWMax();
+    }
+    return 0.0;
 }
 
 vec3d Geom::CompPnt01(const int &indx, const double &u, const double &w)
@@ -4525,6 +4569,10 @@ vec3d Geom::CompPnt01(const int &indx, const double &u, const double &w)
 
 vec3d Geom::CompTanU( const int &indx, const double &u, const double &w )
 {
+    if ( !GetSurfPtr( indx ) )
+    {
+        return vec3d();
+    }
     double uu = clamp( u, 0.0, GetSurfPtr( indx )->GetUMax() );
     double ww = clamp( w, 0.0, GetSurfPtr( indx )->GetWMax() );
     return GetSurfPtr( indx )->CompTanU( uu, ww );
@@ -4532,6 +4580,10 @@ vec3d Geom::CompTanU( const int &indx, const double &u, const double &w )
 
 vec3d Geom::CompTanW( const int &indx, const double &u, const double &w )
 {
+    if ( !GetSurfPtr( indx ) )
+    {
+        return vec3d();
+    }
     double uu = clamp( u, 0.0, GetSurfPtr( indx )->GetUMax() );
     double ww = clamp( w, 0.0, GetSurfPtr( indx )->GetWMax() );
     return GetSurfPtr( indx )->CompTanW( uu, ww );
@@ -4539,21 +4591,37 @@ vec3d Geom::CompTanW( const int &indx, const double &u, const double &w )
 
 vec3d Geom::CompPntRST( const int &indx, const double &r, const double &s, const double &t )
 {
+    if ( !GetSurfPtr( indx ) )
+    {
+        return vec3d();
+    }
     return GetSurfPtr( indx )->CompPntRST( r, s, t );
 }
 
 vec3d Geom::CompTanR( const int &indx, const double &r, const double &s, const double &t )
 {
+    if ( !GetSurfPtr( indx ) )
+    {
+        return vec3d();
+    }
     return GetSurfPtr( indx )->CompTanR( r, s, t );
 }
 
 vec3d Geom::CompTanS( const int &indx, const double &r, const double &s, const double &t )
 {
+    if ( !GetSurfPtr( indx ) )
+    {
+        return vec3d();
+    }
     return GetSurfPtr( indx )->CompTanS( r, s, t );
 }
 
 vec3d Geom::CompTanT( const int &indx, const double &r, const double &s, const double &t )
 {
+    if ( !GetSurfPtr( indx ) )
+    {
+        return vec3d();
+    }
     return GetSurfPtr( indx )->CompTanT( r, s, t );
 }
 
