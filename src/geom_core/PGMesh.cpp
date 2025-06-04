@@ -32,6 +32,9 @@
 #include <algorithm>
 #include <cfloat>
 
+#include "Vehicle.h"
+#include "VehicleMgr.h"
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
@@ -4228,6 +4231,20 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
         int part = GetPart( m_TagKeys[i] );
         int copyindex = GetCopyIndex( part );
 
+        // This resets copyindex for any geom with only one main surface.  This is usually the case.
+        // Consequently, geomcopy# will follow geom# except when there are multiple main surfaces (propellers).
+        // This provides a numbering where multiple blades of a prop are grouped together, but symmetrical propellers
+        // are numbered separately.  However, symmetrical wings (and other nmain==1 geoms) are numbered together.
+        // This substitution needs to be done every place we insert (here) or lookup based on copyindex.
+        Geom *g = VehicleMgr.GetVehicle()->FindGeom( gid );
+        if ( g )
+        {
+            if ( g->GetNumMainSurfs() == 1 )
+            {
+                copyindex = 0;
+            }
+        }
+
         gcset.insert( std::pair< string, int >( gid, copyindex ) );
     }
 
@@ -4288,8 +4305,23 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
 
         int plate = GetPlate( part ) + 1; // (-1=S, 0=V,C, 1=H) + 1
         int copyindex = GetCopyIndex( part );
+        int copylookup = copyindex;
 
-        int gcnum = distance( gcset.begin(), gcset.find( std::pair< string, int > ( gid, copyindex ) ) );
+        // This resets copyindex for any geom with only one main surface.  This is usually the case.
+        // Consequently, geomcopy# will follow geom# except when there are multiple main surfaces (propellers).
+        // This provides a numbering where multiple blades of a prop are grouped together, but symmetrical propellers
+        // are numbered separately.  However, symmetrical wings (and other nmain==1 geoms) are numbered together.
+        // This substitution needs to be done every place we insert or lookup (here) based on copyindex.
+        Geom *g = VehicleMgr.GetVehicle()->FindGeom( gid );
+        if ( g )
+        {
+            if ( g->GetNumMainSurfs() == 1 )
+            {
+                copylookup = 0;
+            }
+        }
+
+        int gcnum = distance( gcset.begin(), gcset.find( std::pair< string, int > ( gid, copylookup ) ) );
 
         int type = GetType( part );
 

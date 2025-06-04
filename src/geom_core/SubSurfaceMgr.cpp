@@ -302,6 +302,20 @@ void SubSurfaceMgrSingleton::BuildSingleTagMap()
 
         int copyindex = m_CompCopyIndex[ part - 1 ];
 
+        // This resets copyindex for any geom with only one main surface.  This is usually the case.
+        // Consequently, geomcopy# will follow geom# except when there are multiple main surfaces (propellers).
+        // This provides a numbering where multiple blades of a prop are grouped together, but symmetrical propellers
+        // are numbered separately.  However, symmetrical wings (and other nmain==1 geoms) are numbered together.
+        // This substitution needs to be done every place we insert (here) or lookup based on copyindex.
+        Geom *geom = VehicleMgr.GetVehicle()->FindGeom( g );
+        if ( geom )
+        {
+            if ( geom->GetNumMainSurfs() == 1 )
+            {
+                copyindex = 0;
+            }
+        }
+
         m_GeomCopySet.insert( std::pair< string, int >( g, copyindex ) );
     }
 }
@@ -318,6 +332,20 @@ int SubSurfaceMgrSingleton::FindGNum( const string &gid )
 
 int SubSurfaceMgrSingleton::FindGCNum( const string &gid, int s )
 {
+    // This resets copyindex for any geom with only one main surface.  This is usually the case.
+    // Consequently, geomcopy# will follow geom# except when there are multiple main surfaces (propellers).
+    // This provides a numbering where multiple blades of a prop are grouped together, but symmetrical propellers
+    // are numbered separately.  However, symmetrical wings (and other nmain==1 geoms) are numbered together.
+    // This substitution needs to be done every place we insert or lookup (here) based on copyindex.
+    Geom *g = VehicleMgr.GetVehicle()->FindGeom( gid );
+    if ( g )
+    {
+        if ( g->GetNumMainSurfs() == 1 )
+        {
+            s = 0;
+        }
+    }
+
     int gsnum = distance( m_GeomCopySet.begin(), m_GeomCopySet.find( std::pair< string, int >( gid, s ) ) );
 
     // printf( "%d = FindGCNum( %s, %d)\n", gsnum, gid.c_str(), s );
