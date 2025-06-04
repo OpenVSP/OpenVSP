@@ -444,6 +444,10 @@ std::string SubSurface::GetTypeName( int type )
     {
         return string( "Finite_Line" );
     }
+    if ( type == vsp::SS_XSEC_CURVE )
+    {
+        return string( "XSec_Curve" );
+    }
     return string( "NONE" );
 }
 
@@ -1148,6 +1152,222 @@ void SSEllipse::Update()
 
     SubSurface::Update();
 
+}
+
+//////////////////////////////////////////////////////
+//=================== SSXSecCurve =====================//
+//////////////////////////////////////////////////////
+
+//====== Constructor =====//
+SSXSecCurve::SSXSecCurve( const string& comp_id, int type ) : SubSurface( comp_id, type )
+{
+    m_CenterU.Init( "Center_U", "SS_XsecCurve", this, 0.5, 0, 1 );
+    m_CenterU.SetDescript( "Defines the U location of the curve center" );
+    m_CenterW.Init( "Center_W", "SS_XsecCurve", this, 0.5, 0, 1 );
+    m_CenterW.SetDescript( "Defines the W location of the curve center" );
+
+
+    m_Tess.Init( "Tess_Num", "SS_XsecCurve", this, 15, 3, 1000 );
+    m_Tess.SetDescript( "Number of points to discretize curve" );
+
+    m_TestType.Init( "Test_Type", "SS_XsecCurve", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
+    m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
+
+    m_PolyFlag = false;
+
+    m_XSCurve = nullptr;
+    SetXSecCurveType( vsp::XS_CIRCLE );
+}
+
+//===== Destructor =====//
+SSXSecCurve::~SSXSecCurve()
+{
+
+}
+
+// Main Update Routine
+void SSXSecCurve::Update()
+{
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
+    if ( !geom )
+    {
+        return;
+    }
+
+    if ( !m_XSCurve )
+    {
+        return;
+    }
+
+    m_XSCurve->Update();
+
+    double w = m_XSCurve->GetWidth();
+
+    VspCurve crv = m_XSCurve->GetCurve();
+
+    Matrix4d mat;
+    mat.translatef( -w * 0.5, 0, 0 ); // Move center of XSecCurve to origin
+    mat.translatef( m_CenterU(), m_CenterW(), 0 ); // Translate as desired.
+
+    crv.Transform( mat );
+
+    vector< vec3d > pts;
+    vector< double > uout;
+    crv.TessCornerAdapt( pts, uout, 1e-1, 0.01, 5 );
+
+    unsigned int num_pnts = pts.size();
+    if ( num_pnts > 2 )
+    {
+        m_LVec.resize( num_pnts - 1 );
+
+        for ( int i = 0 ; i < num_pnts - 1; i++ )
+        {
+            m_LVec[ i ].SetSP0( pts[ i ] );
+            m_LVec[ i ].SetSP1( pts[ i + 1 ] );
+            m_LVec[ i ].Update( geom, m_MainSurfIndx() );
+        }
+    }
+
+    SubSurface::Update();
+}
+
+void SSXSecCurve::SetXSecCurveType( int type )
+{
+    double w = 1;
+    double h = 1;
+
+    XSecCurve *oldXSCurve = m_XSCurve;
+
+    if ( m_XSCurve )
+    {
+        if ( type == m_XSCurve->GetType() )
+        {
+            return;
+        }
+
+        w = m_XSCurve->GetWidth();
+        h = m_XSCurve->GetHeight();
+    }
+
+    m_XSCurve = XSecSurf::CreateXSecCurve( type ) ;
+
+    if ( m_XSCurve )
+    {
+        m_XSCurve->SetParentContainer( m_ID );
+
+        if ( oldXSCurve )
+        {
+            m_XSCurve->CopyFrom( oldXSCurve );
+            delete oldXSCurve;
+        }
+
+        m_XSCurve->SetWidthHeight( w, h );
+    }
+    else  // Failed to create new curve, revert to saved.
+    {
+        m_XSCurve = oldXSCurve;
+    }
+
+    if ( m_XSCurve )
+    {
+        Parm* width_parm = ParmMgr.FindParm( m_XSCurve->GetWidthParmID() );
+        if ( width_parm )
+        {
+            width_parm->SetLowerUpperLimits( 0, 1 );
+        }
+        Parm* height_parm = ParmMgr.FindParm( m_XSCurve->GetHeightParmID() );
+        if ( height_parm )
+        {
+            height_parm->SetLowerUpperLimits( 0, 1 );
+        }
+    }
+
+    Update();
+}
+
+//==== Encode XML ====//
+xmlNodePtr SSXSecCurve::EncodeXml(  xmlNodePtr & node  )
+{
+    SubSurface::EncodeXml( node );
+
+    xmlNodePtr xscrv_node = xmlNewChild( node, NULL, BAD_CAST "XSecCurve", NULL );
+    if ( xscrv_node )
+    {
+        m_XSCurve->EncodeXml( xscrv_node );
+    }
+
+    return xscrv_node;
+}
+
+//==== Decode XML ====//
+xmlNodePtr SSXSecCurve::DecodeXml(  xmlNodePtr & node  )
+{
+    SubSurface::DecodeXml( node );
+
+    xmlNodePtr xscrv_node = XmlUtil::GetNode( node, "XSecCurve", 0 );
+    if ( xscrv_node )
+    {
+
+        xmlNodePtr xscrv_node2 = XmlUtil::GetNode( xscrv_node, "XSecCurve", 0 );
+        if ( xscrv_node2 )
+        {
+
+            int xsc_type = XmlUtil::FindInt( xscrv_node2, "Type", vsp::XS_CIRCLE );
+
+            if ( m_XSCurve )
+            {
+                if ( m_XSCurve->GetType() != xsc_type )
+                {
+                    delete m_XSCurve;
+
+                    m_XSCurve = XSecSurf::CreateXSecCurve( xsc_type );
+                    m_XSCurve->SetParentContainer( m_ID );
+                }
+            }
+        }
+
+        if ( m_XSCurve )
+        {
+            m_XSCurve->DecodeXml( xscrv_node );
+        }
+    }
+    return xscrv_node;
+}
+
+//==== Look Though All Parms and Load Linkable Ones ===//
+void SSXSecCurve::AddLinkableParms( vector< string > & parm_vec, const string & link_container_id )
+{
+    SubSurface::AddLinkableParms( parm_vec );
+
+    if ( m_XSCurve  )
+    {
+        m_XSCurve->AddLinkableParms( parm_vec, m_ID );
+    }
+}
+
+EditCurveXSec* SSXSecCurve::ConvertToEdit()
+{
+    EditCurveXSec* xscrv_ptr = m_XSCurve->ConvertToEdit();
+
+    if ( xscrv_ptr && xscrv_ptr != m_XSCurve )
+    {
+        delete m_XSCurve;
+
+        m_XSCurve = xscrv_ptr;
+        m_XSCurve->SetParentContainer( m_ID );
+    }
+
+    return xscrv_ptr;
+}
+
+//==== Change IDs =====//
+void SSXSecCurve::ChangeID( string id )
+{
+    SubSurface::ChangeID( id );
+    if ( m_XSCurve )
+    {
+        m_XSCurve->SetParentContainer( GetID() );
+    }
 }
 
 //////////////////////////////////////////////////////

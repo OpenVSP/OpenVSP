@@ -1364,6 +1364,7 @@ enum SUBSURF_TYPE { SS_LINE,	/*!< Line sub-surface type */
                     SS_CONTROL,	/*!< Control sub-surface type */
                     SS_LINE_ARRAY,	/*!< Line array sub-surface type */
                     SS_FINITE_LINE,	/*!< Finite line sub-surface type */
+                    SS_XSEC_CURVE,	/*!< XSecCurve based sub-surface type */
                     SS_NUM_TYPES	/*!< Number of sub-surface types */
 };
 

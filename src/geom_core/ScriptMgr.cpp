@@ -2121,6 +2121,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_FINITE_LINE", SS_FINITE_LINE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_XSEC_CURVE", SS_XSEC_CURVE );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_NUM_TYPES", SS_NUM_TYPES );
     assert( r >= 0 );
 

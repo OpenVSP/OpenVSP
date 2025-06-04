@@ -20,6 +20,7 @@
 #include "DrawObj.h"
 #include "ResultsMgr.h"
 #include "APIDefines.h"
+#include "XSecCurve.h"
 
 // SubSurface Line Segment
 class SSLineSeg
@@ -244,6 +245,37 @@ public:
     IntParm m_Tess; // Number of line segments to break shape into
 
     virtual void Update();
+
+};
+
+class SSXSecCurve : public SubSurface
+{
+public:
+    SSXSecCurve( const string& compID, int type = vsp::SS_XSEC_CURVE );
+    virtual ~SSXSecCurve();
+
+    virtual void Update();
+
+    virtual void SetXSecCurveType( int type );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
+
+    virtual EditCurveXSec* ConvertToEdit();
+
+    XSecCurve* GetXSecCurve()       { return m_XSCurve; }
+
+    Parm m_CenterU;
+    Parm m_CenterW;
+
+    IntParm m_Tess; // Number of line segments to break shape into
+
+protected:
+    virtual void ChangeID( string id );
+
+    XSecCurve *m_XSCurve;
 
 };
 

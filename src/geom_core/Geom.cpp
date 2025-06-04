@@ -5688,6 +5688,11 @@ SubSurface* Geom::AddSubSurf( int type, int surfindex )
         ssurf = new SSFiniteLine( m_ID );
         ssurf->SetName( string( "SS_FLINE_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
     }
+    else if ( type == vsp::SS_XSEC_CURVE )
+    {
+        ssurf = new SSXSecCurve( m_ID );
+        ssurf->SetName( string( "SS_XSC_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
+    }
 
     if ( ssurf )
     {

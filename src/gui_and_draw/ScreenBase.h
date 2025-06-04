@@ -398,6 +398,230 @@ public:
     ToggleRadioGroup m_SSEllTestToggleGroup;
     AttributeEditor m_SSEllAttrEditor;
 
+    // SS_XSecCurve
+    SliderAdjRangeInput m_SSXSCCentUSlider;
+    SliderAdjRangeInput m_SSXSCCentWSlider;
+
+    ToggleButton m_SSXSCInsideButton;
+    ToggleButton m_SSXSCOutsideButton;
+    ToggleRadioGroup m_SSXSCTestToggleGroup;
+
+
+
+
+
+    GroupLayout m_SSXSCGroup;
+
+    Choice m_SSXSecTypeChoice;
+    TriggerButton m_SSXSCShowXSecButton;
+
+    TriggerButton m_SSXSCConvertCEDITButton;
+    GroupLayout m_SSXSCConvertCEDITGroup;
+
+    GroupLayout m_SSXSCEditCEDITGroup;
+    TriggerButton m_SSXSCEditCEDITButton;
+
+    GroupLayout m_SSXSCPointGroup;
+
+    GroupLayout m_SSXSCCircleGroup;
+    SliderAdjRangeInput m_SSXSCDiameterSlider;
+
+    GroupLayout m_SSXSCEllipseGroup;
+    SliderAdjRangeInput m_SSXSCEllipseHeightSlider;
+    SliderAdjRangeInput m_SSXSCEllipseWidthSlider;
+
+    GroupLayout m_SSXSCSuperGroup;
+    SliderAdjRangeInput m_SSXSCSuperHeightSlider;
+    SliderAdjRangeInput m_SSXSCSuperWidthSlider;
+    SliderAdjRangeInput m_SSXSCSuperMSlider;
+    SliderAdjRangeInput m_SSXSCSuperNSlider;
+    ToggleButton m_SSXSCSuperToggleSym;
+    SliderAdjRangeInput m_SSXSCSuperM_botSlider;
+    SliderAdjRangeInput m_SSXSCSuperN_botSlider;
+    SliderAdjRangeInput m_SSXSCSuperMaxWidthLocSlider;
+
+    GroupLayout m_SSXSCRoundedRectGroup;
+    SliderAdjRangeInput m_SSXSCRRHeightSlider;
+    SliderAdjRangeInput m_SSXSCRRWidthSlider;
+    ToggleButton m_SSXSCRRRadNoSymToggle;
+    ToggleButton m_SSXSCRRRadRLSymToggle;
+    ToggleButton m_SSXSCRRRadTBSymToggle;
+    ToggleButton m_SSXSCRRRadAllSymToggle;
+    ToggleRadioGroup m_SSXSCRRRadSymRadioGroup;
+    SliderAdjRangeInput m_SSXSCRRRadiusBRSlider; // Bottom Right
+    SliderAdjRangeInput m_SSXSCRRRadiusBLSlider; // Bottom Left
+    SliderAdjRangeInput m_SSXSCRRRadiusTLSlider; // Top Left
+    SliderAdjRangeInput m_SSXSCRRRadiusTRSlider; // Top Right
+    ToggleButton m_SSXSCRRKeyCornerButton;
+    SliderAdjRangeInput m_SSXSCRRSkewSlider;
+    SliderAdjRangeInput m_SSXSCRRKeystoneSlider;
+    SliderAdjRangeInput m_SSXSCRRVSkewSlider;
+
+    GroupLayout m_SSXSCGenGroup;
+    SliderAdjRangeInput m_SSXSCGenHeightSlider;
+    SliderAdjRangeInput m_SSXSCGenWidthSlider;
+    SliderAdjRangeInput m_SSXSCGenMaxWidthLocSlider;
+    SliderAdjRangeInput m_SSXSCGenCornerRadSlider;
+    SliderAdjRangeInput m_SSXSCGenTopTanAngleSlider;
+    SliderAdjRangeInput m_SSXSCGenBotTanAngleSlider;
+    SliderAdjRangeInput m_SSXSCGenTopStrSlider;
+    SliderAdjRangeInput m_SSXSCGenBotStrSlider;
+    SliderAdjRangeInput m_SSXSCGenUpStrSlider;
+    SliderAdjRangeInput m_SSXSCGenLowStrSlider;
+
+    GroupLayout m_SSXSCFourSeriesGroup;
+    StringOutput m_SSXSCFourNameOutput;
+    CheckButton m_SSXSCFourInvertButton;
+    SliderAdjRangeInput m_SSXSCFourChordSlider;
+    SliderAdjRangeInput m_SSXSCFourThickChordSlider;
+    SliderAdjRangeInput m_SSXSCFourCamberSlider;
+    SliderAdjRangeInput m_SSXSCFourCLiSlider;
+    ToggleButton m_SSXSCFourCamberButton;
+    ToggleButton m_SSXSCFourCLiButton;
+    ToggleRadioGroup m_SSXSCFourCamberGroup;
+    SliderAdjRangeInput m_SSXSCFourCamberLocSlider;
+    CheckButton m_SSXSCFourSharpTEButton;
+    TriggerButton m_SSXSCFourFitCSTButton;
+    Counter m_SSXSCFourDegreeCounter;
+
+    GroupLayout m_SSXSCSixSeriesGroup;
+    StringOutput m_SSXSCSixNameOutput;
+    CheckButton m_SSXSCSixInvertButton;
+    Choice m_SSXSCSixSeriesChoice;
+    SliderAdjRangeInput m_SSXSCSixChordSlider;
+    SliderAdjRangeInput m_SSXSCSixThickChordSlider;
+    SliderAdjRangeInput m_SSXSCSixIdealClSlider;
+    SliderAdjRangeInput m_SSXSCSixASlider;
+    TriggerButton m_SSXSCSixFitCSTButton;
+    Counter m_SSXSCSixDegreeCounter;
+
+    GroupLayout m_SSXSCBiconvexGroup;
+    SliderAdjRangeInput m_SSXSCBiconvexChordSlider;
+    SliderAdjRangeInput m_SSXSCBiconvexThickChordSlider;
+
+    GroupLayout m_SSXSCWedgeGroup;
+    SliderAdjRangeInput m_SSXSCWedgeChordSlider;
+    SliderAdjRangeInput m_SSXSCWedgeThickChordSlider;
+    SliderAdjRangeInput m_SSXSCWedgeZCamberSlider;
+    ToggleButton m_SSXSCWedgeSymmThickButton;
+    SliderAdjRangeInput m_SSXSCWedgeThickLocSlider;
+    SliderAdjRangeInput m_SSXSCWedgeThickLocLowSlider;
+    SliderAdjRangeInput m_SSXSCWedgeFlatUpSlider;
+    SliderAdjRangeInput m_SSXSCWedgeFlatLowSlider;
+    SliderAdjRangeInput m_SSXSCWedgeUForeUpSlider;
+    SliderAdjRangeInput m_SSXSCWedgeUForeLowSlider;
+    SliderAdjRangeInput m_SSXSCWedgeDuUpSlider;
+    SliderAdjRangeInput m_SSXSCWedgeDuLowSlider;
+    CheckButton m_SSXSCWedgeInvertButton;
+
+    GroupLayout m_SSXSCFuseFileGroup;
+    TriggerButton m_SSXSCReadFuseFileButton;
+    SliderAdjRangeInput m_SSXSCFileHeightSlider;
+    SliderAdjRangeInput m_SSXSCFileWidthSlider;
+
+    GroupLayout m_SSXSCAfFileGroup;
+    TriggerButton m_SSXSCAfReadFileButton;
+    StringOutput m_SSXSCAfFileNameOutput;
+    CheckButton m_SSXSCAfFileInvertButton;
+    SliderAdjRangeInput m_SSXSCAfFileChordSlider;
+    SliderAdjRangeInput m_SSXSCAfFileThickChordSlider;
+    Output m_SSXSCAfFileBaseThickChordOutput;
+    TriggerButton m_SSXSCAfFileFitCSTButton;
+    Counter m_SSXSCAfFileDegreeCounter;
+
+    GroupLayout m_SSXSCCSTAirfoilGroup;
+
+    Output m_SSXSCCSTThickChordOutput;
+
+    SliderAdjRangeInput m_SSXSCCSTChordSlider;
+
+    TriggerButton m_SSXSCUpDemoteButton;
+    StringOutput m_SSXSCUpDegreeOutput;
+    TriggerButton m_SSXSCUpPromoteButton;
+
+    Fl_Scroll* m_SSXSCCSTUpCoeffScroll;
+    GroupLayout m_SSXSCCSTUpCoeffLayout;
+
+    TriggerButton m_SSXSCLowDemoteButton;
+    StringOutput m_SSXSCLowDegreeOutput;
+    TriggerButton m_SSXSCLowPromoteButton;
+
+    vector < SliderAdjRangeInput > m_SSXSCUpCoeffSliderVec;
+
+    Fl_Scroll* m_SSXSCCSTLowCoeffScroll;
+    GroupLayout m_SSXSCCSTLowCoeffLayout;
+
+    vector < SliderAdjRangeInput > m_SSXSCLowCoeffSliderVec;
+
+    CheckButton m_SSXSCCSTInvertButton;
+    CheckButton m_SSXSCCSTContLERadButton;
+
+    GroupLayout m_SSXSCVKTGroup;
+    SliderAdjRangeInput m_SSXSCVKTChordSlider;
+    SliderAdjRangeInput m_SSXSCVKTEpsilonSlider;
+    SliderAdjRangeInput m_SSXSCVKTKappaSlider;
+    SliderAdjRangeInput m_SSXSCVKTTauSlider;
+    CheckButton m_SSXSCVKTInvertButton;
+    Output m_SSXSCVKTThickChordOutput;
+    TriggerButton m_SSXSCVKTFitCSTButton;
+    Counter m_SSXSCVKTDegreeCounter;
+
+    GroupLayout m_SSXSCFourDigitModGroup;
+    StringOutput m_SSXSCFourModNameOutput;
+    CheckButton m_SSXSCFourModInvertButton;
+    SliderAdjRangeInput m_SSXSCFourModChordSlider;
+    SliderAdjRangeInput m_SSXSCFourModThickChordSlider;
+    SliderAdjRangeInput m_SSXSCFourModCamberSlider;
+    SliderAdjRangeInput m_SSXSCFourModCLiSlider;
+    ToggleButton m_SSXSCFourModCamberButton;
+    ToggleButton m_SSXSCFourModCLiButton;
+    ToggleRadioGroup m_SSXSCFourModCamberGroup;
+    SliderAdjRangeInput m_SSXSCFourModCamberLocSlider;
+    SliderAdjRangeInput m_SSXSCFourModThicknessLocSlider;
+    SliderAdjRangeInput m_SSXSCFourModLERadIndexSlider;
+    CheckButton m_SSXSCFourModSharpTEButton;
+    TriggerButton m_SSXSCFourModFitCSTButton;
+    Counter m_SSXSCFourModDegreeCounter;
+
+    GroupLayout m_SSXSCFiveDigitGroup;
+    StringOutput m_SSXSCFiveNameOutput;
+    CheckButton m_SSXSCFiveInvertButton;
+    SliderAdjRangeInput m_SSXSCFiveChordSlider;
+    SliderAdjRangeInput m_SSXSCFiveThickChordSlider;
+    SliderAdjRangeInput m_SSXSCFiveCLiSlider;
+    SliderAdjRangeInput m_SSXSCFiveCamberLocSlider;
+    CheckButton m_SSXSCFiveSharpTEButton;
+    TriggerButton m_SSXSCFiveFitCSTButton;
+    Counter m_SSXSCFiveDegreeCounter;
+
+    GroupLayout m_SSXSCFiveDigitModGroup;
+    StringOutput m_SSXSCFiveModNameOutput;
+    CheckButton m_SSXSCFiveModInvertButton;
+    SliderAdjRangeInput m_SSXSCFiveModChordSlider;
+    SliderAdjRangeInput m_SSXSCFiveModThickChordSlider;
+    SliderAdjRangeInput m_SSXSCFiveModCLiSlider;
+    SliderAdjRangeInput m_SSXSCFiveModCamberLocSlider;
+    SliderAdjRangeInput m_SSXSCFiveModThicknessLocSlider;
+    SliderAdjRangeInput m_SSXSCFiveModLERadIndexSlider;
+    CheckButton m_SSXSCFiveModSharpTEButton;
+    TriggerButton m_SSXSCFiveModFitCSTButton;
+    Counter m_SSXSCFiveModDegreeCounter;
+
+    GroupLayout m_SSXSCOneSixSeriesGroup;
+    StringOutput m_SSXSCOneSixSeriesNameOutput;
+    CheckButton m_SSXSCOneSixSeriesInvertButton;
+    SliderAdjRangeInput m_SSXSCOneSixSeriesChordSlider;
+    SliderAdjRangeInput m_SSXSCOneSixSeriesThickChordSlider;
+    SliderAdjRangeInput m_SSXSCOneSixSeriesCLiSlider;
+    SliderAdjRangeInput m_SSXSCOneSixSeriesCamberLocSlider;
+    SliderAdjRangeInput m_SSXSCOneSixSeriesThicknessLocSlider;
+    SliderAdjRangeInput m_SSXSCOneSixSeriesLERadIndexSlider;
+    CheckButton m_SSXSCOneSixSeriesSharpTEButton;
+    TriggerButton m_SSXSCOneSixSeriesFitCSTButton;
+    Counter m_SSXSCOneSixSeriesDegreeCounter;
+
+    AttributeEditor m_SSXSCAttrEditor;
+
     // SS_Control
     GroupLayout m_SSConGroup;
     SliderAdjRangeInput m_SSConUSSlider;
@@ -465,6 +689,11 @@ public:
 protected:
     bool m_RotActive;
     string m_GeomTypeName;
+
+    GroupLayout* m_SubSurfXSCCurrDisplayGroup;
+    void SubSurfXSCDisplayGroup( GroupLayout* group );
+
+    virtual void RebuildSSCSTGroup( CSTAirfoil* cst_xs );
 };
 
 //==== Skin Screen ====//
