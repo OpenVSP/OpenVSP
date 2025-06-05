@@ -60,6 +60,7 @@ public:
 
 protected:
     virtual void UpdateSurf();
+    virtual void ChangeID( string id );
 
     virtual void UpdateDrawObj();
     virtual void UpdatePreTess();

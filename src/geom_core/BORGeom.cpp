@@ -165,6 +165,16 @@ void BORGeom::UpdateSurf()
     m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
 }
 
+//==== Change IDs =====//
+void BORGeom::ChangeID( string id )
+{
+    Geom::ChangeID( id );
+    if ( m_XSCurve )
+    {
+        m_XSCurve->SetParentContainer( GetID() );
+    }
+}
+
 void BORGeom::UpdatePreTess()
 {
     // Update clustering before symmetry is applied for m_SurfVec
