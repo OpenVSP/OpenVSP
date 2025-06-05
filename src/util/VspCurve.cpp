@@ -1400,16 +1400,21 @@ void VspCurve::TessSegAdapt( vector< vec3d > & pnts, vector< double > & uout, do
 {
     vector < double > umap;
     m_Curve.get_pmap( umap );
-    int nseg = umap.size() - 1;
+    TessBreaks( umap, pnts, uout, tol, Nlimit );
+}
+
+void VspCurve::TessBreaks( const vector < double > & ubreak, vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit )
+{
+    int nseg = ubreak.size() - 1;
 
     if ( nseg > 0 )
     {
-        double usegstart = umap[0];
+        double usegstart = ubreak[0];
         vec3d psegstart = CompPnt( usegstart );
 
         for ( int i = 0; i < nseg; i++ )
         {
-            double usegend = umap[ i + 1 ];
+            double usegend = ubreak[ i + 1 ];
             vec3d psegend = CompPnt( usegend );
             TessAdapt( usegstart, usegend, psegstart, psegend, pnts, uout, tol, Nlimit );
 
