@@ -1396,6 +1396,23 @@ void VspCurve::TessAdapt( vector< vec3d > & pnts, vector< double > & uout, doubl
     TessAdapt( m_Curve.get_parameter_min(), m_Curve.get_parameter_max(), pnts, uout, tol, Nlimit );
 }
 
+void VspCurve::TessCornerAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, double atol, int Nlimit )
+{
+    vector < double > tdisc;
+    m_Curve.find_discontinuities( atol, tdisc );
+
+    // Make sure we always have first/last points.
+    tdisc.push_back( m_Curve.get_t0() );
+    tdisc.push_back( m_Curve.get_tmax() );
+
+    // Make sure no points are duplicated.
+    std::sort( tdisc.begin(), tdisc.end() );
+    auto last = std::unique( tdisc.begin(), tdisc.end() );
+    tdisc.erase( last, tdisc.end() );
+
+    TessBreaks( tdisc, pnts, uout, tol, Nlimit );
+}
+
 void VspCurve::TessSegAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit )
 {
     vector < double > umap;

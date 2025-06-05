@@ -128,6 +128,7 @@ public:
 
     void TessAdapt( vector< vec3d > & pnts, double tol, int Nlimit );
     void TessAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit );
+    void TessCornerAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, double atol, int Nlimit );
     void TessSegAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit );
     void TessBreaks( const vector < double > & ubreak, vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit );
     void TessAdapt( double umin, double umax, std::vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit );
