@@ -1191,6 +1191,18 @@ VspScreen* ManageGeomScreen::GetGeomScreen( int id )
     return nullptr;
 }
 
+VspScreen* ManageGeomScreen::GetShownGeomScreen()
+{
+    for ( int i = 0; i < ( int ) m_GeomScreenVec.size(); i++ )
+    {
+        if ( m_GeomScreenVec[ i ]->IsShown() )
+        {
+            return m_GeomScreenVec[ i ];
+        }
+    }
+    return nullptr;
+}
+
 std::string ManageGeomScreen::getFeedbackGroupName()
 {
     return std::string("GeomGUIGroup");

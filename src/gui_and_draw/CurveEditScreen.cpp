@@ -15,6 +15,7 @@
 #include "BORGeom.h"
 #include "WingGeom.h"
 #include "SuperConeGeom.h"
+#include "ManageGeomScreen.h"
 
 #include "GraphicEngine.h"
 #include "Display.h"
@@ -22,6 +23,7 @@
 #include "Camera.h"
 #include "Background.h"
 #include "GraphicSingletons.h"
+#include "SubSurfaceMgr.h"
 
 #include "VspUtil.h"
 
@@ -387,6 +389,29 @@ XSecCurve* CurveEditScreen::GetXSecCurve()
     if ( !geom_ptr )
     {
         return nullptr;
+    }
+
+    ManageGeomScreen * mgs = dynamic_cast < ManageGeomScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
+
+    if ( mgs )
+    {
+        GeomScreen * gs = dynamic_cast < GeomScreen * > ( mgs->GetShownGeomScreen() );
+        if ( gs )
+        {
+            Fl_Tabs *tabs = gs->GetTabs();
+            Fl_Group* sstab = gs->GetTab( gs->m_SubSurfTab_ind );
+            if ( tabs && sstab)
+            {
+                if ( tabs->value() == sstab )
+                {
+                    SSXSecCurve* sub_surf = dynamic_cast< SSXSecCurve * > ( geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() ) );
+                    if ( sub_surf )
+                    {
+                        return sub_surf->GetXSecCurve();
+                    }
+                }
+            }
+        }
     }
 
     if ( geom_ptr->GetType().m_Type == MS_WING_GEOM_TYPE )

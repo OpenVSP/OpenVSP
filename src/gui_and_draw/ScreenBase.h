@@ -172,6 +172,7 @@ public:
     virtual Fl_Group* AddTab( const string& title );
     virtual Fl_Group* AddTab( const string& title, int indx );
     virtual Fl_Group* GetTab( int index );
+    virtual Fl_Tabs* GetTabs()      { return m_MenuTabs; };
 
     virtual void AddTab( Fl_Group* grp );
     virtual void AddTab( Fl_Group* grp, int indx );

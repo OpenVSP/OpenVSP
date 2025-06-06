@@ -88,6 +88,8 @@ public:
 
     VspScreen* GetGeomScreen( int id );
 
+    VspScreen* GetShownGeomScreen();
+
     /*
     * Get Feedback Group's name.
     */
