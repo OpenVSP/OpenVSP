@@ -2370,10 +2370,6 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
     xmlNodePtr vehicle_node = XmlUtil::GetNode( node, "Vehicle", 0 );
     if ( vehicle_node )
     {
-        // Get Vehicle-level attributes
-        xmlNodePtr child_node = XmlUtil::GetNode( vehicle_node, "ParmContainer", 0 );
-        GetAttrCollection()->DecodeXml( child_node, true );
-
         // Decode label information.
         MeasureMgr.DecodeXml( vehicle_node );
 

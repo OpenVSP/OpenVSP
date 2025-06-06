@@ -1225,6 +1225,7 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node, bool retainIDs )
     xmlNodePtr dnode = XmlUtil::GetNode( node, attrXmlName.c_str(), 0 );
     if ( dnode )
     {
+        int decode_error = 0;
 
         string attachID;
         if ( !retainIDs )
@@ -1263,6 +1264,12 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node, bool retainIDs )
                 {
                     attr->DecodeXml( attrNode );
                 }
+                else if ( attr )
+                {
+                    // If decoding an attribute whose ID is already in this collection, assume existing attribute takes precedence.
+                    // At time of writing (June 6, 2025) there is no intentional use of this case, so a warning message pops up to help devs
+                    decode_error++;
+                }
                 else
                 {
                     attr = new NameValData();
@@ -1270,6 +1277,11 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node, bool retainIDs )
                     Add( attr );
                 }
             }
+        }
+
+        if ( decode_error > 0 )
+        {
+            printf( "Discarding %d duplicate attributes.\n", decode_error );
         }
     }
 }
