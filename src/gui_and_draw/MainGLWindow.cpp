@@ -3031,11 +3031,22 @@ int EditXSecWindow::handle( int fl_event )
     if ( fl_event == FL_PUSH && !Fl::event_button2() )
     {
         vec3d coord = PixelToCoord( m_mouse_x, m_mouse_y );
+
+        vec3d scalefac( 1, 1, 1 );
+        if ( !edit_curve_xs->m_AbsoluteFlag() )
+        {
+
+            scalefac.scale_x( edit_curve_xs->GetWidth() );
+            scalefac.scale_y( edit_curve_xs->GetHeight() );
+            scalefac.scale_z( edit_curve_xs->m_Depth() );
+            scalefac[izero] = 0;
+        }
+
         // Diameter of point + 10% considered "hit"
         double hit_r = pixels_per_unit() * 1.2 * edit_curve_xs->m_XSecPointSize.Get() / 2;
 
         float zoom = getRelativeZoomValue();
-        m_LastHit = ihit( coord, hit_r * zoom );
+        m_LastHit = ihit( coord, hit_r * zoom, scalefac );
 
         if ( m_LastHit != -1 )
         {
@@ -3167,7 +3178,7 @@ vec3d EditXSecWindow::PixelToCoord( int x_pix, int y_pix )
     return coord;
 }
 
-int EditXSecWindow::ihit( const vec3d & mpt, double r_test )
+int EditXSecWindow::ihit( const vec3d & mpt, double r_test, const vec3d &scale )
 {
     //==== Find EditCurveXSec Ptr ====//
     CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
@@ -3201,7 +3212,12 @@ int EditXSecWindow::ihit( const vec3d & mpt, double r_test )
     {
         if ( !symflag || control_pts[i].x() >= 0 )
         {
-            double dist_out = dist( cpproj[i], mpt );
+            vec3d delta = cpproj[i] - mpt;
+            delta.scale_x( scale.x() );
+            delta.scale_y( scale.y() );
+            delta.scale_z( scale.z() );
+
+            double dist_out = delta.mag();
             if ( dist_out < min_dist )
             {
                 min_dist = dist_out;

@@ -250,7 +250,7 @@ public:
 private:
 
     // Search for a point index within radius 'r_test' to the input pick location
-    int ihit( const vec3d & mpt, double r_test );
+    int ihit( const vec3d & mpt, double r_test, const vec3d &scale );
 
     // Convert pixel in XSec editor to equivalent coordinate
     vec3d PixelToCoord( int x_pix, int y_pix );
