@@ -3012,7 +3012,6 @@ int EditXSecWindow::handle( int fl_event )
     EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
     assert( edit_curve_xs );
 
-    vec3d coord = PixelToCoord( m_mouse_x, m_mouse_y );
 
     int izero = -1;
     if ( edit_curve_xs->m_View() == vsp::VIEW_FRONT ) // X,Y
@@ -3029,12 +3028,10 @@ int EditXSecWindow::handle( int fl_event )
     }
 
 
-    double sx = coord.x();
-    double sy = coord.y();
-
     if ( fl_event == FL_PUSH && !Fl::event_button2() )
     {
-        // Diameter of point + 10% considered "hit" 
+        vec3d coord = PixelToCoord( m_mouse_x, m_mouse_y );
+        // Diameter of point + 10% considered "hit"
         double hit_r = pixels_per_unit() * 1.2 * edit_curve_xs->m_XSecPointSize.Get() / 2;
 
         float zoom = getRelativeZoomValue();
@@ -3083,6 +3080,8 @@ int EditXSecWindow::handle( int fl_event )
     }
     else if ( fl_event == FL_DRAG && m_LastHit != -1 && !Fl::event_button2() )
     {
+        vec3d coord = PixelToCoord( m_mouse_x, m_mouse_y );
+
         // Scale by width and height
         vec3d move_pnt = coord;
         if ( edit_curve_xs->m_AbsoluteFlag() )
