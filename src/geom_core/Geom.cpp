@@ -2892,7 +2892,7 @@ void Geom::UpdateDrawObj()
         // Pre-calculate and allocate for number of feature line segments.
         // Identified by profiling as a substantial cost.
         int numfealineseg = 0;
-        for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
+        for ( int i = 0 ; i < m_FeatureTessVec.size() ; i++ )
         {
             int nfl = m_FeatureTessVec[i].m_ptline.size();
 
