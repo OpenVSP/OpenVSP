@@ -35,6 +35,11 @@ public:
 
     virtual void OffsetXSecs( double off );
 
+    virtual bool ReadCCEFile( const string &fname );
+    virtual bool ReadCCEFile( FILE* file_id );
+    virtual void SetPnts( const vector<vec3d> &pnt_vec );
+    virtual void UpdateCCECurve();
+
     virtual void UpdateBBox();
     virtual bool IsModelScaleSensitive()        { return true; }
 
@@ -86,6 +91,8 @@ public:
     IntParm m_ContactPt3_SuspensionMode;
     IntParm m_ContactPt3_TireMode;
 
+    IntParm m_CCEUnits;
+    Parm m_CCEMainGearOffset;
 
     Parm m_BogieTheta;
     Parm m_WheelTheta;
@@ -121,6 +128,10 @@ protected:
 
     vector<DrawObj> m_BasisDrawObj_vec;
     DrawObj m_ContactDrawObj;
+
+    vector< vec3d > m_CCEFilePnts;
+
+    VspCurve m_CCECurve;
 };
 
 #endif // !defined(VSPAUXILIARYGEOM__INCLUDED_)

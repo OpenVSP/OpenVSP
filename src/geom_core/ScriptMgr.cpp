@@ -566,6 +566,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_ONE_PT_GROUND", AUX_GEOM_ONE_PT_GROUND );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_THREE_PT_CCE", AUX_GEOM_THREE_PT_CCE );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "NUM_AUX_GEOM_MODES", NUM_AUX_GEOM_MODES );
     assert( r >= 0 );
 

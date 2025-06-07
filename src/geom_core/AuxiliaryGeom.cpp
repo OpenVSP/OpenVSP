@@ -17,6 +17,8 @@
 #include "StlHelper.h"
 #include <cfloat>  //For DBL_EPSILON
 
+#include "UnitConversion.h"
+
 using namespace vsp;
 
 //==== Constructor ====//
@@ -63,12 +65,21 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ContactPt3_SuspensionMode.Init( "ContactPt3_SuspensionMode", "Design", this, vsp::GEAR_SUSPENSION_NOMINAL, vsp::GEAR_SUSPENSION_NOMINAL, vsp::NUM_GEAR_SUSPENSION_MODES - 1 );
     m_ContactPt3_TireMode.Init( "ContactPt3_TireMode", "Design", this, vsp::TIRE_STATIC_LODED_CONTACT, vsp::TIRE_STATIC_LODED_CONTACT, vsp::NUM_TIRE_CONTACT_MODES - 1 );
 
+    m_CCEUnits.Init( "CCEUnits", "Design", this, vsp::LEN_IN, vsp::LEN_MM, vsp::LEN_UNITLESS );
+
+    m_CCEMainGearOffset.Init( "CCEMainGearOffset", "Design", this, 0, -1e12, 1e12 );
+
     m_BogieTheta.Init( "BogieTheta", "Design", this, 0.0, -180.0, 180.0 );
     m_WheelTheta.Init( "WheelTheta", "Design", this, 0.0, -180.0, 180.0 );
     m_RollTheta.Init( "RollTheta", "Design", this, 0.0, -180.0, 180.0 );
 
     m_ParentType = -1;
 
+    // Set up default CCE points and curve.
+    vector < vec3d > pnt_vec;
+    pnt_vec.push_back( vec3d( -1000.0, 0.0, 0.0 ) );
+    pnt_vec.push_back( vec3d( 1000.0, 0.0, 0.0 ) );
+    SetPnts( pnt_vec );
 }
 
 //==== Destructor ====//
@@ -379,6 +390,48 @@ void AuxiliaryGeom::UpdateSurf()
                 AppendContact1Surfs( gear, m_BogieTheta() );
             }
         }
+        if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
+        {
+            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            if ( gear )
+            {
+                Matrix4d mat;
+
+                gear->BuildThreePtOffAxisBasis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+                                                m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
+                                                m_ContactPt3_ID, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), m_ContactPt3_TireMode(),
+                                                m_CCEMainGearOffset(),
+                                                mat );
+
+
+                vector < VspCurve > crv_vec( 2, m_CCECurve );
+
+                double cce2model = ConvertLength( 1, m_CCEUnits(), gear->m_ModelLenUnits() );
+
+
+                Matrix4d start;
+                start.translatef( refLen, 0, 0 );
+                start.scale( cce2model );
+                crv_vec[0].Transform( start );
+
+                Matrix4d end;
+                end.translatef( -refLen, 0, 0 );
+                end.scale( cce2model );
+                crv_vec[1].Transform( end );
+
+                m_MainSurfVec[0].SkinC0( crv_vec, false );
+
+                // Swap UW because U tessellation will better obey patch boundaries and thereby resolve
+                // the shape of the envelope.
+                m_MainSurfVec[0].SwapUWDirections();
+
+                m_MainSurfVec[0].Transform( mat );
+
+                AppendContact1Surfs( gear );
+                AppendContact2Surfs( gear );
+                AppendContact3Surfs( gear );
+            }
+        }
     }
 }
 
@@ -406,7 +459,8 @@ void AuxiliaryGeom::UpdateMainTessVec()
         GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
         if ( gear )
         {
-            if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+            if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
+                 m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
             {
                 TessContact1( gear );
                 TessContact2( gear );
@@ -442,7 +496,8 @@ void AuxiliaryGeom::UpdateMainDegenGeomPreview()
         GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
         if ( gear )
         {
-            if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+            if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
+                 m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
             {
                 DegenContact1( gear );
                 DegenContact2( gear );
@@ -513,6 +568,87 @@ void AuxiliaryGeom::CopyDataFrom( Geom* geom_ptr )
     m_SymPlanFlag.Deactivate();
     m_SymAxFlag.Deactivate();
     m_SymRotN.Deactivate();
+}
+
+bool AuxiliaryGeom::ReadCCEFile( const string &fname )
+{
+    FILE* file_id =  fopen( fname.c_str(), "r" );
+    if ( !file_id )
+    {
+        return false;
+    }
+
+    if ( ReadCCEFile( file_id ) )
+    {
+        fclose( file_id );
+        return true;
+    }
+
+    fclose( file_id );
+    return false;
+}
+
+bool AuxiliaryGeom::ReadCCEFile( FILE* file_id )
+{
+    vector < vec3d > pnt_vec;
+
+    if ( !file_id )
+    {
+        return false;
+    }
+    else
+    {
+        pnt_vec.clear();
+        int stopFlag = 0;
+        while ( !stopFlag )
+        {
+            double x, y, z;
+            if ( EOF == fscanf( file_id, "%lf %lf\n", &x, &y ) )
+            {
+                break;
+            }
+            pnt_vec.push_back( vec3d( 0.0, x, y ) );
+        }
+        fclose( file_id );
+    }
+
+    if ( pnt_vec.size() == 0 )
+    {
+        return false;
+    }
+
+    SetPnts( pnt_vec );
+
+    return true;
+}
+
+void AuxiliaryGeom::SetPnts( const vector<vec3d> &pnt_vec )
+{
+    if ( pnt_vec.size() >= 2 )
+    {
+        m_CCEFilePnts = pnt_vec;
+    }
+    else
+    {
+        m_CCEFilePnts.clear();
+        m_CCEFilePnts.push_back( vec3d( -1000.0, 0.0, 0.0 ) );
+        m_CCEFilePnts.push_back( vec3d( 1000.0, 0.0, 0.0 ) );
+    }
+
+    UpdateCCECurve();
+}
+
+void AuxiliaryGeom::UpdateCCECurve()
+{
+    int npts = m_CCEFilePnts.size();
+
+    vector < double > arclen( npts );
+    for ( int i = 0 ; i < npts ; i++ )
+    {
+        arclen[i] = i;
+    }
+
+    m_CCECurve.InterpolateLinear( m_CCEFilePnts, arclen, false );
 }
 
 void AuxiliaryGeom::UpdateDrawObj()
@@ -722,6 +858,8 @@ xmlNodePtr AuxiliaryGeom::EncodeXml( xmlNodePtr & node )
         XmlUtil::AddStringNode( child_node, "ContactPt1_ID", m_ContactPt1_ID );
         XmlUtil::AddStringNode( child_node, "ContactPt2_ID", m_ContactPt2_ID );
         XmlUtil::AddStringNode( child_node, "ContactPt3_ID", m_ContactPt3_ID );
+
+        XmlUtil::AddVectorVec3dNode( child_node, "CCEFilePnts", m_CCEFilePnts );
     }
 
     return child_node;
@@ -738,6 +876,9 @@ xmlNodePtr AuxiliaryGeom::DecodeXml( xmlNodePtr & node )
         m_ContactPt1_ID = ParmMgr.RemapID( XmlUtil::FindString( child_node, "ContactPt1_ID", m_ContactPt1_ID ) );
         m_ContactPt2_ID = ParmMgr.RemapID( XmlUtil::FindString( child_node, "ContactPt2_ID", m_ContactPt2_ID ) );
         m_ContactPt3_ID = ParmMgr.RemapID( XmlUtil::FindString( child_node, "ContactPt3_ID", m_ContactPt3_ID ) );
+
+        vector < vec3d > pnt_vec = XmlUtil::ExtractVectorVec3dNode( child_node, "CCEFilePnts" );
+        SetPnts( pnt_vec );
     }
 
     return child_node;
@@ -767,7 +908,9 @@ void AuxiliaryGeom::SetContactPt3ID( const std::string& id )
 void AuxiliaryGeom::GetCG( vec3d &cgnom, vector < vec3d > &cgbounds )
 {
     if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
-         m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
+         m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND ||
+         m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND ||
+         m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -781,7 +924,8 @@ void AuxiliaryGeom::GetCG( vec3d &cgnom, vector < vec3d > &cgbounds )
 
 void AuxiliaryGeom::GetPtNormal( vec3d &pt, vec3d &normal ) const
 {
-    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
+         m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -908,7 +1052,8 @@ void AuxiliaryGeom::GetTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &n
 
 void AuxiliaryGeom::GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal )
 {
-    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
+         m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
@@ -925,7 +1070,8 @@ void AuxiliaryGeom::GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &no
 
 void AuxiliaryGeom::CalculateTurn( vec3d &cor, vec3d &normal, vector<double> &rvec )
 {
-    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
+         m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 

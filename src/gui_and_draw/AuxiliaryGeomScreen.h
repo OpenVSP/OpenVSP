@@ -41,7 +41,7 @@ protected:
     GroupLayout m_3ptGroundPlaneLayout;
     GroupLayout m_2ptGroundPlaneLayout;
     GroupLayout m_1ptGroundPlaneLayout;
-
+    GroupLayout m_3ptCCELayout;
 
     Choice m_AuxiliaryGeomModeChoice;
 
@@ -111,6 +111,28 @@ protected:
     SliderAdjRangeInput m_1ptWheelThetaSlider;
     SliderAdjRangeInput m_1ptRollThetaSlider;
 
+
+    // 3pt CCE
+
+    Choice m_3ptCCEBogie1Choice;
+    Choice m_3ptCCEBogie1SymmChoice;
+    Choice m_3ptCCEBogie1SuspensionModeChoice;
+    Choice m_3ptCCEBogie1TireModeChoice;
+
+    Choice m_3ptCCEBogie2Choice;
+    Choice m_3ptCCEBogie2SymmChoice;
+    Choice m_3ptCCEBogie2SuspensionModeChoice;
+    Choice m_3ptCCEBogie2TireModeChoice;
+
+    Choice m_3ptCCEBogie3Choice;
+    Choice m_3ptCCEBogie3SymmChoice;
+    Choice m_3ptCCEBogie3SuspensionModeChoice;
+    Choice m_3ptCCEBogie3TireModeChoice;
+
+    TriggerButton m_ReadCCEFileButton;
+    Choice m_CCEUnitChoice;
+
+    SliderAdjRangeInput m_CCEMainGearOffsetSlider;
 
     GroupLayout* m_CurrDisplayGroup;
 };
