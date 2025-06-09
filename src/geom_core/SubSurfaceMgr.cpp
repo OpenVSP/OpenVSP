@@ -429,13 +429,13 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         }
 
         // Lookup Geom number
-        int gnum = FindGNum( gid );
+        int gnum = FindGNum( gid_bare );
 
         int thickthin = m_CompThick[ part - 1 ];
 
         int plate = m_CompPlate[ part - 1] + 1; // (-1=S, 0=V,C, 1=H) + 1
         int copyindex = m_CompCopyIndex[ part - 1 ];
-        int gcnum = FindGCNum( gid, copyindex );
+        int gcnum = FindGCNum( gid_bare, copyindex );
         int type = m_CompTypes[ part - 1];
 
         if ( type != vsp::NORMAL_SURF && plate != 0 )  // Not NORMAL and Not a S -- i.e. WING and C

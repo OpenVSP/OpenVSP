@@ -4226,7 +4226,8 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
         string id_list = GetTagIDs( m_TagKeys[i] );
         int pos = id_list.find( "_Surf" );
         string gid = id_list.substr( 0, pos );
-        gids.insert( gid );
+        string gid_bare = gid.substr( 0, 10 );
+        gids.insert( gid_bare );
 
         int part = GetPart( m_TagKeys[i] );
         int copyindex = GetCopyIndex( part );
@@ -4236,7 +4237,7 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
         // This provides a numbering where multiple blades of a prop are grouped together, but symmetrical propellers
         // are numbered separately.  However, symmetrical wings (and other nmain==1 geoms) are numbered together.
         // This substitution needs to be done every place we insert (here) or lookup based on copyindex.
-        Geom *g = VehicleMgr.GetVehicle()->FindGeom( gid );
+        Geom *g = VehicleMgr.GetVehicle()->FindGeom( gid_bare );
         if ( g )
         {
             if ( g->GetNumMainSurfs() == 1 )
@@ -4245,7 +4246,7 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
             }
         }
 
-        gcset.insert( std::pair< string, int >( gid, copyindex ) );
+        gcset.insert( std::pair< string, int >( gid_bare, copyindex ) );
     }
 
     fprintf( fid, "%d\n", npart );
@@ -4299,7 +4300,7 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
         }
 
         // Lookup Geom number
-        int gnum = distance( gids.begin(), gids.find( gid ) );
+        int gnum = distance( gids.begin(), gids.find( gid_bare ) );
 
         int thickthin = GetThickThin( part );
 
@@ -4312,7 +4313,7 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
         // This provides a numbering where multiple blades of a prop are grouped together, but symmetrical propellers
         // are numbered separately.  However, symmetrical wings (and other nmain==1 geoms) are numbered together.
         // This substitution needs to be done every place we insert or lookup (here) based on copyindex.
-        Geom *g = VehicleMgr.GetVehicle()->FindGeom( gid );
+        Geom *g = VehicleMgr.GetVehicle()->FindGeom( gid_bare );
         if ( g )
         {
             if ( g->GetNumMainSurfs() == 1 )
@@ -4321,7 +4322,7 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
             }
         }
 
-        int gcnum = distance( gcset.begin(), gcset.find( std::pair< string, int > ( gid, copylookup ) ) );
+        int gcnum = distance( gcset.begin(), gcset.find( std::pair< string, int > ( gid_bare, copylookup ) ) );
 
         int type = GetType( part );
 
