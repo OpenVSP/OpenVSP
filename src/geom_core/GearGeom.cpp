@@ -1306,10 +1306,21 @@ void GearGeom::BuildTwoPtBasis( const string &cp1, int isymm1, int suspension1, 
                                       cp2, isymm2, suspension2, tire2,
                                       thetabogie, pcen, z, p1, p2, usepivot, mintheta, maxtheta ) )
     {
-        const int iminor = z.minor_comp();
+        if ( z[ 2 ] < 0 ) // Make sure normal is generally pointing 'up'.
+        {
+            z = -z;
+        }
 
-        vec3d y;
-        y[ iminor ] = 1;
+        vec3d y( 0, 1, 0 );
+
+        if ( std::abs( dot( y, z ) ) < 1.0 ) // z is not parallel to y (good).
+        {
+        }
+        else
+        {
+            y.set_xyz( 0, 0, 1 );
+        }
+
 
         vec3d x = cross( y, z );
         x.normalize();
@@ -1335,10 +1346,20 @@ void GearGeom::BuildThreePtBasis( const string &cp1, int isymm1, int suspension1
                       cp3, isymm3, suspension3, tire3,
                       pcen, z ) )
     {
-        const int iminor = z.minor_comp();
+        if ( z[ 2 ] < 0 ) // Make sure normal is generally pointing 'up'.
+        {
+            z = -z;
+        }
 
-        vec3d y;
-        y[ iminor ] = 1;
+        vec3d y( 0, 1, 0 );
+
+        if ( std::abs( dot( y, z ) ) < 1.0 ) // z is not parallel to y (good).
+        {
+        }
+        else
+        {
+            y.set_xyz( 0, 0, 1 );
+        }
 
         vec3d x = cross( y, z );
         x.normalize();
