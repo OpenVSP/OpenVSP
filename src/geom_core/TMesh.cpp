@@ -5570,6 +5570,93 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
     }
 }
 
+void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string & resid, vector< TMesh* > & result_tmv )
+{
+    bool intersect_flag = false;
+    bool interference_flag = false;
+
+    double vol_primary = primary_tm->ComputeTheoVol();
+
+    double min_dist = 1.0e12;
+    double con_dist = 1.0e12;
+    double con_vol = -1; // Not the true volume.
+    double vol = 0;
+
+    bool primary_below_secondary = false;
+    vector < vec3d > pts;
+
+    if ( primary_tm->CheckIntersect( secondary_tm ) )
+    {
+        intersect_flag = true;
+        interference_flag = true;
+
+        result_tmv.push_back( secondary_tm );
+        result_tmv.push_back( primary_tm );
+
+        MeshCCEIntersect( result_tmv );
+        FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
+
+        min_dist = 0.0;
+        con_dist = 1.0;
+
+        for ( int i = 0; i < result_tmv.size(); i++ )
+        {
+            vol += result_tmv[i]->ComputeTrimVol();
+        }
+        con_vol = vol / vol_primary;
+    }
+    else
+    {
+        pts.resize( 2 );
+        min_dist = primary_tm->MinDistance( secondary_tm, min_dist, pts[0], pts[1] );
+        con_dist = min_dist;
+
+        if ( !primary_tm->m_TVec.empty() && !secondary_tm->m_TVec.empty() )
+        {
+            TTri *trip = primary_tm->m_TVec[0];
+            vec3d upish( 0.000001, 0.000001, 1.0 );
+
+            if ( DeterIntExtTri( trip, secondary_tm, upish ) ) // a inside b
+            {
+                primary_below_secondary = true;
+                interference_flag = true;
+                result_tmv.push_back( primary_tm );
+                con_vol = 1;
+                con_dist += 1.0;
+                delete secondary_tm;
+            }
+            else
+            {
+                delete primary_tm;
+                delete secondary_tm;
+            }
+        }
+        else
+        {
+            delete primary_tm;
+            delete secondary_tm;
+        }
+    }
+
+    double gcon = con_dist * con_vol;
+
+    Results *res = ResultsMgr.FindResultsPtr( resid );
+    if( res )
+    {
+        // Populate results.
+        res->Add( new NameValData( "Interference", interference_flag, "Flag indicating the primary and secondary interfere." ) );
+        res->Add( new NameValData( "Intersection", intersect_flag, "Flag indicating the primary and secondary intersect." ) );
+        res->Add( new NameValData( "Primary_Below_Secondary", primary_below_secondary, "Flag indicating the primary is contained below the secondary." ) );
+        res->Add( new NameValData( "Min_Dist", min_dist, "Minimum distance between primary and secondary." ) );
+        res->Add( new NameValData( "Pts", pts, "Min/max distance line end points." ) );
+        res->Add( new NameValData( "InterferenceVol", vol, "Volume of interference." ) );
+        res->Add( new NameValData( "Vol_Primary", vol_primary, "Volume of primary." ) );
+        res->Add( new NameValData( "Con_Val", gcon, "Constraint value" ) );
+        res->Add( new NameValData( "Result", gcon, "Interference result" ) );
+    }
+
+}
+
 string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv )
 {
     bool intersect_flag = false;
@@ -6030,6 +6117,28 @@ void MeshUnion( vector < TMesh * > &tmv )
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
     {
         tmv[i]->SetIgnoreInsideAny();
+    }
+}
+
+void MeshCCEIntersect( vector < TMesh * > &tmv )
+{
+    double scalefac = IntersectSplit( tmv );
+
+    vec3d upish( 0.000001, 0.000001, 1.0 );
+
+    //==== Determine Which Triangle Are Interior/Exterior ====//
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->DeterIntExt( tmv, upish );
+    }
+
+    //===== Reset Scale =====//
+    ApplyScale( 1.0 / scalefac, tmv );
+
+    //==== Mark which triangles to ignore ====//
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->SetIgnoreInsideNotOne();
     }
 }
 

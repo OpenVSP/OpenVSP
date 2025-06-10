@@ -79,6 +79,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GeometryAnalysisTypeChoice.AddItem( "Tipover", vsp::GEAR_TIPOVER_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Ground Maneuverability", vsp::GEAR_TURN_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "From Point Visibility", vsp::VISIBLE_FROM_POINT_ANALYSIS );
+    m_GeometryAnalysisTypeChoice.AddItem( "Composite Clearance Envelope", vsp::CCE_INTERFERENCE );
     m_GeometryAnalysisTypeChoice.UpdateItems();
 
     m_GCaseLayout.AddYGap();
@@ -322,7 +323,8 @@ bool GeometryAnalysisScreen::Update()
         if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE ||
              gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
              gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
-             gcase->m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS )
+             gcase->m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE )
         {
             m_SecondaryGeomPicker.AddIncludeType( AUXILIARY_GEOM_TYPE );
 

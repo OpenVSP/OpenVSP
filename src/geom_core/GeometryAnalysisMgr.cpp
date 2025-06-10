@@ -74,7 +74,8 @@ void GeometryAnalysisCase::Update()
     if ( m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE ||
          m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
          m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
-         m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS )
+         m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE )
     {
         m_SecondaryType = vsp::GEOM_TARGET;
     }
@@ -979,6 +980,28 @@ string GeometryAnalysisCase::Evaluate()
                 GetSecondaryPt( cen );
                 m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag() );
                 m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                break;
+            }
+            case vsp::CCE_INTERFERENCE:
+            {
+                Results *res = ResultsMgr.CreateResults( "Carrier_Composite_Envelope_Interference", "Carrier composite envelope interference check." );
+                if( res )
+                {
+                    m_LastResult = res->GetID();
+                    primary_tmv = GetPrimaryTMeshVec();
+                    CSGMesh( primary_tmv );
+                    FlattenTMeshVec( primary_tmv );
+                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                    primary_tm->LoadBndBox();
+
+                    secondary_tmv = GetSecondaryTMeshVec();
+                    TMesh *secondary_tm = new TMesh();
+                    secondary_tm->CopyFlatten( secondary_tmv[0] );
+                    secondary_tm->LoadBndBox();
+
+                    CCEInterferenceCheck( primary_tm, secondary_tm, m_LastResult, m_TMeshVec );
+                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                }
                 break;
             }
         }

@@ -588,6 +588,7 @@ bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vec3d &org, const v
 bool CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec );
 bool CheckSelfIntersect( const vector<TMesh*> & tmesh_vec );
 void PlaneInterferenceCheck(  TMesh *primary_tm, const vec3d & org, const vec3d & norm, const string & resid, vector< TMesh* > & result_tmv );
+void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string & resid, vector< TMesh* > & result_tmv );
 string PlaneAngleInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org, const vec3d & norm, const vec3d & ptaxis, const vec3d & axis, vector< TMesh* > & result_tmv );
 string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv );
 string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv );
@@ -597,6 +598,7 @@ double IntersectSplit( vector < TMesh * > &tmv );
 void IntersectSplitClassify( vector < TMesh * > &tmv );
 void CSGMesh( vector < TMesh* > & tmv );
 void MeshUnion( vector < TMesh* > & tmv );
+void MeshCCEIntersect( vector < TMesh * > &tmv );
 void MeshIntersect( vector < TMesh* > & tmv );
 void MeshSubtract( vector < TMesh* > & tmv );
 void MeshCutAbovePlane( vector < TMesh* > & tmv, const vector <vec3d> & threepts );

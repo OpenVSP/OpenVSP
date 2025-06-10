@@ -1506,9 +1506,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "VISIBLE_FROM_POINT_ANALYSIS", VISIBLE_FROM_POINT_ANALYSIS );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "CCE_INTERFERENCE", CCE_INTERFERENCE );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "NUM_INTERFERENCE_TYPES", NUM_INTERFERENCE_TYPES );
     assert( r >= 0 );
-
 
     r = se->RegisterEnum( "GUI_GEOM_SCREEN" );
     assert( r >= 0 );
