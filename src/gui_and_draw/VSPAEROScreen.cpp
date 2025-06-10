@@ -571,7 +571,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
                                              m_AdvancedRightLayout.GetW(),
                                              2 * m_AdvancedRightLayout.GetStdHeight() +
                                              m_AdvancedRightLayout.GetDividerHeight() +
-                                             CpBrowserHeight );
+                                             CpBrowserHeight +
+                                             m_AdvancedRightLayout.GetGapHeight() +
+                                             3 * m_AdvancedRightLayout.GetStdHeight());
     m_AdvancedRightLayout.AddY( m_CpSlicerLayout.GetH() );
 
     m_CpSlicerLayout.AddDividerBox( "Slicer" );
