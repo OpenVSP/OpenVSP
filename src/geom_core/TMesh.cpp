@@ -5946,7 +5946,7 @@ bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < b
     return ignoretri;
 }
 
-void IntersectSplitClassify( vector < TMesh * > &tmv )
+double IntersectSplit( vector < TMesh * > &tmv )
 {
     //==== Scale To 1000 Units ====//
     BndBox bbox;
@@ -5984,6 +5984,13 @@ void IntersectSplitClassify( vector < TMesh * > &tmv )
     {
         tmv[i]->Split();
     }
+
+    return scalefac;
+}
+
+void IntersectSplitClassify( vector < TMesh * > &tmv )
+{
+    double scalefac = IntersectSplit( tmv );
 
     //==== Determine Which Triangle Are Interior/Exterior ====//
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )

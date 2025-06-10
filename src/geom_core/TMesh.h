@@ -593,6 +593,7 @@ string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh*
 string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv );
 string ExteriorSelfInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & result_tmv );
 bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB );
+double IntersectSplit( vector < TMesh * > &tmv );
 void IntersectSplitClassify( vector < TMesh * > &tmv );
 void CSGMesh( vector < TMesh* > & tmv );
 void MeshUnion( vector < TMesh* > & tmv );
