@@ -6051,7 +6051,7 @@ bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < b
     return ignoretri;
 }
 
-double IntersectSplit( vector < TMesh * > &tmv )
+double IntersectSplit( vector < TMesh * > &tmv, bool intSubsFlag, const vector < string > & sub_vec )
 {
     //==== Scale To 1000 Units ====//
     BndBox bbox;
@@ -6061,9 +6061,79 @@ double IntersectSplit( vector < TMesh * > &tmv )
     double scalefac = 1000.0 / bbox.GetLargestDist();
     ApplyScale( scalefac, tmv );
 
-    bool intSubsFlag = false;
+    //==== Intersect Subsurfaces to make clean lines ====//
+    if ( intSubsFlag )
+    {
+        for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+        {
+            vector < double > uvec;
+            vector < double > vvec;
+            if ( tmv[i]->m_UWPnts.size() > 0 && tmv[i]->m_UWPnts[0].size() > 0 )
+            {
+                uvec.resize( tmv[i]->m_UWPnts.size() );
+                for ( int j = 0 ; j < ( int )tmv[i]->m_UWPnts.size(); j++ )
+                {
+                    uvec[j] = tmv[i]->m_UWPnts[j][0].x();
+                }
+                vvec.resize( tmv[i]->m_UWPnts[0].size() );
+                for ( int j = 0; j < ( int ) tmv[ i ]->m_UWPnts[ 0 ].size(); j++ )
+                {
+                    vvec[j] = tmv[ i ]->m_UWPnts[ 0 ][ j ].y();
+                }
+            }
+
+            vector< TMesh* > sub_surf_meshes;
+            vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( tmv[i]->m_OriginGeomID, tmv[i]->m_SurfNum );
+            int ss;
+            for ( ss = 0 ; ss < ( int )sub_surf_vec.size() ; ss++ )
+            {
+                string subsurf_id = sub_surf_vec[ ss ]->GetID();
+
+                if ( sub_vec.empty() || vector_contains_val( sub_vec, subsurf_id ) )
+                {
+                    vector< TMesh* > tmp_vec = sub_surf_vec[ss]->CreateTMeshVec( uvec, vvec );
+                    sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );
+                }
+            }
+
+            if ( !sub_surf_meshes.size() )
+            {
+                continue;    // Skip if no sub surface meshes
+            }
+
+            // Load All surf_mesh_bboxes
+            for ( ss = 0 ; ss < ( int )sub_surf_meshes.size() ; ss++ )
+            {
+                // Build merge maps
+                tmv[i]->BuildMergeMaps();
+
+                sub_surf_meshes[ss]->LoadBndBox();
+                // Swap the tmv[i]'s nodes to be UW instead of xyz
+                tmv[i]->MakeNodePntUW();
+                tmv[i]->LoadBndBox();
+
+                // Intersect TMesh with sub_surface_meshes
+                tmv[i]->Intersect( sub_surf_meshes[ss], true );
+
+                // Split the triangles
+                tmv[i]->Split();
+
+                // Make current TMesh XYZ again and reset its octtree
+                tmv[i]->MakeNodePntXYZ();
+                tmv[i]->m_TBox.Reset();
+
+                // Flatten Mesh
+                TMesh* f_tmesh = new TMesh();
+                f_tmesh->CopyFlatten( tmv[i] );
+                delete tmv[i];
+                tmv[i] = f_tmesh;
+            }
+
+            sub_surf_meshes.clear();
+        }
+    }
     // Tag meshes before regular intersection
-    SubTagTris( (bool)intSubsFlag, tmv );
+    SubTagTris( (bool)intSubsFlag, tmv, sub_vec );
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
     MeshInfo info;
@@ -6093,9 +6163,9 @@ double IntersectSplit( vector < TMesh * > &tmv )
     return scalefac;
 }
 
-void IntersectSplitClassify( vector < TMesh * > &tmv )
+void IntersectSplitClassify( vector < TMesh * > &tmv, bool intSubsFlag, const vector < string > & sub_vec )
 {
-    double scalefac = IntersectSplit( tmv );
+    double scalefac = IntersectSplit( tmv, intSubsFlag, sub_vec );
 
     //==== Determine Which Triangle Are Interior/Exterior ====//
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
@@ -6107,9 +6177,9 @@ void IntersectSplitClassify( vector < TMesh * > &tmv )
     ApplyScale( 1.0 / scalefac, tmv );
 }
 
-void CSGMesh( vector < TMesh * > &tmv )
+void CSGMesh( vector < TMesh * > &tmv, bool intSubsFlag, const vector < string > & sub_vec )
 {
-    IntersectSplitClassify( tmv );
+    IntersectSplitClassify( tmv, intSubsFlag, sub_vec );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( tmv.size() );
@@ -6129,7 +6199,7 @@ void CSGMesh( vector < TMesh * > &tmv )
 
 void MeshUnion( vector < TMesh * > &tmv )
 {
-    IntersectSplitClassify( tmv );
+    IntersectSplitClassify( tmv, false );
 
     //==== Mark which triangles to ignore ====//
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
@@ -6140,7 +6210,7 @@ void MeshUnion( vector < TMesh * > &tmv )
 
 void MeshCCEIntersect( vector < TMesh * > &tmv )
 {
-    double scalefac = IntersectSplit( tmv );
+    double scalefac = IntersectSplit( tmv, false );
 
     vec3d upish( 0.000001, 0.000001, 1.0 );
 
@@ -6162,7 +6232,7 @@ void MeshCCEIntersect( vector < TMesh * > &tmv )
 
 void MeshIntersect( vector < TMesh * > &tmv )
 {
-    IntersectSplitClassify( tmv );
+    IntersectSplitClassify( tmv, false );
 
     //==== Mark which triangles to ignore ====//
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
@@ -6174,7 +6244,7 @@ void MeshIntersect( vector < TMesh * > &tmv )
 // Subtract meshes i != 0 from mesh j == 0.
 void MeshSubtract( vector < TMesh* > & tmv )
 {
-    IntersectSplitClassify( tmv );
+    IntersectSplitClassify( tmv, false );
 
     vector < bool > mask( tmv.size(), false );
     mask[0] = true;
@@ -6190,7 +6260,7 @@ void MeshSubtract( vector < TMesh* > & tmv )
 
 void MeshCutAbovePlane( vector < TMesh* > & tmv, const vector <vec3d> & threepts )
 {
-    IntersectSplitClassify( tmv );
+    IntersectSplitClassify( tmv, false );
 
     tmv[0]->SetIgnoreOutsideAll();
     tmv[1]->SetIgnoreAbovePlane( threepts );
