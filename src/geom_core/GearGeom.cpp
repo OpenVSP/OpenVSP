@@ -1350,6 +1350,74 @@ void GearGeom::BuildThreePtBasis( const string &cp1, int isymm1, int suspension1
     }
 }
 
+void GearGeom::BuildThreePtOffAxisBasis( const string &cp1, int isymm1, int suspension1, int tire1,
+                                const string &cp2, int isymm2, int suspension2, int tire2,
+                                const string &cp3, int isymm3, int suspension3, int tire3,
+                                double mainoffset,
+                                Matrix4d &mat )
+{
+    mat.loadIdentity();
+
+    const Bogie *b1 = GetBogie( cp1 );
+    const Bogie *b2 = GetBogie( cp2 );
+    const Bogie *b3 = GetBogie( cp3 );
+
+    if ( b1 && b2 && b3 )
+    {
+        const vec3d p1 = b1->GetMeanContactPoint( isymm1, tire1, suspension1, 0.0 );
+        const vec3d p2 = b2->GetMeanContactPoint( isymm2, tire2, suspension2, 0.0 );
+        const vec3d p3 = b3->GetMeanContactPoint( isymm3, tire3, suspension3, 0.0 );
+
+        const vec3d v12 = p2 - p1;
+        const vec3d v13 = p3 - p1;
+
+        vec3d normal = cross( v12, v13 );
+        normal.normalize();
+
+        // Check that plane points mostly 'up' in GearGeom coordinate system.  Nominal ground plane will point
+        // straight up in these coordinates.  Changing the order of the contact points can change the orientation
+        // of the normal vector.  This sign check prevents us from requiring cw/ccw ordering by the user.
+        if ( normal.z() < 0 )
+        {
+            normal = -normal;
+        }
+
+        // Find vector connecting main gear contact points.
+        vec3d v23 = p3 - p2;
+        v23.normalize();
+
+        // Find mean of main gear contact points.
+        vec3d pmaincen = ( p2 + p3 ) * 0.5;
+
+        // Find wheelbase
+        double wb = dist( p1, pmaincen );
+
+        // Trig to resolve specified offset measured perpendicular to nominal track.
+        // delta should be slightly larger than mainoffset
+        // double delta = wb * sin( atan( mainoffset / wb ) );
+        // Alternate equivalent formulation with less trig.
+        double o = mainoffset / wb;
+        double delta = mainoffset / sqrt( 1.0 + o * o );
+
+        // Offset mean main point along the line between the main gear contact points.
+        vec3d pmainoff = pmaincen + v23 * delta;
+
+        // X is in the ground plane by construction.
+        // All points on line between main gear contact points are on ground plane.
+        vec3d x = pmainoff - p1;
+        x.normalize();
+
+        // Find rotated y direction.
+        vec3d y = cross( normal, x );
+        y.normalize();
+
+        // Translate so nose gear is origin
+        mat.translatev( p1 );
+        // Set rotated basis
+        mat.setBasis( x, y, normal );
+    }
+}
+
 bool GearGeom::GetTwoPtPivot( const string &cp1, int isymm1, int suspension1,
                               const string &cp2, int isymm2, int suspension2,
                               vec3d &ptaxis, vec3d &axis ) const

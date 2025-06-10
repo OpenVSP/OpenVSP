@@ -272,6 +272,12 @@ public:
                                     const string &cp3, int isymm3, int suspension3, int tire3,
                                     Matrix4d &mat );
 
+    virtual void BuildThreePtOffAxisBasis( const string &cp1, int isymm1, int suspension1, int tire1,
+                                    const string &cp2, int isymm2, int suspension2, int tire2,
+                                    const string &cp3, int isymm3, int suspension3, int tire3,
+                                    double mainoffset,
+                                    Matrix4d &mat );
+
     virtual bool GetTwoPtPivot( const string &cp1, int isymm1, int suspension1,
                                     const string &cp2, int isymm2, int suspension2,
                                     vec3d &ptaxis, vec3d &axis ) const;
