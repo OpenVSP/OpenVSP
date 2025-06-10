@@ -374,7 +374,7 @@ public:
     void SplitBox();
     void AddTri( TTri* t );
     virtual void Intersect( TBndBox* iBox, bool UWFlag = false );
-    virtual void RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec, vector <TTri*> & triVec ) const;
+    virtual void RayCast( const vec3d & orig, const vec3d & dir, vector<double> & tParmVec, vector <TTri*> & triVec ) const;
 
     virtual bool CheckIntersect( TBndBox* iBox );
     virtual double MinDistance( TBndBox* iBox, double curr_min_dist, vec3d &p1, vec3d &p2 );
@@ -433,8 +433,8 @@ public:
     void SetIgnoreAbovePlane( const vector <vec3d> & threepts );
     void IgnoreAll();
 
-    void DeterIntExt( const vector< TMesh* >& meshVec );
-    void DeterIntExt( TMesh* mesh );
+    void DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 ) );
+    void DeterIntExt( TMesh* mesh, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 ) );
 
     void LoadBndBox();
     void UpdateBBox( BndBox &bbox, const Matrix4d &transMat = Matrix4d() );
@@ -603,8 +603,8 @@ TMesh* OctantSplitMesh( TMesh* tm );
 
 TMesh* MakeConvexHull(const vector< TMesh* > & tmesh_vec );
 
-void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec );
-bool DeterIntExtTri( TTri* tri, TMesh* mesh );
+void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir );
+bool DeterIntExtTri( TTri* tri, TMesh* mesh, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 )  );
 
 void WriteStl( const string &file_name, const vector< TMesh* >& meshVec );
 void MakeThreePts( const vec3d & org, const vec3d & norm, vector <vec3d> &threepts );

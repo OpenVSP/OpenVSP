@@ -1056,7 +1056,7 @@ void TMesh::IgnoreAll()
     }
 }
 
-void TMesh::DeterIntExt( const vector< TMesh* >& meshVec )
+void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
@@ -1067,21 +1067,21 @@ void TMesh::DeterIntExt( const vector< TMesh* >& meshVec )
         {
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
-                DeterIntExtTri( tri->m_SplitVec[s], meshVec );
+                DeterIntExtTri( tri->m_SplitVec[s], meshVec, dir );
             }
         }
         else
         {
-            DeterIntExtTri( tri, meshVec );
+            DeterIntExtTri( tri, meshVec, dir );
         }
     }
 }
 
-void TMesh::DeterIntExt( TMesh* mesh )
+void TMesh::DeterIntExt( TMesh* mesh, const vec3d &dir )
 {
     vector <TMesh*> tmv;
     tmv.push_back( mesh );
-    DeterIntExt( tmv );
+    DeterIntExt( tmv, dir );
 }
 
 double TMesh::ComputeTheoArea()
@@ -3608,7 +3608,7 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
     }
 }
 
-void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec, vector <TTri*> & triVec ) const
+void  TBndBox::RayCast( const vec3d & orig, const vec3d & dir, vector<double> & tParmVec, vector <TTri*> & triVec ) const
 {
     if ( m_Box.IsEmpty() )
     {
@@ -6168,14 +6168,12 @@ TMesh* MakeConvexHull(const vector< TMesh* > & tmesh_vec )
     return tMesh;
 }
 
-void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
+void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir )
 {
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
     orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
     tri->m_IgnoreTriFlag = false;
     int prior = -1;
-
-    vec3d dir( 1.0, 0.000001, 0.000001 );
 
     int nmesh = meshVec.size();
     tri->m_insideSurf.clear();
@@ -6205,13 +6203,13 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
     }
 }
 
-bool DeterIntExtTri( TTri* tri, TMesh* mesh )
+bool DeterIntExtTri( TTri* tri, TMesh* mesh, const vec3d &dir )
 {
     if ( tri )
     {
         vector <TMesh*> tmv;
         tmv.push_back( mesh );
-        DeterIntExtTri( tri, tmv );
+        DeterIntExtTri( tri, tmv, dir );
 
         if ( !tri->m_insideSurf.empty() )
         {
