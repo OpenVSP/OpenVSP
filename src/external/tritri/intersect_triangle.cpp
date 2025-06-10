@@ -10,8 +10,8 @@
           dest[2]=v1[2]-v2[2]; 
 
 int
-intersect_triangle(double orig[3], double dir[3],
-                   double vert0[3], double vert1[3], double vert2[3],
+intersect_triangle(const double orig[3], const double dir[3],
+                   const double vert0[3], const double vert1[3], const double vert2[3],
                    double *t, double *u, double *v)
 {
    double edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];

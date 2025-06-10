@@ -61,8 +61,8 @@ int ccw_tri_tri_intersection_2d( double p1[2], double q1[2], double r1[2],
 //============ intersect_triangle.cpp ==============//
 //////////////////////////////////////////////////////
 
-int intersect_triangle( double orig[3], double dir[3],
-                        double vert0[3], double vert1[3], double vert2[3],
+int intersect_triangle( const double orig[3], const double dir[3],
+                        const double vert0[3], const double vert1[3], const double vert2[3],
                         double* t, double* u, double* v );
 
 //////////////////////////////////////////////////////
