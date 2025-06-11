@@ -408,6 +408,14 @@ xmlNodePtr GeometryAnalysisCase::EncodeXml( xmlNodePtr & node )
     XmlUtil::AddStringNode( gcase_node, "PrimaryGeomID", m_PrimaryGeomID );
     XmlUtil::AddStringNode( gcase_node, "SecondaryGeomID", m_SecondaryGeomID );
 
+    //===== Cutout Subsurfaces ====//
+    xmlNodePtr cutoutSS_list_node = xmlNewChild( gcase_node, NULL, ( const xmlChar * )"CutoutSS_List", NULL );
+    for ( int i = 0 ; i < ( int )m_CutoutVec.size() ; i++ )
+    {
+        xmlNodePtr cutoutSS_node = xmlNewChild( cutoutSS_list_node, NULL, ( const xmlChar * )"CutoutSS", NULL );
+        XmlUtil::AddStringNode( cutoutSS_node, "cutoutSS_ID", m_CutoutVec[i] );
+    }
+
     return gcase_node;
 }
 
@@ -417,6 +425,20 @@ xmlNodePtr GeometryAnalysisCase::DecodeXml( xmlNodePtr & node )
     m_PrimaryModeID = ParmMgr.RemapID( XmlUtil::FindString( node, "PrimaryModeID", m_PrimaryModeID ) );
     m_PrimaryGeomID = ParmMgr.RemapID( XmlUtil::FindString( node, "PrimaryGeomID", m_PrimaryGeomID ) );
     m_SecondaryGeomID = ParmMgr.RemapID( XmlUtil::FindString( node, "SecondaryGeomID", m_SecondaryGeomID ) );
+
+    //==== Cutout Subsurfaces ====//
+    xmlNodePtr cutoutSS_list_node = XmlUtil::GetNode( node, "CutoutSS_List", 0 );
+
+    if ( cutoutSS_list_node )
+    {
+        int num_cutoutSS =  XmlUtil::GetNumNames( cutoutSS_list_node, "CutoutSS" );
+        for ( int i = 0 ; i < num_cutoutSS ; i++ )
+        {
+            xmlNodePtr cutoutSS_node = XmlUtil::GetNode( cutoutSS_list_node, "CutoutSS", i );
+            string new_cutoutSS = ParmMgr.RemapID( XmlUtil::FindString( cutoutSS_node, "cutoutSS_ID", string() ) );
+            m_CutoutVec.push_back( new_cutoutSS );
+        }
+    }
 
     return node;
 }
@@ -978,7 +1000,7 @@ string GeometryAnalysisCase::Evaluate()
                 primary_tmv = GetPrimaryTMeshVec();
                 vec3d cen;
                 GetSecondaryPt( cen );
-                m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag() );
+                m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
                 m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 break;
             }

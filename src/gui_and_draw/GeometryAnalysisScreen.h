@@ -30,6 +30,7 @@ public:
     void Hide();
     bool Update();
     void UpdateGeometryAnalysisBrowser();
+    void UpdateWindowSubSurfBrowser();
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
     void MarkDOChanged();
     bool GetVisBndBox( BndBox &bbox );
@@ -97,6 +98,9 @@ protected:
     ToggleButton m_PolyVisibleToggle;
     ToggleButton m_PolyOccludedToggle;
     ToggleRadioGroup m_PolyVisibleToggleGroup;
+
+    GroupLayout m_WindowLayout;
+    Fl_Check_Browser* m_SubSurfCutoutBrowser;
 
     ToggleButton m_SecondaryUsePointToggle;
     SliderAdjRangeInput m_SecondaryXSlider;

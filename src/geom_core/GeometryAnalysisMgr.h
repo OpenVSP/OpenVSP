@@ -77,6 +77,7 @@ public:
     BoolParm m_SecondaryCCWFlag;
 
     BoolParm m_PolyVisibleFlag;
+    vector< string > m_CutoutVec;
 
     BoolParm m_SecondaryUsePoint;
     Parm m_SecondaryX;

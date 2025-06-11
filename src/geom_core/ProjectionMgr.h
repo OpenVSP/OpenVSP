@@ -49,7 +49,8 @@ public:
 
     virtual Results* Project( );
 
-    virtual string PointVisibility( vector < TMesh* > &targetTMeshVec, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible );
+    virtual string PointVisibility( vector < TMesh* > &targetTMeshVec, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible, const
+                                    vector<string> &cutout_vec );
 
     virtual Results* Project( int tset, bool thullflag, const vec3d & dir );
     virtual Results* Project( int tset, bool thullflag, int bset, bool bhullflag, const vec3d & dir );

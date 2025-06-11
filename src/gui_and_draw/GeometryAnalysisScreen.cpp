@@ -14,6 +14,8 @@
 #include "AuxiliaryGeom.h"
 
 #include "ModeMgr.h"
+#include "StlHelper.h"
+#include "SubSurfaceMgr.h"
 
 //==== Constructor ====//
 GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 700, "Geometry Analyses" )
@@ -144,6 +146,12 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_PrimaryLayout.AddYGap();
 
+    m_PrimaryLayout.AddSubGroupLayout( m_WindowLayout, m_PrimaryLayout.GetW(), m_PrimaryLayout.GetRemainY() );
+
+    m_WindowLayout.AddDividerBox( "Windows" );
+    m_SubSurfWindowBrowser = m_WindowLayout.AddCheckBrowser( m_WindowLayout.GetRemainY() );
+    m_SubSurfWindowBrowser->callback( staticScreenCB, this );
+
     m_SecondaryLayout.AddDividerBox( "Secondary" );
 
     m_SecondaryLayout.SetSameLineFlag( true );
@@ -263,6 +271,8 @@ bool GeometryAnalysisScreen::Update()
 
     if ( gcase )
     {
+        UpdateWindowSubSurfBrowser();
+
         m_GCaseLayout.GetGroup()->activate();
 
 
@@ -500,6 +510,43 @@ void GeometryAnalysisScreen::UpdateGeometryAnalysisBrowser()
     m_GeometryAnalysisBrowser->hposition( h_pos );
 }
 
+void GeometryAnalysisScreen::UpdateWindowSubSurfBrowser()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    m_SubSurfCutoutBrowser->clear();
+
+    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+    if ( gcase )
+    {
+        char str[512];
+        vector< SubSurface* > subsurf_vec = SubSurfaceMgr.GetSubSurfs();
+        // Load Subsurface Names
+        for ( int i = 0; i < ( int )subsurf_vec.size() ; i++ )
+        {
+            string geomid = subsurf_vec[i]->GetCompID();
+            Geom* gptr = veh->FindGeom( geomid );
+            if ( gptr )
+            {
+                snprintf( str, sizeof( str ), "%s:  %s", gptr->GetName().c_str(), subsurf_vec[i]->GetName().c_str() );
+
+                if ( vector_contains_val( gcase->m_CutoutVec, subsurf_vec[i]->GetID() ) )
+                {
+                    m_SubSurfCutoutBrowser->add( str, 1 );
+                }
+                else
+                {
+                    m_SubSurfCutoutBrowser->add( str, 0  );
+                }
+            }
+        }
+    }
+}
+
 void GeometryAnalysisScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
@@ -582,6 +629,33 @@ void GeometryAnalysisScreen::CallBack( Fl_Widget *w )
         }
 
         MarkDOChanged();
+    }
+    else if ( w == m_SubSurfCutoutBrowser )
+    {
+        GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+
+        if ( gcase )
+        {
+            int curr_index = m_SubSurfCutoutBrowser->value();
+            vector< SubSurface* > subsurf_vec = SubSurfaceMgr.GetSubSurfs();
+
+            if ( (int)subsurf_vec.size() > 0 && curr_index >= 1 && curr_index <= (int)subsurf_vec.size() )
+            {
+
+                bool flag = !!m_SubSurfCutoutBrowser->checked( curr_index );
+
+                string curr_ID = subsurf_vec[curr_index - 1]->GetID();
+
+                if ( flag )
+                {
+                    gcase->m_CutoutVec.push_back( curr_ID );
+                }
+                else
+                {
+                    vector_remove_val( gcase->m_CutoutVec, curr_ID );
+                }
+            }
+        }
     }
     else
     {
