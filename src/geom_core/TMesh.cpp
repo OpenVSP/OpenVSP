@@ -858,6 +858,34 @@ void TMesh::SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool
     }
 }
 
+void TMesh::SetIgnoreSubSurface()
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            tri->m_IgnoreTriFlag = true;
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                if ( tri->m_SplitVec[s]->m_Tags.size() > 1 )
+                {
+                    tri->m_SplitVec[s]->m_IgnoreTriFlag = true;
+                }
+            }
+        }
+        else
+        {
+            if ( tri->m_Tags.size() > 1 )
+            {
+                tri->m_IgnoreTriFlag = true;
+            }
+        }
+    }
+}
+
 void TMesh::SetIgnoreInsideAny()
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
