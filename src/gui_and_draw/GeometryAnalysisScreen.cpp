@@ -138,10 +138,6 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_PrimaryLayout.ForceNewLine();
     m_PrimaryLayout.AddYGap();
 
-    m_PrimaryLayout.SetButtonWidth( m_PrimaryLayout.GetW() * 0.5 );
-    m_PrimaryLayout.AddButton( m_ShowPrimaryGeom, "Show" );
-    m_PrimaryLayout.AddButton( m_ShowOnlyPrimaryGeom, "Show Only" );
-    m_PrimaryLayout.ForceNewLine();
 
     m_PrimaryLayout.SetSameLineFlag( false );
     m_PrimaryLayout.SetFitWidthFlag( true );
@@ -192,10 +188,6 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_SecondaryLayout.SetFitWidthFlag( false );
 
-    m_SecondaryLayout.SetButtonWidth( m_SecondaryLayout.GetW() * 0.5 );
-    m_SecondaryLayout.AddButton( m_CCWToggle, "CCW" );
-    m_SecondaryLayout.AddButton( m_CWToggle, "CW" );
-    m_SecondaryLayout.ForceNewLine();
 
     m_CCWToggleGroup.Init( this );
     m_CCWToggleGroup.AddButton( m_CCWToggle.GetFlButton() );
@@ -681,34 +673,6 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( gcase )
         {
             gcase->ShowOnlyBoth();
-        }
-    }
-    else if ( gui_device == & m_ShowPrimaryGeom )
-    {
-        if ( gcase )
-        {
-            gcase->ShowPrimary();
-        }
-    }
-    else if ( gui_device == & m_ShowOnlyPrimaryGeom )
-    {
-        if ( gcase )
-        {
-            gcase->ShowOnlyPrimary();
-        }
-    }
-    else if ( gui_device == & m_ShowSecondaryGeom )
-    {
-        if ( gcase )
-        {
-            gcase->ShowSecondary();
-        }
-    }
-    else if ( gui_device == & m_ShowOnlySecondaryGeom )
-    {
-        if ( gcase )
-        {
-            gcase->ShowOnlySecondary();
         }
     }
     else if ( gui_device == &m_EvaluateAllGeometryAnalyses )

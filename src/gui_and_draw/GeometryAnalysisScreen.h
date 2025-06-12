@@ -80,9 +80,6 @@ protected:
     GeomPicker m_PrimaryGeomPicker;
     vector < string > m_GeomIDs;
 
-    TriggerButton m_ShowPrimaryGeom;
-    TriggerButton m_ShowOnlyPrimaryGeom;
-
     ToggleRadioGroup m_SecondaryToggleGroup;
     ToggleButton m_SecondarySetToggle;
     Choice m_SecondarySetChoice;
@@ -105,9 +102,6 @@ protected:
     SliderAdjRangeInput m_SecondaryXSlider;
     SliderAdjRangeInput m_SecondaryYSlider;
     SliderAdjRangeInput m_SecondaryZSlider;
-
-    TriggerButton m_ShowSecondaryGeom;
-    TriggerButton m_ShowOnlySecondaryGeom;
 
     TriggerButton m_Evaluate;
     TriggerButton m_ShowResultsViewer;
