@@ -227,9 +227,9 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_CutoutLayout.SetFitWidthFlag( true );
 
 
-    m_CutoutLayout.AddDividerBox( "Windows" );
-    m_SubSurfWindowBrowser = m_CutoutLayout.AddCheckBrowser( m_CutoutLayout.GetRemainY() );
-    m_SubSurfWindowBrowser->callback( staticScreenCB, this );
+    m_CutoutLayout.AddDividerBox( "Cutout" );
+    m_SubSurfCutoutBrowser = m_CutoutLayout.AddCheckBrowser( m_CutoutLayout.GetRemainY() );
+    m_SubSurfCutoutBrowser->callback( staticScreenCB, this );
 
 
 
