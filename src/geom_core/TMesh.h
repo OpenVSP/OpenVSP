@@ -610,6 +610,7 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &di
 bool DeterIntExtTri( TTri* tri, TMesh* mesh, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 )  );
 
 void WriteStl( const string &file_name, const vector< TMesh* >& meshVec );
+void WriteStl( const string &file_name, TMesh* tm );
 void MakeThreePts( const vec3d & org, const vec3d & norm, vector <vec3d> &threepts );
 TMesh* MakeSlice( const vec3d & org, const vec3d & norm, const double & len );
 TMesh* MakeSlice( const int &swdir, const double & len );

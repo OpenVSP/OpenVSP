@@ -6355,6 +6355,22 @@ void WriteStl( const string &file_name, const vector< TMesh* >& meshVec )
     }
 }
 
+void WriteStl( const string &file_name, TMesh* tm )
+{
+    Matrix4d mat;
+
+    FILE* fid = fopen( file_name.c_str(), "w" );
+    if ( fid && tm )
+    {
+        fprintf( fid, "solid\n" );
+
+        tm->WriteSTLTris( fid, mat );
+
+        fprintf( fid, "endsolid\n" );
+        fclose( fid );
+    }
+}
+
 void MakeThreePts( const vec3d & org, const vec3d & norm, vector <vec3d> &threepts )
 {
     threepts.clear();
