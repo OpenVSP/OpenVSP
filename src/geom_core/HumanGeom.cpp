@@ -686,7 +686,7 @@ void HumanGeom::UpdateSurf()
 
     // Final positioning & scale -- hold waist fixed & origin
     Matrix4d tcenter;
-    tcenter.translatev( -m_PoseSkelVerts[WAIST] );
+    tcenter.translatev( -m_SkelVerts[WAIST] );
 
     Matrix4d sc;
     sc.scale( sf );
