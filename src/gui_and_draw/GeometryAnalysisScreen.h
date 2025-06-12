@@ -51,6 +51,8 @@ protected:
     GroupLayout m_GCaseLayout;
     GroupLayout m_PrimaryLayout;
     GroupLayout m_SecondaryLayout;
+    GroupLayout m_OptionsLayout;
+    GroupLayout m_CutoutLayout;
 
     ColResizeBrowser* m_GeometryAnalysisBrowser;
     int m_GeometryBrowserSelect;
@@ -99,7 +101,6 @@ protected:
     ToggleButton m_PolyOccludedToggle;
     ToggleRadioGroup m_PolyVisibleToggleGroup;
 
-    GroupLayout m_WindowLayout;
     Fl_Check_Browser* m_SubSurfCutoutBrowser;
 
     ToggleButton m_SecondaryUsePointToggle;

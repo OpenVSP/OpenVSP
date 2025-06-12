@@ -65,11 +65,12 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GCaseLayout.AddYGap();
     m_GCaseLayout.AddDividerBox( "Geometry Analysis" );
 
-    m_GCaseLayout.AddInput( m_GANameInput, "Name" );
+    m_GCaseLayout.SetSameLineFlag( true );
+    m_GCaseLayout.AddInput( m_GANameInput, "Name", m_GCaseLayout.GetW() * 0.5 + 5 );
 
-    m_GCaseLayout.AddYGap();
+    m_GCaseLayout.AddX( 5 );
 
-    m_GCaseLayout.AddChoice( m_GeometryAnalysisTypeChoice, "Type" );
+    m_GCaseLayout.AddChoice( m_GeometryAnalysisTypeChoice, "Type", m_GCaseLayout.GetW() * 0.5 );
     m_GeometryAnalysisTypeChoice.AddItem( "External", vsp::EXTERNAL_INTERFERENCE );
     m_GeometryAnalysisTypeChoice.AddItem( "Packaging", vsp::PACKAGING_INTERFERENCE );
     m_GeometryAnalysisTypeChoice.AddItem( "Self External", vsp::EXTERNAL_SELF_INTERFERENCE );
@@ -84,16 +85,28 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GeometryAnalysisTypeChoice.AddItem( "Composite Clearance Envelope", vsp::CCE_INTERFERENCE );
     m_GeometryAnalysisTypeChoice.UpdateItems();
 
+    m_GCaseLayout.ForceNewLine();
+    m_GCaseLayout.SetSameLineFlag( false );
+
     m_GCaseLayout.AddYGap();
 
-    int geomH = 200;
+    int geomH = 7 * m_GCaseLayout.GetStdHeight() + m_GCaseLayout.GetDividerHeight();
     int geomW = ( m_GCaseLayout.GetW() - 5 ) * 0.5;
     m_GCaseLayout.AddSubGroupLayout( m_PrimaryLayout, geomW, geomH );
     m_GCaseLayout.AddX( geomW + 5 );
     m_GCaseLayout.AddSubGroupLayout( m_SecondaryLayout, geomW, geomH );
     m_GCaseLayout.AddY( geomH );
 
-    m_GCaseLayout.ForceNewLine();
+    m_GCaseLayout.ForceNewLine( 0 );
+    m_GCaseLayout.AddYGap();
+
+    int optH = 4 * m_GCaseLayout.GetStdHeight() + m_GCaseLayout.GetDividerHeight();
+    m_GCaseLayout.AddSubGroupLayout( m_OptionsLayout, geomW, optH );
+    m_GCaseLayout.AddX( geomW + 5 );
+    m_GCaseLayout.AddSubGroupLayout( m_CutoutLayout, geomW, optH );
+    m_GCaseLayout.AddY( optH );
+
+    m_GCaseLayout.ForceNewLine( 0 );
 
     m_PrimaryLayout.AddDividerBox( "Primary" );
 
@@ -135,22 +148,6 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_PrimaryToggleGroup.AddButton( m_PrimaryGeomToggle.GetFlButton() );
     m_PrimaryToggleGroup.AddButton( m_PrimaryModeToggle.GetFlButton() );
 
-    m_PrimaryLayout.SetFitWidthFlag( false );
-
-    m_PrimaryLayout.ForceNewLine();
-    m_PrimaryLayout.AddYGap();
-
-
-    m_PrimaryLayout.SetSameLineFlag( false );
-    m_PrimaryLayout.SetFitWidthFlag( true );
-
-    m_PrimaryLayout.AddYGap();
-
-    m_PrimaryLayout.AddSubGroupLayout( m_WindowLayout, m_PrimaryLayout.GetW(), m_PrimaryLayout.GetRemainY() );
-
-    m_WindowLayout.AddDividerBox( "Windows" );
-    m_SubSurfWindowBrowser = m_WindowLayout.AddCheckBrowser( m_WindowLayout.GetRemainY() );
-    m_SubSurfWindowBrowser->callback( staticScreenCB, this );
 
     m_SecondaryLayout.AddDividerBox( "Secondary" );
 
@@ -194,21 +191,6 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_SecondaryLayout.ForceNewLine();
     m_SecondaryLayout.SetButtonWidth( bw );
 
-    m_SecondaryLayout.SetFitWidthFlag( false );
-
-
-    m_CCWToggleGroup.Init( this );
-    m_CCWToggleGroup.AddButton( m_CCWToggle.GetFlButton() );
-    m_CCWToggleGroup.AddButton( m_CWToggle.GetFlButton() );
-
-    m_SecondaryLayout.AddButton( m_PolyVisibleToggle, "Visible" );
-    m_SecondaryLayout.AddButton( m_PolyOccludedToggle, "Occluded" );
-    m_SecondaryLayout.ForceNewLine();
-
-    m_PolyVisibleToggleGroup.Init( this );
-    m_PolyVisibleToggleGroup.AddButton( m_PolyOccludedToggle.GetFlButton() ); // false first
-    m_PolyVisibleToggleGroup.AddButton( m_PolyVisibleToggle.GetFlButton() );  // true
-
     m_SecondaryLayout.SetSameLineFlag( false );
     m_SecondaryLayout.SetFitWidthFlag( true );
 
@@ -218,15 +200,40 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_SecondaryLayout.AddSlider( m_SecondaryYSlider, "Y", 10, "%6.4f" );
     m_SecondaryLayout.AddSlider( m_SecondaryZSlider, "Z", 10, "%6.4f" );
 
-    m_SecondaryLayout.AddYGap();
+    m_OptionsLayout.AddDividerBox( "Options" );
 
-    m_SecondaryLayout.SetSameLineFlag( true );
-    m_SecondaryLayout.SetFitWidthFlag( false );
+    m_OptionsLayout.SetFitWidthFlag( false );
+    m_OptionsLayout.SetSameLineFlag( true );
 
-    m_SecondaryLayout.SetButtonWidth( m_SecondaryLayout.GetW() * 0.5 );
-    m_SecondaryLayout.AddButton( m_ShowSecondaryGeom, "Show" );
-    m_SecondaryLayout.AddButton( m_ShowOnlySecondaryGeom, "Show Only" );
-    m_SecondaryLayout.ForceNewLine();
+    m_OptionsLayout.SetButtonWidth( m_OptionsLayout.GetW() * 0.5 );
+    m_OptionsLayout.AddButton( m_CCWToggle, "CCW" );
+    m_OptionsLayout.AddButton( m_CWToggle, "CW" );
+    m_OptionsLayout.ForceNewLine();
+
+    m_CCWToggleGroup.Init( this );
+    m_CCWToggleGroup.AddButton( m_CCWToggle.GetFlButton() );
+    m_CCWToggleGroup.AddButton( m_CWToggle.GetFlButton() );
+
+    m_OptionsLayout.AddButton( m_PolyVisibleToggle, "Visible" );
+    m_OptionsLayout.AddButton( m_PolyOccludedToggle, "Occluded" );
+    m_OptionsLayout.ForceNewLine();
+
+    m_PolyVisibleToggleGroup.Init( this );
+    m_PolyVisibleToggleGroup.AddButton( m_PolyOccludedToggle.GetFlButton() ); // false first
+    m_PolyVisibleToggleGroup.AddButton( m_PolyVisibleToggle.GetFlButton() );  // true
+
+
+    m_CutoutLayout.SetSameLineFlag( false );
+    m_CutoutLayout.SetFitWidthFlag( true );
+
+
+    m_CutoutLayout.AddDividerBox( "Windows" );
+    m_SubSurfWindowBrowser = m_CutoutLayout.AddCheckBrowser( m_CutoutLayout.GetRemainY() );
+    m_SubSurfWindowBrowser->callback( staticScreenCB, this );
+
+
+
+
 
     m_GCaseLayout.AddYGap();
     m_GCaseLayout.AddDividerBox( "Analysis" );
