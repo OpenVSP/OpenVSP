@@ -63,8 +63,13 @@ protected:
     SliderAdjRangeInput m_BackSlider;
     SliderAdjRangeInput m_WaistSlider;
 
+    SliderAdjRangeInput m_NodSlider;
+    SliderAdjRangeInput m_RotateHeadSlider;
+
     ToggleButton m_RLSymButton;
 
+    SliderAdjRangeInput m_WristRtSlider;
+    SliderAdjRangeInput m_ForearmRtSlider;
     SliderAdjRangeInput m_ElbowRtSlider;
     SliderAdjRangeInput m_ShoulderABADRtSlider;
     SliderAdjRangeInput m_ShoulderFERtSlider;
@@ -75,6 +80,8 @@ protected:
     SliderAdjRangeInput m_KneeRtSlider;
     SliderAdjRangeInput m_AnkleRtSlider;
 
+    SliderAdjRangeInput m_WristLtSlider;
+    SliderAdjRangeInput m_ForearmLtSlider;
     SliderAdjRangeInput m_ElbowLtSlider;
     SliderAdjRangeInput m_ShoulderABADLtSlider;
     SliderAdjRangeInput m_ShoulderFELtSlider;

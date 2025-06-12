@@ -81,6 +81,12 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_RLSymFlag.Init( "RLSym", "Pose", this, 1, 0, 1 );
     m_RLSymFlag.SetDescript( "Set left/right pose parameters equal." );
 
+    m_WristRt.Init( "WristRt", "Pose", this, 0.0, -90.0, 90.0 );
+    m_WristRt.SetDescript( "Right wrist angle" );
+
+    m_ForearmRt.Init( "ForearmRt", "Pose", this, 0.0, -90.0, 90.0 );
+    m_ForearmRt.SetDescript( "Right forearm angle" );
+
     m_ElbowRt.Init( "ElbowRt", "Pose", this, 15.0, 0, 150.0 );
     m_ElbowRt.SetDescript( "Right elbow angle" );
 
@@ -104,6 +110,12 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_AnkleRt.Init( "AnkleRt", "Pose", this, 0.0, -15, 15.0 );
     m_AnkleRt.SetDescript( "Right ankle angle" );
+
+    m_WristLt.Init( "WristLt", "Pose", this, 0.0, -90.0, 90.0 );
+    m_WristLt.SetDescript( "Left wrist angle" );
+
+    m_ForearmLt.Init( "ForearmLt", "Pose", this, 0.0, -90.0, 90.0 );
+    m_ForearmLt.SetDescript( "Left forearm angle" );
 
     m_ElbowLt.Init( "ElbowLt", "Pose", this, 15.0, 0, 150.0 );
     m_ElbowLt.SetDescript( "Left elbow angle" );
@@ -134,6 +146,12 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_Waist.Init( "Waist", "Pose", this, 0.0, -15, 45.0 );
     m_Waist.SetDescript( "Waist angle" );
+
+    m_Nod.Init( "Nod", "Pose", this, 0.0, -40, 50.0 );
+    m_Nod.SetDescript( "Nod angle" );
+
+    m_RotateHead.Init( "RotateHead", "Pose", this, 0.0, -80, 80.0 );
+    m_RotateHead.SetDescript( "Turn head angle" );
 
     m_PresetPose.Init( "PresetPose", "Pose", this, HumanGeom::STANDING, HumanGeom::STANDING, HumanGeom::SITTING );
     m_PresetPose.SetDescript( "Pose to set when triggered from GUI" );
@@ -330,6 +348,8 @@ void HumanGeom::ValidateParms( )
 {
     if ( m_RLSymFlag() )
     {
+        m_WristLt = m_WristRt();
+        m_ForearmLt = m_ForearmRt();
         m_ElbowLt = m_ElbowRt();
         m_ShoulderABADLt = m_ShoulderABADRt();
         m_ShoulderFELt = m_ShoulderFERt();
@@ -517,19 +537,26 @@ void HumanGeom::UpdateSurf()
 
 
     // Compute pose transformations.
-    Matrix4d t_rtforearm, t_rtbicep, t_rtfoot, t_rtshin, t_rtthigh, t_back, t_waist;
-    Matrix4d t_ltforearm, t_ltbicep, t_ltfoot, t_ltshin, t_ltthigh;
+    Matrix4d t_rtwrist, t_rtforearm, t_rtbicep, t_rtfoot, t_rtshin, t_rtthigh, t_back, t_waist, t_head;
+    Matrix4d t_ltwrist, t_ltforearm, t_ltbicep, t_ltfoot, t_ltshin, t_ltthigh;
 
     ComputeShoulderTrans( RSHOULDER, RELBOW, m_ShoulderABADRt(), m_ShoulderFERt(), t_rtbicep );
 
-    ComputeElbowTrans( RSHOULDER, RELBOW, RHAND, m_ElbowRt() * M_PI / 180.0, m_ShoulderIERt() * M_PI / 180.0, t_rtforearm );
+    ComputeElbowTrans( RSHOULDER, RELBOW, RWRIST, m_ElbowRt() * M_PI / 180.0, m_ShoulderIERt() * M_PI / 180.0, t_rtforearm );
     t_rtforearm.postMult( t_rtbicep );
 
+    ComputeForearmTrans( RELBOW, RWRIST, RWRISTAX, RFINGER, m_ForearmRt() * M_PI / 180.0, m_WristRt() * M_PI / 180.0, t_rtwrist);
+    t_rtwrist.postMult( t_rtforearm );
 
     ComputeShoulderTrans( LSHOULDER, LELBOW, -m_ShoulderABADLt(), m_ShoulderFELt(), t_ltbicep );
 
-    ComputeElbowTrans( LSHOULDER, LELBOW, LHAND, m_ElbowLt() * M_PI / 180.0, -m_ShoulderIELt() * M_PI / 180.0, t_ltforearm );
+    ComputeElbowTrans( LSHOULDER, LELBOW, LWRIST, m_ElbowLt() * M_PI / 180.0, -m_ShoulderIELt() * M_PI / 180.0, t_ltforearm );
     t_ltforearm.postMult( t_ltbicep );
+
+    ComputeForearmTrans( LELBOW, LWRIST, LWRISTAX, LFINGER, -m_ForearmLt() * M_PI / 180.0, -m_WristLt() * M_PI / 180.0, t_ltwrist);
+    t_ltwrist.postMult( t_ltforearm );
+
+    ComputeHeadTrans( ORIGIN, HEAD, m_Nod() * M_PI / 180.0, m_RotateHead() * M_PI / 180.0, t_head );
 
 
     ComputeBackTrans( ORIGIN, BACK, WAIST, m_Back() * M_PI / 180.0, t_back );
@@ -565,11 +592,20 @@ void HumanGeom::UpdateSurf()
     m_PoseSkelVerts[RHIP] = t_waist.xform( m_PoseSkelVerts[RHIP] );
     m_PoseSkelVerts[LHIP] = t_waist.xform( m_PoseSkelVerts[LHIP] );
 
+    m_PoseSkelVerts[HEAD] = t_head.xform( m_PoseSkelVerts[HEAD] );
+    m_PoseSkelVerts[REYE] = t_head.xform( m_PoseSkelVerts[REYE] );
+    m_PoseSkelVerts[LEYE] = t_head.xform( m_PoseSkelVerts[LEYE] );
+    m_PoseSkelVerts[DES_EYE] = t_head.xform( m_PoseSkelVerts[DES_EYE] );
+
     m_PoseSkelVerts[RELBOW] = t_rtbicep.xform( m_PoseSkelVerts[RELBOW] );
-    m_PoseSkelVerts[RHAND] = t_rtforearm.xform( m_PoseSkelVerts[RHAND] );
+    m_PoseSkelVerts[RWRIST] = t_rtforearm.xform( m_PoseSkelVerts[RWRIST] );
+    m_PoseSkelVerts[RWRISTAX] = t_rtforearm.xform( m_PoseSkelVerts[RWRISTAX] );
+    m_PoseSkelVerts[RFINGER] = t_rtwrist.xform( m_PoseSkelVerts[RFINGER] );
 
     m_PoseSkelVerts[LELBOW] = t_ltbicep.xform( m_PoseSkelVerts[LELBOW] );
-    m_PoseSkelVerts[LHAND] = t_ltforearm.xform( m_PoseSkelVerts[LHAND] );
+    m_PoseSkelVerts[LWRIST] = t_ltforearm.xform( m_PoseSkelVerts[LWRIST] );
+    m_PoseSkelVerts[LWRISTAX] = t_ltforearm.xform( m_PoseSkelVerts[LWRISTAX] );
+    m_PoseSkelVerts[LFINGER] = t_ltwrist.xform( m_PoseSkelVerts[LFINGER] );
 
     m_PoseSkelVerts[RKNEE] = t_rtthigh.xform( m_PoseSkelVerts[RKNEE] );
     m_PoseSkelVerts[RANKLE] = t_rtshin.xform( m_PoseSkelVerts[RANKLE] );
@@ -584,14 +620,23 @@ void HumanGeom::UpdateSurf()
     unsigned int nbones = m_SkelVerts.size();
     std::vector< Pinocchio::Transform<> > trs( nbones );
 
+    Mat2Trans( t_head, trs[NECK] );
+    Mat2Trans( t_head, trs[SKULL] );
+    Mat2Trans( t_head, trs[LORBITAL] );
+    Mat2Trans( t_head, trs[RORBITAL] );
+
     Mat2Trans( t_waist, trs[LOWSPINE] );
 
     Mat2Trans( t_waist, trs[LPELVIS] );
     Mat2Trans( t_waist, trs[RPELVIS] );
 
+    Mat2Trans( t_rtwrist, trs[RHAND] );
+    Mat2Trans( t_rtforearm, trs[RWRISTBASE] );
     Mat2Trans( t_rtforearm, trs[RFOREARM] );
     Mat2Trans( t_rtbicep, trs[RBICEP] );
 
+    Mat2Trans( t_ltwrist, trs[LHAND] );
+    Mat2Trans( t_ltforearm, trs[LWRISTBASE] );
     Mat2Trans( t_ltforearm, trs[LFOREARM] );
     Mat2Trans( t_ltbicep, trs[LBICEP] );
 
@@ -1028,7 +1073,7 @@ void HumanGeom::UpdateDrawObj()
         m_FeatureDrawObj_vec[0].m_PntVec.resize( ( NUM_SKEL - 1 ) * 2 );
         m_FeatureDrawObj_vec[1].m_PntVec.resize( ( NUM_SKEL - 1 ) * 2 );
 
-        const int prevarr[] = {-1, 0, 1, 0, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 0, 15, 16, 20, 20, 3};
+        const int prevarr[] = {-1, 0, 1, 0, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 14, 0, 16, 17, 18, 22, 22, 3, 18, 14};
 
         for ( int i = 1; i < NUM_SKEL; i++ )
         {
@@ -1356,9 +1401,8 @@ template < typename vertmat >
 void HumanGeom::SetupSkel( const vertmat & vm, Pinocchio::DataSkeleton &skeleton )
 {
     // m_SkelVerts
-    // const int HumanGeom::m_skel_indx[NUM_SKEL] = {0, 1, 2, 3, -4, -5, -6, -7, 4, 5, 6, 7, -8, -9, -10, 8, 9, 10}; // , 11, -11, 12};
-
-    const int prevarr[] = {-1, 0, 1, 0, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 0, 15, 16, 20, 20, 3};
+    // const int HumanGeom::m_skel_indx[NUM_SKEL] = {0, 1, 2, 3, -4, -5, -6, -7, 4, 5, 6, 7, -8, -9, -10, -11, 8, 9, 10, 11, 12, -12, 13, 14, -14};
+    const int prevarr[] = {-1, 0, 1, 0, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 14, 0, 16, 17, 18, 22, 22, 3, 18, 14};
 
     std::vector < int > previd( NUM_SKEL );
     std::vector < Vector3 > skel_pts( NUM_SKEL );
@@ -1388,7 +1432,9 @@ void HumanGeom::SetupSkel( const vertmat & vm, Pinocchio::DataSkeleton &skeleton
 
     skeleton.makeSymmetric( LSHOULDER, RSHOULDER );
     skeleton.makeSymmetric( LELBOW, RELBOW );
-    skeleton.makeSymmetric( LHAND, RHAND );
+    skeleton.makeSymmetric( LWRIST, RWRIST );
+    skeleton.makeSymmetric( LWRISTAX, RWRISTAX );
+    skeleton.makeSymmetric( LFINGER, RFINGER );
 
     skeleton.makeSymmetric( LEYE, REYE );
 
@@ -1400,6 +1446,9 @@ void HumanGeom::SetupSkel( const vertmat & vm, Pinocchio::DataSkeleton &skeleton
     skeleton.setFat( WAIST );
     skeleton.setFat( ORIGIN );
     skeleton.setFat( HEAD );
+    skeleton.setFat( DES_EYE );
+    skeleton.setFat( LEYE );
+    skeleton.setFat( REYE );
 }
 
 Pinocchio::Attachment* HumanGeom::SetupAttach( const Pinocchio::Mesh &m, const Pinocchio::Skeleton &skeleton )
@@ -1492,6 +1541,22 @@ void HumanGeom::ComputeAvePts( const vertmat &A, const vertmat &B, int n, vertma
     }
 }
 
+void HumanGeom::ComputeHeadTrans( const int &iorigin, const int &ihead, const double &ang, const double &ang2, Matrix4d &T )
+{
+    const vec3d &porigin = m_SkelVerts[ iorigin ];
+    const vec3d &phead = m_SkelVerts[ ihead ];
+
+    vec3d axis = vec3d( 0, 1, 0 );
+
+    vec3d vneck = phead - porigin;
+    vneck.normalize();
+
+    T.translatev( porigin );
+    T.rotate( ang, axis );
+    T.rotate( ang2, vneck );
+    T.translatev( -porigin );
+}
+
 void HumanGeom::ComputeShoulderTrans( const int &ishoulder, const int &ielbow, const double &ang1, const double &ang2, Matrix4d &T )
 {
     const vec3d &pshoulder = m_SkelVerts[ ishoulder ];
@@ -1536,6 +1601,26 @@ void HumanGeom::ComputeElbowTrans( const int &ishoulder, const int &ielbow, cons
     T.rotate( ang2, vbicep );
     T.rotate( ang - angle0, axis );
     T.translatev( -pelbow );
+}
+
+void HumanGeom::ComputeForearmTrans( const int &ielbow, const int &iwrist, const int &iwristax, const int &ifinger, const double &ang, const double &ang2, Matrix4d &T )
+{
+    const vec3d &pelbow = m_SkelVerts[ ielbow ];
+    const vec3d &pwrist = m_SkelVerts[ iwrist ];
+    const vec3d &pwristax = m_SkelVerts[ iwristax ];
+    const vec3d &pfinger = m_SkelVerts[ ifinger ];
+
+    vec3d vforearm = pwrist - pelbow;
+    vec3d vwrist = pwristax - pwrist;
+    vforearm.normalize();
+    vwrist.normalize();
+
+    vec3d vhand = pfinger - pwrist;
+
+    T.translatev( pwrist );
+    T.rotate( ang, vforearm );
+    T.rotate( ang2, vwrist );
+    T.translatev( -pwrist );
 }
 
 void HumanGeom::ComputeHipTrans( const int &iwaist, const int &ihip, const int &iknee, const double &ang1, const double &ang2, Matrix4d &T )

@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 677, "Human" )
+HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 677+80, "Human" )
 {
     Fl_Group* design_tab = AddTab( "Anthropometric" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -109,6 +109,14 @@ HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 677, 
     m_PoseLayout.SetDividerHeight( m_PoseLayout.GetStdHeight() );
 
     m_PoseLayout.AddYGap();
+    m_PoseLayout.AddDividerBox( "Head" );
+
+    m_PoseLayout.SetDividerHeight( oldDH );
+
+    m_PoseLayout.AddSlider( m_NodSlider, "Nod", 100, "%7.3f" );
+    m_PoseLayout.AddSlider( m_RotateHeadSlider, "Rotate", 100, "%7.3f" );
+
+    m_PoseLayout.AddYGap();
     m_PoseLayout.AddDividerBox( "Right Side" );
 
     m_PoseLayout.SetDividerHeight( oldDH );
@@ -123,6 +131,8 @@ HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 677, 
     m_PoseLayout.AddSlider( m_ShoulderFERtSlider, "Shoulder FE", 100, "%7.3f" );
     m_PoseLayout.AddSlider( m_ShoulderIERtSlider, "Shoulder IE", 100, "%7.3f" );
     m_PoseLayout.AddSlider( m_ElbowRtSlider, "Elbow", 100, "%7.3f" );
+    m_PoseLayout.AddSlider( m_ForearmRtSlider, "Forearm", 100, "%7.3f" );
+    m_PoseLayout.AddSlider( m_WristRtSlider, "Wrist", 100, "%7.3f" );
 
     m_PoseLayout.AddYGap();
     m_PoseLayout.AddDividerBox( "Leg" );
@@ -153,6 +163,8 @@ HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 677, 
     m_PoseLayout.AddSlider( m_ShoulderFELtSlider, "Shoulder FE", 100, "%7.3f" );
     m_PoseLayout.AddSlider( m_ShoulderIELtSlider, "Shoulder IE", 100, "%7.3f" );
     m_PoseLayout.AddSlider( m_ElbowLtSlider, "Elbow", 100, "%7.3f" );
+    m_PoseLayout.AddSlider( m_ForearmLtSlider, "Forearm", 100, "%7.3f" );
+    m_PoseLayout.AddSlider( m_WristLtSlider, "Wrist", 100, "%7.3f" );
 
     m_PoseLayout.AddYGap();
     m_PoseLayout.AddDividerBox( "Leg" );
@@ -225,6 +237,11 @@ bool HumanGeomScreen::Update()
     m_BackSlider.Update( human_ptr->m_Back.GetID() );
     m_WaistSlider.Update( human_ptr->m_Waist.GetID() );
 
+    m_NodSlider.Update( human_ptr->m_Nod.GetID() );
+    m_RotateHeadSlider.Update( human_ptr->m_RotateHead.GetID() );
+
+    m_WristRtSlider.Update( human_ptr->m_WristRt.GetID() );
+    m_ForearmRtSlider.Update( human_ptr->m_ForearmRt.GetID() );
     m_ElbowRtSlider.Update( human_ptr->m_ElbowRt.GetID() );
     m_ShoulderABADRtSlider.Update( human_ptr->m_ShoulderABADRt.GetID() );
     m_ShoulderFERtSlider.Update( human_ptr->m_ShoulderFERt.GetID() );
@@ -235,6 +252,8 @@ bool HumanGeomScreen::Update()
     m_KneeRtSlider.Update( human_ptr->m_KneeRt.GetID() );
     m_AnkleRtSlider.Update( human_ptr->m_AnkleRt.GetID() );
 
+    m_WristLtSlider.Update( human_ptr->m_WristLt.GetID() );
+    m_ForearmLtSlider.Update( human_ptr->m_ForearmLt.GetID() );
     m_ElbowLtSlider.Update( human_ptr->m_ElbowLt.GetID() );
     m_ShoulderABADLtSlider.Update( human_ptr->m_ShoulderABADLt.GetID() );
     m_ShoulderFELtSlider.Update( human_ptr->m_ShoulderFELt.GetID() );
@@ -250,6 +269,8 @@ bool HumanGeomScreen::Update()
 
     if( human_ptr->m_RLSymFlag() )
     {
+        m_WristLtSlider.Deactivate();
+        m_ForearmLtSlider.Deactivate();
         m_ElbowLtSlider.Deactivate();
         m_ShoulderABADLtSlider.Deactivate();
         m_ShoulderFELtSlider.Deactivate();

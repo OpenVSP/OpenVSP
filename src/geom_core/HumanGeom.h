@@ -166,6 +166,8 @@ public:
 
     BoolParm m_RLSymFlag;
 
+    Parm m_WristRt;
+    Parm m_ForearmRt;
     Parm m_ElbowRt;
     Parm m_ShoulderABADRt;
     Parm m_ShoulderFERt;
@@ -176,6 +178,8 @@ public:
     Parm m_KneeRt;
     Parm m_AnkleRt;
 
+    Parm m_WristLt;
+    Parm m_ForearmLt;
     Parm m_ElbowLt;
     Parm m_ShoulderABADLt;
     Parm m_ShoulderFELt;
@@ -189,6 +193,8 @@ public:
     Parm m_Back;
     Parm m_Waist;
 
+    Parm m_Nod;
+    Parm m_RotateHead;
 
 protected:
     virtual void ApplyScale(); // this is for intersectTrim
@@ -251,14 +257,16 @@ private:
     vector < bool > m_FlipNormal;
 
 
+    void ComputeHeadTrans( const int &iorigin, const int &ihead, const double &ang, const double &ang2, Matrix4d &T );
     void ComputeShoulderTrans( const int &ishoulder, const int &ielbow, const double &ang1, const double &ang2, Matrix4d &T );
     void ComputeElbowTrans( const int &ishoulder, const int &ielbow, const int &ihand, const double &ang, const double &ang2, Matrix4d &T );
+    void ComputeForearmTrans( const int &ielbow, const int &iwrist, const int &iwristax, const int &ifinger, const double &ang, const double &ang2, Matrix4d &T );
 
     void ComputeHipTrans( const int &iwaist, const int &ihip, const int &iknee, const double &ang1, const double &ang2, Matrix4d &T );
     void ComputeKneeTrans( const int &ihip, const int &iknee, const int &iankle, const double &ang, Matrix4d &T );
     void ComputeAnkleTrans( const int &iknee, const int &iankle, const int &itoe, const double &ang, Matrix4d &T );
 
-    void ComputeBackTrans( const int &ineck, const int &iback, const int &iwaist, const double &ang, Matrix4d &T );
+    void ComputeBackTrans( const int &iorigin, const int &iback, const int &iwaist, const double &ang, Matrix4d &T );
     void ComputeWaistTrans( const int &iback, const int &iwaist, const int &ihip, const double &ang, Matrix4d &T );
 
     double Get_mm2UX();
