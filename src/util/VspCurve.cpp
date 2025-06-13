@@ -1401,8 +1401,12 @@ void VspCurve::TessCornerAdapt( vector< vec3d > & pnts, vector< double > & uout,
     vector < double > tdisc;
     m_Curve.find_discontinuities( atol, tdisc );
 
-    // Make sure we always have first/last points.
-    tdisc.push_back( m_Curve.get_t0() );
+    // Make sure we always have integer parameter values and final value.
+    // most curves are parameterized [0,4] with 1,2,3 being key points.
+    for ( double t = m_Curve.get_t0(); t <= m_Curve.get_tmax(); t++ )
+    {
+        tdisc.push_back( t );
+    }
     tdisc.push_back( m_Curve.get_tmax() );
 
     // Make sure no points are duplicated.
