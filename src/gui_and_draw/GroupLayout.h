@@ -146,7 +146,7 @@ public:
                      double range, const char* format );
     void AddSlider( SliderInput & slider_input, const char* label, double range, const char* format, int used_w = 0, bool log_slider = false );
     void AddLabel( const char* label, int width, int bgcolor = FL_BACKGROUND_COLOR );
-    void AddButton(  CheckButton& check_button, const char* label );
+    void AddButton(  CheckButton& check_button, const char* label, int used_w = 0 );
     void AddButton(  ToggleButton& toggle_button, const char* label, int used_w = 0 );
     void AddButton(  CheckButtonBit& check_bit_button, const char* label, int val );
     void AddButton(  TriggerButton& trigger_button, const char* label, int used_w  = 0 );

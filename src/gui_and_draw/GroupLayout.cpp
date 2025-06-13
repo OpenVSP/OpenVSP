@@ -530,12 +530,12 @@ void GroupLayout::AddLabel( const char* label, int width, int bgcolor )
 }
 
 //==== Create & Init Gui CheckButton  ====//
-void GroupLayout::AddButton( CheckButton& cbutton, const char* label )
+void GroupLayout::AddButton( CheckButton& cbutton, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
     //==== Add Check Button ====//
-    int bw = FitWidth( 0, m_ButtonWidth );
+    int bw = FitWidth( used_w, m_ButtonWidth );
     Fl_Check_Button* flbutton = new Fl_Check_Button( m_X, m_Y, bw, m_StdHeight, label );
     flbutton->box( FL_DOWN_BOX );
     flbutton->down_box( FL_DOWN_BOX );
