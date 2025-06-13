@@ -7,6 +7,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "ProjectionMgr.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
