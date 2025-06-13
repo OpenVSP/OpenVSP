@@ -1559,11 +1559,13 @@ string AttributeMgrSingleton::GetObjectParent( const string & id )
                 {
                     while ( parent_pc->GetParentContainerPtr() )
                     {
-                        parent_pc = parent_pc->GetParentContainerPtr();
-
-                        if ( parent_pc->GetParmContainerType() == vsp::ATTROBJ_GEOM )
+                        if ( parent_pc->GetParmContainerType() == vsp::ATTROBJ_GEOM || parent_pc->GetParmContainerType() == vsp::ATTROBJ_SUBSURF )
                         {
                             break;
+                        }
+                        else
+                        {
+                            parent_pc = parent_pc->GetParentContainerPtr();
                         }
                     }
 
@@ -1662,6 +1664,7 @@ string AttributeMgrSingleton::GetName( const string & id, bool return_name_input
 
                 XSec* xs = dynamic_cast<XSec*>( pc_parent );
                 BORGeom* bor_ptr = dynamic_cast<BORGeom*>( pc_parent );
+                SubSurface* ss = dynamic_cast<SubSurface*>( pc_parent );
                 if ( xs )
                 {
                     XSecCurve* xsc = xs->GetXSecCurve();
@@ -1673,6 +1676,10 @@ string AttributeMgrSingleton::GetName( const string & id, bool return_name_input
                 else if ( bor_ptr )
                 {
                     return string( "BOR_XSec" );
+                }
+                else if ( ss )
+                {
+                    return string( "SS_XSec" );
                 }
                 return string("ERROR XSEC NAME");
             }
@@ -2101,16 +2108,8 @@ vector< vector< vector< string > > > AttributeMgrSingleton::GetAttrTreeVec( cons
                 if ( !check_root_id || CheckTreeVecID( attachID, root_id ) || special_parmission )
                 {
                     bool exclude_orphan = false;
-                    if ( attachType == vsp::ATTROBJ_SUBSURF )
-                    {
-                        vecbranch = ExtendStringVector( { "SubSurfs", attachID }, vecbranch );
-                        attachID = GetObjectParent( attachID );
-                        if ( attachID == "NONE" ) //I should know which one is the failure state... casting a wide net implies that it's a poorly controlled method
-                        {
-                            exclude_orphan = true;
-                        }
-                    }
-                    else if ( attachType == vsp::ATTROBJ_XSEC )
+
+                    if ( attachType == vsp::ATTROBJ_XSEC )
                     {
                         vecbranch = ExtendStringVector( { "XSecs", attachID }, vecbranch );
                         attachID = GetObjectParent( attachID );
@@ -2122,6 +2121,17 @@ vector< vector< vector< string > > > AttributeMgrSingleton::GetAttrTreeVec( cons
                     else if ( attachType == vsp::ATTROBJ_SEC )
                     {
                         vecbranch = ExtendStringVector( { "Sections", attachID }, vecbranch );
+                        attachID = GetObjectParent( attachID );
+                        if ( attachID == "NONE" ) //I should know which one is the failure state... casting a wide net implies that it's a poorly controlled method
+                        {
+                            exclude_orphan = true;
+                        }
+                    }
+                    attachType = GetObjectType( attachID );
+
+                    if ( attachType == vsp::ATTROBJ_SUBSURF )
+                    {
+                        vecbranch = ExtendStringVector( { "SubSurfs", attachID }, vecbranch );
                         attachID = GetObjectParent( attachID );
                         if ( attachID == "NONE" ) //I should know which one is the failure state... casting a wide net implies that it's a poorly controlled method
                         {
