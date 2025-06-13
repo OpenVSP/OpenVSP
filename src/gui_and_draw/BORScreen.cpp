@@ -310,10 +310,14 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 710, "BOR" )
     m_WedgeGroup.AddYGap();
     m_WedgeGroup.AddSlider( m_WedgeZCamberSlider, "Camber", 1, "%7.5f" );
     m_WedgeGroup.AddYGap();
-    m_WedgeGroup.AddSlider( m_WedgeUForeUpSlider, "U Fwd Up", 1, "%7.5f" );
-    m_WedgeGroup.AddSlider( m_WedgeUForeLowSlider, "U Fwd Low", 1, "%7.5f" );
+    m_WedgeGroup.SetSameLineFlag( true );
+    m_WedgeGroup.AddSlider( m_WedgeUForeUpSlider, "U Fwd Up", 1, "%7.5f", m_WedgeGroup.GetW() * 0.5  );
     m_WedgeGroup.AddSlider( m_WedgeDuUpSlider, "dU Flat Up", 1, "%7.5f" );
+    m_WedgeGroup.ForceNewLine();
+    m_WedgeGroup.AddSlider( m_WedgeUForeLowSlider, "U Fwd Low", 1, "%7.5f", m_WedgeGroup.GetW() * 0.5  );
     m_WedgeGroup.AddSlider( m_WedgeDuLowSlider, "dU Flat Low", 1, "%7.5f" );
+    m_WedgeGroup.ForceNewLine();
+    m_WedgeGroup.SetSameLineFlag( false );
     m_WedgeGroup.AddYGap();
     m_WedgeGroup.AddButton( m_WedgeInvertButton, "Invert Airfoil" );
 
@@ -349,10 +353,12 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 710, "BOR" )
 
     m_CSTAirfoilGroup.AddOutput( m_CSTThickChordOutput, "T/C", "%7.5f" );
 
-    m_CSTAirfoilGroup.AddButton( m_CSTContLERadButton, "Enforce Continuous LE Radius" );
-    m_CSTAirfoilGroup.AddButton( m_CSTInvertButton, "Invert Airfoil" );
+    m_CSTAirfoilGroup.SetSameLineFlag( true );
+    m_CSTAirfoilGroup.AddButton( m_CSTContLERadButton, "Enforce Continuous LE Radius", m_CSTAirfoilGroup.GetW() * 0.5 );
+    m_CSTAirfoilGroup.AddButton( m_CSTInvertButton, "Invert Airfoil", m_CSTAirfoilGroup.GetW() * 0.5 );
+    m_CSTAirfoilGroup.ForceNewLine();
+    m_CSTAirfoilGroup.SetSameLineFlag( false );
 
-    m_CSTAirfoilGroup.AddYGap();
     m_CSTAirfoilGroup.AddSlider( m_CSTChordSlider, "Chord", 10, "%7.3f");
 
     m_CSTAirfoilGroup.AddYGap();

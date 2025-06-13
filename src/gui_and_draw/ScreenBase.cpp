@@ -761,9 +761,11 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SubSurfBrowser = m_SubSurfLayout.AddColResizeBrowser( col_widths, 3, browser_h );
     m_SubSurfBrowser->callback( staticScreenCB, this );
 
-    m_SubSurfLayout.AddYGap();
-
-    m_SubSurfLayout.AddButton( m_DelSubSurfButton, "Delete" );
+    m_SubSurfLayout.SetSameLineFlag( true );
+    m_SubSurfLayout.AddButton( m_AddSubSurfButton, "Add", m_SubSurfLayout.GetW() * 0.5 );
+    m_SubSurfLayout.AddButton( m_DelSubSurfButton, "Delete", m_SubSurfLayout.GetW() * 0.5 );
+    m_SubSurfLayout.ForceNewLine();
+    m_SubSurfLayout.SetSameLineFlag( false );
     m_SubSurfLayout.AddYGap();
 
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ), vsp::SS_LINE );
@@ -778,7 +780,6 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SubSurfLayout.AddChoice( m_SubSurfChoice, "Type" );
     m_SubSurfLayout.AddChoice( m_SubSurfSelectSurface, "Surface" );
-    m_SubSurfLayout.AddButton( m_AddSubSurfButton, "Add" );
 
     m_SSCurrMainSurfIndx = -1;
 
@@ -1162,10 +1163,14 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSXSCWedgeGroup.AddYGap();
     m_SSXSCWedgeGroup.AddSlider( m_SSXSCWedgeZCamberSlider, "Camber", 1, "%7.5f" );
     m_SSXSCWedgeGroup.AddYGap();
-    m_SSXSCWedgeGroup.AddSlider( m_SSXSCWedgeUForeUpSlider, "U Fwd Up", 1, "%7.5f" );
-    m_SSXSCWedgeGroup.AddSlider( m_SSXSCWedgeUForeLowSlider, "U Fwd Low", 1, "%7.5f" );
+    m_SSXSCWedgeGroup.SetSameLineFlag( true );
+    m_SSXSCWedgeGroup.AddSlider( m_SSXSCWedgeUForeUpSlider, "U Fwd Up", 1, "%7.5f", m_SSXSCWedgeGroup.GetW() * 0.5 );
     m_SSXSCWedgeGroup.AddSlider( m_SSXSCWedgeDuUpSlider, "dU Flat Up", 1, "%7.5f" );
+    m_SSXSCWedgeGroup.ForceNewLine();
+    m_SSXSCWedgeGroup.AddSlider( m_SSXSCWedgeUForeLowSlider, "U Fwd Low", 1, "%7.5f", m_SSXSCWedgeGroup.GetW() * 0.5 );
     m_SSXSCWedgeGroup.AddSlider( m_SSXSCWedgeDuLowSlider, "dU Flat Low", 1, "%7.5f" );
+    m_SSXSCWedgeGroup.ForceNewLine();
+    m_SSXSCWedgeGroup.SetSameLineFlag( false );
     m_SSXSCWedgeGroup.AddYGap();
     m_SSXSCWedgeGroup.AddButton( m_SSXSCWedgeInvertButton, "Invert Airfoil" );
 
@@ -1201,10 +1206,12 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SSXSCCSTAirfoilGroup.AddOutput( m_SSXSCCSTThickChordOutput, "T/C", "%7.5f" );
 
-    m_SSXSCCSTAirfoilGroup.AddButton( m_SSXSCCSTContLERadButton, "Enforce Continuous LE Radius" );
-    m_SSXSCCSTAirfoilGroup.AddButton( m_SSXSCCSTInvertButton, "Invert Airfoil" );
+    m_SSXSCCSTAirfoilGroup.SetSameLineFlag( true );
+    m_SSXSCCSTAirfoilGroup.AddButton( m_SSXSCCSTContLERadButton, "Enforce Continuous LE Radius", m_SSXSCCSTAirfoilGroup.GetW() * 0.5 );
+    m_SSXSCCSTAirfoilGroup.AddButton( m_SSXSCCSTInvertButton, "Invert Airfoil", m_SSXSCCSTAirfoilGroup.GetW() * 0.5 );
+    m_SSXSCCSTAirfoilGroup.ForceNewLine();
+    m_SSXSCCSTAirfoilGroup.SetSameLineFlag( false );
 
-    m_SSXSCCSTAirfoilGroup.AddYGap();
     m_SSXSCCSTAirfoilGroup.AddSlider( m_SSXSCCSTChordSlider, "Chord", 10, "%7.3f");
 
     m_SSXSCCSTAirfoilGroup.AddYGap();
@@ -3380,10 +3387,14 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     m_WedgeGroup.AddYGap();
     m_WedgeGroup.AddSlider( m_WedgeZCamberSlider, "Camber", 1, "%7.5f" );
     m_WedgeGroup.AddYGap();
-    m_WedgeGroup.AddSlider( m_WedgeUForeUpSlider, "U Fwd Up", 1, "%7.5f" );
-    m_WedgeGroup.AddSlider( m_WedgeUForeLowSlider, "U Fwd Low", 1, "%7.5f" );
+    m_WedgeGroup.SetSameLineFlag( true );
+    m_WedgeGroup.AddSlider( m_WedgeUForeUpSlider, "U Fwd Up", 1, "%7.5f", m_WedgeGroup.GetW() * 0.5  );
     m_WedgeGroup.AddSlider( m_WedgeDuUpSlider, "dU Flat Up", 1, "%7.5f" );
+    m_WedgeGroup.ForceNewLine();
+    m_WedgeGroup.AddSlider( m_WedgeUForeLowSlider, "U Fwd Low", 1, "%7.5f", m_WedgeGroup.GetW() * 0.5  );
     m_WedgeGroup.AddSlider( m_WedgeDuLowSlider, "dU Flat Low", 1, "%7.5f" );
+    m_WedgeGroup.ForceNewLine();
+    m_WedgeGroup.SetSameLineFlag( false );
     m_WedgeGroup.AddYGap();
     m_WedgeGroup.AddButton( m_WedgeInvertButton, "Invert Airfoil" );
 
@@ -3428,10 +3439,12 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
 
     m_CSTAirfoilGroup.AddOutput( m_CSTThickChordOutput, "T/C", "%7.5f" );
 
-    m_CSTAirfoilGroup.AddButton( m_CSTContLERadButton, "Enforce Continuous LE Radius" );
-    m_CSTAirfoilGroup.AddButton( m_CSTInvertButton, "Invert Airfoil" );
+    m_CSTAirfoilGroup.SetSameLineFlag( true );
+    m_CSTAirfoilGroup.AddButton( m_CSTContLERadButton, "Enforce Continuous LE Radius", m_CSTAirfoilGroup.GetW() * 0.5 );
+    m_CSTAirfoilGroup.AddButton( m_CSTInvertButton, "Invert Airfoil", m_CSTAirfoilGroup.GetW() * 0.5 );
+    m_CSTAirfoilGroup.ForceNewLine();
+    m_CSTAirfoilGroup.SetSameLineFlag( false );
 
-    m_CSTAirfoilGroup.AddYGap();
     m_CSTAirfoilGroup.AddSlider( m_CSTChordSlider, "Chord", 10, "%7.3f" ); // TODO: Check why Prop and Wing do not have CST chord
 
     m_CSTAirfoilGroup.AddYGap();
