@@ -1424,7 +1424,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SSXSCGroup.SetY( *max_element( y_vals.begin(), y_vals.end() ) );
     m_SSXSCGroup.AddYGap();
-    m_SSXSCAttrEditor.Init( mgr , &m_SSXSCGroup , subsurf_group , this, staticScreenCB , true , m_SSXSCGroup.GetY() , attr_h );
+    m_SSXSCAttrEditor.Init( &m_SSXSCGroup , subsurf_group , this, staticScreenCB , true , m_SSXSCGroup.GetY() , attr_h-17 );
 
     //===== SSControl ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSConGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
