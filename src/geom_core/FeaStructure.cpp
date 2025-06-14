@@ -391,6 +391,11 @@ SubSurface* FeaStructure::AddFeaSubSurf( int type )
         ssurf = new SSFiniteLine( m_ParentGeomID );
         ssurf->SetName( string( "SSFiniteLine" + to_string( m_FeaSubSurfCount ) ) );
     }
+    else if ( type == vsp::SS_XSEC_CURVE )
+    {
+        ssurf = new SSXSecCurve( m_ParentGeomID );
+        ssurf->SetName( string( "SSXSecCurve" + to_string( m_FeaSubSurfCount ) ) );
+    }
 
     if ( ssurf )
     {

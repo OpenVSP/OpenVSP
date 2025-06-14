@@ -13,7 +13,7 @@
 #include "FeaMeshMgr.h"
 #include "StlHelper.h"
 
-FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 475 + 80, "FEA Part Edit" )
+FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 475 + 80 + 60, "FEA Part Edit" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -1018,6 +1018,515 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_FeaSSEllGroup.AddSlider( m_FeaSSEllWLenSlider, "W Length", 1, "%5.4f" );
     m_FeaSSEllGroup.AddSlider( m_FeaSSEllThetaSlider, "Theta", 25, "%5.4f" );
 
+    //===== SSXsecCurve =====//
+    m_GenLayout.AddSubGroupLayout( m_FeaSSXSCGroup, m_GenLayout.GetW(), m_GenLayout.GetRemainY() );
+
+    int remain_x = m_FeaSSEllGroup.GetRemainX();
+
+    m_FeaSSXSCGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCGroup.SetSameLineFlag( true );
+    m_FeaSSXSCGroup.AddLabel( "Tag", remain_x / 3 );
+    m_FeaSSXSCGroup.SetButtonWidth( remain_x / 3 );
+    m_FeaSSXSCGroup.AddButton( m_FeaSSXSCInsideButton, "Inside" );
+    m_FeaSSXSCGroup.AddButton( m_FeaSSXSCOutsideButton, "Outside" );
+
+    m_FeaSSXSCTestToggleGroup.Init( this );
+    m_FeaSSXSCTestToggleGroup.AddButton( m_FeaSSXSCInsideButton.GetFlButton() );
+    m_FeaSSXSCTestToggleGroup.AddButton( m_FeaSSXSCOutsideButton.GetFlButton() );
+
+    m_FeaSSXSCGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCGroup.SetSameLineFlag( false );
+    m_FeaSSXSCGroup.ForceNewLine();
+
+
+    m_FeaSSXSCGroup.AddSlider( m_FeaSSXSCCentUSlider, "Center U", 1, "%7.6f" );
+    m_FeaSSXSCGroup.AddSlider( m_FeaSSXSCCentWSlider, "Center W", 1, "%7.6f" );
+
+
+    m_FeaSSXSCGroup.AddYGap();
+
+    m_FeaSSXSCGroup.AddDividerBox( "Type" );
+
+    m_FeaSSXSecTypeChoice.AddItem( "POINT", vsp::XS_POINT );
+    m_FeaSSXSecTypeChoice.AddItem( "CIRCLE", vsp::XS_CIRCLE );
+    m_FeaSSXSecTypeChoice.AddItem( "ELLIPSE", vsp::XS_ELLIPSE );
+    m_FeaSSXSecTypeChoice.AddItem( "SUPER_ELLIPSE", vsp::XS_SUPER_ELLIPSE );
+    m_FeaSSXSecTypeChoice.AddItem( "ROUNDED_RECTANGLE", vsp::XS_ROUNDED_RECTANGLE );
+    m_FeaSSXSecTypeChoice.AddItem( "GENERAL_FUSE", vsp::XS_GENERAL_FUSE );
+    m_FeaSSXSecTypeChoice.AddItem( "FUSE_FILE", vsp::XS_FILE_FUSE );
+    m_FeaSSXSecTypeChoice.AddItem( "FOUR_SERIES", vsp::XS_FOUR_SERIES );
+    m_FeaSSXSecTypeChoice.AddItem( "SIX_SERIES", vsp::XS_SIX_SERIES );
+    m_FeaSSXSecTypeChoice.AddItem( "BICONVEX", vsp::XS_BICONVEX );
+    m_FeaSSXSecTypeChoice.AddItem( "WEDGE", vsp::XS_WEDGE );
+    m_FeaSSXSecTypeChoice.AddItem( "EDIT_CURVE", vsp::XS_EDIT_CURVE );
+    m_FeaSSXSecTypeChoice.AddItem( "AF_FILE", vsp::XS_FILE_AIRFOIL );
+    m_FeaSSXSecTypeChoice.AddItem( "CST_AIRFOIL", vsp::XS_CST_AIRFOIL );
+    m_FeaSSXSecTypeChoice.AddItem( "KARMAN_TREFFTZ", vsp::XS_VKT_AIRFOIL );
+    m_FeaSSXSecTypeChoice.AddItem( "FOUR_DIGIT_MOD", vsp::XS_FOUR_DIGIT_MOD );
+    m_FeaSSXSecTypeChoice.AddItem( "FIVE_DIGIT", vsp::XS_FIVE_DIGIT );
+    m_FeaSSXSecTypeChoice.AddItem( "FIVE_DIGIT_MOD", vsp::XS_FIVE_DIGIT_MOD );
+    m_FeaSSXSecTypeChoice.AddItem( "16_SERIES", vsp::XS_ONE_SIX_SERIES );
+
+    m_FeaSSXSCGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCGroup.SetSameLineFlag( false );
+
+    m_FeaSSXSCGroup.AddChoice( m_FeaSSXSecTypeChoice, "Choose Type:" );
+
+    m_FeaSSXSCGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCGroup.SetSameLineFlag( true );
+
+    m_FeaSSXSCGroup.SetButtonWidth( m_FeaSSXSCGroup.GetW() / 2 );
+    m_FeaSSXSCGroup.AddButton( m_FeaSSXSCShowXSecButton, "Show" );
+
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCConvertCEDITGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetStdHeight() );
+    m_FeaSSXSCConvertCEDITGroup.SetButtonWidth( m_FeaSSXSCGroup.GetW() / 2 );
+    m_FeaSSXSCConvertCEDITGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCConvertCEDITGroup.AddButton( m_FeaSSXSCConvertCEDITButton, "Convert CEDIT" );
+
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCEditCEDITGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetStdHeight() );
+    m_FeaSSXSCEditCEDITGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCEditCEDITGroup.SetButtonWidth( m_FeaSSXSCGroup.GetW() / 2 );
+    m_FeaSSXSCEditCEDITGroup.AddButton( m_FeaSSXSCEditCEDITButton, "Edit Curve" );
+
+    m_FeaSSXSCGroup.ForceNewLine();
+
+    m_FeaSSXSCGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCGroup.SetSameLineFlag( false );
+
+    //==== Circle XSec ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCCircleGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCCircleGroup.AddSlider(  m_FeaSSXSCDiameterSlider, "Diameter", 10, "%6.5f" );
+
+    //==== Ellipse XSec ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCEllipseGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCEllipseGroup.AddSlider(  m_FeaSSXSCEllipseHeightSlider, "Height", 10, "%6.5f" );
+    m_FeaSSXSCEllipseGroup.AddSlider(  m_FeaSSXSCEllipseWidthSlider, "Width", 10, "%6.5f" );
+
+    //==== Super XSec ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCSuperGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCSuperGroup.AddSlider( m_FeaSSXSCSuperHeightSlider, "Height", 10, "%6.5f" );
+    m_FeaSSXSCSuperGroup.AddSlider( m_FeaSSXSCSuperWidthSlider,  "Width", 10, "%6.5f" );
+    m_FeaSSXSCSuperGroup.AddYGap();
+    m_FeaSSXSCSuperGroup.AddSlider( m_FeaSSXSCSuperMaxWidthLocSlider, "MaxWLoc", 2, "%6.5f" );
+    m_FeaSSXSCSuperGroup.AddYGap();
+    m_FeaSSXSCSuperGroup.AddSlider( m_FeaSSXSCSuperMSlider, "M", 10, "%6.5f" );
+    m_FeaSSXSCSuperGroup.AddSlider( m_FeaSSXSCSuperNSlider, "N", 10, "%6.5f" );
+    m_FeaSSXSCSuperGroup.AddYGap();
+    m_FeaSSXSCSuperGroup.AddButton( m_FeaSSXSCSuperToggleSym, "T/B Symmetric Exponents" );
+    m_FeaSSXSCSuperGroup.AddSlider( m_FeaSSXSCSuperM_botSlider, "M Bottom", 10, "%6.5f" );
+    m_FeaSSXSCSuperGroup.AddSlider( m_FeaSSXSCSuperN_botSlider, "N Bottom", 10, "%6.5f" );
+
+    //==== Rounded Rect ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCRoundedRectGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCRoundedRectGroup.AddSlider( m_FeaSSXSCRRHeightSlider, "Height", 10, "%6.5f" );
+    m_FeaSSXSCRoundedRectGroup.AddSlider( m_FeaSSXSCRRWidthSlider,  "Width", 10, "%6.5f" );
+    m_FeaSSXSCRoundedRectGroup.AddYGap();
+    m_FeaSSXSCRoundedRectGroup.AddSlider( m_FeaSSXSCRRSkewSlider, "Skew", 2, "%6.5f");
+    m_FeaSSXSCRoundedRectGroup.AddSlider( m_FeaSSXSCRRVSkewSlider, "VSkew", 2, "%6.5f" );
+    m_FeaSSXSCRoundedRectGroup.AddSlider( m_FeaSSXSCRRKeystoneSlider, "Keystone", 1, "%6.5f");
+
+    m_FeaSSXSCRoundedRectGroup.AddYGap();
+    m_FeaSSXSCRoundedRectGroup.SetSameLineFlag( true );
+    m_FeaSSXSCRoundedRectGroup.SetFitWidthFlag( false );
+
+    int oldbw = m_FeaSSXSCRoundedRectGroup.GetButtonWidth();
+
+    m_FeaSSXSCRoundedRectGroup.AddLabel( "Symmetry:", oldbw );
+
+    m_FeaSSXSCRoundedRectGroup.SetButtonWidth( m_FeaSSXSCRoundedRectGroup.GetRemainX() / 4 );
+    m_FeaSSXSCRoundedRectGroup.AddButton( m_FeaSSXSCRRRadNoSymToggle, "None" );
+    m_FeaSSXSCRoundedRectGroup.AddButton( m_FeaSSXSCRRRadRLSymToggle, "R//L" );
+    m_FeaSSXSCRoundedRectGroup.AddButton( m_FeaSSXSCRRRadTBSymToggle, "T//B" );
+    m_FeaSSXSCRoundedRectGroup.AddButton( m_FeaSSXSCRRRadAllSymToggle, "All" );
+
+    m_FeaSSXSCRRRadSymRadioGroup.Init( this );
+    m_FeaSSXSCRRRadSymRadioGroup.AddButton( m_FeaSSXSCRRRadNoSymToggle.GetFlButton() );
+    m_FeaSSXSCRRRadSymRadioGroup.AddButton( m_FeaSSXSCRRRadRLSymToggle.GetFlButton() );
+    m_FeaSSXSCRRRadSymRadioGroup.AddButton( m_FeaSSXSCRRRadTBSymToggle.GetFlButton() );
+    m_FeaSSXSCRRRadSymRadioGroup.AddButton( m_FeaSSXSCRRRadAllSymToggle.GetFlButton() );
+
+    m_FeaSSXSCRoundedRectGroup.ForceNewLine();
+    m_FeaSSXSCRoundedRectGroup.SetSameLineFlag( false );
+    m_FeaSSXSCRoundedRectGroup.SetFitWidthFlag( true );
+
+    m_FeaSSXSCRoundedRectGroup.SetButtonWidth( oldbw );
+
+    m_FeaSSXSCRoundedRectGroup.AddSlider( m_FeaSSXSCRRRadiusTRSlider, "TR Radius", 10, "%6.5f" );
+    m_FeaSSXSCRoundedRectGroup.AddSlider( m_FeaSSXSCRRRadiusTLSlider, "TL Radius", 10, "%6.5f" );
+    m_FeaSSXSCRoundedRectGroup.AddSlider( m_FeaSSXSCRRRadiusBLSlider, "BL Radius", 10, "%6.5f" );
+    m_FeaSSXSCRoundedRectGroup.AddSlider( m_FeaSSXSCRRRadiusBRSlider, "BR Radius", 10, "%6.5f" );
+    m_FeaSSXSCRoundedRectGroup.AddYGap();
+
+    m_FeaSSXSCRoundedRectGroup.AddButton( m_FeaSSXSCRRKeyCornerButton, "Key Corner" );
+
+    //==== General Fuse XSec ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCGenGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCGenGroup.AddSlider( m_FeaSSXSCGenHeightSlider, "Height", 10, "%6.5f" );
+    m_FeaSSXSCGenGroup.AddSlider( m_FeaSSXSCGenWidthSlider, "Width", 10, "%6.5f" );
+    m_FeaSSXSCGenGroup.AddYGap();
+    m_FeaSSXSCGenGroup.AddSlider( m_FeaSSXSCGenMaxWidthLocSlider, "MaxWLoc", 1, "%6.5f" );
+    m_FeaSSXSCGenGroup.AddSlider( m_FeaSSXSCGenCornerRadSlider, "CornerRad", 1, "%6.5f" );
+    m_FeaSSXSCGenGroup.AddYGap();
+    m_FeaSSXSCGenGroup.AddSlider( m_FeaSSXSCGenTopTanAngleSlider, "TopTanAng", 90, "%7.5f" );
+    m_FeaSSXSCGenGroup.AddSlider( m_FeaSSXSCGenBotTanAngleSlider, "BotTanAng", 90, "%7.5f" );
+    m_FeaSSXSCGenGroup.AddYGap();
+    m_FeaSSXSCGenGroup.AddSlider( m_FeaSSXSCGenTopStrSlider, "TopStr", 1, "%7.5f" );
+    m_FeaSSXSCGenGroup.AddSlider( m_FeaSSXSCGenBotStrSlider, "BotStr", 1, "%7.5f" );
+    m_FeaSSXSCGenGroup.AddSlider( m_FeaSSXSCGenUpStrSlider, "UpStr", 1, "%7.5f" );
+    m_FeaSSXSCGenGroup.AddSlider( m_FeaSSXSCGenLowStrSlider, "LowStr", 1, "%7.5f" );
+
+    //==== Four Series AF ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCFourSeriesGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCFourSeriesGroup.AddOutput( m_FeaSSXSCFourNameOutput, "Name" );
+    m_FeaSSXSCFourSeriesGroup.AddYGap();
+    m_FeaSSXSCFourSeriesGroup.AddSlider( m_FeaSSXSCFourChordSlider, "Chord", 10, "%7.3f" );
+    m_FeaSSXSCFourSeriesGroup.AddSlider( m_FeaSSXSCFourThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FeaSSXSCFourSeriesGroup.AddYGap();
+
+    int actionToggleButtonWidth = 15;
+    int actionSliderButtonWidth = m_FeaSSXSCFourSeriesGroup.GetButtonWidth() - actionToggleButtonWidth;
+
+    m_FeaSSXSCFourSeriesGroup.SetSameLineFlag( true );
+
+    m_FeaSSXSCFourSeriesGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCFourSeriesGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FeaSSXSCFourSeriesGroup.AddButton( m_FeaSSXSCFourCamberButton, "" );
+    m_FeaSSXSCFourSeriesGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FeaSSXSCFourSeriesGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCFourSeriesGroup.AddSlider( m_FeaSSXSCFourCamberSlider, "Camber", 0.2, "%7.5f" );
+
+    m_FeaSSXSCFourSeriesGroup.ForceNewLine();
+
+    m_FeaSSXSCFourSeriesGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCFourSeriesGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FeaSSXSCFourSeriesGroup.AddButton( m_FeaSSXSCFourCLiButton, "" );
+    m_FeaSSXSCFourSeriesGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FeaSSXSCFourSeriesGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCFourSeriesGroup.AddSlider( m_FeaSSXSCFourCLiSlider, "Ideal CL", 1, "%7.5f" );
+
+    m_FeaSSXSCFourSeriesGroup.ForceNewLine();
+
+    m_FeaSSXSCFourSeriesGroup.SetSameLineFlag( false );
+    m_FeaSSXSCFourSeriesGroup.SetButtonWidth( actionSliderButtonWidth + actionToggleButtonWidth );
+
+    m_FeaSSXSCFourCamberGroup.Init( this );
+    m_FeaSSXSCFourCamberGroup.AddButton( m_FeaSSXSCFourCamberButton.GetFlButton() );
+    m_FeaSSXSCFourCamberGroup.AddButton( m_FeaSSXSCFourCLiButton.GetFlButton() );
+
+    vector< int > camb_val_map;
+    camb_val_map.push_back( vsp::MAX_CAMB );
+    camb_val_map.push_back( vsp::DESIGN_CL );
+    m_FeaSSXSCFourCamberGroup.SetValMapVec( camb_val_map );
+
+    m_FeaSSXSCFourSeriesGroup.AddSlider( m_FeaSSXSCFourCamberLocSlider, "CamberLoc", 1, "%7.5f" );
+    m_FeaSSXSCFourSeriesGroup.AddYGap();
+    m_FeaSSXSCFourSeriesGroup.AddButton( m_FeaSSXSCFourInvertButton, "Invert Airfoil" );
+    m_FeaSSXSCFourSeriesGroup.AddYGap();
+    m_FeaSSXSCFourSeriesGroup.AddButton( m_FeaSSXSCFourSharpTEButton, "Sharpen TE" );
+
+    m_FeaSSXSCFourSeriesGroup.AddYGap();
+    m_FeaSSXSCFourSeriesGroup.SetSameLineFlag( true );
+    m_FeaSSXSCFourSeriesGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCFourSeriesGroup.SetButtonWidth( 125 );
+    m_FeaSSXSCFourSeriesGroup.AddButton( m_FeaSSXSCFourFitCSTButton, "Fit CST" );
+    m_FeaSSXSCFourSeriesGroup.InitWidthHeightVals();
+    m_FeaSSXSCFourSeriesGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCFourSeriesGroup.AddCounter( m_FeaSSXSCFourDegreeCounter, "Degree", 125 );
+
+    //==== Six Series AF ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCSixSeriesGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCSixSeriesGroup.AddOutput( m_FeaSSXSCSixNameOutput, "Name" );
+    m_FeaSSXSCSixSeriesGroup.AddYGap();
+
+    m_FeaSSXSCSixSeriesChoice.AddItem( "63-" );
+    m_FeaSSXSCSixSeriesChoice.AddItem( "64-" );
+    m_FeaSSXSCSixSeriesChoice.AddItem( "65-" );
+    m_FeaSSXSCSixSeriesChoice.AddItem( "66-" );
+    m_FeaSSXSCSixSeriesChoice.AddItem( "67-" );
+    m_FeaSSXSCSixSeriesChoice.AddItem( "63A" );
+    m_FeaSSXSCSixSeriesChoice.AddItem( "64A" );
+    m_FeaSSXSCSixSeriesChoice.AddItem( "65A" );
+    m_FeaSSXSCSixSeriesGroup.AddChoice( m_FeaSSXSCSixSeriesChoice, "Series" );
+
+    m_FeaSSXSCSixSeriesGroup.AddYGap();
+
+    m_FeaSSXSCSixSeriesGroup.AddSlider( m_FeaSSXSCSixChordSlider, "Chord", 10, "%7.3f" );
+    m_FeaSSXSCSixSeriesGroup.AddSlider( m_FeaSSXSCSixThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FeaSSXSCSixSeriesGroup.AddYGap();
+    m_FeaSSXSCSixSeriesGroup.AddSlider( m_FeaSSXSCSixIdealClSlider, "Ideal CL", 1, "%7.5f" );
+    m_FeaSSXSCSixSeriesGroup.AddSlider( m_FeaSSXSCSixASlider, "a", 1, "%7.5f" );
+    m_FeaSSXSCSixSeriesGroup.AddYGap();
+    m_FeaSSXSCSixSeriesGroup.AddButton( m_FeaSSXSCSixInvertButton, "Invert Airfoil" );
+    m_FeaSSXSCSixSeriesGroup.AddYGap();
+    m_FeaSSXSCSixSeriesGroup.SetSameLineFlag( true );
+    m_FeaSSXSCSixSeriesGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCSixSeriesGroup.SetButtonWidth( 125 );
+    m_FeaSSXSCSixSeriesGroup.AddButton( m_FeaSSXSCSixFitCSTButton, "Fit CST" );
+    m_FeaSSXSCSixSeriesGroup.InitWidthHeightVals();
+    m_FeaSSXSCSixSeriesGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCSixSeriesGroup.AddCounter( m_FeaSSXSCSixDegreeCounter, "Degree", 125 );
+
+    //==== Biconvex AF ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCBiconvexGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCBiconvexGroup.AddSlider( m_FeaSSXSCBiconvexChordSlider, "Chord", 10, "%7.3f" );
+    m_FeaSSXSCBiconvexGroup.AddSlider( m_FeaSSXSCBiconvexThickChordSlider, "T/C", 1, "%7.5f" );
+
+    //==== Wedge AF ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCWedgeGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeChordSlider, "Chord", 10, "%7.3f" );
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.AddYGap();
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeThickLocSlider, "Thick X", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeFlatUpSlider, "Flat Up", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.AddYGap();
+    m_FeaSSXSCWedgeGroup.AddButton( m_FeaSSXSCWedgeSymmThickButton, "Symm Thickness" );
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeThickLocLowSlider, "Thick X Low", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeFlatLowSlider, "Flat Low", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.AddYGap();
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeZCamberSlider, "Camber", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.AddYGap();
+    m_FeaSSXSCWedgeGroup.SetSameLineFlag( true );
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeUForeUpSlider, "U Fwd Up", 1, "%7.5f", m_FeaSSXSCWedgeGroup.GetW() * 0.5 );
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeDuUpSlider, "dU Flat Up", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.ForceNewLine();
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeUForeLowSlider, "U Fwd Low", 1, "%7.5f", m_FeaSSXSCWedgeGroup.GetW() * 0.5 );
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeDuLowSlider, "dU Flat Low", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.ForceNewLine();
+    m_FeaSSXSCWedgeGroup.SetSameLineFlag( false );
+    m_FeaSSXSCWedgeGroup.AddYGap();
+    m_FeaSSXSCWedgeGroup.AddButton( m_FeaSSXSCWedgeInvertButton, "Invert Airfoil" );
+
+    //==== Fuse File ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCFuseFileGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCFuseFileGroup.AddButton( m_FeaSSXSCReadFuseFileButton, "Read File" );
+    m_FeaSSXSCFuseFileGroup.AddYGap();
+    m_FeaSSXSCFuseFileGroup.AddSlider( m_FeaSSXSCFileHeightSlider, "Height", 10, "%7.3f" );
+    m_FeaSSXSCFuseFileGroup.AddSlider( m_FeaSSXSCFileWidthSlider, "Width", 10, "%7.3f" );
+
+    //==== Airfoil File ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCAfFileGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCAfFileGroup.AddButton( m_FeaSSXSCAfReadFileButton, "Read File" );
+    m_FeaSSXSCAfFileGroup.AddYGap();
+    m_FeaSSXSCAfFileGroup.AddOutput( m_FeaSSXSCAfFileNameOutput, "Name" );
+    m_FeaSSXSCAfFileGroup.AddYGap();
+    m_FeaSSXSCAfFileGroup.AddSlider( m_FeaSSXSCAfFileChordSlider, "Chord", 10, "%7.3f" );
+    m_FeaSSXSCAfFileGroup.AddSlider( m_FeaSSXSCAfFileThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FeaSSXSCAfFileGroup.AddOutput( m_FeaSSXSCAfFileBaseThickChordOutput, "Base T/C", "%7.5f" );
+    m_FeaSSXSCAfFileGroup.AddYGap();
+    m_FeaSSXSCAfFileGroup.AddButton( m_FeaSSXSCAfFileInvertButton, "Invert Airfoil" );
+    m_FeaSSXSCAfFileGroup.AddYGap();
+    m_FeaSSXSCAfFileGroup.SetSameLineFlag( true );
+    m_FeaSSXSCAfFileGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCAfFileGroup.SetButtonWidth( 125 );
+    m_FeaSSXSCAfFileGroup.AddButton( m_FeaSSXSCAfFileFitCSTButton, "Fit CST" );
+    m_FeaSSXSCAfFileGroup.InitWidthHeightVals();
+    m_FeaSSXSCAfFileGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCAfFileGroup.AddCounter( m_FeaSSXSCAfFileDegreeCounter, "Degree", 125 );
+
+    //==== CST Airfoil ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCCSTAirfoilGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+
+    m_FeaSSXSCCSTAirfoilGroup.AddOutput( m_FeaSSXSCCSTThickChordOutput, "T/C", "%7.5f" );
+
+    m_FeaSSXSCCSTAirfoilGroup.SetSameLineFlag( true );
+    m_FeaSSXSCCSTAirfoilGroup.AddButton( m_FeaSSXSCCSTContLERadButton, "Enforce Continuous LE Radius", m_FeaSSXSCCSTAirfoilGroup.GetW() * 0.5 );
+    m_FeaSSXSCCSTAirfoilGroup.AddButton( m_FeaSSXSCCSTInvertButton, "Invert Airfoil", m_FeaSSXSCCSTAirfoilGroup.GetW() * 0.5 );
+    m_FeaSSXSCCSTAirfoilGroup.ForceNewLine();
+    m_FeaSSXSCCSTAirfoilGroup.SetSameLineFlag( false );
+
+    m_FeaSSXSCCSTAirfoilGroup.AddSlider( m_FeaSSXSCCSTChordSlider, "Chord", 10, "%7.3f");
+
+    m_FeaSSXSCCSTAirfoilGroup.AddYGap();
+    m_FeaSSXSCCSTAirfoilGroup.AddDividerBox( "Upper Surface" );
+
+    m_FeaSSXSCCSTAirfoilGroup.SetSameLineFlag( true );
+    m_FeaSSXSCCSTAirfoilGroup.SetFitWidthFlag( true );
+
+    m_FeaSSXSCCSTAirfoilGroup.AddOutput( m_FeaSSXSCUpDegreeOutput, "Degree", m_FeaSSXSCCSTAirfoilGroup.GetButtonWidth() * 2 );
+    m_FeaSSXSCCSTAirfoilGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCCSTAirfoilGroup.AddButton( m_FeaSSXSCUpDemoteButton, "Demote" );
+    m_FeaSSXSCCSTAirfoilGroup.AddButton( m_FeaSSXSCUpPromoteButton, "Promote" );
+
+    m_FeaSSXSCCSTAirfoilGroup.ForceNewLine();
+
+    m_FeaSSXSCCSTAirfoilGroup.SetSameLineFlag( false );
+    m_FeaSSXSCCSTAirfoilGroup.SetFitWidthFlag( true );
+
+    m_FeaSSXSCCSTUpCoeffScroll = m_FeaSSXSCCSTAirfoilGroup.AddFlScroll( 60 );
+
+    m_FeaSSXSCCSTUpCoeffScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    m_FeaSSXSCCSTUpCoeffScroll->box( FL_BORDER_BOX );
+    m_FeaSSXSCCSTUpCoeffLayout.SetGroupAndScreen( m_FeaSSXSCCSTUpCoeffScroll, this );
+
+    m_FeaSSXSCCSTAirfoilGroup.AddYGap();
+
+    m_FeaSSXSCCSTAirfoilGroup.AddDividerBox( "Lower Surface" );
+
+    m_FeaSSXSCCSTAirfoilGroup.SetSameLineFlag( true );
+    m_FeaSSXSCCSTAirfoilGroup.SetFitWidthFlag( true );
+
+    m_FeaSSXSCCSTAirfoilGroup.AddOutput( m_FeaSSXSCLowDegreeOutput, "Degree", m_FeaSSXSCCSTAirfoilGroup.GetButtonWidth() * 2 );
+    m_FeaSSXSCCSTAirfoilGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCCSTAirfoilGroup.AddButton( m_FeaSSXSCLowDemoteButton, "Demote" );
+    m_FeaSSXSCCSTAirfoilGroup.AddButton( m_FeaSSXSCLowPromoteButton, "Promote" );
+
+    m_FeaSSXSCCSTAirfoilGroup.ForceNewLine();
+
+    m_FeaSSXSCCSTAirfoilGroup.SetSameLineFlag( false );
+    m_FeaSSXSCCSTAirfoilGroup.SetFitWidthFlag( true );
+
+    m_FeaSSXSCCSTLowCoeffScroll = m_FeaSSXSCCSTAirfoilGroup.AddFlScroll( 60 );
+    m_FeaSSXSCCSTLowCoeffScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    m_FeaSSXSCCSTLowCoeffScroll->box( FL_BORDER_BOX );
+    m_FeaSSXSCCSTLowCoeffLayout.SetGroupAndScreen( m_FeaSSXSCCSTLowCoeffScroll, this );
+
+    //==== VKT AF ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCVKTGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCVKTGroup.AddSlider( m_FeaSSXSCVKTChordSlider, "Chord", 10, "%7.3f" );
+    m_FeaSSXSCVKTGroup.AddYGap();
+    m_FeaSSXSCVKTGroup.AddSlider( m_FeaSSXSCVKTEpsilonSlider, "Epsilon", 1, "%7.5f" );
+    m_FeaSSXSCVKTGroup.AddSlider( m_FeaSSXSCVKTKappaSlider, "Kappa", 1, "%7.5f" );
+    m_FeaSSXSCVKTGroup.AddSlider( m_FeaSSXSCVKTTauSlider, "Tau", 10, "%7.5f" );
+    m_FeaSSXSCVKTGroup.AddOutput( m_FeaSSXSCVKTThickChordOutput, "T/C", "%7.5f" );
+    m_FeaSSXSCVKTGroup.AddYGap();
+    m_FeaSSXSCVKTGroup.AddButton( m_FeaSSXSCVKTInvertButton, "Invert Airfoil" );
+    m_FeaSSXSCVKTGroup.AddYGap();
+    m_FeaSSXSCVKTGroup.SetSameLineFlag( true );
+    m_FeaSSXSCVKTGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCVKTGroup.SetButtonWidth( 125 );
+    m_FeaSSXSCVKTGroup.AddButton( m_FeaSSXSCVKTFitCSTButton, "Fit CST" );
+    m_FeaSSXSCVKTGroup.InitWidthHeightVals();
+    m_FeaSSXSCVKTGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCVKTGroup.AddCounter( m_FeaSSXSCVKTDegreeCounter, "Degree", 125 );
+
+    //==== Four Series AF ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCFourDigitModGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCFourDigitModGroup.AddOutput( m_FeaSSXSCFourModNameOutput, "Name" );
+    m_FeaSSXSCFourDigitModGroup.AddYGap();
+    m_FeaSSXSCFourDigitModGroup.AddSlider( m_FeaSSXSCFourModChordSlider, "Chord", 10, "%7.3f" );
+    m_FeaSSXSCFourDigitModGroup.AddSlider( m_FeaSSXSCFourModThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FeaSSXSCFourDigitModGroup.AddYGap();
+
+    m_FeaSSXSCFourDigitModGroup.SetSameLineFlag( true );
+
+    m_FeaSSXSCFourDigitModGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCFourDigitModGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FeaSSXSCFourDigitModGroup.AddButton( m_FeaSSXSCFourModCamberButton, "" );
+    m_FeaSSXSCFourDigitModGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FeaSSXSCFourDigitModGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCFourDigitModGroup.AddSlider( m_FeaSSXSCFourModCamberSlider, "Camber", 0.2, "%7.5f" );
+
+    m_FeaSSXSCFourDigitModGroup.ForceNewLine();
+
+    m_FeaSSXSCFourDigitModGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCFourDigitModGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FeaSSXSCFourDigitModGroup.AddButton( m_FeaSSXSCFourModCLiButton, "" );
+    m_FeaSSXSCFourDigitModGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FeaSSXSCFourDigitModGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCFourDigitModGroup.AddSlider( m_FeaSSXSCFourModCLiSlider, "Ideal CL", 1, "%7.5f" );
+
+    m_FeaSSXSCFourDigitModGroup.ForceNewLine();
+
+    m_FeaSSXSCFourDigitModGroup.SetSameLineFlag( false );
+    m_FeaSSXSCFourDigitModGroup.SetButtonWidth( actionSliderButtonWidth + actionToggleButtonWidth );
+
+    m_FeaSSXSCFourModCamberGroup.Init( this );
+    m_FeaSSXSCFourModCamberGroup.AddButton( m_FeaSSXSCFourModCamberButton.GetFlButton() );
+    m_FeaSSXSCFourModCamberGroup.AddButton( m_FeaSSXSCFourModCLiButton.GetFlButton() );
+
+    m_FeaSSXSCFourModCamberGroup.SetValMapVec( camb_val_map );
+
+    m_FeaSSXSCFourDigitModGroup.AddSlider( m_FeaSSXSCFourModCamberLocSlider, "CamberLoc", 1, "%7.5f" );
+    m_FeaSSXSCFourDigitModGroup.AddYGap();
+    m_FeaSSXSCFourDigitModGroup.AddSlider( m_FeaSSXSCFourModThicknessLocSlider, "T/CLoc", 0.5, "%7.5f" );
+    m_FeaSSXSCFourDigitModGroup.AddSlider( m_FeaSSXSCFourModLERadIndexSlider, "LERadIndx", 5, "%7.5f" );
+    m_FeaSSXSCFourDigitModGroup.AddYGap();
+    m_FeaSSXSCFourDigitModGroup.AddButton( m_FeaSSXSCFourModInvertButton, "Invert Airfoil" );
+    m_FeaSSXSCFourDigitModGroup.AddYGap();
+    m_FeaSSXSCFourDigitModGroup.AddButton( m_FeaSSXSCFourModSharpTEButton, "Sharpen TE" );
+    m_FeaSSXSCFourDigitModGroup.AddYGap();
+    m_FeaSSXSCFourDigitModGroup.SetSameLineFlag( true );
+    m_FeaSSXSCFourDigitModGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCFourDigitModGroup.SetButtonWidth( 125 );
+    m_FeaSSXSCFourDigitModGroup.AddButton( m_FeaSSXSCFourModFitCSTButton, "Fit CST" );
+    m_FeaSSXSCFourDigitModGroup.InitWidthHeightVals();
+    m_FeaSSXSCFourDigitModGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCFourDigitModGroup.AddCounter( m_FeaSSXSCFourModDegreeCounter, "Degree", 125 );
+
+    //==== Five Digit AF ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCFiveDigitGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCFiveDigitGroup.AddOutput( m_FeaSSXSCFiveNameOutput, "Name" );
+    m_FeaSSXSCFiveDigitGroup.AddYGap();
+    m_FeaSSXSCFiveDigitGroup.AddSlider( m_FeaSSXSCFiveChordSlider, "Chord", 10, "%7.3f" );
+    m_FeaSSXSCFiveDigitGroup.AddSlider( m_FeaSSXSCFiveThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FeaSSXSCFiveDigitGroup.AddYGap();
+    m_FeaSSXSCFiveDigitGroup.AddSlider( m_FeaSSXSCFiveCLiSlider, "Ideal CL", 1, "%7.5f" );
+    m_FeaSSXSCFiveDigitGroup.AddSlider( m_FeaSSXSCFiveCamberLocSlider, "CamberLoc", 1, "%7.5f" );
+    m_FeaSSXSCFiveDigitGroup.AddYGap();
+    m_FeaSSXSCFiveDigitGroup.AddButton( m_FeaSSXSCFiveInvertButton, "Invert Airfoil" );
+    m_FeaSSXSCFiveDigitGroup.AddYGap();
+    m_FeaSSXSCFiveDigitGroup.AddButton( m_FeaSSXSCFiveSharpTEButton, "Sharpen TE" );
+    m_FeaSSXSCFiveDigitGroup.AddYGap();
+    m_FeaSSXSCFiveDigitGroup.SetSameLineFlag( true );
+    m_FeaSSXSCFiveDigitGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCFiveDigitGroup.SetButtonWidth( 125 );
+    m_FeaSSXSCFiveDigitGroup.AddButton( m_FeaSSXSCFiveFitCSTButton, "Fit CST" );
+    m_FeaSSXSCFiveDigitGroup.InitWidthHeightVals();
+    m_FeaSSXSCFiveDigitGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCFiveDigitGroup.AddCounter( m_FeaSSXSCFiveDegreeCounter, "Degree", 125 );
+
+    //==== Five Digit Mod AF ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCFiveDigitModGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCFiveDigitModGroup.AddOutput( m_FeaSSXSCFiveModNameOutput, "Name" );
+    m_FeaSSXSCFiveDigitModGroup.AddYGap();
+    m_FeaSSXSCFiveDigitModGroup.AddSlider( m_FeaSSXSCFiveModChordSlider, "Chord", 10, "%7.3f" );
+    m_FeaSSXSCFiveDigitModGroup.AddSlider( m_FeaSSXSCFiveModThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FeaSSXSCFiveDigitModGroup.AddYGap();
+    m_FeaSSXSCFiveDigitModGroup.AddSlider( m_FeaSSXSCFiveModCLiSlider, "Ideal CL", 1, "%7.5f" );
+    m_FeaSSXSCFiveDigitModGroup.AddSlider( m_FeaSSXSCFiveModCamberLocSlider, "CamberLoc", 1, "%7.5f" );
+    m_FeaSSXSCFiveDigitModGroup.AddYGap();
+    m_FeaSSXSCFiveDigitModGroup.AddSlider( m_FeaSSXSCFiveModThicknessLocSlider, "T/CLoc", 0.5, "%7.5f" );
+    m_FeaSSXSCFiveDigitModGroup.AddSlider( m_FeaSSXSCFiveModLERadIndexSlider, "LERadIndx", 5, "%7.5f" );
+    m_FeaSSXSCFiveDigitModGroup.AddYGap();
+    m_FeaSSXSCFiveDigitModGroup.AddButton( m_FeaSSXSCFiveModInvertButton, "Invert Airfoil" );
+    m_FeaSSXSCFiveDigitModGroup.AddYGap();
+    m_FeaSSXSCFiveDigitModGroup.AddButton( m_FeaSSXSCFiveModSharpTEButton, "Sharpen TE" );
+    m_FeaSSXSCFiveDigitModGroup.AddYGap();
+    m_FeaSSXSCFiveDigitModGroup.SetSameLineFlag( true );
+    m_FeaSSXSCFiveDigitModGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCFiveDigitModGroup.SetButtonWidth( 125 );
+    m_FeaSSXSCFiveDigitModGroup.AddButton( m_FeaSSXSCFiveModFitCSTButton, "Fit CST" );
+    m_FeaSSXSCFiveDigitModGroup.InitWidthHeightVals();
+    m_FeaSSXSCFiveDigitModGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCFiveDigitModGroup.AddCounter( m_FeaSSXSCFiveModDegreeCounter, "Degree", 125 );
+
+    //==== 16 Series AF ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCOneSixSeriesGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCOneSixSeriesGroup.AddOutput( m_FeaSSXSCOneSixSeriesNameOutput, "Name" );
+    m_FeaSSXSCOneSixSeriesGroup.AddYGap();
+    m_FeaSSXSCOneSixSeriesGroup.AddSlider( m_FeaSSXSCOneSixSeriesChordSlider, "Chord", 10, "%7.3f" );
+    m_FeaSSXSCOneSixSeriesGroup.AddSlider( m_FeaSSXSCOneSixSeriesThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FeaSSXSCOneSixSeriesGroup.AddYGap();
+    m_FeaSSXSCOneSixSeriesGroup.AddSlider( m_FeaSSXSCOneSixSeriesCLiSlider, "Ideal CL", 1, "%7.5f" );
+    m_FeaSSXSCOneSixSeriesGroup.AddYGap();
+    m_FeaSSXSCOneSixSeriesGroup.AddButton( m_FeaSSXSCOneSixSeriesInvertButton, "Invert Airfoil" );
+    m_FeaSSXSCOneSixSeriesGroup.AddYGap();
+    m_FeaSSXSCOneSixSeriesGroup.AddButton( m_FeaSSXSCOneSixSeriesSharpTEButton, "Sharpen TE" );
+    m_FeaSSXSCOneSixSeriesGroup.AddYGap();
+    m_FeaSSXSCOneSixSeriesGroup.SetSameLineFlag( true );
+    m_FeaSSXSCOneSixSeriesGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCOneSixSeriesGroup.SetButtonWidth( 125 );
+    m_FeaSSXSCOneSixSeriesGroup.AddButton( m_FeaSSXSCOneSixSeriesFitCSTButton, "Fit CST" );
+    m_FeaSSXSCOneSixSeriesGroup.InitWidthHeightVals();
+    m_FeaSSXSCOneSixSeriesGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCOneSixSeriesGroup.AddCounter( m_FeaSSXSCOneSixSeriesDegreeCounter, "Degree", 125 );
+
+    m_FeaSSXSCCurrDisplayGroup = nullptr;
+
+    SubSurfXSCDisplayGroup( &m_FeaSSXSCPointGroup );
+
+
+
     //===== SSControl ====//
     m_GenLayout.AddSubGroupLayout( m_FeaSSConGroup, m_GenLayout.GetRemainX(), m_GenLayout.GetRemainY() );
     m_FeaSSConGroup.SetY( start_y );
@@ -1954,6 +2463,392 @@ bool FeaPartEditScreen::Update()
 
                         FeaPartDispGroup( &m_FeaSSEllGroup );
                     }
+                    else if ( subsurf->GetType() == vsp::SS_XSEC_CURVE )
+                    {
+                        SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+                        assert( ssxsc );
+
+                        m_FeaSSXSCTestToggleGroup.Update( ssxsc->m_TestType.GetID() );
+                        // m_FeaSSXSCTessSlider.Update( ssxsc->m_Tess.GetID() );
+                        m_FeaSSXSCCentUSlider.Update( ssxsc->m_CenterU.GetID() );
+                        m_FeaSSXSCCentWSlider.Update( ssxsc->m_CenterW.GetID() );
+                        // m_FeaSSXSCULenSlider.Update( ssxsc->m_ULength.GetID() );
+                        // m_FeaSSXSCWLenSlider.Update( ssxsc->m_WLength.GetID() );
+                        // m_FeaSSXSCThetaSlider.Update( ssxsc->m_Theta.GetID() );
+                        FeaPartDispGroup( & m_FeaSSXSCGroup );
+
+                        // update attribute pointer to SSXSCAttrEditor
+
+                        XSecCurve* xsc = ssxsc->GetXSecCurve();
+
+                        vector < string > empty_coll_ids;
+                        empty_coll_ids.push_back( subsurf->m_AttrCollection.GetID() );
+
+                        if ( xsc )
+                        {
+                            empty_coll_ids.push_back( xsc->GetAttrCollection()->GetID() );
+
+                            m_FeaSSXSecTypeChoice.SetVal( xsc->GetType() );
+
+                            if ( xsc->GetType() == vsp::XS_POINT )
+                            {
+                                SubSurfXSCDisplayGroup( NULL );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_SUPER_ELLIPSE )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCSuperGroup );
+
+                                SuperXSec* super_xs = dynamic_cast< SuperXSec* >( xsc );
+                                assert( super_xs );
+                                m_FeaSSXSCSuperHeightSlider.Update( super_xs->m_Height.GetID() );
+                                m_FeaSSXSCSuperWidthSlider.Update( super_xs->m_Width.GetID() );
+                                m_FeaSSXSCSuperMSlider.Update( super_xs->m_M.GetID() );
+                                m_FeaSSXSCSuperNSlider.Update( super_xs->m_N.GetID() );
+                                m_FeaSSXSCSuperToggleSym.Update( super_xs->m_TopBotSym.GetID() );
+                                m_FeaSSXSCSuperM_botSlider.Update( super_xs->m_M_bot.GetID() );
+                                m_FeaSSXSCSuperN_botSlider.Update( super_xs->m_N_bot.GetID() );
+                                m_FeaSSXSCSuperMaxWidthLocSlider.Update( super_xs->m_MaxWidthLoc.GetID() );
+
+                                if ( super_xs->m_TopBotSym() )
+                                {
+                                    m_FeaSSXSCSuperM_botSlider.Deactivate();
+                                    m_FeaSSXSCSuperN_botSlider.Deactivate();
+                                }
+                                else if ( !super_xs->m_TopBotSym() )
+                                {
+                                    m_FeaSSXSCSuperM_botSlider.Activate();
+                                    m_FeaSSXSCSuperN_botSlider.Activate();
+                                }
+                            }
+                            else if ( xsc->GetType() == vsp::XS_CIRCLE )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCCircleGroup );
+                                CircleXSec* circle_xs = dynamic_cast< CircleXSec* >( xsc );
+                                assert( circle_xs );
+
+                                m_FeaSSXSCDiameterSlider.Update( circle_xs->m_Diameter.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_ELLIPSE )
+                            {
+                                SubSurfXSCDisplayGroup( & m_FeaSSXSCEllipseGroup );
+
+                                EllipseXSec* ellipse_xs = dynamic_cast< EllipseXSec* >( xsc );
+                                m_FeaSSXSCEllipseHeightSlider.Update( ellipse_xs->m_Height.GetID() );
+                                m_FeaSSXSCEllipseWidthSlider.Update( ellipse_xs->m_Width.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_ROUNDED_RECTANGLE )
+                            {
+                                SubSurfXSCDisplayGroup( & m_FeaSSXSCRoundedRectGroup );
+                                RoundedRectXSec* rect_xs = dynamic_cast< RoundedRectXSec* >( xsc );
+                                assert( rect_xs );
+
+                                m_FeaSSXSCRRHeightSlider.Update( rect_xs->m_Height.GetID() );
+                                m_FeaSSXSCRRWidthSlider.Update( rect_xs->m_Width.GetID() );
+                                m_FeaSSXSCRRRadSymRadioGroup.Update( rect_xs->m_RadiusSymmetryType.GetID() );
+                                m_FeaSSXSCRRRadiusBRSlider.Update( rect_xs->m_RadiusBR.GetID() );
+                                m_FeaSSXSCRRRadiusBLSlider.Update( rect_xs->m_RadiusBL.GetID() );
+                                m_FeaSSXSCRRRadiusTLSlider.Update( rect_xs->m_RadiusTL.GetID() );
+                                m_FeaSSXSCRRRadiusTRSlider.Update( rect_xs->m_RadiusTR.GetID() );
+                                m_FeaSSXSCRRKeyCornerButton.Update( rect_xs->m_KeyCornerParm.GetID() );
+                                m_FeaSSXSCRRSkewSlider.Update( rect_xs->m_Skew.GetID() );
+                                m_FeaSSXSCRRKeystoneSlider.Update( rect_xs->m_Keystone.GetID() );
+                                m_FeaSSXSCRRVSkewSlider.Update( rect_xs->m_VSkew.GetID() );
+
+                                if ( rect_xs->m_RadiusSymmetryType.Get() == vsp::SYM_NONE )
+                                {
+                                    m_FeaSSXSCRRRadiusBRSlider.Activate();
+                                    m_FeaSSXSCRRRadiusBLSlider.Activate();
+                                    m_FeaSSXSCRRRadiusTLSlider.Activate();
+                                }
+                                else if ( rect_xs->m_RadiusSymmetryType.Get() == vsp::SYM_RL )
+                                {
+                                    m_FeaSSXSCRRRadiusBRSlider.Activate();
+                                    m_FeaSSXSCRRRadiusBLSlider.Deactivate();
+                                    m_FeaSSXSCRRRadiusTLSlider.Deactivate();
+                                }
+                                else if ( rect_xs->m_RadiusSymmetryType.Get() == vsp::SYM_TB )
+                                {
+                                    m_FeaSSXSCRRRadiusBRSlider.Deactivate();
+                                    m_FeaSSXSCRRRadiusTLSlider.Activate();
+                                    m_FeaSSXSCRRRadiusBLSlider.Deactivate();
+                                }
+                                else if ( rect_xs->m_RadiusSymmetryType.Get() == vsp::SYM_ALL )
+                                {
+                                    m_FeaSSXSCRRRadiusBRSlider.Deactivate();
+                                    m_FeaSSXSCRRRadiusBLSlider.Deactivate();
+                                    m_FeaSSXSCRRRadiusTLSlider.Deactivate();
+                                }
+                            }
+                            else if ( xsc->GetType() == vsp::XS_GENERAL_FUSE )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCGenGroup );
+                                GeneralFuseXSec* gen_xs = dynamic_cast< GeneralFuseXSec* >( xsc );
+                                assert( gen_xs );
+
+                                m_FeaSSXSCGenHeightSlider.Update( gen_xs->m_Height.GetID() );
+                                m_FeaSSXSCGenWidthSlider.Update( gen_xs->m_Width.GetID() );
+                                m_FeaSSXSCGenMaxWidthLocSlider.Update( gen_xs->m_MaxWidthLoc.GetID() );
+                                m_FeaSSXSCGenCornerRadSlider.Update( gen_xs->m_CornerRad.GetID() );
+                                m_FeaSSXSCGenTopTanAngleSlider.Update( gen_xs->m_TopTanAngle.GetID() );
+                                m_FeaSSXSCGenBotTanAngleSlider.Update( gen_xs->m_BotTanAngle.GetID() );
+                                m_FeaSSXSCGenTopStrSlider.Update( gen_xs->m_TopStr.GetID() );
+                                m_FeaSSXSCGenBotStrSlider.Update( gen_xs->m_BotStr.GetID() );
+                                m_FeaSSXSCGenUpStrSlider.Update( gen_xs->m_UpStr.GetID() );
+                                m_FeaSSXSCGenLowStrSlider.Update( gen_xs->m_LowStr.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_FOUR_SERIES )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCFourSeriesGroup );
+                                FourSeries* fs_xs = dynamic_cast< FourSeries* >( xsc );
+                                assert( fs_xs );
+
+                                m_FeaSSXSCFourChordSlider.Update( fs_xs->m_Chord.GetID() );
+                                m_FeaSSXSCFourThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
+                                m_FeaSSXSCFourCamberSlider.Update( fs_xs->m_Camber.GetID() );
+                                m_FeaSSXSCFourCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+                                m_FeaSSXSCFourCamberGroup.Update( fs_xs->m_CamberInputFlag.GetID() );
+                                if ( fs_xs->m_CamberInputFlag() == vsp::MAX_CAMB )
+                                {
+                                    m_FeaSSXSCFourCamberSlider.Activate();
+                                    m_FeaSSXSCFourCLiSlider.Deactivate();
+                                }
+                                else
+                                {
+                                    m_FeaSSXSCFourCamberSlider.Deactivate();
+                                    m_FeaSSXSCFourCLiSlider.Activate();
+                                }
+                                m_FeaSSXSCFourCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
+                                m_FeaSSXSCFourInvertButton.Update( fs_xs->m_Invert.GetID() );
+                                m_FeaSSXSCFourNameOutput.Update( fs_xs->GetAirfoilName() );
+                                m_FeaSSXSCFourSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+                                m_FeaSSXSCFourDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_SIX_SERIES )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCSixSeriesGroup );
+                                SixSeries* ss_xs = dynamic_cast< SixSeries* >( xsc );
+                                assert( ss_xs );
+
+                                m_FeaSSXSCSixChordSlider.Update( ss_xs->m_Chord.GetID() );
+                                m_FeaSSXSCSixThickChordSlider.Update( ss_xs->m_ThickChord.GetID() );
+                                m_FeaSSXSCSixIdealClSlider.Update( ss_xs->m_IdealCl.GetID() );
+                                m_FeaSSXSCSixASlider.Update( ss_xs->m_A.GetID() );
+
+                                m_FeaSSXSCSixInvertButton.Update( ss_xs->m_Invert.GetID() );
+                                m_FeaSSXSCSixNameOutput.Update( ss_xs->GetAirfoilName() );
+                                m_FeaSSXSCSixSeriesChoice.Update( ss_xs->m_Series.GetID() );
+                                m_FeaSSXSCSixDegreeCounter.Update( ss_xs->m_FitDegree.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_BICONVEX )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCBiconvexGroup );
+                                Biconvex* bi_xs = dynamic_cast< Biconvex* >( xsc );
+                                assert( bi_xs );
+
+                                m_FeaSSXSCBiconvexChordSlider.Update( bi_xs->m_Chord.GetID() );
+                                m_FeaSSXSCBiconvexThickChordSlider.Update( bi_xs->m_ThickChord.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_WEDGE )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCWedgeGroup );
+                                Wedge* we_xs = dynamic_cast< Wedge* >( xsc );
+                                assert( we_xs );
+
+                                m_FeaSSXSCWedgeChordSlider.Update( we_xs->m_Chord.GetID() );
+                                m_FeaSSXSCWedgeThickChordSlider.Update( we_xs->m_ThickChord.GetID() );
+                                m_FeaSSXSCWedgeThickLocSlider.Update( we_xs->m_ThickLoc.GetID() );
+                                m_FeaSSXSCWedgeZCamberSlider.Update( we_xs->m_ZCamber.GetID() );
+                                m_FeaSSXSCWedgeSymmThickButton.Update( we_xs->m_SymmThick.GetID() );
+                                m_FeaSSXSCWedgeThickLocLowSlider.Update( we_xs->m_ThickLocLow.GetID() );
+                                m_FeaSSXSCWedgeFlatUpSlider.Update( we_xs->m_FlatUp.GetID() );
+                                m_FeaSSXSCWedgeFlatLowSlider.Update( we_xs->m_FlatLow.GetID() );
+                                m_FeaSSXSCWedgeUForeUpSlider.Update( we_xs->m_UForeUp.GetID() );
+                                m_FeaSSXSCWedgeUForeLowSlider.Update( we_xs->m_UForeLow.GetID() );
+                                m_FeaSSXSCWedgeDuUpSlider.Update( we_xs->m_DuUp.GetID() );
+                                m_FeaSSXSCWedgeDuLowSlider.Update( we_xs->m_DuLow.GetID() );
+                                m_FeaSSXSCWedgeInvertButton.Update( we_xs->m_Invert.GetID() );
+
+                                if ( we_xs->m_SymmThick() )
+                                {
+                                    m_FeaSSXSCWedgeThickLocLowSlider.Deactivate();
+                                    m_FeaSSXSCWedgeFlatLowSlider.Deactivate();
+                                }
+                            }
+                            else if ( xsc->GetType() == vsp::XS_FILE_FUSE )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCFuseFileGroup );
+                                FileXSec* file_xs = dynamic_cast< FileXSec* >( xsc );
+                                assert( file_xs );
+                                m_FeaSSXSCFileHeightSlider.Update( file_xs->m_Height.GetID() );
+                                m_FeaSSXSCFileWidthSlider.Update( file_xs->m_Width.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_FILE_AIRFOIL )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCAfFileGroup );
+                                FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xsc );
+                                assert( affile_xs );
+
+                                m_FeaSSXSCAfFileChordSlider.Update( affile_xs->m_Chord.GetID() );
+                                m_FeaSSXSCAfFileThickChordSlider.Update( affile_xs->m_ThickChord.GetID() );
+                                m_FeaSSXSCAfFileBaseThickChordOutput.Update( affile_xs->m_BaseThickness.GetID() );
+                                m_FeaSSXSCAfFileInvertButton.Update( affile_xs->m_Invert.GetID() );
+                                m_FeaSSXSCAfFileNameOutput.Update( affile_xs->GetAirfoilName() );
+                                m_FeaSSXSCAfFileDegreeCounter.Update( affile_xs->m_FitDegree.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_CST_AIRFOIL )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCCSTAirfoilGroup );
+                                CSTAirfoil* cst_xs = dynamic_cast< CSTAirfoil* >( xsc );
+                                assert( cst_xs );
+
+                                int num_up = cst_xs->m_UpDeg() + 1;
+                                int num_low = cst_xs->m_LowDeg() + 1;
+
+                                char str[255];
+                                snprintf( str, sizeof( str ),  "%d", cst_xs->m_UpDeg() );
+                                m_FeaSSXSCUpDegreeOutput.Update( str );
+                                snprintf( str, sizeof( str ),  "%d", cst_xs->m_LowDeg() );
+                                m_FeaSSXSCLowDegreeOutput.Update( str );
+
+                                m_FeaSSXSCCSTChordSlider.Update(cst_xs->m_Chord.GetID());
+                                m_FeaSSXSCCSTInvertButton.Update( cst_xs->m_Invert.GetID() );
+                                m_FeaSSXSCCSTContLERadButton.Update( cst_xs->m_ContLERad.GetID() );
+                                m_FeaSSXSCCSTThickChordOutput.Update( cst_xs->m_ThickChord.GetID() );
+
+                                if ( ( m_FeaSSXSCUpCoeffSliderVec.size() != num_up ) || ( m_FeaSSXSCLowCoeffSliderVec.size() != num_low ) )
+                                {
+                                    RebuildSSCSTGroup( cst_xs );
+                                }
+
+                                for ( int i = 0; i < num_up; i++ )
+                                {
+                                    Parm *p = cst_xs->m_UpCoeffParmVec[i];
+                                    if ( p )
+                                    {
+                                        m_FeaSSXSCUpCoeffSliderVec[i].Update( p->GetID() );
+                                    }
+                                }
+
+                                for ( int i = 0; i < num_low; i++ )
+                                {
+                                    Parm *p = cst_xs->m_LowCoeffParmVec[i];
+                                    if ( p )
+                                    {
+                                        m_FeaSSXSCLowCoeffSliderVec[i].Update( p->GetID() );
+                                    }
+                                }
+
+                                if ( cst_xs->m_ContLERad() && num_low > 0 )
+                                {
+                                    m_FeaSSXSCLowCoeffSliderVec[0].Deactivate();
+                                }
+                            }
+                            else if ( xsc->GetType() == vsp::XS_VKT_AIRFOIL )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCVKTGroup );
+                                VKTAirfoil* vkt_xs = dynamic_cast< VKTAirfoil* >( xsc );
+                                assert( vkt_xs );
+
+                                m_FeaSSXSCVKTChordSlider.Update( vkt_xs->m_Chord.GetID() );
+                                m_FeaSSXSCVKTEpsilonSlider.Update( vkt_xs->m_Epsilon.GetID() );
+                                m_FeaSSXSCVKTKappaSlider.Update( vkt_xs->m_Kappa.GetID() );
+                                m_FeaSSXSCVKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
+                                m_FeaSSXSCVKTInvertButton.Update( vkt_xs->m_Invert.GetID() );
+                                m_FeaSSXSCVKTDegreeCounter.Update( vkt_xs->m_FitDegree.GetID() );
+                                m_FeaSSXSCVKTThickChordOutput.Update( vkt_xs->m_ThickChord.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_FOUR_DIGIT_MOD )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCFourDigitModGroup );
+                                FourDigMod* fs_xs = dynamic_cast< FourDigMod* >( xsc );
+                                assert( fs_xs );
+
+                                m_FeaSSXSCFourModChordSlider.Update( fs_xs->m_Chord.GetID() );
+                                m_FeaSSXSCFourModThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
+                                m_FeaSSXSCFourModCamberSlider.Update( fs_xs->m_Camber.GetID() );
+                                m_FeaSSXSCFourModCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+                                m_FeaSSXSCFourModCamberGroup.Update( fs_xs->m_CamberInputFlag.GetID() );
+                                if ( fs_xs->m_CamberInputFlag() == vsp::MAX_CAMB )
+                                {
+                                    m_FeaSSXSCFourModCamberSlider.Activate();
+                                    m_FeaSSXSCFourModCLiSlider.Deactivate();
+                                }
+                                else
+                                {
+                                    m_FeaSSXSCFourModCamberSlider.Deactivate();
+                                    m_FeaSSXSCFourModCLiSlider.Activate();
+                                }
+                                m_FeaSSXSCFourModCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
+                                m_FeaSSXSCFourModInvertButton.Update( fs_xs->m_Invert.GetID() );
+                                m_FeaSSXSCFourModNameOutput.Update( fs_xs->GetAirfoilName() );
+                                m_FeaSSXSCFourModThicknessLocSlider.Update( fs_xs->m_ThickLoc.GetID() );
+                                m_FeaSSXSCFourModLERadIndexSlider.Update( fs_xs->m_LERadIndx.GetID() );
+                                m_FeaSSXSCFourModSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+                                m_FeaSSXSCFourModDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_FIVE_DIGIT )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCFiveDigitGroup );
+                                FiveDig* fs_xs = dynamic_cast< FiveDig* >( xsc );
+                                assert( fs_xs );
+
+                                m_FeaSSXSCFiveChordSlider.Update( fs_xs->m_Chord.GetID() );
+                                m_FeaSSXSCFiveThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
+                                m_FeaSSXSCFiveCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+                                m_FeaSSXSCFiveCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
+                                m_FeaSSXSCFiveInvertButton.Update( fs_xs->m_Invert.GetID() );
+                                m_FeaSSXSCFiveNameOutput.Update( fs_xs->GetAirfoilName() );
+                                m_FeaSSXSCFiveSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+                                m_FeaSSXSCFiveDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_FIVE_DIGIT_MOD )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCFiveDigitModGroup );
+                                FiveDigMod* fs_xs = dynamic_cast< FiveDigMod* >( xsc );
+                                assert( fs_xs );
+
+                                m_FeaSSXSCFiveModChordSlider.Update( fs_xs->m_Chord.GetID() );
+                                m_FeaSSXSCFiveModThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
+                                m_FeaSSXSCFiveModCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+                                m_FeaSSXSCFiveModCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
+                                m_FeaSSXSCFiveModInvertButton.Update( fs_xs->m_Invert.GetID() );
+                                m_FeaSSXSCFiveModNameOutput.Update( fs_xs->GetAirfoilName() );
+                                m_FeaSSXSCFiveModThicknessLocSlider.Update( fs_xs->m_ThickLoc.GetID() );
+                                m_FeaSSXSCFiveModLERadIndexSlider.Update( fs_xs->m_LERadIndx.GetID() );
+                                m_FeaSSXSCFiveModSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+                                m_FeaSSXSCFiveModDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_ONE_SIX_SERIES )
+                            {
+                                SubSurfXSCDisplayGroup( &m_FeaSSXSCOneSixSeriesGroup );
+                                OneSixSeries* fs_xs = dynamic_cast< OneSixSeries* >( xsc );
+                                assert( fs_xs );
+
+                                m_FeaSSXSCOneSixSeriesChordSlider.Update( fs_xs->m_Chord.GetID() );
+                                m_FeaSSXSCOneSixSeriesThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
+                                m_FeaSSXSCOneSixSeriesCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+                                m_FeaSSXSCOneSixSeriesInvertButton.Update( fs_xs->m_Invert.GetID() );
+                                m_FeaSSXSCOneSixSeriesNameOutput.Update( fs_xs->GetAirfoilName() );
+                                m_FeaSSXSCOneSixSeriesSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+                                m_FeaSSXSCOneSixSeriesDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
+                            }
+                            else if ( xsc->GetType() == vsp::XS_EDIT_CURVE )
+                            {
+                                m_FeaSSXSCEditCEDITGroup.Show();
+                                m_FeaSSXSCConvertCEDITGroup.Hide();
+                                SubSurfXSCDisplayGroup( nullptr );
+                            }
+
+                            if ( xsc->GetType() != vsp::XS_EDIT_CURVE )
+                            {
+                                m_FeaSSXSCEditCEDITGroup.Hide();
+                                m_FeaSSXSCConvertCEDITGroup.Show();
+                            }
+                        }
+//                        m_FeaSSXSCAttrEditor.SetEditorCollID( empty_coll_ids );
+//                        m_FeaSSXSCAttrEditor.Update();
+
+                    }
                     else if ( subsurf->GetType() == vsp::SS_CONTROL )
                     {
                         SSControlSurf* sscon = dynamic_cast<SSControlSurf*>( subsurf );
@@ -2280,6 +3175,207 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                 if ( subsurf->GetType() == vsp::SS_LINE_ARRAY )
                 {
                     structure->IndividualizeSSLineArray( StructureMgr.GetCurrPartIndex() - structure->NumFeaParts() );
+                }
+            }
+        }
+        else if ( device == &m_FeaSSXSecTypeChoice )
+        {
+            SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+            if ( ssxsc )
+            {
+                int t = m_FeaSSXSecTypeChoice.GetVal();
+
+                ssxsc->SetXSecCurveType( t );
+
+                if ( t == vsp::XS_EDIT_CURVE )
+                {
+                    m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
+                }
+            }
+        }
+        else if ( device == &m_FeaSSXSCShowXSecButton )
+        {
+            m_ScreenMgr->ShowScreen( vsp::VSP_XSEC_SCREEN );
+        }
+        else if ( device == &m_FeaSSXSCConvertCEDITButton )
+        {
+            SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+            if ( ssxsc )
+            {
+                EditCurveXSec* edit_xsec = ssxsc->ConvertToEdit();
+
+                if ( edit_xsec )
+                {
+                    m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
+                }
+            }
+        }
+        else if ( device == &m_FeaSSXSCEditCEDITButton )
+        {
+            m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
+        }
+        else if ( device == &m_FeaSSXSCReadFuseFileButton  )
+        {
+            SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+            if ( ssxsc )
+            {
+                XSecCurve* xsc = ssxsc->GetXSecCurve();
+                if ( xsc )
+                {
+                    if ( xsc->GetType() == vsp::XS_FILE_FUSE  )
+                    {
+                        FileXSec* file_xs = dynamic_cast< FileXSec* >( xsc );
+                        assert( file_xs );
+                        string newfile = m_ScreenMgr->FileChooser( "Fuselage Cross Section", "*.fxs" );
+
+                        file_xs->ReadXsecFile( newfile );
+                        file_xs->Update();
+                        ssxsc->Update();
+                    }
+                }
+            }
+        }
+        else if ( device == &m_FeaSSXSCAfReadFileButton   )
+        {
+            SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+            if ( ssxsc )
+            {
+                XSecCurve* xsc = ssxsc->GetXSecCurve();
+                if ( xsc )
+                {
+                    if ( xsc->GetType() == vsp::XS_FILE_AIRFOIL  )
+                    {
+                        FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xsc );
+                        assert( affile_xs );
+                        string newfile = m_ScreenMgr->FileChooser( "Airfoil File", "*.{af,dat}"  );
+
+                        affile_xs->ReadFile( newfile );
+                        affile_xs->Update();
+                        ssxsc->Update();
+                    }
+                }
+            }
+        }
+        else if ( device == &m_FeaSSXSCUpPromoteButton )
+        {
+            SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+            if ( ssxsc )
+            {
+                XSecCurve* xsc = ssxsc->GetXSecCurve();
+                if ( xsc )
+                {
+                    if ( xsc->GetType() == vsp::XS_CST_AIRFOIL )
+                    {
+                        CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xsc );
+                        assert( cst_xs );
+
+                        cst_xs->PromoteUpper();
+                        cst_xs->Update();
+                        ssxsc->Update();
+                    }
+                }
+            }
+        }
+        else if ( device == &m_FeaSSXSCLowPromoteButton )
+        {
+            SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+            if ( ssxsc )
+            {
+                XSecCurve* xsc = ssxsc->GetXSecCurve();
+                if ( xsc )
+                {
+                    if ( xsc->GetType() == vsp::XS_CST_AIRFOIL )
+                    {
+                        CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xsc );
+                        assert( cst_xs );
+
+                        cst_xs->PromoteLower();
+                        cst_xs->Update();
+                        ssxsc->Update();
+                    }
+                }
+            }
+        }
+        else if ( device == &m_FeaSSXSCUpDemoteButton )
+        {
+            SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+            if ( ssxsc )
+            {
+                XSecCurve* xsc = ssxsc->GetXSecCurve();
+                if ( xsc )
+                {
+                    if ( xsc->GetType() == vsp::XS_CST_AIRFOIL )
+                    {
+                        CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xsc );
+                        assert( cst_xs );
+
+                        cst_xs->DemoteUpper();
+                        cst_xs->Update();
+                        ssxsc->Update();
+                    }
+                }
+            }
+        }
+        else if ( device == &m_FeaSSXSCLowDemoteButton )
+        {
+            SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+            if ( ssxsc )
+            {
+                XSecCurve* xsc = ssxsc->GetXSecCurve();
+                if ( xsc )
+                {
+                    if ( xsc->GetType() == vsp::XS_CST_AIRFOIL )
+                    {
+                        CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xsc );
+                        assert( cst_xs );
+
+                        cst_xs->DemoteLower();
+                        cst_xs->Update();
+                        ssxsc->Update();
+                    }
+                }
+            }
+        }
+        else if ( ( device == &m_FeaSSXSCFourFitCSTButton ) ||
+                ( device == &m_FeaSSXSCSixFitCSTButton ) ||
+                ( device == &m_FeaSSXSCAfFileFitCSTButton ) ||
+                ( device == &m_FeaSSXSCVKTFitCSTButton ) ||
+                ( device == &m_FeaSSXSCFourModFitCSTButton ) ||
+                ( device == &m_FeaSSXSCFiveFitCSTButton ) ||
+                ( device == &m_FeaSSXSCFiveModFitCSTButton ) ||
+                ( device == &m_FeaSSXSCOneSixSeriesFitCSTButton ) )
+        {
+            SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+            if ( ssxsc )
+            {
+                XSecCurve* xsc = ssxsc->GetXSecCurve();
+                if ( xsc )
+                {
+                    Airfoil* af_xs = dynamic_cast<Airfoil*>( xsc );
+
+                    if ( af_xs )
+                    {
+                        VspCurve c = af_xs->GetOrigCurve();
+                        int deg = af_xs->m_FitDegree();
+
+                        //bor_ptr->SetActiveAirfoilType( XS_CST_AIRFOIL );
+                        ssxsc->SetXSecCurveType( vsp::XS_CST_AIRFOIL );
+
+                        XSecCurve* newxsc = ssxsc->GetXSecCurve();
+                        if ( newxsc )
+                        {
+                            if ( newxsc->GetType() == vsp::XS_CST_AIRFOIL )
+                            {
+                                CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( newxsc );
+                                assert( cst_xs );
+
+                                cst_xs->FitCurve( c, deg );
+
+                                cst_xs->Update();
+                                ssxsc->Update();
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -2768,12 +3864,93 @@ void FeaPartEditScreen::FeaPartDispGroup( GroupLayout* group )
     m_FeaSSConGroup.Hide();
     m_FeaSSLineArrayGroup.Hide();
     m_FeaSSFLineGroup.Hide();
+    m_FeaSSXSCGroup.Hide();
 
     m_CurFeaPartDispGroup = group;
 
     if ( group )
     {
         group->Show();
+    }
+}
+
+void FeaPartEditScreen::SubSurfXSCDisplayGroup( GroupLayout* group )
+{
+    if ( m_FeaSSXSCCurrDisplayGroup == group )
+    {
+        return;
+    }
+
+    m_FeaSSXSCSuperGroup.Hide();
+    m_FeaSSXSCCircleGroup.Hide();
+    m_FeaSSXSCEllipseGroup.Hide();
+    m_FeaSSXSCRoundedRectGroup.Hide();
+    m_FeaSSXSCGenGroup.Hide();
+    m_FeaSSXSCFourSeriesGroup.Hide();
+    m_FeaSSXSCSixSeriesGroup.Hide();
+    m_FeaSSXSCBiconvexGroup.Hide();
+    m_FeaSSXSCWedgeGroup.Hide();
+    m_FeaSSXSCFuseFileGroup.Hide();
+    m_FeaSSXSCAfFileGroup.Hide();
+    m_FeaSSXSCCSTAirfoilGroup.Hide();
+    m_FeaSSXSCVKTGroup.Hide();
+    m_FeaSSXSCFourDigitModGroup.Hide();
+    m_FeaSSXSCFiveDigitGroup.Hide();
+    m_FeaSSXSCFiveDigitModGroup.Hide();
+    m_FeaSSXSCOneSixSeriesGroup.Hide();
+
+    m_FeaSSXSCCurrDisplayGroup = group;
+
+    if ( group )
+    {
+        group->Show();
+    }
+}
+
+void FeaPartEditScreen::RebuildSSCSTGroup( CSTAirfoil* cst_xs)
+{
+    if ( !cst_xs )
+    {
+        return;
+    }
+
+    if ( !m_FeaSSXSCCSTUpCoeffScroll || !m_FeaSSXSCCSTLowCoeffScroll )
+    {
+        return;
+    }
+
+    m_FeaSSXSCCSTUpCoeffScroll->clear();
+    m_FeaSSXSCCSTUpCoeffLayout.SetGroup( m_FeaSSXSCCSTUpCoeffScroll );
+    m_FeaSSXSCCSTUpCoeffLayout.InitWidthHeightVals();
+
+    m_FeaSSXSCUpCoeffSliderVec.clear();
+
+    unsigned int num_up = cst_xs->m_UpDeg() + 1;
+
+    m_FeaSSXSCUpCoeffSliderVec.resize( num_up );
+
+    for ( int i = 0; i < num_up; i++ )
+    {
+        m_FeaSSXSCCSTUpCoeffLayout.AddSlider( m_FeaSSXSCUpCoeffSliderVec[i], "AUTO_UPDATE", 2, "%9.5f" );
+    }
+
+
+
+
+    m_FeaSSXSCCSTLowCoeffScroll->clear();
+    m_FeaSSXSCCSTLowCoeffLayout.SetGroup( m_FeaSSXSCCSTLowCoeffScroll );
+    m_FeaSSXSCCSTLowCoeffLayout.InitWidthHeightVals();
+
+    m_FeaSSXSCLowCoeffSliderVec.clear();
+
+    unsigned int num_low = cst_xs->m_LowDeg() + 1;
+
+    m_FeaSSXSCLowCoeffSliderVec.resize( num_low );
+
+
+    for ( int i = 0; i < num_low; i++ )
+    {
+        m_FeaSSXSCCSTLowCoeffLayout.AddSlider( m_FeaSSXSCLowCoeffSliderVec[i], "AUTO_UPDATE", 2, "%9.5f" );
     }
 }
 

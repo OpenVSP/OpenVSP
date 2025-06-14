@@ -32,6 +32,9 @@ public:
     }
 
     virtual void FeaPartDispGroup( GroupLayout* group );
+    virtual void SubSurfXSCDisplayGroup( GroupLayout* group );
+    virtual void RebuildSSCSTGroup( CSTAirfoil* cst_xs );
+
     virtual void UpdateFeaPropertyChoice();
     virtual void UpdatePerpendicularRibChoice();
     virtual void UpdateFixPointParentChoice();
@@ -62,6 +65,9 @@ private:
     GroupLayout m_FeaSSConGroup;
     GroupLayout m_FeaSSLineArrayGroup;
     GroupLayout m_FeaSSFLineGroup;
+    GroupLayout m_FeaSSXSCGroup;
+
+    GroupLayout* m_FeaSSXSCCurrDisplayGroup;
 
     //===== General =====//
     StringInput m_FeaPartNameInput;
@@ -342,6 +348,227 @@ private:
     SliderAdjRangeInput m_FeaSSFLineUEndSlider;
     SliderAdjRangeInput m_FeaSSFLineWStartSlider;
     SliderAdjRangeInput m_FeaSSFLineWEndSlider;
+
+
+    // SS_XSecCurve
+    SliderAdjRangeInput m_FeaSSXSCCentUSlider;
+    SliderAdjRangeInput m_FeaSSXSCCentWSlider;
+
+    ToggleButton m_FeaSSXSCInsideButton;
+    ToggleButton m_FeaSSXSCOutsideButton;
+    ToggleRadioGroup m_FeaSSXSCTestToggleGroup;
+
+
+
+
+
+    Choice m_FeaSSXSecTypeChoice;
+    TriggerButton m_FeaSSXSCShowXSecButton;
+
+    TriggerButton m_FeaSSXSCConvertCEDITButton;
+    GroupLayout m_FeaSSXSCConvertCEDITGroup;
+
+    GroupLayout m_FeaSSXSCEditCEDITGroup;
+    TriggerButton m_FeaSSXSCEditCEDITButton;
+
+    GroupLayout m_FeaSSXSCPointGroup;
+
+    GroupLayout m_FeaSSXSCCircleGroup;
+    SliderAdjRangeInput m_FeaSSXSCDiameterSlider;
+
+    GroupLayout m_FeaSSXSCEllipseGroup;
+    SliderAdjRangeInput m_FeaSSXSCEllipseHeightSlider;
+    SliderAdjRangeInput m_FeaSSXSCEllipseWidthSlider;
+
+    GroupLayout m_FeaSSXSCSuperGroup;
+    SliderAdjRangeInput m_FeaSSXSCSuperHeightSlider;
+    SliderAdjRangeInput m_FeaSSXSCSuperWidthSlider;
+    SliderAdjRangeInput m_FeaSSXSCSuperMSlider;
+    SliderAdjRangeInput m_FeaSSXSCSuperNSlider;
+    ToggleButton m_FeaSSXSCSuperToggleSym;
+    SliderAdjRangeInput m_FeaSSXSCSuperM_botSlider;
+    SliderAdjRangeInput m_FeaSSXSCSuperN_botSlider;
+    SliderAdjRangeInput m_FeaSSXSCSuperMaxWidthLocSlider;
+
+    GroupLayout m_FeaSSXSCRoundedRectGroup;
+    SliderAdjRangeInput m_FeaSSXSCRRHeightSlider;
+    SliderAdjRangeInput m_FeaSSXSCRRWidthSlider;
+    ToggleButton m_FeaSSXSCRRRadNoSymToggle;
+    ToggleButton m_FeaSSXSCRRRadRLSymToggle;
+    ToggleButton m_FeaSSXSCRRRadTBSymToggle;
+    ToggleButton m_FeaSSXSCRRRadAllSymToggle;
+    ToggleRadioGroup m_FeaSSXSCRRRadSymRadioGroup;
+    SliderAdjRangeInput m_FeaSSXSCRRRadiusBRSlider; // Bottom Right
+    SliderAdjRangeInput m_FeaSSXSCRRRadiusBLSlider; // Bottom Left
+    SliderAdjRangeInput m_FeaSSXSCRRRadiusTLSlider; // Top Left
+    SliderAdjRangeInput m_FeaSSXSCRRRadiusTRSlider; // Top Right
+    ToggleButton m_FeaSSXSCRRKeyCornerButton;
+    SliderAdjRangeInput m_FeaSSXSCRRSkewSlider;
+    SliderAdjRangeInput m_FeaSSXSCRRKeystoneSlider;
+    SliderAdjRangeInput m_FeaSSXSCRRVSkewSlider;
+
+    GroupLayout m_FeaSSXSCGenGroup;
+    SliderAdjRangeInput m_FeaSSXSCGenHeightSlider;
+    SliderAdjRangeInput m_FeaSSXSCGenWidthSlider;
+    SliderAdjRangeInput m_FeaSSXSCGenMaxWidthLocSlider;
+    SliderAdjRangeInput m_FeaSSXSCGenCornerRadSlider;
+    SliderAdjRangeInput m_FeaSSXSCGenTopTanAngleSlider;
+    SliderAdjRangeInput m_FeaSSXSCGenBotTanAngleSlider;
+    SliderAdjRangeInput m_FeaSSXSCGenTopStrSlider;
+    SliderAdjRangeInput m_FeaSSXSCGenBotStrSlider;
+    SliderAdjRangeInput m_FeaSSXSCGenUpStrSlider;
+    SliderAdjRangeInput m_FeaSSXSCGenLowStrSlider;
+
+    GroupLayout m_FeaSSXSCFourSeriesGroup;
+    StringOutput m_FeaSSXSCFourNameOutput;
+    CheckButton m_FeaSSXSCFourInvertButton;
+    SliderAdjRangeInput m_FeaSSXSCFourChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCFourThickChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCFourCamberSlider;
+    SliderAdjRangeInput m_FeaSSXSCFourCLiSlider;
+    ToggleButton m_FeaSSXSCFourCamberButton;
+    ToggleButton m_FeaSSXSCFourCLiButton;
+    ToggleRadioGroup m_FeaSSXSCFourCamberGroup;
+    SliderAdjRangeInput m_FeaSSXSCFourCamberLocSlider;
+    CheckButton m_FeaSSXSCFourSharpTEButton;
+    TriggerButton m_FeaSSXSCFourFitCSTButton;
+    Counter m_FeaSSXSCFourDegreeCounter;
+
+    GroupLayout m_FeaSSXSCSixSeriesGroup;
+    StringOutput m_FeaSSXSCSixNameOutput;
+    CheckButton m_FeaSSXSCSixInvertButton;
+    Choice m_FeaSSXSCSixSeriesChoice;
+    SliderAdjRangeInput m_FeaSSXSCSixChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCSixThickChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCSixIdealClSlider;
+    SliderAdjRangeInput m_FeaSSXSCSixASlider;
+    TriggerButton m_FeaSSXSCSixFitCSTButton;
+    Counter m_FeaSSXSCSixDegreeCounter;
+
+    GroupLayout m_FeaSSXSCBiconvexGroup;
+    SliderAdjRangeInput m_FeaSSXSCBiconvexChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCBiconvexThickChordSlider;
+
+    GroupLayout m_FeaSSXSCWedgeGroup;
+    SliderAdjRangeInput m_FeaSSXSCWedgeChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCWedgeThickChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCWedgeZCamberSlider;
+    ToggleButton m_FeaSSXSCWedgeSymmThickButton;
+    SliderAdjRangeInput m_FeaSSXSCWedgeThickLocSlider;
+    SliderAdjRangeInput m_FeaSSXSCWedgeThickLocLowSlider;
+    SliderAdjRangeInput m_FeaSSXSCWedgeFlatUpSlider;
+    SliderAdjRangeInput m_FeaSSXSCWedgeFlatLowSlider;
+    SliderAdjRangeInput m_FeaSSXSCWedgeUForeUpSlider;
+    SliderAdjRangeInput m_FeaSSXSCWedgeUForeLowSlider;
+    SliderAdjRangeInput m_FeaSSXSCWedgeDuUpSlider;
+    SliderAdjRangeInput m_FeaSSXSCWedgeDuLowSlider;
+    CheckButton m_FeaSSXSCWedgeInvertButton;
+
+    GroupLayout m_FeaSSXSCFuseFileGroup;
+    TriggerButton m_FeaSSXSCReadFuseFileButton;
+    SliderAdjRangeInput m_FeaSSXSCFileHeightSlider;
+    SliderAdjRangeInput m_FeaSSXSCFileWidthSlider;
+
+    GroupLayout m_FeaSSXSCAfFileGroup;
+    TriggerButton m_FeaSSXSCAfReadFileButton;
+    StringOutput m_FeaSSXSCAfFileNameOutput;
+    CheckButton m_FeaSSXSCAfFileInvertButton;
+    SliderAdjRangeInput m_FeaSSXSCAfFileChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCAfFileThickChordSlider;
+    Output m_FeaSSXSCAfFileBaseThickChordOutput;
+    TriggerButton m_FeaSSXSCAfFileFitCSTButton;
+    Counter m_FeaSSXSCAfFileDegreeCounter;
+
+    GroupLayout m_FeaSSXSCCSTAirfoilGroup;
+
+    Output m_FeaSSXSCCSTThickChordOutput;
+
+    SliderAdjRangeInput m_FeaSSXSCCSTChordSlider;
+
+    TriggerButton m_FeaSSXSCUpDemoteButton;
+    StringOutput m_FeaSSXSCUpDegreeOutput;
+    TriggerButton m_FeaSSXSCUpPromoteButton;
+
+    Fl_Scroll* m_FeaSSXSCCSTUpCoeffScroll;
+    GroupLayout m_FeaSSXSCCSTUpCoeffLayout;
+
+    TriggerButton m_FeaSSXSCLowDemoteButton;
+    StringOutput m_FeaSSXSCLowDegreeOutput;
+    TriggerButton m_FeaSSXSCLowPromoteButton;
+
+    vector < SliderAdjRangeInput > m_FeaSSXSCUpCoeffSliderVec;
+
+    Fl_Scroll* m_FeaSSXSCCSTLowCoeffScroll;
+    GroupLayout m_FeaSSXSCCSTLowCoeffLayout;
+
+    vector < SliderAdjRangeInput > m_FeaSSXSCLowCoeffSliderVec;
+
+    CheckButton m_FeaSSXSCCSTInvertButton;
+    CheckButton m_FeaSSXSCCSTContLERadButton;
+
+    GroupLayout m_FeaSSXSCVKTGroup;
+    SliderAdjRangeInput m_FeaSSXSCVKTChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCVKTEpsilonSlider;
+    SliderAdjRangeInput m_FeaSSXSCVKTKappaSlider;
+    SliderAdjRangeInput m_FeaSSXSCVKTTauSlider;
+    CheckButton m_FeaSSXSCVKTInvertButton;
+    Output m_FeaSSXSCVKTThickChordOutput;
+    TriggerButton m_FeaSSXSCVKTFitCSTButton;
+    Counter m_FeaSSXSCVKTDegreeCounter;
+
+    GroupLayout m_FeaSSXSCFourDigitModGroup;
+    StringOutput m_FeaSSXSCFourModNameOutput;
+    CheckButton m_FeaSSXSCFourModInvertButton;
+    SliderAdjRangeInput m_FeaSSXSCFourModChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCFourModThickChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCFourModCamberSlider;
+    SliderAdjRangeInput m_FeaSSXSCFourModCLiSlider;
+    ToggleButton m_FeaSSXSCFourModCamberButton;
+    ToggleButton m_FeaSSXSCFourModCLiButton;
+    ToggleRadioGroup m_FeaSSXSCFourModCamberGroup;
+    SliderAdjRangeInput m_FeaSSXSCFourModCamberLocSlider;
+    SliderAdjRangeInput m_FeaSSXSCFourModThicknessLocSlider;
+    SliderAdjRangeInput m_FeaSSXSCFourModLERadIndexSlider;
+    CheckButton m_FeaSSXSCFourModSharpTEButton;
+    TriggerButton m_FeaSSXSCFourModFitCSTButton;
+    Counter m_FeaSSXSCFourModDegreeCounter;
+
+    GroupLayout m_FeaSSXSCFiveDigitGroup;
+    StringOutput m_FeaSSXSCFiveNameOutput;
+    CheckButton m_FeaSSXSCFiveInvertButton;
+    SliderAdjRangeInput m_FeaSSXSCFiveChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCFiveThickChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCFiveCLiSlider;
+    SliderAdjRangeInput m_FeaSSXSCFiveCamberLocSlider;
+    CheckButton m_FeaSSXSCFiveSharpTEButton;
+    TriggerButton m_FeaSSXSCFiveFitCSTButton;
+    Counter m_FeaSSXSCFiveDegreeCounter;
+
+    GroupLayout m_FeaSSXSCFiveDigitModGroup;
+    StringOutput m_FeaSSXSCFiveModNameOutput;
+    CheckButton m_FeaSSXSCFiveModInvertButton;
+    SliderAdjRangeInput m_FeaSSXSCFiveModChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCFiveModThickChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCFiveModCLiSlider;
+    SliderAdjRangeInput m_FeaSSXSCFiveModCamberLocSlider;
+    SliderAdjRangeInput m_FeaSSXSCFiveModThicknessLocSlider;
+    SliderAdjRangeInput m_FeaSSXSCFiveModLERadIndexSlider;
+    CheckButton m_FeaSSXSCFiveModSharpTEButton;
+    TriggerButton m_FeaSSXSCFiveModFitCSTButton;
+    Counter m_FeaSSXSCFiveModDegreeCounter;
+
+    GroupLayout m_FeaSSXSCOneSixSeriesGroup;
+    StringOutput m_FeaSSXSCOneSixSeriesNameOutput;
+    CheckButton m_FeaSSXSCOneSixSeriesInvertButton;
+    SliderAdjRangeInput m_FeaSSXSCOneSixSeriesChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCOneSixSeriesThickChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCOneSixSeriesCLiSlider;
+    SliderAdjRangeInput m_FeaSSXSCOneSixSeriesCamberLocSlider;
+    SliderAdjRangeInput m_FeaSSXSCOneSixSeriesThicknessLocSlider;
+    SliderAdjRangeInput m_FeaSSXSCOneSixSeriesLERadIndexSlider;
+    CheckButton m_FeaSSXSCOneSixSeriesSharpTEButton;
+    TriggerButton m_FeaSSXSCOneSixSeriesFitCSTButton;
+    Counter m_FeaSSXSCOneSixSeriesDegreeCounter;
 
 
 };
