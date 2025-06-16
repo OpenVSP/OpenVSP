@@ -2477,7 +2477,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
 
     std::vector<string> data_string_array;
 
-    int num_polar_col = 23; // number of columns in the file
+    int num_polar_col = 48; // number of columns in the file
 
     double tol = 1e-8; // tolerance for comparing values to account for machine precision errors
     int num_history_res = ResultsMgr.GetNumResults( "VSPAERO_History" );
@@ -2812,7 +2812,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
         }
 
         // Sectional distribution table
-        int nSectionalDataTableCols = 36;
+        int nSectionalDataTableCols = 37;
         if ( data_string_array.size() == nSectionalDataTableCols && !isdigit( data_string_array[0][0] ) )
         {
             //discard the header row and read the next line assuming that it is numeric
