@@ -95,7 +95,7 @@ ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 
     texGLGroup->align(Fl_Align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE));
     Fl_Widget * w = texGLGroup;
     texGLGroup->begin();
-    m_GlWin = new VSPGUI::VspSubGlWindow( w->x(), w->y(), w->w(), w->h(), DrawObj::VSP_TEX_PREVIEW );
+    m_GlWin = new VSPGUI::VspSubGlWindow( w->x(), w->y(), w->w(), w->h(), mgr, DrawObj::VSP_TEX_PREVIEW );
     texGLGroup->end();
 
 }

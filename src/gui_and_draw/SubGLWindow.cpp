@@ -22,15 +22,18 @@
 #include "Background3DMgr.h"
 #include "ManageLightingScreen.h"
 #include "Lighting.h"
+#include "ScreenMgr.h"
 
 using namespace VSPGraphic;
 
 namespace VSPGUI
 {
-VspSubGlWindow::VspSubGlWindow( int x, int y, int w , int h, DrawObj::ScreenEnum drawObjScreen )
+VspSubGlWindow::VspSubGlWindow( int x, int y, int w , int h, ScreenMgr * mgr, DrawObj::ScreenEnum drawObjScreen )
     : Fl_Gl_Window( x, y, w, h, "VSP Sub GL Window" )
 {
     mode( FL_RGB | FL_ALPHA | FL_DEPTH | FL_DOUBLE | FL_MULTISAMPLE );
+
+    m_ScreenMgr = mgr;
 
     m_GEngine = new VSPGraphic::GraphicEngine();
 
@@ -622,8 +625,8 @@ void VspSubGlWindow::_updateBuffer( const std::vector<DrawObj *> &objects )
     }
 }
 
-BG3DSubGlWindow::BG3DSubGlWindow( int x, int y, int w , int h, DrawObj::ScreenEnum drawObjScreen )
-    : VspSubGlWindow( x, y, w, h, drawObjScreen )
+BG3DSubGlWindow::BG3DSubGlWindow( int x, int y, int w , int h, ScreenMgr * mgr, DrawObj::ScreenEnum drawObjScreen )
+    : VspSubGlWindow( x, y, w, h, mgr, drawObjScreen )
 {
 }
 

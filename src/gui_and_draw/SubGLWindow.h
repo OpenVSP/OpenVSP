@@ -13,6 +13,7 @@ class Renderable;
 }
 
 class FuselageGeom;
+class ScreenMgr;
 
 namespace VSPGUI
 {
@@ -29,7 +30,7 @@ public:
     *
     * drawObjScreen - specific drawObj screen to link.
     */
-    VspSubGlWindow( int x, int y, int w, int h, DrawObj::ScreenEnum drawObjScreen );
+    VspSubGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::ScreenEnum drawObjScreen );
     /*
     * Destructor.
     */
@@ -94,6 +95,8 @@ protected:
     VSPGraphic::GraphicEngine * m_GEngine;
     unsigned int m_id;
 
+    ScreenMgr * m_ScreenMgr;
+
 private:
     DrawObj::ScreenEnum m_LinkedScreen;
     bool m_Initialized;
@@ -131,7 +134,7 @@ class BG3DSubGlWindow : public VspSubGlWindow
 {
 public:
 
-    BG3DSubGlWindow( int x, int y, int w, int h, DrawObj::ScreenEnum drawObjScreen );
+    BG3DSubGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::ScreenEnum drawObjScreen );
 
     virtual void LoadAllDrawObjs( vector< DrawObj* > & draw_obj_vec );
 };

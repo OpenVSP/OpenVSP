@@ -6083,7 +6083,7 @@ XSecViewScreen::XSecViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 600, "
     int window_w_h = 300;
 
     m_FLTK_Window->begin();
-    m_GlWin = new VSPGUI::VspSubGlWindow( window_x, window_y, window_w_h, window_w_h, DrawObj::VSP_XSEC_SCREEN);
+    m_GlWin = new VSPGUI::VspSubGlWindow( window_x, window_y, window_w_h, window_w_h, mgr, DrawObj::VSP_XSEC_SCREEN);
     m_FLTK_Window->end();
 
     m_GlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
@@ -6392,7 +6392,7 @@ FeaXSecScreen::FeaXSecScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 300, "FE
 
 
     m_FLTK_Window->begin();
-    m_GlWin = new VSPGUI::VspSubGlWindow( x, y, w, h, DrawObj::VSP_FEA_XSEC_SCREEN );
+    m_GlWin = new VSPGUI::VspSubGlWindow( x, y, w, h, mgr, DrawObj::VSP_FEA_XSEC_SCREEN );
     m_FLTK_Window->end();
 
     m_GlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
@@ -6497,7 +6497,7 @@ Background3DPreviewScreen::Background3DPreviewScreen( ScreenMgr* mgr ) : BasicSc
     int h = m_FLTK_Window->h();
 
     m_FLTK_Window->begin();
-    m_GlWin = new VSPGUI::BG3DSubGlWindow( x, y, w, h, DrawObj::VSP_3DBG_PREVIEW );
+    m_GlWin = new VSPGUI::BG3DSubGlWindow( x, y, w, h, mgr, DrawObj::VSP_3DBG_PREVIEW );
     m_FLTK_Window->end();
 
     ((VSP_Window*)m_FLTK_Window)->SetResizeCallback( staticResizeCB, this );
