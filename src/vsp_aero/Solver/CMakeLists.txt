@@ -120,7 +120,7 @@ TARGET_LINK_LIBRARIES( vspaero PUBLIC vspaero_lib )
 
 IF( NOT VSP_NO_VSPAERO_OPT )
   ADD_EXECUTABLE( vspaero_opt
-    vspaero_opt.C
+    vspaero.C
   )
 
   TARGET_LINK_LIBRARIES( vspaero_opt PUBLIC vspaero_lib )
@@ -131,6 +131,8 @@ IF( NOT VSP_NO_VSPAERO_OPT )
     ${GEOM_API_INCLUDE_DIR}
     ${UTIL_API_INCLUDE_DIR}
   )
+
+  TARGET_COMPILE_DEFINITIONS( vspaero_opt PRIVATE -DVSPAERO_OPT )
 ENDIF()
 
 
