@@ -2213,7 +2213,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
 
         //READ wake iteration table
         /* Example wake iteration table
-      Iter             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CSo              CSi            CStot               L/D              E               CMox             CMoy             CMoz             CMix             CMiy             CMiz             CMxtot           CMytot           CMztot           CFox             CFoy             CFoz             CFix             CFiy             CFiz             CFxtot           CFytot           CFztot           CLwtot           CDwtot           CSwtot           CLiw             CDiw             CSiwtot          CFwxtot          CFwytot          CFwztot         CFiwx            CFiwy            CFiwz           LoDw              Ew              T/QS         L2 Residual      Max Residual     Wall_Time
+      Iter             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CSo              CSi            CStot               L/D              E               CMox             CMoy             CMoz             CMix             CMiy             CMiz             CMxtot           CMytot           CMztot           CFox             CFoy             CFoz             CFix             CFiy             CFiz             CFxtot           CFytot           CFztot           CLwtot           CDwtot           CSwtot           CLiw             CDiw             CSiw             CFwxtot          CFwytot          CFwztot         CFiwx            CFiwy            CFiwz           LoDw              Ew              T/QS         L2 Residual      Max Residual     Wall_Time
                1   0.001000000000  10.000000000000   0.000000000000  -0.001152999646   0.000000000000  -0.001152999646   0.006538985928   0.000000000000   0.006538985928   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000  -0.000000000000  -0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000  -0.000000000000  -0.000000000000   0.000000000000   0.006639860326   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.006639860326   0.000000000000   0.000000000000  -0.001152999646  -0.001152999646  -0.001152999646   0.000000000000   0.000000000000   0.000000000000   0.006639860326   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000   0.000000000000   1.031142080452   1.239670230012   0.066092967987
                2   0.001000000000  10.000000000000   0.000000000000  -0.001489590476   0.757468273093   0.755978682618   0.008447887383   0.024942762544   0.033390649927   0.000000004671   0.000001838256   0.000001842927  22.685041314113   1.016955765538   0.000000000000  -0.000000000000  -0.000000008979   0.000002173191  -0.864386607606   0.000001180335   0.000002173191  -0.864386607606   0.000001171356   0.008578209663   0.000000004671   0.000000000000  -0.106969159328   0.000001838256   0.750291893265  -0.098390949666   0.000001842927   0.750291893265   0.752057414332   0.752057414332   0.752057414332   0.753547004808   0.027620814694   0.000000382808  -0.095072662053   0.000000387479   0.746895236731  -0.103650871716   0.000000382808   0.746895236731  20.891991156327   0.908870344115   0.000000000000  -1.696220296929  -0.790162226445   0.188454151154
         ...
@@ -2502,25 +2502,50 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
                     std::vector<double> Mach;
                     std::vector<double> Alpha;
                     std::vector<double> Re_1e6;
-                    std::vector<double> CL;
+                    std::vector<double> CLo;
+                    std::vector<double> CLi;
+                    std::vector<double> CLtot;
                     std::vector<double> CDo;
                     std::vector<double> CDi;
                     std::vector<double> CDtot;
-                    std::vector<double> CDt;
-                    std::vector<double> CDtott;
-                    std::vector<double> CS;
-                    std::vector<double> L_D;
+                    std::vector<double> CSo;
+                    std::vector<double> CSi;
+                    std::vector<double> CStot;
+                    std::vector<double> LoD;
                     std::vector<double> E;
-                    std::vector<double> CFx;
-                    std::vector<double> CFy;
-                    std::vector<double> CFz;
-                    std::vector<double> CMx;
-                    std::vector<double> CMy;
-                    std::vector<double> CMz;
-                    std::vector<double> CMl;
-                    std::vector<double> CMm;
-                    std::vector<double> CMn;
-                    std::vector<double> Fopt;
+                    std::vector<double> CMox;
+                    std::vector<double> CMoy;
+                    std::vector<double> CMoz;
+                    std::vector<double> CMix;
+                    std::vector<double> CMiy;
+                    std::vector<double> CMiz;
+                    std::vector<double> CMxtot;
+                    std::vector<double> CMytot;
+                    std::vector<double> CMztot;
+                    std::vector<double> CFox;
+                    std::vector<double> CFoy;
+                    std::vector<double> CFoz;
+                    std::vector<double> CFix;
+                    std::vector<double> CFiy;
+                    std::vector<double> CFiz;
+                    std::vector<double> CFxtot;
+                    std::vector<double> CFytot;
+                    std::vector<double> CFztot;
+                    std::vector<double> CLwtot;
+                    std::vector<double> CDwtot;
+                    std::vector<double> CSwtot;
+                    std::vector<double> CLiw;
+                    std::vector<double> CDiw;
+                    std::vector<double> CSiw;
+                    std::vector<double> CFwxtot;
+                    std::vector<double> CFwytot;
+                    std::vector<double> CFwztot;
+                    std::vector<double> CFiwx;
+                    std::vector<double> CFiwy;
+                    std::vector<double> CFiwz;
+                    std::vector<double> LoDw;
+                    std::vector<double> Ew;
+                    std::vector<double> StallFactor;
 
                     while ( num_polar_col == data_string_array.size() )
                     {
@@ -2529,25 +2554,50 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
                         Mach.push_back(   std::stod( data_string_array[icol] ) ); icol++;
                         Alpha.push_back(  std::stod( data_string_array[icol] ) ); icol++;
                         Re_1e6.push_back( std::stod( data_string_array[icol] ) ); icol++;
-                        CL.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CLo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CLi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CLtot.push_back(     std::stod( data_string_array[icol] ) ); icol++;
                         CDo.push_back(    std::stod( data_string_array[icol] ) ); icol++;
                         CDi.push_back(    std::stod( data_string_array[icol] ) ); icol++;
                         CDtot.push_back(  std::stod( data_string_array[icol] ) ); icol++;
-                        CDt.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                        CDtott.push_back( std::stod( data_string_array[icol] ) ); icol++;
-                        CS.push_back(     std::stod( data_string_array[icol] ) ); icol++;
-                        L_D.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CSo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CSi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CStot.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        LoD.push_back(    std::stod( data_string_array[icol] ) ); icol++;
                         E.push_back(      std::stod( data_string_array[icol] ) ); icol++;
-                        CFx.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                        CFy.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                        CFz.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                        CMx.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                        CMy.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                        CMz.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                        CMl.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                        CMm.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                        CMn.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                        Fopt.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                        CMox.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMoy.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMoz.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMix.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMiy.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMiz.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMxtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMytot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMztot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CFox.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CFoy.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CFoz.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CFix.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CFiy.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CFiz.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CFxtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CFytot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CFztot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CLwtot.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CDwtot.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CSwtot.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CLiw.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CDiw.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CSiw.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CFwxtot.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CFwytot.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CFwztot.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CFiwx.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CFiwy.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CFiwz.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        LoDw.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        Ew.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                        StallFactor.push_back(      std::stod( data_string_array[icol] ) ); icol++;
 
                         if ( ( abs( ( 1e6 * Re_1e6.back() ) - recref ) > tol ) && num_history_res > 0 )
                         {
@@ -2628,7 +2678,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
                                         else if ( l_d_ptr && strcmp( data_names[j].c_str(), "L/D" ) == 0 )
                                         {
                                             vector < double > history_l_d_vec = l_d_ptr->GetDoubleData();
-                                            vector < double > ld_vec( num_wake, L_D.back() );
+                                            vector < double > ld_vec( num_wake, LoD.back() );
 
                                             for ( size_t k = 0; k < history_l_d_vec.size() - 1; k++ )
                                             {
@@ -2664,25 +2714,44 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
                     res->Add( new NameValData( "Mach", Mach, "Mach number." ) );
                     res->Add( new NameValData( "Alpha", Alpha, "Angle of attack." ) );
                     res->Add( new NameValData( "Re_1e6", Re_1e6, "Reynolds number in millions." ) );
-                    res->Add( new NameValData( "CL", CL, "Lift coefficient." ) );
-                    res->Add( new NameValData( "CDo", CDo, "Parasite drag coefficient." ) );
-                    res->Add( new NameValData( "CDi", CDi, "Induced drag coefficient." ) );
+                    res->Add( new NameValData( "CLo", CLo, "Viscous component of lift coefficient." ) );
+                    res->Add( new NameValData( "CLi", CLi, "Inviscid component of lift coefficient." ) );
+                    res->Add( new NameValData( "CLtot", CLtot, "Total lift coefficient." ) );
+                    res->Add( new NameValData( "CDo", CDo, "Viscous component of drag coefficient." ) );
+                    res->Add( new NameValData( "CDi", CDi, "Inviscid component of drag coefficient." ) );
                     res->Add( new NameValData( "CDtot", CDtot, "Total drag coefficient." ) );
-                    res->Add( new NameValData( "CDt", CDt, "Induced drag coefficient from Trefftz-like calculation." ) );
-                    res->Add( new NameValData( "CDtott", CDtott, "Total drag coefficient from Trefftz-like calculation." ) );
-                    res->Add( new NameValData( "CS", CS, "Side force coefficient." ) );
-                    res->Add( new NameValData( "L_D", L_D, "Lift to drag ratio." ) );
+                    res->Add( new NameValData( "CSo", CSo, "Viscous component of side force coefficient." ) );
+                    res->Add( new NameValData( "CSi", CSi, "Inviscid component of side force coefficient." ) );
+                    res->Add( new NameValData( "CStot", CStot, "Total side force coefficient." ) );
+                    res->Add( new NameValData( "L_D", LoD, "Lift to drag ratio." ) );
                     res->Add( new NameValData( "E", E, "Oswald efficiency factor." ) );
-                    res->Add( new NameValData( "CFx", CFx, "X force coefficient." ) );
-                    res->Add( new NameValData( "CFy", CFy, "Y force coefficient." ) );
-                    res->Add( new NameValData( "CFz", CFz, "Z force coefficient." ) );
-                    res->Add( new NameValData( "CMx", CMx, "X moment coefficient." ) );
-                    res->Add( new NameValData( "CMy", CMy, "Y moment coefficient." ) );
-                    res->Add( new NameValData( "CMz", CMz, "Z moment coefficient." ) );
-                    res->Add( new NameValData( "CMl", CMl, "L roll moment coefficient." ) );
-                    res->Add( new NameValData( "CMm", CMm, "M pitch moment coefficient." ) );
-                    res->Add( new NameValData( "CMn", CMn, "N yaw moment coefficient." ) );
-                    res->Add( new NameValData( "Fopt", Fopt, "Objective function value." ) );
+                    res->Add( new NameValData( "CMox", CMox, "Viscous component of X moment coefficient." ) );
+                    res->Add( new NameValData( "CMoy", CMoy, "Viscous component of Y moment coefficient." ) );
+                    res->Add( new NameValData( "CMoz", CMoz, "Viscous component of Z moment coefficient." ) );
+                    res->Add( new NameValData( "CMix", CMix, "Inviscid component of X moment coefficient." ) );
+                    res->Add( new NameValData( "CMiy", CMiy, "Inviscid component of Y moment coefficient." ) );
+                    res->Add( new NameValData( "CMiz", CMiz, "Inviscid component of Z moment coefficient." ) );
+                    res->Add( new NameValData( "CMxtot", CMxtot, "Total X moment coefficient." ) );
+                    res->Add( new NameValData( "CMytot", CMytot, "Total Y moment coefficient." ) );
+                    res->Add( new NameValData( "CMztot", CMztot, "Total Z moment coefficient." ) );
+                    res->Add( new NameValData( "CFox", CFox, "Viscous component of X force coefficient." ) );
+                    res->Add( new NameValData( "CFoy", CFoy, "Viscous component of Y force coefficient." ) );
+                    res->Add( new NameValData( "CFoz", CFoz, "Viscous component of Z force coefficient." ) );
+                    res->Add( new NameValData( "CFix", CFix, "Inviscid component of X force coefficient." ) );
+                    res->Add( new NameValData( "CFiy", CFiy, "Inviscid component of Y force coefficient." ) );
+                    res->Add( new NameValData( "CFiz", CFiz, "Inviscid component of Z force coefficient." ) );
+                    res->Add( new NameValData( "CFxtot", CFxtot, "Total X force coefficient." ) );
+                    res->Add( new NameValData( "CFytot", CFytot, "Total Y force coefficient." ) );
+                    res->Add( new NameValData( "CFztot", CFztot, "Total Z force coefficient." ) );
+                    res->Add( new NameValData( "CLwtot", CLwtot, "Total lift coefficient using wake formulation." ) );
+                    res->Add( new NameValData( "CDwtot", CDwtot, "Total drag coefficient using wake formulation." ) );
+                    res->Add( new NameValData( "CSwtot", CSwtot, "Total side force coefficient using wake formulation." ) );
+                    res->Add( new NameValData( "CLiw", CLiw, "Inviscid component of lift coefficient using wake formulation." ) );
+                    res->Add( new NameValData( "CDiw", CDiw, "Inviscid component of drag coefficient using wake formulation." ) );
+                    res->Add( new NameValData( "CSiw", CSiw, "Inviscid component of side force coefficient using wake formulation." ) );
+                    res->Add( new NameValData( "L_Dw", LoD, "Lift to drag ratio using wake formulation." ) );
+                    res->Add( new NameValData( "Ew", E, "Oswald efficiency factor using wake formulation." ) );
+                    res->Add( new NameValData( "StallFactor", StallFactor, "Stall factor." ) );
 
                     // Add results at the end to keep new VSPAERO_HIstory results together in the CSV export
                     res_id_vector.push_back( res->GetID() );
@@ -2786,6 +2855,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             std::vector<double> Cmxi;
             std::vector<double> Cmyi;
             std::vector<double> Cmzi;
+            std::vector<double> StallFact;
 
             //normalized by local chord
             std::vector<double> Clc_cref;
@@ -2858,6 +2928,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
                 Cmxi.push_back(        std::stod( data_string_array[33] ) );
                 Cmyi.push_back(        std::stod( data_string_array[34] ) );
                 Cmzi.push_back(        std::stod( data_string_array[35] ) );
+                StallFact.push_back(   std::stod( data_string_array[36] ) );
 
                 chordRatio = Chord.back() / cref;
 
@@ -2931,6 +3002,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             res->Add( new NameValData( "cmxi", Cmxi, "Section X moment coefficient.  Induced part." ) );
             res->Add( new NameValData( "cmyi", Cmyi, "Section Y moment coefficient.  Induced part." ) );
             res->Add( new NameValData( "cmzi", Cmzi, "Section Z moment coefficient.  Induced part." ) );
+            res->Add( new NameValData( "StallFact", StallFact, "Stall factor." ) );
 
             res->Add( new NameValData( "cl*c/cref", Clc_cref, "Section lift scaled load." ) );
             res->Add( new NameValData( "cd*c/cref", Cdc_cref, "Section drag scaled load." ) );
