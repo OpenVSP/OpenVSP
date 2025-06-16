@@ -8,7 +8,7 @@ class viewerUI {open
   } {
     Fl_Window mainWindow {
       label {VSPAERO Viewer 6.4.0} open
-      private xywh {931 395 1160 765} type Double labelsize 12 align 0 resizable visible
+      private xywh {442 204 1160 765} type Double labelsize 12 align 0 resizable visible
     } {
       Fl_Group {} {open
         xywh {0 -34 1312 818} box FLAT_BOX labeltype ENGRAVED_LABEL
@@ -26,7 +26,7 @@ class viewerUI {open
             code1 {\#include "GL_VIEWER.forward.declaration.H"}
             class GL_VIEWER
           }
-          Fl_Group Quad {
+          Fl_Group Quad {open selected
             xywh {0 -30 1290 814}
           } {
             Fl_Tabs {} {open
@@ -123,7 +123,6 @@ glviewer->GetCurrentBetaText(dum, sizeof(dum)*sizeof(char));
 BetaOutput->value(dum);
 
 glviewer->GetCommentTextString(dum, sizeof(dum)*sizeof(char));
-
 CommentOutput->value(dum);
 
 glviewer->redraw();}
@@ -219,7 +218,7 @@ glviewer->redraw();}
           label SaveAs open
           xywh {0 0 70 21}
         } {
-          MenuItem FileMenuSaveAsPNG {
+          MenuItem FileMenuSaveAsTiff {
             label {PNG File}
             callback {const char *val;
 char dum[80];
@@ -637,7 +636,7 @@ glviewer->redraw();}
           label {Draw Control Surfaces Deflected}
           callback {glviewer->DrawControlSurfacesDeflectedWasPicked();
 glviewer->redraw();}
-          xywh {60 60 100 20} type Toggle divider
+          xywh {60 60 100 20} type Toggle hide deactivate divider
           code0 {\#include "ContourLevel.H"}
         }
         MenuItem DrawReflectedGeometry {
@@ -805,7 +804,6 @@ sprintf(dum," of %d",UpperBound);
 
 glviewer->GetCommentTextString(dum, sizeof(dum)*sizeof(char));
 
-CommentOutput->value(dum);} {selected
-    }
+CommentOutput->value(dum);} {}
   }
 }

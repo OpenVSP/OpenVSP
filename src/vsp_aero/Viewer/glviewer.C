@@ -370,6 +370,8 @@ void GL_VIEWER::LoadInitialData(char *name)
         snprintf(file_name_no_path,sizeof(file_name_no_path)*sizeof(char), "%s", file_name );
         snprintf(path,sizeof(path)*sizeof(char), "." );
     }
+    
+    printf("path: %s \n",path);fflush(NULL);
 
     // Determine if an adb file exists. Add the .adb extension if not already present.
     
@@ -383,40 +385,31 @@ void GL_VIEWER::LoadInitialData(char *name)
        fclose(adb_file);
 
        // Load in the Mesh
-printf("1ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
 
        LoadMeshData();
-printf("2ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
        
        CreateTriEdges();
-printf("3ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
  
        CalculateSurfaceNormals(1);
-printf("4ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
            
        // Load ADB Case list
        
        LoadSolutionCaseList();
-printf("6ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
        
        // Load cutting plane lists
        
        LoadQuadCuttingPlaneCaseList();
-printf("6ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
        
        // Load in the solution data
        
        LoadSolutionData();
-printf("7ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
        
        // Load in BEAM3D FEM data
        
        LoadBeam3DFEMData();
        
        // Load in calculix data
-       
-printf("ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
-       
+  
        if ( ThereIsCalculixData ) {
           
           printf("loading in calculix data... \n");fflush(NULL);
@@ -5974,7 +5967,9 @@ void GL_VIEWER::MakeMovie(char *FileName)
     char DumChar[2000], Command[2000], Path[2000], file_name_w_ext[2000];
     FILE *adb_file;
 
-    snprintf(path,sizeof(path)*sizeof(char), "%s/MoviePNGFiles/", path );
+// this was borked... path and Path were interchanged... get new glasses Rob ;-)
+
+    snprintf(Path,sizeof(Path)*sizeof(char), "%s/MoviePNGFiles/", path );
 
 
     // Check for ffmpeg  & delete any old png files
@@ -13006,7 +13001,10 @@ void GL_VIEWER::remove_dir(const char* path)
             char *abs_path = new char[256];
             if (( *( entry->d_name ) != '.' ) || (( strlen( entry->d_name ) > 1 ) && ( entry->d_name[ 1 ] != '.' )))
             {
-                snprintf(abs_path,sizeof(abs_path)*sizeof(char), "%s/%s", path, entry->d_name );
+// borked                snprintf(abs_path,sizeof(abs_path)*sizeof(char), "%s/%s", path, entry->d_name );
+                
+                snprintf(abs_path,256*sizeof(char), "%s/%s", path, entry->d_name );
+                
                 if ( (sub_dir = opendir( abs_path )))
                 {
                     closedir( sub_dir );

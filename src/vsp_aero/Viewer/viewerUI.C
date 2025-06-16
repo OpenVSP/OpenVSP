@@ -100,17 +100,16 @@ void viewerUI::cb_LoadSolutionCase_i(Fl_Counter* o, void*) {
 
 glviewer->SolutionCaseSliderWasMoved( ((Fl_Value_Input *)o)->value());
 
-glviewer->GetCurrentMachText(dum);
+glviewer->GetCurrentMachText(dum, sizeof(dum)*sizeof(char));
 MachOutput->value(dum);
 
-glviewer->GetCurrentAlphaText(dum);
+glviewer->GetCurrentAlphaText(dum, sizeof(dum)*sizeof(char));
 AlphaOutput->value(dum);
 
-glviewer->GetCurrentBetaText(dum);
+glviewer->GetCurrentBetaText(dum, sizeof(dum)*sizeof(char));
 BetaOutput->value(dum);
 
-glviewer->GetCommentTextString(dum);
-
+glviewer->GetCommentTextString(dum, sizeof(dum)*sizeof(char));
 CommentOutput->value(dum);
 
 glviewer->redraw();
@@ -933,7 +932,7 @@ Fl_Menu_Item viewerUI::menu_OptionsMenu[] = {
  {"Use Flat Shading", 0,  (Fl_Callback*)viewerUI::cb_OptionsMenuUseFlatShading, 0, 130, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Use Transparent Shading", 0,  (Fl_Callback*)viewerUI::cb_OptionsMenuUseTransparentShading, 0, 146, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Draw Wakes To Infinity", 0,  (Fl_Callback*)viewerUI::cb_OptionsMenuDrawWakesToInfinity, 0, 130, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Draw Control Surfaces Deflected", 0,  (Fl_Callback*)viewerUI::cb_OptionsMenuDrawControlSurfacesDeflected, 0, 130, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Draw Control Surfaces Deflected", 0,  (Fl_Callback*)viewerUI::cb_OptionsMenuDrawControlSurfacesDeflected, 0, 147, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Draw Reflected Geometry", 0,  (Fl_Callback*)viewerUI::cb_DrawReflectedGeometry, 0, 130, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Draw Wakes As Lines", 0,  (Fl_Callback*)viewerUI::cb_DrawWakeLines, 0, 134, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Draw Wakes As Points", 0,  (Fl_Callback*)viewerUI::cb_DrawWakeNodes, 0, 130, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
@@ -1293,13 +1292,13 @@ void viewerUI::LoadInitialData(char *name) {
   
   glviewer->LoadInitialData(name);
   
-  glviewer->GetCurrentMachText(dum);
+  glviewer->GetCurrentMachText(dum, sizeof(dum)*sizeof(char));
   MachOutput->value(dum);
   
-  glviewer->GetCurrentAlphaText(dum);
+  glviewer->GetCurrentAlphaText(dum, sizeof(dum)*sizeof(char));
   AlphaOutput->value(dum);
   
-  glviewer->GetCurrentBetaText(dum);
+  glviewer->GetCurrentBetaText(dum, sizeof(dum)*sizeof(char));
   BetaOutput->value(dum);
   
   int UpperBound = glviewer->GetNumberOfADBCases();
@@ -1316,7 +1315,7 @@ void viewerUI::LoadInitialData(char *name) {
   
   //NumberOfSolutionCasesText->value(dum);
   
-  glviewer->GetCommentTextString(dum);
+  glviewer->GetCommentTextString(dum, sizeof(dum)*sizeof(char));
   
   CommentOutput->value(dum);
 }
