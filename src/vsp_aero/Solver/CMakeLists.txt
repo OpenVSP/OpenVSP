@@ -42,6 +42,7 @@ Gradient.C
 InteractionLoop.C
 MatPrecon.C
 matrix.C
+memory.C
 MergeSort.C
 OptimizationFunction.C
 QuadCell.C
@@ -80,6 +81,7 @@ Gradient.H
 InteractionLoop.H
 MatPrecon.H
 matrix.H
+memory.H
 MergeSort.H
 OptimizationFunction.H
 QuadCell.H
@@ -117,6 +119,9 @@ ADD_EXECUTABLE( vspaero
 )
 
 TARGET_LINK_LIBRARIES( vspaero PUBLIC vspaero_lib )
+
+# Memory debug option, linux/osx only.
+# TARGET_COMPILE_DEFINITIONS( vspaero PRIVATE -DMYMEMORY )
 
 IF( NOT VSP_NO_VSPAERO_OPT )
   ADD_EXECUTABLE( vspaero_opt
