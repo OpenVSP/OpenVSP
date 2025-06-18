@@ -6133,7 +6133,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
     TMeshVec[itmesh]->m_PlateNum = platenum;
     TMeshVec[itmesh]->m_UWPnts = uw_pnts;
     TMeshVec[itmesh]->m_XYZPnts = pnts;
-    TMeshVec[itmesh]->m_Wmin = uw_pnts[0][0].y();
+    TMeshVec[itmesh]->m_Wmin = uw_pnts[0][1].y();
     TMeshVec[itmesh]->m_Uscale = geom->GetUMax( indx );
     TMeshVec[itmesh]->m_Wscale = geom->GetWMax( indx );;
 
@@ -6264,7 +6264,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                 // Over-ride some variable copies to full range rather than patch subset.
                 TMeshVec.back()->m_UWPnts = uw_pnts;
                 TMeshVec.back()->m_XYZPnts = pnts;
-                TMeshVec.back()->m_Wmin = uw_pnts[0][0].y();
+                TMeshVec.back()->m_Wmin = uw_pnts[0][1].y();
 
                 iustart = iuend;
             }
