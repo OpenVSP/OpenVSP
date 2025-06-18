@@ -89,7 +89,7 @@ ADBSLICER::ADBSLICER(void)
     
     OptFact_ = 1.;
     
-    snprintf(ElementLabel_,sizeof(ElementLabel_)*sizeof(char),"NONE");
+    snprintf(ElementLabel_,MAX_CHAR_SIZE*sizeof(char),"NONE");
 
     AddLabel_ = 0;
 
@@ -120,16 +120,16 @@ ADBSLICER::~ADBSLICER(void)
 void ADBSLICER::LoadFile(char *name)
 {
 
-    char file_name_w_ext[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE];
     FILE *adb_file;
     
     // Save the file name
 
-    snprintf(file_name,sizeof(file_name)*sizeof(char),"%s",name);
+    snprintf(file_name,MAX_CHAR_SIZE*sizeof(char),"%s",name);
 
     // Determine if an adb file exists
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.adb",file_name);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) != NULL ) {
      
@@ -177,16 +177,16 @@ void ADBSLICER::SliceGeometry(char *name)
 {
 
     int i;
-    char file_name_w_ext[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE];
     FILE *cuts_file;
     
     // Save the file name
 
-    snprintf(file_name,sizeof(file_name)*sizeof(char),"%s",name);
+    snprintf(file_name,MAX_CHAR_SIZE*sizeof(char),"%s",name);
 
     // Determine if an cut file exists
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.cuts",file_name);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.cuts",file_name);
 
     if ( (cuts_file = fopen(file_name_w_ext,"r")) != NULL ) {
      
@@ -196,13 +196,17 @@ void ADBSLICER::SliceGeometry(char *name)
 
        LoadCutsFile();
      
+       printf("done reading cuts file ... \n");fflush(NULL);
+     
        // Load in the solution data and slice it
        
-       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.slc",file_name);
+       snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.slc",file_name);
 
        if ( (SliceFile = fopen(file_name_w_ext,"w")) != NULL ) {
           
           for ( i = 1 ; i <= NumberOfADBCases_ ; i++ ) {
+             
+             printf("Slicing solution case: %d \n",i);fflush(NULL);
 
              LoadSolutionData(i);
 
@@ -239,19 +243,19 @@ void ADBSLICER::SliceGeometry(char *name)
 void ADBSLICER::ParseCalculixFile(char *name)
 {
 
-    char file_name_w_ext[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE];
     FILE *InpFile;
     INTERP Interp;
 
-    if ( !AddLabel_ ) snprintf(Label_,sizeof(Label_)*sizeof(char),"");
+    if ( !AddLabel_ ) snprintf(Label_,MAX_CHAR_SIZE*sizeof(char),"");
         
     // Save the file name
 
-    snprintf(CalculixFileName,sizeof(CalculixFileName)*sizeof(char),"%s",name);
+    snprintf(CalculixFileName,MAX_CHAR_SIZE*sizeof(char),"%s",name);
 
     // Determine if an calculix file exists
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",CalculixFileName);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",CalculixFileName);
 
     if ( (InpFile = fopen(file_name_w_ext,"r")) != NULL ) {
      
@@ -287,7 +291,7 @@ void ADBSLICER::ParseCalculixFile(char *name)
 void ADBSLICER::FindNearestNodeInCalculixFile(char *name, float *xyz)
 {
 
-    char file_name_w_ext[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE];
     FILE *InpFile;
     INTERP Interp;
     
@@ -297,15 +301,15 @@ void ADBSLICER::FindNearestNodeInCalculixFile(char *name, float *xyz)
     xyz_find_[1] = xyz[1];
     xyz_find_[2] = xyz[2];
     
-    if ( !AddLabel_ ) snprintf(Label_,sizeof(Label_)*sizeof(char),"");
+    if ( !AddLabel_ ) snprintf(Label_,MAX_CHAR_SIZE*sizeof(char),"");
         
     // Save the file name
 
-    snprintf(CalculixFileName,sizeof(CalculixFileName)*sizeof(char),"%s",name);
+    snprintf(CalculixFileName,MAX_CHAR_SIZE*sizeof(char),"%s",name);
 
     // Determine if an calculix file exists
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",CalculixFileName);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",CalculixFileName);
 
     if ( (InpFile = fopen(file_name_w_ext,"r")) != NULL ) {
      
@@ -327,21 +331,21 @@ void ADBSLICER::FindNearestNodeInCalculixFile(char *name, float *xyz)
 void ADBSLICER::InterpolateSolutionToCalculix(char *name)
 {
 
-    char file_name_w_ext[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE];
     FILE *InpFile;
     INTERP Interp;
 
-    if ( !AddLabel_ ) snprintf(Label_,sizeof(Label_)*sizeof(char),"");
+    if ( !AddLabel_ ) snprintf(Label_,MAX_CHAR_SIZE*sizeof(char),"");
         
     // Save the file name
 
-    snprintf(CalculixFileName,sizeof(CalculixFileName)*sizeof(char),"%s",name);
+    snprintf(CalculixFileName,MAX_CHAR_SIZE*sizeof(char),"%s",name);
 
     printf("CalculixFileName: %s \n",CalculixFileName);fflush(NULL);
 
     // Determine if an calculix file exists
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",CalculixFileName);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",CalculixFileName);
 
     if ( (InpFile = fopen(file_name_w_ext,"r")) != NULL ) {
 
@@ -532,6 +536,11 @@ void ADBSLICER::LoadMeshData(void)
        printf("ComponentID: %d \n",DumInt);
      
     }
+    
+    // Store the current location in the file
+
+    fgetpos(adb_file, &StartOfWallTemperatureData);
+    
 
     // Load in the geometry and surface information
 
@@ -773,9 +782,9 @@ void ADBSLICER::LoadMeshData(void)
        
     }          
     
-    // Store the current location in the file
-
-    fgetpos(adb_file, &StartOfWallTemperatureData);
+ //  // Store the current location in the file
+ //
+ //  fgetpos(adb_file, &StartOfWallTemperatureData);
 
     // Close the adb file
 
@@ -907,7 +916,11 @@ void ADBSLICER::LoadSolutionData(int Case)
     fsetpos(adb_file, &StartOfWallTemperatureData);
     
     for ( p = 1 ; p <= Case ; p++ ) {  
-   
+       
+       // Reload the mesh data... all the time since the wake is now part of the mesh ;-)
+
+       UpdateMeshData(adb_file);
+          
        // Read in the EdgeMach, Q, and Alpha lists
    
        for ( k = 1 ; k <= NumberOfMachs  ; k++ ) BIO.fread(&MachList[k],    f_size, 1, adb_file);
@@ -918,7 +931,7 @@ void ADBSLICER::LoadSolutionData(int Case)
    
        BIO.fread(&(CpMinSoln), f_size, 1, adb_file); // Min Cp from solver
        BIO.fread(&(CpMaxSoln), f_size, 1, adb_file); // Max Cp from solver
-   
+
        // Solution on computational mesh
        
        for ( m = 1 ; m <= NumberOfVortexLoops ; m++ ) {
@@ -963,7 +976,7 @@ void ADBSLICER::LoadSolutionData(int Case)
        XWake_ = new double*[NumberOfTrailingVortexEdges_ + 1];
        YWake_ = new double*[NumberOfTrailingVortexEdges_ + 1];
        ZWake_ = new double*[NumberOfTrailingVortexEdges_ + 1];
-       
+    
        for ( i = 1 ; i <= NumberOfTrailingVortexEdges_ ; i++ ) {
 
           BIO.fread(&DumInt, i_size, 1, adb_file); // Wing ID
@@ -1044,6 +1057,238 @@ void ADBSLICER::LoadSolutionData(int Case)
 
     fclose(adb_file);
 
+}
+
+/*##############################################################################
+#                                                                              #
+#                              ADBSLICER UpdateMeshData                        #
+#                                                                              #
+##############################################################################*/
+
+void ADBSLICER::UpdateMeshData(FILE *adb_file)
+{
+
+    int i, j, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes;
+    int i_size, f_size, c_size;
+    int NumberOfRotors, NumberOfNozzles;
+    BINARYIO BIO;
+
+    // Sizeof ints and floats
+
+    i_size = sizeof(int);
+    f_size = sizeof(float);
+    c_size = sizeof(char);
+
+    // Load in the geometry and surface information
+
+    for ( i = 1 ; i <= NumberOfTris ; i++ ) {
+
+       // Geometry
+
+       BIO.fread(&(TriList_[i].node1), i_size, 1, adb_file);
+       BIO.fread(&(TriList_[i].node2), i_size, 1, adb_file);
+       BIO.fread(&(TriList_[i].node3), i_size, 1, adb_file);                                      
+       BIO.fread(&(TriList_[i].surface_type), i_size, 1, adb_file);
+       BIO.fread(&(TriList_[i].surface_id),   i_size, 1, adb_file);
+       
+       BIO.fread(&(DumInt), i_size, 1, adb_file); // Min valid time step
+       
+       BIO.fread(&(TriList_[i].area), f_size, 1, adb_file);
+
+    }
+
+    for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
+
+       BIO.fread(&(NodeList_[i].x), f_size, 1, adb_file);
+       BIO.fread(&(NodeList_[i].y), f_size, 1, adb_file);
+       BIO.fread(&(NodeList_[i].z), f_size, 1, adb_file);
+
+    }
+
+    // Read in any propulsion data
+    
+    BIO.fread(&(NumberOfRotors), i_size, 1, adb_file); 
+
+    if ( FILE_VERSION == 3 ) BIO.fread(&(NumberOfNozzles), i_size, 1, adb_file);
+   
+    NumberOfPropulsionElements = NumberOfRotors + NumberOfNozzles;
+
+    // Read in the rotor data
+ 
+    j = 0;
+    
+    for ( i = 1 ; i <= NumberOfRotors ; i++ ) {
+    
+       j++;
+        
+       PropulsionElement[j].Rotor.Read_Binary_STP_Data(adb_file);
+    
+       PropulsionElement[j].Type = PROP_ROTOR;
+    
+    }
+
+    // Read in the nozzle data
+    
+    if ( FILE_VERSION == 3 ) {
+       
+       for ( i = 1 ; i <= NumberOfNozzles ; i++ ) {
+    
+          printf("i: %d \n",i);fflush(NULL);
+             
+          j++;
+           
+          PropulsionElement[j].Engine.Read_Binary_STP_Data(adb_file);
+          
+          PropulsionElement[j].Type = ENGINE_NOZZLE;
+       
+       }
+       
+    }
+
+    // Read in any coarse mesh edge data
+    
+    BIO.fread(&(NumberOfMeshLevels), i_size, 1, adb_file); 
+
+    for ( Level = 1 ; Level <= NumberOfMeshLevels ; Level++ ) {
+     
+       BIO.fread(&(NumberOfCourseNodesForLevel[Level]), i_size, 1, adb_file);    
+       BIO.fread(&(NumberOfCourseEdgesForLevel[Level]), i_size, 1, adb_file);          
+
+       for ( i = 1 ; i <= NumberOfCourseNodesForLevel[Level] ; i++ ) {
+ 
+          BIO.fread(&(CoarseNodeList_[Level][i].x), f_size, 1, adb_file);       
+          BIO.fread(&(CoarseNodeList_[Level][i].y), f_size, 1, adb_file);  
+          BIO.fread(&(CoarseNodeList_[Level][i].z), f_size, 1, adb_file);       
+
+       }
+         
+       for ( i = 1 ; i <= NumberOfCourseEdgesForLevel[Level] ; i++ ) {
+ 
+          BIO.fread(&(CoarseEdgeList_[Level][i].SurfaceID),        i_size, 1, adb_file);   
+
+          BIO.fread(&(DumInt), i_size, 1, adb_file);    // Min valid time step   
+ 
+          CoarseEdgeList_[Level][i].IsBoundaryEdge = 0;
+          
+          if ( CoarseEdgeList_[Level][i].SurfaceID < 0 ) {
+             
+             CoarseEdgeList_[Level][i].SurfaceID = -CoarseEdgeList_[Level][i].SurfaceID;
+             
+             CoarseEdgeList_[Level][i].IsBoundaryEdge = 1;    
+             
+          }
+        
+          BIO.fread(&(CoarseEdgeList_[Level][i].node1), i_size, 1, adb_file);       
+          BIO.fread(&(CoarseEdgeList_[Level][i].node2), i_size, 1, adb_file);       
+          
+          CoarseEdgeList_[Level][i].IsKuttaEdge = 0;
+          
+       }
+
+    }    
+    
+    // Read in the kutta edge data
+    
+    Level = 1;
+    
+    BIO.fread(&(NumberOfKuttaEdges), i_size, 1, adb_file);       
+
+    for ( i = 1 ; i <= NumberOfKuttaEdges; i++ ) {
+       
+       BIO.fread(&(Edge), i_size, 1, adb_file);      
+       
+       CoarseEdgeList_[Level][Edge].IsKuttaEdge = 1;
+        
+    }
+    
+    // Read in the kutta node data
+    
+    Level = 1;
+    
+    BIO.fread(&(NumberOfKuttaNodes), i_size, 1, adb_file);       
+
+    for ( i = 1 ; i <= NumberOfKuttaNodes; i++ ) {
+       
+       BIO.fread(&(DumInt), i_size, 1, adb_file);      
+
+    }    
+    
+    // Read in any control surfaces
+    
+    BIO.fread(&(NumberOfControlSurfaces), i_size, 1, adb_file);       
+
+    for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
+       
+       BIO.fread(&(NumberOfControlSurfaceNodes), i_size, 1, adb_file);       
+       
+       ControlSurface[i].NumberOfNodes = NumberOfControlSurfaceNodes;
+
+       for ( j = 1 ; j <= NumberOfControlSurfaceNodes ; j++ ) {
+          
+          ControlSurface[i].NodeList[j] = new float[3];
+          
+       }
+       
+       for ( j = 1 ; j <= NumberOfControlSurfaceNodes ; j++ ) {
+
+          BIO.fread(&(ControlSurface[i].NodeList[j][0]), f_size, 1, adb_file);   
+          BIO.fread(&(ControlSurface[i].NodeList[j][1]), f_size, 1, adb_file);    
+          BIO.fread(&(ControlSurface[i].NodeList[j][2]), f_size, 1, adb_file);
+          
+       }          
+       
+       // Hinge nodes and vector
+       
+       BIO.fread(&(ControlSurface[i].HingeNode1[0]), f_size, 1, adb_file);    
+       BIO.fread(&(ControlSurface[i].HingeNode1[1]), f_size, 1, adb_file);     
+       BIO.fread(&(ControlSurface[i].HingeNode1[2]), f_size, 1, adb_file);          
+                        
+       BIO.fread(&(ControlSurface[i].HingeNode2[0]), f_size, 1, adb_file);    
+       BIO.fread(&(ControlSurface[i].HingeNode2[1]), f_size, 1, adb_file);     
+       BIO.fread(&(ControlSurface[i].HingeNode2[2]), f_size, 1, adb_file);
+       
+       BIO.fread(&(ControlSurface[i].HingeVec[0]), f_size, 1, adb_file);   
+       BIO.fread(&(ControlSurface[i].HingeVec[1]), f_size, 1, adb_file);    
+       BIO.fread(&(ControlSurface[i].HingeVec[2]), f_size, 1, adb_file);
+              
+       // Affected loops
+       
+       BIO.fread(&(ControlSurface[i].NumberOfLoops), i_size, 1, adb_file);
+       
+       ControlSurface[i].LoopList = new int[ControlSurface[i].NumberOfLoops + 1];
+       
+       for ( p = 1 ; p <= ControlSurface[i].NumberOfLoops ; p++ ) {
+          
+          BIO.fread(&(ControlSurface[i].LoopList[p]), i_size, 1, adb_file);
+          
+       }          
+       
+       // Zero out control surface deflection
+       
+       ControlSurface[i].DeflectionAngle = 0.;
+                            
+    }     
+    
+    // Mark all the loops on a control surface
+    
+    ControlSurfaceLoop = new int[NumberOfTris + 1];
+    
+    for ( j = 1 ; j <= NumberOfTris ; j++ ) {
+        
+       ControlSurfaceLoop[j] = 0;
+        
+    }
+   
+    for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
+       
+       for ( j = 1 ; j <= ControlSurface[i].NumberOfLoops ; j++ ) {
+
+          ControlSurfaceLoop[ControlSurface[i].LoopList[j]] = i;
+
+       }       
+       
+    }          
+  
 }
 
 /*##############################################################################
@@ -2183,7 +2428,7 @@ void ADBSLICER::SmoothSkinThickness(char *filename1)
     int AllDone, Done, NumElementsToSmooth, Iter;
     int i, j, ElementID, Node[6], *ElementData, MaxElements;
     float Thickness, *NewThick, *Area;
-    char file_name_w_ext[10000], DumChar[10000], SearchLabel[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE], SearchLabel[MAX_CHAR_SIZE];
     FILE *File1;
 
     // Create a temp array for the elment data
@@ -2194,7 +2439,7 @@ void ADBSLICER::SmoothSkinThickness(char *filename1)
     
     // Open calculix files
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",filename1);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",filename1);
 
     if ( (File1 = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -2206,7 +2451,7 @@ void ADBSLICER::SmoothSkinThickness(char *filename1)
 
     printf("Looking for element list: %s \n",ElementLabel_);
     
-    snprintf(SearchLabel,sizeof(SearchLabel)*sizeof(char),"%s",ElementLabel_);
+    snprintf(SearchLabel,MAX_CHAR_SIZE*sizeof(char),"%s",ElementLabel_);
     
     AllDone = i = 0;
         
@@ -2371,8 +2616,8 @@ void ADBSLICER::ResizeCalculixInputFileSkins(char *filename1, char *newfilename)
     int AllDone, Done, NumUsedElements;
     int i, j, k, t, m, ElementID, Node[6], *ElementData, NumberOfElements, MaxElements;
     float Volume[2], MinThick, MaxThick, Area, Thickness;
-    char file_name_w_ext[10000], DumChar[10000];
-    char SaveLine[10000], SearchLabel[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE];
+    char SaveLine[MAX_CHAR_SIZE], SearchLabel[MAX_CHAR_SIZE];
     FILE *File1, *NewFile;
     
     Area = Volume[0] = Volume[1] = 0.;
@@ -2398,7 +2643,7 @@ void ADBSLICER::ResizeCalculixInputFileSkins(char *filename1, char *newfilename)
        
     }
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",newfilename);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",newfilename);
 
     if ( (NewFile = fopen(file_name_w_ext,"w")) == NULL ) {
        
@@ -2408,7 +2653,7 @@ void ADBSLICER::ResizeCalculixInputFileSkins(char *filename1, char *newfilename)
        
     }
     
-    snprintf(SearchLabel,sizeof(SearchLabel)*sizeof(char),"%s",ElementLabel_);
+    snprintf(SearchLabel,MAX_CHAR_SIZE*sizeof(char),"%s",ElementLabel_);
 
     AllDone = 0;
         
@@ -2424,7 +2669,7 @@ void ADBSLICER::ResizeCalculixInputFileSkins(char *filename1, char *newfilename)
     
           printf("Setting up thickness for... DumChar: %s \n",DumChar);
           
-          snprintf(SaveLine,sizeof(SaveLine)*sizeof(char),"%s",DumChar);
+          snprintf(SaveLine,MAX_CHAR_SIZE*sizeof(char),"%s",DumChar);
 
           j = Done = 0;
           
@@ -2723,8 +2968,8 @@ void ADBSLICER::ResizeCalculixInputFileSkinsOld(char *filename1, char *newfilena
     int AllDone, Done;
     int i, j, ElementID, Node[6], *ElementData, NumberOfElements, MaxElements;
     float Volume[2], MinThick, MaxThick, Area;
-    char file_name_w_ext[10000], DumChar[10000];
-    char SaveLine[10000], SearchLabel[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE];
+    char SaveLine[MAX_CHAR_SIZE], SearchLabel[MAX_CHAR_SIZE];
     FILE *File1, *NewFile;
     
     Area = Volume[0] = Volume[1] = 0.;
@@ -2750,7 +2995,7 @@ void ADBSLICER::ResizeCalculixInputFileSkinsOld(char *filename1, char *newfilena
        
     }
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",newfilename);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",newfilename);
 
     if ( (NewFile = fopen(file_name_w_ext,"w")) == NULL ) {
        
@@ -2760,7 +3005,7 @@ void ADBSLICER::ResizeCalculixInputFileSkinsOld(char *filename1, char *newfilena
        
     }
     
-    snprintf(SearchLabel,sizeof(SearchLabel)*sizeof(char),"%s",ElementLabel_);
+    snprintf(SearchLabel,MAX_CHAR_SIZE*sizeof(char),"%s",ElementLabel_);
 
     AllDone = 0;
         
@@ -2776,7 +3021,7 @@ void ADBSLICER::ResizeCalculixInputFileSkinsOld(char *filename1, char *newfilena
     
           printf("Setting up thickness for... DumChar: %s \n",DumChar);
           
-          snprintf(SaveLine,sizeof(SaveLine)*sizeof(char),"%s",DumChar);
+          snprintf(SaveLine,MAX_CHAR_SIZE*sizeof(char),"%s",DumChar);
 
           j = Done = 0;
           
@@ -2958,14 +3203,14 @@ void ADBSLICER::LoadCalculixINPFileSurfaceElements(char *name)
     int *NodeIsUsed, MaxNodes, BestNode;
     int MaxTris;
     float Distance, MinDistance;
-    char file_name_w_ext[10000], DumChar[10000], SaveChar[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE], SaveChar[MAX_CHAR_SIZE];
     FILE *CalculixFile;
 
     printf("Loading calculix input file... \n");fflush(NULL);
     
     // Open the aerothermal data base file
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",name);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",name);
 
     if ( (CalculixFile = fopen(file_name_w_ext,"r")) == NULL ) {
 
@@ -3029,20 +3274,16 @@ void ADBSLICER::LoadCalculixINPFileSurfaceElements(char *name)
                              
        // Element list
 
-printf("DumChar: %s \n",DumChar);
-
        if ( strstr(DumChar,"*ELEMENT") != NULL && strstr(DumChar,"ELSET=ESkin") != NULL ) {
 
-if ( Verbose_ ) printf("Found skin element set: %s \n",DumChar);
+          if ( Verbose_ ) printf("Found skin element set: %s \n",DumChar);
           
           Done = 0;
           
           while ( !Done ) {
              
              fgets(DumChar,2000,CalculixFile);
-   
-printf("DumChar: %s \n",DumChar);
-   
+
              if ( strlen(DumChar) > 2 && strstr(DumChar,"*") == NULL ) {
                 
                 NumElements++;
@@ -3092,7 +3333,7 @@ printf("DumChar: %s \n",DumChar);
           
           DumChar[strcspn(DumChar, "\n")] = 0;
               
-          snprintf(SaveChar,sizeof(SaveChar)*sizeof(char),"%s\0",DumChar);
+          snprintf(SaveChar,MAX_CHAR_SIZE*sizeof(char),"%s\0",DumChar);
           
           Done = 0;
           
@@ -3332,12 +3573,12 @@ int *ADBSLICER::RenumberCalulixINPFile(char *name)
     int *NodeIsUsed, MaxNodes, BestNode;
     int MaxTris;
     float MinDistance;
-    char file_name_w_ext[10000], DumChar[10000], SaveChar[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE], SaveChar[MAX_CHAR_SIZE];
     FILE *CalculixFile;
 
     // Open the aerothermal data base file
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",name);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",name);
 
     if ( (CalculixFile = fopen(file_name_w_ext,"r")) == NULL ) {
 
@@ -3457,7 +3698,7 @@ int *ADBSLICER::RenumberCalulixINPFile(char *name)
           
           DumChar[strcspn(DumChar, "\n")] = 0;
               
-          snprintf(SaveChar,sizeof(SaveChar)*sizeof(char),"%s\0",DumChar);
+          snprintf(SaveChar,MAX_CHAR_SIZE*sizeof(char),"%s\0",DumChar);
           
           Done = 0;
           
@@ -3643,7 +3884,7 @@ void ADBSLICER::WriteOutRenumberedCalculixINPFile(char *name)
     int ElementID, Node1, Node2, Node3, Node4, Node5, Node6;
     int EQNode[2], EQDir[2], CDir, DOF1, DOF2;
     float x, y, z, EQCoef[2], Pressure, CLoad;
-    char file_name_w_ext[10000], DumChar[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE];
     FILE *InpFile, *NewFile;
     
     // Open calculix file and create node permutation array
@@ -3652,7 +3893,7 @@ void ADBSLICER::WriteOutRenumberedCalculixINPFile(char *name)
  
     // Open calculix file
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",name);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",name);
 
     if ( (InpFile = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -3664,7 +3905,7 @@ void ADBSLICER::WriteOutRenumberedCalculixINPFile(char *name)
     
     // Open output file
               
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.renum.inp",name);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.renum.inp",name);
      
     if ( (NewFile = fopen(file_name_w_ext,"w")) != NULL ) {
        
@@ -4122,15 +4363,15 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
     int Done, NodeID, Editing;
     int ElementID, Node1, Node2, Node3, Node4, Node5, Node6;
     float x, y, z;
-    char file_name_w_ext[10000], DumChar[10000], SetName[10000];
-    char MaterialName[10000], NSkinLabel[10000];
-    char OrientationName[10000], Remainder[10000], DumChar2[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE], SetName[MAX_CHAR_SIZE];
+    char MaterialName[MAX_CHAR_SIZE], NSkinLabel[MAX_CHAR_SIZE];
+    char OrientationName[MAX_CHAR_SIZE], Remainder[MAX_CHAR_SIZE], DumChar2[MAX_CHAR_SIZE];
     char *substr;
     FILE *InpFile, *LoadFile;
  
     // Open calculix file
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",CalculixFileName);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",CalculixFileName);
 
     if ( (InpFile = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -4144,13 +4385,13 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
          
     if ( AnalysisType == CALCULIX_STATIC ) {
                       
-       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.static.inp",name);
+       snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.static.inp",name);
        
     }
     
     else if ( AnalysisType == CALCULIX_BUCKLE ) {
                       
-       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.buckle.inp",name);
+       snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.buckle.inp",name);
        
     }
     
@@ -4207,7 +4448,7 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
                
               if ( strstr(SetName,"NSkin") != NULL ) {
                  
-                 snprintf(NSkinLabel,sizeof(NSkinLabel)*sizeof(char),"%s",SetName);
+                 snprintf(NSkinLabel,MAX_CHAR_SIZE*sizeof(char),"%s",SetName);
                  
                  printf("NSkinLabel: %s \n",NSkinLabel);
                  
@@ -4619,12 +4860,12 @@ void ADBSLICER::MergeCalculixFiles(char *filename1, char *filename2, char *newfi
 {
 
     int Done;
-    char file_name_w_ext[10000], DumChar[10000];
+    char file_name_w_ext[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE];
     FILE *File1, *File2, *NewFile;
  
     // Open calculix files
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",filename1);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",filename1);
 
     if ( (File1 = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -4634,7 +4875,7 @@ void ADBSLICER::MergeCalculixFiles(char *filename1, char *filename2, char *newfi
        
     }
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",filename2);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",filename2);
 
     if ( (File2 = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -4644,7 +4885,7 @@ void ADBSLICER::MergeCalculixFiles(char *filename1, char *filename2, char *newfi
        
     }
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",newfilename);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.inp",newfilename);
 
     if ( (NewFile = fopen(file_name_w_ext,"w")) == NULL ) {
        
@@ -4871,7 +5112,7 @@ void ADBSLICER::LoadCalculixData(char *filename)
     double x, y, z, vec1[3], vec2[3], vec3[3], mag, cosPhi;
     double Dx, Dy, Dz, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
     double S11, S22, S33, S12, S23, S31, I1, I2, I3, S1, S2, S3, Phi;
-    char file_name_w_ext[80], ElementName[1000], DumChar[1000];
+    char file_name_w_ext[MAX_CHAR_SIZE], ElementName[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE];
     FILE *frd_file;
     fpos_t SaveLocation;
 
@@ -4879,7 +5120,7 @@ void ADBSLICER::LoadCalculixData(char *filename)
     
     printf("Opening the Calculix frd file... \n");
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.frd",filename);
+    snprintf(file_name_w_ext,MAX_CHAR_SIZE*sizeof(char),"%s.frd",filename);
     
     if ( (frd_file = fopen(file_name_w_ext,"r")) != NULL ) {
 

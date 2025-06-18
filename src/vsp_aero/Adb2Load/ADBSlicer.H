@@ -36,6 +36,8 @@
 #define CALCULIX_STATIC 1
 #define CALCULIX_BUCKLE 2
 
+#define MAX_CHAR_SIZE 10000
+
 // Forward declarations
 
 class viewerUI;
@@ -109,7 +111,7 @@ public:
     float Mach;
     float Alpha;
     float Beta;
-    char CommentLine[2000];
+    char CommentLine[MAX_CHAR_SIZE];
 
 };
 
@@ -197,8 +199,8 @@ private:
     
     SOLUTION_CASE *ADBCaseList_;
 
-    char file_name[2000];
-    char CalculixFileName[2000];
+    char file_name[MAX_CHAR_SIZE];
+    char CalculixFileName[MAX_CHAR_SIZE];
 
     int NumberOfCalculixNodes;
     int NumberOfCalculixElements;
@@ -211,7 +213,7 @@ private:
     float MaxStress_;
     float OptFact_;
     
-    char ElementLabel_[10000];
+    char ElementLabel_[MAX_CHAR_SIZE];
     
     CALCULIX_NODE *CalculixNode;    
     CALCULIX_ELEMENT *CalculixElement;    
@@ -325,6 +327,7 @@ private:
     void LoadMeshData(void);
     void LoadSolutionData(int Case);
     void LoadSolutionCaseList(void);
+    void UpdateMeshData(FILE *adb_file);
 
     void FindMeshMinMax(void);
     void FindSolutionMinMax(void);
@@ -361,7 +364,7 @@ private:
     
     float xyz_find_[3];
     
-    char Label_[10000];
+    char Label_[MAX_CHAR_SIZE];
     
     INTERP_MESH VSP_Mesh;
     INTERP_MESH FEM_Mesh;
