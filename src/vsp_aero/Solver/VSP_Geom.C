@@ -934,6 +934,12 @@ void VSP_GEOM::MeshGeom(void)
      
     }
     
+  //  for ( i = 1 ; i <= Grid().NumberOfNodes() ; i++ ) {
+  //     
+  //     printf("Node %d --> CompID: %d \n",i,Grid().NodeList(i).ComponentID());
+  //     
+  //  }
+    
     // Mark all 'true' surface - surface intersection edges, and nodes
     
     MarkSurfaceSurfaceIntersections();
@@ -1482,7 +1488,7 @@ void VSP_GEOM::SanitizeThinMeshes(void)
 void VSP_GEOM::MarkSurfaceSurfaceIntersections(void)
 {
    
-    int i, j;
+    int i, j, Loop1, Loop2;
    
     // All thick... easy case
     
@@ -1490,7 +1496,10 @@ void VSP_GEOM::MarkSurfaceSurfaceIntersections(void)
        
        for ( i = 1 ; i <= Grid().NumberOfSurfaceEdges() ; i++ ) {
           
-          if ( Grid().EdgeList(i).IsBoundaryEdge() ) {
+          Loop1 = Grid().EdgeList(i).Loop1();
+          Loop2 = Grid().EdgeList(i).Loop2();
+
+          if ( Loop1 != Loop2 && Grid().EdgeList(i).IsBoundaryEdge() ) {
              
              Grid().EdgeList(i).IsIntersectionEdge() = 1;
              
@@ -1532,6 +1541,8 @@ void VSP_GEOM::MarkSurfaceSurfaceIntersections(void)
                 
                 if ( NodeIsOnIntersection[Node] != Grid().LoopList(j).ComponentID() ) {
                    
+                   printf("Old ComponentID: %d ... and Loop ComponentID: %d \n",
+                   NodeIsOnIntersection[Node], Grid().LoopList(j).ComponentID());fflush(NULL);
                    NodeIsOnIntersection[Node] = -1;
                    
                 }
@@ -3533,7 +3544,6 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     
     NumberOfComponents_ = 0;
     
-printf("NumberOfSurfaces_: %d \n",NumberOfSurfaces_);fflush(NULL);    
     for ( n = 1 ; n <= NumberOfSurfaces_ ; n++ ) {
        
        CompID = ComponentIDForSurface_[n];
@@ -4368,7 +4378,7 @@ void VSP_GEOM::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
 
        if ( Loop1 == Loop2 ) {
 
-          Grid().EdgeList(i).IsBoundaryEdge() = 1; // djk 2
+          Grid().EdgeList(i).IsBoundaryEdge() = 1;
  
        }
 
@@ -5360,7 +5370,7 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
           // Mark concave edges
           
           if ( VortexSheet(k).TrailingVortex(j).TE_Node_Region_Is_Concave() ) {
-             
+                        
              for ( i = 1 ; i <= VortexSheet(k).NumberOfWakeTrailingNodes() - 1 ; i++ ) {    
    
                 Edge = VortexSheet(k).TrailingVortex(j).GlobalEdge(i);

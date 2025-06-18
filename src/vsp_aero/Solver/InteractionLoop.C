@@ -153,7 +153,7 @@ void LOOP_INTERACTION_ENTRY::ReSizeEdgeList(int NumberOfVortexEdges)
     
     else {
        
-       printf("Error!... you can resize a non existing SurfaceVortexEdgeInteractionList_! \n");
+       printf("Error!... you can't resize a non existing SurfaceVortexEdgeInteractionList_! \n");
        fflush(NULL);exit(1);
        
     }

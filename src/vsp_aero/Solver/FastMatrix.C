@@ -70,7 +70,7 @@ void FAST_MATRIX::SizeForwardLoopList(int LoopType, int NumberOfLoops)
     if ( MaxNumberOfForwardInteractionLoops_[LoopType] > 0 ) {
        
        delete [] ForwardInteractionLoopList_[LoopType];
-       
+   
        MaxNumberOfForwardInteractionLoops_[LoopType] = 0;
        
           NumberOfForwardInteractionLoops_[LoopType] = 0;
@@ -1421,8 +1421,8 @@ void FAST_MATRIX::CleanForwardEdgeList(int NumberOfThreads, int LoopType, int Ma
       
           ForwardInteractionEdgeList_[LoopType][i].SurfaceVortexEdgeInteractionList()[j] = TempList.SurfaceVortexEdgeInteractionList()[j];
       
-       }       
- 
+       }   
+   
     }
 
     for ( cpu = 0 ; cpu < NumberOfThreads ; cpu++ ) {

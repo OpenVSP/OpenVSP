@@ -255,13 +255,13 @@ int NumberOfQuadTrees_               = 0;
 int NumberOfInlets_                  = 0;
 int NumberOfNozzles_                 = 0;
 int DoFiniteDiffTest_                = 0;
+int FiniteDiffTestStartNode_         = 1;
 int FiniteDiffTestStepSize_          = 1;
 int FiniteDiffTestLoadGroup_         = 0;
 int StallModelIsOn_                   = 0;
 int SolveOnMGLevel_                  = 0;
 int UpdateMatrixPreconditioner_      = 0;
 int UseWakeNodeMatrixPreconditioner_ = 0;
-int SymmetryFlag_                    = 0;
 int FreezeMultiPoleAtIteration_      = 100000;
 int FreezeWakeAtIteration_           = 100000;
 int FreezeWakeRootVortices_          = 0;
@@ -875,11 +875,14 @@ void ParseInput(int argc, char *argv[])
                     
           DoFiniteDiffTest_ = 1;
           
-          FiniteDiffTestStepSize_ = atoi(argv[++i]);
+          FiniteDiffTestStartNode_ = atoi(argv[++i]);
+          
+          FiniteDiffTestStepSize_  = atoi(argv[++i]);
           
           FiniteDiffTestLoadGroup_ = atoi(argv[++i]);
           
-          printf("Doing finite difference gradient test with grid node step size of: %d and reporting out load group: %d \n",FiniteDiffTestStepSize_,FiniteDiffTestLoadGroup_);
+          printf("Doing finite difference gradient test with start grid node: %d and grid node step size of: %d and reporting out load group: %d \n",
+          FiniteDiffTestStartNode_,FiniteDiffTestStepSize_,FiniteDiffTestLoadGroup_);
 
        }          
        
@@ -1086,7 +1089,7 @@ void LoadCaseFile(int ReadFlag)
         
     // Search for Symmetry setting
     
-    if ( SearchForIntegerVariable(case_file, "Symmetry", SymmetryFlag_) ) if ( case_file != NULL ) { printf("Setting Symmetry to: %d \n",SymmetryFlag_); };
+    if ( SearchForIntegerVariable(case_file, "Symmetry", Symmetry_) ) if ( case_file != NULL ) { printf("Setting Symmetry to: %d \n",Symmetry_); };
 
     // Search for freeze multipole setting
     
@@ -1348,7 +1351,7 @@ void LoadCaseFile(int ReadFlag)
     printf("Clo2D           = %lf \n",Clo2D_);    
     printf("CLMax2D_        = %lf \n",CLMax2D_);    
     
-    printf("Symmetry        = %d  \n",SymmetryFlag_);
+    printf("Symmetry        = %d  \n",Symmetry_);
     printf("FarDist         = %lf \n",FarDist_);
     printf("NumWakeNodes    = %d  \n",NumberOfWakeNodes_);
     printf("WakeIters       = %d  \n",WakeIterations_);
@@ -1387,7 +1390,7 @@ void LoadCaseFile(int ReadFlag)
     VSPAERO().RotationalRate_q() = 0.0;
     VSPAERO().RotationalRate_r() = 0.0;    
 
-    VSPAERO().DoSymmetryPlaneSolve() = SymmetryFlag_;
+    VSPAERO().DoSymmetryPlaneSolve() = Symmetry_;
         
     // Load in the control surface data
     
@@ -1583,8 +1586,8 @@ void LoadCaseFile(int ReadFlag)
           
           for ( i = 1 ; i <= NumberOfRotors_ ; i++ ) {
            
-             fgets(DumChar,MAX_CHAR_SIZE,case_file);
-             fgets(DumChar,MAX_CHAR_SIZE,case_file);
+             fgets(DumChar,MAX_CHAR_SIZE,case_file); printf("%s",DumChar);
+             fgets(DumChar,MAX_CHAR_SIZE,case_file); printf("%s",DumChar);
              
              printf("\nLoading data for rotor: %5d \n",i);
              
@@ -4807,7 +4810,7 @@ void FiniteDiffTestSolve(void)
      
     LoadGroup = FiniteDiffTestLoadGroup_; 
                   
-    for ( i = 1 ; i <= VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() ; i += FiniteDiffTestStepSize_ ) {
+    for ( i = FiniteDiffTestStartNode_ ; i <= VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() ; i += FiniteDiffTestStepSize_ ) {
 
     // X
     
@@ -5003,7 +5006,7 @@ void FiniteDiffTestSolve(void)
 
         // Central differences
         
-        if ( !SymmetryFlag_ || VSPAERO().VSPGeom().Grid(0).NodeList(i).y() > 1.e-6 ) {
+        if ( !Symmetry_ || VSPAERO().VSPGeom().Grid(0).NodeList(i).y() > 1.e-6 ) {
            
            // + 
            

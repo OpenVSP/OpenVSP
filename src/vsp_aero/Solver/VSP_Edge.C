@@ -920,7 +920,7 @@ void VSP_EDGE::BoundVortex(double Gamma, double xyz_p[3], double q[3])
        // Edge comes off concave edge, so we will force induced velocity to zero
        
        if ( IsConcaveTrailingEdge_ ) q[0] = q[1] = q[2] = 0.;
-   
+
        if ( IsSymmetryPlaneEdge_ ) q[1] = 0.;
        
     //  double ratio = 450./sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);

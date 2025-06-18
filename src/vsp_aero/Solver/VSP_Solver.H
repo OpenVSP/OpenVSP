@@ -20,6 +20,7 @@
 #include "ControlSurfaceGroup.H"
 #include "VSPAERO_OMP.H"
 #include "time.H"
+#include "memory.H"
 #include "quat.H"
 #include "MatPrecon.H"
 #include "Gradient.H"

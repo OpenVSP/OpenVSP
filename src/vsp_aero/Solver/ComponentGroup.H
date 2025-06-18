@@ -480,50 +480,50 @@ public:
     double &DCMyo_DOmega(int i) { return DCMyo_DOmega_[i+1]; };
     double &DCMzo_DOmega(int i) { return DCMzo_DOmega_[i+1]; };
         
-    /** Calculate time averaged rotor thrust **/ 
-
-    double Thrusto_avg(void) { return CalculateThrust(VISCOUS_FORCES,  0); };        
-    double Thrusti_avg(void) { return CalculateThrust(INVISCID_FORCES, 0); };  
-    
-    /** Steady state or current time step rotor thrust **/ 
-    
-    double Thrusto(void) { return CalculateThrust(VISCOUS_FORCES,  1); };  
-    double Thrusti(void) { return CalculateThrust(INVISCID_FORCES, 1); };  
-    
-    /** Unsteady rotor thrust **/ 
-    
-    double Thrusto(int i) { return CalculateThrust(VISCOUS_FORCES,  i+1); };  
-    double Thrusti(int i) { return CalculateThrust(INVISCID_FORCES, i+1); };  
-    
-    /** Calculate time averaged rotor moment **/ 
-    
-    double Momento_avg(void) { return CalculateMoment(VISCOUS_FORCES,  0); };  
-    double Momenti_avg(void) { return CalculateMoment(INVISCID_FORCES, 0); };  
-        
-    /** Steady state or current time step rotor moment **/ 
-        
-    double Momento(void) { return CalculateMoment(VISCOUS_FORCES,  1); };  
-    double Momenti(void) { return CalculateMoment(INVISCID_FORCES, 1); };  
-
-    /** Unsteady rotor moment **/ 
-
-    double Momento(int i) { return CalculateMoment(VISCOUS_FORCES,  i+1); };  
-    double Momenti(int i) { return CalculateMoment(INVISCID_FORCES, i+1); };  
-
-    /** Calculate time averaged rotor power **/
-
-    double Powero_avg(void) { return CalculatePower(VISCOUS_FORCES,  0); };  
-    double Poweri_avg(void) { return CalculatePower(INVISCID_FORCES, 0); };  
-     
-    /** Steady state or current time step rotor power **/ 
-     
-    double Powero(void) { return CalculatePower(VISCOUS_FORCES,  1); };  
-    double Poweri(void) { return CalculatePower(INVISCID_FORCES, 1); };      
-
-    /** Unsteady rotor power **/ 
-
-    double Powero(int i) { return CalculatePower(VISCOUS_FORCES,  i+1); };  
-    double Poweri(int i) { return CalculatePower(INVISCID_FORCES, i+1); };      
+ //  /** Calculate time averaged rotor thrust **/ 
+ //
+ //  double Thrusto_avg(void) { return CalculateThrust(VISCOUS_FORCES,  0); };        
+ //  double Thrusti_avg(void) { return CalculateThrust(INVISCID_FORCES, 0); };  
+ //  
+ //  /** Steady state or current time step rotor thrust **/ 
+ //  
+ //  double Thrusto(void) { return CalculateThrust(VISCOUS_FORCES,  1); };  
+ //  double Thrusti(void) { return CalculateThrust(INVISCID_FORCES, 1); };  
+ //  
+ //  /** Unsteady rotor thrust **/ 
+ //  
+ //  double Thrusto(int i) { return CalculateThrust(VISCOUS_FORCES,  i+1); };  
+ //  double Thrusti(int i) { return CalculateThrust(INVISCID_FORCES, i+1); };  
+ //  
+ //  /** Calculate time averaged rotor moment **/ 
+ //  
+ //  double Momento_avg(void) { return CalculateMoment(VISCOUS_FORCES,  0); };  
+ //  double Momenti_avg(void) { return CalculateMoment(INVISCID_FORCES, 0); };  
+ //      
+ //  /** Steady state or current time step rotor moment **/ 
+ //      
+ //  double Momento(void) { return CalculateMoment(VISCOUS_FORCES,  1); };  
+ //  double Momenti(void) { return CalculateMoment(INVISCID_FORCES, 1); };  
+ //
+ //  /** Unsteady rotor moment **/ 
+ //
+ //  double Momento(int i) { return CalculateMoment(VISCOUS_FORCES,  i+1); };  
+ //  double Momenti(int i) { return CalculateMoment(INVISCID_FORCES, i+1); };  
+ //
+ //  /** Calculate time averaged rotor power **/
+ //
+ //  double Powero_avg(void) { return CalculatePower(VISCOUS_FORCES,  0); };  
+ //  double Poweri_avg(void) { return CalculatePower(INVISCID_FORCES, 0); };  
+ //   
+ //  /** Steady state or current time step rotor power **/ 
+ //   
+ //  double Powero(void) { return CalculatePower(VISCOUS_FORCES,  1); };  
+ //  double Poweri(void) { return CalculatePower(INVISCID_FORCES, 1); };      
+ //
+ //  /** Unsteady rotor power **/ 
+ //
+ //  double Powero(int i) { return CalculatePower(VISCOUS_FORCES,  i+1); };  
+ //  double Poweri(int i) { return CalculatePower(INVISCID_FORCES, i+1); };      
 
     /** Zero out the forces and moments **/
     

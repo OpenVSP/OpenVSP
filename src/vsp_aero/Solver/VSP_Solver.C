@@ -2732,7 +2732,17 @@ void VSP_SOLVER::Solve(int Case)
        
        if ( !DumpGeom_ && FreezeMultiPoleAtIteration_ > 0 ) {
               
+#ifdef MYMEMORY    
+          double Mem1 = mymemory();
+#endif             
+ 
           CreateSurfaceVorticesInteractionList();
+
+#ifdef MYMEMORY    
+          double Mem2 = mymemory();
+
+          printf("Initial Interaction list memory: %lf \n",Mem2-Mem1);fflush(NULL);
+#endif              
            
        }
 
@@ -2744,9 +2754,19 @@ void VSP_SOLVER::Solve(int Case)
 
     // Create matrix preconditioners
 
+#ifdef MYMEMORY    
+          double Mem1 = mymemory();
+#endif    
+
     if ( !DumpGeom_ && Preconditioner_ != MATCON ) CalculateDiagonal();       
     
     if ( !DumpGeom_ && Preconditioner_ == MATCON ) CreateMatrixPreconditioners();
+       
+#ifdef MYMEMORY    
+          double Mem2 = mymemory();
+
+          printf("Preconditioner storage: %lf \n",Mem2-Mem1);fflush(NULL);
+#endif    
        
     // Zero out group data
 
@@ -3112,7 +3132,7 @@ void VSP_SOLVER::Solve(int Case)
        while ( CurrentWakeIteration_ <= WakeIterations_ && !Converged ) {
 
           // Update the vortex interaction lists
-          
+
           if ( ( CurrentWakeIteration_ > 1 && CurrentWakeIteration_ <= FreezeMultiPoleAtIteration_ && VSPGeom().NumberOfVortexSheets() > 0 ) && !TimeAccurate_ ) CreateSurfaceVorticesInteractionList();
 
           // Freeze the wake 
@@ -3435,6 +3455,12 @@ void VSP_SOLVER::Solve(int Case)
     // Restore geometry for control surfaces
 
     VSPGeom().UnDeflectControlSurfaces();
+
+#ifdef MYMEMORY    
+    double MemoryGB = mymemory();
+
+    printf("Memory usage: %f GBs \n",MemoryGB);fflush(NULL);
+#endif
 
 }
 
@@ -5725,7 +5751,7 @@ void VSP_SOLVER::CalculateMeshPerturbationLoopVelocities(void)
       
                 VortexEdge = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
 
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                  
                    // Calculate mesh perturbation influence of this edge
         
@@ -6094,7 +6120,7 @@ void VSP_SOLVER::CalculateStallGammaPerturbationLoopVelocities(void)
       
                 VortexEdge = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
    
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                    
                    // Calculate gamma perturbation influence of this edge
         
@@ -6212,7 +6238,7 @@ void VSP_SOLVER::CalculateStallGammaPerturbationEdgeVelocities(void)
        
                 VortexEdge = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
                 
-                if ( VortexEdge->SurfaceID() == 0  ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
 
                    VortexEdge->dInducedVelocity_dStallGamma(VSPGeom().Grid(Level).EdgeList(Edge).xyz_c(), q);
    
@@ -6332,7 +6358,7 @@ void VSP_SOLVER::CalculateVortexStretchingRatioGammaPerturbationLoopVelocities(v
       
                 VortexEdge = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
    
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                    
                    // Calculate gamma perturbation influence of this edge
         
@@ -6450,7 +6476,7 @@ void VSP_SOLVER::CalculateVortexStretchingRatioGammaPerturbationEdgeVelocities(v
        
                 VortexEdge = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
                 
-                if ( VortexEdge->SurfaceID() == 0  ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
 
                    VortexEdge->dInducedVelocity_dVortexStretchingRatio(VSPGeom().Grid(Level).EdgeList(Edge).xyz_c(), q);
    
@@ -7585,7 +7611,7 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
                 
                 // Wake induced velocities
                 
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                    
                    Uw += dU;
                    Vw += dV;
@@ -11469,7 +11495,6 @@ void VSP_SOLVER::CalculateGammaPerturbationLoopVelocities_Tranpose(double *vec_i
                                
                    Coef = CalculateGammaPsiAdjointExpansionOverLoops(iLevel, iLoop, q);
 
-//printf("iLoop: %d --> SurfacID: %d --> q: %f %f %f --> Coef: %f \n",iLoop,VortexEdge->SurfaceID(),q[0],q[1],q[2],Coef);fflush(NULL);                              
                    LoopL = VortexEdge->LoopL();
                    
                    LoopR = VortexEdge->LoopR();
@@ -12142,7 +12167,7 @@ void VSP_SOLVER::CalculateMeshPerturbationEdgeVelocitiesOverLoops_Tranpose(doubl
 
                 // Only loop over the wakes edges
                 
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
 
                    // Calculate gamma perturbation influence of this edge
         
@@ -12419,7 +12444,7 @@ void VSP_SOLVER::CalculateKstallPerturbationLoopVelocities_Tranpose(double *vec_
                    
                 }
                 
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                                
                    Coef = CalculateGammaPsiAdjointExpansionOverLoops(iLevel, iLoop, q);
                               
@@ -12544,7 +12569,7 @@ void VSP_SOLVER::CalculateKstallPerturbationEdgeVelocities_Tranpose(double *vec_
                 
                 VortexEdge = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
 
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                
                    VortexEdge->pVelocity_pGamma(VSPGeom().Grid(iLevel).EdgeList(iEdge).xyz_c(), q);
 
@@ -12700,7 +12725,7 @@ void VSP_SOLVER::CalculateVortexStretchingRatioPerturbationLoopVelocities_Tranpo
                    
                 }
                 
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                                
                    Coef = CalculateGammaPsiAdjointExpansionOverLoops(iLevel, iLoop, q);
                               
@@ -12825,7 +12850,7 @@ void VSP_SOLVER::CalculateVortexStretchingRatioPerturbationEdgeVelocities_Tranpo
                 
                 VortexEdge = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
 
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                
                    VortexEdge->pVelocity_pGamma(VSPGeom().Grid(iLevel).EdgeList(iEdge).xyz_c(), q);
 
@@ -13504,7 +13529,7 @@ void VSP_SOLVER::CalculateMeshPerturbationEdgeVelocitiesOverEdges_Tranpose(doubl
                                                                                  
                 // Distribute coefficients    
 
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                    
                    Node1 = VortexEdge->Node1();
                    Node2 = VortexEdge->Node2();
@@ -14053,7 +14078,7 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Gamma(void)
                 
                 qw[0] = qw[1] = qw[2] = 0.;
                 
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                    
                    qw[0] = q[0];
                    qw[1] = q[1];
@@ -15189,7 +15214,7 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Mesh(void)
                    qw[16] = 0.;
                    qw[17] = 0.;    
                                          
-                   if ( VortexEdge->SurfaceID() == 0 ) {
+                   if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                     
                       qw[ 0] = q[ 0];
                       qw[ 1] = q[ 1];
@@ -15368,7 +15393,7 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Mesh(void)
                    qw[ 7] = 0.;
                    qw[ 8] = 0.;
                                          
-                   if ( VortexEdge->SurfaceID() == 0 ) {
+                   if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                     
                       qw[ 0] = q[ 0];
                       qw[ 1] = q[ 1];
@@ -16595,7 +16620,7 @@ void VSP_SOLVER::CalculateForceGradients_wrt_StallFactor(void)
                 
                 qw[0] = qw[1] = qw[2] = 0.;
      
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                    
                    qw[0] = q[0];
                    qw[1] = q[1];
@@ -16987,7 +17012,7 @@ void VSP_SOLVER::CalculateForceGradients_wrt_VortexStretchingFactor(void)
                 
                 qw[0] = qw[1] = qw[2] = 0.;
                 
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
                    
                    qw[0] = q[0];
                    qw[1] = q[1];
@@ -33447,10 +33472,6 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(void)
     double xyz[3], Vec[3], Distance, Test;
 
     INTERACTION_LISTS *InteractionList;
-    
-    VSP_EDGE **TempEdgeInteractionList;
-    
-    LOOP_ENTRY **CommonEdgeList;
 
     // Allocate space for final interaction lists
 
@@ -33476,12 +33497,6 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(void)
     
     FastMatrix_.NumberOfForwardInteractionLoops(LoopType) = 0;
 
-    // Adjoint loop list
-    
-    FastMatrix_.SizeAdjointLoopList(LoopType,MaxInteractionLoops);
-    
-    FastMatrix_.NumberOfAdjointInteractionLoops(LoopType) = 0;
-
     if ( CurrentWakeIteration_ == 0 && LoopType == FIXED_LOOPS ) { printf("Creating interaction lists... \n\n");fflush(NULL); };
 
     // Forward sweep
@@ -33489,8 +33504,6 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(void)
     if ( CurrentWakeIteration_ == 0 && LoopType == FIXED_LOOPS ) printf("Forward sweep... \n");
 
     FastMatrix_.NumberOfForwardInteractionLoops(LoopType) = VSPGeom().Grid(MGLevel_).NumberOfLoops();
-    
-    FastMatrix_.NumberOfAdjointInteractionLoops(LoopType) = VSPGeom().Grid(MGLevel_).NumberOfLoops();
 
 #pragma omp parallel for private(xyz,InteractionList,NumberOfEdges,NumberOfLoops,i) schedule(dynamic)
     for ( k = 1 ; k <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; k++ ) {
@@ -35831,8 +35844,9 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
    
     int c, k, i, j, t;
     double Thrust, Thrusto, Thrusti, Moment, Momento, Momenti, Power, Powero, Poweri;
-    double CT, CQ, CP, J, EtaP, CT_h, CQ_h, CP_h, FOM, Diameter, RPM, Time;
-    double Omega, Radius, TipVelocity, Area;
+    double CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM;
+    double J, Diameter, RPM, Time;
+    double Omega, Radius, TipVelocity, Area, Vec[3];
 
     // Loop over component groups, calculate rotor coefficients if any are
     // flagged as being rotors by the user.
@@ -35983,19 +35997,46 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
              
              RPM = VSPGeom().ComponentGroupList(c).Omega() * 60 / ( 2.*PI );
              
-             Thrusti = VSPGeom().ComponentGroupList(c).Thrusti();
-             Thrusto = VSPGeom().ComponentGroupList(c).Thrusto();
+             Vec[0] = VSPGeom().ComponentGroupList(c).CFox() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+             Vec[1] = VSPGeom().ComponentGroupList(c).CFoy() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+             Vec[2] = VSPGeom().ComponentGroupList(c).CFoz() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+             
+             Thrusto = vector_dot(Vec, VSPGeom().ComponentGroupList(c).RVec());
+             
+             
+             Vec[0] = VSPGeom().ComponentGroupList(c).CFix() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+             Vec[1] = VSPGeom().ComponentGroupList(c).CFiy() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+             Vec[2] = VSPGeom().ComponentGroupList(c).CFiz() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+             
+             Thrusti = vector_dot(Vec, VSPGeom().ComponentGroupList(c).RVec());
+                 
              Thrust = Thrusto + Thrusti;
 
-             Momenti = VSPGeom().ComponentGroupList(c).Momenti();
-             Momento = VSPGeom().ComponentGroupList(c).Momento();
-             Moment = Momento + Momenti;
+             // Moments
              
-             Poweri = VSPGeom().ComponentGroupList(c).Poweri();
-             Powero = VSPGeom().ComponentGroupList(c).Powero();
+             Vec[0] = VSPGeom().ComponentGroupList(c).CMox() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Bref_;
+             Vec[1] = VSPGeom().ComponentGroupList(c).CMoy() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Cref_;
+             Vec[2] = VSPGeom().ComponentGroupList(c).CMoz() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Bref_;   
+             
+             Momento = -vector_dot(Vec, VSPGeom().ComponentGroupList(c).RVec());
+               
+             Vec[0] = VSPGeom().ComponentGroupList(c).CMix() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Bref_;
+             Vec[1] = VSPGeom().ComponentGroupList(c).CMiy() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Cref_;
+             Vec[2] = VSPGeom().ComponentGroupList(c).CMiz() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Bref_;   
+             
+             Momenti = -vector_dot(Vec, VSPGeom().ComponentGroupList(c).RVec());
+
+             Moment = Momento + Momenti;
+
+             // Power
+             
+             Powero = Momento * VSPGeom().ComponentGroupList(c).Omega();
+             
+             Poweri  = Momenti * VSPGeom().ComponentGroupList(c).Omega();
+
              Power = Powero + Poweri;
-                                       
-             CalculateRotorCoefficientsFromForces(Thrust, Moment, Diameter, RPM, J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM);                                       
+             
+             CalculateRotorCoefficientsFromForces(Thrust, Moment, Diameter, RPM, J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM);                                                    
                         
              Time = CurrentTime_;
           
@@ -36032,21 +36073,53 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                 Diameter = VSPGeom().ComponentGroupList(c).RotorDiameter();
                 
                 RPM = VSPGeom().ComponentGroupList(c).Omega() * 60 / ( 2.*PI );
-                                                
-                Thrusti = VSPGeom().ComponentGroupList(c).Thrusti_avg();
-                Thrusto = VSPGeom().ComponentGroupList(c).Thrusto_avg();
+                                    
+                                    
+                Diameter = VSPGeom().ComponentGroupList(c).RotorDiameter();
+                
+                RPM = VSPGeom().ComponentGroupList(c).Omega() * 60 / ( 2.*PI );
+                
+                Vec[0] = VSPGeom().ComponentGroupList(c).CFox_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+                Vec[1] = VSPGeom().ComponentGroupList(c).CFoy_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+                Vec[2] = VSPGeom().ComponentGroupList(c).CFoz_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+                
+                Thrusto = vector_dot(Vec, VSPGeom().ComponentGroupList(c).RVec());
+                
+                
+                Vec[0] = VSPGeom().ComponentGroupList(c).CFix_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+                Vec[1] = VSPGeom().ComponentGroupList(c).CFiy_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+                Vec[2] = VSPGeom().ComponentGroupList(c).CFiz_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
+                
+                Thrusti = vector_dot(Vec, VSPGeom().ComponentGroupList(c).RVec());
+                    
                 Thrust = Thrusto + Thrusti;
                 
-                Momenti = VSPGeom().ComponentGroupList(c).Momenti_avg();
-                Momento = VSPGeom().ComponentGroupList(c).Momento_avg();
+                // Moments
+                
+                Vec[0] = VSPGeom().ComponentGroupList(c).CMox_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Bref_;
+                Vec[1] = VSPGeom().ComponentGroupList(c).CMoy_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Cref_;
+                Vec[2] = VSPGeom().ComponentGroupList(c).CMoz_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Bref_;   
+                
+                Momento = -vector_dot(Vec, VSPGeom().ComponentGroupList(c).RVec());
+                  
+                Vec[0] = VSPGeom().ComponentGroupList(c).CMix_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Bref_;
+                Vec[1] = VSPGeom().ComponentGroupList(c).CMiy_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Cref_;
+                Vec[2] = VSPGeom().ComponentGroupList(c).CMiz_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Bref_;   
+                
+                Momenti = -vector_dot(Vec, VSPGeom().ComponentGroupList(c).RVec());
+                
                 Moment = Momento + Momenti;
                 
-                Poweri = VSPGeom().ComponentGroupList(c).Poweri_avg();
-                Powero = VSPGeom().ComponentGroupList(c).Powero_avg();
+                // Power
+                
+                Powero = Momento * VSPGeom().ComponentGroupList(c).Omega();
+                
+                Poweri  = Momenti * VSPGeom().ComponentGroupList(c).Omega();
+                
                 Power = Powero + Poweri;
                 
-                CalculateRotorCoefficientsFromForces(Thrust, Moment, Diameter, RPM, J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM);                   
-                
+                CalculateRotorCoefficientsFromForces(Thrust, Moment, Diameter, RPM, J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM);                                                    
+
                 fprintf(RotorFile_[k],"\n\n");
                 fprintf(RotorFile_[k],"Time averaged results: \n");
                 fprintf(RotorFile_[k],"\n");
