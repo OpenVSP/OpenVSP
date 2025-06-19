@@ -1334,8 +1334,11 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
             m_LoadDistFlowConditionBrowser->add( strbuf );
             if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.LOAD_SELECT_TYPE )
             {
-                m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                if ( m_SelectDefaultData || ( iCase < wasSelected.size() && wasSelected[iCase] ) )   //select ALL flow conditions or restore original row selections
+                {
+                    m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                    m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                }
             }
             else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.BLADE_SELECT_TYPE )
             {
