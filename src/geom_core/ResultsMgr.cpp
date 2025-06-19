@@ -1484,30 +1484,30 @@ void Results::WriteMassProp( const string & file_name )
     FILE* fid = fopen( file_name.c_str(), "w" );
     if ( fid )
     {
-        int num_removed =  FindPtr( "Num_Degen_Triangles_Removed" )->GetInt( 0 );
+        int num_removed =  FindPtrWDefault( "Num_Degen_Triangles_Removed" )->GetInt( 0 );
         if ( num_removed != 0 )
         {
             fprintf( fid, "WARNING: %d degenerate triangle removed\n", num_removed );
         }
 
-        int num_open_remove = FindPtr( "Num_Open_Meshes_Removed" )->GetInt( 0 );
+        int num_open_remove = FindPtrWDefault( "Num_Open_Meshes_Removed" )->GetInt( 0 );
         if ( num_open_remove != 0 )
         {
             fprintf( fid, "WARNING: %d open meshes remove\n", num_open_remove );
 
-            vector < string > remnames = FindPtr( "Meshes_Removed_Names" )->GetStringData();
+            vector < string > remnames = FindPtrWDefault( "Meshes_Removed_Names" )->GetStringData();
             for ( int i = 0; i < remnames.size(); i++ )
             {
                 fprintf( fid, "     Removed: %s\n", remnames[i].c_str() );
             }
         }
 
-        int num_open_merge = FindPtr( "Num_Open_Meshes_Merged" )->GetInt( 0 );
+        int num_open_merge = FindPtrWDefault( "Num_Open_Meshes_Merged" )->GetInt( 0 );
         if ( num_open_merge != 0 )
         {
             fprintf( fid, "WARNING: %d open meshes merged\n", num_open_merge );
 
-            vector < string > mernames = FindPtr( "Meshes_Merged_Names" )->GetStringData();
+            vector < string > mernames = FindPtrWDefault( "Meshes_Merged_Names" )->GetStringData();
             for ( int i = 0; i < mernames.size(); i++ )
             {
                 fprintf( fid, "     Merged: %s\n", mernames[i].c_str() );
@@ -1515,40 +1515,40 @@ void Results::WriteMassProp( const string & file_name )
         }
 
         fprintf( fid, "...Mass Properties...\n" );
-        int num_comps = FindPtr( "Num_Comps" )->GetInt( 0 );
+        int num_comps = FindPtrWDefault( "Num_Comps" )->GetInt( 0 );
         fprintf( fid, "%d Num Comps\n", num_comps );
-        fprintf( fid, "%d Total Num Meshes\n", FindPtr( "Num_Total_Meshes" )->GetInt( 0 ) );
-        fprintf( fid, "%d Total Num Tris\n", FindPtr( "Num_Total_Tris" )->GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Meshes\n", FindPtrWDefault( "Num_Total_Meshes" )->GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Tris\n", FindPtrWDefault( "Num_Total_Tris" )->GetInt( 0 ) );
         fprintf( fid, "\n" );
-        fprintf( fid, "%.15e             Total Mass\n", FindPtr( "Total_Mass" )->GetDouble( 0 ) );
-        vec3d total_cg = FindPtr( "Total_CG" )->GetVec3d( 0 );
+        fprintf( fid, "%.15e             Total Mass\n", FindPtrWDefault( "Total_Mass" )->GetDouble( 0 ) );
+        vec3d total_cg = FindPtrWDefault( "Total_CG" )->GetVec3d( 0 );
         fprintf( fid, "%.15e %.15e %.15e       Center of Gravity\n", total_cg.x(), total_cg.y(), total_cg.z() );
-        double ixx =  FindPtr( "Total_Ixx" )->GetDouble( 0 );
-        double iyy =  FindPtr( "Total_Iyy" )->GetDouble( 0 );
-        double izz =  FindPtr( "Total_Izz" )->GetDouble( 0 );
+        double ixx =  FindPtrWDefault( "Total_Ixx" )->GetDouble( 0 );
+        double iyy =  FindPtrWDefault( "Total_Iyy" )->GetDouble( 0 );
+        double izz =  FindPtrWDefault( "Total_Izz" )->GetDouble( 0 );
         fprintf( fid, "%.15e %.15e %.15e       Ixx, Iyy, Izz\n", ixx, iyy, izz );
-        double ixy =  FindPtr( "Total_Ixy" )->GetDouble( 0 );
-        double ixz =  FindPtr( "Total_Ixz" )->GetDouble( 0 );
-        double iyz =  FindPtr( "Total_Iyz" )->GetDouble( 0 );
+        double ixy =  FindPtrWDefault( "Total_Ixy" )->GetDouble( 0 );
+        double ixz =  FindPtrWDefault( "Total_Ixz" )->GetDouble( 0 );
+        double iyz =  FindPtrWDefault( "Total_Iyz" )->GetDouble( 0 );
         fprintf( fid, "%.15e %.15e %.15e       Ixy, Ixz, Iyz\n", ixy, ixz, iyz );
-        fprintf( fid, "%.15e             Volume\n", FindPtr( "Total_Volume" )->GetDouble( 0 ) );
+        fprintf( fid, "%.15e             Volume\n", FindPtrWDefault( "Total_Volume" )->GetDouble( 0 ) );
 
         fprintf( fid, "\n" );
         fprintf( fid, "Name\tMass\tcgX\tcgY\tcgZ\tIxx\tIyy\tIzz\tIxy\tIxz\tIyz\tVolume\n" );
 
         for ( int i = 0 ; i < num_comps; i++ )
         {
-            string comp_Id = FindPtr( "Comp_ID" )->GetString( i );
-            string comp_name = FindPtr( "Comp_Name" )->GetString( i );
-            double comp_mass = FindPtr( "Comp_Mass" )->GetDouble( i );
-            vec3d comp_cg = FindPtr( "Comp_CG" )->GetVec3d( i );
-            double compIxx = FindPtr( "Comp_Ixx" )->GetDouble( i );
-            double compIyy = FindPtr( "Comp_Iyy" )->GetDouble( i );
-            double compIzz = FindPtr( "Comp_Izz" )->GetDouble( i );
-            double compIxy = FindPtr( "Comp_Ixy" )->GetDouble( i );
-            double compIyz = FindPtr( "Comp_Iyz" )->GetDouble( i );
-            double compIxz = FindPtr( "Comp_Ixz" )->GetDouble( i );
-            double compVol = FindPtr( "Comp_Vol" )->GetDouble( i );
+            string comp_Id = FindPtrWDefault( "Comp_ID" )->GetString( i );
+            string comp_name = FindPtrWDefault( "Comp_Name" )->GetString( i );
+            double comp_mass = FindPtrWDefault( "Comp_Mass" )->GetDouble( i );
+            vec3d comp_cg = FindPtrWDefault( "Comp_CG" )->GetVec3d( i );
+            double compIxx = FindPtrWDefault( "Comp_Ixx" )->GetDouble( i );
+            double compIyy = FindPtrWDefault( "Comp_Iyy" )->GetDouble( i );
+            double compIzz = FindPtrWDefault( "Comp_Izz" )->GetDouble( i );
+            double compIxy = FindPtrWDefault( "Comp_Ixy" )->GetDouble( i );
+            double compIyz = FindPtrWDefault( "Comp_Iyz" )->GetDouble( i );
+            double compIxz = FindPtrWDefault( "Comp_Ixz" )->GetDouble( i );
+            double compVol = FindPtrWDefault( "Comp_Vol" )->GetDouble( i );
 
             fprintf( fid, "%s\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\n",
                      comp_name.c_str(), comp_mass, comp_cg.x(), comp_cg.y(), comp_cg.z(),
@@ -1558,14 +1558,14 @@ void Results::WriteMassProp( const string & file_name )
 
         fprintf( fid, "Name\tMass\tcgX\tcgY\tcgZ\tIxx\tIyy\tIzz\tIxy\tIxz\tIyz\tVolume\n" );
         fprintf( fid, "%s\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\n",
-                 "Totals", FindPtr( "Total_Mass" )->GetDouble( 0 ), total_cg.x(), total_cg.y(), total_cg.z(),
-                 ixx, iyy, izz, ixy, ixz, iyz, FindPtr( "Total_Volume" )->GetDouble( 0 ) );
+                 "Totals", FindPtrWDefault( "Total_Mass" )->GetDouble( 0 ), total_cg.x(), total_cg.y(), total_cg.z(),
+                 ixx, iyy, izz, ixy, ixz, iyz, FindPtrWDefault( "Total_Volume" )->GetDouble( 0 ) );
 
 
 
         fprintf( fid, "\n...Filling Mass Properties (Volume Only -- No Shell or Point Mass)...\n" );
 
-        int num_slice = FindPtr( "Num_Fill_Slice" )->GetInt( 0 );
+        int num_slice = FindPtrWDefault( "Num_Fill_Slice" )->GetInt( 0 );
 
         fprintf( fid, "%d Num Slice\n", num_slice );
 
@@ -1574,16 +1574,16 @@ void Results::WriteMassProp( const string & file_name )
 
         for ( int i = 0 ; i < num_slice ; i++ )
         {
-            double fillslice = FindPtr( "Fill_Slice" )->GetDouble( i );
-            double fillmass = FindPtr( "Fill_Mass" )->GetDouble( i );
-            vec3d fillcg = FindPtr( "Fill_CG" )->GetVec3d( i );
-            double fillIxx = FindPtr( "Fill_Ixx" )->GetDouble( i );
-            double fillIyy = FindPtr( "Fill_Iyy" )->GetDouble( i );
-            double fillIzz = FindPtr( "Fill_Izz" )->GetDouble( i );
-            double fillIxy = FindPtr( "Fill_Ixy" )->GetDouble( i );
-            double fillIyz = FindPtr( "Fill_Iyz" )->GetDouble( i );
-            double fillIxz = FindPtr( "Fill_Ixz" )->GetDouble( i );
-            double fillVol = FindPtr( "Fill_Vol" )->GetDouble( i );
+            double fillslice = FindPtrWDefault( "Fill_Slice" )->GetDouble( i );
+            double fillmass = FindPtrWDefault( "Fill_Mass" )->GetDouble( i );
+            vec3d fillcg = FindPtrWDefault( "Fill_CG" )->GetVec3d( i );
+            double fillIxx = FindPtrWDefault( "Fill_Ixx" )->GetDouble( i );
+            double fillIyy = FindPtrWDefault( "Fill_Iyy" )->GetDouble( i );
+            double fillIzz = FindPtrWDefault( "Fill_Izz" )->GetDouble( i );
+            double fillIxy = FindPtrWDefault( "Fill_Ixy" )->GetDouble( i );
+            double fillIyz = FindPtrWDefault( "Fill_Iyz" )->GetDouble( i );
+            double fillIxz = FindPtrWDefault( "Fill_Ixz" )->GetDouble( i );
+            double fillVol = FindPtrWDefault( "Fill_Vol" )->GetDouble( i );
 
             fprintf( fid, "%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\t%.15e\n",
                      fillslice, fillmass, fillcg.x(), fillcg.y(), fillcg.z(),
@@ -1603,27 +1603,27 @@ void Results::WriteCompGeomTxtFile( const string & file_name )
     if ( fid )
     {
         fprintf( fid, "...Comp Geom...\n" );
-        fprintf( fid, "%d Num Comps\n",        FindPtr( "Num_Comps" )->GetInt( 0 ) );
-        fprintf( fid, "%d Total Num Meshes\n", FindPtr( "Total_Num_Meshes" )->GetInt( 0 ) );
-        fprintf( fid, "%d Total Num Tris\n",   FindPtr( "Total_Num_Tris" )->GetInt( 0 ) );
+        fprintf( fid, "%d Num Comps\n",        FindPtrWDefault( "Num_Comps" )->GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Meshes\n", FindPtrWDefault( "Total_Num_Meshes" )->GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Tris\n",   FindPtrWDefault( "Total_Num_Tris" )->GetInt( 0 ) );
         fprintf( fid, "\n" );
         fprintf( fid, "Theo_Area   Wet_Area   Theo_Vol    Wet_Vol  Name\n" );
 
-        int num_mesh = FindPtr( "Num_Meshes" )->GetInt( 0 );
+        int num_mesh = FindPtrWDefault( "Num_Meshes" )->GetInt( 0 );
         for ( int i = 0 ; i < num_mesh ; i++ )
         {
             fprintf( fid, "%9.3f  %9.3f  %9.3f  %9.3f  %-15s\n",
-                     FindPtr( "Theo_Area" )->GetDouble( i ), FindPtr( "Wet_Area" )->GetDouble( i ),
-                     FindPtr( "Theo_Vol" )->GetDouble( i ),  FindPtr( "Wet_Vol" )->GetDouble( i ),
-                     FindPtr( "Comp_Name" )->GetString( i ).c_str() );
+                     FindPtrWDefault( "Theo_Area" )->GetDouble( i ), FindPtrWDefault( "Wet_Area" )->GetDouble( i ),
+                     FindPtrWDefault( "Theo_Vol" )->GetDouble( i ),  FindPtrWDefault( "Wet_Vol" )->GetDouble( i ),
+                     FindPtrWDefault( "Comp_Name" )->GetString( i ).c_str() );
         }
 
         fprintf( fid, "-------------------------------------------------\n" );
         fprintf( fid, "%9.3f  %9.3f  %9.3f  %9.3f  %-15s\n",
-                 FindPtr( "Total_Theo_Area" )->GetDouble( 0 ),   FindPtr( "Total_Wet_Area" )->GetDouble( 0 ),
-                 FindPtr( "Total_Theo_Vol" )->GetDouble( 0 ),    FindPtr( "Total_Wet_Vol" )->GetDouble( 0 ), "Totals" );
+                 FindPtrWDefault( "Total_Theo_Area" )->GetDouble( 0 ),   FindPtrWDefault( "Total_Wet_Area" )->GetDouble( 0 ),
+                 FindPtrWDefault( "Total_Theo_Vol" )->GetDouble( 0 ),    FindPtrWDefault( "Total_Wet_Vol" )->GetDouble( 0 ), "Totals" );
 
-        int num_tag = FindPtr( "Num_Tags" )->GetInt( 0 );
+        int num_tag = FindPtrWDefault( "Num_Tags" )->GetInt( 0 );
         if ( num_tag > 0 )
         {
             fprintf( fid, "\n" );
@@ -1632,30 +1632,30 @@ void Results::WriteCompGeomTxtFile( const string & file_name )
             for ( int i = 0 ; i < num_tag ; i++ )
             {
                 fprintf( fid, "    %9.3f      %9.3f    %-15s\n",
-                         FindPtr( "Tag_Theo_Area" )->GetDouble( i ), FindPtr( "Tag_Wet_Area" )->GetDouble( i ),
-                         FindPtr( "Tag_Name" )->GetString( i ).c_str() );
+                         FindPtrWDefault( "Tag_Theo_Area" )->GetDouble( i ), FindPtrWDefault( "Tag_Wet_Area" )->GetDouble( i ),
+                         FindPtrWDefault( "Tag_Name" )->GetString( i ).c_str() );
             }
         }
 
-        if ( FindPtr( "Num_Degen_Tris_Removed" )->GetInt( 0 ) )
+        if ( FindPtrWDefault( "Num_Degen_Tris_Removed" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d degenerate triangle removed\n", FindPtr( "Num_Degen_Tris_Removed" )->GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d degenerate triangle removed\n", FindPtrWDefault( "Num_Degen_Tris_Removed" )->GetInt( 0 ) );
         }
-        if ( FindPtr( "Num_Open_Meshes_Removed" )->GetInt( 0 ) )
+        if ( FindPtrWDefault( "Num_Open_Meshes_Removed" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d open meshes removed\n", FindPtr( "Num_Open_Meshes_Removed" )->GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d open meshes removed\n", FindPtrWDefault( "Num_Open_Meshes_Removed" )->GetInt( 0 ) );
 
-            vector < string > remnames = FindPtr( "Meshes_Removed_Names" )->GetStringData();
+            vector < string > remnames = FindPtrWDefault( "Meshes_Removed_Names" )->GetStringData();
             for ( int i = 0; i < remnames.size(); i++ )
             {
                 fprintf( fid, "     Removed: %s\n", remnames[i].c_str() );
             }
         }
-        if ( FindPtr( "Num_Open_Meshes_Merged" )->GetInt( 0 ) )
+        if ( FindPtrWDefault( "Num_Open_Meshes_Merged" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d open meshes merged\n", FindPtr( "Num_Open_Meshes_Merged" )->GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d open meshes merged\n", FindPtrWDefault( "Num_Open_Meshes_Merged" )->GetInt( 0 ) );
 
-            vector < string > mernames = FindPtr( "Meshes_Merged_Names" )->GetStringData();
+            vector < string > mernames = FindPtrWDefault( "Meshes_Merged_Names" )->GetStringData();
             for ( int i = 0; i < mernames.size(); i++ )
             {
                 fprintf( fid, "     Merged: %s\n", mernames[i].c_str() );
@@ -1674,27 +1674,27 @@ void Results::WriteCompGeomCsvFile( const string & file_name )
     if ( fid )
     {
         fprintf( fid, "Name, Theo_Area, Wet_Area, Theo_Vol, Wet_Vol\n" );
-        int num_mesh = FindPtr( "Num_Meshes" )->GetInt( 0 );
+        int num_mesh = FindPtrWDefault( "Num_Meshes" )->GetInt( 0 );
         for ( int i = 0 ; i < num_mesh ; i++ )
         {
             fprintf( fid, "%s,%f,%f,%f,%f\n",
-                     FindPtr( "Comp_Name" )->GetString( i ).c_str(),
-                     FindPtr( "Theo_Area" )->GetDouble( i ), FindPtr( "Wet_Area" )->GetDouble( i ),
-                     FindPtr( "Theo_Vol" )->GetDouble( i ),  FindPtr( "Wet_Vol" )->GetDouble( i ) );
+                     FindPtrWDefault( "Comp_Name" )->GetString( i ).c_str(),
+                     FindPtrWDefault( "Theo_Area" )->GetDouble( i ), FindPtrWDefault( "Wet_Area" )->GetDouble( i ),
+                     FindPtrWDefault( "Theo_Vol" )->GetDouble( i ),  FindPtrWDefault( "Wet_Vol" )->GetDouble( i ) );
         }
         fprintf( fid, "%s,%f,%f,%f,%f\n", "Totals",
-                 FindPtr( "Total_Theo_Area" )->GetDouble( 0 ),   FindPtr( "Total_Wet_Area" )->GetDouble( 0 ),
-                 FindPtr( "Total_Theo_Vol" )->GetDouble( 0 ),    FindPtr( "Total_Wet_Vol" )->GetDouble( 0 ) );
+                 FindPtrWDefault( "Total_Theo_Area" )->GetDouble( 0 ),   FindPtrWDefault( "Total_Wet_Area" )->GetDouble( 0 ),
+                 FindPtrWDefault( "Total_Theo_Vol" )->GetDouble( 0 ),    FindPtrWDefault( "Total_Wet_Vol" )->GetDouble( 0 ) );
 
-        int num_tag = FindPtr( "Num_Tags" )->GetInt( 0 );
+        int num_tag = FindPtrWDefault( "Num_Tags" )->GetInt( 0 );
         if ( num_tag > 0 )
         {
             fprintf( fid, "\nTag_Name, Tag_Theo_Area, Tag_Wet_Area\n" );
             for ( int i = 0 ; i < num_tag ; i++ )
             {
                 fprintf( fid, "%s,%f,%f\n",
-                         FindPtr( "Tag_Name" )->GetString( i ).c_str(),
-                         FindPtr( "Tag_Theo_Area" )->GetDouble( i ), FindPtr( "Tag_Wet_Area" )->GetDouble( i ) );
+                         FindPtrWDefault( "Tag_Name" )->GetString( i ).c_str(),
+                         FindPtrWDefault( "Tag_Theo_Area" )->GetDouble( i ), FindPtrWDefault( "Tag_Wet_Area" )->GetDouble( i ) );
             }
         }
 
@@ -1713,19 +1713,19 @@ void Results::WriteDragBuildFile( const string & file_name )
         fprintf( fid, "Name\tTheo_Area\tWet_Area\tTheo_Vol\tWet_Vol\tMin_Chord\tAve_Chord\tMax_Chord\t" );
         fprintf( fid, "Min_TC_Ratio\tAvg_TC_Ratio\tMax_TC_Ratio\tAve_Sweep\tLength\tMax_Xsec_Area\tLen_Dia_Ratio\n" );
 
-        int num_mesh = FindPtr( "Num_Meshes" )->GetInt( 0 );
+        int num_mesh = FindPtrWDefault( "Num_Meshes" )->GetInt( 0 );
         for ( int i = 0 ; i < num_mesh ; i++ )
         {
             fprintf( fid, "%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",
-                     FindPtr( "Comp_Name" )->GetString( i ).c_str(),
-                     FindPtr( "Theo_Area" )->GetDouble( i ), FindPtr( "Wet_Area" )->GetDouble( i ),
-                     FindPtr( "Theo_Vol" )->GetDouble( i ),  FindPtr( "Wet_Vol" )->GetDouble( i ),
-                     FindPtr( "Min_Chord" )->GetDouble( i ), FindPtr( "Avg_Chord" )->GetDouble( i ), FindPtr( "Max_Chord" )->GetDouble( i ),
-                     FindPtr( "Min_TC" )->GetDouble( i ),    FindPtr( "Avg_TC" )->GetDouble( i ),    FindPtr( "Max_TC" )->GetDouble( i ),
-                     FindPtr( "Avg_Sweep" )->GetDouble( i ),
-                     FindPtr( "Length" )->GetDouble( i ),
-                     FindPtr( "Max_Area" )->GetDouble( i ),
-                     FindPtr( "Length_Dia" )->GetDouble( i ) );
+                     FindPtrWDefault( "Comp_Name" )->GetString( i ).c_str(),
+                     FindPtrWDefault( "Theo_Area" )->GetDouble( i ), FindPtrWDefault( "Wet_Area" )->GetDouble( i ),
+                     FindPtrWDefault( "Theo_Vol" )->GetDouble( i ),  FindPtrWDefault( "Wet_Vol" )->GetDouble( i ),
+                     FindPtrWDefault( "Min_Chord" )->GetDouble( i ), FindPtrWDefault( "Avg_Chord" )->GetDouble( i ), FindPtrWDefault( "Max_Chord" )->GetDouble( i ),
+                     FindPtrWDefault( "Min_TC" )->GetDouble( i ),    FindPtrWDefault( "Avg_TC" )->GetDouble( i ),    FindPtrWDefault( "Max_TC" )->GetDouble( i ),
+                     FindPtrWDefault( "Avg_Sweep" )->GetDouble( i ),
+                     FindPtrWDefault( "Length" )->GetDouble( i ),
+                     FindPtrWDefault( "Max_Area" )->GetDouble( i ),
+                     FindPtrWDefault( "Length_Dia" )->GetDouble( i ) );
         }
 
         fclose( fid );
@@ -1740,24 +1740,24 @@ void Results::WriteParasiteDragFile( const string & file_name )
     {
         fprintf(file_id, "PARASITE DRAG BUILD UP DATA \n\n");
 
-        string AltLabel = FindPtr("Alt_Label")->GetString(0);
-        string VinfLabel = FindPtr("Vinf_Label")->GetString(0);
-        string SrefLabel = FindPtr("Sref_Label")->GetString(0);
-        double mach = FindPtr("FC_Mach")->GetDouble(0);
-        double hinf = FindPtr("FC_Alt")->GetDouble(0);
-        double vinf = FindPtr("FC_Vinf")->GetDouble(0);
-        double sref = FindPtr("FC_Sref")->GetDouble(0);
+        string AltLabel = FindPtrWDefault("Alt_Label")->GetString(0);
+        string VinfLabel = FindPtrWDefault("Vinf_Label")->GetString(0);
+        string SrefLabel = FindPtrWDefault("Sref_Label")->GetString(0);
+        double mach = FindPtrWDefault("FC_Mach")->GetDouble(0);
+        double hinf = FindPtrWDefault("FC_Alt")->GetDouble(0);
+        double vinf = FindPtrWDefault("FC_Vinf")->GetDouble(0);
+        double sref = FindPtrWDefault("FC_Sref")->GetDouble(0);
         fprintf(file_id, "Mach, %s, %s, %s\n", AltLabel.c_str(), VinfLabel.c_str(), SrefLabel.c_str());
         fprintf(file_id, "%f, %f, %f, %f \n\n", mach, hinf, vinf, sref);
 
-        string TempLabel = FindPtr("Temp_Label")->GetString(0);
-        string PresLabel = FindPtr("Pres_Label")->GetString(0);
-        string RhoLabel = FindPtr("Rho_Label")->GetString(0);
-        double temp = FindPtr("FC_Temp")->GetDouble(0);
-        double pres = FindPtr("FC_Pres")->GetDouble(0);
-        double rho = FindPtr("FC_Rho")->GetDouble(0);
-        string lamcfeqnname = FindPtr("LamCfEqnName")->GetString(0);
-        string turbcfeqnname = FindPtr("TurbCfEqnName")->GetString(0);
+        string TempLabel = FindPtrWDefault("Temp_Label")->GetString(0);
+        string PresLabel = FindPtrWDefault("Pres_Label")->GetString(0);
+        string RhoLabel = FindPtrWDefault("Rho_Label")->GetString(0);
+        double temp = FindPtrWDefault("FC_Temp")->GetDouble(0);
+        double pres = FindPtrWDefault("FC_Pres")->GetDouble(0);
+        double rho = FindPtrWDefault("FC_Rho")->GetDouble(0);
+        string lamcfeqnname = FindPtrWDefault("LamCfEqnName")->GetString(0);
+        string turbcfeqnname = FindPtrWDefault("TurbCfEqnName")->GetString(0);
 
         fprintf(file_id, "%s, %s, %s \n", TempLabel.c_str(), PresLabel.c_str(), RhoLabel.c_str());
         fprintf(file_id, "%f, %f, %f \n\n", temp, pres, rho);
@@ -1766,38 +1766,38 @@ void Results::WriteParasiteDragFile( const string & file_name )
 
         fprintf(file_id, "\n");
 
-        string SwetLabel = FindPtr("Swet_Label")->GetString(0);
-        string LrefLabel = FindPtr("Lref_Label")->GetString(0);
-        string fLabel = FindPtr("f_Label")->GetString(0);
+        string SwetLabel = FindPtrWDefault("Swet_Label")->GetString(0);
+        string LrefLabel = FindPtrWDefault("Lref_Label")->GetString(0);
+        string fLabel = FindPtrWDefault("f_Label")->GetString(0);
 
         fprintf(file_id, "Component Name,%s,%s,t/c or d/l,FF,FF Eqn Type,Re,%% Lam,Cf,Q (Interference Factor),%s,Cd,%% Total \n",
             SwetLabel.c_str(), LrefLabel.c_str(), fLabel.c_str() );
 
-        int num_comp = FindPtr("Num_Comp")->GetInt(0);
+        int num_comp = FindPtrWDefault("Num_Comp")->GetInt(0);
         for (int i = 0; i < num_comp; i++)
         {
-            string label = FindPtr("Comp_Label")->GetString(i);
-            double swet = FindPtr("Comp_Swet")->GetDouble(i);
-            double lref = FindPtr("Comp_Lref")->GetDouble(i);
-            double fineRat = FindPtr("Comp_FineRat")->GetDouble(i);
-            int FFType = FindPtr("Comp_FFEqn")->GetInt(i);
+            string label = FindPtrWDefault("Comp_Label")->GetString(i);
+            double swet = FindPtrWDefault("Comp_Swet")->GetDouble(i);
+            double lref = FindPtrWDefault("Comp_Lref")->GetDouble(i);
+            double fineRat = FindPtrWDefault("Comp_FineRat")->GetDouble(i);
+            int FFType = FindPtrWDefault("Comp_FFEqn")->GetInt(i);
             double FF = 0;
             if (FFType == vsp::FF_B_MANUAL || FFType == vsp::FF_W_MANUAL)
             {
-                FF = FindPtr("Comp_FFIn")->GetDouble(i);
+                FF = FindPtrWDefault("Comp_FFIn")->GetDouble(i);
             }
             else
             {
-                FF = FindPtr("Comp_FFOut")->GetDouble(i);
+                FF = FindPtrWDefault("Comp_FFOut")->GetDouble(i);
             }
-            string FFEqnName = FindPtr("Comp_FFEqnName")->GetString(i);
-            double Re = FindPtr("Comp_Re")->GetDouble(i);
-            double PercLam = FindPtr("Comp_PercLam")->GetDouble(i);
-            double Cf = FindPtr("Comp_Cf")->GetDouble(i);
-            double Q = FindPtr("Comp_Q")->GetDouble(i);
-            double f = FindPtr("Comp_f")->GetDouble(i);
-            double CD = FindPtr("Comp_CD")->GetDouble(i);
-            double PercTotalCD = 100 * FindPtr("Comp_PercTotalCD")->GetDouble(i);
+            string FFEqnName = FindPtrWDefault("Comp_FFEqnName")->GetString(i);
+            double Re = FindPtrWDefault("Comp_Re")->GetDouble(i);
+            double PercLam = FindPtrWDefault("Comp_PercLam")->GetDouble(i);
+            double Cf = FindPtrWDefault("Comp_Cf")->GetDouble(i);
+            double Q = FindPtrWDefault("Comp_Q")->GetDouble(i);
+            double f = FindPtrWDefault("Comp_f")->GetDouble(i);
+            double CD = FindPtrWDefault("Comp_CD")->GetDouble(i);
+            double PercTotalCD = 100 * FindPtrWDefault("Comp_PercTotalCD")->GetDouble(i);
 
             fprintf(file_id, "%s,", label.c_str());
             fprintf(file_id, "%f, %f, %f,", swet, lref, fineRat);
@@ -1811,29 +1811,29 @@ void Results::WriteParasiteDragFile( const string & file_name )
         fprintf(file_id, "\n");
         fprintf(file_id, "Excrescences, Type, Input\n");
 
-        int num_excres = FindPtr("Num_Excres")->GetInt(0);
+        int num_excres = FindPtrWDefault("Num_Excres")->GetInt(0);
         for (int i = 0; i < num_excres; i++)
         {
-            string label = FindPtr("Excres_Label")->GetString(i);
-            string type = FindPtr("Excres_Type")->GetString(i);
-            double input = FindPtr("Excres_Input")->GetDouble(i);
-            double f = FindPtr( "Excres_f" )->GetDouble( i );
-            double amount = FindPtr("Excres_Amount")->GetDouble(i);
-            double perctotalcd = 100 * FindPtr("Excres_PercTotalCD")->GetDouble(i);
+            string label = FindPtrWDefault("Excres_Label")->GetString(i);
+            string type = FindPtrWDefault("Excres_Type")->GetString(i);
+            double input = FindPtrWDefault("Excres_Input")->GetDouble(i);
+            double f = FindPtrWDefault( "Excres_f" )->GetDouble( i );
+            double amount = FindPtrWDefault("Excres_Amount")->GetDouble(i);
+            double perctotalcd = 100 * FindPtrWDefault("Excres_PercTotalCD")->GetDouble(i);
 
             fprintf(file_id, " %s, %s, %f, , , , , , , ,%f, %f, %f \n",
                 label.c_str(), type.c_str(), input, f, amount, perctotalcd);
         }
 
-        double geomftotal = FindPtr("Geom_f_Total")->GetDouble(0);
-        double geomcdtotal = FindPtr("Geom_CD_Total")->GetDouble(0);
-        double geomperctotal = 100 * FindPtr("Geom_Perc_Total")->GetDouble(0);
-        double excresftotal = FindPtr("Excres_f_Total")->GetDouble(0);
-        double excrescdtotal = FindPtr("Excres_CD_Total")->GetDouble(0);
-        double excresperctotal = 100 * FindPtr("Excres_Perc_Total")->GetDouble(0);
-        double totalftotal = FindPtr("Total_f_Total")->GetDouble(0);
-        double totalcdtotal = FindPtr("Total_CD_Total")->GetDouble(0);
-        double totalperctotal = 100 * FindPtr("Total_Perc_Total")->GetDouble(0);
+        double geomftotal = FindPtrWDefault("Geom_f_Total")->GetDouble(0);
+        double geomcdtotal = FindPtrWDefault("Geom_CD_Total")->GetDouble(0);
+        double geomperctotal = 100 * FindPtrWDefault("Geom_Perc_Total")->GetDouble(0);
+        double excresftotal = FindPtrWDefault("Excres_f_Total")->GetDouble(0);
+        double excrescdtotal = FindPtrWDefault("Excres_CD_Total")->GetDouble(0);
+        double excresperctotal = 100 * FindPtrWDefault("Excres_Perc_Total")->GetDouble(0);
+        double totalftotal = FindPtrWDefault("Total_f_Total")->GetDouble(0);
+        double totalcdtotal = FindPtrWDefault("Total_CD_Total")->GetDouble(0);
+        double totalperctotal = 100 * FindPtrWDefault("Total_Perc_Total")->GetDouble(0);
 
         fprintf(file_id, "\n");
         fprintf(file_id, " , , , , , , , , , %s, %f, %f, %f \n", "Geometry Sub-Total:", geomftotal, geomcdtotal, geomperctotal);
@@ -1849,25 +1849,25 @@ void Results::WriteSliceFile( const string & file_name )
     FILE* fid = fopen( file_name.c_str(), "w" );
     if ( fid )
     {
-        if ( FindPtr( "Num_Degen_Tris_Removed" )->GetInt( 0 ) )
+        if ( FindPtrWDefault( "Num_Degen_Tris_Removed" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d degenerate triangle removed\n", FindPtr( "Num_Degen_Tris_Removed" )->GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d degenerate triangle removed\n", FindPtrWDefault( "Num_Degen_Tris_Removed" )->GetInt( 0 ) );
         }
-        if ( FindPtr( "Num_Open_Meshes_Removed" )->GetInt( 0 ) )
+        if ( FindPtrWDefault( "Num_Open_Meshes_Removed" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d open meshes removed\n", FindPtr( "Num_Open_Meshes_Removed" )->GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d open meshes removed\n", FindPtrWDefault( "Num_Open_Meshes_Removed" )->GetInt( 0 ) );
 
-            vector < string > remnames = FindPtr( "Meshes_Removed_Names" )->GetStringData();
+            vector < string > remnames = FindPtrWDefault( "Meshes_Removed_Names" )->GetStringData();
             for ( int i = 0; i < remnames.size(); i++ )
             {
                 fprintf( fid, "     Removed: %s\n", remnames[i].c_str() );
             }
         }
-        if ( FindPtr( "Num_Open_Meshes_Merged" )->GetInt( 0 ) )
+        if ( FindPtrWDefault( "Num_Open_Meshes_Merged" )->GetInt( 0 ) )
         {
-            fprintf( fid, "WARNING: %d open meshes merged\n", FindPtr( "Num_Open_Meshes_Merged" )->GetInt( 0 ) );
+            fprintf( fid, "WARNING: %d open meshes merged\n", FindPtrWDefault( "Num_Open_Meshes_Merged" )->GetInt( 0 ) );
 
-            vector < string > mernames = FindPtr( "Meshes_Merged_Names" )->GetStringData();
+            vector < string > mernames = FindPtrWDefault( "Meshes_Merged_Names" )->GetStringData();
             for ( int i = 0; i < mernames.size(); i++ )
             {
                 fprintf( fid, "     Merged: %s\n", mernames[i].c_str() );
@@ -1875,19 +1875,19 @@ void Results::WriteSliceFile( const string & file_name )
         }
 
         fprintf( fid, "...Slice...\n" );
-        fprintf( fid, "%d Num Comps\n", FindPtr( "Num_Comps" )->GetInt( 0 ) );
-        fprintf( fid, "%d Total Num Meshes\n", FindPtr( "Num_Meshes" )->GetInt( 0 ) );
-        fprintf( fid, "%d Total Num Tris\n", FindPtr( "Num_Tris" )->GetInt( 0 ) );
-        vec3d norm_axis = FindPtr( "Axis_Vector" )->GetVec3d( 0 );
+        fprintf( fid, "%d Num Comps\n", FindPtrWDefault( "Num_Comps" )->GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Meshes\n", FindPtrWDefault( "Num_Meshes" )->GetInt( 0 ) );
+        fprintf( fid, "%d Total Num Tris\n", FindPtrWDefault( "Num_Tris" )->GetInt( 0 ) );
+        vec3d norm_axis = FindPtrWDefault( "Axis_Vector" )->GetVec3d( 0 );
         fprintf( fid, "%1.5f %1.5f %1.5f Axis Vector\n", norm_axis.x(), norm_axis.y(), norm_axis.z() );
 
         fprintf( fid, "\n" );
         fprintf( fid, "    Loc    XCenter  YCenter  ZCenter         Area\n" );
-        for ( int s = 0 ; s <  FindPtr( "Num_Slices" )->GetInt( 0 ) ; s++ )
+        for ( int s = 0 ; s <  FindPtrWDefault( "Num_Slices" )->GetInt( 0 ) ; s++ )
         {
-            vec3d area_center = FindPtr( "Slice_Area_Center" )->GetVec3d( s );
-            fprintf( fid, "%9.3f %9.3f %9.3f %9.3f %9.3f\n", FindPtr( "Slice_Loc" )->GetDouble( s ), area_center[0],
-                    area_center[1], area_center[2], FindPtr( "Slice_Area" )->GetDouble( s ) );
+            vec3d area_center = FindPtrWDefault( "Slice_Area_Center" )->GetVec3d( s );
+            fprintf( fid, "%9.3f %9.3f %9.3f %9.3f %9.3f\n", FindPtrWDefault( "Slice_Loc" )->GetDouble( s ), area_center[0],
+                    area_center[1], area_center[2], FindPtrWDefault( "Slice_Area" )->GetDouble( s ) );
         }
 
         fclose( fid );
@@ -1902,33 +1902,33 @@ void Results::WriteWaveDragFile( const string & file_name )
     {
         fprintf( fid, "...Wave Drag Slice...\n" );
 
-        fprintf( fid, "Inlet Area: %f\n", FindPtr( "Inlet_Area" )->GetDouble( 0 ) );
-        fprintf( fid, "Exit Area: %f\n", FindPtr( "Exit_Area" )->GetDouble( 0 ) );
+        fprintf( fid, "Inlet Area: %f\n", FindPtrWDefault( "Inlet_Area" )->GetDouble( 0 ) );
+        fprintf( fid, "Exit Area: %f\n", FindPtrWDefault( "Exit_Area" )->GetDouble( 0 ) );
 
-        int num_cone_sections = FindPtr( "Num_Cone_Sections" )->GetInt( 0 );
-        int num_slices = FindPtr( "Num_Slices" )->GetInt( 0 );
+        int num_cone_sections = FindPtrWDefault( "Num_Cone_Sections" )->GetInt( 0 );
+        int num_slices = FindPtrWDefault( "Num_Slices" )->GetInt( 0 );
 
         fprintf( fid, "\n" );
         for ( int i = 0; i < num_cone_sections ; i++ )
         {
-            fprintf( fid, "Theta: %6.2f, Start: %6.2f, End: %6.2f\n", FindPtr( "Theta" )->GetDouble( i ), FindPtr( "Start_X" )->GetDouble( i ), FindPtr( "End_X" )->GetDouble( i ) );
+            fprintf( fid, "Theta: %6.2f, Start: %6.2f, End: %6.2f\n", FindPtrWDefault( "Theta" )->GetDouble( i ), FindPtrWDefault( "Start_X" )->GetDouble( i ), FindPtrWDefault( "End_X" )->GetDouble( i ) );
 
             for ( int s = 0 ; s < num_slices ; s++ )
             {
-                fprintf( fid, "%19.8f, ", FindPtr( "X_Norm" )->GetDouble( s ) );
-                fprintf( fid, "%19.8f", FindPtr( "Slice_Area", i )->GetDouble( s ) );
+                fprintf( fid, "%19.8f, ", FindPtrWDefault( "X_Norm" )->GetDouble( s ) );
+                fprintf( fid, "%19.8f", FindPtrWDefault( "Slice_Area", i )->GetDouble( s ) );
                 fprintf( fid, "\n" );
             }
             fprintf( fid, "\n" );
         }
 
-        double CD0w = FindPtr( "CDWave" )->GetDouble( 0 );
+        double CD0w = FindPtrWDefault( "CDWave" )->GetDouble( 0 );
         fprintf( fid, "CDWave: %19.8f \n", CD0w );
 
-        double Mach = FindPtr( "Mach" )->GetDouble( 0 );
+        double Mach = FindPtrWDefault( "Mach" )->GetDouble( 0 );
         fprintf( fid, "Mach: %19.8f \n", Mach);
 
-        string Set_Name = FindPtr( "Set_Name" )->GetString( 0 );
+        string Set_Name = FindPtrWDefault( "Set_Name" )->GetString( 0 );
         fprintf( fid, "Set Name: %s \n", Set_Name.c_str());
 
         fclose( fid );
@@ -1943,14 +1943,14 @@ void Results::WriteBEMFile( const string & file_name )
     {
         fprintf( fid, "...BEM Propeller...\n" );
 
-        int num_sect = FindPtr( "Num_Sections" )->GetInt( 0 );
-        int num_blade = FindPtr( "Num_Blade" )->GetInt( 0 );
-        double diam = FindPtr( "Diameter" )->GetDouble( 0 );
-        double beta34 = FindPtr( "Beta34" )->GetDouble( 0 );
-        double feather = FindPtr( "Feather" )->GetDouble( 0 );
-        double precone = FindPtr( "Pre_Cone" )->GetDouble( 0 );
-        vec3d cen = FindPtr( "Center" )->GetVec3d( 0 );
-        vec3d norm = FindPtr( "Normal" )->GetVec3d( 0 );
+        int num_sect = FindPtrWDefault( "Num_Sections" )->GetInt( 0 );
+        int num_blade = FindPtrWDefault( "Num_Blade" )->GetInt( 0 );
+        double diam = FindPtrWDefault( "Diameter" )->GetDouble( 0 );
+        double beta34 = FindPtrWDefault( "Beta34" )->GetDouble( 0 );
+        double feather = FindPtrWDefault( "Feather" )->GetDouble( 0 );
+        double precone = FindPtrWDefault( "Pre_Cone" )->GetDouble( 0 );
+        vec3d cen = FindPtrWDefault( "Center" )->GetVec3d( 0 );
+        vec3d norm = FindPtrWDefault( "Normal" )->GetVec3d( 0 );
 
         fprintf( fid, "Num_Sections: %d\n", num_sect );
         fprintf( fid, "Num_Blade: %d\n", num_blade );
@@ -1961,16 +1961,16 @@ void Results::WriteBEMFile( const string & file_name )
         fprintf( fid, "Center: %.8f, %.8f, %.8f\n", cen.x(), cen.y(), cen.z() );
         fprintf( fid, "Normal: %.8f, %.8f, %.8f\n", norm.x(), norm.y(), norm.z() );
 
-        vector < double > r_vec = FindPtr( "Radius" )->GetDoubleData();
-        vector < double > chord_vec = FindPtr( "Chord" )->GetDoubleData();
-        vector < double > twist_vec = FindPtr( "Twist" )->GetDoubleData();
-        vector < double > rake_vec = FindPtr( "Rake" )->GetDoubleData();
-        vector < double > skew_vec = FindPtr( "Skew" )->GetDoubleData();
-        vector < double > sweep_vec = FindPtr( "Sweep" )->GetDoubleData();
-        vector < double > thick_vec = FindPtr( "Thick" )->GetDoubleData();
-        vector < double > cli_vec = FindPtr( "CLi" )->GetDoubleData();
-        vector < double > axial_vec = FindPtr( "Axial" )->GetDoubleData();
-        vector < double > tangential_vec = FindPtr( "Tangential" )->GetDoubleData();
+        vector < double > r_vec = FindPtrWDefault( "Radius" )->GetDoubleData();
+        vector < double > chord_vec = FindPtrWDefault( "Chord" )->GetDoubleData();
+        vector < double > twist_vec = FindPtrWDefault( "Twist" )->GetDoubleData();
+        vector < double > rake_vec = FindPtrWDefault( "Rake" )->GetDoubleData();
+        vector < double > skew_vec = FindPtrWDefault( "Skew" )->GetDoubleData();
+        vector < double > sweep_vec = FindPtrWDefault( "Sweep" )->GetDoubleData();
+        vector < double > thick_vec = FindPtrWDefault( "Thick" )->GetDoubleData();
+        vector < double > cli_vec = FindPtrWDefault( "CLi" )->GetDoubleData();
+        vector < double > axial_vec = FindPtrWDefault( "Axial" )->GetDoubleData();
+        vector < double > tangential_vec = FindPtrWDefault( "Tangential" )->GetDoubleData();
 
         fprintf( fid, "\nRadius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi, Axial, Tangential\n" );
         for ( int i = 0; i < num_sect; i++ )
@@ -1982,8 +1982,8 @@ void Results::WriteBEMFile( const string & file_name )
         {
             char str[255];
             snprintf( str, sizeof( str ),  "%03d", i );
-            vector < double > xpts = FindPtr( "XSection_" + string( str ) )->GetDoubleData();
-            vector < double > ypts = FindPtr( "YSection_" + string( str ) )->GetDoubleData();
+            vector < double > xpts = FindPtrWDefault( "XSection_" + string( str ) )->GetDoubleData();
+            vector < double > ypts = FindPtrWDefault( "YSection_" + string( str ) )->GetDoubleData();
 
             fprintf( fid, "\nSection %d X, Y\n", i );
 
