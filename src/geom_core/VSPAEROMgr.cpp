@@ -2888,9 +2888,14 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
 
             double chordRatio;
 
+            int nblank = 0;
+
             // read the data rows
-            while ( data_string_array.size() == nSectionalDataTableCols )
+            while ( ( data_string_array.size() == nSectionalDataTableCols ||
+                      data_string_array.size() == 0 ) && nblank < 5 )
             {
+                if ( data_string_array.size() == nSectionalDataTableCols )
+                {
                 // Store the raw data
                 VortexSheet.push_back( std::stoi( data_string_array[0] ) );
                 TrailVort.push_back(   std::stoi( data_string_array[1] ) );
@@ -2960,6 +2965,11 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
                 Cmxic_cref.push_back( Cmxi.back() * chordRatio );
                 Cmyic_cref.push_back( Cmyi.back() * chordRatio );
                 Cmzic_cref.push_back( Cmzi.back() * chordRatio );
+                }
+                else
+                {
+                    nblank++;
+                }
 
                 // Read the next line and loop
                 data_string_array = ReadDelimLine( fp, seps );
