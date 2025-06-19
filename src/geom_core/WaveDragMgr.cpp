@@ -319,7 +319,12 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
 
     string filename = veh->getExportFileName( vsp::WAVE_DRAG_TXT_TYPE );
 
-    string str_mach = "M" + std::to_string( res->FindPtr( "Mach" )->GetDouble( 0 ) );
+    string str_mach;
+    NameValData *nvd = res->FindPtr( "Mach" );
+    if ( nvd )
+    {
+        str_mach = "M" + std::to_string( nvd->GetDouble( 0 ) );
+    }
 
     vector< string > set_name_vec = veh->GetSetNameVec();
 
