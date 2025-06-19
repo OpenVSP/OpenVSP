@@ -1108,6 +1108,8 @@ void PropGeom::UpdateSurf()
         }
     }
 
+    m_MainSurfVec.clear();
+
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
         // Find the union of stations required to approximate the blade parameters
@@ -1307,7 +1309,6 @@ void PropGeom::UpdateSurf()
         m_FoilSurf = VspSurf();
         m_FoilSurf.SkinC0(crv_vec, m_UPseudo, false );
 
-        m_MainSurfVec.clear();
         m_MainSurfVec.reserve( m_Nblade() + 1 );
         m_MainSurfVec.resize( 1 );
 
