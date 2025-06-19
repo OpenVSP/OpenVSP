@@ -322,6 +322,7 @@ public:
     vector< string > GetAllDataNames();
 
     NameValData* FindPtr( const string & name, int index = 0 );
+    NameValData* FindPtrWDefault( const string & name, int index = 0 );
     vector< NameValData* > GetAllPtrs();
 
 protected:

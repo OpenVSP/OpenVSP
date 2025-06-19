@@ -915,6 +915,17 @@ NameValData* NameValCollection::FindPtr( const string & name, int index )
         }
     }
 
+    return nullptr;
+}
+
+NameValData* NameValCollection::FindPtrWDefault( const string & name, int index )
+{
+    NameValData *nvd = FindPtr( name, index );
+    if ( nvd )
+    {
+        return nvd;
+    }
+
     // due to prior implementation as a non-ptr finder, need to return a pointer to a default NameValData if not found in NameValCollection
     Vehicle* veh = VehicleMgr.GetVehicle();
     return veh->GetBlankNvd();
