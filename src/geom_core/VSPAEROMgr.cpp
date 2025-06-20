@@ -2965,6 +2965,8 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
                     Cmxic_cref.push_back( Cmxi.back() * chordRatio );
                     Cmyic_cref.push_back( Cmyi.back() * chordRatio );
                     Cmzic_cref.push_back( Cmzi.back() * chordRatio );
+
+                    nblank = 0;
                 }
                 else
                 {
