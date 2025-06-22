@@ -745,6 +745,13 @@ bool SuperConeScreen::Update()
     XSecCurve* xsc = bor_ptr->GetXSecCurve();
     if ( xsc )
     {
+        XSecViewScreen *xsscreen = dynamic_cast < XSecViewScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_XSEC_SCREEN ) );
+
+        if ( xsscreen )
+        {
+            xsscreen->SetXSecCurve( xsc );
+        }
+
         m_XsecAttributeEditor.SetEditorCollID( xsc->GetAttrCollection()->GetID() );
         m_XsecAttributeEditor.Update();
 

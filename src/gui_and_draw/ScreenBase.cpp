@@ -2018,6 +2018,13 @@ bool GeomScreen::Update()
 
             if ( xsc )
             {
+                XSecViewScreen *xsscreen = dynamic_cast < XSecViewScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_XSEC_SCREEN ) );
+
+                if ( xsscreen )
+                {
+                    xsscreen->SetXSecCurve( xsc );
+                }
+
                 empty_coll_ids.push_back( xsc->GetAttrCollection()->GetID() );
 
                 m_SSXSecTypeChoice.SetVal( xsc->GetType() );
@@ -3797,6 +3804,13 @@ bool XSecScreen::Update()
         XSecCurve* xsc = xs->GetXSecCurve();
         if (xsc)
         {
+            XSecViewScreen *xsscreen = dynamic_cast < XSecViewScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_XSEC_SCREEN ) );
+
+            if ( xsscreen )
+            {
+                xsscreen->SetXSecCurve( xsc );
+            }
+
             m_XSecCurveNameInput.Update( xsc->GetGroupAlias() );
 
             //==== Attributes ====//
