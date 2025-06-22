@@ -997,8 +997,6 @@ protected:
     vector<DrawObj> m_XSecDrawObj_vec;
     DrawObj m_HighlightXSecDrawObj;
     DrawObj m_HighlightXSecLoftDrawObj;
-
-    DrawObj m_CurrentXSecDrawObj;
 };
 
 #endif // !defined(VSPGEOM__INCLUDED_)

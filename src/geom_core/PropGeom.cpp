@@ -734,7 +734,6 @@ void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_XSecDrawObj_vec[ i ].m_Visible = false;
         }
         m_HighlightXSecDrawObj.m_Visible = false;
-        m_CurrentXSecDrawObj.m_Visible = false;
     }
 
     m_HighlightBladeDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;

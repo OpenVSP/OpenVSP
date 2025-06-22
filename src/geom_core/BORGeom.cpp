@@ -297,41 +297,6 @@ int BORGeom::GetXSecCurveType()
     return m_XSCurve->GetType();
 }
 
-void BORGeom::UpdateDrawObj()
-{
-    Geom::UpdateDrawObj();
-
-
-    double w = m_XSCurve->GetWidth();
-
-    Matrix4d mat;
-    XSecSurf::GetBasicTransformation( vsp::Z_DIR, vsp::X_DIR, vsp::XS_SHIFT_MID, false, 1.0, mat );
-
-    mat.scale( 1.0/w );
-    VspCurve crv = m_XSCurve->GetCurve();
-    crv.Transform( mat );
-
-    vector< vec3d > pts;
-    crv.TessAdapt( pts, 1e-4, 10 );
-
-    m_CurrentXSecDrawObj.m_PntVec = pts;
-    m_CurrentXSecDrawObj.m_LineWidth = 3;
-    m_CurrentXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
-    m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_LINES;
-    m_CurrentXSecDrawObj.m_GeomChanged = true;
-
-}
-
-void BORGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
-{
-    Geom::LoadDrawObjs( draw_obj_vec );
-
-    m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
-    m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";
-    m_CurrentXSecDrawObj.m_Visible = m_Vehicle->IsGeomActive( m_ID );
-    draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
-}
-
 //==== Encode XML ====//
 xmlNodePtr BORGeom::EncodeXml(  xmlNodePtr & node  )
 {

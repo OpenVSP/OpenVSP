@@ -34,8 +34,6 @@ public:
 
     XSecCurve* GetXSecCurve()       { return m_XSCurve; }
 
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
-
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -62,7 +60,6 @@ protected:
     virtual void UpdateSurf();
     virtual void ChangeID( string id );
 
-    virtual void UpdateDrawObj();
     virtual void UpdatePreTess();
 
     virtual void NormalizeFlaps();
@@ -70,8 +67,6 @@ protected:
     double m_Xoff;
 
     XSecCurve *m_XSCurve;
-
-    DrawObj m_CurrentXSecDrawObj;
 
     VspSurf m_FoilSurf;
 };

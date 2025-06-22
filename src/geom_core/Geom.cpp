@@ -6083,46 +6083,13 @@ void GeomXSec::UpdateHighlightDrawObj()
     if ( axs )
     {
         m_HighlightXSecDrawObj.m_PntVec = axs->GetDrawLines( relTrans );
-
-        double w = axs->GetXSecCurve()->GetWidth();
-        double h = axs->GetXSecCurve()->GetHeight();
-        double scale = 1.0;
-        if( w > h ) scale = 1.0 / w;
-        else scale = 1.0 / h;
-
-        Matrix4d mat;
-        m_XSecSurf.GetBasicTransformation( Z_DIR, X_DIR, XS_SHIFT_MID, false, w * scale, mat );
-        mat.scale( scale );
-
-        VspCurve crv = axs->GetUntransformedCurve();
-        crv.Transform( mat );
-
-        if( w == 0 && h == 0 )
-        {
-            vector< vec3d > pts( 1, vec3d( 0, 0, 0 ) );
-            m_CurrentXSecDrawObj.m_PntVec = pts;
-            m_CurrentXSecDrawObj.m_PointSize = 5.0;
-            m_CurrentXSecDrawObj.m_PointColor = vec3d( 0, 0, 0 );
-            m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_POINTS;
-        }
-        else
-        {
-            vector< vec3d > pts;
-            crv.TessAdapt( pts, 1e-2, 10 );
-            m_CurrentXSecDrawObj.m_PntVec = pts;
-            m_CurrentXSecDrawObj.m_LineWidth = 1.5;
-            // Set color in LoadDrawObj for proper update behavior
-            m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_LINES;
-        }
     }
     else
     {
         m_HighlightXSecDrawObj.m_PntVec = vector < vec3d > (0);
-        m_CurrentXSecDrawObj.m_PntVec = vector < vec3d > (0);
     }
 
     m_HighlightXSecDrawObj.m_GeomChanged = true;
-    m_CurrentXSecDrawObj.m_GeomChanged = true;
 }
 
 void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -6153,13 +6120,6 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     m_HighlightXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 1.0 );
     m_HighlightXSecDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
     draw_obj_vec.push_back( &m_HighlightXSecDrawObj );
-
-    m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
-    m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";
-    m_CurrentXSecDrawObj.m_Visible = isactive;
-    m_CurrentXSecDrawObj.m_LineColor = m_Vehicle->GetXSecLineColor() / 255.; // normalize
-    draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
-
 }
 
 void GeomXSec::UpdateDrawObjUtil()
@@ -6194,24 +6154,6 @@ void GeomXSec::UpdateHighlightDrawObjUtil( int bbox_index )
 
     m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetDrawLines( relTrans );
     m_HighlightXSecDrawObj.m_GeomChanged = true;
-
-    double w = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetXSecCurve()->GetWidth();
-
-    Matrix4d mat;
-    m_XSecSurf.GetBasicTransformation( Z_DIR, X_DIR, XS_SHIFT_MID, false, 1.0, mat );
-    mat.scale( 1.0/w );
-
-    VspCurve crv = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetUntransformedCurve();
-    crv.Transform( mat );
-
-    vector< vec3d > pts;
-    crv.TessAdapt( pts, 1e-2, 10 );
-
-    m_CurrentXSecDrawObj.m_PntVec = pts;
-    m_CurrentXSecDrawObj.m_LineWidth = 1.5;
-    m_CurrentXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
-    m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_LINES;
-    m_CurrentXSecDrawObj.m_GeomChanged = true;
 
     // make bounding box over current XSec if not first xsec in stack/fuse
     if ( bbox_index > 0 )
