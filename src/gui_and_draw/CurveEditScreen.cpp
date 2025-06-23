@@ -54,9 +54,9 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     m_XSecLayout.SetSliderWidth( m_XSecLayout.GetRemainX() / 3 );
     m_XSecLayout.SetButtonWidth( m_XSecLayout.GetRemainX() / 3 );
 
-    m_ShapeChoice.AddItem( "Circle" );
-    m_ShapeChoice.AddItem( "Ellipse" );
-    m_ShapeChoice.AddItem( "Rectangle" );
+    m_ShapeChoice.AddItem( "Circle", vsp::EDIT_XSEC_CIRCLE );
+    m_ShapeChoice.AddItem( "Ellipse", vsp::EDIT_XSEC_ELLIPSE );
+    m_ShapeChoice.AddItem( "Rectangle", vsp::EDIT_XSEC_RECTANGLE );
     m_XSecLayout.AddChoice( m_ShapeChoice, "Shape" );
 
     m_XSecLayout.AddButton( m_InitShapeButton, "Init Shape" );

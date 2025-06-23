@@ -1699,6 +1699,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_RECTANGLE", EDIT_XSEC_RECTANGLE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "NUM_INIT_EDIT_XSEC_TYPES", NUM_INIT_EDIT_XSEC_TYPES );
+    assert( r >= 0 );
 
 
     r = se->RegisterEnum( "IMPORT_TYPE" );

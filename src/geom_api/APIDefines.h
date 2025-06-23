@@ -996,7 +996,8 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
 /*! Initial shape enums for XS_EDIT_CURVE type XSecs. */
 enum INIT_EDIT_XSEC_TYPE { EDIT_XSEC_CIRCLE,	/*!< Circle initialized as cubic Bezier type */
                            EDIT_XSEC_ELLIPSE,	/*!< Ellipse initialized as PCHIP type */
-                           EDIT_XSEC_RECTANGLE	/*!< Rectangle initialized as linear type */
+                           EDIT_XSEC_RECTANGLE,	/*!< Rectangle initialized as linear type */
+                           NUM_INIT_EDIT_XSEC_TYPES	/*!< Number of initializable edit curve types */
 };
 
 /*!

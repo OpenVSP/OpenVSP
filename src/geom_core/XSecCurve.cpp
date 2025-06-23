@@ -3516,7 +3516,7 @@ EditCurveXSec::EditCurveXSec() : XSecCurve()
     m_SymType.Init( "SymType", m_GroupName, this, SYM_RL, SYM_NONE, SYM_RL );
     m_SymType.SetDescript( "2D Symmetry Type" );
 
-    m_ShapeType.Init( "ShapeType", m_GroupName, this, EDIT_XSEC_CIRCLE, EDIT_XSEC_CIRCLE, EDIT_XSEC_RECTANGLE );
+    m_ShapeType.Init( "ShapeType", m_GroupName, this, EDIT_XSEC_CIRCLE, EDIT_XSEC_CIRCLE, NUM_INIT_EDIT_XSEC_TYPES - 1 );
     m_ShapeType.SetDescript( "Initial Shape Type" );
 
     m_Depth.Init( "Depth", m_GroupName, this, 1.0, 1.0e-12, 1.0e12 );
