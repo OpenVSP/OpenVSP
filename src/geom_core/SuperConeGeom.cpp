@@ -78,6 +78,14 @@ void SuperConeGeom::UpdateSurf()
     crv_vec[2].Offset( cen );
     crv_vec[2].EvaluateOnSphere( false );
 
+    Matrix4d orient;
+    orient.scaley( -1.0 );
+    orient.rotateX( 90 );
+    orient.rotateY( -90 );
+
+    crv_vec[1].Transform( orient );
+    crv_vec[1].Reverse();
+    crv_vec[2].Transform( orient );
 
     // Revolve to unit sphere
     m_MainSurfVec[0].SkinC0( crv_vec, false );
