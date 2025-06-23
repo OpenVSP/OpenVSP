@@ -108,11 +108,11 @@ void VspSubGlWindow::update()
 
 void VspSubGlWindow::LoadAllDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    Vehicle* vPtr = VehicleMgr.GetVehicle();
-
-    if ( vPtr )
+    XSecViewScreen * curveViewScreen = dynamic_cast < XSecViewScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_XSEC_SCREEN ) );
+    if ( curveViewScreen )
     {
-        vPtr->LoadDrawObjs( draw_obj_vec );
+        curveViewScreen->LoadDrawObjs( draw_obj_vec );
     }
 }
 
