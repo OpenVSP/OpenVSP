@@ -66,11 +66,17 @@ void SuperConeGeom::UpdateSurf()
 
     c.Transform( mat );
 
+    BndBox bb;
+    c.GetBoundingBox( bb );
+
+    vec3d cen = bb.GetCenter();
+
     c.EvaluateOnSphere( false );
     crv_vec[1] = c;
 
     crv_vec[2].MakePoint();
-    crv_vec[2].Transform( mat );
+    crv_vec[2].Offset( cen );
+    crv_vec[2].EvaluateOnSphere( false );
 
 
     // Revolve to unit sphere
