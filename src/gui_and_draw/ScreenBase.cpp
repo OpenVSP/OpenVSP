@@ -2019,8 +2019,9 @@ bool GeomScreen::Update()
             if ( xsc )
             {
                 XSecViewScreen *xsscreen = dynamic_cast < XSecViewScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_XSEC_SCREEN ) );
-
-                if ( xsscreen )
+                Fl_Tabs *tabs = GetTabs();
+                Fl_Group* sstab = GetTab( m_SubSurfTab_ind );
+                if ( xsscreen && sstab && tabs && tabs->value() == sstab)
                 {
                     xsscreen->SetXSecCurve( xsc );
                 }
