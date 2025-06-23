@@ -14,7 +14,6 @@
 #include "CurveEditScreen.h"
 #include "BORGeom.h"
 #include "WingGeom.h"
-#include "SuperConeGeom.h"
 #include "ManageGeomScreen.h"
 
 #include "GraphicEngine.h"
