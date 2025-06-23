@@ -509,11 +509,12 @@ bool CurveEditScreen::Update()
     m_DepthSlider.Update( edit_curve_xs->m_Depth.GetID() );
 
     Geom* geom = m_ScreenMgr->GetCurrGeom();
-    m_XSecDriverGroupBank.EnforceXSecGeomType( geom->GetType().m_Type );
+    if ( geom )
+    {
+        m_XSecDriverGroupBank.EnforceXSecGeomType( geom->GetType().m_Type );
+    }
 
     m_AbsDimToggle.Update( edit_curve_xs->m_AbsoluteFlag.GetID() );
-
-    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
 
     if( m_XSecGlWin )
     {
