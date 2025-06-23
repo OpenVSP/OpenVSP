@@ -1640,6 +1640,7 @@ enum XSEC_CRV_TYPE {XS_UNDEFINED = -1,
                     XS_FIVE_DIGIT,	/*!< Five digit XSec */
                     XS_FIVE_DIGIT_MOD,	/*!< Five digit modified XSec */
                     XS_ONE_SIX_SERIES,	/*!< One six series XSec */
+                    XS_AC25_773,	/*!< FAA AC 25.773 pilot view requirement */
                     XS_NUM_TYPES	/*!< Number of XSec types */
 };
 

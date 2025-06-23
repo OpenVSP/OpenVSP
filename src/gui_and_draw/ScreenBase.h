@@ -433,6 +433,9 @@ public:
     SliderAdjRangeInput m_SSXSCEllipseHeightSlider;
     SliderAdjRangeInput m_SSXSCEllipseWidthSlider;
 
+    GroupLayout m_SSXSCAC25773Group;
+    Choice m_SSXSCAC25773SeatChoice;
+
     GroupLayout m_SSXSCSuperGroup;
     SliderAdjRangeInput m_SSXSCSuperHeightSlider;
     SliderAdjRangeInput m_SSXSCSuperWidthSlider;
@@ -774,6 +777,9 @@ protected:
     DriverGroupBank m_EllipseXSecDriverGroupBank;
     SliderAdjRangeInput m_EllipseHeightSlider;
     SliderAdjRangeInput m_EllipseWidthSlider;
+
+    GroupLayout m_AC25773Group;
+    Choice m_AC25773SeatChoice;
 
     GroupLayout m_RoundedRectGroup;
     DriverGroupBank m_RRXSecDriverGroupBank;

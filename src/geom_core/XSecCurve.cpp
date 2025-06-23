@@ -2802,6 +2802,67 @@ void SuperXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
 //==========================================================================//
 
 //==== Constructor ====//
+AC25_773XSec::AC25_773XSec( ) : XSecCurve( )
+{
+    m_Name = "AC_25.773";
+    m_Type = XS_AC25_773;
+
+    m_Height.Init( "Height_Dummy", m_GroupName, this, 0.0, 0.0, 0.0 );
+    m_Height.SetDescript( "Height dummy for AC 25.773 pilot view" );
+    m_Width.Init( "Width_Dummy", m_GroupName, this,  0.0, 0.0, 0.0 );
+    m_Width.SetDescript( "Width dummy for AC 25.773 pilot view" );
+
+    m_CockpitSide.Init( "CockpitSide", m_GroupName, this, XSEC_LEFT_SIDE, XSEC_LEFT_SIDE, XSEC_RIGHT_SIDE );
+}
+
+//==== Update Geometry ====//
+void AC25_773XSec::UpdateCurve( bool updateParms )
+{
+    m_Curve.CreateAC25773( m_CockpitSide() );
+}
+
+//==== Set Width and Height ====//
+void AC25_773XSec::SetWidthHeight( double w, double h )
+{
+    m_Width  = w;
+    m_Height = h;
+}
+
+EditCurveXSec* AC25_773XSec::ConvertToEdit()
+{
+    // Re-create curve here to get version before curve modifications.
+    VspCurve crv;
+    crv.CreateAC25773( m_CockpitSide() );
+
+    vector < vec3d > point_vec;
+    vector < double > param_vec;
+    crv.GetLinearControlPoints( point_vec, param_vec );
+
+    vector < double > r_vec( param_vec.size(), 0.0 );
+    for ( size_t i = 0; i < param_vec.size(); i++ )
+    {
+        param_vec[i] = param_vec[i] / 4.0; // Store point parameter (0-1) internally
+    }
+
+    EditCurveXSec* xscrv_ptr = new EditCurveXSec();
+
+    xscrv_ptr->CopyFrom( this );
+    xscrv_ptr->m_SymType.Set( vsp::SYM_NONE );
+    xscrv_ptr->m_CurveType = vsp::LINEAR;
+
+    xscrv_ptr->SetWidthHeight( 1.0, 1.0 );
+
+    // Set control points
+    xscrv_ptr->SetPntVecs( param_vec, point_vec, r_vec );
+
+    return xscrv_ptr;
+}
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+//==== Constructor ====//
 RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 {
     m_Type = XS_ROUNDED_RECTANGLE;

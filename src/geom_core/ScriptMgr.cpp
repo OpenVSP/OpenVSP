@@ -2454,6 +2454,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_ONE_SIX_SERIES", XS_ONE_SIX_SERIES );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_AC25_773", XS_AC25_773 );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_NUM_TYPES", XS_NUM_TYPES );
     assert( r >= 0 );
 

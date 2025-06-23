@@ -380,6 +380,9 @@ private:
     SliderAdjRangeInput m_FeaSSXSCEllipseHeightSlider;
     SliderAdjRangeInput m_FeaSSXSCEllipseWidthSlider;
 
+    GroupLayout m_FeaSSXSCAC25773Group;
+    Choice m_FeaSSXSCAC25773SeatChoice;
+
     GroupLayout m_FeaSSXSCSuperGroup;
     SliderAdjRangeInput m_FeaSSXSCSuperHeightSlider;
     SliderAdjRangeInput m_FeaSSXSCSuperWidthSlider;

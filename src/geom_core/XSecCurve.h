@@ -395,6 +395,39 @@ public:
 //==========================================================================//
 //==========================================================================//
 
+
+class AC25_773XSec : public XSecCurve
+{
+public:
+
+    AC25_773XSec( );
+
+    virtual void UpdateCurve( bool updateParms = true );
+
+    //==== Values to Set/Get When Changing Types ====//
+    virtual double GetWidth()
+    {
+        return m_Width();
+    }
+    virtual double GetHeight()
+    {
+        return m_Height();
+    }
+    virtual void SetWidthHeight( double w, double h );
+    virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
+    virtual EditCurveXSec* ConvertToEdit();
+
+    Parm m_Width;
+    Parm m_Height;
+
+    IntParm m_CockpitSide;
+};
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
 class RoundedRectXSec : public XSecCurve
 {
 public:

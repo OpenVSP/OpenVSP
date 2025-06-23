@@ -1067,6 +1067,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
     m_FeaSSXSecTypeChoice.AddItem( "FIVE_DIGIT", vsp::XS_FIVE_DIGIT );
     m_FeaSSXSecTypeChoice.AddItem( "FIVE_DIGIT_MOD", vsp::XS_FIVE_DIGIT_MOD );
     m_FeaSSXSecTypeChoice.AddItem( "16_SERIES", vsp::XS_ONE_SIX_SERIES );
+    m_FeaSSXSecTypeChoice.AddItem( "AC25_773", vsp::XS_AC25_773 );
 
     m_FeaSSXSCGroup.SetFitWidthFlag( true );
     m_FeaSSXSCGroup.SetSameLineFlag( false );
@@ -1102,6 +1103,14 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
     m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCEllipseGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
     m_FeaSSXSCEllipseGroup.AddSlider(  m_FeaSSXSCEllipseHeightSlider, "Height", 10, "%6.5f" );
     m_FeaSSXSCEllipseGroup.AddSlider(  m_FeaSSXSCEllipseWidthSlider, "Width", 10, "%6.5f" );
+
+    //==== AC 25.773-1 XSec ====//
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCAC25773Group, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
+    m_FeaSSXSCAC25773Group.AddChoice( m_FeaSSXSCAC25773SeatChoice, "Pilot Seat" );
+
+    m_FeaSSXSCAC25773SeatChoice.AddItem( "Left", vsp::XSEC_LEFT_SIDE );
+    m_FeaSSXSCAC25773SeatChoice.AddItem( "Right", vsp::XSEC_RIGHT_SIDE );
+    m_FeaSSXSCAC25773SeatChoice.UpdateItems();
 
     //==== Super XSec ====//
     m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCSuperGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
@@ -2544,6 +2553,13 @@ bool FeaPartEditScreen::Update()
                                 m_FeaSSXSCEllipseHeightSlider.Update( ellipse_xs->m_Height.GetID() );
                                 m_FeaSSXSCEllipseWidthSlider.Update( ellipse_xs->m_Width.GetID() );
                             }
+                            else if ( xsc->GetType() == vsp::XS_AC25_773 )
+                            {
+                                SubSurfXSCDisplayGroup( & m_FeaSSXSCAC25773Group );
+
+                                AC25_773XSec* pilotview_xs = dynamic_cast< AC25_773XSec* >( xsc );
+                                m_FeaSSXSCAC25773SeatChoice.Update( pilotview_xs->m_CockpitSide.GetID() );
+                            }
                             else if ( xsc->GetType() == vsp::XS_ROUNDED_RECTANGLE )
                             {
                                 SubSurfXSCDisplayGroup( & m_FeaSSXSCRoundedRectGroup );
@@ -3906,6 +3922,7 @@ void FeaPartEditScreen::SubSurfXSCDisplayGroup( GroupLayout* group )
     m_FeaSSXSCSuperGroup.Hide();
     m_FeaSSXSCCircleGroup.Hide();
     m_FeaSSXSCEllipseGroup.Hide();
+    m_FeaSSXSCAC25773Group.Hide();
     m_FeaSSXSCRoundedRectGroup.Hide();
     m_FeaSSXSCGenGroup.Hide();
     m_FeaSSXSCFourSeriesGroup.Hide();

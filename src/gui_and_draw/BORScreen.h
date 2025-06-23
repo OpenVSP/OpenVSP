@@ -72,6 +72,9 @@ protected:
     SliderAdjRangeInput m_EllipseHeightSlider;
     SliderAdjRangeInput m_EllipseWidthSlider;
 
+    GroupLayout m_AC25773Group;
+    Choice m_AC25773SeatChoice;
+
     GroupLayout m_SuperGroup;
     SliderAdjRangeInput m_SuperHeightSlider;
     SliderAdjRangeInput m_SuperWidthSlider;

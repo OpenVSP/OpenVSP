@@ -943,6 +943,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSXSecTypeChoice.AddItem( "FIVE_DIGIT", vsp::XS_FIVE_DIGIT );
     m_SSXSecTypeChoice.AddItem( "FIVE_DIGIT_MOD", vsp::XS_FIVE_DIGIT_MOD );
     m_SSXSecTypeChoice.AddItem( "16_SERIES", vsp::XS_ONE_SIX_SERIES );
+    m_SSXSecTypeChoice.AddItem( "AC25_773", vsp::XS_AC25_773 );
 
     m_SSXSCGroup.SetFitWidthFlag( true );
     m_SSXSCGroup.SetSameLineFlag( false );
@@ -978,6 +979,14 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSXSCGroup.AddSubGroupLayout( m_SSXSCEllipseGroup, m_SSXSCGroup.GetW(), m_SSXSCGroup.GetRemainY() );
     m_SSXSCEllipseGroup.AddSlider(  m_SSXSCEllipseHeightSlider, "Height", 10, "%6.5f" );
     m_SSXSCEllipseGroup.AddSlider(  m_SSXSCEllipseWidthSlider, "Width", 10, "%6.5f" );
+
+    //==== AC 25.773-1 XSec ====//
+    m_SSXSCGroup.AddSubGroupLayout( m_SSXSCAC25773Group, m_SSXSCGroup.GetW(), m_SSXSCGroup.GetRemainY() );
+    m_SSXSCAC25773Group.AddChoice( m_SSXSCAC25773SeatChoice, "Pilot Seat" );
+
+    m_SSXSCAC25773SeatChoice.AddItem( "Left", vsp::XSEC_LEFT_SIDE );
+    m_SSXSCAC25773SeatChoice.AddItem( "Right", vsp::XSEC_RIGHT_SIDE );
+    m_SSXSCAC25773SeatChoice.UpdateItems();
 
     //==== Super XSec ====//
     m_SSXSCGroup.AddSubGroupLayout( m_SSXSCSuperGroup, m_SSXSCGroup.GetW(), m_SSXSCGroup.GetRemainY() );
@@ -1406,6 +1415,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     y_vals.push_back( m_SSXSCCircleGroup.GetY() );
     y_vals.push_back( m_SSXSCEllipseGroup.GetY() );
+    y_vals.push_back( m_SSXSCAC25773Group.GetY() );
     y_vals.push_back( m_SSXSCSuperGroup.GetY() );
     y_vals.push_back( m_SSXSCRoundedRectGroup.GetY() );
     y_vals.push_back( m_SSXSCGenGroup.GetY() );
@@ -2076,6 +2086,13 @@ bool GeomScreen::Update()
                     EllipseXSec* ellipse_xs = dynamic_cast< EllipseXSec* >( xsc );
                     m_SSXSCEllipseHeightSlider.Update( ellipse_xs->m_Height.GetID() );
                     m_SSXSCEllipseWidthSlider.Update( ellipse_xs->m_Width.GetID() );
+                }
+                else if ( xsc->GetType() == vsp::XS_AC25_773 )
+                {
+                    SubSurfXSCDisplayGroup( & m_SSXSCAC25773Group );
+
+                    AC25_773XSec* pilotview_xs = dynamic_cast< AC25_773XSec* >( xsc );
+                    m_SSXSCAC25773SeatChoice.Update( pilotview_xs->m_CockpitSide.GetID() );
                 }
                 else if ( xsc->GetType() == vsp::XS_ROUNDED_RECTANGLE )
                 {
@@ -2948,6 +2965,7 @@ void GeomScreen::SubSurfXSCDisplayGroup( GroupLayout* group )
     m_SSXSCSuperGroup.Hide();
     m_SSXSCCircleGroup.Hide();
     m_SSXSCEllipseGroup.Hide();
+    m_SSXSCAC25773Group.Hide();
     m_SSXSCRoundedRectGroup.Hide();
     m_SSXSCGenGroup.Hide();
     m_SSXSCFourSeriesGroup.Hide();
@@ -3220,6 +3238,7 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     m_XSecTypeChoice.AddItem( "FIVE_DIGIT", XS_FIVE_DIGIT );
     m_XSecTypeChoice.AddItem( "FIVE_DIGIT_MOD", XS_FIVE_DIGIT_MOD );
     m_XSecTypeChoice.AddItem( "16_SERIES", XS_ONE_SIX_SERIES );
+    m_XSecTypeChoice.AddItem( "AC25_773", vsp::XS_AC25_773 );
 
     m_XSecLayout.SetChoiceButtonWidth( 100 ); // TODO: Get appropriate width
     int show_w = 50;
@@ -3327,6 +3346,14 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
         m_EllipseGroup.AddSlider( m_EllipseHeightSlider, "Height", 10, "%6.5f" );
         m_EllipseGroup.AddSlider( m_EllipseWidthSlider, "Width", 10, "%6.5f" );
     }
+
+    //==== AC 25.773-1 XSec ====//
+    m_XSecLayout.AddSubGroupLayout( m_AC25773Group, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
+    m_AC25773Group.AddChoice( m_AC25773SeatChoice, "Pilot Seat" );
+
+    m_AC25773SeatChoice.AddItem( "Left", vsp::XSEC_LEFT_SIDE );
+    m_AC25773SeatChoice.AddItem( "Right", vsp::XSEC_RIGHT_SIDE );
+    m_AC25773SeatChoice.UpdateItems();
 
     //==== Rounded Rect ====//
     m_XSecLayout.AddSubGroupLayout( m_RoundedRectGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
@@ -3764,6 +3791,7 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     y_vals.push_back( m_SuperGroup.GetY() );
     y_vals.push_back( m_CircleGroup.GetY() );
     y_vals.push_back( m_EllipseGroup.GetY() );
+    y_vals.push_back( m_AC25773Group.GetY() );
     y_vals.push_back( m_RoundedRectGroup.GetY() );
     y_vals.push_back( m_GenGroup.GetY() );
     y_vals.push_back( m_FourSeriesGroup.GetY() );
@@ -3911,6 +3939,13 @@ bool XSecScreen::Update()
                     m_EllipseHeightSlider.Update( ellipse_xs->m_Height.GetID() );
                     m_EllipseWidthSlider.Update( ellipse_xs->m_Width.GetID() );
                 }
+            }
+            else if ( xsc->GetType() == vsp::XS_AC25_773 )
+            {
+                DisplayGroup( & m_AC25773Group );
+
+                AC25_773XSec* pilotview_xs = dynamic_cast< AC25_773XSec* >( xsc );
+                m_AC25773SeatChoice.Update( pilotview_xs->m_CockpitSide.GetID() );
             }
             else if (xsc->GetType() == XS_ROUNDED_RECTANGLE)
             {
@@ -4315,6 +4350,7 @@ void XSecScreen::DisplayGroup( GroupLayout* group )
     m_SuperGroup.Hide();
     m_CircleGroup.Hide();
     m_EllipseGroup.Hide();
+    m_AC25773Group.GetY();
     m_RoundedRectGroup.Hide();
     m_GenGroup.Hide();
     m_FourSeriesGroup.Hide();

@@ -2363,3 +2363,58 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     pt << 0, 0, 0;
     m_Curve.translate( pt );
 }
+
+void VspCurve::CreateAC25773( int side )
+{
+    vector < vec3d > ctrl_pnts;
+    vector < double > t_vec;
+
+    ctrl_pnts.resize( 15 );
+    ctrl_pnts[0].set_xyz( 20.0, 0.0, 0.0 );
+    ctrl_pnts[1].set_xyz( 20.0, -10.0, 0.0 );
+    ctrl_pnts[2].set_xyz( 10.0, -17.0, 0.0 );
+    ctrl_pnts[3].set_xyz( -30.0, -17.0, 0.0 );
+    ctrl_pnts[4].set_xyz( -60.0, -24.5, 0.0 ); // interpolated
+    ctrl_pnts[5].set_xyz( -70.0, -27.0, 0.0 );
+    ctrl_pnts[6].set_xyz( -95.0, -27.0, 0.0 );
+    ctrl_pnts[7].set_xyz( -120.0, -15.0, 0.0 );
+    ctrl_pnts[8].set_xyz( -120.0, 0.0, 0.0 );
+    ctrl_pnts[9].set_xyz( -120.0, 15.0, 0.0 );
+    ctrl_pnts[10].set_xyz( -80.0, 35.0, 0.0 );
+    ctrl_pnts[11].set_xyz( -60.0, 35.0, 0.0 );
+    ctrl_pnts[12].set_xyz( -40.0, 35.0, 0.0 );
+    ctrl_pnts[13].set_xyz( 20.0, 15.0, 0.0 );
+    ctrl_pnts[14].set_xyz( 20.0, 0.0, 0.0 );
+
+    t_vec.resize( 15 );
+    t_vec[0] = 0;
+    t_vec[1] = 0.25;
+    t_vec[2] = 0.5;
+    t_vec[3] = 0.75;
+    t_vec[4] = 1.0;
+    t_vec[5] = 1.25;
+    t_vec[6] = 1.5;
+    t_vec[7] = 1.75;
+    t_vec[8] = 2.0;
+    t_vec[9] = 2.25;
+    t_vec[10] = 2.6;
+    t_vec[11] = 3.0;
+    t_vec[12] = 3.4;
+    t_vec[13] = 3.75;
+    t_vec[14] = 4.0;
+
+    InterpolateLinear( ctrl_pnts, t_vec, false );
+
+    int flip = 1;
+    if ( side == vsp::XSEC_RIGHT_SIDE )
+    {
+        flip = -1;
+    }
+
+    ScaleX( flip );
+
+    if ( flip != 1 )
+    {
+        Reverse();
+    }
+}

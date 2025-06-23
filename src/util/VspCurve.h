@@ -184,6 +184,8 @@ public:
 
     void CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, double Hflange, bool faired );
 
+    void CreateAC25773( int side );
+
 protected:
     piecewise_curve_type m_Curve;
 

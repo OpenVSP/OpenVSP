@@ -139,6 +139,10 @@ XSecCurve* XSecSurf::CreateXSecCurve( int type )
     {
         xscrv_ptr = new EllipseXSec( );
     }
+    else if ( type == XS_AC25_773 )
+    {
+        xscrv_ptr = new AC25_773XSec( );
+    }
     else if ( type == XS_SUPER_ELLIPSE )
     {
         xscrv_ptr = new SuperXSec( );
