@@ -6174,13 +6174,6 @@ bool XSecViewScreen::Update()
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    vector < Geom* > geom_vec = veh->GetActiveGeomPtrVec();
-    if ( geom_vec.size() != 1 )
-    {
-        Hide();
-        return false;
-    }
-
     BasicScreen::Update();
 
     XSecCurve* xsc = m_XSecCurve;
