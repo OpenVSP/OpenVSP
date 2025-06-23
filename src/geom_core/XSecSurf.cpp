@@ -525,7 +525,7 @@ void XSecSurf::GetBasicTransformation( double w, Matrix4d &mat )
     }
 }
 
-void XSecSurf::GetBasicTransformation( int pdir, int wdir, int wshift, bool flip, double w, Matrix4d &mat )
+void XSecSurf::GetBasicTransformation( int pdir, int wdir, double wshift, bool flip, double w, Matrix4d &mat )
 {
     double *m = mat.data();
 
