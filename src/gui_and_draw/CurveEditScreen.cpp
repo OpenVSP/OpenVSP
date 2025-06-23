@@ -371,12 +371,11 @@ void CurveEditScreen::Show()
 
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
 
-    if ( !geom_ptr )
+    if ( geom_ptr )
     {
-        return;
+        geom_ptr->m_SurfDirty = true; // Ensures width/height parms are deactivated
     }
 
-    geom_ptr->m_SurfDirty = true; // Ensures width/height parms are deactivated
 }
 
 //==== Get the Active XSec Curve ====//
