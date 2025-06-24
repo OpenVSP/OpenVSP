@@ -141,6 +141,10 @@ protected:
     // Super Cone
     AttributeEditor m_XsecAttributeEditor;
 
+    ToggleButton m_SCWorldAlignedToggleButton;
+    ToggleButton m_SCObjectAlignedToggleButton;
+    ToggleRadioGroup m_SCAxisAlignedRadioGroup;
+
     Choice m_XSecTypeChoice;
     TriggerButton m_ShowXSecButton;
 

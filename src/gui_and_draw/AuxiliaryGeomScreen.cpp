@@ -255,7 +255,19 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_3ptCCELayout.AddSlider( m_CCEMainGearOffsetSlider, "Main Gear Offset", 10, "%5.4f" );
 
     //==== XSec ====//
-    m_SuperConeXSecLayout.AddDividerBox( "Cross Section" );
+    m_SuperConeXSecLayout.AddDividerBox( "Cone Alignment" );
+
+    m_SuperConeXSecLayout.SetSameLineFlag( true );
+
+    m_SuperConeXSecLayout.AddButton( m_SCWorldAlignedToggleButton, "World", m_SuperConeXSecLayout.GetW() * 0.5 );
+    m_SuperConeXSecLayout.AddButton( m_SCObjectAlignedToggleButton, "Object", m_SuperConeXSecLayout.GetW() * 0.5 );
+
+    m_SuperConeXSecLayout.ForceNewLine();
+    m_SuperConeXSecLayout.SetSameLineFlag( false );
+
+    m_SCAxisAlignedRadioGroup.Init( this );
+    m_SCAxisAlignedRadioGroup.AddButton( m_SCObjectAlignedToggleButton.GetFlButton() ); // False first.
+    m_SCAxisAlignedRadioGroup.AddButton( m_SCWorldAlignedToggleButton.GetFlButton() );
 
     m_SuperConeXSecLayout.AddYGap();
 
@@ -956,6 +968,8 @@ bool AuxiliaryGeomScreen::Update()
         else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
         {
             DisplayGroup( &m_SuperConeXSecLayout );
+
+            m_SCAxisAlignedRadioGroup.Update( auxiliary_ptr->m_SCWorldAligned.GetID() );
 
             XSecCurve* xsc = auxiliary_ptr->GetXSecCurve();
             if ( xsc )
