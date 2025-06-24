@@ -656,7 +656,14 @@ void HumanGeom::UpdateSurf()
     Mat2Trans( t_ltshin, trs[LSHIN] );
     Mat2Trans( t_ltthigh, trs[LTHIGH] );
 
-
+    // Build up vision transformation matrix.
+    Matrix4d tcenter1;
+    tcenter1.translatev( -m_SkelVerts[WAIST] );
+    Matrix4d tfinal1 = t_waist;
+    tfinal1.affineInverse();
+    tcenter1.matMult( tfinal1 );
+    m_TVision = t_head;
+    m_TVision.postMult( tcenter1 );
 
     // Process main geometry
     m_MainVerts.clear();

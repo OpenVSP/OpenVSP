@@ -257,6 +257,7 @@ private:
 
     vector < bool > m_FlipNormal;
 
+    Matrix4d m_TVision;
 
     void ComputeHeadTrans( const int &iorigin, const int &ihead, const double &ang, const double &ang2, Matrix4d &T );
     void ComputeShoulderTrans( const int &ishoulder, const int &ielbow, const double &ang1, const double &ang2, Matrix4d &T );
