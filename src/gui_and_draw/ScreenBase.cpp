@@ -6408,6 +6408,13 @@ void XSecViewScreen::UpdateDrawObj()
         double w = xsc->GetWidth();
         double h = xsc->GetHeight();
 
+        AC25_773XSec * pilot_view = dynamic_cast< AC25_773XSec * > ( xsc );
+        if ( pilot_view )
+        {
+            w = 120.0;
+            h = 120.0;
+        }
+
         m_CurveDO.m_Screen = DrawObj::VSP_XSEC_SCREEN;
         m_CurveDO.m_GeomID = XSECHEADER + xsc->GetID();
         m_CurveDO.m_GeomChanged = true;
@@ -6427,8 +6434,15 @@ void XSecViewScreen::UpdateDrawObj()
             if( w > h ) scale = 1.0 / w;
             else scale = 1.0 / h;
 
+            double shift = vsp::XS_SHIFT_MID;
+
+            if ( pilot_view )
+            {
+                shift = -2.0 * 50.0 / w;
+            }
+
             Matrix4d mat;
-            XSecSurf::GetBasicTransformation( vsp::Z_DIR, vsp::X_DIR, vsp::XS_SHIFT_MID, false, w * scale, mat );
+            XSecSurf::GetBasicTransformation( vsp::Z_DIR, vsp::X_DIR, shift, false, w * scale, mat );
             mat.scale( scale );
 
             VspCurve crv = xsc->GetCurve();
