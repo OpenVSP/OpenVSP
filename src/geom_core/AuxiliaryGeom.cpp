@@ -446,12 +446,6 @@ void AuxiliaryGeom::UpdateSurf()
         m_XSCurve->Update(); // May not need to force Update here()
 
         double w = m_XSCurve->GetWidth();
-
-        vector< VspCurve > crv_vec;
-        crv_vec.resize( 3 );
-
-        crv_vec[0].MakePoint();
-
         VspCurve c = m_XSCurve->GetCurve();
 
         Matrix4d basicmat;
@@ -467,26 +461,30 @@ void AuxiliaryGeom::UpdateSurf()
 
         BndBox bb;
         c.GetBoundingBox( bb );
-
         vec3d cen = bb.GetCenter();
 
         c.EvaluateOnSphere( false );
-        crv_vec[1] = c;
 
-        crv_vec[2].MakePoint();
-        crv_vec[2].Offset( cen );
-        crv_vec[2].EvaluateOnSphere( false );
+        // Evaluate cen on sphere.
+        double cx = std::cos( cen.x() );
+        double sx = std::sin( cen.x() );
+        double cy = std::cos( cen.y() );
+        double sy = std::sin( cen.y() );
+        vec3d censph( cen.z() * cy * sx, cen.z() * sy, cen.z() * cy * cx );
 
         Matrix4d orient;
         orient.scaley( -1.0 );
         orient.rotateX( 90 );
         orient.rotateY( -90 );
 
-        crv_vec[1].Transform( orient );
-        crv_vec[1].Reverse();
-        crv_vec[2].Transform( orient );
+        c.Transform( orient );
+        c.Reverse();
 
-        m_MainSurfVec[0].SkinC0( crv_vec, false );
+        censph.Transform( orient );
+
+        // Origin point.
+        vec3d o;
+        m_MainSurfVec[0].SkinPCPC0( o, c, censph );
     }
 }
 
