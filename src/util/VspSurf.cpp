@@ -998,6 +998,54 @@ void VspSurf::SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag 
     SkinCX( input_crv_vec, rib_data_type::C2, closed_flag );
 }
 
+// Point Curve Point linear skinning.
+// Used by SuperCone because it is much faster than the general skinning routine.
+void VspSurf::SkinPCPC0( const vec3d & p0, const VspCurve &c, const vec3d & p1 )
+{
+    vector < double > du_vec { 1, 1 };
+    const piecewise_curve_type &pc = c.GetCurve();
+
+    vector < double > v_vec, dv_vec;
+    pc.get_pmap( v_vec );
+
+    dv_vec.resize( v_vec.size() - 1 );
+    for ( int i = 0; i < v_vec.size() - 1; i++ )
+    {
+        dv_vec[i] = v_vec[ i + 1 ] - v_vec[ i ];
+    }
+    m_Surface.init_uv( du_vec.begin(), du_vec.end(), dv_vec.begin(), dv_vec.end() );
+
+    curve_point_type p0e, p1e;
+    p0.get_pnt( p0e );
+    p1.get_pnt( p1e );
+
+    const int nseg = pc.number_segments();
+    for ( int iseg = 0; iseg < nseg; iseg++ )
+    {
+        curve_segment_type curve;
+        double t, dt;
+        pc.get( curve, t, dt, iseg );
+        surface_patch_type patch( 1, curve.degree() );
+
+        for ( int ipt = 0; ipt < curve.degree() + 1; ipt++ )
+        {
+            patch.set_control_point( p0e, 0, ipt );
+            patch.set_control_point( curve.get_control_point( ipt ), 1, ipt );
+        }
+        m_Surface.set( patch, 0, iseg );
+
+        for ( int ipt = 0; ipt < curve.degree() + 1; ipt++ )
+        {
+            patch.set_control_point( curve.get_control_point( ipt ), 0, ipt );
+            patch.set_control_point( p1e, 1, ipt );
+        }
+        m_Surface.set( patch, 1, iseg );
+    }
+
+    ResetFlipNormal();
+    ResetUSkip();
+}
+
 //===== Compute Point On Surf Given  U V (Between 0 1 ) =====//
 vec3d VspSurf::CompPnt01( double u, double v ) const
 {

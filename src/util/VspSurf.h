@@ -81,6 +81,8 @@ public:
     void SkinC1( const vector< VspCurve > &input_crv_vec, bool closed_flag );
     void SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag );
 
+    void SkinPCPC0( const vec3d & p0, const VspCurve &c, const vec3d & p1 );
+
     double GetUMax() const;
     double GetUMapMax() const { return m_UMapMax; };
     double GetWMax() const;
