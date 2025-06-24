@@ -6,6 +6,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Geom.h"
+
+#include "AuxiliaryGeom.h"
 #include "Vehicle.h"
 #include "WingGeom.h"
 #include "StlHelper.h"
@@ -15,6 +17,7 @@
 #include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
 #include "HingeGeom.h"
+#include "HumanGeom.h"
 #include "VspUtil.h"
 using namespace vsp;
 
@@ -1067,6 +1070,20 @@ void GeomXForm::ComposeAttachMatrix()
 
         Matrix4d parentMat;
         parentMat = parent->getModelMatrix();
+
+        if ( parent )
+        {
+            HumanGeom* humanparent = dynamic_cast < HumanGeom* > ( parent );
+            if ( humanparent )
+            {
+                AuxiliaryGeom* auxthis = dynamic_cast < AuxiliaryGeom* > ( this );
+                if ( auxthis )
+                {
+                    parentMat = humanparent->GetDesignEyeMatrix();
+                }
+            }
+        }
+
         double tempMat[16];
         parentMat.getMat( tempMat );
 
