@@ -137,9 +137,6 @@ void AuxiliaryGeom::UpdateSurf()
 
     m_ParentType = parent_geom->GetType().m_Type;
 
-    //==== Copy XForm/Tess Data From Parent ====//
-    CopyDataFrom( parent_geom );
-
 
     double refLen = 30.0;
 
@@ -516,8 +513,15 @@ void AuxiliaryGeom::UpdateMainDegenGeomPreview()
     }
 }
 
-void AuxiliaryGeom::CopyDataFrom( Geom* geom_ptr )
+void AuxiliaryGeom::UpdateCopyParms()
 {
+    //===== Find Parent ====//
+    Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+    if ( !parent_geom )
+    {
+        return;
+    }
+
     //==== Force Attached So Auxiliary Moves With Parent =====//
     m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
     m_RotAttachFlag = vsp::ATTACH_ROT_COMP;
@@ -550,18 +554,18 @@ void AuxiliaryGeom::CopyDataFrom( Geom* geom_ptr )
     m_CapUMaxSweepFlag.Deactivate();
 
     //=== Let User Change Tess
-    //m_TessU = geom_ptr->m_TessU();
-    //m_TessW = geom_ptr->m_TessW();
+    //m_TessU = parent_geom->m_TessU();
+    //m_TessW = parent_geom->m_TessW();
 
-    m_SymAncestor = geom_ptr->m_SymAncestor();
+    m_SymAncestor = parent_geom->m_SymAncestor();
     if ( m_SymAncestor() != 0 ) // Not global ancestor.
     {
         m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
     }
-    m_SymAncestOriginFlag = geom_ptr->m_SymAncestOriginFlag();
-    m_SymPlanFlag = geom_ptr->m_SymPlanFlag();
-    m_SymAxFlag = geom_ptr->m_SymAxFlag();
-    m_SymRotN = geom_ptr->m_SymRotN();
+    m_SymAncestOriginFlag = parent_geom->m_SymAncestOriginFlag();
+    m_SymPlanFlag = parent_geom->m_SymPlanFlag();
+    m_SymAxFlag = parent_geom->m_SymAxFlag();
+    m_SymRotN = parent_geom->m_SymRotN();
 
     m_SymAncestor.Deactivate();
     m_SymAncestOriginFlag.Deactivate();
