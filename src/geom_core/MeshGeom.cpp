@@ -1295,7 +1295,22 @@ void MeshGeom::WriteX3D( xmlNodePtr node )
 
 void MeshGeom::UpdateBBox()
 {
-    ::UpdateBBox( m_BBox, m_TMeshVec, GetTotalTransMat() );
+    BndBox new_box;
+    ::UpdateBBox( new_box, m_TMeshVec, GetTotalTransMat() );
+
+    if ( new_box != m_BBox )
+    {
+        m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
+        m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
+        m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
+
+        m_BbXMin = new_box.GetMin( 0 );
+        m_BbYMin = new_box.GetMin( 1 );
+        m_BbZMin = new_box.GetMin( 2 );
+
+        m_BBox = new_box;
+        m_ScaleIndependentBBox = m_BBox;
+    }
 }
 
 void MeshGeom::UpdateDrawObj()

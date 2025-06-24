@@ -553,7 +553,7 @@ void WireGeom::Scale()
 
 void WireGeom::UpdateBBox()
 {
-    m_BBox.Reset();
+    BndBox new_box;
 
     int num_pnts, num_cross;
 
@@ -561,7 +561,7 @@ void WireGeom::UpdateBBox()
 
     if ( num_cross == 0 )
     {
-        m_BBox.Update( vec3d( 0.0, 0.0, 0.0 ) );
+        new_box.Update( vec3d( 0.0, 0.0, 0.0 ) );
     }
 
     for ( int i = 0 ; i < num_cross ; i++ )
@@ -570,13 +570,27 @@ void WireGeom::UpdateBBox()
 
         if ( num_pnts == 0 )
         {
-            m_BBox.Update( vec3d( 0.0, 0.0, 0.0 ) );
+            new_box.Update( vec3d( 0.0, 0.0, 0.0 ) );
         }
 
         for ( int j = 0 ; j < num_pnts ; j++ )
         {
-            m_BBox.Update( m_XFormPts[i][j] );
+            new_box.Update( m_XFormPts[i][j] );
         }
+    }
+
+    if ( new_box != m_BBox )
+    {
+        m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
+        m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
+        m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
+
+        m_BbXMin = new_box.GetMin( 0 );
+        m_BbYMin = new_box.GetMin( 1 );
+        m_BbZMin = new_box.GetMin( 2 );
+
+        m_BBox = new_box;
+        m_ScaleIndependentBBox = m_BBox;
     }
 }
 

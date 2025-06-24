@@ -763,14 +763,28 @@ double HumanGeom::CalculateVolume()
 
 void HumanGeom::UpdateBBox()
 {
-    m_BBox.Reset();
+    BndBox new_box;
 
     for ( int j = 0 ; j < ( int )m_Verts.size() ; j++ )
     {
         for ( int i = 0; i < ( int )m_Verts[j].size(); i++ )
         {
-            m_BBox.Update( m_Verts[j][i] );
+            new_box.Update( m_Verts[j][i] );
         }
+    }
+
+    if ( new_box != m_BBox )
+    {
+        m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
+        m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
+        m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
+
+        m_BbXMin = new_box.GetMin( 0 );
+        m_BbYMin = new_box.GetMin( 1 );
+        m_BbZMin = new_box.GetMin( 2 );
+
+        m_BBox = new_box;
+        m_ScaleIndependentBBox = m_BBox;
     }
 }
 

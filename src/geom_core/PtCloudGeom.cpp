@@ -158,20 +158,34 @@ void PtCloudGeom::Scale()
 
 void PtCloudGeom::UpdateBBox()
 {
+    BndBox new_box;
     int i;
-    m_BBox.Reset();
     Matrix4d transMat = GetTotalTransMat();
 
     if ( m_Pts.size() > 0 )
     {
         for ( i = 0 ; i < ( int )m_Pts.size() ; i++ )
         {
-            m_BBox.Update( transMat.xform( m_Pts[i] ) );
+            new_box.Update( transMat.xform( m_Pts[i] ) );
         }
     }
     else
     {
-        m_BBox.Update( vec3d( 0.0, 0.0, 0.0 ));
+        new_box.Update( vec3d( 0.0, 0.0, 0.0 ));
+    }
+
+    if ( new_box != m_BBox )
+    {
+        m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
+        m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
+        m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
+
+        m_BbXMin = new_box.GetMin( 0 );
+        m_BbYMin = new_box.GetMin( 1 );
+        m_BbZMin = new_box.GetMin( 2 );
+
+        m_BBox = new_box;
+        m_ScaleIndependentBBox = m_BBox;
     }
 }
 
