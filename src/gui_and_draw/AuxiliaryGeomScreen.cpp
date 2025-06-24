@@ -32,11 +32,6 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_AuxiliaryGeomModeChoice.AddItem( "1pt Ground Plane", vsp::AUX_GEOM_ONE_PT_GROUND );
     m_AuxiliaryGeomModeChoice.AddItem( "3pt Composite Clearance Envelope", vsp::AUX_GEOM_THREE_PT_CCE );
     m_AuxiliaryGeomModeChoice.AddItem( "Super Cone", vsp::AUX_GEOM_SUPER_CONE );
-    m_AuxiliaryGeomModeChoice.AddItem( "Rotor 1/3 Fragment", vsp::AUX_GEOM_ROTOR_BURST );
-    m_AuxiliaryGeomModeChoice.AddItem( "Rotor Intermediate Fragment", vsp::AUX_GEOM_ROTOR_BURST );
-    m_AuxiliaryGeomModeChoice.AddItem( "Tire Spray Cone", vsp::AUX_GEOM_ROTOR_BURST );
-    m_AuxiliaryGeomModeChoice.AddItem( "Pilot Vision", vsp::AUX_GEOM_ROTOR_BURST );
-    m_AuxiliaryGeomModeChoice.AddItem( "Conical Field Of View", vsp::AUX_GEOM_ROTOR_BURST );
     m_AuxiliaryGeomModeChoice.UpdateItems();
 
     m_DesignLayout.AddChoice( m_AuxiliaryGeomModeChoice, "Mode" );
