@@ -141,6 +141,7 @@ public:
     void CopyVertsToSkel( const vector < vec3d > & sv );
 
     virtual vec3d GetDesignEye() const;
+    virtual Matrix4d GetDesignEyeMatrix() const;
 
     IntParm m_LenUnit;
     IntParm m_MassUnit;

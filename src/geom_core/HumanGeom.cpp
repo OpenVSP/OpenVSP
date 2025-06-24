@@ -316,6 +316,14 @@ vec3d HumanGeom::GetDesignEye() const
     return m_ModelMatrix.xform( m_PoseSkelVerts[ DES_EYE ] );
 }
 
+Matrix4d HumanGeom::GetDesignEyeMatrix() const
+{
+    vec3d eyept = GetDesignEye();
+    Matrix4d mat;
+    mat.translatev( eyept );
+    return mat;
+}
+
 double HumanGeom::Get_mm2UX()
 {
     double sf = 1.0;
