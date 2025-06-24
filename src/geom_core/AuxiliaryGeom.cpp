@@ -69,6 +69,8 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_CCEMainGearOffset.Init( "CCEMainGearOffset", "Design", this, 0, -1e12, 1e12 );
 
+    m_SCWorldAligned.Init( "SCWorldAligned", "Design", this, true, false, true );
+
     m_BogieTheta.Init( "BogieTheta", "Design", this, 0.0, -180.0, 180.0 );
     m_WheelTheta.Init( "WheelTheta", "Design", this, 0.0, -180.0, 180.0 );
     m_RollTheta.Init( "RollTheta", "Design", this, 0.0, -180.0, 180.0 );

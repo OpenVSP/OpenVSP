@@ -103,6 +103,8 @@ public:
     IntParm m_CCEUnits;
     Parm m_CCEMainGearOffset;
 
+    BoolParm m_SCWorldAligned;
+
     Parm m_BogieTheta;
     Parm m_WheelTheta;
     Parm m_RollTheta;

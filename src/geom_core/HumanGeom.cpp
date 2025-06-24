@@ -316,11 +316,29 @@ vec3d HumanGeom::GetDesignEye() const
     return m_ModelMatrix.xform( m_PoseSkelVerts[ DES_EYE ] );
 }
 
-Matrix4d HumanGeom::GetDesignEyeMatrix() const
+Matrix4d HumanGeom::GetDesignEyeMatrix( bool axisaligned ) const
 {
     vec3d eyept = GetDesignEye();
     Matrix4d mat;
-    mat.translatev( eyept );
+
+    if ( axisaligned )
+    {
+        mat.translatev( eyept );
+    }
+    else
+    {
+        vec3d xdir, ydir, zdir;
+        m_TVision.getBasis( xdir, ydir, zdir );
+
+        Matrix4d modelinv = m_ModelMatrix;
+        modelinv.affineInverse();
+        eyept.Transform( modelinv );
+
+        mat.translatev( eyept );
+        mat.setBasis( xdir, ydir, zdir );
+
+        mat.postMult( m_ModelMatrix );
+    }
     return mat;
 }
 
