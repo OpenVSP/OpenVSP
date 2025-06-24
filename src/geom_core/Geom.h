@@ -802,6 +802,7 @@ protected:
     virtual void UpdateFlags();
     virtual void UpdateSymmAttach();
     virtual void UpdateSurfVec();
+    virtual void UpdateCopyParms() {};
 
     // T must have methods .FlipNormal() and .Transform( Matrix4d )
     template <typename T>

@@ -1708,6 +1708,8 @@ void Geom::Update( bool fullupdate )
 
     UpdateSets();
 
+    UpdateCopyParms();
+
     if ( m_XFormDirty )
         UpdateXForm();
 
