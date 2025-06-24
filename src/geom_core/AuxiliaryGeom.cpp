@@ -436,6 +436,58 @@ void AuxiliaryGeom::UpdateSurf()
             }
         }
     }
+    else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
+    {
+        if ( !m_XSCurve )
+        {
+            return;
+        }
+
+        m_XSCurve->Update(); // May not need to force Update here()
+
+        double w = m_XSCurve->GetWidth();
+
+        vector< VspCurve > crv_vec;
+        crv_vec.resize( 3 );
+
+        crv_vec[0].MakePoint();
+
+        VspCurve c = m_XSCurve->GetCurve();
+
+        Matrix4d basicmat;
+        basicmat.translatef( -w * 0.5, 0, 0 );
+        c.Transform( basicmat );
+
+        c.Scale( M_PI / 180.0 );
+
+        Matrix4d mat;
+        mat.translatef( 0, 0, refLen );
+
+        c.Transform( mat );
+
+        BndBox bb;
+        c.GetBoundingBox( bb );
+
+        vec3d cen = bb.GetCenter();
+
+        c.EvaluateOnSphere( false );
+        crv_vec[1] = c;
+
+        crv_vec[2].MakePoint();
+        crv_vec[2].Offset( cen );
+        crv_vec[2].EvaluateOnSphere( false );
+
+        Matrix4d orient;
+        orient.scaley( -1.0 );
+        orient.rotateX( 90 );
+        orient.rotateY( -90 );
+
+        crv_vec[1].Transform( orient );
+        crv_vec[1].Reverse();
+        crv_vec[2].Transform( orient );
+
+        m_MainSurfVec[0].SkinC0( crv_vec, false );
+    }
 }
 
 void AuxiliaryGeom::UpdateMainTessVec()

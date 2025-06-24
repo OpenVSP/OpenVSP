@@ -141,6 +141,7 @@ enum AUX_GEOM_MODE { AUX_GEOM_ROTOR_TIP_PATH,	/*!< Rotor tip path */
                      AUX_GEOM_TWO_PT_GROUND,	/*!< Two contact point ground plane */
                      AUX_GEOM_ONE_PT_GROUND,	/*!< One contact point ground plane */
                      AUX_GEOM_THREE_PT_CCE,	/*!< Three contact point composite clearance envelope */
+                     AUX_GEOM_SUPER_CONE,	/*!< Super cone (XSecCurve based profile) */
                      NUM_AUX_GEOM_MODES	/*!< Number of auxiliary geom modes. */
 };
 
