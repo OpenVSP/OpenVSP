@@ -80,6 +80,9 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     pnt_vec.push_back( vec3d( -1000.0, 0.0, 0.0 ) );
     pnt_vec.push_back( vec3d( 1000.0, 0.0, 0.0 ) );
     SetPnts( pnt_vec );
+
+    m_XSCurve = nullptr;
+    SetXSecCurveType( vsp::XS_AC25_773 );
 }
 
 //==== Destructor ====//
@@ -96,6 +99,8 @@ void AuxiliaryGeom::Scale()
 {
     double currentScale = m_Scale() / m_LastScale();
 
+    m_XSCurve->SetScale( currentScale );
+
     m_LastScale = m_Scale();
 }
 
@@ -105,6 +110,7 @@ void AuxiliaryGeom::AddDefaultSources( double base_len )
 
 void AuxiliaryGeom::OffsetXSecs( double off )
 {
+    m_XSCurve->OffsetCurve( off );
 }
 
 void AuxiliaryGeom::SetDirtyFlags( Parm* parm_ptr )
@@ -655,6 +661,69 @@ void AuxiliaryGeom::UpdateCCECurve()
     m_CCECurve.InterpolateLinear( m_CCEFilePnts, arclen, false );
 }
 
+void AuxiliaryGeom::SetXSecCurveType( int type )
+{
+    double w = 1;
+    double h = 1;
+
+    XSecCurve *oldXSCurve = m_XSCurve;
+
+    if ( m_XSCurve )
+    {
+        if ( type == m_XSCurve->GetType() )
+        {
+            return;
+        }
+
+        w = m_XSCurve->GetWidth();
+        h = m_XSCurve->GetHeight();
+    }
+
+    m_XSCurve = XSecSurf::CreateXSecCurve( type ) ;
+
+    if ( m_XSCurve )
+    {
+        m_XSCurve->SetParentContainer( m_ID );
+
+        if ( oldXSCurve )
+        {
+            m_XSCurve->CopyFrom( oldXSCurve );
+            delete oldXSCurve;
+        }
+
+        m_XSCurve->SetWidthHeight( w, h );
+    }
+    else  // Failed to create new curve, revert to saved.
+    {
+        m_XSCurve = oldXSCurve;
+    }
+
+    m_XFormDirty = true;
+    m_SurfDirty = true;
+
+    Update();
+}
+
+int AuxiliaryGeom::GetXSecCurveType()
+{
+    return m_XSCurve->GetType();
+}
+
+EditCurveXSec* AuxiliaryGeom::ConvertToEdit()
+{
+    EditCurveXSec* xscrv_ptr = m_XSCurve->ConvertToEdit();
+
+    if ( xscrv_ptr && xscrv_ptr != m_XSCurve )
+    {
+        delete m_XSCurve;
+
+        m_XSCurve = xscrv_ptr;
+        m_XSCurve->SetParentContainer( m_ID );
+    }
+
+    return xscrv_ptr;
+}
+
 void AuxiliaryGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
@@ -864,6 +933,12 @@ xmlNodePtr AuxiliaryGeom::EncodeXml( xmlNodePtr & node )
         XmlUtil::AddStringNode( child_node, "ContactPt3_ID", m_ContactPt3_ID );
 
         XmlUtil::AddVectorVec3dNode( child_node, "CCEFilePnts", m_CCEFilePnts );
+
+        xmlNodePtr xscrv_node = xmlNewChild( child_node, NULL, BAD_CAST "XSecCurve", NULL );
+        if ( xscrv_node )
+        {
+            m_XSCurve->EncodeXml( xscrv_node );
+        }
     }
 
     return child_node;
@@ -883,9 +958,48 @@ xmlNodePtr AuxiliaryGeom::DecodeXml( xmlNodePtr & node )
 
         vector < vec3d > pnt_vec = XmlUtil::ExtractVectorVec3dNode( child_node, "CCEFilePnts" );
         SetPnts( pnt_vec );
+
+        xmlNodePtr xscrv_node = XmlUtil::GetNode( child_node, "XSecCurve", 0 );
+        if ( xscrv_node )
+        {
+
+            xmlNodePtr xscrv_node2 = XmlUtil::GetNode( xscrv_node, "XSecCurve", 0 );
+            if ( xscrv_node2 )
+            {
+
+                int xsc_type = XmlUtil::FindInt( xscrv_node2, "Type", vsp::XS_CIRCLE );
+
+                if ( m_XSCurve )
+                {
+                    if ( m_XSCurve->GetType() != xsc_type )
+                    {
+                        delete m_XSCurve;
+
+                        m_XSCurve = XSecSurf::CreateXSecCurve( xsc_type );
+                        m_XSCurve->SetParentContainer( m_ID );
+                    }
+                }
+            }
+
+            if ( m_XSCurve )
+            {
+                m_XSCurve->DecodeXml( xscrv_node );
+            }
+        }
     }
 
     return child_node;
+}
+
+//==== Look Though All Parms and Load Linkable Ones ===//
+void AuxiliaryGeom::AddLinkableParms( vector< string > & parm_vec, const string & link_container_id )
+{
+    Geom::AddLinkableParms( parm_vec );
+
+    if ( m_XSCurve  )
+    {
+        m_XSCurve->AddLinkableParms( parm_vec, m_ID );
+    }
 }
 
 void AuxiliaryGeom::SetContactPt1ID( const std::string& id )

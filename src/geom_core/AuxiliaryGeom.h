@@ -40,11 +40,20 @@ public:
     virtual void SetPnts( const vector<vec3d> &pnt_vec );
     virtual void UpdateCCECurve();
 
+    virtual void SetXSecCurveType( int type );
+    virtual int GetXSecCurveType();
+
+    XSecCurve* GetXSecCurve()       { return m_XSCurve; }
+
+    // Alternative to XSecSurf::ConvertToEdit for Auxiliary Geom SuperCone components
+    virtual EditCurveXSec* ConvertToEdit();
+
     virtual void UpdateBBox();
     virtual bool IsModelScaleSensitive()        { return true; }
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+    virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
 
     virtual void SetContactPt1ID( const std::string& id );
     virtual void SetContactPt2ID( const std::string& id );
@@ -132,6 +141,8 @@ protected:
     vector< vec3d > m_CCEFilePnts;
 
     VspCurve m_CCECurve;
+
+    XSecCurve *m_XSCurve;
 };
 
 #endif // !defined(VSPAUXILIARYGEOM__INCLUDED_)
