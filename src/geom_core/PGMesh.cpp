@@ -3434,7 +3434,7 @@ void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
         fprintf( file_id, "%d %d", (*f)->m_ID, npt / 3 );
         for ( int i = 0; i < npt; i++ )
         {
-            if ( nodVec[i] )
+            if ( nodVec[i] && nodVec[i]->m_Pt )
             {
                 fprintf( file_id, " %d", nodVec[i]->m_Pt->m_ID + 1 );
             }

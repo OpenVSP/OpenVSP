@@ -274,7 +274,7 @@ void NGonMeshGeom::UpdateDrawObj()
 
         for ( int i = 0; i < nodVec.size(); i++ )
         {
-            if ( nodVec[i] )
+            if ( nodVec[i] && nodVec[i]->m_Pt )
             {
                 d_obj->m_PntVec.push_back( trans.xform( nodVec[ i ]->m_Pt->m_Pnt ) );
                 d_obj->m_NormVec.push_back( norm );
