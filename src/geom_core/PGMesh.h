@@ -373,6 +373,7 @@ public:
     void PolygonizeMesh();
     void CleanColinearVerts();
 
+    void WriteVSPGeom( const string & fname );
     void WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomFaces( FILE* file_id );

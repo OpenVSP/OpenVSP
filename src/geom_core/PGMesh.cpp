@@ -3236,6 +3236,16 @@ void PGMesh::CleanColinearVerts()
     ClearTris();
 }
 
+void PGMesh::WriteVSPGeom( const string & fname )
+{
+    Matrix4d mat;
+    FILE *file_id = nullptr;
+
+    file_id = fopen( fname.c_str(), "w" );
+    WriteVSPGeom( file_id, mat );
+    fclose( file_id );
+}
+
 void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 {
     ResetFaceNumbers(); // Not sure if this is required.
