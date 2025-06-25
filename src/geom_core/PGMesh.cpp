@@ -3280,7 +3280,20 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), vo
 
             if ( facemergetest( f0, f1 ) )
             {
-                RemoveEdgeMergeFaces( e, facemergeproperties );
+                vector < vector < PGEdge * > > sharedvec = f0->SharedEdges( f1 );
+                for ( int j = 0; j < sharedvec.size(); j++ )
+                {
+                    vector < PGEdge * > shared = sharedvec[j];
+
+                    if ( shared.size() == 1 )
+                    {
+                        RemoveEdgeMergeFaces( shared[0], facemergeproperties );
+                    }
+                    else
+                    {
+                        RemoveEdgesMergeFaces( shared, facemergeproperties );
+                    }
+                }
             }
         }
     }
