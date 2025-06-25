@@ -1512,6 +1512,24 @@ bool PGFace::Validate() const
             valid = false;
         }
     }
+
+    vector< PGNode* > nodVec;
+    GetNodes( nodVec );
+
+    for ( int i = 0; i < nodVec.size(); i++ )
+    {
+        if ( !nodVec[i] )
+        {
+            printf( "Face %d has invalid node index %d\n", m_ID, i );
+            valid = false;
+        }
+    }
+
+    if ( !valid )
+    {
+        Diagnostics();
+    }
+
     return valid;
 }
 
