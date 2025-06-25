@@ -2501,6 +2501,11 @@ void PGMesh::SealDoubleBackNodes()
     CleanUnused();
 
     DumpGarbage();
+
+    m_PGMulti->CleanUnused();
+    m_PGMulti->DumpGarbage();
+
+    ClearTris();
 }
 
 void PGMesh::ResetEdgeLoopFlags()
@@ -3144,7 +3149,13 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), vo
             }
         }
     }
+
+    CleanUnused();
+
     DumpGarbage();
+
+    m_PGMulti->CleanUnused();
+    m_PGMulti->DumpGarbage();
 
     ClearTris();
 }
@@ -3216,8 +3227,13 @@ void PGMesh::CleanColinearVerts()
     }
 
     // printf( "%d colinear verts removed\n", ncolinear );
-
+    CleanUnused();
     DumpGarbage();
+
+    m_PGMulti->CleanUnused();
+    m_PGMulti->DumpGarbage();
+
+    ClearTris();
 }
 
 void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
