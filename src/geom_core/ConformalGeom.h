@@ -97,7 +97,7 @@ public:
 protected:
 
     virtual void UpdateSurf();
-    virtual void CopyDataFrom( Geom* geom_ptr );
+    virtual void UpdateCopyParms();
 
     virtual void UpdateDrawObj();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
