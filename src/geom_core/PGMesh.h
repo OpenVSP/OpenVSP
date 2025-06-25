@@ -281,6 +281,7 @@ public:
     PGEdge* AddEdge( PGNode* n0, PGNode* n1 );
     void  RemoveEdge( PGEdge* e );
     void  RemoveEdgeMergeFaces( PGEdge* e, void ( * facemergeproperties ) ( PGFace *f0, PGFace *f1 ) );
+    void  RemoveEdgesMergeFaces( vector < PGEdge* > edges, void ( * facemergeproperties ) ( PGFace *f0, PGFace *f1 ) );
     static void SwapEdge( PGEdge* e );
     void CheckQualitySwapEdges();
     static PGEdge* FindEdge( const PGNode* n0, const PGNode* n1 ) ;

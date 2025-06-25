@@ -2032,6 +2032,77 @@ void PGMesh::RemoveEdgeMergeFaces( PGEdge* e, void ( * facemergeproperties ) ( P
     }
 }
 
+void PGMesh::RemoveEdgesMergeFaces( vector < PGEdge* > edges, void ( * facemergeproperties ) ( PGFace *f0, PGFace *f1 ) )
+{
+
+    bool manifoldedges = true;
+    for ( int i = 0; i < edges.size(); i++ )
+    {
+        PGEdge *e = edges[i];
+
+        if ( e->m_FaceVec.size() != 2 )
+        {
+            manifoldedges = false;
+        }
+    }
+
+    if ( manifoldedges )
+    {
+        PGEdge *e = edges[0];
+
+        // Grab faces to be merged.
+        PGFace *f0 = e->m_FaceVec[0];
+        PGFace *f1 = e->m_FaceVec[1];
+
+        // Grab edge loops.
+        vector < PGEdge * > ev0 = f0->m_EdgeVec;
+        vector < PGEdge * > ev1 = f1->m_EdgeVec;
+
+        // Find edge in each loop.
+        int i0 = vector_find_val( ev0, e );
+        int i1 = vector_find_val( ev1, e );
+
+        if ( i0 >= 0 && i1 >= 0 )
+        {
+            // Rotate edge loop such that e is at the start.
+            std::rotate( ev0.begin(), ev0.begin() + i0, ev0.end());
+            std::rotate( ev1.begin(), ev1.begin() + i1, ev1.end());
+
+            // Remove all shared edges.
+            vector_remove_vector( ev0, edges );
+            vector_remove_vector( ev1, edges );
+
+            // Check orientation of edge loops
+            PGEdge * e0back = ev0.back();
+            PGEdge * e1start = ev1[0];
+            if ( !e0back->SharedNode( e1start ) )
+            {
+                std::reverse( ev1.begin(), ev1.end() );
+            }
+
+            // Concatenate edge loops.
+            ev0.insert( ev0.end(), ev1.begin(), ev1.end());
+
+            // Assign combined loop to f0.
+            f0->m_EdgeVec = ev0;
+
+            for ( int i = 0; i < edges.size(); i++ )
+            {
+                RemoveEdge( edges[i] );
+            }
+
+            facemergeproperties( f0, f1 );
+
+            for ( int i = 0; i < ev1.size(); i++ )
+            {
+                ev1[ i ]->AddConnectFace( f0 );
+            }
+
+            RemoveFace( f1 );
+        }
+    }
+}
+
 void PGMesh::SwapEdge( PGEdge* e )
 {
     if ( e->m_FaceVec.size() != 2 )
