@@ -1845,6 +1845,14 @@ void PGMesh::RemoveEdgeMergeFaces( PGEdge* e, void ( * facemergeproperties ) ( P
             ev0.erase( ev0.begin() );
             ev1.erase( ev1.begin() );
 
+            // Check orientation of edge loops
+            PGEdge * e0back = ev0.back();
+            PGEdge * e1start = ev1[0];
+            if ( !e0back->SharedNode( e1start ) )
+            {
+                std::reverse( ev1.begin(), ev1.end() );
+            }
+
             // Concatenate edge loops.
             ev0.insert( ev0.end(), ev1.begin(), ev1.end());
 
