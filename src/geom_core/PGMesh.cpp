@@ -2184,6 +2184,9 @@ int PGMesh::MergeCoincidentNodes()
 
     DumpGarbage();
 
+    m_PGMulti->CleanUnused();
+    m_PGMulti->DumpGarbage();
+
     ClearTris();
     return nmerge;
 }
