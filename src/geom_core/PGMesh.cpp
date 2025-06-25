@@ -3139,8 +3139,6 @@ void PGMesh::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
 {
     m_PGMulti->ResetPointNumbers();
 
-    fprintf( file_id, "%d\n", m_NodeList.size() );
-
     //==== Write Out Nodes ====//
     vec3d v;
 
