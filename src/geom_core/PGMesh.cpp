@@ -1355,6 +1355,70 @@ void PGFace::ReplaceEdge( const PGEdge *eold, PGEdge *enew )
     }
 }
 
+void PGFace::ExtendChain( vector < PGEdge * > & chain, PGEdge *e, const PGNode *n, const vector < PGEdge * > &evec ) const
+{
+    e->m_InCurrentLoopFlag = true;
+
+    for ( int i = 0; i < evec.size(); i++ )
+    {
+        PGEdge *ei = evec[ i ];
+        if ( ei && ei != e && !ei->m_InLoopFlag && !ei->m_InCurrentLoopFlag && ei->ContainsNode( n ) )
+        {
+            PGNode * ni = ei->OtherNode( n );
+
+            chain.push_back( ei );
+            ei->m_InLoopFlag = true;
+
+            ExtendChain( chain, ei, ni, evec );
+            return;
+        }
+    }
+
+    e->m_InCurrentLoopFlag = false;
+}
+
+vector < vector < PGEdge * > > PGFace::SharedEdges( const PGFace *other ) const
+{
+    vector < PGEdge * > shared;
+    for ( int i = 0 ; i < ( int )m_EdgeVec.size() ; i++ )
+    {
+        if ( vector_contains_val( other->m_EdgeVec, m_EdgeVec[i] ) )
+        {
+            shared.push_back( m_EdgeVec[i] );
+        }
+    }
+
+    vector < vector < PGEdge * > > chainvec;
+    for ( int i = 0; i < ( int )shared.size() ; i++ )
+    {
+        PGEdge *e = shared[ i ];
+        if ( !e->m_InLoopFlag )
+        {
+            e->m_InLoopFlag = true;
+
+            vector < PGEdge * > chain;
+            chain.push_back( e );
+
+            ExtendChain( chain, e, e->m_N0, shared );
+
+            std::reverse( chain.begin(), chain.end() );
+
+            ExtendChain( chain, e, e->m_N1, shared );
+
+            chainvec.push_back( chain );
+        }
+    }
+
+    for ( int i = 0; i < ( int )shared.size() ; i++ )
+    {
+        PGEdge *e = shared[ i ];
+        e->m_InLoopFlag = false;
+        e->m_InCurrentLoopFlag = false;
+    }
+
+    return chainvec;
+}
+
 bool PGFace::Contains( const PGEdge* e ) const
 {
     return vector_contains_val( m_EdgeVec, const_cast < PGEdge* > ( e ) );

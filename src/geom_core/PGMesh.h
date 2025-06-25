@@ -191,6 +191,10 @@ public:
     void AddEdge( PGEdge* e );
     void RemoveEdge( PGEdge* e );
     void ReplaceEdge( const PGEdge *eold, PGEdge *enew );
+
+    void ExtendChain( vector < PGEdge * > & chain, PGEdge *e, const PGNode *n, const vector < PGEdge * > &evec ) const;
+    vector < vector < PGEdge * > > SharedEdges( const PGFace *other ) const;
+
     bool Contains( const PGEdge* e ) const;
     bool Contains( const PGNode* n ) const;
     void EdgeForgetFace() const;
