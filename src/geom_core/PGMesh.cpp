@@ -439,12 +439,19 @@ void PGNode::DumpMatlab() const
 
 void PGNode::Diagnostics() const
 {
-    printf( "Node %d\n", m_Pt->m_ID );
-    printf( "Edges: " );
+    printf( "Node %d\n", m_Pt->m_ID +1 );
+    printf( " Edges: " );
 
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
     {
-        printf( "%3d ", m_EdgeVec[i]->m_ID );
+        if ( m_EdgeVec[i] )
+        {
+            printf( "%3d ", m_EdgeVec[i]->m_ID );
+        }
+        else
+        {
+            printf( "X " );
+        }
     }
     printf( "\n" );
 }
@@ -678,17 +685,55 @@ void PGEdge::DumpMatlab() const
 void PGEdge::Diagnostics() const
 {
     printf( "Edge %d\n", m_ID );
-    printf( "Nodes: %3d %3d\n", m_N0->m_Pt->m_ID, m_N1->m_Pt->m_ID );
-    printf( "Faces: " );
+    printf( " Nodes: " );
+    if ( m_N0 )
+    {
+        printf( "%3d ", m_N0->m_Pt->m_ID + 1 );
+    }
+    else
+    {
+        printf( "X " );
+    }
+    if ( m_N1 )
+    {
+        printf( "%3d\n", m_N1->m_Pt->m_ID + 1 );
+    }
+    else
+    {
+        printf( "X\n" );
+    }
+    printf( " Faces: " );
 
     for ( int i = 0; i < m_FaceVec.size(); i++ )
     {
-        printf( "%3d ", m_FaceVec[i]->m_ID );
+        if ( m_FaceVec[i] )
+        {
+            printf( "%3d ", m_FaceVec[i]->m_ID );
+        }
+        else
+        {
+            printf( "X " );
+        }
     }
     printf( "\n" );
 
-    m_N0->Diagnostics();
-    m_N1->Diagnostics();
+    if ( m_N0 )
+    {
+        m_N0->Diagnostics();
+    }
+    else
+    {
+        printf( "Invalid Node\n" );
+    }
+
+    if ( m_N1 )
+    {
+        m_N1->Diagnostics();
+    }
+    else
+    {
+        printf( "Invalid Node\n" );
+    }
 }
 
 bool PGEdge::Validate() const
@@ -1404,18 +1449,50 @@ void PGFace::DumpMatlab() const
 void PGFace::Diagnostics() const
 {
     printf( "Face %d\n", m_ID );
-    printf( "Edges: " );
+    printf( " Edges: " );
 
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
     {
-        printf( "%3d ", m_EdgeVec[i]->m_ID );
+        if ( m_EdgeVec[i] )
+        {
+            printf( "%3d ", m_EdgeVec[i]->m_ID );
+        }
+        else
+        {
+            printf( "X " );
+        }
     }
     printf( "\n" );
 
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
     {
-        m_EdgeVec[i]->Diagnostics();
+        if ( m_EdgeVec[i] )
+        {
+            m_EdgeVec[i]->Diagnostics();
+        }
+        else
+        {
+            printf( "Invalid Edge\n" );
+        }
     }
+
+    vector< PGNode* > nodVec;
+    GetNodes( nodVec );
+
+    printf( "GetNodes: " );
+    for ( int i = 0; i < nodVec.size(); i++ )
+    {
+        if ( nodVec[i] )
+        {
+            printf( "%d ", nodVec[i]->m_Pt->m_ID + 1 );
+        }
+        else
+        {
+            printf( "X " );
+        }
+    }
+    printf( "\n" );
+
 }
 
 bool PGFace::Validate() const
