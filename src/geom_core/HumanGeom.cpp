@@ -493,6 +493,11 @@ void HumanGeom::SetPreset()
             m_Back = 0;
             m_Waist = 0;
 
+            m_Nod = 0;
+            m_RotateHead = 0;
+
+            m_WristRt = 0;
+            m_ForearmRt = 0;
             m_ElbowRt = 15;
             m_ShoulderABADRt = 0;
             m_ShoulderFERt = 0;
@@ -509,6 +514,11 @@ void HumanGeom::SetPreset()
             m_Back = 0;
             m_Waist = 0;
 
+            m_Nod = 0;
+            m_RotateHead = 0;
+
+            m_WristRt = 0;
+            m_ForearmRt = 0;
             m_ElbowRt = 80;
             m_ShoulderABADRt = 0;
             m_ShoulderFERt = 0;
