@@ -202,39 +202,19 @@ vector< TMesh* > GeometryAnalysisCase::GetSecondaryTMeshVec()
 
 void GeometryAnalysisCase::GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal )
 {
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( veh )
+    AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
+    if ( auxiliary_ptr )
     {
-        if ( m_PrimaryType() == vsp::GEOM_TARGET )
-        {
-            Geom* geom = veh->FindGeom( m_PrimaryGeomID );
-
-            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
-
-            if ( auxiliary_ptr )
-            {
-                auxiliary_ptr->GetTwoPtSideContactPtsNormal( p1, p2, normal );
-            }
-        }
+        auxiliary_ptr->GetTwoPtSideContactPtsNormal( p1, p2, normal );
     }
 }
 
 void GeometryAnalysisCase::GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal )
 {
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( veh )
+    AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
+    if ( auxiliary_ptr )
     {
-        if ( m_PrimaryType() == vsp::GEOM_TARGET )
-        {
-            Geom* geom = veh->FindGeom( m_PrimaryGeomID );
-
-            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
-
-            if ( auxiliary_ptr )
-            {
-                auxiliary_ptr->GetContactPointVecNormal( ptvec, normal );
-            }
-        }
+        auxiliary_ptr->GetContactPointVecNormal( ptvec, normal );
     }
 }
 
