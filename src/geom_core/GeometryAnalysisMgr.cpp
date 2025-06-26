@@ -66,6 +66,7 @@ void GeometryAnalysisCase::Update()
          m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
          m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
          m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS ||
          m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE )
     {
         m_SecondaryType = vsp::GEOM_TARGET;

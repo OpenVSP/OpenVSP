@@ -425,7 +425,21 @@ bool GeometryAnalysisScreen::Update()
         if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE )
         {
             m_SecondaryUseZGroundToggle.Activate();
-            m_SecondaryZGroundSlider.Activate();
+
+            if ( gcase->m_SecondaryUseZGround() )
+            {
+                m_SecondaryZGroundSlider.Activate();
+
+                m_SecondarySetToggle.Deactivate();
+                m_SecondarySetChoice.Deactivate();
+
+                m_SecondaryGeomToggle.Deactivate();
+                m_SecondaryGeomPicker.Deactivate();
+            }
+            else
+            {
+                m_SecondaryZGroundSlider.Deactivate();
+            }
         }
         else
         {
@@ -448,9 +462,21 @@ bool GeometryAnalysisScreen::Update()
             m_SubSurfCutoutBrowser->activate();
 
             m_SecondaryUsePointToggle.Activate();
-            m_SecondaryXSlider.Activate();
-            m_SecondaryYSlider.Activate();
-            m_SecondaryZSlider.Activate();
+            if ( gcase->m_SecondaryUsePoint() )
+            {
+                m_SecondaryXSlider.Activate();
+                m_SecondaryYSlider.Activate();
+                m_SecondaryZSlider.Activate();
+
+                m_SecondaryGeomToggle.Deactivate();
+                m_SecondaryGeomPicker.Deactivate();
+            }
+            else
+            {
+                m_SecondaryXSlider.Deactivate();
+                m_SecondaryYSlider.Deactivate();
+                m_SecondaryZSlider.Deactivate();
+            }
         }
         else
         {
@@ -463,6 +489,16 @@ bool GeometryAnalysisScreen::Update()
             m_SecondaryZSlider.Deactivate();
         }
 
+        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE ||
+             gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
+             gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
+             gcase->m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE )
+        {
+            m_SecondarySetToggle.Deactivate();
+            m_SecondarySetChoice.Deactivate();
+        }
 
     }
     else
