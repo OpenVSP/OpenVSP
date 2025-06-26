@@ -312,9 +312,6 @@ bool GeometryAnalysisScreen::Update()
              gcase->m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS )
         {
             m_PrimaryGeomPicker.AddIncludeType( AUXILIARY_GEOM_TYPE );
-
-            // Many of these don't support Gear yet.  Probably needs a more sophisticted test.
-            m_PrimaryGeomPicker.AddIncludeType( GEAR_GEOM_TYPE );
         }
         m_PrimaryGeomPicker.Update();
 
@@ -329,15 +326,17 @@ bool GeometryAnalysisScreen::Update()
 
         // Handle dual geom that require special types.
         m_SecondaryGeomPicker.ClearIncludeType();
-        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE ||
-             gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
+        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
              gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
              gcase->m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS ||
              gcase->m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE )
         {
             m_SecondaryGeomPicker.AddIncludeType( AUXILIARY_GEOM_TYPE );
+        }
 
-            // Many of these don't support Gear yet.  Probably needs a more sophisticted test.
+        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE )
+        {
+            m_SecondaryGeomPicker.AddIncludeType( AUXILIARY_GEOM_TYPE );
             m_SecondaryGeomPicker.AddIncludeType( GEAR_GEOM_TYPE );
         }
         m_SecondaryGeomPicker.Update();
