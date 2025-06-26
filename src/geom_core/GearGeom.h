@@ -119,10 +119,10 @@ public:
         }
 
         double bogietheta = 0;
-        if ( !m_DrawNominal() )
-        {
-            bogietheta = m_BogieTheta();
-        }
+        // if ( !m_DrawNominal() )
+        // {
+        //     bogietheta = m_BogieTheta();
+        // }
 
         for ( int isymm = 0; isymm < nsymm; isymm++ )
         {
@@ -144,7 +144,7 @@ public:
     // Bogie
     BoolParm m_Symmetrical;
 
-    BoolParm m_DrawNominal;
+    // BoolParm m_DrawNominal;
 
     IntParm m_NAcross;
     IntParm m_NTandem;
@@ -169,11 +169,11 @@ public:
     Parm m_TravelY;
     Parm m_TravelZ;
 
-    Parm m_Travel;
+    // Parm m_Travel;
     Parm m_TravelCompressed;
     Parm m_TravelExtended;
 
-    Parm m_BogieTheta;
+    // Parm m_BogieTheta;
     Parm m_BogieThetaMax;
     Parm m_BogieThetaMin;
 

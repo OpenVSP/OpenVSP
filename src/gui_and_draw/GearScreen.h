@@ -105,10 +105,10 @@ protected:
     SliderAdjRangeInput m_BogieThetaMaxSlider;
     SliderAdjRangeInput m_BogieThetaMinSlider;
 
-    SliderAdjRangeInput m_TravelSlider;
-    SliderAdjRangeInput m_BogieThetaSlider;
-
-    ToggleButton m_DrawNominalButton;
+    // SliderAdjRangeInput m_TravelSlider;
+    // SliderAdjRangeInput m_BogieThetaSlider;
+    //
+    // ToggleButton m_DrawNominalButton;
 
     // Tire
     Choice m_TireBogieChoice;

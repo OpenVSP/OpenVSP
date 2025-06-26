@@ -22,7 +22,7 @@ Bogie::Bogie()
     // Bogie
     m_Symmetrical.Init( "Symmetrical", "Bogie", this, false, false, true );
 
-    m_DrawNominal.Init( "DrawNominal", "Bogie", this, true, false, true );
+    // m_DrawNominal.Init( "DrawNominal", "Bogie", this, true, false, true );
 
     m_NAcross.Init( "NumAcross", "Bogie", this, 1, 1, 100 );
     m_NTandem.Init( "NumTandem", "Bogie", this, 1, 1, 100 );
@@ -47,11 +47,11 @@ Bogie::Bogie()
     m_TravelY.Init( "TravelY", "Bogie", this, 0.0, -1e12, 1e12 );
     m_TravelZ.Init( "TravelZ", "Bogie", this, 1.0, -1e12, 1e12 );
 
-    m_Travel.Init( "Travel", "Bogie", this, 0.0, -1e12, 1e12 );
+    // m_Travel.Init( "Travel", "Bogie", this, 0.0, -1e12, 1e12 );
     m_TravelCompressed.Init( "TravelCompressed", "Bogie", this, 1.0, 0, 1e12 );
     m_TravelExtended.Init( "TravelExtended", "Bogie", this, 1.0, 0, 1e12 );
 
-    m_BogieTheta.Init( "BogieTheta", "Bogie", this, 0.0, -180, 180 );
+    // m_BogieTheta.Init( "BogieTheta", "Bogie", this, 0.0, -180, 180 );
     m_BogieThetaMax.Init( "BogieThetaMax", "Bogie", this, 20.0, -180, 180 );
     m_BogieThetaMin.Init( "BogieThetaMin", "Bogie", this, -20.0, -180, 180 );
 
@@ -488,12 +488,17 @@ void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
     m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_NOMINAL ) ) );
     m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_COMPRESSED ) ) );
 
-
-    m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetMeanContactPoint( 0,  vsp::TIRE_STATIC_LODED_CONTACT, vsp::GEAR_SUSPENSION_NOMINAL, m_BogieTheta() * M_PI / 180.0 ) ) );
-    if ( m_Symmetrical() )
-    {
-        m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetMeanContactPoint( 1,  vsp::TIRE_STATIC_LODED_CONTACT, vsp::GEAR_SUSPENSION_NOMINAL, m_BogieTheta() * M_PI / 180.0 ) ) );
-    }
+    // Visualize gear contact points.
+    // double bogietheta = 0;
+    // // if ( !m_DrawNominal() )
+    // // {
+    // //     bogietheta = m_BogieTheta();
+    // // }
+    // m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetMeanContactPoint( 0,  vsp::TIRE_STATIC_LODED_CONTACT, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta * M_PI / 180.0 ) ) );
+    // if ( m_Symmetrical() )
+    // {
+    //     m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetMeanContactPoint( 1,  vsp::TIRE_STATIC_LODED_CONTACT, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta * M_PI / 180.0 ) ) );
+    // }
 
     if ( m_Symmetrical() )
     {
