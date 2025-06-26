@@ -497,8 +497,11 @@ bool Gearcreen::Update()
         m_TravelXSlider.Activate();
         m_TravelYSlider.Activate();
         m_TravelZSlider.Activate();
+        m_SteeringAngleSlider.Activate();
         m_TravelCompressSlider.Activate();
         m_TravelExtendSlider.Activate();
+        m_BogieThetaMaxSlider.Activate();
+        m_BogieThetaMinSlider.Activate();
 
         // Tire
         m_TireDiameterToggleGroup.Activate();
@@ -796,8 +799,11 @@ bool Gearcreen::Update()
         m_TravelXSlider.Deactivate();
         m_TravelYSlider.Deactivate();
         m_TravelZSlider.Deactivate();
+        m_SteeringAngleSlider.Deactivate();
         m_TravelCompressSlider.Deactivate();
         m_TravelExtendSlider.Deactivate();
+        m_BogieThetaMaxSlider.Deactivate();
+        m_BogieThetaMinSlider.Deactivate();
 
         // Tire
         m_TireDiameterToggleGroup.Deactivate();
