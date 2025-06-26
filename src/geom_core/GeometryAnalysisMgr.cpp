@@ -220,20 +220,10 @@ void GeometryAnalysisCase::GetPrimaryContactPointVecNormal( vector < vec3d > &pt
 
 void GeometryAnalysisCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds )
 {
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( veh )
+    AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
+    if ( auxiliary_ptr )
     {
-        if ( m_PrimaryType() == vsp::GEOM_TARGET )
-        {
-            Geom* geom = veh->FindGeom( m_PrimaryGeomID );
-
-            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
-
-            if ( auxiliary_ptr )
-            {
-                auxiliary_ptr->GetCG( cgnom, cgbounds );
-            }
-        }
+        auxiliary_ptr->GetCG( cgnom, cgbounds );
     }
 }
 
