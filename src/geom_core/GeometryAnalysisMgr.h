@@ -16,6 +16,8 @@
 #include "TMesh.h"
 #include "DrawObj.h"
 
+class AuxiliaryGeom;
+
 class GeometryAnalysisCase : public ParmContainer
 {
 public:
@@ -33,7 +35,8 @@ public:
     void GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );
     void GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
     void GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds );
-    void GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds );
+    AuxiliaryGeom* GetPrimaryAuxiliaryGeom() const;
+    void GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds ) const;
 
 
     void GetSecondaryPt( vec3d &pt );

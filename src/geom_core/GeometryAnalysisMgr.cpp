@@ -257,22 +257,69 @@ void GeometryAnalysisCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbound
     }
 }
 
-void GeometryAnalysisCase::GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds )
+AuxiliaryGeom* GeometryAnalysisCase::GetPrimaryAuxiliaryGeom() const
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
+
+    AuxiliaryGeom* auxiliary_ptr = nullptr;
+
     if ( veh )
     {
-        if ( m_PrimaryType() == vsp::GEOM_TARGET )
+        if ( m_PrimaryType() == vsp::SET_TARGET || m_PrimaryType() == vsp::MODE_TARGET )
+        {
+            int set = vsp::SET_NONE;
+
+            if ( m_PrimaryType() == vsp::SET_TARGET )
+            {
+                set = m_PrimarySet();
+            }
+            else
+            {
+                Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
+                if ( m )
+                {
+                    set = m->m_NormalSet();
+                }
+            }
+
+            // Find first AuxiliaryGeom in set
+            vector<string> geom_vec = veh->GetGeomVec();
+            for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+            {
+                Geom* geom = veh->FindGeom( geom_vec[i] );
+                if ( geom )
+                {
+                    if ( geom->GetSetFlag( set ) )
+                    {
+                        AuxiliaryGeom* aux = dynamic_cast< AuxiliaryGeom* >( geom );
+                        if ( aux )
+                        {
+                            auxiliary_ptr = aux;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        else if ( m_PrimaryType() == vsp::GEOM_TARGET )
         {
             Geom* geom = veh->FindGeom( m_PrimaryGeomID );
 
-            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
-            if ( auxiliary_ptr )
-            {
-                auxiliary_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
-                auxiliary_ptr->GetCG( cgnom, cgbounds );
-            }
+            auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
         }
+    }
+
+    return auxiliary_ptr;
+}
+
+void GeometryAnalysisCase::GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds ) const
+{
+    AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
+
+    if ( auxiliary_ptr )
+    {
+        auxiliary_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
+        auxiliary_ptr->GetCG( cgnom, cgbounds );
     }
 }
 
