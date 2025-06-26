@@ -15,7 +15,7 @@
 
 
 //==== Constructor ====//
-Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800 + 100, "Gear" )
+Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
