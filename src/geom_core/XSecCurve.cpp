@@ -1133,7 +1133,8 @@ void XSecCurve::TrimTE( bool wingtype )
                 double ulower = umin + delta * itarget;
                 double uupper = uuppermatch[ i ] + frac * ( uuppermatch[ i + 1 ] - uuppermatch[ i ] );
 
-                m_Curve.FindThickness( ts1, ts2, te, ttrim, ulower, uupper );
+                m_Curve.FindThickness( ts1, ts2, te, ttrim, ulower, uupper,
+                                       ucache[ i ], ucache[i + 1], uuppermatch[i + 1], uuppermatch[ i ] );
             }
             else
             {
@@ -1403,7 +1404,8 @@ void XSecCurve::TrimLE( bool wingtype )
                 double ulower = umin + delta * itarget;
                 double uupper = uuppermatch[ i ] + frac * ( uuppermatch[ i + 1 ] - uuppermatch[ i ] );
 
-                m_Curve.FindThickness( ts1, ts2, le, ttrim, ulower, uupper );
+                m_Curve.FindThickness( ts1, ts2, le, ttrim, ulower, uupper,
+                                       ucache[ i ], ucache[i + 1], uuppermatch[i + 1], uuppermatch[ i ] );
             }
             else
             {

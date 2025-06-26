@@ -1024,13 +1024,15 @@ double VspCurve::FindDistant( double &u, const vec3d &pt, const double &d, const
     return dist;
 }
 
-double VspCurve::FindThickness( double &u1, double &u2, const vec3d &pt, const double &thick, const double &u10, const double &u20 ) const
+double VspCurve::FindThickness( double &u1, double &u2, const vec3d &pt, const double &thick, const double &u10, const double &u20,
+                                const double &u1min, const double &u1max, const double &u2min, const double &u2max ) const
 {
     double dist;
     curve_point_type p;
     p << pt.x(), pt.y(), pt.z();
 
-    dist = eli::geom::intersect::specified_thickness( u1, u2, m_Curve, p, thick, u10, u20 );
+    dist = eli::geom::intersect::specified_thickness( u1, u2, m_Curve, p, thick, u10, u20,
+                                                 u1min, u1max, u2min, u2max );
 
     return dist;
 }
