@@ -759,21 +759,13 @@ string GeometryAnalysisCase::Evaluate()
                 {
                     m_LastResult = res->GetID();
 
-                    if ( m_PrimaryType() == vsp::GEOM_TARGET )
-                    {
-                        Geom* geom = veh->FindGeom( m_PrimaryGeomID );
-
-                        AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
-                        if ( auxiliary_ptr )
-                        {
                             vec3d pt, normal, ptaxis, axis;
                             bool usepivot;
                             double mintheta, maxtheta;
-                            auxiliary_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
 
                             vec3d cgnom;
                             vector < vec3d > cgbounds;
-                            auxiliary_ptr->GetCG( cgnom, cgbounds );
+                            GetPrimaryPtNormalMeanContactPtPivotAxisCG( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta, cgnom, cgbounds );
 
                             vec3d p0, p1;
                             double anglenominal = tipback( cgnom, normal, ptaxis, axis, p0, p1 );
@@ -827,8 +819,6 @@ string GeometryAnalysisCase::Evaluate()
                             res->Add( new NameValData( "MaxTip", anglemax * 180.0 / M_PI, "Maximum tipback angle." ) );
                             res->Add( new NameValData( "Pts", tip_pts, "Tipback arc end points." ) );
                             res->Add( new NameValData( "Result", anglenominal * 180.0 / M_PI, "Interference result" ) );
-                        }
-                    }
                 }
 
                 m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
