@@ -1076,21 +1076,24 @@ void GeomXForm::ComposeAttachMatrix()
             AuxiliaryGeom* auxthis = dynamic_cast < AuxiliaryGeom* > ( this );
             if ( auxthis )
             {
-                bool axisaligned = auxthis->m_SCWorldAligned();
+                if ( auxthis->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
+                {
+                    bool axisaligned = auxthis->m_SCWorldAligned();
 
-                HumanGeom* humanparent = dynamic_cast < HumanGeom* > ( parent );
-                if ( humanparent )
-                {
-                    parentMat = humanparent->GetDesignEyeMatrix( axisaligned );
-                }
-                else
-                {
-                    if ( axisaligned )
+                    HumanGeom* humanparent = dynamic_cast < HumanGeom* > ( parent );
+                    if ( humanparent )
                     {
-                        const vec3d x( 1, 0, 0);
-                        const vec3d y( 0, 1, 0 );
-                        const vec3d z( 0, 0, 1 );;
-                        parentMat.setBasis( x, y, z );
+                        parentMat = humanparent->GetDesignEyeMatrix( axisaligned );
+                    }
+                    else
+                    {
+                        if ( axisaligned )
+                        {
+                            const vec3d x( 1, 0, 0);
+                            const vec3d y( 0, 1, 0 );
+                            const vec3d z( 0, 0, 1 );
+                            parentMat.setBasis( x, y, z );
+                        }
                     }
                 }
             }
