@@ -137,30 +137,42 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800 + 100, "Gear"
     m_BogieLayout.AddButton( m_SymmetricalButton, "Symmetrical" );
 
     m_BogieLayout.AddYGap();
-    m_BogieLayout.AddSlider( m_NAcrossSlider, "Num Across", 10, "%6.0f" );
 
-    m_BogieLayout.AddChoice( m_SpacingTypeChoice, "Mode" );
+    int acrossW = ( m_BogieLayout.GetW() - 5 ) * 0.5;
+
+    m_BogieLayout.SetSameLineFlag( true );
+    m_BogieLayout.AddSubGroupLayout( m_AcrossGroup, acrossW, m_BogieLayout.GetStdHeight() * 4 );
+    m_BogieLayout.AddX( acrossW + 5 );
+    m_BogieLayout.AddSubGroupLayout( m_TandemGroup, acrossW, m_BogieLayout.GetStdHeight() * 4 );
+    m_BogieLayout.SetSameLineFlag( false );
+    m_BogieLayout.ForceNewLine();
+    m_BogieLayout.AddY( m_BogieLayout.GetStdHeight() * (4 - 1 ) );
+
+
+    m_AcrossGroup.AddSlider( m_NAcrossSlider, "Across", 10, "%6.0f" );
+
+    m_AcrossGroup.AddChoice( m_SpacingTypeChoice, "Mode" );
     m_SpacingTypeChoice.AddItem( "Center Distance (Model)", vsp::BOGIE_CENTER_DIST );
     m_SpacingTypeChoice.AddItem( "Center Distance Fraction", vsp::BOGIE_CENTER_DIST_FRAC );
     m_SpacingTypeChoice.AddItem( "Gap (Model)", vsp::BOGIE_GAP );
     m_SpacingTypeChoice.AddItem( "Gap Fraction", vsp::BOGIE_GAP_FRAC );
     m_SpacingTypeChoice.UpdateItems();
 
-    m_BogieLayout.AddSlider( m_SpacingSlider, "Spacing", 10, "%6.5f" );
-    m_BogieLayout.AddSlider( m_SpacingGapSlider, "Spacing Gap", 10, "%6.5f" );
+    m_AcrossGroup.AddSlider( m_SpacingSlider, "Spacing", 10, "%6.5f" );
+    m_AcrossGroup.AddSlider( m_SpacingGapSlider, "Spacing Gap", 10, "%6.5f" );
 
-    m_BogieLayout.AddYGap();
-    m_BogieLayout.AddSlider( m_NTandemSlider, "Num Tandem", 10, "%6.0f" );
 
-    m_BogieLayout.AddChoice( m_PitchTypeChoice, "Mode" );
+    m_TandemGroup.AddSlider( m_NTandemSlider, "Tandem", 10, "%6.0f" );
+
+    m_TandemGroup.AddChoice( m_PitchTypeChoice, "Mode" );
     m_PitchTypeChoice.AddItem( "Center Distance (Model)", vsp::BOGIE_CENTER_DIST );
     m_PitchTypeChoice.AddItem( "Center Distance Fraction", vsp::BOGIE_CENTER_DIST_FRAC );
     m_PitchTypeChoice.AddItem( "Gap (Model)", vsp::BOGIE_GAP );
     m_PitchTypeChoice.AddItem( "Gap Fraction", vsp::BOGIE_GAP_FRAC );
     m_PitchTypeChoice.UpdateItems();
 
-    m_BogieLayout.AddSlider( m_PitchSlider, "Pitch", 10, "%6.5f" );
-    m_BogieLayout.AddSlider( m_PitchGapSlider, "Pitch Gap", 10, "%6.5f" );
+    m_TandemGroup.AddSlider( m_PitchSlider, "Pitch", 10, "%6.5f" );
+    m_TandemGroup.AddSlider( m_PitchGapSlider, "Pitch Gap", 10, "%6.5f" );
 
     m_BogieLayout.AddYGap();
     m_BogieLayout.AddDividerBox( "Contact Point" );
