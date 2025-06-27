@@ -77,14 +77,12 @@ public:
     string m_SecondaryGeomID;
 
     Parm m_SecondaryZGround;
-    BoolParm m_SecondaryUseZGround;
 
     BoolParm m_SecondaryCCWFlag;
 
     BoolParm m_PolyVisibleFlag;
     vector< string > m_CutoutVec;
 
-    BoolParm m_SecondaryUsePoint;
     Parm m_SecondaryX;
     Parm m_SecondaryY;
     Parm m_SecondaryZ;

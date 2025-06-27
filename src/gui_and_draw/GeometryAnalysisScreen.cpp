@@ -176,10 +176,6 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_SecondaryLayout.ForceNewLine();
 
-    m_SecondaryToggleGroup.Init( this );
-    m_SecondaryToggleGroup.AddButton( m_SecondarySetToggle.GetFlButton() );
-    m_SecondaryToggleGroup.AddButton( m_SecondaryGeomToggle.GetFlButton() );
-
     m_SecondaryLayout.SetSameLineFlag( true );
     m_SecondaryLayout.SetFitWidthFlag( false );
 
@@ -199,6 +195,19 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_SecondaryLayout.AddSlider( m_SecondaryXSlider, "X", 10, "%6.4f" );
     m_SecondaryLayout.AddSlider( m_SecondaryYSlider, "Y", 10, "%6.4f" );
     m_SecondaryLayout.AddSlider( m_SecondaryZSlider, "Z", 10, "%6.4f" );
+
+    m_SecondaryToggleGroup.Init( this );
+    m_SecondaryToggleGroup.AddButton( m_SecondarySetToggle.GetFlButton() );
+    m_SecondaryToggleGroup.AddButton( m_SecondaryGeomToggle.GetFlButton() );
+    m_SecondaryToggleGroup.AddButton( m_SecondaryUseZGroundToggle.GetFlButton() );
+    m_SecondaryToggleGroup.AddButton( m_SecondaryUsePointToggle.GetFlButton() );
+
+    vector< int > val_map;
+    val_map.push_back( vsp::SET_TARGET );
+    val_map.push_back( vsp::GEOM_TARGET );
+    val_map.push_back( vsp::Z_TARGET );
+    val_map.push_back( vsp::XYZ_TARGET );
+    m_SecondaryToggleGroup.SetValMapVec( val_map );
 
     m_OptionsLayout.AddDividerBox( "Options" );
 
@@ -289,14 +298,15 @@ bool GeometryAnalysisScreen::Update()
 
         m_ResultOutput.Update( gcase->m_LastResultValue.GetID() );
 
+        m_PrimaryToggleGroup.Update( gcase->m_PrimaryType.GetID() );
+        m_SecondaryToggleGroup.Update( gcase->m_SecondaryType.GetID() );
+
         m_SecondaryZGroundSlider.Update( gcase->m_SecondaryZGround.GetID() );
-        m_SecondaryUseZGroundToggle.Update( gcase->m_SecondaryUseZGround.GetID() );
 
         m_CCWToggleGroup.Update( gcase->m_SecondaryCCWFlag.GetID() );
 
         m_PolyVisibleToggleGroup.Update( gcase->m_PolyVisibleFlag.GetID() );
 
-        m_SecondaryUsePointToggle.Update( gcase->m_SecondaryUsePoint.GetID() );
         m_SecondaryXSlider.Update( gcase->m_SecondaryX.GetID() );
         m_SecondaryYSlider.Update( gcase->m_SecondaryY.GetID() );
         m_SecondaryZSlider.Update( gcase->m_SecondaryZ.GetID() );
@@ -351,9 +361,6 @@ bool GeometryAnalysisScreen::Update()
         }
 
 
-        m_PrimaryToggleGroup.Update( gcase->m_PrimaryType.GetID() );
-        m_SecondaryToggleGroup.Update( gcase->m_SecondaryType.GetID() );
-
         if ( ModeMgr.GetNumModes() == 0 )
         {
             if ( gcase->m_PrimaryType() == vsp::MODE_TARGET )
@@ -398,15 +405,73 @@ bool GeometryAnalysisScreen::Update()
             m_PrimaryGeomPicker.Activate();
         }
 
+        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE )
+        {
+            m_SecondaryUseZGroundToggle.Activate();
+        }
+        else
+        {
+            m_SecondaryUseZGroundToggle.Deactivate();
+        }
+
+        if ( gcase->m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS )
+        {
+            m_PolyVisibleToggleGroup.Activate();
+            m_SubSurfCutoutBrowser->activate();
+
+            m_SecondaryUsePointToggle.Activate();
+        }
+        else
+        {
+            m_PolyVisibleToggleGroup.Deactivate();
+            m_SubSurfCutoutBrowser->deactivate();
+
+            m_SecondaryUsePointToggle.Deactivate();
+
+            m_SecondaryXSlider.Deactivate();
+            m_SecondaryYSlider.Deactivate();
+            m_SecondaryZSlider.Deactivate();
+        }
+
         if ( gcase->m_SecondaryType() == vsp::SET_TARGET )
         {
             m_SecondarySetChoice.Activate();
             m_SecondaryGeomPicker.Deactivate();
+            m_SecondaryZGroundSlider.Deactivate();
+
+            m_SecondaryXSlider.Deactivate();
+            m_SecondaryYSlider.Deactivate();
+            m_SecondaryZSlider.Deactivate();
         }
         else if ( gcase->m_SecondaryType() == vsp::GEOM_TARGET )
         {
             m_SecondarySetChoice.Deactivate();
             m_SecondaryGeomPicker.Activate();
+            m_SecondaryZGroundSlider.Deactivate();
+
+            m_SecondaryXSlider.Deactivate();
+            m_SecondaryYSlider.Deactivate();
+            m_SecondaryZSlider.Deactivate();
+        }
+        else if ( gcase->m_SecondaryType() == vsp::Z_TARGET )
+        {
+            m_SecondarySetChoice.Deactivate();
+            m_SecondaryGeomPicker.Deactivate();
+            m_SecondaryZGroundSlider.Activate();
+
+            m_SecondaryXSlider.Deactivate();
+            m_SecondaryYSlider.Deactivate();
+            m_SecondaryZSlider.Deactivate();
+        }
+        else if ( gcase->m_SecondaryType() == vsp::XYZ_TARGET )
+        {
+            m_SecondarySetChoice.Deactivate();
+            m_SecondaryGeomPicker.Deactivate();
+            m_SecondaryZGroundSlider.Deactivate();
+
+            m_SecondaryXSlider.Activate();
+            m_SecondaryYSlider.Activate();
+            m_SecondaryZSlider.Activate();
         }
 
         // Single-geometry cases.
@@ -422,31 +487,6 @@ bool GeometryAnalysisScreen::Update()
             m_SecondaryLayout.GetGroup()->activate();
         }
 
-        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE )
-        {
-            m_SecondaryUseZGroundToggle.Activate();
-
-            if ( gcase->m_SecondaryUseZGround() )
-            {
-                m_SecondaryZGroundSlider.Activate();
-
-                m_SecondarySetToggle.Deactivate();
-                m_SecondarySetChoice.Deactivate();
-
-                m_SecondaryGeomToggle.Deactivate();
-                m_SecondaryGeomPicker.Deactivate();
-            }
-            else
-            {
-                m_SecondaryZGroundSlider.Deactivate();
-            }
-        }
-        else
-        {
-            m_SecondaryUseZGroundToggle.Deactivate();
-            m_SecondaryZGroundSlider.Deactivate();
-        }
-
         if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE )
         {
             m_CCWToggleGroup.Activate();
@@ -454,39 +494,6 @@ bool GeometryAnalysisScreen::Update()
         else
         {
             m_CCWToggleGroup.Deactivate();
-        }
-
-        if ( gcase->m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS )
-        {
-            m_PolyVisibleToggleGroup.Activate();
-            m_SubSurfCutoutBrowser->activate();
-
-            m_SecondaryUsePointToggle.Activate();
-            if ( gcase->m_SecondaryUsePoint() )
-            {
-                m_SecondaryXSlider.Activate();
-                m_SecondaryYSlider.Activate();
-                m_SecondaryZSlider.Activate();
-
-                m_SecondaryGeomToggle.Deactivate();
-                m_SecondaryGeomPicker.Deactivate();
-            }
-            else
-            {
-                m_SecondaryXSlider.Deactivate();
-                m_SecondaryYSlider.Deactivate();
-                m_SecondaryZSlider.Deactivate();
-            }
-        }
-        else
-        {
-            m_PolyVisibleToggleGroup.Deactivate();
-            m_SubSurfCutoutBrowser->deactivate();
-
-            m_SecondaryUsePointToggle.Deactivate();
-            m_SecondaryXSlider.Deactivate();
-            m_SecondaryYSlider.Deactivate();
-            m_SecondaryZSlider.Deactivate();
         }
 
         if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE ||

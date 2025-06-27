@@ -1899,6 +1899,12 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PROJ_TGT_TYPE", "GEOM_TARGET", GEOM_TARGET );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROJ_TGT_TYPE", "MODE_TARGET", MODE_TARGET );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROJ_TGT_TYPE", "Z_TARGET", Z_TARGET );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROJ_TGT_TYPE", "XYZ_TARGET", XYZ_TARGET );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "PROJ_TGT_TYPE", "NUM_PROJ_TGT_OPTIONS", NUM_PROJ_TGT_OPTIONS );
     assert( r >= 0 );
 

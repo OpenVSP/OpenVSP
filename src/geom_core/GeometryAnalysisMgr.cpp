@@ -40,16 +40,14 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_SecondarySet.Init( "SecondarySet", groupname, this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
     m_SecondarySet.SetDescript( "Selected secondary set for operation" );
 
-    m_SecondaryType.Init( "SecondaryType", "Projection", this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_BNDY_OPTIONS - 2 ); // Note - 2, MODE_TARGET not allowed.
+    m_SecondaryType.Init( "SecondaryType", "Projection", this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_TGT_OPTIONS - 1 );
 
     m_SecondaryZGround.Init( "SecondaryZGround", "Projection", this, 0.0, -1e12, 1e12 );
-    m_SecondaryUseZGround.Init( "SecondaryUseZGround", "Projection", this, true, false, true );
 
     m_SecondaryCCWFlag.Init( "SecondaryCCWFlag", "Projection", this, false, false, true );
 
     m_PolyVisibleFlag.Init( "PolyVisibleFlag", "Projection", this, false, false, true );
 
-    m_SecondaryUsePoint.Init( "SecondaryUsePoint", "Projection", this, false, false, true );
     m_SecondaryX.Init( "SecondaryX", "Projection", this, 0.0, -1e12, 1e12 );
     m_SecondaryY.Init( "SecondaryY", "Projection", this, 0.0, -1e12, 1e12 );
     m_SecondaryZ.Init( "SecondaryZ", "Projection", this, 0.0, -1e12, 1e12 );
@@ -296,7 +294,7 @@ void GeometryAnalysisCase::GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt
 
 void GeometryAnalysisCase::GetSecondaryPt( vec3d &pt )
 {
-    if ( m_SecondaryUsePoint() )
+    if ( m_SecondaryType() == vsp::XYZ_TARGET )
     {
         pt.set_xyz( m_SecondaryX(), m_SecondaryY(), m_SecondaryZ() );
     }
@@ -536,7 +534,7 @@ string GeometryAnalysisCase::Evaluate()
 
 
                     vec3d org, norm;
-                    if ( m_SecondaryUseZGround() )
+                    if ( m_SecondaryType() == vsp::Z_TARGET )
                     {
                         org.set_z( m_SecondaryZGround() );
                         norm.set_z( 1 );
