@@ -28,6 +28,7 @@
 #include <ProcessUtil.h>
 
 #include <algorithm>
+#include <filesystem>
 
 vector< string > ScanFolder( const char* dir_path )
 {
@@ -272,19 +273,7 @@ bool CheckForFile( const string &path, const string &file )
 
 bool FileExist( const string & file )
 {
-    FILE *fp = nullptr;
-
-    fp = fopen( file.c_str(), "r" );
-
-    if( fp )
-    {
-        fclose( fp );
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return std::filesystem::exists( file );
 }
 
 // function is used to wait for the result to show up on the file system
