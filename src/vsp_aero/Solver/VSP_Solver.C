@@ -955,7 +955,7 @@ void VSP_SOLVER::Setup(void)
 
        // Create Matrix preconditioner
        
-       if ( Preconditioner_ == MATCON ) CreateMatrixPreconditionersDataStructure();  
+       if ( Preconditioner_ == MATCON && ! DumpGeom_ ) CreateMatrixPreconditionersDataStructure();  
              
        FirstTimeSetup_ = 0;
  
@@ -2720,32 +2720,27 @@ void VSP_SOLVER::Solve(int Case)
        
     }
            
-    // Recalculate interaction lists if Mach crossed over Mach = 1
+    // Recalculate interaction lists
 
     CurrentWakeIteration_ = 0;
 
-    if ( ( LastMach_ < 0.                 ) || 
-         ( Mach_ >= 1. && LastMach_ <  1. ) ||
-         ( Mach_ <  1. && LastMach_ >= 1. ) ) {
-  
-       if ( LastMach_ > 0. ) printf("Updating interaction lists due to subsonic / supersonic Mach change \n");
-       
-       if ( !DumpGeom_ && FreezeMultiPoleAtIteration_ > 0 ) {
+    if ( !DumpGeom_ ) {
               
 #ifdef MYMEMORY    
-          double Mem1 = mymemory();
+       
+       double Mem1 = mymemory();
 #endif             
  
-          CreateSurfaceVorticesInteractionList();
+       CreateSurfaceVorticesInteractionList();
 
 #ifdef MYMEMORY    
-          double Mem2 = mymemory();
+       
+       double Mem2 = mymemory();
 
-          printf("Initial Interaction list memory: %lf \n",Mem2-Mem1);fflush(NULL);
+       printf("Initial Interaction list memory: %lf \n",Mem2-Mem1);fflush(NULL);
+
 #endif              
            
-       }
-
     }
 
     LastMach_ = Mach_;
@@ -2755,7 +2750,9 @@ void VSP_SOLVER::Solve(int Case)
     // Create matrix preconditioners
 
 #ifdef MYMEMORY    
-          double Mem1 = mymemory();
+
+    double Mem1 = mymemory();
+
 #endif    
 
     if ( !DumpGeom_ && Preconditioner_ != MATCON ) CalculateDiagonal();       
@@ -2763,9 +2760,11 @@ void VSP_SOLVER::Solve(int Case)
     if ( !DumpGeom_ && Preconditioner_ == MATCON ) CreateMatrixPreconditioners();
        
 #ifdef MYMEMORY    
-          double Mem2 = mymemory();
 
-          printf("Preconditioner storage: %lf \n",Mem2-Mem1);fflush(NULL);
+    double Mem2 = mymemory();
+    
+    printf("Preconditioner storage: %lf \n",Mem2-Mem1);fflush(NULL);
+
 #endif    
        
     // Zero out group data
@@ -2826,6 +2825,26 @@ void VSP_SOLVER::Solve(int Case)
        
     }
 
+    // Open the load file the first time only
+    
+    if ( Case == 0 || Case == 1 ) {
+    
+       snprintf(LoadFileName,sizeof(LoadFileName)*sizeof(char),"%s.lod",FileName_);
+       
+       if ( (LoadFile_ = fopen(LoadFileName, "w")) == NULL ) {
+   
+          printf("Could not open the spanwise loading file for output! \n");
+   
+          exit(1);
+   
+       }
+       
+       // Write out generic header
+       
+       WriteCaseHeader(LoadFile_);       
+       
+    }         
+   
     // Header for history file
     
     if ( ABS(Case) > 0 ) {
@@ -2999,7 +3018,6 @@ void VSP_SOLVER::Solve(int Case)
 
     printf("Solving... Mach: %f ... Alpha: %f ... Beta: %f \n\n",Mach_,AngleOfAttack_/TORAD,AngleOfBeta_/TORAD);fflush(NULL);
 
-               
     // Header for command line status
 
     if ( !TimeAccurate_ ) {
@@ -3106,7 +3124,7 @@ void VSP_SOLVER::Solve(int Case)
        if ( FreezeWakeRootVortices_ ) VSPGeom().FreezeWakeRootVortices(FreezeWakeRootVortices_);
        
        // Freeze the wake grids if the waker iterations is 0
-       
+
        if ( WakeIterations_ == 0 && !TimeAccurate_ ) {
           
           VSPGeom().FreezeWakeGrids();
@@ -3141,7 +3159,7 @@ void VSP_SOLVER::Solve(int Case)
           
           // Update the free stream for the wake edges
           
-          if ( NumberOfRotors_ > 0 || NumberOfEngineFaces_ > 0 || TimeAccurate_ ||  VSPGeom().ThereAreRotors() ) UpdateEdgeFreeStreamVelocities();
+          if ( NumberOfRotors_ > 0 || NumberOfEngineFaces_ > 0 || TimeAccurate_ || VSPGeom().ThereAreRotors() ) UpdateEdgeFreeStreamVelocities();
 
           // Solve the linear system
 
@@ -3335,6 +3353,10 @@ void VSP_SOLVER::Solve(int Case)
   
           OutputForcesAndMomentsForGroup(0);    
           
+          // Write out loading data, and any rotor loading data
+          
+          if ( !DumpGeom_ && VSPGeom().NumberOfVortexSheets() > 0 ) CalculateSpanWiseLoading();
+                    
        }
 
        // Calculate survey point results for steady/unsteady results
@@ -3379,22 +3401,6 @@ void VSP_SOLVER::Solve(int Case)
 
     if ( TimeAccurate_ ) OutputStatusFile(1);  
 
-    // Open the load file the first time only
-    
-    if ( Case == 0 || Case == 1 ) {
-    
-       snprintf(LoadFileName,sizeof(LoadFileName)*sizeof(char),"%s.lod",FileName_);
-       
-       if ( (LoadFile_ = fopen(LoadFileName, "w")) == NULL ) {
-   
-          printf("Could not open the spanwise loading file for output! \n");
-   
-          exit(1);
-   
-       }
-       
-    }         
-   
     // Calculate spanwise load distributions for lifting surfaces
  
     if ( !DumpGeom_ && VSPGeom().NumberOfVortexSheets() > 0 ) CalculateSpanWiseLoading();
@@ -3780,7 +3786,7 @@ void VSP_SOLVER::SolveForwardLinearSystem(void)
     // Calculate the initial, preconditioned, residual
 
     CalculateResidual();
-
+  
     // Update vortex loop matrix preconditioners
     
     if ( UpdateMatrixPreconditioner_ ) CreateVortexLoopMatrixPreconditioners();
@@ -4033,7 +4039,7 @@ void VSP_SOLVER::CreateMatrixPreconditionersDataStructureForVortexLoops(void)
        
        printf("Error... mesh too coarse, or something else failed. Stopping in CreateMatrixPreconditionersDataStructure! \n");
        fflush(NULL);
-       exit(1);
+  //    exit(1);
        
     }
 
@@ -5751,7 +5757,7 @@ void VSP_SOLVER::CalculateMeshPerturbationLoopVelocities(void)
       
                 VortexEdge = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                  
                    // Calculate mesh perturbation influence of this edge
         
@@ -6120,7 +6126,7 @@ void VSP_SOLVER::CalculateStallGammaPerturbationLoopVelocities(void)
       
                 VortexEdge = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
    
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                    
                    // Calculate gamma perturbation influence of this edge
         
@@ -6238,7 +6244,7 @@ void VSP_SOLVER::CalculateStallGammaPerturbationEdgeVelocities(void)
        
                 VortexEdge = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
                 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
 
                    VortexEdge->dInducedVelocity_dStallGamma(VSPGeom().Grid(Level).EdgeList(Edge).xyz_c(), q);
    
@@ -6358,7 +6364,7 @@ void VSP_SOLVER::CalculateVortexStretchingRatioGammaPerturbationLoopVelocities(v
       
                 VortexEdge = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
    
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                    
                    // Calculate gamma perturbation influence of this edge
         
@@ -6476,7 +6482,7 @@ void VSP_SOLVER::CalculateVortexStretchingRatioGammaPerturbationEdgeVelocities(v
        
                 VortexEdge = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
                 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
 
                    VortexEdge->dInducedVelocity_dVortexStretchingRatio(VSPGeom().Grid(Level).EdgeList(Edge).xyz_c(), q);
    
@@ -7180,7 +7186,7 @@ void VSP_SOLVER::DoAdjointMatrixPrecondition(double *vec_in)
              for ( j = 1 ; j <= VSPGeom().VortexSheet(i).NumberOfTrailingVortices() ; j++ ) {
                
                 if ( !VSPGeom().VortexSheet(i).TrailingVortex(j).IsFrozenTrailingEdge() ) {
-                   
+               
                    k = VSPGeom().VortexSheet(i).TrailingVortex(j).NumberOfNodes();
                    
                    p = VSPGeom().VortexSheet(i).TrailingVortex(j).WakeResidualEquationNumberX(k);
@@ -7611,7 +7617,7 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
                 
                 // Wake induced velocities
                 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                    
                    Uw += dU;
                    Vw += dV;
@@ -12167,7 +12173,7 @@ void VSP_SOLVER::CalculateMeshPerturbationEdgeVelocitiesOverLoops_Tranpose(doubl
 
                 // Only loop over the wakes edges
                 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
 
                    // Calculate gamma perturbation influence of this edge
         
@@ -12444,7 +12450,7 @@ void VSP_SOLVER::CalculateKstallPerturbationLoopVelocities_Tranpose(double *vec_
                    
                 }
                 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                                
                    Coef = CalculateGammaPsiAdjointExpansionOverLoops(iLevel, iLoop, q);
                               
@@ -12569,7 +12575,7 @@ void VSP_SOLVER::CalculateKstallPerturbationEdgeVelocities_Tranpose(double *vec_
                 
                 VortexEdge = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                
                    VortexEdge->pVelocity_pGamma(VSPGeom().Grid(iLevel).EdgeList(iEdge).xyz_c(), q);
 
@@ -12725,7 +12731,7 @@ void VSP_SOLVER::CalculateVortexStretchingRatioPerturbationLoopVelocities_Tranpo
                    
                 }
                 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                                
                    Coef = CalculateGammaPsiAdjointExpansionOverLoops(iLevel, iLoop, q);
                               
@@ -12850,7 +12856,7 @@ void VSP_SOLVER::CalculateVortexStretchingRatioPerturbationEdgeVelocities_Tranpo
                 
                 VortexEdge = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(j);
 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                
                    VortexEdge->pVelocity_pGamma(VSPGeom().Grid(iLevel).EdgeList(iEdge).xyz_c(), q);
 
@@ -13529,7 +13535,7 @@ void VSP_SOLVER::CalculateMeshPerturbationEdgeVelocitiesOverEdges_Tranpose(doubl
                                                                                  
                 // Distribute coefficients    
 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                    
                    Node1 = VortexEdge->Node1();
                    Node2 = VortexEdge->Node2();
@@ -14078,7 +14084,7 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Gamma(void)
                 
                 qw[0] = qw[1] = qw[2] = 0.;
                 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                    
                    qw[0] = q[0];
                    qw[1] = q[1];
@@ -15214,7 +15220,7 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Mesh(void)
                    qw[16] = 0.;
                    qw[17] = 0.;    
                                          
-                   if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                   if ( VortexEdge->SurfaceID() == 0 ) {
                     
                       qw[ 0] = q[ 0];
                       qw[ 1] = q[ 1];
@@ -15393,7 +15399,7 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Mesh(void)
                    qw[ 7] = 0.;
                    qw[ 8] = 0.;
                                          
-                   if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                   if ( VortexEdge->SurfaceID() == 0 ) {
                     
                       qw[ 0] = q[ 0];
                       qw[ 1] = q[ 1];
@@ -16620,7 +16626,7 @@ void VSP_SOLVER::CalculateForceGradients_wrt_StallFactor(void)
                 
                 qw[0] = qw[1] = qw[2] = 0.;
      
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                    
                    qw[0] = q[0];
                    qw[1] = q[1];
@@ -17012,7 +17018,7 @@ void VSP_SOLVER::CalculateForceGradients_wrt_VortexStretchingFactor(void)
                 
                 qw[0] = qw[1] = qw[2] = 0.;
                 
-                if ( VortexEdge->SurfaceID() == 0 && !VortexEdge->IsWakeTrailingEdge() ) {
+                if ( VortexEdge->SurfaceID() == 0 ) {
                    
                    qw[0] = q[0];
                    qw[1] = q[1];
@@ -27983,7 +27989,7 @@ void VSP_SOLVER::CalculateResidual(void)
                       Residual_[VSPGeom().VortexSheet(k).TrailingVortex(i).WakeResidualEquationNumberX(j)] = -(VSPGeom().Grid(MGLevel_).NodeList(q).x() - VSPGeom().VortexSheet(k).TrailingVortex(i).WakeNodeX(j));
                       Residual_[VSPGeom().VortexSheet(k).TrailingVortex(i).WakeResidualEquationNumberY(j)] = -(VSPGeom().Grid(MGLevel_).NodeList(q).y() - VSPGeom().VortexSheet(k).TrailingVortex(i).WakeNodeY(j));
                       Residual_[VSPGeom().VortexSheet(k).TrailingVortex(i).WakeResidualEquationNumberZ(j)] = -(VSPGeom().Grid(MGLevel_).NodeList(q).z() - VSPGeom().VortexSheet(k).TrailingVortex(i).WakeNodeZ(j));
-                       
+                      
                    }
                   
                 }
@@ -28142,7 +28148,7 @@ void VSP_SOLVER::CalculateResidual(void)
 
        // Kelvin regularization
     
-       for ( k = 1 ; k <= NumberOfKelvinConstraints_ ; k++ ) {
+       for ( k = 0 ; k <= NumberOfKelvinConstraints_ ; k++ ) {
           
           KelvinGroupSum_[k] = 0.;
          
@@ -28155,7 +28161,7 @@ void VSP_SOLVER::CalculateResidual(void)
           KelvinGroupSum_[LoopInKelvinConstraintGroup_[i]] += KelvinLambda_ * Vref_ * VSPGeom().Grid(MGLevel_).LoopList(i).Gamma();
           
        }
-   
+
        // Trailing vorticity
        
        //for ( k = 1 ; k <= VSPGeom().NumberOfVortexSheets() ; k++ ) {
@@ -30489,25 +30495,70 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
 void VSP_SOLVER::CalculateSpanWiseLoading(void)
 {
  
-    int i, k, LE_Edge, TE_Edge;
-    double Span, Velocity;
+    int c, i, k, p,  LE_Edge, TE_Edge, IsARotor, ComponentID, Group;
+    double Span, Chord, Velocity, Time;
     
-    // Write out generic header
+    double Diameter, RPM, Angle, Vec[3];
+    double Thrusto, Momento, Powero;
+    double Thrusti, Momenti, Poweri;
+    double Thrust , Moment , Power ;
     
-    WriteCaseHeader(LoadFile_);
-    
+    double J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM;
+
     // Write out column labels
     
-                    // 12345678901 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  123456789 
-    fprintf(LoadFile_,"VortexSheet TrailVort     Xavg      Yavg      Zavg      Span     Chord      Area    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact \n");
+    if ( !TimeAccurate_ ) {
+
+                      // 1234567890123 12345678901 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  123456789 
+       fprintf(LoadFile_,"Iter         VortexSheet TrailVort     Xavg      Yavg      Zavg      Span     Chord      Area    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
+
+    }
+    
+    else {
+       
+                      // 1234567890123 12345678901 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  123456789 
+       fprintf(LoadFile_,"Time         VortexSheet TrailVort     Xavg      Yavg      Zavg      Span     Chord      Area    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
+
+    }       
+       
+    fprintf(LoadFile_,"Time/Iter     VortexSheet TrailVort     Xavg      Yavg      Zavg      Span     Chord      Area    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
+                    // 1234567890 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123
+    fprintf(LoadFile_," IsARotor     Diameter        RPM         Thrust        Thrusto       Thrusti        Power         Powero        Poweri         Moment       Momento       Momenti         J             CT            CQ            CP           ETAP          CT_h           CQ_H         CP_H          FOM          Angle \n");
     
     for ( k = 1 ; k <= VSPGeom().NumberOfVortexSheets() ; k++ ) {
     
        for ( i = 1 ; i < VSPGeom().VortexSheet(k).NumberOfTrailingVortices() ; i++ ) {
+          
+          // Figure out is this vortex sheet comes off a rotor...
+          
+          ComponentID = VSPGeom().VortexSheet(k).TrailingVortex(i).ComponentID();
+          
+          IsARotor = 0;
+          
+          for ( c = 0 ; c <= VSPGeom().NumberOfComponentGroups() ; c++ ) {
 
+             if ( VSPGeom().ComponentGroupList(c).GeometryIsARotor() ) {
+             
+                for ( p = 1 ; p <= VSPGeom().ComponentGroupList(c).NumberOfComponents() ; p++ ) {
+                
+                   if ( VSPGeom().ComponentGroupList(c).ComponentList(p) == ComponentID ) {
+                      
+                      IsARotor = 1;
+                      
+                      Group = c;
+                      
+                   }
+                   
+                }
+                
+             }
+          } 
+                                
           LE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).LE_Edge());
 
           TE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).TE_Edge());
+          
+          Chord = VSPGeom().VortexSheet(k).TrailingVortex(i).LocalChord();
      
           Span = 0.5*( VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Length() + VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Length() );
 
@@ -30518,7 +30569,82 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
                                + pow(VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).LocalFreeStreamVelocity()[1], 2.)
                                + pow(VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).LocalFreeStreamVelocity()[2], 2.) ) )/Vref_;
 
-          fprintf(LoadFile_,"%-11d %-9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
+          Diameter = RPM = Angle = 0.;
+          Thrusto = Momento = Powero = 0.;
+          Thrusti = Momenti = Poweri = 0.;
+          Thrust  = Moment  = Power  = 0.;
+          
+          J = CT = CQ = CP = EtaP = CT_h = CQ_h = CP_h = FOM = 0.;
+  
+          if ( IsARotor ) {
+           
+             Diameter = VSPGeom().ComponentGroupList(Group).RotorDiameter();
+             
+             RPM = VSPGeom().ComponentGroupList(Group).Omega() * 60 / ( 2.*PI );
+
+             Angle = VSPGeom().ComponentGroupList(Group).TotalRotationAngle()/TORAD;   
+             
+             Vec[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFox() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             Vec[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFoy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             Vec[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFoz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             
+             Thrusto = vector_dot(Vec, VSPGeom().ComponentGroupList(Group).RVec());
+             
+             Vec[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFix() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             Vec[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFiy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             Vec[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFiz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             
+             Thrusti = vector_dot(Vec, VSPGeom().ComponentGroupList(Group).RVec());
+                 
+             Thrust = Thrusto + Thrusti;
+
+             // Moments
+             
+             Vec[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMox() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
+             Vec[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMoy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
+             Vec[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMoz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;   
+             
+             Momento = -vector_dot(Vec, VSPGeom().ComponentGroupList(Group).RVec());
+               
+             Vec[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMix() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
+             Vec[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMiy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
+             Vec[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMiz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;   
+             
+             Momenti = -vector_dot(Vec, VSPGeom().ComponentGroupList(Group).RVec());
+
+             Moment = Momento + Momenti;
+
+             // Power
+             
+             Powero = Momento * VSPGeom().ComponentGroupList(Group).Omega();
+             
+             Poweri  = Momenti * VSPGeom().ComponentGroupList(Group).Omega();
+
+             Power = Powero + Poweri;
+             
+             CalculateRotorCoefficientsFromForces(Thrust, Moment, Diameter, RPM, J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM);                                                    
+
+          }       
+                        
+          Time = CurrentTime_;
+          
+          if ( NoiseAnalysis_ ) Time = CurrentNoiseTime_ + NoiseTimeShift_;
+          
+          if ( !TimeAccurate_ ) {
+             
+             Time = CurrentWakeIteration_;          
+          
+             fprintf(LoadFile_,"%-13d ",CurrentWakeIteration_-1);
+             
+          }
+          
+          else {
+             
+             fprintf(LoadFile_,"%-13.8f ",Time);
+             
+          }             
+                     
+          fprintf(LoadFile_,"%-11d %-9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf ",
                   k,
                   i,
                   VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Xc(),    
@@ -30560,8 +30686,36 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
                   VSPGeom().VortexSheet(k).TrailingVortex(i).CMiy(),
                   VSPGeom().VortexSheet(k).TrailingVortex(i).CMiz(),
                   
-                  VSPGeom().VortexSheet(k).TrailingVortex(i).StallFactor()); 
-                                                              
+                  VSPGeom().VortexSheet(k).TrailingVortex(i).StallFactor());
+                  
+                  // Rotor data
+                  //               1      2      3      4      5      6      7      8      9      10     11     12     13     14     15     16     17     18     19     29     21
+          fprintf(LoadFile_,"%10d %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf \n",
+                  
+                  IsARotor,
+ 
+                  Diameter,
+                  RPM,
+                  Thrust,
+                  Thrusto,
+                  Thrusti,
+                  Power,
+                  Powero,
+                  Poweri,
+                  Moment,
+                  Momento,
+                  Momenti,
+                  J,
+                  CT,
+                  CQ,
+                  CP,
+                  EtaP,
+                  CT_h,
+                  CQ_h,
+                  CP_h,
+                  FOM,
+                  VSPGeom().ComponentGroupList(Group).TotalRotationAngle()/TORAD);   
+                                                            
        }
 
        fprintf(LoadFile_,"\n\n\n\n");                  
@@ -32001,6 +32155,12 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseHeader(void)
        DumInt = VSPGeom().ComponentIDForSurface(i);
      
        fwrite(&DumInt, i_size, 1, ADBFile_);
+       
+       printf("Surface: %d ... ComponentID: %d ... Name: %s ... SurfaceGIDList: %s \n",
+       i,
+       DumInt,
+       VSPGeom().SurfaceNameList(i),
+       VSPGeom().SurfaceGIDList(i));fflush(NULL);
     
     }    
 
@@ -33543,8 +33703,7 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(void)
     // Create forward edge interaction list
  
     FastMatrix_.CreateForwardEdgeList(NumberOfThreads_, MGLevel_, LoopType, VSPGeom_);
-
-    
+   
 }
 
 /*##############################################################################
@@ -34170,7 +34329,6 @@ void VSP_SOLVER::RestrictSolutionFromGrid(int Level)
 {
  
     int i_c, i_f, g_c, g_f;
-    double Fact;
 
     // Restrict solution from Level i, to level i+1
     
@@ -35438,17 +35596,13 @@ void VSP_SOLVER::ZeroVortexState(void)
     // Copy current value over to vortex loops
     
     for ( Level = 1 ; Level <= NumberOfMGLevels_ ; Level++ ) {
+  
+       for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; i++ ) {
+        
+          VSPGeom().Grid(MGLevel_).LoopList(i).Gamma() = 0.;
        
-       if ( Level == 1 ) {
-   
-          for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; i++ ) {
-           
-             VSPGeom().Grid(MGLevel_).LoopList(i).Gamma() = 0.;
-   
-          }
-     
        }
-       
+
        // Calculate delta-gammas for each surface vortex edge
        
        for ( i = 1 ; i <= VSPGeom().Grid(Level).NumberOfEdges() ; i++ ) {
@@ -35456,28 +35610,6 @@ void VSP_SOLVER::ZeroVortexState(void)
           VSPGeom().Grid(Level).EdgeList(i).Gamma() = 0.;
                      
        }    
-   
-       // Calculate node wise delta gammas on finest grid
-   
-       if ( Level == 1 ) {
-
-          // Calculate delta-gammas for each trailing vortex edge
-          
-//djk          for ( k = 1 ; k <= VSPGeom().NumberOfVortexSheets() ; k++ ) {
-//djk   
-//djk             for ( i = 1 ; i <= VSPGeom().VortexSheet(k).NumberOfTrailingVortices() ; i++ ) {
-//djk      
-//djk                VSPGeom().VortexSheet(k).TrailingVortex(i).Gamma() = 0.;
-//djk   
-//djk             }
-//djk
-//djk             VSPGeom().VortexSheet(k).UpdateVortexStrengths(IMPLICIT_WAKE_GAMMAS);
-//djk             VSPGeom().VortexSheet(k).UpdateVortexStrengths(EXPLICIT_WAKE_GAMMAS);
-//djk             VSPGeom().VortexSheet(k).UpdateVortexStrengths(ALL_WAKE_GAMMAS);
-//djk             
-//djk          }
-     
-       }
        
     }
 
@@ -35842,7 +35974,7 @@ double VSP_SOLVER::CalculateLeadingEdgeSuctionFraction(double Mach, double ToC, 
 void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
 {
    
-    int c, k, i, j, t;
+    int c, k, i, j, t, ComponentID;
     double Thrust, Thrusto, Thrusti, Moment, Momento, Momenti, Power, Powero, Poweri;
     double CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM;
     double J, Diameter, RPM, Time;
@@ -35866,8 +35998,7 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
        if ( Group == 0 || c == Group ) {
           
           // Write out forces and moments
-       //   %16.12lf
-//          fprintf(GroupFile_[c],"%10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f \n",
+
           fprintf(GroupFile_[c],"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
 
                   Time,
@@ -35921,7 +36052,6 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
              fprintf(GroupFile_[c],"Time averaged forces and moments: \n");
              fprintf(GroupFile_[c],"\n");
 
-//             fprintf(GroupFile_[c],"%10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f \n",
              fprintf(GroupFile_[c],"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
 
                      Time,
@@ -35966,27 +36096,7 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                      VSPGeom().ComponentGroupList(c).CSiw_avg());                            
                      
           }    
-            
-          // Write out wing loading
-                  
-          if ( VSPGeom().ComponentGroupList(c).GeometryHasWings() ) {
-
-             // Write out spanwise blade loading data, again averaged over one revolution
-             
-             for ( i = 1 ; i <= VSPGeom().ComponentGroupList(c).NumberOfLiftingSurfaces() ; i++ ) {
-             
-                
-             }
-             
-             // Write out spanwise blade loading data, as a function of time, over about 1 period of rotation 
-             
-             for ( i = 1 ; i <= VSPGeom().ComponentGroupList(c).NumberOfLiftingSurfaces() ; i++ ) {
-             
-                
-             }
-               
-          }
-                                                                    
+                                                        
           // Write out rotor data
           
           if ( VSPGeom().ComponentGroupList(c).GeometryIsARotor() ) {
@@ -36002,7 +36112,6 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
              Vec[2] = VSPGeom().ComponentGroupList(c).CFoz() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
              
              Thrusto = vector_dot(Vec, VSPGeom().ComponentGroupList(c).RVec());
-             
              
              Vec[0] = VSPGeom().ComponentGroupList(c).CFix() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
              Vec[1] = VSPGeom().ComponentGroupList(c).CFiy() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
@@ -36073,12 +36182,7 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                 Diameter = VSPGeom().ComponentGroupList(c).RotorDiameter();
                 
                 RPM = VSPGeom().ComponentGroupList(c).Omega() * 60 / ( 2.*PI );
-                                    
-                                    
-                Diameter = VSPGeom().ComponentGroupList(c).RotorDiameter();
-                
-                RPM = VSPGeom().ComponentGroupList(c).Omega() * 60 / ( 2.*PI );
-                
+
                 Vec[0] = VSPGeom().ComponentGroupList(c).CFox_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
                 Vec[1] = VSPGeom().ComponentGroupList(c).CFoy_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
                 Vec[2] = VSPGeom().ComponentGroupList(c).CFoz_avg() * 0.5 * Density_ * Vref_ * Vref_ * Sref_;
@@ -36146,127 +36250,9 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                         CP_h,
                         FOM,
                         float(VSPGeom().ComponentGroupList(c).TotalRotationAngle()/TORAD));
-                        
-                // Write out spanwise blade loading data, again averaged over one revolution
-                
-                for ( i = 1 ; i <= VSPGeom().ComponentGroupList(c).NumberOfLiftingSurfaces() ; i++ ) {
-
-                   // djk fprintf(RotorFile_[k],"\n\n\n");
-                   // djk fprintf(RotorFile_[k],"Average loading for rotor blade: %d --> Wake Surface: %d ... NOTE: values are per station, not per area! \n",i,VSPGeom().ComponentGroupList(c).SpanLoadData(i).WakeSurface());
-                   // djk fprintf(RotorFile_[k],"\n");
-                   // djk 
-                   // djk                  //    123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123
-                   // djk fprintf(RotorFile_[k],"  Station     S       Chord     Area      V/Vref   Diameter    RPM      TipVel       CNo_H         CSo_H         CTo_H         CQo_H         CPo_H         CN_H          CSi_H          CT_H          CQ_H          CP_H \n");
-                   // djk 
-                   // djk VSPGeom().ComponentGroupList(c).SpanLoadData(i).CalculateAverageForcesAndMoments();
-                   // djk 
-                   // djk // Write out averaged span loading data
-                   // djk 
-                   // djk Omega = 2. * PI * RPM / 60.;
-                   // djk 
-                   // djk Radius = 0.5 * Diameter;
-                   // djk 
-                   // djk Area = PI * Radius * Radius;
-                   // djk 
-                   // djk TipVelocity = Omega * Radius;
-                   // djk                      
-                   // djk for ( j = 1 ; j <= VSPGeom().ComponentGroupList(c).SpanLoadData(i).NumberOfSpanStations() ; j++ ) {
-                   // djk 
-                   // djk   fprintf(RotorFile_[k],"%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le \n",
-                   // djk           j,
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_S(j),                    
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Chord(j),
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Area(j),
-                   // djk           
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Local_Velocity(j),
-                   // djk           
-                   // djk           Diameter,
-                   // djk           RPM,
-                   // djk           TipVelocity,
-                   // djk           
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cno(j),
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cso(j),
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cto(j),
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cqo(j),
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cpo(j),
-                   // djk 
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cn(j),
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cs(j),
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Ct(j),
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cq(j),
-                   // djk           VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cp(j));
-                   // djk 
-                   // djk 
-                   // djk }
-                   
-                }
-
-                // Write out spanwise blade loading data, as a function of time, over about 1 period of rotation 
-                
-                for ( i = 1 ; i <= VSPGeom().ComponentGroupList(c).NumberOfLiftingSurfaces() ; i++ ) {
-
-                   // djk fprintf(RotorFile_[k],"\n\n\n");
-                   // djk fprintf(RotorFile_[k],"Time history of loading for rotor blade: %d --> Wake Surface: %d ... NOTE: values are per station, not per area! \n",i,VSPGeom().ComponentGroupList(c).SpanLoadData(i).WakeSurface());
-                   // djk fprintf(RotorFile_[k],"\n");
-                   // djk                       
-                   // djk VSPGeom().ComponentGroupList(c).SpanLoadData(i).CalculateAverageForcesAndMoments();
-                   // djk 
-                   // djk // Write out averaged span loading data
-                   // djk 
-                   // djk Omega = 2. * PI * RPM / 60.;
-                   // djk 
-                   // djk Radius = 0.5 * Diameter;
-                   // djk 
-                   // djk Area = PI * Radius * Radius;
-                   // djk 
-                   // djk TipVelocity = Omega * Radius;
-                   // djk 
-                   // djk for ( t = 1 ; t <= VSPGeom().ComponentGroupList(c).SpanLoadData(i).ActualTimeSamples() ; t++ ) {
-                   // djk 
-                   // djk                     //    123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123                         
-                   // djk    fprintf(RotorFile_[k],"  Station    Time       Angle     Xqc       Yqc       Zqc       S       Chord     Area      V/Vref   Diameter    RPM      TipVel       CNo_H         CSo_H         CTo_H         CQo_H         CPo_H         CN_H          CSi_H          CT_H          CQ_H          CP_H \n");
-                   // djk                         
-                   // djk    for ( j = 1 ; j <= VSPGeom().ComponentGroupList(c).SpanLoadData(i).NumberOfSpanStations() ; j++ ) {
-                   // djk 
-                   // djk      fprintf(RotorFile_[k],"%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le \n",
-                   // djk              j,
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Time(t,j),
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).RotationAngle(t,j),  
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).X_QC(t,j),  
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Y_QC(t,j),  
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Z_QC(t,j),  
-                   // djk              
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_S(t,j),                    
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Chord(t,j),
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Area(t,j),
-                   // djk              
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Local_Velocity(t,j),
-                   // djk              
-                   // djk              Diameter,
-                   // djk              RPM,
-                   // djk              TipVelocity,
-                   // djk              
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cno(t,j),
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cso(t,j),
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cto(t,j),
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cqo(t,j),
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cpo(t,j),
-                   // djk 
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cn(t,j),
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cs(t,j),
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Ct(t,j),
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cq(t,j),
-                   // djk              VSPGeom().ComponentGroupList(c).SpanLoadData(i).Span_Cp(t,j));
-                   // djk 
-                   // djk 
-                   // djk    }
-                   // djk 
-                   // djk }
-                   
-                }
-                
-             }             
-                                      
+ 
+             }
+                               
           }
          
        }

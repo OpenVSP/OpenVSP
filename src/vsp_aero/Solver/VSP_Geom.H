@@ -448,7 +448,7 @@ public:
     
     /** Component ID for component **/
     
-    int ComponentIDForSurfaceComponent(int i) { return ComponentIDForComponent_[i]; };
+    int ComponentIDForComponent(int i) { return ComponentIDForComponent_[i]; };
 
     /**  Is component fixed or moving **/
         

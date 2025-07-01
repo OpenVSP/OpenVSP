@@ -835,7 +835,7 @@ void VSP_GRID::MarkBoundaries(int DoSymmetryPlaneSolve)
           EdgeList(Edge).SurfaceID() = LoopList(j).SurfaceID();
           
           EdgeList(Edge).ComponentID() = LoopList(j).ComponentID();
-          
+        
        }
        
     }
@@ -1073,9 +1073,7 @@ void VSP_GRID::DetermineSurfaceMeshSize(void)
        if ( LoopList(j).SurfaceID() != 0 ) NumberOfSurfaceLoops_++;
        
     }
-    
-    printf("NumberOfSurfaceLoops_: %d out of %d total loops \n",NumberOfSurfaceLoops_, NumberOfLoops_);
-     
+
     NumberOfSurfaceEdges_ = 0;
                
     for ( j = 1 ; j <= NumberOfEdges() ; j++ ) {
@@ -1084,8 +1082,6 @@ void VSP_GRID::DetermineSurfaceMeshSize(void)
  
     }
 
-    printf("NumberOfSurfaceEdges_: %d out of %d total edges \n",NumberOfSurfaceEdges_, NumberOfEdges_);
-
     NumberOfSurfaceNodes_ = 0;
     
     for ( j = 1 ; j <= NumberOfNodes() ; j++ ) {
@@ -1093,8 +1089,6 @@ void VSP_GRID::DetermineSurfaceMeshSize(void)
        if ( NodeList(j).SurfaceID() != 0 ) NumberOfSurfaceNodes_++;
        
     }    
-
-    printf("NumberOfSurfaceNodes_: %d out of %d total nodes \n",NumberOfSurfaceNodes_, NumberOfNodes_);
 
 }
 

@@ -9596,6 +9596,8 @@ void GL_VIEWER::DrawWakes(void)
 
     glPolygonOffset(0.,-10.);
    
+//printf("NumberOfTrailingVortexEdges_: %d \n",NumberOfTrailingVortexEdges_);fflush(NULL);
+   
     for ( i = 1 ; i <= NumberOfTrailingVortexEdges_ ; i++ ) {
 
        glLineWidth(2.);
@@ -9609,6 +9611,8 @@ void GL_VIEWER::DrawWakes(void)
        KuttaNode = WingWakeNode_[i];
        
        SurfID = NodeList[KuttaNode].SurfID;
+       
+   //    printf("i: %d ... KuttaNode: %d ... SurfID: %d ... NumberNodes: %d \n",i,KuttaNode,SurfID,NumberNodes);fflush(NULL);
 
        if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
  
@@ -9670,9 +9674,7 @@ void GL_VIEWER::DrawWakes(void)
                    glVertex3fv(vec);
       
                 }
-                
-                glVertex3fv(vec);                
-             
+
              glEnd();
              
           }
@@ -9741,9 +9743,7 @@ void GL_VIEWER::DrawWakes(void)
                       glVertex3fv(vec);
          
                    }
-                   
-                   glVertex3fv(vec);                
-                
+ 
                 glEnd();
                 
              }                
@@ -10173,10 +10173,13 @@ void GL_VIEWER::DrawShadedSurface(void)
        
        if ( SurfaceID > 0 || ( DrawWakeSurfacesIsOn && !TimeAccurate_ ) || ( TimeAccurate_ && DrawWakeSurfacesIsOn && TriList[j].MinValidTimeStep <= CurrentTimeStep_ ) ) {
 
+
           if ( ComGeom2PanelTag[SurfID] != 0 &&
                     DrawComGeomTagsIsOn &&
                     DrawComGeomTagsShadedIsOn &&
                     PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) ) {
+          
+printf("ComGeom2PanelTag[%d]: %d \n",SurfID,ComGeom2PanelTag[SurfID]);
           
              if ( LastTri != GOMGEOM_TRI || LastSurface != SurfID ) {
    

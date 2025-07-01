@@ -654,7 +654,7 @@ void VSP_AGGLOM::InitializeFront_(void)
        
     }
     
-    for ( i = 1 ; i <= FineGrid().NumberOfLoops() ; i++ ) {
+    for ( i = 1 ; i <= FineGrid().NumberOfEdges() ; i++ ) {
        
        if ( EdgeIsOnFront_[i] ) {
           
@@ -2720,19 +2720,22 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        
     }
 
-    for ( k = CoarseGrid().NumberOfSurfaceLoops() + 1 ; k <= CoarseGrid().NumberOfLoops() ; k++ ) {
-       
-    //   printf("CoarseGrid().LoopList(k).NumberOfEdges(): %d \n",CoarseGrid().LoopList(k).NumberOfEdges());
-       
-       for ( i = 1 ; i <= CoarseGrid().LoopList(k).NumberOfEdges() ; i++ ) {
-          
-          Edge = CoarseGrid().LoopList(k).Edge(i);
+//printf("CoarseGrid().NumberOfSurfaceLoops(): %d \n",CoarseGrid().NumberOfSurfaceLoops());
+//printf("CoarseGrid().NumberOfLoops(): %d \n",CoarseGrid().NumberOfLoops());fflush(NULL);
 
-      //    printf("Edge %d --> IsWakeTE: %d ---> MinValidTime: %d \n",i, CoarseGrid().EdgeList(Edge).IsWakeTrailingEdge(), CoarseGrid().EdgeList(Edge).MinValidTimeStep());
- 
-       }
-       
-    }
+ // for ( k = CoarseGrid().NumberOfSurfaceLoops() + 1 ; k <= CoarseGrid().NumberOfLoops() ; k++ ) {
+ //    
+ // //   printf("CoarseGrid().LoopList(k).NumberOfEdges(): %d \n",CoarseGrid().LoopList(k).NumberOfEdges());
+ //    
+ //    for ( i = 1 ; i <= CoarseGrid().LoopList(k).NumberOfEdges() ; i++ ) {
+ //       
+ //       Edge = CoarseGrid().LoopList(k).Edge(i);
+ //
+ //   //    printf("Edge %d --> IsWakeTE: %d ---> MinValidTime: %d \n",i, CoarseGrid().EdgeList(Edge).IsWakeTrailingEdge(), CoarseGrid().EdgeList(Edge).MinValidTimeStep());
+ //
+ //    }
+ //    
+ // }
          //  fflush(NULL);exit(1);
 /*     
     // Create a list of nodes for each loop

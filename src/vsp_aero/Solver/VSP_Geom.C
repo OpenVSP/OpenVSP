@@ -896,6 +896,17 @@ void VSP_GEOM::MeshGeom(void)
     VSP_GRID *TempGrid[2];
     
     // Mesh is all thick
+
+    for ( i = 1 ; i <= Grid().NumberOfLoops() ; i++ ) {
+
+       if ( Grid().LoopList(i).ComponentID() == 0 ) {
+          
+          printf("wtf before! \n");fflush(NULL);exit(1);
+          
+       }
+       
+    }
+
     
     if ( NumberOfThinSurfaces_ == 0 ) {
        
@@ -946,6 +957,15 @@ void VSP_GEOM::MeshGeom(void)
 
     // Set up Kutta nodes/edges
 
+    for ( i = 1 ; i <= Grid().NumberOfLoops() ; i++ ) {
+
+       if ( Grid().LoopList(i).ComponentID() == 0 ) {
+          
+          printf("wtf after! \n");fflush(NULL);exit(1);
+          
+       }
+       
+    }
     printf("Number of kutta nodes before trimming: %d \n",NumberOfKuttaNodes_);
 
     if ( NumberOfKuttaNodes_ > 0 ) {
@@ -961,6 +981,16 @@ void VSP_GEOM::MeshGeom(void)
       FindSharpEdges(0,NULL);
       
     }       
+    
+    for ( i = 1 ; i <= Grid().NumberOfLoops() ; i++ ) {
+
+       if ( Grid().LoopList(i).ComponentID() == 0 ) {
+          
+          printf("wtf after sharp! \n");fflush(NULL);exit(1);
+          
+       }
+       
+    }    
 
     // Create wake grids
     
@@ -987,9 +1017,7 @@ void VSP_GEOM::MeshGeom(void)
     }
 
     Grid_[0] = TempGrid[0];
-    
-    // djk ... we need to modify this to allow using non mixed poly meshes... 
-      
+ 
     // State model type
 
     if ( ModelType_ == VLM_MODEL   ) printf("Model is a VSPGEOM VLM geometry \n");fflush(NULL);
@@ -1001,7 +1029,7 @@ void VSP_GEOM::MeshGeom(void)
     
     AreaTotal = 0.;
     
-    for ( i = 1 ; i <= Grid().NumberOfLoops() ; i++ ) {
+    for ( i = 1 ; i <= Grid().NumberOfSurfaceLoops() ; i++ ) {
        
        AreaTotal += Grid().LoopList(i).Area();
        
@@ -1184,9 +1212,9 @@ void VSP_GEOM::SanitizeThinMeshes(void)
  
     int i, j, k, n, p, t, DumInt, Node1, Node2, Node3, SurfaceID, Done;
     int ModelType, **TriPerm, NumberOfEdges;
-    int NumberOfThinTris, NumberOfThickTris, NumberOfMeshes;    
+    int NumberOfThinTris, NumberOfThickTris, NumberOfMeshes, TotalNumberOfThinTris;    
     int NumKuttaNodeLists, NumKuttaNodes, NumNodesInList, *KuttaNodeList, *TempList;
-    int CurrentNumberOfEdges, CurrentNumberOfTris;
+    int CurrentNumberOfEdges, CurrentNumberOfTris, ThinTris, ThickTris;
     VSP_GRID *GridList;
      
     // If any of the surfaces are thin ... we need to tweak the mesh data structure so we
@@ -1199,6 +1227,64 @@ void VSP_GEOM::SanitizeThinMeshes(void)
     
     TriPerm = new int*[NumberOfThinComponents_ + 2];
     
+    // Sanity check on number of thick and thin tris
+    
+    ThinTris = 0;
+       
+    for ( n = 1 ; n <= Grid().NumberOfTris() ; n++ ) {
+    
+       if ( Grid().TriList(n).SurfaceType() != THICK_SURFACE ) ThinTris++;
+       
+    }    
+       
+    ThickTris = 0;
+       
+    for ( n = 1 ; n <= Grid().NumberOfTris() ; n++ ) {
+    
+       if ( Grid().TriList(n).SurfaceType() == THICK_SURFACE ) ThickTris++;
+       
+    }               
+    
+    printf("Number of thin  tris:        %d \n",ThinTris);
+    printf("Number of thick tris:        %d \n",ThickTris);
+    printf("Number of thin + thick tris: %d \n",ThinTris+ThickTris);
+    printf("Number actual total tris:    %d \n",Grid().NumberOfTris());
+    fflush(NULL);
+    
+    int *UsedTri;
+    
+    UsedTri = new int[Grid().NumberOfTris() + 1];
+    
+    zero_int_array(UsedTri,Grid().NumberOfTris());
+    
+    for ( k = 1 ; k <= NumberOfComponents_ ; k++ ) {
+       
+       NumberOfThinTris = 0;
+       
+       if ( !(ComponentIsThick(k)) ) {
+       
+          for ( n = 1 ; n <= Grid().NumberOfTris() ; n++ ) {
+       
+             if ( Grid().TriList(n).ComponentID() == ComponentIDForComponent(k) ) UsedTri[n] = 1;
+             
+          }
+          
+       }
+       
+    }
+    
+    for ( n = 1 ; n <= Grid().NumberOfTris() ; n++ ) {
+       
+       if ( Grid().TriList(n).SurfaceType() != THICK_SURFACE && UsedTri[n] == 0 ) {
+          
+          printf("Tri: %d is thin and is not being used... and has componentID: %d \n",n,Grid().TriList(n).ComponentID());fflush(NULL);
+          
+       }
+       
+    }
+    
+    delete UsedTri;
+             
     // Calculate total number of nodes and tris, including the wake
         
     if ( NumberOfThinComponents_ > 0 ) {
@@ -1216,6 +1302,8 @@ void VSP_GEOM::SanitizeThinMeshes(void)
           if ( Grid().TriList(n).SurfaceType() == THICK_SURFACE ) NumberOfThickTris++;
           
        }
+       
+       printf("NumberOfThickTris: %d \n",NumberOfThickTris);
        
        if ( NumberOfThickTris > 0 ) {
 
@@ -1247,9 +1335,12 @@ void VSP_GEOM::SanitizeThinMeshes(void)
              
              GridList[p].NodeList(n).IsBoundaryCornerNode() = Grid().NodeList(n).IsBoundaryCornerNode();
 
-             GridList[p].NodeList(n).ComponentID()          = Grid().NodeList(n).ComponentID();
-
              GridList[p].NodeList(n).SurfaceID()            = Grid().NodeList(n).SurfaceID();
+
+             GridList[p].NodeList(n).ComponentID()          = Grid().NodeList(n).ComponentID();
+             
+             GridList[p].NodeList(n).OpenVSP_ComponentID()  = Grid().NodeList(n).OpenVSP_ComponentID();
+             
 
           }  
           
@@ -1279,26 +1370,54 @@ void VSP_GEOM::SanitizeThinMeshes(void)
 
                 GridList[p].TriList(t).Uc() = Grid().TriList(n).Uc();
                 GridList[p].TriList(t).Vc() = Grid().TriList(n).Vc();
-                                                       
-                GridList[p].TriList(t).SurfaceID()         = Grid().TriList(n).SurfaceID();
+                                          
+                GridList[p].TriList(t).SurfaceID()           = Grid().TriList(n).SurfaceID();
                 
-                GridList[p].TriList(t).ComponentID()       = Grid().TriList(n).ComponentID();
-                                                      
-                GridList[p].TriList(t).SurfaceType()       = Grid().TriList(n).SurfaceType();
+                GridList[p].TriList(t).ComponentID()         = Grid().TriList(n).ComponentID();
+         
+                GridList[p].TriList(t).OpenVSP_ComponentID() = Grid().TriList(n).OpenVSP_ComponentID();
+                                                  
+                GridList[p].TriList(t).SurfaceType()         = Grid().TriList(n).SurfaceType();
                                     
-                GridList[p].TriList(t).VortexSheet()       = Grid().TriList(n).VortexSheet();
+                GridList[p].TriList(t).VortexSheet()         = Grid().TriList(n).VortexSheet();
                                                         
-                GridList[p].TriList(t).SpanStation()       = Grid().TriList(n).SpanStation() ;
+                GridList[p].TriList(t).SpanStation()         = Grid().TriList(n).SpanStation() ;
                                     
-                GridList[p].TriList(t).IsTrailingEdgeTri() = Grid().TriList(n).IsTrailingEdgeTri();
+                GridList[p].TriList(t).IsTrailingEdgeTri()   = Grid().TriList(n).IsTrailingEdgeTri();
                                     
              }
      
           }            
           
        }
+
+       for ( k = 1 ; k <= NumberOfComponents_ ; k++ ) {
+
+          printf("ComponentIDForComponent(%d): %d \n",k,ComponentIDForComponent(k));
+          
+       }
+              
+       for ( k = 1 ; k <= NumberOfComponents_ ; k++ ) {
+
+          printf("ComponentIsThick(%d): %d \n",k,ComponentIsThick(k));
+          
+       }
        
+       
+ //      fflush(NULL);exit(1);
+ //for ( n = 1 ; n <= Grid().NumberOfTris() ; n++ ) {
+ //
+ //   printf("Grid().TriList(%d).ComponentID(): %d ... and thick/thin: %d \n",
+ //   n,
+ //   Grid().TriList(n).ComponentID(),
+ //   ComponentIsThick(Grid().TriList(n).ComponentID()));
+ //   
+ //   
+ //}
+                    
        // Create a separate grid for each thin component
+       
+       TotalNumberOfThinTris = 0;
         
        for ( k = 1 ; k <= NumberOfComponents_ ; k++ ) {
           
@@ -1308,9 +1427,11 @@ void VSP_GEOM::SanitizeThinMeshes(void)
           
              for ( n = 1 ; n <= Grid().NumberOfTris() ; n++ ) {
           
-                if ( Grid().TriList(n).ComponentID() == ComponentIDForSurfaceComponent(k) ) NumberOfThinTris++;
+                if ( Grid().TriList(n).ComponentID() == ComponentIDForComponent(k) ) NumberOfThinTris++;
                 
              }
+             
+             TotalNumberOfThinTris += NumberOfThinTris;
                                      
              p++;
 
@@ -1339,10 +1460,12 @@ void VSP_GEOM::SanitizeThinMeshes(void)
                 GridList[p].NodeList(n).IsBoundaryCornerNode() = Grid().NodeList(n).IsBoundaryCornerNode();
 
                 GridList[p].NodeList(n).IsSymmetryPlaneNode()  = Grid().NodeList(n).IsSymmetryPlaneNode();
+                
+                GridList[p].NodeList(n).SurfaceID()            = Grid().NodeList(n).SurfaceID();
 
                 GridList[p].NodeList(n).ComponentID()          = Grid().NodeList(n).ComponentID();
 
-                GridList[p].NodeList(n).SurfaceID()            = Grid().NodeList(n).SurfaceID();
+                GridList[p].NodeList(n).OpenVSP_ComponentID()  = Grid().NodeList(n).OpenVSP_ComponentID();
      
              }  
              
@@ -1352,7 +1475,7 @@ void VSP_GEOM::SanitizeThinMeshes(void)
              
              for ( n = 1 ; n <= Grid().NumberOfTris() ; n++ ) {
                 
-                if ( Grid().TriList(n).ComponentID() == ComponentIDForSurfaceComponent(k) ){
+                if ( Grid().TriList(n).ComponentID() == ComponentIDForComponent(k) ){
                    
                    t++;
                    
@@ -1373,17 +1496,19 @@ void VSP_GEOM::SanitizeThinMeshes(void)
                    GridList[p].TriList(t).Uc() = Grid().TriList(n).Uc();
                    GridList[p].TriList(t).Vc() = Grid().TriList(n).Vc();
                                                           
-                   GridList[p].TriList(t).SurfaceID()         = Grid().TriList(n).SurfaceID();
-                      
-                   GridList[p].TriList(t).ComponentID()       = Grid().TriList(n).ComponentID();
+                   GridList[p].TriList(t).SurfaceID()           = Grid().TriList(n).SurfaceID();
+                                                               
+                   GridList[p].TriList(t).ComponentID()         = Grid().TriList(n).ComponentID();
                                               
-                   GridList[p].TriList(t).SurfaceType()       = Grid().TriList(n).SurfaceType();
+                   GridList[p].TriList(t).OpenVSP_ComponentID() = Grid().TriList(n).OpenVSP_ComponentID();
                                        
-                   GridList[p].TriList(t).VortexSheet()       = Grid().TriList(n).VortexSheet();
-                                                        
-                   GridList[p].TriList(t).SpanStation()       = Grid().TriList(n).SpanStation() ;
-                                    
-                   GridList[p].TriList(t).IsTrailingEdgeTri() = Grid().TriList(n).IsTrailingEdgeTri();
+                   GridList[p].TriList(t).SurfaceType()         = Grid().TriList(n).SurfaceType();
+                                                                
+                   GridList[p].TriList(t).VortexSheet()         = Grid().TriList(n).VortexSheet();
+                                                                
+                   GridList[p].TriList(t).SpanStation()         = Grid().TriList(n).SpanStation() ;
+                                                                
+                   GridList[p].TriList(t).IsTrailingEdgeTri()   = Grid().TriList(n).IsTrailingEdgeTri();
                                     
                 }
              
@@ -1467,14 +1592,31 @@ void VSP_GEOM::SanitizeThinMeshes(void)
                  
           CurrentNumberOfTris += GridList[p].NumberOfTris();
                  
-       }    
+       }   
        
+       if ( NumberOfThickTris + TotalNumberOfThinTris != Grid().NumberOfTris() ) {
+          
+          printf("Error... after mesh reordering the number of tris is not consisent! \n");
+
+          printf("Final number of merged tris: %d... and started with %d tris \n",
+           CurrentNumberOfTris,
+           Grid().NumberOfTris());fflush(NULL);
+          
+          printf("TotalNumberOfThinTris: %d \n",TotalNumberOfThinTris);
+          
+          printf("NumberOfThickTris+TotalNumberOfThinTris: %d \n",
+          NumberOfThickTris+TotalNumberOfThinTris);fflush(NULL);     
+          
+          fflush(NULL);exit(1);
+          
+       }    
+
        // Mark the boundaries on the mesh
        
        Grid().MarkBoundaries(DoSymmetryPlaneSolve_);
        
        Grid().DetermineSurfaceMeshSize();
-   
+
     }
 
 }
@@ -1541,8 +1683,9 @@ void VSP_GEOM::MarkSurfaceSurfaceIntersections(void)
                 
                 if ( NodeIsOnIntersection[Node] != Grid().LoopList(j).ComponentID() ) {
                    
-                   printf("Old ComponentID: %d ... and Loop ComponentID: %d \n",
-                   NodeIsOnIntersection[Node], Grid().LoopList(j).ComponentID());fflush(NULL);
+                  // printf("Old ComponentID: %d ... and Loop ComponentID: %d \n",
+                  // NodeIsOnIntersection[Node], Grid().LoopList(j).ComponentID());fflush(NULL);
+                   
                    NodeIsOnIntersection[Node] = -1;
                    
                 }
@@ -1646,7 +1789,7 @@ void VSP_GEOM::CreateComponentBBoxData(void)
    
     int i, c, j, Node;
     
-    printf("NumberOfComponents_: %d\n",NumberOfComponents_);
+    printf("NumberOfComponents_: %d\n",NumberOfComponents_);fflush(NULL);
 
     fflush(NULL);
     
@@ -1666,7 +1809,7 @@ void VSP_GEOM::CreateComponentBBoxData(void)
     for ( i = 1 ; i <= Grid().NumberOfLoops() ; i++ ) {
        
        c = Grid().LoopList(i).ComponentID();
-       
+
        for ( j = 1 ; j <= Grid().LoopList(i).NumberOfNodes() ; j++ ) {
           
           Node = Grid().LoopList(i).Node(j);
@@ -2768,7 +2911,6 @@ void VSP_GEOM::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TKEY_
           
        }
        
-
        fflush(NULL);
 
        for ( i = 1 ; i <= NumberOfSurfaces_ ; i++ ) {
@@ -2925,13 +3067,19 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     int i, j, k, n, DumInt, NumNodes, NumLoops, NumTris;
     int Node, Node1, Node2, Node3, SurfaceID, SubSurfaceID, Done;
     int *SurfaceList, Found, CompID, SurfID, ThickThinDataExists, NumTriNodes;
-    int *SurfaceIsUsed, NumberOfVSPSurfaces, ModelType;
-    int NumberOfRefineLevels, RefineLevel;    
-    int NumKuttaNodeLists, NumNodesInList, *TempList, FileVersion;
-    char DumChar[MAX_CHAR_SIZE], DumChar2[MAX_CHAR_SIZE], Comma[MAX_CHAR_SIZE], TempName[MAX_CHAR_SIZE], TempGIDName[MAX_CHAR_SIZE], Space[MAX_CHAR_SIZE], *Next;
+    int *SurfaceIsUsed, NumberOfVSPSurfaces, ModelType, *OriginalSurfaceIsThick;
+    int NumberOfRefineLevels, WakeNodes;    
+    int NumKuttaNodeLists, NumNodesInList, FileVersion;
+    char DumChar[MAX_CHAR_SIZE], DumChar2[MAX_CHAR_SIZE], Comma[MAX_CHAR_SIZE];
+    char TempName[MAX_CHAR_SIZE], TempGIDName[MAX_CHAR_SIZE], Space[MAX_CHAR_SIZE], *Next;
     double x, y, z, u, v, w, u1, v1, u2, v2, u3, v3, Eps;
     fpos_t TopOfTriangluation;
-
+    
+    int *Temp_ComponentIDForSurface;
+    int *Temp_OpenVSP_ComponentIDForSurface;
+    char **Temp_SurfaceNameList;
+    char **Temp_SurfaceGIDList;
+        
     // Read in first line and look for v2 files
     
     fgets(DumChar,MAX_CHAR_SIZE,VSPGeom_File);
@@ -2972,7 +3120,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     
     else if ( FileVersion == 3 ) {
        
-       fscanf(VSPGeom_File,"%d %d %d",&NumNodes,&NumLoops,&RefineLevel);
+       fscanf(VSPGeom_File,"%d %d %d",&NumNodes,&NumLoops,&WakeNodes);
        
        printf("NumNodes: %d \n",NumNodes);       
        
@@ -3070,6 +3218,16 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
           
        }
 
+     // printf("Loop: %d ... ",n);
+     //
+     // for ( i = 1 ; i <= NumTriNodes ; i++ ) {
+     //    
+     //    printf("%d ",Grid().LoopList(n).Node(i));
+     //    
+     // }
+     // 
+     // printf("\n");
+       
        if ( NumTriNodes > 3 ) InputMeshIsMixedPolys_ = 1;
 
     }    
@@ -3124,7 +3282,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        Grid().LoopList(n).SurfaceID()         = SurfaceID;
        
        Grid().LoopList(n).ComponentID()       = SurfaceID; // This gets renumbered based on the .vkey file 
-       
+      
        Grid().LoopList(n).SurfaceType()       = VSPGEOM_SURFACE;
        
        Grid().LoopList(n).VortexSheet()       = 0;
@@ -3169,7 +3327,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
           BodyWakeFlag = true;
        }
        
-    //   printf("NumNodesInList: %d \n",NumNodesInList);fflush(NULL);
+      printf("NumNodesInList: %d \n",NumNodesInList);fflush(NULL);
        
        if ( NumNodesInList > 0 ) {
           
@@ -3177,7 +3335,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
              
              fscanf(VSPGeom_File,"%d",&(KuttaNodeList_[++NumberOfKuttaNodes_]));
              
-           //  printf("KuttaNodeList_[%d]: %d \n",NumberOfKuttaNodes_,KuttaNodeList_[NumberOfKuttaNodes_]);
+             printf("KuttaNodeList_[%d]: %d \n",NumberOfKuttaNodes_,KuttaNodeList_[NumberOfKuttaNodes_]);
              
           }
           
@@ -3228,6 +3386,8 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        }
        
     }
+
+    zero_int_array(SurfaceList, NumLoops);
     
     printf("Found %d VSPGEOM Surfaces \n",NumberOfSurfaces_); fflush(NULL);
     
@@ -3248,12 +3408,16 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     VSPSurfaceIDForSurface_ = new int[NumLoops + 1];
     
     OpenVSP_ComponentIDForSurface_ = new int[NumLoops + 1];
+    
+    OriginalSurfaceIsThick = new int[NumLoops + 1];
    
     zero_int_array(ComponentIDForSurface_, NumLoops);
 
     zero_int_array(VSPSurfaceIDForSurface_, NumLoops);
     
     zero_int_array(OpenVSP_ComponentIDForSurface_, NumLoops);
+    
+    zero_int_array(OriginalSurfaceIsThick, NumLoops);
     
     printf("Found %d VSPGEOM Surfaces \n",NumberOfSurfaces_);
     
@@ -3320,6 +3484,8 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
           Next = strtok(NULL,Comma); // Surface ID
           
           SurfID = atoi(Next);
+          
+          printf("Part: %d ... CompID: %d ... SurfID: %d \n",DumInt,CompID,SurfID);fflush(NULL);
 
           Next = strtok(NULL,Comma); Next[strcspn(Next, "\n")] = 0; snprintf(TempName,sizeof(TempName)*sizeof(char),"%s",Next);  // Surface name, per user
           
@@ -3332,15 +3498,17 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
              printf("Surface: %d exists in triangulation and has OpenVSP Name: %s \n",DumInt,TempName);
              
              k++;
-                          
+                                       
              printf("CompID: %d \n",CompID);
              
              OpenVSP_ComponentIDForSurface_[DumInt] = CompID;
                           
-             printf("Setting CompID to : %d \n",ComponentIDForSurface_[DumInt]);
+             printf("Setting OpenVSP_ComponentIDForSurface_ to : %d \n",OpenVSP_ComponentIDForSurface_[DumInt]);
              
              VSPSurfaceIDForSurface_[k] = SurfID;
              
+             SurfaceList[k] = DumInt;
+
              SurfaceNameList_[k] = new char[MAX_CHAR_SIZE];
 
              SurfaceGIDList_[k] = new char[MAX_CHAR_SIZE];
@@ -3351,7 +3519,13 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
 
              SurfaceIsThick_[k] = 0;
   
-             if ( ThickThinDataExists ) SurfaceIsThick_[k] = atoi(Next);
+             if ( ThickThinDataExists ) {
+                
+                SurfaceIsThick_[k] = atoi(Next);
+             
+                OriginalSurfaceIsThick[DumInt] = SurfaceIsThick_[k];
+                
+             }
              
              if ( SurfaceIsThick_[k] ) {
                 
@@ -3384,6 +3558,8 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
              ComponentIDForSurface_[DumInt] = atoi(Next); 
              
       //       ComponentIDForSurface_[DumInt] = CompID + 1;
+
+             printf("Setting ComponentIDForSurface_ to : %d \n",ComponentIDForSurface_[DumInt]);
                                    
           }      
           
@@ -3397,100 +3573,9 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        fflush(NULL);exit(1);
        
     }
- 
-    // Renumber the surfaces
-   
-    printf("Renumbering surfaces \n");fflush(NULL);
-   
-    for ( n = 1 ; n <= NumLoops ; n++ ) {
- 
-       Done = 0;
-       
-       i = 1;
-       
-       while ( !Done && i <= NumberOfSurfaces_) {
-          
-          if ( Grid().LoopList(n).SurfaceID() == SurfaceList[i] ) {
-             
-             Done = 1;
-              
-             Grid().LoopList(n).ComponentID() = ComponentIDForSurface_[Grid().LoopList(n).SurfaceID()];
 
-             Grid().LoopList(n).SurfaceID() = i;
-
-             Grid().LoopList(n).OpenVSP_ComponentID() = OpenVSP_ComponentIDForSurface_[Grid().LoopList(n).SurfaceID()];
-
-          }
-          
-          i++;
-          
-       }
-       
-       if ( !Done ) {
-          
-          printf("Error in determing number of surfaces in VSPGEOM file! \n");
-          fflush(NULL);
-          exit(1);
-          
-       }
-       
-    }
-    
-    // Renumber surface patch to componenent ID list 
-    
-    printf("Renumbering component IDs \n");fflush(NULL);
-    
-    TempList = NULL;
-    
-    if ( VKEY_File != NULL ) {
-       
-       TempList = new int[NumberOfVSPSurfaces + 1];
-    
-       n = 0;
-       
-       for ( i = 1 ; i <= NumLoops ; i++ ) {
-          
-          if ( SurfaceIsUsed[i] ) {
-          
-             TempList[++n] = ComponentIDForSurface_[i];
-             
-          }
-          
-       }
-                    
-       delete [] ComponentIDForSurface_;
-                 
-       ComponentIDForSurface_ = TempList;
-
-    }
-
-    // Renumber surface patch to OpenVSP componenent ID list 
-    
-    printf("Renumbering OpenVSP component IDs \n");fflush(NULL);
-    
-    if ( VKEY_File != NULL ) {
-       
-       TempList = new int[NumberOfVSPSurfaces + 1];
-    
-       n = 0;
-       
-       for ( i = 1 ; i <= NumLoops ; i++ ) {
-          
-          if ( SurfaceIsUsed[i] ) {
-          
-             TempList[++n] = OpenVSP_ComponentIDForSurface_[i];
-             
-          }
-          
-       }
-                    
-       delete [] OpenVSP_ComponentIDForSurface_;
-                 
-       OpenVSP_ComponentIDForSurface_ = TempList;
-  
-    }
-    
-    delete [] SurfaceList;
+    printf("Found %d used surfaces based on parsing VSPGEOM file \n",NumberOfSurfaces_);
+    printf("Found %d used surfaces based on parsing VKEY file ... \n",k);
     
     // Mark the tris on thick and thin surfaces
     
@@ -3498,7 +3583,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     
     for ( n = 1 ; n <= NumLoops ; n++ ) {
 
-       if ( SurfaceIsThick_[Grid().LoopList(n).SurfaceID()] ) {
+       if ( OriginalSurfaceIsThick[Grid().LoopList(n).SurfaceID()] ) {
         
           Grid().LoopList(n).SurfaceType() = THICK_SURFACE;
     
@@ -3511,6 +3596,8 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        }          
    
     }   
+    
+    delete [] OriginalSurfaceIsThick;
         
     // Determine the number of thin and thick surfaces
     
@@ -3535,9 +3622,114 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     if ( NumberOfThickSurfaces_ == 0 ) ModelType_ = VLM_MODEL;
     
     if ( NumberOfThinSurfaces_  == 0 ) ModelType_ = PANEL_MODEL;
+ 
+    // Renumber the surfaces
+   
+    printf("Renumbering surfaces \n");fflush(NULL);
 
-    // Determine the number of unique components
+    for ( n = 1 ; n <= NumLoops ; n++ ) {
+ 
+       Done = 0;
+       
+       i = 1;
+       
+       while ( !Done && i <= NumberOfSurfaces_ ) {
+          
+          if ( Grid().LoopList(n).SurfaceID() == SurfaceList[i] ) {
+             
+             Done = 1;
+              
+             Grid().LoopList(n).ComponentID() = ComponentIDForSurface_[Grid().LoopList(n).SurfaceID()];
+
+             Grid().LoopList(n).OpenVSP_ComponentID() = OpenVSP_ComponentIDForSurface_[Grid().LoopList(n).SurfaceID()];
+
+             Grid().LoopList(n).SurfaceID() = i;
+
+          }
+          
+          i++;
+          
+       }
+       
+       if ( Grid().LoopList(n).ComponentID() == 0 ) {
+          
+          printf("wtf ! Loop %d is not associated with any component! \n",n);fflush(NULL);exit(1);
+          
+       }
+       
+       if ( !Done ) {
+          
+          printf("Error in determing number of surfaces in VSPGEOM file! \n");
+          fflush(NULL);
+          exit(1);
+          
+       }
+       
+    }
     
+    printf("Renumbering surface lists \n");fflush(NULL);
+    
+    Temp_ComponentIDForSurface = NULL;
+    
+    Temp_OpenVSP_ComponentIDForSurface = NULL;
+    
+    Temp_SurfaceNameList = NULL;
+    
+    Temp_SurfaceGIDList = NULL;
+    
+    if ( VKEY_File != NULL ) {
+           
+       Temp_ComponentIDForSurface = new int[NumberOfSurfaces_ + 1];
+
+       Temp_OpenVSP_ComponentIDForSurface = new int[NumberOfSurfaces_ + 1];
+       
+       Temp_SurfaceNameList = new char*[NumberOfSurfaces_ + 1];
+       
+       Temp_SurfaceGIDList = new char*[NumberOfSurfaces_ + 1];
+              
+       for ( i = 1 ; i <= NumberOfSurfaces_ ; i++ ) {
+                    
+          Temp_ComponentIDForSurface[i] = ComponentIDForSurface_[SurfaceList[i]];
+          
+          Temp_OpenVSP_ComponentIDForSurface[i] = OpenVSP_ComponentIDForSurface_[SurfaceList[i]];       
+       
+          Temp_SurfaceNameList[i] = new char[MAX_CHAR_SIZE];
+          
+          Temp_SurfaceGIDList[i] = new char[MAX_CHAR_SIZE];
+       
+          snprintf(Temp_SurfaceNameList[i],MAX_CHAR_SIZE*sizeof(char),"%s",SurfaceNameList_[i]);
+          
+          snprintf(Temp_SurfaceGIDList[i],MAX_CHAR_SIZE*sizeof(char),"%s",SurfaceGIDList_[i]);
+                              
+printf("SurfaceList[%d]: %d --> Temp_SurfaceNameList[%d]: %s \n",i,SurfaceList[i],i,Temp_SurfaceNameList[i]);                              
+       }
+
+       delete [] ComponentIDForSurface_;
+       delete [] OpenVSP_ComponentIDForSurface_;
+       
+       for ( i = 1 ; i <= NumberOfSurfaces_ ; i++ ) {
+
+          delete [] SurfaceNameList_[i];
+          delete [] SurfaceGIDList_[i];
+          
+       }
+       
+       delete [] SurfaceNameList_;
+       delete [] SurfaceGIDList_;              
+       
+       ComponentIDForSurface_         = Temp_ComponentIDForSurface;
+       OpenVSP_ComponentIDForSurface_ = Temp_OpenVSP_ComponentIDForSurface;
+       SurfaceNameList_               = Temp_SurfaceNameList;
+       SurfaceGIDList_                = Temp_SurfaceGIDList;       
+       
+    }
+       
+    delete [] SurfaceList;
+    
+    // Determine the number of unique components
+
+    printf("Determining number of unique components \n"); fflush(NULL);
+        
     ComponentIDForComponent_ = new int[NumberOfSurfaces_ + 1];
     
     zero_int_array(ComponentIDForComponent_, NumberOfSurfaces_);
@@ -3569,9 +3761,95 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        }
        
     }
+
+    printf("Found %d unique components \n",NumberOfComponents_);
     
-    printf("Found %d components \n",NumberOfComponents_);
-        
+    for ( i = 1 ; i <= NumberOfComponents_ ; i++ ) {
+       
+       printf("ComponentIDForComponent_[%d]: %d \n",i,ComponentIDForComponent_[i]);
+       
+    }
+
+    // Update the surface to component ID list
+    
+    for ( n = 1 ; n <= NumberOfSurfaces_ ; n++ ) {
+    
+       Done = 0;
+       
+       i = 1;
+       
+       while ( i <= NumberOfComponents_ && !Done ) {
+          
+          if ( ComponentIDForSurface_[n] == ComponentIDForComponent_[i] ) {
+             
+             ComponentIDForSurface_[n] = i;
+             
+             printf("ComponentIDForSurface_[%d]: %d \n",n,ComponentIDForSurface_[n]);
+             
+             Done = 1;
+             
+          }
+          
+          i++;
+          
+       }
+           
+    }
+       
+    // Renumber component ID for loops
+    
+    for ( n = 1 ; n <= Grid().NumberOfLoops() ; n++ ) {
+       
+       Done = 0;
+       
+       i = 1;
+       
+       while ( i <= NumberOfComponents_ && !Done ) {
+          
+          if ( Grid().LoopList(n).ComponentID() == ComponentIDForComponent_[i] ) {
+             
+             Grid().LoopList(n).ComponentID() = i;
+             
+             Done = 1;
+             
+          }
+          
+          i++;
+          
+       }
+       
+       if ( !Done ) {
+          
+          printf("WTF! Could not reorder the component list! \n");fflush(NULL);exit(1);
+          
+       }
+       
+    }
+    
+    for ( i = 1 ; i <= NumberOfComponents_ ; i++ ) {
+       
+       ComponentIDForComponent_[i] = i;
+       
+    }
+
+    for ( n = 1 ; n <= NumberOfSurfaces_ ; n++ ) {
+
+       printf("Surface: %d --> Component: %d --> SurfaceName: %s \n",
+       n,
+       ComponentIDForSurface_[n],
+       SurfaceNameList_[n]);
+       
+    }
+           
+     
+//   fflush(NULL);exit(1);
+ 
+    for ( k = 1 ; k <= NumberOfSurfaces_ ; k++ ) {
+    
+       printf("SurfaceIsThick_[%d]: %d \n",k,SurfaceIsThick_[k]);
+       
+    }
+                  
     GeometryComponentIsFixed_ = new int[NumberOfComponents_ + 1];
 
     GeometryGroupID_ = new int[NumberOfComponents_ + 1];
@@ -3637,6 +3915,9 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
 
     }
     
+   
+ //    fflush(NULL);exit(1);
+   
     // If the mesh we just read in is a n-gon mesh, we also need to read in the
     // triangulated version
     
@@ -3714,6 +3995,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
              GridF_->LoopList(NumTris).Node1() = Node1;
              GridF_->LoopList(NumTris).Node2() = Node2;
              GridF_->LoopList(NumTris).Node3() = Node3;
+
              
              // Copy over surface flags from ngon mesh
              
@@ -3722,7 +4004,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
              GridF_->LoopList(NumTris).SurfaceID()           = Grid().LoopList(n).SurfaceID();
                                                              
              GridF_->LoopList(NumTris).ComponentID()         = Grid().LoopList(n).ComponentID();
-                                                             
+                                                           
              GridF_->LoopList(NumTris).SurfaceType()         = Grid().LoopList(n).SurfaceType();
              
              GridF_->LoopList(NumTris).OpenVSP_ComponentID() = Grid().LoopList(n).OpenVSP_ComponentID();
@@ -3732,7 +4014,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
              GridF_->LoopList(NumTris).SpanStation()         = Grid().LoopList(n).SpanStation();
                                                              
              GridF_->LoopList(NumTris).IsTrailingEdgeTri()   = Grid().LoopList(n).IsTrailingEdgeTri();
-             
+         
              // Build up UV data
       
              for ( j = 1 ; j <= 3 ; j++ ) {
@@ -3793,6 +4075,57 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        Grid_[0] = GridF_;
                   
     }
+
+
+//    for ( n = 1 ; n <= Grid().NumberOfLoops() ; n++ ) {
+//    
+//       if ( Grid().LoopList(n).SurfaceID() == 4 || Grid().LoopList(n).SurfaceID() == 5 ) {
+//          
+//          int node;
+//          
+//          for ( i = 1 ; i <= Grid().LoopList(n).NumberOfNodes() ; i++ ) {
+//             
+//             node = Grid().LoopList(n).Node(i);
+//             
+//             
+//             
+//             printf("Fine grid: Surface: %d --> Loop: %d --> xyz: %f %f %f \n",
+//             Grid().LoopList(n).SurfaceID(),
+//             n,
+//             Grid().NodeList(node).x(),
+//             Grid().NodeList(node).y(),
+//             Grid().NodeList(node).z());fflush(NULL);
+//             
+//          }
+//          
+//       }
+//       
+//    }
+
+
+//    for ( n = 1 ; n <= GridC_->NumberOfLoops() ; n++ ) {
+//    
+//       if ( GridC_->LoopList(n).SurfaceID() == 4 || GridC_->LoopList(n).SurfaceID() == 5 ) {
+//          
+//          int node;
+//          
+//          for ( i = 1 ; i <= GridC_->LoopList(n).NumberOfNodes() ; i++ ) {
+//             
+//             node = GridC_->LoopList(n).Node(i);
+//             
+//             
+//             printf("CoarseGrid: Surface: %d --> Loop: %d --> xyz: %f %f %f \n",
+//             GridC_->LoopList(n).SurfaceID(),
+//             n,
+//             GridC_->NodeList(node).x(),
+//             GridC_->NodeList(node).y(),
+//             GridC_->NodeList(node).z());fflush(NULL);
+//             
+//          }
+//          
+//       }
+//       
+//    }   
     
 }
 
@@ -3929,11 +4262,24 @@ void VSP_GEOM::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
           
           if ( NodeIsSharp[Node1] && NodeIsSharp[Node2] ) {
 
+//printf("Edge: %d --> Component: %d --> Surface: %d --> Tri1,2: %d %d ---> ComponentID_1,2: %d %d ---> Node1,2: %d %d out of a total of %d nodes \n",
+//i,
+//Grid().EdgeList(i).ComponentID(),
+//Grid().EdgeList(i).SurfaceID(),
+//Grid().EdgeList(i).Loop1(),
+//Grid().EdgeList(i).Loop2(),
+//Grid().LoopList(Grid().EdgeList(i).Loop1()).ComponentID(),
+//Grid().LoopList(Grid().EdgeList(i).Loop2()).ComponentID(),
+//
+//Node1,Node2,Grid().NumberOfNodes());
+
              IncidentKuttaEdgesOnNode_[Node1]++;
              
              IncidentKuttaEdgesOnNode_[Node2]++;
              
              IsKuttaEdge[i] = 1;     
+             
+         //    printf("Found kutta edge! \n");fflush(NULL);
               
           } 
           
@@ -4787,9 +5133,7 @@ void VSP_GEOM::CreateVortexSheets(void)
        NumNodes = 0;
        
        VortexSheet(k).NumberOfWakeTrailingNodes() = NumberOfWakeTrailingNodes_;
-       
-//fuck       if ( k == 5 ) VortexSheet(k).NumberOfWakeTrailingNodes() = 8;
-       
+     
        VortexSheet(k).TimeAccurate() = TimeAccurate_;
      
        VortexSheet(k).TimeAnalysisType() = TimeAnalysisType_;
@@ -5601,6 +5945,8 @@ void VSP_GEOM::CreateWakeGrids(void)
        
        if ( IsPeriodic ) NumberOfWakeLoops++;
        
+       if ( IsPeriodic ) printf("Wake %d is periodic \n",k);
+       
     }
     
     NumberOfWakeNodes *= (NumberOfWakeTrailingNodes_    );
@@ -6131,7 +6477,7 @@ void VSP_GEOM::FreezeWakeGrids(void)
      
           VortexSheet(k).TrailingVortex(j).IsFrozenTrailingEdge() = 1;
                              
-          // Mark edges as frozen of concave as required
+          // Mark edges as frozen
           
           for ( i = 1 ; i <= VortexSheet(k).NumberOfWakeTrailingNodes() - 1 ; i++ ) {    
 

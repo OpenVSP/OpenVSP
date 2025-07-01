@@ -293,7 +293,15 @@ double Optimization_CML_Required_    = 0.;
 double Optimization_CMM_Required_    = 0.;
 double Optimization_CMN_Required_    = 0.;
 
+double Optimization_Lambda_1_        = 1.;
+double Optimization_Lambda_2_        = 1.;
+double Optimization_Lambda_3_        = 1.;
+double Optimization_Lambda_4_        = 1.;
+double Optimization_Lambda_5_        = 1.;
+double Optimization_Lambda_6_        = 1.;
+                      
 double OptimizationGradientReduction_ = 0.001;
+double OptimizationFunctionReduction_ = 0.01;
 
 // Prototypes
 
@@ -342,6 +350,8 @@ public:
 
 };
 
+void VSPAERO_OptimizeOld(void);
+
 void VSPAERO_Optimize(void);
 
 PARAMETER_DATA *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables);
@@ -358,6 +368,43 @@ double Normalize(double *Vector, int Length);
 
 void CGState(double *Old, double *New, int Length);
 
+int Do1DFunctionMinimization(int NumberOfParameterValues, 
+                             PARAMETER_DATA *ParameterData,
+                             double *ParameterValues,
+                             double *Gradient,                            
+                             double &StepSize,
+                             double &F,
+                             double &CL,
+                             double &CD,
+                             double &CS,
+                             double &CML,
+                             double &CMM,
+                             double &CMN,
+                             double &GeometryUpdateTime,
+                             double &ForwardSolveTime,
+                             double &AdjointSolveTime,                            
+                             int &NumberOfGeometryUpdates,
+                             int &NumberOfForwardSolves,
+                             int &NumberOfAdjointSolves);
+                            
+                            
+double DoForwardSolve(int NumberOfParameterValues, 
+                      PARAMETER_DATA *ParameterData,
+                      double *ParameterValues,
+                      double &CL,
+                      double &CD,
+                      double &CS,
+                      double &CML,
+                      double &CMM,
+                      double &CMN,
+                      double &GeometryUpdateTime,
+                      double &ForwardSolveTime,
+                      double &AdjointSolveTime,
+                      int &NumberOfGeometryUpdates,
+                      int &NumberOfForwardSolves,
+                      int &NumberOfAdjointSolves,                     
+                      int DoAdjointSolve);
+                      
 #endif
 
 // The code...
@@ -1310,6 +1357,8 @@ void LoadCaseFile(int ReadFlag)
     if ( SearchForIntegerVariable(case_file, "OPtimizationUpdateGeometryGradients", OPtimizationUpdateGeometryGradients_) ) if ( case_file != NULL ) { printf("Setting OPtimizationUpdateGeometryGradients flag to: %d \n",OPtimizationUpdateGeometryGradients_); };
             
     if ( SearchForFloatVariable(case_file, "OptimizationGradientReduction", OptimizationGradientReduction_) ) if ( case_file != NULL ) { printf("Setting OptimizationGradientReduction to: %f \n",OptimizationGradientReduction_); };
+
+    if ( SearchForFloatVariable(case_file, "OptimizationFunctionReduction", OptimizationFunctionReduction_) ) if ( case_file != NULL ) { printf("Setting OptimizationFunctionReduction to: %f \n",OptimizationFunctionReduction_); };
 
             
     if ( SearchForFloatVariable(case_file, "Optimization_CL_Weight", Optimization_CL_Weight_) ) if ( case_file != NULL ) { printf("Setting Optimization_CL_Weight to: %f \n",Optimization_CL_Weight_); };
@@ -5520,7 +5569,7 @@ void FiniteDiffTestSolve(void)
 #                                                                              #
 ##############################################################################*/
 
-void VSPAERO_Optimize(void)
+void VSPAERO_OptimizeOld(void)
 {
    
     int Case, NumberOfThreads;
@@ -5529,7 +5578,7 @@ void VSPAERO_Optimize(void)
     double CL, CD, CS, CML, CMM, CMN;
     double CLo, CDo, CSo, CMLo, CMMo, CMNo;
     double *NodeXYZ, *dFdMesh[3], *dF_dParameter, *Gradient, *GradientOld;
-    double F, F1, Fnew, Delta, Delta1, FReduction, DeltaReduction, StepSize;
+    double F, F1, Fnew, Delta, Delta1, FReduction, GReduction, StepSize;
     double Lambda_1, Lambda_2, Lambda_3, Lambda_4, Lambda_5, Lambda_6, **dMesh_dParameter;
     double *ParameterValues, *NewParameterValues, Time0, TotalTime, *MeshNodes;
 
@@ -5854,6 +5903,8 @@ void VSPAERO_Optimize(void)
           CMM = VSPAERO().CMiy() + VSPAERO().CMoy();
           CMN = VSPAERO().CMiz() + VSPAERO().CMoy();
 
+printf("Adjoint solve: CL,CD,CMM: %f %f %f \n",CL,CD,CMM);fflush(NULL);           
+
        }
  
        else {
@@ -5882,16 +5933,16 @@ void VSPAERO_Optimize(void)
          Lambda_4 = Optimization_CML_Weight_ / pow(CML-Optimization_CML_Required_,2.);
          Lambda_5 = Optimization_CMM_Weight_ / pow(CMM-Optimization_CMM_Required_,2.);
          Lambda_6 = Optimization_CMN_Weight_ / pow(CMN-Optimization_CMN_Required_,2.);
-                  
+             
+         Lambda_1 = MIN(Lambda_1,10000.);
+         Lambda_2 = MIN(Lambda_2,10000.);
+         Lambda_3 = MIN(Lambda_3,10000.);
+         Lambda_4 = MIN(Lambda_4,10000.);
+         Lambda_5 = MIN(Lambda_5,10000.);
+         Lambda_6 = MIN(Lambda_6,10000.);
+                         
        }
        
-       Lambda_1 = MIN(Lambda_1,10000.);
-       Lambda_2 = MIN(Lambda_2,10000.);
-       Lambda_3 = MIN(Lambda_3,10000.);
-       Lambda_4 = MIN(Lambda_4,10000.);
-       Lambda_5 = MIN(Lambda_5,10000.);
-       Lambda_6 = MIN(Lambda_6,10000.);
-         
        // Calculate the final objective function and it's gradients
        // Here we have f = L1*(CL - CLreq)^2 + L2*CD^2 + L3*CM^2
 
@@ -5979,9 +6030,9 @@ void VSPAERO_Optimize(void)
           
           FReduction = 0.;
           
-          DeltaReduction = 0.;
+          GReduction = 0.;
           
-          fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",0,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,DeltaReduction,k,StepSize,TotalTime);
+          fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",0,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,GReduction,k,StepSize,TotalTime);
 
        }
        
@@ -6070,7 +6121,7 @@ void VSPAERO_Optimize(void)
                 CL = VSPAERO().CLiw() + VSPAERO().CLo();
                 CD = VSPAERO().CDiw() + VSPAERO().CDo();
                 CS = VSPAERO().CSiw() + VSPAERO().CSo();
-                
+
                 CML = VSPAERO().CMix() + VSPAERO().CMox();
                 CMM = VSPAERO().CMiy() + VSPAERO().CMoy();
                 CMN = VSPAERO().CMiz() + VSPAERO().CMoy();
@@ -6095,7 +6146,7 @@ void VSPAERO_Optimize(void)
                 
                 // Back up 
                 
-                if ( k > 0 ) {
+                if ( 1||k > 0 ) {
 
                    for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
                    
@@ -6127,6 +6178,8 @@ void VSPAERO_Optimize(void)
                    
                    delete [] NodeXYZ;
                    
+printf("Updating shit... before... CL, CD, CMM: %f %f %f \n",CL,CD,CMM);
+                   
                    CL = CLo;
                    CD = CDo;
                    CS = CSo;
@@ -6134,6 +6187,8 @@ void VSPAERO_Optimize(void)
                    CML = CMLo;
                    CMM = CMMo;
                    CMM = CMNo;      
+                
+printf("Updating shit... after... CL, CD, CMM: %f %f %f \n",CL,CD,CMM);
                        
                 }
                    
@@ -6144,7 +6199,7 @@ void VSPAERO_Optimize(void)
              }
              
              else {
-                
+    
                 F = Fnew;
                 
              }                             
@@ -6153,7 +6208,7 @@ void VSPAERO_Optimize(void)
                 
                 k++;
              
-                if ( !Done ) StepSize *= 1.618;
+                StepSize *= 1.618;
          
              }
              
@@ -6165,9 +6220,12 @@ void VSPAERO_Optimize(void)
 
        FReduction = log10(F/F1);
 
-       DeltaReduction = log10(Delta/Delta1);
+       GReduction = log10(Delta/Delta1);
        
-       fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",Iter,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,DeltaReduction,k,StepSize,TotalTime);
+       fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",Iter,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,GReduction,k,StepSize,TotalTime);
+       
+       printf("History line: \n");
+       printf("%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",Iter,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,GReduction,k,StepSize,TotalTime);
        
        // Update the mesh gradients
        
@@ -6177,7 +6235,8 @@ void VSPAERO_Optimize(void)
           
        }
        
-       if ( DeltaReduction <= log10(OptimizationGradientReduction_) ) Optimum = 1;
+       if ( FReduction <= log10(OptimizationFunctionReduction_) && 
+            GReduction <= log10(OptimizationGradientReduction_) ) Optimum = 1;
        
        Iter++;
 
@@ -6221,6 +6280,917 @@ void VSPAERO_Optimize(void)
     
 }
 
+/*##############################################################################
+#                                                                              #
+#                            VSPAERO_Optimize                                  #
+#                                                                              #
+##############################################################################*/
+
+void VSPAERO_Optimize(void)
+{
+   
+    int Case, NumberOfThreads;
+    int i, j, Iter, NumberOfParameterValues, NumberOfNodes, Done, NumSteps;
+    int NumberOfForwardSolves, NumberOfAdjointSolves, NumberOfGeometryUpdates;
+
+    double CL, CD, CS, CML, CMM, CMN, F, F1;
+    double Delta, Delta1, StepSize, FReduction, GReduction;    
+    double *NodeXYZ, *dFdMesh[3], *dF_dParameter, *Gradient, *GradientOld;
+    double *ParameterValues, *NewParameterValues, Time0, TotalTime, *MeshNodes;
+    double **dMesh_dParameter;
+    double Time, ForwardSolveTime, AdjointSolveTime, GeometryUpdateTime;
+
+    char HistoryFileName[MAX_CHAR_SIZE], CommandLine[MAX_CHAR_SIZE], OptimizationSetupFileName[MAX_CHAR_SIZE], **ParameterNames;
+    char OpenVSP_FileName[MAX_CHAR_SIZE], OpenVSP_VSPGeomFileName[MAX_CHAR_SIZE], NewFileName[MAX_CHAR_SIZE];
+
+    FILE *HistoryFile, *OptimizationSetupFile;
+    
+    // Zero out statistics
+    
+    ForwardSolveTime = AdjointSolveTime = GeometryUpdateTime = 0.;
+
+    NumberOfForwardSolves = NumberOfAdjointSolves = NumberOfGeometryUpdates = 0;
+
+    // OpenVSP parameter data
+            
+    PARAMETER_DATA *ParameterData;
+
+    // OPENMP stuff
+                             
+#ifdef VSPAERO_OPENMP
+   
+    printf("Initializing OPENMP for %d threads \n",NumberOfThreads_);
+   
+    omp_set_num_threads(NumberOfThreads_);
+    
+    NumberOfThreads = omp_get_max_threads();
+
+    printf("NumberOfThreads_: %d \n",NumberOfThreads);
+    
+#else
+
+    NumberOfThreads = 1;
+
+    printf("Single threaded build.\n");
+
+#endif
+
+    // Write out 2D FEM file
+    
+    if ( Write2DFEMFile_ ) VSPAERO().Write2DFEMFile() = 1;
+    
+    // Write out Tecplot file
+    
+    if ( WriteTecplotFile_ ) VSPAERO().WriteTecplotFile() = 1;
+        
+    // Save optimization data
+    
+    if ( OptimizationSolve_ ) VSPAERO().OptimizationSolve() = 1;
+        
+    // Set number of farfield wake nodes
+
+    if ( NumberOfWakeNodes_ > 0 ) VSPAERO().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);       
+               
+    // Force farfield distance for wake adaption
+    
+    if ( SetFarDist_ ) VSPAERO().SetFarFieldDist(FarDist_);
+
+    printf("Running wing optimization... \n");fflush(NULL);
+
+    // Read in the OpenVSP geometry
+    
+    snprintf(OpenVSP_FileName,sizeof(OpenVSP_FileName)*sizeof(char),"%s.vsp3",FileName);
+
+    vsp::ReadVSPFile( OpenVSP_FileName );
+    
+    // Initialize the starting geometry
+    
+    Time = Time0 = myclock();
+    
+    vsp::SetAnalysisInputDefaults( "VSPAEROComputeGeometry" );
+    
+    vsp::SetAnalysisInputDefaults( "VSPAEROSweep" ); // We use the user define thick/thin sets in the VSPAERO setup gui
+
+    int m_SymFlagVec = 0;
+    
+    vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "Symmetry", {m_SymFlagVec}, 0);
+
+    vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "CullFracFlag", {1}, 0);
+    
+    vsp::SetDoubleAnalysisInput("VSPAEROComputeGeometry", "CullFrac", {0.1}, 0);
+
+    // Create the initial .vspgeom file for analysis
+    
+    string compgeom_resid = vsp::ExecAnalysis( "VSPAEROComputeGeometry" );
+
+    // Also save a copy
+    
+    snprintf(NewFileName,sizeof(NewFileName)*sizeof(char),"%s.Initial.vspgeom",FileName);
+    
+    vsp::ExportFile( NewFileName, vsp::SET_ALL, vsp::EXPORT_VSPGEOM );
+
+    GeometryUpdateTime += myclock() - Time;
+                            
+    // Initialize VSPAERO solver settings
+
+    VSPAERO().Sref() = Sref_;
+
+    VSPAERO().Cref() = Cref_;
+
+    VSPAERO().Bref() = Bref_;
+    
+    VSPAERO().Xcg() = Xcg_;
+
+    VSPAERO().Ycg() = Ycg_;
+
+    VSPAERO().Zcg() = Zcg_;
+    
+    VSPAERO().Mach() = Mach_;
+    
+    VSPAERO().AngleOfAttack() = AoA_ * TORAD;
+
+    VSPAERO().AngleOfBeta() = Beta_ * TORAD;
+    
+    VSPAERO().Vinf() = Vinf_;
+    
+    VSPAERO().Vref() = Vref_;
+    
+    VSPAERO().Machref() = Machref_;
+    
+    VSPAERO().Density() = Rho_;
+    
+    VSPAERO().ReCref() = ReCref_;
+    
+    VSPAERO().RotationalRate_p() = 0.0;
+    
+    VSPAERO().RotationalRate_q() = 0.0;
+    
+    VSPAERO().RotationalRate_r() = 0.0;    
+
+    VSPAERO().DoSymmetryPlaneSolve() = Symmetry_;
+        
+    VSPAERO().StallModelIsOn() = StallModelIsOn_;
+    
+    VSPAERO().WakeIterations() = WakeIterations_;
+    
+    VSPAERO().ForwardGMRESConvergenceFactor() = ForwardGMRESConvergenceFactor_;
+    
+    VSPAERO().AdjointGMRESConvergenceFactor() = AdjointGMRESConvergenceFactor_;
+    
+    VSPAERO().NonLinearConvergenceFactor() = NonLinearConvergenceFactor_;
+
+    VSPAERO().WakeRelax() = WakeRelax_;
+    
+    VSPAERO().ImplicitWake() = ImplicitWake_;
+    
+    VSPAERO().DoAdjointSolve() = 1; // This needs to be set before Setup() is called... 
+    
+    if ( !OptimizationUsingWakeForces_ ) {
+       
+       VSPAERO().AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES; // Only total forces gradients
+
+    }
+    
+    else {
+       
+       VSPAERO().AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES_USING_WAKE_FORCES; // Only total forces gradients, but based on Trefftz forces
+          
+    }
+      
+    VSPAERO().ReadFile(FileName);
+
+    VSPAERO().Setup();
+
+    // Load in the optimization parameter value list
+
+    ParameterData = ReadOpenVSPDesFile(FileName,NumberOfParameterValues);
+    
+    dF_dParameter = new double[NumberOfParameterValues + 1];
+    
+    ParameterValues = new double[NumberOfParameterValues + 1];
+    
+    NewParameterValues = new double[NumberOfParameterValues + 1];
+
+    Gradient = new double[NumberOfParameterValues + 1];
+    
+    GradientOld = new double[NumberOfParameterValues + 1];
+
+    for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+
+       GradientOld[j] = Gradient[j] = dF_dParameter[j] = 0.;
+       
+       ParameterValues[j] = ParameterData->ParameterValues[j];
+
+    }
+    
+    // Calculate partials of mesh wrt parameters
+
+    Time = myclock();
+        
+    dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterData);
+    
+    GeometryUpdateTime += myclock() - Time;
+    
+    NumberOfGeometryUpdates += 2*NumberOfParameterValues + 1;
+
+    printf("Finished calculate mesh gradients... \n");fflush(NULL);
+
+    // Allocate some space for the derivatives 
+    
+    dFdMesh[0] = new double[VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() + 1];
+    dFdMesh[1] = new double[VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() + 1];
+    dFdMesh[2] = new double[VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() + 1];
+    
+    // Open the history file
+
+    snprintf(HistoryFileName,sizeof(HistoryFileName)*sizeof(char),"%s.opt.history",FileName);
+
+    if ( (HistoryFile = fopen(HistoryFileName, "w")) == NULL ) {
+    
+       printf("Could not open the optimization history output file! \n");
+    
+       exit(1);
+    
+    }
+    
+    // Clean up any old opt adb files
+    
+    snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"rm %s.opt.*.adb",FileName);
+    
+    system(CommandLine);
+
+    // Header
+     
+                        //1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 
+    fprintf(HistoryFile,"    Iter        CL         CD         CS        CML        CMM        CMN        L/D         F      FReduction   GradF    GradReduct   1DSteps   StepSize     Time   \n");    
+          
+    TotalTime = myclock() - Time0;
+
+    Done = 0;
+    
+    Iter = 1;
+    
+    while ( Iter <= OptimizationNumberOfIterations_ && !Done ) {
+
+       // Solve the forward problem and the adjoint
+       
+       printf("Running VSPAERO forward and adjoint solvers... \n");fflush(NULL);
+
+       F = DoForwardSolve(NumberOfParameterValues, 
+                          ParameterData,
+                          ParameterValues,
+                          CL,
+                          CD,
+                          CS,
+                          CML,
+                          CMM,
+                          CMN,
+                          GeometryUpdateTime,
+                          ForwardSolveTime,
+                          AdjointSolveTime,
+                          NumberOfGeometryUpdates,
+                          NumberOfForwardSolves,
+                          NumberOfAdjointSolves,                     
+                          1);
+       
+       if ( Iter == 1 ) {
+          
+          F1 = F;
+          
+          Delta = StepSize = 0.;
+          
+          GReduction = FReduction = 1;
+          
+          NumSteps = 0;
+
+          fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",0,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,GReduction,NumSteps,StepSize,TotalTime);
+   
+       }
+           
+       // Save the .adb file for later viewing
+       
+       snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.%d.adb",FileName,FileName,Iter);
+       
+       system(CommandLine);
+       
+       if ( Iter == 1 ) {
+          
+          // Save the .adb file for later viewing
+          
+          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.adb",FileName,FileName);
+          
+          system(CommandLine);
+          
+          // Copy over the .cases file for viewer
+          
+          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb.cases %s.opt.adb.cases",FileName,FileName);
+          
+          system(CommandLine);          
+       
+       }          
+
+       // Calculate derivatives of F wrt mesh
+    
+       for ( i = 1 ; i <= VSPAERO().VSPGeom().Grid(1).NumberOfSurfaceNodes() ; i++ ) {
+       
+          dFdMesh[0][i] = 2.*Optimization_Lambda_1_*(CL  - Optimization_CL_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DX() 
+                        + 2.*Optimization_Lambda_2_*(CD  - Optimization_CD_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DX() 
+                        + 2.*Optimization_Lambda_3_*(CS  - Optimization_CS_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DX() 
+                                                
+                        + 2.*Optimization_Lambda_4_*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX()
+                        + 2.*Optimization_Lambda_5_*(CMM - Optimization_CMM_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX()
+                        + 2.*Optimization_Lambda_6_*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX();
+                                                
+          dFdMesh[1][i] = 2.*Optimization_Lambda_1_*(CL  - Optimization_CL_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DY() 
+                        + 2.*Optimization_Lambda_2_*(CD  - Optimization_CD_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DY() 
+                        + 2.*Optimization_Lambda_3_*(CS  - Optimization_CS_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DY() 
+                                                 
+                        + 2.*Optimization_Lambda_4_*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY()
+                        + 2.*Optimization_Lambda_5_*(CMM - Optimization_CMM_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY()
+                        + 2.*Optimization_Lambda_6_*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY();
+                                                 
+          dFdMesh[2][i] = 2.*Optimization_Lambda_1_*(CL  - Optimization_CL_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DZ() 
+                        + 2.*Optimization_Lambda_2_*(CD  - Optimization_CD_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DZ() 
+                        + 2.*Optimization_Lambda_3_*(CS  - Optimization_CS_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DZ() 
+                                                 
+                        + 2.*Optimization_Lambda_4_*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ()
+                        + 2.*Optimization_Lambda_5_*(CMM - Optimization_CMM_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ()
+                        + 2.*Optimization_Lambda_6_*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ();
+
+       }
+
+       // Calculate derivatives of F wrt parameters
+       
+       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+          
+          dF_dParameter[j] = 0;
+       
+          for ( i = 1 ; i <= VSPAERO().VSPGeom().Grid(1).NumberOfSurfaceNodes() ; i++ ) {
+             
+             dF_dParameter[j] +=   dFdMesh[0][i] * dMesh_dParameter[j][3*i-2]
+                                 + dFdMesh[1][i] * dMesh_dParameter[j][3*i-1]
+                                 + dFdMesh[2][i] * dMesh_dParameter[j][3*i  ];
+                        
+          }
+          
+       }  
+
+       // Store old and new gradients
+       
+       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+       
+          GradientOld[j] = Gradient[j];
+          
+          Gradient[j] = dF_dParameter[j];
+          
+       }
+
+       Delta = 0.;
+       
+       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+       
+          Delta += Gradient[j]*Gradient[j];
+          
+       }
+       
+       Delta = sqrt(Delta);
+ 
+       if ( Iter == 1 ) Delta1 = Delta;
+                    
+       // Conjugate gradient adjustment of the gradient...
+       
+       if ( Iter > 1 ) CGState(GradientOld,Gradient,NumberOfParameterValues);
+       
+       // Do 1D search for minimum along this search direction
+
+       NumSteps = Do1DFunctionMinimization(NumberOfParameterValues, 
+                                           ParameterData,
+                                           ParameterValues,
+                                           Gradient,
+                                           StepSize,
+                                           F,
+                                           CL,
+                                           CD,
+                                           CS,
+                                           CML,
+                                           CMM,
+                                           CMN,
+                                           GeometryUpdateTime,
+                                           ForwardSolveTime,
+                                           AdjointSolveTime,                            
+                                           NumberOfGeometryUpdates,
+                                           NumberOfForwardSolves,
+                                           NumberOfAdjointSolves);
+                                   
+       TotalTime = myclock() - Time0;
+
+       FReduction = log10(F/F1);
+
+       GReduction = log10(Delta/Delta1);
+       
+       fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",Iter,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,GReduction,NumSteps,StepSize,TotalTime);
+
+       // Update the mesh gradients
+       
+       if ( OPtimizationUpdateGeometryGradients_ ) {
+          
+          dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterData);
+          
+       }
+       
+       if ( GReduction <= log10(OptimizationGradientReduction_) ) Done = 1;
+       
+       Iter++;
+
+    }
+    
+    // Save the final state
+    
+    SaveVSPGeomFile(FileName, NumberOfParameterValues,ParameterData->ParameterNames, ParameterValues);
+    
+    // Output some solver stats...
+
+    printf("\n\n");
+    printf("NumberOfForwardSolves:   %d \n",NumberOfForwardSolves);
+    printf("NumberOfAdjointSolves:   %d \n",NumberOfAdjointSolves);
+    printf("NumberOfGeometryUpdates: %d \n",NumberOfGeometryUpdates);
+    printf("\n\n");
+    printf("Forward  Solve  Time %f seconds \n",ForwardSolveTime);
+    printf("Adoint   Solve  Time %f seconds \n",AdjointSolveTime);
+    printf("Geometry Update Time %f seconds \n",GeometryUpdateTime);
+    printf("Total Optimization time: %f seconds \n",TotalTime);
+        
+    fprintf(HistoryFile,"\n\n");
+    fprintf(HistoryFile,"NumberOfForwardSolves:   %d \n",NumberOfForwardSolves);
+    fprintf(HistoryFile,"NumberOfAdjointSolves:   %d \n",NumberOfAdjointSolves);
+    fprintf(HistoryFile,"NumberOfGeometryUpdates: %d \n",NumberOfGeometryUpdates);
+    fprintf(HistoryFile,"\n\n");
+    fprintf(HistoryFile,"Forward  Solve  Time %f seconds \n",ForwardSolveTime);
+    fprintf(HistoryFile,"Adoint   Solve  Time %f seconds \n",AdjointSolveTime);
+    fprintf(HistoryFile,"Geometry Update Time %f seconds \n",GeometryUpdateTime);
+    fprintf(HistoryFile,"Total Optimization time: %f seconds \n",TotalTime);
+       
+    fclose(HistoryFile);
+    
+    // Free up memory
+    
+    DeleteMeshGradients(NumberOfParameterValues,dMesh_dParameter);
+    
+    // Exit
+    
+    exit(0);
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                        Do1DFunctionMinimization                              #
+#                                                                              #
+##############################################################################*/
+
+int Do1DFunctionMinimization(int NumberOfParameterValues, 
+                             PARAMETER_DATA *ParameterData,
+                             double *ParameterValues,
+                             double *Gradient,
+                             double &StepSize,
+                             double &F,
+                             double &CL,
+                             double &CD,
+                             double &CS,
+                             double &CML,
+                             double &CMM,
+                             double &CMN,
+                             double &GeometryUpdateTime,
+                             double &ForwardSolveTime,
+                             double &AdjointSolveTime,                            
+                             int &NumberOfGeometryUpdates,
+                             int &NumberOfForwardSolves,
+                             int &NumberOfAdjointSolves) {
+
+    int j, Iter, IterMax, TotalIters, Done, FunctionHasDecreased;
+    double *NewParameterValues;
+    double a, b, X1, X2, X3, X4, Xmin;
+    double Delta, F1, F2, F3, F4, Error;
+    
+    NewParameterValues = new double[NumberOfParameterValues + 1];
+    
+    // Incoming solution 
+    
+    X1 = 0.;
+    
+    F1 = F;
+    
+    // Calculate magnitude of the gradient and normalize it
+       
+    Delta = Normalize(Gradient, NumberOfParameterValues);
+    
+    // Do a few steps out until the function starts to increase again
+    
+    X3 = 0.25*Delta;       
+  
+    IterMax = OptimizationNumber1DSearchSteps_;
+    
+    FunctionHasDecreased = 0;
+    
+    Done = 0;
+    
+    Iter = 1;
+    
+    while ( Iter <= IterMax/2 && !Done ) {
+       
+       // Take step 
+       
+       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+       
+          NewParameterValues[j] = ParameterValues[j] - X3 * Gradient[j];
+          
+       }
+                
+       F3 = DoForwardSolve(NumberOfParameterValues, 
+                           ParameterData,
+                           NewParameterValues,
+                           CL,
+                           CD,
+                           CS,
+                           CML,
+                           CMM,
+                           CMN,
+                           GeometryUpdateTime,
+                           ForwardSolveTime,
+                           AdjointSolveTime,
+                           NumberOfGeometryUpdates,
+                           NumberOfForwardSolves,
+                           NumberOfAdjointSolves,                     
+                           0);
+                     
+       if ( F3 < F1 && Iter < IterMax/2 ) {
+
+          printf("Function decreased... \n");
+          printf("\n\n\n\nX3: %f ... F3: %f after %d steps \n\n\n\n",X3,F3,Iter);
+          
+          X1 = X3;
+          
+          F1 = F3;
+          
+          X3 *= 1.618;
+          
+          FunctionHasDecreased = 1;
+          
+       }
+       
+       else if ( F3 > F1 && FunctionHasDecreased == 0 ) {
+
+          printf("Function increased... \n");
+          printf("\n\n\n\nX3: %f ... F3: %f after %d steps \n\n\n\n",X3,F3,Iter);
+          
+          X3 /= 1.618;
+          
+       }
+       
+       else {
+
+          printf("Function increased... but we also saw a minimum... \n");
+          printf("\n\n\n\nX3: %f ... F3: %f after %d steps \n\n\n\n",X3,F3,Iter);
+          
+          Done = 1;
+          
+       }
+
+       Iter++;
+       
+    }
+    
+    TotalIters = Iter - 1;
+
+    printf("\n\n\n\nStarting 1D search with X1, F1: %f, %f and X3, F3: %f, %f after %d steps \n\n\n\n",X1,F1,X3,F3,Iter-1);
+    
+    // Just take what we've got after 5 steps... good enough
+    
+    if ( F3 < F1 ) {
+
+       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+       
+          ParameterValues[j] = NewParameterValues[j];
+          
+       }
+       
+       F = F3;
+       
+       StepSize = X3;
+              
+       return Iter-1;
+       
+    }
+    
+    // 3rd interior point
+       
+    //b/a = 1.618;
+    //a = b/1.618;
+    //
+    //a + b = X3 - X1;
+    //b/1.618 + b = X3 - X1;
+    //b*(1. + 1.618)/1.618 = X3 - X1;
+    
+    b = 1.618*(X3 - X1)/2.2618;
+    
+    a = X3 - X1 - b;
+    
+    X2 = X1 + a;
+
+    // Take step 
+    
+    for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+    
+       NewParameterValues[j] = ParameterValues[j] - X2 * Gradient[j];
+       
+    }
+           
+    F2 = DoForwardSolve(NumberOfParameterValues, 
+                        ParameterData,
+                        NewParameterValues,
+                        CL,
+                        CD,
+                        CS,
+                        CML,
+                        CMM,
+                        CMN,
+                        GeometryUpdateTime,
+                        ForwardSolveTime,
+                        AdjointSolveTime,
+                        NumberOfGeometryUpdates,
+                        NumberOfForwardSolves,
+                        NumberOfAdjointSolves,                     
+                        0);    
+
+    printf("\n\n\n\nX2, F2: %f %f \n\n\n\n",X2,F2);
+                                               
+    // Golden section search
+    
+    Iter--;
+    
+    Done = 0;
+    
+    while ( Iter <= IterMax && !Done ) {
+       
+       //b/a = 1.618;
+       //a = b/1.618;
+       //
+       //a + b = X3 - X2;
+       //b/1.618 + b = X3 - X2;
+       //b*(1. + 1.618)/1.618 = X3 - X2;
+       
+       b = 1.618*(X3 - X2)/2.2618;
+       a = X3 - X2 - b;
+       
+       X4 = X2 + a;
+
+       // Take step 
+       
+       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+       
+          NewParameterValues[j] = ParameterValues[j] - X4 * Gradient[j];
+          
+       }
+              
+       F4 = DoForwardSolve(NumberOfParameterValues, 
+                           ParameterData,
+                           NewParameterValues,
+                           CL,
+                           CD,
+                           CS,
+                           CML,
+                           CMM,
+                           CMN,
+                           GeometryUpdateTime,
+                           ForwardSolveTime,
+                           AdjointSolveTime,
+                           NumberOfGeometryUpdates,
+                           NumberOfForwardSolves,
+                           NumberOfAdjointSolves,                     
+                           0);       
+
+       Error = ABS(X3 - X1);
+
+       // Choose the new interval
+       
+       if ( F4 > F2 ) {
+
+          Xmin = X2;
+                    
+          X1 = X1;
+          X2 = X2;
+          X3 = X4;
+          
+          F2 = F4;
+          
+       }
+       
+       else {
+
+          Xmin = X4;
+                    
+          X1 = X2;
+          X2 = X4;
+          X3 = X3;
+
+          F2 = F4;
+          
+       }
+       
+       printf("\n\n\n\n1D search iter: %d --> F: %f \n\n\n\n",Iter,F4);fflush(NULL);
+       printf("New interval: X1,X3: %f %f ... Error: %f \n",X1,X3,X3-X1);
+       
+       if ( Error <= 0.5*sqrt(OptimizationFunctionReduction_) ) Done = 1;
+       
+       Iter++;
+       
+    }
+    
+    TotalIters += Iter - 1;
+    
+    // Do one last solve and return the value as the minimum found
+    
+    StepSize = Xmin;
+    
+    for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+    
+       ParameterValues[j] -= StepSize * Gradient[j];
+       
+    }                           
+            
+    F = DoForwardSolve(NumberOfParameterValues, 
+                       ParameterData,
+                       ParameterValues,
+                       CL,
+                       CD,
+                       CS,
+                       CML,
+                       CMM,
+                       CMN,
+                       GeometryUpdateTime,
+                       ForwardSolveTime,
+                       AdjointSolveTime,
+                       NumberOfGeometryUpdates,
+                       NumberOfForwardSolves,
+                       NumberOfAdjointSolves,                     
+                       0);  
+
+    TotalIters++;
+                               
+    return TotalIters;                       
+                           
+}
+
+/*##############################################################################
+#                                                                              #
+#                            DoForwardSolve                                    #
+#                                                                              #
+##############################################################################*/
+
+double DoForwardSolve(int NumberOfParameterValues, 
+                      PARAMETER_DATA *ParameterData,
+                      double *ParameterValues,
+                      double &CL,
+                      double &CD,
+                      double &CS,
+                      double &CML,
+                      double &CMM,
+                      double &CMN,
+                      double &GeometryUpdateTime,
+                      double &ForwardSolveTime,
+                      double &AdjointSolveTime,
+                      int &NumberOfGeometryUpdates,
+                      int &NumberOfForwardSolves,
+                      int &NumberOfAdjointSolves,                     
+                      int DoAdjointSolve)
+{
+   
+    int j;
+    double *NodeXYZ, F, Time;
+
+    Time = myclock();
+    
+    NodeXYZ = CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterData->ParameterNames,ParameterValues);
+    
+    GeometryUpdateTime += myclock() - Time;
+
+    NumberOfGeometryUpdates++;
+
+    // Update mesh
+    
+    for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() ; j++ ) {
+
+       VSPAERO().VSPGeom().Grid(0).NodeList(j).x() = NodeXYZ[3*j-2];
+       VSPAERO().VSPGeom().Grid(0).NodeList(j).y() = NodeXYZ[3*j-1];
+       VSPAERO().VSPGeom().Grid(0).NodeList(j).z() = NodeXYZ[3*j  ];
+
+    }
+                
+    Time = myclock();
+                 
+    VSPAERO().VSPGeom().UpdateMeshes();
+    
+    GeometryUpdateTime += myclock() - Time;
+
+    delete [] NodeXYZ;
+    
+    // Do a forward solve only to evaluate the functional
+
+    Time = myclock();
+    
+    VSPAERO().DoAdjointSolve() = DoAdjointSolve;
+                 
+    if ( DoAdjointSolve )  NumberOfAdjointSolves += 6;
+ 
+    NumberOfForwardSolves++;
+           
+    VSPAERO().Solve(NumberOfForwardSolves);
+    
+    if ( DoAdjointSolve ) {
+       
+       AdjointSolveTime += myclock() - Time;
+
+    }
+    
+    else {
+           
+       ForwardSolveTime += myclock() - Time;
+    
+    }
+                 
+    if ( !OptimizationUsingWakeForces_   ) {
+       
+       CL = VSPAERO().CLi() + VSPAERO().CLo();
+       CD = VSPAERO().CDi() + VSPAERO().CDo();
+       CS = VSPAERO().CSi() + VSPAERO().CSo();
+       
+       CML = VSPAERO().CMix() + VSPAERO().CMox();
+       CMM = VSPAERO().CMiy() + VSPAERO().CMoy();
+       CMN = VSPAERO().CMiz() + VSPAERO().CMoy();
+       
+    }
+    
+    else if ( OptimizationUsingWakeForces_ ) {
+       
+       CL = VSPAERO().CLiw() + VSPAERO().CLo();
+       CD = VSPAERO().CDiw() + VSPAERO().CDo();
+       CS = VSPAERO().CSiw() + VSPAERO().CSo();
+
+       CML = VSPAERO().CMix() + VSPAERO().CMox();
+       CMM = VSPAERO().CMiy() + VSPAERO().CMoy();
+       CMN = VSPAERO().CMiz() + VSPAERO().CMoy();
+
+    }
+
+    // Weights
+   
+    if ( NumberOfForwardSolves == 1 ) {
+       
+       Optimization_Lambda_1_ = Optimization_CL_Weight_ / pow(CL-Optimization_CL_Required_,2.);
+       Optimization_Lambda_2_ = Optimization_CD_Weight_ / pow(CD-Optimization_CD_Required_,2.);
+       Optimization_Lambda_3_ = Optimization_CS_Weight_ / pow(CS-Optimization_CS_Required_,2.);
+                           
+       Optimization_Lambda_4_ = Optimization_CML_Weight_ / pow(CML-Optimization_CML_Required_,2.);
+       Optimization_Lambda_5_ = Optimization_CMM_Weight_ / pow(CMM-Optimization_CMM_Required_,2.);
+       Optimization_Lambda_6_ = Optimization_CMN_Weight_ / pow(CMN-Optimization_CMN_Required_,2.);
+       
+       if ( ABS(CL) > 0. ) {
+          
+          if ( ABS(CD ) > 0. ) Optimization_Lambda_2_ *= pow(CD /CL,2.);
+          if ( ABS(CS ) > 0. ) Optimization_Lambda_3_ *= pow(CS /CL,2.);
+
+       }
+                                
+       Optimization_Lambda_1_ = MIN(Optimization_Lambda_1_,1000.);
+       Optimization_Lambda_2_ = MIN(Optimization_Lambda_2_,1000.);
+       Optimization_Lambda_3_ = MIN(Optimization_Lambda_3_,1000.);
+       Optimization_Lambda_4_ = MIN(Optimization_Lambda_4_,1000.);
+       Optimization_Lambda_5_ = MIN(Optimization_Lambda_5_,1000.);
+       Optimization_Lambda_6_ = MIN(Optimization_Lambda_6_,1000.);
+       
+       printf("Setting Optimization_Lambda_1_ to: %f \n",Optimization_Lambda_1_);
+       printf("Setting Optimization_Lambda_2_ to: %f \n",Optimization_Lambda_2_);
+       printf("Setting Optimization_Lambda_3_ to: %f \n",Optimization_Lambda_3_);
+       printf("Setting Optimization_Lambda_4_ to: %f \n",Optimization_Lambda_4_);
+       printf("Setting Optimization_Lambda_5_ to: %f \n",Optimization_Lambda_5_);
+       printf("Setting Optimization_Lambda_6_ to: %f \n",Optimization_Lambda_6_);         
+            
+    }
+
+    F = Optimization_Lambda_1_ * pow(CL  - Optimization_CL_Required_,2.)
+      + Optimization_Lambda_2_ * pow(CD  - Optimization_CD_Required_,2.) 
+      + Optimization_Lambda_3_ * pow(CS  - Optimization_CS_Required_,2.) 
+                            
+      + Optimization_Lambda_4_ * pow(CML - Optimization_CML_Required_,2.)
+      + Optimization_Lambda_5_ * pow(CMM - Optimization_CMM_Required_,2.)
+      + Optimization_Lambda_6_ * pow(CMN - Optimization_CMN_Required_,2.);
+      
+    VSPAERO().DoAdjointSolve() = 0;
+     
+    return F;
+          
+}
+        
 /*##############################################################################
 #                                                                              #
 #                            ReadOpenVSPDesFile                                #
@@ -6337,7 +7307,7 @@ double *CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, char **Pa
           
           Node = VSPAERO().VSPGeom().Grid(1).LoopList(i).Node(j);
           
-          if ( !DidThisNode[Node] ) {
+          if (1|| !DidThisNode[Node] ) {
           
              uvec[0] = VSPAERO().VSPGeom().Grid(1).LoopList(i).U_Node(j);
              wvec[0] = VSPAERO().VSPGeom().Grid(1).LoopList(i).V_Node(j);
@@ -6532,6 +7502,8 @@ double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVar
        NewParameterValues[i] = ParameterData->ParameterValues[i];
 
     }
+    
+    delete [] NewParameterValues;
 
     return dMesh_dParameter;
  
