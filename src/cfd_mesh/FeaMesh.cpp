@@ -1831,8 +1831,8 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                          m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS &&
                          m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
-                        elem_id++;
                         m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                        elem_id++;
                     }
                 }
 
@@ -1869,8 +1869,8 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                                  m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
                                  m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                             {
-                                elem_id++;
                                 m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                                elem_id++;
                             }
                         }
                         fprintf( fp, "\n" );
@@ -1890,8 +1890,8 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                                  m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
                                  m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                             {
-                                elem_id++;
                                 m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                                elem_id++;
                             }
                         }
                         fprintf( fp, "\n" );
@@ -1911,8 +1911,8 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                                      m_FeaElementVec[j]->GetChainIndex() == ichain &&
                                      m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                                 {
-                                    elem_id++;
                                     m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                                    elem_id++;
                                 }
                             }
 
@@ -1964,8 +1964,8 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                              ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ) &&
                              m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                         {
-                            elem_id++;
                             m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                            elem_id++;
                         }
                     }
                     fprintf( fp, "\n" );
@@ -1984,8 +1984,8 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                              ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) &&
                              m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                         {
-                            elem_id++;
                             m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                            elem_id++;
                         }
                     }
                     fprintf( fp, "\n" );
@@ -2006,8 +2006,8 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                                  m_FeaElementVec[j]->GetChainIndex() == ichain &&
                                  m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                             {
-                                elem_id++;
                                 m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                                elem_id++;
                             }
                         }
 
