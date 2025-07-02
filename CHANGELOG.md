@@ -1,3 +1,65 @@
+# [OpenVSP 3.43.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.43.1)
+
+2025-07-02
+
+OpenVSP 3.43.1
+
+One feature, a bunch of fixes, and lots of infrastructure in this release.
+
+Spoiler alert -- 3.44.0 is going to be big and it is just around the
+corner.  There is much to be excited about -- but it is so big that it is
+more risky than OpenVSP's normal releases.  Because of this, 3.43.X will
+stay on the download page for a while and users will be encouraged to
+tread carefully with 3.44.X until things settle down.
+
+With that in mind, there are a handful of fixes built up that have been
+hitting some users.  Ergo, let me introduce 3.43.1.
+
+First, the feature...  You can now modify an airfoil section with a plain
+trailing edge flap.  It is as easy as specifying the chordwise extent,
+hinge location, and deflection.
+
+Next, there are a bunch of fixes.  Watermarks weren't displaying.
+Calculix elements were numbered from 2 instead of 1.  Multi-facade
+instances weren't starting when lots of parallel processes attempted to
+spool up lots of parallel facades.  Yes, someone is doing that, why
+aren't you?  FindThickness wasn't as robust as it should be.  BOR
+XSecCurve Parms weren't updated from file load.  Etc.
+
+There were also some fixes for potential buffer overflows and a bunch of
+housecleaning found through static analysis.  Use of std::map was
+converted to std::unordered_map wherever possible -- it should provide a
+theoretical speed improvement, but I doubt anyone will be able to measure
+any change in a real workflow.
+
+Finally, GitHub deprecated their windows_2019 runners, forcing an
+upgrade to windows_2022.  While this mostly went smoothly, it did cause
+a CMake race condition to appear.  That was fun.
+
+Overall, this is a nice bugfix release and everyone should update their
+production use of OpenVSP to this version.
+
+Features:
+- Plain flap airfoil modification
+
+Library Updates:
+- Update Code-Eli to fix FindThickness
+
+Build System:
+- Update GitHub Windows build to windows_2022 runner
+
+Fixes:
+- Fix large scale MultiFacade problem
+- Fix Calculix element numbering
+- Fix Watermark display
+- Fix fscanf buffer overflows
+- Fix FindThickness -- used by airfoil TE trimming by thickness
+- Fix BOR file load
+
+
+---
+
+
 # [OpenVSP 3.43.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.43.0)
 
 2025-04-24
