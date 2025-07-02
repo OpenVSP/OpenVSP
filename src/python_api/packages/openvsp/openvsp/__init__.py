@@ -8,16 +8,18 @@ try:
     load_facade = openvsp_config.LOAD_FACADE
     load_multi_facade = openvsp_config.LOAD_MULTI_FACADE
     ignore_imports = openvsp_config._IGNORE_IMPORTS
+    facade_port = openvsp_config.FACADE_PORT
 except ModuleNotFoundError:
     # if openvsp_config is not setup, loads default vsp
     load_graphics = False
     load_facade = False
     load_multi_facade = False
     ignore_imports = False
+    facade_port = -1
 
 if load_facade:
     from .facade import _vsp_server, vec3d, Matrix4d, ErrorMgrSingleton, ErrorObj
-    _single = _vsp_server("vsp_singleton")
+    _single = _vsp_server("vsp_singleton", port=facade_port)
     thismodule = sys.modules[__name__]
     for attr_name in dir(_single):
         try:
@@ -27,7 +29,7 @@ if load_facade:
             pass
 elif load_multi_facade:
     from .facade import _vsp_server, vec3d, Matrix4d, ErrorMgrSingleton, ErrorObj, vsp_servers
-    _single = _vsp_server("vsp_singleton")
+    _single = _vsp_server("vsp_singleton", port=facade_port)
     thismodule = sys.modules[__name__]
     for attr_name in dir(_single):
         try:
@@ -35,6 +37,7 @@ elif load_multi_facade:
             setattr(thismodule, attr_name, getattr(_single, attr_name))
         except :
             pass
+
 elif load_graphics:
     from .vsp_g import *
     InitGUI()

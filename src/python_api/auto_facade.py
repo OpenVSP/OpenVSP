@@ -33,7 +33,7 @@ CLIENT_HEAD = r"""
 import os
 import sys
 import socket
-from time import sleep
+from time import sleep, time
 import subprocess
 import pickle
 from openvsp.facade_server import pack_data, unpack_data
@@ -73,14 +73,13 @@ def _exception_hook(exc_type, exc_value, tb):
         print(line)
 
 class _vsp_server():
-    def __init__(self, name, funcs=[]):
+    def __init__(self, name, funcs=[], port=-1):
         self.server_name = name
-        sock = socket.socket()
-        sock.bind(('', 0))
         HOST = 'localhost'
-        PORT = sock.getsockname()[1]
-        sock.close()
-
+        if port>0:
+            self.port = port
+        else:
+            self.port = 0
         python_exe = None
         if "python" in os.path.basename(sys.executable):
             python_exe = sys.executable
@@ -88,14 +87,37 @@ class _vsp_server():
             python_exe = os.__file__
         else:
             python_exe = "python"
-
         server_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'facade_server.py')
-        proc = subprocess.Popen([python_exe, server_file, str(PORT), str(openvsp_config.LOAD_GRAPHICS)])
+        for i in range(openvsp_config.FACADE_SERVER_ATTEMPTS):
+            try:
+                self._proc = subprocess.Popen([python_exe, server_file, str(self.port), str(openvsp_config.LOAD_GRAPHICS)], stderr=subprocess.PIPE)
+                start_time = time()
+                timeout = openvsp_config.FACADE_SERVER_TIMEOUT  # seconds
+                while True:
+                    line = self._proc.stderr.readline().strip().decode()
+                    # print(line)
+                    if not line:
+                        if self._proc.poll() is not None:
+                            raise RuntimeError("Server process exited unexpectedly")
+                        if time() - start_time > timeout:
+                            raise TimeoutError("Waiting for server timed out")
+                        continue  # No line, but process still alive wait more
 
-        sleep(1)
-
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((HOST, PORT))
+                    if line.startswith("Server Socket Thread: Bound to"):
+                        self.port = int(line.split()[6][:-2])
+                        break
+                break
+            except Exception as e:
+                print(f'Failed to start server, attempt {i+1}, trying again; "{str(e)}"')
+                try:
+                    self._proc.close()
+                    self._proc = None
+                except:
+                    pass
+        if self._proc is None:
+            raise RuntimeError("Facade failed to start the server")
+        self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._sock.connect((HOST, self.port))
 
         for func in funcs:
             setattr(self, func.__name__, (lambda  *args, func=func, **kwargs: self._run_func(func, *args, **kwargs)))
@@ -106,11 +128,11 @@ CLIENT_END = """
     # function to send and receive data from the facade server
     def _send_receive(self, func_name, args, kwargs):
         b_data = pack_data([func_name, args, kwargs], True)
-        self.sock.sendall(b_data)
+        self._sock.sendall(b_data)
         result = None
         b_result = []
         while True:
-            packet = self.sock.recv(202400)
+            packet = self._sock.recv(202400)
             if not packet: break
             b_result.append(packet)
             try:
@@ -156,43 +178,91 @@ CLIENT_END = """
             kwargs.pop("vsp_instance")
             return func(*args, **kwargs)
 
+    def _close_server(self):
+        try:
+            self._proc.terminate()
+        except:
+            pass
+        try:
+            self._sock.shutdown(socket.SHUT_RDWR)
+            self._sock.close()
+            self._sock.detach()
+            del self._sock
+        except:
+            pass
+        try:
+            del self.t
+        except:
+            pass
+    def __del__(self):
+        try:
+            self._proc.terminate()
+        except:
+            pass
+        try:
+            self._sock.shutdown(socket.SHUT_RDWR)
+            self._sock.close()
+            self._sock.detach()
+            del self._sock
+        except:
+            pass
+        try:
+            del self.t
+        except:
+            pass
+
+
 class _server_controller():
     def __init__(self) -> None:
         print("server controller initialized")
-        self._servers = {}
+        self._name_to_server = {}
+        self._port_to_name = {}
+        self._name_to_port = {}
         self.name_num = 1
         self.funcs = []
-    def start_vsp_instance(self, name=None) -> _vsp_server:
+    def start_vsp_instance(self, name=None, port=-1) -> _vsp_server:
 
         if not name:
             name = f"default_name_{self.name_num}"
-            while name in self._servers:
+            while name in self._name_to_server:
                 self.name_num += 1
                 name = f"default_name_{self.name_num}"
 
         assert isinstance(name,str), "Name must be a string"
-        assert not name in self._servers, f"Server with name {name} already exists"
-
-        self._servers[name] = new_server = _vsp_server(name, self.funcs)
+        assert not name in self._name_to_server, f"Server with name {name} already exists"
+        assert not port in self._port_to_name, f"Server with port {port} already exists"
+        self._name_to_server[name] = new_server = _vsp_server(name, self.funcs, port=port)
+        self._port_to_name[new_server.port] = name
+        self._name_to_port[name] = new_server.port
 
         return new_server
 
     def get_vsp_instance(self, server):
         try:
             if isinstance(server, str):
-                return self._servers[server]
-            elif server in self._servers.values():
+                return self._name_to_server[server]
+            elif server in self._name_to_server.values():
                     return server
         except:
             pass
         print("Warning: Could not find vsp_instance, returning singleton")
         return None
 
-    def close_vsp_instance(self, name):
-        if name == "vsp_singleton":
+    def stop_vsp_instance(self, name=None, port=None):
+        assert name or port, "please specify a name or a port"
+        if port:
+            server_name = self._port_to_name[port]
+            server_port = port
+        elif name:
+            server_port = self._name_to_port[name]
+            server_name = name
+        if server_name == "vsp_singleton":
             print("Can't close vsp_singleton")
             return
-        del self._servers[name]
+        self._port_to_name.pop(server_port)
+        self._name_to_port.pop(server_name)
+        self._name_to_server[server_name]._close_server()
+        del self._name_to_server[server_name]
 
     def set_functions(self, funcs):
         self.funcs = funcs
@@ -269,7 +339,7 @@ HOST = 'localhost'
 try:
     PORT = int(sys.argv[1])
 except IndexError:
-    PORT = 6000
+    PORT = 0
 event = Event()
 global gui_wait
 gui_wait = True
@@ -352,9 +422,10 @@ def start_server():
     import socket
     global gui_active
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind((HOST, PORT))
-        print("Server Socket Thread: listening...")
         s.listen()
+        print(f"Server Socket Thread: Bound to {s.getsockname()}. Listening...", file=sys.stderr)
         conn, addr = s.accept()
         with conn:
             print("Server Socket Thread: Connected by %s, %s"%(addr[0], addr[1]))
@@ -450,7 +521,7 @@ def start_server():
     gui_wait = False
     event.set()
     module.StopGUI()
-    print("Server Socket Thread: End of thead")
+    print("Server Socket Thread: End of thread")
 
 
 if __name__ == "__main__":
