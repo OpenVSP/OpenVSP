@@ -32,10 +32,16 @@ ADD_CUSTOM_TARGET ( copy_help_marker ALL
 IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
     INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/images/ DESTINATION python/openvsp/openvsp/help_vsp/images )
 
+    ADD_CUSTOM_TARGET ( py_mk_help_dir ALL
+            COMMAND ${CMAKE_COMMAND} -E make_directory
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/help_vsp/ )
+
     ADD_CUSTOM_TARGET ( py_copy_images ALL
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/images/
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/help_vsp/images/ )
+
+    ADD_DEPENDENCIES ( py_copy_images py_mk_help_dir )
 
     INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css DESTINATION python/openvsp/openvsp/help_vsp )
 
@@ -44,12 +50,16 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
             ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/help_vsp/ )
 
+    ADD_DEPENDENCIES ( py_copy_css py_mk_help_dir )
+
     INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/vsp_help DESTINATION python/openvsp/openvsp/help_vsp )
 
     ADD_CUSTOM_TARGET ( py_copy_help_marker ALL
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/vsp_help
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/help_vsp/ )
+
+    ADD_DEPENDENCIES ( py_copy_help_marker py_mk_help_dir )
 
 ENDIF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
