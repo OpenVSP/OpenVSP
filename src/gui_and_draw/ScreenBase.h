@@ -22,7 +22,6 @@
 #include <FL/Fl_Scroll.H>
 
 #include <vector>
-#include <map>
 
 #include "GuiDevice.h"
 #include "GroupLayout.h"

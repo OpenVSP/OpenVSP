@@ -12,7 +12,7 @@
 #define VSP_PARMCONTRAINER__INCLUDED_
 
 #include <string>
-#include <map>
+#include <unordered_map>
 
 #include <climits>
 

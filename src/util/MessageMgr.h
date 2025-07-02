@@ -36,7 +36,7 @@
 #include <string>
 #include <vector>
 #include <deque>
-#include <map>
+#include <unordered_map>
 
 using std::string;
 using std::vector;

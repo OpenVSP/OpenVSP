@@ -22,7 +22,6 @@
 
 #include "APIDefines.h"
 
-#include <map>
 #include <list>
 #include <vector>
 #include <string>

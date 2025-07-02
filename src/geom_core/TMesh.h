@@ -27,7 +27,7 @@
 #include <vector>               //jrg windows?? 
 #include <algorithm>            //jrg windows??
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <list>
 using namespace std;            //jrg windows??
 
