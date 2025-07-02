@@ -1035,6 +1035,20 @@ void AttributeMgrSingleton::SetAttributeDoc( const string &attrID, const string 
     }
 }
 
+void AttributeMgrSingleton::SetAttributeEventGroup( const string &attrID, const int &g, bool updateFlag )
+{
+    NameValData* attr = GetAttributePtr( attrID );
+    if ( attr )
+    {
+        attr->SetAttributeEventGroup( g );
+        SetAttrDirtyFlag( attrID );
+        if ( updateFlag )
+        {
+            Update();
+        }
+    }
+}
+
 void AttributeMgrSingleton::SetAttributeBool( const string &attrID, int value, bool updateFlag )
 {
     NameValData* attr = GetAttributePtr( attrID );

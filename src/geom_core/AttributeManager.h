@@ -97,6 +97,7 @@ public:
 
     void SetAttributeName( const string &attrID, const string &name, bool updateFlag = true );
     void SetAttributeDoc( const string &attrID, const string &doc, bool updateFlag = true );
+    void SetAttributeEventGroup( const string &attrID, const int &g, bool updateFlag = true );
     void SetAttributeBool( const string &attrID, int value, bool updateFlag = true );
     void SetAttributeInt( const string &attrID, int value, bool updateFlag = true );
     void SetAttributeDouble( const string &attrID, double value, bool updateFlag = true );

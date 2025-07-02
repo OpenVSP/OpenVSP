@@ -611,6 +611,17 @@ void Vehicle::AddDefaultAttributes()
     AttributeMgr.SetAttributeDoc( ATTR_WM_FILLALPHA, string("Alpha for watermark fill") );
     AttributeMgr.SetAttributeDoc( ATTR_VEH_NOTES, string("Vehicle level notes for users") );
 
+    AttributeMgr.SetAttributeEventGroup( ATTR_WM_GROUP, ATTR_GROUP_WATERMARK );
+    AttributeMgr.SetAttributeEventGroup( ATTR_WM_SHOW, ATTR_GROUP_WATERMARK );
+    AttributeMgr.SetAttributeEventGroup( ATTR_WM_TEXT, ATTR_GROUP_WATERMARK );
+    AttributeMgr.SetAttributeEventGroup( ATTR_WM_TEXTSCALE, ATTR_GROUP_WATERMARK );
+    AttributeMgr.SetAttributeEventGroup( ATTR_WM_TEXTCOLOR, ATTR_GROUP_WATERMARK );
+    AttributeMgr.SetAttributeEventGroup( ATTR_WM_TEXTALPHA, ATTR_GROUP_WATERMARK );
+    AttributeMgr.SetAttributeEventGroup( ATTR_WM_EDGECOLOR, ATTR_GROUP_WATERMARK );
+    AttributeMgr.SetAttributeEventGroup( ATTR_WM_EDGEALPHA, ATTR_GROUP_WATERMARK );
+    AttributeMgr.SetAttributeEventGroup( ATTR_WM_FILLCOLOR, ATTR_GROUP_WATERMARK );
+    AttributeMgr.SetAttributeEventGroup( ATTR_WM_FILLALPHA, ATTR_GROUP_WATERMARK );
+
     AttributeMgr.SetAttributeProtection( ATTR_WM_GROUP );
     AttributeMgr.SetAttributeProtection( ATTR_WM_SHOW );
     AttributeMgr.SetAttributeProtection( ATTR_WM_TEXT );
