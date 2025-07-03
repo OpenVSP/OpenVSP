@@ -6149,6 +6149,8 @@ XSecViewScreen::XSecViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 600, "
 
     m_Image.GetFlButton()->value( 0 );
     m_PreserveAspect.GetFlButton()->value( 1 );
+
+    m_XSecCurve = nullptr;
 }
 
 bool XSecViewScreen::Update()
@@ -6166,40 +6168,15 @@ bool XSecViewScreen::Update()
 
     BasicScreen::Update();
 
-    XSecCurve* xsc = nullptr;
-
-    Geom* geom = geom_vec[0];
-    GeomXSec* geom_xsec = dynamic_cast<GeomXSec*>( geom );
-    if ( geom_xsec )
-    {
-        XSec* xs = geom_xsec->GetXSec( geom_xsec->m_ActiveXSec() );
-
-        if( !xs )
-        {
-            Hide();
-            return false;
-        }
-
-        xsc = xs->GetXSecCurve();
-    }
-
-    BORGeom* bg = dynamic_cast< BORGeom* > ( geom );
-    if ( bg )
-    {
-        xsc = bg->GetXSecCurve();
-    }
-
-    SuperConeGeom* sc = dynamic_cast< SuperConeGeom* > ( geom );
-    if ( sc )
-    {
-        xsc = sc->GetXSecCurve();
-    }
+    XSecCurve* xsc = m_XSecCurve;
 
     if( !xsc )
     {
         Hide();
         return false;
     }
+
+    UpdateDrawObj();
 
     VSPGraphic::Viewport * viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
 
@@ -6283,35 +6260,7 @@ void XSecViewScreen::GuiDeviceCallBack( GuiDevice* device )
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    vector < Geom* > geom_vec = veh->GetActiveGeomPtrVec();
-    if ( geom_vec.size() != 1 )
-    {
-        Hide();
-        return;
-    }
-
-    XSecCurve* xsc = nullptr;
-
-    Geom* geom = geom_vec[0];
-    GeomXSec* geom_xsec = dynamic_cast<GeomXSec*>( geom );
-    if ( geom_xsec )
-    {
-        XSec* xs = geom_xsec->GetXSec( geom_xsec->m_ActiveXSec() );
-
-        if( !xs )
-        {
-            Hide();
-            return;
-        }
-
-        xsc = xs->GetXSecCurve();
-    }
-
-    BORGeom* bg = dynamic_cast< BORGeom* > ( geom );
-    if ( bg )
-    {
-        xsc = bg->GetXSecCurve();
-    }
+    XSecCurve* xsc = m_XSecCurve;
 
     if( !xsc )
     {
@@ -6375,6 +6324,57 @@ void XSecViewScreen::GuiDeviceCallBack( GuiDevice* device )
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void XSecViewScreen::UpdateDrawObj()
+{
+    XSecCurve* xsc = m_XSecCurve;
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    if( xsc && veh )
+    {
+        double w = xsc->GetWidth();
+        double h = xsc->GetHeight();
+
+        m_CurveDO.m_Screen = DrawObj::VSP_XSEC_SCREEN;
+        m_CurveDO.m_GeomID = XSECHEADER + xsc->GetID();
+        m_CurveDO.m_GeomChanged = true;
+        m_CurveDO.m_Visible = true;
+
+        if( w == 0 && h == 0 )
+        {
+            vector< vec3d > pts( 1, vec3d( 0, 0, 0 ) );
+            m_CurveDO.m_PntVec = pts;
+            m_CurveDO.m_PointSize = 5.0;
+            m_CurveDO.m_PointColor = veh->GetXSecLineColor() / 255.; // normalize
+            m_CurveDO.m_Type = DrawObj::VSP_POINTS;
+        }
+        else
+        {
+            double scale = 1.0;
+            if( w > h ) scale = 1.0 / w;
+            else scale = 1.0 / h;
+
+            Matrix4d mat;
+            XSecSurf::GetBasicTransformation( vsp::Z_DIR, vsp::X_DIR, vsp::XS_SHIFT_MID, false, w * scale, mat );
+            mat.scale( scale );
+
+            VspCurve crv = xsc->GetCurve();
+            crv.Transform( mat );
+
+            vector< vec3d > pts;
+            crv.TessAdapt( pts, 1e-2, 10 );
+            m_CurveDO.m_PntVec = pts;
+            m_CurveDO.m_LineWidth = 1.5;
+            m_CurveDO.m_LineColor = veh->GetXSecLineColor() / 255.; // normalize
+            m_CurveDO.m_Type = DrawObj::VSP_LINES;
+        }
+    }
+}
+
+void XSecViewScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    draw_obj_vec.push_back( &m_CurveDO );
 }
 
 //=====================================================================//

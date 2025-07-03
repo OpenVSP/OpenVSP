@@ -1204,6 +1204,10 @@ public:
     virtual void Show();
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
+    virtual void UpdateDrawObj();
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
+    virtual void SetXSecCurve( XSecCurve* xsc ) { m_XSecCurve = xsc; };
 protected:
 
     VSPGUI::VspSubGlWindow * m_GlWin;
@@ -1229,6 +1233,10 @@ protected:
     SliderAdjRangeInput m_YOffset;
 
     TriggerButton m_ResetDefaults;
+
+    XSecCurve * m_XSecCurve;
+
+    DrawObj m_CurveDO;
 };
 
 class FeaXSecScreen : public BasicScreen
