@@ -208,31 +208,20 @@ string InterferenceCase::Evaluate()
         }
 
         vector< TMesh* > primary_tmv = GetPrimaryTMeshVec();
-        LoadBndBox(primary_tmv );
         vector< TMesh* > secondary_tmv = GetSecondaryTMeshVec();
-        LoadBndBox( secondary_tmv );
 
-
-        bool intersect_flag;
-        double min_dist = FindMinDistance( primary_tmv, secondary_tmv, intersect_flag );
+        m_LastResult = ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
 
         DeleteTMeshVec( primary_tmv );
         DeleteTMeshVec( secondary_tmv );
 
 
-        m_LastResultValue = min_dist;
-
-        Results *res = ResultsMgr.CreateResults( "InterferenceCheck", "Interference check result." );
-        if( res )
+        vector < double > resvec = ResultsMgr.GetDoubleResults( m_LastResult, "Result", 0 );
+        if ( resvec.size() > 0 )
         {
-            // Populate results.
-
-            res->Add( new NameValData( "Result", m_LastResultValue(), "Interference check value" ) );
-            res->Add( new NameValData( "MinDist", min_dist, "Minimum distance" ) );
-            res->Add( new NameValData( "Intersect", intersect_flag, "Intersection detection" ) );
-
-            m_LastResult = res->GetID();
+            m_LastResultValue = resvec[0];
         }
+
     }
 
     UpdateDrawObj();
