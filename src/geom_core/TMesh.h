@@ -486,7 +486,7 @@ public:
     virtual TTri* FindTriNodes( TTri* ignoreTri, TNode* n0, TNode* n1 );
     virtual TTri* FindTriPnts( TTri* ignoreTri, TNode* n0, TNode* n1 );
 
-    virtual void SubTag( int part_num, bool tag_subs ); // Subtag all triangles, if split triangles exist tag them the same as their parent
+    virtual void SubTag( int part_num, bool tag_subs, const vector < string > & sub_vec = vector < string > () ); // Subtag all triangles, if split triangles exist tag them the same as their parent
     virtual void RefreshTagMap();
 
     virtual void MakeNodePntUW(); // Swaps Node->m_Pnt with Node->m_UWPnt
@@ -578,7 +578,7 @@ void TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & TransMat );
 vector< string > GetTMeshNames( vector<TMesh*> &tmv );
 vector< string > GetTMeshIDs( vector<TMesh*> &tmv );
 unordered_map< string, int > GetThicks( vector<TMesh*> &tmv );
-void SubTagTris( bool tag_subs, vector<TMesh*> &tmv );
+void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & sub_vec = vector < string > () );
 void RefreshTagMaps( vector<TMesh*> &tmv );
 
 double FindMinDistance(const vector< TMesh* > & tmesh_vec, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag );

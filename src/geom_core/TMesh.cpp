@@ -4740,12 +4740,29 @@ void TMesh::SplitAliasEdges( TTri* orig_tri, TEdge* isect_edge )
 }
 
 // Subtag triangles
-void TMesh::SubTag( int part_num, bool tag_subs )
+void TMesh::SubTag( int part_num, bool tag_subs, const vector < string > & sub_vec )
 {
     // Subtag all triangles in a given TMesh
     // Split tris will be subtagged the same as their parent
     vector<SubSurface*> sub_surfs;
-    if ( tag_subs ) sub_surfs = SubSurfaceMgr.GetSubSurfs( m_OriginGeomID, m_SurfNum );
+    if ( tag_subs )
+    {
+        sub_surfs = SubSurfaceMgr.GetSubSurfs( m_OriginGeomID, m_SurfNum );
+
+        // If sub_vec is not empty, use only subsurfaces listed in sub_vec (i.e. whitelist).
+        if ( !sub_vec.empty() )
+        {
+            vector<SubSurface*> keep;
+            for ( int s = 0; s < sub_surfs.size(); s++ )
+            {
+                if ( vector_contains_val( sub_vec, sub_surfs[s]->GetID() ) )
+                {
+                    keep.push_back( sub_surfs[s] );
+                }
+            }
+            sub_surfs = keep;
+        }
+    }
     int ss_num = ( int )sub_surfs.size();
 
     for ( int t = 0 ; t < ( int )m_TVec.size(); t ++ )
@@ -5322,7 +5339,7 @@ unordered_map< string, int > GetThicks( vector<TMesh*> &tmv )
     return thick;
 }
 
-void SubTagTris( bool tag_subs, vector<TMesh*> &tmv )
+void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & sub_vec )
 {
     // Clear out the current Subtag Maps
     SubSurfaceMgr.ClearTagMaps();
@@ -5335,7 +5352,7 @@ void SubTagTris( bool tag_subs, vector<TMesh*> &tmv )
 
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
     {
-        tmv[i]->SubTag( i + 1, tag_subs );
+        tmv[i]->SubTag( i + 1, tag_subs, sub_vec );
     }
 
     SubSurfaceMgr.BuildSingleTagMap();
