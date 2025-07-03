@@ -1293,28 +1293,9 @@ void MeshGeom::WriteX3D( xmlNodePtr node )
     xmlSetProp( coord_node, BAD_CAST "point", BAD_CAST crdstr.c_str() );
 }
 
-//==== Generate Cross Sections =====//
 void MeshGeom::UpdateBBox()
 {
-    int i, j;
-    m_BBox.Reset();
-    Matrix4d transMat = GetTotalTransMat();
-    if ( m_TMeshVec.size() > 0 )
-    {
-        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-        {
-            for ( j = 0 ; j < ( int )m_TMeshVec[i]->m_TVec.size() ; j++ )
-            {
-                m_BBox.Update( transMat.xform( m_TMeshVec[i]->m_TVec[j]->m_N0->m_Pnt ) );
-                m_BBox.Update( transMat.xform( m_TMeshVec[i]->m_TVec[j]->m_N1->m_Pnt ) );
-                m_BBox.Update( transMat.xform( m_TMeshVec[i]->m_TVec[j]->m_N2->m_Pnt ) );
-            }
-        }
-    }
-    else
-    {
-        m_BBox.Update( vec3d( 0.0, 0.0, 0.0 ));
-    }
+    ::UpdateBBox( m_BBox, m_TMeshVec, GetTotalTransMat() );
 }
 
 void MeshGeom::UpdateDrawObj()
@@ -1743,96 +1724,9 @@ void MeshGeom::ApplyScale()
         return;
     }
 
-    unordered_set < TNode* > nodeSet;
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        for ( int j = 0 ; j < ( int )m_TMeshVec[i]->m_NVec.size() ; j++ )
-        {
-            TNode* n = m_TMeshVec[i]->m_NVec[j];
-            nodeSet.insert( n );
-        }
-        //==== Split Tris ====//
-        for ( int j = 0 ; j < ( int )m_TMeshVec[i]->m_TVec.size() ; j++ )
-        {
-            TTri* t = m_TMeshVec[i]->m_TVec[j];
-            for ( int k = 0 ; k < ( int )t->m_NVec.size() ; k++ )
-            {
-                TNode* n = t->m_NVec[k];
-                nodeSet.insert( n );
-            }
-        }
-
-        for ( int j = 0 ; j < (int)m_TMeshVec[i]->m_XYZPnts.size() ; j++ )
-        {
-            for ( int k = 0 ; k < (int)m_TMeshVec[i]->m_XYZPnts[j].size() ; k++ )
-            {
-                m_TMeshVec[i]->m_XYZPnts[j][k] = m_TMeshVec[i]->m_XYZPnts[j][k] * ( m_Scale() / m_LastScale() );
-            }
-        }
-    }
-    for ( const auto& n : nodeSet )
-    {
-        n->m_Pnt = n->m_Pnt * ( m_Scale() / m_LastScale() );
-    }
+    ::ApplyScale( m_Scale() / m_LastScale(), m_TMeshVec );
 
     m_LastScale = m_Scale();
-}
-
-void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & TransMat ) const
-{
-    // Build Map of nodes
-    unordered_set < TNode* > nodeSet;
-    for ( int i = 0 ; i < ( int )meshVec.size() ; i++ )
-    {
-        for ( int j = 0 ; j < ( int )meshVec[i]->m_NVec.size() ; j++ )
-        {
-            TNode* n = meshVec[i]->m_NVec[j];
-            nodeSet.insert( n );
-        }
-        //==== Split Tris ====//
-        for ( int j = 0 ; j < ( int )meshVec[i]->m_TVec.size() ; j++ )
-        {
-            TTri* t = meshVec[i]->m_TVec[j];
-            for ( int k = 0 ; k < ( int )t->m_NVec.size() ; k++ )
-            {
-                TNode* n = t->m_NVec[k];
-                nodeSet.insert( n );
-            }
-        }
-    }
-
-    // Apply Transformation to Nodes
-    for ( const auto& n : nodeSet )
-    {
-        n->m_Pnt = TransMat.xform( n->m_Pnt );
-    }
-
-    vec3d zeroV = vec3d( 0.0, 0.0, 0.0 );
-    zeroV = TransMat.xform( zeroV );
-
-    // Apply Transformation to each triangle's normal vector
-    for ( int i = 0 ; i < ( int )meshVec.size() ; i ++ )
-    {
-        for ( int j = 0 ; j < ( int )meshVec[i]->m_TVec.size() ; j++ )
-        {
-            if ( meshVec[i]->m_TVec[j]->m_SplitVec.size() )
-            {
-                for ( int t = 0 ; t < ( int ) meshVec[i]->m_TVec[j]->m_SplitVec.size() ; t++ )
-                {
-                    TTri* tri = meshVec[i]->m_TVec[j]->m_SplitVec[t];
-                    tri->m_Norm = TransMat.xform( tri->m_Norm ) - zeroV;
-                }
-            }
-            else
-            {
-                TTri* tri = meshVec[i]->m_TVec[j];
-                tri->m_Norm = TransMat.xform( tri->m_Norm ) - zeroV;
-            }
-        }
-
-       // Apply Transformation to Mesh's area center
-       meshVec[i]->m_AreaCenter = TransMat.xform( meshVec[i]->m_AreaCenter );
-    }
 }
 
 void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag )
@@ -3958,77 +3852,12 @@ void MeshGeom::WaterTightCheck( FILE* fid )
 
 void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen )
 {
-    int i, j;
-
-    //==== Check If All Closed ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        m_TMeshVec[i]->CheckIfClosed();
-    }
-
-    //==== Try to Merge Non Closed Meshes ====//
-    // Marks mesh un-used after merge for deletion
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        for ( j = i + 1 ; j < ( int )m_TMeshVec.size() ; j++ )
-        {
-            m_TMeshVec[i]->MergeNonClosed( m_TMeshVec[j] );
-        }
-    }
-    // Keep track of merged meshes in info.
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        if ( m_TMeshVec[i]->m_DeleteMeFlag )
-        {
-            info->m_NumOpenMeshesMerged++;
-            info->m_MergedMeshes.push_back( m_TMeshVec[i]->m_NameStr );
-        }
-    }
-
-    // Mark any still open meshes for deletion.  Perhaps make this optional.
-    if ( deleteopen )
-    {
-        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-        {
-            if ( m_TMeshVec[i]->m_NonClosedTriVec.size() )
-            {
-                if ( !m_TMeshVec[i]->m_DeleteMeFlag )
-                {
-                    info->m_NumOpenMeshedDeleted++;
-                    info->m_DeletedMeshes.push_back( m_TMeshVec[i]->m_NameStr );
-                }
-
-                m_TMeshVec[i]->m_DeleteMeFlag = true;
-            }
-        }
-    }
-
-    DeleteMarkedMeshes();
-
-    //==== Remove Any Degenerate Tris ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        info->m_NumDegenerateTriDeleted += m_TMeshVec[i]->RemoveDegenerate();
-    }
-
+    ::MergeRemoveOpenMeshes( m_TMeshVec, info, deleteopen );
 }
 
 void MeshGeom::DeleteMarkedMeshes()
 {
-    //==== Remove meshes marked for deletion ====//
-    vector< TMesh* > newTMeshVec;
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        if ( !m_TMeshVec[i]->m_DeleteMeFlag )
-        {
-            newTMeshVec.push_back( m_TMeshVec[i] );
-        }
-        else
-        {
-            delete m_TMeshVec[i];
-        }
-    }
-    m_TMeshVec = newTMeshVec;
+    ::DeleteMarkedMeshes( m_TMeshVec );
 }
 
 void MeshGeom::AddHalfBox( const string &id )
@@ -4198,46 +4027,12 @@ vector<TMesh*> MeshGeom::CreateTMeshVec() const
 
 void MeshGeom::FlattenTMeshVec()
 {
-    vector<TMesh*> flatTMeshVec;
-    flatTMeshVec.reserve( m_TMeshVec.size() );
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        TMesh *tm = new TMesh();
-        tm->CopyFlatten( m_TMeshVec[ i ] );
-        if ( tm->m_TVec.size() > 0 )
-        {
-            flatTMeshVec.push_back( tm );
-        }
-        else
-        {
-            delete tm;
-        }
-        delete m_TMeshVec[i];
-    }
-    m_TMeshVec.clear();
-    m_TMeshVec = flatTMeshVec;
+    ::FlattenTMeshVec( m_TMeshVec );
 }
 
 void MeshGeom::FlattenSliceVec()
 {
-    vector<TMesh*> flatTMeshVec;
-    flatTMeshVec.reserve( m_SliceVec.size() );
-    for ( int i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
-    {
-        TMesh *tm = new TMesh();
-        tm->CopyFlatten( m_SliceVec[ i ] );
-        if ( tm->m_TVec.size() > 0 )
-        {
-            flatTMeshVec.push_back( tm );
-        }
-        else
-        {
-            delete tm;
-        }
-        delete m_SliceVec[i];
-    }
-    m_SliceVec.clear();
-    m_SliceVec = flatTMeshVec;
+    ::FlattenTMeshVec( m_SliceVec );
 }
 
 //==== Get Total Transformation Matrix from Original Points ====//
@@ -4253,86 +4048,17 @@ Matrix4d MeshGeom::GetTotalTransMat() const
 //==== Get the Names of the TMeshes ====//
 vector< string > MeshGeom::GetTMeshNames()
 {
-    vector< string > names;
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        string plate;
-        if ( m_TMeshVec[ i ]->m_PlateNum == -1 )
-        {
-            plate = "_S";
-        }
-        else
-        {
-            if ( m_TMeshVec[i]->m_SurfType == vsp::NORMAL_SURF )
-            {
-                if ( m_TMeshVec[ i ]->m_PlateNum == 0 )
-                {
-                    plate = "_V";
-                }
-                else if ( m_TMeshVec[ i ]->m_PlateNum == 1 )
-                {
-                    plate = "_H";
-                }
-            }
-            else // WING_SURF with m_TMeshVec[ i ]->m_PlateNum == 0
-            {
-                plate = "_C";
-            }
-
-        }
-
-        names.push_back( m_TMeshVec[i]->m_NameStr + plate + "_Surf" + to_string( ( long long )m_TMeshVec[i]->m_SurfNum ) );
-    }
-
-    return names;
+    return ::GetTMeshNames( m_TMeshVec );
 }
 
 vector< string > MeshGeom::GetTMeshIDs()
 {
-    vector< string > ids;
-    for ( int i = 0; i < (int)m_TMeshVec.size(); i++ )
-    {
-        string plate;
-        if ( m_TMeshVec[ i ]->m_PlateNum == -1 )
-        {
-            // plate; // empty string.
-        }
-        else
-        {
-            if ( m_TMeshVec[i]->m_SurfType == vsp::NORMAL_SURF )
-            {
-                if ( m_TMeshVec[ i ]->m_PlateNum == 0 )
-                {
-                    plate = "_V";
-                }
-                else if ( m_TMeshVec[ i ]->m_PlateNum == 1 )
-                {
-                    plate = "_H";
-                }
-            }
-            else // WING_SURF with m_TMeshVec[ i ]->m_PlateNum == 0
-            {
-                plate = "_C";
-            }
-
-        }
-
-        ids.push_back( m_TMeshVec[i]->m_OriginGeomID + plate + "_Surf" + to_string((long long)m_TMeshVec[i]->m_SurfNum ) );
-    }
-
-    return ids;
+    return ::GetTMeshIDs( m_TMeshVec );
 }
 
 unordered_map< string, int > MeshGeom::GetThicks()
 {
-    unordered_map < string, int > thick;
-
-    for ( int i = 0; i < (int)m_TMeshVec.size(); i++ )
-    {
-        thick[ m_TMeshVec[i]->m_OriginGeomID ] = m_TMeshVec[i]->m_ThickSurf;
-    }
-
-    return thick;
+    return ::GetThicks( m_TMeshVec );
 }
 
 set < string > MeshGeom::GetTMeshPtrIDs()
@@ -4349,32 +4075,10 @@ set < string > MeshGeom::GetTMeshPtrIDs()
 //==== Subtag All Triangles ====//
 void MeshGeom::SubTagTris( bool tag_subs )
 {
-    // Clear out the current Subtag Maps
-    SubSurfaceMgr.ClearTagMaps();
-    SubSurfaceMgr.m_CompNames = GetTMeshNames();
-    SubSurfaceMgr.m_CompIDs = GetTMeshIDs();
-    SubSurfaceMgr.m_ThickMap = GetThicks();
-    SubSurfaceMgr.SetSubSurfTags( GetNumIndexedParts() );
-    SubSurfaceMgr.BuildCompNameMap();
-    SubSurfaceMgr.BuildCompIDMap();
-
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        m_TMeshVec[i]->SubTag( i + 1, tag_subs );
-    }
-
-    SubSurfaceMgr.BuildSingleTagMap();
-
+    ::SubTagTris( tag_subs, m_TMeshVec );
 }
 
 void MeshGeom::RefreshTagMaps()
 {
-    SubSurfaceMgr.PartialClearTagMaps();
-
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        m_TMeshVec[i]->RefreshTagMap();
-    }
-
-    SubSurfaceMgr.BuildSingleTagMap();
+    ::RefreshTagMaps( m_TMeshVec );
 }

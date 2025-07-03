@@ -4551,3 +4551,424 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
         }
     }
 }
+
+
+void UpdateBBox( BndBox &bbox, vector<TMesh*> &tmv, const Matrix4d &transMat )
+{
+    int i, j;
+    bbox.Reset();
+    if ( tmv.size() > 0 )
+    {
+        for ( i = 0 ; i < ( int )tmv.size() ; i++ )
+        {
+            for ( j = 0 ; j < ( int )tmv[i]->m_TVec.size() ; j++ )
+            {
+                bbox.Update( transMat.xform( tmv[i]->m_TVec[j]->m_N0->m_Pnt ) );
+                bbox.Update( transMat.xform( tmv[i]->m_TVec[j]->m_N1->m_Pnt ) );
+                bbox.Update( transMat.xform( tmv[i]->m_TVec[j]->m_N2->m_Pnt ) );
+            }
+        }
+    }
+    else
+    {
+        bbox.Update( vec3d( 0.0, 0.0, 0.0 ));
+    }
+}
+
+void ApplyScale( double scalefac, vector<TMesh*> &tmv )
+{
+    unordered_set < TNode* > nodeSet;
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        for ( int j = 0 ; j < ( int )tmv[i]->m_NVec.size() ; j++ )
+        {
+            TNode* n = tmv[i]->m_NVec[j];
+            nodeSet.insert( n );
+        }
+        //==== Split Tris ====//
+        for ( int j = 0 ; j < ( int )tmv[i]->m_TVec.size() ; j++ )
+        {
+            TTri* t = tmv[i]->m_TVec[j];
+            for ( int k = 0 ; k < ( int )t->m_NVec.size() ; k++ )
+            {
+                TNode* n = t->m_NVec[k];
+                nodeSet.insert( n );
+            }
+        }
+
+        for ( int j = 0 ; j < (int)tmv[i]->m_XYZPnts.size() ; j++ )
+        {
+            for ( int k = 0 ; k < (int)tmv[i]->m_XYZPnts[j].size() ; k++ )
+            {
+                tmv[i]->m_XYZPnts[j][k] = tmv[i]->m_XYZPnts[j][k] * ( scalefac );
+            }
+        }
+    }
+    for ( const auto& n : nodeSet )
+    {
+        n->m_Pnt = n->m_Pnt * ( scalefac );
+    }
+}
+
+void MergeRemoveOpenMeshes( vector<TMesh*> &tmv, MeshInfo* info, bool deleteopen )
+{
+    int i, j;
+
+    //==== Check If All Closed ====//
+    for ( i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->CheckIfClosed();
+    }
+
+    //==== Try to Merge Non Closed Meshes ====//
+    // Marks mesh un-used after merge for deletion
+    for ( i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        for ( j = i + 1 ; j < ( int )tmv.size() ; j++ )
+        {
+            tmv[i]->MergeNonClosed( tmv[j] );
+        }
+    }
+    // Keep track of merged meshes in info.
+    for ( i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        if ( tmv[i]->m_DeleteMeFlag )
+        {
+            info->m_NumOpenMeshesMerged++;
+            info->m_MergedMeshes.push_back( tmv[i]->m_NameStr );
+        }
+    }
+
+    // Mark any still open meshes for deletion.  Perhaps make this optional.
+    if ( deleteopen )
+    {
+        for ( i = 0 ; i < ( int )tmv.size() ; i++ )
+        {
+            if ( tmv[i]->m_NonClosedTriVec.size() )
+            {
+                if ( !tmv[i]->m_DeleteMeFlag )
+                {
+                    info->m_NumOpenMeshedDeleted++;
+                    info->m_DeletedMeshes.push_back( tmv[i]->m_NameStr );
+                }
+
+                tmv[i]->m_DeleteMeFlag = true;
+            }
+        }
+    }
+
+    DeleteMarkedMeshes( tmv );
+
+    //==== Remove Any Degenerate Tris ====//
+    for ( i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        info->m_NumDegenerateTriDeleted += tmv[i]->RemoveDegenerate();
+    }
+
+}
+
+void DeleteMarkedMeshes( vector<TMesh*> &tmv )
+{
+    //==== Remove meshes marked for deletion ====//
+    vector< TMesh* > newTMeshVec;
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        if ( !tmv[i]->m_DeleteMeFlag )
+        {
+            newTMeshVec.push_back( tmv[i] );
+        }
+        else
+        {
+            delete tmv[i];
+        }
+    }
+    tmv = newTMeshVec;
+}
+
+void FlattenTMeshVec( vector<TMesh*> &tmv )
+{
+    vector<TMesh*> flatTMeshVec;
+    flatTMeshVec.reserve( tmv.size() );
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        TMesh *tm = new TMesh();
+        tm->CopyFlatten( tmv[ i ] );
+        if ( tm->m_TVec.size() > 0 )
+        {
+            flatTMeshVec.push_back( tm );
+        }
+        else
+        {
+            delete tm;
+        }
+        delete tmv[i];
+    }
+    tmv.clear();
+    tmv = flatTMeshVec;
+}
+
+void TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & TransMat )
+{
+    // Build Map of nodes
+    unordered_set < TNode* > nodeSet;
+    for ( int i = 0 ; i < ( int )meshVec.size() ; i++ )
+    {
+        for ( int j = 0 ; j < ( int )meshVec[i]->m_NVec.size() ; j++ )
+        {
+            TNode* n = meshVec[i]->m_NVec[j];
+            nodeSet.insert( n );
+        }
+        //==== Split Tris ====//
+        for ( int j = 0 ; j < ( int )meshVec[i]->m_TVec.size() ; j++ )
+        {
+            TTri* t = meshVec[i]->m_TVec[j];
+            for ( int k = 0 ; k < ( int )t->m_NVec.size() ; k++ )
+            {
+                TNode* n = t->m_NVec[k];
+                nodeSet.insert( n );
+            }
+        }
+    }
+
+    // Apply Transformation to Nodes
+    for ( const auto& n : nodeSet )
+    {
+        n->m_Pnt = TransMat.xform( n->m_Pnt );
+    }
+
+    vec3d zeroV = vec3d( 0.0, 0.0, 0.0 );
+    zeroV = TransMat.xform( zeroV );
+
+    // Apply Transformation to each triangle's normal vector
+    for ( int i = 0 ; i < ( int )meshVec.size() ; i ++ )
+    {
+        for ( int j = 0 ; j < ( int )meshVec[i]->m_TVec.size() ; j++ )
+        {
+            if ( meshVec[i]->m_TVec[j]->m_SplitVec.size() )
+            {
+                for ( int t = 0 ; t < ( int ) meshVec[i]->m_TVec[j]->m_SplitVec.size() ; t++ )
+                {
+                    TTri* tri = meshVec[i]->m_TVec[j]->m_SplitVec[t];
+                    tri->m_Norm = TransMat.xform( tri->m_Norm ) - zeroV;
+                }
+            }
+            else
+            {
+                TTri* tri = meshVec[i]->m_TVec[j];
+                tri->m_Norm = TransMat.xform( tri->m_Norm ) - zeroV;
+            }
+        }
+
+        // Apply Transformation to Mesh's area center
+        meshVec[i]->m_AreaCenter = TransMat.xform( meshVec[i]->m_AreaCenter );
+    }
+}
+
+vector< string > GetTMeshNames( vector<TMesh*> &tmv )
+{
+    vector< string > names;
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        string plate;
+        if ( tmv[ i ]->m_PlateNum == -1 )
+        {
+            plate = "_S";
+        }
+        else
+        {
+            if ( tmv[i]->m_SurfType == vsp::NORMAL_SURF )
+            {
+                if ( tmv[ i ]->m_PlateNum == 0 )
+                {
+                    plate = "_V";
+                }
+                else if ( tmv[ i ]->m_PlateNum == 1 )
+                {
+                    plate = "_H";
+                }
+            }
+            else // WING_SURF with m_TMeshVec[ i ]->m_PlateNum == 0
+            {
+                plate = "_C";
+            }
+
+        }
+
+        names.push_back( tmv[i]->m_NameStr + plate + "_Surf" + to_string( ( long long )tmv[i]->m_SurfNum ) );
+    }
+
+    return names;
+}
+
+vector< string > GetTMeshIDs( vector<TMesh*> &tmv )
+{
+    vector< string > ids;
+    for ( int i = 0; i < (int)tmv.size(); i++ )
+    {
+        string plate;
+        if ( tmv[ i ]->m_PlateNum == -1 )
+        {
+            // plate; // empty string.
+        }
+        else
+        {
+            if ( tmv[i]->m_SurfType == vsp::NORMAL_SURF )
+            {
+                if ( tmv[ i ]->m_PlateNum == 0 )
+                {
+                    plate = "_V";
+                }
+                else if ( tmv[ i ]->m_PlateNum == 1 )
+                {
+                    plate = "_H";
+                }
+            }
+            else // WING_SURF with m_TMeshVec[ i ]->m_PlateNum == 0
+            {
+                plate = "_C";
+            }
+
+        }
+
+        ids.push_back( tmv[i]->m_OriginGeomID + plate + "_Surf" + to_string((long long)tmv[i]->m_SurfNum ) );
+    }
+
+    return ids;
+}
+
+unordered_map< string, int > GetThicks( vector<TMesh*> &tmv )
+{
+    unordered_map < string, int > thick;
+
+    for ( int i = 0; i < (int)tmv.size(); i++ )
+    {
+        thick[ tmv[i]->m_OriginGeomID ] = tmv[i]->m_ThickSurf;
+    }
+
+    return thick;
+}
+
+void SubTagTris( bool tag_subs, vector<TMesh*> &tmv )
+{
+    // Clear out the current Subtag Maps
+    SubSurfaceMgr.ClearTagMaps();
+    SubSurfaceMgr.m_CompNames = GetTMeshNames( tmv );
+    SubSurfaceMgr.m_CompIDs = GetTMeshIDs( tmv );
+    SubSurfaceMgr.m_ThickMap = GetThicks( tmv );
+    SubSurfaceMgr.SetSubSurfTags( tmv.size() );
+    SubSurfaceMgr.BuildCompNameMap();
+    SubSurfaceMgr.BuildCompIDMap();
+
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->SubTag( i + 1, tag_subs );
+    }
+
+    SubSurfaceMgr.BuildSingleTagMap();
+}
+
+void RefreshTagMaps( vector<TMesh*> &tmv )
+{
+    SubSurfaceMgr.PartialClearTagMaps();
+
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->RefreshTagMap();
+    }
+
+    SubSurfaceMgr.BuildSingleTagMap();
+}
+
+
+//===== Vectors of TMeshs with Bounding Boxes Already Set Up ====//
+bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & other_tmesh_vec )
+{
+    bool intsect_flag = false;
+
+    for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
+    {
+        for ( int j = 0 ; j < (int)other_tmesh_vec.size() ; j++ )
+        {
+            if ( tmesh_vec[i]->CheckIntersect( other_tmesh_vec[j] ) )
+            {
+                intsect_flag = true;
+                break;
+            }
+        }
+        if ( intsect_flag )
+            break;
+    }
+
+    return intsect_flag;
+}
+
+//===== Vectors of TMeshs with Bounding Boxes Already Set Up ====//
+bool CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec )
+{
+    bool intsect_flag = false;
+
+    vector< TMesh* > tmesh_vec = geom_ptr->CreateTMeshVec();
+    for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
+    {
+        tmesh_vec[i]->LoadBndBox();
+    }
+
+    intsect_flag = CheckIntersect( tmesh_vec, other_tmesh_vec );
+
+    for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
+    {
+        delete tmesh_vec[i];
+    }
+
+    return intsect_flag;
+}
+
+//==== Returns Large Neg Number If Error and 0.0 If Collision ====//
+double FindMinDistance( const vector< TMesh* > & tmesh_vec, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag )
+{
+    intersect_flag = false;
+
+    if ( CheckIntersect( tmesh_vec, other_tmesh_vec ) )
+    {
+        intersect_flag = true;
+        return 0.0;
+    }
+
+    //==== Find Min Dist ====//
+    double min_dist = 1.0e12;
+    for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
+    {
+        for ( int j = 0 ; j < (int)other_tmesh_vec.size() ; j++ )
+        {
+            double d =  tmesh_vec[i]->MinDistance(  other_tmesh_vec[j], min_dist );
+            min_dist = min( d, min_dist );
+        }
+    }
+
+    return min_dist;
+}
+
+//===== Find The Min Distance For Each Point And Returns Max =====//
+double FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TMesh* > & mesh_vec_2 )
+{
+    double max_dist = 0.0;
+
+    if ( mesh_vec_1.size() != mesh_vec_2.size() )
+        return max_dist;
+
+    for ( int i = 0 ; i < (int)mesh_vec_1.size() ; i++ )
+    {
+        TMesh* tm1 = mesh_vec_1[i];
+        TMesh* tm2 = mesh_vec_2[i];
+
+        if ( tm1->m_NVec.size() == tm2->m_NVec.size() )
+        {
+            for ( int m = 0 ; m < tm1->m_NVec.size() ; m++ )
+            {
+                double d2 = dist_squared( tm1->m_NVec[m]->m_Pnt, tm2->m_NVec[m]->m_Pnt );
+                max_dist = max( max_dist, d2 );
+            }
+        }
+    }
+    return sqrt( max_dist );
+}

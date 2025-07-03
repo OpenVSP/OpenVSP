@@ -229,7 +229,7 @@ string InterferenceCase::Evaluate()
 
 
         bool intersect_flag;
-        double min_dist = SnapTo::FindMinDistance( primary_tmv, secondary_tmv, intersect_flag );
+        double min_dist = FindMinDistance( primary_tmv, secondary_tmv, intersect_flag );
 
         DeleteTMeshVec( primary_tmv );
         DeleteTMeshVec( secondary_tmv );

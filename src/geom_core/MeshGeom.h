@@ -26,22 +26,6 @@
 #include <set>
 #include <unordered_map>
 
-class MeshInfo
-{
-public:
-    MeshInfo()
-    {
-        m_NumOpenMeshesMerged = m_NumOpenMeshedDeleted = m_NumDegenerateTriDeleted = 0;
-    }
-
-    int m_NumOpenMeshesMerged;
-    int m_NumOpenMeshedDeleted;
-    int m_NumDegenerateTriDeleted;
-    vector < string > m_MergedMeshes;
-    vector < string > m_DeletedMeshes;
-};
-
-
 class MeshGeom : public Geom
 {
 private:
@@ -192,7 +176,6 @@ public:
     virtual void FlattenTMeshVec();
     virtual void FlattenSliceVec();
     virtual Matrix4d GetTotalTransMat() const;
-    virtual void TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & TransMat ) const;
 
     virtual vector< string > GetTMeshNames();
     virtual vector< string > GetTMeshIDs();

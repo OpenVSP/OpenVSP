@@ -11,6 +11,8 @@
 #include <cfloat>  //For DBL_EPSILON
 #include "ModeMgr.h"
 
+#include "MeshGeom.h"
+
 SnapTo::SnapTo() : ParmContainer()
 {
     m_Name = "SnapTo";
@@ -65,74 +67,6 @@ void SnapTo::PreventCollision( const string & geom_id, const string & parm_id )
     AdjParmToMinDist( parm_id, inc_flag );
 }
 
-//===== Vectors of TMeshs with Bounding Boxes Already Set Up ====//
-bool SnapTo::CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & other_tmesh_vec )
-{
-    bool intsect_flag = false;
-
-    for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
-    {
-        for ( int j = 0 ; j < (int)other_tmesh_vec.size() ; j++ )
-        {
-            if ( tmesh_vec[i]->CheckIntersect( other_tmesh_vec[j] ) )
-            {
-                intsect_flag = true;
-                break;
-            }
-        }
-        if ( intsect_flag )
-            break;
-    }
-
-    return intsect_flag;
-}
-
-//===== Vectors of TMeshs with Bounding Boxes Already Set Up ====//
-bool SnapTo::CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec )
-{
-    bool intsect_flag = false;
-
-    vector< TMesh* > tmesh_vec = geom_ptr->CreateTMeshVec();
-    for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
-    {
-        tmesh_vec[i]->LoadBndBox();
-    }
-
-    intsect_flag = CheckIntersect( tmesh_vec, other_tmesh_vec );
-
-    for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
-    {
-        delete tmesh_vec[i];
-    }
-
-    return intsect_flag;
-}
-
-//==== Returns Large Neg Number If Error and 0.0 If Collision ====//
-double SnapTo::FindMinDistance( const vector< TMesh* > & tmesh_vec, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag )
-{
-    intersect_flag = false;
-
-    if ( CheckIntersect( tmesh_vec, other_tmesh_vec ) )
-    {
-        intersect_flag = true;
-        return 0.0;
-    }
-
-    //==== Find Min Dist ====//
-    double min_dist = 1.0e12;
-    for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
-    {
-        for ( int j = 0 ; j < (int)other_tmesh_vec.size() ; j++ )
-        {
-            double d =  tmesh_vec[i]->MinDistance(  other_tmesh_vec[j], min_dist );
-            min_dist = min( d, min_dist );
-        }
-    }
-
-    return min_dist;
-}
-
 //==== Returns Large Neg Number If Error and 0.0 If Collision ====//
 double SnapTo::FindMinDistance( const string & geom_id, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag )
 {
@@ -147,7 +81,7 @@ double SnapTo::FindMinDistance( const string & geom_id, const vector< TMesh* > &
         tmesh_vec[i]->LoadBndBox();
     }
 
-    double min_dist = FindMinDistance( tmesh_vec, other_tmesh_vec, intersect_flag );
+    double min_dist = ::FindMinDistance( tmesh_vec, other_tmesh_vec, intersect_flag );
 
     for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
     {
@@ -155,31 +89,6 @@ double SnapTo::FindMinDistance( const string & geom_id, const vector< TMesh* > &
     }
 
     return min_dist;
-}
-
-//===== Find The Min Distance For Each Point And Returns Max =====//
-double SnapTo::FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TMesh* > & mesh_vec_2 )
-{
-    double max_dist = 0.0;
-
-    if ( mesh_vec_1.size() != mesh_vec_2.size() )
-        return max_dist;
-
-    for ( int i = 0 ; i < (int)mesh_vec_1.size() ; i++ )
-    {
-        TMesh* tm1 = mesh_vec_1[i];
-        TMesh* tm2 = mesh_vec_2[i];
-
-        if ( tm1->m_NVec.size() == tm2->m_NVec.size() )
-        {
-            for ( int m = 0 ; m < tm1->m_NVec.size() ; m++ )
-            {
-                double d2 = dist_squared( tm1->m_NVec[m]->m_Pnt, tm2->m_NVec[m]->m_Pnt );
-                max_dist = max( max_dist, d2 );
-            }
-        }
-    }
-    return sqrt( max_dist );
 }
 
 void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )

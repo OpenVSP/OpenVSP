@@ -57,6 +57,21 @@ struct dba_edge
 
 int dba_errlog( void* stream, const char* fmt, ...);
 
+class MeshInfo
+{
+public:
+    MeshInfo()
+    {
+        m_NumOpenMeshesMerged = m_NumOpenMeshedDeleted = m_NumDegenerateTriDeleted = 0;
+    }
+
+    int m_NumOpenMeshesMerged;
+    int m_NumOpenMeshedDeleted;
+    int m_NumDegenerateTriDeleted;
+    vector < string > m_MergedMeshes;
+    vector < string > m_DeletedMeshes;
+};
+
 class TetraMassProp
 {
 public:
@@ -516,4 +531,24 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             int indx, int platenum, int surftype, int cfdsurftype, bool thicksurf, bool flipnormal, double wmax );
 
 void BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax );
+
+
+void UpdateBBox( BndBox &bbox, vector<TMesh*> &tmv, const Matrix4d &transMat );
+void ApplyScale( double scalefac, vector<TMesh*> &tmv );
+void MergeRemoveOpenMeshes( vector<TMesh*> &tmv, MeshInfo* info, bool deleteopen = true );
+void DeleteMarkedMeshes( vector<TMesh*> &tmv );
+void FlattenTMeshVec( vector<TMesh*> &tmv );
+void TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & TransMat );
+vector< string > GetTMeshNames( vector<TMesh*> &tmv );
+vector< string > GetTMeshIDs( vector<TMesh*> &tmv );
+unordered_map< string, int > GetThicks( vector<TMesh*> &tmv );
+void SubTagTris( bool tag_subs, vector<TMesh*> &tmv );
+void RefreshTagMaps( vector<TMesh*> &tmv );
+
+double FindMinDistance(const vector< TMesh* > & tmesh_vec, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag );
+double FindMaxMinDistance( const vector< TMesh* > & mesh_1, const vector< TMesh* > & mesh_2 );
+bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & other_tmesh_vec );
+bool CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec );
+
+
 #endif
