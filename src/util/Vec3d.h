@@ -1112,8 +1112,8 @@ public:
     friend double dist3D_Segment_to_Segment( const vec3d& S1P0, const vec3d& S1P1, const vec3d& S2P0, const vec3d& S2P1,
             double* Lt, vec3d* Ln, double* St, vec3d* Sn );
     friend double nearSegSeg( const vec3d& L0, const vec3d& L1, const vec3d& S0, const vec3d& S1, double* Lt, vec3d* Ln, double* St,  vec3d* Sn );
-    friend double pointLineDistSquared( const vec3d & p, const vec3d& lp0, const vec3d& lp1, double* t );
-    friend double pointSegDistSquared( const vec3d& p, const vec3d& sp0, const vec3d& sp1, double* t );
+    friend double pointLineDistSquared( const vec3d & p, const vec3d& lp0, const vec3d& lp1, double &t, vec3d &pon );
+    friend double pointSegDistSquared( const vec3d& p, const vec3d& sp0, const vec3d& sp1, double &t, vec3d &pon );
     friend vec3d  point_on_line( const vec3d & lp0, const vec3d & lp1, const double & t );
 
     friend vec2d MapToPlane( const vec3d & p, const vec3d & planeOrig, const vec3d & planeVec1, const vec3d & planeVec2 );
@@ -1128,8 +1128,8 @@ public:
     friend bool PtInTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & p );
     friend vec3d BarycentricWeights( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & p );
     friend void BilinearWeights( const vec3d & p0, const vec3d & p1, const vec3d & p, std::vector< double > & weights );
-    friend double tri_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & v3, const vec3d & v4, const vec3d & v5 );
-    friend double pnt_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & pnt );
+    friend double tri_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & v3, const vec3d & v4, const vec3d & v5, vec3d &p1, vec3d &p2 );
+    friend double pnt_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & pnt, vec3d &pnearest );
 
     friend vec3d slerp( const vec3d& a, const vec3d& b, const double &t );
     friend void printpt( const vec3d & v );

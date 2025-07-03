@@ -906,7 +906,8 @@ double ConstLineSimpleSource::GetTargetLen( double base_len, vec3d & pos, const 
     for ( int i = 0; i < m_Pts.size() - 1; i++ )
     {
         double t;
-        double d2 = pointSegDistSquared( pos, m_Pts[i], m_Pts[i + 1], &t );
+        vec3d pon;
+        double d2 = pointSegDistSquared( pos, m_Pts[i], m_Pts[i + 1], t, pon );
         if ( d2 < dmin2 )
         {
             dmin2 = d2;
@@ -939,7 +940,8 @@ double ConstLineSimpleSource::GetTargetLen( double base_len, vec3d & pos, const 
 
                 vec3d uw( u / umax, w / wmax, 0.0 );
 
-                pointSegDistSquared( uw, m_UWPts[imatch], m_UWPts[imatch + 1], &t );
+                vec3d pon;
+                pointSegDistSquared( uw, m_UWPts[imatch], m_UWPts[imatch + 1], t, pon );
 
                 uw = m_UWPts[imatch] + t * ( m_UWPts[imatch + 1] - m_UWPts[imatch] );
 

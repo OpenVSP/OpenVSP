@@ -726,9 +726,9 @@ bool TMesh::CheckIntersect( TMesh* tm )
     return m_TBox.CheckIntersect( &tm->m_TBox );
 }
 
-double TMesh::MinDistance( TMesh* tm, double curr_min_dist )
+double TMesh::MinDistance( TMesh* tm, double curr_min_dist, vec3d &p1, vec3d &p2  )
 {
-    return m_TBox.MinDistance( &tm->m_TBox, curr_min_dist );
+    return m_TBox.MinDistance( &tm->m_TBox, curr_min_dist, p1, p2  );
 }
 
 void TMesh::Split()
@@ -1703,11 +1703,13 @@ bool TTri::SplitTri( bool dumpCase )
 
             if ( uwflag )
             {
-                onEdgeFlag = !!OnEdge( uwVec[i], m_EVec[j], onEdgeTol );
+                double t;
+                onEdgeFlag = !!OnEdge( uwVec[i], m_EVec[j], onEdgeTol, t );
             }
             else
             {
-                onEdgeFlag = !!OnEdge( pVec[i], m_EVec[j], onEdgeTol );
+                double t;
+                onEdgeFlag = !!OnEdge( pVec[i], m_EVec[j], onEdgeTol, t );
             }
 
             if ( onEdgeFlag )
@@ -2608,7 +2610,7 @@ bool TTri::InTri( const vec3d & p )
     return PtInTri( m_N0->m_Pnt, m_N1->m_Pnt, m_N2->m_Pnt, p );
 }
 
-int TTri::OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t )
+int TTri::OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double &t )
 {
     //==== Make Sure Not Duplicate Points ====//
     if ( dist( p, e->m_N0->m_Pnt ) < onEdgeTol )
@@ -2621,13 +2623,8 @@ int TTri::OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t )
         return 0;
     }
 
-    double tn;
-    if ( t == nullptr )
-    {
-        t = &tn;
-    }
-
-    double d = pointSegDistSquared( p, e->m_N0->m_Pnt, e->m_N1->m_Pnt, t );
+    vec3d pon;
+    double d = pointSegDistSquared( p, e->m_N0->m_Pnt, e->m_N1->m_Pnt, t, pon );
 
     if ( d < onEdgeTol * onEdgeTol )
     {
@@ -2897,7 +2894,7 @@ bool TBndBox::CheckIntersect( TBndBox* iBox  )
     return false;
 }
 
-double TBndBox::MinDistance( TBndBox* iBox, double curr_min_dist )
+double TBndBox::MinDistance( TBndBox* iBox, double curr_min_dist, vec3d &p1, vec3d &p2 )
 {
     int i, j;
 
@@ -2912,14 +2909,14 @@ double TBndBox::MinDistance( TBndBox* iBox, double curr_min_dist )
     {
         for ( i = 0 ; i < 8 ; i++ )
         {
-            curr_min_dist = iBox->MinDistance( m_SBoxVec[i], curr_min_dist );
+            curr_min_dist = iBox->MinDistance( m_SBoxVec[i], curr_min_dist, p1, p2 );
         }
     }
     else if ( iBox->m_SBoxVec[0] )
     {
         for ( i = 0 ; i < 8 ; i++ )
         {
-            curr_min_dist = iBox->m_SBoxVec[i]->MinDistance( this, curr_min_dist );
+            curr_min_dist = iBox->m_SBoxVec[i]->MinDistance( this, curr_min_dist, p1, p2 );
         }
     }
     //==== Check All Points Against Other Points ====//
@@ -2932,11 +2929,16 @@ double TBndBox::MinDistance( TBndBox* iBox, double curr_min_dist )
             {
 
                 TTri* t1 = iBox->m_TriVec[j];
+                vec3d p1a, p2a;
                 double d = tri_tri_min_dist( t0->m_N0->m_Pnt, t0->m_N1->m_Pnt, t0->m_N2->m_Pnt,
-                                             t1->m_N0->m_Pnt, t1->m_N1->m_Pnt, t1->m_N2->m_Pnt);
+                                             t1->m_N0->m_Pnt, t1->m_N1->m_Pnt, t1->m_N2->m_Pnt, p1a, p2a);
 
                 if ( d < curr_min_dist )
+                {
                     curr_min_dist = d;
+                    p1 = p1a;
+                    p2 = p2a;
+                }
             }
         }
     }
@@ -4067,11 +4069,12 @@ vec3d TMesh::ProjectOnISectPairs( vec3d & offPnt, vector< vec3d > & pairVec )
 
     for ( i = 0 ; i < ( int )pairVec.size() ; i += 2 )
     {
-        double d = pointSegDistSquared( offPnt, pairVec[i], pairVec[i + 1], &t );
+        vec3d pon;
+        double d = pointSegDistSquared( offPnt, pairVec[i], pairVec[i + 1], t, pon );
         if ( d < closeDist )
         {
             closeDist = d;
-            closePnt = pairVec[i] + ( pairVec[i + 1] - pairVec[i] ) * t;
+            closePnt = pon;
         }
 
     }
@@ -4243,7 +4246,7 @@ void TMesh::SplitAliasEdges( TTri* orig_tri, TEdge* isect_edge )
             for( int ei = 0; ei < 2; ei++ )
             {
 
-                if ( orig_tri->OnEdge( es[ei], orig_e, edgeTol, &t ) == 1 )
+                if ( orig_tri->OnEdge( es[ei], orig_e, edgeTol, t ) == 1 )
                 {
                     nn = &exyzs[ei];
 
@@ -4970,12 +4973,19 @@ double FindMinDistance( const vector< TMesh* > & tmesh_vec, const vector< TMesh*
 
     //==== Find Min Dist ====//
     double min_dist = 1.0e12;
+    vec3d p1, p2;
     for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
     {
         for ( int j = 0 ; j < (int)other_tmesh_vec.size() ; j++ )
         {
-            double d =  tmesh_vec[i]->MinDistance(  other_tmesh_vec[j], min_dist );
-            min_dist = min( d, min_dist );
+            vec3d p1a, p2a;
+            double d =  tmesh_vec[i]->MinDistance(  other_tmesh_vec[j], min_dist, p1a, p2a );
+            if ( d < min_dist )
+            {
+                min_dist = d;
+                p1 = p1a;
+                p2 = p2a;
+            }
         }
     }
 

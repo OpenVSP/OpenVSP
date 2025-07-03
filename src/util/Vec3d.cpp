@@ -1347,7 +1347,7 @@ double nearSegSeg( const vec3d& L0, const vec3d& L1, const vec3d& S0, const vec3
 }
 
 
-double pointLineDistSquared( const vec3d& X0, const vec3d& X1, const vec3d& X2, double* t )
+double pointLineDistSquared( const vec3d& X0, const vec3d& X1, const vec3d& X2, double &t, vec3d &pon )
 {
     vec3d X10 = X1 - X0;
     vec3d X21 = X2 - X1;
@@ -1356,16 +1356,16 @@ double pointLineDistSquared( const vec3d& X0, const vec3d& X1, const vec3d& X2, 
 
     if ( denom < 1e-9 ) // was 1e-9
     {
-        *t = 0.0;
+        t = 0.0;
     }
     else
     {
-        *t = -dot( X10, X21 ) / denom;
+        t = -dot( X10, X21 ) / denom;
     }
 
-    vec3d Xon = X1 + X21 * ( *t );
+    pon = X1 + X21 * t;
 
-    return dist_squared( Xon, X0 );
+    return dist_squared( pon, X0 );
 }
 
 vec3d point_on_line( const vec3d & lp0, const vec3d & lp1, const double & t )
@@ -1374,18 +1374,20 @@ vec3d point_on_line( const vec3d & lp0, const vec3d & lp1, const double & t )
     return lp0 + s10 * t;
 }
 
-double pointSegDistSquared( const vec3d& p, const vec3d& sp0, const vec3d& sp1, double* t )
+double pointSegDistSquared( const vec3d& p, const vec3d& sp0, const vec3d& sp1, double &t, vec3d &pon )
 {
-    double dSqr = pointLineDistSquared( p, sp0, sp1, t );
+    double dSqr = pointLineDistSquared( p, sp0, sp1, t, pon );
 
-    if ( *t < 0 )
+    if ( t < 0 )
     {
-        *t = 0;
+        t = 0;
+        pon = sp0;
         dSqr = dist_squared( p, sp0 );
     }
-    else if ( *t > 1 )
+    else if ( t > 1 )
     {
-        *t = 1;
+        t = 1;
+        pon = sp1;
         dSqr = dist_squared( p, sp1 );
     }
 
@@ -1622,23 +1624,60 @@ void BilinearWeights( const vec3d & p0, const vec3d & p1, const vec3d & p, std::
 
 }
 
-double tri_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & v3, const vec3d & v4, const vec3d & v5 )
+double tri_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & v3, const vec3d & v4, const vec3d & v5, vec3d &p1, vec3d &p2 )
 {
-    double d;
-    double min_dist = 1.0e12;
+    double d, min_dist;
+    vec3d pnearest;
 
-    d = pnt_tri_min_dist( v0, v1, v2, v3 );     min_dist = std::min( d, min_dist );
-    d = pnt_tri_min_dist( v0, v1, v2, v4 );     min_dist = std::min( d, min_dist );
-    d = pnt_tri_min_dist( v0, v1, v2, v5 );     min_dist = std::min( d, min_dist );
+    min_dist = pnt_tri_min_dist( v0, v1, v2, v3, pnearest );
+    p1 = v3;
+    p2 = pnearest;
 
-    d = pnt_tri_min_dist( v3, v4, v5, v0 );     min_dist = std::min( d, min_dist );
-    d = pnt_tri_min_dist( v3, v4, v5, v1 );     min_dist = std::min( d, min_dist );
-    d = pnt_tri_min_dist( v3, v4, v5, v2 );     min_dist = std::min( d, min_dist );
+    d = pnt_tri_min_dist( v0, v1, v2, v4, pnearest );
+    if ( d < min_dist )
+    {
+        min_dist = d;
+        p1 = v4;
+        p2 = pnearest;
+    }
+
+    d = pnt_tri_min_dist( v0, v1, v2, v5, pnearest );
+    if ( d < min_dist )
+    {
+        min_dist = d;
+        p1 = v5;
+        p2 = pnearest;
+    }
+
+
+    d = pnt_tri_min_dist( v3, v4, v5, v0, pnearest );
+    if ( d < min_dist )
+    {
+        min_dist = d;
+        p1 = v0;
+        p2 = pnearest;
+    }
+
+    d = pnt_tri_min_dist( v3, v4, v5, v1, pnearest );
+    if ( d < min_dist )
+    {
+        min_dist = d;
+        p1 = v1;
+        p2 = pnearest;
+    }
+
+    d = pnt_tri_min_dist( v3, v4, v5, v2, pnearest );
+    if ( d < min_dist )
+    {
+        min_dist = d;
+        p1 = v2;
+        p2 = pnearest;
+    }
 
     return min_dist;
 }
 
-double pnt_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & pnt )
+double pnt_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & pnt, vec3d &pnearest )
 {
     vec2d uw = MapToPlane( pnt, v0, v1-v0, v2-v0 );
     vec3d plnpnt = MapFromPlane( uw, v0, v1-v0, v2-v0 );
@@ -1647,19 +1686,30 @@ double pnt_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, c
     if ( uw[0] >= 0.0 && uw[0] <= 1.0 && uw[1] >= 0.0 && uw[1] <= 1.0 && 
          uw[0] + uw[1] <= 1.0 )
     {
+        pnearest = plnpnt;
         return dist( pnt, plnpnt );
     }
     double t;
-    double d01 = pointSegDistSquared( pnt, v0, v1, &t );
-    double d12 = pointSegDistSquared( pnt, v1, v2, &t );
-    double d20 = pointSegDistSquared( pnt, v2, v0, &t );
+    vec3d pon1, pon2, pon3;
+    double d01 = pointSegDistSquared( pnt, v0, v1, t, pon1 );
+    double d12 = pointSegDistSquared( pnt, v1, v2, t, pon2 );
+    double d20 = pointSegDistSquared( pnt, v2, v0, t, pon3 );
 
     if ( d01 < d12 && d01 < d20 )
+    {
+        pnearest = pon1;
         return sqrt(d01);
+    }
     else if ( d12 < d20 )
+    {
+        pnearest = pon2;
         return sqrt(d12);
-    else 
+    }
+    else
+    {
+        pnearest = pon3;
         return sqrt(d20);
+    }
 }
 
 namespace std

@@ -318,7 +318,7 @@ public:
     virtual void BuildPermEdges();
 
     virtual bool InTri( const vec3d & p );
-    virtual int OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t = nullptr );
+    virtual int OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double &t );
     virtual vec3d CompPnt( const vec3d & uw_pnt );
     virtual vec3d CompUW( const vec3d & pnt );
 
@@ -370,7 +370,7 @@ public:
     virtual void RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec ) const;
 
     virtual bool CheckIntersect( TBndBox* iBox );
-    virtual double MinDistance( TBndBox* iBox, double curr_min_dist );
+    virtual double MinDistance( TBndBox* iBox, double curr_min_dist, vec3d &p1, vec3d &p2 );
 
     BndBox m_Box;
     vector< TTri* > m_TriVec;
@@ -398,7 +398,7 @@ public:
     void RemoveIsectEdges();
     void Intersect( TMesh* tm, bool UWFlag = false );
     bool CheckIntersect( TMesh* tm );
-    double MinDistance( TMesh* tm, double curr_min_dist );
+    double MinDistance( TMesh* tm, double curr_min_dist, vec3d &p1, vec3d &p2 );
     void Split();
 
     void SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf );
