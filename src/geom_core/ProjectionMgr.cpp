@@ -895,9 +895,11 @@ void ProjectionMgrSingleton::Intersect( vector < Clipper2Lib::Paths64 > & pthsve
 
 void ProjectionMgrSingleton::Triangulate()
 {
-    vector < vector < int > > connlist;
-    Triangulate_TRI( connlist );
+    vector < vec3d > addpts;
 
+    vector < vector < int > > connlist;
+
+    Triangulate_TRI( connlist, addpts );
 
     int ntri = connlist.size();
 
@@ -944,13 +946,16 @@ void ProjectionMgrSingleton::Triangulate()
     }
 }
 
-void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlist )
+void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlist, const vector < vec3d > &addpts )
 {
-    int npt = 0;
+    int nseg = 0;
     for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
     {
-        npt += m_SolutionPolyVec3d[i].size() - 1; // Subtract off repeated first point.
+        nseg += m_SolutionPolyVec3d[i].size() - 1; // Subtract off repeated first point.
     }
+
+    int nadd = addpts.size();
+    int npt = nseg + nadd;
 
     //==== Dump Into Triangle ====//
     context* ctx;
@@ -967,7 +972,7 @@ void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlis
     in.pointlist    = ( REAL * ) malloc( npt * 2 * sizeof( REAL ) );
     out.pointlist   = nullptr;
 
-    in.segmentlist  = ( int * ) malloc( npt * 2 * sizeof( int ) );
+    in.segmentlist  = ( int * ) malloc( nseg * 2 * sizeof( int ) );
     out.segmentlist  = nullptr;
     out.trianglelist  = nullptr;
 
@@ -986,7 +991,7 @@ void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlis
 
     //==== Load Points into Triangle Struct ====//
     in.numberofpoints = npt;
-    in.numberofsegments = npt;
+    in.numberofsegments = nseg;
 
     int ptcnt = 0;
     int segcnt = 0;
@@ -1015,6 +1020,14 @@ void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlis
         }
     }
 
+    for ( int i = 0; i < nadd; i++ )
+    {
+        vec3d pnt = addpts[i];
+        in.pointlist[ptcnt] = pnt.y();
+        ptcnt++;
+        in.pointlist[ptcnt] = pnt.z();
+        ptcnt++;
+    }
 
     char cmdline[] = "zpQ";
 
