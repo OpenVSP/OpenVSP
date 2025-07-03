@@ -1402,7 +1402,7 @@ int FitModelMgrSingleton::Load()
             xmlKeepBlanksDefault( 0 );
 
     //==== Build an XML tree from a the file ====//
-    doc = xmlParseFile( m_LoadFitFileName.c_str() );
+    doc = xmlReadFile( m_LoadFitFileName.c_str(), nullptr, 0 );
     if ( doc == nullptr )
     {
         fprintf( stderr, "could not parse XML document\n" );
