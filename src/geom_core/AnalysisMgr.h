@@ -158,6 +158,17 @@ public:
 
 };
 
+class CpSlicerAnalysis : public Analysis
+{
+public:
+
+    CpSlicerAnalysis();
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
 class DegenGeomAnalysis : public Analysis
 {
 public:
@@ -184,6 +195,17 @@ class MassPropAnalysis : public Analysis
 public:
 
     MassPropAnalysis();
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+class ParasiteDragFullAnalysis : public Analysis
+{
+public:
+
+    ParasiteDragFullAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();
@@ -220,17 +242,6 @@ public:
 
     virtual void SetDefaults();
     virtual string Execute();
-};
-
-class WaveDragAnalysis : public Analysis
-{
-public:
-
-    WaveDragAnalysis();
-
-    virtual void SetDefaults();
-    virtual string Execute();
-
 };
 
 // This can be deprecated
@@ -289,22 +300,11 @@ public:
 
 };
 
-class ParasiteDragFullAnalysis : public Analysis
+class WaveDragAnalysis : public Analysis
 {
 public:
 
-    ParasiteDragFullAnalysis();
-
-    virtual void SetDefaults();
-    virtual string Execute();
-
-};
-
-class CpSlicerAnalysis : public Analysis
-{
-    public:
-
-    CpSlicerAnalysis();
+    WaveDragAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();

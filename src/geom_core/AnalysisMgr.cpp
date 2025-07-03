@@ -928,6 +928,81 @@ string CompGeomAnalysis::Execute()
 }
 
 //======================================================================================//
+//=================================== CpSlicer =========================================//
+//======================================================================================//
+
+CpSlicerAnalysis::CpSlicerAnalysis() : Analysis( "CpSlicer", "Post-process VSPAERO solution to produce Cp slices" )
+{
+}
+
+void CpSlicerAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        m_Inputs.Add( new NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
+
+        // Cuts
+        m_Inputs.Add( new NameValData( "XSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR ), "Vector of X slices." ) );
+        m_Inputs.Add( new NameValData( "YSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR ), "Vector of Y slices." ) );
+        m_Inputs.Add( new NameValData( "ZSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Z_DIR ), "Vector of Z slices." ) );
+    }
+    else
+    {
+        // TODO Throw an error here
+        printf( "ERROR - trying to set defaults without a vehicle: void CpSlicerAnalysis::SetDefaults()\n" );
+    }
+}
+
+string CpSlicerAnalysis::Execute()
+{
+    string res_id;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        NameValData *nvd = nullptr;
+
+        int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
+        nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
+        if ( nvd ) VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
+
+        // Cuts
+        vector < double > xcutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR );
+        vector < double > ycutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR );
+        vector < double > zcutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::Z_DIR );
+
+        VSPAEROMgr.ClearCpSliceVec();
+
+        nvd = m_Inputs.FindPtr( "XSlicePosVec", 0 );
+        if ( nvd ) VSPAEROMgr.AddCpSliceVec( vsp::X_DIR, nvd->GetDoubleData() );
+
+        nvd = m_Inputs.FindPtr( "YSlicePosVec", 0 );
+        if ( nvd ) VSPAEROMgr.AddCpSliceVec( vsp::Y_DIR, nvd->GetDoubleData() );
+
+        nvd = m_Inputs.FindPtr( "ZSlicePosVec", 0 );
+        if ( nvd ) VSPAEROMgr.AddCpSliceVec( vsp::Z_DIR, nvd->GetDoubleData() );
+
+        // Execute analysis
+        res_id = VSPAEROMgr.ComputeCpSlices( stdout );
+
+
+        VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
+
+        VSPAEROMgr.ClearCpSliceVec();
+
+        // ==== Restore original values that were overwritten by analysis inputs ==== //
+        VSPAEROMgr.AddCpSliceVec( vsp::X_DIR, xcutsOrig );
+        VSPAEROMgr.AddCpSliceVec( vsp::Y_DIR, ycutsOrig );
+        VSPAEROMgr.AddCpSliceVec( vsp::Z_DIR, zcutsOrig );
+    }
+
+    return res_id;
+}
+
+//======================================================================================//
 //================================ Degen Geom ==========================================//
 //======================================================================================//
 DegenGeomAnalysis::DegenGeomAnalysis() : Analysis( "DegenGeom", "Compute degenerate geometry representations of model." )
@@ -1153,6 +1228,335 @@ string MassPropAnalysis::Execute()
     }
 
     return res;
+}
+
+//======================================================================================//
+//============================== Parasite Drag =========================================//
+//======================================================================================//
+
+ParasiteDragFullAnalysis::ParasiteDragFullAnalysis() : Analysis( "ParasiteDrag", "Compute parasite drag buildup of a model." )
+{
+}
+
+void ParasiteDragFullAnalysis::SetDefaults()
+{
+    // the default values use exactly what is setup in the VSPAEROMgr
+    m_Inputs.Clear();
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        // File Name
+        m_Inputs.Add( new NameValData( "FileName",          ParasiteDragMgr.m_FileName, "File name." ) );
+
+        // Geometry to Degen
+        m_Inputs.Add( new NameValData( "GeomSet",           ParasiteDragMgr.m_SetChoice.Get(), "Geometry Set for analysis."  ) );
+
+        m_Inputs.Add( new NameValData( "UseModeFlag",       ParasiteDragMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( new NameValData( "ModeID",           ParasiteDragMgr.m_ModeID, "ID for Mode to use for analysis." ) );
+
+        // Friction Coefficient Eqn Choice
+        m_Inputs.Add( new NameValData( "LamCfEqnChoice",    ParasiteDragMgr.m_LamCfEqnType.Get(), "Laminar skin friction coefficient equation enum." ) );
+        m_Inputs.Add( new NameValData( "TurbCfEqnChoice",   ParasiteDragMgr.m_TurbCfEqnType.Get(), "Trubulent skin friction coefficient equation enum." ) );
+
+        // Unit Choice
+        m_Inputs.Add( new NameValData( "LengthUnit",        ParasiteDragMgr.m_LengthUnit.Get(), "Model length unit enum." ) );
+        m_Inputs.Add( new NameValData( "VelocityUnit",      ParasiteDragMgr.m_VinfUnitType.Get(), "Airspeed unit enum." ) );
+        m_Inputs.Add( new NameValData( "TempUnit",          ParasiteDragMgr.m_TempUnit.Get(), "Temperature unit enum." ) );
+        m_Inputs.Add( new NameValData( "AltLengthUnit",     ParasiteDragMgr.m_AltLengthUnit.Get(), "Altitude length unit enum." ) );
+        m_Inputs.Add( new NameValData( "PresUnit",          ParasiteDragMgr.m_PresUnit.Get(), "Pressure unit enum." ) );
+
+        // Sub-Components
+        m_Inputs.Add( new NameValData( "ExportSubCompFlag",    ParasiteDragMgr.m_ExportSubCompFlag.Get(), "Flag to export sub components." ) );
+
+        // Freestream Props
+        m_Inputs.Add( new NameValData( "FreestreamPropChoice", ParasiteDragMgr.m_FreestreamType.Get(), "Freestream property input mode choice." ) );
+        m_Inputs.Add( new NameValData( "Vinf",                 ParasiteDragMgr.m_Vinf.Get(), "Airspeed." ) );
+        m_Inputs.Add( new NameValData( "Altitude",             ParasiteDragMgr.m_Hinf.Get(), "Altitude." ) );
+        m_Inputs.Add( new NameValData( "DeltaTemp",            ParasiteDragMgr.m_DeltaT.Get(), "Temperature deviation." ) );
+        m_Inputs.Add( new NameValData( "Temperature",          ParasiteDragMgr.m_Temp.Get(), "Temperature." ) );
+        m_Inputs.Add( new NameValData( "Pressure",             ParasiteDragMgr.m_Pres.Get(), "Pressure." ) );
+        m_Inputs.Add( new NameValData( "Density",              ParasiteDragMgr.m_Rho.Get(), "Density." ) );
+        m_Inputs.Add( new NameValData( "DynaVisc",           ParasiteDragMgr.m_DynaVisc.Get(), "Dynamic viscoscity" ) );
+        m_Inputs.Add( new NameValData( "SpecificHeatRatio",  ParasiteDragMgr.m_SpecificHeatRatio.Get(), "Ratio of specific heats" ) );
+        m_Inputs.Add( new NameValData( "KineVisc",           ParasiteDragMgr.m_KineVisc.Get(), "Kinematic viscoscity" ) );
+        m_Inputs.Add( new NameValData( "Mach",               ParasiteDragMgr.m_Mach.Get(), "Mach." ) );
+        m_Inputs.Add( new NameValData( "Re_L",               ParasiteDragMgr.m_ReqL.Get(), "Reynolds number per unit length." ) );
+
+        // Reference Area
+        m_Inputs.Add( new NameValData( "RefFlag", ParasiteDragMgr.m_RefFlag.Get(), "Flag to control how reference quantities are set." ) );
+        m_Inputs.Add( new NameValData( "WingID",  string( "" ), "Reference wing GeomID." ) );
+        m_Inputs.Add( new NameValData( "Sref",    ParasiteDragMgr.m_Sref.Get(), "Reference area." ) );
+
+        // Use previous Degen Geom
+        m_Inputs.Add( new NameValData( "RecomputeGeom", true, "Flag to recompute geometry." ) );
+    }
+    else
+    {
+        // TODO Throw an error here
+        printf("ERROR - trying to set defaults without a vehicle: void ParasiteDragFullAnalysis::SetDefaults()\n");
+    }
+}
+
+string ParasiteDragFullAnalysis::Execute()
+{
+    string res_id;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        NameValData *nvd = nullptr;
+
+        // File Name
+        string fileNameOrig = ParasiteDragMgr.m_FileName;
+        nvd = m_Inputs.FindPtr( "FileName", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_FileName = nvd->GetString( 0 );
+        }
+
+        // Geometry Set Choice
+        int geomSetOrig = ParasiteDragMgr.m_SetChoice.Get();
+        nvd = m_Inputs.FindPtr( "GeomSet", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_SetChoice.Set( nvd->GetInt( 0 ) );
+        }
+
+        int useModeOrig = ParasiteDragMgr.m_UseMode.Get();
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_UseMode.Set( nvd->GetInt(0) );
+        }
+
+        string modeIDOrig = ParasiteDragMgr.m_ModeID;
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_ModeID = nvd->GetString( 0 );
+        }
+
+        // Friction Coefficient Eqn Choice
+        int lamCfEqnChoiceOrig = ParasiteDragMgr.m_LamCfEqnType.Get();
+        int turbCfEqnChoiceOrig = ParasiteDragMgr.m_TurbCfEqnType.Get();
+        nvd = m_Inputs.FindPtr( "LamCfEqnChoice", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_LamCfEqnType.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "TurbCfEqnChoice", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_TurbCfEqnType.Set( nvd->GetInt( 0 ) );
+        }
+
+        // Unit Choice
+        int lengthUnitChoiceOrig = ParasiteDragMgr.m_LengthUnit.Get();
+        int velocityUnitChoiceOrig = ParasiteDragMgr.m_VinfUnitType.Get();
+        int tempUnitChoiceOrig = ParasiteDragMgr.m_TempUnit.Get();
+        int altLengthUnitOrig = ParasiteDragMgr.m_AltLengthUnit.Get();
+        int presUnitOrig = ParasiteDragMgr.m_PresUnit.Get();
+        nvd = m_Inputs.FindPtr( "LengthUnit", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_LengthUnit.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "VelocityUnit", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_VinfUnitType.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "TempUnit", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_TempUnit.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "AltLengthUnit", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_AltLengthUnit.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "PresUnit", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_PresUnit.Set( nvd->GetInt( 0 ) );
+        }
+
+        // Sub-Components
+        bool exportSubCompFlagOrig = ParasiteDragMgr.m_ExportSubCompFlag.Get();
+        nvd = m_Inputs.FindPtr( "ExportSubCompFlag", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_ExportSubCompFlag.Set( nvd->GetInt( 0 ) );
+        }
+
+        // Freestream Props
+        int freestreamPropChoiceOrig = ParasiteDragMgr.m_FreestreamType.Get();
+        double vinfOrig = ParasiteDragMgr.m_Vinf.Get();
+        double altOrig = ParasiteDragMgr.m_Hinf.Get();
+        double deltaTempOrig = ParasiteDragMgr.m_DeltaT.Get();
+        double tempOrig = ParasiteDragMgr.m_Temp.Get();
+        double presOrig = ParasiteDragMgr.m_Pres.Get();
+        double densOrig = ParasiteDragMgr.m_Rho.Get();
+        double dynviscOrig = ParasiteDragMgr.m_DynaVisc.Get();
+        double gammaOrig = ParasiteDragMgr.m_SpecificHeatRatio.Get();
+        double kinviscOrig = ParasiteDragMgr.m_KineVisc.Get();
+        double MachOrig = ParasiteDragMgr.m_Mach.Get();
+        double Re_LOrig = ParasiteDragMgr.m_ReqL.Get();
+        nvd = m_Inputs.FindPtr( "FreestreamPropChoice", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_FreestreamType.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Vinf", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Vinf.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Altitude", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Hinf.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "DeltaTemp", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_DeltaT.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Temperature", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Temp.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Pressure", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Pres.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Density", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Rho.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "DynaVisc", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_DynaVisc.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "SpecificHeatRatio", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_SpecificHeatRatio.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "KineVisc", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_KineVisc.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Mach", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Mach.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Re_L", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_ReqL.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Medium", 0 );
+
+        // Reference Area
+        int refFlagOrig = ParasiteDragMgr.m_RefFlag.Get();
+        string WingIDOrig = ParasiteDragMgr.m_RefGeomID;
+        double srefOrig = ParasiteDragMgr.m_Sref.Get();
+        nvd = m_Inputs.FindPtr( "RefFlag", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_RefFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "WingID", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_RefGeomID = nvd->GetString( 0 );
+        }
+
+        if ( ParasiteDragMgr.m_RefFlag.Get() == vsp::MANUAL_REF )
+        {
+            nvd = m_Inputs.FindPtr( "Sref", 0 );
+            if ( nvd )
+            {
+                ParasiteDragMgr.m_Sref.Set( nvd->GetDouble( 0 ) );
+            }
+        }
+        else if ( ParasiteDragMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
+        {
+            ParasiteDragMgr.Update();
+            printf( "Wing Reference Parms: \n" );
+
+            nvd = m_Inputs.FindPtr( "Sref", 0 );
+            if ( nvd )
+            {
+                ParasiteDragMgr.m_Sref.Set( ParasiteDragMgr.m_Sref.Get() );
+            }
+            printf( " Sref: %7.3f \n", ParasiteDragMgr.m_Sref.Get() );
+
+            printf( "\n" );
+        }
+
+        // Recompute flag
+        bool recomputeFlagOrig = ParasiteDragMgr.GetRecomputeGeomFlag();
+        nvd = m_Inputs.FindPtr( "RecomputeGeom", 0);
+        ParasiteDragMgr.SetRecomputeGeomFlag( (bool)(nvd->GetInt(0)) );
+
+        // Execute analysis
+        res_id = ParasiteDragMgr.ComputeBuildUp();
+
+        // ==== Restore original values that were overwritten by analysis inputs ==== //
+        ParasiteDragMgr.m_FileName = fileNameOrig;
+
+        // Geometry Set
+        ParasiteDragMgr.m_SetChoice.Set( geomSetOrig );
+        ParasiteDragMgr.m_UseMode.Set( useModeOrig );
+        ParasiteDragMgr.m_ModeID = modeIDOrig;
+
+        // Friction Coefficient Equations
+        ParasiteDragMgr.m_LamCfEqnType.Set( lamCfEqnChoiceOrig );
+        ParasiteDragMgr.m_TurbCfEqnType.Set( turbCfEqnChoiceOrig );
+
+        // Unit Choices
+        ParasiteDragMgr.m_LengthUnit.Set( lengthUnitChoiceOrig );
+        ParasiteDragMgr.m_VinfUnitType.Set( velocityUnitChoiceOrig );
+        ParasiteDragMgr.m_TempUnit.Set( tempUnitChoiceOrig );
+        ParasiteDragMgr.m_AltLengthUnit.Set( altLengthUnitOrig );
+        ParasiteDragMgr.m_PresUnit.Set( presUnitOrig );
+
+        // Sub-Components
+        ParasiteDragMgr.m_ExportSubCompFlag.Set( exportSubCompFlagOrig );
+
+        // Freestream Props
+        ParasiteDragMgr.m_FreestreamType.Set( freestreamPropChoiceOrig );
+        ParasiteDragMgr.m_Vinf.Set( vinfOrig );
+        ParasiteDragMgr.m_Hinf.Set( altOrig );
+        ParasiteDragMgr.m_DeltaT.Set( deltaTempOrig );
+        ParasiteDragMgr.m_Temp.Set( tempOrig );
+        ParasiteDragMgr.m_Pres.Set( presOrig );
+        ParasiteDragMgr.m_Rho.Set( densOrig );
+        ParasiteDragMgr.m_DynaVisc.Set( dynviscOrig );
+        ParasiteDragMgr.m_SpecificHeatRatio.Set( gammaOrig );
+        ParasiteDragMgr.m_KineVisc.Set( kinviscOrig );
+        ParasiteDragMgr.m_Mach.Set( MachOrig );
+        ParasiteDragMgr.m_ReqL.Set( Re_LOrig );
+
+        // Reference Area
+        ParasiteDragMgr.m_RefFlag.Set( refFlagOrig );
+        ParasiteDragMgr.m_RefGeomID = WingIDOrig;
+        ParasiteDragMgr.m_Sref.Set( srefOrig );
+
+        // Recompute Flag
+        ParasiteDragMgr.SetRecomputeGeomFlag( recomputeFlagOrig );
+    }
+
+    return res_id;
 }
 
 //======================================================================================//
@@ -1485,102 +1889,6 @@ string SurfacePatchAnalysis::Execute()
 
     return res;
 }
-
-//======================================================================================//
-//================================= Wave Drag ==========================================//
-//======================================================================================//
-
-WaveDragAnalysis::WaveDragAnalysis() : Analysis( "WaveDrag", "Compute the wave drag of a model." )
-{
-}
-
-void WaveDragAnalysis::SetDefaults()
-{
-    m_Inputs.Clear();
-    m_Inputs.Add( new NameValData( "Set", WaveDragMgr.m_SelectedSetIndex.Get(), "Geometry Set for analysis." ) );
-    m_Inputs.Add( new NameValData( "NumSlices", WaveDragMgr.m_NumSlices.Get(), "Number if axial slices." ) );
-    m_Inputs.Add( new NameValData( "NumRotSects", WaveDragMgr.m_NumRotSects.Get(), "Number of slices around influence cone." ) );
-    m_Inputs.Add( new NameValData( "Mach", WaveDragMgr.m_MachNumber.Get(), "Mach number." ) );
-    m_Inputs.Add( new NameValData( "SSFlow_vec", WaveDragMgr.m_SSFlow_vec, "Propulsive face subsurface ID's." ) );
-    m_Inputs.Add( new NameValData( "SymmFlag", WaveDragMgr.m_SymmFlag.Get(), "Symmetry flag." ) );
-    m_Inputs.Add( new NameValData( "ModeID", WaveDragMgr.m_ModeID, "ID for Mode to use for analysis." ) );
-    m_Inputs.Add( new NameValData( "UseModeFlag", WaveDragMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
-
-}
-
-string WaveDragAnalysis::Execute()
-{
-    string res;
-
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        int set = WaveDragMgr.m_SelectedSetIndex.Get();
-        int numSlices = WaveDragMgr.m_NumSlices.Get();
-        int numRots = WaveDragMgr.m_NumRotSects.Get();
-        double Mach = WaveDragMgr.m_MachNumber.Get();
-        vector <string> Flow_vec = WaveDragMgr.m_SSFlow_vec;
-        bool Symm = WaveDragMgr.m_SymmFlag.Get();
-        int useMode = WaveDragMgr.m_UseMode.Get();
-        string modeID = WaveDragMgr.m_ModeID;
-
-        NameValData *nvd = nullptr;
-
-        nvd = m_Inputs.FindPtr( "Set", 0 );
-        if ( nvd )
-        {
-            set = nvd->GetInt( 0 );
-        }
-
-        nvd = m_Inputs.FindPtr( "NumSlices", 0 );
-        if ( nvd )
-        {
-            numSlices = nvd->GetInt( 0 );
-        }
-
-        nvd = m_Inputs.FindPtr( "NumRotSects", 0 );
-        if ( nvd )
-        {
-            numRots = nvd->GetInt( 0 );
-        }
-
-        nvd = m_Inputs.FindPtr( "Mach", 0 );
-        if ( nvd )
-        {
-            Mach = nvd->GetDouble( 0 );
-        }
-
-        nvd = m_Inputs.FindPtr( "SSFlow_vec", 0 );
-        if ( nvd )
-        {
-            Flow_vec = nvd->GetStringData();
-        }
-
-        nvd = m_Inputs.FindPtr( "SymmFlag", 0 );
-        if ( nvd )
-        {
-            Symm = nvd->GetInt( 0 );
-        }
-
-        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
-        if ( nvd )
-        {
-            useMode = nvd->GetInt( 0 );
-        }
-
-        nvd = m_Inputs.FindPtr( "ModeID", 0 );
-        if ( nvd )
-        {
-            modeID = nvd->GetString( 0 );
-        }
-
-        res = WaveDragMgr.SliceAndAnalyze( set, numSlices, numRots, Mach, Flow_vec, Symm, useMode, modeID );
-    }
-
-    return res;
-}
-
 
 //======================================================================================//
 //================================= VSPAERO ============================================//
@@ -2459,405 +2767,96 @@ string VSPAEROReadPreviousAnalysis::Execute()
 }
 
 //======================================================================================//
-//============================== Parasite Drag =========================================//
+//================================= Wave Drag ==========================================//
 //======================================================================================//
 
-ParasiteDragFullAnalysis::ParasiteDragFullAnalysis() : Analysis( "ParasiteDrag", "Compute parasite drag buildup of a model." )
+WaveDragAnalysis::WaveDragAnalysis() : Analysis( "WaveDrag", "Compute the wave drag of a model." )
 {
 }
 
-void ParasiteDragFullAnalysis::SetDefaults()
+void WaveDragAnalysis::SetDefaults()
 {
-    // the default values use exactly what is setup in the VSPAEROMgr
     m_Inputs.Clear();
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        // File Name
-        m_Inputs.Add( new NameValData( "FileName",          ParasiteDragMgr.m_FileName, "File name." ) );
+    m_Inputs.Add( new NameValData( "Set", WaveDragMgr.m_SelectedSetIndex.Get(), "Geometry Set for analysis." ) );
+    m_Inputs.Add( new NameValData( "NumSlices", WaveDragMgr.m_NumSlices.Get(), "Number if axial slices." ) );
+    m_Inputs.Add( new NameValData( "NumRotSects", WaveDragMgr.m_NumRotSects.Get(), "Number of slices around influence cone." ) );
+    m_Inputs.Add( new NameValData( "Mach", WaveDragMgr.m_MachNumber.Get(), "Mach number." ) );
+    m_Inputs.Add( new NameValData( "SSFlow_vec", WaveDragMgr.m_SSFlow_vec, "Propulsive face subsurface ID's." ) );
+    m_Inputs.Add( new NameValData( "SymmFlag", WaveDragMgr.m_SymmFlag.Get(), "Symmetry flag." ) );
+    m_Inputs.Add( new NameValData( "ModeID", WaveDragMgr.m_ModeID, "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( new NameValData( "UseModeFlag", WaveDragMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
 
-        // Geometry to Degen
-        m_Inputs.Add( new NameValData( "GeomSet",           ParasiteDragMgr.m_SetChoice.Get(), "Geometry Set for analysis."  ) );
-
-        m_Inputs.Add( new NameValData( "UseModeFlag",       ParasiteDragMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
-        m_Inputs.Add( new NameValData( "ModeID",           ParasiteDragMgr.m_ModeID, "ID for Mode to use for analysis." ) );
-
-        // Friction Coefficient Eqn Choice
-        m_Inputs.Add( new NameValData( "LamCfEqnChoice",    ParasiteDragMgr.m_LamCfEqnType.Get(), "Laminar skin friction coefficient equation enum." ) );
-        m_Inputs.Add( new NameValData( "TurbCfEqnChoice",   ParasiteDragMgr.m_TurbCfEqnType.Get(), "Trubulent skin friction coefficient equation enum." ) );
-
-        // Unit Choice
-        m_Inputs.Add( new NameValData( "LengthUnit",        ParasiteDragMgr.m_LengthUnit.Get(), "Model length unit enum." ) );
-        m_Inputs.Add( new NameValData( "VelocityUnit",      ParasiteDragMgr.m_VinfUnitType.Get(), "Airspeed unit enum." ) );
-        m_Inputs.Add( new NameValData( "TempUnit",          ParasiteDragMgr.m_TempUnit.Get(), "Temperature unit enum." ) );
-        m_Inputs.Add( new NameValData( "AltLengthUnit",     ParasiteDragMgr.m_AltLengthUnit.Get(), "Altitude length unit enum." ) );
-        m_Inputs.Add( new NameValData( "PresUnit",          ParasiteDragMgr.m_PresUnit.Get(), "Pressure unit enum." ) );
-
-        // Sub-Components
-        m_Inputs.Add( new NameValData( "ExportSubCompFlag",    ParasiteDragMgr.m_ExportSubCompFlag.Get(), "Flag to export sub components." ) );
-
-        // Freestream Props
-        m_Inputs.Add( new NameValData( "FreestreamPropChoice", ParasiteDragMgr.m_FreestreamType.Get(), "Freestream property input mode choice." ) );
-        m_Inputs.Add( new NameValData( "Vinf",                 ParasiteDragMgr.m_Vinf.Get(), "Airspeed." ) );
-        m_Inputs.Add( new NameValData( "Altitude",             ParasiteDragMgr.m_Hinf.Get(), "Altitude." ) );
-        m_Inputs.Add( new NameValData( "DeltaTemp",            ParasiteDragMgr.m_DeltaT.Get(), "Temperature deviation." ) );
-        m_Inputs.Add( new NameValData( "Temperature",          ParasiteDragMgr.m_Temp.Get(), "Temperature." ) );
-        m_Inputs.Add( new NameValData( "Pressure",             ParasiteDragMgr.m_Pres.Get(), "Pressure." ) );
-        m_Inputs.Add( new NameValData( "Density",              ParasiteDragMgr.m_Rho.Get(), "Density." ) );
-        m_Inputs.Add( new NameValData( "DynaVisc",           ParasiteDragMgr.m_DynaVisc.Get(), "Dynamic viscoscity" ) );
-        m_Inputs.Add( new NameValData( "SpecificHeatRatio",  ParasiteDragMgr.m_SpecificHeatRatio.Get(), "Ratio of specific heats" ) );
-        m_Inputs.Add( new NameValData( "KineVisc",           ParasiteDragMgr.m_KineVisc.Get(), "Kinematic viscoscity" ) );
-        m_Inputs.Add( new NameValData( "Mach",               ParasiteDragMgr.m_Mach.Get(), "Mach." ) );
-        m_Inputs.Add( new NameValData( "Re_L",               ParasiteDragMgr.m_ReqL.Get(), "Reynolds number per unit length." ) );
-
-        // Reference Area
-        m_Inputs.Add( new NameValData( "RefFlag", ParasiteDragMgr.m_RefFlag.Get(), "Flag to control how reference quantities are set." ) );
-        m_Inputs.Add( new NameValData( "WingID",  string( "" ), "Reference wing GeomID." ) );
-        m_Inputs.Add( new NameValData( "Sref",    ParasiteDragMgr.m_Sref.Get(), "Reference area." ) );
-
-        // Use previous Degen Geom
-        m_Inputs.Add( new NameValData( "RecomputeGeom", true, "Flag to recompute geometry." ) );
-    }
-    else
-    {
-        // TODO Throw an error here
-        printf("ERROR - trying to set defaults without a vehicle: void ParasiteDragFullAnalysis::SetDefaults()\n");
-    }
 }
 
-string ParasiteDragFullAnalysis::Execute()
+string WaveDragAnalysis::Execute()
 {
-    string res_id;
+    string res;
+
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( veh )
     {
+        int set = WaveDragMgr.m_SelectedSetIndex.Get();
+        int numSlices = WaveDragMgr.m_NumSlices.Get();
+        int numRots = WaveDragMgr.m_NumRotSects.Get();
+        double Mach = WaveDragMgr.m_MachNumber.Get();
+        vector <string> Flow_vec = WaveDragMgr.m_SSFlow_vec;
+        bool Symm = WaveDragMgr.m_SymmFlag.Get();
+        int useMode = WaveDragMgr.m_UseMode.Get();
+        string modeID = WaveDragMgr.m_ModeID;
+
         NameValData *nvd = nullptr;
 
-        // File Name
-        string fileNameOrig = ParasiteDragMgr.m_FileName;
-        nvd = m_Inputs.FindPtr( "FileName", 0 );
+        nvd = m_Inputs.FindPtr( "Set", 0 );
         if ( nvd )
         {
-            ParasiteDragMgr.m_FileName = nvd->GetString( 0 );
+            set = nvd->GetInt( 0 );
         }
 
-        // Geometry Set Choice
-        int geomSetOrig = ParasiteDragMgr.m_SetChoice.Get();
-        nvd = m_Inputs.FindPtr( "GeomSet", 0 );
+        nvd = m_Inputs.FindPtr( "NumSlices", 0 );
         if ( nvd )
         {
-            ParasiteDragMgr.m_SetChoice.Set( nvd->GetInt( 0 ) );
+            numSlices = nvd->GetInt( 0 );
         }
 
-        int useModeOrig = ParasiteDragMgr.m_UseMode.Get();
-        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        nvd = m_Inputs.FindPtr( "NumRotSects", 0 );
         if ( nvd )
         {
-            ParasiteDragMgr.m_UseMode.Set( nvd->GetInt(0) );
+            numRots = nvd->GetInt( 0 );
         }
 
-        string modeIDOrig = ParasiteDragMgr.m_ModeID;
-        nvd = m_Inputs.FindPtr( "ModeID", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_ModeID = nvd->GetString( 0 );
-        }
-
-        // Friction Coefficient Eqn Choice
-        int lamCfEqnChoiceOrig = ParasiteDragMgr.m_LamCfEqnType.Get();
-        int turbCfEqnChoiceOrig = ParasiteDragMgr.m_TurbCfEqnType.Get();
-        nvd = m_Inputs.FindPtr( "LamCfEqnChoice", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_LamCfEqnType.Set( nvd->GetInt( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "TurbCfEqnChoice", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_TurbCfEqnType.Set( nvd->GetInt( 0 ) );
-        }
-
-        // Unit Choice
-        int lengthUnitChoiceOrig = ParasiteDragMgr.m_LengthUnit.Get();
-        int velocityUnitChoiceOrig = ParasiteDragMgr.m_VinfUnitType.Get();
-        int tempUnitChoiceOrig = ParasiteDragMgr.m_TempUnit.Get();
-        int altLengthUnitOrig = ParasiteDragMgr.m_AltLengthUnit.Get();
-        int presUnitOrig = ParasiteDragMgr.m_PresUnit.Get();
-        nvd = m_Inputs.FindPtr( "LengthUnit", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_LengthUnit.Set( nvd->GetInt( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "VelocityUnit", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_VinfUnitType.Set( nvd->GetInt( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "TempUnit", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_TempUnit.Set( nvd->GetInt( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "AltLengthUnit", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_AltLengthUnit.Set( nvd->GetInt( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "PresUnit", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_PresUnit.Set( nvd->GetInt( 0 ) );
-        }
-
-        // Sub-Components
-        bool exportSubCompFlagOrig = ParasiteDragMgr.m_ExportSubCompFlag.Get();
-        nvd = m_Inputs.FindPtr( "ExportSubCompFlag", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_ExportSubCompFlag.Set( nvd->GetInt( 0 ) );
-        }
-
-        // Freestream Props
-        int freestreamPropChoiceOrig = ParasiteDragMgr.m_FreestreamType.Get();
-        double vinfOrig = ParasiteDragMgr.m_Vinf.Get();
-        double altOrig = ParasiteDragMgr.m_Hinf.Get();
-        double deltaTempOrig = ParasiteDragMgr.m_DeltaT.Get();
-        double tempOrig = ParasiteDragMgr.m_Temp.Get();
-        double presOrig = ParasiteDragMgr.m_Pres.Get();
-        double densOrig = ParasiteDragMgr.m_Rho.Get();
-        double dynviscOrig = ParasiteDragMgr.m_DynaVisc.Get();
-        double gammaOrig = ParasiteDragMgr.m_SpecificHeatRatio.Get();
-        double kinviscOrig = ParasiteDragMgr.m_KineVisc.Get();
-        double MachOrig = ParasiteDragMgr.m_Mach.Get();
-        double Re_LOrig = ParasiteDragMgr.m_ReqL.Get();
-        nvd = m_Inputs.FindPtr( "FreestreamPropChoice", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_FreestreamType.Set( nvd->GetInt( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "Vinf", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_Vinf.Set( nvd->GetDouble( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "Altitude", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_Hinf.Set( nvd->GetDouble( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "DeltaTemp", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_DeltaT.Set( nvd->GetDouble( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "Temperature", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_Temp.Set( nvd->GetDouble( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "Pressure", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_Pres.Set( nvd->GetDouble( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "Density", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_Rho.Set( nvd->GetDouble( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "DynaVisc", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_DynaVisc.Set( nvd->GetDouble( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "SpecificHeatRatio", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_SpecificHeatRatio.Set( nvd->GetDouble( 0 ) );
-        }
-        nvd = m_Inputs.FindPtr( "KineVisc", 0 );
-        if ( nvd )
-        {
-            ParasiteDragMgr.m_KineVisc.Set( nvd->GetDouble( 0 ) );
-        }
         nvd = m_Inputs.FindPtr( "Mach", 0 );
         if ( nvd )
         {
-            ParasiteDragMgr.m_Mach.Set( nvd->GetDouble( 0 ) );
+            Mach = nvd->GetDouble( 0 );
         }
-        nvd = m_Inputs.FindPtr( "Re_L", 0 );
+
+        nvd = m_Inputs.FindPtr( "SSFlow_vec", 0 );
         if ( nvd )
         {
-            ParasiteDragMgr.m_ReqL.Set( nvd->GetDouble( 0 ) );
+            Flow_vec = nvd->GetStringData();
         }
-        nvd = m_Inputs.FindPtr( "Medium", 0 );
 
-        // Reference Area
-        int refFlagOrig = ParasiteDragMgr.m_RefFlag.Get();
-        string WingIDOrig = ParasiteDragMgr.m_RefGeomID;
-        double srefOrig = ParasiteDragMgr.m_Sref.Get();
-        nvd = m_Inputs.FindPtr( "RefFlag", 0 );
+        nvd = m_Inputs.FindPtr( "SymmFlag", 0 );
         if ( nvd )
         {
-            ParasiteDragMgr.m_RefFlag.Set( nvd->GetInt( 0 ) );
+            Symm = nvd->GetInt( 0 );
         }
-        nvd = m_Inputs.FindPtr( "WingID", 0 );
+
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
         if ( nvd )
         {
-            ParasiteDragMgr.m_RefGeomID = nvd->GetString( 0 );
+            useMode = nvd->GetInt( 0 );
         }
 
-        if ( ParasiteDragMgr.m_RefFlag.Get() == vsp::MANUAL_REF )
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
         {
-            nvd = m_Inputs.FindPtr( "Sref", 0 );
-            if ( nvd )
-            {
-                ParasiteDragMgr.m_Sref.Set( nvd->GetDouble( 0 ) );
-            }
-        }
-        else if ( ParasiteDragMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
-        {
-            ParasiteDragMgr.Update();
-            printf( "Wing Reference Parms: \n" );
-
-            nvd = m_Inputs.FindPtr( "Sref", 0 );
-            if ( nvd )
-            {
-                ParasiteDragMgr.m_Sref.Set( ParasiteDragMgr.m_Sref.Get() );
-            }
-            printf( " Sref: %7.3f \n", ParasiteDragMgr.m_Sref.Get() );
-
-            printf( "\n" );
+            modeID = nvd->GetString( 0 );
         }
 
-        // Recompute flag
-        bool recomputeFlagOrig = ParasiteDragMgr.GetRecomputeGeomFlag();
-        nvd = m_Inputs.FindPtr( "RecomputeGeom", 0);
-        ParasiteDragMgr.SetRecomputeGeomFlag( (bool)(nvd->GetInt(0)) );
-
-        // Execute analysis
-        res_id = ParasiteDragMgr.ComputeBuildUp();
-
-        // ==== Restore original values that were overwritten by analysis inputs ==== //
-        ParasiteDragMgr.m_FileName = fileNameOrig;
-
-        // Geometry Set
-        ParasiteDragMgr.m_SetChoice.Set( geomSetOrig );
-        ParasiteDragMgr.m_UseMode.Set( useModeOrig );
-        ParasiteDragMgr.m_ModeID = modeIDOrig;
-
-        // Friction Coefficient Equations
-        ParasiteDragMgr.m_LamCfEqnType.Set( lamCfEqnChoiceOrig );
-        ParasiteDragMgr.m_TurbCfEqnType.Set( turbCfEqnChoiceOrig );
-
-        // Unit Choices
-        ParasiteDragMgr.m_LengthUnit.Set( lengthUnitChoiceOrig );
-        ParasiteDragMgr.m_VinfUnitType.Set( velocityUnitChoiceOrig );
-        ParasiteDragMgr.m_TempUnit.Set( tempUnitChoiceOrig );
-        ParasiteDragMgr.m_AltLengthUnit.Set( altLengthUnitOrig );
-        ParasiteDragMgr.m_PresUnit.Set( presUnitOrig );
-
-        // Sub-Components
-        ParasiteDragMgr.m_ExportSubCompFlag.Set( exportSubCompFlagOrig );
-
-        // Freestream Props
-        ParasiteDragMgr.m_FreestreamType.Set( freestreamPropChoiceOrig );
-        ParasiteDragMgr.m_Vinf.Set( vinfOrig );
-        ParasiteDragMgr.m_Hinf.Set( altOrig );
-        ParasiteDragMgr.m_DeltaT.Set( deltaTempOrig );
-        ParasiteDragMgr.m_Temp.Set( tempOrig );
-        ParasiteDragMgr.m_Pres.Set( presOrig );
-        ParasiteDragMgr.m_Rho.Set( densOrig );
-        ParasiteDragMgr.m_DynaVisc.Set( dynviscOrig );
-        ParasiteDragMgr.m_SpecificHeatRatio.Set( gammaOrig );
-        ParasiteDragMgr.m_KineVisc.Set( kinviscOrig );
-        ParasiteDragMgr.m_Mach.Set( MachOrig );
-        ParasiteDragMgr.m_ReqL.Set( Re_LOrig );
-
-        // Reference Area
-        ParasiteDragMgr.m_RefFlag.Set( refFlagOrig );
-        ParasiteDragMgr.m_RefGeomID = WingIDOrig;
-        ParasiteDragMgr.m_Sref.Set( srefOrig );
-
-        // Recompute Flag
-        ParasiteDragMgr.SetRecomputeGeomFlag( recomputeFlagOrig );
+        res = WaveDragMgr.SliceAndAnalyze( set, numSlices, numRots, Mach, Flow_vec, Symm, useMode, modeID );
     }
 
-    return res_id;
-}
-
-//======================================================================================//
-//=================================== CpSlicer =========================================//
-//======================================================================================//
-
-CpSlicerAnalysis::CpSlicerAnalysis() : Analysis( "CpSlicer", "Post-process VSPAERO solution to produce Cp slices" )
-{
-}
-
-void CpSlicerAnalysis::SetDefaults()
-{
-    m_Inputs.Clear();
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        m_Inputs.Add( new NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
-
-        // Cuts
-        m_Inputs.Add( new NameValData( "XSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR ), "Vector of X slices." ) );
-        m_Inputs.Add( new NameValData( "YSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR ), "Vector of Y slices." ) );
-        m_Inputs.Add( new NameValData( "ZSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Z_DIR ), "Vector of Z slices." ) );
-    }
-    else
-    {
-        // TODO Throw an error here
-        printf( "ERROR - trying to set defaults without a vehicle: void CpSlicerAnalysis::SetDefaults()\n" );
-    }
-}
-
-string CpSlicerAnalysis::Execute()
-{
-    string res_id;
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        NameValData *nvd = nullptr;
-
-        int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
-        nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
-        if ( nvd ) VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
-
-        // Cuts
-        vector < double > xcutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR );
-        vector < double > ycutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR );
-        vector < double > zcutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::Z_DIR );
-
-        VSPAEROMgr.ClearCpSliceVec();
-
-        nvd = m_Inputs.FindPtr( "XSlicePosVec", 0 );
-        if ( nvd ) VSPAEROMgr.AddCpSliceVec( vsp::X_DIR, nvd->GetDoubleData() );
-
-        nvd = m_Inputs.FindPtr( "YSlicePosVec", 0 );
-        if ( nvd ) VSPAEROMgr.AddCpSliceVec( vsp::Y_DIR, nvd->GetDoubleData() );
-
-        nvd = m_Inputs.FindPtr( "ZSlicePosVec", 0 );
-        if ( nvd ) VSPAEROMgr.AddCpSliceVec( vsp::Z_DIR, nvd->GetDoubleData() );
-
-        // Execute analysis
-        res_id = VSPAEROMgr.ComputeCpSlices( stdout );
-
-
-        VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
-
-        VSPAEROMgr.ClearCpSliceVec();
-
-        // ==== Restore original values that were overwritten by analysis inputs ==== //
-        VSPAEROMgr.AddCpSliceVec( vsp::X_DIR, xcutsOrig );
-        VSPAEROMgr.AddCpSliceVec( vsp::Y_DIR, ycutsOrig );
-        VSPAEROMgr.AddCpSliceVec( vsp::Z_DIR, zcutsOrig );
-    }
-
-    return res_id;
+    return res;
 }
