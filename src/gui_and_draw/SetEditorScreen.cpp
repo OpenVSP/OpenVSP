@@ -344,5 +344,5 @@ void SetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void SetEditorScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_AttributeEditor.GetAttrCollID() );
+    m_AttributeEditor.GetCollIDs( collIDVec );
 }

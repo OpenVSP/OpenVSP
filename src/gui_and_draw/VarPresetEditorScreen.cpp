@@ -818,6 +818,6 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void VarPresetEditorScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_GroupAttrEditor.GetAttrCollID() );
-    collIDVec.push_back( m_SettingAttrEditor.GetAttrCollID() );
+    m_GroupAttrEditor.GetCollIDs( collIDVec );
+    m_SettingAttrEditor.GetCollIDs( collIDVec );
 }

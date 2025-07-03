@@ -538,5 +538,5 @@ void ModeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void ModeEditorScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_AttributeEditor.GetAttrCollID() );
+    m_AttributeEditor.GetCollIDs( collIDVec );
 }

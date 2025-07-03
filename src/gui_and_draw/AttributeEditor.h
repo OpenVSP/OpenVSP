@@ -136,10 +136,8 @@ public:
     void Show();
     void Update();
     void SetEditorCollID( const string & collID = "" );
-    string GetAttrCollID()
-    {
-        return m_AttrCollID;
-    }
+    void SetEditorCollID( const vector < string > &collIDs );
+    void GetCollIDs( vector < string > &collIDVec );
 
     void DeviceCB( Fl_Widget *w );
     void GuiDeviceCallBack( GuiDevice* gui_device );
@@ -167,7 +165,7 @@ protected:
 
 private:
 
-    string m_AttrCollID;
+    vector < string > m_AttrCollIDs;
 
 };
 

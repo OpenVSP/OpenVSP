@@ -1356,7 +1356,7 @@ bool SuperConeScreen::Update()
 
 void SuperConeScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_XsecAttributeEditor.GetAttrCollID() );
+    m_XsecAttributeEditor.GetCollIDs( collIDVec );
     GeomScreen::GetCollIDs( collIDVec );
 }
 

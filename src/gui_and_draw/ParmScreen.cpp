@@ -267,7 +267,7 @@ void ParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
 void ParmScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_AttributeEditor.GetAttrCollID() );
+    m_AttributeEditor.GetCollIDs( collIDVec );
 }
 
 //void ParmScreen::update( Parm* p )

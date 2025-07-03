@@ -983,7 +983,7 @@ bool WingScreen::Update()
 
 void WingScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_SecAttributeEditor.GetAttrCollID() );
+    m_SecAttributeEditor.GetCollIDs( collIDVec );
     XSecScreen::GetCollIDs( collIDVec );
 }
 

@@ -967,7 +967,7 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
 void AdvLinkScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_AdvLinkAttrEditor.GetAttrCollID() );
+    m_AdvLinkAttrEditor.GetCollIDs( collIDVec );
 }
 
 void AdvLinkScreen::AddInput( const string & parmid, const string & name )

@@ -499,8 +499,37 @@ void AttributeEditor::Update()
 
 void AttributeEditor::SetEditorCollID( const string& collID )
 {
-    m_AttrCollID = collID;
+    m_AttrCollIDs.clear();
+    if ( !collID.empty() )
+    {
+        m_AttrCollIDs.push_back( collID );
+    }
     m_AttrTreeWidget.SetTreeRootID( collID );
+}
+
+void AttributeEditor::SetEditorCollID( const vector < string > &collIDs )
+{
+    m_AttrCollIDs.clear();
+    m_AttrCollIDs = collIDs;
+
+    // tree root is FIRST collID in vector
+    if ( !collIDs.empty() )
+    {
+        m_AttrTreeWidget.SetTreeRootID( collIDs[0] );
+    }
+    // add the rest as add'l empty colls
+    for ( int i = 1; i < collIDs.size(); i++ )
+    {
+        m_AttrTreeWidget.AddEmptyCollID( collIDs[i] );
+    }
+}
+
+void AttributeEditor::GetCollIDs( vector < string > &collIDVec )
+{
+    for ( int i = 0; i < m_AttrCollIDs.size(); i++ )
+    {
+        collIDVec.push_back( m_AttrCollIDs[i] );
+    }
 }
 
 void AttributeEditor::DeviceCB( Fl_Widget* w )

@@ -479,5 +479,5 @@ void ParmLinkScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void ParmLinkScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_LinkAttrEditor.GetAttrCollID() );
+    m_LinkAttrEditor.GetCollIDs( collIDVec );
 }

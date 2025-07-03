@@ -1475,10 +1475,10 @@ void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void ManageMeasureScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_RulerAttrEditor.GetAttrCollID() );
-    collIDVec.push_back( m_ProbeAttrEditor.GetAttrCollID() );
-    collIDVec.push_back( m_RSTAttrEditor.GetAttrCollID() );
-    collIDVec.push_back( m_ProtAttrEditor.GetAttrCollID() );
+    m_RulerAttrEditor.GetCollIDs( collIDVec );
+    m_ProbeAttrEditor.GetCollIDs( collIDVec );
+    m_RSTAttrEditor.GetCollIDs( collIDVec );
+    m_ProtAttrEditor.GetCollIDs( collIDVec );
 }
 
 void ManageMeasureScreen::Set( const vec3d &placement, const std::string &targetGeomId )

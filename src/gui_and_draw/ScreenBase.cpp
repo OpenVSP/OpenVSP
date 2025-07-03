@@ -411,7 +411,7 @@ void VehScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void VehScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_AttributeEditor.GetAttrCollID() );
+    m_AttributeEditor.GetCollIDs( collIDVec );
 }
 
 //=====================================================================//
@@ -3015,12 +3015,12 @@ void GeomScreen::CloseCallBack( Fl_Widget *w )
 
 void GeomScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_AttributeEditor.GetAttrCollID() );
-    collIDVec.push_back( m_SSLineAttrEditor.GetAttrCollID() );
-    collIDVec.push_back( m_SSRecAttrEditor.GetAttrCollID() );
-    collIDVec.push_back( m_SSEllAttrEditor.GetAttrCollID() );
-    collIDVec.push_back( m_SSConAttrEditor.GetAttrCollID() );
-    collIDVec.push_back( m_SSFLineAttrEditor.GetAttrCollID() );
+    m_AttributeEditor.GetCollIDs( collIDVec );
+    m_SSLineAttrEditor.GetCollIDs( collIDVec );
+    m_SSRecAttrEditor.GetCollIDs( collIDVec );
+    m_SSEllAttrEditor.GetCollIDs( collIDVec );
+    m_SSConAttrEditor.GetCollIDs( collIDVec );
+    m_SSFLineAttrEditor.GetCollIDs( collIDVec );
 }
 
 //=====================================================================//
@@ -4158,7 +4158,7 @@ bool XSecScreen::Update()
 
 void XSecScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    collIDVec.push_back( m_XsecAttributeEditor.GetAttrCollID() );
+    m_XsecAttributeEditor.GetCollIDs( collIDVec );
     GeomScreen::GetCollIDs( collIDVec );
 }
 
