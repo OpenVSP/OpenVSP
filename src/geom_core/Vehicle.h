@@ -485,7 +485,9 @@ public:
 
     // ProjectionMgr
     IntParm m_TargetType;
+    BoolParm m_TargetHullFlag;
     IntParm m_BoundaryType;
+    BoolParm m_BoundaryHullFlag;
     IntParm m_DirectionType;
     Parm m_XComp;
     Parm m_YComp;

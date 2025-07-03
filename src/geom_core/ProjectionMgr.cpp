@@ -182,9 +182,9 @@ Results* ProjectionMgrSingleton::Project( )
 
 Results* ProjectionMgrSingleton::Project( int tset, const vec3d & dir )
 {
-    vector < TMesh* > targetTMeshVec;
+    Vehicle* veh = VehicleMgr.GetVehicle();
 
-    GetMesh( tset, targetTMeshVec );
+    vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tset );
 
     Results* res = Project( targetTMeshVec, dir );
     CleanMesh( targetTMeshVec );
@@ -193,11 +193,10 @@ Results* ProjectionMgrSingleton::Project( int tset, const vec3d & dir )
 
 Results* ProjectionMgrSingleton::Project( int tset, int bset, const vec3d & dir )
 {
-    vector < TMesh* > targetTMeshVec;
-    vector < TMesh* > boundaryTMeshVec;
+    Vehicle* veh = VehicleMgr.GetVehicle();
 
-    GetMesh( tset, targetTMeshVec );
-    GetMesh( bset, boundaryTMeshVec );
+    vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tset );
+    vector < TMesh* > boundaryTMeshVec = veh->CreateTMeshVec( bset );
 
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
 
@@ -208,11 +207,10 @@ Results* ProjectionMgrSingleton::Project( int tset, int bset, const vec3d & dir 
 
 Results* ProjectionMgrSingleton::Project( int tset, const string &bgeom, const vec3d & dir )
 {
-    vector < TMesh* > targetTMeshVec;
-    vector < TMesh* > boundaryTMeshVec;
+    Vehicle* veh = VehicleMgr.GetVehicle();
 
-    GetMesh( tset, targetTMeshVec );
-    GetMesh( bgeom, boundaryTMeshVec );
+    vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tset );
+    vector < TMesh* > boundaryTMeshVec = veh->CreateTMeshVec( bgeom );
 
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
 
@@ -223,9 +221,9 @@ Results* ProjectionMgrSingleton::Project( int tset, const string &bgeom, const v
 
 Results* ProjectionMgrSingleton::Project( const string &tgeom, const vec3d & dir )
 {
-    vector < TMesh* > targetTMeshVec;
+    Vehicle* veh = VehicleMgr.GetVehicle();
 
-    GetMesh( tgeom, targetTMeshVec );
+    vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tgeom );
 
     Results* res = Project( targetTMeshVec, dir );
     CleanMesh( targetTMeshVec );
@@ -234,11 +232,10 @@ Results* ProjectionMgrSingleton::Project( const string &tgeom, const vec3d & dir
 
 Results* ProjectionMgrSingleton::Project( const string &tgeom, int bset, const vec3d & dir )
 {
-    vector < TMesh* > targetTMeshVec;
-    vector < TMesh* > boundaryTMeshVec;
+    Vehicle* veh = VehicleMgr.GetVehicle();
 
-    GetMesh( tgeom, targetTMeshVec );
-    GetMesh( bset, boundaryTMeshVec );
+    vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tgeom );
+    vector < TMesh* > boundaryTMeshVec = veh->CreateTMeshVec( bset );
 
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
 
@@ -249,11 +246,10 @@ Results* ProjectionMgrSingleton::Project( const string &tgeom, int bset, const v
 
 Results* ProjectionMgrSingleton::Project( const string &tgeom, const string &bgeom, const vec3d & dir )
 {
-    vector < TMesh* > targetTMeshVec;
-    vector < TMesh* > boundaryTMeshVec;
+    Vehicle* veh = VehicleMgr.GetVehicle();
 
-    GetMesh( tgeom, targetTMeshVec );
-    GetMesh( bgeom, boundaryTMeshVec );
+    vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tgeom );
+    vector < TMesh* > boundaryTMeshVec = veh->CreateTMeshVec( bgeom );
 
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
     CleanMesh( targetTMeshVec );
@@ -541,45 +537,6 @@ void ProjectionMgrSingleton::ExportProjectLines( vector < TMesh* > targetTMeshVe
                 // Send total projection lines 
                 veh->SetVehProjectVec3d( SolutionPolyVec3d, k );
             }
-        }
-    }
-}
-
-void ProjectionMgrSingleton::GetMesh( int set, vector < TMesh* > & tmv )
-{
-
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    vector<string> geom_vec = veh->GetGeomVec();
-
-    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
-    {
-        Geom* geom_ptr = veh->FindGeom( geom_vec[i] );
-        if ( geom_ptr )
-        {
-            if ( geom_ptr->GetSetFlag( set ) )
-            {
-                vector< TMesh* > tMeshVec = geom_ptr->CreateTMeshVec();
-                for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
-                {
-                    tmv.push_back( tMeshVec[j] );
-                }
-            }
-        }
-    }
-}
-
-void ProjectionMgrSingleton::GetMesh( const string &geom, vector < TMesh* > & tmv )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    Geom* geom_ptr = veh->FindGeom( geom );
-    if ( geom_ptr )
-    {
-        vector< TMesh* > tMeshVec = geom_ptr->CreateTMeshVec();
-        for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
-        {
-            tmv.push_back( tMeshVec[j] );
         }
     }
 }

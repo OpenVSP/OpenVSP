@@ -84,9 +84,6 @@ protected:
     virtual void TransformMesh( vector < TMesh* > & tmv, const Matrix4d & mat );
     virtual void TransformPolyVec( vector < vector < vec3d > > & polyvec, const Matrix4d & mat );
 
-    virtual void GetMesh( int set, vector < TMesh* > & tmv );
-    virtual void GetMesh( const string &geom, vector < TMesh* > & tmv );
-
     virtual void UpdateBBox( vector < TMesh* > & tmv );
 
     virtual void MeshToPaths( const vector < TMesh* > & tmv, Clipper2Lib::Paths64 & pths );
