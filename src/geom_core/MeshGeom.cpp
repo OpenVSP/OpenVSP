@@ -3620,9 +3620,9 @@ void MeshGeom::CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, doubl
     p4.offset_i( -len / 2.0, idir );
     p5.offset_i( -len / 2.0, idir );
 
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, p0, p2, p1, p3 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, p2, p3, p5, p1 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, p5, p3, p4, p1 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_GeomID, tri->m_Density, p0, p2, p1, p3 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_GeomID, tri->m_Density, p2, p3, p5, p1 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_GeomID, tri->m_Density, p5, p3, p4, p1 ) );
 }
 
 //==== Check Current Geom For Problems ====//

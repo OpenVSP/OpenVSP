@@ -345,7 +345,7 @@ public:
 
     bool m_IgnoreTriFlag;
     vector< bool > m_insideSurf;
-    string m_ID;
+    string m_GeomID;  // Used by slice triangles for later use by Wave Drag and Mass Properties.
     vector<int> m_Tags;
     double m_Density;
     int m_InvalidFlag;

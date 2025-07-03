@@ -1184,7 +1184,7 @@ double TMesh::ComputeWaveDragArea( const std::unordered_map< string, int > &idma
                     m_AreaCenter = m_AreaCenter + tri->m_SplitVec[s]->ComputeCenter()*area;
                     m_WetArea += area;
 
-                    std::unordered_map<string, int>::const_iterator it = idmap.find( tri->m_SplitVec[s]->m_ID );
+                    std::unordered_map<string, int>::const_iterator it = idmap.find( tri->m_SplitVec[s]->m_GeomID );
                     if ( it != idmap.end() )
                     {
                         m_CompAreaVec[ it->second ] += area;
@@ -1198,7 +1198,7 @@ double TMesh::ComputeWaveDragArea( const std::unordered_map< string, int > &idma
             m_AreaCenter = m_AreaCenter + tri->ComputeCenter()*area;
             m_WetArea += area;
 
-            std::unordered_map<string, int>::const_iterator it = idmap.find( tri->m_ID );
+            std::unordered_map<string, int>::const_iterator it = idmap.find( tri->m_GeomID );
             if ( it != idmap.end() )
             {
                 m_CompAreaVec[ it->second ] += area;
@@ -1663,7 +1663,7 @@ void TTri::CopyFrom( const TTri* tri )
     m_Norm = tri->m_Norm;
     m_Density = tri->m_Density;
     m_Tags = tri->m_Tags;
-    m_ID = tri->m_ID;
+    m_GeomID = tri->m_GeomID;
     m_InvalidFlag = tri->m_InvalidFlag;
     m_IgnoreTriFlag = tri->m_IgnoreTriFlag;
 }
@@ -6195,7 +6195,8 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
                 // Priority assignment for wave drag.  Mass prop may need some adjustments.
                 if ( meshVec[m]->m_MassPrior > prior ) // Should possibly check that priority is only for vsp::CFD_NORMAL
                 {
-                    tri->m_ID = meshVec[m]->m_OriginGeomID;
+                    // Assigns GeomID to slice triangles for later use by Wave Drag and Mass Properties.
+                    tri->m_GeomID = meshVec[m]->m_OriginGeomID;
                     tri->m_Density = meshVec[m]->m_Density;
                     prior = meshVec[m]->m_MassPrior;
                 }
