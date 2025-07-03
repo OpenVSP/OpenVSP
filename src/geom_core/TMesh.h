@@ -296,12 +296,16 @@ public:
 
     virtual TNode* GetTriNode( int i )
     {
+        if ( i == -1 ) // Loop before the start to make iterating on edges easy.
+            return m_N2;
         if ( i == 0 )
             return m_N0;
         if ( i == 1 )
             return m_N1;
         if ( i == 2 )
             return m_N2;
+        if ( i == 3 ) // Loop back to start to make iterating on edges easy.
+            return m_N0;
         return nullptr;
     }
 
