@@ -8,6 +8,7 @@
 #include "BORScreen.h"
 #include "ScreenMgr.h"
 #include "BORGeom.h"
+#include "CurveEditScreen.h"
 
 
 //==== Constructor ====//
@@ -1200,6 +1201,13 @@ bool BORScreen::Update()
         }
         else if ( xsc->GetType() == vsp::XS_EDIT_CURVE )
         {
+            CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+            if ( ceditcreen )
+            {
+                ceditcreen->SetXSecCurve( xsc );
+            }
+
             m_EditCEDITGroup.Show();
             m_ConvertCEDITGroup.Hide();
             DisplayGroup( nullptr );
@@ -1545,6 +1553,13 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
         if ( edit_xsec )
         {
+            CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+            if ( ceditcreen )
+            {
+                ceditcreen->SetXSecCurve( edit_xsec );
+            }
+
             m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
         }
     }

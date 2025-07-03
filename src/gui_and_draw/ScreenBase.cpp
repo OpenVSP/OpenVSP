@@ -29,6 +29,7 @@
 #include "ParmMgr.h"
 #include "Background3DMgr.h"
 #include "RoutingGeom.h"
+#include "CurveEditScreen.h"
 
 using namespace vsp;
 
@@ -2374,6 +2375,13 @@ bool GeomScreen::Update()
                 }
                 else if ( xsc->GetType() == vsp::XS_EDIT_CURVE )
                 {
+                    CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+                    if ( ceditcreen )
+                    {
+                        ceditcreen->SetXSecCurve( xsc );
+                    }
+
                     m_SSXSCEditCEDITGroup.Show();
                     m_SSXSCConvertCEDITGroup.Hide();
                     SubSurfXSCDisplayGroup( nullptr );
@@ -2714,6 +2722,13 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( edit_xsec )
             {
+                CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+                if ( ceditcreen )
+                {
+                    ceditcreen->SetXSecCurve( edit_xsec );
+                }
+
                 m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
             }
         }
@@ -4242,6 +4257,13 @@ bool XSecScreen::Update()
             }
             else if (xsc->GetType() == XS_EDIT_CURVE)
             {
+                CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+                if ( ceditcreen )
+                {
+                    ceditcreen->SetXSecCurve( xsc );
+                }
+
                 m_EditCEDITButtonGroup.Show();
                 m_ConvertCEDITGroup.Hide();
 
@@ -4387,6 +4409,13 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             if (edit_xsec)
             {
+                CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+                if ( ceditcreen )
+                {
+                    ceditcreen->SetXSecCurve( edit_xsec );
+                }
+
                 m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
             }
 

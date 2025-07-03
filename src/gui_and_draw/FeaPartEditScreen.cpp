@@ -12,6 +12,7 @@
 #include "StructureMgr.h"
 #include "FeaMeshMgr.h"
 #include "StlHelper.h"
+#include "CurveEditScreen.h"
 
 FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 475 + 80 + 60, "FEA Part Edit" )
 {
@@ -2841,6 +2842,13 @@ bool FeaPartEditScreen::Update()
                             }
                             else if ( xsc->GetType() == vsp::XS_EDIT_CURVE )
                             {
+                                CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+                                if ( ceditcreen )
+                                {
+                                    ceditcreen->SetXSecCurve( xsc );
+                                }
+
                                 m_FeaSSXSCEditCEDITGroup.Show();
                                 m_FeaSSXSCConvertCEDITGroup.Hide();
                                 SubSurfXSCDisplayGroup( nullptr );
@@ -3213,6 +3221,13 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 if ( edit_xsec )
                 {
+                    CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+                    if ( ceditcreen )
+                    {
+                        ceditcreen->SetXSecCurve( edit_xsec );
+                    }
+
                     m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
                 }
             }

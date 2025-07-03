@@ -8,7 +8,7 @@
 #include "SuperConeScreen.h"
 #include "ScreenMgr.h"
 #include "SuperConeGeom.h"
-
+#include "CurveEditScreen.h"
 
 //==== Constructor ====//
 SuperConeScreen::SuperConeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "SuperCone" )
@@ -1101,6 +1101,13 @@ bool SuperConeScreen::Update()
         }
         else if ( xsc->GetType() == vsp::XS_EDIT_CURVE )
         {
+            CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+            if ( ceditcreen )
+            {
+                ceditcreen->SetXSecCurve( xsc );
+            }
+
             m_EditCEDITGroup.Show();
             m_ConvertCEDITGroup.Hide();
             DisplayGroup( NULL );
@@ -1397,6 +1404,13 @@ void SuperConeScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
         if ( edit_xsec )
         {
+            CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+            if ( ceditcreen )
+            {
+                ceditcreen->SetXSecCurve( edit_xsec );
+            }
+
             m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
         }
     }

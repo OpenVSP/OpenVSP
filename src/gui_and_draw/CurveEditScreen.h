@@ -26,6 +26,7 @@ public:
     virtual void CloseCallBack( Fl_Widget* w );
     virtual void GuiDeviceCallBack( GuiDevice* d );
 
+    void SetXSecCurve( XSecCurve* xsc );
     XSecCurve* GetXSecCurve();
 
     void UpdateDrawObj();
@@ -152,6 +153,7 @@ private:
     double m_ImageXOffsetOrig;
     double m_ImageYOffsetOrig;
 
+    XSecCurve *m_XSecCurve;
 };
 
 #endif // !defined(CURVE_EDIT_H)

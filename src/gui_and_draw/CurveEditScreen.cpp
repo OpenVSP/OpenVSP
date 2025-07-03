@@ -347,6 +347,8 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     m_ImageYOffsetOrig = 0;
     m_ImageWOrig = 1;
     m_ImageHOrig = 1;
+
+    m_XSecCurve = nullptr;
 }
 
 //==== Deconstructor ====//
@@ -375,105 +377,17 @@ void CurveEditScreen::Show()
     {
         geom_ptr->m_SurfDirty = true; // Ensures width/height parms are deactivated
     }
+}
 
+void CurveEditScreen::SetXSecCurve( XSecCurve* xsc )
+{
+    m_XSecCurve = xsc;
 }
 
 //==== Get the Active XSec Curve ====//
 XSecCurve* CurveEditScreen::GetXSecCurve()
 {
-    XSecCurve* xsc = nullptr;
-
-    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
-
-    if ( !geom_ptr )
-    {
-        return nullptr;
-    }
-
-    ManageGeomScreen * mgs = dynamic_cast < ManageGeomScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
-
-    if ( mgs )
-    {
-        GeomScreen * gs = dynamic_cast < GeomScreen * > ( mgs->GetShownGeomScreen() );
-        if ( gs )
-        {
-            Fl_Tabs *tabs = gs->GetTabs();
-            Fl_Group* sstab = gs->GetTab( gs->m_SubSurfTab_ind );
-            if ( tabs && sstab)
-            {
-                if ( tabs->value() == sstab )
-                {
-                    SSXSecCurve* sub_surf = dynamic_cast< SSXSecCurve * > ( geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() ) );
-                    if ( sub_surf )
-                    {
-                        return sub_surf->GetXSecCurve();
-                    }
-                }
-            }
-        }
-    }
-
-    if ( geom_ptr->GetType().m_Type == MS_WING_GEOM_TYPE )
-    {
-        WingGeom* wing_ptr = dynamic_cast<WingGeom*>( geom_ptr );
-
-        if ( !wing_ptr )
-        {
-            return nullptr;
-        }
-
-        int aid = wing_ptr->m_ActiveXSec();
-        XSec* xs = wing_ptr->GetXSec( aid );
-
-        if ( !xs )
-        {
-            return nullptr;
-        }
-
-        xsc = xs->GetXSecCurve();
-    }
-    else if ( geom_ptr->GetType().m_Type == BOR_GEOM_TYPE )
-    {
-        BORGeom* bor_geom = dynamic_cast <BORGeom*> ( geom_ptr );
-
-        if ( !bor_geom )
-        {
-            return nullptr;
-        }
-
-        xsc = bor_geom->GetXSecCurve();
-    }
-    else if ( geom_ptr->GetType().m_Type == SUPER_CONE_GEOM_TYPE )
-    {
-        SuperConeGeom* cone_geom = dynamic_cast <SuperConeGeom*> ( geom_ptr );
-
-        if ( !cone_geom )
-        {
-            return NULL;
-        }
-
-        xsc = cone_geom->GetXSecCurve();
-    }
-    else
-    {
-        GeomXSec* geom_xsec = dynamic_cast <GeomXSec*> ( geom_ptr );
-        if ( !geom_xsec )
-        {
-            return nullptr;
-        }
-
-        int xsid = geom_xsec->m_ActiveXSec();
-        XSec* xs = geom_xsec->GetXSec( xsid );
-
-        if ( !xs )
-        {
-            return nullptr;
-        }
-
-        xsc = xs->GetXSecCurve();
-    }
-
-    return xsc;
+    return m_XSecCurve;
 }
 
 //==== Update Curve Edit Screen ====//
