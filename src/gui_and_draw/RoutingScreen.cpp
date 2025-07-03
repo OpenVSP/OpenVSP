@@ -12,7 +12,7 @@
 #include "APIDefines.h"
 
 //==== Constructor ====//
-RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 750, "Routing" )
+RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Routing" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );

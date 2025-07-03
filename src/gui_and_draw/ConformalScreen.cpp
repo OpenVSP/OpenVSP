@@ -11,7 +11,7 @@
 #include "APIDefines.h"
 
 //==== Constructor ====//
-ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 + 25, "Conformal" )
+ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Conformal" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );

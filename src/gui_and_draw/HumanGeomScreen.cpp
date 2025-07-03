@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 677+80, "Human" )
+HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Human" )
 {
     Fl_Group* design_tab = AddTab( "Anthropometric" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );

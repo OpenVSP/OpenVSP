@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-SuperConeScreen::SuperConeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 680, "SuperCone" )
+SuperConeScreen::SuperConeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "SuperCone" )
 {
     m_CurrDisplayGroup = NULL;
 

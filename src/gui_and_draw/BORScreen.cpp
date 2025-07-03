@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 710, "BOR" )
+BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "BOR" )
 {
     m_CurrDisplayGroup = nullptr;
 
