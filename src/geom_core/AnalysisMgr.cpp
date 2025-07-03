@@ -1894,73 +1894,6 @@ string SurfacePatchAnalysis::Execute()
 //================================= VSPAERO ============================================//
 //======================================================================================//
 
-VSPAERODegenGeomAnalysis::VSPAERODegenGeomAnalysis() : Analysis( "VSPAERODegenGeom", "Prepare a degen geometry for VSPAERO analysis." )
-{
-}
-
-void VSPAERODegenGeomAnalysis::SetDefaults()
-{
-    // the default values use exactly what is setup in the VSPAEROMgr
-    m_Inputs.Clear();
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Geometry Set for analysis."  ) );
-
-        m_Inputs.Add( new NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
-        m_Inputs.Add( new NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
-    }
-    else
-    {
-        // TODO Throw an error here
-        printf("ERROR: trying to set defaults without a vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
-    }
-}
-
-string VSPAERODegenGeomAnalysis::Execute()
-{
-    string res_id;
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        NameValData *nvd = nullptr;
-
-        // Apply current analysis input values
-        nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        int geomSetOrig = VSPAEROMgr.m_GeomSet.Get();
-        if ( nvd )
-        {
-            VSPAEROMgr.m_GeomSet.Set( nvd->GetInt( 0 ) );
-        }
-
-        int useModeOrig = VSPAEROMgr.m_UseMode.Get();
-        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_UseMode.Set( nvd->GetInt(0) );
-        }
-
-        string modeIDOrig = VSPAEROMgr.m_ModeID;
-        nvd = m_Inputs.FindPtr( "ModeID", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_ModeID = nvd->GetString( 0 );
-        }
-
-        // Execute analysis
-        res_id = VSPAEROMgr.ComputeGeometry();
-
-        //Restore original values that were overwritten by analysis inputs
-        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
-        VSPAEROMgr.m_UseMode.Set( useModeOrig );
-        VSPAEROMgr.m_ModeID = modeIDOrig;
-
-    }
-    
-    return res_id;
-}
-
 VSPAEROComputeGeometryAnalysis::VSPAEROComputeGeometryAnalysis() : Analysis( "VSPAEROComputeGeometry", "Prepare a watertight triangle mesh for VSPAERO analysis." )
 {
 }
@@ -2050,7 +1983,92 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
         VSPAEROMgr.m_AlternateInputFormatFlag.Set( alternateFileOrig );
     }
-    
+
+    return resId;
+}
+
+VSPAERODegenGeomAnalysis::VSPAERODegenGeomAnalysis() : Analysis( "VSPAERODegenGeom", "Prepare a degen geometry for VSPAERO analysis." )
+{
+}
+
+void VSPAERODegenGeomAnalysis::SetDefaults()
+{
+    // the default values use exactly what is setup in the VSPAEROMgr
+    m_Inputs.Clear();
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Geometry Set for analysis."  ) );
+
+        m_Inputs.Add( new NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
+        m_Inputs.Add( new NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
+    }
+    else
+    {
+        // TODO Throw an error here
+        printf("ERROR: trying to set defaults without a vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+    }
+}
+
+string VSPAERODegenGeomAnalysis::Execute()
+{
+    string res_id;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        NameValData *nvd = nullptr;
+
+        // Apply current analysis input values
+        nvd = m_Inputs.FindPtr( "GeomSet", 0 );
+        int geomSetOrig = VSPAEROMgr.m_GeomSet.Get();
+        if ( nvd )
+        {
+            VSPAEROMgr.m_GeomSet.Set( nvd->GetInt( 0 ) );
+        }
+
+        int useModeOrig = VSPAEROMgr.m_UseMode.Get();
+        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_UseMode.Set( nvd->GetInt(0) );
+        }
+
+        string modeIDOrig = VSPAEROMgr.m_ModeID;
+        nvd = m_Inputs.FindPtr( "ModeID", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ModeID = nvd->GetString( 0 );
+        }
+
+        // Execute analysis
+        res_id = VSPAEROMgr.ComputeGeometry();
+
+        //Restore original values that were overwritten by analysis inputs
+        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_UseMode.Set( useModeOrig );
+        VSPAEROMgr.m_ModeID = modeIDOrig;
+
+    }
+
+    return res_id;
+}
+
+VSPAEROReadPreviousAnalysis::VSPAEROReadPreviousAnalysis() : Analysis( "VSPAEROReadPreviousAnalysis", "Read prior VSPAERO analysis from file." )
+{
+}
+
+void VSPAEROReadPreviousAnalysis::SetDefaults()
+{
+    // SetDefaults() is called when the analysis is registered.  Do nothing.
+}
+
+string VSPAEROReadPreviousAnalysis::Execute()
+{
+    string resId;
+
+    resId = VSPAEROMgr.LoadExistingVSPAEROResults();
+
     return resId;
 }
 
@@ -2744,24 +2762,6 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_NoiseCalcType.Set( noiseCalcTypeOrig );
         VSPAEROMgr.m_NoiseUnits.Set( noiseUnitsOrig );
     }
-
-    return resId;
-}
-
-VSPAEROReadPreviousAnalysis::VSPAEROReadPreviousAnalysis() : Analysis( "VSPAEROReadPreviousAnalysis", "Read prior VSPAERO analysis from file." )
-{
-}
-
-void VSPAEROReadPreviousAnalysis::SetDefaults()
-{
-    // SetDefaults() is called when the analysis is registered.  Do nothing.
-}
-
-string VSPAEROReadPreviousAnalysis::Execute()
-{
-    string resId;
-
-    resId = VSPAEROMgr.LoadExistingVSPAEROResults();
 
     return resId;
 }

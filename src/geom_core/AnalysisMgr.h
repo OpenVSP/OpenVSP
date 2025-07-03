@@ -244,6 +244,17 @@ public:
     virtual string Execute();
 };
 
+class VSPAEROComputeGeometryAnalysis : public Analysis
+{
+public:
+
+    VSPAEROComputeGeometryAnalysis();
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
 // This can be deprecated
 class VSPAERODegenGeomAnalysis : public Analysis
 {
@@ -256,11 +267,11 @@ public:
 
 };
 
-class VSPAEROComputeGeometryAnalysis : public Analysis
+class VSPAEROReadPreviousAnalysis : public Analysis
 {
 public:
 
-    VSPAEROComputeGeometryAnalysis();
+    VSPAEROReadPreviousAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();
@@ -283,17 +294,6 @@ class VSPAEROSweepAnalysis : public Analysis
 public:
 
     VSPAEROSweepAnalysis();
-
-    virtual void SetDefaults();
-    virtual string Execute();
-
-};
-
-class VSPAEROReadPreviousAnalysis : public Analysis
-{
-public:
-
-    VSPAEROReadPreviousAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();
