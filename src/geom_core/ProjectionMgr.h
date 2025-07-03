@@ -49,13 +49,13 @@ public:
 
     virtual Results* Project( );
 
-    virtual Results* Project( int tset, const vec3d & dir );
-    virtual Results* Project( int tset, int bset, const vec3d & dir );
-    virtual Results* Project( int tset, const string &bgeom, const vec3d & dir );
+    virtual Results* Project( int tset, bool thullflag, const vec3d & dir );
+    virtual Results* Project( int tset, bool thullflag, int bset, bool bhullflag, const vec3d & dir );
+    virtual Results* Project( int tset, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir );
 
-    virtual Results* Project( const string &tgeom, const vec3d & dir );
-    virtual Results* Project( const string &tgeom, int bset, const vec3d & dir );
-    virtual Results* Project( const string &tgeom, const string &bgeom, const vec3d & dir );
+    virtual Results* Project( const string &tgeom, bool thullflag, const vec3d & dir );
+    virtual Results* Project( const string &tgeom, bool thullflag, int bset, bool bhullflag, const vec3d & dir );
+    virtual Results* Project( const string &tgeom, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir );
 
     virtual string MakeMeshGeom();
 

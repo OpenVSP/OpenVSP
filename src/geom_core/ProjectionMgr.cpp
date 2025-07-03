@@ -131,6 +131,9 @@ Results* ProjectionMgrSingleton::Project( )
     int ttype = veh->m_TargetType();
     int tset = m_TargetSetIndex;
 
+    bool thullflag = veh->m_TargetHullFlag();
+    bool bhullflag = veh->m_BoundaryHullFlag();
+
     if ( ttype == vsp::MODE_TARGET )
     {
         Mode *m = ModeMgr.GetMode( m_ModeID );
@@ -148,31 +151,31 @@ Results* ProjectionMgrSingleton::Project( )
         case vsp::NO_BOUNDARY:
             if ( ttype == vsp::SET_TARGET || ttype == vsp::MODE_TARGET )
             {
-                return Project( tset, dir );
+                return Project( tset, thullflag, dir);
             }
             else
             {
-                return Project( m_TargetGeomID, dir );
+                return Project( m_TargetGeomID, thullflag, dir);
             }
             break;
         case vsp::SET_BOUNDARY:
             if ( ttype == vsp::SET_TARGET || ttype == vsp::MODE_TARGET )
             {
-                return Project( tset, m_BoundarySetIndex, dir );
+                return Project( tset, thullflag, m_BoundarySetIndex, bhullflag, dir);
             }
             else
             {
-                return Project( m_TargetGeomID, m_BoundarySetIndex, dir );
+                return Project( m_TargetGeomID, thullflag, m_BoundarySetIndex, bhullflag, dir);
             }
             break;
         case vsp::GEOM_BOUNDARY:
             if ( ttype == vsp::SET_TARGET || ttype == vsp::MODE_TARGET )
             {
-                return Project( tset, m_BoundaryGeomID, dir );
+                return Project( tset, thullflag, m_BoundaryGeomID, bhullflag, dir);
             }
             else
             {
-                return Project( m_TargetGeomID, m_BoundaryGeomID, dir );
+                return Project( m_TargetGeomID, thullflag, m_BoundaryGeomID, bhullflag, dir);
             }
             break;
     }
@@ -180,24 +183,45 @@ Results* ProjectionMgrSingleton::Project( )
     return nullptr;
 }
 
-Results* ProjectionMgrSingleton::Project( int tset, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, const vec3d & dir )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tset );
+
+    if ( thullflag )
+    {
+        TMesh *tm = MakeConvexHull( targetTMeshVec );
+        DeleteTMeshVec( targetTMeshVec );
+        targetTMeshVec.push_back( tm );
+    }
 
     Results* res = Project( targetTMeshVec, dir );
     DeleteTMeshVec( targetTMeshVec );
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( int tset, int bset, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, int bset, bool bhullflag, const vec3d & dir )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tset );
     vector < TMesh* > boundaryTMeshVec = veh->CreateTMeshVec( bset );
 
+    if ( thullflag )
+    {
+        TMesh *tm = MakeConvexHull( targetTMeshVec );
+        DeleteTMeshVec( targetTMeshVec );
+        targetTMeshVec.push_back( tm );
+    }
+
+    if ( bhullflag )
+    {
+        TMesh *tm = MakeConvexHull( boundaryTMeshVec );
+        DeleteTMeshVec( boundaryTMeshVec );
+        boundaryTMeshVec.push_back( tm );
+    }
+
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
 
     DeleteTMeshVec( targetTMeshVec );
@@ -205,13 +229,27 @@ Results* ProjectionMgrSingleton::Project( int tset, int bset, const vec3d & dir 
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( int tset, const string &bgeom, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tset );
     vector < TMesh* > boundaryTMeshVec = veh->CreateTMeshVec( bgeom );
 
+    if ( thullflag )
+    {
+        TMesh *tm = MakeConvexHull( targetTMeshVec );
+        DeleteTMeshVec( targetTMeshVec );
+        targetTMeshVec.push_back( tm );
+    }
+
+    if ( bhullflag )
+    {
+        TMesh *tm = MakeConvexHull( boundaryTMeshVec );
+        DeleteTMeshVec( boundaryTMeshVec );
+        boundaryTMeshVec.push_back( tm );
+    }
+
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
 
     DeleteTMeshVec( targetTMeshVec );
@@ -219,23 +257,44 @@ Results* ProjectionMgrSingleton::Project( int tset, const string &bgeom, const v
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( const string &tgeom, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( const string &tgeom, bool thullflag, const vec3d & dir )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tgeom );
+
+    if ( thullflag )
+    {
+        TMesh *tm = MakeConvexHull( targetTMeshVec );
+        DeleteTMeshVec( targetTMeshVec );
+        targetTMeshVec.push_back( tm );
+    }
 
     Results* res = Project( targetTMeshVec, dir );
     DeleteTMeshVec( targetTMeshVec );
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( const string &tgeom, int bset, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( const string &tgeom, bool thullflag, int bset, bool bhullflag, const vec3d & dir )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tgeom );
     vector < TMesh* > boundaryTMeshVec = veh->CreateTMeshVec( bset );
+
+    if ( thullflag )
+    {
+        TMesh *tm = MakeConvexHull( targetTMeshVec );
+        DeleteTMeshVec( targetTMeshVec );
+        targetTMeshVec.push_back( tm );
+    }
+
+    if ( bhullflag )
+    {
+        TMesh *tm = MakeConvexHull( boundaryTMeshVec );
+        DeleteTMeshVec( boundaryTMeshVec );
+        boundaryTMeshVec.push_back( tm );
+    }
 
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
 
@@ -244,12 +303,26 @@ Results* ProjectionMgrSingleton::Project( const string &tgeom, int bset, const v
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( const string &tgeom, const string &bgeom, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( const string &tgeom, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     vector < TMesh* > targetTMeshVec = veh->CreateTMeshVec( tgeom );
     vector < TMesh* > boundaryTMeshVec = veh->CreateTMeshVec( bgeom );
+
+    if ( thullflag )
+    {
+        TMesh *tm = MakeConvexHull( targetTMeshVec );
+        DeleteTMeshVec( targetTMeshVec );
+        targetTMeshVec.push_back( tm );
+    }
+
+    if ( bhullflag )
+    {
+        TMesh *tm = MakeConvexHull( boundaryTMeshVec );
+        DeleteTMeshVec( boundaryTMeshVec );
+        boundaryTMeshVec.push_back( tm );
+    }
 
     Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
     DeleteTMeshVec( targetTMeshVec );

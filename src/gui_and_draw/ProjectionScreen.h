@@ -49,6 +49,8 @@ protected:
     ToggleButton m_TargetTypeSet;
     ToggleButton m_TargetTypeGeom;
 
+    ToggleButton m_TargetHullButton;
+
     Choice m_BoundarySet;
     GeomPicker m_BoundaryGeom;
 
@@ -57,6 +59,7 @@ protected:
     ToggleButton m_BoundaryTypeSet;
     ToggleButton m_BoundaryTypeGeom;
 
+    ToggleButton m_BoundaryHullButton;
 
 
     ToggleRadioGroup m_DirectionTypeGroup;

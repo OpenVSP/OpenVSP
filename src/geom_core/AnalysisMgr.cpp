@@ -1776,6 +1776,9 @@ void ProjectionAnalysis::SetDefaults()
     m_Inputs.Add( new NameValData( "BoundaryGeomID", string( "" ), "Boundary GeomID." ) );
     m_Inputs.Add( new NameValData( "DirectionGeomID", string( "" ), "Direction GeomID." ) );
 
+    m_Inputs.Add( new NameValData( "TargetHullFlag", false, "Target Convex Hull flag." ) );
+    m_Inputs.Add( new NameValData( "BoundaryHullFlag", false, "Boundary Convex Hull flag." ) );
+
     m_Inputs.Add( new NameValData( "Direction", vec3d( 1.0, 0.0, 0.0 ), "Direction vector." ) );
 }
 
@@ -1847,6 +1850,20 @@ string ProjectionAnalysis::Execute()
         directionGeomID = nvd->GetString( 0 );
     }
 
+    bool targethullflag = false;
+    nvd = m_Inputs.FindPtr( "TargetHullFlag", 0 );
+    if ( nvd )
+    {
+        targethullflag = nvd->GetBool( 0 );
+    }
+
+    bool boundaryhullflag = false;
+    nvd = m_Inputs.FindPtr( "BoundaryHullFlag", 0 );
+    if ( nvd )
+    {
+        boundaryhullflag = nvd->GetBool( 0 );
+    }
+
     vec3d dir = vec3d( 1.0, 0.0, 0.0 );
     nvd = m_Inputs.FindPtr( "Direction", 0 );
     if ( nvd )
@@ -1877,31 +1894,31 @@ string ProjectionAnalysis::Execute()
         case vsp::NO_BOUNDARY:
             if ( targetType == vsp::SET_TARGET || targetType == vsp::MODE_TARGET )
             {
-                res = ProjectionMgr.Project( targetSet, dir );
+                res = ProjectionMgr.Project( targetSet, targethullflag, dir);
             }
             else
             {
-                res = ProjectionMgr.Project( targetGeomID, dir );
+                res = ProjectionMgr.Project( targetGeomID, targethullflag, dir);
             }
             break;
         case vsp::SET_BOUNDARY:
             if ( targetType == vsp::SET_TARGET || targetType == vsp::MODE_TARGET )
             {
-                res = ProjectionMgr.Project( targetSet, boundarySet, dir );
+                res = ProjectionMgr.Project( targetSet, targethullflag, boundarySet, boundaryhullflag, dir);
             }
             else
             {
-                res = ProjectionMgr.Project( targetGeomID, boundarySet, dir );
+                res = ProjectionMgr.Project( targetGeomID, targethullflag, boundarySet, boundaryhullflag, dir);
             }
             break;
         case vsp::GEOM_BOUNDARY:
             if ( targetType == vsp::SET_TARGET || targetType == vsp::MODE_TARGET )
             {
-                res = ProjectionMgr.Project( targetSet, boundaryGeomID, dir );
+                res = ProjectionMgr.Project( targetSet, targethullflag, boundaryGeomID, boundaryhullflag, dir);
             }
             else
             {
-                res = ProjectionMgr.Project( targetGeomID, boundaryGeomID, dir );
+                res = ProjectionMgr.Project( targetGeomID, targethullflag, boundaryGeomID, boundaryhullflag, dir);
             }
             break;
     }

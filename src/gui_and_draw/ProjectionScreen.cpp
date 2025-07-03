@@ -9,7 +9,7 @@
 #include "ProjectionScreen.h"
 #include "ModeMgr.h"
 
-ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 397+20, "Projected Area Analysis" )
+ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 397+20+40, "Projected Area Analysis" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -64,6 +64,10 @@ ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 39
     target_type_map.push_back( vsp::MODE_TARGET );
     m_TargetTypeGroup.SetValMapVec( target_type_map );
 
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddButton( m_TargetHullButton, "Convex Hull" );
+    m_BorderLayout.ForceNewLine();
+
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.SetSameLineFlag( false );
@@ -102,6 +106,10 @@ ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 39
     bndy_type_map.push_back( vsp::SET_BOUNDARY );
     bndy_type_map.push_back( vsp::GEOM_BOUNDARY );
     m_BoundaryTypeGroup.SetValMapVec( bndy_type_map );
+
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.AddButton( m_BoundaryHullButton, "Convex Hull" );
+    m_BorderLayout.ForceNewLine();
 
     m_BorderLayout.AddYGap();
 
@@ -251,6 +259,8 @@ bool ProjectionScreen::Update()
     m_YSlider.Update( vehiclePtr->m_YComp.GetID() );
     m_ZSlider.Update( vehiclePtr->m_ZComp.GetID() );
 
+    m_TargetHullButton.Update( vehiclePtr->m_TargetHullFlag.GetID() );
+    m_BoundaryHullButton.Update( vehiclePtr->m_BoundaryHullFlag.GetID() );
 
     switch ( vehiclePtr->m_BoundaryType() )
     {
