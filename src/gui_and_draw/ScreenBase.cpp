@@ -969,8 +969,6 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSXSCGroup.SetFitWidthFlag( true );
     m_SSXSCGroup.SetSameLineFlag( false );
 
-    m_SSXSCGroup.AddYGap();
-
     //==== Circle XSec ====//
     m_SSXSCGroup.AddSubGroupLayout( m_SSXSCCircleGroup, m_SSXSCGroup.GetW(), m_SSXSCGroup.GetRemainY() );
     m_SSXSCCircleGroup.AddSlider(  m_SSXSCDiameterSlider, "Diameter", 10, "%6.5f" );
@@ -1403,6 +1401,30 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     SubSurfXSCDisplayGroup( &m_SSXSCPointGroup );
 
+    vector < int > y_vals;
+
+    y_vals.push_back( m_SSXSCCircleGroup.GetY() );
+    y_vals.push_back( m_SSXSCEllipseGroup.GetY() );
+    y_vals.push_back( m_SSXSCSuperGroup.GetY() );
+    y_vals.push_back( m_SSXSCRoundedRectGroup.GetY() );
+    y_vals.push_back( m_SSXSCGenGroup.GetY() );
+    y_vals.push_back( m_SSXSCFourSeriesGroup.GetY() );
+    y_vals.push_back( m_SSXSCSixSeriesGroup.GetY() );
+    y_vals.push_back( m_SSXSCBiconvexGroup.GetY() );
+    y_vals.push_back( m_SSXSCWedgeGroup.GetY() );
+    y_vals.push_back( m_SSXSCFuseFileGroup.GetY() );
+    y_vals.push_back( m_SSXSCAfFileGroup.GetY() );
+    y_vals.push_back( m_SSXSCCSTAirfoilGroup.GetY() );
+    y_vals.push_back( m_SSXSCCSTLowCoeffLayout.GetY() );
+    y_vals.push_back( m_SSXSCVKTGroup.GetY() );
+    y_vals.push_back( m_SSXSCFourDigitModGroup.GetY() );
+    y_vals.push_back( m_SSXSCFiveDigitGroup.GetY() );
+    y_vals.push_back( m_SSXSCFiveDigitModGroup.GetY() );
+    y_vals.push_back( m_SSXSCOneSixSeriesGroup.GetY() );
+
+    m_SSXSCGroup.SetY( *max_element( y_vals.begin(), y_vals.end() ) );
+    m_SSXSCGroup.AddYGap();
+    m_SSXSCAttrEditor.Init( mgr , &m_SSXSCGroup , subsurf_group , this, staticScreenCB , true , m_SSXSCGroup.GetY() , attr_h );
 
     //===== SSControl ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSConGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
@@ -1987,16 +2009,16 @@ bool GeomScreen::Update()
             // m_SSXSCThetaSlider.Update( ssxsc->m_Theta.GetID() );
             SubSurfDispGroup( & m_SSXSCGroup );
 
-            // // update attribute pointer to SSXSCAttrEditor
-     //       m_SSXSCAttrEditor.SetEditorCollID( subsurf->m_AttrCollection.GetID() );
-     //       m_SSXSCAttrEditor.Update();
+            // update attribute pointer to SSXSCAttrEditor
 
             XSecCurve* xsc = ssxsc->GetXSecCurve();
 
+            vector < string > empty_coll_ids;
+            empty_coll_ids.push_back( subsurf->m_AttrCollection.GetID() );
+
             if ( xsc )
             {
-                // m_SSXSCAttrEditor.SetEditorCollID( xsc->GetAttrCollection()->GetID() );
-                // m_SSXSCAttrEditor.Update();
+                empty_coll_ids.push_back( xsc->GetAttrCollection()->GetID() );
 
                 m_SSXSecTypeChoice.SetVal( xsc->GetType() );
 
@@ -2355,6 +2377,9 @@ bool GeomScreen::Update()
                     m_SSXSCConvertCEDITGroup.Show();
                 }
             }
+            m_SSXSCAttrEditor.SetEditorCollID( empty_coll_ids );
+            m_SSXSCAttrEditor.Update();
+
         }
         else if (subsurf->GetType() == vsp::SS_CONTROL)
         {
@@ -2464,13 +2489,16 @@ bool GeomScreen::Update()
     }
     else
     {
+        SubSurfDispGroup( nullptr );
+
+        // clear editor collIDs
         m_SSLineAttrEditor.SetEditorCollID();
         m_SSEllAttrEditor.SetEditorCollID();
         m_SSRecAttrEditor.SetEditorCollID();
         m_SSConAttrEditor.SetEditorCollID();
         m_SSFLineAttrEditor.SetEditorCollID();
+        m_SSXSCAttrEditor.SetEditorCollID();
 
-        SubSurfDispGroup( nullptr );
     }
 
     //==== SubSurfBrowser ====//
@@ -2632,12 +2660,12 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             ssurf->Update();
         }
-        SubSurfaceMgr.SetCurrSubSurfInd( geom_ptr->NumSubSurfs() - 1 );
+        SetCurrSubSurf( geom_ptr->NumSubSurfs() - 1 );
     }
     else if ( device == &m_DelSubSurfButton )
     {
         geom_ptr->DelSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
-        SubSurfaceMgr.SetCurrSubSurfInd( geom_ptr->NumSubSurfs() - 1 );
+        SetCurrSubSurf( geom_ptr->NumSubSurfs() - 1 );
     }
     else if ( device == &m_SubNameInput )
     {
@@ -2852,13 +2880,13 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         }
     }
 
-//     m_SSXSCAttrEditor.GuiDeviceCallBack( device );
     m_AttributeEditor.GuiDeviceCallBack( device );
     m_SSLineAttrEditor.GuiDeviceCallBack( device );
     m_SSRecAttrEditor.GuiDeviceCallBack( device );
     m_SSEllAttrEditor.GuiDeviceCallBack( device );
     m_SSConAttrEditor.GuiDeviceCallBack( device );
     m_SSFLineAttrEditor.GuiDeviceCallBack( device );
+    m_SSXSCAttrEditor.GuiDeviceCallBack( device );
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -2967,6 +2995,81 @@ void GeomScreen::RebuildSSCSTGroup( CSTAirfoil* cst_xs)
     }
 }
 
+void GeomScreen::SetCurrSubSurf( int ss_index )
+{
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    m_SSLineAttrEditor.SetEditorCollID();
+    m_SSRecAttrEditor.SetEditorCollID();
+    m_SSEllAttrEditor.SetEditorCollID();
+    m_SSConAttrEditor.SetEditorCollID();
+    m_SSFLineAttrEditor.SetEditorCollID();
+    m_SSXSCAttrEditor.SetEditorCollID();
+
+    SubSurfaceMgr.SetCurrSubSurfInd( ss_index );
+
+    SubSurface* sub_surf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+
+    if ( sub_surf && sub_surf->GetAttrCollection() )
+    {
+        string ss_coll_id = sub_surf->GetAttrCollection()->GetID();
+
+        switch ( sub_surf->GetType() )
+        {
+            case vsp::SS_LINE:
+            {
+                m_SSLineAttrEditor.SetEditorCollID( ss_coll_id );
+                break;
+            }
+            case vsp::SS_RECTANGLE:
+            {
+                m_SSRecAttrEditor.SetEditorCollID( ss_coll_id );
+                break;
+            }
+            case vsp::SS_ELLIPSE:
+            {
+                m_SSEllAttrEditor.SetEditorCollID( ss_coll_id );
+                break;
+            }
+            case vsp::SS_CONTROL:
+            {
+                m_SSConAttrEditor.SetEditorCollID( ss_coll_id );
+                break;
+            }
+
+            case vsp::SS_FINITE_LINE:
+            {
+                m_SSFLineAttrEditor.SetEditorCollID( ss_coll_id );
+                break;
+            }
+            case vsp::SS_XSEC_CURVE:
+            {
+                vector < string > empty_coll_ids;
+                empty_coll_ids.push_back( ss_coll_id );
+
+                SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( sub_surf );
+                assert( ssxsc );
+
+                XSecCurve* xsc = ssxsc->GetXSecCurve();
+
+                if ( xsc && xsc->GetAttrCollection() )
+                {
+                    empty_coll_ids.push_back( xsc->GetAttrCollection()->GetID() );
+                }
+
+                m_SSXSCAttrEditor.SetEditorCollID( empty_coll_ids );
+                break;
+            }
+            default:
+            break;
+        }
+    }
+}
+
 
 void GeomScreen::CallBack( Fl_Widget *w )
 {
@@ -2980,7 +3083,7 @@ void GeomScreen::CallBack( Fl_Widget *w )
 
     if ( w == m_SubSurfBrowser )
     {
-        SubSurfaceMgr.SetCurrSubSurfInd( m_SubSurfBrowser->value() - 2 );
+        SetCurrSubSurf( m_SubSurfBrowser->value() - 2 );
         SubSurface* sub_surf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
         if ( sub_surf )
         {
@@ -3003,6 +3106,7 @@ void GeomScreen::CallBack( Fl_Widget *w )
     m_SSEllAttrEditor.DeviceCB( w );
     m_SSConAttrEditor.DeviceCB( w );
     m_SSFLineAttrEditor.DeviceCB( w );
+    m_SSXSCAttrEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -3021,6 +3125,7 @@ void GeomScreen::GetCollIDs( vector < string > &collIDVec )
     m_SSEllAttrEditor.GetCollIDs( collIDVec );
     m_SSConAttrEditor.GetCollIDs( collIDVec );
     m_SSFLineAttrEditor.GetCollIDs( collIDVec );
+    m_SSXSCAttrEditor.GetCollIDs( collIDVec );
 }
 
 //=====================================================================//

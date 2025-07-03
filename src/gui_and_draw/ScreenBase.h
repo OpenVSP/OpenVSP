@@ -238,6 +238,8 @@ public:
     virtual void GuiDeviceCallBack( GuiDevice* device );
     virtual void SubSurfDispGroup( GroupLayout * group );
 
+    void SetCurrSubSurf( int ss_index );
+
     virtual void UpdateMaterialNames();
 
     virtual void GetCollIDs( vector < string > &collIDVec );
