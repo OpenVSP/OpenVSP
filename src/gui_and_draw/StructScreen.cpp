@@ -78,9 +78,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
     m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - border,
                                        m_ConsoleLayout.GetRemainY() - border );
 
-    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTextDisplay( textheight );
-    m_ConsoleBuffer = new Fl_Text_Buffer;
-    m_ConsoleDisplay->buffer( m_ConsoleBuffer );
+    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTerminal( textheight );
+    m_ConsoleDisplay->display_columns( 300 );
+    m_ConsoleDisplay->history_lines( 1000 );
+
     m_FLTK_Window->resizable( m_ConsoleDisplay );
 
     m_BorderConsoleLayout.AddYGap();
@@ -2118,8 +2119,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
 
 StructScreen::~StructScreen()
 {
-    m_ConsoleDisplay->buffer( nullptr );
-    delete m_ConsoleBuffer;
 }
 
 void StructScreen::LoadGeomChoice()
@@ -3971,9 +3970,7 @@ bool StructScreen::Update()
 void StructScreen::AddOutputText( const string &text )
 {
     Fl::lock();
-    m_ConsoleBuffer->append( text.c_str() );
-    m_ConsoleDisplay->insert_position( m_ConsoleDisplay->buffer()->length() );
-    m_ConsoleDisplay->show_insert_position();
+    m_ConsoleDisplay->append( text.c_str() );
     Fl::unlock();
 }
 
@@ -4128,7 +4125,8 @@ void StructScreen::LaunchFEAMesh()
         // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
         FeaMeshMgr.SetFeaMeshInProgress( true );
 
-        m_ConsoleBuffer->text( "" );
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
 
         // Identify which structure to mesh
         FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );

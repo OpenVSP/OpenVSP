@@ -106,8 +106,7 @@ private:
     GroupLayout* m_CurrDispGroup;
 
     //===== Console Items =====//
-    Fl_Text_Display* m_ConsoleDisplay;
-    Fl_Text_Buffer* m_ConsoleBuffer;
+    Fl_Terminal* m_ConsoleDisplay;
 
     ProcessUtil m_FeaMeshProcess;
 
