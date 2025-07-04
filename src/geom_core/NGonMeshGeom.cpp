@@ -237,8 +237,8 @@ void NGonMeshGeom::UpdateDrawObj()
     m_WireShadeDrawObj_vec.clear();
     m_WireShadeDrawObj_vec.resize( num_uniq_tags * 2 );
 
-    map<int, DrawObj*> face_dobj_map;
-    map<int, DrawObj*> outline_dobj_map;
+    unordered_map<int, DrawObj*> face_dobj_map;
+    unordered_map<int, DrawObj*> outline_dobj_map;
     map< std::vector<int>, int >::const_iterator mit;
     map< std::vector<int>, int > tagMap = m_PGMulti.GetSingleTagMap();
     int cnt = 0;

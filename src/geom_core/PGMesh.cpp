@@ -136,7 +136,7 @@ void PGNode::GetConnectFaces( vector< PGFace* > & cfVec ) const
 
 void PGNode::GetTags( vector < int > & tags ) const
 {
-    for( std::map< int, vec2d >::const_iterator it = m_TagUWMap.begin(); it != m_TagUWMap.end(); ++it )
+    for( std::unordered_map< int, vec2d >::const_iterator it = m_TagUWMap.begin(); it != m_TagUWMap.end(); ++it )
     {
         tags.push_back( it->first );
     }
@@ -145,7 +145,7 @@ void PGNode::GetTags( vector < int > & tags ) const
 bool PGNode::GetUW( const int tag, vec2d &uw ) const
 {
     // Try to find uw with matching tag.
-    map < int, vec2d >::const_iterator it = m_TagUWMap.find( tag );
+    unordered_map < int, vec2d >::const_iterator it = m_TagUWMap.find( tag );
 
     // If there is a match
     if ( it != m_TagUWMap.end() )
@@ -316,7 +316,7 @@ bool PGNode::BodyWakeNode( const PGMesh *m, int & part ) const
 {
     const double tol = 1e-12;
 
-    std::map< int, vec2d >::const_iterator it;
+    std::unordered_map< int, vec2d >::const_iterator it;
     for( it = m_TagUWMap.begin(); it != m_TagUWMap.end(); ++it )
     {
         int tag = it->first;
@@ -2312,13 +2312,13 @@ void PGMesh::RemoveNegativeiQuadFaces()
 void PGMesh::MergeNodes( PGNode* na, PGNode* nb )
 {
     // Copy unique UW map information from nb to na.
-    for ( map < int, vec2d >::iterator it0 = nb->m_TagUWMap.begin(); it0 != nb->m_TagUWMap.end(); ++it0 )
+    for ( unordered_map < int, vec2d >::iterator it0 = nb->m_TagUWMap.begin(); it0 != nb->m_TagUWMap.end(); ++it0 )
     {
         int tag = it0->first;
         vec2d uw0 = it0->second;
 
         // Try to find uw with matching tag in na's map.
-        map < int, vec2d >::iterator it1 = na->m_TagUWMap.find( tag );
+        unordered_map < int, vec2d >::iterator it1 = na->m_TagUWMap.find( tag );
 
         // If there is no existing entry, add tag UW pair to node.
         if ( it1 == na->m_TagUWMap.end() )
@@ -2854,7 +2854,7 @@ PGEdge * PGMesh::SplitEdge( PGEdge *e, const double t, PGNode *n0 )
     PGNode * newnode = AddNode( pnt );
 
     // Loop over all uw's in n0's map.
-    for ( map < int, vec2d >::iterator it0 = n0->m_TagUWMap.begin(); it0 != n0->m_TagUWMap.end(); ++it0 )
+    for ( unordered_map < int, vec2d >::iterator it0 = n0->m_TagUWMap.begin(); it0 != n0->m_TagUWMap.end(); ++it0 )
     {
         int tag = it0->first;
         vec2d uw0 = it0->second;
@@ -4663,7 +4663,7 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
 string PGMulti::GetTagNames( const vector<int> & tags )
 {
     string comp_list;
-    map< int, string >::iterator si;
+    unordered_map< int, string >::iterator si;
 
     int tag = GetTag( tags );
 
@@ -4708,7 +4708,7 @@ string PGMulti::GetTagNames( const int indx )
 string PGMulti::GetTagIDs( const vector<int>& tags )
 {
     string comp_list;
-    map< int, string >::iterator si;
+    unordered_map< int, string >::iterator si;
 
     int tag = GetTag( tags );
 

@@ -29,6 +29,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <unordered_map>
 #include <algorithm>
 using namespace std;
 
@@ -82,7 +83,7 @@ public:
 
     bool m_DeleteMeFlag;
 
-    map < int, vec2d > m_TagUWMap; // Parametric on a per-tag basis.
+    unordered_map < int, vec2d > m_TagUWMap; // Parametric on a per-tag basis.
 
 
     void GetConnectNodes( vector< PGNode* > & cnVec ) const;
@@ -480,8 +481,8 @@ public:
     int m_ActiveMesh;
 
 
-    std::map< int, std::string > m_TagNames;
-    std::map< int, std::string > m_TagIDs;
+    std::unordered_map< int, std::string > m_TagNames;
+    std::unordered_map< int, std::string > m_TagIDs;
     std::vector< int > m_ThickVec;
     std::vector< int > m_TypeVec;
     std::vector< int > m_PlateVec;
