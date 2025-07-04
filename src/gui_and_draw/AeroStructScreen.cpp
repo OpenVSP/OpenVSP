@@ -92,16 +92,15 @@ AeroStructScreen::AeroStructScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 60
 
     m_BorderLayout.ForceNewLine();
 
-    m_ConsoleDisplay = m_BorderLayout.AddFlTextDisplay( m_BorderLayout.GetH() - m_BorderLayout.GetY() + 25 );
-    m_ConsoleBuffer = new Fl_Text_Buffer;
-    m_ConsoleDisplay->buffer( m_ConsoleBuffer );
+    m_ConsoleDisplay = m_BorderLayout.AddFlTerminal( m_BorderLayout.GetH() - m_BorderLayout.GetY() + 25 );
+    m_ConsoleDisplay->display_columns( 300 );
+    m_ConsoleDisplay->history_lines( 1000 );
+
     m_FLTK_Window->resizable( m_ConsoleDisplay );
 }
 
 AeroStructScreen::~AeroStructScreen()
 {
-    m_ConsoleDisplay->buffer( nullptr );
-    delete m_ConsoleBuffer;
 }
 
 //==== Update Screen ====//
@@ -340,9 +339,7 @@ void AeroStructScreen::Hide()
 void AeroStructScreen::AddOutputText( const string &text )
 {
     Fl::lock();
-    m_ConsoleBuffer->append( text.c_str() );
-    m_ConsoleDisplay->insert_position( m_ConsoleDisplay->buffer()->length() );
-    m_ConsoleDisplay->show_insert_position();
+    m_ConsoleDisplay->append( text.c_str() );
     Fl::unlock();
 }
 
@@ -373,7 +370,7 @@ void * asmonitorfun( void *data )
 
     if( as )
     {
-        Fl_Text_Display *display = as->GetDisplay();
+        Fl_Terminal *display = as->GetDisplay();
         ProcessUtil *pu = as->GetProcess();
         if( pu && display )
         {
@@ -447,7 +444,8 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( AeroScreen )
         {
             // Clear the console
-            m_ConsoleBuffer->text( "" );
+            m_ConsoleDisplay->clear();
+            m_ConsoleDisplay->clear_history();
 
             AeroScreen->LaunchVSPAERO();
         }
@@ -463,7 +461,8 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_ExecuteRemeshAllFEAMesh )
     {
         // Clear the console
-        m_ConsoleBuffer->text( "" );
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
 
         vector < string > structid;
         structid = MakeStructIDVec();
@@ -477,7 +476,8 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_ExecuteMeshUnmeshedFEAMesh )
     {
         // Clear the console
-        m_ConsoleBuffer->text( "" );
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
 
         vector < string > structid;
         structid = MakeStructIDVec();
@@ -490,7 +490,8 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_ExportFEAMesh )
     {
         // Clear the console
-        m_ConsoleBuffer->text( "" );
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
 
         if ( AeroStructMgr.m_CurrStructAssyIndex() >= 0 ) // Non-negative test is sufficient because of tests elsewhere.
         {
@@ -512,21 +513,24 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_ExecuteLoads )
     {
         // Clear the console
-        m_ConsoleBuffer->text( "" );
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
 
         AeroStructMgr.TransferLoads();
     }
     else if ( gui_device == &m_ExecuteCalculiX )
     {
         // Clear the console
-        m_ConsoleBuffer->text( "" );
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
 
         AeroStructMgr.ComputeStructure();
     }
     else if ( gui_device == &m_ExecuteViewer )
     {
         // Clear the console
-        m_ConsoleBuffer->text( "" );
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
 
         if( !veh->GetVIEWERFound() || m_ViewerProcess.IsRunning() ||
                 !FileExist( AeroStructMgr.m_FEASolutionFile ) ||
@@ -554,7 +558,8 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_ExecuteCGXMesh )
     {
         // Clear the console
-        m_ConsoleBuffer->text( "" );
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
 
         if( !AeroStructMgr.GetCGXFound() || m_ViewerProcess.IsRunning() ||
             !FileExist( AeroStructMgr.m_FEAMeshFile ) )
@@ -579,7 +584,8 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_ExecuteCGXInput )
     {
         // Clear the console
-        m_ConsoleBuffer->text( "" );
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
 
         if( !AeroStructMgr.GetCGXFound() || m_ViewerProcess.IsRunning() ||
             !FileExist( AeroStructMgr.m_FEAInputFile ) )
@@ -604,7 +610,8 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_ExecuteCGXSolution )
     {
         // Clear the console
-        m_ConsoleBuffer->text( "" );
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
 
         if( !AeroStructMgr.GetCGXFound() || m_ViewerProcess.IsRunning() ||
             !FileExist( AeroStructMgr.m_FEASolutionFile ) ||
@@ -666,7 +673,7 @@ ProcessUtil* AeroStructScreen::GetProcess()
     return &m_ViewerProcess;
 }
 
-Fl_Text_Display* AeroStructScreen::GetDisplay()
+Fl_Terminal* AeroStructScreen::GetDisplay()
 {
     return m_ConsoleDisplay;
 }

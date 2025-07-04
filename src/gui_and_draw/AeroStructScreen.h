@@ -43,7 +43,7 @@ public:
     vector < string > MakeStructIDVec();
 
     ProcessUtil *GetProcess();
-    Fl_Text_Display *GetDisplay();
+    Fl_Terminal *GetDisplay();
 
     void LaunchBatchFEAMesh( const vector < string > &idvec );
 
@@ -77,8 +77,7 @@ protected:
     TriggerButton m_ExecuteViewer;
 
     //===== Console Items =====//
-    Fl_Text_Display* m_ConsoleDisplay;
-    Fl_Text_Buffer* m_ConsoleBuffer;
+    Fl_Terminal* m_ConsoleDisplay;
 
     // Viewer thread handling
     ProcessUtil m_ViewerProcess;
