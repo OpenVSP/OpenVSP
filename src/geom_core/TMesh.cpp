@@ -2113,6 +2113,287 @@ void TMesh::WriteTRI( string fname, double scale )
     fclose( fp );
 }
 
+void TMesh::WriteVSPGeom( const string file_name )
+{
+    vector < deque < TEdge > > wakes;
+    IdentifyWakes( wakes );
+
+    //==== Open file ====//
+    FILE *file_id = fopen( file_name.c_str(), "w" );
+
+    fprintf( file_id, "# vspgeom v2\n" );
+    WriteVSPGeomPnts( file_id );
+    WriteVSPGeomTris( file_id );
+    WriteVSPGeomParts( file_id );
+    WriteVSPGeomWakes( file_id, wakes );
+    WriteVSPGeomAlternateTris( file_id );
+    WriteVSPGeomAlternateParts( file_id );
+
+    fclose( file_id );
+}
+
+void TMesh::WriteVSPGeomPnts( FILE* file_id )
+{
+    //==== Write Out Nodes ====//
+    vec3d v;
+    Matrix4d XFormMat;
+    fprintf( file_id, "%d\n", m_NVec.size() );
+
+    for ( int i = 0 ; i < ( int )m_NVec.size() ; i++ )
+    {
+        TNode* tnode = m_NVec[i];
+        // Apply Transformations
+        v = XFormMat.xform( tnode->m_Pnt );
+        fprintf( file_id, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() ); // , tnode->m_UWPnt.x(), tnode->m_UWPnt.y() );
+    }
+}
+
+void TMesh::WriteVSPGeomTris( FILE* file_id )
+{
+    fprintf( file_id, "%d\n", m_TVec.size()  );
+
+    //==== Write Out Tris ====//
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* ttri = m_TVec[t];
+        fprintf(file_id, "3 %d %d %d\n", ttri->m_N0->m_ID + 1, ttri->m_N1->m_ID + 1, ttri->m_N2->m_ID + 1 );
+    }
+}
+
+void TMesh::WriteVSPGeomAlternateTris( FILE* file_id )
+{
+    //==== Write Out Tris ====//
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* ttri = m_TVec[t];
+        fprintf(file_id, "%d 1 %d %d %d\n", t + 1, ttri->m_N0->m_ID + 1, ttri->m_N1->m_ID + 1, ttri->m_N2->m_ID + 1 );
+    }
+}
+
+void TMesh::WriteVSPGeomParts( FILE* file_id  )
+{
+    //==== Write Component IDs for each Tri =====//
+    int part, tag;
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* ttri = m_TVec[t];
+        tag = SubSurfaceMgr.GetTag( ttri->m_Tags );
+        part = SubSurfaceMgr.GetPart( ttri->m_Tags );
+
+        fprintf( file_id, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
+                 ttri->m_N0->m_UWPnt.x(), ttri->m_N0->m_UWPnt.y(),
+                 ttri->m_N1->m_UWPnt.x(), ttri->m_N1->m_UWPnt.y(),
+                 ttri->m_N2->m_UWPnt.x(), ttri->m_N2->m_UWPnt.y() );
+    }
+}
+
+void TMesh::WriteVSPGeomAlternateParts( FILE* file_id  )
+{
+    //==== Write Component IDs for each Tri =====//
+    int part, tag;
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* ttri = m_TVec[t];
+        tag = SubSurfaceMgr.GetTag( ttri->m_Tags );
+        part = SubSurfaceMgr.GetPart( ttri->m_Tags );
+
+        fprintf( file_id, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", t + 1, part, tag,
+                 ttri->m_N0->m_UWPnt.x(), ttri->m_N0->m_UWPnt.y(),
+                 ttri->m_N1->m_UWPnt.x(), ttri->m_N1->m_UWPnt.y(),
+                 ttri->m_N2->m_UWPnt.x(), ttri->m_N2->m_UWPnt.y() );
+    }
+}
+
+int TMesh::WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag )
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* ttri = m_TVec[t];
+        if ( SubSurfaceMgr.MatchPartAndTag( ttri->m_Tags, part, tag ) )
+        {
+            fprintf( file_id, "%d\n", t + tri_offset + 1 );
+        }
+    }
+    return tri_offset + m_TVec.size();
+}
+
+int TMesh::CountVSPGeomPartTagTris( int part, int tag )
+{
+    int count = 0;
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* ttri = m_TVec[t];
+        if ( SubSurfaceMgr.MatchPartAndTag( ttri->m_Tags, part, tag ) )
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+// Wake edges are created such that N0.u < N1.u.
+// This comparator sorts first by sgn(N0.y), abs(N0.y), then N0.u and N1.u.
+bool TMOrderWakeEdges ( const TEdge &a, const TEdge &b )
+{
+    if ( sgn( a.m_N0->m_Pnt.y() ) < sgn( b.m_N0->m_Pnt.y() ) ) return true;
+    if ( sgn( b.m_N0->m_Pnt.y() ) < sgn( a.m_N0->m_Pnt.y() ) ) return false;
+
+    if ( abs( a.m_N0->m_Pnt.y() ) < abs( b.m_N0->m_Pnt.y() ) ) return true;
+    if ( abs( b.m_N0->m_Pnt.y() ) < abs( a.m_N0->m_Pnt.y() ) ) return false;
+
+    if ( a.m_N0->m_UWPnt.x() < b.m_N0->m_UWPnt.x() ) return true;
+    if ( b.m_N0->m_UWPnt.x() < a.m_N0->m_UWPnt.x() ) return false;
+
+    if ( a.m_N1->m_UWPnt.x() < b.m_N1->m_UWPnt.x() ) return true;
+    if ( b.m_N1->m_UWPnt.x() < a.m_N1->m_UWPnt.x() ) return false;
+
+    if ( a.m_N0->m_Pnt.x() < b.m_N0->m_Pnt.x() ) return true;
+    if ( b.m_N0->m_Pnt.x() < a.m_N0->m_Pnt.x() ) return false;
+
+    if ( a.m_N0->m_Pnt.z() < b.m_N0->m_Pnt.z() ) return true;
+    if ( b.m_N0->m_Pnt.z() < a.m_N0->m_Pnt.z() ) return false;
+
+    if ( sgn( a.m_N1->m_Pnt.y() ) < sgn( b.m_N1->m_Pnt.y() ) ) return true;
+    if ( sgn( b.m_N1->m_Pnt.y() ) < sgn( a.m_N1->m_Pnt.y() ) ) return false;
+
+    if ( abs( a.m_N1->m_Pnt.y() ) < abs( b.m_N1->m_Pnt.y() ) ) return true;
+    if ( abs( b.m_N1->m_Pnt.y() ) < abs( a.m_N1->m_Pnt.y() ) ) return false;
+
+    if ( a.m_N1->m_Pnt.x() < b.m_N1->m_Pnt.x() ) return true;
+    if ( b.m_N1->m_Pnt.x() < a.m_N1->m_Pnt.x() ) return false;
+
+    if ( a.m_N1->m_Pnt.z() < b.m_N1->m_Pnt.z() ) return true;
+    if ( b.m_N1->m_Pnt.z() < a.m_N1->m_Pnt.z() ) return false;
+
+    return false;
+}
+
+bool TMAboutEqualWakeNodes ( TNode *a, TNode *b )
+{
+    if ( aboutequal( a->m_Pnt.y(), b->m_Pnt.y() )
+         && aboutequal( a->m_Pnt.x(), b->m_Pnt.x() )
+         && aboutequal( a->m_Pnt.z(), b->m_Pnt.z() )
+         && aboutequal( a->m_UWPnt.x(), b->m_UWPnt.x() )
+         && aboutequal( a->m_UWPnt.y(), b->m_UWPnt.y() ) ) return true;
+
+    return false;
+}
+
+bool TMAboutEqualWakeEdges ( const TEdge &a, const TEdge &b )
+{
+    if ( TMAboutEqualWakeNodes( a.m_N0, b.m_N0 )
+         && TMAboutEqualWakeNodes( a.m_N1, b.m_N1 ) ) return true;
+
+    return false;
+}
+
+void TMesh::IdentifyWakes( vector < deque < TEdge > > &wakes )
+{
+    vector < TEdge > wakeedges;
+
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri *ttri = m_TVec[t];
+        int we = ttri->WakeEdge();
+
+        if ( we > 0 )
+        {
+            TEdge e;
+            if ( we == 1 )
+            {
+                e = TEdge( ttri->m_N0, ttri->m_N1, ttri );
+            }
+            else if ( we == 2 )
+            {
+                e = TEdge( ttri->m_N1, ttri->m_N2, ttri );
+            }
+            else
+            {
+                e = TEdge( ttri->m_N2, ttri->m_N0, ttri );
+            }
+            e.SortNodesByU();
+            wakeedges.push_back( e );
+        }
+    }
+
+    sort( wakeedges.begin(), wakeedges.end(), TMOrderWakeEdges );
+
+    vector < TEdge >::iterator it;
+    it = unique( wakeedges.begin(), wakeedges.end(), TMAboutEqualWakeEdges );
+
+    wakeedges.resize( distance( wakeedges.begin(), it ) );
+
+    list < TEdge > wlist( wakeedges.begin(), wakeedges.end() );
+
+
+    wakes.clear();
+    int iwake = 0;
+
+    while ( !wlist.empty() )
+    {
+        list < TEdge >::iterator wit = wlist.begin();
+
+        iwake = wakes.size();
+        wakes.resize( iwake + 1 );
+        wakes[iwake].push_back( *wit );
+        wit = wlist.erase( wit );
+
+        while ( wit != wlist.end() )
+        {
+            if ( TMAboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
+            {
+                wakes[iwake].push_back( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            else if ( TMAboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
+            {
+                wakes[iwake].push_front( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            wit++;
+        }
+    }
+
+    int nwake = wakes.size();
+}
+
+void TMesh::WriteVSPGeomWakes( FILE* file_id, vector < deque < TEdge > > &wakes )
+{
+    int nwake = wakes.size();
+
+    fprintf( file_id, "%d\n", nwake );
+
+    for ( int iwake = 0; iwake < nwake; iwake++ )
+    {
+        int iprt = 0;
+        int iwe;
+        int nwe = wakes[iwake].size();
+
+        fprintf( file_id, "%d ", nwe + 1 );
+
+        for ( iwe = 0; iwe < nwe; iwe++ )
+        {
+            fprintf( file_id, "%d", wakes[iwake][iwe].m_N0->m_ID + 1 );
+
+            if ( iprt < 9 )
+            {
+                fprintf( file_id, " " );
+                iprt++;
+            }
+            else
+            {
+                fprintf( file_id, "\n" );
+                iprt = 0;
+            }
+        }
+        fprintf( file_id, "%d\n", wakes[iwake][iwe - 1].m_N1->m_ID + 1 );
+    }
+}
+
 vec3d TMesh::GetVertex( int index )
 {
     if ( index < 0 )

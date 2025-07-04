@@ -28,6 +28,7 @@
 #include <algorithm>            //jrg windows??
 #include <string>
 #include <unordered_map>
+#include <deque>
 #include <list>
 using namespace std;            //jrg windows??
 
@@ -510,6 +511,17 @@ public:
     virtual void WriteSTL( string fname, double scale = 1.0 );
     virtual void WriteOBJ( string fname, double scale = 1.0 );
     virtual void WriteTRI( string fname, double scale = 1.0 );
+
+    virtual void WriteVSPGeom( const string file_name );
+    virtual void WriteVSPGeomPnts( FILE* file_id );
+    virtual void WriteVSPGeomTris( FILE* file_id );
+    virtual void WriteVSPGeomAlternateTris( FILE* file_id );
+    virtual void WriteVSPGeomParts( FILE* file_id  );
+    virtual void WriteVSPGeomAlternateParts( FILE* file_id );
+    virtual int WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag );
+    virtual int CountVSPGeomPartTagTris( int part, int tag );
+    virtual void IdentifyWakes( vector < deque < TEdge > > &wakes );
+    virtual void WriteVSPGeomWakes( FILE* file_id, vector < deque < TEdge > > &wakes );
 
     virtual vec3d GetVertex( int index );
     virtual int   NumVerts();
