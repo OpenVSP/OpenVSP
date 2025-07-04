@@ -3471,12 +3471,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
 
     if ( ntagfile > 0 )
     {
-        string base_name = file_name;
-        std::string::size_type loc = base_name.find_last_of( "." );
-        if ( loc != base_name.npos )
-        {
-            base_name = base_name.substr( 0, loc );
-        }
+        string base_name = GetBasename( file_name );
         string taglist_name = base_name + ".taglist";
 
         FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
@@ -3961,12 +3956,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set, bool use
     }
 
     //==== Figure Out Basename ====//
-    string base_name = file_name;
-    std::string::size_type loc = base_name.find_last_of( '.' );
-    if ( loc != base_name.npos )
-    {
-        base_name = base_name.substr( 0, loc );
-    }
+    string base_name = GetBasename( file_name );
 
     string inc_file_name = base_name;
     inc_file_name.append( ".inc" );
@@ -5286,12 +5276,7 @@ void Vehicle::WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox 
 
 void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < string > &gidvec, const vector < int > &partvec, const vector < int > &surfvec )
 {
-    string base_name = file_name;
-    std::string::size_type loc = base_name.find_last_of( "." );
-    if ( loc != base_name.npos )
-    {
-        base_name = base_name.substr( 0, loc );
-    }
+    string base_name = GetBasename( file_name );
     string csf_name = base_name + ".csf";
 
     FILE* csf_file = fopen( csf_name.c_str(), "w" );

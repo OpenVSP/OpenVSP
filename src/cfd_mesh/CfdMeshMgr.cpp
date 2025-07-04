@@ -12,6 +12,7 @@
 #include "main.h"
 #include "MeshAnalysis.h"
 #include "ModeMgr.h"
+#include "FileUtil.h"
 
 #include <algorithm>
 
@@ -1961,12 +1962,7 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
 
     if ( ntagfile > 0 )
     {
-        string base_name = file_name;
-        std::string::size_type loc = base_name.find_last_of( "." );
-        if ( loc != base_name.npos )
-        {
-            base_name = base_name.substr( 0, loc );
-        }
+        string base_name = GetBasename( file_name );
         string taglist_name = base_name + ".taglist";
 
         FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );

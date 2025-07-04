@@ -11,6 +11,7 @@
 #include "SubSurfaceMgr.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
+#include "FileUtil.h"
 
 using std::vector;
 using std::string;
@@ -303,12 +304,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
 {
     bool writethickthin = true;
     // figure out basename
-    string base_name = file_name;
-    std::string::size_type loc = base_name.find_last_of( '.' );
-    if ( loc != base_name.npos )
-    {
-        base_name = base_name.substr( 0, loc );
-    }
+    string base_name = GetBasename( file_name );
     string key_name = base_name + ".vkey";
 
     FILE* fid = fopen( key_name.c_str(), "w" );
@@ -470,12 +466,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
 void SubSurfaceMgrSingleton::WriteTKeyFile(const string & file_name )
 {
     // figure out basename
-    string base_name = file_name;
-    std::string::size_type loc = base_name.find_last_of( '.' );
-    if ( loc != base_name.npos )
-    {
-        base_name = base_name.substr( 0, loc );
-    }
+    string base_name = GetBasename( file_name );
     string key_name = base_name + ".tkey";
 
     FILE* fid = fopen( key_name.c_str(), "w" );
