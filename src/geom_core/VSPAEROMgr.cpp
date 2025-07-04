@@ -2058,16 +2058,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
     }
 }
 
-void VSPAEROMgrSingleton::AddResultHeader( const string &res_id, double mach, double alpha, double beta )
-{
-    // Add Flow Condition header to each result
-    Results * res = ResultsMgr.FindResultsPtr( res_id );
-    if ( res )
-    {
-
-    }
-}
-
 // helper thread functions for VSPAERO GUI interface and multi-threaded impleentation
 bool VSPAEROMgrSingleton::IsSolverRunning()
 {
@@ -3196,13 +3186,6 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp )
     }
 
     // Read header table
-    bool needs_header = true;
-    bool mach_found = false;
-    bool alpha_found = false;
-    bool beta_found = false;
-    double current_mach = -FLT_MAX;
-    double current_alpha = -FLT_MAX;
-    double current_beta = -FLT_MAX;
     double value;
     while ( !feof( fp ) && data_string_array.size() > 0 )
     {
@@ -3213,30 +3196,6 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp )
             if ( sscanf( data_string_array[1].c_str(), "%lf", &value ) == 1 )
             {
                 res->Add( new NameValData( "FC_" + data_string_array[0], value, "#Auto parsed case flight condition." ) );
-
-                // save flow condition information to be added to the header later
-                if ( strcmp( data_string_array[0].c_str(), "Mach_" ) == 0 )
-                {
-                    current_mach = value;
-                    mach_found = true;
-                }
-                if ( strcmp( data_string_array[0].c_str(), "AoA_" ) == 0 )
-                {
-                    current_alpha = value;
-                    alpha_found = true;
-                }
-                if ( strcmp( data_string_array[0].c_str(), "Beta_" ) == 0 )
-                {
-                    current_beta = value;
-                    beta_found = true;
-                }
-
-                // check if the information needed for the result header has been read in
-                if ( mach_found && alpha_found && beta_found && needs_header )
-                {
-                    AddResultHeader( res->GetID(), current_mach, current_alpha, current_beta );
-                    needs_header = false;
-                }
             }
         }
 
@@ -3244,12 +3203,6 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp )
         data_string_array = ReadDelimLine( fp, seps );
 
     } // end while
-
-    if ( needs_header )
-    {
-        fprintf( stderr, "WARNING: Case header incomplete \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
-        return -3;
-    }
 
     return 0; // no errors
 }

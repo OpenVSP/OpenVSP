@@ -549,7 +549,6 @@ protected:
     void ReadSliceFile( const string &filename, vector <string> &res_id_vector );
     void ReadGroupResFile( const string &filename, vector <string> &res_id_vector, const string &group_name = "" );
     void ReadRotorResFile( const string &filename, vector <string> &res_id_vector, const string &group_name = "" );
-    static void AddResultHeader( const string &res_id, double mach, double alpha, double beta );
 
     DrawObj m_HighlightDrawObj;
 
