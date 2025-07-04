@@ -1995,7 +1995,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
 
     if ( halfFlag )
     {
-        AddHalfBox( "NEGATIVE_HALF" );
+        m_TMeshVec.push_back( AddHalfBox( "NEGATIVE_HALF" ) );
     }
 
     //==== Create Bnd Box for  Mesh Geoms ====//
@@ -3844,7 +3844,7 @@ void MeshGeom::DeleteMarkedMeshes()
     ::DeleteMarkedMeshes( m_TMeshVec );
 }
 
-void MeshGeom::AddHalfBox( const string &id )
+TMesh* MeshGeom::AddHalfBox( const string &id )
 {
     //==== Find Bound Box ====//
     BndBox box;
@@ -3864,8 +3864,6 @@ void MeshGeom::AddHalfBox( const string &id )
     TMesh* tm = new TMesh();
     tm->m_SurfCfdType = vsp::CFD_NEGATIVE;
     tm->m_OriginGeomID = id;
-
-    m_TMeshVec.push_back( tm );
 
     double xmin = box.GetMin( 0 );
     double xmax = box.GetMax( 0 );
@@ -3936,6 +3934,7 @@ void MeshGeom::AddHalfBox( const string &id )
     tm->AddTri( E, A, B, vec3d( 0, 0, -1 ), 6 );
     tm->AddTri( E, B, F, vec3d( 0, 0, -1 ), 6 );
 
+    return tm;
 }
 
 void MeshGeom::IgnoreYLessThan( const double & ytol )
