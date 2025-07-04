@@ -648,7 +648,7 @@ void TransformMesh( TMesh* mesh, const Matrix4d & TransMat );
 void TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & TransMat );
 vector< string > GetTMeshNames( vector<TMesh*> &tmv );
 vector< string > GetTMeshIDs( vector<TMesh*> &tmv );
-unordered_map< string, int > GetThicks( vector<TMesh*> &tmv );
+vector< int > GetTMeshThicks( vector<TMesh*> &tmv );
 vector< int > GetTMeshTypes( vector<TMesh*> &tmv );
 void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & sub_vec = vector < string > () );
 void RefreshTagMaps( vector<TMesh*> &tmv );

@@ -267,6 +267,7 @@ public:
     std::map< int, std::string > m_TagNames;
     std::map< int, std::string > m_TagIDs;
     std::map< std::string, int > m_ThickMap;
+    std::vector< int > m_ThickVec;
     std::vector< int > m_TypeVec;
 
     std::vector< std::vector<int> > m_TagKeys;
@@ -344,8 +345,6 @@ public:
     std::string GetTagIDs( int indx );
 
     string GetGID( const int& tag );
-    int GetThickThin( const int &tag );
-    int GetThickThin( const string & gid );
 
     bool MatchPartAndTag( const vector < int > & tags, int part, int tag );
     bool MatchPartAndTag( int singletag, int part, int tag );
@@ -355,6 +354,7 @@ public:
     int GetTag( const std::vector<int> & tags );
     vector< int > GetTagVec( const int &t );
     int GetType( int part );
+    int GetThickThin( int part );
     int GetPart( const std::vector<int> & tags );
     int GetPart( int tag );
     void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );

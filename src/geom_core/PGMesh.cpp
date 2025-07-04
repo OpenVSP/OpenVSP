@@ -485,7 +485,7 @@ bool PGEdge::WakeEdge( PGMesh *m )
         int part = m->GetPart( tag );
         int type = m->GetType( part );
 
-        // int thickthin = m->GetThickThin( tag );
+        // int thickthin = m->GetThickThin( part );
 
         if ( type == vsp::WING_SURF )
         {
@@ -2785,9 +2785,9 @@ void PGMesh::CullOrphanThinRegions( double tol )
         // Representative face.
         PGFace* f = m_Regions[i];
 
-        string geomid = GetGID( f->m_Tag );
-        region_thick[ i ] = GetThickThin( f->m_Tag );
         region_tag[ i ] = f->m_Tag;
+        int part = GetPart( region_tag[ i ] );
+        region_thick[ i ] = GetThickThin( part );
         tag_area[ region_tag[ i ] ] += region_area[ i ];
     }
 
@@ -2888,10 +2888,10 @@ void PGMesh::Report()
     }
     printf( "\n" );
 
-    printf( "m_ThickMap %d entries\n", m_ThickMap.size() );
-    for ( auto it = m_ThickMap.begin(); it != m_ThickMap.end(); it++ )
+    printf( "m_ThickVec %d entries\n", m_ThickVec.size() );
+    for ( int i = 0; i < m_ThickVec.size(); i++ )
     {
-        printf( "%s %d\n", it->first.c_str(), it->second );
+        printf( "%d %d\n", i, m_ThickVec[i] );
     }
     printf( "\n" );
 
@@ -3515,13 +3515,7 @@ void PGMesh::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &a
         // Lookup Geom number
         int gnum = distance( gids.begin(), gids.find( gid ) );
 
-        int thickthin = -1;
-        map<string,int>::iterator it;
-        it = m_ThickMap.find( gid_bare );
-        if ( it != m_ThickMap.end() )
-        {
-            thickthin = m_ThickMap[ gid ];
-        }
+        int thickthin = GetThickThin( part );
 
         // Write tag number and surface list to file
         if ( writethickthin )
@@ -3777,27 +3771,6 @@ string PGMesh::GetGID( const int& tag )
     return gid_bare;
 }
 
-int PGMesh::GetThickThin( const int &tag )
-{
-    return GetThickThin( GetGID( tag ) );
-}
-
-int PGMesh::GetThickThin( const string & gid )
-{
-    int thickthin = -1;
-    map < string, int >::iterator it;
-    it = m_ThickMap.find( gid );
-    if ( it != m_ThickMap.end() )
-    {
-        thickthin = m_ThickMap[ gid ];
-    }
-    else
-    {
-        printf( "gid %s not in m_ThickMap.\n", gid.c_str() );
-    }
-    return thickthin;
-}
-
 bool PGMesh::MatchPartAndTag( const vector < int > & tags, int part, int tag )
 {
     if ( tags.size() > 0 )
@@ -3902,6 +3875,11 @@ vector< int > PGMesh::GetTagVec( const int &tin )
 int PGMesh::GetType( int part )
 {
     return m_TypeVec[ part - 1 ];
+}
+
+int PGMesh::GetThickThin( int part )
+{
+    return m_ThickVec[ part - 1 ];
 }
 
 int PGMesh::GetPart( const vector<int> & tags )

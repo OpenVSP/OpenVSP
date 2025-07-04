@@ -200,7 +200,7 @@ public:
 
     virtual vector< string > GetTMeshNames();
     virtual vector< string > GetTMeshIDs();
-    virtual unordered_map< string, int > GetThicks();
+    virtual vector< int > GetTMeshThicks();
     virtual vector< int > GetTMeshTypes();
     virtual set< string > GetTMeshPtrIDs();
 

@@ -107,7 +107,7 @@ public:
     std::vector< std::string > m_CompNames;
     std::vector< std::string > m_CompIDs;
     std::vector< int > m_CompTypes;
-    std::unordered_map< std::string, int > m_ThickMap;
+    std::vector< int > m_CompThick;
 
 protected:
     int m_CurrSurfInd;

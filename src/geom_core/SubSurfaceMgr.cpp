@@ -183,7 +183,7 @@ void SubSurfaceMgrSingleton::ClearTagMaps()
     m_TagIDs.clear();
     m_CompNames.clear();
     m_CompIDs.clear();
-    m_ThickMap.clear();
+    m_CompThick.clear();
     m_CompTypes.clear();
 }
 
@@ -396,13 +396,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         // Lookup Geom number
         int gnum = distance( gids.begin(), gids.find( gid ) );
 
-        int thickthin = -1;
-        unordered_map<string,int>::iterator it;
-        it = m_ThickMap.find( gid_bare );
-        if ( it != m_ThickMap.end() )
-        {
-            thickthin = m_ThickMap[ gid ];
-        }
+        int thickthin = m_CompThick[ part - 1 ];
 
         // Write tag number and surface list to file
         if ( writethickthin )

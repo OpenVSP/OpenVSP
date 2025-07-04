@@ -6318,13 +6318,13 @@ vector< string > GetTMeshIDs( vector<TMesh*> &tmv )
     return ids;
 }
 
-unordered_map< string, int > GetThicks( vector<TMesh*> &tmv )
+vector< int > GetTMeshThicks( vector<TMesh*> &tmv )
 {
-    unordered_map < string, int > thick;
+    vector < int > thick;
 
     for ( int i = 0; i < (int)tmv.size(); i++ )
     {
-        thick[ tmv[i]->m_OriginGeomID ] = tmv[i]->m_ThickSurf;
+        thick.push_back( tmv[i]->m_ThickSurf );
     }
 
     return thick;

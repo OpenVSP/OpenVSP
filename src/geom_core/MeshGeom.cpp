@@ -4383,9 +4383,9 @@ vector< string > MeshGeom::GetTMeshIDs()
     return ::GetTMeshIDs( m_TMeshVec );
 }
 
-unordered_map< string, int > MeshGeom::GetThicks()
+vector< int > MeshGeom::GetTMeshThicks()
 {
-    return ::GetThicks( m_TMeshVec );
+    return ::GetTMeshThicks( m_TMeshVec );
 }
 
 vector< int > MeshGeom::GetTMeshTypes()
