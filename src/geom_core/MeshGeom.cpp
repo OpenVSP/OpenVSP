@@ -1897,9 +1897,6 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
 
     TrimCoplanarPatches();
 
-    // Before/after subtagtris matters.
-    MergeSplitPatches();
-
     Results* res = nullptr;
     if ( !degen )
     {
@@ -2003,9 +2000,15 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
                 sub_surf_meshes.clear();
             }
         }
-        // Tag meshes before regular intersection
-        SubTagTris( (bool)intSubsFlag );
+    }
 
+    // This needs to be before SubTagTris.
+    MergeCoplanarSplitPatches();
+
+    if ( !degen )
+    {
+        // Tag meshes before regular intersection
+        SubTagTris(( bool ) intSubsFlag );
     }
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
@@ -4196,7 +4199,7 @@ void MeshGeom::TrimCoplanarPatches()
 
 // When Degen plate and camber surfaces are made into TMeshs, they can be split into patches if some areas
 // are planar.  This stitches those back together.
-void MeshGeom::MergeSplitPatches()
+void MeshGeom::MergeCoplanarSplitPatches()
 {
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() - 1; i++ )
     {

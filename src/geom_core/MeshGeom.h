@@ -168,7 +168,7 @@ public:
 
     virtual void TrimCoplanarPatches();
 
-    virtual void MergeSplitPatches();
+    virtual void MergeCoplanarSplitPatches();
 
     virtual void MergeCoplanarTrimGroups();
 
