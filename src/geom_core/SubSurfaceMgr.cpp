@@ -184,6 +184,7 @@ void SubSurfaceMgrSingleton::ClearTagMaps()
     m_CompNames.clear();
     m_CompIDs.clear();
     m_ThickMap.clear();
+    m_CompTypes.clear();
 }
 
 void SubSurfaceMgrSingleton::PartialClearTagMaps()

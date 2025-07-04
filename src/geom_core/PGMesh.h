@@ -261,6 +261,7 @@ public:
     std::map< int, std::string > m_TagNames;
     std::map< int, std::string > m_TagIDs;
     std::map< std::string, int > m_ThickMap;
+    std::vector< int > m_TypeVec;
 
     std::vector< std::vector<int> > m_TagKeys;
     std::map< std::vector<int>, int > m_SingleTagMap;
@@ -341,6 +342,7 @@ public:
 
     int GetTag( const std::vector<int> & tags );
     vector< int > GetTagVec( const int &t );
+    int GetType( int part );
     int GetPart( const std::vector<int> & tags );
     int GetPart( int tag );
     void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );

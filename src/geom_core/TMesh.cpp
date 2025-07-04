@@ -6327,12 +6327,24 @@ unordered_map< string, int > GetThicks( vector<TMesh*> &tmv )
     return thick;
 }
 
+vector< int > GetTMeshTypes( vector<TMesh*> &tmv )
+{
+    vector< int > type;
+    for ( int i = 0; i < (int)tmv.size(); i++ )
+    {
+        type.push_back( tmv[i]->m_SurfType );
+    }
+
+    return type;
+}
+
 void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & sub_vec )
 {
     // Clear out the current Subtag Maps
     SubSurfaceMgr.ClearTagMaps();
     SubSurfaceMgr.m_CompNames = GetTMeshNames( tmv );
     SubSurfaceMgr.m_CompIDs = GetTMeshIDs( tmv );
+    SubSurfaceMgr.m_CompTypes = GetTMeshTypes( tmv );
     SubSurfaceMgr.m_ThickMap = GetThicks( tmv );
     SubSurfaceMgr.SetSubSurfTags( tmv.size() );
     SubSurfaceMgr.BuildCompNameMap();

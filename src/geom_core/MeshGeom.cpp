@@ -4387,6 +4387,11 @@ unordered_map< string, int > MeshGeom::GetThicks()
     return ::GetThicks( m_TMeshVec );
 }
 
+vector< int > MeshGeom::GetTMeshTypes()
+{
+    return ::GetTMeshTypes( m_TMeshVec );
+}
+
 set < string > MeshGeom::GetTMeshPtrIDs()
 {
     set < string > ids;

@@ -3729,6 +3729,11 @@ vector< int > PGMesh::GetTagVec( const int &tin )
     return vector<int> { -1 };
 }
 
+int PGMesh::GetType( int part )
+{
+    return m_TypeVec[ part - 1 ];
+}
+
 int PGMesh::GetPart( const vector<int> & tags )
 {
     if ( tags.size() > 0 )

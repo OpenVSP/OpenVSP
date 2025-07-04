@@ -201,6 +201,7 @@ public:
     virtual vector< string > GetTMeshNames();
     virtual vector< string > GetTMeshIDs();
     virtual unordered_map< string, int > GetThicks();
+    virtual vector< int > GetTMeshTypes();
     virtual set< string > GetTMeshPtrIDs();
 
     virtual void SubTagTris( bool tag_subs );

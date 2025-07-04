@@ -4233,6 +4233,7 @@ void CfdMeshMgrSingleton::SubTagTris()
 
             SubSurfaceMgr.m_CompNames.push_back(name);
             SubSurfaceMgr.m_CompIDs.push_back(exportid);
+            SubSurfaceMgr.m_CompTypes.push_back( surf->GetSurfaceVSPType() );
 
             // Set to thin.
             bool thick = false;

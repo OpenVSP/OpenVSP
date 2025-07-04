@@ -111,6 +111,7 @@ void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector<
     m_PGMesh.m_TagNames = SubSurfaceMgr.m_TagNames;
     m_PGMesh.m_TagIDs = SubSurfaceMgr.m_TagIDs;
     m_PGMesh.m_ThickMap = SubSurfaceMgr.m_ThickMap;
+    m_PGMesh.m_TypeVec = SubSurfaceMgr.m_CompTypes;
     m_PGMesh.m_TagKeys = SubSurfaceMgr.GetTagKeys();
     m_PGMesh.m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
 
