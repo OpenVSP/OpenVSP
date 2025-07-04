@@ -1500,42 +1500,42 @@ void PropGeom::UpdateMainDegenGeomPreview()
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
 
-    DegenGeom degenGeom;
-    CreateDegenGeom( m_BladeSurf, 0, degenGeom, true, 1 );
+        DegenGeom degenGeom;
+        CreateDegenGeom( m_BladeSurf, 0, degenGeom, true, 1 );
 
-    int nblade = m_Nblade();
+        int nblade = m_Nblade();
 
-    m_MainDegenGeomPreviewVec.resize( nblade, degenGeom );
+        m_MainDegenGeomPreviewVec.resize( nblade, degenGeom );
 
-    double rev = 1.0;
-    if ( m_ReverseFlag() )
-    {
-        rev = -1.0;
-    }
-
-    Matrix4d rigid;
-    Matrix4d rot;
-    for ( int i = 0; i < nblade; i++ )
-    {
-        if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
+        double rev = 1.0;
+        if ( m_ReverseFlag() )
         {
-            RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
+            rev = -1.0;
         }
-        else
-        {
-            RigidBladeMotion( rigid, m_FoldAngle() );
-        }
-        m_MainDegenGeomPreviewVec[i].Transform( rigid );
 
-        if ( i > 0 )
+        Matrix4d rigid;
+        Matrix4d rot;
+        for ( int i = 0; i < nblade; i++ )
         {
-            double theta = -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get();
-            rot.loadIdentity();
-            rot.rotateX( theta );
+            if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
+            {
+                RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
+            }
+            else
+            {
+                RigidBladeMotion( rigid, m_FoldAngle() );
+            }
+            m_MainDegenGeomPreviewVec[i].Transform( rigid );
 
-            m_MainDegenGeomPreviewVec[i].Transform( rot );
+            if ( i > 0 )
+            {
+                double theta = -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get();
+                rot.loadIdentity();
+                rot.rotateX( theta );
+
+                m_MainDegenGeomPreviewVec[i].Transform( rot );
+            }
         }
-    }
 
     }
 }
