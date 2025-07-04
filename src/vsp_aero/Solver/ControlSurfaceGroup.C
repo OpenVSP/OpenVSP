@@ -32,7 +32,43 @@ CONTROL_SURFACE_GROUP::CONTROL_SURFACE_GROUP(void)
     // Control surface deflection
     
     ControlSurface_DeflectionAngle_ = 0.;;
+
+    // Aero Control derivatives
     
+    pCLi_pDelta_  = 0.;
+    pCDi_pDelta_  = 0.;
+    pCSi_pDelta_  = 0.;
+                 
+    pCMli_pDelta_ = 0.;    
+    pCMmi_pDelta_ = 0.;    
+    pCMni_pDelta_ = 0.;    
+                 
+    pCLo_pDelta_  = 0.;
+    pCDo_pDelta_  = 0.;
+    pCSo_pDelta_  = 0.;
+               
+    pCMlo_pDelta_ = 0.;    
+    pCMmo_pDelta_ = 0.;    
+    pCMno_pDelta_ = 0.;    
+
+    // Force coefficient derivatives
+    
+    pCFix_pDelta_ = 0.;
+    pCFiy_pDelta_ = 0.;
+    pCFiz_pDelta_ = 0.;
+                
+    pCMix_pDelta_ = 0.;
+    pCMiy_pDelta_ = 0.;
+    pCMiz_pDelta_ = 0.;
+             
+    pCFox_pDelta_ = 0.;
+    pCFoy_pDelta_ = 0.;
+    pCFoz_pDelta_ = 0.;
+                 
+    pCMox_pDelta_ = 0.;
+    pCMoy_pDelta_ = 0.;
+    pCMoz_pDelta_ = 0.;      
+            
 }
 
 /*##############################################################################
@@ -73,7 +109,7 @@ void CONTROL_SURFACE_GROUP::SizeList(int NumberOfControlSurfaces)
     
     // Control surface deflection sign
     
-    ControlSurface_DeflectionDirection_ = new VSPAERO_DOUBLE[NumberOfControlSurfaces + 1];
+    ControlSurface_DeflectionDirection_ = new double[NumberOfControlSurfaces + 1];
 
 }
 
@@ -94,7 +130,7 @@ CONTROL_SURFACE_GROUP& CONTROL_SURFACE_GROUP::operator=(const CONTROL_SURFACE_GR
     
     for ( i = 1 ; i <= NumberOfControlSurfaces_ ; i++ ) {
        
-       SPRINTF(ControlSurface_Name_[i],"%s",ControlSurface.ControlSurface_Name_[i]);
+       printf(ControlSurface_Name_[i],"%s",ControlSurface.ControlSurface_Name_[i]);
        
        ControlSurface_DeflectionDirection_[i] = ControlSurface.ControlSurface_DeflectionDirection_[i];
 

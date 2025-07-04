@@ -71,11 +71,11 @@ void GRADIENT::SizeList(int NumberOfLoops, int NumberOfEquations, int NumberOfDe
         
     At_.size(NumberOfDegreesOfFreedom, NumberOfEquations);
     
-    x_ = new VSPAERO_DOUBLE[NumberOfDegreesOfFreedom + 1];
+    x_ = new double[NumberOfDegreesOfFreedom + 1];
     
     zero_double_array(x_, NumberOfDegreesOfFreedom);
     
-    b_ = new VSPAERO_DOUBLE[NumberOfEquations + 1];
+    b_ = new double[NumberOfEquations + 1];
     
     zero_double_array(b_, NumberOfEquations);
     
@@ -160,7 +160,7 @@ void GRADIENT::Solve(void)
 {
  
     int i;
-    MATRIX bb(NumberOfDegreesOfFreedom_,1), b(NumberOfEquations_,1);
+    MATRIX bb(NumberOfDegreesOfFreedom_), b(NumberOfEquations_);
     
     for ( i = 1 ; i <= NumberOfEquations_ ; i++ ) {
        

@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "VSPAERO_TYPES.H"
 #include "utils.H"
 
 #include "START_NAME_SPACE.H"
@@ -28,42 +27,43 @@ private:
 
     int row;
     int col;
-    VSPAERO_DOUBLE*  coef;
+    double*  coef;
 
 public:
 
     MATRIX(void);
+    MATRIX(int size);
     MATRIX(int row_, int col_);
    ~MATRIX(void);
     MATRIX(const MATRIX &mat);
 
     MATRIX& operator=(const MATRIX &mat);
-    MATRIX& operator=(VSPAERO_DOUBLE scalar);
+    MATRIX& operator=(double scalar);
 
-    VSPAERO_DOUBLE& operator()(int i) { return (coef[i-1]); };
-    VSPAERO_DOUBLE& operator()(int i, int j) { return (coef[(i-1) + (j-1)*row]); };
+    double& operator()(int i) { return (coef[i-1]); };
+    double& operator()(int i, int j) { return (coef[(i-1) + (j-1)*row]); };
 
-    const VSPAERO_DOUBLE& operator()(int i) const { return (coef[i-1]); };
-    const VSPAERO_DOUBLE& operator()(int i, int j) const { return (coef[(i-1) + (j-1)*row]); };
+    const double& operator()(int i) const { return (coef[i-1]); };
+    const double& operator()(int i, int j) const { return (coef[(i-1) + (j-1)*row]); };
 
 // Operators
 
     friend MATRIX operator+(const MATRIX &mat1, const MATRIX &mat2);
     friend MATRIX operator-(const MATRIX &mat1, const MATRIX &mat2);
 
-    friend MATRIX operator+(const MATRIX &mat, VSPAERO_DOUBLE scalar);
-    friend MATRIX operator+(VSPAERO_DOUBLE scalar, const MATRIX &mat);
+    friend MATRIX operator+(const MATRIX &mat, double scalar);
+    friend MATRIX operator+(double scalar, const MATRIX &mat);
 
-    friend MATRIX operator-(const MATRIX &mat, VSPAERO_DOUBLE scalar);
-    friend MATRIX operator-(VSPAERO_DOUBLE scalar, const MATRIX &mat);
+    friend MATRIX operator-(const MATRIX &mat, double scalar);
+    friend MATRIX operator-(double scalar, const MATRIX &mat);
 
     friend MATRIX operator*(const MATRIX &mat1, const MATRIX &mat2);
-    friend MATRIX operator*(const MATRIX &mat, VSPAERO_DOUBLE scalar);
-    friend MATRIX operator*(VSPAERO_DOUBLE scalar, const MATRIX &mat);
+    friend MATRIX operator*(const MATRIX &mat, double scalar);
+    friend MATRIX operator*(double scalar, const MATRIX &mat);
 
     friend MATRIX operator/(const MATRIX &mat1, const MATRIX &mat2);
-    friend MATRIX operator/(const MATRIX &mat, VSPAERO_DOUBLE scalar);
-    friend MATRIX operator/(VSPAERO_DOUBLE scalar, const MATRIX &mat);
+    friend MATRIX operator/(const MATRIX &mat, double scalar);
+    friend MATRIX operator/(double scalar, const MATRIX &mat);
 
     friend MATRIX operator%(const MATRIX &mat1, const MATRIX &mat2);
 
@@ -74,18 +74,18 @@ public:
     friend void MatTimesMat(const MATRIX &mat1, const MATRIX &mat2, MATRIX &A);
     friend void   MatDivMat(const MATRIX &mat1, const MATRIX &mat2, MATRIX &B);
 
-    friend void MatTimesScalar(const MATRIX &mat, VSPAERO_DOUBLE scalar, MATRIX &A);
-    friend void   MatDivScalar(const MATRIX &mat, VSPAERO_DOUBLE scalar, MATRIX &A);
+    friend void MatTimesScalar(const MATRIX &mat, double scalar, MATRIX &A);
+    friend void   MatDivScalar(const MATRIX &mat, double scalar, MATRIX &A);
 
     MATRIX& operator*=(const MATRIX &mat);
     MATRIX& operator/=(const MATRIX &mat);
     MATRIX& operator+=(const MATRIX &mat);
     MATRIX& operator-=(const MATRIX &mat);
 
-    MATRIX& operator*=(VSPAERO_DOUBLE scalar);
-    MATRIX& operator/=(VSPAERO_DOUBLE scalar);
-    MATRIX& operator+=(VSPAERO_DOUBLE scalar);
-    MATRIX& operator-=(VSPAERO_DOUBLE scalar);
+    MATRIX& operator*=(double scalar);
+    MATRIX& operator/=(double scalar);
+    MATRIX& operator+=(double scalar);
+    MATRIX& operator-=(double scalar);
 
     MATRIX inverse(void);
     MATRIX transpose(void);
@@ -98,11 +98,11 @@ public:
 
     void LU(void);
     void LU_pivot(int *indx);
-    void solve(VSPAERO_DOUBLE *vec);
+    void solve(double *vec);
     void solve_vdk(MATRIX &vec);
-    void diagonal(VSPAERO_DOUBLE val);
+    void diagonal(double val);
 
-    MATRIX gauss_solve(MATRIX &vec, int max_iters, VSPAERO_DOUBLE toler);
+    MATRIX gauss_solve(MATRIX &vec, int max_iters, double toler);
 
     void print(char *name);
     void print(void);

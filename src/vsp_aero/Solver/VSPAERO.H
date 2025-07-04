@@ -23,7 +23,6 @@
 #include <SpanLoadData.H>
 #include <SpanLoadRotorData.H>
 #include <VSPAERO_OMP.H>
-#include <VSPAERO_TYPES.H>
 #include <VSP_Agglom.H>
 #include <VSP_Edge.H>
 #include <VSP_Geom.H>
@@ -110,7 +109,6 @@
 #include <SpanLoadData.H>
 #include <SpanLoadRotorData.H>
 #include <VSPAERO_OMP.H>
-#include <VSPAERO_TYPES.H>
 #include <VSP_Agglom.H>
 #include <VSP_Edge.H>
 #include <VSP_Geom.H>

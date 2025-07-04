@@ -25,8 +25,8 @@ private:
     
     int HasHightLiftSlat_;    
     
-    VSPAERO_DOUBLE HighLiftSlatPercentage_;
-    VSPAERO_DOUBLE HighLiftSlatMachDeploy_;
+    double HighLiftSlatPercentage_;
+    double HighLiftSlatMachDeploy_;
     
     
 public:
@@ -43,11 +43,11 @@ public:
     
     /** Percent of chord for the leading edge slat... acutally a fraction from 0 to 1. **/
     
-    VSPAERO_DOUBLE &HighLiftSlatPercentage(void) { return HighLiftSlatPercentage_; };
+    double &HighLiftSlatPercentage(void) { return HighLiftSlatPercentage_; };
     
     /** Mach number, below which, the slats are deployed **/
     
-    VSPAERO_DOUBLE &HighLiftSlatMachDeploy(void) { return HighLiftSlatMachDeploy_; };
+    double &HighLiftSlatMachDeploy(void) { return HighLiftSlatMachDeploy_; };
      
 };
 

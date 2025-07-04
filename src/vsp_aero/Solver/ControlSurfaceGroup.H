@@ -34,12 +34,48 @@ private:
     
     // Control surface deflection sign
     
-    VSPAERO_DOUBLE *ControlSurface_DeflectionDirection_;
+    double *ControlSurface_DeflectionDirection_;
     
     // Control surface deflection
     
-    VSPAERO_DOUBLE ControlSurface_DeflectionAngle_;
+    double ControlSurface_DeflectionAngle_;
+
+    // Aero Control derivatives
     
+    double pCLi_pDelta_;
+    double pCDi_pDelta_;
+    double pCSi_pDelta_;
+    
+    double pCMli_pDelta_;    
+    double pCMmi_pDelta_;    
+    double pCMni_pDelta_;    
+
+    double pCLo_pDelta_;
+    double pCDo_pDelta_;
+    double pCSo_pDelta_;
+    
+    double pCMlo_pDelta_;    
+    double pCMmo_pDelta_;    
+    double pCMno_pDelta_;    
+
+    // Force coefficient derivatives
+    
+    double pCFix_pDelta_;
+    double pCFiy_pDelta_;
+    double pCFiz_pDelta_;
+ 
+    double pCMix_pDelta_;
+    double pCMiy_pDelta_;
+    double pCMiz_pDelta_;
+    
+    double pCFox_pDelta_;
+    double pCFoy_pDelta_;
+    double pCFoz_pDelta_;
+ 
+    double pCMox_pDelta_;
+    double pCMoy_pDelta_;
+    double pCMoz_pDelta_;      
+        
 public:
 
     // Constructor, Destructor, Copy
@@ -67,12 +103,64 @@ public:
     
     /** Control surface deflection sign ... this allows for async motion... like ailerons **/
     
-    VSPAERO_DOUBLE &ControlSurface_DeflectionDirection(int i) { return ControlSurface_DeflectionDirection_[i]; };
+    double &ControlSurface_DeflectionDirection(int i) { return ControlSurface_DeflectionDirection_[i]; };
     
     /** Control surface deflection angle, degrees **/
     
-    VSPAERO_DOUBLE &ControlSurface_DeflectionAngle(void) { return ControlSurface_DeflectionAngle_; };
+    double &ControlSurface_DeflectionAngle(void) { return ControlSurface_DeflectionAngle_; };
+
+    // Aero Control derivatives
     
+    double &pCLi_pDelta(void) { return pCLi_pDelta_; };
+    double &pCDi_pDelta(void) { return pCDi_pDelta_; };
+    double &pCSi_pDelta(void) { return pCSi_pDelta_; };
+                  
+    double &pCMli_pDelta(void) { return pCMli_pDelta_; }; 
+    double &pCMmi_pDelta(void) { return pCMmi_pDelta_; };  
+    double &pCMni_pDelta(void) { return pCMni_pDelta_; };  
+                 
+    double &pCLo_pDelta(void) { return pCLo_pDelta_; };
+    double &pCDo_pDelta(void) { return pCDo_pDelta_; };
+    double &pCSo_pDelta(void) { return pCSo_pDelta_; };
+                 
+    double &pCMlo_pDelta(void) { return pCMlo_pDelta_; };
+    double &pCMmo_pDelta(void) { return pCMmo_pDelta_; }; 
+    double &pCMno_pDelta(void) { return pCMno_pDelta_; };
+
+    double pCLt_pDelta(void) { return pCLo_pDelta_ + pCLi_pDelta_; };
+    double pCDt_pDelta(void) { return pCDo_pDelta_ + pCDi_pDelta_; };
+    double pCSt_pDelta(void) { return pCSo_pDelta_ + pCSi_pDelta_; };
+                                                                         ;
+    double pCMlt_pDelta(void) { return pCMlo_pDelta_ + pCMli_pDelta_; };
+    double pCMmt_pDelta(void) { return pCMmo_pDelta_ + pCMmi_pDelta_; }; 
+    double pCMnt_pDelta(void) { return pCMno_pDelta_ + pCMni_pDelta_; };
+    
+    // Force coefficient derivatives
+    
+    double &pCFix_pDelta(void) { return pCFix_pDelta_; };
+    double &pCFiy_pDelta(void) { return pCFiy_pDelta_; };
+    double &pCFiz_pDelta(void) { return pCFiz_pDelta_; };
+                  
+    double &pCMix_pDelta(void) { return pCMix_pDelta_; };
+    double &pCMiy_pDelta(void) { return pCMiy_pDelta_; };
+    double &pCMiz_pDelta(void) { return pCMiz_pDelta_; };
+                  
+    double &pCFox_pDelta(void) { return pCFox_pDelta_; };
+    double &pCFoy_pDelta(void) { return pCFoy_pDelta_; };
+    double &pCFoz_pDelta(void) { return pCFoz_pDelta_; };
+                  
+    double &pCMox_pDelta(void) { return pCMox_pDelta_; };
+    double &pCMoy_pDelta(void) { return pCMoy_pDelta_; };
+    double &pCMoz_pDelta(void) { return pCMoz_pDelta_; };
+    
+    double pCFtx_pDelta(void) { return pCFox_pDelta_ + pCFix_pDelta_; };
+    double pCFty_pDelta(void) { return pCFoy_pDelta_ + pCFiy_pDelta_; };
+    double pCFtz_pDelta(void) { return pCFoz_pDelta_ + pCFiz_pDelta_; };
+                  
+    double pCMtx_pDelta(void) { return pCMox_pDelta_ + pCMix_pDelta_; };
+    double pCMty_pDelta(void) { return pCMoy_pDelta_ + pCMiy_pDelta_; };
+    double pCMtz_pDelta(void) { return pCMoz_pDelta_ + pCMiz_pDelta_; };    
+        
 };
 
 #include "END_NAME_SPACE.H"

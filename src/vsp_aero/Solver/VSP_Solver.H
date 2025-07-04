@@ -26,15 +26,13 @@
 #include "MergeSort.H"
 #include "Interaction.H"
 #include "InteractionLoop.H"
-#include "VortexSheetInteractionLoop.H"
-#include "VortexSheetVortex_To_VortexInteractionSet.H"
 #include "FastMatrix.H"
 #include "ComponentGroup.H"
-#include "SpanLoadData.H"
 #include "QuadTree.H"
 #include "EngineFace.H"
 #include "OptimizationFunction.H"
 #include "AdjointGradient.H"
+#include "SaveState.H"
 
 #include "START_NAME_SPACE.H"
 
@@ -42,20 +40,15 @@
 #define SOLVER_GMRES  2
 
 #define JACOBI 1
-#define SSOR   2
-#define MATCON 3
-
-#define SYM_X 1
-#define SYM_Y 2
-#define SYM_Z 3
+#define MATCON 2
 
 #define FORCE_UNSTEADY 1
 
-#define IMPULSE_ANALYSIS   1
-#define HEAVE_ANALYSIS     2
-#define P_ANALYSIS         3
-#define Q_ANALYSIS         4
-#define R_ANALYSIS         5
+#define IMPULSE_ANALYSIS 1
+#define HEAVE_ANALYSIS   2
+#define P_ANALYSIS       3
+#define Q_ANALYSIS       4
+#define R_ANALYSIS       5
 
 #define NOISE_LINEAR_INTERPOLATION          1
 #define NOISE_QUADRATIC_INTERPOLATION       2
@@ -64,9 +57,18 @@
 #define NOISE_CUBIC_HERMITE_INTERPOLATION   5
 #define NOISE_QUINTIC_HERMITE_INTERPOLATION 6
 
-#define GEOMETRY_UPDATE_DO_ALL      1
-#define GEOMETRY_UPDATE_DO_STARTUP  2
-#define GEOMETRY_UPDATE_DO_ADJOINT  3
+#define GEOMETRY_UPDATE_DO_ALL     1
+#define GEOMETRY_UPDATE_DO_STARTUP 2
+#define GEOMETRY_UPDATE_DO_ADJOINT 3
+
+#define ADJOINT_INVISCID_AND_VISCOUS_FORCES          0
+#define ADJOINT_WAKE_AND_VISCOUS_FORCES              1
+#define ADJOINT_INVISCID_AND_WAKE_AND_VISCOUS_FORCES 3
+#define ADJOINT_INVISCID_FORCES                      4
+#define ADJOINT_VISCOUS_FORCES                       5
+#define ADJOINT_WAKE_FORCES                          6
+#define ADJOINT_TOTAL_FORCES                         7
+#define ADJOINT_TOTAL_FORCES_USING_WAKE_FORCES       8
 
 // Definition of the VSP_SOLVER class
 
@@ -76,25 +78,17 @@ private:
 
     // Timing stuff
     
-    VSPAERO_DOUBLE TotalTime[5];
+    double TotalTime[5];
     
-    VSPAERO_DOUBLE StartTime_;
-    VSPAERO_DOUBLE StartSolveTime_;
+    double StartTime_;
+    double StartSolveTime_;
 
     // Filename
     
     char FileName_[2000];
     
     int iFix_;
-    
-    // Geometry type
-    
-    int ModelType_;
-    
-    // Surface type
 
-    int SurfaceType_;
-    
     // Debug
     
     int Verbose_;
@@ -110,6 +104,10 @@ private:
     // Write out 2d FEM output file
     
     int Write2DFEMFile_;
+    
+    // Write out tecplot file
+    
+    int WriteTecplotFile_;
     
     // Turn off KT correction
     
@@ -136,11 +134,15 @@ private:
     int NumberOfThreads_;    
     int NumberOfMGLevels_;
     int NumberOfEquations_;
+   
+    // Kelvin constraints
+    
     int NumberOfKelvinConstraints_;
     int *LoopInKelvinConstraintGroup_;
     int *LoopIsOnBaseRegion_;
     
-    VSPAERO_DOUBLE KelvinLambda_;
+    double *KelvinGroupSum_;    
+    double KelvinLambda_;
     
     // Rotor Geoemtry
     
@@ -154,11 +156,6 @@ private:
     int *SurfaceIsOnEngineFace_;
     
     ENGINE_FACE *EngineFace_;
-    
-    // Blade analysis
-    
-    int RotorAnalysis_;
-    VSPAERO_DOUBLE BladeRPM_;
 
     // Control Surface Group information (used for case header)
 
@@ -169,14 +166,15 @@ private:
     
     int NumberOfSurveyTimeSteps_;
     int NumberofSurveyPoints_;
-    VSPAERO_DOUBLE SurveyPointsStartTime_;    
+    double SurveyPointsStartTime_;    
     VSP_NODE *SurveyPointList_;    
     
     // Quad tree survey
     
     int NumberOfQuadTrees_;
     int *QuadTreeDirection_;
-    VSPAERO_DOUBLE *QuadTreeValue_;
+    int QuadTreeBufferLevels_;
+    double *QuadTreeValue_;
     QUAD_TREE *QuadTreeList_;
     FILE *QUADTREECaseListFile_;
     
@@ -186,302 +184,573 @@ private:
     int TimeAccurate_;
     int StartFromSteadyState_;
     int NumberOfTimeSteps_;
+    int StartAveragingTimeStep_;
     int NumberOfTimeSamples_;
     int Time_;
     int WakeStartingTime_;
-    int DoHoverRampFreeStream_;
     int PanelSpanWiseLoading_;
     int AveragingHasStarted_;
     int NumberOfAveragingSets_;
-    int FlowIs2D_;
+    int StallModelIsOn_;
     
-    VSPAERO_DOUBLE SigmaAvg_;
-    VSPAERO_DOUBLE TimeStep_;
-    VSPAERO_DOUBLE CurrentTime_;
-    VSPAERO_DOUBLE HoverRampFreeStreamVelocity_;
-    VSPAERO_DOUBLE OriginalVinfHoverRamp_;
-    
-    VSPAERO_DOUBLE ReducedFrequency_;
-    VSPAERO_DOUBLE Unsteady_AngleRate_; // Rad/s
-    VSPAERO_DOUBLE Unsteady_Angle_;     // Rad
-    VSPAERO_DOUBLE Unsteady_AngleMax_;  // Rad    
-    VSPAERO_DOUBLE Unsteady_H_;
-    VSPAERO_DOUBLE Unsteady_HMax_;
+    double SigmaAvg_;
+    double DeltaTime_;
+    double CurrentTime_;
 
-    int *GeometryComponentIsFixed_;    
-    int *GeometryGroupID_;
+    double ReducedFrequency_;
+    double Unsteady_AngleRate_; // Rad/s
+    double Unsteady_Angle_;     // Rad
+    double Unsteady_AngleMax_;  // Rad    
+    double Unsteady_H_;
+    double Unsteady_HMax_;
+
+    double WopWopOmegaMin_;
+    double WopWopOmegaMax_;
     
+    int NoiseAnalysis_;
+    int NoiseTimeRefinement_;
+    int NoiseTime_;
+    int NumberOfNoiseTimeSteps_;
+    int SteadyStateNoise_;
+    int NoiseInterpolation_;
+    
+    double NoiseDeltaTime_;
+    double NoiseTimeShift_;
+    double CurrentNoiseTime_;
+        
     int NumberOfComponentGroups_;
-    COMPONENT_GROUP *ComponentGroupList_;
+
+    double FreeStreamVelocity_[3];
     
-    int AllComponentsAreFixed_;
-    int ThereIsRelativeComponentMotion_;
+    double WakeAngle_[3];
+
+    double RotationalRate_[3];
     
-    VSPAERO_DOUBLE FreeStreamVelocity_[3];
-    VSPAERO_DOUBLE WakeAngle_[3];
+    double **LocalBodySurfaceVelocityForLoop_;
+    double **LocalBodySurfaceVelocityForEdge_;
     
-    int NumberOfWakeTrailingNodes_;
-    
-    int SetFarFieldDist_;
-    VSPAERO_DOUBLE FarFieldDist_;
-    
-    VSPAERO_DOUBLE RotationalRate_[3];
-    
-    VSPAERO_DOUBLE **UnsteadyTrailingWakeVelocity_;
-    VSPAERO_DOUBLE **LocalBodySurfaceVelocityForLoop_;
-    VSPAERO_DOUBLE **LocalBodySurfaceVelocityForEdge_;
-    
-    int NumberOfSurfaceVortexEdges_;
-    int NumberOfTrailingVortexEdges_;
-    int NumberOfVortexLoops_;
-    int NumberOfSurfaceNodes_;
-    
-    int NoWakeIteration_;
+    int ImplicitWake_;    
+    int ImplicitWakeStartIteration_;
+    int FreezeWakeAtIteration_;
     int WakeIterations_;
     int CurrentWakeIteration_;
+    int FreezeWakeRootVortices_;
     int GMRESTightConvergence_;
-    int AdjointUsePreviousSolution_;
-    
+    int FreezeMultiPoleAtIteration_;
     int DoSymmetryPlaneSolve_;
 
-    int Preconditioner_;
-    
+    int Preconditioner_;    
+    int UpdateMatrixPreconditioner_;
+    int UseWakeNodeMatrixPreconditioner_;
+        
     int DoVortexStretching_;
     
-    VSPAERO_DOUBLE User_GMRES_ToleranceFactor_;
+    double ForwardGMRESConvergenceFactor_;
+    double AdjointGMRESConvergenceFactor_;
     
-    VSPAERO_DOUBLE WakeRelax_;
+    double NonLinearConvergenceFactor_;
     
-    VSPAERO_DOUBLE CoreSizeFactor_;
+    double WakeRelax_;
+    
+    double CoreSizeFactor_;
 
-    VSPAERO_DOUBLE *Gamma_[3];
-    VSPAERO_DOUBLE &Gamma(int i) { return Gamma_[0][i]; };
-    VSPAERO_DOUBLE &GammaNM0(int i) { return Gamma_[0][i]; };
-    VSPAERO_DOUBLE &GammaNM1(int i) { return Gamma_[1][i]; };
-    VSPAERO_DOUBLE &GammaNM2(int i) { return Gamma_[2][i]; };
+    double *Gamma_[3];
+    double &Gamma(int i) { return Gamma_[0][i]; };
+    double &GammaNM0(int i) { return Gamma_[0][i]; };
+    double &GammaNM1(int i) { return Gamma_[1][i]; };
+    double &GammaNM2(int i) { return Gamma_[2][i]; };
+ 
+    double *DeltaGamma_;
+    double &dGamma(int i) { return DeltaGamma_[i]; };
+    
+    double *DeltaXYZ_;
+    double &dXYZ(int i) { return DeltaXYZ_[i]; };    
+    double &dX(int i) { return DeltaXYZ_[3*i-2]; };    
+    double &dY(int i) { return DeltaXYZ_[3*i-1]; };    
+    double &dZ(int i) { return DeltaXYZ_[3*i  ]; };    
  
     int NumberOfNoiseInterpolationPoints_;
     
-    VSPAERO_DOUBLE *GammaNoise_[9];
-    VSPAERO_DOUBLE *FxNoise_[9];
-    VSPAERO_DOUBLE *FyNoise_[9];
-    VSPAERO_DOUBLE *FzNoise_[9];
-    VSPAERO_DOUBLE *dCpUnsteadyNoise_[9];
-    VSPAERO_DOUBLE *UNoise_[9];
-    VSPAERO_DOUBLE *VNoise_[9];
-    VSPAERO_DOUBLE *WNoise_[9];
+    double *GammaNoise_[9];
+    double *FxNoise_[9];
+    double *FyNoise_[9];
+    double *FzNoise_[9];
+    double *dCpUnsteadyNoise_[9];
+    double *UNoise_[9];
+    double *VNoise_[9];
+    double *WNoise_[9];
 
-    VSPAERO_DOUBLE *RightHandSide_;
-    VSPAERO_DOUBLE *Residual_;
-    VSPAERO_DOUBLE *Diagonal_;
-    VSPAERO_DOUBLE *MatrixVectorProduct_;
-    VSPAERO_DOUBLE MaxDiagonal_;
-    VSPAERO_DOUBLE *Delta_;
-    VSPAERO_DOUBLE JacobiRelaxationFactor_;
-    VSPAERO_DOUBLE L2Residual_;
-    VSPAERO_DOUBLE KTResidual_[2];
+    double *RightHandSide_;
+    double *Residual_;
+    double *Diagonal_;
+    double *MatrixVectorProduct_;
+    double MaxDiagonal_;
+    double *Delta_;
+    double JacobiRelaxationFactor_;
+    double L2Residual_;
+    double KTResidual_[2];
+    
+    double MaxResidual_;
+    double WakeResidual_;
+    
     char ConvergenceLine_[2000];
     
-    int NumberOfMatrixPreconditioners_;    
-    MATPRECON *MatrixPreconditionerList_;
-    
+    int NumberOfVortexLoopMatrixPreconditioners_;    
+    MATPRECON *VortexLoopMatrixPreconditionerList_;
+
+    int NumberOfWakeNodeMatrixPreconditioners_;    
+    MATPRECON *WakeNodeMatrixPreconditionerList_;
+        
     GRADIENT *VorticityGradient_;
     
-    VSPAERO_DOUBLE AngleOfAttack_;
-    VSPAERO_DOUBLE AngleOfBeta_;
-    VSPAERO_DOUBLE AngleOfAttackZero_;
-    VSPAERO_DOUBLE AngleOfBetaZero_;
-    VSPAERO_DOUBLE Mach_;
-    VSPAERO_DOUBLE Machref_;
-    VSPAERO_DOUBLE Vinf_;
-    VSPAERO_DOUBLE Vref_;
-    VSPAERO_DOUBLE Vmax_;
-    VSPAERO_DOUBLE Density_;
-    VSPAERO_DOUBLE ReCref_;
-    VSPAERO_DOUBLE LastMach_;
+    double AngleOfAttack_;
+    double AngleOfBeta_;
+    double AngleOfAttackZero_;
+    double AngleOfBetaZero_;
+    double Mach_;
+    double Machref_;
+    double Vinf_;
+    double Vref_;
+    double Vmax_;
+    double Density_;
+    double ReCref_;
+    double LastMach_;
 
-    VSPAERO_DOUBLE Sref_;
-    VSPAERO_DOUBLE Cref_;
-    VSPAERO_DOUBLE Bref_;
+    double Sref_;
+    double Cref_;
+    double Bref_;
     
-    VSPAERO_DOUBLE XYZcg_[3];
+    double XYZcg_[3];
 
-    VSPAERO_DOUBLE  QMax_;
-    VSPAERO_DOUBLE CpMin_;
-    VSPAERO_DOUBLE CpMax_;
-    VSPAERO_DOUBLE CpBase_;
-    VSPAERO_DOUBLE DCpMax_;
+    double  QMax_;
+    double CpMin_;
+    double CpMax_;
+    double CpBase_;
+    double DCpMax_;
     
-    VSPAERO_DOUBLE CL_[3];
-    VSPAERO_DOUBLE CD_[3];
-    VSPAERO_DOUBLE CS_[3];
+    // Invisicid forces and moments
+    
+    double CLi_;
+    double CDi_;
+    double CSi_;
 
-    VSPAERO_DOUBLE CFx_[3];
-    VSPAERO_DOUBLE CFy_[3];
-    VSPAERO_DOUBLE CFz_[3];
+    double CFix_;
+    double CFiy_;
+    double CFiz_;
 
-    VSPAERO_DOUBLE CMx_[3];
-    VSPAERO_DOUBLE CMy_[3];
-    VSPAERO_DOUBLE CMz_[3];
+    double CMix_;
+    double CMiy_;
+    double CMiz_;
    
-    VSPAERO_DOUBLE CDTrefftz_[3];    
-    
-    VSPAERO_DOUBLE *CL_Unsteady_;
-    VSPAERO_DOUBLE *CD_Unsteady_;
-    VSPAERO_DOUBLE *CS_Unsteady_;    
-    VSPAERO_DOUBLE *CFx_Unsteady_;
-    VSPAERO_DOUBLE *CFy_Unsteady_;
-    VSPAERO_DOUBLE *CFz_Unsteady_;
-    VSPAERO_DOUBLE *CMx_Unsteady_;
-    VSPAERO_DOUBLE *CMy_Unsteady_;
-    VSPAERO_DOUBLE *CMz_Unsteady_;
-    
-    VSPAERO_DOUBLE MaxTurningAngle_;
-    VSPAERO_DOUBLE Clo_2d_;
-    VSPAERO_DOUBLE Clmax_2d_;
-    VSPAERO_DOUBLE CFxo_[3];
-    VSPAERO_DOUBLE CFyo_[3];
-    VSPAERO_DOUBLE CFzo_[3];
-    VSPAERO_DOUBLE CLo_[3];
-    VSPAERO_DOUBLE CSo_[3];
-    VSPAERO_DOUBLE CDo_[3];
-    VSPAERO_DOUBLE CMxo_[3];
-    VSPAERO_DOUBLE CMyo_[3];
-    VSPAERO_DOUBLE CMzo_[3];
-    
-    VSPAERO_DOUBLE **NodalForces_;
+    // Viscous forces and moments
+   
+    double CLo_;
+    double CSo_;
+    double CDo_;
+       
+    double CFox_;
+    double CFoy_;
+    double CFoz_;
+        
+    double CMox_;
+    double CMoy_;
+    double CMoz_;
+     
+    // Trefftz plane-ish forces
+   
+    double CLw_;
+    double CSw_;
+    double CDw_;
+       
+    double CFwx_;
+    double CFwy_;
+    double CFwz_;
 
-    // Span loading data
+    double MaxTurningAngle_;
+    double Clo_2d_;
+    double Clmax_2d_;
 
-    int SpanLoadingData_;
-    
-    int StartOfSpanLoadDataSets_;
-    int NumberOfSpanLoadDataSets_;
-    
-    SPAN_LOAD_DATA *SpanLoadData_;
-    
-    SPAN_LOAD_DATA &SpanLoadData(int i) { return SpanLoadData_[i]; };
+    double **NodalForces_;
 
-    VSPAERO_DOUBLE Xmin_, Xmax_;
-    VSPAERO_DOUBLE Ymin_, Ymax_;
-    VSPAERO_DOUBLE Zmin_, Zmax_;
+    double Xmin_, Xmax_;
+    double Ymin_, Ymax_;
+    double Zmin_, Zmax_;
 
-    // Pointer list to vortex/grid edges
+    // Fast Matrix routines
     
-    VSP_EDGE **SurfaceVortexEdge_;
-    
-    VSP_EDGE &SurfaceVortexEdge(int i) { return *(SurfaceVortexEdge_[i]); };
- 
-    // Pointer list to vortex/grid loops
-    
-    VSP_LOOP **VortexLoop_;
-    
-    VSP_LOOP &VortexLoop(int i) { return *(VortexLoop_[i]); };
-    
-    // Trailing vortices
-    
-    VORTEX_TRAIL *TrailingVortexEdge_;
- 
-    VORTEX_TRAIL &TrailingVortexEdge(int i) { return TrailingVortexEdge_[i]; };
-    
-    // Vortex Sheets
-    
-    int NumberOfVortexSheets_;
-    
-    VORTEX_SHEET **VortexSheet_;
-    
-    VORTEX_SHEET &VortexSheet(int c, int i) { return VortexSheet_[c][i]; };
-
-    VORTEX_SHEET &VortexSheet(int i) { return VortexSheet_[0][i]; };
-
-    // Vortex edge to vortex loop, and loop to loop interaction lists
-
-
-    // Vortex edge to vortex loop interaction lists
-
-//    int NumberOfInteractionLoops_[2];    
-//    LOOP_INTERACTION_ENTRY *InteractionLoopToEdgeList_[2];
-
     FAST_MATRIX FastMatrix_;
 
-    // Vortex Sheet/grid interaction lists
-    
-    int *NumberOfVortexSheetInteractionLoops_;
-    
-    VORTEX_SHEET_LOOP_INTERACTION_ENTRY **VortexSheetInteractionLoopList_;
-    
-    // Vortex sheet/sheet interaction lists
-    
-    int *NumberOfVortexSheetInteractionEdges_;
-
-    VORTEX_SHEET_LOOP_INTERACTION_ENTRY **VortexSheetInteractionTrailingVortexList_;
-        
-    VORTEX_SHEET_VORTEX_TO_VORTEX_INTERACTION_SET *VortexSheetVortexToVortexSet_;
-    
-    // Surface vortex edge to edge interaction lists
-    
-    int ThereIsEdgeToEdgeInteractionDataForLoopType_[2];
-    int *NumberOfInteractionEdgesForEdge_[2];    
-    VSP_EDGE ***VortexEdgeInteractionList_[2];
-
     // Initialize the local free stream conditions
-    
+        
     void InitializeFreeStream(void);
     
+    void UpdateLoopFreeStreamVelocities(void);
+
+    void UpdateEdgeFreeStreamVelocities(void);
+    
+    void Calculate_Total_FreeStream_Velocity_at_pXYZ(double xyzp[3], double qp[4]);
+    
+    void Calculate_FreeStream_Velocity_From_RotationRates_at_pXYZ(double xyzp[3], double qp[4]);
+    
+    void Calculate_FreeStreamVelocity_From_Rotors_And_Engines_At_pXYZ(double xyzp[3], double qp[4]);
+    
+    void CalculateBodyVelocitiesForQuasiUnsteadyAnalysis(void);
+
     // Calculate the diagonal of the influence matrix
     
     void CalculateDiagonal(void);
-    
-    // Calculate nearest neighbor coeffients of the influence matrix
-    
-    void CalculateNeighborCoefs(void);
-    
+
     // Calculate the matrix preconditioners
     
     int CalculateNumberOfFineLoops(int Level, VSP_LOOP &Loop, int *LoopList);
     
     void CreateMatrixPreconditionersDataStructure(void);
 
+    void CreateMatrixPreconditionersDataStructureForVortexLoops(void);
+
+    void CreateMatrixPreconditionersDataStructureForWakeNodes(void);
+
     void CreateMatrixPreconditioners(void);
+
+    void CreateVortexLoopMatrixPreconditioners(void);
+    
+    void CreateWakeNodeMatrixPreconditioners(void);
 
     // Multi Grid Routines
 
     void RestrictSolutionFromGrid(int Level);
+
+    void RestrictVortexCoreWidthFromGrid(int Level);
+
+    void RestrictAdjointSolutionFromGrid(int Level);
     
     void RestrictKTFactorFromGrid(int Level);
     
     void ProlongateSolutionFromGrid(int Level);
     
     void InterpolateSolutionFromGrid(int Level);
-
+    
+    void RestrictPerturbationSolutionFromGrid(int Level);
+    
     // Calculate matrix-vector products, and preconditioning
 
-    void DoPreconditionedMatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE *vec_out);
-    
-    void DoMatrixPrecondition(VSPAERO_DOUBLE *vec_in);
- 
-    VSPAERO_DOUBLE *MatrixVecTemp_;
-    
-    void DoMatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE *vec_out);
-    
-    void MatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE *vec_out);    
-    
-    void TransposeMatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE *vec_out);
+    void DoPreconditionedMatrixMultiply(double *vec_in, double *vec_out);
 
-    VSPAERO_DOUBLE CalculateAdjointExpansion(int &Level, int &Loop, VSPAERO_DOUBLE q[3]);
+    void DoForwardPreconditionedMatrixMultiply(double *vec_in, double *vec_out);
     
-    void DistributeAdjointExpansion(int &iLevel, int &iLoop, VSPAERO_DOUBLE &Coef, VSPAERO_DOUBLE *Vec);
-
-    void ZeroLoopVelocities(void);
-   
-    void ProlongateVelocity(void);
+    void DoAdjointPreconditionedMatrixMultiply(double *vec_in, double *vec_out);
     
-    void ProlongateUnsteadyVelocity(void);
+    void DoForwardSolvePrecondition(double *vec_in);
     
-    void RestrictFreeStreamVelocity(void);
+    void DoAdjointMatrixPrecondition(double *vec_in);
      
-    void MatrixTransposeMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE *vec_out);
+    double *MatrixVecTemp_;
+
+    // Forward matrix multiply routines
     
+    void DoForwardMatrixMultiply(double *vec_in, double *vec_out);    
+    
+    void CalculateGammaPerturbationLoopVelocities(void);
+    
+    void CalculateMeshPerturbationLoopVelocities(void);
+    
+    void CalculateGammaPerturbationEdgeVelocities(void);
+    
+    void CalculateMeshPerturbationEdgeVelocities(void);
+    
+    // Adjoint matrix multiply routines
+
+    void CreateAdjointCoarseEdgeList(void);
+      
+    void TransposeMatrixMultiply(double *vec_in, double *vec_out);
+
+    void CalculateGammaPerturbationLoopVelocities_Tranpose(double *vec_in, double *vec_out);
+
+    void CalculateMeshPerturbationLoopVelocities_Tranpose(double *vec_in, double *vec_out);
+
+    void CalculateGammaPerturbationEdgeVelocities_Tranpose(double *vec_in, double *vec_out);
+
+    void CalculateMeshPerturbationEdgeVelocitiesOverLoops_Tranpose(double *vec_in, double *vec_out);
+
+    void CalculateKstallPerturbationLoopVelocities_Tranpose(double *vec_in, double *vec_out);
+
+    void CalculateKstallPerturbationEdgeVelocities_Tranpose(double *vec_in, double *vec_out);
+    
+    void CalculateVortexStretchingRatioPerturbationLoopVelocities_Tranpose(double *vec_in, double *vec_out);
+        
+    void CalculateVortexStretchingRatioPerturbationEdgeVelocities_Tranpose(double *vec_in, double *vec_out);
+    
+    void CalculateMeshPerturbationEdgeVelocitiesOverEdges_Tranpose(double *vec_in, double *vec_out);
+
+    void CalculateMachPerturbationVelocities(void);
+
+    void CalculateLoopMachPerturbationVelocities(void);
+    
+    void CalculateEdgeMachPerturbationVelocities(void);
+
+    void CalculateStallGammaPerturbationLoopVelocities(void);
+
+    void CalculateStallGammaPerturbationEdgeVelocities(void);
+        
+    void CalculateVortexStretchingRatioGammaPerturbationLoopVelocities(void);
+    
+    void CalculateVortexStretchingRatioGammaPerturbationEdgeVelocities(void);
+
+    void ProlongateMachLoopVelocity(void);
+
+    void ProlongateMachEdgeVelocity(void);
+
+    double CalculateMeshPiAdjointExpansionOverLoops(int &Level, int &Loop, double q[3]);
+
+    double CalculateGammaPsiAdjointExpansionOverLoops(int &Level, int &Loop, double q[3]);
+    
+    double CalculateAdjointExpansionOverEdges(int &Level, int &Loop, double q[3][3]);
+
+    void CalculateAdjointWakeGammaMatrixMultiply(int LevelC, int EdgeC, double q[3], double Fact, double  &Coef);
+
+    void CalculateAdjointWakeMeshMatrixMultiply(int LevelC, int EdgeC, 
+                                                                      double &dq0_dx1,
+                                                                      double &dq0_dy1,
+                                                                      double &dq0_dz1,
+                                                                      double &dq0_dx2,
+                                                                      double &dq0_dy2,
+                                                                      double &dq0_dz2,
+                                                                      
+                                                                      double &dq1_dx1,
+                                                                      double &dq1_dy1,
+                                                                      double &dq1_dz1,
+                                                                      double &dq1_dx2,
+                                                                      double &dq1_dy2,
+                                                                      double &dq1_dz2,
+                                                                      
+                                                                      double &dq2_dx1,
+                                                                      double &dq2_dy1,
+                                                                      double &dq2_dz1,
+                                                                      double &dq2_dx2,
+                                                                      double &dq2_dy2,
+                                                                      double &dq2_dz2,
+                                                                      
+                                                                      double &dq0_dxp,
+                                                                      double &dq0_dyp,
+                                                                      double &dq0_dzp,
+                                                                      
+                                                                      double &dq1_dxp,
+                                                                      double &dq1_dyp,
+                                                                      double &dq1_dzp,
+                                                                      
+                                                                      double &dq2_dxp,
+                                                                      double &dq2_dyp,
+                                                                      double &dq2_dzp, double Fact, double Coef[9]);
+                                                                                  
+    void CalculateAdjointForceGradient(int LevelC, int EdgeC, double q[3], double Fact, double *Forces, double *Moments, double *qw, double *WakeForces, int NumCases);
+ 
+    void CalculateAdjointForcesOverEdges(int &Level, int &Loop, int iLevel, int iLoop);
+   
+    void DistributeAdjointExpansionOverLoops(int &iLevel, int &iLoop, double &Coef, double *Vec);
+
+    void CalculateForceGradients(void);
+
+    void CalculateForceGradients_wrt_Gamma(void);
+    
+    void CalculateForceGradients_wrt_Mesh(void);
+
+    void CalculateForceGradients_wrt_StallFactor(void);
+    
+    void CalculateForceGradients_wrt_VortexStretchingFactor(void); 
+    
+    void CalculateTimeAccurateAdjointCouplingTerms(int ForceCase, int Dir, int UnsteadyAdjointCase);
+    
+    void CalculateTimeAccurateForceCouplingTerms_wrt_Gamma(void);
+        
+    void CalculateViscousForceGradients(void);
+
+    void DistributeForceGammaVelocities(int LevelC, int LoopC);
+
+    void DistributeForceMeshVelocities(int LevelC, int LoopC);
+
+    void ZeroForceGammaVelocities(int LevelC, int LoopC);
+
+    void ZeroForceMeshVelocities(int LevelC, int LoopC);
+ 
+    void ProlongateGammaForces(void);
+ 
+    void ProlongateMeshForces(void);
+
+    void DistributeAdjointForcesOverLoops(int &iLevel, int &iLoop, double Forces[3], double *pF_pS);
+
+    void CalculateAdjointGammaForcesOverEdges(int &Level, int &Loop, int iLevel, int iLoop);
+
+    void CalculateAdjointMeshForcesOverEdges(int &Level, int &Loop, int iLevel, int Node1, int Node2);
+
+    void DistributeAdjointForcesOverEdges(int &Level, int &Loop, double Forces[3], double *pF_pM);
+
+    void DistributeAdjointExpansionOverNodes(int &Level, int &Node, double Coef[6], double *Vec);
+
+    void CalculateMeshAdjointExpansionOverLoops(int &Level, int &Loop,
+                                                double &dq0_dx1,
+                                                double &dq0_dy1,
+                                                double &dq0_dz1,
+                                                double &dq0_dx2,
+                                                double &dq0_dy2,
+                                                double &dq0_dz2,
+                                                            
+                                                double &dq1_dx1,
+                                                double &dq1_dy1,
+                                                double &dq1_dz1,
+                                                double &dq1_dx2,
+                                                double &dq1_dy2,
+                                                double &dq1_dz2,
+                                                           
+                                                double &dq2_dx1,
+                                                double &dq2_dy1,
+                                                double &dq2_dz1,
+                                                double &dq2_dx2,
+                                                double &dq2_dy2,
+                                                double &dq2_dz2,
+                                                
+                                                double &dq0_dxp,
+                                                double &dq0_dyp,
+                                                double &dq0_dzp,
+                                                   
+                                                double &dq1_dxp,
+                                                double &dq1_dyp,
+                                                double &dq1_dzp,
+                                                      
+                                                double &dq2_dxp,
+                                                double &dq2_dyp,
+                                                double &dq2_dzp, 
+                                                 
+                                                double &dq0_dMach,
+                                                double &dq1_dMach,
+                                                double &dq2_dMach,
+                                                                                                                                          
+                                                double Coef[9]);
+
+    void CalculatePsiT_PartialResidualPartialMesh(void);
+
+    void CalculatePsiT_PartialResidualPartialUserInputs(int ForceCase, int Dir, double InviscidWeight, double ViscousWeight, double WakeWeight);
+                                                                                                                          
+    void CalculatePsiT_PartialResidualPartialFreeStream(int ForceCase, int Dir, double InviscidWeight, double ViscousWeight, double WakeWeight);
+
+    void CalculatePsiT_PartialResidualPartialMesh_VorticityEquations(void);
+
+    void CalculatePsiT_PartialResidualPartialMesh_WakeEquations(void);
+
+    void CalculatePsiT_PartialResidualPartialMesh_StallEquations(void);
+
+    void CalculatePsiT_PartialResidualPartialMesh_VortexStretchingRatioEquations(void);
+
+    void CalculateLoopNormalGradients_wrt_Mesh(int Level, int Loop, double *NormalGradients, double *AreaGradients);
+
+    void TestCalculateLoopNormalGradients_wrt_Mesh(int Level, int Loop);
+
+    void CalculateTriNormalGradients_wrt_Mesh(int Loop,
+                                              double &dNx_dx1,
+                                              double &dNx_dy1,
+                                              double &dNx_dz1, 
+                                                               
+                                              double &dNy_dx1,
+                                              double &dNy_dy1,
+                                              double &dNy_dz1, 
+                                                             
+                                              double &dNz_dx1,
+                                              double &dNz_dy1,
+                                              double &dNz_dz1,
+                                                               
+                                              double &dNx_dx2,
+                                              double &dNx_dy2,
+                                              double &dNx_dz2, 
+                                                                 
+                                              double &dNy_dx2,
+                                              double &dNy_dy2,
+                                              double &dNy_dz2, 
+                                                                
+                                              double &dNz_dx2,
+                                              double &dNz_dy2,
+                                              double &dNz_dz2,     
+                                                                  
+                                              double &dNx_dx3,
+                                              double &dNx_dy3,
+                                              double &dNx_dz3, 
+                                                               
+                                              double &dNy_dx3,
+                                              double &dNy_dy3,
+                                              double &dNy_dz3, 
+                                                            
+                                              double &dNz_dx3,
+                                              double &dNz_dy3,
+                                              double &dNz_dz3,
+                                              
+                                              double &dNx_Normalized_dx1,
+                                              double &dNx_Normalized_dy1,
+                                              double &dNx_Normalized_dz1, 
+                                                                 
+                                              double &dNy_Normalized_dx1,
+                                              double &dNy_Normalized_dy1,
+                                              double &dNy_Normalized_dz1, 
+                                                                 
+                                              double &dNz_Normalized_dx1,
+                                              double &dNz_Normalized_dy1,
+                                              double &dNz_Normalized_dz1,
+                                                                 
+                                              double &dNx_Normalized_dx2,
+                                              double &dNx_Normalized_dy2,
+                                              double &dNx_Normalized_dz2, 
+                                                                 
+                                              double &dNy_Normalized_dx2,
+                                              double &dNy_Normalized_dy2,
+                                              double &dNy_Normalized_dz2, 
+                                                                 
+                                              double &dNz_Normalized_dx2,
+                                              double &dNz_Normalized_dy2,
+                                              double &dNz_Normalized_dz2,     
+                                                                  
+                                              double &dNx_Normalized_dx3,
+                                              double &dNx_Normalized_dy3,
+                                              double &dNx_Normalized_dz3, 
+                                                                 
+                                              double &dNy_Normalized_dx3,
+                                              double &dNy_Normalized_dy3,
+                                              double &dNy_Normalized_dz3, 
+                                                                 
+                                              double &dNz_Normalized_dx3,
+                                              double &dNz_Normalized_dy3,
+                                              double &dNz_Normalized_dz3,
+                                                                                              
+                                              double &dArea_dx1,
+                                              double &dArea_dy1,
+                                              double &dArea_dz1,            
+                                                                      
+                                              double &dArea_dx2,
+                                              double &dArea_dy2,
+                                              double &dArea_dz2,       
+                                                                      
+                                              double &dArea_dx3,
+                                              double &dArea_dy3,
+                                              double &dArea_dz3);                                               
+                                                      
+    // Velocities
+    
+    void ZeroLoopVelocities(void);
+
+    void ZeroEdgeVelocities(void);
+   
+    void ProlongateLoopVelocity(void);
+    
+    void ProlongateEdgeVelocity(void);
+    
+    // Perturbation velocities
+    
+    void ZeroLoopPerturbationVelocities(void);
+
+    void ZeroEdgePerturbationVelocities(void);
+   
+    void ProlongateLoopPerturbationVelocity(void);
+    
+    void ProlongateEdgePerturbationVelocity(void);    
+
+    void RestrictFreeStreamVelocity(void);
+
     // GMRES routines
     
     void Do_GMRES_Solve(void);
@@ -490,82 +759,193 @@ private:
                       int IterMax,                       // Max number of outer iterations
                       int NumRestart,                    // Max number of inner (restart) iterations
                       int Verbose,                       // Output flag, verbose = 0, or 1
-                      VSPAERO_DOUBLE *x,                 // Initial guess and solution vector
-                      VSPAERO_DOUBLE *RightHandSide,     // Right hand side of Ax = b
-                      VSPAERO_DOUBLE ErrorMax,           // Maximum error tolerance
-                      VSPAERO_DOUBLE ErrorReduction,     // Residual reduction factor
-                      VSPAERO_DOUBLE &ResFinal,          // Final log10 of residual reduction
+                      double *x,                 // Initial guess and solution vector
+                      double *RightHandSide,     // Right hand side of Ax = b
+                      double ErrorMax,           // Maximum error tolerance
+                      double ErrorReduction,     // Residual reduction factor
+                      double &ResFinal,          // Final log10 of residual reduction
                       int    &IterFinal);                // Final iteration count      
 
-    VSPAERO_DOUBLE VectorDot(int Neq, VSPAERO_DOUBLE *r, VSPAERO_DOUBLE *s);
+    double VectorDot(int Neq, double *r, double *s);
     
-    void ApplyGivensRotation(VSPAERO_DOUBLE c, VSPAERO_DOUBLE s, int k, VSPAERO_DOUBLE *g);
+    void ApplyGivensRotation(double c, double s, int k, double *g);
 
-    void CalculateVelocities(void);
+    void CalculateVelocities(int UpdateType);
+    
+    void CalculateLoopVelocities(void);
+        
     void CalculateEdgeVelocities(void);
     
     void CalculateRightHandSide(void);
-    
+ 
     // Adjoint stuff
 
     void CreateAdjointMatrix(void);
+
+    void CreateAdjointMatrixFull(void);
     
-    MATRIX AdjointMatrix_;
+    // Adjoint test code
     
-    int NumberOfOptimizationFunctions_;
-    int OptimizationCase_;
+    void TestForceGradients(void);
+
+    void TestInducedForceGradients(void);
+
+    void TestJacobianMatrix(void);
+
+    void TestMatrixPreconditioner(void);
+
+    void TestPartialResdiual_pMesh(void);
+    
+    void TestPartialResdiual_pMesh_Full(void);
+
+    void TestPartialResdiual_pVinf(void);
+
+    void TestEdgeCentroidGradients(void);
+    
+    int UnsteadyFDTest_;
+    double TestTotalUnsteadyForceIm[3], TestTotalUnsteadyForceVm[3];
+    double TestTotalUnsteadyForceIp[3], TestTotalUnsteadyForceVp[3];
+ 
+    double TestTotalUnsteadyMomentIm[3], TestTotalUnsteadyMomentVm[3];
+    double TestTotalUnsteadyMomentIp[3], TestTotalUnsteadyMomentVp[3];
+            
+    void TestTotalUnsteadyForceGradients(void);
+            
+    int NumberOfUnsteadyAdjointCases_;
     int DoAdjointSolve_;
     int OptimizationSolve_;    
-    int AdjointMatrixSolve_;    
-    int NumberOfTotalWakeResidualNodes_;
-    int NumberOfAdjointEquations_;
-    int FrozenWake_;
+    int AdjointMatrixSolve_;
     
-    OPTIMIZATION_FUNCTION OptimizationFunctionList_[1001];   
+    // Flag to set adjoint force direction
+    
+    int DoAdjointSolveForThisForceMomentCase_[7];
+    
+    // Flag to set the adjoint force type... viscous or inviscid...
+    
+    int AdjointSolutionForceType_;    
+    
+    // Invsicid force gradients wrt inputs
+    
+    double DFi_DAlpha_[3];
+    double DFi_DBeta_[3];
+    double DFi_DP_[3];
+    double DFi_DQ_[3];
+    double DFi_DR_[3];
+    double DFi_DMach_[3];
+    double DFi_DCG_[3][3];
+    double DFi_DRe_[3];
+                 
+    double DMi_DAlpha_[3];
+    double DMi_DBeta_[3];
+    double DMi_DP_[3];
+    double DMi_DQ_[3];
+    double DMi_DR_[3];
+    double DMi_DMach_[3];
+    double DMi_DCG_[3][3];
+    double DMi_DRe_[3];
+
+    // Viscous force gradients wrt inputs
+    
+    double DFo_DAlpha_[3];
+    double DFo_DBeta_[3];
+    double DFo_DP_[3];
+    double DFo_DQ_[3];
+    double DFo_DR_[3];
+    double DFo_DMach_[3];
+    double DFo_DCG_[3][3];
+    double DFo_DRe_[3];
+                     
+    double DMo_DAlpha_[3];
+    double DMo_DBeta_[3];
+    double DMo_DP_[3];
+    double DMo_DQ_[3];
+    double DMo_DR_[3];
+    double DMo_DMach_[3];
+    double DMo_DCG_[3][3];
+    double DMo_DRe_[3];
+
+    // Wake force gradients wrt inputs
+    
+    double DFw_DAlpha_[3];
+    double DFw_DBeta_[3];
+    double DFw_DP_[3];
+    double DFw_DQ_[3];
+    double DFw_DR_[3];
+    double DFw_DMach_[3];
+    double DFw_DCG_[3][3];
+    double DFw_DRe_[3];
+
+    // Aero Invsicid force gradients wrt inputs
+    
+    double DAeroFi_DAlpha_[3];
+    double DAeroFi_DBeta_[3];
+    double DAeroFi_DP_[3];
+    double DAeroFi_DQ_[3];
+    double DAeroFi_DR_[3];
+    double DAeroFi_DMach_[3];
+    double DAeroFi_DCG_[3][3];
+    double DAeroFi_DRe_[3];
+                 
+    double DAeroMi_DAlpha_[3];
+    double DAeroMi_DBeta_[3];
+    double DAeroMi_DP_[3];
+    double DAeroMi_DQ_[3];
+    double DAeroMi_DR_[3];
+    double DAeroMi_DMach_[3];
+    double DAeroMi_DCG_[3][3];
+    double DAeroMi_DRe_[3];
+
+    // Aero Viscous force gradients wrt inputs
+    
+    double DAeroFo_DAlpha_[3];
+    double DAeroFo_DBeta_[3];
+    double DAeroFo_DP_[3];
+    double DAeroFo_DQ_[3];
+    double DAeroFo_DR_[3];
+    double DAeroFo_DMach_[3];
+    double DAeroFo_DCG_[3][3];
+    double DAeroFo_DRe_[3];
+                     
+    double DAeroMo_DAlpha_[3];
+    double DAeroMo_DBeta_[3];
+    double DAeroMo_DP_[3];
+    double DAeroMo_DQ_[3];
+    double DAeroMo_DR_[3];
+    double DAeroMo_DMach_[3];
+    double DAeroMo_DCG_[3][3];
+    double DAeroMo_DRe_[3];
+
+    // Aero Wake force gradients wrt inputs
+    
+    double DAeroFw_DAlpha_[3];
+    double DAeroFw_DBeta_[3];
+    double DAeroFw_DP_[3];
+    double DAeroFw_DQ_[3];
+    double DAeroFw_DR_[3];
+    double DAeroFw_DMach_[3];
+    double DAeroFw_DCG_[3][3];
+    double DAeroFw_DRe_[3];
     
     // Gradient data with respect to mesh nodes **/
     
-    VSPAERO_DOUBLE *pF_pMesh_;
-    VSPAERO_DOUBLE *pR_pMesh_;    
-    VSPAERO_DOUBLE *pF_pSoln_;
-    
-    ADJOINT_GRADIENT MeshGradientData_;
-    
-    // Gradient data with respect to input variables
-    
-    int NumberOfOptimizationInputIndepdendentVariables_;
+    double *pF_pMesh_;
+    double *PsiT_pR_pMesh_;    
+    double *pF_pSoln_;
+    double *pF_pSoln_NP1_[7];
 
-    VSPAERO_DOUBLE *pR_pInputVariable_;
-    VSPAERO_DOUBLE *pF_pInputVariable_;
-    
-    ADJOINT_GRADIENT SolutionGradientData_;
-    
     // Adjoint solution vector
     
-    VSPAERO_DOUBLE **Psi_;
+    double ***Psi_;
+    double *CurrentPsi_;
     
-    int OptimizationNumberOfIntegrationTimeSteps_;
-    VSPAERO_DOUBLE OptimizationIntegrationTime_;
-        
-    void Optimization_AdjointSolve(void);        
-    void Optimization_CalculateGradientOfDesignFunction(void);
-    void Optimization_Calculate_pF_pMesh(void);
-    void Optimization_Calculate_pF_pGamma(void);
-    void Optimization_GMRES_AdjointSolve(void);
-    void Optimization_DoAdjointMatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE *vec_out);
-    void Optimization_Calculate_pR_pMesh(void);
-    void Optimization_Calculate_Total_Gradient(void);
-    void StoreOptimizationFunction(void);
-    
-    // Calculate gradients wrt rotor rpm
-    
-    VSPAERO_DOUBLE *Optimization_Calculate_pF_pRotorOmega(int Group);
-    
+    void Optimization_GMRES_AdjointSolve(void);    
+    void DoAdjointMatrixMultiply(double *vec_in, double *vec_out);
+
     // Setup stuff
     
     static double FarAway_;
     
-    VSPAERO_DOUBLE SmoothFactor_;
+    double SmoothFactor_;
     
     void DetermineNumberOfKelvinConstrains(void);
 
@@ -574,34 +954,22 @@ private:
     void Setup_VortexEdges(void);
     
     void InitializeTrailingVortices(void);
+ 
+    void CreateSurfaceVorticesInteractionList(void);
+ 
+    void CalculateSurfaceInducedVelocityAtPoint(double xyz[3], double q[3]);
     
-    void UpdateTrailingVortices(void);
-    
-    void CreateSurfaceVorticesInteractionList(int LoopType);
-    
-    void UpdateWakeVortexInteractionLists(void);
+    int CalculateSurfaceInducedVelocityAtOffBodyPoint(double xyz[3], double q[3]);
 
-    VORTEX_SHEET_LOOP_INTERACTION_ENTRY* CreateVortexSheetInteractionList(int v, int &NumberOfVortexSheetInteractionLoops);
-    
-    VORTEX_SHEET_LOOP_INTERACTION_ENTRY* CreateVortexTrailInteractionList(int v, int w, int t, int &NumberOfVortexSheetInteractionEdges);
-
-    void CreateInteractionListForSurfaceEdges(int LoopType);
-    
-    void CalculateSurfaceInducedVelocityAtPoint(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3]);
-    
-    int CalculateSurfaceInducedVelocityAtOffBodyPoint(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3]);
-
-    void CalculateSurfaceInducedVelocityAtPoint(int ComponentID, int pLoop, VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3]);
+    void CalculateSurfaceInducedVelocityAtPoint(int ComponentID, int pLoop, double xyz[3], double q[3]);
      
-    void CalculateSurfaceInducedVelocityAtPoint(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CoreWidth);
+    void CalculateSurfaceInducedVelocityAtPoint(double xyz[3], double q[3], double CoreWidth);
 
-    void AdjustNearSurfaceVelocities(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3], int NumberOfEdges, VSP_EDGE **InteractionList);
-    
-    void CreateTranposeMatrixInteractionList(void);
+    void AdjustNearSurfaceVelocities(double xyz[3], double q[3], int NumberOfEdges, VSP_EDGE **InteractionList);
 
-    INTERACTION_LISTS *CreateInteractionList(int ComponentID, int pLoop, int InteractionType, VSPAERO_DOUBLE xyz[3]);
+    INTERACTION_LISTS *CreateInteractionList(int ComponentID, int pLoop, double xyz[3]);
 
-    int NodeIsInsideLoop(VSP_LOOP &Loop, VSPAERO_DOUBLE xyz[3]);
+    int NodeIsInsideLoop(VSP_LOOP &Loop, double xyz[3]);
 
     int FirstTimeSetup_;
     int FirstTimeGradientSetup_;
@@ -609,79 +977,108 @@ private:
     int ***EdgeIsUsed_;    
     int ***LoopIsUsed_;
     int *SearchID_;
+    int UserAdjointComponentList_[10000];
+    int *ComponentIsInAdjointForceAndMomentList_;
         
-    VSPAERO_DOUBLE AdjointTime_;
+    double AdjointTime_;
     
     // Interaction data
     
     INTERACTION_LISTS *TempInteractionList_;
-    
-//    VSP_EDGE ***TempEdgeInteractionList_;
-    
-//    VSP_LOOP ***TempLoopInteractionList_;
 
     STACK_ENTRY **LoopStackList_;    
         
     int SolverType_;
     int DoRestart_;
     int SaveRestartFile_;
-    int ExternalCoupledSolve_;
     
     // Solve stuff
     
-    // Solve the linear system 
+    // Solve the forward linear system 
     
-    void SolveLinearSystem(void);
+    void SolveForwardLinearSystem(void);
         
+    // Solve the adjoint linear system 
+        
+    void SolveAdjointLinearSystem(void);
+
+    // Zero out force and moment gradients
+        
+    void ZeroForceAndMomentGradients(void);
+
+    // Average force and moment gradients
+    
+    void AverageForceAndMomentGradients(int NumberOfCases);
+    
+    // Calculate the force coefficients (cl, cd, cm... etc) wrt user inputs like alpha, beta...
+    
+    void CalculateForceCoefficientGradients_wrt_Inputs(void);
+    
+    // Calculate the force coefficients (cl, cd, cm... etc) wrt mesh nodes
+    
+    void CalculateForceCoefficientGradients_wrt_Mesh(void);
+    
+    // Calculate control surface derivatives
+        
+    void CalculateControlSurfaceDerivatives(void);
+    
+    // Write out the mesh force gradients
+    
+    void WriteOutMeshGradients(void);
+
     // Wake update 
     
     void UpdateWakeLocations(void);
-    
-    void UpdateWakeLocations(VSPAERO_DOUBLE *VecIn);
-    
-    // Calculate the unsteady wake velocities
-    
-    void CalculateUnsteadyWakeVelocities(void);
 
-    // Update the location of the geometry ... or parts of it
+    void UpdateWakeLocations(double *VecIn);
     
-    void UpdateGeometryLocation(int DoStartUp);
+    // Update the wake convected distance
 
-    // Reset the geometry to it's initial state
+    void UpdateWakeConvectedDistance(void);
     
-    void ResetGeometry(void);
+    // Update the location of the geometry for time accurate solutions
+    
+    void UpdateGeometryLocation(void);
 
-    // Initialize the span load data structure
+    // Calculate the body velocities for moving geometries
+        
+    void CalculateLocalBodyVelocitiesFromMovingGeometries(int Group);
+
+    // Convect the wake vorticity, and wake node locations
     
-    void InitializeSpanLoadData(void);
+    void ConvectUnsteadyWakes(void);    
     
-    // Update the span load data structure as mesh may have changed
+    // Apply the vortex stretching model
     
-    void UpdateSpanLoadData(void);
+    void ApplyVortexStretchingModel(void);
     
     // Update the local values of the circulation strengths for each vortex egde
 
     void UpdateVortexEdgeStrengths(int Level, int UpdateType);
     
-    // Zero out the gamma on the trailing edge kutta edges.. this is done before the
-    // velocity (and hence matrix) evaluations and allows us to just loop over all the
-    // edges without having to check if we are on the trailing edge... This should
-    // not be called before evaluation of the forces and the trailing edge drag 
-    // method requires the value of gamma on the trailing edge.
+    // Update the local values of the perturbation circulation strengths for each vortex egde
     
-    void ZeroTrailingEdgeGammas(void);
+    void UpdatePerturbationVortexEdgeStrengths(int Level);
+    
+    // Update the vortex core widths across all the wake loops and edges
+    
+    void UpdateVortexCoreWidths(int Level, int UpdateType);
+
+    // Zero out the vortex core widths in the wake loops and edges
+        
+    void ZeroVortexCoreWidths(int Level, int UpdateType);
 
     // Zero out vortex strengths
     
     void ZeroVortexState(void);
-    
-    // Update the convected wake distance
-    
-    void UpdateWakeConvectedDistance(void);
-    
+
     // Calculate Residual
     
     void CalculateResidual(void);
+
+    // Stall function
+
+    void StallFunction(double X, double &F, double &pF_pX);
     
     // Smooth out the principal part of the integral for supersonic flows
     
@@ -692,48 +1089,41 @@ private:
     // Force and moment calculations
     
     void CalculateForces(void);
+    
     void CalculatePressureForces(void);
-    void CalculateTrefftzForces(void);
+    
     void CalculateKuttaJukowskiForces(void);
+    
     void CalculateUnsteadyForces(void);    
+
     void IntegrateForcesAndMoments(void);
+    
     void CalculateDeltaCPs(void);
+    
     void CalculateVorticityGradient(void);    
+    
     void CalculateSurfacePressures(void);
-    void CalculateSurfacePressuresOld(void);
+    
     void CalculateOptimizationForces(void);
 
     void CreateVorticityGradientDataStructure(void);
-    void CreateVorticityGradientDataStructureOld(void);
 
     void CalculateLeastSquaresCoefficients(int Loop1);
-                                            
-    void CalculateCLmaxLimitedForces(void);
 
-    int SurfaceVortexEdgeIsBetweenPlanes(VSPAERO_DOUBLE *Normal1, VSPAERO_DOUBLE *Normal1Point,
-                                         VSPAERO_DOUBLE *Normal2, VSPAERO_DOUBLE *Normal2Point,
-                                         int Edge, VSPAERO_DOUBLE &Weight);
-    
     void CalculateSpanWiseLoading(void);
-    void CreateFEMLoadFile(int Case);
-    void CreateFEMLoadFileFromVLMSolve(int Case);
-    void CreateFEMLoadFileFromPanelSolve(int Case);
-    
+
     // Quad Tree Slicing
     
     void CreateQuadTreePlaneDataStructures(void);
+    
     void CalculateQuadTreeVelocitySurvey(int Case);
     
-    int InsideBody(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE distance);       
+    int InsideBody(double xyz[3], double distance);       
 
     // Set solver type... not being used 
     
     int &SolverType(void) { return SolverType_; };
-    
-    // Number of time samples... not being used 
-           
-    int &NumberOfTimeSamples(void) { return NumberOfTimeSamples_; };
-           
+
     // Field surveys
     
     void CalculateVelocitySurvey(int Case);
@@ -750,10 +1140,27 @@ private:
     FILE *InputADBFile_;
     
     char CaseString_[2000];
+    
+    // Save states
+    
+    int MaxNumberOfSavedStates_;
 
+    SAVE_STATE *SavedState_;
+    
+    SAVE_STATE &SavedState(int i) { return SavedState_[i]; };
+    
+    void CreateSavedStateStack(int StackSize);
+    
+    void SaveCurrentState(int SaveStateTime);
+    
+    void RestoreStateToTime(int SaveStateTime);
+    
+    void ZeroSolutionState(void);
+    
     // Restart files
     
     void WriteRestartFile(void);
+    
     void LoadRestartFile(void);
     
     // Status file
@@ -764,23 +1171,25 @@ private:
     
     FILE *LoadFile_;
     
-    VSPAERO_DOUBLE Time1_;
-    VSPAERO_DOUBLE Time2_;
+    double Time1_;
     
-    // FEM file (beam)
+    double Time2_;
     
-    FILE *FEMLoadFile_;
-
     // 2D Fem loads files
     
     FILE *FEM2DLoadFile_;
     
     void WriteFEM2DGeometry(void);
+    
     void WriteFEM2DSolution(void);
     
+    // Tecplot file
+    
+    void WriteOutTecPlotFile(void);
+
     // Nodal quantities of stuff
     
-    VSPAERO_DOUBLE *NodalCp_;
+    double *NodalCp_;
     
     // Survey points file
     
@@ -789,29 +1198,28 @@ private:
     // File IO
     
     void WriteOutAerothermalDatabaseHeader(void);    
+    
     void WriteOutAerothermalDatabaseGeometry(void);
+    
     void WriteOutAerothermalDatabaseSolution(void);
 
     void ReadInAerothermalDatabaseHeader(void);    
+    
     void ReadInAerothermalDatabaseGeometry(void);
+    
     void ReadInAerothermalDatabaseSolution(int TimeCase);
 
-    void InterpolateInTime(VSPAERO_DOUBLE Time, VSPAERO_DOUBLE **ArrayIn, VSPAERO_DOUBLE *ArrayOut, int NumValues);
-    void InterpolateExistingSolution(VSPAERO_DOUBLE Time);
-
+    void InterpolateInTime(double Time, double **ArrayIn, double *ArrayOut, int NumValues);
+    
+    void InterpolateExistingSolution(double Time);
 
     void SavePeriodicNoiseSolution(void);
+
     void RestorePeriodicNoiseSolution(void);
-  
-    void SaveVortexState(void);
-    
-    void SaveWakeShapeState(void);
-    
-    void RestoreWakeShapeState(void);
-    
+
     // Carlson's attainable leading edge suction model
     
-    VSPAERO_DOUBLE CalculateLeadingEdgeSuctionFraction(VSPAERO_DOUBLE Mach, VSPAERO_DOUBLE ToC, VSPAERO_DOUBLE RoC, VSPAERO_DOUBLE EtaToC, VSPAERO_DOUBLE AoA, VSPAERO_DOUBLE Sweep);
+    double CalculateLeadingEdgeSuctionFraction(double Mach, double ToC, double RoC, double EtaToC, double AoA, double Sweep);
   
     // Group force coefficient file(s)
     
@@ -820,108 +1228,7 @@ private:
     // Rotor coefficient file(s)
     
     FILE **RotorFile_;
-    
-    // PSU WOP WOP Coupling
-    
-    // Set psuwopwop periodicity type
-    // WOPWOP_CONSTANT  1
-    // WOPWOP_PERIODIC  2
-    // WOPWOP_APERIODIC 3
-     
-    int &WopWopPeriodicity(void) { return WopWopPeriodicity_; };
-    
-    int &WopWopWriteOutADBFile(void) { return WopWopWriteOutADBFile_; };    
-    
-    VSPAERO_DOUBLE &WopWopUserStartTime(void) { return WopWopUserStartTime_; };
-    VSPAERO_DOUBLE &WopWopUserFinishTime(void) { return WopWopUserFinishTime_; };
-        
-    int NoiseAnalysis_;
-    int NoiseTimeRefinement_;
-    int NoiseTime_;
-    int NumberOfNoiseTimeSteps_;
-    int SteadyStateNoise_;
-    int NoiseInterpolation_;
-    
-    VSPAERO_DOUBLE NoiseTimeStep_;
-    VSPAERO_DOUBLE NoiseTimeShift_;
-    VSPAERO_DOUBLE CurrentNoiseTime_;
 
-    int WopWopEnglishUnits_;
-    int WopWopFlyBy_;
-    int WopWopPeriodicity_;
-    int WopWopNumberOfRotors_;
-    int WopWopNumberOfWings_;
-    int WopWopNumberOfBodies_;
-    int WopWopNumberOfTotalBlades_;
-    int WopWopNumberOfTotalWingSurfaces_;
-    int WopWopNumberOfTtoalBodySurfaces_;
-    int WopWopNumberOfTimeSteps_;
-    int WopWopComponentGroupStart_;
-    int WopWopComponentGroupEnd_;
-    int WopWopLongestPeriodGroup_;
-    int WopWopWriteOutADBFile_;
-    
-    VSPAERO_DOUBLE WopWopDensityConversion_;
-    VSPAERO_DOUBLE WopWopLengthConversion_;
-    VSPAERO_DOUBLE WopWopAreaConversion_;
-    VSPAERO_DOUBLE WopWopPressureConversion_;     
-    VSPAERO_DOUBLE WopWopForceConversion_;
-    VSPAERO_DOUBLE WopWopdTau_;
-    VSPAERO_DOUBLE WopWopOmegaMin_;
-    VSPAERO_DOUBLE WopWopOmegaMax_;
-    VSPAERO_DOUBLE WopWopLongestPeriod_;
-    VSPAERO_DOUBLE WopWopShortestPeriod_;
-    VSPAERO_DOUBLE WopWopObserverTime_;
-    VSPAERO_DOUBLE WopWopUserStartTime_;
-    VSPAERO_DOUBLE WopWopUserFinishTime_;
-    
-    FILE *PSUWopWopNameListFile_;
-    
-    // Main driver routines
-    
-    void SetupPSUWopWopData(void);
-    void WriteOutPSUWopWopFileHeadersForGroup(int c);
-    void WriteOutPSUWopWopUnsteadyDataForGroup(int c);
-
-    // Namelist files
-    
-    void WriteOutPSUWopWopCaseAndNameListFiles(void);
-    void WriteOutPSUWopWopCaseAndNameListFilesForFlyBy(void);
-        void WriteOutPSUWopWopCaseAndNameListFilesForFlyByOld(void);
-
-    void WriteOutPSUWopWopCaseAndNameListFilesForFootPrint(void);
-
-    // Compact Geometry
-    
-    void WriteOutPSUWopWopCompactGeometryHeaderForGroup(int c);
-    void WriteOutPSUWopWopCompactGeometryDataForGroup(int c);
-    
-    // Compact Loading
-    
-    void WriteOutPSUWopWopCompactLoadingHeaderForGroup(int c);
-    void WriteOutPSUWopWopCompactLoadingDataForGroup(int c);
-
-    // Thickness Geometry
-
-    void WriteOutPSUWopWopThicknessGeometryHeaderForGroup(int c);    
-    void WriteOutPSUWopWopThicknessGeometryDataForGroup(int c); 
-    
-    // Full Geometry
-
-    void WriteOutPSUWopWopLoadingGeometryHeaderForGroup(int c);        
-    void WriteOutPSUWopWopLoadingGeometryDataForGroup(int c);   
-    
-    // Full Loading
-    
-    void WriteOutPSUWopWopLoadingHeaderForGroup(int c);        
-    void WriteOutPSUWopWopLoadingDataForGroup(int c);    
-    
-    // Pegg and BPM data
-
-    void WriteOutPSUWopWopPeggNamelist(void);
-    void WriteOutPSUWopWopBPMHeaderForGroup(int c);    
-    void WriteOutPSUWopWopBPMDataForGroup(int c);
-        
 public:
 
     // Constructor, Destructor, Copy
@@ -930,32 +1237,29 @@ public:
    ~VSP_SOLVER(void);
     VSP_SOLVER(const VSP_SOLVER &Solver_);
 
-//djk
-    void CalculateOptimizationFunctions(void);
-
     // Copy function
 
     VSP_SOLVER& operator=(const VSP_SOLVER &Solver_);
 
-    /** Get Model type.. Panel or VLM **/
+    /** Turn on implicit wake **/
+    
+    int &ImplicitWake(void) { return ImplicitWake_; };
+    
+    /** Iteration at which to start implicit wake solve **/
+    
+    int &ImplicitWakeStartIteration(void) { return ImplicitWakeStartIteration_; };
 
-    int ModelType(void) { return ModelType_; };
-    
-    /** Get Model subtype... CART3D, VSPGEOM, or DegenGeom **/
-    
-    int ModelSubType(void) { return SurfaceType_; };
-    
-    /** Turn off wake iterations **/
-    
-    int &NoWakeIteration(void) { return NoWakeIteration_; };
-    
     /** Set number of wake iterations **/
     
     int &WakeIterations(void) { return WakeIterations_; };
     
+    /** Set the multipole far away value **/
+    
+    double &FarAway(void) { return FarAway_; };
+    
     /** Adjust the wake core size model up or down, default value is 1. **/
     
-    VSPAERO_DOUBLE &CoreSizeFactor(void) { return CoreSizeFactor_; };
+    double &CoreSizeFactor(void) { return CoreSizeFactor_; };
     
     /** Turn on vortex stretching model **/
     
@@ -964,92 +1268,97 @@ public:
     /** Turn on tight GMRES convergence **/
     
     int &GMRESTightConvergence(void) { return GMRESTightConvergence_; };
-    
-    /** Adjoint restart option... turn this on to use previous adjoint solution... for
-     * each given optimization variable ... as the initial guess for the current solve...
-     * this can drastically reduce the number of GMRES iterations for unsteady adjoint
-     * cases, and likely for steady adjoint cases as well - where the user is coming in
-     * with very similar geometries while doing an optimization **/
-     
-    int &AdjointUsePreviousSolution(void) { return AdjointUsePreviousSolution_; };
-    
-    /** User GMRES residual reduction factor... this scales the default residual reduction
-     * ie... ResidualReductrion = DefaultResidualReduction * User_GMRES_ToleranceFactor_
+
+    /** User Forward GMRES residual reduction factor... this scales the default residual reduction
+     * ie... ResidualReduction = DefaultResidualReduction * ForwardGMRESConvergenceFactor_
      **/
      
-    VSPAERO_DOUBLE &User_GMRES_ToleranceFactor(void) { return User_GMRES_ToleranceFactor_; };
+    double &ForwardGMRESConvergenceFactor(void) { return ForwardGMRESConvergenceFactor_; };
 
+    /** User Adjoint GMRES residual reduction factor... this scales the default residual reduction
+     * ie... ResidualReduction = DefaultResidualReduction * ForwardGMRESConvergenceFactor_
+     **/
+     
+    double &AdjointGMRESConvergenceFactor(void) { return AdjointGMRESConvergenceFactor_; };
+    
+    /** User non-linear residual reduction factor on solution of overall nonlinear system
+     * ... this scales the default residual reduction
+     * ie... ResidualReduction = DefaultResidualReduction * NonLinearConvergenceFactor_
+     **/
+     
+    double &NonLinearConvergenceFactor(void) { return NonLinearConvergenceFactor_; };
+        
     /** Wake relaxation factor **/
     
-    VSPAERO_DOUBLE &WakeRelax(void) { return WakeRelax_; };
+    double &WakeRelax(void) { return WakeRelax_; };
         
     /** Set angle of attack **/
     
-    VSPAERO_DOUBLE &AngleOfAttack(void) { return AngleOfAttack_; };
+    double &AngleOfAttack(void) { return AngleOfAttack_; };
     
     /** Set angle of sidesip **/
     
-    VSPAERO_DOUBLE &AngleOfBeta(void) { return AngleOfBeta_; };
+    double &AngleOfBeta(void) { return AngleOfBeta_; };
    
     /** Zero angle of attack, for unsteady periodic runs **/
     
-    VSPAERO_DOUBLE &AngleOfAttackZero(void) { return AngleOfAttackZero_; };
+    double &AngleOfAttackZero(void) { return AngleOfAttackZero_; };
     
     /** Zero side slip angle, for unsteady periodic runs **/
     
-    VSPAERO_DOUBLE &AngleOfBetaZero(void) { return AngleOfBetaZero_; };
+    double &AngleOfBetaZero(void) { return AngleOfBetaZero_; };
     
     /** Set free stream Mach number **/
         
-    VSPAERO_DOUBLE &Mach(void) { return Mach_; };
+    double &Mach(void) { return Mach_; };
     
     /** Set free stream velocity ... note that units are up to user to be consistent with geometry! **/
     
-    VSPAERO_DOUBLE &Vinf(void) { return Vinf_; };
+    double &Vinf(void) { return Vinf_; };
 
     /** Set reference Mach number, this requires Vref to be set as well **/
     
-    VSPAERO_DOUBLE &Machref(void) { return Machref_; };
+    double &Machref(void) { return Machref_; };
     
     /** Set reference velocity.. this is often the tip velocity for a rotor ... should be consistent with Machref **/
     
-    VSPAERO_DOUBLE &Vref(void) { return Vref_; };
+    double &Vref(void) { return Vref_; };
     
     /** Set free stream density **/
     
-    VSPAERO_DOUBLE &Density(void) { return Density_; };
+    double &Density(void) { return Density_; };
     
     /** Set free stream Reynolds number based on the reference chord, Cref **/
     
-    VSPAERO_DOUBLE &ReCref(void) { return ReCref_; };
+    double &ReCref(void) { return ReCref_; };
     
     /** Set Xcg loation **/
 
-    VSPAERO_DOUBLE &Xcg(void) { return XYZcg_[0]; };
+    double &Xcg(void) { return XYZcg_[0]; };
     
     /** Set Ycg loation **/
     
-    VSPAERO_DOUBLE &Ycg(void) { return XYZcg_[1]; };
+    double &Ycg(void) { return XYZcg_[1]; };
 
     /** Set Zcg loation **/
 
-    VSPAERO_DOUBLE &Zcg(void) { return XYZcg_[2]; };    
+    double &Zcg(void) { return XYZcg_[2]; };    
     
     /** Set rotational rate about x axis **/
     
-    VSPAERO_DOUBLE &RotationalRate_p(void) { return RotationalRate_[0]; };
+    double &RotationalRate_p(void) { return RotationalRate_[0]; };
     
     /** Set rotational rate about y axis **/
     
-    VSPAERO_DOUBLE &RotationalRate_q(void) { return RotationalRate_[1]; };
+    double &RotationalRate_q(void) { return RotationalRate_[1]; };
 
     /** Set rotational rate about z axis **/
 
-    VSPAERO_DOUBLE &RotationalRate_r(void) { return RotationalRate_[2]; };    
+    double &RotationalRate_r(void) { return RotationalRate_[2]; };    
     
     /** Set the angular rate, in radian/sec, for component group = Group **/
     
-    VSPAERO_DOUBLE &GroupOmegaRate(int Group) { return ComponentGroupList_[Group].Omega(); };
+//    double &GroupOmegaRate(int Group) { return ComponentGroupList_[Group].Omega(); };
 
     /** Set number of rotors ... aka... acuator disks **/
     
@@ -1081,15 +1390,27 @@ public:
     
     /** Turn on and set symmetry direction **/
     
-    void DoSymmetryPlaneSolve(int Direction) { DoSymmetryPlaneSolve_ = VSPGeom_.DoSymmetryPlaneSolve() = Direction; };
+    int &DoSymmetryPlaneSolve(void) { return DoSymmetryPlaneSolve_; };
+    
+    /** Freeze the multipole expansion update **/
+    
+    int &FreezeMultiPoleAtIteration(void) { return FreezeMultiPoleAtIteration_; };
+    
+    /** Freeze the wake after this number of iterations **/
+    
+    int &FreezeWakeAtIteration(void) { return FreezeWakeAtIteration_; };
+    
+    /** Freeze the root wake vortices **/
+    
+    int &FreezeWakeRootVortices(void) { return FreezeWakeRootVortices_; };
 
     /** Set the farfield distance for the trailing wakes.. over rides defaults **/
     
-    void SetFarFieldDist(VSPAERO_DOUBLE FarDist) { SetFarFieldDist_ = 1; FarFieldDist_ = FarDist; };
+    void SetFarFieldDist(double FarDist) { VSPGeom().SetFarFieldDist() = 1; VSPGeom().FarFieldDist() = FarDist; };
     
     /** Set number of trailing nodes to define the wakes... must be a power of 2 **/
     
-    void SetNumberOfWakeTrailingNodes(int NumberOfNodes) { NumberOfWakeTrailingNodes_ = NumberOfNodes; };
+    void SetNumberOfWakeTrailingNodes(int NumberOfNodes) { VSPGeom().SetNumberOfWakeTrailingNodes(NumberOfNodes); };
         
     /** Set the number of survey points **/
     
@@ -1105,7 +1426,11 @@ public:
     
     /** Set number of quad trees for flow field interrogation **/
     
-    void SetNumberOfQuadTrees(int NumberOfQuadTrees) { NumberOfQuadTrees_ = NumberOfQuadTrees; QuadTreeDirection_ = new int[NumberOfQuadTrees_ + 1]; QuadTreeValue_ = new VSPAERO_DOUBLE[NumberOfQuadTrees_ + 1]; };
+    void SetNumberOfQuadTrees(int NumberOfQuadTrees) { NumberOfQuadTrees_ = NumberOfQuadTrees; QuadTreeDirection_ = new int[NumberOfQuadTrees_ + 1]; QuadTreeValue_ = new double[NumberOfQuadTrees_ + 1]; };
+
+    /** Set number of buffer levels for quad tree... the higher the level, the more cells **/
+    
+    int &QuadTreeBufferLevels(void) { return QuadTreeBufferLevels_; };
 
     /** Set quad tree direction ... x, y, or z --> 1, 2, or 3 **/
     
@@ -1113,7 +1438,7 @@ public:
     
     /** Set quad tree plane value... ie x, y, or z location **/
     
-    VSPAERO_DOUBLE &QuadTreeValue(int i) { return QuadTreeValue_[i]; };
+    double &QuadTreeValue(int i) { return QuadTreeValue_[i]; };
     
     /** Output the force and moment data for group Group ... **/
     
@@ -1121,237 +1446,1217 @@ public:
     
     /** Calculate rotor coefficients given thrust, moment, diameter, rpm... **/
      
-    void CalculateRotorCoefficientsFromForces(VSPAERO_DOUBLE Thrust, VSPAERO_DOUBLE Moment, VSPAERO_DOUBLE Diameter, VSPAERO_DOUBLE RPM,
-                                              VSPAERO_DOUBLE &J, VSPAERO_DOUBLE &CT, VSPAERO_DOUBLE &CQ, VSPAERO_DOUBLE &CP, VSPAERO_DOUBLE &EtaP,
-                                              VSPAERO_DOUBLE &CT_h, VSPAERO_DOUBLE &CQ_h, VSPAERO_DOUBLE &CP_h, VSPAERO_DOUBLE &FOM);
+    void CalculateRotorCoefficientsFromForces(double Thrust, double Moment, double Diameter, double RPM,
+                                              double &J, double &CT, double &CQ, double &CP, double &EtaP,
+                                              double &CT_h, double &CQ_h, double &CP_h, double &FOM);
 
     /** Solution vector for the forward solve ... ie the vorticity **/
 
-    VSPAERO_DOUBLE &ForwardSolutionVector(int i) { return Gamma_[0][i]; };
+    double &ForwardSolutionVector(int i) { return Gamma_[0][i]; };
 
     /** Solution vector for the adjoint solve ... ie Psi **/
 
-    double AdjointSolutionVector(int i) { return DOUBLE(Psi_[1][i]); };
-        
-    /** P'th solution vector for the adjoint solve ... ie Psi **/
-        
-    double AdjointSolutionVector(int p, int i) { return DOUBLE(Psi_[p][i]); };
+  // double AdjointSolutionVector(int i) { return double(Psi_[1][i]); };
+  //     
+  // /** P'th solution vector for the adjoint solve ... ie Psi **/
+  //     
+  // double AdjointSolutionVector(int p, int i) { return double(Psi_[p][i]); };
         
     /** Reference area **/
     
-    VSPAERO_DOUBLE &Sref(void) { return Sref_; };
+    double &Sref(void) { return Sref_; };
     
     /** Reference chord **/
     
-    VSPAERO_DOUBLE &Cref(void) { return Cref_; };
+    double &Cref(void) { return Cref_; };
     
     /** Reference Span **/
     
-    VSPAERO_DOUBLE &Bref(void) { return Bref_; };    
+    double &Bref(void) { return Bref_; };    
  
-    /** Inviscid Force coefficient, in x axis direction ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Total x Force coefficient, in x axis direction **/
 
-    VSPAERO_DOUBLE CFx(int Type) { return CFx_[Type]; };
+    double CFtx(void) { return CFix_ + CFox_; };
     
-    /** Inviscid Force coefficient, in y axis directio ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Total y Force coefficient, in y axis direction **/
     
-    VSPAERO_DOUBLE CFy(int Type) { return CFy_[Type]; };
+    double CFty(void) { return CFiy_ + CFoy_; };
 
-    /** Inviscid Force coefficient, in z axis directio ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Total z Force coefficient, in z axis direction **/
 
-    VSPAERO_DOUBLE CFz(int Type) { return CFz_[Type]; };
+    double CFtz(void) { return CFiz_ + CFoz_; };
 
-    /** Inviscid Lift coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
-
-    VSPAERO_DOUBLE  CL(int Type) { return  CL_[Type]; };
+    /** Total Lift coefficient **/
     
-    /** Inviscid Drag coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    double  CLt(void) { return CLi_ + CLo_; };
     
-    VSPAERO_DOUBLE  CD(int Type) { return  CD_[Type]; };
+    /** Total Drag coefficient **/
+
+    double  CDt(void) { return CDi_ + CDo_; };
     
-    /** Inviscid Side force coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /**  Total Side coefficient **/
     
-    VSPAERO_DOUBLE  CS(int Type) { return  CS_[Type]; };
+    double  CSt(void) { return CSi_ + CSo_; };
     
-    /** Inviscid Moment coefficient, about x axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Total x moment coefficient about x axis **/
     
-    VSPAERO_DOUBLE CMx(int Type) { return CMx_[Type]; };
+    double CMtx(void) { return CMix_ + CMox_; };
     
-    /** Inviscid Moment coefficient, about y axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Total y moment coefficient about y axis **/
     
-    VSPAERO_DOUBLE CMy(int Type) { return CMy_[Type]; };
+    double CMty(void) { return CMiy_ + CMoy_; };
 
-    /** Inviscid Moment coefficient, about z axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Total z moment coefficient about z axis **/
 
-    VSPAERO_DOUBLE CMz(int Type) { return CMz_[Type]; };
+    double CMtz(void) { return CMiz_ + CMoz_; };
     
-    /** Inviscid Trailing edge (sorta kinda Trefftz analysis) induced drag ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
-
-    VSPAERO_DOUBLE CDTrefftz(int Type) { return CDTrefftz_[Type]; };
-
-    /** Inviscid Current Force coefficient, in x axis direction ... Steady/Unsteady **/
-
-    VSPAERO_DOUBLE CFx(void) { return CFx_[0]; };
+    /** Total rolling moment coefficient about x axis **/
     
-    /** Inviscid Current Force coefficient, in y axis direction ... Steady/Unsteady **/
+    double CMlt(void) { return -CMix_ - CMox_; };
     
-    VSPAERO_DOUBLE CFy(void) { return CFy_[0]; };
-
-    /** Inviscid Current Force coefficient, in z axis direction ... Steady/Unsteady **/
-
-    VSPAERO_DOUBLE CFz(void) { return CFz_[0]; };
-
-    /** Inviscid Current Inviscid Lift coefficient ... Steady/Unsteady **/
+    /** Total pitching moment coefficient about y axis **/
     
-    VSPAERO_DOUBLE  CL(void) { return  CL_[0]; };
+    double CMmt(void) { return CMiy_ + CMoy_; };
+
+    /** Total rolling moment coefficient about z axis **/
+
+    double CMnt(void) { return -CMiz_ - CMoz_; };
     
-    /** Inviscid Current Inviscid Drag coefficient ... Steady/Unsteady **/
+    /** Inviscid x Force coefficient, in x axis direction **/
 
-    VSPAERO_DOUBLE  CD(void) { return  CD_[0]; };
+    double CFix(void) { return CFix_; };
     
-    /**  InviscidCurrent Inviscid Side coefficient ... Steady/Unsteady **/
+    /** Inviscid y Force coefficient, in y axis direction **/
     
-    VSPAERO_DOUBLE  CS(void) { return  CS_[0]; };
+    double CFiy(void) { return CFiy_; };
+
+    /** Inviscid z Force coefficient, in z axis direction **/
+
+    double CFiz(void) { return CFiz_; };
+
+    /** Inviscid Lift coefficient **/
     
-    /** Inviscid Curren Inviscidt moment coefficient about x axis... Steady/Unsteady **/
+    double  CLi(void) { return  CLi_; };
     
-    VSPAERO_DOUBLE CMx(void) { return CMx_[0]; };
+    /** Inviscid Drag coefficient **/
+
+    double  CDi(void) { return  CDi_; };
     
-    /** Inviscid Current Inviscid moment coefficient about y axis... Steady/Unsteady **/
+    /**  Inviscid Side coefficient **/
     
-    VSPAERO_DOUBLE CMy(void) { return CMy_[0]; };
-
-    /** Inviscid Current Inviscid moment coefficient about z axis... Steady/Unsteady **/
-
-    VSPAERO_DOUBLE CMz(void) { return CMz_[0]; };
+    double  CSi(void) { return  CSi_; };
     
-    /** Inviscid Current Trailing edge (sorta kinda Trefftz analysis) induced drag... Steady/Unsteady **/
+    /** Inviscid x moment coefficient about x axis **/
     
-    VSPAERO_DOUBLE CDTrefftz(void) { return CDTrefftz_[0]; };
+    double CMix(void) { return CMix_; };
     
-    /** Unsteady Inviscid Lift coefficient at time step i **/
-  
-    VSPAERO_DOUBLE  CL_Unsteady(int i) { return  CL_Unsteady_[i]; };
+    /** Inviscid y moment coefficient about y axis **/
     
-    /** Unsteady Inviscid Drag coefficient at time step i **/
+    double CMiy(void) { return CMiy_; };
+
+    /** Inviscid z moment coefficient about z axis **/
+
+    double CMiz(void) { return CMiz_; };
     
-    VSPAERO_DOUBLE  CD_Unsteady(int i) { return  CD_Unsteady_[i]; };
-
-    /** Unsteady Inviscid Side coefficient at time step i **/
-
-    VSPAERO_DOUBLE  CS_Unsteady(int i) { return  CS_Unsteady_[i]; };   
-
-    /** Unsteady Inviscid force coefficient in x axis direction at time step i **/
-
-    VSPAERO_DOUBLE CFx_Unsteady(int i) { return CFx_Unsteady_[i]; };
-
-    /** Unsteady Inviscid force coefficient in y axis direction at time step i **/
-
-    VSPAERO_DOUBLE CFy_Unsteady(int i) { return CFy_Unsteady_[i]; };
-
-    /** Unsteady Inviscid force coefficient in z axis direction at time step i **/
-
-    VSPAERO_DOUBLE CFz_Unsteady(int i) { return CFz_Unsteady_[i]; };
-
-    /** Unsteady Inviscid moment coefficient along x axis at time step i **/
-
-    VSPAERO_DOUBLE CMx_Unsteady(int i) { return CMx_Unsteady_[i]; };
+    /** Inviscid rolling moment coefficient about x axis **/
     
-    /** Unsteady Inviscid moment coefficient along y axis at time step i **/
+    double CMli(void) { return -CMix_; };
+    
+    /** Inviscid pitching moment coefficient about y axis **/
+    
+    double CMmi(void) { return CMiy_; };
 
-    VSPAERO_DOUBLE CMy_Unsteady(int i) { return CMy_Unsteady_[i]; };
+    /** Inviscid rolling moment coefficient about z axis **/
 
-    /** Unsteady Inviscid moment coefficient along z axis at time step i **/
-
-    VSPAERO_DOUBLE CMz_Unsteady(int i) { return CMz_Unsteady_[i]; }; 
-
+    double CMni(void) { return -CMiz_; };
+    
     /** Viscous force coefficient in x axis direction **/
         
-    VSPAERO_DOUBLE CFxo(void) { return CFxo_[0]; };
+    double CFox(void) { return CFox_; };
 
     /** Viscous force coefficient in y axis direction **/
 
-    VSPAERO_DOUBLE CFyo(void) { return CFyo_[0]; };
+    double CFoy(void) { return CFoy_; };
     
     /** Viscous force coefficient in z axis direction **/
     
-    VSPAERO_DOUBLE CFzo(void) { return CFzo_[0]; };
+    double CFoz(void) { return CFoz_; };
 
     /** Viscous moment coefficient along x axis **/
         
-    VSPAERO_DOUBLE CMxo(void) { return CMxo_[0]; };
+    double CMox(void) { return CMox_; };
     
     /** Viscous moment coefficient along y axis **/
     
-    VSPAERO_DOUBLE CMyo(void) { return CMyo_[0]; };
+    double CMoy(void) { return CMoy_; };
 
     /** Viscous moment coefficient along z axis **/
 
-    VSPAERO_DOUBLE CMzo(void) { return CMzo_[0]; };
- 
+    double CMoz(void) { return CMoz_; };
+
+    /** Viscous moment coefficient along x axis **/
+        
+    double CMlo(void) { return -CMox_; };
+    
+    /** Viscous moment coefficient along y axis **/
+    
+    double CMmo(void) { return CMoy_; };
+
+    /** Viscous moment coefficient along z axis **/
+
+    double CMno(void) { return -CMoz_; };
+     
     /** Viscous lift coefficient **/
 
-    VSPAERO_DOUBLE CLo(void) { return CLo_[0]; };
+    double CLo(void) { return CLo_; };
     
     /** Viscous drag coefficient **/
 
-    VSPAERO_DOUBLE CDo(void) { return CDo_[0]; };
+    double CDo(void) { return CDo_; };
             
     /** Viscous side force coefficient **/
 
-    VSPAERO_DOUBLE CSo(void) { return CSo_[0]; };
+    double CSo(void) { return CSo_; };
+    
+    /** Wake + free stream induced force coefficient in x axis direction **/
         
-    /** Viscous force coefficient in x axis direction... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/ 
+    double CFiwx(void) { return CFwx_; };
+
+    /** Wake + free stream induced force coefficient in y axis direction **/
+
+    double CFiwy(void) { return CFwy_; };
+    
+    /** Wake + free stream induced force coefficient in z axis direction **/
+    
+    double CFiwz(void) { return CFwz_; };
+    
+    /** Wake + free stream induced lift coefficient **/
+
+    double CLiw(void) { return CLw_; };
+    
+    /** Wake + free induced drag coefficient **/
+
+    double CDiw(void) { return CDw_; };
+            
+    /** Wake + free induced side force coefficient **/
+
+    double CSiw(void) { return CSw_; };
+
+    /** Viscous + Wake + free stream induced force coefficient in x axis direction **/
         
-    VSPAERO_DOUBLE CFxo(int Type) { return CFxo_[Type]; };
+    double CFtwx(void) { return CFwx_ + CFox_; };
 
-    /** Viscous force coefficient in y axis direction... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Viscous + Wake + free stream induced force coefficient in y axis direction **/
 
-    VSPAERO_DOUBLE CFyo(int Type) { return CFyo_[Type]; };
+    double CFtwy(void) { return CFwy_ + CFoy_; };
     
-    /** Viscous force coefficient in z axis direction... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/ 
+    /** Viscous + Wake + free stream induced force coefficient in z axis direction **/
     
-    VSPAERO_DOUBLE CFzo(int Type) { return CFzo_[Type]; };
+    double CFtwz(void) { return CFwz_ + CFoz_; };
+    
+    /** Viscous + Wake + free stream induced lift coefficient **/
 
-    /** Viscous moment coefficient along x axis... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    double CLtw(void) { return CLw_ + CLo_; };
+    
+    /** Viscous + Wake + free induced drag coefficient **/
+
+    double CDtw(void) { return CDw_ + CDo_; };
+            
+    /** Viscous + Wake + free induced side force coefficient **/
+
+    double CStw(void) { return CSw_ + CSo_; };    
+    
+// Total forces and moments gradients
+
+    /** Partial of total Fx,y,z wrt alpha **/
+
+    double pCFtx_pAlpha(void) { return DFi_DAlpha_[0] + DFo_DAlpha_[0]; };
+    double pCFty_pAlpha(void) { return DFi_DAlpha_[1] + DFo_DAlpha_[1]; };
+    double pCFtz_pAlpha(void) { return DFi_DAlpha_[2] + DFo_DAlpha_[2]; };
+    
+    /** Partial of total Fx,y,z wrt beta **/
+    
+    double pCFtx_pBeta(void) { return DFi_DBeta_[0] + DFo_DBeta_[0]; };
+    double pCFty_pBeta(void) { return DFi_DBeta_[1] + DFo_DBeta_[1]; };
+    double pCFtz_pBeta(void) { return DFi_DBeta_[2] + DFo_DBeta_[2]; };
+    
+    /** Partial of total Fx,y,z wrt p roll rate **/
+    
+    double pCFtx_pP(void) { return DFi_DP_[0] + DFo_DP_[0]; };
+    double pCFty_pP(void) { return DFi_DP_[1] + DFo_DP_[1]; };
+    double pCFtz_pP(void) { return DFi_DP_[2] + DFo_DP_[2]; };
+    
+    /** Partial of total Fx,y,z wrt q pitch rate **/
+    
+    double pCFtx_pQ(void) { return DFi_DQ_[0] + DFo_DQ_[0]; };
+    double pCFty_pQ(void) { return DFi_DQ_[1] + DFo_DQ_[1]; };
+    double pCFtz_pQ(void) { return DFi_DQ_[2] + DFo_DQ_[2]; };
+    
+    /** Partial of total Fx,y,z wrt r yaw rate **/
+    
+    double pCFtx_pR(void) { return DFi_DR_[0] + DFo_DR_[0]; };
+    double pCFty_pR(void) { return DFi_DR_[1] + DFo_DR_[1]; };
+    double pCFtz_pR(void) { return DFi_DR_[2] + DFo_DR_[2]; };
+    
+    /** Partial of total Fx,y,z wrt Mach **/
+    
+    double pCFtx_pMach(void) { return DFi_DMach_[0] + DFo_DMach_[0]; };
+    double pCFty_pMach(void) { return DFi_DMach_[1] + DFo_DMach_[1]; };
+    double pCFtz_pMach(void) { return DFi_DMach_[2] + DFo_DMach_[2]; };
+    
+    /** Partial of total Fx,y,z wrt x location of CG **/
+    
+    double pCFtx_DCGx(void) { return DFi_DCG_[0][0] + DFo_DCG_[0][0]; };
+    double pCFty_DCGx(void) { return DFi_DCG_[1][0] + DFo_DCG_[1][0]; };
+    double pCFtz_DCGx(void) { return DFi_DCG_[2][0] + DFo_DCG_[2][0]; };
+
+    /** Partial of total Fx,y,z wrt y location of CG **/
+    
+    double pCFtx_DCGy(void) { return DFi_DCG_[0][1] + DFo_DCG_[0][1]; };
+    double pCFty_DCGy(void) { return DFi_DCG_[1][1] + DFo_DCG_[1][1]; };
+    double pCFtz_DCGy(void) { return DFi_DCG_[2][1] + DFo_DCG_[2][1]; };
+
+    /** Partial of total or total Fx,y,z wrt z location of CG **/
+    
+    double pCFtx_DCGz(void) { return DFi_DCG_[0][2] + DFo_DCG_[0][2]; };
+    double pCFty_DCGz(void) { return DFi_DCG_[1][2] + DFo_DCG_[1][2]; };
+    double pCFtz_DCGz(void) { return DFi_DCG_[2][2] + DFo_DCG_[2][2]; };
+    
+    /** Partial of total Fx,y,z wrt Re **/
+            
+    double pCFtx_pRe(void) { return DFi_DRe_[0] + DFo_DRe_[0]; };
+    double pCFty_pRe(void) { return DFi_DRe_[1] + DFo_DRe_[1]; };
+    double pCFtz_pRe(void) { return DFi_DRe_[2] + DFo_DRe_[2]; };
+                
+    /** Partial of total Mx,y,z wrt alpha **/
+                 
+    double pCMtx_pAlpha(void) { return DMi_DAlpha_[0] + DMo_DAlpha_[0]; };
+    double pCMty_pAlpha(void) { return DMi_DAlpha_[1] + DMo_DAlpha_[1]; };
+    double pCMtz_pAlpha(void) { return DMi_DAlpha_[2] + DMo_DAlpha_[2]; };
+    
+    /** Partial of inviscid Mx,y,z wrt beta **/
+    
+    double pCMtx_pBeta(void) { return DMi_DBeta_[0] + DMo_DBeta_[0]; };
+    double pCMty_pBeta(void) { return DMi_DBeta_[1] + DMo_DBeta_[1]; };
+    double pCMtz_pBeta(void) { return DMi_DBeta_[2] + DMo_DBeta_[2]; };
+    
+    /** Partial of total Mx,y,z wrt p roll rate **/
+    
+    double pCMtx_pP(void) { return DMi_DP_[0] + DMo_DP_[0]; };
+    double pCMty_pP(void) { return DMi_DP_[1] + DMo_DP_[1]; };
+    double pCMtz_pP(void) { return DMi_DP_[2] + DMo_DP_[2]; };
+    
+    /** Partial of total Fx,y,z wrt q pitch rate **/
+    
+    double pCMtx_pQ(void) { return DMi_DQ_[0] + DMo_DQ_[0]; };
+    double pCMty_pQ(void) { return DMi_DQ_[1] + DMo_DQ_[1]; };
+    double pCMtz_pQ(void) { return DMi_DQ_[2] + DMo_DQ_[2]; };
+    
+    /** Partial of total Mx,y,z wrt r yaw rate **/
+    
+    double pCMtx_pR(void) { return DMi_DR_[0] + DMo_DR_[0]; };
+    double pCMty_pR(void) { return DMi_DR_[1] + DMo_DR_[1]; };
+    double pCMtz_pR(void) { return DMi_DR_[2] + DMo_DR_[2]; };
+    
+    /** Partial of total Mx,y,z wrt Mach **/
+    
+    double pCMtx_pMach(void) { return DMi_DMach_[0] + DMo_DMach_[0]; };
+    double pCMty_pMach(void) { return DMi_DMach_[1] + DMo_DMach_[1]; };
+    double pCMtz_pMach(void) { return DMi_DMach_[2] + DMo_DMach_[2]; };
+    
+    /** Partial of total Mx,y,z wrt x location of CG **/
+    
+    double pCMtx_pCGx(void) { return DMi_DCG_[0][0] + DMo_DCG_[0][0]; };
+    double pCMty_pCGx(void) { return DMi_DCG_[1][0] + DMo_DCG_[1][0]; };
+    double pCMtz_pCGx(void) { return DMi_DCG_[2][0] + DMo_DCG_[2][0]; };
+
+    /** Partial of total Mx,y,z wrt y location of CG **/
+    
+    double pCMtx_pCGy(void) { return DMi_DCG_[0][1] + DMo_DCG_[0][1]; };
+    double pCMty_pCGy(void) { return DMi_DCG_[1][1] + DMo_DCG_[1][1]; };
+    double pCMtz_pCGy(void) { return DMi_DCG_[2][1] + DMo_DCG_[2][1]; };
+
+    /** Partial of total Mx,y,z wrt y location of CG **/
+    
+    double pCMtx_pCGz(void) { return DMi_DCG_[0][2] + DMo_DCG_[0][2]; };
+    double pCMty_pCGz(void) { return DMi_DCG_[1][2] + DMo_DCG_[1][2]; };
+    double pCMtz_pCGz(void) { return DMi_DCG_[2][2] + DMo_DCG_[2][2]; };
+
+    /** Partial of total Mx,y,z wrt Re **/
+            
+    double pCMtx_pRe(void) { return DMi_DRe_[0] + DMo_DRe_[0]; };
+    double pCMty_pRe(void) { return DMi_DRe_[1] + DMo_DRe_[1]; };
+    double pCMtz_pRe(void) { return DMi_DRe_[2] + DMo_DRe_[2]; };
+
+// Inviscid forces and moments gradients
+
+    /** Partial of inviscid Fx,y,z wrt alpha **/
+
+    double pCFix_pAlpha(void) { return DFi_DAlpha_[0]; };
+    double pCFiy_pAlpha(void) { return DFi_DAlpha_[1]; };
+    double pCFiz_pAlpha(void) { return DFi_DAlpha_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt beta **/
+    
+    double pCFix_pBeta(void) { return DFi_DBeta_[0]; };
+    double pCFiy_pBeta(void) { return DFi_DBeta_[1]; };
+    double pCFiz_pBeta(void) { return DFi_DBeta_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt p roll rate **/
+    
+    double pCFix_pP(void) { return DFi_DP_[0]; };
+    double pCFiy_pP(void) { return DFi_DP_[1]; };
+    double pCFiz_pP(void) { return DFi_DP_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt q pitch rate **/
+    
+    double pCFix_pQ(void) { return DFi_DQ_[0]; };
+    double pCFiy_pQ(void) { return DFi_DQ_[1]; };
+    double pCFiz_pQ(void) { return DFi_DQ_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt r yaw rate **/
+    
+    double pCFix_pR(void) { return DFi_DR_[0]; };
+    double pCFiy_pR(void) { return DFi_DR_[1]; };
+    double pCFiz_pR(void) { return DFi_DR_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt Mach **/
+    
+    double pCFix_pMach(void) { return DFi_DMach_[0]; };
+    double pCFiy_pMach(void) { return DFi_DMach_[1]; };
+    double pCFiz_pMach(void) { return DFi_DMach_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt x location of CG **/
+    
+    double pCFix_DCGx(void) { return DFi_DCG_[0][0]; };
+    double pCFiy_DCGx(void) { return DFi_DCG_[1][0]; };
+    double pCFiz_DCGx(void) { return DFi_DCG_[2][0]; };
+
+    /** Partial of inviscid Fx,y,z wrt y location of CG **/
+    
+    double pCFix_DCGy(void) { return DFi_DCG_[0][1]; };
+    double pCFiy_DCGy(void) { return DFi_DCG_[1][1]; };
+    double pCFiz_DCGy(void) { return DFi_DCG_[2][1]; };
+
+    /** Partial of inviscid or total Fx,y,z wrt z location of CG **/
+    
+    double pCFix_DCGz(void) { return DFi_DCG_[0][2]; };
+    double pCFiy_DCGz(void) { return DFi_DCG_[1][2]; };
+    double pCFiz_DCGz(void) { return DFi_DCG_[2][2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt Re **/
+            
+    double pCFix_pRe(void) { return DFi_DRe_[0]; };
+    double pCFiy_pRe(void) { return DFi_DRe_[1]; };
+    double pCFiz_pRe(void) { return DFi_DRe_[2]; };
+                
+    /** Partial of inviscid Mx,y,z wrt alpha **/
+                 
+    double pCMix_pAlpha(void) { return DMi_DAlpha_[0]; };
+    double pCMiy_pAlpha(void) { return DMi_DAlpha_[1]; };
+    double pCMiz_pAlpha(void) { return DMi_DAlpha_[2]; };
+    
+    /** Partial of inviscid Mx,y,z wrt beta **/
+    
+    double pCMix_pBeta(void) { return DMi_DBeta_[0]; };
+    double pCMiy_pBeta(void) { return DMi_DBeta_[1]; };
+    double pCMiz_pBeta(void) { return DMi_DBeta_[2]; };
+    
+    /** Partial of inviscid Mx,y,z wrt p roll rate **/
+    
+    double pCMix_pP(void) { return DMi_DP_[0]; };
+    double pCMiy_pP(void) { return DMi_DP_[1]; };
+    double pCMiz_pP(void) { return DMi_DP_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt q pitch rate **/
+    
+    double pCMix_pQ(void) { return DMi_DQ_[0]; };
+    double pCMiy_pQ(void) { return DMi_DQ_[1]; };
+    double pCMiz_pQ(void) { return DMi_DQ_[2]; };
+    
+    /** Partial of inviscid Mx,y,z wrt r yaw rate **/
+    
+    double pCMix_pR(void) { return DMi_DR_[0]; };
+    double pCMiy_pR(void) { return DMi_DR_[1]; };
+    double pCMiz_pR(void) { return DMi_DR_[2]; };
+    
+    /** Partial of inviscid Mx,y,z wrt Mach **/
+    
+    double pCMix_pMach(void) { return DMi_DMach_[0]; };
+    double pCMiy_pMach(void) { return DMi_DMach_[1]; };
+    double pCMiz_pMach(void) { return DMi_DMach_[2]; };
+    
+    /** Partial of inviscid Mx,y,z wrt x location of CG **/
+    
+    double pCMix_pCGx(void) { return DMi_DCG_[0][0]; };
+    double pCMiy_pCGx(void) { return DMi_DCG_[1][0]; };
+    double pCMiz_pCGx(void) { return DMi_DCG_[2][0]; };
+
+    /** Partial of inviscid Mx,y,z wrt y location of CG **/
+    
+    double pCMix_pCGy(void) { return DMi_DCG_[0][1]; };
+    double pCMiy_pCGy(void) { return DMi_DCG_[1][1]; };
+    double pCMiz_pCGy(void) { return DMi_DCG_[2][1]; };
+
+    /** Partial of inviscid Mx,y,z wrt y location of CG **/
+    
+    double pCMix_pCGz(void) { return DMi_DCG_[0][2]; };
+    double pCMiy_pCGz(void) { return DMi_DCG_[1][2]; };
+    double pCMiz_pCGz(void) { return DMi_DCG_[2][2]; };
+
+    /** Partial of inviscid Mx,y,z wrt Re **/
+            
+    double pCMix_pRe(void) { return DMi_DRe_[0]; };
+    double pCMiy_pRe(void) { return DMi_DRe_[1]; };
+    double pCMiz_pRe(void) { return DMi_DRe_[2]; };
+    
+// Viscous forces and moments gradients
+
+    /** Partial of viscous Fx,y,z wrt alpha **/
+
+    double pCFox_pAlpha(void) { return DFo_DAlpha_[0]; };
+    double pCFoy_pAlpha(void) { return DFo_DAlpha_[1]; };
+    double pCFoz_pAlpha(void) { return DFo_DAlpha_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt beta **/
+    
+    double pCFox_pBeta(void) { return DFo_DBeta_[0]; };
+    double pCFoy_pBeta(void) { return DFo_DBeta_[1]; };
+    double pCFoz_pBeta(void) { return DFo_DBeta_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt p roll rate **/
+    
+    double pCFox_pP(void) { return DFo_DP_[0]; };
+    double pCFoy_pP(void) { return DFo_DP_[1]; };
+    double pCFoz_pP(void) { return DFo_DP_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt q pitch rate **/
+    
+    double pCFox_pQ(void) { return DFo_DQ_[0]; };
+    double pCFoy_pQ(void) { return DFo_DQ_[1]; };
+    double pCFoz_pQ(void) { return DFo_DQ_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt r yaw rate **/
+    
+    double pCFox_pR(void) { return DFo_DR_[0]; };
+    double pCFoy_pR(void) { return DFo_DR_[1]; };
+    double pCFoz_pR(void) { return DFo_DR_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt Mach **/
+    
+    double pCFox_pMach(void) { return DFo_DMach_[0]; };
+    double pCFoy_pMach(void) { return DFo_DMach_[1]; };
+    double pCFoz_pMach(void) { return DFo_DMach_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt x location of CG **/
+    
+    double pCFox_DCGx(void) { return DFo_DCG_[0][0]; };
+    double pCFoy_DCGx(void) { return DFo_DCG_[1][0]; };
+    double pCFoz_DCGx(void) { return DFo_DCG_[2][0]; };
+
+    /** Partial of viscous Fx,y,z wrt y location of CG **/
+    
+    double pCFox_pCGy(void) { return DFo_DCG_[0][1]; };
+    double pCFoy_pCGy(void) { return DFo_DCG_[1][1]; };
+    double pCFoz_pCGy(void) { return DFo_DCG_[2][1]; };
+
+    /** Partial of viscous Fx,y,z wrt z location of CG **/
+    
+    double pCFox_pCGz(void) { return DFo_DCG_[0][2]; };
+    double pCFoy_pCGz(void) { return DFo_DCG_[1][2]; };
+    double pCFoz_pCGz(void) { return DFo_DCG_[2][2]; };
+    
+    /** Partial of viscous Fx,y,z wrt Re **/
+            
+    double pCFox_pRe(void) { return DFo_DRe_[0]; };
+    double pCFoy_pRe(void) { return DFo_DRe_[1]; };
+    double pCFoz_pRe(void) { return DFo_DRe_[2]; };
+                
+    /** Partial of viscous Mx,y,z wrt alpha **/
+                 
+    double pCMox_pAlpha(void) { return DMo_DAlpha_[0]; };
+    double pCMoy_pAlpha(void) { return DMo_DAlpha_[1]; };
+    double pCMoz_pAlpha(void) { return DMo_DAlpha_[2]; };
+    
+    /** Partial of viscous Mx,y,z wrt beta **/
+    
+    double pCMox_pBeta(void) { return DMo_DBeta_[0]; };
+    double pCMoy_pBeta(void) { return DMo_DBeta_[1]; };
+    double pCMoz_pBeta(void) { return DMo_DBeta_[2]; };
+    
+    /** Partial of viscous Mx,y,z wrt p roll rate **/
+    
+    double pCMox_pP(void) { return DMo_DP_[0]; };
+    double pCMoy_pP(void) { return DMo_DP_[1]; };
+    double pCMoz_pP(void) { return DMo_DP_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt q pitch rate **/
+    
+    double pCMox_pQ(void) { return DMo_DQ_[0]; };
+    double pCMoy_pQ(void) { return DMo_DQ_[1]; };
+    double pCMoz_pQ(void) { return DMo_DQ_[2]; };
+    
+    /** Partial of viscous Mx,y,z wrt r yaw rate **/
+    
+    double pCMox_pR(void) { return DMo_DR_[0]; };
+    double pCMoy_pR(void) { return DMo_DR_[1]; };
+    double pCMoz_pR(void) { return DMo_DR_[2]; };
+    
+    /** Partial of viscous Mx,y,z wrt Mach **/
+    
+    double pCMox_pMach(void) { return DMo_DMach_[0]; };
+    double pCMoy_pMach(void) { return DMo_DMach_[1]; };
+    double pCMoz_pMach(void) { return DMo_DMach_[2]; };
+    
+    /** Partial of viscous Mx,y,z wrt x location of CG **/
+    
+    double pCMox_pCGx(void) { return DMo_DCG_[0][0]; };
+    double pCMoy_pCGx(void) { return DMo_DCG_[1][0]; };
+    double pCMoz_pCGx(void) { return DMo_DCG_[2][0]; };
+
+    /** Partial of viscous Mx,y,z wrt y location of CG **/
+    
+    double pCMox_pCGy(void) { return DMo_DCG_[0][1]; };
+    double pCMoy_pCGy(void) { return DMo_DCG_[1][1]; };
+    double pCMoz_pCGy(void) { return DMo_DCG_[2][1]; };
+
+    /** Partial of viscous Mx,y,z wrt y location of CG **/
+    
+    double pCMox_pCGz(void) { return DMo_DCG_[0][2]; };
+    double pCMoy_pCGz(void) { return DMo_DCG_[1][2]; };
+    double pCMoz_pCGz(void) { return DMo_DCG_[2][2]; };
+
+    /** Partial of viscous Mx,y,z wrt Re **/
+            
+    double pCMox_pRe(void) { return DMo_DRe_[0]; };
+    double pCMoy_pRe(void) { return DMo_DRe_[1]; };
+    double pCMoz_pRe(void) { return DMo_DRe_[2]; };
+         
+// Total forces using wake forces gradients
+
+    /** Partial of total Fx,y,z wrt alpha using wake forces **/
+
+    double pCFtwx_pAlpha(void) { return DFw_DAlpha_[0] + DFo_DAlpha_[0]; };
+    double pCFtwy_pAlpha(void) { return DFw_DAlpha_[1] + DFo_DAlpha_[1]; };
+    double pCFtwz_pAlpha(void) { return DFw_DAlpha_[2] + DFo_DAlpha_[2]; };
+    
+    /** Partial of total Fx,y,z wrt beta using wake forces **/
+    
+    double pCFtwx_pBeta(void) { return DFw_DBeta_[0] + DFo_DBeta_[0]; };
+    double pCFtwy_pBeta(void) { return DFw_DBeta_[1] + DFo_DBeta_[1]; };
+    double pCFtwz_pBeta(void) { return DFw_DBeta_[2] + DFo_DBeta_[2]; };
+    
+    /** Partial of total Fx,y,z wrt p roll rate using wake forces **/
+    
+    double pCFtwx_pP(void) { return DFw_DP_[0] + DFo_DP_[0]; };
+    double pCFtwy_pP(void) { return DFw_DP_[1] + DFo_DP_[1]; };
+    double pCFtwz_pP(void) { return DFw_DP_[2] + DFo_DP_[2]; };
+    
+    /** Partial of total Fx,y,z wrt q pitch rate using wake forces **/
+    
+    double pCFtwx_pQ(void) { return DFw_DQ_[0] + DFo_DQ_[0]; };
+    double pCFtwy_pQ(void) { return DFw_DQ_[1] + DFo_DQ_[1]; };
+    double pCFtwz_pQ(void) { return DFw_DQ_[2] + DFo_DQ_[2]; };
+    
+    /** Partial of total Fx,y,z wrt r yaw rate using wake forces **/
+    
+    double pCFtwx_pR(void) { return DFw_DR_[0] + DFo_DR_[0]; };
+    double pCFtwy_pR(void) { return DFw_DR_[1] + DFo_DR_[1]; };
+    double pCFtwz_pR(void) { return DFw_DR_[2] + DFo_DR_[2]; };
+    
+    /** Partial of total Fx,y,z wrt Mach using wake forces **/
+    
+    double pCFtwx_pMach(void) { return DFw_DMach_[0] + DFo_DMach_[0]; };
+    double pCFtwy_pMach(void) { return DFw_DMach_[1] + DFo_DMach_[1]; };
+    double pCFtwz_pMach(void) { return DFw_DMach_[2] + DFo_DMach_[2]; };
+    
+    /** Partial of total Fx,y,z wrt x location of CG using wake forces **/
+    
+    double pCFtwx_DCGx(void) { return DFw_DCG_[0][0] + DFo_DCG_[0][0]; };
+    double pCFtwy_DCGx(void) { return DFw_DCG_[1][0] + DFo_DCG_[1][0]; };
+    double pCFtwz_DCGx(void) { return DFw_DCG_[2][0] + DFo_DCG_[2][0]; };
+
+    /** Partial of total Fx,y,z wrt y location of CG using wake forces **/
+    
+    double pCFtwx_DCGy(void) { return DFw_DCG_[0][1] + DFo_DCG_[0][1]; };
+    double pCFtwy_DCGy(void) { return DFw_DCG_[1][1] + DFo_DCG_[1][1]; };
+    double pCFtwz_DCGy(void) { return DFw_DCG_[2][1] + DFo_DCG_[2][1]; };
+
+    /** Partial of total or total Fx,y,z wrt z location of CG using wake forces **/
+    
+    double pCFtwx_DCGz(void) { return DFw_DCG_[0][2] + DFo_DCG_[0][2]; };
+    double pCFtwy_DCGz(void) { return DFw_DCG_[1][2] + DFo_DCG_[1][2]; };
+    double pCFtwz_DCGz(void) { return DFw_DCG_[2][2] + DFo_DCG_[2][2]; };
+    
+    /** Partial of total Fx,y,z wrt Re using wake forces **/
+            
+    double pCFtwx_pRe(void) { return DFw_DRe_[0] + DFo_DRe_[0]; };
+    double pCFtwy_pRe(void) { return DFw_DRe_[1] + DFo_DRe_[1]; };
+    double pCFtwz_pRe(void) { return DFw_DRe_[2] + DFo_DRe_[2]; };        
+         
+// Inviscid forces using wake forces gradients
+
+    /** Partial of total Fx,y,z wrt alpha using wake forces **/
+
+    double pCFiwx_pAlpha(void) { return DFw_DAlpha_[0]; };
+    double pCFiwy_pAlpha(void) { return DFw_DAlpha_[1]; };
+    double pCFiwz_pAlpha(void) { return DFw_DAlpha_[2]; };
+    
+    /** Partial of total Fx,y,z wrt beta using wake forces **/
+    
+    double pCFiwx_pBeta(void) { return DFw_DBeta_[0]; };
+    double pCFiwy_pBeta(void) { return DFw_DBeta_[1]; };
+    double pCFiwz_pBeta(void) { return DFw_DBeta_[2]; };
+    
+    /** Partial of total Fx,y,z wrt p roll rate using wake forces **/
+    
+    double pCFiwx_pP(void) { return DFw_DP_[0]; };
+    double pCFiwy_pP(void) { return DFw_DP_[1]; };
+    double pCFiwz_pP(void) { return DFw_DP_[2]; };
+    
+    /** Partial of total Fx,y,z wrt q pitch rate using wake forces **/
+    
+    double pCFiwx_pQ(void) { return DFw_DQ_[0]; };
+    double pCFiwy_pQ(void) { return DFw_DQ_[1]; };
+    double pCFiwz_pQ(void) { return DFw_DQ_[2]; };
+    
+    /** Partial of total Fx,y,z wrt r yaw rate using wake forces **/
+    
+    double pCFiwx_pR(void) { return DFw_DR_[0]; };
+    double pCFiwy_pR(void) { return DFw_DR_[1]; };
+    double pCFiwz_pR(void) { return DFw_DR_[2]; };
+    
+    /** Partial of total Fx,y,z wrt Mach using wake forces **/
+    
+    double pCFiwx_pMach(void) { return DFw_DMach_[0]; };
+    double pCFiwy_pMach(void) { return DFw_DMach_[1]; };
+    double pCFiwz_pMach(void) { return DFw_DMach_[2]; };
+    
+    /** Partial of total Fx,y,z wrt x location of CG using wake forces **/
+    
+    double pCFiwx_DCGx(void) { return DFw_DCG_[0][0]; };
+    double pCFiwy_DCGx(void) { return DFw_DCG_[1][0]; };
+    double pCFiwz_DCGx(void) { return DFw_DCG_[2][0]; };
+
+    /** Partial of total Fx,y,z wrt y location of CG using wake forces **/
+    
+    double pCFiwx_DCGy(void) { return DFw_DCG_[0][1]; };
+    double pCFiwy_DCGy(void) { return DFw_DCG_[1][1]; };
+    double pCFiwz_DCGy(void) { return DFw_DCG_[2][1]; };
+
+    /** Partial of total or total Fx,y,z wrt z location of CG **/
+    
+    double pCFiwx_DCGz(void) { return DFw_DCG_[0][2]; };
+    double pCFiwy_DCGz(void) { return DFw_DCG_[1][2]; };
+    double pCFiwz_DCGz(void) { return DFw_DCG_[2][2]; };
+    
+    /** Partial of total Fx,y,z wrt Re using wake forces **/
+            
+    double pCFiwx_pRe(void) { return DFw_DRe_[0]; };
+    double pCFiwy_pRe(void) { return DFw_DRe_[1]; };
+    double pCFiwz_pRe(void) { return DFw_DRe_[2]; };                
         
-    VSPAERO_DOUBLE CMxo(int Type) { return CMxo_[Type]; };
+// Aero total forces and moments
+
+    /** Partial of total CL, CD, CS wrt alpha **/
+
+    double pCLt_pAlpha(void) { return DAeroFi_DAlpha_[0] + DAeroFo_DAlpha_[0]; };
+    double pCDt_pAlpha(void) { return DAeroFi_DAlpha_[1] + DAeroFo_DAlpha_[1]; };
+    double pCSt_pAlpha(void) { return DAeroFi_DAlpha_[2] + DAeroFo_DAlpha_[2]; };
     
-    /** Viscous moment coefficient along y axis... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/ 
+    /** Partial of total CL, CD, CS wrt beta **/
     
-    VSPAERO_DOUBLE CMyo(int Type) { return CMyo_[Type]; };
-
-    /** Viscous moment coefficient along z axi... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
-
-    VSPAERO_DOUBLE CMzo(int Type) { return CMzo_[Type]; };    
+    double pCLt_pBeta(void) { return DAeroFi_DBeta_[0] + DAeroFo_DBeta_[0]; };
+    double pCDt_pBeta(void) { return DAeroFi_DBeta_[1] + DAeroFo_DBeta_[1]; };
+    double pCSt_pBeta(void) { return DAeroFi_DBeta_[2] + DAeroFo_DBeta_[2]; };
     
-    /** Viscous lift coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
-
-    VSPAERO_DOUBLE CLo(int Type) { return CLo_[Type]; };
-
-    /** Viscous drag coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
-
-    VSPAERO_DOUBLE CDo(int Type) { return CDo_[Type]; };
+    /** Partial of total CL, CD, CS wrt p roll rate **/
     
-    /** Viscous side force coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    double pCLt_pP(void) { return DAeroFi_DP_[0] + DAeroFo_DP_[0]; };
+    double pCDt_pP(void) { return DAeroFi_DP_[1] + DAeroFo_DP_[1]; };
+    double pCSt_pP(void) { return DAeroFi_DP_[2] + DAeroFo_DP_[2]; };
+    
+    /** Partial of total CL, CD, CSwrt q pitch rate **/
+    
+    double pCLt_pQ(void) { return DAeroFi_DQ_[0] + DAeroFo_DQ_[0]; };
+    double pCDt_pQ(void) { return DAeroFi_DQ_[1] + DAeroFo_DQ_[1]; };
+    double pCSt_pQ(void) { return DAeroFi_DQ_[2] + DAeroFo_DQ_[2]; };
+    
+    /** Partial of total CL, CD, CS wrt r yaw rate **/
+    
+    double pCLt_pR(void) { return DAeroFi_DR_[0] + DAeroFo_DR_[0]; };
+    double pCDt_pR(void) { return DAeroFi_DR_[1] + DAeroFo_DR_[1]; };
+    double pCSt_pR(void) { return DAeroFi_DR_[2] + DAeroFo_DR_[2]; };
+    
+    /** Partial of total CL, CD, CS wrt Mach **/
+    
+    double pCLt_pMach(void) { return DAeroFi_DMach_[0] + DAeroFo_DMach_[0]; };
+    double pCDt_pMach(void) { return DAeroFi_DMach_[1] + DAeroFo_DMach_[1]; };
+    double pCSt_pMach(void) { return DAeroFi_DMach_[2] + DAeroFo_DMach_[2]; };
+    
+    /** Partial of total CL, CD, CSwrt x location of CG **/
+    
+    double pCLt_DCGx(void) { return DAeroFi_DCG_[0][0] + DAeroFo_DCG_[0][0]; };
+    double pCDt_DCGx(void) { return DAeroFi_DCG_[1][1] + DAeroFo_DCG_[1][0]; };
+    double pCSt_DCGx(void) { return DAeroFi_DCG_[2][2] + DAeroFo_DCG_[2][0]; };
+                      
+    /** Partial of total CL, CD, CS wrt y location of CG **/
+    
+    double pCLt_DCGy(void) { return DAeroFi_DCG_[0][1] + DAeroFo_DCG_[0][1]; };
+    double pCDt_DCGy(void) { return DAeroFi_DCG_[1][1] + DAeroFo_DCG_[1][1]; };
+    double pCSt_DCGy(void) { return DAeroFi_DCG_[2][1] + DAeroFo_DCG_[2][1]; };
 
-    VSPAERO_DOUBLE CSo(int Type) { return CSo_[Type]; };
-        
+    /** Partial of total CL, CD, CS wrt z location of CG **/
+    
+    double pCLt_DCGz(void) { return DAeroFi_DCG_[0][2] + DAeroFo_DCG_[0][2]; };
+    double pCDt_DCGz(void) { return DAeroFi_DCG_[1][2] + DAeroFo_DCG_[1][2]; };
+    double pCSt_DCGz(void) { return DAeroFi_DCG_[2][2] + DAeroFo_DCG_[2][2]; };
+    
+    /** Partial of total CL, CD, CS wrt Re **/
+            
+    double pCLt_pRe(void) { return DAeroFi_DRe_[0] + DAeroFo_DRe_[0]; };
+    double pCDt_pRe(void) { return DAeroFi_DRe_[1] + DAeroFo_DRe_[1]; };
+    double pCSt_pRe(void) { return DAeroFi_DRe_[2] + DAeroFo_DRe_[2]; };
+                
+    /** Partial of total CMl, Cmm, Cmn wrt alpha **/
+                 
+    double pCMlt_pAlpha(void) { return DAeroMi_DAlpha_[0] + DAeroMo_DAlpha_[0]; };
+    double pCMmt_pAlpha(void) { return DAeroMi_DAlpha_[1] + DAeroMo_DAlpha_[1]; };
+    double pCMnt_pAlpha(void) { return DAeroMi_DAlpha_[2] + DAeroMo_DAlpha_[2]; };
+    
+    /** Partial of total CMl, Cmm, Cmn wrt beta **/
+    
+    double pCMlt_pBeta(void) { return DAeroMi_DBeta_[0] + DAeroMo_DBeta_[0]; };
+    double pCMmt_pBeta(void) { return DAeroMi_DBeta_[1] + DAeroMo_DBeta_[1]; };
+    double pCMnt_pBeta(void) { return DAeroMi_DBeta_[2] + DAeroMo_DBeta_[2]; };
+    
+    /** Partial of total CMl, Cmm, Cmn wrt p roll rate **/
+    
+    double pCMlt_pP(void) { return DAeroMi_DP_[0] + DAeroMo_DP_[0]; };
+    double pCMmt_pP(void) { return DAeroMi_DP_[1] + DAeroMo_DP_[1]; };
+    double pCMnt_pP(void) { return DAeroMi_DP_[2] + DAeroMo_DP_[2]; };
+    
+    /** Partial of total CMl, Cmm, Cmn wrt q pitch rate **/
+    
+    double pCMlt_pQ(void) { return DAeroMi_DQ_[0] + DAeroMo_DQ_[0]; };
+    double pCMmt_pQ(void) { return DAeroMi_DQ_[1] + DAeroMo_DQ_[1]; };
+    double pCMnt_pQ(void) { return DAeroMi_DQ_[2] + DAeroMo_DQ_[2]; };
+    
+    /** Partial of total CMl, Cmm, Cmn wrt r yaw rate **/
+    
+    double pCMlt_pR(void) { return DAeroMi_DR_[0] + DAeroMo_DR_[0]; };
+    double pCMmt_pR(void) { return DAeroMi_DR_[1] + DAeroMo_DR_[1]; };
+    double pCMnt_pR(void) { return DAeroMi_DR_[2] + DAeroMo_DR_[2]; };
+    
+    /** Partial of total CMl, Cmm, Cmnwrt Mach **/
+    
+    double pCMlt_pMach(void) { return DAeroMi_DMach_[0] + DAeroMo_DMach_[0]; };
+    double pCMmt_pMach(void) { return DAeroMi_DMach_[1] + DAeroMo_DMach_[1]; };
+    double pCMnt_pMach(void) { return DAeroMi_DMach_[2] + DAeroMo_DMach_[2]; };
+    
+    /** Partial of total CMl, Cmm, Cmn wrt x location of CG **/
+    
+    double pCMlt_pCGx(void) { return DAeroMi_DCG_[0][0] + DAeroMo_DCG_[0][0]; };
+    double pCMmt_pCGx(void) { return DAeroMi_DCG_[1][0] + DAeroMo_DCG_[1][0]; };
+    double pCMnt_pCGx(void) { return DAeroMi_DCG_[2][0] + DAeroMo_DCG_[2][0]; };
+
+    /** Partial of total CMl, Cmm, Cmn wrt y location of CG **/
+    
+    double pCMlt_pCGy(void) { return DAeroMi_DCG_[0][1] + DAeroMo_DCG_[0][1]; };
+    double pCMmt_pCGy(void) { return DAeroMi_DCG_[1][1] + DAeroMo_DCG_[1][1]; };
+    double pCMnt_pCGy(void) { return DAeroMi_DCG_[2][1] + DAeroMo_DCG_[2][1]; };
+
+    /** Partial of total CMl, Cmm, Cmn wrt y location of CG **/
+    
+    double pCMlt_pCGz(void) { return DAeroMi_DCG_[0][2] + DAeroMo_DCG_[0][2]; };
+    double pCMmt_pCGz(void) { return DAeroMi_DCG_[1][2] + DAeroMo_DCG_[1][2]; };
+    double pCMnt_pCGz(void) { return DAeroMi_DCG_[2][2] + DAeroMo_DCG_[2][2]; };
+
+    /** Partial of total CMl, Cmm, Cmn wrt Re **/
+            
+    double pCMlt_pRe(void) { return DAeroMi_DRe_[0] + DAeroMo_DRe_[0]; };
+    double pCMmt_pRe(void) { return DAeroMi_DRe_[1] + DAeroMo_DRe_[1]; };
+    double pCMnt_pRe(void) { return DAeroMi_DRe_[2] + DAeroMo_DRe_[2]; };
+    
+// Aero Inviscid forces and moments gradients
+
+    /** Partial of inviscid Fx,y,z wrt alpha **/
+
+    double pCLi_pAlpha(void) { return DAeroFi_DAlpha_[0]; };
+    double pCDi_pAlpha(void) { return DAeroFi_DAlpha_[1]; };
+    double pCSi_pAlpha(void) { return DAeroFi_DAlpha_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt beta **/
+    
+    double pCLi_pBeta(void) { return DAeroFi_DBeta_[0]; };
+    double pCDi_pBeta(void) { return DAeroFi_DBeta_[1]; };
+    double pCSi_pBeta(void) { return DAeroFi_DBeta_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt p roll rate **/
+    
+    double pCLi_pP(void) { return DAeroFi_DP_[0]; };
+    double pCDi_pP(void) { return DAeroFi_DP_[1]; };
+    double pCSi_pP(void) { return DAeroFi_DP_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt q pitch rate **/
+    
+    double pCLi_pQ(void) { return DAeroFi_DQ_[0]; };
+    double pCDi_pQ(void) { return DAeroFi_DQ_[1]; };
+    double pCSi_pQ(void) { return DAeroFi_DQ_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt r yaw rate **/
+    
+    double pCLi_pR(void) { return DAeroFi_DR_[0]; };
+    double pCDi_pR(void) { return DAeroFi_DR_[1]; };
+    double pCSi_pR(void) { return DAeroFi_DR_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt Mach **/
+    
+    double pCLi_pMach(void) { return DAeroFi_DMach_[0]; };
+    double pCDi_pMach(void) { return DAeroFi_DMach_[1]; };
+    double pCSi_pMach(void) { return DAeroFi_DMach_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt x location of CG **/
+    
+    double pCLi_DCGx(void) { return DAeroFi_DCG_[0][0]; };
+    double pCDi_DCGx(void) { return DAeroFi_DCG_[1][0]; };
+    double pCSi_DCGx(void) { return DAeroFi_DCG_[2][0]; };
+
+    /** Partial of inviscid Fx,y,z wrt y location of CG **/
+    
+    double pCLi_DCGy(void) { return DAeroFi_DCG_[0][1]; };
+    double pCDi_DCGy(void) { return DAeroFi_DCG_[1][1]; };
+    double pCSi_DCGy(void) { return DAeroFi_DCG_[2][1]; };
+
+    /** Partial of inviscid Fx,y,z wrt z location of CG **/
+    
+    double pCLi_DCGz(void) { return DAeroFi_DCG_[0][2]; };
+    double pCDi_DCGz(void) { return DAeroFi_DCG_[1][2]; };
+    double pCSi_DCGz(void) { return DAeroFi_DCG_[2][2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt Re **/
+            
+    double pCLi_pRe(void) { return DAeroFi_DRe_[0]; };
+    double pCDi_pRe(void) { return DAeroFi_DRe_[1]; };
+    double pCSi_pRe(void) { return DAeroFi_DRe_[2]; };
+                
+    /** Partial of inviscid Mx,y,z wrt alpha **/
+                 
+    double pCMli_pAlpha(void) { return DAeroMi_DAlpha_[0]; };
+    double pCMmi_pAlpha(void) { return DAeroMi_DAlpha_[1]; };
+    double pCMni_pAlpha(void) { return DAeroMi_DAlpha_[2]; };
+    
+    /** Partial of inviscid Mx,y,z wrt beta **/
+    
+    double pCMli_pBeta(void) { return DAeroMi_DBeta_[0]; };
+    double pCMmi_pBeta(void) { return DAeroMi_DBeta_[1]; };
+    double pCMni_pBeta(void) { return DAeroMi_DBeta_[2]; };
+    
+    /** Partial of inviscid Mx,y,z wrt p roll rate **/
+    
+    double pCMli_pP(void) { return DAeroMi_DP_[0]; };
+    double pCMmi_pP(void) { return DAeroMi_DP_[1]; };
+    double pCMni_pP(void) { return DAeroMi_DP_[2]; };
+    
+    /** Partial of inviscid Fx,y,z wrt q pitch rate **/
+    
+    double pCMli_pQ(void) { return DAeroMi_DQ_[0]; };
+    double pCMmi_pQ(void) { return DAeroMi_DQ_[1]; };
+    double pCMni_pQ(void) { return DAeroMi_DQ_[2]; };
+    
+    /** Partial of inviscid Mx,y,z wrt r yaw rate **/
+    
+    double pCMli_pR(void) { return DAeroMi_DR_[0]; };
+    double pCMmi_pR(void) { return DAeroMi_DR_[1]; };
+    double pCMni_pR(void) { return DAeroMi_DR_[2]; };
+    
+    /** Partial of inviscid Mx,y,z wrt Mach **/
+    
+    double pCMli_pMach(void) { return DAeroMi_DMach_[0]; };
+    double pCMmi_pMach(void) { return DAeroMi_DMach_[1]; };
+    double pCMni_pMach(void) { return DAeroMi_DMach_[2]; };
+    
+    /** Partial of inviscid Mx,y,z wrt x location of CG **/
+    
+    double pCMli_pCGx(void) { return DAeroMi_DCG_[0][0]; };
+    double pCMmi_pCGx(void) { return DAeroMi_DCG_[1][0]; };
+    double pCMni_pCGx(void) { return DAeroMi_DCG_[2][0]; };
+
+    /** Partial of inviscid Mx,y,z wrt y location of CG **/
+    
+    double pCMli_pCGy(void) { return DAeroMi_DCG_[0][1]; };
+    double pCMmi_pCGy(void) { return DAeroMi_DCG_[1][1]; };
+    double pCMni_pCGy(void) { return DAeroMi_DCG_[2][1]; };
+
+    /** Partial of inviscid Mx,y,z wrt y location of CG **/
+    
+    double pCMli_pCGz(void) { return DAeroMi_DCG_[0][2]; };
+    double pCMmi_pCGz(void) { return DAeroMi_DCG_[1][2]; };
+    double pCMni_pCGz(void) { return DAeroMi_DCG_[2][2]; };
+
+    /** Partial of inviscid Mx,y,z wrt Re **/
+            
+    double pCMli_pRe(void) { return DAeroMi_DRe_[0]; };
+    double pCMmi_pRe(void) { return DAeroMi_DRe_[1]; };
+    double pCMni_pRe(void) { return DAeroMi_DRe_[2]; };
+
+// Aero Viscous forces and moments gradients
+
+    /** Partial of viscous Fx,y,z wrt alpha **/
+
+    double pCLo_pAlpha(void) { return DAeroFo_DAlpha_[0]; };
+    double pCDo_pAlpha(void) { return DAeroFo_DAlpha_[1]; };
+    double pCSo_pAlpha(void) { return DAeroFo_DAlpha_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt beta **/
+    
+    double pCLo_pBeta(void) { return DAeroFo_DBeta_[0]; };
+    double pCDo_pBeta(void) { return DAeroFo_DBeta_[1]; };
+    double pCSo_pBeta(void) { return DAeroFo_DBeta_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt p roll rate **/
+    
+    double pCLo_pP(void) { return DAeroFo_DP_[0]; };
+    double pCDo_pP(void) { return DAeroFo_DP_[1]; };
+    double pCSo_pP(void) { return DAeroFo_DP_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt q pitch rate **/
+    
+    double pCLo_pQ(void) { return DAeroFo_DQ_[0]; };
+    double pCDo_pQ(void) { return DAeroFo_DQ_[1]; };
+    double pCSo_pQ(void) { return DAeroFo_DQ_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt r yaw rate **/
+    
+    double pCLo_pR(void) { return DAeroFo_DR_[0]; };
+    double pCDo_pR(void) { return DAeroFo_DR_[1]; };
+    double pCSo_pR(void) { return DAeroFo_DR_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt Mach **/
+    
+    double pCLo_pMach(void) { return DAeroFo_DMach_[0]; };
+    double pCDo_pMach(void) { return DAeroFo_DMach_[1]; };
+    double pCSo_pMach(void) { return DAeroFo_DMach_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt x location of CG **/
+    
+    double pCLo_pCGx(void) { return DAeroFo_DCG_[0][0]; };
+    double pCDo_pCGx(void) { return DAeroFo_DCG_[1][0]; };
+    double pCSo_pCGx(void) { return DAeroFo_DCG_[2][0]; };
+
+    /** Partial of viscous Fx,y,z wrt y location of CG **/
+    
+    double pCLo_pCGy(void) { return DAeroFo_DCG_[0][1]; };
+    double pCDo_pCGy(void) { return DAeroFo_DCG_[1][1]; };
+    double pCSo_pCGy(void) { return DAeroFo_DCG_[2][1]; };
+
+    /** Partial of viscous Fx,y,z wrt z location of CG **/
+    
+    double pCLo_pCGz(void) { return DAeroFo_DCG_[0][2]; };
+    double pCDo_pCGz(void) { return DAeroFo_DCG_[1][2]; };
+    double pCSo_pCGz(void) { return DAeroFo_DCG_[2][2]; };
+    
+    /** Partial of viscous Fx,y,z wrt Re **/
+            
+    double pCLo_pRe(void) { return DAeroFo_DRe_[0]; };
+    double pCDo_pRe(void) { return DAeroFo_DRe_[1]; };
+    double pCSo_pRe(void) { return DAeroFo_DRe_[2]; };
+                
+    /** Partial of viscous Mx,y,z wrt alpha **/
+                 
+    double pCMlo_pAlpha(void) { return DAeroMo_DAlpha_[0]; };
+    double pCMmo_pAlpha(void) { return DAeroMo_DAlpha_[1]; };
+    double pCMno_pAlpha(void) { return DAeroMo_DAlpha_[2]; };
+    
+    /** Partial of viscous Mx,y,z wrt beta **/
+    
+    double pCMlo_pBeta(void) { return DAeroMo_DBeta_[0]; };
+    double pCMmo_pBeta(void) { return DAeroMo_DBeta_[1]; };
+    double pCMno_pBeta(void) { return DAeroMo_DBeta_[2]; };
+    
+    /** Partial of viscous Mx,y,z wrt p roll rate **/
+    
+    double pCMlo_pP(void) { return DAeroMo_DP_[0]; };
+    double pCMmo_pP(void) { return DAeroMo_DP_[1]; };
+    double pCMno_pP(void) { return DAeroMo_DP_[2]; };
+    
+    /** Partial of viscous Fx,y,z wrt q pitch rate **/
+    
+    double pCMlo_pQ(void) { return DAeroMo_DQ_[0]; };
+    double pCMmo_pQ(void) { return DAeroMo_DQ_[1]; };
+    double pCMno_pQ(void) { return DAeroMo_DQ_[2]; };
+    
+    /** Partial of viscous Mx,y,z wrt r yaw rate **/
+    
+    double pCMlo_pR(void) { return DAeroMo_DR_[0]; };
+    double pCMmo_pR(void) { return DAeroMo_DR_[1]; };
+    double pCMno_pR(void) { return DAeroMo_DR_[2]; };
+    
+    /** Partial of viscous Mx,y,z wrt Mach **/
+    
+    double pCMlo_pMach(void) { return DAeroMo_DMach_[0]; };
+    double pCMmo_pMach(void) { return DAeroMo_DMach_[1]; };
+    double pCMno_pMach(void) { return DAeroMo_DMach_[2]; };
+    
+    /** Partial of viscous Mx,y,z wrt x location of CG **/
+    
+    double pCMlo_pCGx(void) { return DAeroMo_DCG_[0][0]; };
+    double pCMmo_pCGx(void) { return DAeroMo_DCG_[1][0]; };
+    double pCMno_pCGx(void) { return DAeroMo_DCG_[2][0]; };
+
+    /** Partial of viscous Mx,y,z wrt y location of CG **/
+    
+    double pCMlo_pCGy(void) { return DAeroMo_DCG_[0][1]; };
+    double pCMmo_pCGy(void) { return DAeroMo_DCG_[1][1]; };
+    double pCMno_pCGy(void) { return DAeroMo_DCG_[2][1]; };
+
+    /** Partial of viscous Mx,y,z wrt y location of CG **/
+    
+    double pCMlo_pCGz(void) { return DAeroMo_DCG_[0][2]; };
+    double pCMmo_pCGz(void) { return DAeroMo_DCG_[1][2]; };
+    double pCMno_pCGz(void) { return DAeroMo_DCG_[2][2]; };
+
+    /** Partial of viscous Mx,y,z wrt Re **/
+            
+    double pCMlo_pRe(void) { return DAeroMo_DRe_[0]; };
+    double pCMmo_pRe(void) { return DAeroMo_DRe_[1]; };
+    double pCMno_pRe(void) { return DAeroMo_DRe_[2]; };
+
+// Aero total forces using wake forces
+
+    /** Partial of total CL, CD, CS wrt alpha using wake forces **/
+
+    double pCLtw_pAlpha(void) { return DAeroFw_DAlpha_[0] + DAeroFo_DAlpha_[0]; };
+    double pCDtw_pAlpha(void) { return DAeroFw_DAlpha_[1] + DAeroFo_DAlpha_[1]; };
+    double pCStw_pAlpha(void) { return DAeroFw_DAlpha_[2] + DAeroFo_DAlpha_[2]; };
+    
+    /** Partial of total CL, CD, CS wrt beta using wake forces **/
+    
+    double pCLtw_pBeta(void) { return DAeroFw_DBeta_[0] + DAeroFo_DBeta_[0]; };
+    double pCDtw_pBeta(void) { return DAeroFw_DBeta_[1] + DAeroFo_DBeta_[1]; };
+    double pCStw_pBeta(void) { return DAeroFw_DBeta_[2] + DAeroFo_DBeta_[2]; };
+    
+    /** Partial of total CL, CD, CS wrt p roll rate using wake forces **/
+    
+    double pCLtw_pP(void) { return DAeroFw_DP_[0] + DAeroFo_DP_[0]; };
+    double pCDtw_pP(void) { return DAeroFw_DP_[1] + DAeroFo_DP_[1]; };
+    double pCStw_pP(void) { return DAeroFw_DP_[2] + DAeroFo_DP_[2]; };
+    
+    /** Partial of total CL, CD, CSwrt q pitch rate using wake forces **/
+    
+    double pCLtw_pQ(void) { return DAeroFw_DQ_[0] + DAeroFo_DQ_[0]; };
+    double pCDtw_pQ(void) { return DAeroFw_DQ_[1] + DAeroFo_DQ_[1]; };
+    double pCStw_pQ(void) { return DAeroFw_DQ_[2] + DAeroFo_DQ_[2]; };
+    
+    /** Partial of total CL, CD, CS wrt r yaw rate using wake forces **/
+    
+    double pCLtw_pR(void) { return DAeroFw_DR_[0] + DAeroFo_DR_[0]; };
+    double pCDtw_pR(void) { return DAeroFw_DR_[1] + DAeroFo_DR_[1]; };
+    double pCStw_pR(void) { return DAeroFw_DR_[2] + DAeroFo_DR_[2]; };
+    
+    /** Partial of total CL, CD, CS wrt Mach using wake forces **/
+    
+    double pCLtw_pMach(void) { return DAeroFw_DMach_[0] + DAeroFo_DMach_[0]; };
+    double pCDtw_pMach(void) { return DAeroFw_DMach_[1] + DAeroFo_DMach_[1]; };
+    double pCStw_pMach(void) { return DAeroFw_DMach_[2] + DAeroFo_DMach_[2]; };
+    
+    /** Partial of total CL, CD, CSwrt x location of CG using wake forces **/
+    
+    double pCLtw_DCGx(void) { return DAeroFw_DCG_[0][0] + DAeroFo_DCG_[0][0]; };
+    double pCDtw_DCGx(void) { return DAeroFw_DCG_[1][1] + DAeroFo_DCG_[1][0]; };
+    double pCStw_DCGx(void) { return DAeroFw_DCG_[2][2] + DAeroFo_DCG_[2][0]; };
+                      
+    /** Partial of total CL, CD, CS wrt y location of CG using wake forces **/
+    
+    double pCLtw_DCGy(void) { return DAeroFw_DCG_[0][1] + DAeroFo_DCG_[0][1]; };
+    double pCDtw_DCGy(void) { return DAeroFw_DCG_[1][1] + DAeroFo_DCG_[1][1]; };
+    double pCStw_DCGy(void) { return DAeroFw_DCG_[2][1] + DAeroFo_DCG_[2][1]; };
+
+    /** Partial of total CL, CD, CS wrt z location of CG using wake forces **/
+    
+    double pCLtw_DCGz(void) { return DAeroFw_DCG_[0][2] + DAeroFo_DCG_[0][2]; };
+    double pCDtw_DCGz(void) { return DAeroFw_DCG_[1][2] + DAeroFo_DCG_[1][2]; };
+    double pCStw_DCGz(void) { return DAeroFw_DCG_[2][2] + DAeroFo_DCG_[2][2]; };
+    
+    /** Partial of total CL, CD, CS wrt Re using wake forces **/
+            
+    double pCLtw_pRe(void) { return DAeroFw_DRe_[0] + DAeroFo_DRe_[0]; };
+    double pCDtw_pRe(void) { return DAeroFw_DRe_[1] + DAeroFo_DRe_[1]; };
+    double pCStw_pRe(void) { return DAeroFw_DRe_[2] + DAeroFo_DRe_[2]; };    
+    
+// Inviscid total forces using wake forces
+
+    /** Partial of total CL, CD, CS wrt alpha using wake forces **/
+
+    double pCLiw_pAlpha(void) { return DAeroFw_DAlpha_[0]; };
+    double pCDiw_pAlpha(void) { return DAeroFw_DAlpha_[1]; };
+    double pCSiw_pAlpha(void) { return DAeroFw_DAlpha_[2]; };
+    
+    /** Partial of total CL, CD, CS wrt beta using wake forces **/
+    
+    double pCLiw_pBeta(void) { return DAeroFw_DBeta_[0]; };
+    double pCDiw_pBeta(void) { return DAeroFw_DBeta_[1]; };
+    double pCSiw_pBeta(void) { return DAeroFw_DBeta_[2]; };
+    
+    /** Partial of total CL, CD, CS wrt p roll rate using wake forces **/
+    
+    double pCLiw_pP(void) { return DAeroFw_DP_[0]; };
+    double pCDiw_pP(void) { return DAeroFw_DP_[1]; };
+    double pCSiw_pP(void) { return DAeroFw_DP_[2]; };
+    
+    /** Partial of total CL, CD, CSwrt q pitch rate using wake forces **/
+    
+    double pCLiw_pQ(void) { return DAeroFw_DQ_[0]; };
+    double pCDiw_pQ(void) { return DAeroFw_DQ_[1]; };
+    double pCSiw_pQ(void) { return DAeroFw_DQ_[2]; };
+    
+    /** Partial of total CL, CD, CS wrt r yaw rate using wake forces **/
+    
+    double pCLiw_pR(void) { return DAeroFw_DR_[0]; };
+    double pCDiw_pR(void) { return DAeroFw_DR_[1]; };
+    double pCSiw_pR(void) { return DAeroFw_DR_[2]; };
+    
+    /** Partial of total CL, CD, CS wrt Mach using wake forces **/
+    
+    double pCLiw_pMach(void) { return DAeroFw_DMach_[0]; };
+    double pCDiw_pMach(void) { return DAeroFw_DMach_[1]; };
+    double pCSiw_pMach(void) { return DAeroFw_DMach_[2]; };
+    
+    /** Partial of total CL, CD, CSwrt x location of CG using wake forces **/
+    
+    double pCLiw_DCGx(void) { return DAeroFw_DCG_[0][0]; };
+    double pCDiw_DCGx(void) { return DAeroFw_DCG_[1][1]; };
+    double pCSiw_DCGx(void) { return DAeroFw_DCG_[2][2]; };
+                      
+    /** Partial of total CL, CD, CS wrt y location of CG using wake forces **/
+    
+    double pCLiw_DCGy(void) { return DAeroFw_DCG_[0][1]; };
+    double pCDiw_DCGy(void) { return DAeroFw_DCG_[1][1]; };
+    double pCSiw_DCGy(void) { return DAeroFw_DCG_[2][1]; };
+
+    /** Partial of total CL, CD, CS wrt z location of CG using wake forces **/
+    
+    double pCLiw_DCGz(void) { return DAeroFw_DCG_[0][2]; };
+    double pCDiw_DCGz(void) { return DAeroFw_DCG_[1][2]; };
+    double pCSiw_DCGz(void) { return DAeroFw_DCG_[2][2]; };
+    
+    /** Partial of total CL, CD, CS wrt Re using wake forces **/
+            
+    double pCLiw_pRe(void) { return DAeroFw_DRe_[0]; };
+    double pCDiw_pRe(void) { return DAeroFw_DRe_[1]; };
+    double pCSiw_pRe(void) { return DAeroFw_DRe_[2]; };        
+    
     /** Zero angle of attack lift coefficient for 2D viscous drag estimate... **/
 
-    VSPAERO_DOUBLE &Clo2D(void) { return Clo_2d_; };
-    
-    /** 2D ClMax for stall calculations **/
-    
-    VSPAERO_DOUBLE &ClMax(void) { return Clmax_2d_; };
+    double &Clo2D(void) { return Clo_2d_; };
     
     /** Max turning angle for stall calculations .. this is no longer being used... **/
     
-    VSPAERO_DOUBLE &MaxTurningAngle(void) { return MaxTurningAngle_; };
+    double &MaxTurningAngle(void) { return MaxTurningAngle_; };
     
     /** Read in the VSP geometry file **/
     
-    void ReadFile(char *FileName) { sprintf(FileName_,"%s",FileName);  VSPGeom_.ReadFile(FileName,ModelType_,SurfaceType_); };    
+    void ReadFile(char *FileName) { sprintf(FileName_,"%s",FileName);  VSPGeom_.DoSymmetryPlaneSolve() = DoSymmetryPlaneSolve_ ; VSPGeom_.ReadFile(FileName); };    
 
     /** Turn on ground effects analysis **/
     
@@ -1359,15 +2664,15 @@ public:
     
     /** Set the vehicle rotation vector (r1,r2,r3 **/
     
-    VSPAERO_DOUBLE &VehicleRotationAngleVector(int i) { return VSPGeom_.VehicleRotationAngleVector(i); };
+    double &VehicleRotationAngleVector(int i) { return VSPGeom_.VehicleRotationAngleVector(i); };
     
     /** Set the point about which to rotate the vehicle **/
     
-    VSPAERO_DOUBLE &VehicleRotationAxisLocation(int i) { return VSPGeom_.VehicleRotationAxisLocation(i); };
+    double &VehicleRotationAxisLocation(int i) { return VSPGeom_.VehicleRotationAxisLocation(i); };
     
     /** Set the height of the vehicle above the ground ...be careful you don't rotate a vehicle into the ground plane! **/
     
-    VSPAERO_DOUBLE &HeightAboveGround(void) { return VSPGeom_.HeightAboveGround(); };
+    double &HeightAboveGround(void) { return VSPGeom_.HeightAboveGround(); };
     
     /** Access to VSP geometry object **/
     
@@ -1391,113 +2696,53 @@ public:
    
     /** Recalcalculate the forces... something has been changed, usually the Re # **/
     
-    void ReCalculateForces(void);    
+    void ReCalculateForces(void) { CalculateForces(); };
     
-    /** Write out the noise files for psuwopwop **/
-    
-    void WriteOutNoiseFiles(int Case);  
-    
-    /** Write out time accurate noise files for psuwopwop **/
-    
-    void WriteOutTimeAccurateNoiseFiles(int Case);  
-    
-    /** Write out steady state noise files for psuwopwop **/
-    
-    void WriteOutSteadyStateNoiseFiles(int Case);  
+//
+//    /** Do a matrix vector product using a user supplied vector **/
+//
+//    void CalculateForwardMatrixVectorProduct(double *VecIn, double *VecOut);
+//
+//    /** Calculate the right hand side of the forward equation **/
+//
+//    void CalculateForwardRightHandSide(double *RHS);
+//
+//    /** Calculate residual given user supplied vector of solution vector, gamma **/
+//
+//    void CalculateForwardResidual(double *VecIn, double *VecOut);
+//
+//    /** Get aerodynamic forces at nodes **/
+//
+//    void GetNodalForces(double *VecIn);
+//
+//    /** Do a transpose matrix vector product using a user supplied vector **/
+//
+//    void CalculateAdjointMatrixVectorProduct(double *VecIn, double *VecOut);
+//
+//    /** Calculate partial of functions wrt gamma **/
+//
+//    void CalculateAdjointRightHandSide(int OptimizationCase, double *RHS);
+//    
+//    /** Solve the adjoint equation for user defined right hand side **/
+//    
+//    void SolveAdjointLinearSystem(double *Psi, double *RHS);
+//
+//    /** Calculate partial derivatives of optimization case = Case wrt the mesh, the input variables, and gamma **/
+//    
+//    void CalculateOptimizationFunctionPartials(int OptimizationCase, double *pF_pMesh, double *pF_pInputVariable, double *pF_pGamma);
+//    
+//    /** Calculate the adjoint residual partial products given the vector Psi **/
+//    
+//    void CalculateAdjointResidualPartialProducts(double *Psi, double *PsiT_pR_pMesh, double *pR_pInputVariable);
+//        
+//    /** Calculate the mesh, the input variables, and gamma partial products given the vector pF_pForces **/
+//
+//    void CalculateNodalForcePartialProducts(double *pF_pForces, double* pF_pMesh, double *pF_pInputVariable, double *pF_pGamma);
+//
 
-#if not defined AUTODIFF && not defined COMPLEXDIFF
-
-    /** Do a matrix vector product using a user supplied vector **/
-
-    void CalculateForwardMatrixVectorProduct(double *VecIn, double *VecOut);
-
-    /** Calculate the right hand side of the forward equation **/
-
-    void CalculateForwardRightHandSide(double *RHS);
-
-    /** Calculate residual given user supplied vector of solution vector, gamma **/
-
-    void CalculateForwardResidual(double *VecIn, double *VecOut);
-
-#else
-    void CalculateForwardMatrixVectorProduct(double *VecIn, double *VecOut)
-    {
-        PRINTF( "Function %s not defined for non-DIFF version of VSP_SOLVER.\n", __FUNCTION__ );
-        exit(1);
-    };
-
-    void CalculateForwardRightHandSide(double *RHS)
-    {
-        PRINTF( "Function %s not defined for non-DIFF version of VSP_SOLVER.\n", __FUNCTION__ );
-        exit(1);
-    };
-
-    void CalculateForwardResidual(double *VecIn, double *VecOut)
-    {
-        PRINTF( "Function %s not defined for non-DIFF version of VSP_SOLVER.\n", __FUNCTION__ );
-        exit(1);
-    };
-#endif
-
-#if not defined AUTODIFF && not defined COMPLEXDIFF
-
-    /** Calculate optimization functions given user supplied vector of solution vector, gamma **/
-
-    void CalculateOptimizationFunctions(double *VecIn);
-
-    /** Get aerodynamic forces at nodes **/
-
-    void GetNodalForces(double *VecIn);
-
-#else
-    void CalculateOptimizationFunctions(double *VecIn)
-    {
-        PRINTF( "Function %s not defined for non-DIFF version of VSP_SOLVER.\n", __FUNCTION__ );
-        exit(1);
-    };
-
-    void GetNodalForces(double *VecIn)
-    {
-        PRINTF( "Function %s not defined for non-DIFF version of VSP_SOLVER.\n", __FUNCTION__ );
-        exit(1);
-    };
-#endif
-
-#if defined AUTODIFF
-
-    /** Do a transpose matrix vector product using a user supplied vector **/
-
-    void CalculateAdjointMatrixVectorProduct(double *VecIn, double *VecOut);
-
-    /** Calculate partial of functions wrt gamma **/
-
-    void CalculateAdjointRightHandSide(int OptimizationCase, double *RHS);
-    
-    /** Solve the adjoint equation for user defined right hand side **/
-    
-    void SolveAdjointLinearSystem(double *Psi, double *RHS);
-
-    /** Calculate partial derivatives of optimization case = Case wrt the mesh, the input variables, and gamma **/
-    
-    void CalculateOptimizationFunctionPartials(int OptimizationCase, double *pF_pMesh, double *pF_pInputVariable, double *pF_pGamma);
-    
-    /** Calculate the adjoint residual partial products given the vector Psi **/
-    
-    void CalculateAdjointResidualPartialProducts(double *Psi, double *pR_pMesh, double *pR_pInputVariable);
-        
-    /** Calculate the mesh, the input variables, and gamma partial products given the vector pF_pForces **/
-
-    void CalculateNodalForcePartialProducts(double *pF_pForces, double* pF_pMesh, double *pF_pInputVariable, double *pF_pGamma);
-
-#endif
-
-    // Apply matrix preconditioner... the preconditioner applied depends on whether we are doing a forward or adjoint solve **/
-    
-    void ApplyMatrixPrecondition(double *Vec);
-    
     /** Return the L2 residual **/
     
-    VSPAERO_DOUBLE L2Residual(void) { return L2Residual_; };
+    double L2Residual(void) { return L2Residual_; };
 
     /** Do a restart using a previous solution file **/
         
@@ -1509,12 +2754,8 @@ public:
     
     /** Output a status file **/
     
-    void OutputStatusFile(int Case);
-    
-    /** Output zero lift drag to the status file **/
-    
-    void OutputZeroLiftDragToStatusFile(void);
-    
+    void OutputStatusFile(int FinalIteration);
+
     /** Read in the geometry, do a minimum of set up and then write out an adb file we can view in Viewer ... no solve **/
     
     int &DumpGeom(void) { return DumpGeom_; };
@@ -1526,7 +2767,11 @@ public:
     /** Write out 2D FEM load file **/
     
     int &Write2DFEMFile(void) { return Write2DFEMFile_; };
-
+    
+    /** Write out tecplot file **/
+    
+    int &WriteTecplotFile(void) { return WriteTecplotFile_; };
+         
     /** Turn on the Karman Tsien compressibiltiy correction **/
     
     int &KarmanTsienCorrection(void) { return KarmanTsienCorrection_; };
@@ -1559,15 +2804,13 @@ public:
      
     int &NumberOfTimeSteps(void) { return NumberOfTimeSteps_; };
 
-    /** Set the time step for an unsteady analysis
-     * 
-     * -1 means the code will set the time step based on rotor RPMS
-     * -1 means code will do 18 revs on the fastest rotor
-     * -2 means code will do 36 revs on the fastest rotor...
-     * 
-     **/
+    /** Set the time step to start averaging time accurate forces **/
+    
+    int &StartAveragingTimeStep(void) { return StartAveragingTimeStep_; };
+    
+    /** Set the ime step **/
      
-    VSPAERO_DOUBLE &TimeStep(void) { return TimeStep_; };
+    double &DeltaTime(void) { return DeltaTime_; };
     
     /** Starts time accurate solve with a finite free stream and 
      * slowly tapers that to zero to help with solving stiff
@@ -1575,15 +2818,9 @@ public:
      *
      **/
 
-    int &DoHoverRampFreeStream(void) { return DoHoverRampFreeStream_; };
-
-    /** Hover ramp free stream velocity to start with **/
-        
-    VSPAERO_DOUBLE &HoverRampFreeStreamVelocity(void) { return HoverRampFreeStreamVelocity_; };
+    /** Turn on the stall model **/
     
-    /** Force the solver into 2D mode ... mostly for testing purposes **/
-    
-    int &FlowIs2D(void) { return FlowIs2D_; };
+    int &StallModelIsOn(void) { return StallModelIsOn_; };
     
     /** Perform the solve on MGLevel = SolveOnMGLevel ... this has the solver
      * run using SolveOnMGLevel_ level as the finest grid level. This allows
@@ -1591,7 +2828,7 @@ public:
      * There MUST be at least 1 level of coarse mesh than SolveOnMGLevel_ otherwise
      * the solve will fail **/
      
-     int & SolveOnMGLevel(void) { return SolveOnMGLevel_; };
+    void SolveOnMGLevel(int Level) { SolveOnMGLevel_ = Level;  VSPGeom().SolveOnMGLevel() = Level; };
     
     /** Turn off the calculation of spanwise loading for a panel solver...
      * 
@@ -1605,32 +2842,23 @@ public:
     
     /** Set reduced frequency for an unsteady pitch/yaw analysis **/
     
-    VSPAERO_DOUBLE &ReducedFrequency(void) { return ReducedFrequency_; };
+    double &ReducedFrequency(void) { return ReducedFrequency_; };
     
     /** Get back the actual unsteady angle rate **/
     
-    VSPAERO_DOUBLE Unsteady_AngleRate(void) { return Unsteady_AngleRate_; };
+    double Unsteady_AngleRate(void) { return Unsteady_AngleRate_; };
     
     /** Set the unsteady maximum angle... pitch or yaw **/
     
-    VSPAERO_DOUBLE &Unsteady_AngleMax(void) { return Unsteady_AngleMax_; };
+    double &Unsteady_AngleMax(void) { return Unsteady_AngleMax_; };
     
     /** Set the unsteady max heave value **/
     
-    VSPAERO_DOUBLE &Unsteady_HMax(void) { return Unsteady_HMax_; };
-        
-    /** Run a hacked blade analysis where the world spins and the rotor doesn't **/
-            
-    int &RotorAnalysis(void) { return RotorAnalysis_; };
-    
-    /** Set the blade analysis rotor RPM **/
-    
-    VSPAERO_DOUBLE &BladeRPM(void) { return BladeRPM_; };
+    double &Unsteady_HMax(void) { return Unsteady_HMax_; };
 
     /** Interrogate an existing solution **/
     
     int &DoSolutionInterrogation(void) { return DoSolutionInterrogation_; };
-
 
     /** Load in restart file and interrogate the solution 
     * 
@@ -1642,99 +2870,34 @@ public:
      
     void RestartAndInterrogateSolution(int Case);
         
-    /** Do a noise analysis... this is a post processing step on an existing solution **/
-    
-    int &NoiseAnalysis(void) { return NoiseAnalysis_; };
-    
-    /** Create files for an assumed steady state analysis... ie, not time accurate **/
-    
-    int &SteadyStateNoise(void) { return SteadyStateNoise_; };    
-   
-    /** Input geometry and flight conditions are in english units...
-     * 
-     * ... so we will convert to SI for output to psuwopwop
-     * 
-     **/
-
-    int &WopWopEnglishUnits(void) { return WopWopEnglishUnits_; };   
-
-    /** Do a psuwopwop flyby analysis **/
-
-    void DoWopWopFlyBy(void) { WopWopFlyBy_ = 1; };
-    
-    /** Do a psuwopwop foot print analysis **/
-    
-    void DoWopWopFootPrint(void) { WopWopFlyBy_ = 0; };
-    
     /** Number of nodes on the finest grid level **/
     
-    int NumberOfGridNodes(void) { return VSPGeom().Grid(0).NumberOfNodes(); };
+    int NumberOfGridNodes(void) { return VSPGeom().Grid(1).NumberOfNodes(); };
     
     /** Number of vortex loop on the finest mesh level **/
     
-    int NumberOfVortexLoops(void) { return NumberOfVortexLoops_; };
+    int NumberOfVortexLoops(void) { return VSPGeom().Grid(0).NumberOfLoops(); };
     
     /** Total number of adjoint equations **/
     
-    int NumberOfAdjointEquations(void) { return NumberOfAdjointEquations_; };
+    int NumberOfAdjointEquations(void) { return NumberOfEquations_; };
 
-    /** Number of wake residual equations **/
-    
-    int NumberOfAdjointWakeResidualEquations(void) { return NumberOfTotalWakeResidualNodes_; };  
-
-    /** Do an adjoint solve **/
-    
-    void Optimization_Solve(void) { Optimization_Solve(0); };
-    
-    /** Do an adjoint solve on case **/
-    
-    void Optimization_Solve(int Case);    
-        
-    /** Set the number of optimization functions **/
-    
-    int &NumberOfOptimizationFunctions(void) { return NumberOfOptimizationFunctions_; };
-
-    /** Set optimization function 'i' to value 'OptFunctionValue' **/
-    
-    void SetOptimizationFunction(int i, int OptFunctionValue);
-    
-    /** Set optimization function 'i' to value 'OptFunctionValue' and associate with rotor, or wing 'Set' **/
-    
-    void SetOptimizationFunction(int i, int OptFunctionValue, int Set );
-    
-    /** Set optimization gradient vector for the one and only optimization function... assume there just 1! **/
-    
-    void SetOptimizationFunctionInputGradientVector(double *Vec) { SetOptimizationFunctionInputGradientVector(1,1,1,1,Vec); };
-   
-    /** Set optimization gradient vector for Case, with Length, TimeSteps, Set... **/
-    
-    void SetOptimizationFunctionInputGradientVector(int Case, int Length, int TimeSteps, int Set, double *Vec);
-
-    /** Determine the optimization function length based on what it is... **/
-    
-    void CalculateOptimizationFunctionLength(void);
-   
-    /** Get optimization function lenght for opt function Case **/
-    
-    int OptimizationFunctionLength(int Case) { return OptimizationFunctionList_[Case].FunctionLength(); };
-    
-    /** Get total vector length for optimization case **/
-    
-    int OptimizationVectorLength(int Case) { return OptimizationFunctionList_[Case].VectorLength(); };
-    
-    /** Get number of averaging time steps for optimization case **/
-    
-    int OptimizationNumberOfTimeSteps(int Case) { return OptimizationFunctionList_[Case].NumberOfTimeSteps(); };
-    
     /** Do the adjoint solve **/
 
     int &DoAdjointSolve(void) { return DoAdjointSolve_; };
     
-    /** Turn on frozen wake mode for optimization solves... this turns off the wake to wake
-     * interactions **/
-     
-    int &FrozenWake(void) { return FrozenWake_; };
+    /** Adjoint force type, inviscid, viscous, or total **/
     
+    int &AdjointSolutionForceType(void) { return AdjointSolutionForceType_; };
+
+    /** Adjoint force/moment cases to solve... Forces in x,y,z ~ 1,2,3 ... Moments in x,y,z ~ 4,5, 6 **/
+    
+    int &DoAdjointSolveForThisForceMomentCase(int i) { return DoAdjointSolveForThisForceMomentCase_[i]; };
+    
+    /** User defined list of component groups to calculate adjoint gradients for **/
+    
+    int &UserAdjointComponentList(int i) { return UserAdjointComponentList_[i]; };
+
     /** This is an optimization solve
      * 
      * this must be set to let the solver know it needs to evaluate the 
@@ -1743,313 +2906,6 @@ public:
      **/
 
     int &OptimizationSolve(void) { return OptimizationSolve_; };
-
-// Total Gradients
-    
-    /** Total gradient of objective function 1 wrt x for node i **/
-    
-    double dF_dMesh_X(int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,1,3*i-2)); };
-    
-    /** Total gradient of objective function 1 wrt y for node i **/
-
-    double dF_dMesh_Y(int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,1,3*i-1)); };
-
-    /** Total gradient of objective function 1 wrt z for node i **/
- 
-    double dF_dMesh_Z(int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,1,3*i  )); };
-    
-    /** Total gradient of objective function p wrt x for node i **/
-  
-    double dF_dMesh_X(int p, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,p,3*i-2)); };
-    
-    /** Total gradient of objective function p wrt y for node i **/
- 
-    double dF_dMesh_Y(int p, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,p,3*i-1)); };
-
-    /** Total gradient of objective function p wrt z for node i **/
-
-    double dF_dMesh_Z(int p, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,p,3*i  )); };
-    
-    /** Unsteady total gradient of objective function p, at time Time, wrt x for node i **/
-   
-    double dF_dMesh_X(int p, int Time, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(Time,p,3*i-2)); };
-    
-    /** Unsteady total gradient of objective function p, at time Time, wrt y for node i **/
-
-    double dF_dMesh_Y(int p, int Time, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(Time,p,3*i-1)); };
-
-    /** Unsteady total gradient of objective function p, at time Time, wrt z for node i **/
-       
-    double dF_dMesh_Z(int p, int Time, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(Time,p,3*i  )); };
-    
-// Partial gradients with respect to the mesh
-
-    /** Partial gradient of objective function 1 wrt mesh x for node i **/
-    
-    double pF_pMesh_X(int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,1,3*i-2)); };
-    
-    /** Partial gradient of objective function 1 wrt mesh y for node i **/
-
-    double pF_pMesh_Y(int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,1,3*i-1)); };
-
-    /** Partial gradient of objective function 1 wrt mesh z for node i **/
- 
-    double pF_pMesh_Z(int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,1,3*i  )); };
-    
-    /** Partial gradient of objective function p wrt mesh x for node i **/
-      
-    double pF_pMesh_X(int p, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,p,3*i-2)); };
-    
-    /** Partial gradient of objective function p wrt mesh y for node i **/
- 
-    double pF_pMesh_Y(int p, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,p,3*i-1)); };
-
-    /** Partial gradient of objective function p wrt mesh z for node i **/
-
-    double pF_pMesh_Z(int p, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,p,3*i  )); };
-    
-    /** Unsteady partial gradient of objective function p, at time Time, wrt mesh x for node i **/
-   
-    double pF_pMesh_X(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(Time,p,3*i-2)); };
-    
-    /** Unsteady partial gradient of objective function p, at time Time, wrt mesh y for node i **/
-
-    double pF_pMesh_Y(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(Time,p,3*i-1)); };
-
-    /** Unsteady partial gradient of objective function p, at time Time, wrt mesh z for node i **/
-       
-    double pF_pMesh_Z(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(Time,p,3*i  )); };
-
-// Partial gradients with respect to the solution
-
-    /** Partial gradient of objective function 1 wrt solution, wrt x for node i **/
-    
-    double pR_pMesh_X(int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,1,3*i-2)); };
-    
-    /** Partial gradient of objective function 1 wrt solution, wrt y for node i **/
-
-    double pR_pMesh_Y(int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,1,3*i-1)); };
-
-    /** Partial gradient of objective function 1 wrt solution, wrt z for node i **/
- 
-    double pR_pMesh_Z(int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,1,3*i  )); };
-    
-    /** Partial gradient of objective function p wrt solution, wrt x for node i **/
-      
-    double pR_pMesh_X(int p, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,p,3*i-2)); };
-    
-    /** Partial gradient of objective function p wrt solution, wrt y for node i **/
- 
-    double pR_pMesh_Y(int p, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,p,3*i-1)); };
-
-    /** Partial gradient of objective function p wrt solution, wrt z for node i **/
-
-    double pR_pMesh_Z(int p, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,p,3*i  )); };
-    
-    /** Unsteady partial gradient of objective function p, at time Time, wrt solution, wrt x for node i **/
-   
-    double pR_pMesh_X(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(Time,p,3*i-2)); };
-    
-    /** Unsteady partial gradient of objective function p, at time Time, wrt solution, wrt y for node i **/
-
-    double pR_pMesh_Y(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(Time,p,3*i-1)); };
-
-    /** Unsteady partial gradient of objective function p, at time Time, wrt solution, wrt z for node i **/
-       
-    double pR_pMesh_Z(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(Time,p,3*i  )); };
-
-// Total gradients
-                
-    /** Total gradient of objective function 1 with resepect to input variable InputVariable 
-     *
-     * OPT_GRADIENT_WRT_ALPHA 
-     * OPT_GRADIENT_WRT_BETA         
-     * OPT_GRADIENT_WRT_MACH         
-     * OPT_GRADIENT_WRT_VINF         
-     * OPT_GRADIENT_WRT_DENSITY      
-     * OPT_GRADIENT_WRT_RECREF       
-     * OPT_GRADIENT_WRT_P_RATE       
-     * OPT_GRADIENT_WRT_Q_RATE       
-     * OPT_GRADIENT_WRT_R_RATE       
-     * **/
-     
-    double dF_dInputVariable(int InputVariable) { return DOUBLE(SolutionGradientData_.dF_dVariable(0,1,InputVariable)); };
- 
-    /** Total gradient of objective function p with resepect to input variable InputVariable 
-     *
-     * OPT_GRADIENT_WRT_ALPHA 
-     * OPT_GRADIENT_WRT_BETA         
-     * OPT_GRADIENT_WRT_MACH         
-     * OPT_GRADIENT_WRT_VINF         
-     * OPT_GRADIENT_WRT_DENSITY      
-     * OPT_GRADIENT_WRT_RECREF       
-     * OPT_GRADIENT_WRT_P_RATE       
-     * OPT_GRADIENT_WRT_Q_RATE       
-     * OPT_GRADIENT_WRT_R_RATE       
-     * **/    
-    
-    double dF_dInputVariable(int p, int InputVariable) { return DOUBLE(SolutionGradientData_.dF_dVariable(0,p,InputVariable)); };
-    
-    /** Unsteady total gradient of objective function p, at time Time, with resepect to input variable InputVariable
-     *
-     * OPT_GRADIENT_WRT_ALPHA 
-     * OPT_GRADIENT_WRT_BETA         
-     * OPT_GRADIENT_WRT_MACH         
-     * OPT_GRADIENT_WRT_VINF         
-     * OPT_GRADIENT_WRT_DENSITY      
-     * OPT_GRADIENT_WRT_RECREF       
-     * OPT_GRADIENT_WRT_P_RATE       
-     * OPT_GRADIENT_WRT_Q_RATE       
-     * OPT_GRADIENT_WRT_R_RATE       
-     * **/
-            
-    double dF_dInputVariable(int p, int Time, int InputVariable) { return DOUBLE(SolutionGradientData_.dF_dVariable(Time,p,InputVariable)); };
-
-// Partial gradients wrt mesh
-                
-    /** Partial gradient of objective function 1 with resepect to input variable InputVariable 
-     *
-     * OPT_GRADIENT_WRT_ALPHA 
-     * OPT_GRADIENT_WRT_BETA         
-     * OPT_GRADIENT_WRT_MACH         
-     * OPT_GRADIENT_WRT_VINF         
-     * OPT_GRADIENT_WRT_DENSITY      
-     * OPT_GRADIENT_WRT_RECREF       
-     * OPT_GRADIENT_WRT_P_RATE       
-     * OPT_GRADIENT_WRT_Q_RATE       
-     * OPT_GRADIENT_WRT_R_RATE       
-     * **/
-     
-    double pF_pInputVariable(int InputVariable) { return DOUBLE(SolutionGradientData_.pF_pVariable(0,1,InputVariable)); };
- 
-    /** Partial gradient of objective function p with resepect to input variable InputVariable 
-     *
-     * OPT_GRADIENT_WRT_ALPHA 
-     * OPT_GRADIENT_WRT_BETA         
-     * OPT_GRADIENT_WRT_MACH         
-     * OPT_GRADIENT_WRT_VINF         
-     * OPT_GRADIENT_WRT_DENSITY      
-     * OPT_GRADIENT_WRT_RECREF       
-     * OPT_GRADIENT_WRT_P_RATE       
-     * OPT_GRADIENT_WRT_Q_RATE       
-     * OPT_GRADIENT_WRT_R_RATE       
-     * **/    
-    
-    double pF_pInputVariable(int p, int InputVariable) { return DOUBLE(SolutionGradientData_.pF_pVariable(0,p,InputVariable)); };
-    
-    /** Unsteady partial gradient of objective function p, at time Time, with resepect to input variable InputVariable
-     *
-     * OPT_GRADIENT_WRT_ALPHA 
-     * OPT_GRADIENT_WRT_BETA         
-     * OPT_GRADIENT_WRT_MACH         
-     * OPT_GRADIENT_WRT_VINF         
-     * OPT_GRADIENT_WRT_DENSITY      
-     * OPT_GRADIENT_WRT_RECREF       
-     * OPT_GRADIENT_WRT_P_RATE       
-     * OPT_GRADIENT_WRT_Q_RATE       
-     * OPT_GRADIENT_WRT_R_RATE       
-     * **/
-            
-    double pF_pInputVariable(int p, int Time, int InputVariable) { return DOUBLE(SolutionGradientData_.pF_pVariable(Time,p,InputVariable)); };
-        
-// Partial gradients wrt residual
-                
-    /** Partial gradient of objective function 1 with resepect to residual - vector product
-     *
-     * OPT_GRADIENT_WRT_ALPHA 
-     * OPT_GRADIENT_WRT_BETA         
-     * OPT_GRADIENT_WRT_MACH         
-     * OPT_GRADIENT_WRT_VINF         
-     * OPT_GRADIENT_WRT_DENSITY      
-     * OPT_GRADIENT_WRT_RECREF       
-     * OPT_GRADIENT_WRT_P_RATE       
-     * OPT_GRADIENT_WRT_Q_RATE       
-     * OPT_GRADIENT_WRT_R_RATE       
-     * **/
-     
-    double pR_pInputVariable(int InputVariable) { return DOUBLE(SolutionGradientData_.pR_pVariable(0,1,InputVariable)); };
- 
-    /** Partial gradient of objective function p with resepect to residual - vector product
-     *
-     * OPT_GRADIENT_WRT_ALPHA 
-     * OPT_GRADIENT_WRT_BETA         
-     * OPT_GRADIENT_WRT_MACH         
-     * OPT_GRADIENT_WRT_VINF         
-     * OPT_GRADIENT_WRT_DENSITY      
-     * OPT_GRADIENT_WRT_RECREF       
-     * OPT_GRADIENT_WRT_P_RATE       
-     * OPT_GRADIENT_WRT_Q_RATE       
-     * OPT_GRADIENT_WRT_R_RATE       
-     * **/    
-    
-    double pR_pInputVariable(int p, int InputVariable) { return DOUBLE(SolutionGradientData_.pR_pVariable(0,p,InputVariable)); };
-    
-    /** Unsteady partial gradient of objective function p, at time Time, with resepect to residual - vector product
-     *
-     * OPT_GRADIENT_WRT_ALPHA 
-     * OPT_GRADIENT_WRT_BETA         
-     * OPT_GRADIENT_WRT_MACH         
-     * OPT_GRADIENT_WRT_VINF         
-     * OPT_GRADIENT_WRT_DENSITY      
-     * OPT_GRADIENT_WRT_RECREF       
-     * OPT_GRADIENT_WRT_P_RATE       
-     * OPT_GRADIENT_WRT_Q_RATE       
-     * OPT_GRADIENT_WRT_R_RATE       
-     * **/
-            
-    double pR_pInputVariable(int p, int Time, int InputVariable) { return DOUBLE(SolutionGradientData_.pR_pVariable(Time,p,InputVariable)); };
-                 
-    /** Value of objective function **/
-        
-    VSPAERO_DOUBLE OptimizationFunction(void);
-    
-    /** Value of objective function Case **/
-    
-    VSPAERO_DOUBLE OptimizationFunction(int Case);
-
-#if defined AUTODIFF || defined COMPLEXDIFF
-
-    /** Value of objective function 1 ... returns VSPAERO_DOUBLE **/
-
-    void OptimizationFunction(VSPAERO_DOUBLE &Vec) { OptimizationFunction(1, Vec); };
-    
-    /** Value of objective function Case ... returns VSPAERO_DOUBLE **/
-    
-    void OptimizationFunction(int Case, VSPAERO_DOUBLE &Vec);
-
-    /** Value of objective vector function ... returns VSPAERO_DOUBLE **/
-
-    void OptimizationFunction(VSPAERO_DOUBLE *Vec) { OptimizationFunction(1,Vec); };   
-
-    /** Value of vector objective function case ... returns VSPAERO_DOUBLE **/
-
-    void OptimizationFunction(int Case, VSPAERO_DOUBLE *Vec);
-
-    /** Value of vector objective function case, and time Time ... returns VSPAERO_DOUBLE **/
-
-    void OptimizationFunction(int Case, int Time, VSPAERO_DOUBLE *Vec);
-
-#endif
-
-    /** Value of objective function 1 ... returns double **/
-
-    void OptimizationFunction(double &Vec) { OptimizationFunction(1, Vec); };
-
-    /** Value of objective function Case  ... returns double **/
-
-    void OptimizationFunction(int Case, double &Vec);    
-
-    /** Value of objective vector function  ... returns double **/
-
-    void OptimizationFunction(double *Vec) { OptimizationFunction(1, Vec); };  
-
-    /** Value of vector objective function case  ... returns double **/
-
-    void OptimizationFunction(int Case, double *Vec);
-
-    /** Value of vector objective function case, and time Time  ... returns double **/
-
-    void OptimizationFunction(int Case, int Time, double *Vec);
                     
     /** Calculate nodal pressures on the mesh for FEM analysis **/
     
@@ -2057,23 +2913,19 @@ public:
     
     /** Pressure at node i of the mesh **/
     
-    VSPAERO_DOUBLE NodalCp(int i) { return NodalCp_[i]; };
-    
-    /** Number of spanwise stations for wing **/
-    
-    int NumberOfSpanStationsForWing(int Wing) { return SpanLoadData(Wing).NumberOfSpanStations(); };
-        
-    /** i'th spanwise chord value for wing = Wing **/
-    
-    VSPAERO_DOUBLE SpanWiseChordForWing(int Wing, int i) { return SpanLoadData(Wing).Span_Chord(i); };
+    double NodalCp(int i) { return NodalCp_[i]; };
 
-    /** i'th spanwise area value for wing = Wing **/
-    
-    VSPAERO_DOUBLE SpanWiseAreaForWing(int Wing, int i) { return SpanLoadData(Wing).Span_Area(i); };
-
-    /** Over ride default edge by edge ssor preconditioner **/
+    /** Set the matrix preconditioner **/
     
     int &Preconditioner(void ) { return Preconditioner_; };
+    
+    /** Force update of matric preconditioners every newton iteration **/
+   
+    int &UpdateMatrixPreconditioner(void) { return UpdateMatrixPreconditioner_; };
+
+    /** Turn on the wake matrix preconditioner **/
+    
+    int &UseWakeNodeMatrixPreconditioner(void) { return UseWakeNodeMatrixPreconditioner_; };
 
     /** Set the user case string **/
     

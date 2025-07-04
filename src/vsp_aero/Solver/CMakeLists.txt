@@ -51,38 +51,9 @@ else()
         DEPENDS ${SOLVER_SOURCES}
         DEPENDEES download
         DEPENDERS patch
-        INDEPENDENT TRUE
     )
 
     INSTALL( PROGRAMS ${BINARY_DIR}/vspaero DESTINATION . )
-
-    IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
-        INSTALL( PROGRAMS ${BINARY_DIR}/vspaero DESTINATION python/openvsp/openvsp )
-    ENDIF( SWIG_FOUND AND PYTHONLIBS_FOUND )
-
-# When built as an external project (typically using a secondary compiler for OpenMP compatibility to produce
-# production releases, there is no vspaero target in this context.  Consequently, add_custom_command(TARGET does
-# not work.  If this is a CI system building releases, then this does not matter -- both of these commands
-# are for the convenience of a local developer.  However,  if someone is doing a local build with an alternate
-# compiler, then they should do some work to make these commands function as intended.
-#
-#    IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
-#        add_custom_command(TARGET vspaero POST_BUILD
-#                COMMAND ${CMAKE_COMMAND} -E copy
-#                $<TARGET_FILE:vspaero>
-#                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vspaero )
-#    ENDIF( SWIG_FOUND AND PYTHONLIBS_FOUND )
-#
-#    add_custom_command(TARGET vspaero POST_BUILD
-#            COMMAND ${CMAKE_COMMAND} -E copy
-#            $<TARGET_FILE:vspaero>
-#            ${CMAKE_BINARY_DIR}/src/vsp/vspaero )
-
-	IF ( NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
-        INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_complex DESTINATION . )
-    ENDIF()
-
-    INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_adjoint DESTINATION . )
     INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_opt DESTINATION . )
 
   else()
@@ -98,15 +69,6 @@ if(BUILD_VSPAERO)
     ADD_DEFINITIONS( -DMYTIME )
   ENDIF()
 
-  SET(LIB_TARGETS solver)
-  SET(SOLVER_TARGETS vspaero)
-
-  LIST(APPEND LIB_TARGETS complex)
-  LIST(APPEND SOLVER_TARGETS vspaero_complex)
-
-  LIST(APPEND LIB_TARGETS adjoint)
-  LIST(APPEND SOLVER_TARGETS vspaero_adjoint)
-
   SET( VSPAERO_CORE_FILES
   AdjointGradient.C
   BoundaryConditionData.C
@@ -116,6 +78,7 @@ if(BUILD_VSPAERO)
   EngineFace.C
   FastMatrix.C
   FEM_Node.C
+  GlobalWakeLoop.C
   Gradient.C
   InteractionLoop.C
   MatPrecon.C
@@ -128,13 +91,11 @@ if(BUILD_VSPAERO)
   QuadTree.C
   quat.C
   RotorDisk.C
+  SaveState.C
   Search.C
   SearchLeaf.C
-  SpanLoadData.C
-  SpanLoadRotorData.C
   time.C
   utils.C
-  Vortex_Bound.C
   Vortex_Sheet.C
   Vortex_Trail.C
   VortexSheetInteractionLoop.C
@@ -146,8 +107,8 @@ if(BUILD_VSPAERO)
   VSP_Loop.C
   VSP_Node.C
   VSP_Solver.C
-  VSPAERO_TYPES.C
-  WOPWOP.C
+  WakeEdgeData.C
+  # WOPWOP.C
   AdjointGradient.H
   BoundaryConditionData.H
   ComponentGroup.H
@@ -168,13 +129,11 @@ if(BUILD_VSPAERO)
   QuadTree.H
   quat.H
   RotorDisk.H
+  SaveState.H
   Search.H
   SearchLeaf.H
-  SpanLoadData.H
-  SpanLoadRotorData.H
   time.H
   utils.H
-  Vortex_Bound.H
   Vortex_Sheet.H
   Vortex_Trail.H
   VortexSheetInteractionLoop.H
@@ -186,86 +145,62 @@ if(BUILD_VSPAERO)
   VSP_Loop.H
   VSP_Node.H
   VSP_Solver.H
-  VSPAERO_TYPES.H
-  WOPWOP.H
+  WakeEdgeData.H
+  # WOPWOP.H
   )
 
-  LIST( LENGTH SOLVER_TARGETS ntarget )
-  SET( itarget 0 )
-  WHILE( itarget LESS ${ntarget} )
-    LIST( GET SOLVER_TARGETS ${itarget} sol )
-    LIST( GET LIB_TARGETS ${itarget} lib )
-
-    ADD_LIBRARY( ${lib}
+  ADD_LIBRARY( vspaero_lib
     ${VSPAERO_CORE_FILES}
-    )
+  )
 
-    ADD_EXECUTABLE( ${sol}
+  ADD_EXECUTABLE( vspaero
     vspaero.C
-    VSPAERO.H
-    VSPAERO_OMP.H
+    vspaero.H
+  )
+
+  IF( NOT VSP_NO_VSPAERO_OPT )
+    ADD_EXECUTABLE( vspaero_opt
+      vspaero_opt.C
     )
+  ENDIF()
 
-    TARGET_LINK_LIBRARIES( ${sol} PUBLIC ${lib} )
+  TARGET_LINK_LIBRARIES( vspaero PUBLIC vspaero_lib )
 
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-      TARGET_COMPILE_OPTIONS( ${sol} PUBLIC -Wno-non-pod-varargs -Wno-format-security -Wno-format -Wno-deprecated-declarations)
-      TARGET_COMPILE_OPTIONS( ${lib} PUBLIC -Wno-non-pod-varargs -Wno-format-security -Wno-format -Wno-deprecated-declarations)
-    endif()
+  IF( NOT VSP_NO_VSPAERO_OPT )
+    TARGET_LINK_LIBRARIES( vspaero_opt PUBLIC vspaero_lib )
 
-    IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        TARGET_COMPILE_OPTIONS( ${sol} PUBLIC -funroll-loops -funroll-all-loops -Wno-unused -Wno-format-security -Wno-format-overflow -Wno-unused-result -Wno-format )
-        TARGET_COMPILE_OPTIONS( ${lib} PUBLIC -funroll-loops -funroll-all-loops -Wno-unused -Wno-format-security -Wno-format-overflow -Wno-unused-result -Wno-format )
-    ENDIF()
+    TARGET_LINK_LIBRARIES( vspaero_opt PUBLIC ${VSP_LIBRARIES_API_FIRST} )
 
-    MATH(EXPR itarget "${itarget}+1")
-  ENDWHILE()
+    TARGET_INCLUDE_DIRECTORIES( vspaero_opt PUBLIC
+      ${CodeEli_INCLUDE_DIRS}
+      ${GEOM_API_INCLUDE_DIR}
+      ${UTIL_INCLUDE_DIR}
+    )
+  ENDIF()
 
-  TARGET_COMPILE_DEFINITIONS( complex PRIVATE -DCOMPLEXDIFF )
-  TARGET_COMPILE_DEFINITIONS( vspaero_complex PRIVATE -DCOMPLEXDIFF )
 
-  if( OpenMP_CXX_FOUND AND NOT CXX_OMP_COMPILER )
-    TARGET_LINK_LIBRARIES( solver PRIVATE OpenMP::OpenMP_CXX )
-    TARGET_LINK_LIBRARIES( vspaero PRIVATE OpenMP::OpenMP_CXX )
-
-    TARGET_COMPILE_DEFINITIONS( solver PRIVATE -DVSPAERO_OPENMP )
-    TARGET_COMPILE_DEFINITIONS( vspaero PRIVATE -DVSPAERO_OPENMP )
-
-    IF( NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
-      TARGET_LINK_LIBRARIES( complex PRIVATE OpenMP::OpenMP_CXX )
-      TARGET_LINK_LIBRARIES( vspaero_complex PRIVATE OpenMP::OpenMP_CXX )
-
-      TARGET_COMPILE_DEFINITIONS( complex PRIVATE -DVSPAERO_OPENMP )
-      TARGET_COMPILE_DEFINITIONS( vspaero_complex PRIVATE -DVSPAERO_OPENMP )
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    TARGET_COMPILE_OPTIONS( vspaero_lib PUBLIC -Wno-non-pod-varargs -Wno-format-security -Wno-format )
+    TARGET_COMPILE_OPTIONS( vspaero PUBLIC -Wno-non-pod-varargs -Wno-format-security -Wno-format )
+    IF( NOT VSP_NO_VSPAERO_OPT )
+      TARGET_COMPILE_OPTIONS( vspaero_opt PUBLIC -Wno-non-pod-varargs -Wno-format-security -Wno-format )
     ENDIF()
   endif()
 
-  if(Adept2_FOUND )
-    TARGET_COMPILE_DEFINITIONS( vspaero_adjoint PRIVATE -DAUTODIFF -DADEPT_RECORDING_PAUSABLE )
-    TARGET_COMPILE_DEFINITIONS( adjoint PRIVATE -DAUTODIFF -DADEPT_RECORDING_PAUSABLE )
 
-    ADD_EXECUTABLE( vspaero_opt
-    VSP_Optimizer.C
-    vspaero_opt.C
-    VSP_Optimizer.H
-    )
+  if( OpenMP_CXX_FOUND AND NOT CXX_OMP_COMPILER )
+    TARGET_LINK_LIBRARIES( vspaero_lib PRIVATE OpenMP::OpenMP_CXX )
+    TARGET_COMPILE_DEFINITIONS( vspaero_lib PRIVATE -DVSPAERO_OPENMP )
 
-    TARGET_LINK_LIBRARIES( vspaero_opt PUBLIC solver adjoint )
+    TARGET_LINK_LIBRARIES( vspaero PRIVATE OpenMP::OpenMP_CXX )
+    TARGET_COMPILE_DEFINITIONS( vspaero PRIVATE -DVSPAERO_OPENMP )
 
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-      TARGET_COMPILE_OPTIONS( vspaero_opt PUBLIC -Wno-non-pod-varargs -Wno-format-security -Wno-format -Wno-deprecated-declarations)
-    endif()
-
-    IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-      TARGET_COMPILE_OPTIONS( vspaero_opt PUBLIC -funroll-loops -funroll-all-loops -Wno-unused -Wno-format-security -Wno-format-overflow -Wno-unused-result -Wno-format )
-    ENDIF()
-
-    if( OpenMP_CXX_FOUND AND NOT CXX_OMP_COMPILER )
+    IF( NOT VSP_NO_VSPAERO_OPT )
       TARGET_LINK_LIBRARIES( vspaero_opt PRIVATE OpenMP::OpenMP_CXX )
       TARGET_COMPILE_DEFINITIONS( vspaero_opt PRIVATE -DVSPAERO_OPENMP )
-    endif()
+    ENDIF()
+  endif()
 
-  ENDIF()
 
   if ( NOT EP_BUILD )
 
@@ -277,8 +212,6 @@ if(BUILD_VSPAERO)
       INCLUDE( InstallRequiredSystemLibraries )
     endif()
 
-    INSTALL( TARGETS ${SOLVER_TARGETS} RUNTIME DESTINATION . )
-
     IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         INSTALL( TARGETS vspaero RUNTIME DESTINATION python/openvsp/openvsp )
 
@@ -286,6 +219,16 @@ if(BUILD_VSPAERO)
                 COMMAND ${CMAKE_COMMAND} -E copy
                 $<TARGET_FILE:vspaero>
                 ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:vspaero> )
+
+        IF( NOT VSP_NO_VSPAERO_OPT )
+            INSTALL( TARGETS vspaero_opt RUNTIME DESTINATION python/openvsp/openvsp )
+
+            add_custom_command(TARGET vspaero_opt POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy
+                    $<TARGET_FILE:vspaero_opt>
+                    ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:vspaero_opt> )
+        ENDIF()
+
     ENDIF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
     get_property( is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG )
@@ -294,15 +237,22 @@ if(BUILD_VSPAERO)
             SET( conf_suffix "$<CONFIG>/" )
     endif()
 
+    INSTALL( TARGETS vspaero RUNTIME DESTINATION . )
+
     add_custom_command(TARGET vspaero POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:vspaero>
             ${CMAKE_BINARY_DIR}/src/vsp/${conf_suffix}$<TARGET_FILE_NAME:vspaero> )
 
-    # INSTALL( TARGETS solver LIBRARY DESTINATION . )
+    IF( NOT VSP_NO_VSPAERO_OPT )
+      INSTALL( TARGETS vspaero_opt RUNTIME DESTINATION . )
 
-    INSTALL( TARGETS vspaero_opt RUNTIME DESTINATION . )
-    # INSTALL( TARGETS adjoint LIBRARY DESTINATION . )
+      add_custom_command(TARGET vspaero_opt POST_BUILD
+              COMMAND ${CMAKE_COMMAND} -E copy
+              $<TARGET_FILE:vspaero_opt>
+              ${CMAKE_BINARY_DIR}/src/vsp/${conf_suffix}$<TARGET_FILE_NAME:vspaero_opt> )
+    ENDIF()
+
   endif()
 
 endif()

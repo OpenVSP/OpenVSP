@@ -43,7 +43,7 @@ QUAD_EDGE::~QUAD_EDGE(void)
 QUAD_EDGE::QUAD_EDGE(const QUAD_EDGE &QuadEdge)
 {
    
-    PRINTF("Copy not implemented for QUAD_EDGE class! \n");
+    printf("Copy not implemented for QUAD_EDGE class! \n");
     exit(1);
      
 }

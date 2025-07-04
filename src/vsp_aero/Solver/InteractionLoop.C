@@ -22,6 +22,8 @@ LOOP_INTERACTION_ENTRY::LOOP_INTERACTION_ENTRY(void)
     Level_ = 0;
     
     Loop_ = 0;
+    
+    Edge_ = 0;
 
     NumberOfVortexEdges_ = 0;
 
@@ -95,6 +97,67 @@ void LOOP_INTERACTION_ENTRY::SizeEdgeList(int NumberOfVortexEdges)
        
     }
     
+}
+
+/*##############################################################################
+#                                                                              #
+#                LOOP_INTERACTION_ENTRY Operator =                             #
+#                                                                              #
+##############################################################################*/
+
+void LOOP_INTERACTION_ENTRY::ReSizeEdgeList(int NumberOfVortexEdges)
+{
+
+    int i, OldSize;
+    VSP_EDGE **TempSurfaceVortexEdgeInteractionList_;
+    
+    if ( SurfaceVortexEdgeInteractionList_ != NULL ) {
+    
+       // Temp list
+  
+       TempSurfaceVortexEdgeInteractionList_ = new VSP_EDGE*[NumberOfVortexEdges_ + 1];
+       
+       // Copy over existing list
+       
+       for ( i = 1 ; i <= NumberOfVortexEdges_ ; i++ ) {
+          
+          TempSurfaceVortexEdgeInteractionList_[i] = SurfaceVortexEdgeInteractionList_[i];
+          
+       }
+      
+       OldSize = NumberOfVortexEdges_;
+
+       // Delete current list
+       
+       delete [] SurfaceVortexEdgeInteractionList_;
+       
+       // Create a new list with the new size
+
+       NumberOfVortexEdges_ = NumberOfVortexEdges;
+       
+       SurfaceVortexEdgeInteractionList_ = new VSP_EDGE*[NumberOfVortexEdges_ + 1];
+      
+       // Copy over the correct portion of the old list... might be all of it, might be part of it...
+       
+       for ( i = 1 ; i <= MIN(OldSize,NumberOfVortexEdges_) ; i++ ) {
+          
+          SurfaceVortexEdgeInteractionList_[i] = TempSurfaceVortexEdgeInteractionList_[i];
+          
+       }
+       
+       // Delete the temp list
+       
+       delete [] TempSurfaceVortexEdgeInteractionList_;
+       
+    }
+    
+    else {
+       
+       printf("Error!... you can resize a non existing SurfaceVortexEdgeInteractionList_! \n");
+       fflush(NULL);exit(1);
+       
+    }
+
 }
 
 /*##############################################################################
@@ -197,6 +260,8 @@ LOOP_INTERACTION_ENTRY &LOOP_INTERACTION_ENTRY::operator=(const LOOP_INTERACTION
     Level_ = LoopInteractionEntry.Level_;
     
     Loop_ = LoopInteractionEntry.Loop_;
+    
+    Edge_ = LoopInteractionEntry.Edge_;
     
     NumberOfVortexEdges_ = LoopInteractionEntry.NumberOfVortexEdges_;
     

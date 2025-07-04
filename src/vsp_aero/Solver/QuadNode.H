@@ -22,9 +22,9 @@ private:
 
     int InsideBody_;
     
-    VSPAERO_DOUBLE xyz_[3];
-    VSPAERO_DOUBLE velocity_[3];
-    VSPAERO_DOUBLE Cp_;
+    double xyz_[3];
+    double velocity_[3];
+    double Cp_;
 
 public:
 
@@ -38,23 +38,23 @@ public:
     
     /** xyz coordinates for this quad tree node **/
     
-    VSPAERO_DOUBLE &xyz(int i) { return xyz_[i]; };
+    double &xyz(int i) { return xyz_[i]; };
     
     /** velocity for this quad tree node **/
     
-    VSPAERO_DOUBLE &velocity(int i) { return velocity_[i]; };
+    double &velocity(int i) { return velocity_[i]; };
 
     /** xyz coordinate vector for this quad tree node **/
     
-    VSPAERO_DOUBLE *xyz(void) { return xyz_; };
+    double *xyz(void) { return xyz_; };
     
     /** Velocity vector for this quad tree node **/
      
-    VSPAERO_DOUBLE *velocity(void) { return velocity_; };
+    double *velocity(void) { return velocity_; };
     
     /** Pressure coefficient for this quad tree node **/
     
-    VSPAERO_DOUBLE &Cp(void) { return Cp_;  };    
+    double &Cp(void) { return Cp_;  };    
     
 };
 

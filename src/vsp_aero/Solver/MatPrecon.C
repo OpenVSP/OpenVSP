@@ -17,17 +17,29 @@
 MATPRECON::MATPRECON(void)
 {
 
+    EquationType_ = VORTEX_EQUATION;
+   
     NumberOfVortexLoops_ = 0;
     
+    VortexLoopList_ = NULL;
+   
+    NumberOfWakeNodes_ = 0;
+    
+    WakeNodeList_ = NULL;
+   
+    NumberOfWakeEdges_ = 0;
+    
+    WakeEdgeList_ = NULL;
+   
+    NumberOfEquations_ = 0;
+   
     ThereIsTranspose_ = 0;
     
-    A_  = NULL;
+    A_ = NULL;
     
     AT_ = NULL;
     
     x_ = NULL;
-    
-    VortexLoopList_ = NULL;
 
 }
 
@@ -108,7 +120,7 @@ MATPRECON &MATPRECON::operator=(const MATPRECON &MatPrecon)
       
       else {
          
-         PRINTF("Trying to copy precondition matrix transpose data that does not exist! \n");
+         printf("Trying to copy precondition matrix transpose data that does not exist! \n");
          fflush(NULL);exit(1);
          
       }
@@ -122,12 +134,14 @@ MATPRECON &MATPRECON::operator=(const MATPRECON &MatPrecon)
 
 /*##############################################################################
 #                                                                              #
-#                               MATPRECON Size                                 #
+#                   MATPRECON SizeVortexLoopList                               #
 #                                                                              #
 ##############################################################################*/
 
-void MATPRECON::Size(int NumberOfVortexLoops)
+void MATPRECON::SizeVortexLoopList(int NumberOfVortexLoops)
 {
+
+    EquationType_ = VORTEX_EQUATION;
 
     if ( A_  != NULL ) delete A_;
     
@@ -151,7 +165,7 @@ void MATPRECON::Size(int NumberOfVortexLoops)
         
     A_->size(NumberOfVortexLoops_,NumberOfVortexLoops_);
     
-    x_ = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
+    x_ = new double[NumberOfVortexLoops_ + 1];
     
     VortexLoopList_ = new int[NumberOfVortexLoops_ + 1];
 
@@ -164,6 +178,59 @@ void MATPRECON::Size(int NumberOfVortexLoops)
     }
     
 }
+
+
+/*##############################################################################
+#                                                                              #
+#                   MATPRECON SizeVortexLoopList                               #
+#                                                                              #
+##############################################################################*/
+
+void MATPRECON::SizeWakeNodeList(int NumberOfWakeNodes, int NumberOfWakeEdges)
+{
+
+    if ( A_  != NULL ) delete A_;
+    
+    if ( AT_ != NULL ) delete AT_;
+    
+    if ( x_  != NULL ) delete [] x_;
+    
+    if ( WakeNodeList_ != NULL ) delete [] WakeNodeList_;
+
+    if ( WakeEdgeList_ != NULL ) delete [] WakeEdgeList_;
+
+    A_  = NULL;
+    
+    AT_ = NULL;
+    
+    x_ = NULL;
+    
+    WakeNodeList_ = NULL;
+    
+    NumberOfWakeNodes_ = NumberOfWakeNodes;
+    
+    NumberOfWakeEdges_ = NumberOfWakeEdges;
+    
+    A_ = new MATRIX;
+        
+    A_->size(3*NumberOfWakeNodes,3*NumberOfWakeNodes);
+    
+    x_ = new double[3*NumberOfWakeNodes + 1];
+    
+    WakeNodeList_ = new int[NumberOfWakeNodes + 1];
+    
+    WakeEdgeList_ = new int[NumberOfWakeEdges_ + 1];
+
+    if ( ThereIsTranspose_ ) {
+       
+       AT_ = new MATRIX;
+       
+       AT_->size(3*NumberOfWakeNodes,3*NumberOfWakeNodes);
+
+    }
+    
+}
+
 
 #include "END_NAME_SPACE.H"
 

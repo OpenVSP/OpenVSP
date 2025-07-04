@@ -33,16 +33,16 @@ private:
     
     int SurfaceID_;
 
-    VSPAERO_DOUBLE MassFlow_;
-    VSPAERO_DOUBLE Density_;
-    VSPAERO_DOUBLE Area_;
+    double MassFlow_;
+    double Density_;
+    double Area_;
     
-    VSPAERO_DOUBLE NozzleVelocity_;
-    VSPAERO_DOUBLE NozzleDeltaCp_;
-    VSPAERO_DOUBLE NozzleXYZ_[3];
-    VSPAERO_DOUBLE NozzleNormal_[3];
+    double NozzleVelocity_;
+    double NozzleDeltaCp_;
+    double NozzleXYZ_[3];
+    double NozzleNormal_[3];
     
-    VSPAERO_DOUBLE NozzleRadius_;
+    double NozzleRadius_;
       
 public:
 
@@ -63,35 +63,35 @@ public:
 
     /** Nozzle radius **/
     
-    VSPAERO_DOUBLE &NozzleRadius(void) { return NozzleRadius_; };
+    double &NozzleRadius(void) { return NozzleRadius_; };
     
     /** Nozzle xyz origin location **/
     
-    VSPAERO_DOUBLE &NozzleXYZ(int i) { return NozzleXYZ_[i]; };
+    double &NozzleXYZ(int i) { return NozzleXYZ_[i]; };
     
     /** Nozzle normal vector **/
     
-    VSPAERO_DOUBLE &NozzleNormal(int i) { return NozzleNormal_[i]; };
+    double &NozzleNormal(int i) { return NozzleNormal_[i]; };
     
     /** Nozzle exit velocity **/
     
-    VSPAERO_DOUBLE &NozzleVelocity(void) { return NozzleVelocity_; };
+    double &NozzleVelocity(void) { return NozzleVelocity_; };
     
     /** Nozzle exit delta Cp in the exit jet **/
     
-    VSPAERO_DOUBLE &NozzleDeltaCp(void) { return NozzleDeltaCp_; };
+    double &NozzleDeltaCp(void) { return NozzleDeltaCp_; };
     
     /** Inlet mass flow **/
             
-    VSPAERO_DOUBLE &MassFlow(void) { return MassFlow_; };
+    double &MassFlow(void) { return MassFlow_; };
     
     /** Inlet density **/
     
-    VSPAERO_DOUBLE &Density(void) { return Density_; };
+    double &Density(void) { return Density_; };
     
     /** Inlet area **/
     
-    VSPAERO_DOUBLE &Area(void) { return Area_; };
+    double &Area(void) { return Area_; };
 
     /** Write state of this nozzle / inlet to file **/
     
@@ -107,15 +107,15 @@ public:
     
     /** Normal velocity for this engine face **/
     
-    VSPAERO_DOUBLE NormalVelocity(void);
+    double NormalVelocity(void);
     
     /** Velocity, (u,v,w,DeltaCp,VelocityMagnitude) at location (x,y,z) **/
     
-    void Velocity(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5]);
+    void Velocity(double xyz[3], double q[5]);
     
     /** Update the location, orientation of the engine data based on a translation and quaternion rotation **/
 
-    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
           
 };
 

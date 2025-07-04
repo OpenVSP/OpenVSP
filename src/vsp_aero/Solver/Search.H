@@ -13,12 +13,9 @@
 #include <string.h>
 #include "utils.H"
 #include "SearchLeaf.H"
-#include "Vortex_Trail.H"
 #include "VSP_Grid.H"
 
 #include "START_NAME_SPACE.H"
-
-class VORTEX_TRAIL;
 
 // Definition of the SEARCH class
 
@@ -46,9 +43,9 @@ private:
 
     void test_node(SURFACE_NODE &SURFACE_NODE, TEST_NODE &TEST_NODE);
 
-    VSPAERO_DOUBLE Tolerance_;
+    double Tolerance_;
     
-    VSPAERO_DOUBLE a_dist_;
+    double a_dist_;
   
 public:
 
@@ -59,18 +56,14 @@ public:
     /** Search the tree to find closest result to the TEST_NODE node **/
 
     int SearchTree(TEST_NODE &node) { return SearchTree_(root_, node); };
-    
-    /** Create a search tree given a trailing vortex data structure **/
 
-    void CreateSearchTree(VORTEX_TRAIL &Trail, int NumberOfNodes);
-    
     /** Create a search tree given a surface mesh **/
 
     void CreateSearchTree(VSP_GRID &Grid);
     
     /** Set the tolerances on searches **/
     
-    VSPAERO_DOUBLE &Tolerance(void) { return Tolerance_; };
+    double &Tolerance(void) { return Tolerance_; };
 
 };
 

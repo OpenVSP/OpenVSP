@@ -45,6 +45,42 @@ CONTROL_SURFACE::CONTROL_SURFACE(void)
     
     DeflectionAngle_ = 0.;
 
+    // Aero Control derivatives
+    
+    pCLi_pDelta_  = 0.;
+    pCDi_pDelta_  = 0.;
+    pCSi_pDelta_  = 0.;
+                 
+    pCMli_pDelta_ = 0.;    
+    pCMmi_pDelta_ = 0.;    
+    pCMni_pDelta_ = 0.;    
+                 
+    pCLo_pDelta_  = 0.;
+    pCDo_pDelta_  = 0.;
+    pCSo_pDelta_  = 0.;
+               
+    pCMlo_pDelta_ = 0.;    
+    pCMmo_pDelta_ = 0.;    
+    pCMno_pDelta_ = 0.;    
+
+    // Force coefficient derivatives
+    
+    pCFix_pDelta_  = 0.;
+    pCFiy_pDelta_  = 0.;
+    pCFiz_pDelta_  = 0.;
+                
+    pCMix_pDelta_ = 0.;
+    pCMiy_pDelta_ = 0.;
+    pCMiz_pDelta_ = 0.;
+             
+    pCFox_pDelta_  = 0.;
+    pCFoy_pDelta_  = 0.;
+    pCFoz_pDelta_  = 0.;
+                 
+    pCMox_pDelta_ = 0.;
+    pCMoy_pDelta_ = 0.;
+    pCMoz_pDelta_ = 0.;      
+    
 }
 
 /*##############################################################################
@@ -77,7 +113,7 @@ void CONTROL_SURFACE::SizeNodeList(int NumberOfNodes)
        
     NumberOfNodes_ = NumberOfNodes;
 
-    XYZ_NodeList_ = new VSPAERO_DOUBLE[3*NumberOfNodes + 1];
+    XYZ_NodeList_ = new double[3*NumberOfNodes + 1];
 
 }
 
@@ -109,11 +145,11 @@ CONTROL_SURFACE& CONTROL_SURFACE::operator=(const CONTROL_SURFACE &ControlSurfac
 
     int i;
     
-    SPRINTF(Name_,"%s",ControlSurface.Name_);
+    sprintf(Name_,"%s",ControlSurface.Name_);
     
     NumberOfLoops_ = ControlSurface.NumberOfLoops_;
     
-    SPRINTF(TypeName_,"%s",ControlSurface.TypeName_);
+    sprintf(TypeName_,"%s",ControlSurface.TypeName_);
     
     Type_ = ControlSurface.Type_;
 
@@ -162,21 +198,116 @@ CONTROL_SURFACE::~CONTROL_SURFACE(void)
 
 /*##############################################################################
 #                                                                              #
+#                        CONTROL_SURFACE RotateXYZPoint                        #
+#                                                                              #
+##############################################################################*/
+
+void CONTROL_SURFACE::RotateXYZPoint(double *xyz) 
+{
+   
+    double Angle;
+    QUAT Quat, InvQuat, Vec;
+    
+    // Shift xyz
+    
+    xyz[0] -= HingeNode_1_[0];
+    xyz[1] -= HingeNode_1_[1];
+    xyz[2] -= HingeNode_1_[2];
+   
+    // Modify angle ... assume lift ~ cos (alpha) * sin (alpha)... so add in
+    // the cos part...
+
+    Angle = DeflectionAngle_;
+  
+    // Build quaternion about this hinge vector
+
+    Quat.FormRotationQuat(HingeVec_,Angle);
+
+    InvQuat = Quat;
+   
+    InvQuat.FormInverse();   
+    
+    // Rotate the xyz point
+    
+    Vec(0) = xyz[0];
+    Vec(1) = xyz[1];
+    Vec(2) = xyz[2];
+    
+    Vec = Quat * Vec * InvQuat;
+    
+    // Shift xyz back
+    
+    xyz[0] = Vec(0) + HingeNode_1_[0];
+    xyz[1] = Vec(1) + HingeNode_1_[1];
+    xyz[2] = Vec(2) + HingeNode_1_[2];
+       
+}
+
+/*##############################################################################
+#                                                                              #
+#                        CONTROL_SURFACE UnRotateXYZPoint                      #
+#                                                                              #
+##############################################################################*/
+
+void CONTROL_SURFACE::UnRotateXYZPoint(double *xyz) 
+{
+   
+    double Angle;
+    QUAT Quat, InvQuat, Vec;
+    
+    // Shift xyz
+    
+    xyz[0] -= HingeNode_1_[0];
+    xyz[1] -= HingeNode_1_[1];
+    xyz[2] -= HingeNode_1_[2];
+   
+    // Modify angle ... assume lift ~ cos (alpha) * sin (alpha)... so add in
+    // the cos part...
+
+    Angle = -DeflectionAngle_;
+  
+    // Build quaternion about this hinge vector
+
+    Quat.FormRotationQuat(HingeVec_,Angle);
+
+    InvQuat = Quat;
+   
+    InvQuat.FormInverse();   
+    
+    // Rotate the xyz point
+    
+    Vec(0) = xyz[0];
+    Vec(1) = xyz[1];
+    Vec(2) = xyz[2];
+    
+    Vec = Quat * Vec * InvQuat;
+    
+    // Shift xyz back
+    
+    xyz[0] = Vec(0) + HingeNode_1_[0];
+    xyz[1] = Vec(1) + HingeNode_1_[1];
+    xyz[2] = Vec(2) + HingeNode_1_[2];
+       
+}
+
+
+/*##############################################################################
+#                                                                              #
 #                        CONTROL_SURFACE RotateNormal                          #
 #                                                                              #
 ##############################################################################*/
 
-void CONTROL_SURFACE::RotateNormal(VSPAERO_DOUBLE *Normal) 
+void CONTROL_SURFACE::RotateNormal(double *Normal) 
 {
    
-    VSPAERO_DOUBLE Angle;
+    double Angle;
     QUAT Quat, InvQuat, Vec;
    
     // Modify angle ... assume lift ~ cos (alpha) * sin (alpha)... so add in
     // the cos part...
 
-    Angle = cos(DeflectionAngle_)*DeflectionAngle_;
-    
+    Angle = DeflectionAngle_;
+  
     // Build quaternion about this hinge vector
 
     Quat.FormRotationQuat(HingeVec_,Angle);
@@ -212,43 +343,21 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
 
     int i, Found, Surface;
     double x1,y1,z1, x2,y2,z2;
-    VSPAERO_DOUBLE Mag;
-    char FileNameWithExtension[2000], DumChar[2000], Path[2000];
+    double Mag;
+    char FileNameWithExtension[2000], DumChar[2000];
     FILE *TagFile, *CSFFile;
     
     // Save file name
     
     sprintf(Name_,"%s",TagFileName);
-
-    sprintf( Path, "%s", FileName );
-    char* pch = NULL;
-    pch = strrchr( Path, '\\' );
-    if ( pch )
-    {
-        pch++;
-        *pch = '\0';
-    }
-    else
-    {
-        pch = strrchr( Path, '/' );
-        if ( pch )
-        {
-            pch++;
-            *pch = '\0';
-        }
-        else
-        {
-            Path[0] = '\0';
-        }
-    }
-
+    
     // Read in tag file data
     
-    SPRINTF(FileNameWithExtension,"%s%s.tag",Path, TagFileName);
+    sprintf(FileNameWithExtension,"%s.tag",TagFileName);
 
     if ( (TagFile = fopen(FileNameWithExtension,"r")) == NULL ) {
 
-       PRINTF("Could not load %s tag file... \n", FileNameWithExtension);fflush(NULL);
+       printf("Could not load %s tag file... \n", FileNameWithExtension);fflush(NULL);
 
        exit(1);
 
@@ -256,7 +365,7 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     
     fscanf(TagFile,"%d",&NumberOfLoops_);    
     
-    PRINTF("Control surface has %d loops \n",NumberOfLoops_);
+    printf("Control surface has %d loops \n",NumberOfLoops_);
 
     fgets(DumChar,2000,TagFile);
 
@@ -272,11 +381,11 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     
     // Read in .csf file data
         
-    SPRINTF(FileNameWithExtension,"%s.csf",FileName);
+    sprintf(FileNameWithExtension,"%s.csf",FileName);
     
     if ( (CSFFile = fopen(FileNameWithExtension,"r")) == NULL ) {
 
-       PRINTF("Could not load %s csf file... \n", FileNameWithExtension);fflush(NULL);
+       printf("Could not load %s tag file... \n", FileNameWithExtension);fflush(NULL);
 
        exit(1);
 
@@ -292,7 +401,7 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     
     if ( !Found ) {
        
-       PRINTF("Could not find start of control surface %s data in csf for control surface: %s \n",
+       printf("Could not find start of control surface %s data in csf for control surface: %s \n",
        FileNameWithExtension, TagFileName);
        
        fflush(NULL);exit(1);
@@ -323,7 +432,7 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
           
           if ( !Found ) {
              
-             PRINTF("Could not find corresponding hinge line data in %s file for control surface: %s \n",
+             printf("Could not find corresponding hinge line data in %s file for control surface: %s \n",
              FileNameWithExtension, TagFileName);
              
              fflush(NULL);exit(1);
@@ -345,11 +454,11 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
              HingeNode_2_[1] += 0.5*y2;
              HingeNode_2_[2] += 0.5*z2;
                        
-             PRINTF("xyz1: %f %f %f \n",x1,y1,z1);
-             PRINTF("xyz2: %f %f %f \n",x2,y2,z2);
+             printf("xyz1: %f %f %f \n",x1,y1,z1);
+             printf("xyz2: %f %f %f \n",x2,y2,z2);
           
-             PRINTF("HingeNode_1_: %f %f %f \n",HingeNode_1_[0],HingeNode_1_[1],HingeNode_1_[2]);
-             PRINTF("HingeNode_2_: %f %f %f \n",HingeNode_2_[0],HingeNode_2_[1],HingeNode_2_[2]);
+             printf("HingeNode_1_: %f %f %f \n",HingeNode_1_[0],HingeNode_1_[1],HingeNode_1_[2]);
+             printf("HingeNode_2_: %f %f %f \n",HingeNode_2_[0],HingeNode_2_[1],HingeNode_2_[2]);
           
           }
           

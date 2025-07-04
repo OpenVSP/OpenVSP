@@ -113,7 +113,7 @@ ENGINE_FACE& ENGINE_FACE::operator=(const ENGINE_FACE &EngineFace)
 #                                                                              #
 ##############################################################################*/
 
-VSPAERO_DOUBLE ENGINE_FACE::NormalVelocity(void)
+double ENGINE_FACE::NormalVelocity(void)
 {
 
     if ( SurfaceType_ == INLET_FACE ) {
@@ -136,10 +136,10 @@ VSPAERO_DOUBLE ENGINE_FACE::NormalVelocity(void)
 #                                                                              #
 ##############################################################################*/
 
-void ENGINE_FACE::Velocity(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5])
+void ENGINE_FACE::Velocity(double xyz[3], double q[5])
 {
 
-    VSPAERO_DOUBLE vec[3], Dot;
+    double vec[3], Dot;
 
     q[0] = q[1] = q[2] = q[3] = q[4] = 0.;
 
@@ -155,21 +155,21 @@ void ENGINE_FACE::Velocity(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5])
        
        if ( Dot > 0. ) {
               
-	  vec[0] -= Dot * NozzleNormal_[0];
-	  vec[1] -= Dot * NozzleNormal_[1];
-	  vec[2] -= Dot * NozzleNormal_[2];
-   
-	  Dot = sqrt(vector_dot(vec,vec));
-	  
-	  if ( Dot <= NozzleRadius_ ) {
-	     
-	     q[0] = NozzleVelocity_ * NozzleNormal_[0];
-	     q[1] = NozzleVelocity_ * NozzleNormal_[1];
-	     q[2] = NozzleVelocity_ * NozzleNormal_[2];
-	     q[3] = NozzleDeltaCp_;
-	     q[4] = NozzleVelocity_;
-	     	     
-	  }
+	       vec[0] -= Dot * NozzleNormal_[0];
+	       vec[1] -= Dot * NozzleNormal_[1];
+	       vec[2] -= Dot * NozzleNormal_[2];
+          
+	       Dot = sqrt(vector_dot(vec,vec));
+	       
+	       if ( Dot <= NozzleRadius_ ) {
+	          
+	          q[0] = NozzleVelocity_ * NozzleNormal_[0];
+	          q[1] = NozzleVelocity_ * NozzleNormal_[1];
+	          q[2] = NozzleVelocity_ * NozzleNormal_[2];
+	          q[3] = NozzleDeltaCp_;
+	          q[4] = NozzleVelocity_;
+	          	     
+	       }
 	  	  
        }
 	 
@@ -183,7 +183,7 @@ void ENGINE_FACE::Velocity(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5])
 #                                                                              #
 ##############################################################################*/
 
-void ENGINE_FACE::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat)
+void ENGINE_FACE::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
 {
 
     QUAT Vec;
@@ -233,15 +233,15 @@ void ENGINE_FACE::Write_Binary_STP_Data(FILE *InputFile)
     
     // Write out STP file data
 
-    FWRITE(&(NozzleXYZ_[0]), d_size, 1, InputFile); 
-    FWRITE(&(NozzleXYZ_[1]), d_size, 1, InputFile); 
-    FWRITE(&(NozzleXYZ_[2]), d_size, 1, InputFile); 
+    fwrite(&(NozzleXYZ_[0]), d_size, 1, InputFile); 
+    fwrite(&(NozzleXYZ_[1]), d_size, 1, InputFile); 
+    fwrite(&(NozzleXYZ_[2]), d_size, 1, InputFile); 
     
-    FWRITE(&(NozzleNormal_[0]), d_size, 1, InputFile); 
-    FWRITE(&(NozzleNormal_[1]), d_size, 1, InputFile); 
-    FWRITE(&(NozzleNormal_[2]), d_size, 1, InputFile); 
+    fwrite(&(NozzleNormal_[0]), d_size, 1, InputFile); 
+    fwrite(&(NozzleNormal_[1]), d_size, 1, InputFile); 
+    fwrite(&(NozzleNormal_[2]), d_size, 1, InputFile); 
     
-    FWRITE(&(NozzleRadius_), d_size, 1, InputFile); 
+    fwrite(&(NozzleRadius_), d_size, 1, InputFile); 
 
 }
 
@@ -264,15 +264,15 @@ void ENGINE_FACE::Read_Binary_STP_Data(FILE *InputFile)
     
     // Write out STP file data
 
-    FREAD(&(NozzleXYZ_[0]), d_size, 1, InputFile); 
-    FREAD(&(NozzleXYZ_[1]), d_size, 1, InputFile); 
-    FREAD(&(NozzleXYZ_[2]), d_size, 1, InputFile); 
+    fread(&(NozzleXYZ_[0]), d_size, 1, InputFile); 
+    fread(&(NozzleXYZ_[1]), d_size, 1, InputFile); 
+    fread(&(NozzleXYZ_[2]), d_size, 1, InputFile); 
     
-    FREAD(&(NozzleNormal_[0]), d_size, 1, InputFile); 
-    FREAD(&(NozzleNormal_[1]), d_size, 1, InputFile); 
-    FREAD(&(NozzleNormal_[2]), d_size, 1, InputFile); 
+    fread(&(NozzleNormal_[0]), d_size, 1, InputFile); 
+    fread(&(NozzleNormal_[1]), d_size, 1, InputFile); 
+    fread(&(NozzleNormal_[2]), d_size, 1, InputFile); 
     
-    FREAD(&(NozzleRadius_), d_size, 1, InputFile); 
+    fread(&(NozzleRadius_), d_size, 1, InputFile); 
 
 }
 
@@ -287,7 +287,7 @@ void ENGINE_FACE::Skip_Read_Binary_STP_Data(FILE *OutputFile)
  
     int i_size, c_size, d_size;
     
-    VSPAERO_DOUBLE DumDouble;
+    double DumDouble;
 
     // Sizeof int and float
 
@@ -297,15 +297,15 @@ void ENGINE_FACE::Skip_Read_Binary_STP_Data(FILE *OutputFile)
     
     // Write out STP file data
 
-    FREAD(&DumDouble, d_size, 1, OutputFile); 
-    FREAD(&DumDouble, d_size, 1, OutputFile); 
-    FREAD(&DumDouble, d_size, 1, OutputFile); 
+    fread(&DumDouble, d_size, 1, OutputFile); 
+    fread(&DumDouble, d_size, 1, OutputFile); 
+    fread(&DumDouble, d_size, 1, OutputFile); 
     
-    FREAD(&DumDouble, d_size, 1, OutputFile); 
-    FREAD(&DumDouble, d_size, 1, OutputFile); 
-    FREAD(&DumDouble, d_size, 1, OutputFile); 
+    fread(&DumDouble, d_size, 1, OutputFile); 
+    fread(&DumDouble, d_size, 1, OutputFile); 
+    fread(&DumDouble, d_size, 1, OutputFile); 
     
-    FREAD(&DumDouble, d_size, 1, OutputFile); 
+    fread(&DumDouble, d_size, 1, OutputFile); 
 
 }
 

@@ -23,8 +23,6 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     
     NumberOfLiftingSurfaces_ = 0;
     
-    SpanLoadData_ = NULL;
-        
     GeometryIsFixed_   = 0;
     GeometryIsDynamic_ = 0;
     GeometryIsARotor_  = 0;
@@ -49,8 +47,9 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     Iyz_ = 0.;
 
     Omega_                    = 0.;
+    RPM_                      = 0.;
     Angle_                    = 0.;
-    TimeStep_                 = 0.;
+    DeltaTime_                 = 0.;
     CurrentTime_              = 0.;
     RotorDiameter_            = 0.;
     AngleMax_                 = 0.;
@@ -61,51 +60,86 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     
     NumberOfTimeSamples_ = 0;
     
-    NumberOfIntegrationTimeSteps_ = 0;
+    // Integrated forces
     
-    StartAveragingTime_ = 0.;
-
-    Cxo_[0] = Cxo_[1] = 0.;
-    Cyo_[0] = Cyo_[1] = 0.;
-    Czo_[0] = Czo_[1] = 0.;
+    NumberOfTimeSamples_ = 0;
     
-    Cx_[0] = Cx_[1] = 0.;
-    Cy_[0] = Cy_[1] = 0.;
-    Cz_[0] = Cz_[1] = 0.;
+    // Invisicid forces and moments
+    
+    CLi_   = NULL;
+    CDi_   = NULL;
+    CSi_   = NULL;
+           
+    CFix_  = NULL;
+    CFiy_  = NULL;
+    CFiz_  = NULL;
+           
+    CMix_  = NULL;
+    CMiy_  = NULL;
+    CMiz_  = NULL;
+           
+    CTi_   = NULL;
+    CQi_   = NULL;
+    CPi_   = NULL;
+    
+    CTi_h_ = NULL;
+    CQi_h_ = NULL;
+    CPi_h_ = NULL;
+             
+    // Viscous forces and moments
+   
+    CLo_   = NULL;
+    CSo_   = NULL;
+    CDo_   = NULL;
+           
+    CFox_  = NULL;
+    CFoy_  = NULL;
+    CFoz_  = NULL;
+           
+    CMox_  = NULL;
+    CMoy_  = NULL;
+    CMoz_  = NULL;
+           
+    CTo_   = NULL;
+    CQo_   = NULL;
+    CPo_   = NULL;
+    
+    CTo_h_ = NULL;
+    CQo_h_ = NULL;
+    CPo_h_ = NULL;
 
-    Cmxo_[0] = Cmxo_[1] = 0.;
-    Cmyo_[0] = Cmyo_[1] = 0.;
-    Cmzo_[0] = Cmzo_[1] = 0.;
-
-    Cmx_[0] = Cmx_[1] = 0.;
-    Cmy_[0] = Cmy_[1] = 0.;
-    Cmz_[0] = Cmz_[1] = 0.;
-
-    CL_[0] = CL_[1] = 0.;
-    CD_[0] = CD_[1] = 0.;
-    CS_[0] = CS_[1] = 0.;
-
-    CLo_[0] = CLo_[1] = 0.;
-    CDo_[0] = CDo_[1] = 0.;
-    CSo_[0] = CSo_[1] = 0.;
-
-    CTo_[0]   = CTo_[1]   = 0.;
-    CQo_[0]   = CQo_[1]   = 0.;
-    CPo_[0]   = CPo_[1]   = 0.;
+    // Inviscid wake forces
+    
+    CLiw_ = NULL;
+    CDiw_ = NULL;
+    CSiw_ = NULL;
+    
+    CFiwx_ = NULL;
+    CFiwy_ = NULL;
+    CFiwz_ = NULL;    
+    
+    // Gradients wrt omega
         
-    CT_[0]   = CT_[1]   = 0.;
-    CQ_[0]   = CQ_[1]   = 0.;
-    CP_[0]   = CP_[1]   = 0.;
-    EtaP_[0] = EtaP_[1] = 0.;
+    DCFxi_DOmega_ = NULL;
+    DCFyi_DOmega_ = NULL;
+    DCFzi_DOmega_ = NULL;
+     
+    DCMxi_DOmega_ = NULL;
+    DCMyi_DOmega_ = NULL;
+    DCMzi_DOmega_ = NULL;
 
-    CTo_h_[0] = CTo_h_[1] = 0.;
-    CQo_h_[0] = CQo_h_[1] = 0.;
-    CPo_h_[0] = CPo_h_[1] = 0.;
-        
-    CT_h_[0] = CT_h_[1] = 0.;
-    CQ_h_[0] = CQ_h_[1] = 0.;
-    CP_h_[0] = CP_h_[1] = 0.;
-    FOM_[0]  = FOM_[1]  = 0.;
+    DCFxo_DOmega_ = NULL;
+    DCFyo_DOmega_ = NULL;
+    DCFzo_DOmega_ = NULL;
+       
+    DCMxo_DOmega_ = NULL;
+    DCMyo_DOmega_ = NULL;
+    DCMzo_DOmega_ = NULL;
+    
+    // Efficiencies
+    
+    FOM_  = NULL;
+    EtaP_ = NULL;
         
     // Quats
 
@@ -114,7 +148,9 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     InvQuat_(0) = InvQuat_(1) = InvQuat_(2) = 0.;
     
     WQuat_(0) = WQuat_(1) = WQuat_(2) = 0.;
-
+    
+    pWQuat_pOmega_(0) = pWQuat_pOmega_(1) = pWQuat_pOmega_(2) = 0.;
+    
     TotalQuat_(0) = TotalQuat_(1) = TotalQuat_(2) = TotalQuat_(3) = 0.;
         
     // Free stream conditions
@@ -153,13 +189,9 @@ COMPONENT_GROUP::~COMPONENT_GROUP(void)
 {
 
     if ( ComponentList_ != NULL ) delete [] ComponentList_;
-    
-    if ( SpanLoadData_ != NULL ) delete [] SpanLoadData_;
-    
+        
     ComponentList_ = NULL;
-    
-    SpanLoadData_ = NULL;
-    
+
     NumberOfComponents_ = 0;
     
     NumberOfLiftingSurfaces_ = 0;    
@@ -198,9 +230,11 @@ COMPONENT_GROUP::~COMPONENT_GROUP(void)
     
     Omega_ = 0.;
     
+    RPM_   = 0.;
+    
     Angle_  = 0.;
     
-    TimeStep_ = 0.;
+    DeltaTime_ = 0.;
     
     RotorDiameter_ = 0.;
     
@@ -210,53 +244,92 @@ COMPONENT_GROUP::~COMPONENT_GROUP(void)
     
     WQuat_(0) = WQuat_(1) = WQuat_(2) = 0.;
     
+    pWQuat_pOmega_(0) = pWQuat_pOmega_(1) = pWQuat_pOmega_(2) = 0.;
+    
     TotalRotationAngle_ = 0.;
+    
+    // Integrated forces
     
     NumberOfTimeSamples_ = 0;
     
-    StartAveragingTime_ = 0.;
+    // Invisicid forces and moments
     
-    Cx_[0]   = Cx_[1]   = 0.;
-    Cy_[0]   = Cy_[1]   = 0.;
-    Cz_[0]   = Cz_[1]   = 0.;
-                        
-    Cmx_[0]  = Cmx_[1]  = 0.;
-    Cmy_[0]  = Cmy_[1]  = 0.;
-    Cmz_[0]  = Cmz_[1]  = 0.;
-                        
-    CL_[0]   = CL_[1]   = 0.;
-    CD_[0]   = CD_[1]   = 0.;
-    CS_[0]   = CS_[1]   = 0.;
-                        
-    Cxo_[0]  = Cxo_[1]  = 0.;
-    Cyo_[0]  = Cyo_[1]  = 0.;
-    Czo_[0]  = Czo_[1]  = 0.;
-                        
-    Cmxo_[0] = Cmxo_[1] = 0.;
-    Cmyo_[0] = Cmyo_[1] = 0.;
-    Cmzo_[0] = Cmzo_[1] = 0.;
-                        
-    CLo_[0]  = CLo_[1]  = 0.;
-    CDo_[0]  = CDo_[1]  = 0.;
-    CSo_[0]  = CSo_[1]  = 0.;
+    if ( CLi_   != NULL ) delete [] CLi_;
+    if ( CDi_   != NULL ) delete [] CDi_;
+    if ( CSi_   != NULL ) delete [] CSi_;
+  
+    if ( CFix_  != NULL ) delete [] CFix_;
+    if ( CFiy_  != NULL ) delete [] CFiy_;
+    if ( CFiz_  != NULL ) delete [] CFiz_; 
+                                        
+    if ( CMix_  != NULL ) delete [] CMix_;
+    if ( CMiy_  != NULL ) delete [] CMiy_;
+    if ( CMiz_  != NULL ) delete [] CMiz_;
+  
+    if ( CTi_   != NULL ) delete [] CTi_;
+    if ( CQi_   != NULL ) delete [] CQi_;
+    if ( CPi_   != NULL ) delete [] CPi_;
+ 
+    if ( CTi_h_ != NULL ) delete [] CTi_h_;
+    if ( CQi_h_ != NULL ) delete [] CQi_h_;
+    if ( CPi_h_ != NULL ) delete [] CPi_h_;
+             
+    // Viscous forces and moments
+   
+    if ( CLo_   != NULL ) delete [] CLo_;
+    if ( CSo_   != NULL ) delete [] CSo_;
+    if ( CDo_   != NULL ) delete [] CDo_;
     
-    CTo_[0]   = CTo_[1]   = 0.;
-    CQo_[0]   = CQo_[1]   = 0.;
-    CPo_[0]   = CPo_[1]   = 0.;
-        
-    CT_[0]   = CT_[1]   = 0.;
-    CQ_[0]   = CQ_[1]   = 0.;
-    CP_[0]   = CP_[1]   = 0.;
-    EtaP_[0] = EtaP_[1] = 0.;
+    if ( CFox_  != NULL ) delete [] CFox_;
+    if ( CFoy_  != NULL ) delete [] CFoy_;
+    if ( CFoz_  != NULL ) delete [] CFoz_;
+                                       
+    if ( CMox_  != NULL ) delete [] CMox_;
+    if ( CMoy_  != NULL ) delete [] CMoy_;
+    if ( CMoz_  != NULL ) delete [] CMoz_;
+                                    
+    if ( CTo_   != NULL ) delete [] CTo_;
+    if ( CQo_   != NULL ) delete [] CQo_;
+    if ( CPo_   != NULL ) delete [] CPo_;
+                                    
+    if ( CTo_h_ != NULL ) delete [] CTo_h_;
+    if ( CQo_h_ != NULL ) delete [] CQo_h_;
+    if ( CPo_h_ != NULL ) delete [] CPo_h_;
 
-    CTo_h_[0] = CTo_h_[1] = 0.;
-    CQo_h_[0] = CQo_h_[1] = 0.;
-    CPo_h_[0] = CPo_h_[1] = 0.;
-        
-    CT_h_[0] = CT_h_[1] = 0.;
-    CQ_h_[0] = CQ_h_[1] = 0.;
-    CP_h_[0] = CP_h_[1] = 0.;
-    FOM_[0]  = FOM_[1]  = 0.;
+    // Inviscid wake forces
+    
+    if ( CLiw_ != NULL ) delete [] CLiw_;
+    if ( CDiw_ != NULL ) delete [] CDiw_;
+    if ( CSiw_ != NULL ) delete [] CSiw_;
+
+    if ( CFiwx_ != NULL ) delete [] CFiwx_;
+    if ( CFiwy_ != NULL ) delete [] CFiwy_;
+    if ( CFiwz_ != NULL ) delete [] CFiwz_;   
+    
+    // Invsicid force gradients wrt inputs
+    
+    if ( DCFxi_DOmega_ != NULL ) delete [] DCFxi_DOmega_;
+    if ( DCFyi_DOmega_ != NULL ) delete [] DCFyi_DOmega_;
+    if ( DCFzi_DOmega_ != NULL ) delete [] DCFzi_DOmega_;
+                                                      
+    if ( DCMxi_DOmega_ != NULL ) delete [] DCMxi_DOmega_;
+    if ( DCMyi_DOmega_ != NULL ) delete [] DCMyi_DOmega_;
+    if ( DCMzi_DOmega_ != NULL ) delete [] DCMzi_DOmega_;
+                                                       
+    // Viscous force gradients wrt inputs              
+                                                       
+    if ( DCFxo_DOmega_ != NULL ) delete [] DCFxo_DOmega_;
+    if ( DCFyo_DOmega_ != NULL ) delete [] DCFyo_DOmega_;
+    if ( DCFzo_DOmega_ != NULL ) delete [] DCFzo_DOmega_;
+                                                     
+    if ( DCMxo_DOmega_ != NULL ) delete [] DCMxo_DOmega_;
+    if ( DCMyo_DOmega_ != NULL ) delete [] DCMyo_DOmega_;
+    if ( DCMzo_DOmega_ != NULL ) delete [] DCMzo_DOmega_;
+    
+    // Efficiencies
+    
+    if ( FOM_  != NULL ) delete [] FOM_;
+    if ( EtaP_ != NULL ) delete [] EtaP_;
         
 }
 
@@ -297,14 +370,6 @@ COMPONENT_GROUP &COMPONENT_GROUP::operator=(const COMPONENT_GROUP &ComponentGrou
     }
     
     NumberOfLiftingSurfaces_ = ComponentGroup.NumberOfLiftingSurfaces_;
-    
-    SizeSpanLoadingList(NumberOfLiftingSurfaces_);
-    
-    for ( i = 1 ; i <= NumberOfLiftingSurfaces_ ; i++ ) {
-       
-       SpanLoadData_[i] = ComponentGroup.SpanLoadData_[i];
-       
-    }
         
     GeometryIsFixed_ = ComponentGroup.GeometryIsFixed_;
     
@@ -352,9 +417,11 @@ COMPONENT_GROUP &COMPONENT_GROUP::operator=(const COMPONENT_GROUP &ComponentGrou
         
     Omega_ = ComponentGroup.Omega_;
     
+    RPM_ = 60. * Omega_ / (2. * PI);
+    
     Angle_ = ComponentGroup.Angle_;
     
-    TimeStep_ = ComponentGroup.TimeStep_;
+    DeltaTime_ = ComponentGroup.DeltaTime_;
     
     RotorDiameter_ = ComponentGroup.RotorDiameter_;
     
@@ -366,95 +433,94 @@ COMPONENT_GROUP &COMPONENT_GROUP::operator=(const COMPONENT_GROUP &ComponentGrou
     
     WQuat_ = ComponentGroup.WQuat_;
     
+    pWQuat_pOmega_ = ComponentGroup.pWQuat_pOmega_;
+
     TotalRotationAngle_ = ComponentGroup.TotalRotationAngle_;
     
     NumberOfTimeSamples_ = ComponentGroup.NumberOfTimeSamples_;
     
-    StartAveragingTime_ = ComponentGroup.StartAveragingTime_;
-
-    Cx_[0]   = ComponentGroup.Cx_[0];
-    Cy_[0]   = ComponentGroup.Cy_[0];
-    Cz_[0]   = ComponentGroup.Cz_[0];
-          
-    Cmx_[0]  = ComponentGroup.Cmx_[0];
-    Cmy_[0]  = ComponentGroup.Cmy_[0];
-    Cmz_[0]  = ComponentGroup.Cmz_[0];
-          
-    CL_[0]   = ComponentGroup.CL_[0];
-    CD_[0]   = ComponentGroup.CD_[0];
-    CS_[0]   = ComponentGroup.CS_[0];
-          
-    Cxo_[0]  = ComponentGroup.Cxo_[0];
-    Cyo_[0]  = ComponentGroup.Cyo_[0];
-    Czo_[0]  = ComponentGroup.Czo_[0];
-          
-    Cmxo_[0] = ComponentGroup.Cmxo_[0];
-    Cmyo_[0] = ComponentGroup.Cmyo_[0];
-    Cmzo_[0] = ComponentGroup.Cmzo_[0];
-          
-    CLo_[0]  = ComponentGroup.CLo_[0];
-    CDo_[0]  = ComponentGroup.CDo_[0];
-    CSo_[0]  = ComponentGroup.CSo_[0];
-
-    CTo_[0]  = ComponentGroup.CTo_[0];
-    CQo_[0]  = ComponentGroup.CQo_[0];
-    CPo_[0]  = ComponentGroup.CPo_[0];
+    SizeForceAndMomentsTables(NumberOfTimeSamples_);
     
-    CT_[0]   = ComponentGroup.CT_[0];
-    CQ_[0]   = ComponentGroup.CQ_[0];
-    CP_[0]   = ComponentGroup.CP_[0];
-    EtaP_[0] = ComponentGroup.EtaP_[0];
-
-    CTo_h_[0] = ComponentGroup.CTo_h_[0];
-    CQo_h_[0] = ComponentGroup.CQo_h_[0];
-    CPo_h_[0] = ComponentGroup.CPo_h_[0];
-        
-    CT_h_[0] = ComponentGroup.CT_h_[0];
-    CQ_h_[0] = ComponentGroup.CQ_h_[0];
-    CP_h_[0] = ComponentGroup.CP_h_[0];
-    FOM_[0]  = ComponentGroup.FOM_[0];
-        
-    Cx_[1]   = ComponentGroup.Cx_[1];
-    Cy_[1]   = ComponentGroup.Cy_[1];
-    Cz_[1]   = ComponentGroup.Cz_[1];
-          
-    Cmx_[1]  = ComponentGroup.Cmx_[1];
-    Cmy_[1]  = ComponentGroup.Cmy_[1];
-    Cmz_[1]  = ComponentGroup.Cmz_[1];
-          
-    CL_[1]   = ComponentGroup.CL_[1];
-    CD_[1]   = ComponentGroup.CD_[1];
-    CS_[1]   = ComponentGroup.CS_[1];
-          
-    Cxo_[1]  = ComponentGroup.Cxo_[1];
-    Cyo_[1]  = ComponentGroup.Cyo_[1];
-    Czo_[1]  = ComponentGroup.Czo_[1];
-          
-    Cmxo_[1] = ComponentGroup.Cmxo_[1];
-    Cmyo_[1] = ComponentGroup.Cmyo_[1];
-    Cmzo_[1] = ComponentGroup.Cmzo_[1];
-          
-    CLo_[1]  = ComponentGroup.CLo_[1];
-    CDo_[1]  = ComponentGroup.CDo_[1];
-    CSo_[1]  = ComponentGroup.CSo_[1];
-
-    CTo_[1]   = ComponentGroup.CTo_[1];
-    CQo_[1]   = ComponentGroup.CQo_[1];
-    CPo_[1]   = ComponentGroup.CPo_[1];
+    for ( i = 0 ; i <= NumberOfTimeSamples_ ; i++ ) {
     
-    CT_[1]   = ComponentGroup.CT_[1];
-    CQ_[1]   = ComponentGroup.CQ_[1];
-    CP_[1]   = ComponentGroup.CP_[1];
-    EtaP_[1] = ComponentGroup.EtaP_[1];
+       // Invisicid forces and moments
+       
+       CLi_[i]   = ComponentGroup.CLi_[i];
+       CDi_[i]   = ComponentGroup.CDi_[i];
+       CSi_[i]   = ComponentGroup.CSi_[i];
+                  
+       CFix_[i]  = ComponentGroup.CFix_[i];
+       CFiy_[i]  = ComponentGroup.CFiy_[i];
+       CFiz_[i]  = ComponentGroup.CFiz_[i];
+              
+       CMix_[i]  = ComponentGroup.CMix_[i];
+       CMiy_[i]  = ComponentGroup.CMiy_[i];
+       CMiz_[i]  = ComponentGroup.CMiz_[i];
+                 
+       CTi_[i]   = ComponentGroup.CTi_[i];
+       CQi_[i]   = ComponentGroup.CQi_[i];
+       CPi_[i]   = ComponentGroup.CPi_[i];
+                
+       CTi_h_[i] = ComponentGroup.CTi_h_[i];
+       CQi_h_[i] = ComponentGroup.CQi_h_[i];
+       CPi_h_[i] = ComponentGroup.CPi_h_[i];
+                
+       // Viscous forces and moments
+       
+       CLo_[i]   = ComponentGroup.CLo_[i];
+       CSo_[i]   = ComponentGroup.CSo_[i];
+       CDo_[i]   = ComponentGroup.CDo_[i];
+                 
+       CFox_[i]  = ComponentGroup.CFox_[i];
+       CFoy_[i]  = ComponentGroup.CFoy_[i];
+       CFoz_[i]  = ComponentGroup.CFoz_[i];
+                
+       CMox_[i]  = ComponentGroup.CMox_[i];
+       CMoy_[i]  = ComponentGroup.CMoy_[i];
+       CMoz_[i]  = ComponentGroup.CMoz_[i];
+                
+       CTo_[i]   = ComponentGroup.CTo_[i];
+       CQo_[i]   = ComponentGroup.CQo_[i];
+       CPo_[i]   = ComponentGroup.CPo_[i];
+                  
+       CTo_h_[i] = ComponentGroup.CTo_h_[i];
+       CQo_h_[i] = ComponentGroup.CQo_h_[i];
+       CPo_h_[i] = ComponentGroup.CPo_h_[i];
+       
+       // Inviscid wake forces
+       
+       CLiw_[i] = ComponentGroup.CLiw_[i];
+       CDiw_[i] = ComponentGroup.CDiw_[i];
+       CSiw_[i] = ComponentGroup.CSiw_[i];
+   
+       CFiwx_[i] = ComponentGroup.CFiwx_[i];
+       CFiwy_[i] = ComponentGroup.CFiwy_[i];
+       CFiwz_[i] = ComponentGroup.CFiwz_[i];   
+          
+       // Efficiencies
+       
+       FOM_[i]   = ComponentGroup.FOM_[i];
+       EtaP_[i]  = ComponentGroup.EtaP_[i];
+       
+       // Gradients
 
-    CTo_h_[1] = ComponentGroup.CTo_h_[1];
-    CQo_h_[1] = ComponentGroup.CQo_h_[1];
-    CPo_h_[1] = ComponentGroup.CPo_h_[1];
-        
-    CT_h_[1] = ComponentGroup.CT_h_[1];
-    CQ_h_[1] = ComponentGroup.CQ_h_[1];
-    CP_h_[1] = ComponentGroup.CP_h_[1];
-    FOM_[1]  = ComponentGroup.FOM_[1];      
+       DCFxi_DOmega_[i] = ComponentGroup.DCFxi_DOmega_[i];
+       DCFyi_DOmega_[i] = ComponentGroup.DCFyi_DOmega_[i];
+       DCFzi_DOmega_[i] = ComponentGroup.DCFzi_DOmega_[i];
+                                                     
+       DCMxi_DOmega_[i] = ComponentGroup.DCMxi_DOmega_[i];
+       DCMyi_DOmega_[i] = ComponentGroup.DCMyi_DOmega_[i];
+       DCMzi_DOmega_[i] = ComponentGroup.DCMzi_DOmega_[i];
+                                                     
+       DCFxo_DOmega_[i] = ComponentGroup.DCFxo_DOmega_[i];
+       DCFyo_DOmega_[i] = ComponentGroup.DCFyo_DOmega_[i];
+       DCFzo_DOmega_[i] = ComponentGroup.DCFzo_DOmega_[i];
+                                                     
+       DCMxo_DOmega_[i] = ComponentGroup.DCMxo_DOmega_[i];
+       DCMyo_DOmega_[i] = ComponentGroup.DCMyo_DOmega_[i];
+       DCMzo_DOmega_[i] = ComponentGroup.DCMzo_DOmega_[i];
+             
+    } 
         
                 MassMatrix_ = ComponentGroup.MassMatrix_;
              InertiaMatrix_ = ComponentGroup.InertiaMatrix_;
@@ -489,24 +555,7 @@ void COMPONENT_GROUP::SizeList(int NumberOfComponents)
     zero_int_array(ComponentList_, NumberOfComponents_);
 
 }
-  
-/*##############################################################################
-#                                                                              #
-#                     COMPONENT_GROUP SizeSpanLoadingList                      #
-#                                                                              #
-##############################################################################*/
 
-void COMPONENT_GROUP::SizeSpanLoadingList(int NumberOfLiftingSurfaces)
-{
-
-    if ( SpanLoadData_ != NULL ) delete [] SpanLoadData_;
-    
-    NumberOfLiftingSurfaces_ = NumberOfLiftingSurfaces;
-    
-    SpanLoadData_ = new SPAN_LOAD_ROTOR_DATA[NumberOfLiftingSurfaces_ + 1];
-
-}           
-         
 /*##############################################################################
 #                                                                              #
 #                           COMPONENT_GROUP Update                             #
@@ -516,41 +565,55 @@ void COMPONENT_GROUP::SizeSpanLoadingList(int NumberOfLiftingSurfaces)
 void COMPONENT_GROUP::Update(void)
 {
 
-    // This routine is called for the quasi-unsteady analysis.. we 
-    // basically just need to get back rates
-   
-    QUAT Omega;
-    
-    // Angular rate
-   
-    Omega(0) = Omega_ * RVec_[0];
-    Omega(1) = Omega_ * RVec_[1];
-    Omega(2) = Omega_ * RVec_[2];
-    Omega(3) = 0.;
+    if ( GeometryIsDynamic_ == STEADY_RATES || GeometryIsFixed_ || GeometryIsARotor_ > 0 ) {
 
-    // Quaternion for this rotation, and it's inverse
-    
-    Angle_ = 0.;
+       double Angle;
+       
+       // This routine is called to get back the rotation rates
+       
+       QUAT Omega;
+       
+       // Angular rate
 
-    Quat_.FormRotationQuat(RVec_,Angle_);
-   
-    InvQuat_ = Quat_;
-   
-    InvQuat_.FormInverse();   
-
-    // Quaternion rates
-
-    WQuat_ = Omega * Quat_ * InvQuat_;
-        
-    // Translation vector
-
-    TVec_[0] = 0.;
-    TVec_[1] = 0.;
-    TVec_[2] = 0.;
-    
-    // Update the total quat
-    
-    TotalQuat_ = Quat_ * TotalQuat_;
+       Omega(0) = Omega_ * RVec_[0];
+       Omega(1) = Omega_ * RVec_[1];
+       Omega(2) = Omega_ * RVec_[2];
+       Omega(3) = 0.;
+       
+       // Quaternion for this rotation, and it's inverse
+       
+       Angle = 0.;
+       
+       Quat_.FormRotationQuat(RVec_,Angle);
+       
+       InvQuat_ = Quat_;
+       
+       InvQuat_.FormInverse();   
+       
+       // Quaternion rates
+       
+       WQuat_ = Omega * Quat_ * InvQuat_;
+           
+       // Partial of WQuat wrt omega
+       
+       Omega(0) = RVec_[0];
+       Omega(1) = RVec_[1];
+       Omega(2) = RVec_[2];
+       Omega(3) = 0.;
+       
+       pWQuat_pOmega_ = Omega * Quat_ * InvQuat_;
+               
+       // Translation vector
+       
+       TVec_[0] = 0.;
+       TVec_[1] = 0.;
+       TVec_[2] = 0.;
+       
+       // Update the total quat
+       
+       TotalQuat_ = Quat_ * TotalQuat_;
+       
+    }
 
 }
             
@@ -560,18 +623,18 @@ void COMPONENT_GROUP::Update(void)
 #                                                                              #
 ##############################################################################*/
 
-void COMPONENT_GROUP::Update(VSPAERO_DOUBLE TimeStep, VSPAERO_DOUBLE CurrentTime)
+void COMPONENT_GROUP::Update(double DeltaTime, double CurrentTime)
 {
 
     // Time step and Current time
             
-    TimeStep_ = TimeStep;
+    DeltaTime_ = DeltaTime;
     
     CurrentTime_ = CurrentTime;
     
     // Steady rates or rotor analysis
        
-    if ( GeometryIsDynamic_ == STEADY_RATES || GeometryIsFixed_ || GeometryIsARotor_ ) {
+    if ( GeometryIsDynamic_ == STEADY_RATES || GeometryIsFixed_ || GeometryIsARotor_ > 0 ) {
        
        UpdateSteadyRates();
        
@@ -593,7 +656,11 @@ void COMPONENT_GROUP::Update(VSPAERO_DOUBLE TimeStep, VSPAERO_DOUBLE CurrentTime
     
     else {
        
-       PRINTF ("Unknown dynamic or rotor state \n");fflush(NULL);
+       printf ("Unknown dynamic or rotor state \n");fflush(NULL);
+       printf("GeometryIsFixed_:   %d \n",GeometryIsFixed_);
+       printf("GeometryIsDynamic_: %d \n",GeometryIsDynamic_);
+       printf("GeometryIsARotor_:  %d \n",GeometryIsARotor_);
+       
        exit(1);
        
     }
@@ -638,7 +705,7 @@ void COMPONENT_GROUP::UpdateSteadyRates(void)
 
     // Quaternion for this rotation, and it's inverse
     
-    Angle_ = Omega_ * TimeStep_;
+    Angle_ = Omega_ * DeltaTime_;
 
     Quat_.FormRotationQuat(RVec_,Angle_);
    
@@ -654,17 +721,25 @@ void COMPONENT_GROUP::UpdateSteadyRates(void)
 
     WQuat_ = Omega * Quat_ * InvQuat_;
         
+    // Partial of WQuat wrt omega
+    
+    Omega(0) = RVec_[0];
+    Omega(1) = RVec_[1];
+    Omega(2) = RVec_[2];
+    Omega(3) = 0.;
+
+    pWQuat_pOmega_ = Omega * Quat_ * InvQuat_;
+            
     // Translation vector
 
-    TVec_[0] = UserInputVelocity_[0] * TimeStep_;
-    TVec_[1] = UserInputVelocity_[1] * TimeStep_;
-    TVec_[2] = UserInputVelocity_[2] * TimeStep_;
+    TVec_[0] = UserInputVelocity_[0] * DeltaTime_;
+    TVec_[1] = UserInputVelocity_[1] * DeltaTime_;
+    TVec_[2] = UserInputVelocity_[2] * DeltaTime_;
     
     // Update the total quat
 
     if ( CurrentTime_ > 0. ) TotalQuat_ = Quat_ * TotalQuat_;
 
-//if ( CurrentTime_ > 0. )TotalQuat_.FormRotationQuat(RVec_,TotalRotationAngle_);
 }
 
 /*##############################################################################
@@ -673,7 +748,7 @@ void COMPONENT_GROUP::UpdateSteadyRates(void)
 #                                                                              #
 ##############################################################################*/
 
-void COMPONENT_GROUP::UpdateQuaternions(VSPAERO_DOUBLE TimeStep)
+void COMPONENT_GROUP::UpdateQuaternions(double DeltaTime)
 {
 
     QUAT Omega;
@@ -687,7 +762,7 @@ void COMPONENT_GROUP::UpdateQuaternions(VSPAERO_DOUBLE TimeStep)
 
     // Quaternion for this rotation, and it's inverse
 
-    Angle_ = Omega_ * TimeStep;
+    Angle_ = Omega_ * DeltaTime;
 
     Quat_.FormRotationQuat(RVec_,Angle_);
    
@@ -698,6 +773,15 @@ void COMPONENT_GROUP::UpdateQuaternions(VSPAERO_DOUBLE TimeStep)
     // Quaternion rates
 
     WQuat_ = Omega * Quat_ * InvQuat_;
+    
+    // Partial of WQuat wrt omega
+    
+    Omega(0) = RVec_[0];
+    Omega(1) = RVec_[1];
+    Omega(2) = RVec_[2];
+    Omega(3) = 0.;
+
+    pWQuat_pOmega_ = Omega * Quat_ * InvQuat_;
       
 }
 
@@ -710,7 +794,7 @@ void COMPONENT_GROUP::UpdateQuaternions(VSPAERO_DOUBLE TimeStep)
 void COMPONENT_GROUP::UpdatePeriodicRates(void)
 {
 
-    VSPAERO_DOUBLE AngularRate, DeltaAngle;
+    double AngularRate, DeltaAngle;
     QUAT Omega;
     
     // Calculate angle
@@ -719,7 +803,7 @@ void COMPONENT_GROUP::UpdatePeriodicRates(void)
 
     // Calculate change in angle
  
-    DeltaAngle = AngleMax_*TORAD*sin(Omega_ * CurrentTime_ ) - AngleMax_*TORAD*sin(Omega_ * (CurrentTime_ - TimeStep_));
+    DeltaAngle = AngleMax_*TORAD*sin(Omega_ * CurrentTime_ ) - AngleMax_*TORAD*sin(Omega_ * (CurrentTime_ - DeltaTime_));
 
     // Calculate instantaneous angular rate
     
@@ -742,11 +826,20 @@ void COMPONENT_GROUP::UpdatePeriodicRates(void)
 
     WQuat_ = Omega * Quat_ * InvQuat_; 
 
+    // Partial of WQuat wrt omega
+
+    Omega(0) = RVec_[0];
+    Omega(1) = RVec_[1];
+    Omega(2) = RVec_[2];
+    Omega(3) = 0.;
+
+    pWQuat_pOmega_ = Omega * Quat_ * InvQuat_;
+    
     // Translation vector
 
-    TVec_[0] = UserInputVelocity_[0] * TimeStep_;
-    TVec_[1] = UserInputVelocity_[1] * TimeStep_;
-    TVec_[2] = UserInputVelocity_[2] * TimeStep_;
+    TVec_[0] = UserInputVelocity_[0] * DeltaTime_;
+    TVec_[1] = UserInputVelocity_[1] * DeltaTime_;
+    TVec_[2] = UserInputVelocity_[2] * DeltaTime_;
 
     // Update the total quat
     
@@ -763,11 +856,11 @@ void COMPONENT_GROUP::UpdatePeriodicRates(void)
 void COMPONENT_GROUP::UpdateDynamicSystem(void)
 {
 
-    VSPAERO_DOUBLE Dot;
+    double Dot;
     QUAT Omega, DQuat, InvDQuat_, Half, dTime, Mass, Inertia;
-    MATRIX Force(3,1), Moment(3,1), OmegaVec(3,1);
+    MATRIX Force(3), Moment(3), OmegaVec(3);
 
-    dTime.Init(TimeStep_);
+    dTime.Init(DeltaTime_);
     
     Half.Init(0.5);
 
@@ -779,9 +872,9 @@ void COMPONENT_GROUP::UpdateDynamicSystem(void)
 
     // Aerodynamic Forces
     
-    Force(1) += Cx_[0] * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
-    Force(2) += Cy_[0] * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
-    Force(3) += Cz_[0] * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
+    Force(1) += (CFox_[1] + CFix_[1]) * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
+    Force(2) += (CFoy_[1] + CFiy_[1]) * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
+    Force(3) += (CFoz_[1] + CFiz_[1]) * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
 
     if ( CurrentTime_ < StartDynamicAnalysisTime_ ) {
        
@@ -793,9 +886,9 @@ void COMPONENT_GROUP::UpdateDynamicSystem(void)
        
     // Linear momentum
     
-    LinearMomentum_(1) += TimeStep_ * Force(1);
-    LinearMomentum_(2) += TimeStep_ * Force(2);
-    LinearMomentum_(3) += TimeStep_ * Force(3);
+    LinearMomentum_(1) += DeltaTime_ * Force(1);
+    LinearMomentum_(2) += DeltaTime_ * Force(2);
+    LinearMomentum_(3) += DeltaTime_ * Force(3);
 
     // Velocity
     
@@ -805,15 +898,15 @@ void COMPONENT_GROUP::UpdateDynamicSystem(void)
 
     // Translations
     
-    TVec_[0] = Velocity_(1) * TimeStep_;
-    TVec_[1] = Velocity_(2) * TimeStep_;
-    TVec_[2] = Velocity_(3) * TimeStep_;
+    TVec_[0] = Velocity_(1) * DeltaTime_;
+    TVec_[1] = Velocity_(2) * DeltaTime_;
+    TVec_[2] = Velocity_(3) * DeltaTime_;
 
     // Moments
 
-    Moment(1) = Cmx_[0] * 0.5 * Density_ * Bref_ * Sref_ * Vref_ * Vref_;
-    Moment(2) = Cmy_[0] * 0.5 * Density_ * Cref_ * Sref_ * Vref_ * Vref_;
-    Moment(3) = Cmz_[0] * 0.5 * Density_ * Bref_ * Sref_ * Vref_ * Vref_;
+    Moment(1) = ( CMix_[1] + CMox_[1] ) * 0.5 * Density_ * Bref_ * Sref_ * Vref_ * Vref_;
+    Moment(2) = ( CMiy_[1] + CMoy_[1] ) * 0.5 * Density_ * Cref_ * Sref_ * Vref_ * Vref_;
+    Moment(3) = ( CMiz_[1] + CMoz_[1] ) * 0.5 * Density_ * Bref_ * Sref_ * Vref_ * Vref_;
 
     if ( CurrentTime_ < StartDynamicAnalysisTime_ ) {
        
@@ -825,9 +918,9 @@ void COMPONENT_GROUP::UpdateDynamicSystem(void)
     
     // Angular momentum
     
-    AngularMomentum_(1) += TimeStep_ * Moment(1);
-    AngularMomentum_(2) += TimeStep_ * Moment(2);
-    AngularMomentum_(3) += TimeStep_ * Moment(3);
+    AngularMomentum_(1) += DeltaTime_ * Moment(1);
+    AngularMomentum_(2) += DeltaTime_ * Moment(2);
+    AngularMomentum_(3) += DeltaTime_ * Moment(3);
     
     OmegaVec = InertiaMatrixInverse_ * AngularMomentum_;
 
@@ -874,6 +967,15 @@ void COMPONENT_GROUP::UpdateDynamicSystem(void)
     
     WQuat_ = Omega * DQuat * InvDQuat_; 
     
+    // Partial of WQuat wrt omega
+    
+    Omega(0) = RVec_[0];
+    Omega(1) = RVec_[1];
+    Omega(2) = RVec_[2];
+    Omega(3) = 0.;
+
+    pWQuat_pOmega_ = Omega * Quat_ * InvQuat_;
+        
     // Update inertia matrix
     
     QuatToMatrix(TotalQuat_, RotationMatrix_, RotationMatrixInverse_);
@@ -895,7 +997,7 @@ void COMPONENT_GROUP::UpdateDynamicSystem(void)
 void COMPONENT_GROUP::QuatToMatrix(QUAT &Quat, MATRIX &Matrix, MATRIX &Inverse)
 {
    
-   VSPAERO_DOUBLE Qx, Qy, Qz, s;
+   double Qx, Qy, Qz, s;
    
    Qx = Quat(0);
    Qy = Quat(1);
@@ -923,49 +1025,49 @@ void COMPONENT_GROUP::WriteData(FILE *File)
 
     int i;
 
-    FPRINTF  (File,"GroupName = %s \n",GroupName_);
+    fprintf  (File,"GroupName = %s \n",GroupName_);
     
-    FPRINTF  (File,"NumberOfComponents = %d \n",NumberOfComponents_);
+    fprintf  (File,"NumberOfComponents = %d \n",NumberOfComponents_);
  
     for ( i = 1 ; i <= NumberOfComponents_ ; i++ ) {
        
-       FPRINTF  (File,"%d \n",ComponentList_[i]);
+       fprintf  (File,"%d \n",ComponentList_[i]);
        
     }
     
-    FPRINTF  (File,"GeometryIsFixed = %d \n",GeometryIsFixed_);
+    fprintf  (File,"GeometryIsFixed = %d \n",GeometryIsFixed_);
     
-    FPRINTF  (File,"GeometryIsDynamic = %d \n",GeometryIsDynamic_);
+    fprintf  (File,"GeometryIsDynamic = %d \n",GeometryIsDynamic_);
     
-    FPRINTF  (File,"GeometryIsARotor = %d \n",GeometryIsARotor_);
+    fprintf  (File,"GeometryIsARotor = %d \n",GeometryIsARotor_);
     
-    FPRINTF  (File,"RotorDiameter = %f \n",RotorDiameter_);
+    fprintf  (File,"RotorDiameter = %f \n",RotorDiameter_);
     
-    FPRINTF  (File,"OVec = %lf %lf %lf \n",OVec_[0], OVec_[1], OVec_[2]);
+    fprintf  (File,"OVec = %lf %lf %lf \n",OVec_[0], OVec_[1], OVec_[2]);
     
-    FPRINTF  (File,"RVec = %lf %lf %lf \n",RVec_[0], RVec_[1], RVec_[2]);
+    fprintf  (File,"RVec = %lf %lf %lf \n",RVec_[0], RVec_[1], RVec_[2]);
     
-    FPRINTF  (File,"Velocity = %lf %lf %lf \n",UserInputVelocity_[0], UserInputVelocity_[1], UserInputVelocity_[2]);
+    fprintf  (File,"Velocity = %lf %lf %lf \n",UserInputVelocity_[0], UserInputVelocity_[1], UserInputVelocity_[2]);
 
-    FPRINTF  (File,"Acceleration = %lf %lf %lf \n",UserInputAcceleration_[0], UserInputAcceleration_[1], UserInputAcceleration_[2]);
+    fprintf  (File,"Acceleration = %lf %lf %lf \n",UserInputAcceleration_[0], UserInputAcceleration_[1], UserInputAcceleration_[2]);
 
-    FPRINTF  (File,"Omega = %lf \n",Omega_);
+    fprintf  (File,"Omega = %lf \n",Omega_);
     
-    FPRINTF  (File,"Mass = %lf \n",Mass_);
+    fprintf  (File,"Mass = %lf \n",Mass_);
     
-    FPRINTF  (File,"Ixx = %lf \n",Ixx_);
+    fprintf  (File,"Ixx = %lf \n",Ixx_);
                   
-    FPRINTF  (File,"Iyy = %lf \n",Iyy_);
+    fprintf  (File,"Iyy = %lf \n",Iyy_);
                   
-    FPRINTF  (File,"Izz = %lf \n",Izz_);
+    fprintf  (File,"Izz = %lf \n",Izz_);
                   
-    FPRINTF  (File,"Ixy = %lf \n",Ixy_);
+    fprintf  (File,"Ixy = %lf \n",Ixy_);
                   
-    FPRINTF  (File,"Ixz = %lf \n",Ixz_);
+    fprintf  (File,"Ixz = %lf \n",Ixz_);
                   
-    FPRINTF  (File,"Iyz = %lf \n",Iyz_);
+    fprintf  (File,"Iyz = %lf \n",Iyz_);
 
-    FPRINTF  (File,"StartAnalysisTime = %lf \n",StartDynamicAnalysisTime_);
+    fprintf  (File,"StartAnalysisTime = %lf \n",StartDynamicAnalysisTime_);
 
 
 }
@@ -987,11 +1089,11 @@ void COMPONENT_GROUP::LoadData(FILE *File)
               
     fscanf(File,"GroupName = %1999s \n",GroupName_);
     
-    PRINTF ("GroupName_: %s \n",GroupName_);
+    printf ("GroupName_: %s \n",GroupName_);
 
     fscanf(File,"NumberOfComponents = %d \n",&NumberOfComponents_);
     
-    PRINTF ("NumberOfComponents: %d \n",NumberOfComponents_);
+    printf ("NumberOfComponents: %d \n",NumberOfComponents_);
 
     SizeList(NumberOfComponents_);
     
@@ -1003,37 +1105,37 @@ void COMPONENT_GROUP::LoadData(FILE *File)
     
     fscanf(File,"GeometryIsFixed = %d \n",&GeometryIsFixed_);
     
-    PRINTF ("GeometryIsFixed: %d \n",GeometryIsFixed_);
+    printf ("GeometryIsFixed: %d \n",GeometryIsFixed_);
     
     fscanf(File,"GeometryIsDynamic = %d \n",&GeometryIsDynamic_);
     
-    PRINTF ("GeometryIsDynamic_: %d \n",GeometryIsDynamic_);
+    printf ("GeometryIsDynamic_: %d \n",GeometryIsDynamic_);
     
     fscanf(File,"GeometryIsARotor = %d \n",&GeometryIsARotor_);
     
-    PRINTF ("GeometryIsARotor_: %d \n",GeometryIsARotor_);    
+    printf ("GeometryIsARotor_: %d \n",GeometryIsARotor_);    
     
     fscanf(File,"RotorDiameter = %lf \n",&RotorDiameter_);
 
-    PRINTF ("RotorDiameter_: %f \n",RotorDiameter_);
+    printf ("RotorDiameter_: %f \n",RotorDiameter_);
 
     fscanf(File,"OVec = %lf %lf %lf \n",&(OVec_[0]),&(OVec_[1]),&(OVec_[2]));
 
-    PRINTF ("OVec: %f %f %f\n",(OVec_[0]),(OVec_[1]),(OVec_[2]));
+    printf ("OVec: %f %f %f\n",(OVec_[0]),(OVec_[1]),(OVec_[2]));
     
     fscanf(File,"RVec = %lf %lf %lf \n",&(RVec_[0]),&(RVec_[1]),&(RVec_[2]));
     
-    PRINTF ("RVec_: %f %f %f\n",(RVec_[0]),(RVec_[1]),(RVec_[2]));
+    printf ("RVec_: %f %f %f\n",(RVec_[0]),(RVec_[1]),(RVec_[2]));
     
     fscanf(File,"Velocity = %lf %lf %lf \n",&(UserInputVelocity_[0]),&(UserInputVelocity_[1]),&(UserInputVelocity_[2]));
 
-    PRINTF ("Velocity: %f %f %f\n",(UserInputVelocity_[0]),(UserInputVelocity_[1]),(UserInputVelocity_[2]));
+    printf ("Velocity: %f %f %f\n",(UserInputVelocity_[0]),(UserInputVelocity_[1]),(UserInputVelocity_[2]));
 
     fscanf(File,"Acceleration = %lf %lf %lf \n",&(UserInputAcceleration_[0]), &(UserInputAcceleration_[1]), &(UserInputAcceleration_[2]));
 
     fscanf(File,"Omega = %lf \n",&Omega_);
     
-    PRINTF ("Omega: %f \n",Omega_);
+    printf ("Omega: %f \n",Omega_);
     
     fscanf(File,"Mass = %lf \n",&Mass_);
     
@@ -1059,7 +1161,7 @@ void COMPONENT_GROUP::LoadData(FILE *File)
           
           sscanf(DumChar,"StartAnalysisTime = %lf \n",&StartDynamicAnalysisTime_);
           
-          PRINTF ("StartAnalysisTime: %f \n",StartDynamicAnalysisTime_);
+          printf ("StartAnalysisTime: %f \n",StartDynamicAnalysisTime_);
           
        }
        
@@ -1108,179 +1210,315 @@ void COMPONENT_GROUP::LoadData(FILE *File)
     TotalQuat_(1) = 0.;
     TotalQuat_(2) = 0.;
     TotalQuat_(3) = 1.;
+    
+    // Calculate blade rpm
+    
+    RPM_ = 60. * Omega_ / (2. * PI);
    
 }
 
 /*##############################################################################
 #                                                                              #
-#                COMPONENT_GROUP ZeroAverageForcesAndMoments                   #
+#                 COMPONENT_GROUP ZeroForcesAndMoments                         #
 #                                                                              #
 ##############################################################################*/
 
-void COMPONENT_GROUP::ZeroAverageForcesAndMoments(void)
+void COMPONENT_GROUP::ZeroForcesAndMoments(void)
 {
 
     int i;
     
-    NumberOfTimeSamples_ = 0;
+    for ( i = 0 ; i <= NumberOfTimeSamples_ + 2 ; i++ ) {
     
-    Cx_[0]   = Cx_[1]   = 0.;
-    Cy_[0]   = Cy_[1]   = 0.;
-    Cz_[0]   = Cz_[1]   = 0.;
-                        
-    Cmx_[0]  = Cmx_[1]  = 0.;
-    Cmy_[0]  = Cmy_[1]  = 0.;
-    Cmz_[0]  = Cmz_[1]  = 0.;
-                        
-    CL_[0]   = CL_[1]   = 0.;
-    CD_[0]   = CD_[1]   = 0.;
-    CS_[0]   = CS_[1]   = 0.;
-                        
-    Cxo_[0]  = Cxo_[1]  = 0.;
-    Cyo_[0]  = Cyo_[1]  = 0.;
-    Czo_[0]  = Czo_[1]  = 0.;
-                        
-    Cmxo_[0] = Cmxo_[1] = 0.;
-    Cmyo_[0] = Cmyo_[1] = 0.;
-    Cmzo_[0] = Cmzo_[1] = 0.;
-                        
-    CLo_[0]  = CLo_[1]  = 0.;
-    CDo_[0]  = CDo_[1]  = 0.;
-    CSo_[0]  = CSo_[1]  = 0.; 
-
-    CTo_[0]  = CTo_[1]  = 0.;
-    CQo_[0]  = CQo_[1]  = 0.;
-    CPo_[0]  = CPo_[1]  = 0.;
-    
-    CT_[0]   = CT_[1]   = 0.;
-    CQ_[0]   = CQ_[1]   = 0.;
-    CP_[0]   = CP_[1]   = 0.;
-    EtaP_[0] = EtaP_[1] = 0.;
-
-    CTo_h_[0] = CTo_h_[1] = 0.;
-    CQo_h_[0] = CQo_h_[1] = 0.;
-    CPo_h_[0] = CPo_h_[1] = 0.;
-        
-    CT_h_[0] = CT_h_[1] = 0.;
-    CQ_h_[0] = CQ_h_[1] = 0.;
-    CP_h_[0] = CP_h_[1] = 0.;
-    FOM_[0]  = FOM_[1]  = 0.;
-    
-    for ( i = 1 ; i <= NumberOfLiftingSurfaces_ ; i++ ) {
+       // Invisicid forces and moments
        
-       SpanLoadData_[i].ZeroForcesAndMoments();
+       CLi_[i]   = 0.;
+       CDi_[i]   = 0.;
+       CSi_[i]   = 0.;
+                 
+       CFix_[i]  = 0.;
+       CFiy_[i]  = 0.;
+       CFiz_[i]  = 0.;
+                 
+       CMix_[i]  = 0.;
+       CMiy_[i]  = 0.;
+       CMiz_[i]  = 0.;
+                 
+       CTi_[i]   = 0.;
+       CQi_[i]   = 0.;
+       CPi_[i]   = 0.;
        
+       CTi_h_[i] = 0.;
+       CQi_h_[i] = 0.;
+       CPi_h_[i] = 0.;
+                
+       // Viscous forces and moments
+       
+       CLo_[i]   = 0.;
+       CSo_[i]   = 0.;
+       CDo_[i]   = 0.;
+                 
+       CFox_[i]  = 0.;
+       CFoy_[i]  = 0.;
+       CFoz_[i]  = 0.;
+                 
+       CMox_[i]  = 0.;
+       CMoy_[i]  = 0.;
+       CMoz_[i]  = 0.;
+                 
+       CTo_[i]   = 0.;
+       CQo_[i]   = 0.;
+       CPo_[i]   = 0.;
+       
+       CTo_h_[i] = 0.;
+       CQo_h_[i] = 0.;
+       CPo_h_[i] = 0.;
+       
+       // Inviscid wake forces
+       
+       CLiw_[i] = 0.;
+       CDiw_[i] = 0.;
+       CSiw_[i] = 0.;
+              
+       CFiwx_[i] = 0.;
+       CFiwy_[i] = 0.;
+       CFiwz_[i] = 0.;  
+              
+       // Efficiencies
+       
+       FOM_[i]   = 0.;
+       EtaP_[i]  = 0.;
+         
     }
-    
+ 
 }
 
 /*##############################################################################
 #                                                                              #
-#            COMPONENT_GROUP UpdateAverageForcesAndMoments                     #
-#                                                                              #
-##############################################################################*/
-
-void COMPONENT_GROUP::UpdateAverageForcesAndMoments(void)
-{
-
-    NumberOfTimeSamples_++;
-    
-    Cx_[1]   += Cx_[0];
-    Cy_[1]   += Cy_[0];
-    Cz_[1]   += Cz_[0];
-          
-    Cmx_[1]  += Cmx_[0];
-    Cmy_[1]  += Cmy_[0];
-    Cmz_[1]  += Cmz_[0];
-          
-    CL_[1]   += CL_[0];
-    CD_[1]   += CD_[0];
-    CS_[1]   += CS_[0];
-           
-    Cxo_[1]  += Cxo_[0];
-    Cyo_[1]  += Cyo_[0];
-    Czo_[1]  += Czo_[0];
-          
-    Cmxo_[1] += Cmxo_[0];
-    Cmyo_[1] += Cmyo_[0];
-    Cmzo_[1] += Cmzo_[0];
-           
-    CLo_[1]  += CLo_[0];
-    CDo_[1]  += CDo_[0];
-    CSo_[1]  += CSo_[0]; 
-
-    CTo_[1]  += CTo_[0];
-    CQo_[1]  += CQo_[0];
-    CPo_[1]  += CPo_[0];
-        
-    CT_[1]   += CT_[0];
-    CQ_[1]   += CQ_[0];
-    CP_[1]   += CP_[0];
-    EtaP_[1] += EtaP_[0];
-
-    CTo_h_[1] += CTo_h_[0];
-    CQo_h_[1] += CQo_h_[0];
-    CPo_h_[1] += CPo_h_[0];
-        
-    CT_h_[1] += CT_h_[0];
-    CQ_h_[1] += CQ_h_[0];
-    CP_h_[1] += CP_h_[0];
-    FOM_[1]  += FOM_[0];
-        
-}
-
-/*##############################################################################
-#                                                                              #
-#          COMPONENT_GROUP CalculateAverageForcesAndMoments                    #
+#            COMPONENT_GROUP CalculateAverageForcesAndMoments                  #
 #                                                                              #
 ##############################################################################*/
 
 void COMPONENT_GROUP::CalculateAverageForcesAndMoments(void)
 {
 
-    Cx_[1]   /= NumberOfTimeSamples_;
-    Cy_[1]   /= NumberOfTimeSamples_;
-    Cz_[1]   /= NumberOfTimeSamples_;
-          
-    Cmx_[1]  /= NumberOfTimeSamples_;
-    Cmy_[1]  /= NumberOfTimeSamples_;
-    Cmz_[1]  /= NumberOfTimeSamples_;
-          
-    CL_[1]   /= NumberOfTimeSamples_;
-    CD_[1]   /= NumberOfTimeSamples_;
-    CS_[1]   /= NumberOfTimeSamples_;
-           
-    Cxo_[1]  /= NumberOfTimeSamples_;
-    Cyo_[1]  /= NumberOfTimeSamples_;
-    Czo_[1]  /= NumberOfTimeSamples_;
-          
-    Cmxo_[1] /= NumberOfTimeSamples_;
-    Cmyo_[1] /= NumberOfTimeSamples_;
-    Cmzo_[1] /= NumberOfTimeSamples_;
-           
-    CLo_[1]  /= NumberOfTimeSamples_;
-    CDo_[1]  /= NumberOfTimeSamples_;
-    CSo_[1]  /= NumberOfTimeSamples_; 
+    CalculateAverageForcesAndMoments_(1);
 
-    CTo_[1]  /= NumberOfTimeSamples_;
-    CQo_[1]  /= NumberOfTimeSamples_;
-    CPo_[1]  /= NumberOfTimeSamples_;
+}
+
+/*##############################################################################
+#                                                                              #
+#            COMPONENT_GROUP CalculateAverageForcesAndMoments                  #
+#                                                                              #
+##############################################################################*/
+
+void COMPONENT_GROUP::CalculateAverageForcesAndMoments(int StartSample)
+{
+
+printf("StartSample: %d \n",StartSample);
+
+    CalculateAverageForcesAndMoments_(StartSample);
+
+}
+
+/*##############################################################################
+#                                                                              #
+#            COMPONENT_GROUP CalculateAverageForcesAndMoments                  #
+#                                                                              #
+##############################################################################*/
+
+void COMPONENT_GROUP::CalculateAverageForcesAndMoments_(int StartSample)
+{
+
+    int i, NumberOfCases;
     
-    CT_[1]   /= NumberOfTimeSamples_;
-    CQ_[1]   /= NumberOfTimeSamples_;
-    CP_[1]   /= NumberOfTimeSamples_;
-    EtaP_[1] /= NumberOfTimeSamples_;
+    NumberOfCases = NumberOfTimeSamples_ - StartSample + 1;
+    
+    for ( i = StartSample + 1 ; i <= NumberOfTimeSamples_ + 1 ; i++ ) {
+    
+       // Invisicid forces and moments
+       
+         CLi_[0] +=   CLi_[i] / NumberOfCases;
+         CDi_[0] +=   CDi_[i] / NumberOfCases;
+         CSi_[0] +=   CSi_[i] / NumberOfCases;
+                          
+                             
+        CFix_[0] +=  CFix_[i] / NumberOfCases;
+        CFiy_[0] +=  CFiy_[i] / NumberOfCases;
+        CFiz_[0] +=  CFiz_[i] / NumberOfCases;
+                            
+        CMix_[0] +=  CMix_[i] / NumberOfCases;
+        CMiy_[0] +=  CMiy_[i] / NumberOfCases;
+        CMiz_[0] +=  CMiz_[i] / NumberOfCases;
+                             
+         CTi_[0] +=   CTi_[i] / NumberOfCases;
+         CQi_[0] +=   CQi_[i] / NumberOfCases;
+         CPi_[0] +=   CPi_[i] / NumberOfCases;
+                             
+       CTi_h_[0] += CTi_h_[i] / NumberOfCases;
+       CQi_h_[0] += CQi_h_[i] / NumberOfCases;
+       CPi_h_[0] += CPi_h_[i] / NumberOfCases;
+                
+       // Viscous forces and moments
+       
+         CLo_[0] +=   CLo_[i] / NumberOfCases;
+         CSo_[0] +=   CSo_[i] / NumberOfCases;
+         CDo_[0] +=   CDo_[i] / NumberOfCases;
+                               
+        CFox_[0] +=  CFox_[i] / NumberOfCases;
+        CFoy_[0] +=  CFoy_[i] / NumberOfCases;
+        CFoz_[0] +=  CFoz_[i] / NumberOfCases;
+                            
+        CMox_[0] +=  CMox_[i] / NumberOfCases;
+        CMoy_[0] +=  CMoy_[i] / NumberOfCases;
+        CMoz_[0] +=  CMoz_[i] / NumberOfCases;
+                             
+         CTo_[0] +=   CTo_[i] / NumberOfCases;
+         CQo_[0] +=   CQo_[i] / NumberOfCases;
+         CPo_[0] +=   CPo_[i] / NumberOfCases;
+                               
+       CTo_h_[0] += CTo_h_[i] / NumberOfCases;
+       CQo_h_[0] += CQo_h_[i] / NumberOfCases;
+       CPo_h_[0] += CPo_h_[i] / NumberOfCases;
 
-    CTo_h_[1] /= NumberOfTimeSamples_;
-    CQo_h_[1] /= NumberOfTimeSamples_;
-    CPo_h_[1] /= NumberOfTimeSamples_;
+       // Inviscid wake forces
+       
+        CLiw_[0] += CLiw_[i] / NumberOfCases; 
+        CDiw_[0] += CDiw_[i] / NumberOfCases;
+        CSiw_[0] += CSiw_[i] / NumberOfCases;
+          
+        CFiwx_[0] += CFiwx_[i] / NumberOfCases;
+        CFiwy_[0] += CFiwy_[i] / NumberOfCases;
+        CFiwz_[0] += CFiwz_[i] / NumberOfCases;
+                                      
+       // Efficiencies         
+                               
+         FOM_[0] +=   FOM_[i] / NumberOfCases;
+        EtaP_[0] +=  EtaP_[i] / NumberOfCases;
+         
+    }
+ 
+}
+
+/*##############################################################################
+#                                                                              #
+#                COMPONENT_GROUP SizeForceAndMomentsTables                     #
+#                                                                              #
+##############################################################################*/
+
+void COMPONENT_GROUP::SizeForceAndMomentsTables(void)
+{
+
+    NumberOfTimeSamples_ = 1;
+
+    SizeForceAndMomentsTables_();
+    
+    ZeroForcesAndMoments();
         
-    CT_h_[1]  /= NumberOfTimeSamples_;
-    CQ_h_[1]  /= NumberOfTimeSamples_;
-    CP_h_[1]  /= NumberOfTimeSamples_;
-    FOM_[1]   /= NumberOfTimeSamples_;
+}
+
+/*##############################################################################
+#                                                                              #
+#            COMPONENT_GROUP SizeForceAndMomentsTables                         #
+#                                                                              #
+##############################################################################*/
+
+void COMPONENT_GROUP::SizeForceAndMomentsTables(int NumberOfTimeSamples)
+{
+
+    NumberOfTimeSamples_ = NumberOfTimeSamples;
+
+    SizeForceAndMomentsTables_();
     
-    PRINTF("Averaging and NumberOfTimeSamples_: %d \n",NumberOfTimeSamples_);fflush(NULL);
+    ZeroForcesAndMoments();
+        
+}
+
+/*##############################################################################
+#                                                                              #
+#            COMPONENT_GROUP SizeForceAndMomentsTables_                        #
+#                                                                              #
+##############################################################################*/
+
+void COMPONENT_GROUP::SizeForceAndMomentsTables_(void)
+{
+
+    // Invisicid forces and moments
+    
+    CLi_   = new double[NumberOfTimeSamples_ + 3];
+    CDi_   = new double[NumberOfTimeSamples_ + 3];
+    CSi_   = new double[NumberOfTimeSamples_ + 3];
+                                             
+    CFix_  = new double[NumberOfTimeSamples_ + 3];
+    CFiy_  = new double[NumberOfTimeSamples_ + 3];
+    CFiz_  = new double[NumberOfTimeSamples_ + 3];
+                                             
+    CMix_  = new double[NumberOfTimeSamples_ + 3];
+    CMiy_  = new double[NumberOfTimeSamples_ + 3];
+    CMiz_  = new double[NumberOfTimeSamples_ + 3];
+                                             
+    CTi_   = new double[NumberOfTimeSamples_ + 3];
+    CQi_   = new double[NumberOfTimeSamples_ + 3];
+    CPi_   = new double[NumberOfTimeSamples_ + 3];
+                                             
+    CTi_h_ = new double[NumberOfTimeSamples_ + 3];
+    CQi_h_ = new double[NumberOfTimeSamples_ + 3];
+    CPi_h_ = new double[NumberOfTimeSamples_ + 3];
+                                              
+    // Viscous forces and moments             
+                                              
+    CLo_   = new double[NumberOfTimeSamples_ + 3];
+    CSo_   = new double[NumberOfTimeSamples_ + 3];
+    CDo_   = new double[NumberOfTimeSamples_ + 3];
+                                             
+    CFox_  = new double[NumberOfTimeSamples_ + 3];
+    CFoy_  = new double[NumberOfTimeSamples_ + 3];
+    CFoz_  = new double[NumberOfTimeSamples_ + 3];
+                                              
+    CMox_  = new double[NumberOfTimeSamples_ + 3];
+    CMoy_  = new double[NumberOfTimeSamples_ + 3];
+    CMoz_  = new double[NumberOfTimeSamples_ + 3];
+                                              
+    CTo_   = new double[NumberOfTimeSamples_ + 3];
+    CQo_   = new double[NumberOfTimeSamples_ + 3];
+    CPo_   = new double[NumberOfTimeSamples_ + 3];
+                                              
+    CTo_h_ = new double[NumberOfTimeSamples_ + 3];
+    CQo_h_ = new double[NumberOfTimeSamples_ + 3];
+    CPo_h_ = new double[NumberOfTimeSamples_ + 3];
+
+    // Inviscid wake forces
+    
+    CLiw_  = new double[NumberOfTimeSamples_ + 3];
+    CDiw_  = new double[NumberOfTimeSamples_ + 3];
+    CSiw_  = new double[NumberOfTimeSamples_ + 3];
+           
+    CFiwx_ = new double[NumberOfTimeSamples_ + 3];
+    CFiwy_ = new double[NumberOfTimeSamples_ + 3];
+    CFiwz_ = new double[NumberOfTimeSamples_ + 3];
+    
+    // Gradients wrt omega
+        
+    DCFxi_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+    DCFyi_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+    DCFzi_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+                                                     
+    DCMxi_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+    DCMyi_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+    DCMzi_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+                                                     
+    DCFxo_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+    DCFyo_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+    DCFzo_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+                                                     
+    DCMxo_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+    DCMyo_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+    DCMzo_DOmega_ = new double[NumberOfTimeSamples_ + 3];
+    
+    // Efficiencies
+    
+    FOM_  = new double[NumberOfTimeSamples_ + 3];
+    EtaP_ = new double[NumberOfTimeSamples_ + 3];
        
 }
 
@@ -1290,10 +1528,10 @@ void COMPONENT_GROUP::CalculateAverageForcesAndMoments(void)
 #                                                                              #
 ##############################################################################*/
 
-VSPAERO_DOUBLE COMPONENT_GROUP::CalculateThrust(int DragComponent, int TimeType)
+double COMPONENT_GROUP::CalculateThrust(int DragComponent, int TimeType)
 {
 
-    VSPAERO_DOUBLE Thrust, RPM, n;
+    double Thrust, RPM, n;
 
     RPM = 60. * Omega_ / (2. * PI);
 
@@ -1304,7 +1542,7 @@ VSPAERO_DOUBLE COMPONENT_GROUP::CalculateThrust(int DragComponent, int TimeType)
     Thrust = 0.;
 
     if ( DragComponent == VISCOUS_FORCES  ) Thrust = CTo_[TimeType] * Density_ * n * n * pow(RotorDiameter_, 4.);
-    if ( DragComponent == INVISCID_FORCES ) Thrust =  CT_[TimeType] * Density_ * n * n * pow(RotorDiameter_, 4.);
+    if ( DragComponent == INVISCID_FORCES ) Thrust = CTi_[TimeType] * Density_ * n * n * pow(RotorDiameter_, 4.);
     
     return Thrust;
 
@@ -1316,10 +1554,10 @@ VSPAERO_DOUBLE COMPONENT_GROUP::CalculateThrust(int DragComponent, int TimeType)
 #                                                                              #
 ##############################################################################*/
 
-VSPAERO_DOUBLE COMPONENT_GROUP::CalculateMoment(int DragComponent, int TimeType)
+double COMPONENT_GROUP::CalculateMoment(int DragComponent, int TimeType)
 {
    
-    VSPAERO_DOUBLE Moment, RPM, n;
+    double Moment, RPM, n;
 
     RPM = 60. * Omega_ / (2. * PI);
 
@@ -1330,7 +1568,7 @@ VSPAERO_DOUBLE COMPONENT_GROUP::CalculateMoment(int DragComponent, int TimeType)
     Moment = 0.;
     
     if ( DragComponent == VISCOUS_FORCES  ) Moment = CQo_[TimeType] * Density_ * n * n * pow(RotorDiameter_, 5.);
-    if ( DragComponent == INVISCID_FORCES ) Moment =  CQ_[TimeType] * Density_ * n * n * pow(RotorDiameter_, 5.);
+    if ( DragComponent == INVISCID_FORCES ) Moment = CQi_[TimeType] * Density_ * n * n * pow(RotorDiameter_, 5.);
     
     return Moment;
 
@@ -1342,10 +1580,10 @@ VSPAERO_DOUBLE COMPONENT_GROUP::CalculateMoment(int DragComponent, int TimeType)
 #                                                                              #
 ##############################################################################*/
 
-VSPAERO_DOUBLE COMPONENT_GROUP::CalculatePower(int DragComponent, int TimeType)
+double COMPONENT_GROUP::CalculatePower(int DragComponent, int TimeType)
 {
          
-    VSPAERO_DOUBLE Moment, Power, RPM, n;
+    double Moment, Power, RPM, n;
 
     RPM = 60. * Omega_ / (2. * PI);
 
@@ -1356,7 +1594,7 @@ VSPAERO_DOUBLE COMPONENT_GROUP::CalculatePower(int DragComponent, int TimeType)
     Power = Moment = 0.;
         
     if ( DragComponent == VISCOUS_FORCES  ) Moment = CQo_[TimeType] * Density_ * n * n * pow(RotorDiameter_, 5.);
-    if ( DragComponent == INVISCID_FORCES ) Moment =  CQ_[TimeType] * Density_ * n * n * pow(RotorDiameter_, 5.);
+    if ( DragComponent == INVISCID_FORCES ) Moment = CQi_[TimeType] * Density_ * n * n * pow(RotorDiameter_, 5.);
     
     Power = Moment * Omega_;
     

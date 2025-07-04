@@ -15,8 +15,6 @@
 #include "utils.H"
 #include "quat.H"
 #include "matrix.H"
-#include "WOPWOP.H"
-#include "SpanLoadRotorData.H"
 
 #include "START_NAME_SPACE.H"
 
@@ -44,102 +42,132 @@ private:
     int GeometryIsARotor_;
     int GeometryHasWings_;
     int GeometryHasBodies_;
-    
-    WOPWOP WopWop_;
-    
-    VSPAERO_DOUBLE OVec_[3];
-    VSPAERO_DOUBLE RVec_[3];
-    VSPAERO_DOUBLE TVec_[3];
-    
-    VSPAERO_DOUBLE UserInputVelocity_[3];
-    VSPAERO_DOUBLE UserInputAcceleration_[3];
 
-    VSPAERO_DOUBLE Mass_;
-    VSPAERO_DOUBLE Ixx_;
-    VSPAERO_DOUBLE Iyy_;
-    VSPAERO_DOUBLE Izz_;
-    VSPAERO_DOUBLE Ixy_;
-    VSPAERO_DOUBLE Ixz_;
-    VSPAERO_DOUBLE Iyz_;
-    VSPAERO_DOUBLE Omega_;
-    VSPAERO_DOUBLE Angle_;
-    VSPAERO_DOUBLE TimeStep_;
-    VSPAERO_DOUBLE CurrentTime_;
-    VSPAERO_DOUBLE RotorDiameter_;
-    VSPAERO_DOUBLE AngleMax_;
-    VSPAERO_DOUBLE TotalRotationAngle_;
-    VSPAERO_DOUBLE StartDynamicAnalysisTime_;
+    double OVec_[3];
+    double RVec_[3];
+    double TVec_[3];
+    
+    double UserInputVelocity_[3];
+    double UserInputAcceleration_[3];
+
+    double Mass_;
+    double Ixx_;
+    double Iyy_;
+    double Izz_;
+    double Ixy_;
+    double Ixz_;
+    double Iyz_;
+    double Omega_;
+    double RPM_;
+    double Angle_;
+    double DeltaTime_;
+    double CurrentTime_;
+    double RotorDiameter_;
+    double AngleMax_;
+    double TotalRotationAngle_;
+    double StartDynamicAnalysisTime_;
     
     // Integrated forces
     
     int NumberOfTimeSamples_;
     
-    int NumberOfIntegrationTimeSteps_;
-
-    VSPAERO_DOUBLE StartAveragingTime_;
-
-    VSPAERO_DOUBLE Cxo_[2];
-    VSPAERO_DOUBLE Cyo_[2];
-    VSPAERO_DOUBLE Czo_[2];
+    // Invisicid forces and moments
     
-    VSPAERO_DOUBLE Cx_[2];
-    VSPAERO_DOUBLE Cy_[2];
-    VSPAERO_DOUBLE Cz_[2];
+    double *CLi_;
+    double *CDi_;
+    double *CSi_;
+          
+    double *CFix_;
+    double *CFiy_;
+    double *CFiz_;
+          
+    double *CMix_;
+    double *CMiy_;
+    double *CMiz_;
+          
+    double *CTi_;
+    double *CQi_;
+    double *CPi_;
+          
+    double *CTi_h_;
+    double *CQi_h_;
+    double *CPi_h_;
+             
+    // Viscous forces and moments
+   
+    double *CLo_;
+    double *CSo_;
+    double *CDo_;
+           
+    double *CFox_;
+    double *CFoy_;
+    double *CFoz_;
+          
+    double *CMox_;
+    double *CMoy_;
+    double *CMoz_;
+          
+    double *CTo_;
+    double *CQo_;
+    double *CPo_;
+          
+    double *CTo_h_;
+    double *CQo_h_;
+    double *CPo_h_;
+    
+    // Inviscid wake forces
+    
+    double *CLiw_;
+    double *CDiw_;
+    double *CSiw_;
+           
+    double *CFiwx_;
+    double *CFiwy_;
+    double *CFiwz_;    
 
-    VSPAERO_DOUBLE Cmxo_[2];
-    VSPAERO_DOUBLE Cmyo_[2];
-    VSPAERO_DOUBLE Cmzo_[2];
-
-    VSPAERO_DOUBLE Cmx_[2];
-    VSPAERO_DOUBLE Cmy_[2];
-    VSPAERO_DOUBLE Cmz_[2];
-
-    VSPAERO_DOUBLE CL_[2];
-    VSPAERO_DOUBLE CD_[2];
-    VSPAERO_DOUBLE CS_[2];
-
-    VSPAERO_DOUBLE CLo_[2];
-    VSPAERO_DOUBLE CDo_[2];
-    VSPAERO_DOUBLE CSo_[2];
-
-    VSPAERO_DOUBLE CTo_[2];
-    VSPAERO_DOUBLE CQo_[2];
-    VSPAERO_DOUBLE CPo_[2];
-
-    VSPAERO_DOUBLE CT_[2];
-    VSPAERO_DOUBLE CQ_[2];
-    VSPAERO_DOUBLE CP_[2];
-    VSPAERO_DOUBLE EtaP_[2];
-
-    VSPAERO_DOUBLE CTo_h_[2];
-    VSPAERO_DOUBLE CQo_h_[2];
-    VSPAERO_DOUBLE CPo_h_[2];
-        
-    VSPAERO_DOUBLE CT_h_[2];
-    VSPAERO_DOUBLE CQ_h_[2];
-    VSPAERO_DOUBLE CP_h_[2];
-    VSPAERO_DOUBLE FOM_[2];
+    // Efficiencies
+    
+    double *FOM_;
+    double *EtaP_;
 
     // Free stream conditions
     
-    VSPAERO_DOUBLE Density_;
-    VSPAERO_DOUBLE Vref_;
-    VSPAERO_DOUBLE Sref_;
-    VSPAERO_DOUBLE Bref_;  
-    VSPAERO_DOUBLE Cref_;  
+    double Density_;
+    double Vref_;
+    double Sref_;
+    double Bref_;  
+    double Cref_;  
     
+    // Invsicid force gradients wrt inputs
+    
+    double *DCFxi_DOmega_;
+    double *DCFyi_DOmega_;
+    double *DCFzi_DOmega_;
+          
+    double *DCMxi_DOmega_;
+    double *DCMyi_DOmega_;
+    double *DCMzi_DOmega_;
+
+    // Viscous force gradients wrt inputs
+    
+    double *DCFxo_DOmega_;
+    double *DCFyo_DOmega_;
+    double *DCFzo_DOmega_;
+          
+    double *DCMxo_DOmega_;
+    double *DCMyo_DOmega_;
+    double *DCMzo_DOmega_;
+
     // Dimensional forces
     
-    VSPAERO_DOUBLE CalculateThrust(int DragComponent, int TimeType);
-    VSPAERO_DOUBLE CalculateMoment(int DragComponent, int TimeType);
-    VSPAERO_DOUBLE CalculatePower(int DragComponent, int TimeType);
+    double CalculateThrust(int DragComponent, int TimeType);
+    double CalculateMoment(int DragComponent, int TimeType);
+    double CalculatePower(int DragComponent, int TimeType);
     
     // Spanwise forces and moments, for wings and rotors
     
     int NumberOfLiftingSurfaces_;
-    
-    SPAN_LOAD_ROTOR_DATA *SpanLoadData_;
-    
+
     MATRIX MassMatrix_;
     MATRIX InertiaMatrix_;
     MATRIX InertiaMatrixInverse_;
@@ -153,10 +181,11 @@ private:
     MATRIX Velocity_;
     MATRIX Acceleration_;
         
-    QUAT TotalQuat_; // Total quat ... full rotation over all time
-    QUAT Quat_;      // Current quat, just rotation over current time step
-    QUAT InvQuat_;   // Inverse of current quat
-    QUAT WQuat_;     // Rate derivative of current quat, for velocities
+    QUAT TotalQuat_;     // Total quat ... full rotation over all time
+    QUAT Quat_;          // Current quat, just rotation over current time step
+    QUAT InvQuat_;       // Inverse of current quat
+    QUAT WQuat_;         // Rate derivative of current quat, for velocities
+    QUAT pWQuat_pOmega_; // Partial of WQuat wrt Omega
     
     void UpdateSteadyRates(void);
     void UpdatePeriodicRates(void);
@@ -164,6 +193,14 @@ private:
     
     void QuatToMatrix(QUAT &Quat, MATRIX &Matrix, MATRIX &Inverse);
     
+    // Size time lists
+    
+    void SizeForceAndMomentsTables_(void);
+    
+    // Do the time averaged calculation of the forces and moments
+    
+    void CalculateAverageForcesAndMoments_(int StartSample);
+        
 public:
 
     COMPONENT_GROUP(void);
@@ -192,7 +229,9 @@ public:
     
     int &GeometryIsDynamic(void) { return GeometryIsDynamic_; };
   
-    /** Group is a rotor with some periodic motion about an axis **/
+    /** Group is a rotor with some periodic motion about an axis 
+        1 --> Rotor is to use the quasi 1D rotor model for wake down wash in unsteady flows
+        2 --> Rotor is to use full unsteady wake analysis in unsteady flows **/
     
     int &GeometryIsARotor(void) { return GeometryIsARotor_; };
     
@@ -204,368 +243,364 @@ public:
     
     int &GeometryHasBodies(void) { return GeometryHasBodies_; };
 
-    /** WopWop flag **/
-    
-    WOPWOP &WopWop(void) { return WopWop_; };
-    
     /** Diameter of rotor, could be zero if no rotor exists **/
     
-    VSPAERO_DOUBLE &RotorDiameter(void) { return RotorDiameter_; };
+    double &RotorDiameter(void) { return RotorDiameter_; };
     
     /** Maximum angle for dynamic, periodic, motions **/
     
-    VSPAERO_DOUBLE &AngleMax(void) { return AngleMax_; };
-    
-    /** Integrated viscous force coefficients in x **/
-    
-    VSPAERO_DOUBLE &Cxo(void) { return Cxo_[0]; };
-    
-    /** Integrated viscous force coefficients in y **/
-    
-    VSPAERO_DOUBLE &Cyo(void) { return Cyo_[0]; };
+    double &AngleMax(void) { return AngleMax_; };
 
-    /** Integrated viscous force coefficients in z **/
-
-    VSPAERO_DOUBLE &Czo(void) { return Czo_[0]; };
+    // Time averaged invisicid forces and moments
     
-    /** Integrated inviscid force coefficients in x **/
-            
-    VSPAERO_DOUBLE &Cx(void) { return Cx_[0]; };
-    
-    /** Integrated inviscid force coefficients in y **/
-    
-    VSPAERO_DOUBLE &Cy(void) { return Cy_[0]; };
-
-    /** Integrated inviscid force coefficients in z **/
-
-    VSPAERO_DOUBLE &Cz(void) { return Cz_[0]; };
-
-    /** Integrated viscous moment coefficients in x **/
-     
-    VSPAERO_DOUBLE &Cmxo(void) { return Cmxo_[0]; };
-    
-    /** Integrated viscous moment coefficients in y **/
-    
-    VSPAERO_DOUBLE &Cmyo(void) { return Cmyo_[0]; };
-
-    /** Integrated viscous moment coefficients in z **/
-
-    VSPAERO_DOUBLE &Cmzo(void) { return Cmzo_[0]; };
-
-    /** Integrated inviscid moment coefficients in x **/
+    double &CLi_avg(void)   { return   CLi_[0]; };
+    double &CDi_avg(void)   { return   CDi_[0]; };
+    double &CSi_avg(void)   { return   CSi_[0]; };
+                                
+    double &CFix_avg(void)  { return  CFix_[0]; };
+    double &CFiy_avg(void)  { return  CFiy_[0]; };
+    double &CFiz_avg(void)  { return  CFiz_[0]; };
+                               
+    double &CMix_avg(void)  { return  CMix_[0]; };
+    double &CMiy_avg(void)  { return  CMiy_[0]; };
+    double &CMiz_avg(void)  { return  CMiz_[0]; };
+                    
+    double &CTi_avg(void)   { return   CTi_[0]; };
+    double &CQi_avg(void)   { return   CQi_[0]; }; 
+    double &CPi_avg(void)   { return   CPi_[0]; };
          
-    VSPAERO_DOUBLE &Cmx(void) { return Cmx_[0]; };
-    
-    /** Integrated inviscid moment coefficients in y **/
-    
-    VSPAERO_DOUBLE &Cmy(void) { return Cmy_[0]; };
-
-    /** Integrated inviscid moment coefficients in z **/
-
-    VSPAERO_DOUBLE &Cmz(void) { return Cmz_[0]; };
-
-    /** Viscous lift coefficient **/
-     
-    VSPAERO_DOUBLE &CLo(void) { return CLo_[0]; };
-    
-    /** Viscous drag coefficient **/
-    
-    VSPAERO_DOUBLE &CDo(void) { return CDo_[0]; };
-
-    /** Viscous side force coefficient **/
-
-    VSPAERO_DOUBLE &CSo(void) { return CSo_[0]; };        
-
-    /** Inviscid lift coefficient **/
-     
-    VSPAERO_DOUBLE &CL(void) { return CL_[0]; };
-    
-    /** Inviscid drag coefficient **/
-    
-    VSPAERO_DOUBLE &CD(void) { return CD_[0]; };
-
-    /** Inviscid side force coefficient **/
-
-    VSPAERO_DOUBLE &CS(void) { return CS_[0]; };
-
-    /** Propeller viscous thrust coefficient **/
-     
-    VSPAERO_DOUBLE &CTo(void) { return CTo_[0]; };
-    
-    /** Propeller viscous torque coefficient **/
-    
-    VSPAERO_DOUBLE &CQo(void) { return CQo_[0]; };
-    
-    /** Propeller viscous power coefficient **/
-    
-    VSPAERO_DOUBLE &CPo(void) { return CPo_[0]; };
-
-    /** Propeller inviscid thrust coefficient **/
-     
-    VSPAERO_DOUBLE &CT(void) { return CT_[0]; };
-
-    /** Propeller inviscid torque coefficient **/
-    
-    VSPAERO_DOUBLE &CQ(void) { return CQ_[0]; };
-
-    /** Propeller inviscid power coefficient **/
-
-    VSPAERO_DOUBLE &CP(void) { return CP_[0]; };
-    
-
-    /** Propeller efficiency **/
-         
-    VSPAERO_DOUBLE &EtaP(void) { return EtaP_[0]; };
-
-    /** Helicopter rotor viscous thrust coefficient **/
-     
-    VSPAERO_DOUBLE &CTo_h(void) { return CTo_h_[0]; };
-    
-    /** Helicopter rotor viscous torque coefficient **/
-    
-    VSPAERO_DOUBLE &CQo_h(void) { return CQo_h_[0]; };
-
-    /** Helicopter rotor viscous power coefficient **/
-
-    VSPAERO_DOUBLE &CPo_h(void) { return CPo_h_[0]; };
-
-
-    /** Helicopter rotor inviscid thrust coefficient **/
-     
-    VSPAERO_DOUBLE &CT_h(void) { return CT_h_[0]; };
-    
-    /** Helicopter rotor inviscid torque coefficient **/
-    
-    VSPAERO_DOUBLE &CQ_h(void) { return CQ_h_[0]; };
-
-    /** Helicopter rotor inviscid power coefficient **/
-
-    VSPAERO_DOUBLE &CP_h(void) { return CP_h_[0]; };
-
-    /** Helicopter rotor figure of merit **/
-
-    VSPAERO_DOUBLE &FOM(void) { return FOM_[0]; };  
-   
-    /** Time averaged viscous force coefficient in x **/
-    
-    VSPAERO_DOUBLE &CxoAvg(void) { return Cxo_[1]; };
-    
-    /** Time averaged viscous force coefficient in y **/
-    
-    VSPAERO_DOUBLE &CyoAvg(void) { return Cyo_[1]; };
-
-    /** Time averaged viscous force coefficient in z **/
-
-    VSPAERO_DOUBLE &CzoAvg(void) { return Czo_[1]; };
-
-    /** Time averaged inviscid force coefficient in x **/
-         
-    VSPAERO_DOUBLE &CxAvg(void) { return Cx_[1]; };
-    
-    /** Time averaged inviscid force coefficient in y **/
-    
-    VSPAERO_DOUBLE &CyAvg(void) { return Cy_[1]; };
-
-    /** Time averaged inviscid force coefficient in z **/
-
-    VSPAERO_DOUBLE &CzAvg(void) { return Cz_[1]; };
-
-
-    /** Time averaged viscous moment coefficient in x **/
-     
-    VSPAERO_DOUBLE &CmxoAvg(void) { return Cmxo_[1]; };
-    
-    /** Time averaged viscous moment coefficient in y **/
-    
-    VSPAERO_DOUBLE &CmyoAvg(void) { return Cmyo_[1]; };
-
-    /** Time averaged viscous moment coefficient in z **/
-
-    VSPAERO_DOUBLE &CmzoAvg(void) { return Cmzo_[1]; };
-
-    /** Time averaged inviscid moment coefficient in x **/
-         
-    VSPAERO_DOUBLE &CmxAvg(void) { return Cmx_[1]; };
-    
-    /** Time averaged inviscid moment coefficient in y **/
-    
-    VSPAERO_DOUBLE &CmyAvg(void) { return Cmy_[1]; };
-
-    /** Time averaged inviscid moment coefficient in z **/
-
-    VSPAERO_DOUBLE &CmzAvg(void) { return Cmz_[1]; };
-
-    /** Time averaged viscous lift coefficient **/
-         
-    VSPAERO_DOUBLE &CLoAvg(void) { return CLo_[1]; };
-    
-    /** Time averaged viscous drag coefficient **/
-    
-    VSPAERO_DOUBLE &CDoAvg(void) { return CDo_[1]; };
-
-    /** Time averaged viscous side force coefficient **/
-
-    VSPAERO_DOUBLE &CSoAvg(void) { return CSo_[1]; };      
- 
-    /** Time averaged inviscid lift coefficient **/
-     
-    VSPAERO_DOUBLE &CLAvg(void) { return CL_[1]; };
-    
-    /** Time averaged inviscid drag coefficient **/
-    
-    VSPAERO_DOUBLE &CDAvg(void) { return CD_[1]; };
-
-    /** Time averaged inviscid side force coefficient **/
-
-    VSPAERO_DOUBLE &CSAvg(void) { return CS_[1]; };
-
-    /** Time averaged propeller viscous thrust coefficient **/
-     
-    VSPAERO_DOUBLE &CToAvg(void) { return CTo_[1]; };
-    
-    /** Time averaged propeller viscous torque coefficient **/
-    
-    VSPAERO_DOUBLE &CQoAvg(void) { return CQo_[1]; };
-
-    /** Time averaged propeller viscous power coefficient **/
-
-    VSPAERO_DOUBLE &CPoAvg(void) { return CPo_[1]; };
-
-    /** Time averaged propeller inviscid thrust coefficient **/
-          
-    VSPAERO_DOUBLE &CTAvg(void) { return CT_[1]; };
-    
-    /** Time averaged propeller torque thrust coefficient **/
-    
-    VSPAERO_DOUBLE &CQAvg(void) { return CQ_[1]; };
-
-    /** Time averaged propeller power thrust coefficient **/
-
-    VSPAERO_DOUBLE &CPAvg(void) { return CP_[1]; };
-    
-    /** Time averaged propeller power efficiency **/
-    
-    VSPAERO_DOUBLE &EtaPAvg(void) { return EtaP_[1]; };
-
-    /** Time averaged helicopter rotor viscous thrust coefficient **/
-     
-    VSPAERO_DOUBLE &CTo_hAvg(void) { return CTo_h_[1]; };
-    
-    /** Time averaged helicopter rotor viscous torque coefficient **/
-    
-    VSPAERO_DOUBLE &CQo_hAvg(void) { return CQo_h_[1]; };
-
-    /** Time averaged helicopter rotor viscous power coefficient **/
-
-    VSPAERO_DOUBLE &CPo_hAvg(void) { return CPo_h_[1]; };
-
-    /** Time averaged helicopter rotor inviscid thrust coefficient **/
+    double &CTi_h_avg(void) { return CTi_h_[0]; };
+    double &CQi_h_avg(void) { return CQi_h_[0]; };
+    double &CPi_h_avg(void) { return CPi_h_[0]; };
              
-    VSPAERO_DOUBLE &CT_hAvg(void) { return CT_h_[1]; };
-    
-    /** Time averaged helicopter rotor inviscid torque coefficient **/
-    
-    VSPAERO_DOUBLE &CQ_hAvg(void) { return CQ_h_[1]; };
-
-    /** Time averaged helicopter rotor inviscid power coefficient **/
-
-    VSPAERO_DOUBLE &CP_hAvg(void) { return CP_h_[1]; };
-    
-    /** Time averaged helicopter rotor figure of merit **/
-         
-    VSPAERO_DOUBLE &FOMAvg(void) { return FOM_[1]; };  
-
-    /** Time to begin averaging in an unsteady analysis **/
+    // Time averaged viscous forces and moments
+   
+    double &CLo_avg(void)   { return   CLo_[0]; };
+    double &CDo_avg(void)   { return   CDo_[0]; };
+    double &CSo_avg(void)   { return   CSo_[0]; };
+                                  
+    double &CFox_avg(void)  { return  CFox_[0]; };
+    double &CFoy_avg(void)  { return  CFoy_[0]; };
+    double &CFoz_avg(void)  { return  CFoz_[0]; };
+                                
+    double &CMox_avg(void)  { return  CMox_[0]; };
+    double &CMoy_avg(void)  { return  CMoy_[0]; };
+    double &CMoz_avg(void)  { return  CMoz_[0]; };
                 
-    VSPAERO_DOUBLE &StartAveragingTime(void) { return StartAveragingTime_; };
+    double &CTo_avg(void)   { return   CTo_[0]; };
+    double &CQo_avg(void)   { return   CQo_[0]; }; 
+    double &CPo_avg(void)   { return   CPo_[0]; };
+           
+    double &CTo_h_avg(void) { return CTo_h_[0]; };
+    double &CQo_h_avg(void) { return CQo_h_[0]; };
+    double &CPo_h_avg(void) { return CPo_h_[0]; };
     
-    /** Number of integration time steps for averaging process **/
+    // Time averaged inviscid wake forces
     
-    int &NumberOfIntegrationTimeSteps(void) { return NumberOfIntegrationTimeSteps_; };
+    double &CLiw_avg(void) { return CLiw_[0]; };
+    double &CDiw_avg(void) { return CDiw_[0]; };
+    double &CSiw_avg(void) { return CSiw_[0]; };
+                               
+    double &CFiwx_avg(void) { return CFiwx_[0]; };
+    double &CFiwy_avg(void) { return CFiwy_[0]; };
+    double &CFiwz_avg(void) { return CFiwz_[0]; };
+
+    /** Time averaged Propeller efficiency **/
+         
+    double &EtaP_avg(void) { return EtaP_[0]; };
+
+    /** Time averaged Helicopter rotor figure of merit **/
+
+    double &FOM_avg(void) { return FOM_[0]; };  
     
+    // Steady state or current time step invisicid forces and moments
+    
+    double &CLi(void)   { return   CLi_[1]; };
+    double &CDi(void)   { return   CDi_[1]; };
+    double &CSi(void)   { return   CSi_[1]; };
+                                   
+    double &CFix(void)  { return  CFix_[1]; };
+    double &CFiy(void)  { return  CFiy_[1]; };
+    double &CFiz(void)  { return  CFiz_[1]; };
+                                     
+    double &CMix(void)  { return  CMix_[1]; };
+    double &CMiy(void)  { return  CMiy_[1]; };
+    double &CMiz(void)  { return  CMiz_[1]; };
+                                  
+    double &CTi(void)   { return   CTi_[1]; };
+    double &CQi(void)   { return   CQi_[1]; }; 
+    double &CPi(void)   { return   CPi_[1]; };
+                                   
+    double &CTi_h(void) { return CTi_h_[1]; };
+    double &CQi_h(void) { return CQi_h_[1]; };
+    double &CPi_h(void) { return CPi_h_[1]; };
+             
+    // Steady state or current time step viscous forces and moments
+   
+    double &CLo(void)   { return   CLo_[1]; };
+    double &CDo(void)   { return   CDo_[1]; };
+    double &CSo(void)   { return   CSo_[1]; };
+                                
+    double &CFox(void)  { return  CFox_[1]; };
+    double &CFoy(void)  { return  CFoy_[1]; };
+    double &CFoz(void)  { return  CFoz_[1]; };
+                                    
+    double &CMox(void)  { return  CMox_[1]; };
+    double &CMoy(void)  { return  CMoy_[1]; };
+    double &CMoz(void)  { return  CMoz_[1]; };
+                                  
+    double &CTo(void)   { return   CTo_[1]; };
+    double &CQo(void)   { return   CQo_[1]; }; 
+    double &CPo(void)   { return   CPo_[1]; };
+                                  
+    double &CTo_h(void) { return CTo_h_[1]; };
+    double &CQo_h(void) { return CQo_h_[1]; };
+    double &CPo_h(void) { return CPo_h_[1]; };
+
+    // Steady state or current time step inviscid wake forces
+    
+    double &CLiw(void) { return CLiw_[1]; };
+    double &CDiw(void) { return CDiw_[1]; };
+    double &CSiw(void) { return CSiw_[1]; };
+                                    
+    double &CFiwx(void) { return CFiwx_[1]; };
+    double &CFiwy(void) { return CFiwy_[1]; };
+    double &CFiwz(void) { return CFiwz_[1]; };
+    
+    /** Steady state or current time step Propeller efficiency **/
+         
+    double &EtaP(void) { return EtaP_[1]; };
+
+    /** Steady state or current time step Helicopter rotor figure of merit **/
+
+    double &FOM(void) { return FOM_[1]; };  
+    
+    // Unsteady invisicid forces and moments
+    
+    double &CLi(int i)   { return   CLi_[i+1]; };
+    double &CDi(int i)   { return   CDi_[i+1]; };
+    double &CSi(int i)   { return   CSi_[i+1]; };
+                                          
+    double &CFix(int i)  { return  CFix_[i+1]; };
+    double &CFiy(int i)  { return  CFiy_[i+1]; };
+    double &CFiz(int i)  { return  CFiz_[i+1]; };
+                                       
+    double &CMix(int i)  { return  CMix_[i+1]; };
+    double &CMiy(int i)  { return  CMiy_[i+1]; };
+    double &CMiz(int i)  { return  CMiz_[i+1]; };
+                                          
+    double &CTi(int i)   { return   CTi_[i+1]; };
+    double &CQi(int i)   { return   CQi_[i+1]; }; 
+    double &CPi(int i)   { return   CPi_[i+1]; };
+                                         
+    double &CTi_h(int i) { return CTi_h_[i+1]; };
+    double &CQi_h(int i) { return CQi_h_[i+1]; };
+    double &CPi_h(int i) { return CPi_h_[i+1]; };
+                                         
+    // Unsteady viscous forces and moments+
+                                          
+    double &CLo(int i)   { return   CLo_[i+1]; };
+    double &CDo(int i)   { return   CDo_[i+1]; };
+    double &CSo(int i)   { return   CSo_[i+1]; };
+                                          
+    double &CFox(int i)  { return  CFox_[i+1]; };
+    double &CFoy(int i)  { return  CFoy_[i+1]; };
+    double &CFoz(int i)  { return  CFoz_[i+1]; };
+                                          
+    double &CMox(int i)  { return  CMox_[i+1]; };
+    double &CMoy(int i)  { return  CMoy_[i+1]; };
+    double &CMoz(int i)  { return  CMoz_[i+1]; };
+                                         
+    double &CTo(int i)   { return   CTo_[i+1]; };
+    double &CQo(int i)   { return   CQo_[i+1]; }; 
+    double &CPo(int i)   { return   CPo_[i+1]; };
+                                        
+    double &CTo_h(int i) { return CTo_h_[i+1]; };
+    double &CQo_h(int i) { return CQo_h_[i+1]; };
+    double &CPo_h(int i) { return CPo_h_[i+1]; };
+
+    // Unsteady inviscid wake forces
+    
+    double &CLiw(int i) { return CLiw_[i+1]; };
+    double &CDiw(int i) { return CDiw_[i+1]; };
+    double &CSiw(int i) { return CSiw_[i+1]; };
+                                    
+    double &CFiwx(int i) { return CFiwx_[i+1]; };
+    double &CFiwy(int i) { return CFiwy_[i+1]; };
+    double &CFiwz(int i) { return CFiwz_[i+1]; };
+    
+    /** Unsteady Propeller efficiency **/
+         
+    double &EtaP(int i) { return EtaP_[i+1]; };
+
+    /** Unsteady Helicopter rotor figure of merit **/
+
+    double &FOM(int i) { return FOM_[i+1]; };  
+
+    // Steady Invsicid force gradients wrt inputs
+    
+    double &DCFxi_DOmega(void) { return DCFxi_DOmega_[1]; };
+    double &DCFyi_DOmega(void) { return DCFyi_DOmega_[1]; };
+    double &DCFzi_DOmega(void) { return DCFzi_DOmega_[1]; };
+                                                   
+    double &DCMxi_DOmega(void) { return DCMxi_DOmega_[1]; };
+    double &DCMyi_DOmega(void) { return DCMyi_DOmega_[1]; };
+    double &DCMzi_DOmega(void) { return DCMzi_DOmega_[1]; };
+                                                      
+    // Steady Viscous force gradients wrt inputs           
+                                                      
+    double &DCFxo_DOmega(void) { return DCFxo_DOmega_[1]; };
+    double &DCFyo_DOmega(void) { return DCFyo_DOmega_[1]; };
+    double &DCFzo_DOmega(void) { return DCFzo_DOmega_[1]; };
+                                                     
+    double &DCMxo_DOmega(void) { return DCMxo_DOmega_[1]; };
+    double &DCMyo_DOmega(void) { return DCMyo_DOmega_[1]; };
+    double &DCMzo_DOmega(void) { return DCMzo_DOmega_[1]; };
+
+    // Unsteady Invsicid force gradients wrt inputs
+    
+    double &DCFxi_DOmega(int i) { return DCFxi_DOmega_[i+1]; };
+    double &DCFyi_DOmega(int i) { return DCFyi_DOmega_[i+1]; };
+    double &DCFzi_DOmega(int i) { return DCFzi_DOmega_[i+1]; };
+                                                        
+    double &DCMxi_DOmega(int i) { return DCMxi_DOmega_[i+1]; };
+    double &DCMyi_DOmega(int i) { return DCMyi_DOmega_[i+1]; };
+    double &DCMzi_DOmega(int i) { return DCMzi_DOmega_[i+1]; };
+                                                        
+    // Unsteady Viscous force gradients wrt inputs       
+                                                        
+    double &DCFxo_DOmega(int i) { return DCFxo_DOmega_[i+1]; };
+    double &DCFyo_DOmega(int i) { return DCFyo_DOmega_[i+1]; };
+    double &DCFzo_DOmega(int i) { return DCFzo_DOmega_[i+1]; };
+                                                       
+    double &DCMxo_DOmega(int i) { return DCMxo_DOmega_[i+1]; };
+    double &DCMyo_DOmega(int i) { return DCMyo_DOmega_[i+1]; };
+    double &DCMzo_DOmega(int i) { return DCMzo_DOmega_[i+1]; };
+        
+    /** Calculate time averaged rotor thrust **/ 
+
+    double Thrusto_avg(void) { return CalculateThrust(VISCOUS_FORCES,  0); };        
+    double Thrusti_avg(void) { return CalculateThrust(INVISCID_FORCES, 0); };  
+    
+    /** Steady state or current time step rotor thrust **/ 
+    
+    double Thrusto(void) { return CalculateThrust(VISCOUS_FORCES,  1); };  
+    double Thrusti(void) { return CalculateThrust(INVISCID_FORCES, 1); };  
+    
+    /** Unsteady rotor thrust **/ 
+    
+    double Thrusto(int i) { return CalculateThrust(VISCOUS_FORCES,  i+1); };  
+    double Thrusti(int i) { return CalculateThrust(INVISCID_FORCES, i+1); };  
+    
+    /** Calculate time averaged rotor moment **/ 
+    
+    double Momento_avg(void) { return CalculateMoment(VISCOUS_FORCES,  0); };  
+    double Momenti_avg(void) { return CalculateMoment(INVISCID_FORCES, 0); };  
+        
+    /** Steady state or current time step rotor moment **/ 
+        
+    double Momento(void) { return CalculateMoment(VISCOUS_FORCES,  1); };  
+    double Momenti(void) { return CalculateMoment(INVISCID_FORCES, 1); };  
+
+    /** Unsteady rotor moment **/ 
+
+    double Momento(int i) { return CalculateMoment(VISCOUS_FORCES,  i+1); };  
+    double Momenti(int i) { return CalculateMoment(INVISCID_FORCES, i+1); };  
+
+    /** Calculate time averaged rotor power **/
+
+    double Powero_avg(void) { return CalculatePower(VISCOUS_FORCES,  0); };  
+    double Poweri_avg(void) { return CalculatePower(INVISCID_FORCES, 0); };  
+     
+    /** Steady state or current time step rotor power **/ 
+     
+    double Powero(void) { return CalculatePower(VISCOUS_FORCES,  1); };  
+    double Poweri(void) { return CalculatePower(INVISCID_FORCES, 1); };      
+
+    /** Unsteady rotor power **/ 
+
+    double Powero(int i) { return CalculatePower(VISCOUS_FORCES,  i+1); };  
+    double Poweri(int i) { return CalculatePower(INVISCID_FORCES, i+1); };      
+
     /** Zero out the forces and moments **/
     
-    void ZeroAverageForcesAndMoments(void);
-    
-    /** Update the forces and moments **/
-    
-    void UpdateAverageForcesAndMoments(void);
-    
+    void ZeroForcesAndMoments(void);
+
     /** Do the time averaged calculation of the forces and moments **/
     
     void CalculateAverageForcesAndMoments(void);
+    
+    /** Do the time averaged calculation of the forces and moments ... starting the time = StartSample **/
+    
+    void CalculateAverageForcesAndMoments(int StartSample);
 
     /** Free stream density **/
     
-    VSPAERO_DOUBLE &Density(void) { return Density_; };
+    double &Density(void) { return Density_; };
     
     /** Free stream velocity **/
     
-    VSPAERO_DOUBLE &Vref(void) { return Vref_; };
+    double &Vref(void) { return Vref_; };
     
     /** Reference Area **/
     
-    VSPAERO_DOUBLE &Sref(void) { return Sref_; };
+    double &Sref(void) { return Sref_; };
     
     /** Reference span **/
     
-    VSPAERO_DOUBLE &Bref(void) { return Bref_; };
+    double &Bref(void) { return Bref_; };
     
     /** Refererence chord **/
     
-    VSPAERO_DOUBLE &Cref(void) { return Cref_; };    
-        
-    /** Size the spanwise loading arrays for **/
-    
-    void SizeSpanLoadingList(int NumberOfLiftingSurfaces);
-    
+    double &Cref(void) { return Cref_; };    
+
     /** Access the number of lifting surfaces in this component group **/
     
     int NumberOfLiftingSurfaces(void) { return NumberOfLiftingSurfaces_; };
-    
-    /** Access to the span loading data objects **/
-    
-    SPAN_LOAD_ROTOR_DATA &SpanLoadData(int i) { return SpanLoadData_[i]; };
-    
+
     /** Rotation origin, also used for moment calculations **/
         
-    VSPAERO_DOUBLE &OVec(int i) { return OVec_[i]; };
+    double &OVec(int i) { return OVec_[i]; };
     
     /** Rotation origin, also used for moment calculations **/
 
-    VSPAERO_DOUBLE *OVec(void) { return OVec_; };
+    double *OVec(void) { return OVec_; };
     
     /** Axis of rotation **/
 
-    VSPAERO_DOUBLE &RVec(int i) { return RVec_[i]; };
+    double &RVec(int i) { return RVec_[i]; };
     
     /** Axis of rotation **/
     
-    VSPAERO_DOUBLE *RVec(void) { return RVec_; };
+    double *RVec(void) { return RVec_; };
 
     /** Translation vector to be applied in transformations **/
 
-    VSPAERO_DOUBLE TVec(int i) { return TVec_[i]; };
+    double TVec(int i) { return TVec_[i]; };
 
     /** Velocity of group **/
         
-    VSPAERO_DOUBLE &Velocity(int i ) { return Velocity_(i+1); };
+    double &Velocity(int i ) { return Velocity_(i+1); };
     
-    /** Angular velocity of group... typicall used to model a rotor **/
+    /** Angular velocity of group... typically used to model a rotor **/
      
-    VSPAERO_DOUBLE &Omega(void) { return Omega_; };   
+    double &Omega(void) { return Omega_; };   
+    
+    /** RPM of group... typically used to model a rotor **/
+   
+    double RPM(void) { return RPM_; };   
     
     /** Period, based on user supplied Omega **/
     
-    VSPAERO_DOUBLE Period(void) { return ABS(2.*PI/Omega_); };
+    double Period(void) { return ABS(2.*PI/Omega_); };
     
     /** Total rotation angle that has occurred thus far in an unsteady calculation **/
     
-    VSPAERO_DOUBLE &TotalRotationAngle(void) { return TotalRotationAngle_; };
+    double &TotalRotationAngle(void) { return TotalRotationAngle_; };
     
-    /** Current rotation angle, typically timestep_ * omega_ **/
+    /** Current delta rotation angle, typically timestep_ * omega_ ... note this USUALLY computed by the class, not set... **/
         
-    VSPAERO_DOUBLE Angle(void) { return Angle_; }; 
+    double &Angle(void) { return Angle_; }; 
     
     /** Access to quaternion calculated based on user inputs, to be applied to geometry in this group **/
        
@@ -579,6 +614,10 @@ public:
     
     QUAT &WQuat(void) { return WQuat_; };
     
+    /** Access to partial of quaternion derivative wrt omega, calculated based on user inputs, to be applied to geometry in this group **/
+
+    QUAT &pWQuat_pOmega(void) { return pWQuat_pOmega_; };
+
     /** Total quaternion transformation applied up to this point in the unsteady calculation for this group **/
     
     QUAT &TotalQuat(void) { return TotalQuat_; };
@@ -586,6 +625,14 @@ public:
     /** Size the list for the number of components **/
     
     void SizeList(int NumberOfComponents);
+    
+    /** Set the number of time samples to store, defaults to a single value for steady cases **/
+    
+    void SizeForceAndMomentsTables(void);
+
+    /** Set the number of time samples to store **/
+
+    void SizeForceAndMomentsTables(int NumberOfTimeSamples);
 
     /** Zero out total angles, quats ... **/
     
@@ -597,11 +644,11 @@ public:
     
     /** Update the state of the group at current time, with current time step **/
     
-    void Update(VSPAERO_DOUBLE TimeStep, VSPAERO_DOUBLE CurrentTime);
+    void Update(double TimeStep, double CurrentTime);
     
     /** Update the quaternions **/
     
-    void UpdateQuaternions(VSPAERO_DOUBLE TimeStep);
+    void UpdateQuaternions(double TimeStep);
     
     /** Write out file containing group information **/
     
@@ -611,78 +658,6 @@ public:
     
     void LoadData(FILE *File);
 
-    /** Viscous thrust **/ 
-     
-    VSPAERO_DOUBLE Thrusto(void) { return CalculateThrust(VISCOUS_FORCES, INSTANT_VALUE); };  
-    
-    /** Invsicid thrust **/ 
-    
-    VSPAERO_DOUBLE Thrusti(void) { return CalculateThrust(INVISCID_FORCES, INSTANT_VALUE); };  
-    
-    /** Total thrust **/ 
-    
-    VSPAERO_DOUBLE  Thrust(void) { return ( Thrusti() + Thrusto() ); };
-
-    /** Time averaged viscous thrust **/
-           
-    VSPAERO_DOUBLE Thrusto_avg(void) { return CalculateThrust(VISCOUS_FORCES, AVG_VALUE); };        
-    
-    /** Time averaged inviscid thrust **/
-    
-    VSPAERO_DOUBLE Thrusti_avg(void) { return CalculateThrust(INVISCID_FORCES, AVG_VALUE); };  
-
-    /** Time averaged total thrust **/
-
-    VSPAERO_DOUBLE  Thrust_avg(void) { return ( Thrusti_avg() + Thrusto_avg() ); };
-
-    /** Viscous moment **/
-    
-    VSPAERO_DOUBLE Momento(void) { return CalculateMoment(VISCOUS_FORCES, INSTANT_VALUE); };  
-    
-    /** Invsicid moment **/
-    
-    VSPAERO_DOUBLE Momenti(void) { return CalculateMoment(INVISCID_FORCES, INSTANT_VALUE); };  
-
-    /** Total moment **/
-
-    VSPAERO_DOUBLE  Moment(void) { return ( Momenti() + Momento() ); };
-
-    /**  Time averaged viscous moment **/
-          
-    VSPAERO_DOUBLE Momento_avg(void) { return CalculateMoment(VISCOUS_FORCES, AVG_VALUE); };  
-    
-    /**  Time averaged invsiscid moment **/
-    
-    VSPAERO_DOUBLE Momenti_avg(void) { return CalculateMoment(INVISCID_FORCES, AVG_VALUE); };  
-
-    /**  Time averaged total moment **/
-
-    VSPAERO_DOUBLE  Moment_avg(void) { return ( Momenti_avg() + Momento_avg() ); };
-
-    /**  Viscous power **/
-     
-    VSPAERO_DOUBLE Powero(void) { return CalculatePower(VISCOUS_FORCES, INSTANT_VALUE); };  
-    
-    /**  Inviscid power **/
-    
-    VSPAERO_DOUBLE Poweri(void) { return CalculatePower(INVISCID_FORCES, INSTANT_VALUE); };      
-
-    /**  Total power **/
-
-    VSPAERO_DOUBLE  Power(void) { return ( Poweri() + Powero() ); };
-  
-    /**  Time averaged viscous power **/
-     
-    VSPAERO_DOUBLE Powero_avg(void) { return CalculatePower(VISCOUS_FORCES, AVG_VALUE); };  
-    
-    /**  Time averaged invsicid power **/
-    
-    VSPAERO_DOUBLE Poweri_avg(void) { return CalculatePower(INVISCID_FORCES, AVG_VALUE); };  
-
-    /**  Time averaged total power **/
-
-    VSPAERO_DOUBLE  Power_avg(void) { return ( Poweri_avg() + Powero_avg() ); };
-    
 };
 
 #include "END_NAME_SPACE.H"

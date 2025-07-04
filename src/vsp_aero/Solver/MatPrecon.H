@@ -17,18 +17,50 @@
 
 #include "START_NAME_SPACE.H"
 
+#define VORTEX_EQUATION 1
+#define WAKE_EQUATION   2
+#define STALL_EQUATION  3
+
 class MATPRECON {
 
 private:
 
+    // Equation type
+    
+    int EquationType_;
+    
+    // Vortex panels
+    
     int NumberOfVortexLoops_;
     int *VortexLoopList_;
+    
+    // Wake nodes
+    
+    int NumberOfWakeNodes_;
+    int *WakeNodeList_;
+    
+    int NumberOfWakeEdges_;
+    int *WakeEdgeList_;
+    
+    // Number of equations
+    
+    int NumberOfEquations_;
+
+    // Flag for keeping track of transpose matrix 
+    
     int ThereIsTranspose_;
     
+    // LU of preconditioning of A
+    
     MATRIX *A_;
+    
+    // LU of preconditioning of A^t
+    
     MATRIX *AT_;
+    
+    // RHS and solution vector
 
-    VSPAERO_DOUBLE *x_;
+    double *x_;
 
 public:
 
@@ -38,9 +70,13 @@ public:
 
     MATPRECON& operator=(const MATPRECON &MatPrecon);
     
+    /** Equation type... either a vortex loop, wake node, or stall equation **/
+    
+    int EquationType(void) { return EquationType_; };
+    
     /** Size the list for the given number of vortex loops **/
     
-    void Size(int NumberOfVortexLoops);
+    void SizeVortexLoopList(int NumberOfVortexLoops);
     
     /** Number of vortex loops for this matrix preconditioner **/
     
@@ -49,6 +85,26 @@ public:
     /** Vortex loop list **/
     
     int &VortexLoopList(int i) { return VortexLoopList_[i]; };
+    
+    /** Size the list for the given number of vortex loops **/
+    
+    void SizeWakeNodeList(int NumberOfWakeNodes, int NumberOfWakeEdges);
+        
+    /** Number of wake nodes **/
+    
+    int NumberOfWakeNodes(void) { return NumberOfWakeNodes_; };
+    
+    /** List of global wake nodes **/
+    
+    int &WakeNodeList(int i) { return WakeNodeList_[i]; };
+    
+    /** Number of wake edges **/
+    
+    int NumberOfWakeEdges(void) { return NumberOfWakeEdges_; };
+    
+    /** Wake edge list **/
+        
+    int &WakeEdgeList(int i) { return WakeEdgeList_[i]; };
     
     /** The transpose has been calculated... used for the Adjoint solver **/
     
@@ -64,7 +120,7 @@ public:
     
     /** Right hand side vector... so we are solving v = (A^-1)x **/
 
-    VSPAERO_DOUBLE &x(int i) { return x_[i]; };
+    double &x(int i) { return x_[i]; };
     
     /** Form LU decomposition of A **/
     

@@ -41,11 +41,19 @@ VSP_LOOP::VSP_LOOP(void)
 
     Normal_[0] = Normal_[1] = Normal_[2] = 0.;
 
-    Camber_ = 0.;
-
     UVc_[0] = UVc_[1] = 0.;
 
     Velocity_[0] = Velocity_[1] = Velocity_[2] = 0.;
+    
+    dVelocity_dGamma_[0] = dVelocity_dGamma_[1] = dVelocity_dGamma_[2] = 0.;
+
+    dVelocity_dMesh_[0] = dVelocity_dMesh_[1] = dVelocity_dMesh_[2] = 0.;
+    
+    dVelocity_dMach_[0] = dVelocity_dMach_[1] = dVelocity_dMach_[2] = 0.;
+    
+    dVelocity_dStall_[0] = dVelocity_dStall_[1] = dVelocity_dStall_[2] = 0.;
+    
+    dVelocity_dRatio_[0] = dVelocity_dRatio_[1] = dVelocity_dRatio_[2] = 0.;
     
     Force_[0] = Force_[1] = Force_[2] = 0.;
     
@@ -57,13 +65,27 @@ VSP_LOOP::VSP_LOOP(void)
     
     RefLength_ = 0.;
     
+    Circumference_[0] = Circumference_[1] = 0.;
+    
     Gamma_ = 0.;
+        
+    DeltaGamma_ = 0.;
+    
+    StallFactor_ = 1.;
+
+    DeltaStallFactor_ = 0.;
+    
+    VortexStretchingRatio_ = 1.;
+    
+    DeltaVortexStretchingRatio_ = 0.;      
+         
+    Psi_ = 0.;
     
     dCp_ = 0.;
     
     dCp_Unsteady_ = 0.;
     
-    NormalForce_ = 0.;
+    CoreWidth_ = 0.;
     
     KTFact_ = 1.;
     
@@ -72,7 +94,7 @@ VSP_LOOP::VSP_LOOP(void)
     VortexSheetID_ = 0;
 
     SurfaceID_ = 0;
-    
+
     ComponentID_ = 0;
         
     SpanStation_ = 0;
@@ -82,21 +104,57 @@ VSP_LOOP::VSP_LOOP(void)
     LocalFreeStreamVelocity_[2] = 0.;
     LocalFreeStreamVelocity_[3] = 0.;
     LocalFreeStreamVelocity_[4] = 0.;
-    
-    DownWash_Velocity_[0] = 0.;
-    DownWash_Velocity_[1] = 0.;
-    DownWash_Velocity_[2] = 0.;
-    
-    IsSonic_ = 0;
-    
+
     CoarseGridLoop_        = 0;
+    
     NumberOfFineGridLoops_ = 0;
+    
     FineGridLoopList_      = NULL;
+    
     Level_                 = 0;
    
     VortexLoop_            = 0;
+    
     MGVortexLoop_          = 0;
-     
+    
+    MinValidTimeStep_      = 0;
+    
+    UpwindWakeLoop_        = 0;
+    
+     pForces_pGamma_[0] = 0.;
+     pForces_pGamma_[1] = 0.;
+     pForces_pGamma_[2] = 0.;
+     pForces_pGamma_[3] = 0.;
+     pForces_pGamma_[4] = 0.;
+     pForces_pGamma_[5] = 0.;
+     pForces_pGamma_[6] = 0.;
+     pForces_pGamma_[7] = 0.;
+     pForces_pGamma_[8] = 0.;
+          
+    pMoments_pGamma_[0] = 0.;
+    pMoments_pGamma_[1] = 0.;
+    pMoments_pGamma_[2] = 0.;
+    pMoments_pGamma_[3] = 0.;
+    pMoments_pGamma_[4] = 0.;
+    pMoments_pGamma_[5] = 0.;
+
+     pForces_pRatio_[0] = 0.;
+     pForces_pRatio_[1] = 0.;
+     pForces_pRatio_[2] = 0.;
+     pForces_pRatio_[3] = 0.;
+     pForces_pRatio_[4] = 0.;
+     pForces_pRatio_[5] = 0.;
+     pForces_pRatio_[6] = 0.;
+     pForces_pRatio_[7] = 0.;
+     pForces_pRatio_[8] = 0.;
+                        
+    pMoments_pRatio_[0] = 0.;
+    pMoments_pRatio_[1] = 0.;
+    pMoments_pRatio_[2] = 0.;
+    pMoments_pRatio_[3] = 0.;
+    pMoments_pRatio_[4] = 0.;
+    pMoments_pRatio_[5] = 0.;         
+          
 }
 
 /*##############################################################################
@@ -108,7 +166,7 @@ VSP_LOOP::VSP_LOOP(void)
 VSP_LOOP::VSP_LOOP(const VSP_LOOP &VSPTri)
 {
 
-    PRINTF("Copy not implemented for VSP_NODE! \n");
+    printf("Copy not implemented for VSP_NODE! \n");
 
     exit(1);
 
@@ -141,7 +199,8 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
 
        UVNodeList_[i] = VSPTri.UVNodeList_[i];
        
-    }    
+    }        
+    
     // Copy over edge list
  
     NumberOfEdges_ = VSPTri.NumberOfEdges_;
@@ -160,59 +219,74 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
        
     }
 
-    SurfaceID_              = VSPTri.SurfaceID_;
-    ComponentID_            = VSPTri.ComponentID_;
-    IsTrailingEdgeTri_      = VSPTri.IsTrailingEdgeTri_;
-    VortexLoop_             = VSPTri.VortexLoop_;
-    MGVortexLoop_           = VSPTri.MGVortexLoop_;
-    
-    SpanStation_            = VSPTri.SpanStation_;
+    SurfaceID_                  = VSPTri.SurfaceID_;
+    ComponentID_                = VSPTri.ComponentID_;
+    IsTrailingEdgeTri_          = VSPTri.IsTrailingEdgeTri_;
+    VortexLoop_                 = VSPTri.VortexLoop_;
+    MGVortexLoop_               = VSPTri.MGVortexLoop_;
+    MinValidTimeStep_           = VSPTri.MinValidTimeStep_;
+    UpwindWakeLoop_             = VSPTri.UpwindWakeLoop_;
+                                
+    SpanStation_                = VSPTri.SpanStation_;
+                                
+    Area_                       = VSPTri.Area_;
+    Length_                     = VSPTri.Length_;
+    RefLength_                  = VSPTri.RefLength_;
+    CentroidOffSet_             = VSPTri.CentroidOffSet_;
+                                
+    Normal_[0]                  = VSPTri.Normal_[0];
+    Normal_[1]                  = VSPTri.Normal_[1];
+    Normal_[2]                  = VSPTri.Normal_[2]; 
+                                
+    XYZc_[0]                    = VSPTri.XYZc_[0];
+    XYZc_[1]                    = VSPTri.XYZc_[1];
+    XYZc_[2]                    = VSPTri.XYZc_[2];
+                                
+    UVc_[0]                     = VSPTri.UVc_[0];
+    UVc_[1]                     = VSPTri.UVc_[1];
 
-    Area_                   = VSPTri.Area_;
-    Length_                 = VSPTri.Length_;
-    RefLength_              = VSPTri.RefLength_;
-    CentroidOffSet_         = VSPTri.CentroidOffSet_;
-   
-    Normal_[0]              = VSPTri.Normal_[0];
-    Normal_[1]              = VSPTri.Normal_[1];
-    Normal_[2]              = VSPTri.Normal_[2]; 
+    Gamma_                      = VSPTri.Gamma_;
+    
+    DeltaGamma_                 = VSPTri.DeltaGamma_;
 
-    XYZc_[0]                = VSPTri.XYZc_[0];
-    XYZc_[1]                = VSPTri.XYZc_[1];
-    XYZc_[2]                = VSPTri.XYZc_[2];
+    StallFactor_                = VSPTri.StallFactor_;
+    DeltaStallFactor_           = VSPTri.DeltaStallFactor_;
     
-    Camber_                 = VSPTri.Camber_;
+    VortexStretchingRatio_      = VSPTri.VortexStretchingRatio_;
+    DeltaVortexStretchingRatio_ = VSPTri.DeltaVortexStretchingRatio_;         
     
-    UVc_[0]                 = VSPTri.UVc_[0];
-    UVc_[1]                 = VSPTri.UVc_[1];
+    Psi_                        = VSPTri.Psi_;
+    
+    dCp_                        = VSPTri.dCp_;
+                                
+    Velocity_[0]                = VSPTri.Velocity_[0];
+    Velocity_[1]                = VSPTri.Velocity_[1];
+    Velocity_[2]                = VSPTri.Velocity_[2];
 
-    Gamma_                  = VSPTri.Gamma_;
-    dCp_                    = VSPTri.dCp_;
+    LocalFreeStreamVelocity_[0] = VSPTri.LocalFreeStreamVelocity_[0];
+    LocalFreeStreamVelocity_[1] = VSPTri.LocalFreeStreamVelocity_[1];
+    LocalFreeStreamVelocity_[2] = VSPTri.LocalFreeStreamVelocity_[2];
+    LocalFreeStreamVelocity_[3] = VSPTri.LocalFreeStreamVelocity_[3];
+    LocalFreeStreamVelocity_[4] = VSPTri.LocalFreeStreamVelocity_[4];
     
-    Velocity_[0]            = VSPTri.Velocity_[0];
-    Velocity_[1]            = VSPTri.Velocity_[1];
-    Velocity_[2]            = VSPTri.Velocity_[2];
-
-    Force_[0]               = VSPTri.Force_[0];
-    Force_[1]               = VSPTri.Force_[1];
-    Force_[2]               = VSPTri.Force_[2];
-    
-    NormalForce_            = VSPTri.NormalForce_;
-    
-    KTFact_                 = VSPTri.KTFact_;
-    
-    SurfaceType_            = VSPTri.SurfaceType_;
-
-    VortexSheetID_          = VSPTri.VortexSheetID_;
-    
-    CoarseGridLoop_         = VSPTri.CoarseGridLoop_;
-    
-    NumberOfFineGridLoops_  = VSPTri.NumberOfFineGridLoops_;
+    Force_[0]                   = VSPTri.Force_[0];
+    Force_[1]                   = VSPTri.Force_[1];
+    Force_[2]                   = VSPTri.Force_[2];
+                                  
+    KTFact_                     = VSPTri.KTFact_;
+                                
+    SurfaceType_                = VSPTri.SurfaceType_;
+                                
+    VortexSheetID_              = VSPTri.VortexSheetID_;
+                                
+    CoarseGridLoop_             = VSPTri.CoarseGridLoop_;
+                                
+    NumberOfFineGridLoops_      = VSPTri.NumberOfFineGridLoops_;
+                                
+    Level_                      = VSPTri.Level_;
     
     SizeFineGridLoopList(NumberOfFineGridLoops_);
     
-    Level_ = VSPTri.Level_;
-
     for ( i = 0 ; i < NumberOfFineGridLoops_ ; i++ ) {
      
        FineGridLoopList_[i] = VSPTri.FineGridLoopList_[i];
@@ -220,9 +294,23 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
     }
     
     BoundBox_ = VSPTri.BoundBox_;
-    
-    IsSonic_ = VSPTri.IsSonic_;
-          
+
+     pForces_pGamma_[0] =  VSPTri.pForces_pGamma_[0];
+     pForces_pGamma_[1] =  VSPTri.pForces_pGamma_[1];
+     pForces_pGamma_[2] =  VSPTri.pForces_pGamma_[2];
+                     
+    pMoments_pGamma_[0] = VSPTri.pMoments_pGamma_[0];
+    pMoments_pGamma_[1] = VSPTri.pMoments_pGamma_[1];
+    pMoments_pGamma_[2] = VSPTri.pMoments_pGamma_[2];
+
+     pForces_pRatio_[0] =  VSPTri.pForces_pRatio_[0];
+     pForces_pRatio_[1] =  VSPTri.pForces_pRatio_[1];
+     pForces_pRatio_[2] =  VSPTri.pForces_pRatio_[2];
+             
+    pMoments_pRatio_[0] = VSPTri.pMoments_pRatio_[0];
+    pMoments_pRatio_[1] = VSPTri.pMoments_pRatio_[1];
+    pMoments_pRatio_[2] = VSPTri.pMoments_pRatio_[2];
+        
     return *this;          
 
 }
@@ -254,13 +342,13 @@ VSP_LOOP::~VSP_LOOP(void)
     
     if ( NumberOfNodes_ != 0 ) {
        
-       if ( NodeList_   != NULL ) delete [] NodeList_;
-       if ( UVNodeList_ != NULL ) delete [] UVNodeList_;
+       if ( NodeList_      != NULL ) delete [] NodeList_;
+       if ( UVNodeList_    != NULL ) delete [] UVNodeList_;
        
        NumberOfNodes_ = 0;
 
        NodeList_ = NULL;
-       UVNodeList_ = NULL;
+       UVNodeList_ = NULL;       
        
     }
 
@@ -281,19 +369,19 @@ void VSP_LOOP::SizeNodeList(int NumberOfNodes)
     if ( NumberOfNodes_ != 0 && NodeList_ != NULL ) delete [] NodeList_;
 
     if ( NumberOfNodes_ != 0 && UVNodeList_ != NULL ) delete [] UVNodeList_;
-    
+
     // Allocate space for list
     
     NumberOfNodes_ = NumberOfNodes;
 
     NodeList_ = new int[NumberOfNodes_ + 1];
     
-    UVNodeList_ = new VSPAERO_DOUBLE[2*NumberOfNodes_ + 1];
-    
+    UVNodeList_ = new double[2*NumberOfNodes_ + 1];
+
     for ( i = 0 ; i <= NumberOfNodes_ ; i++ ) {
        
        NodeList_[i] = 0;
- 
+
     }
 
     for ( i = 0 ; i <= 2*NumberOfNodes_ ; i++ ) {
@@ -332,7 +420,7 @@ void VSP_LOOP::SizeEdgeList(int NumberOfEdges)
     EdgeIsUpwind_ = new int[NumberOfEdges_ + 1];
     EdgeDirection_ = new int[NumberOfEdges_ + 1];
     
-    EdgeUpwindWeight_ = new VSPAERO_DOUBLE[NumberOfEdges_ + 1];
+    EdgeUpwindWeight_ = new double[NumberOfEdges_ + 1];
     
     zero_int_array(EdgeList_, NumberOfEdges_);
     zero_int_array(EdgeIsUpwind_, NumberOfEdges_);
@@ -365,7 +453,7 @@ void VSP_LOOP::SizeFineGridLoopList(int NumberOfLoops)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_LOOP::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat)
+void VSP_LOOP::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
 {
 
     QUAT Vec;

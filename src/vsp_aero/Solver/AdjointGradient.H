@@ -28,9 +28,9 @@ private:
     int NumberOfOptimizationFunctions_;
     int NumberOfTimeSteps_;
 
-    VSPAERO_DOUBLE ***dF_dMesh_;
-    VSPAERO_DOUBLE ***pF_pMesh_;         
-    VSPAERO_DOUBLE ***pR_pMesh_;
+    double ***dF_dMesh_;
+    double ***pF_pMesh_;         
+    double ***PsiT_pR_pMesh_;
 
 public:
 
@@ -58,27 +58,27 @@ public:
             
     /** i'th total derivative at t = Time, for optimization case = OptCase  **/
 
-    VSPAERO_DOUBLE &dF_dMesh(int Time, int OptCase, int i) { return dF_dMesh_[Time][OptCase][i]; };
+    double &dF_dMesh(int Time, int OptCase, int i) { return dF_dMesh_[Time][OptCase][i]; };
 
     /** i'th partial derivative of F wrt mesh at t = Time, for optimization case = OptCase  **/
 
-    VSPAERO_DOUBLE &pF_pMesh(int Time, int OptCase, int i) { return pF_pMesh_[Time][OptCase][i]; };
+    double &pF_pMesh(int Time, int OptCase, int i) { return pF_pMesh_[Time][OptCase][i]; };
     
     /** i'th partial derivative of R wrt mesh at t = Time, for optimization case = OptCase  **/
 
-    VSPAERO_DOUBLE &pR_pMesh(int Time, int OptCase, int i) { return pR_pMesh_[Time][OptCase][i]; };    
+    double &PsiT_pR_pMesh(int Time, int OptCase, int i) { return PsiT_pR_pMesh_[Time][OptCase][i]; };    
 
     /** i'th total derivative at t = Time, for optimization case = OptCase  **/
 
-    VSPAERO_DOUBLE &dF_dVariable(int Time, int OptCase, int i) { return dF_dMesh_[Time][OptCase][i]; };
+    double &dF_dVariable(int Time, int OptCase, int i) { return dF_dMesh_[Time][OptCase][i]; };
 
     /** i'th partial derivative of F wrt mesh at t = Time, for optimization case = OptCase  **/
 
-    VSPAERO_DOUBLE &pF_pVariable(int Time, int OptCase, int i) { return pF_pMesh_[Time][OptCase][i]; };
+    double &pF_pVariable(int Time, int OptCase, int i) { return pF_pMesh_[Time][OptCase][i]; };
     
     /** i'th partial derivative of R wrt mesh at t = Time, for optimization case = OptCase  **/
 
-    VSPAERO_DOUBLE &pR_pVariable(int Time, int OptCase, int i) { return pR_pMesh_[Time][OptCase][i]; };    
+    double &pR_pVariable(int Time, int OptCase, int i) { return PsiT_pR_pMesh_[Time][OptCase][i]; };    
         
 };
 

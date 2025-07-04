@@ -16,6 +16,7 @@
 #include "InteractionLoop.H"
 #include "VSP_Geom.H"
 #include "VSPAERO_OMP.H"
+#include "MergeSort.H"
 #include "utils.H"
 
 #include "START_NAME_SPACE.H"
@@ -36,26 +37,50 @@ class FAST_MATRIX {
 
 private:
 
-    // Forward
+    /************************** FORWARD ***********************/
+
+    // Forward loop list
     
-    long long int ForwardTotalHits_;
     long double ForwardSpeedRatio_;
     
     int MaxNumberOfForwardInteractionLoops_[2];    
     int    NumberOfForwardInteractionLoops_[2];
 
-    LOOP_INTERACTION_ENTRY *ForwardInteractionList_[2];
+    LOOP_INTERACTION_ENTRY *ForwardInteractionLoopList_[2];
+    
+    // Forward edge list
+
+    int MaxNumberOfForwardInteractionEdges_[2];    
+    int    NumberOfForwardInteractionEdges_[2];
+
+    LOOP_INTERACTION_ENTRY *ForwardInteractionEdgeList_[2];
+        
+    // Clean the forward edge list
+
+    void CleanForwardEdgeList(int NumberOfThreads, int LoopType, int MaxInteractionEdges);
+           
+    /************************** ADJOINT ***********************/
     
     // Adjoint
 
-    long long int AdjointTotalHits_;
     long double AdjointSpeedRatio_;
     
     int MaxNumberOfAdjointInteractionLoops_[2];
     int    NumberOfAdjointInteractionLoops_[2];
 
-    LOOP_INTERACTION_ENTRY *AdjointInteractionList_[2];
-      
+    LOOP_INTERACTION_ENTRY *AdjointInteractionLoopList_[2];
+
+    // Adjoint edge list
+
+    int MaxNumberOfAdjointInteractionEdges_[2];    
+    int    NumberOfAdjointInteractionEdges_[2];
+
+    LOOP_INTERACTION_ENTRY *AdjointInteractionEdgeList_[2];
+        
+    // Clean the adjoint edge list
+    
+    void CleanAdjointEdgeList(int LoopType);
+          
 public:
 
     FAST_MATRIX(void);
@@ -64,70 +89,105 @@ public:
 
     FAST_MATRIX& operator=(const FAST_MATRIX &FastMatrix);
 
+    /************************** FORWARD ***********************/
+
     /** Size the forward list **/
         
-    void SizeForwardList(int LoopType, int NumberOfLoops);
-    
-    /** Size the adjoint list **/
-    
-    void SizeAdjointList(int LoopType, int NumberOfLoops);
-    
+    void SizeForwardLoopList(int LoopType, int NumberOfLoops);
+        
     /** Delete the forward list **/
     
-    void DeleteForwardList(int LoopType);
-    
-    /** Delete adjoint list **/
-    
-    void DeleteAdjointList(int LoopType);
+    void DeleteForwardLoopList(int LoopType);
     
     /** Pass in a pointer to an existing foward interaction list **/
     
-    void UseForwardList(int LoopType, int NumberOfLoops, LOOP_INTERACTION_ENTRY *List);
+    void UseForwardLoopList(int LoopType, int NumberOfLoops, LOOP_INTERACTION_ENTRY *List);
+
+    /** Merge the forward list **/
     
-    /** Pass in a pointer to an existing adjoint interaction list **/
-    
-    void UseAdjointList(int LoopType, int NumberOfLoops, LOOP_INTERACTION_ENTRY *List);
-    
+    void MergeForwardList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom, double Mach, double FarAway);
+
     /** Access to the Forward data number of loops **/
     
     int &NumberOfForwardInteractionLoops(int LoopType) { return NumberOfForwardInteractionLoops_[LoopType]; };
     
-    /** Access to the Forward data list **/
+    /** Access to the Forward data loop list **/
     
-    LOOP_INTERACTION_ENTRY *ForwardInteractionList(int LoopType) { return ForwardInteractionList_[LoopType]; };
+    LOOP_INTERACTION_ENTRY *ForwardInteractionLoopList(int LoopType) { return ForwardInteractionLoopList_[LoopType]; };
+    
+    /** Speed up for forward list **/
+    
+    long double ForwardSpeedRatio(void) { return ForwardSpeedRatio_; };
 
+    /** Size the forward edge list **/
+
+    void SizeForwardEdgeList(int LoopType, int NumberOfEdges);
+
+    /** Delete the forward edge list **/
+
+    void DeleteForwardEdgeList(int LoopType);
+
+    /** Create the forward edge list based on the forward loop list **/
+    
+    void CreateForwardEdgeList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom);
+
+    /** Access to the Forward data number of edges **/
+    
+    int &NumberOfForwardInteractionEdges(int LoopType) { return NumberOfForwardInteractionEdges_[LoopType]; };
+    
+    /** Access to the Forward data edge list **/
+    
+    LOOP_INTERACTION_ENTRY *ForwardInteractionEdgeList(int LoopType) { return ForwardInteractionEdgeList_[LoopType]; };
+                    
+/************************** ADJOINT ***********************/
+        
+    /** Size the adjoint list **/
+    
+    void SizeAdjointLoopList(int LoopType, int NumberOfLoops);
+
+    /** Delete adjoint list **/
+    
+    void DeleteAdjointLoopList(int LoopType);
+
+    /** Pass in a pointer to an existing adjoint interaction list **/
+    
+    void UseAdjointLoopList(int LoopType, int NumberOfLoops, LOOP_INTERACTION_ENTRY *List);
+
+    /** Merge the adjoint list **/
+    
+    void MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom, double Mach, double FarAway);
+
+    /** Speed up for adjoint list **/
+    
+    long double &AdjointSpeedRatio(void) { return AdjointSpeedRatio_; };
+             
     /** Access to the Adjoint data number of loops **/
     
     int &NumberOfAdjointInteractionLoops(int LoopType) { return NumberOfAdjointInteractionLoops_[LoopType]; };
     
-    /** Access to the Adjoint data list **/
+    /** Access to the Adjoint data loop list **/
     
-    LOOP_INTERACTION_ENTRY *AdjointInteractionList(int LoopType) { return AdjointInteractionList_[LoopType]; };
-    
-    /** Merge the forward list **/
-    
-    void MergeForwardList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom, VSPAERO_DOUBLE Mach, VSPAERO_DOUBLE FarAway);
-    
-    /** Merge the adjoint list **/
-    
-    void MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom, VSPAERO_DOUBLE Mach, VSPAERO_DOUBLE FarAway);
-        
-    /** Total number of interactions for forward list **/
-            
-    long long int &ForwardTotalHits(void) { return ForwardTotalHits_; };
-    
-    /** Speed up for forward list **/
-    
-    long double &ForwardSpeedRatio(void) { return ForwardSpeedRatio_; };
+    LOOP_INTERACTION_ENTRY *AdjointInteractionLoopList(int LoopType) { return AdjointInteractionLoopList_[LoopType]; };
 
-    /** Total number of interactions for adjoint list **/
-            
-    long long int &AdjointTotalHits(void) { return AdjointTotalHits_; };
+    /** Size the adjoint edge list **/
+
+    void SizeAdjointEdgeList(int LoopType, int NumberOfEdges);
+
+    /** Delete the adjoint edge list **/
+
+    void DeleteAdjointEdgeList(int LoopType);
+         
+    /** Create the adjoint edge list based on the forward loop list **/
     
-    /** Speed up for adjoint list **/
+    void CreateAdjointEdgeList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom);
+
+    /** Access to the adjoint data number of edges **/
     
-    long double &AdjointSpeedRatio(void) { return AdjointSpeedRatio_; };
-                     
+    int &NumberOfAdjointInteractionEdges(int LoopType) { return NumberOfForwardInteractionEdges_[LoopType]; };
+    
+    /** Access to the adjoint data edge list **/
+    
+    LOOP_INTERACTION_ENTRY *AdjointInteractionEdgeList(int LoopType) { return AdjointInteractionEdgeList_[LoopType]; };        
 };
 
 #include "END_NAME_SPACE.H"

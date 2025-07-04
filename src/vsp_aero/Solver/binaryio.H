@@ -28,7 +28,7 @@ private:
     int SwapOnWrite_;
 
     void SwapFloat(float &Word);
-    void SwapDouble(VSPAERO_DOUBLE &Word);    
+    void SwapDouble(double &Word);    
     void SwapInt(int &Word);
     void SwapChar(char &Word);
 

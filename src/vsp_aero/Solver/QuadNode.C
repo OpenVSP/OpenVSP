@@ -55,7 +55,7 @@ QUAD_NODE::~QUAD_NODE(void)
 QUAD_NODE::QUAD_NODE(const QUAD_NODE &QuadNode)
 {
    
-    PRINTF("Copy not implemented for QUAD_CELL class! \n");
+    printf("Copy not implemented for QUAD_CELL class! \n");
     exit(1);
      
 }

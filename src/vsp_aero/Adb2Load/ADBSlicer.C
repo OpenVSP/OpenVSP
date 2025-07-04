@@ -544,6 +544,9 @@ void ADBSLICER::LoadMeshData(void)
        BIO.fread(&(TriList_[i].node3),        i_size, 1, adb_file);
        BIO.fread(&(TriList_[i].surface_type), i_size, 1, adb_file);
        BIO.fread(&(TriList_[i].surface_id),   i_size, 1, adb_file);
+       
+       BIO.fread(&(DumInt),                   i_size, 1, adb_file); // Min valid time step
+       
        BIO.fread(&(TriList_[i].area),         f_size, 1, adb_file);
 
     }
@@ -640,6 +643,8 @@ void ADBSLICER::LoadMeshData(void)
        for ( i = 1 ; i <= NumberOfCourseEdgesForLevel[Level] ; i++ ) {
  
           BIO.fread(&(CoarseEdgeList_[Level][i].SurfaceID), i_size, 1, adb_file);       
+        
+          BIO.fread(&(DumInt), i_size, 1, adb_file);    // Min valid time step   
         
           if ( CoarseEdgeList_[Level][i].SurfaceID < 0 ) {
              
@@ -1435,6 +1440,10 @@ void ADBSLICER::CreateTriEdges(void)
 
              EdgeList_[level].tri1 = list[level].tri_1;
              EdgeList_[level].tri2 = list[level].tri_2;
+             
+             // Store surface ID
+             
+             EdgeList_[level].SurfaceID = MIN(TriList_[list[level].tri_1].surface_id,TriList_[list[level].tri_2].surface_id);
 
           }
 
@@ -1725,80 +1734,84 @@ void ADBSLICER::Slice(int Case)
        // Loop over triangles
 
        for ( m = 1 ; m <= NumberOfEdges ; m++ ) {
-
-          noda = EdgeList_[m].node1;
-          nodb = EdgeList_[m].node2;
  
-          pnt_1[0] = NodeList_[noda].x;
-          pnt_1[1] = NodeList_[noda].y;
-          pnt_1[2] = NodeList_[noda].z;
-          
-          if ( RotateGeometry ) {
-           
-             pnt_1[1] = NodeList_[noda].y * CosRot - NodeList_[noda].z * SinRot;
-             pnt_1[2] = NodeList_[noda].y * SinRot - NodeList_[noda].z * CosRot;
+          if ( EdgeList_[m].SurfaceID != 0 ) {
+
+             noda = EdgeList_[m].node1;
+             nodb = EdgeList_[m].node2;
+    
+             pnt_1[0] = NodeList_[noda].x;
+             pnt_1[1] = NodeList_[noda].y;
+             pnt_1[2] = NodeList_[noda].z;
              
-          }
-
-          Cp_1 = CpNode[noda];
-
-          pnt_2[0] = NodeList_[nodb].x;
-          pnt_2[1] = NodeList_[nodb].y;
-          pnt_2[2] = NodeList_[nodb].z;
-
-          if ( RotateGeometry ) {
-           
-             pnt_2[1] = NodeList_[nodb].y * CosRot - NodeList_[nodb].z * SinRot;
-             pnt_2[2] = NodeList_[nodb].y * SinRot - NodeList_[nodb].z * CosRot;
-             
-          }
-          
-          Cp_2 = CpNode[nodb];
-
-          edge_box.x_min = MIN(pnt_1[0],pnt_2[0]);
-          edge_box.x_max = MAX(pnt_1[0],pnt_2[0]);
-
-          edge_box.y_min = MIN(pnt_1[1],pnt_2[1]);
-          edge_box.y_max = MAX(pnt_1[1],pnt_2[1]);
-
-          edge_box.z_min = MIN(pnt_1[2],pnt_2[2]);
-          edge_box.z_max = MAX(pnt_1[2],pnt_2[2]);
-
-          if ( compare_boxes(plane_box,edge_box) == 1 ) {
-
-             // Passed bounding box, so do full intersection
-
-             if ( tri_seg_int(xyz_1,xyz_2,xyz_4,pnt_1,pnt_2,&tt,&uu,&ww) != 0 ||
-                  tri_seg_int(xyz_1,xyz_4,xyz_3,pnt_1,pnt_2,&tt,&uu,&ww) != 0 ) {
-
-                tt = MIN(tt,1.);
-                tt = MAX(tt,0.);
-
-                pnt_1[0] = NodeList_[noda].x;
-                pnt_1[1] = NodeList_[noda].y;
-                pnt_1[2] = NodeList_[noda].z;
-
-                pnt_2[0] = NodeList_[nodb].x;
-                pnt_2[1] = NodeList_[nodb].y;
-                pnt_2[2] = NodeList_[nodb].z;
-             
-                x = pnt_1[0] + tt*( pnt_2[0] - pnt_1[0] );
-
-                y = pnt_1[1] + tt*( pnt_2[1] - pnt_1[1] );
-
-                z = pnt_1[2] + tt*( pnt_2[2] - pnt_1[2] );
-
-                Cp = Cp_1 + tt*( Cp_2 - Cp_1 );
-
-                fprintf(SliceFile,"%10.4f %10.4f %10.4f %10.4f \n",
-                        x,
-                        y,
-                        z,
-                        Cp);
-
-
+             if ( RotateGeometry ) {
+              
+                pnt_1[1] = NodeList_[noda].y * CosRot - NodeList_[noda].z * SinRot;
+                pnt_1[2] = NodeList_[noda].y * SinRot - NodeList_[noda].z * CosRot;
+                
              }
-
+   
+             Cp_1 = CpNode[noda];
+   
+             pnt_2[0] = NodeList_[nodb].x;
+             pnt_2[1] = NodeList_[nodb].y;
+             pnt_2[2] = NodeList_[nodb].z;
+   
+             if ( RotateGeometry ) {
+              
+                pnt_2[1] = NodeList_[nodb].y * CosRot - NodeList_[nodb].z * SinRot;
+                pnt_2[2] = NodeList_[nodb].y * SinRot - NodeList_[nodb].z * CosRot;
+                
+             }
+             
+             Cp_2 = CpNode[nodb];
+   
+             edge_box.x_min = MIN(pnt_1[0],pnt_2[0]);
+             edge_box.x_max = MAX(pnt_1[0],pnt_2[0]);
+   
+             edge_box.y_min = MIN(pnt_1[1],pnt_2[1]);
+             edge_box.y_max = MAX(pnt_1[1],pnt_2[1]);
+   
+             edge_box.z_min = MIN(pnt_1[2],pnt_2[2]);
+             edge_box.z_max = MAX(pnt_1[2],pnt_2[2]);
+   
+             if ( compare_boxes(plane_box,edge_box) == 1 ) {
+   
+                // Passed bounding box, so do full intersection
+   
+                if ( tri_seg_int(xyz_1,xyz_2,xyz_4,pnt_1,pnt_2,&tt,&uu,&ww) != 0 ||
+                     tri_seg_int(xyz_1,xyz_4,xyz_3,pnt_1,pnt_2,&tt,&uu,&ww) != 0 ) {
+   
+                   tt = MIN(tt,1.);
+                   tt = MAX(tt,0.);
+   
+                   pnt_1[0] = NodeList_[noda].x;
+                   pnt_1[1] = NodeList_[noda].y;
+                   pnt_1[2] = NodeList_[noda].z;
+   
+                   pnt_2[0] = NodeList_[nodb].x;
+                   pnt_2[1] = NodeList_[nodb].y;
+                   pnt_2[2] = NodeList_[nodb].z;
+                
+                   x = pnt_1[0] + tt*( pnt_2[0] - pnt_1[0] );
+   
+                   y = pnt_1[1] + tt*( pnt_2[1] - pnt_1[1] );
+   
+                   z = pnt_1[2] + tt*( pnt_2[2] - pnt_1[2] );
+   
+                   Cp = Cp_1 + tt*( Cp_2 - Cp_1 );
+   
+                   fprintf(SliceFile,"%10.4f %10.4f %10.4f %10.4f \n",
+                           x,
+                           y,
+                           z,
+                           Cp);
+   
+   
+                }
+   
+             }
+             
           }
 
        }

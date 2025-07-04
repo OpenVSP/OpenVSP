@@ -15,6 +15,7 @@
 #include "quat.H"
 #include "VSP_Node.H"
 #include "VSP_Loop.H"
+#include "WakeEdgeData.H"
 #include "quat.H"
 #include "utils.H"
 
@@ -43,119 +44,186 @@ class VSP_EDGE {
 private:
 
     void init(void);
- 
-    // Edge based data
+
+    // Debugging flag
+    
+    int Verbose_;
+  
+    // Edge nodes
 
     int Node1_;
     int Node2_;
 
+    // Two loops attached to this edge
+
     int Loop1_;
     int Loop2_;
     
+    // LoopL on left of edge... in a right hand rule kinda way
+    
     int LoopL_;
+
+    // LoopR is on right of edge... in a right hand rule kinda way
+    
     int LoopR_;
     
-    int VortexLoop1_;
-    int VortexLoop2_;
+    // Global vortex edge across all the multi-grid levels
     
     int VortexEdge_;
     
+    // Edge is on trailing edge (kutta edge)
+    
     int IsTrailingEdge_;
+    
+    // Edge is on wake surface, and on a wing trailing edge
+    
+    int IsWakeTrailingEdge_;
+    
+    // Edge is shed from concave region
+    
+    int IsConcaveTrailingEdge_;
+    
+    // Edge is on frozen portion of wake
+    
+    int IsFrozenTrailingEdge_;
+    
+    // Edge is on a surface boundary
+    
     int IsBoundaryEdge_;
     
+    // Edge is on surface intersection
+    
+    int IsIntersectionEdge_;
+
+    // Edge is on symmetry plane
+    
+    int IsSymmetryPlaneEdge_;
+    
+    // Node 1 is on symmetry plane
+    
+    int Node1_IsOnSymmetryPlane_;
+
+    // Node 2 is on symmetry plane
+    
+    int Node2_IsOnSymmetryPlane_;
+            
+    // Coarse grid edge this edge was merged into
+    
     int CoarseGridEdge_;
+    
+    // Fine grid edge corresponding to this edge
+    
     int FineGridEdge_;
+    
+    // Multi-grid level this edge belongs to
+    
     int Level_;
     
-    VSP_EDGE *Child1_;
-    VSP_EDGE *Child2_;
+    // Edge number on the level this edge belongs to
     
-    VSPAERO_DOUBLE ReferenceLength_;
-       
-    VSPAERO_DOUBLE Sigma_;
-    VSPAERO_DOUBLE S_;
-    VSPAERO_DOUBLE T_;
-    VSPAERO_DOUBLE Length_;
+    int ThisEdge_;
+    
+    // Time accurate flag
+    
+    int TimeAccurate_;
+    
+    // Global time step
+    
+    int Time_;
+    
+    // If this edge is on the wake, this is the min time step it's valid for an unsteady analysis
+    
+    int MinValidTimeStep_;          
 
-    VSPAERO_DOUBLE Forces_[3];
-    VSPAERO_DOUBLE Unsteady_Forces_[3];
+    // Forces on edge
+    
+    double Forces_[3];
+    
+    // Unsteady forces on edge
+    
+    double Unsteady_Forces_[3];
+    
+    // Trefftz analysis forces on edge (really trailing edge analysis forces...)
+    
+    double Trefftz_Forces_[3];    
 
-    VSPAERO_DOUBLE Trefftz_Forces_[3];
+    // Vortex core width for vortex core model
     
-    VSPAERO_DOUBLE InducedForces_[3];
+    double CoreWidth_;
     
-    VSPAERO_DOUBLE MinCoreWidth_;
-    VSPAERO_DOUBLE CoreWidth_;
-    VSPAERO_DOUBLE SuperSonicCoreWidth_;
+    // Supersonic core width... experimental
+    
+    double SuperSonicCoreWidth_;
 
-    int NoInfluence_;
-
-    VSPAERO_DOUBLE U2_;
-    VSPAERO_DOUBLE U4_;
-    
-    VSPAERO_DOUBLE V2_;
-    VSPAERO_DOUBLE V4_;
-    
-    VSPAERO_DOUBLE W2_;
-    VSPAERO_DOUBLE W4_;
-    
-    VSPAERO_DOUBLE C_Gamma_;
-
-    VSPAERO_DOUBLE a_;
-    VSPAERO_DOUBLE b_;
-    VSPAERO_DOUBLE c_;
-    VSPAERO_DOUBLE d_;
-
-    VSPAERO_DOUBLE dx_;
-    VSPAERO_DOUBLE dy_;
-    VSPAERO_DOUBLE dz_;
-    
-    VSPAERO_DOUBLE s_;
-    VSPAERO_DOUBLE F_;
-    VSPAERO_DOUBLE F1_;
-    VSPAERO_DOUBLE F2_;
-    VSPAERO_DOUBLE Test_;
-    
-    VSPAERO_DOUBLE R_;
-    VSPAERO_DOUBLE Denom_; 
-    VSPAERO_DOUBLE C1_; 
-
-    // Vortex solution data
-    
-    int Verbose_;
- 
-    // Wing and edge, or trailing node this vortex belongs to
+    // Surface ID
     
     int SurfaceID_;
+    
+    // Component ID
+    
     int ComponentID_;
+    
+    // Wing ID
+    
     int Wing_;
+    
+    // Group ID
+    
+    int Group_;
 
-    // Edge nodes - true geometry (camber line, or actual)
+    // Edge node xyz coordinates at node 1
     
-    VSPAERO_DOUBLE X1_;
-    VSPAERO_DOUBLE Y1_;
-    VSPAERO_DOUBLE Z1_;
+    double X1_;
+    double Y1_;
+    double Z1_;
     
-    VSPAERO_DOUBLE X2_;
-    VSPAERO_DOUBLE Y2_;
-    VSPAERO_DOUBLE Z2_;
+    // Edge node xyz coordinates at node 2
+    
+    double X2_;
+    double Y2_;
+    double Z2_;
+    
+    // Edge node xyz coordinates at node 1 at previous time step
+    
+    double X1m_;
+    double Y1m_;
+    double Z1m_;
+    
+    // Edge node xyz coordinates at node 2 at previous time step
+    
+    double X2m_;
+    double Y2m_;
+    double Z2m_;    
+
+    // Edge node delta xyz coordinate perturbations at node 1
+    
+    double dxyz1_[3];
+
+    // Edge node delta xyz coordinate perturbations at node 2
+    
+    double dxyz2_[3];
 
     // Edge centroid
     
-    VSPAERO_DOUBLE XYZc_[3];
+    double XYZc_[3];
 
-    VSP_NODE VortexCentroid_;
+    // Length of edge
+    
+    double Length_;
 
-    // Edge direction vector
+    // Edge normalized direction vector
     
-    VSPAERO_DOUBLE Vec_[3];
-    VSPAERO_DOUBLE u_;
-    VSPAERO_DOUBLE v_;
-    VSPAERO_DOUBLE w_;
+    double Vec_[3];
     
-    // Edge Normal
+    // Edge direction vector (so has magnitude of Length_)
     
-    VSPAERO_DOUBLE Normal_[3];
+    double u_;
+    double v_;
+    double w_;
+    
+    // Edge Normal vector
+    
+    double Normal_[3];
     
     // Distance tolerances for velocity evaluations
    
@@ -163,60 +231,183 @@ private:
     static double Tolerance_2_;
     static double Tolerance_4_;
 
-    // Mach number and Beta
+    // Mach number
     
-    VSPAERO_DOUBLE Mach_;
+    double Mach_;
     
-    VSPAERO_DOUBLE Kappa_;
-
-    VSPAERO_DOUBLE Beta2_;
-
-    // KT value
+    // Leading compressiblity term on integral
     
-    VSPAERO_DOUBLE KTFact_;
+    double Kappa_;
 
+    // Karman-Tsien compressibility factor
+    
+    double KTFact_;
+
+    // Trailing edge stall factor
+    
+    double TrailingEdgeStallFactor_;
+    
     // Flag dermining which loops are down wind of this vortex edge
     
-    int VortexLoop1IsDownWind_;
-    int VortexLoop2IsDownWind_;
+    int VortexLoopLIsDownWind_;
+    int VortexLoopRIsDownWind_;
     
-    VSPAERO_DOUBLE VortexLoop1DownWindWeight_;
-    VSPAERO_DOUBLE VortexLoop2DownWindWeight_;
+    // Vortex Loop down wind weights
+    
+    double VortexLoopLDownWindWeight_;
+    double VortexLoopRDownWindWeight_;
 
-    // Circulation strength
+    // Vorticty strength
     
-    VSPAERO_DOUBLE Gamma_;
+    double Gamma_;
     
-    // Edge matrix coefficients
+    // Perturbation vorticity strength
     
-    VSPAERO_DOUBLE EdgeCoef_[2];
-
+    double DeltaGamma_;
+    
+    // Perturbation stall vorticity strength
+    
+    double DeltaStallGamma_;
+    
+    // Perturbation vortex stretching strength
+    
+    double DeltaVortexStretchingRatioGamma_;
+    
     // Setup routines
     
     void Setup_(VSP_NODE &Node1, VSP_NODE &Node2);
 
-    // Induced velocities
+    // Velocity induced by this bound vortex
+
+    void BoundVortex(double Gamma, double xyz_p[3], double q[3]);
     
-    void OldBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
+    // Gradient wrt xyz1, xyz2 for this bound vortex
 
-    void NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
-
-    VSPAERO_DOUBLE Fint(void);
-    VSPAERO_DOUBLE Gint(void);
-
-    VSPAERO_DOUBLE Fint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s);
-    VSPAERO_DOUBLE Gint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s);
+    void GradientBoundVortex(double &Gamma, double xyz_p[3],
+                             double &dq0_dx1,
+                             double &dq0_dy1,
+                             double &dq0_dz1,
+                             double &dq0_dx2,
+                             double &dq0_dy2,
+                             double &dq0_dz2,
+                                            
+                             double &dq1_dx1,
+                             double &dq1_dy1,
+                             double &dq1_dz1,
+                             double &dq1_dx2,
+                             double &dq1_dy2,
+                             double &dq1_dz2,
+                                            
+                             double &dq2_dx1,
+                             double &dq2_dy1,
+                             double &dq2_dz1,
+                             double &dq2_dx2,
+                             double &dq2_dy2,
+                             double &dq2_dz2,
+                              
+                             double &dq0_dxp,
+                             double &dq0_dyp,
+                             double &dq0_dzp,
+                                                
+                             double &dq1_dxp,
+                             double &dq1_dyp,
+                             double &dq1_dzp,
+                                                  
+                             double &dq2_dxp,
+                             double &dq2_dyp,
+                             double &dq2_dzp,
+                             
+                             double &dq0_dMach,
+                             double &dq1_dMach,
+                             double &dq2_dMach);                               
+                                                                       
+    // F integral evaluation of generalized Biot-Savart law
     
-    void FindLineConicIntersection(VSPAERO_DOUBLE &Xp, VSPAERO_DOUBLE &Yp, VSPAERO_DOUBLE &Zp,
-                                   VSPAERO_DOUBLE &X1, VSPAERO_DOUBLE &Y1, VSPAERO_DOUBLE &Z1,
-                                   VSPAERO_DOUBLE &Xd, VSPAERO_DOUBLE &Yd, VSPAERO_DOUBLE &Zd,
-                                   VSPAERO_DOUBLE &t1, VSPAERO_DOUBLE &t2);    
+    double Fint(double &a, double &b, double &c, double &d, double &s);
 
-    // Velocities
+    // G integral evaluation of generalized Biot-Savart law
+    
+    double Gint(double &a, double &b, double &c, double &d, double &s);
 
-    VSPAERO_DOUBLE Velocity_[3];
-    VSPAERO_DOUBLE DownWash_Velocity_[3];                                 
+    // Gradient wrt xyz1, and xyz2 of F integral evaluation of generalized Biot-Savart law
 
+    double GradientFint(double &a, double &b, double &c, double &d, double &s,
+                                 double &dF_da,
+                                 double &dF_db,
+                                 double &dF_dc,
+                                 double &dF_dd,
+                                 double &dF_ds);
+
+    // Gradient wrt xyz1, and xyz2 of G integral evaluation of generalized Biot-Savart law
+                                 
+    double GradientGint(double &a, double &b, double &c, double &d, double &s,
+                                 double &dF_da,
+                                 double &dF_db,
+                                 double &dF_dc,
+                                 double &dF_dd,
+                                 double &dF_ds);
+
+    // Find the intersection of ray with conic defined by current location and Mach number
+    
+    void FindLineConicIntersection(double &Xp, double &Yp, double &Zp,
+                                   double &X1, double &Y1, double &Z1,
+                                   double &Xd, double &Yd, double &Zd,
+                                   double &t1, double &t2);    
+
+    // Local free stream velocity... may include rotor, engine velocities... etc.
+    
+    double LocalFreeStreamVelocity_[5];    
+    
+    // Local velocity at edge centroid
+    
+    double Velocity_[3];
+
+    // Local downwash + free stream velocity at edge centroid
+    
+    double DownWashVelocity_[3];
+    
+    // Local velocity magnitude at edge centroid
+    
+    double Q_;
+    
+    // Velocity due to perturbation in gammas
+    
+    double dVelocity_dGamma_[3];
+
+    // Velocity due to perturbation in mesh xyz's
+    
+    double dVelocity_dMesh_[3];
+
+    // Velocity due to perturbation Mach
+    
+    double dVelocity_dMach_[3];
+        
+    // Velocity due to perturbation in Stall factor
+    
+    double dVelocity_dStall_[3];
+
+    // Velocity due to perturbation in vortex stretching ratio
+    
+    double dVelocity_dRatio_[3];
+                        
+    // Adjoint perturbation velocities
+    
+    double dq0_dxyz_[2][3];
+    double dq1_dxyz_[2][3];
+    double dq2_dxyz_[2][3];
+    
+    // Wake equation stuff
+    
+    int IsWakeEdge_;
+    
+    WAKE_EDGE *WakeEdgeData_;
+
+    // Adjoint fine edge list
+    
+    int NumberOfAdjointEdges_;
+    int *AdjointEdgeList_;    
+    double *AdjointEdgeFactor_;
+    
 public:
 
     // Constructor, Destructor, Copy
@@ -269,39 +460,53 @@ public:
     /** Global vortex edge number... ie, edge number over all edges in the agglomerated edge structures **/
     
     int &VortexEdge(void) { return VortexEdge_; };
-    
-    /** Vortex Loop 1 attached to this edge **/
-    
-    int &VortexLoop1(void) { return VortexLoop1_; };
-    
-    /** Vortex Loop 2 attached to this edge **/
-    
-    int &VortexLoop2(void) { return VortexLoop2_; };
 
-    /** Finite ore size **/
+    /** Finite core size **/
      
-    VSPAERO_DOUBLE &Sigma(void) { return Sigma_; };
-    
-    /** Edge Length **/
-    
-    VSPAERO_DOUBLE &S(void) { return S_; };
-    
-    /** Edge age, used in trailing wake, finite core size, model **/
-    
-    VSPAERO_DOUBLE &T(void) { return T_; };    
+    double &CoreWidth(void) { return CoreWidth_; };
     
     /** Edge length **/
     
-    VSPAERO_DOUBLE &Length(void) { return Length_; };
+    double &Length(void) { return Length_; };
     
     /** Edge is on trailing edge of lifting surface **/
     
     int &IsTrailingEdge(void) { return IsTrailingEdge_; };
+    
+    /** Edge is a wake edge and is on trailing edge of a wing **/
+    
+    int &IsWakeTrailingEdge(void) { return IsWakeTrailingEdge_; };
 
-    /** Edge is on boundary edge (intersection) of two surface **/
+    /** Edge is on wake surface, and on a wing trailing edge **/
+    
+    int &IsConcaveTrailingEdge(void) { return IsConcaveTrailingEdge_; };
+    
+    /** Edge is on frozen portion of wake **/
+    
+    int &IsFrozenTrailingEdge(void) { return IsFrozenTrailingEdge_; };   
+    
+    /** Edge is on boundary edge of a surface... this may be the boundary of a VLM surface, or the
+     * intersection of two thick, two thin, or one thick and one thin surface(s) **/
     
     int &IsBoundaryEdge(void) { return IsBoundaryEdge_; };
     
+    /** Edge is on intersection edge ... ie edge is only on the a true surface-surface intersection ...
+     * this could be two thick, two thin, or one thick and one thin surface(s) **/
+     
+    int &IsIntersectionEdge(void) { return IsIntersectionEdge_; };
+    
+    /** Edge is on symmetry plane **/
+    
+    int &IsSymmetryPlaneEdge(void) { return IsSymmetryPlaneEdge_; };
+    
+    /** Node 1 is on symmetry plane **/
+    
+    int &Node1_IsOnSymmetryPlane(void) { return Node1_IsOnSymmetryPlane_; };
+
+    /** Node 2 is on symmetry plane **/
+    
+    int &Node2_IsOnSymmetryPlane(void) { return Node2_IsOnSymmetryPlane_; };
+        
     /** Coarse grid edge that this edge was agglomerated into **/
     
     int &CoarseGridEdge(void) { return CoarseGridEdge_; };
@@ -314,35 +519,29 @@ public:
     
     int &Level(void) { return Level_; };
     
-    /** Pointer to children of this edge... this is used in the trailing wake routines ... for
-     * the local agglomeration of trailing wakes **/
+    /** This edges number on this grid level **/
+    
+    int &ThisEdge(void) { return ThisEdge_; };
 
-    void SetupChildren(VSP_EDGE &Child1, VSP_EDGE &Child2) { Child1_ = &Child1 ; Child2_ = &Child2; };
+    /** Time accurate flag **/
+    
+    int &TimeAccurate(void) { return TimeAccurate_; };
+    
+    /** Global time step **/
+    
+    int &Time(void) { return Time_; };
 
-    /** Flag to determine if this edge has children... this is used in the trailing wake routines ... for
-     * the local agglomeration of trailing wakes **/
-     
-    int ThereAreChildren(void) { if ( Child1_ != NULL ) { return 1; } else { return 0; }; };
+    /** If this edge is on the wake, this is the min time step it's valid for an unsteady analysis **/
     
-    /** Child 1 for this edge... may be 0 **/
+    int &MinValidTimeStep(void) { return MinValidTimeStep_; };
     
-    VSP_EDGE &Child1(void) { return *Child1_; };
-    
-    /** Child 2 for this edge... may be 0 **/
-    
-    VSP_EDGE &Child2(void) { return *Child2_; };
-    
-    /** Reference length for this edge... this may differ from the actual length for trailing
-     * wakes where we have agglomerated edges and hence lost any curvature information. This
-     * is an attempt to keep track of the actual length of the segment we have formed through
-     * agglomeration
-     **/
-    
-    VSPAERO_DOUBLE &ReferenceLength(void) { return ReferenceLength_; };
-
     /** Edge is on wing **/
 
     int &Wing(void) { return Wing_; };
+    
+    /** Group ID **/
+    
+    int &Group(void) { return Group_; };
 
     /** Edge is on Surface **/
     
@@ -354,33 +553,373 @@ public:
 
     /** Set up the edge data structure given these 2 mesh nodes **/
 
-    void Setup(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };
-                               
+    void Setup(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };                                     
+                  
+    /** Gradients of the setup variables **/
+    
+    void SetupGradients(double &dLength_dX1, 
+                        double &dLength_dY1,
+                        double &dLength_dZ1,
+                        
+                        double &dLength_dX2,
+                        double &dLength_dY2,
+                        double &dLength_dZ2,
+                        
+                        double &dVecX_dX1,
+                        double &dVecX_dY1,
+                        double &dVecX_dZ1,
+                                                
+                        double &dVecY_dX1,
+                        double &dVecY_dY1,
+                        double &dVecY_dZ1,
+                                               
+                        double &dVecZ_dX1,
+                        double &dVecZ_dY1,
+                        double &dVecZ_dZ1,
+                                               
+                        double &dVecX_dX2,
+                        double &dVecX_dY2,
+                        double &dVecX_dZ2,
+                                               
+                        double &dVecY_dX2,
+                        double &dVecY_dY2,
+                        double &dVecY_dZ2,
+                                               
+                        double &dVecZ_dX2,
+                        double &dVecZ_dY2,
+                        double &dVecZ_dZ2); 
+                                  
+                                                                     
     /** Update the edge data given these two mesh nodes .. we assume the initial set was performed
      * and we are just updating the location of edge node xyz locations and data that depends
      * on them... **/
                                   
     void Update(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };
     
-    /** Calculate the induced velocity from this edge **/
+    /** Store the current wake locations for unsteady analysis **/
+    
+    void StoreWakeLocation(void);
+    
+    /** Calculate the induced velocity from this edge using latest gamma **/
 
-    void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
+    void InducedVelocity(double xyz_p[3], double q[3]);
+
+    /** Calculate the induced gamma velocity from this edge using latest perturbation gamma **/
+
+    void dInducedVelocity_dGamma(double xyz_p[3], double q[3]);
+
+    /** Calculate the induced mesh velocity from this edge **/
+
+    void dInducedVelocity_dMesh(double xyz_p[3], double dxyz_i[3], double q[3]);
+
+    /** Calculate the induced velocity for this edge from gradient wrt Mach **/
+
+    void dInducedVelocity_dMach(double xyz_p[3], double q[3]);
+
+    /** Calculate the induced gamma velocity from this edge **/
+
+    void pVelocity_pGamma(double xyz_p[3], double q[3]);
+
+    /** Calculate the induced stall gamma velocity from this edge **/
+
+    void dInducedVelocity_dStallGamma(double xyz_p[3], double q[3]);
     
-    /** Calculate the induced velocity from this edge, assuming a finite core model **/
+    /** Calculate the induced vortex stretching ratio gamma velocity from this edge **/
     
-    void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CoreWidth);
+    void dInducedVelocity_dVortexStretchingRatio(double xyz_p[3], double q[3]);
     
+    /** Calculate the induced mesh velocity from this edge for adjoint transpose matrix multiply**/
+
+    void dInducedVelocity_dMesh_Transpose(double xyz_p[3],
+                                          double &dq0_dx1,
+                                          double &dq0_dy1,
+                                          double &dq0_dz1,
+                                          double &dq0_dx2,
+                                          double &dq0_dy2,
+                                          double &dq0_dz2,
+                                                         
+                                          double &dq1_dx1,
+                                          double &dq1_dy1,
+                                          double &dq1_dz1,
+                                          double &dq1_dx2,
+                                          double &dq1_dy2,
+                                          double &dq1_dz2,
+                                                         
+                                          double &dq2_dx1,
+                                          double &dq2_dy1,
+                                          double &dq2_dz1,
+                                          double &dq2_dx2,
+                                          double &dq2_dy2,
+                                          double &dq2_dz2,
+                                          
+                                          double &dq0_dxp,
+                                          double &dq0_dyp,
+                                          double &dq0_dzp,
+                                                             
+                                          double &dq1_dxp,
+                                          double &dq1_dyp,
+                                          double &dq1_dzp,
+                                                               
+                                          double &dq2_dxp,
+                                          double &dq2_dyp,
+                                          double &dq2_dzp,
+                                                                                         
+                                          double &dq0_dMach,
+                                          double &dq1_dMach,
+                                          double &dq2_dMach);    
+
+    /** Calculate the induced mesh velocity from this edge for the forward matrix multiply **/
+
+    void dInducedVelocity_dMesh_dMesh_Forward(double &dq0_dx1,
+                                              double &dq0_dy1,
+                                              double &dq0_dz1,
+                                              double &dq0_dx2,
+                                              double &dq0_dy2,
+                                              double &dq0_dz2,
+                                                              
+                                              double &dq1_dx1,
+                                              double &dq1_dy1,
+                                              double &dq1_dz1,
+                                              double &dq1_dx2,
+                                              double &dq1_dy2,
+                                              double &dq1_dz2,
+                                                                  
+                                              double &dq2_dx1,
+                                              double &dq2_dy1,
+                                              double &dq2_dz1,
+                                              double &dq2_dx2,
+                                              double &dq2_dy2,
+                                              double &dq2_dz2,
+                                                          
+                                              double &dq0_dxp,
+                                              double &dq0_dyp,
+                                              double &dq0_dzp,
+                                                          
+                                              double &dq1_dxp,
+                                              double &dq1_dyp,
+                                              double &dq1_dzp,
+                                                          
+                                              double &dq2_dxp,
+                                              double &dq2_dyp,
+                                              double &dq2_dzp,    
+                                                                                                                                          
+                                              double Coef[3][9]);
+                                                                                            
+    /** Calculate the induced mesh velocity from this edge for adjoint transpose matrix multiply **/
+
+    void dInducedVelocity_dMesh_dMesh_Transpose(double &dq0_dx1,
+                                                double &dq0_dy1,
+                                                double &dq0_dz1,
+                                                double &dq0_dx2,
+                                                double &dq0_dy2,
+                                                double &dq0_dz2,
+                                                                
+                                                double &dq1_dx1,
+                                                double &dq1_dy1,
+                                                double &dq1_dz1,
+                                                double &dq1_dx2,
+                                                double &dq1_dy2,
+                                                double &dq1_dz2,
+                                                                    
+                                                double &dq2_dx1,
+                                                double &dq2_dy1,
+                                                double &dq2_dz1,
+                                                double &dq2_dx2,
+                                                double &dq2_dy2,
+                                                double &dq2_dz2,
+                                                            
+                                                double &dq0_dxp,
+                                                double &dq0_dyp,
+                                                double &dq0_dzp,
+                                                            
+                                                double &dq1_dxp,
+                                                double &dq1_dyp,
+                                                double &dq1_dzp,
+                                                            
+                                                double &dq2_dxp,
+                                                double &dq2_dyp,
+                                                double &dq2_dzp,    
+                                                                                                                                            
+                                                double Coef[9]);
+
+    /** Calculate the induced mesh velocity from this edge for unsteady adjoint transpose matrix multiply **/
+
+    void dInducedVelocity_dMesh_dMesh_Unsteady_Transpose(double &dq0_dx1,
+                                                         double &dq0_dy1,
+                                                         double &dq0_dz1,
+                                                         double &dq0_dx2,
+                                                         double &dq0_dy2,
+                                                         double &dq0_dz2,
+                                                                         
+                                                         double &dq1_dx1,
+                                                         double &dq1_dy1,
+                                                         double &dq1_dz1,
+                                                         double &dq1_dx2,
+                                                         double &dq1_dy2,
+                                                         double &dq1_dz2,
+                                                                             
+                                                         double &dq2_dx1,
+                                                         double &dq2_dy1,
+                                                         double &dq2_dz1,
+                                                         double &dq2_dx2,
+                                                         double &dq2_dy2,
+                                                         double &dq2_dz2,
+                                                                     
+                                                         double &dq0_dxp,
+                                                         double &dq0_dyp,
+                                                         double &dq0_dzp,
+                                                                     
+                                                         double &dq1_dxp,
+                                                         double &dq1_dyp,
+                                                         double &dq1_dzp,
+                                                                     
+                                                         double &dq2_dxp,
+                                                         double &dq2_dyp,
+                                                         double &dq2_dzp,    
+                                                         
+                                                         double &DeltaTime,
+                                                                                                                                                     
+                                                         double Coef[9]);
+                                                
+    /** Calculate Psi_T times partial_Residual_Partial_Mesh **/
+    
+    void PsiT_pR_pMesh(double &dq0_dx1,
+                       double &dq0_dy1,
+                       double &dq0_dz1,
+                       double &dq0_dx2,
+                       double &dq0_dy2,
+                       double &dq0_dz2,
+                                       
+                       double &dq1_dx1,
+                       double &dq1_dy1,
+                       double &dq1_dz1,
+                       double &dq1_dx2,
+                       double &dq1_dy2,
+                       double &dq1_dz2,
+                                           
+                       double &dq2_dx1,
+                       double &dq2_dy1,
+                       double &dq2_dz1,
+                       double &dq2_dx2,
+                       double &dq2_dy2,
+                       double &dq2_dz2,
+                                   
+                       double &dq0_dxp,
+                       double &dq0_dyp,
+                       double &dq0_dzp,
+                                   
+                       double &dq1_dxp,
+                       double &dq1_dyp,
+                       double &dq1_dzp,
+                                   
+                       double &dq2_dxp,
+                       double &dq2_dyp,
+                       double &dq2_dzp,    
+
+                       double Psi[3],
+                                                                                                 
+                       double Coef[9]);
+   
+    /** Calculate unsteady Psi_T times partial_Residual_Partial_Mesh **/
+                       
+    void UnsteadyPsiT_pR_pMesh(double &dq0_dx1,
+                               double &dq0_dy1,
+                               double &dq0_dz1,
+                               double &dq0_dx2,
+                               double &dq0_dy2,
+                               double &dq0_dz2,
+                                               
+                               double &dq1_dx1,
+                               double &dq1_dy1,
+                               double &dq1_dz1,
+                               double &dq1_dx2,
+                               double &dq1_dy2,
+                               double &dq1_dz2,
+                                                   
+                               double &dq2_dx1,
+                               double &dq2_dy1,
+                               double &dq2_dz1,
+                               double &dq2_dx2,
+                               double &dq2_dy2,
+                               double &dq2_dz2,
+                                           
+                               double &dq0_dxp,
+                               double &dq0_dyp,
+                               double &dq0_dzp,
+                                           
+                               double &dq1_dxp,
+                               double &dq1_dyp,
+                               double &dq1_dzp,
+                                           
+                               double &dq2_dxp,
+                               double &dq2_dyp,
+                               double &dq2_dzp,    
+                               
+                               double Psi[3],
+                               
+                               double &DeltaTime,
+                                                                                               
+                               double Coef[9]);
+                                                                                                      
+    /** Calculate the induced mesh velocity from this edge for adjoint transpose matrix multiply**/
+
+    void dInducedVelocity_dMesh_dMesh_Transpose(double xyz_p[3], double Coef[6]);
+                                             
     /** Calculate forces acting on this edge **/
     
     void CalculateForces(void);
-   
+
+    /** Calculate partial of the forces wrt gamma, holding velocity constant **/
+    
+    void CalculateForces_dGamma(double dForce[3]);
+    
+    /** Calculate partial of the Trefftz forces wrt gamma, holding velocity constant **/
+    
+    void CalculateTrefftzForces_dGamma(double dForce[3]);
+        
+    /** Calculate delta forces acting on this edge given a velocity **/
+    
+    void CalculateForces_dVelocity(double dVelocity[3], double dForce[3]);
+    
+    /** Calculate gradient of forces acting on this edge with respect to the mesh **/
+    
+    void CalculateForces_dMesh(double dForce[18]);
+    
+    /** Calculate gradient of Trefftz forces acting on this edge with respect to the mesh **/
+    
+    void CalculateTrefftzForces_dMesh(double dForce[18]);
+    
     /** Calculate the induced drag (forces) acting on this edge ***/
     
-    void CalculateTrefftzForces(VSPAERO_DOUBLE WakeInducedVelocity[3]);
+    void CalculateTrefftzForces(void);
+
+    /** Partial derivative of forces wrt free stream **/
+    
+    void pForces_pVinf(double pForces_pVinf[3][3]);
+
+    /** Partial derivative of moments wrt free stream **/
+    
+    void pMoments_pVinf(double MomArm[3], double pMoments_pVinf[3][3]);
+    
+    /** Partial derivative of forces wrt Mach **/
+
+    void pForces_pMach(double pForces_pMach[3]);
+
+    /** Partial derivative of moments wrt Mach **/
+
+    void pMoments_pMach(double MomArm[3], double pMoments_pMach[3]);
+
+    /** Partial derivative of Trefftz forces wrt free stream **/
+
+    void pTrefftzForces_pVinf(double pForces_pVinf[3][3]);
+
+    /** Partial derivative of Trefftz forces wrt Mach **/
+
+    void pTrefftzForces_pMach(double pForces_pMach[3]);
     
     /** Calculate the generalized principal part of the downwash integral for this edge **/
 
-    VSPAERO_DOUBLE GeneralizedPrincipalPartOfDownWash(void);
+    double GeneralizedPrincipalPartOfDownWash(void);
 
     /** Determine if this edge is swept in front, or behind the Mach cone... hence (super,sub) sonic **/
     
@@ -388,176 +927,447 @@ public:
   
     /** Set zero tolerances for this edge **/
     
-    void SetTolerance(VSPAERO_DOUBLE Tolerance);
+    void SetTolerance(double Tolerance);
 
-    /** Mach number for this edge... it's actually static across ALL edges **/
+    /** Mach number for this edge... **/
     
-    void SetMachNumber(VSPAERO_DOUBLE Mach);
+    void SetMachNumber(double Mach);
 
     /** Edge Mach number **/
     
-    VSPAERO_DOUBLE Mach(void) { return Mach_; };
+    double Mach(void) { return Mach_; };
 
     /** Karman-Tsien factor for this edge **/
     
-    VSPAERO_DOUBLE &KTFact(void) { return KTFact_; };
+    double &KTFact(void) { return KTFact_; };
 
     /** Vortex loop 1 is down wind of this edge, or not ... **/
     
-    int &VortexLoop1IsDownWind(void) { return VortexLoop1IsDownWind_; };
+    /** Trailing edge stall factor **/
+    
+    double &TrailingEdgeStallFactor(void) { return TrailingEdgeStallFactor_; };
+        
+    int &VortexLoopLIsDownWind(void) { return VortexLoopLIsDownWind_; };
     
     /** Vortex loop 2 is down wind of this edge, or not ... **/
     
-    int &VortexLoop2IsDownWind(void) { return VortexLoop2IsDownWind_; };
+    int &VortexLoopRIsDownWind(void) { return VortexLoopRIsDownWind_; };
     
     /** Edge edge contributes, a possibly zero, contribution to loops that are down wind
      * of said edge. This is the fraction that this edge provides to Loop 1... assuming
      * Loop 1 is down wind... 
      **/
     
-    VSPAERO_DOUBLE &VortexLoop1DownWindWeight(void) { return VortexLoop1DownWindWeight_; };
+    double &VortexLoopLDownWindWeight(void) { return VortexLoopLDownWindWeight_; };
     
     /** Edge edge contributes, a possibly zero, contribution to loops that are down wind
      * of said edge. This is the fraction that this edge provides to Loop 2... assuming
      * Loop 2 is down wind... 
      **/
          
-    VSPAERO_DOUBLE &VortexLoop2DownWindWeight(void) { return VortexLoop2DownWindWeight_; };
+    double &VortexLoopRDownWindWeight(void) { return VortexLoopRDownWindWeight_; };
     
     /** Circulation strength for this edge **/
     
-    VSPAERO_DOUBLE &Gamma(void) { return Gamma_; };
-    
-    /** Edge coefficient data.. this is used for the sparse edge ssor preconditioning 
-     * routine that is used by GMRES in the solution of the linear system of equations
-     * formed in the solution of the flow equations **/
+    double &Gamma(void) { return Gamma_; };
 
-    VSPAERO_DOUBLE &EdgeCoef(int i) { return EdgeCoef_[i]; };
+    /** Perturbation circulation strength for this edge **/
     
+    double &dGamma(void) { return DeltaGamma_; };
+    
+    /** Perturbation stall circulation strength for this edge **/
+    
+    double &dStallGamma(void) { return DeltaStallGamma_; };
+    
+    /** Perturbation vortex stretching strength for this edge **/
+    
+    double &dVortexStretchingRatioGamma(void) { return DeltaVortexStretchingRatioGamma_; };
+        
     /** Force in the x direction acting on this edge **/
     
-    VSPAERO_DOUBLE &Fx(void) { return Forces_[0]; };
+    double &Fx(void) { return Forces_[0]; };
     
     /** Force in the y direction acting on this edge **/
     
-    VSPAERO_DOUBLE &Fy(void) { return Forces_[1]; };
+    double &Fy(void) { return Forces_[1]; };
 
     /** Force in the z direction acting on this edge **/
 
-    VSPAERO_DOUBLE &Fz(void) { return Forces_[2]; };
+    double &Fz(void) { return Forces_[2]; };
     
     /** Unsteady force in the x direction acting on this edge **/
            
-    VSPAERO_DOUBLE &Unsteady_Fx(void) { return Unsteady_Forces_[0]; };
+    double &Unsteady_Fx(void) { return Unsteady_Forces_[0]; };
     
     /** Unsteady force in the y direction acting on this edge **/
     
-    VSPAERO_DOUBLE &Unsteady_Fy(void) { return Unsteady_Forces_[1]; };
+    double &Unsteady_Fy(void) { return Unsteady_Forces_[1]; };
 
     /** Unsteady force in the z direction acting on this edge **/
 
-    VSPAERO_DOUBLE &Unsteady_Fz(void) { return Unsteady_Forces_[2]; };   
+    double &Unsteady_Fz(void) { return Unsteady_Forces_[2]; };   
     
     /** Induced (drag) force in the x direction acting on this edge **/
     
-    VSPAERO_DOUBLE &Trefftz_Fx(void) { return Trefftz_Forces_[0]; };
+    double &Trefftz_Fx(void) { return Trefftz_Forces_[0]; };
 
     /** Induced (drag) force in the y direction acting on this edge **/
     
-    VSPAERO_DOUBLE &Trefftz_Fy(void) { return Trefftz_Forces_[1]; };
+    double &Trefftz_Fy(void) { return Trefftz_Forces_[1]; };
 
     /** Induced (drag) force in the z direction acting on this edge **/
 
-    VSPAERO_DOUBLE &Trefftz_Fz(void) { return Trefftz_Forces_[2]; };
+    double &Trefftz_Fz(void) { return Trefftz_Forces_[2]; };
 
     /** X coordinate for edge node 1 **/
     
-    VSPAERO_DOUBLE X1(void) { return X1_; };
+    double X1(void) { return X1_; };
     
     /** Y coordinate for edge node 1 **/
     
-    VSPAERO_DOUBLE Y1(void) { return Y1_; };
+    double Y1(void) { return Y1_; };
     
     /** Z coordinate for edge node 1 **/
     
-    VSPAERO_DOUBLE Z1(void) { return Z1_; };
+    double Z1(void) { return Z1_; };
 
     /** X coordinate for edge node 2 **/
     
-    VSPAERO_DOUBLE X2(void) { return X2_; };
+    double X2(void) { return X2_; };
 
     /** Y coordinate for edge node 2 **/
 
-    VSPAERO_DOUBLE Y2(void) { return Y2_; };
+    double Y2(void) { return Y2_; };
 
     /** Z coordinate for edge node 2 **/
 
-    VSPAERO_DOUBLE Z2(void) { return Z2_; };
+    double Z2(void) { return Z2_; };
+    
+    /** X coordinate for edge node 1 at previous time step **/
+    
+    double &X1m(void) { return X1m_; };
+    
+    /** Y coordinate for edge node 1 at previous time step **/
+    
+    double &Y1m(void) { return Y1m_; };
+    
+    /** Z coordinate for edge node 1 at previous time step **/
+    
+    double &Z1m(void) { return Z1m_; };
 
+    /** X coordinate for edge node 2 at previous time step **/
+    
+    double &X2m(void) { return X2m_; };
+
+    /** Y coordinate for edge node 2 at previous time step **/
+
+    double &Y2m(void) { return Y2m_; };
+
+    /** Z coordinate for edge node 2 at previous time step **/
+
+    double &Z2m(void) { return Z2m_; };
+
+    /** delta X coordinate perturbation for edge node 1 **/
+    
+    double &dX1(void) { return dxyz1_[0]; };
+    
+    /** delta Y coordinate perturbation for edge node 1 **/
+    
+    double &dY1(void) { return dxyz1_[1]; };
+    
+    /** delta Z coordinate perturbation for edge node 1 **/
+    
+    double &dZ1(void) { return dxyz1_[2]; };
+
+    /** delta XYZ coordinates perturbation for edge node 1 **/
+    
+    double *dXYZ1(void) { return dxyz1_; };
+    
+    /** delta X coordinate perturbation for edge node 2 **/
+    
+    double &dX2(void) { return dxyz2_[0]; };
+
+    /** delta Y coordinate perturbation for edge node 2 **/
+
+    double &dY2(void) { return dxyz2_[1]; };
+
+    /** delta Z coordinate perturbation for edge node 2 **/
+
+    double &dZ2(void) { return dxyz2_[2]; };
+
+    /** delta XYZ coordinates perturbation for edge node 1 **/
+    
+    double *dXYZ2(void) { return dxyz2_; };
+    
     /** X coordinate of edge centroid **/
     
-    VSPAERO_DOUBLE Xc(void) { return XYZc_[0]; };
+    double Xc(void) { return XYZc_[0]; };
     
     /** Y coordinate of edge centroid **/
     
-    VSPAERO_DOUBLE Yc(void) { return XYZc_[1]; };
+    double Yc(void) { return XYZc_[1]; };
 
     /** Z coordinate of edge centroid **/
 
-    VSPAERO_DOUBLE Zc(void) { return XYZc_[2]; };
+    double Zc(void) { return XYZc_[2]; };
     
     /** XYZ vector of edge centroid coordinates **/
     
-    VSPAERO_DOUBLE *xyz_c(void) { return XYZc_; };
-    
-    /** NODE object of edge centroid coordinates **/
-    
-    VSP_NODE &VortexCentroid(void) { return VortexCentroid_; };
+    double *xyz_c(void) { return XYZc_; };
 
-    /** Unit vector for edge, pointing from node 1 to 2 **/
-    
-    VSPAERO_DOUBLE *Vec(void) { return Vec_; };    
-    
     /** Edge normal, this is an average of the left and right loop normals **/
     
-    VSPAERO_DOUBLE *Normal(void) { return Normal_; };
+    double *Normal(void) { return Normal_; };
 
+    /** Local free stream components **/
+    
+    double &LocalFreeStreamVelocity(int i) { return LocalFreeStreamVelocity_[i]; };
+    
+    /** Local free stream vector **/
+    
+    double *LocalFreeStreamVelocity(void) { return LocalFreeStreamVelocity_; };
+    
     /** X component of velocity for this edge **/
     
-    VSPAERO_DOUBLE &U(void) { return Velocity_[0]; };
+    double &U(void) { return Velocity_[0]; };
     
     /** Y component of velocity for this edge **/
     
-    VSPAERO_DOUBLE &V(void) { return Velocity_[1]; };
+    double &V(void) { return Velocity_[1]; };
 
     /** Z component of velocity for this edge **/
 
-    VSPAERO_DOUBLE &W(void) { return Velocity_[2]; };
+    double &W(void) { return Velocity_[2]; };
+    
+    /** Velocity magnitude for this edge **/
+    
+    double &Q(void) { return Q_; };
     
     /** Velocity vector of velocity components for this edge **/
     
-    VSPAERO_DOUBLE *Velocity(void) { return Velocity_; };
+    double *Velocity(void) { return Velocity_; };
     
-    /** Down wash, ie velocity due to the wakes, in X direction for this edge **/
+    /** X component of down wash + free stream velocity for this edge **/
     
-    VSPAERO_DOUBLE &DownWash_U(void) { return DownWash_Velocity_[0]; };
+    double &DownWash_U(void) { return DownWashVelocity_[0]; };
     
-    /** Down wash, ie velocity due to the wakes, in Y direction for this edge **/
+    /** Y component of down wash + free stream velocity for this edge **/
     
-    VSPAERO_DOUBLE &DownWash_V(void) { return DownWash_Velocity_[1]; };
+    double &DownWash_V(void) { return DownWashVelocity_[1]; };
 
-    /** Down wash, ie velocity due to the wakes, in Z direction for this edge **/
+    /** Z component of down wash + free stream velocity for this edge **/
 
-    VSPAERO_DOUBLE &DownWash_W(void) { return DownWash_Velocity_[2]; };
+    double &DownWash_W(void) { return DownWashVelocity_[2]; };
+    
+    /** Velocity vector of down wash + free stream components for this edge **/
+    
+    double *DownWash_Velocity(void) { return DownWashVelocity_; };
+        
+    /** X component of gamma perturbation velocity for this edge **/
+    
+    double &dU_dGamma(void) { return dVelocity_dGamma_[0]; };
+    
+    /** Y component of gamma perturbation velocity for this edge **/
+    
+    double &dV_dGamma(void) { return dVelocity_dGamma_[1]; };
 
+    /** Z component of gamma perturbation velocity for this edge **/
+
+    double &dW_dGamma(void) { return dVelocity_dGamma_[2]; };
+    
+    /** Velocity vector of gamma perturbation velocity components for this edge **/
+    
+    double *dVelocity_dGamma(void) { return dVelocity_dGamma_; };
+
+    /** X component of mesh perturbation velocity for this edge **/
+    
+    double &dU_dMesh(void) { return dVelocity_dMesh_[0]; };
+    
+    /** Y component of mesh perturbation velocity for this edge **/
+    
+    double &dV_dMesh(void) { return dVelocity_dMesh_[1]; };
+
+    /** Z component of mesh perturbation velocity for this edge **/
+
+    double &dW_dMesh(void) { return dVelocity_dMesh_[2]; };
+    
+    /** Velocity vector of mesh perturbation velocity components for this edge **/
+    
+    double *dVelocity_dMesh(void) { return dVelocity_dMesh_; };
+
+    /** X component of Mach perturbation velocity for this edge **/
+    
+    double &dU_dMach(void) { return dVelocity_dMach_[0]; };
+    
+    /** Y component of Mach perturbation velocity for this edge **/
+    
+    double &dV_dMach(void) { return dVelocity_dMach_[1]; };
+
+    /** Z component of Mach perturbation velocity for this edge **/
+
+    double &dW_dMach(void) { return dVelocity_dMach_[2]; };
+    
+    /** Velocity vector of Mach perturbation velocity components for this edge **/
+    
+    double *dVelocity_dMach(void) { return dVelocity_dMach_; };
+    
+    /** X component of stall factor perturbation velocity for this edge **/
+    
+    double &dU_dStall(void) { return dVelocity_dStall_[0]; };
+    
+    /** Y component of stall factor perturbation velocity for this edge **/
+    
+    double &dV_dStall(void) { return dVelocity_dStall_[1]; };
+
+    /** Z component of stall factor perturbation velocity for this edge **/
+
+    double &dW_dStall(void) { return dVelocity_dStall_[2]; };
+    
+    /** Velocity vector of stall factor perturbation velocity components for this edge **/
+    
+    double *dVelocity_dStall(void) { return dVelocity_dStall_; };
+    
+    /** U component of vortex stretching perturbation velocity... **/
+    
+    double &dU_dRatio(void) { return dVelocity_dRatio_[0]; };
+    
+    /** V component of vortex stretching factor perturbation velocity... **/
+    
+    double &dV_dRatio(void) { return dVelocity_dRatio_[1]; };
+
+    /** W component of vortex stretching factor perturbation velocity... **/
+
+    double &dW_dRatio(void) { return dVelocity_dRatio_[2]; };
+
+    /** Perturbation vortex stretching factor velocity vector... **/
+    
+    double *dVelocity_dRatio(void) { return dVelocity_dRatio_; };         
+    
+    /** Node 1 adjoint perturbation velocities **/
+    
+    double &dq0_dx1(void) { return dq0_dxyz_[0][0]; };
+    double &dq0_dy1(void) { return dq0_dxyz_[0][1]; };
+    double &dq0_dz1(void) { return dq0_dxyz_[0][2]; };
+
+    double &dq1_dx1(void) { return dq1_dxyz_[0][0]; };
+    double &dq1_dy1(void) { return dq1_dxyz_[0][1]; };
+    double &dq1_dz1(void) { return dq1_dxyz_[0][2]; };
+    
+    double &dq2_dx1(void) { return dq2_dxyz_[0][0]; };
+    double &dq2_dy1(void) { return dq2_dxyz_[0][1]; };
+    double &dq2_dz1(void) { return dq2_dxyz_[0][2]; };
+        
+    /** Node 2 adjoint perturbation velocities **/
+        
+    double &dq0_dx2(void) { return dq0_dxyz_[1][0]; };
+    double &dq0_dy2(void) { return dq0_dxyz_[1][1]; };
+    double &dq0_dz2(void) { return dq0_dxyz_[1][2]; };
+                        
+    double &dq1_dx2(void) { return dq1_dxyz_[1][0]; };
+    double &dq1_dy2(void) { return dq1_dxyz_[1][1]; };
+    double &dq1_dz2(void) { return dq1_dxyz_[1][2]; };
+                        
+    double &dq2_dx2(void) { return dq2_dxyz_[1][0]; };
+    double &dq2_dy2(void) { return dq2_dxyz_[1][1]; };
+    double &dq2_dz2(void) { return dq2_dxyz_[1][2]; };
+        
     /** Update the geometry information for this edge by rotating and translating ... input
      * is a translation vector, TVec, a rotation origin, and a quaternion and it's inverse **/
     
-    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
     
     /** Update geometry location given updates to the 2 defining nodes for this edge **/
     
     void UpdateGeometryLocation(VSP_NODE &Node1, VSP_NODE &Node2);
+
+    /** Create data structure for wake edge equations **/
+
+    void CreateWakeEdgeSpace(void);
+        
+    /** Flag to determine if this edge lies on the wake **/
+    
+    int IsWakeEdge(void) { return IsWakeEdge_; };
+    
+    /** Wake edge data **/
+    
+    WAKE_EDGE &WakeEdgeData(void) { return *WakeEdgeData_; };
+
+    /** Size the right adjoint edge list **/
+    
+    void SizeAdjointEdgeList(int NumberOfEdges);
+        
+    /** Number of adjoint fine grid edges **/
+    
+    int NumberOfAdjointEdges(void) { return NumberOfAdjointEdges_; };
+    
+    /** List of fine grid adjoint edges **/
+    
+    int &AdjointEdgeList(int i) { return AdjointEdgeList_[i]; };  
+    
+    /** Adjoint edge weight **/
+    
+    double &AdjointEdgeFactor(int i) { return AdjointEdgeFactor_[i]; };
+            
+    /** Calculate residual contribution of this edge to wake equations **/
+    
+    void CalculateWakeResidual(double *Residual);
+
+    /** Calculate unsteady residual contribution of this edge to wake equations **/
+    
+    void CalculateUnsteadyWakeResidualOld(double *Residual, double &DeltaTime);
+    
+    void CalculateUnsteadyWakeResidual(double *Residual, double &DeltaTime);
+    
+    /** Calculate the Jacobian matrix terms **/
+    
+    void CalculateWakeJacobian(void);
+    
+    /** Do forward solve matrix multiply **/
+    
+    void WakeMatrixMultiply(double *VecIn, double *VecOut);
+
+    /** Do forward unsteady solve matrix multiply **/
+
+    void UnsteadyWakeMatrixMultiply(double *VecIn, double *VecOut, double &DeltaTime);
+
+    /** Do forward matrix preconditioning **/
+    
+    void DoWakeForwardMatrixPrecondition(double *VecIn);
+   
+    /** Do adjoint solver adjoint tranpose matrix multiply of gamma perturbation terms **/
+    
+    double WakeTranposeMatrixMultiply(double q[3][3]);
+
+    /** Do adjoint solver unsteady adjoint tranpose matrix multiply of gamma perturbation terms **/
+
+    double UnsteadyWakeTranposeMatrixMultiply(double q[3][3], double &DeltaTime);
+
+    /** Do adjoint solver adjoint tranpose matrix multiply of mesh pertrubation terms **/
+
+    void WakeTranposeMatrixMultiplyMeshPerturbations(double *VecIn, double *VecOut);
+    
+    /** Do adjoint solver unsteady adjoint tranpose matrix multiply of mesh pertrubation terms **/
+    
+    void UnsteadyWakeTranposeMatrixMultiplyMeshPerturbations(double *VecIn, double *VecOut);
+    
+    /** Calculate partial of wake residuals wrt free stream velocity **/
+    
+    void Wake_pResidual_pVinf(double pResidual_pVinf[3][3]);
+    
+    void Wake_pResidual_pVinfOld(double pResidual_pVinf[3][3]);
+
+    /** Calculate partial of unsteady wake residuals wrt free stream velocity **/
+    
+    void UnsteadyWake_pResidual_pVinf(double pResidual_pVinf[3][3], double &DeltaTime);
+    
+    /** Partial derivative of wake residual wrt Mach **/
+    
+    void Wake_pResidual_pMach(double pResidual_pMach[3]);
+    
+    /** Partial derivative of wake residual wrt Mach **/
+    
+    void UnsteadyWake_pResidual_pMach(double pResidual_pMach[3], double &DeltaTime);
+    
 
 };
 

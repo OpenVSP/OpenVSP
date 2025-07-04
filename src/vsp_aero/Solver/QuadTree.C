@@ -71,7 +71,7 @@ QUAD_TREE::~QUAD_TREE(void)
 QUAD_TREE::QUAD_TREE(const QUAD_TREE &QuadTree)
 {
    
-    PRINTF("Copy not implemented for QUAD_TREE class! \n");
+    printf("Copy not implemented for QUAD_TREE class! \n");
     exit(1);
      
 }
@@ -166,10 +166,10 @@ void QUAD_TREE::ResizeCellList(int NewSize)
 #                                                                              #
 ##############################################################################*/
 
-void QUAD_TREE::InitializeTree(VSPAERO_DOUBLE X_min, VSPAERO_DOUBLE X_max,
-                               VSPAERO_DOUBLE Y_min, VSPAERO_DOUBLE Y_max,
-                               VSPAERO_DOUBLE Z_min, VSPAERO_DOUBLE Z_max,
-                               VSPAERO_DOUBLE Value)
+void QUAD_TREE::InitializeTree(double X_min, double X_max,
+                               double Y_min, double Y_max,
+                               double Z_min, double Z_max,
+                               double Value)
                                
 {
    
@@ -231,7 +231,7 @@ void QUAD_TREE::InitializeTree(VSPAERO_DOUBLE X_min, VSPAERO_DOUBLE X_max,
     
     else {
        
-       PRINTF("Unknown quadtree plane type! \n");fflush(NULL);
+       printf("Unknown quadtree plane type! \n");fflush(NULL);
        exit(1);
        
     }
@@ -356,11 +356,11 @@ void QUAD_TREE::ClearTree(void)
 #                                                                              #
 ##############################################################################*/
 
-int QUAD_TREE::InsertPoint(VSPAERO_DOUBLE xyzp[3], int SurfaceEdge)
+int QUAD_TREE::InsertPoint(double xyzp[3], int SurfaceEdge)
 {
    
     int Done, Cell, i, Inserted, Found, Child;
-    VSPAERO_DOUBLE xyz[3], Distance, Tolerance;
+    double xyz[3], Distance, Tolerance;
     
     Tolerance = 1.e-2;
   
@@ -390,7 +390,7 @@ int QUAD_TREE::InsertPoint(VSPAERO_DOUBLE xyzp[3], int SurfaceEdge)
     
     else {
        
-       PRINTF("Must specificy quad tree direction before inserting points! \n");fflush(NULL);
+       printf("Must specificy quad tree direction before inserting points! \n");fflush(NULL);
        exit(1);
        
     }
@@ -479,7 +479,7 @@ int QUAD_TREE::InsertPoint(VSPAERO_DOUBLE xyzp[3], int SurfaceEdge)
              
           }
           
-          if ( Found == 0 ) { PRINTF("wtf! \n"); exit(1); };
+          if ( Found == 0 ) { printf("wtf! \n"); exit(1); };
           
           // Move onto child cell
           
@@ -549,11 +549,11 @@ int QUAD_TREE::InsertPoint(VSPAERO_DOUBLE xyzp[3], int SurfaceEdge)
 #                                                                              #
 ##############################################################################*/
 
-int QUAD_TREE::InsideQuad(int Cell, VSPAERO_DOUBLE xyz[3])
+int QUAD_TREE::InsideQuad(int Cell, double xyz[3])
 {
    
     int Node1, Node3;
-    VSPAERO_DOUBLE x_min, y_min, x_max, y_max;
+    double x_min, y_min, x_max, y_max;
     
     Node1 = CellList_[Cell].Node(0);
     Node3 = CellList_[Cell].Node(2);
@@ -589,21 +589,21 @@ void QUAD_TREE::BufferTree(int Level)
    
    int i, j, k,edge, NumCells, Split;
 
-   //for ( k = 1 ; k <= 1 ; k++ ) {
-   //   
-   //   NumCells = NumberOfCells_;
-   //   
-   //   for ( i = 1 ; i <= NumCells ; i++ ) {
-   //      
-   //      if ( CellList_[i].Child(0) == 0 ) {
-   //         
-   //         SplitCell(i);
-   //         
-   //      }
-   //      
-   //   }
-   //   
-   //}
+   for ( k = 1 ; k <= Level ; k++ ) {
+      
+      NumCells = NumberOfCells_;
+      
+      for ( i = 1 ; i <= NumCells ; i++ ) {
+         
+         if ( CellList_[i].Child(0) == 0 ) {
+            
+            SplitCell(i);
+            
+         }
+         
+      }
+      
+   }
    
    for ( k = 1 ; k <= 3 ; k++ ) {
       
@@ -653,9 +653,9 @@ void QUAD_TREE::SmoothPressure(void)
 {
    
 //   int i, j, k, p, Edge, NeighborCell;
-//   VSPAERO_DOUBLE *NodeArea;
+//   double *NodeArea;
 //
-//   NodeArea = new VSPAERO_DOUBLE[c + 1];
+//   NodeArea = new double[c + 1];
 //   
 //   zero_double_array(NodeArea, NumberOfNodes_);
 //   
@@ -747,7 +747,7 @@ void QUAD_TREE::SplitCell(int Cell)
     int Node[10], NewNode, Child, i, Inserted, NumEdges, NewEdges, e1, e2;
     int Edge, NeighborCell, EdgeMap[8];
     int EdgeList[12];
-    VSPAERO_DOUBLE xyz[5][3];
+    double xyz[5][3];
     
     // Loop over neighbor cells
     
@@ -761,7 +761,7 @@ void QUAD_TREE::SplitCell(int Cell)
 
           if ( EdgeList_[Edge].Cell(0) != Cell && EdgeList_[Edge].Cell(1) != Cell ) {
              
-             PRINTF("wtf! \n");fflush(NULL);
+             printf("wtf! \n");fflush(NULL);
              exit(1);
              
           }
@@ -1231,7 +1231,7 @@ void QUAD_TREE::SplitCell(int Cell)
        
        if ( !Inserted ) {
           
-          PRINTF("wtf ... not inserted int one of the children! \n");fflush(NULL);exit(1);
+          printf("wtf ... not inserted int one of the children! \n");fflush(NULL);exit(1);
           
        }
        
@@ -1250,7 +1250,7 @@ void QUAD_TREE::WriteQuadTreeToFile(FILE *QuadFile)
 {
   
     int i, j, NumberOfUsedNodes, NumberOfUsedCells, InsideBody, *NodeIsUsed;
-    VSPAERO_DOUBLE xyz[3];
+    double xyz[3];
    
     // Determine number of used cells
     
@@ -1292,7 +1292,7 @@ void QUAD_TREE::WriteQuadTreeToFile(FILE *QuadFile)
 
     }
     
-    FPRINTF(QuadFile,"%d %d \n",NumberOfUsedNodes, NumberOfUsedCells);
+    fprintf(QuadFile,"%d %d \n",NumberOfUsedNodes, NumberOfUsedCells);
     
     j = 0;
     
@@ -1306,7 +1306,7 @@ void QUAD_TREE::WriteQuadTreeToFile(FILE *QuadFile)
           xyz[1] = NodeList_[i].xyz(DirMap_[1]);
           xyz[2] = NodeList_[i].xyz(DirMap_[2]);
           
-          FPRINTF(QuadFile,"%d %lf %lf %lf %lf %lf %lf %lf \n",
+          fprintf(QuadFile,"%d %lf %lf %lf %lf %lf %lf %lf \n",
           j,
           xyz[0],
           xyz[1],
@@ -1335,7 +1335,7 @@ void QUAD_TREE::WriteQuadTreeToFile(FILE *QuadFile)
                        
              j++;
    
-             FPRINTF(QuadFile,"%d %d %d %d %d \n",
+             fprintf(QuadFile,"%d %d %d %d %d \n",
              j,
              NodeIsUsed[CellList_[i].Node(0)],
              NodeIsUsed[CellList_[i].Node(1)],

@@ -33,14 +33,20 @@ private:
     char GridName_[FILE_NAME_SIZE];
 
     int NumberOfNodes_;
+    
+    int NumberOfSurfaceNodes_;
 
     VSP_NODE *NodeList_;
 
     int NumberOfLoops_;
 
+    int NumberOfSurfaceLoops_;
+
     VSP_LOOP *LoopList_;
 
     int NumberOfEdges_;
+
+    int NumberOfSurfaceEdges_;
 
     VSP_EDGE *EdgeList_;
     
@@ -50,7 +56,7 @@ private:
     
     int ComponentID_;
 
-    VSPAERO_DOUBLE MinLoopArea_;
+    double MinLoopArea_;
         
     // Wake data
 
@@ -62,11 +68,11 @@ private:
     int *ComponentIDForKuttaNode_;
     int *KuttaNodeIsOnWingTip_;
         
-    VSPAERO_DOUBLE *WakeTrailingEdgeX_;
-    VSPAERO_DOUBLE *WakeTrailingEdgeY_;
-    VSPAERO_DOUBLE *WakeTrailingEdgeZ_;    
+    double *WakeTrailingEdgeX_;
+    double *WakeTrailingEdgeY_;
+    double *WakeTrailingEdgeZ_;    
     
-    VSPAERO_DOUBLE *KuttaNodeSoverB_;
+    double *KuttaNodeSoverB_;
 
 public:
 
@@ -115,6 +121,10 @@ public:
     /** Number of mesh nodes **/
 
     int NumberOfNodes(void) { return NumberOfNodes_; };
+    
+    /** Number of mesh nodes on the surface of the body... this excludes all the wake nodes **/
+    
+    int NumberOfSurfaceNodes(void) { return NumberOfSurfaceNodes_; };
   
     /** Mesh node list **/
     
@@ -131,7 +141,11 @@ public:
     /** Number of grid tris **/
 
     int NumberOfTris(void) { return NumberOfLoops_; };
+
+    /** Number of mesh tris on the surface of the body... this excludes all the wake tris **/
     
+    int NumberOfSurfaceTris(void) { return NumberOfSurfaceLoops_; };
+
     /** Mesh tri list **/
     
     inline VSP_LOOP &TriList(int i) { return LoopList_[i]; };
@@ -147,7 +161,11 @@ public:
     /** Number of mesh loops **/
     
     int NumberOfLoops(void) { return NumberOfLoops_; };
+
+    /** Number of mesh loops on the surface of the body... this excludes all the wake loops **/
     
+    int NumberOfSurfaceLoops(void) { return NumberOfSurfaceLoops_; };
+          
     /** Mesh loop list **/
     
     VSP_LOOP &LoopList(int i) { return LoopList_[i]; };
@@ -164,6 +182,10 @@ public:
 
     int NumberOfEdges(void) { return NumberOfEdges_; };
 
+    /** Number of mesh edges on the surface of the body... this excludes all the wake edges **/
+
+    int &NumberOfSurfaceEdges(void) { return NumberOfSurfaceEdges_; };
+
     /** Mesh edge list **/
     
     VSP_EDGE &EdgeList(int i) { return EdgeList_[i]; };
@@ -179,6 +201,10 @@ public:
     /** Size the kutta node list **/
     
     void SizeKuttaNodeList(int NumberOfKuttaNodes);
+    
+    /** Copy the kutta list data **/
+    
+    void CopyKuttaList(VSP_GRID *Grid);
     
     /** Number of kutta nodes **/
     
@@ -206,19 +232,19 @@ public:
     
     /** X coordinate of kutta node trailing edge point **/
     
-    VSPAERO_DOUBLE &WakeTrailingEdgeX(int i) { return WakeTrailingEdgeX_[i]; };
+    double &WakeTrailingEdgeX(int i) { return WakeTrailingEdgeX_[i]; };
     
     /** Y coordinate of kutta node trailing edge point **/
     
-    VSPAERO_DOUBLE &WakeTrailingEdgeY(int i) { return WakeTrailingEdgeY_[i]; };
+    double &WakeTrailingEdgeY(int i) { return WakeTrailingEdgeY_[i]; };
     
     /** Z coordinate of kutta node trailing edge point **/
     
-    VSPAERO_DOUBLE &WakeTrailingEdgeZ(int i) { return WakeTrailingEdgeZ_[i]; };
+    double &WakeTrailingEdgeZ(int i) { return WakeTrailingEdgeZ_[i]; };
     
     /** S over B (ie, non-dim span location) for kutta node **/
     
-    VSPAERO_DOUBLE &KuttaNodeSoverB(int i) { return KuttaNodeSoverB_[i]; };
+    double &KuttaNodeSoverB(int i) { return KuttaNodeSoverB_[i]; };
     
     /** Model type **/
     
@@ -243,6 +269,10 @@ public:
     /** Calculate normals and centroids for a triangular mesh **/
     
     void CalculateTriNormalsAndCentroids(void);
+
+    /** Calculate circumference of loops **/
+        
+    void CalculateLoopCircumferences(void);
     
     /** Determine which which edges are updwind off the triangle centroid **/
     
@@ -254,11 +284,15 @@ public:
     
     /** Mark boundary edges **/
     
-    void MarkBoundaries(void);
+    void MarkBoundaries(int DoSymmetryPlaneSolve);
+    
+    /** Determine how many loops, edges, and nodes lie on the bodies ... vs bodies + wakes **/
+    
+    void DetermineSurfaceMeshSize(void);
     
     /** Contraint on the minimum loop sized used during agglomeration **/
     
-    VSPAERO_DOUBLE &MinLoopArea(void) { return MinLoopArea_; };
+    double &MinLoopArea(void) { return MinLoopArea_; };
 
     /** Write out mesh data **/
     
@@ -266,11 +300,11 @@ public:
     
     /** Update geometry based on supplied translation vector and quaternion rotation **/
     
-    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
     
     /** Set the edge Mach number **/
     
-    void SetMachNumber(VSPAERO_DOUBLE Mach);
+    void SetMachNumber(double Mach);
 
 };
 

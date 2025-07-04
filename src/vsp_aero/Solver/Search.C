@@ -47,53 +47,9 @@ SEARCH::~SEARCH(void)
 SEARCH::SEARCH(const SEARCH &Search)
 {
    
-    PRINTF("Copy not implemented for SEARCH class! \n");
+    printf("Copy not implemented for SEARCH class! \n");
     exit(1);
      
-}
-
-/*##############################################################################
-
-                        Function CreateSearchTree
-
-Function Description:
-
-The function creates a binary tree for searching a list of xyz points... 
-originally setup for search CFD meshes... 
-
-##############################################################################*/
-
-void SEARCH::CreateSearchTree(VORTEX_TRAIL &Trail, int NumberOfNodes)
-{
-
-    int i;
-    
-    leafs_ = 0;
-
-    // create and initialize the root level of the tree
-
-    root_ = new SEARCH_LEAF;
-
-    root_->sort_direction = 0;
-
-    root_->number_of_nodes = NumberOfNodes;
-
-    root_->node = new SURFACE_NODE[root_->number_of_nodes + 1];
-
-    for ( i = 1 ; i <= root_->number_of_nodes ; i++ ) {
-
-       root_->node[i].xyz[0] = Trail.VortexEdge(i).Xc();
-       root_->node[i].xyz[1] = Trail.VortexEdge(i).Yc();
-       root_->node[i].xyz[2] = Trail.VortexEdge(i).Zc();  
-       
-       root_->node[i].id = i;
-
-    }
-
-    // now create the rest of the tree - this is a recursive process 
-
-    if ( root_->number_of_nodes > 8 ) create_tree_leafs(root_);
-
 }
 
 /*##############################################################################
@@ -162,7 +118,7 @@ void SEARCH::create_tree_leafs(SEARCH_LEAF *root)
 {
 
     int i, *perm, dir, icut;
-    VSPAERO_DOUBLE Xmin, Ymin, Xmax, Ymax, Zmin, Zmax, MaxLength, Length[3];
+    double Xmin, Ymin, Xmax, Ymax, Zmin, Zmax, MaxLength, Length[3];
     SEARCH_LEAF  *left, *right;
     SURFACE_NODE *temp_node;
 
@@ -340,7 +296,7 @@ int *SEARCH::merge_sort(SEARCH_LEAF *root)
 
     if ( list_1 == NULL || list_2 == NULL ) {
 
-       PRINTF("Memory allocation failed in merge_sort! \n");
+       printf("Memory allocation failed in merge_sort! \n");
 
        exit(1);
 
@@ -430,7 +386,7 @@ void SEARCH::merge_lists(int *list_1, int *list_2, int list_length, SEARCH_LEAF 
     int   list_1_front, list_1_end;
     int   list_2_front, list_2_end;
     int   new_list_front, i;
-    VSPAERO_DOUBLE x_1, x_2;
+    double x_1, x_2;
     
     list_1_end = list_2_end = 0;
 
@@ -568,7 +524,7 @@ int SEARCH::SearchTree_(SEARCH_LEAF *root, TEST_NODE &node)
 
 //fix this!
 //
-//    VSPAERO_DOUBLE ds;
+//    double ds;
 
     // Don't search a NULL list 
 
@@ -658,7 +614,7 @@ Coded By: David J. Kinney
 void SEARCH::test_node(SURFACE_NODE &snode, TEST_NODE &tnode)
 {
 
-   // VSPAERO_DOUBLE a_dist;
+   // double a_dist;
 
     // get absolute distance 
 

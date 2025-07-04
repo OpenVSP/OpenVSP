@@ -75,7 +75,7 @@ QUAD_CELL::~QUAD_CELL(void)
 QUAD_CELL::QUAD_CELL(const QUAD_CELL &QuadCell)
 {
    
-    PRINTF("Copy not implemented for QUAD_CELL class! \n");
+    printf("Copy not implemented for QUAD_CELL class! \n");
     exit(1);
      
 }

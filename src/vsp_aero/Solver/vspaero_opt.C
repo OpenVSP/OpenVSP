@@ -10,49 +10,52 @@
 #include <string.h>
 #include <sys/types.h>
 
+
 #ifndef WIN32
 #include <sys/wait.h>
 #include <unistd.h>
 #endif
 
-#include "VSP_Optimizer.H"
+// VSPAERO header
+
+#include "VSP_Solver.H"
+
+// OpenVSP headers
+
+#include "main.h"
+#include "VSP_Geom_API.h"
+
+
+class PARAMETER_DATA {
+   
+public:
+   
+   double *ParameterValues;
+   char **ParameterNames;
+
+};
+
+using namespace VSPAERO_SOLVER;
 
 // The code...
 
 int main(int argc, char **argv);
 
-int TestCase_1(char *FileName); // Single, SCALAR, optimization function 
+int TestCase_1(char *GeometryFileName, int SolverMode); // Dead stupid optimization of a VLM wing...
 
-int TestCase_2(char *FileName); // 3 SCALAR optimization functions, 1 forward solve, 3 adjoint solves
+PARAMETER_DATA *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables);
 
-int TestCase_3(char *FileName); // Single VECTOR optimization function, with user supplied intitial gradient 
+double *CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues, VSP_SOLVER &VSP_VLM);
 
-int TestCase_4(char *FileName); // UNSTEADY analysis... with a single scalar optimization function, with user supplied intitial gradient 
+void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues, VSP_SOLVER &VSP_VLM);
 
-int TestCase_5(char *FileName); // Single VECTOR optimization function, with user supplied intitial gradient...
-                                // followed by a matrix-vector multiply, and an adjoint matrix-vector multiply
+double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVariables, PARAMETER_DATA *ParameterData, VSP_SOLVER &VSP_VLM);
 
-int TestCase_6(char *FileName); // UNSTEADY analysis... with 3 VECTOR optimization functions, with user supplied intitial gradient 
+void DeleteMeshGradients(int NumberOfDesignVariables, double **dMesh_dParameter);
 
-int TestCase_7(char *FileName); // Dead stupid optimization of a wing...
-
-int TestCase_8(char *FileName); // Dead stupid UNSTEADY optimization of a wing... with 2 rotors... 
-
-int TestCase_9(char *FileName); // Unsteady rotor CT and gradients with respect to feather
-
-int TestCase_10(char *FileName); // Panel fuse test case
-
-int TestCase_11(char *FileName); // Test cases show API examples
-
-
-double *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables);
-void CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, double *ParameterValues);
-double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVariables, double *ParameterValues);
-void DeleteOpenVSPGeometryGradients(double **dMesh_dParameter, int NumberOfDesignVariables);
-double *ReadVSPGeomFile(char *FileName, int &NumberOfMeshNodes);
 double Normalize(double *Vector, int Length);
+
 void CGState(double *Old, double *New, int Length);
-void CG_Optimizer(char *FileName, int NumberOfParameterValues, double *ParameterValues, double *Gradient, VSP_OPTIMIZER &Optimizer);
 
 /*##############################################################################
 #                                                                              #
@@ -63,9 +66,10 @@ void CG_Optimizer(char *FileName, int NumberOfParameterValues, double *Parameter
 int main(int argc, char **argv)
 {
  
-    int TestCase;   
+    int TestCase;
+    double *MeshGeom;   
     char *FileName;
-    
+
     // Grab the test case to run
     
     if ( argc < 3 ) {
@@ -86,95 +90,14 @@ int main(int argc, char **argv)
 
     printf("FileName: %s \n",FileName);fflush(NULL);
     
-    // Single, SCALAR, optimization function 
-    
-    if ( TestCase == 1 ) {
-       
-       return TestCase_1(FileName);
-       
-    }
-    
-    // 3 SCALAR optimization functions, 1 forward solve, 3 adjoint solves
-    
-    else if ( TestCase == 2 ) {
-       
-       return TestCase_2(FileName);
-       
-    }
-    
-    // Single VECTOR optimization function, with user supplied intitial gradient 
-    
-    else if ( TestCase == 3 ) {
-       
-       return TestCase_3(FileName);   
-       
-    }  
-
-    // UNSTEADY analysis... with a single scalar optimization function, with user supplied intitial gradient 
-       
-    else if ( TestCase == 4 ) {
-       
-       return TestCase_4(FileName);    
-       
-    }
-
-    // Single VECTOR optimization function, with user supplied intitial gradient...
-    // followed by a matrix-vector multiply, and an adjoint matrix-vector multiply
-
-    else if ( TestCase == 5 ) {
-       
-       return TestCase_5(FileName);    
-       
-    }
-    
-    // UNSTEADY analysis... with 3 VECTOR optimization functions, with user supplied intitial gradient 
-
-    else if ( TestCase == 6 ) {
-       
-       return TestCase_6(FileName);    
-       
-    }
-
     // Dead stupid optimization of a wing...
 
-    else if ( TestCase == 7 ) {
+    if ( TestCase == 1 ) {
        
-       return TestCase_7(FileName);    
-       
-    }   
-
-    // Dead stupid UNSTEADY optimization of a wing... with 2 rotors... 
-
-    else if ( TestCase == 8 ) {
-       
-       return TestCase_8(FileName);    
+       return TestCase_1(FileName, VLM_MODEL);    
        
     }   
-
-    // Rotor CT gradients wrt feather...
-
-    else if ( TestCase == 9 ) {
-       
-       return TestCase_9(FileName);    
-       
-    }   
-
-    // Panel fuselage solve test
-
-    else if ( TestCase == 10 ) {
-       
-       return TestCase_10(FileName);    
-       
-    }   
-      
-    // Matrix vector products, residuals, and right hand side test
-
-    else if ( TestCase == 11 ) {
-       
-       return TestCase_11(FileName);    
-       
-    }   
-                             
+               
     else {
        
        printf("Unknown test case! \n");
@@ -191,851 +114,204 @@ int main(int argc, char **argv)
 #                                                                              #
 #                            TestCase_1                                        #
 #                                                                              #
-#        Single, SCALAR, optimization function                                 #
+# Simple wing optimization                                                     #
 #                                                                              #
 ##############################################################################*/
 
-int TestCase_1(char *FileName)
-{
-    int i, p;
-    double Function;
-    char GradientFileName[2000];
-    FILE *GRADFile;
-    
-    printf("Running test case #1... \n");fflush(NULL);
-       
-    VSP_OPTIMIZER Optimizer;
-
-    Optimizer.NumberOfThreads() = 1;
-    
-    Optimizer.DoUnsteadyAnalysis() = 0;
-    
-    Optimizer.NumberOfOptimizationFunctions() = 1;
-    
-    Optimizer.OptimizationFunction(1) = OPT_CD_TOTAL;
-
-    Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
-
-    Optimizer.Setup(FileName);
-  
-    Optimizer.SetMachNumber(0.11);
-       
-    Optimizer.SetAoADegrees(5.);
-       
-    Optimizer.SetBetaDegrees(0.);
-       
-    Optimizer.SetVinf(100.);
-       
-    Optimizer.SetDensity(1.e-5);
-       
-    Optimizer.SetReCref(1000000.);
-       
-    Optimizer.SetRotationalRate_p(0.);
-       
-    Optimizer.SetRotationalRate_q(0.);
-       
-    Optimizer.SetRotationalRate_r(0.);
-
-    Optimizer.Solve();
-   
-    // Open the gradient file
-
-    sprintf(GradientFileName,"%s.opt.gradient",FileName);
-
-    if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
-    
-       printf("Could not open the gradient output file! \n");
-    
-       exit(1);
-    
-    }
-           
-    // Output the gradient data
-
-    fprintf(GRADFile,"%d \n",Optimizer.NumberOfNodes());fflush(NULL);
-    
-    for ( p = 1 ; p <= Optimizer.NumberOfOptimizationFunctions() ; p++ ) {
-       
-       Optimizer.GetFunctionValue(p,Function);
-
-       fprintf(GRADFile,"Function: %d value: %f \n",p,Function);fflush(NULL);
-   
-                       //1234567890    1234567890 1234567890 1234567890    1234567890 1234567890 1234567890    
-       
-       fprintf(GRADFile,"   Node            X          Y          Z            dFdX       dFdY       dFdZ \n");
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          fprintf(GRADFile,"%10d   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e \n",
-           i,
-           Optimizer.NodeX(i),
-           Optimizer.NodeY(i),
-           Optimizer.NodeZ(i),
-           Optimizer.GradientX(p,i),
-           Optimizer.GradientY(p,i),
-           Optimizer.GradientZ(p,i));
-           
-           fflush(NULL);
-       }
-       
-       fprintf(GRADFile," \n\n\n");
-       
-    }     
-     
-    fclose(GRADFile);
-    
-    // Gradient with respect to input values 
-    
-    printf("\n\n\n\n");
-    printf("Gradient with respect to Alpha   : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_ALPHA  ));
-    printf("Gradient with respect to Beta    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_BETA   ));
-    printf("Gradient with respect to Mach    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_MACH   ));
-    printf("Gradient with respect to Vinf    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_VINF   ));
-    printf("Gradient with respect to Density : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_DENSITY));
-    printf("Gradient with respect to ReCref  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_RECREF ));
-    printf("Gradient with respect to P rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_P_RATE ));
-    printf("Gradient with respect to Q rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_Q_RATE ));
-    printf("Gradient with respect to R rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_R_RATE ));
-  
-    return 1;
-    
-}
-
-/*##############################################################################
-#                                                                              #
-#                            TestCase_2                                        #
-#                                                                              #
-#  3 SCALAR optimization functions, 1 forward solve, 3 adjoint solves          #
-#                                                                              #
-##############################################################################*/
-
-int TestCase_2(char *FileName)
-{
-    int i, p;
-    double Function;
-    char GradientFileName[2000];
-    FILE *GRADFile;
-    
-    printf("Running test case #2... \n");fflush(NULL);
-       
-    VSP_OPTIMIZER Optimizer;
-
-    Optimizer.NumberOfThreads() = 4;
-    
-    Optimizer.DoUnsteadyAnalysis() = 0;
-    
-    Optimizer.NumberOfOptimizationFunctions() = 3;
-    
-    Optimizer.OptimizationFunction(1) = OPT_CL_TOTAL;
-    Optimizer.OptimizationFunction(2) = OPT_CD_TOTAL;
-    Optimizer.OptimizationFunction(3) = OPT_CMY_TOTAL;
-    
-    Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
-    
-    Optimizer.Setup(FileName);
-
-    Optimizer.Solve();
-   
-    // Open the gradient file
-
-    sprintf(GradientFileName,"%s.opt.gradient",FileName);
-
-    if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
-    
-       printf("Could not open the gradient output file! \n");
-    
-       exit(1);
-    
-    }
-           
-    // Output the gradient data
-
-    fprintf(GRADFile,"%d \n",Optimizer.NumberOfNodes());fflush(NULL);
-    
-    for ( p = 1 ; p <= Optimizer.NumberOfOptimizationFunctions() ; p++ ) {
-       
-       Optimizer.GetFunctionValue(p,Function);
-
-       fprintf(GRADFile,"Function: %d value: %f \n",p,Function);fflush(NULL);
-   
-                       //1234567890    1234567890 1234567890 1234567890    1234567890 1234567890 1234567890    
-       
-       fprintf(GRADFile,"   Node            X          Y          Z            dFdX       dFdY       dFdZ \n");
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          fprintf(GRADFile,"%10d   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e \n",
-           i,
-           Optimizer.NodeX(i),
-           Optimizer.NodeY(i),
-           Optimizer.NodeZ(i),
-           Optimizer.GradientX(p,i),
-           Optimizer.GradientY(p,i),
-           Optimizer.GradientZ(p,i));
-           
-           fflush(NULL);
-       }
-       
-       fprintf(GRADFile," \n\n\n");
-       
-    }     
-     
-    fclose(GRADFile);
-
-    // Gradient with respect to input values 
- 
-    printf("\n\n\n\n");
-    printf("Gradient with respect to Alpha   : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_ALPHA  ));
-    printf("Gradient with respect to Beta    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_BETA   ));
-    printf("Gradient with respect to Mach    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_MACH   ));
-    printf("Gradient with respect to Vinf    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_VINF   ));
-    printf("Gradient with respect to Density : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_DENSITY));
-    printf("Gradient with respect to ReCref  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_RECREF ));
-    printf("Gradient with respect to P rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_P_RATE ));
-    printf("Gradient with respect to Q rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_Q_RATE ));
-    printf("Gradient with respect to R rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_R_RATE ));
-        
-    return 1;
-    
-}
-
-/*##############################################################################
-#                                                                              #
-#                            TestCase_3                                        #
-#                                                                              #
-#   Single VECTOR optimization function, with user supplied intitial gradient  #
-#                                                                              #
-##############################################################################*/
-
-int TestCase_3(char *FileName)
-{
-    int i, p, Case, Wing;
-    double *Function, *Vec;
-    char GradientFileName[2000];
-    FILE *GRADFile;
-    
-    printf("Running test case #3... \n");fflush(NULL);
-       
-    VSP_OPTIMIZER Optimizer;
-
-    Optimizer.NumberOfThreads() = 4;
-    
-    Optimizer.DoUnsteadyAnalysis() = 0;
-    
-    Optimizer.NumberOfOptimizationFunctions() = Case = 1;
-    
-    Optimizer.OptimizationFunction(Case) = OPT_WING_CL_TOTAL; // xyz force coefficents vs span for wing 1
-    
-    Optimizer.OptimizationSet(Case) = Wing = 1; // We have to specify which wing this is
-
-    Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
-    
-    Optimizer.Setup(FileName);
-    
-    Optimizer.SolveForward();
-
-    // User supplied input gradient vector
-    
-    printf("Function Length: %d \n",Optimizer.OptimizationFunctionLength(1));
-        
-    Case = 1; // We have only 1 optimization function, which is a vector... OPT_WING_CL_TOTAL ... of the wing loading
- 
-    Vec = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
-    
-    Function = new double[Optimizer.OptimizationFunctionLength(Case) + 1];    
-    
-    for ( i = 1 ; i <= Optimizer.OptimizationFunctionLength(Case) ; i++ ) {
-       
-       Vec[i] = 1.;
-       
-    }
-
-    Optimizer.SetGradientVector(Case, Vec);
-
-    Optimizer.SolveAdjoint();
-    
-    // Open the gradient file
-
-    sprintf(GradientFileName,"%s.opt.gradient",FileName);
-
-    if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
-    
-       printf("Could not open the gradient output file! \n");
-    
-       exit(1);
-    
-    }
-           
-    // Output the gradient data
-
-    fprintf(GRADFile,"%d \n",Optimizer.NumberOfNodes());fflush(NULL);
-    
-    for ( p = 1 ; p <= Optimizer.NumberOfOptimizationFunctions() ; p++ ) {
-       
-       Optimizer.GetFunctionValue(p,Function);
-       
-       fprintf(GRADFile,"Function: %d \n",p);fflush(NULL);
-
-       for ( i = 1 ; i <= Optimizer.OptimizationFunctionLength(p) ; i++ ) {
-          
-          fprintf(GRADFile,"Function(%d): %f \n",p,Function[i]);fflush(NULL);
-          
-       }
-   
-                       //1234567890    1234567890 1234567890 1234567890    1234567890 1234567890 1234567890    
-       
-       fprintf(GRADFile,"   Node            X          Y          Z            dFdX       dFdY       dFdZ \n");
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          fprintf(GRADFile,"%10d   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e \n",
-           i,
-           Optimizer.NodeX(i),
-           Optimizer.NodeY(i),
-           Optimizer.NodeZ(i),
-           Optimizer.GradientX(p,i),
-           Optimizer.GradientY(p,i),
-           Optimizer.GradientZ(p,i));
-           
-           fflush(NULL);
-       }
-       
-       fprintf(GRADFile," \n\n\n");
-       
-    }     
-     
-    fclose(GRADFile);
-
-    // Gradient with respect to input values 
- 
-    printf("\n\n\n\n");
-    printf("Gradient with respect to Alpha   : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_ALPHA  ));
-    printf("Gradient with respect to Beta    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_BETA   ));
-    printf("Gradient with respect to Mach    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_MACH   ));
-    printf("Gradient with respect to Vinf    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_VINF   ));
-    printf("Gradient with respect to Density : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_DENSITY));
-    printf("Gradient with respect to ReCref  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_RECREF ));
-    printf("Gradient with respect to P rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_P_RATE ));
-    printf("Gradient with respect to Q rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_Q_RATE ));
-    printf("Gradient with respect to R rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_R_RATE ));
-        
-    return 1;
-    
-}
-
-/*##############################################################################
-#                                                                              #
-#                            TestCase_4                                        #
-#                                                                              #
-#   UNSTEADY analysis... with a single scalar optimization function, with      #
-#   user supplied intitial gradient                                            #
-#                                                                              #
-##############################################################################*/
-
-int TestCase_4(char *FileName)
-{
-    int i, p, t, Case;
-    double *Function, *Vec;
-    char GradientFileName[2000];
-    FILE *GRADFile;
-    
-    printf("Running test case #4... \n");fflush(NULL);
-       
-    VSP_OPTIMIZER Optimizer;
-
-    Optimizer.NumberOfThreads() = 1;
-    
-    Optimizer.DoUnsteadyAnalysis() = 1;
-    
-    Optimizer.NumberOfOptimizationFunctions() = 1;
-
-    Optimizer.OptimizationFunction(1) = OPT_ROTOR_CT_TOTAL;
-        
-    Optimizer.OptimizationSet(1) = 1;
-
-    Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
-    
-    Optimizer.Setup(FileName);
-    
-    Optimizer.SolveForward();
-   
-    // User supplied input gradient vector
-    
-    printf("Function Length: %d \n",Optimizer.OptimizationFunctionLength(1));
-        
-    Case = 1; // We have only 1 optimization function, which is a scalar... 
- 
-    Vec = new double[Optimizer.OptimizationVectorLength(Case) + 1]; // Length is vectorlength  = function length X number of time averaging steps
-    
-    Function = new double[Optimizer.OptimizationFunctionLength(Case) + 1]; 
-
-    printf("OptimizationVectorLength Length: %d \n",Optimizer.OptimizationVectorLength(1));
-
-    for ( i = 1 ; i <= Optimizer.OptimizationVectorLength(Case) ; i++ ) {
-       
-       Vec[i] = 1.;
-       
-    }
-
-    Optimizer.SetGradientVector(Case, Vec);
-
-    Optimizer.SolveAdjoint();
-    
-    
-    // Open the gradient file
-
-    sprintf(GradientFileName,"%s.opt.gradient",FileName);
-
-    if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
-    
-       printf("Could not open the gradient output file! \n");
-    
-       exit(1);
-    
-    }
-           
-    // Output the gradient data
-
-    fprintf(GRADFile,"%d \n",Optimizer.NumberOfNodes());fflush(NULL);
-    
-    for ( p = 1 ; p <= Optimizer.NumberOfOptimizationFunctions() ; p++ ) {
-       
-       Optimizer.GetFunctionValue(p,Function);
-
-       fprintf(GRADFile,"Function: %d \n",p);fflush(NULL);
-
-       for ( i = 1 ; i <= Optimizer.OptimizationFunctionLength(p) ; i++ ) {
-          
-          fprintf(GRADFile,"Function(%d): %e \n",p,Function[i]);fflush(NULL);
-          
-       }
-          
-                       //1234567890    1234567890 1234567890 1234567890    1234567890 1234567890 1234567890    
-       
-       fprintf(GRADFile,"   Node            X          Y          Z            dFdX       dFdY       dFdZ \n");
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          fprintf(GRADFile,"%10d   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e \n",
-           i,
-           Optimizer.NodeX(i),
-           Optimizer.NodeY(i),
-           Optimizer.NodeZ(i),
-           Optimizer.GradientX(p,i),
-           Optimizer.GradientY(p,i),
-           Optimizer.GradientZ(p,i));
-           
-           fflush(NULL);
-       }
-       
-       fprintf(GRADFile," \n\n\n");
-       
-       fprintf(GRADFile,"Unsteady Results: \n\n");
-              
-       for ( t = 1 ; t <= Optimizer.OptimizationNumberOfTimeSteps(p) ; t++ ) {
-          
-          fprintf(GRADFile,"Time Step: %d \n\n",t);
-
-          Optimizer.GetUnsteadyFunctionValue(p,t,Function);
-          
-          fprintf(GRADFile,"Function: %d \n",p);fflush(NULL);
-          
-          for ( i = 1 ; i <= Optimizer.OptimizationFunctionLength(p) ; i++ ) {
-             
-             fprintf(GRADFile,"Function(%d): %e \n",p,Function[i]);fflush(NULL);
-             
-          }
-       
-          for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-             
-             fprintf(GRADFile,"%10d   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e \n",
-              i,
-              Optimizer.NodeX(i),
-              Optimizer.NodeY(i),
-              Optimizer.NodeZ(i),
-              Optimizer.GradientX(p,t,i),
-              Optimizer.GradientY(p,t,i),
-              Optimizer.GradientZ(p,t,i));
-              
-              fflush(NULL);
-          }
-          
-          fprintf(GRADFile,"\n");
-          
-       }          
-       
-    }     
-     
-    fclose(GRADFile);
-
-    // Gradient with respect to input values 
- 
-    printf("\n\n\n\n");
-    printf("Gradient with respect to Alpha   : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_ALPHA  )); fflush(NULL);
-    printf("Gradient with respect to Beta    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_BETA   )); fflush(NULL);
-    printf("Gradient with respect to Mach    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_MACH   )); fflush(NULL);
-    printf("Gradient with respect to Vinf    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_VINF   )); fflush(NULL);
-    printf("Gradient with respect to Density : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_DENSITY)); fflush(NULL);
-    printf("Gradient with respect to ReCref  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_RECREF )); fflush(NULL);
-    printf("Gradient with respect to P rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_P_RATE )); fflush(NULL);
-    printf("Gradient with respect to Q rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_Q_RATE )); fflush(NULL);
-    printf("Gradient with respect to R rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_R_RATE )); fflush(NULL);
-    
-    printf("Gradient with respect to rotor Omega  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_NUMBER_OF_INPUTS + 1)); fflush(NULL);
-      
-    return 1;
-    
-}
-
-/*##############################################################################
-#                                                                              #
-#                            TestCase_5                                        #
-#                                                                              #
-# Single vector optimization functions, with user supplied intitial gradient.. #
-# followed by a matrix-vector multiply, and an adjoint matrix-vector multiply  #
-#                                                                              #
-##############################################################################*/
-
-int TestCase_5(char *FileName)
-{
-    int i, Case, Wing;
-    double *Vec;
-    double *VecIn, *VecOut, *RHS;
-    double *AdjointVecIn, *AdjointVecOut, *AdjointRHS;
-    
-    printf("Running test case #5... \n");fflush(NULL);
-       
-    VSP_OPTIMIZER Optimizer;
-
-    Optimizer.NumberOfThreads() = 4;
-    
-    Optimizer.DoUnsteadyAnalysis() = 0;
-  
-    Optimizer.NumberOfOptimizationFunctions() = 1;
-    
-    Case = 1;
-    
-    Optimizer.OptimizationFunction(Case) = OPT_WING_CX_TOTAL; // xyz force coefficents vs span for wing 1
-    
-    Optimizer.OptimizationSet(Case) = Wing = 1; // We have to specify which wing this is
-
-    Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
-     
-    Optimizer.Setup(FileName);
-    
-    Optimizer.SolveForward();
-   
-    // User supplied input gradient vector
-    
-    printf("Function Length: %d \n",Optimizer.OptimizationFunctionLength(1));
-        
-    Case = 1; // We have only 1 optimization function, which is a vector... OPT_WING_CL_TOTAL ... of the wing loading
- 
-    Vec = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
-  
-    for ( i = 1 ; i <= Optimizer.OptimizationFunctionLength(Case) ; i++ ) {
-       
-       Vec[i] = 1.;
-       
-    }
-
-    Optimizer.SetGradientVector(Case, Vec);
-
-    Optimizer.SolveAdjoint();
-    
-    // Do matrix-vector multiply
- 
-     VecIn = new double[Optimizer.NumberOfLoops() + 1];
-    VecOut = new double[Optimizer.NumberOfLoops() + 1];
-       RHS = new double[Optimizer.NumberOfLoops() + 1];
-       
-    for ( i = 1 ; i <= Optimizer.NumberOfLoops() ; i++ ) {
-       
-        VecIn[i] = 1.;
-       VecOut[i] = 0.;
-          RHS[i] = 0.;
-       
-    }
-    
-    printf("\n");
-    printf("Doing matrix-vector multiply... and grabbing rhs \n");fflush(NULL);
-  
-    Optimizer.CalculateForwardMatrixVectorProduct(VecIn, VecOut);
-    Optimizer.CalculateForwardRightHandSide(RHS);
-    
-    // Do adjoint matrix-vector multiply
- 
-     AdjointVecIn = new double[Optimizer.NumberOfLoops() + 1];
-    AdjointVecOut = new double[Optimizer.NumberOfLoops() + 1];
-       AdjointRHS = new double[Optimizer.NumberOfLoops() + 1];
-
-    for ( i = 1 ; i <= Optimizer.NumberOfLoops() ; i++ ) {
-       
-        AdjointVecIn[i] = 1.;
-       AdjointVecOut[i] = 0.;
-          AdjointRHS[i] = 0.;
-       
-    }
-      
-    printf("Doing adjoint matrix-vector multiply... and grabbing rhs \n");fflush(NULL);
-      
-    Optimizer.CalculateAdjointMatrixVectorProduct(AdjointVecIn, AdjointVecOut);
-    Optimizer.CalculateAdjointRightHandSide(AdjointRHS);
-        
-    return 1;
-    
-}
-
-/*##############################################################################
-#                                                                              #
-#                            TestCase_6                                        #
-#                                                                              #
-# UNSTEADY analysis... with 3 VECTOR optimization functions with user supplied #
-# intitial gradient                                                            #                  
-#                                                                              #
-##############################################################################*/
-
-int TestCase_6(char *FileName)
+int TestCase_1(char *GeometryFileName, int SolverMode)
 {
    
-    int i, p, Case, Wing;
-    double *Function1, *Function2, *Function3, *Vec1, *Vec2, *Vec3;
-    char GradientFileName[2000];
-    FILE *GRADFile;
+    int Case, NumberOfThreads;
     
-    printf("Running test case #6... \n");fflush(NULL);
-       
-    VSP_OPTIMIZER Optimizer;
-
-    Optimizer.NumberOfThreads() = 4;
-    
-    Optimizer.DoUnsteadyAnalysis() = 1;
-    
-    Optimizer.NumberOfOptimizationFunctions() = 3;
-    
-    
-    Case = 1;
-    
-    Optimizer.OptimizationFunction(Case) = OPT_WING_CX_TOTAL; 
-    
-    Optimizer.OptimizationSet(Case) = Wing = 1; // We have to specify which wing this is
-
-
-    Case = 2;
-    
-    Optimizer.OptimizationFunction(Case) = OPT_WING_CY_TOTAL; 
-    
-    Optimizer.OptimizationSet(Case) = Wing = 1; // We have to specify which wing this is
-    
-
-    Case = 3;
-    
-    Optimizer.OptimizationFunction(Case) = OPT_WING_CZ_TOTAL; 
-    
-    Optimizer.OptimizationSet(Case) = Wing = 1; // We have to specify which wing this is
-    
-    
-    Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
-            
-    Optimizer.Setup(FileName);
-    
-    Optimizer.SolveForward();
-
-    // User supplied input gradient vector
-            
-    Case = 1; 
- 
-    printf("Function %d Length: %d \n",Case,Optimizer.OptimizationFunctionLength(Case));
-
-    Vec1 = new double[Optimizer.OptimizationVectorLength(Case) + 1]; // Note for unsteady cases the input vector needs to be length = OptimizationVectorLength
-    
-    Function1 = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
-    
-    for ( i = 1 ; i <= Optimizer.OptimizationVectorLength(Case) ; i++ ) {
-       
-       Vec1[i] = 1.;
-       
-    }
-
-    Optimizer.SetGradientVector(Case, Vec1);
-
-
-    Case = 2; 
- 
-    printf("Function %d Length: %d \n",Case,Optimizer.OptimizationFunctionLength(Case));
- 
-    Vec2 = new double[Optimizer.OptimizationVectorLength(Case) + 1]; // Note for unsteady cases the input vector needs to be length = OptimizationVectorLength
-    
-    Function2 = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
-    
-    for ( i = 1 ; i <= Optimizer.OptimizationVectorLength(Case) ; i++ ) {
-       
-       Vec2[i] = 1.;
-       
-    }
-    
-    Optimizer.SetGradientVector(Case, Vec2);
-   
-   
-    Case = 3; 
-
-    printf("Function %d Length: %d \n",Case,Optimizer.OptimizationFunctionLength(Case));
- 
-    Vec3 = new double[Optimizer.OptimizationVectorLength(Case) + 1]; // Note for unsteady cases the input vector needs to be length = OptimizationVectorLength
-
-    Function3 = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
-    
-    for ( i = 1 ; i <= Optimizer.OptimizationVectorLength(Case) ; i++ ) {
-       
-       Vec3[i] = 1.;
-       
-    }
-    
-    Optimizer.SetGradientVector(Case, Vec3);
-    
-    printf("Solving adjoint... \n");fflush(NULL);
-    
-    Optimizer.SolveAdjoint();
-    
-    // Open the gradient file
-
-    sprintf(GradientFileName,"%s.opt.gradient",FileName);
-
-    if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
-    
-       printf("Could not open the gradient output file! \n");
-    
-       exit(1);
-    
-    }
-           
-    // Output the gradient data
-
-    fprintf(GRADFile,"%d \n",Optimizer.NumberOfNodes());fflush(NULL);
-    
-    for ( p = 1 ; p <= Optimizer.NumberOfOptimizationFunctions() ; p++ ) {
-       
-       if ( p == 1 ) Optimizer.GetFunctionValue(p,Function1);
-       if ( p == 2 ) Optimizer.GetFunctionValue(p,Function2);
-       if ( p == 3 ) Optimizer.GetFunctionValue(p,Function3);
-
-       fprintf(GRADFile,"Function: %d \n",p);
-
-       for ( i = 1 ; i <= Optimizer.OptimizationFunctionLength(p) ; i++ ) {
-          
-          if ( p == 1 ) fprintf(GRADFile,"F(%d): %f \n",p,Function1[i]);
-          if ( p == 2 ) fprintf(GRADFile,"F(%d): %f \n",p,Function2[i]);
-          if ( p == 3 ) fprintf(GRADFile,"F(%d): %f \n",p,Function3[i]);
-          
-       }
-        
-                       //1234567890    1234567890 1234567890 1234567890    1234567890 1234567890 1234567890    
-       
-       fprintf(GRADFile,"   Node            X          Y          Z            dFdX       dFdY       dFdZ \n");
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          fprintf(GRADFile,"%10d   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e \n",
-           i,
-           Optimizer.NodeX(i),
-           Optimizer.NodeY(i),
-           Optimizer.NodeZ(i),
-           Optimizer.GradientX(p,i),
-           Optimizer.GradientY(p,i),
-           Optimizer.GradientZ(p,i));
-           
-           fflush(NULL);
-       }
-       
-       fprintf(GRADFile," \n\n\n");
-       
-    }     
-     
-    fclose(GRADFile);
-
-    // Gradient with respect to input values 
- 
-    printf("\n\n\n\n");
-    printf("Gradient with respect to Alpha   : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_ALPHA  ));
-    printf("Gradient with respect to Beta    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_BETA   ));
-    printf("Gradient with respect to Mach    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_MACH   ));
-    printf("Gradient with respect to Vinf    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_VINF   ));
-    printf("Gradient with respect to Density : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_DENSITY));
-    printf("Gradient with respect to ReCref  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_RECREF ));
-    printf("Gradient with respect to P rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_P_RATE ));
-    printf("Gradient with respect to Q rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_Q_RATE ));
-    printf("Gradient with respect to R rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_R_RATE ));
-        
-    return 1;
-    
-}
-
-/*##############################################################################
-#                                                                              #
-#                            TestCase_7                                        #
-#                                                                              #
-#        Simple optimization                                                   #
-#                                                                              #
-##############################################################################*/
-
-int TestCase_7(char *FileName)
-{
     int i, j, Iter, IterMax, NumberOfParameterValues, NumberOfNodes, k, Done;
-    double CL, CD, CM, CLreq, *NodeXYZ, *dFdMesh[3], *dF_dParameter, *Gradient, *GradientOld, F, Fnew, Delta, StepSize;
+    double CL, CD, CM, CLreq, CDreq, CMreq, *NodeXYZ, *dFdMesh[3], *dF_dParameter, *Gradient, *GradientOld, F, Fnew, Delta, StepSize;
     double Lambda_1, Lambda_2, Lambda_3, **dMesh_dParameter;
-    double *ParameterValues, *NewParameterValues, *BestParameterValues;
-    char HistoryFileName[2000], CommandLine[2000], OptimizationSetupFileName[2000];
+    double *ParameterValues, *NewParameterValues, *BestParameterValues, Time0, TotalTime, *MeshNodes;
+    char HistoryFileName[2000], CommandLine[2000], OptimizationSetupFileName[2000], **ParameterNames;
+    char OpenVSP_FileName[2000], OpenVSP_VSPGeomFileName[2000];
     FILE *HistoryFile, *OptimizationSetupFile;
     
-    printf("Running test case #7... \n");fflush(NULL);
+    int NumberOfForwardSolves, NumberOfAdjointSolves, NumberOfGeometryUpdates;
+    double Time, ForwardSolveTime, AdjointSolveTime, GeometryUpdateTime;
 
-    // Default design CL
+    // OPENMP stuff
     
-    CLreq = 0.4;    
-    
-    // Default CL, CD, and CM weights
+#ifdef VSPAERO_OPENMP
    
-    Lambda_1 = 100.;
-    Lambda_2 = 100.;
-    Lambda_3 = 100.;
+    NumberOfThreads = 4;
+   
+    omp_set_num_threads(NumberOfThreads);
+    
+    NumberOfThreads = omp_get_max_threads();
 
-    // Read in the optimization options
+    printf("NumberOfThreads_: %d \n",NumberOfThreads);
     
-    sprintf(OptimizationSetupFileName,"%s.opt",FileName);
+#else
 
-    if ( (OptimizationSetupFile = fopen(OptimizationSetupFileName, "r")) == NULL ) {
+    NumberOfThreads = 1;
+
+    printf("Single threaded build.\n");
+
+#endif
+
+    // OpenVSP parameter data
+            
+    PARAMETER_DATA *ParameterData;
     
-       printf("Could not open the optimization setup file: %s! \n",OptimizationSetupFileName);
-       printf("Using default optimization values... \n");fflush(NULL);
+    // VSPAERO Solver
+        
+    VSP_SOLVER VSP_VLM;
+
+    // Zero out statistics
     
+    NumberOfForwardSolves = NumberOfAdjointSolves = NumberOfGeometryUpdates = 0;
+    
+    ForwardSolveTime = AdjointSolveTime = GeometryUpdateTime = 0.;
+
+    printf("Running wing optimization... \n");fflush(NULL);
+
+    // Read in the OpenVSP geometry
+    
+    sprintf(OpenVSP_FileName,"%s.vsp3",GeometryFileName);
+
+    vsp::ReadVSPFile( OpenVSP_FileName );
+    
+    // Initialize the starting geometry
+    
+    Time = Time0 = myclock();
+    
+    if ( SolverMode == VLM_MODEL ) {
+  
+     //old way vsp::SetAnalysisInputDefaults( "DegenGeomMesh" );
+     //old way 
+     //old way vsp::SetIntAnalysisInput("DegenGeomMesh", "Set", {vsp::SET_ALL}, 0);
+     //old way 
+     //old way vsp::SetIntAnalysisInput("DegenGeomMesh", "DegenGeomMeshType", {vsp::NGON_MESH_TYPE}, 0);
+     //old way 
+     //old way string compgeom_resid = vsp::ExecAnalysis( "DegenGeomMesh" );    
+     //old way 
+     //old way sprintf(OpenVSP_VSPGeomFileName,"%s.vspgeom",GeometryFileName);
+     //old way 
+     //old way vsp::ExportFile( OpenVSP_VSPGeomFileName, vsp::SET_ALL, vsp::EXPORT_VSPGEOM );
+    
+       vsp::SetAnalysisInputDefaults( "VSPAEROComputeGeometry" );
+       
+       vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "GeomSet", {vsp::SET_NONE}, 0);       // Thick geometry -- "Panel"
+       
+       vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "ThinGeomSet", {vsp::SET_ALL}, 0);  // Thin geometry -- "VLM"
+       
+       int m_SymFlagVec = 0;
+       
+       vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "Symmetry", {m_SymFlagVec}, 0);
+
+       vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "CullFracFlag", {1}, 0);
+       
+       vsp::SetDoubleAnalysisInput("VSPAEROComputeGeometry", "CullFrac", {0.1}, 0);
+
+       string compgeom_resid = vsp::ExecAnalysis( "VSPAEROComputeGeometry" );
+   
+    }
+    
+    else if ( SolverMode == PANEL_MODEL ) {
+       
+       vsp::SetAnalysisInputDefaults( "VSPAEROComputeGeometry" );
+       
+       vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "GeomSet", {vsp::SET_ALL}, 0);       // Thick geometry -- "Panel"
+       
+       vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "ThinGeomSet", {vsp::SET_NONE}, 0);  // Thin geometry -- "VLM"
+       
+       int m_SymFlagVec = 0;
+       
+       vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "Symmetry", {m_SymFlagVec}, 0);
+
+       vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "CullFracFlag", {1}, 0);
+       
+       vsp::SetDoubleAnalysisInput("VSPAEROComputeGeometry", "CullFrac", {0.1}, 0);
+
+       string compgeom_resid = vsp::ExecAnalysis( "VSPAEROComputeGeometry" );
+       
     }
     
     else {
-    
-       printf("Reading in optimization values from file: %s \n", OptimizationSetupFileName);fflush(NULL);
        
-       fscanf(OptimizationSetupFile,"CLreq = %lf \n",&CLreq);
-       fscanf(OptimizationSetupFile,"Lambda1 = %lf \n",&Lambda_1);
-       fscanf(OptimizationSetupFile,"Lambda2 = %lf \n",&Lambda_2);
-       fscanf(OptimizationSetupFile,"Lambda3 = %lf \n",&Lambda_3);
+       printf("Unknown OPENVSP/VSPAERO Solve type! \n");
+       
+       fflush(NULL);exit(1);
        
     }
+       
+    GeometryUpdateTime += myclock() - Time;
     
-    printf("CLreq = %f \n",CLreq);
-    printf("Lambda1 = %f \n",Lambda_1);
-    printf("Lambda2 = %f \n",Lambda_2);
-    printf("Lambda3 = %f \n",Lambda_3);
+    // Initialize VSPAERO solver settings
 
-    // Read in the OpenVSP des file
+    VSP_VLM.Sref() = 300.;
+
+    VSP_VLM.Cref() =   5.;
+
+    VSP_VLM.Bref() =  60.;
     
-    ParameterValues = ReadOpenVSPDesFile(FileName,NumberOfParameterValues);
+    VSP_VLM.Xcg() = 2.;
+
+    VSP_VLM.Ycg() = 0.;
+
+    VSP_VLM.Zcg() = 0.;
+    
+    VSP_VLM.Mach() = 0.11;
+    
+    VSP_VLM.AngleOfAttack() = 5. * TORAD;
+
+    VSP_VLM.AngleOfBeta() = 0. * TORAD;
+    
+    VSP_VLM.Vinf() = VSP_VLM.Vref() = 100.;
+    
+    VSP_VLM.Density() = 1.e-5;
+    
+    VSP_VLM.ReCref() = 1000000.;
+    
+    VSP_VLM.RotationalRate_p() = 0.0;
+    
+    VSP_VLM.RotationalRate_q() = 0.0;
+    
+    VSP_VLM.RotationalRate_r() = 0.0;    
+
+    VSP_VLM.DoSymmetryPlaneSolve() = 0;
+        
+    VSP_VLM.StallModelIsOn() = 0;
+    
+    VSP_VLM.WakeIterations() = 15;
+    
+    VSP_VLM.ForwardGMRESConvergenceFactor() = 1.;
+    
+    VSP_VLM.AdjointGMRESConvergenceFactor() = 1.;
+    
+    VSP_VLM.NonLinearConvergenceFactor() = 1.;
+
+    VSP_VLM.WakeRelax() = 1.;
+    
+    VSP_VLM.ImplicitWake() = 1;
+    
+    VSP_VLM.DoAdjointSolve() = 1; // This needs to be set before Setup() is called... 
+    
+    if ( SolverMode == VLM_MODEL   ) VSP_VLM.AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES; // Only total forces gradients
+
+    if ( SolverMode == PANEL_MODEL ) VSP_VLM.AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES_USING_WAKE_FORCES; // Only total forces gradients, but based on Trefftz forces
+            
+    VSP_VLM.ReadFile(GeometryFileName);
+
+    VSP_VLM.Setup();
+
+    // Load in the optimization parameter value list
+
+    ParameterData = ReadOpenVSPDesFile(GeometryFileName,NumberOfParameterValues);
     
     dF_dParameter = new double[NumberOfParameterValues + 1];
+    
+    ParameterValues = new double[NumberOfParameterValues + 1];
     
     NewParameterValues = new double[NumberOfParameterValues + 1];
     
     BestParameterValues = new double[NumberOfParameterValues + 1];
-    
+
     Gradient = new double[NumberOfParameterValues + 1];
     
     GradientOld = new double[NumberOfParameterValues + 1];
@@ -1044,73 +320,31 @@ int TestCase_7(char *FileName)
     
        GradientOld[j] = Gradient[j] = dF_dParameter[j] = 0.;
        
-       BestParameterValues[j] = ParameterValues[j];
-       
+       ParameterValues[i] = ParameterData->ParameterValues[i];
+ 
     }
-       
-    // Calculate the mesh derivatives wrt the design parameters
     
-    dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterValues);
-    
-    // Create an initial OpenVSP VSP_GEOM file with the initial parameter values
+    // Calculate partials of mesh wrt parameters
 
-    CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterValues);
-            
-    // Create an optimizer object
-       
-    VSP_OPTIMIZER Optimizer;
+    Time = myclock();
+        
+    dMesh_dParameter = CalculateOpenVSPGeometryGradients(GeometryFileName,NumberOfParameterValues,ParameterData,VSP_VLM);
     
-    // Set number of threads to use during solve process
+    GeometryUpdateTime += myclock() - Time;
+    
+    NumberOfGeometryUpdates += 2*NumberOfParameterValues + 1;
 
-    Optimizer.NumberOfThreads() = 4;
-   
-    // This is a steady state analysis
-    
-    Optimizer.DoUnsteadyAnalysis() = 0;
-    
-    // We have 3 design variables Test
-    
-    Optimizer.NumberOfOptimizationFunctions() = 3;
-
-    // First design variable is CL
-
-    Optimizer.OptimizationSet(1) = 1;
-    
-    Optimizer.OptimizationFunction(1) = OPT_CL_TOTAL;
-    
-    // Second design variable is CD
-    
-    Optimizer.OptimizationSet(2) = 1;
-    
-    Optimizer.OptimizationFunction(2) = OPT_CD_TOTAL;
-  
-    // Second design variable is pitching moment, CM
-    
-    Optimizer.OptimizationSet(3) = 1;
-    
-    Optimizer.OptimizationFunction(3) = OPT_CMY_TOTAL;
-    
-    // Use VSPAERO array convention... ie arrays go from 1 to N
-    
-    Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
-
-    // Set up the problem, here file name is the user provided vspaero model name
-    
-    Optimizer.Setup(FileName);
-    
-    // Turn on Karman-Tsien compressibility corrrections... this has to be done after Setup()
-    
-    Optimizer.TurnOnKarmanTsienCorrection();    
+    printf("Finished calculate mesh gradients... \n");fflush(NULL);
 
     // Allocate some space for the derivatives 
     
-    dFdMesh[0] = new double[Optimizer.NumberOfNodes() + 1];
-    dFdMesh[1] = new double[Optimizer.NumberOfNodes() + 1];
-    dFdMesh[2] = new double[Optimizer.NumberOfNodes() + 1];
+    dFdMesh[0] = new double[VSP_VLM.VSPGeom().Grid(0).NumberOfSurfaceNodes() + 1];
+    dFdMesh[1] = new double[VSP_VLM.VSPGeom().Grid(0).NumberOfSurfaceNodes() + 1];
+    dFdMesh[2] = new double[VSP_VLM.VSPGeom().Grid(0).NumberOfSurfaceNodes() + 1];
     
     // Open the history file
 
-    sprintf(HistoryFileName,"%s.opt.history",FileName);
+    sprintf(HistoryFileName,"%s.opt.history",GeometryFileName);
 
     if ( (HistoryFile = fopen(HistoryFileName, "w")) == NULL ) {
     
@@ -1122,30 +356,60 @@ int TestCase_7(char *FileName)
     
     // Clean up any old opt adb files
     
-    sprintf(CommandLine,"rm %s.opt.*.adb",FileName);
+    sprintf(CommandLine,"rm %s.opt.*.adb",GeometryFileName);
     
     system(CommandLine);
-       
+      
+    // Design requirements
+    
+    CLreq = 0.55; 
+    CDreq = 0.0;
+    CMreq = 0.0;
+              
     // Maximum number of design steps
     
-    IterMax = 25;
+    IterMax = 50;
     
                         //1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 
-    fprintf(HistoryFile,"    Iter        CL         CD         CM         F        GradF      1DSteps   StepSize \n");
+    fprintf(HistoryFile,"    Iter        CL         CD         CM         F        GradF      1DSteps   StepSize     Time   \n");
 
     k = 0;
 
-    StepSize = 0.;
+    Delta = StepSize = 0.;
+
+    TotalTime = myclock() - Time0;
+    
+    Case = 0;
     
     for ( Iter = 1 ; Iter <= IterMax ; Iter++ ) {
 
        // Solve the forward problem and the adjoint
        
-       Optimizer.Solve();
+       printf("Running VSPAERO forward and adjoint solvers... \n");fflush(NULL);
        
+       Case++;
+
+       VSP_VLM.DoAdjointSolve() = 1;
+       
+       Time = myclock();
+       
+       VSP_VLM.Solve(Case);
+
+       AdjointSolveTime += myclock() - Time;
+       
+       NumberOfForwardSolves++;
+       
+       if ( VSP_VLM.AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES ) NumberOfAdjointSolves += 12;
+
+       if ( VSP_VLM.AdjointSolutionForceType() == ADJOINT_INVISCID_FORCES             ) NumberOfAdjointSolves += 6;
+
+       if ( VSP_VLM.AdjointSolutionForceType() == ADJOINT_VISCOUS_FORCES              ) NumberOfAdjointSolves += 6;
+
+       if ( VSP_VLM.AdjointSolutionForceType() == ADJOINT_TOTAL_FORCES                ) NumberOfAdjointSolves += 6;
+
        // Save the .adb file for later viewing
        
-       sprintf(CommandLine,"cp %s.adb %s.opt.%d.adb",FileName,FileName,Iter);
+       sprintf(CommandLine,"cp %s.adb %s.opt.%d.adb",GeometryFileName,GeometryFileName,Iter);
        
        system(CommandLine);
        
@@ -1153,52 +417,92 @@ int TestCase_7(char *FileName)
           
           // Save the .adb file for later viewing
           
-          sprintf(CommandLine,"cp %s.adb %s.opt.adb",FileName,FileName);
+          sprintf(CommandLine,"cp %s.adb %s.opt.adb",GeometryFileName,GeometryFileName);
           
           system(CommandLine);
           
           // Copy over the .cases file for viewer
           
-          sprintf(CommandLine,"cp %s.adb.cases %s.opt.adb.cases",FileName,FileName);
+          sprintf(CommandLine,"cp %s.adb.cases %s.opt.adb.cases",GeometryFileName,GeometryFileName);
           
           system(CommandLine);          
        
        }          
        
-       Optimizer.GetFunctionValue(1,CL);
-       Optimizer.GetFunctionValue(2,CD);
-       Optimizer.GetFunctionValue(3,CM);
+       // Grab total Cl, CD, and CM ... this included both invisicid and viscous contributions
+       
+       if ( SolverMode == VLM_MODEL   ) {
+          
+          CL = VSP_VLM.CLi() + VSP_VLM.CLo();
+          CD = VSP_VLM.CDi() + VSP_VLM.CDo();
+          CM = VSP_VLM.CMiy() + VSP_VLM.CMoy();
+          
+       }
+       
+       else if ( SolverMode == PANEL_MODEL ) {
+          
+          CL = VSP_VLM.CLiw() + VSP_VLM.CLo();
+          CD = VSP_VLM.CDiw() + VSP_VLM.CDo();
+          CM = VSP_VLM.CMiy() + VSP_VLM.CMoy();
+          
+       }
+       
+       else {
+          
+          printf("Unknown VSPAERO solver type! \n");
+          fflush(NULL);exit(1);
+          
+       }
 
+       // Default CL, CD, and CM weights
+       
+       if ( Iter == 1 ) {
+          
+         Lambda_1 = 1. / pow(CL-CLreq,2.);
+         Lambda_2 = 1. / pow(CD-CDreq,2.);
+         Lambda_3 = 1. / pow(CM-CMreq,2.);
+        
+       }
+           
        // Calculate the final objective function and it's gradients
        // Here we have f = L1*(CL - CLreq)^2 + L2*CD^2 + L3*CM^2
 
-       F = Lambda_1 * pow(CL - CLreq,2.) + Lambda_2 * pow(CD,2.) + Lambda_3 * pow(CM,2.);
+       F = Lambda_1 * pow(CL - CLreq,2.) + Lambda_2 * pow(CD-CDreq,2.) + Lambda_3 * pow(CM-CMreq,2.);
               
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          dFdMesh[0][i] = 2.*Lambda_1*(CL - CLreq)*Optimizer.GradientX(1,i) + 2.*Lambda_2*CD*Optimizer.GradientX(2,i) + 2.*Lambda_3*CM*Optimizer.GradientX(3,i);
-          dFdMesh[1][i] = 2.*Lambda_1*(CL - CLreq)*Optimizer.GradientY(1,i) + 2.*Lambda_2*CD*Optimizer.GradientY(2,i) + 2.*Lambda_3*CM*Optimizer.GradientY(3,i);
-          dFdMesh[2][i] = 2.*Lambda_1*(CL - CLreq)*Optimizer.GradientZ(1,i) + 2.*Lambda_2*CD*Optimizer.GradientZ(2,i) + 2.*Lambda_3*CM*Optimizer.GradientZ(3,i);
-                   
+       for ( i = 1 ; i <= VSP_VLM.VSPGeom().Grid(1).NumberOfSurfaceNodes() ; i++ ) {
+
+          dFdMesh[0][i] = 2.*Lambda_1*(CL - CLreq)*VSP_VLM.VSPGeom().Grid(1).NodeList(i).DCLt_DX() 
+                        + 2.*Lambda_2*(CD - CDreq)*VSP_VLM.VSPGeom().Grid(1).NodeList(i).DCDt_DX() 
+                        + 2.*Lambda_3*(CM - CMreq)*VSP_VLM.VSPGeom().Grid(1).NodeList(i).DCMmt_DX();
+                                                                        
+          dFdMesh[1][i] = 2.*Lambda_1*(CL - CLreq)*VSP_VLM.VSPGeom().Grid(1).NodeList(i).DCLt_DY()
+                        + 2.*Lambda_2*(CD - CDreq)*VSP_VLM.VSPGeom().Grid(1).NodeList(i).DCDt_DY()
+                        + 2.*Lambda_3*(CM - CMreq)*VSP_VLM.VSPGeom().Grid(1).NodeList(i).DCMmt_DY();
+                                                                         
+          dFdMesh[2][i] = 2.*Lambda_1*(CL - CLreq)*VSP_VLM.VSPGeom().Grid(1).NodeList(i).DCLt_DZ() 
+                        + 2.*Lambda_2*(CD - CDreq)*VSP_VLM.VSPGeom().Grid(1).NodeList(i).DCDt_DZ() 
+                        + 2.*Lambda_3*(CM - CMreq)*VSP_VLM.VSPGeom().Grid(1).NodeList(i).DCMmt_DZ();
+       
        }
        
+       printf("Doing chain rule... \n");fflush(NULL);
+
        // Chain rule... calculate derivatives wrt parameters
        
        for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
           
           dF_dParameter[j] = 0;
        
-          for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
+          for ( i = 1 ; i <= VSP_VLM.VSPGeom().Grid(1).NumberOfSurfaceNodes() ; i++ ) {
              
              dF_dParameter[j] +=   dFdMesh[0][i] * dMesh_dParameter[j][3*i-2]
                                  + dFdMesh[1][i] * dMesh_dParameter[j][3*i-1]
                                  + dFdMesh[2][i] * dMesh_dParameter[j][3*i  ];
                         
-          }     
+          }
           
        }  
 
-       
        // Store old and new gradients
        
        for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
@@ -1217,11 +521,11 @@ int TestCase_7(char *FileName)
        
        Delta = Normalize(Gradient, NumberOfParameterValues);
 
+       fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",Iter,CL,CD,CM,F,Delta,k,StepSize,TotalTime);
+
        StepSize = Delta;       
        
-       if ( StepSize > 0.1) StepSize = 0.1;
-
-//StepSize = 0.05;
+       if ( StepSize > 0.1 ) StepSize = 0.1;
 
        if ( Iter != IterMax ) {
           
@@ -1239,36 +543,56 @@ int TestCase_7(char *FileName)
              
                 ParameterValues[j] -= StepSize * Gradient[j];
                 
-   //             NewParameterValues[j] = ParameterValues[j] - StepSize * Gradient[j];
-         
              }
+
+             Time = myclock();
              
-             // Update the OpenVSP geometry based on these new parameters
+             NodeXYZ = CreateVSPGeometry(GeometryFileName,NumberOfParameterValues,ParameterData->ParameterNames, ParameterValues,VSP_VLM);
              
-             CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterValues);
+             GeometryUpdateTime += myclock() - Time;
+
+             NumberOfGeometryUpdates++;
+
+             // Update mesh
              
-             // Read in the VSPGEOM mesh
+             for ( j = 1 ; j <= VSP_VLM.VSPGeom().Grid(0).NumberOfSurfaceNodes() ; j++ ) {
+
+                VSP_VLM.VSPGeom().Grid(0).NodeList(j).x() = NodeXYZ[3*j-2];
+                VSP_VLM.VSPGeom().Grid(0).NodeList(j).y() = NodeXYZ[3*j-1];
+                VSP_VLM.VSPGeom().Grid(0).NodeList(j).z() = NodeXYZ[3*j  ];
+      
+             }
+                         
+             Time = myclock();
+                          
+             VSP_VLM.VSPGeom().UpdateMeshes();
              
-             NodeXYZ = ReadVSPGeomFile(FileName,NumberOfNodes);
-             
-             // Update the solver and adjoint meshes
-             
-             Optimizer.UpdateGeometry(NodeXYZ);
+             GeometryUpdateTime += myclock() - Time;
 
              delete [] NodeXYZ;
              
              // Do a forward solve only to evaluate the functional
              
-             Optimizer.SolveForward();
+             Case++;
              
-             Optimizer.GetFunctionValue(1,CL);
-             Optimizer.GetFunctionValue(2,CD);
-             Optimizer.GetFunctionValue(3,CM);
-                    
-             Fnew = Lambda_1 * pow(CL - CLreq,2.) + Lambda_2 * pow(CD,2.) + Lambda_3 * pow(CM,2.);
+             Time = myclock();
+             
+             VSP_VLM.DoAdjointSolve() = 0;
+                          
+             VSP_VLM.Solve(Case);
+             
+             ForwardSolveTime += myclock() - Time;
+                          
+             NumberOfForwardSolves++;
+             
+             CL = VSP_VLM.CLt();
+             CD = VSP_VLM.CDt();
+             CM = VSP_VLM.CMty();
+      
+             Fnew = Lambda_1 * pow(CL - CLreq,2.) + Lambda_2 * pow(CD-CDreq,2.) + Lambda_3 * pow(CM-CMreq,2.);
 
              printf("1D search... current F: %f ... previous F: %f \n",Fnew,F); fflush(NULL);
-             
+           
              // Just keep going until function has increased... 
              
              if ( Fnew > F ) {
@@ -1281,23 +605,31 @@ int TestCase_7(char *FileName)
 
                    for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
                    
-             //         ParameterValues[j] = BestParameterValues[j];
-                 
                       ParameterValues[j] += StepSize * Gradient[j];
                  
                    }
+    
+                   Time = myclock();
                    
-                   // Update the OpenVSP geometry based on these new parameters
+                   NodeXYZ = CreateVSPGeometry(GeometryFileName,NumberOfParameterValues,ParameterData->ParameterNames, ParameterValues, VSP_VLM);
+                  
+                   GeometryUpdateTime += myclock() - Time;
+                  
+                   NumberOfGeometryUpdates++;
+                  
+                   // Update mesh
                    
-                   CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterValues);
+                   for ( j = 1 ; j <= VSP_VLM.VSPGeom().Grid(0).NumberOfSurfaceNodes() ; j++ ) {
                    
-                   // Read in the VSPGEOM mesh
+                      VSP_VLM.VSPGeom().Grid(0).NodeList(j).x() = NodeXYZ[3*j-2];
+                      VSP_VLM.VSPGeom().Grid(0).NodeList(j).y() = NodeXYZ[3*j-1];
+                      VSP_VLM.VSPGeom().Grid(0).NodeList(j).z() = NodeXYZ[3*j  ];
                    
-                   NodeXYZ = ReadVSPGeomFile(FileName,NumberOfNodes);
-                   
+                   }
+                                
                    // Update the solver and adjoint meshes
                    
-                   Optimizer.UpdateGeometry(NodeXYZ);
+                   VSP_VLM.VSPGeom().UpdateMeshes();
                    
                    delete [] NodeXYZ;
                    
@@ -1326,612 +658,53 @@ int TestCase_7(char *FileName)
                 k++;
              
                 if ( !Done ) StepSize *= 1.618;
-               
+         
              }
              
           }
              
        }
 
-       fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f \n",Iter,CL,CD,CM,F,Delta,k,StepSize);
+       TotalTime = myclock() - Time0;
+       
+    //   // Update the mesh gradients
+    //   
+    //   dMesh_dParameter = CalculateOpenVSPGeometryGradients(GeometryFileName,NumberOfParameterValues,ParameterData,VSP_VLM);
 
-       printf("\n\n\n\n\n\n Delta, StepSize: %f %f \n\n\n\n\n\n\n\n",Delta,StepSize);fflush(NULL);
-       
-       // Update the mesh derivatives... or not
-       
-       //if ( Iter != IterMax ) {
-       //   
-       //   DeleteOpenVSPGeometryGradients(dMesh_dParameter, NumberOfParameterValues);
-       //          
-       //   dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterValues);
-       //   
-       //}
-       
     }
     
+    // Save the final state
+    
+    SaveVSPGeomFile(GeometryFileName, NumberOfParameterValues,ParameterData->ParameterNames, ParameterValues, VSP_VLM);
+    
+    // Output some solver stats...
+
+    printf("\n\n");
+    printf("NumberOfForwardSolves:   %d \n",NumberOfForwardSolves);
+    printf("NumberOfAdjointSolves:   %d \n",NumberOfAdjointSolves);
+    printf("NumberOfGeometryUpdates: %d \n",NumberOfGeometryUpdates);
+    printf("\n\n");
+    printf("Forward  Solve  Time %f seconds \n",ForwardSolveTime);
+    printf("Adoint   Solve  Time %f seconds \n",AdjointSolveTime);
+    printf("Geometry Update Time %f seconds \n",GeometryUpdateTime);
+    printf("Total Optimization time: %f seconds \n",TotalTime);
+        
+    fprintf(HistoryFile,"\n\n");
+    fprintf(HistoryFile,"NumberOfForwardSolves:   %d \n",NumberOfForwardSolves);
+    fprintf(HistoryFile,"NumberOfAdjointSolves:   %d \n",NumberOfAdjointSolves);
+    fprintf(HistoryFile,"NumberOfGeometryUpdates: %d \n",NumberOfGeometryUpdates);
+    fprintf(HistoryFile,"\n\n");
+    fprintf(HistoryFile,"Forward  Solve  Time %f seconds \n",ForwardSolveTime);
+    fprintf(HistoryFile,"Adoint   Solve  Time %f seconds \n",AdjointSolveTime);
+    fprintf(HistoryFile,"Geometry Update Time %f seconds \n",GeometryUpdateTime);
+    fprintf(HistoryFile,"Total Optimization time: %f seconds \n",TotalTime);
+       
     fclose(HistoryFile);
     
-    // Write out a tri file because we can...     
+    // Free up memory
     
-    Optimizer.WriteOutCart3dTriFile();
-
-    // Gradient with respect to input values ... because we can...
- 
-    printf("\n\n\n\n");
-    printf("Gradient with respect to Alpha   : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_ALPHA  ));
-    printf("Gradient with respect to Beta    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_BETA   ));
-    printf("Gradient with respect to Mach    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_MACH   ));
-    printf("Gradient with respect to Vinf    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_VINF   ));
-    printf("Gradient with respect to Density : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_DENSITY));
-    printf("Gradient with respect to ReCref  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_RECREF ));
-    printf("Gradient with respect to P rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_P_RATE ));
-    printf("Gradient with respect to Q rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_Q_RATE ));
-    printf("Gradient with respect to R rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_R_RATE ));
-        
-    return 1;
+    DeleteMeshGradients(NumberOfParameterValues,dMesh_dParameter);
     
-}
-
-/*##############################################################################
-#                                                                              #
-#                            TestCase_8                                        #
-#                                                                              #
-#        Simple unsteady optimization                                          #
-#                                                                              #
-##############################################################################*/
-
-int TestCase_8(char *FileName)
-{
-    int i, j, p, Iter, IterMax, NumberOfParameterValues, NumberOfNodes, k, Done;
-    double CL, CD, CM, CLreq, *NodeXYZ, *dFdMesh[3], *dF_dParameter, *Gradient, *GradientOld, F, Fnew, Delta, StepSize;
-    double Lambda_1, Lambda_2, Lambda_3, *ParameterValues, **dMesh_dParameter;
-    char HistoryFileName[2000], CommandLine[2000];
-    FILE *HistoryFile;
-    
-    printf("Running test case #8... \n");fflush(NULL);
-
-    // Read in the OpenVSP des file
-    
-    ParameterValues = ReadOpenVSPDesFile(FileName,NumberOfParameterValues);
-    
-    dF_dParameter = new double[NumberOfParameterValues + 1];
-    
-    Gradient = new double[NumberOfParameterValues + 1];
-    
-    GradientOld = new double[NumberOfParameterValues + 1];
-
-    for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
-    
-       GradientOld[j] = Gradient[j] = dF_dParameter[j] = 0.;
-       
-    }
-              
-    // Calculate the mesh derivatives wrt the design parameters
-    
-    dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterValues);
-    
-    // Create an initial OpenVSP VSP_GEOM file with the initial parameter values
-     
-    CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterValues);
-            
-    // Create an optimizer object
-       
-    VSP_OPTIMIZER Optimizer;
-    
-    // Set number of threads to use during solve process
-
-    Optimizer.NumberOfThreads() = 4;
-    
-    // This is a steady state analysis
-    
-    Optimizer.DoUnsteadyAnalysis() = 1;
-    
-    // We have 3 design variables 
-    
-    Optimizer.NumberOfOptimizationFunctions() = 3;
-    
-    // First design variable is CL
-    
-    Optimizer.OptimizationFunction(1) = OPT_CL_TOTAL;
-    
-    // Second design variable is CD
-    
-    Optimizer.OptimizationFunction(2) = OPT_CD_TOTAL;
-
-    // Second design variable is pitching moment, CM
-    
-    Optimizer.OptimizationFunction(3) = OPT_CMY_TOTAL;
-    
-    // Use VSPAERO array convention... ie arrays go from 1 to N
-    
-    Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
-
-    // Set up the problem, here file name is the user provided vspaero model name
-    
-    Optimizer.Setup(FileName);
-
-    // Allocate some space for the derivatives 
-    
-    dFdMesh[0] = new double[Optimizer.NumberOfNodes() + 1];
-    dFdMesh[1] = new double[Optimizer.NumberOfNodes() + 1];
-    dFdMesh[2] = new double[Optimizer.NumberOfNodes() + 1];
-    
-    // Open the history file
-
-    sprintf(HistoryFileName,"%s.opt.history",FileName);
-
-    if ( (HistoryFile = fopen(HistoryFileName, "w")) == NULL ) {
-    
-       printf("Could not open the optimization history output file! \n");
-    
-       exit(1);
-    
-    }
-    
-    // Clean up any old opt adb files
-    
-    sprintf(CommandLine,"rm %s.opt.*.adb",FileName);
-    
-    system(CommandLine);
-       
-    // Maximum number of design steps
-    
-    IterMax = 10;
-
-    // Design CL
-    
-    CLreq = 0.4;
-
-    fprintf(HistoryFile,"Iter CL CD CM F GradF 1DSteps StepSize \n");
-    
-    k = 0;
-
-    StepSize = 0.;
-    
-    for ( Iter = 1 ; Iter <= IterMax ; Iter++ ) {
-
-       // Solve the forward problem and the adjoint
-       
-       Optimizer.Solve();
-       
-       // Save the .adb file for later viewing
-       
-       sprintf(CommandLine,"cp %s.adb %s.opt.%d.adb",FileName,FileName,Iter);
-       
-       system(CommandLine);
-       
-       if ( Iter == 1 ) {
-          
-          // Save the .adb file for later viewing
-          
-          sprintf(CommandLine,"cp %s.adb %s.opt.adb",FileName,FileName);
-          
-          system(CommandLine);
-          
-          // Copy over the .cases file for viewer
-          
-          sprintf(CommandLine,"cp %s.adb.cases %s.opt.adb.cases",FileName,FileName);
-          
-          system(CommandLine);          
-       
-       }          
-       
-       Optimizer.GetFunctionValue(1,CL);
-       Optimizer.GetFunctionValue(2,CD);
-       Optimizer.GetFunctionValue(3,CM);
-
-       // Calculate the final objective function and it's gradients
-       // Here we have f = L1*(CL - CLreq)^2 + L2*CD^2 + L3*CM^2
-       
-       Lambda_1 = 100.;
-       Lambda_2 = 100.;
-       Lambda_3 = 100.;
-       
-       F = Lambda_1 * pow(CL - CLreq,2.) + Lambda_2 * pow(CD,2.) + Lambda_3 * pow(CM,2.);
-              
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          dFdMesh[0][i] = 2.*Lambda_1*(CL - CLreq)*Optimizer.GradientX(1,i) + 2.*Lambda_2*CD*Optimizer.GradientX(2,i) + 2.*Lambda_3*CM*Optimizer.GradientX(3,i);
-          dFdMesh[1][i] = 2.*Lambda_1*(CL - CLreq)*Optimizer.GradientY(1,i) + 2.*Lambda_2*CD*Optimizer.GradientY(2,i) + 2.*Lambda_3*CM*Optimizer.GradientY(3,i);
-          dFdMesh[2][i] = 2.*Lambda_1*(CL - CLreq)*Optimizer.GradientZ(1,i) + 2.*Lambda_2*CD*Optimizer.GradientZ(2,i) + 2.*Lambda_3*CM*Optimizer.GradientZ(3,i);
-               
-       }
-       
-       // Chain rule... calculate derivatives wrt parameters
-       
-       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
-          
-          dF_dParameter[j] = 0;
-       
-          for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-             
-             dF_dParameter[j] +=   dFdMesh[0][i] * dMesh_dParameter[j][3*i-2]
-                                 + dFdMesh[1][i] * dMesh_dParameter[j][3*i-1]
-                                 + dFdMesh[2][i] * dMesh_dParameter[j][3*i  ];
-                        
-          }     
-          
-       }  
-       
-       // Store old and new gradients
-       
-       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
-       
-          GradientOld[j] = Gradient[j];
-          
-          Gradient[j] = dF_dParameter[j];
-          
-       }
-       
-       // Conjugate gradient adjustment of the gradient...
-       
-       if ( Iter > 1 ) CGState(GradientOld,Gradient,NumberOfParameterValues);
-  
-       // Calculate magnitude of the gradient and normalize it
-       
-       Delta = Normalize(Gradient, NumberOfParameterValues);
-
-       StepSize = Delta;       
-       
-       if ( StepSize > 1. ) StepSize = 1.;
-
-       fprintf(HistoryFile,"%d %f %f %f %f %f %d %f \n",Iter,CL,CD,CM,F,Delta,k,StepSize);
-              
-       printf("\n\n\n\n\n\n Delta, StepSize: %f %f \n\n\n\n\n\n\n\n",Delta,StepSize);fflush(NULL);
-       
-       if ( Iter != IterMax ) {
-          
-          // A really bad 1D search...
-          
-          k = 0;
-          
-          Done = 0;
-          
-          while ( !Done && k < 10 ) {
-             
-             printf("\n\n\n\n\n\n At search iteration %d the current Step Size: %f \n\n\n\n\n\n ",k,StepSize);
-          
-             for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
-             
-                ParameterValues[j] -= StepSize * Gradient[j];
-                
-             }
-             
-             // Update the OpenVSP geometry based on these new parameters
-             
-             CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterValues);
-             
-             // Read in the VSPGEOM mesh
-             
-             NodeXYZ = ReadVSPGeomFile(FileName,NumberOfNodes);
-             
-             // Update the solver and adjoint meshes
-             
-             Optimizer.UpdateGeometry(NodeXYZ);
-
-             delete [] NodeXYZ;
-             
-             // Do a forward solve only to evaluate the functional
-             
-             Optimizer.SolveForward();
-             
-             Optimizer.GetFunctionValue(1,CL);
-             Optimizer.GetFunctionValue(2,CD);
-             Optimizer.GetFunctionValue(3,CM);
-                    
-             Fnew = Lambda_1 * pow(CL - CLreq,2.) + Lambda_2 * pow(CD,2.) + Lambda_3 * pow(CM,2.);
-
-             printf("1D search... current F: %f ... previous F: %f \n",Fnew,F); fflush(NULL);
-             
-             // Just keep going until function has increased... 
-             
-             if ( Fnew > F ) {
-                
-                // Back up 
-                
-                if ( k > 0 ) {
-
-                   for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
-                   
-                      ParameterValues[j] += StepSize * Gradient[j];
-                      
-                   }
-                   
-                   // Update the OpenVSP geometry based on these new parameters
-                   
-                   CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterValues);
-                   
-                   // Read in the VSPGEOM mesh
-                   
-                   NodeXYZ = ReadVSPGeomFile(FileName,NumberOfNodes);
-                   
-                   // Update the solver and adjoint meshes
-                   
-                   Optimizer.UpdateGeometry(NodeXYZ);
-                   
-                   delete [] NodeXYZ;
-                   
-                }
-                   
-                Done = 1; 
-                
-             }
-             
-             else {
-                
-                F = Fnew;
-                
-             }            
-             
-             k++;
-             
-             if ( !Done ) StepSize *= 1.618;
-             
-          }
-             
-       }
-       
-       // Update mesh derivatives ... or not... 
-       
-     //  if ( Iter != IterMax ) {
-     //     
-     //     DeleteOpenVSPGeometryGradients(dMesh_dParameter, NumberOfParameterValues);
-     //            
-     //     dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterValues);
-     //     
-     //  }       
-       
-    }
-    
-    fclose(HistoryFile);
-    
-    // Write out a tri file because we can...     
-    
-    Optimizer.WriteOutCart3dTriFile();
-
-    // Gradient with respect to input values ... because we can...
- 
-    printf("\n\n\n\n");
-    printf("Gradient with respect to Alpha   : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_ALPHA  ));
-    printf("Gradient with respect to Beta    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_BETA   ));
-    printf("Gradient with respect to Mach    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_MACH   ));
-    printf("Gradient with respect to Vinf    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_VINF   ));
-    printf("Gradient with respect to Density : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_DENSITY));
-    printf("Gradient with respect to ReCref  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_RECREF ));
-    printf("Gradient with respect to P rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_P_RATE ));
-    printf("Gradient with respect to Q rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_Q_RATE ));
-    printf("Gradient with respect to R rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_R_RATE ));
-        
-    return 1;
-    
-}
-
-/*##############################################################################
-#                                                                              #
-#                            TestCase_9                                        #
-#                                                                              #
-#  Rotor CT derivatives wrt feather                                            #
-#                                                                              #
-##############################################################################*/
-
-int TestCase_9(char *FileName)
-{
-    int i, j, p, Time, NumberOfParameterValues, NumberOfNodes;
-    double Function, CTGradient, CPGradient, Gradient, GradientTest, CP, CT, Eff, *NodeXYZ, *dFdMesh[3];
-    double *ParameterValues, **dMesh_dParameter;
-    double *FunctionArray;
-    char HistoryFileName[2000], CommandLine[2000];
-    FILE *HistoryFile;
-    
-    printf("Running test case #9... \n");fflush(NULL);
-
-    // Read in the OpenVSP des file
-    
-    ParameterValues = ReadOpenVSPDesFile(FileName,NumberOfParameterValues);
-
-    ParameterValues[1] = -2.;
-
-    // Calculate the mesh derivatives wrt the design parameters
-    
-    dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterValues);
-    
-    // Create an initial OpenVSP VSP_GEOM file with the initial parameter values
-     
-    CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterValues);
-            
-    // Create an optimizer object
-       
-    VSP_OPTIMIZER Optimizer;
-    
-    // Set number of threads to use during solve process
-
-    Optimizer.NumberOfThreads() = 1;
-    
-    // This is a steady state analysis
-    
-    Optimizer.DoUnsteadyAnalysis() = 1;
-    
-    // We have 2 design variables 
-    
-    Optimizer.NumberOfOptimizationFunctions() = 2;
-    
-    // First design variable is CT
-    
-    Optimizer.OptimizationSet(1) = 1;
-    
-    Optimizer.OptimizationFunction(1) = OPT_ROTOR_CT_TOTAL;
-    
-    Optimizer.OptimizationSet(2) = 1;
-    
-    Optimizer.OptimizationFunction(2) = OPT_ROTOR_CP_TOTAL;
-
-    // Use VSPAERO array convention... ie arrays go from 1 to N
-    
-    Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
-
-    // Set up the problem, here file name is the user provided vspaero model name
-    
-    Optimizer.Setup(FileName);
-
-    // Allocate some space for the derivatives 
-    
-    dFdMesh[0] = new double[Optimizer.NumberOfNodes() + 1];
-    dFdMesh[1] = new double[Optimizer.NumberOfNodes() + 1];
-    dFdMesh[2] = new double[Optimizer.NumberOfNodes() + 1];
-    
-    // Open the history file
-
-    sprintf(HistoryFileName,"%s.opt.history",FileName);
-
-    if ( (HistoryFile = fopen(HistoryFileName, "w")) == NULL ) {
-    
-       printf("Could not open the optimization history output file! \n");
-    
-       exit(1);
-    
-    }
-
-    FunctionArray = new double[1 + 1];    
-
-    Time = 1;
-
-    // Do a sweep over rotor feather angle
-    
-    for ( p = 1 ; p <= 9 ; p++ ) {
-
-       // Turn on restart option for adjoint solves... not this has to come after Optimizer.Setup();
-    
-       Optimizer.AdjointTurnOnUsePreviousSolution();
-       
-       // Solve the forward problem and the adjoint
-       
-       Optimizer.Solve();
-
-       Optimizer.GetFunctionValue(1,CT);
-        
-       Optimizer.GetFunctionValue(2,CP);
-
-       // CT Gradient
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          dFdMesh[0][i] = Optimizer.GradientX(1,i);
-          dFdMesh[1][i] = Optimizer.GradientY(1,i);
-          dFdMesh[2][i] = Optimizer.GradientZ(1,i);
-            
-       }
-              
-       // Chain rule... calculate derivatives wrt parameters
-
-       CTGradient = 0;
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          CTGradient += dFdMesh[0][i] * dMesh_dParameter[1][3*i-2]
-                      + dFdMesh[1][i] * dMesh_dParameter[1][3*i-1]
-                      + dFdMesh[2][i] * dMesh_dParameter[1][3*i  ];
-
-       }
-
-       // CP Gradient
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          dFdMesh[0][i] = Optimizer.GradientX(2,i);
-          dFdMesh[1][i] = Optimizer.GradientY(2,i);
-          dFdMesh[2][i] = Optimizer.GradientZ(2,i);
-           
-       }
-              
-       // Chain rule... calculate derivatives wrt parameters
-
-       CPGradient = 0;
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          CPGradient += dFdMesh[0][i] * dMesh_dParameter[1][3*i-2]
-                      + dFdMesh[1][i] * dMesh_dParameter[1][3*i-1]
-                      + dFdMesh[2][i] * dMesh_dParameter[1][3*i  ];
-
-       }
-
-       // Efficiency Gradient wrt mesh via chain rule
-                     
-       Function = 0.46088*CT/CP;
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          dFdMesh[0][i] = 0.46088*(Optimizer.GradientX(1,i)/CP - CT/(CP*CP)*Optimizer.GradientX(2,i));
-          dFdMesh[1][i] = 0.46088*(Optimizer.GradientY(1,i)/CP - CT/(CP*CP)*Optimizer.GradientY(2,i));
-          dFdMesh[2][i] = 0.46088*(Optimizer.GradientZ(1,i)/CP - CT/(CP*CP)*Optimizer.GradientZ(2,i));
-               
-       }
-              
-       // Chain rule... calculate derivatives wrt parameters
-
-       Gradient = 0;
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          Gradient += dFdMesh[0][i] * dMesh_dParameter[1][3*i-2]
-                    + dFdMesh[1][i] * dMesh_dParameter[1][3*i-1]
-                    + dFdMesh[2][i] * dMesh_dParameter[1][3*i  ];
-
-       }
-       
-       // Apply chain rule to derivatives wrt parameters... should be the same
-
-       GradientTest = 0.46088*(CTGradient/CP - CT/(CP*CP)*CPGradient);
-
-       // Output CT and it's gradient wrt feather
-       
-       fprintf(HistoryFile,"%d %f ... %e %e %e %e ... %e %e %e %e \n",p,ParameterValues[1],CT,CP,Eff,Function,CTGradient,CPGradient,GradientTest,Gradient);
-          
-       // Update feather angle
-      
-       ParameterValues[1] += 0.5;
- 
-       // Update the OpenVSP geometry based on these new parameters
-       
-       CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterValues);
-       
-       // Read in the VSPGEOM mesh
-       
-       NodeXYZ = ReadVSPGeomFile(FileName,NumberOfNodes);
-       
-       // Update the solver and adjoint meshes
-       
-       Optimizer.UpdateGeometry(NodeXYZ);
-
-       // Update the mesh derivatives wrt the design parameters
-   
-       DeleteOpenVSPGeometryGradients(dMesh_dParameter, NumberOfParameterValues);
-   
-       dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterValues);
-    
-       delete [] NodeXYZ;
-                    
-    }
- 
-    fclose(HistoryFile);
-    
-    // Write out a tri file because we can...     
-    
-    Optimizer.WriteOutCart3dTriFile();
-
-    // Gradient with respect to input values ... because we can...
- 
-    printf("\n\n\n\n");
-    printf("Gradient with respect to Alpha   : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_ALPHA  ));
-    printf("Gradient with respect to Beta    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_BETA   ));
-    printf("Gradient with respect to Mach    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_MACH   ));
-    printf("Gradient with respect to Vinf    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_VINF   ));
-    printf("Gradient with respect to Density : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_DENSITY));
-    printf("Gradient with respect to ReCref  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_RECREF ));
-    printf("Gradient with respect to P rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_P_RATE ));
-    printf("Gradient with respect to Q rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_Q_RATE ));
-    printf("Gradient with respect to R rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_R_RATE ));
-        
     return 1;
     
 }
@@ -1942,13 +715,16 @@ int TestCase_9(char *FileName)
 #                                                                              #
 ##############################################################################*/
 
-double *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables)
+PARAMETER_DATA *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables)
 {
     
     int i;
     double *ParameterValues;
     char DesignFileName[2000], Variable[2000];
     FILE *DesignFile;
+    PARAMETER_DATA *ParameterData;
+    
+    ParameterData = new PARAMETER_DATA;
     
     // Open the OpenVSP des file
 
@@ -1968,17 +744,23 @@ double *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables)
     
     fscanf(DesignFile,"%d \n",&NumberOfDesignVariables);
 
-    ParameterValues = new double[NumberOfDesignVariables + 1];
+    ParameterData->ParameterValues = new double[NumberOfDesignVariables + 1];
+    
+    ParameterData->ParameterNames = new char*[NumberOfDesignVariables + 1];
 
     for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
 
-       fscanf(DesignFile,"%1999s%lf\n",Variable,&(ParameterValues[i]));
+       ParameterData->ParameterNames[i] = new char[11];
+
+       fscanf(DesignFile,"%s%lf\n",(Variable),&( ParameterData->ParameterValues[i]));
+       
+       strncpy(ParameterData->ParameterNames[i],Variable,11);
 
     }
     
     fclose(DesignFile);
     
-    return ParameterValues;
+    return ParameterData;
  
 }
 
@@ -1988,20 +770,136 @@ double *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables)
 #                                                                              #
 ##############################################################################*/
 
-void CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, double *ParameterValues)
+double *CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues, VSP_SOLVER &VSP_VLM)
+{
+    
+    int i, j, Node, NumVars;
+    int Surface;
+    int surf_indx;
+    int degen_type;
+    int *DidThisNode;    
+    double Value, *MeshNodesXYZ;
+    char DesignFileName[2000], Variable[2000], CommandLine[2000];
+    FILE *DesignFile, *OptDesFile;
+    
+    // Update the VSP geometry
+
+    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+
+       double temp = vsp::SetParmVal( ParameterNames[i], ParameterValues[i] );
+    
+    }
+
+    vsp::Update();
+ 
+    // Now parse the new geometry and create a new list of xyz node data
+    
+    vector<double> uvec, wvec;
+     
+    uvec.resize( 1 );
+    
+    wvec.resize( 1 );
+     
+    MeshNodesXYZ = new double[3*VSP_VLM.VSPGeom().Grid(1).NumberOfNodes() + 1];
+
+    DidThisNode = new int[VSP_VLM.VSPGeom().Grid(1).NumberOfNodes() + 1];
+    
+    zero_int_array(DidThisNode, VSP_VLM.VSPGeom().Grid(1).NumberOfNodes());
+    
+    // Loop over loops and calculate the new xyz locations of every node... yes, this means
+    // we do a lot of the nodes more than once... oh well.
+
+    for ( i = 1 ; i <= VSP_VLM.VSPGeom().Grid(1).NumberOfSurfaceLoops() ; i++ ) {
+       
+       Surface = VSP_VLM.VSPGeom().Grid(1).LoopList(i).SurfaceID();
+       
+       surf_indx = VSP_VLM.VSPGeom().VSPSurfaceIDForSurface(Surface);
+       
+       degen_type = VSP_VLM.VSPGeom().VSPSurfaceDegenType(Surface);
+       
+       string geom_id = VSP_VLM.VSPGeom().SurfaceGIDList(Surface);
+
+       for ( j = 1 ; j <= VSP_VLM.VSPGeom().Grid(1).LoopList(i).NumberOfNodes() ; j++ ) {
+          
+          Node = VSP_VLM.VSPGeom().Grid(1).LoopList(i).Node(j);
+          
+          if ( !DidThisNode[Node] ) {
+          
+             uvec[0] = VSP_VLM.VSPGeom().Grid(1).LoopList(i).U_Node(j);
+             wvec[0] = VSP_VLM.VSPGeom().Grid(1).LoopList(i).V_Node(j);
+             
+             vector< vec3d > ptvec = vsp::CompVecDegenPnt01( geom_id, surf_indx, degen_type, uvec, wvec);
+             
+             MeshNodesXYZ[3*Node - 2] = ptvec[0].x();
+             MeshNodesXYZ[3*Node - 1] = ptvec[0].y();
+             MeshNodesXYZ[3*Node    ] = ptvec[0].z();
+             
+           //  printf("Node: %d --> x,y,z: %f, %f ... %f, %f .. %f, %f \n",
+           //  Node,
+           //  VSP_VLM.VSPGeom().Grid(1).NodeList(Node).x(), ptvec[0].x(),
+           //  VSP_VLM.VSPGeom().Grid(1).NodeList(Node).y(), ptvec[0].y(),
+           //  VSP_VLM.VSPGeom().Grid(1).NodeList(Node).z(), ptvec[0].z());
+               
+             DidThisNode[Node] = 1;
+             
+          }
+          
+       }
+      
+    }
+    
+    delete [] DidThisNode;
+    
+    return MeshNodesXYZ;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                            SaveVSPGeomFile                                   #
+#                                                                              #
+##############################################################################*/
+
+void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues, VSP_SOLVER &VSP_VLM)
 {
     
     int i, NumVars;
     double Value;
-    char DesignFileName[2000], Variable[2000], CommandLine[2000];
+    char NewFileName[2000], DesignFileName[2000], Variable[2000];
     FILE *DesignFile, *OptDesFile;
     
-    // Open the OpenVSP des file
+    // Update the VSP geometry
 
+    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+       
+       printf("ParameterValues[%d]: %f \n",i,ParameterValues[i]);fflush(NULL);
+
+       double temp = vsp::SetParmVal( ParameterNames[i], ParameterValues[i] );
+    
+    }
+
+    vsp::Update();
+    
+    // Save the current geometry out as a vspgeom file
+    
+    vsp::SetAnalysisInputDefaults( "DegenGeomMesh" );
+    
+    vsp::SetIntAnalysisInput("DegenGeomMesh", "Set", {vsp::SET_ALL}, 0);
+    
+    vsp::SetIntAnalysisInput("DegenGeomMesh", "DegenGeomMeshType", {vsp::NGON_MESH_TYPE}, 0);
+
+    vsp::PrintAnalysisInputs( "DegenGeomMesh" );
+
+    string compgeom_resid = vsp::ExecAnalysis( "DegenGeomMesh" );    
+    
+    sprintf(NewFileName,"%s.Opt.Final.vspgeom",FileName);
+    
+    vsp::ExportFile( NewFileName, vsp::SET_ALL, vsp::EXPORT_VSPGEOM );
+    
+    // Save the current design
+    
     sprintf(DesignFileName,"%s.des",FileName);
     
-    printf("Opening: %s \n",DesignFileName);fflush(NULL);
-
     if ( (DesignFile = fopen(DesignFileName, "r")) == NULL ) {
     
        printf("Could not open the OpenVSP des file! \n");
@@ -2012,9 +910,9 @@ void CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, double *Para
     
     // Open Opt des file
     
-    sprintf(DesignFileName,"Opt.des",FileName);
+    sprintf(DesignFileName,"%s.Opt.Final.des",FileName);
     
-    printf("Opening: %s \n",DesignFileName);fflush(NULL);
+    //printf("Opening: %s \n",DesignFileName);fflush(NULL);
 
     if ( (OptDesFile = fopen(DesignFileName, "w")) == NULL ) {
     
@@ -2048,14 +946,9 @@ void CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, double *Para
     }
     
     fclose(DesignFile);
-    fclose(OptDesFile);   
-
-    // Run vsp script to create VSPGEOM file
     
-    sprintf(CommandLine,"vsp -script CreateVSPGEOM.script > vsp.out >&1 ");
+    fclose(OptDesFile);       
     
-    system(CommandLine);
- 
 }
 
 /*##############################################################################
@@ -2064,12 +957,12 @@ void CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, double *Para
 #                                                                              #
 ##############################################################################*/
 
-double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVariables, double *ParameterValues)
+double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVariables, PARAMETER_DATA *ParameterData, VSP_SOLVER &VSP_VLM)
 {
     
     int i, j, NumberOfMeshNodes;
     double **dMesh_dParameter, *NewParameterValues, Delta, *MeshMinus;
-
+    
     printf("Calculating OpenVSP mesh gradients ... \n");fflush(NULL);
     
     // Create space for the mesh gradients
@@ -2080,63 +973,46 @@ double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVar
 
     for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
 
-       NewParameterValues[i] = ParameterValues[i];
+       NewParameterValues[i] = ParameterData->ParameterValues[i];
        
     }
     
     // Create the baseline geometry
-    
-    CreateVSPGeometry(FileName,NumberOfDesignVariables,ParameterValues);
-    
-    dMesh_dParameter[0] = ReadVSPGeomFile(FileName,NumberOfMeshNodes);
-    
+
+    dMesh_dParameter[0] = CreateVSPGeometry(FileName,NumberOfDesignVariables,ParameterData->ParameterNames,ParameterData->ParameterValues,VSP_VLM);
+
     // Loop over parameters and calculate mesh gradients using finite differences
     
-    Delta = 1.e-7;
+    Delta = 1.;
     
     for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
     
-       printf("Working on parameter: %d out of %d \n",i,NumberOfDesignVariables);fflush(NULL);
+       printf("Working on parameter: %d out of %d \r",i,NumberOfDesignVariables);fflush(NULL);
          
        // + Perturbation
-         
-       NewParameterValues[i] = ParameterValues[i] + Delta;
        
-       printf("Creating vsp geom file... \n");fflush(NULL);
+       NewParameterValues[i] = ParameterData->ParameterValues[i] + Delta;
        
-       CreateVSPGeometry(FileName,NumberOfDesignVariables,NewParameterValues);
-       
-       printf("Reading in vspgeom mesh... \n");fflush(NULL);
-       
-       dMesh_dParameter[i] = ReadVSPGeomFile(FileName,NumberOfMeshNodes);
-       
+       dMesh_dParameter[i] = CreateVSPGeometry(FileName,NumberOfDesignVariables,ParameterData->ParameterNames,NewParameterValues,VSP_VLM);
 
        // - Perturbation
+    
+       NewParameterValues[i] = ParameterData->ParameterValues[i] - Delta;
        
-       NewParameterValues[i] = ParameterValues[i] - Delta;
-       
-       printf("Creating vsp geom file... \n");fflush(NULL);
-       
-       CreateVSPGeometry(FileName,NumberOfDesignVariables,NewParameterValues);
-       
-       printf("Reading in vspgeom mesh... \n");fflush(NULL);
- 
-       MeshMinus = ReadVSPGeomFile(FileName,NumberOfMeshNodes);
-       
-       printf("Using FD to calculate mesh gradient ... for %d nodes \n",NumberOfMeshNodes);
-       
+       MeshMinus = CreateVSPGeometry(FileName,NumberOfDesignVariables,ParameterData->ParameterNames,NewParameterValues,VSP_VLM);
+
        // Calculate derivative using central differences
        
-       for ( j = 1 ; j <= 3*NumberOfMeshNodes ; j++ ) {
-          
-        //  dMesh_dParameter[i][j] = ( dMesh_dParameter[i][j] - dMesh_dParameter[0][j] )/Delta;
+       for ( j = 1 ; j <= 3*VSP_VLM.VSPGeom().Grid(1).NumberOfSurfaceNodes() ; j++ ) {
 
           dMesh_dParameter[i][j] = ( dMesh_dParameter[i][j] - MeshMinus[j] )/(2.*Delta);
-
+       
        }
        
        delete [] MeshMinus;
-         
+       
+       NewParameterValues[i] = ParameterData->ParameterValues[i];
+
     }
 
     return dMesh_dParameter;
@@ -2145,13 +1021,13 @@ double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVar
 
 /*##############################################################################
 #                                                                              #
-#                    DeleteOpenVSPGeometryGradients                            #
+#                    CalculateOpenVSPGeometryGradients                         #
 #                                                                              #
 ##############################################################################*/
 
-void DeleteOpenVSPGeometryGradients(double **dMesh_dParameter, int NumberOfDesignVariables)
+void DeleteMeshGradients(int NumberOfDesignVariables, double **dMesh_dParameter)
 {
- 
+    
     int i;
     
     for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
@@ -2163,59 +1039,7 @@ void DeleteOpenVSPGeometryGradients(double **dMesh_dParameter, int NumberOfDesig
     delete [] dMesh_dParameter;
     
 }
-/*##############################################################################
-#                                                                              #
-#                                ReadVSPGeomFile                               #
-#                                                                              #
-##############################################################################*/
-
-double *ReadVSPGeomFile(char *FileName, int &NumberOfMeshNodes)
-{
- 
-    int i;
-    double *MeshNodesXYZ;
-    char VSPGeomFileName[2000];
-    FILE *VSPGeomFile;
-
-    // Open the OpenVSP des file
-
-    sprintf(VSPGeomFileName,"%s.vspgeom",FileName);
     
-    printf("Opening: %s \n",VSPGeomFileName);fflush(NULL);
-
-    if ( (VSPGeomFile = fopen(VSPGeomFileName, "r")) == NULL ) {
-    
-       printf("Could not open the OpenVSP vspgeom file! \n");
-    
-       exit(1);
-    
-    }
-    
-    // Read in xyz data
-    
-    fscanf(VSPGeomFile,"%d",&NumberOfMeshNodes);
-
-    printf("NumberOfMeshNodes: %d \n",NumberOfMeshNodes);
-        
-    // Read in xyz data
-        
-    MeshNodesXYZ = new double[3*NumberOfMeshNodes + 1];
-     
-    for ( i = 1 ; i <= NumberOfMeshNodes ; i++ ) {
-       
-       fscanf(VSPGeomFile,"%lf %lf %lf \n",
-              &(MeshNodesXYZ[3*i-2]),
-              &(MeshNodesXYZ[3*i-1]),
-              &(MeshNodesXYZ[3*i  ]));
-
-    }  
-    
-    fclose(VSPGeomFile);
-    
-    return MeshNodesXYZ;
-
-}
-
 /*##############################################################################
 #                                                                              #
 #                                   Normalize                                  #
@@ -2267,519 +1091,20 @@ void CGState(double *Old, double *New, int Length)
       Dot += Old[i]*New[i];
       
    }   
-   
+
    for ( i = 1 ; i <= Length ; i++ ) {
       
       New[i] -= Dot * Old[i];
       
    }      
+
+   Dot = 0.;
    
-}
-
-/*##############################################################################
-#                                                                              #
-#                       SteepestDescentOptimizer                               #
-#                                                                              #
-##############################################################################*/
-
-void SteepestDescentOptimizer(char *FileName, int NumberOfParameterValues, double *ParameterValues, double *Gradient, VSP_OPTIMIZER &Optimizer)
-{
-   
-    int j, NumberOfNodes;
-    double *NodeXYZ, StepSize;
-  
-    StepSize = 5.;
-           
-    for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
-  
-       ParameterValues[j] -= StepSize * Gradient[j];
-       
-    }
-    
-    // Update the OpenVSP geometry based on these new parameters
-    
-    CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterValues);
-
-    // Read in the VSPGEOM mesh
-    
-    NodeXYZ = ReadVSPGeomFile(FileName,NumberOfNodes);
-    
-    // Update the solver and adjoint meshes
-    
-    Optimizer.UpdateGeometry(NodeXYZ);
-    
-    delete [] NodeXYZ;
-             
-}
-
-/*##############################################################################
-#                                                                              #
-#                       ConjugateGradientOptimizer                             #
-#                                                                              #
-##############################################################################*/
-
-void ConjugateGradientOptimizer(char *FileName, int NumberOfParameterValues, double *ParameterValues, double *Gradient, VSP_OPTIMIZER &Optimizer)
-{
-   
-    int j, NumberOfNodes, Iter, Done;
-    double *NodeXYZ, StepSize, Magnitude, OldMagnitude, *OldGradient, *CurrentParameterValues;
-  
-    // Normalize the gradient
-    
-    Magnitude = OldMagnitude = Normalize(Gradient,NumberOfParameterValues);
-    
-    OldGradient = new double[NumberOfParameterValues + 1];
-    
-    CurrentParameterValues = new double[NumberOfParameterValues + 1];
-        
-    for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
-  
-       OldGradient[j] = Gradient[j];
-       
-       CurrentParameterValues[j] = ParameterValues[j];
-       
-    }    
-    
-    StepSize = 0.1*Magnitude;
-    
-    Done = 0;
-
-    Iter = 1;
-    
-    while ( !Done ) {
-       
-       if ( Iter > 1 ) CGState(OldGradient,Gradient,NumberOfParameterValues); // CG correction
-
-       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
-       
-          CurrentParameterValues[j] = ParameterValues[j] + StepSize * Gradient[j];
-          
-       }
-    
-       // Update the OpenVSP geometry based on these new parameters
-       
-       CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterValues);
-       
-       // Read in the VSPGEOM mesh
-    
-       NodeXYZ = ReadVSPGeomFile(FileName,NumberOfNodes);
-       
-       // Update the solver and adjoint meshes
-       
-       Optimizer.UpdateGeometry(NodeXYZ);
-       
-       delete [] NodeXYZ;
-       
-    }
-                   
-}
-   
-/*##############################################################################
-#                                                                              #
-#                            TestCase_1                                        #
-#                                                                              #
-#        Single, SCALAR, optimization function for panel solve                 #
-#                                                                              #
-##############################################################################*/
-
-int TestCase_10(char *FileName)
-{
-    int i, p;
-    double Function;
-    char GradientFileName[2000];
-    FILE *GRADFile;
-    
-    printf("Running test case #1... \n");fflush(NULL);
-       
-    VSP_OPTIMIZER Optimizer;
-
-    Optimizer.NumberOfThreads() = 1;
-    
-    Optimizer.DoUnsteadyAnalysis() = 0;
-    
-    Optimizer.NumberOfOptimizationFunctions() = 1;
-    
-    Optimizer.OptimizationFunction(1) = OPT_CMY_TOTAL;
-
-    Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
-
-    Optimizer.Setup(FileName);
-
-    Optimizer.SetMachNumber(0.0);
-       
-    Optimizer.SetAoADegrees(5.);
-       
-    Optimizer.SetBetaDegrees(0.);
-       
-    Optimizer.SetVinf(1.);
-       
-    Optimizer.SetDensity(1.);
-       
-    Optimizer.SetReCref(1000000.);
-       
-    Optimizer.SetRotationalRate_p(0.);
-       
-    Optimizer.SetRotationalRate_q(0.);
-       
-    Optimizer.SetRotationalRate_r(0.);
-
-    Optimizer.Solve();
-   
-    // Open the gradient file
-
-    sprintf(GradientFileName,"%s.opt.gradient",FileName);
-
-    if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
-    
-       printf("Could not open the gradient output file! \n");
-    
-       exit(1);
-    
-    }
-           
-    // Output the gradient data
-
-    fprintf(GRADFile,"%d \n",Optimizer.NumberOfNodes());fflush(NULL);
-    
-    for ( p = 1 ; p <= Optimizer.NumberOfOptimizationFunctions() ; p++ ) {
-       
-       Optimizer.GetFunctionValue(p,Function);
-
-       fprintf(GRADFile,"Function: %d value: %f \n",p,Function);fflush(NULL);
-   
-                       //1234567890    1234567890 1234567890 1234567890    1234567890 1234567890 1234567890    
-       
-       fprintf(GRADFile,"   Node            X          Y          Z            dFdX       dFdY       dFdZ \n");
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          fprintf(GRADFile,"%10d   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e \n",
-           i,
-           Optimizer.NodeX(i),
-           Optimizer.NodeY(i),
-           Optimizer.NodeZ(i),
-           Optimizer.GradientX(p,i),
-           Optimizer.GradientY(p,i),
-           Optimizer.GradientZ(p,i));
-           
-           fflush(NULL);
-       }
-       
-       fprintf(GRADFile," \n\n\n");
-       
-    }     
-     
-    fclose(GRADFile);
-    
-    // Gradient with respect to input values 
-    
-    printf("\n\n\n\n");
-    printf("Gradient with respect to Alpha   : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_ALPHA  ));
-    printf("Gradient with respect to Beta    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_BETA   ));
-    printf("Gradient with respect to Mach    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_MACH   ));
-    printf("Gradient with respect to Vinf    : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_VINF   ));
-    printf("Gradient with respect to Density : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_DENSITY));
-    printf("Gradient with respect to ReCref  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_RECREF ));
-    printf("Gradient with respect to P rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_P_RATE ));
-    printf("Gradient with respect to Q rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_Q_RATE ));
-    printf("Gradient with respect to R rate  : %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_R_RATE ));
-  
-    return 1;
-    
-}
-
-/*##############################################################################
-#                                                                              #
-#                            TestCase_11                                       #
-#                                                                              #
-#        Forward and adjoint solves, given user supplied vectors, calculation  #
-#        of mesh and residual-vector product partial gradients                 #
-#                                                                              #
-##############################################################################*/
-
-int TestCase_11(char *FileName)
-{
-    int i, Case;
-    double *ForwardVecIn, *ForwardVecOut, *ForwardRHS;
-    double *AdjointVecIn, *AdjointVecOut, *AdjointRHS, *AdjointPsi;
-    double *pF_pMesh, *pF_pInputVariable;
-    double *pR_pMesh, *pR_pInputVariable;
-        
-    printf("Running test case #11... \n");fflush(NULL);
-       
-    VSP_OPTIMIZER Optimizer;
-
-    Optimizer.NumberOfThreads() = 1;
-    
-    Optimizer.DoUnsteadyAnalysis() = 0;
-    
-    Optimizer.NumberOfOptimizationFunctions() = 1;
-    
-    Optimizer.OptimizationFunction(1) = OPT_CL_INVISCID;
-
-    Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
-
-    Optimizer.Setup(FileName);
-
-    Optimizer.SetMachNumber(0.11);
-       
-    Optimizer.SetAoADegrees(5.);
-       
-    Optimizer.SetBetaDegrees(0.);
-       
-    Optimizer.SetVinf(100.);
-       
-    Optimizer.SetDensity(1.e-5);
-       
-    Optimizer.SetReCref(1000000.);
-       
-    Optimizer.SetRotationalRate_p(0.);
-       
-    Optimizer.SetRotationalRate_q(0.);
-       
-    Optimizer.SetRotationalRate_r(0.);
-    
-    // Forward solution vectors and right hand side
-    
-    ForwardVecIn = new double[Optimizer.NumberOfLoops() + 1];
-
-    ForwardVecOut = new double[Optimizer.NumberOfLoops() + 1];
-    
-    ForwardRHS = new double[Optimizer.NumberOfLoops() + 1];
-    
-    // Adjoint solution vectors and right hand side
-    
-    AdjointVecIn = new double[Optimizer.NumberOfAdjointEquations() + 1];
-
-    AdjointVecOut = new double[Optimizer.NumberOfAdjointEquations() + 1];
-    
-    AdjointRHS = new double[Optimizer.NumberOfAdjointEquations() + 1];
-    
-    AdjointPsi = new double[Optimizer.NumberOfAdjointEquations() + 1];
-
-    // Partial gradients
-    
-    pF_pMesh = new double[3*Optimizer.NumberOfNodes() + 1];
-    pF_pInputVariable = new double[OPT_GRADIENT_NUMBER_OF_INPUTS + 2];   
-    
-    pR_pMesh = new double[3*Optimizer.NumberOfNodes() + 1];
-    pR_pInputVariable = new double[OPT_GRADIENT_NUMBER_OF_INPUTS + 2];
-        
-    // Get the matrix vector product, given user supplied vector... also returns the right handside vector
-            
-       for ( i = 1 ; i <= Optimizer.NumberOfLoops() ; i++ ) {
-       
-          ForwardVecIn[i] = 1.;
-          
-          ForwardVecOut[i] = 0.;
-          
-          ForwardRHS[i] = 0.;
-          
-       }
-       
-       Optimizer.CalculateForwardMatrixVectorProduct(ForwardVecIn, ForwardVecOut);
-       Optimizer.CalculateForwardRightHandSide(ForwardRHS);
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfLoops() ; i++ ) {
-       
-          printf("ForwardVecIn: %e --- ForwardVecOut: %e --- ForwardRHS: %e \n",
-                 ForwardVecIn[i], 
-                 ForwardVecOut[i],
-                 ForwardRHS[i]);
-                 
-       }    
-
-    // Calculate a FORWARD matrix vector product, and RHS.. we just set the input vector to 1's here...
-  
-       for ( i = 1 ; i <= Optimizer.NumberOfAdjointEquations() ; i++ ) {
-       
-          AdjointVecIn[i] = 1.;
-          
-          AdjointVecOut[i] = 0.;
-          
-          AdjointRHS[i] = 0.;
-          
-          AdjointPsi[i] = 0.;
-          
-       }    
-       
-       
-       Optimizer.CalculateAdjointMatrixVectorProduct(AdjointVecIn, AdjointVecOut);
-       Optimizer.CalculateAdjointRightHandSide(AdjointRHS);
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfAdjointEquations() ; i++ ) {
-       
-          printf("AdjointVecIn: %e --- AdjointVecOut: %e --- AdjointRHS: %e \n",
-                 AdjointVecIn[i], 
-                 AdjointVecOut[i],
-                 AdjointRHS[i]);
-                 
-       } 
-    
-    // Now do a solve... forward and adjoint
-    
-       Optimizer.Solve();
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfLoops() ; i++ ) {
-       
-          ForwardVecOut[i] = 0.;
-          
-          ForwardRHS[i] = 0.;
-          
-       }
-    
-    // Calculate a FORWARD matrix vector product, and get RHS... we use the solution vector from above for the input vector...
-    // so we expect the output vector to the right hand side
-    
-       // Get the forward solution vector
-       
-       Optimizer.GetForwardSolutionVector(ForwardVecIn);
-       
-       // Now do the matrix vector product, and get the rhs vector
-       
-       Optimizer.CalculateForwardMatrixVectorProduct(ForwardVecIn, ForwardVecOut);
-       Optimizer.CalculateForwardRightHandSide(ForwardRHS);
-       
-       // Compare the matrix vector product (vecout) with the rhs vector... the should be the same
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfLoops() ; i++ ) {
-       
-          printf("ForwardVecIn: %e --- ForwardVecOut: %e --- ForwardRHS: %e \n",
-                 ForwardVecIn[i], 
-                 ForwardVecOut[i],
-                 ForwardRHS[i]);
-                 
-       }   
-       
-    // Calculate an ADJOINT matrix vector product, and get RHS
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfAdjointEquations() ; i++ ) {
-       
-          AdjointVecOut[i] = 0.;
-          
-          AdjointRHS[i] = 0.;
-          
-          AdjointPsi[i] = 0.;
-          
-       }    
-             
-       // Get the adjoint solution vector from the above solve
-       
-       Optimizer.GetAdjointSolutionVector(AdjointVecIn);
-       
-       // Calculate matrix vector product, and get RHS... we expect the matrix vector product to be equal to the rhs vector
-       
-       Optimizer.CalculateAdjointMatrixVectorProduct(AdjointVecIn, AdjointVecOut);
-
-       // Calculate partials wrt mesh and input variables
-
-       Case = 1;
-
-       Optimizer.CalculateOptimizationFunctionPartials(Case, pF_pMesh, pF_pInputVariable, AdjointRHS);
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfAdjointEquations() ; i++ ) {
-       
-          printf("AdjointVecIn: %e --- AdjointVecOut: %e --- AdjointRHS: %e \n",
-                 AdjointVecIn[i], 
-                 AdjointVecOut[i],
-                 AdjointRHS[i]);
-                 
-       } 
-    
-    // Now solve the adjoint system.. here we supply the RHS from the above calculation... so we expect
-    // Psi to come back as the adjoint solution we obtained previously above (AdjointVecOut)
-    
-       Optimizer.SolveAdjointLinearSystem(AdjointPsi,AdjointRHS);
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfAdjointEquations() ; i++ ) {
-       
-          printf("AdjointVecOut: %e --- Psi: %e \n",
-                 AdjointVecOut[i],
-                 AdjointPsi[i]);
-                 
-       }
-          
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-       
-          printf("pF_pMesh: %e %e %e       %e %e %e \n",
-                 Optimizer.pGradient_wrtMeshX(i),
-                 Optimizer.pGradient_wrtMeshY(i),
-                 Optimizer.pGradient_wrtMeshZ(i),     
-                 pF_pMesh[3*i-2],
-                 pF_pMesh[3*i-1],
-                 pF_pMesh[3*i  ]);
-                 
-       }        
-       
-       for ( i = 1 ; i <= OPT_GRADIENT_NUMBER_OF_INPUTS + 1 ; i++ ) {
-       
-          printf("pF_pInputVariable: %e    %e\n",
-                 Optimizer.pF_dInputVariable(i),
-                 pF_pInputVariable[i]);
-                 
-       }     
-
-    // Calculate partials, residual vector products... here we pass in the Psi
-    // solution vector we accessed previously... 
-
-       Optimizer.CalculateAdjointResidualPartialProducts(AdjointPsi, pR_pMesh, pR_pInputVariable);  
-          
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-       
-          printf("pR_pMesh: %e %e %e       %e %e %e \n",
-                 Optimizer.pGradient_wrtResdiualX(i),
-                 Optimizer.pGradient_wrtResdiualY(i),
-                 Optimizer.pGradient_wrtResdiualZ(i),
-                 pR_pMesh[3*i-2],
-                 pR_pMesh[3*i-1],
-                 pR_pMesh[3*i  ]);
-                 
-       }        
-       
-       for ( i = 1 ; i <= OPT_GRADIENT_NUMBER_OF_INPUTS + 1 ; i++ ) {
-       
-          printf("pR_pInputVariable: %e    %e\n",
-                 Optimizer.pR_dInputVariable(i),       
-                 pR_pInputVariable[i]);
-                 
-       }  
-        
-    // Compare total gradients that were previously calculated with the sum of the partials
-    
-             //1234567890   1234567890 1234567890 1234567890   1234567890 1234567890 1234567890   1234567890 1234567890 1234567890    
-       
-       printf("   Node            X          Y          Z            dFdX       dFdY       dFdZ       dFdX_sum   dFdY_sum   dFdZ_sum \n");
-       
-       for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
-          
-          printf("%10d   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e \n",
-           i,
-           Optimizer.NodeX(i),
-           Optimizer.NodeY(i),
-           Optimizer.NodeZ(i),
-           Optimizer.GradientX(i),
-           Optimizer.GradientY(i),
-           Optimizer.GradientZ(i),
-           pF_pMesh[3*i-2] - pR_pMesh[3*i-2],
-           pF_pMesh[3*i-1] - pR_pMesh[3*i-1],
-           pF_pMesh[3*i  ] - pR_pMesh[3*i  ]);                  
-                      
-       }
-       
-       // Gradient with respect to input values 
-       
-       printf("\n\n\n\n");
-       printf("Gradient with respect to Alpha   : %e ... %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_ALPHA  ), pF_pInputVariable[OPT_GRADIENT_WRT_ALPHA  ] - pR_pInputVariable[OPT_GRADIENT_WRT_ALPHA  ]);
-       printf("Gradient with respect to Beta    : %e ... %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_BETA   ), pF_pInputVariable[OPT_GRADIENT_WRT_BETA   ] - pR_pInputVariable[OPT_GRADIENT_WRT_BETA  ]);
-       printf("Gradient with respect to Mach    : %e ... %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_MACH   ), pF_pInputVariable[OPT_GRADIENT_WRT_MACH   ] - pR_pInputVariable[OPT_GRADIENT_WRT_MACH  ]);
-       printf("Gradient with respect to Vinf    : %e ... %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_VINF   ), pF_pInputVariable[OPT_GRADIENT_WRT_VINF   ] - pR_pInputVariable[OPT_GRADIENT_WRT_VINF  ]);
-       printf("Gradient with respect to Density : %e ... %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_DENSITY), pF_pInputVariable[OPT_GRADIENT_WRT_DENSITY] - pR_pInputVariable[OPT_GRADIENT_WRT_DENSITY  ]);
-       printf("Gradient with respect to ReCref  : %e ... %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_RECREF ), pF_pInputVariable[OPT_GRADIENT_WRT_RECREF ] - pR_pInputVariable[OPT_GRADIENT_WRT_RECREF  ]);
-       printf("Gradient with respect to P rate  : %e ... %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_P_RATE ), pF_pInputVariable[OPT_GRADIENT_WRT_P_RATE ] - pR_pInputVariable[OPT_GRADIENT_WRT_P_RATE  ]);
-       printf("Gradient with respect to Q rate  : %e ... %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_Q_RATE ), pF_pInputVariable[OPT_GRADIENT_WRT_Q_RATE ] - pR_pInputVariable[OPT_GRADIENT_WRT_Q_RATE  ]);
-       printf("Gradient with respect to R rate  : %e ... %e \n",Optimizer.dF_dInputVariable(OPT_GRADIENT_WRT_R_RATE ), pF_pInputVariable[OPT_GRADIENT_WRT_R_RATE ] - pR_pInputVariable[OPT_GRADIENT_WRT_R_RATE  ]);
-                                    
-    return 1;
+   for ( i = 1 ; i <= Length ; i++ ) {
+      
+      Dot += Old[i]*New[i];
+      
+   }   
     
 }
 

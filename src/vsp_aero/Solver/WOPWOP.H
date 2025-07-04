@@ -57,13 +57,115 @@ private:
     int NumberOfBodySections_;
     
     FILE **BodyThicknessGeometryFile_;
- 
+
+    
+    // PSU WOP WOP Coupling
+    
+    // Set psuwopwop periodicity type
+    // WOPWOP_CONSTANT  1
+    // WOPWOP_PERIODIC  2
+    // WOPWOP_APERIODIC 3
+     
+    int &WopWopPeriodicity(void) { return WopWopPeriodicity_; };
+    
+    int &WopWopWriteOutADBFile(void) { return WopWopWriteOutADBFile_; };    
+    
+    double &WopWopUserStartTime(void) { return WopWopUserStartTime_; };
+    double &WopWopUserFinishTime(void) { return WopWopUserFinishTime_; };
+        
+    int NoiseAnalysis_;
+    int NoiseTimeRefinement_;
+    int NoiseTime_;
+    int NumberOfNoiseTimeSteps_;
+    int SteadyStateNoise_;
+    int NoiseInterpolation_;
+    
+    double NoiseTimeStep_;
+    double NoiseTimeShift_;
+    double CurrentNoiseTime_;
+     
     // File IO
     
     FILE *OpenLoadingGeometryFile(int i, char *FileName, FILE **File);
     FILE *OpenLoadingFile(int i, char *FileName, FILE **File);
     FILE *OpenThicknessGeometryFile(int i, char *FileName, FILE **File);
-        
+
+
+    int WopWopEnglishUnits_;
+    int WopWopFlyBy_;
+    int WopWopPeriodicity_;
+    int WopWopNumberOfRotors_;
+    int WopWopNumberOfWings_;
+    int WopWopNumberOfBodies_;
+    int WopWopNumberOfTotalBlades_;
+    int WopWopNumberOfTotalWingSurfaces_;
+    int WopWopNumberOfTtoalBodySurfaces_;
+    int WopWopNumberOfTimeSteps_;
+    int WopWopComponentGroupStart_;
+    int WopWopComponentGroupEnd_;
+    int WopWopLongestPeriodGroup_;
+    int WopWopWriteOutADBFile_;
+    
+    double WopWopDensityConversion_;
+    double WopWopLengthConversion_;
+    double WopWopAreaConversion_;
+    double WopWopPressureConversion_;     
+    double WopWopForceConversion_;
+    double WopWopdTau_;
+    double WopWopOmegaMin_;
+    double WopWopOmegaMax_;
+    double WopWopLongestPeriod_;
+    double WopWopShortestPeriod_;
+    double WopWopObserverTime_;
+    double WopWopUserStartTime_;
+    double WopWopUserFinishTime_;
+    
+    FILE *PSUWopWopNameListFile_;
+    
+    // Main driver routines
+    
+    void SetupPSUWopWopData(void);
+    void WriteOutPSUWopWopFileHeadersForGroup(int c);
+    void WriteOutPSUWopWopUnsteadyDataForGroup(int c);
+
+    // Namelist files
+    
+    void WriteOutPSUWopWopCaseAndNameListFiles(void);
+    void WriteOutPSUWopWopCaseAndNameListFilesForFlyBy(void);
+
+    void WriteOutPSUWopWopCaseAndNameListFilesForFootPrint(void);
+
+    // Compact Geometry
+    
+    void WriteOutPSUWopWopCompactGeometryHeaderForGroup(int c);
+    void WriteOutPSUWopWopCompactGeometryDataForGroup(int c);
+    
+    // Compact Loading
+    
+    void WriteOutPSUWopWopCompactLoadingHeaderForGroup(int c);
+    void WriteOutPSUWopWopCompactLoadingDataForGroup(int c);
+
+    // Thickness Geometry
+
+    void WriteOutPSUWopWopThicknessGeometryHeaderForGroup(int c);    
+    void WriteOutPSUWopWopThicknessGeometryDataForGroup(int c); 
+    
+    // Full Geometry
+
+    void WriteOutPSUWopWopLoadingGeometryHeaderForGroup(int c);        
+    void WriteOutPSUWopWopLoadingGeometryDataForGroup(int c);   
+    
+    // Full Loading
+    
+    void WriteOutPSUWopWopLoadingHeaderForGroup(int c);        
+    void WriteOutPSUWopWopLoadingDataForGroup(int c);    
+    
+    // Pegg and BPM data
+
+    void WriteOutPSUWopWopPeggNamelist(void);
+    void WriteOutPSUWopWopBPMHeaderForGroup(int c);    
+    void WriteOutPSUWopWopBPMDataForGroup(int c);
+           
 public:
 
     // Constructor, Destructor, Copy
@@ -129,7 +231,49 @@ public:
     FILE *ThicknessGeometryFileForBodySurface(int i) { return BodyThicknessGeometryFile_[i]; };
         
     void CloseFiles(void);
- 
+
+
+
+
+
+
+   /** Write out the noise files for psuwopwop **/
+    
+    void WriteOutNoiseFiles(int Case);  
+    
+    /** Write out time accurate noise files for psuwopwop **/
+    
+    void WriteOutTimeAccurateNoiseFiles(int Case);  
+    
+    /** Write out steady state noise files for psuwopwop **/
+    
+    void WriteOutSteadyStateNoiseFiles(int Case);  
+
+   /** Do a noise analysis... this is a post processing step on an existing solution **/
+    
+    int &NoiseAnalysis(void) { return NoiseAnalysis_; };
+    
+    /** Create files for an assumed steady state analysis... ie, not time accurate **/
+    
+    int &SteadyStateNoise(void) { return SteadyStateNoise_; };    
+   
+    /** Input geometry and flight conditions are in english units...
+     * 
+     * ... so we will convert to SI for output to psuwopwop
+     * 
+     **/
+
+    int &WopWopEnglishUnits(void) { return WopWopEnglishUnits_; };   
+
+    /** Do a psuwopwop flyby analysis **/
+
+    void DoWopWopFlyBy(void) { WopWopFlyBy_ = 1; };
+    
+    /** Do a psuwopwop foot print analysis **/
+    
+    void DoWopWopFootPrint(void) { WopWopFlyBy_ = 0; };
+    
+         
 };
 
 #include "END_NAME_SPACE.H"

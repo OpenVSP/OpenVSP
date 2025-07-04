@@ -8,7 +8,7 @@
 #                                                                              #
 ##############################################################################*/
 
-VSPAERO_DOUBLE myclock(void)
+double myclock(void)
 {
  
 #ifdef MYTIME
@@ -16,12 +16,12 @@ VSPAERO_DOUBLE myclock(void)
    struct timezone tzone;
    struct timeval tval;
      
-   VSPAERO_DOUBLE t;
-   VSPAERO_DOUBLE t1, t2;
+   double t;
+   double t1, t2;
    
    if (gettimeofday(&tval, &tzone) != 0) {
    
-      PRINTF("In function myclock: gettimeofday failed \n");
+      printf("In function myclock: gettimeofday failed \n");
       exit(1);
       
    }
@@ -31,7 +31,7 @@ VSPAERO_DOUBLE myclock(void)
    
    t = t1 + t2;
    
- //  PRINTF("t1, t2, t is %f, %f, %f, %d, %d \n",t1,t2,t,tval.tv_sec,tval.tv_usec);
+ //  printf("t1, t2, t is %f, %f, %f, %d, %d \n",t1,t2,t,tval.tv_sec,tval.tv_usec);
    
    return t;
    
@@ -39,7 +39,7 @@ VSPAERO_DOUBLE myclock(void)
 
 #ifdef WIN32
 
-    VSPAERO_DOUBLE t;
+    double t;
 
     struct tm *newtime;
     __time64_t long_time;

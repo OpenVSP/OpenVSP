@@ -110,9 +110,9 @@ OPTIMIZATION_FUNCTION &OPTIMIZATION_FUNCTION::operator=(const OPTIMIZATION_FUNCT
     
     if ( UserVector_ != NULL ) delete [] UserVector_;
     
-    Function_ = new VSPAERO_DOUBLE[VectorLength_ + 1];
+    Function_ = new double[VectorLength_ + 1];
 
-    FunctionAverage_ = new VSPAERO_DOUBLE[VectorLength_ + 1];
+    FunctionAverage_ = new double[VectorLength_ + 1];
     
     UserVector_ = new double[VectorLength_ + 1];
     
@@ -153,9 +153,9 @@ void OPTIMIZATION_FUNCTION::SetFunctionLength(int Length, int NumberOfTimeSteps)
     
     VectorLength_ = FunctionLength_*NumberOfTimeSteps_;
     
-    Function_ = new VSPAERO_DOUBLE[VectorLength_ + 1];
+    Function_ = new double[VectorLength_ + 1];
 
-    FunctionAverage_ = new VSPAERO_DOUBLE[VectorLength_ + 1]; // Yes, this is over kill...
+    FunctionAverage_ = new double[VectorLength_ + 1]; // Yes, this is over kill...
     
     UserVector_ = new double[VectorLength_ + 1];
 

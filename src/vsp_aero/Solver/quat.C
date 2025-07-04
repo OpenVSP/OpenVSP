@@ -89,7 +89,7 @@ QUAT &QUAT::operator=(const QUAT &quat)
 #                                                                              #
 ##############################################################################*/
 
-VSPAERO_DOUBLE &QUAT::operator()(int i)
+double &QUAT::operator()(int i)
 {
 
     return (Vec_[i]);
@@ -102,7 +102,7 @@ VSPAERO_DOUBLE &QUAT::operator()(int i)
 #                                                                              #
 ##############################################################################*/
 
-const VSPAERO_DOUBLE& QUAT::operator()(int i) const
+const double& QUAT::operator()(int i) const
 {
 
     return (Vec_[i]);
@@ -167,7 +167,7 @@ QUAT operator*(const QUAT &quat1, const QUAT &quat2)
 {
 
     int i;
-    VSPAERO_DOUBLE Vec1[3], Vec2[3], Vec3[3], a1, a2, dot;
+    double Vec1[3], Vec2[3], Vec3[3], a1, a2, dot;
     QUAT Quat;
 
     for ( i = 0 ; i <= 2 ; i++ ) {
@@ -224,11 +224,11 @@ void QUAT::FormInverse(void)
 #                                                                              #
 ##############################################################################*/
 
-void QUAT::FormRotationQuat(VSPAERO_DOUBLE *Vec, VSPAERO_DOUBLE Theta)
+void QUAT::FormRotationQuat(double *Vec, double Theta)
 {
 
     int i;
-    VSPAERO_DOUBLE Dot, SinHalfTheta;
+    double Dot, SinHalfTheta;
 
     // Create the pure part along the normalized vector
 
@@ -252,11 +252,11 @@ void QUAT::FormRotationQuat(VSPAERO_DOUBLE *Vec, VSPAERO_DOUBLE Theta)
 #                                                                              #
 ##############################################################################*/
 
-VSPAERO_DOUBLE QUAT::Magnitude(void)
+double QUAT::Magnitude(void)
 {
 
     int i;
-    VSPAERO_DOUBLE Dot;
+    double Dot;
 
     // Calculate Magnitude of quaternion
 
@@ -283,11 +283,11 @@ VSPAERO_DOUBLE QUAT::Magnitude(void)
 void QUAT::print(char *name)
 {
 
-    PRINTF("%s\n",name);
-    PRINTF(" s: %f \n",Vec_[3]);
-    PRINTF("qi: %f \n",Vec_[0]);
-    PRINTF("qj: %f \n",Vec_[1]);
-    PRINTF("qk: %f \n",Vec_[2]);
+    printf("%s\n",name);
+    printf(" s: %f \n",Vec_[3]);
+    printf("qi: %f \n",Vec_[0]);
+    printf("qj: %f \n",Vec_[1]);
+    printf("qk: %f \n",Vec_[2]);
     
 }
 

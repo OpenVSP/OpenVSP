@@ -19,6 +19,6 @@
 
 #include "START_NAME_SPACE.H"
 
-VSPAERO_DOUBLE myclock(void);
+double myclock(void);
 
 #include "END_NAME_SPACE.H"

@@ -112,7 +112,7 @@ VORTEX_SHEET_VORTEX_TO_VORTEX_INTERACTION_SET::VORTEX_SHEET_VORTEX_TO_VORTEX_INT
 
     // Not implemented
     
-    PRINTF("VORTEX_SHEET_VORTEX_TO_VORTEX_INTERACTION_SET Copy not implemented! \n");
+    printf("VORTEX_SHEET_VORTEX_TO_VORTEX_INTERACTION_SET Copy not implemented! \n");
     
     fflush(NULL);
     

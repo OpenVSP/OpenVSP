@@ -99,6 +99,7 @@ struct TRI_STRUCT
 
 	int surface_id;
    int component_id;
+   int MinValidTimeStep;
 	float area;
 
 }; typedef struct TRI_STRUCT TRI;
@@ -130,6 +131,8 @@ struct EDGE_STRUCT
    int IsKuttaEdge;
    
    int IsBoundaryEdge;
+   
+   int MinValidTimeStep;
 
 }; typedef struct EDGE_STRUCT EDGE;
 
@@ -379,6 +382,10 @@ private:
     
     int TimeAccurate_;
     
+    // Current time step we are looking at
+    
+    int CurrentTimeStep_;
+    
     // Cpmin, and Cpmax
     
     int UserSetPlotLimits;
@@ -421,6 +428,7 @@ private:
     
     int NumberOfADBCases_;
     int UserSelectedSolutionCase_;
+    int Last_UserSelectedSolutionCase_;
     
     SOLUTION_CASE *ADBCaseList_;
     
@@ -639,6 +647,8 @@ private:
     int DrawCoarseMeshesIsOn;
     int DrawOnlySelectedIsOn;
     
+    int DrawWakeSurfacesIsOn;
+    
     int DrawFEMShadedIsOff;
     int DrawFEMShadedIsOn;
     int DrawFEMWireFrameIsOn;
@@ -818,7 +828,7 @@ private:
  
     // ADB file pointers
 
-    fpos_t StartOfWallTemperatureData;
+    fpos_t StartOfWallTemperatureData[100000];
 
     // Write out a png file
 
@@ -947,7 +957,7 @@ public:
 
     void SetTimeStampLabel(char *Label) { DrawTimeStampIsOn = 1 ; sprintf(TimeLabel_,"%s",Label); };
     
-    void SetCalculixFileName(char *Name) { ThereIsCalculixData = 1 ; sprintf(CalculixFileName,"%s",Name); };
+    void SetCalculixFileName(char *Name) { ThereIsCalculixData = 1 ; sprintf(CalculixFileName,"%s",Name); printf("CalculixFileName: %s \n",CalculixFileName);fflush(NULL); };
 
     // Script File I/O
 
@@ -1022,6 +1032,8 @@ public:
     void DrawCpSteadyWasPicked(void)   { if ( DrawCpSteadyIsOn   == 0 ) { DrawOffIsOn = 0; DrawShadedIsOn = 0; DrawCpIsOn = 0; DrawCpSteadyIsOn = 1; DrawCpUnsteadyIsOn = 0; DrawGammaIsOn = 0; }; };
     void DrawUnsteadyCpWasPicked(void) { if ( DrawCpUnsteadyIsOn == 0 ) { DrawOffIsOn = 0; DrawShadedIsOn = 0; DrawCpIsOn = 0; DrawCpSteadyIsOn = 0; DrawCpUnsteadyIsOn = 1; DrawGammaIsOn = 0; }; };
     void DrawGammaWasPicked(void)      { if ( DrawGammaIsOn      == 0 ) { DrawOffIsOn = 0; DrawShadedIsOn = 0; DrawCpIsOn = 0; DrawCpSteadyIsOn = 0; DrawCpUnsteadyIsOn = 0; DrawGammaIsOn = 1; }; };
+
+    void DrawWakeSurfacesWasPicked(void) { DrawWakeSurfacesIsOn = 1 - DrawWakeSurfacesIsOn; };
 
     void DrawCoarseMeshWasPicked(void) { ToggleFlag(DrawCoarseMeshesIsOn,                          "DrawCoarseMeshesIs"); };
     

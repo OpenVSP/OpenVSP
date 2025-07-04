@@ -13,7 +13,8 @@
 #include <string.h>
 #include <assert.h>
 #include "utils.H"
-#include "VSP_Geom.H"
+#include "VSP_Edge.H"
+#include "VSP_Loop.H"
 
 #include "START_NAME_SPACE.H"
 
@@ -26,6 +27,8 @@ private:
     int Level_;
 
     int Loop_;
+    
+    int Edge_;
 
     int NumberOfVortexEdges_;
     
@@ -47,6 +50,10 @@ public:
         
     void SizeEdgeList(int NumberOfVortexEdges);
     
+    /** Re-size the edge list **/
+    
+    void ReSizeEdgeList(int NumberOfVortexEdges);
+        
     /** Size the loop list **/
     
     void SizeLoopList(int NumberOfVortexLoops);
@@ -77,6 +84,10 @@ public:
     /** Loop this list evaluates for... again, this may be a coarse grid loop **/
     
     int &Loop(void) { return Loop_; };
+    
+    /** Edge this list evaluates for... again, this may be a coarse grid loop **/
+    
+    int &Edge(void) { return Edge_; };    
     
     /** Number of vortex edges in this interaction list * */
 

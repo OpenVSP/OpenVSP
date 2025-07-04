@@ -21,7 +21,7 @@ public:
 
     int id;
 
-    VSPAERO_DOUBLE xyz[3];
+    double xyz[3];
 
 };
 
@@ -30,8 +30,8 @@ class TEST_NODE {
 
 public:
 
-    VSPAERO_DOUBLE xyz[3];
-    VSPAERO_DOUBLE distance;
+    double xyz[3];
+    double distance;
     
     int found;
     int id;
@@ -61,7 +61,7 @@ public:
     
     /** Split point in x,y, or z for this leaf **/
     
-    VSPAERO_DOUBLE cut_off_value;
+    double cut_off_value;
     
     /** Node list **/
     

@@ -20,7 +20,7 @@ class QUAT {
 
 private:
 
-    VSPAERO_DOUBLE Vec_[4]; // Vec_[0 - 2] are the vector components, Vec_[3] is the scalar
+    double Vec_[4]; // Vec_[0 - 2] are the vector components, Vec_[3] is the scalar
 
 public:
 
@@ -32,11 +32,11 @@ public:
     
     /** Access to the quaternion vector... 0,1,2 are the vector components .. 3 is the scalar **/
 
-    VSPAERO_DOUBLE& operator()(int i);
+    double& operator()(int i);
 
     /** Access to the quaternion vector... 0,1,2 are the vector components .. 3 is the scalar **/
     
-    const VSPAERO_DOUBLE& operator()(int i) const;
+    const double& operator()(int i) const;
 
     friend QUAT operator+(const QUAT &quat1, const QUAT &quat2);
     friend QUAT operator-(const QUAT &quat1, const QUAT &quat2);
@@ -49,23 +49,23 @@ public:
 
     /** Form rotation quaternion given rotation vector and rotation angle (in radians) **/
     
-    void FormRotationQuat(VSPAERO_DOUBLE *Vec, VSPAERO_DOUBLE Theta);
+    void FormRotationQuat(double *Vec, double Theta);
 
     /** Init quat vector to 0, and scalar to A **/
     
-    void Init(VSPAERO_DOUBLE A) { Vec_[0] = 0. ; Vec_[1] = 0. ; Vec_[2] = 0. ; Vec_[3] = A; };
+    void Init(double A) { Vec_[0] = 0. ; Vec_[1] = 0. ; Vec_[2] = 0. ; Vec_[3] = A; };
     
     /** Init quat vector to (A,B,C) and scalar to D **/
     
-    void Init(VSPAERO_DOUBLE A, VSPAERO_DOUBLE B, VSPAERO_DOUBLE C, VSPAERO_DOUBLE D) { Vec_[0] = A ; Vec_[1] = B ; Vec_[2] = C ; Vec_[3] = D; };
+    void Init(double A, double B, double C, double D) { Vec_[0] = A ; Vec_[1] = B ; Vec_[2] = C ; Vec_[3] = D; };
     
     /** Init quat vector using input vector **/
     
-    void Init(VSPAERO_DOUBLE Vec[4]) { Vec_[0] = Vec[0] ; Vec_[1] = Vec[1] ; Vec_[2] = Vec[2] ; Vec_[3] = Vec[3]; };
+    void Init(double Vec[4]) { Vec_[0] = Vec[0] ; Vec_[1] = Vec[1] ; Vec_[2] = Vec[2] ; Vec_[3] = Vec[3]; };
     
     /** Return magnitude of quaternion vector **/
     
-    VSPAERO_DOUBLE Magnitude(void);
+    double Magnitude(void);
     
     /** Print out quaternion vector **/
 

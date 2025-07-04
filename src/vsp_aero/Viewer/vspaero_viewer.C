@@ -17,8 +17,8 @@ char CalculixFileName[2000];
 float BoxSize;
 
 #define VER_MAJOR 6
-#define VER_MINOR 5
-#define VER_PATCH 0
+#define VER_MINOR 4
+#define VER_PATCH 1
 
 /*##############################################################################
 #                                                                              #
@@ -64,6 +64,8 @@ int main(int argc, char **argv) {
           Calculix = 1;
 
           sprintf(CalculixFileName,"%s",argv[++i]);
+          
+          printf("CalculixFileName: %s \n",CalculixFileName);fflush(NULL);
 
 	   }      
 
@@ -114,8 +116,14 @@ int main(int argc, char **argv) {
     
     // Set the Calculix file name
     
-    if ( Calculix ) vui->glviewer->SetCalculixFileName(CalculixFileName);
+    if ( Calculix ) {
        
+       printf("Setting calculix file name for viewer... \n");fflush(NULL);
+       
+       vui->glviewer->SetCalculixFileName(CalculixFileName);
+       
+    }
+    
     // Load in the geometry and TPS data
 
     vui->LoadInitialData(name);

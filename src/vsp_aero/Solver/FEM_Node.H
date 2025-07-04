@@ -26,17 +26,17 @@ private:
     
     int NumberOfFEMNodes_;
 
-    VSPAERO_DOUBLE *x_;
-    VSPAERO_DOUBLE *y_;         
-    VSPAERO_DOUBLE *z_;
-    VSPAERO_DOUBLE *delta_xv_;
-    VSPAERO_DOUBLE *delta_yv_;
-    VSPAERO_DOUBLE *delta_zv_; 
-    VSPAERO_DOUBLE *delta_phix_; 
-    VSPAERO_DOUBLE *delta_phiy_; 
-    VSPAERO_DOUBLE *delta_phiz_;
+    double *x_;
+    double *y_;         
+    double *z_;
+    double *delta_xv_;
+    double *delta_yv_;
+    double *delta_zv_; 
+    double *delta_phix_; 
+    double *delta_phiy_; 
+    double *delta_phiz_;
     
-    VSPAERO_DOUBLE InterpolateFunction_(VSPAERO_DOUBLE *x, VSPAERO_DOUBLE *f, VSPAERO_DOUBLE s);
+    double InterpolateFunction_(double *x, double *f, double s);
 
 public:
 
@@ -57,71 +57,71 @@ public:
     
     /** X location of i'th node **/
 
-    VSPAERO_DOUBLE &x(int i) { return x_[i]; };
+    double &x(int i) { return x_[i]; };
     
     /** Y location of i'th node **/
     
-    VSPAERO_DOUBLE &y(int i) { return y_[i]; };
+    double &y(int i) { return y_[i]; };
 
     /** Z location of i'th node **/
 
-    VSPAERO_DOUBLE &z(int i) { return z_[i]; };
+    double &z(int i) { return z_[i]; };
     
     /** X deflection **/
 
-    VSPAERO_DOUBLE &delta_xv(int i) { return delta_xv_[i]; };
+    double &delta_xv(int i) { return delta_xv_[i]; };
     
     /** Y deflection **/
     
-    VSPAERO_DOUBLE &delta_yv(int i) { return delta_yv_[i]; };
+    double &delta_yv(int i) { return delta_yv_[i]; };
 
     /** Z deflection **/
 
-    VSPAERO_DOUBLE &delta_zv(int i) { return delta_zv_[i]; };
+    double &delta_zv(int i) { return delta_zv_[i]; };
     
     /** X rotation **/
     
-    VSPAERO_DOUBLE &delta_phix(int i) { return delta_phix_[i]; };
+    double &delta_phix(int i) { return delta_phix_[i]; };
     
     /** Y rotation **/
     
-    VSPAERO_DOUBLE &delta_phiy(int i) { return delta_phiy_[i]; };
+    double &delta_phiy(int i) { return delta_phiy_[i]; };
 
     /** Z rotation **/
 
-    VSPAERO_DOUBLE &delta_phiz(int i) { return delta_phiz_[i]; };    
+    double &delta_phiz(int i) { return delta_phiz_[i]; };    
     
     /** X given a span wise coordinate value s **/
     
-    VSPAERO_DOUBLE x(VSPAERO_DOUBLE s);
+    double x(double s);
     
     /** Z given a span wise coordinate value s **/
     
-    VSPAERO_DOUBLE z(VSPAERO_DOUBLE s);
+    double z(double s);
     
     /** delta_xv given a span wise coordinate value s ... hence we are interpolating in the spanwise direction **/
     
-    VSPAERO_DOUBLE delta_xv(VSPAERO_DOUBLE s);
+    double delta_xv(double s);
     
     /** delta_yv given a span wise coordinate value s ... hence we are interpolating in the spanwise direction **/
     
-    VSPAERO_DOUBLE delta_yv(VSPAERO_DOUBLE s);
+    double delta_yv(double s);
 
     /** delta_zv given a span wise coordinate value s ... hence we are interpolating in the spanwise direction **/
 
-    VSPAERO_DOUBLE delta_zv(VSPAERO_DOUBLE s);
+    double delta_zv(double s);
     
     /** delta_phix given a span wise coordinate value s ... hence we are interpolating in the spanwise direction **/
     
-    VSPAERO_DOUBLE delta_phix(VSPAERO_DOUBLE s);
+    double delta_phix(double s);
     
     /** delta_phiy given a span wise coordinate value s ... hence we are interpolating in the spanwise direction **/
     
-    VSPAERO_DOUBLE delta_phiy(VSPAERO_DOUBLE s);
+    double delta_phiy(double s);
 
     /** delta_phiz given a span wise coordinate value s ... hence we are interpolating in the spanwise direction **/
 
-    VSPAERO_DOUBLE delta_phiz(VSPAERO_DOUBLE s);
+    double delta_phiz(double s);
     
 };
 

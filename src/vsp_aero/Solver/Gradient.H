@@ -36,9 +36,9 @@ private:
     MATRIX AA_;
     MATRIX At_;
     
-    VSPAERO_DOUBLE *x_;
-    VSPAERO_DOUBLE *b_;
-    VSPAERO_DOUBLE Gradient_[3];
+    double *x_;
+    double *b_;
+    double Gradient_[3];
 
 public:
 
@@ -71,19 +71,19 @@ public:
     
     /** Partial of function wrt x **/
  
-    VSPAERO_DOUBLE &dv_dx(void) { return Gradient_[0]; };
+    double &dv_dx(void) { return Gradient_[0]; };
     
     /** Partial of function wrt y **/
     
-    VSPAERO_DOUBLE &dv_dy(void) { return Gradient_[1]; };
+    double &dv_dy(void) { return Gradient_[1]; };
 
     /** Partial of function wrt z **/
 
-    VSPAERO_DOUBLE &dv_dz(void) { return Gradient_[2]; };
+    double &dv_dz(void) { return Gradient_[2]; };
     
     /** Gradient vector **/
     
-    VSPAERO_DOUBLE *Vector(void) { return Gradient_; };
+    double *Vector(void) { return Gradient_; };
     
     /* Access to transposed matrix **/
 
@@ -95,7 +95,7 @@ public:
     
     /** Right hand side vector **/
     
-    VSPAERO_DOUBLE &b(int i) { return b_[i]; };
+    double &b(int i) { return b_[i]; };
     
     /** Form LU decomposition of A matrix **/
     

@@ -29,7 +29,7 @@ private:
     int Parent_;
     int Level_;
     
-    VSPAERO_DOUBLE InsertedPoint_[3];    
+    double InsertedPoint_[3];    
 
 public:
 
@@ -71,11 +71,11 @@ public:
 
     /** Inserted point vector **/
     
-    VSPAERO_DOUBLE *InsertedPoint(void) { return InsertedPoint_; };         
+    double *InsertedPoint(void) { return InsertedPoint_; };         
     
     /** Inserted point coordinates **/
     
-    VSPAERO_DOUBLE &InsertedPoint(int i) { return InsertedPoint_[i]; }; 
+    double &InsertedPoint(int i) { return InsertedPoint_[i]; }; 
 
 };
 

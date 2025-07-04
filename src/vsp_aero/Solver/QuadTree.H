@@ -40,7 +40,7 @@ private:
     void ResizeCellList(int NewSize);
     void SplitCell(int Cell);
     
-    int InsideQuad(int Cell, VSPAERO_DOUBLE xyz[3]);
+    int InsideQuad(int Cell, double xyz[3]);
 
     void BufferTreeOld(int Level);
        
@@ -52,10 +52,10 @@ public:
 
     /** Initialized thhe tree with thhe outer bounding box limits, Value is the cutting plane x,y,or z location **/
     
-    void InitializeTree(VSPAERO_DOUBLE X_min, VSPAERO_DOUBLE X_max,
-                        VSPAERO_DOUBLE Y_min, VSPAERO_DOUBLE Y_max,
-                        VSPAERO_DOUBLE Z_min, VSPAERO_DOUBLE Z_max,
-                        VSPAERO_DOUBLE Value);
+    void InitializeTree(double X_min, double X_max,
+                        double Y_min, double Y_max,
+                        double Z_min, double Z_max,
+                        double Value);
                     
     /** Clear the tree **/
                         
@@ -79,27 +79,27 @@ public:
     
     /** Vector of xyz coordinates for node i of the quad tree **/
     
-    VSPAERO_DOUBLE *xyz(int i) { return NodeList_[i].xyz(); };
+    double *xyz(int i) { return NodeList_[i].xyz(); };
     
     /** X coordinate of i'th node of the quad tree **/
     
-    VSPAERO_DOUBLE &x(int i) { return NodeList_[i].xyz()[DirMap_[0]]; };
+    double &x(int i) { return NodeList_[i].xyz()[DirMap_[0]]; };
     
     /** Y coordinate of i'th node of the quad tree **/
     
-    VSPAERO_DOUBLE &y(int i) { return NodeList_[i].xyz()[DirMap_[1]]; };
+    double &y(int i) { return NodeList_[i].xyz()[DirMap_[1]]; };
 
     /** Z coordinate of i'th node of the quad tree **/
 
-    VSPAERO_DOUBLE &z(int i) { return NodeList_[i].xyz()[DirMap_[2]]; };
+    double &z(int i) { return NodeList_[i].xyz()[DirMap_[2]]; };
     
     /** Velocity vector at i'th node of the quad tree **/
 
-    VSPAERO_DOUBLE *velocity(int i) { return NodeList_[i].velocity(); };
+    double *velocity(int i) { return NodeList_[i].velocity(); };
     
     /** Pressure coefficient at i'th node of the quad tree **/
     
-    VSPAERO_DOUBLE &Cp(int i) { return NodeList_[i].Cp(); };
+    double &Cp(int i) { return NodeList_[i].Cp(); };
     
     /** Flag if cell has a point in it **/
      
@@ -115,7 +115,7 @@ public:
     
     /** Insert a point into the quad tree mesh **/
     
-    int InsertPoint(VSPAERO_DOUBLE xyz[3], int SurfaceEdge);
+    int InsertPoint(double xyz[3], int SurfaceEdge);
     
     /** Quad tree direction ... x, y, z ... ie, 1, 2, 3 **/
     

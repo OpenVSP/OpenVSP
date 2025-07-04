@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0307
+version 1.0308
 header_name {.H}
 code_name {.C}
 class viewerUI {open
@@ -26,14 +26,14 @@ class viewerUI {open
             code1 {\#include "GL_VIEWER.forward.declaration.H"}
             class GL_VIEWER
           }
-          Fl_Group Quad {open
+          Fl_Group Quad {
             xywh {0 -30 1290 814}
           } {
             Fl_Tabs {} {open
               xywh {865 2 313 759}
             } {
               Fl_Group SolutionPanel {
-                label Solution open selected
+                label Solution open
                 xywh {865 26 291 735} labelfont 1
               } {
                 Fl_Group PanelComGeomTags {open
@@ -146,7 +146,7 @@ glviewer->redraw();}
                 }
               }
               Fl_Group CutPlanePanel {
-                label {Cut Planes} open
+                label {Cut Planes}
                 xywh {865 26 293 734} labelfont 1 hide
               } {
                 Fl_Group CutPlanes {open
@@ -324,7 +324,7 @@ glviewer->redraw();}
         }
       }
       Fl_Menu_Button LegendMenu {
-        label Legend open
+        label Legend
         tooltip {Legend menu} xywh {191 3 90 25} box PLASTIC_UP_BOX down_box PLASTIC_UP_BOX selection_color 231 labelfont 1
       } {
         MenuItem LegendMenuPickLabel {
@@ -430,7 +430,7 @@ glviewer->redraw();}
         }
       }
       Fl_Menu_Button FEMMenu {
-        label FEM open
+        label FEM
         tooltip {ADB menu} xywh {380 3 90 25} box PLASTIC_UP_BOX down_box PLASTIC_UP_BOX selection_color 231 labelfont 1
       } {
         MenuItem FEMMenuPickINPFile {
@@ -661,6 +661,13 @@ glviewer->redraw();}
           xywh {90 90 100 20} type Toggle divider
           code0 {\#include "ContourLevel.H"}
         }
+        MenuItem DrawWakeSurfaces {
+          label {Draw Wake Surfaces}
+          callback {glviewer->DrawWakeSurfacesWasPicked();
+glviewer->redraw();}
+          xywh {100 100 100 20} type Toggle divider
+          code0 {\#include "ContourLevel.H"}
+        }
         Submenu {} {
           label {Draw Beam3D Model} open
           xywh {20 20 70 21} divider
@@ -784,7 +791,7 @@ BetaOutput->value(dum);
 
 int UpperBound = glviewer->GetNumberOfADBCases();
 
-LoadSolutionCase->bounds(1,UpperBound);
+//LoadSolutionCase->bounds(1,UpperBound);
 
 int BigStep = UpperBound/10;
 
@@ -794,10 +801,11 @@ LoadSolutionCase->lstep((double)BigStep);
 
 sprintf(dum," of %d",UpperBound);
 
-NumberOfSolutionCasesText->value(dum);
+//NumberOfSolutionCasesText->value(dum);
 
 glviewer->GetCommentTextString(dum);
 
-CommentOutput->value(dum);} {}
+CommentOutput->value(dum);} {selected
+    }
   }
 }

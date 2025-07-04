@@ -19,19 +19,25 @@ FAST_MATRIX::FAST_MATRIX(void)
 
     // Forward
     
+    MaxNumberOfForwardInteractionEdges_[0] = 0;
+    MaxNumberOfForwardInteractionEdges_[1] = 0;
+    
     NumberOfForwardInteractionLoops_[0] = 0;
     NumberOfForwardInteractionLoops_[1] = 0;
 
-    ForwardInteractionList_[0] = NULL;
-    ForwardInteractionList_[1] = NULL;
+    ForwardInteractionLoopList_[0] = NULL;
+    ForwardInteractionLoopList_[1] = NULL;
     
     // Adjoint
+    
+    MaxNumberOfAdjointInteractionLoops_[0] = 0;
+    MaxNumberOfAdjointInteractionLoops_[1] = 0;
 
     NumberOfAdjointInteractionLoops_[0] = 0;
     NumberOfAdjointInteractionLoops_[1] = 0;
 
-    AdjointInteractionList_[0] = NULL;
-    AdjointInteractionList_[1] = NULL;
+    AdjointInteractionLoopList_[0] = NULL;
+    AdjointInteractionLoopList_[1] = NULL;
 
 }
 
@@ -44,26 +50,26 @@ FAST_MATRIX::FAST_MATRIX(void)
 FAST_MATRIX::~FAST_MATRIX(void)
 {
 
-    if ( NumberOfForwardInteractionLoops_[0] != 0 ) delete [] ForwardInteractionList_[0];
-    if ( NumberOfForwardInteractionLoops_[1] != 0 ) delete [] ForwardInteractionList_[1];
+    if ( NumberOfForwardInteractionLoops_[0] != 0 ) delete [] ForwardInteractionLoopList_[0];
+    if ( NumberOfForwardInteractionLoops_[1] != 0 ) delete [] ForwardInteractionLoopList_[1];
 
-    if ( NumberOfAdjointInteractionLoops_[0] != 0 ) delete [] AdjointInteractionList_[0];
-    if ( NumberOfAdjointInteractionLoops_[1] != 0 ) delete [] AdjointInteractionList_[1];
+    if ( NumberOfAdjointInteractionLoops_[0] != 0 ) delete [] AdjointInteractionLoopList_[0];
+    if ( NumberOfAdjointInteractionLoops_[1] != 0 ) delete [] AdjointInteractionLoopList_[1];
             
 }
 
 /*##############################################################################
 #                                                                              #
-#                              FAST_MATRIX SizeForwardList                     #
+#                          FAST_MATRIX SizeForwardLoopList                     #
 #                                                                              #
 ##############################################################################*/
 
-void FAST_MATRIX::SizeForwardList(int LoopType, int NumberOfLoops)
+void FAST_MATRIX::SizeForwardLoopList(int LoopType, int NumberOfLoops)
 {
 
     if ( MaxNumberOfForwardInteractionLoops_[LoopType] > 0 ) {
        
-       delete [] ForwardInteractionList_[LoopType];
+       delete [] ForwardInteractionLoopList_[LoopType];
        
        MaxNumberOfForwardInteractionLoops_[LoopType] = 0;
        
@@ -75,22 +81,49 @@ void FAST_MATRIX::SizeForwardList(int LoopType, int NumberOfLoops)
               
        NumberOfForwardInteractionLoops_[LoopType] = NumberOfLoops;
     
-    ForwardInteractionList_[LoopType] = new LOOP_INTERACTION_ENTRY[NumberOfLoops + 1];
+    ForwardInteractionLoopList_[LoopType] = new LOOP_INTERACTION_ENTRY[NumberOfLoops + 1];
 
 }
 
 /*##############################################################################
 #                                                                              #
-#                              FAST_MATRIX SizeAdjointList                     #
+#                          FAST_MATRIX SizeForwardEdgeList                     #
 #                                                                              #
 ##############################################################################*/
 
-void FAST_MATRIX::SizeAdjointList(int LoopType, int NumberOfLoops)
+void FAST_MATRIX::SizeForwardEdgeList(int LoopType, int NumberOfEdges)
+{
+
+    if ( MaxNumberOfForwardInteractionEdges_[LoopType] > 0 ) {
+       
+       delete [] ForwardInteractionEdgeList_[LoopType];
+       
+       MaxNumberOfForwardInteractionEdges_[LoopType] = 0;
+       
+          NumberOfForwardInteractionEdges_[LoopType] = 0;
+       
+    }
+              
+    MaxNumberOfForwardInteractionEdges_[LoopType] = NumberOfEdges;
+              
+       NumberOfForwardInteractionEdges_[LoopType] = NumberOfEdges;
+    
+    ForwardInteractionEdgeList_[LoopType] = new LOOP_INTERACTION_ENTRY[NumberOfEdges + 1];
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                          FAST_MATRIX SizeAdjointLoopList                     #
+#                                                                              #
+##############################################################################*/
+
+void FAST_MATRIX::SizeAdjointLoopList(int LoopType, int NumberOfLoops)
 {
 
     if ( MaxNumberOfAdjointInteractionLoops_[LoopType] > 0 ) {
        
-       delete [] AdjointInteractionList_[LoopType];
+       delete [] AdjointInteractionLoopList_[LoopType];
        
        MaxNumberOfAdjointInteractionLoops_[LoopType] = 0;
        
@@ -102,20 +135,47 @@ void FAST_MATRIX::SizeAdjointList(int LoopType, int NumberOfLoops)
     
        NumberOfAdjointInteractionLoops_[LoopType] = NumberOfLoops;
     
-    AdjointInteractionList_[LoopType] = new LOOP_INTERACTION_ENTRY[NumberOfLoops + 1];
+    AdjointInteractionLoopList_[LoopType] = new LOOP_INTERACTION_ENTRY[NumberOfLoops + 1];
 
 }
 
 /*##############################################################################
 #                                                                              #
-#                               FAST_MATRIX DeleteForwardList                  #
+#                          FAST_MATRIX SizeAdjointEdgeList                     #
 #                                                                              #
 ##############################################################################*/
 
-void FAST_MATRIX::DeleteForwardList(int LoopType)
+void FAST_MATRIX::SizeAdjointEdgeList(int LoopType, int NumberOfEdges)
 {
 
-    if ( NumberOfForwardInteractionLoops_[LoopType] != 0 ) delete [] ForwardInteractionList_[LoopType];
+    if ( MaxNumberOfAdjointInteractionEdges_[LoopType] > 0 ) {
+       
+       delete [] AdjointInteractionEdgeList_[LoopType];
+       
+       MaxNumberOfAdjointInteractionEdges_[LoopType] = 0;
+       
+          NumberOfAdjointInteractionEdges_[LoopType] = 0;
+       
+    }
+              
+    MaxNumberOfAdjointInteractionEdges_[LoopType] = NumberOfEdges;
+              
+       NumberOfAdjointInteractionEdges_[LoopType] = NumberOfEdges;
+    
+    AdjointInteractionEdgeList_[LoopType] = new LOOP_INTERACTION_ENTRY[NumberOfEdges + 1];
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                       FAST_MATRIX DeleteForwardLoopList                      #
+#                                                                              #
+##############################################################################*/
+
+void FAST_MATRIX::DeleteForwardLoopList(int LoopType)
+{
+
+    if ( NumberOfForwardInteractionLoops_[LoopType] != 0 ) delete [] ForwardInteractionLoopList_[LoopType];
 
     NumberOfForwardInteractionLoops_[LoopType] = 0;
     
@@ -123,16 +183,46 @@ void FAST_MATRIX::DeleteForwardList(int LoopType)
 
 /*##############################################################################
 #                                                                              #
-#                               FAST_MATRIX DeleteAdjointList                  #
+#                       FAST_MATRIX DeleteForwardEdgeList                      #
 #                                                                              #
 ##############################################################################*/
 
-void FAST_MATRIX::DeleteAdjointList(int LoopType)
+void FAST_MATRIX::DeleteForwardEdgeList(int LoopType)
 {
 
-    if ( NumberOfAdjointInteractionLoops_[LoopType] != 0 ) delete [] AdjointInteractionList_[LoopType];
+    if ( NumberOfForwardInteractionEdges_[LoopType] != 0 ) delete [] ForwardInteractionEdgeList_[LoopType];
+
+    NumberOfForwardInteractionEdges_[LoopType] = 0;
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                    FAST_MATRIX DeleteAdjointLoopList                         #
+#                                                                              #
+##############################################################################*/
+
+void FAST_MATRIX::DeleteAdjointLoopList(int LoopType)
+{
+
+    if ( NumberOfAdjointInteractionLoops_[LoopType] != 0 ) delete [] AdjointInteractionLoopList_[LoopType];
 
     NumberOfAdjointInteractionLoops_[LoopType] = 0;
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                       FAST_MATRIX DeleteAdjointEdgeList                      #
+#                                                                              #
+##############################################################################*/
+
+void FAST_MATRIX::DeleteAdjointEdgeList(int LoopType)
+{
+
+    if ( NumberOfAdjointInteractionEdges_[LoopType] != 0 ) delete [] AdjointInteractionEdgeList_[LoopType];
+
+    NumberOfAdjointInteractionEdges_[LoopType] = 0;
     
 }
 
@@ -166,7 +256,7 @@ FAST_MATRIX &FAST_MATRIX::operator=(const FAST_MATRIX &FastMatrix)
        
        for ( i = 1 ; i <= NumberOfForwardInteractionLoops_[LoopType] ; i++ ) {
           
-          ForwardInteractionList_[LoopType][i] = FastMatrix.ForwardInteractionList_[LoopType][i];
+          ForwardInteractionLoopList_[LoopType][i] = FastMatrix.ForwardInteractionLoopList_[LoopType][i];
           
        }
        
@@ -174,7 +264,7 @@ FAST_MATRIX &FAST_MATRIX::operator=(const FAST_MATRIX &FastMatrix)
        
        for ( i = 1 ; i <= NumberOfAdjointInteractionLoops_[LoopType] ; i++ ) {
           
-          AdjointInteractionList_[LoopType][i] = FastMatrix.AdjointInteractionList_[LoopType][i];
+          AdjointInteractionLoopList_[LoopType][i] = FastMatrix.AdjointInteractionLoopList_[LoopType][i];
           
        }       
        
@@ -190,14 +280,14 @@ FAST_MATRIX &FAST_MATRIX::operator=(const FAST_MATRIX &FastMatrix)
 #                                                                              #
 ##############################################################################*/
 
-void FAST_MATRIX::UseForwardList(int LoopType, int NumberOfLoops, LOOP_INTERACTION_ENTRY *List)
+void FAST_MATRIX::UseForwardLoopList(int LoopType, int NumberOfLoops, LOOP_INTERACTION_ENTRY *List)
 {
 
     MaxNumberOfForwardInteractionLoops_[LoopType] = NumberOfLoops;
 
        NumberOfForwardInteractionLoops_[LoopType] = NumberOfLoops;
     
-    ForwardInteractionList_[LoopType] = List;
+    ForwardInteractionLoopList_[LoopType] = List;
     
 }
 
@@ -207,14 +297,14 @@ void FAST_MATRIX::UseForwardList(int LoopType, int NumberOfLoops, LOOP_INTERACTI
 #                                                                              #
 ##############################################################################*/
 
-void FAST_MATRIX::UseAdjointList(int LoopType, int NumberOfLoops, LOOP_INTERACTION_ENTRY *List)
+void FAST_MATRIX::UseAdjointLoopList(int LoopType, int NumberOfLoops, LOOP_INTERACTION_ENTRY *List)
 {
 
     MaxNumberOfAdjointInteractionLoops_[LoopType] = NumberOfLoops;
 
        NumberOfAdjointInteractionLoops_[LoopType] = NumberOfLoops;
     
-    AdjointInteractionList_[LoopType] = List;
+    AdjointInteractionLoopList_[LoopType] = List;
     
 }
 
@@ -224,7 +314,7 @@ void FAST_MATRIX::UseAdjointList(int LoopType, int NumberOfLoops, LOOP_INTERACTI
 #                                                                              #
 ##############################################################################*/
 
-void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom, VSPAERO_DOUBLE Mach, VSPAERO_DOUBLE FarAway)
+void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom, double Mach, double FarAway)
 {
 
     int i, j, k, p, cpu, Level, Loop, NumberOfEdges, NumberOfLoops, CurrentLoop;
@@ -232,7 +322,7 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
     int Done, Found, TotalFound, CommonEdges, MaxLevels, **EdgeIsCommon, NumberOfVortexLoops;
     LOOP_ENTRY **CommonEdgeList;
     VSP_EDGE **TempEdgeInteractionList;
-    VSPAERO_DOUBLE xyz[3], Vec[3], Distance, Test;
+    double xyz[3], Vec[3], Distance, Test;
 
     long long int NewHits;
 
@@ -270,29 +360,22 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
     
     for ( Level = MGLevel + 1 ; Level <= MaxLevels ; Level++ ) {
 
-       if ( LoopType == FIXED_LOOPS ) PRINTF("Working on level %d of %d \r",Level,MaxLevels);fflush(NULL);
-#ifndef AUTODIFF
-#pragma omp parallel for reduction(+:NewHits) private(cpu,CurrentLoop,i,j,CommonEdges,TestEdge,TotalFound,Found,Done,xyz,Vec,Test,Distance,k,p,NumberOfEdges,TempEdgeInteractionList) schedule(dynamic)
-#endif
-       for ( Loop = 1 ; Loop <= VSPGeom.Grid(Level).NumberOfLoops() ; Loop++ ) {
+       if ( LoopType == FIXED_LOOPS ) { printf("Working on level %d of %d \r",Level,MaxLevels);fflush(NULL); };
 
-#ifndef AUTODIFF
-       
+#pragma omp parallel for reduction(+:NewHits) private(cpu,CurrentLoop,i,j,CommonEdges,TestEdge,TotalFound,Found,Done,xyz,Vec,Test,Distance,k,p,NumberOfEdges,TempEdgeInteractionList) schedule(dynamic)
+       for ( Loop = 1 ; Loop <= VSPGeom.Grid(Level).NumberOfLoops() ; Loop++ ) {
+     
 #ifdef VSPAERO_OPENMP    
           cpu = omp_get_thread_num();
 #else
           cpu = 0;
 #endif         
 
-#else
-          cpu = 0;
-#endif
-
           CurrentLoop = NumberOfForwardInteractionLoops(LoopType) + Loop;
        
-          ForwardInteractionList(LoopType)[CurrentLoop].Level() = Level;
+          ForwardInteractionLoopList(LoopType)[CurrentLoop].Level() = Level;
           
-          ForwardInteractionList(LoopType)[CurrentLoop].Loop() = Loop;
+          ForwardInteractionLoopList(LoopType)[CurrentLoop].Loop() = Loop;
 
           // Find common part of lists
           
@@ -302,9 +385,9 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
              
              CommonEdgeList[cpu][i].NextEdge = 1;
      
-             CommonEdgeList[cpu][i].Edge = ForwardInteractionList(LoopType)[j].SurfaceVortexEdgeInteractionList();
+             CommonEdgeList[cpu][i].Edge = ForwardInteractionLoopList(LoopType)[j].SurfaceVortexEdgeInteractionList();
              
-             CommonEdgeList[cpu][i].NumberOfVortexEdges = ForwardInteractionList(LoopType)[j].NumberOfVortexEdges();
+             CommonEdgeList[cpu][i].NumberOfVortexEdges = ForwardInteractionLoopList(LoopType)[j].NumberOfVortexEdges();
              
           }
 
@@ -374,36 +457,10 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
                 
                 Distance = sqrt( SQR(Vec[0]) + SQR(Vec[1]) + SQR(Vec[2]) );
                 
-                // Find maximum distance from agglomerated loop centroid to fine grid loop centroids
-
-                Test = 0.;
-                
-                for ( i = 1 ; i <= VSPGeom.Grid(Level).LoopList(Loop).NumberOfFineGridLoops() ; i++ ) {
-                
-                    // Centroid of agglomerated loop for all the fine grid loops
-                    
-                    Vec[0] = VSPGeom.Grid(Level).LoopList(Loop).Xc();
-                    Vec[1] = VSPGeom.Grid(Level).LoopList(Loop).Yc();
-                    Vec[2] = VSPGeom.Grid(Level).LoopList(Loop).Zc();
-                
-                    // Centroid of the j'th fine grid loop
-                    
-                    j = VSPGeom.Grid(Level).LoopList(Loop).FineGridLoop(i);
-                
-                    // Distance between fine grid and agglomerated grid centroids
-                    
-                    Vec[0] -= VSPGeom.Grid(Level-1).LoopList(j).Xc();
-                    Vec[1] -= VSPGeom.Grid(Level-1).LoopList(j).Yc();
-                    Vec[2] -= VSPGeom.Grid(Level-1).LoopList(j).Zc();
-                
-                    Test = MAX(Test,sqrt( SQR(Vec[0]) + SQR(Vec[1]) + SQR(Vec[2]) ));
-                    
-                }
-              
-                Test = VSPGeom.Grid(Level).LoopList(Loop).Length() + VSPGeom.Grid(Level).LoopList(Loop).CentroidOffSet();
+                Distance -= 0.5*CommonEdgeList[cpu][1].Edge[CommonEdgeList[cpu][1].NextEdge]->Length();
+    
+                Test = FarAway * ( VSPGeom.Grid(Level).LoopList(Loop).Length() + VSPGeom.Grid(Level).LoopList(Loop).CentroidOffSet() );
             
-                Test *= FarAway;
-                
                 if ( Test <= Distance ) {
  
                    CommonEdges++;
@@ -424,11 +481,11 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
  
              // Create the common list
              
-             ForwardInteractionList(LoopType)[CurrentLoop].Level() = Level;
+             ForwardInteractionLoopList(LoopType)[CurrentLoop].Level() = Level;
              
-             ForwardInteractionList(LoopType)[CurrentLoop].Loop() = Loop;
+             ForwardInteractionLoopList(LoopType)[CurrentLoop].Loop() = Loop;
      
-             ForwardInteractionList(LoopType)[CurrentLoop].SizeEdgeList(CommonEdges);
+             ForwardInteractionLoopList(LoopType)[CurrentLoop].SizeEdgeList(CommonEdges);
              
              i = 1;
              
@@ -438,7 +495,7 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
          
                if ( EdgeIsCommon[cpu][CommonEdgeList[cpu][1].Edge[i]->VortexEdge()] == 1 ) {
               
-                    ForwardInteractionList(LoopType)[CurrentLoop].SurfaceVortexEdgeInteractionList()[++j] = CommonEdgeList[cpu][1].Edge[i];
+                    ForwardInteractionLoopList(LoopType)[CurrentLoop].SurfaceVortexEdgeInteractionList()[++j] = CommonEdgeList[cpu][1].Edge[i];
                     
                 }
                 
@@ -452,7 +509,7 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
                 
                 j = VSPGeom.Grid(Level).LoopList(Loop).FineGridLoop(i) + LoopOffSet;
                 
-                NumberOfEdges = ForwardInteractionList(LoopType)[j].NumberOfVortexEdges() - CommonEdges;
+                NumberOfEdges = ForwardInteractionLoopList(LoopType)[j].NumberOfVortexEdges() - CommonEdges;
               
                 // There are non-common edges remaining
                 
@@ -464,11 +521,11 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
              
                    p = 1;
               
-                   while ( k < NumberOfEdges && p <= ForwardInteractionList(LoopType)[j].NumberOfVortexEdges() ) {
+                   while ( k < NumberOfEdges && p <= ForwardInteractionLoopList(LoopType)[j].NumberOfVortexEdges() ) {
 
-                      if ( EdgeIsCommon[cpu][ForwardInteractionList(LoopType)[j].SurfaceVortexEdgeInteractionList(p)->VortexEdge()] == 0 ) {
+                      if ( EdgeIsCommon[cpu][ForwardInteractionLoopList(LoopType)[j].SurfaceVortexEdgeInteractionList(p)->VortexEdge()] == 0 ) {
  
-                         TempEdgeInteractionList[++k] = ForwardInteractionList(LoopType)[j].SurfaceVortexEdgeInteractionList(p);
+                         TempEdgeInteractionList[++k] = ForwardInteractionLoopList(LoopType)[j].SurfaceVortexEdgeInteractionList(p);
                          
                       }
                       
@@ -476,7 +533,7 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
 
                    }
  
-                   ForwardInteractionList(LoopType)[j].UseEdgeList(NumberOfEdges, TempEdgeInteractionList);
+                   ForwardInteractionLoopList(LoopType)[j].UseEdgeList(NumberOfEdges, TempEdgeInteractionList);
  
                 }
                 
@@ -484,11 +541,11 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
                 
                 else {
 
-                   ForwardInteractionList(LoopType)[j].Level() = 0;
+                   ForwardInteractionLoopList(LoopType)[j].Level() = 0;
                    
-                   ForwardInteractionList(LoopType)[j].Loop() = 0;
+                   ForwardInteractionLoopList(LoopType)[j].Loop() = 0;
 
-                   ForwardInteractionList(LoopType)[j].DeleteEdgeList();
+                   ForwardInteractionLoopList(LoopType)[j].DeleteEdgeList();
                  
                 }
               
@@ -496,9 +553,9 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
                    
              // Unmark the common edges
              
-             for ( j = 1 ; j <= ForwardInteractionList(LoopType)[CurrentLoop].NumberOfVortexEdges() ; j++ ) {
+             for ( j = 1 ; j <= ForwardInteractionLoopList(LoopType)[CurrentLoop].NumberOfVortexEdges() ; j++ ) {
 
-                 EdgeIsCommon[cpu][ABS(ForwardInteractionList(LoopType)[CurrentLoop].SurfaceVortexEdgeInteractionList(j)->VortexEdge())] = 0;
+                 EdgeIsCommon[cpu][ABS(ForwardInteractionLoopList(LoopType)[CurrentLoop].SurfaceVortexEdgeInteractionList(j)->VortexEdge())] = 0;
    
              }
 
@@ -519,8 +576,6 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
        LoopOffSet += VSPGeom.Grid(Level-1).NumberOfLoops();
        
     }
-    
-    ForwardSpeedRatio_ *= (long double) ForwardTotalHits_ / (double) NewHits;
 
     for ( cpu = 0 ; cpu < NumberOfThreads ; cpu++ ) {
        
@@ -544,7 +599,7 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
 
     for ( i = 1 ; i <= NumberOfForwardInteractionLoops(LoopType) ; i++ ) {
        
-       if ( ForwardInteractionList(LoopType)[i].NumberOfVortexEdges() > 0 ) {
+       if ( ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges() > 0 ) {
           
           NumberOfActualLoops++;
           
@@ -560,9 +615,9 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
 
     for ( i = 1 ; i <= NumberOfForwardInteractionLoops(LoopType) ; i++ ) {
        
-       if ( ForwardInteractionList(LoopType)[i].NumberOfVortexEdges() > 0 ) {
+       if ( ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges() > 0 ) {
           
-          TempList[++j] = ForwardInteractionList(LoopType)[i];
+          TempList[++j] = ForwardInteractionLoopList(LoopType)[i];
           
        }
        
@@ -570,15 +625,30 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
     
     if ( j != NumberOfActualLoops ) {
        
-       PRINTF("Error in cleaning up interaction list! \n"); fflush(NULL);
+       printf("Error in cleaning up interaction list! \n"); fflush(NULL);
        exit(1);
        
     }
 
-    DeleteForwardList(LoopType);
+    DeleteForwardLoopList(LoopType);
 
-    UseForwardList(LoopType, NumberOfActualLoops, TempList);
+    UseForwardLoopList(LoopType, NumberOfActualLoops, TempList);
 
+    // Calculate total speed up
+    
+    ForwardSpeedRatio_ = 0.;
+    
+    for ( i = 1 ; i <= NumberOfForwardInteractionLoops(LoopType) ; i++ ) {
+
+       ForwardSpeedRatio_ += double(ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges());
+       
+    }
+    
+    ForwardSpeedRatio_ /= VSPGeom.Grid(MGLevel).NumberOfLoops();
+    ForwardSpeedRatio_ /= VSPGeom.Grid(MGLevel).NumberOfEdges();
+
+    ForwardSpeedRatio_ = 1./ForwardSpeedRatio_;
+    
 }
 
 /*##############################################################################
@@ -587,7 +657,7 @@ void FAST_MATRIX::MergeForwardList(int NumberOfThreads, int MGLevel, int LoopTyp
 #                                                                              #
 ##############################################################################*/
 
-void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom, VSPAERO_DOUBLE Mach, VSPAERO_DOUBLE FarAway)
+void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom, double Mach, double FarAway)
 {
 
     int i, j, k, p, cpu, Level, Loop, NumberOfLoops, CurrentLoop;
@@ -595,7 +665,7 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
     int Done, Found, TotalFound, CommonLoops, MaxLevels, **LoopIsCommon, NumberOfVortexLoops;
     LOOP_ENTRY **CommonLoopList;
     VSP_LOOP **TempLoopInteractionList;
-    VSPAERO_DOUBLE xyz[3], Vec[3], Distance, Test;
+    double xyz[3], Vec[3], Distance, Test;
 
     long long int NewHits;
 
@@ -633,29 +703,22 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
     
     for ( Level = MGLevel + 1 ; Level <= MaxLevels ; Level++ ) {
 
-       if ( LoopType == FIXED_LOOPS ) PRINTF("Working on level %d of %d \r",Level,MaxLevels);fflush(NULL);
-#ifndef AUTODIFF
+       if ( LoopType == FIXED_LOOPS ) { printf("Working on level %d of %d \r",Level,MaxLevels);fflush(NULL); };
+       
 #pragma omp parallel for reduction(+:NewHits) private(cpu,CurrentLoop,i,j,CommonLoops,TestLoop,TotalFound,Found,Done,xyz,Vec,Test,Distance,k,p,NumberOfLoops,TempLoopInteractionList) schedule(dynamic)
-#endif
        for ( Loop = 1 ; Loop <= VSPGeom.Grid(Level).NumberOfLoops() ; Loop++ ) {
 
-#ifndef AUTODIFF
-       
 #ifdef VSPAERO_OPENMP    
           cpu = omp_get_thread_num();
 #else
           cpu = 0;
 #endif         
 
-#else
-          cpu = 0;
-#endif
-
           CurrentLoop = NumberOfAdjointInteractionLoops(LoopType) + Loop;
 
-          AdjointInteractionList(LoopType)[CurrentLoop].Level() = Level;
+          AdjointInteractionLoopList(LoopType)[CurrentLoop].Level() = Level;
           
-          AdjointInteractionList(LoopType)[CurrentLoop].Loop() = Loop;
+          AdjointInteractionLoopList(LoopType)[CurrentLoop].Loop() = Loop;
 
           // Find common part of lists
           
@@ -665,9 +728,9 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
              
              CommonLoopList[cpu][i].NextLoop = 1;
      
-             CommonLoopList[cpu][i].Loop = AdjointInteractionList(LoopType)[j].SurfaceVortexLoopInteractionList();
+             CommonLoopList[cpu][i].Loop = AdjointInteractionLoopList(LoopType)[j].SurfaceVortexLoopInteractionList();
              
-             CommonLoopList[cpu][i].NumberOfVortexLoops = AdjointInteractionList(LoopType)[j].NumberOfVortexLoops();
+             CommonLoopList[cpu][i].NumberOfVortexLoops = AdjointInteractionLoopList(LoopType)[j].NumberOfVortexLoops();
      
           }
 
@@ -741,37 +804,11 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
                 // Distance from centroid to source loop
                 
                 Distance = sqrt( SQR(Vec[0]) + SQR(Vec[1]) + SQR(Vec[2]) );
-                
-                // Find maximum distance from agglomerated loop centroid to fine grid loop centroids
-                
-                Test = 0.;
-                
-                for ( i = 1 ; i <= VSPGeom.Grid(Level).LoopList(Loop).NumberOfFineGridLoops() ; i++ ) {
-                
-                    // Centroid of agglomerated loop for all the fine grid loops
-                    
-                    Vec[0] = VSPGeom.Grid(Level).LoopList(Loop).Xc();
-                    Vec[1] = VSPGeom.Grid(Level).LoopList(Loop).Yc();
-                    Vec[2] = VSPGeom.Grid(Level).LoopList(Loop).Zc();
-                
-                    // Centroid of the j'th fine grid loop
-                    
-                    j = VSPGeom.Grid(Level).LoopList(Loop).FineGridLoop(i);
-                
-                    // Distance between fine grid and agglomerated grid centroids
-                    
-                    Vec[0] -= VSPGeom.Grid(Level-1).LoopList(j).Xc();
-                    Vec[1] -= VSPGeom.Grid(Level-1).LoopList(j).Yc();
-                    Vec[2] -= VSPGeom.Grid(Level-1).LoopList(j).Zc();
-                
-                    Test = MAX(Test,sqrt( SQR(Vec[0]) + SQR(Vec[1]) + SQR(Vec[2]) ));
-                    
-                }
-                
-                Test = VSPGeom.Grid(Level).LoopList(Loop).Length() + VSPGeom.Grid(Level).LoopList(Loop).CentroidOffSet();
-            
-                Test *= FarAway;
-
+  
+                Distance -= 0.5*CommonLoopList[cpu][1].Loop[CommonLoopList[cpu][1].NextLoop]->Length();
+  
+                Test = FarAway * ( VSPGeom.Grid(Level).LoopList(Loop).Length() + VSPGeom.Grid(Level).LoopList(Loop).CentroidOffSet() );
+  
                 if ( Test <= Distance ) {
                    
                    CommonLoops++;
@@ -792,11 +829,11 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
  
              // Create the common list
             
-             AdjointInteractionList(LoopType)[CurrentLoop].Level() = Level;
+             AdjointInteractionLoopList(LoopType)[CurrentLoop].Level() = Level;
              
-             AdjointInteractionList(LoopType)[CurrentLoop].Loop() = Loop;
+             AdjointInteractionLoopList(LoopType)[CurrentLoop].Loop() = Loop;
      
-             AdjointInteractionList(LoopType)[CurrentLoop].SizeLoopList(CommonLoops);
+             AdjointInteractionLoopList(LoopType)[CurrentLoop].SizeLoopList(CommonLoops);
              
              i = 1;
              
@@ -806,7 +843,7 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
 
                 if ( LoopIsCommon[cpu][CommonLoopList[cpu][1].Loop[i]->MGVortexLoop()] == 1 ) {
                   
-                   AdjointInteractionList(LoopType)[CurrentLoop].SurfaceVortexLoopInteractionList()[++j] = CommonLoopList[cpu][1].Loop[i];
+                   AdjointInteractionLoopList(LoopType)[CurrentLoop].SurfaceVortexLoopInteractionList()[++j] = CommonLoopList[cpu][1].Loop[i];
                       
                 }
                    
@@ -820,7 +857,7 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
                 
                 j = VSPGeom.Grid(Level).LoopList(Loop).FineGridLoop(i) + LoopOffSet;
                 
-                NumberOfLoops = AdjointInteractionList(LoopType)[j].NumberOfVortexLoops() - CommonLoops;
+                NumberOfLoops = AdjointInteractionLoopList(LoopType)[j].NumberOfVortexLoops() - CommonLoops;
               
                 // There are non-common loops remaining
                 
@@ -832,11 +869,11 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
              
                    p = 1;
               
-                   while ( k < NumberOfLoops && p <= AdjointInteractionList(LoopType)[j].NumberOfVortexLoops() ) {
+                   while ( k < NumberOfLoops && p <= AdjointInteractionLoopList(LoopType)[j].NumberOfVortexLoops() ) {
 
-                      if ( LoopIsCommon[cpu][AdjointInteractionList(LoopType)[j].SurfaceVortexLoopInteractionList(p)->MGVortexLoop()] == 0 ) {
+                      if ( LoopIsCommon[cpu][AdjointInteractionLoopList(LoopType)[j].SurfaceVortexLoopInteractionList(p)->MGVortexLoop()] == 0 ) {
  
-                         TempLoopInteractionList[++k] = AdjointInteractionList(LoopType)[j].SurfaceVortexLoopInteractionList(p);
+                         TempLoopInteractionList[++k] = AdjointInteractionLoopList(LoopType)[j].SurfaceVortexLoopInteractionList(p);
                         
                       }
                       
@@ -844,7 +881,7 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
 
                    }
  
-                   AdjointInteractionList(LoopType)[j].UseLoopList(NumberOfLoops, TempLoopInteractionList);
+                   AdjointInteractionLoopList(LoopType)[j].UseLoopList(NumberOfLoops, TempLoopInteractionList);
  
                 }
                 
@@ -852,11 +889,11 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
                 
                 else {
 
-                   AdjointInteractionList(LoopType)[j].Level() = 0;
+                   AdjointInteractionLoopList(LoopType)[j].Level() = 0;
                    
-                   AdjointInteractionList(LoopType)[j].Loop() = 0;
+                   AdjointInteractionLoopList(LoopType)[j].Loop() = 0;
 
-                   AdjointInteractionList(LoopType)[j].DeleteLoopList();
+                   AdjointInteractionLoopList(LoopType)[j].DeleteLoopList();
                  
                 }
               
@@ -864,9 +901,9 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
                    
              // Unmark the common loops
              
-             for ( j = 1 ; j <= AdjointInteractionList(LoopType)[CurrentLoop].NumberOfVortexLoops() ; j++ ) {
+             for ( j = 1 ; j <= AdjointInteractionLoopList(LoopType)[CurrentLoop].NumberOfVortexLoops() ; j++ ) {
 
-                 LoopIsCommon[cpu][AdjointInteractionList(LoopType)[CurrentLoop].SurfaceVortexLoopInteractionList(j)->MGVortexLoop()] = 0;
+                 LoopIsCommon[cpu][AdjointInteractionLoopList(LoopType)[CurrentLoop].SurfaceVortexLoopInteractionList(j)->MGVortexLoop()] = 0;
    
              }
 
@@ -887,8 +924,6 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
        LoopOffSet += VSPGeom.Grid(Level-1).NumberOfLoops();
        
     }
-
-    AdjointSpeedRatio_ *= (long double) AdjointTotalHits_ / (double) NewHits;
 
     for ( cpu = 0 ; cpu < NumberOfThreads ; cpu++ ) {
        
@@ -912,7 +947,7 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
 
     for ( i = 1 ; i <= NumberOfAdjointInteractionLoops(LoopType) ; i++ ) {
        
-       if ( AdjointInteractionList(LoopType)[i].NumberOfVortexLoops() > 0 ) {
+       if ( AdjointInteractionLoopList(LoopType)[i].NumberOfVortexLoops() > 0 ) {
           
           NumberOfActualLoops++;
           
@@ -928,9 +963,9 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
 
     for ( i = 1 ; i <= NumberOfAdjointInteractionLoops(LoopType) ; i++ ) {
        
-       if ( AdjointInteractionList(LoopType)[i].NumberOfVortexLoops() > 0 ) {
+       if ( AdjointInteractionLoopList(LoopType)[i].NumberOfVortexLoops() > 0 ) {
           
-          TempList[++j] = AdjointInteractionList(LoopType)[i];
+          TempList[++j] = AdjointInteractionLoopList(LoopType)[i];
           
        }
        
@@ -938,15 +973,688 @@ void FAST_MATRIX::MergeAdjointList(int NumberOfThreads, int MGLevel, int LoopTyp
     
     if ( j != NumberOfActualLoops ) {
        
-       PRINTF("Error in cleaning up interaction list! \n"); fflush(NULL);
+       printf("Error in cleaning up interaction list! \n"); fflush(NULL);
        exit(1);
        
     }
 
-    DeleteAdjointList(LoopType);
+    DeleteAdjointLoopList(LoopType);
 
-    UseAdjointList(LoopType, NumberOfActualLoops, TempList);
+    UseAdjointLoopList(LoopType, NumberOfActualLoops, TempList);
+
+    AdjointSpeedRatio_ = 0.;
+
+    for ( i = 1 ; i <= NumberOfAdjointInteractionLoops(LoopType) ; i++ ) {
+
+       AdjointSpeedRatio_ += double(AdjointInteractionLoopList(LoopType)[i].NumberOfVortexLoops());
        
+    }
+    
+    AdjointSpeedRatio_ /= VSPGeom.Grid(MGLevel).NumberOfLoops();
+    AdjointSpeedRatio_ /= VSPGeom.Grid(MGLevel).NumberOfLoops();
+    
+    AdjointSpeedRatio_ = 1./AdjointSpeedRatio_;
+           
+}
+
+/*##############################################################################
+#                                                                              #
+#                          FAST_MATRIX CreateForwardEdgeList                   #
+#                                                                              #
+##############################################################################*/
+
+void FAST_MATRIX::CreateForwardEdgeList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom)
+{
+
+    int i, k, m, Loop, Edge, Level, GlobalEdge, *EdgeIsUsed, NumberOfEdges, MaxInteractionEdges, OldSize, NewSize;
+    LOOP_INTERACTION_ENTRY *TempList;
+
+    // Temp list for each edge interaction list
+
+    MaxInteractionEdges = 0;
+    
+    for ( Level = 1 ; Level <= VSPGeom.NumberOfGridLevels() ; Level++ ) {
+       
+       MaxInteractionEdges += VSPGeom.Grid(Level).NumberOfEdges();
+       
+    }    
+    
+    TempList = new LOOP_INTERACTION_ENTRY[MaxInteractionEdges + 1];
+
+    EdgeIsUsed = new int[MaxInteractionEdges + 1];
+    
+    zero_int_array(EdgeIsUsed, MaxInteractionEdges);
+
+    // Loop over each level
+
+    for ( i = 1 ; i <= NumberOfForwardInteractionLoops(LoopType) ; i++ ) {
+
+       Loop = ForwardInteractionLoopList(LoopType)[i].Loop();
+       
+       Level = ForwardInteractionLoopList(LoopType)[i].Level();
+
+       // Mark the edges that are used and how many interactions edges they have
+       
+       for ( k = 1 ; k <= VSPGeom.Grid(Level).LoopList(Loop).NumberOfEdges() ; k++ ) {
+    
+          Edge = VSPGeom.Grid(Level).LoopList(Loop).Edge(k);
+          
+          GlobalEdge = VSPGeom.Grid(Level).EdgeList(Edge).VortexEdge(); 
+          
+          // First time we've seen this edge
+     
+          if ( EdgeIsUsed[GlobalEdge] == 0 ) {
+             
+             TempList[GlobalEdge].Edge() = Edge;
+             
+             TempList[GlobalEdge].Level() = Level;
+             
+             TempList[GlobalEdge].SizeEdgeList(ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges());
+             
+             for ( m = 1 ; m <= ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges() ; m++ ) {
+                
+                TempList[GlobalEdge].SurfaceVortexEdgeInteractionList()[m] = ForwardInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(m);
+                
+             }
+          
+             EdgeIsUsed[GlobalEdge]++;
+             
+          }
+          
+          // We've seen this edge before... so we need to merge the new and previous interaction list... only 
+          // keeping the unique edges
+          
+          else if ( EdgeIsUsed[GlobalEdge] == 1 ) {
+             
+             OldSize = TempList[GlobalEdge].NumberOfVortexEdges();
+             
+             NewSize = OldSize + ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges();
+             
+             TempList[GlobalEdge].ReSizeEdgeList(NewSize);
+             
+             for ( m = 1 ; m <= ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges() ; m++ ) {
+                
+                TempList[GlobalEdge].SurfaceVortexEdgeInteractionList()[OldSize + m] = ForwardInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(m);
+                
+             }
+          
+             EdgeIsUsed[GlobalEdge]++;
+                 
+          }
+          
+          else {
+             
+             printf("How did we get here! An edge should only show up twice! \n");
+             
+             printf("EdgeIsUsed[GlobalEdge]: %d \n",EdgeIsUsed[GlobalEdge]);
+             
+             fflush(NULL);exit(1);
+
+          }                
+
+       }
+
+    }
+
+    // Determine number of edges
+    
+    NumberOfEdges = 0;
+    
+    for ( i = 1 ; i <= MaxInteractionEdges ; i++ ) {
+
+       if ( EdgeIsUsed[i] ) NumberOfEdges++;
+
+    }    
+
+    SizeForwardEdgeList(LoopType, NumberOfEdges);
+    
+    // Now pack the new lists and clean them of duplicates
+  
+    NumberOfEdges = 0;
+    
+    for ( i = 1 ; i <= MaxInteractionEdges ; i++ ) {
+
+       if ( EdgeIsUsed[i] ) {
+          
+          NumberOfEdges++;
+          
+          ForwardInteractionEdgeList(LoopType)[NumberOfEdges].Edge() = TempList[i].Edge();
+          
+          ForwardInteractionEdgeList(LoopType)[NumberOfEdges].Level() = TempList[i].Level();
+
+          ForwardInteractionEdgeList(LoopType)[NumberOfEdges].UseEdgeList(TempList[i].NumberOfVortexEdges(), TempList[i].SurfaceVortexEdgeInteractionList());
+          
+       }
+
+    }    
+
+    CleanForwardEdgeList(NumberOfThreads,LoopType,MaxInteractionEdges);
+
+    delete [] EdgeIsUsed;
+
+    double SpeedUpRatio;
+    
+    SpeedUpRatio = 0.;
+
+    for ( i = 1 ; i <= NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
+
+       SpeedUpRatio += double(VSPGeom.Grid(MGLevel).NumberOfEdges())/double(ForwardInteractionEdgeList(LoopType)[i].NumberOfVortexEdges());
+       
+    }
+    
+    SpeedUpRatio /= VSPGeom.Grid(MGLevel).NumberOfEdges();
+
+}
+
+///*##############################################################################
+//#                                                                              #
+//#                          FAST_MATRIX CreateForwardEdgeList                   #
+//#                                                                              #
+//##############################################################################*/
+//
+//void FAST_MATRIX::CreateForwardEdgeListNew(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom)
+//{
+//
+//    int cpu, i, k, m, Loop, Edge, Level, GlobalEdge, **EdgeIsUsed, NumberOfEdges, MaxInteractionEdges, OldSize, NewSize;
+//    LOOP_INTERACTION_ENTRY **TempList;
+//
+//    // Temp list for each edge interaction list
+//
+//    MaxInteractionEdges = 0;
+//    
+//    for ( Level = 1 ; Level <= VSPGeom.NumberOfGridLevels() ; Level++ ) {
+//       
+//       MaxInteractionEdges += VSPGeom.Grid(Level).NumberOfEdges();
+//       
+//    }    
+// 
+//    TempList = new LOOP_INTERACTION_ENTRY*[NumberOfThreads + 1];
+//    
+//    EdgeIsUsed = new int*[NumberOfThreads + 1];
+//
+//    for ( cpu = 0 ; cpu < NumberOfThreads ; cpu++ ) {
+//       
+//       TempList[cpu] = new LOOP_INTERACTION_ENTRY[MaxInteractionEdges + 1];
+//       
+//       EdgeIsUsed[cpu] = new int[MaxInteractionEdges + 1];
+//       
+//       zero_int_array(EdgeIsUsed[cpu], MaxInteractionEdges);
+//       
+//    }
+//    
+//   //TempList = new LOOP_INTERACTION_ENTRY[MaxInteractionEdges + 1];
+//   //
+//   //EdgeIsUsed = new int[MaxInteractionEdges + 1];
+//   //
+//   //zero_int_array(EdgeIsUsed, MaxInteractionEdges);
+//
+//    // Loop over each level
+//
+//printf("Starting edge shit... \n");fflush(NULL);
+////#pragma omp parallel for private(cpu,Loop,Level,k,Edge,GlobalEdge,m,OldSize,NewSize) schedule(dynamic)
+//    for ( i = 1 ; i <= NumberOfForwardInteractionLoops(LoopType) ; i++ ) {
+//
+//       Loop = ForwardInteractionLoopList(LoopType)[i].Loop();
+//       
+//       Level = ForwardInteractionLoopList(LoopType)[i].Level();
+//
+//#ifdef VSPAERO_OPENMP    
+//       cpu = omp_get_thread_num();
+//#else  
+//       cpu = 0;
+//#endif       
+//cpu = 0;
+//       // Mark the edges that are used and how many interactions edges they have
+//       
+//       for ( k = 1 ; k <= VSPGeom.Grid(Level).LoopList(Loop).NumberOfEdges() ; k++ ) {
+//    
+//          Edge = VSPGeom.Grid(Level).LoopList(Loop).Edge(k);
+//          
+//          GlobalEdge = VSPGeom.Grid(Level).EdgeList(Edge).VortexEdge(); 
+//          
+//          // First time we've seen this edge
+//     
+//          if ( EdgeIsUsed[cpu][GlobalEdge] == 0 ) {
+//             
+//             TempList[cpu][GlobalEdge].Edge() = Edge;
+//             
+//             TempList[cpu][GlobalEdge].Level() = Level;
+//             
+//             TempList[cpu][GlobalEdge].SizeEdgeList(ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges());
+//             
+//             for ( m = 1 ; m <= ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges() ; m++ ) {
+//                
+//                TempList[cpu][GlobalEdge].SurfaceVortexEdgeInteractionList()[m] = ForwardInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(m);
+//                
+//             }
+//          
+//             EdgeIsUsed[cpu][GlobalEdge]++;
+//             
+//          }
+//          
+//          // We've seen this edge before... so we need to merge the new and previous interaction list...
+//          
+//          else if ( EdgeIsUsed[cpu][GlobalEdge] == 1 ) {
+//             
+//             OldSize = TempList[cpu][GlobalEdge].NumberOfVortexEdges();
+//             
+//             NewSize = OldSize + ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges();
+//             
+//             TempList[cpu][GlobalEdge].ReSizeEdgeList(NewSize);
+//             
+//             for ( m = 1 ; m <= ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges() ; m++ ) {
+//                
+//                TempList[cpu][GlobalEdge].SurfaceVortexEdgeInteractionList()[OldSize + m] = ForwardInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(m);
+//                
+//             }
+//          
+//             EdgeIsUsed[cpu][GlobalEdge]++;
+//                 
+//          }
+//          
+//          else {
+//             
+//             printf("How did we get here! An edge should only show up twice! \n");
+//             
+//             printf("EdgeIsUsed[GlobalEdge]: %d \n",EdgeIsUsed[cpu][GlobalEdge]);
+//             
+//             fflush(NULL);exit(1);
+//
+//          }                
+//
+//       }
+//
+//    }
+//
+//    // Determine number of edges
+//    
+//    NumberOfEdges = 0;
+//
+//    for ( cpu = 0 ; cpu < NumberOfThreads ; cpu++ ) {
+//    
+//       for ( i = 1 ; i <= MaxInteractionEdges ; i++ ) {
+//   
+//          if ( EdgeIsUsed[cpu][i] ) NumberOfEdges++;
+//   
+//       }    
+//       
+//    }
+//
+//printf("Done edge shit... \n");fflush(NULL);
+//
+//    SizeForwardEdgeList(LoopType, NumberOfEdges);
+//    
+//    // Now pack the new lists and clean them of duplicates
+// 
+//printf("Packing edge shit... \n");fflush(NULL);
+//  
+//    NumberOfEdges = 0;
+//    
+//    for ( cpu = 0 ; cpu < NumberOfThreads ; cpu++ ) {
+//    
+//       for ( i = 1 ; i <= MaxInteractionEdges ; i++ ) {
+//   
+//          if ( EdgeIsUsed[cpu][i] ) {
+//             
+//             NumberOfEdges++;
+//             
+//             ForwardInteractionEdgeList(LoopType)[NumberOfEdges].Edge() = TempList[cpu][i].Edge();
+//             
+//             ForwardInteractionEdgeList(LoopType)[NumberOfEdges].Level() = TempList[cpu][i].Level();
+//   
+//             ForwardInteractionEdgeList(LoopType)[NumberOfEdges].UseEdgeList(TempList[cpu][i].NumberOfVortexEdges(), TempList[cpu][i].SurfaceVortexEdgeInteractionList());
+//             
+//          }
+//   
+//       }  
+//       
+//    }  
+//
+//printf("Done Packing edge shit... \n");fflush(NULL);
+//
+//printf("Cleaning edge shit... \n");fflush(NULL);
+//
+//    CleanForwardEdgeList(NumberOfThreads,LoopType,MaxInteractionEdges,EdgeIsUsed);
+//
+//    for ( cpu = 0 ; cpu < NumberOfThreads ; cpu++ ) {
+//
+//       delete [] EdgeIsUsed[cpu];
+//       
+//    }
+//
+//printf("Done Cleaning edge shit... \n");fflush(NULL);
+//
+//    delete [] EdgeIsUsed;
+//
+//    double SpeedUpRatio;
+//    
+//    SpeedUpRatio = 0.;
+//
+//    for ( i = 1 ; i <= NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
+//
+//       SpeedUpRatio += double(VSPGeom.Grid(MGLevel).NumberOfEdges())/double(ForwardInteractionEdgeList(LoopType)[i].NumberOfVortexEdges());
+//       
+//    }
+//    
+//    SpeedUpRatio /= VSPGeom.Grid(MGLevel).NumberOfEdges();
+//
+//}
+
+/*##############################################################################
+#                                                                              #
+#                          FAST_MATRIX CleanForwardEdgeList                    #
+#                                                                              #
+##############################################################################*/
+
+void FAST_MATRIX::CleanForwardEdgeList(int NumberOfThreads, int LoopType, int MaxInteractionEdges)
+{
+
+    int i, j, cpu, NumEdges, Edge, **EdgeIsUsed;
+    LOOP_INTERACTION_ENTRY TempList;
+  
+    EdgeIsUsed = new int*[NumberOfThreads + 1];
+
+    for ( cpu = 0 ; cpu < NumberOfThreads ; cpu++ ) {
+
+       EdgeIsUsed[cpu] = new int[MaxInteractionEdges + 1];
+       
+       zero_int_array(EdgeIsUsed[cpu], MaxInteractionEdges);
+       
+    }
+
+#pragma omp parallel for private(cpu,NumEdges,j,Edge,TempList) schedule(dynamic)
+    for ( i = 1 ; i <= NumberOfForwardInteractionEdges(LoopType) ; i++ ) {
+
+#ifdef VSPAERO_OPENMP    
+       cpu = omp_get_thread_num();
+#else  
+       cpu = 0;
+#endif 
+
+       // Determine how many unique edges there are
+
+       NumEdges = 0;
+
+       for ( j = 1 ; j <= ForwardInteractionEdgeList(LoopType)[i].NumberOfVortexEdges() ; j++ ) {
+          
+          Edge = ForwardInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(j)->VortexEdge();
+                    
+          if ( EdgeIsUsed[cpu][Edge] != i ) {
+             
+             NumEdges++;
+             
+             EdgeIsUsed[cpu][Edge] = i;
+             
+          }
+
+       }
+
+       TempList.Edge() = ForwardInteractionEdgeList(LoopType)[i].Edge();
+       
+       TempList.Level() = ForwardInteractionEdgeList(LoopType)[i].Level();
+       
+       TempList.SizeEdgeList(NumEdges);
+
+       NumEdges = 0;
+
+       for ( j = 1 ; j <= ForwardInteractionEdgeList(LoopType)[i].NumberOfVortexEdges() ; j++ ) {
+          
+          if ( EdgeIsUsed[cpu][ForwardInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(j)->VortexEdge()] == i ) {
+                  
+             NumEdges++;
+
+             TempList.SurfaceVortexEdgeInteractionList()[NumEdges] = ForwardInteractionEdgeList_[LoopType][i].SurfaceVortexEdgeInteractionList()[j];
+             
+             EdgeIsUsed[cpu][ForwardInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(j)->VortexEdge()] = 0;            
+             
+          }
+    
+       }         
+       
+       ForwardInteractionEdgeList(LoopType)[i].Edge() = TempList.Edge();
+
+       ForwardInteractionEdgeList(LoopType)[i].Level() = TempList.Level();
+
+       ForwardInteractionEdgeList(LoopType)[i].ReSizeEdgeList(NumEdges);         
+      
+       for ( j = 1 ; j <= ForwardInteractionEdgeList(LoopType)[i].NumberOfVortexEdges() ; j++ ) {
+      
+          ForwardInteractionEdgeList_[LoopType][i].SurfaceVortexEdgeInteractionList()[j] = TempList.SurfaceVortexEdgeInteractionList()[j];
+      
+       }       
+ 
+    }
+
+    for ( cpu = 0 ; cpu < NumberOfThreads ; cpu++ ) {
+
+       delete [] EdgeIsUsed[cpu];
+       
+    }
+
+    delete [] EdgeIsUsed;
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                          FAST_MATRIX CreateAdjointEdgeList                   #
+#                                                                              #
+##############################################################################*/
+
+void FAST_MATRIX::CreateAdjointEdgeList(int NumberOfThreads, int MGLevel, int LoopType, VSP_GEOM &VSPGeom)
+{
+
+    int i, k, m, Loop, Edge, Level, GlobalEdge, *EdgeIsUsed, NumberOfEdges, MaxInteractionEdges, OldSize, NewSize;
+    LOOP_INTERACTION_ENTRY *TempList;
+
+    // Temp list for each edge interaction list
+
+    MaxInteractionEdges = 0;
+    
+    for ( Level = 1 ; Level <= VSPGeom.NumberOfGridLevels() ; Level++ ) {
+       
+       MaxInteractionEdges += VSPGeom.Grid(Level).NumberOfEdges();
+       
+    }    
+    
+    TempList = new LOOP_INTERACTION_ENTRY[MaxInteractionEdges + 1];
+
+    EdgeIsUsed = new int[MaxInteractionEdges + 1];
+    
+    zero_int_array(EdgeIsUsed, MaxInteractionEdges);
+
+    // Loop over each level
+
+    for ( i = 1 ; i <= NumberOfAdjointInteractionLoops(LoopType) ; i++ ) {
+
+       Loop = AdjointInteractionLoopList(LoopType)[i].Loop();
+       
+       Level = AdjointInteractionLoopList(LoopType)[i].Level();
+
+       // Mark the edges that are used and how many interactions edges they have
+    
+       for ( k = 1 ; k <= VSPGeom.Grid(Level).LoopList(Loop).NumberOfEdges() ; k++ ) {
+    
+          Edge = VSPGeom.Grid(Level).LoopList(Loop).Edge(k);
+          
+          GlobalEdge = VSPGeom.Grid(Level).EdgeList(Edge).VortexEdge(); 
+          
+          // First time we've seen this edge
+     
+          if ( EdgeIsUsed[GlobalEdge] == 0 ) {
+             
+             TempList[GlobalEdge].Edge() = Edge;
+             
+             TempList[GlobalEdge].Level() = Level;
+             
+             TempList[GlobalEdge].SizeEdgeList(AdjointInteractionLoopList(LoopType)[i].NumberOfVortexEdges());
+             
+             for ( m = 1 ; m <= AdjointInteractionLoopList(LoopType)[i].NumberOfVortexEdges() ; m++ ) {
+                
+                TempList[GlobalEdge].SurfaceVortexEdgeInteractionList()[m] = AdjointInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(m);
+                
+             }
+          
+             EdgeIsUsed[GlobalEdge]++;
+             
+          }
+          
+          // We've seen this edge before... so we need to merge the new and previous interaction list... only 
+          // keeping the unique edges
+          
+          else if ( EdgeIsUsed[GlobalEdge] == 1 ) {
+             
+             OldSize = TempList[GlobalEdge].NumberOfVortexEdges();
+             
+             NewSize = OldSize + AdjointInteractionLoopList(LoopType)[i].NumberOfVortexEdges();
+             
+             TempList[GlobalEdge].ReSizeEdgeList(NewSize);
+             
+             for ( m = 1 ; m <= AdjointInteractionLoopList(LoopType)[i].NumberOfVortexEdges() ; m++ ) {
+                
+                TempList[GlobalEdge].SurfaceVortexEdgeInteractionList()[OldSize + m] = AdjointInteractionLoopList(LoopType)[i].SurfaceVortexEdgeInteractionList(m);
+                
+             }
+          
+             EdgeIsUsed[GlobalEdge]++;
+                 
+          }
+          
+          else {
+             
+             printf("How did we get here! An edge should only show up twice! \n");
+             
+             printf("EdgeIsUsed[GlobalEdge]: %d \n",EdgeIsUsed[GlobalEdge]);
+             
+             fflush(NULL);exit(1);
+
+          }                
+
+       }
+
+    }
+
+    // Determine number of edges
+    
+    NumberOfEdges = 0;
+    
+    for ( i = 1 ; i <= MaxInteractionEdges ; i++ ) {
+
+       if ( EdgeIsUsed[i] ) NumberOfEdges++;
+
+    }    
+
+    SizeAdjointEdgeList(LoopType, NumberOfEdges);
+    
+    // Now pack the new lists and clean them of duplicates
+  
+    NumberOfEdges = 0;
+    
+    for ( i = 1 ; i <= MaxInteractionEdges ; i++ ) {
+
+       if ( EdgeIsUsed[i] ) {
+          
+          NumberOfEdges++;
+          
+          AdjointInteractionEdgeList(LoopType)[NumberOfEdges].Edge() = TempList[i].Edge();
+          
+          AdjointInteractionEdgeList(LoopType)[NumberOfEdges].Level() = TempList[i].Level();
+
+          AdjointInteractionEdgeList(LoopType)[NumberOfEdges].UseEdgeList(TempList[i].NumberOfVortexEdges(), TempList[i].SurfaceVortexEdgeInteractionList());
+          
+       }
+
+    }    
+    
+    delete [] EdgeIsUsed;
+
+    CleanAdjointEdgeList(LoopType);
+
+    double SpeedUpRatio;
+    
+    SpeedUpRatio = 0.;
+
+    for ( i = 1 ; i <= NumberOfAdjointInteractionEdges(LoopType) ; i++ ) {
+
+       SpeedUpRatio += double(VSPGeom.Grid(MGLevel).NumberOfEdges())/double(AdjointInteractionEdgeList(LoopType)[i].NumberOfVortexEdges());
+       
+    }
+    
+    SpeedUpRatio /= VSPGeom.Grid(MGLevel).NumberOfEdges();
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                          FAST_MATRIX CleanAdjointEdgeList                    #
+#                                                                              #
+##############################################################################*/
+
+void FAST_MATRIX::CleanAdjointEdgeList(int LoopType)
+{
+
+    int i, j, NumEdges, *Perm, Edge1, Edge2;
+    MERGESORT MergeSort;
+    LOOP_INTERACTION_ENTRY TempList;
+
+    for ( i = 1 ; i <= NumberOfAdjointInteractionEdges(LoopType) ; i++ ) {
+
+       Perm = MergeSort.Sort(AdjointInteractionEdgeList(LoopType)[i].NumberOfVortexEdges(),AdjointInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList());
+
+       // Determine how many unique edges there are
+       
+       NumEdges = 1;
+      
+       for ( j = 2 ; j <= AdjointInteractionEdgeList(LoopType)[i].NumberOfVortexEdges() ; j++ ) {
+          
+          Edge1 = AdjointInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(Perm[j-1])->VortexEdge();
+          Edge2 = AdjointInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(Perm[j  ])->VortexEdge();
+          
+          if ( Edge1 != Edge2 ) NumEdges++;
+
+       }
+
+       TempList.Edge() = AdjointInteractionEdgeList(LoopType)[i].Edge();
+       
+       TempList.Level() = AdjointInteractionEdgeList(LoopType)[i].Level();
+       
+       TempList.SizeEdgeList(NumEdges);
+                          
+       NumEdges = 1;
+       
+       TempList.SurfaceVortexEdgeInteractionList()[NumEdges] = AdjointInteractionEdgeList_[LoopType][i].SurfaceVortexEdgeInteractionList()[Perm[1]];
+       
+       for ( j = 2 ; j <= AdjointInteractionEdgeList(LoopType)[i].NumberOfVortexEdges() ; j++ ) {
+          
+          Edge1 = AdjointInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(Perm[j-1])->VortexEdge();
+          Edge2 = AdjointInteractionEdgeList(LoopType)[i].SurfaceVortexEdgeInteractionList(Perm[j  ])->VortexEdge();
+                    
+          if ( Edge1 != Edge2 ) {
+                  
+             NumEdges++;
+
+             TempList.SurfaceVortexEdgeInteractionList()[NumEdges] = AdjointInteractionEdgeList_[LoopType][i].SurfaceVortexEdgeInteractionList()[Perm[j]];
+             
+          }
+    
+       }         
+       
+       AdjointInteractionEdgeList(LoopType)[i].Edge() = TempList.Edge();
+
+       AdjointInteractionEdgeList(LoopType)[i].Level() = TempList.Level();
+
+       AdjointInteractionEdgeList(LoopType)[i].ReSizeEdgeList(NumEdges);         
+      
+       for ( j = 1 ; j <= AdjointInteractionEdgeList(LoopType)[i].NumberOfVortexEdges() ; j++ ) {
+      
+          AdjointInteractionEdgeList_[LoopType][i].SurfaceVortexEdgeInteractionList()[j] = TempList.SurfaceVortexEdgeInteractionList()[j];
+      
+       }       
+                  
+       delete [] Perm;
+       
+    }
+   
 }
 
 #include "END_NAME_SPACE.H"

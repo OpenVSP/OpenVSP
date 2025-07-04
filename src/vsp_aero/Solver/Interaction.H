@@ -73,7 +73,7 @@ public:
    int Sheet;
    int Level;
    int SheetID;
-   VSPAERO_DOUBLE Distance;
+   double Distance;
 
 };
 
@@ -98,7 +98,7 @@ public:
    int Edge;
    int Level;
    int EdgeID;
-   VSPAERO_DOUBLE Distance;
+   double Distance;
    
 };
 

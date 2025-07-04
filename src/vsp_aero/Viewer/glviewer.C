@@ -152,6 +152,8 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
     ThereIsINPMesh = 0;
     ThereIsFRDMesh = 0;
             
+    DrawWakeSurfacesIsOn = 0;
+            
      // Mesh Min/Max
 
     XMin = 1.;
@@ -229,6 +231,8 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
     // Load in the first solution to begin with
     
     UserSelectedSolutionCase_ = 1;
+    
+    Last_UserSelectedSolutionCase_ = -1;
     
     // User sets the plot limits
     
@@ -342,7 +346,7 @@ GL_VIEWER::~GL_VIEWER(void)
 void GL_VIEWER::LoadInitialData(char *name)
 {
 
-    char file_name_w_ext[2000];
+    char file_name_w_ext[2000], DumChar[200];
     FILE *adb_file;
     
     // Save the file name
@@ -359,7 +363,7 @@ void GL_VIEWER::LoadInitialData(char *name)
     if (pathsep)
     {
         sprintf( file_name_no_path, "%s", pathsep + 1 );
-        sprintf( path, "%.*s", (int) ( pathsep - file_name ), file_name );
+        sprintf( path, "%.*s", pathsep - file_name, file_name );
     }
     else
     {
@@ -379,24 +383,31 @@ void GL_VIEWER::LoadInitialData(char *name)
        fclose(adb_file);
 
        // Load in the Mesh
+printf("1ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
 
        LoadMeshData();
+printf("2ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
        
        CreateTriEdges();
+printf("3ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
  
        CalculateSurfaceNormals(1);
+printf("4ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
            
        // Load ADB Case list
        
        LoadSolutionCaseList();
+printf("6ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
        
        // Load cutting plane lists
        
        LoadQuadCuttingPlaneCaseList();
+printf("6ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
        
        // Load in the solution data
        
        LoadSolutionData();
+printf("7ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
        
        // Load in BEAM3D FEM data
        
@@ -404,7 +415,11 @@ void GL_VIEWER::LoadInitialData(char *name)
        
        // Load in calculix data
        
+printf("ThereIsCalculixData: %d \n",ThereIsCalculixData);fflush(NULL);
+       
        if ( ThereIsCalculixData ) {
+          
+          printf("loading in calculix data... \n");fflush(NULL);
           
           LoadCalculixINPFile();
        
@@ -432,10 +447,36 @@ void GL_VIEWER::LoadInitialData(char *name)
  
     }
 
+    // Adjust slider values for time accurate solutions
+    
+    if ( TimeAccurate_ ) {
+       
+       sprintf(DumChar," of %d",NumberOfADBCases_ - 1);
+       
+       vui->LoadSolutionCase->value(0);
+       
+       vui->LoadSolutionCase->bounds(0,NumberOfADBCases_ - 1);
+       
+       vui->NumberOfSolutionCasesText->value(DumChar);
+
+    }
+    
+    else {
+
+       sprintf(DumChar," of %d",NumberOfADBCases_);
+       
+       vui->LoadSolutionCase->value(0);
+       
+       vui->LoadSolutionCase->bounds(1,NumberOfADBCases_);
+       
+       vui->NumberOfSolutionCasesText->value(DumChar);       
+       
+    }
+
     // Load in the ComGeom II tags
     
     PanelComGeomTagsBrowser_Update();
-
+    
 }
 
 /*##############################################################################
@@ -605,6 +646,8 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
     FILE_VERSION = 2;
     
     if ( DumInt == -123789456 + 3 ) FILE_VERSION = 3;
+    
+    printf("FILE_VERSION: %d \n",FILE_VERSION);fflush(NULL);
         
     // Read in model type... VLM or PANEL
     
@@ -617,6 +660,8 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
     // Read in unsteady analysis flag
     
     BIO.fread(&TimeAccurate_, i_size, 1, adb_file);        
+    
+    printf("TimeAccurate_: %d \n",TimeAccurate_);fflush(NULL);
 
     // Read in header
 
@@ -634,8 +679,9 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
     
     NumberOfMachs = NumberOfAlphas = NumberOfBetas = 1;
 
-    printf("NumberOfNodes:  %d \n",NumberOfNodes);
-    printf("NumberOfTris:   %d \n",NumberOfTris);
+    printf("NumberOfNodes:              %d \n",NumberOfNodes);
+    printf("NumberOfTris:               %d \n",NumberOfTris);
+    printf("NumberOfSurfaceVortexEdges: %d \n",NumberOfSurfaceVortexEdges);
     printf("Sref:           %f \n",Sref);
     printf("Cref:           %f \n",Cref);
     printf("Bref:           %f \n",Bref);
@@ -713,6 +759,8 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
 
     fread(&NumberOfCart3dSurfaces_, i_size, 1, adb_file);
  
+    printf("NumberOfCart3dSurfaces_: %d \n",NumberOfCart3dSurfaces_);fflush(NULL);
+   
     if ( !ReLoad ) {
        
        Cart3dListName_ = new char*[NumberOfCart3dSurfaces_ + 1];
@@ -725,35 +773,47 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
      
        fread(&DumInt, i_size, 1, adb_file);
        
-       if ( !ReLoad ) Cart3dListName_[i] = new char[200];
+       if ( !ReLoad ) Cart3dListName_[i] = new char[2000];
 
        fread(Cart3dListName_[i], c_size, 100, adb_file);
    
        fread(&(Cart3DComponentList[i]), i_size, 1, adb_file);
 
     }     
-    
+  
     // End of the header information... now geometry
 
     // Store the current location in the file
-
-    fgetpos(adb_file, &StartOfWallTemperatureData);
+    
+    for ( i = 0 ; i < 100000 ; i++ ) {
+       
+       StartOfWallTemperatureData[i] = 0;
+       
+    }
+     
+    fgetpos(adb_file, &StartOfWallTemperatureData[1]);
 
     // Load in the geometry and surface information
+
+    printf("NumberOfTris: %d \n",NumberOfTris);fflush(NULL);
 
     for ( i = 1 ; i <= NumberOfTris ; i++ ) {
 
        // Geometry
 
-       BIO.fread(&(TriList[i].node1),        i_size, 1, adb_file);
-       BIO.fread(&(TriList[i].node2),        i_size, 1, adb_file);
-       BIO.fread(&(TriList[i].node3),        i_size, 1, adb_file);
-      
-       BIO.fread(&(TriList[i].component_id), i_size, 1, adb_file);
-       BIO.fread(&(TriList[i].surface_id),   i_size, 1, adb_file);
+       BIO.fread(&(TriList[i].node1),            i_size, 1, adb_file);
+       BIO.fread(&(TriList[i].node2),            i_size, 1, adb_file);
+       BIO.fread(&(TriList[i].node3),            i_size, 1, adb_file);
+                                                 
+       BIO.fread(&(TriList[i].component_id),     i_size, 1, adb_file);
+       BIO.fread(&(TriList[i].surface_id),       i_size, 1, adb_file);
+       BIO.fread(&(TriList[i].MinValidTimeStep), i_size, 1, adb_file);
+
        BIO.fread(&(TriList[i].area),         f_size, 1, adb_file);
 
     }
+
+    printf("NumberOfNodes: %d \n",NumberOfNodes);fflush(NULL);
 
     for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
 
@@ -762,29 +822,31 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
        BIO.fread(&(NodeList[i].z), f_size, 1, adb_file);
 
     }
-    
+     
     // Find Min/Max of geometry
+
+    printf("Determining mesh min/max's ... \n");fflush(NULL);
 
     FindMeshMinMax();
     
     // Read in any propulsion data
     
     BIO.fread(&(NumberOfRotors), i_size, 1, adb_file); 
+
+    printf("NumberOfRotors: %d \n",NumberOfRotors);fflush(NULL);
     
     if ( FILE_VERSION == 3 ) BIO.fread(&(NumberOfNozzles), i_size, 1, adb_file);
     
-    printf("There are %d rotors defined \n",NumberOfRotors);
+    printf("There are %d rotors defined \n",NumberOfRotors);fflush(NULL);
     
-    if ( FILE_VERSION == 3 ) printf("There are %d nozzles defined \n",NumberOfNozzles);
+    if ( FILE_VERSION == 3 ) printf("There are %d nozzles defined \n",NumberOfNozzles);fflush(NULL);
      
     NumberOfPropulsionElements = NumberOfRotors + NumberOfNozzles;
  
     if ( !ReLoad ) PropulsionElement = new PROPULSION_ELEMENT[NumberOfPropulsionElements + 1];
     
     // Read in the rotor data
-    
-    printf("Reading in the rotor data ... \n");
-    
+   
     j = 0;
     
     for ( i = 1 ; i <= NumberOfRotors ; i++ ) {
@@ -833,10 +895,8 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
     }
         
     // Read in any coarse mesh edge data
-    
+ 
     BIO.fread(&(NumberOfMeshLevels), i_size, 1, adb_file); 
-    
-    printf("NumberOfMeshLevels: %d \n",NumberOfMeshLevels);fflush(NULL);
    
     CoarseNodeList = new NODE*[NumberOfMeshLevels + 1];
     CoarseEdgeList = new EDGE*[NumberOfMeshLevels + 1];
@@ -849,9 +909,6 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
        BIO.fread(&(NumberOfCourseNodesForLevel[Level]), i_size, 1, adb_file);    
        BIO.fread(&(NumberOfCourseEdgesForLevel[Level]), i_size, 1, adb_file);     
 
-       printf("Number of course nodes for level: %d is: %d \n",Level,NumberOfCourseNodesForLevel[Level]);fflush(NULL);
-       printf("Number of course edges for level: %d is: %d \n",Level,NumberOfCourseEdgesForLevel[Level]);fflush(NULL);
-   
        CoarseNodeList[Level] = new NODE[NumberOfCourseNodesForLevel[Level] + 1];
        CoarseEdgeList[Level] = new EDGE[NumberOfCourseEdgesForLevel[Level] + 1];
 
@@ -869,8 +926,9 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
          
        for ( i = 1 ; i <= NumberOfCourseEdgesForLevel[Level] ; i++ ) {
  
-          BIO.fread(&(CoarseEdgeList[Level][i].SurfaceID), i_size, 1, adb_file);   
-          
+          BIO.fread(&(CoarseEdgeList[Level][i].SurfaceID),        i_size, 1, adb_file);   
+          BIO.fread(&(CoarseEdgeList[Level][i].MinValidTimeStep), i_size, 1, adb_file);   
+    
           CoarseEdgeList[Level][i].IsBoundaryEdge = 0;
           
           if ( CoarseEdgeList[Level][i].SurfaceID < 0 ) {
@@ -896,7 +954,7 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
        }       
     
     }    
-  
+
     // Read in the kutta edge data
     
     Level = 1;
@@ -982,7 +1040,7 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
        ControlSurface[i].DeflectionAngle = 0.;
                             
     }
-     
+    
     // Mark all the loops on a control surface
     
     if ( !ReLoad ) ControlSurfaceLoop = new int[NumberOfTris + 1];
@@ -992,9 +1050,7 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
        ControlSurfaceLoop[j] = 0;
         
     }
-
-    printf("NumberOfControlSurfaces: %d \n",NumberOfControlSurfaces);
-    
+ 
     for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
        
        for ( j = 1 ; j <= ControlSurface[i].NumberOfLoops ; j++ ) {
@@ -1065,12 +1121,14 @@ void GL_VIEWER::UpdateMeshData(FILE *adb_file)
 
        // Geometry
 
-       BIO.fread(&(TriList[i].node1),        i_size, 1, adb_file);
-       BIO.fread(&(TriList[i].node2),        i_size, 1, adb_file);
-       BIO.fread(&(TriList[i].node3),        i_size, 1, adb_file);
+       BIO.fread(&(TriList[i].node1),            i_size, 1, adb_file);
+       BIO.fread(&(TriList[i].node2),            i_size, 1, adb_file);
+       BIO.fread(&(TriList[i].node3),            i_size, 1, adb_file);
+                                                 
+       BIO.fread(&(TriList[i].component_id),     i_size, 1, adb_file);
+       BIO.fread(&(TriList[i].surface_id),       i_size, 1, adb_file);
+       BIO.fread(&(TriList[i].MinValidTimeStep), i_size, 1, adb_file);
        
-       BIO.fread(&(TriList[i].component_id), i_size, 1, adb_file);
-       BIO.fread(&(TriList[i].surface_id),   i_size, 1, adb_file);
        BIO.fread(&(TriList[i].area),         f_size, 1, adb_file);
 
     }
@@ -1094,25 +1152,15 @@ void GL_VIEWER::UpdateMeshData(FILE *adb_file)
     }
     
     // Read in any propulsion data
-
-    // Read in any propulsion data
     
     BIO.fread(&(NumberOfRotors), i_size, 1, adb_file); 
 
-    printf("There are %d rotors defined \n",NumberOfRotors);
-    
-    printf("FILE_VERSION: %d \n",FILE_VERSION);fflush(NULL);
-    
     if ( FILE_VERSION == 3 ) BIO.fread(&(NumberOfNozzles), i_size, 1, adb_file);
-        
-    if ( FILE_VERSION == 3 ) printf("There are %d nozzles defined \n",NumberOfNozzles);
-     
+   
     NumberOfPropulsionElements = NumberOfRotors + NumberOfNozzles;
 
     // Read in the rotor data
-    
-    printf("Reading in the rotor data ... \n");
-    
+ 
     j = 0;
     
     for ( i = 1 ; i <= NumberOfRotors ; i++ ) {
@@ -1129,8 +1177,6 @@ void GL_VIEWER::UpdateMeshData(FILE *adb_file)
     
     if ( FILE_VERSION == 3 ) {
        
-       printf("Reading in the nozzle data ... \n");
-    
        for ( i = 1 ; i <= NumberOfNozzles ; i++ ) {
     
           printf("i: %d \n",i);fflush(NULL);
@@ -1149,8 +1195,6 @@ void GL_VIEWER::UpdateMeshData(FILE *adb_file)
     
     BIO.fread(&(NumberOfMeshLevels), i_size, 1, adb_file); 
 
-    printf("NumberOfMeshLevels: %d \n",NumberOfMeshLevels);
-    
     for ( Level = 1 ; Level <= NumberOfMeshLevels ; Level++ ) {
      
        BIO.fread(&(NumberOfCourseNodesForLevel[Level]), i_size, 1, adb_file);    
@@ -1170,8 +1214,9 @@ void GL_VIEWER::UpdateMeshData(FILE *adb_file)
          
        for ( i = 1 ; i <= NumberOfCourseEdgesForLevel[Level] ; i++ ) {
  
-          BIO.fread(&(CoarseEdgeList[Level][i].SurfaceID), i_size, 1, adb_file);   
-          
+          BIO.fread(&(CoarseEdgeList[Level][i].SurfaceID),        i_size, 1, adb_file);   
+          BIO.fread(&(CoarseEdgeList[Level][i].MinValidTimeStep), i_size, 1, adb_file);   
+ 
           CoarseEdgeList[Level][i].IsBoundaryEdge = 0;
           
           if ( CoarseEdgeList[Level][i].SurfaceID < 0 ) {
@@ -1603,8 +1648,8 @@ void GL_VIEWER::LoadCalculixINPFile(void)
    
              DumChar[strcspn(DumChar, "\n")] = 0;
                  
-             sprintf(SaveChar,"%s",DumChar);
-
+             sprintf(SaveChar,"%s\0",DumChar);
+             
              Done = 0;
              
              while ( !Done ) {
@@ -1737,8 +1782,10 @@ void GL_VIEWER::LoadCalculixINPFile(void)
        }
 
        printf("Read in %d calculix elements \n",i);fflush(NULL);
-       
+
        rewind(CalculixFile);
+       
+       printf("Reading in pressure loads... \n");
        
        // Read in the pressure loads
 
@@ -1764,9 +1811,11 @@ void GL_VIEWER::LoadCalculixINPFile(void)
                 
                 fgets(DumChar,2000,CalculixFile);
       
+      
                 if ( strlen(DumChar) > 2 ) {
                    
                    if ( strstr(DumChar,"GRAV") == NULL ) {
+                   
                    
                       i++;
    
@@ -1774,7 +1823,7 @@ void GL_VIEWER::LoadCalculixINPFile(void)
                       &ElementID,
                       DumChar,
                       &Pressure);
-    
+ 
                       PressureLoad[ElementID] = Pressure;
 
                    }
@@ -1798,6 +1847,8 @@ void GL_VIEWER::LoadCalculixINPFile(void)
           }
           
        }    
+       
+       printf("Done reading in DLOADS.. \n");fflush(NULL);
        
        // Look for rigid link equations
        
@@ -6038,7 +6089,7 @@ void GL_VIEWER::MakeMovie(char *FileName)
     // output file name
     // -y means it will over write any existing (previous) file with that name
     
-    printf("Running ffmpeg to create video \n");
+    printf("Running ffmpeg to create video \n"); fflush(NULL);
 
     if ( !CheckForOptimizationReloads_ ) {
     
@@ -6142,8 +6193,6 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
 
     BIO.fread(&DumInt, i_size, 1, adb_file);
 
-    printf("Initial DumInt: %d \n",DumInt);
-
     if ( DumInt != -123789456 && DumInt != -123789456 + 3 ) {
 
        BIO.TurnByteSwapForReadsOn();
@@ -6155,28 +6204,41 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
     }
     
     FILE_VERSION = 2;
-    
-    printf("DumInt: %d \n",DumInt);
-    printf("-123789456 + 3: %d \n",-123789456 + 3);fflush(NULL);
-    
-    
+
     if ( DumInt == -123789456 + 3 ) FILE_VERSION = 3;
     
     // Set the file position to the top of the temperature data
-
-    fsetpos(adb_file, &StartOfWallTemperatureData);
+  
+    if ( StartOfWallTemperatureData[Case] != 0 ) {
+       
+       pStart = 1;
+       pEnd   = 1;
+       
+       fsetpos(adb_file, &StartOfWallTemperatureData[Case]);
+       
+    }    
     
-    pStart = 1;
-    pEnd   = Case;
+    else {
+       
+       pStart = 1;
+       pEnd   = Case;       
+       
+       fsetpos(adb_file, &StartOfWallTemperatureData[1]);
+
+    }       
+
+    CurrentTimeStep_ = Case - 1;
+    
+    Last_UserSelectedSolutionCase_ = Case;
 
     if ( CheckForOptimizationReloads_ ) pStart = pEnd = 1;
 
     for ( p = pStart ; p <= pEnd ; p++ ) {  
 
-       // Reload in the mesh data if this is an unsteady path case
+       // Reload the mesh data... all the time since the wake is now part of the mesh ;-)
 
-       if ( p == 1 || TimeAccurate_ || CheckForOptimizationReloads_ ) UpdateMeshData(adb_file);
-
+       UpdateMeshData(adb_file);
+       
        // Read in the EdgeMach, Q, and Alpha lists
    
        for ( k = 1 ; k <= NumberOfMachs  ; k++ ) BIO.fread(&MachList[k],    f_size, 1, adb_file);
@@ -6293,7 +6355,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
              XWake_[i][j] = Xw - GeometryXShift;
              YWake_[i][j] = Yw - GeometryYShift;
              ZWake_[i][j] = Zw - GeometryZShift;
-             
+ 
            }
           
        }
@@ -6322,8 +6384,10 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
    
           BIO.fread(&(ControlSurface[i].DeflectionAngle), f_size, 1, adb_file); 
 
-       }       
-    
+       }     
+       
+       if ( StartOfWallTemperatureData[p+1] == 0 ) fgetpos(adb_file, &StartOfWallTemperatureData[p+1]);
+      
     }
     
     // Close the adb file
@@ -7105,7 +7169,7 @@ void GL_VIEWER::CreateTriEdges(void)
 void GL_VIEWER::FindMeshMinMax(void)
 {
 
-    int i;
+    int i, j, Node;
 
     XMin = 1.e6;
     XMax = -XMin;
@@ -7115,63 +7179,111 @@ void GL_VIEWER::FindMeshMinMax(void)
 
     ZMin = 1.e6;
     ZMax = -ZMin;
+    
+    for ( i = 1 ; i <= NumberOfTris ; i++ ) {
+       
+       if ( TriList[i].surface_id > 0 ) {
+          
+          for ( j = 1 ; j <= 3 ; j++ ) {
+            
+             if ( j == 1 ) Node = TriList[i].node1;
+             if ( j == 2 ) Node = TriList[i].node2;
+             if ( j == 3 ) Node = TriList[i].node3;
+  
+             XMin = MIN(XMin, NodeList[Node].x);
+             YMin = MIN(YMin, NodeList[Node].y);
+             ZMin = MIN(ZMin, NodeList[Node].z);
+            
+             XMax = MAX(XMax, NodeList[Node].x);
+             YMax = MAX(YMax, NodeList[Node].y);
+             ZMax = MAX(ZMax, NodeList[Node].z);
+         
+          }
+          
+       }
+       
+    }          
+      
+    //for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
+    //
+	 //  XMin = MIN(XMin, NodeList[i].x);
+	 //  YMin = MIN(YMin, NodeList[i].y);
+	 //  ZMin = MIN(ZMin, NodeList[i].z);
+    //
+	 //  XMax = MAX(XMax, NodeList[i].x);
+	 //  YMax = MAX(YMax, NodeList[i].y);
+	 //  ZMax = MAX(ZMax, NodeList[i].z);
+    //
+    //}
 
-    for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
-
-	   XMin = MIN(XMin, NodeList[i].x);
-	   YMin = MIN(YMin, NodeList[i].y);
-	   ZMin = MIN(ZMin, NodeList[i].z);
-
-	   XMax = MAX(XMax, NodeList[i].x);
-	   YMax = MAX(YMax, NodeList[i].y);
-	   ZMax = MAX(ZMax, NodeList[i].z);
-
-	}
-
-	printf("Xmin, Xmax: %f, %f \n",XMin, XMax);
-	printf("Ymin, Ymax: %f, %f \n",YMin, YMax);
-	printf("Zmin, Zmax: %f, %f \n",ZMin, ZMax);fflush(NULL);
-
-	GeometryXShift = XMin + 0.5*(XMax - XMin);
-	GeometryYShift = YMin + 0.5*(YMax - YMin);
-	GeometryZShift = ZMin + 0.5*(ZMax - ZMin);
-
+	 printf("Xmin, Xmax: %f, %f \n",XMin, XMax);
+	 printf("Ymin, Ymax: %f, %f \n",YMin, YMax);
+	 printf("Zmin, Zmax: %f, %f \n",ZMin, ZMax);fflush(NULL);
+    
+	 GeometryXShift = XMin + 0.5*(XMax - XMin);
+	 GeometryYShift = YMin + 0.5*(YMax - YMin);
+	 GeometryZShift = ZMin + 0.5*(ZMax - ZMin);
+    
     // Center geometry
-
+    
     for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
-
+    
        NodeList[i].x -= GeometryXShift;
        NodeList[i].y -= GeometryYShift;
        NodeList[i].z -= GeometryZShift;
-
+    
     }
-
+    
     XMin = 1.e6;
     XMax = -XMin;
-
+    
     YMin = 1.e6;
     YMax = -YMin;
-
+    
     ZMin = 1.e6;
     ZMax = -ZMin;
+    
+    //for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
+    //
+    //   XMin = MIN(XMin, NodeList[i].x);
+    //   YMin = MIN(YMin, NodeList[i].y);
+    //   ZMin = MIN(ZMin, NodeList[i].z);
+    //
+    //   XMax = MAX(XMax, NodeList[i].x);
+    //   YMax = MAX(YMax, NodeList[i].y);
+    //   ZMax = MAX(ZMax, NodeList[i].z);
+    //
+    //}
 
-    for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
-
-	   XMin = MIN(XMin, NodeList[i].x);
-	   YMin = MIN(YMin, NodeList[i].y);
-	   ZMin = MIN(ZMin, NodeList[i].z);
-
-	   XMax = MAX(XMax, NodeList[i].x);
-	   YMax = MAX(YMax, NodeList[i].y);
-	   ZMax = MAX(ZMax, NodeList[i].z);
-
-	}
-
-	ViewSize = MAX3(XMax-XMin, YMax-YMin, ZMax-ZMin);
-
-	ZoomScale = sqrt( pow(XMax-XMin,2) + pow(YMax-YMin,2) + pow(ZMax-ZMin,2) );
-
-   printf("ViewSize: %f ... ZoomScale: %f \n",ViewSize,ZoomScale);
+    for ( i = 1 ; i <= NumberOfTris ; i++ ) {
+       
+       if ( TriList[i].surface_id > 0 ) {
+          
+          for ( j = 1 ; j <= 3 ; j++ ) {
+             
+             if ( j == 1 ) Node = TriList[i].node1;
+             if ( j == 2 ) Node = TriList[i].node2;
+             if ( j == 3 ) Node = TriList[i].node3;
+   
+             XMin = MIN(XMin, NodeList[Node].x);
+             YMin = MIN(YMin, NodeList[Node].y);
+             ZMin = MIN(ZMin, NodeList[Node].z);
+            
+             XMax = MAX(XMax, NodeList[Node].x);
+             YMax = MAX(YMax, NodeList[Node].y);
+             ZMax = MAX(ZMax, NodeList[Node].z);
+         
+          }
+          
+       }
+       
+    }   
+        
+    ViewSize = MAX3(XMax-XMin, YMax-YMin, ZMax-ZMin);
+    
+    ZoomScale = sqrt( pow(XMax-XMin,2) + pow(YMax-YMin,2) + pow(ZMax-ZMin,2) );
+    
+    printf("ViewSize: %f ... ZoomScale: %f \n",ViewSize,ZoomScale);
 
 // To force fixed perspective... we need to
 // 1) Set ViewSize to a fixed value for all frames
@@ -7240,8 +7352,6 @@ void GL_VIEWER::FindSolutionMinMax(void)
     FindSolutionMinMax(CpUnsteady, FMinavg, FMaxAvg, CpUnsteadyMinActual, CpUnsteadyMaxActual, CpUnsteadyMin, CpUnsteadyMax);
     FindSolutionMinMax(Gamma,      FMinavg, FMaxAvg,      GammaMinActual,      GammaMaxActual,      GammaMin,      GammaMax);
 
-    printf("CpUnsteadyMinActual: %f \n",CpUnsteadyMinActual);
-    printf("CpUnsteadyMinActual: %f \n",CpUnsteadyMaxActual);
     fflush(NULL);
     
     if ( ABS(CpUnsteadyMinActual) + ABS(CpUnsteadyMaxActual) <= 1.e-8 ) {
@@ -7649,7 +7759,7 @@ void GL_VIEWER::ClearADBFile(void)
 
     MenuListSize = vui->ADBMenu->size();
 
-	printf("vui->ADBMenu->value(): %d --> name: %s \n",vui->ADBMenu->value(),MenuList[vui->ADBMenu->value()].label());fflush(NULL);
+	 printf("vui->ADBMenu->value(): %d --> name: %s \n",vui->ADBMenu->value(),MenuList[vui->ADBMenu->value()].label());fflush(NULL);
 
     UserSelectedMenuItem = vui->ADBMenu->value();
 
@@ -7688,10 +7798,9 @@ void GL_VIEWER::SolutionCaseSliderWasMoved(int Case)
     FILE *adb_file;
     char file_name_w_ext[2000];
    
-   
-    printf("CheckForOptimizationReloads_: %d \n",CheckForOptimizationReloads_);fflush(NULL);
-   
     if ( !CheckForOptimizationReloads_ ) {
+       
+       if ( TimeAccurate_ ) Case++;
      
        UserSelectedSolutionCase_ = Case; 
        
@@ -8674,61 +8783,65 @@ void GL_VIEWER::DrawWireFrame(void)
        SurfaceID = TriList[j].surface_id;
        
        SurfID = SurfaceID;
+
+       if ( SurfaceID > 0 || ( DrawWakeSurfacesIsOn && !TimeAccurate_ ) || ( TimeAccurate_ && DrawWakeSurfacesIsOn && TriList[j].MinValidTimeStep <= CurrentTimeStep_ ) ) {
        
-       if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
-
-          node1 = TriList[j].node1;
-          node2 = TriList[j].node2;
-          node3 = TriList[j].node3;
-          
-          vec1[0] = NodeList[node1].x;
-          vec1[1] = NodeList[node1].y;
-          vec1[2] = NodeList[node1].z;
-
-          vec2[0] = NodeList[node2].x;
-          vec2[1] = NodeList[node2].y;
-          vec2[2] = NodeList[node2].z;
-
-          vec3[0] = NodeList[node3].x;
-          vec3[1] = NodeList[node3].y;
-          vec3[2] = NodeList[node3].z;             
-          
-          if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
-
-             RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
-             RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
-             RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
-        
-          }     
-
-          glBegin(GL_TRIANGLES);
+          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
    
-             glVertex3fv(vec1);
-
-             glVertex3fv(vec2);
-
-             glVertex3fv(vec3);
+             node1 = TriList[j].node1;
+             node2 = TriList[j].node2;
+             node3 = TriList[j].node3;
+             
+             vec1[0] = NodeList[node1].x;
+             vec1[1] = NodeList[node1].y;
+             vec1[2] = NodeList[node1].z;
    
-          glEnd();
-          
-          if ( DrawReflectedGeometryIsOn ) {
-
-             vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
-             vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
-             vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
-
+             vec2[0] = NodeList[node2].x;
+             vec2[1] = NodeList[node2].y;
+             vec2[2] = NodeList[node2].z;
+   
+             vec3[0] = NodeList[node3].x;
+             vec3[1] = NodeList[node3].y;
+             vec3[2] = NodeList[node3].z;             
+             
+             if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+   
+                RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+           
+             }     
+   
              glBegin(GL_TRIANGLES);
-
+      
                 glVertex3fv(vec1);
-
-                glVertex3fv(vec2);
-
-                glVertex3fv(vec3);
-
-             glEnd();
    
-		     }
-        
+                glVertex3fv(vec2);
+   
+                glVertex3fv(vec3);
+      
+             glEnd();
+             
+             if ( DrawReflectedGeometryIsOn ) {
+   
+                vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
+   
+                glBegin(GL_TRIANGLES);
+   
+                   glVertex3fv(vec1);
+   
+                   glVertex3fv(vec2);
+   
+                   glVertex3fv(vec3);
+   
+                glEnd();
+      
+              }
+           
+          }
+          
        }
 
     }
@@ -9290,95 +9403,100 @@ void GL_VIEWER::DrawCoarseMeshEdgesForLevel(int Level)
 
     for ( j = 1 ; j <= NumberOfCourseEdgesForLevel[Level]; j++ ) {
 
-      SurfaceID = CoarseEdgeList[Level][j].SurfaceID;
-
-      if ( CoarseEdgeList[Level][j].IsBoundaryEdge && !CoarseEdgeList[Level][j].IsKuttaEdge) {
-
-          rgb[0] = 1.;
-          rgb[1] = 0.;
-          rgb[2] = 0.;
-
-          rgb[0] = 0.;
-          rgb[1] = 0.;
-          rgb[2] = 0.;
-                
-          glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-          glColor3fv(rgb);         
-                  
-      }
-      
-      else if ( CoarseEdgeList[Level][j].IsKuttaEdge ) {
-         
-          rgb[0] = 0.;
-          rgb[1] = 1.;
-          rgb[2] = 0.;
-      
-          glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-          glColor3fv(rgb);               
-         
-      }
-      
-      else {
-         
-          rgb[0] = 0.;
-          rgb[1] = 0.;
-          rgb[2] = 1.;
-      
-          glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-          glColor3fv(rgb);         
-         
-      } 
-      
+       SurfaceID = CoarseEdgeList[Level][j].SurfaceID;
+ 
+// if ( SurfaceID == 0 && ( TimeAccurate_ && DrawWakeSurfacesIsOn && CoarseEdgeList[Level][j].MinValidTimeStep <= CurrentTimeStep_ ) ) printf("j:%d --> CoarseEdgeList[Level][j].MinValidTimeStep,  CurrentTimeStep_: %d %d \n",j,CoarseEdgeList[Level][j].MinValidTimeStep,  CurrentTimeStep_);
+ 
+       if ( SurfaceID != 0 || ( DrawWakeSurfacesIsOn && !TimeAccurate_ ) || ( TimeAccurate_ && DrawWakeSurfacesIsOn && CoarseEdgeList[Level][j].MinValidTimeStep <= CurrentTimeStep_ ) ) {
           
-      if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfaceID]) == 2 ) {
+          if ( CoarseEdgeList[Level][j].IsBoundaryEdge && !CoarseEdgeList[Level][j].IsKuttaEdge) {
     
-       glBegin(GL_LINES);
-
-          node1 = CoarseEdgeList[Level][j].node1;
-          node2 = CoarseEdgeList[Level][j].node2;
-
-          vec[0] = CoarseNodeList[Level][node1].x;
-          vec[1] = CoarseNodeList[Level][node1].y;
-          vec[2] = CoarseNodeList[Level][node1].z;
-
-          glVertex3fv(vec);
-
-          vec[0] = CoarseNodeList[Level][node2].x;
-          vec[1] = CoarseNodeList[Level][node2].y;
-          vec[2] = CoarseNodeList[Level][node2].z;
-
-          glVertex3fv(vec);
-
-       glEnd();
-       
-       if ( DrawReflectedGeometryIsOn ) {
-
-          glBegin(GL_LINES);
-
-             node1 = CoarseEdgeList[Level][j].node1;
-             node2 = CoarseEdgeList[Level][j].node2;
-
-             vec[0] = CoarseNodeList[Level][node1].x;
-             vec[1] = CoarseNodeList[Level][node1].y;
-             vec[2] = CoarseNodeList[Level][node1].z;
-             
-             vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
-             
-             glVertex3fv(vec);
-
-             vec[0] = CoarseNodeList[Level][node2].x;
-             vec[1] = CoarseNodeList[Level][node2].y;
-             vec[2] = CoarseNodeList[Level][node2].z;
-             
-             vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
-             
-             glVertex3fv(vec);                
+              rgb[0] = 1.;
+              rgb[1] = 0.;
+              rgb[2] = 0.;
+    
+              rgb[0] = 0.;
+              rgb[1] = 0.;
+              rgb[2] = 0.;
+                    
+              glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+              glColor3fv(rgb);         
+                      
+          }
           
-          glEnd();
-
-        }          
+          else if ( CoarseEdgeList[Level][j].IsKuttaEdge ) {
+             
+              rgb[0] = 0.;
+              rgb[1] = 1.;
+              rgb[2] = 0.;
           
-      }
+              glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+              glColor3fv(rgb);               
+             
+          }
+          
+          else {
+             
+              rgb[0] = 0.;
+              rgb[1] = 0.;
+              rgb[2] = 1.;
+          
+              glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+              glColor3fv(rgb);         
+             
+          } 
+           
+          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfaceID]) == 2 ) {
+        
+             glBegin(GL_LINES);
+             
+                node1 = CoarseEdgeList[Level][j].node1;
+                node2 = CoarseEdgeList[Level][j].node2;
+             
+                vec[0] = CoarseNodeList[Level][node1].x;
+                vec[1] = CoarseNodeList[Level][node1].y;
+                vec[2] = CoarseNodeList[Level][node1].z;
+             
+                glVertex3fv(vec);
+             
+                vec[0] = CoarseNodeList[Level][node2].x;
+                vec[1] = CoarseNodeList[Level][node2].y;
+                vec[2] = CoarseNodeList[Level][node2].z;
+             
+                glVertex3fv(vec);
+             
+             glEnd();
+           
+             if ( DrawReflectedGeometryIsOn ) {
+             
+                glBegin(GL_LINES);
+             
+                   node1 = CoarseEdgeList[Level][j].node1;
+                   node2 = CoarseEdgeList[Level][j].node2;
+             
+                   vec[0] = CoarseNodeList[Level][node1].x;
+                   vec[1] = CoarseNodeList[Level][node1].y;
+                   vec[2] = CoarseNodeList[Level][node1].z;
+                   
+                   vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+                   
+                   glVertex3fv(vec);
+             
+                   vec[0] = CoarseNodeList[Level][node2].x;
+                   vec[1] = CoarseNodeList[Level][node2].y;
+                   vec[2] = CoarseNodeList[Level][node2].z;
+                   
+                   vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+                   
+                   glVertex3fv(vec);                
+                
+                glEnd();
+             
+             }        
+              
+          }
+          
+       }
 
     }
 
@@ -9414,31 +9532,35 @@ void GL_VIEWER::DrawCoarseMeshNodesForLevel(int Level)
     for ( j = 1 ; j <= NumberOfCourseNodesForLevel[Level]; j++ ) {
        
        SurfID = CoarseNodeList[Level][j].SurfID;
+
+       if ( SurfID != 0 || ( DrawWakeSurfacesIsOn && !TimeAccurate_ )  ) {
        
-       if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
-
-          vec[0] = CoarseNodeList[Level][j].x;
-          vec[1] = CoarseNodeList[Level][j].y;
-          vec[2] = CoarseNodeList[Level][j].z;
-             
-          glBegin(GL_POINTS);
+          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
    
-             glVertex3fv(vec);
-   
-          glEnd();
-          
-          if ( DrawReflectedGeometryIsOn ) {
-   
+             vec[0] = CoarseNodeList[Level][j].x;
+             vec[1] = CoarseNodeList[Level][j].y;
+             vec[2] = CoarseNodeList[Level][j].z;
+                
              glBegin(GL_POINTS);
-   
-                vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
-    
-                glVertex3fv(vec);                
-             
+      
+                glVertex3fv(vec);
+      
              glEnd();
-
-           }   
-           
+             
+             if ( DrawReflectedGeometryIsOn ) {
+      
+                glBegin(GL_POINTS);
+      
+                   vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+       
+                   glVertex3fv(vec);                
+                
+                glEnd();
+   
+              }   
+              
+          }
+          
        }
    
     }
@@ -10052,110 +10174,50 @@ void GL_VIEWER::DrawShadedSurface(void)
        SurfaceID = TriList[j].surface_id;
        
        SurfID = SurfaceID;
-
-       if ( ComGeom2PanelTag[SurfID] != 0 &&
-                 DrawComGeomTagsIsOn &&
-                 DrawComGeomTagsShadedIsOn &&
-                 PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) ) {
        
-          if ( LastTri != GOMGEOM_TRI || LastSurface != SurfID ) {
+       if ( SurfaceID > 0 || ( DrawWakeSurfacesIsOn && !TimeAccurate_ ) || ( TimeAccurate_ && DrawWakeSurfacesIsOn && TriList[j].MinValidTimeStep <= CurrentTimeStep_ ) ) {
 
-             SetTagSurfaceColor(SurfID,2*(NumberOfBodies_ + NumberOfWings_));
-
-             LastTri = GOMGEOM_TRI;
-
-             LastSurface = SurfID;
-
-          }
-
-       }
-
-       else {
-
-          if ( LastTri != SRF_TRI ) {
-
-             rgb[0] = 0.9;
-             rgb[1] = 0.9;
-             rgb[2] = 0.9;
-             rgb[3] = 1.00;
-             
-             if ( DrawTransparentShadedIsOn ) rgb[3] = 0.25;
-
-             glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
-             glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
-             glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
-             glColor3fv(rgb);
-
-             LastTri = SRF_TRI;
-
-          }
-
-       }
-
-       if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
-
-          node1 = TriList[j].node1;
-          node2 = TriList[j].node2;
-          node3 = TriList[j].node3;
+          if ( ComGeom2PanelTag[SurfID] != 0 &&
+                    DrawComGeomTagsIsOn &&
+                    DrawComGeomTagsShadedIsOn &&
+                    PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) ) {
           
-          vec1[0] = NodeList[node1].x;
-          vec1[1] = NodeList[node1].y;
-          vec1[2] = NodeList[node1].z;
-
-          vec2[0] = NodeList[node2].x;
-          vec2[1] = NodeList[node2].y;
-          vec2[2] = NodeList[node2].z;
-
-          vec3[0] = NodeList[node3].x;
-          vec3[1] = NodeList[node3].y;
-          vec3[2] = NodeList[node3].z;             
-          
-          if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
- 
-             RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
-             RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
-             RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
-          
-          }   
-          
-          if ( !DrawSmoothShadeIsOn ) {
+             if ( LastTri != GOMGEOM_TRI || LastSurface != SurfID ) {
    
-             glBegin(GL_TRIANGLES);
+                SetTagSurfaceColor(SurfID,2*(NumberOfBodies_ + NumberOfWings_));
    
-                glNormal3f( Nx[j], Ny[j], Nz[j] );
-  
-                glVertex3fv(vec1);
-
-                glVertex3fv(vec2);
-
-                glVertex3fv(vec3);
+                LastTri = GOMGEOM_TRI;
    
-             glEnd();
+                LastSurface = SurfID;
    
-             if ( DrawReflectedGeometryIsOn ) {
-
-                vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
-                vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
-                vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
-
-                glBegin(GL_TRIANGLES);
-   
-                   glNormal3f( Nx[j], -Ny[j], Nz[j] );
-
-                   glVertex3fv(vec1);
-   
-                   glVertex3fv(vec2);
-   
-                   glVertex3fv(vec3);
-   
-                glEnd();
-   
-		     }
+             }
    
           }
    
           else {
-
+   
+             if ( LastTri != SRF_TRI ) {
+   
+                rgb[0] = 0.9;
+                rgb[1] = 0.9;
+                rgb[2] = 0.9;
+                rgb[3] = 1.00;
+                
+                if ( DrawTransparentShadedIsOn ) rgb[3] = 0.25;
+   
+                glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
+                glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
+                glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
+                glColor3fv(rgb);
+   
+                LastTri = SRF_TRI;
+   
+             }
+   
+          }
+   
+          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
+   
              node1 = TriList[j].node1;
              node2 = TriList[j].node2;
              node3 = TriList[j].node3;
@@ -10170,45 +10232,109 @@ void GL_VIEWER::DrawShadedSurface(void)
    
              vec3[0] = NodeList[node3].x;
              vec3[1] = NodeList[node3].y;
-             vec3[2] = NodeList[node3].z;       
-          
-             glBegin(GL_TRIANGLES);
-   
-                glNormal3f( Nodal_Nx[node1], Nodal_Ny[node1], Nodal_Nz[node1] );
-                glVertex3fv(vec1);
-   
-                glNormal3f( Nodal_Nx[node2], Nodal_Ny[node2], Nodal_Nz[node2] );
-                glVertex3fv(vec2);
-   
-                glNormal3f( Nodal_Nx[node3], Nodal_Ny[node3], Nodal_Nz[node3] );
-                glVertex3fv(vec3);
-   
-             glEnd();
-   
-             if ( DrawReflectedGeometryIsOn ) {
-
-                vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
-                vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
-                vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
-                
+             vec3[2] = NodeList[node3].z;             
+             
+             if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+    
+                RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+             
+             }   
+             
+             if ( !DrawSmoothShadeIsOn ) {
+      
                 glBegin(GL_TRIANGLES);
-
-                   glNormal3f( Nodal_Nx[node1], -Nodal_Ny[node1], Nodal_Nz[node1] );
+      
+                   glNormal3f( Nx[j], Ny[j], Nz[j] );
+     
                    glVertex3fv(vec1);
    
-                   glNormal3f( Nodal_Nx[node2], -Nodal_Ny[node2], Nodal_Nz[node2] );
                    glVertex3fv(vec2);
-  
    
-                   glNormal3f( Nodal_Nx[node3], -Nodal_Ny[node3], Nodal_Nz[node3] );
                    glVertex3fv(vec3);
-   
+      
                 glEnd();
+      
+                if ( DrawReflectedGeometryIsOn ) {
    
-		     }
+                   vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                   vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                   vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
    
-	      }
-
+                   glBegin(GL_TRIANGLES);
+      
+                      glNormal3f( Nx[j], -Ny[j], Nz[j] );
+   
+                      glVertex3fv(vec1);
+      
+                      glVertex3fv(vec2);
+      
+                      glVertex3fv(vec3);
+      
+                   glEnd();
+      
+              }
+      
+             }
+      
+             else {
+   
+                node1 = TriList[j].node1;
+                node2 = TriList[j].node2;
+                node3 = TriList[j].node3;
+                
+                vec1[0] = NodeList[node1].x;
+                vec1[1] = NodeList[node1].y;
+                vec1[2] = NodeList[node1].z;
+      
+                vec2[0] = NodeList[node2].x;
+                vec2[1] = NodeList[node2].y;
+                vec2[2] = NodeList[node2].z;
+      
+                vec3[0] = NodeList[node3].x;
+                vec3[1] = NodeList[node3].y;
+                vec3[2] = NodeList[node3].z;       
+             
+                glBegin(GL_TRIANGLES);
+      
+                   glNormal3f( Nodal_Nx[node1], Nodal_Ny[node1], Nodal_Nz[node1] );
+                   glVertex3fv(vec1);
+      
+                   glNormal3f( Nodal_Nx[node2], Nodal_Ny[node2], Nodal_Nz[node2] );
+                   glVertex3fv(vec2);
+      
+                   glNormal3f( Nodal_Nx[node3], Nodal_Ny[node3], Nodal_Nz[node3] );
+                   glVertex3fv(vec3);
+      
+                glEnd();
+      
+                if ( DrawReflectedGeometryIsOn ) {
+   
+                   vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                   vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                   vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
+                   
+                   glBegin(GL_TRIANGLES);
+   
+                      glNormal3f( Nodal_Nx[node1], -Nodal_Ny[node1], Nodal_Nz[node1] );
+                      glVertex3fv(vec1);
+      
+                      glNormal3f( Nodal_Nx[node2], -Nodal_Ny[node2], Nodal_Nz[node2] );
+                      glVertex3fv(vec2);
+     
+      
+                      glNormal3f( Nodal_Nx[node3], -Nodal_Ny[node3], Nodal_Nz[node3] );
+                      glVertex3fv(vec3);
+      
+                   glEnd();
+      
+              }
+      
+            }
+   
+          }
+          
        }
 
     }
@@ -10600,90 +10726,94 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
           SurfaceID = TriList[j].surface_id;
        
           SurfID = SurfaceID;
+
+          if ( SurfaceID > 0 || ( DrawWakeSurfacesIsOn && !TimeAccurate_ ) || ( TimeAccurate_ && DrawWakeSurfacesIsOn && TriList[j].MinValidTimeStep <= CurrentTimeStep_ ) ) {
                
-          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
-
-             node1 = TriList[j].node1;
-             node2 = TriList[j].node2;
-             node3 = TriList[j].node3;
+             if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
    
-             if ( FMax != FMin ) {
+                node1 = TriList[j].node1;
+                node2 = TriList[j].node2;
+                node3 = TriList[j].node3;
+      
+                if ( FMax != FMin ) {
+      
+                   per = (Function[j] - FMin)/(FMax - FMin);
+      
+                }
+      
+                else {
+      
+                   per = 1.;
+      
+                }
+      
+                percent_to_rgb(per, rgb, 0);
+      
+                glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
+                glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
+                glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
+                glColor3fv(rgb);
+                
+                vec1[0] = NodeList[node1].x;
+                vec1[1] = NodeList[node1].y;
+                vec1[2] = NodeList[node1].z;
    
-                per = (Function[j] - FMin)/(FMax - FMin);
+                vec2[0] = NodeList[node2].x;
+                vec2[1] = NodeList[node2].y;
+                vec2[2] = NodeList[node2].z;
    
-             }
-   
-             else {
-   
-                per = 1.;
-   
-             }
-   
-             percent_to_rgb(per, rgb, 0);
-   
-             glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
-             glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
-             glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
-             glColor3fv(rgb);
-             
-             vec1[0] = NodeList[node1].x;
-             vec1[1] = NodeList[node1].y;
-             vec1[2] = NodeList[node1].z;
-
-             vec2[0] = NodeList[node2].x;
-             vec2[1] = NodeList[node2].y;
-             vec2[2] = NodeList[node2].z;
-
-             vec3[0] = NodeList[node3].x;
-             vec3[1] = NodeList[node3].y;
-             vec3[2] = NodeList[node3].z;             
-             
-             if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
-   
-                RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
-                RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
-                RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
-             
-             }       
-   
-             glBegin(GL_TRIANGLES);
-   
-                if ( !DrawFlatShadedIsOn ) glNormal3f( Nx[j], Ny[j], Nz[j] );
-   
-                glVertex3fv(vec1);
-   
-                glVertex3fv(vec2);
-   
-                glVertex3fv(vec3);
-   
-             glEnd();
-   
-             if ( DrawReflectedGeometryIsOn ) {
-   
+                vec3[0] = NodeList[node3].x;
+                vec3[1] = NodeList[node3].y;
+                vec3[2] = NodeList[node3].z;             
+                
+                if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+      
+                   RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+                   RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+                   RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+                
+                }       
+      
                 glBegin(GL_TRIANGLES);
-   
-                   if ( !DrawFlatShadedIsOn ) glNormal3f( Nx[j], -Ny[j], Nz[j] );
-   
-                   node1 = TriList[j].node1;
-                   node2 = TriList[j].node2;
-                   node3 = TriList[j].node3;
-   
-                   vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
-                   vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
-                   vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
-   
+      
+                   if ( !DrawFlatShadedIsOn ) glNormal3f( Nx[j], Ny[j], Nz[j] );
+      
                    glVertex3fv(vec1);
-   
+      
                    glVertex3fv(vec2);
-   
+      
                    glVertex3fv(vec3);
-   
+      
                 glEnd();
+      
+                if ( DrawReflectedGeometryIsOn ) {
+      
+                   glBegin(GL_TRIANGLES);
+      
+                      if ( !DrawFlatShadedIsOn ) glNormal3f( Nx[j], -Ny[j], Nz[j] );
+      
+                      node1 = TriList[j].node1;
+                      node2 = TriList[j].node2;
+                      node3 = TriList[j].node3;
+      
+                      vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                      vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                      vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
+      
+                      glVertex3fv(vec1);
+      
+                      glVertex3fv(vec2);
+      
+                      glVertex3fv(vec3);
+      
+                   glEnd();
+      
+                }
    
              }
-
+   
           }
-
+          
        }
 
     }
@@ -10696,88 +10826,92 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
        
           SurfID = SurfaceID;
         
-          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
-
-             node1 = TriList[j].node1;
-             node2 = TriList[j].node2;
-             node3 = TriList[j].node3;
+          if ( SurfaceID > 0 || DrawWakeSurfacesIsOn ) {
+        
+             if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
    
-             if ( FMax != FMin ) {
+                node1 = TriList[j].node1;
+                node2 = TriList[j].node2;
+                node3 = TriList[j].node3;
+      
+                if ( FMax != FMin ) {
+      
+                   per = (Function[j] - FMin)/(FMax - FMin);
+      
+                }
+      
+                else {
+      
+                   per = 1.;
+      
+                }
+      
+                percent_to_rgb(per, rgb, 0);
+      
+                glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
+                glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
+                glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
+                glColor3fv(rgb);
+      
+                vec1[0] = NodeList[node1].x;
+                vec1[1] = NodeList[node1].y;
+                vec1[2] = NodeList[node1].z;
    
-                per = (Function[j] - FMin)/(FMax - FMin);
+                vec2[0] = NodeList[node2].x;
+                vec2[1] = NodeList[node2].y;
+                vec2[2] = NodeList[node2].z;
    
-             }
-   
-             else {
-   
-                per = 1.;
-   
-             }
-   
-             percent_to_rgb(per, rgb, 0);
-   
-             glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
-             glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
-             glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
-             glColor3fv(rgb);
-   
-             vec1[0] = NodeList[node1].x;
-             vec1[1] = NodeList[node1].y;
-             vec1[2] = NodeList[node1].z;
-
-             vec2[0] = NodeList[node2].x;
-             vec2[1] = NodeList[node2].y;
-             vec2[2] = NodeList[node2].z;
-
-             vec3[0] = NodeList[node3].x;
-             vec3[1] = NodeList[node3].y;
-             vec3[2] = NodeList[node3].z;             
-             
-             if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
-   
-                RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
-                RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
-                RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
-             
-             }       
+                vec3[0] = NodeList[node3].x;
+                vec3[1] = NodeList[node3].y;
+                vec3[2] = NodeList[node3].z;             
                 
-             glBegin(GL_TRIANGLES);
-
-                glNormal3f( Nodal_Nx[node1], Nodal_Ny[node1], Nodal_Nz[node1] );
-                glVertex3fv(vec1);
-
-                glNormal3f( Nodal_Nx[node2], Nodal_Ny[node2], Nodal_Nz[node2] );
-                glVertex3fv(vec2);
-
-                glNormal3f( Nodal_Nx[node3], Nodal_Ny[node3], Nodal_Nz[node3] );
-                glVertex3fv(vec3);
-   
-             glEnd();
-   
-             if ( DrawReflectedGeometryIsOn ) {
-   
+                if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+      
+                   RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+                   RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+                   RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+                
+                }       
+                   
                 glBegin(GL_TRIANGLES);
    
-                   vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
-                   vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
-                   vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
-           
-                   glNormal3f( Nodal_Nx[node1], -Nodal_Ny[node1], Nodal_Nz[node1] );
+                   glNormal3f( Nodal_Nx[node1], Nodal_Ny[node1], Nodal_Nz[node1] );
                    glVertex3fv(vec1);
    
-                   glNormal3f( Nodal_Nx[node2], -Nodal_Ny[node2], Nodal_Nz[node2] );
+                   glNormal3f( Nodal_Nx[node2], Nodal_Ny[node2], Nodal_Nz[node2] );
                    glVertex3fv(vec2);
    
-                   glNormal3f( Nodal_Nx[node3], -Nodal_Ny[node3], Nodal_Nz[node3] );
+                   glNormal3f( Nodal_Nx[node3], Nodal_Ny[node3], Nodal_Nz[node3] );
                    glVertex3fv(vec3);
-   
+      
                 glEnd();
+      
+                if ( DrawReflectedGeometryIsOn ) {
+      
+                   glBegin(GL_TRIANGLES);
+      
+                      vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                      vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                      vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
+              
+                      glNormal3f( Nodal_Nx[node1], -Nodal_Ny[node1], Nodal_Nz[node1] );
+                      glVertex3fv(vec1);
+      
+                      glNormal3f( Nodal_Nx[node2], -Nodal_Ny[node2], Nodal_Nz[node2] );
+                      glVertex3fv(vec2);
+      
+                      glNormal3f( Nodal_Nx[node3], -Nodal_Ny[node3], Nodal_Nz[node3] );
+                      glVertex3fv(vec3);
+      
+                   glEnd();
+      
+                }
    
              }
+             
+          }
 
-           }
-
-	   }
+       }
 
     }
 
@@ -10816,109 +10950,113 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
           SurfaceID = TriList[j].surface_id;
        
           SurfID = SurfaceID;
+
+          if ( SurfaceID > 0 || DrawWakeSurfacesIsOn ) {
  
-          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
-
-             node[0] = TriList[j].node1;
-             node[1] = TriList[j].node2;
-             node[2] = TriList[j].node3;
+             if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
    
-             vec1[0] = NodeList[node[0]].x;
-             vec1[1] = NodeList[node[0]].y;
-             vec1[2] = NodeList[node[0]].z;
-
-             vec2[0] = NodeList[node[1]].x;
-             vec2[1] = NodeList[node[1]].y;
-             vec2[2] = NodeList[node[1]].z;
-
-             vec3[0] = NodeList[node[2]].x;
-             vec3[1] = NodeList[node[2]].y;
-             vec3[2] = NodeList[node[2]].z;             
-             
-             if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+                node[0] = TriList[j].node1;
+                node[1] = TriList[j].node2;
+                node[2] = TriList[j].node3;
+      
+                vec1[0] = NodeList[node[0]].x;
+                vec1[1] = NodeList[node[0]].y;
+                vec1[2] = NodeList[node[0]].z;
    
-                RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
-                RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
-                RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
-             
-             }       
+                vec2[0] = NodeList[node[1]].x;
+                vec2[1] = NodeList[node[1]].y;
+                vec2[2] = NodeList[node[1]].z;
+   
+                vec3[0] = NodeList[node[2]].x;
+                vec3[1] = NodeList[node[2]].y;
+                vec3[2] = NodeList[node[2]].z;             
                 
-             glBegin(GL_TRIANGLES);
-   
-                glNormal3f( Nx[j], Ny[j], Nz[j] );
-   
-                for ( k = 0 ; k <= 2 ; k++ ) {
-   
-                   if ( FMax != FMin ) {
-   
-                      per = (Function[node[k]] - FMin)/(FMax - FMin);
-   
-                   }
-   
-                   else {
-   
-                      per = 1.;
-   
-                   }
-   
-                   percent_to_rgb(per, rgb, 0);
-   
-                   glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
-                   glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
-                   glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
-                   glColor3fv(rgb);
-   
-                   if ( k == 0 ) glVertex3fv(vec1);
-                   if ( k == 1 ) glVertex3fv(vec2);
-                   if ( k == 2 ) glVertex3fv(vec3);
-   
-                }
-   
-             glEnd();
-   
-             if ( DrawReflectedGeometryIsOn ) {
-   
+                if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+      
+                   RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+                   RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+                   RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+                
+                }       
+                   
                 glBegin(GL_TRIANGLES);
-   
-                   glNormal3f( Nx[j], -Ny[j], Nz[j] );
-   
+      
+                   glNormal3f( Nx[j], Ny[j], Nz[j] );
+      
                    for ( k = 0 ; k <= 2 ; k++ ) {
-   
-                      if ( k == 0 ) vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
-                      if ( k == 1 ) vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
-                      if ( k == 2 ) vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
-   
+      
                       if ( FMax != FMin ) {
-   
+      
                          per = (Function[node[k]] - FMin)/(FMax - FMin);
-   
+      
                       }
-   
+      
                       else {
-   
+      
                          per = 1.;
-   
+      
                       }
-   
+      
                       percent_to_rgb(per, rgb, 0);
-   
+      
                       glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
                       glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
                       glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
                       glColor3fv(rgb);
-   
+      
                       if ( k == 0 ) glVertex3fv(vec1);
                       if ( k == 1 ) glVertex3fv(vec2);
                       if ( k == 2 ) glVertex3fv(vec3);
-   
+      
                    }
-   
+      
                 glEnd();
+      
+                if ( DrawReflectedGeometryIsOn ) {
+      
+                   glBegin(GL_TRIANGLES);
+      
+                      glNormal3f( Nx[j], -Ny[j], Nz[j] );
+      
+                      for ( k = 0 ; k <= 2 ; k++ ) {
+      
+                         if ( k == 0 ) vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                         if ( k == 1 ) vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                         if ( k == 2 ) vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
+      
+                         if ( FMax != FMin ) {
+      
+                            per = (Function[node[k]] - FMin)/(FMax - FMin);
+      
+                         }
+      
+                         else {
+      
+                            per = 1.;
+      
+                         }
+      
+                         percent_to_rgb(per, rgb, 0);
+      
+                         glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
+                         glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
+                         glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
+                         glColor3fv(rgb);
+      
+                         if ( k == 0 ) glVertex3fv(vec1);
+                         if ( k == 1 ) glVertex3fv(vec2);
+                         if ( k == 2 ) glVertex3fv(vec3);
+      
+                      }
+      
+                   glEnd();
+      
+               }
    
-	         }
-
+             }
+   
           }
-
+       
        }
 
     }
@@ -10930,107 +11068,111 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
           SurfaceID = TriList[j].surface_id;
        
           SurfID = SurfaceID;
+
+          if ( SurfaceID > 0 || DrawWakeSurfacesIsOn ) {
         
-          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
-
-             node[0] = TriList[j].node1;
-             node[1] = TriList[j].node2;
-             node[2] = TriList[j].node3;
-             
-             vec1[0] = NodeList[node[0]].x;
-             vec1[1] = NodeList[node[0]].y;
-             vec1[2] = NodeList[node[0]].z;
-
-             vec2[0] = NodeList[node[1]].x;
-             vec2[1] = NodeList[node[1]].y;
-             vec2[2] = NodeList[node[1]].z;
-
-             vec3[0] = NodeList[node[2]].x;
-             vec3[1] = NodeList[node[2]].y;
-             vec3[2] = NodeList[node[2]].z;             
-             
-             if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+             if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
    
-                RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
-                RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
-                RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
-             
-             }       
-                     
-             glBegin(GL_TRIANGLES);
+                node[0] = TriList[j].node1;
+                node[1] = TriList[j].node2;
+                node[2] = TriList[j].node3;
+                
+                vec1[0] = NodeList[node[0]].x;
+                vec1[1] = NodeList[node[0]].y;
+                vec1[2] = NodeList[node[0]].z;
    
-                for ( k = 0 ; k <= 2 ; k++ ) {
-
-                   if ( FMax != FMin ) {
+                vec2[0] = NodeList[node[1]].x;
+                vec2[1] = NodeList[node[1]].y;
+                vec2[2] = NodeList[node[1]].z;
    
-                      per = (Function[node[k]] - FMin)/(FMax - FMin);
-   
-                   }
-   
-                   else {
-   
-                      per = 1.;
-   
-                   }
-   
-                   percent_to_rgb(per, rgb, 0);
-   
-                   glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
-                   glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
-                   glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
-                   glColor3fv(rgb);
-   
-                   glNormal3f( Nodal_Nx[node[k]], Nodal_Ny[node[k]], Nodal_Nz[node[k]] );
-   
-                   if ( k == 0 ) glVertex3fv(vec1);
-                   if ( k == 1 ) glVertex3fv(vec2);
-                   if ( k == 2 ) glVertex3fv(vec3);   
-                   
-                }
-   
-             glEnd();
-   
-             if ( DrawReflectedGeometryIsOn ) {
-   
+                vec3[0] = NodeList[node[2]].x;
+                vec3[1] = NodeList[node[2]].y;
+                vec3[2] = NodeList[node[2]].z;             
+                
+                if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+      
+                   RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+                   RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+                   RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+                
+                }       
+                        
                 glBegin(GL_TRIANGLES);
-   
+      
                    for ( k = 0 ; k <= 2 ; k++ ) {
    
-                      if ( k == 0 ) vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
-                      if ( k == 1 ) vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
-                      if ( k == 2 ) vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
-   
                       if ( FMax != FMin ) {
-   
+      
                          per = (Function[node[k]] - FMin)/(FMax - FMin);
-   
+      
                       }
-   
+      
                       else {
-   
+      
                          per = 1.;
-   
+      
                       }
-   
+      
                       percent_to_rgb(per, rgb, 0);
-   
+      
                       glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
                       glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
                       glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
                       glColor3fv(rgb);
-   
+      
                       glNormal3f( Nodal_Nx[node[k]], Nodal_Ny[node[k]], Nodal_Nz[node[k]] );
-   
+      
                       if ( k == 0 ) glVertex3fv(vec1);
                       if ( k == 1 ) glVertex3fv(vec2);
-                      if ( k == 2 ) glVertex3fv(vec3);  
+                      if ( k == 2 ) glVertex3fv(vec3);   
                       
                    }
-   
+      
                 glEnd();
+      
+                if ( DrawReflectedGeometryIsOn ) {
+      
+                   glBegin(GL_TRIANGLES);
+      
+                      for ( k = 0 ; k <= 2 ; k++ ) {
+      
+                         if ( k == 0 ) vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                         if ( k == 1 ) vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                         if ( k == 2 ) vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
+      
+                         if ( FMax != FMin ) {
+      
+                            per = (Function[node[k]] - FMin)/(FMax - FMin);
+      
+                         }
+      
+                         else {
+      
+                            per = 1.;
+      
+                         }
+      
+                         percent_to_rgb(per, rgb, 0);
+      
+                         glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
+                         glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
+                         glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
+                         glColor3fv(rgb);
+      
+                         glNormal3f( Nodal_Nx[node[k]], Nodal_Ny[node[k]], Nodal_Nz[node[k]] );
+      
+                         if ( k == 0 ) glVertex3fv(vec1);
+                         if ( k == 1 ) glVertex3fv(vec2);
+                         if ( k == 2 ) glVertex3fv(vec3);  
+                         
+                      }
+      
+                   glEnd();
+      
+               }
    
-	         }
-
+             }
+             
           }
 
        }

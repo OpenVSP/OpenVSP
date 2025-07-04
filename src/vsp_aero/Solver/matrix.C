@@ -32,6 +32,28 @@ MATRIX::MATRIX(void)
 #                                                                              #
 ##############################################################################*/
 
+MATRIX::MATRIX(int size)
+{
+
+    // Allocate space for the matrix
+
+    row = size;
+    col = 1;
+
+    coef = new double[row*col];
+
+    // Initialize to zero
+
+    (*this) = (double) 0.;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                             MATRIX Constructor                               #
+#                                                                              #
+##############################################################################*/
+
 MATRIX::MATRIX(int row_, int col_)
 {
 
@@ -40,11 +62,11 @@ MATRIX::MATRIX(int row_, int col_)
     row = row_;
     col = col_;
 
-    coef = new VSPAERO_DOUBLE[row*col];
+    coef = new double[row*col];
 
     // Initialize to zero
 
-    (*this) = (VSPAERO_DOUBLE) 0.;
+    (*this) = (double) 0.;
 
 }
 
@@ -81,7 +103,7 @@ MATRIX::MATRIX(const MATRIX &mat)
     row = mat.row;
     col = mat.col;
 
-    coef = new VSPAERO_DOUBLE[row*col];
+    coef = new double[row*col];
 
     // Copy contents of mat
 
@@ -108,7 +130,7 @@ MATRIX &MATRIX::operator=(const MATRIX &mat)
 
     if ( col != mat.col || row != mat.row ) {
 
-       PRINTF("Error: Attempt to set equal two matrices of different size! \n");
+       printf("Error: Attempt to set equal two matrices of different size! \n");
 
        exit(1);
 
@@ -134,7 +156,7 @@ MATRIX &MATRIX::operator=(const MATRIX &mat)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX& MATRIX::operator=(VSPAERO_DOUBLE scalar)
+MATRIX& MATRIX::operator=(double scalar)
 {
 
     int i;
@@ -167,7 +189,7 @@ MATRIX operator+(const MATRIX &mat1, const MATRIX &mat2)
 
     if ( A.col != mat2.col || A.row != mat2.row ) {
 
-       PRINTF("Error: Attempt to add two matrices of different size! \n");
+       printf("Error: Attempt to add two matrices of different size! \n");
 
        exit(1);
 
@@ -224,7 +246,7 @@ MATRIX operator-(const MATRIX &mat1, const MATRIX &mat2)
 
     if ( A.col != mat2.col || A.row != mat2.row ) {
 
-       PRINTF("Error: Attempt to subtract two matrices of different size! \n");
+       printf("Error: Attempt to subtract two matrices of different size! \n");
 
        exit(1);
 
@@ -271,7 +293,7 @@ void MatMinusMat(const MATRIX &mat1, const MATRIX &mat2, MATRIX &A)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX operator+(const MATRIX &mat, VSPAERO_DOUBLE scalar)
+MATRIX operator+(const MATRIX &mat, double scalar)
 {
 
     int i;
@@ -295,7 +317,7 @@ MATRIX operator+(const MATRIX &mat, VSPAERO_DOUBLE scalar)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX operator+(VSPAERO_DOUBLE scalar, const MATRIX &mat)
+MATRIX operator+(double scalar, const MATRIX &mat)
 {
 
     return (operator+(mat,scalar));
@@ -308,7 +330,7 @@ MATRIX operator+(VSPAERO_DOUBLE scalar, const MATRIX &mat)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX operator-(const MATRIX &mat, VSPAERO_DOUBLE scalar)
+MATRIX operator-(const MATRIX &mat, double scalar)
 {
 
     int i;
@@ -332,7 +354,7 @@ MATRIX operator-(const MATRIX &mat, VSPAERO_DOUBLE scalar)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX operator-(VSPAERO_DOUBLE scalar, const MATRIX &mat)
+MATRIX operator-(double scalar, const MATRIX &mat)
 {
 
     return (operator-(mat,scalar));
@@ -355,7 +377,7 @@ MATRIX operator*(const MATRIX &mat1, const MATRIX &mat2)
 
     if ( mat1.col != mat2.row ) {
 
-       PRINTF("Error: Attempt to multiply multiply matrices of wrong size! \n");
+       printf("Error: Attempt to multiply multiply matrices of wrong size! \n");
 
        exit(1);
 
@@ -418,7 +440,7 @@ void MatTimesMat(const MATRIX &mat1, const MATRIX &mat2, MATRIX &A)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX operator*(VSPAERO_DOUBLE scalar, const MATRIX &mat)
+MATRIX operator*(double scalar, const MATRIX &mat)
 {
 
     int i;
@@ -441,7 +463,7 @@ MATRIX operator*(VSPAERO_DOUBLE scalar, const MATRIX &mat)
 ##############################################################################*/
 
 
-MATRIX operator*(const MATRIX &mat, VSPAERO_DOUBLE scalar)
+MATRIX operator*(const MATRIX &mat, double scalar)
 {
 
     return operator*(scalar,mat);
@@ -455,7 +477,7 @@ MATRIX operator*(const MATRIX &mat, VSPAERO_DOUBLE scalar)
 ##############################################################################*/
 
 
-void MatTimesScalar(const MATRIX &mat, VSPAERO_DOUBLE scalar, MATRIX &A)
+void MatTimesScalar(const MATRIX &mat, double scalar, MATRIX &A)
 {
 
     int i;
@@ -478,14 +500,14 @@ MATRIX operator/(const MATRIX &mat1, const MATRIX &mat2)
 {
 
     int i, j;
-    VSPAERO_DOUBLE *vec;
+    double *vec;
     MATRIX A(mat2), B(mat2.row,mat1.col);
 
 #ifdef MATRIX_DEBUG
 
     if ( mat2.col != mat1.row ) {
 
-       PRINTF("Error: Attempt to divide non-similar matrices! \n");
+       printf("Error: Attempt to divide non-similar matrices! \n");
 
        exit(1);
 
@@ -493,7 +515,7 @@ MATRIX operator/(const MATRIX &mat1, const MATRIX &mat2)
 
     if ( mat2.col != mat2.row ) {
 
-       PRINTF("Error: Attempt to divide by non-square matrix! \n");
+       printf("Error: Attempt to divide by non-square matrix! \n");
 
        exit(1);
 
@@ -507,7 +529,7 @@ MATRIX operator/(const MATRIX &mat1, const MATRIX &mat2)
 
     // Now solve for mat1/mat2 one column at a time
 
-    vec = new VSPAERO_DOUBLE[mat1.row + 1];
+    vec = new double[mat1.row + 1];
 
     for ( j = 1 ; j <= mat1.col ; j++ ) {
 
@@ -543,14 +565,14 @@ void MatDivMat(const MATRIX &mat1, const MATRIX &mat2, MATRIX &B)
 {
 
     int i, j;
-    VSPAERO_DOUBLE *vec;
+    double *vec;
     MATRIX A(mat2);
 
 #ifdef MATRIX_DEBUG
 
     if ( mat2.col != mat1.row ) {
 
-       PRINTF("Error: Attempt to divide non-similar matrices! \n");
+       printf("Error: Attempt to divide non-similar matrices! \n");
 
        exit(1);
 
@@ -558,7 +580,7 @@ void MatDivMat(const MATRIX &mat1, const MATRIX &mat2, MATRIX &B)
 
     if ( mat2.col != mat2.row ) {
 
-       PRINTF("Error: Attempt to divide by non-square matrix! \n");
+       printf("Error: Attempt to divide by non-square matrix! \n");
 
        exit(1);
 
@@ -572,7 +594,7 @@ void MatDivMat(const MATRIX &mat1, const MATRIX &mat2, MATRIX &B)
 
     // Now solve for mat1/mat2 one column at a time
 
-    vec = new VSPAERO_DOUBLE[mat1.row + 1];
+    vec = new double[mat1.row + 1];
 
     for ( j = 1 ; j <= mat1.col ; j++ ) {
 
@@ -602,7 +624,7 @@ void MatDivMat(const MATRIX &mat1, const MATRIX &mat2, MATRIX &B)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX operator/(VSPAERO_DOUBLE scalar, const MATRIX &mat)
+MATRIX operator/(double scalar, const MATRIX &mat)
 {
 
     MATRIX A(mat.row,mat.col);
@@ -611,7 +633,7 @@ MATRIX operator/(VSPAERO_DOUBLE scalar, const MATRIX &mat)
 
     if ( mat.row != 1 ||  mat.col != 1 ) {
 
-       PRINTF("Division of a scalar by a matrix only defined for 1x1 matrices!\n");
+       printf("Division of a scalar by a matrix only defined for 1x1 matrices!\n");
 
        exit(1);
 
@@ -633,14 +655,14 @@ MATRIX operator/(VSPAERO_DOUBLE scalar, const MATRIX &mat)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX operator/(const MATRIX &mat, VSPAERO_DOUBLE scalar)
+MATRIX operator/(const MATRIX &mat, double scalar)
 {
 
     int i;
-    VSPAERO_DOUBLE divisor;
+    double divisor;
     MATRIX A(mat.row,mat.col);
 
-    divisor = ( (VSPAERO_DOUBLE) 1.)/scalar;
+    divisor = ( (double) 1.)/scalar;
 
     for ( i = 1 ; i <= A.row*A.col ; i++ ) {
 
@@ -658,13 +680,13 @@ MATRIX operator/(const MATRIX &mat, VSPAERO_DOUBLE scalar)
 #                                                                              #
 ##############################################################################*/
 
-void MatDivScalar(const MATRIX &mat, VSPAERO_DOUBLE scalar, MATRIX &A)
+void MatDivScalar(const MATRIX &mat, double scalar, MATRIX &A)
 {
 
     int i;
-    VSPAERO_DOUBLE divisor;
+    double divisor;
 
-    divisor = ( (VSPAERO_DOUBLE) 1.)/scalar;
+    divisor = ( (double) 1.)/scalar;
 
     for ( i = 1 ; i <= A.row*A.col ; i++ ) {
 
@@ -689,7 +711,7 @@ MATRIX operator%(const MATRIX &mat1, const MATRIX &mat2)
 
     if ( mat1.col != mat2.row ) {
 
-       PRINTF("Error: Attempt to post - divide non-similar matrices! \n");
+       printf("Error: Attempt to post - divide non-similar matrices! \n");
 
        exit(1);
 
@@ -697,7 +719,7 @@ MATRIX operator%(const MATRIX &mat1, const MATRIX &mat2)
 
     if ( mat2.col != mat2.row ) {
 
-       PRINTF("Error: Attempt to post - divide by non-square matrix! \n");
+       printf("Error: Attempt to post - divide by non-square matrix! \n");
 
        exit(1);
 
@@ -779,7 +801,7 @@ MATRIX& MATRIX::operator-=(const MATRIX &mat)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX& MATRIX::operator*=(VSPAERO_DOUBLE scalar)
+MATRIX& MATRIX::operator*=(double scalar)
 {
 
     (*this) = scalar * (*this);
@@ -794,7 +816,7 @@ MATRIX& MATRIX::operator*=(VSPAERO_DOUBLE scalar)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX& MATRIX::operator/=(VSPAERO_DOUBLE scalar)
+MATRIX& MATRIX::operator/=(double scalar)
 {
 
     (*this) = (*this) / scalar;
@@ -809,7 +831,7 @@ MATRIX& MATRIX::operator/=(VSPAERO_DOUBLE scalar)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX& MATRIX::operator+=(VSPAERO_DOUBLE scalar)
+MATRIX& MATRIX::operator+=(double scalar)
 {
 
     (*this) = (*this) + scalar;
@@ -824,7 +846,7 @@ MATRIX& MATRIX::operator+=(VSPAERO_DOUBLE scalar)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX& MATRIX::operator-=(VSPAERO_DOUBLE scalar)
+MATRIX& MATRIX::operator-=(double scalar)
 {
 
     (*this) = (*this) - scalar;
@@ -848,7 +870,7 @@ void MATRIX::size(int size)
     row = size;
     col = 1;
 
-    coef = new VSPAERO_DOUBLE[row*col];
+    coef = new double[row*col];
 
 }
 
@@ -866,7 +888,7 @@ void MATRIX::size(int row_, int col_)
     row = row_;
     col = col_;
 
-    coef = new VSPAERO_DOUBLE[2*row*col];
+    coef = new double[2*row*col];
 
 }
 
@@ -880,14 +902,14 @@ MATRIX MATRIX::inverse(void)
 {
 
     int i, j, neq;
-    VSPAERO_DOUBLE *vec;
+    double *vec;
     MATRIX A_inv(*this), B(this->row,this->col);
 
 #ifdef MATRIX_DEBUG
 
     if ( A_inv.row != A_inv.col ) {
 
-       PRINTF("Inverse of non-square matrix not defined! \n");
+       printf("Inverse of non-square matrix not defined! \n");
 
        exit(1);
 
@@ -903,7 +925,7 @@ MATRIX MATRIX::inverse(void)
 
     neq = A_inv.row;
 
-    vec = new VSPAERO_DOUBLE[neq + 1];
+    vec = new double[neq + 1];
 
     for ( j = 1 ; j <= neq ; j++ ) {
 
@@ -941,7 +963,7 @@ void MATRIX::inverse(MATRIX &A_inv, MATRIX &B)
 {
 
     int i, j, neq;
-    VSPAERO_DOUBLE *vec;
+    double *vec;
 
     A_inv = *this;
 
@@ -949,7 +971,7 @@ void MATRIX::inverse(MATRIX &A_inv, MATRIX &B)
 
     if ( A_inv.row != A_inv.col ) {
 
-       PRINTF("Inverse of non-square matrix not defined! \n");
+       printf("Inverse of non-square matrix not defined! \n");
 
        exit(1);
 
@@ -965,7 +987,7 @@ void MATRIX::inverse(MATRIX &A_inv, MATRIX &B)
 
     neq = A_inv.row;
 
-    vec = new VSPAERO_DOUBLE[neq + 1];
+    vec = new double[neq + 1];
 
     for ( j = 1 ; j <= neq ; j++ ) {
 
@@ -1091,8 +1113,8 @@ void MATRIX::LU_pivot(int *indx)
 {
 
     int i, j, k, neq, imax;
-    VSPAERO_DOUBLE big,dum,sum,d,tiny;
-    VSPAERO_DOUBLE *ans;
+    double big,dum,sum,d,tiny;
+    double *ans;
 
     imax = 0;
 
@@ -1103,7 +1125,7 @@ void MATRIX::LU_pivot(int *indx)
 
     neq = row;
 
-    ans = new VSPAERO_DOUBLE[neq + 1];
+    ans = new double[neq + 1];
 
     d = 1.0;
 
@@ -1124,13 +1146,13 @@ void MATRIX::LU_pivot(int *indx)
 
     if (big == 0.0) {
 
-        PRINTF("Singular matrix in LU_pivot! \n");
+        printf("Singular matrix in LU_pivot! \n");
 
             exit(1);
 
     }
 
-    ans[i] = ((VSPAERO_DOUBLE)1.0) / big;
+    ans[i] = ((double)1.0) / big;
 
     }
 
@@ -1201,13 +1223,13 @@ void MATRIX::LU_pivot(int *indx)
 
     if (j != neq) {
 
-        dum = ((VSPAERO_DOUBLE)1.0) / ( (*this)(j,j) );
+        dum = ((double)1.0) / ( (*this)(j,j) );
 
         for (i = j+1 ; i <= neq ; i++) {
 
             (*this)(i,j) *= dum;
 
-            //PRINTF("%f  ",(*this)(i,j));
+            //printf("%f  ",(*this)(i,j));
 
         }
     //print("\n");
@@ -1225,7 +1247,7 @@ void MATRIX::LU_pivot(int *indx)
 #                                                                              #
 ##############################################################################*/
 
-void MATRIX::solve(VSPAERO_DOUBLE *vec)
+void MATRIX::solve(double *vec)
 {
 
     int i, j, neq;
@@ -1272,7 +1294,7 @@ void MATRIX::solve_vdk(MATRIX &vec)
 {
 
     int i, j, num, neq, ip, ii, *indx;
-    VSPAERO_DOUBLE sum;
+    double sum;
     MATRIX A_inv(*this);
 
     // Find LU decompostion of A
@@ -1289,7 +1311,7 @@ void MATRIX::solve_vdk(MATRIX &vec)
 
     A_inv.LU_pivot(indx);
 
-    //for (i = 1 ; i <= neq ; i++) {PRINTF("indx[%d] = %d\n",i,indx[i]);}
+    //for (i = 1 ; i <= neq ; i++) {printf("indx[%d] = %d\n",i,indx[i]);}
 
     //A_inv.print();
 
@@ -1311,7 +1333,7 @@ void MATRIX::solve_vdk(MATRIX &vec)
 
        vec(ip) = vec(i);
 
-       //PRINTF("vec[%d] = %f -> indx[%d] = %d\n",ip,vec(ip),i,indx[i]);
+       //printf("vec[%d] = %f -> indx[%d] = %d\n",ip,vec(ip),i,indx[i]);
 
        if (ii) {
 
@@ -1359,12 +1381,12 @@ void MATRIX::solve_vdk(MATRIX &vec)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX MATRIX::gauss_solve(MATRIX &vec, int max_iters, VSPAERO_DOUBLE toler)
+MATRIX MATRIX::gauss_solve(MATRIX &vec, int max_iters, double toler)
 {
 
     int i, j, neq, iter;
-    VSPAERO_DOUBLE res, delta, max_res;
-    MATRIX x(this->row,1);
+    double res, delta, max_res;
+    MATRIX x(this->row);
 
     // Perform Gauss-Seidel iteration to solve Ax = b
 
@@ -1407,7 +1429,7 @@ MATRIX MATRIX::gauss_solve(MATRIX &vec, int max_iters, VSPAERO_DOUBLE toler)
 
        iter++;
 
-       PRINTF("Iteration %d, Max Res = %f for %d rows \r",iter,max_res,neq);
+       printf("Iteration %d, Max Res = %f for %d rows \r",iter,max_res,neq);
 
        fflush(NULL);
 
@@ -1422,7 +1444,7 @@ MATRIX MATRIX::gauss_solve(MATRIX &vec, int max_iters, VSPAERO_DOUBLE toler)
 #                                                                              #
 ##############################################################################*/
 
-void MATRIX::diagonal(VSPAERO_DOUBLE val)
+void MATRIX::diagonal(double val)
 {
 
     int i;
@@ -1431,7 +1453,7 @@ void MATRIX::diagonal(VSPAERO_DOUBLE val)
 
     if ( row != col ) {
 
-       PRINTF("Non-square diagonal matrices not defined! \n");
+       printf("Non-square diagonal matrices not defined! \n");
 
        exit(1);
 
@@ -1462,37 +1484,37 @@ void MATRIX::print(char *name)
 
     // Write out a title
 
-    if ( strcmp(name,"") != 0 ) PRINTF("%s\n",name);
+    if ( strcmp(name,"") != 0 ) printf("%s\n",name);
 
     // Write row and column numbers
 
     if ( col > 1 ) {
 
-       PRINTF("          ");
+       printf("          ");
 
        for ( j = 1 ; j <= col ; j++ ) {
 
-          PRINTF("%10d   ",j);
+          printf("%10d   ",j);
 
        }
 
     }
 
-    PRINTF("\n");
+    printf("\n");
 
     // Print out the matrix contents
 
     for ( i = 1 ; i <= row ; i++ ) {
 
-       PRINTF("%10d   ",i);
+       printf("%10d   ",i);
 
        for ( j = 1 ; j <= col ; j++ ) {
 
-          PRINTF("%10.5f   ",(*this)(i,j));
+          printf("%10.5f   ",(*this)(i,j));
 
        }
 
-       PRINTF("\n");
+       printf("\n");
 
     }
 
@@ -1509,7 +1531,7 @@ void MATRIX::print(void)
 
     // Just use normal print, but send a null string
 
-    PRINTF("");
+    print("");
 
 }
 

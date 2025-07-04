@@ -135,8 +135,8 @@ private:
     int Wing_;
     int Rotor_;
     
-    VSPAERO_DOUBLE *Function_;
-    VSPAERO_DOUBLE *FunctionAverage_;
+    double *Function_;
+    double *FunctionAverage_;
     double *UserVector_;
     
 public:
@@ -267,19 +267,19 @@ public:
     
     /** Return value of the single scalar function **/
     
-    VSPAERO_DOUBLE &Function(void) { return Function_[1]; };    
+    double &Function(void) { return Function_[1]; };    
     
     /** Return value of the i'th scalar function ... this may be a mix of time and space **/
     
-    VSPAERO_DOUBLE &Function(int i) { return Function_[i]; };
+    double &Function(int i) { return Function_[i]; };
     
     /** Return average value of the single scalar function for an unsteady analysis **/
 
-    VSPAERO_DOUBLE &FunctionAverage(void) { return FunctionAverage_[1]; };    
+    double &FunctionAverage(void) { return FunctionAverage_[1]; };    
     
     /** Return average value of the i'th scalar function  **/
     
-    VSPAERO_DOUBLE &FunctionAverage(int i) { return FunctionAverage_[i]; };
+    double &FunctionAverage(int i) { return FunctionAverage_[i]; };
     
     /** User pass in vector for chain rule calculations **/
          
