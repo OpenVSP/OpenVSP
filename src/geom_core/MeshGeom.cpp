@@ -1897,6 +1897,13 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         MergeRemoveOpenMeshes( m_TMeshVec, &info, deleteopen );
     }
 
+    //==== Scale To 10 Units ====//
+    UpdateBBox();
+    m_LastScale = 1.0;
+    m_Scale = 1000.0 / m_BBox.GetLargestDist();
+    // m_Scale = 1.0;
+    ApplyScale();
+
     Results* res = nullptr;
     if ( !degen )
     {
@@ -1929,13 +1936,6 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         res->Add( new NameValData( "Total_Num_Tris", numTris, "Number of starting tris." ) );
         res->Add( new NameValData( "Mesh_GeomID", this->GetID(), "GeomID of MeshGeom created." ) );
     }
-
-    //==== Scale To 10 Units ====//
-    UpdateBBox();
-    m_LastScale = 1.0;
-    m_Scale = 1000.0 / m_BBox.GetLargestDist();
-    // m_Scale = 1.0;
-    ApplyScale();
 
     if ( !degen )
     {
