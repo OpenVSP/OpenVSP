@@ -293,7 +293,6 @@ public:
     void ClearCpSliceVec();
     int GetCurrentCpSliceIndex()                           { return m_CurrentCpSliceIndex; }
     void SetCurrentCpSliceIndex( int index )               { m_CurrentCpSliceIndex = index; }
-    int GetCpSliceAnalysisType()                           { return m_CpSliceAnalysisType; }
 
     // Rotor Disk Functionality
     void AddRotorDisk();
@@ -511,19 +510,19 @@ protected:
     bool m_SolverProcessKill;
 
     // helper functions for VSPAERO files
-    void ReadHistoryFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, double recref );
+    void ReadHistoryFile( const string &filename, vector <string> &res_id_vector, double recref );
     void ReadPolarFile( const string &filename, vector <string> &res_id_vector, double recref );
-    void ReadLoadFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
-    void ReadStabFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType );
+    void ReadLoadFile( const string &filename, vector <string> &res_id_vector );
+    void ReadStabFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_STABILITY_TYPE stabilityType );
     static vector <string> ReadDelimLine( FILE * fp, char * delimiters );
     static bool CheckForCaseHeader( const std::vector<string> &headerStr );
     static bool CheckForResultHeader( const std::vector < string > &headerstr );
-    static int ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    static int ReadVSPAEROCaseHeader( Results * res, FILE * fp );
     void ReadSetupFile(); // Read the VSPAERO setup file to identify VSPAERO inputs needed to generate existing VSPAERO results
     void ReadSliceFile( const string &filename, vector <string> &res_id_vector );
     void ReadGroupResFile( const string &filename, vector <string> &res_id_vector, const string &group_name = "" );
     void ReadRotorResFile( const string &filename, vector <string> &res_id_vector, const string &group_name = "" );
-    static void AddResultHeader( const string &res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    static void AddResultHeader( const string &res_id, double mach, double alpha, double beta );
 
     DrawObj m_HighlightDrawObj;
 
@@ -552,8 +551,6 @@ private:
     int m_CurrentCSGroupIndex;
     int m_CurrentCpSliceIndex;
     int m_CurrentUnsteadyGroupIndex;
-
-    int m_CpSliceAnalysisType;
 
     bool m_Verbose;
 

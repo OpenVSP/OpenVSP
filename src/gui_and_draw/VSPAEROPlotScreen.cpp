@@ -2411,14 +2411,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                     Results* res = ResultsMgr.FindResultsPtr( m_CpSliceCutSelectedResultIDs[iCut] );
                     if ( res )
                     {
-                        if ( VSPAEROMgr.GetCpSliceAnalysisType() == vsp::VORTEX_LATTICE )
-                        {
-                            tResultDataPtr = res->FindPtr( "dCp" );
-                        }
-                        else if ( VSPAEROMgr.GetCpSliceAnalysisType() == vsp::PANEL )
-                        {
-                            tResultDataPtr = res->FindPtr( "Cp" );
-                        }
+                        tResultDataPtr = res->FindPtr( "Cp" );
 
                         if ( tResultDataPtr )
                         {
@@ -2513,11 +2506,6 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
         }
 
         string y_label = "CP";
-
-        if ( VSPAEROMgr.GetCpSliceAnalysisType() == vsp::VORTEX_LATTICE )
-        {
-            y_label = "d" + y_label;
-        }
 
         if ( VSPAEROMgr.m_CpSliceYAxisFlipFlag() )
         {

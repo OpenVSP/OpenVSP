@@ -1641,7 +1641,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
 
     if ( FileExist( m_HistoryFile ) )
     {
-        ReadHistoryFile( m_HistoryFile, res_id_vec, ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod(), m_ReCrefStart() );
+        ReadHistoryFile( m_HistoryFile, res_id_vec, m_ReCrefStart() );
     }
     else
     {
@@ -1666,7 +1666,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
 
     if ( FileExist( m_LoadFile ) )
     {
-        ReadLoadFile( m_LoadFile, res_id_vec, ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod() );
+        ReadLoadFile( m_LoadFile, res_id_vec );
     }
     else
     {
@@ -1698,7 +1698,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
 
         if ( FileExist( stab_file ) )
         {
-            ReadStabFile( stab_file, res_id_vec, ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod(), ( vsp::VSPAERO_STABILITY_TYPE )m_PreviousStabilityType );
+            ReadStabFile( stab_file, res_id_vec, ( vsp::VSPAERO_STABILITY_TYPE )m_PreviousStabilityType );
         }
         else
         {
@@ -1911,16 +1911,12 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         vector < string > unsteady_group_name_vec = m_UnsteadyGroupResNames;
 
         bool unsteady_flag = m_RotateBladesFlag.Get();
-        vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
         vsp::VSPAERO_STABILITY_TYPE stabilityType = ( vsp::VSPAERO_STABILITY_TYPE )m_StabilityType.Get();
         bool noise_flag = m_NoiseCalcFlag.Get();
         int noise_type = m_NoiseCalcType.Get();
         int noise_unit = m_NoiseUnits.Get();
 
         double recref = m_ReCrefStart.Get();
-
-        // Save analysis type for Cp Slicer
-        m_CpSliceAnalysisType = analysisMethod;
 
         int ncpu = m_NCPU.Get();
 
@@ -2102,18 +2098,18 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         }
 
         //====== Read in all of the results ======//
-        ReadHistoryFile( historyFileName, res_id_vector, analysisMethod, recref );
+        ReadHistoryFile( historyFileName, res_id_vector, recref );
 
         if ( stabilityType == vsp::STABILITY_OFF )
         {
             ReadPolarFile( polarFileName, res_id_vector, recref ); // Must be after *.history file is read to generate results for multiple ReCref values
         }
 
-        ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
+        ReadLoadFile( loadFileName, res_id_vector );
 
         if ( stabilityType != vsp::STABILITY_OFF )
         {
-            ReadStabFile( stabFileName, res_id_vector, analysisMethod, stabilityType );      //*.STAB stability coeff file
+            ReadStabFile( stabFileName, res_id_vector, stabilityType );      //*.STAB stability coeff file
         }
 
         // CpSlice *.adb File and slices are defined
@@ -2163,13 +2159,13 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
     }
 }
 
-void VSPAEROMgrSingleton::AddResultHeader( const string &res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+void VSPAEROMgrSingleton::AddResultHeader( const string &res_id, double mach, double alpha, double beta )
 {
     // Add Flow Condition header to each result
     Results * res = ResultsMgr.FindResultsPtr( res_id );
     if ( res )
     {
-        res->Add( new NameValData( "AnalysisMethod", analysisMethod, "Flag to indicate analysis method (thin vs. thick)." ) );
+
     }
 }
 
@@ -2193,14 +2189,13 @@ ProcessUtil* VSPAEROMgrSingleton::GetSolverProcess()
 
 /*******************************************************
 Read .HISTORY file output from VSPAERO
-analysisMethod is passed in because the parm it is set by might change by the time we are done calculating the solution
 See: VSP_Solver.C in vspaero project
 line 4351 - void VSP_SOLVER::OutputStatusFile(int Type)
 line 4407 - void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
 TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 *******************************************************/
-void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, double recref )
+void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <string> &res_id_vector, double recref )
 {
     //TODO return success or failure
     FILE *fp = nullptr;
@@ -2229,7 +2224,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
             res = ResultsMgr.CreateResults( "VSPAERO_History", "VSPAERO History file results." );
             res_id_vector.push_back( res->GetID() );
 
-            if ( ReadVSPAEROCaseHeader( res, fp, analysisMethod ) != 0 )
+            if ( ReadVSPAEROCaseHeader( res, fp ) != 0 )
             {
                 // Failed to read the case header
                 fprintf( stderr, "ERROR %d: Could not read case header in VSPAERO file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_READ_FAILURE, m_StabFile.c_str(), __FILE__, __LINE__ );
@@ -2697,7 +2692,7 @@ line 2851 - void VSP_SOLVER::CalculateSpanWiseLoading(void)
 TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 *******************************************************/
-void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> &res_id_vector )
 {
     FILE *fp = nullptr;
     bool read_success = false;
@@ -2727,7 +2722,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             res = ResultsMgr.CreateResults( "VSPAERO_Load", "VSPAERO load distribution lod file results." );
             res_id_vector.push_back( res->GetID() );
 
-            if ( ReadVSPAEROCaseHeader( res, fp, analysisMethod ) != 0 )
+            if ( ReadVSPAEROCaseHeader( res, fp ) != 0 )
             {
                 // Failed to read the case header
                 fprintf( stderr, "ERROR %d: Could not read case header in VSPAERO file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_READ_FAILURE, m_StabFile.c_str(), __FILE__, __LINE__ );
@@ -2935,7 +2930,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
 Read .STAB file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType )
+void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_STABILITY_TYPE stabilityType )
 {
     FILE *fp = nullptr;
     bool read_success = false;
@@ -2964,7 +2959,7 @@ void VSPAEROMgrSingleton::ReadStabFile( const string &filename, vector <string> 
             res->Add( new NameValData( "StabilityType", stabilityType, "Stability and control mode enum." ) );
             res_id_vector.push_back( res->GetID() );
 
-            if ( ReadVSPAEROCaseHeader( res, fp, analysisMethod ) != 0 )
+            if ( ReadVSPAEROCaseHeader( res, fp ) != 0 )
             {
                 // Failed to read the case header
                 fprintf( stderr, "ERROR %d: Could not read case header in VSPAERO file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_READ_FAILURE, m_StabFile.c_str(), __FILE__, __LINE__ );
@@ -3150,7 +3145,7 @@ bool VSPAEROMgrSingleton::CheckForResultHeader( const std::vector<string> &heade
     return false;
 }
 
-int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp )
 {
     // check input arguments
     if ( res == nullptr )
@@ -3214,7 +3209,7 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::V
                 // check if the information needed for the result header has been read in
                 if ( mach_found && alpha_found && beta_found && needs_header )
                 {
-                    AddResultHeader( res->GetID(), current_mach, current_alpha, current_beta, analysisMethod );
+                    AddResultHeader( res->GetID(), current_mach, current_alpha, current_beta );
                     needs_header = false;
                 }
             }
@@ -4058,14 +4053,7 @@ void VSPAEROMgrSingleton::ReadSliceFile( const string &filename, vector <string>
                 res->Add( new NameValData( "Y_Loc", y_data_vec, "Slice data Y vector." ) );
                 res->Add( new NameValData( "Z_Loc", z_data_vec, "Slice data Z vector." ) );
 
-                if ( m_CpSliceAnalysisType == vsp::VORTEX_LATTICE )
-                {
-                    res->Add( new NameValData( "dCp", Cp_data_vec, "Slice delta Cp." ) );
-                }
-                else if ( m_CpSliceAnalysisType == vsp::PANEL )
-                {
-                    res->Add( new NameValData( "Cp", Cp_data_vec, "Slice Cp." ) );
-                }
+                res->Add( new NameValData( "Cp", Cp_data_vec, "Slice Cp or delta Cp." ) );
             } // end of cut data
         }
     }
