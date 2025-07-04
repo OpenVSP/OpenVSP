@@ -1157,18 +1157,15 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     // Cleanup previously created meshGeom IDs created from VSPAEROMgr
     Geom* last_mesh = veh->FindGeom( m_LastPanelMeshGeomId );
+
     vector < string > geom_vec = veh->GetGeomSet( set );
-    if ( last_mesh && m_AnalysisMethod() == vsp::VORTEX_LATTICE && !m_AlternateInputFormatFlag() )
-    {
-        veh->ShowOnlySet( set );
-    }
 
     if ( !last_mesh && geom_vec.size() == 1 )
     {
         // Support mesh generated outside of VSPAERO if it is the only Geom in the set
         Geom* geom = veh->FindGeom( geom_vec[0] );
-        // Can't generate VLM VSPGeom file from existing MeshGeom (i.e. imported *.tri file)
-        if ( geom->GetType().m_Type == MESH_GEOM_TYPE && !( m_AlternateInputFormatFlag() && m_AnalysisMethod() == vsp::VORTEX_LATTICE ) )
+
+        if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
         {
             last_mesh = geom;
             m_LastPanelMeshGeomId = geom_vec[0];
@@ -1177,37 +1174,15 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     
     if ( last_mesh && ( geom_vec.size() != 1 && last_mesh->GetID() != geom_vec[0] ) )
     {
-        if ( m_AnalysisMethod() == vsp::PANEL )
-        {
-            // Remove the previous mesh, which has been updated
-            veh->DeleteGeomVec( vector< string >{ m_LastPanelMeshGeomId } );
-            last_mesh = nullptr;
-        }
-        else // VLM
-        {
-            if ( m_AlternateInputFormatFlag() )
-            {
-                // Remove the previous mesh, which has been updated
-                veh->DeleteGeomVec( vector< string >{ m_LastPanelMeshGeomId } );
-                last_mesh = nullptr;
-            }
-        }
+        // Remove the previous mesh, which has been updated
+        veh->DeleteGeomVec( vector< string >{ m_LastPanelMeshGeomId } );
+        last_mesh = nullptr;
     }
 
-    m_DegenGeomVec.clear();
-    // Don't pass mode parameters here as they've already been applied to 'set'.
-    veh->CreateDegenGeom( set, /* useMode */ false, /* modeID */ "" );
-    m_DegenGeomVec = veh->GetDegenGeomVec();
 
     //Update information derived from the degenerate geometry
     UpdateRotorDisks();
     UpdateCompleteControlSurfVec();
-
-    // record original values
-    bool exptMfile_orig = veh->getExportDegenGeomMFile();
-    bool exptCSVfile_orig = veh->getExportDegenGeomCsvFile();
-    veh->setExportDegenGeomMFile( false );
-    veh->setExportDegenGeomCsvFile( true );
 
     UpdateFilenames();
 
@@ -1218,69 +1193,22 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         halfFlag = 1;
     }
 
-    // Note: while in panel mode the degen file required by vspaero is
-    // dependent on the tri filename and not necessarily what the current
-    // setting is for the vsp::DEGEN_GEOM_CSV_TYPE
-    string degenGeomFile_orig = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
-
-    if ( m_AlternateInputFormatFlag() && m_AnalysisMethod() == vsp::VORTEX_LATTICE )
-    {
-        m_LastPanelMeshGeomId = veh->WriteVSPGeomFile( m_VSPGeomFileFull, vsp::SET_NONE, set, 0 /*subsFlag*/, m_UseMode(), m_ModeID, halfFlag, false, true);
-
-        WaitForFile( m_VSPGeomFileFull );
-        if ( !FileExist( m_VSPGeomFileFull ) )
-        {
-            fprintf( stderr, "WARNING: VSPGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_VSPGeomFileFull.c_str(), __FILE__, __LINE__ );
-        }
-    }
-
-    veh->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE, m_DegenFileFull );
-
-    veh->WriteDegenGeomFile();
-
-    // restore original values
-    veh->setExportDegenGeomMFile( exptMfile_orig );
-    veh->setExportDegenGeomCsvFile( exptCSVfile_orig );
-    veh->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE, degenGeomFile_orig );
-
-    WaitForFile( m_DegenFileFull );
-    if ( !FileExist( m_DegenFileFull ) )
-    {
-        fprintf( stderr, "WARNING: DegenGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_DegenFileFull.c_str(), __FILE__, __LINE__ );
-    }
-
     int mesh_set = set;
 
-    // Generate *.tri geometry file for Panel method
-    if ( m_AnalysisMethod.Get() == vsp::PANEL )
+    // Generate *.vspgeom geometry file for analysis
+    if ( !last_mesh )
     {
-        if ( !last_mesh )
-        {
-            // Compute intersected and trimmed geometry
-            m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( set, halfFlag, 1 /*subsFlag*/, vsp::SET_NONE, false, true );
-            mesh_set = vsp::SET_SHOWN; // Only MeshGeom is shown after geometry is computed
-        }
+        // Compute intersected and trimmed geometry
+        m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag, 1 /*subsFlag*/, vsp::SET_NONE, false, true );
+        mesh_set = vsp::SET_SHOWN; // Only MeshGeom is shown after geometry is computed
+    }
 
-        if ( !m_AlternateInputFormatFlag() )
-        {
-            // Write out mesh to *.vspgeom file. Only the MeshGeom is shown
-            veh->WriteVSPGeomFile( m_VSPGeomFileFull, mesh_set, vsp::SET_NONE, 1 /*subsFlag*/, m_UseMode(), m_ModeID );
-            WaitForFile( m_VSPGeomFileFull );
-            if ( !FileExist( m_VSPGeomFileFull ) )
-            {
-                fprintf( stderr, "WARNING: VSPGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_VSPGeomFileFull.c_str(), __FILE__, __LINE__ );
-            }
-        }
-        else
-        {
-            // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
-            veh->WriteTRIFile( m_CompGeomFileFull, mesh_set, 1 /*subsFlag*/, m_UseMode(), m_ModeID );
-            WaitForFile( m_CompGeomFileFull );
-            if ( !FileExist( m_CompGeomFileFull ) )
-            {
-                fprintf( stderr, "WARNING: CompGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_CompGeomFileFull.c_str(), __FILE__, __LINE__ );
-            }
-        }
+    // Write out mesh to *.vspgeom file. Only the MeshGeom is shown
+    veh->WriteVSPGeomFile( m_VSPGeomFileFull, mesh_set, vsp::SET_NONE, 1 /*subsFlag*/ );
+    WaitForFile( m_VSPGeomFileFull );
+    if ( !FileExist( m_VSPGeomFileFull ) )
+    {
+        fprintf( stderr, "WARNING: VSPGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_VSPGeomFileFull.c_str(), __FILE__, __LINE__ );
     }
 
     // Clear previous results
@@ -1296,33 +1224,9 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         return string();
     }
     res->Add( new NameValData( "GeometrySet", set, "Geometry Set for analysis." ) );
-    res->Add( new NameValData( "AnalysisMethod", m_AnalysisMethod.Get(), "Flag to indicate analysis method (thin vs. thick)." ) );
     res->Add( new NameValData( "DegenGeomFileName", m_DegenFileFull, "Degen geom file name." ) );
-    if ( m_AnalysisMethod.Get() == vsp::PANEL )
-    {
-        if ( m_AlternateInputFormatFlag.Get() )
-        {
-            res->Add( new NameValData( "CompGeomFileName", m_CompGeomFileFull, "CompGeom *.tri file name." ) );
-        }
-        else
-        {
-            res->Add( new NameValData( "VSPGeomFileName", m_VSPGeomFileFull, "CompGeom *.vspgeom file name." ) );
-        }
-        res->Add( new NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId, "MeshGeom GeomID of mesh created in process." ) );
-    }
-    else
-    {
-        if ( m_AlternateInputFormatFlag.Get() )
-        {
-            res->Add( new NameValData( "VSPGeomFileName", m_VSPGeomFileFull, "Thin surface *.vspgeom file name." ) );
-        }
-        else
-        {
-            res->Add( new NameValData( "CompGeomFileName", string(), "No *.tri file written." ) );
-            res->Add( new NameValData( "Mesh_GeomID", string(), "No MeshGeom created." ) );
-        }
-        res->Add( new NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId, "MeshGeom GeomID of mesh created in process." ) );
-    }
+    res->Add( new NameValData( "VSPGeomFileName", m_VSPGeomFileFull, "CompGeom *.vspgeom file name." ) );
+    res->Add( new NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId, "MeshGeom GeomID of mesh created in process." ) );
 
     return res->GetID();
 
