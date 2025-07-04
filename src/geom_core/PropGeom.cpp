@@ -1495,13 +1495,17 @@ void PropGeom::UpdateMainTessVec()
 
 void PropGeom::UpdateMainDegenGeomPreview()
 {
+    m_MainDegenGeomPreviewVec.clear();
+
+    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
+    {
+
     DegenGeom degenGeom;
     CreateDegenGeom( m_BladeSurf, 0, degenGeom, true, 1 );
 
-    int nmain = GetNumMainSurfs();
+    int nblade = m_Nblade();
 
-    m_MainDegenGeomPreviewVec.clear();
-    m_MainDegenGeomPreviewVec.resize( nmain, degenGeom );
+    m_MainDegenGeomPreviewVec.resize( nblade, degenGeom );
 
     double rev = 1.0;
     if ( m_ReverseFlag() )
@@ -1511,7 +1515,7 @@ void PropGeom::UpdateMainDegenGeomPreview()
 
     Matrix4d rigid;
     Matrix4d rot;
-    for ( int i = 0; i < m_Nblade(); i++ )
+    for ( int i = 0; i < nblade; i++ )
     {
         if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
         {
@@ -1531,6 +1535,8 @@ void PropGeom::UpdateMainDegenGeomPreview()
 
             m_MainDegenGeomPreviewVec[i].Transform( rot );
         }
+    }
+
     }
 }
 
