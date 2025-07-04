@@ -827,6 +827,7 @@ vector< TMesh* > WireGeom::CreateTMeshVec() const
     }
 
     TMesh*  tMesh = new TMesh();
+    int iQuad = 0;
     //==== Convert CrossSections to Triangles ====//
     for ( int i = 1 ; i < num_cross ; i++ )
     {
@@ -834,14 +835,15 @@ vector< TMesh* > WireGeom::CreateTMeshVec() const
         {
             if ( m_InvertFlag() ^ m_OtherInvertFlag ) // Bitwise XOR
             {
-                tMesh->AddTri( m_XFormPts[i - 1][j - 1], m_XFormPts[i][j], m_XFormPts[i][j - 1] );
-                tMesh->AddTri( m_XFormPts[i - 1][j - 1], m_XFormPts[i - 1][j], m_XFormPts[i][j] );
+                tMesh->AddTri( m_XFormPts[ i - 1 ][ j - 1 ], m_XFormPts[ i ][ j ], m_XFormPts[ i ][ j - 1 ], iQuad );
+                tMesh->AddTri( m_XFormPts[ i - 1 ][ j - 1 ], m_XFormPts[ i - 1 ][ j ], m_XFormPts[ i ][ j ], iQuad );
             }
             else
             {
-                tMesh->AddTri( m_XFormPts[i - 1][j - 1], m_XFormPts[i][j - 1], m_XFormPts[i][j] );
-                tMesh->AddTri( m_XFormPts[i - 1][j - 1], m_XFormPts[i][j], m_XFormPts[i - 1][j] );
+                tMesh->AddTri( m_XFormPts[ i - 1 ][ j - 1 ], m_XFormPts[ i ][ j - 1 ], m_XFormPts[ i ][ j ], iQuad );
+                tMesh->AddTri( m_XFormPts[ i - 1 ][ j - 1 ], m_XFormPts[ i ][ j ], m_XFormPts[ i - 1 ][ j ], iQuad );
             }
+            iQuad++;
         }
     }
     tMesh->LoadGeomAttributes( this );

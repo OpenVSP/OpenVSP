@@ -844,7 +844,7 @@ void SSLineSeg::AddToTMesh( TMesh* tmesh ) const
     }
 
     // Build triangles on that plane
-
+    int iQuad = 0;
     for ( c = 0 ; c < ( int )pnt_mesh.size() - 1 ; c++ )
     {
         for ( cz = 0 ; cz < ( int )pnt_mesh[c].size() - 1 ; cz ++ )
@@ -864,7 +864,7 @@ void SSLineSeg::AddToTMesh( TMesh* tmesh ) const
             {
                 norm = cross( d21, d01 );
                 norm.normalize();
-                tmesh->AddUWTri( v0, v1, v2, norm );
+                tmesh->AddUWTri( v0, v1, v2, norm, iQuad );
             }
 
             d03 = v0 - v3;
@@ -873,8 +873,9 @@ void SSLineSeg::AddToTMesh( TMesh* tmesh ) const
             {
                 norm = cross( d03, d23 );
                 norm.normalize();
-                tmesh->AddUWTri( v0, v2, v3, norm );
+                tmesh->AddUWTri( v0, v2, v3, norm, iQuad );
             }
+            iQuad++;
         }
     }
 }

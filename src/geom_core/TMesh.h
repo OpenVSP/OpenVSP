@@ -355,6 +355,7 @@ public:
     vector<int> m_Tags;
     double m_Density;
     int m_InvalidFlag;
+    int m_iQuad;
 
     TEdge* m_E0;
     TEdge* m_E1;
@@ -455,13 +456,13 @@ public:
     virtual void FlipNormals();
     virtual void Transform( const Matrix4d & TransMat );
 
-    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2 );
-    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm );
-    virtual void AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm );
+    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const int & iQuad );
+    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const int & iQuad );
+    virtual void AddTri( TNode * node0, TNode * node1, TNode * node2, const vec3d & norm, const int & iQuad );
     virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
-                         const vec3d & uw1, const vec3d & uw2 );
+                         const vec3d & uw1, const vec3d & uw2, const int & iQuad );
     virtual void AddTri( const TTri* tri );
-    virtual void AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm );
+    virtual void AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm, const int & iQuad );
 
     virtual void WriteSTLTris( FILE* file_id, Matrix4d XFormMat );
 

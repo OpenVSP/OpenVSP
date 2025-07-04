@@ -219,13 +219,15 @@ int MeshGeom::ReadXSec( const char* file_name )
             }
         }
 
+        int iQuad = 0;
         //==== Convert CrossSections to Triangles ====//
         for ( int i = 1 ; i < ( int )crossVec.size() ; i++ )
             for ( int j = 1 ; j < ( int )crossVec[i].size() ; j++ )
             {
-                tMesh->AddTri( crossVec[i - 1][j - 1], crossVec[i][j - 1], crossVec[i][j] );
+                tMesh->AddTri( crossVec[ i - 1 ][ j - 1 ], crossVec[ i ][ j - 1 ], crossVec[ i ][ j ], iQuad );
 
-                tMesh->AddTri( crossVec[i - 1][j - 1], crossVec[i][j], crossVec[i - 1][j] );
+                tMesh->AddTri( crossVec[ i - 1 ][ j - 1 ], crossVec[ i ][ j ], crossVec[ i - 1 ][ j ], iQuad );
+                iQuad++;
             }
     }
     fclose( fp );
@@ -546,7 +548,7 @@ int MeshGeom::ReadNascart( const char* file_name )
         norm.normalize();
 
         //==== Add Valid Facet ====//
-        tMesh->AddTri( pVec[n0 - 1], pVec[n1 - 1], pVec[n2 - 1], norm );
+        tMesh->AddTri( pVec[ n0 - 1 ], pVec[ n1 - 1 ], pVec[ n2 - 1 ], norm, -1 );
     }
 
     fclose( file_id );
@@ -608,7 +610,7 @@ int MeshGeom::ReadTriFile( const char * file_name )
         norm.normalize();
 
         //==== Add Valid Facet ====//
-        tMesh->AddTri( pVec[n0 - 1], pVec[n1 - 1], pVec[n2 - 1], norm );
+        tMesh->AddTri( pVec[ n0 - 1 ], pVec[ n1 - 1 ], pVec[ n2 - 1 ], norm, -1 );
     }
 
     fclose( file_id );
@@ -2458,6 +2460,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
     int ambcount = 0;
     WaveDragMgr.m_AmbigSubSurf = false;
 
+    int iQuad = 0;
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         // Get vector of all subsurface pointers in current TMesh
@@ -2583,8 +2586,9 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
                             tt1_norm.normalize();
 
                             // Add the triangles to the mesh
-                            tempmesh->AddTri( tt0_N0, tt0_N1, tt0_N2, tt0_norm );
-                            tempmesh->AddTri( tt1_N0, tt1_N1, tt1_N2, tt1_norm );
+                            tempmesh->AddTri( tt0_N0, tt0_N1, tt0_N2, tt0_norm, iQuad );
+                            tempmesh->AddTri( tt1_N0, tt1_N1, tt1_N2, tt1_norm, iQuad );
+                            iQuad++;
                         }
                     }
                     mergeindex.push_back( i );
@@ -2771,8 +2775,9 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
             gpnorm.normalize();
 
             // Build triangles
-            tm->AddTri( gp[2], gp[3], gp[0], gpnorm );
-            tm->AddTri( gp[2], gp[0], gp[1], gpnorm );
+            tm->AddTri( gp[ 2 ], gp[ 3 ], gp[ 0 ], gpnorm, iQuad );
+            tm->AddTri( gp[ 2 ], gp[ 0 ], gp[ 1 ], gpnorm, iQuad );
+            iQuad++;
         }
     }
 
@@ -2824,8 +2829,9 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         }
 
         // Build triangles
-        tm->AddTri( gp[2], gp[3], gp[0], gpnorm );
-        tm->AddTri( gp[2], gp[0], gp[1], gpnorm );
+        tm->AddTri( gp[ 2 ], gp[ 3 ], gp[ 0 ], gpnorm, iQuad );
+        tm->AddTri( gp[ 2 ], gp[ 0 ], gp[ 1 ], gpnorm, iQuad );
+        iQuad++;
     }
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
@@ -3721,14 +3727,14 @@ void MeshGeom::WaterTightCheck( FILE* fid )
                     if ( !mesh->m_TVec[t]->m_SplitVec[i]->m_IgnoreTriFlag )
                     {
                         TTri* tri = mesh->m_TVec[t]->m_SplitVec[i];
-                        oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, mesh->m_TVec[t]->m_Norm );
+                        oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, mesh->m_TVec[t]->m_Norm, mesh->m_TVec[t]->m_iQuad );
                     }
                 }
             }
             else if ( !mesh->m_TVec[t]->m_IgnoreTriFlag )
             {
                 TTri* tri = mesh->m_TVec[t];
-                oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, tri->m_Norm );
+                oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, tri->m_Norm, tri->m_iQuad );
             }
         }
     }
@@ -3827,23 +3833,23 @@ void MeshGeom::AddHalfBox( const string &id )
     //tm->addTri( A, E, B, vec3d( 0, 0, -1) );
     //tm->addTri( B, E, F, vec3d( 0, 0, -1) );
 
-    tm->AddTri( G, E, H, vec3d( 0, -1, 0 ) );
-    tm->AddTri( H, E, F, vec3d( 0, -1, 0 ) );
+    tm->AddTri( G, E, H, vec3d( 0, -1, 0 ), 1 );
+    tm->AddTri( H, E, F, vec3d( 0, -1, 0 ), 1 );
 
-    tm->AddTri( B, A, D, vec3d( 0, 1, 0 ) );
-    tm->AddTri( D, A, C, vec3d( 0, 1, 0 ) );
+    tm->AddTri( B, A, D, vec3d( 0, 1, 0 ), 2 );
+    tm->AddTri( D, A, C, vec3d( 0, 1, 0 ), 2 );
 
-    tm->AddTri( C, A, E, vec3d( -1, 0, 0 ) );
-    tm->AddTri( G, C, E, vec3d( -1, 0, 0 ) );
+    tm->AddTri( C, A, E, vec3d( -1, 0, 0 ), 3 );
+    tm->AddTri( G, C, E, vec3d( -1, 0, 0 ), 3 );
 
-    tm->AddTri( F, B, D, vec3d(  1, 0, 0 ) );
-    tm->AddTri( F, D, H, vec3d(  1, 0, 0 ) );
+    tm->AddTri( F, B, D, vec3d( 1, 0, 0 ), 4 );
+    tm->AddTri( F, D, H, vec3d( 1, 0, 0 ), 4 );
 
-    tm->AddTri( D, C, G, vec3d( 0, 0, 1 ) );
-    tm->AddTri( H, D, G, vec3d( 0, 0, 1 ) );
+    tm->AddTri( D, C, G, vec3d( 0, 0, 1 ), 5 );
+    tm->AddTri( H, D, G, vec3d( 0, 0, 1 ), 5 );
 
-    tm->AddTri( E, A, B, vec3d( 0, 0, -1 ) );
-    tm->AddTri( E, B, F, vec3d( 0, 0, -1 ) );
+    tm->AddTri( E, A, B, vec3d( 0, 0, -1 ), 6 );
+    tm->AddTri( E, B, F, vec3d( 0, 0, -1 ), 6 );
 
 }
 

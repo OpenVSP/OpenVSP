@@ -444,6 +444,9 @@ void TMesh::copy( TMesh* m )
         tri->m_N2   = new TNode();
 
         tri->m_Norm    = m->m_TVec[i]->m_Norm;
+
+        tri->m_iQuad    = m->m_TVec[i]->m_iQuad;
+
         tri->m_N0->m_Pnt = m->m_TVec[i]->m_N0->m_Pnt;
         tri->m_N1->m_Pnt = m->m_TVec[i]->m_N1->m_Pnt;
         tri->m_N2->m_Pnt = m->m_TVec[i]->m_N2->m_Pnt;
@@ -476,7 +479,7 @@ void TMesh::CopyFlatten( TMesh* m )
                 TTri* s_tri = orig_tri->m_SplitVec[s];
                 if ( !s_tri->m_IgnoreTriFlag )
                 {
-                    AddTri( s_tri->m_N0, s_tri->m_N1, s_tri->m_N2, s_tri->m_Norm );
+                    AddTri( s_tri->m_N0, s_tri->m_N1, s_tri->m_N2, s_tri->m_Norm, orig_tri->m_iQuad );
                     m_TVec.back()->m_Tags = s_tri->m_Tags;
                 }
             }
@@ -485,7 +488,7 @@ void TMesh::CopyFlatten( TMesh* m )
         {
             if ( !orig_tri->m_IgnoreTriFlag )
             {
-                AddTri( orig_tri->m_N0, orig_tri->m_N1, orig_tri->m_N2, orig_tri->m_Norm );
+                AddTri( orig_tri->m_N0, orig_tri->m_N1, orig_tri->m_N2, orig_tri->m_Norm, orig_tri->m_iQuad );
                 m_TVec.back()->m_Tags = orig_tri->m_Tags;
             }
         }
@@ -1372,7 +1375,7 @@ void TMesh::Transform( const Matrix4d & TransMat )
 }
 
 // Wrapper
-void TMesh::AddTri( const vec3d & p0, const vec3d & p1, const vec3d & p2 )
+void TMesh::AddTri( const vec3d &p0, const vec3d &p1, const vec3d &p2, const int &iQuad )
 {
     double dist_tol = 1.0e-12;
 
@@ -1388,15 +1391,17 @@ void TMesh::AddTri( const vec3d & p0, const vec3d & p1, const vec3d & p2 )
     vec3d norm = cross( v01, v02 );
     norm.normalize();
 
-    AddTri( p0, p1, p2, norm );
+    AddTri( p0, p1, p2, norm, iQuad );
 }
 
 // Base.  i.e. does m_TVec.push_back()
-void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm )
+void TMesh::AddTri( const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &norm, const int &iQuad )
 {
     // Use For XYZ Tri
     TTri* ttri = new TTri( this );
     ttri->m_Norm = norm;
+
+    ttri->m_iQuad = iQuad;
 
     ttri->m_N0 = new TNode();
     ttri->m_N1 = new TNode();
@@ -1417,10 +1422,12 @@ void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const 
 }
 
 // Base
-void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm )
+void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm, const int & iQuad )
 {
     TTri* ttri = new TTri( this );
     ttri->m_Norm = norm;
+
+    ttri->m_iQuad = iQuad;
 
     ttri->m_N0 = new TNode();
     ttri->m_N1 = new TNode();
@@ -1454,10 +1461,10 @@ void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm
 
 // Wrapper
 void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
-                    const vec3d & uw1, const vec3d & uw2 )
+                    const vec3d & uw1, const vec3d & uw2, const int & iQuad )
 {
     // AddTri with both xyz and uw info
-    AddTri( v0, v1, v2, norm );
+    AddTri( v0, v1, v2, norm, iQuad );
     TTri* tri = m_TVec.back();
     tri->m_N0->m_UWPnt = uw0;
     tri->m_N1->m_UWPnt = uw1;
@@ -1481,11 +1488,13 @@ void TMesh::AddTri( const TTri* tri)
     m_NVec.push_back( new_tri->m_N2 );
 }
 
-void TMesh::AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm )
+void TMesh::AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm, const int & iQuad )
 {
     // Use For XYZ Tri
     TTri* ttri = new TTri( this );
     ttri->m_Norm = norm;
+
+    ttri->m_iQuad = iQuad;
 
     ttri->m_N0 = new TNode();
     ttri->m_N1 = new TNode();
@@ -1643,6 +1652,7 @@ TTri::TTri( TMesh* tmesh )
     m_Density = 1.0;
     m_TMesh = tmesh;
     m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = nullptr;
+    m_iQuad = -1;
 }
 
 TTri::~TTri()
@@ -1714,6 +1724,7 @@ void TTri::CopyFrom( const TTri* tri )
     m_GeomID = tri->m_GeomID;
     m_InvalidFlag = tri->m_InvalidFlag;
     m_IgnoreTriFlag = tri->m_IgnoreTriFlag;
+    m_iQuad = tri->m_iQuad;
 }
 
 void TTri::BuildPermEdges()
@@ -2473,6 +2484,7 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
         t->m_N2 = m_NVec[ cl_DBA[i][2] ];
         t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
         t->m_Norm = m_Norm;
+        t->m_iQuad = m_iQuad;
         m_SplitVec.push_back( t );
     }
 
@@ -2989,6 +3001,7 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_N1 = n01;
         tri->m_N2 = n20;
         tri->m_Norm = m_Norm;
+        tri->m_iQuad = m_iQuad;
         m_SplitVec.push_back( tri );
 
         tri = new TTri( m_TMesh );
@@ -2996,6 +3009,7 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_N1 = n12;
         tri->m_N2 = n01;
         tri->m_Norm = m_Norm;
+        tri->m_iQuad = m_iQuad;
         m_SplitVec.push_back( tri );
 
         tri = new TTri( m_TMesh );
@@ -3003,6 +3017,7 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_N1 = n20;
         tri->m_N2 = n12;
         tri->m_Norm = m_Norm;
+        tri->m_iQuad = m_iQuad;
         m_SplitVec.push_back( tri );
 
         tri = new TTri( m_TMesh );
@@ -3010,6 +3025,7 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_N1 = n12;
         tri->m_N2 = n20;
         tri->m_Norm = m_Norm;
+        tri->m_iQuad = m_iQuad;
         m_SplitVec.push_back( tri );
 
     }
@@ -5025,6 +5041,8 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
     vec3d uw0, uw1, uw2, uw3;
     vec3d d21, d01, d03, d23, d20, d31;
 
+    int iQuad = 0;
+
     for ( int j = 0 ; j < ( int )(*pnts).size() - 1 ; j++ )
     {
         for ( int k = 0 ; k < ( int )(*pnts)[0].size() - 1 ; k++ )
@@ -5055,11 +5073,11 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
+                        tmesh->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1, iQuad );
                     }
                     else
                     {
-                        tmesh->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
+                        tmesh->AddTri( v0, v1, v2, norm, uw0, uw1, uw2, iQuad );
                     }
                 }
 
@@ -5069,11 +5087,11 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
+                        tmesh->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2, iQuad );
                     }
                     else
                     {
-                        tmesh->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
+                        tmesh->AddTri( v0, v2, v3, norm, uw0, uw2, uw3, iQuad );
                     }
                 }
             }
@@ -5086,11 +5104,11 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
+                        tmesh->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1, iQuad );
                     }
                     else
                     {
-                        tmesh->AddTri( v0, v1, v3, norm, uw0, uw1, uw3 );
+                        tmesh->AddTri( v0, v1, v3, norm, uw0, uw1, uw3, iQuad );
                     }
                 }
 
@@ -5100,14 +5118,16 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
+                        tmesh->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2, iQuad );
                     }
                     else
                     {
-                        tmesh->AddTri( v1, v2, v3, norm, uw1, uw2, uw3 );
+                        tmesh->AddTri( v1, v2, v3, norm, uw1, uw2, uw3, iQuad );
                     }
                 }
             }
+
+            iQuad++;
         }
     }
 }
@@ -6637,6 +6657,7 @@ TMesh* MakeSlice( const int &swdir, const double & len )
     {
 
         double ds = 1.0 / (double) ntess;
+        int iQuad = 0;
         for ( int i = 0; i < ntess; i++ )
         {
             double d10 = s1 + del1 * ds * ( double )i;
@@ -6664,8 +6685,9 @@ TMesh* MakeSlice( const int &swdir, const double & len )
                 p4[dir1] = d10;
                 p4[dir2] = d21;
 
-                tm->AddTri( p1, p2, p3, n );
-                tm->AddTri( p1, p3, p4, n );
+                tm->AddTri( p1, p2, p3, n, iQuad );
+                tm->AddTri( p1, p3, p4, n, iQuad );
+                iQuad++;
             }
         }
     }
@@ -6688,8 +6710,8 @@ TMesh* MakeSlice( const int &swdir, const double & len )
         p4[dir1] = s1;
         p4[dir2] = s2 + del2;
 
-        tm->AddTri( p1, p2, p3, n );
-        tm->AddTri( p1, p3, p4, n );
+        tm->AddTri( p1, p2, p3, n, 1 );
+        tm->AddTri( p1, p3, p4, n, 1 );
     }
 
     return tm;
@@ -6787,6 +6809,7 @@ double MakeSlices( vector<TMesh*> &tmv, const BndBox & bbox, int numSlices, int 
         {
             int ntess = numSlices;
             double ds = 1.0 / (double) ntess;
+            int iQuad = 0;
             for ( i = 0 ; i < ntess ; i++ )
             {
                 double d10 = s1 + del1 * ds * ( double )i;
@@ -6814,8 +6837,9 @@ double MakeSlices( vector<TMesh*> &tmv, const BndBox & bbox, int numSlices, int 
                     p4[dir1] = d10;
                     p4[dir2] = d21;
 
-                    tm->AddTri( p1, p2, p3, n );
-                    tm->AddTri( p1, p3, p4, n );
+                    tm->AddTri( p1, p2, p3, n, iQuad );
+                    tm->AddTri( p1, p3, p4, n, iQuad );
+                    iQuad++;
                 }
             }
         }
@@ -6838,8 +6862,8 @@ double MakeSlices( vector<TMesh*> &tmv, const BndBox & bbox, int numSlices, int 
             p4[dir1] = s1;
             p4[dir2] = s2 + del2;
 
-            tm->AddTri( p1, p2, p3, n );
-            tm->AddTri( p1, p3, p4, n );
+            tm->AddTri( p1, p2, p3, n, 1 );
+            tm->AddTri( p1, p3, p4, n, 1 );
         }
     }
     return sliceW;

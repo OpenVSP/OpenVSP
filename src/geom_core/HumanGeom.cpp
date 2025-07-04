@@ -1343,7 +1343,7 @@ vector<TMesh*> HumanGeom::CreateTMeshVec() const
             norm.normalize();
 
             //==== Add Valid Facet ====//
-            tMesh->AddTri( p0, p1, p2, norm );
+            tMesh->AddTri( p0, p1, p2, norm, -1 );
         }
 
         for ( int i = 0 ; i < num_tris ; i++ )
@@ -1368,7 +1368,7 @@ vector<TMesh*> HumanGeom::CreateTMeshVec() const
             norm.normalize();
 
             //==== Add Valid Facet ====//
-            tMesh->AddTri( p0, p1, p2, norm );
+            tMesh->AddTri( p0, p1, p2, norm, -1 );
         }
 
         retTMeshVec.push_back( tMesh );
