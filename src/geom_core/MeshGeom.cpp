@@ -1894,6 +1894,9 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     // m_Scale = 1.0;
     ApplyScale();
 
+    // Before/after subtagtris matters.
+    MergeSplitPatches();
+
     Results* res = nullptr;
     if ( !degen )
     {
@@ -3873,6 +3876,32 @@ void MeshGeom::WaterTightCheck( FILE* fid )
 
     m_TMeshVec.clear();
     m_TMeshVec.push_back( oneMesh );
+}
+
+// When Degen plate and camber surfaces are made into TMeshs, they can be split into patches if some areas
+// are planar.  This stitches those back together.
+void MeshGeom::MergeSplitPatches()
+{
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() - 1; i++ )
+    {
+        TMesh *tmi = m_TMeshVec[ i ];
+        if ( tmi->m_DeleteMeFlag == false )
+        {
+            for ( int j = i + 1 ; j < ( int )m_TMeshVec.size(); j++ )
+            {
+                TMesh *tmj = m_TMeshVec[ j ];
+                if ( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
+                     tmi->m_SurfNum == tmj->m_SurfNum &&
+                     tmi->m_PlateNum == tmj->m_PlateNum )
+                {
+                    tmi->MergeTMeshes( tmj );
+                    tmj->m_DeleteMeFlag = true;
+                }
+            }
+        }
+    }
+
+    DeleteMarkedMeshes();
 }
 
 void MeshGeom::DeleteMarkedMeshes()
