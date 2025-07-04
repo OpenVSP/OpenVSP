@@ -2056,74 +2056,22 @@ VSPAERODegenGeomAnalysis::VSPAERODegenGeomAnalysis() : Analysis( "VSPAERODegenGe
 
 void VSPAERODegenGeomAnalysis::SetDefaults()
 {
-    // the default values use exactly what is setup in the VSPAEROMgr
-    m_Inputs.Clear();
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        m_Inputs.Add( new NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get(), "Thick surface geometry Set for analysis."  ) );
-        m_Inputs.Add( new NameValData( "ThinGeomSet", VSPAEROMgr.m_ThinGeomSet.Get(), "Thin surface geometry Set for analysis."  ) );
-
-        m_Inputs.Add( new NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
-        m_Inputs.Add( new NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
-    }
-    else
-    {
-        // TODO Throw an error here
-        printf("ERROR: trying to set defaults without a vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
-    }
+    // SetDefaults() is called when the analysis is registered.  Do nothing.
 }
 
 string VSPAERODegenGeomAnalysis::Execute()
 {
-    string res_id;
-    Vehicle *veh = VehicleMgr.GetVehicle();
+    string resId;
 
-    if ( veh )
-    {
-        NameValData *nvd = nullptr;
+    MessageData errMsgData;
+    errMsgData.m_String = "Error";
+    errMsgData.m_IntVec.push_back( vsp::VSP_DEPRECATED );
+    char buf[255];
+    snprintf( buf, sizeof( buf ), "Error:  VSPAERODegenGeom Analysis is deprecated.  Use VSPAEROComputeGeometry instead." );
+    errMsgData.m_StringVec.emplace_back( string( buf ) );
+    MessageMgr::getInstance().SendAll( errMsgData );
 
-        // Apply current analysis input values
-        nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        int geomSetOrig = VSPAEROMgr.m_GeomSet.Get();
-        if ( nvd )
-        {
-            VSPAEROMgr.m_GeomSet.Set( nvd->GetInt( 0 ) );
-        }
-
-        nvd = m_Inputs.FindPtr( "ThinGeomSet", 0 );
-        int geomThinSetOrig    = VSPAEROMgr.m_ThinGeomSet.Get();
-        if ( nvd )
-        {
-            VSPAEROMgr.m_ThinGeomSet.Set( nvd->GetInt(0) );
-        }
-
-        int useModeOrig = VSPAEROMgr.m_UseMode.Get();
-        nvd = m_Inputs.FindPtr( "UseModeFlag", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_UseMode.Set( nvd->GetInt(0) );
-        }
-
-        string modeIDOrig = VSPAEROMgr.m_ModeID;
-        nvd = m_Inputs.FindPtr( "ModeID", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_ModeID = nvd->GetString( 0 );
-        }
-
-        // Execute analysis
-        res_id = VSPAEROMgr.ComputeGeometry();
-
-        //Restore original values that were overwritten by analysis inputs
-        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
-        VSPAEROMgr.m_ThinGeomSet.Set( geomThinSetOrig );
-        VSPAEROMgr.m_UseMode.Set( useModeOrig );
-        VSPAEROMgr.m_ModeID = modeIDOrig;
-
-    }
-
-    return res_id;
+    return resId;
 }
 
 VSPAEROReadPreviousAnalysis::VSPAEROReadPreviousAnalysis() : Analysis( "VSPAEROReadPreviousAnalysis", "Read prior VSPAERO analysis from file." )
