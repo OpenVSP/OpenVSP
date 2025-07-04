@@ -815,6 +815,12 @@ protected:
         int num_main = source.size();
         unsigned int num_surf = GetNumSymmCopies() * num_main;
 
+        if ( num_surf == 0 )
+        {
+            dest.clear();
+            return;
+        }
+
         dest = source;
         dest.resize( num_surf );
 
