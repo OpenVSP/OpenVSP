@@ -47,9 +47,10 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 642, "CFD 
     m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - 5,
                                        m_ConsoleLayout.GetRemainY() - 5 );
 
-    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTextDisplay( 115 );
-    m_ConsoleBuffer = new Fl_Text_Buffer;
-    m_ConsoleDisplay->buffer( m_ConsoleBuffer );
+    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTerminal( 115 );
+    m_ConsoleDisplay->display_columns( 300 );
+    m_ConsoleDisplay->history_lines( 1000 );
+
     m_FLTK_Window->resizable( m_ConsoleDisplay );
 
     m_BorderConsoleLayout.AddYGap();
@@ -59,8 +60,6 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 642, "CFD 
 
 CfdMeshScreen::~CfdMeshScreen()
 {
-    m_ConsoleDisplay->buffer( nullptr );
-    delete m_ConsoleBuffer;
 }
 
 void CfdMeshScreen::CreateGlobalTab()
@@ -1260,9 +1259,7 @@ void CfdMeshScreen::UpdateWakesTab()
 void CfdMeshScreen::AddOutputText( const string &text )
 {
     Fl::lock();
-    m_ConsoleBuffer->append( text.c_str() );
-    m_ConsoleDisplay->insert_position( m_ConsoleDisplay->buffer()->length() );
-    m_ConsoleDisplay->show_insert_position();
+    m_ConsoleDisplay->append( text.c_str() );
     Fl::unlock();
 }
 
@@ -1343,6 +1340,8 @@ void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_MeshAndExport )
     {
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
         CfdMeshMgr.SetMeshInProgress( true );
         m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, nullptr );
     }
