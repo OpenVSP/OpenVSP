@@ -57,9 +57,9 @@ public:
     void Update( double V, double rho );
 
     // Setup File I/O
-    void Write_STP_Data( FILE * InputFile );
+    void Write_STP_Data( FILE * InputFile ) const;
 
-    vector< string > GetDriverParms();
+    vector< string > GetDriverParms() const;
 
     string GetParentID()                  { return m_ParentGeomId; }
     unsigned int GetSurfNum()             { return m_ParentGeomSurfNdx; }
@@ -117,7 +117,7 @@ public:
 
 private:
 
-    VspSurf CreateSurf();
+    VspSurf CreateSurf() const;
 
     vector < DrawObj > m_CpSliceDOVec;
 
@@ -293,7 +293,7 @@ public:
     bool IsSolverRunning();
     void KillSolver();
 
-    int ExportResultsToCSV( const string &fileName );
+    static int ExportResultsToCSV( const string &fileName );
 
     string LoadExistingVSPAEROResults();
 
@@ -349,13 +349,13 @@ public:
     int NumUnsteadyGroups()                                  { return m_UnsteadyGroupVec.size(); }
     int NumUnsteadyRotorGroups();
     void HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_vec );
-    map < pair < string, int >, vector < int > > GetVSPAEROGeomIndexMap( int set_index, int thin_set );
+    static map < pair < string, int >, vector < int > > GetVSPAEROGeomIndexMap( int set_index, int thin_set );
     string ExecuteNoiseAnalysis( FILE* logFile, int noise_type, int noise_unit );
 
     virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id );
 
     // Highlighter Methods and Variables
-    void HighlightSelected( int type );
+    static void HighlightSelected( int type );
     void LoadDrawObjs( vector < DrawObj* > & draw_obj_vec );
 
     IntParm m_AnalysisMethod;
@@ -532,23 +532,23 @@ public:
     ProcessUtil m_SlicerThread;
 
 protected:
-    void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec, vector<double> &recrefVec );
+    void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec, vector<double> &recrefVec ) const;
 
     bool m_SolverProcessKill;
 
     // helper functions for VSPAERO files
-    void ReadHistoryFile( const string &filename, vector <string> &res_id_vector, double recref );
-    void ReadPolarFile( const string &filename, vector <string> &res_id_vector, double recref );
-    void ReadLoadFile( const string &filename, vector <string> &res_id_vector );
+    void ReadHistoryFile( const string &filename, vector <string> &res_id_vector, double recref ) const;
+    void ReadPolarFile( const string &filename, vector <string> &res_id_vector, double recref ) const;
+    void ReadLoadFile( const string &filename, vector <string> &res_id_vector ) const;
     void ReadStabFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_STABILITY_TYPE stabilityType );
     static vector <string> ReadDelimLine( FILE * fp, char * delimiters );
     static bool CheckForCaseHeader( const std::vector<string> &headerStr );
     static bool CheckForResultHeader( const std::vector < string > &headerstr );
     static int ReadVSPAEROCaseHeader( Results * res, FILE * fp );
     void ReadSetupFile(); // Read the VSPAERO setup file to identify VSPAERO inputs needed to generate existing VSPAERO results
-    void ReadSliceFile( const string &filename, vector <string> &res_id_vector );
-    void ReadGroupResFile( const string &filename, vector <string> &res_id_vector, const string &group_name = "" );
-    void ReadRotorResFile( const string &filename, vector <string> &res_id_vector, const string &group_name = "" );
+    void ReadSliceFile( const string &filename, vector <string> &res_id_vector ) const;
+    static void ReadGroupResFile( const string &filename, vector <string> &res_id_vector, const string &group_name = "" );
+    static void ReadRotorResFile( const string &filename, vector <string> &res_id_vector, const string &group_name = "" );
 
     DrawObj m_HighlightDrawObj;
 

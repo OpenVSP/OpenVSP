@@ -1704,7 +1704,7 @@ void VSPAEROMgrSingleton::ClearAllPreviousResults()
     }
 }
 
-void VSPAEROMgrSingleton::GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec, vector<double> &recrefVec )
+void VSPAEROMgrSingleton::GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec, vector<double> &recrefVec ) const
 {
     // grab current parm values
     double alphaStart = m_AlphaStart.Get();
@@ -2084,7 +2084,7 @@ line 4407 - void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
 TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 *******************************************************/
-void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <string> &res_id_vector, double recref )
+void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <string> &res_id_vector, double recref ) const
 {
     //TODO return success or failure
     FILE *fp = nullptr;
@@ -2336,7 +2336,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
 Read .polar file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string> &res_id_vector, double recref )
+void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string> &res_id_vector, double recref ) const
 {
     FILE *fp = nullptr;
     bool read_success = false;
@@ -2577,7 +2577,7 @@ line 2851 - void VSP_SOLVER::CalculateSpanWiseLoading(void)
 TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 *******************************************************/
-void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> &res_id_vector )
+void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> &res_id_vector ) const
 {
     FILE *fp = nullptr;
     bool read_success = false;
@@ -3953,7 +3953,7 @@ void VSPAEROMgrSingleton::ClearCpSliceVec()
     m_CpSliceVec.clear();
 }
 
-void VSPAEROMgrSingleton::ReadSliceFile( const string &filename, vector <string> &res_id_vector )
+void VSPAEROMgrSingleton::ReadSliceFile( const string &filename, vector <string> &res_id_vector ) const
 {
     FILE *fp = nullptr;
     bool read_success = false;
@@ -5241,7 +5241,7 @@ void CpSlice::ParmChanged( Parm* parm_ptr, int type )
     }
 }
 
-VspSurf CpSlice::CreateSurf()
+VspSurf CpSlice::CreateSurf() const
 {
     VspSurf slice_surf = VspSurf();
 
@@ -5815,7 +5815,7 @@ void RotorDisk::Update( double V, double rho )
 //    m_eta = eta;
 }
 
-void RotorDisk::Write_STP_Data( FILE *InputFile )
+void RotorDisk::Write_STP_Data( FILE *InputFile ) const
 {
 
     // Write out RotorDisk to file
@@ -5844,7 +5844,7 @@ void RotorDisk::Write_STP_Data( FILE *InputFile )
 }
 
 //==== Get Driver Parms ====//
-vector< string > RotorDisk::GetDriverParms()
+vector< string > RotorDisk::GetDriverParms() const
 {
     vector< string > parm_ids;
     parm_ids.resize( vsp::NUM_PROP_DRIVER );
