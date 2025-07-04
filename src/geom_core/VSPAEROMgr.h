@@ -61,8 +61,8 @@ public:
 
     vector< string > GetDriverParms() const;
 
-    string GetParentID()                  { return m_ParentGeomId; }
-    unsigned int GetSurfNum()             { return m_ParentGeomSurfNdx; }
+    string GetParentID() const                  { return m_ParentGeomId; }
+    unsigned int GetSurfNum() const             { return m_ParentGeomSurfNdx; }
 
     // vsp3 file xml I/O
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
@@ -182,7 +182,7 @@ public:
     void SetVSPAEROIndexVec( const vector < int > &vepaero_index_vec )                      { m_ComponentVSPAEROIndexVec = vepaero_index_vec; }
     void SetGeomIDsInGroup( const vector < string > &gidvec )                               { m_GeomIDsInGroup = gidvec; }
 
-    void AddComp( const string & comp_id, int surf_ind )                                            { m_ComponentSurfPairVec.push_back( std::make_pair( comp_id, surf_ind ) ); }
+    void AddComp( const string & comp_id, int surf_ind )                                    { m_ComponentSurfPairVec.push_back( std::make_pair( comp_id, surf_ind ) ); }
 
     enum GEOM_PROPERTY_TYPE
     {
@@ -273,16 +273,16 @@ public:
     void SetCurrentType( int type )                         { m_LastSelectedType = type; }
 
     // Getter Methods
-    int GetCurrentRotorDiskIndex()                          { return m_CurrentRotorDiskIndex; }
+    int GetCurrentRotorDiskIndex() const                          { return m_CurrentRotorDiskIndex; }
     vector <RotorDisk*> GetRotorDiskVec()                      { return m_RotorDiskVec; };
     vector < VspAeroControlSurf > GetActiveCSVec()          { return m_ActiveControlSurfaceVec; }
     vector < VspAeroControlSurf > GetCompleteCSVec()        { return m_CompleteControlSurfaceVec; }
     vector < VspAeroControlSurf > GetAvailableCSVec();
-    int GetCurrentCSGroupIndex()                            { return m_CurrentCSGroupIndex; }
+    int GetCurrentCSGroupIndex() const                            { return m_CurrentCSGroupIndex; }
     string GetCurrentCSGGroupName();
     vector <ControlSurfaceGroup* > GetControlSurfaceGroupVec()   { return m_ControlSurfaceGroupVec; }
-    vector < int > GetSelectedGroupedItems()                { return m_SelectedGroupedCS; }
-    vector < int > GetSelectedUngroupedItems()              { return m_SelectedUngroupedCS; }
+    vector < int > GetSelectedGroupedItems() const                { return m_SelectedGroupedCS; }
+    vector < int > GetSelectedUngroupedItems() const              { return m_SelectedUngroupedCS; }
 
     // VSP Aero Functionality and Variables
     string ComputeGeometry();
@@ -314,7 +314,7 @@ public:
     vector < double > GetCpSlicePosVec(int type );
     vector < CpSlice* > GetCpSliceVec()                    { return m_CpSliceVec; }
     void ClearCpSliceVec();
-    int GetCurrentCpSliceIndex()                           { return m_CurrentCpSliceIndex; }
+    int GetCurrentCpSliceIndex() const                           { return m_CurrentCpSliceIndex; }
     void SetCurrentCpSliceIndex( int index )               { m_CurrentCpSliceIndex = index; }
 
     // Rotor Disk Functionality
@@ -337,7 +337,7 @@ public:
     int CreateGroupsFile();
     void SetCurrentUnsteadyGroupIndex( int index );
     void SetCurrentUnsteadyGroupIndex( const string& id );
-    int GetCurrentUnsteadyGroupIndex()                          { return m_CurrentUnsteadyGroupIndex; }
+    int GetCurrentUnsteadyGroupIndex() const                          { return m_CurrentUnsteadyGroupIndex; }
     UnsteadyGroup* AddUnsteadyGroup();
     void DeleteUnsteadyGroup( const vector <int> &ind_vec );
     bool ValidUnsteadyGroupInd( int index );

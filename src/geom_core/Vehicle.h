@@ -182,7 +182,7 @@ public:
 
     void SetVSP3FileName( const string & f_name );
     string GetVSP3FileName()                                { return m_VSP3FileName; }
-    int GetFileVersion()                                    { return m_FileOpenVersion; }
+    int GetFileVersion() const                                    { return m_FileOpenVersion; }
     void MakeRelativePath( string & fname );
     void MakeAbsolutePath( string & fname );
 
@@ -273,11 +273,11 @@ public:
     void setExportFileName( int type, const string &f_name );
     void resetExportFileNames();
 
-    bool getExportCompGeomCsvFile()                    { return m_exportCompGeomCsvFile(); }
+    bool getExportCompGeomCsvFile() const                    { return m_exportCompGeomCsvFile(); }
     void setExportCompGeomCsvFile( bool b )            { m_exportCompGeomCsvFile.Set( b ); }
 
-    bool getExportDegenGeomCsvFile( )                  { return m_exportDegenGeomCsvFile(); }
-    bool getExportDegenGeomMFile( )                    { return m_exportDegenGeomMFile(); }
+    bool getExportDegenGeomCsvFile( ) const                  { return m_exportDegenGeomCsvFile(); }
+    bool getExportDegenGeomMFile( ) const                    { return m_exportDegenGeomMFile(); }
     void setExportDegenGeomCsvFile( bool b )           { m_exportDegenGeomCsvFile.Set( b ); }
     void setExportDegenGeomMFile( bool b )             { m_exportDegenGeomMFile.Set( b ); }
 
