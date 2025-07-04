@@ -67,9 +67,10 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
     m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - border,
                                        m_ConsoleLayout.GetRemainY() - border );
 
-    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTextDisplay( textheight );
-    m_ConsoleBuffer = new Fl_Text_Buffer;
-    m_ConsoleDisplay->buffer( m_ConsoleBuffer );
+    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTerminal( textheight );
+    m_ConsoleDisplay->display_columns( 300 );
+    m_ConsoleDisplay->history_lines( 1000 );
+
     m_FLTK_Window->resizable( m_ConsoleDisplay );
 
     m_BorderConsoleLayout.AddYGap();
@@ -330,8 +331,6 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
 
 StructAssemblyScreen::~StructAssemblyScreen()
 {
-    m_ConsoleDisplay->buffer( nullptr );
-    delete m_ConsoleBuffer;
 }
 
 void StructAssemblyScreen::CloseCallBack( Fl_Widget *w )
@@ -720,9 +719,7 @@ void StructAssemblyScreen::UpdateDrawPartBrowser()
 void StructAssemblyScreen::AddOutputText( const string &text )
 {
     Fl::lock();
-    m_ConsoleBuffer->append( text.c_str() );
-    m_ConsoleDisplay->insert_position( m_ConsoleDisplay->buffer()->length() );
-    m_ConsoleDisplay->show_insert_position();
+    m_ConsoleDisplay->append( text.c_str() );
     Fl::unlock();
 }
 
@@ -799,6 +796,9 @@ void * feaassy_thread_fun( void *data )
 
 void StructAssemblyScreen::LaunchBatchFEAMesh( const vector < string > &idvec )
 {
+    m_ConsoleDisplay->clear();
+    m_ConsoleDisplay->clear_history();
+
     FeaMeshMgr.SetFeaMeshInProgress( true );
 
     // Copy vector to memory that will persist through duration of meshing process.
