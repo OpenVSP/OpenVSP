@@ -1897,34 +1897,31 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         MergeRemoveOpenMeshes( m_TMeshVec, &info, deleteopen );
     }
 
-    int numTris = 0;
+    Results* res = nullptr;
     if ( !degen )
     {
+        int numTris = 0;
         //==== Count Tris ====//
         for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
             numTris += m_TMeshVec[i]->m_TVec.size();
         }
-    }
 
-    //==== Count Components ====//
-    vector< string > compIdVec;
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        string id = m_TMeshVec[i]->m_OriginGeomID;
-        vector<string>::iterator iter;
-
-        iter = find( compIdVec.begin(), compIdVec.end(), id );
-
-        if ( iter == compIdVec.end() )
+        //==== Count Components ====//
+        vector< string > compIdVec;
+        for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
-            compIdVec.push_back( id );
-        }
-    }
+            string id = m_TMeshVec[i]->m_OriginGeomID;
+            vector<string>::iterator iter;
 
-    Results* res = nullptr;
-    if ( !degen )
-    {
+            iter = find( compIdVec.begin(), compIdVec.end(), id );
+
+            if ( iter == compIdVec.end() )
+            {
+                compIdVec.push_back( id );
+            }
+        }
+
         //==== Create Results ====//
         res = ResultsMgr.CreateResults( "Comp_Geom", "CompGeom CSG mesh generation results." );
         res->Add( new NameValData( "Num_Comps", ( int )compIdVec.size(), "Number of starting components." ) );
