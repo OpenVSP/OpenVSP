@@ -13,7 +13,7 @@
 #endif
 
 #include "VSPAEROPlotScreen.h"
-#include "float.h"
+#include <cfloat>
 
 #include "VspUtil.h"
 
@@ -780,7 +780,7 @@ bool VSPAEROPlotScreen::Update()
 
     //Check to see if SelectCpSliceBrowser in VSPAERO screen is occupied with slices
     //if not, we deactivate the CP Slice tab in the VSPAERO results Manager
-     if ( VSPAEROMgr.GetCpSliceVec().size() < 1 )
+     if ( VSPAEROMgr.GetCpSliceVec().empty() )
      {
          m_CpSliceTab->deactivate();
      }
@@ -1334,16 +1334,8 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
             m_LoadDistFlowConditionBrowser->add( strbuf );
             if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.LOAD_SELECT_TYPE )
             {
-                if ( m_SelectDefaultData )   //select ALL flow conditions
-                {
-                    m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                    m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                }
-                else if ( iCase < wasSelected.size() && wasSelected[iCase] ) // restore original row selections
-                {
-                    m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                    m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                }
+                m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
             }
             else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.BLADE_SELECT_TYPE )
             {
@@ -1821,7 +1813,7 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
     m_LoadDistYDataBrowser->clear();
 
     Results* load_res = ResultsMgr.FindResultsPtr( ResultsMgr.FindLatestResultsID( "VSPAERO_Load" ) );
-    Results* res = 0;
+    Results* res = nullptr;
 
     string resultID, default_res;
 
@@ -2199,7 +2191,7 @@ void VSPAEROPlotScreen::RedrawConvergencePlot()
     {
         if ( m_ConvergenceYDataBrowser->selected( i ) )
         {
-            yDataSetNames.push_back( m_ConvergenceYDataBrowser->text( i ) );
+            yDataSetNames.emplace_back(m_ConvergenceYDataBrowser->text( i ) );
         }
     }
 
@@ -2237,12 +2229,12 @@ void VSPAEROPlotScreen::RedrawLoadDistPlot()
     {
         if ( m_LoadDistYDataBrowser->selected( i ) )
         {
-            yDataSetNames.push_back( m_LoadDistYDataBrowser->text( i ) );
+            yDataSetNames.emplace_back(m_LoadDistYDataBrowser->text( i ) );
         }
     }
 
     m_LoadDistNLines = yDataSetNames.size() * m_LoadDistFlowConditionSelectedResultIDs.size();
-    if ( m_LoadSelectedBladeVec.size() > 0 ) // Since "Load" is not included in the vector
+    if ( !m_LoadSelectedBladeVec.empty() ) // Since "Load" is not included in the vector
     {
         m_LoadDistNLines *= m_LoadSelectedBladeVec.size();
     }
@@ -2284,7 +2276,7 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
     {
         if ( m_SweepXDataBrowser->selected( i ) )
         {
-            xDataSetNames.push_back( m_SweepXDataBrowser->text( i ) );
+            xDataSetNames.emplace_back(m_SweepXDataBrowser->text( i ) );
         }
     }
     vector <string> yDataSetNames;
@@ -2292,7 +2284,7 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
     {
         if ( m_SweepYDataBrowser->selected( i ) )
         {
-            yDataSetNames.push_back( m_SweepYDataBrowser->text( i ) );
+            yDataSetNames.emplace_back(m_SweepYDataBrowser->text( i ) );
         }
     }
 
@@ -2307,7 +2299,7 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
     //Redraw plot if data is available and selected
     bool expandOnly = false;
     int nPolarPoints = m_SweepFlowConditionSelectedResultIDs.size();
-    if ( ( nPolarPoints > 0 ) && ( xDataSetNames.size() > 0 ) && ( yDataSetNames.size() > 0 ) )
+    if ( ( nPolarPoints > 0 ) && ( !xDataSetNames.empty() ) && ( !yDataSetNames.empty() ) )
     {
         for ( int iXData = 0; iXData < xDataSetNames.size(); iXData++ )
         {
@@ -2390,7 +2382,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
     bool expandOnly = false;
     vector < int > pos_type_vec;
 
-    if ( ( m_CpSliceCaseSelectedResultIDs.size() > 0 ) && ( m_CpSliceCutSelectedResultIDs.size() > 0 ) )
+    if ( ( !m_CpSliceCaseSelectedResultIDs.empty() ) && ( !m_CpSliceCutSelectedResultIDs.empty() ) )
     {
         for ( size_t iCut = 0; iCut < m_CpSliceCutSelectedResultIDs.size(); iCut++ )
         {
@@ -2528,7 +2520,7 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
     {
         if ( m_UnsteadyYDataBrowser->selected( i ) )
         {
-            yDataSetNames.push_back( m_UnsteadyYDataBrowser->text( i ) );
+            yDataSetNames.emplace_back(m_UnsteadyYDataBrowser->text( i ) );
         }
     }
 
@@ -2538,12 +2530,12 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
     {
         if ( m_UnsteadySelectBrowser->selected( i ) )
         {
-            selectSetNames.push_back( m_UnsteadySelectBrowser->text( i ) );
+            selectSetNames.emplace_back(m_UnsteadySelectBrowser->text( i ) );
         }
     }
 
     m_UnsteadyNLines = m_UnsteadyFlowConditionSelectedResultIDs.size() * yDataSetNames.size();
-    if ( m_UnsteadySelectedTypeVec.size() > 0 ) // Since "History" is not included in the vector
+    if ( !m_UnsteadySelectedTypeVec.empty() ) // Since "History" is not included in the vector
     {
         m_UnsteadyNLines *= m_UnsteadySelectedTypeVec.size();
     }
@@ -2587,7 +2579,7 @@ string VSPAEROPlotScreen::MakeAxisLabelStr( const vector <string> &dataSetNames 
     string labelStr;
     for ( int iDataSet = 0; iDataSet < dataSetNames.size(); iDataSet++ )
     {
-        labelStr += dataSetNames[iDataSet].c_str();
+        labelStr += dataSetNames[iDataSet];
         if ( iDataSet < ( int )dataSetNames.size() - 1 )
         {
             labelStr += ", ";
@@ -2639,7 +2631,7 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
                     yDoubleData = yResultDataPtr->GetDoubleData();
                 }
 
-                if (  (xDoubleData.size() == yDoubleData.size()) && (xDoubleData.size()>0) )
+                if (  (xDoubleData.size() == yDoubleData.size()) && (!xDoubleData.empty()) )
                 {
                     //normalize the iteration data w.r.t. the final value
                     if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
@@ -2667,7 +2659,7 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
                         }
 
                         // No residual for 1st data point, so remove it
-                        if ( xDoubleData.size() > 0 )
+                        if ( !xDoubleData.empty() )
                         {
                             xDoubleData.erase( xDoubleData.begin() );
                             yDoubleData.erase( yDoubleData.begin() );
@@ -2675,7 +2667,7 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
                     }
 
                     // check again if there are still points to plot
-                    if ( xDoubleData.size()>0 )
+                    if ( !xDoubleData.empty() )
                     {
                         Fl_Color c = ColorWheel( m_ConvergenceiPlot, m_ConvergenceNLines );
 
@@ -2690,15 +2682,8 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
 
                         //Handle Axis limits
                         //  Auto adjust and expand limits for Y-Axis
-                        if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
-                        {
-                            //Always show 0 on Y Axis if the data is normalized on a log scale
-                            UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
-                        }
-                        else
-                        {
-                            UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
-                        }
+                        //Always show 0 on Y Axis if the data is normalized on a log scale
+                        UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
                     }
                 }
                 else
@@ -2712,7 +2697,7 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
                 
 
         // Explicitly set the X-axis limits  to the wake iteration limits
-        if ( xDoubleData_orig.size() > 0 )
+        if ( !xDoubleData_orig.empty() )
         {
             m_ConvergencePlotCanvas->current_x()->minimum( xDoubleData_orig[0] );
             m_ConvergencePlotCanvas->current_x()->maximum( xDoubleData_orig[xDoubleData_orig.size() - 1] );
@@ -2756,9 +2741,9 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
     }
     else if ( strcmp( res->GetName().c_str(), "VSPAERO_Load" ) == 0 || strcmp( res->GetName().c_str(), "VSPAERO_Blade_Avg" ) == 0 )
     {
-        NameValData* spanLoadSetResultDataPtr = 0;
-        NameValData* xResultDataPtr = 0;
-        NameValData* yResultDataPtr = 0;
+        NameValData* spanLoadSetResultDataPtr = nullptr;
+        NameValData* xResultDataPtr = nullptr;
+        NameValData* yResultDataPtr = nullptr;
         vector <double> xDoubleData_orig;
         string group_name, y_label;
 
@@ -2866,7 +2851,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
                     }
 
                     // check again if there are still points to plot
-                    if ( ( xDoubleData_orig.size() == yDoubleData.size() ) && ( xDoubleData_orig.size() > 0 ) )
+                    if ( ( xDoubleData_orig.size() == yDoubleData.size() ) && ( !xDoubleData_orig.empty() ) )
                     {
                         //add the normalized data to the plot
                         AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, StyleWheel( m_LoadDistiPlot ) );
@@ -2960,7 +2945,7 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
             yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
             if ( yResultDataPtr != nullptr )
             {
-                const vector <double> & xDoubleData = xDoubleData_orig;
+                int xSize = xDoubleData_orig.size();
                 vector <double> yDoubleData;
                 if ( yResultDataPtr->GetType() == vsp::INT_DATA )
                 {
@@ -2972,15 +2957,15 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
                     yDoubleData = yResultDataPtr->GetDoubleData();
                 }
 
-                if ( ( xDoubleData.size() == yDoubleData.size() ) && ( xDoubleData.size()>0 ) )
+                if ( ( xSize == yDoubleData.size() ) && ( xSize != 0 ) )
                 {
                     // check again if there are still points to plot
-                    if ( xDoubleData.size()>0 )
+                    if ( xSize != 0 )
                     {
                         Fl_Color c = ColorWheel( m_UnsteadyiPlot, m_UnsteadyNLines );
 
                         //add the normalized data to the plot
-                        AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_UnsteadyiPlot ) );
+                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, StyleWheel( m_UnsteadyiPlot ) );
 
                         char strbuf[100];
                         string legendstr;
@@ -3008,7 +2993,7 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
                 }
                 else
                 {
-                    fprintf( stderr, "WARNING: xDoubleData.size() and yDoubleData.size() must be equal AND greater than 0\n\txDoubleData.size()=%ld\n\tyDoubleData.size()=%ld\n\tFile: %s \tLine:%d\n", xDoubleData.size(), yDoubleData.size(), __FILE__, __LINE__ );
+                    fprintf( stderr, "WARNING: xDoubleData.size() and yDoubleData.size() must be equal AND greater than 0\n\txDoubleData.size()=%d\n\tyDoubleData.size()=%ld\n\tFile: %s \tLine:%d\n", xSize, yDoubleData.size(), __FILE__, __LINE__ );
                 }
 
                 expandOnly = true;
@@ -3016,7 +3001,7 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
         }
 
         // Explicitly set the X-axis limits  to the wake iteration limits
-        if ( xDoubleData_orig.size() > 0 )
+        if ( !xDoubleData_orig.empty() )
         {
             m_UnsteadyPlotCanvas->current_x()->minimum( xDoubleData_orig[0] );
             m_UnsteadyPlotCanvas->current_x()->maximum( xDoubleData_orig[xDoubleData_orig.size() - 1] );
@@ -3050,10 +3035,10 @@ void VSPAEROPlotScreen::UpdateAxisLimits( Ca_Canvas * canvas, const vector <doub
     UpdateSingleAxisLimits( canvas->current_y(), yDoubleData, expandOnly );
 }
 
-void VSPAEROPlotScreen::UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero )
+void VSPAEROPlotScreen::UpdateSingleAxisLimits( Ca_Axis_ * tAxis, const vector <double> &doubleData, bool expandOnly, bool keepZero )
 {
     //TODO Get data from canvas and make this a part of the Canvas class
-    if ( doubleData.size() > 0 )
+    if ( !doubleData.empty() )
     {
 
         // Find min and max of vector
