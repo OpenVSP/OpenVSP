@@ -178,8 +178,6 @@ public:
     vector < pair < string, int > > GetCompSurfPairVec()                                    { return m_ComponentSurfPairVec; }
     void SetCompSurfPairVec( const vector < pair < string, int > > &comp_surf_pair_vec )    { m_ComponentSurfPairVec = comp_surf_pair_vec; }
 
-    void SetGeomIDsInGroup( const vector < string > &gidvec )                               { m_GeomIDsInGroup = gidvec; }
-
     void AddComp( const string & comp_id, int surf_ind )                                    { m_ComponentSurfPairVec.push_back( std::make_pair( comp_id, surf_ind ) ); }
 
     enum GEOM_PROPERTY_TYPE
@@ -218,8 +216,6 @@ public:
 private:
 
     vector < pair < string, int > > m_ComponentSurfPairVec; // Pairs of component IDs and symmetric surface index for the unsteady group
-
-    vector < string > m_GeomIDsInGroup; // Used with vspgeom files
 };
 
 //==== VSPAERO Manager ====//

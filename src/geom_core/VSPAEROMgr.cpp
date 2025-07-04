@@ -4558,8 +4558,6 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         std::vector<string>::iterator it;
         it = std::unique( gidv.begin(), gidv.end() );
         gidv.resize( std::distance( gidv.begin(), it ) );
-
-        m_UnsteadyGroupVec[i]->SetGeomIDsInGroup( gidv );
     }
 
     // Make sure the fixed compomnet group is always first
