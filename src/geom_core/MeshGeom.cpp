@@ -2064,19 +2064,19 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         RefreshTagMaps();
     }
 
+    PreIntersectTrim( degenGeom, degen, intSubsFlag, info, res );
     PostIntersectTrim( degenGeom, degen, intSubsFlag, info, res );
 }
 
-void MeshGeom::PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res )
+void MeshGeom::PreIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res )
 {
     int i, j;
 
     //==== Compute Areas ====//
-    m_TotalTheoArea = m_TotalWetArea = 0.0;
+    m_TotalTheoArea = 0.0;
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         m_TotalTheoArea += m_TMeshVec[i]->ComputeTheoArea();
-        m_TotalWetArea  += m_TMeshVec[i]->ComputeWetArea();
     }
 
     //==== Compute Theo Vols ====//
@@ -2084,6 +2084,18 @@ void MeshGeom::PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, in
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         m_TotalTheoVol += m_TMeshVec[i]->ComputeTheoVol();
+    }
+}
+
+void MeshGeom::PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res )
+{
+    int i, j;
+
+    //==== Compute Areas ====//
+    m_TotalWetArea = 0.0;
+    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        m_TotalWetArea  += m_TMeshVec[i]->ComputeWetArea();
     }
 
     //==== Compute Total Volume ====//
