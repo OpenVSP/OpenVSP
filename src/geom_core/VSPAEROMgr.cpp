@@ -25,6 +25,7 @@
 #include "FileUtil.h"
 #include "SubSurfaceMgr.h"
 #include "ModeMgr.h"
+#include "NGonMeshGeom.h"
 
 //==== Constructor ====//
 VspAeroControlSurf::VspAeroControlSurf()
@@ -1156,23 +1157,12 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     vector < string > geom_vec = veh->GetGeomSet( set );
 
-    if ( !last_mesh && geom_vec.size() == 1 )
-    {
-        // Support mesh generated outside of VSPAERO if it is the only Geom in the set
-        Geom* geom = veh->FindGeom( geom_vec[0] );
-
-        if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
-        {
-            last_mesh = geom;
-            m_LastPanelMeshGeomId = geom_vec[0];
-        }
-    }
-    
-    if ( last_mesh && ( geom_vec.size() != 1 && last_mesh->GetID() != geom_vec[0] ) )
+    if ( last_mesh )
     {
         // Remove the previous mesh, which has been updated
         veh->DeleteGeomVec( vector< string >{ m_LastPanelMeshGeomId } );
         last_mesh = nullptr;
+        m_LastPanelMeshGeomId = "";
     }
 
 
@@ -1192,19 +1182,37 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     int mesh_set = set;
 
     // Generate *.vspgeom geometry file for analysis
-    if ( !last_mesh )
-    {
-        // Compute intersected and trimmed geometry
-        m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag, 1 /*subsFlag*/, vsp::SET_NONE, false, true );
-        mesh_set = vsp::SET_SHOWN; // Only MeshGeom is shown after geometry is computed
-    }
+    // Compute intersected and trimmed geometry
+    string mesh_geom_id = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag, 1 /*subsFlag*/, vsp::SET_NONE, false, true );
+    mesh_set = vsp::SET_SHOWN; // Only MeshGeom is shown after geometry is computed
 
-    // Write out mesh to *.vspgeom file. Only the MeshGeom is shown
-    veh->WriteVSPGeomFile( m_VSPGeomFileFull, mesh_set, vsp::SET_NONE, 1 /*subsFlag*/ );
-    WaitForFile( m_VSPGeomFileFull );
-    if ( !FileExist( m_VSPGeomFileFull ) )
+    MeshGeom* mesh_geom = ( MeshGeom * ) veh->FindGeom( mesh_geom_id );
+
+    if ( mesh_geom )
     {
-        fprintf( stderr, "WARNING: VSPGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_VSPGeomFileFull.c_str(), __FILE__, __LINE__ );
+        m_LastPanelMeshGeomId = mesh_geom->CreateNGonMeshGeom();
+
+        NGonMeshGeom* ngon_mesh_geom = ( NGonMeshGeom * ) veh->FindGeom( m_LastPanelMeshGeomId );
+
+
+        if ( ngon_mesh_geom )
+        {
+            veh->DeleteGeomVec( vector< string >{ mesh_geom_id } );
+
+            ngon_mesh_geom->WriteVSPGEOM( m_VSPGeomFileFull );
+
+            // Write out mesh to *.vspgeom file. Only the MeshGeom is shown
+            WaitForFile( m_VSPGeomFileFull );
+            if ( !FileExist( m_VSPGeomFileFull ) )
+            {
+                fprintf( stderr, "WARNING: VSPGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_VSPGeomFileFull.c_str(), __FILE__, __LINE__ );
+            }
+
+            veh->NoShowSet( vsp::SET_ALL );
+
+            ngon_mesh_geom->SetSetFlag( vsp::SET_SHOWN, true );
+            ngon_mesh_geom->SetSetFlag( vsp::SET_NOT_SHOWN, false );
+        }
     }
 
     // Clear previous results
