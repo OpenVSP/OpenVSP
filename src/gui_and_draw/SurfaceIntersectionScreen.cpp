@@ -45,9 +45,10 @@ SurfaceIntersectionScreen::SurfaceIntersectionScreen( ScreenMgr* mgr ) : TabScre
     m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - 5 ,
                                        m_ConsoleLayout.GetRemainY() - 5 );
 
-    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTextDisplay( 115 );
-    m_ConsoleBuffer = new Fl_Text_Buffer;
-    m_ConsoleDisplay->buffer( m_ConsoleBuffer );
+    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTerminal( 115 );
+    m_ConsoleDisplay->display_columns( 300 );
+    m_ConsoleDisplay->history_lines( 1000 );
+
     m_FLTK_Window->resizable( m_ConsoleDisplay );
 
     m_BorderConsoleLayout.AddYGap();
@@ -57,8 +58,6 @@ SurfaceIntersectionScreen::SurfaceIntersectionScreen( ScreenMgr* mgr ) : TabScre
 
 SurfaceIntersectionScreen::~SurfaceIntersectionScreen()
 {
-    m_ConsoleDisplay->buffer( nullptr );
-    delete m_ConsoleBuffer;
 }
 
 void SurfaceIntersectionScreen::CreateGlobalTab()
@@ -571,9 +570,7 @@ void SurfaceIntersectionScreen::UpdateWakesTab()
 void SurfaceIntersectionScreen::AddOutputText( const string &text )
 {
     Fl::lock();
-    m_ConsoleBuffer->append( text.c_str() );
-    m_ConsoleDisplay->insert_position( m_ConsoleDisplay->buffer()->length() );
-    m_ConsoleDisplay->show_insert_position();
+    m_ConsoleDisplay->append( text.c_str() );
     Fl::unlock();
 }
 
@@ -647,6 +644,9 @@ void SurfaceIntersectionScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_IntersectAndExport )
     {
+        m_ConsoleDisplay->clear();
+        m_ConsoleDisplay->clear_history();
+
         SurfaceIntersectionMgr.SetMeshInProgress( true );
         m_IntersectProcess.StartThread( surfint_thread_fun, nullptr );
     }
