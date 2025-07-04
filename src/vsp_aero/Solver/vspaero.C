@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#include <iostream>
 
 #ifndef WIN32
 #include <sys/wait.h>
@@ -26,6 +27,20 @@ using namespace VSPAERO_SOLVER;
 #define VER_MAJOR 7
 #define VER_MINOR 2
 #define VER_PATCH 0
+
+// OpenVSP headers
+
+#ifdef VSPAERO_OPT
+#include "APIDefines.h"
+#include "APIErrorMgr.h"
+#include "APIUpdateCountMgr.h"
+#include "GuiInterface.h"
+#include "Matrix4d.h"
+#include "MessageMgr.h"
+#include "Vec2d.h"
+#include "Vec3d.h"
+#include "VSP_Geom_API.h"
+#endif
 
 char *FileName;
 
@@ -47,7 +62,7 @@ double Vref_;
 double Machref_;
 double ReCref_;
 double Clo2D_;
-double MaxTurningAngle_;
+double CLMax2D_;
 double FarDist_;
 double TimeStep_;
 double ReducedFrequency_;
@@ -89,7 +104,7 @@ double ReCrefList_[MAXRUNCASES];
 int NumberOfControlGroups_;
 CONTROL_SURFACE_GROUP *ControlSurfaceGroup_;
 
-// Sability and control Mach, AoA, and Beta Lists
+// Stability and control Mach, AoA, and Beta Lists
 
 double Stab_MachList_[MAXRUNCASES];
 double  Stab_AoAList_[MAXRUNCASES];
@@ -111,27 +126,75 @@ double Delta_Q_;
 double Delta_R_;
 double Delta_Control_;
 
-// Raw stability data
+// KJ forces and moments
 
-double CFxForCase[MAXRUNCASES];
-double CFyForCase[MAXRUNCASES];
-double CFzForCase[MAXRUNCASES];
+double CFixForCase[MAXRUNCASES];
+double CFiyForCase[MAXRUNCASES];
+double CFizForCase[MAXRUNCASES];
+       
+double CMixForCase[MAXRUNCASES];
+double CMiyForCase[MAXRUNCASES];
+double CMizForCase[MAXRUNCASES];
+        
+double CLiForCase[MAXRUNCASES];
+double CDiForCase[MAXRUNCASES];
+double CSiForCase[MAXRUNCASES];
+        
+double CMilForCase[MAXRUNCASES];
+double CMimForCase[MAXRUNCASES];
+double CMinForCase[MAXRUNCASES];
 
-double CMxForCase[MAXRUNCASES];
-double CMyForCase[MAXRUNCASES];
-double CMzForCase[MAXRUNCASES];
+// Wake forces
 
-double CLForCase[MAXRUNCASES];
-double CDForCase[MAXRUNCASES];
-double CSForCase[MAXRUNCASES];
+double CFwxForCase[MAXRUNCASES];
+double CFwyForCase[MAXRUNCASES];
+double CFwzForCase[MAXRUNCASES];
 
-double CDtForCase[MAXRUNCASES];
+double CLwForCase[MAXRUNCASES];
+double CDwForCase[MAXRUNCASES];
+double CSwForCase[MAXRUNCASES];
 
-double CMlForCase[MAXRUNCASES];
-double CMmForCase[MAXRUNCASES];
-double CMnForCase[MAXRUNCASES];
+// Viscous forces and moments
 
+double CFoxForCase[MAXRUNCASES];
+double CFoyForCase[MAXRUNCASES];
+double CFozForCase[MAXRUNCASES];
+       
+double CMoxForCase[MAXRUNCASES];
+double CMoyForCase[MAXRUNCASES];
+double CMozForCase[MAXRUNCASES];
+        
+double CLoForCase[MAXRUNCASES];
 double CDoForCase[MAXRUNCASES];
+double CSoForCase[MAXRUNCASES];
+         
+double CMolForCase[MAXRUNCASES];
+double CMomForCase[MAXRUNCASES];
+double CMonForCase[MAXRUNCASES];
+
+// Total forces and moments
+
+double CFtxForCase[MAXRUNCASES];
+double CFtyForCase[MAXRUNCASES];
+double CFtzForCase[MAXRUNCASES];
+        
+double CMtxForCase[MAXRUNCASES];
+double CMtyForCase[MAXRUNCASES];
+double CMtzForCase[MAXRUNCASES];
+        
+double CLtForCase[MAXRUNCASES];
+double CDtForCase[MAXRUNCASES];
+double CStForCase[MAXRUNCASES];
+        
+double CMtlForCase[MAXRUNCASES];
+double CMtmForCase[MAXRUNCASES];
+double CMtnForCase[MAXRUNCASES];
+
+// Stall factor
+
+double MinStallFactor[MAXRUNCASES];
+
+// Optimization function for case
 
 double OptimizationFunctionForCase[MAXRUNCASES];
 
@@ -191,8 +254,10 @@ int RestartAndInterrogateSolution_   = 0;
 int NumberOfQuadTrees_               = 0;
 int NumberOfInlets_                  = 0;
 int NumberOfNozzles_                 = 0;
-int DoFiniteDiffTest                 = 0;
-int StallModelIsOn                   = 0;
+int DoFiniteDiffTest_                = 0;
+int FiniteDiffTestStepSize_          = 1;
+int FiniteDiffTestLoadGroup_         = 0;
+int StallModelIsOn_                   = 0;
 int SolveOnMGLevel_                  = 0;
 int UpdateMatrixPreconditioner_      = 0;
 int UseWakeNodeMatrixPreconditioner_ = 0;
@@ -202,6 +267,33 @@ int FreezeWakeAtIteration_           = 100000;
 int FreezeWakeRootVortices_          = 0;
 int QuadTreeBufferLevels_            = 0;
 int VSPAERO_InputFileFormatOutput_   = 0;
+int RestartFromPreviousSolve_        = 0;
+
+
+// Optimization variables
+
+int OptimizationNumberOfIterations_      = 10;
+int OptimizationNumber1DSearchSteps_     = 10;
+int OptimizationUsingWakeForces_         =  0;
+int OPtimizationUpdateGeometryGradients_ =  0;
+
+double Optimization_CL_Weight_       = 0.;
+double Optimization_CD_Weight_       = 0.;
+double Optimization_CS_Weight_       = 0.;
+
+double Optimization_CML_Weight_      = 0.;
+double Optimization_CMM_Weight_      = 0.;
+double Optimization_CMN_Weight_      = 0.;
+
+double Optimization_CL_Required_     = 0.;
+double Optimization_CD_Required_     = 0.;
+double Optimization_CS_Required_     = 0.;
+
+double Optimization_CML_Required_    = 0.;
+double Optimization_CMM_Required_    = 0.;
+double Optimization_CMN_Required_    = 0.;
+
+double OptimizationGradientReduction_ = 0.001;
 
 // Prototypes
 
@@ -234,8 +326,39 @@ int SearchForFloatVariable(FILE *File, const char *VariableName, double &Value);
 int SearchForFloatVariableList(FILE *File, const char *VariableName, double *Value, int &NumberOfEntries);
 int SearchForIntVariableList(FILE *File, const char *VariableName, int *Value, int &NumberOfEntries);
 
-VSP_SOLVER VSP_VLM_;
-VSP_SOLVER &VSP_VLM(void) { return VSP_VLM_; };
+VSP_SOLVER VSPAERO_;
+VSP_SOLVER &VSPAERO(void) { return VSPAERO_; };
+
+// Optimization code
+
+#ifdef VSPAERO_OPT
+
+class PARAMETER_DATA {
+   
+public:
+   
+   double *ParameterValues;
+   char **ParameterNames;
+
+};
+
+void VSPAERO_Optimize(void);
+
+PARAMETER_DATA *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables);
+
+double *CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues);
+
+void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues);
+
+double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVariables, PARAMETER_DATA *ParameterData);
+
+void DeleteMeshGradients(int NumberOfDesignVariables, double **dMesh_dParameter);
+
+double Normalize(double *Vector, int Length);
+
+void CGState(double *Old, double *New, int Length);
+
+#endif
 
 // The code...
 
@@ -271,8 +394,29 @@ int main(int argc, char **argv)
 
     // Output a header
 
+#ifndef VSPAERO_OPT
+
     printf("VSPAERO v.%d.%d.%d --- Compiled on: %s at %s PST \n", VER_MAJOR, VER_MINOR, VER_PATCH, __DATE__, __TIME__);
     printf("\n\n\n\n");
+
+#endif
+
+#ifdef VSPAERO_OPT
+
+    printf("VSPAERO_OPT v.%d.%d.%d --- Compiled on: %s at %s PST \n", VER_MAJOR, VER_MINOR, VER_PATCH, __DATE__, __TIME__);
+    printf("\n\n\n\n");
+
+#endif
+
+    // Jump into optimization routines
+    
+#ifdef VSPAERO_OPT
+
+    VSPAERO_Optimize();
+    
+#endif
+    
+    // Normal forward/adjoint solver
     
 #ifdef VSPAERO_OPENMP
     printf("Initializing OPENMP for %d threads \n",NumberOfThreads_);
@@ -294,23 +438,23 @@ int main(int argc, char **argv)
 
     // Read in FEM deformation file
     
-//broken    if ( LoadFEMDeformation_ ) VSP_VLM().LoadFEMDeformation() = 1;
+//broken    if ( LoadFEMDeformation_ ) VSPAERO().LoadFEMDeformation() = 1;
     
     // Do ground effects analysis
     
     if ( DoGroundEffectsAnalysis_ ) {
        
-       VSP_VLM().DoGroundEffectsAnalysis() = 1;
+       VSPAERO().DoGroundEffectsAnalysis() = 1;
        
-       VSP_VLM().VehicleRotationAngleVector(0) = 0.;
-       VSP_VLM().VehicleRotationAngleVector(1) = -AoAList_[1];
-       VSP_VLM().VehicleRotationAngleVector(2) = 0.;
+       VSPAERO().VehicleRotationAngleVector(0) = 0.;
+       VSPAERO().VehicleRotationAngleVector(1) = -AoAList_[1];
+       VSPAERO().VehicleRotationAngleVector(2) = 0.;
        
-       VSP_VLM().VehicleRotationAxisLocation(0) = Xcg_;
-       VSP_VLM().VehicleRotationAxisLocation(1) = Ycg_;
-       VSP_VLM().VehicleRotationAxisLocation(2) = Zcg_;  
+       VSPAERO().VehicleRotationAxisLocation(0) = Xcg_;
+       VSPAERO().VehicleRotationAxisLocation(1) = Ycg_;
+       VSPAERO().VehicleRotationAxisLocation(2) = Zcg_;  
        
-       VSP_VLM().HeightAboveGround() = HeightAboveGround_;
+       VSPAERO().HeightAboveGround() = HeightAboveGround_;
        
        NumberOfAoAs_ = 1;
        
@@ -318,58 +462,58 @@ int main(int argc, char **argv)
        
        Zcg_ += HeightAboveGround_ - Zcg_;
           
-       VSP_VLM().Xcg() = Xcg_;
-       VSP_VLM().Ycg() = Ycg_;
-       VSP_VLM().Zcg() = Zcg_;       
+       VSPAERO().Xcg() = Xcg_;
+       VSPAERO().Ycg() = Ycg_;
+       VSPAERO().Zcg() = Zcg_;       
 
     }
     
     // Write out 2D FEM file
     
-    if ( Write2DFEMFile_ ) VSP_VLM().Write2DFEMFile() = 1;
+    if ( Write2DFEMFile_ ) VSPAERO().Write2DFEMFile() = 1;
     
     // Write out Tecplot file
     
-    if ( WriteTecplotFile_ ) VSP_VLM().WriteTecplotFile() = 1;
+    if ( WriteTecplotFile_ ) VSPAERO().WriteTecplotFile() = 1;
         
     // Save optimization data
     
-    if ( OptimizationSolve_ ) VSP_VLM().OptimizationSolve() = 1;
+    if ( OptimizationSolve_ ) VSPAERO().OptimizationSolve() = 1;
             
     // Solve the adjoint problem
     
-    if ( DoAdjointSolve_ ) VSP_VLM().DoAdjointSolve() = 1;
+    if ( DoAdjointSolve_ ) VSPAERO().DoAdjointSolve() = 1;
       
     // User choosing specific grid level to set as finest level
     
-    if ( SolveOnMGLevel_ > 0 ) VSP_VLM().SolveOnMGLevel(SolveOnMGLevel_);
+    if ( SolveOnMGLevel_ > 0 ) VSPAERO().SolveOnMGLevel(SolveOnMGLevel_);
            
     // Set number of farfield wake nodes
 
-    if ( NumberOfWakeNodes_ > 0 ) VSP_VLM().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);       
+    if ( NumberOfWakeNodes_ > 0 ) VSPAERO().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);       
                
     // Force farfield distance for wake adaption
     
-    if ( SetFarDist_ ) VSP_VLM().SetFarFieldDist(FarDist_);
+    if ( SetFarDist_ ) VSPAERO().SetFarFieldDist(FarDist_);
                     
-    // Load in the VSP degenerate geometry file
+    // Load in the VSPgeom geometry file
  
-    VSP_VLM().ReadFile(FileName);
+    VSPAERO().ReadFile(FileName);
     
     // Check adjoint component group settings
         
     if ( NumberOfAdjointComponentListSettings_ != 0 ) {
        
-       if ( NumberOfAdjointComponentListSettings_ != VSP_VLM().VSPGeom().NumberOfComponentGroups() ) {
+       if ( NumberOfAdjointComponentListSettings_ != VSPAERO().VSPGeom().NumberOfComponentGroups() ) {
        
           printf("Number of adjoint component groups listed in .vspaero file does not match actual number of component groups defined in .groups file! \n");
           fflush(NULL);exit(1);
           
        }
        
-       for ( i = 1 ; i <= VSP_VLM().VSPGeom().NumberOfComponentGroups() ; i++ ) {
+       for ( i = 1 ; i <= VSPAERO().VSPGeom().NumberOfComponentGroups() ; i++ ) {
     
-          VSP_VLM().UserAdjointComponentList(i) = UserAdjointComponentList_[i];
+          VSPAERO().UserAdjointComponentList(i) = UserAdjointComponentList_[i];
 
        }
        
@@ -377,33 +521,33 @@ int main(int argc, char **argv)
     
     // Geometry dump, no solver
     
-    if ( DumpGeom_ ) VSP_VLM().DumpGeom() = 1;
+    if ( DumpGeom_ ) VSPAERO().DumpGeom() = 1;
     
     // Setup high lift file
     
-    if ( SetupHighLiftFile_ ) VSP_VLM().CreateHighLiftFile() = 1;
+    if ( SetupHighLiftFile_ ) VSPAERO().CreateHighLiftFile() = 1;
 
     // Turn off spanwise loading calculations for Panel solves
     
-    if ( NoPanelSpanWiseLoading_ )  VSP_VLM().PanelSpanWiseLoading() = 0;
+    if ( NoPanelSpanWiseLoading_ )  VSPAERO().PanelSpanWiseLoading() = 0;
 
     // We are doing an interrogation of a previous solution
     
-    if ( RestartAndInterrogateSolution_ ) VSP_VLM().DoSolutionInterrogation() = 1;
+    if ( RestartAndInterrogateSolution_ ) VSPAERO().DoSolutionInterrogation() = 1;
 
     // Setup
 
-    VSP_VLM().Setup();
+    VSPAERO().Setup();
 
     // Wake options
 
-    if ( ImplicitWake_ > 0 ) VSP_VLM().ImplicitWake() = 1;
+    if ( ImplicitWake_ > 0 ) VSPAERO().ImplicitWake() = 1;
     
-    if ( ImplicitWakeStartIteration_ > 0 ) VSP_VLM().ImplicitWakeStartIteration() = ImplicitWakeStartIteration_;
+    if ( ImplicitWakeStartIteration_ > 0 ) VSPAERO().ImplicitWakeStartIteration() = ImplicitWakeStartIteration_;
 
     // Inform solver of Control Surface Groups ( this information is used in VSP_SOLVER::WriteCaseHeader(FILE *fid) )
 
-    VSP_VLM().SetControlSurfaceGroup( ControlSurfaceGroup_, NumberOfControlGroups_ );
+    VSPAERO().SetControlSurfaceGroup( ControlSurfaceGroup_, NumberOfControlGroups_ );
 
     // Stability and control run
     
@@ -437,7 +581,7 @@ int main(int argc, char **argv)
        
     }
     
-    else if ( DoFiniteDiffTest ) {
+    else if ( DoFiniteDiffTest_ ) {
        
        FiniteDiffTestSolve();
        
@@ -529,8 +673,6 @@ void ParseInput(int argc, char *argv[])
 
     while ( i <= argc - 2 ) {
 
-       // Start up the graphics viewer after were all done
-
        if ( strcmp(argv[i],"-wtf") == 0 ) {
 
          printf("wtf back at you!  \n");   
@@ -561,19 +703,19 @@ void ParseInput(int argc, char *argv[])
         
           StabControlRun_ = 2;
           
-          VSP_VLM().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
-          VSP_VLM().TimeAnalysisType() = P_ANALYSIS;
+          VSPAERO().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
+          VSPAERO().TimeAnalysisType() = P_ANALYSIS;
           
-          VSP_VLM().NumberOfTimeSteps()             = 128;
-          VSP_VLM().Unsteady_AngleMax()             = 5.;
-          VSP_VLM().Unsteady_HMax()                 = 0.;    
-          VSP_VLM().CoreSizeFactor()                = 1.;    
-          VSP_VLM().ForwardGMRESConvergenceFactor() = 1.;   
-          VSP_VLM().WakeIterations()                = 25;
+          VSPAERO().NumberOfTimeSteps()             = 128;
+          VSPAERO().Unsteady_AngleMax()             = 5.;
+          VSPAERO().Unsteady_HMax()                 = 0.;    
+          VSPAERO().CoreSizeFactor()                = 1.;    
+          VSPAERO().ForwardGMRESConvergenceFactor() = 1.;   
+          VSPAERO().WakeIterations()                = 25;
           
           NumberOfWakeNodes_ = 32;
           
-          VSP_VLM().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);
+          VSPAERO().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);
 
        }      
        
@@ -581,19 +723,19 @@ void ParseInput(int argc, char *argv[])
         
           StabControlRun_ = 3;
           
-          VSP_VLM().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
-          VSP_VLM().TimeAnalysisType() = Q_ANALYSIS;
+          VSPAERO().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
+          VSPAERO().TimeAnalysisType() = Q_ANALYSIS;
           
-          VSP_VLM().NumberOfTimeSteps()             = 128;
-          VSP_VLM().Unsteady_AngleMax()             = 5.;
-          VSP_VLM().Unsteady_HMax()                 = 0.;    
-          VSP_VLM().CoreSizeFactor()                = 1.;    
-          VSP_VLM().ForwardGMRESConvergenceFactor() = 1.;
-          VSP_VLM().WakeIterations()                = 25;
+          VSPAERO().NumberOfTimeSteps()             = 128;
+          VSPAERO().Unsteady_AngleMax()             = 5.;
+          VSPAERO().Unsteady_HMax()                 = 0.;    
+          VSPAERO().CoreSizeFactor()                = 1.;    
+          VSPAERO().ForwardGMRESConvergenceFactor() = 1.;
+          VSPAERO().WakeIterations()                = 25;
           
           NumberOfWakeNodes_ = 32;
           
-          VSP_VLM().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);
+          VSPAERO().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);
                     
        }      
                      
@@ -601,19 +743,19 @@ void ParseInput(int argc, char *argv[])
         
           StabControlRun_ = 4;
           
-          VSP_VLM().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
-          VSP_VLM().TimeAnalysisType() = R_ANALYSIS;
+          VSPAERO().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
+          VSPAERO().TimeAnalysisType() = R_ANALYSIS;
           
-          VSP_VLM().NumberOfTimeSteps()             = 128;
-          VSP_VLM().Unsteady_AngleMax()             = 5.;
-          VSP_VLM().Unsteady_HMax()                 = 0.;    
-          VSP_VLM().CoreSizeFactor()                = 1.;    
-          VSP_VLM().ForwardGMRESConvergenceFactor() = 1.;   
-          VSP_VLM().WakeIterations()                = 25;
+          VSPAERO().NumberOfTimeSteps()             = 128;
+          VSPAERO().Unsteady_AngleMax()             = 5.;
+          VSPAERO().Unsteady_HMax()                 = 0.;    
+          VSPAERO().CoreSizeFactor()                = 1.;    
+          VSPAERO().ForwardGMRESConvergenceFactor() = 1.;   
+          VSPAERO().WakeIterations()                = 25;
           
           NumberOfWakeNodes_ = 32;
           
-          VSP_VLM().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);
+          VSPAERO().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);
                     
        }              
 
@@ -625,9 +767,9 @@ void ParseInput(int argc, char *argv[])
               
        else if ( strcmp(argv[i],"-unsteady") == 0 ) {
 
-          VSP_VLM().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
+          VSPAERO().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
 
-          VSP_VLM().TimeAnalysisType() = 0;
+          VSPAERO().TimeAnalysisType() = 0;
 
        }
        
@@ -731,7 +873,13 @@ void ParseInput(int argc, char *argv[])
 
        else if ( strcmp(argv[i],"-fdtest") == 0 ) {
                     
-          DoFiniteDiffTest = 1;
+          DoFiniteDiffTest_ = 1;
+          
+          FiniteDiffTestStepSize_ = atoi(argv[++i]);
+          
+          FiniteDiffTestLoadGroup_ = atoi(argv[++i]);
+          
+          printf("Doing finite difference gradient test with grid node step size of: %d and reporting out load group: %d \n",FiniteDiffTestStepSize_,FiniteDiffTestLoadGroup_);
 
        }          
        
@@ -778,13 +926,12 @@ void LoadCaseFile(int ReadFlag)
     double x,y,z, DumDouble, HingeVec[3], RotAngle, DeltaHeight;
     double Value, MassFlow, Velocity, DeltaCp;
     FILE *case_file;
-    char file_name_w_ext[2000], DumChar[2000], DumChar2[2000], Comma[2000], *Next;
+    char file_name_w_ext[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE], DumChar2[MAX_CHAR_SIZE], Comma[MAX_CHAR_SIZE], *Next;
     QUAT Quat, InvQuat, Vec;
 
     // Delimiters
     
     snprintf(Comma,sizeof(Comma)*sizeof(char),",");
-
 
     // Open the case file
 
@@ -822,8 +969,8 @@ void LoadCaseFile(int ReadFlag)
     Machref_                       = 0.3;
     Rho_                           = 0.002377;
     ReCref_                        = 10000000.;
-    Clo2D_                         =  0.;    
-    MaxTurningAngle_               = -1.;
+    Clo2D_                         = 0.;    
+    CLMax2D_                       = 1.;
     FarDist_                       = -1.;
     NumberOfWakeNodes_             = -1;
     WakeIterations_                = 3;
@@ -927,12 +1074,16 @@ void LoadCaseFile(int ReadFlag)
 
     // Search for stall model setting
     
-    if ( SearchForIntegerVariable(case_file, "StallModel", StallModelIsOn) ) if ( case_file != NULL ) { printf("Setting StallModel to: %d \n",StallModelIsOn); };
+    if ( SearchForIntegerVariable(case_file, "StallModel", StallModelIsOn_) ) if ( case_file != NULL ) { printf("Setting StallModel to: %d \n",StallModelIsOn_); };
     
     // Search for Clo2D
     
     if ( SearchForFloatVariable(case_file, "Clo2D", Clo2D_) ) if ( case_file != NULL ) {  printf("Setting Clo2D to: %f \n",Clo2D_); };
     
+    // Search for CLMax2D_
+    
+    if ( SearchForFloatVariable(case_file, "CLMax2D", CLMax2D_) ) if ( case_file != NULL ) {  printf("Setting CLMax2D to: %f \n",CLMax2D_); };
+        
     // Search for Symmetry setting
     
     if ( SearchForIntegerVariable(case_file, "Symmetry", SymmetryFlag_) ) if ( case_file != NULL ) { printf("Setting Symmetry to: %d \n",SymmetryFlag_); };
@@ -941,19 +1092,19 @@ void LoadCaseFile(int ReadFlag)
     
     if ( SearchForIntegerVariable(case_file, "FreezeMultiPoleAtIteration", FreezeMultiPoleAtIteration_) ) if ( case_file != NULL ) { printf("Setting FreezeMultiPoleAtIteration to: %d \n",FreezeMultiPoleAtIteration_); };
          
-    if ( FreezeMultiPoleAtIteration_ >= 0 ) VSP_VLM().FreezeMultiPoleAtIteration() = FreezeMultiPoleAtIteration_;
+    if ( FreezeMultiPoleAtIteration_ >= 0 ) VSPAERO().FreezeMultiPoleAtIteration() = FreezeMultiPoleAtIteration_;
 
     // Search for freeze wake setting
     
     if ( SearchForIntegerVariable(case_file, "FreezeWakeAtIteration", FreezeWakeAtIteration_) ) if ( case_file != NULL ) { printf("Setting FreezeWakeAtIteration to: %d \n",FreezeWakeAtIteration_); };
          
-    if ( FreezeWakeAtIteration_ >= 0 ) VSP_VLM().FreezeWakeAtIteration() = FreezeWakeAtIteration_;
+    if ( FreezeWakeAtIteration_ >= 0 ) VSPAERO().FreezeWakeAtIteration() = FreezeWakeAtIteration_;
     
     // Search for freeze wake root vortices setting
     
     if ( SearchForIntegerVariable(case_file, "FreezeWakeRootVortices", FreezeWakeRootVortices_) ) if ( case_file != NULL ) { printf("Setting FreezeWakeRootVortices to: %d \n",FreezeWakeRootVortices_); };
     
-    if ( FreezeWakeRootVortices_ >= 0 ) VSP_VLM().FreezeWakeRootVortices() = FreezeWakeRootVortices_;
+    if ( FreezeWakeRootVortices_ >= 0 ) VSPAERO().FreezeWakeRootVortices() = FreezeWakeRootVortices_;
 
     // Search for implicit solve
     
@@ -986,7 +1137,7 @@ void LoadCaseFile(int ReadFlag)
     
     if ( SearchForFloatVariable(case_file, "WakeRelax", WakeRelax_) ) if ( case_file != NULL ) { printf("Setting WakeRelax to: %f \n",WakeRelax_); };
   
-    if ( WakeRelax_ >= 0. ) VSP_VLM().WakeRelax() = WakeRelax_;
+    if ( WakeRelax_ >= 0. ) VSPAERO().WakeRelax() = WakeRelax_;
    
     // Search for Forward GMRES residual scale factor
     
@@ -994,7 +1145,7 @@ void LoadCaseFile(int ReadFlag)
     
     if ( SearchForFloatVariable(case_file, "ForwardGMRESConvergenceFactor", ForwardGMRESConvergenceFactor_) ) if ( case_file != NULL ) { printf("Setting ForwardGMRESConvergenceFactor to: %e \n",ForwardGMRESConvergenceFactor_); };
               
-    VSP_VLM().ForwardGMRESConvergenceFactor() = ForwardGMRESConvergenceFactor_;
+    VSPAERO().ForwardGMRESConvergenceFactor() = ForwardGMRESConvergenceFactor_;
 
     // Search for Adjoint GMRES residual scale factor
     
@@ -1002,7 +1153,7 @@ void LoadCaseFile(int ReadFlag)
     
     if ( SearchForFloatVariable(case_file, "AdjointGMRESConvergenceFactor", AdjointGMRESConvergenceFactor_) ) if ( case_file != NULL ) { printf("Setting AdjointGMRESConvergenceFactor_ to: %e \n",AdjointGMRESConvergenceFactor_); };
               
-    VSP_VLM().AdjointGMRESConvergenceFactor() = AdjointGMRESConvergenceFactor_;
+    VSPAERO().AdjointGMRESConvergenceFactor() = AdjointGMRESConvergenceFactor_;
     
     // Search for Solver residual scale factor
     
@@ -1010,7 +1161,7 @@ void LoadCaseFile(int ReadFlag)
     
     if ( SearchForFloatVariable(case_file, "NonLinearConvergenceFactor", NonLinearConvergenceFactor_) ) if ( case_file != NULL ) { printf("Setting NonLinearConvergenceFactor to: %e \n",NonLinearConvergenceFactor_); };
               
-    VSP_VLM().NonLinearConvergenceFactor() = NonLinearConvergenceFactor_;
+    VSPAERO().NonLinearConvergenceFactor() = NonLinearConvergenceFactor_;
          
     // Search for coresize factor
     
@@ -1018,7 +1169,7 @@ void LoadCaseFile(int ReadFlag)
     
     if ( SearchForFloatVariable(case_file, "CoreSizeFactor", CoreSizeFactor_) ) if ( case_file != NULL ) { printf("Setting CoreSizeFactor to: %f \n",CoreSizeFactor_); };
     
-    if ( CoreSizeFactor_ > 0. ) VSP_VLM().CoreSizeFactor() = CoreSizeFactor_;
+    if ( CoreSizeFactor_ > 0. ) VSPAERO().CoreSizeFactor() = CoreSizeFactor_;
 
     // Search for Faraway factor
     
@@ -1026,9 +1177,9 @@ void LoadCaseFile(int ReadFlag)
     
     if ( SearchForFloatVariable(case_file, "FarAway", FarAway_) ) if ( case_file != NULL ) { printf("Setting multipole FarAway factor to: %f \n",FarAway_); };
     
-    if ( FarAway_ > 0. ) VSP_VLM().FarAway() = FarAway_;
+    if ( FarAway_ > 0. ) VSPAERO().FarAway() = FarAway_;
     
-    if ( WakeIterations_ == 0 && DoUnsteadyAnalysis_ == 0 )VSP_VLM().GMRESTightConvergence() = 1;
+    if ( WakeIterations_ == 0 && DoUnsteadyAnalysis_ == 0 )VSPAERO().GMRESTightConvergence() = 1;
 
     // Search for preconditioner update flag
     
@@ -1036,7 +1187,7 @@ void LoadCaseFile(int ReadFlag)
     
     if ( SearchForIntegerVariable(case_file, "UpdateMatrixPreconditioner", UpdateMatrixPreconditioner_) ) if ( case_file != NULL ) { printf("Setting UpdateMatrixPreconditioner flag to: %d \n",UpdateMatrixPreconditioner_); };
 
-    VSP_VLM().UpdateMatrixPreconditioner() = UpdateMatrixPreconditioner_;
+    VSPAERO().UpdateMatrixPreconditioner() = UpdateMatrixPreconditioner_;
         
     // Search for wake node preconditioner flag
     
@@ -1044,25 +1195,25 @@ void LoadCaseFile(int ReadFlag)
     
     if ( SearchForIntegerVariable(case_file, "UseWakeNodeMatrixPreconditioner", UseWakeNodeMatrixPreconditioner_) ) if ( case_file != NULL ) { printf("Setting UseWakeNodeMatrixPreconditioner flag to: %d \n",UseWakeNodeMatrixPreconditioner_); };
     
-    VSP_VLM().UseWakeNodeMatrixPreconditioner() = UseWakeNodeMatrixPreconditioner_;
+    VSPAERO().UseWakeNodeMatrixPreconditioner() = UseWakeNodeMatrixPreconditioner_;
 
-    if ( SearchForFloatVariable(case_file, "MaxTurningAngle", MaxTurningAngle_) ) if ( case_file != NULL ) { printf("Setting MaxTurningAngle_ to: %d \n",MaxTurningAngle_); };
-     
-    if ( MaxTurningAngle_ <= 0. ) MaxTurningAngle_ = -1.;
-    
     // Search for quad tree buffer levels
         
     if ( SearchForIntegerVariable(case_file, "QuadTreeBufferLevels", QuadTreeBufferLevels_) ) if ( case_file != NULL ) { printf("Setting QuadTreeBufferLevels_ flag to: %d \n",QuadTreeBufferLevels_); };
     
-    VSP_VLM().QuadTreeBufferLevels() = QuadTreeBufferLevels_;
-         
+    VSPAERO().QuadTreeBufferLevels() = QuadTreeBufferLevels_;
+    
+    // Search for restart from previous solve option
+    
+    if ( SearchForIntegerVariable(case_file, "RestartFromPreviousSolve", RestartFromPreviousSolve_) ) if ( case_file != NULL ) { printf("Setting RestartFromPreviousSolve flag to: %d \n",RestartFromPreviousSolve_); };
+            
     // Search for adjoint force type
     
     AdjointSolutionForceType_ = 0;
     
     if ( SearchForIntegerVariable(case_file, "AdjointSolutionForceType", AdjointSolutionForceType_) ) if ( case_file != NULL ) { printf("Setting AdjointSolutionForceType to: %d \n",AdjointSolutionForceType_); };
     
-    VSP_VLM().AdjointSolutionForceType() = AdjointSolutionForceType_;
+    VSPAERO().AdjointSolutionForceType() = AdjointSolutionForceType_;
          
     // Search fir adjoint force and moment case list
 
@@ -1089,7 +1240,7 @@ void LoadCaseFile(int ReadFlag)
        
        for ( i = 1 ; i <= NumberOfAdjointForceAndMomentCases_ ; i++ ) {
           
-          VSP_VLM().DoAdjointSolveForThisForceMomentCase(i) = AdjointSolveForThisForceMomentCase_[i];
+          VSPAERO().DoAdjointSolveForThisForceMomentCase(i) = AdjointSolveForThisForceMomentCase_[i];
           
        }
        
@@ -1119,17 +1270,62 @@ void LoadCaseFile(int ReadFlag)
     
     if ( SearchForIntegerVariable(case_file, "Write2DFEMFile", Write2DFEMFile_) ) if ( case_file != NULL ) { printf("Setting Write2DFEMFile to: %d \n",Write2DFEMFile_); };
     
-    VSP_VLM().Write2DFEMFile() = Write2DFEMFile_;
-    
-    
+    VSPAERO().Write2DFEMFile() = Write2DFEMFile_;
+        
     // Search for Tecplot file output flag
     
     WriteTecplotFile_ = 0;
     
     if ( SearchForIntegerVariable(case_file, "WriteTecplotFile", WriteTecplotFile_) ) if ( case_file != NULL ) {  printf("Setting WriteTecplotFile to: %d \n",WriteTecplotFile_); };
     
-    VSP_VLM().WriteTecplotFile() = WriteTecplotFile_;    
+    VSPAERO().WriteTecplotFile() = WriteTecplotFile_;    
     
+    // Check for zero wake iteration case... so just frozen wake
+
+    if ( WakeIterations_ == 0 ) {
+       
+       FreezeWakeAtIteration_ = 0;
+       
+       ForwardGMRESConvergenceFactor_ = MIN(0.001, ForwardGMRESConvergenceFactor_);
+
+       VSPAERO().ForwardGMRESConvergenceFactor() = ForwardGMRESConvergenceFactor_;
+       
+       VSPAERO().FreezeWakeAtIteration() = FreezeWakeAtIteration_;
+    
+       
+    }
+    
+    // Optimization flags
+
+    if ( SearchForIntegerVariable(case_file, "OptimizationNumberOfIterations", OptimizationNumberOfIterations_) ) if ( case_file != NULL ) { printf("Setting OptimizationNumberOfIterations to: %d \n",OptimizationNumberOfIterations_); };
+
+    if ( SearchForIntegerVariable(case_file, "OptimizationNumber1DSearchSteps", OptimizationNumber1DSearchSteps_) ) if ( case_file != NULL ) { printf("Setting OptimizationNumber1DSearchSteps to: %d \n",OptimizationNumber1DSearchSteps_); };
+
+
+    if ( SearchForIntegerVariable(case_file, "OptimizationUsingWakeForces", OptimizationUsingWakeForces_) ) if ( case_file != NULL ) { printf("Setting OptimizationUsingWakeForces flag to: %d \n",OptimizationUsingWakeForces_); };
+
+    if ( SearchForIntegerVariable(case_file, "OPtimizationUpdateGeometryGradients", OPtimizationUpdateGeometryGradients_) ) if ( case_file != NULL ) { printf("Setting OPtimizationUpdateGeometryGradients flag to: %d \n",OPtimizationUpdateGeometryGradients_); };
+            
+    if ( SearchForFloatVariable(case_file, "OptimizationGradientReduction", OptimizationGradientReduction_) ) if ( case_file != NULL ) { printf("Setting OptimizationGradientReduction to: %f \n",OptimizationGradientReduction_); };
+
+            
+    if ( SearchForFloatVariable(case_file, "Optimization_CL_Weight", Optimization_CL_Weight_) ) if ( case_file != NULL ) { printf("Setting Optimization_CL_Weight to: %f \n",Optimization_CL_Weight_); };
+    if ( SearchForFloatVariable(case_file, "Optimization_CD_Weight", Optimization_CD_Weight_) ) if ( case_file != NULL ) { printf("Setting Optimization_CD_Weight to: %f \n",Optimization_CD_Weight_); };
+    if ( SearchForFloatVariable(case_file, "Optimization_CS_Weight", Optimization_CS_Weight_) ) if ( case_file != NULL ) { printf("Setting Optimization_CS_Weight to: %f \n",Optimization_CS_Weight_); };
+   
+    if ( SearchForFloatVariable(case_file, "Optimization_CML_Weight", Optimization_CML_Weight_) ) if ( case_file != NULL ) { printf("Setting Optimization_CML_Weight to: %f \n",Optimization_CML_Weight_); };
+    if ( SearchForFloatVariable(case_file, "Optimization_CMM_Weight", Optimization_CMM_Weight_) ) if ( case_file != NULL ) { printf("Setting Optimization_CMM_Weight to: %f \n",Optimization_CMM_Weight_); };
+    if ( SearchForFloatVariable(case_file, "Optimization_CMN_Weight", Optimization_CMN_Weight_) ) if ( case_file != NULL ) { printf("Setting Optimization_CMN_Weight to: %f \n",Optimization_CMN_Weight_); };
+
+
+    if ( SearchForFloatVariable(case_file, "Optimization_CL_Required", Optimization_CL_Required_) ) if ( case_file != NULL ) { printf("Setting Optimization_CL_Required to: %f \n",Optimization_CL_Required_); };
+    if ( SearchForFloatVariable(case_file, "Optimization_CD_Required", Optimization_CD_Required_) ) if ( case_file != NULL ) { printf("Setting Optimization_CD_Required to: %f \n",Optimization_CD_Required_); };
+    if ( SearchForFloatVariable(case_file, "Optimization_CS_Required", Optimization_CS_Required_) ) if ( case_file != NULL ) { printf("Setting Optimization_CS_Required to: %f \n",Optimization_CS_Required_); };
+
+    if ( SearchForFloatVariable(case_file, "Optimization_CML_Required", Optimization_CML_Required_) ) if ( case_file != NULL ) { printf("Setting Optimization_CML_Required to: %f \n",Optimization_CML_Required_); };
+    if ( SearchForFloatVariable(case_file, "Optimization_CMM_Required", Optimization_CMM_Required_) ) if ( case_file != NULL ) { printf("Setting Optimization_CMM_Required to: %f \n",Optimization_CMM_Required_); };
+    if ( SearchForFloatVariable(case_file, "Optimization_CMN_Required", Optimization_CMN_Required_) ) if ( case_file != NULL ) { printf("Setting Optimization_CMN_Required to: %f \n",Optimization_CMN_Required_); };
+
     // We were just creating an input list of variables ... so quit
         
     if ( case_file == NULL ) { fflush(NULL); exit(1); };
@@ -1148,49 +1344,50 @@ void LoadCaseFile(int ReadFlag)
     printf("Rho             = %lf \n",Rho_);
     printf("ReCref          = "); { for ( i = 1 ; i < NumberOfReCrefs_ ; i++ ) { printf("%f, ",ReCrefList_[i]); }; printf("%f \n",ReCrefList_[NumberOfReCrefs_]); };
     
-    printf("StallModel      = %d  \n",StallModelIsOn);
+    printf("StallModel      = %d  \n",StallModelIsOn_);
     printf("Clo2D           = %lf \n",Clo2D_);    
-    printf("MaxTurningAngle = %lf \n",MaxTurningAngle_);
+    printf("CLMax2D_        = %lf \n",CLMax2D_);    
+    
     printf("Symmetry        = %d  \n",SymmetryFlag_);
     printf("FarDist         = %lf \n",FarDist_);
     printf("NumWakeNodes    = %d  \n",NumberOfWakeNodes_);
     printf("WakeIters       = %d  \n",WakeIterations_);
 
-    VSP_VLM().Sref() = Sref_;
-    VSP_VLM().Cref() = Cref_;
-    VSP_VLM().Bref() = Bref_;
+    VSPAERO().Sref() = Sref_;
+    VSPAERO().Cref() = Cref_;
+    VSPAERO().Bref() = Bref_;
 
-    VSP_VLM().Xcg() = Xcg_;
-    VSP_VLM().Ycg() = Ycg_;
-    VSP_VLM().Zcg() = Zcg_;
+    VSPAERO().Xcg() = Xcg_;
+    VSPAERO().Ycg() = Ycg_;
+    VSPAERO().Zcg() = Zcg_;
     
-    VSP_VLM().Mach() = Mach_;
-    VSP_VLM().AngleOfAttack() = AoA_ * TORAD;
-    VSP_VLM().AngleOfBeta() = Beta_ * TORAD;
+    VSPAERO().Mach() = Mach_;
+    VSPAERO().AngleOfAttack() = AoA_ * TORAD;
+    VSPAERO().AngleOfBeta() = Beta_ * TORAD;
     
-    VSP_VLM().Vinf() = Vinf_;
+    VSPAERO().Vinf() = Vinf_;
     
-    VSP_VLM().Vref() = Vref_;
+    VSPAERO().Vref() = Vref_;
     
-    VSP_VLM().Machref() = Machref_;
+    VSPAERO().Machref() = Machref_;
     
-    VSP_VLM().Density() = Rho_;
+    VSPAERO().Density() = Rho_;
     
-    VSP_VLM().ReCref() = ReCref_;
+    VSPAERO().ReCref() = ReCref_;
     
-    VSP_VLM().Clo2D() = Clo2D_;
+    VSPAERO().Clo2D() = Clo2D_;
+        
+    VSPAERO().Clmax_2d() = CLMax2D_;
     
-    VSP_VLM().StallModelIsOn() = StallModelIsOn;
-    
-    VSP_VLM().MaxTurningAngle() = MaxTurningAngle_;
-    
-    VSP_VLM().WakeIterations() = WakeIterations_;
-    
-    VSP_VLM().RotationalRate_p() = 0.0;
-    VSP_VLM().RotationalRate_q() = 0.0;
-    VSP_VLM().RotationalRate_r() = 0.0;    
+    VSPAERO().StallModelIsOn() = StallModelIsOn_;
 
-    VSP_VLM().DoSymmetryPlaneSolve() = SymmetryFlag_;
+    VSPAERO().WakeIterations() = WakeIterations_;
+    
+    VSPAERO().RotationalRate_p() = 0.0;
+    VSPAERO().RotationalRate_q() = 0.0;
+    VSPAERO().RotationalRate_r() = 0.0;    
+
+    VSPAERO().DoSymmetryPlaneSolve() = SymmetryFlag_;
         
     // Load in the control surface data
     
@@ -1198,7 +1395,7 @@ void LoadCaseFile(int ReadFlag)
     
     NumberOfControlGroups_ = 0;
 
-    while ( fgets(DumChar,2000,case_file) != NULL ) {
+    while ( fgets(DumChar,MAX_CHAR_SIZE,case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberOfControlGroups") != NULL ) {
           
@@ -1242,13 +1439,13 @@ void LoadCaseFile(int ReadFlag)
                 
                 DumChar[strcspn(DumChar, "\n")] = 0;
                 
-                snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(1),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(1))*sizeof(char),"%s",DumChar);
+                snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(1),MAX_CHAR_SIZE*sizeof(char),"%s",DumChar);
                 
                 printf("Control Surface(1): %s___ \n",ControlSurfaceGroup_[i].ControlSurface_Name(1));
                 
                 // Read in the control surface direction
                 
-                fgets(DumChar,2000,case_file);
+                fgets(DumChar,MAX_CHAR_SIZE,case_file);
                 
                 ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(1) = atof(DumChar);
                                                 
@@ -1256,7 +1453,7 @@ void LoadCaseFile(int ReadFlag)
    
                 //// Read in the control surface deflection
                 //
-                //fgets(DumChar,2000,case_file);
+                //fgets(DumChar,MAX_CHAR_SIZE,case_file);
                 //
                 //ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() = atof(DumChar);
                 //
@@ -1302,7 +1499,7 @@ void LoadCaseFile(int ReadFlag)
   
                 NumberOfControlSurfaces = 1;
                 
-                snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces))*sizeof(char),"%s",Next);
+                snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),MAX_CHAR_SIZE*sizeof(char),"%s",Next);
                 
                 ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(NumberOfControlSurfaces) = 1;
                 
@@ -1316,7 +1513,7 @@ void LoadCaseFile(int ReadFlag)
                        
                        NumberOfControlSurfaces++;
 
-                       snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces))*sizeof(char),"%s", Next );
+                       snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),MAX_CHAR_SIZE*sizeof(char),"%s", Next );
                 
                        printf("Control surface(%d): %s \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces));
    
@@ -1326,7 +1523,7 @@ void LoadCaseFile(int ReadFlag)
                 
                 // Now read in the control surface directions
                 
-                fgets(DumChar,2000,case_file);
+                fgets(DumChar,MAX_CHAR_SIZE,case_file);
                 
                 Next = strtok(DumChar,Comma);
   
@@ -1374,7 +1571,7 @@ void LoadCaseFile(int ReadFlag)
     
     Done = 0;
     
-    while ( !Done && fgets(DumChar,2000,case_file) != NULL ) {
+    while ( !Done && fgets(DumChar,MAX_CHAR_SIZE,case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberOfRotors") != NULL ) {
           
@@ -1382,16 +1579,16 @@ void LoadCaseFile(int ReadFlag)
           
           printf("NumberOfRotors: %d \n",NumberOfRotors_);
           
-          VSP_VLM().SetNumberOfRotors(NumberOfRotors_);
+          VSPAERO().SetNumberOfRotors(NumberOfRotors_);
           
           for ( i = 1 ; i <= NumberOfRotors_ ; i++ ) {
            
-             fgets(DumChar,2000,case_file);
-             fgets(DumChar,2000,case_file);
+             fgets(DumChar,MAX_CHAR_SIZE,case_file);
+             fgets(DumChar,MAX_CHAR_SIZE,case_file);
              
              printf("\nLoading data for rotor: %5d \n",i);
              
-             VSP_VLM().RotorDisk(i).Load_STP_Data(case_file);
+             VSPAERO().RotorDisk(i).Load_STP_Data(case_file);
              
           }
           
@@ -1423,25 +1620,25 @@ void LoadCaseFile(int ReadFlag)
           
           // Rotate rotors and shift in z
           
-          x = VSP_VLM().RotorDisk(i).XYZ(0);
-          y = VSP_VLM().RotorDisk(i).XYZ(1);
-          z = VSP_VLM().RotorDisk(i).XYZ(2);
+          x = VSPAERO().RotorDisk(i).XYZ(0);
+          y = VSPAERO().RotorDisk(i).XYZ(1);
+          z = VSPAERO().RotorDisk(i).XYZ(2);
 
-          VSP_VLM().RotorDisk(i).XYZ(0) = (x - Xcg_)*cos(RotAngle) - (z - Zcg_)*sin(RotAngle) + Xcg_;
-          VSP_VLM().RotorDisk(i).XYZ(1) = y;
-          VSP_VLM().RotorDisk(i).XYZ(2) = (x - Xcg_)*sin(RotAngle) + (z - Zcg_)*cos(RotAngle) + Zcg_ + DeltaHeight;    
+          VSPAERO().RotorDisk(i).XYZ(0) = (x - Xcg_)*cos(RotAngle) - (z - Zcg_)*sin(RotAngle) + Xcg_;
+          VSPAERO().RotorDisk(i).XYZ(1) = y;
+          VSPAERO().RotorDisk(i).XYZ(2) = (x - Xcg_)*sin(RotAngle) + (z - Zcg_)*cos(RotAngle) + Zcg_ + DeltaHeight;    
      
           // Rotate rotors to align with free stream
           
-          Vec(0) = VSP_VLM().RotorDisk(i).Normal(0);
-          Vec(1) = VSP_VLM().RotorDisk(i).Normal(1);
-          Vec(2) = VSP_VLM().RotorDisk(i).Normal(2);
+          Vec(0) = VSPAERO().RotorDisk(i).Normal(0);
+          Vec(1) = VSPAERO().RotorDisk(i).Normal(1);
+          Vec(2) = VSPAERO().RotorDisk(i).Normal(2);
        
           Vec = Quat * Vec * InvQuat;
        
-          VSP_VLM().RotorDisk(i).Normal(0) = Vec(0);
-          VSP_VLM().RotorDisk(i).Normal(1) = Vec(1); 
-          VSP_VLM().RotorDisk(i).Normal(2) = Vec(2); 
+          VSPAERO().RotorDisk(i).Normal(0) = Vec(0);
+          VSPAERO().RotorDisk(i).Normal(1) = Vec(1); 
+          VSPAERO().RotorDisk(i).Normal(2) = Vec(2); 
           
        }
                     
@@ -1455,7 +1652,7 @@ void LoadCaseFile(int ReadFlag)
     
     Done = 0;
         
-    while ( !Done && fgets(DumChar,2000,case_file) != NULL ) {
+    while ( !Done && fgets(DumChar,MAX_CHAR_SIZE,case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberofSurveyPoints") != NULL ) {
 
@@ -1463,7 +1660,7 @@ void LoadCaseFile(int ReadFlag)
           
           printf("NumberofSurveyPoints: %d \n",NumberofSurveyPoints_);
           
-          VSP_VLM().SetNumberOfSurveyPoints(NumberofSurveyPoints_);
+          VSPAERO().SetNumberOfSurveyPoints(NumberofSurveyPoints_);
           
           for ( i = 1 ; i <= NumberofSurveyPoints_ ; i++ ) {
              
@@ -1471,9 +1668,9 @@ void LoadCaseFile(int ReadFlag)
              
              printf("Survey Point: %10d: %10.5f %10.5f %10.5f \n",i,x,y,z);
              
-             VSP_VLM().SurveyPointList(i).x() = x;
-             VSP_VLM().SurveyPointList(i).y() = y;
-             VSP_VLM().SurveyPointList(i).z() = z;
+             VSPAERO().SurveyPointList(i).x() = x;
+             VSPAERO().SurveyPointList(i).y() = y;
+             VSPAERO().SurveyPointList(i).z() = z;
              
           }
        
@@ -1489,7 +1686,7 @@ void LoadCaseFile(int ReadFlag)
     
     Done = 0;
         
-    while ( !Done && fgets(DumChar,2000,case_file) != NULL ) {
+    while ( !Done && fgets(DumChar,MAX_CHAR_SIZE,case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberOfQuadTrees") != NULL ) {
 
@@ -1497,7 +1694,7 @@ void LoadCaseFile(int ReadFlag)
           
           printf("NumberOfQuadTrees: %d \n",NumberOfQuadTrees_);
           
-          VSP_VLM().SetNumberOfQuadTrees(NumberOfQuadTrees_);
+          VSPAERO().SetNumberOfQuadTrees(NumberOfQuadTrees_);
           
           for ( i = 1 ; i <= NumberOfQuadTrees_ ; i++ ) {
              
@@ -1505,8 +1702,8 @@ void LoadCaseFile(int ReadFlag)
              
              printf("QuadTree(%d): %10d: %10.5f \n",j,Dir,Value);
              
-             VSP_VLM().QuadTreeDirection(i) = Dir;
-             VSP_VLM().QuadTreeValue(i) = Value;
+             VSPAERO().QuadTreeDirection(i) = Dir;
+             VSPAERO().QuadTreeValue(i) = Value;
              
           }
        
@@ -1522,7 +1719,7 @@ void LoadCaseFile(int ReadFlag)
 
     Done = 0;
         
-    while ( !Done && fgets(DumChar,2000,case_file) != NULL ) {
+    while ( !Done && fgets(DumChar,MAX_CHAR_SIZE,case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberOfInlets") != NULL ) {
 
@@ -1538,7 +1735,7 @@ void LoadCaseFile(int ReadFlag)
 	  
     Done = 0;
         
-    while ( !Done && fgets(DumChar,2000,case_file) != NULL ) {
+    while ( !Done && fgets(DumChar,MAX_CHAR_SIZE,case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberOfNozzles") != NULL ) {
 
@@ -1550,7 +1747,7 @@ void LoadCaseFile(int ReadFlag)
        
     }
     
-    VSP_VLM().SetNumberOfEngineFaces(NumberOfInlets_ + NumberOfNozzles_);
+    VSPAERO().SetNumberOfEngineFaces(NumberOfInlets_ + NumberOfNozzles_);
     
     // Read in inlet data
     
@@ -1558,7 +1755,7 @@ void LoadCaseFile(int ReadFlag)
     	      
     Done = 0;
         
-    while ( !Done && fgets(DumChar,2000,case_file) != NULL ) {
+    while ( !Done && fgets(DumChar,MAX_CHAR_SIZE,case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberOfInlets") != NULL ) {
 
@@ -1572,9 +1769,9 @@ void LoadCaseFile(int ReadFlag)
 
              printf("EngineFace(%d) with surface %10d and massflow of %10.5f is an inlet \n",j,Surface,-MassFlow);
                  
-             VSP_VLM().EngineFace(i).SurfaceType() = INLET_FACE;
-             VSP_VLM().EngineFace(i).SurfaceID() = Surface;
-             VSP_VLM().EngineFace(i).MassFlow() = MassFlow;
+             VSPAERO().EngineFace(i).SurfaceType() = INLET_FACE;
+             VSPAERO().EngineFace(i).SurfaceID() = Surface;
+             VSPAERO().EngineFace(i).MassFlow() = MassFlow;
              
           }
        
@@ -1588,7 +1785,7 @@ void LoadCaseFile(int ReadFlag)
     	      
     Done = 0;
         
-    while ( !Done && fgets(DumChar,2000,case_file) != NULL ) {
+    while ( !Done && fgets(DumChar,MAX_CHAR_SIZE,case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberOfNozzles") != NULL ) {
 
@@ -1602,19 +1799,19 @@ void LoadCaseFile(int ReadFlag)
              
              fscanf(case_file,"%d %d %lf %lf \n",&j,&Surface,&Velocity,&DeltaCp);
 
-	          fscanf(case_file,"%lf %lf %lf \n",&(VSP_VLM().EngineFace(k).NozzleXYZ(0)),&(VSP_VLM().EngineFace(k).NozzleXYZ(1)),&(VSP_VLM().EngineFace(k).NozzleXYZ(2)));
-	          fscanf(case_file,"%lf %lf %lf \n",&(VSP_VLM().EngineFace(k).NozzleNormal(0)),&(VSP_VLM().EngineFace(k).NozzleNormal(1)),&(VSP_VLM().EngineFace(k).NozzleNormal(2)));	     
-	          fscanf(case_file,"%lf \n",&(VSP_VLM().EngineFace(i).NozzleRadius()));
+	          fscanf(case_file,"%lf %lf %lf \n",&(VSPAERO().EngineFace(k).NozzleXYZ(0)),&(VSPAERO().EngineFace(k).NozzleXYZ(1)),&(VSPAERO().EngineFace(k).NozzleXYZ(2)));
+	          fscanf(case_file,"%lf %lf %lf \n",&(VSPAERO().EngineFace(k).NozzleNormal(0)),&(VSPAERO().EngineFace(k).NozzleNormal(1)),&(VSPAERO().EngineFace(k).NozzleNormal(2)));	     
+	          fscanf(case_file,"%lf \n",&(VSPAERO().EngineFace(i).NozzleRadius()));
                       
              printf("EngineFace(%d) with surface %10d and velocity of %10.5f is a nozzle \n",j,Surface,Velocity);
-	          printf("Nozzle xyz: %f %f %f \n",VSP_VLM().EngineFace(k).NozzleXYZ(0),VSP_VLM().EngineFace(k).NozzleXYZ(1),VSP_VLM().EngineFace(k).NozzleXYZ(2));
- 	          printf("Nozzle normal: %f %f %f \n",VSP_VLM().EngineFace(k).NozzleNormal(0),VSP_VLM().EngineFace(k).NozzleNormal(1),VSP_VLM().EngineFace(k).NozzleNormal(2));
-	          printf("Nozzle radius: %f \n",VSP_VLM().EngineFace(k).NozzleRadius());
+	          printf("Nozzle xyz: %f %f %f \n",VSPAERO().EngineFace(k).NozzleXYZ(0),VSPAERO().EngineFace(k).NozzleXYZ(1),VSPAERO().EngineFace(k).NozzleXYZ(2));
+ 	          printf("Nozzle normal: %f %f %f \n",VSPAERO().EngineFace(k).NozzleNormal(0),VSPAERO().EngineFace(k).NozzleNormal(1),VSPAERO().EngineFace(k).NozzleNormal(2));
+	          printf("Nozzle radius: %f \n",VSPAERO().EngineFace(k).NozzleRadius());
          
-             VSP_VLM().EngineFace(k).SurfaceType() = NOZZLE_FACE;                
-             VSP_VLM().EngineFace(k).SurfaceID() = Surface;
-             VSP_VLM().EngineFace(k).NozzleVelocity() = Velocity;
-             VSP_VLM().EngineFace(k).NozzleDeltaCp() = DeltaCp;
+             VSPAERO().EngineFace(k).SurfaceType() = NOZZLE_FACE;                
+             VSPAERO().EngineFace(k).SurfaceID() = Surface;
+             VSPAERO().EngineFace(k).NozzleVelocity() = Velocity;
+             VSPAERO().EngineFace(k).NozzleDeltaCp() = DeltaCp;
              
           }
        
@@ -1628,7 +1825,7 @@ void LoadCaseFile(int ReadFlag)
         
     Done = 0;
         
-    while ( !Done && fgets(DumChar,2000,case_file) != NULL ) {
+    while ( !Done && fgets(DumChar,MAX_CHAR_SIZE,case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberOfSurveyTimeSteps") != NULL ) {
 
@@ -1636,7 +1833,7 @@ void LoadCaseFile(int ReadFlag)
           
           printf("NumberOfSurveyTimeSteps: %d \n",NumberOfSurveyTimeSteps_);
           
-          VSP_VLM().NumberOfSurveyTimeSteps() = NumberOfSurveyTimeSteps_;
+          VSPAERO().NumberOfSurveyTimeSteps() = NumberOfSurveyTimeSteps_;
           
           Done = 1;
 
@@ -1650,25 +1847,25 @@ void LoadCaseFile(int ReadFlag)
     
     Done = 0;
 
-    if ( VSP_VLM().TimeAnalysisType() == 0 ) {
+    if ( VSPAERO().TimeAnalysisType() == 0 ) {
 
         // Search for the number of time steps
             
         if ( SearchForIntegerVariable(case_file, "NumberOfTimeSteps", NumberOfTimeSteps_) ) printf("Setting NumberOfTimeSteps to: %d \n",NumberOfTimeSteps_);
         
-        VSP_VLM().NumberOfTimeSteps() = NumberOfTimeSteps_;
+        VSPAERO().NumberOfTimeSteps() = NumberOfTimeSteps_;
     
         // Search for the start of the time averaging time step
             
         if ( SearchForIntegerVariable(case_file, "StartAveragingTimeStep", StartAveragingTimeStep_) ) printf("Setting StartAveragingTimeStep to: %d \n",StartAveragingTimeStep_);
         
-        VSP_VLM().StartAveragingTimeStep() = StartAveragingTimeStep_;
+        VSPAERO().StartAveragingTimeStep() = StartAveragingTimeStep_;
     
         // Search for time step
             
         if ( SearchForFloatVariable(case_file, "TimeStep", TimeStep_) ) printf("Setting TimeStep_ to: %f \n",TimeStep_);
         
-        VSP_VLM().DeltaTime() = TimeStep_;
+        VSPAERO().DeltaTime() = TimeStep_;
 
     }
         
@@ -1678,7 +1875,7 @@ void LoadCaseFile(int ReadFlag)
 
 /*##############################################################################
 #                                                                              #
-#                           ApplyControlDeflections                            #
+#                           SearchForIntegerVariable                           #
 #                                                                              #
 ##############################################################################*/
 
@@ -1686,7 +1883,7 @@ int SearchForIntegerVariable(FILE *File, const char *VariableName, int &Value)
 {
    
     int Found;
-    char DumChar1[2000], DumChar2[2000], DumChar3[2000], Space[2000], *Next;
+    char DumChar1[MAX_CHAR_SIZE], DumChar2[MAX_CHAR_SIZE], DumChar3[MAX_CHAR_SIZE], Space[MAX_CHAR_SIZE], *Next;
     
     if ( File == NULL ) {
        
@@ -1704,7 +1901,7 @@ int SearchForIntegerVariable(FILE *File, const char *VariableName, int &Value)
     
     rewind(File);
         
-    while ( fgets(DumChar1,2000,File) != NULL && !Found ) {
+    while ( fgets(DumChar1,MAX_CHAR_SIZE,File) != NULL && !Found ) {
 
        snprintf(DumChar2,sizeof(DumChar2)*sizeof(char),"%s",DumChar1);
    
@@ -1726,7 +1923,7 @@ int SearchForIntegerVariable(FILE *File, const char *VariableName, int &Value)
 
 /*##############################################################################
 #                                                                              #
-#                           ApplyControlDeflections                            #
+#                           SearchForCharacterVariable                         #
 #                                                                              #
 ##############################################################################*/
 
@@ -1734,7 +1931,7 @@ int SearchForCharacterVariable(FILE *File, const char *VariableName, char *Varia
 {
 
     int Found;
-    char DumChar1[2000], DumChar2[2000], DumChar3[2000], Space[2000], *Next;
+    char DumChar1[MAX_CHAR_SIZE], DumChar2[MAX_CHAR_SIZE], DumChar3[MAX_CHAR_SIZE], Space[MAX_CHAR_SIZE], *Next;
     
     if ( File == NULL ) {
        
@@ -1752,7 +1949,7 @@ int SearchForCharacterVariable(FILE *File, const char *VariableName, char *Varia
     
     rewind(File);
         
-    while ( fgets(DumChar1,2000,File) != NULL && !Found ) {
+    while ( fgets(DumChar1,MAX_CHAR_SIZE,File) != NULL && !Found ) {
 
        snprintf(DumChar2,sizeof(DumChar2)*sizeof(char),"%s",DumChar1);
    
@@ -1774,7 +1971,7 @@ int SearchForCharacterVariable(FILE *File, const char *VariableName, char *Varia
 
 /*##############################################################################
 #                                                                              #
-#                           ApplyControlDeflections                            #
+#                           SearchForFloatVariable                             #
 #                                                                              #
 ##############################################################################*/
 
@@ -1782,7 +1979,7 @@ int SearchForFloatVariable(FILE *File, const char *VariableName, double &Value)
 {
 
     int Found;
-    char DumChar1[2000], DumChar2[2000], DumChar3[2000], Space[2000], *Next;
+    char DumChar1[MAX_CHAR_SIZE], DumChar2[MAX_CHAR_SIZE], DumChar3[MAX_CHAR_SIZE], Space[MAX_CHAR_SIZE], *Next;
     
     if ( File == NULL ) {
        
@@ -1800,7 +1997,7 @@ int SearchForFloatVariable(FILE *File, const char *VariableName, double &Value)
     
     rewind(File);
         
-    while ( fgets(DumChar1,2000,File) != NULL && !Found ) {
+    while ( fgets(DumChar1,MAX_CHAR_SIZE,File) != NULL && !Found ) {
 
        snprintf(DumChar2,sizeof(DumChar2)*sizeof(char),"%s",DumChar1);
    
@@ -1831,7 +2028,7 @@ int SearchForFloatVariableList(FILE *File, const char *VariableName, double *Val
    
     int Found;
     double DumDouble;
-    char DumChar1[2000], DumChar2[2000], Space[2000], Comma[2000], *Next;
+    char DumChar1[MAX_CHAR_SIZE], DumChar2[MAX_CHAR_SIZE], Space[MAX_CHAR_SIZE], Comma[MAX_CHAR_SIZE], *Next;
 
     if ( File == NULL ) {
        
@@ -1853,7 +2050,7 @@ int SearchForFloatVariableList(FILE *File, const char *VariableName, double *Val
     
     rewind(File);
         
-    while ( fgets(DumChar2,2000,File) != NULL && !Found ) {
+    while ( fgets(DumChar2,MAX_CHAR_SIZE,File) != NULL && !Found ) {
 
        snprintf(DumChar1,sizeof(DumChar1)*sizeof(char),"%s",DumChar2);
 
@@ -1869,49 +2066,49 @@ int SearchForFloatVariableList(FILE *File, const char *VariableName, double *Val
 
     // If we found it, then we need to parse the line
 
-       if ( Found ) {
+    if ( Found ) {
 
-          // There's just one entry
-          
-          if ( strstr(DumChar1,Comma) == NULL ) {
-      
-             sscanf(DumChar1,"%s = %lf \n",DumChar2,&DumDouble);
-             
-             NumberOfEntries = 1;
-
-             Value[1] = DumDouble; 
-
-          }
-          
-          // There's a list
-          
-          else {
-      
-             Next = strtok(DumChar1,Comma);
-             
-             sscanf(DumChar1,"%s = %lf \n",DumChar2,&DumDouble);
-
-             Value[1] = DumDouble;
-             
-             NumberOfEntries = 1;
-  
-             while ( Next != NULL ) {
-                
-                 Next = strtok(NULL,Comma);
-                 
-                 if ( Next != NULL ) {
-                    
-                    DumDouble = atof(Next);
+       // There's just one entry
+       
+       if ( strstr(DumChar1,Comma) == NULL ) {
    
-                    Value[++NumberOfEntries] = DumDouble;
+          sscanf(DumChar1,"%s = %lf \n",DumChar2,&DumDouble);
           
-                 }
-                 
-             }
-  
-          }  
-          
+          NumberOfEntries = 1;
+
+          Value[1] = DumDouble; 
+
        }
+       
+       // There's a list
+       
+       else {
+   
+          Next = strtok(DumChar1,Comma);
+          
+          sscanf(DumChar1,"%s = %lf \n",DumChar2,&DumDouble);
+
+          Value[1] = DumDouble;
+          
+          NumberOfEntries = 1;
+
+          while ( Next != NULL ) {
+             
+              Next = strtok(NULL,Comma);
+              
+              if ( Next != NULL ) {
+                 
+                 DumDouble = atof(Next);
+
+                 Value[++NumberOfEntries] = DumDouble;
+       
+              }
+              
+          }
+
+       }  
+       
+    }
 
     return Found; 
 
@@ -1927,7 +2124,7 @@ int SearchForIntVariableList(FILE *File, const char *VariableName, int *Value, i
 {
    
     int Found, DumInt;
-    char DumChar1[2000], DumChar2[2000], Space[2000], Comma[2000], *Next;
+    char DumChar1[MAX_CHAR_SIZE], DumChar2[MAX_CHAR_SIZE], Space[MAX_CHAR_SIZE], Comma[MAX_CHAR_SIZE], *Next;
 
     if ( File == NULL ) {
        
@@ -1949,7 +2146,7 @@ int SearchForIntVariableList(FILE *File, const char *VariableName, int *Value, i
     
     rewind(File);
         
-    while ( fgets(DumChar2,2000,File) != NULL && !Found ) {
+    while ( fgets(DumChar2,MAX_CHAR_SIZE,File) != NULL && !Found ) {
 
        snprintf(DumChar1,sizeof(DumChar1)*sizeof(char),"%s",DumChar2);
 
@@ -1965,49 +2162,49 @@ int SearchForIntVariableList(FILE *File, const char *VariableName, int *Value, i
 
     // If we found it, then we need to parse the line
 
-       if ( Found ) {
+    if ( Found ) {
 
-          // There's just one entry
-          
-          if ( strstr(DumChar1,Comma) == NULL ) {
-      
-             sscanf(DumChar1,"%s = %d \n",DumChar2,&DumInt);
-             
-             NumberOfEntries = 1;
-
-             Value[1] = DumInt; 
-
-          }
-          
-          // There's a list
-          
-          else {
-      
-             Next = strtok(DumChar1,Comma);
-             
-             sscanf(DumChar1,"%s = %d \n",DumChar2,&DumInt);
-
-             Value[1] = DumInt;
-             
-             NumberOfEntries = 1;
-  
-             while ( Next != NULL ) {
-                
-                 Next = strtok(NULL,Comma);
-                 
-                 if ( Next != NULL ) {
-                    
-                    DumInt = atoi(Next);
+       // There's just one entry
+       
+       if ( strstr(DumChar1,Comma) == NULL ) {
    
-                    Value[++NumberOfEntries] = DumInt;
+          sscanf(DumChar1,"%s = %d \n",DumChar2,&DumInt);
           
-                 }
-                 
-             }
-  
-          }  
-          
+          NumberOfEntries = 1;
+
+          Value[1] = DumInt; 
+
        }
+       
+       // There's a list
+       
+       else {
+   
+          Next = strtok(DumChar1,Comma);
+          
+          sscanf(DumChar1,"%s = %d \n",DumChar2,&DumInt);
+
+          Value[1] = DumInt;
+          
+          NumberOfEntries = 1;
+
+          while ( Next != NULL ) {
+             
+              Next = strtok(NULL,Comma);
+              
+              if ( Next != NULL ) {
+                 
+                 DumInt = atoi(Next);
+
+                 Value[++NumberOfEntries] = DumInt;
+       
+              }
+              
+          }
+
+       }  
+       
+    }
 
     return Found; 
 
@@ -2033,13 +2230,13 @@ void ApplyControlDeflections()
 
           Found = 0;
           
-          for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfControlSurfaces() ; k++ ) {
+          for ( k = 1 ; k <= VSPAERO().VSPGeom().NumberOfControlSurfaces() ; k++ ) {
 
-             if ( strstr( VSP_VLM().VSPGeom().ControlSurface(k).Name(), ControlSurfaceGroup_[i].ControlSurface_Name(j) ) != NULL ) {
+             if ( strstr( VSPAERO().VSPGeom().ControlSurface(k).Name(), ControlSurfaceGroup_[i].ControlSurface_Name(j) ) != NULL ) {
 
                  Found = 1;
             
-                 VSP_VLM().VSPGeom().ControlSurface(k).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
+                 VSPAERO().VSPGeom().ControlSurface(k).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
 
              }
  
@@ -2057,9 +2254,9 @@ void ApplyControlDeflections()
               
               printf( "Known control surfaces:\n" );
               
-              for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfControlSurfaces() ; k++ ) {
+              for ( k = 1 ; k <= VSPAERO().VSPGeom().NumberOfControlSurfaces() ; k++ ) {
                  
-                 printf( "\t%20s\n", VSP_VLM().VSPGeom().ControlSurface(k).Name() );
+                 printf( "\t%20s\n", VSPAERO().VSPGeom().ControlSurface(k).Name() );
               
               }
               
@@ -2083,8 +2280,8 @@ void Solve(void)
 {
 
     int i, j, k, p, Case, NumCases, ****CaseList;
-    double AR, E;
-    char PolarFileName[2000];
+    double AR, E, Ewake, LoD, LoDwake, CL, CLwake;
+    char PolarFileName[MAX_CHAR_SIZE];
     FILE *PolarFile;
 
     ApplyControlDeflections();
@@ -2116,6 +2313,8 @@ void Solve(void)
     for ( i = 1 ; i <= NumberOfBetas_ ; i++ ) {
        
        for ( j = 1 ; j <= NumberOfMachs_; j++ ) {
+          
+          VSPAERO().RestartFromPreviousSolve() = 0;
              
           for ( k = 1 ; k <= NumberOfAoAs_ ; k++ ) {
              
@@ -2125,37 +2324,37 @@ void Solve(void)
              
              // Set free stream conditions
              
-             VSP_VLM().AngleOfBeta()   = BetaList_[i] * TORAD;
-             VSP_VLM().Mach()          = MachList_[j];  
-             VSP_VLM().AngleOfAttack() =  AoAList_[k] * TORAD;
+             VSPAERO().AngleOfBeta()   = BetaList_[i] * TORAD;
+             VSPAERO().Mach()          = MachList_[j];  
+             VSPAERO().AngleOfAttack() =  AoAList_[k] * TORAD;
      
-             VSP_VLM().RotationalRate_p() = 0.;
-             VSP_VLM().RotationalRate_q() = 0.;
-             VSP_VLM().RotationalRate_r() = 0.;
+             VSPAERO().RotationalRate_p() = 0.;
+             VSPAERO().RotationalRate_q() = 0.;
+             VSPAERO().RotationalRate_r() = 0.;
 
              // Set a comment line
              
-             snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Case: %-d ...",Case);
+             snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"Case: %-d ...",Case);
              
-             if ( DoGroundEffectsAnalysis_ ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"AoA: %7.3f ... H: %8.3f",-VSP_VLM().VehicleRotationAngleVector(1),HeightAboveGround_);
+             if ( DoGroundEffectsAnalysis_ ) snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"AoA: %7.3f ... H: %8.3f",-VSPAERO().VehicleRotationAngleVector(1),HeightAboveGround_);
 
              // Solve this case
              
-             if ( SaveRestartFile_ ) VSP_VLM().SaveRestartFile() = 1;
+             if ( SaveRestartFile_ ) VSPAERO().SaveRestartFile() = 1;
    
-             if ( DoRestartRun_    ) VSP_VLM().DoRestart() = 1;
+             if ( DoRestartRun_    ) VSPAERO().DoRestart() = 1;
              
              if ( Case == 1 || Case < NumCases ) {
                 
                 if ( RestartAndInterrogateSolution_ ) {
                    
-                   VSP_VLM().RestartAndInterrogateSolution(Case);
+                   VSPAERO().RestartAndInterrogateSolution(Case);
                    
                 }
                 
                 else {
           
-                   VSP_VLM().Solve(Case);
+                   VSPAERO().Solve(Case);
                    
                 }
                 
@@ -2165,40 +2364,86 @@ void Solve(void)
                
                 if ( RestartAndInterrogateSolution_ ) {
                    
-                   VSP_VLM().RestartAndInterrogateSolution(-Case);
+                   VSPAERO().RestartAndInterrogateSolution(-Case);
                    
                 }
                                 
                 else {
                                    
-                   VSP_VLM().Solve(-Case);
+                   VSPAERO().Solve(-Case);
                    
                 }
                 
              }
 
-             // Store aero coefficients
+             // KJ inviscid forces
              
-             CLForCase[Case] = VSP_VLM().CLi() + VSP_VLM().CLo(); 
-             CDForCase[Case] = VSP_VLM().CDi() + VSP_VLM().CDo();       
-             CSForCase[Case] = VSP_VLM().CSi() + VSP_VLM().CSo();        
-             
-             CDoForCase[Case] = VSP_VLM().CDo();     
-             
-             CDtForCase[Case] = VSP_VLM().CDiw();        
-             
-             CFxForCase[Case] = VSP_VLM().CFix() + VSP_VLM().CFox();
-             CFyForCase[Case] = VSP_VLM().CFiy() + VSP_VLM().CFoy();       
-             CFzForCase[Case] = VSP_VLM().CFiz() + VSP_VLM().CFoz();       
-                 
-             CMxForCase[Case] = VSP_VLM().CMix() + VSP_VLM().CMox();      
-             CMyForCase[Case] = VSP_VLM().CMiy() + VSP_VLM().CMoy();      
-             CMzForCase[Case] = VSP_VLM().CMiz() + VSP_VLM().CMoz();    
-             
-             CMlForCase[Case] = -CMxForCase[Case];    
-             CMmForCase[Case] =  CMyForCase[Case];       
-             CMnForCase[Case] = -CMzForCase[Case];        
+             CLiForCase[Case]  =  VSPAERO().CLi(); 
+             CDiForCase[Case]  =  VSPAERO().CDi();       
+             CSiForCase[Case]  =  VSPAERO().CSi();        
+                                  
+             CFixForCase[Case] =  VSPAERO().CFix();
+             CFiyForCase[Case] =  VSPAERO().CFiy();       
+             CFizForCase[Case] =  VSPAERO().CFiz();       
+                                  
+             CMixForCase[Case] =  VSPAERO().CMix();      
+             CMiyForCase[Case] =  VSPAERO().CMiy();      
+             CMizForCase[Case] =  VSPAERO().CMiz();    
+              
+             CMilForCase[Case] = -VSPAERO().CMix();      
+             CMimForCase[Case] =  VSPAERO().CMiy();      
+             CMinForCase[Case] = -VSPAERO().CMiz();  
 
+             // Wake inviscid forces
+             
+             CLwForCase[Case]  =  VSPAERO().CLiw(); 
+             CDwForCase[Case]  =  VSPAERO().CDiw();       
+             CSwForCase[Case]  =  VSPAERO().CSiw();        
+                                             
+             CFwxForCase[Case] =  VSPAERO().CFiwx();
+             CFwyForCase[Case] =  VSPAERO().CFiwy();       
+             CFwzForCase[Case] =  VSPAERO().CFiwz();       
+
+             // Viscous forces and moments
+
+             CLoForCase[Case]  =  VSPAERO().CLo(); 
+             CDoForCase[Case]  =  VSPAERO().CDo();       
+             CSoForCase[Case]  =  VSPAERO().CSo();        
+                                  
+             CFoxForCase[Case] =  VSPAERO().CFox();
+             CFoyForCase[Case] =  VSPAERO().CFoy();       
+             CFozForCase[Case] =  VSPAERO().CFoz();       
+                                  
+             CMoxForCase[Case] =  VSPAERO().CMox();      
+             CMoyForCase[Case] =  VSPAERO().CMoy();      
+             CMozForCase[Case] =  VSPAERO().CMoz();    
+             
+             CMolForCase[Case] = -VSPAERO().CMox();      
+             CMomForCase[Case] =  VSPAERO().CMoy();      
+             CMonForCase[Case] = -VSPAERO().CMoz();       
+          
+             // Total forces and moments, based on wake forces
+             
+             CLtForCase[Case]  =  VSPAERO().CLo() + VSPAERO().CLiw(); 
+             CDtForCase[Case]  =  VSPAERO().CDo() + VSPAERO().CDiw();         
+             CStForCase[Case]  =  VSPAERO().CSo() + VSPAERO().CSiw();         
+                             
+             CFtxForCase[Case] =  VSPAERO().CFox() + VSPAERO().CFiwx();
+             CFtyForCase[Case] =  VSPAERO().CFoy() + VSPAERO().CFiwy();      
+             CFtzForCase[Case] =  VSPAERO().CFoz() + VSPAERO().CFiwz();       
+                              
+             CMtxForCase[Case] =  VSPAERO().CMox() + VSPAERO().CMix();           
+             CMtyForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();         
+             CMtzForCase[Case] =  VSPAERO().CMoz() + VSPAERO().CMiz(); 
+             
+             CMtlForCase[Case] = -VSPAERO().CMox() - VSPAERO().CMix();           
+             CMtmForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();           
+             CMtnForCase[Case] = -VSPAERO().CMoz() - VSPAERO().CMiz();         
+             
+             // Stall factor
+             
+             MinStallFactor[Case] = VSPAERO().MinStallFactor();
+                          
              // Loop over any ReCref cases
              
              for ( p = 2 ; p <= NumberOfReCrefs_ ; p++ ) {
@@ -2209,40 +2454,88 @@ void Solve(void)
                 
                 ReCref_ = ReCrefList_[p];
      
-                VSP_VLM().ReCref() = ReCref_;
+                VSPAERO().ReCref() = ReCref_;
                 
-                VSP_VLM().ReCalculateForces();
+                VSPAERO().ReCalculateForces();
                 
-                // Store aero coefficients
+                // KJ inviscid forces
                 
-                CLForCase[Case] = VSP_VLM().CLi() + VSP_VLM().CLo(); 
-                CDForCase[Case] = VSP_VLM().CDi() + VSP_VLM().CDo();       
-                CSForCase[Case] = VSP_VLM().CSi() + VSP_VLM().CSo();        
+                CLiForCase[Case]  =  VSPAERO().CLi(); 
+                CDiForCase[Case]  =  VSPAERO().CDi();       
+                CSiForCase[Case]  =  VSPAERO().CSi();        
+                                     
+                CFixForCase[Case] =  VSPAERO().CFix();
+                CFiyForCase[Case] =  VSPAERO().CFiy();       
+                CFizForCase[Case] =  VSPAERO().CFiz();       
+                                     
+                CMixForCase[Case] =  VSPAERO().CMix();      
+                CMiyForCase[Case] =  VSPAERO().CMiy();      
+                CMizForCase[Case] =  VSPAERO().CMiz();    
+                 
+                CMilForCase[Case] = -VSPAERO().CMix();      
+                CMimForCase[Case] =  VSPAERO().CMiy();      
+                CMinForCase[Case] = -VSPAERO().CMiz();  
                 
-                CDoForCase[Case] = VSP_VLM().CDo();     
+                // Wake inviscid forces
                 
-                CDtForCase[Case] = VSP_VLM().CDiw();        
+                CLwForCase[Case]  =  VSPAERO().CLiw(); 
+                CDwForCase[Case]  =  VSPAERO().CDiw();       
+                CSwForCase[Case]  =  VSPAERO().CSiw();        
+                                              
+                CFwxForCase[Case] =  VSPAERO().CFiwx();
+                CFwyForCase[Case] =  VSPAERO().CFiwy();       
+                CFwzForCase[Case] =  VSPAERO().CFiwz();       
+
+                // Viscous forces
                 
-                CFxForCase[Case] = VSP_VLM().CFix() + VSP_VLM().CFox();
-                CFyForCase[Case] = VSP_VLM().CFiy() + VSP_VLM().CFoy();       
-                CFzForCase[Case] = VSP_VLM().CFiz() + VSP_VLM().CFoz();       
-                    
-                CMxForCase[Case] = VSP_VLM().CMix() + VSP_VLM().CMox();      
-                CMyForCase[Case] = VSP_VLM().CMiy() + VSP_VLM().CMoy();      
-                CMzForCase[Case] = VSP_VLM().CMiz() + VSP_VLM().CMoz();    
+                CLoForCase[Case]  =  VSPAERO().CLo(); 
+                CDoForCase[Case]  =  VSPAERO().CDo();       
+                CSoForCase[Case]  =  VSPAERO().CSo();        
+                                     
+                CFoxForCase[Case] =  VSPAERO().CFox();
+                CFoyForCase[Case] =  VSPAERO().CFoy();       
+                CFozForCase[Case] =  VSPAERO().CFoz();       
+                                     
+                CMoxForCase[Case] =  VSPAERO().CMox();      
+                CMoyForCase[Case] =  VSPAERO().CMoy();      
+                CMozForCase[Case] =  VSPAERO().CMoz();    
                 
-                CMlForCase[Case] = -CMxForCase[Case];    
-                CMmForCase[Case] =  CMyForCase[Case];       
-                CMnForCase[Case] = -CMzForCase[Case];     
+                CMolForCase[Case] = -VSPAERO().CMox();      
+                CMomForCase[Case] =  VSPAERO().CMoy();      
+                CMonForCase[Case] = -VSPAERO().CMoz();     
+
+                // Total forces and moments, based on wake forces
                 
+                CLtForCase[Case]  =  VSPAERO().CLo() + VSPAERO().CLiw(); 
+                CDtForCase[Case]  =  VSPAERO().CDo() + VSPAERO().CDiw();         
+                CStForCase[Case]  =  VSPAERO().CSo() + VSPAERO().CSiw();         
+                                
+                CFtxForCase[Case] =  VSPAERO().CFox() + VSPAERO().CFiwx();
+                CFtyForCase[Case] =  VSPAERO().CFoy() + VSPAERO().CFiwy();      
+                CFtzForCase[Case] =  VSPAERO().CFoz() + VSPAERO().CFiwz();       
+                                 
+                CMtxForCase[Case] =  VSPAERO().CMox() + VSPAERO().CMix();           
+                CMtyForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();         
+                CMtzForCase[Case] =  VSPAERO().CMoz() + VSPAERO().CMiz(); 
+                
+                CMtlForCase[Case] = -VSPAERO().CMox() - VSPAERO().CMix();           
+                CMtmForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();           
+                CMtnForCase[Case] = -VSPAERO().CMoz() - VSPAERO().CMiz();      
+                
+                // Stall factor
+                
+                MinStallFactor[Case] = VSPAERO().MinStallFactor();                
+                             
              } 
              
              ReCref_ = ReCrefList_[1];
   
-             VSP_VLM().ReCref() = ReCref_;             
+             VSPAERO().ReCref() = ReCref_;             
                 
              printf("\n");
-      
+             
+             if ( RestartFromPreviousSolve_ ) VSPAERO().RestartFromPreviousSolve() = 1;
+
           }
           
        }
@@ -2260,9 +2553,12 @@ void Solve(void)
        exit(1);
 
     }    
-
-                     //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456      
-    fprintf(PolarFile,"      Beta             Mach             AoA             Re/1e6             CL              CDo              CDi             CDtot             CDt            CDtot_t             CS              L/D               E               CFx              CFy              CFz              CMx              CMy              CMz              CMl              CMm              CMn              FOpt \n");
+   
+                     //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456            
+   
+    fprintf(PolarFile,"                                                                    Surface Integration Forces and Moments -->                                                                                                                                                                                                                                                                                                                                                                                                                                                                   Wake Induced Forces -->  \n");                
+    fprintf(PolarFile,"                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Su Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake \n");
+    fprintf(PolarFile,"      Beta             Mach             AoA             Re/1e6             CLo             CLi            CLtot              CDo              CDi             CDtot              CSo              CSi            CStot               L/D              E               CMox             CMoy             CMoz             CMix             CMiy             CMiz             CMxtot           CMytot           CMztot           CFox             CFoy             CFoz             CFix             CFiy             CFiz             CFxtot           CFytot           CFztot           CLwtot           CDwtot           CSwtot           CLiw             CDiw             CSiwtot          CFwxtot          CFwytot          CFwztot         CFiwx            CFiwy            CFiwz           LoDw              Ew            StallFactor \n");
 
     // Write out polars, note these are written out in a different order than they were calculated above - we group them by Re number
     
@@ -2277,33 +2573,113 @@ void Solve(void)
                 Case = CaseList[i][j][k][p];
                    
                 AR = Bref_ * Bref_ / Sref_;
+                
+                // Surface integration 
+                
+                CL =  CLiForCase[Case] +  CLoForCase[Case];
    
-                E = ( CLForCase[Case] * CLForCase[Case] / ( PI * AR) ) / CDForCase[Case];
+                E = ( CL * CL / ( PI * AR) ) / CDiForCase[Case];
+                
+                LoD = (CLiForCase[Case] +  CLoForCase[Case])/(CDiForCase[Case] + CDoForCase[Case]);
              
-                fprintf(PolarFile,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf\n",             
-                        double(BetaList_[i]),
-                        double(MachList_[j]),
-                        double(AoAList_[k]),
-                        double(ReCrefList_[p])/1.e6,
-                        double(CLForCase[Case]),
-                        double(CDoForCase[Case]),
-                        double(CDForCase[Case] - CDoForCase[Case]),
-                        double(CDForCase[Case]),
-                        double(CDtForCase[Case]),
-                        double(CDoForCase[Case] + CDtForCase[Case]),
-                        double(CSForCase[Case]),            
-                        double(CLForCase[Case]/(CDForCase[Case])),
-                        double(E),
-                        double(CFxForCase[Case]),
-                        double(CFyForCase[Case]),
-                        double(CFzForCase[Case]),
-                        double(CMxForCase[Case]),
-                        double(CMyForCase[Case]),
-                        double(CMzForCase[Case]),
-                        double(CMlForCase[Case]),       
-                        double(CMmForCase[Case]),       
-                        double(CMnForCase[Case]),
-                        double(OptimizationFunctionForCase[Case]));
+                // Wake integration 
+                
+                CLwake =  CLiForCase[Case] +  CLoForCase[Case];
+   
+                Ewake = ( CLwake * CLwake / ( PI * AR) ) / CDwForCase[Case];
+                
+                LoDwake = (CLwForCase[Case] +  CLoForCase[Case])/(CDwForCase[Case] + CDoForCase[Case]);
+                
+                fprintf(PolarFile,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
+                        BetaList_[i],
+                        MachList_[j],
+                        AoAList_[k],
+                        ReCrefList_[p]/1.e6,   
+                        
+                              
+                        CLoForCase[Case],               
+                        CLiForCase[Case],
+                        CLiForCase[Case] + CLoForCase[Case],
+                        CDoForCase[Case],
+                        CDiForCase[Case],
+                        CDiForCase[Case] + CDoForCase[Case],
+                        CSoForCase[Case],
+                        CSiForCase[Case],
+                        CSiForCase[Case] + CSoForCase[Case],            
+                        LoD,
+                        E,     
+                        CMoxForCase[Case],
+                        CMoyForCase[Case],
+                        CMozForCase[Case],                             
+                        CMixForCase[Case],
+                        CMiyForCase[Case],
+                        CMizForCase[Case],
+                        CMixForCase[Case] + CMoxForCase[Case],
+                        CMiyForCase[Case] + CMoyForCase[Case],            
+                        CMizForCase[Case] + CMozForCase[Case],       
+                        CFoxForCase[Case],            
+                        CFoyForCase[Case],            
+                        CFozForCase[Case],  
+                        CFixForCase[Case],            
+                        CFiyForCase[Case],            
+                        CFizForCase[Case],   
+                                                     
+                        CFixForCase[Case] + CFoxForCase[Case],            
+                        CFiyForCase[Case] + CFoyForCase[Case],            
+                        CFizForCase[Case] + CFozForCase[Case],                     
+                
+                        CLwForCase[Case] + CLoForCase[Case],
+                        CDwForCase[Case] + CDoForCase[Case],
+                        CSwForCase[Case] + CSoForCase[Case],
+                
+                        CLwForCase[Case],
+                        CDwForCase[Case],
+                        CSwForCase[Case],
+                        
+                        CFwxForCase[Case] + CFoxForCase[Case],            
+                        CFwyForCase[Case] + CFoyForCase[Case],            
+                        CFwzForCase[Case] + CFozForCase[Case],    
+                                      
+                        CFwxForCase[Case],
+                        CFwyForCase[Case],
+                        CFwzForCase[Case],
+                        
+                        LoDwake,
+                        Ewake,
+                        
+                        VSPAERO().MinStallFactor());
+               
+                            
+             
+             
+             
+             
+             
+             
+             // fprintf(PolarFile,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf\n",             
+             //         double(BetaList_[i]),
+             //         double(MachList_[j]),
+             //         double(AoAList_[k]),
+             //         double(ReCrefList_[p])/1.e6,
+             //         double(CLForCase[Case]),
+             //         double(CDoForCase[Case]),
+             //         double(CDForCase[Case] - CDoForCase[Case]),
+             //         double(CDForCase[Case]),
+             //         double(CDtForCase[Case]),
+             //         double(CDoForCase[Case] + CDtForCase[Case]),
+             //         double(CSForCase[Case]),            
+             //         double(CLForCase[Case]/(CDForCase[Case])),
+             //         double(E),
+             //         double(CFxForCase[Case]),
+             //         double(CFyForCase[Case]),
+             //         double(CFzForCase[Case]),
+             //         double(CMxForCase[Case]),
+             //         double(CMyForCase[Case]),
+             //         double(CMzForCase[Case]),
+             //         double(CMlForCase[Case]),       
+             //         double(CMmForCase[Case]),       
+             //         double(CMnForCase[Case]),
+             //         double(OptimizationFunctionForCase[Case]));
                            
              }
              
@@ -2327,7 +2703,7 @@ void FiniteDifference_StabilityAndControlSolve(void)
 {
 
     int i, j, k, p, ic, jc, kc, Found, Case, Case0, Deriv, TotalCases, CaseTotal;
-    char StabFileName[2000], VorviewFltFileName[2000];
+    char StabFileName[MAX_CHAR_SIZE], VorviewFltFileName[MAX_CHAR_SIZE];
     
     // Open the stability and control output file
     
@@ -2353,7 +2729,7 @@ void FiniteDifference_StabilityAndControlSolve(void)
 
     }
    
-    VSP_VLM().ForwardGMRESConvergenceFactor() = ForwardGMRESConvergenceFactor_;
+    VSPAERO().ForwardGMRESConvergenceFactor() = ForwardGMRESConvergenceFactor_;
      
     TotalCases = ( NumStabCases_ + NumberOfControlGroups_) * NumberOfMachs_ * NumberOfAoAs_ * NumberOfBetas_;
     
@@ -2447,62 +2823,104 @@ void FiniteDifference_StabilityAndControlSolve(void)
                 
                 // Set free stream conditions
                 
-                VSP_VLM().Mach()          = Stab_MachList_[Case];
-                VSP_VLM().AngleOfAttack() =  Stab_AoAList_[Case] * TORAD;
-                VSP_VLM().AngleOfBeta()   = Stab_BetaList_[Case] * TORAD;
+                VSPAERO().Mach()          = Stab_MachList_[Case];
+                VSPAERO().AngleOfAttack() =  Stab_AoAList_[Case] * TORAD;
+                VSPAERO().AngleOfBeta()   = Stab_BetaList_[Case] * TORAD;
          
-                VSP_VLM().RotationalRate_p() = RotationalRate_pList_[Case];
-                VSP_VLM().RotationalRate_q() = RotationalRate_qList_[Case];
-                VSP_VLM().RotationalRate_r() = RotationalRate_rList_[Case];
+                VSPAERO().RotationalRate_p() = RotationalRate_pList_[Case];
+                VSPAERO().RotationalRate_q() = RotationalRate_qList_[Case];
+                VSPAERO().RotationalRate_r() = RotationalRate_rList_[Case];
                 
                 // Set a comment line
 
-                if ( Case == 1 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Base Aero         ");
-                if ( Case == 2 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Alpha      +%5.3lf",Delta_AoA_);
-                if ( Case == 3 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Beta       +%5.3lf",Delta_Beta_);
-                if ( Case == 4 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Roll Rate  +%5.3lf",Delta_P_);
-                if ( Case == 5 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Pitch Rate +%5.3lf",Delta_Q_);
-                if ( Case == 6 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Yaw Rate   +%5.3lf",Delta_R_);
-                if ( Case == 7 ) snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Mach       +%5.3lf",Delta_Mach_);         
+                if ( Case == 1 ) snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"Base Aero         ");
+                if ( Case == 2 ) snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"Alpha      +%5.3lf",Delta_AoA_);
+                if ( Case == 3 ) snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"Beta       +%5.3lf",Delta_Beta_);
+                if ( Case == 4 ) snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"Roll Rate  +%5.3lf",Delta_P_);
+                if ( Case == 5 ) snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"Pitch Rate +%5.3lf",Delta_Q_);
+                if ( Case == 6 ) snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"Yaw Rate   +%5.3lf",Delta_R_);
+                if ( Case == 7 ) snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"Mach       +%5.3lf",Delta_Mach_);         
                 
                 // Solve this case
                 
-                VSP_VLM().SaveRestartFile() = VSP_VLM().DoRestart() = 0;
+                VSPAERO().SaveRestartFile() = VSPAERO().DoRestart() = 0;
          
                 if ( CaseTotal < TotalCases ) {
                    
-                   VSP_VLM().Solve(CaseTotal);
+                   VSPAERO().Solve(CaseTotal);
                    
                 }
                 
                 else {
                    
-                   VSP_VLM().Solve(-CaseTotal);
+                   VSPAERO().Solve(-CaseTotal);
                    
                 }         
                    
-                // Store aero coefficients
-           
-                CLForCase[Case] = VSP_VLM().CLi() + VSP_VLM().CLo(); 
-                CDForCase[Case] = VSP_VLM().CDi() + VSP_VLM().CDo();       
-                CSForCase[Case] = VSP_VLM().CSi() + VSP_VLM().CSo();        
+                // KJ inviscid forces
                 
-                CDoForCase[Case] = VSP_VLM().CDo();     
-
-                CDtForCase[Case] = VSP_VLM().CDiw();        
-         
-                CFxForCase[Case] = VSP_VLM().CFix() + VSP_VLM().CFox();
-                CFyForCase[Case] = VSP_VLM().CFiy() + VSP_VLM().CFoy();       
-                CFzForCase[Case] = VSP_VLM().CFiz() + VSP_VLM().CFoz();       
+                CLiForCase[Case]  =  VSPAERO().CLi(); 
+                CDiForCase[Case]  =  VSPAERO().CDi();       
+                CSiForCase[Case]  =  VSPAERO().CSi();        
+                                     
+                CFixForCase[Case] =  VSPAERO().CFix();
+                CFiyForCase[Case] =  VSPAERO().CFiy();       
+                CFizForCase[Case] =  VSPAERO().CFiz();       
+                                     
+                CMixForCase[Case] =  VSPAERO().CMix();      
+                CMiyForCase[Case] =  VSPAERO().CMiy();      
+                CMizForCase[Case] =  VSPAERO().CMiz();    
+                 
+                CMilForCase[Case] = -VSPAERO().CMix();      
+                CMimForCase[Case] =  VSPAERO().CMiy();      
+                CMinForCase[Case] = -VSPAERO().CMiz();  
+                
+                // Wake inviscid forces
+                
+                CLwForCase[Case]  =  VSPAERO().CLiw(); 
+                CDwForCase[Case]  =  VSPAERO().CDiw();       
+                CSwForCase[Case]  =  VSPAERO().CSiw();        
                                               
-                CMxForCase[Case] = VSP_VLM().CMix() + VSP_VLM().CMox();      
-                CMyForCase[Case] = VSP_VLM().CMiy() + VSP_VLM().CMoy();      
-                CMzForCase[Case] = VSP_VLM().CMiz() + VSP_VLM().CMoz();    
-                
-                CMlForCase[Case] = -CMxForCase[Case];    
-                CMmForCase[Case] =  CMyForCase[Case];       
-                CMnForCase[Case] = -CMzForCase[Case];                  
+                CFwxForCase[Case] =  VSPAERO().CFiwx();
+                CFwyForCase[Case] =  VSPAERO().CFiwy();       
+                CFwzForCase[Case] =  VSPAERO().CFiwz();       
 
+                // Viscous forces
+                
+                CLoForCase[Case]  =  VSPAERO().CLo(); 
+                CDoForCase[Case]  =  VSPAERO().CDo();       
+                CSoForCase[Case]  =  VSPAERO().CSo();        
+                                     
+                CFoxForCase[Case] =  VSPAERO().CFox();
+                CFoyForCase[Case] =  VSPAERO().CFoy();       
+                CFozForCase[Case] =  VSPAERO().CFoz();       
+                                     
+                CMoxForCase[Case] =  VSPAERO().CMox();      
+                CMoyForCase[Case] =  VSPAERO().CMoy();      
+                CMozForCase[Case] =  VSPAERO().CMoz();    
+                
+                CMolForCase[Case] = -VSPAERO().CMox();      
+                CMomForCase[Case] =  VSPAERO().CMoy();      
+                CMonForCase[Case] = -VSPAERO().CMoz();                  
+
+                // Total forces and moments, based on wake forces
+                
+                CLtForCase[Case]  =  VSPAERO().CLo() + VSPAERO().CLiw(); 
+                CDtForCase[Case]  =  VSPAERO().CDo() + VSPAERO().CDiw();         
+                CStForCase[Case]  =  VSPAERO().CSo() + VSPAERO().CSiw();         
+                                
+                CFtxForCase[Case] =  VSPAERO().CFox() + VSPAERO().CFiwx();
+                CFtyForCase[Case] =  VSPAERO().CFoy() + VSPAERO().CFiwy();      
+                CFtzForCase[Case] =  VSPAERO().CFoz() + VSPAERO().CFiwz();       
+                                 
+                CMtxForCase[Case] =  VSPAERO().CMox() + VSPAERO().CMix();           
+                CMtyForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();         
+                CMtzForCase[Case] =  VSPAERO().CMoz() + VSPAERO().CMiz(); 
+                
+                CMtlForCase[Case] = -VSPAERO().CMox() - VSPAERO().CMix();           
+                CMtmForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();           
+                CMtnForCase[Case] = -VSPAERO().CMoz() - VSPAERO().CMiz();         
+             
                 printf("\n");
          
              }
@@ -2521,13 +2939,13 @@ void FiniteDifference_StabilityAndControlSolve(void)
                 
                 // Initialize to unperturbed free stream conditions
                 
-                VSP_VLM().Mach()          = Stab_MachList_[1];
-                VSP_VLM().AngleOfAttack() =  Stab_AoAList_[1] * TORAD;
-                VSP_VLM().AngleOfBeta()   = Stab_BetaList_[1] * TORAD;
+                VSPAERO().Mach()          = Stab_MachList_[1];
+                VSPAERO().AngleOfAttack() =  Stab_AoAList_[1] * TORAD;
+                VSPAERO().AngleOfBeta()   = Stab_BetaList_[1] * TORAD;
              
-                VSP_VLM().RotationalRate_p() = RotationalRate_pList_[1];
-                VSP_VLM().RotationalRate_q() = RotationalRate_qList_[1];
-                VSP_VLM().RotationalRate_r() = RotationalRate_rList_[1];
+                VSPAERO().RotationalRate_p() = RotationalRate_pList_[1];
+                VSPAERO().RotationalRate_q() = RotationalRate_qList_[1];
+                VSPAERO().RotationalRate_r() = RotationalRate_rList_[1];
              
                 // Perturb controls
              
@@ -2543,15 +2961,15 @@ void FiniteDifference_StabilityAndControlSolve(void)
              
                    p = 1;
                    
-                   while ( p <= VSP_VLM().VSPGeom().NumberOfControlSurfaces() && !Found ) {
+                   while ( p <= VSPAERO().VSPGeom().NumberOfControlSurfaces() && !Found ) {
                       
-                      printf("Checking: %s \n",VSP_VLM().VSPGeom().ControlSurface(p).Name());fflush(NULL);
+                      printf("Checking: %s \n",VSPAERO().VSPGeom().ControlSurface(p).Name());fflush(NULL);
            
-                      if ( strstr(VSP_VLM().VSPGeom().ControlSurface(p).Name(), ControlSurfaceGroup_[i].ControlSurface_Name(j)) != NULL ) {
+                      if ( strstr(VSPAERO().VSPGeom().ControlSurface(p).Name(), ControlSurfaceGroup_[i].ControlSurface_Name(j)) != NULL ) {
                
                          Found = 1;
                       
-                         VSP_VLM().VSPGeom().ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * (ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() + Delta_Control_) * TORAD;
+                         VSPAERO().VSPGeom().ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * (ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() + Delta_Control_) * TORAD;
 
                       }
                       
@@ -2573,43 +2991,85 @@ void FiniteDifference_StabilityAndControlSolve(void)
                 
                 // Set a comment line
              
-                snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Deflecting Control Group: %-d",i);
+                snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"Deflecting Control Group: %-d",i);
                
                 // Now solve
                
                 if ( CaseTotal < TotalCases ) {
                    
-                   VSP_VLM().Solve(CaseTotal);
+                   VSPAERO().Solve(CaseTotal);
                    
                 }
                 
                 else {
                    
-                   VSP_VLM().Solve(-CaseTotal);
+                   VSPAERO().Solve(-CaseTotal);
                    
                 }         
 
-                // Store aero coefficients
-           
-                CLForCase[Case] = VSP_VLM().CLi() + VSP_VLM().CLo(); 
-                CDForCase[Case] = VSP_VLM().CDi() + VSP_VLM().CDo();       
-                CSForCase[Case] = VSP_VLM().CSi() + VSP_VLM().CSo();        
+                // KJ inviscid forces
                 
-                CDoForCase[Case] = VSP_VLM().CDo();     
-
-                CDtForCase[Case] = VSP_VLM().CDiw();        
-         
-                CFxForCase[Case] = VSP_VLM().CFix() + VSP_VLM().CFox();
-                CFyForCase[Case] = VSP_VLM().CFiy() + VSP_VLM().CFoy();       
-                CFzForCase[Case] = VSP_VLM().CFiz() + VSP_VLM().CFoz();       
+                CLiForCase[Case]  =  VSPAERO().CLi(); 
+                CDiForCase[Case]  =  VSPAERO().CDi();       
+                CSiForCase[Case]  =  VSPAERO().CSi();        
+                                     
+                CFixForCase[Case] =  VSPAERO().CFix();
+                CFiyForCase[Case] =  VSPAERO().CFiy();       
+                CFizForCase[Case] =  VSPAERO().CFiz();       
+                                     
+                CMixForCase[Case] =  VSPAERO().CMix();      
+                CMiyForCase[Case] =  VSPAERO().CMiy();      
+                CMizForCase[Case] =  VSPAERO().CMiz();    
+                 
+                CMilForCase[Case] = -VSPAERO().CMix();      
+                CMimForCase[Case] =  VSPAERO().CMiy();      
+                CMinForCase[Case] = -VSPAERO().CMiz();  
+                
+                // Wake inviscid forces
+                
+                CLwForCase[Case]  =  VSPAERO().CLiw(); 
+                CDwForCase[Case]  =  VSPAERO().CDiw();       
+                CSwForCase[Case]  =  VSPAERO().CSiw();        
                                               
-                CMxForCase[Case] = VSP_VLM().CMix() + VSP_VLM().CMox();      
-                CMyForCase[Case] = VSP_VLM().CMiy() + VSP_VLM().CMoy();      
-                CMzForCase[Case] = VSP_VLM().CMiz() + VSP_VLM().CMoz();    
+                CFwxForCase[Case] =  VSPAERO().CFiwx();
+                CFwyForCase[Case] =  VSPAERO().CFiwy();       
+                CFwzForCase[Case] =  VSPAERO().CFiwz();       
+
+                // Viscous forces
                 
-                CMlForCase[Case] = -CMxForCase[Case];    
-                CMmForCase[Case] =  CMyForCase[Case];       
-                CMnForCase[Case] = -CMzForCase[Case];           
+                CLoForCase[Case]  =  VSPAERO().CLo(); 
+                CDoForCase[Case]  =  VSPAERO().CDo();       
+                CSoForCase[Case]  =  VSPAERO().CSo();        
+                                     
+                CFoxForCase[Case] =  VSPAERO().CFox();
+                CFoyForCase[Case] =  VSPAERO().CFoy();       
+                CFozForCase[Case] =  VSPAERO().CFoz();       
+                                     
+                CMoxForCase[Case] =  VSPAERO().CMox();      
+                CMoyForCase[Case] =  VSPAERO().CMoy();      
+                CMozForCase[Case] =  VSPAERO().CMoz();    
+                
+                CMolForCase[Case] = -VSPAERO().CMox();      
+                CMomForCase[Case] =  VSPAERO().CMoy();      
+                CMonForCase[Case] = -VSPAERO().CMoz();     
+                
+                // Total forces and moments, based on wake forces
+                
+                CLtForCase[Case]  =  VSPAERO().CLo() + VSPAERO().CLiw(); 
+                CDtForCase[Case]  =  VSPAERO().CDo() + VSPAERO().CDiw();         
+                CStForCase[Case]  =  VSPAERO().CSo() + VSPAERO().CSiw();         
+                                
+                CFtxForCase[Case] =  VSPAERO().CFox() + VSPAERO().CFiwx();
+                CFtyForCase[Case] =  VSPAERO().CFoy() + VSPAERO().CFiwy();      
+                CFtzForCase[Case] =  VSPAERO().CFoz() + VSPAERO().CFiwz();       
+                                 
+                CMtxForCase[Case] =  VSPAERO().CMox() + VSPAERO().CMix();           
+                CMtyForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();         
+                CMtzForCase[Case] =  VSPAERO().CMoz() + VSPAERO().CMiz(); 
+                
+                CMtlForCase[Case] = -VSPAERO().CMox() - VSPAERO().CMix();           
+                CMtmForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();           
+                CMtnForCase[Case] = -VSPAERO().CMoz() - VSPAERO().CMiz();                               
 
                 // Reset Control surface group deflection to un-perturbed control surface deflections
              
@@ -2647,22 +3107,22 @@ void CalculateStabilityDerivatives(void)
 
     int n;
     double Delta, SM, X_np;
-    char CaseType[2000];
+    char CaseType[MAX_CHAR_SIZE];
     char caseTypeFormatStr[] = "%-22s +%5.3lf %-9s";
 
     // Set free stream conditions
 
-    VSP_VLM().Mach()          = Mach_;
-    VSP_VLM().AngleOfAttack() = AoA_  * TORAD;
-    VSP_VLM().AngleOfBeta()   = Beta_ * TORAD;
+    VSPAERO().Mach()          = Mach_;
+    VSPAERO().AngleOfAttack() = AoA_  * TORAD;
+    VSPAERO().AngleOfBeta()   = Beta_ * TORAD;
 
-    VSP_VLM().RotationalRate_p() = 0.;
-    VSP_VLM().RotationalRate_q() = 0.;
-    VSP_VLM().RotationalRate_r() = 0.;
+    VSPAERO().RotationalRate_p() = 0.;
+    VSPAERO().RotationalRate_q() = 0.;
+    VSPAERO().RotationalRate_r() = 0.;
         
     // Write out generic header file
         
-    VSP_VLM().WriteCaseHeader(StabFile);
+    VSPAERO().WriteCaseHeader(StabFile);
     
     // Write out column labels
     
@@ -2691,21 +3151,21 @@ void CalculateStabilityDerivatives(void)
        fprintf(StabFile,"%-39s %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
                CaseType,
                
-               CFxForCase[n],
-               CFyForCase[n],    
-               CFzForCase[n], 
-                      
-               CMxForCase[n],  
-               CMyForCase[n],  
-               CMzForCase[n],    
-                      
-               CLForCase[n],
-               CDForCase[n],   
-               CSForCase[n],
+               CFtxForCase[n],
+               CFtyForCase[n],    
+               CFtzForCase[n], 
+                   
+               CMtxForCase[n],  
+               CMtyForCase[n],  
+               CMtzForCase[n],    
+                   
+               CLtForCase[n],
+               CDtForCase[n],   
+               CStForCase[n],
                
-               CMlForCase[n],
-               CMmForCase[n],   
-               CMnForCase[n]);                 
+               CMtlForCase[n],
+               CMtmForCase[n],   
+               CMtnForCase[n]);                 
  
        printf("\n");
 
@@ -2724,21 +3184,21 @@ void CalculateStabilityDerivatives(void)
        if ( n == 6  ) Delta =  Delta_R_ * Bref_ * 0.5 / Vinf_; // wrt yaw rate
        if ( n == 7  ) Delta =  Delta_Mach_;                    // wrt Mach number
 
-       dCFx_wrt[n] = ( CFxForCase[n] - CFxForCase[1] )/Delta;
-       dCFy_wrt[n] = ( CFyForCase[n] - CFyForCase[1] )/Delta;
-       dCFz_wrt[n] = ( CFzForCase[n] - CFzForCase[1] )/Delta;
-       
-       dCMx_wrt[n] = ( CMxForCase[n] - CMxForCase[1] )/Delta;
-       dCMy_wrt[n] = ( CMyForCase[n] - CMyForCase[1] )/Delta;
-       dCMz_wrt[n] = ( CMzForCase[n] - CMzForCase[1] )/Delta;
+       dCFx_wrt[n] = ( CFtxForCase[n] - CFtxForCase[1] )/Delta;
+       dCFy_wrt[n] = ( CFtyForCase[n] - CFtyForCase[1] )/Delta;
+       dCFz_wrt[n] = ( CFtzForCase[n] - CFtzForCase[1] )/Delta;
+                         
+       dCMx_wrt[n] = ( CMtxForCase[n] - CMtxForCase[1] )/Delta;
+       dCMy_wrt[n] = ( CMtyForCase[n] - CMtyForCase[1] )/Delta;
+       dCMz_wrt[n] = ( CMtzForCase[n] - CMtzForCase[1] )/Delta;
         
-       dCL_wrt[n]  = (  CLForCase[n] -  CLForCase[1] )/Delta;    
-       dCD_wrt[n]  = (  CDForCase[n] -  CDForCase[1] )/Delta;    
-       dCS_wrt[n]  = (  CSForCase[n] -  CSForCase[1] )/Delta;    
+       dCL_wrt[n]  = (  CLtForCase[n] -  CLtForCase[1] )/Delta;    
+       dCD_wrt[n]  = (  CDtForCase[n] -  CDtForCase[1] )/Delta;    
+       dCS_wrt[n]  = (  CStForCase[n] -  CStForCase[1] )/Delta;    
        
-       dCMl_wrt[n] = ( CMlForCase[n] - CMlForCase[1] )/Delta;
-       dCMm_wrt[n] = ( CMmForCase[n] - CMmForCase[1] )/Delta;
-       dCMn_wrt[n] = ( CMnForCase[n] - CMnForCase[1] )/Delta;       
+       dCMl_wrt[n] = ( CMtlForCase[n] - CMtlForCase[1] )/Delta;
+       dCMm_wrt[n] = ( CMtmForCase[n] - CMtmForCase[1] )/Delta;
+       dCMn_wrt[n] = ( CMtnForCase[n] - CMtnForCase[1] )/Delta;       
 
     }
 
@@ -2764,21 +3224,21 @@ void CalculateStabilityDerivatives(void)
     
        Delta = Delta_Control_ * TORAD; // wrt control group deflection
 
-       dCFx_wrt[n+1] = ( CFxForCase[n] - CFxForCase[1] )/Delta;
-       dCFy_wrt[n+1] = ( CFyForCase[n] - CFyForCase[1] )/Delta;
-       dCFz_wrt[n+1] = ( CFzForCase[n] - CFzForCase[1] )/Delta;
-       
-       dCMx_wrt[n+1] = ( CMxForCase[n] - CMxForCase[1] )/Delta;
-       dCMy_wrt[n+1] = ( CMyForCase[n] - CMyForCase[1] )/Delta;
-       dCMz_wrt[n+1] = ( CMzForCase[n] - CMzForCase[1] )/Delta;
+       dCFx_wrt[n+1] = ( CFtxForCase[n] - CFtxForCase[1] )/Delta;
+       dCFy_wrt[n+1] = ( CFtyForCase[n] - CFtyForCase[1] )/Delta;
+       dCFz_wrt[n+1] = ( CFtzForCase[n] - CFtzForCase[1] )/Delta;
+                          
+       dCMx_wrt[n+1] = ( CMtxForCase[n] - CMtxForCase[1] )/Delta;
+       dCMy_wrt[n+1] = ( CMtyForCase[n] - CMtyForCase[1] )/Delta;
+       dCMz_wrt[n+1] = ( CMtzForCase[n] - CMtzForCase[1] )/Delta;
         
-       dCL_wrt[n+1]  = (  CLForCase[n] -  CLForCase[1] )/Delta;    
-       dCD_wrt[n+1]  = (  CDForCase[n] -  CDForCase[1] )/Delta;    
-       dCS_wrt[n+1]  = (  CSForCase[n] -  CSForCase[1] )/Delta;    
+       dCL_wrt[n+1]  = (  CLtForCase[n] -  CLtForCase[1] )/Delta;    
+       dCD_wrt[n+1]  = (  CDtForCase[n] -  CDtForCase[1] )/Delta;    
+       dCS_wrt[n+1]  = (  CStForCase[n] -  CStForCase[1] )/Delta;    
        
-       dCMl_wrt[n+1] = ( CMlForCase[n] - CMlForCase[1] )/Delta;
-       dCMm_wrt[n+1] = ( CMmForCase[n] - CMmForCase[1] )/Delta;
-       dCMn_wrt[n+1] = ( CMnForCase[n] - CMnForCase[1] )/Delta;       
+       dCMl_wrt[n+1] = ( CMtlForCase[n] - CMtlForCase[1] )/Delta;
+       dCMm_wrt[n+1] = ( CMtmForCase[n] - CMtmForCase[1] )/Delta;
+       dCMn_wrt[n+1] = ( CMtnForCase[n] - CMtnForCase[1] )/Delta;       
 
     }    
 
@@ -2793,21 +3253,21 @@ void CalculateStabilityDerivatives(void)
    
     fprintf(StabFile,"#\n");
     
-    fprintf(StabFile,"CFx    "); fprintf(StabFile,"%12.7f ",CFxForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCFx_wrt[n]); }; fprintf(StabFile,"\n");
-    fprintf(StabFile,"CFy    "); fprintf(StabFile,"%12.7f ",CFyForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCFy_wrt[n]); }; fprintf(StabFile,"\n");
-    fprintf(StabFile,"CFz    "); fprintf(StabFile,"%12.7f ",CFzForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCFz_wrt[n]); }; fprintf(StabFile,"\n");
-
-    fprintf(StabFile,"CMx    "); fprintf(StabFile,"%12.7f ",CMxForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMx_wrt[n]); }; fprintf(StabFile,"\n");
-    fprintf(StabFile,"CMy    "); fprintf(StabFile,"%12.7f ",CMyForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMy_wrt[n]); }; fprintf(StabFile,"\n");
-    fprintf(StabFile,"CMz    "); fprintf(StabFile,"%12.7f ",CMzForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMz_wrt[n]); }; fprintf(StabFile,"\n");
-
-    fprintf(StabFile,"CL     "); fprintf(StabFile,"%12.7f ",CLForCase[1]);  for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCL_wrt[n]); };  fprintf(StabFile,"\n");
-    fprintf(StabFile,"CD     "); fprintf(StabFile,"%12.7f ",CDForCase[1]);  for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCD_wrt[n]); };  fprintf(StabFile,"\n");
-    fprintf(StabFile,"CS     "); fprintf(StabFile,"%12.7f ",CSForCase[1]);  for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCS_wrt[n]); };  fprintf(StabFile,"\n");
-
-    fprintf(StabFile,"CMl    "); fprintf(StabFile,"%12.7f ",CMlForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMl_wrt[n]); }; fprintf(StabFile,"\n");
-    fprintf(StabFile,"CMm    "); fprintf(StabFile,"%12.7f ",CMmForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMm_wrt[n]); }; fprintf(StabFile,"\n");
-    fprintf(StabFile,"CMn    "); fprintf(StabFile,"%12.7f ",CMnForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMn_wrt[n]); }; fprintf(StabFile,"\n");
+    fprintf(StabFile,"CFx    "); fprintf(StabFile,"%12.7f ",CFtxForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCFx_wrt[n]); }; fprintf(StabFile,"\n");
+    fprintf(StabFile,"CFy    "); fprintf(StabFile,"%12.7f ",CFtyForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCFy_wrt[n]); }; fprintf(StabFile,"\n");
+    fprintf(StabFile,"CFz    "); fprintf(StabFile,"%12.7f ",CFtzForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCFz_wrt[n]); }; fprintf(StabFile,"\n");
+                                                             
+    fprintf(StabFile,"CMx    "); fprintf(StabFile,"%12.7f ",CMtxForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMx_wrt[n]); }; fprintf(StabFile,"\n");
+    fprintf(StabFile,"CMy    "); fprintf(StabFile,"%12.7f ",CMtyForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMy_wrt[n]); }; fprintf(StabFile,"\n");
+    fprintf(StabFile,"CMz    "); fprintf(StabFile,"%12.7f ",CMtzForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMz_wrt[n]); }; fprintf(StabFile,"\n");
+                                                             
+    fprintf(StabFile,"CL     "); fprintf(StabFile,"%12.7f ",CLtForCase[1]);  for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCL_wrt[n]); };  fprintf(StabFile,"\n");
+    fprintf(StabFile,"CD     "); fprintf(StabFile,"%12.7f ",CDtForCase[1]);  for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCD_wrt[n]); };  fprintf(StabFile,"\n");
+    fprintf(StabFile,"CS     "); fprintf(StabFile,"%12.7f ",CStForCase[1]);  for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCS_wrt[n]); };  fprintf(StabFile,"\n");
+                                                            
+    fprintf(StabFile,"CMl    "); fprintf(StabFile,"%12.7f ",CMtlForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMl_wrt[n]); }; fprintf(StabFile,"\n");
+    fprintf(StabFile,"CMm    "); fprintf(StabFile,"%12.7f ",CMtmForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMm_wrt[n]); }; fprintf(StabFile,"\n");
+    fprintf(StabFile,"CMn    "); fprintf(StabFile,"%12.7f ",CMtnForCase[1]); for ( n = 2 ; n <= NumStabCases_ + NumberOfControlGroups_ + 1 ; n++ ) { fprintf(StabFile,"%12.7f ",dCMn_wrt[n]); }; fprintf(StabFile,"\n");
 
     fprintf(StabFile,"#\n");
     fprintf(StabFile,"#\n");
@@ -2853,12 +3313,12 @@ void WriteOutVorviewFLTFile(void)
     // Base aero
 
     fprintf(VorviewFlt,"\n");    
-    fprintf(VorviewFlt," CLo:          %15f \n",CLForCase[1]);
-    fprintf(VorviewFlt," CDo:          %15f \n",CDForCase[1] + CDoForCase[1]);
-    fprintf(VorviewFlt," CYo:          %15f \n",CFyForCase[1]);
-    fprintf(VorviewFlt," Clo:          %15f \n",CMlForCase[1]);
-    fprintf(VorviewFlt," Cmo:          %15f \n",CMmForCase[1]);
-    fprintf(VorviewFlt," Cno:          %15f \n",CMnForCase[1]);
+    fprintf(VorviewFlt," CLo:          %15f \n",CLtForCase[1]);
+    fprintf(VorviewFlt," CDo:          %15f \n",CDtForCase[1] + CDoForCase[1]);
+    fprintf(VorviewFlt," CYo:          %15f \n",CFtyForCase[1]);
+    fprintf(VorviewFlt," Clo:          %15f \n",CMtlForCase[1]);
+    fprintf(VorviewFlt," Cmo:          %15f \n",CMtmForCase[1]);
+    fprintf(VorviewFlt," Cno:          %15f \n",CMtnForCase[1]);
     fprintf(VorviewFlt,"\n");
 
     // CL derivatives
@@ -2949,9 +3409,9 @@ void WriteOutAdjointStabilityDerivatives(void)
 
     int i, j, p, n, Found, Case, NumberOfCases;
     double Delta, SM, X_np;
-    char CaseType[2000];
+    char CaseType[MAX_CHAR_SIZE];
     char caseTypeFormatStr[] = "%-22s +%5.3lf %-9s";
-    char StabFileName[2000];
+    char StabFileName[MAX_CHAR_SIZE];
 
     // Calculate control group stability derivatives
     
@@ -2997,46 +3457,46 @@ void WriteOutAdjointStabilityDerivatives(void)
     
           p = 1;
           
-          while ( p <= VSP_VLM().VSPGeom().NumberOfControlSurfaces() && !Found ) {
+          while ( p <= VSPAERO().VSPGeom().NumberOfControlSurfaces() && !Found ) {
              
-             printf("Checking: %s \n",VSP_VLM().VSPGeom().ControlSurface(p).Name());fflush(NULL);
+             printf("Checking: %s \n",VSPAERO().VSPGeom().ControlSurface(p).Name());fflush(NULL);
   
-             if ( strstr(VSP_VLM().VSPGeom().ControlSurface(p).Name(), ControlSurfaceGroup_[i].ControlSurface_Name(j)) != NULL ) {
+             if ( strstr(VSPAERO().VSPGeom().ControlSurface(p).Name(), ControlSurfaceGroup_[i].ControlSurface_Name(j)) != NULL ) {
       
                 Found = 1;
                
-                ControlSurfaceGroup_[i].pCFix_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCFix_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCFiy_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCFiy_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCFiz_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCFiz_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCFix_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCFix_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCFiy_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCFiy_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCFiz_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCFiz_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
                                                   
-                ControlSurfaceGroup_[i].pCMix_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMix_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCMiy_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMiy_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCMiz_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMiz_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMix_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMix_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMiy_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMiy_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMiz_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMiz_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
                                                   
-                ControlSurfaceGroup_[i].pCFox_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCFox_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCFoy_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCFoy_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCFoz_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCFoz_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCFox_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCFox_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCFoy_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCFoy_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCFoz_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCFoz_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
                                                   
-                ControlSurfaceGroup_[i].pCMox_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMox_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCMoy_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMoy_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCMoz_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMoz_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMox_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMox_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMoy_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMoy_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMoz_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMoz_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
 
 
-                ControlSurfaceGroup_[i].pCLi_pDelta()  += VSP_VLM().VSPGeom().ControlSurface(p).pCLi_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCDi_pDelta()  += VSP_VLM().VSPGeom().ControlSurface(p).pCDi_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCSi_pDelta()  += VSP_VLM().VSPGeom().ControlSurface(p).pCSi_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCLi_pDelta()  += VSPAERO().VSPGeom().ControlSurface(p).pCLi_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCDi_pDelta()  += VSPAERO().VSPGeom().ControlSurface(p).pCDi_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCSi_pDelta()  += VSPAERO().VSPGeom().ControlSurface(p).pCSi_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
                                                   
-                ControlSurfaceGroup_[i].pCMli_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMli_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCMmi_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMmi_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCMni_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMni_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMli_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMli_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMmi_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMmi_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMni_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMni_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
                                                   
-                ControlSurfaceGroup_[i].pCLo_pDelta()  += VSP_VLM().VSPGeom().ControlSurface(p).pCLo_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCDo_pDelta()  += VSP_VLM().VSPGeom().ControlSurface(p).pCDo_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCSo_pDelta()  += VSP_VLM().VSPGeom().ControlSurface(p).pCSo_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCLo_pDelta()  += VSPAERO().VSPGeom().ControlSurface(p).pCLo_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCDo_pDelta()  += VSPAERO().VSPGeom().ControlSurface(p).pCDo_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCSo_pDelta()  += VSPAERO().VSPGeom().ControlSurface(p).pCSo_pDelta()  * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
                                                   
-                ControlSurfaceGroup_[i].pCMlo_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMlo_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCMmo_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMmo_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
-                ControlSurfaceGroup_[i].pCMno_pDelta() += VSP_VLM().VSPGeom().ControlSurface(p).pCMno_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMlo_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMlo_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMmo_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMmo_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
+                ControlSurfaceGroup_[i].pCMno_pDelta() += VSPAERO().VSPGeom().ControlSurface(p).pCMno_pDelta() * ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j); 
 
              }
              
@@ -3075,12 +3535,12 @@ void WriteOutAdjointStabilityDerivatives(void)
 
     // Write out generic header file
         
-    VSP_VLM().WriteCaseHeader(StabFile);
+    VSPAERO().WriteCaseHeader(StabFile);
     
-    if ( VSP_VLM().AdjointSolutionForceType() == ADJOINT_INVISCID_FORCES             ) NumberOfCases = 1;
-    if ( VSP_VLM().AdjointSolutionForceType() == ADJOINT_VISCOUS_FORCES              ) NumberOfCases = 1;
-    if ( VSP_VLM().AdjointSolutionForceType() == ADJOINT_TOTAL_FORCES                ) NumberOfCases = 1;
-    if ( VSP_VLM().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES ) NumberOfCases = 3;
+    if ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_FORCES             ) NumberOfCases = 1;
+    if ( VSPAERO().AdjointSolutionForceType() == ADJOINT_VISCOUS_FORCES              ) NumberOfCases = 1;
+    if ( VSPAERO().AdjointSolutionForceType() == ADJOINT_TOTAL_FORCES                ) NumberOfCases = 1;
+    if ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES ) NumberOfCases = 3;
        
     for ( Case = 1 ; Case <= NumberOfCases ; Case++ ) {
            
@@ -3090,30 +3550,30 @@ void WriteOutAdjointStabilityDerivatives(void)
 
        // Total forces header
         
-       if (   VSP_VLM().AdjointSolutionForceType() == ADJOINT_TOTAL_FORCES                               ||
-            ( VSP_VLM().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 1 )    ) {
+       if (   VSPAERO().AdjointSolutionForceType() == ADJOINT_TOTAL_FORCES                               ||
+            ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 1 )    ) {
    
                          // 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012          
-          fprintf(StabFile,"#    Total        Total        Total        Total        Total        Total        Total        Total        Total        Total        Total        Total \n");
-          fprintf(StabFile,"#     CFxt         CFyt         CFzt         CMxt         CMyt         CMzt         CLt          CDt          CSt          CMlt         CMmt         CMnt\n");
+          fprintf(StabFile,"   Total        Total        Total        Total        Total        Total        Total        Total        Total        Total        Total        Total \n");    
+          fprintf(StabFile,"    CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS           CMl          CMm          CMn\n");
           fprintf(StabFile,"#\n");
 
-          fprintf(StabFile,"# %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
-                  VSP_VLM().CFix() + VSP_VLM().CFox(),
-                  VSP_VLM().CFiy() + VSP_VLM().CFoy(),
-                  VSP_VLM().CFiz() + VSP_VLM().CFoz(),
+          fprintf(StabFile,"%12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
+                  VSPAERO().CFix() + VSPAERO().CFox(),
+                  VSPAERO().CFiy() + VSPAERO().CFoy(),
+                  VSPAERO().CFiz() + VSPAERO().CFoz(),
                          
-                  VSP_VLM().CMix() + VSP_VLM().CMox(),
-                  VSP_VLM().CMiy() + VSP_VLM().CMoy(),
-                  VSP_VLM().CMiz() + VSP_VLM().CMoz(),
+                  VSPAERO().CMix() + VSPAERO().CMox(),
+                  VSPAERO().CMiy() + VSPAERO().CMoy(),
+                  VSPAERO().CMiz() + VSPAERO().CMoz(),
                          
-                  VSP_VLM().CLi() + VSP_VLM().CLo(),
-                  VSP_VLM().CDi() + VSP_VLM().CDo(),
-                  VSP_VLM().CSi() + VSP_VLM().CSo(),
+                  VSPAERO().CLi() + VSPAERO().CLo(),
+                  VSPAERO().CDi() + VSPAERO().CDo(),
+                  VSPAERO().CSi() + VSPAERO().CSo(),
                   
-                  VSP_VLM().CMli() + VSP_VLM().CMlo(),
-                  VSP_VLM().CMmi() + VSP_VLM().CMmo(),
-                  VSP_VLM().CMni() + VSP_VLM().CMno());     
+                  VSPAERO().CMli() + VSPAERO().CMlo(),
+                  VSPAERO().CMmi() + VSPAERO().CMmo(),
+                  VSPAERO().CMni() + VSPAERO().CMno());     
 
           printf("\n");
          
@@ -3140,137 +3600,137 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           fprintf(StabFile,"#\n");
          
-          fprintf(StabFile,"CFxt   "); PRINT_STAB_LINE( VSP_VLM().CFtx(),
-                                                       VSP_VLM().pCFtx_pAlpha(),
-                                                       VSP_VLM().pCFtx_pBeta(),
-                                                       VSP_VLM().pCFtx_pP(),
-                                                       VSP_VLM().pCFtx_pQ(),
-                                                       VSP_VLM().pCFtx_pR(),
-                                                       VSP_VLM().pCFtx_pMach(),
-                                                       VSP_VLM().pCFtx_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CFx    "); PRINT_STAB_LINE( VSPAERO().CFtx(),
+                                                       VSPAERO().pCFtx_pAlpha(),
+                                                       VSPAERO().pCFtx_pBeta(),
+                                                       VSPAERO().pCFtx_pP(),
+                                                       VSPAERO().pCFtx_pQ(),
+                                                       VSPAERO().pCFtx_pR(),
+                                                       VSPAERO().pCFtx_pMach(),
+                                                       VSPAERO().pCFtx_pMach()*VSPAERO().Mach());
           
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFtx_pDelta()); }; fprintf(StabFile,"\n");
              
-          fprintf(StabFile,"CFyt   "); PRINT_STAB_LINE( VSP_VLM().CFty(),
-                                                       VSP_VLM().pCFty_pAlpha(),
-                                                       VSP_VLM().pCFty_pBeta(),
-                                                       VSP_VLM().pCFty_pP(),
-                                                       VSP_VLM().pCFty_pQ(),
-                                                       VSP_VLM().pCFty_pR(),
-                                                       VSP_VLM().pCFty_pMach(),
-                                                       VSP_VLM().pCFty_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CFy    "); PRINT_STAB_LINE( VSPAERO().CFty(),
+                                                       VSPAERO().pCFty_pAlpha(),
+                                                       VSPAERO().pCFty_pBeta(),
+                                                       VSPAERO().pCFty_pP(),
+                                                       VSPAERO().pCFty_pQ(),
+                                                       VSPAERO().pCFty_pR(),
+                                                       VSPAERO().pCFty_pMach(),
+                                                       VSPAERO().pCFty_pMach()*VSPAERO().Mach());
          
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) {fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFty_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CFzt   "); PRINT_STAB_LINE( VSP_VLM().CFtz(),
-                                                       VSP_VLM().pCFtz_pAlpha(),
-                                                       VSP_VLM().pCFtz_pBeta(),
-                                                       VSP_VLM().pCFtz_pP(),
-                                                       VSP_VLM().pCFtz_pQ(),
-                                                       VSP_VLM().pCFtz_pR(),
-                                                       VSP_VLM().pCFtz_pMach(),
-                                                       VSP_VLM().pCFtz_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CFz    "); PRINT_STAB_LINE( VSPAERO().CFtz(),
+                                                       VSPAERO().pCFtz_pAlpha(),
+                                                       VSPAERO().pCFtz_pBeta(),
+                                                       VSPAERO().pCFtz_pP(),
+                                                       VSPAERO().pCFtz_pQ(),
+                                                       VSPAERO().pCFtz_pR(),
+                                                       VSPAERO().pCFtz_pMach(),
+                                                       VSPAERO().pCFtz_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFtz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMxt   "); PRINT_STAB_LINE( VSP_VLM().CMtx(),
-                                                       VSP_VLM().pCMtx_pAlpha(),
-                                                       VSP_VLM().pCMtx_pBeta(),
-                                                       VSP_VLM().pCMtx_pP(),
-                                                       VSP_VLM().pCMtx_pQ(),
-                                                       VSP_VLM().pCMtx_pR(),
-                                                       VSP_VLM().pCMtx_pMach(),
-                                                       VSP_VLM().pCMtx_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMx    "); PRINT_STAB_LINE( VSPAERO().CMtx(),
+                                                       VSPAERO().pCMtx_pAlpha(),
+                                                       VSPAERO().pCMtx_pBeta(),
+                                                       VSPAERO().pCMtx_pP(),
+                                                       VSPAERO().pCMtx_pQ(),
+                                                       VSPAERO().pCMtx_pR(),
+                                                       VSPAERO().pCMtx_pMach(),
+                                                       VSPAERO().pCMtx_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMtx_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMyt   "); PRINT_STAB_LINE( VSP_VLM().CMty(),
-                                                       VSP_VLM().pCMty_pAlpha(),
-                                                       VSP_VLM().pCMty_pBeta(),
-                                                       VSP_VLM().pCMty_pP(),
-                                                       VSP_VLM().pCMty_pQ(),
-                                                       VSP_VLM().pCMty_pR(),
-                                                       VSP_VLM().pCMty_pMach(),
-                                                       VSP_VLM().pCMty_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMy    "); PRINT_STAB_LINE( VSPAERO().CMty(),
+                                                       VSPAERO().pCMty_pAlpha(),
+                                                       VSPAERO().pCMty_pBeta(),
+                                                       VSPAERO().pCMty_pP(),
+                                                       VSPAERO().pCMty_pQ(),
+                                                       VSPAERO().pCMty_pR(),
+                                                       VSPAERO().pCMty_pMach(),
+                                                       VSPAERO().pCMty_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMty_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMzt   "); PRINT_STAB_LINE( VSP_VLM().CMtz(),
-                                                       VSP_VLM().pCMtz_pAlpha(),
-                                                       VSP_VLM().pCMtz_pBeta(),
-                                                       VSP_VLM().pCMtz_pP(),
-                                                       VSP_VLM().pCMtz_pQ(),
-                                                       VSP_VLM().pCMtz_pR(),
-                                                       VSP_VLM().pCMtz_pMach(),
-                                                       VSP_VLM().pCMtz_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMz    "); PRINT_STAB_LINE( VSPAERO().CMtz(),
+                                                       VSPAERO().pCMtz_pAlpha(),
+                                                       VSPAERO().pCMtz_pBeta(),
+                                                       VSPAERO().pCMtz_pP(),
+                                                       VSPAERO().pCMtz_pQ(),
+                                                       VSPAERO().pCMtz_pR(),
+                                                       VSPAERO().pCMtz_pMach(),
+                                                       VSPAERO().pCMtz_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMtz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CLt    "); PRINT_STAB_LINE( VSP_VLM().CLt(),
-                                                       VSP_VLM().pCLt_pAlpha(),
-                                                       VSP_VLM().pCLt_pBeta(),
-                                                       VSP_VLM().pCLt_pP(),
-                                                       VSP_VLM().pCLt_pQ(),
-                                                       VSP_VLM().pCLt_pR(),
-                                                       VSP_VLM().pCLt_pMach(),
-                                                       VSP_VLM().pCLt_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CL     "); PRINT_STAB_LINE( VSPAERO().CLt(),
+                                                       VSPAERO().pCLt_pAlpha(),
+                                                       VSPAERO().pCLt_pBeta(),
+                                                       VSPAERO().pCLt_pP(),
+                                                       VSPAERO().pCLt_pQ(),
+                                                       VSPAERO().pCLt_pR(),
+                                                       VSPAERO().pCLt_pMach(),
+                                                       VSPAERO().pCLt_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCLt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CDt    "); PRINT_STAB_LINE( VSP_VLM().CDt(),
-                                                       VSP_VLM().pCDt_pAlpha(),
-                                                       VSP_VLM().pCDt_pBeta(),
-                                                       VSP_VLM().pCDt_pP(),
-                                                       VSP_VLM().pCDt_pQ(),
-                                                       VSP_VLM().pCDt_pR(),
-                                                       VSP_VLM().pCDt_pMach(),
-                                                       VSP_VLM().pCDt_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CD     "); PRINT_STAB_LINE( VSPAERO().CDt(),
+                                                       VSPAERO().pCDt_pAlpha(),
+                                                       VSPAERO().pCDt_pBeta(),
+                                                       VSPAERO().pCDt_pP(),
+                                                       VSPAERO().pCDt_pQ(),
+                                                       VSPAERO().pCDt_pR(),
+                                                       VSPAERO().pCDt_pMach(),
+                                                       VSPAERO().pCDt_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCDt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CSt    "); PRINT_STAB_LINE( VSP_VLM().CSt(),
-                                                       VSP_VLM().pCSt_pAlpha(),
-                                                       VSP_VLM().pCSt_pBeta(),
-                                                       VSP_VLM().pCSt_pP(),
-                                                       VSP_VLM().pCSt_pQ(),
-                                                       VSP_VLM().pCSt_pR(),
-                                                       VSP_VLM().pCSt_pMach(),
-                                                       VSP_VLM().pCSt_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CS     "); PRINT_STAB_LINE( VSPAERO().CSt(),
+                                                       VSPAERO().pCSt_pAlpha(),
+                                                       VSPAERO().pCSt_pBeta(),
+                                                       VSPAERO().pCSt_pP(),
+                                                       VSPAERO().pCSt_pQ(),
+                                                       VSPAERO().pCSt_pR(),
+                                                       VSPAERO().pCSt_pMach(),
+                                                       VSPAERO().pCSt_pMach()*VSPAERO().Mach());
          
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCSt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMLt   "); PRINT_STAB_LINE( VSP_VLM().CMlt(),
-                                                       VSP_VLM().pCMlt_pAlpha(),
-                                                       VSP_VLM().pCMlt_pBeta(),
-                                                       VSP_VLM().pCMlt_pP(),
-                                                       VSP_VLM().pCMlt_pQ(),
-                                                       VSP_VLM().pCMlt_pR(),
-                                                       VSP_VLM().pCMlt_pMach(),
-                                                       VSP_VLM().pCMlt_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CML    "); PRINT_STAB_LINE( VSPAERO().CMlt(),
+                                                       VSPAERO().pCMlt_pAlpha(),
+                                                       VSPAERO().pCMlt_pBeta(),
+                                                       VSPAERO().pCMlt_pP(),
+                                                       VSPAERO().pCMlt_pQ(),
+                                                       VSPAERO().pCMlt_pR(),
+                                                       VSPAERO().pCMlt_pMach(),
+                                                       VSPAERO().pCMlt_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMlt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMmt   "); PRINT_STAB_LINE( VSP_VLM().CMmt(),
-                                                       VSP_VLM().pCMmt_pAlpha(),
-                                                       VSP_VLM().pCMmt_pBeta(),
-                                                       VSP_VLM().pCMmt_pP(),
-                                                       VSP_VLM().pCMmt_pQ(),
-                                                       VSP_VLM().pCMmt_pR(),
-                                                       VSP_VLM().pCMmt_pMach(),
-                                                       VSP_VLM().pCMmt_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMm    "); PRINT_STAB_LINE( VSPAERO().CMmt(),
+                                                       VSPAERO().pCMmt_pAlpha(),
+                                                       VSPAERO().pCMmt_pBeta(),
+                                                       VSPAERO().pCMmt_pP(),
+                                                       VSPAERO().pCMmt_pQ(),
+                                                       VSPAERO().pCMmt_pR(),
+                                                       VSPAERO().pCMmt_pMach(),
+                                                       VSPAERO().pCMmt_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMmt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMnt   "); PRINT_STAB_LINE( VSP_VLM().CMnt(),
-                                                       VSP_VLM().pCMnt_pAlpha(),
-                                                       VSP_VLM().pCMnt_pBeta(),
-                                                       VSP_VLM().pCMnt_pP(),
-                                                       VSP_VLM().pCMnt_pQ(),
-                                                       VSP_VLM().pCMnt_pR(),
-                                                       VSP_VLM().pCMnt_pMach(),
-                                                       VSP_VLM().pCMnt_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMn    "); PRINT_STAB_LINE( VSPAERO().CMnt(),
+                                                       VSPAERO().pCMnt_pAlpha(),
+                                                       VSPAERO().pCMnt_pBeta(),
+                                                       VSPAERO().pCMnt_pP(),
+                                                       VSPAERO().pCMnt_pQ(),
+                                                       VSPAERO().pCMnt_pR(),
+                                                       VSPAERO().pCMnt_pMach(),
+                                                       VSPAERO().pCMnt_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMnt_pDelta()); }; fprintf(StabFile,"\n");
          
@@ -3282,30 +3742,30 @@ void WriteOutAdjointStabilityDerivatives(void)
    
        // Inviscid forces header
        
-       if (   VSP_VLM().AdjointSolutionForceType() == ADJOINT_INVISCID_FORCES                            ||
-            ( VSP_VLM().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 2 )    ) {
+       if (   VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_FORCES                            ||
+            ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 2 )    ) {
    
                          // 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012          
-          fprintf(StabFile,"#   Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid \n");
-          fprintf(StabFile,"#     CFxi         CFyi         CFzi         CMxi         CMyi         CMzi         CLi          CDi          CSi          CMli         CMmi         CMni\n");
+          fprintf(StabFile,"  Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid \n");    
+          fprintf(StabFile,"    CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS           CMl          CMm          CMn\n");
           fprintf(StabFile,"#\n");
 
-          fprintf(StabFile,"# %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
-                  VSP_VLM().CFix(),
-                  VSP_VLM().CFiy(),
-                  VSP_VLM().CFiz(),
+          fprintf(StabFile,"%12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
+                  VSPAERO().CFix(),
+                  VSPAERO().CFiy(),
+                  VSPAERO().CFiz(),
                          
-                  VSP_VLM().CMix(),
-                  VSP_VLM().CMiy(),
-                  VSP_VLM().CMiz(),
+                  VSPAERO().CMix(),
+                  VSPAERO().CMiy(),
+                  VSPAERO().CMiz(),
                          
-                  VSP_VLM().CLi(),
-                  VSP_VLM().CDi(),
-                  VSP_VLM().CSi(),
+                  VSPAERO().CLi(),
+                  VSPAERO().CDi(),
+                  VSPAERO().CSi(),
                   
-                  VSP_VLM().CMli(),
-                  VSP_VLM().CMmi(),
-                  VSP_VLM().CMni());     
+                  VSPAERO().CMli(),
+                  VSPAERO().CMmi(),
+                  VSPAERO().CMni());     
 
           printf("\n");
          
@@ -3322,135 +3782,135 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           fprintf(StabFile,"#\n");
          
-          fprintf(StabFile,"CFxi   "); PRINT_STAB_LINE( VSP_VLM().CFix(),
-                                                       VSP_VLM().pCFix_pAlpha(),
-                                                       VSP_VLM().pCFix_pBeta(),
-                                                       VSP_VLM().pCFix_pP(),
-                                                       VSP_VLM().pCFix_pQ(),
-                                                       VSP_VLM().pCFix_pR(),
-                                                       VSP_VLM().pCFix_pMach(),
-                                                       VSP_VLM().pCFix_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CFx    "); PRINT_STAB_LINE( VSPAERO().CFix(),
+                                                       VSPAERO().pCFix_pAlpha(),
+                                                       VSPAERO().pCFix_pBeta(),
+                                                       VSPAERO().pCFix_pP(),
+                                                       VSPAERO().pCFix_pQ(),
+                                                       VSPAERO().pCFix_pR(),
+                                                       VSPAERO().pCFix_pMach(),
+                                                       VSPAERO().pCFix_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFix_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CFyi   "); PRINT_STAB_LINE( VSP_VLM().CFiy(),
-                                                       VSP_VLM().pCFiy_pAlpha(),
-                                                       VSP_VLM().pCFiy_pBeta(),
-                                                       VSP_VLM().pCFiy_pP(),
-                                                       VSP_VLM().pCFiy_pQ(),
-                                                       VSP_VLM().pCFiy_pR(),
-                                                       VSP_VLM().pCFiy_pMach(),
-                                                       VSP_VLM().pCFiy_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CFy    "); PRINT_STAB_LINE( VSPAERO().CFiy(),
+                                                       VSPAERO().pCFiy_pAlpha(),
+                                                       VSPAERO().pCFiy_pBeta(),
+                                                       VSPAERO().pCFiy_pP(),
+                                                       VSPAERO().pCFiy_pQ(),
+                                                       VSPAERO().pCFiy_pR(),
+                                                       VSPAERO().pCFiy_pMach(),
+                                                       VSPAERO().pCFiy_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFiy_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CFzi   "); PRINT_STAB_LINE( VSP_VLM().CFiz(),
-                                                       VSP_VLM().pCFiz_pAlpha(),
-                                                       VSP_VLM().pCFiz_pBeta(),
-                                                       VSP_VLM().pCFiz_pP(),
-                                                       VSP_VLM().pCFiz_pQ(),
-                                                       VSP_VLM().pCFiz_pR(),
-                                                       VSP_VLM().pCFiz_pMach(),
-                                                       VSP_VLM().pCFiz_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CFz    "); PRINT_STAB_LINE( VSPAERO().CFiz(),
+                                                       VSPAERO().pCFiz_pAlpha(),
+                                                       VSPAERO().pCFiz_pBeta(),
+                                                       VSPAERO().pCFiz_pP(),
+                                                       VSPAERO().pCFiz_pQ(),
+                                                       VSPAERO().pCFiz_pR(),
+                                                       VSPAERO().pCFiz_pMach(),
+                                                       VSPAERO().pCFiz_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFiz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMxi   "); PRINT_STAB_LINE( VSP_VLM().CMix(),
-                                                       VSP_VLM().pCMix_pAlpha(),
-                                                       VSP_VLM().pCMix_pBeta(),
-                                                       VSP_VLM().pCMix_pP(),
-                                                       VSP_VLM().pCMix_pQ(),
-                                                       VSP_VLM().pCMix_pR(),
-                                                       VSP_VLM().pCMix_pMach(),
-                                                       VSP_VLM().pCMix_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMx    "); PRINT_STAB_LINE( VSPAERO().CMix(),
+                                                       VSPAERO().pCMix_pAlpha(),
+                                                       VSPAERO().pCMix_pBeta(),
+                                                       VSPAERO().pCMix_pP(),
+                                                       VSPAERO().pCMix_pQ(),
+                                                       VSPAERO().pCMix_pR(),
+                                                       VSPAERO().pCMix_pMach(),
+                                                       VSPAERO().pCMix_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMix_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMyi   "); PRINT_STAB_LINE( VSP_VLM().CMiy(),
-                                                       VSP_VLM().pCMiy_pAlpha(),
-                                                       VSP_VLM().pCMiy_pBeta(),
-                                                       VSP_VLM().pCMiy_pP(),
-                                                       VSP_VLM().pCMiy_pQ(),
-                                                       VSP_VLM().pCMiy_pR(),
-                                                       VSP_VLM().pCMiy_pMach(),
-                                                       VSP_VLM().pCMiy_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMy    "); PRINT_STAB_LINE( VSPAERO().CMiy(),
+                                                       VSPAERO().pCMiy_pAlpha(),
+                                                       VSPAERO().pCMiy_pBeta(),
+                                                       VSPAERO().pCMiy_pP(),
+                                                       VSPAERO().pCMiy_pQ(),
+                                                       VSPAERO().pCMiy_pR(),
+                                                       VSPAERO().pCMiy_pMach(),
+                                                       VSPAERO().pCMiy_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMiy_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMzi   "); PRINT_STAB_LINE( VSP_VLM().CMiz(),
-                                                       VSP_VLM().pCMiz_pAlpha(),
-                                                       VSP_VLM().pCMiz_pBeta(),
-                                                       VSP_VLM().pCMiz_pP(),
-                                                       VSP_VLM().pCMiz_pQ(),
-                                                       VSP_VLM().pCMiz_pR(),
-                                                       VSP_VLM().pCMiz_pMach(),
-                                                       VSP_VLM().pCMiz_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMz    "); PRINT_STAB_LINE( VSPAERO().CMiz(),
+                                                       VSPAERO().pCMiz_pAlpha(),
+                                                       VSPAERO().pCMiz_pBeta(),
+                                                       VSPAERO().pCMiz_pP(),
+                                                       VSPAERO().pCMiz_pQ(),
+                                                       VSPAERO().pCMiz_pR(),
+                                                       VSPAERO().pCMiz_pMach(),
+                                                       VSPAERO().pCMiz_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMiz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CLi    "); PRINT_STAB_LINE( VSP_VLM().CLi(),
-                                                       VSP_VLM().pCLi_pAlpha(),
-                                                       VSP_VLM().pCLi_pBeta(),
-                                                       VSP_VLM().pCLi_pP(),
-                                                       VSP_VLM().pCLi_pQ(),
-                                                       VSP_VLM().pCLi_pR(),
-                                                       VSP_VLM().pCLi_pMach(),
-                                                       VSP_VLM().pCLi_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CL     "); PRINT_STAB_LINE( VSPAERO().CLi(),
+                                                       VSPAERO().pCLi_pAlpha(),
+                                                       VSPAERO().pCLi_pBeta(),
+                                                       VSPAERO().pCLi_pP(),
+                                                       VSPAERO().pCLi_pQ(),
+                                                       VSPAERO().pCLi_pR(),
+                                                       VSPAERO().pCLi_pMach(),
+                                                       VSPAERO().pCLi_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCLi_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CDi    "); PRINT_STAB_LINE( VSP_VLM().CDi(),
-                                                       VSP_VLM().pCDi_pAlpha(),
-                                                       VSP_VLM().pCDi_pBeta(),
-                                                       VSP_VLM().pCDi_pP(),
-                                                       VSP_VLM().pCDi_pQ(),
-                                                       VSP_VLM().pCDi_pR(),
-                                                       VSP_VLM().pCDi_pMach(),
-                                                       VSP_VLM().pCDi_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CD     "); PRINT_STAB_LINE( VSPAERO().CDi(),
+                                                       VSPAERO().pCDi_pAlpha(),
+                                                       VSPAERO().pCDi_pBeta(),
+                                                       VSPAERO().pCDi_pP(),
+                                                       VSPAERO().pCDi_pQ(),
+                                                       VSPAERO().pCDi_pR(),
+                                                       VSPAERO().pCDi_pMach(),
+                                                       VSPAERO().pCDi_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCDi_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CSi    "); PRINT_STAB_LINE( VSP_VLM().CSi(),
-                                                       VSP_VLM().pCSi_pAlpha(),
-                                                       VSP_VLM().pCSi_pBeta(),
-                                                       VSP_VLM().pCSi_pP(),
-                                                       VSP_VLM().pCSi_pQ(),
-                                                       VSP_VLM().pCSi_pR(),
-                                                       VSP_VLM().pCSi_pMach(),
-                                                       VSP_VLM().pCSi_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CS     "); PRINT_STAB_LINE( VSPAERO().CSi(),
+                                                       VSPAERO().pCSi_pAlpha(),
+                                                       VSPAERO().pCSi_pBeta(),
+                                                       VSPAERO().pCSi_pP(),
+                                                       VSPAERO().pCSi_pQ(),
+                                                       VSPAERO().pCSi_pR(),
+                                                       VSPAERO().pCSi_pMach(),
+                                                       VSPAERO().pCSi_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCSi_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMLi   "); PRINT_STAB_LINE( VSP_VLM().CMli(),
-                                                       VSP_VLM().pCMli_pAlpha(),
-                                                       VSP_VLM().pCMli_pBeta(),
-                                                       VSP_VLM().pCMli_pP(),
-                                                       VSP_VLM().pCMli_pQ(),
-                                                       VSP_VLM().pCMli_pR(),
-                                                       VSP_VLM().pCMli_pMach(),
-                                                       VSP_VLM().pCMli_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CML    "); PRINT_STAB_LINE( VSPAERO().CMli(),
+                                                       VSPAERO().pCMli_pAlpha(),
+                                                       VSPAERO().pCMli_pBeta(),
+                                                       VSPAERO().pCMli_pP(),
+                                                       VSPAERO().pCMli_pQ(),
+                                                       VSPAERO().pCMli_pR(),
+                                                       VSPAERO().pCMli_pMach(),
+                                                       VSPAERO().pCMli_pMach()*VSPAERO().Mach());
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMli_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMmi   "); PRINT_STAB_LINE( VSP_VLM().CMmi(),
-                                                       VSP_VLM().pCMmi_pAlpha(),
-                                                       VSP_VLM().pCMmi_pBeta(),
-                                                       VSP_VLM().pCMmi_pP(),
-                                                       VSP_VLM().pCMmi_pQ(),
-                                                       VSP_VLM().pCMmi_pR(),
-                                                       VSP_VLM().pCMmi_pMach(),
-                                                       VSP_VLM().pCMmi_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMm    "); PRINT_STAB_LINE( VSPAERO().CMmi(),
+                                                       VSPAERO().pCMmi_pAlpha(),
+                                                       VSPAERO().pCMmi_pBeta(),
+                                                       VSPAERO().pCMmi_pP(),
+                                                       VSPAERO().pCMmi_pQ(),
+                                                       VSPAERO().pCMmi_pR(),
+                                                       VSPAERO().pCMmi_pMach(),
+                                                       VSPAERO().pCMmi_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMmi_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMni   "); PRINT_STAB_LINE( VSP_VLM().CMni(),
-                                                       VSP_VLM().pCMni_pAlpha(),
-                                                       VSP_VLM().pCMni_pBeta(),
-                                                       VSP_VLM().pCMni_pP(),
-                                                       VSP_VLM().pCMni_pQ(),
-                                                       VSP_VLM().pCMni_pR(),
-                                                       VSP_VLM().pCMni_pMach(),
-                                                       VSP_VLM().pCMni_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMn    "); PRINT_STAB_LINE( VSPAERO().CMni(),
+                                                       VSPAERO().pCMni_pAlpha(),
+                                                       VSPAERO().pCMni_pBeta(),
+                                                       VSPAERO().pCMni_pP(),
+                                                       VSPAERO().pCMni_pQ(),
+                                                       VSPAERO().pCMni_pR(),
+                                                       VSPAERO().pCMni_pMach(),
+                                                       VSPAERO().pCMni_pMach()*VSPAERO().Mach());
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMni_pDelta()); }; fprintf(StabFile,"\n");
          
@@ -3463,30 +3923,30 @@ void WriteOutAdjointStabilityDerivatives(void)
    
        // Inviscid forces header
        
-       if (   VSP_VLM().AdjointSolutionForceType() == ADJOINT_VISCOUS_FORCES                             ||
-            ( VSP_VLM().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 3 )    ) {
+       if (   VSPAERO().AdjointSolutionForceType() == ADJOINT_VISCOUS_FORCES                             ||
+            ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 3 )    ) {
    
                          // 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012          
-          fprintf(StabFile,"#    Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous \n");
-          fprintf(StabFile,"#     CFxo         CFyo         CFzo         CMxo         CMyo         CMzo         CLo          CDo          CSo          CMlo         CMmo         CMno\n");
+          fprintf(StabFile,"   Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous \n");    
+          fprintf(StabFile,"    CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS           CMl          CMm          CMn\n");
           fprintf(StabFile,"#\n");
 
-          fprintf(StabFile,"# %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
-                  VSP_VLM().CFox(),
-                  VSP_VLM().CFoy(),
-                  VSP_VLM().CFoz(),
+          fprintf(StabFile,"%12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
+                  VSPAERO().CFox(),
+                  VSPAERO().CFoy(),
+                  VSPAERO().CFoz(),
                   
-                  VSP_VLM().CMox(),
-                  VSP_VLM().CMoy(),
-                  VSP_VLM().CMoz(),
+                  VSPAERO().CMox(),
+                  VSPAERO().CMoy(),
+                  VSPAERO().CMoz(),
                          
-                  VSP_VLM().CLo(),
-                  VSP_VLM().CDo(),
-                  VSP_VLM().CSo(),
+                  VSPAERO().CLo(),
+                  VSPAERO().CDo(),
+                  VSPAERO().CSo(),
                   
-                  VSP_VLM().CMlo(),
-                  VSP_VLM().CMmo(),
-                  VSP_VLM().CMno());     
+                  VSPAERO().CMlo(),
+                  VSPAERO().CMmo(),
+                  VSPAERO().CMno());     
 
           printf("\n");
          
@@ -3503,135 +3963,135 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           fprintf(StabFile,"#\n");
          
-          fprintf(StabFile,"CFxo   "); PRINT_STAB_LINE( VSP_VLM().CFox(),
-                                                       VSP_VLM().pCFox_pAlpha(),
-                                                       VSP_VLM().pCFox_pBeta(),
-                                                       VSP_VLM().pCFox_pP(),
-                                                       VSP_VLM().pCFox_pQ(),
-                                                       VSP_VLM().pCFox_pR(),
-                                                       VSP_VLM().pCFox_pMach(),
-                                                       VSP_VLM().pCFox_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CFx    "); PRINT_STAB_LINE( VSPAERO().CFox(),
+                                                       VSPAERO().pCFox_pAlpha(),
+                                                       VSPAERO().pCFox_pBeta(),
+                                                       VSPAERO().pCFox_pP(),
+                                                       VSPAERO().pCFox_pQ(),
+                                                       VSPAERO().pCFox_pR(),
+                                                       VSPAERO().pCFox_pMach(),
+                                                       VSPAERO().pCFox_pMach()*VSPAERO().Mach());
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFox_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CFyo   "); PRINT_STAB_LINE( VSP_VLM().CFoy(),
-                                                       VSP_VLM().pCFoy_pAlpha(),
-                                                       VSP_VLM().pCFoy_pBeta(),
-                                                       VSP_VLM().pCFoy_pP(),
-                                                       VSP_VLM().pCFoy_pQ(),
-                                                       VSP_VLM().pCFoy_pR(),
-                                                       VSP_VLM().pCFoy_pMach(),
-                                                       VSP_VLM().pCFoy_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CFy    "); PRINT_STAB_LINE( VSPAERO().CFoy(),
+                                                       VSPAERO().pCFoy_pAlpha(),
+                                                       VSPAERO().pCFoy_pBeta(),
+                                                       VSPAERO().pCFoy_pP(),
+                                                       VSPAERO().pCFoy_pQ(),
+                                                       VSPAERO().pCFoy_pR(),
+                                                       VSPAERO().pCFoy_pMach(),
+                                                       VSPAERO().pCFoy_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFoy_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CFzo   "); PRINT_STAB_LINE( VSP_VLM().CFoz(),
-                                                       VSP_VLM().pCFoz_pAlpha(),
-                                                       VSP_VLM().pCFoz_pBeta(),
-                                                       VSP_VLM().pCFoz_pP(),
-                                                       VSP_VLM().pCFoz_pQ(),
-                                                       VSP_VLM().pCFoz_pR(),
-                                                       VSP_VLM().pCFoz_pMach(),
-                                                       VSP_VLM().pCFoz_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CFz    "); PRINT_STAB_LINE( VSPAERO().CFoz(),
+                                                       VSPAERO().pCFoz_pAlpha(),
+                                                       VSPAERO().pCFoz_pBeta(),
+                                                       VSPAERO().pCFoz_pP(),
+                                                       VSPAERO().pCFoz_pQ(),
+                                                       VSPAERO().pCFoz_pR(),
+                                                       VSPAERO().pCFoz_pMach(),
+                                                       VSPAERO().pCFoz_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFoz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMxo   "); PRINT_STAB_LINE( VSP_VLM().CMox(),
-                                                       VSP_VLM().pCMox_pAlpha(),
-                                                       VSP_VLM().pCMox_pBeta(),
-                                                       VSP_VLM().pCMox_pP(),
-                                                       VSP_VLM().pCMox_pQ(),
-                                                       VSP_VLM().pCMox_pR(),
-                                                       VSP_VLM().pCMox_pMach(),
-                                                       VSP_VLM().pCMox_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMx    "); PRINT_STAB_LINE( VSPAERO().CMox(),
+                                                       VSPAERO().pCMox_pAlpha(),
+                                                       VSPAERO().pCMox_pBeta(),
+                                                       VSPAERO().pCMox_pP(),
+                                                       VSPAERO().pCMox_pQ(),
+                                                       VSPAERO().pCMox_pR(),
+                                                       VSPAERO().pCMox_pMach(),
+                                                       VSPAERO().pCMox_pMach()*VSPAERO().Mach());
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMox_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMyo   "); PRINT_STAB_LINE( VSP_VLM().CMoy(),
-                                                       VSP_VLM().pCMoy_pAlpha(),
-                                                       VSP_VLM().pCMoy_pBeta(),
-                                                       VSP_VLM().pCMoy_pP(),
-                                                       VSP_VLM().pCMoy_pQ(),
-                                                       VSP_VLM().pCMoy_pR(),
-                                                       VSP_VLM().pCMoy_pMach(),
-                                                       VSP_VLM().pCMoy_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMy    "); PRINT_STAB_LINE( VSPAERO().CMoy(),
+                                                       VSPAERO().pCMoy_pAlpha(),
+                                                       VSPAERO().pCMoy_pBeta(),
+                                                       VSPAERO().pCMoy_pP(),
+                                                       VSPAERO().pCMoy_pQ(),
+                                                       VSPAERO().pCMoy_pR(),
+                                                       VSPAERO().pCMoy_pMach(),
+                                                       VSPAERO().pCMoy_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMoy_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMzo   "); PRINT_STAB_LINE( VSP_VLM().CMoz(),
-                                                       VSP_VLM().pCMoz_pAlpha(),
-                                                       VSP_VLM().pCMoz_pBeta(),
-                                                       VSP_VLM().pCMoz_pP(),
-                                                       VSP_VLM().pCMoz_pQ(),
-                                                       VSP_VLM().pCMoz_pR(),
-                                                       VSP_VLM().pCMoz_pMach(),
-                                                       VSP_VLM().pCMoz_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMz    "); PRINT_STAB_LINE( VSPAERO().CMoz(),
+                                                       VSPAERO().pCMoz_pAlpha(),
+                                                       VSPAERO().pCMoz_pBeta(),
+                                                       VSPAERO().pCMoz_pP(),
+                                                       VSPAERO().pCMoz_pQ(),
+                                                       VSPAERO().pCMoz_pR(),
+                                                       VSPAERO().pCMoz_pMach(),
+                                                       VSPAERO().pCMoz_pMach()*VSPAERO().Mach());
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMoz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CLo    "); PRINT_STAB_LINE( VSP_VLM().CLo(),
-                                                       VSP_VLM().pCLo_pAlpha(),
-                                                       VSP_VLM().pCLo_pBeta(),
-                                                       VSP_VLM().pCLo_pP(),
-                                                       VSP_VLM().pCLo_pQ(),
-                                                       VSP_VLM().pCLo_pR(),
-                                                       VSP_VLM().pCLo_pMach(),
-                                                       VSP_VLM().pCLo_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CL     "); PRINT_STAB_LINE( VSPAERO().CLo(),
+                                                       VSPAERO().pCLo_pAlpha(),
+                                                       VSPAERO().pCLo_pBeta(),
+                                                       VSPAERO().pCLo_pP(),
+                                                       VSPAERO().pCLo_pQ(),
+                                                       VSPAERO().pCLo_pR(),
+                                                       VSPAERO().pCLo_pMach(),
+                                                       VSPAERO().pCLo_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCLo_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CDo    "); PRINT_STAB_LINE( VSP_VLM().CDo(),
-                                                       VSP_VLM().pCDo_pAlpha(),
-                                                       VSP_VLM().pCDo_pBeta(),
-                                                       VSP_VLM().pCDo_pP(),
-                                                       VSP_VLM().pCDo_pQ(),
-                                                       VSP_VLM().pCDo_pR(),
-                                                       VSP_VLM().pCDo_pMach(),
-                                                       VSP_VLM().pCDo_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CD     "); PRINT_STAB_LINE( VSPAERO().CDo(),
+                                                       VSPAERO().pCDo_pAlpha(),
+                                                       VSPAERO().pCDo_pBeta(),
+                                                       VSPAERO().pCDo_pP(),
+                                                       VSPAERO().pCDo_pQ(),
+                                                       VSPAERO().pCDo_pR(),
+                                                       VSPAERO().pCDo_pMach(),
+                                                       VSPAERO().pCDo_pMach()*VSPAERO().Mach());
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCDo_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CSo    "); PRINT_STAB_LINE( VSP_VLM().CSo(),
-                                                       VSP_VLM().pCSo_pAlpha(),
-                                                       VSP_VLM().pCSo_pBeta(),
-                                                       VSP_VLM().pCSo_pP(),
-                                                       VSP_VLM().pCSo_pQ(),
-                                                       VSP_VLM().pCSo_pR(),
-                                                       VSP_VLM().pCSo_pMach(),
-                                                       VSP_VLM().pCSo_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CS     "); PRINT_STAB_LINE( VSPAERO().CSo(),
+                                                       VSPAERO().pCSo_pAlpha(),
+                                                       VSPAERO().pCSo_pBeta(),
+                                                       VSPAERO().pCSo_pP(),
+                                                       VSPAERO().pCSo_pQ(),
+                                                       VSPAERO().pCSo_pR(),
+                                                       VSPAERO().pCSo_pMach(),
+                                                       VSPAERO().pCSo_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCSo_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMLo   "); PRINT_STAB_LINE( VSP_VLM().CMlo(),
-                                                       VSP_VLM().pCMlo_pAlpha(),
-                                                       VSP_VLM().pCMlo_pBeta(),
-                                                       VSP_VLM().pCMlo_pP(),
-                                                       VSP_VLM().pCMlo_pQ(),
-                                                       VSP_VLM().pCMlo_pR(),
-                                                       VSP_VLM().pCMlo_pMach(),
-                                                       VSP_VLM().pCMlo_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CML    "); PRINT_STAB_LINE( VSPAERO().CMlo(),
+                                                       VSPAERO().pCMlo_pAlpha(),
+                                                       VSPAERO().pCMlo_pBeta(),
+                                                       VSPAERO().pCMlo_pP(),
+                                                       VSPAERO().pCMlo_pQ(),
+                                                       VSPAERO().pCMlo_pR(),
+                                                       VSPAERO().pCMlo_pMach(),
+                                                       VSPAERO().pCMlo_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMlo_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMmo   "); PRINT_STAB_LINE( VSP_VLM().CMmo(),
-                                                       VSP_VLM().pCMmo_pAlpha(),
-                                                       VSP_VLM().pCMmo_pBeta(),
-                                                       VSP_VLM().pCMmo_pP(),
-                                                       VSP_VLM().pCMmo_pQ(),
-                                                       VSP_VLM().pCMmo_pR(),
-                                                       VSP_VLM().pCMmo_pMach(),
-                                                       VSP_VLM().pCMmo_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMm    "); PRINT_STAB_LINE( VSPAERO().CMmo(),
+                                                       VSPAERO().pCMmo_pAlpha(),
+                                                       VSPAERO().pCMmo_pBeta(),
+                                                       VSPAERO().pCMmo_pP(),
+                                                       VSPAERO().pCMmo_pQ(),
+                                                       VSPAERO().pCMmo_pR(),
+                                                       VSPAERO().pCMmo_pMach(),
+                                                       VSPAERO().pCMmo_pMach()*VSPAERO().Mach());
 
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMmo_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CMno   "); PRINT_STAB_LINE( VSP_VLM().CMno(),
-                                                       VSP_VLM().pCMno_pAlpha(),
-                                                       VSP_VLM().pCMno_pBeta(),
-                                                       VSP_VLM().pCMno_pP(),
-                                                       VSP_VLM().pCMno_pQ(),
-                                                       VSP_VLM().pCMno_pR(),
-                                                       VSP_VLM().pCMno_pMach(),
-                                                       VSP_VLM().pCMno_pMach()*VSP_VLM().Mach());
+          fprintf(StabFile,"CMn    "); PRINT_STAB_LINE( VSPAERO().CMno(),
+                                                       VSPAERO().pCMno_pAlpha(),
+                                                       VSPAERO().pCMno_pBeta(),
+                                                       VSPAERO().pCMno_pP(),
+                                                       VSPAERO().pCMno_pQ(),
+                                                       VSPAERO().pCMno_pR(),
+                                                       VSPAERO().pCMno_pMach(),
+                                                       VSPAERO().pCMno_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMno_pDelta()); }; fprintf(StabFile,"\n");
          
@@ -3650,7 +4110,7 @@ void WriteOutAdjointStabilityDerivatives(void)
 
     fprintf( StabFile, headerFormatStr, "# Result", "Value   ", "  Units" );
 
-    SM = -1.0 * VSP_VLM().pCMmt_pAlpha() / VSP_VLM().pCLt_pAlpha(); // -1 * CMm_alpha / CL_alpha
+    SM = -1.0 * VSPAERO().pCMmt_pAlpha() / VSPAERO().pCLt_pAlpha(); // -1 * CMm_alpha / CL_alpha
     X_np = SM * Cref_ + Xcg_;
 
     fprintf( StabFile, dataFormatStr, "SM", SM, "no_unit" );
@@ -3705,7 +4165,7 @@ void UnsteadyStabilityAndControlSolve(void)
 {
 
     int i, j, k, p, pm, pm1, Case, NumCases;
-    char StabFileName[2000];
+    char StabFileName[MAX_CHAR_SIZE];
     double  CL_damp,  CL_avg;
     double  CD_damp,  CD_avg;
     double  CS_damp,  CS_avg;   
@@ -3747,13 +4207,13 @@ void UnsteadyStabilityAndControlSolve(void)
              
              // Set free stream conditions
              
-             VSP_VLM().AngleOfBeta()   = BetaList_[i] * TORAD;
-             VSP_VLM().Mach()          = MachList_[j];  
-             VSP_VLM().AngleOfAttack() =  AoAList_[k] * TORAD;
+             VSPAERO().AngleOfBeta()   = BetaList_[i] * TORAD;
+             VSPAERO().Mach()          = MachList_[j];  
+             VSPAERO().AngleOfAttack() =  AoAList_[k] * TORAD;
       
-             VSP_VLM().RotationalRate_p() = 0.;
-             VSP_VLM().RotationalRate_q() = 0.;
-             VSP_VLM().RotationalRate_r() = 0.;
+             VSPAERO().RotationalRate_p() = 0.;
+             VSPAERO().RotationalRate_q() = 0.;
+             VSPAERO().RotationalRate_r() = 0.;
 
              // Set Control surface group deflection to un-perturbed control surface deflections
 
@@ -3761,19 +4221,19 @@ void UnsteadyStabilityAndControlSolve(void)
              
              // Write out generic header file
                  
-             VSP_VLM().WriteCaseHeader(StabFile);
+             VSPAERO().WriteCaseHeader(StabFile);
 
              // Unsteady solve
              
              if ( Case <= NumCases ) {
             
-                VSP_VLM().Solve(Case);
+                VSPAERO().Solve(Case);
                 
              }
              
              else {
                 
-                VSP_VLM().Solve(-Case);
+                VSPAERO().Solve(-Case);
                 
              }
                           
@@ -3781,15 +4241,15 @@ void UnsteadyStabilityAndControlSolve(void)
 
 // Old method     
     
-       //       CL_damp = (  VSP_VLM().CL_Unsteady(16) -  VSP_VLM().CL_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-       //       CD_damp = (  VSP_VLM().CD_Unsteady(16) -  VSP_VLM().CD_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-       //       CS_damp = (  VSP_VLM().CS_Unsteady(16) -  VSP_VLM().CS_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );   
-       //      CFx_damp = ( VSP_VLM().CFx_Unsteady(16) - VSP_VLM().CFx_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-       //      CFy_damp = ( VSP_VLM().CFy_Unsteady(16) - VSP_VLM().CFy_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-       //      CFz_damp = ( VSP_VLM().CFz_Unsteady(16) - VSP_VLM().CFz_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-       //      CMx_damp = ( VSP_VLM().CMx_Unsteady(16) - VSP_VLM().CMx_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-       //      CMy_damp = ( VSP_VLM().CMy_Unsteady(16) - VSP_VLM().CMy_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-       //      CMz_damp = ( VSP_VLM().CMz_Unsteady(16) - VSP_VLM().CMz_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );        
+       //       CL_damp = (  VSPAERO().CL_Unsteady(16) -  VSPAERO().CL_Unsteady(32) )/( 2. * VSPAERO().ReducedFrequency() * VSPAERO().Unsteady_AngleMax() * PI / 180. );
+       //       CD_damp = (  VSPAERO().CD_Unsteady(16) -  VSPAERO().CD_Unsteady(32) )/( 2. * VSPAERO().ReducedFrequency() * VSPAERO().Unsteady_AngleMax() * PI / 180. );
+       //       CS_damp = (  VSPAERO().CS_Unsteady(16) -  VSPAERO().CS_Unsteady(32) )/( 2. * VSPAERO().ReducedFrequency() * VSPAERO().Unsteady_AngleMax() * PI / 180. );   
+       //      CFx_damp = ( VSPAERO().CFx_Unsteady(16) - VSPAERO().CFx_Unsteady(32) )/( 2. * VSPAERO().ReducedFrequency() * VSPAERO().Unsteady_AngleMax() * PI / 180. );
+       //      CFy_damp = ( VSPAERO().CFy_Unsteady(16) - VSPAERO().CFy_Unsteady(32) )/( 2. * VSPAERO().ReducedFrequency() * VSPAERO().Unsteady_AngleMax() * PI / 180. );
+       //      CFz_damp = ( VSPAERO().CFz_Unsteady(16) - VSPAERO().CFz_Unsteady(32) )/( 2. * VSPAERO().ReducedFrequency() * VSPAERO().Unsteady_AngleMax() * PI / 180. );
+       //      CMx_damp = ( VSPAERO().CMx_Unsteady(16) - VSPAERO().CMx_Unsteady(32) )/( 2. * VSPAERO().ReducedFrequency() * VSPAERO().Unsteady_AngleMax() * PI / 180. );
+       //      CMy_damp = ( VSPAERO().CMy_Unsteady(16) - VSPAERO().CMy_Unsteady(32) )/( 2. * VSPAERO().ReducedFrequency() * VSPAERO().Unsteady_AngleMax() * PI / 180. );
+       //      CMz_damp = ( VSPAERO().CMz_Unsteady(16) - VSPAERO().CMz_Unsteady(32) )/( 2. * VSPAERO().ReducedFrequency() * VSPAERO().Unsteady_AngleMax() * PI / 180. );        
 
               CL_avg = 0.;
               CD_avg = 0.;
@@ -3803,33 +4263,33 @@ void UnsteadyStabilityAndControlSolve(void)
 
              // Sum up from T = DT, to N*DT
              
-             for ( p = VSP_VLM().NumberOfTimeSteps()/2 ; p <= VSP_VLM().NumberOfTimeSteps() ; p++ ) {
+             for ( p = VSPAERO().NumberOfTimeSteps()/2 ; p <= VSPAERO().NumberOfTimeSteps() ; p++ ) {
          
-                 CL_avg += VSP_VLM().VSPGeom().ComponentGroupList(1).CLi(p);
-                 CD_avg += VSP_VLM().VSPGeom().ComponentGroupList(1).CDi(p);
-                 CS_avg += VSP_VLM().VSPGeom().ComponentGroupList(1).CSi(p);
+                 CL_avg += VSPAERO().VSPGeom().ComponentGroupList(1).CLi(p);
+                 CD_avg += VSPAERO().VSPGeom().ComponentGroupList(1).CDi(p);
+                 CS_avg += VSPAERO().VSPGeom().ComponentGroupList(1).CSi(p);
                  
-                CFx_avg += VSP_VLM().VSPGeom().ComponentGroupList(1).CFix(p);
-                CFy_avg += VSP_VLM().VSPGeom().ComponentGroupList(1).CFiy(p);
-                CFz_avg += VSP_VLM().VSPGeom().ComponentGroupList(1).CFiz(p);
-                CMx_avg += VSP_VLM().VSPGeom().ComponentGroupList(1).CMix(p);
-                CMy_avg += VSP_VLM().VSPGeom().ComponentGroupList(1).CMiy(p);
-                CMz_avg += VSP_VLM().VSPGeom().ComponentGroupList(1).CMiz(p);
+                CFx_avg += VSPAERO().VSPGeom().ComponentGroupList(1).CFix(p);
+                CFy_avg += VSPAERO().VSPGeom().ComponentGroupList(1).CFiy(p);
+                CFz_avg += VSPAERO().VSPGeom().ComponentGroupList(1).CFiz(p);
+                CMx_avg += VSPAERO().VSPGeom().ComponentGroupList(1).CMix(p);
+                CMy_avg += VSPAERO().VSPGeom().ComponentGroupList(1).CMiy(p);
+                CMz_avg += VSPAERO().VSPGeom().ComponentGroupList(1).CMiz(p);
             
              }
              
              // Calculate average
              
-              CL_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
-              CD_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
-              CS_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
+              CL_avg /= (VSPAERO().NumberOfTimeSteps()/2 + 1);
+              CD_avg /= (VSPAERO().NumberOfTimeSteps()/2 + 1);
+              CS_avg /= (VSPAERO().NumberOfTimeSteps()/2 + 1);
               
-             CFx_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
-             CFy_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
-             CFz_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
-             CMx_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
-             CMy_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
-             CMz_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
+             CFx_avg /= (VSPAERO().NumberOfTimeSteps()/2 + 1);
+             CFy_avg /= (VSPAERO().NumberOfTimeSteps()/2 + 1);
+             CFz_avg /= (VSPAERO().NumberOfTimeSteps()/2 + 1);
+             CMx_avg /= (VSPAERO().NumberOfTimeSteps()/2 + 1);
+             CMy_avg /= (VSPAERO().NumberOfTimeSteps()/2 + 1);
+             CMz_avg /= (VSPAERO().NumberOfTimeSteps()/2 + 1);
              
              printf("CMy_avg: %f \n",CMy_avg);
              
@@ -3845,31 +4305,31 @@ void UnsteadyStabilityAndControlSolve(void)
              CMy_damp = 0.;             
              CMz_damp = 0.;             
              
-             for ( p = VSP_VLM().NumberOfTimeSteps()/2 + 1 ; p <= VSP_VLM().NumberOfTimeSteps() ; p++ ) {
+             for ( p = VSPAERO().NumberOfTimeSteps()/2 + 1 ; p <= VSPAERO().NumberOfTimeSteps() ; p++ ) {
          
                  pm  = p;
                  pm1 = p - 1;
                  
-                 if ( p == VSP_VLM().NumberOfTimeSteps() ) pm1 = VSP_VLM().NumberOfTimeSteps()/2;
+                 if ( p == VSPAERO().NumberOfTimeSteps() ) pm1 = VSPAERO().NumberOfTimeSteps()/2;
                  
-                 T = VSP_VLM().DeltaTime() * 0.5 * (double) (2*(p-1) + 1);
+                 T = VSPAERO().DeltaTime() * 0.5 * (double) (2*(p-1) + 1);
                  
-                 Theta = VSP_VLM().Unsteady_AngleRate() * T;
+                 Theta = VSPAERO().Unsteady_AngleRate() * T;
 
-                 CL_damp += 2.*( 0.5*(  VSP_VLM().VSPGeom().ComponentGroupList(1).CLi(pm1) +  VSP_VLM().VSPGeom().ComponentGroupList(1).CLi(pm) ) -  CL_avg ) * cos( Theta ) * VSP_VLM().DeltaTime();
-                 CD_damp += 2.*( 0.5*(  VSP_VLM().VSPGeom().ComponentGroupList(1).CDi(pm1) +  VSP_VLM().VSPGeom().ComponentGroupList(1).CDi(pm) ) -  CD_avg ) * cos( Theta ) * VSP_VLM().DeltaTime();
-                 CS_damp += 2.*( 0.5*(  VSP_VLM().VSPGeom().ComponentGroupList(1).CSi(pm1) +  VSP_VLM().VSPGeom().ComponentGroupList(1).CSi(pm) ) -  CS_avg ) * cos( Theta ) * VSP_VLM().DeltaTime();
+                 CL_damp += 2.*( 0.5*(  VSPAERO().VSPGeom().ComponentGroupList(1).CLi(pm1) +  VSPAERO().VSPGeom().ComponentGroupList(1).CLi(pm) ) -  CL_avg ) * cos( Theta ) * VSPAERO().DeltaTime();
+                 CD_damp += 2.*( 0.5*(  VSPAERO().VSPGeom().ComponentGroupList(1).CDi(pm1) +  VSPAERO().VSPGeom().ComponentGroupList(1).CDi(pm) ) -  CD_avg ) * cos( Theta ) * VSPAERO().DeltaTime();
+                 CS_damp += 2.*( 0.5*(  VSPAERO().VSPGeom().ComponentGroupList(1).CSi(pm1) +  VSPAERO().VSPGeom().ComponentGroupList(1).CSi(pm) ) -  CS_avg ) * cos( Theta ) * VSPAERO().DeltaTime();
                                                                                                     
-                CFx_damp += 2.*( 0.5*(  VSP_VLM().VSPGeom().ComponentGroupList(1).CFix(pm1) + VSP_VLM().VSPGeom().ComponentGroupList(1).CFix(pm) ) - CFx_avg ) * cos( Theta ) * VSP_VLM().DeltaTime();
-                CFy_damp += 2.*( 0.5*(  VSP_VLM().VSPGeom().ComponentGroupList(1).CFiy(pm1) + VSP_VLM().VSPGeom().ComponentGroupList(1).CFiy(pm) ) - CFy_avg ) * cos( Theta ) * VSP_VLM().DeltaTime();
-                CFz_damp += 2.*( 0.5*(  VSP_VLM().VSPGeom().ComponentGroupList(1).CFiz(pm1) + VSP_VLM().VSPGeom().ComponentGroupList(1).CFiz(pm) ) - CFz_avg ) * cos( Theta ) * VSP_VLM().DeltaTime();
-                CMx_damp += 2.*( 0.5*(  VSP_VLM().VSPGeom().ComponentGroupList(1).CMix(pm1) + VSP_VLM().VSPGeom().ComponentGroupList(1).CMix(pm) ) - CMx_avg ) * cos( Theta ) * VSP_VLM().DeltaTime();
-                CMy_damp += 2.*( 0.5*(  VSP_VLM().VSPGeom().ComponentGroupList(1).CMiy(pm1) + VSP_VLM().VSPGeom().ComponentGroupList(1).CMiy(pm) ) - CMy_avg ) * cos( Theta ) * VSP_VLM().DeltaTime();
-                CMz_damp += 2.*( 0.5*(  VSP_VLM().VSPGeom().ComponentGroupList(1).CMiz(pm1) + VSP_VLM().VSPGeom().ComponentGroupList(1).CMiz(pm) ) - CMz_avg ) * cos( Theta ) * VSP_VLM().DeltaTime();
+                CFx_damp += 2.*( 0.5*(  VSPAERO().VSPGeom().ComponentGroupList(1).CFix(pm1) + VSPAERO().VSPGeom().ComponentGroupList(1).CFix(pm) ) - CFx_avg ) * cos( Theta ) * VSPAERO().DeltaTime();
+                CFy_damp += 2.*( 0.5*(  VSPAERO().VSPGeom().ComponentGroupList(1).CFiy(pm1) + VSPAERO().VSPGeom().ComponentGroupList(1).CFiy(pm) ) - CFy_avg ) * cos( Theta ) * VSPAERO().DeltaTime();
+                CFz_damp += 2.*( 0.5*(  VSPAERO().VSPGeom().ComponentGroupList(1).CFiz(pm1) + VSPAERO().VSPGeom().ComponentGroupList(1).CFiz(pm) ) - CFz_avg ) * cos( Theta ) * VSPAERO().DeltaTime();
+                CMx_damp += 2.*( 0.5*(  VSPAERO().VSPGeom().ComponentGroupList(1).CMix(pm1) + VSPAERO().VSPGeom().ComponentGroupList(1).CMix(pm) ) - CMx_avg ) * cos( Theta ) * VSPAERO().DeltaTime();
+                CMy_damp += 2.*( 0.5*(  VSPAERO().VSPGeom().ComponentGroupList(1).CMiy(pm1) + VSPAERO().VSPGeom().ComponentGroupList(1).CMiy(pm) ) - CMy_avg ) * cos( Theta ) * VSPAERO().DeltaTime();
+                CMz_damp += 2.*( 0.5*(  VSPAERO().VSPGeom().ComponentGroupList(1).CMiz(pm1) + VSPAERO().VSPGeom().ComponentGroupList(1).CMiz(pm) ) - CMz_avg ) * cos( Theta ) * VSPAERO().DeltaTime();
 
              }
                   
-             Fact = 0.5 * VSP_VLM().DeltaTime() * VSP_VLM().NumberOfTimeSteps() * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180.;
+             Fact = 0.5 * VSPAERO().DeltaTime() * VSPAERO().NumberOfTimeSteps() * VSPAERO().ReducedFrequency() * VSPAERO().Unsteady_AngleMax() * PI / 180.;
               
               CL_damp /= Fact;    
               CD_damp /= Fact;    
@@ -3990,15 +4450,15 @@ void Noise(void)
  //
  //  // Set free stream conditions
  //  
- //  VSP_VLM().AngleOfBeta()   = BetaList_[1] * TORAD;
- //  VSP_VLM().Mach()          = MachList_[1];  
- //  VSP_VLM().AngleOfAttack() =  AoAList_[1] * TORAD;
+ //  VSPAERO().AngleOfBeta()   = BetaList_[1] * TORAD;
+ //  VSPAERO().Mach()          = MachList_[1];  
+ //  VSPAERO().AngleOfAttack() =  AoAList_[1] * TORAD;
  //  
- //  VSP_VLM().RotationalRate_p() = 0.;
- //  VSP_VLM().RotationalRate_q() = 0.;
- //  VSP_VLM().RotationalRate_r() = 0.;
+ //  VSPAERO().RotationalRate_p() = 0.;
+ //  VSPAERO().RotationalRate_q() = 0.;
+ //  VSPAERO().RotationalRate_r() = 0.;
  //     
- //   VSP_VLM().WriteOutNoiseFiles(NumCases);
+ //   VSPAERO().WriteOutNoiseFiles(NumCases);
 
 }
 
@@ -4011,9 +4471,9 @@ void Noise(void)
 void CalculateAerodynamicCenter(void)
 {
 
-    int ic, jc, kc;
+    int ic, jc, kc, Case;
     double DeltaXcg;
-    char StabFileName[2000];
+    char StabFileName[MAX_CHAR_SIZE];
     
     // Open the stability and control output file
     
@@ -4043,85 +4503,173 @@ void CalculateAerodynamicCenter(void)
              
              // Solve the base case
              
-             snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Base Aero         ");
+             snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"Base Aero         ");
                           
-             VSP_VLM().Mach()          = Mach_;
-             VSP_VLM().AngleOfAttack() =  AoA_ * TORAD;
-             VSP_VLM().AngleOfBeta()   = Beta_ * TORAD;
+             VSPAERO().Mach()          = Mach_;
+             VSPAERO().AngleOfAttack() =  AoA_ * TORAD;
+             VSPAERO().AngleOfBeta()   = Beta_ * TORAD;
       
-             VSP_VLM().RotationalRate_p() = 0.;
-             VSP_VLM().RotationalRate_q() = 0.;
-             VSP_VLM().RotationalRate_r() = 0.;
+             VSPAERO().RotationalRate_p() = 0.;
+             VSPAERO().RotationalRate_q() = 0.;
+             VSPAERO().RotationalRate_r() = 0.;
              
-             VSP_VLM().SaveRestartFile() = VSP_VLM().DoRestart() = 0;
+             VSPAERO().SaveRestartFile() = VSPAERO().DoRestart() = 0;
              
-             VSP_VLM().Solve(1);
+             VSPAERO().Solve(1);
 
-             // Store aero coefficients
-                
-             CLForCase[1] = VSP_VLM().CLi() + VSP_VLM().CLo(); 
-             CDForCase[1] = VSP_VLM().CDi() + VSP_VLM().CDo();       
-             CSForCase[1] = VSP_VLM().CSi() + VSP_VLM().CSo();        
+             Case = 1;
+
+             // KJ inviscid forces
+                          
+             CLiForCase[Case]  =  VSPAERO().CLi(); 
+             CDiForCase[Case]  =  VSPAERO().CDi();       
+             CSiForCase[Case]  =  VSPAERO().CSi();        
+                                  
+             CFixForCase[Case] =  VSPAERO().CFix();
+             CFiyForCase[Case] =  VSPAERO().CFiy();       
+             CFizForCase[Case] =  VSPAERO().CFiz();       
+                                  
+             CMixForCase[Case] =  VSPAERO().CMix();      
+             CMiyForCase[Case] =  VSPAERO().CMiy();      
+             CMizForCase[Case] =  VSPAERO().CMiz();    
+              
+             CMilForCase[Case] = -VSPAERO().CMix();      
+             CMimForCase[Case] =  VSPAERO().CMiy();      
+             CMinForCase[Case] = -VSPAERO().CMiz();  
+
+             // Wake inviscid forces
              
-             CDoForCase[1] = VSP_VLM().CDo();     
-         
-             CDtForCase[1] = VSP_VLM().CDiw();                     
-         
-             CFxForCase[1] = VSP_VLM().CFix() + VSP_VLM().CFox();
-             CFyForCase[1] = VSP_VLM().CFiy() + VSP_VLM().CFoy();       
-             CFzForCase[1] = VSP_VLM().CFiz() + VSP_VLM().CFoz();       
-                                                         
-             CMxForCase[1] = VSP_VLM().CMix() + VSP_VLM().CMox();      
-             CMyForCase[1] = VSP_VLM().CMiy() + VSP_VLM().CMoy();      
-             CMzForCase[1] = VSP_VLM().CMiz() + VSP_VLM().CMoz();    
+             CLwForCase[Case]  =  VSPAERO().CLiw(); 
+             CDwForCase[Case]  =  VSPAERO().CDiw();       
+             CSwForCase[Case]  =  VSPAERO().CSiw();        
+                                             
+             CFwxForCase[Case] =  VSPAERO().CFiwx();
+             CFwyForCase[Case] =  VSPAERO().CFiwy();       
+             CFwzForCase[Case] =  VSPAERO().CFiwz();       
+
+             // Viscous forces and moments
+
+             CLoForCase[Case]  =  VSPAERO().CLo(); 
+             CDoForCase[Case]  =  VSPAERO().CDo();       
+             CSoForCase[Case]  =  VSPAERO().CSo();        
+                                  
+             CFoxForCase[Case] =  VSPAERO().CFox();
+             CFoyForCase[Case] =  VSPAERO().CFoy();       
+             CFozForCase[Case] =  VSPAERO().CFoz();       
+                                  
+             CMoxForCase[Case] =  VSPAERO().CMox();      
+             CMoyForCase[Case] =  VSPAERO().CMoy();      
+             CMozForCase[Case] =  VSPAERO().CMoz();    
              
-             CMlForCase[1] = -CMxForCase[1];    
-             CMmForCase[1] =  CMyForCase[1];       
-             CMnForCase[1] = -CMzForCase[1];     
+             CMolForCase[Case] = -VSPAERO().CMox();      
+             CMomForCase[Case] =  VSPAERO().CMoy();      
+             CMonForCase[Case] = -VSPAERO().CMoz();       
+          
+             // Total forces and moments, based on wake forces
+             
+             CLtForCase[Case]  =  VSPAERO().CLo() + VSPAERO().CLiw(); 
+             CDtForCase[Case]  =  VSPAERO().CDo() + VSPAERO().CDiw();         
+             CStForCase[Case]  =  VSPAERO().CSo() + VSPAERO().CSiw();         
+                             
+             CFtxForCase[Case] =  VSPAERO().CFox() + VSPAERO().CFiwx();
+             CFtyForCase[Case] =  VSPAERO().CFoy() + VSPAERO().CFiwy();      
+             CFtzForCase[Case] =  VSPAERO().CFoz() + VSPAERO().CFiwz();       
+                              
+             CMtxForCase[Case] =  VSPAERO().CMox() + VSPAERO().CMix();           
+             CMtyForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();         
+             CMtzForCase[Case] =  VSPAERO().CMoz() + VSPAERO().CMiz(); 
+             
+             CMtlForCase[Case] = -VSPAERO().CMox() - VSPAERO().CMix();           
+             CMtmForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();           
+             CMtnForCase[Case] = -VSPAERO().CMoz() - VSPAERO().CMiz();     
                      
              // Solve the perturbed case
              
-             snprintf(VSP_VLM().CaseString(),sizeof(VSP_VLM().CaseString())*sizeof(char),"Alpha      +%5.3lf",1.);
+             snprintf(VSPAERO().CaseString(),MAX_CHAR_SIZE*sizeof(char),"Alpha      +%5.3lf",1.);
                    
-             VSP_VLM().Mach()          = Mach_;
-             VSP_VLM().AngleOfAttack() =  ( AoA_ + 1.) * TORAD;
-             VSP_VLM().AngleOfBeta()   = Beta_ * TORAD;
+             VSPAERO().Mach()          = Mach_;
+             VSPAERO().AngleOfAttack() =  ( AoA_ + 1.) * TORAD;
+             VSPAERO().AngleOfBeta()   = Beta_ * TORAD;
       
-             VSP_VLM().RotationalRate_p() = 0.;
-             VSP_VLM().RotationalRate_q() = 0.;
-             VSP_VLM().RotationalRate_r() = 0.;
+             VSPAERO().RotationalRate_p() = 0.;
+             VSPAERO().RotationalRate_q() = 0.;
+             VSPAERO().RotationalRate_r() = 0.;
                           
-             VSP_VLM().SaveRestartFile() = VSP_VLM().DoRestart() = 0;
+             VSPAERO().SaveRestartFile() = VSPAERO().DoRestart() = 0;
              
-             VSP_VLM().Solve(-2);
+             VSPAERO().Solve(-2);
 
-             // Store aero coefficients
-                
-             CLForCase[2] = VSP_VLM().CLi() + VSP_VLM().CLo(); 
-             CDForCase[2] = VSP_VLM().CDi() + VSP_VLM().CDo();       
-             CSForCase[2] = VSP_VLM().CSi() + VSP_VLM().CSo();        
+             Case = 2;
+
+             // KJ inviscid forces
+                          
+             CLiForCase[Case]  =  VSPAERO().CLi(); 
+             CDiForCase[Case]  =  VSPAERO().CDi();       
+             CSiForCase[Case]  =  VSPAERO().CSi();        
+                                  
+             CFixForCase[Case] =  VSPAERO().CFix();
+             CFiyForCase[Case] =  VSPAERO().CFiy();       
+             CFizForCase[Case] =  VSPAERO().CFiz();       
+                                  
+             CMixForCase[Case] =  VSPAERO().CMix();      
+             CMiyForCase[Case] =  VSPAERO().CMiy();      
+             CMizForCase[Case] =  VSPAERO().CMiz();    
+              
+             CMilForCase[Case] = -VSPAERO().CMix();      
+             CMimForCase[Case] =  VSPAERO().CMiy();      
+             CMinForCase[Case] = -VSPAERO().CMiz();  
+
+             // Wake inviscid forces
              
-             CDoForCase[2] = VSP_VLM().CDo();     
-         
-             CDtForCase[2] = VSP_VLM().CDiw();                     
-         
-             CFxForCase[2] = VSP_VLM().CFix() + VSP_VLM().CFox();
-             CFyForCase[2] = VSP_VLM().CFiy() + VSP_VLM().CFoy();       
-             CFzForCase[2] = VSP_VLM().CFiz() + VSP_VLM().CFoz();       
-                 
-             CMxForCase[2] = VSP_VLM().CMix() + VSP_VLM().CMox();      
-             CMyForCase[2] = VSP_VLM().CMiy() + VSP_VLM().CMoy();      
-             CMzForCase[2] = VSP_VLM().CMiz() + VSP_VLM().CMoz();    
+             CLwForCase[Case]  =  VSPAERO().CLiw(); 
+             CDwForCase[Case]  =  VSPAERO().CDiw();       
+             CSwForCase[Case]  =  VSPAERO().CSiw();        
+                                             
+             CFwxForCase[Case] =  VSPAERO().CFiwx();
+             CFwyForCase[Case] =  VSPAERO().CFiwy();       
+             CFwzForCase[Case] =  VSPAERO().CFiwz();       
+
+             // Viscous forces and moments
+
+             CLoForCase[Case]  =  VSPAERO().CLo(); 
+             CDoForCase[Case]  =  VSPAERO().CDo();       
+             CSoForCase[Case]  =  VSPAERO().CSo();        
+                                  
+             CFoxForCase[Case] =  VSPAERO().CFox();
+             CFoyForCase[Case] =  VSPAERO().CFoy();       
+             CFozForCase[Case] =  VSPAERO().CFoz();       
+                                  
+             CMoxForCase[Case] =  VSPAERO().CMox();      
+             CMoyForCase[Case] =  VSPAERO().CMoy();      
+             CMozForCase[Case] =  VSPAERO().CMoz();    
              
-             CMlForCase[2] = -CMxForCase[2];    
-             CMmForCase[2] =  CMyForCase[2];       
-             CMnForCase[2] = -CMzForCase[2];     
+             CMolForCase[Case] = -VSPAERO().CMox();      
+             CMomForCase[Case] =  VSPAERO().CMoy();      
+             CMonForCase[Case] = -VSPAERO().CMoz();       
+          
+             // Total forces and moments, based on wake forces
+             
+             CLtForCase[Case]  =  VSPAERO().CLo() + VSPAERO().CLiw(); 
+             CDtForCase[Case]  =  VSPAERO().CDo() + VSPAERO().CDiw();         
+             CStForCase[Case]  =  VSPAERO().CSo() + VSPAERO().CSiw();         
+                             
+             CFtxForCase[Case] =  VSPAERO().CFox() + VSPAERO().CFiwx();
+             CFtyForCase[Case] =  VSPAERO().CFoy() + VSPAERO().CFiwy();      
+             CFtzForCase[Case] =  VSPAERO().CFoz() + VSPAERO().CFiwz();       
+                              
+             CMtxForCase[Case] =  VSPAERO().CMox() + VSPAERO().CMix();           
+             CMtyForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();         
+             CMtzForCase[Case] =  VSPAERO().CMoz() + VSPAERO().CMiz(); 
+             
+             CMtlForCase[Case] = -VSPAERO().CMox() - VSPAERO().CMix();           
+             CMtmForCase[Case] =  VSPAERO().CMoy() + VSPAERO().CMiy();           
+             CMtnForCase[Case] = -VSPAERO().CMoz() - VSPAERO().CMiz();     
 
              // Calculate aero center shift
              
-             DeltaXcg = -( CMyForCase[2] - CMyForCase[1] ) / ( CFzForCase[2] - CFzForCase[1] ) * Cref_;
+             DeltaXcg = -( CMtyForCase[2] - CMtyForCase[1] ) / ( CFtzForCase[2] - CFtzForCase[1] ) * Cref_;
              
-             VSP_VLM().WriteCaseHeader(StabFile);
+             VSPAERO().WriteCaseHeader(StabFile);
 
              fprintf(StabFile,"Aerodynamic Center is at: (%12.7f, %12.7f, %12.7f) \n\n", 
              Xcg_ + DeltaXcg, Ycg_, Zcg_);
@@ -4149,7 +4697,7 @@ void FiniteDiffTestSolve(void)
 
     int i, j, Case, NumCases, LoadGroup;
     double Delta, *TempXYZ;
-    char TestFileName[2000];
+    char TestFileName[MAX_CHAR_SIZE];
     FILE *FiniteDiffFile;
 
     // Open the output file for the test derivatives
@@ -4178,23 +4726,23 @@ void FiniteDiffTestSolve(void)
 
     // Set free stream conditions
     
-    VSP_VLM().AngleOfBeta()   = BetaList_[1] * TORAD;
-    VSP_VLM().Mach()          = MachList_[1];  
-    VSP_VLM().AngleOfAttack() =  AoAList_[1] * TORAD;
+    VSPAERO().AngleOfBeta()   = BetaList_[1] * TORAD;
+    VSPAERO().Mach()          = MachList_[1];  
+    VSPAERO().AngleOfAttack() =  AoAList_[1] * TORAD;
     
-    VSP_VLM().RotationalRate_p() = 0.;
-    VSP_VLM().RotationalRate_q() = 0.;
-    VSP_VLM().RotationalRate_r() = 0.;    
+    VSPAERO().RotationalRate_p() = 0.;
+    VSPAERO().RotationalRate_q() = 0.;
+    VSPAERO().RotationalRate_r() = 0.;    
             
     // Loop over the grid nodes
 
-    TempXYZ = new double[3*VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() + 1];
+    TempXYZ = new double[3*VSPAERO().VSPGeom().Grid(0).NumberOfNodes() + 1];
     
-    for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+    for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
     
-       TempXYZ[3*j-2] = VSP_VLM().VSPGeom().Grid(0).NodeList(j).x();
-       TempXYZ[3*j-1] = VSP_VLM().VSPGeom().Grid(0).NodeList(j).y();
-       TempXYZ[3*j  ] = VSP_VLM().VSPGeom().Grid(0).NodeList(j).z();
+       TempXYZ[3*j-2] = VSPAERO().VSPGeom().Grid(0).NodeList(j).x();
+       TempXYZ[3*j-1] = VSPAERO().VSPGeom().Grid(0).NodeList(j).y();
+       TempXYZ[3*j  ] = VSPAERO().VSPGeom().Grid(0).NodeList(j).z();
        
     }
     
@@ -4218,10 +4766,11 @@ void FiniteDiffTestSolve(void)
     Case = 0;
     
                             //1234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890 12345678901234567890  
+    fprintf(FiniteDiffFile,"     1              2                    3                    4                    5                    6                    7                    8                    9                   10                   11                   12                   13                   14                   15                   16                   17                   18                  19                    20                   21                   22                  23                   24                   25                   26                   27                   28                   29                   30                   31                   32                   33                   34                   35                   36                  37                    28                   39                   40                   41                   42                   43                   44                   45                   46                   47                   48                   49                   50                   51                   52                   53                   54                  55                    56                   57                   58                   59                   60                   61                   62                   63                   64                   64                   66                   67                   68                   69                   70                   71                   72                   73                   74                   75                   76 \n");
     fprintf(FiniteDiffFile,"   Node             x                    y                    z                  pFxpX                pFxpY                pFxpZ                pFypX                pFypY                pFypZ                pFzpX                pFzpY                pFzpZ                pMxpX                pMxpY                pMxpZ                pMypX                pMypY               pMypZ                 pMzpX                pMzpY                pMzpZ               ");             
     fprintf(FiniteDiffFile,"pFxpX_i              pFxpY_i              pFxpZ_i              pFypX_i              pFypY_i              pFypZ_i              pFzpX_i              pFzpY_i              pFzpZ_i              pMxpX_i              pMxpY_i              pMxpZ_i              pMypX_i              pMyPyi              pMypZ_i               pMzpX_i              pMzpY_i              pMzpZ_i              ");             
     fprintf(FiniteDiffFile,"pFxpX_o              pFxpY_o              pFxpZ_o              pFypX_o              pFypY_o              pFypZ_o              pFzpX_o              pFzpY_o              pFzpZ_o              pMxpX_o              pMxpY_o              pMxpZ_o              pMypX_o              pMyPyi              pMypZ_o               pMzpX_o              pMzpY_o              pMzpZ_o              ");             
-    fprintf(FiniteDiffFile,"pFxpX_w              pFxpY_w              pFxpZ_w              pFypX_w              pFypY_w              pFypZ_w              pFzpX_w              pFzpY_w              pFzpZ_w              \n");             
+    fprintf(FiniteDiffFile,"pFxpX_w              pFxpY_w              pFxpZ_w              pFypX_w              pFypY_w              pFypZ_w              pFzpX_w              pFzpY_w              pFzpZ_w              pFxpX_wt             pFxpY_wt             pFxpZ_wt             pFypX_wt             pFypY_wt             pFypZ_wt             pFzpX_wt             pFzpY_wt             pFzpZ_wt             \n");             
         
 
    
@@ -4229,18 +4778,18 @@ void FiniteDiffTestSolve(void)
     
   //  Case++;
       
-  //  VSP_VLM().Solve(Case);    
+  //  VSPAERO().Solve(Case);    
     
     
-    for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+    for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
     
-       VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
-       VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
-       VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
+       VSPAERO().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
+       VSPAERO().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
+       VSPAERO().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
        
     }         
               
-  //  VSP_VLM().UpdateMeshes();
+  //  VSPAERO().UpdateMeshes();
               
     Delta = 1.e-6;    
     
@@ -4248,99 +4797,99 @@ void FiniteDiffTestSolve(void)
        
        Delta = 1.e-6;         
        
- //     VSP_VLM().FreezeMultiPoleAtIteration() = 0;
+ //     VSPAERO().FreezeMultiPoleAtIteration() = 0;
 
 
     }  
     
-    LoadGroup = 1; // This needs to be set to either 0, 1, 2 ... to specify the group forces to use
-                   // 0 ... is the total vehicle forces, 1, 2 ... N is the nth group forces/moments
-                   
-    for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfSurfaceNodes() ; i+=1 ) {
-  // for ( i = 110 ; i <= 110 ; i+=1 ) {
- //  for ( i = 497 ; i <= 497 ; i+=1 ) {
-  //    for ( i = 400 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfSurfaceNodes() ; i+=1 ) {
-    // for ( i = 19 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfSurfaceNodes() ; i+=1 ) {
+    // This needs to be set to either 0, 1, 2 ... to specify the group forces to use
+    // 0 ... is the total vehicle forces, 1, 2 ... N is the nth group forces/moments
+     
+    LoadGroup = FiniteDiffTestLoadGroup_; 
+                  
+    for ( i = 1 ; i <= VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() ; i += FiniteDiffTestStepSize_ ) {
 
     // X
     
-        printf("Working on node %d of %d \n",i,VSP_VLM().VSPGeom().Grid(0).NumberOfNodes());
+        printf("Working on node %d of %d \n",i,VSPAERO().VSPGeom().Grid(0).NumberOfNodes());
         
         // + 
         
            Case++;
              
-           VSP_VLM().VSPGeom().Grid(0).NodeList(i).x() += Delta;
+           VSPAERO().VSPGeom().Grid(0).NodeList(i).x() += Delta;
            
-           VSP_VLM().UpdateMeshes();
+           VSPAERO().UpdateMeshes();
            
-           VSP_VLM().Solve(Case);
-
+           VSPAERO().Solve(Case);
+           
+           if ( RestartFromPreviousSolve_ ) VSPAERO().RestartFromPreviousSolve() = RestartFromPreviousSolve_;         
+           
            if ( !DoUnsteadyAnalysis_ ) {
              
-              Fxpi = (                    VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypi = (                    VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpi = (                    VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpi = (                    VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypi = (                    VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpi = (                    VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
 
-              Fxpw = (                    VSP_VLM().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypw = (                    VSP_VLM().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpw = (                    VSP_VLM().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpw = (                    VSPAERO().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypw = (                    VSPAERO().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpw = (                    VSPAERO().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                    
-              Mxpi = (                    VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypi = (                    VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpi = (                    VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpi = (                    VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypi = (                    VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpi = (                    VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
               
-              Fxpo = ( VSP_VLM().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypo = ( VSP_VLM().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpo = ( VSP_VLM().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpo = ( VSPAERO().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypo = ( VSPAERO().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpo = ( VSPAERO().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
                                      
-              Mxpo = ( VSP_VLM().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypo = ( VSP_VLM().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpo = ( VSP_VLM().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpo = ( VSPAERO().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypo = ( VSPAERO().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpo = ( VSPAERO().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
               
-              Fxpt = ( VSP_VLM().CFox() + VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypt = ( VSP_VLM().CFoy() + VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpt = ( VSP_VLM().CFoz() + VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpt = ( VSPAERO().CFox() + VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypt = ( VSPAERO().CFoy() + VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpt = ( VSPAERO().CFoz() + VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                       
-              Mxpt = ( VSP_VLM().CMox() + VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypt = ( VSP_VLM().CMoy() + VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpt = ( VSP_VLM().CMoz() + VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpt = ( VSPAERO().CMox() + VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypt = ( VSPAERO().CMoy() + VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpt = ( VSPAERO().CMoz() + VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
               
            }
            
            else {
 
-              Fxpi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                             
-              Mxpi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                  
-              Fxpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                                                   
-              Mxpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                                                              
-              Fxpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                           
-              Mxpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
         
            }       
             
-           for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+           for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
            
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
               
            }         
               
@@ -4348,77 +4897,77 @@ void FiniteDiffTestSolve(void)
         
            Case++;
              
-           VSP_VLM().VSPGeom().Grid(0).NodeList(i).x() -= Delta;
+           VSPAERO().VSPGeom().Grid(0).NodeList(i).x() -= Delta;
            
-           VSP_VLM().UpdateMeshes();
+           VSPAERO().UpdateMeshes();
            
-           VSP_VLM().Solve(Case);
+           VSPAERO().Solve(Case);
            
            if ( !DoUnsteadyAnalysis_ ) {
 
-              Fxmi = (                    VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymi = (                    VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmi = (                    VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmi = (                    VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymi = (                    VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmi = (                    VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                         
-              Fxmw = (                    VSP_VLM().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymw = (                    VSP_VLM().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmw = (                    VSP_VLM().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmw = (                    VSPAERO().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymw = (                    VSPAERO().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmw = (                    VSPAERO().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                  
-              Mxmi = (                    VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymi = (                    VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmi = (                    VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmi = (                    VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymi = (                    VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmi = (                    VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                 
-              Fxmo = ( VSP_VLM().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymo = ( VSP_VLM().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmo = ( VSP_VLM().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmo = ( VSPAERO().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymo = ( VSPAERO().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmo = ( VSPAERO().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
                                    
-              Mxmo = ( VSP_VLM().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymo = ( VSP_VLM().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmo = ( VSP_VLM().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmo = ( VSPAERO().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymo = ( VSPAERO().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmo = ( VSPAERO().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                
-              Fxmt = ( VSP_VLM().CFox() + VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymt = ( VSP_VLM().CFoy() + VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmt = ( VSP_VLM().CFoz() + VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmt = ( VSPAERO().CFox() + VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymt = ( VSPAERO().CFoy() + VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmt = ( VSPAERO().CFoz() + VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                   
-              Mxmt = ( VSP_VLM().CMox() + VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymt = ( VSP_VLM().CMoy() + VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmt = ( VSP_VLM().CMoz() + VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmt = ( VSPAERO().CMox() + VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymt = ( VSPAERO().CMoy() + VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmt = ( VSPAERO().CMoz() + VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                 
            }
            
            else {
 
-              Fxmi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                           
-              Mxmi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                                                                                                                                
-              Fxmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                                                
-              Mxmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                                                                                                                
-              Fxmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                           
-              Mxmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
       
            }    
               
-           for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+           for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
            
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
               
            }
           
@@ -4454,83 +5003,83 @@ void FiniteDiffTestSolve(void)
 
         // Central differences
         
-        if ( !SymmetryFlag_ || VSP_VLM().VSPGeom().Grid(0).NodeList(i).y() > 1.e-6 ) {
+        if ( !SymmetryFlag_ || VSPAERO().VSPGeom().Grid(0).NodeList(i).y() > 1.e-6 ) {
            
            // + 
            
               Case++;
                 
-              VSP_VLM().VSPGeom().Grid(0).NodeList(i).y() += Delta;
+              VSPAERO().VSPGeom().Grid(0).NodeList(i).y() += Delta;
               
-              VSP_VLM().UpdateMeshes();
+              VSPAERO().UpdateMeshes();
               
-              VSP_VLM().Solve(Case);
+              VSPAERO().Solve(Case);
               
               if ( !DoUnsteadyAnalysis_ ) {
                  
-                 Fxpi = (                    VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fypi = (                    VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fzpi = (                    VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fxpi = (                    VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fypi = (                    VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fzpi = (                    VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                         
-                 Fxpw = (                    VSP_VLM().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fypw = (                    VSP_VLM().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fzpw = (                    VSP_VLM().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fxpw = (                    VSPAERO().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fypw = (                    VSPAERO().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fzpw = (                    VSPAERO().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                          
-                 Mxpi = (                    VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                 Mypi = (                    VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                 Mzpi = (                    VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mxpi = (                    VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mypi = (                    VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                 Mzpi = (                    VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                  
-                 Fxpo = ( VSP_VLM().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fypo = ( VSP_VLM().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fzpo = ( VSP_VLM().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fxpo = ( VSPAERO().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fypo = ( VSPAERO().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fzpo = ( VSPAERO().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
                                         
-                 Mxpo = ( VSP_VLM().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                 Mypo = ( VSP_VLM().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                 Mzpo = ( VSP_VLM().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mxpo = ( VSPAERO().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mypo = ( VSPAERO().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                 Mzpo = ( VSPAERO().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                  
-                 Fxpt = ( VSP_VLM().CFox() + VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fypt = ( VSP_VLM().CFoy() + VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fzpt = ( VSP_VLM().CFoz() + VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fxpt = ( VSPAERO().CFox() + VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fypt = ( VSPAERO().CFoy() + VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fzpt = ( VSPAERO().CFoz() + VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                          
-                 Mxpt = ( VSP_VLM().CMox() + VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                 Mypt = ( VSP_VLM().CMoy() + VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                 Mzpt = ( VSP_VLM().CMoz() + VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mxpt = ( VSPAERO().CMox() + VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mypt = ( VSPAERO().CMoy() + VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                 Mzpt = ( VSPAERO().CMoz() + VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                  
               }
               
               else {
 
-                 Fxpi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fypi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fzpi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fxpi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fypi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fzpi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                              
-                 Mxpi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                 Mypi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                 Mzpi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mxpi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mypi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                 Mzpi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                                                                                                                      
-                 Fxpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fypo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fzpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fxpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fypo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fzpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                                                      
-                 Mxpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                 Mypo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                 Mzpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mxpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mypo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                 Mzpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                                                                                                                   
-                 Fxpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fypt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fzpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fxpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fypt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fzpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                    
-                 Mxpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                 Mypt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                 Mzpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mxpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mypt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                 Mzpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                  
               }      
             
-              for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+              for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
               
-                 VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
-                 VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
-                 VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
+                 VSPAERO().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
+                 VSPAERO().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
+                 VSPAERO().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
                  
               }
                        
@@ -4538,77 +5087,77 @@ void FiniteDiffTestSolve(void)
                        
               Case++;
                  
-              VSP_VLM().VSPGeom().Grid(0).NodeList(i).y() -= Delta;
+              VSPAERO().VSPGeom().Grid(0).NodeList(i).y() -= Delta;
               
-              VSP_VLM().UpdateMeshes();
+              VSPAERO().UpdateMeshes();
               
-              VSP_VLM().Solve(Case);
+              VSPAERO().Solve(Case);
                 
               if ( !DoUnsteadyAnalysis_ ) {
                  
-                    Fxmi = (                    VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                    Fymi = (                    VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                    Fzmi = (                    VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fxmi = (                    VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fymi = (                    VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fzmi = (                    VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
               
-                    Fxmw = (                    VSP_VLM().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                    Fymw = (                    VSP_VLM().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                    Fzmw = (                    VSP_VLM().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fxmw = (                    VSPAERO().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fymw = (                    VSPAERO().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fzmw = (                    VSPAERO().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                        
-                    Mxmi = (                    VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                    Mymi = (                    VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                    Mzmi = (                    VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                    Mxmi = (                    VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                    Mymi = (                    VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                    Mzmi = (                    VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                     
-                    Fxmo = ( VSP_VLM().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-                    Fymo = ( VSP_VLM().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-                    Fzmo = ( VSP_VLM().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fxmo = ( VSPAERO().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fymo = ( VSPAERO().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fzmo = ( VSPAERO().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
                                          
-                    Mxmo = ( VSP_VLM().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                    Mymo = ( VSP_VLM().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                    Mzmo = ( VSP_VLM().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                    Mxmo = ( VSPAERO().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                    Mymo = ( VSPAERO().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                    Mzmo = ( VSPAERO().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                     
-                    Fxmt = ( VSP_VLM().CFox() + VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                    Fymt = ( VSP_VLM().CFoy() + VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                    Fzmt = ( VSP_VLM().CFoz() + VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fxmt = ( VSPAERO().CFox() + VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fymt = ( VSPAERO().CFoy() + VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                    Fzmt = ( VSPAERO().CFoz() + VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                       
-                    Mxmt = ( VSP_VLM().CMox() + VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                    Mymt = ( VSP_VLM().CMoy() + VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                    Mzmt = ( VSP_VLM().CMoz() + VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                    Mxmt = ( VSPAERO().CMox() + VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                    Mymt = ( VSPAERO().CMoy() + VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                    Mzmt = ( VSPAERO().CMoz() + VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                     
               }
                  
               else {
 
-                 Fxmi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fymi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fzmi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fxmi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fymi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fzmi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                               
-                 Mxmi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                 Mymi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                 Mzmi = (                                                               VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mxmi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mymi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                 Mzmi = (                                                               VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                                                                                                                                
-                 Fxmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fymo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fzmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fxmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fymo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fzmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                                
-                 Mxmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                 Mymo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                 Mzmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mxmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mymo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                 Mzmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                               ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                                                                                                                    
-                 Fxmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fymt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-                 Fzmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fxmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fymt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+                 Fzmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                 
-                 Mxmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-                 Mymt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-                 Mzmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mxmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+                 Mymt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+                 Mzmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                   
               }    
                  
-              for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+              for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
               
-                 VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
-                 VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
-                 VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
+                 VSPAERO().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
+                 VSPAERO().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
+                 VSPAERO().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
                  
               }         
               
@@ -4678,78 +5227,78 @@ void FiniteDiffTestSolve(void)
         
            Case++;
              
-           VSP_VLM().VSPGeom().Grid(0).NodeList(i).z() += Delta;
+           VSPAERO().VSPGeom().Grid(0).NodeList(i).z() += Delta;
            
-           VSP_VLM().UpdateMeshes();
+           VSPAERO().UpdateMeshes();
            
-           VSP_VLM().Solve(Case);
+           VSPAERO().Solve(Case);
            
            if ( !DoUnsteadyAnalysis_ ) {
               
-              Fxpi = (                    VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypi = (                    VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpi = (                    VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpi = (                    VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypi = (                    VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpi = (                    VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
 
-              Fxpw = (                    VSP_VLM().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypw = (                    VSP_VLM().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpw = (                    VSP_VLM().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpw = (                    VSPAERO().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypw = (                    VSPAERO().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpw = (                    VSPAERO().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                     
-              Mxpi = (                    VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypi = (                    VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpi = (                    VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpi = (                    VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypi = (                    VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpi = (                    VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
               
-              Fxpo = ( VSP_VLM().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypo = ( VSP_VLM().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpo = ( VSP_VLM().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpo = ( VSPAERO().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypo = ( VSPAERO().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpo = ( VSPAERO().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
                                      
-              Mxpo = ( VSP_VLM().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypo = ( VSP_VLM().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpo = ( VSP_VLM().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpo = ( VSPAERO().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypo = ( VSPAERO().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpo = ( VSPAERO().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
               
-              Fxpt = ( VSP_VLM().CFox() + VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypt = ( VSP_VLM().CFoy() + VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpt = ( VSP_VLM().CFoz() + VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpt = ( VSPAERO().CFox() + VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypt = ( VSPAERO().CFoy() + VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpt = ( VSPAERO().CFoz() + VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                       
-              Mxpt = ( VSP_VLM().CMox() + VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypt = ( VSP_VLM().CMoy() + VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpt = ( VSP_VLM().CMoz() + VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpt = ( VSPAERO().CMox() + VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypt = ( VSPAERO().CMoy() + VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpt = ( VSPAERO().CMoz() + VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
               
            }
            
            else {
 
-              Fxpi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                              
-              Mxpi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                                                                                                                      
-              Fxpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                                                 
-              Mxpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                                                                                                     
-              Fxpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fypt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fypt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                            
-              Mxpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mypt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzpt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mypt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzpt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                  
               
            }    
 
-           for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+           for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
            
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
               
            }    
                 
@@ -4757,80 +5306,80 @@ void FiniteDiffTestSolve(void)
         
            Case++;
              
-           VSP_VLM().VSPGeom().Grid(0).NodeList(i).z() -= Delta;
+           VSPAERO().VSPGeom().Grid(0).NodeList(i).z() -= Delta;
            
-           VSP_VLM().UpdateMeshes();
+           VSPAERO().UpdateMeshes();
            
-           VSP_VLM().Solve(Case);
+           VSPAERO().Solve(Case);
            
            if ( !DoUnsteadyAnalysis_ ) {
               
-              Fxmi = (                    VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymi = (                    VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmi = (                    VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmi = (                    VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymi = (                    VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmi = (                    VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
 
-              Fxmw = (                    VSP_VLM().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymw = (                    VSP_VLM().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmw = (                    VSP_VLM().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmw = (                    VSPAERO().CFiwx() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymw = (                    VSPAERO().CFiwy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmw = (                    VSPAERO().CFiwz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                   
-              Mxmi = (                    VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymi = (                    VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmi = (                    VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmi = (                    VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymi = (                    VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmi = (                    VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                 
-              Fxmo = ( VSP_VLM().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymo = ( VSP_VLM().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmo = ( VSP_VLM().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmo = ( VSPAERO().CFox()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymo = ( VSPAERO().CFoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmo = ( VSPAERO().CFoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_;
                                     
-              Mxmo = ( VSP_VLM().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymo = ( VSP_VLM().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmo = ( VSP_VLM().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmo = ( VSPAERO().CMox()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymo = ( VSPAERO().CMoy()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmo = ( VSPAERO().CMoz()                    ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                 
-              Fxmt = ( VSP_VLM().CFox() + VSP_VLM().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymt = ( VSP_VLM().CFoy() + VSP_VLM().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmt = ( VSP_VLM().CFoz() + VSP_VLM().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmt = ( VSPAERO().CFox() + VSPAERO().CFix() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymt = ( VSPAERO().CFoy() + VSPAERO().CFiy() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmt = ( VSPAERO().CFoz() + VSPAERO().CFiz() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                   
-              Mxmt = ( VSP_VLM().CMox() + VSP_VLM().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymt = ( VSP_VLM().CMoy() + VSP_VLM().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmt = ( VSP_VLM().CMoz() + VSP_VLM().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmt = ( VSPAERO().CMox() + VSPAERO().CMix() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymt = ( VSPAERO().CMoy() + VSPAERO().CMiy() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmt = ( VSPAERO().CMoz() + VSPAERO().CMiz() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
               
            }
            
            else {
 
-              Fxmi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                            
-              Mxmi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmi = (                                                                VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmi = (                                                                VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                                                                                                                      
-              Fxmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                                                                                                                  
-              Mxmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmo = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmo = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg()                                                                ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                                                                                                     
-              Fxmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fymt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
-              Fzmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fxmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fymt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
+              Fzmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CFiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_;
                                                            
-              Mxmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
-              Mymt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
-              Mzmt = ( VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSP_VLM().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mxmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMox_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMix_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
+              Mymt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoy_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiy_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Cref_;
+              Mzmt = ( VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMoz_avg() + VSPAERO().VSPGeom().ComponentGroupList(LoadGroup).CMiz_avg() ) * 0.5 * Sref_ * Vref_ * Vref_ * Bref_;
                  
               
            }    
                
-           //VSP_VLM().VSPGeom().Grid(0).NodeList(i).z() += Delta;
+           //VSPAERO().VSPGeom().Grid(0).NodeList(i).z() += Delta;
 
-           for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+           for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
            
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
-              VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
+              VSPAERO().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j  ];
               
            }         
                           
@@ -4866,9 +5415,9 @@ void FiniteDiffTestSolve(void)
 
         fprintf(FiniteDiffFile,"%10d %20.10e %20.10e %20.10e ",
          i,
-         VSP_VLM().VSPGeom().Grid(0).NodeList(i).x(),
-         VSP_VLM().VSPGeom().Grid(0).NodeList(i).y(),
-         VSP_VLM().VSPGeom().Grid(0).NodeList(i).z());
+         VSPAERO().VSPGeom().Grid(0).NodeList(i).x(),
+         VSPAERO().VSPGeom().Grid(0).NodeList(i).y(),
+         VSPAERO().VSPGeom().Grid(0).NodeList(i).z());
 
         fprintf(FiniteDiffFile,"%20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e ",
          dFtdxyz[0][0],
@@ -4933,8 +5482,7 @@ void FiniteDiffTestSolve(void)
          dModxyz[2][1],
          dModxyz[2][2]);                 
          
-
-        fprintf(FiniteDiffFile,"%20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e \n",                  
+        fprintf(FiniteDiffFile,"%20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e ",                  
          dFwdxyz[0][0],
          dFwdxyz[0][1],
          dFwdxyz[0][2],
@@ -4944,9 +5492,1127 @@ void FiniteDiffTestSolve(void)
          dFwdxyz[2][0],
          dFwdxyz[2][1],
          dFwdxyz[2][2]);
-                                    
+
+        fprintf(FiniteDiffFile,"%20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e %20.10e \n",                  
+         dFwdxyz[0][0] + dFodxyz[0][0],
+         dFwdxyz[0][1] + dFodxyz[0][1],
+         dFwdxyz[0][2] + dFodxyz[0][2],
+         dFwdxyz[1][0] + dFodxyz[1][0],
+         dFwdxyz[1][1] + dFodxyz[1][1],
+         dFwdxyz[1][2] + dFodxyz[1][2],
+         dFwdxyz[2][0] + dFodxyz[2][0],
+         dFwdxyz[2][1] + dFodxyz[2][1],
+         dFwdxyz[2][2] + dFodxyz[2][2]);                                    
     }
     
     delete [] TempXYZ;
 
 }
+
+#ifdef VSPAERO_OPT
+
+/*##############################################################################
+#                                                                              #
+#                            Optimize                                          #
+#                                                                              #
+##############################################################################*/
+
+void VSPAERO_Optimize(void)
+{
+   
+    int Case, NumberOfThreads;
+    int i, j, Iter, NumberOfParameterValues, NumberOfNodes, k, Done, Optimum;
+
+    double CL, CD, CS, CML, CMM, CMN;
+    double CLo, CDo, CSo, CMLo, CMMo, CMNo;
+    double *NodeXYZ, *dFdMesh[3], *dF_dParameter, *Gradient, *GradientOld;
+    double F, F1, Fnew, Delta, Delta1, FReduction, DeltaReduction, StepSize;
+    double Lambda_1, Lambda_2, Lambda_3, Lambda_4, Lambda_5, Lambda_6, **dMesh_dParameter;
+    double *ParameterValues, *NewParameterValues, Time0, TotalTime, *MeshNodes;
+
+    char HistoryFileName[MAX_CHAR_SIZE], CommandLine[MAX_CHAR_SIZE], OptimizationSetupFileName[MAX_CHAR_SIZE], **ParameterNames;
+    char OpenVSP_FileName[MAX_CHAR_SIZE], OpenVSP_VSPGeomFileName[MAX_CHAR_SIZE], NewFileName[MAX_CHAR_SIZE];
+
+    FILE *HistoryFile, *OptimizationSetupFile;
+    
+    int NumberOfForwardSolves, NumberOfAdjointSolves, NumberOfGeometryUpdates;
+    double Time, ForwardSolveTime, AdjointSolveTime, GeometryUpdateTime;
+
+    // OpenVSP parameter data
+            
+    PARAMETER_DATA *ParameterData;
+
+    // OPENMP stuff
+                             
+#ifdef VSPAERO_OPENMP
+   
+    printf("Initializing OPENMP for %d threads \n",NumberOfThreads_);
+   
+    omp_set_num_threads(NumberOfThreads_);
+    
+    NumberOfThreads = omp_get_max_threads();
+
+    printf("NumberOfThreads_: %d \n",NumberOfThreads);
+    
+#else
+
+    NumberOfThreads = 1;
+
+    printf("Single threaded build.\n");
+
+#endif
+
+    // Write out 2D FEM file
+    
+    if ( Write2DFEMFile_ ) VSPAERO().Write2DFEMFile() = 1;
+    
+    // Write out Tecplot file
+    
+    if ( WriteTecplotFile_ ) VSPAERO().WriteTecplotFile() = 1;
+        
+    // Save optimization data
+    
+    if ( OptimizationSolve_ ) VSPAERO().OptimizationSolve() = 1;
+        
+    // Set number of farfield wake nodes
+
+    if ( NumberOfWakeNodes_ > 0 ) VSPAERO().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);       
+               
+    // Force farfield distance for wake adaption
+    
+    if ( SetFarDist_ ) VSPAERO().SetFarFieldDist(FarDist_);
+
+    // Zero out statistics
+    
+    NumberOfForwardSolves = NumberOfAdjointSolves = NumberOfGeometryUpdates = 0;
+    
+    ForwardSolveTime = AdjointSolveTime = GeometryUpdateTime = 0.;
+
+    printf("Running wing optimization... \n");fflush(NULL);
+
+    // Read in the OpenVSP geometry
+    
+    snprintf(OpenVSP_FileName,sizeof(OpenVSP_FileName)*sizeof(char),"%s.vsp3",FileName);
+
+    vsp::ReadVSPFile( OpenVSP_FileName );
+    
+    // Initialize the starting geometry
+    
+    Time = Time0 = myclock();
+    
+    vsp::SetAnalysisInputDefaults( "VSPAEROComputeGeometry" );
+    
+    vsp::SetAnalysisInputDefaults( "VSPAEROSweep" ); // We use the user define thick/thin sets in the VSPAERO setup gui
+    
+   // vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "GeomSet", {vsp::SET_FIRST_USER + 0}, 0);      // Thick geometry -- "Panel"... we assume it's set 0
+   // 
+   // vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "ThinGeomSet", {vsp::SET_FIRST_USER + 1}, 0);  // Thin geometry -- "VLM"... we assume it's set 1
+    
+    int m_SymFlagVec = 0;
+    
+    vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "Symmetry", {m_SymFlagVec}, 0);
+
+    vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "CullFracFlag", {1}, 0);
+    
+    vsp::SetDoubleAnalysisInput("VSPAEROComputeGeometry", "CullFrac", {0.1}, 0);
+
+    // Create the initial .vspgeom file for analysis
+    
+    string compgeom_resid = vsp::ExecAnalysis( "VSPAEROComputeGeometry" );
+    
+  //  vsp::SetIntAnalysisInput( "VSPAEROSweep", "StopBeforeRun", {1}, 0 );
+  //  
+  //  vsp::ExecAnalysis( "VSPAEROSweep" );
+
+    // Also save a copy
+    
+    snprintf(NewFileName,sizeof(NewFileName)*sizeof(char),"%s.Initial.vspgeom",FileName);
+    
+    vsp::ExportFile( NewFileName, vsp::SET_ALL, vsp::EXPORT_VSPGEOM );
+
+    GeometryUpdateTime += myclock() - Time;
+                            
+    // Initialize VSPAERO solver settings
+
+    VSPAERO().Sref() = Sref_;
+
+    VSPAERO().Cref() = Cref_;
+
+    VSPAERO().Bref() = Bref_;
+    
+    VSPAERO().Xcg() = Xcg_;
+
+    VSPAERO().Ycg() = Ycg_;
+
+    VSPAERO().Zcg() = Zcg_;
+    
+    VSPAERO().Mach() = Mach_;
+    
+    VSPAERO().AngleOfAttack() = AoA_ * TORAD;
+
+    VSPAERO().AngleOfBeta() = Beta_ * TORAD;
+    
+    VSPAERO().Vinf() = Vinf_;
+    
+    VSPAERO().Vref() = Vref_;
+    
+    VSPAERO().Machref() = Machref_;
+    
+    VSPAERO().Density() = Rho_;
+    
+    VSPAERO().ReCref() = ReCref_;
+    
+    VSPAERO().RotationalRate_p() = 0.0;
+    
+    VSPAERO().RotationalRate_q() = 0.0;
+    
+    VSPAERO().RotationalRate_r() = 0.0;    
+
+    VSPAERO().DoSymmetryPlaneSolve() = Symmetry_;
+        
+    VSPAERO().StallModelIsOn() = StallModelIsOn_;
+    
+    VSPAERO().WakeIterations() = WakeIterations_;
+    
+    VSPAERO().ForwardGMRESConvergenceFactor() = ForwardGMRESConvergenceFactor_;
+    
+    VSPAERO().AdjointGMRESConvergenceFactor() = AdjointGMRESConvergenceFactor_;
+    
+    VSPAERO().NonLinearConvergenceFactor() = NonLinearConvergenceFactor_;
+
+    VSPAERO().WakeRelax() = WakeRelax_;
+    
+    VSPAERO().ImplicitWake() = ImplicitWake_;
+    
+    VSPAERO().DoAdjointSolve() = 1; // This needs to be set before Setup() is called... 
+    
+    if ( !OptimizationUsingWakeForces_ ) {
+       
+       VSPAERO().AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES; // Only total forces gradients
+
+    }
+    
+    else {
+       
+       VSPAERO().AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES_USING_WAKE_FORCES; // Only total forces gradients, but based on Trefftz forces
+          
+    }
+      
+    VSPAERO().ReadFile(FileName);
+
+    VSPAERO().Setup();
+
+    // Load in the optimization parameter value list
+
+    ParameterData = ReadOpenVSPDesFile(FileName,NumberOfParameterValues);
+    
+    dF_dParameter = new double[NumberOfParameterValues + 1];
+    
+    ParameterValues = new double[NumberOfParameterValues + 1];
+    
+    NewParameterValues = new double[NumberOfParameterValues + 1];
+
+    Gradient = new double[NumberOfParameterValues + 1];
+    
+    GradientOld = new double[NumberOfParameterValues + 1];
+
+    for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+
+       GradientOld[j] = Gradient[j] = dF_dParameter[j] = 0.;
+       
+       ParameterValues[j] = ParameterData->ParameterValues[j];
+
+    }
+    
+    // Calculate partials of mesh wrt parameters
+
+    Time = myclock();
+        
+    dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterData);
+    
+    GeometryUpdateTime += myclock() - Time;
+    
+    NumberOfGeometryUpdates += 2*NumberOfParameterValues + 1;
+
+    printf("Finished calculate mesh gradients... \n");fflush(NULL);
+
+    // Allocate some space for the derivatives 
+    
+    dFdMesh[0] = new double[VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() + 1];
+    dFdMesh[1] = new double[VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() + 1];
+    dFdMesh[2] = new double[VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() + 1];
+    
+    // Open the history file
+
+    snprintf(HistoryFileName,sizeof(HistoryFileName)*sizeof(char),"%s.opt.history",FileName);
+
+    if ( (HistoryFile = fopen(HistoryFileName, "w")) == NULL ) {
+    
+       printf("Could not open the optimization history output file! \n");
+    
+       exit(1);
+    
+    }
+    
+    // Clean up any old opt adb files
+    
+    snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"rm %s.opt.*.adb",FileName);
+    
+    system(CommandLine);
+
+    // Header
+     
+                        //1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 
+    fprintf(HistoryFile,"    Iter        CL         CD         CS        CML        CMM        CMN        L/D         F      FReduction   GradF    GradReduct   1DSteps   StepSize     Time   \n");
+
+    k = 0;
+
+    Delta = StepSize = 0.;
+
+    Lambda_1 = 0.;
+    Lambda_2 = 0.;
+    Lambda_3 = 0.;
+             
+    Lambda_4 = 0.;
+    Lambda_5 = 0.;
+    Lambda_6 = 0.;
+         
+    TotalTime = myclock() - Time0;
+    
+    Case = 0;
+    
+    Optimum = 0;
+    
+    Iter = 1;
+    
+    while ( Iter <= OptimizationNumberOfIterations_ && !Optimum ) {
+
+       // Solve the forward problem and the adjoint
+       
+       printf("Running VSPAERO forward and adjoint solvers... \n");fflush(NULL);
+       
+       Case++;
+
+       VSPAERO().DoAdjointSolve() = 1;
+       
+       Time = myclock();
+       
+       VSPAERO().Solve(Case);
+
+       AdjointSolveTime += myclock() - Time;
+       
+       NumberOfForwardSolves++;
+       
+       NumberOfAdjointSolves += 6;
+       
+       // Save the .adb file for later viewing
+       
+       snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.%d.adb",FileName,FileName,Iter);
+       
+       system(CommandLine);
+       
+       if ( Iter == 1 ) {
+          
+          // Save the .adb file for later viewing
+          
+          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.adb",FileName,FileName);
+          
+          system(CommandLine);
+          
+          // Copy over the .cases file for viewer
+          
+          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb.cases %s.opt.adb.cases",FileName,FileName);
+          
+          system(CommandLine);          
+       
+       }          
+       
+       // Grab total Cl, CD, and CM ... this included both invisicid and viscous contributions
+       
+       if ( !OptimizationUsingWakeForces_   ) {
+          
+          CL = VSPAERO().CLi() + VSPAERO().CLo();
+          CD = VSPAERO().CDi() + VSPAERO().CDo();
+          CS = VSPAERO().CSi() + VSPAERO().CSo();
+          
+          CML = VSPAERO().CMix() + VSPAERO().CMox();
+          CMM = VSPAERO().CMiy() + VSPAERO().CMoy();
+          CMN = VSPAERO().CMiz() + VSPAERO().CMoy();
+          
+       }
+       
+       else if ( OptimizationUsingWakeForces_ ) {
+          
+          CL = VSPAERO().CLiw() + VSPAERO().CLo();
+          CD = VSPAERO().CDiw() + VSPAERO().CDo();
+          CS = VSPAERO().CSiw() + VSPAERO().CSo();
+          
+          CML = VSPAERO().CMix() + VSPAERO().CMox();
+          CMM = VSPAERO().CMiy() + VSPAERO().CMoy();
+          CMN = VSPAERO().CMiz() + VSPAERO().CMoy();
+
+       }
+ 
+       else {
+          
+          printf("Unknown VSPAERO solver type! \n");
+          fflush(NULL);exit(1);
+          
+       }
+
+       CLo = CL;
+       CDo = CD;
+       CSo = CS;
+       
+       CMLo = CML;
+       CMMo = CMM;
+       CMMo = CMN;
+       
+       // Weights
+   
+       if ( Iter == 1 ) {
+          
+         Lambda_1 = Optimization_CL_Weight_ / pow(CL-Optimization_CL_Required_,2.);
+         Lambda_2 = Optimization_CD_Weight_ / pow(CD-Optimization_CD_Required_,2.);
+         Lambda_3 = Optimization_CS_Weight_ / pow(CS-Optimization_CS_Required_,2.);
+         
+         Lambda_4 = Optimization_CML_Weight_ / pow(CML-Optimization_CML_Required_,2.);
+         Lambda_5 = Optimization_CMM_Weight_ / pow(CMM-Optimization_CMM_Required_,2.);
+         Lambda_6 = Optimization_CMN_Weight_ / pow(CMN-Optimization_CMN_Required_,2.);
+                  
+       }
+       
+       Lambda_1 = MIN(Lambda_1,10000.);
+       Lambda_2 = MIN(Lambda_2,10000.);
+       Lambda_3 = MIN(Lambda_3,10000.);
+       Lambda_4 = MIN(Lambda_4,10000.);
+       Lambda_5 = MIN(Lambda_5,10000.);
+       Lambda_6 = MIN(Lambda_6,10000.);
+         
+       // Calculate the final objective function and it's gradients
+       // Here we have f = L1*(CL - CLreq)^2 + L2*CD^2 + L3*CM^2
+
+       F = Lambda_1 * pow(CL  - Optimization_CL_Required_,2.)
+         + Lambda_2 * pow(CD  - Optimization_CD_Required_,2.) 
+         + Lambda_3 * pow(CS  - Optimization_CS_Required_,2.) 
+         
+         + Lambda_4 * pow(CML - Optimization_CML_Required_,2.)
+         + Lambda_5 * pow(CMM - Optimization_CMM_Required_,2.)
+         + Lambda_6 * pow(CMN - Optimization_CMN_Required_,2.);
+         
+       if ( Iter == 1 ) F1 = F;
+    
+       for ( i = 1 ; i <= VSPAERO().VSPGeom().Grid(1).NumberOfSurfaceNodes() ; i++ ) {
+       
+          dFdMesh[0][i] = 2.*Lambda_1*(CL  - Optimization_CL_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DX() 
+                        + 2.*Lambda_2*(CD  - Optimization_CD_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DX() 
+                        + 2.*Lambda_3*(CS  - Optimization_CS_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DX() 
+                        
+                        + 2.*Lambda_4*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX()
+                        + 2.*Lambda_5*(CMM - Optimization_CMM_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX()
+                        + 2.*Lambda_6*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX();
+                
+          dFdMesh[1][i] = 2.*Lambda_1*(CL  - Optimization_CL_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DY() 
+                        + 2.*Lambda_2*(CD  - Optimization_CD_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DY() 
+                        + 2.*Lambda_3*(CS  - Optimization_CS_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DY() 
+                        
+                        + 2.*Lambda_4*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY()
+                        + 2.*Lambda_5*(CMM - Optimization_CMM_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY()
+                        + 2.*Lambda_6*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY();
+                        
+          dFdMesh[2][i] = 2.*Lambda_1*(CL  - Optimization_CL_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DZ() 
+                        + 2.*Lambda_2*(CD  - Optimization_CD_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DZ() 
+                        + 2.*Lambda_3*(CS  - Optimization_CS_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DZ() 
+                        
+                        + 2.*Lambda_4*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ()
+                        + 2.*Lambda_5*(CMM - Optimization_CMM_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ()
+                        + 2.*Lambda_6*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ();
+
+       }
+
+       printf("Doing chain rule... \n");fflush(NULL);
+
+       // Chain rule... calculate derivatives wrt parameters
+       
+       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+          
+          dF_dParameter[j] = 0;
+       
+          for ( i = 1 ; i <= VSPAERO().VSPGeom().Grid(1).NumberOfSurfaceNodes() ; i++ ) {
+             
+             dF_dParameter[j] +=   dFdMesh[0][i] * dMesh_dParameter[j][3*i-2]
+                                 + dFdMesh[1][i] * dMesh_dParameter[j][3*i-1]
+                                 + dFdMesh[2][i] * dMesh_dParameter[j][3*i  ];
+                        
+          }
+          
+       }  
+
+       // Store old and new gradients
+       
+       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+       
+          GradientOld[j] = Gradient[j];
+          
+          Gradient[j] = dF_dParameter[j];
+          
+       }
+                    
+       // Conjugate gradient adjustment of the gradient...
+       
+       if ( Iter > 1 ) CGState(GradientOld,Gradient,NumberOfParameterValues);
+         
+       // Calculate magnitude of the gradient and normalize it
+       
+       Delta = Normalize(Gradient, NumberOfParameterValues);
+       
+       if ( Iter == 1 ) Delta1 = Delta;
+
+       StepSize = 0.25*Delta;       
+       
+       if ( StepSize > 0.25 ) StepSize = 0.25;
+
+       if ( Iter == 1 ) {
+          
+          FReduction = 0.;
+          
+          DeltaReduction = 0.;
+          
+          fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",0,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,DeltaReduction,k,StepSize,TotalTime);
+
+       }
+       
+       if ( Iter != OptimizationNumberOfIterations_ ) {
+          
+          // A really bad 1D search...
+          
+          k = 0;
+          
+          Done = 0;
+   
+          while ( !Done && k < OptimizationNumber1DSearchSteps_ ) {
+             
+             printf("\n\n\n\n\n\n Doing 1D search iteration %d the current Step Size: %f \n\n\n\n\n\n ",k,StepSize);
+          
+             for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+             
+                ParameterValues[j] -= StepSize * Gradient[j];
+                
+               // printf("ParameterValues[%d]: %f \n",j,ParameterValues[j]);fflush(NULL);
+                
+             }
+
+             Time = myclock();
+             
+             NodeXYZ = CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterData->ParameterNames, ParameterValues);
+             
+             GeometryUpdateTime += myclock() - Time;
+
+             NumberOfGeometryUpdates++;
+
+             // Update mesh
+             
+             for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() ; j++ ) {
+
+                VSPAERO().VSPGeom().Grid(0).NodeList(j).x() = NodeXYZ[3*j-2];
+                VSPAERO().VSPGeom().Grid(0).NodeList(j).y() = NodeXYZ[3*j-1];
+                VSPAERO().VSPGeom().Grid(0).NodeList(j).z() = NodeXYZ[3*j  ];
+      
+             }
+                         
+             Time = myclock();
+                          
+             VSPAERO().VSPGeom().UpdateMeshes();
+             
+             GeometryUpdateTime += myclock() - Time;
+
+             delete [] NodeXYZ;
+             
+             // Do a forward solve only to evaluate the functional
+             
+             Case++;
+             
+             Time = myclock();
+             
+             VSPAERO().DoAdjointSolve() = 0;
+                          
+             VSPAERO().Solve(Case);
+             
+             ForwardSolveTime += myclock() - Time;
+                          
+             NumberOfForwardSolves++;
+            
+             CLo = CL;
+             CDo = CD;
+             CSo = CS;
+             
+             CMLo = CML;
+             CMMo = CMM;
+             CMNo = CMN;     
+                          
+             if ( !OptimizationUsingWakeForces_   ) {
+                
+                CL = VSPAERO().CLi() + VSPAERO().CLo();
+                CD = VSPAERO().CDi() + VSPAERO().CDo();
+                CS = VSPAERO().CSi() + VSPAERO().CSo();
+                
+                CML = VSPAERO().CMix() + VSPAERO().CMox();
+                CMM = VSPAERO().CMiy() + VSPAERO().CMoy();
+                CMN = VSPAERO().CMiz() + VSPAERO().CMoy();
+                
+             }
+             
+             else if ( OptimizationUsingWakeForces_ ) {
+                
+                CL = VSPAERO().CLiw() + VSPAERO().CLo();
+                CD = VSPAERO().CDiw() + VSPAERO().CDo();
+                CS = VSPAERO().CSiw() + VSPAERO().CSo();
+                
+                CML = VSPAERO().CMix() + VSPAERO().CMox();
+                CMM = VSPAERO().CMiy() + VSPAERO().CMoy();
+                CMN = VSPAERO().CMiz() + VSPAERO().CMoy();
+             
+             }
+        
+             Fnew = Lambda_1 * pow(CL  - Optimization_CL_Required_,2.)
+                  + Lambda_2 * pow(CD  - Optimization_CD_Required_,2.) 
+                  + Lambda_3 * pow(CS  - Optimization_CS_Required_,2.) 
+                  
+                  + Lambda_4 * pow(CML - Optimization_CML_Required_,2.)
+                  + Lambda_5 * pow(CMM - Optimization_CMM_Required_,2.)
+                  + Lambda_6 * pow(CMN - Optimization_CMN_Required_,2.);
+         
+             printf("1D search... current F: %f ... previous F: %f \n",Fnew,F); fflush(NULL);
+           
+             // Just keep going until function has increased... 
+             
+             if ( Fnew > F ) {
+       
+                printf("Stopping 1D search and backing up a step... \n");                
+                
+                // Back up 
+                
+                if ( k > 0 ) {
+
+                   for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+                   
+                      ParameterValues[j] += StepSize * Gradient[j];
+                 
+                   }
+    
+                   Time = myclock();
+                   
+                   NodeXYZ = CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterData->ParameterNames, ParameterValues);
+                  
+                   GeometryUpdateTime += myclock() - Time;
+                  
+                   NumberOfGeometryUpdates++;
+                  
+                   // Update mesh
+                   
+                   for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(0).NumberOfSurfaceNodes() ; j++ ) {
+                   
+                      VSPAERO().VSPGeom().Grid(0).NodeList(j).x() = NodeXYZ[3*j-2];
+                      VSPAERO().VSPGeom().Grid(0).NodeList(j).y() = NodeXYZ[3*j-1];
+                      VSPAERO().VSPGeom().Grid(0).NodeList(j).z() = NodeXYZ[3*j  ];
+                   
+                   }
+                                
+                   // Update the solver and adjoint meshes
+                   
+                   VSPAERO().VSPGeom().UpdateMeshes();
+                   
+                   delete [] NodeXYZ;
+                   
+                   CL = CLo;
+                   CD = CDo;
+                   CS = CSo;
+                   
+                   CML = CMLo;
+                   CMM = CMMo;
+                   CMM = CMNo;      
+                       
+                }
+                   
+                Done = 1; 
+                
+                if ( k == 0 ) F = Fnew;
+                
+             }
+             
+             else {
+                
+                F = Fnew;
+                
+             }                             
+             
+             if ( !Done ) {
+                
+                k++;
+             
+                if ( !Done ) StepSize *= 1.618;
+         
+             }
+             
+          }
+             
+       }
+
+       TotalTime = myclock() - Time0;
+
+       FReduction = log10(F/F1);
+
+       DeltaReduction = log10(Delta/Delta1);
+       
+       fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",Iter,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,DeltaReduction,k,StepSize,TotalTime);
+       
+       // Update the mesh gradients
+       
+       if ( OPtimizationUpdateGeometryGradients_ ) {
+          
+          dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterData);
+          
+       }
+       
+       if ( DeltaReduction <= log10(OptimizationGradientReduction_) ) Optimum = 1;
+       
+       Iter++;
+
+    }
+    
+    // Save the final state
+    
+    SaveVSPGeomFile(FileName, NumberOfParameterValues,ParameterData->ParameterNames, ParameterValues);
+    
+    // Output some solver stats...
+
+    printf("\n\n");
+    printf("NumberOfForwardSolves:   %d \n",NumberOfForwardSolves);
+    printf("NumberOfAdjointSolves:   %d \n",NumberOfAdjointSolves);
+    printf("NumberOfGeometryUpdates: %d \n",NumberOfGeometryUpdates);
+    printf("\n\n");
+    printf("Forward  Solve  Time %f seconds \n",ForwardSolveTime);
+    printf("Adoint   Solve  Time %f seconds \n",AdjointSolveTime);
+    printf("Geometry Update Time %f seconds \n",GeometryUpdateTime);
+    printf("Total Optimization time: %f seconds \n",TotalTime);
+        
+    fprintf(HistoryFile,"\n\n");
+    fprintf(HistoryFile,"NumberOfForwardSolves:   %d \n",NumberOfForwardSolves);
+    fprintf(HistoryFile,"NumberOfAdjointSolves:   %d \n",NumberOfAdjointSolves);
+    fprintf(HistoryFile,"NumberOfGeometryUpdates: %d \n",NumberOfGeometryUpdates);
+    fprintf(HistoryFile,"\n\n");
+    fprintf(HistoryFile,"Forward  Solve  Time %f seconds \n",ForwardSolveTime);
+    fprintf(HistoryFile,"Adoint   Solve  Time %f seconds \n",AdjointSolveTime);
+    fprintf(HistoryFile,"Geometry Update Time %f seconds \n",GeometryUpdateTime);
+    fprintf(HistoryFile,"Total Optimization time: %f seconds \n",TotalTime);
+       
+    fclose(HistoryFile);
+    
+    // Free up memory
+    
+    DeleteMeshGradients(NumberOfParameterValues,dMesh_dParameter);
+    
+    // Exit
+    
+    exit(0);
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                            ReadOpenVSPDesFile                                #
+#                                                                              #
+##############################################################################*/
+
+PARAMETER_DATA *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables)
+{
+    
+    int i;
+    double *ParameterValues;
+    char DesignFileName[MAX_CHAR_SIZE], Variable[MAX_CHAR_SIZE];
+    FILE *DesignFile;
+    PARAMETER_DATA *ParameterData;
+    
+    ParameterData = new PARAMETER_DATA;
+    
+    // Open the OpenVSP des file
+
+    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.des",FileName);
+    
+    printf("Opening: %s \n",DesignFileName);fflush(NULL);
+
+    if ( (DesignFile = fopen(DesignFileName, "r")) == NULL ) {
+    
+       printf("Could not open the OpenVSP des file! \n");
+    
+       exit(1);
+    
+    }
+    
+    // Parse the des file, replace parameters with new values    
+    
+    fscanf(DesignFile,"%d \n",&NumberOfDesignVariables);
+
+    ParameterData->ParameterValues = new double[NumberOfDesignVariables + 1];
+    
+    ParameterData->ParameterNames = new char*[NumberOfDesignVariables + 1];
+
+    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+
+       ParameterData->ParameterNames[i] = new char[11];
+
+       fscanf(DesignFile,"%s%lf\n",(Variable),&( ParameterData->ParameterValues[i]));
+              
+       strncpy(ParameterData->ParameterNames[i],Variable,11);
+
+       printf("%s --> %f \n",Variable,ParameterData->ParameterValues[i]);fflush(NULL);
+
+    }
+    
+    fclose(DesignFile);
+    
+    return ParameterData;
+ 
+}
+
+/*##############################################################################
+#                                                                              #
+#                            CreateVSPGeometry                                 #
+#                                                                              #
+##############################################################################*/
+
+double *CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues)
+{
+    
+    int i, j, Node, NumVars;
+    int Surface;
+    int surf_indx;
+    int degen_type;
+    int *DidThisNode;    
+    double Value, *MeshNodesXYZ;
+    char DesignFileName[MAX_CHAR_SIZE], Variable[MAX_CHAR_SIZE], CommandLine[MAX_CHAR_SIZE];
+    FILE *DesignFile, *OptDesFile;
+    
+    // Update the VSP geometry
+
+    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+
+       double temp = vsp::SetParmVal( ParameterNames[i], ParameterValues[i] );
+    
+    }
+
+    vsp::Update();
+ 
+    // Now parse the new geometry and create a new list of xyz node data
+    
+    vector<double> uvec, wvec;
+     
+    uvec.resize( 1 );
+    
+    wvec.resize( 1 );
+     
+    MeshNodesXYZ = new double[3*VSPAERO().VSPGeom().Grid(1).NumberOfNodes() + 1];
+
+    DidThisNode = new int[VSPAERO().VSPGeom().Grid(1).NumberOfNodes() + 1];
+    
+    zero_int_array(DidThisNode, VSPAERO().VSPGeom().Grid(1).NumberOfNodes());
+    
+    // Loop over loops and calculate the new xyz locations of every node... yes, this means
+    // we do a lot of the nodes more than once... oh well.
+
+    for ( i = 1 ; i <= VSPAERO().VSPGeom().Grid(1).NumberOfSurfaceLoops() ; i++ ) {
+       
+       Surface = VSPAERO().VSPGeom().Grid(1).LoopList(i).SurfaceID();
+       
+       surf_indx = VSPAERO().VSPGeom().VSPSurfaceIDForSurface(Surface);
+       
+       degen_type = VSPAERO().VSPGeom().VSPSurfaceDegenType(Surface);
+       
+       string geom_id = VSPAERO().VSPGeom().SurfaceGIDList(Surface);
+
+       for ( j = 1 ; j <= VSPAERO().VSPGeom().Grid(1).LoopList(i).NumberOfNodes() ; j++ ) {
+          
+          Node = VSPAERO().VSPGeom().Grid(1).LoopList(i).Node(j);
+          
+          if ( !DidThisNode[Node] ) {
+          
+             uvec[0] = VSPAERO().VSPGeom().Grid(1).LoopList(i).U_Node(j);
+             wvec[0] = VSPAERO().VSPGeom().Grid(1).LoopList(i).V_Node(j);
+             
+             vector< vec3d > ptvec = vsp::CompVecDegenPnt01( geom_id, surf_indx, degen_type, uvec, wvec);
+             
+             MeshNodesXYZ[3*Node - 2] = ptvec[0].x();
+             MeshNodesXYZ[3*Node - 1] = ptvec[0].y();
+             MeshNodesXYZ[3*Node    ] = ptvec[0].z();
+             
+           //  printf("Node: %d --> x,y,z: %f, %f ... %f, %f .. %f, %f \n",
+           //  Node,
+           //  VSPAERO().VSPGeom().Grid(1).NodeList(Node).x(), ptvec[0].x(),
+           //  VSPAERO().VSPGeom().Grid(1).NodeList(Node).y(), ptvec[0].y(),
+           //  VSPAERO().VSPGeom().Grid(1).NodeList(Node).z(), ptvec[0].z());
+               
+             DidThisNode[Node] = 1;
+             
+          }
+          
+       }
+      
+    }
+    
+    delete [] DidThisNode;
+    
+    return MeshNodesXYZ;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                            SaveVSPGeomFile                                   #
+#                                                                              #
+##############################################################################*/
+
+void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues)
+{
+    
+    int i, NumVars;
+    double Value;
+    char DesignFileName[MAX_CHAR_SIZE], Variable[MAX_CHAR_SIZE];
+    FILE *DesignFile, *OptDesFile;
+    
+    // Update the VSP geometry
+
+    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+
+       double temp = vsp::SetParmVal( ParameterNames[i], ParameterValues[i] );
+    
+    }
+
+    vsp::Update();
+    
+    // Save the current geometry out as a vspgeom file
+    
+    vsp::SetAnalysisInputDefaults( "VSPAEROComputeGeometry" );
+
+    vsp::SetAnalysisInputDefaults( "VSPAEROSweep" ); // We use the user define thick/thin sets in the VSPAERO setup gui
+
+  // vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "GeomSet", {vsp::SET_FIRST_USER + 0}, 0);      // Thick geometry -- "Panel"... we assume it's set 0
+  // 
+  // vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "ThinGeomSet", {vsp::SET_FIRST_USER + 1}, 0);  // Thin geometry -- "VLM"... we assume it's set 1
+    
+    int m_SymFlagVec = 0;
+    
+    vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "Symmetry", {m_SymFlagVec}, 0);
+
+    vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "CullFracFlag", {1}, 0);
+    
+    vsp::SetDoubleAnalysisInput("VSPAEROComputeGeometry", "CullFrac", {0.1}, 0);
+
+    string compgeom_resid = vsp::ExecAnalysis( "VSPAEROComputeGeometry" );
+
+    // Open des file
+    
+    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.des",FileName);
+    
+    //printf("Opening: %s \n",DesignFileName);fflush(NULL);
+
+    if ( (DesignFile = fopen(DesignFileName, "r")) == NULL ) {
+    
+       printf("Could not open the OpenVSP Opt des file! \n");
+    
+       exit(1);
+    
+    }
+    
+    // Open Opt des file
+    
+    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.Opt.Final.des",FileName);
+    
+    //printf("Opening: %s \n",DesignFileName);fflush(NULL);
+
+    if ( (OptDesFile = fopen(DesignFileName, "w")) == NULL ) {
+    
+       printf("Could not open the OpenVSP Opt des file! \n");
+    
+       exit(1);
+    
+    }
+    
+    // Parse the des file, replace parameters with new values    
+    
+    fscanf(DesignFile,"%d \n",&NumVars);
+    
+    if ( NumberOfDesignVariables != NumVars ) {
+       
+       printf("Number of design variables does not match OpenVSP des file! \n");
+       fflush(NULL);exit(1);
+       
+    }
+    
+    fprintf(OptDesFile,"%d\n",NumVars);
+    
+    fflush(NULL);
+    
+    for ( i = 1 ; i <= NumVars ; i++ ) {
+
+       fscanf(DesignFile,"%s%lf\n",Variable,&Value);
+
+       fprintf(OptDesFile,"%s %20.10e\n",Variable,ParameterValues[i]);
+       
+    }
+    
+    fclose(DesignFile);
+    
+    fclose(OptDesFile);       
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                    CalculateOpenVSPGeometryGradients                         #
+#                                                                              #
+##############################################################################*/
+
+double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVariables, PARAMETER_DATA *ParameterData)
+{
+    
+    int i, j, NumberOfMeshNodes;
+    double **dMesh_dParameter, *NewParameterValues, Delta, *MeshMinus;
+    
+    printf("Calculating OpenVSP mesh gradients ... \n");fflush(NULL);
+    
+    // Create space for the mesh gradients
+    
+    NewParameterValues = new double[NumberOfDesignVariables + 1];
+    
+    dMesh_dParameter = new double*[NumberOfDesignVariables + 1];
+
+    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+
+       NewParameterValues[i] = ParameterData->ParameterValues[i];
+       
+    }
+    
+    // Create the baseline geometry
+
+    dMesh_dParameter[0] = CreateVSPGeometry(FileName,NumberOfDesignVariables,ParameterData->ParameterNames,ParameterData->ParameterValues);
+
+    // Loop over parameters and calculate mesh gradients using finite differences
+    
+    Delta = 0.01;
+    
+    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+    
+       printf("Working on parameter: %d out of %d \r",i,NumberOfDesignVariables);fflush(NULL);
+         
+       // + Perturbation
+       
+       NewParameterValues[i] = ParameterData->ParameterValues[i] + Delta;
+       
+       dMesh_dParameter[i] = CreateVSPGeometry(FileName,NumberOfDesignVariables,ParameterData->ParameterNames,NewParameterValues);
+
+       // - Perturbation
+    
+       NewParameterValues[i] = ParameterData->ParameterValues[i] - Delta;
+       
+       MeshMinus = CreateVSPGeometry(FileName,NumberOfDesignVariables,ParameterData->ParameterNames,NewParameterValues);
+
+       // Calculate derivative using central differences
+       
+       for ( j = 1 ; j <= 3*VSPAERO().VSPGeom().Grid(1).NumberOfSurfaceNodes() ; j++ ) {
+
+          dMesh_dParameter[i][j] = ( dMesh_dParameter[i][j] - MeshMinus[j] )/(2.*Delta);
+       
+       }
+       
+       delete [] MeshMinus;
+       
+       NewParameterValues[i] = ParameterData->ParameterValues[i];
+
+    }
+
+    return dMesh_dParameter;
+ 
+}
+
+/*##############################################################################
+#                                                                              #
+#                    CalculateOpenVSPGeometryGradients                         #
+#                                                                              #
+##############################################################################*/
+
+void DeleteMeshGradients(int NumberOfDesignVariables, double **dMesh_dParameter)
+{
+    
+    int i;
+    
+    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+
+       delete [] dMesh_dParameter[i];
+       
+    }
+    
+    delete [] dMesh_dParameter;
+    
+}
+    
+/*##############################################################################
+#                                                                              #
+#                                   Normalize                                  #
+#                                                                              #
+##############################################################################*/
+
+double Normalize(double *Vector, int Length)
+{
+   
+   int i;
+   double Mag;
+   
+   Mag = 0.;
+   
+   for ( i = 1 ; i <= Length ; i++ ) {
+      
+      Mag += Vector[i]*Vector[i];
+      
+   }
+   
+   Mag = sqrt(Mag);
+   
+   for ( i = 1 ; i <= Length ; i++ ) {
+      
+      Vector[i] /= Mag;
+      
+   }
+   
+   return Mag;
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                                   CGState                                    #
+#                                                                              #
+##############################################################################*/
+
+void CGState(double *Old, double *New, int Length)
+{
+   
+   int i;
+   double Dot;
+   
+   Dot = 0.;
+   
+   for ( i = 1 ; i <= Length ; i++ ) {
+      
+      Dot += Old[i]*New[i];
+      
+   }   
+
+   for ( i = 1 ; i <= Length ; i++ ) {
+      
+      New[i] -= Dot * Old[i];
+      
+   }      
+
+}
+
+#endif

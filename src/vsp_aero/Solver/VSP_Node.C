@@ -245,7 +245,8 @@ VSP_NODE& VSP_NODE::operator=(const VSP_NODE &VSPNode)
 
     ComponentID_            = VSPNode.ComponentID_;
     SurfaceID_              = VSPNode.SurfaceID_;
-                            
+    OpenVSP_ComponentID_    = VSPNode.OpenVSP_ComponentID_;
+    
     x_                      = VSPNode.x_;
     y_                      = VSPNode.y_;
     z_                      = VSPNode.z_;

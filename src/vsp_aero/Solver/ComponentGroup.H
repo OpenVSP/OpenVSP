@@ -15,6 +15,7 @@
 #include "utils.H"
 #include "quat.H"
 #include "matrix.H"
+#include "CharSizes.H"
 
 #include "START_NAME_SPACE.H"
 
@@ -32,7 +33,7 @@ class COMPONENT_GROUP {
 
 private:
 
-    char GroupName_[2000];
+    char GroupName_[MAX_CHAR_SIZE];
     
     int NumberOfComponents_;
     int *ComponentList_;
@@ -66,6 +67,8 @@ private:
     double AngleMax_;
     double TotalRotationAngle_;
     double StartDynamicAnalysisTime_;
+    double DeltaFlatPlateDragArea_;
+    double FlatPlateDragRefReNumber_;
     
     // Integrated forces
     
@@ -597,6 +600,18 @@ public:
     /** Total rotation angle that has occurred thus far in an unsteady calculation **/
     
     double &TotalRotationAngle(void) { return TotalRotationAngle_; };
+    
+    /** Start time of dynamic analysis **/
+    
+    double StartDynamicAnalysisTime(void) { return StartDynamicAnalysisTime_; }; 
+    
+    /** Additional flat plate drag area for this group **/
+    
+    double DeltaFlatPlateDragArea(void) { return DeltaFlatPlateDragArea_; };
+    
+    /** Flat plate drag reference reynolds number **/
+    
+    double FlatPlateDragRefReNumber(void) { return FlatPlateDragRefReNumber_; };
     
     /** Current delta rotation angle, typically timestep_ * omega_ ... note this USUALLY computed by the class, not set... **/
         

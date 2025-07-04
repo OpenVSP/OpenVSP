@@ -238,9 +238,10 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     Node1_IsOnSymmetryPlane_ = VSPEdge.Node1_IsOnSymmetryPlane_;
     Node2_IsOnSymmetryPlane_ = VSPEdge.Node2_IsOnSymmetryPlane_;
     
-    ComponentID_    = VSPEdge.ComponentID_;
-    SurfaceID_      = VSPEdge.SurfaceID_;    
-
+    ComponentID_            = VSPEdge.ComponentID_;
+    SurfaceID_              = VSPEdge.SurfaceID_;    
+    OpenVSP_ComponentID_    = VSPEdge.OpenVSP_ComponentID_;
+    
     ThisEdge_         = VSPEdge.ThisEdge_;
     
     MinValidTimeStep_ = VSPEdge.MinValidTimeStep_; 
@@ -1424,6 +1425,8 @@ void VSP_EDGE::GradientBoundVortex(double &Gamma, double xyz_p[3],
    
           F1 = 0.;
    
+          dF1_da = dF1_db = dF1_dc = dF1_dd = dF1_ds = 0.;          
+   
           if ( Mach_ < 1. || ( xyz_p[0] > X1_ && SQR(X1_-xyz_p[0]) + Beta2*( SQR(Y1_-xyz_p[1]) + SQR(Z1_-xyz_p[2]) )/0.7 > 0. ) ) {
    
               F1 = GradientFint(a,b,c,d,s1,dF1_da,dF1_db,dF1_dc,dF1_dd,dF1_ds);
@@ -1454,6 +1457,8 @@ void VSP_EDGE::GradientBoundVortex(double &Gamma, double xyz_p[3],
        
           F2 = 0.;
           
+          dF2_da = dF2_db = dF2_dc = dF2_dd = dF2_ds = 0.;
+          
           if ( Mach_ < 1. || ( xyz_p[0] > X2_ && SQR(X2_-xyz_p[0]) + Beta2*( SQR(Y2_-xyz_p[1]) + SQR(Z2_-xyz_p[2]) )/0.7 > 0. ) ) {
    
               F2 = GradientFint(a,b,c,d,s2,dF2_da,dF2_db,dF2_dc,dF2_dd,dF2_ds);
@@ -1477,9 +1482,7 @@ void VSP_EDGE::GradientBoundVortex(double &Gamma, double xyz_p[3],
             // Error = log10(ABS(dF2_ds - Deriv));
             // 
             // printf("Exact: %f ... FD: %f ... Error: %f \n",dF2_ds, Deriv, Error);
-              
-              
-     
+             
           }
           
           // Evalulate integrals
@@ -3360,7 +3363,7 @@ double VSP_EDGE::Fint(double &a, double &b, double &c, double &d, double &s)
 
     Denom = d * sqrt(R);
 
-    return 2.*(2.*c*s + b)*Denom/(Denom*Denom + 0.*CoreWidth_*CoreWidth_);
+    return 2.*(2.*c*s + b)*Denom/(Denom*Denom);
 
 }
 
@@ -3407,19 +3410,19 @@ double VSP_EDGE::GradientFint(double &a, double &b, double &c, double &d, double
 
     Denom = d * sqrt(R);
     
-    F = 2.*(2.*c*s + b)*Denom/(Denom*Denom + 0.*CoreWidth_*CoreWidth_);
+    F = 2.*(2.*c*s + b)*Denom/(Denom*Denom );
     
     dDenom_dd = sqrt(R);
     dDenom_dR = 0.5*d/sqrt(R);
     
     dF_Denom = 2.*(2.*c*s + b)/(Denom*Denom + 0.*CoreWidth_*CoreWidth_)
-             - 2.*(2.*c*s + b)*Denom/pow(Denom*Denom + 0.*CoreWidth_*CoreWidth_,2.)*2.*Denom;
+             - 2.*(2.*c*s + b)*Denom/pow(Denom*Denom,2.)*2.*Denom;
              
     dF_da = dF_Denom * dDenom_dR * dR_da;
-    dF_db = dF_Denom * dDenom_dR * dR_db + 2.*  Denom/(Denom*Denom + 0.*CoreWidth_*CoreWidth_);
-    dF_dc = dF_Denom * dDenom_dR * dR_dc + 4.*s*Denom/(Denom*Denom + 0.*CoreWidth_*CoreWidth_);
+    dF_db = dF_Denom * dDenom_dR * dR_db + 2.*  Denom/(Denom*Denom);
+    dF_dc = dF_Denom * dDenom_dR * dR_dc + 4.*s*Denom/(Denom*Denom);
     dF_dd = dF_Denom * dDenom_dd;
-    dF_ds = dF_Denom * dDenom_dR * dR_ds + 4.*c*Denom/(Denom*Denom + 0.*CoreWidth_*CoreWidth_);
+    dF_ds = dF_Denom * dDenom_dR * dR_ds + 4.*c*Denom/(Denom*Denom);
 
     return F;
     
@@ -3453,7 +3456,7 @@ double VSP_EDGE::Gint(double &a, double &b, double &c, double &d, double &s)
     
     Denom = d * sqrt(R);
     
-    return -2.*(2.*a+b*s)*Denom/(Denom*Denom + 0.*CoreWidth_*CoreWidth_);
+    return -2.*(2.*a+b*s)*Denom/(Denom*Denom);
 
 } 
 
@@ -3481,7 +3484,7 @@ double VSP_EDGE::GradientGint(double &a, double &b, double &c, double &d, double
     
     Denom = d * sqrt(R);
     
-    return -2.*(2.*a+b*s)*Denom/(Denom*Denom + 0.*CoreWidth_*CoreWidth_);
+    return -2.*(2.*a+b*s)*Denom/(Denom*Denom);
 
 } 
 

@@ -159,9 +159,13 @@ private:
     
     int SurfaceID_;
     
-    // Component ID
+    // VSPAERO Component ID
     
     int ComponentID_;
+    
+    // OpenVSP ComponentID_;
+    
+    int OpenVSP_ComponentID_;    
     
     // Wing ID
     
@@ -547,10 +551,14 @@ public:
     
     int &SurfaceID(void) { return SurfaceID_; };
     
-    /** Edge is on Component **/
+    /** Edge is on VSPAERO Component **/
     
     int &ComponentID(void) { return ComponentID_; };
 
+    /** OpenVSP ComponentID_ **/
+    
+    int &OpenVSP_ComponentID(void) { return OpenVSP_ComponentID_; };
+    
     /** Set up the edge data structure given these 2 mesh nodes **/
 
     void Setup(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };                                     

@@ -30,7 +30,7 @@ private:
     
     // Grid data
 
-    char GridName_[FILE_NAME_SIZE];
+    char GridName_[MAX_CHAR_SIZE];
 
     int NumberOfNodes_;
     
@@ -53,8 +53,6 @@ private:
     int ModelType_;
 
     int SurfaceType_;
-    
-    int ComponentID_;
 
     double MinLoopArea_;
         
@@ -253,11 +251,7 @@ public:
     /** Surface type **/
     
     int &SurfaceType(void) { return SurfaceType_; };
-    
-    /** Component ID **/
-    
-    int &ComponentID(void) { return ComponentID_; };
-   
+
     /** Create edge data from triangle list **/
     
     void CreateTriEdges(void);

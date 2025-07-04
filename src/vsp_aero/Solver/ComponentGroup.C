@@ -55,6 +55,8 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     AngleMax_                 = 0.;
     TotalRotationAngle_       = 0.;
     StartDynamicAnalysisTime_ = 0.;
+    DeltaFlatPlateDragArea_   = 0.;
+    FlatPlateDragRefReNumber_ = 0.;
 
     // Integrated forces
     
@@ -252,6 +254,14 @@ COMPONENT_GROUP::~COMPONENT_GROUP(void)
     
     NumberOfTimeSamples_ = 0;
     
+    // Delta flat plate drag area
+    
+    DeltaFlatPlateDragArea_ = 0.;
+    
+    // Flat plate drag reference Reynold's number
+    
+    FlatPlateDragRefReNumber_ = 0.;
+    
     // Invisicid forces and moments
     
     if ( CLi_   != NULL ) delete [] CLi_;
@@ -414,6 +424,10 @@ COMPONENT_GROUP &COMPONENT_GROUP::operator=(const COMPONENT_GROUP &ComponentGrou
     Ixz_ = ComponentGroup.Ixz_;
                           
     Iyz_ = ComponentGroup.Iyz_;
+    
+    DeltaFlatPlateDragArea_ = ComponentGroup.DeltaFlatPlateDragArea_;
+    
+    FlatPlateDragRefReNumber_ = ComponentGroup.FlatPlateDragRefReNumber_;
         
     Omega_ = ComponentGroup.Omega_;
     
@@ -1083,7 +1097,7 @@ void COMPONENT_GROUP::LoadData(FILE *File)
 
     int i;
     fpos_t LineLocation;
-    char DumChar[2000];   
+    char DumChar[MAX_CHAR_SIZE];   
               
     // Parse the group data file              
               
@@ -1155,7 +1169,7 @@ void COMPONENT_GROUP::LoadData(FILE *File)
     
     fgetpos(File,&LineLocation);
     
-    if ( fgets(DumChar,2000,File) != NULL ) {
+    if ( fgets(DumChar,MAX_CHAR_SIZE,File) != NULL ) {
        
        if ( strncmp(DumChar,"StartAnalysisTime",17) == 0 ) {
           
@@ -1173,6 +1187,48 @@ void COMPONENT_GROUP::LoadData(FILE *File)
        
     }
     
+    // Version 7.x stuff
+    
+    fgetpos(File,&LineLocation);
+    
+    if ( fgets(DumChar,MAX_CHAR_SIZE,File) != NULL ) {
+       
+       if ( strncmp(DumChar,"DeltaFlatPlateDragArea",22) == 0 ) {
+          
+          sscanf(DumChar,"DeltaFlatPlateDragArea = %lf \n",&DeltaFlatPlateDragArea_);
+          
+          printf ("DeltaFlatPlateDragArea: %f \n",DeltaFlatPlateDragArea_);
+          
+       }
+       
+       else {
+          
+          fsetpos(File,&LineLocation);
+          
+       }
+       
+    }    
+
+    fgetpos(File,&LineLocation);
+    
+    if ( fgets(DumChar,MAX_CHAR_SIZE,File) != NULL ) {
+       
+       if ( strncmp(DumChar,"FlatPlateDragRefReNumber",24) == 0 ) {
+          
+          sscanf(DumChar,"FlatPlateDragRefReNumber = %lf \n",&FlatPlateDragRefReNumber_);
+          
+          printf ("FlatPlateDragRefReNumber: %f \n",FlatPlateDragRefReNumber_);
+          
+       }
+       
+       else {
+          
+          fsetpos(File,&LineLocation);
+          
+       }
+       
+    }    
+        
     if ( GeometryIsFixed_ ) {
        
        Omega_ = 0.;

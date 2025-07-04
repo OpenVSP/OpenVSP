@@ -103,7 +103,7 @@ void CONTROL_SURFACE_GROUP::SizeList(int NumberOfControlSurfaces)
     
     for ( i = 1 ; i <= NumberOfControlSurfaces_ ; i++ ) {
        
-       ControlSurface_Name_[i] = new char[2000];
+       ControlSurface_Name_[i] = new char[MAX_CHAR_SIZE];
        
     }
     

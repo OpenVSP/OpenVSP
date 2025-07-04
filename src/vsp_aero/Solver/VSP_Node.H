@@ -47,9 +47,13 @@ private:
     
     int IsSymmetryPlaneNode_;
     
-    // Component ID
+    // VSPAERO Component ID
     
     int ComponentID_;
+    
+    // OpenVSP ComponentID_;
+    
+    int OpenVSP_ComponentID_;
     
     // Surface ID
     
@@ -828,29 +832,29 @@ public:
 
 // Aero wake induced total Derivatives
 
-    /** Total derivative of waked induced  CL wrt x,y, and z **/
-
-    double &DCLwake_DX(void) { return DAeroForces_DMesh_[6][0]; };
-    double &DCLwake_DY(void) { return DAeroForces_DMesh_[6][1]; };
-    double &DCLwake_DZ(void) { return DAeroForces_DMesh_[6][2]; };
-                 
-    double &DCLwake_DJ(int j) { return DAeroForces_DMesh_[6][j]; };
-
-    /** Total derivative of waked induced  CD wrt x,y, and z **/
-
-    double &DCDwake_DX(void) { return DAeroForces_DMesh_[7][0]; };
-    double &DCDwake_DY(void) { return DAeroForces_DMesh_[7][1]; };
-    double &DCDwake_DZ(void) { return DAeroForces_DMesh_[7][2]; };
-                  
-    double &DCDwake_DJ(int j) { return DAeroForces_DMesh_[7][j]; };
-
-    /** Total derivative of waked induced  CS wrt x,y, and z **/
-    
-    double &DCSwake_DX(void) { return DAeroForces_DMesh_[8][0]; };
-    double &DCSwake_DY(void) { return DAeroForces_DMesh_[8][1]; };
-    double &DCSwake_DZ(void) { return DAeroForces_DMesh_[8][2]; };
-                    
-    double &DCSwake_DJ(int j) { return DAeroForces_DMesh_[8][j]; };
+  //  /** Total derivative of waked induced  CL wrt x,y, and z **/
+  //
+  //  double &DCLwake_DX(void) { return DAeroForces_DMesh_[6][0]; };
+  //  double &DCLwake_DY(void) { return DAeroForces_DMesh_[6][1]; };
+  //  double &DCLwake_DZ(void) { return DAeroForces_DMesh_[6][2]; };
+  //               
+  //  double &DCLwake_DJ(int j) { return DAeroForces_DMesh_[6][j]; };
+  //
+  //  /** Total derivative of waked induced  CD wrt x,y, and z **/
+  //
+  //  double &DCDwake_DX(void) { return DAeroForces_DMesh_[7][0]; };
+  //  double &DCDwake_DY(void) { return DAeroForces_DMesh_[7][1]; };
+  //  double &DCDwake_DZ(void) { return DAeroForces_DMesh_[7][2]; };
+  //                
+  //  double &DCDwake_DJ(int j) { return DAeroForces_DMesh_[7][j]; };
+  //
+  //  /** Total derivative of waked induced  CS wrt x,y, and z **/
+  //  
+  //  double &DCSwake_DX(void) { return DAeroForces_DMesh_[8][0]; };
+  //  double &DCSwake_DY(void) { return DAeroForces_DMesh_[8][1]; };
+  //  double &DCSwake_DZ(void) { return DAeroForces_DMesh_[8][2]; };
+  //                  
+  //  double &DCSwake_DJ(int j) { return DAeroForces_DMesh_[8][j]; };
     
 // Aero Viscous total Derivatives
 
@@ -954,29 +958,29 @@ public:
 
 // Aero total total Derivatives based on waked induced forces
 
-    /** Total derivative of total  CL wrt x,y, and z **/
-
-    double DCLtw_DX(void) { return DAeroForces_DMesh_[6][0] + DAeroForces_DMesh_[3][0]; };
-    double DCLtw_DY(void) { return DAeroForces_DMesh_[6][1] + DAeroForces_DMesh_[3][1]; };
-    double DCLtw_DZ(void) { return DAeroForces_DMesh_[6][2] + DAeroForces_DMesh_[3][2]; };
-             
-    double DCLtw_DJ(int j) { return DAeroForces_DMesh_[6][j] + DAeroForces_DMesh_[3][j]; };
-
-    /** Total derivative of total  CD wrt x,y, and z **/
-
-    double DCDtw_DX(void) { return DAeroForces_DMesh_[7][0] + DAeroForces_DMesh_[4][0]; };
-    double DCDtw_DY(void) { return DAeroForces_DMesh_[7][1] + DAeroForces_DMesh_[4][1]; };
-    double DCDtw_DZ(void) { return DAeroForces_DMesh_[7][2] + DAeroForces_DMesh_[4][2]; };
-                 
-    double DCDtw_DJ(int j) { return DAeroForces_DMesh_[7][j] + DAeroForces_DMesh_[4][j]; };
-
-    /** Total derivative of total  CS wrt x,y, and z **/
-    
-    double DCStw_DX(void) { return DAeroForces_DMesh_[8][0] + DAeroForces_DMesh_[5][0]; };
-    double DCStw_DY(void) { return DAeroForces_DMesh_[8][1] + DAeroForces_DMesh_[5][1]; };
-    double DCStw_DZ(void) { return DAeroForces_DMesh_[8][2] + DAeroForces_DMesh_[5][2]; };
-              
-    double DCStw_DJ(int j) { return DAeroForces_DMesh_[8][j] + DAeroForces_DMesh_[5][j]; };
+ //   /** Total derivative of total  CL wrt x,y, and z **/
+ //
+ //   double DCLtw_DX(void) { return DAeroForces_DMesh_[6][0] + DAeroForces_DMesh_[3][0]; };
+ //   double DCLtw_DY(void) { return DAeroForces_DMesh_[6][1] + DAeroForces_DMesh_[3][1]; };
+ //   double DCLtw_DZ(void) { return DAeroForces_DMesh_[6][2] + DAeroForces_DMesh_[3][2]; };
+ //            
+ //   double DCLtw_DJ(int j) { return DAeroForces_DMesh_[6][j] + DAeroForces_DMesh_[3][j]; };
+ //
+ //   /** Total derivative of total  CD wrt x,y, and z **/
+ //
+ //   double DCDtw_DX(void) { return DAeroForces_DMesh_[7][0] + DAeroForces_DMesh_[4][0]; };
+ //   double DCDtw_DY(void) { return DAeroForces_DMesh_[7][1] + DAeroForces_DMesh_[4][1]; };
+ //   double DCDtw_DZ(void) { return DAeroForces_DMesh_[7][2] + DAeroForces_DMesh_[4][2]; };
+ //                
+ //   double DCDtw_DJ(int j) { return DAeroForces_DMesh_[7][j] + DAeroForces_DMesh_[4][j]; };
+ //
+ //   /** Total derivative of total  CS wrt x,y, and z **/
+ //   
+ //   double DCStw_DX(void) { return DAeroForces_DMesh_[8][0] + DAeroForces_DMesh_[5][0]; };
+ //   double DCStw_DY(void) { return DAeroForces_DMesh_[8][1] + DAeroForces_DMesh_[5][1]; };
+ //   double DCStw_DZ(void) { return DAeroForces_DMesh_[8][2] + DAeroForces_DMesh_[5][2]; };
+ //             
+ //   double DCStw_DJ(int j) { return DAeroForces_DMesh_[8][j] + DAeroForces_DMesh_[5][j]; };
 
     /** Node is on trailing edge **/
     
@@ -1002,9 +1006,13 @@ public:
     
     int &IsSymmetryPlaneNode(void) { return IsSymmetryPlaneNode_; };
     
-    /** Component ID **/
+    /** VSPAERO Component ID **/
     
     int &ComponentID(void) { return ComponentID_; };
+
+    /** OpenVSP ComponentID_ **/
+    
+    int &OpenVSP_ComponentID(void) { return OpenVSP_ComponentID_; };
     
     /** Surface ID **/
     

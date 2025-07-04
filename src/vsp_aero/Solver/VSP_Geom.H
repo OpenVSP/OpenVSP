@@ -20,6 +20,7 @@
 #include "BoundaryConditionData.H"
 #include "ComponentGroup.H"
 #include "ControlSurface.H"
+#include "CharSizes.H"
 
 #include "START_NAME_SPACE.H"
 
@@ -76,7 +77,7 @@ private:
 
     // Component name
     
-    char ComponentName_[2000];
+    char ComponentName_[MAX_CHAR_SIZE];
     
     // Number of surfaces
     
@@ -85,6 +86,10 @@ private:
     // Component ID for surface
     
     int *ComponentIDForSurface_;
+    
+    // OpenVSP Component ID for surface
+    
+    int *OpenVSP_ComponentIDForSurface_;
     
     // VSP Surface ID for Surface //
     

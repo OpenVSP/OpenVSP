@@ -346,7 +346,7 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     int i, Found, Surface;
     double x1,y1,z1, x2,y2,z2;
     double Mag;
-    char FileNameWithExtension[2000], DumChar[2000];
+    char FileNameWithExtension[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE];
     FILE *TagFile, *CSFFile;
 
     std::filesystem::path fpath( FileName );
@@ -373,7 +373,7 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     
     printf("Control surface has %d loops \n",NumberOfLoops_);
 
-    fgets(DumChar,2000,TagFile);
+    fgets(DumChar,MAX_CHAR_SIZE,TagFile);
 
     SizeLoopList(NumberOfLoops_);
 
@@ -399,7 +399,7 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     
     Found = 0;
 
-    while ( !Found && fgets(DumChar,2000,CSFFile) != NULL ) {
+    while ( !Found && fgets(DumChar,MAX_CHAR_SIZE,CSFFile) != NULL ) {
        
        if ( strstr(DumChar,TagFileName) != NULL ) Found = 1;
        
@@ -430,7 +430,7 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
                                  
           Found = 0;
           
-          while ( !Found && fgets(DumChar,2000,CSFFile) != NULL ) {
+          while ( !Found && fgets(DumChar,MAX_CHAR_SIZE,CSFFile) != NULL ) {
           
              if ( strstr(DumChar,"Hinge XYZ") != NULL ) Found = 1;
              

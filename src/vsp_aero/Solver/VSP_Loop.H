@@ -61,9 +61,13 @@ private:
     
     int SurfaceID_;
 
-    // Component ID
+    // VSPAERO Component ID
     
     int ComponentID_;
+    
+    // OpenVSP ComponentID_;
+    
+    int OpenVSP_ComponentID_;
     
     // Loop is on trailing wing edge (kutta edge)
     
@@ -406,9 +410,13 @@ public:
    
     int &SurfaceID(void) { return SurfaceID_; };
 
-    /** Component ID for this loop **/
+    /** VSPAERO Component ID for this loop **/
     
     int &ComponentID(void) { return ComponentID_; };  
+
+    /** OpenVSP ComponentID_ **/
+    
+    int &OpenVSP_ComponentID(void) { return OpenVSP_ComponentID_; };
 
     /** Tri/Loop is on trailing edge **/
     

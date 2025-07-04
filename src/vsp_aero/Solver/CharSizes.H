@@ -5,12 +5,13 @@
 //////////////////////////////////////////////////////////////////////
 
 
-#ifndef FILE_NAME_H
+#ifndef VSPAERO_CHAR_SIZE
 
 #include "START_NAME_SPACE.H"
 
-#define FILE_NAME_H
-#define FILE_NAME_SIZE 5000
+#define VSPAERO_CHAR_SIZE
+
+#define MAX_CHAR_SIZE 2000
 
 #include "END_NAME_SPACE.H"
 

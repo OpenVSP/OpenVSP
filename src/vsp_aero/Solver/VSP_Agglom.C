@@ -2701,7 +2701,7 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
 
     for ( j = 1 ; j <= CoarseGrid().NumberOfEdges() ; j++ ) {
 
-       CoarseGrid().EdgeList(j).MinValidTimeStep() = 100000000000;
+       CoarseGrid().EdgeList(j).MinValidTimeStep() = 1215752192;
 
     }
     

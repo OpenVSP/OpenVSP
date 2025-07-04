@@ -466,8 +466,8 @@ void VSP_SOLVER::WriteOutSteadyStateNoiseFiles(int Case)
 {
  
     int c, i, k;
-    char StatusFileName[2000], ADBFileName[2000];
-    char GroupFileName[2000], RotorFileName[2000];
+    char StatusFileName[MAX_CHAR_SIZE], ADBFileName[MAX_CHAR_SIZE];
+    char GroupFileName[MAX_CHAR_SIZE], RotorFileName[MAX_CHAR_SIZE];
    
     // Zero out solution
    
@@ -783,8 +783,8 @@ void VSP_SOLVER::WriteOutTimeAccurateNoiseFiles(int Case)
  
     int c, i, k, Found, NewTime;
     double Time_0, Time_1, Time_2, Epsilon, EvaluationTime, Period;
-    char StatusFileName[2000], ADBFileName[2000];
-    char GroupFileName[2000], RotorFileName[2000];
+    char StatusFileName[MAX_CHAR_SIZE], ADBFileName[MAX_CHAR_SIZE];
+    char GroupFileName[MAX_CHAR_SIZE], RotorFileName[MAX_CHAR_SIZE];
    
     // Zero out solution
    
@@ -1632,14 +1632,14 @@ void VSP_SOLVER::WriteOutPSUWopWopCaseAndNameListFilesForFlyBy(void)
 {
    
     int c, i, j, Case;
-    char NameListFile[2000];
-    char PatchThicknessGeometryName[2000], PatchLoadingGeometryName[2000], WopWopFileName[2000];
-    char pressureFileName[2000];
-    char SPLFileName[2000];
-    char OASPLFileName[2000];
-    char phaseFileName[2000];
-    char complexPressureFileName[2000];
-    char audioFileName[2000];
+    char NameListFile[MAX_CHAR_SIZE];
+    char PatchThicknessGeometryName[MAX_CHAR_SIZE], PatchLoadingGeometryName[MAX_CHAR_SIZE], WopWopFileName[MAX_CHAR_SIZE];
+    char pressureFileName[MAX_CHAR_SIZE];
+    char SPLFileName[MAX_CHAR_SIZE];
+    char OASPLFileName[MAX_CHAR_SIZE];
+    char phaseFileName[MAX_CHAR_SIZE];
+    char complexPressureFileName[MAX_CHAR_SIZE];
+    char audioFileName[MAX_CHAR_SIZE];
     
     FILE *WopWopCaseFile;      
 
@@ -2129,14 +2129,14 @@ void VSP_SOLVER::WriteOutPSUWopWopCaseAndNameListFilesForFootPrint(void)
 {
    
     int c, i, j, Case;
-    char NameListFile[2000];
-    char PatchThicknessGeometryName[2000], PatchLoadingGeometryName[2000], WopWopFileName[2000];
-    char pressureFileName[2000];
-    char SPLFileName[2000];
-    char OASPLFileName[2000];
-    char phaseFileName[2000];
-    char complexPressureFileName[2000];
-    char audioFileName[2000];
+    char NameListFile[MAX_CHAR_SIZE];
+    char PatchThicknessGeometryName[MAX_CHAR_SIZE], PatchLoadingGeometryName[MAX_CHAR_SIZE], WopWopFileName[MAX_CHAR_SIZE];
+    char pressureFileName[MAX_CHAR_SIZE];
+    char SPLFileName[MAX_CHAR_SIZE];
+    char OASPLFileName[MAX_CHAR_SIZE];
+    char phaseFileName[MAX_CHAR_SIZE];
+    char complexPressureFileName[MAX_CHAR_SIZE];
+    char audioFileName[MAX_CHAR_SIZE];
     FILE *WopWopCaseFile;      
 
     // Cases namelist file
@@ -2635,8 +2635,8 @@ void VSP_SOLVER::WriteOutPSUWopWopUnsteadyDataForGroup(int c)
 void VSP_SOLVER::WriteOutPSUWopWopThicknessGeometryHeaderForGroup(int c)
 {
 
-    char HeaderName[32], DumChar[2000];
-    char PatchGeometryName[2000];
+    char HeaderName[32], DumChar[MAX_CHAR_SIZE];
+    char PatchGeometryName[MAX_CHAR_SIZE];
     int i, j, k, i_size, c_size, f_size, DumInt;
     int NumberI, NumberJ, Length;
     float Period;
@@ -3324,8 +3324,8 @@ void VSP_SOLVER::WriteOutPSUWopWopThicknessGeometryDataForGroup(int c)
 void VSP_SOLVER::WriteOutPSUWopWopCompactGeometryHeaderForGroup(int c)
 {
 
-//broken    char HeaderName[32], DumChar[2000];
-//broken    char PatchGeometryName[2000];
+//broken    char HeaderName[32], DumChar[MAX_CHAR_SIZE];
+//broken    char PatchGeometryName[MAX_CHAR_SIZE];
 //broken    int i, j, k, i_size, c_size, f_size, DumInt;
 //broken    int NumberI, NumberJ, Length;
 //broken    float Period;
@@ -3759,8 +3759,8 @@ void VSP_SOLVER::WriteOutPSUWopWopCompactGeometryDataForGroup(int c)
 void VSP_SOLVER::WriteOutPSUWopWopCompactLoadingHeaderForGroup(int c)
 {
 
-//broken    char HeaderName[32], DumChar[2000];
-//broken    char WopWopFileName[2000];
+//broken    char HeaderName[32], DumChar[MAX_CHAR_SIZE];
+//broken    char WopWopFileName[MAX_CHAR_SIZE];
 //broken    int i, j, k, i_size, c_size, f_size, DumInt;
 //broken    int NumberI, NumberJ, Length;
 //broken    float Period;
@@ -4226,7 +4226,7 @@ void VSP_SOLVER::WriteOutPSUWopWopPeggNamelist(void)
 void VSP_SOLVER::WriteOutPSUWopWopBPMHeaderForGroup(int c)
 {
 
-//broken    char WopWopFileName[2000];
+//broken    char WopWopFileName[MAX_CHAR_SIZE];
 //broken    int i, k, i_size, c_size, f_size, DumInt, NumberJ;
 //broken    FILE *WopFile;
 //broken       
@@ -4388,8 +4388,8 @@ void VSP_SOLVER::WriteOutPSUWopWopBPMDataForGroup(int c)
 void VSP_SOLVER::WriteOutPSUWopWopLoadingGeometryHeaderForGroup(int c)
 {
 
-//broken    char HeaderName[32], DumChar[2000];
-//broken    char PatchGeometryName[2000];
+//broken    char HeaderName[32], DumChar[MAX_CHAR_SIZE];
+//broken    char PatchGeometryName[MAX_CHAR_SIZE];
 //broken    int i, j, Node, Level, i_size, c_size, f_size, DumInt;
 //broken    int NumberOfNodes, NumberOfLoops, Length;
 //broken    float Period;
@@ -4628,8 +4628,8 @@ void VSP_SOLVER::WriteOutPSUWopWopLoadingGeometryDataForGroup(int c)
 void VSP_SOLVER::WriteOutPSUWopWopLoadingHeaderForGroup(int c)
 {
 
-    char HeaderName[32], DumChar[2000];
-    char WopWopFileName[2000];
+    char HeaderName[32], DumChar[MAX_CHAR_SIZE];
+    char WopWopFileName[MAX_CHAR_SIZE];
     int Level, i_size, c_size, f_size, DumInt;
     int NumberOfLoops, Length;
     float Period;

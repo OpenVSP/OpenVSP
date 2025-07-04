@@ -130,9 +130,9 @@ void VSP_GEOM::SetNumberOfComponentGroupsTo(int NumberOfComponentGroups)
 void VSP_GEOM::ReadFile(char *FileName)
 {
 
-    char CART3D_File_Name[2000];
-    char VSPGEOM_File_Name[2000];
-    char ControlSurfaceTagListFileName[2000];    
+    char CART3D_File_Name[MAX_CHAR_SIZE];
+    char VSPGEOM_File_Name[MAX_CHAR_SIZE];
+    char ControlSurfaceTagListFileName[MAX_CHAR_SIZE];    
     FILE *File;
      
     // File name possibilities...
@@ -209,7 +209,7 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 {
 
     int i, Done, *ComponentList;
-    char VSP_File_Name[2000], TKEY_File_Name[2000], VSP_Degen_File_Name[2000], Name[2000], DumChar[2000];
+    char VSP_File_Name[MAX_CHAR_SIZE], TKEY_File_Name[MAX_CHAR_SIZE], VSP_Degen_File_Name[MAX_CHAR_SIZE], Name[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE];
     double Diam, x, y, z, nx, ny, nz;
     FILE *Cart3D_File, *TKEY_File, *VSP_Degen_File;
  
@@ -369,8 +369,8 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
 {
 
     int i, Done, *ComponentList;
-    char VSPGEOM_File_Name[2000], VSP_Degen_File_Name[2000], Name[2000], DumChar[2000];
-    char VKEY_File_Name[2000];
+    char VSPGEOM_File_Name[MAX_CHAR_SIZE], VSP_Degen_File_Name[MAX_CHAR_SIZE], Name[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE];
+    char VKEY_File_Name[MAX_CHAR_SIZE];
     double Diam, x, y, z, nx, ny, nz;
     FILE *VSPGEOM_File, *VKEY_File, *VSP_Degen_File;
  
@@ -504,7 +504,7 @@ void VSP_GEOM::ReadControlSurfaceInformation(char *FileName)
 {
    
     int i, j, k, LoopC, LoopF, *OnControlSurface, NumberOfControlSurfaceTris;
-    char ControlSurfaceTagListFileName[2000], TagListFileName[2000];
+    char ControlSurfaceTagListFileName[MAX_CHAR_SIZE], TagListFileName[MAX_CHAR_SIZE];
     FILE *TagListFile;
     
     snprintf(ControlSurfaceTagListFileName,sizeof(ControlSurfaceTagListFileName)*sizeof(char),"%s.ControlSurfaces.taglist",FileName);
@@ -591,7 +591,7 @@ void VSP_GEOM::ReadGroupFile(char *FileName)
 {
 
     int i, j, c;
-    char GroupFileName[2000], DumChar[2000];
+    char GroupFileName[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE];
     FILE *GroupFile;
 
     // Open the group file... if it exists
@@ -632,7 +632,7 @@ void VSP_GEOM::ReadGroupFile(char *FileName)
        
        SetNumberOfComponentGroupsTo(NumberOfComponentGroups_);
        
-       snprintf(ComponentGroupList(1).GroupName(),sizeof(ComponentGroupList(1).GroupName())*sizeof(char),"%s",FileName);
+       snprintf(ComponentGroupList(1).GroupName(),MAX_CHAR_SIZE*sizeof(char),"%s",FileName);
        
        ComponentGroupList(1).AngleMax() = 0.;
        
@@ -662,7 +662,7 @@ void VSP_GEOM::ReadGroupFile(char *FileName)
     
     // Create a '0' component group that has everything in it....
     
-    snprintf(ComponentGroupList(0).GroupName(),sizeof(ComponentGroupList(0).GroupName())*sizeof(char),"%s",FileName);
+    snprintf(ComponentGroupList(0).GroupName(),MAX_CHAR_SIZE*sizeof(char),"%s",FileName);
     
     ComponentGroupList(0).AngleMax() = 0.;
                       
@@ -1123,7 +1123,7 @@ void VSP_GEOM::WriteOutTriMesh(void)
 {
  
     int i;
-    char FileName[2000];
+    char FileName[MAX_CHAR_SIZE];
     FILE *TriMesh;
     
     snprintf(FileName,sizeof(FileName)*sizeof(char),"whacked.tri");
@@ -2510,7 +2510,7 @@ void VSP_GEOM::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TKEY_
     int i, k, n, NumNodes, NumTris, Node1, Node2, Node3, SurfaceID, Done;
     int *SurfaceList, Found, DumInt, *ComponentIDForVSPSurface;
     int *SurfaceIsUsed, NumberOfVSPSurfaces;
-    char DumChar[2000], Comma[2000], *Next;
+    char DumChar[MAX_CHAR_SIZE], Comma[MAX_CHAR_SIZE], *Next;
     double x, y, z, u1, u2, u3, v1, v2, v3;
     double Ymin, Ymax, Zmin, Zmax;
     
@@ -2676,9 +2676,9 @@ void VSP_GEOM::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TKEY_
        
        // Read in the vkey data
        
-       fgets(DumChar,2000,TKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
-       fgets(DumChar,2000,TKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
-       fgets(DumChar,2000,TKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,MAX_CHAR_SIZE,TKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,MAX_CHAR_SIZE,TKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,MAX_CHAR_SIZE,TKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
        
        sscanf(DumChar,"%d\n",&NumberOfVSPSurfaces);
 
@@ -2686,13 +2686,13 @@ void VSP_GEOM::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TKEY_
        
        printf("NumberOfVSPSurfaces: %d \n",NumberOfVSPSurfaces);
 
-       fgets(DumChar,2000,TKEY_File);
+       fgets(DumChar,MAX_CHAR_SIZE,TKEY_File);
       
        k = 0;
        
        for ( n = 1 ; n <= NumberOfVSPSurfaces ; n++ ) {
           
-          fgets(DumChar,2000,TKEY_File);
+          fgets(DumChar,MAX_CHAR_SIZE,TKEY_File);
  
           Next = strtok(DumChar,Comma); 
 
@@ -2708,9 +2708,9 @@ void VSP_GEOM::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TKEY_
              
              ComponentIDForSurface_[k] = n;
              
-             SurfaceNameList_[k] = new char[2000];
+             SurfaceNameList_[k] = new char[MAX_CHAR_SIZE];
                           
-             snprintf(SurfaceNameList_[k],sizeof(SurfaceNameList_[k])*sizeof(char),"%s",Next);
+             snprintf(SurfaceNameList_[k],MAX_CHAR_SIZE*sizeof(char),"%s",Next);
           
              printf("Surface: %d exists in tringulation and will be surface: %d with OpenVSP Name: %s \n",DumInt,k,SurfaceNameList_[k]);
   
@@ -2733,9 +2733,9 @@ void VSP_GEOM::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TKEY_
  
           ComponentIDForSurface_[n] = n;
           
-          SurfaceNameList_[n] = new char[2000];
+          SurfaceNameList_[n] = new char[MAX_CHAR_SIZE];
           
-          snprintf(SurfaceNameList_[n],sizeof(SurfaceNameList_[n])*sizeof(char),"Surface_%d",n);
+          snprintf(SurfaceNameList_[n],MAX_CHAR_SIZE*sizeof(char),"Surface_%d",n);
           
        }
        
@@ -2917,13 +2917,13 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     int *SurfaceIsUsed, NumberOfVSPSurfaces, ModelType;
     int NumberOfRefineLevels, RefineLevel;    
     int NumKuttaNodeLists, NumNodesInList, *TempList, FileVersion;
-    char DumChar[2000], DumChar2[2000], Comma[2000], TempName[2000], TempGIDName[2000], Space[2000], *Next;
+    char DumChar[MAX_CHAR_SIZE], DumChar2[MAX_CHAR_SIZE], Comma[MAX_CHAR_SIZE], TempName[MAX_CHAR_SIZE], TempGIDName[MAX_CHAR_SIZE], Space[MAX_CHAR_SIZE], *Next;
     double x, y, z, u, v, w, u1, v1, u2, v2, u3, v3, Eps;
     fpos_t TopOfTriangluation;
 
     // Read in first line and look for v2 files
     
-    fgets(DumChar,2000,VSPGeom_File);
+    fgets(DumChar,MAX_CHAR_SIZE,VSPGeom_File);
     
     FileVersion = 1;
     
@@ -3041,7 +3041,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        
     //   fscanf(VSPGeom_File,"%d %d %d %d \n",&DumInt, &Node1,&Node2,&Node3);
        
-       fgets(DumChar,2000,VSPGeom_File);
+       fgets(DumChar,MAX_CHAR_SIZE,VSPGeom_File);
 
        Next = strtok(DumChar,Space);
 
@@ -3085,7 +3085,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
              
        //fscanf(VSPGeom_File,"%d %d %lf %lf %lf %lf %lf %lf \n",&SurfaceID,&SubSurfaceID,&u1,&v1,&u2,&v2,&u3,&v3);
 
-       fgets(DumChar,2000,VSPGeom_File);
+       fgets(DumChar,MAX_CHAR_SIZE,VSPGeom_File);
        
        Next = strtok(DumChar,Space); SurfaceID = atoi(Next);
        Next = strtok(NULL,Space);    SubSurfaceID = atoi(Next);
@@ -3171,7 +3171,15 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
           }
           
        }
-       
+
+       if ( KuttaNodeList_[NumberOfKuttaNodes_] == KuttaNodeList_[1] ) {
+          
+          printf("Kutta node list %d is periodic per OpenVSP... \n",j);
+          
+          NumberOfKuttaNodes_ -= 1;
+          
+       }
+           
     }
     
     printf("VSPGEOM defined NumKuttaNodes: %d \n",NumberOfKuttaNodes_);
@@ -3227,10 +3235,14 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     ComponentIDForSurface_ = new int[NumLoops + 1];
  
     VSPSurfaceIDForSurface_ = new int[NumLoops + 1];
+    
+    OpenVSP_ComponentIDForSurface_ = new int[NumLoops + 1];
    
     zero_int_array(ComponentIDForSurface_, NumLoops);
 
     zero_int_array(VSPSurfaceIDForSurface_, NumLoops);
+    
+    zero_int_array(OpenVSP_ComponentIDForSurface_, NumLoops);
     
     printf("Found %d VSPGEOM Surfaces \n",NumberOfSurfaces_);
     
@@ -3238,13 +3250,13 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        
        // Read in the vkey headers
        
-       fgets(DumChar,2000,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,MAX_CHAR_SIZE,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
        
-       fgets(DumChar,2000,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,MAX_CHAR_SIZE,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
        
        // Get the number of surfaces in the vkey file
        
-       fgets(DumChar,2000,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,MAX_CHAR_SIZE,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
        
        sscanf(DumChar,"%d\n",&NumberOfVSPSurfaces);
        
@@ -3252,11 +3264,11 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
 
        // Skip a blank line
               
-       fgets(DumChar,2000,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,MAX_CHAR_SIZE,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
        
        // Read in what data exists
        
-       fgets(DumChar,2000,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,MAX_CHAR_SIZE,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
 
        // Check for thick / thin flag
        
@@ -3280,13 +3292,12 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        
        for ( n = 1 ; n <= NumberOfVSPSurfaces ; n++ ) {
           
-          fgets(DumChar,2000,VKEY_File);
+          fgets(DumChar,MAX_CHAR_SIZE,VKEY_File);
           
-        //  sscanf(DumChar,"%d,%d,%d,%s,%s",&DumInt,&CompID,&DumInt2,DumChar2,DumChar);
-
-        //# part#,geom#,surf#,gname,gid,thick,plate
-                
-
+          //  sscanf(DumChar,"%d,%d,%d,%s,%s",&DumInt,&CompID,&DumInt2,DumChar2,DumChar);
+         
+          //# part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#
+            
           Next = strtok(DumChar,Comma); // Part #
 
           DumInt = atoi(Next);
@@ -3313,19 +3324,19 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
                           
              printf("CompID: %d \n",CompID);
              
-             ComponentIDForSurface_[DumInt] = CompID + 1;
-             
+             OpenVSP_ComponentIDForSurface_[DumInt] = CompID;
+                          
              printf("Setting CompID to : %d \n",ComponentIDForSurface_[DumInt]);
              
              VSPSurfaceIDForSurface_[k] = SurfID;
              
-             SurfaceNameList_[k] = new char[2000];
+             SurfaceNameList_[k] = new char[MAX_CHAR_SIZE];
 
-             SurfaceGIDList_[k] = new char[2000];
+             SurfaceGIDList_[k] = new char[MAX_CHAR_SIZE];
              
-             snprintf(SurfaceNameList_[k],sizeof(SurfaceNameList_[k])*sizeof(char),"%s",TempName);    
+             snprintf(SurfaceNameList_[k],MAX_CHAR_SIZE*sizeof(char),"%s",TempName);    
 
-             snprintf(SurfaceGIDList_[k],sizeof(SurfaceGIDList_[k])*sizeof(char),"%s",TempGIDName);
+             snprintf(SurfaceGIDList_[k],MAX_CHAR_SIZE*sizeof(char),"%s",TempGIDName);
 
              SurfaceIsThick_[k] = 0;
   
@@ -3350,7 +3361,19 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
                 SurfaceDegenType_[k] = atoi(Next);
              
              }
-                                      
+             
+             // Symmetry flag
+             
+             Next = strtok(NULL,Comma);
+             
+             // VSPAERO Component ID
+             
+             Next = strtok(NULL,Comma);
+             
+             ComponentIDForSurface_[DumInt] = atoi(Next); 
+             
+      //       ComponentIDForSurface_[DumInt] = CompID + 1;
+                                   
           }      
           
        }
@@ -3379,10 +3402,12 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
           if ( Grid().LoopList(n).SurfaceID() == SurfaceList[i] ) {
              
              Done = 1;
- 
+              
              Grid().LoopList(n).ComponentID() = ComponentIDForSurface_[Grid().LoopList(n).SurfaceID()];
 
              Grid().LoopList(n).SurfaceID() = i;
+
+             Grid().LoopList(n).OpenVSP_ComponentID() = OpenVSP_ComponentIDForSurface_[Grid().LoopList(n).SurfaceID()];
 
           }
           
@@ -3403,6 +3428,8 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     // Renumber surface patch to componenent ID list 
     
     printf("Renumbering component IDs \n");fflush(NULL);
+    
+    TempList = NULL;
     
     if ( VKEY_File != NULL ) {
        
@@ -3425,9 +3452,35 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        ComponentIDForSurface_ = TempList;
 
     }
+
+    // Renumber surface patch to OpenVSP componenent ID list 
+    
+    printf("Renumbering OpenVSP component IDs \n");fflush(NULL);
+    
+    if ( VKEY_File != NULL ) {
+       
+       TempList = new int[NumberOfVSPSurfaces + 1];
+    
+       n = 0;
+       
+       for ( i = 1 ; i <= NumLoops ; i++ ) {
+          
+          if ( SurfaceIsUsed[i] ) {
+          
+             TempList[++n] = OpenVSP_ComponentIDForSurface_[i];
+             
+          }
+          
+       }
+                    
+       delete [] OpenVSP_ComponentIDForSurface_;
+                 
+       OpenVSP_ComponentIDForSurface_ = TempList;
+  
+    }
     
     delete [] SurfaceList;
-
+    
     // Mark the tris on thick and thin surfaces
     
     printf("Marking tris on thick and thin surfaces \n");fflush(NULL);
@@ -3480,6 +3533,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     
     NumberOfComponents_ = 0;
     
+printf("NumberOfSurfaces_: %d \n",NumberOfSurfaces_);fflush(NULL);    
     for ( n = 1 ; n <= NumberOfSurfaces_ ; n++ ) {
        
        CompID = ComponentIDForSurface_[n];
@@ -3578,7 +3632,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
     
     if ( InputMeshIsMixedPolys_ ) {
 
-       fgets(DumChar,2000,VSPGeom_File);
+       fgets(DumChar,MAX_CHAR_SIZE,VSPGeom_File);
            
        fgetpos(VSPGeom_File,&TopOfTriangluation);
        
@@ -3588,7 +3642,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        
        for ( n = 1 ; n <= NumLoops ; n++ ) {
           
-          fgets(DumChar,2000,VSPGeom_File);
+          fgets(DumChar,MAX_CHAR_SIZE,VSPGeom_File);
       
           Next = strtok(DumChar,Space);
           Next = strtok(NULL,Space); NumTris += atoi(Next);
@@ -3626,7 +3680,7 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
        
        for ( n = 1 ; n <= NumLoops ; n++ ) {
           
-          fgets(DumChar,2000,VSPGeom_File);
+          fgets(DumChar,MAX_CHAR_SIZE,VSPGeom_File);
    
           Next = strtok(DumChar,Space); DumInt = atoi(Next);
           Next = strtok(NULL,Space);    DumInt = atoi(Next);
@@ -3655,17 +3709,19 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
              
              GridF_->LoopList(NumTris).CoarseGridLoop() = n;
              
-             GridF_->LoopList(NumTris).SurfaceID()         = Grid().LoopList(n).SurfaceID();
+             GridF_->LoopList(NumTris).SurfaceID()           = Grid().LoopList(n).SurfaceID();
+                                                             
+             GridF_->LoopList(NumTris).ComponentID()         = Grid().LoopList(n).ComponentID();
+                                                             
+             GridF_->LoopList(NumTris).SurfaceType()         = Grid().LoopList(n).SurfaceType();
              
-             GridF_->LoopList(NumTris).ComponentID()       = Grid().LoopList(n).ComponentID();
+             GridF_->LoopList(NumTris).OpenVSP_ComponentID() = Grid().LoopList(n).OpenVSP_ComponentID();
              
-             GridF_->LoopList(NumTris).SurfaceType()       = Grid().LoopList(n).SurfaceType();
-                                                      
-             GridF_->LoopList(NumTris).VortexSheet()       = Grid().LoopList(n).VortexSheet();
-                                                      
-             GridF_->LoopList(NumTris).SpanStation()       = Grid().LoopList(n).SpanStation();
-             
-             GridF_->LoopList(NumTris).IsTrailingEdgeTri() = Grid().LoopList(n).IsTrailingEdgeTri();
+             GridF_->LoopList(NumTris).VortexSheet()         = Grid().LoopList(n).VortexSheet();
+                                                             
+             GridF_->LoopList(NumTris).SpanStation()         = Grid().LoopList(n).SpanStation();
+                                                             
+             GridF_->LoopList(NumTris).IsTrailingEdgeTri()   = Grid().LoopList(n).IsTrailingEdgeTri();
              
              // Build up UV data
       
@@ -4187,7 +4243,9 @@ void VSP_GEOM::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
        
        if ( Edge2 > 0 ) CurrentComponentID = Grid().EdgeList(Edge2).ComponentID();
        
-       printf("Working on CurrentComponentID: %d \n",CurrentComponentID);fflush(NULL);       
+       printf("Working on CurrentComponentID: %d \n",CurrentComponentID);fflush(NULL);     
+         
+    //   printf("Starting with node %d ... which is identified as being a kutta node \n",Node);
        
        PermArray[Next] = Node;
        
@@ -4198,6 +4256,8 @@ void VSP_GEOM::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
           Done = 1;
           
           Node = PermArray[Next];
+          
+       //   printf("Current Node: %d \n",Node);
          
           Edge1 = KuttaNodeList[Node].Edge1;
           Edge2 = KuttaNodeList[Node].Edge2;
@@ -4206,11 +4266,11 @@ void VSP_GEOM::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
           Node2 = Grid().EdgeList(Edge2).Node1() + Grid().EdgeList(Edge2).Node2() - Node;
 
           // Add node 1
-                  
+   
           if ( Edge1 > 0 && KuttaNodeList[Node1].IsKuttaNode && NodeUsed[Node1] == 0 && Grid().EdgeList(Edge1).ComponentID() == CurrentComponentID ) {
-          
-             PermArray[++Next] = Node1;
              
+             PermArray[++Next] = Node1;
+    
              NodeUsed[Node1] = 1;
              
              Done = 0;
@@ -4219,10 +4279,10 @@ void VSP_GEOM::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
           
           // Add node 2
           
-          if ( Edge2 > 0 && KuttaNodeList[Node2].IsKuttaNode && NodeUsed[Node2] == 0 && Grid().EdgeList(Edge2).ComponentID() == CurrentComponentID ) {
+          else if ( Edge2 > 0 && KuttaNodeList[Node2].IsKuttaNode && NodeUsed[Node2] == 0 && Grid().EdgeList(Edge2).ComponentID() == CurrentComponentID ) {
 
              PermArray[++Next] = Node2;
-             
+ 
              NodeUsed[Node2] = 1;
              
              Done = 0;
@@ -4306,7 +4366,7 @@ void VSP_GEOM::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
        Loop1 = Grid().EdgeList(i).Loop1();
        Loop2 = Grid().EdgeList(i).Loop2();
 
-       if ( Loop1 == Loop2) {
+       if ( Loop1 == Loop2 ) {
 
           Grid().EdgeList(i).IsBoundaryEdge() = 1; // djk 2
  
@@ -4774,6 +4834,8 @@ void VSP_GEOM::CreateVortexSheets(void)
              
              VortexSheet(k).TrailingVortex(NumNodes).TE_Node() = Grid(SolveOnMGLevel_).KuttaNode(j);
              
+         //    printf("Grid(SolveOnMGLevel_).KuttaNode(%d): %d \n",j,Grid(SolveOnMGLevel_).KuttaNode(j));
+             
              // Note if this node is located in a concave region
          
              if ( !SurfaceAtNodeIsConvex(Grid(SolveOnMGLevel_).KuttaNode(j)) && IncidentKuttaEdgesOnNode_[Grid(SolveOnMGLevel_).KuttaNode(j)] == 1 ) {
@@ -4851,7 +4913,7 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
     int TotalNodes, Node1, Node2, NodeA, NodeB, Loop, Loop1, Loop2, TotalLoops;
     int Node, Edge, Found, TE_Edge;
     int *NumberOfEdgesForNode, **NodeToEdgeList;
-    double U1, U2, U3, U4, Chord, Length;
+    double U1, U2, V1, V2, U3, U4, V3, V4, Chord, Length, Vec[2], Mag;
         
     if ( SolveOnMGLevel_ > NumberOfGridLevels_ ) {
        
@@ -4863,23 +4925,46 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
     
     // Find trailing edge for each trailing vortex
 
+    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+    
+       for ( j = 1 ; j <= VortexSheet(k).NumberOfKuttaEdges() ; j++ ) {
+          
+          VortexSheet(k).TrailingVortex(j).TE_Edge() = 0;
+         
+       }
+       
+    }
+    
     for ( i = 1 ; i <= Grid(SolveOnMGLevel_).NumberOfEdges() ; i++ ) {
        
        if ( Grid(SolveOnMGLevel_).EdgeList(i).IsTrailingEdge() ) {
              
           Node1 = Grid(SolveOnMGLevel_).EdgeList(i).Node1();
           Node2 = Grid(SolveOnMGLevel_).EdgeList(i).Node2();
-        
+          
           for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
     
              for ( j = 1 ; j < VortexSheet(k).NumberOfTrailingVortices() ; j++ ) {
                 
                 NodeA = VortexSheet(k).TrailingVortex(j  ).TE_Node();
                 NodeB = VortexSheet(k).TrailingVortex(j+1).TE_Node();
-             
+                
                 if ( Node1 == NodeA && Node2 == NodeB ) VortexSheet(k).TrailingVortex(j).TE_Edge() = -i;
                                                         
                 if ( Node1 == NodeB && Node2 == NodeA ) VortexSheet(k).TrailingVortex(j).TE_Edge() =  i;
+                
+             }
+             
+             if ( VortexSheet(k).IsPeriodic() ) {
+                
+               j = VortexSheet(k).NumberOfTrailingVortices();
+                  
+               NodeA = VortexSheet(k).TrailingVortex(j).TE_Node();
+               NodeB = VortexSheet(k).TrailingVortex(1).TE_Node();
+               
+               if ( Node1 == NodeA && Node2 == NodeB ) VortexSheet(k).TrailingVortex(j).TE_Edge() = -i;
+                                                       
+               if ( Node1 == NodeB && Node2 == NodeA ) VortexSheet(k).TrailingVortex(j).TE_Edge() =  i;
                 
              }
 
@@ -4888,6 +4973,23 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
        }
        
     }
+    
+    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+    
+       for ( j = 1 ; j < VortexSheet(k).NumberOfTrailingVortices() ; j++ ) {
+          
+          if ( VortexSheet(k).TrailingVortex(j).TE_Edge() == 0 ) {
+             
+             NodeA = VortexSheet(k).TrailingVortex(j  ).TE_Node();
+             NodeB = VortexSheet(k).TrailingVortex(j+1).TE_Node();             
+          
+             printf("Failed to find matching TE edge for Wake %d ... Trailing Vortex: %d ... with nodes %d, %d \n",k,j,NodeA,NodeB);
+
+          }
+          
+       }
+       
+    }                    
     
     // Calculate chord for each trailing edge
 
@@ -4913,8 +5015,8 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
          
           while ( i <= Grid(SolveOnMGLevel_).LoopList(Loop).NumberOfNodes() && Found < 2 ) {
                                                        
-             if ( Grid(SolveOnMGLevel_).LoopList(Loop).Node(i) == Node1 ) { U1 = Grid(SolveOnMGLevel_).LoopList(Loop).U_Node(i) ; Found++; };
-             if ( Grid(SolveOnMGLevel_).LoopList(Loop).Node(i) == Node2 ) { U2 = Grid(SolveOnMGLevel_).LoopList(Loop).U_Node(i) ; Found++; };
+             if ( Grid(SolveOnMGLevel_).LoopList(Loop).Node(i) == Node1 ) { U1 = Grid(SolveOnMGLevel_).LoopList(Loop).U_Node(i) ; V1 = Grid(SolveOnMGLevel_).LoopList(Loop).V_Node(i) ; Found++; };
+             if ( Grid(SolveOnMGLevel_).LoopList(Loop).Node(i) == Node2 ) { U2 = Grid(SolveOnMGLevel_).LoopList(Loop).U_Node(i) ; V2 = Grid(SolveOnMGLevel_).LoopList(Loop).V_Node(i) ; Found++; };
              
              i++;
              
@@ -4922,7 +5024,10 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
           
           if ( Found != 2 ) {
              
-             printf("Error in determining TE edge U values! \n");fflush(NULL);exit(1);
+             printf("Error in determining TE edge U values! \n");
+             printf("Edge: %d \n",Edge);
+             printf("Node1,2: %d %d \n",Node1,Node2);
+             fflush(NULL);exit(1);
              
           }        
 
@@ -4956,8 +5061,8 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
                   
                    while ( i <= Grid(SolveOnMGLevel_).LoopList(Loop).NumberOfNodes() && Found < 2 ) {
                                                                 
-                      if ( Grid(SolveOnMGLevel_).LoopList(Loop).Node(i) == Node1 ) { U3 = Grid(SolveOnMGLevel_).LoopList(Loop).U_Node(i) ; Found++; };
-                      if ( Grid(SolveOnMGLevel_).LoopList(Loop).Node(i) == Node2 ) { U4 = Grid(SolveOnMGLevel_).LoopList(Loop).U_Node(i) ; Found++; };
+                      if ( Grid(SolveOnMGLevel_).LoopList(Loop).Node(i) == Node1 ) { U3 = Grid(SolveOnMGLevel_).LoopList(Loop).U_Node(i) ; V3 = Grid(SolveOnMGLevel_).LoopList(Loop).V_Node(i) ; Found++; };
+                      if ( Grid(SolveOnMGLevel_).LoopList(Loop).Node(i) == Node2 ) { U4 = Grid(SolveOnMGLevel_).LoopList(Loop).U_Node(i) ; V4 = Grid(SolveOnMGLevel_).LoopList(Loop).V_Node(i) ; Found++; };
                       
                       i++;
                       
@@ -4968,22 +5073,40 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
                       printf("Error in determing TE edge U values! \n");fflush(NULL);exit(1);
                       
                    }      
-                             
-                   if ( 0.5*(U3 + U4) >= MIN(U1,U2) &&
-                        0.5*(U3 + U4) <= MAX(U1,U2) ) {
-                        
-                      Length = sqrt( pow(Grid(SolveOnMGLevel_).EdgeList(p).Xc() - Grid(SolveOnMGLevel_).EdgeList(Edge).Xc(), 2.)
-                                   + pow(Grid(SolveOnMGLevel_).EdgeList(p).Yc() - Grid(SolveOnMGLevel_).EdgeList(Edge).Yc(), 2.)
-                                   + pow(Grid(SolveOnMGLevel_).EdgeList(p).Zc() - Grid(SolveOnMGLevel_).EdgeList(Edge).Zc(), 2.) );
+                   
+                   // On a constant chord line
+                   
+                   if ( V3 == V4 ) {
+                                
+                      if ( 0.5*(U3 + U4) >= MIN(U1,U2) &&
+                           0.5*(U3 + U4) <= MAX(U1,U2) ) {
+                           
+                         Length = sqrt( pow(Grid(SolveOnMGLevel_).EdgeList(p).Xc() - Grid(SolveOnMGLevel_).EdgeList(Edge).Xc(), 2.)
+                                      + pow(Grid(SolveOnMGLevel_).EdgeList(p).Yc() - Grid(SolveOnMGLevel_).EdgeList(Edge).Yc(), 2.)
+                                      + pow(Grid(SolveOnMGLevel_).EdgeList(p).Zc() - Grid(SolveOnMGLevel_).EdgeList(Edge).Zc(), 2.) );
+                                      
+                         Vec[0] = U3 + U4 - U1 - U2;
+                         Vec[1] = V3 + V4 - V1 - V2;       
+                         
+                         Mag = sqrt( Vec[0]*Vec[0] + Vec[1]*Vec[1] );
+                         
+                         Vec[0] /= Mag;
+                         Vec[1] /= Mag;
+                         
+                      //   printf("k,j %d, %d --> Length: %f --> Vec: %f %f ... U1,2: %f %f ... U*: %f ... V3,4: %f %f \n",k,j,Length,Vec[0],Vec[1],U1,U2,0.5*(U3+U4),V3,V4);
+                         
+                         Length *= (V3+V4);  // At leading edge V3+V4 = 1.                    
+                   
+                         if ( Length > VortexSheet(k).TrailingVortex(j).LocalChord() ) {
+                      
+                            VortexSheet(k).TrailingVortex(j).LocalChord() = Length;
+                            
+                            VortexSheet(k).TrailingVortex(j).LE_Edge() = p;
+                            
+                         }
                 
-                      if ( Length > VortexSheet(k).TrailingVortex(j).LocalChord() ) {
-                         
-                         VortexSheet(k).TrailingVortex(j).LocalChord() = Length;
-                         
-                         VortexSheet(k).TrailingVortex(j).LE_Edge() = p;
-                         
                       }
-             
+                      
                    }
                    
                 }
@@ -5030,7 +5153,11 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
 
        Loop = 0;
        
+       if ( Verbose_ ) printf("checking... VortexSheet(k).NumberOfKuttaEdges(): %d \n",VortexSheet(k).NumberOfKuttaEdges());fflush(NULL);
+       
        for ( j = 1 ; j <= VortexSheet(k).NumberOfKuttaEdges() ; j++ ) {
+     
+          if ( Verbose_ ) printf("VortexSheet(k).TrailingVortex(%d).TE_Edge(): %d \n", j,VortexSheet(k).TrailingVortex(j).TE_Edge());
      
           for ( i = 1 ; i <= VortexSheet(k).NumberOfWakeTrailingNodes() - 1 ; i++ ) {
              
@@ -5043,7 +5170,7 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
              VortexSheet(k).WakeLoopList(Loop).GlobalLoop() = TotalLoops + Grid(SolveOnMGLevel_).NumberOfSurfaceLoops();
              
              VortexSheet(k).WakeLoopList(Loop).GlobalTrailingEdge() = VortexSheet(k).TrailingVortex(j).TE_Edge();
-
+             
           }
           
        }
@@ -5500,9 +5627,13 @@ void VSP_GEOM::CreateWakeGrids(void)
      
        NumNodes = 0;
        
+       IsPeriodic = 0;
+       
        for ( j = 1 ; j <= Grid().NumberOfKuttaNodes() ; j++ ) {
           
           if ( Grid().WingSurfaceForKuttaNode(j) == k ) {
+             
+             if ( Grid().WingSurfaceForKuttaNodeIsPeriodic(j) ) IsPeriodic = 1;
              
              NumNodes++;
              
@@ -5632,6 +5763,81 @@ void VSP_GEOM::CreateWakeGrids(void)
           }
           
        }
+       
+       // Wake is periodic... add final strip of loops/tris
+       
+       if ( IsPeriodic ) {
+          
+          j = NumNodes;
+          
+          Ni = NumberOfWakeTrailingNodes_;
+          
+          for ( i = 1 ; i <= Ni - 1 ; i++ ) {
+             
+             // Coarse grid
+             
+             Loop++;
+    
+             GridWC_->LoopList(Loop).SizeNodeList(4);
+             GridWC_->LoopList(Loop).SizeEdgeList(4);
+             
+             GridWC_->LoopList(Loop).Node1() = WakeNodes + (j-1)*Ni + i;
+             GridWC_->LoopList(Loop).Node2() = WakeNodes            + i;
+             GridWC_->LoopList(Loop).Node3() = WakeNodes            + i + 1;
+             GridWC_->LoopList(Loop).Node4() = WakeNodes + (j-1)*Ni + i + 1;
+             
+             GridWC_->LoopList(Loop).SizeFineGridLoopList(2);
+             
+             GridWC_->LoopList(Loop).FineGridLoop(1) = Tri + 1;
+             GridWC_->LoopList(Loop).FineGridLoop(2) = Tri + 2;
+             
+             GridWC_->LoopList(Loop).SurfaceID() = 0;
+             
+             GridWC_->LoopList(Loop).MinValidTimeStep() = i;
+                          
+             GridWC_->LoopList(Loop).UpwindWakeLoop() = 0;
+             
+             if ( i > 1 ) GridWC_->LoopList(Loop).UpwindWakeLoop() = Loop - 1;
+
+             // Fine grid
+             
+             Tri++;
+          
+             GridWF_->LoopList(Tri).SizeNodeList(3);
+             GridWF_->LoopList(Tri).SizeEdgeList(3);
+                  
+             GridWF_->LoopList(Tri).Node1() = WakeNodes + (j-1)*Ni + i;
+             GridWF_->LoopList(Tri).Node2() = WakeNodes            + i;
+             GridWF_->LoopList(Tri).Node3() = WakeNodes            + i + 1;
+   
+             GridWF_->LoopList(Tri).SurfaceID() = 0;    
+             
+             GridWF_->LoopList(Tri).MinValidTimeStep() = i;
+             
+             GridWF_->LoopList(Tri).UpwindWakeLoop() = 0;
+             
+             if ( i > 1 ) GridWF_->LoopList(Tri).UpwindWakeLoop() = Tri - 2;
+             
+             Tri++;
+
+             GridWF_->LoopList(Tri).SizeNodeList(3);
+             GridWF_->LoopList(Tri).SizeEdgeList(3);
+                  
+             GridWF_->LoopList(Tri).Node1() = WakeNodes + (j-1)*Ni + i;
+             GridWF_->LoopList(Tri).Node2() = WakeNodes            + i + 1;
+             GridWF_->LoopList(Tri).Node3() = WakeNodes + (j-1)*Ni + i + 1;
+             
+             GridWF_->LoopList(Tri).SurfaceID() = 0;             
+
+             GridWF_->LoopList(Tri).MinValidTimeStep() = i;
+             
+             GridWF_->LoopList(Tri).UpwindWakeLoop() = 0;
+
+             if ( i > 1 ) GridWF_->LoopList(Tri).UpwindWakeLoop() = Tri - 2;
+             
+          }       
+          
+       }   
        
        WakeNodes = Node;
 
@@ -5845,10 +6051,14 @@ void VSP_GEOM::InitializeWakeGrid(double Vinf,
           
           TrailingVortex.BladeRPM() = VortexSheet(k).TrailingVortex(j).BladeRPM();
           
+          TrailingVortex.RotorOrigin(0) = VortexSheet(k).TrailingVortex(j).RotorOrigin(0);
+          TrailingVortex.RotorOrigin(1) = VortexSheet(k).TrailingVortex(j).RotorOrigin(1);
+          TrailingVortex.RotorOrigin(2) = VortexSheet(k).TrailingVortex(j).RotorOrigin(2);
+
           TrailingVortex.FreeStreamDirection(0) = FreeStreamDirection[0];
           TrailingVortex.FreeStreamDirection(1) = FreeStreamDirection[1];
           TrailingVortex.FreeStreamDirection(2) = FreeStreamDirection[2];
-          
+                    
           // Create a temporary trailing vortex 
                       
           TrailingVortex.Setup(NumberOfWakeTrailingNodes_,WakeDist,VSP_Node1,VSP_Node2);    

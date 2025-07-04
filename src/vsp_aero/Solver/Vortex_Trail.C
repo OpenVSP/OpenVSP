@@ -474,8 +474,8 @@ void VORTEX_TRAIL::Setup(int NumWakeNodes, double FarDist, VSP_NODE &Node1, VSP_
           
           Vec1(0) = Node1.x() - RotorOrigin_[0];
           Vec1(1) = Node1.y() - RotorOrigin_[1];
-          Vec1(2) = Node1.z() - RotorOrigin_[2];    
-          
+          Vec1(2) = Node1.z() - RotorOrigin_[2];   
+  
           // Quaternion for this rotation, and it's inverse      
           
           Angle = -Omega * Time;

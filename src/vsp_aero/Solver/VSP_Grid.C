@@ -58,8 +58,6 @@ void VSP_GRID::init(void)
     
     SurfaceType_ = 0;
     
-    ComponentID_ = 0;
-    
     Verbose_ = 0;
 
 }
@@ -949,7 +947,9 @@ void VSP_GRID::MarkBoundaries(int DoSymmetryPlaneSolve)
 
        // Mark boundary / intersection edges
        
-       if ( LoopList(Tri1).SurfaceID() != LoopList(Tri2).SurfaceID() ) {
+//       if ( LoopList(Tri1).SurfaceID() != LoopList(Tri2).SurfaceID() ) {
+          
+       if ( LoopList(Tri1).ComponentID() != LoopList(Tri2).ComponentID() ) {
           
           if ( EdgeList(i).IsTrailingEdge() == 0 ) EdgeList(i).IsBoundaryEdge() = 1;
  
@@ -1648,7 +1648,7 @@ void VSP_GRID::CalculateLoopNormals(void)
 #                                                                              #
 ##############################################################################*/
 /*
- * fuck
+
 void VSP_GRID::CalculateLeastSquareCoefficients(int Loop) 
 {    
 

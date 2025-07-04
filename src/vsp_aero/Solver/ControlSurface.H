@@ -14,6 +14,7 @@
 #include <assert.h>
 #include "utils.H"
 #include "quat.H"
+#include "CharSizes.H"
 
 #include "START_NAME_SPACE.H"
 
@@ -31,15 +32,15 @@ private:
     
     int Type_;
     
-    char TypeName_[2000];
+    char TypeName_[MAX_CHAR_SIZE];
 
     // Control surface name
     
-    char Name_[2000];
+    char Name_[MAX_CHAR_SIZE];
     
     // Control surface short name
     
-    char ShortName_[2000];
+    char ShortName_[MAX_CHAR_SIZE];
 
     // XYZ coordinates of control surface box
     

@@ -41,7 +41,7 @@ void VSP_SOLVER::init(void)
 {
 
     int i;
-    
+
     Verbose_ = 0;
     
     FirstTimeSetup_ = 1;
@@ -51,11 +51,11 @@ void VSP_SOLVER::init(void)
     DoSymmetryPlaneSolve_ = 0;
 
     SearchID_ = NULL;
-    
+
     SaveRestartFile_ = 0;
     
     JacobiRelaxationFactor_ = 0.25;
-    
+
     DumpGeom_ = 0;
 
     CurrentWakeIteration_ = 0;
@@ -64,11 +64,11 @@ void VSP_SOLVER::init(void)
 
     ImplicitWakeStartIteration_ = 0;
 
-    MaxTurningAngle_ = -1.;
-
     Clo_2d_ = 0.;
         
-    Clmax_2d_ = 1.5;
+    Clmax_2d_ = 1.0;
+    
+    MinStallFactor_ = 1.;
          
     NumberOfKelvinConstraints_ = 0;
     
@@ -107,7 +107,7 @@ void VSP_SOLVER::init(void)
     UpdateMatrixPreconditioner_ = 0;
     
     UseWakeNodeMatrixPreconditioner_ = 0;
-        
+
     snprintf(CaseString_,sizeof(CaseString_)*sizeof(char),"No Comment");
 
     AngleOfAttackZero_ = 0.;
@@ -172,6 +172,8 @@ void VSP_SOLVER::init(void)
 
     DoRestart_ = 0;
     
+    RestartFromPreviousSolve_ = 0;
+    
     CoreSizeFactor_ = 1.;
 
     DoVortexStretching_ = 0;
@@ -206,8 +208,7 @@ void VSP_SOLVER::init(void)
     NodalForces_ = NULL;
     
     SolveOnMGLevel_ = 0;
-    
-
+   
     AdjointSolutionForceType_ = ADJOINT_INVISCID_AND_VISCOUS_FORCES;
     
     DoAdjointSolveForThisForceMomentCase_[1] = 1;
@@ -244,13 +245,15 @@ void VSP_SOLVER::init(void)
     UnsteadyFDTest_ = 0;
     
     // Adjoint components for adjoint solves 
-    
+
     for ( i = 1 ; i < 10000 ; i++ ) {
        
        UserAdjointComponentList_[i] = 1;
        
     }
-        
+
+    int NumberOfThreads = omp_get_max_threads();
+    
 }
 
 /*##############################################################################
@@ -313,7 +316,7 @@ void VSP_SOLVER::Setup(void)
     double Scale_X, Scale_Y, Scale_Z, FarDist, Period, S[3], Mag;
     double MinRotorDiameter, TimeSetByFastestRotor, StreamDist;
     double SlatPer, SlatMach, dx, dy, dz, CutOff;
-    char GroupFileName[2000], DumChar[2000], HighLiftFileName[2000], SurfaceName[2000];
+    char GroupFileName[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE], HighLiftFileName[MAX_CHAR_SIZE], SurfaceName[MAX_CHAR_SIZE];
     FILE *GroupFile, *HighLiftFile;
 
     // Set the CG for the overall vehicle group
@@ -836,9 +839,9 @@ void VSP_SOLVER::Setup(void)
     
     else {
 
-       fgets(DumChar,2000,HighLiftFile);
+       fgets(DumChar,MAX_CHAR_SIZE,HighLiftFile);
        
-       while ( fgets(DumChar,2000,HighLiftFile) != NULL ) {
+       while ( fgets(DumChar,MAX_CHAR_SIZE,HighLiftFile) != NULL ) {
           
           sscanf(DumChar,"%d %s %lf %lf",&Surf,SurfaceName,&SlatPer,&SlatMach);
           
@@ -2667,13 +2670,13 @@ void VSP_SOLVER::Solve(int Case)
 {
  
     int c, i, j, k, Converged;
-    char StatusFileName[2000], LoadFileName[2000], ADBFileName[2000];
-    char GroupFileName[2000], RotorFileName[2000], SurveyFileName[2000];
-    char QUADTREEFileName[2000];
+    char StatusFileName[MAX_CHAR_SIZE], LoadFileName[MAX_CHAR_SIZE], ADBFileName[MAX_CHAR_SIZE];
+    char GroupFileName[MAX_CHAR_SIZE], RotorFileName[MAX_CHAR_SIZE], SurveyFileName[MAX_CHAR_SIZE];
+    char QUADTREEFileName[MAX_CHAR_SIZE];
     
     // Zero out solution
 
-    ZeroSolutionState();
+    if ( !RestartFromPreviousSolve_ ) ZeroSolutionState();
 
     CurrentTime_ = 0.;
     
@@ -2699,17 +2702,23 @@ void VSP_SOLVER::Solve(int Case)
     
     Time_ = 0;
     
-    // Mark any wakes coming off rotors
+    // Initialize wakes
     
-    VSPGeom().MarkAndSetupRotorWakes();
-    
-    // Initialize free stream
-    
-    InitializeFreeStream();
-    
-    // Initialize the wake trailing vortices
-
-    InitializeTrailingVortices();
+    if ( !RestartFromPreviousSolve_ ) {
+       
+       // Mark any wakes coming off rotors
+       
+       VSPGeom().MarkAndSetupRotorWakes();
+       
+       // Initialize free stream
+       
+       InitializeFreeStream();
+       
+       // Initialize the wake trailing vortices
+   
+       InitializeTrailingVortices();
+       
+    }
            
     // Recalculate interaction lists if Mach crossed over Mach = 1
 
@@ -2758,7 +2767,7 @@ void VSP_SOLVER::Solve(int Case)
     if ( DoRestart_ == 1 ) {
   
        LoadRestartFile();
-       
+
        for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; i++ ) {
 
            VSPGeom().Grid(MGLevel_).LoopList(i).Gamma() = Gamma(i);
@@ -2768,11 +2777,15 @@ void VSP_SOLVER::Solve(int Case)
     }
     
     else {
-       
-       for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; i++ ) {
 
-           VSPGeom().Grid(MGLevel_).LoopList(i).Gamma() = Gamma(i) = 0.;
-    
+       if ( !RestartFromPreviousSolve_ ) {
+       
+          for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; i++ ) {
+          
+              VSPGeom().Grid(MGLevel_).LoopList(i).Gamma() = Gamma(i) = 0.;
+          
+          }
+          
        }
                
     }
@@ -2812,8 +2825,8 @@ void VSP_SOLVER::Solve(int Case)
                           //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456            
 
        fprintf(StatusFile_,"                                                                    Surface Integration Forces and Moments -->                                                                                                                                                                                                                                                                                                                                                                                                                                                                   Wake Induced Forces -->  \n");                
-       fprintf(StatusFile_,"                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Su Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake- \n");
-       fprintf(StatusFile_,"      Iter             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CSo              CSi            CStot               L/D              E               CMox             CMoy             CMoz             CMix             CMiy             CMiz             CMxtot           CMytot           CMztot           CFox             CFoy             CFoz             CFix             CFiy             CFiz             CFxtot           CFytot           CFztot           CLwtot           CDwtot           CSwtot           CLiw             CDiw             CSiw             CFwxtot          CFwytot          CFwztot         CFiwx            CFiwy            CFiwz           LoDw              Ew              T/QS         L2 Residual      Max Residual     Wall_Time \n");
+       fprintf(StatusFile_,"                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Su Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake- \n");
+       fprintf(StatusFile_,"      Iter             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CSo              CSi            CStot               L/D              E               CMox             CMoy             CMoz             CMix             CMiy             CMiz             CMxtot           CMytot           CMztot           CFox             CFoy             CFoz             CFix             CFiy             CFiz             CFxtot           CFytot           CFztot           CLwtot           CDwtot           CSwtot           CLiw             CDiw             CSiwtot          CFwxtot          CFwytot          CFwztot         CFiwx            CFiwy            CFiwz           LoDw              Ew              T/QS         L2 Residual      Max Residual     Wall_Time \n");
    
     }
     
@@ -2821,7 +2834,7 @@ void VSP_SOLVER::Solve(int Case)
 
        fprintf(StatusFile_,"                                                                    Surface Integration Forces and Moments -->                                                                                                                                                                                                                                                                                                                                                                                                                                                                   Wake Induced Forces -->  \n");                
        fprintf(StatusFile_,"                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Su Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake- \n");
-       fprintf(StatusFile_,"      Time             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CSo              CSi            CStot               L/D              E               CMox             CMoy             CMoz             CMix             CMiy             CMiz             CMxtot           CMytot           CMztot           CFox             CFoy             CFoz             CFix             CFiy             CFiz             CFxtot           CFytot           CFztot           CLiw             CDiw             CSiw             CFiwx            CFiwy            CFiwz           LoDw              Ew              T/QS         L2 Residual      Max Residual     Wall_Time \n");
+       fprintf(StatusFile_,"      Time             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CSo              CSi            CStot               L/D              E               CMox             CMoy             CMoz             CMix             CMiy             CMiz             CMxtot           CMytot           CMztot           CFox             CFoy             CFoz             CFix             CFiy             CFiz             CFxtot           CFytot           CFztot           CLwtot           CDwtot           CSwtot           CLiw             CDiw             CSiw             CFwxtot          CFwytot          CFwztot         CFiwx            CFiwy            CFiwz           LoDw              Ew              T/QS         L2 Residual      Max Residual     Wall_Time \n");
 
     }
     
@@ -2974,7 +2987,7 @@ void VSP_SOLVER::Solve(int Case)
              //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789                       
        printf("                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  \n");                
        printf("                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake \n");
-       printf("    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLwake   CDiw   LoDwake    Ewake     T/QS      L2Res    MaxRes   Wall_Time \n");
+       printf("    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time \n");
 
     }
     
@@ -2983,7 +2996,7 @@ void VSP_SOLVER::Solve(int Case)
              //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789                       
        printf("                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  \n");                
        printf("                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake \n");
-       printf("   Time      Iter      Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLwake   CDiw   LoDwake    Ewake     T/QS      L2Res    MaxRes   Wall_Time \n");
+       printf("   Time      Iter      Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw      CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time \n");
 
     }       
     
@@ -3017,9 +3030,13 @@ void VSP_SOLVER::Solve(int Case)
     
     // Zero out gammas
  
-    for ( i = 0 ; i <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; i++ ) {
+    if ( !RestartFromPreviousSolve_ ) {
        
-       GammaNM2(i) = GammaNM1(i) = Gamma(i) = 0.;
+       for ( i = 0 ; i <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; i++ ) {
+          
+          GammaNM2(i) = GammaNM1(i) = Gamma(i) = 0.;
+          
+       }
        
     }
     
@@ -3431,9 +3448,9 @@ void VSP_SOLVER::RestartAndInterrogateSolution(int Case)
 {
      
     int i, j;
-    char ADBFileName[2000];
-    char SurveyFileName[2000];
-    char QUADTREEFileName[2000];
+    char ADBFileName[MAX_CHAR_SIZE];
+    char SurveyFileName[MAX_CHAR_SIZE];
+    char QUADTREEFileName[MAX_CHAR_SIZE];
    
     // Zero out solution
    
@@ -8699,12 +8716,20 @@ void VSP_SOLVER::SolveAdjointLinearSystem(void)
        
        // Calculate raw force gradients with respect to gamma and the mesh
    
-       CalculateVelocities(ALL_WAKE_GAMMAS);
+       printf("Calculating velocities ... \n");
        
+       CalculateVelocities(ALL_WAKE_GAMMAS);
+
+       printf("Calculating residual ... \n");
+
        CalculateResidual();
+      
+       printf("Calculating Mach perturbation ... \n");
    
        CalculateMachPerturbationVelocities();
-       
+  
+       printf("Calculating Force gradients ... \n");
+            
        CalculateForceGradients();
 
        // ADJOINT_INVISCID_AND_VISCOUS_FORCES          0
@@ -10480,8 +10505,7 @@ void VSP_SOLVER::CalculateForceCoefficientGradients_wrt_Mesh(void)
              VSPGeom().Grid(MGLevel_).NodeList(i).pCMno_pZ() = ( -VSPGeom().Grid(MGLevel_).NodeList(i).pMoz_pZ() ) / (0.5*Sref_*Bref_*Vref_*Vref_); 
                                             
     }
-                          
-             
+         
 }
 
 /*##############################################################################
@@ -10724,7 +10748,7 @@ void VSP_SOLVER::WriteOutMeshGradients(void)
 {
    
     int i;
-    char AdjointGradientsFileName[2000];
+    char AdjointGradientsFileName[MAX_CHAR_SIZE];
     FILE *AdjointGradientFile;
   
     // Write out gradients
@@ -13991,7 +14015,6 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Gamma(void)
     MaxLoopTypes = 0;
 
     // Surface vortex induced gamma perturbation velocities across all the loops
-
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 #ifdef _OPENMP
 #if _OPENMP >= 201511
@@ -18329,7 +18352,7 @@ void VSP_SOLVER::CalculateAdjointForceGradient(int LevelC, int EdgeC, double q[3
     
     // On finest level, evalulate forces
 
-    if ( LevelC == MGLevel_  ) {
+    if ( LevelC == MGLevel_ ) {
                  
        int i;
        double dx, dy, dz;
@@ -18424,13 +18447,12 @@ void VSP_SOLVER::CalculateAdjointForceGradient(int LevelC, int EdgeC, double q[3
     else {
        
        int i, j, Edge;
-       
-       double *dForces, *dMoments, *dWakeForces, NewFact;
-       
-       dForces = new double[3*NumCases];
-       dMoments = new double[3*NumCases];
-       dWakeForces = new double[3*NumCases];
-       
+
+       double NewFact;
+       double dForces[18];
+       double dMoments[18];
+       double dWakeForces[18];
+  
        // Loop over adjoint edges...
        
        for ( i = 0 ; i < 3*NumCases ; i++ ) {
@@ -18458,11 +18480,7 @@ void VSP_SOLVER::CalculateAdjointForceGradient(int LevelC, int EdgeC, double q[3
           }
           
        }
-       
-       delete [] dForces;
-       delete [] dMoments;
-       delete [] dWakeForces;
-       
+
     }
             
 }
@@ -28444,14 +28462,14 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                       // Number of Equati
     
          if ( AdjointMatrixSolve_ ) {
             
-            printf("GMRES Iter: %5d ... Red: %10.5f / %-10.5f ...  Max: %10.5f / %-10.5f  \r",TotalIterations,float(log10(rho_ratio)),float(log10(ErrorReduction)), float(log10(rho)), float(log10(ErrorMax)), KTResidual_[1]); fflush(NULL);
+            printf("GMRES Iter: %5d ... Red: %10.5f / %-10.5f ...  Max: %10.5f / %-10.5f  \r",TotalIterations,float(log10(rho_ratio)),float(log10(ErrorReduction)), float(log10(rho)), float(log10(ErrorMax))); fflush(NULL);
 
          }
          
          else {
     
-            if ( Verbose && !TimeAccurate_) printf("Wake Iter: %5d / %-5d ... GMRES Iter: %5d ... Red: %10.5f / %-10.5f ...  Max: %10.5f / %-10.5f ... KTRes: %-10.5f \r",CurrentWakeIteration_,WakeIterations_,TotalIterations,float(log10(rho_ratio)),float(log10(ErrorReduction)), float(log10(rho)), float(log10(ErrorMax)), KTResidual_[1]); fflush(NULL);
-            if ( Verbose &&  TimeAccurate_) printf("TStep: %5d / %-5d ... Time: %10.5f ... GMRES Iter: %5d ... Red: %10.5f / %-10.5f ...  Max: %10.5f / %-10.5f ... STime: %10.5f ... TotTime: %10.5f ... KTRes: %-10.5f \r",Time_,NumberOfTimeSteps_,CurrentTime_,TotalIterations,log10(rho_ratio),log10(ErrorReduction), log10(rho), log10(ErrorMax), NowTime - StartSolveTime_, NowTime - StartTime_ , KTResidual_[1]); fflush(NULL);
+            if ( Verbose && !TimeAccurate_) printf("Wake Iter: %5d / %-5d ... GMRES Iter: %5d ... Red: %10.5f / %-10.5f ...  Max: %10.5f / %-10.5f \r",CurrentWakeIteration_,WakeIterations_,TotalIterations,float(log10(rho_ratio)),float(log10(ErrorReduction)), float(log10(rho)), float(log10(ErrorMax))); fflush(NULL);
+            if ( Verbose &&  TimeAccurate_) printf("TStep: %5d / %-5d ... Time: %10.5f ... GMRES Iter: %5d ... Red: %10.5f / %-10.5f ...  Max: %10.5f / %-10.5f ... STime: %10.5f ... TotTime: %10.5f \r",Time_,NumberOfTimeSteps_,CurrentTime_,TotalIterations,log10(rho_ratio),log10(ErrorReduction), log10(rho), log10(ErrorMax), NowTime - StartSolveTime_, NowTime - StartTime_ ); fflush(NULL);
 
          }
          
@@ -29757,6 +29775,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
     double CA, SA, CB, SB;
     double ComponentCg[3];
     double Chord, Span, Cl, Gamma, RVec[3], SVec[3], RVeco[3], Mag, Re, Cf, pCf_pCl2;
+    double DeltaDrag, DeltaFxo, DeltaFyo, DeltaFzo, ReFact;
 
     CA = cos(AngleOfAttack_);
     SA = sin(AngleOfAttack_);
@@ -29977,6 +29996,8 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
     // Stall forces
 
     if ( StallModelIsOn_ ) {
+       
+       MinStallFactor_ = 1.;
   
        for ( k = 1 ; k <= VSPGeom().NumberOfVortexSheets() ; k++ ) {
        
@@ -29992,6 +30013,10 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
             
                 StallFactor = 1. - VSPGeom().VortexSheet(k).TrailingVortex(i).StallFactor();
                   
+                // Save minimum stall factor value
+                
+                MinStallFactor_ = MIN(MinStallFactor_,VSPGeom().VortexSheet(k).TrailingVortex(i).StallFactor());
+               
                 if ( !TimeAccurate_ ) {
                    
                    Fx = StallFactor*VSPGeom().Grid(MGLevel_).EdgeList(Edge).Fx();
@@ -30056,7 +30081,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
                 // Set trailing edge stall factor for adjoint use later
                 
                 VSPGeom().Grid(MGLevel_).EdgeList(Edge).TrailingEdgeStallFactor() = StallFactor;
-               
+
              }
              
           }
@@ -30220,6 +30245,36 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
           }     
                          
        }
+       
+    }
+    
+    // Add in any flat plate drag areas
+    
+    if ( Vinf_ > 0. ) {
+       
+       for ( c = 0 ; c <= VSPGeom().NumberOfComponentGroups() ; c++ ) {
+          
+          if ( VSPGeom().ComponentGroupList(c).FlatPlateDragRefReNumber() > 0. ) {
+             
+             ReFact = pow(log10(VSPGeom().ComponentGroupList(c).FlatPlateDragRefReNumber()),2.58) / pow(log10(ReCref_),2.58);
+             
+             DeltaDrag = VSPGeom().ComponentGroupList(c).DeltaFlatPlateDragArea() * ReFact * 0.5*Vref_*Vref_;
+             
+             DeltaFxo = DeltaDrag * FreeStreamVelocity_[0] / Vinf_;
+             DeltaFyo = DeltaDrag * FreeStreamVelocity_[1] / Vinf_;
+             DeltaFzo = DeltaDrag * FreeStreamVelocity_[2] / Vinf_;
+             
+             CFox_ += DeltaFxo;
+             CFox_ += DeltaFyo;
+             CFoy_ += DeltaFzo;
+             
+             VSPGeom().ComponentGroupList(c).CFox() += DeltaFxo;
+             VSPGeom().ComponentGroupList(c).CFoy() += DeltaFyo;
+             VSPGeom().ComponentGroupList(c).CFoz() += DeltaFzo;
+             
+          }
+          
+       }  
        
     }
 
@@ -30418,10 +30473,10 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     
     // Write out column labels
     
-                    // 12345678901 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
-    fprintf(LoadFile_,"VortexSheet TrailVort     Xavg      Yavg      Zavg      Span     Chord      Area    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi \n");
+                    // 12345678901 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  123456789 
+    fprintf(LoadFile_,"VortexSheet TrailVort     Xavg      Yavg      Zavg      Span     Chord      Area    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact \n");
     
-   for ( k = 1 ; k <= VSPGeom().NumberOfVortexSheets() ; k++ ) {
+    for ( k = 1 ; k <= VSPGeom().NumberOfVortexSheets() ; k++ ) {
     
        for ( i = 1 ; i < VSPGeom().VortexSheet(k).NumberOfTrailingVortices() ; i++ ) {
 
@@ -30438,7 +30493,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
                                + pow(VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).LocalFreeStreamVelocity()[1], 2.)
                                + pow(VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).LocalFreeStreamVelocity()[2], 2.) ) )/Vref_;
 
-          fprintf(LoadFile_,"%-11d %-9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
+          fprintf(LoadFile_,"%-11d %-9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
                   k,
                   i,
                   VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Xc(),    
@@ -30478,9 +30533,13 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
                   VSPGeom().VortexSheet(k).TrailingVortex(i).CMoz(),  
                   VSPGeom().VortexSheet(k).TrailingVortex(i).CMix(),
                   VSPGeom().VortexSheet(k).TrailingVortex(i).CMiy(),
-                  VSPGeom().VortexSheet(k).TrailingVortex(i).CMiz()); 
+                  VSPGeom().VortexSheet(k).TrailingVortex(i).CMiz(),
+                  
+                  VSPGeom().VortexSheet(k).TrailingVortex(i).StallFactor()); 
                                                               
        }
+
+       fprintf(LoadFile_,"\n\n\n\n");                  
         
     }
 
@@ -30499,7 +30558,7 @@ void VSP_SOLVER::WriteFEM2DGeometry(void)
 
     int j;
     int number_of_nodes, number_of_tris;
-    char LoadFileName[2000];
+    char LoadFileName[MAX_CHAR_SIZE];
 
     // Open the fem load file
     
@@ -30595,7 +30654,7 @@ void VSP_SOLVER::WriteOutTecPlotFile(void)
 {
 
     int j;
-    char LoadFileName[2000];
+    char LoadFileName[MAX_CHAR_SIZE];
     FILE *TecFile;
 
     // Open the fem load file
@@ -30616,23 +30675,22 @@ void VSP_SOLVER::WriteOutTecPlotFile(void)
     fprintf(TecFile,"ZONE N=%d, E=%d, T=\"wall\", VARLOCATION=([1-3]=NODAL,[4]=CELLCENTERED) \n", 
             VSPGeom().Grid(0).NumberOfSurfaceNodes(),
             VSPGeom().Grid(0).NumberOfSurfaceLoops());
-    fprintf(TecFile,"ZONETYPE=FEQUADRILATERAL, DATAPACKING=BLOCK \n");
+    fprintf(TecFile,"ZONETYPE=FETRIANGLE, DATAPACKING=BLOCK \n");
     fprintf(TecFile,"SOLUTIONTIME =  0., STRANDID = 0 \n");
 
     // Nodal x values
     
     for ( j = 1 ; j <= VSPGeom().Grid(0).NumberOfSurfaceNodes() ; j++ ) {
 
-       fprintf(TecFile,"%f \n", VSPGeom().Grid().NodeList(j).x());
-
-       
+       fprintf(TecFile,"%f \n", VSPGeom().Grid(0).NodeList(j).x());
+  
     }
 
     // Nodal y values
 
     for ( j = 1 ; j <= VSPGeom().Grid(0).NumberOfSurfaceNodes() ; j++ ) {
 
-       fprintf(TecFile,"%f \n", VSPGeom().Grid().NodeList(j).y());
+       fprintf(TecFile,"%f \n", VSPGeom().Grid(0).NodeList(j).y());
        
     }
 
@@ -30640,7 +30698,7 @@ void VSP_SOLVER::WriteOutTecPlotFile(void)
     
     for ( j = 1 ; j <= VSPGeom().Grid(0).NumberOfSurfaceNodes() ; j++ ) {
 
-       fprintf(TecFile,"%f \n", VSPGeom().Grid().NodeList(j).z());
+       fprintf(TecFile,"%f \n", VSPGeom().Grid(0).NodeList(j).z());
 
     }
 
@@ -30648,7 +30706,7 @@ void VSP_SOLVER::WriteOutTecPlotFile(void)
 
     for ( j = 1 ; j <= VSPGeom().Grid(0).NumberOfSurfaceLoops() ; j++ ) {
 
-       fprintf(TecFile,"%f \n", j, VSPGeom().Grid().LoopList(j).dCp());
+       fprintf(TecFile,"%f \n", VSPGeom().Grid(0).LoopList(j).dCp());
 
     }
     
@@ -31254,7 +31312,7 @@ void VSP_SOLVER::CalculateQuadTreeVelocitySurvey(int Case)
 
     int i, j, k, v, cpu, NearBody;
     double xyz[3], q[5];
-    char FileNameWithExt[2000];
+    char FileNameWithExt[MAX_CHAR_SIZE];
     FILE *QuadFile;
     
     // Initialize to free stream values
@@ -31831,7 +31889,7 @@ void VSP_SOLVER::CalculateVelocitySurvey(int Case)
 void VSP_SOLVER::WriteOutAerothermalDatabaseHeader(void)
 {
    
-    char DumChar[2000];
+    char DumChar[MAX_CHAR_SIZE];
     int i, number_of_nodes, number_of_tris, number_of_loops, number_of_edges;
     int i_size, c_size, f_size, DumInt, ComponentID, ModelType;
     
@@ -31937,7 +31995,7 @@ void VSP_SOLVER::ReadInAerothermalDatabaseHeader(void)
     
     int DumInt;
     float DumFloat;
-    char DumChar[2000];
+    char DumChar[MAX_CHAR_SIZE];
 
     // Sizeof int and float
 
@@ -33279,7 +33337,7 @@ void VSP_SOLVER::WriteRestartFile(void)
 {
     
     int i, i_size, d_size;
-    char FileNameWithExt[2000];
+    char FileNameWithExt[MAX_CHAR_SIZE];
     FILE *RestartFile;
     
     printf("Saving restart file... \n");fflush(NULL);
@@ -33328,7 +33386,7 @@ void VSP_SOLVER::LoadRestartFile(void)
 {
 
     int i, i_size, d_size, Level;
-    char FileNameWithExt[2000];
+    char FileNameWithExt[MAX_CHAR_SIZE];
     FILE *RestartFile;
     
     printf("Loading restart file... \n");fflush(NULL);
@@ -35651,7 +35709,7 @@ void VSP_SOLVER::OutputStatusFile(int FinalIteration)
 
        }          
                     
-    }
+    }       
 
 }
 
@@ -36203,7 +36261,7 @@ void VSP_SOLVER::WriteOutCart3dTriFile(void)
 {
 
     int i;
-    char Cart3DFileName[2000];
+    char Cart3DFileName[MAX_CHAR_SIZE];
     FILE *Cart3dFile;
     
     // Open the cart3d file

@@ -13,6 +13,7 @@
 #include <math.h>
 #include <assert.h>
 #include "utils.H"
+#include "CharSizes.H"
 
 #include "START_NAME_SPACE.H"
 
@@ -24,7 +25,7 @@ private:
 
     // Control group name
     
-    char Name_[2000];
+    char Name_[MAX_CHAR_SIZE];
     
     // List of control surfaces
     

@@ -221,6 +221,8 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
 
     SurfaceID_                  = VSPTri.SurfaceID_;
     ComponentID_                = VSPTri.ComponentID_;
+    OpenVSP_ComponentID_        = VSPTri.OpenVSP_ComponentID_;
+    
     IsTrailingEdgeTri_          = VSPTri.IsTrailingEdgeTri_;
     VortexLoop_                 = VSPTri.VortexLoop_;
     MGVortexLoop_               = VSPTri.MGVortexLoop_;

@@ -1531,7 +1531,7 @@ void MATRIX::print(void)
 
     // Just use normal print, but send a null string
 
-    print("");
+    printf("");
 
 }
 

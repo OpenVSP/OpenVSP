@@ -33,6 +33,7 @@
 #include "OptimizationFunction.H"
 #include "AdjointGradient.H"
 #include "SaveState.H"
+#include "CharSizes.H"
 
 #include "START_NAME_SPACE.H"
 
@@ -85,7 +86,7 @@ private:
 
     // Filename
     
-    char FileName_[2000];
+    char FileName_[MAX_CHAR_SIZE];
     
     int iFix_;
 
@@ -293,7 +294,7 @@ private:
     double MaxResidual_;
     double WakeResidual_;
     
-    char ConvergenceLine_[2000];
+    char ConvergenceLine_[MAX_CHAR_SIZE];
     
     int NumberOfVortexLoopMatrixPreconditioners_;    
     MATPRECON *VortexLoopMatrixPreconditionerList_;
@@ -365,10 +366,15 @@ private:
     double CFwx_;
     double CFwy_;
     double CFwz_;
+    
+    // 2D aero stuff
 
-    double MaxTurningAngle_;
     double Clo_2d_;
     double Clmax_2d_;
+    
+    // Stall factor minimum
+    
+    double MinStallFactor_;
 
     double **NodalForces_;
 
@@ -988,9 +994,10 @@ private:
 
     STACK_ENTRY **LoopStackList_;    
         
-    int SolverType_;
     int DoRestart_;
     int SaveRestartFile_;
+    
+    int RestartFromPreviousSolve_;
     
     // Solve stuff
     
@@ -1120,10 +1127,6 @@ private:
     
     int InsideBody(double xyz[3], double distance);       
 
-    // Set solver type... not being used 
-    
-    int &SolverType(void) { return SolverType_; };
-
     // Field surveys
     
     void CalculateVelocitySurvey(int Case);
@@ -1139,7 +1142,7 @@ private:
     
     FILE *InputADBFile_;
     
-    char CaseString_[2000];
+    char CaseString_[MAX_CHAR_SIZE];
     
     // Save states
     
@@ -1292,6 +1295,10 @@ public:
     
     double &WakeRelax(void) { return WakeRelax_; };
         
+    /* Use previous solution as initial guess ... don't use this if the geometry has changed, eg in an optimization run **/
+    
+    int &RestartFromPreviousSolve(void) { return RestartFromPreviousSolve_; };
+ 
     /** Set angle of attack **/
     
     double &AngleOfAttack(void) { return AngleOfAttack_; };
@@ -2650,10 +2657,14 @@ public:
 
     double &Clo2D(void) { return Clo_2d_; };
     
-    /** Max turning angle for stall calculations .. this is no longer being used... **/
+    /** Set maximum 2D Clmax **/
     
-    double &MaxTurningAngle(void) { return MaxTurningAngle_; };
+    double &Clmax_2d(void) { return Clmax_2d_; };
     
+    /** Minimum value of stall factor... a value < 1 means some wing section has stalled **/
+    
+    double MinStallFactor(void) { return MinStallFactor_; };
+
     /** Read in the VSP geometry file **/
     
     void ReadFile(char *FileName) { snprintf(FileName_,sizeof(FileName_)*sizeof(char),"%s",FileName);  VSPGeom_.DoSymmetryPlaneSolve() = DoSymmetryPlaneSolve_ ; VSPGeom_.ReadFile(FileName); };
@@ -2929,7 +2940,9 @@ public:
 
     /** Set the user case string **/
     
-    char *CaseString(void) { return CaseString_; };
+ //   char *CaseString(void) { return CaseString_; };
+        
+    char (&CaseString(void))[MAX_CHAR_SIZE] { return CaseString_; };
         
     /** Write a Generic File header to FILE id fid **/
     
