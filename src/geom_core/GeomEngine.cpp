@@ -598,9 +598,14 @@ void GeomEngine::UpdateEngine()
     }
 }
 
+void GeomEngine::UpdateDrawObj()
+{
+    GeomXSec::UpdateDrawObjUtil();
+}
+
 void GeomEngine::UpdateHighlightDrawObj()
 {
-    GeomXSec::UpdateHighlightDrawObj();
+    GeomXSec::UpdateHighlightDrawObjUtil( m_ActiveXSec.Get() );
 
     m_EngineDrawObj_vec.clear();
 

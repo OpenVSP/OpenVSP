@@ -56,8 +56,6 @@ public:
         return &m_XSecSurf;
     }
 
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
-
     bool IsClosed() const;
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
@@ -67,9 +65,6 @@ public:
     IntParm m_OrderPolicy;
 
 protected:
-    virtual void UpdateDrawObj();
-    virtual void UpdateHighlightDrawObj();
-
     virtual void ChangeID( const string &id );
 
     virtual void UpdateSurf();

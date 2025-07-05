@@ -62,6 +62,7 @@ protected:
     virtual void UpdateEngine();
     virtual void UpdateBBox();
 
+    virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj();
 
     bool m_engine_spec[ vsp::ENGINE_LOC_NUM ];
