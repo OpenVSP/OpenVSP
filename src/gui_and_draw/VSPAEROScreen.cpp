@@ -987,13 +987,16 @@ bool VSPAEROScreen::Update()
         {
             m_ModeChoice.Activate();
             m_GeomSetChoice.Deactivate();
+            m_GeomThinSetChoice.Deactivate();
 
             Mode *m = ModeMgr.GetMode( VSPAEROMgr.m_ModeID );
             if ( m )
             {
-                if ( VSPAEROMgr.m_GeomSet() != m->m_NormalSet() )
+                if ( VSPAEROMgr.m_GeomSet() != m->m_NormalSet() ||
+                     VSPAEROMgr.m_ThinGeomSet() != m->m_DegenSet() )
                 {
                     VSPAEROMgr.m_GeomSet = m->m_NormalSet();
+                    VSPAEROMgr.m_ThinGeomSet = m->m_DegenSet();
                     m_ScreenMgr->SetUpdateFlag( true );
                 }
             }
@@ -1002,6 +1005,7 @@ bool VSPAEROScreen::Update()
         {
             m_ModeChoice.Deactivate();
             m_GeomSetChoice.Activate();
+            m_GeomThinSetChoice.Activate();
         }
 
         if ( VSPAEROMgr.m_CGUseMode() )
