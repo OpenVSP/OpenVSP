@@ -44,6 +44,7 @@ NGonMeshGeom::~NGonMeshGeom()
 
 void NGonMeshGeom::UpdateSurf()
 {
+    m_MainSurfVec.clear();
     if ( m_PGMulti.m_ActiveMesh != m_ActiveMesh() )
     {
         m_PGMulti.m_ActiveMesh = m_ActiveMesh();
