@@ -355,6 +355,13 @@ bool SurfaceIntersectionScreen::Update()
                 m_ScreenMgr->SetUpdateFlag( true );
             }
         }
+        else
+        {
+            if ( m_ModeIDs.size() > 0 )
+            {
+                m_Vehicle->GetISectSettingsPtr()->m_ModeID = m_ModeIDs[ 0 ];
+            }
+        }
     }
     else
     {

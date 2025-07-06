@@ -158,6 +158,13 @@ bool SnapToScreen::Update()
                 m_ScreenMgr->SetUpdateFlag( true );
             }
         }
+        else
+        {
+            if ( m_ModeIDs.size() > 0 )
+            {
+                snap->m_ModeID = m_ModeIDs[ 0 ];
+            }
+        }
     }
     else
     {

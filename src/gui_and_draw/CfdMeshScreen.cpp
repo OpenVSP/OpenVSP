@@ -771,6 +771,13 @@ bool CfdMeshScreen::Update()
                 m_ScreenMgr->SetUpdateFlag( true );
             }
         }
+        else
+        {
+            if ( m_ModeIDs.size() > 0 )
+            {
+                m_Vehicle->GetCfdSettingsPtr()->m_ModeID = m_ModeIDs[ 0 ];
+            }
+        }
     }
     else
     {

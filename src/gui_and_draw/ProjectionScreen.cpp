@@ -319,6 +319,13 @@ bool ProjectionScreen::Update()
                 m_ScreenMgr->SetUpdateFlag( true );
             }
         }
+        else
+        {
+            if ( m_ModeIDs.size() > 0 )
+            {
+                ProjectionMgr.m_ModeID = m_ModeIDs[ 0 ];
+            }
+        }
     }
 
     switch ( vehiclePtr->m_DirectionType() )

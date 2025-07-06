@@ -1000,6 +1000,13 @@ bool VSPAEROScreen::Update()
                     m_ScreenMgr->SetUpdateFlag( true );
                 }
             }
+            else
+            {
+                if ( m_ModeIDs.size() > 0 )
+                {
+                    VSPAEROMgr.m_ModeID = m_ModeIDs[ 0 ];
+                }
+            }
         }
         else
         {
@@ -1023,6 +1030,13 @@ bool VSPAEROScreen::Update()
                     VSPAEROMgr.m_CGGeomSet = m->m_NormalSet();
                     VSPAEROMgr.m_CGDegenSet = m->m_DegenSet();
                     m_ScreenMgr->SetUpdateFlag( true );
+                }
+            }
+            else
+            {
+                if ( m_ModeIDs.size() > 0 )
+                {
+                    VSPAEROMgr.m_CGModeID = m_ModeIDs[ 0 ];
                 }
             }
         }
