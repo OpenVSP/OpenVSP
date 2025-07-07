@@ -30522,7 +30522,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     }       
        
                     // 1234567890 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123
-    fprintf(LoadFile_," IsARotor     Diameter        RPM         Thrust        Thrusto       Thrusti        Power         Powero        Poweri         Moment       Momento       Momenti         J             CT            CQ            CP           ETAP          CT_h           CQ_H         CP_H          FOM          Angle \n");
+    fprintf(LoadFile_," IsARotor     Diameter        RPM         Thrust        Thrusto       Thrusti        Power         Powero        Poweri         Moment       Momento       Momenti         J             CT            CQ            CP           ETAP          CT_h           CQ_h         CP_h          FOM          Angle \n");
     
     for ( k = 1 ; k <= VSPGeom().NumberOfVortexSheets() ; k++ ) {
     
