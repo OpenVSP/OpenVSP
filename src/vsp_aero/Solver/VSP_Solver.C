@@ -30226,10 +30226,12 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
           VSPGeom().VortexSheet(k).TrailingVortex(i).CMiy() = ( Fx * ( RVeco[2] - XYZcg_[2] ) - Fz * ( RVeco[0] - XYZcg_[0] ) ) / ( 0.5 * Vref_ * Vref_ * Span * Chord * Chord);
           VSPGeom().VortexSheet(k).TrailingVortex(i).CMiz() = ( Fy * ( RVeco[0] - XYZcg_[0] ) - Fx * ( RVeco[1] - XYZcg_[1] ) ) / ( 0.5 * Vref_ * Vref_ * Span * Chord * Chord);
                                                     
-          VSPGeom().VortexSheet(k).TrailingVortex(i).Cli() = ( (-Fx * SA + Fz * CA )                ) / ( 0.5 * Vref_ * Vref_ * Span * Chord);
+// Use the cl directly from gamma...          VSPGeom().VortexSheet(k).TrailingVortex(i).Cli() = ( (-Fx * SA + Fz * CA )                ) / ( 0.5 * Vref_ * Vref_ * Span * Chord);
+
+          VSPGeom().VortexSheet(k).TrailingVortex(i).Cli() = Cl;          
           VSPGeom().VortexSheet(k).TrailingVortex(i).Cdi() = ( ( Fx * CA + Fz * SA ) * CB - Fy * SB ) / ( 0.5 * Vref_ * Vref_ * Span * Chord);
           VSPGeom().VortexSheet(k).TrailingVortex(i).Csi() = ( ( Fx * CA + Fz * SA ) * SB + Fy * CB ) / ( 0.5 * Vref_ * Vref_ * Span * Chord);
-                                  
+                        
           // Keep track of component group forces and moments
           
           for ( g = 0 ; g <= 1 ; g++ ) {
