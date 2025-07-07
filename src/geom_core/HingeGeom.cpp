@@ -113,6 +113,8 @@ void HingeGeom::Scale()
 
 void HingeGeom::UpdateSurf()
 {
+    m_MainSurfVec.clear();
+
     // Update m_ModelMatrix translations -- ignore rotations for now.
     UpdateXForm();
     // Evaluate hinge base point.

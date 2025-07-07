@@ -39,6 +39,7 @@ BlankGeom::~BlankGeom()
 
 void BlankGeom::UpdateSurf()
 {
+    m_MainSurfVec.clear();
     if ( m_BlankPointMassFlag.Get() )
     {
         m_PointMass = m_BlankPointMass();

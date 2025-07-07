@@ -848,6 +848,7 @@ bool RoutingGeom::IsPlaced( int index ) const
 
 void RoutingGeom::UpdateSurf()
 {
+    m_MainSurfVec.clear();
     m_MainRouteTessVec.clear();
     m_MainRouteTessVec.resize( 1 );
     m_MainRouteTessVec[0].m_ptline.resize( 1 );
