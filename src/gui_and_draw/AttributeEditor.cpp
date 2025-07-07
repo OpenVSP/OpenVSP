@@ -13,6 +13,8 @@
 #include "ParmMgr.h"
 #include "ScreenMgr.h"
 
+#define MIN_ATTR_EDITOR_PX_HEIGHT 60
+
 //==== Attribute Tree GUI ====//
 AttributeTree::AttributeTree()
 {
@@ -485,6 +487,12 @@ void AttributeEditor::Init( GroupLayout * layout, Fl_Group* group, VspScreen *sc
 
     m_AttrTreeWidget.Init( layout, group, screen, cb, true, m_AttrCommonGroup.GetY(), browser_h);
     m_ShowState = false;
+
+    if ( browser_h < MIN_ATTR_EDITOR_PX_HEIGHT )
+    {
+        string title = dynamic_cast< BasicScreen * >( screen )->GetTitle();
+        printf( "Screen %s attribute editor too short %d.\n", title.c_str(), browser_h );
+    }
 }
 
 void AttributeEditor::Show()

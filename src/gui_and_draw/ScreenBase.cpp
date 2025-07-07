@@ -3809,7 +3809,11 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
 
     m_XSecLayout.SetY( *max_element( y_vals.begin(), y_vals.end() ) );
     m_XSecLayout.AddYGap();
-    m_XsecAttributeEditor.Init( &m_XSecLayout, m_XSecLayout.GetGroup(), this, staticScreenCB, true, m_GenLayout.GetY(), 100);
+
+    int ry = m_XSecLayout.GetRemainY();
+    int sh = m_XSecLayout.GetDividerHeight();
+    int attr_editor_ht = min( ry - sh, 100 );
+    m_XsecAttributeEditor.Init( &m_XSecLayout, m_XSecLayout.GetGroup(), this, staticScreenCB, true, m_GenLayout.GetY(), attr_editor_ht );
 
     DisplayGroup( &m_PointGroup );
 }
