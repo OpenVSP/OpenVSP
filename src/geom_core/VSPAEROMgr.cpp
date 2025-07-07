@@ -2812,13 +2812,22 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
         }
 
         // Sectional distribution table
-        int nSectionalDataTableCols = 37;
+        int nSectionalDataTableCols = 60;
         if ( data_string_array.size() == nSectionalDataTableCols && !isdigit( data_string_array[0][0] ) )
         {
             //discard the header row and read the next line assuming that it is numeric
             data_string_array = ReadDelimLine( fp, seps );
 
+            bool unsteady_flag = false;
+
+            if ( strcmp( data_string_array[ 0 ].c_str(), "Time" ) == 0 )
+            {
+                unsteady_flag = true;
+            }
+
             // Raw data vectors
+            std::vector<int> Iter;
+            std::vector<double> Time;
             std::vector<int> VortexSheet;
             std::vector<int> TrailVort;
             std::vector<double> Xavg;
@@ -2856,6 +2865,29 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             std::vector<double> Cmyi;
             std::vector<double> Cmzi;
             std::vector<double> StallFact;
+
+            std::vector<int> IsARotor;
+            std::vector<double> Diameter;
+            std::vector<double> RPM;
+            std::vector<double> Thrust;
+            std::vector<double> Thrusto;
+            std::vector<double> Thrusti;
+            std::vector<double> Power;
+            std::vector<double> Powero;
+            std::vector<double> Poweri;
+            std::vector<double> Moment;
+            std::vector<double> Momento;
+            std::vector<double> Momenti;
+            std::vector<double> J;
+            std::vector<double> CT;
+            std::vector<double> CQ;
+            std::vector<double> CP;
+            std::vector<double> ETAP;
+            std::vector<double> CT_h;
+            std::vector<double> CQ_h;
+            std::vector<double> CP_h;
+            std::vector<double> FOM;
+            std::vector<double> Angle;
 
             //normalized by local chord
             std::vector<double> Clc_cref;
@@ -2897,43 +2929,76 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
                 if ( data_string_array.size() == nSectionalDataTableCols )
                 {
                     // Store the raw data
-                    VortexSheet.push_back( std::stoi( data_string_array[0] ) );
-                    TrailVort.push_back(   std::stoi( data_string_array[1] ) );
-                    Xavg.push_back(        std::stod( data_string_array[2] ) );
-                    Yavg.push_back(        std::stod( data_string_array[3] ) );
-                    Zavg.push_back(        std::stod( data_string_array[4] ) );
-                    Span.push_back(        std::stod( data_string_array[5] ) );
-                    Chord.push_back(       std::stod( data_string_array[6] ) );
-                    Area.push_back(        std::stod( data_string_array[7] ) );
-                    VoVref.push_back(      std::stod( data_string_array[8] ) );
-                    Cl.push_back(          std::stod( data_string_array[9] ) );
-                    Cd.push_back(          std::stod( data_string_array[10] ) );
-                    Cs.push_back(          std::stod( data_string_array[11] ) );
-                    Clo.push_back(         std::stod( data_string_array[12] ) );
-                    Cdo.push_back(         std::stod( data_string_array[13] ) );
-                    Cso.push_back(         std::stod( data_string_array[14] ) );
-                    Cli.push_back(         std::stod( data_string_array[15] ) );
-                    Cdi.push_back(         std::stod( data_string_array[16] ) );
-                    Csi.push_back(         std::stod( data_string_array[17] ) );
-                    Cx.push_back(          std::stod( data_string_array[18] ) );
-                    Cy.push_back(          std::stod( data_string_array[19] ) );
-                    Cz.push_back(          std::stod( data_string_array[20] ) );
-                    Cxo.push_back(         std::stod( data_string_array[21] ) );
-                    Cyo.push_back(         std::stod( data_string_array[22] ) );
-                    Czo.push_back(         std::stod( data_string_array[23] ) );
-                    Cxi.push_back(         std::stod( data_string_array[24] ) );
-                    Cyi.push_back(         std::stod( data_string_array[25] ) );
-                    Czi.push_back(         std::stod( data_string_array[26] ) );
-                    Cmx.push_back(         std::stod( data_string_array[27] ) );
-                    Cmy.push_back(         std::stod( data_string_array[28] ) );
-                    Cmz.push_back(         std::stod( data_string_array[29] ) );
-                    Cmxo.push_back(        std::stod( data_string_array[30] ) );
-                    Cmyo.push_back(        std::stod( data_string_array[31] ) );
-                    Cmzo.push_back(        std::stod( data_string_array[32] ) );
-                    Cmxi.push_back(        std::stod( data_string_array[33] ) );
-                    Cmyi.push_back(        std::stod( data_string_array[34] ) );
-                    Cmzi.push_back(        std::stod( data_string_array[35] ) );
-                    StallFact.push_back(   std::stod( data_string_array[36] ) );
+
+                    int icol = 0;
+                    if ( unsteady_flag )
+                    {
+                        Time.push_back( std::stod( data_string_array[icol] ) ); icol++;
+                    }
+                    else
+                    {
+                        Iter.push_back( std::stoi( data_string_array[icol] ) ); icol++;
+                    }
+
+                    VortexSheet.push_back( std::stoi( data_string_array[icol] ) ); icol++;
+                    TrailVort.push_back(   std::stoi( data_string_array[icol] ) ); icol++;
+                    Xavg.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    Yavg.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    Zavg.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    Span.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    Chord.push_back(       std::stod( data_string_array[icol] ) ); icol++;
+                    Area.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    VoVref.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                    Cl.push_back(          std::stod( data_string_array[icol] ) ); icol++;
+                    Cd.push_back(          std::stod( data_string_array[icol] ) ); icol++;
+                    Cs.push_back(          std::stod( data_string_array[icol] ) ); icol++;
+                    Clo.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cdo.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cso.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cli.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cdi.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Csi.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cx.push_back(          std::stod( data_string_array[icol] ) ); icol++;
+                    Cy.push_back(          std::stod( data_string_array[icol] ) ); icol++;
+                    Cz.push_back(          std::stod( data_string_array[icol] ) ); icol++;
+                    Cxo.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cyo.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Czo.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cxi.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cyi.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Czi.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cmx.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cmy.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cmz.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Cmxo.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    Cmyo.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    Cmzo.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    Cmxi.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    Cmyi.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    Cmzi.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    StallFact.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                    IsARotor.push_back(    std::stoi( data_string_array[icol] ) ); icol++;
+                    Diameter.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                    RPM.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Thrust.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                    Thrusto.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                    Thrusti.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                    Power.push_back(       std::stod( data_string_array[icol] ) ); icol++;
+                    Powero.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                    Poweri.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                    Moment.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                    Momento.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                    Momenti.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                    J.push_back(           std::stod( data_string_array[icol] ) ); icol++;
+                    CT.push_back(          std::stod( data_string_array[icol] ) ); icol++;
+                    CQ.push_back(          std::stod( data_string_array[icol] ) ); icol++;
+                    CP.push_back(          std::stod( data_string_array[icol] ) ); icol++;
+                    ETAP.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    CT_h.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    CQ_h.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    CP_h.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    FOM.push_back(         std::stod( data_string_array[icol] ) ); icol++;
+                    Angle.push_back(       std::stod( data_string_array[icol] ) ); icol++;
 
                     chordRatio = Chord.back() / cref;
 
@@ -2978,6 +3043,14 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             }
 
             // Finish up by adding the data to the result res
+            if ( unsteady_flag )
+            {
+                res->Add( new NameValData( "Time", Time, "Unsteady simulation time." ) );
+            }
+            else
+            {
+                res->Add( new NameValData( "Iter", Iter, "Wake iteration." ) );
+            }
             res->Add( new NameValData( "VortexSheet", VortexSheet, "Span load distribution set." ) );
             res->Add( new NameValData( "TrailVort", TrailVort, "Surface for span load set." ) );
             res->Add( new NameValData( "Xavg", Xavg, "Section X coordinate." ) );
@@ -3015,6 +3088,29 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             res->Add( new NameValData( "cmyi", Cmyi, "Section Y moment coefficient.  Induced part." ) );
             res->Add( new NameValData( "cmzi", Cmzi, "Section Z moment coefficient.  Induced part." ) );
             res->Add( new NameValData( "StallFact", StallFact, "Stall factor." ) );
+
+            res->Add( new NameValData( "IsARotor", IsARotor, "Flag indicating whether this vortex sheet is a rotor / prop." ) );
+            res->Add( new NameValData( "Diameter", Diameter, "Diameter of the rotor." ) );
+            res->Add( new NameValData( "RPM", RPM, "RPM of this rotor." ) );
+            res->Add( new NameValData( "Thrust", Thrust, "Thrust distribution." ) );
+            res->Add( new NameValData( "Thrusto", Thrusto, "Thrust distribution.  Parasite part." ) );
+            res->Add( new NameValData( "Thrusti", Thrusti, "Thrust distribution.  Induced part." ) );
+            res->Add( new NameValData( "Power", Power, "Power distribution." ) );
+            res->Add( new NameValData( "Powero", Powero, "Power distribution.  Parasite part." ) );
+            res->Add( new NameValData( "Poweri", Poweri, "Power distribution.  Induced part." ) );
+            res->Add( new NameValData( "Moment", Moment, "Moment distribution." ) );
+            res->Add( new NameValData( "Momento", Momento, "Moment distribution.  Parasite part." ) );
+            res->Add( new NameValData( "Momenti", Momenti, "Moment distribution.  Induced part." ) );
+            res->Add( new NameValData( "J", J, "Advance ratio." ) );
+            res->Add( new NameValData( "CT", CT, "(Propeller) Thrust coefficient distribution." ) );
+            res->Add( new NameValData( "CQ", CQ, "(Propeller) Torque coefficient distribution." ) );
+            res->Add( new NameValData( "CP", CP, "(Propeller) Power coefficient distribution." ) );
+            res->Add( new NameValData( "ETAP", ETAP, "Propeller efficiency distribution." ) );
+            res->Add( new NameValData( "CT_h", CT_h, "(Helicopter) Thrust coefficient distribution." ) );
+            res->Add( new NameValData( "CQ_h", CQ_h, "(Helicopter) Torque coefficient distribution." ) );
+            res->Add( new NameValData( "CP_h", CP_h, "(Helicopter) Power coefficient distribution." ) );
+            res->Add( new NameValData( "FOM", FOM, "Figure of merit distribution." ) );
+            res->Add( new NameValData( "Angle ", Angle , "Propeller rotation angle." ) );
 
             res->Add( new NameValData( "cl*c/cref", Clc_cref, "Section lift scaled load." ) );
             res->Add( new NameValData( "cd*c/cref", Cdc_cref, "Section drag scaled load." ) );
