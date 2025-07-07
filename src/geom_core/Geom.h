@@ -821,6 +821,13 @@ protected:
             return;
         }
 
+        if ( m_TransMatVec.size() != num_surf )
+        {
+            printf( "Mismatch m_TransMatVec.size() in Geom::ApplySymm().\n" );
+            dest.clear();
+            return;
+        }
+
         dest = source;
         dest.resize( num_surf );
 
