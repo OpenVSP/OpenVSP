@@ -16,11 +16,13 @@
 #include "APIDefines.h"
 
 #include <unordered_map>
+#include <map>
 #include <list>
 #include <vector>
 #include <string>
 
 using std::unordered_map;
+using std::map;
 using std::vector;
 using std::string;
 
@@ -332,7 +334,7 @@ protected:
     string m_Doc;
 
     //==== All The Data For This Computation Result =====//
-    unordered_map< string, vector< NameValData* > > m_DataMap;
+    map< string, vector< NameValData* > > m_DataMap;
 
 };
 

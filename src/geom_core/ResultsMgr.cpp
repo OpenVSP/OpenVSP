@@ -793,7 +793,7 @@ NameValCollection::~NameValCollection()
 //==== Erase Collection Data ====//
 void NameValCollection::Wype()
 {
-    unordered_map< string, vector< NameValData* > >::iterator iter;
+    map< string, vector< NameValData* > >::iterator iter;
 
     for ( iter = m_DataMap.begin(); iter != m_DataMap.end(); ++iter )
     {
@@ -830,7 +830,7 @@ void NameValCollection::Add( NameValData* d )
     //==== Find Name ====//
     string name = d->GetName();
 
-    unordered_map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
+    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
     if ( iter != m_DataMap.end() )     // Check For Duplicates
     {
         iter->second.push_back( d );
@@ -905,7 +905,7 @@ int NameValCollection::Remove( NameValData* d )
 //==== Find Res Data Given Name and Index ====//
 NameValData* NameValCollection::FindPtr( const string & name, int index )
 {
-    unordered_map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
+    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
 
     if ( iter != m_DataMap.end() )
     {
@@ -935,7 +935,7 @@ NameValData* NameValCollection::FindPtrWDefault( const string & name, int index 
 vector< NameValData* > NameValCollection::GetAllPtrs()
 {
     vector< NameValData* > ptr_vec;
-    unordered_map< string, vector< NameValData* > >::iterator iter;
+    map< string, vector< NameValData* > >::iterator iter;
 
     for ( iter = m_DataMap.begin(); iter != m_DataMap.end(); ++iter )
     {
@@ -951,7 +951,7 @@ vector< NameValData* > NameValCollection::GetAllPtrs()
 vector< string > NameValCollection::GetAllDataNames()
 {
     vector< string > name_vec;
-    unordered_map< string, vector< NameValData* > >::iterator iter;
+    map< string, vector< NameValData* > >::iterator iter;
 
     for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
     {
@@ -963,7 +963,7 @@ vector< string > NameValCollection::GetAllDataNames()
 //==== Get Number of Data Entries For This Name ====//
 int NameValCollection::GetNumData( const string & name )
 {
-    unordered_map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
+    map< string, vector< NameValData* > >::iterator iter = m_DataMap.find( name );
     if ( iter == m_DataMap.end() )
     {
         return 0;
@@ -1110,7 +1110,7 @@ int AttributeCollection::GetNumAttrs() const
 {
     int map_size = 0;
 
-    unordered_map< string, vector< NameValData* > >::const_iterator iter;
+    map< string, vector< NameValData* > >::const_iterator iter;
     for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
     {
         map_size += iter->second.size();
@@ -1123,7 +1123,7 @@ int AttributeCollection::GetNumAttrs() const
 vector< string > AttributeCollection::GetAllAttrNames()
 {
     vector< string > id_vec;
-    unordered_map< string, vector< NameValData* > >::iterator iter;
+    map< string, vector< NameValData* > >::iterator iter;
 
     for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
     {
@@ -1139,7 +1139,7 @@ vector< string > AttributeCollection::GetAllAttrNames()
 vector< string > AttributeCollection::GetAllAttrIDs()
 {
     vector< string > id_vec;
-    unordered_map< string, vector< NameValData* > >::iterator iter;
+    map< string, vector< NameValData* > >::iterator iter;
 
     for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
     {
@@ -1205,7 +1205,7 @@ void AttributeCollection::EncodeXml( xmlNodePtr & node ) const
             XmlUtil::SetStringProp( dnode, "AttachID", m_AttachID );
             XmlUtil::SetIntProp( dnode, "AttachType", m_AttachType );
 
-            unordered_map< string, vector< NameValData* > >::const_iterator iter;
+            map< string, vector< NameValData* > >::const_iterator iter;
 
             for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
             {
@@ -1361,7 +1361,7 @@ void Results::WriteCSVFile( FILE* fid )
         fprintf( fid, "Results_Date,%d,%d,%d\n", m_Month, m_Day, m_Year );
         fprintf( fid, "Results_Time,%d,%d,%d\n", m_Hour, m_Min, m_Sec );
 
-        unordered_map< string, vector< NameValData* > >::iterator iter;
+        map< string, vector< NameValData* > >::iterator iter;
         for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
         {
             for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
