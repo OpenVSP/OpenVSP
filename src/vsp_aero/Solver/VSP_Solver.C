@@ -3811,7 +3811,7 @@ void VSP_SOLVER::SolveForwardLinearSystem(void)
     ResMax = 0.1*Vref_;
     
     // Apply user reduction factor
-    
+  
     ResRed *= ForwardGMRESConvergenceFactor_;
 
     // Use preconditioned GMRES to solve the linear system
@@ -7617,7 +7617,7 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
                 
                 // Wake induced velocities
                 
-                if ( VortexEdge->SurfaceID() == 0 ) {
+                if ( VortexEdge->SurfaceID() == 0  ) {
                    
                    Uw += dU;
                    Vw += dV;
@@ -30521,7 +30521,6 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
 
     }       
        
-    fprintf(LoadFile_,"Time/Iter     VortexSheet TrailVort     Xavg      Yavg      Zavg      Span     Chord      Area    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
                     // 1234567890 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123
     fprintf(LoadFile_," IsARotor     Diameter        RPM         Thrust        Thrusto       Thrusti        Power         Powero        Poweri         Moment       Momento       Momenti         J             CT            CQ            CP           ETAP          CT_h           CQ_H         CP_H          FOM          Angle \n");
     
@@ -30534,6 +30533,8 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
           ComponentID = VSPGeom().VortexSheet(k).TrailingVortex(i).ComponentID();
           
           IsARotor = 0;
+          
+          Group = 0;
           
           for ( c = 0 ; c <= VSPGeom().NumberOfComponentGroups() ; c++ ) {
 

@@ -1127,7 +1127,7 @@ void FAST_MATRIX::CreateForwardEdgeList(int NumberOfThreads, int MGLevel, int Lo
        }
 
     }    
-
+    
     CleanForwardEdgeList(NumberOfThreads,LoopType,MaxInteractionEdges);
 
     delete [] EdgeIsUsed;
