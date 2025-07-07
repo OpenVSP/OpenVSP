@@ -80,7 +80,6 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 460, 800,
     m_XSecLayout.AddX( 10 );
     m_XSecLayout.AddButton( m_PasteXSec, "Paste" );
     m_XSecLayout.ForceNewLine();
-    m_XSecLayout.AddYGap();
 
     m_XSecLayout.SetFitWidthFlag( true );
     m_XSecLayout.SetSameLineFlag( false );
