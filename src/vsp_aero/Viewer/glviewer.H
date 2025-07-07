@@ -739,7 +739,7 @@ private:
 
     // Font stuff
 
-    void WriteFontFile(void);
+    void WriteFontFile( char* fname );
 
     // Support code
 

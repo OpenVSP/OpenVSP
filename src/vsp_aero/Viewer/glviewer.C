@@ -9,6 +9,7 @@
 #include <cstring>
 
 #include <string>
+#include <filesystem>
 
 #ifdef WIN32
 #include <direct.h>
@@ -38,7 +39,7 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
 #endif
 
     int i;
-    char tempname[80];
+    char tempname[2000];
 
     // Rotation and translation data
 
@@ -167,11 +168,9 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
 
     // Font stuff
 
-    WriteFontFile();
+    WriteFontFile( tempname );
 
-    glfLoadFont( (char *) "cbviewer_font.glf");\
-
-    snprintf(tempname,sizeof(tempname)*sizeof(char),"cbviewer_font.glf");
+    glfLoadFont( tempname );
 
     ::remove(tempname);
 
@@ -13143,7 +13142,7 @@ int GL_VIEWER::WritePNG(char *filename, char *description,
 #                                                                              #
 ##############################################################################*/
 
-void GL_VIEWER::WriteFontFile(void)
+void GL_VIEWER::WriteFontFile( char* fname )
 {
 
     FILE *font_file;
@@ -13155,7 +13154,10 @@ void GL_VIEWER::WriteFontFile(void)
 
     // Open the font file
 
-    if ( (font_file = fopen("cbviewer_font.glf","wb")) == NULL ) {
+    strcpy( fname, std::filesystem::temp_directory_path().c_str() );
+    strcat( fname, "cbviewer_font.glf" );
+
+    if ( (font_file = fopen(fname,"wb")) == NULL ) {
 
        printf("Could not open the font file for writing! \n");fflush(NULL);
 
