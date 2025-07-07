@@ -2838,12 +2838,12 @@ void VSP_SOLVER::Solve(int Case)
           exit(1);
    
        }
-       
-       // Write out generic header
-       
-       WriteCaseHeader(LoadFile_);       
-       
+              
     }         
+
+    // Write out generic header
+    
+    WriteCaseHeader(LoadFile_);       
    
     // Header for history file
     
