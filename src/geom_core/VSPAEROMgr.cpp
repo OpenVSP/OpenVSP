@@ -1210,7 +1210,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     // Generate *.vspgeom geometry file for analysis
     // Compute intersected and trimmed geometry
-    string mesh_geom_id = veh->CompGeomAndFlatten( set, halfFlag, 1 /*subsFlag*/, degenset, false /*hideset*/, true /*suppressdisks*/, m_NRef() );
+    string mesh_geom_id = veh->CompGeomAndFlatten( set, halfFlag, 1 /*subsFlag*/, degenset, false /*hideset*/, true /*suppressdisks*/, m_UseMode(), m_ModeID, m_NRef() );
 
     veh->setExportCompGeomTxtFile( compgeom_txt );
     veh->setExportCompGeomCsvFile( compgeom_csv );

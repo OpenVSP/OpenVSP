@@ -4275,8 +4275,7 @@ void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool
     }
 
     //==== Tesselate Surface ====//
-    UpdateTesselate( surf, m_CapUMinSuccess[ m_SurfIndxVec[isurf] ], m_CapUMaxSuccess[ m_SurfIndxVec[isurf] ], true, pnts, nrms,
-                     uwpnts);
+    UpdateTesselate( surf, m_CapUMinSuccess[ m_SurfIndxVec[isurf] ], m_CapUMaxSuccess[ m_SurfIndxVec[isurf] ], true, pnts, nrms, uwpnts, n_ref );
     surf.ResetUSkip();
 
     int surftype = DegenGeom::BODY_TYPE;
