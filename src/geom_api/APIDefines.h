@@ -526,6 +526,7 @@ enum ERROR_CODE {   VSP_OK,	/*!< No error */
                     VSP_ADV_LINK_BUILD_FAIL,	/*!< Advanced link build failure */
                     VSP_DEPRECATED,	/*!< This capability has been deprecated and is not longer supported */
                     VSP_LINK_LOOP_DETECTED,	/*!< A parameter link loop was detected and stopped */
+                    VSP_LINK_OUTPUT_NOT_ASSIGNED,	/*!< An output of a parameter link was not set */
                     VSP_DUPLICATE_NAME,	/*!< A duplicate name has been provided */
                     VSP_GUI_DEVICE_DEACTIVATED, /*!< A deactivated GUI device was touched */
                     VSP_COULD_NOT_CREATE_BACKGROUND3D,	/*!< Could not create and add Background3D */

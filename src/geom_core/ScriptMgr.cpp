@@ -1014,6 +1014,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_LINK_LOOP_DETECTED", vsp::VSP_LINK_LOOP_DETECTED );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_LINK_OUTPUT_NOT_ASSIGNED", vsp::VSP_LINK_OUTPUT_NOT_ASSIGNED );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_DUPLICATE_NAME", vsp::VSP_DUPLICATE_NAME );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_GUI_DEVICE_DEACTIVATED", vsp::VSP_GUI_DEVICE_DEACTIVATED );
