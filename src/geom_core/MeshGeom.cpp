@@ -786,7 +786,7 @@ void MeshGeom::WriteVSPGeom( const string file_name )
     int num_parts = 0;
     int i;
 
-    BuildIndexedMesh( num_parts );
+    BuildIndexedMesh();
     num_parts += GetNumIndexedParts();
     num_pnts += GetNumIndexedPnts();
     num_tris += GetNumIndexedTris();
