@@ -171,6 +171,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_ConvergenceYMin.Init( "m_ConvergenceYMin", groupname, this, -1, -1e12, 1e12 );
     m_ConvergenceYMax.Init( "m_ConvergenceYMax", groupname, this, 1, -1e12, 1e12 );
 
+    m_LoadDistTimeIndex.Init( "m_LoadDistTimeIndex", groupname, this, -1, -1, 1e12 );
     m_LoadDistXMinIsManual.Init( "m_LoadDistXMinIsManual", groupname, this, 0, 0, 1 );
     m_LoadDistXMaxIsManual.Init( "m_LoadDistXMaxIsManual", groupname, this, 0, 0, 1 );
     m_LoadDistYMinIsManual.Init( "m_LoadDistYMinIsManual", groupname, this, 0, 0, 1 );
@@ -2789,6 +2790,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
     std::vector< std::string > data_string_array;
 
     double cref = 1.0;
+    bool unsteady_flag = false;
 
     char seps[]   = " :,\t\n";
     while ( !feof( fp ) )
@@ -2815,8 +2817,6 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
         int nSectionalDataTableCols = 62;
         if ( data_string_array.size() == nSectionalDataTableCols && !isdigit( data_string_array[0][0] ) )
         {
-            bool unsteady_flag = false;
-
             if ( strcmp( data_string_array[ 0 ].c_str(), "Time" ) == 0 )
             {
                 unsteady_flag = true;
@@ -3149,6 +3149,37 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
         } // end sectional and remnant table read
 
     } // end file loop
+
+    if ( res )
+    {
+        res->Add( new NameValData( "Unsteady", unsteady_flag, "Unsteady flag." ) );
+
+        if ( unsteady_flag )
+        {
+            int ntime = res->GetNumData( "Time" );
+
+            vector < double > tvec;
+            if ( ntime > 0 )
+            {
+                tvec.reserve( ntime );
+                for ( int itime = 0; itime < ntime; itime++ )
+                {
+                    NameValData* tResultDataPtr = res->FindPtr( "Time", itime );
+
+                    if ( tResultDataPtr )
+                    {
+                        tvec.push_back( tResultDataPtr->GetDouble( 0 ) );
+                    }
+                }
+            }
+            else
+            {
+                tvec.push_back( 0.0 );
+            }
+
+            res->Add( new NameValData( "TimeSteps", tvec, "Time steps." ) );
+        }
+    }
 
     std::fclose ( fp );
 }

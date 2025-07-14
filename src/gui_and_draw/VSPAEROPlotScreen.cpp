@@ -22,9 +22,8 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-// Needs to fit on 1024x768 native resolution
 #define VSPAERO_PLOT_SCREEN_WIDTH 950   //<1024
-#define VSPAERO_PLOT_SCREEN_HEIGHT 700  //<768
+#define VSPAERO_PLOT_SCREEN_HEIGHT 800
 
 VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_PLOT_SCREEN_WIDTH, VSPAERO_PLOT_SCREEN_HEIGHT, "Results Manager - VSPAERO" )
 {
@@ -154,7 +153,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     // layout the heights of the control layout
     yDataSelectHeight = 8 * rowHeight;
 
-    flowConditionSelectHeight = m_LoadDistLayout.GetH() - 2 * windowBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - 6 * m_LoadDistLayout.GetStdHeight();
+    flowConditionSelectHeight = m_LoadDistLayout.GetH() - 2 * windowBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - 10 * m_LoadDistLayout.GetStdHeight();
 
     GroupLayout yDataSelectLayout;
     m_LoadDistControlLayout.AddSubGroupLayout( yDataSelectLayout, m_LoadDistControlLayout.GetW(), yDataSelectHeight );
@@ -196,7 +195,15 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_LoadDistFlowConditionBrowser = flowConditionLayout.AddFlBrowser( flowConditionLayout.GetRemainY() );
     m_LoadDistFlowConditionBrowser->callback( staticScreenCB, this );
     m_LoadDistFlowConditionBrowser->type( FL_MULTI_BROWSER );
+
     m_LoadDistControlLayout.AddY( flowConditionLayout.GetH() + 2 * groupBorderWidth );
+
+    m_LoadDistControlLayout.AddDividerBox( "Time Step" );
+    m_LoadDistControlLayout.SetButtonWidth( 30 ); // multiplied by 5/6 inside AddIndexSelector.
+    m_LoadDistControlLayout.AddIndexSelector( m_LoadDistTimeIndexSelector );
+    m_LoadDistControlLayout.SetButtonWidth( 100 );
+    m_LoadDistControlLayout.AddOutput( m_LoadDistTimeOutput, "Time" );
+    m_LoadDistControlLayout.AddYGap();
 
     m_LoadDistControlLayout.AddDividerBox( "Legend" );
     m_LoadDistLegendGroup = m_LoadDistControlLayout.AddFlScroll( legendHeight - rowHeight );
@@ -1323,7 +1330,53 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
 
     string resultName = "VSPAERO_Load";
 
+    m_LoadDistTimeIndexSelector.Update( VSPAEROMgr.m_LoadDistTimeIndex.GetID() );
+    m_LoadDistTimeOutput.Update( "" );
+
+    m_LoadDistTimeIndexSelector.Deactivate();
+    m_LoadDistTimeOutput.Deactivate();
+
     int numCases = ResultsMgr.GetNumResults( resultName );
+    if ( numCases > 0 )
+    {
+        Results* res = ResultsMgr.FindResults( resultName, 0 );
+        if( res )
+        {
+            NameValData * unsteady_nvd = res->FindPtr( "Unsteady", 0 );
+            if( unsteady_nvd )
+            {
+                bool unsteady_flag = unsteady_nvd->GetBool( 0 );
+
+                if ( unsteady_flag )
+                {
+                    NameValData * tData = res->FindPtr( "TimeSteps", 0 );
+                    if( tData )
+                    {
+                        m_LoadDistTimeIndexSelector.Activate();
+                        m_LoadDistTimeOutput.Activate();
+
+                        vector < double > tvec = tData->GetDoubleData();
+                        int itime = VSPAEROMgr.m_LoadDistTimeIndex();
+
+                        // Invalid itime.
+                        if ( itime < 0 || itime >= tvec.size() )
+                        {
+                            itime = tvec.size() - 1;
+                            VSPAEROMgr.m_LoadDistTimeIndex.Set( itime );
+
+                            m_LoadDistTimeIndexSelector.Update( VSPAEROMgr.m_LoadDistTimeIndex.GetID() );
+                        }
+
+                        if ( itime >= 0 && itime < tvec.size() )
+                        {
+                            m_LoadDistTimeOutput.Update( to_string( tvec[ itime ] ) );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     for ( unsigned int iCase = 0; iCase < numCases; iCase++ )
     {
         Results* res = ResultsMgr.FindResults( resultName, iCase );
@@ -2788,7 +2841,14 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
 
         for ( int iDataSet = 0; iDataSet < (int)yDataSetNames.size(); iDataSet++ )
         {
-            yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
+            int iTime = VSPAEROMgr.m_LoadDistTimeIndex();
+            int ndata = res->GetNumData( yDataSetNames[iDataSet] );
+            if ( iTime < 0 || iTime >= ndata )
+            {
+                iTime = 0;
+            }
+
+            yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet], iTime );
             if ( xResultDataPtr && yResultDataPtr )
             {
                 Fl_Color c = ColorWheel( m_LoadDistiPlot, m_LoadDistNLines );

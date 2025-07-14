@@ -491,6 +491,7 @@ public:
     Parm m_ConvergenceYMin;
     Parm m_ConvergenceYMax;
 
+    IntParm m_LoadDistTimeIndex;
     BoolParm m_LoadDistXMinIsManual;
     BoolParm m_LoadDistXMaxIsManual;
     BoolParm m_LoadDistYMinIsManual;

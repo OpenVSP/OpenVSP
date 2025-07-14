@@ -118,6 +118,9 @@ protected:
     SliderAdjRangeInput  m_LoadDistYMinSlider;
     SliderAdjRangeInput  m_LoadDistYMaxSlider;
 
+    IndexSelector m_LoadDistTimeIndexSelector;
+    StringOutput m_LoadDistTimeOutput;
+
     Fl_Browser * m_LoadDistYDataBrowser;
     Fl_Browser* m_LoadDistSelectBrowser;
     Fl_Browser * m_LoadDistFlowConditionBrowser;
