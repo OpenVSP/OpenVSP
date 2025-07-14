@@ -2902,6 +2902,13 @@ void PGMesh::Report()
     }
     printf( "\n" );
 
+    printf( "m_WminVec %d entries\n", m_WminVec.size() );
+    for ( int i = 0; i < m_WminVec.size(); i++ )
+    {
+        printf( "%d %g\n", i, m_WminVec[i] );
+    }
+    printf( "\n" );
+
     printf( "m_TagKeys %d entries\n", m_TagKeys.size() );
     for ( int i = 0; i < m_TagKeys.size(); i++ )
     {
@@ -3880,6 +3887,11 @@ int PGMesh::GetType( int part )
 int PGMesh::GetThickThin( int part )
 {
     return m_ThickVec[ part - 1 ];
+}
+
+double PGMesh::GetWmin( int part )
+{
+    return m_WminVec[ part - 1 ];
 }
 
 int PGMesh::GetPart( const vector<int> & tags )

@@ -6341,6 +6341,17 @@ vector< int > GetTMeshTypes( vector<TMesh*> &tmv )
     return type;
 }
 
+vector< double > GetTMeshWmins( vector<TMesh*> &tmv )
+{
+    vector< double > wmin;
+    for ( int i = 0; i < (int)tmv.size(); i++ )
+    {
+        wmin.push_back( tmv[i]->m_Wmin );
+    }
+
+    return wmin;
+}
+
 void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & sub_vec )
 {
     // Clear out the current Subtag Maps
@@ -6348,6 +6359,7 @@ void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & s
     SubSurfaceMgr.m_CompNames = GetTMeshNames( tmv );
     SubSurfaceMgr.m_CompIDs = GetTMeshIDs( tmv );
     SubSurfaceMgr.m_CompTypes = GetTMeshTypes( tmv );
+    SubSurfaceMgr.m_CompWmin = GetTMeshWmins( tmv );
     SubSurfaceMgr.m_CompThick = GetTMeshThicks( tmv );
     SubSurfaceMgr.SetSubSurfTags( tmv.size() );
     SubSurfaceMgr.BuildCompNameMap();

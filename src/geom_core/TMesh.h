@@ -650,6 +650,7 @@ vector< string > GetTMeshNames( vector<TMesh*> &tmv );
 vector< string > GetTMeshIDs( vector<TMesh*> &tmv );
 vector< int > GetTMeshThicks( vector<TMesh*> &tmv );
 vector< int > GetTMeshTypes( vector<TMesh*> &tmv );
+vector< double > GetTMeshWmins( vector<TMesh*> &tmv );
 void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & sub_vec = vector < string > () );
 void RefreshTagMaps( vector<TMesh*> &tmv );
 
