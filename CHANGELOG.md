@@ -1,3 +1,122 @@
+# [OpenVSP 3.44.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.0)
+
+2025-07-14
+
+OpenVSP 3.44.0
+
+Lots of features working together to create a paradigm shift.  I
+think this release will enable a huge change in how people use OpenVSP.
+
+Hopefully you watched the OpenVSP Workshop so you know what I'm talking
+about.  If you didn't, here is a 10 minute video that will give you an
+idea of what to expect.
+
+[Geometry Analysis Teaser Video](https://youtu.be/r91Cpz6gDKY)
+
+If you read the 3.43.1 release notes, then this release is a change of
+plans.  What was planned for 3.44.0 is still coming (i.e. another
+exciting release soon) -- but it makes sense to put this stuff out first.
+
+This release is all about new Geometry Analysis tools in OpenVSP.
+
+Aircraft Configurators perform all kinds of geometry based checks when
+laying out an aircraft.  These checks were traditionally performed at
+the drafting board -- today they're performed manually by eye, or with
+the aid of CAD.  OpenVSP can now perform many of these checks in an
+automated and quantitative manner not possible before.
+
+There are some prerequisites to make all this work.  Many geometry checks
+involve the behavior and position of the landing gear.  OpenVSP now
+has a built-in landing gear component.  Unlike using Stacks or other
+components to build an ad-hock landing gear model, OpenVSP 'knows' that
+this component is a landing gear, so it can rotate about the wheels,
+the axles, or the bogie as appropriate.  It knows that gear struts can
+extend or compress and that tires can have different effective radii.
+
+Some geometry checks involve shapes whose form can be inferred from
+other components in the model.  For example, The arc that a propeller
+or rotor swings through (including flapping) can be inferred by the
+information in the propeller component.  Auxiliary Geometry was added
+to provide a way to handle these situations.  Expect more Auxiliary
+Geoms to be added in the future.
+
+While most analysis tasks in OpenVSP are simple to set up and often can
+be set up once per model, I expect users to have many Geometry Analyses
+set up in their model, each with nuanced configuration and needing to be
+frequently revisited throughout the design process.  The Geometry
+Analysis Manager was created to help organize all of this.
+
+Many geometry checks are possible.  This release includes a dozen new and
+different analyses to handle some common and interesting aircraft design
+use cases.  Expect more geometry analyses to be added in the future.
+
+The HumanGeom was refreshed a bit.  Posing the head (nod and turn) was
+implemented to support visibility checks.  Resolution of the model was
+increased.  Posing the hands (wrist and forearm) was added at user
+request.
+
+SubSurfaces (including Structures) were extended to support arbitrary
+XSecCurve SubSurfaces.  This is mainly to support SubSurface cutouts
+when performing visibility checks, but will find usage elsewhere.
+
+A new AC25.773-1 XSecCurve type was added intended to be used with the
+SuperCone Auxiliary Geometry for visiblity checks.
+
+There is a lot here (about seven months of work in almost 500 commits)--
+and it will take some time to figure out how it all works together.
+The summary video linked above is a good start.  This was also discussed
+at length during the OpenVSP Workshop Day 2.  For now, you can watch
+the whole day on YouTube, but individual talks will eventually be
+separated out and linked to from the Workshop Wiki page.
+
+Everyone should update to take advantage of this new capability.  I can't
+wait to see it put to use by users.  Oh, there are some bug fixes too.
+
+Features:
+- Landing Gear Component
+- Bogie modeling with suspension travel
+- Tire and rim modeling
+- Aircraft CG envelope specification
+- Auxiliary Geom Component
+- Propeller arc
+- Rotor burst cone
+- Off-nominal gear rotation Geoms
+- Composite clearance envelope Auxiliary Gear Geom
+- SuperCone
+- Geometry Analysis Manager
+- Results Viewer
+- External, Internal, and Self External interference checks
+- From point visibility
+- Height above plane distance check
+- Gear rotation (tail and wingtip strike angle)
+- Gear tipback and tipover angles
+- Weight distribution
+- Ground handling
+- Convex Hull in projected area
+- HumanGeom head motion (nod and turn)
+- HumanGeom hand motion (wrist and forearm)
+- HumanGeom improved resolution
+- XSecCurve based SubSurfaces
+- XSecCurve SubSurfaces in Structures
+- AC 25.773-1 XSecCurve type
+
+Libraries:
+- Geometric Tools GTE included in src/external
+- Robust predicates included in src/external
+
+Build System:
+- GTE Does not work with gcc-10.  Updated Ubuntu 22.04 build to gcc-13.
+
+Fixes:
+- Fix visualization of GeomEngine highlighted cross sections
+- Improve error message when advanced link output is not set
+- Fix height of attribute editor in XSecLayout for Fuse & Stack
+- Fix bug with HumanGeom positioning, some pose would move origin
+
+
+---
+
+
 # [OpenVSP 3.43.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.43.1)
 
 2025-07-02
