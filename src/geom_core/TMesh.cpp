@@ -6348,7 +6348,7 @@ void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & s
     SubSurfaceMgr.m_CompNames = GetTMeshNames( tmv );
     SubSurfaceMgr.m_CompIDs = GetTMeshIDs( tmv );
     SubSurfaceMgr.m_CompTypes = GetTMeshTypes( tmv );
-    SubSurfaceMgr.m_ThickMap = GetThicks( tmv );
+    SubSurfaceMgr.m_CompThick = GetTMeshThicks( tmv );
     SubSurfaceMgr.SetSubSurfTags( tmv.size() );
     SubSurfaceMgr.BuildCompNameMap();
     SubSurfaceMgr.BuildCompIDMap();
