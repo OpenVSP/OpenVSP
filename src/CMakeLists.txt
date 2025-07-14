@@ -247,6 +247,7 @@ ENDIF( APPLE )
 INCLUDE( CPack )
 
 INSTALL( DIRECTORY ../examples/airfoil/ DESTINATION airfoil )
+INSTALL( DIRECTORY ../examples/CCE/ DESTINATION CCE )
 INSTALL( DIRECTORY ../examples/CustomScripts/ DESTINATION CustomScripts )
 INSTALL( DIRECTORY ../examples/matlab/ DESTINATION matlab )
 INSTALL( DIRECTORY ../examples/scripts/ DESTINATION scripts )
