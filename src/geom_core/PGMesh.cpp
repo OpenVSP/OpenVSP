@@ -292,8 +292,9 @@ bool PGNode::DoubleBackNode( int &i, int &j ) const
 
             double ti, tj;
             double di, dj;
-            di = sqrt( pointLineDistSquared( ni->m_Pt->m_Pnt, m_Pt->m_Pnt, nj->m_Pt->m_Pnt, &ti ) );
-            dj = sqrt( pointLineDistSquared( nj->m_Pt->m_Pnt, m_Pt->m_Pnt, ni->m_Pt->m_Pnt, &tj ) );
+            vec3d pi, pj;
+            di = sqrt( pointLineDistSquared( ni->m_Pt->m_Pnt, m_Pt->m_Pnt, nj->m_Pt->m_Pnt, ti, pi ) );
+            dj = sqrt( pointLineDistSquared( nj->m_Pt->m_Pnt, m_Pt->m_Pnt, ni->m_Pt->m_Pnt, tj, pj ) );
 
             // if ei and ej are co-linear and in the same direction,
             // return true;
@@ -324,8 +325,9 @@ void PGNode::SealDoubleBackNode( PGMesh *pgm )
         PGNode *nj = ej->OtherNode( this );
 
         double ti, tj;
-        pointLineDistSquared( ni->m_Pt->m_Pnt, m_Pt->m_Pnt, nj->m_Pt->m_Pnt, &tj );
-        pointLineDistSquared( nj->m_Pt->m_Pnt, m_Pt->m_Pnt, ni->m_Pt->m_Pnt, &ti );
+        vec3d pi, pj;
+        pointLineDistSquared( ni->m_Pt->m_Pnt, m_Pt->m_Pnt, nj->m_Pt->m_Pnt, tj, pi );
+        pointLineDistSquared( nj->m_Pt->m_Pnt, m_Pt->m_Pnt, ni->m_Pt->m_Pnt, ti, pj );
 
         if ( ti < tj )
         {
