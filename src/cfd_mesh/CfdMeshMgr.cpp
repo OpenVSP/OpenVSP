@@ -1771,11 +1771,24 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     if ( vspgeom_fn.length() != 0 )
     {
         bool allowquads = true;
+        int nface = -1;
+        if ( allowquads )
+        {
+            nface = ( int )allFaceVec.size();
+        }
+        else
+        {
+            nface = ntristrict;
+        }
+
         FILE* fp = fopen( vspgeom_fn.c_str(), "w" );
 
         if ( fp )
         {
-            fprintf( fp, "# vspgeom v2\n" );
+            fprintf( fp, "# vspgeom v3\n" );
+            fprintf( fp, "1\n" );  // Number of meshes.
+            fprintf( fp, "%d %d %d\n", allUsedPntVec.size(), nface, wakes.size() );
+
             //==== Write Pnt Count ====//
             fprintf( fp, "%d\n", ( int )allUsedPntVec.size() );
 
@@ -1870,6 +1883,12 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                                  allUWVec[i][3].x() / uscale, allUWVec[i][3].y() / wscale );
                     }
                 }
+            }
+
+            // Write parents
+            for ( int i = 0; i < nface; i++ )
+            {
+                fprintf( fp, "%d %d\n", i + 1, i + 1 );
             }
 
             int nwake = wakes.size();

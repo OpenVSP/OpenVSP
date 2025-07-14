@@ -3260,34 +3260,41 @@ string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsF
 }
 
 /*
-# vspgeom v2                 // Header marking file version number -- added with v2.
-nnode                        // Number of nodes
-x1 y1 z1                     // Nodal position.  Also any future single-valued node-centered data that we desire to add.
+# vspgeom v3                                  // Header marking file version number -- added with v2.
+1                                             // Number of meshes in multi-mesh file (always 1 here)
+nnode1 nface1 nwake1                          // Number of nodes, faces, and wakes in solitary mesh
+x1 y1 z1                                      // Nodal position across all meshes, nodes used in coarsest mesh written first, then additional nodes used by each refined mesh in order.
 x2 y2 z2
 ...
-xnnode ynnode znnode         // Last node
-nface                        // Number of faces (currently only tris, but support polygons)
-n1 i11 i12 i13...i1n         // Number of points, index 1, 2, ... n for each face, right hand rule ordering for normals facing out.
+xnnode1 ynnode1 znnode1                       // Last node
+                                              // The remainder of the file is repeated for each mesh, coarsest first.
+nfacei                                           // Number of faces in mesh_i
+n1 i11 i12 i13...i1n                             // Number of points, index 1, 2, ... n for each face, right hand rule ordering for normals facing out.
 n2 i21 i22 i23...i2n
 ...
-nnface in1 in2... inn        // Last polygon face
-p1 t1 u11 v11 u12 v12...u1n v1n // Part number then tag number for face 1 followed by multi-valued nodal data -- currently parametric UV coordinate.
-p2 t2 u21 v21 u22 v22...u2n v2n // Also any other face-centered data that we desire to add.
+nnfacei in1 in2... inn                           // Last polygon face in mesh_i
+p1 t1 u11 v11 u12 v12...u1n v1n                  // Part number then tag number for face 1 followed by parametric UV coordinate -- multi-valued nodal data
+p2 t2 u21 v21 u22 v22...u2n v2n
 ...
-pnface tnface un1 vn2...unn vnn // Last part then tag, multi-valued nodal and face-centered data
-nwake                        // Number of wake lines
-n1 i11 i12 i13 i14...i1n     // Number of points in wake line, indices in chain-order.  Typically line wrapped at ten indices per line.
-n2 i21 i22 i13 i24...i2n
+pnfacei tnfacei un1 vn2...unn vnn                // Last part then tag and UV coordinate
+f1 iparent1                                      // Face index and parent face index.  Parent is the corresponding face in the immediately coarser mesh.
+f2 iparent2                                      // For single-mesh files and coarsest mesh, a face's parent is itself.
 ...
-nnwake in1 in2 in3 in4...inn // Last wake line
-f1 n1 i11 i12 i13...i1n      // Alternate triangulation of faces.
-f2 n2 i21 i22 i23...i2n      // Face number, number of triangles, node-list of triangles for face
+fnfacei iparentnfacei
+nwakei                                           // Number of wakes
+n1 p1 i11 i12 i13 i14...i1n                      // Number of points in wake line, part number of component hosting wake, wake node indices in chain-order.  Typically line wrapped at ten indices per line.
+n2 p2 i21 i22 i13 i24...i2n                      // Number of points is positive for wing wakes and negative for body wakes.
 ...
-nface nn in1 in2 in3...inn   // Last alternate triangulation line
-f1 p1 t1 u11 v11 u12 v12...u1n v1n // Face number then part number then tag number for alternate tri's for face 1 followed by multi-valued nodal data -- currently parametric UV coordinate.
-f2 p2 t2 u21 v21 u22 v22...u2n v2n // Also any other face-centered data that we desire to add.
+nnwakei pnwakei in1 in2 in3 in4...inn            // Last wake line
+f1 n1 i11 i12 i13...i1n                          // Alternate triangulation of faces.
+f2 n2 i21 i22 i23...i2n                          // Face number, number of triangles, node-list of triangles for face
 ...
-fnalt pnalt tnalt un1 vn2...unn vnn // Last face then part then tag, multi-valued nodal and face-centered data
+nfacei nn in1 in2 in3...inn                      // Last alternate triangulation line
+f1 p1 t1 u11 v11 u12 v12...u1n v1n               // Face number then part number then tag number for alternate tri's for face 1 followed by parametric UV coordinate -- multi-valued nodal data
+f2 p2 t2 u21 v21 u22 v22...u2n v2n
+...
+fnalt pnalt tnalt un1 vn2...unn vnn              // Last face then part then tag and UV coordinate
+                                              // Loop to next mesh
 */
 
 //==== Write VSPGeom File ====//
@@ -3387,12 +3394,14 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
             return mesh_id;
         }
 
-        fprintf( file_id, "# vspgeom v2\n" );
+        fprintf( file_id, "# vspgeom v3\n" );
+        fprintf( file_id, "1\n" );  // Number of meshes.
 
         //==== Count Number of Points & Tris ====//
         int num_pnts = 0;
         int num_tris = 0;
         int num_parts = 0;
+        int num_wakes = 0;
         int i;
 
         for ( i = 0; i < ( int ) geom_vec.size(); i++ )
@@ -3402,13 +3411,17 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
             {
                 MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
                 mg->BuildIndexedMesh();
+                mg->IdentifyWakes();
                 num_parts += mg->GetNumIndexedParts();
                 num_pnts += mg->GetNumIndexedPnts();
                 num_tris += mg->GetNumIndexedTris();
+                num_wakes += mg->GetNumWakes();
             }
         }
 
-        fprintf( file_id, "%d\n", num_pnts );
+        fprintf( file_id, "%d %d %d\n", num_pnts,
+                                        num_tris,
+                                        num_wakes );
 
         //==== Dump Points ====//
         for ( i = 0; i < ( int ) geom_vec.size(); i++ )
@@ -3447,6 +3460,20 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
             }
         }
 
+        //==== Write parents ====//
+        int tcount = 1;
+        for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+        {
+            if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            {
+                MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                mg->WriteVSPGeomParents( file_id, tcount );
+            }
+        }
+
+        fprintf( file_id, "%d\n", num_wakes );
+
         offset = 0;
         // Wake line data.
         for ( i = 0; i < ( int ) geom_vec.size(); i++ )
@@ -3464,7 +3491,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         }
 
         offset = 0;
-        int tcount = 1;
+        tcount = 1;
         //==== Dump alternate Tris ====//
         for ( i = 0; i < ( int ) geom_vec.size(); i++ )
         {

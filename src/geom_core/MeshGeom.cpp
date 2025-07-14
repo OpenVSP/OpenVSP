@@ -778,20 +778,26 @@ void MeshGeom::WriteVSPGeom( const string file_name )
     //==== Open file ====//
     FILE *file_id = fopen( file_name.c_str(), "w" );
 
-    fprintf( file_id, "# vspgeom v2\n" );
+    fprintf( file_id, "# vspgeom v3\n" );
+    fprintf( file_id, "1\n" );  // Number of meshes.
 
     //==== Count Number of Points & Tris ====//
     int num_pnts = 0;
     int num_tris = 0;
     int num_parts = 0;
+    int num_wakes = 0;
     int i;
 
     BuildIndexedMesh();
+    IdentifyWakes();
     num_parts += GetNumIndexedParts();
     num_pnts += GetNumIndexedPnts();
     num_tris += GetNumIndexedTris();
+    num_wakes += GetNumWakes();
 
-    fprintf( file_id, "%d\n", num_pnts );
+    fprintf( file_id, "%d %d %d\n", num_pnts,
+                                    num_tris,
+                                    num_wakes );
 
     //==== Dump Points ====//
     WriteVSPGeomPnts( file_id );
@@ -804,16 +810,20 @@ void MeshGeom::WriteVSPGeom( const string file_name )
 
     WriteVSPGeomParts( file_id );
 
+    int tcount = 1;
+    WriteVSPGeomParents( file_id, tcount );
+
+    fprintf( file_id, "%d\n", num_wakes );
+
     offset = 0;
     // Wake line data.
-    IdentifyWakes();
     offset = WriteVSPGeomWakes( file_id, offset );
 
     m_SurfDirty = true;
     Update();
 
     offset = 0;
-    int tcount = 1;
+    tcount = 1;
     //==== Dump alternate Tris ====//
     offset = WriteVSPGeomAlternateTris( file_id, offset, tcount );
 
@@ -1176,6 +1186,16 @@ int MeshGeom::CountVSPGeomPartTagTris( int part, int tag )
     return count;
 }
 
+void MeshGeom::WriteVSPGeomParents( FILE* file_id, int &tcount )
+{
+    // Write parents
+    for ( int i = 0; i < m_IndexedTriVec.size(); i++ )
+    {
+        fprintf( file_id, "%d %d\n", tcount, tcount );
+        tcount++;
+    }
+}
+
 // Wake edges are created such that N0.u < N1.u.
 // This comparator sorts first by sgn(N0.y), abs(N0.y), then N0.u and N1.u.
 bool OrderWakeEdges ( const TEdge &a, const TEdge &b )
@@ -1341,8 +1361,6 @@ void MeshGeom::IdentifyWakes()
 int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
 {
     int nwake = m_Wakes.size();
-
-    fprintf( file_id, "%d\n", nwake );
 
     for ( int iwake = 0; iwake < nwake; iwake++ )
     {

@@ -524,6 +524,7 @@ public:
     virtual void WriteVSPGeomTris( FILE* file_id );
     virtual void WriteVSPGeomAlternateTris( FILE* file_id );
     virtual void WriteVSPGeomParts( FILE* file_id  );
+    virtual void WriteVSPGeomParents( FILE* file_id );
     virtual void WriteVSPGeomAlternateParts( FILE* file_id );
     virtual int WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag );
     virtual int CountVSPGeomPartTagTris( int part, int tag );

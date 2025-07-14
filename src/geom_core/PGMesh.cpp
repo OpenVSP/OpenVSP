@@ -3112,10 +3112,17 @@ void PGMesh::CleanColinearVerts()
 
 void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 {
-    fprintf( file_id, "# vspgeom v2\n" );
+    ResetFaceNumbers(); // Not sure if this is required.
+
+    fprintf( file_id, "# vspgeom v3\n" );
+    fprintf( file_id, "1\n" );  // Number of meshes.
+    fprintf( file_id, "%d %d %d\n", m_NodeList.size(),
+                                    m_FaceList.size(),
+                                    m_WingWakeVec.size() + m_BodyWakeVec.size() + m_BodyNodeWakeVec.size() );
     WriteVSPGeomPnts( file_id, XFormMat );
     WriteVSPGeomFaces( file_id );
     WriteVSPGeomParts( file_id );
+    WriteVSPGeomParents( file_id );
     WriteVSPGeomWakes( file_id );
     WriteVSPGeomAlternateTris( file_id );
     WriteVSPGeomAlternateParts( file_id );

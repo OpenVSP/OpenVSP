@@ -109,6 +109,10 @@ public:
     {
         return m_TMeshVec.size();
     }
+    virtual int GetNumWakes() const
+    {
+        return m_Wakes.size();
+    }
 
     virtual void WriteVSPGeom( const string file_name );
     virtual void WriteNascartPnts( FILE* file_id );
@@ -131,6 +135,8 @@ public:
 
     virtual int  WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag );
     virtual int  CountVSPGeomPartTagTris( int part, int tag );
+
+    virtual void WriteVSPGeomParents( FILE* file_id, int &tcount );
 
     virtual void IdentifyWakes();
 

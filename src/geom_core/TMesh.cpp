@@ -2188,10 +2188,15 @@ void TMesh::WriteVSPGeom( const string file_name )
     //==== Open file ====//
     FILE *file_id = fopen( file_name.c_str(), "w" );
 
-    fprintf( file_id, "# vspgeom v2\n" );
+    fprintf( file_id, "# vspgeom v3\n" );
+    fprintf( file_id, "1\n" );  // Number of meshes.
+    fprintf( file_id, "%d %d %d\n", m_NVec.size(),
+                                    m_TVec.size(),
+                                    wakes.size() );
     WriteVSPGeomPnts( file_id );
     WriteVSPGeomTris( file_id );
     WriteVSPGeomParts( file_id );
+    WriteVSPGeomParents( file_id );
     WriteVSPGeomWakes( file_id, wakes );
     WriteVSPGeomAlternateTris( file_id );
     WriteVSPGeomAlternateParts( file_id );
@@ -2253,6 +2258,14 @@ void TMesh::WriteVSPGeomParts( FILE* file_id  )
                  ttri->m_N0->m_UWPnt.x() / uscale, ttri->m_N0->m_UWPnt.y() / wscale,
                  ttri->m_N1->m_UWPnt.x() / uscale, ttri->m_N1->m_UWPnt.y() / wscale,
                  ttri->m_N2->m_UWPnt.x() / uscale, ttri->m_N2->m_UWPnt.y() / wscale );
+    }
+}
+
+void TMesh::WriteVSPGeomParents( FILE* file_id )
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        fprintf( file_id, "%d %d\n", t + 1, t + 1 );
     }
 }
 
