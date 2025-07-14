@@ -1836,6 +1836,11 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
     if( res && load_res )
     {
         vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
+
+        std::sort( dataNames.begin(), dataNames.end() );
+        auto last = std::unique( dataNames.begin(), dataNames.end() );
+        dataNames.erase( last, dataNames.end() );
+
         for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
         {
             if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 )   != 0 )  &&
