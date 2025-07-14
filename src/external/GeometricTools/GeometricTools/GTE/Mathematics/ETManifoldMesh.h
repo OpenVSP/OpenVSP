@@ -533,7 +533,7 @@ namespace gte
             adjacents.resize(numTriangles);
 
             TrianglePtrSizeTMap triIndexMap;
-            triIndexMap.insert(std::make_pair(nullptr, std::numeric_limits<size_t>::max()));
+            triIndexMap.insert(std::make_pair( (Triangle*) nullptr, std::numeric_limits<size_t>::max()));
             size_t index = 0;
             for (auto const& element : mTMap)
             {
