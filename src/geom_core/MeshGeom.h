@@ -212,6 +212,8 @@ public:
     virtual vector< int > GetTMeshThicks();
     virtual vector< int > GetTMeshTypes();
     virtual vector< double > GetTMeshWmins();
+    virtual vector< double > GetTMeshUscale();
+    virtual vector< double > GetTMeshWscale();
     virtual set< string > GetTMeshPtrIDs();
 
     virtual void SubTagTris( bool tag_subs );

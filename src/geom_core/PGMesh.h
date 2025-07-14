@@ -444,6 +444,8 @@ public:
     int GetType( int part ) const;
     int GetThickThin( int part ) const;
     double GetWmin( int part ) const;
+    double GetUscale( int part ) const;
+    double GetWscale( int part ) const;
     static int GetPart( const std::vector<int> & tags );
     int GetPart( int tag ) const;
     void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );
@@ -464,6 +466,8 @@ public:
     std::vector< int > m_ThickVec;
     std::vector< int > m_TypeVec;
     std::vector< double > m_WminVec;
+    std::vector< double > m_UscaleVec;
+    std::vector< double > m_WscaleVec;
 
     std::vector< std::vector<int> > m_TagKeys;
     std::map< std::vector<int>, int > m_SingleTagMap;

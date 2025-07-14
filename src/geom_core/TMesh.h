@@ -616,6 +616,8 @@ public:
     int m_SurfType;
 
     double m_Wmin;
+    double m_Uscale;
+    double m_Wscale;
 
     // UW and XYZ points used in TMesh::CompPnt only.  This is called in Intersect and SplitTri when in UV mode.  This
     // happens while intersecting subsurface curves.
@@ -637,7 +639,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             const vector< vector<vec3d> > & uw_pnts,
                             int n_ref,
                             int indx, int platenum, int surftype, int cfdsurftype,
-                            bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal,
+                            bool thicksurf, bool flipnormal, bool skipnegflipnormal,
                             bool flatpatch = false );
 
 void CreateTMeshVecFromPts( const Geom * geom,
@@ -646,7 +648,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             const vector< vector<vec3d> > & uw_pnts,
                             int n_ref,
                             int indx, int platenum, int surftype, int cfdsurftype,
-                            bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal,
+                            bool thicksurf, bool flipnormal, bool skipnegflipnormal,
                             int iustart, int iuend,
                             bool flatpatch );
 
@@ -656,7 +658,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                             const vector< vector<vec3d> > & uw_pnts,
                             int n_ref,
                             int indx, int platenum, int surftype, int cfdsurftype,
-                            bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal );
+                            bool thicksurf, bool flipnormal, bool skipnegflipnormal );
 
 void BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax, int platenum, int n_ref );
 
@@ -676,6 +678,8 @@ vector< string > GetTMeshIDs( vector<TMesh*> &tmv );
 vector< int > GetTMeshThicks( vector<TMesh*> &tmv );
 vector< int > GetTMeshTypes( vector<TMesh*> &tmv );
 vector< double > GetTMeshWmins( vector<TMesh*> &tmv );
+vector< double > GetTMeshUscale( vector<TMesh*> &tmv );
+vector< double > GetTMeshWscale( vector<TMesh*> &tmv );
 void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & sub_vec = vector < string > () );
 void RefreshTagMaps( vector<TMesh*> &tmv );
 

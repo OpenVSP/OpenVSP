@@ -3255,6 +3255,8 @@ void PGMesh::BuildFromTMesh( const TMesh* tmi )
     m_PGMulti->m_ThickVec = SubSurfaceMgr.m_CompThick;
     m_PGMulti->m_TypeVec = SubSurfaceMgr.m_CompTypes;
     m_PGMulti->m_WminVec = SubSurfaceMgr.m_CompWmin;
+    m_PGMulti->m_UscaleVec = SubSurfaceMgr.m_CompUscale;
+    m_PGMulti->m_WscaleVec = SubSurfaceMgr.m_CompWscale;
     m_PGMulti->m_TagKeys = SubSurfaceMgr.GetTagKeys();
     m_PGMulti->m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
 
@@ -3324,6 +3326,8 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
     m_PGMulti->m_ThickVec = SubSurfaceMgr.m_CompThick;
     m_PGMulti->m_TypeVec = SubSurfaceMgr.m_CompTypes;
     m_PGMulti->m_WminVec = SubSurfaceMgr.m_CompWmin;
+    m_PGMulti->m_UscaleVec = SubSurfaceMgr.m_CompUscale;
+    m_PGMulti->m_WscaleVec = SubSurfaceMgr.m_CompWscale;
     m_PGMulti->m_TagKeys = SubSurfaceMgr.GetTagKeys();
     m_PGMulti->m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
 
@@ -3402,6 +3406,8 @@ void PGMesh::BuildFromPGMesh( const PGMesh* pgm )
     m_PGMulti->m_ThickVec = pgm->m_PGMulti->m_ThickVec;
     m_PGMulti->m_TypeVec = pgm->m_PGMulti->m_TypeVec;
     m_PGMulti->m_WminVec = pgm->m_PGMulti->m_WminVec;
+    m_PGMulti->m_UscaleVec = pgm->m_PGMulti->m_UscaleVec;
+    m_PGMulti->m_WscaleVec = pgm->m_PGMulti->m_WscaleVec;
     m_PGMulti->m_TagKeys = pgm->m_PGMulti->m_TagKeys;
     m_PGMulti->m_SingleTagMap = pgm->m_PGMulti->m_SingleTagMap;
 
@@ -4235,6 +4241,16 @@ int PGMulti::GetThickThin( const int part ) const
 double PGMulti::GetWmin( const int part ) const
 {
     return m_WminVec[ part - 1 ];
+}
+
+double PGMulti::GetUscale( const int part ) const
+{
+    return m_UscaleVec[ part - 1 ];
+}
+
+double PGMulti::GetWscale( const int part ) const
+{
+    return m_WscaleVec[ part - 1 ];
 }
 
 int PGMulti::GetPart( const vector<int> & tags )

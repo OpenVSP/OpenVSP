@@ -1738,7 +1738,6 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
                                             getCfdSurfType(),
                                             thicksurf,
                                             getFlipNormal(),
-                                            4.0,
                                             skipnegflipnormal );
         }
         else if ( surftype == DegenGeom::DISK_TYPE)
@@ -1758,7 +1757,6 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
                                             getCfdSurfType(),
                                             thicksurf,
                                             getFlipNormal(),
-                                            4.0,
                                             skipnegflipnormal );
         }
     }

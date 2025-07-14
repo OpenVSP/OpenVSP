@@ -435,6 +435,8 @@ void TMesh::Init()
     m_AreaCenter = vec3d(0,0,0);
     m_GuessVol = 0;
     m_Wmin = DBL_MAX;
+    m_Uscale = DBL_MIN;
+    m_Wscale = DBL_MIN;
 
 
     m_OriginGeomID = "";
@@ -688,6 +690,8 @@ void TMesh::CopyAttributes( TMesh* m )
 
     m_SurfType = m->m_SurfType;
     m_Wmin = m->m_Wmin;
+    m_Uscale = m->m_Uscale;
+    m_Wscale = m->m_Wscale;
 
     m_UWPnts = m->m_UWPnts;
     m_XYZPnts = m->m_XYZPnts;
@@ -6092,7 +6096,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             const vector< vector<vec3d> > & uw_pnts,
                             int n_ref,
                             int indx, int platenum, int surftype, int cfdsurftype,
-                            bool thicksurf, bool flipnormal, double wmax,bool skipnegflipnormal,
+                            bool thicksurf, bool flipnormal, bool skipnegflipnormal,
                             bool flatpatch )
 {
     TMeshVec.push_back( new TMesh() );
@@ -6107,13 +6111,15 @@ void CreateTMeshVecFromPts( const Geom * geom,
     TMeshVec[itmesh]->m_UWPnts = uw_pnts;
     TMeshVec[itmesh]->m_XYZPnts = pnts;
     TMeshVec[itmesh]->m_Wmin = uw_pnts[0][0].y();
+    TMeshVec[itmesh]->m_Uscale = geom->GetUMax( indx );
+    TMeshVec[itmesh]->m_Wscale = geom->GetWMax( indx );;
 
     if ( !skipnegflipnormal && cfdsurftype == vsp::CFD_NEGATIVE )
     {
         flipnormal = !flipnormal;
     }
 
-    BuildTMeshTris( TMeshVec[itmesh], flipnormal, wmax, platenum, n_ref );
+    BuildTMeshTris( TMeshVec[itmesh], flipnormal, geom->GetWMax( indx ), platenum, n_ref );
 
 }
 
@@ -6123,7 +6129,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             const vector< vector<vec3d> > & uw_pnts,
                             int n_ref,
                             int indx, int platenum, int surftype, int cfdsurftype,
-                            bool thicksurf, bool flipnormal, double wmax,bool skipnegflipnormal,
+                            bool thicksurf, bool flipnormal, bool skipnegflipnormal,
                             int iustart, int iuend,
                             bool flatpatch )
 {
@@ -6146,7 +6152,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                            pnts_subset, uw_pnts_subset,
                            n_ref,
                            indx, platenum, surftype, cfdsurftype,
-                           thicksurf, flipnormal, wmax, skipnegflipnormal,
+                           thicksurf, flipnormal, skipnegflipnormal,
                            flatpatch );
 }
 
@@ -6156,7 +6162,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                      const vector< vector<vec3d> > & uw_pnts,
                                      int n_ref,
                                      int indx, int platenum, int surftype, int cfdsurftype,
-                                     bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal )
+                                     bool thicksurf, bool flipnormal, bool skipnegflipnormal )
 {
     // Comparing on distance squared between two normal vectors.
     double tol = 1e-12;
@@ -6228,7 +6234,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                        uw_pnts,
                                        n_ref,
                                        indx, platenum, surftype, cfdsurftype,
-                                       thicksurf, flipnormal, wmax, skipnegflipnormal,
+                                       thicksurf, flipnormal, skipnegflipnormal,
                                        iustart, iuend,
                                        flatpatch );
 
@@ -6248,7 +6254,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                    uw_pnts,
                                    n_ref,
                                    indx, platenum, surftype, cfdsurftype,
-                                   thicksurf, flipnormal, wmax, skipnegflipnormal,
+                                   thicksurf, flipnormal, skipnegflipnormal,
                                    false );
         }
     }
@@ -6260,7 +6266,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                uw_pnts,
                                n_ref,
                                indx, platenum, surftype, cfdsurftype,
-                               thicksurf, flipnormal, wmax, skipnegflipnormal,
+                               thicksurf, flipnormal, skipnegflipnormal,
                                false );
     }
 }
@@ -6798,13 +6804,35 @@ vector< int > GetTMeshTypes( vector<TMesh*> &tmv )
 
 vector< double > GetTMeshWmins( vector<TMesh*> &tmv )
 {
-    vector< double > wmin;
+    vector < double > wmin( tmv.size(), 0.0 );
     for ( int i = 0; i < (int)tmv.size(); i++ )
     {
-        wmin.push_back( tmv[i]->m_Wmin );
+        wmin[i] = tmv[i]->m_Wmin;
     }
 
     return wmin;
+}
+
+vector< double > GetTMeshUscale( vector<TMesh*> &tmv )
+{
+    vector< double > uscale( tmv.size(), 0.0 );
+    for ( int i = 0; i < (int)tmv.size(); i++ )
+    {
+        uscale[i] = tmv[i]->m_Uscale;
+    }
+
+    return uscale;
+}
+
+vector< double > GetTMeshWscale( vector<TMesh*> &tmv )
+{
+    vector< double > wscale( tmv.size(), 0.0 );
+    for ( int i = 0; i < (int)tmv.size(); i++ )
+    {
+        wscale[i] = tmv[i]->m_Wscale;
+    }
+
+    return wscale;
 }
 
 void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & sub_vec )
@@ -6815,6 +6843,8 @@ void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & s
     SubSurfaceMgr.m_CompIDs = GetTMeshIDs( tmv );
     SubSurfaceMgr.m_CompTypes = GetTMeshTypes( tmv );
     SubSurfaceMgr.m_CompWmin = GetTMeshWmins( tmv );
+    SubSurfaceMgr.m_CompUscale = GetTMeshUscale( tmv );
+    SubSurfaceMgr.m_CompWscale = GetTMeshWscale( tmv );
     SubSurfaceMgr.m_CompThick = GetTMeshThicks( tmv );
     SubSurfaceMgr.SetSubSurfTags( tmv.size() );
     SubSurfaceMgr.BuildCompNameMap();

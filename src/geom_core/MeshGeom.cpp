@@ -4644,6 +4644,16 @@ vector< double > MeshGeom::GetTMeshWmins()
     return ::GetTMeshWmins( m_TMeshVec );
 }
 
+vector< double > MeshGeom::GetTMeshUscale()
+{
+    return ::GetTMeshUscale( m_TMeshVec );
+}
+
+vector< double > MeshGeom::GetTMeshWscale()
+{
+    return ::GetTMeshWscale( m_TMeshVec );
+}
+
 set < string > MeshGeom::GetTMeshPtrIDs()
 {
     set < string > ids;
