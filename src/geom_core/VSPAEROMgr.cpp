@@ -2815,15 +2815,15 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
         int nSectionalDataTableCols = 62;
         if ( data_string_array.size() == nSectionalDataTableCols && !isdigit( data_string_array[0][0] ) )
         {
-            //discard the header row and read the next line assuming that it is numeric
-            data_string_array = ReadDelimLine( fp, seps );
-
             bool unsteady_flag = false;
 
             if ( strcmp( data_string_array[ 0 ].c_str(), "Time" ) == 0 )
             {
                 unsteady_flag = true;
             }
+
+            //discard the header row and read the next line assuming that it is numeric
+            data_string_array = ReadDelimLine( fp, seps );
 
             // Raw data vectors
             std::vector<int> Iter;
