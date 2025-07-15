@@ -22,7 +22,7 @@ jobs:
             python-version: 3.9
         include:
           - os: ubuntu-22.04
-            gcc-version: 10
+            gcc-version: 13
           - os: ubuntu-24.04
             gcc-version: 13
           - os: macos-13
@@ -40,11 +40,20 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name:  Install Linux
-      if: runner.os == 'Linux'
+      if: matrix.os == 'ubuntu-24.04'
       shell: bash
       run:   |
         sudo apt-get update
         sudo apt-get install python3-sphinx python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip pandoc
+
+    - name:  Install Linux
+      if: matrix.os == 'ubuntu-22.04'
+      shell: bash
+      run:   |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+        sudo apt-get update -y
+        sudo apt-get install python3-sphinx python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip pandoc
+        sudo apt-get install gcc-13 g++-13
 
     - name:  Install Windows
       if: runner.os == 'Windows'
