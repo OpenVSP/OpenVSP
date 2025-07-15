@@ -194,6 +194,7 @@ private:
     int AveragingHasStarted_;
     int NumberOfAveragingSets_;
     int StallModelIsOn_;
+    int NoADBFile_;
     
     double SigmaAvg_;
     double DeltaTime_;
@@ -2833,6 +2834,10 @@ public:
     /** Turn on the stall model **/
     
     int &StallModelIsOn(void) { return StallModelIsOn_; };
+    
+    /** Turn off writing of ADB file **/
+    
+    int &NoADBFile(void) { return NoADBFile_; };
     
     /** Perform the solve on MGLevel = SolveOnMGLevel ... this has the solver
      * run using SolveOnMGLevel_ level as the finest grid level. This allows

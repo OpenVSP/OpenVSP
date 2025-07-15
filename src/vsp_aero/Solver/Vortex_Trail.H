@@ -123,7 +123,11 @@ private:
     // Local chord
     
     double LocalChord_;
-            
+    
+    // Local span
+    
+    double LocalSpan_;
+        
     // Local inviscid Cl based on trailing edge circulation
     
     double Cli_;
@@ -195,7 +199,7 @@ private:
     // Local viscous Cmy based on trailing edge circulation
     
     double CMoz_;
-    
+
     // Distance between trailing wakes at trailing edge
     
     double Sigma_;
@@ -539,6 +543,10 @@ public:
     /** Local chord **/
     
     double &LocalChord(void) { return LocalChord_; };
+    
+    /** Local span **/
+    
+    double &LocalSpan(void) { return LocalSpan_; };
 
     /** Local inviscid Cl based on trailing edge circulation **/
 

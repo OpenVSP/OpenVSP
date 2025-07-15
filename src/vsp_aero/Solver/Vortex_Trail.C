@@ -112,7 +112,9 @@ void VORTEX_TRAIL::init(void)
     
     StallFactor_ = 1.;
 
-    LocalChord_ = 4.;
+    LocalChord_ = 0.;
+
+    LocalSpan_ = 0.;
     
     Cli_ = 0.;
     
@@ -281,6 +283,8 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
     StallFactor_ = Trailing_Vortex.StallFactor_;
     
     LocalChord_ = Trailing_Vortex.LocalChord_;
+    
+    LocalSpan_ = Trailing_Vortex.LocalSpan_;
      
     return *this;
 

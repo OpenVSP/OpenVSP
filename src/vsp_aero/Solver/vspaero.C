@@ -28,6 +28,9 @@ using namespace VSPAERO_SOLVER;
 #define VER_MINOR 2
 #define VER_PATCH 0
 
+#define OPT_CGS   1
+#define OPT_BFGS  2
+
 // OpenVSP headers
 
 #ifdef VSPAERO_OPT
@@ -275,7 +278,8 @@ int RestartFromPreviousSolve_        = 0;
 int OptimizationNumberOfIterations_      = 10;
 int OptimizationNumber1DSearchSteps_     = 10;
 int OptimizationUsingWakeForces_         =  0;
-int OPtimizationUpdateGeometryGradients_ =  0;
+int OptimizationUpdateGeometryGradients_ =  0;
+int OptimizationMethod_                  = OPT_BFGS;
 
 double Optimization_CL_Weight_       = 0.;
 double Optimization_CD_Weight_       = 0.;
@@ -347,6 +351,7 @@ public:
    
    double *ParameterValues;
    char **ParameterNames;
+   char **ParameterFullNamePath;
 
 };
 
@@ -358,18 +363,30 @@ double *CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, char **Pa
 
 void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues);
 
+void WriteVSPDesFile(char *FileName, int Iter, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues);
+
 double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVariables, PARAMETER_DATA *ParameterData);
 
 void DeleteMeshGradients(int NumberOfDesignVariables, double **dMesh_dParameter);
 
 double Normalize(double *Vector, int Length);
 
-void CGState(double *Old, double *New, int Length);
+void CGState(int Iter, int NumberOfParameters, double *GradientOld, double *GradientNew, double *SearchDirectionNew);
 
+void BFGSState(int Iter, 
+               int NumberOfParameters,
+               double *GradientOld,
+               double *GradientNew,
+               double *ParameterOld,
+               double *ParameterNew,
+               double *SearchDirectionOld,
+               double *SearchDirectionNew,
+               MATRIX &Hessian);
+               
 int Do1DFunctionMinimization(int NumberOfParameterValues, 
                              PARAMETER_DATA *ParameterData,
                              double *ParameterValues,
-                             double *Gradient,                            
+                             double *SearchDirection,                            
                              double &StepSize,
                              double &F,
                              double &CL,
@@ -1352,13 +1369,14 @@ void LoadCaseFile(int ReadFlag)
 
     if ( SearchForIntegerVariable(case_file, "OptimizationUsingWakeForces", OptimizationUsingWakeForces_) ) if ( case_file != NULL ) { printf("Setting OptimizationUsingWakeForces flag to: %d \n",OptimizationUsingWakeForces_); };
 
-    if ( SearchForIntegerVariable(case_file, "OPtimizationUpdateGeometryGradients", OPtimizationUpdateGeometryGradients_) ) if ( case_file != NULL ) { printf("Setting OPtimizationUpdateGeometryGradients flag to: %d \n",OPtimizationUpdateGeometryGradients_); };
+    if ( SearchForIntegerVariable(case_file, "OptimizationUpdateGeometryGradients", OptimizationUpdateGeometryGradients_) ) if ( case_file != NULL ) { printf("Setting OptimizationUpdateGeometryGradients flag to: %d \n",OptimizationUpdateGeometryGradients_); };
             
     if ( SearchForFloatVariable(case_file, "OptimizationGradientReduction", OptimizationGradientReduction_) ) if ( case_file != NULL ) { printf("Setting OptimizationGradientReduction to: %f \n",OptimizationGradientReduction_); };
 
     if ( SearchForFloatVariable(case_file, "OptimizationFunctionReduction", OptimizationFunctionReduction_) ) if ( case_file != NULL ) { printf("Setting OptimizationFunctionReduction to: %f \n",OptimizationFunctionReduction_); };
 
-            
+    if ( SearchForIntegerVariable(case_file, "OptimizationMethod", OptimizationMethod_) ) if ( case_file != NULL ) { printf("Setting OptimizationMethod flag to: %d \n",OptimizationMethod_); };
+
     if ( SearchForFloatVariable(case_file, "Optimization_CL_Weight", Optimization_CL_Weight_) ) if ( case_file != NULL ) { printf("Setting Optimization_CL_Weight to: %f \n",Optimization_CL_Weight_); };
     if ( SearchForFloatVariable(case_file, "Optimization_CD_Weight", Optimization_CD_Weight_) ) if ( case_file != NULL ) { printf("Setting Optimization_CD_Weight to: %f \n",Optimization_CD_Weight_); };
     if ( SearchForFloatVariable(case_file, "Optimization_CS_Weight", Optimization_CS_Weight_) ) if ( case_file != NULL ) { printf("Setting Optimization_CS_Weight to: %f \n",Optimization_CS_Weight_); };
@@ -4841,7 +4859,7 @@ void FiniteDiffTestSolve(void)
               
   //  VSPAERO().UpdateMeshes();
               
-    Delta = 1.e-6;    
+    Delta = 1.e-4;    
     
     if ( DoUnsteadyAnalysis_ ) {
        
@@ -5576,14 +5594,17 @@ void VSPAERO_Optimize(void)
 
     double CL, CD, CS, CML, CMM, CMN, F, F1;
     double Delta, Delta1, StepSize, FReduction, GReduction;    
-    double *NodeXYZ, *dFdMesh[3], *dF_dParameter, *Gradient, *GradientOld;
-    double *ParameterValues, *NewParameterValues, Time0, TotalTime, *MeshNodes;
+    double *NodeXYZ, *dFdMesh[3], *dF_dParameter, *GradientNew, *GradientOld;
+    double *SearchDirectionOld, *SearchDirectionNew;
+    double *ParameterValuesNew, *ParameterValuesOld, Time0, TotalTime, *MeshNodes;
     double **dMesh_dParameter;
     double Time, ForwardSolveTime, AdjointSolveTime, GeometryUpdateTime;
 
     char HistoryFileName[MAX_CHAR_SIZE], CommandLine[MAX_CHAR_SIZE], OptimizationSetupFileName[MAX_CHAR_SIZE], **ParameterNames;
     char OpenVSP_FileName[MAX_CHAR_SIZE], OpenVSP_VSPGeomFileName[MAX_CHAR_SIZE], NewFileName[MAX_CHAR_SIZE];
 
+    MATRIX Hessian;
+    
     FILE *HistoryFile, *OptimizationSetupFile;
     
     // Zero out statistics
@@ -5748,21 +5769,29 @@ void VSPAERO_Optimize(void)
     
     dF_dParameter = new double[NumberOfParameterValues + 1];
     
-    ParameterValues = new double[NumberOfParameterValues + 1];
+    ParameterValuesOld = new double[NumberOfParameterValues + 1];
     
-    NewParameterValues = new double[NumberOfParameterValues + 1];
+    ParameterValuesNew = new double[NumberOfParameterValues + 1];
 
-    Gradient = new double[NumberOfParameterValues + 1];
+    GradientNew = new double[NumberOfParameterValues + 1];
     
     GradientOld = new double[NumberOfParameterValues + 1];
+    
+    SearchDirectionOld = new double[NumberOfParameterValues + 1];
+
+    SearchDirectionNew = new double[NumberOfParameterValues + 1];
 
     for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
 
-       GradientOld[j] = Gradient[j] = dF_dParameter[j] = 0.;
+       GradientOld[j] = GradientNew[j] = dF_dParameter[j] = 0.;
        
-       ParameterValues[j] = ParameterData->ParameterValues[j];
+       SearchDirectionOld[j] = SearchDirectionNew[j] = 0.;
+       
+       ParameterValuesOld[j] = ParameterValuesNew[j] = ParameterData->ParameterValues[j];
 
     }
+    
+    Hessian.size(NumberOfParameterValues,NumberOfParameterValues);
     
     // Calculate partials of mesh wrt parameters
 
@@ -5801,9 +5830,25 @@ void VSPAERO_Optimize(void)
     system(CommandLine);
 
     // Header
+
+    for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+       
+       fprintf(HistoryFile,"# %-10d    %s \n",j,ParameterData->ParameterFullNamePath[j]);
+       
+    }
+
+    fprintf(HistoryFile,"\n\n\n\n");
      
                         //1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 
-    fprintf(HistoryFile,"    Iter        CL         CD         CS        CML        CMM        CMN        L/D         F      FReduction   GradF    GradReduct   1DSteps   StepSize     Time   \n");    
+    fprintf(HistoryFile,"    Iter        CL         CD         CS        CML        CMM        CMN        L/D         F      FReduction   GradF    GradReduct   1DSteps   StepSize     Time");    
+       
+    for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+       
+       fprintf(HistoryFile,"%10d ",j);
+       
+    }
+    
+    fprintf(HistoryFile,"\n");
           
     TotalTime = myclock() - Time0;
 
@@ -5817,9 +5862,11 @@ void VSPAERO_Optimize(void)
        
        printf("Running VSPAERO forward and adjoint solvers... \n");fflush(NULL);
 
+       VSPAERO().NoADBFile() = 0;
+       
        F = DoForwardSolve(NumberOfParameterValues, 
                           ParameterData,
-                          ParameterValues,
+                          ParameterValuesNew,
                           CL,
                           CD,
                           CS,
@@ -5833,6 +5880,8 @@ void VSPAERO_Optimize(void)
                           NumberOfForwardSolves,
                           NumberOfAdjointSolves,                     
                           1);
+
+       VSPAERO().NoADBFile() = 1;
        
        if ( Iter == 1 ) {
           
@@ -5844,31 +5893,17 @@ void VSPAERO_Optimize(void)
           
           NumSteps = 0;
 
-          fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",0,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,GReduction,NumSteps,StepSize,TotalTime);
-   
+          fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f ",0,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,GReduction,NumSteps,StepSize,TotalTime);
+
+          for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+             
+             fprintf(HistoryFile,"%10.5f ",ParameterData->ParameterValues[j]);
+             
+          }
+          
+          fprintf(HistoryFile,"\n");
+          
        }
-           
-       // Save the .adb file for later viewing
-       
-       snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.%d.adb",FileName,FileName,Iter);
-       
-       system(CommandLine);
-       
-       if ( Iter == 1 ) {
-          
-          // Save the .adb file for later viewing
-          
-          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.adb",FileName,FileName);
-          
-          system(CommandLine);
-          
-          // Copy over the .cases file for viewer
-          
-          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb.cases %s.opt.adb.cases",FileName,FileName);
-          
-          system(CommandLine);          
-       
-       }          
 
        // Calculate derivatives of F wrt mesh
     
@@ -5920,17 +5955,17 @@ void VSPAERO_Optimize(void)
        
        for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
        
-          GradientOld[j] = Gradient[j];
+          GradientOld[j] = GradientNew[j];
           
-          Gradient[j] = dF_dParameter[j];
-          
+          GradientNew[j] = dF_dParameter[j];
+        
        }
 
        Delta = 0.;
        
        for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
        
-          Delta += Gradient[j]*Gradient[j];
+          Delta += GradientNew[j]*GradientNew[j];
           
        }
        
@@ -5938,16 +5973,55 @@ void VSPAERO_Optimize(void)
  
        if ( Iter == 1 ) Delta1 = Delta;
                     
-       // Conjugate gradient adjustment of the gradient...
+       // BFGS
        
-       if ( Iter > 1 ) CGState(GradientOld,Gradient,NumberOfParameterValues);
+       if ( OptimizationMethod_ == OPT_BFGS ) {
+          
+          BFGSState(Iter,
+                    NumberOfParameterValues,
+                    GradientOld,
+                    GradientNew,
+                    ParameterValuesOld,
+                    ParameterValuesNew,    
+                    SearchDirectionOld,             
+                    SearchDirectionNew,
+                    Hessian);
+                 
+       }
        
+       // CG
+       
+       else if ( OptimizationMethod_ == OPT_CGS ) {
+           
+          CGState(Iter,
+                  NumberOfParameterValues,
+                  GradientOld,
+                  GradientNew,
+                  SearchDirectionNew);
+                  
+       }
+       
+       else {
+          
+          printf("Unknown Optimization method! \n");
+          fflush(NULL);exit(1);
+          
+       }
+      
+       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+          
+          ParameterValuesOld[j] = ParameterValuesNew[j];
+          
+          SearchDirectionOld[j] = SearchDirectionNew[j];
+                    
+       }
+
        // Do 1D search for minimum along this search direction
 
        NumSteps = Do1DFunctionMinimization(NumberOfParameterValues, 
                                            ParameterData,
-                                           ParameterValues,
-                                           Gradient,
+                                           ParameterValuesNew,
+                                           SearchDirectionNew,
                                            StepSize,
                                            F,
                                            CL,
@@ -5962,24 +6036,40 @@ void VSPAERO_Optimize(void)
                                            NumberOfGeometryUpdates,
                                            NumberOfForwardSolves,
                                            NumberOfAdjointSolves);
-                                   
+                       
+       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+          
+          ParameterData->ParameterValues[j] = ParameterValuesNew[j];
+          
+       }
+                                          
        TotalTime = myclock() - Time0;
 
        FReduction = log10(F/F1);
 
        GReduction = log10(Delta/Delta1);
        
-       fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f \n",Iter,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,GReduction,NumSteps,StepSize,TotalTime);
+       fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10d %10.5f %10.5f ",Iter,CL,CD,CS,CML,CMM,CMN,CL/CD,F,FReduction,Delta,GReduction,NumSteps,StepSize,TotalTime);
 
+       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+          
+          fprintf(HistoryFile,"%10.5f ",ParameterData->ParameterValues[j]);
+          
+       }
+       
+       fprintf(HistoryFile,"\n");
+    
        // Update the mesh gradients
        
-       if ( OPtimizationUpdateGeometryGradients_ ) {
+       if ( OptimizationUpdateGeometryGradients_ ) {
           
           dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterData);
           
        }
        
        if ( GReduction <= log10(OptimizationGradientReduction_) ) Done = 1;
+
+       WriteVSPDesFile(FileName, Iter, NumberOfParameterValues,ParameterData->ParameterNames, ParameterValuesNew);
        
        Iter++;
 
@@ -5987,7 +6077,7 @@ void VSPAERO_Optimize(void)
     
     // Save the final state
     
-    SaveVSPGeomFile(FileName, NumberOfParameterValues,ParameterData->ParameterNames, ParameterValues);
+    SaveVSPGeomFile(FileName, NumberOfParameterValues,ParameterData->ParameterNames, ParameterValuesNew);
     
     // Output some solver stats...
 
@@ -6032,7 +6122,7 @@ void VSPAERO_Optimize(void)
 int Do1DFunctionMinimization(int NumberOfParameterValues, 
                              PARAMETER_DATA *ParameterData,
                              double *ParameterValues,
-                             double *Gradient,
+                             double *SearchDirection,
                              double &StepSize,
                              double &F,
                              double &CL,
@@ -6063,8 +6153,8 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
     
     // Calculate magnitude of the gradient and normalize it
        
-    Delta = Normalize(Gradient, NumberOfParameterValues);
-    
+    Delta = Normalize(SearchDirection, NumberOfParameterValues);
+     
     // Do a few steps out until the function starts to increase again
     
     X3 = 0.25*Delta;       
@@ -6083,7 +6173,7 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
        
        for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
        
-          NewParameterValues[j] = ParameterValues[j] - X3 * Gradient[j];
+          NewParameterValues[j] = ParameterValues[j] + X3 * SearchDirection[j];
           
        }
                 
@@ -6182,7 +6272,7 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
     
     for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
     
-       NewParameterValues[j] = ParameterValues[j] - X2 * Gradient[j];
+       NewParameterValues[j] = ParameterValues[j] + X2 * SearchDirection[j];
        
     }
            
@@ -6229,7 +6319,7 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
        
        for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
        
-          NewParameterValues[j] = ParameterValues[j] - X4 * Gradient[j];
+          NewParameterValues[j] = ParameterValues[j] + X4 * SearchDirection[j];
           
        }
               
@@ -6295,7 +6385,7 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
     
     for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
     
-       ParameterValues[j] -= StepSize * Gradient[j];
+       ParameterValues[j] += StepSize * SearchDirection[j];
        
     }                           
             
@@ -6499,20 +6589,28 @@ PARAMETER_DATA *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables)
     // Parse the des file, replace parameters with new values    
     
     fscanf(DesignFile,"%d \n",&NumberOfDesignVariables);
+    
+    printf("NumberOfDesignVariables: %d \n",NumberOfDesignVariables);fflush(NULL);
 
     ParameterData->ParameterValues = new double[NumberOfDesignVariables + 1];
     
     ParameterData->ParameterNames = new char*[NumberOfDesignVariables + 1];
 
+    ParameterData->ParameterFullNamePath = new char*[NumberOfDesignVariables + 1];
+
     for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
 
-       ParameterData->ParameterNames[i] = new char[11];
+       ParameterData->ParameterNames[i] = new char[MAX_CHAR_SIZE];
+
+       ParameterData->ParameterFullNamePath[i] = new char[MAX_CHAR_SIZE];
 
        fscanf(DesignFile,"%s%lf\n",(Variable),&( ParameterData->ParameterValues[i]));
               
-       strncpy(ParameterData->ParameterNames[i],Variable,11);
+       snprintf(ParameterData->ParameterNames[i],12*sizeof(char),"%s",Variable);
+       
+       snprintf(ParameterData->ParameterFullNamePath[i],MAX_CHAR_SIZE*sizeof(char),"%s",Variable);
 
-       printf("%s --> %f \n",Variable,ParameterData->ParameterValues[i]);fflush(NULL);
+       printf("%s --> %f \n",ParameterData->ParameterNames[i],ParameterData->ParameterValues[i]);fflush(NULL);
 
     }
     
@@ -6537,12 +6635,16 @@ double *CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, char **Pa
     int degen_type;
     int *DidThisNode;    
     double Value, *MeshNodesXYZ;
-    char DesignFileName[MAX_CHAR_SIZE], Variable[MAX_CHAR_SIZE], CommandLine[MAX_CHAR_SIZE];
+    char DesignFileName[MAX_CHAR_SIZE];
     FILE *DesignFile, *OptDesFile;
     
     // Update the VSP geometry
 
     for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+
+//       std::string cpp_str(ParameterNames[i]);
+
+//       double temp = vsp::SetParmVal( cpp_str, ParameterValues[i] );
 
        double temp = vsp::SetParmVal( ParameterNames[i], ParameterValues[i] );
     
@@ -6715,6 +6817,77 @@ void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **Paramet
 
 /*##############################################################################
 #                                                                              #
+#                            WriteVSPDesFile                                   #
+#                                                                              #
+##############################################################################*/
+
+void WriteVSPDesFile(char *FileName, int Iter, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues)
+{
+    
+    int i, NumVars;
+    double Value;
+    char DesignFileName[MAX_CHAR_SIZE], Variable[MAX_CHAR_SIZE];
+    FILE *DesignFile, *OptDesFile;
+    
+    // Open des file
+    
+    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.des",FileName);
+    
+    //printf("Opening: %s \n",DesignFileName);fflush(NULL);
+
+    if ( (DesignFile = fopen(DesignFileName, "r")) == NULL ) {
+    
+       printf("Could not open the OpenVSP Opt des file! \n");
+    
+       exit(1);
+    
+    }
+    
+    // Open Opt des file
+    
+    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.Opt.%d.des",FileName,Iter);
+    
+    //printf("Opening: %s \n",DesignFileName);fflush(NULL);
+
+    if ( (OptDesFile = fopen(DesignFileName, "w")) == NULL ) {
+    
+       printf("Could not open the OpenVSP Opt des file! \n");
+    
+       exit(1);
+    
+    }
+    
+    // Parse the des file, replace parameters with new values    
+    
+    fscanf(DesignFile,"%d \n",&NumVars);
+    
+    if ( NumberOfDesignVariables != NumVars ) {
+       
+       printf("Number of design variables does not match OpenVSP des file! \n");
+       fflush(NULL);exit(1);
+       
+    }
+    
+    fprintf(OptDesFile,"%d\n",NumVars);
+    
+    fflush(NULL);
+    
+    for ( i = 1 ; i <= NumVars ; i++ ) {
+
+       fscanf(DesignFile,"%s%lf\n",Variable,&Value);
+
+       fprintf(OptDesFile,"%s %20.10e\n",Variable,ParameterValues[i]);
+       
+    }
+    
+    fclose(DesignFile);
+    
+    fclose(OptDesFile);       
+    
+}
+
+/*##############################################################################
+#                                                                              #
 #                    CalculateOpenVSPGeometryGradients                         #
 #                                                                              #
 ##############################################################################*/
@@ -6785,7 +6958,7 @@ double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVar
 
 /*##############################################################################
 #                                                                              #
-#                    CalculateOpenVSPGeometryGradients                         #
+#                        DeleteMeshGradients                                   #
 #                                                                              #
 ##############################################################################*/
 
@@ -6842,25 +7015,188 @@ double Normalize(double *Vector, int Length)
 #                                                                              #
 ##############################################################################*/
 
-void CGState(double *Old, double *New, int Length)
+void CGState(int Iter, int NumberOfParameters, double *GradientOld, double *GradientNew, double *SearchDirectionNew)
 {
    
    int i;
    double Dot;
    
-   Dot = 0.;
+   // Steepest descent the first time
    
-   for ( i = 1 ; i <= Length ; i++ ) {
+   if ( Iter == 1 ) {
       
-      Dot += Old[i]*New[i];
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
       
-   }   
+         SearchDirectionNew[i] = -GradientNew[i];
+      
+      }
+      
+   }
+   
+   // CG
+   
+   else {
+      
+      Dot = 0.;
+      
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
+         
+         Dot += GradientOld[i]*GradientNew[i];
+         
+      }   
+      
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
+         
+         SearchDirectionNew[i] = -(GradientNew[i] - Dot * GradientOld[i]);
+         
+      }    
+      
+   }  
 
-   for ( i = 1 ; i <= Length ; i++ ) {
+}
+
+/*##############################################################################
+#                                                                              #
+#                                   BFGSState                                  #
+#                                                                              #
+##############################################################################*/
+
+void BFGSState(int Iter, 
+               int NumberOfParameters,
+               double *GradientOld,
+               double *GradientNew,
+               double *ParameterOld,
+               double *ParameterNew,
+               double *SearchDirectionOld,
+               double *SearchDirectionNew,
+               MATRIX &Hessian)
+{
+   
+   int i, j;
+   
+   double *s, *y, Denom;
+   MATRIX D, E;
+   
+   // First iteration
+   
+   if ( Iter == 1 ) {
       
-      New[i] -= Dot * Old[i];
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
+         
+         for ( j = 1 ; j <= NumberOfParameters ; j++ ) {
+            
+            Hessian(i,j) = 0.;
+            
+         }
+         
+         Hessian(i,i) = 1.;
+         
+         SearchDirectionNew[i] = -GradientNew[i];
+          
+      }
       
-   }      
+   }
+   
+   // Iterations 2 and above
+   
+   else {
+      
+      s = new double[NumberOfParameters + 1];
+      y = new double[NumberOfParameters + 1];
+     
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
+         
+         // Change in design
+         
+         s[i] = ParameterNew[i] - ParameterOld[i];
+         
+         // Change in gradient
+         
+         y[i] = GradientNew[i] - GradientOld[i];
+         
+      }
+      
+      // Update D
+      
+      D.size(NumberOfParameters,NumberOfParameters);
+      
+      Denom = 0.;
+      
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
+         
+         Denom += y[i] * s[i];
+         
+      }
+
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
+         
+         for ( j = 1 ; j <= NumberOfParameters ; j++ ) {
+            
+            D(i,j) = y[i]*y[j] / Denom;
+            
+         }
+
+      }      
+      
+      // Update E
+      
+      E.size(NumberOfParameters,NumberOfParameters);
+      
+      Denom = 0.;
+      
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
+         
+         Denom += GradientOld[i] * SearchDirectionOld[i];
+
+      }
+
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
+         
+         for ( j = 1 ; j <= NumberOfParameters ; j++ ) {
+            
+            E(i,j) = GradientOld[i]*GradientOld[j] / Denom;
+            
+         }
+
+      }
+      
+      // Update the Hessian
+      
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
+         
+         for ( j = 1 ; j <= NumberOfParameters ; j++ ) {
+            
+            Hessian(i,j) += D(i,j) + E(i,j);
+            
+         }
+
+      }     
+      
+      delete [] s;
+      delete [] y;       
+      
+      // Calculate the new search direction 
+      
+      MATRIX d, g;
+      
+      d.size(NumberOfParameters);
+      g.size(NumberOfParameters);
+      
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
+      
+         g(i) = -GradientNew[i];
+         
+      }
+      
+      d = g/Hessian;
+      
+      for ( i = 1 ; i <= NumberOfParameters ; i++ ) {
+      
+         SearchDirectionNew[i] = d(i);
+
+      }      
+  
+   }
 
 }
 

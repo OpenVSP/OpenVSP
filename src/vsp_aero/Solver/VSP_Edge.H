@@ -167,10 +167,14 @@ private:
     
     int OpenVSP_ComponentID_;    
     
-    // Wing ID
+    // Vortex Sheet we might be part of
     
-    int Wing_;
+    int VortexSheet_;
     
+    // Kutta node we might be assocated with... for spanwise loading calculations
+    
+    int KuttaNode_;
+
     // Group ID
     
     int Group_;
@@ -539,10 +543,14 @@ public:
     
     int &MinValidTimeStep(void) { return MinValidTimeStep_; };
     
-    /** Edge is on wing **/
+    /** Edge is on vortex sheet **/
 
-    int &Wing(void) { return Wing_; };
+    int &VortexSheet(void) { return VortexSheet_; };
     
+    // Kutta node we might be assocated with... for spanwise loading calculations
+    
+    int &KuttaNode(void) { return KuttaNode_; };
+        
     /** Group ID **/
     
     int &Group(void) { return Group_; };

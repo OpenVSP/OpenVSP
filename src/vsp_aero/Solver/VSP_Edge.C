@@ -56,7 +56,6 @@ void VSP_EDGE::init(void)
 
     VortexEdge_ = 0;
     
-    Wing_ = 0;
     SurfaceID_ = 0;
     ComponentID_ = 0;
     Group_ = 0;
@@ -88,8 +87,6 @@ void VSP_EDGE::init(void)
   
     Verbose_ = 0;
  
-    Wing_ = 0;
-
     X1_ = 0.;
     Y1_ = 0.;
     Z1_ = 0.;
@@ -167,7 +164,11 @@ void VSP_EDGE::init(void)
     AdjointEdgeList_ = NULL;
 
     AdjointEdgeFactor_ = NULL;
-        
+
+    VortexSheet_ = 0;
+  
+    KuttaNode_ = 0;
+  
 }
 
 /*##############################################################################
@@ -251,11 +252,7 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     CoarseGridEdge_     = VSPEdge.CoarseGridEdge_;     
     FineGridEdge_       = VSPEdge.FineGridEdge_;     
     Level_              = VSPEdge.Level_;     
-     
-    // Wing
-    
-    Wing_               = VSPEdge.Wing_;
-    
+
     // XYZ of end points
     
     X1_ = VSPEdge.X1_;
@@ -344,6 +341,10 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     
     IsWakeEdge_ = VSPEdge.IsWakeEdge_;
     
+    VortexSheet_ = VSPEdge.VortexSheet_;
+  
+    KuttaNode_ = VSPEdge.KuttaNode_;
+
     if ( VSPEdge.IsWakeEdge_ ) {
    
        CreateWakeEdgeSpace();

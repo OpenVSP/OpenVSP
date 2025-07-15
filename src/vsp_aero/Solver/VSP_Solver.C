@@ -254,6 +254,8 @@ void VSP_SOLVER::init(void)
 
     int NumberOfThreads = omp_get_max_threads();
     
+    NoADBFile_ = 0;
+    
 }
 
 /*##############################################################################
@@ -1865,13 +1867,15 @@ void VSP_SOLVER::InitializeFreeStream(void)
     
     if ( Mach_ <= 0. ) Mach_ = 0.001;
 
-    // Set Mach number for the edge class... it is static across all edge instances
+    // Set Mach number for the edge class... 
     
     for ( i = 0 ; i <= NumberOfMGLevels_ ; i++ ) {
-
+   
        VSPGeom().Grid(i).SetMachNumber(Mach_);    
        
     }
+
+// new... VSPGeom().SetEdgeMachNumber(FreeStreamVelocity_, Mach_, Vref_, Machref_);
 
     // Set multi-pole far away ratio for supersonic flow
 
@@ -2502,7 +2506,7 @@ void VSP_SOLVER::CalculateBodyVelocitiesForQuasiUnsteadyAnalysis(void)
 
     // Loop over any quasi-unsteady component groups calculate body velocities
     
-    ComponentInThisGroup = new int[VSPGeom().NumberOfComponents() + 1];
+//    ComponentInThisGroup = new int[VSPGeom().NumberOfComponents() + 1];
    
     for ( c = 1 ; c <= VSPGeom().NumberOfComponentGroups() ; c++ ) {
                           
@@ -3343,11 +3347,15 @@ void VSP_SOLVER::Solve(int Case)
              
           }
 
-          WriteOutAerothermalDatabaseGeometry();
-  
-          InterpolateSolutionFromGrid(MGLevel_);
-          
-          WriteOutAerothermalDatabaseSolution();
+          if ( !NoADBFile_ ) {
+             
+             WriteOutAerothermalDatabaseGeometry();
+             
+             InterpolateSolutionFromGrid(MGLevel_);
+             
+             WriteOutAerothermalDatabaseSolution();
+             
+          }
 
           // Write out group data, and any rotor data
   
@@ -3403,7 +3411,7 @@ void VSP_SOLVER::Solve(int Case)
 
     // Calculate spanwise load distributions for lifting surfaces
  
-    if ( !DumpGeom_ && VSPGeom().NumberOfVortexSheets() > 0 ) CalculateSpanWiseLoading();
+    if ( !DumpGeom_ && !TimeAccurate_ && VSPGeom().NumberOfVortexSheets() > 0 ) CalculateSpanWiseLoading();
 
     // Interpolate solution from grid 1 to 0
  
@@ -3411,7 +3419,7 @@ void VSP_SOLVER::Solve(int Case)
 
     // Write out ADB Solution
 
-    if ( !TimeAccurate_ ) {
+    if ( !TimeAccurate_ && !NoADBFile_ ) {
        
        WriteOutAerothermalDatabaseGeometry();
        
@@ -8609,7 +8617,6 @@ void VSP_SOLVER::CalculateLocalBodyVelocitiesFromMovingGeometries(int Group)
     }
  
 }
-
 
 /*##############################################################################
 #                                                                              #
@@ -29801,12 +29808,14 @@ void VSP_SOLVER::CalculateVorticityGradient(void)
 void VSP_SOLVER::IntegrateForcesAndMoments(void)
 {
 
-    int i, j, k, c, g, Node1, Node2, Edge, LE_Edge, TE_Edge, *ComponentInThisGroup;
-    double Fx, Fy, Fz, Fxo, Fyo, Fzo, Wgt1, Wgt2, StallFactor, Velocity, Sign;
+    int i, j, k, c, g, v, Node1, Node2, Edge, LE_Edge, TE_Edge, *ComponentInThisGroup;
+    int LoopL, LoopR;
+    double Fx, Fy, Fz, Fxo, Fyo, Fzo, Wgt1, Wgt2, StallFactor, Velocity;
     double CA, SA, CB, SB;
     double ComponentCg[3];
-    double Chord, Span, Cl, Gamma, RVec[3], SVec[3], RVeco[3], Mag, Re, Cf, pCf_pCl2;
+    double Chord, Span, Area, Cl, Gamma, RVec[3], SVec[3], CVec[3], TVec[3], AVec[3], RVeco[3], Mag, Re, Cf, pCf_pCl2;
     double DeltaDrag, DeltaFxo, DeltaFyo, DeltaFzo, ReFact;
+    double Cli, Cdi, Csi;
 
     CA = cos(AngleOfAttack_);
     SA = sin(AngleOfAttack_);
@@ -29895,6 +29904,41 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
        }  
    
     }
+    
+    // Zero out strip wise forces and moments
+
+    for ( k = 1 ; k <= VSPGeom().NumberOfVortexSheets() ; k++ ) {
+    
+       for ( i = 1 ; i < VSPGeom().VortexSheet(k).NumberOfTrailingVortices() ; i++ ) {
+          
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CFox() = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CFoy() = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CFoz() = 0.;
+                                                             
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CMox() = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CMoy() = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CMoz() = 0.;
+                                                             
+          VSPGeom().VortexSheet(k).TrailingVortex(i).Clo()  = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).Cdo()  = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).Cso()  = 0.;
+                                  
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CFix() = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CFiy() = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CFiz() = 0.;
+                                                                      
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CMix() = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CMiy() = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CMiz() = 0.;
+                                                             
+          VSPGeom().VortexSheet(k).TrailingVortex(i).Cli()  = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).Cdi()  = 0.;
+          VSPGeom().VortexSheet(k).TrailingVortex(i).Csi()  = 0.;
+            
+       }
+       
+    }    
+    
  
     ComponentInThisGroup = new int[VSPGeom().NumberOfComponents() + 1];
     
@@ -29990,9 +30034,47 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
              }
              
           }
-                    
-       }
+          
+          // Keep track of spanwise loading if this edge is on a lifting surface
+          
+          if ( VSPGeom().Grid(MGLevel_).EdgeList(j).VortexSheet() > 0 ) {
+             
+             v = VSPGeom().Grid(MGLevel_).EdgeList(j).VortexSheet();
+             
+             k = ABS(VSPGeom().Grid(MGLevel_).EdgeList(j).KuttaNode());
+
+             
+             // Area
+   
+             LoopL = VSPGeom().Grid(MGLevel_).EdgeList(j).LoopL();
+             LoopR = VSPGeom().Grid(MGLevel_).EdgeList(j).LoopR();
        
+             Area = 0.;
+             
+             if ( LoopL > 0. ) Area += VSPGeom().Grid(MGLevel_).LoopList(LoopL).Area() / VSPGeom().Grid(MGLevel_).LoopList(LoopL).NumberOfEdges();
+             if ( LoopR > 0. ) Area += VSPGeom().Grid(MGLevel_).LoopList(LoopR).Area() / VSPGeom().Grid(MGLevel_).LoopList(LoopR).NumberOfEdges();
+
+
+             // Local 2d strip wise forces and moments
+   
+             VSPGeom().VortexSheet(v).TrailingVortex(k).CFix() += Fx;
+             VSPGeom().VortexSheet(v).TrailingVortex(k).CFiy() += Fy;
+             VSPGeom().VortexSheet(v).TrailingVortex(k).CFiz() += Fz;
+                                                    
+             VSPGeom().VortexSheet(v).TrailingVortex(k).CMix() += Fz * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Yc() - XYZcg_[1] ) - Fy * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Zc() - XYZcg_[2] );   // Roll
+             VSPGeom().VortexSheet(v).TrailingVortex(k).CMiy() += Fx * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Zc() - XYZcg_[2] ) - Fz * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Xc() - XYZcg_[0] );   // Pitch
+             VSPGeom().VortexSheet(v).TrailingVortex(k).CMiz() += Fy * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Xc() - XYZcg_[0] ) - Fx * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Yc() - XYZcg_[1] );   // Yaw
+                                                      
+             // Local 2d strip wise Cl, Cd, Cs       
+                                                     
+             VSPGeom().VortexSheet(v).TrailingVortex(k).Cli() += ( (-Fx * SA + Fz * CA )                );
+             VSPGeom().VortexSheet(v).TrailingVortex(k).Cdi() += ( ( Fx * CA + Fz * SA ) * CB - Fy * SB );
+             VSPGeom().VortexSheet(v).TrailingVortex(k).Csi() += ( ( Fx * CA + Fz * SA ) * SB + Fy * CB );
+
+          }
+ 
+       }
+   
        // Wake induced forces
        
        if ( VSPGeom().Grid(MGLevel_).EdgeList(j).IsTrailingEdge() ) {
@@ -30023,7 +30105,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
        }                          
   
     }
-
+  
     // Stall forces
 
     if ( StallModelIsOn_ ) {
@@ -30134,10 +30216,10 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
           LE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).LE_Edge());
 
           TE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).TE_Edge());
-          
+     
           Chord = VSPGeom().VortexSheet(k).TrailingVortex(i).LocalChord();
           
-          Span = 0.5*( VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Length() + VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Length() );
+          //Span = 0.5*( VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Length() + VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Length() );
 
           Velocity = 0.5*( sqrt( pow(VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).LocalFreeStreamVelocity()[0], 2.)
                                + pow(VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).LocalFreeStreamVelocity()[1], 2.)
@@ -30146,27 +30228,44 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
                                + pow(VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).LocalFreeStreamVelocity()[1], 2.)
                                + pow(VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).LocalFreeStreamVelocity()[2], 2.) ) );
                                
-          SVec[0] = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Xc() - VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Xc();                               
-          SVec[1] = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Yc() - VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Yc();                               
-          SVec[2] = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Zc() - VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Zc(); 
+          SVec[0] = CVec[0] = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Xc() - VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Xc();                               
+          SVec[1] = CVec[1] = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Yc() - VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Yc();                               
+          SVec[2] = CVec[2] = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Zc() - VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Zc(); 
           
           Mag = sqrt(vector_dot(SVec,SVec));
           
           SVec[0] /= Mag;                              
           SVec[1] /= Mag;                              
-          SVec[2] /= Mag;                              
+          SVec[2] /= Mag;
+          
+          // Calculate approximate area of strip
+
+          Node1 = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Node1();
+          Node2 = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Node2();
+          
+          TVec[0] = VSPGeom().Grid(MGLevel_).NodeList(Node2).x() - VSPGeom().Grid(MGLevel_).NodeList(Node1).x();
+          TVec[1] = VSPGeom().Grid(MGLevel_).NodeList(Node2).y() - VSPGeom().Grid(MGLevel_).NodeList(Node1).y();
+          TVec[2] = VSPGeom().Grid(MGLevel_).NodeList(Node2).z() - VSPGeom().Grid(MGLevel_).NodeList(Node1).z();
+          
+          vector_cross(CVec,TVec,AVec);
+          
+          Area = sqrt(vector_dot(AVec,AVec));
+          
+          Span = Area/Chord;
+          
+          VSPGeom().VortexSheet(k).TrailingVortex(i).LocalSpan() = Span;
 
           StallFactor = 1. - VSPGeom().VortexSheet(k).TrailingVortex(i).StallFactor();
 
           Gamma = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Gamma();
-          
+
           Cl = ABS(Gamma/(0.5*Velocity*Chord));
           
           Re = MAX(2.,ReCref_ * Velocity * Chord / Cref_);
 
           pCf_pCl2 = 0.00625 + 0.01*ABS(Clo_2d_);
         
-          // Local skin friction
+          // Local turbulent skin friction
           
           Cf = 2. * 1.5 * 1.037 / pow(log10(Re),2.58) + pCf_pCl2*pow(Cl-Clo_2d_, 2.);
 
@@ -30199,40 +30298,30 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
           VSPGeom().VortexSheet(k).TrailingVortex(i).CFox() = Fxo / ( 0.5 * Vref_ * Vref_ * Span * Chord);
           VSPGeom().VortexSheet(k).TrailingVortex(i).CFoy() = Fyo / ( 0.5 * Vref_ * Vref_ * Span * Chord);
           VSPGeom().VortexSheet(k).TrailingVortex(i).CFoz() = Fzo / ( 0.5 * Vref_ * Vref_ * Span * Chord);
-
+         
           VSPGeom().VortexSheet(k).TrailingVortex(i).CMox() = ( Fzo * ( RVeco[1] - XYZcg_[1] ) - Fyo * ( RVeco[2] - XYZcg_[2] ) ) / ( 0.5 * Vref_ * Vref_ * Span * Chord * Chord);
           VSPGeom().VortexSheet(k).TrailingVortex(i).CMoy() = ( Fxo * ( RVeco[2] - XYZcg_[2] ) - Fzo * ( RVeco[0] - XYZcg_[0] ) ) / ( 0.5 * Vref_ * Vref_ * Span * Chord * Chord);
           VSPGeom().VortexSheet(k).TrailingVortex(i).CMoz() = ( Fyo * ( RVeco[0] - XYZcg_[0] ) - Fxo * ( RVeco[1] - XYZcg_[1] ) ) / ( 0.5 * Vref_ * Vref_ * Span * Chord * Chord);
-
+         
           VSPGeom().VortexSheet(k).TrailingVortex(i).Clo() = ( (-Fxo * SA + Fzo * CA )                 ) / ( 0.5 * Vref_ * Vref_ * Span * Chord);
           VSPGeom().VortexSheet(k).TrailingVortex(i).Cdo() = ( ( Fxo * CA + Fzo * SA ) * CB - Fyo * SB ) / ( 0.5 * Vref_ * Vref_ * Span * Chord);
           VSPGeom().VortexSheet(k).TrailingVortex(i).Cso() = ( ( Fxo * CA + Fzo * SA ) * SB + Fyo * CB ) / ( 0.5 * Vref_ * Vref_ * Span * Chord);
-          
-          // Keep track of inviscid loading data... we assume the forces act at the 1/4 chord
+     
+          // Non-dimensionaliz the inviscid forces/moments we calculated above
 
-          Fx = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Trefftz_Fx();
-          Fy = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Trefftz_Fy();
-          Fz = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Trefftz_Fz();
-                   
-          RVec[0] = 0.25*VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Xc() + 0.75*VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Xc();                               
-          RVec[1] = 0.25*VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Yc() + 0.75*VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Yc();                               
-          RVec[2] = 0.25*VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Zc() + 0.75*VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Zc();           
-
-          VSPGeom().VortexSheet(k).TrailingVortex(i).CFix() = Fx / ( 0.5 * Vref_ * Vref_ * Span * Chord);
-          VSPGeom().VortexSheet(k).TrailingVortex(i).CFiy() = Fy / ( 0.5 * Vref_ * Vref_ * Span * Chord);
-          VSPGeom().VortexSheet(k).TrailingVortex(i).CFiz() = Fz / ( 0.5 * Vref_ * Vref_ * Span * Chord);
-
-          VSPGeom().VortexSheet(k).TrailingVortex(i).CMix() = ( Fz * ( RVeco[1] - XYZcg_[1] ) - Fy * ( RVeco[2] - XYZcg_[2] ) ) / ( 0.5 * Vref_ * Vref_ * Span * Chord * Chord);
-          VSPGeom().VortexSheet(k).TrailingVortex(i).CMiy() = ( Fx * ( RVeco[2] - XYZcg_[2] ) - Fz * ( RVeco[0] - XYZcg_[0] ) ) / ( 0.5 * Vref_ * Vref_ * Span * Chord * Chord);
-          VSPGeom().VortexSheet(k).TrailingVortex(i).CMiz() = ( Fy * ( RVeco[0] - XYZcg_[0] ) - Fx * ( RVeco[1] - XYZcg_[1] ) ) / ( 0.5 * Vref_ * Vref_ * Span * Chord * Chord);
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CFix() /= ( 0.5 * Vref_ * Vref_ * Span * Chord);
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CFiy() /= ( 0.5 * Vref_ * Vref_ * Span * Chord);
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CFiz() /= ( 0.5 * Vref_ * Vref_ * Span * Chord);
+         
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CMix() /= ( 0.5 * Vref_ * Vref_ * Span * Chord * Chord);
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CMiy() /= ( 0.5 * Vref_ * Vref_ * Span * Chord * Chord);
+          VSPGeom().VortexSheet(k).TrailingVortex(i).CMiz() /= ( 0.5 * Vref_ * Vref_ * Span * Chord * Chord);
                                                     
-// Use the cl directly from gamma...          VSPGeom().VortexSheet(k).TrailingVortex(i).Cli() = ( (-Fx * SA + Fz * CA )                ) / ( 0.5 * Vref_ * Vref_ * Span * Chord);
+          VSPGeom().VortexSheet(k).TrailingVortex(i).Cli()  /= ( 0.5 * Vref_ * Vref_ * Span * Chord);
+          VSPGeom().VortexSheet(k).TrailingVortex(i).Cdi()  /= ( 0.5 * Vref_ * Vref_ * Span * Chord);
+          VSPGeom().VortexSheet(k).TrailingVortex(i).Csi()  /= ( 0.5 * Vref_ * Vref_ * Span * Chord);
 
-          VSPGeom().VortexSheet(k).TrailingVortex(i).Cli() = Cl;          
-          VSPGeom().VortexSheet(k).TrailingVortex(i).Cdi() = ( ( Fx * CA + Fz * SA ) * CB - Fy * SB ) / ( 0.5 * Vref_ * Vref_ * Span * Chord);
-          VSPGeom().VortexSheet(k).TrailingVortex(i).Csi() = ( ( Fx * CA + Fz * SA ) * SB + Fy * CB ) / ( 0.5 * Vref_ * Vref_ * Span * Chord);
-                        
-          // Keep track of component group forces and moments
+          // Keep track of component group viscous forces and moments
           
           for ( g = 0 ; g <= 1 ; g++ ) {
              
@@ -30498,7 +30587,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
 {
  
     int c, i, k, p,  LE_Edge, TE_Edge, IsARotor, ComponentID, Group;
-    double Span, Chord, Velocity, Time;
+    double Span, Chord, Velocity, Time, TotalSpan, S;
     
     double Diameter, RPM, Angle, Vec[3];
     double Thrusto, Momento, Powero;
@@ -30511,23 +30600,37 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     
     if ( !TimeAccurate_ ) {
 
-                      // 1234567890123 12345678901 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  123456789 
-       fprintf(LoadFile_,"Iter         VortexSheet TrailVort     Xavg      Yavg      Zavg      Span     Chord      Area    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
+                      // 1234567890123 12345678901 123456789 123456789 123456789 123456789 123456789 123456789  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  123456789 
+       fprintf(LoadFile_,"Iter         VortexSheet TrailVort     Xavg      Yavg      Zavg     dSpan   SoverB      Chord     dArea    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
 
     }
     
     else {
        
-                      // 1234567890123 12345678901 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  123456789 
-       fprintf(LoadFile_,"Time         VortexSheet TrailVort     Xavg      Yavg      Zavg      Span     Chord      Area    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
+                      // 1234567890123 12345678901 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  123456789 
+       fprintf(LoadFile_,"Time         VortexSheet TrailVort     Xavg      Yavg      Zavg     dSpan   SoverB     Chord     dArea    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
 
     }       
        
-                    // 1234567890 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123
-    fprintf(LoadFile_," IsARotor     Diameter        RPM         Thrust        Thrusto       Thrusti        Power         Powero        Poweri         Moment       Momento       Momenti         J             CT            CQ            CP           ETAP          CT_h           CQ_h         CP_h          FOM          Angle \n");
+                    // 1234567890 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123
+    fprintf(LoadFile_," IsARotor     Diameter        roverR        RPM         Thrust        Thrusto       Thrusti        Power         Powero        Poweri         Moment       Momento       Momenti         J             CT            CQ            CP           ETAP          CT_h           CQ_h         CP_h          FOM          Angle \n");
     
     for ( k = 1 ; k <= VSPGeom().NumberOfVortexSheets() ; k++ ) {
     
+       TotalSpan = 0.;
+       
+       for ( i = 1 ; i < VSPGeom().VortexSheet(k).NumberOfTrailingVortices() ; i++ ) {
+
+          LE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).LE_Edge());
+
+          TE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).TE_Edge());
+          
+          TotalSpan += 0.5*( VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Length() + VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Length() );
+
+       }
+       
+       S = 0.;
+           
        for ( i = 1 ; i < VSPGeom().VortexSheet(k).NumberOfTrailingVortices() ; i++ ) {
           
           // Figure out is this vortex sheet comes off a rotor...
@@ -30555,6 +30658,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
                 }
                 
              }
+             
           } 
                                 
           LE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).LE_Edge());
@@ -30563,7 +30667,9 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
           
           Chord = VSPGeom().VortexSheet(k).TrailingVortex(i).LocalChord();
      
-          Span = 0.5*( VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Length() + VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Length() );
+          Span = VSPGeom().VortexSheet(k).TrailingVortex(i).LocalSpan();
+          
+          S += Span;
 
           Velocity = 0.5*( sqrt( pow(VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).LocalFreeStreamVelocity()[0], 2.)
                                + pow(VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).LocalFreeStreamVelocity()[1], 2.)
@@ -30647,13 +30753,14 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
              
           }             
                      
-          fprintf(LoadFile_,"%-11d %-9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf ",
+          fprintf(LoadFile_,"%-11d %-9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf ",
                   k,
                   i,
                   VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Xc(),    
                   VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Yc(),    
                   VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Zc(),      
-                  Span,                    
+                  Span,
+                  S/TotalSpan,                    
                   VSPGeom().VortexSheet(k).TrailingVortex(i).LocalChord(),
                   VSPGeom().VortexSheet(k).TrailingVortex(i).LocalChord() * Span,
 
@@ -30693,11 +30800,12 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
                   
                   // Rotor data
                   //               1      2      3      4      5      6      7      8      9      10     11     12     13     14     15     16     17     18     19     29     21
-          fprintf(LoadFile_,"%10d %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf \n",
+          fprintf(LoadFile_,"%10d %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf %13.5lf \n",
                   
                   IsARotor,
  
                   Diameter,
+                  S/(0.5*Diameter),
                   RPM,
                   Thrust,
                   Thrusto,

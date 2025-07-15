@@ -34,6 +34,10 @@ private:
     
     int WingSurface_;
     
+    // VSPAERO Component ID
+    
+    int ComponentID_;
+    
     // Wake is periodic ... for instance on a nacelle
     
     int IsPeriodic_;
@@ -147,6 +151,10 @@ public:
     /** Wing Surface ID for this vortex sheet **/
     
     int &WingSurface(void) { return WingSurface_; };
+    
+    /** VSPAERO Component ID **/
+    
+    int &ComponentID(void) { return ComponentID_; };    
 
     /** Number of trailing vortices **/
     

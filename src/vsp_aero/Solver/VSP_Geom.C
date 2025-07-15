@@ -62,6 +62,10 @@ void VSP_GEOM::init(void)
     
     ThereAreRotors_ = 0;
     
+    ComponentIDForComponent_ = NULL;
+    
+    VSPComponentIDForVSPAEROComponent_ = NULL;
+    
 }
 
 /*##############################################################################
@@ -590,7 +594,7 @@ void VSP_GEOM::ReadControlSurfaceInformation(char *FileName)
 void VSP_GEOM::ReadGroupFile(char *FileName)
 {
 
-    int i, j, c;
+    int i, j, k, c;
     char GroupFileName[MAX_CHAR_SIZE], DumChar[MAX_CHAR_SIZE];
     FILE *GroupFile;
 
@@ -619,6 +623,18 @@ void VSP_GEOM::ReadGroupFile(char *FileName)
        fclose(GroupFile);
        
        UserSuppliedGroupsFile_ = 1;
+       
+       // Update the component ID numbers... as we re-ordered them
+       
+       for ( i = 1 ; i <= NumberOfComponentGroups_ ; i++ ) {
+       
+          for ( j = 1 ; j <= ComponentGroupList(i).NumberOfComponents() ; j++ ) {
+             
+             ComponentGroupList(i).ComponentList(j) = VSPAEROComponentIDForVSPComponent_[ComponentGroupList(i).ComponentList(j)];
+             
+          }
+       
+       }
 
     }
     
@@ -775,8 +791,41 @@ void VSP_GEOM::ReadGroupFile(char *FileName)
 void VSP_GEOM::AssociateWakesWithComponentGroups(void)
 {
    
+   
+//edge --> (component_id,u,v) --> store TE that we sit inside... we can do this in the chord code...
+   
     int i, j, c, CompSurfs, *WakeSurfaceUsed;
-    
+
+    //  // Check for lifting surfaces
+    //  
+    //  for ( i = 1 ; i <= NumberOfComponentGroups_ ; i++ ) {
+    //  
+    //     for ( j = 1 ; j <= ComponentGroupList(i).NumberOfComponents() ; j++ ) {
+    //        
+    //        printf("NumberOfVortexSheets_: %d \n",NumberOfVortexSheets_);fflush(NULL);
+    //        
+    //        for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+    //           
+    //           printf("VortexSheet(%d).ComponentID(): %d ... and looking for: %d \n",
+    //           k,
+    //           VortexSheet(k).ComponentID(),
+    //           ComponentGroupList(i).ComponentList(j));fflush(NULL);
+    //           
+    //           if ( VortexSheet(k).ComponentID() == ComponentGroupList(i).ComponentList(j) ) {
+    //              
+    //              printf("Found 1! \n");fflush(NULL);exit(1);
+    //              
+    //           }
+    //           
+    //        }
+    //        
+    //     }
+    //  
+    //  }    
+    //  
+    //  exit(1);   
+              
+                  
     // Determine the number of lifting surfaces per component group
     
     WakeSurfaceUsed = new int[NumberOfVortexSheets() + 1];
@@ -833,7 +882,7 @@ void VSP_GEOM::AssociateWakesWithComponentGroups(void)
              
              if ( ComponentGroupList(c).ComponentList(j) == Grid(SolveOnMGLevel_).ComponentIDForKuttaNode(i) ) {
            
-                WakeSurfaceUsed[Grid(SolveOnMGLevel_).WingSurfaceForKuttaNode(i)] = 1;;
+                WakeSurfaceUsed[Grid(SolveOnMGLevel_).WingSurfaceForKuttaNode(i)] = 1;
 
              }
              
@@ -3487,9 +3536,9 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
           
           printf("Part: %d ... CompID: %d ... SurfID: %d \n",DumInt,CompID,SurfID);fflush(NULL);
 
-          Next = strtok(NULL,Comma); Next[strcspn(Next, "\n")] = 0; snprintf(TempName,sizeof(TempName)*sizeof(char),"%s",Next);  // Surface name, per user
+          Next = strtok(NULL,Comma); Next[strcspn(Next, "\n")] = 0; snprintf(TempName,MAX_CHAR_SIZE*sizeof(char),"%s",Next);  // Surface name, per user
           
-          Next = strtok(NULL,Comma); Next[strcspn(Next, "\n")] = 0; snprintf(TempGIDName,sizeof(TempGIDName)*sizeof(char),"%s",Next);// VSP gid
+          Next = strtok(NULL,Comma); Next[strcspn(Next, "\n")] = 0; snprintf(TempGIDName,MAX_CHAR_SIZE*sizeof(char),"%s",Next);// VSP gid
           
           if ( ThickThinDataExists ) Next = strtok(NULL,Comma); // Thick/thin flag
                     
@@ -3701,7 +3750,6 @@ void VSP_GEOM::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKE
           
           snprintf(Temp_SurfaceGIDList[i],MAX_CHAR_SIZE*sizeof(char),"%s",SurfaceGIDList_[i]);
                               
-printf("SurfaceList[%d]: %d --> Temp_SurfaceNameList[%d]: %s \n",i,SurfaceList[i],i,Temp_SurfaceNameList[i]);                              
        }
 
        delete [] ComponentIDForSurface_;
@@ -3732,7 +3780,15 @@ printf("SurfaceList[%d]: %d --> Temp_SurfaceNameList[%d]: %s \n",i,SurfaceList[i
         
     ComponentIDForComponent_ = new int[NumberOfSurfaces_ + 1];
     
+    VSPComponentIDForVSPAEROComponent_ = new int[NumberOfSurfaces_ + 1];
+    
+    VSPAEROComponentIDForVSPComponent_ = new int[NumberOfSurfaces_ + 1];
+    
     zero_int_array(ComponentIDForComponent_, NumberOfSurfaces_);
+
+    zero_int_array(VSPComponentIDForVSPAEROComponent_, NumberOfSurfaces_);
+
+    zero_int_array(VSPAEROComponentIDForVSPComponent_, NumberOfSurfaces_);
     
     NumberOfComponents_ = 0;
     
@@ -3826,12 +3882,30 @@ printf("SurfaceList[%d]: %d --> Temp_SurfaceNameList[%d]: %s \n",i,SurfaceList[i
        
     }
     
+    for ( n = 1 ; n <= NumberOfComponents_ ; n++ ) {
+
+       printf("ComponentIDForComponent_[%d]: %d \n",
+       n,
+       ComponentIDForComponent_[n]);
+       
+    }
+        
     for ( i = 1 ; i <= NumberOfComponents_ ; i++ ) {
+       
+       VSPComponentIDForVSPAEROComponent_[i] = ComponentIDForComponent_[i];
        
        ComponentIDForComponent_[i] = i;
        
     }
+    
+    // Create inverse component ID
 
+    for ( i = 1 ; i <= NumberOfComponents_ ; i++ ) {
+       
+       VSPAEROComponentIDForVSPComponent_[VSPComponentIDForVSPAEROComponent_[i]] = i;
+       
+    }
+      
     for ( n = 1 ; n <= NumberOfSurfaces_ ; n++ ) {
 
        printf("Surface: %d --> Component: %d --> SurfaceName: %s \n",
@@ -3840,10 +3914,7 @@ printf("SurfaceList[%d]: %d --> Temp_SurfaceNameList[%d]: %s \n",i,SurfaceList[i
        SurfaceNameList_[n]);
        
     }
-           
-     
-//   fflush(NULL);exit(1);
- 
+
     for ( k = 1 ; k <= NumberOfSurfaces_ ; k++ ) {
     
        printf("SurfaceIsThick_[%d]: %d \n",k,SurfaceIsThick_[k]);
@@ -5214,7 +5285,11 @@ void VSP_GEOM::CreateVortexSheets(void)
              
              VortexSheet(k).TrailingVortex(NumNodes).SoverB() = Grid(SolveOnMGLevel_).KuttaNodeSoverB(j);
              
-             // Component ID
+             // Component ID for the entire vortex sheet... this is a bit kludgey
+             
+             if ( NumNodes > 1 ) VortexSheet(k).ComponentID() = Grid(SolveOnMGLevel_).ComponentIDForKuttaNode(j);
+             
+             // Component ID for each trailing vortex
             
              VortexSheet(k).TrailingVortex(NumNodes).ComponentID() = Grid(SolveOnMGLevel_).ComponentIDForKuttaNode(j);
 
@@ -5427,6 +5502,21 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
                       printf("Error in determing TE edge U values! \n");fflush(NULL);exit(1);
                       
                    }      
+          
+                   // Edge sits inside this strip... mark it so we can do spanwise loading calculations later...
+                   
+                   if ( 0.5*(U3 + U4) >= MIN(U1,U2) &&
+                        0.5*(U3 + U4) <= MAX(U1,U2) ) {
+                      
+                      if ( Grid(SolveOnMGLevel_).EdgeList(p).VortexSheet() == 0 ) {
+                              
+                         Grid(SolveOnMGLevel_).EdgeList(p).VortexSheet() = k;
+                         
+                         Grid(SolveOnMGLevel_).EdgeList(p).KuttaNode() = j;
+
+                      }
+                         
+                   }
                    
                    // On a constant chord line
                    
@@ -6695,6 +6785,125 @@ VSP_GRID *VSP_GEOM::MergeGrids(VSP_GRID *Grid1, VSP_GRID *Grid2, int CoarseGridL
     
     return TempGrid;     
     
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_GEOM SetEdgeMachNumber                           #
+#                                                                              #
+##############################################################################*/
+
+void VSP_GEOM::SetEdgeMachNumber(double FreeStreamVelocity[3], double Mach, double Vref, double Machref)
+{
+
+    int i, Level, Group, *ComponentInThisGroup;   
+    double OVec[3], RVec[3], TVec[3], Vmag, LocalMach;
+    QUAT Quat, InvQuat, WQuat, Vec1, Vec2, BodyVelocity;
+
+    // Set Mach number for the edge class... 
+    
+    for ( i = 0 ; i <= NumberOfGridLevels_ ; i++ ) {
+
+       Grid(i).SetMachNumber(Mach);    
+       
+    }
+    
+    // Adjust local Mach number for props
+    
+    if ( Machref > 0. && Vref > 0. ) {
+
+       for ( Group = 1 ; Group <= NumberOfComponentGroups() ; Group++ ) {
+                             
+          // If a rotor...
+       
+          if ( ComponentGroupList(Group).GeometryIsARotor() ) {
+   
+             // If component group is not fixed... update it's location
+         
+             if ( !ComponentGroupList(Group).GeometryIsFixed() ) {
+         
+                ComponentInThisGroup = new int[NumberOfComponents() + 1];
+                
+                zero_int_array(ComponentInThisGroup, NumberOfComponents());
+               
+                for ( i = 1 ; i <= ComponentGroupList(Group).NumberOfComponents() ; i++ ) {
+         
+                   ComponentInThisGroup[ComponentGroupList(Group).ComponentList(i)] = 1;
+                   
+                }
+   
+                ComponentGroupList(Group).Update();
+         
+                OVec[0] = ComponentGroupList(Group).OVec(0); // Rotation origin
+                OVec[1] = ComponentGroupList(Group).OVec(1);
+                OVec[2] = ComponentGroupList(Group).OVec(2);
+                                             
+                RVec[0] = ComponentGroupList(Group).RVec(0); // Rotation vector
+                RVec[1] = ComponentGroupList(Group).RVec(1);
+                RVec[2] = ComponentGroupList(Group).RVec(2);
+                                             
+                TVec[0] = ComponentGroupList(Group).TVec(0); // Translation vector
+                TVec[1] = ComponentGroupList(Group).TVec(1);
+                TVec[2] = ComponentGroupList(Group).TVec(2);
+                
+                Quat = ComponentGroupList(Group).Quat();
+                
+                InvQuat = ComponentGroupList(Group).InvQuat();
+                
+                WQuat = ComponentGroupList(Group).WQuat();
+   
+                // Calculate surface velocity for edge centroids
+                
+                for ( Level = 0 ; Level <= NumberOfGridLevels_ ; Level++ ) {
+                
+                   for ( i = 1 ; i <= Grid(Level).NumberOfSurfaceEdges() ; i++ ) {
+                      
+                      if ( ComponentInThisGroup[Grid(Level).EdgeList(i).ComponentID()] ) {
+            
+                         Vec1(0) = Grid(Level).EdgeList(i).Xc() - OVec[0];
+                         Vec1(1) = Grid(Level).EdgeList(i).Yc() - OVec[1];
+                         Vec1(2) = Grid(Level).EdgeList(i).Zc() - OVec[2];
+                     
+                         // Body point location after rotation
+                         
+                         Vec2 = Quat * Vec1 * InvQuat;
+             
+                         // Body point velocity
+                         
+                         BodyVelocity = WQuat * Vec2;
+            
+                         BodyVelocity(0) += FreeStreamVelocity[0] + ComponentGroupList(Group).Velocity(0);
+                         BodyVelocity(1) += FreeStreamVelocity[1] + ComponentGroupList(Group).Velocity(1);
+                         BodyVelocity(2) += FreeStreamVelocity[2] + ComponentGroupList(Group).Velocity(2);
+                         
+                         Vmag = sqrt( BodyVelocity(0)*BodyVelocity(0)
+                                    + BodyVelocity(1)*BodyVelocity(1)
+                                    + BodyVelocity(2)*BodyVelocity(2) );
+                         
+                         LocalMach = Machref*Vmag/Vref;
+                         
+                         LocalMach = MIN(LocalMach,0.95);
+                         
+                       //  printf("Local Mach: %f \n",LocalMach);
+                         
+                         Grid(Level).EdgeList(i).SetMachNumber(LocalMach);
+                      
+                      }
+               
+                   }
+                   
+                }
+                
+                delete [] ComponentInThisGroup;
+                
+             }
+             
+          }
+          
+       }
+       
+    }
+ 
 }
 
 #include "END_NAME_SPACE.H"

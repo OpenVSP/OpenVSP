@@ -99,6 +99,14 @@ private:
     
     int NumberOfComponents_;
     
+    // Original VSP Component ID for VSPAERO Component ID
+    
+    int *VSPComponentIDForVSPAEROComponent_;
+    
+    // VSPAERO Component ID for Original VSP Component ID
+    
+    int *VSPAEROComponentIDForVSPComponent_;    
+        
     // Component ID for component
     
     int *ComponentIDForComponent_;
@@ -651,6 +659,10 @@ public:
     /** Freeze wake root vortices **/
         
     void FreezeWakeRootVortices(int Level);
+    
+    /** Set the Mach number for each edge, on each grid level **/
+
+    void SetEdgeMachNumber(double FreeStreamVelocity[3], double Mach, double Vref, double Machref);
     
 };
 
