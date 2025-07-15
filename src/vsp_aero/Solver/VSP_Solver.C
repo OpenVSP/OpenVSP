@@ -1875,8 +1875,6 @@ void VSP_SOLVER::InitializeFreeStream(void)
        
     }
 
-// new... VSPGeom().SetEdgeMachNumber(FreeStreamVelocity_, Mach_, Vref_, Machref_);
-
     // Set multi-pole far away ratio for supersonic flow
 
     if ( Mach_ > 1. ) FarAway_ *= 4.;
@@ -30601,14 +30599,14 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     if ( !TimeAccurate_ ) {
 
                       // 1234567890123 12345678901 123456789 123456789 123456789 123456789 123456789 123456789  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  123456789 
-       fprintf(LoadFile_,"Iter         VortexSheet TrailVort     Xavg      Yavg      Zavg     dSpan   SoverB      Chord     dArea    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
+       fprintf(LoadFile_,"Iter         VortexSheet TrailVort     Xavg      Yavg      Zavg     dSpan     SoverB      Chord     dArea    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
 
     }
     
     else {
        
                       // 1234567890123 12345678901 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  123456789 
-       fprintf(LoadFile_,"Time         VortexSheet TrailVort     Xavg      Yavg      Zavg     dSpan   SoverB     Chord     dArea    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
+       fprintf(LoadFile_,"Time         VortexSheet TrailVort     Xavg      Yavg      Zavg     dSpan     SoverB     Chord     dArea    V/Vref      Cl        Cd        Cs       Clo       Cdo       Cso       Cli       Cdi       Csi        Cx        Cy       Cz        Cxo       Cyo       Czo       Cxi       Cyi       Czi       Cmx       Cmy       Cmz      Cmxo      Cmyo      Cmzo      Cmxi      Cmyi      Cmzi     StallFact ");
 
     }       
        
@@ -30624,9 +30622,9 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
           LE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).LE_Edge());
 
           TE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).TE_Edge());
-          
-          TotalSpan += 0.5*( VSPGeom().Grid(MGLevel_).EdgeList(LE_Edge).Length() + VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Length() );
-
+ 
+          TotalSpan += VSPGeom().VortexSheet(k).TrailingVortex(i).LocalSpan();
+            
        }
        
        S = 0.;
