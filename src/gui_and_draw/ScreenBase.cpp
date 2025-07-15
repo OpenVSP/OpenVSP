@@ -4353,7 +4353,7 @@ void XSecScreen::DisplayGroup( GroupLayout* group )
     m_SuperGroup.Hide();
     m_CircleGroup.Hide();
     m_EllipseGroup.Hide();
-    m_AC25773Group.GetY();
+    m_AC25773Group.Hide();
     m_RoundedRectGroup.Hide();
     m_GenGroup.Hide();
     m_FourSeriesGroup.Hide();
