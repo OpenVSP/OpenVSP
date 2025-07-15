@@ -141,6 +141,12 @@
    2D Delaunay triangulator.  
    		- [CMake Library](https://github.com/wo80/Triangle) version used by OpenVSP
    
+   - [Robust Geometric Predicates by Jonathan Shewchuk](https://github.com/libigl/libigl-predicates)
+   Routines that provide orient2d, orient3d, incircle, and insphere tests.
+
+   - [Geometric Tools by David Eberly](https://github.com/davideberly/GeometricTools)
+   Extensive geometry algorithm library.  Currently used for Convex Hull implementation.
+
    - [tri_tri_intersect by Philippe Guigue and Olivier Devillers](https://github.com/erich666/jgt-code/tree/master/Volume_08/Number_1/Guigue2003) - Fast and Robust Triangle-Triangle Overlap Test using Orientation Predicates.
 	An upgraded version of Tomas Möller's fast triangle-triangle 
 	intersection routines included with earlier versions of 
