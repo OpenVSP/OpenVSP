@@ -5913,25 +5913,25 @@ void VSPAERO_Optimize(void)
                         + 2.*Optimization_Lambda_2_*(CD  - Optimization_CD_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DX() 
                         + 2.*Optimization_Lambda_3_*(CS  - Optimization_CS_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DX() 
                                                 
-                        + 2.*Optimization_Lambda_4_*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX()
+                        + 2.*Optimization_Lambda_4_*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DX()
                         + 2.*Optimization_Lambda_5_*(CMM - Optimization_CMM_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX()
-                        + 2.*Optimization_Lambda_6_*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX();
+                        + 2.*Optimization_Lambda_6_*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DX();
                                                 
           dFdMesh[1][i] = 2.*Optimization_Lambda_1_*(CL  - Optimization_CL_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DY() 
                         + 2.*Optimization_Lambda_2_*(CD  - Optimization_CD_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DY() 
                         + 2.*Optimization_Lambda_3_*(CS  - Optimization_CS_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DY() 
                                                  
-                        + 2.*Optimization_Lambda_4_*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY()
+                        + 2.*Optimization_Lambda_4_*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DY()
                         + 2.*Optimization_Lambda_5_*(CMM - Optimization_CMM_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY()
-                        + 2.*Optimization_Lambda_6_*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY();
+                        + 2.*Optimization_Lambda_6_*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DY();
                                                  
           dFdMesh[2][i] = 2.*Optimization_Lambda_1_*(CL  - Optimization_CL_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DZ() 
                         + 2.*Optimization_Lambda_2_*(CD  - Optimization_CD_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DZ() 
                         + 2.*Optimization_Lambda_3_*(CS  - Optimization_CS_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DZ() 
                                                  
-                        + 2.*Optimization_Lambda_4_*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ()
+                        + 2.*Optimization_Lambda_4_*(CML - Optimization_CML_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DZ()
                         + 2.*Optimization_Lambda_5_*(CMM - Optimization_CMM_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ()
-                        + 2.*Optimization_Lambda_6_*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ();
+                        + 2.*Optimization_Lambda_6_*(CMN - Optimization_CMN_Required_)*VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DZ();
 
        }
 
