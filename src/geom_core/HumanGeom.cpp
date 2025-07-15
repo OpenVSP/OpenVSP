@@ -1502,7 +1502,6 @@ void HumanGeom::SetupSkel( const vertmat & vm, Pinocchio::DataSkeleton &skeleton
 
     skeleton.setFat( WAIST );
     skeleton.setFat( ORIGIN );
-    skeleton.setFat( HEAD );
     skeleton.setFat( DES_EYE );
     skeleton.setFat( LEYE );
     skeleton.setFat( REYE );
