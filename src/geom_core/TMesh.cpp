@@ -2173,7 +2173,7 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
     return match;
 }
 
-void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
+bool TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
                                  vector < vector < int > > & connlist )
 {
     int i, j;
@@ -2433,6 +2433,12 @@ void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec,
 
     // cleanup
     triangle_context_destroy( ctx );
+
+    if ( tristatus == TRI_OK )
+    {
+        return true;
+    }
+    return false;
 }
 
 int dba_errlog( void* stream, const char* fmt, ...)
@@ -2445,10 +2451,12 @@ int dba_errlog( void* stream, const char* fmt, ...)
     return ret;
 }
 
-void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
+bool TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
                                  vector < vector < int > > & connlist, const vector < vector < int > > & otherconnlist  )
 {
     static int idump = 0;
+
+    bool success = true;
 
     int npt = ptvec.size();
 
@@ -2558,6 +2566,7 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
     else
     {
         printf( "DLB Error! %d\n", verts );
+        success = false;
     }
 
     for ( int i = 0 ; i < npt; i++ )
@@ -2595,6 +2604,8 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
     delete[] bounds;
 
     idb->Destroy();
+
+    return success;
 }
 
 bool TTri::InTri( const vec3d & p )
