@@ -2812,7 +2812,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
         }
 
         // Sectional distribution table
-        int nSectionalDataTableCols = 60;
+        int nSectionalDataTableCols = 62;
         if ( data_string_array.size() == nSectionalDataTableCols && !isdigit( data_string_array[0][0] ) )
         {
             //discard the header row and read the next line assuming that it is numeric
@@ -2833,9 +2833,10 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             std::vector<double> Xavg;
             std::vector<double> Yavg;
             std::vector<double> Zavg;
-            std::vector<double> Span;
+            std::vector<double> dSpan;
+            std::vector<double> SoverB;
             std::vector<double> Chord;
-            std::vector<double> Area;
+            std::vector<double> dArea;
             std::vector<double> VoVref;
             std::vector<double> Cl;
             std::vector<double> Cd;
@@ -2868,6 +2869,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
 
             std::vector<int> IsARotor;
             std::vector<double> Diameter;
+            std::vector<double> roverR;
             std::vector<double> RPM;
             std::vector<double> Thrust;
             std::vector<double> Thrusto;
@@ -2945,9 +2947,10 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
                     Xavg.push_back(        std::stod( data_string_array[icol] ) ); icol++;
                     Yavg.push_back(        std::stod( data_string_array[icol] ) ); icol++;
                     Zavg.push_back(        std::stod( data_string_array[icol] ) ); icol++;
-                    Span.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    dSpan.push_back(       std::stod( data_string_array[icol] ) ); icol++;
+                    SoverB.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                     Chord.push_back(       std::stod( data_string_array[icol] ) ); icol++;
-                    Area.push_back(        std::stod( data_string_array[icol] ) ); icol++;
+                    dArea.push_back(       std::stod( data_string_array[icol] ) ); icol++;
                     VoVref.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                     Cl.push_back(          std::stod( data_string_array[icol] ) ); icol++;
                     Cd.push_back(          std::stod( data_string_array[icol] ) ); icol++;
@@ -2979,6 +2982,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
                     StallFact.push_back(   std::stod( data_string_array[icol] ) ); icol++;
                     IsARotor.push_back(    std::stoi( data_string_array[icol] ) ); icol++;
                     Diameter.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                    roverR.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                     RPM.push_back(         std::stod( data_string_array[icol] ) ); icol++;
                     Thrust.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                     Thrusto.push_back(     std::stod( data_string_array[icol] ) ); icol++;
@@ -3056,9 +3060,10 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
             res->Add( new NameValData( "Xavg", Xavg, "Section X coordinate." ) );
             res->Add( new NameValData( "Yavg", Yavg, "Section Y coordinate." ) );
             res->Add( new NameValData( "Zavg", Zavg, "Section Z coordinate." ) );
-            res->Add( new NameValData( "Span", Span, "Section span.." ) );
+            res->Add( new NameValData( "dSpan", dSpan, "Section span increment." ) );
+            res->Add( new NameValData( "SoverB", SoverB, "Fraction of wing span." ) );
             res->Add( new NameValData( "Chord", Chord, "Section chord." ) );
-            res->Add( new NameValData( "Area", Area, "Section area." ) );
+            res->Add( new NameValData( "dArea", dArea, "Section area increment." ) );
             res->Add( new NameValData( "V/Vref", VoVref, "Local velocity ratio." ) );
             res->Add( new NameValData( "cl", Cl, "Section lift coefficient." ) );
             res->Add( new NameValData( "cd", Cd, "Section drag coefficient." ) );
@@ -3091,6 +3096,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( const string &filename, vector <string> 
 
             res->Add( new NameValData( "IsARotor", IsARotor, "Flag indicating whether this vortex sheet is a rotor / prop." ) );
             res->Add( new NameValData( "Diameter", Diameter, "Diameter of the rotor." ) );
+            res->Add( new NameValData( "roverR", roverR, "Fraction of rotor radius." ) );
             res->Add( new NameValData( "RPM", RPM, "RPM of this rotor." ) );
             res->Add( new NameValData( "Thrust", Thrust, "Thrust distribution." ) );
             res->Add( new NameValData( "Thrusto", Thrusto, "Thrust distribution.  Parasite part." ) );
