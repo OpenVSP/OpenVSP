@@ -1,3 +1,39 @@
+# [OpenVSP 3.44.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.1)
+
+2025-07-15
+
+OpenVSP 3.44.1
+
+This is a quick fix release to address a few issues that immediately
+appeared in 3.44.0.
+
+Using the HumanGeom component would immediately cause a crash on
+non-MacOS platforms.
+
+The AC 25.773 GUI elements would obscure other XSecCurve GUI elements.
+
+This includes a change to improve robustness of some CompGeom style
+operations.
+
+Some time ago, OpenVSP switched from Triangle to DBA for its main CDT
+algorithm.  This helped some cases, but hurt others.
+
+In 3.43.1, OpenVSP switched back to Triangle.  This helps in some cases,
+but hurts others.
+
+This fix catches some failures of Triangle and tries DBA in those cases.
+Hopefully this will prove to be the most robust approach without
+major work.
+
+Fixes:
+- Fix HumanGeom crash
+- Fix AC 25.773 GUI elements obscuring other GUI elements
+- Fall back from Triangle to DBA when failure is detected.
+
+
+---
+
+
 # [OpenVSP 3.43.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.43.2)
 
 2025-07-15
