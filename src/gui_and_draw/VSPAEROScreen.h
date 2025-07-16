@@ -353,7 +353,6 @@ protected:
 
     SliderAdjRangeInput m_NRefCounter;
     ToggleButton m_FindBodyWakesButton;
-    ToggleButton m_ContinueCoPlanarWakesButton;
 
     // Additional thread handling stuff
     ProcessUtil m_SolverProcess;

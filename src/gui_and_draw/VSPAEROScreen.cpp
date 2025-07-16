@@ -931,7 +931,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_ExperimentalLayout.AddSlider( m_NRefCounter, "Num Ref.", 10, "%3.0f" );
 
-    m_ExperimentalLayout.AddButton( m_ContinueCoPlanarWakesButton, "Continue CoPlanar Wakes" );
     m_ExperimentalLayout.AddButton( m_FindBodyWakesButton, "Find Body Wakes" );
 
     // Show the starting tab
@@ -1593,20 +1592,17 @@ void VSPAEROScreen::UpdateCaseSetup()
 
     m_CullFracSlider.Update( VSPAEROMgr.m_CullFrac.GetID() );
     m_CullFracButton.Update( VSPAEROMgr.m_CullFracFlag.GetID() );
-    m_ContinueCoPlanarWakesButton.Update( VSPAEROMgr.m_ContinueCoPlanarWakesFlag.GetID() );
     m_FindBodyWakesButton.Update( VSPAEROMgr.m_FindBodyWakesFlag.GetID() );
 
     if ( VSPAEROMgr.m_ThinGeomSet() == vsp::SET_NONE )
     {
         m_CullFracSlider.Deactivate();
         m_CullFracButton.Deactivate();
-        m_ContinueCoPlanarWakesButton.Deactivate();
     }
     else
     {
         m_CullFracSlider.Activate();
         m_CullFracButton.Activate();
-        m_ContinueCoPlanarWakesButton.Activate();
     }
 
     m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
