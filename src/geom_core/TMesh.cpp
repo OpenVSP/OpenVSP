@@ -2358,7 +2358,7 @@ bool TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec,
     {
         triangle_mesh_copy( ctx, &out, 1, 1 );
 
-        connlist.resize( out.numberoftriangles );
+        connlist.reserve( out.numberoftriangles );
 
         //==== Load Triangles if No New Point Created ====//
         cnt = 0;
@@ -2368,9 +2368,9 @@ bool TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec,
                 out.trianglelist[cnt + 1] < npt &&
                 out.trianglelist[cnt + 2] < npt )
             {
-                connlist[i].push_back( out.trianglelist[cnt] );
-                connlist[i].push_back( out.trianglelist[cnt + 1] );
-                connlist[i].push_back( out.trianglelist[cnt + 2] );
+                connlist.push_back( { out.trianglelist[cnt],
+                                      out.trianglelist[cnt + 1],
+                                      out.trianglelist[cnt + 2] } );
             }
             else
             {
