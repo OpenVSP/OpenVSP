@@ -63,7 +63,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CullFracFlag.Init( "CullFracFlag", groupname, this, false, false, true );
     m_CullFracFlag.SetDescript( "Flag to enable orphan culling." );
 
-    m_ContinueCoPlanarWakesFlag.Init( "ContinueCoPlanarWakesFlag", groupname, this, true, false, true );
+    m_ContinueCoPlanarWakesFlag.Init( "ContinueCoPlanarWakesFlag", groupname, this, false, false, true );
     m_ContinueCoPlanarWakesFlag.SetDescript( "Flag to continue coplanar wakes through bodies" );
 
     m_FindBodyWakesFlag.Init( "FindBodyWakesFlag", groupname, this, false, false, true );
