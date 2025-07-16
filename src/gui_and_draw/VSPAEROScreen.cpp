@@ -109,7 +109,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Case Setup Layout
     m_LeftColumnLayout.AddSubGroupLayout( m_CaseSetupLayout,
         m_LeftColumnLayout.GetW(),
-        11 * m_CaseSetupLayout.GetStdHeight() +
+        7 * m_CaseSetupLayout.GetStdHeight() +
         2 * m_CaseSetupLayout.GetDividerHeight() +
         2 * m_CaseSetupLayout.GetGapHeight()
     );
@@ -176,6 +176,19 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_CaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
 
+    m_CaseSetupLayout.SetSameLineFlag( true );
+    m_CaseSetupLayout.SetFitWidthFlag( false );
+
+    m_CaseSetupLayout.AddButton( m_CullFracButton, "Cull Orphans" );
+    m_CaseSetupLayout.SetButtonWidth( 0 );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+    m_CaseSetupLayout.AddSlider( m_CullFracSlider, "", 1.0, "%5.3f" );
+    m_CaseSetupLayout.ForceNewLine();
+    m_CaseSetupLayout.SetButtonWidth( bw );
+
+    m_CaseSetupLayout.SetSameLineFlag( false );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+
     m_CaseSetupLayout.SetChoiceButtonWidth( bw );
     m_CaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
 
@@ -194,27 +207,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.SetFitWidthFlag( true );
 
     m_CaseSetupLayout.AddYGap();
-
-    m_CaseSetupLayout.AddDividerBox( "Experimental" );
-
-    m_CaseSetupLayout.SetSameLineFlag( true );
-    m_CaseSetupLayout.SetFitWidthFlag( false );
-
-    m_CaseSetupLayout.AddButton( m_CullFracButton, "Cull Orphans" );
-    m_CaseSetupLayout.SetButtonWidth( 0 );
-    m_CaseSetupLayout.SetFitWidthFlag( true );
-    m_CaseSetupLayout.AddSlider( m_CullFracSlider, "", 1.0, "%5.3f" );
-    m_CaseSetupLayout.ForceNewLine();
-
-    m_CaseSetupLayout.SetSameLineFlag( false );
-    m_CaseSetupLayout.SetFitWidthFlag( true );
-
-    m_CaseSetupLayout.SetButtonWidth( button_width );
-
-    m_CaseSetupLayout.AddSlider( m_NRefCounter, "Num Ref.", 10, "%3.0f" );
-
-    m_CaseSetupLayout.AddButton( m_ContinueCoPlanarWakesButton, "Continue CoPlanar Wakes" );
-    m_CaseSetupLayout.AddButton( m_FindBodyWakesButton, "Find Body Wakes" );
 
 
     m_LeftColumnLayout.AddYGap();
@@ -329,7 +321,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_RightColumnLayout.AddSubGroupLayout( m_MomentRefLayout,
         m_RightColumnLayout.GetW(),
         m_RightColumnLayout.GetDividerHeight() +
-        9 * m_RightColumnLayout.GetStdHeight() );
+        7 * m_RightColumnLayout.GetStdHeight() );
     m_RightColumnLayout.AddY( m_MomentRefLayout.GetH() );
 
     m_MomentRefLayout.AddDividerBox( "Moment Reference Position" );
@@ -928,6 +920,18 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_ViewerDisplay->display_columns( 300 );
     m_ViewerDisplay->history_lines( 1000 );
 
+
+    //==== Experimental Tab ====//
+    Fl_Group* experimental_tab = AddTab( "Experimental" );
+    Fl_Group* experimental_group = AddSubGroup( experimental_tab, window_border_width );
+    m_ExperimentalLayout.SetGroupAndScreen( experimental_group, this );
+
+    m_ExperimentalLayout.AddDividerBox( "VSPAERO Viewer Console" );
+
+    m_ExperimentalLayout.AddSlider( m_NRefCounter, "Num Ref.", 10, "%3.0f" );
+
+    m_ExperimentalLayout.AddButton( m_ContinueCoPlanarWakesButton, "Continue CoPlanar Wakes" );
+    m_ExperimentalLayout.AddButton( m_FindBodyWakesButton, "Find Body Wakes" );
 
     // Show the starting tab
     overview_tab->show();

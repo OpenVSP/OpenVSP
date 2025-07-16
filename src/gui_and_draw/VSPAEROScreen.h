@@ -131,11 +131,8 @@ protected:
     vector < string > m_ModeIDs;
 
     // Additional options
-    SliderAdjRangeInput m_NRefCounter;
     SliderAdjRangeInput m_CullFracSlider;
     ToggleButton m_CullFracButton;
-    ToggleButton m_ContinueCoPlanarWakesButton;
-    ToggleButton m_FindBodyWakesButton;
     TriggerButton m_PreviewVSPAEROButton;
 
     // Ref Length Layout
@@ -351,6 +348,12 @@ protected:
 
     Fl_Terminal *m_ViewerDisplay;
 
+    //==== Experimental Tab ====//
+    GroupLayout m_ExperimentalLayout;
+
+    SliderAdjRangeInput m_NRefCounter;
+    ToggleButton m_FindBodyWakesButton;
+    ToggleButton m_ContinueCoPlanarWakesButton;
 
     // Additional thread handling stuff
     ProcessUtil m_SolverProcess;
