@@ -243,6 +243,24 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_WakeLayout.ForceNewLine();
 
+    m_LeftColumnLayout.AddYGap();
+
+    // Control Surface Angle Layout
+    int deflection_angle_scroll_h = 150;
+    m_LeftColumnLayout.AddDividerBox( "Control Group Angles" ); //add the divider box outside the layout so the scroll works properly
+
+    m_LeftColumnLayout.AddSubGroupLayout( m_DeflectionAngleLayout,
+        m_LeftColumnLayout.GetW(),
+        m_LeftColumnLayout.GetRemainY() );
+
+    m_DeflectionAngleScroll = AddSubScroll( m_DeflectionAngleLayout.GetGroup(), group_border_width );
+    m_DeflectionAngleScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    m_DeflectionAngleScroll->resize( m_DeflectionAngleLayout.GetX(), m_DeflectionAngleLayout.GetY(),
+        m_DeflectionAngleLayout.GetW(), m_DeflectionAngleLayout.GetH() );
+
+    m_LeftColumnLayout.AddY( deflection_angle_scroll_h );
+
+
     // Flow Condition
     m_RightColumnLayout.AddSubGroupLayout( m_FlowCondLayout,
         m_RightColumnLayout.GetW(),
@@ -385,23 +403,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_MomentRefLayout.AddSlider( m_XcgSlider, "Xref", 100.0, "%7.3f" );
     m_MomentRefLayout.AddSlider( m_YcgSlider, "Yref", 100.0, "%7.3f" );
     m_MomentRefLayout.AddSlider( m_ZcgSlider, "Zref", 100.0, "%7.3f" );
-
-    m_RightColumnLayout.AddYGap();
-
-    // Control Surface Angle Layout
-    int deflection_angle_scroll_h = 150;
-    m_RightColumnLayout.AddDividerBox( "Control Group Angles" ); //add the divider box outside the layout so the scroll works properly
-
-    m_RightColumnLayout.AddSubGroupLayout( m_DeflectionAngleLayout,
-        m_RightColumnLayout.GetW(),
-        m_RightColumnLayout.GetRemainY() );
-
-    m_DeflectionAngleScroll = AddSubScroll( m_DeflectionAngleLayout.GetGroup(), group_border_width );
-    m_DeflectionAngleScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
-    m_DeflectionAngleScroll->resize( m_DeflectionAngleLayout.GetX(), m_DeflectionAngleLayout.GetY(),
-        m_DeflectionAngleLayout.GetW(), m_DeflectionAngleLayout.GetH() );
-
-    m_RightColumnLayout.AddY( deflection_angle_scroll_h );
 
     //==== Advanced Controls Tab ====//
     Fl_Group* advanced_tab = AddTab( "Advanced" );
