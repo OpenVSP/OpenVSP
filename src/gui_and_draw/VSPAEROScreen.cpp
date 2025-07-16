@@ -2098,25 +2098,27 @@ void VSPAEROScreen::UpdateDeflectionAngleScrollGroup()
         m_DeflectionAngleLayout.SetGroup( m_DeflectionAngleScroll );
         m_DeflectionAngleLayout.InitWidthHeightVals();
 
+        int bw = 145;
+        int togglebw = 15;
+
         m_DeflectionAngleToggleVec.clear();
         m_DeflectionAngleSliderVec.clear();
 
         m_DeflectionAngleToggleVec.resize(cs_group_vec.size());
         m_DeflectionAngleSliderVec.resize(cs_group_vec.size());
 
-        m_DeflectionAngleLayout.SetFitWidthFlag(false);
         m_DeflectionAngleLayout.SetSameLineFlag(true);
-        m_DeflectionAngleLayout.SetButtonWidth(10);
-
-        m_DeflectionAngleLayout.SetSliderWidth(50);
 
         for (size_t i = 0; i < cs_group_vec.size(); ++i)
         {
-            m_DeflectionAngleLayout.SetButtonWidth(15);
+            m_DeflectionAngleLayout.SetFitWidthFlag( false );
+            m_DeflectionAngleLayout.SetButtonWidth( togglebw );
             m_DeflectionAngleLayout.AddButton(m_DeflectionAngleToggleVec[i], "");
             m_DeflectionAngleToggleVec[i].Update(cs_group_vec[i]->m_IsUsed.GetID());
-            m_DeflectionAngleLayout.SetButtonWidth(145);
-            m_DeflectionAngleLayout.AddSlider(m_DeflectionAngleSliderVec[i], cs_group_vec[i]->GetName().c_str(), 10, "%3.2f");
+
+            m_DeflectionAngleLayout.SetFitWidthFlag( true );
+            m_DeflectionAngleLayout.SetButtonWidth( bw );
+            m_DeflectionAngleLayout.AddSlider(m_DeflectionAngleSliderVec[i], cs_group_vec[i]->GetName().c_str(), 10, "%3.2f" );
             m_DeflectionAngleSliderVec[i].Update(cs_group_vec[i]->m_DeflectionAngle.GetID());
             if (!cs_group_vec[i]->m_IsUsed())
             {
