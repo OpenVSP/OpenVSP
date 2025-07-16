@@ -781,7 +781,7 @@ bool PGEdge::Validate() const
     return valid;
 }
 
-bool PGEdge::WingWakeEdge( const PGMesh *m, const bool ContinueCoPlanarWakes, int &part ) const
+bool PGEdge::WingWakeEdge( const PGMesh *m, int &part ) const
 {
     int nface = m_FaceVec.size();
 
@@ -798,12 +798,9 @@ bool PGEdge::WingWakeEdge( const PGMesh *m, const bool ContinueCoPlanarWakes, in
 
         if ( type == vsp::WING_SURF )
         {
-            if ( !ContinueCoPlanarWakes )
+            if ( !thick && nface != 1 )
             {
-                if ( !thick && nface != 1 )
-                {
-                    return false;
-                }
+                return false;
             }
 
             vec2d uw0, uw1;
@@ -2664,7 +2661,7 @@ void PGMesh::IdentifyParents()
     }
 }
 
-void PGMesh::ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n, const bool ContinueCoPlanarWakes )
+void PGMesh::ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n )
 {
     e->m_InCurrentLoopFlag = true;
 
@@ -2676,14 +2673,14 @@ void PGMesh::ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode
         if ( ei && ei != e && !ei->m_InLoopFlag && !ei->m_InCurrentLoopFlag )
         {
             int part = -1;
-            if ( ei->WingWakeEdge( this, ContinueCoPlanarWakes, part ) )
+            if ( ei->WingWakeEdge( this, part) )
             {
                 PGNode * ni = ei->OtherNode( n );
 
                 wake.push_back( ei );
                 ei->m_InLoopFlag = true;
 
-                ExtendWingWake( wake, ei, ni, ContinueCoPlanarWakes );
+                ExtendWingWake( wake, ei, ni );
                 return;
             }
         }
@@ -2693,7 +2690,7 @@ void PGMesh::ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode
 }
 
 
-void PGMesh::IdentifyWingWakes( const bool ContinueCoPlanarWakes )
+void PGMesh::IdentifyWingWakes()
 {
     m_WingWakeVec.clear();
     m_WingWakePartVec.clear();
@@ -2702,18 +2699,18 @@ void PGMesh::IdentifyWingWakes( const bool ContinueCoPlanarWakes )
     for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
     {
         int part = -1;
-        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->WingWakeEdge( this, ContinueCoPlanarWakes, part ) )
+        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->WingWakeEdge( this, part) )
         {
             (*e)->m_InLoopFlag = true;
 
             vector < PGEdge * > wake;
             wake.push_back( *e );
 
-            ExtendWingWake( wake, (*e), (*e)->m_N0, ContinueCoPlanarWakes );
+            ExtendWingWake( wake, (*e), (*e)->m_N0 );
 
             std::reverse( wake.begin(), wake.end() );
 
-            ExtendWingWake( wake, (*e), (*e)->m_N1, ContinueCoPlanarWakes );
+            ExtendWingWake( wake, (*e), (*e)->m_N1 );
 
 
             m_WingWakeVec.push_back( wake );

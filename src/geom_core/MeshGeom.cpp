@@ -1904,7 +1904,7 @@ void MeshGeom::CreatePtCloudGeom()
     }
 }
 
-string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool ContinueCoPlanarWakes, int n_ref, bool FindBodyWakes )
+string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_ref, bool FindBodyWakes )
 {
     GeomType type = GeomType( NGON_GEOM_TYPE, "NGON", true );
     string id = m_Vehicle->AddGeom( type );
@@ -1944,7 +1944,7 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool Co
             pgm->CullOrphanThinRegions( cullfrac );
         }
 
-        pgm->IdentifyWingWakes( ContinueCoPlanarWakes );
+        pgm->IdentifyWingWakes();
         if ( FindBodyWakes )
         {
             pgm->IdentifyBodyWakes();
@@ -1967,7 +1967,7 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, bool Co
 
             pgmi->IdentifyParents();
 
-            pgmi->IdentifyWingWakes( ContinueCoPlanarWakes );
+            pgmi->IdentifyWingWakes();
             if ( FindBodyWakes )
             {
                 pgmi->IdentifyBodyWakes();
