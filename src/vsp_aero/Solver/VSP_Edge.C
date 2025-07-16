@@ -167,7 +167,9 @@ void VSP_EDGE::init(void)
 
     VortexSheet_ = 0;
   
-    KuttaNode_ = 0;
+    KuttaNode_[0] = 0;
+
+    KuttaNode_[1] = 0;
   
 }
 
@@ -343,7 +345,9 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     
     VortexSheet_ = VSPEdge.VortexSheet_;
   
-    KuttaNode_ = VSPEdge.KuttaNode_;
+    KuttaNode_[0] = VSPEdge.KuttaNode_[0];
+
+    KuttaNode_[1] = VSPEdge.KuttaNode_[1];
 
     if ( VSPEdge.IsWakeEdge_ ) {
    

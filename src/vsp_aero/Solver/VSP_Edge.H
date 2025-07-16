@@ -171,9 +171,9 @@ private:
     
     int VortexSheet_;
     
-    // Kutta node we might be assocated with... for spanwise loading calculations
+    // Kutta nodes we might be assocated with... for spanwise loading calculations
     
-    int KuttaNode_;
+    int KuttaNode_[2];
 
     // Group ID
     
@@ -549,7 +549,7 @@ public:
     
     // Kutta node we might be assocated with... for spanwise loading calculations
     
-    int &KuttaNode(void) { return KuttaNode_; };
+    int &KuttaNode(int i) { return KuttaNode_[i-1]; };
         
     /** Group ID **/
     

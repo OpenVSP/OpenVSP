@@ -30039,37 +30039,37 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
              
              v = VSPGeom().Grid(MGLevel_).EdgeList(j).VortexSheet();
              
-             k = ABS(VSPGeom().Grid(MGLevel_).EdgeList(j).KuttaNode());
+             for ( i = 1 ; i <= 2 ; i++ ) {
+                
+                k = VSPGeom().Grid(MGLevel_).EdgeList(j).KuttaNode(i);
 
-             
-             // Area
-   
-             LoopL = VSPGeom().Grid(MGLevel_).EdgeList(j).LoopL();
-             LoopR = VSPGeom().Grid(MGLevel_).EdgeList(j).LoopR();
-       
-             Area = 0.;
-             
-             if ( LoopL > 0. ) Area += VSPGeom().Grid(MGLevel_).LoopList(LoopL).Area() / VSPGeom().Grid(MGLevel_).LoopList(LoopL).NumberOfEdges();
-             if ( LoopR > 0. ) Area += VSPGeom().Grid(MGLevel_).LoopList(LoopR).Area() / VSPGeom().Grid(MGLevel_).LoopList(LoopR).NumberOfEdges();
-
-
-             // Local 2d strip wise forces and moments
-   
-             VSPGeom().VortexSheet(v).TrailingVortex(k).CFix() += Fx;
-             VSPGeom().VortexSheet(v).TrailingVortex(k).CFiy() += Fy;
-             VSPGeom().VortexSheet(v).TrailingVortex(k).CFiz() += Fz;
-                                                    
-             VSPGeom().VortexSheet(v).TrailingVortex(k).CMix() += Fz * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Yc() - XYZcg_[1] ) - Fy * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Zc() - XYZcg_[2] );   // Roll
-             VSPGeom().VortexSheet(v).TrailingVortex(k).CMiy() += Fx * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Zc() - XYZcg_[2] ) - Fz * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Xc() - XYZcg_[0] );   // Pitch
-             VSPGeom().VortexSheet(v).TrailingVortex(k).CMiz() += Fy * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Xc() - XYZcg_[0] ) - Fx * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Yc() - XYZcg_[1] );   // Yaw
-                                                      
-             // Local 2d strip wise Cl, Cd, Cs       
-                                                     
-             VSPGeom().VortexSheet(v).TrailingVortex(k).Cli() += ( (-Fx * SA + Fz * CA )                );
-             VSPGeom().VortexSheet(v).TrailingVortex(k).Cdi() += ( ( Fx * CA + Fz * SA ) * CB - Fy * SB );
-             VSPGeom().VortexSheet(v).TrailingVortex(k).Csi() += ( ( Fx * CA + Fz * SA ) * SB + Fy * CB );
+                // Local 2d strip wise forces and moments
+                
+                VSPGeom().VortexSheet(v).TrailingVortex(k).CFix() += 0.5*Fx;
+                VSPGeom().VortexSheet(v).TrailingVortex(k).CFiy() += 0.5*Fy;
+                VSPGeom().VortexSheet(v).TrailingVortex(k).CFiz() += 0.5*Fz;
+                                                       
+                VSPGeom().VortexSheet(v).TrailingVortex(k).CMix() += 0.5*Fz * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Yc() - XYZcg_[1] ) - 0.5*Fy * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Zc() - XYZcg_[2] );   // Roll
+                VSPGeom().VortexSheet(v).TrailingVortex(k).CMiy() += 0.5*Fx * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Zc() - XYZcg_[2] ) - 0.5*Fz * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Xc() - XYZcg_[0] );   // Pitch
+                VSPGeom().VortexSheet(v).TrailingVortex(k).CMiz() += 0.5*Fy * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Xc() - XYZcg_[0] ) - 0.5*Fx * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Yc() - XYZcg_[1] );   // Yaw
+                                                         
+                // Local 2d strip wise Cl, Cd, Cs       
+                                                        
+                VSPGeom().VortexSheet(v).TrailingVortex(k).Cli() += 0.5*( (-Fx * SA + Fz * CA )                );
+                VSPGeom().VortexSheet(v).TrailingVortex(k).Cdi() += 0.5*( ( Fx * CA + Fz * SA ) * CB - Fy * SB );
+                VSPGeom().VortexSheet(v).TrailingVortex(k).Csi() += 0.5*( ( Fx * CA + Fz * SA ) * SB + Fy * CB );
+                
+             }
 
           }
+          
+         // else {
+         //    
+         //    printf("There's an edge we didn't catch! \n");
+         //    
+         //    printf("Yc: %f \n",VSPGeom().Grid(MGLevel_).EdgeList(j).Yc());fflush(NULL);
+         //    
+         // }
  
        }
    

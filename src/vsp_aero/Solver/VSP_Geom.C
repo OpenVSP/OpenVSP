@@ -5338,7 +5338,7 @@ void VSP_GEOM::CreateVortexSheets(void)
 void VSP_GEOM::StoreWakeKuttaEdges(void)
 {
 
-    int i, j, jm, jp, k, p, SurfaceID;
+    int i, j, jm, jp, k, p, q, SurfaceID;
     int TotalNodes, Node1, Node2, NodeA, NodeB, Loop, Loop1, Loop2, TotalLoops;
     int Node, Edge, Found, TE_Edge;
     int *NumberOfEdgesForNode, **NodeToEdgeList;
@@ -5459,7 +5459,7 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
              fflush(NULL);exit(1);
              
           }        
-
+      
           VortexSheet(k).TrailingVortex(j).LocalChord() = 0.;
           
           for ( p = 1 ; p <= Grid(SolveOnMGLevel_).NumberOfSurfaceEdges() ; p++ ) {
@@ -5505,18 +5505,18 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
           
                    // Edge sits inside this strip... mark it so we can do spanwise loading calculations later...
                    
-                   if ( 0.5*(U3 + U4) >= MIN(U1,U2) &&
-                        0.5*(U3 + U4) <= MAX(U1,U2) ) {
-                      
-                      if ( Grid(SolveOnMGLevel_).EdgeList(p).VortexSheet() == 0 ) {
-                              
-                         Grid(SolveOnMGLevel_).EdgeList(p).VortexSheet() = k;
-                         
-                         Grid(SolveOnMGLevel_).EdgeList(p).KuttaNode() = j;
-
-                      }
-                         
-                   }
+                  // if ( 0.5*(U3 + U4) >= MIN(U1,U2) &&
+                  //      0.5*(U3 + U4) <= MAX(U1,U2) ) {
+                  //    
+                  //    if ( Grid(SolveOnMGLevel_).EdgeList(p).VortexSheet() == 0 ) {
+                  //            
+                  //       Grid(SolveOnMGLevel_).EdgeList(p).VortexSheet() = k;
+                  //       
+                  //       Grid(SolveOnMGLevel_).EdgeList(p).KuttaNode() = j;
+                  //
+                  //    }
+                  //       
+                  // }
                    
                    // On a constant chord line
                    
@@ -5563,6 +5563,111 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
        
     }
 
+    // Distribute edges for strip wise force/moment integrations
+
+    for ( p = 1 ; p <= Grid(SolveOnMGLevel_).NumberOfSurfaceEdges() ; p++ ) {
+
+       Grid(SolveOnMGLevel_).EdgeList(p).VortexSheet() = 0;
+       
+       Grid(SolveOnMGLevel_).EdgeList(p).KuttaNode(1) = 0;
+       
+       Grid(SolveOnMGLevel_).EdgeList(p).KuttaNode(2) = 0;
+       
+    }
+
+    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+
+       for ( j = 1 ; j < VortexSheet(k).NumberOfTrailingVortices() ; j++ ) {
+          
+          Edge = ABS(VortexSheet(k).TrailingVortex(j).TE_Edge());
+         
+          Node1 = Grid(SolveOnMGLevel_).EdgeList(Edge).Node1();
+          
+          Node2 = Grid(SolveOnMGLevel_).EdgeList(Edge).Node2();
+                                                                       
+          SurfaceID = Grid(SolveOnMGLevel_).EdgeList(Edge).SurfaceID();
+
+          Loop = Grid(SolveOnMGLevel_).EdgeList(Edge).Loop1();
+          
+          // Find trailing edge node U values, as they are stored per loop
+          
+          Found = 0;
+          
+          i = 1;
+         
+          while ( i <= Grid(SolveOnMGLevel_).LoopList(Loop).NumberOfNodes() && Found < 2 ) {
+                                                       
+             if ( Grid(SolveOnMGLevel_).LoopList(Loop).Node(i) == Node1 ) { U1 = Grid(SolveOnMGLevel_).LoopList(Loop).U_Node(i) ; V1 = Grid(SolveOnMGLevel_).LoopList(Loop).V_Node(i) ; Found++; };
+             if ( Grid(SolveOnMGLevel_).LoopList(Loop).Node(i) == Node2 ) { U2 = Grid(SolveOnMGLevel_).LoopList(Loop).U_Node(i) ; V2 = Grid(SolveOnMGLevel_).LoopList(Loop).V_Node(i) ; Found++; };
+             
+             i++;
+             
+          } 
+          
+          if ( Found != 2 ) {
+             
+             printf("Error in determining TE edge U values! \n");
+             printf("Edge: %d \n",Edge);
+             printf("Node1,2: %d %d \n",Node1,Node2);
+             fflush(NULL);exit(1);
+             
+          }        
+          
+          printf("j: %d --> U1,2: %f %f \n",j,U1,U2);fflush(NULL);
+
+          for ( p = 1 ; p <= Grid(SolveOnMGLevel_).NumberOfSurfaceLoops() ; p++ ) {
+             
+             if ( Grid(SolveOnMGLevel_).LoopList(p).SurfaceID() == SurfaceID ) {
+                
+                U3 = 0.;
+                V3 = 0.;
+                
+                for ( i = 1 ; i <= Grid(SolveOnMGLevel_).LoopList(p).NumberOfNodes() ; i++ ) {
+                   
+                   U3 += Grid(SolveOnMGLevel_).LoopList(p).U_Node(i);
+                   V3 += Grid(SolveOnMGLevel_).LoopList(p).V_Node(i);
+                   
+                }
+                
+                U3 /= Grid(SolveOnMGLevel_).LoopList(p).NumberOfNodes();
+                V3 /= Grid(SolveOnMGLevel_).LoopList(p).NumberOfNodes();
+                
+                // Loop is in this strip
+                   
+                if ( U3 >= MIN(U1,U2) && U3 <= MAX(U1,U2) ) {     
+                                    
+                   // Loop over edges for this loop
+                   
+                   for ( i = 1 ; i <= Grid(SolveOnMGLevel_).LoopList(p).NumberOfEdges() ; i++ ) {
+                      
+                      q = ABS(Grid(SolveOnMGLevel_).LoopList(p).Edge(i));
+                      
+                      if ( Grid(SolveOnMGLevel_).EdgeList(q).VortexSheet() == 0 ) {
+                              
+                         Grid(SolveOnMGLevel_).EdgeList(q).VortexSheet() = k;
+                         
+                         Grid(SolveOnMGLevel_).EdgeList(q).KuttaNode(1) = j;
+                  
+                      }         
+                      
+                      else {
+                         
+                         Grid(SolveOnMGLevel_).EdgeList(q).KuttaNode(2) = j;
+                         
+                      }
+                      
+                   }
+                   
+                }
+                
+             }
+             
+          }
+          
+       }
+                                   
+    }
+    
     // Pointer to global node
     
     TotalNodes = Grid(SolveOnMGLevel_).NumberOfSurfaceNodes();
