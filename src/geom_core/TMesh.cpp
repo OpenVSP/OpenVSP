@@ -2974,7 +2974,7 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
         printf( "Trying Triangle instead.\n" );
         cl_DBA.clear();
         othercl.clear();
-        success = TriangulateSplit_TRI( flattenAxis, ptvec, false, cl_DBA );
+        success = TriangulateSplit_TRI( flattenAxis, ptvec, false, cl_DBA, othercl );
 
         if ( success )
         {
@@ -3031,7 +3031,7 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
 }
 
 bool TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
-                                 vector < vector < int > > & connlist )
+                                 vector < vector < int > > & connlist, const vector < vector < int > > & otherconnlist  )
 {
     int i, j;
 

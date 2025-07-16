@@ -281,7 +281,7 @@ public:
 
     virtual bool TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase );
     virtual bool TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
-                                       vector < vector < int > > & connlist );
+                                       vector < vector < int > > & connlist, const vector < vector < int > > & otherconnlist );
     virtual bool TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
                                        vector < vector < int > > & connlist, const vector < vector < int > > & otherconnlist );
     virtual vec3d ComputeCenter()
