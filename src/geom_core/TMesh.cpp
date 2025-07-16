@@ -3320,12 +3320,12 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
         }
     }
 
-    OrientConnList( cl_DBA );
-    SortConnList( cl_DBA );
-
     bool match = true;
 #ifdef DEBUG_TMESH
 #ifdef COMPARE_TRIANGLE
+    OrientConnList( cl_DBA );
+    SortConnList( cl_DBA );
+
     vector < vector < int > > cl_TRI;
     TriangulateSplit_TRI( flattenAxis, ptvec, false, cl_TRI );
     OrientConnList( cl_TRI );
