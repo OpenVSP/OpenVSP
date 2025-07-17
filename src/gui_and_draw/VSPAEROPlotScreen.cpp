@@ -619,20 +619,20 @@ VSPAEROPlotScreen::~VSPAEROPlotScreen()
 
 void VSPAEROPlotScreen::SetDefaultView()
 {
-    Results* res = ResultsMgr.FindResults( "VSPAERO_History", 0 );
+    bool unsteady = false;
 
-    res = ResultsMgr.FindResults( "VSPAERO_Stab", 0 );
-    int stab_type = -1;
+    Results * res = ResultsMgr.FindResults( "VSPAERO_History" );
     if ( res )
     {
-        stab_type = res->FindPtr( "StabilityType" )->GetInt( 0 );
+        if ( res->GetNumData( "Time" ) > 0 )
+        {
+            unsteady = true;
+        }
     }
 
     int num_group = ResultsMgr.GetNumResults( "VSPAERO_Group" );
 
-    // TODO: Identify default view from results, not parms
-    if ( num_group > 0 ||
-       ( stab_type >= vsp::STABILITY_P_ANALYSIS && stab_type <= vsp::STABILITY_R_ANALYSIS ) )
+    if ( unsteady )
     {
         m_UnsteadyTab->show();
 
@@ -657,27 +657,22 @@ bool VSPAEROPlotScreen::Update()
 {
     TabScreen::Update();
 
-    Results* res = ResultsMgr.FindResults( "VSPAERO_Stab", 0 );
-    bool stabFlag = false;
-    int stabType = -1;
-    if ( res )
-    {
-        stabFlag = true;
-        stabType = res->FindPtr( "StabilityType" )->GetInt( 0 );
-    }
+    bool unsteady = false;
 
     int num_group = ResultsMgr.GetNumResults( "VSPAERO_Group" );
 
     int num_rotor = ResultsMgr.GetNumResults( "VSPAERO_Rotor" );
 
-    if ( num_group > 0 || num_rotor > 0 )
+    Results * res = ResultsMgr.FindResults( "VSPAERO_History" );
+    if ( res )
     {
-        stabFlag = true;
+        if ( res->GetNumData( "Time" ) > 0 )
+        {
+            unsteady = true;
+        }
     }
 
-    if ( !stabFlag ||
-          stabFlag && stabType == vsp::STABILITY_DEFAULT ||
-          stabFlag && stabType == vsp::STABILITY_PITCH )
+    if ( !unsteady )
     {
         m_UnsteadyTab->deactivate();
         m_ConvergenceTab->activate();
