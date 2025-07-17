@@ -1291,6 +1291,7 @@ void VSPAEROPlotScreen::UpdateConvergenceFlowConditionBrowser()
             {
                 m_ConvergenceFlowConditionSelectedResultIDs.push_back( res->GetID() );
                 m_ConvergenceFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                scrollPos = 0;
             }
             else if ( iCase < wasSelected.size() ) // restore original row selections
             {
@@ -1381,6 +1382,10 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
             {
                 if ( m_SelectDefaultData || ( iCase < wasSelected.size() && wasSelected[iCase] ) )   //select ALL flow conditions or restore original row selections
                 {
+                    if ( m_SelectDefaultData )
+                    {
+                        scrollPos = 0;
+                    }
                     m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
                     m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
                 }
@@ -1454,6 +1459,7 @@ void VSPAEROPlotScreen::UpdateLoadDistSelectionBrowser()
             {
                 m_LoadDistSelectBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
                 m_LoadSelectedBladeVec.push_back( iCase );
+                scrollPos = 0;
             }
             else if ( iCase < wasSelected.size() ) // restore original row selections
             {
@@ -1497,6 +1503,7 @@ void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
             {
                 m_SweepFlowConditionSelectedResultIDs.push_back( res->GetID() );
                 m_SweepFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                scrollPos = 0;
             }
             else if ( iCase < wasSelected.size() ) // restore original row selections
             {
@@ -1550,6 +1557,7 @@ void VSPAEROPlotScreen::UpdateCpSliceCaseBrowser()
                 }
 
                 m_CpSliceCaseBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                scrollPos = 0;
             }
             else if ( iCase < wasSelected.size() ) // restore original row selections
             {
@@ -1605,6 +1613,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyFlowConditionBrowser()
                 {
                     m_UnsteadyFlowConditionSelectedResultIDs.push_back( res->GetID() );
                     m_UnsteadyFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                    scrollPos = 0;
                 }
                 else if ( iCase < wasSelected.size() ) // restore original row selections
                 {
@@ -1688,6 +1697,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
             {
                 m_UnsteadySelectBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
                 m_UnsteadySelectedTypeVec.push_back( iCase );
+                scrollPos = 0;
             }
             else if ( iCase < wasSelected.size() ) // restore original row selections
             {
@@ -1835,6 +1845,7 @@ void VSPAEROPlotScreen::UpdateConvergenceYDataBrowser()
         if( ( m_SelectDefaultData && strcmp( m_ConvergenceYDataBrowser->text( iCase + 1 ), "CLtot" ) == 0 ) )
         {
             m_ConvergenceYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+            scrollPos = ( m_ConvergenceYDataBrowser->textsize() + m_ConvergenceYDataBrowser->linespacing() + 2 ) * iCase;
         }
         if ( iCase < wasSelected.size() )
         {
@@ -1910,6 +1921,7 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
         if( ( m_SelectDefaultData && strcmp( m_LoadDistYDataBrowser->text( iCase + 1 ), default_res.c_str() ) == 0 ) )
         {
             m_LoadDistYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+            scrollPos = ( m_LoadDistYDataBrowser->textsize() + m_LoadDistYDataBrowser->linespacing() + 2 ) * iCase;
         }
         if ( iCase < wasSelected.size() )
         {
@@ -1967,6 +1979,7 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
         if( ( m_SelectDefaultData && strcmp( m_SweepXDataBrowser->text( iCase + 1 ), "CDtot" ) == 0 ) )
         {
             m_SweepXDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+            scrollPosXData = ( m_SweepXDataBrowser->textsize() + m_SweepXDataBrowser->linespacing() + 2 ) * iCase;
         }
         if ( iCase < wasSelectedX.size() )
         {
@@ -1981,6 +1994,7 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
         if( ( m_SelectDefaultData && strcmp( m_SweepYDataBrowser->text( iCase + 1 ), "CLtot" ) == 0 ) )
         {
             m_SweepYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+            scrollPosYData = ( m_SweepYDataBrowser->textsize() + m_SweepYDataBrowser->linespacing() + 2 ) * iCase;
         }
         if ( iCase < wasSelectedY.size() )
         {
@@ -2094,6 +2108,7 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
                 }
 
                 m_CpSliceCutBrowser->select( iCut + 1 ); //account for browser using 1-based indexing
+                scrollPos = 0;
             }
             else if ( iCut < wasSelected.size() ) // restore original row selections
             {
@@ -2215,6 +2230,8 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
         if ( ( m_SelectDefaultData && strcmp( m_UnsteadyYDataBrowser->text( iCase + 1 ), default_res.c_str() ) == 0 ) )
         {
             m_UnsteadyYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+
+            scrollPos = ( m_UnsteadyYDataBrowser->textsize() + m_UnsteadyYDataBrowser->linespacing() + 2 ) * iCase;
         }
         if ( iCase < wasSelected.size() )
         {
