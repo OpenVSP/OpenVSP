@@ -2215,20 +2215,21 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
                2   0.001000000000  10.000000000000   0.000000000000  -0.001489590476   0.757468273093   0.755978682618   0.008447887383   0.024942762544   0.033390649927   0.000000004671   0.000001838256   0.000001842927  22.685041314113   1.016955765538   0.000000000000  -0.000000000000  -0.000000008979   0.000002173191  -0.864386607606   0.000001180335   0.000002173191  -0.864386607606   0.000001171356   0.008578209663   0.000000004671   0.000000000000  -0.106969159328   0.000001838256   0.750291893265  -0.098390949666   0.000001842927   0.750291893265   0.752057414332   0.752057414332   0.752057414332   0.753547004808   0.027620814694   0.000000382808  -0.095072662053   0.000000387479   0.746895236731  -0.103650871716   0.000000382808   0.746895236731  20.891991156327   0.908870344115   0.000000000000  -1.696220296929  -0.790162226445   0.188454151154
         ...
         */
-        int wake_iter_table_columns = 36;
-        int num_unsteady_pqr_col = 37;
+        int wake_iter_table_columns = 51;
+
+        // Unsteady files don't have:
+        // CLwtot CDwtot CSwtot CFwxtot CFwytot CFwztot
+        int unsteady_table_columns = wake_iter_table_columns - 6;
         bool unsteady_flag = false;
 
-        if ( data_string_array.size() == num_unsteady_pqr_col )
+        // Some header entries have spaces in them.
+        if( data_string_array.size() >= unsteady_table_columns )
         {
             if ( strcmp( data_string_array[ 0 ].c_str(), "Time" ) == 0 )
             {
                 unsteady_flag = true;
             }
-        }
 
-        if( data_string_array.size() >= wake_iter_table_columns )
-        {
             //discard the header row and read the next line assuming that it is numeric
             data_string_array = ReadDelimLine( fp, seps );
 
@@ -2292,7 +2293,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
             std::vector<double> WallTime;
 
 
-            while ( data_string_array.size() >= wake_iter_table_columns )
+            while ( data_string_array.size() >= unsteady_table_columns )
             {
                 int icol = 0;
                 if ( unsteady_flag )
