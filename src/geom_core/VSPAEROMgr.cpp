@@ -2289,7 +2289,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
             std::vector<double> l10L2Resid;
             std::vector<double> l10MaxResid;
 
-            std::vector<double> CPUTime;
+            std::vector<double> WallTime;
 
 
             while ( data_string_array.size() >= wake_iter_table_columns )
@@ -2370,7 +2370,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
 
                 l10L2Resid.push_back( std::stod( data_string_array[icol] ) ); icol++;
                 l10MaxResid.push_back( std::stod( data_string_array[icol] ) ); icol++;
-                CPUTime.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                WallTime.push_back(     std::stod( data_string_array[icol] ) ); icol++;
 
                 data_string_array = ReadDelimLine( fp, seps );
             }
@@ -2448,7 +2448,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
 
                 res->Add( new NameValData( "log10( L2Residual )", l10L2Resid, "log10( L2Residual )" ) );
                 res->Add( new NameValData( "log10( MaxResidual )", l10MaxResid, "log10( MaxResidual )" ) );
-                res->Add( new NameValData( "CPUTime", CPUTime, "Current CPU Time" ) );
+                res->Add( new NameValData( "WallTime", WallTime, "Current Wall Time" ) );
             }
 
         } // end of wake iteration
