@@ -68,6 +68,8 @@ Vehicle::Vehicle()
 {
     m_Name = "Vehicle_Constructor";
 
+    m_ExperimentalFlag = false;
+
     SetParmContainerType( vsp::ATTROBJ_VEH );
     AttachAttrCollection();
 

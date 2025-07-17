@@ -70,6 +70,10 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr, int &ret )
                 xddmModeFlag = 1;
             }
         }
+        else if ( strcmp( argv[i], "-exp" ) == 0 )
+        {
+            vPtr->SetExperimental( true );
+        }
         else
         {
             vsp_filename = string( argv[i] );

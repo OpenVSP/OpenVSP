@@ -933,6 +933,15 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_ExperimentalLayout.AddButton( m_FindBodyWakesButton, "Find Body Wakes" );
 
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( !veh->GetExperimental() )
+        {
+            RemoveTab( GetTab( m_TabGroupVec.size() - 1 ) );
+        }
+    }
+
     // Show the starting tab
     overview_tab->show();
 

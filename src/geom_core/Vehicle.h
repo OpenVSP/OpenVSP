@@ -349,6 +349,16 @@ public:
         return &(m_BlankNvd);
     }
 
+    void SetExperimental( bool f )
+    {
+        m_ExperimentalFlag = f;
+    }
+
+    bool GetExperimental()
+    {
+        return m_ExperimentalFlag;
+    }
+
     //==== Mass Properties ====//
     vec3d m_IxxIyyIzz;
     vec3d m_IxyIxzIyz;
@@ -645,6 +655,9 @@ protected:
 
     // Color of lines in XSecViewScreen
     vec3d m_XSecLineColor;
+
+    // Flag to enable experimetnal options from command line.
+    bool m_ExperimentalFlag;
 
     // Default Vehicle Attributes
     void AddDefaultAttributes();
