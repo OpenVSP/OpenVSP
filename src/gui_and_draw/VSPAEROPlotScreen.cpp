@@ -791,6 +791,7 @@ bool VSPAEROPlotScreen::Update()
          m_CpSliceTab->activate();
      }
 
+    m_SelectDefaultData = false;
     return false;
 
 }
@@ -1188,8 +1189,6 @@ void VSPAEROPlotScreen::Hide()
 //==== Callbacks ====//
 void VSPAEROPlotScreen::CallBack( Fl_Widget* w )
 {
-    m_SelectDefaultData = false;
-
     // Handle multi-select of sweep browsers
     if ( w == m_SweepXDataBrowser )
     {
@@ -1258,8 +1257,6 @@ void VSPAEROPlotScreen::CloseCallBack( Fl_Widget* w )
 void VSPAEROPlotScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
-
-    m_SelectDefaultData = false;
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
