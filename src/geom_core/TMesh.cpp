@@ -2126,17 +2126,17 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
     vector < vector < int > > othercl;
     vector < vector < int > > cl_DBA;
     // TriangulateSplit_DBA( flattenAxis, ptvec, false, cl_DBA, othercl );
-    bool success = TriangulateSplit_TRI( flattenAxis, ptvec, false, cl_DBA );
+    bool success = TriangulateSplit_DBA( flattenAxis, ptvec, false, cl_DBA, othercl );
     if ( !success )
     {
-        printf( "Trying DBA instead.\n" );
+        printf( "Trying Triangle instead.\n" );
         cl_DBA.clear();
         othercl.clear();
-        success = TriangulateSplit_DBA( flattenAxis, ptvec, false, cl_DBA, othercl );
+        success = TriangulateSplit_TRI( flattenAxis, ptvec, false, cl_DBA );
 
         if ( success )
         {
-            printf( "DBA succeeded\n" );
+            printf( "Triangle succeeded\n" );
         }
     }
 
