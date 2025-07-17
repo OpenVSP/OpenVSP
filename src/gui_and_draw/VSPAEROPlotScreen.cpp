@@ -1832,7 +1832,7 @@ void VSPAEROPlotScreen::UpdateConvergenceYDataBrowser()
     // restore original row selections
     for ( unsigned int iCase = 0; iCase < m_ConvergenceYDataBrowser->size(); iCase++ )
     {
-        if( ( m_SelectDefaultData && strcmp( m_ConvergenceYDataBrowser->text( iCase + 1 ), "L/D" ) == 0 ) )
+        if( ( m_SelectDefaultData && strcmp( m_ConvergenceYDataBrowser->text( iCase + 1 ), "CLtot" ) == 0 ) )
         {
             m_ConvergenceYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
         }
