@@ -1,3 +1,22 @@
+# [OpenVSP 3.43.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.43.3)
+
+2025-07-17
+
+OpenVSP 3.43.3
+
+Another quick fix release to improve robustness of some CompGeom style
+operations.
+
+To minimize the changes from 3.43.0, try DBA first, falling back to
+Triangle on a detected error.
+
+Fixes:
+ - Fall back from DBA to Triangle when failure is detected.
+
+
+---
+
+
 # [OpenVSP 3.43.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.43.2)
 
 2025-07-15
