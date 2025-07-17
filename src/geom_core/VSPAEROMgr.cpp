@@ -5036,7 +5036,7 @@ void VSPAEROMgrSingleton::ReadGroupResFile( const string &filename, vector <stri
 
     // Time        Cx         Cy         Cz        Cxo        Cyo        Czo        Cxi        Cyi        Czi        Cmx        Cmy        Cmz        Cmxo       Cmyo       Cmzo       Cmxi       Cmyi       Cmzi        CL         CD         CS        CLo        CDo        CSo        CLi        CDi        CSi
     std::vector<string> data_string_array;
-    int num_data_col = 28;
+    int num_data_col = 40;
 
     // Read in all of the data into the results manager
     char seps[] = " :,\t\n";
@@ -5048,7 +5048,8 @@ void VSPAEROMgrSingleton::ReadGroupResFile( const string &filename, vector <stri
             continue;
         }
 
-        if ( strcmp( data_string_array[0].c_str(), "Time" ) == 0 )
+        if ( strcmp( data_string_array[0].c_str(), "Time" ) == 0 &&
+             strcmp( data_string_array[1].c_str(), "averaged" ) != 0 )
         {
             res = ResultsMgr.CreateResults( "VSPAERO_Group", "VSPAERO Group file results." );
 
@@ -5067,6 +5068,7 @@ void VSPAEROMgrSingleton::ReadGroupResFile( const string &filename, vector <stri
             std::vector < double > Time, Cx, Cy, Cz, Cxo, Cyo, Czo, Cxi, Cyi, Czi;
             std::vector < double > Cmx, Cmy, Cmz, Cmxo, Cmyo, Cmzo, Cmxi, Cmyi, Cmzi;
             std::vector < double > CL, CD, CLo, CDo, CLi, CDi, CS, CSo, CSi;
+            std::vector < double > Cwx, Cwy, Cwz, Cxiw, Cyiw, Cziw, CLw, CDw, CSw, CLiw, CDiw, CSiw;
 
             // read the data rows
             while ( data_string_array.size() == num_data_col ) //&& data_string_array[0].find( "Comp" ) == std::string::npos
@@ -5100,6 +5102,18 @@ void VSPAEROMgrSingleton::ReadGroupResFile( const string &filename, vector <stri
                 CLi.push_back( std::stod( data_string_array[25] ) );
                 CDi.push_back( std::stod( data_string_array[26] ) );
                 CSi.push_back( std::stod( data_string_array[27] ) );
+                Cwx.push_back( std::stod( data_string_array[28] ) );
+                Cwy.push_back( std::stod( data_string_array[29] ) );
+                Cwz.push_back( std::stod( data_string_array[30] ) );
+                Cxiw.push_back( std::stod( data_string_array[31] ) );
+                Cyiw.push_back( std::stod( data_string_array[32] ) );
+                Cziw.push_back( std::stod( data_string_array[33] ) );
+                CLw.push_back( std::stod( data_string_array[34] ) );
+                CDw.push_back( std::stod( data_string_array[35] ) );
+                CSw.push_back( std::stod( data_string_array[36] ) );
+                CLiw.push_back( std::stod( data_string_array[37] ) );
+                CDiw.push_back( std::stod( data_string_array[38] ) );
+                CSiw.push_back( std::stod( data_string_array[39] ) );
 
                 // Read the next line and loop
                 data_string_array = ReadDelimLine( fp, seps );
@@ -5134,6 +5148,18 @@ void VSPAEROMgrSingleton::ReadGroupResFile( const string &filename, vector <stri
             res->Add( new NameValData( "CLi", CLi, "Inviscid contribution to lift coefficient." ) );
             res->Add( new NameValData( "CDi", CDi, "Inviscid contribution to drag coefficient." ) );
             res->Add( new NameValData( "CDi", CSi, "Inviscid contribution to side force coefficient." ) );
+            res->Add( new NameValData( "Cxw", Cwx, "X force coefficient using wake formulation." ) );
+            res->Add( new NameValData( "Cyw", Cwy, "Y force coefficient using wake formulation." ) );
+            res->Add( new NameValData( "Czw", Cwz, "Z force coefficient using wake formulation." ) );
+            res->Add( new NameValData( "Cxiw", Cxiw, "X inviscid force coefficient using wake formulation." ) );
+            res->Add( new NameValData( "Cyiw", Cyiw, "Y inviscid force coefficient using wake formulation." ) );
+            res->Add( new NameValData( "Cziw", Cziw, "Z inviscid force coefficient using wake formulation." ) );
+            res->Add( new NameValData( "CLw", CLw, "Lift coefficient using wake formulation." ) );
+            res->Add( new NameValData( "CDw", CDw, "Drag coefficient using wake formulation." ) );
+            res->Add( new NameValData( "CSw", CSw, "Side force coefficient using wake formulation." ) );
+            res->Add( new NameValData( "CLiw", CLiw, "Inviscid contribution to lift coefficient using wake formulation." ) );
+            res->Add( new NameValData( "CDiw", CDiw, "Inviscid contribution to drag coefficient using wake formulation." ) );
+            res->Add( new NameValData( "CDiw", CSiw, "Inviscid contribution to side force coefficient using wake formulation." ) );
 
         } //end for while !feof(fp)
     }
