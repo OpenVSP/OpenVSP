@@ -321,6 +321,8 @@ public:
     virtual bool  ShareEdge( TTri* t );
     virtual bool MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol );
 
+    virtual void RemoveDuplicateEdges();
+
     virtual TMesh* GetTMeshPtr()
     {
         return m_TMesh;

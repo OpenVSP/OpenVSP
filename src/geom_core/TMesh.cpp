@@ -1828,6 +1828,37 @@ bool TTri::MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol )
     return false;
 }
 
+void TTri::RemoveDuplicateEdges()
+{
+    vector < int > discard;
+    for ( int ie = 0; ie < m_EVec.size(); ie++ )
+    {
+        for ( int je = ie + 1; je < m_EVec.size(); je++ )
+        {
+            if ( m_EVec[ ie ]->DuplicateEdge( m_EVec[ je ] ) )
+            {
+                discard.push_back( je );
+                break;
+            }
+        }
+    }
+
+    vector< TEdge* > keep;
+
+    for ( int ie = 0; ie < m_EVec.size(); ie++ )
+    {
+        if ( vector_contains_val( discard, ie ) )
+        {
+            delete m_EVec[ ie ];
+        }
+        else
+        {
+            keep.push_back( m_EVec[ ie ] );
+        }
+    }
+    m_EVec = keep;
+}
+
 // was 1e-5
 #define ON_EDGE_TOL 1e-5
 
