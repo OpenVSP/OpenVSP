@@ -238,6 +238,8 @@ public:
     virtual void SortNodesByU();
     virtual TTri* GetOtherTri( TTri *t );
 
+    virtual bool UsesNode( TNode *n );
+
     TNode* m_N0;
     TNode* m_N1;
 
