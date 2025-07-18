@@ -1887,6 +1887,26 @@ bool TTri::MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol )
     return false;
 }
 
+bool TTri::CheckEdge( TNode* n0, TNode* n1 )
+{
+    // Set up vector so we can loop through valid edges.
+    vector < TEdge* > edges;
+    if ( m_E0 ) edges.push_back( m_E0 );
+    if ( m_E1 ) edges.push_back( m_E1 );
+    if ( m_E2 ) edges.push_back( m_E2 );
+
+    for ( int i = 0; i < edges.size(); i++ )
+    {
+        TEdge *e = edges[i];
+
+        if ( e->m_N0 == n0 && e->m_N1 == n1 )
+            return true;
+        if ( e->m_N0 == n1 && e->m_N1 == n0 )
+            return true;
+    }
+    return false;
+}
+
 void TTri::RemoveDuplicateEdges()
 {
     vector < int > discard;
