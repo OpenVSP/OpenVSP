@@ -325,13 +325,13 @@ bool GeometryAnalysisScreen::Update()
         }
         m_PrimaryGeomPicker.Update();
 
-        if ( !veh->FindGeom( gcase->m_PrimaryGeomID ) )
+        if ( m_PrimaryGeomPicker.ValidGeom( gcase->m_PrimaryGeomID ) )
         {
-            gcase->m_PrimaryGeomID = m_PrimaryGeomPicker.GetGeomChoice();
+            m_PrimaryGeomPicker.SetGeomChoice( gcase->m_PrimaryGeomID );
         }
         else
         {
-            m_PrimaryGeomPicker.SetGeomChoice( gcase->m_PrimaryGeomID );
+            gcase->m_PrimaryGeomID = m_PrimaryGeomPicker.GetSetValidGeom();
         }
 
         // Handle dual geom that require special types.
@@ -351,13 +351,13 @@ bool GeometryAnalysisScreen::Update()
         }
         m_SecondaryGeomPicker.Update();
 
-        if ( !veh->FindGeom( gcase->m_SecondaryGeomID ) )
+        if ( m_SecondaryGeomPicker.ValidGeom( gcase->m_SecondaryGeomID ) )
         {
-            gcase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetGeomChoice();
+            m_SecondaryGeomPicker.SetGeomChoice( gcase->m_SecondaryGeomID );
         }
         else
         {
-            m_SecondaryGeomPicker.SetGeomChoice( gcase->m_SecondaryGeomID );
+            gcase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetSetValidGeom();
         }
 
 
