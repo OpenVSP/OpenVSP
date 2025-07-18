@@ -240,6 +240,8 @@ public:
 
     virtual bool UsesNode( TNode *n );
 
+    virtual bool DuplicateEdge( TEdge * other );
+
     TNode* m_N0;
     TNode* m_N1;
 
