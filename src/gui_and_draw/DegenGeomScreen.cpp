@@ -265,10 +265,28 @@ void DegenGeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
         string id = vehiclePtr->AddMeshGeom( vsp::SET_NONE, set );
 
-        Geom* geom_ptr = vehiclePtr->FindGeom( id );
-        if ( geom_ptr )
+        if ( id.compare( "NONE" ) != 0 )
         {
-            geom_ptr->Update();
+            Geom* geom_ptr = vehiclePtr->FindGeom( id );
+            if ( geom_ptr )
+            {
+                MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+                mg->SubTagTris( true );
+
+                if ( vehiclePtr->m_DegenGeomMeshType() == vsp::NGON_MESH_TYPE )
+                {
+                    string ngon_id = mg->CreateNGonMeshGeom();
+
+                    vehiclePtr->DeleteGeomVec( vector< string >{ id } );
+                    id = ngon_id;
+                    geom_ptr = vehiclePtr->FindGeom( id );
+                }
+            }
+
+            if ( geom_ptr )
+            {
+                geom_ptr->Update();
+            }
         }
 
         vehiclePtr->HideAllExcept( id );
