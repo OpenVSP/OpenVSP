@@ -173,6 +173,8 @@ private:
     double CalculateLoopAngle_(VSP_GRID &ThisGrid, int Loop, int Node);
     
     void CheckLoopTopology_(VSP_GRID &ThisGrid);
+    
+    void CleanUpSingularFans_(void);
        
     // Initialization
     

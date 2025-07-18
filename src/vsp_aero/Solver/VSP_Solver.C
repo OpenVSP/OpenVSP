@@ -35854,8 +35854,8 @@ void VSP_SOLVER::OutputStatusFile(int FinalIteration)
     
        if ( FinalIteration ) {
        
-          fprintf(StatusFile_,"%16d %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
-                  Time_,
+          fprintf(StatusFile_,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
+                  CurrentTime_,
                   Mach_,
                   double(AngleOfAttack_/TORAD),
                   double(AngleOfBeta_/TORAD),               
@@ -35887,13 +35887,24 @@ void VSP_SOLVER::OutputStatusFile(int FinalIteration)
                   CFiz(),                                 
                   double(CFox() + CFix()),            
                   double(CFoy() + CFiy()),            
-                  double(CFoz() + CFiz()),                     
+                  double(CFoz() + CFiz()),    
+                        
+                  double(CLiw() + CLo()),
+                  double(CDiw() + CDo()),
+                  double(CSiw() + CSo()),
+                                   
                   CLiw(),
                   CDiw(),
                   CSiw(),
+                  
+                  double(CFox() + CFiwx()),            
+                  double(CFoy() + CFiwy()),            
+                  double(CFoz() + CFiwz()),    
+                                               
                   CFiwx(),
                   CFiwy(),
                   CFiwz(),
+                  
                   LoDwake,
                   Ewake,                           
                   ToQS,
@@ -35905,8 +35916,8 @@ void VSP_SOLVER::OutputStatusFile(int FinalIteration)
 
        if ( FinalIteration ) {
           
-          printf("%9d %9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
-                  Time_,
+          printf("%9.5lf %9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
+                  CurrentTime_,
                   CurrentWakeIteration_,
                   Mach_,
                   double(AngleOfAttack_/TORAD),
@@ -35935,8 +35946,8 @@ void VSP_SOLVER::OutputStatusFile(int FinalIteration)
        
        else {
           
-          printf("%9d %9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \r",
-                  Time_,
+          printf("%9.5lf %9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \r",
+                  CurrentTime_,
                   CurrentWakeIteration_,
                   Mach_,
                   double(AngleOfAttack_/TORAD),

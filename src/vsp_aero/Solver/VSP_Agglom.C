@@ -166,6 +166,10 @@ VSP_GRID* VSP_AGGLOM::SimplifyMesh_(VSP_GRID &Grid)
     // Merge as many tris into quads as possible
 
     CreateMixedMesh_();
+    
+    // Clean up any fans
+    
+   // CleanUpSingularFans_();
        
     // Create the course mesh data
 
@@ -217,6 +221,10 @@ VSP_GRID* VSP_AGGLOM::SimplifyMesh_(VSP_GRID &Grid, VSP_GRID &GridC)
     // Merge as many tris into quads as possible
 
     CreateMixedMesh_(GridC);
+       
+    // Clean up any fans
+    
+   //CleanUpSingularFans_();
        
     // Create the course mesh data
 
@@ -315,7 +323,7 @@ VSP_GRID* VSP_AGGLOM::Agglomerate_(VSP_GRID &Grid)
     InitializeFront_();
     
     NextBestEdgeOnFront_ = NextAgglomerationEdge_();
-   
+
     // Merge vortex loops
 
     while ( NextBestEdgeOnFront_ > 0 ) {
@@ -325,14 +333,15 @@ VSP_GRID* VSP_AGGLOM::Agglomerate_(VSP_GRID &Grid)
        NextBestEdgeOnFront_ = NextAgglomerationEdge_();
               
     }
-        
-    // Clean up stray loops
-    
-    MergeSmallLoops_();
-    
-    // Merge loops that have been surrounded
+   
+    //// Clean up stray loops
+    //
+    //MergeSmallLoops_();
+    //
+    //// Merge loops that have been surrounded
+    //
+    //MergeSurroundedLoops_();
 
-    MergeSurroundedLoops_();
 
     // Create the course mesh data
 
@@ -1649,19 +1658,19 @@ void VSP_AGGLOM::MergeSurroundedLoops_(void)
                  
                    // Now add edges of this loop to the front
              
-                   for ( k = 1 ; k <= FineGrid().LoopList(FineGrid().EdgeList(j).Loop1()).NumberOfEdges() ; k++ ) {
-                    
-                      p = FineGrid().LoopList(FineGrid().EdgeList(j).Loop1()).Edge(k);
-                      
-                      if ( EdgeIsOnFront_[p] == 0 ) {
-                         
-                         EdgeIsOnFront_[p] = -INTERIOR_EDGE_BC;
-                     
-                         FrontEdgeQueue_[++NumberOfEdgesInQueue_] = p;
-                                                  
-                      }
- 
-                   }
+                //  for ( k = 1 ; k <= FineGrid().LoopList(FineGrid().EdgeList(j).Loop1()).NumberOfEdges() ; k++ ) {
+                //   
+                //     p = FineGrid().LoopList(FineGrid().EdgeList(j).Loop1()).Edge(k);
+                //     
+                //     if ( EdgeIsOnFront_[p] == 0 ) {
+                //        
+                //        EdgeIsOnFront_[p] = -INTERIOR_EDGE_BC;
+                //    
+                //        FrontEdgeQueue_[++NumberOfEdgesInQueue_] = p;
+                //                                 
+                //     }
+                //
+                //  }
        
                 }
                 
@@ -3972,7 +3981,7 @@ void VSP_AGGLOM::CreateMixedMesh_(VSP_GRID &GridC)
        }
        
     }
-
+    
 }
 
 /*##############################################################################
@@ -4139,14 +4148,18 @@ void VSP_AGGLOM::CleanUpFans_(void)
     NodeToLoopAngleList = new double*[FineGrid().NumberOfNodes() + 1];
     
     zero_int_array(NumberOfLoopsForNode, FineGrid().NumberOfNodes());
-    
+
     for ( Loop = 1 ; Loop <= FineGrid().NumberOfLoops() ; Loop++ ) {
        
-       for ( j = 1 ; j <= FineGrid().LoopList(Loop).NumberOfNodes() ; j++ ) {
-          
-          Node = FineGrid().LoopList(Loop).Node(j);
-          
-          NumberOfLoopsForNode[Node]++;
+       if ( FineGrid().LoopList(Loop).NumberOfNodes() == 3 ) {
+       
+          for ( j = 1 ; j <= FineGrid().LoopList(Loop).NumberOfNodes() ; j++ ) {
+             
+             Node = FineGrid().LoopList(Loop).Node(j);
+             
+             NumberOfLoopsForNode[Node]++;
+             
+          }
           
        }
        
@@ -4164,15 +4177,19 @@ void VSP_AGGLOM::CleanUpFans_(void)
     
     for ( Loop = 1 ; Loop <= FineGrid().NumberOfLoops() ; Loop++ ) {
        
-       for ( j = 1 ; j <= FineGrid().LoopList(Loop).NumberOfNodes() ; j++ ) {
-          
-          Node = FineGrid().LoopList(Loop).Node(j);
+       if ( FineGrid().LoopList(Loop).NumberOfNodes() == 3 ) {
        
-          NumberOfLoopsForNode[Node]++;
+          for ( j = 1 ; j <= FineGrid().LoopList(Loop).NumberOfNodes() ; j++ ) {
+             
+             Node = FineGrid().LoopList(Loop).Node(j);
           
-          NodeToLoopList[Node][NumberOfLoopsForNode[Node]] = Loop;
-          
-          NodeToLoopAngleList[Node][NumberOfLoopsForNode[Node]] = CalculateLoopAngle_(FineGrid(), Loop, Node);
+             NumberOfLoopsForNode[Node]++;
+             
+             NodeToLoopList[Node][NumberOfLoopsForNode[Node]] = Loop;
+             
+             NodeToLoopAngleList[Node][NumberOfLoopsForNode[Node]] = CalculateLoopAngle_(FineGrid(), Loop, Node);
+             
+          }
           
        }
        
@@ -4226,10 +4243,11 @@ void VSP_AGGLOM::CleanUpFans_(void)
              // Calculate aspect ratio
 
              AspectRatio = MaxArea / MinArea;
-                                                                       
+             
+
              // If the minimum angle is small and it has a high aspect ratio...then try and merge this tri with a neighbor
             
-             if ( MinAngle <= LimitAngle && AspectRatio > 10. ) {
+             if ( MinAngle <= LimitAngle && AspectRatio > 0. ) {
 
                 StackSize = 1;
                 
@@ -4284,7 +4302,6 @@ void VSP_AGGLOM::CleanUpFans_(void)
                   
                    for ( j = 1 ; j <= NumberOfLoopsForNode[i] ; j++ ) {
                          
-                         
                       Loop = ABS(NodeToLoopList[i][j]);
                                        
                       if ( Loop != CurrentLoop && NodeToLoopList[i][j] > 0 ) {
@@ -4335,9 +4352,9 @@ void VSP_AGGLOM::CleanUpFans_(void)
                             if ( LoopsAreCoplanar_(FineGrid(), CurrentLoop, Loop, 5.) ) {      
                               
                                // Check if the new total angle is ok
-                    
+        
                                if ( ( TotalAngle + NodeToLoopAngleList[i][j] <= 60.                   ) ||
-                                    ( TotalAngle + NodeToLoopAngleList[i][j] <= 90. && MinAngle <= 5. )    ) {   
+                                    ( TotalAngle + NodeToLoopAngleList[i][j] <= 90. && MinAngle <= 25. )    ) {   
                        
                                   // Neighbor loop is not already agglomerated
               
@@ -4383,6 +4400,8 @@ void VSP_AGGLOM::CleanUpFans_(void)
        
     }
 
+    printf("Merged: %d sliver triangles \n",NumberOfLoopsMerged_);fflush(NULL);
+
     for ( i = 1 ; i <= FineGrid().NumberOfNodes() ; i++ ) {
        
        delete [] NodeToLoopList[i];
@@ -4399,8 +4418,6 @@ void VSP_AGGLOM::CleanUpFans_(void)
     
     delete [] LoopList;
     
-    printf("Merged: %d sliver triangles \n",NumberOfLoopsMerged_);fflush(NULL);
- 
 }
 
 /*##############################################################################
@@ -5763,6 +5780,160 @@ void VSP_AGGLOM::CheckLoopTopology_(VSP_GRID &ThisGrid)
     
     delete [] EdgeList;
      
+}
+
+/*##############################################################################
+#                                                                              #
+#                          VSP_AGGLOM  CleanUpSingularFans_                    #
+#                                                                              #
+##############################################################################*/
+
+void VSP_AGGLOM::CleanUpSingularFans_(void)
+{
+ 
+    int i, j, Node, Loop;
+    int SurfaceID, Done, Intersection;
+    int *NumberOfLoopsForNode, **NodeToLoopList, *LoopList, StackSize, Next;
+    double **NodeToLoopAngleList;
+    
+    NodeOnSurfaceBorder_ = new int[FineGrid().NumberOfNodes() + 1];
+    
+    zero_int_array(NodeOnSurfaceBorder_, FineGrid().NumberOfNodes());
+
+    for ( i = 1 ; i <= FineGrid().NumberOfNodes() ; i++ ) {
+       
+       if ( FineGrid().NodeList(i).IsBoundaryEdgeNode() ) NodeOnSurfaceBorder_[i] = 1;
+       
+    }
+    
+    // Create a node to loop tri list
+    
+    NumberOfLoopsForNode = new int[FineGrid().NumberOfNodes() + 1];
+    
+    NodeToLoopList = new int*[FineGrid().NumberOfNodes() + 1];
+    
+    NodeToLoopAngleList = new double*[FineGrid().NumberOfNodes() + 1];
+    
+    zero_int_array(NumberOfLoopsForNode, FineGrid().NumberOfNodes());
+
+    for ( Loop = 1 ; Loop <= FineGrid().NumberOfLoops() ; Loop++ ) {
+       
+       if ( FineGrid().LoopList(Loop).NumberOfNodes() == 3 ) {
+       
+          for ( j = 1 ; j <= FineGrid().LoopList(Loop).NumberOfNodes() ; j++ ) {
+             
+             Node = FineGrid().LoopList(Loop).Node(j);
+             
+             NumberOfLoopsForNode[Node]++;
+             
+          }
+          
+       }
+       
+    }
+    
+    for ( i = 1 ; i <= FineGrid().NumberOfNodes() ; i++ ) {
+       
+       NodeToLoopList[i] = new int[NumberOfLoopsForNode[i] + 1];
+       
+       NodeToLoopAngleList[i] = new double[NumberOfLoopsForNode[i] + 1];
+       
+    }
+    
+    zero_int_array(NumberOfLoopsForNode, FineGrid().NumberOfNodes());
+    
+    for ( Loop = 1 ; Loop <= FineGrid().NumberOfLoops() ; Loop++ ) {
+       
+       if ( FineGrid().LoopList(Loop).NumberOfNodes() == 3 ) {
+       
+          for ( j = 1 ; j <= FineGrid().LoopList(Loop).NumberOfNodes() ; j++ ) {
+             
+             Node = FineGrid().LoopList(Loop).Node(j);
+          
+             NumberOfLoopsForNode[Node]++;
+             
+             NodeToLoopList[Node][NumberOfLoopsForNode[Node]] = Loop;
+             
+             NodeToLoopAngleList[Node][NumberOfLoopsForNode[Node]] = CalculateLoopAngle_(FineGrid(), Loop, Node);
+             
+          }
+          
+       }
+       
+    }    
+    
+    // Loop over nodes and find one with fans
+    
+    NumberOfLoopsMerged_ = 0;
+
+    for ( i = 1 ; i <= FineGrid().NumberOfNodes() ; i++ ) {
+       
+       if ( NodeOnSurfaceBorder_[i] == 0 && NumberOfLoopsForNode[i] > 16 ) {
+                   
+          Loop = NodeToLoopList[i][1];
+          
+          if ( VortexLoopWasAgglomerated_[Loop] > 0 ) {
+
+             NumberOfLoopsMerged_++;
+          
+             SurfaceID = FineGrid().LoopList(Loop).SurfaceID();
+             
+             j = 1;
+             
+             Done = Intersection = 0;
+             
+             while ( j <= NumberOfLoopsForNode[i] && !Done ) {
+                
+                Loop = NodeToLoopList[i][j];
+                
+                if ( FineGrid().LoopList(NodeToLoopList[i][j]).SurfaceID() != SurfaceID ) {
+                   
+                   Intersection = 1;
+                   
+                   Done = 1;
+                   
+                }
+                
+                j++;
+                
+             }
+                
+             if ( !Intersection ) {
+                          
+                for ( j = 1 ; j <= NumberOfLoopsForNode[i]; j++ ) {
+                   
+                   Loop = NodeToLoopList[i][j];
+                          
+                   VortexLoopWasAgglomerated_[Loop] = -NodeToLoopList[i][1];
+                   
+                }
+                
+             }
+             
+          }
+          
+       }
+       
+    }
+              
+    printf("Merged: %d loops \n",NumberOfLoopsMerged_);fflush(NULL);
+
+    for ( i = 1 ; i <= FineGrid().NumberOfNodes() ; i++ ) {
+       
+       delete [] NodeToLoopList[i];
+       
+       delete [] NodeToLoopAngleList[i];
+       
+    }
+    
+    delete [] NodeOnSurfaceBorder_;
+    
+    delete [] NodeToLoopList;
+    
+    delete [] NodeToLoopAngleList;
+    
+    delete [] NumberOfLoopsForNode;
+
 }
 
 #include "END_NAME_SPACE.H"
