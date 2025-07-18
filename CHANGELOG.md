@@ -1,3 +1,53 @@
+# [OpenVSP 3.44.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.2)
+
+2025-07-18
+
+OpenVSP 3.44.2
+
+Another fix release to address two or three things in 3.44.1 before the
+release of 3.45.0.  3.45.0 is a really big change that is slightly more
+risky than OpenVSP's normal releases.  Consequently, I'm going to leave
+3.44.X up as an alternative until the dust settles on 3.45.X.
+
+Everyone should update to this release (3.44.2) right away.  When 3.45.X
+is released, everyone should pull it down and give it a try.  You may
+want to save 3.45.X versions of your files so you can go back to 3.44.X
+with no risk.  Most of the 3.45.X changes are VSPAERO related, so if you
+are not a VSPAERO user, this change will affect you less.
+
+
+Delabella (a constrained Delaunay triangulation library) was getting
+compiled on Intel MacOS machines without the FMA instruction.  This
+sometimes caused it to go into an infinite loop.  FMA has been restored
+on Intel MacOS DBA.  Unfortunately, Rosetta2 does not support the FMA
+instruction (running Intel binaries on Apple Silicon Macs).  However,
+if you're running an Apple Silicon machine, you really should be running
+the native binary.
+
+DBA has been restored as the primary CDT algorithm for CompGeom type stuff,
+if a failure is detected, it will fall back to Triangle.
+
+The intersection in CompGeom with SubSurfaces would sometimes cause
+duplicate edges that would cause the CDT to fail -- which would cause
+holes in the mesh.  Those duplicate edges are now removed, which should
+improve CompGeom with control surfaces.
+
+The GeomPicker in GeomAnalysisScreen could sometimes reach an invalid
+state.  This would prevent an analysis from working -- even though it
+looked like everything was configured correctly.  This has been
+fixed.  Thanks Mikel Catania for reporting this bug.
+
+Libraries:
+- Update DBA to version that fixes FMA on Intel MacOS
+
+Fixes:
+- Remove duplicate edges in SplitTri()
+- Fix GeomPicker handling of invalid choices in GeomAnalysisScreen
+
+
+---
+
+
 # [OpenVSP 3.43.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.43.3)
 
 2025-07-17
