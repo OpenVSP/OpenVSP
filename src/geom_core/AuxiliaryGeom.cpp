@@ -5,6 +5,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "APIDefines.h"
 #include "VspUtil.h"
 #include "AuxiliaryGeom.h"
