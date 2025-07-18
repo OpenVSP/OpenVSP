@@ -147,11 +147,11 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.SetSameLineFlag( true );
     m_CaseSetupLayout.SetChoiceButtonWidth( 0 );
     m_CaseSetupLayout.SetFitWidthFlag( false );
-    m_CaseSetupLayout.AddButton( m_SetToggle, "Thick Set:" );
+    m_CaseSetupLayout.AddButton( m_SetToggle, "Thin Set:" );
     m_CaseSetupLayout.SetFitWidthFlag( true );
-    m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "", bw + m_CaseSetupLayout.GetW() * 0.5 );
+    m_CaseSetupLayout.AddChoice( m_GeomThinSetChoice, "", bw + m_CaseSetupLayout.GetW() * 0.5 );
     m_CaseSetupLayout.SetChoiceButtonWidth( bw );
-    m_CaseSetupLayout.AddChoice( m_GeomThinSetChoice, "Thin Set:", m_CaseSetupLayout.GetW() * 0.5 );
+    m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "Thick Set", m_CaseSetupLayout.GetW() * 0.5 );
     m_CaseSetupLayout.ForceNewLine();
 
     m_CaseSetupLayout.SetSameLineFlag( true );
