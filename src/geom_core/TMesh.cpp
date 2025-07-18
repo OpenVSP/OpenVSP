@@ -217,6 +217,23 @@ TTri* TEdge::GetOtherTri( TTri *t )
     return NULL;
 }
 
+TTri* TEdge::OtherTri( TTri* t )
+{
+    if ( t )
+    {
+        if ( m_Tri0 && m_Tri0 == t )
+        {
+            return m_Tri1;
+        }
+
+        if ( m_Tri1 && m_Tri1 == t )
+        {
+            return m_Tri0;
+        }
+    }
+    return NULL;
+}
+
 bool TEdge::UsesNode( TNode *n )
 {
     if ( m_N0 == n || m_N1 == n )

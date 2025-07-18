@@ -240,6 +240,8 @@ public:
     virtual void SortNodesByU();
     virtual TTri* GetOtherTri( TTri *t );
 
+    virtual TTri* OtherTri( TTri* t );
+
     virtual bool UsesNode( TNode *n );
 
     virtual bool DuplicateEdge( TEdge * other );
