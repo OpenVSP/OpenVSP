@@ -502,7 +502,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     // layout the heights of the control layout
     yDataSelectHeight = 8 * rowHeight;
 
-    flowConditionSelectHeight = m_UnsteadyLayout.GetH() - 2 * windowBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - 6 * m_UnsteadyLayout.GetStdHeight();
+    flowConditionSelectHeight = m_UnsteadyLayout.GetH() - 2 * windowBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - 9 * m_UnsteadyLayout.GetStdHeight();
 
     GroupLayout unsteadyYDataSelectLayout;
     m_UnsteadyControlLayout.AddSubGroupLayout( unsteadyYDataSelectLayout, m_UnsteadyControlLayout.GetW(), yDataSelectHeight );
