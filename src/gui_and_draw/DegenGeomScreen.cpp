@@ -79,21 +79,25 @@ DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 405 
     m_ModeSetToggleGroup.AddButton( m_SetToggle.GetFlButton() );
     m_ModeSetToggleGroup.AddButton( m_ModeToggle.GetFlButton() );
 
-    m_BorderLayout.SetFitWidthFlag( false );
-    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.SetSameLineFlag( false );
 
     m_BorderLayout.SetButtonWidth(m_BorderLayout.GetW() * 0.5 );
     m_BorderLayout.AddButton(m_Execute, "Execute");
 
-    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.AddYGap();
+
     m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetSameLineFlag( true );
+
+    m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() * 0.5 );
+
+    m_BorderLayout.AddButton( m_MakeDegenMeshGeom, "Make Mesh" );
 
     m_BorderLayout.SetChoiceButtonWidth( m_BorderLayout.GetW() * 0.25 );
 
     m_BorderLayout.SetFitWidthFlag( true );
     m_BorderLayout.AddChoice( m_MeshTypeChoice, "Type", m_BorderLayout.GetW() * 0.5 );
-
-    m_BorderLayout.AddButton( m_MakeDegenMeshGeom, "Make Mesh", m_BorderLayout.GetW() * 0.5 );
 
     m_MeshTypeChoice.AddItem( "Triangle", vsp::TRI_MESH_TYPE );
     m_MeshTypeChoice.AddItem( "N-Gon", vsp::NGON_MESH_TYPE );
