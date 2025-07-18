@@ -6,6 +6,8 @@
 #if !defined(UTIL_UTIL__INCLUDED_)
 #define UTIL_UTIL__INCLUDED_
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include <vector>
 #include "Vec3d.h"
