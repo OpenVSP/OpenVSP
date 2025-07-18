@@ -2217,13 +2217,10 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
         */
         int wake_iter_table_columns = 51;
 
-        // Unsteady files don't have:
-        // CLwtot CDwtot CSwtot CFwxtot CFwytot CFwztot
-        int unsteady_table_columns = wake_iter_table_columns - 6;
         bool unsteady_flag = false;
 
         // Some header entries have spaces in them.
-        if( data_string_array.size() >= unsteady_table_columns )
+        if( data_string_array.size() >= wake_iter_table_columns )
         {
             if ( strcmp( data_string_array[ 0 ].c_str(), "Time" ) == 0 )
             {
@@ -2293,7 +2290,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
             std::vector<double> WallTime;
 
 
-            while ( data_string_array.size() >= unsteady_table_columns )
+            while ( data_string_array.size() >= wake_iter_table_columns )
             {
                 int icol = 0;
                 if ( unsteady_flag )
@@ -2342,23 +2339,17 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
                 CFytot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
                 CFztot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
 
-                if ( !unsteady_flag )
-                {
-                    CLwtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                    CDwtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                    CSwtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
-                }
+                CLwtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                CDwtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                CSwtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
 
                 CLiw.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                 CDiw.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                 CSiw.push_back(      std::stod( data_string_array[icol] ) ); icol++;
 
-                if ( !unsteady_flag )
-                {
-                    CFxwtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
-                    CFywtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
-                    CFzwtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
-                }
+                CFxwtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                CFywtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                CFzwtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
 
                 CFxiw.push_back(     std::stod( data_string_array[icol] ) ); icol++;
                 CFyiw.push_back(     std::stod( data_string_array[icol] ) ); icol++;
@@ -2421,23 +2412,17 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
                 res->Add( new NameValData( "CFytot", CFytot, "Total Y force coefficient." ) );
                 res->Add( new NameValData( "CFztot", CFztot, "Total Z force coefficient." ) );
 
-                if ( !unsteady_flag )
-                {
-                    res->Add( new NameValData( "CLwtot", CLwtot, "Total lift coefficient using wake calculation." ) );
-                    res->Add( new NameValData( "CDwtot", CDwtot, "Total drag coefficient using wake calculation." ) );
-                    res->Add( new NameValData( "CSwtot", CSwtot, "Total side force coefficient using wake calculation." ) );
-                }
+                res->Add( new NameValData( "CLwtot", CLwtot, "Total lift coefficient using wake calculation." ) );
+                res->Add( new NameValData( "CDwtot", CDwtot, "Total drag coefficient using wake calculation." ) );
+                res->Add( new NameValData( "CSwtot", CSwtot, "Total side force coefficient using wake calculation." ) );
 
                 res->Add( new NameValData( "CLiw", CLiw, "Inviscid component of lift coefficient wake calculation." ) );
                 res->Add( new NameValData( "CDiw", CDiw, "Induced drag coefficient wake calculation." ) );
                 res->Add( new NameValData( "CSiw", CSiw, "Inviscid component of side force coefficient wake calculation." ) );
 
-                if ( !unsteady_flag )
-                {
-                    res->Add( new NameValData( "CFxwtot", CFxwtot, "Total X force coefficient using wake calculation." ) );
-                    res->Add( new NameValData( "CFywtot", CFywtot, "Total Y force coefficient using wake calculation." ) );
-                    res->Add( new NameValData( "CFzwtot", CFzwtot, "Total Z force coefficient using wake calculation." ) );
-                }
+                res->Add( new NameValData( "CFxwtot", CFxwtot, "Total X force coefficient using wake calculation." ) );
+                res->Add( new NameValData( "CFywtot", CFywtot, "Total Y force coefficient using wake calculation." ) );
+                res->Add( new NameValData( "CFzwtot", CFzwtot, "Total Z force coefficient using wake calculation." ) );
 
                 res->Add( new NameValData( "CFxiw", CFxiw, "Inviscid component of X force coefficient wake calculation." ) );
                 res->Add( new NameValData( "CFyiw", CFyiw, "Inviscid component of Y force coefficient wake calculation." ) );
