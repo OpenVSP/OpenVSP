@@ -1298,6 +1298,22 @@ public:
     virtual void AddIncludeType( int type );
     virtual void ClearIncludeType();
 
+    string GetSetValidGeom()
+    {
+        if ( !ValidGeom( m_GeomIDChoice ) )
+        {
+            if ( m_GeomVec.size() > 0 )
+            {
+                m_GeomIDChoice = m_GeomVec[0];
+            }
+            else
+            {
+                m_GeomIDChoice = "";
+            }
+        }
+        return m_GeomIDChoice;
+    };
+
     string GetGeomChoice()
     {
         return m_GeomIDChoice;
