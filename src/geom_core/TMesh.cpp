@@ -243,6 +243,18 @@ bool TEdge::UsesNode( TNode *n )
     return false;
 }
 
+void TEdge::ReplaceTri( TTri *told, TTri *tnew )
+{
+    if ( m_Tri0 == told )
+    {
+        m_Tri0 = tnew;
+    }
+
+    if ( m_Tri1 == told )
+    {
+        m_Tri1 = tnew;
+    }
+}
 
 bool TEdge::DuplicateEdge( TEdge * other )
 {

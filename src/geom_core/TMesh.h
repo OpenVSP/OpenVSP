@@ -244,6 +244,8 @@ public:
 
     virtual bool UsesNode( TNode *n );
 
+    virtual void ReplaceTri( TTri *told, TTri *tnew );
+
     virtual bool DuplicateEdge( TEdge * other );
 
     TNode* m_N0;
