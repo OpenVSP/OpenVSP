@@ -1,3 +1,92 @@
+# [OpenVSP 3.45.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.0)
+
+2025-07-18
+
+OpenVSP 3.45.0
+
+A huge update to VSPAERO and OpenVSP's support for and integration with it.
+This release represents ~27 months of OpenVSP development and ~18 months
+of VSPAERO development.
+
+Because of the magnitude of this change (particularly if you use VSPAERO),
+we recommend you tread carefully.  Give it a try and report any bugs,
+but gain some experience with it before fully committing for any
+serious application.  This also means you should go back and repeat
+any validation studies you have done with VSPAERO to reestablish your
+confidence in it and the settings you are using.
+
+To support the transition, version 3.44.X will stay active until the
+dust settles on 3.45.X.
+
+The updates are really too many to list.  For a great summary, watch
+the VSPAERO related videos from the 2025 OpenVSP Workshop.
+
+https://openvsp.org/wiki/doku.php?id=workshop2025
+
+To briefly summarize the changes...
+
+VLM and Panel mode are no longer discrete choices.  Instead, components
+can be modeled as thick or thin.  The user chooses which components to
+model each way.  We expect users will often model lifting surfaces as
+thin and non-lifting bodies as thick.  OpenVSP performs the intersection
+and trimming -- even in cases of thin/thin and thick/thin geometry.
+
+The computational mesh is no longer triangle based (with approximate
+diagonal removal by VSPAERO).  Instead, the mesh is made of polygons
+with an arbitrary number of edges (NGons).  OpenVSP performs a cleanup
+process to eliminate slivers as artifacts of the intersection process.
+
+The *.vspgeom interchange file format has been updated to v3 to support
+all of this (BTW, the vspgeom format was initiated back in 2020
+with all this in mind, so maybe these changes go back 5+ years).
+
+The automatic differentiation library used to create the adjoint version
+of VSPAERO has been removed.  Its performance was unsatisfactory and
+it did not scale to unsteady solutions.  The adjoint is now calculated
+via hand-coded algorithms throughout the solver.  VSPAERO can now
+calculate a solution and 12 adjoints (6 inviscid forces/moments & 6
+viscous forces/moments) in approximately the time for 6 flow solutions.
+The adjoint calculation is fully parallel and makes use of the
+multipole acceleration.  As a bonus, build time on Windows is now about
+25% of what it was before.
+
+There is now an implicit wake mode that uses the adjoint to directly
+couple the solutions of the vortex strengths and wake position.
+The convergence of the explicit wake mode has also been improved,
+this is required for optimization workflows.
+
+Stall is now an implicit part of the solution, better capturing the
+effect of lost circulation on the entire flowfield.
+
+Wakes are now modeled with the same code as regular surfaces, including
+the multipole acceleration.
+
+VSPAERO can couple with the OpenVSP C++ API to enable optimization.  This
+is just the beginning...
+
+I'm sure I'm missing something, but you get the idea.  This is a huge
+VSPAERO update.
+
+
+Features:
+- Thick/thin intersection in OpenVSP
+- Clean up of NGon meshes
+
+VSPAERO Updates:
+- Mixed thick/thin geometry support
+- Hand coded adjoint
+- Implicit wake formulation
+- Wake sheet formulation
+- Implicit stall model
+- Optimization coupled with OpenVSP for geometry updates
+
+Libraries:
+- Adept differentiation library removed (faster compiles on Windows)
+
+
+---
+
+
 # [OpenVSP 3.44.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.2)
 
 2025-07-18
