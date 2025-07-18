@@ -3798,6 +3798,51 @@ void GeomPicker::Deactivate()
     m_GeomChoice->deactivate();
 }
 
+bool GeomPicker::ValidGeom( const string &gid )
+{
+    Geom* g = m_Vehicle->FindGeom( gid );
+    if ( g )
+    {
+        bool excludematch = false;
+
+        for ( int j = 0; j < m_ExcludeTypes.size(); j++ )
+        {
+            if ( g->GetType().m_Type == m_ExcludeTypes[j] )
+            {
+                excludematch = true;
+                break;
+            }
+        }
+
+        if ( !excludematch )
+        {
+            bool includematch = false;
+
+            if ( m_IncludeTypes.size() > 0 )
+            {
+                for ( int j = 0; j < m_IncludeTypes.size(); j++ )
+                {
+                    if ( g->GetType().m_Type == m_IncludeTypes[j] )
+                    {
+                        includematch = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                includematch = true;
+            }
+
+            if ( includematch )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void GeomPicker::Update( )
 {
     static string dummymenuentry = GenerateRandomID( 14 );
@@ -3809,50 +3854,18 @@ void GeomPicker::Update( )
     int add_count = 0;
     for ( int i = 0 ; i < ( int )allGeomVec.size() ; i++ )
     {
-        Geom* g = m_Vehicle->FindGeom( allGeomVec[i] );
-        if ( g )
+        if ( ValidGeom( allGeomVec[i] ) )
         {
-            bool excludematch = false;
+            m_GeomVec.push_back( allGeomVec[i] );
 
-            for ( int j = 0; j < m_ExcludeTypes.size(); j++ )
+            Geom* g = m_Vehicle->FindGeom( allGeomVec[i] );
+            if ( g )
             {
-                if ( g->GetType().m_Type == m_ExcludeTypes[j] )
-                {
-                    excludematch = true;
-                    break;
-                }
-            }
-
-            if ( !excludematch )
-            {
-                bool includematch = false;
-
-                if ( m_IncludeTypes.size() > 0 )
-                {
-                    for ( int j = 0; j < m_IncludeTypes.size(); j++ )
-                    {
-                        if ( g->GetType().m_Type == m_IncludeTypes[j] )
-                        {
-                            includematch = true;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    includematch = true;
-                }
-
-                if ( includematch )
-                {
-                    m_GeomVec.push_back( allGeomVec[i] );
-
-                    char str[256];
-                    snprintf( str, sizeof( str ), "%d_%s", i, g->GetName().c_str() );
-                    m_GeomChoice->add( dummymenuentry.c_str(), 0, 0, 0, 0 );
-                    m_GeomChoice->replace( add_count, str );
-                    add_count++;
-                }
+                char str[256];
+                snprintf( str, sizeof( str ), "%d_%s", i, g->GetName().c_str() );
+                m_GeomChoice->add( dummymenuentry.c_str(), 0, 0, 0, 0 );
+                m_GeomChoice->replace( add_count, str );
+                add_count++;
             }
         }
     }

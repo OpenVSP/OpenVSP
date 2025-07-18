@@ -1286,6 +1286,8 @@ public:
 
     virtual void Init( VspScreen* screen, Fl_Choice* geom_choice );
 
+    virtual bool ValidGeom( const string &gid );
+
     virtual void Update( );
     virtual void Activate();
     virtual void Deactivate();
