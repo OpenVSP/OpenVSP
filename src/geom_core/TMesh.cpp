@@ -2250,6 +2250,8 @@ bool TTri::SplitTri( bool dumpCase )
         }
     }
 
+    RemoveDuplicateEdges();
+
     vector < vec3d > ptvec( m_NVec.size() );
 
     //==== Determine Which Axis to Flatten ====//
