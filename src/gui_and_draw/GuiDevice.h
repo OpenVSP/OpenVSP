@@ -1318,9 +1318,17 @@ public:
     {
         return m_GeomIDChoice;
     };
+
     void SetGeomChoice( const string &gid )
     {
-        m_GeomIDChoice = gid;
+        if ( ValidGeom( gid ) )
+        {
+            m_GeomIDChoice = gid;
+        }
+        else
+        {
+            m_GeomIDChoice = "";
+        }
     };
 
 protected:
