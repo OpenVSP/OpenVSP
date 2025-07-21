@@ -1869,22 +1869,7 @@ double VspCurve::CalculateThick( double &loc ) const
     c2.reverse();
     c2.set_t0( c1.get_t0() );
 
-    vector < double > pmap;
-    c1.get_pmap( pmap );
-
-    vector < double > pmap2;
-    c2.get_pmap( pmap2 );
-
-    pmap.insert( pmap.end(), pmap2.begin(), pmap2.end() );
-    std::sort( pmap.begin(), pmap.end() );
-    auto pmit = std::unique( pmap.begin(), pmap.end() );
-    pmap.erase( pmit, pmap.end() );
-
-    for( int i = 0; i < pmap.size(); i++ )
-    {
-        c1.split( pmap[i] );
-        c2.split( pmap[i] );
-    }
+    MatchParameterSplits( c1, c2 );
 
     c1.scale( -1.0 );
     c3.sum( c1, c2 );
@@ -1918,22 +1903,7 @@ void VspCurve::MatchThick( const double & ttarget )
     c2.reverse();
     c2.set_t0( c1.get_t0() );
 
-    vector < double > pmap;
-    c1.get_pmap( pmap );
-
-    vector < double > pmap2;
-    c2.get_pmap( pmap2 );
-
-    pmap.insert( pmap.end(), pmap2.begin(), pmap2.end() );
-    std::sort( pmap.begin(), pmap.end() );
-    auto pmit = std::unique( pmap.begin(), pmap.end() );
-    pmap.erase( pmit, pmap.end() );
-
-    for( int i = 0; i < pmap.size(); i++ )
-    {
-        c1.split( pmap[i] );
-        c2.split( pmap[i] );
-    }
+    MatchParameterSplits( c1, c2 );
 
     cmid.sum( c1, c2 );
     cmid.scale( 0.5 );
@@ -2416,5 +2386,25 @@ void VspCurve::CreateAC25773( int side )
     if ( flip != 1 )
     {
         Reverse();
+    }
+}
+
+void MatchParameterSplits( piecewise_curve_type &c1, piecewise_curve_type &c2 )
+{
+    vector < double > pmap;
+    c1.get_pmap( pmap );
+
+    vector < double > pmap2;
+    c2.get_pmap( pmap2 );
+
+    pmap.insert( pmap.end(), pmap2.begin(), pmap2.end() );
+    std::sort( pmap.begin(), pmap.end() );
+    auto pmit = std::unique( pmap.begin(), pmap.end() );
+    pmap.erase( pmit, pmap.end() );
+
+    for( int i = 0; i < pmap.size(); i++ )
+    {
+        c1.split( pmap[i] );
+        c2.split( pmap[i] );
     }
 }

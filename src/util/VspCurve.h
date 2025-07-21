@@ -36,6 +36,8 @@ struct BezierSegment
     vector < vec3d > control_pnt_vec;
 };
 
+void MatchParameterSplits( piecewise_curve_type &c1, piecewise_curve_type &c2 );
+
 class VspCurve
 {
 public:
