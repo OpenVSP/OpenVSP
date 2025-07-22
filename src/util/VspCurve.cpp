@@ -69,6 +69,57 @@ void VspCurve::Split( double u )
     m_Curve.split( u );
 }
 
+// cli integrand from Riegels.
+// Riegels uses a slightly different transformation of x than Theory of Wing Sections
+// and some other sources.
+struct designcl_functor
+{
+    double operator()( const double &t )
+    {
+        vec3d p = m_crv->CompPnt( t );
+        double x = p.x();
+        double y = p.y();
+
+        vec3d pprm = m_crv->CompTan( t );
+        double dxdt = pprm.x();
+
+        double phi = acos( 2.0 * x - 1.0 );
+        double dphidx = -1.0 / sqrt( -x * ( x - 1.0 ) );
+
+        double sinphi = sin( phi );
+
+        return ( 4.0 * y / ( sinphi * sinphi ) ) * dphidx * dxdt ;
+    }
+    VspCurve *m_crv;
+};
+
+// Use thin airfoil theory to calculate cli for a camber line decomposed from an
+// airfoil curve.
+//
+// The camber line produced by Decompose() is an approximation to the rigorous
+// fluid dynamic definition.  Consequently, the design lift coefficient calculated
+// from it will also be approximate.
+//
+// VspCurve camber, halfthick;
+// m_OrigCurve.Decompose( camber, halfthick );
+// double cli = camber.IntegrateCamberCli();
+// printf( "cli %f\n", cli );
+
+double VspCurve::IntegrateCamberCli()
+{
+    // Integral is singular at limits, skip them.
+    double eps = 1e-6;
+    double tmin = m_Curve.get_t0() + eps;
+    double tmax = m_Curve.get_tmax() - eps;
+
+    designcl_functor fun;
+    fun.m_crv = this;
+
+    eli::mutil::quad::simpson< double > quad;
+
+    return quad( fun, tmin, tmax );
+}
+
 double VspCurve::Decompose( VspCurve &camber, VspCurve &halfthick )
 {
     double ttol = 1e-6;

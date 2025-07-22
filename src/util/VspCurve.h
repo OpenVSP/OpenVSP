@@ -51,6 +51,7 @@ public:
     void Copy( const VspCurve & input_crv );
     void Split( double u );
 
+    double IntegrateCamberCli();
     double Decompose( VspCurve &camber, VspCurve &halfthick );
     void Compose( const VspCurve &camber, const VspCurve &halfthick, const double &scale );
 
