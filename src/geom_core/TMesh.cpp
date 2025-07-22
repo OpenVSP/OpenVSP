@@ -7515,21 +7515,12 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
 
 }
 
-string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv )
+string ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, vector< TMesh* > & result_tmv )
 {
     bool intersect_flag = false;
     bool interference_flag = false;
 
-    CSGMesh( primary_tmv );
-    FlattenTMeshVec( primary_tmv );
-    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
-    primary_tm->LoadBndBox();
     double vol_primary = primary_tm->ComputeTheoVol();
-
-    CSGMesh( secondary_tmv );
-    FlattenTMeshVec( secondary_tmv );
-    TMesh *secondary_tm = MergeTMeshVec( secondary_tmv );
-    secondary_tm->LoadBndBox();
     double vol_secondary = secondary_tm->ComputeTheoVol();
 
     double min_dist = 1.0e12;
@@ -7626,6 +7617,21 @@ string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh*
     }
 
     return res->GetID();
+}
+
+string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv )
+{
+    CSGMesh( primary_tmv );
+    FlattenTMeshVec( primary_tmv );
+    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+    primary_tm->LoadBndBox();
+
+    CSGMesh( secondary_tmv );
+    FlattenTMeshVec( secondary_tmv );
+    TMesh *secondary_tm = MergeTMeshVec( secondary_tmv );
+    secondary_tm->LoadBndBox();
+
+    return ExteriorInterferenceCheck( primary_tm, secondary_tm, result_tmv );
 }
 
 string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv )
