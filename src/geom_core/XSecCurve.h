@@ -756,6 +756,10 @@ public:
     Parm m_Width;
     Parm m_Height;
 
+protected:
+    double m_BaseThick;
+    VspCurve m_CamberCurve;
+    VspCurve m_HalfThickCurve;
 };
 
 #endif // !defined(XSECCURVE__INCLUDED_)

@@ -5852,12 +5852,16 @@ InterpXSec::InterpXSec( ) : XSecCurve( )
     m_Height.SetDescript( "Height of the Interp Cross-Section" );
     m_Width.Init( "Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
     m_Width.SetDescript( "Width of the Interp Cross-Section" );
+
+    m_BaseThick = 0;
 }
 
 //==== Update Geometry ====//
 void InterpXSec::UpdateCurve( bool updateParms )
 {
-    m_Curve.MatchThick( m_Height() / m_Width() );
+    double targettoc = m_Height() / m_Width();
+    m_Curve.Compose( m_CamberCurve, m_HalfThickCurve, targettoc / m_BaseThick );
+
     m_Curve.Scale( m_Width() );
 }
 
@@ -5900,8 +5904,10 @@ void InterpXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
     VspSurf srf;
     srf.SkinC0( crv_vec, false );
 
-    srf.GetUConstCurve( m_Curve, frac );
+    VspCurve BaseCurve;
+    srf.GetUConstCurve( BaseCurve, frac );
 
+    m_BaseThick = BaseCurve.Decompose( m_CamberCurve, m_HalfThickCurve );
 }
 
 //==========================================================================//
