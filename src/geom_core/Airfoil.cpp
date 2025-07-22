@@ -1180,8 +1180,8 @@ xmlNodePtr FileAirfoil::DecodeXml( xmlNodePtr & node )
 
 void FileAirfoil::OffsetCurve( double offset_val )
 {
-    double t = CalculateThick();
     double c = m_Chord();
+    double t = m_BaseThickness() * c;
 
     double offset_c = c - 2.0*offset_val;
     m_Chord = offset_c;
@@ -1193,7 +1193,7 @@ void FileAirfoil::OffsetCurve( double offset_val )
         offset_t = 0;
     }
 
-    m_yscale = ( offset_t / offset_c ) / ( t / c );
+    m_ThickChord = offset_t / offset_c;
 }
 
 //==== Read Airfoil File ====//
