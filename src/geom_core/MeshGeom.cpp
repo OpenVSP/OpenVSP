@@ -2178,6 +2178,14 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
             // pgm->MergeDuplicateEdges();
 
 
+            // This step loses the original triangulation.  When re-triangulated, the
+            // opposite diagonals are frequently chosen and the patterns originally set up
+            // for symmetry are lost.
+            // This only matters for CompGeom (with thin coplanar surfaces).  For the
+            // Eventual NGon mesh case, the diagonals are lost eventually anyway.
+            // Removing this step preserves the symmetric triangulation for the CompGeom
+            // case, but it seems to introduce more frequent non-manifold edges for some reason.
+            // Unless that issue can be solved, it seems best to leave this call here.
             pgm->PolygonizeMesh();
 
 
