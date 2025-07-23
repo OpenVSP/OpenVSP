@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Geometry Analysis</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Geometry Analysis</h1>
+</header>
+<p>The Geometry Analysis Manager allows the user to set up and execute
+several geometric analysis tasks typical of the aircraft design
+process.</p>
+<p>Each analysis task is configured with the geometry or geometries
+required. The primary geometry can be either a Set, Mode, or an
+individual component. The secondary geometry (when required) can be
+either a Set, an individual component, or (in special cases) direct
+specification of a point or plane.</p>
+<p>Some of the analysis tasks require a specific type of geometry for
+the analysis. For example, the Plane 2pt Angle analysis used to
+calculate the tail strike angle requires a 2pt Ground Plane Auxiliary
+Geometry for its secondary input. These requirements are summarized in
+the following table.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Geometry Analysis Type</th>
+<th style="text-align: left;">Primary Geometry</th>
+<th>Secondary Geometry</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#external">External</a></td>
+<td style="text-align: left;">Any</td>
+<td>Any</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#packaging">Packaging</a></td>
+<td style="text-align: left;">Any</td>
+<td>Any</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#self-external">Self
+External</a></td>
+<td style="text-align: left;">Any</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#plane-distance">Plane
+Distance</a></td>
+<td style="text-align: left;">Any</td>
+<td>ZGround, Gear, or 3pt Ground Plane</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#plane-2pt-angle">Plane 2pt
+Angle</a></td>
+<td style="text-align: left;">Any</td>
+<td>2pt Ground Plane</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#tipback">Tipback</a></td>
+<td style="text-align: left;">2pt Ground Plane</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#plane-1pt-angle">Plane 1pt
+Angle</a></td>
+<td style="text-align: left;">Any</td>
+<td>1pt Ground Plane</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#weight-distribution">Weight
+Distribution</a></td>
+<td style="text-align: left;">3pt Ground Plane</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#tipover">Tipover</a></td>
+<td style="text-align: left;">2pt Ground Plane</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#ground-manueverability">Ground
+Maneuverability</a></td>
+<td style="text-align: left;">Any</td>
+<td>3pt Ground Plane</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#from-point-visibility">From
+Point Visibility</a></td>
+<td style="text-align: left;">Any</td>
+<td>XYZ, HumanGeom, or Geom</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#composite-clearance-envelope">Composite Clearance
+Envelope</a></td>
+<td style="text-align: left;">Any</td>
+<td>3pt Composite Clearance Envelope</td>
+</tr>
+</tbody>
+</table>
+<h2 id="external">External</h2>
+<p>Check that the primary and secondary geometries are external to one
+another. Before checking for interference, a CompGeom type analysis is
+run on both primary and secondary geometry sets to compute each trimmed
+OML -- this step allows the geometry sets to include negative
+components.</p>
+<h2 id="packaging">Packaging</h2>
+<p>Check that the secondary geometry is contained within the primary
+geometry. Before checking for interference, a CompGeom type analysis is
+run on both primary and secondary geometry sets to compute each trimmed
+OML -- this step allows the geometry sets to include negative
+components.</p>
+<h2 id="self-external">Self External</h2>
+<p>Check that all surfaces of the primary geometry are external to one
+another. No CompGeom type analysis is run on the geometry, so the effect
+of negative components can not be considered. No secondary geometry is
+required.</p>
+<p>This analysis should be used instead of the <a
+href="#external">External</a> analysis when you want to check external
+interference between a number of simple components or between multiple
+surfaces of a single geometry -- as created by either symmetry or a
+complex component like a propeller.</p>
+<h2 id="plane-distance">Plane Distance</h2>
+<p>Calculate the minimum and maximum height of the primary geometry
+above a plane specified by the secondary geometry. Before calculating
+distance, a CompGeom type analysis is run on the primary geometry set to
+compute each trimmed OML -- this step allows the geometry set to include
+negative components. The secondary geometry is used to specify the
+static reference plane. The static reference plane can be specified as a
+Z-constant plane, as the nominal ground plane from a landing gear
+component, or by a 3pt Ground Plane auxiliary geometry.</p>
+<h2 id="plane-2pt-angle">Plane 2pt Angle</h2>
+<p>Calculate the angle of first contact betwen the primary geometry and
+a ground plane rotating about an axis specified by the secondary
+geometry. Before calculating the angle, a CompGeom type analysis is run
+on the primary geometry set to compute each trimmed OML -- this step
+allows the geometry set to include negative components. The secondary
+geometry must be specified by a 2pt Ground Plane auxiliary geometry.</p>
+<p>If the specified contact points are bogies with multiple wheels in
+tandem, rotation will occur about the line connecting the bogie pivots
+up to the maximum bogie pivot angle. Beyond that limit, rotation will
+occur about the line connecting the appropriate wheel axles while the
+bogies are at maximum pivot. If the contact points do not have multiple
+wheels in tandem, rotation will occur about the line connecting the
+wheel axles.</p>
+<h2 id="tipback">Tipback</h2>
+<p>Calculate the angle from vertical to the center of gravity about the
+line connecting the landing gear pivots. The pivot point and center of
+gravity envelope are specified by a 2pt Ground Plane auxiliary geometry.
+No secondary geometry is required. The tipback angle is calculated to
+all eight possible corners of the CG envelope as well as the nominal CG
+position.</p>
+<h2 id="plane-1pt-angle">Plane 1pt Angle</h2>
+<p>Calculate the angle of first contact betwen the primary geometry and
+a ground plane rotating about a roll axis specified by the secondary
+geometry. Before calculating the angle, a CompGeom type analysis is run
+on the primary geometry set to compute each trimmed OML -- this step
+allows the geometry set to include negative components. The secondary
+geometry must be specified by a 1pt Ground Plane auxiliary geometry.</p>
+<p>The roll axis goes through the outboard contact point of the
+specified landing gear in the forward direction in the ground plane.</p>
+<h2 id="weight-distribution">Weight Distribution</h2>
+<p>Calculate the fraction of the weight reacted by each contact point
+specified by the primary geometry. The contact points and center of
+gravity envelope are specified by a 3pt Ground Plane auxiliary geometry.
+No secondary geometry is required.</p>
+<h2 id="tipover">Tipover</h2>
+<p>Calculate the angle from vertical to the center of gravity about the
+line connecting the landing gear contact points. The contact points and
+center of gravity envelope are specified by a 2pt Ground Plane auxiliary
+geometry. No secondary geometry is required. The tipover angle is
+calculated to all eight possible corners of the CG envelope as well as
+the nominal CG position.</p>
+<h2 id="ground-manueverability">Ground Manueverability</h2>
+<p>Calculate the largest arc swept by the primary geometry as well as
+the ground tracks of the landing gear contact points specified by the
+secondary geometry. Before calculating a CompGeom type analysis is run
+on the primary geometry set to compute each trimmed OML -- this step
+allows the geometry set to include negative components. The secondary
+geometry must be specified by a 3pt Ground Plane auxiliary geometry. The
+contact point with the largest allowed turning angle is treated as the
+steerable gear. The steering angle to produce the tightest possible turn
+is used (up to the turning angle limit).</p>
+<h2 id="from-point-visibility">From Point Visibility</h2>
+<p>Calculate the visible (or occluded) domain from a specific point in
+space. Before calculating visibility, a CompGeom type analysis is run on
+the primary geometry set to compute each trimmed OML -- this step allows
+the geometry set to include negative components. The secondary geometry
+is used to specify the viewpoint.</p>
+<h2 id="composite-clearance-envelope">Composite Clearance Envelope</h2>
+<p>Calculate the minimum ground clearance between the primary geometry
+and a composite clearance envelope specified by the secondary geometry.
+Before calculating clearance, a CompGeom type analysis is run on the
+primary geometry set to compute each trimmed OML -- this step allows the
+geometry set to include negative components. The secondary geometry must
+be specified by a 3pt Composite Clearance Envelope auxiliary
+geometry.</p>
+</body>
+</html>

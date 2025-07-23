@@ -18,7 +18,7 @@
 #include "SubSurfaceMgr.h"
 
 //==== Constructor ====//
-GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 700, "Geometry Analyses" )
+GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 700, "Geometry Analyses", "GeometryAnalysis.html" )
 {
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
