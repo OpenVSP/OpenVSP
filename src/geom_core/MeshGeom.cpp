@@ -2168,7 +2168,8 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
 
             pgm->BuildFromTMesh( m_TMeshVec[ i ] );
 
-
+            TMesh *tm = new TMesh;
+            tm->CopyAttributes( m_TMeshVec[i] );
             delete m_TMeshVec[ i ];
 
             pgm->MergeCoincidentNodes();
@@ -2189,7 +2190,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
             pgm->SealDoubleBackNodes();
 
 
-            m_TMeshVec[ i ] = new TMesh;
+            m_TMeshVec[ i ] = tm;
             m_TMeshVec[ i ]->MakeFromPGMesh( pgm );
         }
     }
