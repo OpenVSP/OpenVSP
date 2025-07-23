@@ -2089,6 +2089,90 @@ void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
     }
 }
 
+void TMesh::WriteInsideMStlTris( FILE* file_id, Matrix4d XFormMat, int minside )
+{
+    int t, s;
+    vec3d norm;
+    vec3d v0, v1, v2;
+    vec3d d21;
+
+    for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                if ( tri->m_SplitVec[s]->m_insideSurf.size() > minside )
+                {
+                    if ( !tri->m_SplitVec[s]->m_insideSurf[ minside ] )
+                    {
+                        continue;
+                    }
+                }
+
+                if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
+                {
+                    v0 = XFormMat.xform( tri->m_SplitVec[s]->m_N0->m_Pnt );
+                    v1 = XFormMat.xform( tri->m_SplitVec[s]->m_N1->m_Pnt );
+                    v2 = XFormMat.xform( tri->m_SplitVec[s]->m_N2->m_Pnt );
+
+                    d21 = v2 - v1;
+
+                    if ( d21.mag() > 0.000001 )
+                    {
+                        norm = cross( d21, v0 - v1 );
+                        norm.normalize();
+
+                        fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+                        fprintf( file_id, "   outer loop\n" );
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v0.x(), v0.y(), v0.z() );
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v1.x(), v1.y(), v1.z() );
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v2.x(), v2.y(), v2.z() );
+                        fprintf( file_id, "   endloop\n" );
+                        fprintf( file_id, " endfacet\n" );
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ( tri->m_insideSurf.size() > minside )
+            {
+                if ( !tri->m_insideSurf[ minside ] )
+                {
+                    continue;
+                }
+            }
+
+            if ( !tri->m_IgnoreTriFlag )
+            {
+                v0 = XFormMat.xform( tri->m_N0->m_Pnt );
+                v1 = XFormMat.xform( tri->m_N1->m_Pnt );
+                v2 = XFormMat.xform( tri->m_N2->m_Pnt );
+
+                d21 = v2 - v1;
+
+                if ( d21.mag() > 0.000001 )
+                {
+                    norm = cross( d21, v0 - v1 );
+                    norm.normalize();
+
+                    fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+                    fprintf( file_id, "   outer loop\n" );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v0.x(), v0.y(), v0.z() );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v1.x(), v1.y(), v1.z() );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v2.x(), v2.y(), v2.z() );
+                    fprintf( file_id, "   endloop\n" );
+                    fprintf( file_id, " endfacet\n" );
+                }
+            }
+        }
+    }
+}
+
+
 void TMesh::WriteIgnoredSTL( string fname, double scale )
 {
     FILE* fp = fopen( fname.c_str(), "w" );
@@ -7919,8 +8003,7 @@ TMesh* MakeConvexHull(const vector< TMesh* > & tmesh_vec )
 
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir )
 {
-    vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
-    orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
+    vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt + tri->m_N2->m_Pnt ) / 3.0;
     tri->m_IgnoreTriFlag = false;
     int prior = -1;
 
@@ -7987,6 +8070,44 @@ void WriteStl( const string &file_name, const vector< TMesh* >& meshVec )
     }
 }
 
+void WriteInsideMStl( const string &file_name, const vector< TMesh* >& meshVec, int minside )
+{
+    Matrix4d mat;
+
+    FILE* fid = fopen( file_name.c_str(), "w" );
+    if ( fid )
+    {
+        fprintf( fid, "solid\n" );
+
+        for ( int i = 0; i < (int) meshVec.size(); i++ )
+        {
+            meshVec[i]->WriteInsideMStlTris( fid, mat, minside );
+        }
+
+        fprintf( fid, "endsolid\n" );
+        fclose( fid );
+    }
+}
+
+void WriteIgnoredSTL( const string &file_name, const vector< TMesh* >& meshVec )
+{
+    Matrix4d mat;
+
+    FILE* fid = fopen( file_name.c_str(), "w" );
+    if ( fid )
+    {
+        fprintf( fid, "solid\n" );
+
+        for ( int i = 0; i < (int) meshVec.size(); i++ )
+        {
+            meshVec[i]->WriteIgnoredSTLTris( fid, mat );
+        }
+
+        fprintf( fid, "endsolid\n" );
+        fclose( fid );
+    }
+}
+
 void WriteStl( const string &file_name, TMesh* tm )
 {
     Matrix4d mat;
@@ -8002,6 +8123,23 @@ void WriteStl( const string &file_name, TMesh* tm )
         fclose( fid );
     }
 }
+
+void WriteInsideMStl( const string &file_name, TMesh* tm, int minside )
+{
+    Matrix4d mat;
+
+    FILE* fid = fopen( file_name.c_str(), "w" );
+    if ( fid && tm )
+    {
+        fprintf( fid, "solid\n" );
+
+        tm->WriteInsideMStlTris( fid, mat, minside );
+
+        fprintf( fid, "endsolid\n" );
+        fclose( fid );
+    }
+}
+
 
 void MakeThreePts( const vec3d & org, const vec3d & norm, vector <vec3d> &threepts )
 {

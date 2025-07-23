@@ -513,6 +513,7 @@ public:
 
     virtual void WriteIgnoredSTLTris( FILE* file_id, Matrix4d XFormMat );
     virtual void WriteSTLTris( FILE* file_id, Matrix4d XFormMat );
+    virtual void WriteInsideMStlTris( FILE* file_id, Matrix4d XFormMat, int minside );
 
     virtual void WriteIgnoredSTL( string fname, double scale = 1.0 );
     virtual void WriteSTL( string fname, double scale = 1.0 );
@@ -716,7 +717,10 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &di
 bool DeterIntExtTri( TTri* tri, TMesh* mesh, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 )  );
 
 void WriteStl( const string &file_name, const vector< TMesh* >& meshVec );
+void WriteInsideMStl( const string &file_name, const vector< TMesh* >& meshVec, int minside );
+void WriteIgnoredSTL( const string &file_name, const vector< TMesh* >& meshVec );
 void WriteStl( const string &file_name, TMesh* tm );
+void WriteInsideMStl( const string &file_name, TMesh* tm, int minside );
 void MakeThreePts( const vec3d & org, const vec3d & norm, vector <vec3d> &threepts );
 TMesh* MakeSlice( const vec3d & org, const vec3d & norm, const double & len );
 TMesh* MakeSlice( const int &swdir, const double & len );
