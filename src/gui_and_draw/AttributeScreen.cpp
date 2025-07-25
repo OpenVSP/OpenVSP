@@ -212,21 +212,8 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
 
     // create text editor, and tie its widget callbacks to the staticScreenCB for updating the attribute when called
     bool resizable = true;
-    m_DataText = m_StringEntryLayout.AddVspTextEditor( editor_ht, resizable );
     m_DataBuffer = new Fl_Text_Buffer;
-    m_DataText->callback( staticScreenCB, this );
-    m_DataText->buffer( m_DataBuffer );
-    m_DataText->textfont( FL_COURIER );
-
-    m_DataText->remove_key_binding( FL_Enter, FL_TEXT_EDITOR_ANY_STATE );
-    m_DataText->remove_key_binding( FL_KP_Enter, FL_TEXT_EDITOR_ANY_STATE );
-    m_DataText->add_key_binding( FL_Enter, FL_TEXT_EDITOR_ANY_STATE , VspTextEditor::kf_accept );
-    m_DataText->add_key_binding( FL_Enter, FL_SHIFT , Fl_Text_Editor::kf_enter );
-    m_DataText->add_key_binding( FL_Enter, FL_CTRL , Fl_Text_Editor::kf_enter );
-    m_DataText->add_key_binding( FL_KP_Enter, FL_TEXT_EDITOR_ANY_STATE , VspTextEditor::kf_accept );
-    m_DataText->add_key_binding( FL_KP_Enter, FL_SHIFT , Fl_Text_Editor::kf_enter );
-    m_DataText->add_key_binding( FL_KP_Enter, FL_CTRL , Fl_Text_Editor::kf_enter );
-    m_DataBuffer->text( "" );
+    m_DataText = m_StringEntryLayout.AddVspTextEditor( editor_ht, m_DataBuffer, staticScreenCB, this, resizable );
 
     // add parm reference layout
     m_CommonEntryLayout.AddSubGroupLayout( m_ParmRefEntryLayout, m_CommonEntryLayout.GetW(), m_CommonEntryLayout.GetRemainY() );

@@ -65,21 +65,8 @@ VehNotesScreen::VehNotesScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 125, "
     m_NotesLayout.SetX( m_NotesScreenLayout.GetStartX() + buffer );
 
     bool resizable = true;
-    m_DataText = m_NotesLayout.AddVspTextEditor( m_NotesLayout.GetRemainY(), resizable );
     m_DataBuffer = new Fl_Text_Buffer;
-    m_DataText->callback( staticScreenCB, this );
-    m_DataText->buffer( m_DataBuffer );
-    m_DataText->textfont( FL_COURIER );
-
-    m_DataText->remove_key_binding( FL_Enter, FL_TEXT_EDITOR_ANY_STATE );
-    m_DataText->remove_key_binding( FL_KP_Enter, FL_TEXT_EDITOR_ANY_STATE );
-    m_DataText->add_key_binding( FL_Enter, FL_TEXT_EDITOR_ANY_STATE , VspTextEditor::kf_accept );
-    m_DataText->add_key_binding( FL_Enter, FL_SHIFT , Fl_Text_Editor::kf_enter );
-    m_DataText->add_key_binding( FL_Enter, FL_CTRL , Fl_Text_Editor::kf_enter );
-    m_DataText->add_key_binding( FL_KP_Enter, FL_TEXT_EDITOR_ANY_STATE , VspTextEditor::kf_accept );
-    m_DataText->add_key_binding( FL_KP_Enter, FL_SHIFT , Fl_Text_Editor::kf_enter );
-    m_DataText->add_key_binding( FL_KP_Enter, FL_CTRL , Fl_Text_Editor::kf_enter );
-    m_DataBuffer->text( "" );
+    m_DataText = m_NotesLayout.AddVspTextEditor( m_NotesLayout.GetRemainY(), m_DataBuffer, staticScreenCB, this, resizable );
 
     Vehicle* veh = VehicleMgr.GetVehicle();
     m_ShowBoolParmPtr = &veh->m_ShowNotesScreenParm;

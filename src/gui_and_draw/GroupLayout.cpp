@@ -1878,14 +1878,29 @@ Fl_Text_Editor* GroupLayout::AddFlTextEditor( int height , bool resizable )
 }
 
 //==== Add Vsp Text Editor ====//
-VspTextEditor* GroupLayout::AddVspTextEditor( int height , bool resizable )
+VspTextEditor* GroupLayout::AddVspTextEditor( int height, Fl_Text_Buffer* buffer, Fl_Callback* cb, VspScreen* screen, bool resizable, Fl_Font font )
 {
     assert( m_Group && m_Screen );
 
     VspTextEditor* text_editor = new VspTextEditor (m_X, m_Y, m_W, height, "");
 
+    text_editor->callback( cb, screen );
+    text_editor->buffer( buffer );
+    text_editor->textfont( font );
+
+    text_editor->remove_key_binding( FL_Enter, FL_TEXT_EDITOR_ANY_STATE );
+    text_editor->remove_key_binding( FL_KP_Enter, FL_TEXT_EDITOR_ANY_STATE );
+    text_editor->add_key_binding( FL_Enter, FL_TEXT_EDITOR_ANY_STATE , VspTextEditor::kf_accept );
+    text_editor->add_key_binding( FL_Enter, FL_SHIFT , Fl_Text_Editor::kf_enter );
+    text_editor->add_key_binding( FL_Enter, FL_CTRL , Fl_Text_Editor::kf_enter );
+    text_editor->add_key_binding( FL_KP_Enter, FL_TEXT_EDITOR_ANY_STATE , VspTextEditor::kf_accept );
+    text_editor->add_key_binding( FL_KP_Enter, FL_SHIFT , Fl_Text_Editor::kf_enter );
+    text_editor->add_key_binding( FL_KP_Enter, FL_CTRL , Fl_Text_Editor::kf_enter );
+
+    buffer->text( "" );
+
     m_Group->add( text_editor );
-    if (resizable)
+    if ( resizable )
     {
         m_Group->resizable( text_editor );
     }
