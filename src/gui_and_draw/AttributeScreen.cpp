@@ -241,6 +241,8 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
 
     m_ParmRefEntryLayout.AddResizeBox(); //sacrificial resizable component, prevents the rest of the layout from squishing
 
+    // spreadsheet layout; double format for Vec3d and DoubleMatrix
+    string dbl_format = string( " %g" );
 
     // add vec3d layout
     m_CommonEntryLayout.AddSubGroupLayout( m_Vec3dEntryLayout, m_CommonEntryLayout.GetW(), m_CommonEntryLayout.GetRemainY() );
@@ -248,6 +250,7 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
     m_Vec3dEntryLayout.GetGroup()->resizable( m_Vec3dSpreadSingle );
     m_Vec3dSpreadSingle->set_HeaderOffset( 'X' - 'A' );
     m_Vec3dSpreadSingle->set_ChangeCallback( staticScreenCB, this );
+    m_Vec3dSpreadSingle->SetFormat( dbl_format.c_str() );
 
     int w_vec3d_btn = m_Vec3dEntryLayout.GetW() / 4;
 
@@ -286,6 +289,7 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
     m_DoubleMatrixSpreadSheet = m_DblMatEntryLayout.AddSpreadSheet < vector < double > >( editor_ht - 2*m_DblMatEntryLayout.GetStdHeight(), " %7.5f");
     m_DblMatEntryLayout.GetGroup()->resizable( m_DoubleMatrixSpreadSheet );
     m_DoubleMatrixSpreadSheet->set_ChangeCallback( staticScreenCB, this );
+    m_DoubleMatrixSpreadSheet->SetFormat( dbl_format.c_str() );
 
     int w_dmat_btn = m_DblMatEntryLayout.GetW() / 4;
 
