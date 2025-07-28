@@ -653,29 +653,34 @@ int MeshGeom::ReadTriFile( const char * file_name )
     return 1;
 }
 
+void MeshGeom::BuildTriVec( const TMesh* mesh, vector< TTri* > &trivec )
+{
+    for ( int t = 0 ; t < ( int )mesh->m_TVec.size() ; t++ )
+    {
+        TTri* tri = mesh->m_TVec[t];
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
+                {
+                    trivec.push_back( tri->m_SplitVec[s] );
+                }
+            }
+        }
+        else if ( !tri->m_IgnoreTriFlag )
+        {
+            trivec.push_back( tri );
+        }
+    }
+}
+
 void MeshGeom::BuildTriVec( const vector < TMesh* > &meshvec, vector< TTri* > &trivec )
 {
     //==== Find All Exterior and Split Tris =====//
     for ( int m = 0 ; m < meshvec.size() ; m++ )
     {
-        for ( int t = 0 ; t < ( int )meshvec[m]->m_TVec.size() ; t++ )
-        {
-            TTri* tri = meshvec[m]->m_TVec[t];
-            if ( tri->m_SplitVec.size() )
-            {
-                for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
-                {
-                    if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
-                    {
-                        trivec.push_back( tri->m_SplitVec[s] );
-                    }
-                }
-            }
-            else if ( !tri->m_IgnoreTriFlag )
-            {
-                trivec.push_back( tri );
-            }
-        }
+        BuildTriVec( meshvec[m], trivec );
     }
 }
 
