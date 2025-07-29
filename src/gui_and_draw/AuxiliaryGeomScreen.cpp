@@ -1549,9 +1549,16 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
 
 }
 
+void AuxiliaryGeomScreen::GetCollIDs( vector < string > &collIDVec )
+{
+    m_XsecAttributeEditor.GetCollIDs( collIDVec );
+    GeomScreen::GetCollIDs( collIDVec );
+}
+
 //==== Non Menu Callbacks ====//
 void AuxiliaryGeomScreen::CallBack( Fl_Widget *w )
 {
+    m_XsecAttributeEditor.DeviceCB( w );
     GeomScreen::CallBack( w );
 }
 

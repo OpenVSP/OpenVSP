@@ -30,6 +30,8 @@ public:
 
     virtual void UpdateGroundPlaneChoices();
 
+    virtual void GetCollIDs( vector < string > &collIDVec );
+
     virtual void CallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
