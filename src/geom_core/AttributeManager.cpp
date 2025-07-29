@@ -17,6 +17,7 @@
 #include "Vehicle.h"
 #include "XSec.h"
 #include "BORGeom.h"
+#include "AuxiliaryGeom.h"
 
 #include "VehicleMgr.h"
 #include "LinkMgr.h"
@@ -1664,6 +1665,7 @@ string AttributeMgrSingleton::GetName( const string & id, bool return_name_input
 
                 XSec* xs = dynamic_cast<XSec*>( pc_parent );
                 BORGeom* bor_ptr = dynamic_cast<BORGeom*>( pc_parent );
+                AuxiliaryGeom* aux_ptr = dynamic_cast<AuxiliaryGeom*>( pc_parent );
                 SubSurface* ss = dynamic_cast<SubSurface*>( pc_parent );
                 if ( xs )
                 {
@@ -1676,6 +1678,10 @@ string AttributeMgrSingleton::GetName( const string & id, bool return_name_input
                 else if ( bor_ptr )
                 {
                     return string( "BOR_XSec" );
+                }
+                else if ( aux_ptr )
+                {
+                    return string( "AUX_XSec" );
                 }
                 else if ( ss )
                 {
