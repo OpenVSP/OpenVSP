@@ -478,6 +478,7 @@ public:
     void SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf );
     void SetIgnoreSubSurface();
     void SetIgnoreInsideAny();
+    void SetIgnoreInsideAll();
     void SetIgnoreInsideNotOne();
     void SetIgnoreOutsideAll();
     void SetIgnoreMatchMask( const vector < bool > & mask );
