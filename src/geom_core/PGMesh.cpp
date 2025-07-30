@@ -817,7 +817,24 @@ void PGEdge::PrintWingWakeEdgeData( const PGMesh *m ) const
             }
         }
     }
+}
 
+bool PGEdge::SilouetteEdge( const PGMesh *m, const vec3d &v ) const
+{
+    int nface = m_FaceVec.size();
+
+    if ( nface == 2 )
+    {
+        PGFace *f0 = m_FaceVec[ 0 ];
+        PGFace *f1 = m_FaceVec[ 1 ];
+
+        if ( sgn( dot( f0->m_Nvec, v ) ) != sgn( dot( f1->m_Nvec, v ) ) )
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool PGEdge::WingWakeEdge( const PGMesh *m, int &part ) const
@@ -2717,6 +2734,59 @@ void PGMesh::IdentifyParents()
             (*fit)->m_ChildVec[i]->m_Parent = (*fit);
         }
     }
+}
+
+void PGMesh::ExtendSilhouette( vector < PGEdge * > & silouette, PGEdge *e, const PGNode *n, const vec3d &v )
+{
+    e->m_InCurrentLoopFlag = true;
+
+    int nedg = n->m_EdgeVec.size();
+
+    for ( int i = 0; i < nedg; i++ )
+    {
+        PGEdge * ei = n->m_EdgeVec[ i ];
+        if ( ei && ei != e && !ei->m_InLoopFlag && !ei->m_InCurrentLoopFlag )
+        {
+            if ( ei->SilouetteEdge( this, v ) )
+            {
+                PGNode * ni = ei->OtherNode( n );
+
+                silouette.push_back( ei );
+                ei->m_InLoopFlag = true;
+
+                ExtendSilhouette( silouette, ei, ni, v );
+                return;
+            }
+        }
+    }
+
+    e->m_InCurrentLoopFlag = false;
+}
+
+void PGMesh::IdentifySilhouettes( vector < vector < PGEdge * > > &silhouetteLoopVec, const vec3d &v )
+{
+    list< PGEdge* >::iterator e;
+    for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    {
+
+        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->SilouetteEdge( this, v ) )
+        {
+            (*e)->m_InLoopFlag = true;
+
+            vector < PGEdge * > silhouette;
+            silhouette.push_back( *e );
+
+            ExtendSilhouette( silhouette, (*e), (*e)->m_N0, v );
+
+            std::reverse( silhouette.begin(), silhouette.end() );
+
+            ExtendSilhouette( silhouette, (*e), (*e)->m_N1, v );
+
+            silhouetteLoopVec.push_back( silhouette );
+        }
+    }
+
+    ResetEdgeLoopFlags();
 }
 
 void PGMesh::ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n )

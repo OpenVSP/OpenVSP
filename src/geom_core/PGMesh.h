@@ -164,6 +164,7 @@ public:
     bool Validate() const;
 
     void PrintWingWakeEdgeData( const PGMesh *m ) const;
+    bool SilouetteEdge( const PGMesh *m, const vec3d &v ) const;
     bool WingWakeEdge( const PGMesh *m, int &part ) const;
     bool BodyWakeEdge( const PGMesh *m, int &part ) const;
 };
@@ -343,6 +344,9 @@ public:
     void SealDoubleBackNodes();
 
     void ResetEdgeLoopFlags();
+
+    void ExtendSilhouette( vector < PGEdge * > & silhouette, PGEdge *e, const PGNode *n, const vec3d &v );
+    void IdentifySilhouettes( vector < vector < PGEdge * > > &silhouetteLoopVec, const vec3d &v );
 
     void ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n );
     void IdentifyWingWakes();
