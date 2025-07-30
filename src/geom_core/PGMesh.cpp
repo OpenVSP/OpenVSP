@@ -2746,6 +2746,17 @@ void PGMesh::IdentifyParents()
     }
 }
 
+void PGMesh::IdentifyShadow( vector < PGFace* > &shadow, const vec3d &v )
+{
+    for ( list< PGFace* >::iterator f = m_FaceList.begin(); f != m_FaceList.end(); ++f )
+    {
+        if ( dot( ( *f )->m_Nvec, v ) > 0 )
+        {
+            shadow.push_back( *f );
+        }
+    }
+}
+
 void PGMesh::ExtendSilhouette( vector < PGEdge * > & silouette, PGEdge *e, const PGNode *n, const vec3d &v )
 {
     e->m_InCurrentLoopFlag = true;
