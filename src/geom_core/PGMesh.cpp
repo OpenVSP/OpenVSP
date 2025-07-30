@@ -1474,6 +1474,11 @@ vector < vector < PGEdge * > > PGFace::SharedEdges( const PGFace *other ) const
     return chainvec;
 }
 
+void PGFace::Reverse()
+{
+    std::reverse( m_EdgeVec.begin(), m_EdgeVec.end() );
+}
+
 int PGFace::GetEdgeIndex( const PGEdge* e ) const
 {
     return vector_find_val( m_EdgeVec, const_cast < PGEdge* > ( e ) );

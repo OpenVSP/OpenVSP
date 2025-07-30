@@ -198,6 +198,8 @@ public:
     void ExtendChain( vector < PGEdge * > & chain, PGEdge *e, const PGNode *n, const vector < PGEdge * > &evec ) const;
     vector < vector < PGEdge * > > SharedEdges( const PGFace *other ) const;
 
+    void Reverse();
+
     int GetEdgeIndex( const PGEdge* e ) const;
     bool Contains( const PGEdge* e ) const;
     bool Contains( const PGNode* n ) const;
