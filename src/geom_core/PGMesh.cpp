@@ -2691,6 +2691,46 @@ bool PGMesh::Check()
     return true;
 }
 
+void PGMesh::MoveFaces( const vector < PGFace* > &faces, const vector < PGNode* > &nvec, const int &noffset )
+{
+    for ( int i = 0; i < faces.size(); i++ )
+    {
+        PGFace *forig = faces[ i ];
+
+        vector < PGNode* > nv;
+        forig->GetNodes( nv );
+
+        if ( nv.size() == 4 )
+        {
+            int i0 = nv[0]->m_Pt->m_ID + noffset;
+            int i1 = nv[1]->m_Pt->m_ID + noffset;
+            int i2 = nv[2]->m_Pt->m_ID + noffset;
+
+            PGEdge *e0 = AddEdge( nvec[ i0 ], nvec[ i1 ] );
+            PGEdge *e1 = AddEdge( nvec[ i1 ], nvec[ i2 ] );
+            PGEdge *e2 = AddEdge( nvec[ i2 ], nvec[ i0 ] );
+
+            PGFace *f = AddFace();
+
+            f->m_Nvec = forig->m_Nvec;
+            f->m_iQuad = forig->m_iQuad;
+            f->m_Tag = forig->m_Tag;
+            f->m_jref = forig->m_jref;
+            f->m_kref = forig->m_kref;
+
+            e0->AddConnectFace( f );
+            e1->AddConnectFace( f );
+            e2->AddConnectFace( f );
+
+            f->AddEdge( e0 );
+            f->AddEdge( e1 );
+            f->AddEdge( e2 );
+        }
+
+        RemoveFace( forig );
+    }
+}
+
 void PGMesh::FindAllDoubleBackNodes()
 {
     m_DoubleBackNode.clear();

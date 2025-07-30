@@ -343,6 +343,8 @@ public:
 
     bool m_DeleteMeFlag;
 
+
+    void MoveFaces( const vector < PGFace* > &faces, const vector < PGNode* > &nvec, const int &noffset );
     void FindAllDoubleBackNodes();
     void SealDoubleBackNodes();
 
