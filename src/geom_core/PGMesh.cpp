@@ -1474,6 +1474,11 @@ vector < vector < PGEdge * > > PGFace::SharedEdges( const PGFace *other ) const
     return chainvec;
 }
 
+int PGFace::GetEdgeIndex( const PGEdge* e ) const
+{
+    return vector_find_val( m_EdgeVec, const_cast < PGEdge* > ( e ) );
+}
+
 bool PGFace::Contains( const PGEdge* e ) const
 {
     return vector_contains_val( m_EdgeVec, const_cast < PGEdge* > ( e ) );
