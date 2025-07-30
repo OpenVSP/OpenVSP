@@ -4751,6 +4751,16 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
             {
                 TTri* t1 = iBox->m_TriVec[j];
 
+                if ( t0 == t1 )
+                {
+                    continue;
+                }
+
+                if ( t0->ShareEdge( t1 ) )
+                {
+                    continue;
+                }
+
                 int coplanarFlag = 0; // Must be initialized to 0 before use in tri_tri_intersection_test_3d
                 vec3d e0;
                 vec3d e1;
@@ -4893,6 +4903,14 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                     {
                         if ( dist( e0, e1 ) > tol )
                         {
+                            if ( !t0->InTri( e0 ) || !t0->InTri( e1 ) || !t1->InTri( e0 ) || !t1->InTri( e1 ) )
+                            {
+                                // tri_tri_intersection_test_3d() above gives bonkers results in situations with
+                                // two triangles that share a point along a colinear edge.  The resulting intersection
+                                // segment fails this InTri() test, so this code seems to filter this failure out.
+                                continue;
+                            }
+
                             TEdge* ie0 = new TEdge();
                             int info = TNode::HAS_UW | TNode::HAS_XYZ;
                             ie0->m_N0 = new TNode();
