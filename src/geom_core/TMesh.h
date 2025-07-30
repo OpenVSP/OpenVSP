@@ -340,8 +340,8 @@ public:
     virtual void SplitEdges( TNode* n01, TNode* n12, TNode* n20 );
 
     virtual vec3d CompNorm();
-    virtual bool  ShareEdge( TTri* t );
-    virtual bool MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol );
+    virtual bool MergeSharedEdges( TTri* t );
+    virtual bool MatchMergeEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol );
     virtual bool CheckEdge( TNode* n0, TNode* n1 );
 
     virtual void RemoveDuplicateEdges();

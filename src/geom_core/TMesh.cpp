@@ -947,7 +947,7 @@ void TMesh::MergeNonClosed( TMesh* tm )
         for ( int j = 0 ; j < ( int )tm->m_NonClosedTriVec.size() ; j++ )
         {
             TTri* t1 = tm->m_NonClosedTriVec[j];
-            if ( t0->ShareEdge( t1 ) )
+            if ( t0->MergeSharedEdges( t1 ) )
             {
                 match_flag = true;
                 break;
@@ -2736,43 +2736,43 @@ vec3d TTri::CompUW( const vec3d & pnt )
     return uw;
 }
 
-bool TTri::ShareEdge( TTri* t )
+bool TTri::MergeSharedEdges( TTri* t )
 {
     double tol = 1.0e-12;
 
-    if ( MatchEdge( m_N0, m_N1, t->m_N0, t->m_N1, tol ) )
+    if ( MatchMergeEdge( m_N0, m_N1, t->m_N0, t->m_N1, tol ) )
     {
         return true;
     }
-    if ( MatchEdge( m_N0, m_N1, t->m_N1, t->m_N2, tol ) )
+    if ( MatchMergeEdge( m_N0, m_N1, t->m_N1, t->m_N2, tol ) )
     {
         return true;
     }
-    if ( MatchEdge( m_N0, m_N1, t->m_N0, t->m_N2, tol ) )
+    if ( MatchMergeEdge( m_N0, m_N1, t->m_N0, t->m_N2, tol ) )
     {
         return true;
     }
-    if ( MatchEdge( m_N1, m_N2, t->m_N0, t->m_N1, tol ) )
+    if ( MatchMergeEdge( m_N1, m_N2, t->m_N0, t->m_N1, tol ) )
     {
         return true;
     }
-    if ( MatchEdge( m_N1, m_N2, t->m_N1, t->m_N2, tol ) )
+    if ( MatchMergeEdge( m_N1, m_N2, t->m_N1, t->m_N2, tol ) )
     {
         return true;
     }
-    if ( MatchEdge( m_N1, m_N2, t->m_N0, t->m_N2, tol ) )
+    if ( MatchMergeEdge( m_N1, m_N2, t->m_N0, t->m_N2, tol ) )
     {
         return true;
     }
-    if ( MatchEdge( m_N0, m_N2, t->m_N0, t->m_N1, tol ) )
+    if ( MatchMergeEdge( m_N0, m_N2, t->m_N0, t->m_N1, tol ) )
     {
         return true;
     }
-    if ( MatchEdge( m_N0, m_N2, t->m_N1, t->m_N2, tol ) )
+    if ( MatchMergeEdge( m_N0, m_N2, t->m_N1, t->m_N2, tol ) )
     {
         return true;
     }
-    if ( MatchEdge( m_N0, m_N2, t->m_N0, t->m_N2, tol ) )
+    if ( MatchMergeEdge( m_N0, m_N2, t->m_N0, t->m_N2, tol ) )
     {
         return true;
     }
@@ -2780,7 +2780,7 @@ bool TTri::ShareEdge( TTri* t )
     return false;
 }
 
-bool TTri::MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol )
+bool TTri::MatchMergeEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol )
 {
     if ( dist_squared( n0->m_Pnt, nA->m_Pnt ) < tol && dist_squared( n1->m_Pnt, nB->m_Pnt ) < tol )
     {
