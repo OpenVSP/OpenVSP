@@ -2802,6 +2802,64 @@ bool TTri::MatchMergeEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double to
     return false;
 }
 
+bool TTri::ShareEdge( TTri* t )
+{
+    double tol = 1.0e-6;
+
+    if ( MatchEdge( m_N0, m_N1, t->m_N0, t->m_N1, tol ) )
+    {
+        return true;
+    }
+    if ( MatchEdge( m_N0, m_N1, t->m_N1, t->m_N2, tol ) )
+    {
+        return true;
+    }
+    if ( MatchEdge( m_N0, m_N1, t->m_N0, t->m_N2, tol ) )
+    {
+        return true;
+    }
+    if ( MatchEdge( m_N1, m_N2, t->m_N0, t->m_N1, tol ) )
+    {
+        return true;
+    }
+    if ( MatchEdge( m_N1, m_N2, t->m_N1, t->m_N2, tol ) )
+    {
+        return true;
+    }
+    if ( MatchEdge( m_N1, m_N2, t->m_N0, t->m_N2, tol ) )
+    {
+        return true;
+    }
+    if ( MatchEdge( m_N0, m_N2, t->m_N0, t->m_N1, tol ) )
+    {
+        return true;
+    }
+    if ( MatchEdge( m_N0, m_N2, t->m_N1, t->m_N2, tol ) )
+    {
+        return true;
+    }
+    if ( MatchEdge( m_N0, m_N2, t->m_N0, t->m_N2, tol ) )
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool TTri::MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol )
+{
+    if ( dist_squared( n0->m_Pnt, nA->m_Pnt ) < tol && dist_squared( n1->m_Pnt, nB->m_Pnt ) < tol )
+    {
+        return true;
+    }
+    if ( dist_squared( n0->m_Pnt, nB->m_Pnt ) < tol && dist_squared( n1->m_Pnt, nA->m_Pnt ) < tol )
+    {
+        return true;
+    }
+
+    return false;
+}
+
 bool TTri::CheckEdge( TNode* n0, TNode* n1 )
 {
     // Set up vector so we can loop through valid edges.
