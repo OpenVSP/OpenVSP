@@ -2731,6 +2731,78 @@ void PGMesh::MoveFaces( const vector < PGFace* > &faces, const vector < PGNode* 
     }
 }
 
+void PGMesh::ExtrudeEdgeLoop( const vector < PGEdge* > &loop, const vector < PGNode* > &nvec, const int &nbaseoffset, const int &noffset, int &iQuad )
+{
+    for ( int j = 0; j < loop.size(); j++ )
+    {
+        PGEdge *ebase = loop[ j ];
+
+        int i0 = ebase->m_N0->m_Pt->m_ID + nbaseoffset;
+        int i1 = ebase->m_N1->m_Pt->m_ID + nbaseoffset;
+        int i2 = ebase->m_N1->m_Pt->m_ID + noffset;
+        int i3 = ebase->m_N0->m_Pt->m_ID + noffset;
+
+        vec3d v0 = nvec[ i1 ]->m_Pt->m_Pnt - nvec[ i0 ]->m_Pt->m_Pnt;
+        vec3d v1 = nvec[ i2 ]->m_Pt->m_Pnt - nvec[ i1 ]->m_Pt->m_Pnt;
+        vec3d n = cross( v0, v1 );
+        n.normalize();
+
+        PGEdge *e0 = AddEdge( nvec[ i0 ], nvec[ i1 ] );
+        PGEdge *e1 = AddEdge( nvec[ i1 ], nvec[ i2 ] );
+        PGEdge *e2 = AddEdge( nvec[ i2 ], nvec[ i3 ] );
+        PGEdge *e3 = AddEdge( nvec[ i3 ], nvec[ i0 ] );
+
+        PGFace *f = AddFace();
+
+
+        f->m_iQuad = iQuad;
+        f->m_Tag = e0->m_FaceVec[0]->m_Tag;
+        f->m_jref = 0;
+        f->m_kref = 0;
+
+        e0->AddConnectFace( f );
+        e1->AddConnectFace( f );
+        e2->AddConnectFace( f );
+        e3->AddConnectFace( f );
+
+        f->AddEdge( e0 );
+        f->AddEdge( e1 );
+        f->AddEdge( e2 );
+        f->AddEdge( e3 );
+
+        PGFace * fother = e0->OtherManifoldFace( f );
+
+        if ( fother )
+        {
+            int ie = fother->GetEdgeIndex( e0 );
+            PGNode * pn = fother->FindPrevNode( ie );
+            PGNode * nnext = e0->OtherNode( pn );
+
+            int ienew = f->GetEdgeIndex( e0 );
+            PGNode *pnnew = f->FindPrevNode( ienew );
+
+            if ( pnnew != nnext )
+            {
+                f->Reverse();
+                n = -n;
+            }
+        }
+
+        f->m_Nvec = n;
+
+        iQuad++;
+    }
+}
+
+void PGMesh::ExtrudeEdgeLoopVec( const vector < vector < PGEdge* > > &loopvec, const vector < PGNode* > &nvec, const int &nbaseoffset, const int &noffset )
+{
+    int iQuad = 0;
+    for ( int i = 0; i < loopvec.size(); i++ )
+    {
+        ExtrudeEdgeLoop( loopvec[ i ], nvec, nbaseoffset, noffset, iQuad);
+    }
+}
+
 void PGMesh::FindAllDoubleBackNodes()
 {
     m_DoubleBackNode.clear();
