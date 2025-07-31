@@ -5464,7 +5464,7 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                         int icopy = g->GetSurfCopyIndx( isurf );
 
                         char str[256];
-                        snprintf( str, sizeof( str ),  "%s_Surf%zu_%s", g->GetName().c_str(), icopy, cs->GetName().c_str() );
+                        snprintf( str, sizeof( str ),  "%s_Surf%d_%s", g->GetName().c_str(), icopy, cs->GetName().c_str() );
 
                         fprintf( csf_file, "CSurf ID:     %s\n", cs->GetID().c_str() );
                         fprintf( csf_file, "CSurf Name:   %s\n", cs->GetName().c_str() );
@@ -5472,7 +5472,7 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                         fprintf( csf_file, "Geom Name:    %s\n", g->GetName().c_str() );
                         fprintf( csf_file, "VSPAERO Name: %s\n", str );
 
-                        snprintf( str, sizeof( str ),  "%s%s_Surf%zu_%s", base_fname.c_str(), g->GetName().c_str(), isurf, cs->GetName().c_str() );
+                        snprintf( str, sizeof( str ),  "%s%s_Surf%d_%s", base_fname.c_str(), g->GetName().c_str(), isurf, cs->GetName().c_str() );
 
                         fprintf( csf_file, "Tagfile Name: %s\n", str );
                         fprintf( csf_file, "Surface #:    %d\n", isurf );
