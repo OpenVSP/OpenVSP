@@ -1497,6 +1497,24 @@ void TMesh::IgnoreAll()
     }
 }
 
+void TMesh::IgnoreNone()
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        tri->m_IgnoreTriFlag = false;
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                tri->m_SplitVec[s]->m_IgnoreTriFlag = false;
+            }
+        }
+    }
+}
+
 void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )

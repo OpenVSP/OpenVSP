@@ -487,6 +487,7 @@ public:
     void IgnoreYLessThan( const double & ytol );
     void SetIgnoreAbovePlane( const vector <vec3d> & threepts );
     void IgnoreAll();
+    void IgnoreNone();
 
     void DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 ) );
     void DeterIntExt( TMesh* mesh, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 ) );
