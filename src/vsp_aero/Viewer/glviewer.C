@@ -13153,9 +13153,9 @@ void GL_VIEWER::WriteFontFile( char* fname )
     c_size = sizeof(char);
 
     // Open the font file
-
-    strcpy( fname, std::filesystem::temp_directory_path().string().c_str() );
-    strcat( fname, "cbviewer_font.glf" );
+    std::filesystem::path tempdir = std::filesystem::temp_directory_path();
+    tempdir.append( "cbviewer_font.glf" );
+    strcpy( fname, tempdir.string().c_str() );
 
     if ( (font_file = fopen(fname,"wb")) == NULL ) {
 
