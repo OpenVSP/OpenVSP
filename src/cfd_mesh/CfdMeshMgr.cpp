@@ -3152,7 +3152,7 @@ void CfdMeshMgrSingleton::MatchBorderNodes( const vector< Node* > & nodeVec )
     PntNodeCloud pnCloud;
     pnCloud.AddPntNodes( ptVec );
 
-    double tol = 1e-10;
+    double tol = 1e-12;
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );
 
