@@ -2405,7 +2405,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     PntNodeCloud pnCloud;
     pnCloud.AddPntNodes( allPntVec );
 
-    double tol = 1e-6;
+    double tol = 1e-12;
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );
 
