@@ -980,7 +980,7 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
     PntNodeCloud pnCloud;
     pnCloud.AddPntNodes( allPntVec );
 
-    double tol = 1e-6;
+    double tol = 1e-12;
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );
 
@@ -1148,7 +1148,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
     PntNodeCloud pnCloud;
     pnCloud.AddPntNodes( allPntVec );
 
-    double tol = 1e-6;
+    double tol = 1e-12;
 
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );
@@ -1347,7 +1347,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     PntNodeCloud pnCloud;
     pnCloud.AddPntNodes( allPntVec );
 
-    double tol2 = 1e-6;
+    double tol2 = 1e-12;
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol2 );
 
@@ -1915,7 +1915,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
     PntNodeCloud pnCloud;
     pnCloud.AddPntNodes( allPntVec );
 
-    double tol = 1e-6;
+    double tol = 1e-12;
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );
 
