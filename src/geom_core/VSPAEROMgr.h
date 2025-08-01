@@ -164,7 +164,6 @@ class UnsteadyGroup : public ParmContainer
 {
 public:
     UnsteadyGroup();
-    ~UnsteadyGroup();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr& node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr& node );

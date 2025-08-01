@@ -6389,10 +6389,6 @@ UnsteadyGroup::UnsteadyGroup() : ParmContainer()
     m_ReverseFlag = false;
 }
 
-UnsteadyGroup::~UnsteadyGroup()
-{
-}
-
 xmlNodePtr UnsteadyGroup::EncodeXml( xmlNodePtr& node )
 {
     if ( node )
