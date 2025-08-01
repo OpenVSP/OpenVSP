@@ -4302,7 +4302,11 @@ void VSPAEROMgrSingleton::DeleteUnsteadyGroup( const vector <int> &ind_vec )
     {
         if ( vector_contains_val( ind_vec, i ) )
         {
-            delete m_UnsteadyGroupVec[i];
+            if ( m_UnsteadyGroupVec[i] )
+            {
+                delete m_UnsteadyGroupVec[i];
+                m_UnsteadyGroupVec[i] = nullptr;
+            }
         }
         else
         {
