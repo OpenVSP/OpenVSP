@@ -256,10 +256,11 @@ int MeshGeom::ReadSTL( const char* file_name )
     TTri*  tPtr;
     TMesh*  tMesh = new TMesh();
 
+    int binaryFlag = 0;
+
     if ( file_id )
     {
         //==== Cheesy ASCII/Binary Test ====//
-        int binaryFlag = 0;
         while ( fgets( str, 255, file_id ) )
         {
             for ( int i = 0 ; i < ( int )strlen( str ) ; i++ )
@@ -271,44 +272,83 @@ int MeshGeom::ReadSTL( const char* file_name )
                 }
             }
         }
+        fclose( file_id );
+    }
 
-        rewind( file_id );
+    file_id = fopen( file_name, "r" );
 
+    if ( file_id )
+    {
         if ( !binaryFlag )
         {
-            fgets( str, 255, file_id );
-
-            int stopFlag = 0;
-
-            while ( !stopFlag )
+            while ( true )
             {
-                if ( EOF == fscanf( file_id, "%*s %*s %f %f %f\n", &nx, &ny, &nz ) )
+                char buf[256];
+
+                fgets( buf, 255, file_id );
+                if ( feof( file_id ) )
+                {
+                    break;
+                }
+                sscanf( buf, "%s", str );
+
+                if ( strcmp( str, "endsolid" ) == 0 )
+                {
+                    fgets( buf, 255, file_id );
+                    if ( feof( file_id ) )
+                    {
+                        break;
+                    }
+                    sscanf( buf, "%s", str );
+                }
+
+                if ( strcmp( str, "solid" ) == 0 )
+                {
+                    fgets( buf, 255, file_id );
+                    if ( feof( file_id ) )
+                    {
+                        break;
+                    }
+                }
+
+                // facet normal
+                sscanf( buf, "%*s %*s %f %f %f\n", &nx, &ny, &nz );
+
+                fgets( buf, 255, file_id ); // outer loop
+                if ( feof( file_id ) )
                 {
                     break;
                 }
 
-                if ( EOF == fscanf( file_id, "%*s %*s" ) )
+                fgets( buf, 255, file_id );
+                if ( feof( file_id ) )
+                {
+                    break;
+                }
+                sscanf( buf, "%*s %f %f %f\n", &v0[0], &v0[1], &v0[2] );
+
+                fgets( buf, 255, file_id );
+                if ( feof( file_id ) )
+                {
+                    break;
+                }
+                sscanf( buf, "%*s %f %f %f\n", &v1[0], &v1[1], &v1[2] );
+
+                fgets( buf, 255, file_id );
+                if ( feof( file_id ) )
+                {
+                    break;
+                }
+                sscanf( buf, "%*s %f %f %f\n", &v2[0], &v2[1], &v2[2] );
+
+                fgets( buf, 255, file_id ); // endloop
+                if ( feof( file_id ) )
                 {
                     break;
                 }
 
-                if ( EOF == fscanf( file_id, "%*s %f %f %f\n", &v0[0], &v0[1], &v0[2] ) )
-                {
-                    break;
-                }
-                if ( EOF == fscanf( file_id, "%*s %f %f %f\n", &v1[0], &v1[1], &v1[2] ) )
-                {
-                    break;
-                }
-                if ( EOF == fscanf( file_id, "%*s %f %f %f\n", &v2[0], &v2[1], &v2[2] ) )
-                {
-                    break;
-                }
-                if ( EOF == fscanf( file_id, "%*s" ) )
-                {
-                    break;
-                }
-                if ( EOF == fscanf( file_id, "%*s" ) )
+                fgets( buf, 255, file_id ); // endfacet
+                if ( feof( file_id ) )
                 {
                     break;
                 }
@@ -328,27 +368,6 @@ int MeshGeom::ReadSTL( const char* file_name )
                 tMesh->m_NVec.push_back( tPtr->m_N0 );
                 tMesh->m_NVec.push_back( tPtr->m_N1 );
                 tMesh->m_NVec.push_back( tPtr->m_N2 );
-
-                fpos_t pos;
-                fgetpos( file_id, &pos );
-
-                if ( EOF == fscanf( file_id, "%255s %*s\n", str ) )
-                {
-                    break;
-                }
-
-                if ( strcmp( str, "endsolid" ) == 0 )
-                {
-                    fgets( str, 255, file_id );
-                    if ( feof( file_id ) )
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    fsetpos( file_id, &pos );
-                }
             }
         }
         else
