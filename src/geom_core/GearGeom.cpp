@@ -1186,6 +1186,16 @@ void GearGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const str
     }
 }
 
+void GearGeom::ChangeID( const string &id )
+{
+    Geom::ChangeID( id );
+
+    for ( int i = 0; i < m_Bogies.size(); i++ )
+    {
+        m_Bogies[i]->SetParentContainer( id );
+    }
+}
+
 void GearGeom::DelAllBogies()
 {
     for( int i = 0; i < ( int )m_Bogies.size(); i++ )
