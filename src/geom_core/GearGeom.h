@@ -247,6 +247,8 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
+
     void SetCurrBogieIndex( int i )             { m_CurrBogieIndex = i; }
     int GetCurrBogieIndex()                     { return m_CurrBogieIndex; }
     void DelAllBogies();
