@@ -377,6 +377,38 @@ vec3d Matrix4d::getAngles() const
     return angles * ( 180.0 / M_PI );
 }
 
+//===== Use Arcball's Angle Convention Here instead of Object Angle Convention =====//
+vec3d Matrix4d::getArcballAngles() const
+{
+    // Set in Y, X, Z order
+    vec3d angles;
+
+    // Operates transpose to ArcballCam's getRotationEulerAngles
+    // ArcballCam assumes matrix is transposed before operating, elements here are swapped accordingly
+    if ( mat[9] >= 1 )
+    {
+        angles.set_y( atan2( -mat[2], mat[0] ) );
+        angles.set_x( - 0.5 * M_PI );
+        angles.set_z( 0 );
+    }
+    else if ( mat[9] <= -1 )
+    {
+        angles.set_y( atan2( -mat[2], mat[0] ) );
+        angles.set_x( 0.5 * M_PI );
+        angles.set_z( 0 );
+    }
+    else // Nominal case.
+    {
+        angles.set_y( atan2( mat[8], mat[10] ) );
+        angles.set_x( - asin( mat[9] ) );
+        angles.set_z( atan2( mat[1], mat[5]) );
+    }
+
+    // Return angles in radians
+    return angles;
+}
+
+
 vec3d Matrix4d::getTranslation() const
 {
     vec3d out;

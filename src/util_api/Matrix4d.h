@@ -494,6 +494,8 @@ public:
 
     vec3d getAngles() const;
 
+    vec3d getArcballAngles() const;
+
     vec3d getTranslation() const;
 
     /*!
