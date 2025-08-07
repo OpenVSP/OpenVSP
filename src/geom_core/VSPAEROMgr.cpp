@@ -36,6 +36,17 @@ VspAeroControlSurf::VspAeroControlSurf()
     iReflect = false;
 }
 
+bool VspAeroControlSurf::isMatch( const VspAeroControlSurf &cs ) const
+{
+    if ( cs.parentGeomId == parentGeomId &&
+         cs.SSID == SSID &&
+         cs.iReflect == iReflect )
+    {
+        return true;
+    }
+    return false;
+}
+
 //==== Constructor ====//
 VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 {
@@ -910,8 +921,7 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
                 // If Control Surface ID AND Reflection Number Match - Replace Subsurf within Control Surface Group
-                if ( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID == m_CompleteControlSurfaceVec[j].SSID &&
-                        m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
+                if ( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].isMatch( m_CompleteControlSurfaceVec[j] ) )
                 {
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].fullName = m_CompleteControlSurfaceVec[j].fullName;
                     m_CompleteControlSurfaceVec[j].isGrouped = true;
@@ -926,8 +936,7 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
 
             if ( !parent || !ss || ( ss && parent->GetNumSymmCopies() <= m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect ) )
             {
-                m_ControlSurfaceGroupVec[i]->RemoveSubSurface( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID,
-                        m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect );
+                m_ControlSurfaceGroupVec[i]->RemoveSubSurface( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k] );
                 k--;
             }
         }
@@ -1073,11 +1082,7 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
 
                 for ( size_t k = 0; k < ungrouped_vec.size(); k++ )
                 {
-                    if ( ( m_CompleteControlSurfaceVec[i].fullName == ungrouped_vec[k].fullName ) &&
-                        ( m_CompleteControlSurfaceVec[i].parentGeomId == ungrouped_vec[k].parentGeomId ) &&
-                        ( m_CompleteControlSurfaceVec[i].SSID == ungrouped_vec[k].SSID ) &&
-                        ( m_CompleteControlSurfaceVec[i].isGrouped == ungrouped_vec[k].isGrouped ) &&
-                        ( m_CompleteControlSurfaceVec[i].iReflect == ungrouped_vec[k].iReflect ) )
+                    if ( m_CompleteControlSurfaceVec[i].isMatch( ungrouped_vec[k] ) )
                     {
                         is_available = true;
                         break;
@@ -3556,7 +3561,7 @@ void VSPAEROMgrSingleton::RemoveControlSurfaceGroup()
         {
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
-                if ( m_CompleteControlSurfaceVec[j].SSID == m_ActiveControlSurfaceVec[i].SSID )
+                if ( m_CompleteControlSurfaceVec[j].isMatch( m_ActiveControlSurfaceVec[i] ) )
                 {
                     m_CompleteControlSurfaceVec[j].isGrouped = false;
                 }
@@ -3619,16 +3624,12 @@ void VSPAEROMgrSingleton::RemoveSelectedFromCSGroup()
     {
         for ( size_t i = 0; i < selected.size(); ++i )
         {
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( m_ActiveControlSurfaceVec[selected[i] - 1].SSID,
-                    m_ActiveControlSurfaceVec[selected[i] - 1].iReflect );
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( m_ActiveControlSurfaceVec[selected[i] - 1] );
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
-                if ( m_ActiveControlSurfaceVec[selected[i] - 1].SSID == m_CompleteControlSurfaceVec[j].SSID )
+                if ( m_ActiveControlSurfaceVec[selected[i] - 1].isMatch( m_CompleteControlSurfaceVec[j] ) )
                 {
-                    if ( m_ActiveControlSurfaceVec[selected[i] - 1].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
-                    {
-                        m_CompleteControlSurfaceVec[ j ].isGrouped = false;
-                    }
+                    m_CompleteControlSurfaceVec[ j ].isGrouped = false;
                 }
             }
         }
@@ -3643,15 +3644,12 @@ void VSPAEROMgrSingleton::RemoveAllFromCSGroup()
     {
         for ( size_t i = 0; i < m_ActiveControlSurfaceVec.size(); ++i )
         {
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( m_ActiveControlSurfaceVec[i].SSID, m_ActiveControlSurfaceVec[i].iReflect );
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( m_ActiveControlSurfaceVec[i] );
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
-                if ( m_ActiveControlSurfaceVec[i].SSID == m_CompleteControlSurfaceVec[j].SSID )
+                if ( m_ActiveControlSurfaceVec[i].isMatch( m_CompleteControlSurfaceVec[j] ) )
                 {
-                    if ( m_ActiveControlSurfaceVec[i].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
-                    {
-                        m_CompleteControlSurfaceVec[ j ].isGrouped = false;
-                    }
+                    m_CompleteControlSurfaceVec[ j ].isGrouped = false;
                 }
             }
         }
@@ -3682,9 +3680,7 @@ vector < VspAeroControlSurf > VSPAEROMgrSingleton::GetAvailableCSVec()
 
         for ( size_t j = 0; j < m_ActiveControlSurfaceVec.size(); j++ )
         {
-            if ( ( strcmp( m_CompleteControlSurfaceVec[i].SSID.c_str(), m_ActiveControlSurfaceVec[j].SSID.c_str() ) == 0 ) && 
-                 ( m_CompleteControlSurfaceVec[i].iReflect == m_ActiveControlSurfaceVec[j].iReflect ) &&
-                 ( strcmp( m_CompleteControlSurfaceVec[i].fullName.c_str(), m_ActiveControlSurfaceVec[j].fullName.c_str() ) == 0 ) )
+            if ( m_CompleteControlSurfaceVec[i].isMatch( m_ActiveControlSurfaceVec[j] ) )
             {
                 grouped = true;
                 break;
@@ -6308,11 +6304,11 @@ void ControlSurfaceGroup::AddSubSurface( const VspAeroControlSurf &control_surf 
     m_ControlSurfVec.push_back( control_surf );
 }
 
-void ControlSurfaceGroup::RemoveSubSurface( const string & ssid, int reflec_num )
+void ControlSurfaceGroup::RemoveSubSurface( const VspAeroControlSurf &control_surf )
 {
     for ( int i = m_ControlSurfVec.size() - 1; i >= 0; i-- ) // Iterate in reverse as vector is changing size.
     {
-        if ( m_ControlSurfVec[i].SSID == ssid && m_ControlSurfVec[i].iReflect == reflec_num )
+        if ( m_ControlSurfVec[i].isMatch( control_surf ) )
         {
             m_ControlSurfVec.erase( m_ControlSurfVec.begin() + i );
             delete m_DeflectionGainVec[i];

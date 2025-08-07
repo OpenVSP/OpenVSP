@@ -28,6 +28,8 @@ class VspAeroControlSurf
 public:
     VspAeroControlSurf();
 
+    bool isMatch( const VspAeroControlSurf &cs ) const;
+
     string fullName;
     string parentGeomId;
     string SSID;
@@ -155,7 +157,7 @@ public:
 
     // Subsurface Manipulation
     void AddSubSurface( const VspAeroControlSurf &control_surf );
-    void RemoveSubSurface( const string & ssid, int reflec_num );
+    void RemoveSubSurface( const VspAeroControlSurf &control_surf );
 
     void SetGroupDisplaySuffix( int num );
 
