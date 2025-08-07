@@ -35,6 +35,7 @@ public:
     string SSID;
     bool isGrouped;
     unsigned int iReflect;      // mapping index to which reflected sub surface
+    bool isHinge;
 };
 
 class PropDriverGroup : public DriverGroup

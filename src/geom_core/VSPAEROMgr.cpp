@@ -34,6 +34,7 @@ VspAeroControlSurf::VspAeroControlSurf()
 {
     isGrouped = false;
     iReflect = false;
+    isHinge = false;
 }
 
 bool VspAeroControlSurf::isMatch( const VspAeroControlSurf &cs ) const
@@ -6248,6 +6249,7 @@ xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
             XmlUtil::AddStringNode( csnode, "SSID", m_ControlSurfVec[i].SSID );
             XmlUtil::AddStringNode( csnode, "ParentGeomID", m_ControlSurfVec[i].parentGeomId );
             XmlUtil::AddIntNode( csnode, "iReflect", m_ControlSurfVec[i].iReflect );
+            XmlUtil::AddIntNode( csnode, "isHinge", m_ControlSurfVec[i].isHinge );
         }
 
         ParmContainer::EncodeXml( node );
@@ -6263,6 +6265,7 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
     string SSID;
 
     int iReflect = 0;
+    bool isHinge = false;
     VspAeroControlSurf newSurf;
 
     if ( node )
@@ -6277,6 +6280,7 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
             newSurf.SSID = IDMgr.RemapRefID( XmlUtil::FindString( csnode, "SSID", SSID ) );
             newSurf.parentGeomId = IDMgr.RemapRefID( XmlUtil::FindString( csnode, "ParentGeomID", ParentGeomID ) );
             newSurf.iReflect = XmlUtil::FindInt( csnode, "iReflect", iReflect );
+            newSurf.isHinge = XmlUtil::FindInt( csnode, "isHinge", isHinge );
             AddSubSurface( newSurf );
         }
 
