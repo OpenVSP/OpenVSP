@@ -978,7 +978,7 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                     {
                         for ( size_t iReflect = 0; iReflect < g->GetNumSymmCopies(); ++iReflect )
                         {
-                            if ( ssurf->GetType() == vsp::SS_CONTROL || ssurf->GetType() == vsp::SS_RECTANGLE )
+                            if ( ssurf->GetType() == vsp::SS_CONTROL )
                             {
                                 // Create New CS Parm Container
                                 VspAeroControlSurf newSurf;
