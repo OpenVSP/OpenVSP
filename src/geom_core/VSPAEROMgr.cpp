@@ -22,6 +22,7 @@
 #include "StlHelper.h"
 #include "Vehicle.h"
 #include "VSPAEROMgr.h"
+#include "HingeGeom.h"
 #include "WingGeom.h"
 #include "PropGeom.h"
 #include "FileUtil.h"
@@ -956,9 +957,12 @@ void VSPAEROMgrSingleton::CleanCompleteControlSurfVec()
             {
                 m_CompleteControlSurfaceVec.erase( m_CompleteControlSurfaceVec.begin() + i );
             }
-            else if ( !geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID ) )
+            else
             {
-                m_CompleteControlSurfaceVec.erase( m_CompleteControlSurfaceVec.begin() + i );
+                if ( !m_CompleteControlSurfaceVec[i].isHinge && !geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID ) )
+                {
+                    m_CompleteControlSurfaceVec.erase( m_CompleteControlSurfaceVec.begin() + i );
+                }
             }
         }
     }
@@ -977,6 +981,24 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
             Geom *g = veh->FindGeom( geom_vec[i] );
             if ( g )
             {
+                // A Clone of a hinge articulates its children the same way, so it offers a
+                // control surface too.
+                if ( Geom::CastTo< JointRole >( g ) )
+                {
+                    // Create New CS Parm Container
+                    VspAeroControlSurf newSurf;
+                    newSurf.SSID = "";
+                    char str[256];
+                    snprintf( str, sizeof( str ),  "%s_Hinge", g->GetName().c_str() );
+                    newSurf.fullName = string( str );
+                    newSurf.parentGeomId = g->GetID();
+                    newSurf.iReflect = -1;
+                    newSurf.isHinge = true;
+
+                    m_CompleteControlSurfaceVec.push_back( newSurf );
+                }
+                else
+                {
                 vector < SubSurface* > sub_surf_vec = g->GetSubSurfVec();
                 for ( size_t j = 0; j < sub_surf_vec.size(); ++j )
                 {
@@ -995,11 +1017,13 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                                 newSurf.fullName = string( str );
                                 newSurf.parentGeomId = ssurf->GetParentContainer();
                                 newSurf.iReflect = iReflect;
+                                newSurf.isHinge = false;
 
                                 m_CompleteControlSurfaceVec.push_back( newSurf );
                             }
                         }
                     }
+                }
                 }
             }
         }
@@ -1183,7 +1207,17 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         {
             for ( size_t i = 0; i < m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.size(); i++ )
             {
-                sub_vec.push_back( m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec[i].SSID );
+                const VspAeroControlSurf &cs = m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec[i];
+
+                // An all-moving surface is driven by a hinge, not by a subsurface, and
+                // carries no SSID.  Pushing its empty ID would make sub_vec non-empty and
+                // so turn on subsurface intersection for a model that has none.
+                if ( cs.isHinge || cs.SSID.empty() )
+                {
+                    continue;
+                }
+
+                sub_vec.push_back( cs.SSID );
             }
         }
     }
