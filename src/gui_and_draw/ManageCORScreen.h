@@ -34,7 +34,9 @@ public:
     /*!
     * Enable selection.
     */
-    void EnableSelection();
+    void EnableCORSelection();
+
+    void EnableVNSelection();
     /*!
     * Set value.
     */
@@ -45,6 +47,7 @@ public:
 
 private:
     std::vector< DrawObj > m_PickList;
-    bool m_SelectionFlag;
+    bool m_CORSelectionFlag;
+    bool m_VNSelectionFlag;
 };
 #endif

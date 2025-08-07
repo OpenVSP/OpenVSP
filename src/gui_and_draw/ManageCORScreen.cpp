@@ -19,7 +19,8 @@
 
 ManageCORScreen::ManageCORScreen( ScreenMgr * mgr ) : VspScreen( mgr )
 {
-    m_SelectionFlag = false;
+    m_CORSelectionFlag = false;
+    m_VNSelectionFlag = false;
 }
 
 ManageCORScreen::~ManageCORScreen()
@@ -51,7 +52,7 @@ bool ManageCORScreen::Update()
 
     // Update picking list if needed.
 
-    if(!m_SelectionFlag)
+    if(!m_CORSelectionFlag && !m_VNSelectionFlag)
     {
         return true;
     }
@@ -62,39 +63,49 @@ bool ManageCORScreen::Update()
     std::vector< DrawObj* > geom_drawObj_vec;
     for(int i = 0; i < (int)geom_vec.size(); i++)
     {
-        geom_vec[i]->LoadDrawObjs(geom_drawObj_vec);
+        if ( m_CORSelectionFlag )
+        {
+            geom_vec[i]->LoadDrawObjs(geom_drawObj_vec);
+        }
+        else if ( m_VNSelectionFlag )
+        {
+            geom_vec[i]->LoadMainDrawObjs(geom_drawObj_vec);
+        }
     }
 
-    // Load Render Objects from CfdMeshScreen.
-    CfdMeshScreen * cfdScreen = dynamic_cast< CfdMeshScreen* >
-    ( m_ScreenMgr->GetScreen( vsp::VSP_CFD_MESH_SCREEN ) );
-    if( cfdScreen )
+    if ( m_CORSelectionFlag )
     {
-        cfdScreen->LoadDrawObjs( geom_drawObj_vec );
-    }
+        // Load Render Objects from CfdMeshScreen.
+        CfdMeshScreen * cfdScreen = dynamic_cast< CfdMeshScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_CFD_MESH_SCREEN ) );
+        if( cfdScreen )
+        {
+            cfdScreen->LoadDrawObjs( geom_drawObj_vec );
+        }
 
-    // Load Render Objects from SurfaceIntersectionScreen.
-    SurfaceIntersectionScreen * surfScreen = dynamic_cast< SurfaceIntersectionScreen* >
-    ( m_ScreenMgr->GetScreen( vsp::VSP_SURFACE_INTERSECTION_SCREEN ) );
-    if( surfScreen )
-    {
-        surfScreen->LoadDrawObjs( geom_drawObj_vec );
-    }
+        // Load Render Objects from SurfaceIntersectionScreen.
+        SurfaceIntersectionScreen * surfScreen = dynamic_cast< SurfaceIntersectionScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_SURFACE_INTERSECTION_SCREEN ) );
+        if( surfScreen )
+        {
+            surfScreen->LoadDrawObjs( geom_drawObj_vec );
+        }
 
-    // Load Render Objects from FeaStructScreen.
-    StructScreen * structScreen = dynamic_cast< StructScreen* >
-    ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_SCREEN ) );
-    if( structScreen )
-    {
-        structScreen->LoadDrawObjs( geom_drawObj_vec );
-    }
+        // Load Render Objects from FeaStructScreen.
+        StructScreen * structScreen = dynamic_cast< StructScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_SCREEN ) );
+        if( structScreen )
+        {
+            structScreen->LoadDrawObjs( geom_drawObj_vec );
+        }
 
-    // Load Render Objects from FeaStructAssemblyScreen.
-    StructAssemblyScreen * structAssemblyScreen = dynamic_cast< StructAssemblyScreen* >
-    ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_ASSEMBLY_SCREEN ) );
-    if( structAssemblyScreen )
-    {
-        structAssemblyScreen->LoadDrawObjs( geom_drawObj_vec );
+        // Load Render Objects from FeaStructAssemblyScreen.
+        StructAssemblyScreen * structAssemblyScreen = dynamic_cast< StructAssemblyScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_ASSEMBLY_SCREEN ) );
+        if( structAssemblyScreen )
+        {
+            structAssemblyScreen->LoadDrawObjs( geom_drawObj_vec );
+        }
     }
 
     // Load Render Objects for Geometry Analysis Screen
@@ -139,21 +150,39 @@ void ManageCORScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
-void ManageCORScreen::EnableSelection()
+void ManageCORScreen::EnableCORSelection()
 {
-    m_SelectionFlag = true;
+    m_CORSelectionFlag = true;
+    m_VNSelectionFlag = false;
+
+    m_ScreenMgr->SetUpdateFlag(true);
+}
+
+void ManageCORScreen::EnableVNSelection()
+{
+    m_CORSelectionFlag = false;
+    m_VNSelectionFlag = true;
 
     m_ScreenMgr->SetUpdateFlag(true);
 }
 
 void ManageCORScreen::Set()
 {
-    m_SelectionFlag = false;
+    m_CORSelectionFlag = false;
+    m_VNSelectionFlag = false;
 
     m_ScreenMgr->SetUpdateFlag(true);
 }
 
 std::string ManageCORScreen::getFeedbackGroupName()
 {
-    return std::string("CORGUIGroup");
+    if ( m_CORSelectionFlag )
+    {
+        return std::string("CORGUIGroup");
+    }
+    else if ( m_VNSelectionFlag )
+    {
+        return std::string("VNGUIGroup");
+    }
+    return std::string("ERROR");
 }

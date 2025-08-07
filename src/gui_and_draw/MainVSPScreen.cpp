@@ -136,6 +136,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RightSideMenuItem.Init( this, m_MenuBar, "View/Right", FL_F + 11 );
     m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso", FL_F + 12 );
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
+    m_SetVNMenuItem.Init( this, m_MenuBar, "View/View Normal To", 'n' );
     m_CenterMenuItem.Init( this, m_MenuBar, "View/Center", 'c' );
     m_CenterAllMenuItem.Init( this, m_MenuBar, "View/Center All", 'C' );
     m_FitViewMenuItem.Init( this, m_MenuBar, "View/Fit On Screen", 'f' );
@@ -617,7 +618,17 @@ void MainVSPScreen::ActionCB( void * data )
         ( m_ScreenMgr->GetScreen( vsp::VSP_COR_SCREEN ) );
         if( corScreen )
         {
-            corScreen->EnableSelection();
+            corScreen->EnableCORSelection();
+        }
+    }
+    else if ( data == &m_SetVNMenuItem )
+    {
+        ManageCORScreen * corScreen = NULL;
+        corScreen = dynamic_cast<ManageCORScreen *>
+        ( m_ScreenMgr->GetScreen( vsp::VSP_COR_SCREEN ) );
+        if( corScreen )
+        {
+            corScreen->EnableVNSelection();
         }
     }
     else if ( data == &m_FitViewMenuItem || data == &m_FitAllViewMenuItem )

@@ -64,6 +64,8 @@ protected:
     SliderAdjRangeInput m_AxisLenSlider;
     SliderAdjRangeInput m_TextSizeSlider;
 
+    TriggerButton m_PickNormalBtn;
+
     TriggerButton m_ResetCamera;
 
 };

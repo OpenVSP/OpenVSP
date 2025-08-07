@@ -72,6 +72,8 @@ ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 44
     m_BorderLayout.AddSlider( m_ZRotation, "Z Rot:", 10.0, "%7.3f" );
     m_BorderLayout.AddYGap();
 
+    m_BorderLayout.AddButton( m_PickNormalBtn, "View Normal To" );
+    m_BorderLayout.AddYGap();
     m_BorderLayout.AddButton( m_ResetCamera, "Reset Camera" );
 
     m_BorderLayout.AddYGap();
@@ -176,7 +178,16 @@ void ManageViewScreen::GuiDeviceCallBack( GuiDevice* device )
         ( m_ScreenMgr->GetScreen( vsp::VSP_COR_SCREEN ) );
         if( corScreen )
         {
-            corScreen->EnableSelection();
+            corScreen->EnableCORSelection();
+        }
+    }
+    else if ( device == &m_PickNormalBtn )
+    {
+        ManageCORScreen* corScreen = dynamic_cast<ManageCORScreen *>
+        ( m_ScreenMgr->GetScreen( vsp::VSP_COR_SCREEN ) );
+        if( corScreen )
+        {
+            corScreen->EnableVNSelection();
         }
     }
     else if ( device == &m_ResetOriginLookAtBtn )
