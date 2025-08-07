@@ -2867,19 +2867,85 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
     if( corScreen && corScreen->getFeedbackGroupName() == selectedFeedbackName )
     {
         SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
+
         if( pnt )
         {
-            VSPGraphic::Renderable * entity = dynamic_cast<VSPGraphic::Renderable*>(pnt->getSource());
-            if(entity)
+            VSPGraphic::Renderable * entity = dynamic_cast<VSPGraphic::Renderable*>( pnt->getSource() );
+            if( entity )
             {
-                glm::vec3 placement = entity->getVertexVec(pnt->getIndex());
+                glm::vec3 placement = entity->getVertexVec( pnt->getIndex() );
 
-                m_GEngine->getDisplay()->setCOR( -placement.x, -placement.y, -placement.z );
-                m_GEngine->getDisplay()->center();
+                // Set COR for both call types
+                if ( corScreen->getFeedbackGroupName() == "CORGUIGroup" ||
+                     corScreen->getFeedbackGroupName() == "VNGUIGroup" )
+                {
+                    m_GEngine->getDisplay()->setCOR( -placement.x, -placement.y, -placement.z );
+                    m_GEngine->getDisplay()->center();
 
-                UpdateCORParms();
-                UpdatePanParms();
+                    UpdateCORParms();
+                    UpdatePanParms();
+                }
 
+                // Set View Normal
+                if ( corScreen->getFeedbackGroupName() == "VNGUIGroup" )
+                {
+
+                    ID * id = _findID( entity->getID() );
+                    if( id )
+                    {
+                        unsigned int index = id->geomID.find_first_of( '_' );
+                        std::string baseId = id->geomID.substr( 0, index );
+                        Geom* geom_ptr = VehicleMgr.GetVehicle()->FindGeom( baseId );
+
+                        if ( geom_ptr )
+                        {
+                            glm::vec3 placement = entity->getVertexVec( pnt->getIndex() );
+
+                            Matrix4d norm_basis;
+                            vec3d norm_angles;
+
+                            if ( geom_ptr->isNonSurfaceType() )
+                            {
+                                // defer to model matrix if no surface
+                                norm_basis = geom_ptr->getModelMatrix();
+
+                                // rotate to face front of object
+                                norm_basis.rotateY( -90. );
+                                norm_basis.rotateZ( -90. );
+                            }
+                            else
+                            {
+                                // extract normal vector from surface
+                                vec3d camDir, camRight, camUp, worldUp;
+                                double u, w;
+
+                                int surf_index = stoi( id->geomID.substr( index + 1, id->geomID.size() ) );
+                                geom_ptr->ProjPnt01I( vec3d( placement.x, placement.y, placement.z ), surf_index, u, w );
+                                const VspSurf* surf = geom_ptr->GetSurfPtr( surf_index );
+
+                                worldUp = vec3d( 0., 0., 1. );
+                                camDir = surf->CompNorm01( u, w );
+                                camRight = cross( worldUp, camDir );
+                                camUp = cross( camDir, camRight );
+
+                                camRight.normalize();
+                                camUp.normalize();
+
+                                norm_basis.setBasis( camRight, camUp, camDir );
+                            }
+
+                            norm_angles = norm_basis.getArcballAngles();
+
+                            getGraphicEngine()->getDisplay()->getCamera()->rotateSphere(
+                                norm_angles.x(),
+                                norm_angles.y(),
+                                norm_angles.z()
+                            );
+
+                            UpdateAllViewParms();
+                        }
+                    }
+                }
                 // This is a dummy call to let corScreen know the job is done.
                 corScreen->Set();
 
