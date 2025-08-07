@@ -257,7 +257,6 @@ public:
     void UpdateAutoTimeStep();
     void CleanCompleteControlSurfVec();
     void UpdateCompleteControlSurfVec();         // initializes one group per surface
-    void UpdateActiveControlSurfVec();
     void UpdateBBox( vector < DrawObj* > & draw_obj_vec );
     void UpdateHighlighted( vector < DrawObj* > & draw_obj_vec );
 
@@ -272,7 +271,7 @@ public:
     vector <RotorDisk*> GetRotorDiskVec()                      { return m_RotorDiskVec; };
     bool ExistRotorDisk() const                                { return !m_RotorDiskVec.empty(); }
 
-    vector < VspAeroControlSurf > GetActiveCSVec()          { return m_ActiveControlSurfaceVec; }
+    vector < VspAeroControlSurf > * GetActiveCSVecPtr();
     vector < VspAeroControlSurf > GetCompleteCSVec()        { return m_CompleteControlSurfaceVec; }
     vector < VspAeroControlSurf > GetAvailableCSVec();
     int GetCurrentCSGroupIndex() const                            { return m_CurrentCSGroupIndex; }
@@ -600,7 +599,6 @@ private:
 
     vector< RotorDisk* > m_RotorDiskVec;
     vector< VspAeroControlSurf > m_CompleteControlSurfaceVec;   // list of all control and rectangle sub-surfaces in the model selected as control surfaces
-    vector < VspAeroControlSurf > m_ActiveControlSurfaceVec;
     vector< ControlSurfaceGroup* > m_ControlSurfaceGroupVec;
     vector < CpSlice* > m_CpSliceVec;
     vector < UnsteadyGroup* > m_UnsteadyGroupVec;

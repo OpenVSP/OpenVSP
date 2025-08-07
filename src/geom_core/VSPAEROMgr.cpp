@@ -406,7 +406,6 @@ void VSPAEROMgrSingleton::Renew()
     m_ControlSurfaceGroupVec.clear();
 
     m_CompleteControlSurfaceVec.clear();
-    m_ActiveControlSurfaceVec.clear();
 
     for(size_t i = 0; i < m_RotorDiskVec.size(); ++i)
     {
@@ -561,8 +560,6 @@ void VSPAEROMgrSingleton::Update()
     UpdateCompleteControlSurfVec();
 
     UpdateControlSurfaceGroups();
-
-    UpdateActiveControlSurfVec();
 
     UpdateSetupParmLimits();
 
@@ -1010,13 +1007,13 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
     }
 }
 
-void VSPAEROMgrSingleton::UpdateActiveControlSurfVec()
+vector < VspAeroControlSurf > * VSPAEROMgrSingleton::GetActiveCSVecPtr()
 {
-    m_ActiveControlSurfaceVec.clear();
     if ( m_CurrentCSGroupIndex != -1 )
     {
-        m_ActiveControlSurfaceVec = m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->m_ControlSurfVec;
+        return & ( m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->m_ControlSurfVec );
     }
+    return nullptr;
 }
 
 void VSPAEROMgrSingleton::AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id )
@@ -1072,7 +1069,6 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
             {
                 // Check if the control surface is available
                 m_CurrentCSGroupIndex = j;
-                UpdateActiveControlSurfVec();
                 vector < VspAeroControlSurf > ungrouped_vec = GetAvailableCSVec();
                 bool is_available = false;
 
@@ -3544,20 +3540,19 @@ void VSPAEROMgrSingleton::AddControlSurfaceGroup()
     m_CurrentCSGroupIndex = m_ControlSurfaceGroupVec.size() - 1;
 
     m_SelectedGroupedCS.clear();
-    UpdateActiveControlSurfVec();
 
     HighlightSelected( CONTROL_SURFACE );
 }
 
 void VSPAEROMgrSingleton::RemoveControlSurfaceGroup()
 {
-    if ( m_CurrentCSGroupIndex != -1 )
+    if ( GetActiveCSVecPtr() )
     {
-        for ( size_t i = 0; i < m_ActiveControlSurfaceVec.size(); ++i )
+        for ( size_t i = 0; i < GetActiveCSVecPtr()->size(); ++i )
         {
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
-                if ( m_CompleteControlSurfaceVec[j].isMatch( m_ActiveControlSurfaceVec[i] ) )
+                if ( m_CompleteControlSurfaceVec[j].isMatch( ( * GetActiveCSVecPtr() )[ i ] ) )
                 {
                     m_CompleteControlSurfaceVec[j].isGrouped = false;
                 }
@@ -3577,7 +3572,6 @@ void VSPAEROMgrSingleton::RemoveControlSurfaceGroup()
         }
     }
     m_SelectedGroupedCS.clear();
-    UpdateActiveControlSurfVec();
     UpdateControlSurfaceGroupSuffix();
 }
 
@@ -3595,7 +3589,6 @@ void VSPAEROMgrSingleton::AddSelectedToCSGroup()
     }
     m_SelectedUngroupedCS.clear();
     m_SelectedGroupedCS.clear();
-    UpdateActiveControlSurfVec();
 }
 
 void VSPAEROMgrSingleton::AddAllToCSGroup()
@@ -3610,20 +3603,31 @@ void VSPAEROMgrSingleton::AddAllToCSGroup()
     }
     m_SelectedUngroupedCS.clear();
     m_SelectedGroupedCS.clear();
-    UpdateActiveControlSurfVec();
 }
 
 void VSPAEROMgrSingleton::RemoveSelectedFromCSGroup()
 {
     vector < int > selected = m_SelectedGroupedCS;
-    if ( m_CurrentCSGroupIndex != -1 )
+    if ( GetActiveCSVecPtr() )
     {
+        // The removal below shrinks the very vector GetActiveCSVecPtr points at, so the
+        // selection indices are only meaningful against a copy taken before any removal.
+        // RemoveAllFromCSGroup, just below, already works this way.
+        vector< VspAeroControlSurf > active = *GetActiveCSVecPtr();
+
         for ( size_t i = 0; i < selected.size(); ++i )
         {
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( m_ActiveControlSurfaceVec[selected[i] - 1] );
+            int isel = selected[ i ] - 1;
+
+            if ( isel < 0 || isel >= ( int )active.size() )
+            {
+                continue;
+            }
+
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( active[ isel ] );
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
-                if ( m_ActiveControlSurfaceVec[selected[i] - 1].isMatch( m_CompleteControlSurfaceVec[j] ) )
+                if ( active[ isel ].isMatch( m_CompleteControlSurfaceVec[j] ) )
                 {
                     m_CompleteControlSurfaceVec[ j ].isGrouped = false;
                 }
@@ -3631,19 +3635,19 @@ void VSPAEROMgrSingleton::RemoveSelectedFromCSGroup()
         }
     }
     m_SelectedGroupedCS.clear();
-    UpdateActiveControlSurfVec();
 }
 
 void VSPAEROMgrSingleton::RemoveAllFromCSGroup()
 {
-    if ( m_CurrentCSGroupIndex != -1 )
+    if ( GetActiveCSVecPtr() )
     {
-        for ( size_t i = 0; i < m_ActiveControlSurfaceVec.size(); ++i )
+        vector< VspAeroControlSurf > active = *GetActiveCSVecPtr();
+        for ( size_t i = 0; i < active.size(); ++i )
         {
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( m_ActiveControlSurfaceVec[i] );
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( active[i] );
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
-                if ( m_ActiveControlSurfaceVec[i].isMatch( m_CompleteControlSurfaceVec[j] ) )
+                if ( active[i].isMatch( m_CompleteControlSurfaceVec[j] ) )
                 {
                     m_CompleteControlSurfaceVec[ j ].isGrouped = false;
                 }
@@ -3651,7 +3655,6 @@ void VSPAEROMgrSingleton::RemoveAllFromCSGroup()
         }
     }
     m_SelectedGroupedCS.clear();
-    UpdateActiveControlSurfVec();
 }
 
 string VSPAEROMgrSingleton::GetCurrentCSGGroupName()
@@ -3674,12 +3677,15 @@ vector < VspAeroControlSurf > VSPAEROMgrSingleton::GetAvailableCSVec()
     {
         bool grouped = false;
 
-        for ( size_t j = 0; j < m_ActiveControlSurfaceVec.size(); j++ )
+        if ( GetActiveCSVecPtr() )
         {
-            if ( m_CompleteControlSurfaceVec[i].isMatch( m_ActiveControlSurfaceVec[j] ) )
+            for ( size_t j = 0; j < GetActiveCSVecPtr()->size(); j++ )
             {
-                grouped = true;
-                break;
+                if ( m_CompleteControlSurfaceVec[i].isMatch( ( * GetActiveCSVecPtr() )[ j ] ) )
+                {
+                    grouped = true;
+                    break;
+                }
             }
         }
 
@@ -3813,7 +3819,7 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
     int sub_surf_indx;
     if ( m_CurrentCSGroupIndex != -1 )
     {
-        vector < VspAeroControlSurf > cont_surf_vec = m_ActiveControlSurfaceVec;
+        vector < VspAeroControlSurf > cont_surf_vec = * GetActiveCSVecPtr();
         vector < VspAeroControlSurf > cont_surf_vec_ungrouped = GetAvailableCSVec();
         if ( m_SelectedGroupedCS.empty() && m_SelectedUngroupedCS.empty() )
         {

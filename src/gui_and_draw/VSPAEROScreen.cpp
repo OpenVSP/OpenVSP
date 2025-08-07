@@ -2045,9 +2045,9 @@ void VSPAEROScreen::UpdateControlSurfaceBrowsers()
     SelectControlSurfaceBrowser(curr_cs_index + 1);
 
     m_GroupedCSBrowser->clear();
-    if (VSPAEROMgr.GetCurrentCSGroupIndex() != -1)
+    if ( VSPAEROMgr.GetActiveCSVecPtr() )
     {
-        vector < VspAeroControlSurf > grouped_cs = VSPAEROMgr.GetActiveCSVec();
+        vector < VspAeroControlSurf > grouped_cs = * VSPAEROMgr.GetActiveCSVecPtr();
         m_GroupEditNameInput.Update( VSPAEROMgr.GetCurrentCSGGroupName() );
         for (size_t i = 0; i < grouped_cs.size(); ++i)
         {
@@ -2221,10 +2221,10 @@ void VSPAEROScreen::UpdateDeflectionGainScrollGroup()
 {
     int button_width = 300;
     int input_width = 60;
-    if ( VSPAEROMgr.GetCurrentCSGroupIndex() != -1 )
+    if ( VSPAEROMgr.GetActiveCSVecPtr() )
     {
         ControlSurfaceGroup* cs = VSPAEROMgr.GetControlSurfaceGroupVec()[ VSPAEROMgr.GetCurrentCSGroupIndex() ];
-        vector < VspAeroControlSurf > cs_vec = VSPAEROMgr.GetActiveCSVec();
+        vector < VspAeroControlSurf > cs_vec = * VSPAEROMgr.GetActiveCSVecPtr();
 
         if ( cs_vec.size() != m_NumVarDeflection )
         {
@@ -2307,7 +2307,6 @@ void VSPAEROScreen::ControlSurfaceGroupBrowserCallback()
         {
             VSPAEROMgr.SetCurrentCSGroupIndex( last - 1 );
             VSPAEROMgr.m_SelectedGroupedCS.clear();
-            VSPAEROMgr.UpdateActiveControlSurfVec();
         }
     }
     VSPAEROMgr.HighlightSelected( VSPAEROMgr.CONTROL_SURFACE );
@@ -2363,14 +2362,17 @@ void VSPAEROScreen::SelectUngroupedListBrowser( int cur_index )
 void VSPAEROScreen::GroupedCSBrowserCallback()
 {
     vector < int > selected;
-    vector < VspAeroControlSurf > active_item_vec = VSPAEROMgr.GetActiveCSVec();
-    if ( !active_item_vec.empty() )
+    if ( VSPAEROMgr.GetActiveCSVecPtr() )
     {
-        for ( size_t i = 1; i <= m_GroupedCSBrowser->size(); ++i )
+        vector < VspAeroControlSurf > active_item_vec = * VSPAEROMgr.GetActiveCSVecPtr();
+        if ( !active_item_vec.empty() )
         {
-            if ( m_GroupedCSBrowser->selected( i ) )
+            for ( size_t i = 1; i <= m_GroupedCSBrowser->size(); ++i )
             {
-                selected.push_back( i );
+                if ( m_GroupedCSBrowser->selected( i ) )
+                {
+                    selected.push_back( i );
+                }
             }
         }
     }

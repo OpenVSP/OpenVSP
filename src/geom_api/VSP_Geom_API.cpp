@@ -1301,7 +1301,13 @@ std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex )
 
     VSPAEROMgr.Update();
 
-    std::vector < VspAeroControlSurf > active_cs_vec = VSPAEROMgr.GetActiveCSVec();
+    if ( !VSPAEROMgr.GetActiveCSVecPtr() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetActiveCSNameVec::invalid group index" );
+        return std::vector < std::string >();
+    }
+
+    std::vector < VspAeroControlSurf > active_cs_vec = *VSPAEROMgr.GetActiveCSVecPtr();
     std::vector < std::string > return_vec( active_cs_vec.size() );
 
     for ( size_t i = 0; i < return_vec.size(); i++ )
@@ -1422,7 +1428,14 @@ void RemoveSelectedFromCSGroup( const std::vector <int> &selected, int CSGroupIn
     }
 
     VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
-    int max_cs_index = VSPAEROMgr.GetActiveCSVec().size();
+
+    if ( !VSPAEROMgr.GetActiveCSVecPtr() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "RemoveSelectedFromCSGroup::invalid group index" );
+        return;
+    }
+
+    int max_cs_index = VSPAEROMgr.GetActiveCSVecPtr()->size();
 
     if ( selected.size() == 0 || selected.size() > max_cs_index )
     {
