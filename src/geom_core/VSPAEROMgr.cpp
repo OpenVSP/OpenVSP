@@ -999,31 +999,31 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                 }
                 else
                 {
-                vector < SubSurface* > sub_surf_vec = g->GetSubSurfVec();
-                for ( size_t j = 0; j < sub_surf_vec.size(); ++j )
-                {
-                    SubSurface *ssurf = sub_surf_vec[j];
-                    if ( ssurf )
+                    vector < SubSurface* > sub_surf_vec = g->GetSubSurfVec();
+                    for ( size_t j = 0; j < sub_surf_vec.size(); ++j )
                     {
-                        for ( size_t iReflect = 0; iReflect < g->GetNumSymmCopies(); ++iReflect )
+                        SubSurface *ssurf = sub_surf_vec[j];
+                        if ( ssurf )
                         {
-                            if ( ssurf->GetType() == vsp::SS_CONTROL )
+                            for ( size_t iReflect = 0; iReflect < g->GetNumSymmCopies(); ++iReflect )
                             {
-                                // Create New CS Parm Container
-                                VspAeroControlSurf newSurf;
-                                newSurf.SSID = ssurf->GetID();
-                                char str[256];
-                                snprintf( str, sizeof( str ),  "%s_Surf%zu_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
-                                newSurf.fullName = string( str );
-                                newSurf.parentGeomId = ssurf->GetParentContainer();
-                                newSurf.iReflect = iReflect;
-                                newSurf.isHinge = false;
+                                if ( ssurf->GetType() == vsp::SS_CONTROL )
+                                {
+                                    // Create New CS Parm Container
+                                    VspAeroControlSurf newSurf;
+                                    newSurf.SSID = ssurf->GetID();
+                                    char str[256];
+                                    snprintf( str, sizeof( str ),  "%s_Surf%zu_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
+                                    newSurf.fullName = string( str );
+                                    newSurf.parentGeomId = ssurf->GetParentContainer();
+                                    newSurf.iReflect = iReflect;
+                                    newSurf.isHinge = false;
 
-                                m_CompleteControlSurfaceVec.push_back( newSurf );
+                                    m_CompleteControlSurfaceVec.push_back( newSurf );
+                                }
                             }
                         }
                     }
-                }
                 }
             }
         }
