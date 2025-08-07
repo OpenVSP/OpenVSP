@@ -1015,11 +1015,7 @@ void VSPAEROMgrSingleton::UpdateActiveControlSurfVec()
     m_ActiveControlSurfaceVec.clear();
     if ( m_CurrentCSGroupIndex != -1 )
     {
-        vector < VspAeroControlSurf > sub_surf_vec = m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->m_ControlSurfVec;
-        for ( size_t j = 0; j < sub_surf_vec.size(); ++j )
-        {
-            m_ActiveControlSurfaceVec.push_back( sub_surf_vec[j] );
-        }
+        m_ActiveControlSurfaceVec = m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->m_ControlSurfVec;
     }
 }
 
