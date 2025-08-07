@@ -175,10 +175,6 @@ void VspGlWindow::draw()
         }
 
         m_GEngine->getDisplay()->resize( pixel_w(), pixel_h() );
-
-        ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
         UpdateViewportParms();
 
         //Make sure the current width and height update
@@ -2412,10 +2408,6 @@ void VspGlWindow::OnDrag( int x, int y )
         if( !glm::any(glm::isnan(m_prevLBRB)) )
         {
             display->zoom( ( int )m_prevLBRB.x, ( int )m_prevLBRB.y, x, y );
-
-            ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-            ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
             UpdateZoomParms();
         }
         m_prevLBRB = glm::vec2( x, y );
@@ -2450,10 +2442,6 @@ void VspGlWindow::OnDrag( int x, int y )
             if( !glm::any(glm::isnan(m_prevAltLB)) )
             {
                 display->pan( ( int )m_prevAltLB.x, ( int )m_prevAltLB.y, x, y );
-
-                ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-                ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
                 UpdatePanParms();
             }
             m_prevAltLB = glm::vec2( x, y );
@@ -2464,10 +2452,6 @@ void VspGlWindow::OnDrag( int x, int y )
             if( !glm::any(glm::isnan(m_prevCtrlLB)) )
             {
                 display->zoom( ( int )m_prevCtrlLB.x, ( int )m_prevCtrlLB.y, x, y );
-
-                ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-                ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
                 UpdateZoomParms();
             }
             m_prevCtrlLB = glm::vec2( x, y );
@@ -2477,10 +2461,6 @@ void VspGlWindow::OnDrag( int x, int y )
             if( !glm::any(glm::isnan(m_prevMetaLB)) )
             {
                 display->zoom( ( int )m_prevMetaLB.x, ( int )m_prevMetaLB.y, x, y );
-
-                ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-                ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
                 UpdateZoomParms();
             }
             m_prevMetaLB = glm::vec2( x, y );
@@ -2491,10 +2471,6 @@ void VspGlWindow::OnDrag( int x, int y )
             if( !glm::any(glm::isnan(m_prevLB)) )
             {
                 display->rotate( ( int )m_prevLB.x, ( int )m_prevLB.y, x, y );
-
-                ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-                ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
                 UpdateRotationParms();
             }
             m_prevLB = glm::vec2( x, y );
@@ -2506,10 +2482,6 @@ void VspGlWindow::OnDrag( int x, int y )
         if( !glm::any(glm::isnan(m_prevMB)) )
         {
             display->zoom( ( int )m_prevMB.x, ( int )m_prevMB.y, x, y );
-
-            ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-            ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
             UpdateZoomParms();
         }
         m_prevMB = glm::vec2( x, y );
@@ -2520,10 +2492,6 @@ void VspGlWindow::OnDrag( int x, int y )
         if( !glm::any(glm::isnan(m_prevRB)) )
         {
             display->pan( ( int )m_prevRB.x, ( int )m_prevRB.y, x, y );
-
-            ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-            ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
             UpdatePanParms();
         }
         m_prevRB = glm::vec2( x, y );
@@ -2577,10 +2545,6 @@ void VspGlWindow::OnRelease( int x, int y )
 int VspGlWindow::OnKeyup( int x, int y )
 {
     VSPGraphic::Display * display = m_GEngine->getDisplay();
-
-    ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-    ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
-
     int handled = 0;
 
     switch( Fl::event_key() )
@@ -2778,8 +2742,6 @@ int VspGlWindow::OnWheelScroll( int dx, int dy, int x, int y )
 
         // cancel out any effect the zoom had on pan position, so that the same location remains under the mouse
         relativePan( pan.x + mousePosAfterX - mousePosBeforeX , pan.y + mousePosAfterY - mousePosBeforeY );
-
-        ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         UpdateZoomParms();
         UpdatePanParms();
