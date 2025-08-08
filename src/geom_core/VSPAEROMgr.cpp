@@ -927,13 +927,34 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].isGrouped = true;
                 }
             }
+
+            bool remove_flag = false;
+
             // Remove Deleted Sub Surfaces and Sub Surfaces with Parent Geoms That No Longer Exist
             Geom* parent = VehicleMgr.GetVehicle()->FindGeom( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].parentGeomId );
 
-            SubSurface* ss = nullptr;
-            if ( parent ) ss = parent->GetSubSurf( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID );
+            if ( !parent )
+            {
+                remove_flag = true;
+            }
+            else
+            {
+                if ( !m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].isHinge )
+                {
+                    SubSurface* ss = parent->GetSubSurf( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID );
+                    if ( !ss || ( ss && parent->GetNumSymmCopies() <= m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect ) )
+                    {
+                        remove_flag = true;
+                    }
+                }
+                else if ( !Geom::CastTo< JointRole >( parent ) )
+                {
+                    // A Clone stops being a joint when its original goes or changes.
+                    remove_flag = true;
+                }
+            }
 
-            if ( !parent || !ss || ( ss && parent->GetNumSymmCopies() <= m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect ) )
+            if ( remove_flag )
             {
                 m_ControlSurfaceGroupVec[i]->RemoveSubSurface( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k] );
                 k--;
@@ -1108,12 +1129,17 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
 
                 if ( !m_ControlSurfaceGroupVec[j]->m_ControlSurfVec.empty() && is_available )
                 {
-                    // Construct a default group name
-                    string curr_csg_id = m_CompleteControlSurfaceVec[i].parentGeomId + "_" + m_CompleteControlSurfaceVec[i].SSID;
+                    bool match = false;
+                    if ( !m_CompleteControlSurfaceVec[i].isHinge )
+                    {
+                        if ( m_CompleteControlSurfaceVec[i].parentGeomId == m_ControlSurfaceGroupVec[j]->m_ParentGeomBaseID &&
+                             m_CompleteControlSurfaceVec[i].SSID == m_ControlSurfaceGroupVec[j]->m_ControlSurfVec[0].SSID )
+                        {
+                            match = true;
+                        }
+                    }
 
-                    snprintf( str, sizeof( str ),  "%s_%s", m_ControlSurfaceGroupVec[j]->m_ParentGeomBaseID.c_str(),
-                        m_ControlSurfaceGroupVec[j]->m_ControlSurfVec[0].SSID.c_str() );
-                    if ( curr_csg_id == str ) // Update Existing Control Surface Group
+                    if ( match ) // Update Existing Control Surface Group
                     {
                         csg = m_ControlSurfaceGroupVec[j];
                         csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
@@ -1131,8 +1157,15 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                 {
                     csg = new ControlSurfaceGroup;
                     csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
-                    snprintf( str, sizeof( str ),  "%s_%s", geom->GetName().c_str(),
-                        geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID )->GetName().c_str() );
+                    if ( !m_CompleteControlSurfaceVec[i].isHinge )
+                    {
+                        snprintf( str, sizeof( str ),  "%s_%s", geom->GetName().c_str(), geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID )->GetName().c_str() );
+                    }
+                    else
+                    {
+                        snprintf( str, sizeof( str ),  "%s", geom->GetName().c_str() );
+                    }
+
                     csg->SetName( str );
                     csg->m_ParentGeomBaseID = m_CompleteControlSurfaceVec[i].parentGeomId;
                     m_ControlSurfaceGroupVec.push_back( csg );
