@@ -545,18 +545,22 @@ string GeometryAnalysisCase::Evaluate()
                     TMesh *primary_tm = MergeTMeshVec( primary_tmv );
                     primary_tm->LoadBndBox();
 
+                    bool success = false;
 
                     vec3d org, norm;
                     if ( m_SecondaryType() == vsp::Z_TARGET )
                     {
                         org.set_z( m_SecondaryZGround() );
                         norm.set_z( 1 );
+                        success = true;
                     }
                     else
                     {
-                        GetSecondaryPtNormal( org, norm );
+                        success = GetSecondaryPtNormal( org, norm );
                     }
 
+                    if ( success )
+                    {
                     // Create MeshGeom of matching plane.
                     // Vehicle * veh = VehicleMgr.GetVehicle();
                     // string meshid = veh->AddMeshGeom( vsp::SET_NONE, vsp::SET_NONE, false );
@@ -581,6 +585,18 @@ string GeometryAnalysisCase::Evaluate()
                     {
                         delete primary_tm;
                     }
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
                 }
                 break;
             }
@@ -600,8 +616,8 @@ string GeometryAnalysisCase::Evaluate()
                     vec3d pivot_ptaxis, pivot_axis;
                     bool usepivot = false;
                     double mintheta, maxtheta;
-                    GetSecondaryPtNormalMeanContactPivotAxis( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, usepivot, mintheta, maxtheta );
-
+                    if ( GetSecondaryPtNormalMeanContactPivotAxis( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, usepivot, mintheta, maxtheta ) )
+                    {
                     // Check un-rotated for collision
                     // If violated, intersect mesh, calculate volume, etc.
                     PlaneInterferenceCheck( primary_tm, pivot_org, pivot_norm, m_LastResult, m_TMeshVec );
@@ -666,11 +682,13 @@ string GeometryAnalysisCase::Evaluate()
                             // Get aft axle parms
                             if ( ccw > 0 )
                             {
-                                GetSecondaryPtNormalAftAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
+                                // Ignore return value because we could not get here with wrong Geom types.
+                                (void) GetSecondaryPtNormalAftAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
                             }
                             else
                             {
-                                GetSecondaryPtNormalFwdAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
+                                // Ignore return value because we could nto get here with wrong Geom types.
+                                (void) GetSecondaryPtNormalFwdAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
                             }
 
                             // Do tilt analysis
@@ -712,6 +730,18 @@ string GeometryAnalysisCase::Evaluate()
 
                         delete primary_tm;
                     }
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
                 }
                 break;
             }
@@ -730,8 +760,8 @@ string GeometryAnalysisCase::Evaluate()
                     vec3d pt, normal;
                     vec3d roll_axis;
                     int ysign;
-                    GetSecondarySideContactPtRollAxisNormal( pt, roll_axis, normal, ysign );
-
+                    if ( GetSecondarySideContactPtRollAxisNormal( pt, roll_axis, normal, ysign ) )
+                    {
                     // Check un-rotated for collision
                     // If violated, intersect mesh, calculate volume, etc.
                     PlaneInterferenceCheck( primary_tm, pt, normal, m_LastResult, m_TMeshVec );
@@ -777,6 +807,18 @@ string GeometryAnalysisCase::Evaluate()
                         m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
 
                         delete primary_tm;
+                    }
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
                     }
                 }
                 break;
@@ -874,12 +916,14 @@ string GeometryAnalysisCase::Evaluate()
 
                     vec3d cgnom;
                     vector < vec3d > cgbounds;
-                    GetPrimaryCG( cgnom, cgbounds );
+                    bool s1 = GetPrimaryCG( cgnom, cgbounds );
 
                     vector < vec3d > ptvec;
                     vec3d normal;
-                    GetPrimaryContactPointVecNormal( ptvec, normal );
+                    bool s2 = GetPrimaryContactPointVecNormal( ptvec, normal );
 
+                    if ( s1 && s2 )
+                    {
                     vec3d resnom = weightdist( cgnom, ptvec, normal );
                     double minnom = resnom[ resnom.minor_comp() ];
 
@@ -896,6 +940,18 @@ string GeometryAnalysisCase::Evaluate()
                     res->Add( new NameValData( "ExcursionReactions", resvec, "Gear reactions for CG range." ) );
                     res->Add( new NameValData( "Pts", pts, "Not used." ) );
                     res->Add( new NameValData( "Result", minnom, "Smallest reaction for nominal CG (typically nose gear reaction)." ) );
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
                 }
                 break;
             }
@@ -908,10 +964,13 @@ string GeometryAnalysisCase::Evaluate()
 
                     vec3d cgnom;
                     vector < vec3d > cgbounds;
-                    GetPrimaryCG( cgnom, cgbounds );
+                    bool s1 = GetPrimaryCG( cgnom, cgbounds );
 
                     vec3d pa, pb, normal;
-                    GetPrimaryTwoPtSideContactPtsNormal( pa, pb, normal );
+                    bool s2 = GetPrimaryTwoPtSideContactPtsNormal( pa, pb, normal );
+
+                    if ( s1 && s2 )
+                    {
 
                     vec3d ax = pb - pa;
                     ax.normalize();
@@ -971,6 +1030,18 @@ string GeometryAnalysisCase::Evaluate()
                     res->Add( new NameValData( "MaxTip", anglemax * 180.0 / M_PI, "Maximum tipover angle." ) );
                     res->Add( new NameValData( "Pts", tip_pts, "Tipover arc end points." ) );
                     res->Add( new NameValData( "Result", anglenominal * 180.0 / M_PI, "Interference result" ) );
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
                 }
 
                 m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
@@ -989,6 +1060,7 @@ string GeometryAnalysisCase::Evaluate()
                     TMesh *primary_tm = MergeTMeshVec( primary_tmv );
                     primary_tm->LoadBndBox();
 
+                    bool success = false;
                     if ( m_SecondaryType() == vsp::GEOM_TARGET )
                     {
                         Geom* geom = veh->FindGeom( m_SecondaryGeomID );
@@ -999,7 +1071,8 @@ string GeometryAnalysisCase::Evaluate()
                             vec3d cor;
                             vec3d normal;
                             vector < double > rvec;
-                            auxiliary_ptr->CalculateTurn(cor, normal, rvec);
+                            if ( auxiliary_ptr->CalculateTurn(cor, normal, rvec) )
+                            {
 
 
                             vector < vec3d > distpts(2);
@@ -1028,7 +1101,21 @@ string GeometryAnalysisCase::Evaluate()
                             res->Add( new NameValData( "Axis", normal, "Axis of rotation." ) );
                             res->Add( new NameValData( "GearTurnRadii", rvec, "Radii of gear turning circles." ) );
                             res->Add( new NameValData( "MaxRadii", max_dist, "Maximum turning radius of primary geometry." ) );
+                            success = true;
+                            }
                         }
+                    }
+
+                    if ( !success )
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
                     }
 
                 }
@@ -1040,9 +1127,22 @@ string GeometryAnalysisCase::Evaluate()
             {
                 primary_tmv = GetPrimaryTMeshVec();
                 vec3d cen;
-                GetSecondaryPt( cen );
+                if ( GetSecondaryPt( cen ) )
+                {
                 m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
                 m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                }
+                else
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                    char buf[255];
+                    snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
+                }
                 break;
             }
             case vsp::CCE_INTERFERENCE:
@@ -1303,14 +1403,18 @@ void GeometryAnalysisCase::UpdateDrawObj_Live()
     m_SecondaryVizPointDO.m_PntVec.clear();
     if ( m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS )
     {
+        vec3d pt;
+        if ( GetSecondaryPt( pt ) )
+        {
         m_SecondaryVizPointDO.m_GeomID = m_ID + "VizPoint";
         m_SecondaryVizPointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_SecondaryVizPointDO.m_Type = DrawObj::VSP_POINTS;
         m_SecondaryVizPointDO.m_PntVec.resize( 1 );
-        GetSecondaryPt( m_SecondaryVizPointDO.m_PntVec[ 0 ] );
+        m_SecondaryVizPointDO.m_PntVec[ 0 ] = pt;
         m_SecondaryVizPointDO.m_PointColor = DrawObj::Color( DrawObj::RED );
         m_SecondaryVizPointDO.m_PointSize = 20.0;
         m_SecondaryVizPointDO.m_GeomChanged = true;
+        }
     }
 }
 
