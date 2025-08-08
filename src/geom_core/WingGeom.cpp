@@ -2508,7 +2508,7 @@ double WingGeom::UtoEta( const double &u, bool ignoreCap )
     double t = u;
 
     int indx = 0;
-    if ( !ignoreCap && m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess.size() > 0 && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if ( !ignoreCap && m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess.size() > 0 && m_CapUMinSuccess[ m_MainSurfIndxVec[indx] ] )
     {
         t = t - 1.0;
     }
@@ -2522,7 +2522,7 @@ double WingGeom::EtatoU( const double &eta, bool ignoreCap )
     double u = t;
 
     int indx = 0;
-    if ( !ignoreCap && m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess.size() > 0 && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if ( !ignoreCap && m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess.size() > 0 && m_CapUMinSuccess[ m_MainSurfIndxVec[indx] ] )
     {
         u = u + 1.0;
     }

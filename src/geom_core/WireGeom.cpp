@@ -63,8 +63,8 @@ WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_OtherInvertFlag = false;
 
-    m_SurfIndxVec.resize( 1);
-    m_SurfIndxVec[0] = 0;
+    m_MainSurfIndxVec.resize( 1);
+    m_MainSurfIndxVec[0] = 0;
     m_SurfCopyIndx.resize( 1 );
     m_SurfCopyIndx[0] = 0;
 

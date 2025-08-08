@@ -830,14 +830,14 @@ void HumanGeom::UpdateSymmAttach()
     m_Verts.clear();
     m_FlipNormal.clear();
 
-    m_SurfIndxVec.clear();
+    m_MainSurfIndxVec.clear();
     m_SurfSymmMap.clear();
     m_SurfCopyIndx.clear();
 
     m_Verts.resize( num_surf );
     m_FlipNormal.resize( num_surf, false );
 
-    m_SurfIndxVec.resize( num_surf, -1 );
+    m_MainSurfIndxVec.resize( num_surf, -1 );
     m_SurfSymmMap.resize( num_surf );
     m_SurfCopyIndx.resize( num_surf );
 
@@ -846,8 +846,8 @@ void HumanGeom::UpdateSymmAttach()
     {
         m_Verts[i] = m_MainVerts;
         m_FlipNormal[i] = false;                      // Assume main mesh is properly oriented.
-        m_SurfIndxVec[i] = i;
-        m_SurfSymmMap[ m_SurfIndxVec[i] ].push_back( i );
+        m_MainSurfIndxVec[i] = i;
+        m_SurfSymmMap[ m_MainSurfIndxVec[i] ].push_back( i );
         m_SurfCopyIndx[i] = 0;
     }
 
@@ -944,9 +944,9 @@ void HumanGeom::UpdateSymmAttach()
                     {
                         m_Verts[j + k * numAddSurfs] = m_Verts[j - currentIndex];
 
-                        m_SurfIndxVec[j + k * numAddSurfs] = m_SurfIndxVec[j - currentIndex];
-                        m_SurfCopyIndx[j + k * numAddSurfs] = m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].size();
-                        m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].push_back( j + k * numAddSurfs );
+                        m_MainSurfIndxVec[j + k * numAddSurfs] = m_MainSurfIndxVec[j - currentIndex];
+                        m_SurfCopyIndx[j + k * numAddSurfs] = m_SurfSymmMap[ m_MainSurfIndxVec[j + k * numAddSurfs] ].size();
+                        m_SurfSymmMap[ m_MainSurfIndxVec[j + k * numAddSurfs] ].push_back( j + k * numAddSurfs );
                         m_TransMatVec[j + k * numAddSurfs].initMat( m_TransMatVec[j - currentIndex].data() );
                         m_TransMatVec[j + k * numAddSurfs].postMult( Ref.data() ); // Apply Reflection
 
@@ -962,9 +962,9 @@ void HumanGeom::UpdateSymmAttach()
                     m_Verts[j] = m_Verts[j - currentIndex];
                     m_FlipNormal[j] = !m_FlipNormal[j - currentIndex];
 
-                    m_SurfIndxVec[j] = m_SurfIndxVec[j - currentIndex];
-                    m_SurfCopyIndx[j] = m_SurfSymmMap[ m_SurfIndxVec[j] ].size();
-                    m_SurfSymmMap[ m_SurfIndxVec[ j ] ].push_back( j );
+                    m_MainSurfIndxVec[j] = m_MainSurfIndxVec[j - currentIndex];
+                    m_SurfCopyIndx[j] = m_SurfSymmMap[ m_MainSurfIndxVec[j] ].size();
+                    m_SurfSymmMap[ m_MainSurfIndxVec[ j ] ].push_back( j );
                     m_TransMatVec[j].initMat( m_TransMatVec[j - currentIndex].data() );
                     m_TransMatVec[j].postMult( Ref.data() ); // Apply Reflection
                     addIndex++;
@@ -1290,7 +1290,7 @@ void HumanGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int
         degenGeom.setParentGeom( this );
         degenGeom.setSurfNum( i );
         degenGeom.setFlipNormal( m_FlipNormal[i] );
-        degenGeom.setMainSurfInd( m_SurfIndxVec[i] );
+        degenGeom.setMainSurfInd( m_MainSurfIndxVec[i] );
         degenGeom.setSymCopyInd( m_SurfCopyIndx[i] );
 
         vector < double > tmatvec( 16 );

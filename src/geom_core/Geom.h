@@ -477,9 +477,9 @@ public:
 
     virtual int GetMainSurfID( int surfnum )
     {
-        if ( surfnum >= 0 && surfnum < m_SurfIndxVec.size() )
+        if ( surfnum >= 0 && surfnum < m_MainSurfIndxVec.size() )
         {
-            return m_SurfIndxVec[ surfnum ];
+            return m_MainSurfIndxVec[ surfnum ];
         }
         else
         {
@@ -913,7 +913,7 @@ protected:
 
     vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
-    vector<int> m_SurfIndxVec;
+    vector<int> m_MainSurfIndxVec;
     vector< vector< int > > m_SurfSymmMap;
     vector<int> m_SurfCopyIndx;
     vector< Matrix4d > m_SymmTransMatVec; // Transformation mats, one for each symmetry type.
