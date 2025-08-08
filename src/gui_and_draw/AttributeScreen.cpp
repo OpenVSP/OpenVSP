@@ -29,7 +29,7 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
 {
     m_ScreenMgr = mgr;
 
-    int editor_ht = 520;
+    int buffer = 5;
 
     int tree_w = 450;
 
@@ -37,14 +37,13 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
     m_FLTK_Window->resizable( m_AttrDetailLayout.GetGroup() );
     m_FLTK_Window->size_range( m_FLTK_Window->w()/2, m_FLTK_Window->h()/2 );
 
-    m_AttrDetailLayout.AddX( 5 );
+    m_AttrDetailLayout.AddX( buffer );
     m_AttrDetailLayout.AddSubGroupLayout( m_TreeGroupLayout, tree_w, m_AttrDetailLayout.GetRemainY() );
 
-    m_AttrDetailLayout.AddX( tree_w + 5 );
+    m_AttrDetailLayout.AddX( tree_w + buffer );
     m_AttrDetailLayout.AddSubGroupLayout( m_CommonEntryLayout, m_AttrDetailLayout.GetW() - tree_w - 15, m_AttrDetailLayout.GetRemainY() );
 
     m_AttrDetailLayout.SetX( m_AttrDetailLayout.GetStartX() );
-    m_AttrDetailLayout.SetY( editor_ht );
     m_AttrDetailLayout.AddSubGroupLayout( m_ResizableLayout, m_AttrDetailLayout.GetW(), m_AttrDetailLayout.GetRemainY());
     m_AttrDetailLayout.GetGroup()->resizable( m_ResizableLayout.GetGroup() );
 
@@ -114,7 +113,9 @@ AttributeExplorer::AttributeExplorer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 
 
     m_TreeGroupLayout.ForceNewLine();
 
-    m_AttrTreeWidget.Init( &m_TreeGroupLayout, m_FLTK_Window, this, staticScreenCB, true, m_TreeGroupLayout.GetY(), editor_ht);
+    int editor_ht = m_TreeGroupLayout.GetRemainY() - m_TreeGroupLayout.GetStdHeight() - buffer;
+
+    m_AttrTreeWidget.Init( &m_TreeGroupLayout, m_FLTK_Window, this, staticScreenCB, true, m_TreeGroupLayout.GetY(), editor_ht );
     m_TreeGroupLayout.GetGroup()->resizable( m_AttrTreeWidget.GetTreeWidget() );
 
     m_TreeGroupLayout.SetY( m_TreeGroupLayout.GetY() + editor_ht );
