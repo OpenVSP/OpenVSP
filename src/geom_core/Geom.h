@@ -808,24 +808,18 @@ protected:
     template <typename T>
     void ApplySymm( vector<T> const &source, vector<T> &dest )
     {
+        if ( source.empty() )
+        {
+            dest.clear();
+            return;
+        }
+
         int num_main = source.size();
         unsigned int num_surf = GetNumSymmCopies() * num_main;
 
-        if ( num_surf == 0 )
-        {
-            dest.clear();
-            return;
-        }
-
-        if ( m_TransMatVec.size() != num_surf )
-        {
-            printf( "Mismatch m_TransMatVec.size() in Geom::ApplySymm().\n" );
-            dest.clear();
-            return;
-        }
-
         dest.resize( num_surf );
-
+        if ( m_TransMatVec.size() == num_surf )
+        {
         for ( int i = 0; i < num_surf; ++i )
         {
             dest[ i ] = source[ m_MainSurfIndxVec[i] ];
@@ -834,6 +828,7 @@ protected:
                 dest[ i ].FlipNormal();
             }
             dest[i].Transform( m_TransMatVec[i] ); // Apply total transformation to main surfaces
+        }
         }
     }
 
