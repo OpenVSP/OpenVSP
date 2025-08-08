@@ -830,6 +830,29 @@ protected:
                 dest[i].Transform( m_TransMatVec[i] ); // Apply total transformation to main surfaces
             }
         }
+        else
+        {
+            // Get symmetry as applied to main surface.
+            vector < int > symindexs = m_SurfSymmMap[ 0 ];
+
+            int k = 0;
+            for ( int i = 0; i < num_main; ++i )
+            {
+                // Apply treatment applied to main surface copies to source
+                for ( int j = 0; j < symindexs.size(); ++j )
+                {
+                    dest[ k ] = source[ i ];
+
+                    if ( m_FlipNormalVec[ symindexs[ j ] ] )
+                    {
+                        dest[ k ].FlipNormal();
+                    }
+                    dest[ k ].Transform( m_TransMatVec[ symindexs[ j ] ] );
+
+                    k++;
+                }
+            }
+        }
     }
 
     virtual void UpdateGrandChildren( Geom* grandparent, bool fullupdate );
