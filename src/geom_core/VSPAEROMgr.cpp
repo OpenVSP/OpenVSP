@@ -6378,7 +6378,14 @@ void ControlSurfaceGroup::AddSubSurface( const VspAeroControlSurf &control_surf 
         //  parm name: control_surf->fullName (example: MainWing_Surf1_Aileron)
         //  group: "ControlSurfaceGroup"
         //  initial value: control_surf->deflection_gain
-        snprintf( str, sizeof( str ),  "Surf_%s_%u_Gain", control_surf.SSID.c_str(), control_surf.iReflect );
+        if ( !control_surf.isHinge )
+        {
+            snprintf( str, sizeof( str ),  "Surf_%s_%u_Gain", control_surf.SSID.c_str(), control_surf.iReflect );
+        }
+        else
+        {
+            snprintf( str, sizeof( str ),  "Hinge_%s_Gain", control_surf.parentGeomId.c_str() );
+        }
         p->Init( str, m_GroupName, this, 1.0, -1.0e6, 1.0e6 );
         p->SetDescript( "Deflection gain for the individual sub surface or hinge to be used for control mixing and allocation within the control surface group" );
         m_DeflectionGainVec.push_back( p );
