@@ -484,7 +484,7 @@ void AttributeEditor::Init( GroupLayout * layout, Fl_Group* group, VspScreen *sc
     {
         m_AttrCommonGroup.SetY( start_y );
     }
-    int browser_h = editor_h - layout->GetDividerHeight();
+    int browser_h = std::min( editor_h - layout->GetDividerHeight(), layout->GetRemainY() );
 
     m_AttrTreeWidget.Init( layout, group, screen, cb, true, m_AttrCommonGroup.GetY(), browser_h);
     m_ShowState = false;
