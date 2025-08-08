@@ -133,7 +133,7 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615 + 
     m_LinkBrowser->type( FL_MULTI_BROWSER );
 
     m_GenLayout.AddYGap();
-    m_LinkAttrEditor.Init( &m_GenLayout, m_FLTK_Window, this , staticScreenCB, true , m_GenLayout.GetY(), 130);
+    m_LinkAttrEditor.Init( &m_GenLayout, m_FLTK_Window, this , staticScreenCB, true , m_GenLayout.GetY(), 145 );
 }
 
 ParmLinkScreen::~ParmLinkScreen()

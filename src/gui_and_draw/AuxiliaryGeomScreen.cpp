@@ -775,7 +775,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     y_vals.push_back( m_OneSixSeriesGroup.GetY() );
 
     m_SuperConeXSecLayout.SetY( *max_element( y_vals.begin(), y_vals.end() ) );
-    m_XsecAttributeEditor.Init( &m_SuperConeXSecLayout, m_SuperConeXSecLayout.GetGroup(), this, staticScreenCB, true, m_GenLayout.GetY(), 100 );
+    m_XsecAttributeEditor.Init( &m_SuperConeXSecLayout, m_SuperConeXSecLayout.GetGroup(), this, staticScreenCB, true, m_GenLayout.GetY(), 115 );
 
     DisplayXSCGroup( nullptr );
     DisplayGroup( nullptr );

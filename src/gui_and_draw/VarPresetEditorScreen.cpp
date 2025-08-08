@@ -99,7 +99,7 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_VarBrowser->callback( staticScreenCB, this );
 
     m_GroupsLayout.AddYGap();
-    m_GroupAttrEditor.Init( &m_GroupsLayout, m_GroupsLayout.GetGroup(), this, staticScreenCB, false, 0, 140);
+    m_GroupAttrEditor.Init( &m_GroupsLayout, m_GroupsLayout.GetGroup(), this, staticScreenCB, false, 0, 155 );
 
     // Everything Relevant to "Setting" Tab
     m_SettingLayout.SetGroupAndScreen( setting_group, this );
@@ -146,7 +146,7 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     m_SettingLayout.SetY( m_SettingLayout.GetY() + m_AdjustLayout.GetY() );
     m_SettingLayout.AddYGap();
-    m_SettingAttrEditor.Init( &m_SettingLayout, m_SettingLayout.GetGroup(), this, staticScreenCB, false, 0, 140);
+    m_SettingAttrEditor.Init( &m_SettingLayout, m_SettingLayout.GetGroup(), this, staticScreenCB, false, 0, 155 );
 
     apply_tab->show();
 

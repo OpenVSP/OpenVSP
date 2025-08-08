@@ -221,7 +221,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
     m_SectionLayout.AddButton( m_RotateThisFoilMatchDihedral, "Rotate Section Tip Foil To Match Dihedral" );
     m_SectionLayout.SetButtonWidth( 74 );
 
-    m_SecAttributeEditor.Init( &m_SectionLayout, m_SectionLayout.GetGroup(), this, staticScreenCB, true, m_SectionLayout.GetY(), 100);
+    m_SecAttributeEditor.Init( &m_SectionLayout, m_SectionLayout.GetGroup(), this, staticScreenCB, true, m_SectionLayout.GetY(), 115 );
 
     // Xsec layout after index selector has been defined in base class
     m_XSecLayout.SetFitWidthFlag(false);

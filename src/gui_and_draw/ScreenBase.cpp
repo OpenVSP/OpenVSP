@@ -355,7 +355,7 @@ VehScreen::VehScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     Fl_Group* attribute_tab = AddTab( "Attributes" );
     Fl_Group* attribute_group = AddSubGroup( attribute_tab, 5 );
     m_AttributeLayout.SetGroupAndScreen( attribute_group , this );
-    m_AttributeEditor.Init( &m_AttributeLayout , attribute_group , this, staticScreenCB, false, 0, 250);
+    m_AttributeEditor.Init( &m_AttributeLayout , attribute_group , this, staticScreenCB, false, 0, 265 );
 };
 
 void VehScreen::Show( )
@@ -478,8 +478,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_GenLayout.AddYGap();
 
     m_GenLayout.AddDividerBox( "Set Export/Analysis" );
-    int attrColHt = 130;
-    int buffer = 20;
+    int attrColHt = 145;
+    int buffer = 5;
     int remain_y = ( m_GenLayout.GetH() + m_GenLayout.GetStartY() ) - m_GenLayout.GetY() - attrColHt - buffer ;
     m_SetBrowser = m_GenLayout.AddCheckBrowser( remain_y );
     m_SetBrowser->callback( staticCB, this );
@@ -756,7 +756,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     static int col_widths[] = { m_SubSurfLayout.GetW() / 2, m_SubSurfLayout.GetW() / 3, m_SubSurfLayout.GetW() / 6, 0 }; // 3 columns
 
     int browser_h = 100;
-    int attr_h = 130;
+    int attr_h = 145;
 
     m_SubSurfBrowser = m_SubSurfLayout.AddColResizeBrowser( col_widths, 3, browser_h );
     m_SubSurfBrowser->callback( staticScreenCB, this );
@@ -1434,7 +1434,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SSXSCGroup.SetY( *max_element( y_vals.begin(), y_vals.end() ) );
     m_SSXSCGroup.AddYGap();
-    m_SSXSCAttrEditor.Init( &m_SSXSCGroup , subsurf_group , this, staticScreenCB , true , m_SSXSCGroup.GetY() , attr_h-17 );
+    m_SSXSCAttrEditor.Init( &m_SSXSCGroup , subsurf_group , this, staticScreenCB , true , m_SSXSCGroup.GetY(), attr_h );
 
     //===== SSControl ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSConGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
@@ -3810,9 +3810,7 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     m_XSecLayout.SetY( *max_element( y_vals.begin(), y_vals.end() ) );
     m_XSecLayout.AddYGap();
 
-    int ry = m_XSecLayout.GetRemainY();
-    int sh = m_XSecLayout.GetDividerHeight();
-    int attr_editor_ht = min( ry - sh, 100 );
+    int attr_editor_ht = 100;
     m_XsecAttributeEditor.Init( &m_XSecLayout, m_XSecLayout.GetGroup(), this, staticScreenCB, true, m_GenLayout.GetY(), attr_editor_ht );
 
     DisplayGroup( &m_PointGroup );

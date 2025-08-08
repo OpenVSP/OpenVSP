@@ -232,7 +232,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Ad
     m_CodeBuffer->text( "" );
 
     //==== Attributes GUI ====//
-    m_AdvLinkAttrEditor.Init( &m_BigGroup, m_FLTK_Window, this, staticScreenCB, true, m_BigGroup.GetY(), 90);
+    m_AdvLinkAttrEditor.Init( &m_BigGroup, m_FLTK_Window, this, staticScreenCB, true, m_BigGroup.GetY(), 105 );
 
     m_FLTK_Window->resizable( m_BigGroup.GetGroup() );
     m_BigGroup.GetGroup()->resizable( m_CodeEditor );
