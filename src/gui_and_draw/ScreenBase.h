@@ -199,7 +199,7 @@ protected:
 class VehScreen : public TabScreen
 {
 public:
-    VehScreen( ScreenMgr* mgr, int w = 400, int h = 677 , const string & title = "Vehicle");
+    VehScreen( ScreenMgr* mgr, int w = 400, int h = 400 , const string & title = "Vehicle");
 
     virtual ~VehScreen(){}
 
