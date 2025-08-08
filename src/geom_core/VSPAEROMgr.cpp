@@ -40,12 +40,22 @@ VspAeroControlSurf::VspAeroControlSurf()
 
 bool VspAeroControlSurf::isMatch( const VspAeroControlSurf &cs ) const
 {
-    if ( cs.parentGeomId == parentGeomId &&
+    if ( !cs.isHinge &&
+         !isHinge &&
+         cs.parentGeomId == parentGeomId &&
          cs.SSID == SSID &&
          cs.iReflect == iReflect )
     {
         return true;
     }
+
+    if ( cs.isHinge &&
+         isHinge &&
+         cs.parentGeomId == parentGeomId )
+    {
+        return true;
+    }
+
     return false;
 }
 
