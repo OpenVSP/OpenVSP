@@ -177,6 +177,7 @@ public:
     virtual void AddTab( Fl_Group* grp );
     virtual void AddTab( Fl_Group* grp, int indx );
     virtual void RemoveTab( Fl_Group* grp );
+    virtual int FindTab( Fl_Group* grp );
 
     //==== Create A Sub Group In Tab - With Border in Pixels ====//
     virtual Fl_Group* AddSubGroup( Fl_Group* group, int border  );

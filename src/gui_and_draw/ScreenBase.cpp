@@ -292,6 +292,22 @@ Fl_Group* TabScreen::GetTab( int index )
     return nullptr;
 }
 
+//==== Get Index of Tab ====//
+int TabScreen::FindTab( Fl_Group* grp )
+{
+    int ret = -1;
+
+    for ( int i = 0; i < m_TabGroupVec.size(); i++ )
+    {
+        if ( m_TabGroupVec.at( i ) == grp )
+        {
+            ret = i;
+            break;
+        }
+    }
+    return ret;
+}
+
 //==== Add A Sub Group To Tab ====//
 Fl_Group* TabScreen::AddSubGroup( Fl_Group* group, int border )
 {
