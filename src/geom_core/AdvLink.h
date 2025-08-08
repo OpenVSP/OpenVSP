@@ -125,6 +125,8 @@ protected:
     vector< VarDef > m_InputVars;
     vector< VarDef > m_OutputVars;
 
+    string m_OldModuleName;
+
     bool m_ValidScript;
     string m_ScriptErrors;
      

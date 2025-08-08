@@ -50,7 +50,26 @@ void MessageCallback( const asSMessageInfo *msg, void *param )
     {
         type = "INFO";
     }
-    snprintf( str, sizeof( str ),  "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message );
+
+    //==== Check if MessageCallback is related to the AdvLink scripting ====//
+    string msg_str = string( msg->section );
+    int row_offset = 0;
+
+    string advlink_label = string( "AdvLink_" );
+    if ( strstr( msg->section, advlink_label.c_str() ) )
+    {
+        // Adjust row offset based on metadata sent with msg->section
+        int num_start = advlink_label.size();
+        string sub_str = msg_str.substr( num_start, msg_str.size() - num_start );
+        int num_end = sub_str.find( '_' );
+        string num_str = sub_str.substr( 0, num_end );
+        row_offset = stoi( num_str );
+
+        // Remove row adjustment data from message string for clean display
+        msg_str = msg_str.substr( 0, num_start ) + msg_str.substr( num_start + num_end + 1, msg_str.size() );
+    }
+
+    snprintf( str, sizeof( str ),  "%s (%d, %d) : %s : %s\n", msg_str.c_str(), msg->row - row_offset, msg->col, type, msg->message );
     ScriptMgr.AddToMessages( str );
     printf( "%s", str );
 }

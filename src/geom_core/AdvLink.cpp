@@ -511,15 +511,20 @@ bool AdvLink::BuildScript()
 
     script.append( "void UpdateLink()\n{\n" );
     script.append( "    LoadInput();\n\n" );
+
+    int offset = std::count( script.begin(), script.end(), '\n' );
+
     script.append( m_ScriptCode );
     script.append( "\n    LoadOutput();\n" );
     script.append( "\n    Update();\n}\n" );
 
     m_CompleteScript = script;
 
-    string module_name = "AdvLink_" + m_Name;
+    string module_name = "AdvLink_" + to_string( offset ) + "_" + m_Name;
 
-    ScriptMgr.RemoveScript( module_name );
+    ScriptMgr.RemoveScript( m_OldModuleName );
+    m_OldModuleName = module_name;
+
 
     ScriptMgr.ClearMessages();
     m_ScriptModule = ScriptMgr.ReadScriptFromMemory( module_name, m_CompleteScript );
