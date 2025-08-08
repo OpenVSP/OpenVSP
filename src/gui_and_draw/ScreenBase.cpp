@@ -3177,12 +3177,19 @@ void GeomScreen::CloseCallBack( Fl_Widget *w )
 void GeomScreen::GetCollIDs( vector < string > &collIDVec )
 {
     m_AttributeEditor.GetCollIDs( collIDVec );
-    m_SSLineAttrEditor.GetCollIDs( collIDVec );
-    m_SSRecAttrEditor.GetCollIDs( collIDVec );
-    m_SSEllAttrEditor.GetCollIDs( collIDVec );
-    m_SSConAttrEditor.GetCollIDs( collIDVec );
-    m_SSFLineAttrEditor.GetCollIDs( collIDVec );
-    m_SSXSCAttrEditor.GetCollIDs( collIDVec );
+
+    Fl_Group* tab_grp = dynamic_cast<Fl_Group*>( GetTabs()->value() );
+    Fl_Group* ss_group = m_SubSurfLayout.GetGroup();
+
+    if ( tab_grp == ss_group->parent() )
+    {
+        m_SSLineAttrEditor.GetCollIDs( collIDVec );
+        m_SSRecAttrEditor.GetCollIDs( collIDVec );
+        m_SSEllAttrEditor.GetCollIDs( collIDVec );
+        m_SSConAttrEditor.GetCollIDs( collIDVec );
+        m_SSFLineAttrEditor.GetCollIDs( collIDVec );
+        m_SSXSCAttrEditor.GetCollIDs( collIDVec );
+    }
 }
 
 //=====================================================================//
@@ -4353,7 +4360,14 @@ bool XSecScreen::Update()
 
 void XSecScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    m_XsecAttributeEditor.GetCollIDs( collIDVec );
+    Fl_Group* tab_grp = dynamic_cast<Fl_Group*>( GetTabs()->value() );
+    Fl_Group* xs_group = m_XSecLayout.GetGroup();
+
+    if ( tab_grp == xs_group->parent() )
+    {
+        m_XsecAttributeEditor.GetCollIDs( collIDVec );
+    }
+
     GeomScreen::GetCollIDs( collIDVec );
 }
 

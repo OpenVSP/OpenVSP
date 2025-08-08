@@ -1551,7 +1551,14 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
 
 void AuxiliaryGeomScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    m_XsecAttributeEditor.GetCollIDs( collIDVec );
+    Fl_Group* tab_grp = dynamic_cast<Fl_Group*>( GetTabs()->value() );
+    Fl_Group* ds_group = m_DesignLayout.GetGroup();
+
+    if ( tab_grp == ds_group->parent() )
+    {
+        m_XsecAttributeEditor.GetCollIDs( collIDVec );
+    }
+
     GeomScreen::GetCollIDs( collIDVec );
 }
 

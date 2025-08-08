@@ -1535,7 +1535,14 @@ bool BORScreen::Update()
 
 void BORScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    m_XsecAttributeEditor.GetCollIDs( collIDVec );
+    Fl_Group* tab_grp = dynamic_cast<Fl_Group*>( GetTabs()->value() );
+    Fl_Group* xs_group = m_XSecLayout.GetGroup();
+
+    if ( tab_grp == xs_group->parent() )
+    {
+        m_XsecAttributeEditor.GetCollIDs( collIDVec );
+    }
+
     GeomScreen::GetCollIDs( collIDVec );
 }
 

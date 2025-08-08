@@ -1476,10 +1476,28 @@ void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void ManageMeasureScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    m_RulerAttrEditor.GetCollIDs( collIDVec );
-    m_ProbeAttrEditor.GetCollIDs( collIDVec );
-    m_RSTAttrEditor.GetCollIDs( collIDVec );
-    m_ProtAttrEditor.GetCollIDs( collIDVec );
+    Fl_Group* tab_grp = dynamic_cast<Fl_Group*>( GetTabs()->value() );
+    Fl_Group* rul_group = m_RulerLayout.GetGroup();
+    Fl_Group* prb_group = m_ProbeLayout.GetGroup();
+    Fl_Group* rst_group = m_RSTProbeLayout.GetGroup();
+    Fl_Group* prt_group = m_ProtractorLayout.GetGroup();
+
+    if ( tab_grp == rul_group->parent() )
+    {
+        m_RulerAttrEditor.GetCollIDs( collIDVec );
+    }
+    if ( tab_grp == prb_group->parent() )
+    {
+        m_ProbeAttrEditor.GetCollIDs( collIDVec );
+    }
+    if ( tab_grp == rst_group->parent() )
+    {
+        m_RSTAttrEditor.GetCollIDs( collIDVec );
+    }
+    if ( tab_grp == prt_group->parent() )
+    {
+        m_ProtAttrEditor.GetCollIDs( collIDVec );
+    }
 }
 
 void ManageMeasureScreen::Set( const vec3d &placement, const std::string &targetGeomId )

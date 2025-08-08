@@ -983,7 +983,14 @@ bool WingScreen::Update()
 
 void WingScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    m_SecAttributeEditor.GetCollIDs( collIDVec );
+    Fl_Group* tab_grp = dynamic_cast<Fl_Group*>( GetTabs()->value() );
+    Fl_Group* sec_group = m_SectionLayout.GetGroup();
+
+    if ( tab_grp == sec_group->parent() )
+    {
+        m_SecAttributeEditor.GetCollIDs( collIDVec );
+    }
+
     XSecScreen::GetCollIDs( collIDVec );
 }
 

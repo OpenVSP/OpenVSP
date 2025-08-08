@@ -819,6 +819,16 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void VarPresetEditorScreen::GetCollIDs( vector < string > &collIDVec )
 {
-    m_GroupAttrEditor.GetCollIDs( collIDVec );
-    m_SettingAttrEditor.GetCollIDs( collIDVec );
+    Fl_Group* tab_grp = dynamic_cast<Fl_Group*>( GetTabs()->value() );
+    Fl_Group* grp_group = m_GroupsLayout.GetGroup();
+    Fl_Group* set_group = m_SettingLayout.GetGroup();
+
+    if ( tab_grp == grp_group->parent() )
+    {
+        m_GroupAttrEditor.GetCollIDs( collIDVec );
+    }
+    else if ( tab_grp == set_group->parent() )
+    {
+        m_SettingAttrEditor.GetCollIDs( collIDVec );
+    }
 }
