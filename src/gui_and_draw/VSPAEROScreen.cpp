@@ -817,7 +817,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     prop_driver_labels[vsp::Q_PROP_DRIVER] = "Torque";
 
     m_PropElemDriverGroupBank.SetDriverGroup( &m_DefaultPropDriverGroup );
-    m_PropElemLayout.AddDriverGroupBank( m_PropElemDriverGroupBank, prop_driver_labels, 10, "%6.2f" );
+    m_PropElemLayout.AddDriverGroupBank( m_PropElemDriverGroupBank, prop_driver_labels, 10, "%6.4f" );
 
     //==== Unsteady Group Tab ====//
     m_PropellerTab = AddTab( "Propeller" );
