@@ -783,58 +783,58 @@ string GeometryAnalysisCase::Evaluate()
                     vector < vec3d > cgbounds;
                     if ( GetPrimaryPtNormalMeanContactPtPivotAxisCG( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta, cgnom, cgbounds ) )
                     {
-                    vec3d p0, p1;
-                    double anglenominal = tipback( cgnom, normal, ptaxis, axis, p0, p1 );
+                        vec3d p0, p1;
+                        double anglenominal = tipback( cgnom, normal, ptaxis, axis, p0, p1 );
 
-                    vector < vec3d > tip_pts;
-                    tip_pts.reserve( 12 );
-                    tip_pts.push_back( p0 );
-                    tip_pts.push_back( p1 );
-                    tip_pts.push_back( p0 );
-                    tip_pts.push_back( cgnom );
+                        vector < vec3d > tip_pts;
+                        tip_pts.reserve( 12 );
+                        tip_pts.push_back( p0 );
+                        tip_pts.push_back( p1 );
+                        tip_pts.push_back( p0 );
+                        tip_pts.push_back( cgnom );
 
 
-                    double anglemin = 10;
-                    double anglemax = -10;
-                    vec3d p0min, p1min;
-                    vec3d p0max, p1max;
-                    int imin;
-                    int imax;
+                        double anglemin = 10;
+                        double anglemax = -10;
+                        vec3d p0min, p1min;
+                        vec3d p0max, p1max;
+                        int imin;
+                        int imax;
 
-                    for ( int i = 0; i < cgbounds.size(); ++i )
-                    {
-                        double angle = tipback( cgbounds[i], normal, ptaxis, axis, p0, p1 );
-                        if ( angle < anglemin )
+                        for ( int i = 0; i < cgbounds.size(); ++i )
                         {
-                            anglemin = angle;
-                            p0min = p0;
-                            p1min = p1;
-                            imin = i;
+                            double angle = tipback( cgbounds[i], normal, ptaxis, axis, p0, p1 );
+                            if ( angle < anglemin )
+                            {
+                                anglemin = angle;
+                                p0min = p0;
+                                p1min = p1;
+                                imin = i;
+                            }
+                            if ( angle > anglemax )
+                            {
+                                anglemax = angle;
+                                p0max = p0;
+                                p1max = p1;
+                                imax = i;
+                            }
                         }
-                        if ( angle > anglemax )
-                        {
-                            anglemax = angle;
-                            p0max = p0;
-                            p1max = p1;
-                            imax = i;
-                        }
-                    }
 
-                    tip_pts.push_back( p0min );
-                    tip_pts.push_back( p1min );
-                    tip_pts.push_back( p0min );
-                    tip_pts.push_back( cgbounds[ imin ] );
+                        tip_pts.push_back( p0min );
+                        tip_pts.push_back( p1min );
+                        tip_pts.push_back( p0min );
+                        tip_pts.push_back( cgbounds[ imin ] );
 
-                    tip_pts.push_back( p0max );
-                    tip_pts.push_back( p1max );
-                    tip_pts.push_back( p0max );
-                    tip_pts.push_back( cgbounds[ imax ] );
+                        tip_pts.push_back( p0max );
+                        tip_pts.push_back( p1max );
+                        tip_pts.push_back( p0max );
+                        tip_pts.push_back( cgbounds[ imax ] );
 
-                    res->Add( new NameValData( "NominalTip", anglenominal * 180.0 / M_PI, "Nominal tipback angle." ) );
-                    res->Add( new NameValData( "MinTip", anglemin * 180.0 / M_PI, "Minimum tipback angle." ) );
-                    res->Add( new NameValData( "MaxTip", anglemax * 180.0 / M_PI, "Maximum tipback angle." ) );
-                    res->Add( new NameValData( "Pts", tip_pts, "Tipback arc end points." ) );
-                    res->Add( new NameValData( "Result", anglenominal * 180.0 / M_PI, "Interference result" ) );
+                        res->Add( new NameValData( "NominalTip", anglenominal * 180.0 / M_PI, "Nominal tipback angle." ) );
+                        res->Add( new NameValData( "MinTip", anglemin * 180.0 / M_PI, "Minimum tipback angle." ) );
+                        res->Add( new NameValData( "MaxTip", anglemax * 180.0 / M_PI, "Maximum tipback angle." ) );
+                        res->Add( new NameValData( "Pts", tip_pts, "Tipback arc end points." ) );
+                        res->Add( new NameValData( "Result", anglenominal * 180.0 / M_PI, "Interference result" ) );
                     }
                     else
                     {
