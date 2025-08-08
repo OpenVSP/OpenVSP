@@ -515,8 +515,8 @@ string GeometryAnalysisCase::Evaluate()
                 secondary_tmv = GetSecondaryTMeshVec();
                 if ( !primary_tmv.empty() && !secondary_tmv.empty() )
                 {
-                m_LastResult = ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
-                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                    m_LastResult = ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
+                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 }
                 else
                 {
@@ -537,8 +537,8 @@ string GeometryAnalysisCase::Evaluate()
                 secondary_tmv = GetSecondaryTMeshVec();
                 if ( !primary_tmv.empty() && !secondary_tmv.empty() )
                 {
-                m_LastResult = PackagingInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
-                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                    m_LastResult = PackagingInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
+                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 }
                 else
                 {
@@ -558,8 +558,8 @@ string GeometryAnalysisCase::Evaluate()
                 primary_tmv = GetPrimaryTMeshVec();
                 if ( !primary_tmv.empty() )
                 {
-                m_LastResult = ExteriorSelfInterferenceCheck( primary_tmv, m_TMeshVec );
-                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                    m_LastResult = ExteriorSelfInterferenceCheck( primary_tmv, m_TMeshVec );
+                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 }
                 else
                 {
@@ -584,64 +584,64 @@ string GeometryAnalysisCase::Evaluate()
 
                     if ( !primary_tmv.empty() )
                     {
-                    CSGMesh( primary_tmv );
-                    FlattenTMeshVec( primary_tmv );
+                        CSGMesh( primary_tmv );
+                        FlattenTMeshVec( primary_tmv );
 
-                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
-                    primary_tm->LoadBndBox();
+                        TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                        primary_tm->LoadBndBox();
 
-                    bool success = false;
+                        bool success = false;
 
-                    vec3d org, norm;
-                    if ( m_SecondaryType() == vsp::Z_TARGET )
-                    {
-                        org.set_z( m_SecondaryZGround() );
-                        norm.set_z( 1 );
-                        success = true;
-                    }
-                    else
-                    {
-                        success = GetSecondaryPtNormal( org, norm );
-                    }
-
-                    if ( success )
-                    {
-                        // Create MeshGeom of matching plane.
-                        // Vehicle * veh = VehicleMgr.GetVehicle();
-                        // string meshid = veh->AddMeshGeom( vsp::SET_NONE, vsp::SET_NONE, false );
-                        // Geom* geom_ptr = veh->FindGeom( meshid );
-                        // MeshGeom *mg = dynamic_cast<  MeshGeom* > ( geom_ptr );
-                        // mg->m_TMeshVec.push_back( MakeSlice( org, norm, 10 ) );
-                        // mg->m_SurfDirty = true;
-                        // mg->Update();
-
-                        PlaneInterferenceCheck( primary_tm, org, norm, m_LastResult, m_TMeshVec );
-                        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
-
-                        bool interference_flag = true;
-                        NameValData* nvd = res->FindPtr( "Interference", 0 );
-                        if( nvd )
+                        vec3d org, norm;
+                        if ( m_SecondaryType() == vsp::Z_TARGET )
                         {
-                            interference_flag = nvd->GetBool( 0 );
+                            org.set_z( m_SecondaryZGround() );
+                            norm.set_z( 1 );
+                            success = true;
+                        }
+                        else
+                        {
+                            success = GetSecondaryPtNormal( org, norm );
                         }
 
-                        // When interference_flag is true, primary_tm has been placed in m_TMeshVec
-                        if ( !interference_flag )
+                        if ( success )
                         {
-                            delete primary_tm;
-                        }
-                    }
-                    else
-                    {
-                        MessageData errMsgData;
-                        errMsgData.m_String = "Error";
-                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
-                        char buf[255];
-                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
-                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+                            // Create MeshGeom of matching plane.
+                            // Vehicle * veh = VehicleMgr.GetVehicle();
+                            // string meshid = veh->AddMeshGeom( vsp::SET_NONE, vsp::SET_NONE, false );
+                            // Geom* geom_ptr = veh->FindGeom( meshid );
+                            // MeshGeom *mg = dynamic_cast<  MeshGeom* > ( geom_ptr );
+                            // mg->m_TMeshVec.push_back( MakeSlice( org, norm, 10 ) );
+                            // mg->m_SurfDirty = true;
+                            // mg->Update();
 
-                        MessageMgr::getInstance().SendAll( errMsgData );
-                    }
+                            PlaneInterferenceCheck( primary_tm, org, norm, m_LastResult, m_TMeshVec );
+                            m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+
+                            bool interference_flag = true;
+                            NameValData* nvd = res->FindPtr( "Interference", 0 );
+                            if( nvd )
+                            {
+                                interference_flag = nvd->GetBool( 0 );
+                            }
+
+                            // When interference_flag is true, primary_tm has been placed in m_TMeshVec
+                            if ( !interference_flag )
+                            {
+                                delete primary_tm;
+                            }
+                        }
+                        else
+                        {
+                            MessageData errMsgData;
+                            errMsgData.m_String = "Error";
+                            errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                            char buf[255];
+                            snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                            errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                            MessageMgr::getInstance().SendAll( errMsgData );
+                        }
                     }
                     else
                     {
@@ -667,141 +667,141 @@ string GeometryAnalysisCase::Evaluate()
 
                     if ( !primary_tmv.empty() )
                     {
-                    CSGMesh( primary_tmv );
-                    FlattenTMeshVec( primary_tmv );
-                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
-                    primary_tm->LoadBndBox();
+                        CSGMesh( primary_tmv );
+                        FlattenTMeshVec( primary_tmv );
+                        TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                        primary_tm->LoadBndBox();
 
-                    vec3d pivot_org, pivot_norm;
-                    vec3d pivot_ptaxis, pivot_axis;
-                    bool usepivot = false;
-                    double mintheta, maxtheta;
-                    if ( GetSecondaryPtNormalMeanContactPivotAxis( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, usepivot, mintheta, maxtheta ) )
-                    {
-                        // Check un-rotated for collision
-                        // If violated, intersect mesh, calculate volume, etc.
-                        PlaneInterferenceCheck( primary_tm, pivot_org, pivot_norm, m_LastResult, m_TMeshVec );
-
-                        bool interference_flag = true;
-                        NameValData* nvd = res->FindPtr( "Interference", 0 );
-                        if( nvd )
+                        vec3d pivot_org, pivot_norm;
+                        vec3d pivot_ptaxis, pivot_axis;
+                        bool usepivot = false;
+                        double mintheta, maxtheta;
+                        if ( GetSecondaryPtNormalMeanContactPivotAxis( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, usepivot, mintheta, maxtheta ) )
                         {
-                            interference_flag = nvd->GetBool( 0 );
-                        }
+                            // Check un-rotated for collision
+                            // If violated, intersect mesh, calculate volume, etc.
+                            PlaneInterferenceCheck( primary_tm, pivot_org, pivot_norm, m_LastResult, m_TMeshVec );
 
-                        if ( !interference_flag )
-                        {
-                            int ccw = 1;
-                            if ( m_SecondaryCCWFlag() )
+                            bool interference_flag = true;
+                            NameValData* nvd = res->FindPtr( "Interference", 0 );
+                            if( nvd )
                             {
-                                ccw = -1;
+                                interference_flag = nvd->GetBool( 0 );
                             }
 
-                            vector < vec3d > tip_pts;
-                            vec3d p1, p2;
-
-                            double tip_bogie = 1e12 * M_PI / 180;
-                            double tip_wheel = 1e12 * M_PI / 180;;
-
-                            bool skipwheel = false;
-
-                            // Find if there are wheels (at lest) in tandem on bogie.
-                            if ( usepivot )
+                            if ( !interference_flag )
                             {
-                                // Do tilt analysis
-                                tip_bogie = ccw * primary_tm->MinAngle( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, tip_bogie, ccw, p1, p2 );
-
-                                // Check back tilt limit
-                                if ( ccw > 0 && tip_bogie > maxtheta )
+                                int ccw = 1;
+                                if ( m_SecondaryCCWFlag() )
                                 {
-                                    // If exceeded, set bogietheta to limit
-                                    tip_bogie = maxtheta;
+                                    ccw = -1;
                                 }
-                                else if ( ccw < 0 && tip_bogie < mintheta )
+
+                                vector < vec3d > tip_pts;
+                                vec3d p1, p2;
+
+                                double tip_bogie = 1e12 * M_PI / 180;
+                                double tip_wheel = 1e12 * M_PI / 180;;
+
+                                bool skipwheel = false;
+
+                                // Find if there are wheels (at lest) in tandem on bogie.
+                                if ( usepivot )
                                 {
-                                    // If exceeded, set bogietheta to limit
-                                    tip_bogie = mintheta;
+                                    // Do tilt analysis
+                                    tip_bogie = ccw * primary_tm->MinAngle( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, tip_bogie, ccw, p1, p2 );
+
+                                    // Check back tilt limit
+                                    if ( ccw > 0 && tip_bogie > maxtheta )
+                                    {
+                                        // If exceeded, set bogietheta to limit
+                                        tip_bogie = maxtheta;
+                                    }
+                                    else if ( ccw < 0 && tip_bogie < mintheta )
+                                    {
+                                        // If exceeded, set bogietheta to limit
+                                        tip_bogie = mintheta;
+                                    }
+                                    else
+                                    {
+                                        tip_pts.push_back( p1 );
+                                        tip_pts.push_back( p2 );
+                                        skipwheel = true;
+                                    }
                                 }
                                 else
                                 {
+                                    tip_bogie = 0;
+                                }
+
+                                if ( !skipwheel )
+                                {
+                                    vec3d aft_org, aft_norm;
+                                    vec3d aft_ptaxis, aft_axis;
+
+                                    // Get aft axle parms
+                                    if ( ccw > 0 )
+                                    {
+                                        // Ignore return value because we could not get here with wrong Geom types.
+                                        (void) GetSecondaryPtNormalAftAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
+                                    }
+                                    else
+                                    {
+                                        // Ignore return value because we could nto get here with wrong Geom types.
+                                        (void) GetSecondaryPtNormalFwdAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
+                                    }
+
+                                    // Do tilt analysis
+                                    tip_wheel = ccw * primary_tm->MinAngle( aft_org, aft_norm, aft_ptaxis, aft_axis, tip_wheel, ccw, p1, p2 );
                                     tip_pts.push_back( p1 );
                                     tip_pts.push_back( p2 );
-                                    skipwheel = true;
-                                }
-                            }
-                            else
-                            {
-                                tip_bogie = 0;
-                            }
 
-                            if ( !skipwheel )
-                            {
-                                vec3d aft_org, aft_norm;
-                                vec3d aft_ptaxis, aft_axis;
-
-                                // Get aft axle parms
-                                if ( ccw > 0 )
-                                {
-                                    // Ignore return value because we could not get here with wrong Geom types.
-                                    (void) GetSecondaryPtNormalAftAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
+                                    vec3d p3 = pivot_ptaxis + RotateArbAxis( p2 - pivot_ptaxis, tip_bogie, pivot_axis );
+                                    tip_pts.push_back( p2 );
+                                    tip_pts.push_back( p3 );
                                 }
                                 else
                                 {
-                                    // Ignore return value because we could nto get here with wrong Geom types.
-                                    (void) GetSecondaryPtNormalFwdAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
+                                    tip_wheel = 0;
                                 }
 
-                                // Do tilt analysis
-                                tip_wheel = ccw * primary_tm->MinAngle( aft_org, aft_norm, aft_ptaxis, aft_axis, tip_wheel, ccw, p1, p2 );
-                                tip_pts.push_back( p1 );
-                                tip_pts.push_back( p2 );
+                                double tip = ( tip_bogie + tip_wheel ) * 180.0 / M_PI;
 
-                                vec3d p3 = pivot_ptaxis + RotateArbAxis( p2 - pivot_ptaxis, tip_bogie, pivot_axis );
-                                tip_pts.push_back( p2 );
-                                tip_pts.push_back( p3 );
+                                res->Add( new NameValData( "CCW", m_SecondaryCCWFlag(), "CCW tip direction flag." ) );
+                                res->Add( new NameValData( "TipBogie", tip_bogie * 180.0 / M_PI, "Bogie tip angle to contact." ) );
+                                res->Add( new NameValData( "TipWheel", tip_wheel * 180.0 / M_PI, "Wheel tip angle to contact." ) );
+                                res->Add( new NameValData( "Tip", tip, "Total tip angle to contact." ) );
+                                res->Add( new NameValData( "TipPts", tip_pts, "Tip contact arc end points." ) );
+
+                                // Over-write previous results values from planar distance check
+                                nvd = res->FindPtr( "Con_Val", 0 );
+                                if ( nvd )
+                                {
+                                    nvd->SetDoubleData( { tip } );
+                                }
+
+                                nvd = res->FindPtr( "Result", 0 );
+                                if ( nvd )
+                                {
+                                    nvd->SetDoubleData( { tip } );
+                                }
+
+                                m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
+
+                                delete primary_tm;
                             }
-                            else
-                            {
-                                tip_wheel = 0;
-                            }
-
-                            double tip = ( tip_bogie + tip_wheel ) * 180.0 / M_PI;
-
-                            res->Add( new NameValData( "CCW", m_SecondaryCCWFlag(), "CCW tip direction flag." ) );
-                            res->Add( new NameValData( "TipBogie", tip_bogie * 180.0 / M_PI, "Bogie tip angle to contact." ) );
-                            res->Add( new NameValData( "TipWheel", tip_wheel * 180.0 / M_PI, "Wheel tip angle to contact." ) );
-                            res->Add( new NameValData( "Tip", tip, "Total tip angle to contact." ) );
-                            res->Add( new NameValData( "TipPts", tip_pts, "Tip contact arc end points." ) );
-
-                            // Over-write previous results values from planar distance check
-                            nvd = res->FindPtr( "Con_Val", 0 );
-                            if ( nvd )
-                            {
-                                nvd->SetDoubleData( { tip } );
-                            }
-
-                            nvd = res->FindPtr( "Result", 0 );
-                            if ( nvd )
-                            {
-                                nvd->SetDoubleData( { tip } );
-                            }
-
-                            m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
-
-                            delete primary_tm;
                         }
-                    }
-                    else
-                    {
-                        MessageData errMsgData;
-                        errMsgData.m_String = "Error";
-                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
-                        char buf[255];
-                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
-                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+                        else
+                        {
+                            MessageData errMsgData;
+                            errMsgData.m_String = "Error";
+                            errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                            char buf[255];
+                            snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                            errMsgData.m_StringVec.emplace_back( string( buf ) );
 
-                        MessageMgr::getInstance().SendAll( errMsgData );
-                    }
+                            MessageMgr::getInstance().SendAll( errMsgData );
+                        }
                     }
                     else
                     {
@@ -827,74 +827,74 @@ string GeometryAnalysisCase::Evaluate()
 
                     if ( !primary_tmv.empty() )
                     {
-                    CSGMesh( primary_tmv );
-                    FlattenTMeshVec( primary_tmv );
-                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
-                    primary_tm->LoadBndBox();
+                        CSGMesh( primary_tmv );
+                        FlattenTMeshVec( primary_tmv );
+                        TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                        primary_tm->LoadBndBox();
 
-                    vec3d pt, normal;
-                    vec3d roll_axis;
-                    int ysign;
-                    if ( GetSecondarySideContactPtRollAxisNormal( pt, roll_axis, normal, ysign ) )
-                    {
-                        // Check un-rotated for collision
-                        // If violated, intersect mesh, calculate volume, etc.
-                        PlaneInterferenceCheck( primary_tm, pt, normal, m_LastResult, m_TMeshVec );
-
-                        bool interference_flag = true;
-                        NameValData* nvd = res->FindPtr( "Interference", 0 );
-                        if( nvd )
+                        vec3d pt, normal;
+                        vec3d roll_axis;
+                        int ysign;
+                        if ( GetSecondarySideContactPtRollAxisNormal( pt, roll_axis, normal, ysign ) )
                         {
-                            interference_flag = nvd->GetBool( 0 );
-                        }
+                            // Check un-rotated for collision
+                            // If violated, intersect mesh, calculate volume, etc.
+                            PlaneInterferenceCheck( primary_tm, pt, normal, m_LastResult, m_TMeshVec );
 
-                        if ( !interference_flag )
-                        {
-                            int ccw = -ysign;
-
-                            vector < vec3d > tip_pts;
-                            vec3d p1, p2;
-
-                            double roll = 1e12 * M_PI / 180;
-
-                            // Do tilt analysis
-                            roll = ccw * primary_tm->MinAngle( pt, normal, pt, roll_axis, roll, ccw, p1, p2 );
-
-                            tip_pts.push_back( p1 );
-                            tip_pts.push_back( p2 );
-
-                            res->Add( new NameValData( "RollAngle", roll * 180.0 / M_PI, "Roll angle to contact." ) );
-                            res->Add( new NameValData( "RollPts", tip_pts, "Roll contact arc end points." ) );
-
-                            // Over-write previous results values from planar distance check
-                            nvd = res->FindPtr( "Con_Val", 0 );
-                            if ( nvd )
+                            bool interference_flag = true;
+                            NameValData* nvd = res->FindPtr( "Interference", 0 );
+                            if( nvd )
                             {
-                                nvd->SetDoubleData( { roll * 180.0 / M_PI } );
+                                interference_flag = nvd->GetBool( 0 );
                             }
 
-                            nvd = res->FindPtr( "Result", 0 );
-                            if ( nvd )
+                            if ( !interference_flag )
                             {
-                                nvd->SetDoubleData( { roll * 180.0 / M_PI } );
+                                int ccw = -ysign;
+
+                                vector < vec3d > tip_pts;
+                                vec3d p1, p2;
+
+                                double roll = 1e12 * M_PI / 180;
+
+                                // Do tilt analysis
+                                roll = ccw * primary_tm->MinAngle( pt, normal, pt, roll_axis, roll, ccw, p1, p2 );
+
+                                tip_pts.push_back( p1 );
+                                tip_pts.push_back( p2 );
+
+                                res->Add( new NameValData( "RollAngle", roll * 180.0 / M_PI, "Roll angle to contact." ) );
+                                res->Add( new NameValData( "RollPts", tip_pts, "Roll contact arc end points." ) );
+
+                                // Over-write previous results values from planar distance check
+                                nvd = res->FindPtr( "Con_Val", 0 );
+                                if ( nvd )
+                                {
+                                    nvd->SetDoubleData( { roll * 180.0 / M_PI } );
+                                }
+
+                                nvd = res->FindPtr( "Result", 0 );
+                                if ( nvd )
+                                {
+                                    nvd->SetDoubleData( { roll * 180.0 / M_PI } );
+                                }
+
+                                m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
+
+                                delete primary_tm;
                             }
-
-                            m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
-
-                            delete primary_tm;
                         }
-                    }
-                    else
-                    {
-                        MessageData errMsgData;
-                        errMsgData.m_String = "Error";
-                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
-                        char buf[255];
-                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
-                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+                        else
+                        {
+                            MessageData errMsgData;
+                            errMsgData.m_String = "Error";
+                            errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                            char buf[255];
+                            snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                            errMsgData.m_StringVec.emplace_back( string( buf ) );
 
-                        MessageMgr::getInstance().SendAll( errMsgData );
-                    }
+                            MessageMgr::getInstance().SendAll( errMsgData );
+                        }
                     }
                     else
                     {
@@ -1144,70 +1144,70 @@ string GeometryAnalysisCase::Evaluate()
 
                     if ( !primary_tmv.empty() )
                     {
-                    CSGMesh( primary_tmv );
-                    FlattenTMeshVec( primary_tmv );
+                        CSGMesh( primary_tmv );
+                        FlattenTMeshVec( primary_tmv );
 
-                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
-                    primary_tm->LoadBndBox();
+                        TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                        primary_tm->LoadBndBox();
 
-                    bool success = false;
-                    if ( m_SecondaryType() == vsp::GEOM_TARGET )
-                    {
-                        Geom* geom = veh->FindGeom( m_SecondaryGeomID );
-
-                        AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
-                        if ( auxiliary_ptr )
+                        bool success = false;
+                        if ( m_SecondaryType() == vsp::GEOM_TARGET )
                         {
-                            vec3d cor;
-                            vec3d normal;
-                            vector < double > rvec;
-                            if ( auxiliary_ptr->CalculateTurn(cor, normal, rvec) )
+                            Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+
+                            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
+                            if ( auxiliary_ptr )
                             {
-
-
-                                vector < vec3d > distpts(2);
-                                double min_dist = -1;
-                                double max_dist = primary_tm->MaxDistanceRay( cor, normal, min_dist, distpts[0], distpts[1] );
-
-
-                                vector < vec3d > pts;
-                                pts.push_back( cor );
-                                pts.push_back( cor + normal );
-
-                                int nseg = 36;
-
-                                vector < vec3d > cirpts;
-                                for ( int i = 0; i < rvec.size(); ++i )
+                                vec3d cor;
+                                vec3d normal;
+                                vector < double > rvec;
+                                if ( auxiliary_ptr->CalculateTurn(cor, normal, rvec) )
                                 {
-                                    MakeCircle( cor, normal, rvec[i], cirpts, nseg );
+
+
+                                    vector < vec3d > distpts(2);
+                                    double min_dist = -1;
+                                    double max_dist = primary_tm->MaxDistanceRay( cor, normal, min_dist, distpts[0], distpts[1] );
+
+
+                                    vector < vec3d > pts;
+                                    pts.push_back( cor );
+                                    pts.push_back( cor + normal );
+
+                                    int nseg = 36;
+
+                                    vector < vec3d > cirpts;
+                                    for ( int i = 0; i < rvec.size(); ++i )
+                                    {
+                                        MakeCircle( cor, normal, rvec[i], cirpts, nseg );
+                                        pts.insert( pts.end(), cirpts.begin(), cirpts.end() );
+                                    }
+
+                                    MakeCircle( distpts[0], normal, max_dist, cirpts, nseg );
                                     pts.insert( pts.end(), cirpts.begin(), cirpts.end() );
+
+                                    res->Add( new NameValData( "Pts", pts, "Visualization of rotation axis and swept circles." ) );
+                                    res->Add( new NameValData( "COR", cor, "Center of rotation." ) );
+                                    res->Add( new NameValData( "Axis", normal, "Axis of rotation." ) );
+                                    res->Add( new NameValData( "GearTurnRadii", rvec, "Radii of gear turning circles." ) );
+                                    res->Add( new NameValData( "MaxRadii", max_dist, "Maximum turning radius of primary geometry." ) );
+                                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                                    success = true;
                                 }
-
-                                MakeCircle( distpts[0], normal, max_dist, cirpts, nseg );
-                                pts.insert( pts.end(), cirpts.begin(), cirpts.end() );
-
-                                res->Add( new NameValData( "Pts", pts, "Visualization of rotation axis and swept circles." ) );
-                                res->Add( new NameValData( "COR", cor, "Center of rotation." ) );
-                                res->Add( new NameValData( "Axis", normal, "Axis of rotation." ) );
-                                res->Add( new NameValData( "GearTurnRadii", rvec, "Radii of gear turning circles." ) );
-                                res->Add( new NameValData( "MaxRadii", max_dist, "Maximum turning radius of primary geometry." ) );
-                                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
-                                success = true;
                             }
                         }
-                    }
 
-                    if ( !success )
-                    {
-                        MessageData errMsgData;
-                        errMsgData.m_String = "Error";
-                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
-                        char buf[255];
-                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
-                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+                        if ( !success )
+                        {
+                            MessageData errMsgData;
+                            errMsgData.m_String = "Error";
+                            errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                            char buf[255];
+                            snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                            errMsgData.m_StringVec.emplace_back( string( buf ) );
 
-                        MessageMgr::getInstance().SendAll( errMsgData );
-                    }
+                            MessageMgr::getInstance().SendAll( errMsgData );
+                        }
                     }
                     else
                     {
@@ -1230,23 +1230,23 @@ string GeometryAnalysisCase::Evaluate()
                 if ( !primary_tmv.empty() )
                 {
 
-                vec3d cen;
-                if ( GetSecondaryPt( cen ) )
-                {
-                    m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
-                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
-                }
-                else
-                {
-                    MessageData errMsgData;
-                    errMsgData.m_String = "Error";
-                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
-                    char buf[255];
-                    snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
-                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+                    vec3d cen;
+                    if ( GetSecondaryPt( cen ) )
+                    {
+                        m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
+                        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
 
-                    MessageMgr::getInstance().SendAll( errMsgData );
-                }
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
                 }
                 else
                 {
@@ -1272,17 +1272,17 @@ string GeometryAnalysisCase::Evaluate()
 
                     if ( !primary_tmv.empty() && !secondary_tmv.empty() )
                     {
-                    CSGMesh( primary_tmv );
-                    FlattenTMeshVec( primary_tmv );
-                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
-                    primary_tm->LoadBndBox();
+                        CSGMesh( primary_tmv );
+                        FlattenTMeshVec( primary_tmv );
+                        TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                        primary_tm->LoadBndBox();
 
-                    TMesh *secondary_tm = new TMesh();
-                    secondary_tm->CopyFlatten( secondary_tmv[0] );
-                    secondary_tm->LoadBndBox();
+                        TMesh *secondary_tm = new TMesh();
+                        secondary_tm->CopyFlatten( secondary_tmv[0] );
+                        secondary_tm->LoadBndBox();
 
-                    CCEInterferenceCheck( primary_tm, secondary_tm, m_LastResult, m_TMeshVec );
-                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                        CCEInterferenceCheck( primary_tm, secondary_tm, m_LastResult, m_TMeshVec );
+                        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                     }
                     else
                     {
