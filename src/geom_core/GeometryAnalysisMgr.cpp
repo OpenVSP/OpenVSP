@@ -279,15 +279,17 @@ AuxiliaryGeom* GeometryAnalysisCase::GetPrimaryAuxiliaryGeom() const
     return auxiliary_ptr;
 }
 
-void GeometryAnalysisCase::GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds ) const
+bool GeometryAnalysisCase::GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds ) const
 {
     AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
 
     if ( auxiliary_ptr )
     {
-        auxiliary_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
-        auxiliary_ptr->GetCG( cgnom, cgbounds );
+        bool r1 = auxiliary_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
+        bool r2 = auxiliary_ptr->GetCG( cgnom, cgbounds );
+        return r1 && r2;
     }
+    return false;
 }
 
 void GeometryAnalysisCase::GetSecondaryPt( vec3d &pt )

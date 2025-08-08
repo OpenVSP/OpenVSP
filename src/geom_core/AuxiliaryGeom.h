@@ -59,10 +59,10 @@ public:
     virtual void SetContactPt2ID( const std::string& id );
     virtual void SetContactPt3ID( const std::string& id );
 
-    virtual void GetCG( vec3d &cgnom, vector < vec3d > &cgbounds );
+    virtual bool GetCG( vec3d &cgnom, vector < vec3d > &cgbounds );
     virtual void GetPtNormal( vec3d &pt, vec3d &normal ) const;
     virtual void GetPtPivotAxis( vec3d &ptaxis, vec3d &axis );
-    virtual void GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );
+    virtual bool GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );
     virtual void GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign );
     virtual void GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
     virtual void GetPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );

@@ -36,7 +36,7 @@ public:
     void GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
     void GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds );
     AuxiliaryGeom* GetPrimaryAuxiliaryGeom() const;
-    void GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds ) const;
+    bool GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds ) const;
 
 
     void GetSecondaryPt( vec3d &pt );
