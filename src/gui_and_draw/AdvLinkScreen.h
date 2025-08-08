@@ -53,11 +53,15 @@ public:
 
 protected:
 
+    void UpdateLineNumberWidth();
+
     Fl_Browser* m_LinkBrowser;
     ColResizeBrowser* m_InputBrowser;
     ColResizeBrowser* m_OutputBrowser;
     Fl_Text_Editor* m_CodeEditor;
     Fl_Text_Buffer* m_CodeBuffer;
+
+    int m_CharWidth;
 
     
     Fl_Color m_Lt_Red;

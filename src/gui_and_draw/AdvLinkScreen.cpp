@@ -226,10 +226,20 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Ad
     m_CodeEditor->buffer( m_CodeBuffer );
     m_CodeEditor->textfont( FL_COURIER );
 
+    int ln_font = FL_COURIER;
+    int ln_size = 14;
+    m_CodeEditor->linenumber_font( ln_font );
+    m_CodeEditor->linenumber_size( ln_size );
+
     m_CodeBuffer->add_modify_callback(staticTextCB, this);
     m_CodeBuffer->call_modify_callbacks();
 
     m_CodeBuffer->text( "" );
+
+    // initialize per-char width
+    fl_font( ln_font, ln_size );
+    m_CharWidth = fl_width( "1" );
+    UpdateLineNumberWidth();
 
     //==== Attributes GUI ====//
     m_AdvLinkAttrEditor.Init( &m_BigGroup, m_FLTK_Window, this, staticScreenCB, true, m_BigGroup.GetY(), m_BigGroup.GetRemainY() - 5 );
@@ -463,6 +473,8 @@ bool AdvLinkScreen::Update()
     {
         m_AdvLinkAttrEditor.SetEditorCollID();
     }
+
+    UpdateLineNumberWidth();
 
     m_AdvLinkAttrEditor.Update();
 
@@ -1022,8 +1034,26 @@ void AdvLinkScreen::AddOutput( const string & parmid, const string & name )
     }
 }
 
+void AdvLinkScreen::UpdateLineNumberWidth()
+{
+    int digits = 2;
+    int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
+    if ( edit_link_index > -1 )
+    {
+        int lines = m_CodeBuffer->count_lines( 0, m_CodeBuffer->length() ) + 1;
+        digits = max( digits, int( log10(lines) + 1 ) );
+    }
+
+    int buffer = 5;
+    int w = m_CharWidth * digits + buffer;
+
+    m_CodeEditor->linenumber_width( w );
+}
+
 void AdvLinkScreen::TextCallBack( int pos, int nInserted, int nDeleted, int nRestyled, const char* deletedText )
 {
+    UpdateLineNumberWidth();
+
     AdvLink* edit_link = AdvLinkMgr.GetLink( AdvLinkMgr.GetEditLinkIndex() );
 
     if ( !edit_link )
