@@ -472,7 +472,7 @@ void AttributeTree::DeviceCB( Fl_Widget *w )
 }
 
 // ==== Attribute Editor ==== //
-void AttributeEditor::Init( GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start, int start_y, int browser_h )
+void AttributeEditor::Init( GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start, int start_y, int editor_h )
 {
     GuiDevice::Init( screen );
 
@@ -484,6 +484,7 @@ void AttributeEditor::Init( GroupLayout * layout, Fl_Group* group, VspScreen *sc
     {
         m_AttrCommonGroup.SetY( start_y );
     }
+    int browser_h = editor_h - layout->GetDividerHeight();
 
     m_AttrTreeWidget.Init( layout, group, screen, cb, true, m_AttrCommonGroup.GetY(), browser_h);
     m_ShowState = false;

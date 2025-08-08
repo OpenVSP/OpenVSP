@@ -132,7 +132,7 @@ class AttributeEditor : public GuiDevice
 {
 public:
     // Initialize the member GUI devices and set their callbacks
-    void Init( GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start = false, int start_y = 0, int browser_h = 150 );
+    void Init( GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start = false, int start_y = 0, int editor_h = 165 );
     void Show();
     void Update();
     void SetEditorCollID( const string & collID = "" );
