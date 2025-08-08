@@ -820,15 +820,15 @@ protected:
         dest.resize( num_surf );
         if ( m_TransMatVec.size() == num_surf )
         {
-        for ( int i = 0; i < num_surf; ++i )
-        {
-            dest[ i ] = source[ m_MainSurfIndxVec[i] ];
-            if ( m_FlipNormalVec[ i ] )
+            for ( int i = 0; i < num_surf; ++i )
             {
-                dest[ i ].FlipNormal();
+                dest[ i ] = source[ m_MainSurfIndxVec[i] ];
+                if ( m_FlipNormalVec[ i ] )
+                {
+                    dest[ i ].FlipNormal();
+                }
+                dest[i].Transform( m_TransMatVec[i] ); // Apply total transformation to main surfaces
             }
-            dest[i].Transform( m_TransMatVec[i] ); // Apply total transformation to main surfaces
-        }
         }
     }
 
