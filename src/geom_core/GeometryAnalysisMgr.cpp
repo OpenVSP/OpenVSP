@@ -561,30 +561,30 @@ string GeometryAnalysisCase::Evaluate()
 
                     if ( success )
                     {
-                    // Create MeshGeom of matching plane.
-                    // Vehicle * veh = VehicleMgr.GetVehicle();
-                    // string meshid = veh->AddMeshGeom( vsp::SET_NONE, vsp::SET_NONE, false );
-                    // Geom* geom_ptr = veh->FindGeom( meshid );
-                    // MeshGeom *mg = dynamic_cast<  MeshGeom* > ( geom_ptr );
-                    // mg->m_TMeshVec.push_back( MakeSlice( org, norm, 10 ) );
-                    // mg->m_SurfDirty = true;
-                    // mg->Update();
+                        // Create MeshGeom of matching plane.
+                        // Vehicle * veh = VehicleMgr.GetVehicle();
+                        // string meshid = veh->AddMeshGeom( vsp::SET_NONE, vsp::SET_NONE, false );
+                        // Geom* geom_ptr = veh->FindGeom( meshid );
+                        // MeshGeom *mg = dynamic_cast<  MeshGeom* > ( geom_ptr );
+                        // mg->m_TMeshVec.push_back( MakeSlice( org, norm, 10 ) );
+                        // mg->m_SurfDirty = true;
+                        // mg->Update();
 
-                    PlaneInterferenceCheck( primary_tm, org, norm, m_LastResult, m_TMeshVec );
-                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                        PlaneInterferenceCheck( primary_tm, org, norm, m_LastResult, m_TMeshVec );
+                        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
 
-                    bool interference_flag = true;
-                    NameValData* nvd = res->FindPtr( "Interference", 0 );
-                    if( nvd )
-                    {
-                        interference_flag = nvd->GetBool( 0 );
-                    }
+                        bool interference_flag = true;
+                        NameValData* nvd = res->FindPtr( "Interference", 0 );
+                        if( nvd )
+                        {
+                            interference_flag = nvd->GetBool( 0 );
+                        }
 
-                    // When interference_flag is true, primary_tm has been placed in m_TMeshVec
-                    if ( !interference_flag )
-                    {
-                        delete primary_tm;
-                    }
+                        // When interference_flag is true, primary_tm has been placed in m_TMeshVec
+                        if ( !interference_flag )
+                        {
+                            delete primary_tm;
+                        }
                     }
                     else
                     {
@@ -618,118 +618,118 @@ string GeometryAnalysisCase::Evaluate()
                     double mintheta, maxtheta;
                     if ( GetSecondaryPtNormalMeanContactPivotAxis( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, usepivot, mintheta, maxtheta ) )
                     {
-                    // Check un-rotated for collision
-                    // If violated, intersect mesh, calculate volume, etc.
-                    PlaneInterferenceCheck( primary_tm, pivot_org, pivot_norm, m_LastResult, m_TMeshVec );
+                        // Check un-rotated for collision
+                        // If violated, intersect mesh, calculate volume, etc.
+                        PlaneInterferenceCheck( primary_tm, pivot_org, pivot_norm, m_LastResult, m_TMeshVec );
 
-                    bool interference_flag = true;
-                    NameValData* nvd = res->FindPtr( "Interference", 0 );
-                    if( nvd )
-                    {
-                        interference_flag = nvd->GetBool( 0 );
-                    }
-
-                    if ( !interference_flag )
-                    {
-                        int ccw = 1;
-                        if ( m_SecondaryCCWFlag() )
+                        bool interference_flag = true;
+                        NameValData* nvd = res->FindPtr( "Interference", 0 );
+                        if( nvd )
                         {
-                            ccw = -1;
+                            interference_flag = nvd->GetBool( 0 );
                         }
 
-                        vector < vec3d > tip_pts;
-                        vec3d p1, p2;
-
-                        double tip_bogie = 1e12 * M_PI / 180;
-                        double tip_wheel = 1e12 * M_PI / 180;;
-
-                        bool skipwheel = false;
-
-                        // Find if there are wheels (at lest) in tandem on bogie.
-                        if ( usepivot )
+                        if ( !interference_flag )
                         {
-                            // Do tilt analysis
-                            tip_bogie = ccw * primary_tm->MinAngle( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, tip_bogie, ccw, p1, p2 );
-
-                            // Check back tilt limit
-                            if ( ccw > 0 && tip_bogie > maxtheta )
+                            int ccw = 1;
+                            if ( m_SecondaryCCWFlag() )
                             {
-                                // If exceeded, set bogietheta to limit
-                                tip_bogie = maxtheta;
+                                ccw = -1;
                             }
-                            else if ( ccw < 0 && tip_bogie < mintheta )
+
+                            vector < vec3d > tip_pts;
+                            vec3d p1, p2;
+
+                            double tip_bogie = 1e12 * M_PI / 180;
+                            double tip_wheel = 1e12 * M_PI / 180;;
+
+                            bool skipwheel = false;
+
+                            // Find if there are wheels (at lest) in tandem on bogie.
+                            if ( usepivot )
                             {
-                                // If exceeded, set bogietheta to limit
-                                tip_bogie = mintheta;
+                                // Do tilt analysis
+                                tip_bogie = ccw * primary_tm->MinAngle( pivot_org, pivot_norm, pivot_ptaxis, pivot_axis, tip_bogie, ccw, p1, p2 );
+
+                                // Check back tilt limit
+                                if ( ccw > 0 && tip_bogie > maxtheta )
+                                {
+                                    // If exceeded, set bogietheta to limit
+                                    tip_bogie = maxtheta;
+                                }
+                                else if ( ccw < 0 && tip_bogie < mintheta )
+                                {
+                                    // If exceeded, set bogietheta to limit
+                                    tip_bogie = mintheta;
+                                }
+                                else
+                                {
+                                    tip_pts.push_back( p1 );
+                                    tip_pts.push_back( p2 );
+                                    skipwheel = true;
+                                }
                             }
                             else
                             {
+                                tip_bogie = 0;
+                            }
+
+                            if ( !skipwheel )
+                            {
+                                vec3d aft_org, aft_norm;
+                                vec3d aft_ptaxis, aft_axis;
+
+                                // Get aft axle parms
+                                if ( ccw > 0 )
+                                {
+                                    // Ignore return value because we could not get here with wrong Geom types.
+                                    (void) GetSecondaryPtNormalAftAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
+                                }
+                                else
+                                {
+                                    // Ignore return value because we could nto get here with wrong Geom types.
+                                    (void) GetSecondaryPtNormalFwdAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
+                                }
+
+                                // Do tilt analysis
+                                tip_wheel = ccw * primary_tm->MinAngle( aft_org, aft_norm, aft_ptaxis, aft_axis, tip_wheel, ccw, p1, p2 );
                                 tip_pts.push_back( p1 );
                                 tip_pts.push_back( p2 );
-                                skipwheel = true;
-                            }
-                        }
-                        else
-                        {
-                            tip_bogie = 0;
-                        }
 
-                        if ( !skipwheel )
-                        {
-                            vec3d aft_org, aft_norm;
-                            vec3d aft_ptaxis, aft_axis;
-
-                            // Get aft axle parms
-                            if ( ccw > 0 )
-                            {
-                                // Ignore return value because we could not get here with wrong Geom types.
-                                (void) GetSecondaryPtNormalAftAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
+                                vec3d p3 = pivot_ptaxis + RotateArbAxis( p2 - pivot_ptaxis, tip_bogie, pivot_axis );
+                                tip_pts.push_back( p2 );
+                                tip_pts.push_back( p3 );
                             }
                             else
                             {
-                                // Ignore return value because we could nto get here with wrong Geom types.
-                                (void) GetSecondaryPtNormalFwdAxleAxis( tip_bogie, aft_org, aft_norm, aft_ptaxis, aft_axis );
+                                tip_wheel = 0;
                             }
 
-                            // Do tilt analysis
-                            tip_wheel = ccw * primary_tm->MinAngle( aft_org, aft_norm, aft_ptaxis, aft_axis, tip_wheel, ccw, p1, p2 );
-                            tip_pts.push_back( p1 );
-                            tip_pts.push_back( p2 );
+                            double tip = ( tip_bogie + tip_wheel ) * 180.0 / M_PI;
 
-                            vec3d p3 = pivot_ptaxis + RotateArbAxis( p2 - pivot_ptaxis, tip_bogie, pivot_axis );
-                            tip_pts.push_back( p2 );
-                            tip_pts.push_back( p3 );
+                            res->Add( new NameValData( "CCW", m_SecondaryCCWFlag(), "CCW tip direction flag." ) );
+                            res->Add( new NameValData( "TipBogie", tip_bogie * 180.0 / M_PI, "Bogie tip angle to contact." ) );
+                            res->Add( new NameValData( "TipWheel", tip_wheel * 180.0 / M_PI, "Wheel tip angle to contact." ) );
+                            res->Add( new NameValData( "Tip", tip, "Total tip angle to contact." ) );
+                            res->Add( new NameValData( "TipPts", tip_pts, "Tip contact arc end points." ) );
+
+                            // Over-write previous results values from planar distance check
+                            nvd = res->FindPtr( "Con_Val", 0 );
+                            if ( nvd )
+                            {
+                                nvd->SetDoubleData( { tip } );
+                            }
+
+                            nvd = res->FindPtr( "Result", 0 );
+                            if ( nvd )
+                            {
+                                nvd->SetDoubleData( { tip } );
+                            }
+
+                            m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
+
+                            delete primary_tm;
                         }
-                        else
-                        {
-                            tip_wheel = 0;
-                        }
-
-                        double tip = ( tip_bogie + tip_wheel ) * 180.0 / M_PI;
-
-                        res->Add( new NameValData( "CCW", m_SecondaryCCWFlag(), "CCW tip direction flag." ) );
-                        res->Add( new NameValData( "TipBogie", tip_bogie * 180.0 / M_PI, "Bogie tip angle to contact." ) );
-                        res->Add( new NameValData( "TipWheel", tip_wheel * 180.0 / M_PI, "Wheel tip angle to contact." ) );
-                        res->Add( new NameValData( "Tip", tip, "Total tip angle to contact." ) );
-                        res->Add( new NameValData( "TipPts", tip_pts, "Tip contact arc end points." ) );
-
-                        // Over-write previous results values from planar distance check
-                        nvd = res->FindPtr( "Con_Val", 0 );
-                        if ( nvd )
-                        {
-                            nvd->SetDoubleData( { tip } );
-                        }
-
-                        nvd = res->FindPtr( "Result", 0 );
-                        if ( nvd )
-                        {
-                            nvd->SetDoubleData( { tip } );
-                        }
-
-                        m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
-
-                        delete primary_tm;
-                    }
                     }
                     else
                     {
@@ -762,52 +762,52 @@ string GeometryAnalysisCase::Evaluate()
                     int ysign;
                     if ( GetSecondarySideContactPtRollAxisNormal( pt, roll_axis, normal, ysign ) )
                     {
-                    // Check un-rotated for collision
-                    // If violated, intersect mesh, calculate volume, etc.
-                    PlaneInterferenceCheck( primary_tm, pt, normal, m_LastResult, m_TMeshVec );
+                        // Check un-rotated for collision
+                        // If violated, intersect mesh, calculate volume, etc.
+                        PlaneInterferenceCheck( primary_tm, pt, normal, m_LastResult, m_TMeshVec );
 
-                    bool interference_flag = true;
-                    NameValData* nvd = res->FindPtr( "Interference", 0 );
-                    if( nvd )
-                    {
-                        interference_flag = nvd->GetBool( 0 );
-                    }
-
-                    if ( !interference_flag )
-                    {
-                        int ccw = -ysign;
-
-                        vector < vec3d > tip_pts;
-                        vec3d p1, p2;
-
-                        double roll = 1e12 * M_PI / 180;
-
-                        // Do tilt analysis
-                        roll = ccw * primary_tm->MinAngle( pt, normal, pt, roll_axis, roll, ccw, p1, p2 );
-
-                        tip_pts.push_back( p1 );
-                        tip_pts.push_back( p2 );
-
-                        res->Add( new NameValData( "RollAngle", roll * 180.0 / M_PI, "Roll angle to contact." ) );
-                        res->Add( new NameValData( "RollPts", tip_pts, "Roll contact arc end points." ) );
-
-                        // Over-write previous results values from planar distance check
-                        nvd = res->FindPtr( "Con_Val", 0 );
-                        if ( nvd )
+                        bool interference_flag = true;
+                        NameValData* nvd = res->FindPtr( "Interference", 0 );
+                        if( nvd )
                         {
-                            nvd->SetDoubleData( { roll * 180.0 / M_PI } );
+                            interference_flag = nvd->GetBool( 0 );
                         }
 
-                        nvd = res->FindPtr( "Result", 0 );
-                        if ( nvd )
+                        if ( !interference_flag )
                         {
-                            nvd->SetDoubleData( { roll * 180.0 / M_PI } );
+                            int ccw = -ysign;
+
+                            vector < vec3d > tip_pts;
+                            vec3d p1, p2;
+
+                            double roll = 1e12 * M_PI / 180;
+
+                            // Do tilt analysis
+                            roll = ccw * primary_tm->MinAngle( pt, normal, pt, roll_axis, roll, ccw, p1, p2 );
+
+                            tip_pts.push_back( p1 );
+                            tip_pts.push_back( p2 );
+
+                            res->Add( new NameValData( "RollAngle", roll * 180.0 / M_PI, "Roll angle to contact." ) );
+                            res->Add( new NameValData( "RollPts", tip_pts, "Roll contact arc end points." ) );
+
+                            // Over-write previous results values from planar distance check
+                            nvd = res->FindPtr( "Con_Val", 0 );
+                            if ( nvd )
+                            {
+                                nvd->SetDoubleData( { roll * 180.0 / M_PI } );
+                            }
+
+                            nvd = res->FindPtr( "Result", 0 );
+                            if ( nvd )
+                            {
+                                nvd->SetDoubleData( { roll * 180.0 / M_PI } );
+                            }
+
+                            m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
+
+                            delete primary_tm;
                         }
-
-                        m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
-
-                        delete primary_tm;
-                    }
                     }
                     else
                     {
@@ -924,22 +924,22 @@ string GeometryAnalysisCase::Evaluate()
 
                     if ( s1 && s2 )
                     {
-                    vec3d resnom = weightdist( cgnom, ptvec, normal );
-                    double minnom = resnom[ resnom.minor_comp() ];
+                        vec3d resnom = weightdist( cgnom, ptvec, normal );
+                        double minnom = resnom[ resnom.minor_comp() ];
 
-                    vector < vec3d > resvec;
-                    resvec.resize( cgbounds.size() );
-                    for ( int i = 0; i < cgbounds.size(); ++i )
-                    {
-                        resvec[i] = weightdist( cgbounds[i], ptvec, normal );
-                    }
+                        vector < vec3d > resvec;
+                        resvec.resize( cgbounds.size() );
+                        for ( int i = 0; i < cgbounds.size(); ++i )
+                        {
+                            resvec[i] = weightdist( cgbounds[i], ptvec, normal );
+                        }
 
-                    // Empty points vector for results.
-                    vector < vec3d > pts;
-                    res->Add( new NameValData( "NominalReactions", resnom, "Gear reactions for nominal CG." ) );
-                    res->Add( new NameValData( "ExcursionReactions", resvec, "Gear reactions for CG range." ) );
-                    res->Add( new NameValData( "Pts", pts, "Not used." ) );
-                    res->Add( new NameValData( "Result", minnom, "Smallest reaction for nominal CG (typically nose gear reaction)." ) );
+                        // Empty points vector for results.
+                        vector < vec3d > pts;
+                        res->Add( new NameValData( "NominalReactions", resnom, "Gear reactions for nominal CG." ) );
+                        res->Add( new NameValData( "ExcursionReactions", resvec, "Gear reactions for CG range." ) );
+                        res->Add( new NameValData( "Pts", pts, "Not used." ) );
+                        res->Add( new NameValData( "Result", minnom, "Smallest reaction for nominal CG (typically nose gear reaction)." ) );
                     }
                     else
                     {
@@ -972,64 +972,64 @@ string GeometryAnalysisCase::Evaluate()
                     if ( s1 && s2 )
                     {
 
-                    vec3d ax = pb - pa;
-                    ax.normalize();
+                        vec3d ax = pb - pa;
+                        ax.normalize();
 
-                    vec3d p0, p1, p2;
-                    double anglenominal = tipover( cgnom, normal, pa, ax, p0, p1 );
+                        vec3d p0, p1, p2;
+                        double anglenominal = tipover( cgnom, normal, pa, ax, p0, p1 );
 
-                    double l = dist( p0, cgnom );
+                        double l = dist( p0, cgnom );
 
-                    vector < vec3d > tip_pts;
-                    tip_pts.reserve( 12 );
+                        vector < vec3d > tip_pts;
+                        tip_pts.reserve( 12 );
 
-                    tip_pts.push_back( p0 );
-                    tip_pts.push_back( p1 );
+                        tip_pts.push_back( p0 );
+                        tip_pts.push_back( p1 );
 
-                    tip_pts.push_back( p0 );
-                    tip_pts.push_back( cgnom );
+                        tip_pts.push_back( p0 );
+                        tip_pts.push_back( cgnom );
 
-                    double anglemin = 10;
-                    double anglemax = -10;
-                    vec3d p0min, p1min;
-                    vec3d p0max, p1max;
-                    int imin;
-                    int imax;
+                        double anglemin = 10;
+                        double anglemax = -10;
+                        vec3d p0min, p1min;
+                        vec3d p0max, p1max;
+                        int imin;
+                        int imax;
 
-                    for ( int i = 0; i < cgbounds.size(); ++i )
-                    {
-                        double angle = tipover( cgbounds[i], normal, pa, ax, p0, p1 );
-                        if ( angle < anglemin )
+                        for ( int i = 0; i < cgbounds.size(); ++i )
                         {
-                            anglemin = angle;
-                            p0min = p0;
-                            p1min = p1;
-                            imin = i;
+                            double angle = tipover( cgbounds[i], normal, pa, ax, p0, p1 );
+                            if ( angle < anglemin )
+                            {
+                                anglemin = angle;
+                                p0min = p0;
+                                p1min = p1;
+                                imin = i;
+                            }
+                            if ( angle > anglemax )
+                            {
+                                anglemax = angle;
+                                p0max = p0;
+                                p1max = p1;
+                                imax = i;
+                            }
                         }
-                        if ( angle > anglemax )
-                        {
-                            anglemax = angle;
-                            p0max = p0;
-                            p1max = p1;
-                            imax = i;
-                        }
-                    }
 
-                    tip_pts.push_back( p0min );
-                    tip_pts.push_back( p1min );
-                    tip_pts.push_back( p0min );
-                    tip_pts.push_back( cgbounds[ imin ] );
+                        tip_pts.push_back( p0min );
+                        tip_pts.push_back( p1min );
+                        tip_pts.push_back( p0min );
+                        tip_pts.push_back( cgbounds[ imin ] );
 
-                    tip_pts.push_back( p0max );
-                    tip_pts.push_back( p1max );
-                    tip_pts.push_back( p0max );
-                    tip_pts.push_back( cgbounds[ imax ] );
+                        tip_pts.push_back( p0max );
+                        tip_pts.push_back( p1max );
+                        tip_pts.push_back( p0max );
+                        tip_pts.push_back( cgbounds[ imax ] );
 
-                    res->Add( new NameValData( "NominalTip", anglenominal * 180.0 / M_PI, "Nominal tipover angle." ) );
-                    res->Add( new NameValData( "MinTip", anglemin * 180.0 / M_PI, "Minimum tipover angle." ) );
-                    res->Add( new NameValData( "MaxTip", anglemax * 180.0 / M_PI, "Maximum tipover angle." ) );
-                    res->Add( new NameValData( "Pts", tip_pts, "Tipover arc end points." ) );
-                    res->Add( new NameValData( "Result", anglenominal * 180.0 / M_PI, "Interference result" ) );
+                        res->Add( new NameValData( "NominalTip", anglenominal * 180.0 / M_PI, "Nominal tipover angle." ) );
+                        res->Add( new NameValData( "MinTip", anglemin * 180.0 / M_PI, "Minimum tipover angle." ) );
+                        res->Add( new NameValData( "MaxTip", anglemax * 180.0 / M_PI, "Maximum tipover angle." ) );
+                        res->Add( new NameValData( "Pts", tip_pts, "Tipover arc end points." ) );
+                        res->Add( new NameValData( "Result", anglenominal * 180.0 / M_PI, "Interference result" ) );
                     }
                     else
                     {
@@ -1075,33 +1075,33 @@ string GeometryAnalysisCase::Evaluate()
                             {
 
 
-                            vector < vec3d > distpts(2);
-                            double min_dist = -1;
-                            double max_dist = primary_tm->MaxDistanceRay( cor, normal, min_dist, distpts[0], distpts[1] );
+                                vector < vec3d > distpts(2);
+                                double min_dist = -1;
+                                double max_dist = primary_tm->MaxDistanceRay( cor, normal, min_dist, distpts[0], distpts[1] );
 
 
-                            vector < vec3d > pts;
-                            pts.push_back( cor );
-                            pts.push_back( cor + normal );
+                                vector < vec3d > pts;
+                                pts.push_back( cor );
+                                pts.push_back( cor + normal );
 
-                            int nseg = 36;
+                                int nseg = 36;
 
-                            vector < vec3d > cirpts;
-                            for ( int i = 0; i < rvec.size(); ++i )
-                            {
-                                MakeCircle( cor, normal, rvec[i], cirpts, nseg );
+                                vector < vec3d > cirpts;
+                                for ( int i = 0; i < rvec.size(); ++i )
+                                {
+                                    MakeCircle( cor, normal, rvec[i], cirpts, nseg );
+                                    pts.insert( pts.end(), cirpts.begin(), cirpts.end() );
+                                }
+
+                                MakeCircle( distpts[0], normal, max_dist, cirpts, nseg );
                                 pts.insert( pts.end(), cirpts.begin(), cirpts.end() );
-                            }
 
-                            MakeCircle( distpts[0], normal, max_dist, cirpts, nseg );
-                            pts.insert( pts.end(), cirpts.begin(), cirpts.end() );
-
-                            res->Add( new NameValData( "Pts", pts, "Visualization of rotation axis and swept circles." ) );
-                            res->Add( new NameValData( "COR", cor, "Center of rotation." ) );
-                            res->Add( new NameValData( "Axis", normal, "Axis of rotation." ) );
-                            res->Add( new NameValData( "GearTurnRadii", rvec, "Radii of gear turning circles." ) );
-                            res->Add( new NameValData( "MaxRadii", max_dist, "Maximum turning radius of primary geometry." ) );
-                            success = true;
+                                res->Add( new NameValData( "Pts", pts, "Visualization of rotation axis and swept circles." ) );
+                                res->Add( new NameValData( "COR", cor, "Center of rotation." ) );
+                                res->Add( new NameValData( "Axis", normal, "Axis of rotation." ) );
+                                res->Add( new NameValData( "GearTurnRadii", rvec, "Radii of gear turning circles." ) );
+                                res->Add( new NameValData( "MaxRadii", max_dist, "Maximum turning radius of primary geometry." ) );
+                                success = true;
                             }
                         }
                     }
@@ -1129,8 +1129,8 @@ string GeometryAnalysisCase::Evaluate()
                 vec3d cen;
                 if ( GetSecondaryPt( cen ) )
                 {
-                m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
-                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                    m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
+                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 }
                 else
                 {
