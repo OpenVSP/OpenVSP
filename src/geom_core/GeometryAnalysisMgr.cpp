@@ -838,7 +838,14 @@ string GeometryAnalysisCase::Evaluate()
                     }
                     else
                     {
-                        printf( "Wrong geom type.\n" );
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
                     }
                 }
 
