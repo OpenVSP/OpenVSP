@@ -513,23 +513,65 @@ string GeometryAnalysisCase::Evaluate()
             {
                 primary_tmv = GetPrimaryTMeshVec();
                 secondary_tmv = GetSecondaryTMeshVec();
+                if ( !primary_tmv.empty() && !secondary_tmv.empty() )
+                {
                 m_LastResult = ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
                 m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                }
+                else
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                    char buf[255];
+                    snprintf( buf, sizeof( buf ), "Error:  Empty primary or secondary mesh in %s.", m_Name.c_str() );
+                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
+                }
                 break;
             }
             case vsp::PACKAGING_INTERFERENCE:
             {
                 primary_tmv = GetPrimaryTMeshVec();
                 secondary_tmv = GetSecondaryTMeshVec();
+                if ( !primary_tmv.empty() && !secondary_tmv.empty() )
+                {
                 m_LastResult = PackagingInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
                 m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                }
+                else
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                    char buf[255];
+                    snprintf( buf, sizeof( buf ), "Error:  Empty primary or secondary mesh in %s.", m_Name.c_str() );
+                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
+                }
                 break;
             }
             case vsp::EXTERNAL_SELF_INTERFERENCE:
             {
                 primary_tmv = GetPrimaryTMeshVec();
+                if ( !primary_tmv.empty() )
+                {
                 m_LastResult = ExteriorSelfInterferenceCheck( primary_tmv, m_TMeshVec );
                 m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                }
+                else
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                    char buf[255];
+                    snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
+                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
+                }
                 break;
             }
             case vsp::PLANE_STATIC_DISTANCE_INTERFERENCE:
@@ -539,6 +581,9 @@ string GeometryAnalysisCase::Evaluate()
                 {
                     m_LastResult = res->GetID();
                     primary_tmv = GetPrimaryTMeshVec();
+
+                    if ( !primary_tmv.empty() )
+                    {
                     CSGMesh( primary_tmv );
                     FlattenTMeshVec( primary_tmv );
 
@@ -597,6 +642,18 @@ string GeometryAnalysisCase::Evaluate()
 
                         MessageMgr::getInstance().SendAll( errMsgData );
                     }
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
                 }
                 break;
             }
@@ -607,6 +664,9 @@ string GeometryAnalysisCase::Evaluate()
                 {
                     m_LastResult = res->GetID();
                     primary_tmv = GetPrimaryTMeshVec();
+
+                    if ( !primary_tmv.empty() )
+                    {
                     CSGMesh( primary_tmv );
                     FlattenTMeshVec( primary_tmv );
                     TMesh *primary_tm = MergeTMeshVec( primary_tmv );
@@ -742,6 +802,18 @@ string GeometryAnalysisCase::Evaluate()
 
                         MessageMgr::getInstance().SendAll( errMsgData );
                     }
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
                 }
                 break;
             }
@@ -752,6 +824,9 @@ string GeometryAnalysisCase::Evaluate()
                 {
                     m_LastResult = res->GetID();
                     primary_tmv = GetPrimaryTMeshVec();
+
+                    if ( !primary_tmv.empty() )
+                    {
                     CSGMesh( primary_tmv );
                     FlattenTMeshVec( primary_tmv );
                     TMesh *primary_tm = MergeTMeshVec( primary_tmv );
@@ -816,6 +891,18 @@ string GeometryAnalysisCase::Evaluate()
                         errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
                         char buf[255];
                         snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
                         errMsgData.m_StringVec.emplace_back( string( buf ) );
 
                         MessageMgr::getInstance().SendAll( errMsgData );
@@ -1054,6 +1141,9 @@ string GeometryAnalysisCase::Evaluate()
                 {
                     m_LastResult = res->GetID();
                     primary_tmv = GetPrimaryTMeshVec();
+
+                    if ( !primary_tmv.empty() )
+                    {
                     CSGMesh( primary_tmv );
                     FlattenTMeshVec( primary_tmv );
 
@@ -1101,6 +1191,7 @@ string GeometryAnalysisCase::Evaluate()
                                 res->Add( new NameValData( "Axis", normal, "Axis of rotation." ) );
                                 res->Add( new NameValData( "GearTurnRadii", rvec, "Radii of gear turning circles." ) );
                                 res->Add( new NameValData( "MaxRadii", max_dist, "Maximum turning radius of primary geometry." ) );
+                                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                                 success = true;
                             }
                         }
@@ -1117,15 +1208,28 @@ string GeometryAnalysisCase::Evaluate()
 
                         MessageMgr::getInstance().SendAll( errMsgData );
                     }
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
 
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
                 }
-
-                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 break;
             }
             case vsp::VISIBLE_FROM_POINT_ANALYSIS:
             {
                 primary_tmv = GetPrimaryTMeshVec();
+
+                if ( !primary_tmv.empty() )
+                {
+
                 vec3d cen;
                 if ( GetSecondaryPt( cen ) )
                 {
@@ -1143,6 +1247,18 @@ string GeometryAnalysisCase::Evaluate()
 
                     MessageMgr::getInstance().SendAll( errMsgData );
                 }
+                }
+                else
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                    char buf[255];
+                    snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
+                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
+                }
                 break;
             }
             case vsp::CCE_INTERFERENCE:
@@ -1152,18 +1268,33 @@ string GeometryAnalysisCase::Evaluate()
                 {
                     m_LastResult = res->GetID();
                     primary_tmv = GetPrimaryTMeshVec();
+                    secondary_tmv = GetSecondaryTMeshVec();
+
+                    if ( !primary_tmv.empty() && !secondary_tmv.empty() )
+                    {
                     CSGMesh( primary_tmv );
                     FlattenTMeshVec( primary_tmv );
                     TMesh *primary_tm = MergeTMeshVec( primary_tmv );
                     primary_tm->LoadBndBox();
 
-                    secondary_tmv = GetSecondaryTMeshVec();
                     TMesh *secondary_tm = new TMesh();
                     secondary_tm->CopyFlatten( secondary_tmv[0] );
                     secondary_tm->LoadBndBox();
 
                     CCEInterferenceCheck( primary_tm, secondary_tm, m_LastResult, m_TMeshVec );
                     m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Empty primary or secondary mesh in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
                 }
                 break;
             }
