@@ -39,8 +39,6 @@ protected:
     GroupLayout m_DesignLayout;
     GroupLayout m_BogieLayout;
     GroupLayout m_TireGroup;
-    GroupLayout m_AcrossGroup;
-    GroupLayout m_TandemGroup;
 
     Choice m_ModelUnitsChoice;
 
