@@ -53,7 +53,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_ShowXYZArrow = true;
     m_ShowBorder = true;
 
-    int x, y, w, h, side;
+    int x, y, w, h;
     w = 500;
     h = 500;
 
@@ -81,13 +81,12 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     //==== Figure out which is smaller, remaining width or the height ====//
     int w_allow = w - geom_group_width - 20;
     int h_allow = 0.9 * h;
-    side = std::min( w_allow, h_allow );
 
-    m_FLTK_Window->resize( x + 10, y + 30, side, side );
+    m_FLTK_Window->resize( x + 10, y + 30, w_allow, h_allow );
 
     m_FLTK_Window->callback( staticCloseCB, this );
 
-    Fl_Group * grp = new Fl_Group( 0, 0, side, side );
+    Fl_Group * grp = new Fl_Group( 0, 0, w_allow, h_allow);
     m_FLTK_Window->add( grp );
     m_GenLayout.SetGroupAndScreen( grp, this );
 
