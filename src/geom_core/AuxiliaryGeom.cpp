@@ -1078,7 +1078,7 @@ void AuxiliaryGeom::SetContactPt3ID( const std::string& id )
     Update();
 }
 
-void AuxiliaryGeom::GetCG( vec3d &cgnom, vector < vec3d > &cgbounds )
+bool AuxiliaryGeom::GetCG( vec3d &cgnom, vector < vec3d > &cgbounds )
 {
     if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
          m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND ||
@@ -1091,8 +1091,10 @@ void AuxiliaryGeom::GetCG( vec3d &cgnom, vector < vec3d > &cgbounds )
         if ( gear )
         {
             gear->GetCGInWorld( cgnom, cgbounds );
+            return true;
         }
     }
+    return false;
 }
 
 void AuxiliaryGeom::GetPtNormal( vec3d &pt, vec3d &normal ) const
@@ -1129,7 +1131,7 @@ void AuxiliaryGeom::GetPtPivotAxis( vec3d &ptaxis, vec3d &axis )
     }
 }
 
-void AuxiliaryGeom::GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
+bool AuxiliaryGeom::GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
 {
     if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
     {
@@ -1146,8 +1148,10 @@ void AuxiliaryGeom::GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal,
             gear->GetTwoPtPivotInWorld( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
                                         m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(),
                                         ptaxis, axis );
+            return true;
         }
     }
+    return false;
 }
 
 void AuxiliaryGeom::GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign )
