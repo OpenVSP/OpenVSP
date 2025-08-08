@@ -15,7 +15,7 @@
 
 
 //==== Constructor ====//
-Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
+Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -101,7 +101,7 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
 
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
-    static int bogie_widths[] = { 200, 200, 200, 0 }; // widths for each column
+    static int bogie_widths[] = { 150, 150, 150, 0 }; // widths for each column
 
     m_BogieBrowser = m_BogieLayout.AddColResizeBrowser( bogie_widths, 3, 100 );
     m_BogieBrowser->callback( staticScreenCB, this );
@@ -137,42 +137,30 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
     m_BogieLayout.AddButton( m_SymmetricalButton, "Symmetrical" );
 
     m_BogieLayout.AddYGap();
+    m_BogieLayout.AddSlider( m_NAcrossSlider, "Across", 10, "%6.0f" );
 
-    int acrossW = ( m_BogieLayout.GetW() - 5 ) * 0.5;
-
-    m_BogieLayout.SetSameLineFlag( true );
-    m_BogieLayout.AddSubGroupLayout( m_AcrossGroup, acrossW, m_BogieLayout.GetStdHeight() * 4 );
-    m_BogieLayout.AddX( acrossW + 5 );
-    m_BogieLayout.AddSubGroupLayout( m_TandemGroup, acrossW, m_BogieLayout.GetStdHeight() * 4 );
-    m_BogieLayout.SetSameLineFlag( false );
-    m_BogieLayout.ForceNewLine();
-    m_BogieLayout.AddY( m_BogieLayout.GetStdHeight() * (4 - 1 ) );
-
-
-    m_AcrossGroup.AddSlider( m_NAcrossSlider, "Across", 10, "%6.0f" );
-
-    m_AcrossGroup.AddChoice( m_SpacingTypeChoice, "Mode" );
+    m_BogieLayout.AddChoice( m_SpacingTypeChoice, "Mode" );
     m_SpacingTypeChoice.AddItem( "Center Distance (Model)", vsp::BOGIE_CENTER_DIST );
     m_SpacingTypeChoice.AddItem( "Center Distance Fraction", vsp::BOGIE_CENTER_DIST_FRAC );
     m_SpacingTypeChoice.AddItem( "Gap (Model)", vsp::BOGIE_GAP );
     m_SpacingTypeChoice.AddItem( "Gap Fraction", vsp::BOGIE_GAP_FRAC );
     m_SpacingTypeChoice.UpdateItems();
 
-    m_AcrossGroup.AddSlider( m_SpacingSlider, "Spacing", 10, "%6.5f" );
-    m_AcrossGroup.AddSlider( m_SpacingGapSlider, "Spacing Gap", 10, "%6.5f" );
+    m_BogieLayout.AddSlider( m_SpacingSlider, "Spacing", 10, "%6.5f" );
+    m_BogieLayout.AddSlider( m_SpacingGapSlider, "Spacing Gap", 10, "%6.5f" );
 
+    m_BogieLayout.AddYGap();
+    m_BogieLayout.AddSlider( m_NTandemSlider, "Tandem", 10, "%6.0f" );
 
-    m_TandemGroup.AddSlider( m_NTandemSlider, "Tandem", 10, "%6.0f" );
-
-    m_TandemGroup.AddChoice( m_PitchTypeChoice, "Mode" );
+    m_BogieLayout.AddChoice( m_PitchTypeChoice, "Mode" );
     m_PitchTypeChoice.AddItem( "Center Distance (Model)", vsp::BOGIE_CENTER_DIST );
     m_PitchTypeChoice.AddItem( "Center Distance Fraction", vsp::BOGIE_CENTER_DIST_FRAC );
     m_PitchTypeChoice.AddItem( "Gap (Model)", vsp::BOGIE_GAP );
     m_PitchTypeChoice.AddItem( "Gap Fraction", vsp::BOGIE_GAP_FRAC );
     m_PitchTypeChoice.UpdateItems();
 
-    m_TandemGroup.AddSlider( m_PitchSlider, "Pitch", 10, "%6.5f" );
-    m_TandemGroup.AddSlider( m_PitchGapSlider, "Pitch Gap", 10, "%6.5f" );
+    m_BogieLayout.AddSlider( m_PitchSlider, "Pitch", 10, "%6.5f" );
+    m_BogieLayout.AddSlider( m_PitchGapSlider, "Pitch Gap", 10, "%6.5f" );
 
     m_BogieLayout.AddYGap();
     m_BogieLayout.AddDividerBox( "Contact Point" );
@@ -212,6 +200,9 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
     int inToggleButtonWidth = 35;
     int modelToggleButtonWidth = 60;
     int bw = m_TireGroup.GetButtonWidth();
+    int iw = m_TireGroup.GetInputWidth();
+    int bw2 = 40;
+    int iw2 = 50;
 
     m_TireGroup.AddChoice( m_TireBogieChoice, "Bogie" );
 
@@ -252,6 +243,7 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
 
 
     m_TireGroup.ForceNewLine();
+    m_TireGroup.SetInputWidth( iw2 );
 
     m_TireGroup.SetSameLineFlag( false );
     m_TireGroup.AddSlider( m_PlyRatingSlider, "Ply Rating", 10, "%6.5f" );
@@ -270,8 +262,8 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
     m_TireGroup.AddButton( m_DrimModelToggleButton, "Model" );
     m_TireGroup.AddButton( m_DrimFracToggleButton, "Frac D" );
     m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw );
-    m_TireGroup.AddSlider( m_DrimSlider, "Drim", 1, "%6.5f" );
+    m_TireGroup.SetButtonWidth( bw2 );
+    m_TireGroup.AddSlider( m_DrimSlider, "Drim", 1, "%6.4f" );
 
     m_DrimToggleGroup.Init( this );
     m_DrimToggleGroup.AddButton( m_DrimInToggleButton.GetFlButton() );
@@ -289,8 +281,8 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
     m_TireGroup.AddButton( m_WrimModelToggleButton, "Model" );
     m_TireGroup.AddButton( m_WrimFracToggleButton, "Frac W" );
     m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw );
-    m_TireGroup.AddSlider( m_WrimSlider, "Wrim", 1, "%6.5f" );
+    m_TireGroup.SetButtonWidth( bw2 );
+    m_TireGroup.AddSlider( m_WrimSlider, "Wrim", 1, "%6.4f" );
 
     m_WrimToggleGroup.Init( this );
     m_WrimToggleGroup.AddButton( m_WrimInToggleButton.GetFlButton() );
@@ -311,8 +303,8 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
     m_TireGroup.AddButton( m_HsModelToggleButton, "Model" );
     m_TireGroup.AddButton( m_HsFracToggleButton, "Frac H" );
     m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw );
-    m_TireGroup.AddSlider( m_HsSlider, "Hs", 1, "%6.5f" );
+    m_TireGroup.SetButtonWidth( bw2 );
+    m_TireGroup.AddSlider( m_HsSlider, "Hs", 1, "%6.4f" );
 
     m_HsToggleGroup.Init( this );
     m_HsToggleGroup.AddButton( m_HsInToggleButton.GetFlButton() );
@@ -329,8 +321,8 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
     m_TireGroup.AddButton( m_WsModelToggleButton, "Model" );
     m_TireGroup.AddButton( m_WsFracToggleButton, "Frac W" );
     m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw );
-    m_TireGroup.AddSlider( m_WsSlider, "Ws", 1, "%6.5f" );
+    m_TireGroup.SetButtonWidth( bw2 );
+    m_TireGroup.AddSlider( m_WsSlider, "Ws", 1, "%6.4f" );
 
     m_WsToggleGroup.Init( this );
     m_WsToggleGroup.AddButton( m_WsInToggleButton.GetFlButton() );
@@ -343,9 +335,10 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
     m_TireGroup.SetSameLineFlag( false );
     m_TireGroup.AddDividerBox( "Static Loaded Radius" );
     m_TireGroup.SetSameLineFlag( true );
+    m_TireGroup.SetInputWidth( iw );
 
     m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( inToggleButtonWidth + modelToggleButtonWidth + bw );
+    m_TireGroup.SetButtonWidth( inToggleButtonWidth + modelToggleButtonWidth + bw2 );
 
     m_TireGroup.AddButton( m_DeflectionToggleButton, "Delfection Frac H" );
     m_TireGroup.SetFitWidthFlag( true );
@@ -360,7 +353,7 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 600, 800, "Gear" )
     m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
     m_TireGroup.AddButton( m_SLRModelToggleButton, "Model" );
     m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw );
+    m_TireGroup.SetButtonWidth( bw2 );
     m_TireGroup.AddSlider( m_SLRSlider, "SLR", 1, "%6.5f" );
 
     m_SLRToggleGroup.Init( this );
