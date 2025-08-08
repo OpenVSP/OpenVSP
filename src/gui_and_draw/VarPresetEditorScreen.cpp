@@ -18,6 +18,7 @@
 VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 750, "Variable Presets", "" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
+    m_MenuTabs->callback( staticScreenCB, this );
 
     Fl_Group* apply_tab = AddTab( "Apply" );
     apply_tab->callback( staticScreenCB, this );

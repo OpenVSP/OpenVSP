@@ -437,6 +437,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     TabScreen( mgr, w, h, title, helpfile )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
+    m_MenuTabs->callback( staticScreenCB, this );
 
     // Set the window as a geom screen window
     VSP_Window* vsp_win = dynamic_cast<VSP_Window*>(m_FLTK_Window);

@@ -7,6 +7,7 @@
 ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 900, 680, "Measure" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
+    m_MenuTabs->callback( staticScreenCB, this );
 
     Fl_Group* ruler_tab = AddTab( "Rulers" );
     Fl_Group* ruler_group = AddSubGroup( ruler_tab, 5 );
