@@ -32,19 +32,19 @@ public:
     vector< TMesh* > GetPrimaryTMeshVec();
     vector< TMesh* > GetSecondaryTMeshVec();
 
-    void GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );
-    void GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
-    void GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds );
+    bool GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );
+    bool GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
+    bool GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds );
     AuxiliaryGeom* GetPrimaryAuxiliaryGeom() const;
     bool GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds ) const;
 
 
-    void GetSecondaryPt( vec3d &pt );
-    void GetSecondaryPtNormal( vec3d &pt, vec3d &normal );
-    void GetSecondarySideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign );
-    void GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );
-    void GetSecondaryPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
-    void GetSecondaryPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
+    bool GetSecondaryPt( vec3d &pt );
+    bool GetSecondaryPtNormal( vec3d &pt, vec3d &normal );
+    bool GetSecondarySideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign );
+    bool GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );
+    bool GetSecondaryPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
+    bool GetSecondaryPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );

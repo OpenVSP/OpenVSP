@@ -197,31 +197,34 @@ vector< TMesh* > GeometryAnalysisCase::GetSecondaryTMeshVec()
     return tmv;
 }
 
-void GeometryAnalysisCase::GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal )
+bool GeometryAnalysisCase::GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal )
 {
     AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
     if ( auxiliary_ptr )
     {
-        auxiliary_ptr->GetTwoPtSideContactPtsNormal( p1, p2, normal );
+        return auxiliary_ptr->GetTwoPtSideContactPtsNormal( p1, p2, normal );
     }
+    return false;
 }
 
-void GeometryAnalysisCase::GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal )
+bool GeometryAnalysisCase::GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal )
 {
     AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
     if ( auxiliary_ptr )
     {
-        auxiliary_ptr->GetContactPointVecNormal( ptvec, normal );
+        return auxiliary_ptr->GetContactPointVecNormal( ptvec, normal );
     }
+    return false;
 }
 
-void GeometryAnalysisCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds )
+bool GeometryAnalysisCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds )
 {
     AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
     if ( auxiliary_ptr )
     {
-        auxiliary_ptr->GetCG( cgnom, cgbounds );
+        return auxiliary_ptr->GetCG( cgnom, cgbounds );
     }
+    return false;
 }
 
 AuxiliaryGeom* GeometryAnalysisCase::GetPrimaryAuxiliaryGeom() const
@@ -292,11 +295,12 @@ bool GeometryAnalysisCase::GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt
     return false;
 }
 
-void GeometryAnalysisCase::GetSecondaryPt( vec3d &pt )
+bool GeometryAnalysisCase::GetSecondaryPt( vec3d &pt )
 {
     if ( m_SecondaryType() == vsp::XYZ_TARGET )
     {
         pt.set_xyz( m_SecondaryX(), m_SecondaryY(), m_SecondaryZ() );
+        return true;
     }
     else
     {
@@ -313,18 +317,21 @@ void GeometryAnalysisCase::GetSecondaryPt( vec3d &pt )
                 if ( human_ptr )
                 {
                     pt = human_ptr->GetDesignEye();
+                    return true;
                 }
                 else if ( geom )
                 {
                     Matrix4d mat = geom->getModelMatrix();
                     pt = mat.xform( vec3d() );
+                    return true;
                 }
             }
         }
     }
+    return false;
 }
 
-void GeometryAnalysisCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
+bool GeometryAnalysisCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -338,17 +345,19 @@ void GeometryAnalysisCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
 
             if ( auxiliary_ptr )
             {
-                auxiliary_ptr->GetPtNormal( pt, normal );
+                return auxiliary_ptr->GetPtNormal( pt, normal );
             }
             else if ( gear_ptr )
             {
                 gear_ptr->GetNominalPtNormalInWorld( pt, normal );
+                return true;
             }
         }
     }
+    return false;
 }
 
-void GeometryAnalysisCase::GetSecondarySideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign )
+bool GeometryAnalysisCase::GetSecondarySideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -361,14 +370,15 @@ void GeometryAnalysisCase::GetSecondarySideContactPtRollAxisNormal( vec3d &pt, v
 
             if ( auxiliary_ptr )
             {
-                auxiliary_ptr->GetSideContactPtRollAxisNormal( pt, axis, normal, ysign );
+                return auxiliary_ptr->GetSideContactPtRollAxisNormal( pt, axis, normal, ysign );
             }
         }
     }
+    return false;
 }
 
 
-void GeometryAnalysisCase::GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
+bool GeometryAnalysisCase::GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -381,13 +391,14 @@ void GeometryAnalysisCase::GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, 
 
             if ( auxiliary_ptr )
             {
-                auxiliary_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
+                return auxiliary_ptr->GetPtNormalMeanContactPtPivotAxis( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
             }
         }
     }
+    return false;
 }
 
-void GeometryAnalysisCase::GetSecondaryPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis  )
+bool GeometryAnalysisCase::GetSecondaryPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis  )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -400,13 +411,14 @@ void GeometryAnalysisCase::GetSecondaryPtNormalAftAxleAxis( double thetabogie, v
 
             if ( auxiliary_ptr )
             {
-                auxiliary_ptr->GetPtNormalAftAxleAxis( thetabogie, pt, normal, ptaxis, axis );
+                return auxiliary_ptr->GetPtNormalAftAxleAxis( thetabogie, pt, normal, ptaxis, axis );
             }
         }
     }
+    return false;
 }
 
-void GeometryAnalysisCase::GetSecondaryPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis  )
+bool GeometryAnalysisCase::GetSecondaryPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis  )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -419,10 +431,11 @@ void GeometryAnalysisCase::GetSecondaryPtNormalFwdAxleAxis( double thetabogie, v
 
             if ( auxiliary_ptr )
             {
-                auxiliary_ptr->GetPtNormalFwdAxleAxis( thetabogie, pt, normal, ptaxis, axis );
+                return auxiliary_ptr->GetPtNormalFwdAxleAxis( thetabogie, pt, normal, ptaxis, axis );
             }
         }
     }
+    return false;
 }
 
 xmlNodePtr GeometryAnalysisCase::EncodeXml( xmlNodePtr & node )
