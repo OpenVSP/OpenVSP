@@ -966,7 +966,7 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
 
             if ( remove_flag )
             {
-                m_ControlSurfaceGroupVec[i]->RemoveSubSurface( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k] );
+                m_ControlSurfaceGroupVec[i]->RemoveControlSurface( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k] );
                 k--;
             }
         }
@@ -1152,7 +1152,7 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                     if ( match ) // Update Existing Control Surface Group
                     {
                         csg = m_ControlSurfaceGroupVec[j];
-                        csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
+                        csg->AddControlSurface( m_CompleteControlSurfaceVec[i] );
                         m_ControlSurfaceGroupVec.back() = csg;
                         exists = true;
                         break;
@@ -1166,7 +1166,7 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                 if ( geom )
                 {
                     csg = new ControlSurfaceGroup;
-                    csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
+                    csg->AddControlSurface( m_CompleteControlSurfaceVec[i] );
                     if ( !m_CompleteControlSurfaceVec[i].isHinge )
                     {
                         snprintf( str, sizeof( str ),  "%s_%s", geom->GetName().c_str(), geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID )->GetName().c_str() );
@@ -3662,7 +3662,7 @@ void VSPAEROMgrSingleton::AddSelectedToCSGroup()
 
         for ( size_t i = 0; i < selected.size(); ++i )
         {
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( ungrouped_vec[ selected[ i ] - 1 ] );
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddControlSurface( ungrouped_vec[ selected[ i ] - 1 ] );
         }
     }
     m_SelectedUngroupedCS.clear();
@@ -3676,7 +3676,7 @@ void VSPAEROMgrSingleton::AddAllToCSGroup()
         vector < VspAeroControlSurf > ungrouped_vec = GetAvailableCSVec();
         for ( size_t i = 0; i < ungrouped_vec.size(); ++i )
         {
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( ungrouped_vec[ i ] );
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddControlSurface( ungrouped_vec[ i ] );
         }
     }
     m_SelectedUngroupedCS.clear();
@@ -3702,7 +3702,7 @@ void VSPAEROMgrSingleton::RemoveSelectedFromCSGroup()
                 continue;
             }
 
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( active[ isel ] );
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveControlSurface( active[ isel ] );
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
                 if ( active[ isel ].isMatch( m_CompleteControlSurfaceVec[j] ) )
@@ -3722,7 +3722,7 @@ void VSPAEROMgrSingleton::RemoveAllFromCSGroup()
         vector< VspAeroControlSurf > active = *GetActiveCSVecPtr();
         for ( size_t i = 0; i < active.size(); ++i )
         {
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( active[i] );
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveControlSurface( active[i] );
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
                 if ( active[i].isMatch( m_CompleteControlSurfaceVec[j] ) )
@@ -6358,16 +6358,16 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
             newSurf.parentGeomId = IDMgr.RemapRefID( XmlUtil::FindString( csnode, "ParentGeomID", ParentGeomID ) );
             newSurf.iReflect = XmlUtil::FindInt( csnode, "iReflect", iReflect );
             newSurf.isHinge = XmlUtil::FindInt( csnode, "isHinge", isHinge );
-            AddSubSurface( newSurf );
+            AddControlSurface( newSurf );
         }
 
-        ParmContainer::DecodeXml( node ); // Comes after AddSubSurface() to prevent overwriting of newly initialized Parms
+        ParmContainer::DecodeXml( node ); // Comes after AddControlSurface() to prevent overwriting of newly initialized Parms
     }
 
     return node;
 }
 
-void ControlSurfaceGroup::AddSubSurface( const VspAeroControlSurf &control_surf )
+void ControlSurfaceGroup::AddControlSurface( const VspAeroControlSurf &control_surf )
 {
     // Add deflection gain parm to ControlSurfaceGroup container
     Parm* p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
@@ -6394,7 +6394,7 @@ void ControlSurfaceGroup::AddSubSurface( const VspAeroControlSurf &control_surf 
     m_ControlSurfVec.push_back( control_surf );
 }
 
-void ControlSurfaceGroup::RemoveSubSurface( const VspAeroControlSurf &control_surf )
+void ControlSurfaceGroup::RemoveControlSurface( const VspAeroControlSurf &control_surf )
 {
     for ( int i = m_ControlSurfVec.size() - 1; i >= 0; i-- ) // Iterate in reverse as vector is changing size.
     {

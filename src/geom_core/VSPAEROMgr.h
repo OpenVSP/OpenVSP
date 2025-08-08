@@ -157,8 +157,8 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     // Subsurface Manipulation
-    void AddSubSurface( const VspAeroControlSurf &control_surf );
-    void RemoveSubSurface( const VspAeroControlSurf &control_surf );
+    void AddControlSurface( const VspAeroControlSurf &control_surf );
+    void RemoveControlSurface( const VspAeroControlSurf &control_surf );
 
     void SetGroupDisplaySuffix( int num );
 
