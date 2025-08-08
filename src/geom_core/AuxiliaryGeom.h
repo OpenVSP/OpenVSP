@@ -60,15 +60,15 @@ public:
     virtual void SetContactPt3ID( const std::string& id );
 
     virtual bool GetCG( vec3d &cgnom, vector < vec3d > &cgbounds );
-    virtual void GetPtNormal( vec3d &pt, vec3d &normal ) const;
-    virtual void GetPtPivotAxis( vec3d &ptaxis, vec3d &axis );
+    virtual bool GetPtNormal( vec3d &pt, vec3d &normal ) const;
+    virtual bool GetPtPivotAxis( vec3d &ptaxis, vec3d &axis );
     virtual bool GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );
-    virtual void GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign );
-    virtual void GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
-    virtual void GetPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
-    virtual void GetTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );
-    virtual void GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
-    virtual void CalculateTurn( vec3d &cor, vec3d &normal, vector<double> &rvec );
+    virtual bool GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign );
+    virtual bool GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
+    virtual bool GetPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
+    virtual bool GetTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );
+    virtual bool GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
+    virtual bool CalculateTurn( vec3d &cor, vec3d &normal, vector<double> &rvec );
 
     IntParm m_AuxuliaryGeomMode;
 
