@@ -46,7 +46,7 @@ ParmScreen::ParmScreen( ScreenMgr* mgr )  : TabScreen( mgr, 380, 400, "Parm" )
 
     //===== Attributes Section of Info Tab ====//
     m_InfoLayout.AddYGap();
-    m_AttributeEditor.Init( &m_InfoLayout , info_group , this , staticScreenCB, false, 0, 190 );
+    m_AttributeEditor.Init( &m_InfoLayout , info_group , this , staticScreenCB, false, 0, m_InfoLayout.GetRemainY() );
 
     //===== Link ====//
     m_LinkLayout.SetGroupAndScreen( link_group, this );

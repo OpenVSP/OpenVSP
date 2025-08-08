@@ -146,7 +146,7 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     m_SettingLayout.SetY( m_SettingLayout.GetY() + m_AdjustLayout.GetY() );
     m_SettingLayout.AddYGap();
-    m_SettingAttrEditor.Init( &m_SettingLayout, m_SettingLayout.GetGroup(), this, staticScreenCB, false, 0, 155 );
+    m_SettingAttrEditor.Init( &m_SettingLayout, m_SettingLayout.GetGroup(), this, staticScreenCB, false, 0, m_SettingLayout.GetRemainY() );
 
     apply_tab->show();
 

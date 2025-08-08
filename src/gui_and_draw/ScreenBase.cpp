@@ -355,7 +355,7 @@ VehScreen::VehScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     Fl_Group* attribute_tab = AddTab( "Attributes" );
     Fl_Group* attribute_group = AddSubGroup( attribute_tab, 5 );
     m_AttributeLayout.SetGroupAndScreen( attribute_group , this );
-    m_AttributeEditor.Init( &m_AttributeLayout , attribute_group , this, staticScreenCB, false, 0, 265 );
+    m_AttributeEditor.Init( &m_AttributeLayout , attribute_group , this, staticScreenCB, false, 0, m_AttributeLayout.GetRemainY() );
 };
 
 void VehScreen::Show( )

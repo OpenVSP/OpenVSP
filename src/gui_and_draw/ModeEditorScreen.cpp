@@ -109,7 +109,7 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 775
     m_GenLayout.SetSameLineFlag( false );
     m_GenLayout.SetFitWidthFlag( true );
     m_GenLayout.AddYGap();
-    m_AttributeEditor.Init( &m_GenLayout , m_GenLayout.GetGroup() , this , staticScreenCB, false, 0, 190 );
+    m_AttributeEditor.Init( &m_GenLayout , m_GenLayout.GetGroup() , this , staticScreenCB, false, 0, m_GenLayout.GetRemainY() );
 
 }
 
