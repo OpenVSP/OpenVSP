@@ -757,6 +757,7 @@ bool Gearcreen::Update()
         {
             m_SLRSlider.Update( 1, bogie_ptr->m_StaticRadiusIn.GetID(), bogie_ptr->m_StaticRadiusModel.GetID() );
             m_DeflectionSlider.Update( bogie_ptr->m_DeflectionPct.GetID() );
+            m_DeflectionSlider.SetButtonName(string(""));
 
             m_SLRSlider.Activate();
             m_SLRSlider.ActivateInput1();
@@ -766,6 +767,7 @@ bool Gearcreen::Update()
         {
             m_SLRSlider.Update( 2, bogie_ptr->m_StaticRadiusIn.GetID(), bogie_ptr->m_StaticRadiusModel.GetID() );
             m_DeflectionSlider.Update( bogie_ptr->m_DeflectionPct.GetID() );
+            m_DeflectionSlider.SetButtonName(string(""));
 
             m_SLRSlider.Activate();
             m_SLRSlider.ActivateInput2();
@@ -775,6 +777,7 @@ bool Gearcreen::Update()
         {
             m_SLRSlider.Update( 1, bogie_ptr->m_StaticRadiusIn.GetID(), bogie_ptr->m_StaticRadiusModel.GetID() );
             m_DeflectionSlider.Update( bogie_ptr->m_DeflectionPct.GetID() );
+            m_DeflectionSlider.SetButtonName(string(""));
 
             m_SLRSlider.Deactivate();
             m_DeflectionSlider.Activate();
