@@ -220,6 +220,7 @@ public:
 
     void SetClustering( const double &le, const double &te );
     void SetRootTipClustering( const vector < double > &root, const vector < double > &tip ) const;
+    bool GetUSkip( const int &index ) const;
     double GetRootCluster( const int &index ) const;
     double GetTipCluster( const int &index ) const;
 
