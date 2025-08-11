@@ -235,6 +235,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Clo2D.SetDescript( "Zero alpha Cl for airfoil" );
     m_StallModel.Init( "StallModel", groupname, this, vsp::STALL_OFF, vsp::STALL_OFF, vsp::STALL_ON );
     m_StallModel.SetDescript( "Stall Modeling Option" );
+    m_CLMax2D.Init( "CLMax2D", groupname, this, 1, -1e3, 1e3 );
+    m_CLMax2D.SetDescript( "Maximum 2D lift coefficient." );
     m_FarDist.Init( "FarDist", groupname, this, -1, -1, 1e6 );
     m_FarDist.SetDescript( "Far Field Distance for Wake Adaptation" );
     m_FarDistToggle.Init( "FarDistToggle", groupname, this, false, false, true );
@@ -1348,6 +1350,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     fprintf( case_file, "Rho = %lf \n", m_Rho() );
     fprintf( case_file, "StallModel = %d \n", m_StallModel() );
     fprintf( case_file, "Clo2D = %lf \n", m_Clo2D() );
+    fprintf( case_file, "CLMax2D = %lf \n", m_CLMax2D() );
 
     fprintf( case_file, "Symmetry = %d \n", m_Symmetry() );
 

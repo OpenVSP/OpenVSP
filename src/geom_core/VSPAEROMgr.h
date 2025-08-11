@@ -436,6 +436,7 @@ public:
     BoolParm m_WriteTecplotFlag;
 
     IntParm m_StallModel;
+    Parm m_CLMax2D;
     Parm m_Clo2D;
 
     BoolParm m_FarDistToggle;

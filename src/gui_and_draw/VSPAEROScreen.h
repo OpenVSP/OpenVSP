@@ -235,6 +235,7 @@ protected:
     ToggleButton m_FarDistToggle;
     ToggleButton m_GroundEffectToggle;
     SliderAdjRangeInput m_Clo2DSlider;
+    SliderAdjRangeInput m_CLMax2DSlider;
     SliderAdjRangeInput m_MaxTurningSlider;
     SliderAdjRangeInput m_FarDistSlider;
     SliderAdjRangeInput m_GroundEffectSlider;

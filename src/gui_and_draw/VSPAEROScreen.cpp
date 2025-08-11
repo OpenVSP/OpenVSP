@@ -440,6 +440,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_StallChoice.AddItem( "On", vsp::STALL_ON );
     m_StallChoice.UpdateItems();
 
+    m_OtherParmsLayout.AddSlider( m_CLMax2DSlider, "CLMax2D", 10, "%7.2f" );
     m_OtherParmsLayout.AddSlider( m_Clo2DSlider, "Clo2D", 10, "%2.3f" );
 
     m_OtherParmsLayout.SetSameLineFlag( true );
@@ -1757,6 +1758,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     // Other Set Up Parms
     m_StallChoice.Update( VSPAEROMgr.m_StallModel.GetID() );
     m_Clo2DSlider.Update( VSPAEROMgr.m_Clo2D.GetID() );
+    m_CLMax2DSlider.Update( VSPAEROMgr.m_CLMax2D.GetID() );
     m_FarDistToggle.Update( VSPAEROMgr.m_FarDistToggle.GetID() );
     m_FarDistSlider.Update( VSPAEROMgr.m_FarDist.GetID() );
     m_GroundEffectToggle.Update( VSPAEROMgr.m_GroundEffectToggle.GetID() );

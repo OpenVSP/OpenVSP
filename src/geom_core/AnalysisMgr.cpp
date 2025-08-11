@@ -2263,6 +2263,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
 
         m_Inputs.Add( new NameValData( "StallModel",        VSPAEROMgr.m_StallModel.Get()           , "Flag to enable stall model." ) );
         m_Inputs.Add( new NameValData( "Clo2D",            VSPAEROMgr.m_Clo2D.Get()                 , "Zero alpha cl for airfoil." ) );
+        m_Inputs.Add( new NameValData( "CLMax2D",            VSPAEROMgr.m_CLMax2D.Get()                 , "2D maximum lift coefficient." ) );
         m_Inputs.Add( new NameValData( "FarDistToggle",     VSPAEROMgr.m_FarDistToggle.Get()        , "Far field distance toggle." ) );
         m_Inputs.Add( new NameValData( "FarDist",           VSPAEROMgr.m_FarDist.Get()              , "Far field distance." ) );
 
@@ -2643,6 +2644,7 @@ string VSPAEROSweepAnalysis::Execute()
 
         int stallModelOrig     = VSPAEROMgr.m_StallModel.Get();
         double clo2DOrig        = VSPAEROMgr.m_Clo2D.Get();
+        double clmax2DOrig      = VSPAEROMgr.m_CLMax2D.Get();
         int farDistToggleOrig   = VSPAEROMgr.m_FarDistToggle.Get();
         double farDistOrig      = VSPAEROMgr.m_FarDist.Get();
 
@@ -2655,6 +2657,11 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_Clo2D.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "CLMax2D", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_CLMax2D.Set( nvd->GetDouble( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "FarDistToggle", 0 );
         if ( nvd )
@@ -2930,6 +2937,7 @@ string VSPAEROSweepAnalysis::Execute()
 
         VSPAEROMgr.m_StallModel.Set( stallModelOrig );
         VSPAEROMgr.m_Clo2D.Set( clo2DOrig );
+        VSPAEROMgr.m_CLMax2D.Set( clmax2DOrig );
         VSPAEROMgr.m_FarDistToggle.Set( farDistToggleOrig );
         VSPAEROMgr.m_FarDist.Set( farDistOrig );
 
