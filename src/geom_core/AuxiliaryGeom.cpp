@@ -506,7 +506,7 @@ void AuxiliaryGeom::UpdateMainTessVec()
     m_MainFeatureTessVec.resize( 1 );
 
     // Update primary main surf tess.
-    UpdateTess( m_MainSurfVec[ 0 ], m_CapUMinSuccess[ m_SurfIndxVec[ 0 ] ], m_CapUMaxSuccess[ m_SurfIndxVec[ 0 ] ], m_MainTessVec[ 0 ], m_MainFeatureTessVec[ 0 ] );
+    UpdateTess( m_MainSurfVec[ 0 ], m_CapUMinSuccess[ m_MainSurfIndxVec[ 0 ] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[ 0 ] ], m_MainTessVec[ 0 ], m_MainFeatureTessVec[ 0 ] );
 
     if ( m_ParentType == GEAR_GEOM_TYPE )
     {

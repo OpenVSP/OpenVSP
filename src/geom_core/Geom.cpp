@@ -1884,7 +1884,7 @@ void Geom::GetUWTess01( const int &indx, vector < double > &u, vector < double >
     vector< vector< vec3d > > norms;
     vector< vector< vec3d > > uw_pnts;
 
-    UpdateTesselate( m_SurfVec[indx], m_CapUMinSuccess[ m_SurfIndxVec[indx] ], m_CapUMaxSuccess[ m_SurfIndxVec[indx] ], false, pnts, norms,
+    UpdateTesselate( m_SurfVec[indx], m_CapUMinSuccess[ m_MainSurfIndxVec[indx] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[indx] ], false, pnts, norms,
                      uw_pnts);
 
     double umx = GetUMax( indx );
@@ -2009,11 +2009,11 @@ void Geom::UpdateFeatureLines( )
 void Geom::UpdateSymmAttach()
 {
     unsigned int num_surf = GetNumTotalSurfs();
-    m_SurfIndxVec.clear();
+    m_MainSurfIndxVec.clear();
     m_SurfSymmMap.clear();
     m_SurfCopyIndx.clear();
     m_FlipNormalVec.clear();
-    m_SurfIndxVec.resize( num_surf, -1 );
+    m_MainSurfIndxVec.resize( num_surf, -1 );
     m_FlipNormalVec.resize( num_surf, false );
     m_SurfSymmMap.resize( num_surf );
     m_SurfCopyIndx.resize( num_surf );
@@ -2021,9 +2021,9 @@ void Geom::UpdateSymmAttach()
     int num_main = GetNumMainSurfs();
     for ( int i = 0 ; i < ( int )num_main ; i++ )
     {
-        m_SurfIndxVec[i] = i;
+        m_MainSurfIndxVec[i] = i;
         m_FlipNormalVec[i] = GetMainFlipNormal( i );
-        m_SurfSymmMap[ m_SurfIndxVec[i] ].push_back( i );
+        m_SurfSymmMap[ m_MainSurfIndxVec[i] ].push_back( i );
         m_SurfCopyIndx[i] = 0;
     }
 
@@ -2118,10 +2118,10 @@ void Geom::UpdateSymmAttach()
                 {
                     for ( int k = 0 ; k < m_SymRotN() - 1 ; k++ )
                     {
-                        m_SurfIndxVec[j + k * numAddSurfs] = m_SurfIndxVec[j - currentIndex];
+                        m_MainSurfIndxVec[j + k * numAddSurfs] = m_MainSurfIndxVec[j - currentIndex];
                         m_FlipNormalVec[j + k * numAddSurfs] = m_FlipNormalVec[j - currentIndex];
-                        m_SurfCopyIndx[j + k * numAddSurfs] = m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].size();
-                        m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].push_back( j + k * numAddSurfs );
+                        m_SurfCopyIndx[j + k * numAddSurfs] = m_SurfSymmMap[ m_MainSurfIndxVec[j + k * numAddSurfs] ].size();
+                        m_SurfSymmMap[ m_MainSurfIndxVec[j + k * numAddSurfs] ].push_back( j + k * numAddSurfs );
                         m_TransMatVec[j + k * numAddSurfs].initMat( m_TransMatVec[j - currentIndex].data() );
                         m_TransMatVec[j + k * numAddSurfs].postMult( Ref.data() ); // Apply Reflection
 
@@ -2136,9 +2136,9 @@ void Geom::UpdateSymmAttach()
                 {
                     m_FlipNormalVec[j] = m_FlipNormalVec[j - currentIndex];
                     m_FlipNormalVec[j] = !m_FlipNormalVec[j];
-                    m_SurfIndxVec[j] = m_SurfIndxVec[j - currentIndex];
-                    m_SurfCopyIndx[j] = m_SurfSymmMap[ m_SurfIndxVec[j] ].size();
-                    m_SurfSymmMap[ m_SurfIndxVec[ j ] ].push_back( j );
+                    m_MainSurfIndxVec[j] = m_MainSurfIndxVec[j - currentIndex];
+                    m_SurfCopyIndx[j] = m_SurfSymmMap[ m_MainSurfIndxVec[j] ].size();
+                    m_SurfSymmMap[ m_MainSurfIndxVec[ j ] ].push_back( j );
                     m_TransMatVec[j].initMat( m_TransMatVec[j - currentIndex].data() );
                     m_TransMatVec[j].postMult( Ref.data() ); // Apply Reflection
                     addIndex++;
@@ -3379,7 +3379,7 @@ void Geom::UpdateMainTessVec()
 
     for ( int i = 0 ; i < nmain ; i++ )
     {
-        UpdateTess( m_MainSurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[ i ] ], m_CapUMaxSuccess[ m_SurfIndxVec[ i ] ], m_MainTessVec[i], m_MainFeatureTessVec[i]);
+        UpdateTess( m_MainSurfVec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[ i ] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[ i ] ], m_MainTessVec[i], m_MainFeatureTessVec[i]);
     }
 }
 
@@ -4264,7 +4264,7 @@ void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool
     bool urootcap = false;
 
     surf.ResetUSkip();
-    if ( m_CapUMinSuccess[ m_SurfIndxVec[isurf] ] )
+    if ( m_CapUMinSuccess[ m_MainSurfIndxVec[isurf] ] )
     {
         int nskip = 1;
         if ( m_CapUMinOption() >= ROUND_EXT_END_CAP_NONE )
@@ -4274,7 +4274,7 @@ void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool
         surf.SetUSkipFirst( nskip, true );
         urootcap = true;
     }
-    if ( m_CapUMaxSuccess[ m_SurfIndxVec[isurf] ] )
+    if ( m_CapUMaxSuccess[ m_MainSurfIndxVec[isurf] ] )
     {
         int nskip = 1;
         if ( m_CapUMaxOption() >= ROUND_EXT_END_CAP_NONE )
@@ -4285,7 +4285,7 @@ void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool
     }
 
     //==== Tesselate Surface ====//
-    UpdateTesselate( surf, m_CapUMinSuccess[ m_SurfIndxVec[isurf] ], m_CapUMaxSuccess[ m_SurfIndxVec[isurf] ], true, pnts, nrms,
+    UpdateTesselate( surf, m_CapUMinSuccess[ m_MainSurfIndxVec[isurf] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[isurf] ], true, pnts, nrms,
                      uwpnts);
     surf.ResetUSkip();
 
@@ -4317,7 +4317,7 @@ void Geom::CreateDegenGeom( DegenGeom &degenGeom, const vector< vector< vec3d > 
     degenGeom.setParentGeom( this );
     degenGeom.setSurfNum( isurf );
     degenGeom.setFlipNormal( flipnormal );
-    degenGeom.setMainSurfInd( m_SurfIndxVec[isurf] );
+    degenGeom.setMainSurfInd( m_MainSurfIndxVec[isurf] );
     degenGeom.setSymCopyInd( m_SurfCopyIndx[isurf] );
     degenGeom.setCfdSurfType( cfdsurftype );
 
@@ -4376,7 +4376,7 @@ void Geom::CreateDegenGeom( DegenGeom &degenGeom, const vector< vector< vec3d > 
     // degenerate subsurfaces
     for ( int j = 0; j < m_SubSurfVec.size(); j++ )
     {
-        if ( m_SubSurfVec[j]->m_MainSurfIndx() == -1 || m_SurfIndxVec[isurf] == m_SubSurfVec[j]->m_MainSurfIndx() )
+        if ( m_SubSurfVec[j]->m_MainSurfIndx() == -1 || m_MainSurfIndxVec[isurf] == m_SubSurfVec[j]->m_MainSurfIndx() )
         {
             degenGeom.addDegenSubSurf( m_SubSurfVec[j], isurf );    //TODO is there a way to eliminate having to send in the surf index "i"
 
@@ -4499,9 +4499,9 @@ vector<VspSurf> Geom::GetDegenSurfVec()
 
 int Geom::GetSurfType( int indx ) const
 {
-    if ( indx >=0 && indx < m_SurfIndxVec.size() )
+    if ( indx >=0 && indx < m_MainSurfIndxVec.size() )
     {
-        return GetMainSurfType( m_SurfIndxVec[indx] );
+        return GetMainSurfType( m_MainSurfIndxVec[indx] );
     }
     return vsp::NORMAL_SURF;
 }
@@ -4544,9 +4544,9 @@ bool Geom::GetMainFlipNormal( int indx ) const
 
 double Geom::GetUMax( int indx ) const
 {
-    if ( indx >=0 && indx < m_SurfIndxVec.size() )
+    if ( indx >=0 && indx < m_MainSurfIndxVec.size() )
     {
-        return GetMainUMax( m_SurfIndxVec[indx] );
+        return GetMainUMax( m_MainSurfIndxVec[indx] );
     }
     return 0.0;
 }
@@ -4562,9 +4562,9 @@ double Geom::GetMainUMax( int indx ) const
 
 double Geom::GetUMapMax( int indx ) const
 {
-    if ( indx >=0 && indx < m_SurfIndxVec.size() )
+    if ( indx >=0 && indx < m_MainSurfIndxVec.size() )
     {
-        return GetMainUMapMax( m_SurfIndxVec[indx] );
+        return GetMainUMapMax( m_MainSurfIndxVec[indx] );
     }
     return 0.0;
 }
@@ -4580,9 +4580,9 @@ double Geom::GetMainUMapMax( int indx ) const
 
 double Geom::GetWMax( int indx ) const
 {
-    if ( indx >=0 && indx < m_SurfIndxVec.size() )
+    if ( indx >=0 && indx < m_MainSurfIndxVec.size() )
     {
-        return GetMainWMax( m_SurfIndxVec[indx] );
+        return GetMainWMax( m_MainSurfIndxVec[indx] );
     }
     return 0.0;
 }
@@ -5154,7 +5154,7 @@ void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[i] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ], false, pnts, norms,
                          uw_pnts);
 
         //==== Write XSec Header ====//
@@ -5194,7 +5194,7 @@ void Geom::WritePLOT3DFileExtents( FILE* dump_file )
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[i] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ], false, pnts, norms,
                          uw_pnts);
         //==== Write surface boundary extents ====//
         fprintf( dump_file, " %d %d %d\n", static_cast<int>( pnts[0].size() ), static_cast<int>( pnts.size() ), 1 );
@@ -5210,7 +5210,7 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[i] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ], false, pnts, norms,
                          uw_pnts);
 
         //==== Write XSec Data ====//
@@ -5284,7 +5284,7 @@ void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat, vector 
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
 
-        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[i] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ], false, pnts, norms,
                          uw_pnts);
 
         wstart[ipatch] = 0;
@@ -5292,12 +5292,12 @@ void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat, vector 
 
         if ( idpat[ipatch] == 1 ) // WING_SURF
         {
-            if( m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
+            if( m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_MainSurfIndxVec[i] ] )
             {
                 wstart[ipatch] = m_CapUMinTess();
             }
 
-            if( m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
+            if( m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ] )
             {
                 wend[ipatch] = pnts.size() - m_CapUMinTess();
             }
@@ -5418,7 +5418,7 @@ void Geom::CreateGeomResults( Results* res )
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
-        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[i] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ], false, pnts, norms,
                          uw_pnts);
 
         res->Add( new NameValData( "Num_XSecs", static_cast<int>( pnts.size() ), "Number of cross sections." ) );
@@ -5457,7 +5457,7 @@ void Geom::WriteX3D( xmlNodePtr node )
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
         vector< vector< vec3d > > uw_pnts;
-        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[i] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ], false, pnts, norms,
                          uw_pnts);
         unsigned int num_xsecs = pnts.size();
         unsigned int num_pnts = pnts[0].size();
@@ -5528,7 +5528,7 @@ void Geom::WritePovRay( FILE* fid, int comp_num )
         vec3d n0, n1, n2, n3, v0, v1, v2, v3;
 
         vector< vector< vec3d > > uw_pnts;
-        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts,
+        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[i] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ], false, pnts,
                          norms, uw_pnts);
 
         for ( int xs = 0 ; xs < ( int )pnts.size() - 1 ; xs++ )
@@ -5602,7 +5602,7 @@ vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec ) const
         {
             for ( int j = i + 1 ; j < nsurf ; j++ )
             {
-                if ( m_SurfIndxVec[i] == m_SurfIndxVec[j] ) // Check if they come from same main surface
+                if ( m_MainSurfIndxVec[i] == m_MainSurfIndxVec[j] ) // Check if they come from same main surface
                 {
                     surf_vec[i].FlagDuplicate( surf_vec[j] );
                 }
@@ -5624,7 +5624,7 @@ vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec ) const
     {
         if ( surf_vec[i].GetNumSectU() != 0 && surf_vec[i].GetNumSectW() != 0 )
         {
-            UpdateTesselate( surf_vec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ], false, pnts, norms,
+            UpdateTesselate( surf_vec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[i] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ], false, pnts, norms,
                              uw_pnts);
             surf_vec[i].ResetUSkip(); // Done with skip flags.
 
@@ -6025,7 +6025,7 @@ void Geom::ExportSurfacePatches( vector<string> &surf_res_ids )
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
         vector< vector< vector< vec3d > > > pnts, norms;
-        UpdateSplitTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_SurfIndxVec[i] ], m_CapUMaxSuccess[ m_SurfIndxVec[i] ],
+        UpdateSplitTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[i] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ],
                               pnts, norms );
 
         // Add a results entity for each patch to the surface
