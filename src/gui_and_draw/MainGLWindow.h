@@ -222,9 +222,12 @@ private:
     glm::vec2 m_prevRB;
     glm::vec2 m_prevAltLB;
     glm::vec2 m_prevCtrlLB;
+    glm::vec2 m_prevZLB;
     glm::vec2 m_prevMetaLB;
     glm::vec2 m_startShiftLB;
     glm::vec2 m_prevLBRB;
+
+    unsigned m_prevKey;
 
 protected:
 

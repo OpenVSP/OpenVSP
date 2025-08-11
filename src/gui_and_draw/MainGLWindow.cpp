@@ -88,7 +88,7 @@ VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::
 
     m_prevViewport = -1;
     m_prevLB = m_prevRB = m_prevMB = glm::vec2( fNAN );
-    m_prevAltLB = m_prevCtrlLB = m_prevMetaLB = glm::vec2( fNAN );
+    m_prevAltLB = m_prevCtrlLB = m_prevMetaLB = m_prevZLB = glm::vec2( fNAN );
     m_prevLBRB = glm::vec2( fNAN );
 
     m_ScreenMgr = mgr;
@@ -2337,6 +2337,11 @@ void VspGlWindow::OnPush( int x, int y )
         if( alltrue )
         {
         }
+        else if( m_prevKey == 'z' )
+        {
+            // z
+            m_prevZLB = glm::vec2( x, y );
+        }
         else if( Fl::event_alt() )
         {
             // Alt + LB
@@ -2436,6 +2441,16 @@ void VspGlWindow::OnDrag( int x, int y )
         if( alltrue )
         {
         }
+        else if( m_prevKey == 'z' )
+        {
+            // z
+            if( !glm::any(glm::isnan(m_prevZLB)) )
+            {
+                display->rotateZ( ( int )m_prevZLB.x, ( int )m_prevZLB.y, x, y );
+                UpdateRotationParms();
+            }
+            m_prevZLB = glm::vec2( x, y );
+        }
         else if( Fl::event_alt() )
         {
             // Alt + LB
@@ -2508,7 +2523,7 @@ void VspGlWindow::OnRelease( int x, int y )
     switch( Fl::event_button() )
     {
     case FL_LEFT_MOUSE:
-        m_prevLB = m_prevAltLB = m_prevCtrlLB = glm::vec2( fNAN );
+        m_prevLB = m_prevAltLB = m_prevCtrlLB = m_prevZLB = glm::vec2( fNAN );
         m_prevMetaLB = glm::vec2( fNAN );
         if( Fl::event_shift() || vPtr->m_SelectBoxFlag() )
         {
@@ -2547,7 +2562,12 @@ int VspGlWindow::OnKeyup( int x, int y )
     VSPGraphic::Display * display = m_GEngine->getDisplay();
     int handled = 0;
 
-    switch( Fl::event_key() )
+    unsigned key = Fl::event_key();
+    key = tolower(key);  // not utf-8 safe, but oh well...
+
+    m_prevKey = '\0';
+
+    switch( key )
     {
     case FL_Escape:
     {
@@ -2682,6 +2702,15 @@ int VspGlWindow::OnKeyup( int x, int y )
             m_prevRB = glm::vec2( x, y );
         }
         break;
+
+    case int('z'):
+        m_prevLB = glm::vec2( x, y );
+        m_prevMB = glm::vec2( x, y );
+        m_prevRB = glm::vec2( x, y );
+        m_prevCtrlLB = glm::vec2( x, y );
+        m_prevAltLB = glm::vec2( x, y );
+        m_prevZLB = glm::vec2( fNAN );
+        break;
     }
     redraw();
 
@@ -2692,8 +2721,14 @@ int VspGlWindow::OnKeydown()
 {
     int handled = 0;
 
-    switch( Fl::event_key() )
+    unsigned key = Fl::event_key();
+    key = tolower(key);  // not utf-8 safe, but oh well...
+
+    switch( key )
     {
+        default:
+            m_prevKey = key;
+            break;
     }
     redraw();
 
