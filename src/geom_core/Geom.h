@@ -811,64 +811,28 @@ protected:
         int num_main = source.size();
         unsigned int num_surf = GetNumSymmCopies() * num_main;
 
-        dest = source;
-        dest.resize( num_surf );
-
-        // Copy main surfs
-        int symFlag = GetSymFlag();
-        if ( symFlag != 0 )
+        if ( num_surf == 0 )
         {
-            int numShifts = -1;
-
-            int currentIndex = num_main;
-
-            for ( int i = 0 ; i < GetNumSymFlags() ; i ++ ) // Loop through each of the set sym flags
-            {
-                // Find next set sym flag
-                while ( true )
-                {
-                    numShifts++;
-                    if ( ( ( symFlag >> numShifts ) & ( 1 << 0 ) ) || numShifts > vsp::SYM_NUM_TYPES )
-                    {
-                        break;
-                    }
-                }
-
-                bool radial = false;
-                if ( ( 1 << numShifts ) >= vsp::SYM_ROT_X )
-                {
-                    radial = true;
-                }
-
-                // number of additional surfaces for a single reflection ( for rotational reflections it is m_SymRotN-1 times this number
-                int numAddSurfs = currentIndex;
-                int addIndex = 0;
-
-                for ( int j = currentIndex ; j < currentIndex + numAddSurfs ; j++ )
-                {
-                    if ( radial ) // rotational reflection
-                    {
-                        for ( int k = 0 ; k < m_SymRotN() - 1 ; k++ )
-                        {
-                            dest[j + k * numAddSurfs] = dest[j - currentIndex];
-                            addIndex++;
-                        }
-                    }
-                    else
-                    {
-                        dest[j] = dest[j - currentIndex];
-                        dest[j].FlipNormal();
-                        addIndex++;
-                    }
-                }
-
-                currentIndex += addIndex;
-            }
+            dest.clear();
+            return;
         }
 
-        //==== Save Transformation Matrix and Apply Transformations ====//
-        for ( int i = 0 ; i < num_surf ; i++ )
+        if ( m_TransMatVec.size() != num_surf )
         {
+            printf( "Mismatch m_TransMatVec.size() in Geom::ApplySymm().\n" );
+            dest.clear();
+            return;
+        }
+
+        dest.resize( num_surf );
+
+        for ( int i = 0; i < num_surf; ++i )
+        {
+            dest[ i ] = source[ m_MainSurfIndxVec[i] ];
+            if ( m_FlipNormalVec[ i ] )
+            {
+                dest[ i ].FlipNormal();
+            }
             dest[i].Transform( m_TransMatVec[i] ); // Apply total transformation to main surfaces
         }
     }
