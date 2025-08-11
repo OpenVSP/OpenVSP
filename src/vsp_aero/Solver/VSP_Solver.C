@@ -209,7 +209,7 @@ void VSP_SOLVER::init(void)
     
     SolveOnMGLevel_ = 0;
    
-    AdjointSolutionForceType_ = ADJOINT_INVISCID_AND_VISCOUS_FORCES;
+    AdjointSolutionForceType_ = ADJOINT_WAKE_AND_VISCOUS_FORCES; // Default the adjoint to using wake forces
     
     DoAdjointSolveForThisForceMomentCase_[1] = 1;
     DoAdjointSolveForThisForceMomentCase_[2] = 1;
@@ -1899,6 +1899,12 @@ void VSP_SOLVER::InitializeFreeStream(void)
        
     }
     
+    // Calculate thick component areas, fineness ratios...
+    
+    VSPGeom().CalculateThickComponentAeroGeometry(AngleOfAttack_, AngleOfBeta_);
+    
+   //  VSPGeom().TestComponentGeometryGradients(AngleOfAttack_, AngleOfBeta_);
+
     // Limits on max velocity, and min/max pressures
 
     gamma = 1.4;
@@ -1927,8 +1933,12 @@ void VSP_SOLVER::InitializeFreeStream(void)
        CpMax_ = (2./(gamma*Mach_*Mach_))*( pow(f1,gamma/(gamma-1.))*f2 - 1. );
        
     }
+    
+    CpCrit_ = -(2./(gamma*Mach_*Mach_))*(1. - pow( 2./(gamma+1.) + (gamma-1.)/(gamma+1.)*Mach_*Mach_, gamma/(gamma-1.)));
  
     DCpMax_ = CpMax_ - CpMin_;
+
+    //printf("CpCrit_: %f \n",CpCrit_);fflush(NULL);
 
     // Estimate of Vmax
 
@@ -10556,7 +10566,7 @@ void VSP_SOLVER::CalculateControlSurfaceDerivatives(void)
    
 
     int i, j, k, p, Loop, Edge, Node, *DoThisNode, *LoopIsOnControlSurface;
-    double xyz[3], CA, SA, CB, SB, Eps, pX_pDelta, pY_pDelta, pZ_pDelta, Fact;
+    double DefAngle, xyz[3], CA, SA, CB, SB, Eps, pX_pDelta, pY_pDelta, pZ_pDelta, Fact;
     
     CA = cos(AngleOfAttack_);
     SA = sin(AngleOfAttack_);
@@ -10564,7 +10574,7 @@ void VSP_SOLVER::CalculateControlSurfaceDerivatives(void)
     CB = cos(AngleOfBeta_);
     SB = sin(AngleOfBeta_);
 
-    Eps = 1.;
+    Eps = 1.e-5;
     
     DoThisNode = new int[VSPGeom().Grid(0).NumberOfNodes() + 1];
     
@@ -10598,7 +10608,7 @@ void VSP_SOLVER::CalculateControlSurfaceDerivatives(void)
           
        }
                 
-       // Mark nodes completely on the boundaries of the control surface       
+       // Mark nodes completely in the control surface       
 
        for ( p = 1 ; p <= VSPGeom().ControlSurface(k).NumberOfLoops() ; p++ ) {
        
@@ -10611,8 +10621,8 @@ void VSP_SOLVER::CalculateControlSurfaceDerivatives(void)
              if ( LoopIsOnControlSurface[VSPGeom().Grid(0).EdgeList(Edge).Loop1()] +
                   LoopIsOnControlSurface[VSPGeom().Grid(0).EdgeList(Edge).Loop2()] == 1 ) {
                      
-                DoThisNode[VSPGeom().Grid(0).EdgeList(Edge).Node1()] = 2;
-                DoThisNode[VSPGeom().Grid(0).EdgeList(Edge).Node2()] = 2;
+                DoThisNode[VSPGeom().Grid(0).EdgeList(Edge).Node1()] = 0;
+                DoThisNode[VSPGeom().Grid(0).EdgeList(Edge).Node2()] = 0;
                 
              }
              
@@ -10644,15 +10654,11 @@ void VSP_SOLVER::CalculateControlSurfaceDerivatives(void)
              
              Node = VSPGeom().Grid(0).LoopList(Loop).Node(j);
              
-             if ( DoThisNode[Node] > 0 ) {
-                
-                // We weight the nodes on the boundaries by a factor of 1./2. 
-                // This accounts for the fact that when we run the actual solve the edges of the
-                // control surfaces are warped
-                
-                Fact = 1./DoThisNode[Node];
+             if ( DoThisNode[Node] ) {
                 
                 DoThisNode[Node] = 0;
+                
+                DefAngle = VSPGeom().ControlSurface(k).DeflectionAngle();
                
                 // + delta
                 
@@ -10660,98 +10666,73 @@ void VSP_SOLVER::CalculateControlSurfaceDerivatives(void)
                 xyz[1] = VSPGeom().Grid(0).NodeList(Node).y();
                 xyz[2] = VSPGeom().Grid(0).NodeList(Node).z();
                 
-                VSPGeom().ControlSurface(k).DeflectionAngle() += Eps;
+                VSPGeom().ControlSurface(k).DeflectionAngle() = DefAngle + Eps;
                 
                 VSPGeom().ControlSurface(k).RotateXYZPoint(xyz);
 
-                pX_pDelta = xyz[0] - VSPGeom().Grid(0).NodeList(Node).x();
-                pY_pDelta = xyz[1] - VSPGeom().Grid(0).NodeList(Node).y();;
-                pZ_pDelta = xyz[2] - VSPGeom().Grid(0).NodeList(Node).z();
+                pX_pDelta = xyz[0];
+                pY_pDelta = xyz[1];
+                pZ_pDelta = xyz[2];
 
-               // // - delta
-               // 
-               // xyz[0] = VSPGeom().Grid(0).NodeList(Node).x();
-               // xyz[1] = VSPGeom().Grid(0).NodeList(Node).y();
-               // xyz[2] = VSPGeom().Grid(0).NodeList(Node).z();
-               // 
-               // VSPGeom().ControlSurface(k).DeflectionAngle() -= 2.*Eps;
-               // 
-               // VSPGeom().ControlSurface(k).RotateXYZPoint(xyz);
-               //
-               // pX_pDelta -= xyz[0];
-               // pY_pDelta -= xyz[1];
-               // pZ_pDelta -= xyz[2];
-               //
-               // pX_pDelta /(2.*Eps);
-               // pY_pDelta /(2.*Eps);
-               // pZ_pDelta /(2.*Eps);
+                // - delta
+                
+                xyz[0] = VSPGeom().Grid(0).NodeList(Node).x();
+                xyz[1] = VSPGeom().Grid(0).NodeList(Node).y();
+                xyz[2] = VSPGeom().Grid(0).NodeList(Node).z();
+                
+                VSPGeom().ControlSurface(k).DeflectionAngle() = DefAngle - Eps;
+                
+                VSPGeom().ControlSurface(k).RotateXYZPoint(xyz);
+               
+                pX_pDelta -= xyz[0];
+                pY_pDelta -= xyz[1];
+                pZ_pDelta -= xyz[2];
+               
+                pX_pDelta /= (2.*Eps);
+                pY_pDelta /= (2.*Eps);
+                pZ_pDelta /= (2.*Eps);
                      
-                VSPGeom().ControlSurface(k).DeflectionAngle() -= Eps;
+                VSPGeom().ControlSurface(k).DeflectionAngle() = DefAngle;
               
-                VSPGeom().ControlSurface(k).pCFix_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DFix_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFix_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFix_DZ() * pZ_pDelta ); 
-                VSPGeom().ControlSurface(k).pCFiy_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DFiy_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFiy_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFiy_DZ() * pZ_pDelta ); 
-                VSPGeom().ControlSurface(k).pCFiz_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DFiz_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFiz_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFiz_DZ() * pZ_pDelta ); 
-                                                                                                                                                                                                                                                                   
-                VSPGeom().ControlSurface(k).pCMix_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DMix_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMix_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMix_DZ() * pZ_pDelta ); 
-                VSPGeom().ControlSurface(k).pCMiy_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DMiy_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMiy_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMiy_DZ() * pZ_pDelta ); 
-                VSPGeom().ControlSurface(k).pCMiz_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DMiz_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMiz_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMiz_DZ() * pZ_pDelta ); 
-                                                                                                                                                                                                                                                                    
-                VSPGeom().ControlSurface(k).pCFox_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DFox_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFox_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFox_DZ() * pZ_pDelta ); 
-                VSPGeom().ControlSurface(k).pCFoy_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DFoy_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFoy_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFoy_DZ() * pZ_pDelta ); 
-                VSPGeom().ControlSurface(k).pCFoz_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DFoz_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFoz_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFoz_DZ() * pZ_pDelta ); 
-                                                                                                                                                                                                                                                                   
-                VSPGeom().ControlSurface(k).pCMox_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DMox_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMox_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMox_DZ() * pZ_pDelta ); 
-                VSPGeom().ControlSurface(k).pCMoy_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DMoy_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMoy_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMoy_DZ() * pZ_pDelta ); 
-                VSPGeom().ControlSurface(k).pCMoz_pDelta() += Fact * ( VSPGeom().Grid(MGLevel_).NodeList(Node).DMoz_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMoz_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMoz_DZ() * pZ_pDelta ); 
+                VSPGeom().ControlSurface(k).pCFix_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DFix_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFix_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFix_DZ() * pZ_pDelta; 
+                VSPGeom().ControlSurface(k).pCFiy_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DFiy_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFiy_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFiy_DZ() * pZ_pDelta; 
+                VSPGeom().ControlSurface(k).pCFiz_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DFiz_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFiz_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFiz_DZ() * pZ_pDelta; 
+                                                                                                                                                                                                                                                          
+                VSPGeom().ControlSurface(k).pCMix_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DMix_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMix_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMix_DZ() * pZ_pDelta; 
+                VSPGeom().ControlSurface(k).pCMiy_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DMiy_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMiy_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMiy_DZ() * pZ_pDelta; 
+                VSPGeom().ControlSurface(k).pCMiz_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DMiz_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMiz_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMiz_DZ() * pZ_pDelta; 
+                                                                                                                                                                                                                                                           
+                VSPGeom().ControlSurface(k).pCFox_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DFox_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFox_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFox_DZ() * pZ_pDelta; 
+                VSPGeom().ControlSurface(k).pCFoy_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DFoy_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFoy_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFoy_DZ() * pZ_pDelta; 
+                VSPGeom().ControlSurface(k).pCFoz_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DFoz_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFoz_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DFoz_DZ() * pZ_pDelta; 
+                                                                                                                                                                                                                                                          
+                VSPGeom().ControlSurface(k).pCMox_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DMox_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMox_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMox_DZ() * pZ_pDelta; 
+                VSPGeom().ControlSurface(k).pCMoy_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DMoy_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMoy_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMoy_DZ() * pZ_pDelta; 
+                VSPGeom().ControlSurface(k).pCMoz_pDelta() += VSPGeom().Grid(MGLevel_).NodeList(Node).DMoz_DX() * pX_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMoz_DY() * pY_pDelta + VSPGeom().Grid(MGLevel_).NodeList(Node).DMoz_DZ() * pZ_pDelta; 
     
              }
              
           }
             
        }
-
-//       VSPGeom().ControlSurface(k).pCFix_pDelta() *= 
-//       VSPGeom().ControlSurface(k).pCFiy_pDelta() *= 
-//       VSPGeom().ControlSurface(k).pCFiz_pDelta() *= 
-//                                               
-//       VSPGeom().ControlSurface(k).pCMix_pDelta() *= 
-//       VSPGeom().ControlSurface(k).pCMiy_pDelta() *= 
-//       VSPGeom().ControlSurface(k).pCMiz_pDelta() *= 
-//                                                  *= 
-//       VSPGeom().ControlSurface(k).pCFox_pDelta() *= 
-//       VSPGeom().ControlSurface(k).pCFoy_pDelta() *= 
-//       VSPGeom().ControlSurface(k).pCFoz_pDelta() *= 
-//                                                
-//       VSPGeom().ControlSurface(k).pCMox_pDelta() *= 
-//       VSPGeom().ControlSurface(k).pCMoy_pDelta() *= 
-//       VSPGeom().ControlSurface(k).pCMoz_pDelta() *= 
-//       
-//printf("VSPGeom().ControlSurface(k).pCFix_pDelta(): %f \n",VSPGeom().ControlSurface(k).pCFix_pDelta());fflush(NULL);
-//printf("VSPGeom().ControlSurface(k).pCFiy_pDelta(): %f \n",VSPGeom().ControlSurface(k).pCFiy_pDelta());fflush(NULL);
-//printf("VSPGeom().ControlSurface(k).pCFiz_pDelta(): %f \n",VSPGeom().ControlSurface(k).pCFiz_pDelta());fflush(NULL);
-//
-//printf("VSPGeom().ControlSurface(k).pCMix_pDelta(): %f \n",VSPGeom().ControlSurface(k).pCMix_pDelta());fflush(NULL);
-//printf("VSPGeom().ControlSurface(k).pCMiy_pDelta(): %f \n",VSPGeom().ControlSurface(k).pCMiy_pDelta());fflush(NULL);
-//printf("VSPGeom().ControlSurface(k).pCMiz_pDelta(): %f \n",VSPGeom().ControlSurface(k).pCMiz_pDelta());fflush(NULL);
-       
-              
+  
        // Non-dimensionalize
 
-      VSPGeom().ControlSurface(k).pCFix_pDelta() /= (0.5*Sref_*Vref_*Vref_);
-      VSPGeom().ControlSurface(k).pCFiy_pDelta() /= (0.5*Sref_*Vref_*Vref_);
-      VSPGeom().ControlSurface(k).pCFiz_pDelta() /= (0.5*Sref_*Vref_*Vref_);
-     
-      VSPGeom().ControlSurface(k).pCMix_pDelta() /= (0.5*Sref_*Bref_*Vref_*Vref_);
-      VSPGeom().ControlSurface(k).pCMiy_pDelta() /= (0.5*Sref_*Cref_*Vref_*Vref_);
-      VSPGeom().ControlSurface(k).pCMiz_pDelta() /= (0.5*Sref_*Bref_*Vref_*Vref_);
-     
-      VSPGeom().ControlSurface(k).pCFox_pDelta() /= (0.5*Sref_*Vref_*Vref_);
-      VSPGeom().ControlSurface(k).pCFoy_pDelta() /= (0.5*Sref_*Vref_*Vref_);
-      VSPGeom().ControlSurface(k).pCFoz_pDelta() /= (0.5*Sref_*Vref_*Vref_);
-     
-      VSPGeom().ControlSurface(k).pCMox_pDelta() /= (0.5*Sref_*Bref_*Vref_*Vref_);
-      VSPGeom().ControlSurface(k).pCMoy_pDelta() /= (0.5*Sref_*Cref_*Vref_*Vref_);
-      VSPGeom().ControlSurface(k).pCMoz_pDelta() /= (0.5*Sref_*Bref_*Vref_*Vref_);
+       VSPGeom().ControlSurface(k).pCFix_pDelta() /= (0.5*Sref_*Vref_*Vref_);
+       VSPGeom().ControlSurface(k).pCFiy_pDelta() /= (0.5*Sref_*Vref_*Vref_);
+       VSPGeom().ControlSurface(k).pCFiz_pDelta() /= (0.5*Sref_*Vref_*Vref_);
+       
+       VSPGeom().ControlSurface(k).pCMix_pDelta() /= (0.5*Sref_*Bref_*Vref_*Vref_);
+       VSPGeom().ControlSurface(k).pCMiy_pDelta() /= (0.5*Sref_*Cref_*Vref_*Vref_);
+       VSPGeom().ControlSurface(k).pCMiz_pDelta() /= (0.5*Sref_*Bref_*Vref_*Vref_);
+       
+       VSPGeom().ControlSurface(k).pCFox_pDelta() /= (0.5*Sref_*Vref_*Vref_);
+       VSPGeom().ControlSurface(k).pCFoy_pDelta() /= (0.5*Sref_*Vref_*Vref_);
+       VSPGeom().ControlSurface(k).pCFoz_pDelta() /= (0.5*Sref_*Vref_*Vref_);
+       
+       VSPGeom().ControlSurface(k).pCMox_pDelta() /= (0.5*Sref_*Bref_*Vref_*Vref_);
+       VSPGeom().ControlSurface(k).pCMoy_pDelta() /= (0.5*Sref_*Cref_*Vref_*Vref_);
+       VSPGeom().ControlSurface(k).pCMoz_pDelta() /= (0.5*Sref_*Bref_*Vref_*Vref_);
        
        // Convert into aero coefficients              
        
@@ -16364,7 +16345,7 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Mesh(void)
              
              AreaGradients = new double[3*VSPGeom().Grid(MGLevel_).LoopList(Loop).NumberOfNodes() + 1];
    
-             CalculateLoopNormalGradients_wrt_Mesh(MGLevel_, Loop, NormalGradients, AreaGradients);
+             VSPGeom().CalculateLoopNormalGradients_wrt_Mesh(MGLevel_, Loop, NormalGradients, AreaGradients);
         
              Force[0]     = -KuttaWeight * DeltaPressure * VSPGeom().Grid(MGLevel_).LoopList(Loop).Area() * VSPGeom().Grid(MGLevel_).LoopList(Loop).Nx();
              Force[1]     = -KuttaWeight * DeltaPressure * VSPGeom().Grid(MGLevel_).LoopList(Loop).Area() * VSPGeom().Grid(MGLevel_).LoopList(Loop).Ny();
@@ -17452,8 +17433,33 @@ void VSP_SOLVER::CalculateViscousForceGradients(void)
     double pMx_pVelocity;
     double pMy_pVelocity;
     double pMz_pVelocity;
+
+    double ForceDir[3], Length, WettedArea, FR, Fxo, Fyo, Fzo;
+       
+    double pRe_pLength;
     
+    double pRe_pCref;
+    
+    double pCf_pFR;
+    
+    double pFxo_pCf;
+    double pFyo_pCf;
+    double pFzo_pCf;
+    
+    double pFxo_WettedArea;
+    double pFyo_WettedArea;
+    double pFzo_WettedArea;
+    
+    double pFxo_pForceDir[3];
+    double pFyo_pForceDir[3];
+    double pFzo_pForceDir[3];
+    
+    double pFxo_pVref;
+    double pFyo_pVref;
+    double pFzo_pVref;
+
     double OVec[3], TVec[3];
+    
     QUAT Quat, InvQuat, WQuat, Vec1, Vec2, pVec1_pXYZC, pVec2_pXYZC, BodyVelocity, pBodyVelocity_pXYZC;
     
     // Zero out gradients
@@ -17751,9 +17757,9 @@ void VSP_SOLVER::CalculateViscousForceGradients(void)
              
              pStallBumpFactor_pStall = 100.;
            
-             Cfi = 2. * 1.5 * 1.037 / pow(log10(Re),2.58) + pCf_pCl2*pow(Cl-Clo_2d_, 2.);
+             Cfi = 1.5 / pow(log10(Re),2.58) + pCf_pCl2*pow(Cl-Clo_2d_, 2.);
    
-             pCfi_pRe = -2. * 1.5 * 2.58 * 1.037 / ( Re * log(10.) * pow(log10(Re),3.58) );
+             pCfi_pRe = -1.5 * 2.58 / ( Re * log(10.) * pow(log10(Re),3.58) );
              
              pCfi_pCl = 2.*pCf_pCl2*(Cl-Clo_2d_);
              
@@ -18195,6 +18201,138 @@ void VSP_SOLVER::CalculateViscousForceGradients(void)
        
     }
 
+    // Calculate non lifting component viscous forces gradients wrt mesh
+    
+    VSPGeom().CalculateThickComponentAeroGeometryGradientswrtMesh(AngleOfAttack_, AngleOfBeta_);
+        
+    CA = cos(AngleOfAttack_);
+    SA = sin(AngleOfAttack_);
+
+    CB = cos(AngleOfBeta_);
+    SB = sin(AngleOfBeta_);
+        
+    ForceDir[0] = CA*CB;
+    ForceDir[1] =   -SB;
+    ForceDir[2] = SA*CB;
+    
+    for ( i = 1 ; i <= VSPGeom().NumberOfComponents() ; i++ ) {
+       
+       if ( !VSPGeom().ComponentIsLifting(i) && ComponentIsInAdjointForceAndMomentList_[i] && Vinf_ > 0. ) {
+                   
+          // Wetted Area
+          
+          WettedArea = VSPGeom().ComponentWettedArea(i);
+          
+          // Projected length
+          
+          Length = VSPGeom().ComponentLength(i);
+          
+          // Fineness ratio
+          
+          FR = VSPGeom().ComponentFineNessRatio(i);
+          
+          // Local Reynold's number
+          
+          Re = MAX(2.,ReCref_ * Length / Cref_);
+              
+          pRe_pLength = pRe_pCref = 0.;
+          
+          if ( ReCref_ * Length / Cref_ > 2. ) {
+             
+             pRe_pLength = ReCref_  / Cref_;
+             
+             pRe_pCref = ReCref_ * Length / (Cref_*Cref_);
+             
+          }
+
+          // Local turbulent skin friction
+                  
+          Cf = 0.30/ pow(log10(Re),2.58) * (1. + 1.5/pow(FR,1.5) + 7./pow(FR,3.));
+  
+          pCf_pRe = -2.58 * 0.30 / ( Re * log(10.) * pow(log10(Re),3.58) ) * (1. + 1.5/pow(FR,1.5) + 7./pow(FR,3.));
+
+          pCf_pFR = 0.30/ pow(log10(Re),2.58) * ( -1.5*1.5/pow(FR,2.5) - 3.*7./pow(FR,4.));
+      
+          // Viscous Forces
+           
+          Fxo                = 0.5 * Cf * Vref_ * Vref_ * WettedArea * ForceDir[0];
+          Fyo                = 0.5 * Cf * Vref_ * Vref_ * WettedArea * ForceDir[1];
+          Fzo                = 0.5 * Cf * Vref_ * Vref_ * WettedArea * ForceDir[2];
+                             
+          pFxo_pCf           = 0.5      * Vref_ * Vref_ * WettedArea * ForceDir[0];          
+          pFyo_pCf           = 0.5      * Vref_ * Vref_ * WettedArea * ForceDir[1];          
+          pFzo_pCf           = 0.5      * Vref_ * Vref_ * WettedArea * ForceDir[2];          
+                             
+          pFxo_WettedArea    = 0.5 * Cf * Vref_ * Vref_              * ForceDir[0];
+          pFyo_WettedArea    = 0.5 * Cf * Vref_ * Vref_              * ForceDir[1];
+          pFzo_WettedArea    = 0.5 * Cf * Vref_ * Vref_              * ForceDir[2];
+
+          pFxo_pForceDir[0]  = 0.5 * Cf * Vref_ * Vref_ * WettedArea;
+          pFxo_pForceDir[1]  = 0.;
+          pFxo_pForceDir[2]  = 0.;
+          
+          pFyo_pForceDir[0]  = 0.;
+          pFyo_pForceDir[1]  = 0.5 * Cf * Vref_ * Vref_ * WettedArea;
+          pFyo_pForceDir[2]  = 0.;
+          
+          pFzo_pForceDir[0]  = 0.;
+          pFzo_pForceDir[1]  = 0.;
+          pFzo_pForceDir[2]  = 0.5 * Cf * Vref_ * Vref_ * WettedArea;
+          
+          pFxo_pVref         =       Cf         * Vref_ * WettedArea * ForceDir[0];
+          pFyo_pVref         =       Cf         * Vref_ * WettedArea * ForceDir[1];
+
+          for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfSurfaceNodes() ; j++ ) {
+          
+             // pFox
+             
+             VSPGeom().Grid(MGLevel_).NodeList(j).pFox_pX() += pFxo_pCf       * pCf_pRe * pRe_pLength *        VSPGeom().pComponentLengthpMesh(i,j).px()
+                                                             + pFxo_WettedArea                        *    VSPGeom().pComponentWettedAreapMesh(i,j).px()
+                                                             + pFxo_pCf * pCf_pFR                     * VSPGeom().pComponentFineNessRatiopMesh(i,j).px();
+                                                                                                                                             
+             VSPGeom().Grid(MGLevel_).NodeList(j).pFox_pY() += pFxo_pCf       * pCf_pRe * pRe_pLength *        VSPGeom().pComponentLengthpMesh(i,j).py()
+                                                             + pFxo_WettedArea                        *    VSPGeom().pComponentWettedAreapMesh(i,j).py()
+                                                             + pFxo_pCf * pCf_pFR                     * VSPGeom().pComponentFineNessRatiopMesh(i,j).py();
+                                                                                                                                              
+             VSPGeom().Grid(MGLevel_).NodeList(j).pFox_pZ() += pFxo_pCf       * pCf_pRe * pRe_pLength *        VSPGeom().pComponentLengthpMesh(i,j).pz()
+                                                             + pFxo_WettedArea                        *    VSPGeom().pComponentWettedAreapMesh(i,j).pz()
+                                                             + pFxo_pCf * pCf_pFR                     * VSPGeom().pComponentFineNessRatiopMesh(i,j).pz();
+                                                                                                                                               
+             // pFoy                                                                                                                           
+                                                                                                                                               
+             VSPGeom().Grid(MGLevel_).NodeList(j).pFoy_pX() += pFyo_pCf       * pCf_pRe * pRe_pLength *        VSPGeom().pComponentLengthpMesh(i,j).px()
+                                                             + pFyo_WettedArea                        *    VSPGeom().pComponentWettedAreapMesh(i,j).px()
+                                                             + pFyo_pCf * pCf_pFR                     * VSPGeom().pComponentFineNessRatiopMesh(i,j).px();
+                                                                                                                                                
+             VSPGeom().Grid(MGLevel_).NodeList(j).pFoy_pY() += pFyo_pCf       * pCf_pRe * pRe_pLength *        VSPGeom().pComponentLengthpMesh(i,j).py()
+                                                             + pFyo_WettedArea                        *    VSPGeom().pComponentWettedAreapMesh(i,j).py()
+                                                             + pFyo_pCf * pCf_pFR                     * VSPGeom().pComponentFineNessRatiopMesh(i,j).py();
+                                                                                                                                               
+             VSPGeom().Grid(MGLevel_).NodeList(j).pFoy_pZ() += pFyo_pCf       * pCf_pRe * pRe_pLength *        VSPGeom().pComponentLengthpMesh(i,j).pz()
+                                                             + pFyo_WettedArea                        *    VSPGeom().pComponentWettedAreapMesh(i,j).pz()
+                                                             + pFyo_pCf * pCf_pFR                     * VSPGeom().pComponentFineNessRatiopMesh(i,j).pz();
+                                                                                                                                               
+             // pFoz                                                                                                                           
+                                                                                                                                               
+             VSPGeom().Grid(MGLevel_).NodeList(j).pFoz_pX() += pFzo_pCf       * pCf_pRe * pRe_pLength *        VSPGeom().pComponentLengthpMesh(i,j).px()
+                                                             + pFzo_WettedArea                        *    VSPGeom().pComponentWettedAreapMesh(i,j).px()
+                                                             + pFzo_pCf * pCf_pFR                     * VSPGeom().pComponentFineNessRatiopMesh(i,j).px();
+                                                                                                                                               
+             VSPGeom().Grid(MGLevel_).NodeList(j).pFoz_pY() += pFzo_pCf       * pCf_pRe * pRe_pLength *        VSPGeom().pComponentLengthpMesh(i,j).py()
+                                                             + pFzo_WettedArea                        *    VSPGeom().pComponentWettedAreapMesh(i,j).py()
+                                                             + pFzo_pCf * pCf_pFR                     * VSPGeom().pComponentFineNessRatiopMesh(i,j).py();
+                                                                                                                                               
+             VSPGeom().Grid(MGLevel_).NodeList(j).pFoz_pZ() += pFzo_pCf       * pCf_pRe * pRe_pLength *        VSPGeom().pComponentLengthpMesh(i,j).pz()
+                                                             + pFzo_WettedArea                        *    VSPGeom().pComponentWettedAreapMesh(i,j).pz()
+                                                             + pFzo_pCf * pCf_pFR                     * VSPGeom().pComponentFineNessRatiopMesh(i,j).pz();
+   
+             
+          }   
+
+       }
+       
+    }    
+    
 }
 
 /*##############################################################################
@@ -19697,7 +19835,7 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialMesh_VorticityEquations(voi
        
        AreaGradients = new double[3*VSPGeom().Grid(Level).LoopList(Loop).NumberOfNodes() + 1];
 
-       CalculateLoopNormalGradients_wrt_Mesh(MGLevel_,Loop,NormalGradients,AreaGradients);
+       VSPGeom().CalculateLoopNormalGradients_wrt_Mesh(MGLevel_,Loop,NormalGradients,AreaGradients);
  
        for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).LoopList(Loop).NumberOfNodes() ; i++ ) {
           
@@ -20792,339 +20930,6 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialMesh_VortexStretchingRatioE
 
 /*##############################################################################
 #                                                                              #
-#            VSP_SOLVER CalculateLoopNormalGradients_wrt_Mesh                  #
-#                                                                              #
-##############################################################################*/
-
-void VSP_SOLVER::CalculateLoopNormalGradients_wrt_Mesh(int Level, int Loop, double *NormalGradients, double *AreaGradients)
-{
-   
-    int i, j, Tri, Node1, Node2, Node3, Found;
-    
-    if ( Level != MGLevel_ ) {
-       
-       printf("Loop normal gradients for meshes other than MGLevel_ not working yet! \n");
-       fflush(NULL);
-       
-    }
-    
-    double Normal[3], Nmag;
-    
-    double dNx_dx1;
-    double dNx_dy1;
-    double dNx_dz1;
-                         
-    double dNy_dx1;
-    double dNy_dy1;
-    double dNy_dz1;
-                         
-    double dNz_dx1;
-    double dNz_dy1;
-    double dNz_dz1;
-                       
-    double dNx_dx2;
-    double dNx_dy2;
-    double dNx_dz2;
-                         
-    double dNy_dx2;
-    double dNy_dy2;
-    double dNy_dz2;
-                          
-    double dNz_dx2;
-    double dNz_dy2;
-    double dNz_dz2;    
-                         
-    double dNx_dx3;
-    double dNx_dy3;
-    double dNx_dz3;
-                        
-    double dNy_dx3;
-    double dNy_dy3;
-    double dNy_dz3;
-                         
-    double dNz_dx3;
-    double dNz_dy3;
-    double dNz_dz3;
-
-    double dNx_Normalized_dx1;
-    double dNx_Normalized_dy1;
-    double dNx_Normalized_dz1; 
-                                     
-    double dNy_Normalized_dx1;
-    double dNy_Normalized_dy1;
-    double dNy_Normalized_dz1; 
-                                     
-    double dNz_Normalized_dx1;
-    double dNz_Normalized_dy1;
-    double dNz_Normalized_dz1;
-                                     
-    double dNx_Normalized_dx2;
-    double dNx_Normalized_dy2;
-    double dNx_Normalized_dz2; 
-                                     
-    double dNy_Normalized_dx2;
-    double dNy_Normalized_dy2;
-    double dNy_Normalized_dz2; 
-                                     
-    double dNz_Normalized_dx2;
-    double dNz_Normalized_dy2;
-    double dNz_Normalized_dz2;     
-                                     
-    double dNx_Normalized_dx3;
-    double dNx_Normalized_dy3;
-    double dNx_Normalized_dz3; 
-                                     
-    double dNy_Normalized_dx3;
-    double dNy_Normalized_dy3;
-    double dNy_Normalized_dz3; 
-                                     
-    double dNz_Normalized_dx3;
-    double dNz_Normalized_dy3;
-    double dNz_Normalized_dz3;
-                                                
-    double dArea_dx1;
-    double dArea_dy1;
-    double dArea_dz1;            
-                           
-    double dArea_dx2;
-    double dArea_dy2;
-    double dArea_dz2;       
-                           
-    double dArea_dx3;
-    double dArea_dy3;
-    double dArea_dz3;
-                                                          
-    // Loop over fine grid tris
-
-    zero_double_array(NormalGradients, 9*VSPGeom().Grid(Level).LoopList(Loop).NumberOfNodes());
-
-    zero_double_array(AreaGradients, 3*VSPGeom().Grid(Level).LoopList(Loop).NumberOfNodes());
-
-    Nmag = 2.*VSPGeom().Grid(Level).LoopList(Loop).Area();
-    
-    Normal[0] = Nmag * VSPGeom().Grid(Level).LoopList(Loop).Nx();
-    Normal[1] = Nmag * VSPGeom().Grid(Level).LoopList(Loop).Ny();
-    Normal[2] = Nmag * VSPGeom().Grid(Level).LoopList(Loop).Nz();
-           
-    for ( i = 1 ; i <= VSPGeom().Grid(Level).LoopList(Loop).NumberOfFineGridLoops() ; i++ ) {
-       
-       Tri = VSPGeom().Grid(Level).LoopList(Loop).FineGridLoop(i);
-
-       Node1 = VSPGeom().Grid(0).LoopList(Tri).Node1();
-       Node2 = VSPGeom().Grid(0).LoopList(Tri).Node2();
-       Node3 = VSPGeom().Grid(0).LoopList(Tri).Node3();
-       
-       CalculateTriNormalGradients_wrt_Mesh(Tri,
-                                            dNx_dx1,
-                                            dNx_dy1,
-                                            dNx_dz1, 
-                                             
-                                            dNy_dx1,
-                                            dNy_dy1,
-                                            dNy_dz1, 
-                                            
-                                            dNz_dx1,
-                                            dNz_dy1,
-                                            dNz_dz1,
-                                             
-                                            dNx_dx2,
-                                            dNx_dy2,
-                                            dNx_dz2, 
-                                               
-                                            dNy_dx2,
-                                            dNy_dy2,
-                                            dNy_dz2, 
-                                              
-                                            dNz_dx2,
-                                            dNz_dy2,
-                                            dNz_dz2,     
-                                                
-                                            dNx_dx3,
-                                            dNx_dy3,
-                                            dNx_dz3, 
-                                             
-                                            dNy_dx3,
-                                            dNy_dy3,
-                                            dNy_dz3, 
-                                            
-                                            dNz_dx3,
-                                            dNz_dy3,
-                                            dNz_dz3,
-                                            
-                                            dNx_Normalized_dx1,
-                                            dNx_Normalized_dy1,
-                                            dNx_Normalized_dz1, 
-                                               
-                                            dNy_Normalized_dx1,
-                                            dNy_Normalized_dy1,
-                                            dNy_Normalized_dz1, 
-                                               
-                                            dNz_Normalized_dx1,
-                                            dNz_Normalized_dy1,
-                                            dNz_Normalized_dz1,
-                                               
-                                            dNx_Normalized_dx2,
-                                            dNx_Normalized_dy2,
-                                            dNx_Normalized_dz2, 
-                                               
-                                            dNy_Normalized_dx2,
-                                            dNy_Normalized_dy2,
-                                            dNy_Normalized_dz2, 
-                                               
-                                            dNz_Normalized_dx2,
-                                            dNz_Normalized_dy2,
-                                            dNz_Normalized_dz2,     
-                                                
-                                            dNx_Normalized_dx3,
-                                            dNx_Normalized_dy3,
-                                            dNx_Normalized_dz3, 
-                                               
-                                            dNy_Normalized_dx3,
-                                            dNy_Normalized_dy3,
-                                            dNy_Normalized_dz3, 
-                                               
-                                            dNz_Normalized_dx3,
-                                            dNz_Normalized_dy3,
-                                            dNz_Normalized_dz3,
-                                                                                                  
-                                            dArea_dx1,
-                                            dArea_dy1,
-                                            dArea_dz1,            
-                                                    
-                                            dArea_dx2,
-                                            dArea_dy2,
-                                            dArea_dz2,       
-                                                    
-                                            dArea_dx3,
-                                            dArea_dy3,
-                                            dArea_dz3);                                         
-                        
-       Found = 0;
-       
-       j = 1;
-                                            
-       while ( Found < 3 && j <= VSPGeom().Grid(Level).LoopList(Loop).NumberOfNodes() ) {
-                                          
-           if ( VSPGeom().Grid(Level).LoopList(Loop).Node(j) == Node1 ) {
-              
-              NormalGradients[9*j - 8] += dNx_dx1/Nmag - Normal[0]*(Normal[0]*dNx_dx1 + Normal[1]*dNy_dx1 + Normal[2]*dNz_dx1)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 7] += dNx_dy1/Nmag - Normal[0]*(Normal[0]*dNx_dy1 + Normal[1]*dNy_dy1 + Normal[2]*dNz_dy1)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 6] += dNx_dz1/Nmag - Normal[0]*(Normal[0]*dNx_dz1 + Normal[1]*dNy_dz1 + Normal[2]*dNz_dz1)/(Nmag*Nmag*Nmag);
-                                                                                                                
-              NormalGradients[9*j - 5] += dNy_dx1/Nmag - Normal[1]*(Normal[0]*dNx_dx1 + Normal[1]*dNy_dx1 + Normal[2]*dNz_dx1)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 4] += dNy_dy1/Nmag - Normal[1]*(Normal[0]*dNx_dy1 + Normal[1]*dNy_dy1 + Normal[2]*dNz_dy1)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 3] += dNy_dz1/Nmag - Normal[1]*(Normal[0]*dNx_dz1 + Normal[1]*dNy_dz1 + Normal[2]*dNz_dz1)/(Nmag*Nmag*Nmag);
-                                                                                                                  
-              NormalGradients[9*j - 2] += dNz_dx1/Nmag - Normal[2]*(Normal[0]*dNx_dx1 + Normal[1]*dNy_dx1 + Normal[2]*dNz_dx1)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 1] += dNz_dy1/Nmag - Normal[2]*(Normal[0]*dNx_dy1 + Normal[1]*dNy_dy1 + Normal[2]*dNz_dy1)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 0] += dNz_dz1/Nmag - Normal[2]*(Normal[0]*dNx_dz1 + Normal[1]*dNy_dz1 + Normal[2]*dNz_dz1)/(Nmag*Nmag*Nmag);
-              
-              AreaGradients[3*j - 2] += dArea_dx1;
-              AreaGradients[3*j - 1] += dArea_dy1;
-              AreaGradients[3*j - 0] += dArea_dz1;
-
-             // NormalGradients[9*j - 5] += dNx_dx1/Nmag; 
-             // NormalGradients[9*j - 4] += dNx_dy1/Nmag; 
-             // NormalGradients[9*j - 3] += dNx_dz1/Nmag;  
-             //                                                                                                   
-             // NormalGradients[9*j - 5] += dNy_dx1/Nmag; 
-             // NormalGradients[9*j - 4] += dNy_dy1/Nmag; 
-             // NormalGradients[9*j - 3] += dNy_dz1/Nmag;  
-             //                                        
-             // NormalGradients[9*j - 2] += dNz_dx1/Nmag; 
-             // NormalGradients[9*j - 1] += dNz_dy1/Nmag; 
-             // NormalGradients[9*j    ] += dNz_dz1/Nmag; 
-              
-              Found++;
-              
-           }
-           
-           if ( VSPGeom().Grid(Level).LoopList(Loop).Node(j) == Node2 ) {
-
-              NormalGradients[9*j - 8] += dNx_dx2/Nmag - Normal[0]*(Normal[0]*dNx_dx2 + Normal[1]*dNy_dx2 + Normal[2]*dNz_dx2)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 7] += dNx_dy2/Nmag - Normal[0]*(Normal[0]*dNx_dy2 + Normal[1]*dNy_dy2 + Normal[2]*dNz_dy2)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 6] += dNx_dz2/Nmag - Normal[0]*(Normal[0]*dNx_dz2 + Normal[1]*dNy_dz2 + Normal[2]*dNz_dz2)/(Nmag*Nmag*Nmag);
-                                                                                                                  
-              NormalGradients[9*j - 5] += dNy_dx2/Nmag - Normal[1]*(Normal[0]*dNx_dx2 + Normal[1]*dNy_dx2 + Normal[2]*dNz_dx2)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 4] += dNy_dy2/Nmag - Normal[1]*(Normal[0]*dNx_dy2 + Normal[1]*dNy_dy2 + Normal[2]*dNz_dy2)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 3] += dNy_dz2/Nmag - Normal[1]*(Normal[0]*dNx_dz2 + Normal[1]*dNy_dz2 + Normal[2]*dNz_dz2)/(Nmag*Nmag*Nmag);
-                                                                                                                 
-              NormalGradients[9*j - 2] += dNz_dx2/Nmag - Normal[2]*(Normal[0]*dNx_dx2 + Normal[1]*dNy_dx2 + Normal[2]*dNz_dx2)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 1] += dNz_dy2/Nmag - Normal[2]*(Normal[0]*dNx_dy2 + Normal[1]*dNy_dy2 + Normal[2]*dNz_dy2)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 0] += dNz_dz2/Nmag - Normal[2]*(Normal[0]*dNx_dz2 + Normal[1]*dNy_dz2 + Normal[2]*dNz_dz2)/(Nmag*Nmag*Nmag);
-                               
-              AreaGradients[3*j - 2] += dArea_dx2;
-              AreaGradients[3*j - 1] += dArea_dy2;
-              AreaGradients[3*j - 0] += dArea_dz2;
-                                                                 
-            //  NormalGradients[9*j - 8] += dNx_dx2/Nmag;
-            //  NormalGradients[9*j - 7] += dNx_dy2/Nmag;
-            //  NormalGradients[9*j - 6] += dNx_dz2/Nmag; 
-            //                                          
-            //  NormalGradients[9*j - 5] += dNy_dx2/Nmag;
-            //  NormalGradients[9*j - 4] += dNy_dy2/Nmag;
-            //  NormalGradients[9*j - 3] += dNy_dz2/Nmag; 
-            //                                          
-            //  NormalGradients[9*j - 2] += dNz_dx2/Nmag;
-            //  NormalGradients[9*j - 1] += dNz_dy2/Nmag;
-            //  NormalGradients[9*j    ] += dNz_dz2/Nmag;
-                            
-              Found++;
-              
-           }
-
-           if ( VSPGeom().Grid(Level).LoopList(Loop).Node(j) == Node3 ) {
-                                        
-              NormalGradients[9*j - 8] += dNx_dx3/Nmag - Normal[0]*(Normal[0]*dNx_dx3 + Normal[1]*dNy_dx3 + Normal[2]*dNz_dx3)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 7] += dNx_dy3/Nmag - Normal[0]*(Normal[0]*dNx_dy3 + Normal[1]*dNy_dy3 + Normal[2]*dNz_dy3)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 6] += dNx_dz3/Nmag - Normal[0]*(Normal[0]*dNx_dz3 + Normal[1]*dNy_dz3 + Normal[2]*dNz_dz3)/(Nmag*Nmag*Nmag);
-                                                                                                            
-              NormalGradients[9*j - 5] += dNy_dx3/Nmag - Normal[1]*(Normal[0]*dNx_dx3 + Normal[1]*dNy_dx3 + Normal[2]*dNz_dx3)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 4] += dNy_dy3/Nmag - Normal[1]*(Normal[0]*dNx_dy3 + Normal[1]*dNy_dy3 + Normal[2]*dNz_dy3)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 3] += dNy_dz3/Nmag - Normal[1]*(Normal[0]*dNx_dz3 + Normal[1]*dNy_dz3 + Normal[2]*dNz_dz3)/(Nmag*Nmag*Nmag);
-                                                                                                              
-              NormalGradients[9*j - 2] += dNz_dx3/Nmag - Normal[2]*(Normal[0]*dNx_dx3 + Normal[1]*dNy_dx3 + Normal[2]*dNz_dx3)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 1] += dNz_dy3/Nmag - Normal[2]*(Normal[0]*dNx_dy3 + Normal[1]*dNy_dy3 + Normal[2]*dNz_dy3)/(Nmag*Nmag*Nmag);
-              NormalGradients[9*j - 0] += dNz_dz3/Nmag - Normal[2]*(Normal[0]*dNx_dz3 + Normal[1]*dNy_dz3 + Normal[2]*dNz_dz3)/(Nmag*Nmag*Nmag);
-
-              AreaGradients[3*j - 2] += dArea_dx3;
-              AreaGradients[3*j - 1] += dArea_dy3;
-              AreaGradients[3*j - 0] += dArea_dz3;
-              
-          //    NormalGradients[9*j - 8] += dNx_dx3/Nmag;
-          //    NormalGradients[9*j - 7] += dNx_dy3/Nmag;
-          //    NormalGradients[9*j - 6] += dNx_dz3/Nmag; 
-          //                                    
-          //    NormalGradients[9*j - 5] += dNy_dx3/Nmag;
-          //    NormalGradients[9*j - 4] += dNy_dy3/Nmag;
-          //    NormalGradients[9*j - 3] += dNy_dz3/Nmag; 
-          //                                    
-          //    NormalGradients[9*j - 2] += dNz_dx3/Nmag;
-          //    NormalGradients[9*j - 1] += dNz_dy3/Nmag;
-          //    NormalGradients[9*j    ] += dNz_dz3/Nmag;
-                            
-              Found++;
-                                                 
-           }
-           
-           j++;
-           
-       }
-       
-       if ( Found != 3 ) {
-          
-          printf("Error in distributing the normal gradients! \n");
-          fflush(NULL);
-          exit(1);
-          
-       }
-       
-    }
-
-}
-
-/*##############################################################################
-#                                                                              #
 #       VSP_SOLVER CalculatePsiT_PartialResidualPartialUserInputs              #
 #                                                                              #
 #  [ R_gamma ]                                                                 # 
@@ -21147,6 +20952,10 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialUserInputs(int ForceCase, i
     Fy = ( InviscidWeight*CFiy() + ViscousWeight*CFoy() ) * 0.5*Sref_*Vref_*Vref_; 
     Fz = ( InviscidWeight*CFiz() + ViscousWeight*CFoz() ) * 0.5*Sref_*Vref_*Vref_;
 
+ //CMix_ += Fz * ( VSPGeom().Grid(MGLevel_).EdgeList(Edge).Yc() - XYZcg_[1] ) - Fy * ( VSPGeom().Grid(MGLevel_).EdgeList(Edge).Zc() - XYZcg_[2] );   // Roll
+ //CMiy_ += Fx * ( VSPGeom().Grid(MGLevel_).EdgeList(Edge).Zc() - XYZcg_[2] ) - Fz * ( VSPGeom().Grid(MGLevel_).EdgeList(Edge).Xc() - XYZcg_[0] );   // Pitch
+ //CMiz_ += Fy * ( VSPGeom().Grid(MGLevel_).EdgeList(Edge).Xc() - XYZcg_[0] ) - Fx * ( VSPGeom().Grid(MGLevel_).EdgeList(Edge).Yc() - XYZcg_[1] );   // Yaw
+
     if ( ForceCase == 1 || ForceCase == 3 ) {
     
        // Force derivatives are identically zero
@@ -21164,22 +20973,24 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialUserInputs(int ForceCase, i
        DFi_DCG_[2][2] = 0.;
              
        // Moment derivatives wrt x cg movements
-       
-       DMi_DCG_[0][0] =  Fz;
-       DMi_DCG_[1][0] = -Fz;
-       DMi_DCG_[2][0] =  Fy;
+
+       DMi_DCG_[0][0] =  0.;
+       DMi_DCG_[1][0] =  Fz/(0.5*Sref_*Vref_*Vref_*Cref_);
+       DMi_DCG_[2][0] = -Fy/(0.5*Sref_*Vref_*Vref_*Bref_);
        
        // Moment derivatives wrt y cg movements
        
-       DMi_DCG_[0][1] =  Fz;
-       DMi_DCG_[1][1] =  0.;
-       DMi_DCG_[2][1] = -Fx;
+       DMi_DCG_[0][1] = -Fz/(0.5*Sref_*Vref_*Vref_*Bref_);
+       DMi_DCG_[1][1] =  0./(0.5*Sref_*Vref_*Vref_*Cref_);
+       DMi_DCG_[2][1] =  Fx/(0.5*Sref_*Vref_*Vref_*Bref_);
        
        // Moment derivatives wrt z cg movements
        
-       DMi_DCG_[0][2] = -Fy;
-       DMi_DCG_[1][2] =  Fx;
-       DMi_DCG_[2][2] =  0.; 
+       DMi_DCG_[0][2] =  Fy/(0.5*Sref_*Vref_*Vref_*Bref_);
+       DMi_DCG_[1][2] = -Fx/(0.5*Sref_*Vref_*Vref_*Cref_);
+       DMi_DCG_[2][2] =  0./(0.5*Sref_*Vref_*Vref_*Bref_); 
+              
+       
        
        // Wake force derivatives are identically zero
        
@@ -21214,23 +21025,23 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialUserInputs(int ForceCase, i
        DFo_DCG_[2][2] = 0.;
              
        // Moment derivatives wrt x cg movements
-       
-       DMo_DCG_[0][0] =  Fz;
-       DMo_DCG_[1][0] = -Fz;
-       DMo_DCG_[2][0] =  Fy;
+
+       DMo_DCG_[0][0] =  0.;
+       DMo_DCG_[1][0] =  Fz/(0.5*Sref_*Vref_*Vref_*Cref_);
+       DMo_DCG_[2][0] = -Fy/(0.5*Sref_*Vref_*Vref_*Bref_);
        
        // Moment derivatives wrt y cg movements
        
-       DMo_DCG_[0][1] =  Fz;
-       DMo_DCG_[1][1] =  0.;
-       DMo_DCG_[2][1] = -Fx;
+       DMo_DCG_[0][1] = -Fz/(0.5*Sref_*Vref_*Vref_*Bref_);
+       DMo_DCG_[1][1] =  0./(0.5*Sref_*Vref_*Vref_*Cref_);
+       DMo_DCG_[2][1] =  Fx/(0.5*Sref_*Vref_*Vref_*Bref_);
        
        // Moment derivatives wrt z cg movements
        
-       DMo_DCG_[0][2] = -Fy;
-       DMo_DCG_[1][2] =  Fx;
-       DMo_DCG_[2][2] =  0.; 
-              
+       DMo_DCG_[0][2] =  Fy/(0.5*Sref_*Vref_*Vref_*Bref_);
+       DMo_DCG_[1][2] = -Fx/(0.5*Sref_*Vref_*Vref_*Cref_);
+       DMo_DCG_[2][2] =  0./(0.5*Sref_*Vref_*Vref_*Bref_); 
+             
     }
     
 }
@@ -21238,9 +21049,6 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialUserInputs(int ForceCase, i
 /*##############################################################################
 #                                                                              #
 #       VSP_SOLVER CalculatePsiT_PartialResidualPartialFreeStream              #
-#                                                                              #
-#  [ R_gamma ]                                                                 # 
-#  [         ]                                                                 #
 #                                                                              #
 ##############################################################################*/
 
@@ -21431,9 +21239,9 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialFreeStream(int ForceCase, i
              VSPGeom().Grid(MGLevel_).EdgeList(i).pTrefftzForces_pVinf(pWakeForces_pVinf);
              
              VSPGeom().Grid(MGLevel_).EdgeList(i).pTrefftzForces_pMach(pWakeForces_pMach);
-             
+        
           }
-
+        
           pForces_pVinf[0][0] += pWakeForces_pVinf[0][0] * WakeWeight;
           pForces_pVinf[0][1] += pWakeForces_pVinf[0][1] * WakeWeight;
           pForces_pVinf[0][2] += pWakeForces_pVinf[0][2] * WakeWeight;
@@ -21547,7 +21355,7 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialFreeStream(int ForceCase, i
           // Alpha
           
           DF_DAlpha += pMoments_pVinf[Dir-4][0]*pVinf_pAlpha[0] + pMoments_pVinf[Dir-4][1]*pVinf_pAlpha[1] + pMoments_pVinf[Dir-4][2]*pVinf_pAlpha[2];
-          
+
           // Beta
           
           DF_DBeta += pMoments_pVinf[Dir-4][0]*pVinf_pBeta[0] + pMoments_pVinf[Dir-4][1]*pVinf_pBeta[1] + pMoments_pVinf[Dir-4][2]*pVinf_pBeta[2];
@@ -21724,9 +21532,9 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialFreeStream(int ForceCase, i
         
           StallBumpFactor = 1. + 100.*StallFactor;
         
-          Cfi = 2. * 1.5 * 1.037 / pow(log10(Re),2.58) + pCf_pCl2*pow(Cl-Clo_2d_, 2.);
+          Cfi = 1.5 / pow(log10(Re),2.58) + pCf_pCl2*pow(Cl-Clo_2d_, 2.);
           
-          pCfi_pRe = -2.58 * 2. * 1.5 * 1.037 / ( Re * log(10.) * pow(log10(Re),3.58) );
+          pCfi_pRe = -2.58 * 1.5 / ( Re * log(10.) * pow(log10(Re),3.58) );
           
           pCfi_pCl = 2.*pCf_pCl2*(Cl-Clo_2d_);
           
@@ -21888,9 +21696,9 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialFreeStream(int ForceCase, i
 
              // Reynold's number
              
-             DFo_DRe_[0] = +pFxo_pRe;
-             DFo_DRe_[1] = +pFyo_pRe;
-             DFo_DRe_[2] = +pFzo_pRe;
+             DFo_DRe_[0] += pFxo_pRe;
+             DFo_DRe_[1] += pFyo_pRe;
+             DFo_DRe_[2] += pFzo_pRe;
                    
           }
           
@@ -22018,7 +21826,223 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialFreeStream(int ForceCase, i
        }
        
     }
+    
+    // Add in non-lifting component drags
+    
+    double ForceDir[3], Length, WettedArea, FR;
+       
+    double pRe_pLength;
+    
+    double pRe_pCref;
+    
+    double pCf_pFR;
+    
+    double pFxo_pCf;
+    double pFyo_pCf;
+    double pFzo_pCf;
+    
+    double pFxo_pWettedArea;
+    double pFyo_pWettedArea;
+    double pFzo_pWettedArea;
+    
+    double pFxo_pForceDir[3];
+    double pFyo_pForceDir[3];
+    double pFzo_pForceDir[3];
+    
+    double pFxo_pVref;
+    double pFyo_pVref;
+    double pFzo_pVref;
+    
+    double pForceDir_pAlpha[3];
+    double pForceDir_pBeta[3];
 
+    double pFxo_pAlpha;
+    double pFyo_pAlpha;
+    double pFzo_pAlpha;
+    
+    double pFxo_pBeta;
+    double pFyo_pBeta;
+    double pFzo_pBeta;
+ 
+    CA = cos(AngleOfAttack_);
+    SA = sin(AngleOfAttack_);
+
+    CB = cos(AngleOfBeta_);
+    SB = sin(AngleOfBeta_);
+        
+    ForceDir[0] = CA*CB;
+    ForceDir[1] =   -SB;
+    ForceDir[2] = SA*CB;
+    
+    pForceDir_pAlpha[0] = -SA*CB;           
+    pForceDir_pAlpha[1] =     0.;    
+    pForceDir_pAlpha[2] =  CA*CB;
+
+     pForceDir_pBeta[0] = -CA*SB;          
+     pForceDir_pBeta[1] =    -CB;  
+     pForceDir_pBeta[2] = -SA*SB;
+                  
+    for ( i = 1 ; i <= VSPGeom().NumberOfComponents() ; i++ ) {
+       
+       if ( !VSPGeom().ComponentIsLifting(i) && ComponentIsInAdjointForceAndMomentList_[i] && Vinf_ > 0. ) {
+                   
+          // Wetted Area
+          
+          WettedArea = VSPGeom().ComponentWettedArea(i);
+          
+          // Projected length
+          
+          Length = VSPGeom().ComponentLength(i);
+          
+          // Fineness ratio
+          
+          FR = VSPGeom().ComponentFineNessRatio(i);
+          
+          // Local Reynold's number
+          
+          Re = MAX(2.,ReCref_ * Length / Cref_);
+              
+          pRe_pLength = pRe_pCref = 0.;
+          
+          if ( ReCref_ * Length / Cref_ > 2. ) {
+             
+             pRe_pLength = ReCref_  / Cref_;
+             
+             pRe_pCref = ReCref_ * Length / (Cref_*Cref_);
+             
+          }
+
+          // Local turbulent skin friction
+                  
+          Cf = 0.30/ pow(log10(Re),2.58) * (1. + 1.5/pow(FR,1.5) + 7./pow(FR,3.));
+  
+          pCf_pRe = -2.58 * 0.30 / ( Re * log(10.) * pow(log10(Re),3.58) ) * (1. + 1.5/pow(FR,1.5) + 7./pow(FR,3.));
+
+          pCf_pFR = 0.30/ pow(log10(Re),2.58) * ( -1.5*1.5/pow(FR,2.5) - 3.*7./pow(FR,4.));
+      
+          // Viscous Forces
+           
+          Fxo                = 0.5 * Cf * Vref_ * Vref_ * WettedArea * ForceDir[0];
+          Fyo                = 0.5 * Cf * Vref_ * Vref_ * WettedArea * ForceDir[1];
+          Fzo                = 0.5 * Cf * Vref_ * Vref_ * WettedArea * ForceDir[2];
+                             
+          pFxo_pCf           = 0.5      * Vref_ * Vref_ * WettedArea * ForceDir[0];          
+          pFyo_pCf           = 0.5      * Vref_ * Vref_ * WettedArea * ForceDir[1];          
+          pFzo_pCf           = 0.5      * Vref_ * Vref_ * WettedArea * ForceDir[2];          
+                             
+          pFxo_pWettedArea   = 0.5 * Cf * Vref_ * Vref_              * ForceDir[0];
+          pFyo_pWettedArea   = 0.5 * Cf * Vref_ * Vref_              * ForceDir[1];
+          pFzo_pWettedArea   = 0.5 * Cf * Vref_ * Vref_              * ForceDir[2];
+
+          pFxo_pForceDir[0]  = 0.5 * Cf * Vref_ * Vref_ * WettedArea;
+          pFxo_pForceDir[1]  = 0.;
+          pFxo_pForceDir[2]  = 0.;
+                              
+          pFyo_pForceDir[0]  = 0.;
+          pFyo_pForceDir[1]  = 0.5 * Cf * Vref_ * Vref_ * WettedArea;
+          pFyo_pForceDir[2]  = 0.;
+                               
+          pFzo_pForceDir[0]  = 0.;
+          pFzo_pForceDir[1]  = 0.;
+          pFzo_pForceDir[2]  = 0.5 * Cf * Vref_ * Vref_ * WettedArea;
+          
+          pFxo_pVref         =       Cf         * Vref_ * WettedArea * ForceDir[0];
+          pFyo_pVref         =       Cf         * Vref_ * WettedArea * ForceDir[1];
+          pFzo_pVref         =       Cf         * Vref_ * WettedArea * ForceDir[2];
+
+          pFxo_pRe           = pFxo_pCf * pCf_pRe;
+          pFyo_pRe           = pFyo_pCf * pCf_pRe;
+          pFzo_pRe           = pFzo_pCf * pCf_pRe;       
+          
+          // Forces alpha and beta
+          
+          pFxo_pAlpha = ( pFxo_pForceDir[0] * pForceDir_pAlpha[0] + pFxo_pRe * pRe_pLength * VSPGeom().pComponentLengthpAlpha(i) + pFxo_pWettedArea * VSPGeom().pComponentWettedAreapAlpha(i) + pFxo_pCf * pCf_pFR * VSPGeom().pComponentFineNessRatiopAlpha(i) )* ViscousWeight;
+                                                                                                                                                                                                                                                        
+          pFyo_pAlpha = ( pFyo_pForceDir[1] * pForceDir_pAlpha[1] + pFyo_pRe * pRe_pLength * VSPGeom().pComponentLengthpAlpha(i) + pFyo_pWettedArea * VSPGeom().pComponentWettedAreapAlpha(i) + pFyo_pCf * pCf_pFR * VSPGeom().pComponentFineNessRatiopAlpha(i) )* ViscousWeight;
+                                                                                                                                                                                                                                                       
+          pFzo_pAlpha = ( pFzo_pForceDir[2] * pForceDir_pAlpha[2] + pFzo_pRe * pRe_pLength * VSPGeom().pComponentLengthpAlpha(i) + pFzo_pWettedArea * VSPGeom().pComponentWettedAreapAlpha(i) + pFzo_pCf * pCf_pFR * VSPGeom().pComponentFineNessRatiopAlpha(i) )* ViscousWeight;
+
+          pFxo_pBeta  = ( pFxo_pForceDir[0] *  pForceDir_pBeta[0] + pFxo_pRe * pRe_pLength *  VSPGeom().pComponentLengthpBeta(i) + pFxo_pWettedArea *  VSPGeom().pComponentWettedAreapBeta(i) + pFxo_pCf * pCf_pFR *  VSPGeom().pComponentFineNessRatiopBeta(i) )* ViscousWeight;
+                                                                                                                                                                                                                                                              
+          pFyo_pBeta  = ( pFyo_pForceDir[1] *  pForceDir_pBeta[1] + pFyo_pRe * pRe_pLength *  VSPGeom().pComponentLengthpBeta(i) + pFyo_pWettedArea *  VSPGeom().pComponentWettedAreapBeta(i) + pFyo_pCf * pCf_pFR *  VSPGeom().pComponentFineNessRatiopBeta(i) )* ViscousWeight;
+                                                                                                                                                                                                                                                              
+          pFzo_pBeta  = ( pFzo_pForceDir[2] *  pForceDir_pBeta[2] + pFzo_pRe * pRe_pLength *  VSPGeom().pComponentLengthpBeta(i) + pFzo_pWettedArea *  VSPGeom().pComponentWettedAreapBeta(i) + pFzo_pCf * pCf_pFR *  VSPGeom().pComponentFineNessRatiopBeta(i) )* ViscousWeight;
+
+          if ( Dir <=  3 ) {
+   
+             // Alpha
+             
+             if ( Dir == 1 ) DF_DAlpha += pFxo_pAlpha;
+             if ( Dir == 2 ) DF_DAlpha += pFyo_pAlpha;
+             if ( Dir == 3 ) DF_DAlpha += pFzo_pAlpha;
+             
+             // Beta
+             
+             if ( Dir == 1 ) DF_DBeta += pFxo_pBeta;
+             if ( Dir == 2 ) DF_DBeta += pFyo_pBeta;
+             if ( Dir == 3 ) DF_DBeta += pFzo_pBeta;
+                         
+             // Mach
+             
+             DF_DMach += 0.;
+
+             // P - Roll
+             DF_DP += 0.;
+             
+             // Q - Pitch
+
+             DF_DQ += 0.;
+             
+             // R - Yaw
+
+             DF_DR += 0.;
+
+             // Reynold's number
+             
+             DFo_DRe_[0] += pFxo_pRe;
+             DFo_DRe_[1] += pFyo_pRe;
+             DFo_DRe_[2] += pFzo_pRe;
+                   
+          }
+          
+          else if ( Dir > 3 ) {
+          
+             // Alpha
+             
+             DF_DAlpha += 0.;
+             
+             // Beta
+             
+             DF_DBeta += 0.;
+             
+             // Mach
+             
+             DF_DMach += 0.;
+             
+             // P - Roll
+    
+             DF_DP += 0.;
+             
+             // Q - Pitch
+     
+             DF_DQ += 0.;
+             
+             // R - Yaw
+    
+             DF_DR += 0.;
+             
+             // Reynold's number
+
+             DMo_DRe_[0] += 0.;
+             DMo_DRe_[1] += 0.;
+             DMo_DRe_[2] += 0.;
+ 
+          }
+            
+       }
+       
+    }     
+    
     // Calculate partial residual wrt partial free stream (U,V,W) contributuions for vorticity equations
 
     for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).NumberOfSurfaceLoops() ; i++ ) {
@@ -22455,7 +22479,7 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialFreeStream(int ForceCase, i
        DF_DQ     /= Bref_;
        DF_DR     /= Bref_;
        DF_DMach  /= Bref_;
-       
+
        for ( g = 1 ; g <= VSPGeom().NumberOfComponentGroups() ; g++ ) {
           
           DF_DOmega[g] /= Bref_;
@@ -22508,19 +22532,19 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialFreeStream(int ForceCase, i
        
        if ( ForceCase == 1 || ForceCase == 3 ) {
          
-          DFi_DAlpha_[Dir-1] += InviscidWeight * DF_DAlpha;
-          DFi_DBeta_[Dir-1]  += InviscidWeight * DF_DBeta;
-          DFi_DP_[Dir-1]     += InviscidWeight * DF_DP;
-          DFi_DQ_[Dir-1]     += InviscidWeight * DF_DQ;
-          DFi_DR_[Dir-1]     += InviscidWeight * DF_DR;
-          DFi_DMach_[Dir-1]  += InviscidWeight * DF_DMach; 
+          DFi_DAlpha_[Dir-1] += InviscidWeight * DF_DAlpha  + WakeWeight * DF_DAlpha;
+          DFi_DBeta_[Dir-1]  += InviscidWeight * DF_DBeta   + WakeWeight * DF_DBeta;
+          DFi_DP_[Dir-1]     += InviscidWeight * DF_DP      + WakeWeight * DF_DP;
+          DFi_DQ_[Dir-1]     += InviscidWeight * DF_DQ      + WakeWeight * DF_DQ;
+          DFi_DR_[Dir-1]     += InviscidWeight * DF_DR      + WakeWeight * DF_DR;
+          DFi_DMach_[Dir-1]  += InviscidWeight * DF_DMach   + WakeWeight * DF_DMach;
 
-          DFw_DAlpha_[Dir-1] +=     WakeWeight * DF_DAlpha;
-          DFw_DBeta_[Dir-1]  +=     WakeWeight * DF_DBeta;
-          DFw_DP_[Dir-1]     +=     WakeWeight * DF_DP;
-          DFw_DQ_[Dir-1]     +=     WakeWeight * DF_DQ;
-          DFw_DR_[Dir-1]     +=     WakeWeight * DF_DR;
-          DFw_DMach_[Dir-1]  +=     WakeWeight * DF_DMach; 
+          DFw_DAlpha_[Dir-1] +=                               WakeWeight * DF_DAlpha;
+          DFw_DBeta_[Dir-1]  +=                               WakeWeight * DF_DBeta;
+          DFw_DP_[Dir-1]     +=                               WakeWeight * DF_DP;
+          DFw_DQ_[Dir-1]     +=                               WakeWeight * DF_DQ;
+          DFw_DR_[Dir-1]     +=                               WakeWeight * DF_DR;
+          DFw_DMach_[Dir-1]  +=                               WakeWeight * DF_DMach; 
               
           for ( g = 1 ; g <= VSPGeom().NumberOfComponentGroups() ; g++ ) {
              
@@ -22574,20 +22598,21 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialFreeStream(int ForceCase, i
     else if ( Dir > 3 ) {
        
        if ( ForceCase == 1 || ForceCase == 3 ) {
-       
-          DMi_DAlpha_[Dir-4] = InviscidWeight * DF_DAlpha;
-          DMi_DBeta_[Dir-4]  = InviscidWeight * DF_DBeta;
-          DMi_DP_[Dir-4]     = InviscidWeight * DF_DP;
-          DMi_DQ_[Dir-4]     = InviscidWeight * DF_DQ;
-          DMi_DR_[Dir-4]     = InviscidWeight * DF_DR;
-          DMi_DMach_[Dir-4]  = InviscidWeight * DF_DMach; 
+ 
+      
+          DMi_DAlpha_[Dir-4] += InviscidWeight * DF_DAlpha;
+          DMi_DBeta_[Dir-4]  += InviscidWeight * DF_DBeta;
+          DMi_DP_[Dir-4]     += InviscidWeight * DF_DP;
+          DMi_DQ_[Dir-4]     += InviscidWeight * DF_DQ;
+          DMi_DR_[Dir-4]     += InviscidWeight * DF_DR;
+          DMi_DMach_[Dir-4]  += InviscidWeight * DF_DMach; 
 
-          DMi_DAlpha_[Dir-4] =     WakeWeight * DF_DAlpha;
-          DMi_DBeta_[Dir-4]  =     WakeWeight * DF_DBeta;
-          DMi_DP_[Dir-4]     =     WakeWeight * DF_DP;
-          DMi_DQ_[Dir-4]     =     WakeWeight * DF_DQ;
-          DMi_DR_[Dir-4]     =     WakeWeight * DF_DR;
-          DMi_DMach_[Dir-4]  =     WakeWeight * DF_DMach; 
+          DMi_DAlpha_[Dir-4] +=     WakeWeight * DF_DAlpha;
+          DMi_DBeta_[Dir-4]  +=     WakeWeight * DF_DBeta;
+          DMi_DP_[Dir-4]     +=     WakeWeight * DF_DP;
+          DMi_DQ_[Dir-4]     +=     WakeWeight * DF_DQ;
+          DMi_DR_[Dir-4]     +=     WakeWeight * DF_DR;
+          DMi_DMach_[Dir-4]  +=     WakeWeight * DF_DMach; 
                     
           for ( g = 1 ; g <= VSPGeom().NumberOfComponentGroups() ; g++ ) {
              
@@ -23057,7 +23082,7 @@ void VSP_SOLVER::TestCalculateLoopNormalGradients_wrt_Mesh(int Level, int Loop)
     
     AreaGradients = new double[3*VSPGeom().Grid(Level).LoopList(Loop).NumberOfNodes() + 1];
  
-    CalculateLoopNormalGradients_wrt_Mesh(Level,Loop,NormalGradients,AreaGradients);
+    VSPGeom().CalculateLoopNormalGradients_wrt_Mesh(Level,Loop,NormalGradients,AreaGradients);
                                        
     // Finite difference test
     
@@ -23081,6 +23106,8 @@ void VSP_SOLVER::TestCalculateLoopNormalGradients_wrt_Mesh(int Level, int Loop)
                                                                
                                                                
     dx = dy = dz = 1.e-8;
+    
+    dy = 1.e-10;
 
     for ( i = 1 ; i <= VSPGeom().Grid(Level).LoopList(Loop).NumberOfNodes() ; i++ ) {
        
@@ -23229,479 +23256,6 @@ void VSP_SOLVER::TestCalculateLoopNormalGradients_wrt_Mesh(int Level, int Loop)
     delete [] NormalGradients;
     delete [] AreaGradients;
         
-}
-
-/*##############################################################################
-#                                                                              #
-#            VSP_SOLVER CalculateTriNormalGradients_wrt_Mesh                   #
-#                                                                              #
-##############################################################################*/
-
-void VSP_SOLVER::CalculateTriNormalGradients_wrt_Mesh(int Loop,
-                                                      double &dNx_dx1,
-                                                      double &dNx_dy1,
-                                                      double &dNx_dz1, 
-                                                                       
-                                                      double &dNy_dx1,
-                                                      double &dNy_dy1,
-                                                      double &dNy_dz1, 
-                                                                     
-                                                      double &dNz_dx1,
-                                                      double &dNz_dy1,
-                                                      double &dNz_dz1,
-                                                                       
-                                                      double &dNx_dx2,
-                                                      double &dNx_dy2,
-                                                      double &dNx_dz2, 
-                                                                         
-                                                      double &dNy_dx2,
-                                                      double &dNy_dy2,
-                                                      double &dNy_dz2, 
-                                                                        
-                                                      double &dNz_dx2,
-                                                      double &dNz_dy2,
-                                                      double &dNz_dz2,     
-                                                                          
-                                                      double &dNx_dx3,
-                                                      double &dNx_dy3,
-                                                      double &dNx_dz3, 
-                                                                       
-                                                      double &dNy_dx3,
-                                                      double &dNy_dy3,
-                                                      double &dNy_dz3, 
-                                                                    
-                                                      double &dNz_dx3,
-                                                      double &dNz_dy3,
-                                                      double &dNz_dz3,
-
-                                                      double &dNx_Normalized_dx1,
-                                                      double &dNx_Normalized_dy1,
-                                                      double &dNx_Normalized_dz1, 
-                                                                         
-                                                      double &dNy_Normalized_dx1,
-                                                      double &dNy_Normalized_dy1,
-                                                      double &dNy_Normalized_dz1, 
-                                                                         
-                                                      double &dNz_Normalized_dx1,
-                                                      double &dNz_Normalized_dy1,
-                                                      double &dNz_Normalized_dz1,
-                                                                         
-                                                      double &dNx_Normalized_dx2,
-                                                      double &dNx_Normalized_dy2,
-                                                      double &dNx_Normalized_dz2, 
-                                                                         
-                                                      double &dNy_Normalized_dx2,
-                                                      double &dNy_Normalized_dy2,
-                                                      double &dNy_Normalized_dz2, 
-                                                                         
-                                                      double &dNz_Normalized_dx2,
-                                                      double &dNz_Normalized_dy2,
-                                                      double &dNz_Normalized_dz2,     
-                                                                          
-                                                      double &dNx_Normalized_dx3,
-                                                      double &dNx_Normalized_dy3,
-                                                      double &dNx_Normalized_dz3, 
-                                                                         
-                                                      double &dNy_Normalized_dx3,
-                                                      double &dNy_Normalized_dy3,
-                                                      double &dNy_Normalized_dz3, 
-                                                                         
-                                                      double &dNz_Normalized_dx3,
-                                                      double &dNz_Normalized_dy3,
-                                                      double &dNz_Normalized_dz3,
-                                                      
-                                                      double &dArea_dx1,
-                                                      double &dArea_dy1,
-                                                      double &dArea_dz1,            
-                                                                              
-                                                      double &dArea_dx2,
-                                                      double &dArea_dy2,
-                                                      double &dArea_dz2,       
-                                                                              
-                                                      double &dArea_dx3,
-                                                      double &dArea_dy3,
-                                                      double &dArea_dz3)
-    {
-
-    int Node1, Node2, Node3;
-    double xyz1[3], xyz2[3], xyz3[3], Vec1[3], Vec2[3], Normal[3], Mag, Area;
-    
-    double dVec1X_dX1;
-    double dVec1X_dY1;
-    double dVec1X_dZ1;
-                   
-    double dVec1Y_dX1;
-    double dVec1Y_dY1;
-    double dVec1Y_dZ1;
-                   
-    double dVec1Z_dX1;
-    double dVec1Z_dY1;
-    double dVec1Z_dZ1;
-                 
-    double dVec1X_dX2;
-    double dVec1X_dY2;
-    double dVec1X_dZ2;
-                 
-    double dVec1Y_dX2;
-    double dVec1Y_dY2;
-    double dVec1Y_dZ2;
-                 
-    double dVec1Z_dX2;
-    double dVec1Z_dY2;
-    double dVec1Z_dZ2;
-    
-    double dVec2X_dX1;
-    double dVec2X_dY1;
-    double dVec2X_dZ1;
-         
-    double dVec2Y_dX1;
-    double dVec2Y_dY1;
-    double dVec2Y_dZ1;
-         
-    double dVec2Z_dX1;
-    double dVec2Z_dY1;
-    double dVec2Z_dZ1;
-        
-    double dVec2X_dX3;
-    double dVec2X_dY3;
-    double dVec2X_dZ3;
-              
-    double dVec2Y_dX3;
-    double dVec2Y_dY3;
-    double dVec2Y_dZ3;
-              
-    double dVec2Z_dX3;
-    double dVec2Z_dY3;
-    double dVec2Z_dZ3;
-
-    double u;
-    double v;
-    double w;
-        
-    double dNx_dVec1X;
-    double dNy_dVec1X;
-    double dNz_dVec1X;
-     
-    double dNx_dVec1Y;
-    double dNy_dVec1Y;
-    double dNz_dVec1Y;
-        
-    double dNx_dVec1Z;
-    double dNy_dVec1Z;
-    double dNz_dVec1Z;
-    
-    double dNx_dVec2X;
-    double dNy_dVec2X;
-    double dNz_dVec2X;
-      
-    double dNx_dVec2Y;
-    double dNy_dVec2Y;
-    double dNz_dVec2Y;
-         
-    double dNx_dVec2Z;
-    double dNy_dVec2Z;
-    double dNz_dVec2Z;
-
-    double dMag_dVec1X; 
-    double dMag_dVec1Y;
-    double dMag_dVec1Z;
-                              
-    double dMag_dVec2X; 
-    double dMag_dVec2Y;
-    double dMag_dVec2Z;       
-
-    double dArea_dVec1X; 
-    double dArea_dVec1Y;
-    double dArea_dVec1Z;
-                    
-    double dArea_dVec2X; 
-    double dArea_dVec2Y;
-    double dArea_dVec2Z;       
-               
-    // Tri nodes
-
-    Node1 = VSPGeom().Grid(0).LoopList(Loop).Node1();
-    Node2 = VSPGeom().Grid(0).LoopList(Loop).Node2();
-    Node3 = VSPGeom().Grid(0).LoopList(Loop).Node3();
-    
-    // Edge vectors
-    
-    xyz1[0] = VSPGeom().Grid(0).NodeList(Node1).x();
-    xyz1[1] = VSPGeom().Grid(0).NodeList(Node1).y();
-    xyz1[2] = VSPGeom().Grid(0).NodeList(Node1).z();
-                                           
-    xyz2[0] = VSPGeom().Grid(0).NodeList(Node2).x();
-    xyz2[1] = VSPGeom().Grid(0).NodeList(Node2).y();
-    xyz2[2] = VSPGeom().Grid(0).NodeList(Node2).z();
-                                           
-    xyz3[0] = VSPGeom().Grid(0).NodeList(Node3).x();
-    xyz3[1] = VSPGeom().Grid(0).NodeList(Node3).y();
-    xyz3[2] = VSPGeom().Grid(0).NodeList(Node3).z();
-
-    // Edge vector gradients wrt dx, dy, dz...
-            
-    Vec1[0] = xyz2[0] - xyz1[0];
-    Vec1[1] = xyz2[1] - xyz1[1];
-    Vec1[2] = xyz2[2] - xyz1[2];
- 
-    Vec2[0] = xyz3[0] - xyz1[0];
-    Vec2[1] = xyz3[1] - xyz1[1];
-    Vec2[2] = xyz3[2] - xyz1[2];
-   
-    // Vec 1
-    
-    dVec1X_dX1 = -1.;
-    dVec1X_dY1 =  0.;
-    dVec1X_dZ1 =  0.;
-
-    dVec1Y_dX1 =  0.;
-    dVec1Y_dY1 = -1.;
-    dVec1Y_dZ1 =  0.;
-    
-    dVec1Z_dX1 =  0.;
-    dVec1Z_dY1 =  0.;
-    dVec1Z_dZ1 = -1.;
-
-    dVec1X_dX2 =  1.;
-    dVec1X_dY2 =  0.;
-    dVec1X_dZ2 =  0.;
-            
-    dVec1Y_dX2 =  0.;
-    dVec1Y_dY2 =  1.;
-    dVec1Y_dZ2 =  0.;
-             
-    dVec1Z_dX2 =  0.;
-    dVec1Z_dY2 =  0.;
-    dVec1Z_dZ2 =  1.;
-            
-    // Vec 2
-    
-    dVec2X_dX1 = -1.;
-    dVec2X_dY1 =  0.;
-    dVec2X_dZ1 =  0.;
-        
-    dVec2Y_dX1 =  0.;
-    dVec2Y_dY1 = -1.;
-    dVec2Y_dZ1 =  0.;
-        
-    dVec2Z_dX1 =  0.;
-    dVec2Z_dY1 =  0.;
-    dVec2Z_dZ1 = -1.;
-       
-    dVec2X_dX3 =  1.;
-    dVec2X_dY3 =  0.;
-    dVec2X_dZ3 =  0.;
-             
-    dVec2Y_dX3 =  0.;
-    dVec2Y_dY3 =  1.;
-    dVec2Y_dZ3 =  0.;
-             
-    dVec2Z_dX3 =  0.;
-    dVec2Z_dY3 =  0.;
-    dVec2Z_dZ3 =  1.;
-              
-    // Normal
-    
-    vector_cross(Vec1,Vec2,Normal);
-    
-    u = Normal[0];
-    v = Normal[1];
-    w = Normal[2];
-
-    //  vector_cross(Vec1, Vec2, Forces_);
-    //
-    //  Normal[0] =  ( Vec2[2] * Vec1[1] - Vec2[1] * Vec1[2] );
-    //  Normal[1] = -( Vec2[2] * Vec1[0] - Vec2[0] * Vec1[2] );
-    //  Normal[2] =  ( Vec2[1] * Vec1[0] - Vec2[0] * Vec1[1] );     
-       
-    // Gradients of the normals wrt vec1
-                
-    dNx_dVec1X =       0.;
-    dNy_dVec1X = -Vec2[2];
-    dNz_dVec1X =  Vec2[1];
-    
-    dNx_dVec1Y =  Vec2[2];
-    dNy_dVec1Y =       0.;
-    dNz_dVec1Y = -Vec2[0];
-       
-    dNx_dVec1Z = -Vec2[1];
-    dNy_dVec1Z =  Vec2[0];
-    dNz_dVec1Z =       0.;
-    
-    // Gradients of the normals wrt vec2
-                
-    dNx_dVec2X =       0.;
-    dNy_dVec2X =  Vec1[2];
-    dNz_dVec2X = -Vec1[1];
-     
-    dNx_dVec2Y = -Vec1[2];
-    dNy_dVec2Y =       0.;
-    dNz_dVec2Y =  Vec1[0];
-        
-    dNx_dVec2Z =  Vec1[1];
-    dNy_dVec2Z = -Vec1[0];
-    dNz_dVec2Z =       0.;
-    
-    // Gradients of normal wrt node 1 
-    
-    // Node 1
-    
-    dNx_dx1 = dNx_dVec1X * dVec1X_dX1 + dNx_dVec2X * dVec2X_dX1;
-    dNx_dy1 = dNx_dVec1Y * dVec1Y_dY1 + dNx_dVec2Y * dVec2Y_dY1;
-    dNx_dz1 = dNx_dVec1Z * dVec1Z_dZ1 + dNx_dVec2Z * dVec2Z_dZ1; 
-       
-    dNy_dx1 = dNy_dVec1X * dVec1X_dX1 + dNy_dVec2X * dVec2X_dX1;
-    dNy_dy1 = dNy_dVec1Y * dVec1Y_dY1 + dNy_dVec2Y * dVec2Y_dY1;
-    dNy_dz1 = dNy_dVec1Z * dVec1Z_dZ1 + dNy_dVec2Z * dVec2Z_dZ1; 
-       
-    dNz_dx1 = dNz_dVec1X * dVec1X_dX1 + dNz_dVec2X * dVec2X_dX1;
-    dNz_dy1 = dNz_dVec1Y * dVec1Y_dY1 + dNz_dVec2Y * dVec2Y_dY1;
-    dNz_dz1 = dNz_dVec1Z * dVec1Z_dZ1 + dNz_dVec2Z * dVec2Z_dZ1; 
-    
-    // Node 2
-    
-    dNx_dx2 = dNx_dVec1X * dVec1X_dX2;
-    dNx_dy2 = dNx_dVec1Y * dVec1Y_dY2;
-    dNx_dz2 = dNx_dVec1Z * dVec1Z_dZ2; 
-        
-    dNy_dx2 = dNy_dVec1X * dVec1X_dX2;
-    dNy_dy2 = dNy_dVec1Y * dVec1Y_dY2;
-    dNy_dz2 = dNy_dVec1Z * dVec1Z_dZ2; 
-       
-    dNz_dx2 = dNz_dVec1X * dVec1X_dX2;
-    dNz_dy2 = dNz_dVec1Y * dVec1Y_dY2;
-    dNz_dz2 = dNz_dVec1Z * dVec1Z_dZ2;  
-    
-    // Node 3
-    
-    dNx_dx3 = dNx_dVec2X * dVec2X_dX3;
-    dNx_dy3 = dNx_dVec2Y * dVec2Y_dY3;
-    dNx_dz3 = dNx_dVec2Z * dVec2Z_dZ3; 
-         
-    dNy_dx3 = dNy_dVec2X * dVec2X_dX3;
-    dNy_dy3 = dNy_dVec2Y * dVec2Y_dY3;
-    dNy_dz3 = dNy_dVec2Z * dVec2Z_dZ3; 
-          
-    dNz_dx3 = dNz_dVec2X * dVec2X_dX3;
-    dNz_dy3 = dNz_dVec2Y * dVec2Y_dY3;
-    dNz_dz3 = dNz_dVec2Z * dVec2Z_dZ3;       
-    
-    // Magnitude
-    
-    Mag = sqrt(vector_dot(Normal,Normal));    
-
-    dMag_dVec1X = (Normal[0]*dNx_dVec1X + Normal[1]*dNy_dVec1X + Normal[2]*dNz_dVec1X)/Mag; 
-    dMag_dVec1Y = (Normal[0]*dNx_dVec1Y + Normal[1]*dNy_dVec1Y + Normal[2]*dNz_dVec1Y)/Mag;
-    dMag_dVec1Z = (Normal[0]*dNx_dVec1Z + Normal[1]*dNy_dVec1Z + Normal[2]*dNz_dVec1Z)/Mag;
-                                                                                
-    dMag_dVec2X = (Normal[0]*dNx_dVec2X + Normal[1]*dNy_dVec2X + Normal[2]*dNz_dVec2X)/Mag; 
-    dMag_dVec2Y = (Normal[0]*dNx_dVec2Y + Normal[1]*dNy_dVec2Y + Normal[2]*dNz_dVec2Y)/Mag;
-    dMag_dVec2Z = (Normal[0]*dNx_dVec2Z + Normal[1]*dNy_dVec2Z + Normal[2]*dNz_dVec2Z)/Mag;       
-    
-    Normal[0] /= Mag; 
-    Normal[1] /= Mag; 
-    Normal[2] /= Mag; 
-
-    // Gradients of normalized normal wrt vectors v1 and v2
-
-    dNx_dVec1X = dNx_dVec1X/Mag - u * dMag_dVec1X / (Mag*Mag);
-    dNx_dVec1Y = dNx_dVec1Y/Mag - u * dMag_dVec1Y / (Mag*Mag); 
-    dNx_dVec1Z = dNx_dVec1Z/Mag - u * dMag_dVec1Z / (Mag*Mag); 
-
-    dNy_dVec1X = dNy_dVec1X/Mag - v * dMag_dVec1X / (Mag*Mag);
-    dNy_dVec1Y = dNy_dVec1Y/Mag - v * dMag_dVec1Y / (Mag*Mag); 
-    dNy_dVec1Z = dNy_dVec1Z/Mag - v * dMag_dVec1Z / (Mag*Mag); 
-
-    dNz_dVec1X = dNz_dVec1X/Mag - w * dMag_dVec1X / (Mag*Mag);
-    dNz_dVec1Y = dNz_dVec1Y/Mag - w * dMag_dVec1Y / (Mag*Mag); 
-    dNz_dVec1Z = dNz_dVec1Z/Mag - w * dMag_dVec1Z / (Mag*Mag); 
-                                       
-    dNx_dVec2X = dNx_dVec2X/Mag - u * dMag_dVec2X / (Mag*Mag);
-    dNx_dVec2Y = dNx_dVec2Y/Mag - u * dMag_dVec2Y / (Mag*Mag); 
-    dNx_dVec2Z = dNx_dVec2Z/Mag - u * dMag_dVec2Z / (Mag*Mag); 
-                                               
-    dNy_dVec2X = dNy_dVec2X/Mag - v * dMag_dVec2X / (Mag*Mag);
-    dNy_dVec2Y = dNy_dVec2Y/Mag - v * dMag_dVec2Y / (Mag*Mag); 
-    dNy_dVec2Z = dNy_dVec2Z/Mag - v * dMag_dVec2Z / (Mag*Mag); 
-                                               
-    dNz_dVec2X = dNz_dVec2X/Mag - w * dMag_dVec2X / (Mag*Mag);
-    dNz_dVec2Y = dNz_dVec2Y/Mag - w * dMag_dVec2Y / (Mag*Mag); 
-    dNz_dVec2Z = dNz_dVec2Z/Mag - w * dMag_dVec2Z / (Mag*Mag); 
-    
-    // Finally, gradients of the normal vector wrt xyz at nodes 1, 2, and 3...
-    
-    // Node 1
-    
-    dNx_Normalized_dx1 = dNx_dVec1X * dVec1X_dX1 + dNx_dVec2X * dVec2X_dX1;
-    dNx_Normalized_dy1 = dNx_dVec1Y * dVec1Y_dY1 + dNx_dVec2Y * dVec2Y_dY1;
-    dNx_Normalized_dz1 = dNx_dVec1Z * dVec1Z_dZ1 + dNx_dVec2Z * dVec2Z_dZ1; 
-       
-    dNy_Normalized_dx1 = dNy_dVec1X * dVec1X_dX1 + dNy_dVec2X * dVec2X_dX1;
-    dNy_Normalized_dy1 = dNy_dVec1Y * dVec1Y_dY1 + dNy_dVec2Y * dVec2Y_dY1;
-    dNy_Normalized_dz1 = dNy_dVec1Z * dVec1Z_dZ1 + dNy_dVec2Z * dVec2Z_dZ1; 
-       
-    dNz_Normalized_dx1 = dNz_dVec1X * dVec1X_dX1 + dNz_dVec2X * dVec2X_dX1;
-    dNz_Normalized_dy1 = dNz_dVec1Y * dVec1Y_dY1 + dNz_dVec2Y * dVec2Y_dY1;
-    dNz_Normalized_dz1 = dNz_dVec1Z * dVec1Z_dZ1 + dNz_dVec2Z * dVec2Z_dZ1; 
-    
-    // Node 2
-    
-    dNx_Normalized_dx2 = dNx_dVec1X * dVec1X_dX2;
-    dNx_Normalized_dy2 = dNx_dVec1Y * dVec1Y_dY2;
-    dNx_Normalized_dz2 = dNx_dVec1Z * dVec1Z_dZ2; 
-        
-    dNy_Normalized_dx2 = dNy_dVec1X * dVec1X_dX2;
-    dNy_Normalized_dy2 = dNy_dVec1Y * dVec1Y_dY2;
-    dNy_Normalized_dz2 = dNy_dVec1Z * dVec1Z_dZ2; 
-       
-    dNz_Normalized_dx2 = dNz_dVec1X * dVec1X_dX2;
-    dNz_Normalized_dy2 = dNz_dVec1Y * dVec1Y_dY2;
-    dNz_Normalized_dz2 = dNz_dVec1Z * dVec1Z_dZ2;  
-    
-    // Node 3
-    
-    dNx_Normalized_dx3 = dNx_dVec2X * dVec2X_dX3;
-    dNx_Normalized_dy3 = dNx_dVec2Y * dVec2Y_dY3;
-    dNx_Normalized_dz3 = dNx_dVec2Z * dVec2Z_dZ3; 
-                    
-    dNy_Normalized_dx3 = dNy_dVec2X * dVec2X_dX3;
-    dNy_Normalized_dy3 = dNy_dVec2Y * dVec2Y_dY3;
-    dNy_Normalized_dz3 = dNy_dVec2Z * dVec2Z_dZ3; 
-                     
-    dNz_Normalized_dx3 = dNz_dVec2X * dVec2X_dX3;
-    dNz_Normalized_dy3 = dNz_dVec2Y * dVec2Y_dY3;
-    dNz_Normalized_dz3 = dNz_dVec2Z * dVec2Z_dZ3;   
-    
-    // Area is 1/2 magnitude
-
-    Area = 0.5 * Mag;
-
-    dArea_dVec1X = 0.5*dMag_dVec1X; 
-    dArea_dVec1Y = 0.5*dMag_dVec1Y;
-    dArea_dVec1Z = 0.5*dMag_dVec1Z;
-              
-    dArea_dVec2X = 0.5*dMag_dVec2X; 
-    dArea_dVec2Y = 0.5*dMag_dVec2Y;
-    dArea_dVec2Z = 0.5*dMag_dVec2Z;   
-    
-    // Node 1
-    
-    dArea_dx1 = dArea_dVec1X * dVec1X_dX1 + dArea_dVec2X * dVec2X_dX1;
-    dArea_dy1 = dArea_dVec1Y * dVec1Y_dY1 + dArea_dVec2Y * dVec2Y_dY1;
-    dArea_dz1 = dArea_dVec1Z * dVec1Z_dZ1 + dArea_dVec2Z * dVec2Z_dZ1; 
-
-    // Node 2
-    
-    dArea_dx2 = dArea_dVec1X * dVec1X_dX2;
-    dArea_dy2 = dArea_dVec1Y * dVec1Y_dY2;
-    dArea_dz2 = dArea_dVec1Z * dVec1Z_dZ2; 
-
-    // Node 3
-    
-    dArea_dx3 = dArea_dVec2X * dVec2X_dX3;
-    dArea_dy3 = dArea_dVec2Y * dVec2Y_dY3;
-    dArea_dz3 = dArea_dVec2Z * dVec2Z_dZ3; 
-                                  
 }
 
 /*##############################################################################
@@ -29814,6 +29368,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
     double Chord, Span, Area, Cl, Gamma, RVec[3], SVec[3], CVec[3], TVec[3], AVec[3], RVeco[3], Mag, Re, Cf, pCf_pCl2;
     double DeltaDrag, DeltaFxo, DeltaFyo, DeltaFzo, ReFact;
     double Cli, Cdi, Csi;
+    double WettedArea, FR, Length, ForceDir[3];
 
     CA = cos(AngleOfAttack_);
     SA = sin(AngleOfAttack_);
@@ -30048,7 +29603,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
                 VSPGeom().VortexSheet(v).TrailingVortex(k).CFix() += 0.5*Fx;
                 VSPGeom().VortexSheet(v).TrailingVortex(k).CFiy() += 0.5*Fy;
                 VSPGeom().VortexSheet(v).TrailingVortex(k).CFiz() += 0.5*Fz;
-                                                       
+                                                   
                 VSPGeom().VortexSheet(v).TrailingVortex(k).CMix() += 0.5*Fz * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Yc() - XYZcg_[1] ) - 0.5*Fy * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Zc() - XYZcg_[2] );   // Roll
                 VSPGeom().VortexSheet(v).TrailingVortex(k).CMiy() += 0.5*Fx * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Zc() - XYZcg_[2] ) - 0.5*Fz * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Xc() - XYZcg_[0] );   // Pitch
                 VSPGeom().VortexSheet(v).TrailingVortex(k).CMiz() += 0.5*Fy * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Xc() - XYZcg_[0] ) - 0.5*Fx * ( VSPGeom().Grid(MGLevel_).EdgeList(j).Yc() - XYZcg_[1] );   // Yaw
@@ -30058,21 +29613,22 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
                 VSPGeom().VortexSheet(v).TrailingVortex(k).Cli() += 0.5*( (-Fx * SA + Fz * CA )                );
                 VSPGeom().VortexSheet(v).TrailingVortex(k).Cdi() += 0.5*( ( Fx * CA + Fz * SA ) * CB - Fy * SB );
                 VSPGeom().VortexSheet(v).TrailingVortex(k).Csi() += 0.5*( ( Fx * CA + Fz * SA ) * SB + Fy * CB );
+              
                 
              }
 
           }
           
-         // else {
-         //    
-         //    printf("There's an edge we didn't catch! \n");
-         //    
-         //    printf("Yc: %f \n",VSPGeom().Grid(MGLevel_).EdgeList(j).Yc());fflush(NULL);
-         //    
-         // }
+          //else {
+          //   
+          //   printf("There's an edge we didn't catch! \n");
+          //   
+          //   printf("Yc: %f \n",VSPGeom().Grid(MGLevel_).EdgeList(j).Yc());fflush(NULL);
+          //   
+          //}
  
        }
-   
+
        // Wake induced forces
        
        if ( VSPGeom().Grid(MGLevel_).EdgeList(j).IsTrailingEdge() ) {
@@ -30258,14 +29814,16 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
           Gamma = VSPGeom().Grid(MGLevel_).EdgeList(TE_Edge).Gamma();
 
           Cl = ABS(Gamma/(0.5*Velocity*Chord));
+
+//printf("chord: %f ... Cl: %f ... CpCrit: %f \n",Chord,1.5*Cl,CpCrit_);fflush(NULL);
           
           Re = MAX(2.,ReCref_ * Velocity * Chord / Cref_);
 
           pCf_pCl2 = 0.00625 + 0.01*ABS(Clo_2d_);
         
           // Local turbulent skin friction
-          
-          Cf = 2. * 1.5 * 1.037 / pow(log10(Re),2.58) + pCf_pCl2*pow(Cl-Clo_2d_, 2.);
+
+          Cf = 1.5 / pow(log10(Re),2.58) + pCf_pCl2*pow(Cl-Clo_2d_, 2.);
 
           // Kludge for stall
           
@@ -30368,6 +29926,75 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
        
     }
     
+    // Viscous forces for non lifting components
+    
+    ForceDir[0] = CA*CB;
+    ForceDir[1] =   -SB;
+    ForceDir[2] = SA*CB;
+    
+    for ( i = 1 ; i <= VSPGeom().NumberOfComponents() ; i++ ) {
+       
+       if ( !VSPGeom().ComponentIsLifting(i) && Vinf_ > 0. ) {
+          
+          // Wetted Area
+          
+          WettedArea = VSPGeom().ComponentWettedArea(i);
+          
+          // Projected length
+          
+          Length = VSPGeom().ComponentLength(i);
+          
+          // Fineness ratio
+          
+          FR = VSPGeom().ComponentFineNessRatio(i);
+          
+          // Local Reynold's number
+          
+          Re = MAX(2.,ReCref_ * Length / Cref_);
+
+          // Local turbulent skin friction
+                  
+          Cf = 0.30/ pow(log10(Re),2.58) * (1. + 1.5/pow(FR,1.5) + 7./pow(FR,3.));
+      
+          // Viscous Forces
+           
+          Fxo = 0.5 * Cf * Vref_ * Vref_ * WettedArea * ForceDir[0];
+          Fyo = 0.5 * Cf * Vref_ * Vref_ * WettedArea * ForceDir[1];
+          Fzo = 0.5 * Cf * Vref_ * Vref_ * WettedArea * ForceDir[2];
+
+          CFox_ += Fxo;
+          CFoy_ += Fyo;
+          CFoz_ += Fzo;
+          
+          // Keep track of component group viscous forces and moments
+          
+          for ( g = 0 ; g <= 1 ; g++ ) {
+             
+             if ( g == 0 ) c = 0;
+             if ( g == 1 ) c = i;
+
+             // Forces
+               
+             VSPGeom().ComponentGroupList(c).CFox() += Fxo;
+             VSPGeom().ComponentGroupList(c).CFoy() += Fyo;
+             VSPGeom().ComponentGroupList(c).CFoz() += Fzo;
+
+             if ( TimeAccurate_ ) {
+             
+                // Forces
+                  
+                VSPGeom().ComponentGroupList(c).CFox(Time_) += Fxo;
+                VSPGeom().ComponentGroupList(c).CFoy(Time_) += Fyo;
+                VSPGeom().ComponentGroupList(c).CFoz(Time_) += Fzo;
+
+             }     
+             
+          } 
+          
+       }
+       
+    }
+    
     // Add in any flat plate drag areas
     
     if ( Vinf_ > 0. ) {
@@ -30397,7 +30024,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
        }  
        
     }
-
+    
     // Now calculate CL, CD, CS
  
     CLi_ = (-CFix_ * SA + CFiz_ * CA );
@@ -30587,7 +30214,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     int c, i, k, p,  LE_Edge, TE_Edge, IsARotor, ComponentID, Group;
     double Span, Chord, Velocity, Time, TotalSpan, S;
     
-    double Diameter, RPM, Angle, Vec[3];
+    double Diameter, RPM, Angle, VecF[3], VecM[3], ComponentCg[3];
     double Thrusto, Momento, Powero;
     double Thrusti, Momenti, Poweri;
     double Thrust , Moment , Power ;
@@ -30658,7 +30285,11 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
              }
              
           } 
-                                
+
+          ComponentCg[0] = VSPGeom().ComponentGroupList(c).OVec(0);
+          ComponentCg[1] = VSPGeom().ComponentGroupList(c).OVec(1);
+          ComponentCg[2] = VSPGeom().ComponentGroupList(c).OVec(2);
+                                                   
           LE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).LE_Edge());
 
           TE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).TE_Edge());
@@ -30691,33 +30322,45 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
 
              Angle = VSPGeom().ComponentGroupList(Group).TotalRotationAngle()/TORAD;   
              
-             Vec[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFox() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
-             Vec[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFoy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
-             Vec[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFoz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             // Viscous forces and moments
              
-             Thrusto = vector_dot(Vec, VSPGeom().ComponentGroupList(Group).RVec());
+             VecF[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFox() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             VecF[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFoy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             VecF[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFoz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
              
-             Vec[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFix() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
-             Vec[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFiy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
-             Vec[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFiz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             Thrusto = vector_dot(VecF, VSPGeom().ComponentGroupList(Group).RVec());
              
-             Thrusti = vector_dot(Vec, VSPGeom().ComponentGroupList(Group).RVec());
-                 
-             Thrust = Thrusto + Thrusti;
-
-             // Moments
+             VecM[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMox() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
+             VecM[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMoy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
+             VecM[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMoz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;   
              
-             Vec[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMox() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
-             Vec[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMoy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
-             Vec[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMoz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;   
+             VecM[0] -= VecF[2] * ( ComponentCg[1] - XYZcg_[1] ) - VecF[1] * ( ComponentCg[2] - XYZcg_[2] );
+             VecM[1] -= VecF[0] * ( ComponentCg[2] - XYZcg_[2] ) - VecF[2] * ( ComponentCg[0] - XYZcg_[0] );
+             VecM[2] -= VecF[1] * ( ComponentCg[0] - XYZcg_[0] ) - VecF[0] * ( ComponentCg[1] - XYZcg_[1] );
+                                
+             Momento = -vector_dot(VecM, VSPGeom().ComponentGroupList(Group).RVec());
+            
+             // Inviscid forces and moments
              
-             Momento = -vector_dot(Vec, VSPGeom().ComponentGroupList(Group).RVec());
+             VecF[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFix() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             VecF[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFiy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             VecF[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CFiz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord;
+             
+             Thrusti = vector_dot(VecF, VSPGeom().ComponentGroupList(Group).RVec());
                
-             Vec[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMix() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
-             Vec[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMiy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
-             Vec[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMiz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;   
+             VecM[0] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMix() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
+             VecM[1] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMiy() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;
+             VecM[2] = VSPGeom().VortexSheet(k).TrailingVortex(i).CMiz() * 0.5 * Density_ * Vref_ * Vref_ * Span * Chord * Chord;   
              
-             Momenti = -vector_dot(Vec, VSPGeom().ComponentGroupList(Group).RVec());
+             VecM[0] -= VecF[2] * ( ComponentCg[1] - XYZcg_[1] ) - VecF[1] * ( ComponentCg[2] - XYZcg_[2] );
+             VecM[1] -= VecF[0] * ( ComponentCg[2] - XYZcg_[2] ) - VecF[2] * ( ComponentCg[0] - XYZcg_[0] );
+             VecM[2] -= VecF[1] * ( ComponentCg[0] - XYZcg_[0] ) - VecF[0] * ( ComponentCg[1] - XYZcg_[1] );
+                          
+             Momenti = -vector_dot(VecM, VSPGeom().ComponentGroupList(Group).RVec());
+
+             // Total forces and moments
+             
+             Thrust = Thrusto + Thrusti;
 
              Moment = Momento + Momenti;
 
@@ -30725,7 +30368,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
              
              Powero = Momento * VSPGeom().ComponentGroupList(Group).Omega();
              
-             Poweri  = Momenti * VSPGeom().ComponentGroupList(Group).Omega();
+             Poweri = Momenti * VSPGeom().ComponentGroupList(Group).Omega();
 
              Power = Powero + Poweri;
              

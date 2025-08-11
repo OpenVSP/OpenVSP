@@ -21,6 +21,7 @@
 #include "ComponentGroup.H"
 #include "ControlSurface.H"
 #include "CharSizes.H"
+#include "MeshGradient.H"
 
 #include "START_NAME_SPACE.H"
 
@@ -138,6 +139,10 @@ private:
     // Component is thick surface flag
     
     int *ComponentIsThick_;
+    
+    // Component is lifting surface
+    
+    int *ComponentIsLifting_;
 
     // Number of kutta nodes provided by vspgeom file
         
@@ -393,7 +398,55 @@ private:
     // Update the vortex core sizes
     
     void UpdateVortexCoreSize(void);
+
+    // Component wetted area
+        
+    double *ComponentWettedArea_;
     
+    // Component length
+    
+    double *ComponentLength_;
+    
+    // Component fineness ratio
+    
+    double *ComponentFineNessRatio_;
+    
+    // Gradient of component wetted area wrt Mesh
+        
+    MESH_GRADIENT **pComponentWettedAreapMesh_;
+    
+    // Gradient of component length wrt Mesh
+    
+    MESH_GRADIENT **pComponentLengthpMesh_;
+    
+    // Gradient of component fineness ratio wrt Mesh
+    
+    MESH_GRADIENT **pComponentFineNessRatiopMesh_;    
+    
+    // Gradient of component wetted area wrt angle of attack
+    
+    double *pComponentWettedAreapAlpha_;
+    
+    // Gradient of component wetted area wrt angle of side slip
+    
+    double *pComponentWettedAreapBeta_;    
+
+    // Gradient of component length wrt angle of attack
+    
+    double *pComponentLengthpAlpha_;
+    
+    // Gradient of component length wrt angle of side slip
+    
+    double *pComponentLengthpBeta_;    
+
+    // Gradient of component fineness ratio wrt angle of attack
+    
+    double *pComponentFineNessRatiopAlpha_;
+    
+    // Gradient of component fineness ratio wrt angle of side slip
+    
+    double *pComponentFineNessRatiopBeta_;    
+               
 public:
 
     // Constructor, Destructor, Copy
@@ -485,6 +538,10 @@ public:
     /** Component is thick surface flag **/
     
     int ComponentIsThick(int i) { return ComponentIsThick_[i]; };
+    
+    /** Component is a lifting surface **/
+    
+    int ComponentIsLifting(int i) { return ComponentIsLifting_[i]; };
     
     /** Number of kutta nodes provided by vspgeom file **/
         
@@ -659,11 +716,158 @@ public:
     /** Freeze wake root vortices **/
         
     void FreezeWakeRootVortices(int Level);
+   
+    /** Create aero geometry factors for parasite drag **/
     
-    /** Set the Mach number for each edge, on each grid level **/
+    void CalculateThickComponentAeroGeometry(double Alpha, double Beta);
 
-    void SetEdgeMachNumber(double FreeStreamVelocity[3], double Mach, double Vref, double Machref);
+    /** Thick component wetted area **/
+        
+    double &ComponentWettedArea(int i) { return ComponentWettedArea_[i]; };
     
+    /** Thick component length **/
+    
+    double ComponentLength(int i) { return ComponentLength_[i]; };
+    
+    /** Thick component fineness ratio **/
+    
+    double ComponentFineNessRatio(int i) { return ComponentFineNessRatio_[i]; };
+    
+    /**  Gradient of component wetted area wrt Mesh **/
+        
+    MESH_GRADIENT &pComponentWettedAreapMesh(int Comp, int i) { return pComponentWettedAreapMesh_[Comp][i]; };
+    
+    /**  Gradient of component length wrt Mesh **/
+    
+    MESH_GRADIENT &pComponentLengthpMesh(int Comp, int i) { return pComponentLengthpMesh_[Comp][i]; };
+    
+    /**  Gradient of component fineness ratio wrt Mesh **/
+    
+    MESH_GRADIENT &pComponentFineNessRatiopMesh(int Comp, int i) { return pComponentFineNessRatiopMesh_[Comp][i]; };
+       
+    // Gradient of component wetted area wrt angle of attack
+    
+    double &pComponentWettedAreapAlpha(int Comp) { return pComponentWettedAreapAlpha_[Comp]; };
+    
+    // Gradient of component wetted area wrt angle of side slip
+    
+    double &pComponentWettedAreapBeta(int Comp) { return pComponentWettedAreapBeta_[Comp]; };
+
+    // Gradient of component length wrt angle of attack
+    
+    double &pComponentLengthpAlpha(int Comp) { return pComponentLengthpAlpha_[Comp]; };
+    
+    // Gradient of component length wrt angle of side slip
+    
+    double &pComponentLengthpBeta(int Comp) { return pComponentLengthpBeta_[Comp]; };
+
+    // Gradient of component fineness ratio wrt angle of attack
+    
+    double &pComponentFineNessRatiopAlpha(int Comp) { return pComponentFineNessRatiopAlpha_[Comp]; };
+    
+    // Gradient of component fineness ratio wrt angle of side slip
+    
+    double &pComponentFineNessRatiopBeta(int Comp) { return pComponentFineNessRatiopBeta_[Comp]; };
+    
+    /** Create mesh gradients of aero geometry factors for parasite drag **/
+    
+    void CalculateThickComponentAeroGeometryGradientswrtMesh(double Alpha, double Beta);
+    
+    /** Calculate gradient of Loop normals wrt mesh **/
+    
+    void CalculateLoopNormalGradients_wrt_Mesh(int Level, int Loop, double *NormalGradients, double *AreaGradients);
+
+    /** Calculate gradient of Tri normals wrt mesh **/
+    
+    void CalculateTriNormalGradients_wrt_Mesh(int Loop,
+                                              double &dNx_dx1,
+                                              double &dNx_dy1,
+                                              double &dNx_dz1, 
+                                                               
+                                              double &dNy_dx1,
+                                              double &dNy_dy1,
+                                              double &dNy_dz1, 
+                                                             
+                                              double &dNz_dx1,
+                                              double &dNz_dy1,
+                                              double &dNz_dz1,
+                                                               
+                                              double &dNx_dx2,
+                                              double &dNx_dy2,
+                                              double &dNx_dz2, 
+                                                                 
+                                              double &dNy_dx2,
+                                              double &dNy_dy2,
+                                              double &dNy_dz2, 
+                                                                
+                                              double &dNz_dx2,
+                                              double &dNz_dy2,
+                                              double &dNz_dz2,     
+                                                                  
+                                              double &dNx_dx3,
+                                              double &dNx_dy3,
+                                              double &dNx_dz3, 
+                                                               
+                                              double &dNy_dx3,
+                                              double &dNy_dy3,
+                                              double &dNy_dz3, 
+                                                            
+                                              double &dNz_dx3,
+                                              double &dNz_dy3,
+                                              double &dNz_dz3,
+                                             
+                                              double &dNx_Normalized_dx1,
+                                              double &dNx_Normalized_dy1,
+                                              double &dNx_Normalized_dz1, 
+                                                                 
+                                              double &dNy_Normalized_dx1,
+                                              double &dNy_Normalized_dy1,
+                                              double &dNy_Normalized_dz1, 
+                                                                 
+                                              double &dNz_Normalized_dx1,
+                                              double &dNz_Normalized_dy1,
+                                              double &dNz_Normalized_dz1,
+                                                                 
+                                              double &dNx_Normalized_dx2,
+                                              double &dNx_Normalized_dy2,
+                                              double &dNx_Normalized_dz2, 
+                                                                 
+                                              double &dNy_Normalized_dx2,
+                                              double &dNy_Normalized_dy2,
+                                              double &dNy_Normalized_dz2, 
+                                                                 
+                                              double &dNz_Normalized_dx2,
+                                              double &dNz_Normalized_dy2,
+                                              double &dNz_Normalized_dz2,     
+                                                                  
+                                              double &dNx_Normalized_dx3,
+                                              double &dNx_Normalized_dy3,
+                                              double &dNx_Normalized_dz3, 
+                                                                 
+                                              double &dNy_Normalized_dx3,
+                                              double &dNy_Normalized_dy3,
+                                              double &dNy_Normalized_dz3, 
+                                                                 
+                                              double &dNz_Normalized_dx3,
+                                              double &dNz_Normalized_dy3,
+                                              double &dNz_Normalized_dz3,
+                                              
+                                              double &dArea_dx1,
+                                              double &dArea_dy1,
+                                              double &dArea_dz1,            
+                                                                      
+                                              double &dArea_dx2,
+                                              double &dArea_dy2,
+                                              double &dArea_dz2,       
+                                                                      
+                                              double &dArea_dx3,
+                                              double &dArea_dy3,
+                                              double &dArea_dz3);  
+    
+    // Test code... do not use!
+                                              
+    void TestComponentGeometryGradients(double Alpha, double Beta);
+                                              
 };
 
 #include "END_NAME_SPACE.H"

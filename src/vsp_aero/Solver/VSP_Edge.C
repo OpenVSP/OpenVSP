@@ -4163,15 +4163,15 @@ void VSP_EDGE::pTrefftzForces_pVinf(double pForces_pVinf[3][3])
     pForces_pVinf[2][1] =  ( -Vec_[0] )*Length_*Gamma_;     
     pForces_pVinf[2][2] =  0.;    
 
-    pForces_pVinf[0][0] *= 1.;
-    pForces_pVinf[0][1] *= 1.;
-    pForces_pVinf[0][2] *= 1.;
-    pForces_pVinf[1][0] *= 1.;
-    pForces_pVinf[1][1] *= 1.;
-    pForces_pVinf[1][2] *= 1.;
-    pForces_pVinf[2][0] *= 1.; 
-    pForces_pVinf[2][1] *= 1.; 
-    pForces_pVinf[2][2] *= 1.;
+    pForces_pVinf[0][0] *= -1.;
+    pForces_pVinf[0][1] *= -1.;
+    pForces_pVinf[0][2] *= -1.;
+    pForces_pVinf[1][0] *= -1.;
+    pForces_pVinf[1][1] *= -1.;
+    pForces_pVinf[1][2] *= -1.;
+    pForces_pVinf[2][0] *= -1.; 
+    pForces_pVinf[2][1] *= -1.; 
+    pForces_pVinf[2][2] *= -1.;
     
 }
 

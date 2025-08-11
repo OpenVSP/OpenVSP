@@ -18,6 +18,8 @@
 
 #include "VSP_Solver.H"
 #include "ControlSurfaceGroup.H"
+#include "OptimizationParameterData.H"
+#include "OptimizationGradientData.H"
 
 #define INTEGER_VALUE 0
 #define double_VALUE  1
@@ -26,7 +28,7 @@ using namespace VSPAERO_SOLVER;
 
 #define VER_MAJOR 7
 #define VER_MINOR 2
-#define VER_PATCH 0
+#define VER_PATCH 1
 
 #define OPT_CGS   1
 #define OPT_BFGS  2
@@ -80,7 +82,8 @@ double AdjointGMRESConvergenceFactor_;
 double NonLinearConvergenceFactor_;
 double CoreSizeFactor_;
 
-int AdjointSolutionForceType_;
+int AdjointSolutionForceType_ = ADJOINT_WAKE_AND_VISCOUS_FORCES;
+
 int NumberOfAdjointForceAndMomentCases_;
 int AdjointSolveForThisForceMomentCase_[7];
 int NumberOfAdjointComponentListSettings_;
@@ -261,7 +264,7 @@ int DoFiniteDiffTest_                = 0;
 int FiniteDiffTestStartNode_         = 1;
 int FiniteDiffTestStepSize_          = 1;
 int FiniteDiffTestLoadGroup_         = 0;
-int StallModelIsOn_                   = 0;
+int StallModelIsOn_                  = 0;
 int SolveOnMGLevel_                  = 0;
 int UpdateMatrixPreconditioner_      = 0;
 int UseWakeNodeMatrixPreconditioner_ = 0;
@@ -271,7 +274,11 @@ int FreezeWakeRootVortices_          = 0;
 int QuadTreeBufferLevels_            = 0;
 int VSPAERO_InputFileFormatOutput_   = 0;
 int RestartFromPreviousSolve_        = 0;
+int TrimVehicle_                     = 0;
+int TrimNumberOfIterations_          = 10;
 
+double TrimTolerance_                = 0.01;
+double TrimCLRequired_               = 0.0;
 
 // Optimization variables
 
@@ -321,6 +328,7 @@ void WriteOutVorviewFLTFile(void);
 void UnsteadyStabilityAndControlSolve(void);
 void Noise(void);
 void CalculateAerodynamicCenter(void);
+void TrimVehicle(void);
 void FiniteDiffTestSolve(void);
 void PRINT_STAB_LINE(double F1,
                      double F2,
@@ -330,6 +338,7 @@ void PRINT_STAB_LINE(double F1,
                      double F6,
                      double F7,
                      double F8);
+void CalculateAdjointControlDerivatives(void);                     
 void WriteOutAdjointStabilityDerivatives(void);
                      
 int SearchForIntegerVariable(FILE *File, const char *VariableName, int &Value);
@@ -345,29 +354,57 @@ VSP_SOLVER &VSPAERO(void) { return VSPAERO_; };
 
 #ifdef VSPAERO_OPT
 
-class PARAMETER_DATA {
-   
-public:
-   
-   double *ParameterValues;
-   char **ParameterNames;
-   char **ParameterFullNamePath;
+//class PARAMETER_DATA {
+//   
+//public:
+//   
+//   // OpenVSP parameters
+//   
+//   int NumberOfOpenVSP_Parameters;
+//   
+//   char **OpenVSP_ParameterNames;
+//
+//   char **OpenVSP_ParameterFullNamePath;
+// 
+//   // VSPAERO parameters
+//   
+//   int NumberOfVSPAERO_Parameters;
+//   
+//   char **VSPAERO_ParameterNames;   
+//
+//   // Parameter values for both OpenVSP and VSPAERO design variables
+//   
+//   int NumberOfParameters;
+//   
+//   double *ParameterValues;   
+//
+//};
 
-};
+// OpenVSP/VSPAERO parameter data
+      
+OPTIMIZATION_PARAMETERS ParameterData_;
 
+// Partial of mesh wrt OpenVSP parameters
+
+double **dMesh_dOpenVSP_Parameter_;
+
+// Optimization solver
+  
 void VSPAERO_Optimize(void);
 
-PARAMETER_DATA *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables);
+OPTIMIZATION_PARAMETERS *VSPAERO_Optimize_Setup(void);
 
-double *CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues);
+GRADIENT_DATA *VSPAERO_Optimize_Gradients(OPTIMIZATION_PARAMETERS *ParameterData, int Iter, bool CalculateGradients);
 
-void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues);
+double *CreateVSPGeometry(char *FileName, OPTIMIZATION_PARAMETERS &ParameterData_, double *ParameterValues);
 
-void WriteVSPDesFile(char *FileName, int Iter, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues);
+void SaveVSPGeomFile(char *FileName, OPTIMIZATION_PARAMETERS &ParameterData_);
 
-double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVariables, PARAMETER_DATA *ParameterData);
+//void WriteVSPDesFile(char *FileName, int Iter, int NumberOfDesignVariables, char **OpenVSP_ParameterNames, double *ParameterValues);
 
-void DeleteMeshGradients(int NumberOfDesignVariables, double **dMesh_dParameter);
+double **CalculateOpenVSPGeometryGradients(char *FileName, OPTIMIZATION_PARAMETERS &ParameterData_);
+
+void DeleteMeshGradients(void);
 
 double Normalize(double *Vector, int Length);
 
@@ -384,7 +421,7 @@ void BFGSState(int Iter,
                MATRIX &Hessian);
                
 int Do1DFunctionMinimization(int NumberOfParameterValues, 
-                             PARAMETER_DATA *ParameterData,
+                             OPTIMIZATION_PARAMETERS &ParameterData_,
                              double *ParameterValues,
                              double *SearchDirection,                            
                              double &StepSize,
@@ -404,7 +441,7 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
                             
                             
 double DoForwardSolve(int NumberOfParameterValues, 
-                      PARAMETER_DATA *ParameterData,
+                      OPTIMIZATION_PARAMETERS &ParameterData_,
                       double *ParameterValues,
                       double &CL,
                       double &CD,
@@ -438,10 +475,28 @@ int main(int argc, char **argv)
     
     TotalTime = myclock();
     
+    // Check for help case
+
+    if ( argc < 2 ) {
+
+       PrintUsageHelp();
+ 
+       exit(1);
+
+    }
+    
+    else if ( strcmp(argv[1],"-v") == 0 || strcmp(argv[1],"-version") == 0 ) {
+    
+       printf( "VSPAERO %d.%d.%d\n", VER_MAJOR, VER_MINOR, VER_PATCH );
+    
+       exit(1);
+    
+    }
+    
     // Grab the file name
     
-    FileName = argv[argc-1];
-         
+    FileName = argv[argc-1];         
+             
     // Load in the case file
     
     LoadCaseFile(1);
@@ -649,6 +704,14 @@ int main(int argc, char **argv)
        
     }
     
+    // Trim solve
+    
+    else if ( TrimVehicle_ ) {
+ 
+       TrimVehicle();
+       
+    }
+    
     // Just a normal solve
 
     else {
@@ -716,16 +779,6 @@ void ParseInput(int argc, char *argv[])
 
     int i, iter;
 
-    // Parse the input
-
-    if ( argc < 2 ) {
-
-       PrintUsageHelp();
- 
-       exit(1);
-
-    }
-    
     //NumberOfMachs_     = 0;
     //NumberOfAoAs_      = 0;
     //NumberOfBetas_     = 0;
@@ -826,7 +879,15 @@ void ParseInput(int argc, char *argv[])
           StabControlRun_ = 5;
           
        }
-              
+       
+       else if ( strcmp(argv[i],"-trim") == 0 ) {
+        
+          TrimVehicle_ = 1;
+          
+          DoAdjointSolve_ = 1;
+                    
+       }
+          
        else if ( strcmp(argv[i],"-unsteady") == 0 ) {
 
           VSPAERO().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
@@ -1272,10 +1333,8 @@ void LoadCaseFile(int ReadFlag)
             
     // Search for adjoint force type
     
-    AdjointSolutionForceType_ = 0;
-    
     if ( SearchForIntegerVariable(case_file, "AdjointSolutionForceType", AdjointSolutionForceType_) ) if ( case_file != NULL ) { printf("Setting AdjointSolutionForceType to: %d \n",AdjointSolutionForceType_); };
-    
+       
     VSPAERO().AdjointSolutionForceType() = AdjointSolutionForceType_;
          
     // Search fir adjoint force and moment case list
@@ -1394,6 +1453,13 @@ void LoadCaseFile(int ReadFlag)
     if ( SearchForFloatVariable(case_file, "Optimization_CMM_Required", Optimization_CMM_Required_) ) if ( case_file != NULL ) { printf("Setting Optimization_CMM_Required to: %f \n",Optimization_CMM_Required_); };
     if ( SearchForFloatVariable(case_file, "Optimization_CMN_Required", Optimization_CMN_Required_) ) if ( case_file != NULL ) { printf("Setting Optimization_CMN_Required to: %f \n",Optimization_CMN_Required_); };
 
+    // Search for trim flags
+
+    if ( SearchForIntegerVariable(case_file, "TrimNumberOfIterations", TrimNumberOfIterations_) ) if ( case_file != NULL ) { printf("Setting TrimNumberOfIterations flag to: %d \n",TrimNumberOfIterations_); };
+
+    if ( SearchForFloatVariable(case_file, "TrimCLRequired", TrimCLRequired_) ) if ( case_file != NULL ) { printf("Setting TrimCLRequired to: %f \n",TrimCLRequired_); };
+    if ( SearchForFloatVariable(case_file, "TrimTolerance", TrimTolerance_) ) if ( case_file != NULL ) { printf("Setting TrimTolerance to: %f \n",TrimTolerance_); };
+    
     // We were just creating an input list of variables ... so quit
         
     if ( case_file == NULL ) { fflush(NULL); exit(1); };
@@ -3468,18 +3534,15 @@ void WriteOutVorviewFLTFile(void)
 
 /*##############################################################################
 #                                                                              #
-#                     WriteOutAdjointStabilityDerivatives                      #
+#                     CalculateAdjointControlDerivatives                        #
 #                                                                              #
 ##############################################################################*/
 
-void WriteOutAdjointStabilityDerivatives(void)
+void CalculateAdjointControlDerivatives(void)
 {
 
     int i, j, p, n, Found, Case, NumberOfCases;
     double Delta, SM, X_np;
-    char CaseType[MAX_CHAR_SIZE];
-    char caseTypeFormatStr[] = "%-22s +%5.3lf %-9s";
-    char StabFileName[MAX_CHAR_SIZE];
 
     // Calculate control group stability derivatives
     
@@ -3585,8 +3648,28 @@ void WriteOutAdjointStabilityDerivatives(void)
        }
 
     }
-             
-                     
+        
+}
+
+/*##############################################################################
+#                                                                              #
+#                     WriteOutAdjointStabilityDerivatives                      #
+#                                                                              #
+##############################################################################*/
+
+void WriteOutAdjointStabilityDerivatives(void)
+{
+
+    int i, j, p, n, Found, Case, NumberOfCases;
+    double Delta, SM, X_np;
+    char CaseType[MAX_CHAR_SIZE];
+    char caseTypeFormatStr[] = "%-22s +%5.3lf %-9s";
+    char StabFileName[MAX_CHAR_SIZE];
+
+    // Calculate control group stability derivatives
+
+    CalculateAdjointControlDerivatives();    
+                       
     printf("Writing out adjoint stability derivatives... \n");fflush(NULL);
     
     // Open the stability and control output file
@@ -3609,7 +3692,8 @@ void WriteOutAdjointStabilityDerivatives(void)
     if ( VSPAERO().AdjointSolutionForceType() == ADJOINT_VISCOUS_FORCES              ) NumberOfCases = 1;
     if ( VSPAERO().AdjointSolutionForceType() == ADJOINT_TOTAL_FORCES                ) NumberOfCases = 1;
     if ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES ) NumberOfCases = 3;
-       
+    if ( VSPAERO().AdjointSolutionForceType() == ADJOINT_WAKE_AND_VISCOUS_FORCES     ) NumberOfCases = 3;
+    
     for ( Case = 1 ; Case <= NumberOfCases ; Case++ ) {
            
        // Write out column labels
@@ -3618,8 +3702,9 @@ void WriteOutAdjointStabilityDerivatives(void)
 
        // Total forces header
         
-       if (   VSPAERO().AdjointSolutionForceType() == ADJOINT_TOTAL_FORCES                               ||
-            ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 1 )    ) {
+       if ( VSPAERO().AdjointSolutionForceType() == ADJOINT_TOTAL_FORCES                               ||
+          ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 1 ) ||
+          ( VSPAERO().AdjointSolutionForceType() == ADJOINT_WAKE_AND_VISCOUS_FORCES     && Case == 1 )    ) {
    
                          // 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012          
           fprintf(StabFile,"   Total        Total        Total        Total        Total        Total        Total        Total        Total        Total        Total        Total \n");    
@@ -3627,17 +3712,17 @@ void WriteOutAdjointStabilityDerivatives(void)
           fprintf(StabFile,"#\n");
 
           fprintf(StabFile,"%12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
-                  VSPAERO().CFix() + VSPAERO().CFox(),
-                  VSPAERO().CFiy() + VSPAERO().CFoy(),
-                  VSPAERO().CFiz() + VSPAERO().CFoz(),
+                  VSPAERO().CFiwx() + VSPAERO().CFox(),
+                  VSPAERO().CFiwy() + VSPAERO().CFoy(),
+                  VSPAERO().CFiwz() + VSPAERO().CFoz(),
                          
                   VSPAERO().CMix() + VSPAERO().CMox(),
                   VSPAERO().CMiy() + VSPAERO().CMoy(),
                   VSPAERO().CMiz() + VSPAERO().CMoz(),
                          
-                  VSPAERO().CLi() + VSPAERO().CLo(),
-                  VSPAERO().CDi() + VSPAERO().CDo(),
-                  VSPAERO().CSi() + VSPAERO().CSo(),
+                  VSPAERO().CLiw() + VSPAERO().CLo(),
+                  VSPAERO().CDiw() + VSPAERO().CDo(),
+                  VSPAERO().CSiw() + VSPAERO().CSo(),
                   
                   VSPAERO().CMli() + VSPAERO().CMlo(),
                   VSPAERO().CMmi() + VSPAERO().CMmo(),
@@ -3647,16 +3732,6 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           fprintf(StabFile,"#\n");
 
-
-    
-    
-    
-    
-    
-
-
-
-         
           fprintf(StabFile,"#\n");
           
           //                        123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012           
@@ -3668,7 +3743,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           fprintf(StabFile,"#\n");
          
-          fprintf(StabFile,"CFx    "); PRINT_STAB_LINE( VSPAERO().CFtx(),
+          fprintf(StabFile,"CFx    "); PRINT_STAB_LINE( VSPAERO().CFtwx(),
                                                        VSPAERO().pCFtx_pAlpha(),
                                                        VSPAERO().pCFtx_pBeta(),
                                                        VSPAERO().pCFtx_pP(),
@@ -3679,7 +3754,7 @@ void WriteOutAdjointStabilityDerivatives(void)
           
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFtx_pDelta()); }; fprintf(StabFile,"\n");
              
-          fprintf(StabFile,"CFy    "); PRINT_STAB_LINE( VSPAERO().CFty(),
+          fprintf(StabFile,"CFy    "); PRINT_STAB_LINE( VSPAERO().CFtwy(),
                                                        VSPAERO().pCFty_pAlpha(),
                                                        VSPAERO().pCFty_pBeta(),
                                                        VSPAERO().pCFty_pP(),
@@ -3689,9 +3764,9 @@ void WriteOutAdjointStabilityDerivatives(void)
                                                        VSPAERO().pCFty_pMach()*VSPAERO().Mach());
          
 
-          for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) {fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFty_pDelta()); }; fprintf(StabFile,"\n");
+          for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCFty_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CFz    "); PRINT_STAB_LINE( VSPAERO().CFtz(),
+          fprintf(StabFile,"CFz    "); PRINT_STAB_LINE( VSPAERO().CFtwz(),
                                                        VSPAERO().pCFtz_pAlpha(),
                                                        VSPAERO().pCFtz_pBeta(),
                                                        VSPAERO().pCFtz_pP(),
@@ -3735,7 +3810,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMtz_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CL     "); PRINT_STAB_LINE( VSPAERO().CLt(),
+          fprintf(StabFile,"CL     "); PRINT_STAB_LINE( VSPAERO().CLtw(),
                                                        VSPAERO().pCLt_pAlpha(),
                                                        VSPAERO().pCLt_pBeta(),
                                                        VSPAERO().pCLt_pP(),
@@ -3746,7 +3821,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCLt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CD     "); PRINT_STAB_LINE( VSPAERO().CDt(),
+          fprintf(StabFile,"CD     "); PRINT_STAB_LINE( VSPAERO().CDtw(),
                                                        VSPAERO().pCDt_pAlpha(),
                                                        VSPAERO().pCDt_pBeta(),
                                                        VSPAERO().pCDt_pP(),
@@ -3757,7 +3832,7 @@ void WriteOutAdjointStabilityDerivatives(void)
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCDt_pDelta()); }; fprintf(StabFile,"\n");
          
-          fprintf(StabFile,"CS     "); PRINT_STAB_LINE( VSPAERO().CSt(),
+          fprintf(StabFile,"CS     "); PRINT_STAB_LINE( VSPAERO().CStw(),
                                                        VSPAERO().pCSt_pAlpha(),
                                                        VSPAERO().pCSt_pBeta(),
                                                        VSPAERO().pCSt_pP(),
@@ -3779,7 +3854,7 @@ void WriteOutAdjointStabilityDerivatives(void)
                                                        VSPAERO().pCMlt_pMach()*VSPAERO().Mach());
          
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) { fprintf(StabFile,"%12.7f ",ControlSurfaceGroup_[i].pCMlt_pDelta()); }; fprintf(StabFile,"\n");
-         
+        
           fprintf(StabFile,"CMm    "); PRINT_STAB_LINE( VSPAERO().CMmt(),
                                                        VSPAERO().pCMmt_pAlpha(),
                                                        VSPAERO().pCMmt_pBeta(),
@@ -3810,8 +3885,9 @@ void WriteOutAdjointStabilityDerivatives(void)
    
        // Inviscid forces header
        
-       if (   VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_FORCES                            ||
-            ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 2 )    ) {
+       if ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_FORCES                            ||
+          ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 2 ) ||
+          ( VSPAERO().AdjointSolutionForceType() == ADJOINT_WAKE_AND_VISCOUS_FORCES     && Case == 2 )    ) {
    
                          // 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012          
           fprintf(StabFile,"  Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid     Inviscid \n");    
@@ -3989,10 +4065,11 @@ void WriteOutAdjointStabilityDerivatives(void)
        }
    
    
-       // Inviscid forces header
+       // Viscous forces header
        
-       if (   VSPAERO().AdjointSolutionForceType() == ADJOINT_VISCOUS_FORCES                             ||
-            ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 3 )    ) {
+       if ( VSPAERO().AdjointSolutionForceType() == ADJOINT_VISCOUS_FORCES                             ||
+          ( VSPAERO().AdjointSolutionForceType() == ADJOINT_INVISCID_AND_VISCOUS_FORCES && Case == 3 ) ||
+          ( VSPAERO().AdjointSolutionForceType() == ADJOINT_WAKE_AND_VISCOUS_FORCES     && Case == 3 )    ) {
    
                          // 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012          
           fprintf(StabFile,"   Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous      Viscous \n");    
@@ -4756,6 +4833,109 @@ void CalculateAerodynamicCenter(void)
 
 /*##############################################################################
 #                                                                              #
+#                                     TrimVehicle                              #
+#                                                                              #
+##############################################################################*/
+
+void TrimVehicle(void)
+{
+
+    int Iter, Converged;
+    double L2Res, Relax;
+    MATRIX Residual(2), Delta(2), Jacobian(2,2);
+    char TrimFileName[MAX_CHAR_SIZE];    
+    FILE *TrimFile;
+
+    
+    // Open the stability and control output file
+    
+    snprintf(TrimFileName,sizeof(TrimFileName)*sizeof(char),"%s.trim",FileName);
+
+    if ( (TrimFile = fopen(TrimFileName,"w")) == NULL ) {
+
+       printf("Could not open the trim file for output! \n");
+
+       exit(1);
+
+    }
+    //                1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 
+    fprintf(TrimFile,"      Iter       AoA        Def         CL         CM       L2Res \n");
+          
+    // Total forces and moments
+         
+    VSPAERO().AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES_USING_WAKE_FORCES;
+    
+    // Only one control surface, and only one mach,alpha,beta case
+    
+    if ( NumberOfControlGroups_ != 1 ) { printf("Can only trim with 1 control surface! \n");fflush(NULL);exit(1); };
+    
+    if ( NumberOfAoAs_          != 1 ) { printf("Can only trim with 1 AoA case! \n");fflush(NULL);exit(1); };
+                                
+    if ( NumberOfBetas_         != 1 ) { printf("Can only trim with 1 Beta case! \n");fflush(NULL);exit(1); };
+                                
+    if ( NumberOfReCrefs_       != 1 ) { printf("Can only trim with 1 ReCref case! \n");fflush(NULL);exit(1); };
+    
+    Relax = 0.75;
+    
+    Converged = 0;
+
+    Iter = 1;
+    
+    while ( Iter <= TrimNumberOfIterations_ && !Converged ) {
+       
+       Solve();
+       
+       // Calculate control group stability derivatives
+       
+       CalculateAdjointControlDerivatives();    
+       
+       // Trim vehicle to desire CL, CM = 0
+       
+       Residual(1) = -(VSPAERO().CLt() - TrimCLRequired_);
+       Residual(2) = -(VSPAERO().CMmt() - 0.);
+                      
+       Jacobian(1,1) = VSPAERO().pCLt_pAlpha();  Jacobian(1,2) = ControlSurfaceGroup_[1].pCLt_pDelta();     
+       Jacobian(2,1) = VSPAERO().pCMmt_pAlpha(); Jacobian(2,2) = ControlSurfaceGroup_[1].pCMmt_pDelta();                      
+                      
+       Delta = Residual/Jacobian;
+       
+       Delta(1) *= Relax;
+       Delta(2) *= Relax;
+       
+       AoAList_[1] += Delta(1)/TORAD;
+       
+       ControlSurfaceGroup_[1].ControlSurface_DeflectionAngle() += Delta(2)/TORAD;
+       
+       L2Res = sqrt((Residual(1)*Residual(1) + Residual(2)*Residual(2))/2.);
+       
+       printf("\n\n\nTrim Iteration: %d --> Alpha: %f ... Def: %f ... CL: %f ... CM: %f .. L2Res: %f \n\n\n",
+       Iter,
+       AoAList_[1],
+       ControlSurfaceGroup_[1].ControlSurface_DeflectionAngle(),
+       VSPAERO().CLt(),
+       VSPAERO().CMmt(),
+       L2Res);
+       
+       fprintf(TrimFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f \n",
+       Iter,
+       AoAList_[1],
+       ControlSurfaceGroup_[1].ControlSurface_DeflectionAngle(),
+       VSPAERO().CLt(),
+       VSPAERO().CMmt(),
+       L2Res);       
+
+       if ( L2Res <= TrimTolerance_ ) Converged = 1;
+       
+       Iter++;
+       
+    }
+    
+    fclose(TrimFile);
+   
+}
+
+/*##############################################################################
+#                                                                              #
 #                              FiniteDiffTestSolve                             #
 #                                                                              #
 ##############################################################################*/
@@ -4859,7 +5039,7 @@ void FiniteDiffTestSolve(void)
               
   //  VSPAERO().UpdateMeshes();
               
-    Delta = 1.e-4;    
+    Delta = 1.e-6;    
     
     if ( DoUnsteadyAnalysis_ ) {
        
@@ -5591,16 +5771,24 @@ void VSPAERO_Optimize(void)
     int Case, NumberOfThreads;
     int i, j, Iter, NumberOfParameterValues, NumberOfNodes, Done, NumSteps;
     int NumberOfForwardSolves, NumberOfAdjointSolves, NumberOfGeometryUpdates;
+    int ConGroup;
 
     double CL, CD, CS, CML, CMM, CMN, F, F1;
     double Delta, Delta1, StepSize, FReduction, GReduction;    
     double *NodeXYZ, *dFdMesh[3], *dF_dParameter, *GradientNew, *GradientOld;
     double *SearchDirectionOld, *SearchDirectionNew;
     double *ParameterValuesNew, *ParameterValuesOld, Time0, TotalTime, *MeshNodes;
-    double **dMesh_dParameter;
     double Time, ForwardSolveTime, AdjointSolveTime, GeometryUpdateTime;
 
-    char HistoryFileName[MAX_CHAR_SIZE], CommandLine[MAX_CHAR_SIZE], OptimizationSetupFileName[MAX_CHAR_SIZE], **ParameterNames;
+    double dCL_dParameter;
+    double dCD_dParameter;
+    double dCS_dParameter;
+                                                   
+    double dCML_dParameter;
+    double dCMM_dParameter;
+    double dCMN_dParameter;
+                           
+    char HistoryFileName[MAX_CHAR_SIZE], CommandLine[MAX_CHAR_SIZE], OptimizationSetupFileName[MAX_CHAR_SIZE], **OpenVSP_ParameterNames;
     char OpenVSP_FileName[MAX_CHAR_SIZE], OpenVSP_VSPGeomFileName[MAX_CHAR_SIZE], NewFileName[MAX_CHAR_SIZE];
 
     MATRIX Hessian;
@@ -5612,10 +5800,6 @@ void VSPAERO_Optimize(void)
     ForwardSolveTime = AdjointSolveTime = GeometryUpdateTime = 0.;
 
     NumberOfForwardSolves = NumberOfAdjointSolves = NumberOfGeometryUpdates = 0;
-
-    // OpenVSP parameter data
-            
-    PARAMETER_DATA *ParameterData;
 
     // OPENMP stuff
                              
@@ -5758,14 +5942,20 @@ void VSPAERO_Optimize(void)
        VSPAERO().AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES_USING_WAKE_FORCES; // Only total forces gradients, but based on Trefftz forces
           
     }
-      
+
     VSPAERO().ReadFile(FileName);
 
     VSPAERO().Setup();
 
     // Load in the optimization parameter value list
+    
+    ParameterData_.ReadOpenVSPDesFile(FileName);
 
-    ParameterData = ReadOpenVSPDesFile(FileName,NumberOfParameterValues);
+    NumberOfParameterValues = ParameterData_.NumberOfParameters();
+    
+    printf("NumberOfParameterValues: %d \n",NumberOfParameterValues);
+    
+//    ParameterData_ = ReadOpenVSPDesFile(FileName,NumberOfParameterValues);
     
     dF_dParameter = new double[NumberOfParameterValues + 1];
     
@@ -5787,21 +5977,21 @@ void VSPAERO_Optimize(void)
        
        SearchDirectionOld[j] = SearchDirectionNew[j] = 0.;
        
-       ParameterValuesOld[j] = ParameterValuesNew[j] = ParameterData->ParameterValues[j];
+       ParameterValuesOld[j] = ParameterValuesNew[j] = ParameterData_.ParameterValues(j);
 
     }
     
     Hessian.size(NumberOfParameterValues,NumberOfParameterValues);
-    
+      
     // Calculate partials of mesh wrt parameters
 
     Time = myclock();
         
-    dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterData);
+    dMesh_dOpenVSP_Parameter_ = CalculateOpenVSPGeometryGradients(FileName,ParameterData_);
     
     GeometryUpdateTime += myclock() - Time;
     
-    NumberOfGeometryUpdates += 2*NumberOfParameterValues + 1;
+    NumberOfGeometryUpdates += 2*ParameterData_.NumberOfOpenVSP_Parameters() + 1;
 
     printf("Finished calculate mesh gradients... \n");fflush(NULL);
 
@@ -5833,7 +6023,7 @@ void VSPAERO_Optimize(void)
 
     for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
        
-       fprintf(HistoryFile,"# %-10d    %s \n",j,ParameterData->ParameterFullNamePath[j]);
+       fprintf(HistoryFile,"# %-10d    %s \n",j,ParameterData_.ParameterFullNamePath(j));
        
     }
 
@@ -5865,7 +6055,7 @@ void VSPAERO_Optimize(void)
        VSPAERO().NoADBFile() = 0;
        
        F = DoForwardSolve(NumberOfParameterValues, 
-                          ParameterData,
+                          ParameterData_,
                           ParameterValuesNew,
                           CL,
                           CD,
@@ -5889,7 +6079,7 @@ void VSPAERO_Optimize(void)
           
           Delta = StepSize = 0.;
           
-          GReduction = FReduction = 1;
+          GReduction = FReduction = 0;
           
           NumSteps = 0;
 
@@ -5897,7 +6087,7 @@ void VSPAERO_Optimize(void)
 
           for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
              
-             fprintf(HistoryFile,"%10.5f ",ParameterData->ParameterValues[j]);
+             fprintf(HistoryFile,"%10.5f ",ParameterData_.ParameterValues(j));
              
           }
           
@@ -5935,22 +6125,159 @@ void VSPAERO_Optimize(void)
 
        }
 
-       // Calculate derivatives of F wrt parameters
+       // Calculate derivatives of F wrt OpenVSP parameters
        
-       for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
+       if ( ParameterData_.NumberOfVSPAERO_Parameters() > 0 ) CalculateAdjointControlDerivatives();
+       
+       for ( j = 1 ; j <= ParameterData_.NumberOfOpenVSP_Parameters() ; j++ ) {
           
           dF_dParameter[j] = 0;
        
           for ( i = 1 ; i <= VSPAERO().VSPGeom().Grid(1).NumberOfSurfaceNodes() ; i++ ) {
              
-             dF_dParameter[j] +=   dFdMesh[0][i] * dMesh_dParameter[j][3*i-2]
-                                 + dFdMesh[1][i] * dMesh_dParameter[j][3*i-1]
-                                 + dFdMesh[2][i] * dMesh_dParameter[j][3*i  ];
+             dF_dParameter[j] +=   dFdMesh[0][i] * dMesh_dOpenVSP_Parameter_[j][3*i-2]
+                                 + dFdMesh[1][i] * dMesh_dOpenVSP_Parameter_[j][3*i-1]
+                                 + dFdMesh[2][i] * dMesh_dOpenVSP_Parameter_[j][3*i  ];
                         
           }
           
        }  
+          
+       // Calculate derivatives of F wrt VSPAERO parameters
 
+       for ( i = 1 ; i <= ParameterData_.NumberOfVSPAERO_Parameters() ; i++ ) {
+          
+          j = ParameterData_.NumberOfOpenVSP_Parameters() + i;
+          
+          dF_dParameter[j] = 0;
+
+          // Mach number
+          
+          if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"MACH") != NULL ) {
+             
+             dCL_dParameter = VSPAERO().pCLt_pMach()*TORAD;
+             dCD_dParameter = VSPAERO().pCDt_pMach()*TORAD;
+             dCS_dParameter = VSPAERO().pCSt_pMach()*TORAD;
+             
+             dCML_dParameter = VSPAERO().pCMlt_pMach()*TORAD;
+             dCMM_dParameter = VSPAERO().pCMmt_pMach()*TORAD;
+             dCMN_dParameter = VSPAERO().pCMnt_pMach()*TORAD;            
+
+          }
+          
+          // Alpha
+
+          if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"ALPHA") != NULL ) {
+             
+             dCL_dParameter = VSPAERO().pCLt_pAlpha()*TORAD;
+             dCD_dParameter = VSPAERO().pCDt_pAlpha()*TORAD;
+             dCS_dParameter = VSPAERO().pCSt_pAlpha()*TORAD;
+             
+             dCML_dParameter = VSPAERO().pCMlt_pAlpha()*TORAD;
+             dCMM_dParameter = VSPAERO().pCMmt_pAlpha()*TORAD;
+             dCMN_dParameter = VSPAERO().pCMnt_pAlpha()*TORAD;    
+     
+          }
+          
+          // Beta
+
+          if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"BETA") != NULL ) {
+             
+             dCL_dParameter = VSPAERO().pCLt_pBeta()*TORAD;
+             dCD_dParameter = VSPAERO().pCDt_pBeta()*TORAD;
+             dCS_dParameter = VSPAERO().pCSt_pBeta()*TORAD;
+             
+             dCML_dParameter = VSPAERO().pCMlt_pBeta()*TORAD;
+             dCMM_dParameter = VSPAERO().pCMmt_pBeta()*TORAD;
+             dCMN_dParameter = VSPAERO().pCMnt_pBeta()*TORAD;    
+                     
+          }
+
+          // XCG
+          
+          if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"XCG") != NULL ) {
+             
+             dCL_dParameter = VSPAERO().pCLt_pCGx();
+             dCD_dParameter = VSPAERO().pCDt_pCGx();
+             dCS_dParameter = VSPAERO().pCSt_pCGx();
+             
+             dCML_dParameter = VSPAERO().pCMlt_pCGx();
+             dCMM_dParameter = VSPAERO().pCMmt_pCGx();
+             dCMN_dParameter = VSPAERO().pCMnt_pCGx();    
+             
+             printf("VSPAERO().pCMmt_pCGx(): %f \n",VSPAERO().pCMmt_pCGx());fflush(NULL);
+
+          }            
+          
+          // YCG
+          
+          if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"YCG") != NULL ) {
+             
+             dCL_dParameter = VSPAERO().pCLt_pCGy();
+             dCD_dParameter = VSPAERO().pCDt_pCGy();
+             dCS_dParameter = VSPAERO().pCSt_pCGy();
+             
+             dCML_dParameter = VSPAERO().pCMlt_pCGy();
+             dCMM_dParameter = VSPAERO().pCMmt_pCGy();
+             dCMN_dParameter = VSPAERO().pCMnt_pCGy();  
+                       
+          }    
+          
+          // ZCG
+          
+          if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"ZCG") != NULL ) {
+             
+             dCL_dParameter = VSPAERO().pCLt_pCGz();
+             dCD_dParameter = VSPAERO().pCDt_pCGz();
+             dCS_dParameter = VSPAERO().pCSt_pCGz();
+             
+             dCML_dParameter = VSPAERO().pCMlt_pCGz();
+             dCMM_dParameter = VSPAERO().pCMmt_pCGz();
+             dCMN_dParameter = VSPAERO().pCMnt_pCGz();  
+                       
+          }    
+       
+          // Control groups
+
+          if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"ConGroup") != NULL ) {
+             
+             sscanf(ParameterData_.VSPAERO_ParameterNames(i),"ConGroup:%d",&ConGroup);
+                         
+              dCL_dParameter = ( ControlSurfaceGroup_[ConGroup].pCLi_pDelta()  +  ControlSurfaceGroup_[ConGroup].pCLo_pDelta() )*TORAD;
+              dCD_dParameter = ( ControlSurfaceGroup_[ConGroup].pCDi_pDelta()  +  ControlSurfaceGroup_[ConGroup].pCDo_pDelta() )*TORAD;
+              dCS_dParameter = ( ControlSurfaceGroup_[ConGroup].pCSi_pDelta()  +  ControlSurfaceGroup_[ConGroup].pCSo_pDelta() )*TORAD;
+                                                                                                                              
+             dCML_dParameter = ( ControlSurfaceGroup_[ConGroup].pCMli_pDelta() + ControlSurfaceGroup_[ConGroup].pCMlo_pDelta() )*TORAD;
+             dCMM_dParameter = ( ControlSurfaceGroup_[ConGroup].pCMmi_pDelta() + ControlSurfaceGroup_[ConGroup].pCMmo_pDelta() )*TORAD;
+             dCMN_dParameter = ( ControlSurfaceGroup_[ConGroup].pCMni_pDelta() + ControlSurfaceGroup_[ConGroup].pCMno_pDelta() )*TORAD;
+              
+             //printf("dCL_dParameter: %f \n",dCL_dParameter);fflush(NULL);
+             //printf("dCD_dParameter: %f \n",dCD_dParameter);fflush(NULL);
+             //printf("dCS_dParameter: %f \n",dCS_dParameter);fflush(NULL);
+             //
+             //printf("dCML_dParameter: %f \n",dCML_dParameter);fflush(NULL);
+             //printf("dCMM_dParameter: %f \n",dCMM_dParameter);fflush(NULL);
+             //printf("dCMN_dParameter: %f \n",dCMN_dParameter);fflush(NULL);
+                                
+          }
+          
+          dF_dParameter[j] = 2.*Optimization_Lambda_1_*(CL  - Optimization_CL_Required_)*dCL_dParameter
+                           + 2.*Optimization_Lambda_2_*(CD  - Optimization_CD_Required_)*dCD_dParameter
+                           + 2.*Optimization_Lambda_3_*(CS  - Optimization_CS_Required_)*dCS_dParameter
+                                                   
+                           + 2.*Optimization_Lambda_4_*(CML - Optimization_CML_Required_)*dCML_dParameter
+                           + 2.*Optimization_Lambda_5_*(CMM - Optimization_CMM_Required_)*dCMM_dParameter
+                           + 2.*Optimization_Lambda_6_*(CMN - Optimization_CMN_Required_)*dCMN_dParameter;
+          
+           
+       }  
+       
+       //for ( i = 1 ; i <= ParameterData_.NumberOfParameters() ; i++ ) {
+       //
+       //   printf("dF_dParameter[%d]: %f \n",i,dF_dParameter[i]);
+       //
+       //}
+       
        // Store old and new gradients
        
        for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
@@ -6019,7 +6346,7 @@ void VSPAERO_Optimize(void)
        // Do 1D search for minimum along this search direction
 
        NumSteps = Do1DFunctionMinimization(NumberOfParameterValues, 
-                                           ParameterData,
+                                           ParameterData_,
                                            ParameterValuesNew,
                                            SearchDirectionNew,
                                            StepSize,
@@ -6036,10 +6363,10 @@ void VSPAERO_Optimize(void)
                                            NumberOfGeometryUpdates,
                                            NumberOfForwardSolves,
                                            NumberOfAdjointSolves);
-                       
+
        for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
           
-          ParameterData->ParameterValues[j] = ParameterValuesNew[j];
+          ParameterData_.ParameterValues(j) = ParameterValuesNew[j];
           
        }
                                           
@@ -6053,7 +6380,7 @@ void VSPAERO_Optimize(void)
 
        for ( j = 1 ; j <= NumberOfParameterValues ; j++ ) {
           
-          fprintf(HistoryFile,"%10.5f ",ParameterData->ParameterValues[j]);
+          fprintf(HistoryFile,"%10.5f ",ParameterData_.ParameterValues(j));
           
        }
        
@@ -6063,13 +6390,15 @@ void VSPAERO_Optimize(void)
        
        if ( OptimizationUpdateGeometryGradients_ ) {
           
-          dMesh_dParameter = CalculateOpenVSPGeometryGradients(FileName,NumberOfParameterValues,ParameterData);
+          dMesh_dOpenVSP_Parameter_ = CalculateOpenVSPGeometryGradients(FileName,ParameterData_);
           
        }
        
        if ( GReduction <= log10(OptimizationGradientReduction_) ) Done = 1;
 
-       WriteVSPDesFile(FileName, Iter, NumberOfParameterValues,ParameterData->ParameterNames, ParameterValuesNew);
+       ParameterData_.WriteVSPDesFile(FileName, Iter, ParameterValuesNew);
+
+       //WriteVSPDesFile(FileName, Iter, NumberOfParameterValues,ParameterData_.OpenVSP_ParameterNames, ParameterValuesNew);
        
        Iter++;
 
@@ -6077,7 +6406,11 @@ void VSPAERO_Optimize(void)
     
     // Save the final state
     
-    SaveVSPGeomFile(FileName, NumberOfParameterValues,ParameterData->ParameterNames, ParameterValuesNew);
+    SaveVSPGeomFile(FileName, ParameterData_);
+    
+    // Save a final des file
+
+    ParameterData_.WriteFinalVSPDesFile(FileName, ParameterValuesNew);
     
     // Output some solver stats...
 
@@ -6105,7 +6438,7 @@ void VSPAERO_Optimize(void)
     
     // Free up memory
     
-    DeleteMeshGradients(NumberOfParameterValues,dMesh_dParameter);
+    DeleteMeshGradients();
     
     // Exit
     
@@ -6120,7 +6453,7 @@ void VSPAERO_Optimize(void)
 ##############################################################################*/
 
 int Do1DFunctionMinimization(int NumberOfParameterValues, 
-                             PARAMETER_DATA *ParameterData,
+                             OPTIMIZATION_PARAMETERS &ParameterData_,
                              double *ParameterValues,
                              double *SearchDirection,
                              double &StepSize,
@@ -6142,7 +6475,7 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
     double *NewParameterValues;
     double a, b, X1, X2, X3, X4, Xmin;
     double Delta, F1, F2, F3, F4, Error;
-    
+   
     NewParameterValues = new double[NumberOfParameterValues + 1];
     
     // Incoming solution 
@@ -6175,10 +6508,12 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
        
           NewParameterValues[j] = ParameterValues[j] + X3 * SearchDirection[j];
           
+          //printf("NewParameterValues[%d]: %f \n",j,NewParameterValues[j]);fflush(NULL);
+          
        }
                 
        F3 = DoForwardSolve(NumberOfParameterValues, 
-                           ParameterData,
+                           ParameterData_,
                            NewParameterValues,
                            CL,
                            CD,
@@ -6277,7 +6612,7 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
     }
            
     F2 = DoForwardSolve(NumberOfParameterValues, 
-                        ParameterData,
+                        ParameterData_,
                         NewParameterValues,
                         CL,
                         CD,
@@ -6324,7 +6659,7 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
        }
               
        F4 = DoForwardSolve(NumberOfParameterValues, 
-                           ParameterData,
+                           ParameterData_,
                            NewParameterValues,
                            CL,
                            CD,
@@ -6390,7 +6725,7 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
     }                           
             
     F = DoForwardSolve(NumberOfParameterValues, 
-                       ParameterData,
+                       ParameterData_,
                        ParameterValues,
                        CL,
                        CD,
@@ -6419,7 +6754,7 @@ int Do1DFunctionMinimization(int NumberOfParameterValues,
 ##############################################################################*/
 
 double DoForwardSolve(int NumberOfParameterValues, 
-                      PARAMETER_DATA *ParameterData,
+                      OPTIMIZATION_PARAMETERS &ParameterData_,
                       double *ParameterValues,
                       double &CL,
                       double &CD,
@@ -6436,12 +6771,12 @@ double DoForwardSolve(int NumberOfParameterValues,
                       int DoAdjointSolve)
 {
    
-    int j;
+    int i, j, ConGroup;
     double *NodeXYZ, F, Time;
 
     Time = myclock();
     
-    NodeXYZ = CreateVSPGeometry(FileName,NumberOfParameterValues,ParameterData->ParameterNames,ParameterValues);
+    NodeXYZ = CreateVSPGeometry(FileName,ParameterData_,ParameterValues);
     
     GeometryUpdateTime += myclock() - Time;
 
@@ -6456,7 +6791,78 @@ double DoForwardSolve(int NumberOfParameterValues,
        VSPAERO().VSPGeom().Grid(0).NodeList(j).z() = NodeXYZ[3*j  ];
 
     }
-                
+    
+    // Update VSPAERO parameters
+    
+    for ( i = 1 ; i <= ParameterData_.NumberOfVSPAERO_Parameters() ; i++ ) {
+       
+       j = ParameterData_.NumberOfOpenVSP_Parameters() + i;
+
+       // Mach number
+       
+       if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"MACH") != NULL ) {
+          
+          VSPAERO().Mach() = ParameterValues[j];           
+       }
+       
+       // Alpha
+
+       if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"ALPHA") != NULL ) {
+          
+          VSPAERO().AngleOfAttack() = ParameterValues[j]*TORAD;            
+          
+          printf("Alpha: ParameterValues[%d]: %f \n",j,ParameterValues[j]);fflush(NULL);
+                  
+       }
+       
+       // Beta
+
+       if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"BETA") != NULL ) {
+          
+          VSPAERO().AngleOfBeta() = ParameterValues[j]*TORAD;             
+  
+       }    
+
+       // Control surfaces
+       
+       if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"ConGroup") != NULL ) {
+          
+          sscanf(ParameterData_.VSPAERO_ParameterNames(i),"ConGroup:%d",&ConGroup);
+              
+          printf("Setting control surface %d deflection to: %f degrees \n",ConGroup,ParameterValues[j]);
+  
+          ControlSurfaceGroup_[ConGroup].ControlSurface_DeflectionAngle() =  ParameterValues[j];
+
+       }  
+       
+       // XCG
+       
+       if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"XCG") != NULL ) {
+          
+          VSPAERO().Xcg() = ParameterValues[j];
+
+       }            
+
+       // YCG
+       
+       if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"YCG") != NULL ) {
+          
+          VSPAERO().Ycg() = ParameterValues[j];
+
+       }    
+       
+       // ZCG
+       
+       if ( strstr(ParameterData_.VSPAERO_ParameterNames(i),"ZCG") != NULL ) {
+          
+          VSPAERO().Zcg() = ParameterValues[j];
+
+       }    
+                            
+    } 
+    
+    if ( ParameterData_.NumberOfVSPAERO_Parameters() > 0 ) ApplyControlDeflections();
+                    
     Time = myclock();
                  
     VSPAERO().VSPGeom().UpdateMeshes();
@@ -6527,17 +6933,19 @@ double DoForwardSolve(int NumberOfParameterValues,
        
        if ( ABS(CL) > 0. ) {
           
-          if ( ABS(CD ) > 0. ) Optimization_Lambda_2_ *= pow(CD /CL,2.);
-          if ( ABS(CS ) > 0. ) Optimization_Lambda_3_ *= pow(CS /CL,2.);
+          if ( ABS(CD ) > 0. ) Optimization_Lambda_2_ *= 20.*pow(CD /CL,2.);
+          if ( ABS(CS ) > 0. ) Optimization_Lambda_3_ *= 20.*pow(CS /CL,2.);
 
        }
 
-       printf("Setting Optimization_Lambda_1_ to: %f \n",Optimization_Lambda_1_);
-       printf("Setting Optimization_Lambda_2_ to: %f \n",Optimization_Lambda_2_);
-       printf("Setting Optimization_Lambda_3_ to: %f \n",Optimization_Lambda_3_);
-       printf("Setting Optimization_Lambda_4_ to: %f \n",Optimization_Lambda_4_);
-       printf("Setting Optimization_Lambda_5_ to: %f \n",Optimization_Lambda_5_);
-       printf("Setting Optimization_Lambda_6_ to: %f \n",Optimization_Lambda_6_);         
+       printf("Setting Optimization_Lambda_1_ for CL to: %f \n",Optimization_Lambda_1_);
+       printf("Setting Optimization_Lambda_2_ for CD to: %f \n",Optimization_Lambda_2_);
+       printf("Setting Optimization_Lambda_3_ for CS to: %f \n",Optimization_Lambda_3_);
+       printf("Setting Optimization_Lambda_4_ for CL to: %f \n",Optimization_Lambda_4_);
+       printf("Setting Optimization_Lambda_5_ for CM to: %f \n",Optimization_Lambda_5_);
+       printf("Setting Optimization_Lambda_6_ for CN to: %f \n",Optimization_Lambda_6_);         
+       
+      // fflush(NULL);exit(1);
             
     }
 
@@ -6554,71 +6962,6 @@ double DoForwardSolve(int NumberOfParameterValues,
     return F;
           
 }
-        
-/*##############################################################################
-#                                                                              #
-#                            ReadOpenVSPDesFile                                #
-#                                                                              #
-##############################################################################*/
-
-PARAMETER_DATA *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables)
-{
-    
-    int i;
-    double *ParameterValues;
-    char DesignFileName[MAX_CHAR_SIZE], Variable[MAX_CHAR_SIZE];
-    FILE *DesignFile;
-    PARAMETER_DATA *ParameterData;
-    
-    ParameterData = new PARAMETER_DATA;
-    
-    // Open the OpenVSP des file
-
-    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.des",FileName);
-    
-    printf("Opening: %s \n",DesignFileName);fflush(NULL);
-
-    if ( (DesignFile = fopen(DesignFileName, "r")) == NULL ) {
-    
-       printf("Could not open the OpenVSP des file! \n");
-    
-       exit(1);
-    
-    }
-    
-    // Parse the des file, replace parameters with new values    
-    
-    fscanf(DesignFile,"%d \n",&NumberOfDesignVariables);
-    
-    printf("NumberOfDesignVariables: %d \n",NumberOfDesignVariables);fflush(NULL);
-
-    ParameterData->ParameterValues = new double[NumberOfDesignVariables + 1];
-    
-    ParameterData->ParameterNames = new char*[NumberOfDesignVariables + 1];
-
-    ParameterData->ParameterFullNamePath = new char*[NumberOfDesignVariables + 1];
-
-    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
-
-       ParameterData->ParameterNames[i] = new char[MAX_CHAR_SIZE];
-
-       ParameterData->ParameterFullNamePath[i] = new char[MAX_CHAR_SIZE];
-
-       fscanf(DesignFile,"%s%lf\n",(Variable),&( ParameterData->ParameterValues[i]));
-              
-       snprintf(ParameterData->ParameterNames[i],12*sizeof(char),"%s",Variable);
-       
-       snprintf(ParameterData->ParameterFullNamePath[i],MAX_CHAR_SIZE*sizeof(char),"%s",Variable);
-
-       printf("%s --> %f \n",ParameterData->ParameterNames[i],ParameterData->ParameterValues[i]);fflush(NULL);
-
-    }
-    
-    fclose(DesignFile);
-    
-    return ParameterData;
- 
-}
 
 /*##############################################################################
 #                                                                              #
@@ -6626,7 +6969,7 @@ PARAMETER_DATA *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables)
 #                                                                              #
 ##############################################################################*/
 
-double *CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues)
+double *CreateVSPGeometry(char *FileName, OPTIMIZATION_PARAMETERS &ParameterData_, double *ParameterValues)
 {
     
     int i, j, Node, NumVars;
@@ -6640,13 +6983,13 @@ double *CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, char **Pa
     
     // Update the VSP geometry
 
-    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+    for ( i = 1 ; i <= ParameterData_.NumberOfOpenVSP_Parameters() ; i++ ) {
 
-//       std::string cpp_str(ParameterNames[i]);
+//       std::string cpp_str(OpenVSP_ParameterNames[i]);
 
 //       double temp = vsp::SetParmVal( cpp_str, ParameterValues[i] );
 
-       double temp = vsp::SetParmVal( ParameterNames[i], ParameterValues[i] );
+       double temp = vsp::SetParmVal( ParameterData_.OpenVSP_ParameterNames(i), ParameterValues[i] );
     
     }
 
@@ -6720,7 +7063,7 @@ double *CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, char **Pa
 #                                                                              #
 ##############################################################################*/
 
-void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues)
+void SaveVSPGeomFile(char *FileName, OPTIMIZATION_PARAMETERS &ParameterData_)
 {
     
     int i, NumVars;
@@ -6730,9 +7073,9 @@ void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **Paramet
     
     // Update the VSP geometry
 
-    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+    for ( i = 1 ; i <= ParameterData_.NumberOfOpenVSP_Parameters() ; i++ ) {
 
-       double temp = vsp::SetParmVal( ParameterNames[i], ParameterValues[i] );
+       double temp = vsp::SetParmVal( ParameterData_.OpenVSP_ParameterNames(i), ParameterData_.ParameterValues(i) );
     
     }
 
@@ -6757,133 +7100,7 @@ void SaveVSPGeomFile(char *FileName, int NumberOfDesignVariables, char **Paramet
     vsp::SetDoubleAnalysisInput("VSPAEROComputeGeometry", "CullFrac", {0.1}, 0);
 
     string compgeom_resid = vsp::ExecAnalysis( "VSPAEROComputeGeometry" );
-
-    // Open des file
-    
-    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.des",FileName);
-    
-    //printf("Opening: %s \n",DesignFileName);fflush(NULL);
-
-    if ( (DesignFile = fopen(DesignFileName, "r")) == NULL ) {
-    
-       printf("Could not open the OpenVSP Opt des file! \n");
-    
-       exit(1);
-    
-    }
-    
-    // Open Opt des file
-    
-    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.Opt.Final.des",FileName);
-    
-    //printf("Opening: %s \n",DesignFileName);fflush(NULL);
-
-    if ( (OptDesFile = fopen(DesignFileName, "w")) == NULL ) {
-    
-       printf("Could not open the OpenVSP Opt des file! \n");
-    
-       exit(1);
-    
-    }
-    
-    // Parse the des file, replace parameters with new values    
-    
-    fscanf(DesignFile,"%d \n",&NumVars);
-    
-    if ( NumberOfDesignVariables != NumVars ) {
-       
-       printf("Number of design variables does not match OpenVSP des file! \n");
-       fflush(NULL);exit(1);
-       
-    }
-    
-    fprintf(OptDesFile,"%d\n",NumVars);
-    
-    fflush(NULL);
-    
-    for ( i = 1 ; i <= NumVars ; i++ ) {
-
-       fscanf(DesignFile,"%s%lf\n",Variable,&Value);
-
-       fprintf(OptDesFile,"%s %20.10e\n",Variable,ParameterValues[i]);
-       
-    }
-    
-    fclose(DesignFile);
-    
-    fclose(OptDesFile);       
-    
-}
-
-/*##############################################################################
-#                                                                              #
-#                            WriteVSPDesFile                                   #
-#                                                                              #
-##############################################################################*/
-
-void WriteVSPDesFile(char *FileName, int Iter, int NumberOfDesignVariables, char **ParameterNames, double *ParameterValues)
-{
-    
-    int i, NumVars;
-    double Value;
-    char DesignFileName[MAX_CHAR_SIZE], Variable[MAX_CHAR_SIZE];
-    FILE *DesignFile, *OptDesFile;
-    
-    // Open des file
-    
-    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.des",FileName);
-    
-    //printf("Opening: %s \n",DesignFileName);fflush(NULL);
-
-    if ( (DesignFile = fopen(DesignFileName, "r")) == NULL ) {
-    
-       printf("Could not open the OpenVSP Opt des file! \n");
-    
-       exit(1);
-    
-    }
-    
-    // Open Opt des file
-    
-    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.Opt.%d.des",FileName,Iter);
-    
-    //printf("Opening: %s \n",DesignFileName);fflush(NULL);
-
-    if ( (OptDesFile = fopen(DesignFileName, "w")) == NULL ) {
-    
-       printf("Could not open the OpenVSP Opt des file! \n");
-    
-       exit(1);
-    
-    }
-    
-    // Parse the des file, replace parameters with new values    
-    
-    fscanf(DesignFile,"%d \n",&NumVars);
-    
-    if ( NumberOfDesignVariables != NumVars ) {
-       
-       printf("Number of design variables does not match OpenVSP des file! \n");
-       fflush(NULL);exit(1);
-       
-    }
-    
-    fprintf(OptDesFile,"%d\n",NumVars);
-    
-    fflush(NULL);
-    
-    for ( i = 1 ; i <= NumVars ; i++ ) {
-
-       fscanf(DesignFile,"%s%lf\n",Variable,&Value);
-
-       fprintf(OptDesFile,"%s %20.10e\n",Variable,ParameterValues[i]);
-       
-    }
-    
-    fclose(DesignFile);
-    
-    fclose(OptDesFile);       
-    
+ 
 }
 
 /*##############################################################################
@@ -6892,67 +7109,67 @@ void WriteVSPDesFile(char *FileName, int Iter, int NumberOfDesignVariables, char
 #                                                                              #
 ##############################################################################*/
 
-double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVariables, PARAMETER_DATA *ParameterData)
+double **CalculateOpenVSPGeometryGradients(char *FileName, OPTIMIZATION_PARAMETERS &ParameterData_)
 {
     
     int i, j, NumberOfMeshNodes;
-    double **dMesh_dParameter, *NewParameterValues, Delta, *MeshMinus;
+    double **dMesh_Parameter, *NewParameterValues, Delta, *MeshMinus;
     
     printf("Calculating OpenVSP mesh gradients ... \n");fflush(NULL);
     
     // Create space for the mesh gradients
     
-    NewParameterValues = new double[NumberOfDesignVariables + 1];
+    NewParameterValues = new double[ParameterData_.NumberOfOpenVSP_Parameters() + 1];
     
-    dMesh_dParameter = new double*[NumberOfDesignVariables + 1];
+    dMesh_Parameter = new double*[ParameterData_.NumberOfOpenVSP_Parameters() + 1];
 
-    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+    for ( i = 1 ; i <= ParameterData_.NumberOfOpenVSP_Parameters() ; i++ ) {
 
-       NewParameterValues[i] = ParameterData->ParameterValues[i];
-       
+       NewParameterValues[i] = ParameterData_.ParameterValues(i);
+
     }
-    
+
     // Create the baseline geometry
 
-    dMesh_dParameter[0] = CreateVSPGeometry(FileName,NumberOfDesignVariables,ParameterData->ParameterNames,ParameterData->ParameterValues);
+    dMesh_Parameter[0] = CreateVSPGeometry(FileName,ParameterData_,ParameterData_.ParameterValues());
 
     // Loop over parameters and calculate mesh gradients using finite differences
     
     Delta = 0.01;
     
-    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+    for ( i = 1 ; i <= ParameterData_.NumberOfOpenVSP_Parameters() ; i++ ) {
     
-       printf("Working on parameter: %d out of %d \r",i,NumberOfDesignVariables);fflush(NULL);
+       printf("Working on parameter: %d out of %d \r",i,ParameterData_.NumberOfOpenVSP_Parameters());fflush(NULL);
          
        // + Perturbation
        
-       NewParameterValues[i] = ParameterData->ParameterValues[i] + Delta;
+       NewParameterValues[i] = ParameterData_.ParameterValues(i) + Delta;
        
-       dMesh_dParameter[i] = CreateVSPGeometry(FileName,NumberOfDesignVariables,ParameterData->ParameterNames,NewParameterValues);
+       dMesh_Parameter[i] = CreateVSPGeometry(FileName,ParameterData_,NewParameterValues);
 
        // - Perturbation
     
-       NewParameterValues[i] = ParameterData->ParameterValues[i] - Delta;
+       NewParameterValues[i] = ParameterData_.ParameterValues(i) - Delta;
        
-       MeshMinus = CreateVSPGeometry(FileName,NumberOfDesignVariables,ParameterData->ParameterNames,NewParameterValues);
+       MeshMinus = CreateVSPGeometry(FileName,ParameterData_,NewParameterValues);
 
        // Calculate derivative using central differences
        
        for ( j = 1 ; j <= 3*VSPAERO().VSPGeom().Grid(1).NumberOfSurfaceNodes() ; j++ ) {
 
-          dMesh_dParameter[i][j] = ( dMesh_dParameter[i][j] - MeshMinus[j] )/(2.*Delta);
-       
+          dMesh_Parameter[i][j] = ( dMesh_Parameter[i][j] - MeshMinus[j] )/(2.*Delta);
+
        }
        
        delete [] MeshMinus;
        
-       NewParameterValues[i] = ParameterData->ParameterValues[i];
+       NewParameterValues[i] = ParameterData_.ParameterValues(i);
 
     }
     
     delete [] NewParameterValues;
 
-    return dMesh_dParameter;
+    return dMesh_Parameter;
  
 }
 
@@ -6962,18 +7179,18 @@ double **CalculateOpenVSPGeometryGradients(char *FileName, int NumberOfDesignVar
 #                                                                              #
 ##############################################################################*/
 
-void DeleteMeshGradients(int NumberOfDesignVariables, double **dMesh_dParameter)
+void DeleteMeshGradients(void)
 {
     
     int i;
     
-    for ( i = 1 ; i <= NumberOfDesignVariables ; i++ ) {
+    for ( i = 1 ; i <= ParameterData_.NumberOfOpenVSP_Parameters() ; i++ ) {
 
-       delete [] dMesh_dParameter[i];
+       delete [] dMesh_dOpenVSP_Parameter_[i];
        
     }
     
-    delete [] dMesh_dParameter;
+    delete [] dMesh_dOpenVSP_Parameter_;
     
 }
     
@@ -7198,6 +7415,404 @@ void BFGSState(int Iter,
   
    }
 
+}
+
+/*##############################################################################
+#                                                                              #
+#                          VSPAERO_Optimize_Setup                              #
+#                                                                              #
+##############################################################################*/
+
+OPTIMIZATION_PARAMETERS *VSPAERO_Optimize_Setup(void)
+{
+   
+    int NumberOfThreads;
+    int NumberOfParameterValues;
+    double **dMesh_dParameter;
+    char HistoryFileName[MAX_CHAR_SIZE], CommandLine[MAX_CHAR_SIZE];
+    char OpenVSP_FileName[MAX_CHAR_SIZE], NewFileName[MAX_CHAR_SIZE];
+    
+    FILE *HistoryFile, *OptimizationSetupFile;
+
+    // OPENMP stuff
+                             
+#ifdef VSPAERO_OPENMP
+   
+    printf("Initializing OPENMP for %d threads \n",NumberOfThreads_);
+   
+    omp_set_num_threads(NumberOfThreads_);
+    
+    NumberOfThreads = omp_get_max_threads();
+
+    printf("NumberOfThreads_: %d \n",NumberOfThreads);
+    
+#else
+
+    NumberOfThreads = 1;
+
+    printf("Single threaded build.\n");
+
+#endif
+
+    // Write out 2D FEM file
+    
+    if ( Write2DFEMFile_ ) VSPAERO().Write2DFEMFile() = 1;
+    
+    // Write out Tecplot file
+    
+    if ( WriteTecplotFile_ ) VSPAERO().WriteTecplotFile() = 1;
+        
+    // Save optimization data
+    
+    if ( OptimizationSolve_ ) VSPAERO().OptimizationSolve() = 1;
+        
+    // Set number of farfield wake nodes
+
+    if ( NumberOfWakeNodes_ > 0 ) VSPAERO().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);       
+               
+    // Force farfield distance for wake adaption
+    
+    if ( SetFarDist_ ) VSPAERO().SetFarFieldDist(FarDist_);
+
+    printf("Running wing optimization... \n");fflush(NULL);
+
+    // Read in the OpenVSP geometry
+    
+    snprintf(OpenVSP_FileName,sizeof(OpenVSP_FileName)*sizeof(char),"%s.vsp3",FileName);
+
+    vsp::ReadVSPFile( OpenVSP_FileName );
+    
+    // Initialize the starting geometry
+        
+    vsp::SetAnalysisInputDefaults( "VSPAEROComputeGeometry" );
+    
+    vsp::SetAnalysisInputDefaults( "VSPAEROSweep" ); // We use the user define thick/thin sets in the VSPAERO setup gui
+
+    int m_SymFlagVec = 0;
+    
+    vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "Symmetry", {m_SymFlagVec}, 0);
+
+    vsp::SetIntAnalysisInput("VSPAEROComputeGeometry", "CullFracFlag", {1}, 0);
+    
+    vsp::SetDoubleAnalysisInput("VSPAEROComputeGeometry", "CullFrac", {0.1}, 0);
+
+    // Create the initial .vspgeom file for analysis
+    
+    string compgeom_resid = vsp::ExecAnalysis( "VSPAEROComputeGeometry" );
+
+    // Also save a copy
+    
+    snprintf(NewFileName,sizeof(NewFileName)*sizeof(char),"%s.Initial.vspgeom",FileName);
+    
+    vsp::ExportFile( NewFileName, vsp::SET_ALL, vsp::EXPORT_VSPGEOM );
+                            
+    // Initialize VSPAERO solver settings
+
+    VSPAERO().Sref() = Sref_;
+
+    VSPAERO().Cref() = Cref_;
+
+    VSPAERO().Bref() = Bref_;
+    
+    VSPAERO().Xcg() = Xcg_;
+
+    VSPAERO().Ycg() = Ycg_;
+
+    VSPAERO().Zcg() = Zcg_;
+    
+    VSPAERO().Mach() = Mach_;
+    
+    VSPAERO().AngleOfAttack() = AoA_ * TORAD;
+
+    VSPAERO().AngleOfBeta() = Beta_ * TORAD;
+    
+    VSPAERO().Vinf() = Vinf_;
+    
+    VSPAERO().Vref() = Vref_;
+    
+    VSPAERO().Machref() = Machref_;
+    
+    VSPAERO().Density() = Rho_;
+    
+    VSPAERO().ReCref() = ReCref_;
+    
+    VSPAERO().RotationalRate_p() = 0.0;
+    
+    VSPAERO().RotationalRate_q() = 0.0;
+    
+    VSPAERO().RotationalRate_r() = 0.0;    
+
+    VSPAERO().DoSymmetryPlaneSolve() = Symmetry_;
+        
+    VSPAERO().StallModelIsOn() = StallModelIsOn_;
+    
+    VSPAERO().WakeIterations() = WakeIterations_;
+    
+    VSPAERO().ForwardGMRESConvergenceFactor() = ForwardGMRESConvergenceFactor_;
+    
+    VSPAERO().AdjointGMRESConvergenceFactor() = AdjointGMRESConvergenceFactor_;
+    
+    VSPAERO().NonLinearConvergenceFactor() = NonLinearConvergenceFactor_;
+
+    VSPAERO().WakeRelax() = WakeRelax_;
+    
+    VSPAERO().ImplicitWake() = ImplicitWake_;
+    
+    VSPAERO().DoAdjointSolve() = 1; // This needs to be set before Setup() is called... 
+    
+    if ( !OptimizationUsingWakeForces_ ) {
+       
+       VSPAERO().AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES; // Only total forces gradients
+
+    }
+    
+    else {
+       
+       VSPAERO().AdjointSolutionForceType() = ADJOINT_TOTAL_FORCES_USING_WAKE_FORCES; // Only total forces gradients, but based on Trefftz forces
+          
+    }
+      
+    VSPAERO().ReadFile(FileName);
+
+    VSPAERO().Setup();
+
+    // Load in the optimization parameter value list
+
+    ParameterData_.ReadOpenVSPDesFile(FileName);
+
+    NumberOfParameterValues = ParameterData_.NumberOfParameters();
+        
+    // Calculate partials of mesh wrt parameters
+
+    dMesh_dOpenVSP_Parameter_ = CalculateOpenVSPGeometryGradients(FileName,ParameterData_);
+
+    printf("Finished calculate mesh gradients... \n");fflush(NULL);
+
+    // Open the history file
+
+    snprintf(HistoryFileName,sizeof(HistoryFileName)*sizeof(char),"%s.opt.history",FileName);
+
+    if ( (HistoryFile = fopen(HistoryFileName, "w")) == NULL ) {
+    
+       printf("Could not open the optimization history output file! \n");
+    
+       exit(1);
+    
+    }
+    
+    // Clean up any old opt adb files
+    
+    snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"rm %s.opt.*.adb",FileName);
+    
+    system(CommandLine);
+
+    // Header
+     
+                        //1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890
+    fprintf(HistoryFile,"    Iter        CL         CD         CS        CML        CMM        CMN        L/D         F         Time   \n");    
+
+    fclose(HistoryFile);
+    
+    return &ParameterData_;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                          VSPAERO_Optimize_Gradients                          #
+#                                                                              #
+##############################################################################*/
+
+GRADIENT_DATA *VSPAERO_Optimize_Gradients(OPTIMIZATION_PARAMETERS *ParameterData, int Iter, bool CalculateGradients)
+{   
+   
+    int i, j;
+    int NumberOfForwardSolves, NumberOfAdjointSolves, NumberOfGeometryUpdates, NumberOfParameterValues;
+    double CL, CD, CS, CML, CMM, CMN, F;
+    double *dFdMesh[3], *dF_dParameter, *dF_dParam;
+    double Time0, TotalTime;
+    double Time, ForwardSolveTime, AdjointSolveTime, GeometryUpdateTime;
+    double dCL_dp, dCD_dp, dCS_dp;
+    double dCML_dp, dCMM_dp, dCMN_dp;
+    char HistoryFileName[MAX_CHAR_SIZE], **ParameterNames;
+
+    FILE *HistoryFile;
+    
+    GRADIENT_DATA *GradientData;
+    
+    GradientData = new GRADIENT_DATA;
+
+    NumberOfParameterValues = ParameterData->NumberOfParameters();
+
+    dF_dParam = new double[NumberOfParameterValues * 6 + 1 + 1000];
+
+    // Zero out statistics
+    
+    ForwardSolveTime = AdjointSolveTime = GeometryUpdateTime = 0.;
+
+    NumberOfForwardSolves = NumberOfAdjointSolves = NumberOfGeometryUpdates = 0;
+
+    Time = Time0 = myclock();
+    
+    // Solve the forward problem and the adjoint
+    
+    printf("Running VSPAERO forward and adjoint solvers... \n");fflush(NULL);
+    
+    F = DoForwardSolve(NumberOfParameterValues, 
+                      *ParameterData,
+                      ParameterData->ParameterValues(),
+                      CL,
+                      CD,
+                      CS,
+                      CML,
+                      CMM,
+                      CMN,
+                      GeometryUpdateTime,
+                      ForwardSolveTime,
+                      AdjointSolveTime,
+                      NumberOfGeometryUpdates,
+                      NumberOfForwardSolves,
+                      NumberOfAdjointSolves,                     
+                      1);
+    
+    if ( CalculateGradients ) {
+
+      // Initialize to zero
+      
+      for ( i = 1 ; i <= NumberOfParameterValues * 6; i++) {
+      
+         dF_dParam[i] = 0.;
+         
+      }
+
+      // Loop over OpenVSP parameters
+      
+      for ( j = 1 ; j < NumberOfParameterValues; j++) {   
+         
+         // Loop over mesh nodes
+         
+         for ( i = 1 ; i <= VSPAERO().VSPGeom().Grid(1).NumberOfSurfaceNodes(); i++) {
+
+               // CL
+               
+               dF_dParam[3*(j-1) + 0] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DX()  * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DY()  * dMesh_dOpenVSP_Parameter_[j][3*i-1]
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DZ()  * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+                                                                                           
+               // CD                                                                       
+                                                                                           
+               dF_dParam[3*(j-1) + 1] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DX()  * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DY()  * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DZ()  * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+                                                                                           
+               // CS                                                                       
+                                                                                           
+               dF_dParam[3*(j-1) + 2] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DX()  * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DY()  * dMesh_dOpenVSP_Parameter_[j][3*i-1]
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DZ()  * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+
+               // CML
+               
+               dF_dParam[3*(j-1) + 3] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DX() * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DY() * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DZ() * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+                      
+               // CMM
+                                                                                                         
+               dF_dParam[3*(j-1) + 4] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX() * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY() * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ() * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+
+               // CMLN
+                                                                                                          
+               dF_dParam[3*(j-1) + 5] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DX() * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DY() * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DZ() * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+
+             //  dF_dParam[j * 3 + 0] += dCL_dp;
+             //  dF_dParam[j * 3 + 1] += dCD_dp;
+             //  dF_dParam[j * 3 + 2] += dCS_dp;
+             //  dF_dParam[j * 3 + 3] += dCML_dp;
+             //  dF_dParam[j * 3 + 4] += dCMm_dp;
+             //  dF_dParam[j * 3 + 5] += dCMn_dp;
+         
+         }
+         
+      }
+
+    }
+
+    snprintf(HistoryFileName,sizeof(HistoryFileName)*sizeof(char),"%s.opt.history",FileName);
+
+    if ( (HistoryFile = fopen(HistoryFileName, "a")) == NULL ) {
+    
+       printf("Could not open the optimization history output file! \n");
+    
+       exit(1);
+    
+    }
+
+    TotalTime = myclock() - Time0;
+    printf("VSPAERO_Optimize_Gradients run time: %f\n",TotalTime);
+    fprintf(HistoryFile,"%10d %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f\n",Iter,CL,CD,CS,CML,CMM,CMN,CL/CD,F,TotalTime);
+
+    // Update the mesh gradients
+    
+    if ( OptimizationUpdateGeometryGradients_ ) {
+       
+       dMesh_dOpenVSP_Parameter_ = CalculateOpenVSPGeometryGradients(FileName,*ParameterData);
+       
+    }
+    
+    GradientData->CL  = CL;
+    GradientData->CD  = CD;
+    GradientData->CS  = CS;
+    GradientData->CML = CML;
+    GradientData->CMM = CMM;
+    GradientData->CMN = CMN;
+    GradientData->dF_dParameter = dF_dParam;
+       
+    fclose(HistoryFile);
+
+    return GradientData;
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                          get_dF_dParameter_array                             #
+#                                                                              #
+##############################################################################*/
+
+std::vector<double> get_dF_dParameter_array(double* ptr, int n_params, int n_outputs) {
+    std::vector<double> result(n_params * n_outputs);
+
+    for (int i = 0; i < n_params * n_outputs; ++i)
+        result[i] = ptr[i];
+
+    return result;
+}
+
+/*##############################################################################
+#                                                                              #
+#                          get_ParameterNames_array                            #
+#                                                                              #
+##############################################################################*/
+
+std::vector<std::string> get_ParameterNames_array(char** names, int num_names) {
+    std::vector<std::string> result;
+    result.reserve(num_names);
+
+    for (int i = 0; i < num_names; ++i) {
+        if (names[i]) {
+            result.emplace_back(names[i]);
+        } 
+        else {
+            result.emplace_back(""); // Handle null pointers
+        }
+    }
+
+    return result;
 }
 
 #endif

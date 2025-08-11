@@ -216,8 +216,7 @@ void CONTROL_SURFACE::RotateXYZPoint(double *xyz)
     xyz[1] -= HingeNode_1_[1];
     xyz[2] -= HingeNode_1_[2];
    
-    // Modify angle ... assume lift ~ cos (alpha) * sin (alpha)... so add in
-    // the cos part...
+    // Rotation angle
 
     Angle = DeflectionAngle_;
   

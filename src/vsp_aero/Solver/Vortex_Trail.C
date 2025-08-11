@@ -463,13 +463,13 @@ void VORTEX_TRAIL::Setup(int NumWakeNodes, double FarDist, VSP_NODE &Node1, VSP_
        WakeDir[0] = -0.1*RotorThrustVector_[0] + 0.9*FreeStreamDirection_[0]; 
        WakeDir[1] = -0.1*RotorThrustVector_[1] + 0.9*FreeStreamDirection_[1]; 
        WakeDir[2] = -0.1*RotorThrustVector_[2] + 0.9*FreeStreamDirection_[2];
-      
+
        Dot = sqrt(vector_dot(WakeDir,WakeDir)); 
         
        WakeDir[0] /= Dot;
        WakeDir[1] /= Dot;
        WakeDir[2] /= Dot;
-        
+
        for ( i = 1 ; i <= NumberOfNodes_ - 1 ; i++ ) {
    
           Time = S_[0][i] / Vinf_;

@@ -330,6 +330,7 @@ private:
     double CpMax_;
     double CpBase_;
     double DCpMax_;
+    double CpCrit_;
     
     // Invisicid forces and moments
     
@@ -648,95 +649,8 @@ private:
 
     void CalculatePsiT_PartialResidualPartialMesh_VortexStretchingRatioEquations(void);
 
-    void CalculateLoopNormalGradients_wrt_Mesh(int Level, int Loop, double *NormalGradients, double *AreaGradients);
-
     void TestCalculateLoopNormalGradients_wrt_Mesh(int Level, int Loop);
-
-    void CalculateTriNormalGradients_wrt_Mesh(int Loop,
-                                              double &dNx_dx1,
-                                              double &dNx_dy1,
-                                              double &dNx_dz1, 
-                                                               
-                                              double &dNy_dx1,
-                                              double &dNy_dy1,
-                                              double &dNy_dz1, 
-                                                             
-                                              double &dNz_dx1,
-                                              double &dNz_dy1,
-                                              double &dNz_dz1,
-                                                               
-                                              double &dNx_dx2,
-                                              double &dNx_dy2,
-                                              double &dNx_dz2, 
-                                                                 
-                                              double &dNy_dx2,
-                                              double &dNy_dy2,
-                                              double &dNy_dz2, 
-                                                                
-                                              double &dNz_dx2,
-                                              double &dNz_dy2,
-                                              double &dNz_dz2,     
-                                                                  
-                                              double &dNx_dx3,
-                                              double &dNx_dy3,
-                                              double &dNx_dz3, 
-                                                               
-                                              double &dNy_dx3,
-                                              double &dNy_dy3,
-                                              double &dNy_dz3, 
-                                                            
-                                              double &dNz_dx3,
-                                              double &dNz_dy3,
-                                              double &dNz_dz3,
-                                              
-                                              double &dNx_Normalized_dx1,
-                                              double &dNx_Normalized_dy1,
-                                              double &dNx_Normalized_dz1, 
-                                                                 
-                                              double &dNy_Normalized_dx1,
-                                              double &dNy_Normalized_dy1,
-                                              double &dNy_Normalized_dz1, 
-                                                                 
-                                              double &dNz_Normalized_dx1,
-                                              double &dNz_Normalized_dy1,
-                                              double &dNz_Normalized_dz1,
-                                                                 
-                                              double &dNx_Normalized_dx2,
-                                              double &dNx_Normalized_dy2,
-                                              double &dNx_Normalized_dz2, 
-                                                                 
-                                              double &dNy_Normalized_dx2,
-                                              double &dNy_Normalized_dy2,
-                                              double &dNy_Normalized_dz2, 
-                                                                 
-                                              double &dNz_Normalized_dx2,
-                                              double &dNz_Normalized_dy2,
-                                              double &dNz_Normalized_dz2,     
-                                                                  
-                                              double &dNx_Normalized_dx3,
-                                              double &dNx_Normalized_dy3,
-                                              double &dNx_Normalized_dz3, 
-                                                                 
-                                              double &dNy_Normalized_dx3,
-                                              double &dNy_Normalized_dy3,
-                                              double &dNy_Normalized_dz3, 
-                                                                 
-                                              double &dNz_Normalized_dx3,
-                                              double &dNz_Normalized_dy3,
-                                              double &dNz_Normalized_dz3,
-                                                                                              
-                                              double &dArea_dx1,
-                                              double &dArea_dy1,
-                                              double &dArea_dz1,            
-                                                                      
-                                              double &dArea_dx2,
-                                              double &dArea_dy2,
-                                              double &dArea_dz2,       
-                                                                      
-                                              double &dArea_dx3,
-                                              double &dArea_dy3,
-                                              double &dArea_dz3);                                               
-                                                      
+                                                     
     // Velocities
     
     void ZeroLoopVelocities(void);
@@ -1715,21 +1629,21 @@ public:
     
     /** Partial of total Fx,y,z wrt x location of CG **/
     
-    double pCFtx_DCGx(void) { return DFi_DCG_[0][0] + DFo_DCG_[0][0]; };
-    double pCFty_DCGx(void) { return DFi_DCG_[1][0] + DFo_DCG_[1][0]; };
-    double pCFtz_DCGx(void) { return DFi_DCG_[2][0] + DFo_DCG_[2][0]; };
+    double pCFtx_pCGx(void) { return DFi_DCG_[0][0] + DFo_DCG_[0][0]; };
+    double pCFty_pCGx(void) { return DFi_DCG_[1][0] + DFo_DCG_[1][0]; };
+    double pCFtz_pCGx(void) { return DFi_DCG_[2][0] + DFo_DCG_[2][0]; };
 
     /** Partial of total Fx,y,z wrt y location of CG **/
     
-    double pCFtx_DCGy(void) { return DFi_DCG_[0][1] + DFo_DCG_[0][1]; };
-    double pCFty_DCGy(void) { return DFi_DCG_[1][1] + DFo_DCG_[1][1]; };
-    double pCFtz_DCGy(void) { return DFi_DCG_[2][1] + DFo_DCG_[2][1]; };
+    double pCFtx_pCGy(void) { return DFi_DCG_[0][1] + DFo_DCG_[0][1]; };
+    double pCFty_pCGy(void) { return DFi_DCG_[1][1] + DFo_DCG_[1][1]; };
+    double pCFtz_pCGy(void) { return DFi_DCG_[2][1] + DFo_DCG_[2][1]; };
 
     /** Partial of total or total Fx,y,z wrt z location of CG **/
     
-    double pCFtx_DCGz(void) { return DFi_DCG_[0][2] + DFo_DCG_[0][2]; };
-    double pCFty_DCGz(void) { return DFi_DCG_[1][2] + DFo_DCG_[1][2]; };
-    double pCFtz_DCGz(void) { return DFi_DCG_[2][2] + DFo_DCG_[2][2]; };
+    double pCFtx_pCGz(void) { return DFi_DCG_[0][2] + DFo_DCG_[0][2]; };
+    double pCFty_pCGz(void) { return DFi_DCG_[1][2] + DFo_DCG_[1][2]; };
+    double pCFtz_pCGz(void) { return DFi_DCG_[2][2] + DFo_DCG_[2][2]; };
     
     /** Partial of total Fx,y,z wrt Re **/
             
@@ -1837,21 +1751,21 @@ public:
     
     /** Partial of inviscid Fx,y,z wrt x location of CG **/
     
-    double pCFix_DCGx(void) { return DFi_DCG_[0][0]; };
-    double pCFiy_DCGx(void) { return DFi_DCG_[1][0]; };
-    double pCFiz_DCGx(void) { return DFi_DCG_[2][0]; };
+    double pCFix_pCGx(void) { return DFi_DCG_[0][0]; };
+    double pCFiy_pCGx(void) { return DFi_DCG_[1][0]; };
+    double pCFiz_pCGx(void) { return DFi_DCG_[2][0]; };
 
     /** Partial of inviscid Fx,y,z wrt y location of CG **/
     
-    double pCFix_DCGy(void) { return DFi_DCG_[0][1]; };
-    double pCFiy_DCGy(void) { return DFi_DCG_[1][1]; };
-    double pCFiz_DCGy(void) { return DFi_DCG_[2][1]; };
+    double pCFix_pCGy(void) { return DFi_DCG_[0][1]; };
+    double pCFiy_pCGy(void) { return DFi_DCG_[1][1]; };
+    double pCFiz_pCGy(void) { return DFi_DCG_[2][1]; };
 
     /** Partial of inviscid or total Fx,y,z wrt z location of CG **/
     
-    double pCFix_DCGz(void) { return DFi_DCG_[0][2]; };
-    double pCFiy_DCGz(void) { return DFi_DCG_[1][2]; };
-    double pCFiz_DCGz(void) { return DFi_DCG_[2][2]; };
+    double pCFix_pCGz(void) { return DFi_DCG_[0][2]; };
+    double pCFiy_pCGz(void) { return DFi_DCG_[1][2]; };
+    double pCFiz_pCGz(void) { return DFi_DCG_[2][2]; };
     
     /** Partial of inviscid Fx,y,z wrt Re **/
             
@@ -1959,9 +1873,9 @@ public:
     
     /** Partial of viscous Fx,y,z wrt x location of CG **/
     
-    double pCFox_DCGx(void) { return DFo_DCG_[0][0]; };
-    double pCFoy_DCGx(void) { return DFo_DCG_[1][0]; };
-    double pCFoz_DCGx(void) { return DFo_DCG_[2][0]; };
+    double pCFox_pCGx(void) { return DFo_DCG_[0][0]; };
+    double pCFoy_pCGx(void) { return DFo_DCG_[1][0]; };
+    double pCFoz_pCGx(void) { return DFo_DCG_[2][0]; };
 
     /** Partial of viscous Fx,y,z wrt y location of CG **/
     
@@ -2081,21 +1995,21 @@ public:
     
     /** Partial of total Fx,y,z wrt x location of CG using wake forces **/
     
-    double pCFtwx_DCGx(void) { return DFw_DCG_[0][0] + DFo_DCG_[0][0]; };
-    double pCFtwy_DCGx(void) { return DFw_DCG_[1][0] + DFo_DCG_[1][0]; };
-    double pCFtwz_DCGx(void) { return DFw_DCG_[2][0] + DFo_DCG_[2][0]; };
+    double pCFtwx_pCGx(void) { return DFw_DCG_[0][0] + DFo_DCG_[0][0]; };
+    double pCFtwy_pCGx(void) { return DFw_DCG_[1][0] + DFo_DCG_[1][0]; };
+    double pCFtwz_pCGx(void) { return DFw_DCG_[2][0] + DFo_DCG_[2][0]; };
 
     /** Partial of total Fx,y,z wrt y location of CG using wake forces **/
     
-    double pCFtwx_DCGy(void) { return DFw_DCG_[0][1] + DFo_DCG_[0][1]; };
-    double pCFtwy_DCGy(void) { return DFw_DCG_[1][1] + DFo_DCG_[1][1]; };
-    double pCFtwz_DCGy(void) { return DFw_DCG_[2][1] + DFo_DCG_[2][1]; };
+    double pCFtwx_pCGy(void) { return DFw_DCG_[0][1] + DFo_DCG_[0][1]; };
+    double pCFtwy_pCGy(void) { return DFw_DCG_[1][1] + DFo_DCG_[1][1]; };
+    double pCFtwz_pCGy(void) { return DFw_DCG_[2][1] + DFo_DCG_[2][1]; };
 
     /** Partial of total or total Fx,y,z wrt z location of CG using wake forces **/
     
-    double pCFtwx_DCGz(void) { return DFw_DCG_[0][2] + DFo_DCG_[0][2]; };
-    double pCFtwy_DCGz(void) { return DFw_DCG_[1][2] + DFo_DCG_[1][2]; };
-    double pCFtwz_DCGz(void) { return DFw_DCG_[2][2] + DFo_DCG_[2][2]; };
+    double pCFtwx_pCGz(void) { return DFw_DCG_[0][2] + DFo_DCG_[0][2]; };
+    double pCFtwy_pCGz(void) { return DFw_DCG_[1][2] + DFo_DCG_[1][2]; };
+    double pCFtwz_pCGz(void) { return DFw_DCG_[2][2] + DFo_DCG_[2][2]; };
     
     /** Partial of total Fx,y,z wrt Re using wake forces **/
             
@@ -2143,21 +2057,21 @@ public:
     
     /** Partial of total Fx,y,z wrt x location of CG using wake forces **/
     
-    double pCFiwx_DCGx(void) { return DFw_DCG_[0][0]; };
-    double pCFiwy_DCGx(void) { return DFw_DCG_[1][0]; };
-    double pCFiwz_DCGx(void) { return DFw_DCG_[2][0]; };
+    double pCFiwx_pCGx(void) { return DFw_DCG_[0][0]; };
+    double pCFiwy_pCGx(void) { return DFw_DCG_[1][0]; };
+    double pCFiwz_pCGx(void) { return DFw_DCG_[2][0]; };
 
     /** Partial of total Fx,y,z wrt y location of CG using wake forces **/
     
-    double pCFiwx_DCGy(void) { return DFw_DCG_[0][1]; };
-    double pCFiwy_DCGy(void) { return DFw_DCG_[1][1]; };
-    double pCFiwz_DCGy(void) { return DFw_DCG_[2][1]; };
+    double pCFiwx_pCGy(void) { return DFw_DCG_[0][1]; };
+    double pCFiwy_pCGy(void) { return DFw_DCG_[1][1]; };
+    double pCFiwz_pCGy(void) { return DFw_DCG_[2][1]; };
 
     /** Partial of total or total Fx,y,z wrt z location of CG **/
     
-    double pCFiwx_DCGz(void) { return DFw_DCG_[0][2]; };
-    double pCFiwy_DCGz(void) { return DFw_DCG_[1][2]; };
-    double pCFiwz_DCGz(void) { return DFw_DCG_[2][2]; };
+    double pCFiwx_pCGz(void) { return DFw_DCG_[0][2]; };
+    double pCFiwy_pCGz(void) { return DFw_DCG_[1][2]; };
+    double pCFiwz_pCGz(void) { return DFw_DCG_[2][2]; };
     
     /** Partial of total Fx,y,z wrt Re using wake forces **/
             
@@ -2205,21 +2119,21 @@ public:
     
     /** Partial of total CL, CD, CSwrt x location of CG **/
     
-    double pCLt_DCGx(void) { return DAeroFi_DCG_[0][0] + DAeroFo_DCG_[0][0]; };
-    double pCDt_DCGx(void) { return DAeroFi_DCG_[1][1] + DAeroFo_DCG_[1][0]; };
-    double pCSt_DCGx(void) { return DAeroFi_DCG_[2][2] + DAeroFo_DCG_[2][0]; };
+    double pCLt_pCGx(void) { return DAeroFi_DCG_[0][0] + DAeroFo_DCG_[0][0]; };
+    double pCDt_pCGx(void) { return DAeroFi_DCG_[1][1] + DAeroFo_DCG_[1][0]; };
+    double pCSt_pCGx(void) { return DAeroFi_DCG_[2][2] + DAeroFo_DCG_[2][0]; };
                       
     /** Partial of total CL, CD, CS wrt y location of CG **/
     
-    double pCLt_DCGy(void) { return DAeroFi_DCG_[0][1] + DAeroFo_DCG_[0][1]; };
-    double pCDt_DCGy(void) { return DAeroFi_DCG_[1][1] + DAeroFo_DCG_[1][1]; };
-    double pCSt_DCGy(void) { return DAeroFi_DCG_[2][1] + DAeroFo_DCG_[2][1]; };
+    double pCLt_pCGy(void) { return DAeroFi_DCG_[0][1] + DAeroFo_DCG_[0][1]; };
+    double pCDt_pCGy(void) { return DAeroFi_DCG_[1][1] + DAeroFo_DCG_[1][1]; };
+    double pCSt_pCGy(void) { return DAeroFi_DCG_[2][1] + DAeroFo_DCG_[2][1]; };
 
     /** Partial of total CL, CD, CS wrt z location of CG **/
     
-    double pCLt_DCGz(void) { return DAeroFi_DCG_[0][2] + DAeroFo_DCG_[0][2]; };
-    double pCDt_DCGz(void) { return DAeroFi_DCG_[1][2] + DAeroFo_DCG_[1][2]; };
-    double pCSt_DCGz(void) { return DAeroFi_DCG_[2][2] + DAeroFo_DCG_[2][2]; };
+    double pCLt_pCGz(void) { return DAeroFi_DCG_[0][2] + DAeroFo_DCG_[0][2]; };
+    double pCDt_pCGz(void) { return DAeroFi_DCG_[1][2] + DAeroFo_DCG_[1][2]; };
+    double pCSt_pCGz(void) { return DAeroFi_DCG_[2][2] + DAeroFo_DCG_[2][2]; };
     
     /** Partial of total CL, CD, CS wrt Re **/
             
@@ -2327,21 +2241,21 @@ public:
     
     /** Partial of inviscid Fx,y,z wrt x location of CG **/
     
-    double pCLi_DCGx(void) { return DAeroFi_DCG_[0][0]; };
-    double pCDi_DCGx(void) { return DAeroFi_DCG_[1][0]; };
-    double pCSi_DCGx(void) { return DAeroFi_DCG_[2][0]; };
+    double pCLi_pCGx(void) { return DAeroFi_DCG_[0][0]; };
+    double pCDi_pCGx(void) { return DAeroFi_DCG_[1][0]; };
+    double pCSi_pCGx(void) { return DAeroFi_DCG_[2][0]; };
 
     /** Partial of inviscid Fx,y,z wrt y location of CG **/
     
-    double pCLi_DCGy(void) { return DAeroFi_DCG_[0][1]; };
-    double pCDi_DCGy(void) { return DAeroFi_DCG_[1][1]; };
-    double pCSi_DCGy(void) { return DAeroFi_DCG_[2][1]; };
+    double pCLi_pCGy(void) { return DAeroFi_DCG_[0][1]; };
+    double pCDi_pCGy(void) { return DAeroFi_DCG_[1][1]; };
+    double pCSi_pCGy(void) { return DAeroFi_DCG_[2][1]; };
 
     /** Partial of inviscid Fx,y,z wrt z location of CG **/
     
-    double pCLi_DCGz(void) { return DAeroFi_DCG_[0][2]; };
-    double pCDi_DCGz(void) { return DAeroFi_DCG_[1][2]; };
-    double pCSi_DCGz(void) { return DAeroFi_DCG_[2][2]; };
+    double pCLi_pCGz(void) { return DAeroFi_DCG_[0][2]; };
+    double pCDi_pCGz(void) { return DAeroFi_DCG_[1][2]; };
+    double pCSi_pCGz(void) { return DAeroFi_DCG_[2][2]; };
     
     /** Partial of inviscid Fx,y,z wrt Re **/
             
@@ -2571,21 +2485,21 @@ public:
     
     /** Partial of total CL, CD, CSwrt x location of CG using wake forces **/
     
-    double pCLtw_DCGx(void) { return DAeroFw_DCG_[0][0] + DAeroFo_DCG_[0][0]; };
-    double pCDtw_DCGx(void) { return DAeroFw_DCG_[1][1] + DAeroFo_DCG_[1][0]; };
-    double pCStw_DCGx(void) { return DAeroFw_DCG_[2][2] + DAeroFo_DCG_[2][0]; };
+    double pCLtw_pCGx(void) { return DAeroFw_DCG_[0][0] + DAeroFo_DCG_[0][0]; };
+    double pCDtw_pCGx(void) { return DAeroFw_DCG_[1][1] + DAeroFo_DCG_[1][0]; };
+    double pCStw_pCGx(void) { return DAeroFw_DCG_[2][2] + DAeroFo_DCG_[2][0]; };
                       
     /** Partial of total CL, CD, CS wrt y location of CG using wake forces **/
     
-    double pCLtw_DCGy(void) { return DAeroFw_DCG_[0][1] + DAeroFo_DCG_[0][1]; };
-    double pCDtw_DCGy(void) { return DAeroFw_DCG_[1][1] + DAeroFo_DCG_[1][1]; };
-    double pCStw_DCGy(void) { return DAeroFw_DCG_[2][1] + DAeroFo_DCG_[2][1]; };
+    double pCLtw_pCGy(void) { return DAeroFw_DCG_[0][1] + DAeroFo_DCG_[0][1]; };
+    double pCDtw_pCGy(void) { return DAeroFw_DCG_[1][1] + DAeroFo_DCG_[1][1]; };
+    double pCStw_pCGy(void) { return DAeroFw_DCG_[2][1] + DAeroFo_DCG_[2][1]; };
 
     /** Partial of total CL, CD, CS wrt z location of CG using wake forces **/
     
-    double pCLtw_DCGz(void) { return DAeroFw_DCG_[0][2] + DAeroFo_DCG_[0][2]; };
-    double pCDtw_DCGz(void) { return DAeroFw_DCG_[1][2] + DAeroFo_DCG_[1][2]; };
-    double pCStw_DCGz(void) { return DAeroFw_DCG_[2][2] + DAeroFo_DCG_[2][2]; };
+    double pCLtw_pCGz(void) { return DAeroFw_DCG_[0][2] + DAeroFo_DCG_[0][2]; };
+    double pCDtw_pCGz(void) { return DAeroFw_DCG_[1][2] + DAeroFo_DCG_[1][2]; };
+    double pCStw_pCGz(void) { return DAeroFw_DCG_[2][2] + DAeroFo_DCG_[2][2]; };
     
     /** Partial of total CL, CD, CS wrt Re using wake forces **/
             
@@ -2633,21 +2547,21 @@ public:
     
     /** Partial of total CL, CD, CSwrt x location of CG using wake forces **/
     
-    double pCLiw_DCGx(void) { return DAeroFw_DCG_[0][0]; };
-    double pCDiw_DCGx(void) { return DAeroFw_DCG_[1][1]; };
-    double pCSiw_DCGx(void) { return DAeroFw_DCG_[2][2]; };
+    double pCLiw_pCGx(void) { return DAeroFw_DCG_[0][0]; };
+    double pCDiw_pCGx(void) { return DAeroFw_DCG_[1][1]; };
+    double pCSiw_pCGx(void) { return DAeroFw_DCG_[2][2]; };
                       
     /** Partial of total CL, CD, CS wrt y location of CG using wake forces **/
     
-    double pCLiw_DCGy(void) { return DAeroFw_DCG_[0][1]; };
-    double pCDiw_DCGy(void) { return DAeroFw_DCG_[1][1]; };
-    double pCSiw_DCGy(void) { return DAeroFw_DCG_[2][1]; };
+    double pCLiw_pCGy(void) { return DAeroFw_DCG_[0][1]; };
+    double pCDiw_pCGy(void) { return DAeroFw_DCG_[1][1]; };
+    double pCSiw_pCGy(void) { return DAeroFw_DCG_[2][1]; };
 
     /** Partial of total CL, CD, CS wrt z location of CG using wake forces **/
     
-    double pCLiw_DCGz(void) { return DAeroFw_DCG_[0][2]; };
-    double pCDiw_DCGz(void) { return DAeroFw_DCG_[1][2]; };
-    double pCSiw_DCGz(void) { return DAeroFw_DCG_[2][2]; };
+    double pCLiw_pCGz(void) { return DAeroFw_DCG_[0][2]; };
+    double pCDiw_pCGz(void) { return DAeroFw_DCG_[1][2]; };
+    double pCSiw_pCGz(void) { return DAeroFw_DCG_[2][2]; };
     
     /** Partial of total CL, CD, CS wrt Re using wake forces **/
             

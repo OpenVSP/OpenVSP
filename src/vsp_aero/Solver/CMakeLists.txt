@@ -44,7 +44,9 @@ MatPrecon.C
 matrix.C
 memory.C
 MergeSort.C
+MeshGradient.C
 OptimizationFunction.C
+OptimizationParameterData.C
 QuadCell.C
 QuadEdge.C
 QuadNode.C
@@ -83,7 +85,10 @@ MatPrecon.H
 matrix.H
 memory.H
 MergeSort.H
+MeshGradient.H
 OptimizationFunction.H
+OptimizationGradientData.H
+OptimizationParameterData.H
 QuadCell.H
 QuadEdge.H
 QuadNode.H
