@@ -158,6 +158,15 @@ void Display::rotate( int px, int py, int cx, int cy )
     }
 }
 
+void Display::rotateZ( int px, int py, int cx, int cy )
+{
+    Camera * camera = getCamera();
+    if( camera )
+    {
+        camera->rotateZ( px, py, cx, cy );
+    }
+}
+
 void Display::rotateSphere( float angleX, float angleY, float angleZ )
 {
     Camera * camera = getCamera();

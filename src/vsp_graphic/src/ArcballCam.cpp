@@ -137,6 +137,38 @@ void ArcballCam::rotate( int px, int py, int cx, int cy )
     _modelviewMatrix = _tMat * _rMat * _cMat;
 }
 
+void ArcballCam::rotateZ( int px, int py, int cx, int cy )
+{
+    if( px == cx && py == cy )
+    {
+        return;
+    }
+
+    // get pixel distance to center of rotation using pan values and mouse location
+    glm::vec2 pan = getPanValues() / ( P_SENSITIVITY * _oZoom );
+
+    float pdx = px -  _vWidth/2 - pan.x; // prev x
+    float pdy = py - _vHeight/2 - pan.y; // prev y
+    float cdx = cx -  _vWidth/2 - pan.x; // curr x
+    float cdy = cy - _vHeight/2 - pan.y; // curr y
+
+    // Get angles of pvec and cvec, difference is update to z rot
+    float pang = atan2( pdy, pdx );
+    float cang = atan2( cdy, cdx );
+
+    // angle is negative to treat click+drag intuitively
+    float angle = - R_SENSITIVITY * ( cang - pang );
+
+    // Use model view matrix to extract camera's "look" vector
+    glm::vec3 rotAxis = glm::vec3( _modelviewMatrix[0][2], _modelviewMatrix[1][2], _modelviewMatrix[2][2] );
+
+    //===== Set modelview matrix =====//
+    _globalQuat = _multiplyQuats( _toQuat( rotAxis, angle ), _globalQuat );
+
+    _rMat = _toMatrix( _globalQuat );
+    _modelviewMatrix = _tMat * _rMat * _cMat;
+}
+
 void ArcballCam::rotateSphere( float angleX, float angleY, float angleZ )
 {
 //    resetView();

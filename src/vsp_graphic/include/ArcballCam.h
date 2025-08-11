@@ -57,6 +57,14 @@ public:
     void rotate( int px, int py, int cx, int cy );
 
     /*!
+    * Rotate the scene about camera's look axis.
+    *
+    * px, py - previous xy mouse location.
+    * cx, cy - current xy mouse location.
+    */
+    void rotateZ( int px, int py, int cx, int cy );
+
+    /*!
     * Rotate the scene given 3d sphere coordinates.
     *
     * px, py - previous xy mouse location.

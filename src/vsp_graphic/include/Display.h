@@ -155,6 +155,14 @@ public:
     virtual void rotate( int px, int py, int cx, int cy );
 
     /*!
+    * Rotate the scene about camera's look axis.
+    *
+    * px, py - Previous xy mouse location.
+    * cx, cy - Current xy mouse location.
+    */
+    virtual void rotateZ( int px, int py, int cx, int cy );
+
+    /*!
     * Rotate the scene about a sphere angle and rotation axis.
     *
     * angle - Angle to rotate about an axis.
