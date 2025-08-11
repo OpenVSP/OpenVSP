@@ -1342,7 +1342,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     if ( m_ManualVrefFlag() )
     {
         fprintf( case_file, "Vref = %lf \n", m_Vref() );
-        fprintf( case_file, "Machref = %lf \n", m_Machref() );
+        fprintf( case_file, "Mref = %lf \n", m_Machref() );
     }
 
     fprintf( case_file, "Rho = %lf \n", m_Rho() );
