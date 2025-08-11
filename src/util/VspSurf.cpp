@@ -156,6 +156,15 @@ int VspSurf::GetNumSectU() const
     return m_Surface.number_u_patches();
 }
 
+bool VspSurf::GetUSkip( const int &index ) const
+{
+    if ( index >= 0 && index < m_USkip.size() )
+    {
+        return m_USkip[ index ];
+    }
+    return false;
+}
+
 double VspSurf::GetRootCluster( const int &index ) const
 {
     if ( index >= 0 && index < m_RootCluster.size() )
@@ -1483,7 +1492,7 @@ void VspSurf::MakeUTess( vector < double > &u, vector < int > num_u, const std::
         int iusect = 0;
         for ( int i = 0; i < nusect; i++ )
         {
-            uskip[i] = m_USkip[iusect];
+            uskip[i] = GetUSkip( iusect );
             for (int j = 0; j < umerge[i]; j++)
             {
                 iusect++;
@@ -1587,8 +1596,8 @@ void VspSurf::MakeUTess( vector < double > &u, vector < int > num_u, const std::
             }
             else                      // Maps to an original segment.
             {
-                skip[isect] = m_USkip[iorig];
-                if ( !m_USkip[iorig] )
+                skip[isect] = GetUSkip( iorig );
+                if ( !skip[isect] )
                 {
                     int nuu = num_u[iorig];
                     double rc = GetRootCluster( iorig );
