@@ -1,3 +1,101 @@
+# [OpenVSP 3.45.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.1)
+
+2025-08-11
+
+OpenVSP 3.45.1
+
+This is a bugfix with a few extra goodies thrown in.  The applicable
+fixes from this release have been back ported to 3.44.3.  That version
+is being maintained in case people have trouble moving to 3.45.X.
+That said, 3.45.0 has been going very well and I do not anticipate
+keeping the 3.44.X branch active for long.
+
+Although a bugfix release, a couple features made their way in.
+
+OpenVSP will now decompose file-type airfoils into approximate thickness
+and camber distributions.  Then, when the thickness of the airfoil is
+adjusted, the thickness is scaled and re-applied to the fixed camber
+distribution (rather than just scaling the ordinates).  This same process
+is used when interpolating between dissimilar airfoil types along a
+propeller blade.
+
+The Advanced Link code window now displays line numbers.  The error
+messages reported when there are problems in the code now reflect the
+displayed line numbers.
+
+The new Geometry Analysis feature gained an online help page to help
+explain the input requirements for each analysis.  The analyses also
+received some error checking to notify the user when those requirements
+are not met.
+
+The most visible change in this version will be the layout of the
+main OpenVSP screen.  Over the years, screens have gotten bigger and
+wider -- and while most have landscape orientation, some are portrait.
+The default size of the main screen has been increased to better take
+advantage of the screen.
+
+There are also a handful of updates to VSPAERO.  Mostly bug fixes all
+around, but also continued improvements to the optimization mode
+including an adjoint optimization based trim capability.
+
+Of course, a bugfix release is mostly about the bugs.  The new VSPAERO
+NGon meshes could end up with holes in the mesh when there were
+adjacent coplanar surfaces in the geometry.
+
+Control surface tag files were given invalid names on Windows.  The
+VSPAERO Viewer would not load on Linux.  Mref was not written properly
+to the VSPAERO input file.  Input for the CLMax2D parameter was added
+to remedy its unintentional omission.
+
+A problem with EngineGeom tessellation that mainly appeared on Linux
+was fixed.
+
+A CFDMesh crash tied to model scale was fixed.  Small scale aircraft
+modeled in large units (meters) with thin blunt trailing edges would
+cause degenerate patches that would cause a crash.
+
+A long-standing bug on Windows machines that would not read STL files
+with non-native line endings properly.
+
+There were also several fixes related to the new Geometry Analysis,
+Auxiliary Geometry, and Landing Gear capabilities.
+
+Two releases in one go -- everyone should update.
+
+Features:
+- Camber decomposition scaling for file and interpolated airfoils
+- Advanced Link code section now has line numbers
+- Advanced Link code error messages reflect displayed line numbers
+- Geometry Analysis Online Help
+- Error handling for Geometry Analysis
+- Adjust Main Screen sizing
+
+VSPAERO Updates:
+- Cleaned up vspaero_opt
+- Optimization support for non-geometric inputs as design variables
+- Optimization based trim mode
+- Preliminary support for VSPAERO API wrapper
+- Various bug fixes
+
+Bug Fixes:
+- Fix holes in NGon mesh with co-planar surfaces
+- Fix control surface tag file name problem on Windows
+- Fix vspviewer temp directory problem on Linux
+- Fix writing Mref to VSPAERO input file
+- Add omitted support for VSPAERO CLMax2D parameter
+- Expose AuxGeom XSec Attributes
+- Fix bug with tessellation of EngineGeom
+- Fix CFDMesh crash tied to model scale.
+- Fix reading STL files on Windows with non-native line endings.
+- Fix Bogie containers not appearing in search
+- Fix CG envelope calculations & visualization
+- Clean up GearScreen
+- Improve matrix attribute format string
+
+
+---
+
+
 # [OpenVSP 3.44.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.3)
 
 2025-08-11
