@@ -7708,8 +7708,8 @@ GRADIENT_DATA *VSPAERO_Optimize_Gradients(OPTIMIZATION_PARAMETERS *ParameterData
                // CS                                                                       
                                                                                            
                dF_dParam[3*(j-1) + 2] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DX()  * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DY()  * dMesh_dOpenVSP_Parameter_[j][3*i-1]
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DZ()  * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DY()  * dMesh_dOpenVSP_Parameter_[j][3*i-1]
+                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DZ()  * dMesh_dOpenVSP_Parameter_[j][3*i  ];
 
                // CML
                

@@ -11124,7 +11124,7 @@ void VSP_SOLVER::DoAdjointMatrixMultiply(double *vec_in, double *vec_out)
        CalculateVortexStretchingRatioPerturbationLoopVelocities_Tranpose(vec_in, vec_out);
    
        // (4) Calculate vortex stretching ratio perturbations over wake edges onto the wake edges
-       //  [   ]   [  ][  ][  ][J ] 
+       //  [   ]   [  ][  ][  ][J ]
        //  [   ] x [  ][  ][  ][  ]
        //  [   ]   [  ][  ][  ][  ]
        //  [v^t]   [  ][  ][  ][  ]
