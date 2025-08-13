@@ -56,7 +56,6 @@ public:
     * VSP_TEXTURED_MESH - Render to texture mapped mesh with lighting.
     * VSP_TEXTURED_MESH_FLAT- Render to texture mapped mesh without lighting.
     * VSP_TEXTURED_MESH_FLAT_TRANSPARENT_BACK - Render to texture mapped mesh without lighting.
-    * VSP_TEXTURED_MESH_TRANSPARENT_BACK - Render to texture mapped mesh with lighting.
     * VSP_WIRE_MESH - Render to wire frame.
     * VSP_CFD_HIDDEN_QUADS
     * VSP_WIRE_HIDDEN_QUADS - Render Quads to solid wire frame.
@@ -248,7 +247,6 @@ public:
         VSP_TEXTURED_MESH,
         VSP_TEXTURED_MESH_FLAT,
         VSP_TEXTURED_MESH_FLAT_TRANSPARENT_BACK,
-        VSP_TEXTURED_MESH_TRANSPARENT_BACK,
         VSP_WIRE_MESH,
         VSP_CFD_HIDDEN_QUADS,
         VSP_WIRE_HIDDEN_QUADS,
