@@ -1283,7 +1283,6 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
             break;
 
         case DrawObj::VSP_TEXTURED_MESH:
-        case DrawObj::VSP_TEXTURED_MESH_FLAT:
             if( id == 0xFFFFFFFF )
             {
                 m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
@@ -1312,7 +1311,65 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
             }
             break;
 
+        case DrawObj::VSP_TEXTURED_MESH_FLAT:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_idMap[ idInfo.geomID ] = idInfo;
+            }
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
+            {
+                eObj->setLighting( nullptr );
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_QUADS );
+                eObj->setRenderStyle( Common::VSP_DRAW_TEXTURED );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                    objects[i]->m_MaterialInfo.Shininess );
+
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadXSecData( eObj, objects[i] );
+                }
+                _updateTextures( objects[i] );
+            }
+            break;
+
         case DrawObj::VSP_TEXTURED_MESH_TRANSPARENT_BACK:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_idMap[ idInfo.geomID ] = idInfo;
+            }
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
+            {
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_QUADS );
+                eObj->setRenderStyle( Common::VSP_DRAW_TEXTURED_TRANSPARENT_BACK );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                    objects[i]->m_MaterialInfo.Shininess );
+
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadXSecData( eObj, objects[i] );
+                }
+                _updateTextures( objects[i] );
+            }
+            break;
+
         case DrawObj::VSP_TEXTURED_MESH_FLAT_TRANSPARENT_BACK:
             if( id == 0xFFFFFFFF )
             {
@@ -1326,6 +1383,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
             eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
             {
+                eObj->setLighting( nullptr );
                 eObj->setVisibility( objects[i]->m_Visible );
                 eObj->setPrimType( Common::VSP_QUADS );
                 eObj->setRenderStyle( Common::VSP_DRAW_TEXTURED_TRANSPARENT_BACK );
