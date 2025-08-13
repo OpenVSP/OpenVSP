@@ -1283,6 +1283,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
             break;
 
         case DrawObj::VSP_TEXTURED_MESH:
+        case DrawObj::VSP_TEXTURED_MESH_FLAT:
             if( id == 0xFFFFFFFF )
             {
                 m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
@@ -1312,6 +1313,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
             break;
 
         case DrawObj::VSP_TEXTURED_MESH_TRANSPARENT_BACK:
+        case DrawObj::VSP_TEXTURED_MESH_FLAT_TRANSPARENT_BACK:
             if( id == 0xFFFFFFFF )
             {
                 m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
