@@ -358,7 +358,7 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     
     // Read in tag file data
     
-    snprintf(FileNameWithExtension,sizeof(FileNameWithExtension)*sizeof(char),"%s%s.tag",fpath.c_str(), TagFileName);
+    snprintf(FileNameWithExtension,sizeof(FileNameWithExtension)*sizeof(char),"%s%s.tag",fpath.string().c_str(), TagFileName);
 
     if ( (TagFile = fopen(FileNameWithExtension,"r")) == NULL ) {
 
