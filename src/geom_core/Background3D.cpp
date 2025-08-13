@@ -369,11 +369,11 @@ void Background3D::Update()
 
     if ( m_RearVisible() )
     {
-        m_BackgroundDO.m_Type = DrawObj::VSP_TEXTURED_MESH;
+        m_BackgroundDO.m_Type = DrawObj::VSP_TEXTURED_MESH_FLAT;
     }
     else
     {
-        m_BackgroundDO.m_Type = DrawObj::VSP_TEXTURED_MESH_TRANSPARENT_BACK;
+        m_BackgroundDO.m_Type = DrawObj::VSP_TEXTURED_MESH_FLAT_TRANSPARENT_BACK;
     }
 
     m_BackgroundDO.m_Visible = m_Visible();
