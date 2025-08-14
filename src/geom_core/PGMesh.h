@@ -425,6 +425,7 @@ public:
 
     void WriteVSPGeomParents( FILE* file_id );
 
+    void WriteTagFile( FILE* file_id, const vector < int > &parts );
     void WriteTagFile( FILE* file_id, int part, int tag );
 
     void WriteSTL( const string& fname );

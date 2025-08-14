@@ -4204,6 +4204,37 @@ void PGMesh::WriteVSPGeomParents( FILE* file_id )
     }
 }
 
+void PGMesh::WriteTagFile( FILE* file_id, const vector < int > &parts )
+{
+    //==== Write Tri IDs for each tag =====//
+
+    int count = 0;
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        int singletag = ( *f )->m_Tag;
+
+        if ( m_PGMulti->MatchAnyPart( singletag, parts ) )
+        {
+            count++;
+        }
+    }
+    fprintf( file_id, "%d\n\n", count );
+
+    int iface = 1;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        int singletag = ( *f )->m_Tag;
+
+        if ( m_PGMulti->MatchAnyPart( singletag, parts ) )
+        {
+            fprintf( file_id, "%d\n", iface );
+        }
+        iface++;
+    }
+    fprintf( file_id, "\n" );
+}
+
 void PGMesh::WriteTagFile( FILE* file_id, const int part, const int tag )
 {
     //==== Write Tri IDs for each tag =====//
