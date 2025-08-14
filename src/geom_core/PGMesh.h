@@ -492,6 +492,8 @@ public:
 
     string GetGID( const int& tag );
 
+    static bool MatchAnyPart( const vector < int > & tags, const vector < int > &parts );
+    bool MatchAnyPart( int singletag, const vector < int > &parts ) const;
     static bool MatchPartAndTag( const vector < int > & tags, int part, int tag );
     bool MatchPartAndTag( int singletag, int part, int tag ) const;
     bool ExistPartAndTag( int part, int tag ) const;

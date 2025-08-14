@@ -5321,6 +5321,24 @@ string PGMulti::GetGID( const int& tag )
     return gid_bare;
 }
 
+bool PGMulti::MatchAnyPart( const vector < int > & tags, const vector < int > &parts )
+{
+    if ( !tags.empty() )
+    {
+        return vector_contains_val( parts, tags[0] );
+    }
+    return false;
+}
+
+bool PGMulti::MatchAnyPart( int singletag, const vector < int > &parts ) const
+{
+    if ( m_TagKeys.size() >= singletag )
+    {
+        return MatchAnyPart( m_TagKeys[ singletag - 1 ], parts );
+    }
+    return false;
+}
+
 bool PGMulti::MatchPartAndTag( const vector < int > & tags, const int part, const int tag )
 {
     if ( !tags.empty() )
