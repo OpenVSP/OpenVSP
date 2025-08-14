@@ -1377,6 +1377,38 @@ void GeomXForm::AcceptScale()
     m_LastScale = 1;
 }
 
+bool GeomXForm::RigidAttachedToParent() const
+{
+    if ( IsParentJoint() )
+    {
+        return true;
+    }
+
+    // If either attachment flag is set to none, then not attached.
+    if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_NONE ||
+         m_RotAttachFlag() == vsp::ATTACH_ROT_NONE )
+    {
+        return false;
+    }
+    return true;
+}
+
+void GeomXForm::BuildRigidAttachedDescendantList( vector< string > &descendant ) const
+{
+    for ( int i = 0; i < m_ChildIDVec.size(); i++ )
+    {
+        Geom *child = m_Vehicle->FindGeom( m_ChildIDVec[i] );
+        if ( child )
+        {
+            if ( child->RigidAttachedToParent() )
+            {
+                descendant.push_back( m_ChildIDVec[i] );
+                child->BuildRigidAttachedDescendantList( descendant );
+            }
+        }
+    }
+}
+
 ////==== Compose Modeling Matrix ====//
 //void Geom::compose_model_matrix()
 //{

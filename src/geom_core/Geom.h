@@ -331,6 +331,9 @@ public:
     virtual Matrix4d GetAncestorAttachMatrix( int gen );
     virtual Matrix4d GetAncestorModelMatrix( int gen );
 
+    virtual bool RigidAttachedToParent() const;
+    virtual void BuildRigidAttachedDescendantList( vector< string > &descendant ) const;
+
     Parm m_XLoc;                // XForm Translation
     Parm m_YLoc;
     Parm m_ZLoc;
