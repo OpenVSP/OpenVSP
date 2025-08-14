@@ -327,7 +327,7 @@ int GeomBase::CountParents( int count )
     return count;
 }
 
-bool GeomBase::IsParentJoint()
+bool GeomBase::IsParentJoint() const
 {
     GeomBase* parentPtr = m_Vehicle->FindGeom( m_ParentID );
     if ( parentPtr )

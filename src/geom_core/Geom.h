@@ -204,7 +204,7 @@ public:
     virtual void ForceUpdate();
 
     virtual int CountParents( int count );
-    virtual bool IsParentJoint();
+    virtual bool IsParentJoint() const;
 
     virtual void SetParentID( const string &id )
     {
