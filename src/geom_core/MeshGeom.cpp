@@ -2081,10 +2081,18 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     {
 
         int ntags = -1;
+        int nss = -1;
+
         vector < double > tagTheoAreaVec;
         vector < double > tagWetAreaVec;
         vector < string > tagNameVec;
         vector < string > tagIDVec;
+        vector < vector < string > > vecTagIDVec;
+
+        vector < double > ssTheoAreaVec;
+        vector < double > ssWetAreaVec;
+        vector < string > ssNameVec;
+        vector < string > ssIDVec;
 
         if ( intSubsFlag )
         {
@@ -2095,20 +2103,72 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
             tagWetAreaVec.resize( ntags, 0.0 );
             tagNameVec.resize( ntags );
             tagIDVec.resize( ntags );
-
-            for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-            {
-                for ( int j = 0; j < ntags; j++ )
-                {
-                    tagTheoAreaVec[j] += m_TMeshVec[i]->m_TagTheoAreaVec[j];
-                    tagWetAreaVec[j] += m_TMeshVec[i]->m_TagWetAreaVec[j];
-                }
-            }
+            vecTagIDVec.resize( ntags );
 
             for ( int j = 0; j < ntags; j++ )
             {
                 tagNameVec[j] = SubSurfaceMgr.GetTagNames( j );
                 tagIDVec[j] = SubSurfaceMgr.GetTagIDs( j );
+                vecTagIDVec[j] = SubSurfaceMgr.GetVecTagIDs( j );
+            }
+
+            // populate individual subsurfs
+            for ( int j = 0; j < vecTagIDVec.size(); j++ )
+            {
+                // start at iter 1, skip the geom id since all subsurf ids are unique anyways
+                for ( int k = 1; k < vecTagIDVec[j].size(); k++ )
+                {
+                    // add to subsurf ID vec if not already in there
+                    if ( find( ssIDVec.begin(), ssIDVec.end(), vecTagIDVec[j][k] ) == ssIDVec.end() )
+                    {
+                        SubSurface* ss = SubSurfaceMgr.GetSubSurf( vecTagIDVec[j][k] );
+                        if ( ss )
+                        {
+                            ParmContainer* pc = ss->GetParentContainerPtr();
+                            if ( pc )
+                            {
+                                string full_name = pc->GetName() + "," + ss->GetName();
+                                ssIDVec.push_back( vecTagIDVec[j][k] );
+                                ssNameVec.push_back( full_name );
+                            }
+                        }
+                    }
+                }
+            }
+
+            nss = ssIDVec.size();
+
+            ssTheoAreaVec.resize( nss, 0.0 );
+            ssWetAreaVec.resize( nss, 0.0 );
+
+            double theo;
+            double wet;
+
+            for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+            {
+                for ( int j = 0; j < ntags; j++ )
+                {
+                    theo = m_TMeshVec[i]->m_TagTheoAreaVec[j];
+                    wet = m_TMeshVec[i]->m_TagWetAreaVec[j];
+
+                    tagTheoAreaVec[j] += theo;
+                    tagWetAreaVec[j] += wet;
+
+                    for ( int k = 1; k < vecTagIDVec[j].size(); k++ )
+                    {
+                        vector < string >::iterator ssid_iter = find( ssIDVec.begin(), ssIDVec.end(), vecTagIDVec[j][k] );
+                        int ss_index = -1;
+                        if ( ssid_iter != ssIDVec.end() )
+                        {
+                            ss_index = ssid_iter - ssIDVec.begin();
+                        }
+                        if ( ss_index > -1 )
+                        {
+                            ssTheoAreaVec[ss_index] += theo;
+                            ssWetAreaVec[ss_index] += wet;
+                        }
+                    }
+                }
             }
         }
 
@@ -2141,6 +2201,12 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         res->Add( new NameValData( "Tag_ID", tagIDVec, "Tag IDs." ) );
         res->Add( new NameValData( "Tag_Theo_Area", tagTheoAreaVec, "Un-trimmed surface area for tag." ) );
         res->Add( new NameValData( "Tag_Wet_Area", tagWetAreaVec, "Trimmed surface area for tag." ) );
+
+        res->Add( new NameValData( "Num_SubSurfs", nss, "Number of SubSurfs." ) );
+        res->Add( new NameValData( "SubSurf_Name", ssNameVec, "SubSurf names." ) );
+        res->Add( new NameValData( "SubSurf_ID", ssIDVec, "SubSurf IDs." ) );
+        res->Add( new NameValData( "SubSurf_Theo_Area", ssTheoAreaVec, "Un-trimmed surface area for SubSurf." ) );
+        res->Add( new NameValData( "SubSurf_Wet_Area", ssWetAreaVec, "Trimmed surface area for SubSurf." ) );
 
         res->Add( new NameValData( "Total_Theo_Area", m_TotalTheoArea, "Sum of component surface areas." ) );
         res->Add( new NameValData( "Total_Wet_Area", m_TotalWetArea, "Trimmed combined wetted surface area." ) );
