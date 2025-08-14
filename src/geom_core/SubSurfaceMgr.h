@@ -104,6 +104,9 @@ public:
     std::string GetTagNames( const std::vector<int> & tags );
     std::string GetTagNames( int indx );
 
+    vector < string > GetVecTagIDs( const std::vector<int>& tags );
+    vector < string > GetVecTagIDs( int indx );
+
     std::string GetTagIDs( const std::vector<int>& tags );
     std::string GetTagIDs( int indx );
 

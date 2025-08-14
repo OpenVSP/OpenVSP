@@ -598,17 +598,17 @@ string SubSurfaceMgrSingleton::GetTagNames( int indx )
     return string( "Error_Tag" );
 }
 
-string SubSurfaceMgrSingleton::GetTagIDs( const vector<int>& tags )
+vector < string > SubSurfaceMgrSingleton::GetVecTagIDs( const vector<int>& tags )
 {
-    string comp_list;
+    vector < string > comp_vec;
     unordered_map< int, string >::iterator si;
 
     int tag = GetTag( tags );
 
     if ( tag == -1 )
     {
-        comp_list = "Error_Tag";
-        return comp_list;
+        comp_vec.push_back( "Error_Tag" );
+        return comp_vec;
     }
     else
     {
@@ -618,22 +618,42 @@ string SubSurfaceMgrSingleton::GetTagIDs( const vector<int>& tags )
 
             if ( si == m_TagIDs.end() )
             {
-                comp_list += ",Error_SubSurf";
+                comp_vec.push_back( "Error_SubSurf" );
             }
             else if ( si != m_TagIDs.end() )
             {
-                comp_list += "," + si->second;
-            }
-
-            // Remove leading comma on first loop
-            if ( i == 0 )
-            {
-                comp_list.erase( comp_list.begin(), comp_list.begin() + 1 );
+                comp_vec.push_back( si->second );
             }
         }
     }
 
+    return comp_vec;
+}
+
+string SubSurfaceMgrSingleton::GetTagIDs( const vector<int>& tags )
+{
+    vector < string > tag_vec = GetVecTagIDs( tags );
+    string comp_list;
+
+    for ( int i = 0; i < (int)tag_vec.size(); i++ )
+    {
+        if ( i > 0 )
+        {
+            comp_list += ',';
+        }
+        comp_list += tag_vec[i];
+    }
     return comp_list;
+}
+
+vector < string > SubSurfaceMgrSingleton::GetVecTagIDs( int indx )
+{
+    vector < string > ret_vec;
+    if ( indx < m_TagKeys.size() && indx >= 0 )
+    {
+        return GetVecTagIDs( m_TagKeys[indx] );
+    }
+    return ret_vec;
 }
 
 string SubSurfaceMgrSingleton::GetTagIDs( int indx )
