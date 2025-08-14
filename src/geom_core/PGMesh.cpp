@@ -32,6 +32,7 @@
 #include <cfloat>
 
 #include "StringUtil.h"
+#include "HingeGeom.h"
 #include "Vehicle.h"
 #include "VehicleMgr.h"
 
@@ -4930,6 +4931,55 @@ void PGMulti::WriteTagFiles( const string& file_name, vector < string > &all_fna
         }
     }
 
+
+    vector < string > gidvec;
+    vector < int > gidpartvec;
+    vector < int > gidsurfvec;
+    GetPartData( gidvec, gidpartvec, gidsurfvec );
+
+    int nhingefile = 0;
+    vector < string > hinges;
+    vector < vector < int > > hingedescendantparts;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        // Check all geoms, whether they are in mesh or not.
+        std::vector< std::string > comps = veh->GetGeomVec();
+        for ( int icomp = 0; icomp < comps.size(); icomp++ )
+        {
+            Geom * g = veh->FindGeom( comps[icomp] );
+            if ( g )
+            {
+                // A Clone of a hinge articulates its children the same way, so it is a
+                // control surface too.
+                if ( Geom::CastTo< JointRole >( g ) )
+                {
+                    ntagfile++;
+                    nhingefile++;
+
+                    hinges.push_back( comps[icomp] );
+
+                    vector < string > descendants;
+                    g->BuildRigidAttachedDescendantList( descendants );
+
+                    vector < int > descpart;
+                    for ( int ides = 0; ides < descendants.size(); ides++ )
+                    {
+                        vector < int > indvec;
+                        vector_find_val_multiple( gidvec, descendants[ ides ], indvec );
+
+                        for ( int iind = 0; iind < indvec.size(); iind++ )
+                        {
+                            descpart.push_back( gidpartvec[ indvec[ iind ] ] );
+                        }
+                    }
+
+                    hingedescendantparts.push_back( descpart );
+                }
+            }
+        }
+    }
+
     if ( ntagfile > 0 )
     {
         string base_name = GetBasename( file_name );
@@ -4942,12 +4992,19 @@ void PGMulti::WriteTagFiles( const string& file_name, vector < string > &all_fna
 
         string taglist_name = base_name + ".ALL.taglist";
         string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
+        string hinge_taglist_name = base_name + ".Hinges.taglist";
 
         FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
         FILE* csf_taglist_fid = nullptr;
         if ( ncsffile > 0 )
         {
             csf_taglist_fid = fopen( csf_taglist_name.c_str(), "w" );
+        }
+
+        FILE* hinge_taglist_fid = nullptr;
+        if ( nhingefile > 0 )
+        {
+            hinge_taglist_fid = fopen( hinge_taglist_name.c_str(), "w" );
         }
 
         if ( taglist_fid )
@@ -5020,12 +5077,72 @@ void PGMulti::WriteTagFiles( const string& file_name, vector < string > &all_fna
                     }
                 }
             }
-
-            fclose( taglist_fid );
-
             if ( csf_taglist_fid )
             {
                 fclose( csf_taglist_fid );
+            }
+
+            if ( hinge_taglist_fid )
+            {
+                all_fnames.push_back( hinge_taglist_name );
+                fprintf( hinge_taglist_fid, "%d\n", nhingefile );
+            }
+
+            for ( int ihinge = 0; ihinge < nhingefile; ihinge++ )
+            {
+                Geom * g = veh->FindGeom( hinges[ ihinge ] );
+                if ( g )
+                {
+                    string hingename = g->GetName() + "_Hinge";
+                    // The taglist records the space-substituted name, so the file has to be
+                    // written under that same name -- and under the space-substituted path --
+                    // or the reader cannot find it.  This is what the part tags above do.
+                    StringUtil::change_space_to_underscore( hingename );
+
+                    string tagfile_name = base_path_nospace + "." + hingename + ".tag";
+                    string tagfile_localname = base_fname + "." + hingename;
+
+                    fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
+
+                    if ( hinge_taglist_fid )
+                    {
+                        fprintf( hinge_taglist_fid, "%s\n", tagfile_localname.c_str() );
+                    }
+
+                    FILE* fid = fopen( tagfile_name.c_str(), "w" );
+                    if ( fid )
+                    {
+                        all_fnames.push_back( tagfile_name );
+
+                        // Iterate through meshes coarse to fine.
+                        for ( int imesh = m_MeshVec.size() - 1; imesh >= 0; imesh-- )
+                        {
+                            PGMesh *pgm = m_MeshVec[imesh];
+                            pgm->WriteTagFile( fid, hingedescendantparts[ ihinge ] );
+                        }
+
+                        fclose( fid );
+                    }
+                }
+            }
+            if ( hinge_taglist_fid )
+            {
+                fclose( hinge_taglist_fid );
+            }
+
+            fclose( taglist_fid );
+        }
+        else
+        {
+            // These two were opened before the block above, so they have to be closed
+            // even when the main list could not be opened and that block never ran.
+            if ( csf_taglist_fid )
+            {
+                fclose( csf_taglist_fid );
+            }
+            if ( hinge_taglist_fid )
+            {
+                fclose( hinge_taglist_fid );
             }
         }
     }
