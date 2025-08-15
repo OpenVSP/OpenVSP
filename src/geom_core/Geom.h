@@ -597,6 +597,7 @@ public:
     virtual SubSurface* GetSubSurf( int ind );
     virtual SubSurface* GetSubSurf( const string & id );
     virtual int GetSubSurfIndex( const string & id );
+    virtual void ReorderSubSurf( const string & id, int action );
     virtual vector< SubSurface* > GetSubSurfVec()
     {
         return m_SubSurfVec;

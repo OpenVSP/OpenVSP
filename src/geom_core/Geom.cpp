@@ -5775,6 +5775,30 @@ int Geom::GetSubSurfIndex( const string & id )
     return -1;
 }
 
+void Geom::ReorderSubSurf( const string & id, int action )
+{
+    //==== Find Active SubSurf ====//
+    SubSurface* ss = GetSubSurf( id );
+
+    if ( !ss )
+    {
+        return;
+    }
+
+    int curr_index = -1;
+
+    vector < SubSurface* > ::iterator ss_iter;
+    ss_iter = find( m_SubSurfVec.begin(), m_SubSurfVec.end(), ss );
+    if ( ss_iter != m_SubSurfVec.end() )
+    {
+        curr_index = ss_iter - m_SubSurfVec.begin();
+    }
+
+    int new_index = ReorderVectorIndex( m_SubSurfVec, curr_index, action );
+
+    SubSurfaceMgr.SetCurrSubSurfInd( new_index );
+}
+
 //==== Highlight Active Subsurface ====//
 void Geom::RecolorSubSurfs( int active_ind )
 {
