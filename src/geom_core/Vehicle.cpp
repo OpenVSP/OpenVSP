@@ -6384,7 +6384,40 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                 }
             }
         }
-        fprintf( csf_file, "%d Control Surfaces\n", ncsurf );
+
+
+        int nhinge = 0;
+        vector < string > hinges;
+        // vector < vector < int > > hingedescendantparts;
+
+        // Check all geoms, whether they are in mesh or not.
+        std::vector< std::string > comps = GetGeomVec();
+        for ( int icomp = 0; icomp < comps.size(); icomp++ )
+        {
+            Geom *h = FindGeom( comps[icomp] );
+            if ( Geom::CastTo< JointRole >( h ) )
+            {
+                nhinge++;
+
+                hinges.push_back( comps[icomp] );
+
+                // vector < string > descendants;
+                // h->BuildRigidAttachedDescendantList( descendants );
+                //
+                // vector < int > descpart;
+                // for ( int ides = 0; ides < descendants.size(); ides++ )
+                // {
+                //     vector < int > indvec;
+                //     vector_find_val_multiple( gidvec, descendants[ ides ], indvec );
+                //
+                //     descpart.insert( descpart.end(), indvec.begin(), indvec.end() );
+                // }
+                //
+                // hingedescendantparts.push_back( descpart );
+            }
+        }
+
+        fprintf( csf_file, "%d Control Surfaces\n", ncsurf + nhinge );
 
         for ( int ipart = 0; ipart < ( int )gidvec.size(); ipart++ ) // Loop over all geoms.
         {
@@ -6446,15 +6479,18 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                         cs->UpdatePolygonPnts();
                         std::vector< std::vector< vec2d > > ppvec = cs->GetPolyPntsVec();
 
-                        int nhinge = cs->m_UWStart.size();
+                        // Hinge LINES on this one control surface -- not the count of
+                        // HingeGeoms in the model, which the enclosing function also calls
+                        // nhinge.  The two are unrelated.
+                        int nhingeline = cs->m_UWStart.size();
                         int nbound = ppvec.size();
 
-                        if ( nhinge != nbound )
+                        if ( nhingeline != nbound )
                         {
                             printf( "Mismatch number of control surfaces\n" );
                         }
 
-                        for ( int ihinge = 0; ihinge < nhinge; ihinge++ )
+                        for ( int ihinge = 0; ihinge < nhingeline; ihinge++ )
                         {
                             fprintf( csf_file, "2 Hinge UV\n" );
                             fprintf( csf_file, "%16.10g %16.10g\n", clamp( cs->m_UWStart[ihinge].x(), 0.0, uscale ) / uscale, clamp( cs->m_UWStart[ihinge].y(), 0.0, wscale ) / wscale );
@@ -6469,7 +6505,7 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                             }
                         }
 
-                        for ( int ihinge = 0; ihinge < nhinge; ihinge++ )
+                        for ( int ihinge = 0; ihinge < nhingeline; ihinge++ )
                         {
                             vec3d xStart = g->CompPnt01( isurf, clamp( cs->m_UWStart[ihinge].x(), 0.0, uscale ) / uscale, clamp( cs->m_UWStart[ihinge].y(), 0.0, wscale ) / wscale );
                             vec3d xEnd = g->CompPnt01( isurf, clamp( cs->m_UWEnd[ihinge].x(), 0.0, uscale ) / uscale, clamp( cs->m_UWEnd[ihinge].y(), 0.0, wscale ) / wscale );
@@ -6494,9 +6530,54 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
 
             }
         }
+
+        if ( nhinge > 0 )
+        {
+            for ( int ihinge = 0; ihinge < nhinge; ihinge++ )
+            {
+                Geom *g = FindGeom( hinges[ ihinge ] );
+
+                if ( g )
+                {
+                    string tagfile_localname = base_fname + "." + g->GetName() + "_Hinge";
+
+                    char str[256];
+                    snprintf( str, sizeof( str ),  "%s_Hinge", g->GetName().c_str() );
+
+                    fprintf( csf_file, "CSurf ID:     NONE\n" );
+                    fprintf( csf_file, "CSurf Name:   NA\n" );
+                    fprintf( csf_file, "Geom ID:      %s\n", g->GetID().c_str() );
+                    fprintf( csf_file, "Geom Name:    %s\n", g->GetName().c_str() );
+                    fprintf( csf_file, "VSPAERO Name: %s\n", str );
+
+                    fprintf( csf_file, "Tagfile Name: %s\n", tagfile_localname.c_str() );
+                    fprintf( csf_file, "Surface #:    0\n" ); // indexes from 0
+                    fprintf( csf_file, "Part #:       0\n" ); // indexes from 1
+
+                    fprintf( csf_file, "1 Hinge\n" );
+
+                    fprintf( csf_file, "0 Hinge UV\n" );
+                    fprintf( csf_file, "0 Boundary UV\n" );
+
+                    JointRole* joint = Geom::CastTo< JointRole >( g );
+                    vec3d xStart = joint->GetRoleModelMatrix().xform( vec3d( 0.0, 0.0, 0.0 ) );
+                    vec3d xEnd = xStart + joint->GetJointRotationAxis();
+
+                    fprintf( csf_file, "2 Hinge XYZ\n" );
+                    fprintf( csf_file, "%16.10g %16.10g %16.10g\n", xStart.x(), xStart.y(), xStart.z() );
+                    fprintf( csf_file, "%16.10g %16.10g %16.10g\n", xEnd.x(), xEnd.y(), xEnd.z() );
+
+                    fprintf( csf_file, "0 Boundary XYZ\n" );
+                }
+            }
+        }
     }
 
-    fclose( csf_file );
+    // The open is guarded above, so the close has to be too -- fclose( NULL ) is undefined.
+    if ( csf_file )
+    {
+        fclose( csf_file );
+    }
 }
 
 vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, const vec3d &offset )

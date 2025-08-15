@@ -49,6 +49,9 @@ public:
 
     // The line the joint moves along, in world coordinates.  See the definition.
     vec3d GetJointAxis() const;
+
+    // The axis the joint turns about, positive by the right-hand rule, in world coordinates.
+    vec3d GetJointRotationAxis() const;
 };
 
 //==== Hinge Geom ====//

@@ -723,3 +723,16 @@ vec3d JointRole::GetJointAxis() const
 
     return axis;
 }
+
+// GetJointAxis, reversed under an odd number of reflections, where the joint turns the other
+// way about the line it moves along.
+vec3d JointRole::GetJointRotationAxis() const
+{
+    vec3d axis = GetJointAxis();
+    if ( GetRoleShapeFlipNormal() )
+    {
+        axis = axis * -1.0;
+    }
+
+    return axis;
+}
