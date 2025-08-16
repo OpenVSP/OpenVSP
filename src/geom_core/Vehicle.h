@@ -301,6 +301,7 @@ public:
     void WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox );
     void WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox );
 
+    vector < vec3d > ControlSurfaceHingeLine( const string & id, int isurf );
     void WriteControlSurfaceFile( const string & file_name, const vector < string > &gidvec, const vector < int > &partvec, const vector < int > &surfvec, vector < string > &all_fnames );
 
     vector< vector < vec3d > > GetVehProjectionLines( int view, const vec3d &offset );

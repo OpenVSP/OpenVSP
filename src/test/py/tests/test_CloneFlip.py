@@ -872,3 +872,52 @@ def testACloneOfAFlippedJointMovesItsChildrenFlippedToo():
     for a, b in ( ( pts[2].x(), pts[1].x() ), ( pts[2].y(), pts[1].y() ), ( pts[2].z(), pts[1].z() ) ):
         assert a == pytest.approx( b, abs=1e-9 )
     assert_no_errors()
+
+
+def turned_about( p, start, end, degrees ):
+    """p turned about the line start -> end by the right-hand rule, as VSPAERO deflects."""
+    import math
+    n = [ e - s for s, e in zip( start, end ) ]
+    length = math.sqrt( sum( c * c for c in n ) )
+    n = [ c / length for c in n ]
+    v = [ a - s for a, s in zip( p, start ) ]
+    t = math.radians( degrees )
+    cross = ( n[1] * v[2] - n[2] * v[1], n[2] * v[0] - n[0] * v[2], n[0] * v[1] - n[1] * v[0] )
+    dot = sum( a * b for a, b in zip( n, v ) )
+    return tuple( s + v[i] * math.cos( t ) + cross[i] * math.sin( t ) + n[i] * dot * ( 1.0 - math.cos( t ) )
+                  for i, s in enumerate( start ) )
+
+
+@pytest.mark.parametrize( "primary_dir", [ vsp.X_DIR, vsp.Y_DIR, vsp.Z_DIR ] )
+@pytest.mark.parametrize( "flag", [ 0, vsp.SYM_XZ, vsp.SYM_XY, vsp.SYM_XZ | vsp.SYM_XY ] )
+@pytest.mark.parametrize( "cloned", [ False, True ] )
+def testAFlippedHingeLineTurnsTheWayTheJointDoes( primary_dir, flag, cloned ):
+    """A deflection about the hinge line handed to VSPAERO moves the child where the joint does.
+
+    Under an odd number of flips the joint turns the other way about the line it slides along,
+    so the hinge line must be the turning axis, not the sliding direction.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    scratch_output()
+
+    joint = a_hinge( primary_dir )
+    if cloned:
+        joint = vsp.CloneGeomVec( [ joint ] )[0]
+        switch( joint, "CloneJoint", False )
+    flip( joint, flag )
+    kid = on_joint( joint, ( 0.5, 1.0, 0.25 ) )
+
+    before = placed( kid )
+    pose( joint, 10.0, 0.0 )
+    vsp.Update()
+    after = placed( kid )
+    assert after != pytest.approx( before, abs = 1e-3 ), "the joint did not move its child"
+
+    line = vsp.ControlSurfaceHingeLine( joint, 0 )
+    assert len( line ) == 2
+    start = ( line[0].x(), line[0].y(), line[0].z() )
+    end = ( line[1].x(), line[1].y(), line[1].z() )
+
+    assert after == pytest.approx( turned_about( before, start, end, 10.0 ), abs = 1e-9 )
+    assert_no_errors()

@@ -6349,6 +6349,51 @@ void Vehicle::WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox 
     }
 }
 
+vector < vec3d > Vehicle::ControlSurfaceHingeLine( const string & id, int isurf )
+{
+    vector < vec3d > retvec;
+
+    SSControlSurf* cs = dynamic_cast< SSControlSurf* > ( SubSurfaceMgr.GetSubSurf( id ) );
+
+    Geom *h = FindGeom( id );
+    if ( h && !Geom::CastTo< JointRole >( h ) )
+    {
+        h = nullptr;
+    }
+
+    if ( cs )
+    {
+        string gid = cs->GetParentContainer();
+        Geom *g = FindGeom( gid );
+        if ( g )
+        {
+            double uscale = g->GetUMax( isurf );
+            double wscale = g->GetWMax( isurf );
+
+            int nhinge = cs->m_UWStart.size();
+
+            for ( int ihinge = 0; ihinge < nhinge; ihinge++ )
+            {
+                vec3d xStart = g->CompPnt01( isurf, clamp( cs->m_UWStart[ihinge].x(), 0.0, uscale ) / uscale, clamp( cs->m_UWStart[ihinge].y(), 0.0, wscale ) / wscale );
+                vec3d xEnd = g->CompPnt01( isurf, clamp( cs->m_UWEnd[ihinge].x(), 0.0, uscale ) / uscale, clamp( cs->m_UWEnd[ihinge].y(), 0.0, wscale ) / wscale );
+
+                retvec.push_back( xStart );
+                retvec.push_back( xEnd );
+            }
+        }
+    }
+    else if ( h )
+    {
+        JointRole* joint = Geom::CastTo< JointRole >( h );
+        vec3d xStart = joint->GetRoleModelMatrix().xform( vec3d( 0.0, 0.0, 0.0 ) );
+        vec3d xEnd = xStart + joint->GetJointRotationAxis();
+
+        retvec.push_back( xStart );
+        retvec.push_back( xEnd );
+    }
+    return retvec;
+}
+
 void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < string > &gidvec, const vector < int > &partvec, const vector < int > &surfvec, vector < string > &all_fnames )
 {
     string base_name = GetBasename( file_name );

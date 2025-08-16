@@ -26,6 +26,7 @@
 #include "FeaMeshMgr.h"
 #include "FitModelMgr.h"
 #include "GeometryAnalysisMgr.h"
+#include "HingeGeom.h"
 #include "LinkMgr.h"
 #include "Link.h"
 #include "main.h"
@@ -14385,6 +14386,49 @@ void DelRSTProbe( const std::string &id )
 void DeleteAllRSTProbes()
 {
     MeasureMgr.DelAllRSTProbes();
+}
+
+std::vector < vec3d > ControlSurfaceHingeLine( const std::string & id, int surf_indx )
+{
+    Vehicle* veh = GetVehicle();
+    vector < vec3d > pts;
+
+    SSControlSurf* cs = dynamic_cast< SSControlSurf* > ( SubSurfaceMgr.GetSubSurf( id ) );
+    Geom *h = veh->FindGeom( id );
+    if ( h && !Geom::CastTo< JointRole >( h ) )
+    {
+        h = nullptr;
+    }
+
+    if ( !h && !cs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ControlSurfaceHingeLine::ID is not a control surface or hinge " + id );
+        return pts;
+    }
+
+    if ( cs ) // If control surface is a valid subsurface
+    {
+        string gid = cs->GetParentContainer();
+        Geom *geom_ptr = veh->FindGeom( gid );
+        if ( geom_ptr )
+        {
+            if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() ) // Then make sure surf_index is valid for geom_ptr
+            {
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ControlSurfaceHingeLine::Invalid Surface Index " + to_string( surf_indx ) );
+                return pts;
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ControlSurfaceHingeLine::Control surface parent geom ID invalid " + gid );
+            return pts;
+        }
+    }
+
+    pts = veh->ControlSurfaceHingeLine( id, surf_indx );
+
+    ErrorMgr.NoError();
+    return pts;
 }
 
 std::string AddRuler( const std::string & startgeomid, int startsurfindx, double startu, double startw,

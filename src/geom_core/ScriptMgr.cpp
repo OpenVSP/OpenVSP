@@ -6180,6 +6180,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ ControlSurfaceHingeLine( const string & in id, const int & in surf_indx )", asMETHOD( ScriptMgrSingleton, ControlSurfaceHingeLine ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "array<vec3d>@+ CompVecPnt01(const string & in geom_id, const int & in surf_indx, array<double>@+ us, array<double>@+ ws )", asMETHOD( ScriptMgrSingleton, CompVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
@@ -8268,6 +8272,12 @@ void ScriptMgrSingleton::GetUWTess01(const string &geom_id, const int &surf_indx
 
     FillASArray( out_us, us );
     FillASArray( out_ws, ws );
+}
+
+CScriptArray* ScriptMgrSingleton::ControlSurfaceHingeLine( const std::string & id, const int & surf_indx )
+{
+    m_ProxyVec3dArray = vsp::ControlSurfaceHingeLine( id, surf_indx );
+    return GetProxyVec3dArray();
 }
 
 //=== Register Measure Functions ===//

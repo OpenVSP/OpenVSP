@@ -45863,6 +45863,45 @@ extern void ConvertLMNtoRSTVec( const std::string &geom_id, const int &surf_indx
 
 extern void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec);
 
+/*!
+    \ingroup SurfaceQuery
+*/
+/*!
+    Get the coordinates of the start and end points of a control surface hinge.
+
+    The id argument will be intrepreted as either a Control Surface type SubSurface or as a Hinge Geom.
+
+    Subsurface type control surfaces also require the surf index of the surface the subsurface is on.
+    Hinges only require the geom ID of the hinge and will ignore the surf_indx parameter.
+
+    Hinge end points are output in a vector < vec3d >, with the starting point first, then the ending point of each hinge line.
+
+    Subsurface type control surfaces may have one or two hinge lines -- corresponding to the hinge line along the top and/or bottom surface of the wing.
+    When there are two hinge lines, the second hinge line will follow the first in the returned vector (i.e. [s1, e1, s2, e2]).
+
+    \forcpponly
+    \code{.cpp}
+    string geom_id = AddGeom( "HINGE", "" );
+
+    array< vec3d > hingeendptvec = ControlSurfaceHingeLine( geom_id, 0 );
+    \endcode
+    \endforcpponly
+
+    \beginPythonOnly
+    \code{.py}
+    geom_id = AddGeom( "HINGE", "" )
+
+
+    hingeendptvec = ControlSurfaceHingeLine( geom_id, 0 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] id string Control surface SubSurface ID
+    \param [in] surf_indx int Main surface index from the parent Geom
+    \return vector<vec3d> Vector of 3D hinge line end points
+*/
+
+extern std::vector < vec3d > ControlSurfaceHingeLine( const std::string & id, int surf_indx );
 
 //======================= Measure Functions ============================//
 /*!
