@@ -685,6 +685,33 @@ int CountVSPGeomPartTagTris( int part, int tag, const vector< TTri* > &trivec )
     return count;
 }
 
+int WriteVSPGeomParts( FILE* file_id, int tri_offset, const vector < int > &parts, const vector< TTri* > &trivec )
+{
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        if ( SubSurfaceMgr.MatchAnyPart( ttri->m_Tags, parts ) )
+        {
+            fprintf( file_id, "%d\n", t + tri_offset + 1 );
+        }
+    }
+    return tri_offset + trivec.size();
+}
+
+int CountVSPGeomParts( const vector < int > &parts, const vector< TTri* > &trivec )
+{
+    int count = 0;
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        if ( SubSurfaceMgr.MatchAnyPart( ttri->m_Tags, parts ) )
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
 void WriteVSPGeomParents( FILE* file_id, int &tcount, const vector< TTri* > &trivec )
 {
     for ( int i = 0; i < ( int )trivec.size(); i++ )

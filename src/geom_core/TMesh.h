@@ -838,6 +838,9 @@ int  WriteVSPGeomAlternateParts( FILE* file_id, int &tcount, const vector< TTri*
 
 int  WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag, const vector< TTri* > &trivec );
 int  CountVSPGeomPartTagTris( int part, int tag, const vector< TTri* > &trivec );
+int  WriteVSPGeomParts( FILE* file_id, int tri_offset, const vector < int > &parts, const vector< TTri* > &trivec );
+int  CountVSPGeomParts( const vector < int > &parts, const vector< TTri* > &trivec );
+
 void WriteVSPGeomParents( FILE* file_id, int &tcount, const vector< TTri* > &trivec );
 
 void IdentifyWakes( const vector< TTri* > &trivec, vector< deque< TEdge > > &wakes, vector< vector< vec3d > > &polyvec );
