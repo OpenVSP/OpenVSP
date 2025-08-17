@@ -743,6 +743,24 @@ std::vector< int > SubSurfaceMgrSingleton::GetAllTags()
     return ret;
 }
 
+bool SubSurfaceMgrSingleton::MatchAnyPart( const vector < int > & tags, const vector < int > &parts )
+{
+    if ( !tags.empty() )
+    {
+        return vector_contains_val( parts, tags[0] );
+    }
+    return false;
+}
+
+bool SubSurfaceMgrSingleton::MatchAnyPart( int singletag, const vector < int > &parts ) const
+{
+    if ( m_TagKeys.size() >= singletag )
+    {
+        return MatchAnyPart( m_TagKeys[ singletag - 1 ], parts );
+    }
+    return false;
+}
+
 bool SubSurfaceMgrSingleton::MatchPartAndTag( const vector < int > & tags, int part, int tag )
 {
     if ( tags.size() > 0 )

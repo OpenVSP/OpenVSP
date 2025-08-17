@@ -125,6 +125,8 @@ public:
     std::string GetTagIDs( const std::vector<int>& tags );
     std::string GetTagIDs( int indx );
 
+    static bool MatchAnyPart( const vector < int > & tags, const vector < int > &parts );
+    bool MatchAnyPart( int singletag, const vector < int > &parts ) const;
     bool MatchPartAndTag( const vector < int > & tags, int part, int tag );
     bool MatchPartAndTag( int singletag, int part, int tag );
     bool ExistPartAndTag( int part, int tag );
