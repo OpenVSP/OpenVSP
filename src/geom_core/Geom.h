@@ -827,7 +827,7 @@ protected:
             for ( int i = 0; i < num_surf; ++i )
             {
                 dest[ i ] = source[ m_MainSurfIndxVec[i] ];
-                if ( m_FlipNormalVec[ i ] )
+                if ( m_FlipNormalVec[ i ] != m_FlipNormalVec[ m_MainSurfIndxVec[ i ] ] )
                 {
                     dest[ i ].FlipNormal();
                 }
