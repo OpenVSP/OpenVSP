@@ -258,7 +258,8 @@ void StructureMgrSingleton::CleanUnusedDefaultProperties()
                 keep.push_back( m_FeaPropertyVec[i] );
                 keepFirstBeam = false;
             }
-            else
+            else if ( m_FeaPropertyVec[i]->GetName() == "DefaultShell" ||
+                      m_FeaPropertyVec[i]->GetName() == "DefaultBeam" )
             {
                 discard.push_back( m_FeaPropertyVec[i] );
             }
