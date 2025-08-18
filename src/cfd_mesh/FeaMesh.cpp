@@ -925,8 +925,9 @@ void FeaMesh::ExportFeaMesh()
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )
     {
         ComputeWriteMass();
-        string mass_output = "Total Mass = " + std::to_string( m_TotalMass ) + "\n";
-        FeaMeshMgr.addOutputText( mass_output );
+        char str[256];
+        snprintf( str, sizeof( str ), "Total Mass = %12.4g %s\n", m_TotalMass, m_MassUnit.c_str() );
+        FeaMeshMgr.addOutputText( str );
     }
 }
 
@@ -2436,7 +2437,7 @@ void FeaMesh::ComputeWriteMass( FILE* fp )
 
                 string name = m_FeaPartNameVec[i];
 
-                fprintf( fp, "%-20s% -12.4f% -12.4f\n", name.c_str(), shell_mass, beam_mass );
+                fprintf( fp, "%-20s% -12.4g% -12.4g\n", name.c_str(), shell_mass, beam_mass );
 
                 m_TotalMass += shell_mass + beam_mass;
             }
@@ -2474,7 +2475,7 @@ void FeaMesh::ComputeWriteMass( FILE* fp )
                     }
                 }
 
-                fprintf( fp, "%-20s% -12.4f% -12.4f% -12.4f% -12.4f\n", name.c_str(), pnt_mass, pnt[0], pnt[1], pnt[2] );
+                fprintf( fp, "%-20s% -12.4g% -12.4g% -12.4g% -12.4g\n", name.c_str(), pnt_mass, pnt[0], pnt[1], pnt[2] );
 
                 m_TotalMass += pnt_mass;
             }
@@ -2512,14 +2513,14 @@ void FeaMesh::ComputeWriteMass( FILE* fp )
 
             string name = m_SimpleSubSurfaceVec[i].GetName();
 
-            fprintf( fp, "%-20s% -12.4f% -12.4f\n", name.c_str(), shell_mass, beam_mass );
+            fprintf( fp, "%-20s% -12.4g% -12.4g\n", name.c_str(), shell_mass, beam_mass );
 
             m_TotalMass += shell_mass + beam_mass;
         }
 
         fprintf( fp, "\n" );
         fprintf( fp, "FeaStruct_Name       Total_Mass\n" );
-        fprintf( fp, "%-20s% -9.4f\n", m_StructName.c_str(), m_TotalMass );
+        fprintf( fp, "%-20s% -12.4g\n", m_StructName.c_str(), m_TotalMass );
 
     }
 }
