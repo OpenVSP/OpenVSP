@@ -3046,6 +3046,7 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
     int connoffset = 0;
 
     FeaCount feacount;
+    string mass_unit;
 
     for ( int i = 0; i < idvec.size(); i++ )
     {
@@ -3065,6 +3066,8 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
             feacount.m_NumTris += mesh->m_NumTris;
             feacount.m_NumQuads += mesh->m_NumQuads;
             feacount.m_NumBeams += mesh->m_NumBeams;
+
+            mass_unit = mesh->m_MassUnit;
 
             int maxn = noffset + mesh->m_NumNodes;
 
@@ -3111,8 +3114,9 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
     if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )
     {
         double assy_mass = ComputeWriteAssemblyMass( assembly_id );
-        string mass_output = "Total Assembly Mass = " + std::to_string( assy_mass ) + "\n";
-        FeaMeshMgr.addOutputText( mass_output );
+        char str[256];
+        snprintf( str, sizeof( str ), "Total Assembly Mass = %12.4g %s\n", assy_mass, mass_unit.c_str() );
+        FeaMeshMgr.addOutputText( str );
     }
 }
 
@@ -3374,6 +3378,7 @@ double FeaMeshMgrSingleton::ComputeWriteAssemblyMass( FILE* fp, const string &as
 
     if ( fp )
     {
+        string mass_units;
         for ( int i = 0; i < idvec.size(); i++ )
         {
             FeaMesh* mesh = GetMeshPtr( idvec[i] );
@@ -3381,12 +3386,13 @@ double FeaMeshMgrSingleton::ComputeWriteAssemblyMass( FILE* fp, const string &as
             {
                 mesh->ComputeWriteMass( fp );
                 assy_mass += mesh->m_TotalMass;
+                mass_units = mesh->m_MassUnit;
             }
         }
 
         fprintf( fp, "\n" );
         fprintf( fp, "Assembly_Name       Total_Mass\n" );
-        fprintf( fp, "%-20s% -9.4f\n", fea_assembly->GetName().c_str(), assy_mass );
+        fprintf( fp, "%-20s% -12.4g %s\n", fea_assembly->GetName().c_str(), assy_mass, mass_units.c_str() );
 
     }
 
