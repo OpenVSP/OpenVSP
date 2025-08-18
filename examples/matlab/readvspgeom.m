@@ -394,6 +394,7 @@ if ( exist(taglistname, 'file') )
         if ( exist(tagfilename, 'file') )
             tfp = fopen( tagfilename );
 
+            ntagface = fscanf(tfp, '%d', 1);
             % Read in tag data.
             itag{i} = fscanf(tfp, '%d');
 
