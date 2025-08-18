@@ -213,7 +213,7 @@ void FeaMesh::UpdateDrawObjs()
     {
         if ( m_FeaNodeVec[j]->m_BCs.AsNum() != 0 ) // Some BC is set.
         {
-            m_BCNodeDO.m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt );
+            m_BCNodeDO.m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt / m_LenScale );
         }
     }
     m_BCNodeDO.m_GeomChanged = true;
@@ -233,7 +233,7 @@ void FeaMesh::UpdateDrawObjs()
     //     {
     //         for ( int jspider = 0; jspider < fp.m_SpiderIndex[ ispider ].size(); jspider++ )
     //         {
-    //             m_FeaSpiderNodeDO.m_PntVec.push_back( m_FeaNodeVec[ fp.m_SpiderIndex[ ispider ][ jspider ] ]->m_Pnt );
+    //             m_FeaSpiderNodeDO.m_PntVec.push_back( m_FeaNodeVec[ fp.m_SpiderIndex[ ispider ][ jspider ] ]->m_Pnt / m_LenScale );
     //         }
     //     }
     // }
@@ -261,7 +261,7 @@ void FeaMesh::UpdateDrawObjs()
             {
                 if ( m_FeaNodeVec[j]->HasTag( iprt ) )
                 {
-                    m_FeaNodeDO[iprt].m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt );
+                    m_FeaNodeDO[iprt].m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt / m_LenScale );
                 }
             }
         }
@@ -275,7 +275,7 @@ void FeaMesh::UpdateDrawObjs()
                 {
                     if ( m_FeaNodeVec[j]->HasTag( iprt ) && m_FeaNodeVec[j]->m_FixedPointFlag )
                     {
-                        m_FeaTriElementDO[iprt].m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt );
+                        m_FeaTriElementDO[iprt].m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt / m_LenScale );
                     }
                 }
             }
@@ -292,9 +292,9 @@ void FeaMesh::UpdateDrawObjs()
                     {
                         vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
                         norm.normalize();
-                        m_FeaTriElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                        m_FeaTriElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
-                        m_FeaTriElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt );
+                        m_FeaTriElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt / m_LenScale );
+                        m_FeaTriElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt / m_LenScale );
+                        m_FeaTriElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt / m_LenScale );
                         m_FeaTriElementDO[iprt].m_NormVec.push_back( norm );
                         m_FeaTriElementDO[iprt].m_NormVec.push_back( norm );
                         m_FeaTriElementDO[iprt].m_NormVec.push_back( norm );
@@ -312,10 +312,10 @@ void FeaMesh::UpdateDrawObjs()
                     {
                         vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
                         norm.normalize();
-                        m_FeaQuadElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                        m_FeaQuadElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
-                        m_FeaQuadElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt );
-                        m_FeaQuadElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[3]->m_Pnt );
+                        m_FeaQuadElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt / m_LenScale );
+                        m_FeaQuadElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt / m_LenScale );
+                        m_FeaQuadElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt / m_LenScale );
+                        m_FeaQuadElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[3]->m_Pnt / m_LenScale );
                         m_FeaQuadElementDO[iprt].m_NormVec.push_back( norm );
                         m_FeaQuadElementDO[iprt].m_NormVec.push_back( norm );
                         m_FeaQuadElementDO[iprt].m_NormVec.push_back( norm );
@@ -340,8 +340,8 @@ void FeaMesh::UpdateDrawObjs()
         {
             if ( m_FeaElementVec[j]->GetFeaPartIndex() == iprt && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
             {
-                m_CapFeaElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                m_CapFeaElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
+                m_CapFeaElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt / m_LenScale );
+                m_CapFeaElementDO[iprt].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt / m_LenScale );
 
                 // Normal Vec is not required, load placeholder
                 m_CapFeaElementDO[iprt].m_NormVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
@@ -380,8 +380,8 @@ void FeaMesh::UpdateDrawObjs()
 
                 vec3d orient_pnt = center + line_length * tri->m_Orientation;
 
-                el_orient_pnt_vec.push_back( center );
-                el_orient_pnt_vec.push_back( orient_pnt );
+                el_orient_pnt_vec.push_back( center / m_LenScale );
+                el_orient_pnt_vec.push_back( orient_pnt / m_LenScale );
             }
             else if ( m_FeaElementVec[j]->GetFeaPartIndex() == iprt &&
                       ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 ||
@@ -396,8 +396,8 @@ void FeaMesh::UpdateDrawObjs()
 
                 vec3d orient_pnt = center + line_length * quad->m_Orientation;
 
-                el_orient_pnt_vec.push_back( center );
-                el_orient_pnt_vec.push_back( orient_pnt );
+                el_orient_pnt_vec.push_back( center / m_LenScale );
+                el_orient_pnt_vec.push_back( orient_pnt / m_LenScale );
             }
             else if ( m_FeaElementVec[j]->GetFeaPartIndex() == iprt && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
             {
@@ -406,8 +406,8 @@ void FeaMesh::UpdateDrawObjs()
 
                 vec3d norm_pnt = m_FeaElementVec[j]->m_Mids[0]->m_Pnt + line_length * beam->m_Norm0;
 
-                cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Mids[0]->m_Pnt );
-                cap_norm_pnt_vec.push_back( norm_pnt );
+                cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Mids[0]->m_Pnt / m_LenScale );
+                cap_norm_pnt_vec.push_back( norm_pnt / m_LenScale );
             }
         }
 
@@ -445,7 +445,7 @@ void FeaMesh::UpdateDrawObjs()
             {
                 if ( m_FeaNodeVec[j]->HasTag( iss + m_NumFeaParts ) )
                 {
-                    m_SSFeaNodeDO[iss].m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt );
+                    m_SSFeaNodeDO[iss].m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt / m_LenScale );
                 }
             }
         }
@@ -459,9 +459,9 @@ void FeaMesh::UpdateDrawObjs()
             {
                 vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
                 norm.normalize();
-                m_SSTriElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                m_SSTriElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
-                m_SSTriElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt );
+                m_SSTriElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt / m_LenScale );
+                m_SSTriElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt / m_LenScale );
+                m_SSTriElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt / m_LenScale );
                 m_SSTriElementDO[iss].m_NormVec.push_back( norm );
                 m_SSTriElementDO[iss].m_NormVec.push_back( norm );
                 m_SSTriElementDO[iss].m_NormVec.push_back( norm );
@@ -479,10 +479,10 @@ void FeaMesh::UpdateDrawObjs()
             {
                 vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
                 norm.normalize();
-                m_SSQuadElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                m_SSQuadElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
-                m_SSQuadElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt );
-                m_SSQuadElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[3]->m_Pnt );
+                m_SSQuadElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt / m_LenScale );
+                m_SSQuadElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt / m_LenScale );
+                m_SSQuadElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt / m_LenScale );
+                m_SSQuadElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[3]->m_Pnt / m_LenScale );
                 m_SSQuadElementDO[iss].m_NormVec.push_back( norm );
                 m_SSQuadElementDO[iss].m_NormVec.push_back( norm );
                 m_SSQuadElementDO[iss].m_NormVec.push_back( norm );
@@ -504,8 +504,8 @@ void FeaMesh::UpdateDrawObjs()
         {
             if (( m_FeaElementVec[j]->GetFeaSSIndex() == iss ) && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
             {
-                m_SSCapFeaElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                m_SSCapFeaElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
+                m_SSCapFeaElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt / m_LenScale );
+                m_SSCapFeaElementDO[iss].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt / m_LenScale );
 
                 // Normal Vec is not required, load placeholder
                 m_SSCapFeaElementDO[iss].m_NormVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
@@ -542,8 +542,8 @@ void FeaMesh::UpdateDrawObjs()
 
                 vec3d orient_pnt = center + line_length * tri->m_Orientation;
 
-                ss_el_orient_pnt_vec.push_back( center );
-                ss_el_orient_pnt_vec.push_back( orient_pnt );
+                ss_el_orient_pnt_vec.push_back( center / m_LenScale );
+                ss_el_orient_pnt_vec.push_back( orient_pnt / m_LenScale );
             }
             else if (( m_FeaElementVec[j]->GetFeaSSIndex() == iss ) &&
                      ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) )
@@ -556,8 +556,8 @@ void FeaMesh::UpdateDrawObjs()
 
                 vec3d orient_pnt = center + line_length * quad->m_Orientation;
 
-                ss_el_orient_pnt_vec.push_back( center );
-                ss_el_orient_pnt_vec.push_back( orient_pnt );
+                ss_el_orient_pnt_vec.push_back( center / m_LenScale );
+                ss_el_orient_pnt_vec.push_back( orient_pnt / m_LenScale );
             }
             else if (( m_FeaElementVec[j]->GetFeaSSIndex() == iss ) && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
             {
@@ -566,8 +566,8 @@ void FeaMesh::UpdateDrawObjs()
 
                 vec3d norm_pnt = m_FeaElementVec[j]->m_Mids[0]->m_Pnt + line_length * beam->m_Norm0;
 
-                ss_cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Mids[0]->m_Pnt );
-                ss_cap_norm_pnt_vec.push_back( norm_pnt );
+                ss_cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Mids[0]->m_Pnt / m_LenScale );
+                ss_cap_norm_pnt_vec.push_back( norm_pnt / m_LenScale );
             }
         }
 

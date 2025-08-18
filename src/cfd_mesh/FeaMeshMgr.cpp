@@ -3697,8 +3697,8 @@ void FeaMeshMgrSingleton::ModifyConnDO( FeaConnection* conn, vector < DrawObj* >
 
                 if ( indx >= 0 && indx < npt && npt > 0 )
                 {
-                    connDO[ 0 ]->m_PntVec[ 0 ] = fxpt->m_Pnt[ indx ];
-                    connDO[ 1 ]->m_PntVec[ 0 ] = fxpt->m_Pnt[ indx ];
+                    connDO[ 0 ]->m_PntVec[ 0 ] = fxpt->m_Pnt[ indx ] / startmesh->m_LenScale;
+                    connDO[ 1 ]->m_PntVec[ 0 ] = fxpt->m_Pnt[ indx ] / startmesh->m_LenScale;
                     connDO[ 0 ]->m_GeomChanged = true;
                     connDO[ 1 ]->m_GeomChanged = true;
                 }
@@ -3718,8 +3718,8 @@ void FeaMeshMgrSingleton::ModifyConnDO( FeaConnection* conn, vector < DrawObj* >
 
                 if ( indx >= 0 && indx < npt )
                 {
-                    connDO[0]->m_PntVec[1] = fxpt->m_Pnt[ indx ];
-                    connDO[1]->m_PntVec[1] = fxpt->m_Pnt[ indx ];
+                    connDO[0]->m_PntVec[1] = fxpt->m_Pnt[ indx ] / endmesh->m_LenScale;
+                    connDO[1]->m_PntVec[1] = fxpt->m_Pnt[ indx ] / endmesh->m_LenScale;
                     connDO[ 0 ]->m_GeomChanged = true;
                     connDO[ 1 ]->m_GeomChanged = true;
                 }
