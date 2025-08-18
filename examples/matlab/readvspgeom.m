@@ -362,7 +362,7 @@ end
 
 [filepath,basename,~] = fileparts(fname);
 
-taglistname = [filepath filesep basename '.taglist'];
+taglistname = [basename '.taglist']
 
 
 itagname=[];
@@ -387,7 +387,7 @@ if ( exist(taglistname, 'file') )
 
         [~,tagbasename,~] = fileparts(tagfile);
 
-        tagfilename = [filepath filesep tagbasename '.tag'];
+        tagfilename = fullfile(filepath, [tagbasename '.tag']);
 
 
         if ( exist(tagfilename, 'file') )
