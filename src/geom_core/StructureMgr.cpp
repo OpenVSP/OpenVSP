@@ -222,6 +222,12 @@ void StructureMgrSingleton::CleanUnusedDefaultProperties()
                     {
                         prop->m_Used = true;
                     }
+
+                    prop = GetFeaProperty( fea_part->m_CapFeaPropertyID );
+                    if ( prop )
+                    {
+                        prop->m_Used = true;
+                    }
                 }
             }
         }
