@@ -362,7 +362,8 @@ end
 
 [filepath,basename,~] = fileparts(fname);
 
-taglistname = [basename '.taglist']
+% fullfile keeps the geometry's own directory, so this works from any cwd.
+taglistname = fullfile(filepath, [basename '.ALL.taglist']);
 
 
 itagname=[];
