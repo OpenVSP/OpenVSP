@@ -1950,6 +1950,7 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_r
 
         pgm->PolygonizeMesh();
         pgm->CleanColinearVerts();
+        pgm->RemoveDegenEdges();
 
         pgm->FindAllDoubleBackNodes();
         pgm->SealDoubleBackNodes();
