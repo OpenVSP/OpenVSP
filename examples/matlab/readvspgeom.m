@@ -406,8 +406,6 @@ if ( exist(taglistname, 'file') )
                 patch('Faces',con(:,itag{i})','Vertices',p','FaceColor','w')
                 axis equal
                 axis off
-                h = plotwakes( wedata, p );
-                set(h,'LineWidth',5);
                 %set(h,'Color','k');
                 title(['Tag ' itagname{i}], 'Interpreter', 'none')
             end
