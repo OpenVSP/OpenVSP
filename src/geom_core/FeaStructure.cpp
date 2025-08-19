@@ -5608,6 +5608,119 @@ void FeaProperty::Update()
         }
     }
 
+    if ( m_FeaPropertyType() == vsp::FEA_BEAM )
+    {
+        if ( m_CrossSectType() == vsp::FEA_XSEC_CIRC )
+        {
+            const double r = m_Dim1();
+            const double rsq = r * r;
+            const double r4 = rsq * rsq;
+
+            m_CrossSecArea = M_PI * rsq;
+            m_Izz = 0.25 * M_PI * r4;
+            m_Iyy = m_Izz();
+            m_Ixx = 0.5 * M_PI * r4;
+            m_Izy = 0.0;
+        }
+        else if ( m_CrossSectType() == vsp::FEA_XSEC_PIPE )
+        {
+            const double ro = m_Dim1();
+            const double ri = m_Dim2();
+
+            const double rosq = ro * ro;
+            const double risq = ri * ri;
+
+            const double ro4 = rosq * rosq;
+            const double ri4 = risq * risq;
+
+            m_CrossSecArea = M_PI * ( rosq - risq );
+            m_Izz = 0.25 * M_PI * ( ro4 - ri4 );
+            m_Iyy = m_Izz();
+            m_Ixx = 0.5 * M_PI * ( ro4 - ri4 );
+            m_Izy = 0.0;
+        }
+        else if ( m_CrossSectType() == vsp::FEA_XSEC_I )
+        {
+            const double h = m_Dim1();
+            const double a = m_Dim2();
+            const double b = m_Dim3();
+            const double tw = m_Dim4();
+            const double ta = m_Dim5();
+            const double tb = m_Dim6();
+
+            const double hw = h - ( ta + tb );
+            const double hf = h - 0.5 * ( ta + tb );
+
+            const double ta3 = ta * ta * ta;
+            const double tb3 = tb * tb * tb;
+            const double tw3 = tw * tw * tw;
+            const double hw3 = hw * hw * hw;
+            const double a3 = a * a * a;
+            const double b3 = b * b * b;
+
+            const double A = ta * a + hw * tw + tb * b;
+            const double yc = ( 0.5 * hw * ( hw + ta ) * tw + hf * tb * b ) / A;
+
+            const double d = hf - yc;
+            const double p1 = d * d * b * tb;
+            const double p2 = yc * yc * a * ta;
+            const double c = yc - 0.5 * ( hw + ta );
+            const double p3 = c * c * hw * tw;
+
+            m_CrossSecArea = A;
+            m_Izz = ( b * tb3 + a * ta3 + tw * hw3 ) / 12.0 + p1 + p2 + p3;
+            m_Iyy = ( b3 * tb + a3 * ta + hw * tw3 ) / 12.0;
+            m_Ixx = ( 1.0 / 3.0 ) * ( tb3 * b + ta3 * a + tw3 * hf );
+            m_Izy = 0.0;
+        }
+        else if ( m_CrossSectType() == vsp::FEA_XSEC_RECT )
+        {
+            const double b = m_Dim1();
+            const double h = m_Dim2();
+            const double b3 = b * b * b;
+            const double h3 = h * h * h;
+            const double b4 = b3 * b;
+            const double h4 = h3 * h;
+
+            m_CrossSecArea = b * h;
+            m_Izz = b * h3 / 12.0;
+            m_Iyy = b3 * h / 12.0;
+            m_Ixx = b * h3 * ( ( 1.0 / 3.0 ) - 0.21 * ( h / b ) * ( 1.0 - ( h4 / ( 12.0 * b4 ) ) ) );
+            m_Izy = 0.0;
+        }
+        else if ( m_CrossSectType() == vsp::FEA_XSEC_BOX )
+        {
+            const double b = m_Dim1();
+            const double h = m_Dim2();
+            const double t1 = m_Dim3();
+            const double t2 = m_Dim4();
+
+            const double bi = b - 2.0 * t2;
+            const double hi = h - 2.0 * t1;
+
+            const double b3 = b * b * b;
+            const double h3 = h * h * h;
+
+            const double bi3 = bi * bi * bi;
+            const double hi3 = hi * hi * hi;
+
+            const double a = b - t2;
+            const double c = h - t1;
+
+            const double a2 = a * a;
+            const double c2 = c * c;
+
+            const double t12 = t1 * t1;
+            const double t22 = t2 * t2;
+
+            m_CrossSecArea = b * h - bi * hi;
+            m_Izz = ( b * h3 - bi * hi3 ) / 12.0;
+            m_Iyy = ( b3 * h - bi3 * hi ) / 12.0;
+            m_Ixx = ( 2 * t2 * t2 * a2 * c2 ) / ( b * t2 + h * t1 - t22 - t12 );
+            m_Izy = 0.0;
+        }
+    }
+
     if ( m_LengthUnit() == vsp::LEN_UNITLESS )
     {
         m_Thickness_FEM = m_Thickness.Get();
