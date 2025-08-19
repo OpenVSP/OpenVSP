@@ -833,6 +833,12 @@ protected:
         }
         else
         {
+            if ( m_SurfSymmMap.empty() )
+            {
+                dest = source;
+                return;
+            }
+
             // Get symmetry as applied to main surface.
             vector < int > symindexs = m_SurfSymmMap[ 0 ];
 
