@@ -1626,6 +1626,20 @@ void Results::WriteCompGeomTxtFile( const string & file_name )
             }
         }
 
+        int num_ss = FindPtr( "Num_SubSurfs" )->GetInt( 0 );
+        if ( num_ss > 0 )
+        {
+            fprintf( fid, "\n" );
+            fprintf( fid, " SS_Theo_Area    SS_Wet_Area    SS_Name\n" );
+
+            for ( int i = 0 ; i < num_ss ; i++ )
+            {
+                fprintf( fid, "    %9.3f      %9.3f    %-15s\n",
+                         FindPtr( "SubSurf_Theo_Area" )->GetDouble( i ), FindPtr( "SubSurf_Wet_Area" )->GetDouble( i ),
+                         FindPtr( "SubSurf_Name" )->GetString( i ).c_str() );
+            }
+        }
+
         if ( FindPtr( "Num_Degen_Tris_Removed" )->GetInt( 0 ) )
         {
             fprintf( fid, "WARNING: %d degenerate triangle removed\n", FindPtr( "Num_Degen_Tris_Removed" )->GetInt( 0 ) );
@@ -1684,6 +1698,18 @@ void Results::WriteCompGeomCsvFile( const string & file_name )
                 fprintf( fid, "%s,%f,%f\n",
                          FindPtr( "Tag_Name" )->GetString( i ).c_str(),
                          FindPtr( "Tag_Theo_Area" )->GetDouble( i ), FindPtr( "Tag_Wet_Area" )->GetDouble( i ) );
+            }
+        }
+
+        int num_ss = FindPtr( "Num_SubSurfs" )->GetInt(0);
+        if ( num_ss > 0 )
+        {
+            fprintf( fid, "\nSS_Name, SS_Theo_Area, SS_Wet_Area\n" );
+            for ( int i = 0 ; i < num_ss ; i++ )
+            {
+                fprintf( fid, "%s,%f,%f\n",
+                         FindPtr( "SubSurf_Name" )->GetString( i ).c_str(),
+                         FindPtr( "SubSurf_Theo_Area" )->GetDouble( i ), FindPtr( "SubSurf_Wet_Area" )->GetDouble( i ) );
             }
         }
 
