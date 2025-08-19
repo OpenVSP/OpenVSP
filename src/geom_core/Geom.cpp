@@ -1998,9 +1998,9 @@ void Geom::UpdateFeatureLines( )
     }
 }
 
-void Geom::UpdateSymmAttach()
+void Geom::UpdateSymmAttach( int num_main )
 {
-    unsigned int num_surf = GetNumTotalSurfs();
+    unsigned int num_surf = GetNumSymmCopies() * num_main;
     m_MainSurfIndxVec.clear();
     m_SurfSymmMap.clear();
     m_SurfCopyIndx.clear();
@@ -2010,7 +2010,6 @@ void Geom::UpdateSymmAttach()
     m_SurfSymmMap.resize( num_surf );
     m_SurfCopyIndx.resize( num_surf );
 
-    int num_main = GetNumMainSurfs();
     for ( int i = 0 ; i < ( int )num_main ; i++ )
     {
         m_MainSurfIndxVec[i] = i;
@@ -2050,7 +2049,7 @@ void Geom::UpdateSymmAttach()
         Matrix4d Rel; // Relative Transformation matrix with Reflection applied ( this is for the main surfaces )
 
         double angle = ( 360 ) / ( double )m_SymRotN();
-        int currentIndex = GetNumMainSurfs();
+        int currentIndex = num_main;
         bool radial = false;
 
         for ( int i = 0 ; i < GetNumSymFlags() ; i ++ ) // Loop through each of the set sym flags
@@ -2168,6 +2167,11 @@ void Geom::UpdateSymmAttach()
             m_SymmTransMatVec[ isymm ] = m_TransMatVec[ m_SurfSymmMap[0][isymm] ];
         }
     }
+}
+
+void Geom::UpdateSymmAttach()
+{
+    UpdateSymmAttach( GetNumMainSurfs() );
 }
 
 void Geom::UpdateSurfVec()

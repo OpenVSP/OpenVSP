@@ -805,6 +805,7 @@ protected:
     virtual void UpdateEngine()   {};
     virtual void UpdateFeatureLines();
     virtual void UpdateFlags();
+    virtual void UpdateSymmAttach( int num_main );
     virtual void UpdateSymmAttach();
     virtual void UpdateSurfVec();
     virtual void UpdateCopyParms() {};
