@@ -433,11 +433,13 @@ void VehScreen::GetCollIDs( vector < string > &collIDVec )
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
-GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
+GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile, bool subsurf_flag ) :
     TabScreen( mgr, w, h, title, helpfile )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MenuTabs->callback( staticScreenCB, this );
+
+    m_HasSubsurfTab = subsurf_flag;
 
     // Set the window as a geom screen window
     VSP_Window* vsp_win = dynamic_cast<VSP_Window*>(m_FLTK_Window);
@@ -454,6 +456,11 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     Fl_Group* xform_group = AddSubGroup( xform_tab, 5 );
     Fl_Group* massprop_group = AddSubGroup( massprop_tab, 5 );
     Fl_Group* subsurf_group = AddSubGroup( subsurf_tab, 5 );
+    if ( !m_HasSubsurfTab )
+    {
+        RemoveTab( subsurf_tab );
+        subsurf_group->deactivate();
+    }
 
     // Identify the Geom type name:
     m_GeomTypeName = title;

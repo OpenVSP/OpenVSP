@@ -225,7 +225,7 @@ public:
 class GeomScreen : public TabScreen
 {
 public:
-    GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string() );
+    GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile = string(), bool subsurf_flag = true );
     virtual ~GeomScreen()                               {}
 
     virtual bool Update( );
@@ -696,6 +696,8 @@ public:
 protected:
     bool m_RotActive;
     string m_GeomTypeName;
+
+    bool m_HasSubsurfTab;
 
     GroupLayout* m_SubSurfXSCCurrDisplayGroup;
     void SubSurfXSCDisplayGroup( GroupLayout* group );
