@@ -249,6 +249,9 @@ public:
 
     GroupLayout m_XFormLayout;
     GroupLayout m_SubSurfLayout;
+    GroupLayout m_SSBrowserLayout;
+    GroupLayout m_SSBrowserLayoutSide;
+    GroupLayout m_SSBrowserLayoutMain;
     GroupLayout m_MassPropLayout;
 
     GroupLayout m_SymmLayout;
@@ -350,6 +353,10 @@ public:
     int m_SubSurfTab_ind;
     GroupLayout* m_CurSubDispGroup;
     ColResizeBrowser* m_SubSurfBrowser;
+    TriggerButton m_SSMoveTopButton;
+    TriggerButton m_SSMoveUpButton;
+    TriggerButton m_SSMoveDownButton;
+    TriggerButton m_SSMoveBotButton;
     TriggerButton m_DelSubSurfButton;
     TriggerButton m_AddSubSurfButton;
     Choice m_SubSurfChoice;

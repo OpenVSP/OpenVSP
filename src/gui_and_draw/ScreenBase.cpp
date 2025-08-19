@@ -752,15 +752,31 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SubSurfLayout.SetGroupAndScreen( subsurf_group, this );
     m_SubSurfLayout.AddDividerBox( "Sub-Surface List" );
 
-    // Initial column widths
-    static int col_widths[] = { m_SubSurfLayout.GetW() / 2, m_SubSurfLayout.GetW() / 3, m_SubSurfLayout.GetW() / 6, 0 }; // 3 columns
-
     int browser_h = 100;
-    int attr_h = 130;
+    int attr_h = 145;
+    int side_w = 15;
 
-    m_SubSurfBrowser = m_SubSurfLayout.AddColResizeBrowser( col_widths, 3, browser_h );
+    m_SubSurfLayout.AddSubGroupLayout( m_SSBrowserLayout, m_SubSurfLayout.GetW(), browser_h );
+
+    m_SSBrowserLayout.SetSameLineFlag( true );
+    m_SSBrowserLayout.AddSubGroupLayout( m_SSBrowserLayoutSide, side_w, browser_h );
+    m_SSBrowserLayout.AddX( side_w );
+    m_SSBrowserLayout.AddSubGroupLayout( m_SSBrowserLayoutMain, m_SubSurfLayout.GetW() - side_w, browser_h );
+    m_SSBrowserLayout.ForceNewLine();
+
+    // Initial column widths
+    static int col_widths[] = { m_SSBrowserLayoutMain.GetW() / 2, m_SSBrowserLayoutMain.GetW() / 3, m_SSBrowserLayoutMain.GetW() / 6, 0 }; // 3 columns
+
+    m_SubSurfBrowser = m_SSBrowserLayoutMain.AddColResizeBrowser( col_widths, 3, browser_h );
     m_SubSurfBrowser->callback( staticScreenCB, this );
 
+    m_SSBrowserLayoutSide.SetStdHeight( int ( browser_h / 4 ) );
+    m_SSBrowserLayoutSide.AddButton( m_SSMoveTopButton , "@2<<");
+    m_SSBrowserLayoutSide.AddButton( m_SSMoveUpButton, "@2<" );
+    m_SSBrowserLayoutSide.AddButton( m_SSMoveDownButton, "@2>" );
+    m_SSBrowserLayoutSide.AddButton( m_SSMoveBotButton, "@2>>" );
+
+    m_SubSurfLayout.AddY( browser_h );
     m_SubSurfLayout.SetSameLineFlag( true );
     m_SubSurfLayout.AddButton( m_AddSubSurfButton, "Add", m_SubSurfLayout.GetW() * 0.5 );
     m_SubSurfLayout.AddButton( m_DelSubSurfButton, "Delete", m_SubSurfLayout.GetW() * 0.5 );
@@ -2698,6 +2714,38 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         geom_ptr->DelSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
         SetCurrSubSurf( geom_ptr->NumSubSurfs() - 1 );
+    }
+    else if ( device == &m_SSMoveTopButton )
+    {
+        SubSurface* subsurf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+        if ( subsurf )
+        {
+            geom_ptr->ReorderSubSurf( subsurf->GetID(), vsp::REORDER_MOVE_TOP );
+        }
+    }
+    else if ( device == &m_SSMoveUpButton )
+    {
+        SubSurface* subsurf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+        if ( subsurf )
+        {
+            geom_ptr->ReorderSubSurf( subsurf->GetID(), vsp::REORDER_MOVE_UP );
+        }
+    }
+    else if ( device == &m_SSMoveDownButton )
+    {
+        SubSurface* subsurf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+        if ( subsurf )
+        {
+            geom_ptr->ReorderSubSurf( subsurf->GetID(), vsp::REORDER_MOVE_DOWN );
+        }
+    }
+    else if ( device == &m_SSMoveBotButton )
+    {
+        SubSurface* subsurf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+        if ( subsurf )
+        {
+            geom_ptr->ReorderSubSurf( subsurf->GetID(), vsp::REORDER_MOVE_BOTTOM );
+        }
     }
     else if ( device == &m_SubNameInput )
     {
