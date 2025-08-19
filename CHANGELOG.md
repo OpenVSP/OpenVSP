@@ -1,3 +1,65 @@
+# [OpenVSP 3.45.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.2)
+
+2025-08-18
+
+OpenVSP 3.45.2
+
+Another small bugfix release and just a few micro-features.
+
+Single structure NASTRAN files now include some starter executive control
+statements previously only output for assemblies.
+
+CompGeom now reports area calculations for each subsurface (not just by tag).
+
+Subsurfaces can now be re-ordered from the GUI.
+
+Paths to control surface tag files are now correctly constructed in
+VSPAERO on Windows.
+
+Degenerate edges that would lead to zero-node faces in NGon meshes are now
+cleaned up.
+
+Warnings from Attribute Editor complaining about insufficient height have been
+silenced.
+
+A fix in the previous version managed to mess up the normal vector
+direction for CompGeom and other mesh-type operations.  This also
+has the effect of messing up surface orientation for VSPAERO.
+
+FEA Beam properties were getting deleted and substituted for a default
+property -- even if they were used.
+
+The FEA Mesh was visualized in FEA scale not VSP Model scale.  While
+not the end of the world, it caused significant inconvenience.  Mesh
+size parameters are still in FEA scale, but the resulting mesh is
+visualized in the model scale.
+
+FEA mass calculations were often output with inappropriate precision and
+also without the context of the mass units.  The number formatting has
+been improved and units added to the console output of mass property
+totals.
+
+So, not a whole lot here -- but it is all good stuff.  These bugs were hitting
+users, so update to avoid these issues.
+
+Features:
+- Single structure NASTRAN file now includes executive control deck
+- Detailed subsurface area outputs from CompGeom
+- SubSurfaces can now be re-ordered
+
+Bug Fixes:
+- VSPAERO control surface tag file paths correctly constructed
+- Degenerate edges cleaned up in NGon files
+- Attribute Editor height warnings silenced
+- Normal vector directions for CompGeom and other meshes
+- FEA Beam properties getting deleted
+- FEA Mesh visualization scale
+- FEA Mass properties precision and units in output
+
+
+---
+
+
 # [OpenVSP 3.44.4](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.4)
 
 2025-08-18
