@@ -134,7 +134,10 @@ void GuiInterface::UpdateGUI()
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
-        m_ScreenMgr->APIUpdateGUI();
+        if ( m_EventLoopRunning )
+        {
+            m_ScreenMgr->APIUpdateGUI();
+        }
     }
 #endif
 }
