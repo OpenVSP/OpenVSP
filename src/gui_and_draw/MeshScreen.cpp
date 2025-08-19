@@ -11,10 +11,8 @@
 
 
 //==== Constructor ====//
-MeshScreen::MeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Mesh" )
+MeshScreen::MeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Mesh", string(""), false )
 {
-    RemoveTab( GetTab( m_SubSurfTab_ind ) );
-
     Fl_Group* other_tab = AddTab( "Other" );
     Fl_Group* other_group = AddSubGroup( other_tab, 5 );
 

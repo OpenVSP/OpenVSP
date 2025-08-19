@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Human" )
+HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Human", string(""), false )
 {
     Fl_Group* design_tab = AddTab( "Anthropometric" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -173,8 +173,6 @@ HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
     m_PoseLayout.AddSlider( m_HipFELtSlider, "Hip FE", 100, "%7.3f" );
     m_PoseLayout.AddSlider( m_KneeLtSlider, "Knee ", 100, "%7.3f" );
     m_PoseLayout.AddSlider( m_AnkleLtSlider, "Ankle", 100, "%7.3f" );
-
-    RemoveTab( GetTab( m_SubSurfTab_ind ) );
 }
 
 

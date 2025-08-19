@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Hinge" )
+HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Hinge", string(""), false )
 {
     Fl_Group* orient_tab = AddTab( "Orient" );
     Fl_Group* orient_group = AddSubGroup( orient_tab, 5 );
@@ -271,7 +271,6 @@ HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Hinge" 
     m_MotionLayout.AddSlider( m_JointRotMaxSlider, "Max", 100, "%6.2f" );
     m_MotionLayout.ForceNewLine();
 
-    RemoveTab( GetTab( m_SubSurfTab_ind ) );
     RemoveTab( GetTab( m_MassPropTab_ind ) );
 }
 

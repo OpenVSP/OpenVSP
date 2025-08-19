@@ -12,7 +12,7 @@
 #include "APIDefines.h"
 
 //==== Constructor ====//
-RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Routing" )
+RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Routing", string(""), false )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -231,8 +231,6 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Rou
     m_SelectionFlag = false;
     m_AddMultipleFlag = false;
     m_InsertMultipleFlag = false;
-
-    RemoveTab( GetTab( m_SubSurfTab_ind ) );
 }
 
 
