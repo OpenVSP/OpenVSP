@@ -414,7 +414,7 @@ double ConvertDensityToSLUG_FT3( double density, int cur_unit )
         break;
 
     case vsp::RHO_UNIT_G_CM3:
-        density /= 515378.8183932;
+        density /= .5153788183932;
         break;
 
     case vsp::RHO_UNIT_KG_M3:
@@ -448,7 +448,7 @@ double ConvertDensityFromSLUG_FT3( double density, int new_unit )
         break;
 
     case vsp::RHO_UNIT_G_CM3:
-        density *= 515378.8183932;
+        density *= .5153788183932;
         break;
 
     case vsp::RHO_UNIT_KG_M3:
