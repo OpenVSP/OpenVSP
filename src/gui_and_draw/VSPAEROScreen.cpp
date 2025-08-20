@@ -179,12 +179,13 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.SetSameLineFlag( true );
     m_CaseSetupLayout.SetFitWidthFlag( false );
 
-    m_CaseSetupLayout.AddButton( m_CullFracButton, "Cull Orphans" );
-    m_CaseSetupLayout.SetButtonWidth( 0 );
+    m_CaseSetupLayout.SetButtonWidth( togglewidth );
+    m_CaseSetupLayout.AddButton( m_CullFracButton, "" ); // make this the parm button?
+    m_CaseSetupLayout.SetButtonWidth( button_width - togglewidth );
     m_CaseSetupLayout.SetFitWidthFlag( true );
-    m_CaseSetupLayout.AddSlider( m_CullFracSlider, "", 1.0, "%5.3f" );
+    m_CaseSetupLayout.AddSlider( m_CullFracSlider, "Cull Orphans", 1.0, "%5.3f" );
     m_CaseSetupLayout.ForceNewLine();
-    m_CaseSetupLayout.SetButtonWidth( bw );
+    m_CaseSetupLayout.SetButtonWidth( button_width );
 
     m_CaseSetupLayout.SetSameLineFlag( false );
     m_CaseSetupLayout.SetFitWidthFlag( true );
@@ -1614,6 +1615,7 @@ void VSPAEROScreen::UpdateCaseSetup()
         m_CullFracSlider.Activate();
         m_CullFracButton.Activate();
     }
+    m_CullFracSlider.SetButtonName( "Cull Orphans" );
 
     m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
 
