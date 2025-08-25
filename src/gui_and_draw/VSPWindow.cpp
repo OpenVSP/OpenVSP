@@ -22,6 +22,8 @@ VSP_Window::VSP_Window(int w, int h, const char* title) : Fl_Double_Window( w, h
     m_AlignType = WIN_ALN_NONE;
     m_ResizeCB = nullptr;
     m_ResizeData = nullptr;
+    m_KeyCB = nullptr;
+    m_KeyCBData = nullptr;
 }
 
 VSP_Window::VSP_Window(int x, int y, int w, int h, const char* l) : Fl_Double_Window(x , y, w, h, l)
@@ -32,6 +34,8 @@ VSP_Window::VSP_Window(int x, int y, int w, int h, const char* l) : Fl_Double_Wi
     m_AlignType = WIN_ALN_NONE;
     m_ResizeCB = nullptr;
     m_ResizeData = nullptr;
+    m_KeyCB = nullptr;
+    m_KeyCBData = nullptr;
 }
 
 void VSP_Window::SetAlignType( int t )
@@ -260,8 +264,15 @@ int VSP_Window::handle( int fl_event )
     int x = Fl::event_x();
     int y = Fl::event_y();
 
-//    switch( fl_event )
-//    {
+    switch( fl_event )
+    {
+        case FL_KEYDOWN:
+        {
+            if ( m_KeyCB )
+            {
+                m_KeyCB( this, m_KeyCBData );
+            }
+        }
 //    case FL_ENTER:
 //        cursor( FL_CURSOR_CROSS );
 //        return 1;
@@ -273,8 +284,14 @@ int VSP_Window::handle( int fl_event )
 //    case FL_PUSH:
 //        printf("%d, %d\n",x,y);
 //        return 1;
-//    }
+    }
     return Fl_Double_Window::handle( fl_event );
+}
+
+void VSP_Window::SetKeyCallback( Fl_Callback* cb, void* p )
+{
+    m_KeyCB = cb;
+    m_KeyCBData = p;
 }
 
 void VSP_Window::SetResizeCallback( Fl_Callback* cb, void* p )

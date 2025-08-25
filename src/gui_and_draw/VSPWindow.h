@@ -65,6 +65,7 @@ public:
     }
 
     void SetResizeCallback( Fl_Callback* cb, void* p );
+    void SetKeyCallback( Fl_Callback* cb, void* p );
 
 protected:
 
@@ -76,6 +77,9 @@ protected:
 
     int m_AttachType;
     int m_AlignType;
+
+    Fl_Callback* m_KeyCB;
+    void* m_KeyCBData;
 
     Fl_Callback* m_ResizeCB;
     void* m_ResizeData;
