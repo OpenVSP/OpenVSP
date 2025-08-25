@@ -954,6 +954,11 @@ void RoutingGeom::DisableParms()
     // m_SymRotN.Deactivate();
 }
 
+void RoutingGeom::UpdateSymmAttach()
+{
+    Geom::UpdateSymmAttach( 1 );                 // Currently hard-coded to 1.
+}
+
 void RoutingGeom::UpdateBBox()
 {
     //==== Load Bounding Box ====//
