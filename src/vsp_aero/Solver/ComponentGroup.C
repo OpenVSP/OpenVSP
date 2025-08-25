@@ -1371,8 +1371,6 @@ void COMPONENT_GROUP::CalculateAverageForcesAndMoments(void)
 void COMPONENT_GROUP::CalculateAverageForcesAndMoments(int StartSample)
 {
 
-printf("StartSample: %d \n",StartSample);
-
     CalculateAverageForcesAndMoments_(StartSample);
 
 }

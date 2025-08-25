@@ -385,9 +385,9 @@ MATRIX operator*(const MATRIX &mat1, const MATRIX &mat2)
 
 #endif
 
-    for ( i = 1 ; i <= A.row ; i++ ) {
+    for ( i = 1 ; i <= mat1.row ; i++ ) {
 
-       for ( j = 1 ; j <= A.col ; j++ ) {
+       for ( j = 1 ; j <= mat2.col ; j++ ) {
 
           A(i,j) = 0.;
 
@@ -416,9 +416,9 @@ void MatTimesMat(const MATRIX &mat1, const MATRIX &mat2, MATRIX &A)
 
     int i, j, k;
 
-    for ( i = 1 ; i <= A.row ; i++ ) {
+    for ( i = 1 ; i <= mat1.row ; i++ ) {
 
-       for ( j = 1 ; j <= A.col ; j++ ) {
+       for ( j = 1 ; j <= mat2.col ; j++ ) {
 
           A(i,j) = 0.;
 

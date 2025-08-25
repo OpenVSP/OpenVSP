@@ -23,6 +23,8 @@
 #include "./MatPrecon.H"
 #include "./MergeSort.H"
 #include "./OptimizationFunction.H"
+#include "./OptimizationGradientData.H"
+#include "./OptimizationParameterData.H"
 #include "./QuadCell.H"
 #include "./QuadEdge.H"
 #include "./QuadNode.H"
@@ -309,21 +311,26 @@ extern double OptimizationFunctionReduction_;
 
 // Optimization function variables
 
-class PARAMETER_DATA {
-public:
-    double *ParameterValues;
-    char **ParameterNames;
-    int NumParameters;
-    double **dMesh_dParameter;
-};
+// class PARAMETER_DATA {
+// public:
+//     double *ParameterValues;
+//     char **ParameterNames;
+//     int NumParameters;
+//     double **dMesh_dParameter;
+// };
 
-class GRADIENT_DATA {
+// class GRADIENT_DATA {
    
-public:
+// public:
    
-   double *dF_dParameter;
-   double CL, CD, CS, CML, CMM, CMN;
-};
+//    double *dF_dParameter;
+//    double CL, CD, CS, CML, CMM, CMN;
+// };
+
+
+// class GRADIENT_DATA;
+// class OPTIMIZATION_PARAMETERS;
+extern OPTIMIZATION_PARAMETERS ParameterData_;
 
 int SearchForCharacterVariable(FILE *, const char *, char *);
 int SearchForFloatVariable(FILE *, const char *, double &);
@@ -346,11 +353,12 @@ void UnsteadyStabilityAndControlSolve();
 void WriteOutAdjointStabilityDerivatives();
 void WriteOutVorviewFLTFile();
 void VSPAERO_Optimize();
-void SaveVSPGeomFile(char *, int, char **, double *);
+void SaveVSPGeomFile(char*, OPTIMIZATION_PARAMETERS &ParameterData_);
 
-GRADIENT_DATA *VSPAERO_Optimize_Gradients(PARAMETER_DATA *ParameterData, int, bool);
-PARAMETER_DATA *VSPAERO_Optimize_Setup();
+GRADIENT_DATA *VSPAERO_Optimize_Gradients(OPTIMIZATION_PARAMETERS *ParameterData, int, bool);
+OPTIMIZATION_PARAMETERS *VSPAERO_Optimize_Setup();
 std::vector<double> get_dF_dParameter_array(double*, int, int);
 std::vector<std::string> get_ParameterNames_array(char**, int);
+void SetParameterValue(OPTIMIZATION_PARAMETERS *ParameterData, int, double);
 
 #endif // _VSPAERO_H_

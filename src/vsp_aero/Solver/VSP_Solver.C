@@ -256,6 +256,8 @@ void VSP_SOLVER::init(void)
     
     NoADBFile_ = 0;
     
+    UserSpecifiedCutOffFactor_ = -1.;
+    
 }
 
 /*##############################################################################
@@ -393,9 +395,15 @@ void VSP_SOLVER::Setup(void)
     
     printf("Minimum loop area: %e \n",CutOff);
 
-    CutOff = 1.e-4 * sqrt(CutOff);
+    printf("Character Minimum loop length: %e \n",sqrt(2.*CutOff));
+   
+    CutOff = 1.e-5 * sqrt(2.*CutOff);
+   
+    if ( CutOff <= 1.e-7 ) CutOff = 1.e-7;
  
-    if ( CutOff <= 1.e-10 ) CutOff = 1.e-10;
+    CutOff = 1.e-5;
+    
+    if ( UserSpecifiedCutOffFactor_ > 0. ) CutOff = UserSpecifiedCutOffFactor_;
 
     VSPGeom().Grid(MGLevel_).EdgeList(1).SetTolerance(CutOff);
  
@@ -3137,7 +3145,7 @@ void VSP_SOLVER::Solve(int Case)
        
        // Freeze the wake grids if the waker iterations is 0
 
-       if ( WakeIterations_ == 0 && !TimeAccurate_ ) {
+       if ( WakeIterations_ == 0 && !TimeAccurate_ && !DumpGeom_ ) {
           
           VSPGeom().FreezeWakeGrids();
           
@@ -7632,9 +7640,9 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
                 W += dW;
                 
                 // Wake induced velocities
-                
-                if ( VortexEdge->SurfaceID() == 0  ) {
-                   
+   
+                 if ( VortexEdge->SurfaceID() == 0  ) {
+                  
                    Uw += dU;
                    Vw += dV;
                    Ww += dW;
@@ -11124,7 +11132,7 @@ void VSP_SOLVER::DoAdjointMatrixMultiply(double *vec_in, double *vec_out)
        CalculateVortexStretchingRatioPerturbationLoopVelocities_Tranpose(vec_in, vec_out);
    
        // (4) Calculate vortex stretching ratio perturbations over wake edges onto the wake edges
-       //  [   ]   [  ][  ][  ][J ]
+       //  [   ]   [  ][  ][  ][J ] 
        //  [   ] x [  ][  ][  ][  ]
        //  [   ]   [  ][  ][  ][  ]
        //  [v^t]   [  ][  ][  ][  ]
@@ -29377,7 +29385,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
     SB = sin(AngleOfBeta_);
 
     // Zero out component group forces and moments
- 
+
     for ( c = 0 ; c <= VSPGeom().NumberOfComponentGroups() ; c++ ) {
 
        // Invisicid component
@@ -29638,7 +29646,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
           Fx = VSPGeom().Grid(MGLevel_).EdgeList(j).Trefftz_Fx();
           Fy = VSPGeom().Grid(MGLevel_).EdgeList(j).Trefftz_Fy();
           Fz = VSPGeom().Grid(MGLevel_).EdgeList(j).Trefftz_Fz();
-          
+
           CFwx_ += Fx;
           CFwy_ += Fy;
           CFwz_ += Fz;
@@ -29971,10 +29979,10 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
           for ( g = 0 ; g <= 1 ; g++ ) {
              
              if ( g == 0 ) c = 0;
-             if ( g == 1 ) c = i;
+             if ( g == 1 ) c = ComponentInThisGroup[i];
 
              // Forces
-               
+            
              VSPGeom().ComponentGroupList(c).CFox() += Fxo;
              VSPGeom().ComponentGroupList(c).CFoy() += Fyo;
              VSPGeom().ComponentGroupList(c).CFoz() += Fzo;
@@ -30285,11 +30293,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
              }
              
           } 
-
-          ComponentCg[0] = VSPGeom().ComponentGroupList(c).OVec(0);
-          ComponentCg[1] = VSPGeom().ComponentGroupList(c).OVec(1);
-          ComponentCg[2] = VSPGeom().ComponentGroupList(c).OVec(2);
-                                                   
+                                      
           LE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).LE_Edge());
 
           TE_Edge = ABS(VSPGeom().VortexSheet(k).TrailingVortex(i).TE_Edge());
@@ -30316,6 +30320,10 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
   
           if ( IsARotor ) {
            
+             ComponentCg[0] = VSPGeom().ComponentGroupList(Group).OVec(0);
+             ComponentCg[1] = VSPGeom().ComponentGroupList(Group).OVec(1);
+             ComponentCg[2] = VSPGeom().ComponentGroupList(Group).OVec(2);
+                     
              Diameter = VSPGeom().ComponentGroupList(Group).RotorDiameter();
              
              RPM = VSPGeom().ComponentGroupList(Group).Omega() * 60 / ( 2.*PI );

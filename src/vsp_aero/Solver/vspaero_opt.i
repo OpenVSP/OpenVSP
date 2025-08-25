@@ -2,10 +2,14 @@
 %{
     // Include the C header file.
     #include "vspaero.H"
+    #include "OptimizationParameterData.H"
+    #include "OptimizationGradientData.H"
 %}
 
 // Expose all functions in header
 %include "vspaero.H"
+%include "OptimizationParameterData.H"
+%include "OptimizationGradientData.H"
 
 // To expose value at pointer
 %include <std_vector.i>

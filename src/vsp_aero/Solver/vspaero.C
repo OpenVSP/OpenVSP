@@ -28,7 +28,7 @@ using namespace VSPAERO_SOLVER;
 
 #define VER_MAJOR 7
 #define VER_MINOR 2
-#define VER_PATCH 1
+#define VER_PATCH 2
 
 #define OPT_CGS   1
 #define OPT_BFGS  2
@@ -81,6 +81,7 @@ double ForwardGMRESConvergenceFactor_;
 double AdjointGMRESConvergenceFactor_;
 double NonLinearConvergenceFactor_;
 double CoreSizeFactor_;
+double UserSpecifiedCutOffFactor_;
 
 int AdjointSolutionForceType_ = ADJOINT_WAKE_AND_VISCOUS_FORCES;
 
@@ -395,6 +396,8 @@ void VSPAERO_Optimize(void);
 OPTIMIZATION_PARAMETERS *VSPAERO_Optimize_Setup(void);
 
 GRADIENT_DATA *VSPAERO_Optimize_Gradients(OPTIMIZATION_PARAMETERS *ParameterData, int Iter, bool CalculateGradients);
+
+void SetParameterValue(OPTIMIZATION_PARAMETERS *ParameterData, int index, double value);
 
 double *CreateVSPGeometry(char *FileName, OPTIMIZATION_PARAMETERS &ParameterData_, double *ParameterValues);
 
@@ -1296,7 +1299,15 @@ void LoadCaseFile(int ReadFlag)
     if ( SearchForFloatVariable(case_file, "CoreSizeFactor", CoreSizeFactor_) ) if ( case_file != NULL ) { printf("Setting CoreSizeFactor to: %f \n",CoreSizeFactor_); };
     
     if ( CoreSizeFactor_ > 0. ) VSPAERO().CoreSizeFactor() = CoreSizeFactor_;
-
+    
+    // Search for user specified cut off factor
+    
+    UserSpecifiedCutOffFactor_ = -1.;
+    
+    if ( SearchForFloatVariable(case_file, "CutOffFactor", UserSpecifiedCutOffFactor_) ) if ( case_file != NULL ) { printf("Setting CutOffFactor to: %f \n",UserSpecifiedCutOffFactor_); };
+    
+    if ( UserSpecifiedCutOffFactor_ > 0. ) VSPAERO().UserSpecifiedCutOffFactor() = UserSpecifiedCutOffFactor_;
+    
     // Search for Faraway factor
     
     FarAway_ = -1.;
@@ -7679,7 +7690,7 @@ GRADIENT_DATA *VSPAERO_Optimize_Gradients(OPTIMIZATION_PARAMETERS *ParameterData
 
       // Initialize to zero
       
-      for ( i = 1 ; i <= NumberOfParameterValues * 6; i++) {
+      for ( i = 0 ; i <= NumberOfParameterValues * 6 ; i++) {
       
          dF_dParam[i] = 0.;
          
@@ -7687,7 +7698,7 @@ GRADIENT_DATA *VSPAERO_Optimize_Gradients(OPTIMIZATION_PARAMETERS *ParameterData
 
       // Loop over OpenVSP parameters
       
-      for ( j = 1 ; j < NumberOfParameterValues; j++) {   
+      for ( j = 1 ; j <= NumberOfParameterValues; j++) {   
          
          // Loop over mesh nodes
          
@@ -7695,39 +7706,39 @@ GRADIENT_DATA *VSPAERO_Optimize_Gradients(OPTIMIZATION_PARAMETERS *ParameterData
 
                // CL
                
-               dF_dParam[3*(j-1) + 0] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DX()  * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DY()  * dMesh_dOpenVSP_Parameter_[j][3*i-1]
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DZ()  * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+               dF_dParam[6*(j-1) + 0] += VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DX()  * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DY()  * dMesh_dOpenVSP_Parameter_[j][3*i-1]
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCLt_DZ()  * dMesh_dOpenVSP_Parameter_[j][3*i  ];
                                                                                            
                // CD                                                                       
                                                                                            
-               dF_dParam[3*(j-1) + 1] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DX()  * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DY()  * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DZ()  * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+               dF_dParam[6*(j-1) + 1] += VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DX()  * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DY()  * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCDt_DZ()  * dMesh_dOpenVSP_Parameter_[j][3*i  ];
                                                                                            
                // CS                                                                       
                                                                                            
-               dF_dParam[3*(j-1) + 2] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DX()  * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DY()  * dMesh_dOpenVSP_Parameter_[j][3*i-1]
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DZ()  * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+               dF_dParam[6*(j-1) + 2] += VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DX()  * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DY()  * dMesh_dOpenVSP_Parameter_[j][3*i-1]
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCSt_DZ()  * dMesh_dOpenVSP_Parameter_[j][3*i  ];
 
                // CML
                
-               dF_dParam[3*(j-1) + 3] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DX() * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DY() * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DZ() * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+               dF_dParam[6*(j-1) + 3] += VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DX() * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DY() * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMlt_DZ() * dMesh_dOpenVSP_Parameter_[j][3*i  ];
                       
                // CMM
                                                                                                          
-               dF_dParam[3*(j-1) + 4] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX() * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY() * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ() * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+               dF_dParam[6*(j-1) + 4] += VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DX() * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DY() * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMmt_DZ() * dMesh_dOpenVSP_Parameter_[j][3*i  ];
 
                // CMLN
                                                                                                           
-               dF_dParam[3*(j-1) + 5] = VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DX() * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DY() * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
-                                      + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DZ() * dMesh_dOpenVSP_Parameter_[j][3*i  ];
+               dF_dParam[6*(j-1) + 5] += VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DX() * dMesh_dOpenVSP_Parameter_[j][3*i-2] 
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DY() * dMesh_dOpenVSP_Parameter_[j][3*i-1] 
+                                       + VSPAERO().VSPGeom().Grid(1).NodeList(i).DCMnt_DZ() * dMesh_dOpenVSP_Parameter_[j][3*i  ];
 
              //  dF_dParam[j * 3 + 0] += dCL_dp;
              //  dF_dParam[j * 3 + 1] += dCD_dp;
@@ -7785,12 +7796,13 @@ GRADIENT_DATA *VSPAERO_Optimize_Gradients(OPTIMIZATION_PARAMETERS *ParameterData
 ##############################################################################*/
 
 std::vector<double> get_dF_dParameter_array(double* ptr, int n_params, int n_outputs) {
-    std::vector<double> result(n_params * n_outputs);
+   std::vector<double> result(n_params * n_outputs); 
+   
+   for (int i = 0; i <= n_params * n_outputs; ++i) {
+      result[i] = ptr[i]; 
+   }
 
-    for (int i = 0; i < n_params * n_outputs; ++i)
-        result[i] = ptr[i];
-
-    return result;
+   return result;
 }
 
 /*##############################################################################
@@ -7813,6 +7825,18 @@ std::vector<std::string> get_ParameterNames_array(char** names, int num_names) {
     }
 
     return result;
+}
+
+/*##############################################################################
+#                                                                              #
+#                             SetParameterValue                                #
+#                                                                              #
+##############################################################################*/
+
+void SetParameterValue(OPTIMIZATION_PARAMETERS *ParameterData, int index, double value) {
+    if (index >= 0 && index <= ParameterData->NumberOfParameters()) {
+        ParameterData->ParameterValues(index) = value;
+    }
 }
 
 #endif

@@ -256,6 +256,8 @@ private:
     double WakeRelax_;
     
     double CoreSizeFactor_;
+    
+    double UserSpecifiedCutOffFactor_;
 
     double *Gamma_[3];
     double &Gamma(int i) { return Gamma_[0][i]; };
@@ -1179,6 +1181,10 @@ public:
     /** Adjust the wake core size model up or down, default value is 1. **/
     
     double &CoreSizeFactor(void) { return CoreSizeFactor_; };
+    
+    /** Set the velocity kernel cutoff value **/
+    
+    double &UserSpecifiedCutOffFactor(void) { return UserSpecifiedCutOffFactor_; };
     
     /** Turn on vortex stretching model **/
     

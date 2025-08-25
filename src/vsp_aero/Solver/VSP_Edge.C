@@ -3362,7 +3362,7 @@ double VSP_EDGE::Fint(double &a, double &b, double &c, double &d, double &s)
 
     R = a + b*s + c*s*s;
 
-    if ( ABS(d) <= Tolerance_2_ || R < Tolerance_1_ ) return 0.;
+    if ( !IsWakeEdge_ && ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) ) return 0.;
     
     if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
 
@@ -3409,8 +3409,8 @@ double VSP_EDGE::GradientFint(double &a, double &b, double &c, double &d, double
     dF_dd = 0.;
     dF_ds = 0.;
 
-    if ( ABS(d) <= Tolerance_2_ || R < Tolerance_1_ ) return 0.;
-    
+    if ( !IsWakeEdge_ && ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) ) return 0.;
+
     if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
 
     Denom = d * sqrt(R);
@@ -3455,7 +3455,7 @@ double VSP_EDGE::Gint(double &a, double &b, double &c, double &d, double &s)
         
     R = a + b*s + c*s*s;
 
-    if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
+    if ( ABS(d) <= Tolerance_2_ || R < Tolerance_1_ ) return 0.;
     
     if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
     
@@ -3483,7 +3483,7 @@ double VSP_EDGE::GradientGint(double &a, double &b, double &c, double &d, double
     
     R = a + b*s + c*s*s;
 
-    if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
+    if ( !IsWakeEdge_ && ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) ) return 0.;
     
     if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
     

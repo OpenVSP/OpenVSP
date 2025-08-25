@@ -662,7 +662,7 @@ void VSP_GEOM::ReadGroupFile(char *FileName)
     else {
     
        printf("Did not find a groups file... so setting up a single group for steady analysis \n");fflush(NULL);
-       
+
        NumberOfComponentGroups_ = 1;
        
        SetNumberOfComponentGroupsTo(NumberOfComponentGroups_);
