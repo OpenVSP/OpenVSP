@@ -138,6 +138,7 @@ protected:
     virtual void UpdateSurf();
     virtual void DisableParms();
 
+    virtual void UpdateSymmAttach();
     virtual void UpdateDrawObj();
     virtual void UpdateBBox();
     virtual void UpdateTessVec();
