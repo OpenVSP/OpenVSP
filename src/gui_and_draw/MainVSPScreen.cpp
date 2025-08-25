@@ -857,6 +857,44 @@ void MainVSPScreen::FitView( bool all )
     }
 }
 
+void MainVSPScreen::AlignViewToGeom( string geom_id )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    // try to find the geom by the given ID, default to base vehicle orientation
+    Matrix4d model_matrix;
+
+    Geom* geom = veh->FindGeom( geom_id );
+    if ( geom )
+    {
+        // get geom model matrix
+        model_matrix = geom->getModelMatrix();
+    }
+
+    // rotate to face front of object
+    model_matrix.rotateY( -90. );
+    model_matrix.rotateZ( -90. );
+
+    vec3d model_angles = model_matrix.getArcballAngles();
+    vec3d model_xyz = model_matrix.getTranslation();
+
+    // rotate view to front of selected geom
+    m_GlWin->rotateSphere(
+        model_angles.x(),
+        model_angles.y(),
+        model_angles.z()
+    );
+
+    // center on geom's xyz
+    m_GlWin->setCOR( glm::vec3( model_xyz.x(), model_xyz.y(), model_xyz.z() ) );
+
+    m_GlWin->UpdateAllViewParms();
+}
+
 void MainVSPScreen::ResetViews()
 {
     std::vector< VSPGraphic::Viewport *> vpts = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
