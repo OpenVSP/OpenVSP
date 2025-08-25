@@ -192,12 +192,17 @@ class TreeWithIcons : public Fl_Tree
             return m_EventItem;
         }
 
+        void SetKeyCallback( Fl_Callback* cb, void* p );
+
         int handle( int e );
 
         // Hide these base class methods from the API; we don't want app using them,
         // as we expect all items in the tree to be TreeIconItems, not Fl_Tree_Items.
     protected:
         TreeIconItem* m_EventItem;
+
+        Fl_Callback* m_KeyCB;
+        void* m_KeyCBData;
 
     private:
         using Fl_Tree::add;

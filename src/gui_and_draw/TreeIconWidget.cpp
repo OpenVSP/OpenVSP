@@ -679,6 +679,9 @@ TreeWithIcons::TreeWithIcons( int X, int Y, int W, int H, const char *L ) : Fl_T
     openicon( new Fl_Pixmap( mini_tree_open_xpm ) );
     closeicon( new Fl_Pixmap( mini_tree_close_xpm ) );
     ClearEventItem();
+
+    m_KeyCB = nullptr;
+    m_KeyCBData = nullptr;
 }
 
 TreeIconItem* TreeWithIcons::AddRow( const char *s, TreeIconItem *parent_item )
@@ -743,6 +746,12 @@ void TreeWithIcons::GetSelectedItems( vector < TreeIconItem* > *item_vec )
     }
 }
 
+void TreeWithIcons::SetKeyCallback( Fl_Callback* cb, void* p )
+{
+    m_KeyCB = cb;
+    m_KeyCBData = p;
+}
+
 int TreeWithIcons::handle( int e )
 {
     int ret = 0;
@@ -767,6 +776,13 @@ int TreeWithIcons::handle( int e )
             }
             ret = 1;
             break;
+        }
+        case FL_KEYDOWN:
+        {
+            if ( m_KeyCB )
+            {
+                m_KeyCB( this, m_KeyCBData );
+            }
         }
         default:
             ret = 1;
