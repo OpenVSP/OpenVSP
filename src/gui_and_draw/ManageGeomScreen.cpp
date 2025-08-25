@@ -17,6 +17,7 @@ using namespace vsp;
 ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 645, "Geom Browser" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
+    ((VSP_Window*)m_FLTK_Window)->SetKeyCallback( staticScreenCB, this );
 
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
@@ -89,6 +90,8 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 64
     m_GeomBrowser->connectorwidth( 11 );
     int fontsize = 12;
     m_GeomBrowser->item_labelsize( fontsize );
+
+    m_GeomBrowser->SetKeyCallback( staticScreenCB, this );
 
     m_RightLayout.AddButton( m_DeleteButton, "Delete" );
     m_RightLayout.AddYGap();
@@ -1027,13 +1030,23 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
 {
     assert( m_ScreenMgr );
 
-    if ( w == m_GeomBrowser )
+    if ( Fl::event_key() == 'x' )
+    {
+        vector < string > selVec = GetActiveGeoms();
+        MainVSPScreen* main_screen = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+        if ( main_screen && selVec.size() == 1 )
+        {
+            main_screen->AlignViewToGeom( selVec[0] );
+        }
+    }
+    else if ( w == m_GeomBrowser )
     {
         GeomBrowserCallback();
 
         //==== Existing geomtree items persist through update ====//
         ClearRedrawFlag();
     }
+
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
