@@ -129,6 +129,7 @@ protected:
     ScreenMenuItem m_AdjustMenuItem;
     ActionMenuItem m_SetCORMenuItem;
     ActionMenuItem m_SetVNMenuItem;
+    ActionMenuItem m_AlignGeomMenuItem;
     ActionMenuItem m_FitViewMenuItem;
     ActionMenuItem m_FitAllViewMenuItem;
     ActionMenuItem m_ResetAllViewMenuItem;

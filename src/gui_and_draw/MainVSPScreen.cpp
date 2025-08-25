@@ -137,6 +137,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso", FL_F + 12 );
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
     m_SetVNMenuItem.Init( this, m_MenuBar, "View/View Normal To", 'n' );
+    m_AlignGeomMenuItem.Init( this, m_MenuBar, "View/View Front Of", 'x' );
     m_CenterMenuItem.Init( this, m_MenuBar, "View/Center", 'c' );
     m_CenterAllMenuItem.Init( this, m_MenuBar, "View/Center All", 'C' );
     m_FitViewMenuItem.Init( this, m_MenuBar, "View/Fit On Screen", 'f' );
@@ -629,6 +630,19 @@ void MainVSPScreen::ActionCB( void * data )
         if( corScreen )
         {
             corScreen->EnableVNSelection();
+        }
+    }
+    else if ( data == &m_AlignGeomMenuItem )
+    {
+        Vehicle *veh = VehicleMgr.GetVehicle();
+
+        if ( veh )
+        {
+            vector < string > sel_geoms = veh->GetActiveGeomVec();
+            if ( sel_geoms.size() == 1 )
+            {
+                AlignViewToGeom( sel_geoms[0] );
+            }
         }
     }
     else if ( data == &m_FitViewMenuItem || data == &m_FitAllViewMenuItem )
