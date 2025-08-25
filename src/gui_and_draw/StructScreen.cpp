@@ -1318,7 +1318,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_IDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_PipeXSecGroup.AddX( gapw );
+    m_IXSecGroup.AddX( gapw );
 
     m_IXSecGroup.SetButtonWidth( 0 );
     m_IXSecGroup.AddOutput( m_IDim1_FEMOutput, "", "%5.3g" );
