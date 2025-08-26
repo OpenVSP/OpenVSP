@@ -1,3 +1,77 @@
+# [OpenVSP 3.45.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.3)
+
+2025-08-26
+
+OpenVSP 3.45.3
+
+Mostly a bugfix release, but with a couple small features for good
+measure.
+
+Version 3.45.X is going well.  All new features are going into it and
+fixes will not be back ported to 3.44.X after 3.46.0 is released.  The
+big change in 3.45 is the update to VSPAERO.  The only reason you should
+stick with 3.44.X is if you are a production user of VSPAERO who can
+not update their processes to 3.45.X at this time.  If that describes
+you, you should be excited about 3.45.X and eager to upgrade as soon as
+possible.  So, you should really be testing it now and updating your
+processes to the new version.
+
+There are some new options for interacting with the 3D window.
+
+Press 'n' (or choose 'View Normal To' from the menu), pick a point,
+and the 3D view will be centered at the selected point, your view
+will be aligned with the local normal vector, and the center of
+rotation will be set to the selected point.
+
+Press 'z' while rotating, and instead of rotating the 3D trackball,
+you will only rotate about the camera Z direction.  Use this when you
+like your 3D view direction, but not its orientation on screen.
+
+Press 'x' ( or choose 'View Front Of' from the menu) with a Geom
+selected, and the view will be centered on and aligned with the
+X direction of that Geom.
+
+There are a handful of fixes for VSPAERO including a fix for bookeeping
+of group forces/moments and adjustments to the cutoff value that will
+help with models of broadly different scale.
+
+3D backgrounds now work with photos and filled images (not just line
+drawings anymore).
+
+Two bugs were found when looking at the FEAMesh mass calculation.  The
+cross sectional area for beam elements was not being calculated.
+Instead, the default value was used.  The conversion factor for g/cm^3
+was 3 orders larger than kg/m^3 instead of 3 orders smaller.  And people
+think metric is easier...
+
+RoutingGeom would crash because it doesn't really have surfaces.
+
+Calling UpdateGUI() from the API when the GUI is not running should no
+longer cause a hang.
+
+
+Features:
+- View Normal To
+- Camera Z rotation
+- View Front Of
+
+VSPAERO Updates:
+- Fix book keeping of group forces / moments
+- Modified cutoff value for models of different scale
+- Fixes for python optimization API
+
+Bug Fixes:
+- Fix formatting of Cull Orphans Slider
+- 3D backgrounds with filled images
+- FEA Beam properties (including area) were not calculated, fixes mass
+- g/cm^3 conversion factor fixed.  Fixes FEA mass calculation.
+- RoutingGeom crash due to no surfaces fixed.
+- API UpdateGUI() hang when GUI not running fixed.
+
+
+---
+
+
 # [OpenVSP 3.44.5](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.5)
 
 2025-08-26
