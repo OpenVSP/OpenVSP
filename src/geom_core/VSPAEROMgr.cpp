@@ -408,8 +408,8 @@ void VSPAEROMgrSingleton::Renew()
     m_CurrentRotorDiskIndex = -1;
     m_LastSelectedType = -1;
 
-    m_GeomSet.Set( DEFAULT_SET );
-    m_ThinGeomSet.Set( vsp::SET_NONE );
+    m_GeomSet.Set( vsp::SET_NONE );
+    m_ThinGeomSet.Set( DEFAULT_SET );
 
     m_UseMode.Set( false );
     m_ModeID = "";
@@ -440,9 +440,10 @@ void VSPAEROMgrSingleton::Renew()
     m_Ycg.Set( 0.0 );
     m_Zcg.Set( 0.0 );
 
-    m_AlphaStart.Set( 1.0 ); m_AlphaEnd.Set( 10 ); m_AlphaNpts.Set( 3 );
+    m_AlphaStart.Set( 0.0 ); m_AlphaEnd.Set( 10 ); m_AlphaNpts.Set( 3 );
     m_BetaStart.Set( 0.0 ); m_BetaEnd.Set( 0.0 ); m_BetaNpts.Set( 1 );
     m_MachStart.Set( 0.0 ); m_MachEnd.Set( 0.0 ); m_MachNpts.Set( 1 );
+    m_ReCrefStart.Set( 1.0e7 ); m_ReCrefEnd.Set( 2.0e7 ); m_ReCrefNpts.Set( 1 );
 
     m_Symmetry.Set( false );
     m_StabilityType.Set( vsp::STABILITY_OFF );
@@ -453,12 +454,105 @@ void VSPAEROMgrSingleton::Renew()
 
     m_StopBeforeRun = false;
 
+    m_FixedWakeFlag.Set( false );
     m_WakeNumIter.Set( 5 );
+    m_NumWakeNodes.Set( 8 );
 
     m_StallModel.Set( vsp::STALL_OFF );
     m_GroundEffectToggle.Set( false );
+    m_GroundEffect.Set( -1 );
     m_FromSteadyState.Set( false );
     m_NumWakeNodes.Set( 8 );
+
+    m_LoadDistXMax.Set( 1 );
+    m_LoadDistYMin.Set( -1 );
+    m_LoadDistYMax.Set( 1 );
+
+    m_SweepXMinIsManual.Set( 0 );
+    m_SweepXMaxIsManual.Set( 0 );
+    m_SweepYMinIsManual.Set( 0 );
+    m_SweepYMaxIsManual.Set( 0 );
+    m_SweepXMin.Set( -1 );
+    m_SweepXMax.Set( 1 );
+    m_SweepYMin.Set( -1 );
+    m_SweepYMax.Set( 1 );
+
+    m_CpSliceXMinIsManual.Set( 0 );
+    m_CpSliceXMaxIsManual.Set( 0 );
+    m_CpSliceYMinIsManual.Set( 0 );
+    m_CpSliceYMaxIsManual.Set( 0 );
+    m_CpSliceXMin.Set( -1 );
+    m_CpSliceXMax.Set( 1 );
+    m_CpSliceYMin.Set( -1 );
+    m_CpSliceYMax.Set( 1 );
+
+    m_CpSliceYAxisFlipFlag.Set( false );
+    m_CpSlicePlotLinesFlag.Set( true );
+
+    m_UnsteadyXMinIsManual.Set( 0 );
+    m_UnsteadyXMaxIsManual.Set( 0 );
+    m_UnsteadyYMinIsManual.Set( 0 );
+    m_UnsteadyYMaxIsManual.Set( 0 );
+    m_UnsteadyXMin.Set( -1 );
+    m_UnsteadyXMax.Set( 1 );
+    m_UnsteadyYMin.Set( -1 );
+    m_UnsteadyYMax.Set( 1 );
+
+    m_UnsteadyGroupSelectType.Set( UNSTEADY_TYPE_SELECT::HISTORY_SELECT_TYPE );
+    m_LoadDistSelectType.Set( LOAD_TYPE_SELECT::LOAD_SELECT_TYPE );
+
+    // Other Setup Parameters );
+    m_Vinf.Set( 100 );
+    m_Rho.Set( 0.002377 );
+    m_Vref.Set( 100 );
+    m_ManualVrefFlag.Set( false );
+
+    m_Machref.Set( 0.3 );
+
+    m_Write2DFEMFlag.Set( false );
+    m_WriteTecplotFlag.Set( false );
+    m_Clo2D.Set( 0 );
+
+    m_CLMax2D.Set( 1 );
+    m_FarDist.Set( -1 );
+    m_FarDistToggle.Set( false );
+    m_CpSliceFlag.Set( true );
+
+    m_FreezeMultiPoleAtIteration.Set( 10000 );
+    m_FreezeWakeAtIteration.Set( 10000 );
+    m_FreezeWakeRootVortices.Set( false );
+
+    m_ImplicitWake.Set( false );
+    m_ImplicitWakeStartIteration.Set( 0 );
+    m_WakeRelax.Set( 1 );
+
+    m_ForwardGMRESConvergenceFactor.Set( 1 );
+    m_AdjointGMRESConvergenceFactor.Set( 1 );
+    m_NonLinearConvergenceFactor.Set( 1 );
+
+    m_CoreSizeFactor.Set( 1 );
+    m_FarAway.Set( 5 );
+
+    m_UpdateMatrixPreconditioner.Set( false );
+    m_UseWakeNodeMatrixPreconditioner.Set( false );
+
+    m_QuadTreeBufferLevels.Set( 0 );
+
+    // Unsteady );
+    m_TimeStepSize.Set( 1.00E-03 );
+    m_NumTimeSteps.Set( 25 );
+    m_StartAveragingTimeStep.Set( 1 );
+    m_AutoTimeStepFlag.Set( true );
+    m_AutoTimeNumRevs.Set( 5 );
+    m_HoverRampFlag.Set( false );
+    m_HoverRamp.Set( 0 );
+    m_FromSteadyState.Set( false );
+
+    m_NoiseCalcFlag.Set( false );
+    m_NoiseCalcType.Set( vsp::NOISE_FLYBY );
+    m_NoiseUnits.Set( vsp::NOISE_SI );
+
+    m_UniformPropRPMFlag.Set( true );
 }
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
