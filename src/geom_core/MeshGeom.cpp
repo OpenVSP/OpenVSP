@@ -4590,6 +4590,36 @@ void MeshGeom::MergeCoplanarTrimGroups()
     DeleteMarkedMeshes();
 }
 
+// tmi->m_PlateNum == tmj->m_PlateNum &&
+void MeshGeom::MergeDegenCruciformTMeshes()
+{
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() - 1; i++ )
+    {
+        TMesh *tmi = m_TMeshVec[ i ];
+        if ( tmi->m_DeleteMeFlag == false )
+        {
+            for ( int j = i + 1 ; j < ( int )m_TMeshVec.size(); j++ )
+            {
+                TMesh *tmj = m_TMeshVec[ j ];
+                if ( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
+                     tmi->m_ThickSurf == false && // Degen only
+                     tmj->m_ThickSurf == false &&
+                     tmi->m_SurfType == vsp::NORMAL_SURF && // bodies, not wings.
+                     tmj->m_SurfType == vsp::NORMAL_SURF &&
+                     tmi->m_CopyIndex == tmj->m_CopyIndex && // Same symmetry copy
+                     tmi->m_SurfNum == tmj->m_SurfNum && // Same surface number
+                     tmj->m_DeleteMeFlag == false )
+                {
+                    tmi->MergeTMeshes( tmj );
+                    tmj->m_DeleteMeFlag = true;
+                }
+            }
+        }
+    }
+
+    DeleteMarkedMeshes();
+}
+
 void MeshGeom::DeleteMarkedMeshes()
 {
     ::DeleteMarkedMeshes( m_TMeshVec );

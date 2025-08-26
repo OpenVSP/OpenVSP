@@ -183,6 +183,8 @@ public:
 
     virtual void MergeCoplanarTrimGroups();
 
+    virtual void MergeDegenCruciformTMeshes();
+
     virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir );
 
     virtual void ForceSymmSmallYZero();
