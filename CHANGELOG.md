@@ -1,3 +1,47 @@
+# [OpenVSP 3.44.5](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.5)
+
+2025-08-26
+
+OpenVSP 3.44.5
+
+One more small bugfix release of fixes backported from 3.45.X.  One fix
+might be enough for some people to see fixing it as a feature -- but I'm
+calling it a fix so it can go in this version too.
+
+Version 3.45.X is going well.  All new features are going into it and
+fixes will not be back ported to 3.44.X after 3.46.0 is released.  The
+big change in 3.45 is the update to VSPAERO.  The only reason you should
+stick with 3.44.X is if you are a production user of VSPAERO who can
+not update their processes to 3.45.X at this time.  If that describes
+you, you should be excited about 3.45.X and eager to upgrade as soon as
+possible.  So, you should really be testing it now and updating your
+processes to the new version.
+
+3D backgrounds now work with photos and filled images (not just line
+drawings anymore).
+
+Two bugs were found when looking at the FEAMesh mass calculation.  The
+cross sectional area for beam elements was not being calculated.
+Instead, the default value was used.  The conversion factor for g/cm^3
+was 3 orders larger than kg/m^3 instead of 3 orders smaller.  And people
+think metric is easier...
+
+RoutingGeom would crash because it doesn't really have surfaces.
+
+Calling UpdateGUI() from the API when the GUI is not running should no
+longer cause a hang.
+
+Bug Fixes:
+- 3D backgrounds with filled images
+- FEA Beam properties (including area) were not calculated, fixes mass
+- g/cm^3 conversion factor fixed.  Fixes FEA mass calculation.
+- RoutingGeom crash due to no surfaces fixed.
+- API UpdateGUI() hang when GUI not running fixed.
+
+
+---
+
+
 # [OpenVSP 3.44.4](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.4)
 
 2025-08-18
