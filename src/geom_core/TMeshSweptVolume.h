@@ -10,4 +10,6 @@ class vec3d;
 
 TMesh * CreateTMeshCompGeomSweptVolumeTranslate( TMesh * tm, const vec3d & v );
 
+TMesh * CreateTMeshPGMeshSweptVolumeTranslate( TMesh * tm, const vec3d & v );
+
 #endif //TMESHSWEPTVOLUME_H
