@@ -3282,13 +3282,27 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), vo
                 {
                     vector < PGEdge * > shared = sharedvec[j];
 
-                    if ( shared.size() == 1 )
+                    // Near thin intersections (particularly wing LE / TE), faces that are
+                    // candidates for merging can share some mergable edges -- and other non-mergable
+                    // edges.  Down-selecting to only the mergable edges allows RemoveEdgesMergeFaces
+                    // to succeed, where previously it would fail to merge anything if any of the edges
+                    // in the list were not mergable.
+                    vector < PGEdge * > onlytwofaces;
+                    for ( int k = 0; k < shared.size(); k++ )
                     {
-                        RemoveEdgeMergeFaces( shared[0], facemergeproperties );
+                        if ( shared[k]->m_FaceVec.size() == 2 )
+                        {
+                            onlytwofaces.push_back( shared[k] );
+                        }
+                    }
+
+                    if ( onlytwofaces.size() == 1 )
+                    {
+                        RemoveEdgeMergeFaces( onlytwofaces[0], facemergeproperties );
                     }
                     else
                     {
-                        RemoveEdgesMergeFaces( shared, facemergeproperties );
+                        RemoveEdgesMergeFaces( onlytwofaces, facemergeproperties );
                     }
                 }
             }
