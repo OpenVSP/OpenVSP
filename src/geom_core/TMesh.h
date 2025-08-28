@@ -484,6 +484,7 @@ public:
     void SetIgnoreMatchMask( const vector < bool > & mask );
     void SetKeepMatchMask( const vector < bool > & mask );
 
+    void SetIgnoreShadow( const vec3d & v );
     void IgnoreYLessThan( const double & ytol );
     void SetIgnoreAbovePlane( const vector <vec3d> & threepts );
     void IgnoreAll();

@@ -1417,6 +1417,33 @@ void TMesh::SetKeepMatchMask( const vector < bool > & mask )
     }
 }
 
+void TMesh::SetIgnoreShadow( const vec3d & v )
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                if ( dot( tri->m_SplitVec[s]->m_Norm, v ) > 0.0 )
+                {
+                    tri->m_SplitVec[s]->m_IgnoreTriFlag = true;
+                }
+            }
+        }
+        else
+        {
+            if ( dot( tri->m_Norm, v ) > 0.0 )
+            {
+                tri->m_IgnoreTriFlag = true;
+            }
+        }
+    }
+}
+
 void TMesh::IgnoreYLessThan( const double & ytol )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
