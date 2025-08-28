@@ -95,6 +95,7 @@ SVGUtil.cpp
 Texture.cpp
 TextureMgr.cpp
 TMesh.cpp
+TMeshSweptVolume.cpp
 UserParmContainer.cpp
 VarPresetMgr.cpp
 Vehicle.cpp
@@ -181,6 +182,7 @@ SVGUtil.h
 Texture.h
 TextureMgr.h
 TMesh.h
+TMeshSweptVolume.h
 UserParmContainer.h
 VarPresetMgr.h
 Vehicle.h
