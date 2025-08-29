@@ -1991,6 +1991,31 @@ void PGMesh::Clear()
     m_NodeList.clear();
 }
 
+int PGMesh::CleanIsolatedFaces()
+{
+    int cnt = 0;
+    // Copy list to vector because removal from list will corrupt list in-use.
+    vector< PGFace* > fVec( m_FaceList.begin(), m_FaceList.end() );
+    for ( int i = 0; i < fVec.size(); i++ )
+    {
+        PGFace *f = fVec[ i ];
+
+        vector < PGFace* > neighbors;
+
+        f->ListNeighbors( neighbors );
+
+//        printf( "neighbors: %d\n", neighbors.size() );
+
+        if ( neighbors.size() < f->m_EdgeVec.size() - 1 )
+        {
+            RemoveFace( f );
+            cnt++;
+        }
+    }
+    printf( "Removed %d\n", cnt );
+    return cnt;
+}
+
 void PGMesh::CleanUnused()
 {
     // Copy list to vector because removal from list will corrupt list in-use.

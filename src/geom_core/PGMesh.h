@@ -277,6 +277,8 @@ public:
 
     void Clear();
 
+    int CleanIsolatedFaces();
+
     void CleanUnused();
 
     void DumpGarbage();
