@@ -216,6 +216,8 @@ public:
 
     vec3d ComputeCenter();
 
+    void ListNeighbors( vector < PGFace* > &fvec ) const;
+
     void WalkRegion() const;
 
     PGNode * FindDoubleBackNode( PGEdge* & edouble ) const;

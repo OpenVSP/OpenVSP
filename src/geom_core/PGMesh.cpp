@@ -1728,6 +1728,22 @@ vec3d PGFace::ComputeCenter()
     return cen / a;
 }
 
+void PGFace::ListNeighbors( vector < PGFace* > &fvec ) const
+{
+    fvec.clear();
+
+    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+    {
+        PGEdge *e = m_EdgeVec[i];
+        PGFace* f = e->OtherManifoldFace( this );
+
+        if ( f )
+        {
+            fvec.push_back( f );
+        }
+    }
+}
+
 void PGFace::WalkRegion() const
 {
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
