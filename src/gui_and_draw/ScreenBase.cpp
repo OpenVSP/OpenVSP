@@ -43,6 +43,7 @@ VspScreen::VspScreen( ScreenMgr* mgr )
     m_ScreenMgr = mgr;
     m_FLTK_Window = nullptr;
     m_ScreenType = -1;
+    m_PrevGeom = nullptr;
 }
 
 
@@ -809,7 +810,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     static int col_widths[] = { m_SSBrowserLayoutMain.GetW() / 2, m_SSBrowserLayoutMain.GetW() / 3, m_SSBrowserLayoutMain.GetW() / 6, 0 }; // 3 columns
 
     m_SubSurfBrowser = m_SSBrowserLayoutMain.AddColResizeBrowser( col_widths, 3, browser_h );
-    m_SubSurfBrowser->callback( staticScreenCB, this );
+    m_SubSurfBrowser->Init( this, m_SSBrowserLayoutMain.GetGroup() );
 
     m_SSBrowserLayoutSide.SetStdHeight( int ( browser_h / 4 ) );
     m_SSBrowserLayoutSide.AddButton( m_SSMoveTopButton , "@2<<");
@@ -1673,6 +1674,14 @@ bool GeomScreen::Update()
 {
     assert( m_ScreenMgr );
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+
+    if ( m_PrevGeom != geom_ptr )
+    {
+        m_SubSurfBrowser->HidePopupInput();
+    }
+
+    m_PrevGeom = geom_ptr;
+
     if ( !geom_ptr )
     {
         Hide();
@@ -2723,6 +2732,8 @@ void GeomScreen::UpdateMaterialNames()
 void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
+
+    m_SubSurfBrowser->HidePopupInput();
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
     if ( !geom_ptr )
     {
@@ -3285,8 +3296,23 @@ void GeomScreen::CallBack( Fl_Widget *w )
         return;
     }
 
+    m_SubSurfBrowser->HidePopupInput();
+
+    // browsers
     if ( w == m_SubSurfBrowser )
     {
+        // before changing subsurf selection, apply new name if popup callback occurred
+        if ( m_SubSurfBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            SubSurface* sub_surf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+            if ( sub_surf )
+            {
+                string ss_name = m_SubSurfBrowser->GetPopupValue();
+                sub_surf->SetName( ss_name.c_str() );
+            }
+        }
+
+        // select new subsurf from browser
         SetCurrSubSurf( m_SubSurfBrowser->value() - 2 );
         SubSurface* sub_surf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
         if ( sub_surf )
@@ -3294,6 +3320,16 @@ void GeomScreen::CallBack( Fl_Widget *w )
             m_SubSurfChoice.SetVal( sub_surf->GetType() );
             m_SSCurrMainSurfIndx = sub_surf->m_MainSurfIndx();
         }
+
+        // open popup input if double clicked
+        if ( m_SubSurfBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            if ( sub_surf ) // need to filter event callback at gui device level
+            {
+                m_SubSurfBrowser->InsertPopupInput( sub_surf->GetName(), m_SubSurfBrowser->value() );
+            }
+        }
+
     }
     else if ( w == m_SetBrowser )
     {

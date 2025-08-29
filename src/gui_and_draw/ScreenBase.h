@@ -104,6 +104,8 @@ protected:
 
     int m_ScreenType;
 
+    Geom* m_PrevGeom;
+
 };
 
 class ActionScreen : public VspScreen
