@@ -385,6 +385,8 @@ public:
     void MakeRegions();
     void CullOrphanThinRegions( double tol );
 
+    void CullMinorRegions();
+
     void Triangulate();
     void ClearTris();
 

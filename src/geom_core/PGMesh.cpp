@@ -3457,6 +3457,50 @@ void PGMesh::CullOrphanThinRegions( const double tol )
     DumpGarbage();
 }
 
+void PGMesh::CullMinorRegions()
+{
+    int nreg = m_Regions.size();
+    vector < double > region_area( nreg, 0.0 );
+
+    list< PGFace* >::iterator fit;
+    for ( fit = m_FaceList.begin() ; fit != m_FaceList.end(); ++fit )
+    {
+        region_area[ ( *fit )->m_Region ] += (*fit)->ComputeArea();
+    }
+
+    int max_index = std::distance( region_area.begin(), std::max_element( region_area.begin(), region_area.end() ) );
+
+    printf( "Keeping region %d of %d\n", max_index, nreg );
+
+    vector < bool > region_cull( nreg, false );
+    for ( int i = 0; i < nreg; i++ )
+    {
+        if ( i != max_index )
+        {
+            region_cull[i] = true;
+        }
+    }
+
+    int cnt = 0;
+    // Copy list to vector because removal from list will corrupt list in-use.
+    vector< PGFace* > fVec( m_FaceList.begin(), m_FaceList.end() );
+    for ( int i = 0; i < fVec.size(); i++ )
+    {
+        PGFace *f = fVec[ i ];
+        if ( region_cull[ f->m_Region ] )
+        {
+            RemoveFace( f );
+            cnt++;
+        }
+    }
+
+    printf( "Removed %d faces\n", cnt );
+
+    CleanUnused();
+
+    DumpGarbage();
+}
+
 void PGMesh::Triangulate()
 {
     vector< PGFace* > fVec( m_FaceList.begin(), m_FaceList.end() );
