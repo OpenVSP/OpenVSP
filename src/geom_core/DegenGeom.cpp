@@ -317,6 +317,17 @@ void DegenGeom::createBodyDegenPlate( const vector< vector< vec3d > > &pntsarr, 
 
     startPnt = ( num_pnts - 1 ) / 4;
     createDegenPlate( degenPlates[1], pntsarr, uw_pnts, nLow, nHigh, startPnt );
+
+    int nxsec = degenPlates[0].x.size();
+    int platePnts = ( num_pnts + 1 ) / 2;
+    int imid = ( platePnts - 1 ) / 2;
+
+    for ( int ixsec = 0; ixsec < nxsec; ixsec++ )
+    {
+        vec3d xave = ( degenPlates[0].x[ixsec][imid] + degenPlates[1].x[ixsec][imid] ) * 0.5;
+        degenPlates[0].x[ixsec][imid] = xave;
+        degenPlates[1].x[ixsec][imid] = xave;
+    }
 }
 
 void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt )
