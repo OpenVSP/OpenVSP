@@ -10,6 +10,7 @@
 
 #include <TreeIconWidget.h>
 #include <TreeColumnWidget.h>
+#include <VSPWindow.h>
 #include <iostream>
 
 // Fl_Tree clickable custom item icons with right justification
@@ -779,7 +780,7 @@ int TreeWithIcons::handle( int e )
         }
         case FL_KEYDOWN:
         {
-            if ( m_KeyCB )
+            if ( m_KeyCB && valid_hotkey( Fl::event_length(), Fl::event_key() ) )
             {
                 m_KeyCB( this, m_KeyCBData );
             }

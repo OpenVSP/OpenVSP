@@ -14,6 +14,9 @@
 #include <FL/Fl_Double_Window.H>
 #include <vector>
 
+//==== Valid Hotkeys are all chars and function keys, excludes shift, ctrl, alt, etc. ====//
+bool valid_hotkey( int event_length, int key );
+
 //==== Custom Window Type for the Geom Windows ====//
 class VSP_Window : public Fl_Double_Window
 {

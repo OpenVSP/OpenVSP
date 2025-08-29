@@ -11,6 +11,22 @@
 #include <FL/Fl.H>
 #include "VSPWindow.h"
 
+bool valid_hotkey( int event_length, int key )
+{
+    if ( event_length == 1 )
+    {
+        return true;
+    }
+    for ( int fkey = FL_F + 1; fkey < FL_F_Last; fkey++ )
+    {
+        if ( fkey == key )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 int VSP_Window::m_x = 1;
 int VSP_Window::m_y = 1;
 
@@ -268,7 +284,7 @@ int VSP_Window::handle( int fl_event )
     {
         case FL_KEYDOWN:
         {
-            if ( m_KeyCB )
+            if ( m_KeyCB && valid_hotkey( Fl::event_length(), Fl::event_key() ) )
             {
                 m_KeyCB( this, m_KeyCBData );
             }
