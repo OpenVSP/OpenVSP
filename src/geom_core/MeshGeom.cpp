@@ -2176,6 +2176,8 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     MeshInfo info;
     MergeRemoveOpenMeshes( m_TMeshVec, &info, deleteopen );
 
+    MergeDegenCruciformTMeshes();
+
     MergeCoplanarTrimGroups();
 
     // Clean up Coplanar trim groups.
