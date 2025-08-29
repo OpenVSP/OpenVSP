@@ -218,6 +218,7 @@ public:
 
     void ListNeighbors( vector < PGFace* > &fvec ) const;
 
+    void WalkManifoldRegion() const;
     void WalkRegion() const;
 
     PGNode * FindDoubleBackNode( PGEdge* & edouble ) const;
@@ -378,6 +379,7 @@ public:
 
     void SplitFace( PGFace *f0, PGEdge *e );
 
+    void MakeManifoldRegions();
     void MakeRegions();
     void CullOrphanThinRegions( double tol );
 
