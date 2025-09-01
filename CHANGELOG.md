@@ -1,3 +1,36 @@
+# [OpenVSP 3.45.4](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.4)
+
+2025-08-31
+
+OpenVSP 3.45.4
+
+Another small bugfix release.  This time, none of the fixes are applicable
+(well, one technically would apply, but it wasn't causing a problem there)
+to 3.44, so just one release this time.
+
+The 'View Front Of' feature from 3.45.3 made it so you couldn't push shift
+while changing the name of things.  who wants capital letters or symbols
+anyway/
+
+There are a few fixes that affect the meshing for VSPAERO.  They are kinda in
+the weeds, so I'll gloss over them here -- but if you use VSPAERO, you'll want
+to update.  One fixes the intersection with thin LE / TE surfaces with
+bodies.  The others help thin cruciform bodies that you shouldn't be using
+because you should be using thick bodies instead.
+
+Finally, some VSPAERO settings were not properly getting reset on File/New.
+
+Bug fixes:
+- Fix event handling for 'View Front Of' to not make shift weird.
+- Fix VSPAERO::Renew()
+- Fix MergeFaces, which was preventing LE/TE panels from merging then spliting.
+- Ensure degen cruciform intersection points are coincident
+- Merge (don't intersect) degen cruciform meshes
+
+
+---
+
+
 # [OpenVSP 3.45.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.3)
 
 2025-08-26
