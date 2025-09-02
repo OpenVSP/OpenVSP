@@ -1559,31 +1559,48 @@ void PGFace::Diagnostics() const
 bool PGFace::Validate() const
 {
     bool valid = true;
-    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+
+    if ( !m_EdgeVec.empty() )
     {
-        if ( !m_EdgeVec[i] )
+        for ( int i = 0; i < m_EdgeVec.size(); i++ )
         {
-            printf( "Face %d has invalid edge pointer %d\n", m_ID, i );
-            valid = false;
-            continue;
+            if ( !m_EdgeVec[i] )
+            {
+                printf( "Face %d has invalid edge pointer %d\n", m_ID, i );
+                valid = false;
+                continue;
+            }
+            if ( !m_EdgeVec[i]->UsedBy( this ) )
+            {
+                printf( "Edge %d is unaware it is used by face %d\n", m_EdgeVec[i]->m_ID, m_ID );
+                valid = false;
+            }
         }
-        if ( !m_EdgeVec[i]->UsedBy( this ) )
-        {
-            printf( "Edge %d is unaware it is used by face %d\n", m_EdgeVec[i]->m_ID, m_ID );
-            valid = false;
-        }
+    }
+    else
+    {
+        printf( "Face %d has no edges\n", m_ID );
+        valid = false;
     }
 
     vector< PGNode* > nodVec;
     GetNodes( nodVec );
 
-    for ( int i = 0; i < nodVec.size(); i++ )
+    if ( !nodVec.empty() )
     {
-        if ( !nodVec[i] )
+        for ( int i = 0; i < nodVec.size(); i++ )
         {
-            printf( "Face %d has invalid node index %d\n", m_ID, i );
-            valid = false;
+            if ( !nodVec[i] )
+            {
+                printf( "Face %d has invalid node index %d\n", m_ID, i );
+                valid = false;
+            }
         }
+    }
+    else
+    {
+        printf( "Face %d has no nodes\n", m_ID );
+        valid = false;
     }
 
     if ( !valid )
