@@ -5958,6 +5958,17 @@ void FeaLayer::GetInvTransMat( mat3 & Tinv )
             sc, -sc, c2 - s2;
 }
 
+void FeaLayer::GetTrans2Mat( mat3 & T )
+{
+    long double ttheta = m_Theta() * M_PI / 180.0;
+    long double c( std::cos( ttheta ) ), s(std::sin( ttheta ) );
+    long double c2( c * c ), s2( s * s ), sc( c * s );
+
+    T << c2,  s2,   sc,
+         s2,  c2,  -sc,
+        -2.*sc,  2.*sc, c2 - s2;
+}
+
 ////////////////////////////////////////////////////
 //================= FeaMaterial ==================//
 ////////////////////////////////////////////////////
@@ -7071,6 +7082,10 @@ void FeaMaterial::LaminateTheory()
                 lay->GetTransMat( T );
                 lay->GetInvTransMat( Tinv );
 
+                mat3 T2, T2inv;
+                lay->GetTrans2Mat( T2 );
+                T2inv = T2.inverse();
+
                 // Get lamina compliance matrix
                 mat3 S;
                 mat->GetCompliance( S );
@@ -7083,7 +7098,7 @@ void FeaMaterial::LaminateTheory()
                 Sbar = R * Tinv * Rinv * S * T;
 
                 vec3 alphabar;
-                alphabar = T * alpha;
+                alphabar = T2inv * alpha;
 
                 // Lamina stiffness
                 mat3 Qbar;

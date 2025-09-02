@@ -765,6 +765,7 @@ public:
 
     virtual void GetTransMat( mat3 & T );
     virtual void GetInvTransMat( mat3 & Tinv );
+    virtual void GetTrans2Mat( mat3 & T );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
