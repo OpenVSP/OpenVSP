@@ -6005,13 +6005,13 @@ FeaMaterial::FeaMaterial() : ParmContainer()
     m_E3.Init( "E3", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
     m_E3.SetDescript( "E3 Elastic (Young's) Modulus for Material" );
 
-    m_nu12.Init( "nu12", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_nu12.Init( "nu12", "FeaMaterial", this, 0.0, -10.0, 10.0 );
     m_nu12.SetDescript( "nu12 Poisson's Ratio for Material" );
 
-    m_nu13.Init( "nu13", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_nu13.Init( "nu13", "FeaMaterial", this, 0.0, -10.0, 10.0 );
     m_nu13.SetDescript( "nu13 Poisson's Ratio for Material" );
 
-    m_nu23.Init( "nu23", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_nu23.Init( "nu23", "FeaMaterial", this, 0.0, -10.0, 10.0 );
     m_nu23.SetDescript( "nu23 Poisson's Ratio for Material" );
 
     m_G12.Init( "G12", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
