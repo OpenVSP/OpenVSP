@@ -5969,6 +5969,36 @@ void FeaLayer::GetTrans2Mat( mat3 & T )
         -2.*sc,  2.*sc, c2 - s2;
 }
 
+// -------------------- Rotation matrices (stress & strain transforms) --------------------
+// Build stress transform L(theta) and strain transform T(theta) per paper eqs (13),(16).
+// theta in radians
+void FeaLayer::build_L_stress( mat6 & L ) const
+{
+    long double th = m_Theta() * M_PI / 180.0;
+
+    long double m = std::cos(th), n = std::sin(th);
+
+    L << m * m, n * n, 0., 0., 0.,   2.0 * m * n,
+         n * n, m * m, 0., 0., 0.,  -2.0 * m * n,
+            0.,    0., 1., 0., 0.,            0.,
+            0.,    0., 0.,  m, -n,            0.,
+            0.,    0., 0.,  n,  m,            0.,
+        -m * n, m * n, 0., 0., 0., m * m - n * n;
+}
+
+void FeaLayer::build_T_strain( mat6 & T ) const
+{
+    long double th = m_Theta() * M_PI / 180.0;
+    long double m = std::cos(th), n = std::sin(th);
+
+    T <<       m * m,       n * n, 0., 0., 0.,         m * n,
+               n * n,       m * m, 0., 0., 0.,        -m * n,
+                  0.,          0., 1., 0., 0.,            0.,
+                  0.,          0., 0.,  m, -n,            0.,
+                  0.,          0., 0.,  n,  m,            0.,
+        -2.0 * m * n, 2.0 * m * n, 0., 0., 0., m * m - n * n;
+}
+
 ////////////////////////////////////////////////////
 //================= FeaMaterial ==================//
 ////////////////////////////////////////////////////
@@ -6132,7 +6162,9 @@ void FeaMaterial::Update()
             m_LayerVec[i]->Update( m_LengthUnit() );
         }
 
-        LaminateTheory();
+        // LaminateTheory();
+
+        LaminateTheory3D();
     }
     else
     {
@@ -7199,6 +7231,249 @@ void FeaMaterial::GetCTEVec( vec3 & alpha )
     long double a2( m_A2_FEM() );
 
     alpha << a1, a2, 0.0;
+}
+
+void FeaMaterial::GetCprime( mat6 & C ) const
+{
+    const long double nu12 = m_nu12();
+    const long double nu13 = m_nu13();
+    const long double nu23 = m_nu23();
+    const long double E1 = m_E1_FEM();
+    const long double E2 = m_E2_FEM();
+    const long double E3 = m_E3_FEM();
+    const long double G12 = m_G12_FEM();
+    const long double G13 = m_G13_FEM();
+    const long double G23 = m_G23_FEM();
+
+    long double denom = 1.0
+                   - nu12 * ( nu12 * ( E2 / E1 ) + 2.0 * nu23 * nu13 * ( E3 / E1 ) )
+                   - nu13 * nu13 * ( E3 / E1 )
+                   - nu23 * nu23 * ( E3 / E2 );
+
+    long double C11 = ( 1.0 - nu23 * nu23 * ( E3 / E2 ) ) * E1 / denom;
+    long double C12 = ( nu12 + nu13 * nu23 * ( E3 / E2 ) ) * E2 / denom;
+    long double C13 = ( nu13 + nu12 * nu23) * E3 / denom;
+    long double C22 = ( 1.0 - nu13 * nu13 * ( E3 / E1 ) ) * E2 / denom;
+    long double C23 = ( nu23 - nu12 * nu13 * ( E2 / E1 ) ) * E3 / denom;
+    long double C33 = ( 1.0 - nu12 * nu12 * ( E2 / E1 ) ) * E3 / denom;
+    long double C44 = G23;
+    long double C55 = G13;
+    long double C66 = G12;
+
+    C << C11, C12, C13,  0.,  0.,  0.,
+         C12, C22, C23,  0.,  0.,  0.,
+         C13, C23, C33,  0.,  0.,  0.,
+          0.,  0.,  0., C44,  0.,  0.,
+          0.,  0.,  0.,  0., C55,  0.,
+          0.,  0.,  0.,  0.,  0., C66;
+}
+
+void FeaMaterial::GetAprime( vec6 &aprime ) const
+{
+    aprime << m_A1_FEM(), m_A2_FEM(), m_A3_FEM(), 0., 0., 0.;
+}
+
+void FeaMaterial::LaminateTheory3D()
+{
+    int nlayer = m_LayerVec.size();
+
+
+    long double t_sum = 0.0;
+    for ( int ilay = 0; ilay < nlayer; ilay++ )
+    {
+        FeaLayer* lay = m_LayerVec[ ilay ];
+        if ( lay )
+        {
+            t_sum += lay->m_Thickness_FEM();
+        }
+    }
+
+    std::vector < long double > V( nlayer );
+    for ( int ilay = 0; ilay < nlayer; ilay++ )
+    {
+        FeaLayer* lay = m_LayerVec[ ilay ];
+        if ( lay )
+        {
+            V[ ilay ] = lay->m_Thickness_FEM() / t_sum;
+        }
+    }
+
+    double m = 0;
+    std::vector < mat6 > Cbars( nlayer );
+    std::vector < vec6 > abars( nlayer );
+    bool findlayer = true;
+    for ( int ilay = 0; ilay < nlayer; ilay++ )
+    {
+        FeaLayer *lay = m_LayerVec[ ilay ];
+
+        if ( lay )
+        {
+            FeaMaterial *mat = StructureMgr.GetFeaMaterial( lay->m_FeaMaterialID );
+            if ( mat )
+            {
+                m += lay->m_Thickness_FEM() * mat->m_MassDensity_FEM();
+                mat6 Cprime = mat6::Zero();
+                mat->GetCprime( Cprime );
+
+                vec6 aprime = vec6::Zero();
+                mat->GetAprime( aprime );
+
+                // rotate each C' into the global frame
+                mat6 L;
+                mat6 T;
+                lay->build_L_stress( L );
+                lay->build_T_strain( T );
+                mat6 Tinv = T.inverse();
+                mat6 Cbar = L * Cprime * Tinv;
+                Cbars[ ilay ] = Cbar;
+
+                vec6 abar = T * aprime;
+                abars[ ilay ] = abar;
+            }
+            else
+            {
+                findlayer = false;
+            }
+        }
+        else
+        {
+            findlayer = false;
+        }
+    }
+
+    const int Iidx[ 4 ] = { 0, 1, 2, 5 };
+    const int Sidx[ 2 ] = { 3, 4 };
+
+    mat6 Cstar = mat6::Zero();
+
+
+    vector < long double > topj( 6, 0.0 );
+    long double bot = 0.0;
+
+    for ( int l = 0; l < nlayer; ++l )
+    {
+        const mat6 &Cl = Cbars[ l ];
+
+        bot += V[ l ] / Cl( 2, 2 );
+
+        for ( int j = 0; j < 6; j++ )
+        {
+            topj[ j ] += V[ l ] * Cl( 2, j ) / Cl( 2, 2 );
+        }
+    }
+
+
+    for ( int k = 0; k < nlayer; ++k )
+    {
+        const mat6 &Ck = Cbars[ k ];
+
+        for ( int ja = 0; ja < 4; ++ja )
+        {
+            int j = Iidx[ ja ];
+
+            for ( int ia = 0; ia < 4; ++ia )
+            {
+                int i = Iidx[ ia ];
+
+                Cstar( i, j ) += V[ k ] * ( Ck( i, j ) -
+                                                    Ck( i, 2 ) * Ck( 2, j ) / Ck( 2, 2 ) +
+                                                    Ck( i, 2 ) * topj[ j ] / ( Ck( 2, 2 ) * bot ) );
+            }
+        }
+    }
+
+    std::vector < long double > det( nlayer );
+    for ( int k = 0; k < nlayer; ++k )
+    {
+        const mat6 &Ck = Cbars[ k ];
+        det[ k ] = Ck( 3, 3 ) * Ck( 4, 4 ) - Ck( 3, 4 ) * Ck( 4, 3 );
+    }
+
+    long double denom = 0;
+    for ( int k = 0; k < nlayer; ++k )
+    {
+        const mat6 &Ck = Cbars[ k ];
+        for ( int l = 0; l < nlayer; ++l )
+        {
+            const mat6 &Cl = Cbars[ l ];
+            denom += ( V[ k ] * V[ l ] / ( det[ k ] * det[ l ] ) ) *
+                     ( Ck( 3, 3 ) * Cl( 4, 4 ) - Ck( 3, 4 ) * Cl( 4, 3 ) );
+        }
+    }
+
+
+    for ( int ja = 0; ja < 2; ++ja )
+    {
+        int j = Sidx[ ja ];
+
+        for ( int ia = 0; ia < 2; ++ia )
+        {
+            int i = Sidx[ ia ];
+
+            for ( int k = 0; k < nlayer; ++k )
+            {
+                const mat6 &Ck = Cbars[ k ];
+
+                Cstar( i, j ) += ( V[ k ] * Ck( i, j ) / det[k] ) / denom;
+            }
+        }
+    }
+
+    vec6 Nth;
+
+    for ( int k = 0; k < nlayer; ++k )
+    {
+        const mat6 &Ck = Cbars[ k ];
+        const vec6 &ak = abars[ k ];
+
+        Nth += Ck * ak * V[ k ];
+    }
+
+    // symmetrize small numerical asymmetry
+    Cstar = 0.5 * (Cstar + Cstar.transpose());
+
+    // compliance and engineering constants (Eqs. 29-41)
+    mat6 Hstar = Cstar.inverse();
+
+    vec6 astar = Hstar * Nth;
+
+
+    double E1 = 1.0 / Hstar(0, 0);
+    double E2 = 1.0 / Hstar(1, 1);
+    double E3 = 1.0 / Hstar(2, 2);
+    double nu23 = -Hstar(1, 2) / Hstar(1, 1);
+    double nu13 = -Hstar(0, 2) / Hstar(0, 0);
+    double nu12 = -Hstar(0, 1) / Hstar(0, 0);
+    // double v21 = -Hstar(0, 1) / Hstar(1, 1);
+    // double v31 = -Hstar(0, 2) / Hstar(2, 2);
+    // double v32 = -Hstar(1, 2) / Hstar(2, 2);
+
+    double G23 = 1.0 / Hstar(3, 3);
+    double G13 = 1.0 / Hstar(4, 4);
+    double G12 = 1.0 / Hstar(5, 5);
+
+    double a1 = astar( 0 );
+    double a2 = astar( 1 );
+    double a3 = astar( 2 );
+    // double a23 = astar( 3 );
+    // double a13 = astar( 4 );
+    // double a12 = astar( 5 );
+
+    m_E1_FEM = E1;
+    m_E2_FEM = E2;
+    m_E3_FEM = E3;
+    m_nu12 = nu12;
+    m_nu13 = nu13;
+    m_nu23 = nu23;
+    m_G12_FEM = G12;
+    m_G13_FEM = G13;
+    m_G23_FEM = G23;
+    m_A1_FEM = a1;
+    m_A2_FEM = a2;
+    m_A3_FEM = a3;
+
+    m_Thickness_FEM = t_sum;
+    m_MassDensity_FEM = m / t_sum;
 }
 
 //////////////////////////////////////////////////////

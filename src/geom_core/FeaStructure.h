@@ -31,6 +31,10 @@
 typedef Eigen::Matrix< long double, 3, 3 > mat3;
 typedef Eigen::Matrix< long double, 6, 6 > mat6;
 typedef Eigen::Matrix< long double, 3, 1 > vec3;
+typedef Eigen::Matrix< long double, 6, 1 > vec6;
+
+using Mat2 = Eigen::Matrix<double,2,2>;
+using Vec  = Eigen::VectorXd;
 
 // Forward declaration
 class FeaPart;
@@ -767,6 +771,9 @@ public:
     virtual void GetInvTransMat( mat3 & Tinv );
     virtual void GetTrans2Mat( mat3 & T );
 
+    virtual void build_L_stress( mat6 & L ) const;
+    virtual void build_T_strain( mat6 & T ) const;
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -821,6 +828,11 @@ public:
     void LaminateTheory();
     void GetCompliance( mat3 & S );
     void GetCTEVec( vec3 & alpha );
+
+    void GetCprime( mat6 & C ) const;
+    void GetAprime( vec6 &aprime ) const;
+
+    void LaminateTheory3D();
 
     Parm m_MassDensity;
     Parm m_ElasticModulus;
