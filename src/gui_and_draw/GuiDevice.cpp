@@ -4571,12 +4571,18 @@ VspBrowser::VspBrowser( int X, int Y, int W, int H, const char* L ) : Fl_Browser
 
     m_PopupIndex = 0;
     m_PopupCol = 0;
+
+    m_DoubleClickFlag = true;
+    m_HotKeyFlag = true;
+
+    m_CBReason = BROWSER_CALLBACK_UNKNOWN;
 }
 
 void VspBrowser::Init( VspScreen* screen, Fl_Group* group )
 {
     m_Screen = screen;
     m_PopupGroup = group;
+    callback( StaticBrowserCB, this );
 }
 
 void VspBrowser::InitPopupInput()
@@ -4593,6 +4599,7 @@ void VspBrowser::InitPopupInput()
     m_PopupInput->box( FL_THIN_DOWN_BOX );
     m_PopupInput->textsize( 12 );
     m_PopupInput->when( FL_WHEN_ENTER_KEY );
+    m_PopupInput->callback( StaticBrowserCB, this );
 
     m_PopupGroup->add( m_PopupInput );
 }
@@ -4722,6 +4729,82 @@ void VspBrowser::GetItemDims( int &X, int &Y, int &W, int &H, int index, int col
     // account for h/v scroll positions
     X -= hposition();
     Y -= vposition();
+}
+
+void VspBrowser::BrowserCB( Fl_Widget* w )
+{
+    // BrowserCB is tied to 3 events;
+    //      1. VspBrowser::handle()
+    //      2.   Fl_Input::handle()
+    //      3. Fl_Browser::handle()
+    // so the behavior must be determined here; with a member var to store the callback reason for this Browser
+
+    // init to reason "unknown"
+    m_CBReason = BROWSER_CALLBACK_UNKNOWN;
+
+    if ( Fl::callback_reason() == FL_REASON_USER )
+    {
+        // "open" reason only possible from VspBrowser::handle()
+        m_CBReason = BROWSER_CALLBACK_POPUP_OPEN;
+    }
+    else if ( w == m_PopupInput || GetPopupState() )
+    {
+        // if callback is from the popup input OR the browser is selected with an open popup browser, trigger a popup callback
+        // matches typical OS behavior where clicking out of an input box implicitly confirms it
+
+        // "closed" reason only possible from VspBrowser::handle()
+        // any PopupInput callback is also treated as a valid entry event
+        m_CBReason = BROWSER_CALLBACK_POPUP_ENTER;
+    }
+    else if ( Fl::callback_reason() == FL_REASON_SELECTED
+           || Fl::callback_reason() == FL_REASON_RESELECTED )
+    {
+        // if no popup visible and callback on browser, browser is selected
+        m_CBReason = BROWSER_CALLBACK_SELECT;
+    }
+    window()->cursor( FL_CURSOR_DEFAULT );              // XXX: if we don't do this, cursor can disappear!
+
+    m_Screen->CallBack( this );
+}
+
+int VspBrowser::handle( int e )
+{
+    int ret = 0;
+
+    switch ( e )
+    {
+        case FL_KEYBOARD:
+        {
+            int key = Fl::event_key();
+            if ( m_HotKeyFlag && ( key == FL_Enter || key == FL_KP_Enter || key == FL_F + 2 ) )
+            {
+                // open popup input if hotkey supported
+                if( callback() )
+                {
+                    // set reason to "opened," then perform callback.
+                    do_callback( FL_REASON_USER );
+                }
+                return 1;
+            }
+            break;
+        }
+        case FL_RELEASE:
+        {
+            if ( m_DoubleClickFlag && Fl::event_clicks() != 0 )
+            {
+                // open popup input if double click supported
+                if( callback() )
+                {
+                    // set reason to "opened," then perform callback.
+                    do_callback( FL_REASON_USER );
+                }
+                return 1;
+            }
+
+        }
+    }
+
+    return( Fl_Browser::handle( e ) ? 1 : ret );
 }
 
 void VspBrowser::draw()

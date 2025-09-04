@@ -1438,6 +1438,13 @@ protected:
     string m_LabelB;
 };
 
+enum VspBrowser_Callback_Reason {
+  BROWSER_CALLBACK_UNKNOWN=0,     ///< an item was selected
+  BROWSER_CALLBACK_SELECT,     ///< an item was selected
+  BROWSER_CALLBACK_POPUP_ENTER,   ///< the popup input had a callback
+  BROWSER_CALLBACK_POPUP_OPEN,   ///< the popup input is opened
+};
+
 class VspBrowser : public Fl_Browser
 {
 public:
@@ -1446,6 +1453,15 @@ public:
 
     void Init( VspScreen* screen, Fl_Group* group );
     void InitPopupInput();
+
+    void SetDoubleClickFlag( bool flag )
+    {
+        m_DoubleClickFlag = flag;
+    }
+    void SetHotKeyFlag( bool flag )
+    {
+        m_HotKeyFlag = flag;
+    }
 
     void SetPopupState( bool draw_flag );
     void SetPopupLoc( int index, int col = 0 );
@@ -1459,7 +1475,20 @@ public:
 
     virtual void GetItemDims( int &X, int &Y, int &W, int &H, int index, int col = 0 );
 
+    int GetCBReason()
+    {
+        return m_CBReason;
+    }
+
+    void BrowserCB( Fl_Widget* w );
+    static void StaticBrowserCB( Fl_Widget *w, void* data )
+    {
+        ( ( VspBrowser* )data )->BrowserCB( w );
+    }
+
 protected:
+
+    int handle( int e );
 
     void draw();
 
@@ -1468,11 +1497,16 @@ protected:
     VspScreen* m_Screen;
 
 private:
+    bool m_DoubleClickFlag;
+    bool m_HotKeyFlag;
+
     bool m_PopupDrawFlag;
     bool m_RecentPopup;
 
     int m_PopupIndex;
     int m_PopupCol;
+
+    int m_CBReason;
 };
 
 class ColResizeBrowser : public Fl_Browser
