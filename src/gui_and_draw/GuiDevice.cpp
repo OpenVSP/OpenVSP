@@ -4576,6 +4576,24 @@ void VspBrowser::Init( VspScreen* screen, Fl_Group* group )
     m_PopupGroup = group;
 }
 
+void VspBrowser::InitPopupInput()
+{
+    if ( !m_PopupGroup )
+    {
+        return;
+    }
+
+    int x, y, w, h;
+    GetItemDims( x, y, w, h, m_PopupIndex, m_PopupCol );
+
+    m_PopupInput = new Fl_Input( x, y, w, h );
+    m_PopupInput->box( FL_THIN_DOWN_BOX );
+    m_PopupInput->textsize( 12 );
+    m_PopupInput->when( FL_WHEN_ENTER_KEY );
+
+    m_PopupGroup->add( m_PopupInput );
+}
+
 void VspBrowser::GetItemDims( int &X, int &Y, int &W, int &H, int index, int col )
 {
     bbox( X, Y, W, H );
