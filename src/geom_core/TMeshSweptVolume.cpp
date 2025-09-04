@@ -192,7 +192,7 @@ TMesh * CreateTMeshPGMeshSweptVolumeTranslate( TMesh * tm, const vec3d & v )
     // Prepare mesh for intersection
     tm_sv->LoadBndBox();
     // Self-intersect
-    tm_sv->Intersect( tm_sv );
+    tm_sv->Intersect( tm_sv, /* UWFlag */ false, /* checkSharedEdges */ true );
     // Split intersected triangles
     tm_sv->Split();
 
