@@ -174,6 +174,7 @@ public:
     void AddPCurveEditor( PCurveEditor& curve_editor );
 
     Fl_Browser* AddFlBrowser( int height );
+    VspBrowser* AddVspBrowser( int height );
     ColResizeBrowser* AddColResizeBrowser( int* width_array_ptr, size_t num_col, int height );
     Fl_Text_Editor* AddFlTextEditor( int height , bool resizable = false );
     VspTextEditor* AddVspTextEditor( int height, Fl_Text_Buffer* buffer, Fl_Callback* cb, VspScreen* screen, bool resizable = false, Fl_Font font = FL_COURIER );

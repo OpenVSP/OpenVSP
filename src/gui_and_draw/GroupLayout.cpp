@@ -1815,6 +1815,22 @@ Fl_Browser* GroupLayout::AddFlBrowser( int height )
     return browser;
 }
 
+//==== Add VspBrowser ====//
+VspBrowser* GroupLayout::AddVspBrowser( int height )
+{
+    assert( m_Group && m_Screen );
+
+    VspBrowser* browser = new VspBrowser( m_X, m_Y, m_W, height);
+    browser->type( FL_HOLD_BROWSER );
+    browser->textsize(12);
+    m_Group->add( browser );
+
+    AddY( height );
+    NewLineX();
+
+    return browser;
+}
+
 //==== Add Column Resize Browser ====//
 ColResizeBrowser* GroupLayout::AddColResizeBrowser( int* width_array_ptr, size_t num_col, int height )
 {
