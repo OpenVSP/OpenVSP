@@ -989,9 +989,9 @@ void TMesh::MergeTMeshes( const TMesh* tm )
     m_InGroup.erase( std::unique( m_InGroup.begin(), m_InGroup.end() ), m_InGroup.end() );
 }
 
-void TMesh::Intersect( TMesh* tm, bool UWFlag )
+void TMesh::Intersect( TMesh* tm, bool UWFlag, bool checkSharedEdges )
 {
-    m_TBox.Intersect( &tm->m_TBox, UWFlag );
+    m_TBox.Intersect( &tm->m_TBox, UWFlag, checkSharedEdges );
 }
 
 bool TMesh::CheckIntersect( TMesh* tm )
@@ -4804,7 +4804,12 @@ double TBndBox::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptax
     return curr_min_angle;
 }
 
-void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
+// checkSharedEdges is a flag needed when meshes need to check for self-intersections.
+// Setting this flag to true causes a check such that pairs of tris that share an edge are skipped.
+// This avoids lots of pedantic intersections.
+// However, this check is somewhat slow and is not needed in the normal case of intersecting independent
+// meshes.
+void TBndBox::Intersect( TBndBox* iBox, bool UWFlag, bool checkSharedEdges )
 {
 #ifdef DEBUG_TMESH
     static int fig = 0;
@@ -4828,14 +4833,14 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
     {
         for ( i = 0 ; i < 8 ; i++ )
         {
-            iBox->Intersect( m_SBoxVec[i], UWFlag );
+            iBox->Intersect( m_SBoxVec[i], UWFlag, checkSharedEdges );
         }
     }
     else if ( iBox->m_SBoxVec[0] )
     {
         for ( i = 0 ; i < 8 ; i++ )
         {
-            iBox->m_SBoxVec[i]->Intersect( this, UWFlag );
+            iBox->m_SBoxVec[i]->Intersect( this, UWFlag, checkSharedEdges );
         }
     }
     else
@@ -4852,7 +4857,7 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                     continue;
                 }
 
-                if ( t0->ShareEdge( t1 ) )
+                if ( checkSharedEdges && t0->ShareEdge( t1 ) )
                 {
                     continue;
                 }

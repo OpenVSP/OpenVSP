@@ -419,7 +419,7 @@ public:
 
     void SplitBox();
     void AddTri( TTri* t );
-    virtual void Intersect( TBndBox* iBox, bool UWFlag = false );
+    virtual void Intersect( TBndBox* iBox, bool UWFlag = false, bool checkSharedEdges = false );
     virtual void RayCast( const vec3d & orig, const vec3d & dir, vector<double> & tParmVec, vector <TTri*> & triVec ) const;
 
     virtual bool CheckIntersect( TBndBox* iBox );
@@ -460,7 +460,7 @@ public:
     void LoadGeomAttributes( const Geom* geomPtr );
     int  RemoveDegenerate();
     void RemoveIsectEdges();
-    void Intersect( TMesh* tm, bool UWFlag = false );
+    void Intersect( TMesh* tm, bool UWFlag = false, bool checkSharedEdges = false );
     bool CheckIntersect( TMesh* tm );
     double MinDistance( TMesh* tm, double curr_min_dist, vec3d &p1, vec3d &p2 );
     bool CheckIntersect( const vec3d &org, const vec3d &norm );
