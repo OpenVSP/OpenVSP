@@ -1445,6 +1445,7 @@ public:
     VspBrowser( int X, int Y, int W, int H, const char* L = 0 );
 
     void Init( VspScreen* screen, Fl_Group* group );
+    virtual void GetItemDims( int &X, int &Y, int &W, int &H, int index, int col = 0 );
 
 protected:
 

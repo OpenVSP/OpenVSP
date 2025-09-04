@@ -4576,6 +4576,68 @@ void VspBrowser::Init( VspScreen* screen, Fl_Group* group )
     m_PopupGroup = group;
 }
 
+void VspBrowser::GetItemDims( int &X, int &Y, int &W, int &H, int index, int col )
+{
+    bbox( X, Y, W, H );
+
+    // Init Col Widths
+    const int* col_widths = column_widths();
+    int nc = 0;
+    while ( col_widths[nc] > 0 ) nc++;
+
+    // Y
+    void* line = item_first();
+    for ( int i = 0 ; i < index - 1; i++ )
+    {
+        int line_h = 0;
+        if ( line )
+        {
+            line_h = item_height( line );
+        }
+
+        if ( line_h <= 0 )
+        {
+            continue;
+        }
+
+        Y += line_h + linespacing();
+
+        line = item_next( line );
+        if ( !line )
+        {
+            break;
+        }
+    }
+
+    // X, W
+    if ( col < nc )
+    {
+        for ( int i = 0; i < min( col, nc ); i++ )
+        {
+            X += col_widths[i];
+        }
+
+        int box_buffer = 2;
+        W = col_widths[col] - box_buffer;
+    }
+    // if no valid col, defer to X, W of bbox method
+
+    // H
+    if ( item_at( index ) )
+    {
+        H = item_height( item_at( index ) );
+    }
+    else
+    {
+        // if no item, set height to 0
+        H = 0;
+    }
+
+    // account for h/v scroll positions
+    X -= hposition();
+    Y -= vposition();
+}
+
 //=====================================================================//
 //===================         ColResizeBrowser      ===================//
 //=====================================================================//
