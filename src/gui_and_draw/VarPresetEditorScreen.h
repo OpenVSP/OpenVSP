@@ -67,7 +67,6 @@ protected:
     VspBrowser* m_GroupBrowser;
 
     TriggerButton m_AddGroupButton;
-    TriggerButton m_RenameGroupButton;
     TriggerButton m_DeleteGroupButton;
     TriggerButton m_ClearGroupsButton;
 
@@ -93,7 +92,6 @@ protected:
 
     TriggerButton m_Apply2Button;
     TriggerButton m_AddSettingButton;
-    TriggerButton m_RenameSettingButton;
     TriggerButton m_DeleteSettingButton;
     TriggerButton m_ClearSettingsButton;
 

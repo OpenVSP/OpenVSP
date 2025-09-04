@@ -58,14 +58,12 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     m_GroupsLayout.SetSameLineFlag( true );
     m_GroupsLayout.SetFitWidthFlag( false );
-    m_GroupsLayout.SetButtonWidth( m_GroupsLayout.GetW() / 2.0 );
+    m_GroupsLayout.SetButtonWidth( m_GroupsLayout.GetW() / 3.0 );
 
     m_GroupsLayout.AddButton( m_AddGroupButton, "Add" );
     m_GroupsLayout.AddButton( m_DeleteGroupButton, "Delete" );
-    m_GroupsLayout.ForceNewLine();
-
-    m_GroupsLayout.AddButton( m_RenameGroupButton, "Rename" );
     m_GroupsLayout.AddButton( m_ClearGroupsButton, "Delete All" );
+
     m_GroupsLayout.ForceNewLine();
 
     m_GroupsLayout.SetSameLineFlag( false );
@@ -115,17 +113,16 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     m_SettingLayout.SetSameLineFlag( true );
     m_SettingLayout.SetFitWidthFlag( false );
-    m_SettingLayout.SetButtonWidth( m_SettingLayout.GetW() / 2.0 );
+    m_SettingLayout.SetButtonWidth( m_SettingLayout.GetW() / 3.0 );
 
     m_SettingLayout.AddButton( m_AddSettingButton, "Add" );
     m_SettingLayout.AddButton( m_DeleteSettingButton, "Delete" );
-    m_SettingLayout.ForceNewLine();
-
-    m_SettingLayout.AddButton( m_RenameSettingButton, "Rename" );
     m_SettingLayout.AddButton( m_ClearSettingsButton, "Delete All" );
+
     m_SettingLayout.ForceNewLine();
 
     m_SettingLayout.AddButton( m_Apply2Button, "Apply" );
+    m_SettingLayout.SetButtonWidth( m_SettingLayout.GetW() * 2.0 / 3.0 );
     m_SettingLayout.AddButton( m_UpdateSettingButton , "Update" );
     m_SettingLayout.ForceNewLine();
 
@@ -184,6 +181,19 @@ bool VarPresetEditorScreen::Update()
 {
     TabScreen::Update();
 
+    RebuildMenus();
+
+    m_ParmPicker.Update();
+
+    UpdateVarBrowser(); // Updates m_ParmIDs
+
+    RebuildAdjustTab(); // Relies on up-to-date m_ParmIDs
+
+    // ==== Check if Save Necessary ==== //
+    CheckSaveStatus();
+
+    EnableDisableWidgets();
+
     SettingGroup *sg = nullptr;
     if ( ValidGroup() )
     {
@@ -218,27 +228,22 @@ bool VarPresetEditorScreen::Update()
         m_PrevSID = s->GetID();
     }
 
-    string sg_ac_id = ( sg ) ? sg->GetAttributeCollection()->GetID() : string("");
-    string  s_ac_id = (  s ) ?  s->GetAttributeCollection()->GetID() : string("");
+    string sg_ac_id = "";
+    string  s_ac_id = "";
+    if ( sg )
+    {
+        sg_ac_id = sg->GetAttributeCollection()->GetID();
+    }
+    if ( s )
+    {
+        s_ac_id = s->GetAttributeCollection()->GetID();
+    }
 
     m_GroupAttrEditor.SetEditorCollID( sg_ac_id );
     m_SettingAttrEditor.SetEditorCollID( s_ac_id );
 
     m_GroupAttrEditor.Update();
     m_SettingAttrEditor.Update();
-
-    RebuildMenus();
-
-    m_ParmPicker.Update();
-
-    UpdateVarBrowser(); // Updates m_ParmIDs
-
-    RebuildAdjustTab(); // Relies on up-to-date m_ParmIDs
-
-    // ==== Check if Save Necessary ==== //
-    CheckSaveStatus();
-
-    EnableDisableWidgets();
 
     m_FLTK_Window->redraw();
 
@@ -530,25 +535,21 @@ void VarPresetEditorScreen::EnableDisableWidgets()
     if ( sg )
     {
         m_DeleteGroupButton.Activate();
-        m_RenameGroupButton.Activate();
         m_AddSettingButton.Activate();
     }
     else
     {
         m_DeleteGroupButton.Deactivate();
-        m_RenameGroupButton.Deactivate();
         m_AddSettingButton.Deactivate();
     }
 
     if ( s )
     {
         m_DeleteSettingButton.Activate();
-        m_RenameSettingButton.Activate();
     }
     else
     {
         m_DeleteSettingButton.Deactivate();
-        m_RenameSettingButton.Deactivate();
     }
 }
 
@@ -680,20 +681,16 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_AddGroupButton )
     {
-        string gname = m_GroupInput.GetString();
-        if ( !gname.empty() )
+        SettingGroup *sg = new SettingGroup();
+        if ( VarPresetMgr.AddSettingGroup( sg ) )
         {
-            SettingGroup *sg = new SettingGroup();
+            string gname = "VARPRESET_GROUP_" + to_string( m_GroupIDs.size() );
             sg->SetName( gname );
-
-            if ( VarPresetMgr.AddSettingGroup( sg ) )
-            {
-                m_GroupIndex = m_GroupIDs.size();
-            }
-            else
-            {
-                delete sg;
-            }
+            m_GroupIndex = m_GroupIDs.size();
+        }
+        else
+        {
+            delete sg;
         }
     }
     else if ( device == &m_AddSettingButton )
@@ -730,14 +727,17 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
             string gid = m_GroupIDs[ m_GroupIndex ];
 
             VarPresetMgr.DeleteSettingGroup( gid );
-            m_GroupIndex = 0;
+            if ( m_GroupIndex > m_GroupIDs.size() - 2 )
+            {
+                m_GroupIndex = m_GroupIDs.size() - 2;
+            }
         }
     }
     else if ( device == &m_ClearGroupsButton )
     {
         VarPresetMgr.DeleteAllSettingGroups();
     }
-    else if ( device == &m_RenameGroupButton )
+    else if ( device == &m_GroupInput )
     {
         if ( ValidGroup() )
         {
@@ -759,7 +759,10 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
             string sid = m_SettingIDs[ m_SettingIndex ];
 
             VarPresetMgr.DeleteSetting( gid, sid );
-            m_SettingIndex = 0;
+            if ( m_SettingIndex > m_SettingIDs.size() - 2 )
+            {
+                m_SettingIndex = m_SettingIDs.size() - 2;
+            }
         }
     }
     else if ( device == &m_ClearSettingsButton )
@@ -771,7 +774,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
             VarPresetMgr.DeleteAllSettingsInGroup( gid );
         }
     }
-    else if ( device == &m_RenameSettingButton )
+    else if ( device == &m_SettingInput )
     {
         if ( ValidSetting() )
         {
