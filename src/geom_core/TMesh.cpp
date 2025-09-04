@@ -2875,39 +2875,66 @@ bool TTri::ShareEdge( TTri* t )
 {
     double tol = 1.0e-6;
 
-    if ( MatchEdge( m_N0, m_N1, t->m_N0, t->m_N1, tol ) )
+    int nmatch = 0;
+
+    if ( dist_squared( m_N0->m_Pnt, t->m_N0->m_Pnt ) < tol )
     {
-        return true;
+        nmatch++;
     }
-    if ( MatchEdge( m_N0, m_N1, t->m_N1, t->m_N2, tol ) )
+    else
     {
-        return true;
+        if ( dist_squared( m_N0->m_Pnt, t->m_N1->m_Pnt ) < tol )
+        {
+            nmatch++;
+        }
+        else
+        {
+            if ( dist_squared( m_N0->m_Pnt, t->m_N2->m_Pnt ) < tol )
+            {
+                nmatch++;
+            }
+        }
     }
-    if ( MatchEdge( m_N0, m_N1, t->m_N0, t->m_N2, tol ) )
+
+    if ( dist_squared( m_N1->m_Pnt, t->m_N0->m_Pnt ) < tol )
     {
-        return true;
+        nmatch++;
     }
-    if ( MatchEdge( m_N1, m_N2, t->m_N0, t->m_N1, tol ) )
+    else
     {
-        return true;
+        if ( dist_squared( m_N1->m_Pnt, t->m_N1->m_Pnt ) < tol )
+        {
+            nmatch++;
+        }
+        else
+        {
+            if ( dist_squared( m_N1->m_Pnt, t->m_N2->m_Pnt ) < tol )
+            {
+                nmatch++;
+            }
+        }
     }
-    if ( MatchEdge( m_N1, m_N2, t->m_N1, t->m_N2, tol ) )
+
+    if ( dist_squared( m_N2->m_Pnt, t->m_N0->m_Pnt ) < tol )
     {
-        return true;
+        nmatch++;
     }
-    if ( MatchEdge( m_N1, m_N2, t->m_N0, t->m_N2, tol ) )
+    else
     {
-        return true;
+        if ( dist_squared( m_N2->m_Pnt, t->m_N1->m_Pnt ) < tol )
+        {
+            nmatch++;
+        }
+        else
+        {
+            if ( dist_squared( m_N2->m_Pnt, t->m_N2->m_Pnt ) < tol )
+            {
+                nmatch++;
+            }
+        }
     }
-    if ( MatchEdge( m_N0, m_N2, t->m_N0, t->m_N1, tol ) )
-    {
-        return true;
-    }
-    if ( MatchEdge( m_N0, m_N2, t->m_N1, t->m_N2, tol ) )
-    {
-        return true;
-    }
-    if ( MatchEdge( m_N0, m_N2, t->m_N0, t->m_N2, tol ) )
+
+    if ( nmatch >= 2 )
     {
         return true;
     }
