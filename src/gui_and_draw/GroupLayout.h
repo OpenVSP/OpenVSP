@@ -173,7 +173,6 @@ public:
     
     void AddPCurveEditor( PCurveEditor& curve_editor );
 
-    Fl_Browser* AddFlBrowser( int height );
     VspBrowser* AddVspBrowser( int height );
     ColResizeBrowser* AddColResizeBrowser( int* width_array_ptr, size_t num_col, int height );
     Fl_Text_Editor* AddFlTextEditor( int height , bool resizable = false );

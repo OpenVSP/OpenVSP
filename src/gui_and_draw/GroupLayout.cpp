@@ -1799,22 +1799,6 @@ void GroupLayout::AddPCurveEditor( PCurveEditor& curve_editor )
     curve_editor.Init( m_Screen, canvas, ptscroll, spbutton, convbutton, deletebutton, deletetoggle, splitpickbutton, ptlayout );
 }
 
-//==== Add Fl Browser ====//
-Fl_Browser* GroupLayout::AddFlBrowser( int height )
-{
-    assert( m_Group && m_Screen );
-
-    Fl_Browser* browser = new Fl_Browser( m_X, m_Y, m_W, height);
-    browser->type( FL_HOLD_BROWSER );
-    browser->textsize(12);
-    m_Group->add( browser );
-
-    AddY( height );
-    NewLineX();
-
-    return browser;
-}
-
 //==== Add VspBrowser ====//
 VspBrowser* GroupLayout::AddVspBrowser( int height )
 {
