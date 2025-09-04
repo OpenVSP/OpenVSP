@@ -74,8 +74,8 @@ protected:
     int m_ConvergenceiPlot;
 
     ToggleButton m_ConvergenceYDataResidualToggle;
-    Fl_Browser * m_ConvergenceYDataBrowser;
-    Fl_Browser * m_ConvergenceFlowConditionBrowser;
+    VspBrowser* m_ConvergenceYDataBrowser;
+    VspBrowser* m_ConvergenceFlowConditionBrowser;
     vector< string > m_ConvergenceFlowConditionSelectedResultIDs;
 
     ToggleButton m_ConvergenceManualXMinToggle;
@@ -121,9 +121,9 @@ protected:
     IndexSelector m_LoadDistTimeIndexSelector;
     StringOutput m_LoadDistTimeOutput;
 
-    Fl_Browser * m_LoadDistYDataBrowser;
-    Fl_Browser* m_LoadDistSelectBrowser;
-    Fl_Browser * m_LoadDistFlowConditionBrowser;
+    VspBrowser* m_LoadDistYDataBrowser;
+    VspBrowser* m_LoadDistSelectBrowser;
+    VspBrowser* m_LoadDistFlowConditionBrowser;
     vector< string > m_LoadDistFlowConditionSelectedResultIDs;
 
     void UpdateLoadDistFlowConditionBrowser();
@@ -144,9 +144,9 @@ protected:
     GroupLayout m_SweepLegendLayout;
     Fl_Scroll* m_SweepLegendGroup;
 
-    Fl_Browser * m_SweepXDataBrowser;
-    Fl_Browser * m_SweepYDataBrowser;
-    Fl_Browser * m_SweepFlowConditionBrowser;
+    VspBrowser* m_SweepXDataBrowser;
+    VspBrowser* m_SweepYDataBrowser;
+    VspBrowser* m_SweepFlowConditionBrowser;
     vector< string > m_SweepFlowConditionSelectedResultIDs;
 
     ToggleButton m_SweepManualXMinToggle;
@@ -173,12 +173,12 @@ protected:
     GroupLayout m_CpSliceLegendLayout;
     Fl_Scroll* m_CpSliceLegendGroup;
 
-    Fl_Browser * m_CpSliceCutBrowser;
+    VspBrowser* m_CpSliceCutBrowser;
     vector < Choice* > m_CpSlicePosTypeChoiceVec;
     Choice m_XCpSlicePosTypeChoice;
     Choice m_YCpSlicePosTypeChoice;
     Choice m_ZCpSlicePosTypeChoice;
-    Fl_Browser * m_CpSliceCaseBrowser;
+    VspBrowser* m_CpSliceCaseBrowser;
     vector< string > m_CpSliceCaseSelectedResultIDs;
     unordered_map < int, vector < string > >  m_CpSliceCutResultIDMap;
     vector< string > m_CpSliceCutSelectedResultIDs;
@@ -216,9 +216,9 @@ protected:
     int m_UnsteadyNLines;
     int m_UnsteadyiPlot;
 
-    Fl_Browser * m_UnsteadyYDataBrowser;
-    Fl_Browser * m_UnsteadySelectBrowser;
-    Fl_Browser * m_UnsteadyFlowConditionBrowser;
+    VspBrowser* m_UnsteadyYDataBrowser;
+    VspBrowser* m_UnsteadySelectBrowser;
+    VspBrowser* m_UnsteadyFlowConditionBrowser;
     vector< string > m_UnsteadyFlowConditionSelectedResultIDs;
 
     ToggleButton m_UnsteadyManualXMinToggle;

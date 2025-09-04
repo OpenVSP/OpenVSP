@@ -52,7 +52,7 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     int browser_h = 100;
 
-    m_GroupBrowser = m_GroupsLayout.AddFlBrowser( browser_h );
+    m_GroupBrowser = m_GroupsLayout.AddVspBrowser( browser_h );
     m_GroupBrowser->callback( staticScreenCB, this );
     m_GroupsLayout.AddInput( m_GroupInput, "Group" );
 
@@ -107,7 +107,7 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     m_SettingLayout.AddDividerBox( "Settings" );
 
-    m_SettingBrowser = m_SettingLayout.AddFlBrowser( browser_h );
+    m_SettingBrowser = m_SettingLayout.AddVspBrowser( browser_h );
     m_SettingBrowser->callback( staticScreenCB, this );
 
 

@@ -195,7 +195,7 @@ protected:
     TriggerButton m_AddSource;
     TriggerButton m_DeleteSource;
 
-    Fl_Browser* m_SourceBrowser;
+    VspBrowser* m_SourceBrowser;
 
     StringInput m_SourceName;
 

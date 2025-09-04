@@ -66,7 +66,7 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
     m_CreateGroup.AddButton( m_CreateParm, "Create" );
     m_CreateGroup.AddYGap();
     m_CreateGroup.AddDividerBox( "User Defined Parms" );
-    m_UserDefinedBrowser = m_CreateGroup.AddFlBrowser( 150 );
+    m_UserDefinedBrowser = m_CreateGroup.AddVspBrowser( 150 );
     m_CreateGroup.AddYGap();
 
     m_CreateGroup.SetFitWidthFlag( false );

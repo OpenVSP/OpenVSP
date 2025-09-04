@@ -64,7 +64,7 @@ protected:
     StringInput m_EditParmMinInput;
     StringInput m_EditParmMaxInput;
 
-    Fl_Browser* m_UserDefinedBrowser;
+    VspBrowser* m_UserDefinedBrowser;
 
     GroupLayout m_AdjustLayout;
     Fl_Scroll* m_AdjustScroll;

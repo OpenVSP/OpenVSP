@@ -55,7 +55,7 @@ protected:
 
     void UpdateLineNumberWidth();
 
-    Fl_Browser* m_LinkBrowser;
+    VspBrowser* m_LinkBrowser;
     ColResizeBrowser* m_InputBrowser;
     ColResizeBrowser* m_OutputBrowser;
     Fl_Text_Editor* m_CodeEditor;

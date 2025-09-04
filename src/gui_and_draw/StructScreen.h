@@ -168,7 +168,7 @@ private:
     TriggerButton m_EditLaminateButton;
     TriggerButton m_EditLaminaButton;
 
-    Fl_Browser* m_FeaMaterialSelectBrowser;
+    VspBrowser* m_FeaMaterialSelectBrowser;
     vector < string > m_FeaMaterialIDVec;
 
     GroupLayout m_MaterialEditSubGroup;

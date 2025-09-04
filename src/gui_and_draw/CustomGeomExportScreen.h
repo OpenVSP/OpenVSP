@@ -42,7 +42,7 @@ protected:
     GroupLayout m_MainLayout;
     GroupLayout m_BorderLayout;
 
-    Fl_Browser* m_CustomScriptsBrowser;
+    VspBrowser* m_CustomScriptsBrowser;
 
     TriggerButton m_SaveScriptToggle;
     TriggerButton m_CancelToggle;

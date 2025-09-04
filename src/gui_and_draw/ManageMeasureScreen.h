@@ -87,7 +87,7 @@ protected:
 
     ToggleButton m_VisibleRulerButton;
 
-    Fl_Browser* m_RulerBrowser;
+    VspBrowser* m_RulerBrowser;
 
     GeomPicker m_StartGeom;
     Choice m_StartSurfChoice;
@@ -124,7 +124,7 @@ protected:
 
     ToggleButton m_VisibleProbeButton;
 
-    Fl_Browser* m_ProbeBrowser;
+    VspBrowser* m_ProbeBrowser;
 
     GeomPicker m_ProbeGeom;
     Choice m_ProbeSurfChoice;
@@ -163,7 +163,7 @@ protected:
 
     ToggleButton m_VisibleRSTProbeButton;
 
-    Fl_Browser* m_RSTProbeBrowser;
+    VspBrowser* m_RSTProbeBrowser;
 
     GeomPicker m_RSTProbeGeom;
     Choice m_RSTProbeSurfChoice;
@@ -205,7 +205,7 @@ protected:
 
     ToggleButton m_VisibleProtractorButton;
 
-    Fl_Browser* m_ProtractorBrowser;
+    VspBrowser* m_ProtractorBrowser;
 
     GeomPicker m_ProtractorStartGeom;
     Choice m_ProtractorStartSurfChoice;

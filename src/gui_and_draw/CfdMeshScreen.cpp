@@ -503,7 +503,7 @@ void CfdMeshScreen::CreateSourcesTab()
     m_SourcesLeft.AddYGap();
     m_SourcesLeft.AddButton(m_DeleteSource, "Delete Source");
 
-    m_SourceBrowser = m_SourcesRight.AddFlBrowser(75);
+    m_SourceBrowser = m_SourcesRight.AddVspBrowser(75);
     m_SourceBrowser->callback( staticScreenCB, this );
 
     m_SourcesTabLayout.ForceNewLine();

@@ -45,7 +45,7 @@ protected:
     int m_SelectedSetIndex;
   
     //Browser widget that displays a selectable list of items 
-    Fl_Browser* m_SetBrowser;
+    VspBrowser* m_SetBrowser;
     //Check browser widget that displays a checkable list of items
     Fl_Check_Browser* m_SetSelectBrowser;
 

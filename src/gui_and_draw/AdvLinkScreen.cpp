@@ -38,7 +38,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Ad
     m_LinkAddDelGroup.AddButton( m_DelAllLink, "Del All" );
     m_LinkAddDelGroup.AddYGap();
 
-    m_LinkBrowser = m_LinkBrowserGroup.AddFlBrowser( 70 );
+    m_LinkBrowser = m_LinkBrowserGroup.AddVspBrowser( 70 );
     m_LinkBrowser->callback( staticScreenCB, this );
 
     m_LinkBrowserGroup.AddInput( m_NameInput, "Name:" );

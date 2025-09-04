@@ -55,8 +55,8 @@ protected:
     ColResizeBrowser* m_LinkFromBrowser;
 
     GroupLayout m_AdvLinkLayout;
-    Fl_Browser* m_AdvLinkInputBrowser;
-    Fl_Browser* m_AdvLinkOutputBrowser;
+    VspBrowser* m_AdvLinkInputBrowser;
+    VspBrowser* m_AdvLinkOutputBrowser;
 
     AttributeEditor m_AttributeEditor;
 

@@ -306,7 +306,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_MaterialTabLayout.AddSubGroupLayout( m_MaterialEditGroup, m_MaterialTabLayout.GetW(), m_MaterialTabLayout.GetRemainY() );
 
-    m_FeaMaterialSelectBrowser = m_MaterialEditGroup.AddFlBrowser( browser_h );
+    m_FeaMaterialSelectBrowser = m_MaterialEditGroup.AddVspBrowser( browser_h );
     m_FeaMaterialSelectBrowser->labelfont( 13 );
     m_FeaMaterialSelectBrowser->labelsize( 12 );
     m_FeaMaterialSelectBrowser->callback( staticScreenCB, this );

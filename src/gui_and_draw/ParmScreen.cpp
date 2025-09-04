@@ -71,10 +71,10 @@ ParmScreen::ParmScreen( ScreenMgr* mgr )  : TabScreen( mgr, 380, 400, "Parm" )
     //===== Adv Link ====//
     m_AdvLinkLayout.SetGroupAndScreen( adv_link_group, this );
     m_AdvLinkLayout.AddDividerBox( "Adv Link Input" );
-    m_AdvLinkInputBrowser = m_AdvLinkLayout.AddFlBrowser( 75 );
+    m_AdvLinkInputBrowser = m_AdvLinkLayout.AddVspBrowser( 75 );
     m_AdvLinkLayout.AddYGap();
     m_AdvLinkLayout.AddDividerBox( "Adv Link Output" );
-    m_AdvLinkOutputBrowser = m_AdvLinkLayout.AddFlBrowser( 75 );
+    m_AdvLinkOutputBrowser = m_AdvLinkLayout.AddVspBrowser( 75 );
 
     info_tab->show();
 }

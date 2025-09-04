@@ -67,7 +67,7 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 560, 
     m_BorderLayout.AddY( 15 );
 
     //We add the m_setBrowser to the m_LeftLayout
-    m_SetBrowser = m_LeftLayout.AddFlBrowser( browserHeight );
+    m_SetBrowser = m_LeftLayout.AddVspBrowser( browserHeight );
 
     //We add the m_SetSelectBrowser to the m_RightLayout
     m_SetSelectBrowser = m_RightLayout.AddCheckBrowser( browserHeight );

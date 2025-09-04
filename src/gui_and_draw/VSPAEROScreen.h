@@ -292,9 +292,9 @@ protected:
     GroupLayout m_CSGroupingLayout;
     GroupLayout m_CSGroupDetailsLayout;
     GroupLayout m_CSGroupGainScrollLayout;
-    Fl_Browser* m_CSGroupBrowser;
-    Fl_Browser* m_UngroupedCSBrowser;
-    Fl_Browser* m_GroupedCSBrowser;
+    VspBrowser* m_CSGroupBrowser;
+    VspBrowser* m_UngroupedCSBrowser;
+    VspBrowser* m_GroupedCSBrowser;
 
     Fl_Scroll* m_DeflectionGainScroll;
     vector < SliderAdjRangeInput > m_DeflectionGainSliderVec;

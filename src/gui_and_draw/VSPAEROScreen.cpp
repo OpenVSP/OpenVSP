@@ -673,7 +673,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CSGroupingLayout.SetSameLineFlag( true );
     m_CSGroupingLayout.SetFitWidthFlag( false );
 
-    m_CSGroupBrowser = m_CSGroupingLayout.AddFlBrowser( 0 );
+    m_CSGroupBrowser = m_CSGroupingLayout.AddVspBrowser( 0 );
     m_CSGroupBrowser->resize( m_CSGroupingLayout.GetX(), m_CSGroupingLayout.GetY(), main_browser_w, browser_h + browser_h_augment );
     m_CSGroupBrowser->labelfont( 13 );
     m_CSGroupBrowser->textsize( 12 );
@@ -682,7 +682,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CSGroupingLayout.AddX( main_browser_w );
     m_CSGroupingLayout.AddX( main_browser_spacing ); // Space Between Main Browser and Available Items Browser
 
-    m_UngroupedCSBrowser = m_CSGroupingLayout.AddFlBrowser( 0 );
+    m_UngroupedCSBrowser = m_CSGroupingLayout.AddVspBrowser( 0 );
     m_UngroupedCSBrowser->resize( m_CSGroupingLayout.GetX(), m_CSGroupingLayout.GetY(), component_browser_w, browser_h );
     m_UngroupedCSBrowser->type( FL_MULTI_BROWSER );
     m_UngroupedCSBrowser->labelfont( 13 );
@@ -692,7 +692,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CSGroupingLayout.AddX( component_browser_w );
     m_CSGroupingLayout.AddX( items_browsers_spacing );
 
-    m_GroupedCSBrowser = m_CSGroupingLayout.AddFlBrowser( 0 );
+    m_GroupedCSBrowser = m_CSGroupingLayout.AddVspBrowser( 0 );
     m_GroupedCSBrowser->resize( m_CSGroupingLayout.GetX(), m_CSGroupingLayout.GetY(), component_browser_w, browser_h );
     m_GroupedCSBrowser->type( FL_MULTI_BROWSER );
     m_GroupedCSBrowser->labelfont( 13 );

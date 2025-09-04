@@ -51,7 +51,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
     m_RulerLayout.ForceNewLine();
     m_RulerLayout.SetSameLineFlag( false );
 
-    m_RulerBrowser = m_RulerLayout.AddFlBrowser( 75 );
+    m_RulerBrowser = m_RulerLayout.AddVspBrowser( 75 );
     m_RulerBrowser->callback( staticScreenCB, this );
 
 
@@ -186,7 +186,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
     m_ProbeLayout.ForceNewLine();
     m_ProbeLayout.SetSameLineFlag( false );
 
-    m_ProbeBrowser = m_ProbeLayout.AddFlBrowser( 75 );
+    m_ProbeBrowser = m_ProbeLayout.AddVspBrowser( 75 );
     m_ProbeBrowser->callback( staticScreenCB, this );
 
 
@@ -309,7 +309,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
     m_RSTProbeLayout.ForceNewLine();
     m_RSTProbeLayout.SetSameLineFlag( false );
 
-    m_RSTProbeBrowser = m_RSTProbeLayout.AddFlBrowser( 75 );
+    m_RSTProbeBrowser = m_RSTProbeLayout.AddVspBrowser( 75 );
     m_RSTProbeBrowser->callback( staticScreenCB, this );
 
 
@@ -422,7 +422,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
     m_ProtractorLayout.ForceNewLine();
     m_ProtractorLayout.SetSameLineFlag( false );
 
-    m_ProtractorBrowser = m_ProtractorLayout.AddFlBrowser( 75 );
+    m_ProtractorBrowser = m_ProtractorLayout.AddVspBrowser( 75 );
     m_ProtractorBrowser->callback( staticScreenCB, this );
 
 

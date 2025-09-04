@@ -59,7 +59,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout convergenceYDataSelectLayout;
     m_ConvergenceControlLayout.AddSubGroupLayout( convergenceYDataSelectLayout, m_ConvergenceControlLayout.GetW(), yDataSelectHeight );
     convergenceYDataSelectLayout.AddDividerBox( "Y-Data" );
-    m_ConvergenceYDataBrowser = convergenceYDataSelectLayout.AddFlBrowser( convergenceYDataSelectLayout.GetRemainY() );
+    m_ConvergenceYDataBrowser = convergenceYDataSelectLayout.AddVspBrowser( convergenceYDataSelectLayout.GetRemainY() );
     m_ConvergenceYDataBrowser->callback( staticScreenCB, this );
     m_ConvergenceYDataBrowser->type( FL_MULTI_BROWSER );
     m_ConvergenceControlLayout.AddY( convergenceYDataSelectLayout.GetH() + 2 * groupBorderWidth );
@@ -67,7 +67,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout convergenceFlowConditionLayout;
     m_ConvergenceControlLayout.AddSubGroupLayout( convergenceFlowConditionLayout, m_ConvergenceControlLayout.GetW(), flowConditionSelectHeight );
     convergenceFlowConditionLayout.AddDividerBox( "Flow Condition" );
-    m_ConvergenceFlowConditionBrowser = convergenceFlowConditionLayout.AddFlBrowser( convergenceFlowConditionLayout.GetRemainY() );
+    m_ConvergenceFlowConditionBrowser = convergenceFlowConditionLayout.AddVspBrowser( convergenceFlowConditionLayout.GetRemainY() );
     m_ConvergenceFlowConditionBrowser->callback( staticScreenCB, this );
     m_ConvergenceFlowConditionBrowser->type( FL_MULTI_BROWSER );
     m_ConvergenceControlLayout.AddY( convergenceFlowConditionLayout.GetH() + 2 * groupBorderWidth );
@@ -158,7 +158,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout yDataSelectLayout;
     m_LoadDistControlLayout.AddSubGroupLayout( yDataSelectLayout, m_LoadDistControlLayout.GetW(), yDataSelectHeight );
     yDataSelectLayout.AddDividerBox( "Y-Data" );
-    m_LoadDistYDataBrowser = yDataSelectLayout.AddFlBrowser( yDataSelectLayout.GetRemainY() );
+    m_LoadDistYDataBrowser = yDataSelectLayout.AddVspBrowser( yDataSelectLayout.GetRemainY() );
     m_LoadDistYDataBrowser->callback( staticScreenCB, this );
     m_LoadDistYDataBrowser->type( FL_MULTI_BROWSER );
     m_LoadDistControlLayout.AddY( yDataSelectLayout.GetH() + 2 * groupBorderWidth );
@@ -184,7 +184,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout loadDistSelectLayout;
     m_LoadDistControlLayout.AddSubGroupLayout( loadDistSelectLayout, m_LoadDistControlLayout.GetW(), flowConditionSelectHeight - m_LoadDistLayout.GetStdHeight() + 2 * windowBorderWidth );
     loadDistSelectLayout.AddDividerBox( "Group/Rotor Selection" );
-    m_LoadDistSelectBrowser = loadDistSelectLayout.AddFlBrowser( loadDistSelectLayout.GetRemainY() );
+    m_LoadDistSelectBrowser = loadDistSelectLayout.AddVspBrowser( loadDistSelectLayout.GetRemainY() );
     m_LoadDistSelectBrowser->callback( staticScreenCB, this );
     m_LoadDistSelectBrowser->type( FL_MULTI_BROWSER );
     m_LoadDistControlLayout.AddY( loadDistSelectLayout.GetH() + 2 * groupBorderWidth );
@@ -192,7 +192,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout flowConditionLayout;
     m_LoadDistControlLayout.AddSubGroupLayout( flowConditionLayout, m_LoadDistControlLayout.GetW(), flowConditionSelectHeight );
     flowConditionLayout.AddDividerBox( "Flow Condition" );
-    m_LoadDistFlowConditionBrowser = flowConditionLayout.AddFlBrowser( flowConditionLayout.GetRemainY() );
+    m_LoadDistFlowConditionBrowser = flowConditionLayout.AddVspBrowser( flowConditionLayout.GetRemainY() );
     m_LoadDistFlowConditionBrowser->callback( staticScreenCB, this );
     m_LoadDistFlowConditionBrowser->type( FL_MULTI_BROWSER );
 
@@ -282,7 +282,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout sweepXDataSelectLayout;
     sweepXYDataSelectLayout.AddSubGroupLayout( sweepXDataSelectLayout, sweepXYDataSelectLayout.GetW() / 2, sweepXYDataSelectLayout.GetH() );
     sweepXDataSelectLayout.AddDividerBox( "X-Data" );
-    m_SweepXDataBrowser = sweepXDataSelectLayout.AddFlBrowser( sweepXDataSelectLayout.GetRemainY() );
+    m_SweepXDataBrowser = sweepXDataSelectLayout.AddVspBrowser( sweepXDataSelectLayout.GetRemainY() );
     m_SweepXDataBrowser->callback( staticScreenCB, this );
     m_SweepXDataBrowser->type( FL_MULTI_BROWSER );
     sweepXYDataSelectLayout.AddX( sweepXDataSelectLayout.GetW() );
@@ -290,14 +290,14 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout sweepYDataSelectLayout;
     sweepXYDataSelectLayout.AddSubGroupLayout( sweepYDataSelectLayout, sweepXYDataSelectLayout.GetW() / 2, sweepXYDataSelectLayout.GetH() );
     sweepYDataSelectLayout.AddDividerBox( "Y-Data" );
-    m_SweepYDataBrowser = sweepYDataSelectLayout.AddFlBrowser( sweepYDataSelectLayout.GetRemainY() );
+    m_SweepYDataBrowser = sweepYDataSelectLayout.AddVspBrowser( sweepYDataSelectLayout.GetRemainY() );
     m_SweepYDataBrowser->callback( staticScreenCB, this );
     m_SweepYDataBrowser->type( FL_MULTI_BROWSER );
     m_SweepControlLayout.AddY( sweepYDataSelectLayout.GetH() + 2 * groupBorderWidth );
 
     m_SweepControlLayout.AddSubGroupLayout( flowConditionLayout, m_SweepControlLayout.GetW(), flowConditionSelectHeight );
     flowConditionLayout.AddDividerBox( "Flow Condition" );
-    m_SweepFlowConditionBrowser = flowConditionLayout.AddFlBrowser( flowConditionLayout.GetRemainY() );
+    m_SweepFlowConditionBrowser = flowConditionLayout.AddVspBrowser( flowConditionLayout.GetRemainY() );
     m_SweepFlowConditionBrowser->callback( staticScreenCB, this );
     m_SweepFlowConditionBrowser->type( FL_MULTI_BROWSER );
     m_SweepControlLayout.AddY( flowConditionLayout.GetH() + 2 * groupBorderWidth );
@@ -380,7 +380,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout CutSelectLayout;
     m_CpSliceControlLayout.AddSubGroupLayout( CutSelectLayout, m_CpSliceControlLayout.GetW(), yDataSelectHeight );
     CutSelectLayout.AddDividerBox( "Slice" );
-    m_CpSliceCutBrowser = CutSelectLayout.AddFlBrowser( CutSelectLayout.GetRemainY() );
+    m_CpSliceCutBrowser = CutSelectLayout.AddVspBrowser( CutSelectLayout.GetRemainY() );
     m_CpSliceCutBrowser->callback( staticScreenCB, this );
     m_CpSliceCutBrowser->type( FL_MULTI_BROWSER );
     m_CpSliceControlLayout.AddY( CutSelectLayout.GetH() + 2 * groupBorderWidth );
@@ -416,7 +416,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout flowCaseLayout;
     m_CpSliceControlLayout.AddSubGroupLayout( flowCaseLayout, m_CpSliceControlLayout.GetW(), flowConditionSelectHeight - rowHeight - 2 * groupBorderWidth );
     flowCaseLayout.AddDividerBox( "Flow Condition" );
-    m_CpSliceCaseBrowser = flowCaseLayout.AddFlBrowser( flowCaseLayout.GetRemainY() );
+    m_CpSliceCaseBrowser = flowCaseLayout.AddVspBrowser( flowCaseLayout.GetRemainY() );
     m_CpSliceCaseBrowser->callback( staticScreenCB, this );
     m_CpSliceCaseBrowser->type( FL_MULTI_BROWSER );
     m_CpSliceControlLayout.AddY( flowCaseLayout.GetH() + 2 * groupBorderWidth );
@@ -507,7 +507,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout unsteadyYDataSelectLayout;
     m_UnsteadyControlLayout.AddSubGroupLayout( unsteadyYDataSelectLayout, m_UnsteadyControlLayout.GetW(), yDataSelectHeight );
     unsteadyYDataSelectLayout.AddDividerBox( "Y-Data" );
-    m_UnsteadyYDataBrowser = unsteadyYDataSelectLayout.AddFlBrowser( unsteadyYDataSelectLayout.GetRemainY() );
+    m_UnsteadyYDataBrowser = unsteadyYDataSelectLayout.AddVspBrowser( unsteadyYDataSelectLayout.GetRemainY() );
     m_UnsteadyYDataBrowser->callback( staticScreenCB, this );
     m_UnsteadyYDataBrowser->type( FL_MULTI_BROWSER );
     m_UnsteadyControlLayout.AddY( unsteadyYDataSelectLayout.GetH() + 2 * groupBorderWidth );
@@ -535,7 +535,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout unsteadySelectLayout;
     m_UnsteadyControlLayout.AddSubGroupLayout( unsteadySelectLayout, m_UnsteadyControlLayout.GetW(), flowConditionSelectHeight - m_UnsteadyLayout.GetStdHeight() + 2 * windowBorderWidth );
     unsteadySelectLayout.AddDividerBox( "Group/Rotor Selection" );
-    m_UnsteadySelectBrowser = unsteadySelectLayout.AddFlBrowser( unsteadySelectLayout.GetRemainY() );
+    m_UnsteadySelectBrowser = unsteadySelectLayout.AddVspBrowser( unsteadySelectLayout.GetRemainY() );
     m_UnsteadySelectBrowser->callback( staticScreenCB, this );
     m_UnsteadySelectBrowser->type( FL_MULTI_BROWSER );
     m_UnsteadyControlLayout.AddY( unsteadySelectLayout.GetH() + 2 * groupBorderWidth );
@@ -543,7 +543,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     GroupLayout unsteadyFlowConditionLayout;
     m_UnsteadyControlLayout.AddSubGroupLayout( unsteadyFlowConditionLayout, m_UnsteadyControlLayout.GetW(), flowConditionSelectHeight );
     unsteadyFlowConditionLayout.AddDividerBox( "Flow Condition" );
-    m_UnsteadyFlowConditionBrowser = unsteadyFlowConditionLayout.AddFlBrowser( unsteadyFlowConditionLayout.GetRemainY() );
+    m_UnsteadyFlowConditionBrowser = unsteadyFlowConditionLayout.AddVspBrowser( unsteadyFlowConditionLayout.GetRemainY() );
     m_UnsteadyFlowConditionBrowser->callback( staticScreenCB, this );
     m_UnsteadyFlowConditionBrowser->type( FL_MULTI_BROWSER );
     m_UnsteadyControlLayout.AddY( unsteadyFlowConditionLayout.GetH() + 2 * groupBorderWidth );

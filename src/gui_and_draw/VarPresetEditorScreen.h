@@ -61,7 +61,7 @@ protected:
 
     // Group tab
     StringInput m_GroupInput;
-    Fl_Browser* m_GroupBrowser;
+    VspBrowser* m_GroupBrowser;
 
     TriggerButton m_AddGroupButton;
     TriggerButton m_RenameGroupButton;
@@ -86,7 +86,7 @@ protected:
     GroupLayout m_AdjustLayout;
 
     StringInput m_SettingInput;
-    Fl_Browser* m_SettingBrowser;
+    VspBrowser* m_SettingBrowser;
 
     TriggerButton m_Apply2Button;
     TriggerButton m_AddSettingButton;

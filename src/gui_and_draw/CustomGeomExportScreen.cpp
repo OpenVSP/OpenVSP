@@ -29,7 +29,7 @@ CustomGeomExportScreen::CustomGeomExportScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_BorderLayout.AddDividerBox( "Custom Scripts" );
 
-    m_CustomScriptsBrowser = m_BorderLayout.AddFlBrowser( browserHeight );
+    m_CustomScriptsBrowser = m_BorderLayout.AddVspBrowser( browserHeight );
     m_BorderLayout.AddYGap();
 
     int gap_w = 5;
