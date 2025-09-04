@@ -4843,7 +4843,7 @@ void VspBrowser::draw()
 //===================         ColResizeBrowser      ===================//
 //=====================================================================//
 
-ColResizeBrowser::ColResizeBrowser( int X, int Y, int W, int H, const char* L ) : Fl_Browser( X, Y, W, H, L )
+ColResizeBrowser::ColResizeBrowser( int X, int Y, int W, int H, const char* L ) : VspBrowser( X, Y, W, H, L )
 {
     m_ColSepColor = Fl_Color( FL_GRAY );
     m_LastCursor = FL_CURSOR_DEFAULT;
@@ -4939,13 +4939,13 @@ int ColResizeBrowser::handle( int e )
         }
     }
 
-    return( Fl_Browser::handle( e ) ? 1 : ret );
+    return( VspBrowser::handle( e ) ? 1 : ret );
 }
 
 void ColResizeBrowser::draw()
 {
-    // DRAW BROWSER
-    Fl_Browser::draw();
+    // // DRAW BROWSER
+    VspBrowser::draw();
 
     if ( m_ShowColSepFlag && m_Widths )
     {

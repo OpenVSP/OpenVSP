@@ -1509,7 +1509,7 @@ private:
     int m_CBReason;
 };
 
-class ColResizeBrowser : public Fl_Browser
+class ColResizeBrowser : public VspBrowser
 {
 public:
 
