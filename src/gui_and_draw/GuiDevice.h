@@ -1454,9 +1454,14 @@ public:
     bool GetPopupState();
     const string GetPopupValue();
 
+    void InsertPopupInput( const string & text, int index, int col = 0 );
+    void HidePopupInput();
+
     virtual void GetItemDims( int &X, int &Y, int &W, int &H, int index, int col = 0 );
 
 protected:
+
+    void draw();
 
     Fl_Input* m_PopupInput;
     Fl_Group* m_PopupGroup;

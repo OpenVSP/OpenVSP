@@ -4639,6 +4639,29 @@ const string VspBrowser::GetPopupValue()
     return ret;
 }
 
+void VspBrowser::InsertPopupInput( const string & text, int index, int col )
+{
+    // Set loc, which updates size of popup window
+    SetPopupLoc( index, col );
+
+    // Build the popup if it doesn't exist yet
+    if ( !m_PopupInput )
+    {
+        InitPopupInput();
+    }
+
+    // Set popup to show on draw
+    SetPopupState( true );
+
+    // Set popup text
+    SetPopupText( text );
+}
+
+void VspBrowser::HidePopupInput()
+{
+    SetPopupState( false );
+}
+
 void VspBrowser::GetItemDims( int &X, int &Y, int &W, int &H, int index, int col )
 {
     bbox( X, Y, W, H );
@@ -4699,6 +4722,38 @@ void VspBrowser::GetItemDims( int &X, int &Y, int &W, int &H, int index, int col
     // account for h/v scroll positions
     X -= hposition();
     Y -= vposition();
+}
+
+void VspBrowser::draw()
+{
+    // draw browser
+    Fl_Browser::draw();
+
+    // draw popup
+    if ( m_PopupInput && m_PopupDrawFlag )
+    {
+        int x, y, w, h;
+
+        GetItemDims( x, y, w, h, m_PopupIndex, m_PopupCol );
+
+        m_PopupInput->resize( x, y, w, h );
+        m_PopupInput->redraw();
+
+        // If popup recently shown/created, then ensure it takes focus, ignore if just scrolling/redrawing
+        if ( m_RecentPopup )
+        {
+            m_PopupInput->activate();
+            m_PopupInput->show();
+            m_PopupInput->take_focus();
+
+            m_RecentPopup = false;
+        }
+    }
+    else if ( m_PopupInput )
+    {
+        m_PopupInput->hide();
+        m_PopupInput->deactivate();
+    }
 }
 
 //=====================================================================//
