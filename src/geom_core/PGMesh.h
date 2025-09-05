@@ -363,6 +363,7 @@ public:
 
     void AlwaysShadow( vector < PGFace* > &shadow, const vector < vec3d > &vvec );
     void IdentifyShadow( vector < PGFace* > &shadow, const vec3d &v );
+    void IdentifyForeAft( vector < PGFace* > &fore, vector < PGFace* > &aft, const vec3d &v );
 
     void ExtendSilhouette( vector < PGEdge * > & silhouette, PGEdge *e, const PGNode *n, const vec3d &v );
     void IdentifySilhouettes( vector < vector < PGEdge * > > &silhouetteLoopVec, const vec3d &v );
