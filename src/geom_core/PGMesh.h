@@ -150,6 +150,7 @@ public:
     PGNode* OtherNode( const PGNode* n ) const;
     PGNode* SharedNode( const PGEdge* e ) const;
 
+    PGFace* WindwardFace( const vec3d & v ) const;
     PGFace* OtherManifoldFace( const PGFace* ) const;
 
     void NodesForgetEdge() const;

@@ -593,6 +593,18 @@ PGNode* PGEdge::SharedNode( const PGEdge* e ) const
     return nullptr;
 }
 
+PGFace* PGEdge::WindwardFace( const vec3d & v ) const
+{
+    for ( int i = 0; i < m_FaceVec.size(); i++ )
+    {
+        if ( dot( m_FaceVec[ i ]->m_Nvec, v ) <= 0 )
+        {
+            return m_FaceVec[ i ];
+        }
+    }
+    return nullptr;
+}
+
 PGFace* PGEdge::OtherManifoldFace( const PGFace* f ) const
 {
     if ( m_FaceVec.size() != 2 )
