@@ -353,8 +353,8 @@ public:
     void CopyFaces( const vector < PGFace* > &faces, const vector < PGNode* > &nvec, const int &noffset );
     void MoveFaces( const vector < PGFace* > &faces, const vector < PGNode* > &nvec, const int &noffset );
 
-    void ExtrudeEdgeLoop( const vector < PGEdge* > &loop, const vector < PGNode* > &nvec, const int &nbaseoffset, const int &noffset, int &iQuad );
-    void ExtrudeEdgeLoopVec( const vector < vector < PGEdge* > > &loopvec, const vector < PGNode* > &nvec, const int &nbaseoffset, const int &noffset );
+    void ExtrudeEdgeLoop( const vector < PGEdge* > &loop, const vector < PGNode* > &nvec, const int &nbaseoffset, const int &noffset, int &iQuad, const vec3d &v );
+    void ExtrudeEdgeLoopVec( const vector < vector < PGEdge* > > &loopvec, const vector < PGNode* > &nvec, const int &nbaseoffset, const int &noffset, const vec3d &v );
 
     void FindAllDoubleBackNodes();
     void SealDoubleBackNodes();

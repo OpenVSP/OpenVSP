@@ -2812,7 +2812,7 @@ void PGMesh::MoveFaces( const vector < PGFace* > &faces, const vector < PGNode* 
     }
 }
 
-void PGMesh::ExtrudeEdgeLoop( const vector < PGEdge* > &loop, const vector < PGNode* > &nvec, const int &nbaseoffset, const int &noffset, int &iQuad )
+void PGMesh::ExtrudeEdgeLoop( const vector < PGEdge* > &loop, const vector < PGNode* > &nvec, const int &nbaseoffset, const int &noffset, int &iQuad, const vec3d &v )
 {
     for ( int j = 0; j < loop.size(); j++ )
     {
@@ -2851,7 +2851,16 @@ void PGMesh::ExtrudeEdgeLoop( const vector < PGEdge* > &loop, const vector < PGN
         f->AddEdge( e2 );
         f->AddEdge( e3 );
 
-        PGFace * fother = e0->OtherManifoldFace( f );
+        PGFace * fother = nullptr;
+
+        if ( ebase == e0 )
+        {
+            fother = ebase->WindwardFace( v );
+        }
+        else
+        {
+            fother = e0->OtherManifoldFace( f );
+        }
 
         if ( fother )
         {
@@ -2875,12 +2884,12 @@ void PGMesh::ExtrudeEdgeLoop( const vector < PGEdge* > &loop, const vector < PGN
     }
 }
 
-void PGMesh::ExtrudeEdgeLoopVec( const vector < vector < PGEdge* > > &loopvec, const vector < PGNode* > &nvec, const int &nbaseoffset, const int &noffset )
+void PGMesh::ExtrudeEdgeLoopVec( const vector < vector < PGEdge* > > &loopvec, const vector < PGNode* > &nvec, const int &nbaseoffset, const int &noffset, const vec3d &v )
 {
     int iQuad = 0;
     for ( int i = 0; i < loopvec.size(); i++ )
     {
-        ExtrudeEdgeLoop( loopvec[ i ], nvec, nbaseoffset, noffset, iQuad);
+        ExtrudeEdgeLoop( loopvec[ i ], nvec, nbaseoffset, noffset, iQuad, v );
     }
 }
 

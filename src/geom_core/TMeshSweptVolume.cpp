@@ -177,7 +177,7 @@ TMesh * CreateTMeshPGMeshSweptVolumeTranslate( TMesh * tm, const vec3d & v )
     for ( int ilevel = 0; ilevel < nlevel; ++ilevel )
     {
         // Extrude the silouette loops to create candidate 'sides' of the swept volume.
-        pgm->ExtrudeEdgeLoopVec( silhouetteLoopVec, nvec, nnod * ilevel, nnod * ( ilevel + 1 ) );
+        pgm->ExtrudeEdgeLoopVec( silhouetteLoopVec, nvec, nnod * ilevel, nnod * ( ilevel + 1 ), v );
     }
 
     // The shadowed side of the original mesh and the non-shadowed side of the end-point
