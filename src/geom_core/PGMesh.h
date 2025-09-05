@@ -349,6 +349,7 @@ public:
     bool m_DeleteMeFlag;
 
 
+    void CopyFaces( const vector < PGFace* > &faces, const vector < PGNode* > &nvec, const int &noffset );
     void MoveFaces( const vector < PGFace* > &faces, const vector < PGNode* > &nvec, const int &noffset );
 
     void ExtrudeEdgeLoop( const vector < PGEdge* > &loop, const vector < PGNode* > &nvec, const int &nbaseoffset, const int &noffset, int &iQuad );

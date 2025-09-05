@@ -2751,7 +2751,7 @@ bool PGMesh::Check()
     return true;
 }
 
-void PGMesh::MoveFaces( const vector < PGFace* > &faces, const vector < PGNode* > &nvec, const int &noffset )
+void PGMesh::CopyFaces( const vector < PGFace* > &faces, const vector < PGNode* > &nvec, const int &noffset )
 {
     for ( int i = 0; i < faces.size(); i++ )
     {
@@ -2786,7 +2786,16 @@ void PGMesh::MoveFaces( const vector < PGFace* > &faces, const vector < PGNode* 
             f->AddEdge( e1 );
             f->AddEdge( e2 );
         }
+    }
+}
 
+void PGMesh::MoveFaces( const vector < PGFace* > &faces, const vector < PGNode* > &nvec, const int &noffset )
+{
+    CopyFaces( faces, nvec, noffset );
+
+    for ( int i = 0; i < faces.size(); i++ )
+    {
+        PGFace *forig = faces[ i ];
         RemoveFace( forig );
     }
 }
