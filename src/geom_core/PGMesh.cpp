@@ -2948,6 +2948,26 @@ void PGMesh::IdentifyParents()
     }
 }
 
+void PGMesh::AlwaysShadow( vector < PGFace* > &shadow, const vector < vec3d > &vvec )
+{
+    for ( list< PGFace* >::iterator f = m_FaceList.begin(); f != m_FaceList.end(); ++f )
+    {
+        bool allshadow = true;
+        for ( int iv = 0; iv < vvec.size(); iv++ )
+        {
+            if ( dot( ( *f )->m_Nvec, vvec[ iv ] ) <= 0 )
+            {
+                allshadow = false;
+                break;
+            }
+        }
+        if ( allshadow )
+        {
+            shadow.push_back( *f );
+        }
+    }
+}
+
 void PGMesh::IdentifyShadow( vector < PGFace* > &shadow, const vec3d &v )
 {
     for ( list< PGFace* >::iterator f = m_FaceList.begin(); f != m_FaceList.end(); ++f )

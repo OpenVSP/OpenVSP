@@ -361,6 +361,7 @@ public:
 
     void ResetEdgeLoopFlags();
 
+    void AlwaysShadow( vector < PGFace* > &shadow, const vector < vec3d > &vvec );
     void IdentifyShadow( vector < PGFace* > &shadow, const vec3d &v );
 
     void ExtendSilhouette( vector < PGEdge * > & silhouette, PGEdge *e, const PGNode *n, const vec3d &v );
