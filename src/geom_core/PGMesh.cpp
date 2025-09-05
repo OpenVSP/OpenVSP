@@ -2089,7 +2089,7 @@ void PGMesh::RemoveEdgesMergeFaces( vector < PGEdge* > edges, void ( * facemerge
             // Check orientation of edge loops
             PGEdge * e0back = ev0.back();
             PGEdge * e1start = ev1[0];
-            if ( !e0back->SharedNode( e1start ) )
+            if ( e0back && e1start && !e0back->SharedNode( e1start ) )
             {
                 std::reverse( ev1.begin(), ev1.end() );
             }
