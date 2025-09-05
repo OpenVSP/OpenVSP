@@ -581,11 +581,11 @@ PGNode* PGEdge::OtherNode( const PGNode* n ) const
 
 PGNode* PGEdge::SharedNode( const PGEdge* e ) const
 {
-    if ( e->ContainsNode( m_N0 ) )
+    if ( e && e->ContainsNode( m_N0 ) )
     {
         return m_N0;
     }
-    if ( e->ContainsNode( m_N1 ) )
+    if ( e && e->ContainsNode( m_N1 ) )
     {
         return m_N1;
     }
