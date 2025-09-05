@@ -2060,7 +2060,7 @@ void PGMesh::RemoveEdgesMergeFaces( vector < PGEdge* > edges, void ( * facemerge
         }
     }
 
-    if ( manifoldedges )
+    if ( !edges.empty() && manifoldedges )
     {
         PGEdge *e = edges[0];
 
