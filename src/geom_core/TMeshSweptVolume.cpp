@@ -39,6 +39,85 @@ void TMeshToIGL( TMesh * tm, Eigen::MatrixXi &F, Eigen::MatrixXd &V )
     }
 }
 
+void TMeshToIGL( TMesh * tm, vector< TTri* > &trivec, PGMesh *pgm, const vector < vector < PGFace * > > &foreVec, Eigen::MatrixXi &F, Eigen::MatrixXd &V, Eigen::MatrixXd &C )
+{
+    vector< TNode* > nodevec;
+
+    MeshGeom::BuildTriVec( tm, trivec );
+    MeshGeom::IndexTriVec( trivec, nodevec );
+
+    MeshGeom::IgnoreDegenTris( trivec );
+
+    vector< PGNode* > pgmnVec( pgm->m_NodeList.begin(), pgm->m_NodeList.end() );
+    int pgmnodes = pgmnVec.size();
+
+    int tmnodes = nodevec.size();
+
+    V.resize( tmnodes + pgmnodes, 3 );
+    for ( int i = 0; i < tmnodes; ++i )
+    {
+        for ( int j = 0; j < 3; ++j )
+        {
+            V( i, j ) = nodevec[ i ]->m_Pnt.v[ j ];
+        }
+    }
+
+    for ( int i = 0; i < pgmnodes; i++ )
+    {
+        pgmnVec[ i ]->m_Pt->m_ID = i + tmnodes;
+
+        for ( int j = 0; j < 3; ++j )
+        {
+            V( i + tmnodes, j ) = pgmnVec[ i ]->m_Pt->m_Pnt.v[ j ];
+        }
+    }
+
+    int tmtris = trivec.size();
+
+    int pgmtris = 0;
+    for ( int i = 0; i < foreVec.size(); i++ )
+    {
+        pgmtris += foreVec[ i ].size();
+    }
+
+    F.resize( tmtris + pgmtris, 3 );
+    C.resize( tmtris, 3 );
+    for ( int i = 0; i < tmtris; ++i )
+    {
+        F( i, 0 ) = trivec[i]->m_N0->m_ID;
+        F( i, 1 ) = trivec[i]->m_N1->m_ID;
+        F( i, 2 ) = trivec[i]->m_N2->m_ID;
+
+        vec3d n = trivec[i]->m_Norm;
+        n.normalize();
+
+        vec3d c = 1e-6 * n + ( trivec[i]->m_N0->m_Pnt + trivec[i]->m_N1->m_Pnt + trivec[i]->m_N2->m_Pnt ) / 3.0;
+
+        C( i, 0 ) = c.v[ 0 ];
+        C( i, 1 ) = c.v[ 1 ];
+        C( i, 2 ) = c.v[ 2 ];
+    }
+
+    int k = tmtris;
+    for ( int i = 0; i < foreVec.size(); i++ )
+    {
+        for ( int j = 0; j < foreVec[ i ].size(); j++ )
+        {
+            vector < PGNode * > tnods;
+            foreVec[i][j]->GetNodes( tnods );
+
+            for ( int t = 0; t < tnods.size() - 1; t++ )
+            {
+                if ( tnods[ t ] )
+                {
+                    F( k, t ) = tnods[ t ]->m_Pt->m_ID;
+                }
+            }
+            k++;
+        }
+    }
+}
+
 void TMeshToIGL( TMesh * tm, vector< TTri* > &trivec, Eigen::MatrixXi &F, Eigen::MatrixXd &V, Eigen::MatrixXd &C )
 {
     vector< TNode* > nodevec;
