@@ -299,3 +299,134 @@ TMesh * CreateTMeshPGMeshSweptVolumeTranslate( TMesh * tm, const vec3d & v )
 
     return tm_sv;
 }
+
+TMesh * CreateTMeshPGMeshSweptVolumeTranslate( TMesh * tm, const std::vector < vec3d > & vvec )
+{
+    // Copy tm to PGMesh
+    PGMulti pgmulti;
+    PGMesh *pgm = pgmulti.GetActiveMesh();
+    pgm->BuildFromTMesh( tm );
+    // Merge coincident nodes.  This fixes the mesh topology, changing from disconnected
+    // triangles with duplicate nodes and edges to a coehesive mesh that can be walked.
+    pgm->MergeCoincidentNodes();
+
+    vector < vector < vector < PGEdge * > > > silhouetteLoopVecVec;
+    vector < vector < PGFace* > > shadowVec;
+    vector < vector < PGFace* > > foreVec;
+
+    for ( int iv = 0; iv < vvec.size(); ++iv )
+    {
+        const vec3d & v = vvec[ iv ];
+
+        // Identify silhouette edge loops.  Silhouette edges are those where the dot product
+        // between the face normal vector and v differs in sign for the two faces across the edge.
+        // This step requires the walkable mesh data structure.
+        vector < vector < PGEdge * > > silhouetteLoopVec;
+        pgm->IdentifySilhouettes( silhouetteLoopVec, v );
+
+        // Identify shadow faces.  Shadow faces are those where the dot product between the face
+        // normal vector and v is positive.
+        vector < PGFace* > shadow;
+        vector < PGFace* > fore;
+        pgm->IdentifyForeAft( fore, shadow, v );
+
+        silhouetteLoopVecVec.push_back( silhouetteLoopVec );
+        shadowVec.push_back( shadow );
+        foreVec.push_back( fore );
+    }
+
+    // Copy node list to vector for easy access by index.
+    vector < PGNode* > basenvec( pgm->m_NodeList.begin(), pgm->m_NodeList.end() );
+
+    for ( int iv = 0; iv < vvec.size(); ++iv )
+    {
+        const vec3d & v = vvec[ iv ];
+
+        const vector < vector < PGEdge * > > & silhouetteLoopVec = silhouetteLoopVecVec[ iv ];
+        const vector < PGFace* > & shadow = shadowVec[ iv ];
+
+        // Copy base node list.
+        vector < PGNode* > nvec = basenvec;
+        int nnod = nvec.size();
+
+        int nlevel = 10;
+        nvec.reserve( ( nlevel + 1 ) * nnod );
+
+        for ( int ilevel = 0; ilevel < nlevel; ++ilevel )
+        {
+            vec3d dv = ( ( double ) ( ilevel + 1 ) / ( double ) nlevel ) * v;
+            // Add duplicate shifted nodes
+            for ( int i = 0; i < nnod ; i++ )
+            {
+                // Add new shifted point
+                PGPoint * pnew = pgmulti.AddPoint( nvec[ i ]->m_Pt->m_Pnt + dv );
+                // Make point ID match vector index
+                nvec[ i ]->m_Pt->m_ID = i;
+                pnew->m_ID = i + nnod * ( ilevel + 1 );
+                // Make node for shifted point
+                nvec.push_back( pgm->AddNode( pnew ) );
+            }
+        }
+
+        // Move shadow faces to end of sweep.
+        // This actually creates new faces in the new position and destroys the old ones.  This
+        // is an easier way to preserve the mesh topology through the transformation.
+        pgm->CopyFaces( shadow, nvec, nnod * nlevel );
+
+        for ( int ilevel = 0; ilevel < nlevel; ++ilevel )
+        {
+            // Extrude the silouette loops to create candidate 'sides' of the swept volume.
+            pgm->ExtrudeEdgeLoopVec( silhouetteLoopVec, nvec, nnod * ilevel, nnod * ( ilevel + 1 ), v );
+        }
+
+        // The shadowed side of the original mesh and the non-shadowed side of the end-point
+        // mesh each result in unused points / nodes.
+        pgmulti.CleanUnused();
+        pgmulti.DumpGarbage();
+    }
+
+    pgm->WriteSTL( "beforeremove.stl" );
+
+    // Convert pgm to TMesh for intersection
+    TMesh *tm_sv = new TMesh();
+    tm_sv->MakeFromPGMesh( pgm );
+
+    // Prepare mesh for intersection
+    tm_sv->LoadBndBox();
+    // Self-intersect
+    tm_sv->Intersect( tm_sv, /* UWFlag */ false, /* checkSharedEdges */ true );
+    // Split intersected triangles
+    tm_sv->Split();
+
+    // Flatten mesh data structure
+    tm_sv->FlattenInPlace();
+
+    tm_sv->WriteSTL( "AfterIntersectSplit.stl" );
+
+    // Create IGL triangulation
+    Eigen::MatrixXi F;
+    Eigen::MatrixXd V, C, W;
+    vector< TTri* > trivec;
+    TMeshToIGL( tm_sv, trivec, pgm, foreVec, F, V, C );
+
+    // Calculate winding number for each face using parallel and clever IGL algorithm.
+    igl::winding_number( V, F, C, W );
+    // igl::fast_winding_number( V, F, C, W );
+
+    // Use winding number to classify tris
+    for ( int i = 0; i < trivec.size(); i++ )
+    {
+        trivec[i]->m_Density = W(i);
+        if ( round( W( i ) ) != 0 )
+        {
+            trivec[i]->m_IgnoreTriFlag = true;
+        }
+    }
+
+    tm_sv->WriteTRI( "winding.tri" );
+
+    // Flatten mesh data structure
+    tm_sv->FlattenInPlace();
+
+    return tm_sv;
+}
