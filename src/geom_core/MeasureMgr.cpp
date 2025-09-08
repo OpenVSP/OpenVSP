@@ -51,6 +51,9 @@ Protractor * MeasureMgrSingleton::CreateAndAddProtractor()
 {
     Protractor * protractor = new Protractor();
 
+    string prname = "PROTRACTOR_" + to_string( m_Protractors.size() );
+    protractor->SetName( prname );
+
     m_Protractors.push_back( protractor );
 
     m_CurrProtractorIndex = m_Protractors.size() - 1;
@@ -89,6 +92,9 @@ Ruler * MeasureMgrSingleton::CreateAndAddRuler()
 {
     Ruler * ruler = new Ruler();
 
+    string rname = "RULER_" + to_string( m_Rulers.size() );
+    ruler->SetName( rname );
+
     m_Rulers.push_back( ruler );
 
     m_CurrRulerIndex = m_Rulers.size() - 1;
@@ -120,6 +126,9 @@ Probe * MeasureMgrSingleton::CreateAndAddProbe()
 {
     Probe * probe = new Probe();
 
+    string pname = "PROBE_" + to_string( m_Probes.size() );
+    probe->SetName( pname );
+
     m_Probes.push_back( probe );
 
     m_CurrProbeIndex = m_Probes.size() - 1;
@@ -144,6 +153,9 @@ string MeasureMgrSingleton::CreateAndAddProbe( const string & geomid, int surfin
 RSTProbe * MeasureMgrSingleton::CreateAndAddRSTProbe()
 {
     RSTProbe * RSTprobe = new RSTProbe();
+
+    string rstname = "RSTPROBE_" + to_string( m_RSTProbes.size() );
+    RSTprobe->SetName( rstname );
 
     m_RSTProbes.push_back(RSTprobe );
 
@@ -492,6 +504,11 @@ void MeasureMgrSingleton::DelProtractor( const int & i )
 
     m_Protractors.erase( m_Protractors.begin() +  i );
 
+    if ( m_CurrProtractorIndex > m_Protractors.size() - 1 )
+    {
+        m_CurrProtractorIndex = m_Protractors.size() - 1;
+    }
+
     delete protractor;
 }
 
@@ -572,6 +589,11 @@ void MeasureMgrSingleton::DelRuler( const int & i )
     Ruler* ruler = m_Rulers[i];
 
     m_Rulers.erase( m_Rulers.begin() +  i );
+
+    if ( m_CurrRulerIndex > m_Rulers.size() - 1 )
+    {
+        m_CurrRulerIndex = m_Rulers.size() - 1;
+    }
 
     delete ruler;
 }
@@ -654,6 +676,11 @@ void MeasureMgrSingleton::DelProbe( const int & i )
 
     m_Probes.erase( m_Probes.begin() +  i );
 
+    if ( m_CurrProbeIndex > m_Probes.size() - 1 )
+    {
+        m_CurrProbeIndex = m_Probes.size() - 1;
+    }
+
     delete probe;
 }
 
@@ -734,6 +761,11 @@ void MeasureMgrSingleton::DelRSTProbe(const int & i )
     RSTProbe* RSTprobe = m_RSTProbes[i];
 
     m_RSTProbes.erase(m_RSTProbes.begin() + i );
+
+    if ( m_CurrRSTProbeIndex > m_RSTProbes.size() - 1 )
+    {
+        m_CurrRSTProbeIndex = m_RSTProbes.size() - 1;
+    }
 
     delete RSTprobe;
 }

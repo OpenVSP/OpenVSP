@@ -38,32 +38,19 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_RulerLayout.AddChoice( m_RulerLengthUnitChoice, "Length Unit" );
 
-    m_RulerLayout.SetSameLineFlag( true );
-    m_RulerLayout.SetFitWidthFlag( false );
+    m_RulerBrowser = m_RulerLayout.AddVspBrowser( 75 );
+    m_RulerBrowser->callback( staticScreenCB, this );
 
     m_RulerLayout.AddYGap();
 
     m_RulerLayout.AddInput( m_RulerNameInput, "Name:" );
 
-    m_RulerLayout.SetFitWidthFlag( true );
-    m_RulerLayout.AddButton( m_AddRulerButton, "Add", m_RulerLayout.GetX() );
-
-    m_RulerLayout.ForceNewLine();
-    m_RulerLayout.SetSameLineFlag( false );
-
-    m_RulerBrowser = m_RulerLayout.AddVspBrowser( 75 );
-    m_RulerBrowser->callback( staticScreenCB, this );
-
-
-    m_RulerLayout.SetButtonWidth( m_RulerLayout.GetW() / 2.0 );
     m_RulerLayout.SetSameLineFlag( true );
+    m_RulerLayout.SetButtonWidth( m_RulerLayout.GetW() / 5.0 );
     m_RulerLayout.SetFitWidthFlag( false );
-
+    m_RulerLayout.AddButton( m_AddRulerButton, "Add", m_RulerLayout.GetX() );
     m_RulerLayout.AddButton( m_RemoveRulerButton, "Delete" );
     m_RulerLayout.AddButton( m_RemoveAllRulersButton, "Delete All" );
-
-    m_RulerLayout.ForceNewLine();
-
     m_RulerLayout.AddButton( m_ShowAllRulersButton, "Show All" );
     m_RulerLayout.AddButton( m_HideAllRulersButton, "Hide All" );
 
@@ -173,32 +160,19 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_ProbeLayout.AddChoice( m_ProbeLengthUnitChoice, "Length Unit" );
 
-    m_ProbeLayout.SetSameLineFlag( true );
-    m_ProbeLayout.SetFitWidthFlag( false );
+    m_ProbeBrowser = m_ProbeLayout.AddVspBrowser( 75 );
+    m_ProbeBrowser->callback( staticScreenCB, this );
 
     m_ProbeLayout.AddYGap();
 
     m_ProbeLayout.AddInput( m_ProbeNameInput, "Name:" );
 
-    m_ProbeLayout.SetFitWidthFlag( true );
-    m_ProbeLayout.AddButton( m_AddProbeButton, "Add", m_ProbeLayout.GetX() );
-
-    m_ProbeLayout.ForceNewLine();
-    m_ProbeLayout.SetSameLineFlag( false );
-
-    m_ProbeBrowser = m_ProbeLayout.AddVspBrowser( 75 );
-    m_ProbeBrowser->callback( staticScreenCB, this );
-
-
-    m_ProbeLayout.SetButtonWidth( m_ProbeLayout.GetW() / 2.0 );
     m_ProbeLayout.SetSameLineFlag( true );
+    m_ProbeLayout.SetButtonWidth( m_ProbeLayout.GetW() / 5.0 );
     m_ProbeLayout.SetFitWidthFlag( false );
-
+    m_ProbeLayout.AddButton( m_AddProbeButton, "Add", m_ProbeLayout.GetX() );
     m_ProbeLayout.AddButton( m_RemoveProbeButton, "Delete" );
     m_ProbeLayout.AddButton( m_RemoveAllProbesButton, "Delete All" );
-
-    m_ProbeLayout.ForceNewLine();
-
     m_ProbeLayout.AddButton( m_ShowAllProbesButton, "Show All" );
     m_ProbeLayout.AddButton( m_HideAllProbesButton, "Hide All" );
 
@@ -296,32 +270,19 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_RSTProbeLayout.AddChoice( m_RSTProbeLengthUnitChoice, "Length Unit" );
 
-    m_RSTProbeLayout.SetSameLineFlag( true );
-    m_RSTProbeLayout.SetFitWidthFlag( false );
+    m_RSTProbeBrowser = m_RSTProbeLayout.AddVspBrowser( 75 );
+    m_RSTProbeBrowser->callback( staticScreenCB, this );
 
     m_RSTProbeLayout.AddYGap();
 
     m_RSTProbeLayout.AddInput( m_RSTProbeNameInput, "Name:" );
 
-    m_RSTProbeLayout.SetFitWidthFlag( true );
-    m_RSTProbeLayout.AddButton( m_AddRSTProbeButton, "Add", m_RSTProbeLayout.GetX() );
-
-    m_RSTProbeLayout.ForceNewLine();
-    m_RSTProbeLayout.SetSameLineFlag( false );
-
-    m_RSTProbeBrowser = m_RSTProbeLayout.AddVspBrowser( 75 );
-    m_RSTProbeBrowser->callback( staticScreenCB, this );
-
-
-    m_RSTProbeLayout.SetButtonWidth( m_RSTProbeLayout.GetW() / 2.0 );
     m_RSTProbeLayout.SetSameLineFlag( true );
+    m_RSTProbeLayout.SetButtonWidth( m_RSTProbeLayout.GetW() / 5.0 );
     m_RSTProbeLayout.SetFitWidthFlag( false );
-
+    m_RSTProbeLayout.AddButton( m_AddRSTProbeButton, "Add", m_RSTProbeLayout.GetX() );
     m_RSTProbeLayout.AddButton( m_RemoveRSTProbeButton, "Delete" );
     m_RSTProbeLayout.AddButton( m_RemoveAllRSTProbesButton, "Delete All" );
-
-    m_RSTProbeLayout.ForceNewLine();
-
     m_RSTProbeLayout.AddButton( m_ShowAllRSTProbesButton, "Show All" );
     m_RSTProbeLayout.AddButton( m_HideAllRSTProbesButton, "Hide All" );
 
@@ -409,32 +370,21 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
     m_ProtractorLayout.SetInputWidth( 100 );
     m_ProtractorLayout.SetButtonWidth( 75 );
 
-    m_ProtractorLayout.SetSameLineFlag( true );
-    m_ProtractorLayout.SetFitWidthFlag( false );
+    m_ProtractorLayout.AddYGap();
+
+    m_ProtractorBrowser = m_ProtractorLayout.AddVspBrowser( 75 );
+    m_ProtractorBrowser->callback( staticScreenCB, this );
 
     m_ProtractorLayout.AddYGap();
 
     m_ProtractorLayout.AddInput( m_ProtractorNameInput, "Name:" );
 
-    m_ProtractorLayout.SetFitWidthFlag( true );
-    m_ProtractorLayout.AddButton( m_AddProtractorButton, "Add", m_ProtractorLayout.GetX() );
-
-    m_ProtractorLayout.ForceNewLine();
-    m_ProtractorLayout.SetSameLineFlag( false );
-
-    m_ProtractorBrowser = m_ProtractorLayout.AddVspBrowser( 75 );
-    m_ProtractorBrowser->callback( staticScreenCB, this );
-
-
-    m_ProtractorLayout.SetButtonWidth( m_ProtractorLayout.GetW() / 2.0 );
     m_ProtractorLayout.SetSameLineFlag( true );
+    m_ProtractorLayout.SetButtonWidth( m_ProtractorLayout.GetW() / 5.0 );
     m_ProtractorLayout.SetFitWidthFlag( false );
-
+    m_ProtractorLayout.AddButton( m_AddProtractorButton, "Add", m_ProtractorLayout.GetX() );
     m_ProtractorLayout.AddButton( m_RemoveProtractorButton, "Delete" );
     m_ProtractorLayout.AddButton( m_RemoveAllProtractorsButton, "Delete All" );
-
-    m_ProtractorLayout.ForceNewLine();
-
     m_ProtractorLayout.AddButton( m_ShowAllProtractorsButton, "Show All" );
     m_ProtractorLayout.AddButton( m_HideAllProtractorsButton, "Hide All" );
 
