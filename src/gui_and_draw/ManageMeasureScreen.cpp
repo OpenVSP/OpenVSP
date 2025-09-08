@@ -978,8 +978,6 @@ bool ManageMeasureScreen::Update()
         m_RSTProbeLenSlider.Update("" );
         m_RSTProbePrecisionSlider.Update("" );
 
-        m_ProbeNameInput.Update( "" );
-
         m_RSTXOutput.Update( "" );
         m_RSTYOutput.Update( "" );
         m_RSTZOutput.Update( "" );
