@@ -39,7 +39,7 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 775
     static int mode_widths[] = { 120, 120, 120, 600 - ( 3 * 120 ), 0 }; // widths for each column
 
     m_ModeBrowser = m_GenLayout.AddColResizeBrowser( mode_widths, 4, browserHeight );
-    m_ModeBrowser->callback( staticScreenCB, this );
+    m_ModeBrowser->Init( this, m_GenLayout.GetGroup() );
 
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.AddX( m_GenLayout.GetW() * 0.25 );
@@ -122,10 +122,10 @@ bool ModeEditorScreen::Update()
     if ( mod )
     {
         m_ScreenMgr->LoadSetChoice( {&m_NormalSetChoice, &m_DegenSetChoice}, {mod->m_NormalSet.GetID(), mod->m_DegenSet.GetID()}, true );
+        m_ModeNameInput.Update( mod->GetName() );
 
         if ( m_PrevMID != mod->GetID() )
         {
-            m_ModeNameInput.Update( mod->GetName() );
             m_PrevMID = mod->GetID();
         }
 
@@ -389,17 +389,36 @@ void ModeEditorScreen::CallBack( Fl_Widget *w )
     assert( m_ScreenMgr ); 
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
+    m_ModeBrowser->HidePopupInput();
+
     if ( w == m_ModeBrowser )
     {
+        // Get previous mode, apply rename change via popup input if popup callback happened
+        if ( m_ModeBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            Mode *mod = ModeMgr.GetMode( m_SelectedModeIndex );
+            if ( mod )
+            {
+                string m_name = m_ModeBrowser->GetPopupValue();
+                mod->SetName( m_name.c_str() );
+            }
+        }
+
+        // update selection per GUI input
         m_SelectedModeIndex = m_ModeBrowser->value() - 2;
 
         Mode *mod = ModeMgr.GetMode( m_SelectedModeIndex );
-
-        if ( mod )
-        {
-            m_ModeNameInput.Update( mod->GetName() );
-        }
         changed = true;
+
+        // open popup input if new setting was double clicked
+        if ( m_ModeBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            // double click open the popup input
+            if ( mod )
+            {
+                m_ModeBrowser->InsertPopupInput( mod->GetName(), m_ModeBrowser->value() );
+            }
+        }
     }
     else if ( w == m_SettingBrowser )
     {
@@ -434,7 +453,6 @@ void ModeEditorScreen::CallBack( Fl_Widget *w )
             }
         }
     }
-
     m_AttributeEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -449,6 +467,7 @@ void ModeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
 
     Mode *mod = ModeMgr.GetMode( m_SelectedModeIndex );
 
+    m_ModeBrowser->HidePopupInput();
 
     if ( device == &m_AddMode )
     {
