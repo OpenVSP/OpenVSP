@@ -54,16 +54,14 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 775
     m_GenLayout.SetButtonWidth( bw );
     m_GenLayout.AddInput( m_ModeNameInput, "Name:" );
 
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetW() * 0.5 );
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetW() / 3. );
 
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.AddButton( m_AddMode, "Create" );
     m_GenLayout.AddButton( m_DeleteMode, "Delete" );
-    m_GenLayout.ForceNewLine();
-
-    m_GenLayout.AddButton( m_RenameMode, "Rename" );
     m_GenLayout.AddButton( m_DeleteAllModes, "Delete All" );
+
     m_GenLayout.ForceNewLine();
 
     m_GenLayout.SetSameLineFlag( false );
@@ -158,7 +156,6 @@ bool ModeEditorScreen::Update()
     {
         m_ApplyAndShowOnlyMode.Activate();
         m_DeleteMode.Activate();
-        m_RenameMode.Activate();
         m_NormalSetChoice.Activate();
         m_DegenSetChoice.Activate();
         m_GroupChoice.Activate();
@@ -169,7 +166,6 @@ bool ModeEditorScreen::Update()
     {
         m_ApplyAndShowOnlyMode.Deactivate();
         m_DeleteMode.Deactivate();
-        m_RenameMode.Deactivate();
         m_NormalSetChoice.Deactivate();
         m_DegenSetChoice.Deactivate();
         m_GroupChoice.Deactivate();
@@ -456,12 +452,9 @@ void ModeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_AddMode )
     {
-        string mname = m_ModeNameInput.GetString();
-        if ( !mname.empty() )
-        {
-            ModeMgr.CreateAndAddMode( mname );
-            m_SelectedModeIndex = ModeMgr.GetNumModes() - 1;
-        }
+        string mname = "MODE_" + to_string( ModeMgr.GetNumModes() );
+        ModeMgr.CreateAndAddMode( mname );
+        m_SelectedModeIndex = ModeMgr.GetNumModes() - 1;
     }
     else if ( device == &m_DeleteMode )
     {
@@ -474,7 +467,7 @@ void ModeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         ModeMgr.DelAllModes();
     }
-    else if ( device == &m_RenameMode )
+    else if ( device == &m_ModeNameInput )
     {
         if ( mod )
         {

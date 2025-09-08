@@ -62,7 +62,6 @@ protected:
     TriggerButton m_AddMode;
     TriggerButton m_DeleteMode;
     TriggerButton m_DeleteAllModes;
-    TriggerButton m_RenameMode;
 
 
     Choice m_NormalSetChoice;
