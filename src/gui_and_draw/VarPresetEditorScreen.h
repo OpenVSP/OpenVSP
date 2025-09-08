@@ -50,6 +50,9 @@ public:
 
 protected:
 
+    bool ValidGroup();
+    bool ValidSetting();
+
     GroupLayout m_ChangeStateLayout;
     GroupLayout m_GroupsLayout;
 

@@ -162,19 +162,37 @@ VarPresetEditorScreen::~VarPresetEditorScreen()
 {
 }
 
+bool VarPresetEditorScreen::ValidGroup()
+{
+    if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+    {
+        return true;
+    }
+    return false;
+}
+
+bool VarPresetEditorScreen::ValidSetting()
+{
+    if ( m_SettingIndex >= 0 && m_SettingIndex < m_SettingIDs.size() )
+    {
+        return true;
+    }
+    return false;
+}
+
 bool VarPresetEditorScreen::Update()
 {
     TabScreen::Update();
 
     SettingGroup *sg = nullptr;
-    if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+    if ( ValidGroup() )
     {
         string gid = m_GroupIDs[ m_GroupIndex ];
         sg = VarPresetMgr.FindSettingGroup( gid );
     }
 
     Setting *s = nullptr;
-    if ( m_SettingIndex >= 0 && m_SettingIndex < m_SettingIDs.size() )
+    if ( ValidSetting() )
     {
         string sid = m_SettingIDs[ m_SettingIndex ];
 
@@ -322,7 +340,7 @@ void VarPresetEditorScreen::RebuildMenus()
     m_SettingChoice.ClearItems();
     m_SettingIDs.clear();
 
-    if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+    if ( ValidGroup() )
     {
         string gid = m_GroupIDs[ m_GroupIndex ];
 
@@ -370,7 +388,7 @@ void VarPresetEditorScreen::UpdateVarBrowser()
     snprintf( str, sizeof( str ), "@b@.COMP:@b@.GROUP:@b@.PARM" );
     m_VarBrowser->add( str );
 
-    if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+    if ( ValidGroup() )
     {
         string gid = m_GroupIDs[ m_GroupIndex ];
 
@@ -407,8 +425,7 @@ void VarPresetEditorScreen::CheckSaveStatus()
     m_UpdateSettingButton.Deactivate();
     m_UpdateSettingButton.GetFlButton()->label( "Update" );
 
-    if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() &&
-         m_SettingIndex >= 0 && m_SettingIndex < m_SettingIDs.size() )
+    if ( ValidGroup() && ValidSetting() )
     {
         string gid = m_GroupIDs[ m_GroupIndex ];
         string sid = m_SettingIDs[ m_SettingIndex ];
@@ -434,13 +451,13 @@ void VarPresetEditorScreen::EnableDisableWidgets()
     Setting *s = nullptr;
     Parm *p = nullptr;
 
-    if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+    if ( ValidGroup() )
     {
         string gid = m_GroupIDs[ m_GroupIndex ];
         sg = VarPresetMgr.FindSettingGroup( gid );
     }
 
-    if ( m_SettingIndex >= 0 && m_SettingIndex < m_SettingIDs.size() )
+    if ( ValidSetting() )
     {
         string sid = m_SettingIDs[ m_SettingIndex ];
         s = VarPresetMgr.FindSetting( sid );
@@ -557,7 +574,7 @@ void VarPresetEditorScreen::CallBack( Fl_Widget* w )
         string pid( Fl::event_text() );
         m_ParmPicker.SetParmChoice( pid );
 
-        if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+        if ( ValidGroup() )
         {
             string gid = m_GroupIDs[ m_GroupIndex ];
 
@@ -605,7 +622,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_AddVarButton )
     {
-        if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+        if ( ValidGroup() )
         {
             string gid = m_GroupIDs[ m_GroupIndex ];
 
@@ -622,7 +639,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DelVarButton )
     {
-        if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+        if ( ValidGroup() )
         {
             string gid = m_GroupIDs[ m_GroupIndex ];
 
@@ -640,7 +657,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ClearVarsButton )
     {
-        if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+        if ( ValidGroup() )
         {
             string gid = m_GroupIDs[ m_GroupIndex ];
 
@@ -683,7 +700,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( !m_SettingInput.GetString().empty() )
         {
-            if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+            if ( ValidGroup() )
             {
                 string gid = m_GroupIDs[ m_GroupIndex ];
 
@@ -708,7 +725,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DeleteGroupButton )
     {
-        if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+        if ( ValidGroup() )
         {
             string gid = m_GroupIDs[ m_GroupIndex ];
 
@@ -722,7 +739,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_RenameGroupButton )
     {
-        if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+        if ( ValidGroup() )
         {
             string gid = m_GroupIDs[ m_GroupIndex ];
 
@@ -736,8 +753,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DeleteSettingButton )
     {
-        if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() &&
-             m_SettingIndex >= 0 && m_SettingIndex < m_SettingIDs.size() )
+        if ( ValidGroup() && ValidSetting() )
         {
             string gid = m_GroupIDs[ m_GroupIndex ];
             string sid = m_SettingIDs[ m_SettingIndex ];
@@ -748,7 +764,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ClearSettingsButton )
     {
-        if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() )
+        if ( ValidGroup() )
         {
             string gid = m_GroupIDs[ m_GroupIndex ];
 
@@ -757,7 +773,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_RenameSettingButton )
     {
-        if ( m_SettingIndex >= 0 && m_SettingIndex < m_SettingIDs.size() )
+        if ( ValidSetting() )
         {
             string sid = m_SettingIDs[ m_SettingIndex ];
             Setting *s = VarPresetMgr.FindSetting( sid );
@@ -770,8 +786,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_ApplyButton ||
               device == &m_Apply2Button )
     {
-        if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() &&
-             m_SettingIndex >= 0 && m_SettingIndex < m_SettingIDs.size() )
+        if ( ValidGroup() && ValidSetting() )
         {
             string gid = m_GroupIDs[ m_GroupIndex ];
             string sid = m_SettingIDs[ m_SettingIndex ];
@@ -792,8 +807,7 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_UpdateSettingButton )
     {
-        if ( m_GroupIndex >= 0 && m_GroupIndex < m_GroupIDs.size() &&
-             m_SettingIndex >= 0 && m_SettingIndex < m_SettingIDs.size() )
+        if ( ValidGroup() && ValidSetting() )
         {
             string gid = m_GroupIDs[ m_GroupIndex ];
             string sid = m_SettingIDs[ m_SettingIndex ];
