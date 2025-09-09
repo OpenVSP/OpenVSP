@@ -56,6 +56,8 @@ RoutingPoint::RoutingPoint()
     m_DeltaYRel.Init( "DeltaYRel", "RoutePt", this, 0.0, -1.0e12, 1.0e12 );
     m_DeltaZRel.Init( "DeltaZRel", "RoutePt", this, 0.0, -1.0e12, 1.0e12 );
 
+    m_Radius.Init( "Radius", "RoutePt", this, 0.0, 0.0, 1.0e12 );
+
     m_Placed = true;
 }
 

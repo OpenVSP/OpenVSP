@@ -106,6 +106,7 @@ protected:
     SliderAdjRange2Input m_RoutePtDeltaYSlider;
     SliderAdjRange2Input m_RoutePtDeltaZSlider;
 
+    SliderAdjRangeInput m_RoutePtRadiusSlider;
 
     Output m_LengthOutput;
     Output m_SymmLengthOutput;

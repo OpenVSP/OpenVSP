@@ -222,6 +222,12 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Rou
 
 
     m_DesignLayout.AddYGap();
+    m_DesignLayout.AddDividerBox( "Offset" );
+
+    m_DesignLayout.AddSlider( m_RoutePtRadiusSlider, "Radius", 1, " %7.6f" );
+
+
+    m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Results" );
 
     m_DesignLayout.AddOutput( m_LengthOutput, "Length", " %7.6f" );
@@ -295,6 +301,8 @@ bool RoutingScreen::Update()
             m_GeomPicker.SetGeomChoice( rpt->GetParentID() );
 
             m_SurfChoice.Update( rpt->m_SurfIndx.GetID() );
+
+            m_RoutePtRadiusSlider.Update( rpt->m_Radius.GetID() );
 
             //==== Attachments ====//
             m_RoutePtCoordUSlider.Activate();

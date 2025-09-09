@@ -70,6 +70,7 @@ public:
     Parm m_DeltaYRel;
     Parm m_DeltaZRel;
 
+    Parm m_Radius;
 
     vec3d m_AttachOrigin;
     vector < vec3d > m_AttachAxis;
