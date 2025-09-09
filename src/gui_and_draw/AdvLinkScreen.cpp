@@ -39,7 +39,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Ad
     m_LinkAddDelGroup.AddYGap();
 
     m_LinkBrowser = m_LinkBrowserGroup.AddVspBrowser( 70 );
-    m_LinkBrowser->callback( staticScreenCB, this );
+    m_LinkBrowser->Init( this, m_LinkBrowserGroup.GetGroup() );
 
     m_LinkBrowserGroup.AddInput( m_NameInput, "Name:" );
 
@@ -359,7 +359,7 @@ bool AdvLinkScreen::Update()
         {
             fontctrl = "@C" + std::to_string(FL_DARK_MAGENTA)+"@.";
         }
-        snprintf( str, sizeof( str ),  "%s  %s", fontctrl.c_str(), linkname.c_str() );
+        snprintf( str, sizeof( str ),  "%s%s", fontctrl.c_str(), linkname.c_str() );
         m_LinkBrowser->add( str );
     }
 
@@ -544,10 +544,33 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
     AdvLink* edit_link = AdvLinkMgr.GetLink(edit_link_index);
 
+    m_LinkBrowser->HidePopupInput();
+
     if ( w == m_LinkBrowser )
     {
+        // Apply popup callback to rename advlink
+        if ( m_LinkBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            if ( edit_link )
+            {
+                string lname = m_LinkBrowser->GetPopupValue();
+                edit_link->SetName( lname );
+            }
+        }
+
+        // Select new advlink
         int sel = m_LinkBrowser->value();
         AdvLinkMgr.SetEditLinkIndex( sel - 1 );
+
+        // Open up popup input if double clicked
+        if ( m_LinkBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            edit_link = AdvLinkMgr.GetLink(edit_link_index);
+            if ( edit_link )
+            {
+                m_LinkBrowser->InsertPopupInput( edit_link->GetName(), m_LinkBrowser->value() );
+            }
+        }
     }
     else if ( w == m_InputBrowser )
     {
@@ -712,7 +735,6 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
             }
         }
     }
-
     m_AdvLinkAttrEditor.DeviceCB( w );
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -733,6 +755,8 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
     int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
     AdvLink* edit_link = AdvLinkMgr.GetLink(edit_link_index);
+
+    m_LinkBrowser->HidePopupInput();
 
     if ( gui_device == &m_PickInput ||  gui_device == &m_PickOutput )
     {
