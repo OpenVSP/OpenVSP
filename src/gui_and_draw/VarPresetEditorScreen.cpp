@@ -53,7 +53,8 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     int browser_h = 100;
 
     m_GroupBrowser = m_GroupsLayout.AddVspBrowser( browser_h );
-    m_GroupBrowser->callback( staticScreenCB, this );
+    m_GroupBrowser->Init( this, m_GroupsLayout.GetGroup() );
+
     m_GroupsLayout.AddInput( m_GroupInput, "Group" );
 
     m_GroupsLayout.SetSameLineFlag( true );
@@ -106,7 +107,7 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_SettingLayout.AddDividerBox( "Settings" );
 
     m_SettingBrowser = m_SettingLayout.AddVspBrowser( browser_h );
-    m_SettingBrowser->callback( staticScreenCB, this );
+    m_SettingBrowser->Init( this, m_SettingLayout.GetGroup() );
 
 
     m_SettingLayout.AddInput( m_SettingInput, "Setting" );
@@ -212,20 +213,24 @@ bool VarPresetEditorScreen::Update()
         }
     }
 
-
-    if ( sg && m_PrevGID != sg->GetID() )
+    if ( sg )
     {
         m_GroupInput.Update( sg->GetName() );
-
-        m_PrevGID = sg->GetID();
-        m_SettingIndex = 0;
-        m_PrevSID = "";
+        if ( m_PrevGID != sg->GetID() )
+        {
+            m_PrevGID = sg->GetID();
+            m_SettingIndex = 0;
+            m_PrevSID = "";
+        }
     }
 
-    if ( s && m_PrevSID != s->GetID() )
+    if ( s )
     {
         m_SettingInput.Update( s->GetName() );
-        m_PrevSID = s->GetID();
+        if ( m_PrevSID != s->GetID() )
+        {
+            m_PrevSID = s->GetID();
+        }
     }
 
     string sg_ac_id = "";
@@ -534,21 +539,27 @@ void VarPresetEditorScreen::EnableDisableWidgets()
 
     if ( sg )
     {
+        m_GroupInput.Activate();
         m_DeleteGroupButton.Activate();
         m_AddSettingButton.Activate();
     }
     else
     {
+        m_GroupInput.Update("");
+        m_GroupInput.Deactivate();
         m_DeleteGroupButton.Deactivate();
         m_AddSettingButton.Deactivate();
     }
 
     if ( s )
     {
+        m_SettingInput.Activate();
         m_DeleteSettingButton.Activate();
     }
     else
     {
+        m_SettingInput.Update("");
+        m_SettingInput.Deactivate();
         m_DeleteSettingButton.Deactivate();
     }
 }
@@ -569,6 +580,9 @@ void VarPresetEditorScreen::Hide()
 void VarPresetEditorScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
+
+    m_GroupBrowser->HidePopupInput();
+    m_SettingBrowser->HidePopupInput();
 
     if( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
     {
@@ -598,11 +612,87 @@ void VarPresetEditorScreen::CallBack( Fl_Widget* w )
     }
     else if (  w == m_GroupBrowser )
     {
+        // first check if popup input has a callback to enter the a new name on the previously selected setting group
+        if ( m_GroupBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            string gid = m_GroupIDs[ m_GroupIndex ];
+            SettingGroup* sg = VarPresetMgr.FindSettingGroup( gid );
+            if ( sg )
+            {
+                // set new group name
+                if ( ValidGroup() )
+                {
+                    string sg_name = m_GroupBrowser->GetPopupValue();
+                    sg->SetName( sg_name.c_str() );
+                }
+            }
+        }
+
+        // Select new Group setting
         m_GroupIndex = m_GroupBrowser->value() - 1;
+
+        // then if new setting is double clicked and valid, open up a popup input
+        if ( m_GroupBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            if ( ValidGroup() )
+            {
+                string gid = m_GroupIDs[ m_GroupIndex ];
+                SettingGroup* sg = VarPresetMgr.FindSettingGroup( gid );
+
+                if ( sg )
+                {
+                    m_GroupBrowser->InsertPopupInput( sg->GetName(), m_GroupBrowser->value() );
+                }
+            }
+        }
     }
     else if (  w == m_SettingBrowser )
     {
+        // Get group and setting for prev selection
+        Setting *s = nullptr;
+        SettingGroup *sg = nullptr;
+        if ( ValidGroup() )
+        {
+            sg = VarPresetMgr.FindSettingGroup( m_GroupIDs[ m_GroupIndex ] );
+        }
+        if ( ValidSetting() )
+        {
+            if ( sg && sg->HasSetting( m_SettingIDs[ m_SettingIndex ] ) )
+            {
+                s = VarPresetMgr.FindSetting( m_SettingIDs[ m_SettingIndex ] );
+            }
+        }
+
+        // Set name if popup callback on previously clicked setting
+        if ( m_SettingBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            if ( s )
+            {
+                string s_name = m_SettingBrowser->GetPopupValue();
+                s->SetName( s_name.c_str() );
+            }
+        }
+
+        // Change setting index
         m_SettingIndex = m_SettingBrowser->value() - 1;
+
+        if ( ValidSetting() )
+        {
+            if ( sg && sg->HasSetting( m_SettingIDs[ m_SettingIndex ] ) )
+            {
+                s = VarPresetMgr.FindSetting( m_SettingIDs[ m_SettingIndex ] );
+            }
+        }
+
+        // Show new popup if double clicked over new setting index
+        if ( m_SettingBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            if ( s )
+            {
+                m_SettingBrowser->InsertPopupInput( s->GetName(), m_SettingBrowser->value() );
+            }
+        }
+
     }
 
     m_GroupAttrEditor.DeviceCB( w );
@@ -620,6 +710,9 @@ void VarPresetEditorScreen::CloseCallBack( Fl_Widget *w )
 void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
+
+    m_GroupBrowser->HidePopupInput();
+    m_SettingBrowser->HidePopupInput();
 
     if ( device == &m_AddVarButton )
     {
@@ -695,27 +788,25 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_AddSettingButton )
     {
-        if ( !m_SettingInput.GetString().empty() )
+        if ( ValidGroup() )
         {
-            if ( ValidGroup() )
+            string gid = m_GroupIDs[ m_GroupIndex ];
+
+            SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
+
+            if ( sg )
             {
-                string gid = m_GroupIDs[ m_GroupIndex ];
+                Setting *s = new Setting();
 
-                SettingGroup *sg = VarPresetMgr.FindSettingGroup( gid );
-
-                if ( sg )
+                if ( sg->AddSetting( s, true ) )
                 {
-                    Setting *s = new Setting();
-                    s->SetName( m_SettingInput.GetString() );
-
-                    if ( sg->AddSetting( s, true ) )
-                    {
-                        m_SettingIndex = m_SettingIDs.size();
-                    }
-                    else
-                    {
-                        delete s;
-                    }
+                    string sname = "VARPRESET_SETTING_" + to_string( m_SettingIDs.size() );
+                    s->SetName( sname );
+                    m_SettingIndex = m_SettingIDs.size();
+                }
+                else
+                {
+                    delete s;
                 }
             }
         }
