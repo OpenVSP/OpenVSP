@@ -408,6 +408,21 @@ bool VspCurve::RoundJoint( double rad, double u )
     return false;
 }
 
+bool VspCurve::RoundJoints( const vector < double > &r_vec, const vector < int > &ivec )
+{
+    bool retval = true; // Assume all success
+    for ( int i = r_vec.size() - 1; i >= 0; i-- ) // Loop backwards to preserve indexing.
+    {
+        bool ret = RoundJoint( r_vec[ i ], ivec[ i ] );
+
+        if ( !ret ) // Detect any failure.
+        {
+            retval = false;
+        }
+    }
+    return retval;
+}
+
 bool VspCurve::RoundJoints( double rad, const vector < double > &uvec )
 {
     vector < double > umap;
