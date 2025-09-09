@@ -39,7 +39,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
     m_RulerLayout.AddChoice( m_RulerLengthUnitChoice, "Length Unit" );
 
     m_RulerBrowser = m_RulerLayout.AddVspBrowser( 75 );
-    m_RulerBrowser->callback( staticScreenCB, this );
+    m_RulerBrowser->Init( this, m_RulerLayout.GetGroup() );
 
     m_RulerLayout.AddYGap();
 
@@ -161,7 +161,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
     m_ProbeLayout.AddChoice( m_ProbeLengthUnitChoice, "Length Unit" );
 
     m_ProbeBrowser = m_ProbeLayout.AddVspBrowser( 75 );
-    m_ProbeBrowser->callback( staticScreenCB, this );
+    m_ProbeBrowser->Init( this, m_ProbeLayout.GetGroup() );
 
     m_ProbeLayout.AddYGap();
 
@@ -271,7 +271,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
     m_RSTProbeLayout.AddChoice( m_RSTProbeLengthUnitChoice, "Length Unit" );
 
     m_RSTProbeBrowser = m_RSTProbeLayout.AddVspBrowser( 75 );
-    m_RSTProbeBrowser->callback( staticScreenCB, this );
+    m_RSTProbeBrowser->Init( this, m_RSTProbeLayout.GetGroup() );
 
     m_RSTProbeLayout.AddYGap();
 
@@ -373,7 +373,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
     m_ProtractorLayout.AddYGap();
 
     m_ProtractorBrowser = m_ProtractorLayout.AddVspBrowser( 75 );
-    m_ProtractorBrowser->callback( staticScreenCB, this );
+    m_ProtractorBrowser->Init( this, m_ProtractorLayout.GetGroup() );
 
     m_ProtractorLayout.AddYGap();
 
@@ -1128,25 +1128,118 @@ bool ManageMeasureScreen::Update()
 
 void ManageMeasureScreen::CallBack( Fl_Widget * w )
 {
+    m_RulerBrowser->HidePopupInput();
+    m_ProbeBrowser->HidePopupInput();
+    m_RSTProbeBrowser->HidePopupInput();
+    m_ProtractorBrowser->HidePopupInput();
+
     if ( w == m_RulerBrowser )
     {
+        // apply popup rename callback
+        if ( m_RulerBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            Ruler * ruler = MeasureMgr.GetCurrentRuler();
+            if ( ruler )
+            {
+                string rname = m_RulerBrowser->GetPopupValue();
+                ruler->SetName( rname );
+            }
+        }
+
+        // update selection
         int sel = m_RulerBrowser->value();
         MeasureMgr.SetCurrRulerIndex( sel - 1 );
+
+        // open popup if double clicked
+        if ( m_RulerBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            Ruler * ruler = MeasureMgr.GetCurrentRuler();
+            if ( ruler )
+            {
+                m_RulerBrowser->InsertPopupInput( ruler->GetName(), m_RulerBrowser->value() );
+            }
+        }
     }
     else if ( w == m_ProbeBrowser )
     {
+        // apply popup rename callback
+        if ( m_ProbeBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            Probe * probe = MeasureMgr.GetCurrentProbe();
+            if ( probe )
+            {
+                string pname = m_ProbeBrowser->GetPopupValue();
+                probe->SetName( pname );
+            }
+        }
+
+        // update selection
         int sel = m_ProbeBrowser->value();
         MeasureMgr.SetCurrProbeIndex( sel - 1 );
+
+        // open popup if double clicked
+        if ( m_ProbeBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            Probe * probe = MeasureMgr.GetCurrentProbe();
+            if ( probe )
+            {
+                m_ProbeBrowser->InsertPopupInput( probe->GetName(), m_ProbeBrowser->value() );
+            }
+        }
     }
     else if (w == m_RSTProbeBrowser )
     {
+        // apply popup rename callback
+        if ( m_RSTProbeBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            RSTProbe * rst = MeasureMgr.GetCurrentRSTProbe();
+            if ( rst )
+            {
+                string rstname = m_RSTProbeBrowser->GetPopupValue();
+                rst->SetName( rstname );
+            }
+        }
+
+        // update selection
         int sel = m_RSTProbeBrowser->value();
         MeasureMgr.SetCurrRSTProbeIndex(sel - 1);
+
+        // open popup if double clicked
+        if ( m_RSTProbeBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            RSTProbe * rst = MeasureMgr.GetCurrentRSTProbe();
+            if ( rst )
+            {
+                m_RSTProbeBrowser->InsertPopupInput( rst->GetName(), m_RSTProbeBrowser->value() );
+            }
+        }
     }
-    if ( w == m_ProtractorBrowser )
+    else if ( w == m_ProtractorBrowser )
     {
+        // apply popup rename callback
+        if ( m_ProtractorBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            Protractor * prot = MeasureMgr.GetCurrentProtractor();
+            if ( prot )
+            {
+                string protname = m_ProtractorBrowser->GetPopupValue();
+                prot->SetName( protname );
+            }
+        }
+
+        // update selection
         int sel = m_ProtractorBrowser->value();
         MeasureMgr.SetCurrProtractorIndex( sel - 1 );
+
+        // open popup if double clicked
+        if ( m_ProtractorBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            Protractor * prot = MeasureMgr.GetCurrentProtractor();
+            if ( prot )
+            {
+                m_ProtractorBrowser->InsertPopupInput( prot->GetName(), m_ProtractorBrowser->value() );
+            }
+        }
     }
 
     m_RulerAttrEditor.DeviceCB( w );
@@ -1165,6 +1258,11 @@ void ManageMeasureScreen::CloseCallBack( Fl_Widget *w )
 
 void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
 {
+    m_RulerBrowser->HidePopupInput();
+    m_ProbeBrowser->HidePopupInput();
+    m_RSTProbeBrowser->HidePopupInput();
+    m_ProtractorBrowser->HidePopupInput();
+
     if ( device == &m_AddRulerButton )
     {
         MeasureMgr.CreateAndAddRuler();
