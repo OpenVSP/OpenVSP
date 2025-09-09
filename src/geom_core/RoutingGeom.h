@@ -119,6 +119,7 @@ public:
 
     virtual vec3d GetPtCoord( int index, int symm_index );
     virtual vector < vec3d > GetAllPtCoord( int symm_index );
+    virtual vector < vec3d > GetCurve( int symm_index );
 
     virtual string GetPtID( int index ) const;
     virtual vector < string > GetAllPtIds() const;

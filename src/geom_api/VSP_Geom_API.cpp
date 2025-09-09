@@ -6050,6 +6050,38 @@ vector < vec3d > GetAllRoutingPtCoords( const string &routing_id, int symm_index
     return ret_vec;
 }
 
+vector < vec3d > GetRoutingCurve( const string &routing_id, int symm_index )
+{
+    vector < vec3d > ret_vec;
+
+    Vehicle* veh = GetVehicle();
+    Geom* rgeom_ptr = veh->FindGeom( routing_id );
+    if ( !rgeom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetRoutingCurve::Can't Find Geom " + routing_id );
+        return ret_vec;
+    }
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+
+    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetRoutingCurve::Geom " + routing_id + " is not a RoutingGeom" );
+        return ret_vec;
+    }
+
+    if ( symm_index < 0 || symm_index >= routing_ptr->GetNumSymmCopies() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetRoutingCurve::symm_index " + to_string( symm_index ) + " is out of range" );
+        return ret_vec;
+    }
+
+    ret_vec = routing_ptr->GetCurve( symm_index );
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
 //===================================================================//
 //==================      BOR Functions        ======================//
 //===================================================================//

@@ -229,6 +229,7 @@ private:
     CScriptArray* GetLowerCSTCoefs( const string & xsec_id );
     CScriptArray* GetAllRoutingPtIds( const string &routing_id );
     CScriptArray* GetAllRoutingPtCoords( const string &routing_id, int symm_index );
+    CScriptArray* GetRoutingCurve( const string &routing_id, int symm_index );
     CScriptArray* GetBORUpperCSTCoefs( const string & bor_id );
     CScriptArray* GetBORLowerCSTCoefs( const string & bor_id );
 

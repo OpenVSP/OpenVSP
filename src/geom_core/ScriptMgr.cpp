@@ -4433,6 +4433,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<vec3d>@+ GetAllRoutingPtCoords( const string & in routing_id, int symm_index )", asMETHOD( ScriptMgrSingleton, GetAllRoutingPtCoords ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetRoutingCurve( const string & in routing_id, int symm_index )", asMETHOD( ScriptMgrSingleton, GetRoutingCurve ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     //==== BOR Functions ====//
 
     r = se->RegisterGlobalFunction( "void ChangeBORXSecShape( const string & in geom_id, int type )", asFUNCTION( vsp::ChangeBORXSecShape ), asCALL_CDECL );
@@ -5940,6 +5943,12 @@ CScriptArray* ScriptMgrSingleton::GetAllRoutingPtIds( const string &routing_id )
 CScriptArray* ScriptMgrSingleton::GetAllRoutingPtCoords( const string &routing_id, int symm_index )
 {
     m_ProxyVec3dArray = vsp::GetAllRoutingPtCoords( routing_id, symm_index );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetRoutingCurve( const string &routing_id, int symm_index )
+{
+    m_ProxyVec3dArray = vsp::GetRoutingCurve( routing_id, symm_index );
     return GetProxyVec3dArray();
 }
 

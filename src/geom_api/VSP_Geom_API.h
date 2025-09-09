@@ -13225,7 +13225,7 @@ extern void SetRoutingPtParentID( const string & pt_id, const string &parent_id 
     p1 = vsp.GetMainRoutingPtCoord(rpt1)
     \endcode
     \endPythonOnly
-    \sa AddRoutingPt, DelRoutingPt, GetRoutingPtCoord, GetAllRoutingPtCoords
+    \sa AddRoutingPt, DelRoutingPt, GetRoutingPtCoord, GetAllRoutingPtCoords, GetRoutingCurve
     \param [in] pt_id string ParmContainer ID of desired routing point
     \return vec3d coordinate of main routing point
 */
@@ -13285,7 +13285,7 @@ extern vec3d GetMainRoutingPtCoord( const string &pt_id );
     p1 = vsp.GetRoutingPtCoord(rpt1, 1, 0)
     \endcode
     \endPythonOnly
-    \sa AddRoutingPt, DelRoutingPt, GetMainRoutingPtCoord, GetAllRoutingPtCoords
+    \sa AddRoutingPt, DelRoutingPt, GetMainRoutingPtCoord, GetAllRoutingPtCoords, GetRoutingCurve
     \param [in] routing_id string RoutingGeom Geom ID
     \param [in] index int Index of routing point to get cordinate of
     \param [in] symm_index int Symmetry index to get coordinate of
@@ -13347,13 +13347,75 @@ extern vec3d GetRoutingPtCoord( const string &routing_id, int index, int symm_in
     pvec = vsp.GetAllRoutingPtCoords(rpt1, 0)
     \endcode
     \endPythonOnly
-    \sa AddRoutingPt, DelRoutingPt, GetMainRoutingPtCoord, GetRoutingPtCoord
+    \sa AddRoutingPt, DelRoutingPt, GetMainRoutingPtCoord, GetRoutingPtCoord, GetRoutingCurve
     \param [in] routing_id string RoutingGeom Geom ID
     \param [in] symm_index int Symmetry index to get coordinate of
-    \return vector < vec3d > coordinate of points along RoutingGeom
+    \return vector < vec3d > coordinate of routing points along RoutingGeom
 */
 
 extern vector < vec3d > GetAllRoutingPtCoords( const string &routing_id, int symm_index );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Get points along a RoutingGeom.  These points will follow the curve of a RoutingGeom with radiused
+    routing points.  The main copy is symm_index = 0.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom("POD", "");
+
+    string pod2 = AddGeom("POD", "");
+    string ypod2 = GetParm(pod2, "Y_Rel_Location", "XForm");
+    SetParmVal(ypod2, 2.0);
+
+    string routing_geom = AddGeom("ROUTING", "");
+
+    string rpt0 = AddRoutingPt(routing_geom, pod1, 0);
+    string u0 = GetParm( rpt0, "U", "RoutePt");
+    SetParmVal(u0, 0.0);
+
+    string rpt1 = AddRoutingPt(routing_geom, pod2, 0);
+
+    string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
+    string u2 = GetParm( rpt2, "U", "RoutePt");
+    SetParmVal(u2, 1.0);
+
+    Update();
+    array<vec3d> pvec = GetRoutingCurve(routing_geom, 0);
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = vsp.AddGeom('POD', '')
+
+    pod2 = vsp.AddGeom('POD', '')
+    ypod2 = vsp.GetParm(pod2, 'Y_Rel_Location', 'XForm')
+    vsp.SetParmVal(ypod2, 2.0)
+
+    routing_geom = vsp.AddGeom('ROUTING', '')
+
+    rpt0 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u0 = vsp.GetParm( rpt0, 'U', 'RoutePt')
+    vsp.SetParmVal(u0, 0.0)
+
+    rpt1 = vsp.AddRoutingPt(routing_geom, pod2, 0)
+
+    rpt2 = vsp.AddRoutingPt(routing_geom, pod1, 0)
+    u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
+    vsp.SetParmVal(u2, 1.0)
+
+    vsp.Update()
+    pvec = vsp.GetRoutingCurve(rpt1, 0)
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelRoutingPt, GetMainRoutingPtCoord, GetRoutingPtCoord, GetAllRoutingPtCoords
+    \param [in] routing_id string RoutingGeom Geom ID
+    \param [in] symm_index int Symmetry index to get coordinate of
+    \return vector < vec3d > coordinate of points along RoutingGeom curve
+*/
+
+extern vector < vec3d > GetRoutingCurve( const string &routing_id, int symm_index );
 
 //======================== BOR Functions ======================//
 /*!

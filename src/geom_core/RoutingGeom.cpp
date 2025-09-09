@@ -811,6 +811,18 @@ vector < vec3d > RoutingGeom::GetAllPtCoord( int symm_index )
     return vector < vec3d >();
 }
 
+vector < vec3d > RoutingGeom::GetCurve( int symm_index )
+{
+    if ( symm_index >= 0 && symm_index < m_RouteTessCurveVec.size() )
+    {
+        if ( m_RouteTessCurveVec[symm_index].m_ptline.size() == 1 )
+        {
+            return m_RouteTessCurveVec[symm_index].m_ptline[0];
+        }
+    }
+    return vector < vec3d >();
+}
+
 string RoutingGeom::GetPtID( int index ) const
 {
     if ( index >= 0 && index < m_RoutingPointVec.size() )
