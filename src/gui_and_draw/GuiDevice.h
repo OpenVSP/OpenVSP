@@ -1438,6 +1438,26 @@ protected:
     string m_LabelB;
 };
 
+class VspBrowser : public Fl_Browser
+{
+public:
+
+    VspBrowser( int X, int Y, int W, int H, const char* L = 0 );
+
+    void Init( VspScreen* screen, Fl_Group* group );
+
+protected:
+
+    Fl_Input* m_PopupInput;
+    Fl_Group* m_PopupGroup;
+    VspScreen* m_Screen;
+
+private:
+
+    int m_PopupIndex;
+    int m_PopupCol;
+};
+
 class ColResizeBrowser : public Fl_Browser
 {
 public:

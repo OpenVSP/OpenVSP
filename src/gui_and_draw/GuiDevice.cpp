@@ -4560,6 +4560,22 @@ int PCurveEditor::ihit( int mx, int my, int r )
     return -1;
 }
 
+VspBrowser::VspBrowser( int X, int Y, int W, int H, const char* L ) : Fl_Browser( X, Y, W, H, L )
+{
+    m_PopupInput = nullptr;
+    m_PopupGroup = nullptr;
+    m_Screen = nullptr;
+
+    m_PopupIndex = 0;
+    m_PopupCol = 0;
+}
+
+void VspBrowser::Init( VspScreen* screen, Fl_Group* group )
+{
+    m_Screen = screen;
+    m_PopupGroup = group;
+}
+
 //=====================================================================//
 //===================         ColResizeBrowser      ===================//
 //=====================================================================//
