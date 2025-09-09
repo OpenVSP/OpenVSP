@@ -856,23 +856,51 @@ void RoutingGeom::UpdateSurf()
     m_MainRouteTessVec[0].m_ptline.resize( 1 );
     vector < vec3d > &pts = m_MainRouteTessVec[0].m_ptline[0];
     pts.reserve( m_RoutingPointVec.size() );
+    vector < int > radius_index;
+    vector < double > radius;
+    radius_index.reserve( m_RoutingPointVec.size() );
+    radius.reserve( m_RoutingPointVec.size() );
     for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
     {
         m_RoutingPointVec[i]->Update();
 
         if ( m_RoutingPointVec[i]->IsPlaced() )
         {
+            if ( m_RoutingPointVec[i]->m_Radius() > 1e-12 )
+            {
+                radius.push_back( m_RoutingPointVec[i]->m_Radius() );
+                radius_index.push_back( pts.size() );
+            }
+
             pts.push_back( m_RoutingPointVec[i]->GetPt() );
         }
     }
 
+    m_MainRouteCurveTessVec.clear();
+    m_MainRouteCurveTessVec.resize( 1 );
+    m_MainRouteCurveTessVec[0].m_ptline.resize( 1 );
+
+    m_MainRouteCurveVec.clear();
+    m_MainRouteCurveVec.resize( 1 );
+
     double len = 0;
-    if ( pts.size() >= 2 )
+    int npts = pts.size();
+    if ( npts >= 2 )
     {
-        for ( int i = 0; i < pts.size() - 1; i++ )
+        vector < double > t( npts, 0.0);
+        for ( int i = 0; i < npts; i++ )
         {
-            len += dist( pts[ i ], pts[ i + 1 ] );
+            t[ i ] = ( double ) i / ( double ) ( npts - 1 );
         }
+
+        m_MainRouteCurveVec[ 0 ].InterpolateLinear( pts, t, false );
+
+        m_MainRouteCurveVec[ 0 ].RoundJoints( radius, radius_index );
+
+        vector < double > u;
+        m_MainRouteCurveVec[ 0 ].TessSegAdapt( m_MainRouteCurveTessVec[0].m_ptline[0], u, 1e-3, 5 );
+
+        len = m_MainRouteCurveVec[ 0 ].CompLength( 1e-6 );
     }
 
     m_Length = len;
@@ -996,6 +1024,7 @@ void RoutingGeom::UpdateTessVec()
 {
     Geom::UpdateTessVec();
     ApplySymm( m_MainRouteTessVec, m_RouteTessVec );
+    ApplySymm( m_MainRouteCurveTessVec, m_RouteTessCurveVec );
 }
 
 void RoutingGeom::UpdateXForm()
@@ -1024,14 +1053,14 @@ void RoutingGeom::UpdateDrawObj()
     m_RouteLineDO.m_GeomID = "Rte_" + m_ID;
     m_DynamicRouteDO.m_GeomID = "DyRte_" + m_ID;
 
-    for ( int i = 0 ; i < m_RouteTessVec.size() ; i++ )
+    for ( int i = 0 ; i < m_RouteTessCurveVec.size() ; i++ )
     {
-        for( int j = 0; j < m_RouteTessVec[i].m_ptline.size(); j++ )
+        for( int j = 0; j < m_RouteTessCurveVec[i].m_ptline.size(); j++ )
         {
-            for ( int k = 0; k < (int) m_RouteTessVec[i].m_ptline[j].size() - 1; k++ )
+            for ( int k = 0; k < (int) m_RouteTessCurveVec[i].m_ptline[j].size() - 1; k++ )
             {
-                m_RouteLineDO.m_PntVec.push_back( m_RouteTessVec[i].m_ptline[j][ k ] );
-                m_RouteLineDO.m_PntVec.push_back( m_RouteTessVec[i].m_ptline[j][ k + 1 ] );
+                m_RouteLineDO.m_PntVec.push_back( m_RouteTessCurveVec[i].m_ptline[j][ k ] );
+                m_RouteLineDO.m_PntVec.push_back( m_RouteTessCurveVec[i].m_ptline[j][ k + 1 ] );
             }
         }
     }

@@ -157,6 +157,11 @@ protected:
     std::size_t m_ParentHash;
     vector < string > m_ParentVec;
 
+    vector < VspCurve > m_MainRouteCurveVec;
+
+    vector <SimpleFeatureTess> m_MainRouteCurveTessVec;
+    vector <SimpleFeatureTess> m_RouteTessCurveVec;
+
     vector <SimpleFeatureTess> m_MainRouteTessVec;
     vector <SimpleFeatureTess> m_RouteTessVec;
 };
