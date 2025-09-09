@@ -1447,6 +1447,13 @@ public:
     void Init( VspScreen* screen, Fl_Group* group );
     void InitPopupInput();
 
+    void SetPopupState( bool draw_flag );
+    void SetPopupLoc( int index, int col = 0 );
+    void SetPopupText( const string & text );
+
+    bool GetPopupState();
+    const string GetPopupValue();
+
     virtual void GetItemDims( int &X, int &Y, int &W, int &H, int index, int col = 0 );
 
 protected:
@@ -1456,6 +1463,8 @@ protected:
     VspScreen* m_Screen;
 
 private:
+    bool m_PopupDrawFlag;
+    bool m_RecentPopup;
 
     int m_PopupIndex;
     int m_PopupCol;

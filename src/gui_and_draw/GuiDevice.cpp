@@ -4566,6 +4566,9 @@ VspBrowser::VspBrowser( int X, int Y, int W, int H, const char* L ) : Fl_Browser
     m_PopupGroup = nullptr;
     m_Screen = nullptr;
 
+    m_RecentPopup = false;
+    m_PopupDrawFlag = false;
+
     m_PopupIndex = 0;
     m_PopupCol = 0;
 }
@@ -4592,6 +4595,48 @@ void VspBrowser::InitPopupInput()
     m_PopupInput->when( FL_WHEN_ENTER_KEY );
 
     m_PopupGroup->add( m_PopupInput );
+}
+
+void VspBrowser::SetPopupState( bool draw_flag )
+{
+    if ( !m_PopupDrawFlag && draw_flag )
+    {
+        m_RecentPopup = true;
+    }
+    m_PopupDrawFlag = draw_flag;
+}
+
+void VspBrowser::SetPopupLoc( int index, int col )
+{
+    m_PopupIndex = index;
+    m_PopupCol = col;
+}
+
+void VspBrowser::SetPopupText( const string & text )
+{
+    if ( m_PopupInput )
+    {
+        m_PopupInput->value( text.c_str() );
+    }
+}
+
+bool VspBrowser::GetPopupState()
+{
+    if ( m_PopupInput )
+    {
+        return m_PopupDrawFlag;
+    }
+    return false;
+}
+
+const string VspBrowser::GetPopupValue()
+{
+    string ret = string("");
+    if ( m_PopupInput )
+    {
+        ret = m_PopupInput->value();
+    }
+    return ret;
 }
 
 void VspBrowser::GetItemDims( int &X, int &Y, int &W, int &H, int index, int col )
