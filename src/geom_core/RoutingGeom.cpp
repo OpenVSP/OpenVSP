@@ -552,6 +552,12 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_LinearDensity.Init( "LinearDensity", "Mass_Props", this, 0.0, 0.0, 1e12 );
     m_LinearDensity.SetDescript( "Linear density (mass/len)" );
 
+    m_Mass.Init( "Mass", "Results", this, 0.0, 0.0, 1e12 );
+    m_Mass.SetDescript( "Mass of base route" );
+
+    m_SymmMass.Init( "m_SymmMass", "Results", this, 0.0, 0.0, 1e12 );
+    m_SymmMass.SetDescript( "Combined mass of all copies of route due to symmetry" );
+
     m_Length.Init( "Length", "Results", this, 0, 0, 1e12 );
     m_Length.SetDescript( "Length of base route" );
 
@@ -918,11 +924,13 @@ void RoutingGeom::UpdateSurf()
     }
 
     m_Length = len;
+    m_Mass = len * m_LinearDensity();
 
     // m_Length changes with m_SurfDirty -- updated here in UpdateSurf()
     // GetNumSymmCopies() changes with m_XFormDirty -- updated in UpdateXForm()
     // Duplicate this calculation in UpdateXForm() to ensure correctness.
     m_SymmLength = m_Length() * GetNumSymmCopies();
+    m_SymmMass = m_Mass() * GetNumSymmCopies();
 }
 
 
@@ -1049,6 +1057,7 @@ void RoutingGeom::UpdateXForm()
     // GetNumSymmCopies() changes with m_XFormDirty -- updated here in UpdateXForm()
     // Duplicate this calculation in UpdateSurf() to ensure correctness.
     m_SymmLength = m_Length() * GetNumSymmCopies();
+    m_SymmMass = m_Mass() * GetNumSymmCopies();
 
     DisableParms();
 }

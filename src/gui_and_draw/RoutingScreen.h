@@ -113,6 +113,9 @@ protected:
     Output m_LengthOutput;
     Output m_SymmLengthOutput;
 
+    Output m_MassOutput;
+    Output m_SymmMassOutput;
+
 private:
 
     bool m_SelectionFlag;

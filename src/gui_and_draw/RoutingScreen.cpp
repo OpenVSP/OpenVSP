@@ -237,9 +237,14 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Rou
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Results" );
 
-    m_DesignLayout.AddOutput( m_LengthOutput, "Length", " %7.6f" );
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.AddOutput( m_LengthOutput, "Length", " %7.6f", m_DesignLayout.GetW() * 0.5 );
     m_DesignLayout.AddOutput( m_SymmLengthOutput, "Symm Length", " %7.6f" );
 
+    m_DesignLayout.ForceNewLine();
+
+    m_DesignLayout.AddOutput( m_MassOutput, "Mass", " %7.6f", m_DesignLayout.GetW() * 0.5 );
+    m_DesignLayout.AddOutput( m_SymmMassOutput, "Symm Mass", " %7.6f" );
 
     m_SelectionFlag = false;
     m_AddMultipleFlag = false;
@@ -284,6 +289,9 @@ bool RoutingScreen::Update()
 
         m_LengthOutput.Update( routing_ptr->m_Length.GetID() );
         m_SymmLengthOutput.Update( routing_ptr->m_SymmLength.GetID() );
+
+        m_MassOutput.Update( routing_ptr->m_Mass.GetID() );
+        m_SymmMassOutput.Update( routing_ptr->m_SymmMass.GetID() );
 
         RoutingPoint* rpt = routing_ptr->GetPt( routing_ptr->m_ActivePointIndex );
 
