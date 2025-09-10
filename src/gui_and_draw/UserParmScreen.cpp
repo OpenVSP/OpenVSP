@@ -87,7 +87,7 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
     m_CreateGroup.AddInput( m_EditParmMinInput, "Min:" );
     m_CreateGroup.AddInput( m_EditParmMaxInput, "Max:" );
 
-    m_UserDefinedBrowser->callback( staticScreenCB, this );
+    m_UserDefinedBrowser->Init( this, m_CreateGroup.GetGroup() );
 
     //==== Adjust ====//
     m_AdjustScroll = AddSubScroll( adj_tab, 5 );
@@ -272,10 +272,34 @@ void UserParmScreen::Hide()
 //==== Callbacks ====//
 void UserParmScreen::CallBack( Fl_Widget *w )
 {
+    m_UserDefinedBrowser->HidePopupInput();
+
     if ( w == m_UserDefinedBrowser )
     {
+        //==== Apply popup rename to prev selection ====//
+        if ( m_UserDefinedBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            Parm* p = ParmMgr.FindParm(  m_UserParmBrowserVec[ m_UserBrowserSelection - 1 ] );
+            if ( p )
+            {
+                string pname = m_UserDefinedBrowser->GetPopupValue();
+                p->SetName( pname.c_str() );
+            }
+        }
+
         //==== Load User Parm Edit Names/Desc ====//
         m_UserBrowserSelection = m_UserDefinedBrowser->value();
+
+        //==== Open up popup over new selection ====//
+        if ( m_UserDefinedBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            Parm* p = ParmMgr.FindParm(  m_UserParmBrowserVec[ m_UserBrowserSelection - 1 ] );
+            // double click open the popup input
+            if ( p )
+            {
+                m_UserDefinedBrowser->InsertPopupInput( p->GetName(), m_UserDefinedBrowser->value() );
+            }
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -283,6 +307,8 @@ void UserParmScreen::CallBack( Fl_Widget *w )
 
 void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
+    m_UserDefinedBrowser->HidePopupInput();
+
     Vehicle *veh = m_ScreenMgr->GetVehiclePtr();
     if ( gui_device == &m_CreateParm )
     {
