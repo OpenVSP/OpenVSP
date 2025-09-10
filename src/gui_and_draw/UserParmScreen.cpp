@@ -56,12 +56,6 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
     m_ParmTypeChoice.AddItem( "    Double" );
     m_ParmTypeChoice.AddItem( "    Int" );
     m_CreateGroup.AddChoice( m_ParmTypeChoice, "Type:" );
-    m_CreateGroup.AddInput( m_ParmNameInput, "Name:" );
-    m_CreateGroup.AddInput( m_ParmGroupInput, "Group:" );
-    m_CreateGroup.AddInput( m_ParmDescInput, "Desc:" );
-    m_CreateGroup.AddInput( m_ParmMinInput, "Min:", "%6.0f" );
-    m_CreateGroup.AddInput( m_ParmValueInput, "Value:", "%6.5f" );
-    m_CreateGroup.AddInput( m_ParmMaxInput, "Max:", "%6.0f" );
     m_CreateGroup.AddYGap();
     m_CreateGroup.AddButton( m_CreateParm, "Create" );
     m_CreateGroup.AddYGap();
@@ -86,6 +80,7 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
     m_CreateGroup.SetButtonWidth( 70 );
 
     m_CreateGroup.AddDividerBox( "Edit User Defined Parms" );
+    m_CreateGroup.AddOutput( m_EditParmTypeOutput, "Type:" );
     m_CreateGroup.AddInput( m_EditParmNameInput, "Name:" );
     m_CreateGroup.AddInput( m_EditParmGroupInput, "Group:" );
     m_CreateGroup.AddInput( m_EditParmDescInput, "Desc:" );
@@ -123,13 +118,6 @@ bool UserParmScreen::Update()
 
     Vehicle *veh = m_ScreenMgr->GetVehiclePtr();
 
-    m_ParmNameInput.Update( m_NameText );
-    m_ParmGroupInput.Update( m_GroupText );
-    m_ParmDescInput.Update( m_DescText );
-    m_ParmValueInput.Update( veh->m_UserParmVal.GetID() );
-    m_ParmMinInput.Update( veh->m_UserParmMin.GetID() );
-    m_ParmMaxInput.Update( veh->m_UserParmMax.GetID() );
-
     //==== Load User Created Parms ====//
     int num_predef_parms = LinkMgr.GetNumPredefinedUserParms();
     int num_parms =  LinkMgr.GetNumUserParms() - num_predef_parms;
@@ -163,6 +151,17 @@ bool UserParmScreen::Update()
     }
     if ( user_parm_ptr )
     {
+        string ptype = "";
+        switch ( user_parm_ptr->GetType() )
+        {
+            case vsp::PARM_INT_TYPE:
+                ptype = "Int";
+                break;
+            case vsp::PARM_DOUBLE_TYPE:
+                ptype = "Double";
+                break;
+        }
+        m_EditParmTypeOutput.Update( ptype );
         m_EditParmNameInput.Update( user_parm_ptr->GetName() );
         m_EditParmGroupInput.Update( user_parm_ptr->GetGroupName() );
         m_EditParmDescInput.Update( user_parm_ptr->GetDescript() );
@@ -175,6 +174,7 @@ bool UserParmScreen::Update()
     }
     else
     {
+        m_EditParmTypeOutput.Update( "" );
         m_EditParmNameInput.Update( "" );
         m_EditParmGroupInput.Update( "" );
         m_EditParmDescInput.Update( "" );
@@ -287,10 +287,15 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     if ( gui_device == &m_CreateParm )
     {
         int type = vsp::PARM_DOUBLE_TYPE;
+        string ptype = "DOUBLE_";
         if ( m_ParmTypeChoice.GetVal() == 1 )
+        {
             type = vsp::PARM_INT_TYPE;
+            ptype = "INT_";
+        }
 
-        string pid = LinkMgr.AddUserParm( type, m_NameText, m_GroupText );
+        string pname = "USERPARM_" + ptype + to_string( LinkMgr.GetNumUserParms() - LinkMgr.GetNumPredefinedUserParms() );
+        string pid = LinkMgr.AddUserParm( type, pname, m_GroupText );
         if ( pid.size() )
         {
             Parm* pptr = ParmMgr.FindParm( pid );
@@ -321,18 +326,6 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         LinkMgr.DeleteAllUserParm( );
         RebuildAdjustGroup();
         m_UserBrowserSelection = -1;
-    }
-    else if ( gui_device == &m_ParmNameInput)
-    {
-        m_NameText = m_ParmNameInput.GetString();
-    }
-    else if ( gui_device == &m_ParmGroupInput)
-    {
-        m_GroupText = m_ParmGroupInput.GetString();
-    }
-    else if ( gui_device == &m_ParmDescInput)
-    {
-        m_DescText = m_ParmDescInput.GetString();
     }
     else if ( gui_device == &m_EditParmNameInput ||
               gui_device == &m_EditParmGroupInput ||

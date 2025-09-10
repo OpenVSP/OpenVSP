@@ -48,16 +48,12 @@ protected:
     GroupLayout m_PredefResizeGroup;
     GroupLayout m_CreateGroup;
     Choice m_ParmTypeChoice;
-    StringInput m_ParmNameInput;
-    StringInput m_ParmGroupInput;
-    StringInput m_ParmDescInput;
-    Input m_ParmValueInput;
-    Input m_ParmMinInput;
-    Input m_ParmMaxInput;
+
     TriggerButton m_CreateParm;
     TriggerButton m_DeleteParm;
     TriggerButton m_DeleteAllParm;
 
+    StringOutput m_EditParmTypeOutput;
     StringInput m_EditParmNameInput;
     StringInput m_EditParmGroupInput;
     StringInput m_EditParmDescInput;
