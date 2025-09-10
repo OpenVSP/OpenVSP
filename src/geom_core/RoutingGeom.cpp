@@ -549,6 +549,9 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Name = "Routing";
     m_Type.m_Type = ROUTING_GEOM_TYPE;
 
+    m_LinearDensity.Init( "LinearDensity", "Mass_Props", this, 0.0, 0.0, 1e12 );
+    m_LinearDensity.SetDescript( "Linear density (mass/len)" );
+
     m_Length.Init( "Length", "Results", this, 0, 0, 1e12 );
     m_Length.SetDescript( "Length of base route" );
 

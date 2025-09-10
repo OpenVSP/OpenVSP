@@ -41,6 +41,8 @@ public:
 
 protected:
 
+    SliderAdjRangeInput m_LinearDensitySlider;
+
     GroupLayout m_DesignLayout;
 
     GroupLayout m_MovePointLayout;

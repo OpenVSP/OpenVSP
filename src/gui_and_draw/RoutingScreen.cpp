@@ -14,6 +14,13 @@
 //==== Constructor ====//
 RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Routing", string(""), false )
 {
+
+    m_MassPropLayout.AddYGap();
+    m_MassPropLayout.AddDividerBox( "Length-Based Mass Properties" );
+
+    m_MassPropLayout.AddSlider( m_LinearDensitySlider, "Mass/Len", 100, "%7.6f" );
+
+
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
 
@@ -272,6 +279,8 @@ bool RoutingScreen::Update()
     {
 
         UpdateBrowser();
+
+        m_LinearDensitySlider.Update( routing_ptr->m_LinearDensity.GetID() );
 
         m_LengthOutput.Update( routing_ptr->m_Length.GetID() );
         m_SymmLengthOutput.Update( routing_ptr->m_SymmLength.GetID() );

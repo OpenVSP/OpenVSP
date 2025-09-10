@@ -135,6 +135,7 @@ public:
     Parm m_Length;
     Parm m_SymmLength;
 
+    Parm m_LinearDensity;
 protected:
 
     virtual void UpdateSurf();
