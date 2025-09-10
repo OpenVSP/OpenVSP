@@ -561,7 +561,6 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_RouteLineDO.m_Type = DrawObj::VSP_LINES;
     m_RouteLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_RouteLineDO.m_LineWidth = 2.0;
-    m_RouteLineDO.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
     m_DynamicRouteDO.m_Type = DrawObj::VSP_ROUTING;
     m_DynamicRouteDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -1095,6 +1094,13 @@ void RoutingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     Geom::LoadDrawObjs( draw_obj_vec );
 
     m_RouteLineDO.m_Visible = !m_Picking && GetSetFlag( vsp::SET_SHOWN );
+
+    vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                             m_GuiDraw.GetWireColor().y() / 255.0,
+                             m_GuiDraw.GetWireColor().z() / 255.0 );
+
+    m_RouteLineDO.m_LineColor = lineColor;
+
     draw_obj_vec.push_back( &m_RouteLineDO );
 
     m_DynamicRouteDO.m_Visible = m_Picking;
