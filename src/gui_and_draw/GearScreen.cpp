@@ -927,17 +927,11 @@ void Gearcreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_AddBogieButton )
     {
+        string bname = "BOGIE_" + to_string( gear_ptr->GetAllBogies().size() );
         Bogie * bogie = gear_ptr->CreateAndAddBogie();
         if ( bogie )
         {
-            if ( m_BogieNameInput.GetString().empty() )
-            {
-                bogie->SetName( "New Gear" );
-            }
-            else
-            {
-                bogie->SetName( m_BogieNameInput.GetString() );
-            }
+            bogie->SetName( bname );
         }
         gear_ptr->Update();
     }
