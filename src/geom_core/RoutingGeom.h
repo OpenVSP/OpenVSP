@@ -106,6 +106,8 @@ public:
 
     virtual void OffsetXSecs( double off );
 
+    virtual vector < TetraMassProp* > ComputeMassProp();
+
     virtual int GetNumPt() const          { return m_RoutingPointVec.size(); };
     virtual RoutingPoint* AddPt();
     virtual RoutingPoint* InsertPt( int index );

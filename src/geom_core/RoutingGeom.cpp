@@ -724,6 +724,78 @@ void RoutingGeom::OffsetXSecs( double off )
 {
 }
 
+vector < TetraMassProp* > RoutingGeom::ComputeMassProp()
+{
+    double ld = m_LinearDensity();
+    vector < TetraMassProp* > mpv;
+    for ( int i = 0; i < m_RouteTessCurveVec.size(); i++ )
+    {
+        if ( !m_RouteTessCurveVec[ i ].m_ptline.empty() )
+        {
+            vector < vec3d > &pts = m_RouteTessCurveVec[ i ].m_ptline[0];
+
+            vec3d cg;
+            double mass = 0;
+            double Ixx = 0, Iyy = 0, Izz = 0;
+            double Ixy = 0, Ixz = 0, Iyz = 0;
+
+            for ( int j = 0; j < pts.size() - 1; j++ )
+            {
+                const vec3d x = ( pts[ j ] + pts[ j + 1 ] ) * 0.5;
+                const double dm = dist( pts[ j + 1 ], pts[ j ] ) * ld;
+                mass += dm;
+                cg += dm * x;
+            }
+            cg = cg * ( 1.0 / mass );
+
+            for ( int j = 0; j < pts.size() - 1; j++ )
+            {
+                const vec3d cgj = ( pts[ j ] + pts[ j + 1 ] ) * 0.5;
+                vec3d u = pts[ j + 1 ] - pts[ j ];
+                const double ds = u.mag();
+                u *= 1.0 / ds;
+                const double dm =  ds * ld;
+
+                const double x = cg.x() - cgj.x();
+                const double y = cg.y() - cgj.y();
+                const double z = cg.z() - cgj.z();
+
+                const double I = dm * ds * ds / 12.0;
+
+                Ixx += I * ( 1.0 - u[ 0 ] * u[ 0 ] ) + dm * ( ( y * y ) + ( z * z ) );
+                Iyy += I * ( 1.0 - u[ 1 ] * u[ 1 ] ) + dm * ( ( x * x ) + ( z * z ) );
+                Izz += I * ( 1.0 - u[ 2 ] * u[ 2 ] ) + dm * ( ( x * x ) + ( y * y ) );
+
+                Ixy += - I * u[ 0 ] * u[ 1 ] + dm * x * y;
+                Ixz += - I * u[ 0 ] * u[ 2 ] + dm * x * z;
+                Iyz += - I * u[ 1 ] * u[ 2 ] + dm * y * z;
+            }
+
+            TetraMassProp* mp = new TetraMassProp();
+
+            mp->m_CompId = GetID();
+            mp->m_Name = GetName() + "_rg";
+
+            mp->m_Density = 0.0;
+            mp->m_Vol  = 0.0;
+
+            mp->m_CG = cg;
+            mp->m_Mass = mass;
+
+            mp->m_Ixx = Ixx;
+            mp->m_Iyy = Iyy;
+            mp->m_Izz = Izz;
+
+            mp->m_Ixy = Ixy;
+            mp->m_Ixz = Ixz;
+            mp->m_Iyz = Iyz;
+
+            mpv.push_back( mp );
+        }
+    }
+    return mpv;
+}
+
 
 RoutingPoint* RoutingGeom::AddPt()
 {

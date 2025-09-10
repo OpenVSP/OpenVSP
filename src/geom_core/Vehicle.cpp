@@ -6002,6 +6002,36 @@ string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool
         }
     }
 
+    // Add RoutingGeoms as point masses.
+    // Keep separate from above loop so RG lines in mass breakdown are all after PM lines.
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i].compare( id ) != 0 )
+        {
+
+            Geom* geom_ptr = FindGeom( geom_vec[i] );
+            if ( geom_ptr )
+            {
+                if ( geom_ptr->GetSetFlag( set ) )
+                {
+                    RoutingGeom *rg = dynamic_cast< RoutingGeom* >( geom_ptr );
+                    if ( rg )
+                    {
+                        if ( rg->m_LinearDensity() != 0.0 )
+                        {
+                            vector < TetraMassProp* > rgm = rg->ComputeMassProp(); // Deleted by mesh_ptr
+
+                            for ( int j = 0; j < rgm.size(); j++ )
+                            {
+                                mesh_ptr->AddPointMass( rgm[ j ] );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     if( hidegeom )
     {
         HideAllExcept( id );
