@@ -104,7 +104,7 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     static int bogie_widths[] = { 150, 150, 150, 0 }; // widths for each column
 
     m_BogieBrowser = m_BogieLayout.AddColResizeBrowser( bogie_widths, 3, 100 );
-    m_BogieBrowser->callback( staticScreenCB, this );
+    m_BogieBrowser->Init( this, m_BogieLayout.GetGroup() );
     m_BogieLayout.AddInput( m_BogieNameInput, "Name:" );
 
     m_BogieLayout.SetSameLineFlag( true );
@@ -472,6 +472,8 @@ bool Gearcreen::Update()
     if ( bogie_ptr )
     {
         // Bogie
+        m_BogieNameInput.Update( bogie_ptr->GetName() );
+
         m_RemoveBogieButton.Activate();
         m_SymmetricalButton.Activate();
         m_NAcrossSlider.Activate();
@@ -802,6 +804,8 @@ bool Gearcreen::Update()
     else
     {
         // Bogie
+        m_BogieNameInput.Update( "" );
+
         m_RemoveBogieButton.Deactivate();
         m_SymmetricalButton.Deactivate();
         m_NAcrossSlider.Deactivate();
@@ -914,15 +918,35 @@ void Gearcreen::CallBack( Fl_Widget *w )
 
     GearGeom* gear_ptr = dynamic_cast< GearGeom* >( geom_ptr );
 
+    m_BogieBrowser->HidePopupInput();
+
     if ( w == m_BogieBrowser )
     {
+        //==== Apply Popup Input if necessary ====//
+        if ( m_BogieBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            Bogie * bogie = gear_ptr->GetCurrentBogie();
+            if ( bogie )
+            {
+                string bname = m_BogieBrowser->GetPopupValue();
+                bogie->SetName( bname.c_str() );
+            }
+        }
+
+        //==== Select new Bogie ====//
         int sel = m_BogieBrowser->value();
         gear_ptr->SetCurrBogieIndex( sel - 2 );
 
         Bogie * bogie = gear_ptr->GetCurrentBogie();
-        if ( bogie )
+
+        //==== Open up new Popup Input ====//
+        if ( m_BogieBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
         {
-            m_BogieNameInput.Update( bogie->GetName() );
+            // double click open the popup input
+            if ( bogie )
+            {
+                m_BogieBrowser->InsertPopupInput( bogie->GetName(), m_BogieBrowser->value() );
+            }
         }
     }
 
@@ -934,6 +958,8 @@ void Gearcreen::GuiDeviceCallBack( GuiDevice* device )
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
 
     GearGeom* gear_ptr = dynamic_cast< GearGeom* >( geom_ptr );
+
+    m_BogieBrowser->HidePopupInput();
 
     if ( device == &m_AddBogieButton )
     {
