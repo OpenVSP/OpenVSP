@@ -112,11 +112,10 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_BogieLayout.SetButtonWidth( m_BogieLayout.GetW() / 2.0 );
 
     m_BogieLayout.AddButton( m_AddBogieButton, "Add" );
-    m_BogieLayout.AddButton( m_RemoveBogieButton, "Delete" );
 
     m_BogieLayout.ForceNewLine();
 
-    m_BogieLayout.AddButton( m_RenameBogieButton, "Rename" );
+    m_BogieLayout.AddButton( m_RemoveBogieButton, "Delete" );
     m_BogieLayout.AddButton( m_RemoveAllBogiesButton, "Delete All" );
 
     m_BogieLayout.ForceNewLine();
@@ -473,7 +472,6 @@ bool Gearcreen::Update()
     if ( bogie_ptr )
     {
         // Bogie
-        m_RenameBogieButton.Activate();
         m_RemoveBogieButton.Activate();
         m_SymmetricalButton.Activate();
         m_NAcrossSlider.Activate();
@@ -804,7 +802,6 @@ bool Gearcreen::Update()
     else
     {
         // Bogie
-        m_RenameBogieButton.Deactivate();
         m_RemoveBogieButton.Deactivate();
         m_SymmetricalButton.Deactivate();
         m_NAcrossSlider.Deactivate();
@@ -843,6 +840,19 @@ bool Gearcreen::Update()
         m_SLRToggleGroup.Deactivate();
         m_DeflectionSlider.Deactivate();
         m_SLRSlider.Deactivate();
+    }
+
+    if ( !bogies.empty() )
+    {
+        m_RemoveAllBogiesButton.Activate();
+        m_ShowAllBogiesButton.Activate();
+        m_HideAllBogiesButton.Activate();
+    }
+    else
+    {
+        m_RemoveAllBogiesButton.Deactivate();
+        m_ShowAllBogiesButton.Deactivate();
+        m_HideAllBogiesButton.Deactivate();
     }
 
     return true;
@@ -951,7 +961,7 @@ void Gearcreen::GuiDeviceCallBack( GuiDevice* device )
     {
         gear_ptr->HideAllBogies();
     }
-    else if ( device == &m_RenameBogieButton )
+    else if ( device == &m_BogieNameInput )
     {
         Bogie * bogie = gear_ptr->GetCurrentBogie();
         if ( bogie )

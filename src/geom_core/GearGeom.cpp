@@ -1259,6 +1259,12 @@ void GearGeom::DelBogie( const int & i )
 
     m_Bogies.erase( m_Bogies.begin() +  i );
     m_SurfDirty = true;
+
+    if ( i > m_Bogies.size() - 1 )
+    {
+        SetCurrBogieIndex( m_Bogies.size() - 1 );
+    }
+
     Update();
     delete ruler;
 }
