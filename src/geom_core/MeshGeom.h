@@ -153,7 +153,7 @@ public:
     virtual void DumpMeshes( const string & prefix );
 
     //==== Intersection, Splitting and Trimming ====//
-    virtual void IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag );
+    virtual void IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag, const vector < string > & sub_vec = vector < string > () );
 
     virtual void PreIntersectTrim( vector< DegenGeom > &degenGeom, int intSubsFlag, MeshInfo &info, Results *res );
     virtual void PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res );
@@ -226,7 +226,7 @@ public:
     virtual vector< double > GetTMeshWscale();
     virtual set< string > GetTMeshPtrIDs();
 
-    virtual void SubTagTris( bool tag_subs );
+    virtual void SubTagTris( bool tag_subs, const vector < string > & sub_vec = vector < string > () );
     virtual void RefreshTagMaps();
 
     BoolParm m_ViewMeshFlag;

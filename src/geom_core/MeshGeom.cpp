@@ -2046,7 +2046,7 @@ void MeshGeom::DumpMeshes( const string & prefix )
     }
 }
 
-void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag )
+void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag, const vector < string > & sub_vec )
 {
     // Temporary variable -- likely pass up to top levels and make an option.
     bool deleteopen = false;
@@ -2122,8 +2122,13 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
                 int ss;
                 for ( ss = 0 ; ss < ( int )sub_surf_vec.size() ; ss++ )
                 {
-                    vector< TMesh* > tmp_vec = sub_surf_vec[ss]->CreateTMeshVec( uvec, vvec );
-                    sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );
+                    string subsurf_id = sub_surf_vec[ ss ]->GetID();
+
+                    if ( sub_vec.empty() || vector_contains_val( sub_vec, subsurf_id ) )
+                    {
+                        vector< TMesh* > tmp_vec = sub_surf_vec[ss]->CreateTMeshVec( uvec, vvec );
+                        sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );
+                    }
                 }
                 m_SubSurfVec.insert( m_SubSurfVec.end(), sub_surf_meshes.begin(), sub_surf_meshes.end() );
 
@@ -2171,7 +2176,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     if ( !degen )
     {
         // Tag meshes before regular intersection
-        SubTagTris(( bool ) intSubsFlag );
+        SubTagTris(( bool ) intSubsFlag, sub_vec );
     }
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
@@ -4840,9 +4845,9 @@ set < string > MeshGeom::GetTMeshPtrIDs()
 }
 
 //==== Subtag All Triangles ====//
-void MeshGeom::SubTagTris( bool tag_subs )
+void MeshGeom::SubTagTris( bool tag_subs, const vector < string > & sub_vec )
 {
-    ::SubTagTris( tag_subs, m_TMeshVec );
+    ::SubTagTris( tag_subs, m_TMeshVec, sub_vec );
 }
 
 void MeshGeom::RefreshTagMaps()

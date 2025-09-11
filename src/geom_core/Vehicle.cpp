@@ -5866,7 +5866,7 @@ void Vehicle::resetExportFileNames()
     }
 }
 
-string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, bool hideset, bool suppressdisks, bool useMode, const string &modeID, int n_ref )
+string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, bool hideset, bool suppressdisks, bool useMode, const string &modeID, int n_ref, const vector < string > & sub_vec )
 {
     if ( useMode )
     {
@@ -5899,7 +5899,7 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
     if ( mesh_ptr->m_TMeshVec.size() )
     {
         vector< DegenGeom > dg;
-        mesh_ptr->IntersectTrim( dg, false, intSubsFlag, halfFlag );
+        mesh_ptr->IntersectTrim( dg, false, intSubsFlag, halfFlag, sub_vec );
     }
     else
     {
@@ -5911,9 +5911,9 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
     return id;
 }
 
-string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int degenset, bool hideset, bool suppressdisks, bool useMode, const string &modeID, int n_ref )
+string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int degenset, bool hideset, bool suppressdisks, bool useMode, const string &modeID, int n_ref, const vector < string > & sub_vec )
 {
-    string id = CompGeom( set, degenset, halfFlag, intSubsFlag, hideset, suppressdisks, useMode, modeID, n_ref );
+    string id = CompGeom( set, degenset, halfFlag, intSubsFlag, hideset, suppressdisks, useMode, modeID, n_ref, sub_vec );
     Geom* geom = FindGeom( id );
     if ( !geom )
     {
