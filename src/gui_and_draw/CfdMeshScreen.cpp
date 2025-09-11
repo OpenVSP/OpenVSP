@@ -504,7 +504,7 @@ void CfdMeshScreen::CreateSourcesTab()
     m_SourcesLeft.AddButton(m_DeleteSource, "Delete Source");
 
     m_SourceBrowser = m_SourcesRight.AddVspBrowser(75);
-    m_SourceBrowser->callback( staticScreenCB, this );
+    m_SourceBrowser->Init( this, m_SourcesRight.GetGroup() );
 
     m_SourcesTabLayout.ForceNewLine();
     m_SourcesTabLayout.ForceNewLine();
@@ -1324,9 +1324,33 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
 
+    m_SourceBrowser->HidePopupInput();
+
     if ( w == m_SourceBrowser )
     {
+        // apply popup rename to current source if called
+        if ( m_SourceBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            BaseSource* source = CfdMeshMgr.GetCurrSource();
+            if ( source )
+            {
+                string sname = m_SourceBrowser->GetPopupValue();
+                source->SetName( sname );
+            }
+        }
+
+        // Set new source index from SourceBrowser
         CfdMeshMgr.GUI_Val( "SourceID", m_SourceBrowser->value() - 1 );
+
+        // // Open up popup input if double clicked
+        if ( m_SourceBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            BaseSource* source = CfdMeshMgr.GetCurrSource();
+            if ( source )
+            {
+                m_SourceBrowser->InsertPopupInput( source->GetName(), m_SourceBrowser->value() );
+            }
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -1334,6 +1358,8 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 
 void CfdMeshScreen::CloseCallBack( Fl_Widget *w )
 {
+    m_SourceBrowser->HidePopupInput();
+
     Hide();
 }
 
@@ -1350,6 +1376,8 @@ void * cfdmesh_thread_fun( void *data )
 void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
+
+    m_SourceBrowser->HidePopupInput();
 
     GuiDeviceGlobalTabCallback( device );
     GuiDeviceOutputTabCallback( device );
@@ -1506,7 +1534,6 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_VSPGEOM_FILE_NAME );
         }
     }
-
 }
 
 void CfdMeshScreen::GuiDeviceSourcesTabCallback( GuiDevice* device )
