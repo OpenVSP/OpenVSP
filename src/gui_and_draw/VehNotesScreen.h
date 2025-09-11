@@ -30,6 +30,8 @@ public:
 
     bool Update( );
 
+    virtual void Show();
+
     virtual void CallBack( Fl_Widget *w );
     void GuiDeviceCallBack( GuiDevice* gui_device );
     static void staticScreenCB( Fl_Widget *w, void* data )

@@ -78,6 +78,14 @@ VehNotesScreen::~VehNotesScreen()
     delete m_DataBuffer;
 }
 
+void VehNotesScreen::Show()
+{
+    if ( Update() )
+    {
+        BasicScreen::Show();
+    }
+}
+
 bool VehNotesScreen::Update()
 {
     
