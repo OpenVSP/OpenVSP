@@ -1262,13 +1262,20 @@ void GeomXForm::DeactivateXForms()
     if ( IsParentJoint() )
     {
         m_ULoc.Deactivate();
+        m_U0NLoc.Deactivate();
+        m_U01.Deactivate();
         m_WLoc.Deactivate();
         m_RLoc.Deactivate();
+        m_R01.Deactivate();
+        m_R0NLoc.Deactivate();
         m_SLoc.Deactivate();
         m_TLoc.Deactivate();
         m_LLoc.Deactivate();
+        m_L01.Deactivate();
+        m_L0LenLoc.Deactivate();
         m_MLoc.Deactivate();
         m_NLoc.Deactivate();
+        m_EtaLoc.Deactivate();
         m_TransAttachFlag.Deactivate();
         m_RotAttachFlag.Deactivate();
     }
