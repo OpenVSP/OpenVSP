@@ -1525,7 +1525,44 @@ void CfdMeshScreen::GuiDeviceSourcesTabCallback( GuiDevice* device )
     }
     else if ( device == &m_DeleteSource )
     {
+        // get current source pointer
+        BaseSource* source = CfdMeshMgr.GetCurrSource();
+
+        // get source vec associated with parent geom to determine index in vector
+        int index = -1;
+
+        string gid = CfdMeshMgr.GetCurrSourceGeomID();
+        Vehicle* veh = VehicleMgr.GetVehicle();
+        Geom* g = nullptr;
+        if ( veh )
+        {
+            g = veh->FindGeom( gid );
+        }
+        if ( g && source )
+        {
+            vector< BaseSource* > svec = g->GetCfdMeshMainSourceVec();
+
+            // default index to 2nd to last place
+            index = svec.size() - 2;
+
+            // count up to n-1 for length of source vector
+            for ( int i = 0; i < svec.size() - 1; i++ )
+            {
+                if ( svec[i] == source )
+                {
+                    // set index to match, if any
+                    index = i;
+                }
+            }
+            // if no match before n-1 place in source vector, default to 2nd to last; assumes final index is match and must reduce index with deletion
+        }
+
         CfdMeshMgr.DeleteCurrSource();
+
+        if ( index > -1 )
+        {
+            CfdMeshMgr.GUI_Val( "SourceID", index );
+        }
     }
     else if ( device == &m_SourcesSelectComp )
     {
