@@ -2394,17 +2394,15 @@ void VSPAEROScreen::DisplayVSPAEROPreview()
         }
         else if ( geom_vec[i]->GetSetFlag( set ) )
         {
-            for ( size_t j = 0; j < geom_vec[i]->GetNumMainSurfs(); j++ )
-            {
-                int surf_type = geom_vec[i]->GetMainSurfType(j);
-
-                geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_SURF );
-            }
+            geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_SURF );
 
             geom_vec[i]->m_GuiDraw.SetDrawType( vsp::DRAW_TYPE::GEOM_DRAW_SHADE );
             geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( true );
             geom_vec[i]->SetSetFlag( vsp::SET_SHOWN, true );
             geom_vec[i]->SetSetFlag( vsp::SET_NOT_SHOWN, false );
+
+            geom_vec[i]->SetDirtyFlag( GeomBase::TESS );
+            geom_vec[i]->Update();
         }
         else
         {
