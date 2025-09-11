@@ -556,26 +556,13 @@ Slider::Slider( ) : GuiDevice()
 }
 
 //==== Init ====//
-void Slider::Init( VspScreen* screen, Fl_Slider* sw, double range, bool log_slider )
+void Slider::Init( VspScreen* screen, VspSlider* sw, double range, bool log_slider )
 {
     GuiDevice::Init( screen );
 
     m_LogSliderFlag = log_slider;
 
-    //==== Create Vsp Slider and Hide Old One ====//
-    m_Slider = new VspSlider( sw->x(), sw->y(), sw->w(), sw->h() );
-    Fl_Group* parent = sw->parent();
-    if ( parent )
-        parent->add( m_Slider );
-    m_Slider->parent( sw->parent() );
-    m_Slider->type( sw->type() );
-    m_Slider->box( sw->box() );
-    m_Slider->slider( sw->slider() );
-    m_Slider->slider_size( sw->slider_size() );
-    m_Slider->color( sw->color() );
-    m_Slider->color2( sw->color2() );
-
-    sw->hide();
+    m_Slider = sw;
 
     AddWidget(m_Slider);
     SetRange( range );
@@ -680,7 +667,7 @@ SliderAdjRange::SliderAdjRange( ) : Slider()
 }
 
 //==== Init ====//
-void SliderAdjRange::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+void SliderAdjRange::Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbutton,
                            Fl_Button* rbutton, double range, bool log_slider )
 {
     Slider::Init( screen, slider, range, log_slider );
@@ -900,7 +887,7 @@ SliderInput::SliderInput()
 }
 
 //==== Init ====//
-void SliderInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Input* input,
+void SliderInput::Init( VspScreen* screen, VspSlider* slider, Fl_Input* input,
                         double range, const char* format, VspButton* parm_button,
                         bool log_slider )
 {
@@ -946,7 +933,7 @@ SliderAdjRangeInput::SliderAdjRangeInput()
 }
 
 //==== Init ====//
-void SliderAdjRangeInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+void SliderAdjRangeInput::Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbutton,
                                 Fl_Button* rbutton, Fl_Input* input, double range, const char* format,
                                 VspButton* parm_button, bool log_slider )
 {
@@ -989,7 +976,7 @@ SliderAdjRange2Input::SliderAdjRange2Input()
     m_ParmButtonFlag = false;
 }
 
-void SliderAdjRange2Input::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+void SliderAdjRange2Input::Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbutton,
                                  Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2,
                                  double range, const char* format, VspButton* parm_button )
 {
@@ -1071,7 +1058,7 @@ SliderAdjRange3Input::SliderAdjRange3Input()
     m_ParmButtonFlag = false;
 }
 
-void SliderAdjRange3Input::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+void SliderAdjRange3Input::Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbutton,
                                  Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2, Fl_Input* input3,
                                  double range, const char* format, VspButton* parm_button )
 {
@@ -2136,9 +2123,9 @@ FractParmSlider::FractParmSlider() : GuiDevice()
 }
 
 //==== Init ====//
-void FractParmSlider::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+void FractParmSlider::Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbutton,
                             Fl_Button* rbutton, Fl_Input* fract_input, Fl_Input* result_input,
-                            double range, const char* format, VspButton* parm_button  )
+                            double range, const char* format, VspButton* parm_button )
 {
     GuiDevice::Init( screen );
     m_ParmButtonFlag = false;
@@ -3550,10 +3537,10 @@ void SkinControl::Init( VspScreen* screen,
         Fl_Check_Button* setButtonL,
         Fl_Check_Button* setButtonEqual,
         Fl_Check_Button* setButtonR,
-        Fl_Slider* sliderL,
+        VspSlider* sliderL,
         Fl_Button* minButtonL,
         Fl_Button* maxButtonL,
-        Fl_Slider* sliderR,
+        VspSlider* sliderR,
         Fl_Button* minButtonR,
         Fl_Button* maxButtonR,
         Fl_Input* inputL,

@@ -221,7 +221,7 @@ void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
 
     //==== Slider ====//
     int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + m_InputWidth + init_used_w, m_SliderWidth );
-    Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    VspSlider* slider = new VspSlider( m_X, m_Y, sw, m_StdHeight );
     slider->type( FL_HOR_NICE_SLIDER );
     slider->box( FL_THIN_DOWN_BOX );
     slider->color( FL_BACKGROUND2_COLOR );
@@ -278,7 +278,7 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
 
     //==== Slider ====//
     int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 2 * m_InputWidth + init_used_w, m_SliderWidth );
-    Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    VspSlider* slider = new VspSlider( m_X, m_Y, sw, m_StdHeight );
     slider->type( FL_HOR_NICE_SLIDER );
     slider->box( FL_THIN_DOWN_BOX );
     slider->color( FL_BACKGROUND2_COLOR );
@@ -345,7 +345,7 @@ void GroupLayout::AddSlider( SliderAdjRange3Input& slid_adj_input,
 
     //==== Slider ====//
     int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 3 * m_InputWidth + init_used_w, m_SliderWidth );
-    Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    VspSlider* slider = new VspSlider( m_X, m_Y, sw, m_StdHeight );
     slider->type( FL_HOR_NICE_SLIDER );
     slider->box( FL_THIN_DOWN_BOX );
     slider->color( FL_BACKGROUND2_COLOR );
@@ -422,7 +422,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
 
     //==== Slider ====//
     int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 2 * m_InputWidth + init_used_w, m_SliderWidth );
-    Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    VspSlider* slider = new VspSlider( m_X, m_Y, sw, m_StdHeight );
     slider->type( FL_HOR_NICE_SLIDER );
     slider->box( FL_THIN_DOWN_BOX );
     slider->color( FL_BACKGROUND2_COLOR );
@@ -482,7 +482,7 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
 
     //==== Slider ====//
     int sw = FitWidth( m_ButtonWidth + m_InputWidth + init_used_w + used_w, m_SliderWidth );
-    Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    VspSlider* slider = new VspSlider( m_X, m_Y, sw, m_StdHeight );
     slider->type( FL_HOR_NICE_SLIDER );
     slider->box( FL_THIN_DOWN_BOX );
     slider->color( FL_BACKGROUND2_COLOR );
@@ -1453,7 +1453,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     AddX( m_RangeButtonWidth );
 
     //==== Left Slider ====//
-    Fl_Slider* sliderL = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    VspSlider* sliderL = new VspSlider( m_X, m_Y, sw, m_StdHeight );
     sliderL->type( FL_HOR_NICE_SLIDER );
     sliderL->box( FL_THIN_DOWN_BOX );
     sliderL->color( FL_BACKGROUND2_COLOR );
@@ -1512,7 +1512,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     AddX( m_RangeButtonWidth );
 
     //==== Right Slider ====//
-    Fl_Slider* sliderR = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    VspSlider* sliderR = new VspSlider( m_X, m_Y, sw, m_StdHeight );
     sliderR->type( FL_HOR_NICE_SLIDER );
     sliderR->box( FL_THIN_DOWN_BOX );
     sliderR->color( FL_BACKGROUND2_COLOR );

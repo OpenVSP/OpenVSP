@@ -310,7 +310,7 @@ class Slider : public GuiDevice
 {
 public:
     Slider();
-    virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, double range, bool log_slider = false );
+    virtual void Init( VspScreen* screen, VspSlider* slider_widget, double range, bool log_slider = false );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetRange( double range )
     {
@@ -351,7 +351,7 @@ class SliderAdjRange : public Slider
 public:
     SliderAdjRange();
 
-    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+    virtual void Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, double range, bool log_slider = false );
 
     virtual void DeviceCB( Fl_Widget* w );
@@ -602,7 +602,7 @@ class SliderInput : public GuiDevice
 public:
     SliderInput();
 
-    virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, Fl_Input* input,
+    virtual void Init( VspScreen* screen, VspSlider* slider_widget, Fl_Input* input,
                        double range, const char* format, VspButton* parm_button = nullptr,
                        bool log_slider = false );
     virtual void Update( const string& parm_id );
@@ -643,7 +643,7 @@ class SliderAdjRangeInput : public GuiDevice
 {
 public:
     SliderAdjRangeInput();
-    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+    virtual void Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input, double range, const char* format,
                        VspButton* parm_button = nullptr, bool log_slider = false );
 
@@ -708,7 +708,7 @@ class SliderAdjRange2Input
 {
 public:
     SliderAdjRange2Input();
-    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+    virtual void Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2,
                        double range, const char* format, VspButton* parm_button = nullptr );
     virtual void Update( int slider_id, const string& parm_id_in1, const string& parm_id_in2 );
@@ -753,7 +753,7 @@ class SliderAdjRange3Input
 {
 public:
     SliderAdjRange3Input();
-    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+    virtual void Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2, Fl_Input* input3,
                        double range, const char* format, VspButton* parm_button = NULL );
     virtual void Update( int slider_id, const string& parm_id_in1, const string& parm_id_in2, const string& parm_id_in3 );
@@ -803,7 +803,7 @@ class FractParmSlider : public GuiDevice
 public:
     FractParmSlider();
 
-    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+    virtual void Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* fract_input, Fl_Input* result_input,
                        double range, const char* format, VspButton* parm_button = nullptr );
 
@@ -1216,10 +1216,10 @@ public:
     Fl_Check_Button* setButtonL,
     Fl_Check_Button* setButtonEqual,
     Fl_Check_Button* setButtonR,
-    Fl_Slider* sliderL,
+    VspSlider* sliderL,
     Fl_Button* minButtonL,
     Fl_Button* maxButtonL,
-    Fl_Slider* sliderR,
+    VspSlider* sliderR,
     Fl_Button* minButtonR,
     Fl_Button* maxButtonR,
     Fl_Input* inputL,
