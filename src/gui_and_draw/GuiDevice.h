@@ -912,6 +912,9 @@ public:
         return m_String;
     }
 
+    void SetTextFont( Fl_Font font );
+    void SetType( int t );
+
 protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr )      {}

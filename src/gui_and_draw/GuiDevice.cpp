@@ -2397,6 +2397,16 @@ void StringOutput::Update( const string & val )
     m_Output->value( m_String.c_str() );
 }
 
+void StringOutput::SetTextFont( Fl_Font font )
+{
+    m_Output->textfont( font );
+}
+
+void StringOutput::SetType( int t )
+{
+    m_Output->type( t );
+}
+
 //=====================================================================//
 //=========== Text Editor Widget With Enter Key Callback    ===========//
 //=====================================================================//
