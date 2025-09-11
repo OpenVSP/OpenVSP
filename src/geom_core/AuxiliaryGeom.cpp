@@ -716,6 +716,32 @@ void AuxiliaryGeom::UpdateCCECurve()
     m_CCECurve.InterpolateLinear( m_CCEFilePnts, arclen, false );
 }
 
+string AuxiliaryGeom::GetNotes()
+{
+    switch ( m_AuxuliaryGeomMode() )
+    {
+        case vsp::AUX_GEOM_ROTOR_TIP_PATH:
+        case vsp::AUX_GEOM_ROTOR_BURST:
+            return string( "Rotor Tip Path and Rotor Burst Auxiliary Geoms must be children of a Prop Geom." );
+            break;
+        case vsp::AUX_GEOM_THREE_PT_GROUND:
+        case vsp::AUX_GEOM_TWO_PT_GROUND:
+        case vsp::AUX_GEOM_ONE_PT_GROUND:
+        case vsp::AUX_GEOM_THREE_PT_CCE:
+            return string( "1pt, 2pt, 3pt Ground Plane, and 3pt CCE Auxiliary Geoms must be children of a Gear Geom." );
+            break;
+        case vsp::AUX_GEOM_SUPER_CONE:
+            return string( "Super Cone Auxiliary Geoms can be children of any Geom type.  "
+                           "When the Super Cone is a child of a Human Geom, it will attach to and align with the design eye point.  "
+                           "For all other parent types, it will attach to and align with the component coordinate system.  "
+                           "Use a Blank Geom if more flexible attachment is required." );
+            break;
+        default:
+            break;
+    }
+    return string( "" );
+}
+
 void AuxiliaryGeom::SetXSecCurveType( int type )
 {
     double w = 1;

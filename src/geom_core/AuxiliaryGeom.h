@@ -42,6 +42,8 @@ public:
     virtual void SetPnts( const vector<vec3d> &pnt_vec );
     virtual void UpdateCCECurve();
 
+    virtual string GetNotes();
+
     virtual void SetXSecCurveType( int type );
     virtual int GetXSecCurveType();
 
