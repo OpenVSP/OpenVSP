@@ -1301,9 +1301,24 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     bool compgeom_csv = veh->getExportCompGeomCsvFile();
     veh->setExportCompGeomCsvFile( false );
 
+    vector < string > sub_vec;
+    for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
+    {
+        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && !m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.empty() )
+        {
+            for ( size_t i = 0; i < m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.size(); i++ )
+            {
+                sub_vec.push_back( m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec[i].SSID );
+            }
+        }
+    }
+    std::sort( sub_vec.begin(), sub_vec.end() );
+    sub_vec.erase(std::unique( sub_vec.begin(), sub_vec.end() ), sub_vec.end() );
+
+    bool intSubsFlag = !sub_vec.empty();
     // Generate *.vspgeom geometry file for analysis
     // Compute intersected and trimmed geometry
-    string mesh_geom_id = veh->CompGeomAndFlatten( set, halfFlag, 1 /*subsFlag*/, degenset, false /*hideset*/, true /*suppressdisks*/, m_UseMode(), m_ModeID, m_NRef() );
+    string mesh_geom_id = veh->CompGeomAndFlatten( set, halfFlag, intSubsFlag, degenset, false /*hideset*/, true /*suppressdisks*/, m_UseMode(), m_ModeID, m_NRef(), sub_vec );
 
     veh->setExportCompGeomTxtFile( compgeom_txt );
     veh->setExportCompGeomCsvFile( compgeom_csv );
