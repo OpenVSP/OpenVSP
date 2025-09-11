@@ -36,6 +36,12 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
 
     m_DesignLayout.AddChoice( m_AuxiliaryGeomModeChoice, "Mode" );
 
+    int bw = m_DesignLayout.GetButtonWidth();
+    m_DesignLayout.SetButtonWidth( 0 );
+    m_DesignLayout.AddOutput( m_AuxiliaryGeomModeNotesOutput, 4 );
+    m_AuxiliaryGeomModeNotesOutput.SetType( FL_MULTILINE_INPUT_WRAP );
+
+    m_DesignLayout.SetButtonWidth( bw );
     m_DesignLayout.AddYGap();
 
     m_DesignLayout.AddSubGroupLayout( m_RotorTipPathLayput, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
@@ -878,6 +884,8 @@ bool AuxiliaryGeomScreen::Update()
     if ( auxiliary_ptr )
     {
         m_AuxiliaryGeomModeChoice.Update( auxiliary_ptr->m_AuxuliaryGeomMode.GetID() );
+
+        m_AuxiliaryGeomModeNotesOutput.Update( auxiliary_ptr->GetNotes() );
 
         if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_TIP_PATH )
         {

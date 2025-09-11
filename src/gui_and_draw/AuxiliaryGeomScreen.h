@@ -51,6 +51,8 @@ protected:
 
     Choice m_AuxiliaryGeomModeChoice;
 
+    StringOutput m_AuxiliaryGeomModeNotesOutput;
+
     // Rotor Tip Path
     ToggleButton m_RTP_AutoDiamToggleButton;
 
