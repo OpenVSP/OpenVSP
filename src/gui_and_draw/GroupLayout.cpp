@@ -893,13 +893,13 @@ void GroupLayout::AddInput( StringInput& string_input, const char* label, int us
 }
 
 //==== Create & Init Text Output without label ====//
-void GroupLayout::AddOutput( StringOutput& string_output)
+void GroupLayout::AddOutput( StringOutput& string_output, double nline )
 {
     assert( m_Group && m_Screen );
 
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth, m_InputWidth );
-    Fl_Output* output = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
+    Fl_Output* output = new Fl_Output( m_X, m_Y, iw, m_StdHeight * nline );
     output->color( ( Fl_Color )23 );
     output->labelfont( FL_HELVETICA_BOLD );
     output->labelsize( 12 );
@@ -908,7 +908,7 @@ void GroupLayout::AddOutput( StringOutput& string_output)
     m_Group->add( output );
     AddX( iw );
 
-    AddY( m_StdHeight );
+    AddY( m_StdHeight * nline );
     NewLineX();
 
     string_output.Init( m_Screen, output, nullptr );
