@@ -1563,9 +1563,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
-    static int bc_col_widths[] = { 20, 20, 20, 20, 20, 20, 430-6*20, 0 }; // widths for each column
+    static int bc_col_widths[] = { 15, 20, 20, 20, 20, 20, 20, 430-6*20, 0 }; // widths for each column
 
-    m_FeaBCSelectBrowser = m_BCEditGroup.AddColResizeBrowser( bc_col_widths, 7, browser_h - 20 );
+    m_FeaBCSelectBrowser = m_BCEditGroup.AddColResizeBrowser( bc_col_widths, 8, browser_h - 20 );
     m_FeaBCSelectBrowser->callback( staticScreenCB, this );
 
 
@@ -2670,7 +2670,7 @@ void StructScreen::UpdateFeaBCBrowser()
 
             for ( int i = 0; i < (int)bc_vec.size(); i++ )
             {
-                string label = bc_vec[i]->GetDescription();
+                string label = to_string(i) + ':' + bc_vec[i]->GetDescription();
 
                 m_FeaBCSelectBrowser->add( label.c_str() );
             }
