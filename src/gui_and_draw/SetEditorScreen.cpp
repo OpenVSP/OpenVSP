@@ -110,7 +110,7 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 560, 
     m_AttributeEditor.Init( &m_BorderLayout, m_BorderLayout.GetGroup(), this, staticScreenCB, false, 0, m_BorderLayout.GetRemainY() );
 
     //Browser objects need to have there static callbacks set in SetEditorScreen's constructor
-    m_SetBrowser->callback( staticScreenCB, this );
+    m_SetBrowser->Init( this, m_LeftLayout.GetGroup() );
     m_SetSelectBrowser->callback( staticScreenCB, this );
 }
 
@@ -221,6 +221,7 @@ void SetEditorScreen::Show()
 //==== Hide Screen ====//
 void SetEditorScreen::Hide()
 {
+    m_SetBrowser->HidePopupInput();
     m_FLTK_Window->hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -239,6 +240,8 @@ void SetEditorScreen::CallBack( Fl_Widget *w )
     //We get a vehiclePtr to help work with events
     assert( m_ScreenMgr ); 
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
+
+    m_SetBrowser->HidePopupInput();
 
     if ( w == m_SetSelectBrowser )
     {
@@ -260,8 +263,29 @@ void SetEditorScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_SetBrowser)
     {
+        //Apply Popup Rename to prev selection
+        if ( m_SetBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            if ( m_SelectedSetIndex > SET_NOT_SHOWN )
+            {
+                string name = m_SetBrowser->GetPopupValue();
+                vehiclePtr->SetSetName( m_SelectedSetIndex, name );
+            }
+        }
+
         //We update m_SelectedSetIndex with selected value
         m_SelectedSetIndex = m_SetBrowser->value();
+
+        //Open popup browser on new selection if double clicked
+        if ( m_SetBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            
+            if ( m_SelectedSetIndex > SET_NOT_SHOWN)
+            {
+                vector< string > set_name_vec = vehiclePtr->GetSetNameVec();
+                m_SetBrowser->InsertPopupInput( set_name_vec[m_SelectedSetIndex], m_SetBrowser->value() );
+            }
+        }
     }
 
     m_AttributeEditor.DeviceCB( w );
@@ -277,6 +301,8 @@ void SetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     assert( m_ScreenMgr );
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
     vector< string > geom_id_vec = vehiclePtr->GetGeomVec();
+
+    m_SetBrowser->HidePopupInput();
 
     //This checks if user entered input in the SetNameInput field
     //It uses m_SelectedSetIndex to select and name correct set
