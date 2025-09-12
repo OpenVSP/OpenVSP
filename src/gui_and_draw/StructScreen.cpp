@@ -151,7 +151,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     int browser_h = 150;
     m_StructureSelectBrowser = m_StructureTabLayout.AddColResizeBrowser( struct_col_widths, 3, browser_h );
-    m_StructureSelectBrowser->callback( staticScreenCB, this );
+    m_StructureSelectBrowser->Init( this, m_StructureTabLayout.GetGroup() );
 
     int buttonwidth = m_StructureTabLayout.GetButtonWidth();
 
@@ -248,8 +248,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     static int part_col_widths[] = { 86, 65, 43, 86, 43, 86, 0 }; // widths for each column
 
     m_FeaPartSelectBrowser = m_FeaPartBrowserLayout.AddColResizeBrowser( part_col_widths, 6, browser_h );
-    m_FeaPartSelectBrowser->callback( staticScreenCB, this );
     m_FeaPartSelectBrowser->type( FL_MULTI_BROWSER );
+    m_FeaPartSelectBrowser->Init( this, m_PartTabLayout.GetGroup() );
+    // this browser uses double click in this screens' context, disable the double click to open rename popup
+    m_FeaPartSelectBrowser->SetDoubleClickFlag( false );
 
     m_PartTabLayout.SetX( start_x );
 
@@ -309,7 +311,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_FeaMaterialSelectBrowser = m_MaterialEditGroup.AddVspBrowser( browser_h );
     m_FeaMaterialSelectBrowser->labelfont( 13 );
     m_FeaMaterialSelectBrowser->labelsize( 12 );
-    m_FeaMaterialSelectBrowser->callback( staticScreenCB, this );
+    m_FeaMaterialSelectBrowser->Init( this, m_MaterialEditGroup.GetGroup() );
 
     m_MaterialEditGroup.SetSameLineFlag( true );
     m_MaterialEditGroup.SetFitWidthFlag( false );
@@ -987,7 +989,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     static int prop_col_widths[] = { 130, 70, 80, 130, 0 }; // widths for each column
 
     m_FeaPropertySelectBrowser = m_PropertyEditGroup.AddColResizeBrowser( prop_col_widths, 4, browser_h - 20 );
-    m_FeaPropertySelectBrowser->callback( staticScreenCB, this );
+    m_FeaPropertySelectBrowser->Init( this, m_PropertyEditGroup.GetGroup() );
 
     m_PropertyEditGroup.SetChoiceButtonWidth( buttonwidth );
 
@@ -3988,6 +3990,11 @@ void StructScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
 
+    m_StructureSelectBrowser->HidePopupInput();
+    m_FeaPartSelectBrowser->HidePopupInput();
+    m_FeaMaterialSelectBrowser->HidePopupInput();
+    m_FeaPropertySelectBrowser->HidePopupInput();
+
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
     if ( veh )
@@ -3998,8 +4005,26 @@ void StructScreen::CallBack( Fl_Widget* w )
             {
                 vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
 
-                m_SelectedPartIndexVec.clear();
+                // if one item was selected, assign it to prev_index for slow double click check
+                int prev_index = -1;
+                if ( m_SelectedPartIndexVec.size() == 1 )
+                {
+                    prev_index = m_SelectedPartIndexVec[0];
 
+                    // Apply popup rename to previously selected part
+                    if ( m_FeaPartSelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+                    {
+                        FeaPart* feaprt = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaPart( m_SelectedPartIndexVec[0] );
+                        if ( feaprt )
+                        {
+                            string name = m_FeaPartSelectBrowser->GetPopupValue();
+                            feaprt->SetName( name );
+                        }
+                    }
+                }
+
+                // Change indices selected by PartBrowser
+                m_SelectedPartIndexVec.clear();
                 for ( size_t i = 2; i <= m_FeaPartSelectBrowser->size(); i++ )
                 {
                     if ( m_FeaPartSelectBrowser->selected( i ) )
@@ -4008,6 +4033,7 @@ void StructScreen::CallBack( Fl_Widget* w )
                     }
                 }
 
+                // Populate part fields if single part selected
                 if ( m_SelectedPartIndexVec.size() == 1 )
                 {
                     StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
@@ -4043,6 +4069,14 @@ void StructScreen::CallBack( Fl_Widget* w )
                     StructureMgr.SetCurrPartIndex( -1 );
                 }
 
+                bool slow_double_click_flag = (
+                    m_PrevWidgetCB == m_FeaPartSelectBrowser
+                    && m_SelectedPartIndexVec.size() == 1
+                    && prev_index == m_SelectedPartIndexVec[0]
+                    && m_FeaPartSelectBrowser->GetCBReason() == BROWSER_CALLBACK_SELECT
+                );
+
+                // Open part edit screen if double clicked
                 if ( Fl::event_clicks() != 0 ) // Indicates a double click
                 {
                     if ( m_SelectedPartIndexVec.size() == 1 )
@@ -4051,16 +4085,74 @@ void StructScreen::CallBack( Fl_Widget* w )
                         m_ScreenMgr->ShowScreen( vsp::VSP_FEA_PART_EDIT_SCREEN );
                     }
                 }
+                // if slowly double clicking on same index, make new popup window (or using hotkey)
+                else if ( slow_double_click_flag || m_FeaPartSelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+                {
+                    FeaStructure* feastruct = structVec[StructureMgr.m_CurrStructIndex()];
+                    if ( feastruct )
+                    {
+                        FeaPart* feaprt = feastruct->GetFeaPart( m_SelectedPartIndexVec[0] );
+                        if ( feaprt )
+                        {
+                            m_FeaPartSelectBrowser->InsertPopupInput( feaprt->GetName(), m_SelectedPartIndexVec[0] + 2 );
+                        }
+                    }
+                }
             }
         }
         else if ( w == m_StructureSelectBrowser )
         {
+            // Apply Popup Rename to previously selected structure
+            if ( m_StructureSelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+            {
+                if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+                {
+                    vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+                    FeaStructure* feastruct = structvec[StructureMgr.m_CurrStructIndex()];
+
+                    if ( feastruct )
+                    {
+                        string name = m_StructureSelectBrowser->GetPopupValue();
+                        feastruct->SetName( name );
+
+                        if ( feastruct->GetStructSettingsPtr() )
+                        {
+                            feastruct->ResetExportFileNames();
+                        }
+                    }
+                }
+            }
+
+            // Select new structure from browser
             int indx = m_StructureSelectBrowser->value() - 2;
             if ( StructureMgr.ValidTotalFeaStructInd( indx  ) )
             {
                 StructureMgr.m_CurrStructIndex.Set( indx );
                 MarkDOChanged();
                 FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+            }
+
+            // Draw new popup over selected structure
+            if ( m_StructureSelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+            {
+                if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+                {
+                    vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+                    if ( StructureMgr.m_CurrStructIndex() > -1 && StructureMgr.m_CurrStructIndex() < structvec.size() )
+                    {
+                        FeaStructure* feastruct = structvec[ StructureMgr.m_CurrStructIndex() ];
+                        if ( feastruct )
+                        {
+                            m_StructureSelectBrowser->InsertPopupInput( feastruct->GetName(), m_StructureSelectBrowser->value() );
+                        }
+                    }
+                    else
+                    {
+                        printf("prob bob\n");
+                    }
+                }
             }
         }
         else if ( w == m_DrawPartSelectBrowser )
@@ -4089,11 +4181,55 @@ void StructScreen::CallBack( Fl_Widget* w )
         }
         else if ( w == m_FeaPropertySelectBrowser )
         {
+            // apply popup rename over old fea property
+            if ( m_FeaPropertySelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+            {
+                FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
+                if ( fea_prop )
+                {
+                    string name = m_FeaPropertySelectBrowser->GetPopupValue();
+                    fea_prop->SetName( name );
+                }
+            }
+
+            // set new fea property from browser
             StructureMgr.SetCurrPropertyIndex( m_FeaPropertySelectBrowser->value() - 2 );
+
+            // make new popup over new fea property
+            if ( m_FeaPropertySelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+            {
+                FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
+                if ( fea_prop )
+                {
+                    m_FeaPropertySelectBrowser->InsertPopupInput( fea_prop->GetName(), StructureMgr.GetCurrPropertyIndex() + 2);
+                }
+            }
         }
         else if ( w == m_FeaMaterialSelectBrowser )
         {
+            // Use Popup Input to rename old selection, if needed
+            if ( m_FeaMaterialSelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+            {
+                FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+                if ( fea_mat && fea_mat->m_UserFeaMaterial )
+                {
+                    string name = m_FeaMaterialSelectBrowser->GetPopupValue();
+                    fea_mat->SetName( name );
+                }
+            }
+
+            // Select new material from browser
             StructureMgr.SetCurrMaterialIndex( m_FeaMaterialSelectBrowser->value() - 1 );
+
+            // Open up new popup input over currently selected material
+            if ( m_FeaMaterialSelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+            {
+                FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+                if ( fea_mat && fea_mat->m_UserFeaMaterial )
+                {
+                    m_FeaMaterialSelectBrowser->InsertPopupInput( fea_mat->GetName(), m_FeaMaterialSelectBrowser->value() );
+                }
+            }
         }
         else if ( w == m_FeaBCSelectBrowser )
         {
@@ -4111,8 +4247,9 @@ void StructScreen::CallBack( Fl_Widget* w )
                 }
             }
         }
-
     }
+
+    m_PrevWidgetCB = w;
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -4151,6 +4288,11 @@ void StructScreen::LaunchFEAMesh()
 void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
+
+    m_StructureSelectBrowser->HidePopupInput();
+    m_FeaPartSelectBrowser->HidePopupInput();
+    m_FeaMaterialSelectBrowser->HidePopupInput();
+    m_FeaPropertySelectBrowser->HidePopupInput();
 
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -5061,6 +5203,8 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
+
+    m_PrevWidgetCB = nullptr;
 
     m_ScreenMgr->SetUpdateFlag( true );
 }

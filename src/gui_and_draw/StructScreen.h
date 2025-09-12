@@ -77,6 +77,10 @@ public:
         return &m_FeaMeshProcess;
     }
 
+protected:
+
+    Fl_Widget* m_PrevWidgetCB;
+
 private:
 
     GroupLayout m_ConsoleLayout;
