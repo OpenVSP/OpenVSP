@@ -633,10 +633,27 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_XFormLayout.SetSameLineFlag( false );
     m_XFormLayout.AddDividerBox( "Attach To Parent" );
 
+    // init AttachLayout and AttachLayoutSub; hierarchy permits leaving none buttons active on orphaned attach geoms
+    int labelw = 74;
+    int buttonw = ( m_XFormLayout.GetW() - labelw ) / 6;
     m_XFormLayout.AddSubGroupLayout( m_AttachLayout, m_XFormLayout.GetW(), 11 * m_AttachLayout.GetStdHeight() + 5 * m_AttachLayout.GetGapHeight() );
+    m_AttachLayout.AddSubGroupLayout( m_AttachLayoutSelections, m_AttachLayout.GetW(), 11 * m_AttachLayout.GetStdHeight() + 5 * m_AttachLayout.GetGapHeight() );
+    m_AttachLayout.AddSubGroupLayout( m_AttachLayoutTransHeader, buttonw + labelw, m_AttachLayout.GetStdHeight() );
+    m_AttachLayout.ForceNewLine();
+    m_AttachLayout.AddYGap();
+    m_AttachLayout.AddSubGroupLayout( m_AttachLayoutRotHeader, buttonw + labelw, m_AttachLayout.GetStdHeight() );
 
-    m_AttachLayout.SetFitWidthFlag( false );
-    m_AttachLayout.SetSameLineFlag( true );
+    m_AttachLayoutTransHeader.SetButtonWidth( buttonw );
+    m_AttachLayoutTransHeader.SetFitWidthFlag( false );
+    m_AttachLayoutTransHeader.SetSameLineFlag( true );
+
+    m_AttachLayoutRotHeader.SetButtonWidth( buttonw );
+    m_AttachLayoutRotHeader.SetFitWidthFlag( false );
+    m_AttachLayoutRotHeader.SetSameLineFlag( true );
+
+    m_AttachLayoutSelections.SetButtonWidth( buttonw );
+    m_AttachLayoutSelections.SetFitWidthFlag( false );
+    m_AttachLayoutSelections.SetSameLineFlag( true );
 
     char etaMN[7];
     int indx = 0;
@@ -645,16 +662,17 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     etaMN[ indx + 1 ] = 'N';
     etaMN[ indx + 2 ] = 0;
 
-    m_AttachLayout.AddLabel( "Translate:", 74 );
-    m_AttachLayout.SetButtonWidth( ( m_AttachLayout.GetRemainX() ) / 6 );
-    m_AttachLayout.AddButton( m_TransNoneButton, "None" );
-    m_AttachLayout.AddButton( m_TransCompButton, "Comp" );
-    m_AttachLayout.AddButton( m_TransUVButton, "UW" );
-    m_AttachLayout.AddButton( m_TransRSTButton, "RST" );
-    m_AttachLayout.AddButton( m_TransLMNButton, "LMN" );
-    m_AttachLayout.AddButton( m_TransEtaMNButton, etaMN );
-    m_AttachLayout.ForceNewLine();
-    m_AttachLayout.AddYGap();
+    m_AttachLayoutTransHeader.AddLabel( "Translate:", labelw );
+    m_AttachLayoutTransHeader.AddButton( m_TransNoneButton, "None" );
+
+    m_AttachLayoutSelections.AddX( labelw + buttonw );
+    m_AttachLayoutSelections.AddButton( m_TransCompButton, "Comp" );
+    m_AttachLayoutSelections.AddButton( m_TransUVButton, "UW" );
+    m_AttachLayoutSelections.AddButton( m_TransRSTButton, "RST" );
+    m_AttachLayoutSelections.AddButton( m_TransLMNButton, "LMN" );
+    m_AttachLayoutSelections.AddButton( m_TransEtaMNButton, etaMN );
+    m_AttachLayoutSelections.ForceNewLine();
+    m_AttachLayoutSelections.AddYGap();
 
     m_TransToggleGroup.Init( this );
     m_TransToggleGroup.AddButton( m_TransNoneButton.GetFlButton() );
@@ -664,15 +682,17 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_TransToggleGroup.AddButton( m_TransLMNButton.GetFlButton() );
     m_TransToggleGroup.AddButton( m_TransEtaMNButton.GetFlButton() );
 
-    m_AttachLayout.AddLabel( "Rotate:", 74 );
-    m_AttachLayout.AddButton( m_RotNoneButton, "None" );
-    m_AttachLayout.AddButton( m_RotCompButton, "Comp" );
-    m_AttachLayout.AddButton( m_RotUVButton, "UW" );
-    m_AttachLayout.AddButton( m_RotRSTButton, "RST" );
-    m_AttachLayout.AddButton( m_RotLMNButton, "LMN" );
-    m_AttachLayout.AddButton( m_RotEtaMNButton, etaMN );
-    m_AttachLayout.ForceNewLine();
-    m_AttachLayout.AddYGap();
+    m_AttachLayoutRotHeader.AddLabel( "Rotate:", labelw );
+    m_AttachLayoutRotHeader.AddButton( m_RotNoneButton, "None" );
+
+    m_AttachLayoutSelections.AddX( labelw + buttonw );
+    m_AttachLayoutSelections.AddButton( m_RotCompButton, "Comp" );
+    m_AttachLayoutSelections.AddButton( m_RotUVButton, "UW" );
+    m_AttachLayoutSelections.AddButton( m_RotRSTButton, "RST" );
+    m_AttachLayoutSelections.AddButton( m_RotLMNButton, "LMN" );
+    m_AttachLayoutSelections.AddButton( m_RotEtaMNButton, etaMN );
+    m_AttachLayoutSelections.ForceNewLine();
+    m_AttachLayoutSelections.AddYGap();
 
     m_RotToggleGroup.Init( this );
     m_RotToggleGroup.AddButton( m_RotNoneButton.GetFlButton() );
@@ -682,94 +702,90 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_RotToggleGroup.AddButton( m_RotLMNButton.GetFlButton() );
     m_RotToggleGroup.AddButton( m_RotEtaMNButton.GetFlButton() );
 
-    m_AttachLayout.SetFitWidthFlag( true );
-    m_AttachLayout.SetSameLineFlag( false );
-
     int actionToggleButtonWidth = 35;
     int normalButtonWidth = 90;
 
-    m_AttachLayout.SetFitWidthFlag( false );
-    m_AttachLayout.SetSameLineFlag( true );
+    m_AttachLayoutSelections.ForceNewLine();
 
-    m_AttachLayout.SetButtonWidth( actionToggleButtonWidth );
-    m_AttachLayout.AddButton( m_U01Toggle, "01" );
-    m_AttachLayout.AddButton( m_U0NToggle, "0N" );
+    m_AttachLayoutSelections.SetButtonWidth( actionToggleButtonWidth );
+    m_AttachLayoutSelections.AddButton( m_U01Toggle, "01" );
+    m_AttachLayoutSelections.AddButton( m_U0NToggle, "0N" );
 
-    m_AttachLayout.SetFitWidthFlag( true );
+    m_AttachLayoutSelections.SetFitWidthFlag( true );
 
-    m_AttachLayout.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
-    m_AttachLayout.AddSlider( m_AttachUSlider, "U", 1, " %7.6f" );
+    m_AttachLayoutSelections.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
+    m_AttachLayoutSelections.AddSlider( m_AttachUSlider, "U", 1, " %7.6f" );
 
     m_UScaleToggleGroup.Init( this );
     m_UScaleToggleGroup.AddButton( m_U0NToggle.GetFlButton() ); // 0 false added first
     m_UScaleToggleGroup.AddButton( m_U01Toggle.GetFlButton() ); // 1 true added second
 
-    m_AttachLayout.ForceNewLine();
-    m_AttachLayout.SetFitWidthFlag( true );
-    m_AttachLayout.SetSameLineFlag( false );
+    m_AttachLayoutSelections.ForceNewLine();
+    m_AttachLayoutSelections.SetFitWidthFlag( true );
+    m_AttachLayoutSelections.SetSameLineFlag( false );
 
-    m_AttachLayout.SetButtonWidth( normalButtonWidth );
+    m_AttachLayoutSelections.SetButtonWidth( normalButtonWidth );
 
-    m_AttachLayout.AddSlider( m_AttachVSlider, "W", 1, " %7.6f" );
-    m_AttachLayout.AddYGap();
+    m_AttachLayoutSelections.AddSlider( m_AttachVSlider, "W", 1, " %7.6f" );
+    m_AttachLayoutSelections.AddYGap();
 
-    m_AttachLayout.SetFitWidthFlag( false );
-    m_AttachLayout.SetSameLineFlag( true );
+    m_AttachLayoutSelections.SetFitWidthFlag( false );
+    m_AttachLayoutSelections.SetSameLineFlag( true );
 
-    m_AttachLayout.SetButtonWidth( actionToggleButtonWidth );
-    m_AttachLayout.AddButton( m_R01Toggle, "01" );
-    m_AttachLayout.AddButton( m_R0NToggle, "0N" );
+    m_AttachLayoutSelections.SetButtonWidth( actionToggleButtonWidth );
+    m_AttachLayoutSelections.AddButton( m_R01Toggle, "01" );
+    m_AttachLayoutSelections.AddButton( m_R0NToggle, "0N" );
 
-    m_AttachLayout.SetFitWidthFlag( true );
+    m_AttachLayoutSelections.SetFitWidthFlag( true );
 
-    m_AttachLayout.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
-    m_AttachLayout.AddSlider( m_AttachRSlider, "R", 1, " %7.6f" );
+    m_AttachLayoutSelections.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
+    m_AttachLayoutSelections.AddSlider( m_AttachRSlider, "R", 1, " %7.6f" );
 
     m_RScaleToggleGroup.Init( this );
     m_RScaleToggleGroup.AddButton( m_R0NToggle.GetFlButton() ); // 0 false added first
     m_RScaleToggleGroup.AddButton( m_R01Toggle.GetFlButton() ); // 1 true added second
 
-    m_AttachLayout.ForceNewLine();
-    m_AttachLayout.SetFitWidthFlag( true );
-    m_AttachLayout.SetSameLineFlag( false );
+    m_AttachLayoutSelections.ForceNewLine();
+    m_AttachLayoutSelections.SetFitWidthFlag( true );
+    m_AttachLayoutSelections.SetSameLineFlag( false );
 
-    m_AttachLayout.SetButtonWidth( normalButtonWidth );
+    m_AttachLayoutSelections.SetButtonWidth( normalButtonWidth );
 
-    m_AttachLayout.AddSlider( m_AttachSSlider, "S", 1, " %7.6f" );
-    m_AttachLayout.AddSlider( m_AttachTSlider, "T", 1, " %7.6f" );
-    m_AttachLayout.AddYGap();
+    m_AttachLayoutSelections.AddSlider( m_AttachSSlider, "S", 1, " %7.6f" );
+    m_AttachLayoutSelections.AddSlider( m_AttachTSlider, "T", 1, " %7.6f" );
+    m_AttachLayoutSelections.AddYGap();
 
-    m_AttachLayout.SetFitWidthFlag( false );
-    m_AttachLayout.SetSameLineFlag( true );
+    m_AttachLayoutSelections.SetFitWidthFlag( false );
+    m_AttachLayoutSelections.SetSameLineFlag( true );
 
-    m_AttachLayout.SetButtonWidth( actionToggleButtonWidth );
-    m_AttachLayout.AddButton( m_L01Toggle, "01" );
-    m_AttachLayout.AddButton( m_L0LenToggle, "0D" );
+    m_AttachLayoutSelections.SetButtonWidth( actionToggleButtonWidth );
+    m_AttachLayoutSelections.AddButton( m_L01Toggle, "01" );
+    m_AttachLayoutSelections.AddButton( m_L0LenToggle, "0D" );
 
-    m_AttachLayout.SetFitWidthFlag( true );
+    m_AttachLayoutSelections.SetFitWidthFlag( true );
 
-    m_AttachLayout.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
-    m_AttachLayout.AddSlider( m_AttachLSlider, "L", 1, " %7.6f" );
+    m_AttachLayoutSelections.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
+    m_AttachLayoutSelections.AddSlider( m_AttachLSlider, "L", 1, " %7.6f" );
 
     m_LScaleToggleGroup.Init( this );
     m_LScaleToggleGroup.AddButton( m_L0LenToggle.GetFlButton() ); // 0 false added first
     m_LScaleToggleGroup.AddButton( m_L01Toggle.GetFlButton() ); // 1 true added second
 
-    m_AttachLayout.ForceNewLine();
-    m_AttachLayout.SetFitWidthFlag( true );
-    m_AttachLayout.SetSameLineFlag( false );
+    m_AttachLayoutSelections.ForceNewLine();
+    m_AttachLayoutSelections.SetFitWidthFlag( true );
+    m_AttachLayoutSelections.SetSameLineFlag( false );
 
-    m_AttachLayout.SetButtonWidth( normalButtonWidth );
+    m_AttachLayoutSelections.SetButtonWidth( normalButtonWidth );
 
     char eta[5];
     indx = 0;
     indx += fl_utf8encode( 951, &eta[ indx ] ); // Greek character eta
     eta[ indx ] = 0;
 
-    m_AttachLayout.AddSlider( m_AttachEtaSlider, eta, 1, " %7.6f" );
+    m_AttachLayoutSelections.AddSlider( m_AttachEtaSlider, eta, 1, " %7.6f" );
 
-    m_AttachLayout.AddSlider( m_AttachMSlider, "M", 1, " %7.6f" );
-    m_AttachLayout.AddSlider( m_AttachNSlider, "N", 1, " %7.6f" );
+    m_AttachLayoutSelections.AddSlider( m_AttachMSlider, "M", 1, " %7.6f" );
+    m_AttachLayoutSelections.AddSlider( m_AttachNSlider, "N", 1, " %7.6f" );
 
 
     //=============== SubSurface Tab ===================//
@@ -1881,48 +1897,12 @@ bool GeomScreen::Update()
         m_AttachEtaSlider.Deactivate();
     }
 
+    // figure out proper integration of orphan ctrls deactivation... filter into fine tooth section carefully
     if ( veh )
     {
         Geom* parent = veh->FindGeom( geom_ptr->GetParentID() );
 
-        if ( parent && !routing_parent && !geom_ptr->IsParentJoint() )
-        {
-            m_TransToggleGroup.Activate();
-            m_RotToggleGroup.Activate();
-            m_UScaleToggleGroup.Activate();
-            m_RScaleToggleGroup.Activate();
-            m_LScaleToggleGroup.Activate();
-
-            m_AttachUSlider.Activate();
-            m_AttachVSlider.Activate();
-            m_AttachRSlider.Activate();
-            m_AttachSSlider.Activate();
-            m_AttachTSlider.Activate();
-            m_AttachLSlider.Activate();
-            m_AttachMSlider.Activate();
-            m_AttachNSlider.Activate();
-            m_AttachEtaSlider.Activate();
-        }
-        else
-        {
-            m_TransToggleGroup.Deactivate();
-            m_RotToggleGroup.Deactivate();
-            m_UScaleToggleGroup.Deactivate();
-            m_RScaleToggleGroup.Deactivate();
-            m_LScaleToggleGroup.Deactivate();
-
-            m_AttachUSlider.Deactivate();
-            m_AttachVSlider.Deactivate();
-            m_AttachRSlider.Deactivate();
-            m_AttachSSlider.Deactivate();
-            m_AttachTSlider.Deactivate();
-            m_AttachLSlider.Deactivate();
-            m_AttachMSlider.Deactivate();
-            m_AttachNSlider.Deactivate();
-            m_AttachEtaSlider.Deactivate();
-        }
-
-        // Handle orphaned trans/rot attachment flags; activate the "none" buttons for user to de-orphan geom
+        // Handle orphaned trans/rot attachment flags; ensure the associated header groups are active
         if ( !parent && geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_NONE )
         {
             orphaned_trans = true;
@@ -1932,15 +1912,36 @@ bool GeomScreen::Update()
             orphaned_rot = true;
         }
 
-    }
+        // Enable Attachment layouts
+        m_AttachLayout.GetGroup()->activate();
+        m_AttachLayoutSelections.GetGroup()->activate();
+        m_AttachLayoutRotHeader.GetGroup()->activate();
+        m_AttachLayoutTransHeader.GetGroup()->activate();
 
-    if ( orphaned_trans )
-    {
-        m_TransNoneButton.Activate();
-    }
-    if ( orphaned_rot )
-    {
-        m_RotNoneButton.Activate();
+        // if no parent OR invalid type of parent, hide attach groups
+        if ( !( parent && !routing_parent && !geom_ptr->IsParentJoint() ) )
+        {
+            // it not an orphaned geom, deactivate the whole attach layout
+            if ( !( orphaned_trans || orphaned_rot ) )
+            {
+                m_AttachLayout.GetGroup()->deactivate();
+            }
+            // if it IS an orphaned geom, deactivate attachment selections, keeping headers open for the orphaned attach type
+            else
+            {
+                m_AttachLayoutSelections.GetGroup()->deactivate();
+                m_AttachLayoutRotHeader.GetGroup()->deactivate();
+                m_AttachLayoutTransHeader.GetGroup()->deactivate();
+                if ( orphaned_trans )
+                {
+                    m_AttachLayoutTransHeader.GetGroup()->activate();
+                }
+                if ( orphaned_rot )
+                {
+                    m_AttachLayoutRotHeader.GetGroup()->activate();
+                }
+            }
+        }
     }
 
     m_NumUSlider.Update( geom_ptr->m_TessU.GetID() );

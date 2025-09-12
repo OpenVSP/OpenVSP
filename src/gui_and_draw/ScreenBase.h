@@ -257,6 +257,9 @@ public:
 
     GroupLayout m_SymmLayout;
     GroupLayout m_AttachLayout;
+    GroupLayout m_AttachLayoutTransHeader;
+    GroupLayout m_AttachLayoutRotHeader;
+    GroupLayout m_AttachLayoutSelections;
 
     //==== Names, Color, Material ====//
     StringInput m_NameInput;
