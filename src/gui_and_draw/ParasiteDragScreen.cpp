@@ -464,7 +464,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     static int col_widths[] = { 115, 111, 60, 0 }; // 3 columns
 
     m_ExcresBrowser = m_ExcrescenceListLayout.AddColResizeBrowser( col_widths, 3, excrescence_browser_height );
-    m_ExcresBrowser->callback( staticScreenCB, this );
+    m_ExcresBrowser->Init( this, m_ExcrescenceListLayout.GetGroup() );
 
     m_ExcrescenceListLayout.AddYGap();
 
@@ -1122,14 +1122,29 @@ void ParasiteDragScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
 
+    m_ExcresBrowser->HidePopupInput();
+
     if ( w == m_ExcresBrowser )
     {
+        // Apply the new popup name if popup callback type
+        if ( m_ExcresBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            ParasiteDragMgr.SetExcresLabel( m_ExcresBrowser->GetPopupValue() );
+        }
+
+        // Do standard excresBrowser callback
         ExresBrowserCallback();
 
         if ( ParasiteDragMgr.GetCurrExcresIndex() >= 0 )
         {
             UpdateExcrescenceSliderLimits();
             ParasiteDragMgr.UpdateCurrentExcresVal();
+        }
+
+        // Open up new popup input in place on browser if double clicked
+        if ( m_ExcresBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN)
+        {
+            m_ExcresBrowser->InsertPopupInput( ParasiteDragMgr.GetCurrentExcresLabel(), ParasiteDragMgr.GetCurrExcresIndex() + 2 );
         }
     }
     else if ( w == &m_MainTableCompNamesScrollGroup->scrollbar )
@@ -1187,6 +1202,8 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
     Vehicle *vptr = VehicleMgr.GetVehicle();
 
     assert( m_ScreenMgr );
+
+    m_ExcresBrowser->HidePopupInput();
 
     //==== Overview Tab GUI Callback ====//
     if ( device == &m_RefWingChoice )
