@@ -677,7 +677,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CSGroupBrowser->resize( m_CSGroupingLayout.GetX(), m_CSGroupingLayout.GetY(), main_browser_w, browser_h + browser_h_augment );
     m_CSGroupBrowser->labelfont( 13 );
     m_CSGroupBrowser->textsize( 12 );
-    m_CSGroupBrowser->callback( staticScreenCB, this );
+    m_CSGroupBrowser->Init( this, m_CSGroupingLayout.GetGroup() );
 
     m_CSGroupingLayout.AddX( main_browser_w );
     m_CSGroupingLayout.AddX( main_browser_spacing ); // Space Between Main Browser and Available Items Browser
@@ -1108,6 +1108,8 @@ void VSPAEROScreen::Hide()
 
 void VSPAEROScreen::CallBack( Fl_Widget* w )
 {
+    m_CSGroupBrowser->HidePopupInput();
+
     if ( w == m_PropElemBrowser )
     {
         PropElemBrowserCallback();
@@ -1126,7 +1128,29 @@ void VSPAEROScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_CpSliceBrowser )
     {
+        // apply popup name to current cp slice
+        if ( m_CpSliceBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            CpSlice* slice = VSPAEROMgr.GetCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
+            if ( slice )
+            {
+                string name = m_CpSliceBrowser->GetPopupValue();
+                slice->SetName( name );
+            }
+        }
+
+        // perform standard browser callback
         CpSliceBrowserCallback();
+
+        // make new popup input on current cp slice
+        if ( m_CpSliceBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            CpSlice* slice = VSPAEROMgr.GetCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
+            if ( slice )
+            {
+                m_CpSliceBrowser->InsertPopupInput( slice->GetName(), VSPAEROMgr.GetCurrentCpSliceIndex() + 2 );
+            }
+        }
     }
     else if ( w == m_UnsteadyGroupBrowser )
     {
@@ -1294,6 +1318,8 @@ void VSPAEROScreen::LaunchVSPAERO()
 void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
+
+    m_CSGroupBrowser->HidePopupInput();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
@@ -1533,6 +1559,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
+
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -2248,6 +2275,14 @@ void VSPAEROScreen::SelectPropBrowser( int cur_index )
 
 void VSPAEROScreen::ControlSurfaceGroupBrowserCallback()
 {
+    // First apply popup input to previously selected item, if input callback
+    if ( m_CSGroupBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+    {
+        string csname = m_CSGroupBrowser->GetPopupValue();
+        VSPAEROMgr.SetCurrentCSGroupName( csname );
+    }
+
+    // Perform standard CSGroupBrowserCallback
     int last = m_CSGroupBrowser->value();
     if ( last >= 1 )
     {
@@ -2259,6 +2294,12 @@ void VSPAEROScreen::ControlSurfaceGroupBrowserCallback()
         }
     }
     VSPAEROMgr.HighlightSelected( VSPAEROMgr.CONTROL_SURFACE );
+
+    // Open new Popup browser on double click
+    if ( m_CSGroupBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+    {
+        m_CSGroupBrowser->InsertPopupInput( VSPAEROMgr.GetCurrentCSGGroupName(), VSPAEROMgr.GetCurrentCSGroupIndex() + 1 );
+    }
 }
 
 void VSPAEROScreen::SelectControlSurfaceBrowser( int cur_index )
