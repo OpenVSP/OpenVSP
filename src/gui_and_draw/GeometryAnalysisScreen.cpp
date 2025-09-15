@@ -37,7 +37,6 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_GeometryAnalysisBrowser = m_BorderLayout.AddColResizeBrowser( out_col_widths, 4, 200 );
     m_GeometryAnalysisBrowser->callback( staticScreenCB, this );
-    m_GeometryAnalysisBrowser->type( FL_MULTI_BROWSER );
 
 
     m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 2 );
@@ -1096,6 +1095,10 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_DelGeometryAnalysis )
     {
         GeometryAnalysisMgr.DeleteGeometryAnalysis( m_GeometryBrowserSelect );
+        if ( m_GeometryBrowserSelect > GeometryAnalysisMgr.GetAllGeometryAnalyses().size() -1 )
+        {
+            m_GeometryBrowserSelect = GeometryAnalysisMgr.GetAllGeometryAnalyses().size() -1;
+        }
     }
     else if ( gui_device == &m_DelAllGeometryAnalyses )
     {
