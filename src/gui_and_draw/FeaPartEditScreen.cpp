@@ -3569,6 +3569,10 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
             else if ( device == &m_DelPolySparPoint )
             {
                 polyspar->DelPt( m_PolySparPointBrowserSelect );
+                if ( m_PolySparPointBrowserSelect > polyspar->GetNumPt() - 1 )
+                {
+                    m_PolySparPointBrowserSelect = polyspar->GetNumPt() - 1;
+                }
                 polyspar->m_SurfDirty = true;
             }
             else if ( device == &m_DelAllPolySparPoints )
