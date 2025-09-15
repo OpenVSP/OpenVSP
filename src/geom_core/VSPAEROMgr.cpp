@@ -3670,11 +3670,11 @@ void VSPAEROMgrSingleton::RemoveControlSurfaceGroup()
         delete m_ControlSurfaceGroupVec[m_CurrentCSGroupIndex];
         m_ControlSurfaceGroupVec.erase( m_ControlSurfaceGroupVec.begin() + m_CurrentCSGroupIndex );
 
-        if ( !m_ControlSurfaceGroupVec.empty() )
+        if ( m_CurrentCSGroupIndex > m_ControlSurfaceGroupVec.size() - 1 )
         {
-            m_CurrentCSGroupIndex = 0;
+            m_CurrentCSGroupIndex = m_ControlSurfaceGroupVec.size() - 1;
         }
-        else
+        else if ( m_ControlSurfaceGroupVec.empty() )
         {
             m_CurrentCSGroupIndex = -1;
         }
