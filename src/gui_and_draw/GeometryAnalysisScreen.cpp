@@ -36,7 +36,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     static int out_col_widths[] = { 200, 100, 100, 100, 0 }; // widths for each column
 
     m_GeometryAnalysisBrowser = m_BorderLayout.AddColResizeBrowser( out_col_widths, 4, 200 );
-    m_GeometryAnalysisBrowser->callback( staticScreenCB, this );
+    m_GeometryAnalysisBrowser->Init( this, m_BorderLayout.GetGroup() );
 
 
     m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 2 );
@@ -1022,8 +1022,22 @@ void GeometryAnalysisScreen::CallBack( Fl_Widget *w )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
+    m_GeometryAnalysisBrowser->HidePopupInput();
+
     if ( w == m_GeometryAnalysisBrowser )
     {
+        // Apply popup rename to previously selected analysis case
+        if ( m_GeometryAnalysisBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+            if ( gcase )
+            {
+                string aname = m_GeometryAnalysisBrowser->GetPopupValue();
+                gcase->SetName( aname );
+            }
+        }
+
+        // Select new geom analysis case
         int sel = m_GeometryAnalysisBrowser->value();
         m_GeometryBrowserSelect = sel - 2;
 
@@ -1042,6 +1056,16 @@ void GeometryAnalysisScreen::CallBack( Fl_Widget *w )
         }
 
         MarkDOChanged();
+
+        // open popup input if double clicked
+        if ( m_GeometryAnalysisBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+            if ( gcase )
+            {
+                m_GeometryAnalysisBrowser->InsertPopupInput( gcase->GetName(), m_GeometryBrowserSelect + 2 );
+            }
+        }
     }
     else if ( w == m_SubSurfCutoutBrowser )
     {
@@ -1082,6 +1106,8 @@ void GeometryAnalysisScreen::CallBack( Fl_Widget *w )
 void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
     assert( m_ScreenMgr );
+
+    m_GeometryAnalysisBrowser->HidePopupInput();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
