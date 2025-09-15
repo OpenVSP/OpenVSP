@@ -9,6 +9,7 @@ ManageBackground3DScreen::ManageBackground3DScreen( ScreenMgr * mgr ) : BasicScr
     int bw = 75;
 
     m_FLTK_Window->callback( staticCloseCB, this );
+
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
     m_MainLayout.ForceNewLine();
@@ -41,7 +42,7 @@ ManageBackground3DScreen::ManageBackground3DScreen( ScreenMgr * mgr ) : BasicScr
     // Last column width must be 0
     static int width_array[] = {200, 100, 50, 0 };
     m_Background3DBrowser = m_BorderLayout.AddColResizeBrowser( width_array, 3, 75 );
-    m_Background3DBrowser->callback( staticScreenCB, this );
+    m_Background3DBrowser->Init( this, m_BorderLayout.GetGroup() );
 
 
     m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 2.0 );
@@ -501,6 +502,8 @@ bool ManageBackground3DScreen::Update()
 
 void ManageBackground3DScreen::GuiDeviceCallBack( GuiDevice* device )
 {
+    m_Background3DBrowser->HidePopupInput();
+
     if ( device == &m_AddBackground3DButton )
     {
         Background3DMgr.CreateAndAddBackground3D();
@@ -559,10 +562,35 @@ void ManageBackground3DScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void ManageBackground3DScreen::CallBack( Fl_Widget * w )
 {
+    m_Background3DBrowser->HidePopupInput();
+
     if ( w == m_Background3DBrowser )
     {
+        // Apply popup callback to rename background item
+        if ( m_Background3DBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            Background3D * bg3D = Background3DMgr.GetCurrentBackground3D();
+            if ( bg3D )
+            {
+                string name = m_Background3DBrowser->GetPopupValue();
+                bg3D->SetName( name );
+            }
+        }
+
+        // Select new background item
         int sel = m_Background3DBrowser->value();
         Background3DMgr.SetCurrBackground3DIndex( sel - 2 );
+
+
+        // Open up popup input if double clicked
+        if ( m_Background3DBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            Background3D * bg3D = Background3DMgr.GetCurrentBackground3D();
+            if ( bg3D )
+            {
+                m_Background3DBrowser->InsertPopupInput( bg3D->GetName(), Background3DMgr.GetCurrBackground3DIndex() + 2 );
+            }
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
