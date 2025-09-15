@@ -2330,12 +2330,12 @@ void ParasiteDragMgrSingleton::DeleteExcrescence()
         m_ExcresRowVec.erase( m_ExcresRowVec.begin() + m_CurrentExcresIndex );
     }
 
-    if ( m_ExcresRowVec.size() > 0 )
+    if ( m_CurrentExcresIndex > m_ExcresRowVec.size() -1 )
     {
-        m_CurrentExcresIndex = 0;
+        m_CurrentExcresIndex = m_ExcresRowVec.size() -1;
         UpdateCurrentExcresVal();
     }
-    else
+    else if ( m_ExcresRowVec.empty() )
     {
         m_CurrentExcresIndex = -1;
     }
