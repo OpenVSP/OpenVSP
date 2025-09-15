@@ -63,7 +63,7 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Rou
     static int col_widths[] = { cw, cw, 75, 0 }; // widths for each column
 
     m_RoutingPointBrowser = m_PointBrowserLayout.AddColResizeBrowser( col_widths, 3, browser_h );
-    m_RoutingPointBrowser->callback( staticScreenCB, this );
+    m_RoutingPointBrowser->Init( this, m_PointBrowserLayout.GetGroup() );
 
     m_DesignLayout.SetX( start_x );
 
@@ -552,13 +552,36 @@ void RoutingScreen::CallBack( Fl_Widget *w )
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
     RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( geom_ptr );
 
-    GeomScreen::CallBack( w );
+    m_RoutingPointBrowser->HidePopupInput();
 
     if ( w == m_RoutingPointBrowser )
     {
+        // apply name from popup
+        if ( m_RoutingPointBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            RoutingPoint* rpt = routing_ptr->GetPt( routing_ptr->m_ActivePointIndex );
+            if ( rpt )
+            {
+                string name = m_RoutingPointBrowser->GetPopupValue();
+                rpt->SetName( name );
+            }
+        }
+
+        // change index of browser
         routing_ptr->m_ActivePointIndex = m_RoutingPointBrowser->value() - 2;
+
+        // insert new popup
+        if ( m_RoutingPointBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            RoutingPoint* rpt = routing_ptr->GetPt( routing_ptr->m_ActivePointIndex );
+            if ( rpt )
+            {
+                m_RoutingPointBrowser->InsertPopupInput( rpt->GetName(), routing_ptr->m_ActivePointIndex + 2 );
+            }
+        }
     }
 
+    GeomScreen::CallBack( w );
 }
 
 //==== Gui Device CallBacks ====//
@@ -572,6 +595,8 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( geom_ptr );
 
     RoutingPoint* rpt = nullptr;
+
+    m_RoutingPointBrowser->HidePopupInput();
 
     if ( routing_ptr )
     {
