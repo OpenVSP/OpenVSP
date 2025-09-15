@@ -508,6 +508,10 @@ void ManageBackground3DScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_RemoveBackground3DButton )
     {
         Background3DMgr.DelBackground3D( Background3DMgr.GetCurrBackground3DIndex() );
+        if ( Background3DMgr.GetCurrBackground3DIndex() > Background3DMgr.GetNumBackground3Ds() - 1 )
+        {
+            Background3DMgr.SetCurrBackground3DIndex( Background3DMgr.GetNumBackground3Ds() - 1 );
+        }
     }
     else if ( device == &m_RemoveAllBackground3DsButton )
     {
