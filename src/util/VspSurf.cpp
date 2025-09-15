@@ -3165,20 +3165,33 @@ void VspSurf::MakePolyPlaneSurf( const vector < vec3d > &up_pts, const vector < 
     int npts = up_pts.size();
     assert( npts == low_pts.size() );
 
-    m_Surface.init_uv( npts - 1, 1 );
+    // ensure at least one patch to ensure safe uv getter access
+    int npatch = max( npts - 1, 1 );
+    m_Surface.init_uv( npatch , 1 );
 
-    for ( int i = 0; i < npts - 1; i++ )
+    for ( int i = 0; i < npatch; i++ )
     {
         surface_patch_type patch;
         patch.resize( 1, 1 );
 
         threed_point_type pt0, pt1, pt2, pt3;
 
-        up_pts[ i ].get_pnt( pt0 );
-        up_pts[ i + 1 ].get_pnt( pt1 );
-        low_pts[ i ].get_pnt( pt2 );
-        low_pts[ i + 1 ].get_pnt( pt3 );
+        if ( i > npts - 2 )
+        {
+            vec3d null_vec = vec3d( 0.0, 0.0, 0.0 );
 
+            null_vec.get_pnt( pt0 );
+            null_vec.get_pnt( pt1 );
+            null_vec.get_pnt( pt2 );
+            null_vec.get_pnt( pt3 );
+        }
+        else
+        {
+            up_pts[ i ].get_pnt( pt0 );
+            up_pts[ i + 1 ].get_pnt( pt1 );
+            low_pts[ i ].get_pnt( pt2 );
+            low_pts[ i + 1 ].get_pnt( pt3 );
+        }
         patch.set_control_point( pt0, 0, 0 );
         patch.set_control_point( pt1, 1, 0 );
         patch.set_control_point( pt2, 0, 1 );
