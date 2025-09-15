@@ -64,7 +64,6 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Rou
 
     m_RoutingPointBrowser = m_PointBrowserLayout.AddColResizeBrowser( col_widths, 3, browser_h );
     m_RoutingPointBrowser->callback( staticScreenCB, this );
-    m_RoutingPointBrowser->type( FL_MULTI_BROWSER );
 
     m_DesignLayout.SetX( start_x );
 
@@ -598,6 +597,11 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( routing_ptr )
         {
             routing_ptr->DelPt( routing_ptr->m_ActivePointIndex );
+            if ( routing_ptr->m_ActivePointIndex > routing_ptr->GetNumPt() - 1 )
+            {
+                routing_ptr->m_ActivePointIndex = routing_ptr->GetNumPt() - 1;
+                m_LiveIndex = routing_ptr->m_ActivePointIndex;
+            }
             routing_ptr->Update();
         }
     }
