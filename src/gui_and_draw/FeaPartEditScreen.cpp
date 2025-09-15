@@ -382,7 +382,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
     static int col_widths[] = { 160, 85, 80, 85, 0 }; // widths for each column
 
     m_PolySparPointBrowser = m_PointBrowserLayout.AddColResizeBrowser( col_widths, 4, browser_h );
-    m_PolySparPointBrowser->callback( staticScreenCB, this );
+    m_PolySparPointBrowser->Init( this, m_PointBrowserLayout.GetGroup() );
     m_PolySparPointBrowser->type( FL_MULTI_BROWSER );
 
     m_PolySparEditLayout.SetX( start_x );
@@ -3096,6 +3096,8 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
+    m_PolySparPointBrowser->HidePopupInput();
+
     if ( device == &m_SliceOrientationChoice )
     {
         StructureMgr.SetFeaSliceOrientIndex( m_SliceOrientationChoice.GetVal() );
@@ -3643,6 +3645,8 @@ void FeaPartEditScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
 
+    m_PolySparPointBrowser->HidePopupInput();
+
     if ( w == m_TrimPartBrowser )
     {
         m_ActiveTrimPartIndex = m_TrimPartBrowser->value() - 2;
@@ -3674,7 +3678,53 @@ void FeaPartEditScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_PolySparPointBrowser )
     {
+        // Apply popup rename to polysparpoint
+        if ( m_PolySparPointBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
+            {
+                FeaPart* feaprt = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+                if ( feaprt )
+                {
+                    FeaPolySpar* polyspar = dynamic_cast<FeaPolySpar*>( feaprt );
+                    if ( polyspar )
+                    {
+                        PolySparPoint* spt = polyspar->GetPt( m_PolySparPointBrowserSelect );
+                        if ( spt )
+                        {
+                            string pname = m_PolySparPointBrowser->GetPopupValue();
+                            spt->SetName( pname );
+                        }
+                    }
+                }
+            }
+        }
+
+        // Change point selection
         m_PolySparPointBrowserSelect = m_PolySparPointBrowser->value() - 2;
+
+        // Make new popup if double clicked
+        if ( m_PolySparPointBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
+            {
+                FeaPart* feaprt = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+                if ( feaprt )
+                {
+                    FeaPolySpar* polyspar = dynamic_cast<FeaPolySpar*>( feaprt );
+                    if ( polyspar )
+                    {
+                        PolySparPoint* spt = polyspar->GetPt( m_PolySparPointBrowserSelect );
+                        if ( spt )
+                        {
+                            m_PolySparPointBrowser->InsertPopupInput( spt->GetName(), m_PolySparPointBrowserSelect + 2 );
+                        }
+                    }
+                }
+            }
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
