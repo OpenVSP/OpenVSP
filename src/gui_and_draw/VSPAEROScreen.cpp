@@ -1484,7 +1484,11 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             VSPAEROMgr.DelCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
 
-            if ( VSPAEROMgr.ValidCpSliceInd( VSPAEROMgr.GetCurrentCpSliceIndex() - 1 ) )
+            if ( VSPAEROMgr.GetCurrentCpSliceIndex() > VSPAEROMgr.GetCpSliceVec().size() - 1 )
+            {
+                VSPAEROMgr.SetCurrentCpSliceIndex( VSPAEROMgr.GetCpSliceVec().size() - 1 );
+            }
+            else if ( VSPAEROMgr.ValidCpSliceInd( VSPAEROMgr.GetCurrentCpSliceIndex() - 1 ) )
             {
                 VSPAEROMgr.SetCurrentCpSliceIndex( VSPAEROMgr.GetCurrentCpSliceIndex() );
             }
