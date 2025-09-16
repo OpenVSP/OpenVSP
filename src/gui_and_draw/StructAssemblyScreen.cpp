@@ -101,7 +101,7 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 5
 
     int browser_h = 120;
     m_AssemblySelectBrowser = m_AssemblyTabLayout.AddColResizeBrowser( assy_col_widths, 1, browser_h );
-    m_AssemblySelectBrowser->callback( staticScreenCB, this );
+    m_AssemblySelectBrowser->Init( this, m_AssemblyTabLayout.GetGroup() );
 
     int buttonwidth = m_AssemblyTabLayout.GetButtonWidth();
 
@@ -741,10 +741,36 @@ void StructAssemblyScreen::CallBack( Fl_Widget* w )
     {
     }
 
+    m_AssemblySelectBrowser->HidePopupInput();
+
     if ( w == m_AssemblySelectBrowser )
     {
+        // apply popup rename to curr assy
+        if ( m_AssemblySelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            FeaAssembly* curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
+            if ( curr_assy )
+            {
+                string name = m_AssemblySelectBrowser->GetPopupValue();
+                curr_assy->SetName( name );
+            }
+        }
+
+        // Select new assy
         StructureMgr.SetCurrAssemblyIndex( m_AssemblySelectBrowser->value() - 2 );
         MarkDOChanged();
+
+
+        // make new popup input
+        if ( m_AssemblySelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            FeaAssembly* curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
+            if ( curr_assy )
+            {
+                m_AssemblySelectBrowser->InsertPopupInput( curr_assy->GetName(), StructureMgr.GetCurrAssemblyIndex() + 2 );
+            }
+        }
+
     }
     else if ( w == m_StructureSelectBrowser )
     {
@@ -822,6 +848,8 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         return;
     }
+
+    m_AssemblySelectBrowser->HidePopupInput();
 
     FeaAssembly *curr_assy = nullptr;
     if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
