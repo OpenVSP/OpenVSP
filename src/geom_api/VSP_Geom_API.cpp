@@ -5414,12 +5414,12 @@ void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
         return;
     }
 
-    if ( ( xsec->GetXSecCurve()->GetType() != XS_FOUR_SERIES ) ||
-         ( xsec->GetXSecCurve()->GetType() != XS_SIX_SERIES ) ||
-         ( xsec->GetXSecCurve()->GetType() != XS_FOUR_DIGIT_MOD ) ||
-         ( xsec->GetXSecCurve()->GetType() != XS_FIVE_DIGIT ) ||
-         ( xsec->GetXSecCurve()->GetType() != XS_FIVE_DIGIT_MOD ) ||
-         ( xsec->GetXSecCurve()->GetType() != XS_ONE_SIX_SERIES ) ||
+    if ( ( xsec->GetXSecCurve()->GetType() != XS_FOUR_SERIES ) &&
+         ( xsec->GetXSecCurve()->GetType() != XS_SIX_SERIES ) &&
+         ( xsec->GetXSecCurve()->GetType() != XS_FOUR_DIGIT_MOD ) &&
+         ( xsec->GetXSecCurve()->GetType() != XS_FIVE_DIGIT ) &&
+         ( xsec->GetXSecCurve()->GetType() != XS_FIVE_DIGIT_MOD ) &&
+         ( xsec->GetXSecCurve()->GetType() != XS_ONE_SIX_SERIES ) &&
          ( xsec->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL ) )
     {
         ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitAfCST::XSec Not Fittable Airfoil Type" );
@@ -6900,12 +6900,12 @@ void FitBORAfCST( const string & bor_id, int deg )
         return;
     }
 
-    if ( ( xsc->GetType() != XS_FOUR_SERIES ) ||
-         ( xsc->GetType() != XS_SIX_SERIES ) ||
-         ( xsc->GetType() != XS_FOUR_DIGIT_MOD ) ||
-         ( xsc->GetType() != XS_FIVE_DIGIT ) ||
-         ( xsc->GetType() != XS_FIVE_DIGIT_MOD ) ||
-         ( xsc->GetType() != XS_ONE_SIX_SERIES ) ||
+    if ( ( xsc->GetType() != XS_FOUR_SERIES ) &&
+         ( xsc->GetType() != XS_SIX_SERIES ) &&
+         ( xsc->GetType() != XS_FOUR_DIGIT_MOD ) &&
+         ( xsc->GetType() != XS_FIVE_DIGIT ) &&
+         ( xsc->GetType() != XS_FIVE_DIGIT_MOD ) &&
+         ( xsc->GetType() != XS_ONE_SIX_SERIES ) &&
          ( xsc->GetType() != XS_FILE_AIRFOIL ) )
     {
         ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitBORAfCST::XSec Not Fittable Airfoil Type" );
