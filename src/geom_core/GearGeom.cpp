@@ -184,7 +184,7 @@ double FlangeHeight( double PR, double H, double LR )
     double h = 0.00023336;
     double i = -0.14303;
     double j = 0.0079038;
-    double k = -0.00017004;
+    double k = -0.00017005;
 
     double PRp4 = PR + 4.0;
     double HoLR = H / LR;
