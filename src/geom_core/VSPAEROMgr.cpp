@@ -232,7 +232,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_WriteTecplotFlag.Init( "WriteTecplotFlag", groupname, this, false, false, true );
     m_WriteTecplotFlag.SetDescript( "Toggle to write Tecplot file" );
     m_Clo2D.Init( "Clo2D", groupname, this, 0, -1e3, 1e3 );
-    m_Clo2D.SetDescript( "Zero alpha Cl for airfoil" );
+    m_Clo2D.SetDescript( "Airfoil lift coefficient for minimum drag point" );
     m_StallModel.Init( "StallModel", groupname, this, vsp::STALL_OFF, vsp::STALL_OFF, vsp::STALL_ON );
     m_StallModel.SetDescript( "Stall Modeling Option" );
     m_CLMax2D.Init( "CLMax2D", groupname, this, 1, -1e3, 1e3 );
