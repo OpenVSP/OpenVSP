@@ -2252,7 +2252,7 @@ void VspCurve::ToCubic( double tol )
     m_Curve.to_cubic( tol );
 }
 
-void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, double Hflange, bool faired )
+void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, double Hflange, int mode )
 {
     m_Curve.clear();
 

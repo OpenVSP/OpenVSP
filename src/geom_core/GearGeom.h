@@ -181,7 +181,7 @@ public:
 
 
     // Tire
-    BoolParm m_FairedFlange;
+    IntParm m_TireMode;
     BoolParm m_WidthMode;
     Parm m_WidthIn;
     Parm m_WidthModel;

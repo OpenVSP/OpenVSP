@@ -111,7 +111,7 @@ protected:
     // Tire
     Choice m_TireBogieChoice;
 
-    ToggleButton m_FairedFlangeButton;
+    Choice m_TireModeChoice;
 
     ToggleButton m_TireDiameterInToggleButton;
     ToggleButton m_TireDiameterModelToggleButton;

@@ -189,7 +189,7 @@ public:
 
     void ToCubic( double tol = 0.1 );
 
-    void CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, double Hflange, bool faired );
+    void CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, double Hflange, int mode );
 
     void CreateAC25773( int side );
 

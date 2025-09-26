@@ -1458,6 +1458,19 @@ enum TIRE_DIM_MODES { TIRE_DIM_IN,	/*!< Tire dimensions in inches */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for tire modes. */
+enum TIRE_MODES { TIRE_TRA,	/*!< Full TRA model */
+                  TIRE_FAIR_FLANGE,	/*!< TRA with faired flange / flank */
+                  TIRE_FAIR_WHEEL,	/*!< TRA with faired wheel */
+                  TIRE_BALLOON,	/*!< Balloon tire */
+                  TIRE_BALLOON_WHEEL,	/*!< Balloon tire with wheel */
+                  TIRE_BALLOON_FAIR_WHEEL,	/*!< Balloon tire with faired wheel */
+                  NUM_TIRE_MODES	/*!< Number of tire choices  */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that describes units for velocity. */
 enum VEL_UNITS { V_UNIT_FT_S = 0,	/*!< Feet per second */
                  V_UNIT_M_S,	/*!< Meter per second */

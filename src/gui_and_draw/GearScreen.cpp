@@ -242,7 +242,13 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_TireGroup.SetSameLineFlag( false );
     m_TireGroup.AddSlider( m_PlyRatingSlider, "Ply Rating", 10, "%6.5f" );
 
-    m_TireGroup.AddButton( m_FairedFlangeButton, "Fair Wheel" );
+    m_TireModeChoice.AddItem( "Full TRA", vsp::TIRE_TRA );
+    m_TireModeChoice.AddItem( "TRA w/ Faired Flange", vsp::TIRE_FAIR_FLANGE );
+    m_TireModeChoice.AddItem( "TRA w/ Faired Wheel", vsp::TIRE_FAIR_WHEEL );
+    m_TireModeChoice.AddItem( "Balloon Tire", vsp::TIRE_BALLOON );
+    m_TireModeChoice.AddItem( "Balloon Tire w/ Wheel", vsp::TIRE_BALLOON_WHEEL );
+    m_TireModeChoice.AddItem( "Balloon Tire w/ Faired Wheel", vsp::TIRE_BALLOON_FAIR_WHEEL );
+    m_TireGroup.AddChoice( m_TireModeChoice, "Tire Mode" );
 
     m_TireGroup.AddYGap();
 
@@ -636,7 +642,7 @@ bool Gearcreen::Update()
         m_BogieThetaMinSlider.Update( bogie_ptr->m_BogieThetaMin.GetID() );
         m_BogieThetaMaxSlider.Update( bogie_ptr->m_BogieThetaMax.GetID() );
 
-        m_FairedFlangeButton.Update( bogie_ptr->m_FairedFlange.GetID() );
+        m_TireModeChoice.Update( bogie_ptr->m_TireMode.GetID() );
 
         m_TireDiameterToggleGroup.Update( bogie_ptr->m_DiameterMode.GetID() );
         if ( bogie_ptr->m_DiameterMode() == vsp::TIRE_DIM_IN )
