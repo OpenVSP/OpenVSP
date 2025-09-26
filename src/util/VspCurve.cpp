@@ -2343,195 +2343,190 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     }
     else
     {
+        // Tire height
+        double H = 0.5 * ( Do - Drim );
+
+        // Flange radius
+        double Rflange = 0.5 * Hflange;
+        // Flange width
+        double B = 1.3 * Rflange;
+        // Width of wheel to outside of flanges
+        double Wflange = Wrim + 2.0 * B;
+
+        // Shoulder origin
+        double Hs = Ds - Do;
+        double rs = 0.5 * Ws;
+        double xs0 = rs - sqrt( 0.25 * ( -Hs * Hs - 2 * Ws * Hs ) );
+        double ys0 = 0.5 * ( Do - Ws );
+
+        double xs = 0.5 * Ws;
+        double ys = 0.5 * Ds;
+
+        // Cheek origin
+        double yc0 = 0.5 * Drim + 0.5 * H;
+        double dy = 0.5 * Ds - yc0;
+        double xc0 = ( 0.25 * ( Ws * Ws - W * W ) + dy * dy ) / ( Ws - W );
+        double rc = 0.5 * W - xc0;
+
+        // Solve for mutually tangent point between flange and flank
+        // flange center point
+        double x1 = 0.5 * Wrim + Rflange;
+        double y1 = 0.5 * Drim + Rflange;
+
+        // Deltas to tire width point -- cheek/flank intersection
+        double dx1 = 0.5 * W - x1;
+        double dy1 = yc0 - y1;
+
+        // Flank radius
+        double rflank = ( dx1 * dx1 + dy1 * dy1 - Rflange * Rflange ) / ( 2.0 * ( Rflange + dx1 ) );
+
+        // Flank origin
+        double yf0 = yc0;
+        double xf0 = 0.5 * W - rflank;
+
+        // Triangle scale fraction.
+        double f = rflank / ( Rflange + rflank );
+
+        // Point of tangency.
+        double xt = xf0 + f * ( x1 - xf0 );
+        double yt = yf0 + f * ( y1 - yf0 );
 
 
-    // Tire height
-    double H = 0.5 * ( Do - Drim );
+        if ( mode == vsp::TIRE_TRA ||
+             mode == vsp::TIRE_FAIR_FLANGE )
+        {
+            // Wheel
+            pt << 0, Wflange / 2.0, 0;
+            clin.set_control_point( pt, 0 );
+            pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
+            clin.set_control_point( pt, 1 );
+            m_Curve.push_back( clin, dt );
 
-    // Flange radius
-    double Rflange = 0.5 * Hflange;
-    // Flange width
-    double B = 1.3 * Rflange;
-    // Width of wheel to outside of flanges
-    double Wflange = Wrim + 2.0 * B;
-
-    // Shoulder origin
-    double Hs = Ds - Do;
-    double rs = 0.5 * Ws;
-    double xs0 = rs - sqrt( 0.25 * ( - Hs * Hs - 2 * Ws * Hs ) );
-    double ys0 = 0.5 * ( Do - Ws );
-
-    double xs = 0.5 * Ws;
-    double ys = 0.5 * Ds;
-
-    // Cheek origin
-    double yc0 = 0.5 * Drim + 0.5 * H;
-    double dy = 0.5 * Ds - yc0;
-    double xc0 = ( 0.25 * ( Ws * Ws - W * W ) + dy * dy) / ( Ws - W );
-    double rc = 0.5 * W - xc0;
-
-    // Solve for mutually tangent point between flange and flank
-    // flange center point
-    double x1 = 0.5 * Wrim + Rflange;
-    double y1 = 0.5 * Drim + Rflange;
-
-    // Deltas to tire width point -- cheek/flank intersection
-    double dx1 = 0.5 * W - x1;
-    double dy1 = yc0 - y1;
-
-    // Flank radius
-    double rflank = ( dx1*dx1 + dy1*dy1 - Rflange*Rflange ) / ( 2.0 * ( Rflange + dx1 ) );
-
-    // Flank origin
-    double yf0 = yc0;
-    double xf0 = 0.5 * W - rflank;
-
-    // Triangle scale fraction.
-    double f = rflank / ( Rflange + rflank );
-
-    // Point of tangency.
-    double xt = xf0 + f * ( x1 - xf0 );
-    double yt = yf0 + f * ( y1 - yf0 );
+            if ( mode == vsp::TIRE_FAIR_FLANGE )
+            {
+                // Faired over flange and flank
+                pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
+                clin.set_control_point( pt, 0 );
+                pt << 0, W / 2.0, yf0;
+                clin.set_control_point( pt, 1 );
+                m_Curve.push_back( clin, dt ); // Was 3 * dt
+            }
+            else
+            {
+                // Flange flat
+                pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
+                clin.set_control_point( pt, 0 );
+                pt << 0, Wflange / 2.0 - 0.3 * Rflange, Drim / 2.0 + Hflange;
+                clin.set_control_point( pt, 1 );
+                m_Curve.push_back( clin, dt );
 
 
+                // Flange face
+                pt << 0, x1, y1 + Rflange;
+                carc.set_control_point( pt, 0 );
+                pt << 0, x1 - k * Rflange, y1 + Rflange;
+                carc.set_control_point( pt, 1 );
+                pt << 0, x1 - Rflange, y1 + k * Rflange;
+                carc.set_control_point( pt, 2 );
+                pt << 0, x1 - Rflange, y1;
+                carc.set_control_point( pt, 3 );
 
-    if ( mode == vsp::TIRE_TRA ||
-         mode == vsp::TIRE_FAIR_FLANGE )
-    {
+                x1d << -xt;
+                c1d = carc.singledimensioncurve( 1 );
+                c1d.translate( x1d );
+                eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
-    // Wheel
-    pt << 0, Wflange / 2.0, 0;
-    clin.set_control_point( pt, 0 );
-    pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
-    clin.set_control_point( pt, 1 );
-    m_Curve.push_back( clin, dt );
+                carc.split( c1, c2, t );
 
-    if ( mode == vsp::TIRE_FAIR_FLANGE )
-    {
-        // Faired over flange and flank
-        pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
-        clin.set_control_point( pt, 0 );
-        pt << 0, W / 2.0, yf0;
-        clin.set_control_point( pt, 1 );
-        m_Curve.push_back( clin, dt ); // Was 3 * dt
-    }
-    else
-    {
-        // Flange flat
-        pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
-        clin.set_control_point( pt, 0 );
-        pt << 0, Wflange / 2.0 - 0.3 * Rflange, Drim / 2.0 + Hflange;
-        clin.set_control_point( pt, 1 );
-        m_Curve.push_back( clin, dt );
+                // Force tangent point.
+                pt << 0, xt, yt;
+                c1.set_control_point( pt, 3 );
+                m_Curve.push_back( c1, dt );
 
 
-        // Flange face
-        pt << 0, x1, y1 + Rflange;
+                // Flank
+                pt << 0, xf0, yf0 - rflank;
+                carc.set_control_point( pt, 0 );
+                pt << 0, xf0 + k * rflank, yf0 - rflank;
+                carc.set_control_point( pt, 1 );
+                pt << 0, W / 2, yf0 - k * rflank;
+                carc.set_control_point( pt, 2 );
+                pt << 0, W / 2, yf0;
+                carc.set_control_point( pt, 3 );
+
+                x1d << -xt;
+                c1d = carc.singledimensioncurve( 1 );
+                c1d.translate( x1d );
+                eli::geom::intersect::find_zero( t, c1d, 0.5 );
+
+                carc.split( c1, c2, t );
+
+                // Force tangent point.
+                pt << 0, xt, yt;
+                c2.set_control_point( pt, 0 );
+                m_Curve.push_back( c2, dt );
+            }
+        }
+        else // No Flange
+        {
+            // Wheel
+            pt << 0, W / 2.0, 0;
+            clin.set_control_point( pt, 0 );
+            pt << 0, W / 2.0, yf0;
+            clin.set_control_point( pt, 1 );
+            m_Curve.push_back( clin, dt ); // was 4 * dt
+        }
+
+        // Cheek
+        pt << 0, W / 2.0, yc0;
         carc.set_control_point( pt, 0 );
-        pt << 0, x1 - k * Rflange, y1 + Rflange;
+        pt << 0, W / 2.0, yc0 + k * rc;
         carc.set_control_point( pt, 1 );
-        pt << 0, x1 - Rflange, y1 + k * Rflange;
+        pt << 0, xc0 + k * rc, yc0 + rc;
         carc.set_control_point( pt, 2 );
-        pt << 0, x1 - Rflange, y1;
+        pt << 0, xc0, yc0 + rc;
         carc.set_control_point( pt, 3 );
 
-        x1d << -xt;
+        x1d << -rs;
         c1d = carc.singledimensioncurve( 1 );
         c1d.translate( x1d );
         eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
         carc.split( c1, c2, t );
 
-        // Force tangent point.
-        pt << 0, xt, yt;
+        // Force shoulder point.
+        pt << 0, xs, ys;
         c1.set_control_point( pt, 3 );
         m_Curve.push_back( c1, dt );
 
-
-        // Flank
-        pt << 0, xf0, yf0 - rflank;
+        // Shoulder
+        pt << 0, xs0 + rs, ys0;
         carc.set_control_point( pt, 0 );
-        pt << 0, xf0 + k * rflank, yf0 - rflank;
+        pt << 0, xs0 + rs, ys0 + k * rs;
         carc.set_control_point( pt, 1 );
-        pt << 0, W / 2, yf0 - k * rflank;
+        pt << 0, xs0 + k * rs, Do / 2.0;
         carc.set_control_point( pt, 2 );
-        pt << 0, W / 2, yf0;
+        pt << 0, xs0, Do / 2.0;
         carc.set_control_point( pt, 3 );
 
-        x1d << -xt;
+        x1d << -rs;
         c1d = carc.singledimensioncurve( 1 );
         c1d.translate( x1d );
         eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
         carc.split( c1, c2, t );
 
-        // Force tangent point.
-        pt << 0, xt, yt;
+        // Force shoulder point.
+        pt << 0, xs, ys;
         c2.set_control_point( pt, 0 );
         m_Curve.push_back( c2, dt );
-    }
 
-    }
-    else // No Flange
-    {
-        // Wheel
-        pt << 0, W / 2.0, 0;
+        // Flat
+        pt << 0, xs0, Do / 2.0;
         clin.set_control_point( pt, 0 );
-        pt << 0, W / 2.0, yf0;
+        pt << 0, 0, Do / 2.0;
         clin.set_control_point( pt, 1 );
-        m_Curve.push_back( clin, dt ); // was 4 * dt
-    }
-
-    // Cheek
-    pt << 0, W / 2.0, yc0;
-    carc.set_control_point( pt, 0 );
-    pt << 0, W / 2.0, yc0 + k * rc;
-    carc.set_control_point( pt, 1 );
-    pt << 0, xc0 + k * rc, yc0 + rc;
-    carc.set_control_point( pt, 2 );
-    pt << 0, xc0, yc0 + rc;
-    carc.set_control_point( pt, 3 );
-
-    x1d << -rs;
-    c1d = carc.singledimensioncurve( 1 );
-    c1d.translate( x1d );
-    eli::geom::intersect::find_zero( t, c1d, 0.5 );
-
-    carc.split( c1, c2, t );
-
-    // Force shoulder point.
-    pt << 0, xs, ys;
-    c1.set_control_point( pt, 3 );
-    m_Curve.push_back( c1, dt );
-
-    // Shoulder
-    pt << 0, xs0 + rs, ys0;
-    carc.set_control_point( pt, 0 );
-    pt << 0, xs0 + rs, ys0 + k * rs;
-    carc.set_control_point( pt, 1 );
-    pt << 0, xs0 + k * rs, Do / 2.0;
-    carc.set_control_point( pt, 2 );
-    pt << 0, xs0, Do / 2.0;
-    carc.set_control_point( pt, 3 );
-
-    x1d << -rs;
-    c1d = carc.singledimensioncurve( 1 );
-    c1d.translate( x1d );
-    eli::geom::intersect::find_zero( t, c1d, 0.5 );
-
-    carc.split( c1, c2, t );
-
-    // Force shoulder point.
-    pt << 0, xs, ys;
-    c2.set_control_point( pt, 0 );
-    m_Curve.push_back( c2, dt );
-
-    // Flat
-    pt << 0, xs0, Do / 2.0;
-    clin.set_control_point( pt, 0 );
-    pt << 0, 0, Do / 2.0;
-    clin.set_control_point( pt, 1 );
-    m_Curve.push_back( clin, dt );
+        m_Curve.push_back( clin, dt );
     }
 
 
