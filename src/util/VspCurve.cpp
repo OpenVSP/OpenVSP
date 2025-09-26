@@ -2254,7 +2254,96 @@ void VspCurve::ToCubic( double tol )
 
 void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, double Hflange, int mode )
 {
+    double beta = 0.5 * M_PI;
+    double k = eli::constants::math < double >::cubic_bezier_circle_const() * tan( beta * 0.25 );
+
     m_Curve.clear();
+    m_Curve.set_t0( 0.0 );
+
+    double dt = 1.0;
+    curve_segment_type clin, carc;
+    curve_point_type pt;
+
+    clin.resize( 1 ); // Linear
+    carc.resize( 3 ); // Cubic
+
+    double t;
+    oned_curve_segment_type c1d;
+    oned_curve_point_type x1d;
+    curve_segment_type c1, c2;
+
+
+    if ( mode >= vsp::TIRE_BALLOON )
+    {
+
+
+        double r = W / 2.0;
+
+        if ( mode == vsp::TIRE_BALLOON ||
+             mode == vsp::TIRE_BALLOON_WHEEL )
+        {
+            // Bottom of balloon tire
+            pt << 0, 0, Do / 2.0 - 2 * r;
+            carc.set_control_point( pt, 0 );
+            pt << 0, k * r, Do / 2.0 - 2 * r;
+            carc.set_control_point( pt, 1 );
+            pt << 0, r, Do / 2.0 - 2 * r + k * r;
+            carc.set_control_point( pt, 2 );
+            pt << 0, r, Do / 2.0 - r;
+            carc.set_control_point( pt, 3 );
+
+            if ( mode == vsp::TIRE_BALLOON_WHEEL )
+            {
+                // Find intersection between wheel and balloon tire bottom
+                x1d << -Wrim / 2.0;
+                c1d = carc.singledimensioncurve( 1 );
+                c1d.translate( x1d );
+                eli::geom::intersect::find_zero( t, c1d, 0.5 );
+
+                // Split bottom at intersection point
+                carc.split( c1, c2, t );
+
+                // Wheel
+                pt << 0, Wrim / 2.0, 0;
+                clin.set_control_point( pt, 0 );
+                clin.set_control_point( c2.get_control_point( 0 ), 1 );
+                m_Curve.push_back( clin, dt );
+
+                m_Curve.push_back( c2, dt );
+            }
+            else
+            {
+                // Use complete balloon tire bottom
+                m_Curve.push_back( carc, dt );
+            }
+        }
+        if ( mode == vsp::TIRE_BALLOON_FAIR_WHEEL )
+        {
+            // Wheel
+            pt << 0, r, 0;
+            clin.set_control_point( pt, 0 );
+            pt << 0, r, Do / 2.0 - r;
+            clin.set_control_point( pt, 1 );
+            m_Curve.push_back( clin, dt );
+        }
+
+
+
+        // Top of balloon tire
+        pt << 0, r, Do / 2.0 - r;
+        carc.set_control_point( pt, 0 );
+        pt << 0, r, Do / 2.0 - r + r * k;
+        carc.set_control_point( pt, 1 );
+        pt << 0, k * r, Do / 2.0;
+        carc.set_control_point( pt, 2 );
+        pt << 0, 0, Do / 2.0;
+        carc.set_control_point( pt, 3 );
+        m_Curve.push_back( carc, dt );
+
+    }
+    else
+    {
+
 
     // Tire height
     double H = 0.5 * ( Do - Drim );
@@ -2305,26 +2394,10 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     double yt = yf0 + f * ( y1 - yf0 );
 
 
-    double beta = 0.5 * M_PI;
-    double k = eli::constants::math< double >::cubic_bezier_circle_const() * tan( beta * 0.25 );
 
-    curve_segment_type clin, carc;
-    piecewise_curve_type pc1;
-    curve_point_type pt;
-
-    double t;
-    oned_curve_segment_type c1d;
-    oned_curve_point_type x1d;
-    curve_segment_type c1, c2;
-
-
-    m_Curve.set_t0( 0.0 );
-
-    clin.resize( 1 ); // Linear
-    carc.resize( 3 ); // Cubic
-
-
-    double dt = 1.0 / 7.0;
+    if ( mode == vsp::TIRE_TRA ||
+         mode == vsp::TIRE_FAIR_FLANGE )
+    {
 
     // Wheel
     pt << 0, Wflange / 2.0, 0;
@@ -2333,14 +2406,14 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     clin.set_control_point( pt, 1 );
     m_Curve.push_back( clin, dt );
 
-    if ( faired )
+    if ( mode == vsp::TIRE_FAIR_FLANGE )
     {
         // Faired over flange and flank
         pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
         clin.set_control_point( pt, 0 );
         pt << 0, W / 2.0, yf0;
         clin.set_control_point( pt, 1 );
-        m_Curve.push_back( clin, 3 * dt );
+        m_Curve.push_back( clin, dt ); // Was 3 * dt
     }
     else
     {
@@ -2398,6 +2471,17 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
         m_Curve.push_back( c2, dt );
     }
 
+    }
+    else // No Flange
+    {
+        // Wheel
+        pt << 0, W / 2.0, 0;
+        clin.set_control_point( pt, 0 );
+        pt << 0, W / 2.0, yf0;
+        clin.set_control_point( pt, 1 );
+        m_Curve.push_back( clin, dt ); // was 4 * dt
+    }
+
     // Cheek
     pt << 0, W / 2.0, yc0;
     carc.set_control_point( pt, 0 );
@@ -2448,25 +2532,16 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     pt << 0, 0, Do / 2.0;
     clin.set_control_point( pt, 1 );
     m_Curve.push_back( clin, dt );
-
+    }
 
 
     // First quadrant has been created.  Now, copy, reflect, and merge to complete curve.
 
     // m_Curve.reflect_xy();
-    pc1 = m_Curve;
+    piecewise_curve_type pc1 = m_Curve;
     pc1.reflect_xz();
     pc1.reverse();
     m_Curve.push_back( pc1 );
-
-    // pc1 = m_Curve;
-    // pc1.reflect_xz();
-    // pc1.reverse();
-    // m_Curve.push_back( pc1 );
-
-    // Shift so origin is consistent with other curves.
-    pt << 0, 0, 0;
-    m_Curve.translate( pt );
 }
 
 void VspCurve::CreateAC25773( int side )
