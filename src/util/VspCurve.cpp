@@ -2295,8 +2295,8 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
             if ( mode == vsp::TIRE_BALLOON_WHEEL )
             {
                 // Find intersection between wheel and balloon tire bottom
-                x1d << -Wrim / 2.0;
-                c1d = carc.singledimensioncurve( 1 );
+                x1d << -Drim / 2.0;
+                c1d = carc.singledimensioncurve( 2 );
                 c1d.translate( x1d );
                 eli::geom::intersect::find_zero( t, c1d, 0.5 );
 
@@ -2304,7 +2304,9 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
                 carc.split( c1, c2, t );
 
                 // Wheel
-                pt << 0, Wrim / 2.0, 0;
+                pt = c2.get_control_point( 0 );
+                pt( 2 ) = 0;
+
                 clin.set_control_point( pt, 0 );
                 clin.set_control_point( c2.get_control_point( 0 ), 1 );
                 m_Curve.push_back( clin, dt );
