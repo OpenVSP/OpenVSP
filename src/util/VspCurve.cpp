@@ -2317,7 +2317,7 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
                 m_Curve.push_back( carc, dt );
             }
         }
-        if ( mode == vsp::TIRE_BALLOON_FAIR_WHEEL )
+        else // mode == vsp::TIRE_BALLOON_FAIR_WHEEL
         {
             // Wheel
             pt << 0, r, 0;
@@ -2411,7 +2411,7 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
                 clin.set_control_point( pt, 1 );
                 m_Curve.push_back( clin, dt ); // Was 3 * dt
             }
-            else
+            else // vsp::TIRE_TRA
             {
                 // Flange flat
                 pt << 0, Wflange / 2.0, Drim / 2.0 + Hflange;
@@ -2467,7 +2467,7 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
                 m_Curve.push_back( c2, dt );
             }
         }
-        else // No Flange
+        else // TIRE_FAIR_WHEEL
         {
             // Wheel
             pt << 0, W / 2.0, 0;
