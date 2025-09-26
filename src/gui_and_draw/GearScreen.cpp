@@ -505,6 +505,7 @@ bool Gearcreen::Update()
         m_DrimSlider.Activate();
         m_WrimToggleGroup.Activate();
         m_WrimSlider.Activate();
+        m_PlyRatingSlider.Activate();
         m_HsToggleGroup.Activate();
         m_HsSlider.Activate();
         m_WsToggleGroup.Activate();
@@ -769,6 +770,36 @@ bool Gearcreen::Update()
             m_DeflectionSlider.Activate();
         }
 
+
+        if ( bogie_ptr->m_TireMode() == vsp::TIRE_FAIR_WHEEL )
+        {
+            m_WrimToggleGroup.Deactivate();
+            m_WrimSlider.Deactivate();
+
+            m_PlyRatingSlider.Deactivate();
+        }
+        else if ( bogie_ptr->m_TireMode() >= vsp::TIRE_BALLOON )
+        {
+            m_WrimToggleGroup.Deactivate();
+            m_WrimSlider.Deactivate();
+
+            m_PlyRatingSlider.Deactivate();
+            m_HsToggleGroup.Deactivate();
+            m_HsSlider.Deactivate();
+            m_WsToggleGroup.Deactivate();
+            m_WsSlider.Deactivate();
+
+            m_SLRToggleGroup.Deactivate();
+            m_DeflectionSlider.Deactivate();
+            m_SLRSlider.Deactivate();
+
+            if ( bogie_ptr->m_TireMode() == vsp::TIRE_BALLOON ||
+                 bogie_ptr->m_TireMode() == vsp::TIRE_BALLOON_FAIR_WHEEL )
+            {
+                m_DrimToggleGroup.Deactivate();
+                m_DrimSlider.Deactivate();
+            }
+        }
     }
     else
     {
