@@ -781,6 +781,44 @@ bool PGEdge::Validate() const
     return valid;
 }
 
+void PGEdge::PrintWingWakeEdgeData( const PGMesh *m ) const
+{
+    const double tol = 1e-5; // Typical wmin value TMAGIC == 0.004
+    int nface = m_FaceVec.size();
+
+    for ( int i = 0; i < nface; i++ )
+    {
+        PGFace *f = m_FaceVec[i];
+
+        int tag = f->m_Tag;
+        int part = m->m_PGMulti->GetPart( tag );
+        int type = m->m_PGMulti->GetType( part );
+        double wmin = m->m_PGMulti->GetWmin( part );
+
+        int thick = m->m_PGMulti->GetThickThin( part );
+
+        if ( type == vsp::WING_SURF )
+        {
+            if ( !thick && nface != 1 )
+            {
+                return;
+            }
+
+            vec2d uw0, uw1;
+            if ( m_N0->GetUW( tag, uw0 ) && m_N1->GetUW( tag, uw1 ) )  // Both nodes have needed tags.
+            {
+                if ( uw0.y() <= wmin + tol &&
+                     uw1.y() <= wmin + tol )
+                {
+                    printf( "tag %d part %d type %d wmin %f uw0.y() %f uw1.y() %f\n", tag, part, type, wmin, uw0.y(), uw1.y() );
+                    return;
+                }
+            }
+        }
+    }
+
+}
+
 bool PGEdge::WingWakeEdge( const PGMesh *m, int &part ) const
 {
     const double tol = 1e-5; // Typical wmin value TMAGIC == 0.004
@@ -2738,6 +2776,21 @@ void PGMesh::IdentifyWingWakes()
     }
 
     // printf( "IdentifyWakes() %d wakes found.\n", m_WingWakeVec.size() );
+
+    // m_PGMulti->Report();
+
+    // for ( int iwake = 0; iwake < m_WingWakeVec.size(); iwake++ )
+    // {
+    //     vector< PGNode* > nodVec;
+    //     GetNodes( m_WingWakeVec[iwake], nodVec );
+    //
+    //     int part = -1;
+    //     for ( int j = 0; j < m_WingWakeVec[iwake].size(); j++ )
+    //     {
+    //         m_WingWakeVec[iwake][j]->PrintWingWakeEdgeData( this );
+    //     }
+    //     printf("\n");
+    // }
 
     ResetEdgeLoopFlags();
 }

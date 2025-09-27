@@ -163,6 +163,7 @@ public:
 
     bool Validate() const;
 
+    void PrintWingWakeEdgeData( const PGMesh *m ) const;
     bool WingWakeEdge( const PGMesh *m, int &part ) const;
     bool BodyWakeEdge( const PGMesh *m, int &part ) const;
 };
