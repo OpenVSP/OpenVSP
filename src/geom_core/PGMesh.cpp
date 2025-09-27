@@ -783,7 +783,7 @@ bool PGEdge::Validate() const
 
 bool PGEdge::WingWakeEdge( const PGMesh *m, int &part ) const
 {
-    const double tol = 1e-12;
+    const double tol = 1e-5; // Typical wmin value TMAGIC == 0.004
 
     int nface = m_FaceVec.size();
 
@@ -822,7 +822,7 @@ bool PGEdge::WingWakeEdge( const PGMesh *m, int &part ) const
 
 bool PGEdge::BodyWakeEdge( const PGMesh *m, int &part ) const
 {
-    const double tol = 1e-12;
+    const double tol = 1e-5;
 
     int nface = m_FaceVec.size();
 
