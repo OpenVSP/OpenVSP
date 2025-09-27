@@ -783,6 +783,8 @@ bool PGEdge::Validate() const
 
 bool PGEdge::WingWakeEdge( const PGMesh *m, int &part ) const
 {
+    const double tol = 1e-12;
+
     int nface = m_FaceVec.size();
 
     for ( int i = 0; i < nface; i++ )
@@ -806,8 +808,8 @@ bool PGEdge::WingWakeEdge( const PGMesh *m, int &part ) const
             vec2d uw0, uw1;
             if ( m_N0->GetUW( tag, uw0 ) && m_N1->GetUW( tag, uw1 ) )  // Both nodes have needed tags.
             {
-                if ( uw0.y() < 0.5 * wmin &&
-                     uw1.y() < 0.5 * wmin )
+                if ( uw0.y() <= ( wmin + tol ) &&
+                     uw1.y() <= ( wmin + tol ) )
                 {
                     return true;
                 }
