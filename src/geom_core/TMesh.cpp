@@ -3285,9 +3285,9 @@ bool TTri::SplitTri( bool dumpCase )
 
 
     //==== Use Triangle to Split Tri ====//
-    bool match = TriangulateSplit( flattenAxis, ptvec, dumpCase );
+    bool success = TriangulateSplit( flattenAxis, ptvec, dumpCase );
 
-    erflag = !match;
+    erflag = !success;
 
     CleanupEdgeVec();
 
@@ -3416,13 +3416,13 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
     vector < vector < int > > othercl;
     vector < vector < int > > cl_DBA;
     // TriangulateSplit_DBA( flattenAxis, ptvec, false, cl_DBA, othercl );
-    bool success = TriangulateSplit_DBA( flattenAxis, ptvec, false, cl_DBA, othercl );
+    bool success = TriangulateSplit_DBA( flattenAxis, ptvec, dumpCase, cl_DBA, othercl );
     if ( !success )
     {
         printf( "Trying Triangle instead.\n" );
         cl_DBA.clear();
         othercl.clear();
-        success = TriangulateSplit_TRI( flattenAxis, ptvec, false, cl_DBA, othercl );
+        success = TriangulateSplit_TRI( flattenAxis, ptvec, dumpCase, cl_DBA, othercl );
 
         if ( success )
         {
@@ -3480,7 +3480,7 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
         }
     }
 
-    return match;
+    return success;
 }
 
 bool TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
