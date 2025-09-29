@@ -4756,7 +4756,7 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                             t1->m_ISectEdgeVec.push_back( ie1 );
 
 #ifdef DEBUG_TMESH
-                            if ( !t0->InTri( e0xyz ) || !t0->InTri( e1xyz ) || !t1->InTri( e0xyz ) || !t1->InTri( e1xyz ) )
+                            if ( !tri->InTri( e0xyz ) || !tri->InTri( e1xyz ) )
                             {
                                 printf( "%% Outlier point created %s : %d\n", __FILE__, __LINE__ );
 
