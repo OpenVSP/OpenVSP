@@ -3823,10 +3823,9 @@ bool TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
     }
 
 #ifdef DEBUG_TMESH
+    FILE *fpdump = nullptr;
     if ( dumpCase )
     {
-        FILE *fpdump = nullptr;
-
         string fname = string( "dlbtest_" ) + to_string( idump ) + string( ".txt" );
         fpdump = fopen( fname.c_str(), "w" );
         idump++;
