@@ -4774,7 +4774,7 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                                 printf( "e0 = [%.24e %.24e %.24e;\n", e0.x(), e0.y(), e0.z() );
                                 printf( "      %.24e %.24e %.24e];\n", e1.x(), e1.y(), e1.z() );
 
-                                printf( "figure( %d );\n", fig + 2 );
+                                printf( "figure( %d );\n", fig + 3 );
                                 printf( "plot3( t0(:,1), t0(:,2), t0(:,3) )\n" );
                                 printf( "hold on;\n" );
                                 printf( "plot3( t1(:,1), t1(:,2), t1(:,3) )\n" );
@@ -4786,6 +4786,33 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                                 printf( "hold on;\n" );
                                 printf( "plot3( t1(:,1), t1(:,2), t1(:,3) )\n" );
                                 printf( "plot3( e0(:,1), e0(:,2), e0(:,3), '-o' )\n" );
+
+
+                                printf( "t0 = [%.24e %.24e %.24e;\n", t0->m_N0->m_Pnt.x(), t0->m_N0->m_UWPnt.y(), t0->m_N0->m_UWPnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t0->m_N1->m_UWPnt.x(), t0->m_N1->m_UWPnt.y(), t0->m_N1->m_UWPnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t0->m_N2->m_UWPnt.x(), t0->m_N2->m_UWPnt.y(), t0->m_N2->m_UWPnt.z() );
+                                printf( "      %.24e %.24e %.24e];\n", t0->m_N0->m_UWPnt.x(), t0->m_N0->m_UWPnt.y(), t0->m_N0->m_UWPnt.z() );
+
+                                printf( "t1 = [%.24e %.24e %.24e;\n", t1->m_N0->m_UWPnt.x(), t1->m_N0->m_UWPnt.y(), t1->m_N0->m_UWPnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t1->m_N1->m_UWPnt.x(), t1->m_N1->m_UWPnt.y(), t1->m_N1->m_UWPnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t1->m_N2->m_UWPnt.x(), t1->m_N2->m_UWPnt.y(), t1->m_N2->m_UWPnt.z() );
+                                printf( "      %.24e %.24e %.24e];\n", t1->m_N0->m_UWPnt.x(), t1->m_N0->m_UWPnt.y(), t1->m_N0->m_UWPnt.z() );
+
+                                printf( "e0 = [%.24e %.24e %.24e;\n", e0xyz.x(), e0xyz.y(), e0xyz.z() );
+                                printf( "      %.24e %.24e %.24e];\n", e1xyz.x(), e1xyz.y(), e1xyz.z() );
+
+                                printf( "figure( %d );\n", fig + 103 );
+                                printf( "plot( t0(:,1), t0(:,2) )\n" );
+                                printf( "hold on;\n" );
+                                printf( "plot( t1(:,1), t1(:,2) )\n" );
+                                printf( "plot( e0(:,1), e0(:,2), '-o' )\n" );
+                                printf( "hold off;\n\n" );
+
+                                printf( "figure( 2 );\n" );
+                                printf( "plot( t0(:,1), t0(:,2) )\n" );
+                                printf( "hold on;\n" );
+                                printf( "plot( t1(:,1), t1(:,2) )\n" );
+                                printf( "plot( e0(:,1), e0(:,2), '-o' )\n" );
 
                                 fig++;
                             }
