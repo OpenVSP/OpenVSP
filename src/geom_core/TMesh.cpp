@@ -4709,7 +4709,7 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                     {
                         if ( dist( e0, e1 ) > tol ) // was 1e-6
                         {
-                            // Figure out with tri has xyz info
+                            // Figure out which tri has xyz info
                             TTri* tri;
                             int d_info = TNode::HAS_XYZ; // desired info number
                             if ( ( t0->m_N0->GetCoordInfo() & d_info ) == d_info &&  ( t0->m_N1->GetCoordInfo() & d_info ) == d_info
