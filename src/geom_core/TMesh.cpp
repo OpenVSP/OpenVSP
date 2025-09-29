@@ -4817,10 +4817,17 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                             }
 #endif
 
-                            if ( tri->GetTMeshPtr() )
-                            {
-                                tri->GetTMeshPtr()->SplitAliasEdges( tri, tri->m_ISectEdgeVec.back() );
-                            }
+                            // The ISectEdges added by this code end up causing problems down the line, most frequently
+                            // observed as corrupted corner meshes for subsurface control surfaces.  Removing this code
+                            // appears to help and does not have any adverse effects that have bene observed.  However,
+                            // This is being commented out (rather than removed) to make returning to this decision
+                            // later easy.
+                            //
+                            // This is the only call site for SplitAliasEdges, so total removal may be possible later.
+                            // if ( tri->GetTMeshPtr() )
+                            // {
+                            //     tri->GetTMeshPtr()->SplitAliasEdges( tri, tri->m_ISectEdgeVec.back() );
+                            // }
 
                         }
                     }
