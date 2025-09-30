@@ -1,3 +1,91 @@
+# [OpenVSP 3.46.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.46.0)
+
+2025-09-30
+
+OpenVSP 3.46.0
+
+I was going to hold off on this release until a couple bigger pending changes
+were finished -- but there are a handful of fixes for problems that people are
+running into.  I thought about doing a 3.45.5 release with just fixes, but
+there are also a few features that should go into a .0.  So here we are.
+
+Most of these fixes do not apply to the 3.44 series, so I'm going to stop
+supporting the parallel branches, moving forward with just 3.46 from now on.
+
+Routing Geom's can now have rounded corners of specified radius at each
+junction.  You can also now specify the mass/length of Routing Geoms.  That
+linear density is used for both a live-updating mass calculation as well as
+by the detailed mass properties calculation that will calculate the CG and
+inertia contributions of the Routing Geom.
+
+The classical lamination theory calculations used in the FEA Structures tool
+have been updated to calculate the through-laminate engineering constants.
+Hopefully this improves compatibility with several solvers.
+
+Several simplified tire representation modes have been added.  These include
+a simplified TRA mode that skips the flange calculations as well as some
+Balloon tire modes.  The TRA flange calculations are scale dependent and will
+not produce reasonable results for tires outside the expected size range.
+The simplified modes provide alternatives in particular for small scale
+aircraft like UAV's.
+
+Some Auxiliary Geom's have specific requirements for what type of parent
+Geom they need to function.  These requirements are opaque to new users.
+The Auxiliary Geom GUI has been modified to include a short note describing
+the requirements for each Aux Geom type.
+
+There have been some struggles with meshing control surfaces to send to
+VSPAERO.  This release has two changes to help with the situation.  First,
+only subsurfaces corresponding to active control surfaces will be impressed
+on the mesh being prepared for VSPAERO.  This means that if you aren't
+actively using a control surface, it can't cause problems.  Second, I've
+made a change to the subsurface mesh intersection algorithm.  This change
+appears to help -- and doesn't appear to cause any problems, but keep an eye
+out for issues with subsurfaces and CompGeom type operations.
+
+There was a problem identifying Kutta wake edges for VSPAERO where the wake
+would continue up the side of the intersection with another body.  The geometry
+preview option for VSPAERO was not working with the thick set.  Some degenerate
+faces created in the CreateNGonMeshGeom process have been cleaned up.  The
+VSPAERO Clo2D parameter had a misleading description.
+
+The FitAFCST API call had a bug that kept it from ever working.  This bug dates
+to 2015.  Sometimes I wonder if anybody uses this stuff -- in this case, the
+answer is No.
+
+Slider GUI elements were not disabled when expected, this made it possible
+to sometimes change Parms that shouldn't be changed.  Attachment GUI elements
+were not disabled at the right time.  The Vehicle Notes screen had a toggle
+that did not display properly the first time.
+
+Thomas N. reported a crash that he found during repeated operations with
+Python scripting.  However, it probably could have hit anyone opening a file,
+or possibly even more frequently than that.
+
+Lots of good stuff here.  Everyone should update.
+
+Features:
+- Routing Geom gets rounded corners
+- Simple and detailed mass properties calculations for Routing Geom
+- 3D Lamination theory
+- More tire representation modes - including Balloon tires
+- Add some notes about geometry requirements for Auxiliary Geoms
+- Only intersect active control surfaces for VSPAERO
+
+Bug Fixes:
+- Make VSPAERO control surfaces tolerate spaces in names
+- Fix TE wake detection for VSPAERO
+- Potential fix for control surface subsurface meshing problems
+- Fix VSPAERO preview for thick geometry
+- Remove Degen Faces in CreateNGonMeshGeom
+- Fix FitAfCST API call
+- Improve Clo2D Parm description
+- Fix deactivation of sliders
+- Fix deactivation of attachment GUI elements
+- Fix update of toggle button for vehicle notes screen
+- Fix intermittent crash reported by Thomas N.
+
+
 # [OpenVSP 3.45.4](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.4)
 
 2025-08-31
