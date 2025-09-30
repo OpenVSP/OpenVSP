@@ -3556,6 +3556,9 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
             string base_path, base_fname;
             GetPathFile( base_name, base_path, base_fname );
 
+            StringUtil::change_space_to_underscore( base_fname );
+            string base_path_nospace = base_path + "/" + base_fname;
+
             string taglist_name = base_name + ".ALL.taglist";
             string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
 
@@ -3596,9 +3599,15 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                             string gname = str.substr( 0, pos );
                             string sname = str.substr( pos + 2 );
 
-                            string ptagname = gname + sname + "_" + SubSurfaceMgr.m_TagNames[tag];
+                            StringUtil::change_space_to_underscore( gname );
+                            StringUtil::change_space_to_underscore( sname );
 
-                            string tagfile_name = base_name + ptagname + ".tag";
+                            string tname = SubSurfaceMgr.m_TagNames[tag];
+                            StringUtil::change_space_to_underscore( tname );
+
+                            string ptagname = gname + sname + "_" + tname;
+
+                            string tagfile_name = base_path_nospace + ptagname + ".tag";
                             string tagfile_localname = base_fname + ptagname;
 
                             fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
@@ -5410,6 +5419,7 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
 
     string base_path, base_fname;
     GetPathFile( base_name, base_path, base_fname );
+    StringUtil::change_space_to_underscore( base_fname );
 
     FILE* csf_file = fopen( csf_name.c_str(), "w" );
 
@@ -5472,7 +5482,12 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                         fprintf( csf_file, "Geom Name:    %s\n", g->GetName().c_str() );
                         fprintf( csf_file, "VSPAERO Name: %s\n", str );
 
-                        snprintf( str, sizeof( str ),  "%s%s_Surf%d_%s", base_fname.c_str(), g->GetName().c_str(), isurf, cs->GetName().c_str() );
+                        string gname = g->GetName();
+                        StringUtil::change_space_to_underscore( gname );
+                        string csname = cs->GetName();
+                        StringUtil::change_space_to_underscore( csname );
+
+                        snprintf( str, sizeof( str ),  "%s%s_Surf%d_%s", base_fname.c_str(), gname.c_str(), isurf, csname.c_str() );
 
                         fprintf( csf_file, "Tagfile Name: %s\n", str );
                         fprintf( csf_file, "Surface #:    %d\n", isurf );

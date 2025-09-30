@@ -16,6 +16,8 @@
 
 #include <algorithm>
 
+#include "StringUtil.h"
+
 #ifdef DEBUG_CFD_MESH
 // #include <direct.h>
 #include <sys/stat.h>
@@ -2065,6 +2067,9 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
         string base_path, base_fname;
         GetPathFile( base_name, base_path, base_fname );
 
+        StringUtil::change_space_to_underscore( base_fname );
+        string base_path_nospace = base_path + "/" + base_fname;
+
         string taglist_name = base_name + ".ALL.taglist";
         string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
 
@@ -2105,9 +2110,15 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
                         string gname = str.substr( 0, pos );
                         string sname = str.substr( pos + 2 );
 
-                        string ptagname = gname + sname + "_" + SubSurfaceMgr.m_TagNames[tag];
+                        StringUtil::change_space_to_underscore( gname );
+                        StringUtil::change_space_to_underscore( sname );
 
-                        string tagfile_name = base_name + ptagname + ".tag";
+                        string tname = SubSurfaceMgr.m_TagNames[tag];
+                        StringUtil::change_space_to_underscore( tname );
+
+                        string ptagname = gname + sname + "_" + tname;
+
+                        string tagfile_name = base_path_nospace + ptagname + ".tag";
                         string tagfile_localname = base_fname + ptagname;
 
                         fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
