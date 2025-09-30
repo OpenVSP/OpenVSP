@@ -6373,7 +6373,7 @@ void GeomXSec::NormalizeFlaps()
 
     for ( int i = 0 ; i < nxsec ; i++ )
     {
-        WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( i );
+        WingSect* ws = dynamic_cast < WingSect* > ( m_XSecSurf.FindXSec( i ) );
         if ( ws )
         {
             XSecCurve* xsc = ws->GetXSecCurve();
@@ -6418,7 +6418,7 @@ void GeomXSec::NormalizeFlaps()
 
     for ( int i = 0 ; i < nxsec ; i++ )
     {
-        WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( i );
+        WingSect* ws = dynamic_cast < WingSect* > ( m_XSecSurf.FindXSec( i ) );
         if ( ws )
         {
             XSecCurve* xsc = ws->GetXSecCurve();
