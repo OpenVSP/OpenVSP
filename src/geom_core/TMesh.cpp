@@ -7555,6 +7555,10 @@ void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const st
         MeshIntersect( result_tmv );
         FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
+        TMesh *result_tm = MergeTMeshVec( result_tmv );
+        DeleteTMeshVec( result_tmv );
+        result_tmv.push_back( result_tm );
+
         min_dist = 0.0;
         con_dist = 1.0;
 
