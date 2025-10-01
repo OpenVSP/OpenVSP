@@ -7515,7 +7515,7 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
 
 }
 
-string ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, vector< TMesh* > & result_tmv )
+void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const string & resid, vector< TMesh* > & result_tmv )
 {
     bool intersect_flag = false;
     bool interference_flag = false;
@@ -7599,7 +7599,7 @@ string ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, vector
 
     double gcon = con_dist * con_vol;
 
-    Results *res = ResultsMgr.CreateResults( "External_Interference", "External interference check." );
+    Results *res = ResultsMgr.FindResultsPtr( resid );
     if( res )
     {
         // Populate results.
@@ -7615,11 +7615,9 @@ string ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, vector
         res->Add( new NameValData( "Con_Val", gcon, "Constraint value" ) );
         res->Add( new NameValData( "Result", gcon, "Interference result" ) );
     }
-
-    return res->GetID();
 }
 
-string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv )
+void ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, const string & resid, vector< TMesh* > & result_tmv )
 {
     CSGMesh( primary_tmv );
     FlattenTMeshVec( primary_tmv );
@@ -7631,7 +7629,7 @@ string ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh*
     TMesh *secondary_tm = MergeTMeshVec( secondary_tmv );
     secondary_tm->LoadBndBox();
 
-    return ExteriorInterferenceCheck( primary_tm, secondary_tm, result_tmv );
+    ExteriorInterferenceCheck( primary_tm, secondary_tm, resid, result_tmv );
 }
 
 string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv )

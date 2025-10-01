@@ -515,8 +515,13 @@ string GeometryAnalysisCase::Evaluate()
                 secondary_tmv = GetSecondaryTMeshVec();
                 if ( !primary_tmv.empty() && !secondary_tmv.empty() )
                 {
-                    m_LastResult = ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
-                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                    Results *res = ResultsMgr.CreateResults( "External_Interference", "External interference check." );
+                    if ( res )
+                    {
+                        m_LastResult = res->GetID();
+                        ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_LastResult, m_TMeshVec );
+                        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                    }
                 }
                 else
                 {
