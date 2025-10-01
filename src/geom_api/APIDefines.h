@@ -888,7 +888,7 @@ enum GEOMETRY_ANALYSIS_TYPE { EXTERNAL_INTERFERENCE,	/*!< Interference between m
                               GEAR_TURN_ANALYSIS,	/*!< Calculate ground manueveribility */
                               VISIBLE_FROM_POINT_ANALYSIS,	/*!< Calculate az,el domain visible from a point */
                               CCE_INTERFERENCE,	/*!< Interference with composite clearance envelope */
-                              LINEAR_SWEPT_VOLUME_ANALYSIS,
+                              LINEAR_SWEPT_VOLUME_ANALYSIS,	/*!< Interference with linear swept volume */
                               NUM_INTERFERENCE_TYPES	/*!< Number of interference check types */
 };
 
