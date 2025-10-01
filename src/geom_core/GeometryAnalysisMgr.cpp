@@ -26,6 +26,7 @@
 #include "HumanGeom.h"
 
 #include "MeshGeom.h"
+#include "TMesh.h"
 
 GeometryAnalysisCase::GeometryAnalysisCase()
 {
@@ -1300,6 +1301,32 @@ string GeometryAnalysisCase::Evaluate()
 
                         MessageMgr::getInstance().SendAll( errMsgData );
                     }
+                }
+                break;
+            }
+            case vsp::LINEAR_SWEPT_VOLUME_ANALYSIS:
+            {
+                Results *res = ResultsMgr.CreateResults( "Linear_Swept_Volume_Interference", "Linear swept volume interference check." );
+                if( res )
+                {
+                    m_LastResult = res->GetID();
+                    primary_tmv = GetPrimaryTMeshVec();
+                    secondary_tmv = GetSecondaryTMeshVec();
+
+                    CSGMesh( primary_tmv );
+                    FlattenTMeshVec( primary_tmv );
+                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                    primary_tm->LoadBndBox();
+
+                    CSGMesh( secondary_tmv );
+                    FlattenTMeshVec( secondary_tmv );
+                    TMesh *secondary_tm = MergeTMeshVec( secondary_tmv );
+                    secondary_tm->LoadBndBox();
+
+                    vec3d disp( 0, 0, -100.0 );
+
+                    SweptVolumeInterferenceCheck( primary_tm, secondary_tm, disp, m_LastResult, m_TMeshVec );
+                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 }
                 break;
             }

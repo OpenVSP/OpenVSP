@@ -25,6 +25,7 @@
 
 #include "TMesh.h"
 #include "PGMesh.h"
+#include "TMeshSweptVolume.h"
 
 #include "tri_tri_intersect.h"
 #include "predicates.h"
@@ -7513,6 +7514,15 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
         res->Add( new NameValData( "Result", gcon, "Interference result" ) );
     }
 
+}
+
+void SweptVolumeInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const vec3d & disp, const string & resid, vector< TMesh* > & result_tmv )
+{
+    TMesh * swept_secondary_tm = CreateTMeshPGMeshSweptVolumeTranslate( secondary_tm, disp );
+    delete secondary_tm;
+    swept_secondary_tm->LoadBndBox();
+
+    ExteriorInterferenceCheck( primary_tm, swept_secondary_tm, resid, result_tmv );
 }
 
 void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const string & resid, vector< TMesh* > & result_tmv )
