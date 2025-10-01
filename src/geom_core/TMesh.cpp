@@ -7522,7 +7522,13 @@ void SweptVolumeInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, cons
     delete secondary_tm;
     swept_secondary_tm->LoadBndBox();
 
+    TMesh * swept_secondary_tm_copy = new TMesh();
+    swept_secondary_tm_copy->CopyFlatten( swept_secondary_tm );
+
     ExteriorInterferenceCheck( primary_tm, swept_secondary_tm, resid, result_tmv );
+
+    // Place swept volume copy at start of result_tmv
+    result_tmv.insert( result_tmv.begin(), swept_secondary_tm_copy );
 }
 
 void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const string & resid, vector< TMesh* > & result_tmv )
