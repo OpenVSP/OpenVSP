@@ -1505,9 +1505,21 @@ void GeometryAnalysisCase::ShowOnlySecondary()
 
 void GeometryAnalysisCase::UpdateDrawObj_PostAnalysis()
 {
-    Material mat;
-    mat.SetMaterial( "Red Default" );
-    mat.m_Diff[3] = 0.25; // Make translucent
+    Material redmat;
+    redmat.SetMaterial( "Red Default" );
+    redmat.m_Diff[3] = 0.25; // Make translucent
+
+    vector < Material > matvec( m_TMeshVec.size(), redmat );
+    vector < vec3d > colorvec( m_TMeshVec.size(), DrawObj::Color( DrawObj::RED ) );
+
+    if ( m_TMeshVec.size() > 0 &&
+         m_GeometryAnalysisType() == vsp::LINEAR_SWEPT_VOLUME_ANALYSIS )
+    {
+        matvec[0].SetMaterialToDefault();
+        matvec[0].m_Diff[3] = 0.25; // Make translucent
+
+        colorvec[0] = DrawObj::Color( DrawObj::GRAY );
+    }
 
     m_MeshResultDO_vec.resize( m_TMeshVec.size(), DrawObj() );
 
@@ -1535,14 +1547,14 @@ void GeometryAnalysisCase::UpdateDrawObj_PostAnalysis()
 
         for ( int j = 0; j < 4; j++ )
         {
-            m_MeshResultDO_vec[i].m_MaterialInfo.Ambient[j] = (float)mat.m_Ambi[j];
-            m_MeshResultDO_vec[i].m_MaterialInfo.Diffuse[j] = (float)mat.m_Diff[j];
-            m_MeshResultDO_vec[i].m_MaterialInfo.Specular[j] = (float)mat.m_Spec[j];
-            m_MeshResultDO_vec[i].m_MaterialInfo.Emission[j] = (float)mat.m_Emis[j];
+            m_MeshResultDO_vec[i].m_MaterialInfo.Ambient[j] = (float)matvec[i].m_Ambi[j];
+            m_MeshResultDO_vec[i].m_MaterialInfo.Diffuse[j] = (float)matvec[i].m_Diff[j];
+            m_MeshResultDO_vec[i].m_MaterialInfo.Specular[j] = (float)matvec[i].m_Spec[j];
+            m_MeshResultDO_vec[i].m_MaterialInfo.Emission[j] = (float)matvec[i].m_Emis[j];
         }
-        m_MeshResultDO_vec[i].m_MaterialInfo.Shininess = (float)mat.m_Shininess;
+        m_MeshResultDO_vec[i].m_MaterialInfo.Shininess = (float)matvec[i].m_Shininess;
 
-        m_MeshResultDO_vec[i].m_LineColor = DrawObj::Color( DrawObj::RED );
+        m_MeshResultDO_vec[i].m_LineColor = colorvec[ i ];
 
         char str[255];
         snprintf( str, sizeof( str ),  "_%d", i );
