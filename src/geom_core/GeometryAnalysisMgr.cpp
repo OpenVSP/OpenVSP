@@ -1581,14 +1581,14 @@ void GeometryAnalysisCase::UpdateDrawObj_Live()
         vec3d pt;
         if ( GetSecondaryPt( pt ) )
         {
-        m_SecondaryVizPointDO.m_GeomID = m_ID + "VizPoint";
-        m_SecondaryVizPointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_SecondaryVizPointDO.m_Type = DrawObj::VSP_POINTS;
-        m_SecondaryVizPointDO.m_PntVec.resize( 1 );
-        m_SecondaryVizPointDO.m_PntVec[ 0 ] = pt;
-        m_SecondaryVizPointDO.m_PointColor = DrawObj::Color( DrawObj::RED );
-        m_SecondaryVizPointDO.m_PointSize = 20.0;
-        m_SecondaryVizPointDO.m_GeomChanged = true;
+            m_SecondaryVizPointDO.m_GeomID = m_ID + "VizPoint";
+            m_SecondaryVizPointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+            m_SecondaryVizPointDO.m_Type = DrawObj::VSP_POINTS;
+            m_SecondaryVizPointDO.m_PntVec.resize( 1 );
+            m_SecondaryVizPointDO.m_PntVec[ 0 ] = pt;
+            m_SecondaryVizPointDO.m_PointColor = DrawObj::Color( DrawObj::RED );
+            m_SecondaryVizPointDO.m_PointSize = 20.0;
+            m_SecondaryVizPointDO.m_GeomChanged = true;
         }
     }
 }
