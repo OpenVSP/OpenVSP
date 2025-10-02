@@ -3258,6 +3258,78 @@ void GeomScreen::GetCollIDs( vector < string > &collIDVec )
     }
 }
 
+void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDevice& offsetSlider, GuiDevice& strengthSlider )
+{
+    // Start with everything active
+    lengthSlider.Activate();
+    offsetSlider.Activate();
+    strengthSlider.Activate();
+
+    switch ( capType )
+    {
+        case vsp::ROUND_END_CAP:
+        case vsp::EDGE_END_CAP:
+        case vsp::ROUND_EXT_END_CAP_NONE:
+        case vsp::ROUND_EXT_END_CAP_LE:
+        case vsp::ROUND_EXT_END_CAP_TE:
+        case vsp::ROUND_EXT_END_CAP_BOTH:
+            // Length & Offset only
+            strengthSlider.Deactivate();
+            break;
+
+        case vsp::SHARP_END_CAP:
+            // Uses all three, nothing to deactivate
+            break;
+
+        case vsp::NO_END_CAP:
+        case vsp::FLAT_END_CAP:
+        case vsp::POINT_END_CAP: // None of these use any sliders
+        case vsp::NUM_END_CAP_OPTIONS:
+        default: // Invalid or unknown -- shut all down for safety
+            lengthSlider.Deactivate();
+            offsetSlider.Deactivate();
+            strengthSlider.Deactivate();
+            break;
+    }
+}
+
+void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDevice& offsetSlider, GuiDevice& strengthSlider, GuiDevice& sweepButton )
+{
+    // Start with everything active
+    lengthSlider.Activate();
+    offsetSlider.Activate();
+    strengthSlider.Activate();
+    sweepButton.Activate();
+
+    switch ( capType )
+    {
+        case vsp::ROUND_END_CAP:
+        case vsp::EDGE_END_CAP:
+        case vsp::ROUND_EXT_END_CAP_NONE:
+        case vsp::ROUND_EXT_END_CAP_LE:
+        case vsp::ROUND_EXT_END_CAP_TE:
+        case vsp::ROUND_EXT_END_CAP_BOTH:
+            // Length + Offset only
+            strengthSlider.Deactivate();
+            break;
+
+        case vsp::SHARP_END_CAP:
+            // Uses all three, nothing to deactivate
+            break;
+
+        case vsp::NO_END_CAP:
+        case vsp::FLAT_END_CAP:
+        case vsp::POINT_END_CAP: // None of these use any sliders
+        case vsp::NUM_END_CAP_OPTIONS:
+        default: // Invalid or unknown → shut all down for safety
+            lengthSlider.Deactivate();
+            offsetSlider.Deactivate();
+            strengthSlider.Deactivate();
+            sweepButton.Deactivate();
+            break;
+    }
+}
+
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//

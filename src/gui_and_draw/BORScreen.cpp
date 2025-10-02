@@ -1424,27 +1424,7 @@ bool BORScreen::Update()
         m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
         m_TECapStrengthSlider.Update( xsc->m_TECapStrength.GetID() );
 
-        m_TECapLengthSlider.Deactivate();
-        m_TECapOffsetSlider.Deactivate();
-        m_TECapStrengthSlider.Deactivate();
-
-        switch( xsc->m_TECapType() ){
-            case vsp::FLAT_END_CAP:
-                break;
-            case vsp::ROUND_END_CAP:
-                m_TECapLengthSlider.Activate();
-                m_TECapOffsetSlider.Activate();
-                break;
-            case vsp::EDGE_END_CAP:
-                m_TECapLengthSlider.Activate();
-                m_TECapOffsetSlider.Activate();
-                break;
-            case vsp::SHARP_END_CAP:
-                m_TECapLengthSlider.Activate();
-                m_TECapOffsetSlider.Activate();
-                m_TECapStrengthSlider.Activate();
-                break;
-        }
+        UpdateCapControls( xsc->m_TECapType(), m_TECapLengthSlider, m_TECapOffsetSlider, m_TECapStrengthSlider );
 
         m_LECapChoice.Update( xsc->m_LECapType.GetID() );
 
@@ -1452,27 +1432,7 @@ bool BORScreen::Update()
         m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
         m_LECapStrengthSlider.Update( xsc->m_LECapStrength.GetID() );
 
-        m_LECapLengthSlider.Deactivate();
-        m_LECapOffsetSlider.Deactivate();
-        m_LECapStrengthSlider.Deactivate();
-
-        switch( xsc->m_LECapType() ){
-            case vsp::FLAT_END_CAP:
-                break;
-            case vsp::ROUND_END_CAP:
-                m_LECapLengthSlider.Activate();
-                m_LECapOffsetSlider.Activate();
-                break;
-            case vsp::EDGE_END_CAP:
-                m_LECapLengthSlider.Activate();
-                m_LECapOffsetSlider.Activate();
-                break;
-            case vsp::SHARP_END_CAP:
-                m_LECapLengthSlider.Activate();
-                m_LECapOffsetSlider.Activate();
-                m_LECapStrengthSlider.Activate();
-                break;
-        }
+        UpdateCapControls( xsc->m_LECapType(), m_LECapLengthSlider, m_LECapOffsetSlider, m_LECapStrengthSlider );
 
 
         m_TEFlapChoice.Update( xsc->m_TEFlapType.GetID() );

@@ -148,66 +148,14 @@ bool StackScreen::Update()
     m_NoseCapStrengthSlider.Update( stackgeom_ptr->m_CapUMinStrength.GetID() );
     m_NoseCapSweepFlagButton.Update( stackgeom_ptr->m_CapUMinSweepFlag.GetID() );
 
-    m_NoseCapLenSlider.Deactivate();
-    m_NoseCapOffsetSlider.Deactivate();
-    m_NoseCapStrengthSlider.Deactivate();
-    m_NoseCapSweepFlagButton.Deactivate();
-
-    switch( stackgeom_ptr->m_CapUMinOption() ){
-        case NO_END_CAP:
-            break;
-        case FLAT_END_CAP:
-            break;
-        case ROUND_END_CAP:
-            m_NoseCapLenSlider.Activate();
-            m_NoseCapOffsetSlider.Activate();
-            m_NoseCapSweepFlagButton.Activate();
-            break;
-        case EDGE_END_CAP:
-            m_NoseCapLenSlider.Activate();
-            m_NoseCapOffsetSlider.Activate();
-            m_NoseCapSweepFlagButton.Activate();
-            break;
-        case SHARP_END_CAP:
-            m_NoseCapLenSlider.Activate();
-            m_NoseCapOffsetSlider.Activate();
-            m_NoseCapStrengthSlider.Activate();
-            m_NoseCapSweepFlagButton.Activate();
-            break;
-    }
+    UpdateCapControls( stackgeom_ptr->m_CapUMinOption(), m_NoseCapLenSlider, m_NoseCapOffsetSlider, m_NoseCapStrengthSlider, m_NoseCapSweepFlagButton );
 
     m_TailCapLenSlider.Update( stackgeom_ptr->m_CapUMaxLength.GetID() );
     m_TailCapOffsetSlider.Update( stackgeom_ptr->m_CapUMaxOffset.GetID() );
     m_TailCapStrengthSlider.Update( stackgeom_ptr->m_CapUMaxStrength.GetID() );
     m_TailCapSweepFlagButton.Update( stackgeom_ptr->m_CapUMaxSweepFlag.GetID() );
 
-    m_TailCapLenSlider.Deactivate();
-    m_TailCapOffsetSlider.Deactivate();
-    m_TailCapStrengthSlider.Deactivate();
-    m_TailCapSweepFlagButton.Deactivate();
-
-    switch( stackgeom_ptr->m_CapUMaxOption() ){
-        case NO_END_CAP:
-            break;
-        case FLAT_END_CAP:
-            break;
-        case ROUND_END_CAP:
-            m_TailCapLenSlider.Activate();
-            m_TailCapOffsetSlider.Activate();
-            m_TailCapSweepFlagButton.Activate();
-            break;
-        case EDGE_END_CAP:
-            m_TailCapLenSlider.Activate();
-            m_TailCapOffsetSlider.Activate();
-            m_TailCapSweepFlagButton.Activate();
-            break;
-        case SHARP_END_CAP:
-            m_TailCapLenSlider.Activate();
-            m_TailCapOffsetSlider.Activate();
-            m_TailCapStrengthSlider.Activate();
-            m_TailCapSweepFlagButton.Activate();
-            break;
-    }
+    UpdateCapControls( stackgeom_ptr->m_CapUMaxOption(), m_TailCapLenSlider, m_TailCapOffsetSlider, m_TailCapStrengthSlider, m_TailCapSweepFlagButton );
 
     //==== XSec Index Display ===//
     int xsid = stackgeom_ptr->m_ActiveXSec();

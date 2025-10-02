@@ -517,106 +517,14 @@ bool WingScreen::Update()
     m_RootCapStrengthSlider.Update( wing_ptr->m_CapUMinStrength.GetID() );
     m_RootCapSweepFlagButton.Update( wing_ptr->m_CapUMinSweepFlag.GetID() );
 
-    m_RootCapLenSlider.Deactivate();
-    m_RootCapOffsetSlider.Deactivate();
-    m_RootCapStrengthSlider.Deactivate();
-    m_RootCapSweepFlagButton.Deactivate();
-
-    switch( wing_ptr->m_CapUMinOption() ){
-        case NO_END_CAP:
-            break;
-        case FLAT_END_CAP:
-            break;
-        case ROUND_END_CAP:
-            m_RootCapLenSlider.Activate();
-            m_RootCapOffsetSlider.Activate();
-            m_RootCapSweepFlagButton.Activate();
-            break;
-        case EDGE_END_CAP:
-            m_RootCapLenSlider.Activate();
-            m_RootCapOffsetSlider.Activate();
-            m_RootCapSweepFlagButton.Activate();
-            break;
-        case SHARP_END_CAP:
-            m_RootCapLenSlider.Activate();
-            m_RootCapOffsetSlider.Activate();
-            m_RootCapStrengthSlider.Activate();
-            m_RootCapSweepFlagButton.Activate();
-            break;
-        case ROUND_EXT_END_CAP_NONE:
-            m_RootCapLenSlider.Activate();
-            m_RootCapOffsetSlider.Activate();
-            m_RootCapSweepFlagButton.Activate();
-            break;
-        case ROUND_EXT_END_CAP_LE:
-            m_RootCapLenSlider.Activate();
-            m_RootCapOffsetSlider.Activate();
-            m_RootCapSweepFlagButton.Activate();
-            break;
-        case ROUND_EXT_END_CAP_TE:
-            m_RootCapLenSlider.Activate();
-            m_RootCapOffsetSlider.Activate();
-            m_RootCapSweepFlagButton.Activate();
-            break;
-        case ROUND_EXT_END_CAP_BOTH:
-            m_RootCapLenSlider.Activate();
-            m_RootCapOffsetSlider.Activate();
-            m_RootCapSweepFlagButton.Activate();
-            break;
-    }
+    UpdateCapControls( wing_ptr->m_CapUMinOption(), m_RootCapLenSlider, m_RootCapOffsetSlider, m_RootCapStrengthSlider, m_RootCapSweepFlagButton );
 
     m_TipCapLenSlider.Update( wing_ptr->m_CapUMaxLength.GetID() );
     m_TipCapOffsetSlider.Update( wing_ptr->m_CapUMaxOffset.GetID() );
     m_TipCapStrengthSlider.Update( wing_ptr->m_CapUMaxStrength.GetID() );
     m_TipCapSweepFlagButton.Update( wing_ptr->m_CapUMaxSweepFlag.GetID() );
 
-    m_TipCapLenSlider.Deactivate();
-    m_TipCapOffsetSlider.Deactivate();
-    m_TipCapStrengthSlider.Deactivate();
-    m_TipCapSweepFlagButton.Deactivate();
-
-    switch( wing_ptr->m_CapUMaxOption() ){
-        case NO_END_CAP:
-            break;
-        case FLAT_END_CAP:
-            break;
-        case ROUND_END_CAP:
-            m_TipCapLenSlider.Activate();
-            m_TipCapOffsetSlider.Activate();
-            m_TipCapSweepFlagButton.Activate();
-            break;
-        case EDGE_END_CAP:
-            m_TipCapLenSlider.Activate();
-            m_TipCapOffsetSlider.Activate();
-            m_TipCapSweepFlagButton.Activate();
-            break;
-        case SHARP_END_CAP:
-            m_TipCapLenSlider.Activate();
-            m_TipCapOffsetSlider.Activate();
-            m_TipCapStrengthSlider.Activate();
-            m_TipCapSweepFlagButton.Activate();
-            break;
-        case ROUND_EXT_END_CAP_NONE:
-            m_TipCapLenSlider.Activate();
-            m_TipCapOffsetSlider.Activate();
-            m_TipCapSweepFlagButton.Activate();
-            break;
-        case ROUND_EXT_END_CAP_LE:
-            m_TipCapLenSlider.Activate();
-            m_TipCapOffsetSlider.Activate();
-            m_TipCapSweepFlagButton.Activate();
-            break;
-        case ROUND_EXT_END_CAP_TE:
-            m_TipCapLenSlider.Activate();
-            m_TipCapOffsetSlider.Activate();
-            m_TipCapSweepFlagButton.Activate();
-            break;
-        case ROUND_EXT_END_CAP_BOTH:
-            m_TipCapLenSlider.Activate();
-            m_TipCapOffsetSlider.Activate();
-            m_TipCapSweepFlagButton.Activate();
-            break;
-    }
+    UpdateCapControls( wing_ptr->m_CapUMaxOption(), m_TipCapLenSlider, m_TipCapOffsetSlider, m_TipCapStrengthSlider, m_TipCapSweepFlagButton );
 
     WingSect* root_sect = dynamic_cast<WingSect*>(wing_ptr->GetXSec( 0 ));
 
@@ -873,27 +781,7 @@ bool WingScreen::Update()
             m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
             m_TECapStrengthSlider.Update( xsc->m_TECapStrength.GetID() );
 
-            m_TECapLengthSlider.Deactivate();
-            m_TECapOffsetSlider.Deactivate();
-            m_TECapStrengthSlider.Deactivate();
-
-            switch( xsc->m_TECapType() ){
-                case FLAT_END_CAP:
-                    break;
-                case ROUND_END_CAP:
-                    m_TECapLengthSlider.Activate();
-                    m_TECapOffsetSlider.Activate();
-                    break;
-                case EDGE_END_CAP:
-                    m_TECapLengthSlider.Activate();
-                    m_TECapOffsetSlider.Activate();
-                    break;
-                case SHARP_END_CAP:
-                    m_TECapLengthSlider.Activate();
-                    m_TECapOffsetSlider.Activate();
-                    m_TECapStrengthSlider.Activate();
-                    break;
-            }
+            UpdateCapControls( xsc->m_TECapType(), m_TECapLengthSlider, m_TECapOffsetSlider, m_TECapStrengthSlider );
 
             m_LECapChoice.Update( xsc->m_LECapType.GetID() );
 
@@ -901,27 +789,7 @@ bool WingScreen::Update()
             m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
             m_LECapStrengthSlider.Update( xsc->m_LECapStrength.GetID() );
 
-            m_LECapLengthSlider.Deactivate();
-            m_LECapOffsetSlider.Deactivate();
-            m_LECapStrengthSlider.Deactivate();
-
-            switch( xsc->m_LECapType() ){
-                case FLAT_END_CAP:
-                    break;
-                case ROUND_END_CAP:
-                    m_LECapLengthSlider.Activate();
-                    m_LECapOffsetSlider.Activate();
-                    break;
-                case EDGE_END_CAP:
-                    m_LECapLengthSlider.Activate();
-                    m_LECapOffsetSlider.Activate();
-                    break;
-                case SHARP_END_CAP:
-                    m_LECapLengthSlider.Activate();
-                    m_LECapOffsetSlider.Activate();
-                    m_LECapStrengthSlider.Activate();
-                    break;
-            }
+            UpdateCapControls( xsc->m_LECapType(), m_LECapLengthSlider, m_LECapOffsetSlider, m_LECapStrengthSlider );
 
 
             m_TEFlapChoice.Update( xsc->m_TEFlapType.GetID() );

@@ -353,66 +353,14 @@ bool ConformalScreen::Update()
     m_NoseCapStrengthSlider.Update( conformal_ptr->m_CapUMinTrimStrength.GetID() );
     m_NoseCapSweepFlagButton.Update( conformal_ptr->m_CapUMinTrimSweepFlag.GetID() );
 
-    m_NoseCapLenSlider.Deactivate();
-    m_NoseCapOffsetSlider.Deactivate();
-    m_NoseCapStrengthSlider.Deactivate();
-    m_NoseCapSweepFlagButton.Deactivate();
-
-    switch( conformal_ptr->m_CapUMinOption() ){
-        case vsp::NO_END_CAP:
-            break;
-        case vsp::FLAT_END_CAP:
-            break;
-        case vsp::ROUND_END_CAP:
-            m_NoseCapLenSlider.Activate();
-            m_NoseCapOffsetSlider.Activate();
-            m_NoseCapSweepFlagButton.Activate();
-            break;
-        case vsp::EDGE_END_CAP:
-            m_NoseCapLenSlider.Activate();
-            m_NoseCapOffsetSlider.Activate();
-            m_NoseCapSweepFlagButton.Activate();
-            break;
-        case vsp::SHARP_END_CAP:
-            m_NoseCapLenSlider.Activate();
-            m_NoseCapOffsetSlider.Activate();
-            m_NoseCapStrengthSlider.Activate();
-            m_NoseCapSweepFlagButton.Activate();
-            break;
-    }
+    UpdateCapControls( conformal_ptr->m_CapUMinOption(), m_NoseCapLenSlider, m_NoseCapOffsetSlider, m_NoseCapStrengthSlider, m_NoseCapSweepFlagButton );
 
     m_TailCapLenSlider.Update( conformal_ptr->m_CapUMaxTrimLength.GetID() );
     m_TailCapOffsetSlider.Update( conformal_ptr->m_CapUMaxTrimOffset.GetID() );
     m_TailCapStrengthSlider.Update( conformal_ptr->m_CapUMaxTrimStrength.GetID() );
     m_TailCapSweepFlagButton.Update( conformal_ptr->m_CapUMaxTrimSweepFlag.GetID() );
 
-    m_TailCapLenSlider.Deactivate();
-    m_TailCapOffsetSlider.Deactivate();
-    m_TailCapStrengthSlider.Deactivate();
-    m_TailCapSweepFlagButton.Deactivate();
-
-    switch( conformal_ptr->m_CapUMaxOption() ){
-        case vsp::NO_END_CAP:
-            break;
-        case vsp::FLAT_END_CAP:
-            break;
-        case vsp::ROUND_END_CAP:
-            m_TailCapLenSlider.Activate();
-            m_TailCapOffsetSlider.Activate();
-            m_TailCapSweepFlagButton.Activate();
-            break;
-        case vsp::EDGE_END_CAP:
-            m_TailCapLenSlider.Activate();
-            m_TailCapOffsetSlider.Activate();
-            m_TailCapSweepFlagButton.Activate();
-            break;
-        case vsp::SHARP_END_CAP:
-            m_TailCapLenSlider.Activate();
-            m_TailCapOffsetSlider.Activate();
-            m_TailCapStrengthSlider.Activate();
-            m_TailCapSweepFlagButton.Activate();
-            break;
-    }
+    UpdateCapControls( conformal_ptr->m_CapUMaxOption(), m_TailCapLenSlider, m_TailCapOffsetSlider, m_TailCapStrengthSlider, m_TailCapSweepFlagButton );
 
     if ( conformal_ptr->m_UTrimFlag() )
     {

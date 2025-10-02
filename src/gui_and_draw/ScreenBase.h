@@ -713,6 +713,9 @@ protected:
     void SubSurfXSCDisplayGroup( GroupLayout* group );
 
     virtual void RebuildSSCSTGroup( CSTAirfoil* cst_xs );
+
+    void UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDevice& offsetSlider, GuiDevice& strengthSlider );
+    void UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDevice& offsetSlider, GuiDevice& strengthSlider, GuiDevice& sweepButton );
 };
 
 //==== Skin Screen ====//
