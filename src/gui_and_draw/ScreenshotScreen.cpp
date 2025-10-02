@@ -185,22 +185,21 @@ bool ScreenshotScreen::Update()
     m_NewWidth.Update( veh->m_NewWidthValue.GetID() );
     m_NewHeight.Update( veh->m_NewHeightValue.GetID() );
 
-    //==== Must do deactivation after updating the values ====//
-    m_NewRatio.Deactivate();
-    m_NewWidth.Deactivate();
-    m_NewHeight.Deactivate();
-
+    // Deactivate the ones not selected
     if ( m_SelectRatio.GetFlButton()->value() )
     {
-        m_NewRatio.Activate();
+        m_NewWidth.Deactivate();
+        m_NewHeight.Deactivate();
     }
     else if ( m_SelectWidth.GetFlButton()->value() )
     {
-        m_NewWidth.Activate();
+        m_NewRatio.Deactivate();
+        m_NewHeight.Deactivate();
     }
     else
     {
-        m_NewHeight.Activate();
+        m_NewRatio.Deactivate();
+        m_NewWidth.Deactivate();
     }
 
     m_TransparentBG.Update( veh->m_TransparentBGFlag.GetID() );
