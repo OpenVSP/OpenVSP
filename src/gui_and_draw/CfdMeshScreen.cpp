@@ -1000,10 +1000,10 @@ void CfdMeshScreen::UpdateDisplayTab()
     m_ColorFaces.Update( m_Vehicle->GetCfdSettingsPtr()->m_ColorFacesFlag.GetID() );
     m_ColorByToggleGroup.Update( m_Vehicle->GetCfdSettingsPtr()->m_ColorTagReason.GetID() );
 
-    m_ColorByToggleGroup.Deactivate();
-    if ( m_Vehicle->GetCfdSettingsPtr()->m_ColorFacesFlag() )
+    m_ColorByToggleGroup.Activate();
+    if ( !m_Vehicle->GetCfdSettingsPtr()->m_ColorFacesFlag() )
     {
-        m_ColorByToggleGroup.Activate();
+        m_ColorByToggleGroup.Deactivate();
     }
 
     m_DrawIsect.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawIsectFlag.GetID() );
