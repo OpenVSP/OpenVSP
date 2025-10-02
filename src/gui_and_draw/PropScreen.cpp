@@ -887,43 +887,53 @@ bool PropScreen::Update()
             m_TETrimChoice.Update( xsc->m_TETrimType.GetID() );
             m_TETrimGroup.Update( xsc->m_TETrimAbsRel.GetID() );
 
-            m_TrimTEXSlider.Deactivate();
-            m_TrimTEThickSlider.Deactivate();
-            m_TETrimABSButton.Deactivate();
-            m_TETrimRELButton.Deactivate();
+            m_TrimTEXSlider.Activate();
+            m_TrimTEThickSlider.Activate();
+            m_TETrimABSButton.Activate();
+            m_TETrimRELButton.Activate();
 
-            xsc->m_TETrimX.Deactivate();
-            xsc->m_TETrimXChord.Deactivate();
-            xsc->m_TETrimThickChord.Deactivate();
-            xsc->m_TETrimThick.Deactivate();
+            xsc->m_TETrimX.Activate();
+            xsc->m_TETrimXChord.Activate();
+            xsc->m_TETrimThickChord.Activate();
+            xsc->m_TETrimThick.Activate();
 
-            if ( xsc->m_TETrimType() != TRIM_NONE )
+            if ( xsc->m_TETrimType() == vsp::TRIM_NONE )
             {
-                m_TETrimABSButton.Activate();
-                m_TETrimRELButton.Activate();
+                m_TETrimABSButton.Deactivate();
+                m_TETrimRELButton.Deactivate();
+
+                xsc->m_TETrimX.Deactivate();
+                xsc->m_TETrimXChord.Deactivate();
+                xsc->m_TETrimThickChord.Deactivate();
+                xsc->m_TETrimThick.Deactivate();
             }
-
-            if ( xsc->m_TETrimType() == TRIM_X )
+            else if ( xsc->m_TETrimType() == vsp::TRIM_X )
             {
-                if ( xsc->m_TETrimAbsRel() == ABS )
+                if ( xsc->m_TETrimAbsRel() == vsp::ABS )
                 {
-                    xsc->m_TETrimX.Activate();
+                    xsc->m_TETrimXChord.Deactivate();
                 }
                 else
                 {
-                    xsc->m_TETrimXChord.Activate();
+                    xsc->m_TETrimX.Deactivate();
                 }
+
+                xsc->m_TETrimThick.Deactivate();
+                xsc->m_TETrimThickChord.Deactivate();
             }
-            else if ( xsc->m_TETrimType() == TRIM_THICK )
+            else if ( xsc->m_TETrimType() == vsp::TRIM_THICK )
             {
-                if ( xsc->m_TETrimAbsRel() == ABS )
+                if ( xsc->m_TETrimAbsRel() == vsp::ABS )
                 {
-                    xsc->m_TETrimThick.Activate();
+                    xsc->m_TETrimThickChord.Deactivate();
                 }
                 else
                 {
-                    xsc->m_TETrimThickChord.Activate();
+                    xsc->m_TETrimThick.Deactivate();
                 }
+
+                xsc->m_TETrimX.Deactivate();
+                xsc->m_TETrimXChord.Deactivate();
             }
 
             if ( xsc->m_TETrimAbsRel() == ABS )
@@ -940,43 +950,53 @@ bool PropScreen::Update()
             m_LETrimChoice.Update( xsc->m_LETrimType.GetID() );
             m_LETrimGroup.Update( xsc->m_LETrimAbsRel.GetID() );
 
-            m_TrimLEXSlider.Deactivate();
-            m_TrimLEThickSlider.Deactivate();
-            m_LETrimABSButton.Deactivate();
-            m_LETrimRELButton.Deactivate();
+            m_TrimLEXSlider.Activate();
+            m_TrimLEThickSlider.Activate();
+            m_LETrimABSButton.Activate();
+            m_LETrimRELButton.Activate();
 
-            xsc->m_LETrimX.Deactivate();
-            xsc->m_LETrimXChord.Deactivate();
-            xsc->m_LETrimThickChord.Deactivate();
-            xsc->m_LETrimThick.Deactivate();
+            xsc->m_LETrimX.Activate();
+            xsc->m_LETrimXChord.Activate();
+            xsc->m_LETrimThickChord.Activate();
+            xsc->m_LETrimThick.Activate();
 
-            if ( xsc->m_LETrimType() != TRIM_NONE )
+            if ( xsc->m_LETrimType() == vsp::TRIM_NONE )
             {
-                m_LETrimABSButton.Activate();
-                m_LETrimRELButton.Activate();
+                m_LETrimABSButton.Deactivate();
+                m_LETrimRELButton.Deactivate();
+
+                xsc->m_LETrimX.Deactivate();
+                xsc->m_LETrimXChord.Deactivate();
+                xsc->m_LETrimThickChord.Deactivate();
+                xsc->m_LETrimThick.Deactivate();
             }
-
-            if ( xsc->m_LETrimType() == TRIM_X )
+            else if ( xsc->m_LETrimType() == vsp::TRIM_X )
             {
-                if ( xsc->m_LETrimAbsRel() == ABS )
+                if ( xsc->m_LETrimAbsRel() == vsp::ABS )
                 {
-                    xsc->m_LETrimX.Activate();
+                    xsc->m_LETrimXChord.Deactivate();
                 }
                 else
                 {
-                    xsc->m_LETrimXChord.Activate();
+                    xsc->m_LETrimX.Deactivate();
                 }
+
+                xsc->m_LETrimThick.Deactivate();
+                xsc->m_LETrimThickChord.Deactivate();
             }
-            else if ( xsc->m_LETrimType() == TRIM_THICK )
+            else if ( xsc->m_LETrimType() == vsp::TRIM_THICK )
             {
-                if ( xsc->m_LETrimAbsRel() == ABS )
+                if ( xsc->m_LETrimAbsRel() == vsp::ABS )
                 {
-                    xsc->m_LETrimThick.Activate();
+                    xsc->m_LETrimThickChord.Deactivate();
                 }
                 else
                 {
-                    xsc->m_LETrimThickChord.Activate();
+                    xsc->m_LETrimThick.Deactivate();
                 }
+
+                xsc->m_LETrimX.Deactivate();
+                xsc->m_LETrimXChord.Deactivate();
             }
 
             if ( xsc->m_LETrimAbsRel() == ABS )
