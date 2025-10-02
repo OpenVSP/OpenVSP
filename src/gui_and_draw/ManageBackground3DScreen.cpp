@@ -374,16 +374,22 @@ bool ManageBackground3DScreen::Update()
             m_DepthChoice.Activate();
         }
 
-        m_ImageXSlider.Deactivate();
         if ( bg3D->m_HAlign() == vsp::ALIGN_PIXEL )
         {
             m_ImageXSlider.Activate();
         }
+        else
+        {
+            m_ImageXSlider.Deactivate();
+        }
 
-        m_ImageYSlider.Deactivate();
         if ( bg3D->m_VAlign() == vsp::ALIGN_PIXEL )
         {
             m_ImageYSlider.Activate();
+        }
+        else
+        {
+            m_ImageYSlider.Deactivate();
         }
 
         m_WSlider.Activate();
@@ -409,10 +415,13 @@ bool ManageBackground3DScreen::Update()
             m_HSlider.Deactivate();
         }
 
-        m_VisTolSlider.Deactivate();
         if ( bg3D->m_VisAlign() )
         {
             m_VisTolSlider.Activate();
+        }
+        else
+        {
+            m_VisTolSlider.Deactivate();
         }
 
 
