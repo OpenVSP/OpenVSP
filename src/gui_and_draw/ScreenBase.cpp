@@ -6136,145 +6136,146 @@ bool BlendScreen::Update()
         m_OutLEChoice.UpdateItems( true );
         m_OutTEChoice.UpdateItems( true );
 
-        m_InLESweep.Deactivate();
-        m_InLEDihedral.Deactivate();
-
-        m_InTESweep.Deactivate();
-        m_InTEDihedral.Deactivate();
-
         if ( firstxs )
         {
             m_InLEChoice.Deactivate();
+            m_InTEChoice.Deactivate();
+
+            m_InLESweep.Deactivate();
+            m_InLEDihedral.Deactivate();
             m_InLEStrength.Deactivate();
 
-            m_InTEChoice.Deactivate();
+            m_InTESweep.Deactivate();
+            m_InTEDihedral.Deactivate();
             m_InTEStrength.Deactivate();
         }
         else
         {
             m_InLEChoice.Activate();
+            m_InTEChoice.Activate();
+
+            m_InLESweep.Activate();
+            m_InLEDihedral.Activate();
             m_InLEStrength.Activate();
 
-            m_InTEChoice.Activate();
+            m_InTESweep.Activate();
+            m_InTEDihedral.Activate();
             m_InTEStrength.Activate();
 
-            switch (xs->m_InLEMode())
+            switch ( xs->m_InLEMode() )
             {
-                case BLEND_ANGLES :
-                {
-                    m_InLESweep.Activate();
-                    m_InLEDihedral.Activate();
+                case BLEND_ANGLES:
                     break;
-                }
-                case BLEND_FREE :
-                {
+
+                case BLEND_FREE:
+                    m_InLESweep.Deactivate();
+                    m_InLEDihedral.Deactivate();
                     m_InLEStrength.Deactivate();
                     break;
-                }
-                case BLEND_MATCH_IN_ANGLES :
-                case BLEND_MATCH_LE_ANGLES :
-                case BLEND_MATCH_IN_LE_TRAP :
-                case BLEND_MATCH_IN_TE_TRAP :
-                case BLEND_MATCH_OUT_LE_TRAP :
-                case BLEND_MATCH_OUT_TE_TRAP :
-                {
+
+                case BLEND_MATCH_IN_ANGLES:
+                case BLEND_MATCH_LE_ANGLES:
+                case BLEND_MATCH_IN_LE_TRAP:
+                case BLEND_MATCH_IN_TE_TRAP:
+                case BLEND_MATCH_OUT_LE_TRAP:
+                case BLEND_MATCH_OUT_TE_TRAP:
+                    m_InLESweep.Deactivate();
+                    m_InLEDihedral.Deactivate();
                     break;
-                }
             }
 
-            switch (xs->m_InTEMode())
+            switch ( xs->m_InTEMode() )
             {
-                case BLEND_ANGLES :
-                {
-                    m_InTESweep.Activate();
-                    m_InTEDihedral.Activate();
+                case BLEND_ANGLES:
                     break;
-                }
-                case BLEND_FREE :
-                {
+
+                case BLEND_FREE:
+                    m_InTESweep.Deactivate();
+                    m_InTEDihedral.Deactivate();
                     m_InTEStrength.Deactivate();
                     break;
-                }
-                case BLEND_MATCH_IN_ANGLES :
-                case BLEND_MATCH_LE_ANGLES :
-                case BLEND_MATCH_IN_LE_TRAP :
-                case BLEND_MATCH_IN_TE_TRAP :
-                case BLEND_MATCH_OUT_LE_TRAP :
-                case BLEND_MATCH_OUT_TE_TRAP :
-                {
+
+                case BLEND_MATCH_IN_ANGLES:
+                case BLEND_MATCH_LE_ANGLES:
+                case BLEND_MATCH_IN_LE_TRAP:
+                case BLEND_MATCH_IN_TE_TRAP:
+                case BLEND_MATCH_OUT_LE_TRAP:
+                case BLEND_MATCH_OUT_TE_TRAP:
+                    m_InTESweep.Deactivate();
+                    m_InTEDihedral.Deactivate();
                     break;
-                }
             }
+
         }
-
-        m_OutLESweep.Deactivate();
-        m_OutLEDihedral.Deactivate();
-
-        m_OutTESweep.Deactivate();
-        m_OutTEDihedral.Deactivate();
 
         if ( lastxs )
         {
             m_OutLEChoice.Deactivate();
+            m_OutTEChoice.Deactivate();
+
+            m_OutLESweep.Deactivate();
+            m_OutLEDihedral.Deactivate();
             m_OutLEStrength.Deactivate();
 
-            m_OutTEChoice.Deactivate();
+            m_OutTESweep.Deactivate();
+            m_OutTEDihedral.Deactivate();
             m_OutTEStrength.Deactivate();
         }
         else
         {
             m_OutLEChoice.Activate();
+            m_OutTEChoice.Activate();
+
+            m_OutLESweep.Activate();
+            m_OutLEDihedral.Activate();
             m_OutLEStrength.Activate();
 
-            m_OutTEChoice.Activate();
+            m_OutTESweep.Activate();
+            m_OutTEDihedral.Activate();
             m_OutTEStrength.Activate();
 
-            switch (xs->m_OutLEMode())
+            switch ( xs->m_OutLEMode() )
             {
-                case BLEND_ANGLES :
-                {
-                    m_OutLESweep.Activate();
-                    m_OutLEDihedral.Activate();
+                case BLEND_ANGLES:
                     break;
-                }
-                case BLEND_FREE :
-                {
+
+                case BLEND_FREE:
+                    m_OutLESweep.Deactivate();
+                    m_OutLEDihedral.Deactivate();
                     m_OutLEStrength.Deactivate();
                     break;
-                }
-                case BLEND_MATCH_IN_ANGLES :
-                case BLEND_MATCH_LE_ANGLES :
-                case BLEND_MATCH_IN_LE_TRAP :
-                case BLEND_MATCH_IN_TE_TRAP :
-                case BLEND_MATCH_OUT_LE_TRAP :
-                case BLEND_MATCH_OUT_TE_TRAP :
-                {
+
+                case BLEND_MATCH_IN_ANGLES:
+                case BLEND_MATCH_LE_ANGLES:
+                case BLEND_MATCH_IN_LE_TRAP:
+                case BLEND_MATCH_IN_TE_TRAP:
+                case BLEND_MATCH_OUT_LE_TRAP:
+                case BLEND_MATCH_OUT_TE_TRAP:
+                    m_OutLESweep.Deactivate();
+                    m_OutLEDihedral.Deactivate();
                     break;
-                }
             }
 
-            switch (xs->m_OutTEMode())
+            switch ( xs->m_OutTEMode() )
             {
-                case BLEND_ANGLES :
-                {
-                    m_OutTESweep.Activate();
-                    m_OutTEDihedral.Activate();
+                case BLEND_ANGLES:
                     break;
-                }
-                case BLEND_FREE :
-                {
+
+                case BLEND_FREE:
+                    m_OutTESweep.Deactivate();
+                    m_OutTEDihedral.Deactivate();
                     m_OutTEStrength.Deactivate();
                     break;
-                }
-                case BLEND_MATCH_IN_ANGLES :
-                case BLEND_MATCH_LE_ANGLES :
-                case BLEND_MATCH_IN_LE_TRAP :
-                case BLEND_MATCH_IN_TE_TRAP :
-                case BLEND_MATCH_OUT_LE_TRAP :
-                case BLEND_MATCH_OUT_TE_TRAP :
-                {
+
+                case BLEND_MATCH_IN_ANGLES:
+                case BLEND_MATCH_LE_ANGLES:
+                case BLEND_MATCH_IN_LE_TRAP:
+                case BLEND_MATCH_IN_TE_TRAP:
+                case BLEND_MATCH_OUT_LE_TRAP:
+                case BLEND_MATCH_OUT_TE_TRAP:
+                    m_OutTESweep.Deactivate();
+                    m_OutTEDihedral.Deactivate();
                     break;
-                }
             }
         }
 
