@@ -1478,34 +1478,39 @@ bool BORScreen::Update()
         m_TEFlapChoice.Update( xsc->m_TEFlapType.GetID() );
         m_TEFlapGroup.Update( xsc->m_TEFlapAbsRel.GetID() );
 
-        m_FlapTEXSlider.Deactivate();
-        m_FlapTEYSlider.Deactivate();
-        m_FlapTEDeflectionSlider.Deactivate();
-        m_TEFlapABSButton.Deactivate();
-        m_TEFlapRELButton.Deactivate();
+        m_FlapTEXSlider.Activate();
+        m_FlapTEYSlider.Activate();
+        m_FlapTEDeflectionSlider.Activate();
+        m_TEFlapABSButton.Activate();
+        m_TEFlapRELButton.Activate();
 
-        xsc->m_TEFlapX.Deactivate();
-        xsc->m_TEFlapXChord.Deactivate();
-        xsc->m_TEFlapYFrac.Deactivate();
-        xsc->m_TEFlapDeflection.Deactivate();
+        xsc->m_TEFlapX.Activate();
+        xsc->m_TEFlapXChord.Activate();
+        xsc->m_TEFlapYFrac.Activate();
+        xsc->m_TEFlapDeflection.Activate();
 
-        if ( xsc->m_TEFlapType() != vsp::TRIM_NONE )
+        if ( xsc->m_TEFlapType() == vsp::TRIM_NONE )
         {
-            m_FlapTEYSlider.Activate();
-            m_FlapTEDeflectionSlider.Activate();
-            m_TEFlapABSButton.Activate();
-            m_TEFlapRELButton.Activate();
+            m_FlapTEXSlider.Deactivate();
+            m_FlapTEYSlider.Deactivate();
+            m_FlapTEDeflectionSlider.Deactivate();
+            m_TEFlapABSButton.Deactivate();
+            m_TEFlapRELButton.Deactivate();
 
-            xsc->m_TEFlapYFrac.Activate();
-            xsc->m_TEFlapDeflection.Activate();
-
+            xsc->m_TEFlapX.Deactivate();
+            xsc->m_TEFlapXChord.Deactivate();
+            xsc->m_TEFlapYFrac.Deactivate();
+            xsc->m_TEFlapDeflection.Deactivate();
+        }
+        else
+        {
             if ( xsc->m_TEFlapAbsRel() == vsp::ABS )
             {
-                xsc->m_TEFlapX.Activate();
+                xsc->m_TEFlapXChord.Deactivate();
             }
             else
             {
-                xsc->m_TEFlapXChord.Activate();
+                xsc->m_TEFlapX.Deactivate();
             }
         }
 
