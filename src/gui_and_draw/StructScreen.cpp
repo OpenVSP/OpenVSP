@@ -3650,10 +3650,13 @@ bool StructScreen::Update()
 
             m_ColorByToggleGroup.Update( curr_struct->GetStructSettingsPtr()->m_ColorTagReason.GetID() );
 
-            m_ColorByToggleGroup.Deactivate();
             if ( curr_struct->GetStructSettingsPtr()->m_ColorFacesFlag() )
             {
                 m_ColorByToggleGroup.Activate();
+            }
+            else
+            {
+                m_ColorByToggleGroup.Deactivate();
             }
 
             m_DrawNodesToggle.Update( curr_struct->GetStructSettingsPtr()->m_DrawNodesFlag.GetID() );
@@ -3868,23 +3871,24 @@ bool StructScreen::Update()
                 m_RyButton.Update( curr_bc->m_Constraints.GetID() );
                 m_RzButton.Update( curr_bc->m_Constraints.GetID() );
 
-                m_FeaBCPartChoice.Deactivate();
-                m_FeaBCSubSurfChoice.Deactivate();
-
                 if ( curr_bc->m_FeaBCType() == vsp::FEA_BC_PART )
                 {
                     m_FeaBCPartChoice.Activate();
+                    m_FeaBCSubSurfChoice.Deactivate();
                     m_SelectedBCPartChoice = vector_find_val( m_FeaBCPartChoiceIDVec, curr_bc->GetPartID() );
                     m_SelectedBCSubSurfChoice = -1;
                 }
                 else if ( curr_bc->m_FeaBCType() == vsp::FEA_BC_SUBSURF )
                 {
+                    m_FeaBCPartChoice.Deactivate();
                     m_FeaBCSubSurfChoice.Activate();
                     m_SelectedBCPartChoice = -1;
                     m_SelectedBCSubSurfChoice = vector_find_val( m_FeaBCSubSurfChoiceIDVec, curr_bc->GetSubSurfID() );
                 }
                 else
                 {
+                    m_FeaBCPartChoice.Deactivate();
+                    m_FeaBCSubSurfChoice.Deactivate();
                     m_SelectedBCPartChoice = -1;
                     m_SelectedBCSubSurfChoice = -1;
                 }
@@ -3910,38 +3914,38 @@ bool StructScreen::Update()
                 m_ZLTValSlider.Update( curr_bc->m_ZLTVal.GetID() );
                 m_ZGTValSlider.Update( curr_bc->m_ZGTVal.GetID() );
 
-                m_XLTValSlider.Deactivate();
-                m_XGTValSlider.Deactivate();
-                m_YLTValSlider.Deactivate();
-                m_YGTValSlider.Deactivate();
-                m_ZLTValSlider.Deactivate();
-                m_ZGTValSlider.Deactivate();
+                m_XLTValSlider.Activate();
+                m_XGTValSlider.Activate();
+                m_YLTValSlider.Activate();
+                m_YGTValSlider.Activate();
+                m_ZLTValSlider.Activate();
+                m_ZGTValSlider.Activate();
 
-                if ( curr_bc->m_XLTFlag() )
+                if ( !curr_bc->m_XLTFlag() )
                 {
-                    m_XLTValSlider.Activate();
+                    m_XLTValSlider.Deactivate();
                 }
-                if ( curr_bc->m_XGTFlag() )
+                if ( !curr_bc->m_XGTFlag() )
                 {
-                    m_XGTValSlider.Activate();
-                }
-
-                if ( curr_bc->m_YLTFlag() )
-                {
-                    m_YLTValSlider.Activate();
-                }
-                if ( curr_bc->m_YGTFlag() )
-                {
-                    m_YGTValSlider.Activate();
+                    m_XGTValSlider.Deactivate();
                 }
 
-                if ( curr_bc->m_ZLTFlag() )
+                if ( !curr_bc->m_YLTFlag() )
                 {
-                    m_ZLTValSlider.Activate();
+                    m_YLTValSlider.Deactivate();
                 }
-                if ( curr_bc->m_ZGTFlag() )
+                if ( !curr_bc->m_YGTFlag() )
                 {
-                    m_ZGTValSlider.Activate();
+                    m_YGTValSlider.Deactivate();
+                }
+
+                if ( !curr_bc->m_ZLTFlag() )
+                {
+                    m_ZLTValSlider.Deactivate();
+                }
+                if ( !curr_bc->m_ZGTFlag() )
+                {
+                    m_ZGTValSlider.Deactivate();
                 }
 
             }
