@@ -2938,28 +2938,28 @@ bool FeaPartEditScreen::Update()
                             m_FeaSSConEAngleSlider.Deactivate();
                         }
 
-                        m_FeaSSConSFracSlider.Deactivate();
-                        m_FeaSSConSLenSlider.Deactivate();
+                        m_FeaSSConSFracSlider.Activate();
+                        m_FeaSSConSLenSlider.Activate();
 
-                        m_FeaSSConEFracSlider.Deactivate();
-                        m_FeaSSConELenSlider.Deactivate();
+                        m_FeaSSConEFracSlider.Activate();
+                        m_FeaSSConELenSlider.Activate();
 
                         if ( sscon->m_AbsRelFlag() == vsp::ABS )
                         {
-                            m_FeaSSConSLenSlider.Activate();
+                            m_FeaSSConSFracSlider.Deactivate();
 
-                            if ( !sscon->m_ConstFlag() )
+                            if ( sscon->m_ConstFlag() )
                             {
-                                m_FeaSSConELenSlider.Activate();
+                                m_FeaSSConELenSlider.Deactivate();
                             }
                         }
                         else
                         {
-                            m_FeaSSConSFracSlider.Activate();
+                            m_FeaSSConSLenSlider.Deactivate();
 
-                            if ( !sscon->m_ConstFlag() )
+                            if ( sscon->m_ConstFlag() )
                             {
-                                m_FeaSSConEFracSlider.Activate();
+                                m_FeaSSConEFracSlider.Deactivate();
                             }
                         }
 
