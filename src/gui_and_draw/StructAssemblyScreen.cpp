@@ -376,10 +376,13 @@ bool StructAssemblyScreen::Update()
 
     m_ColorByToggleGroup.Update( curr_assy->m_AssemblySettings.m_ColorTagReason.GetID() );
 
-    m_ColorByToggleGroup.Deactivate();
     if ( curr_assy->m_AssemblySettings.m_ColorFacesFlag() )
     {
         m_ColorByToggleGroup.Activate();
+    }
+    else
+    {
+        m_ColorByToggleGroup.Deactivate();
     }
 
     m_DrawNodesToggle.Update( curr_assy->m_AssemblySettings.m_DrawNodesFlag.GetID() );
