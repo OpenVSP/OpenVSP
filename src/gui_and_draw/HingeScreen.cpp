@@ -474,69 +474,84 @@ bool HingeScreen::Update()
     m_JointRotMaxToggle.Update( hinge_geom_ptr->m_JointRotMaxFlag.GetID() );
     m_JointRotMaxSlider.Update( hinge_geom_ptr->m_JointRotMax.GetID() );
 
-    m_JointTranslateSlider.Deactivate();
-    m_JointTranslateRngButton.Deactivate();
-    m_JointTransMinSlider.Deactivate();
-    m_JointTransMaxSlider.Deactivate();
-    m_JointTransMinToggle.Deactivate();
-    m_JointTransMaxToggle.Deactivate();
-    m_JointTransMinSetButton.Deactivate();
-    m_JointTransMaxSetButton.Deactivate();
-    if ( hinge_geom_ptr->m_JointTranslateFlag.Get() )
+    m_JointTranslateSlider.Activate();
+    m_JointTranslateRngButton.Activate();
+    m_JointTransMinSlider.Activate();
+    m_JointTransMaxSlider.Activate();
+    m_JointTransMinToggle.Activate();
+    m_JointTransMaxToggle.Activate();
+    m_JointTransMinSetButton.Activate();
+    m_JointTransMaxSetButton.Activate();
+
+    if ( !hinge_geom_ptr->m_JointTranslateFlag.Get() )
     {
-        m_JointTranslateSlider.Activate();
-        m_JointTransMinToggle.Activate();
-        m_JointTransMaxToggle.Activate();
-
-        if ( hinge_geom_ptr->m_JointTransMinFlag.Get() || hinge_geom_ptr->m_JointTransMaxFlag.Get() )
+        m_JointTranslateSlider.Deactivate();
+        m_JointTransMinToggle.Deactivate();
+        m_JointTransMaxToggle.Deactivate();
+        m_JointTranslateRngButton.Deactivate();
+        m_JointTransMinSlider.Deactivate();
+        m_JointTransMinSetButton.Deactivate();
+        m_JointTransMaxSlider.Deactivate();
+        m_JointTransMaxSetButton.Deactivate();
+    }
+    else
+    {
+        if ( !hinge_geom_ptr->m_JointTransMinFlag.Get() && !hinge_geom_ptr->m_JointTransMaxFlag.Get() )
         {
-            m_JointTranslateRngButton.Activate();
+            m_JointTranslateRngButton.Deactivate();
         }
 
-        if ( hinge_geom_ptr->m_JointTransMinFlag.Get() )
+        if ( !hinge_geom_ptr->m_JointTransMinFlag.Get() )
         {
-            m_JointTransMinSlider.Activate();
-            m_JointTransMinSetButton.Activate();
+            m_JointTransMinSlider.Deactivate();
+            m_JointTransMinSetButton.Deactivate();
         }
 
-        if ( hinge_geom_ptr->m_JointTransMaxFlag.Get() )
+        if ( !hinge_geom_ptr->m_JointTransMaxFlag.Get() )
         {
-            m_JointTransMaxSlider.Activate();
-            m_JointTransMaxSetButton.Activate();
+            m_JointTransMaxSlider.Deactivate();
+            m_JointTransMaxSetButton.Deactivate();
         }
     }
 
 
+    m_JointRotateSlider.Activate();
+    m_JointRotateRngButton.Activate();
+    m_JointRotMinSlider.Activate();
+    m_JointRotMaxSlider.Activate();
+    m_JointRotMinToggle.Activate();
+    m_JointRotMaxToggle.Activate();
+    m_JointRotMinSetButton.Activate();
+    m_JointRotMaxSetButton.Activate();
 
-    m_JointRotateSlider.Deactivate();
-    m_JointRotateRngButton.Deactivate();
-    m_JointRotMinSlider.Deactivate();
-    m_JointRotMaxSlider.Deactivate();
-    m_JointRotMinToggle.Deactivate();
-    m_JointRotMaxToggle.Deactivate();
-    m_JointRotMinSetButton.Deactivate();
-    m_JointRotMaxSetButton.Deactivate();
-    if ( hinge_geom_ptr->m_JointRotateFlag.Get() )
+    if ( !hinge_geom_ptr->m_JointRotateFlag.Get() )
     {
-        m_JointRotateSlider.Activate();
-        m_JointRotMinToggle.Activate();
-        m_JointRotMaxToggle.Activate();
-
-        if ( hinge_geom_ptr->m_JointRotMinFlag.Get() || hinge_geom_ptr->m_JointRotMaxFlag.Get() )
+        m_JointRotateSlider.Deactivate();
+        m_JointRotMinToggle.Deactivate();
+        m_JointRotMaxToggle.Deactivate();
+        m_JointRotateRngButton.Deactivate();
+        m_JointRotMinSlider.Deactivate();
+        m_JointRotMinSetButton.Deactivate();
+        m_JointRotMaxSlider.Deactivate();
+        m_JointRotMaxSetButton.Deactivate();
+    }
+    else
+    {
+        if ( !hinge_geom_ptr->m_JointRotMinFlag.Get() && !hinge_geom_ptr->m_JointRotMaxFlag.Get() )
         {
-            m_JointRotateRngButton.Activate();
+            m_JointRotateRngButton.Deactivate();
         }
 
-        if ( hinge_geom_ptr->m_JointRotMinFlag.Get() )
+        if ( !hinge_geom_ptr->m_JointRotMinFlag.Get() )
         {
-            m_JointRotMinSlider.Activate();
-            m_JointRotMinSetButton.Activate();
+            m_JointRotMinSlider.Deactivate();
+            m_JointRotMinSetButton.Deactivate();
         }
 
-        if ( hinge_geom_ptr->m_JointRotMaxFlag.Get() )
+        if ( !hinge_geom_ptr->m_JointRotMaxFlag.Get() )
         {
-            m_JointRotMaxSlider.Activate();
-            m_JointRotMaxSetButton.Activate();
+            m_JointRotMaxSlider.Deactivate();
+            m_JointRotMaxSetButton.Deactivate();
         }
     }
 
