@@ -19,7 +19,7 @@
 #include "HingeGeom.h"
 
 //==== Constructor ====//
-GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 800, "Geometry Analyses", "GeometryAnalysis.html" )
+GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 700, 800, "Geometry Analyses", "GeometryAnalysis.html" )
 {
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
@@ -102,19 +102,19 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GCaseLayout.ForceNewLine( 0 );
     m_GCaseLayout.AddYGap();
 
-    int optH = 4 * m_GCaseLayout.GetStdHeight() + m_GCaseLayout.GetDividerHeight();
+    int optH = 2 * m_GCaseLayout.GetStdHeight() + m_GCaseLayout.GetDividerHeight();
     m_GCaseLayout.AddSubGroupLayout( m_OptionsLayout, geomW, optH );
     m_GCaseLayout.AddX( geomW + 5 );
-    m_GCaseLayout.AddSubGroupLayout( m_CutoutLayout, geomW, optH );
+    int cutoutH = 4 * m_GCaseLayout.GetStdHeight() + m_GCaseLayout.GetDividerHeight();
+    m_GCaseLayout.AddSubGroupLayout( m_CutoutLayout, geomW, cutoutH );
     m_GCaseLayout.AddY( optH );
 
     m_GCaseLayout.ForceNewLine( 0 );
     m_GCaseLayout.AddYGap();
 
-    // Skip left column AddSubGroupLayout
-    m_GCaseLayout.AddX( geomW + 5 );
-    m_GCaseLayout.AddSubGroupLayout( m_MotionLayout, geomW, optH );
-    m_GCaseLayout.AddY( optH );
+    int motionH = 7 * m_GCaseLayout.GetStdHeight() + 2 * m_GCaseLayout.GetDividerHeight();
+    m_GCaseLayout.AddSubGroupLayout( m_MotionLayout, geomW, motionH );
+    m_GCaseLayout.AddY( motionH );
 
     m_GCaseLayout.ForceNewLine( 0 );
 
@@ -262,6 +262,57 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_MotionLayout.AddSlider( m_DispYSlider, "Y", 10, "%6.4f" );
     m_MotionLayout.AddSlider( m_DispZSlider, "Z", 10, "%6.4f" );
 
+    m_MotionLayout.AddDividerBox( "Dispersion" );
+
+    m_MotionLayout.SetSameLineFlag( true );
+    m_MotionLayout.SetFitWidthFlag( false );
+
+    m_MotionLayout.SetInputWidth( 50 );
+
+    char theta[16];
+    int indx = 0;
+    indx += fl_utf8encode( 952, &theta[ indx ] ); // Greek character theta
+    theta[ indx ] = 'X';
+    theta[ indx + 1 ] = '+';
+    theta[ indx + 2 ] = 0;
+
+    int tbw = 55;
+    int thetabw = 30;
+
+    m_MotionLayout.SetButtonWidth( tbw );
+    m_MotionLayout.AddButton( m_SymmRotXToggle, "Symm" );
+    m_MotionLayout.SetFitWidthFlag( true );
+    m_MotionLayout.SetButtonWidth( thetabw );
+    m_MotionLayout.AddSlider( m_RotXpSlider, theta, 10, "%6.4f", m_MotionLayout.GetRemainX() * 0.5 );
+    theta[ indx + 1 ] = '-';
+    m_MotionLayout.AddSlider( m_RotXnSlider, theta, 10, "%6.4f" );
+
+    theta[ indx ] = 'Y';
+    theta[ indx + 1 ] = '+';
+    m_MotionLayout.ForceNewLine();
+    m_MotionLayout.SetFitWidthFlag( false );
+    m_MotionLayout.SetButtonWidth( tbw );
+    m_MotionLayout.SetButtonWidth( tbw );
+    m_MotionLayout.AddButton( m_SymmRotYToggle, "Symm" );
+    m_MotionLayout.SetFitWidthFlag( true );
+    m_MotionLayout.SetButtonWidth( thetabw );
+    m_MotionLayout.AddSlider( m_RotYpSlider, theta, 10, "%6.4f", m_MotionLayout.GetRemainX() * 0.5 );
+    theta[ indx + 1 ] = '-';
+    m_MotionLayout.AddSlider( m_RotYnSlider, theta, 10, "%6.4f" );
+
+    theta[ indx ] = 'Z';
+    theta[ indx + 1 ] = '+';
+    m_MotionLayout.ForceNewLine();
+    m_MotionLayout.SetFitWidthFlag( false );
+    m_MotionLayout.SetButtonWidth( tbw );
+    m_MotionLayout.SetButtonWidth( tbw );
+    m_MotionLayout.AddButton( m_SymmRotZToggle, "Symm" );
+    m_MotionLayout.SetFitWidthFlag( true );
+    m_MotionLayout.SetButtonWidth( thetabw );
+    m_MotionLayout.AddSlider( m_RotZpSlider, theta, 10, "%6.4f", m_MotionLayout.GetRemainX() * 0.5 );
+    theta[ indx + 1 ] = '-';
+    m_MotionLayout.AddSlider( m_RotZnSlider, theta, 10, "%6.4f" );
+
 
     m_GCaseLayout.AddYGap();
     m_GCaseLayout.AddDividerBox( "Analysis" );
@@ -387,6 +438,18 @@ bool GeometryAnalysisScreen::Update()
         m_DispXSlider.Update( gcase->m_DispX.GetID() );
         m_DispYSlider.Update( gcase->m_DispY.GetID() );
         m_DispZSlider.Update( gcase->m_DispZ.GetID() );
+
+        m_SymmRotXToggle.Update( gcase->m_SymmRotX.GetID() );
+        m_SymmRotYToggle.Update( gcase->m_SymmRotY.GetID() );
+        m_SymmRotZToggle.Update( gcase->m_SymmRotZ.GetID() );
+
+        m_RotXpSlider.Update( gcase->m_RotXp.GetID() );
+        m_RotYpSlider.Update( gcase->m_RotYp.GetID() );
+        m_RotZpSlider.Update( gcase->m_RotZp.GetID() );
+
+        m_RotXnSlider.Update( gcase->m_RotXn.GetID() );
+        m_RotYnSlider.Update( gcase->m_RotYn.GetID() );
+        m_RotZnSlider.Update( gcase->m_RotZn.GetID() );
 
         m_ScreenMgr->LoadSetChoice( {&m_PrimarySetChoice, &m_SecondarySetChoice}, {gcase->m_PrimarySet.GetID(), gcase->m_SecondarySet.GetID()} );
 
@@ -592,6 +655,18 @@ bool GeometryAnalysisScreen::Update()
             m_DispYSlider.Activate();
             m_DispZSlider.Activate();
 
+            m_SymmRotXToggle.Activate();
+            m_SymmRotYToggle.Activate();
+            m_SymmRotZToggle.Activate();
+
+            m_RotXpSlider.Activate();
+            m_RotYpSlider.Activate();
+            m_RotZpSlider.Activate();
+
+            m_RotXnSlider.Activate();
+            m_RotYnSlider.Activate();
+            m_RotZnSlider.Activate();
+
             if ( gcase->m_SecondaryType() == vsp::GEOM_TARGET )
             {
                 Geom* geom = veh->FindGeom( gcase->m_SecondaryGeomID );
@@ -611,6 +686,19 @@ bool GeometryAnalysisScreen::Update()
                     }
                 }
             }
+
+            if ( gcase->m_SymmRotX() )
+            {
+                m_RotXnSlider.Deactivate();
+            }
+            if ( gcase->m_SymmRotY() )
+            {
+                m_RotYnSlider.Deactivate();
+            }
+            if ( gcase->m_SymmRotZ() )
+            {
+                m_RotZnSlider.Deactivate();
+            }
         }
         else
         {
@@ -618,6 +706,18 @@ bool GeometryAnalysisScreen::Update()
             m_DispXSlider.Deactivate();
             m_DispYSlider.Deactivate();
             m_DispZSlider.Deactivate();
+
+            m_SymmRotXToggle.Deactivate();
+            m_SymmRotYToggle.Deactivate();
+            m_SymmRotZToggle.Deactivate();
+
+            m_RotXpSlider.Deactivate();
+            m_RotYpSlider.Deactivate();
+            m_RotZpSlider.Deactivate();
+
+            m_RotXnSlider.Deactivate();
+            m_RotYnSlider.Deactivate();
+            m_RotZnSlider.Deactivate();
         }
     }
     else

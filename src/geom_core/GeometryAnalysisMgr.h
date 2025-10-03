@@ -94,6 +94,18 @@ public:
     Parm m_DispY;
     Parm m_DispZ;
 
+    BoolParm m_SymmRotX;
+    BoolParm m_SymmRotY;
+    BoolParm m_SymmRotZ;
+
+    Parm m_RotXp;
+    Parm m_RotYp;
+    Parm m_RotZp;
+
+    Parm m_RotXn;
+    Parm m_RotYn;
+    Parm m_RotZn;
+
     IntParm m_GeometryAnalysisType;
 
     string m_LastResult;

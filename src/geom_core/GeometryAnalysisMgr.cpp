@@ -59,6 +59,19 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_DispY.Init( "DispY", groupname, this, 0.0, -1e12, 1e12 );
     m_DispZ.Init( "DispZ", groupname, this, 0.0, -1e12, 1e12 );
 
+
+    m_SymmRotX.Init( "SymmRotX", groupname, this, true, false, true );
+    m_SymmRotY.Init( "SymmRotY", groupname, this, true, false, true );
+    m_SymmRotZ.Init( "SymmRotZ", groupname, this, true, false, true );
+
+    m_RotXp.Init( "RotXp", groupname, this, 0.0, -180, 180 );
+    m_RotYp.Init( "RotYp", groupname, this, 0.0, -180, 180 );
+    m_RotZp.Init( "RotZp", groupname, this, 0.0, -180, 180 );
+
+    m_RotXn.Init( "RotXn", groupname, this, 0.0, -180, 180 );
+    m_RotYn.Init( "RotYn", groupname, this, 0.0, -180, 180 );
+    m_RotZn.Init( "RotZn", groupname, this, 0.0, -180, 180 );
+
     m_GeometryAnalysisType.Init( "IntererenceCheckType", groupname, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
 
     m_LastResultValue.Init( "LastResult", groupname, this, 0.0, -1e12, 1e12 );
@@ -73,6 +86,19 @@ void GeometryAnalysisCase::Update()
          m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE )
     {
         m_SecondaryType = vsp::GEOM_TARGET;
+    }
+
+    if ( m_SymmRotX() )
+    {
+        m_RotXn = -m_RotXp();
+    }
+    if ( m_SymmRotY() )
+    {
+        m_RotYn = -m_RotYp();
+    }
+    if ( m_SymmRotZ() )
+    {
+        m_RotZn = -m_RotZp();
     }
 
     UpdateDrawObj_Live();

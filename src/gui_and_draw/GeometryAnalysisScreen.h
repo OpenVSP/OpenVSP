@@ -114,6 +114,18 @@ protected:
     SliderAdjRangeInput m_DispYSlider;
     SliderAdjRangeInput m_DispZSlider;
 
+    ToggleButton m_SymmRotXToggle;
+    ToggleButton m_SymmRotYToggle;
+    ToggleButton m_SymmRotZToggle;
+
+    SliderInput m_RotXpSlider;
+    SliderInput m_RotYpSlider;
+    SliderInput m_RotZpSlider;
+
+    SliderInput m_RotXnSlider;
+    SliderInput m_RotYnSlider;
+    SliderInput m_RotZnSlider;
+
     TriggerButton m_Evaluate;
     TriggerButton m_ShowResultsViewer;
 
