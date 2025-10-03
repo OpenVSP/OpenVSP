@@ -340,6 +340,88 @@ bool GeometryAnalysisCase::GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt
     return false;
 }
 
+bool GeometryAnalysisCase::GetDisplacement( double dist, vec3d &dstart, vec3d &disp )
+{
+    if ( m_SecondaryType() == vsp::GEOM_TARGET )
+    {
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+
+            if ( geom )
+            {
+                HingeGeom* hinge_ptr = dynamic_cast< HingeGeom* >( geom );
+
+                if ( hinge_ptr )
+                {
+                    if ( hinge_ptr->m_JointTranslateFlag() )
+                    {
+                        vec3d dir( hinge_ptr->m_PrimXVec(), hinge_ptr->m_PrimYVec(), hinge_ptr->m_PrimZVec() );
+                        dir.normalize();
+
+                        const double pos = hinge_ptr->m_JointTranslate();
+                        const double start = hinge_ptr->m_JointTransMin();
+                        const double end = hinge_ptr->m_JointTransMax();
+
+                        if ( m_ExtentType() == vsp::EXTENT_FORWARD_INF )
+                        {
+                            dstart.set_xyz( 0, 0, 0 );
+                            disp = dist * dir;
+                        }
+                        else if ( m_ExtentType() == vsp::EXTENT_REVERSE_INF )
+                        {
+                            dstart.set_xyz( 0, 0, 0 );
+                            disp = -dist * dir;
+                        }
+                        else if ( m_ExtentType() == vsp::EXTENT_SLIDER_FULL )
+                        {
+                            dstart = ( start - pos ) * dir;
+                            disp = ( end - start ) * dir;
+                        }
+                        else if ( m_ExtentType() == vsp::EXTENT_SLIDER_BEFORE )
+                        {
+                            dstart.set_xyz( 0, 0, 0 );
+                            disp = ( start - pos ) * dir;
+                        }
+                        else if ( m_ExtentType() == vsp::EXTENT_SLIDER_AFTER )
+                        {
+                            dstart.set_xyz( 0, 0, 0 );
+                            disp = ( end - pos ) * dir;
+                        }
+
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    vec3d dir( m_DispX(), m_DispY(), m_DispZ() );
+
+    dstart.set_xyz( 0, 0, 0 );
+    if ( m_ExtentType() == vsp::EXTENT_FORWARD_INF )
+    {
+        dir.normalize();
+        disp = dist * dir;
+    }
+    else if ( m_ExtentType() == vsp::EXTENT_REVERSE_INF )
+    {
+        dir.normalize();
+        disp = -dist * dir;
+    }
+    else if ( m_ExtentType() == vsp::EXTENT_FORWARD_FINITE )
+    {
+        disp = dir;
+    }
+    else if ( m_ExtentType() == vsp::EXTENT_REVERSE_FINITE )
+    {
+        disp = -dir;
+    }
+
+    return true;
+}
+
 bool GeometryAnalysisCase::GetSecondaryPt( vec3d &pt )
 {
     if ( m_SecondaryType() == vsp::XYZ_TARGET )
