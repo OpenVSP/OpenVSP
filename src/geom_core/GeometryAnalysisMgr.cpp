@@ -1437,19 +1437,33 @@ string GeometryAnalysisCase::Evaluate()
                 {
                     m_LastResult = res->GetID();
                     primary_tmv = GetPrimaryTMeshVec();
-                    secondary_tmv = GetSecondaryTMeshVec();
+                    secondary_tmv = GetHingeSecondaryTMeshVec();
 
                     CSGMesh( primary_tmv );
                     FlattenTMeshVec( primary_tmv );
                     TMesh *primary_tm = MergeTMeshVec( primary_tmv );
                     primary_tm->LoadBndBox();
 
+                    BndBox bbox;
+                    UpdateBBox( bbox, secondary_tmv );
+                    primary_tm->UpdateBBox( bbox );
+
+                    double dist = 1.1 * bbox.DiagDist();
+
+                    vec3d dstart, disp;
+                    GetDisplacement( dist, dstart, disp );
+
+
+                    Matrix4d T;
+                    T.translatev( dstart );
+
+                    TransformMeshVec( secondary_tmv, T );
+
                     CSGMesh( secondary_tmv );
                     FlattenTMeshVec( secondary_tmv );
                     TMesh *secondary_tm = MergeTMeshVec( secondary_tmv );
                     secondary_tm->LoadBndBox();
 
-                    vec3d disp( 0, 0, -100.0 );
 
                     SweptVolumeInterferenceCheck( primary_tm, secondary_tm, disp, m_LastResult, m_TMeshVec );
                     m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
