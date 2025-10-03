@@ -1535,6 +1535,8 @@ string GeometryAnalysisCase::Evaluate()
                     vec3d dstart, disp;
                     GetDisplacement( dist, dstart, disp );
 
+                    vector < vec3d > dispvec;
+                    HandleDispersion( disp, dispvec );
 
                     Matrix4d T;
                     T.translatev( dstart );
@@ -1547,7 +1549,7 @@ string GeometryAnalysisCase::Evaluate()
                     secondary_tm->LoadBndBox();
 
 
-                    SweptVolumeInterferenceCheck( primary_tm, secondary_tm, disp, m_LastResult, m_TMeshVec );
+                    SweptVolumeInterferenceCheck( primary_tm, secondary_tm, dispvec, m_LastResult, m_TMeshVec );
                     m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 }
                 break;
