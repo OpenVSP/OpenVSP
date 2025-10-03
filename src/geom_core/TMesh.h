@@ -703,7 +703,7 @@ bool CheckSelfIntersect( const vector<TMesh*> & tmesh_vec );
 void PlaneInterferenceCheck(  TMesh *primary_tm, const vec3d & org, const vec3d & norm, const string & resid, vector< TMesh* > & result_tmv );
 void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string & resid, vector< TMesh* > & result_tmv );
 string PlaneAngleInterferenceCheck( vector< TMesh* > & primary_tmv, const vec3d & org, const vec3d & norm, const vec3d & ptaxis, const vec3d & axis, vector< TMesh* > & result_tmv );
-void SweptVolumeInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const vec3d & disp, const string & resid, vector< TMesh* > & result_tmv );
+void SweptVolumeInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const vector < vec3d > & dispvec, const string & resid, vector< TMesh* > & result_tmv );
 void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const string & resid, vector< TMesh* > & result_tmv );
 void ExteriorInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, const string & resid, vector< TMesh* > & result_tmv );
 string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh* > & secondary_tmv, vector< TMesh* > & result_tmv );

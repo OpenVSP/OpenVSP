@@ -7506,9 +7506,9 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
 
 }
 
-void SweptVolumeInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const vec3d & disp, const string & resid, vector< TMesh* > & result_tmv )
+void SweptVolumeInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const vector < vec3d > & dispvec, const string & resid, vector< TMesh* > & result_tmv )
 {
-    TMesh * swept_secondary_tm = CreateTMeshPGMeshSweptVolumeTranslate( secondary_tm, disp );
+    TMesh * swept_secondary_tm = CreateTMeshPGMeshSweptVolumeTranslate( secondary_tm, dispvec );
     delete secondary_tm;
     swept_secondary_tm->LoadBndBox();
 
