@@ -24,6 +24,7 @@
 #include "AuxiliaryGeom.h"
 #include "GearGeom.h"
 #include "HumanGeom.h"
+#include "HingeGeom.h"
 
 #include "MeshGeom.h"
 #include "TMesh.h"
@@ -192,6 +193,44 @@ vector< TMesh* > GeometryAnalysisCase::GetSecondaryTMeshVec()
         else if ( m_SecondaryType() == vsp::GEOM_TARGET )
         {
             tmv = veh->CreateTMeshVec( m_SecondaryGeomID );
+        }
+    }
+
+    return tmv;
+}
+
+vector< TMesh* > GeometryAnalysisCase::GetHingeSecondaryTMeshVec()
+{
+    vector< TMesh* > tmv;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_SecondaryType() == vsp::SET_TARGET )
+        {
+            int set = m_SecondarySet();
+
+            tmv = veh->CreateTMeshVec( set );
+        }
+        else if ( m_SecondaryType() == vsp::GEOM_TARGET )
+        {
+            Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+
+            if ( geom )
+            {
+                HingeGeom* hinge_ptr = dynamic_cast< HingeGeom* >( geom );
+
+                if ( hinge_ptr )
+                {
+                    vector < string > descendants;
+                    hinge_ptr->BuildRigidAttachedDescendantList( descendants );
+
+                    tmv = veh->CreateTMeshVec( descendants );
+                }
+                else
+                {
+                    tmv = veh->CreateTMeshVec( m_SecondaryGeomID );
+                }
+            }
         }
     }
 

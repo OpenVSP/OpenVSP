@@ -31,6 +31,7 @@ public:
 
     vector< TMesh* > GetPrimaryTMeshVec();
     vector< TMesh* > GetSecondaryTMeshVec();
+    vector< TMesh* > GetHingeSecondaryTMeshVec();
 
     bool GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );
     bool GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
