@@ -1097,6 +1097,20 @@ enum MESH_TYPE { TRI_MESH_TYPE,	/*!< Triangle mesh */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum used to describe swept volume motion extent types. */
+enum MOTION_EXTENT_TYPE { EXTENT_FORWARD_INF,	/*!< Forward beyond extent of model. */
+                          EXTENT_REVERSE_INF,	/*!< Reverse beyond extent of model. */
+                          EXTENT_FORWARD_FINITE,	/*!< Forward displacement. */
+                          EXTENT_REVERSE_FINITE,	/*!< Reverse displacement. */
+                          EXTENT_SLIDER_FULL,	/*!< Full range of slider motion. */
+                          EXTENT_SLIDER_BEFORE,	/*!< Slider motion from start to current position. */
+                          EXTENT_SLIDER_AFTER,	/*!< Slider motion from current position to end. */
+                          MOTION_NUM_EXTENT_TYPES	/*!< Number of swept volume extent types. */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for ID length by vsp object type. */
 enum OBJ_ID_LENGTH { ID_LENGTH_PRESET_GROUP = 5,	/*!< ID for Var Preset Groups are length 5 */
                      ID_LENGTH_PRESET_SETTING = 6,	/*!< ID for Var Preset Settings are length 6 */

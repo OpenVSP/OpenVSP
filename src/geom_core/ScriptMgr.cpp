@@ -1817,6 +1817,26 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "MOTION_EXTENT_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MOTION_EXTENT_TYPE", "EXTENT_FORWARD_INF", EXTENT_FORWARD_INF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MOTION_EXTENT_TYPE", "EXTENT_REVERSE_INF", EXTENT_REVERSE_INF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MOTION_EXTENT_TYPE", "EXTENT_FORWARD_FINITE", EXTENT_FORWARD_FINITE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MOTION_EXTENT_TYPE", "EXTENT_REVERSE_FINITE", EXTENT_REVERSE_FINITE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MOTION_EXTENT_TYPE", "EXTENT_SLIDER_FULL", EXTENT_SLIDER_FULL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MOTION_EXTENT_TYPE", "EXTENT_SLIDER_BEFORE", EXTENT_SLIDER_BEFORE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MOTION_EXTENT_TYPE", "EXTENT_SLIDER_AFTER", EXTENT_SLIDER_AFTER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MOTION_EXTENT_TYPE", "MOTION_NUM_EXTENT_TYPES", MOTION_NUM_EXTENT_TYPES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "OBJ_ID_LENGTH" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_ATTR", ID_LENGTH_ATTR );
