@@ -1087,6 +1087,16 @@ enum MESH_REASON { NO_REASON,	/*!< No reason determined. */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for different mesh types. */
+enum MESH_TYPE { TRI_MESH_TYPE,	/*!< Triangle mesh */
+                 QUAD_MESH_TYPE,	/*!< Quadrilateral mesh */
+                 NGON_MESH_TYPE,	/*!< N-gon mesh */
+                 NUM_MESH_TYPE	/*!< Number of mesh types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for ID length by vsp object type. */
 enum OBJ_ID_LENGTH { ID_LENGTH_PRESET_GROUP = 5,	/*!< ID for Var Preset Groups are length 5 */
                      ID_LENGTH_PRESET_SETTING = 6,	/*!< ID for Var Preset Settings are length 6 */
@@ -1094,16 +1104,6 @@ enum OBJ_ID_LENGTH { ID_LENGTH_PRESET_GROUP = 5,	/*!< ID for Var Preset Groups a
                      ID_LENGTH_ATTRCOLL = 9,	/*!< ID for Attribute Collections are length 9 */
                      ID_LENGTH_PARMCONTAINER = 10,	/*!< ID for Parm Containers are length 10 */
                      ID_LENGTH_PARM = 11,	/*!< ID for Parms are length 11 */
-};
-
-/*!
-	\ingroup Enumerations
-*/
-/*! Enum for different mesh types. */
-enum MESH_TYPE { TRI_MESH_TYPE,	/*!< Triangle mesh */
-                 QUAD_MESH_TYPE,	/*!< Quadrilateral mesh */
-                 NGON_MESH_TYPE,	/*!< N-gon mesh */
-                 NUM_MESH_TYPE	/*!< Number of mesh types */
 };
 
 /*!

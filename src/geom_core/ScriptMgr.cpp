@@ -1804,16 +1804,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "MASS_UNIT", "NUM_MASS_UNIT", NUM_MASS_UNIT );
     assert( r >= 0 );
 
-    r = se->RegisterEnum( "OBJ_ID_LENGTH" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_ATTR", ID_LENGTH_ATTR );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_ATTRCOLL", ID_LENGTH_ATTRCOLL );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_PARMCONTAINER", ID_LENGTH_PARMCONTAINER );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_PARM", ID_LENGTH_PARM );
-    assert( r >= 0 );
 
     r = se->RegisterEnum( "MESH_TYPE" );
     assert( r >= 0 );
@@ -1824,6 +1814,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "MESH_TYPE", "NGON_MESH_TYPE", NGON_MESH_TYPE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "MESH_TYPE", "NUM_MESH_TYPE", NUM_MESH_TYPE );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "OBJ_ID_LENGTH" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_ATTR", ID_LENGTH_ATTR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_ATTRCOLL", ID_LENGTH_ATTRCOLL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_PARMCONTAINER", ID_LENGTH_PARMCONTAINER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_PARM", ID_LENGTH_PARM );
     assert( r >= 0 );
 
 
