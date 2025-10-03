@@ -53,6 +53,7 @@ protected:
     GroupLayout m_SecondaryLayout;
     GroupLayout m_OptionsLayout;
     GroupLayout m_CutoutLayout;
+    GroupLayout m_MotionLayout;
 
     ColResizeBrowser* m_GeometryAnalysisBrowser;
     int m_GeometryBrowserSelect;
@@ -107,6 +108,11 @@ protected:
     SliderAdjRangeInput m_SecondaryXSlider;
     SliderAdjRangeInput m_SecondaryYSlider;
     SliderAdjRangeInput m_SecondaryZSlider;
+
+    Choice m_ExtentChoice;
+    SliderAdjRangeInput m_DispXSlider;
+    SliderAdjRangeInput m_DispYSlider;
+    SliderAdjRangeInput m_DispZSlider;
 
     TriggerButton m_Evaluate;
     TriggerButton m_ShowResultsViewer;

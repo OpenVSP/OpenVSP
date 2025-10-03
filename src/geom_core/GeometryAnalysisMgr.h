@@ -88,6 +88,11 @@ public:
     Parm m_SecondaryY;
     Parm m_SecondaryZ;
 
+    IntParm m_ExtentType;
+    Parm m_DispX;
+    Parm m_DispY;
+    Parm m_DispZ;
+
     IntParm m_GeometryAnalysisType;
 
     string m_LastResult;

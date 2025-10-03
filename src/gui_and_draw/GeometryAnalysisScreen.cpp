@@ -16,9 +16,10 @@
 #include "ModeMgr.h"
 #include "StlHelper.h"
 #include "SubSurfaceMgr.h"
+#include "HingeGeom.h"
 
 //==== Constructor ====//
-GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 700, "Geometry Analyses", "GeometryAnalysis.html" )
+GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 800, "Geometry Analyses", "GeometryAnalysis.html" )
 {
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
@@ -105,6 +106,14 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GCaseLayout.AddSubGroupLayout( m_OptionsLayout, geomW, optH );
     m_GCaseLayout.AddX( geomW + 5 );
     m_GCaseLayout.AddSubGroupLayout( m_CutoutLayout, geomW, optH );
+    m_GCaseLayout.AddY( optH );
+
+    m_GCaseLayout.ForceNewLine( 0 );
+    m_GCaseLayout.AddYGap();
+
+    // Skip left column AddSubGroupLayout
+    m_GCaseLayout.AddX( geomW + 5 );
+    m_GCaseLayout.AddSubGroupLayout( m_MotionLayout, geomW, optH );
     m_GCaseLayout.AddY( optH );
 
     m_GCaseLayout.ForceNewLine( 0 );
@@ -241,7 +250,17 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_SubSurfCutoutBrowser->callback( staticScreenCB, this );
 
 
+    m_MotionLayout.SetSameLineFlag( false );
+    m_MotionLayout.SetFitWidthFlag( true );
 
+
+    m_MotionLayout.AddDividerBox( "Motion" );
+
+    m_MotionLayout.AddChoice( m_ExtentChoice, "Extent" );
+
+    m_MotionLayout.AddSlider( m_DispXSlider, "X", 10, "%6.4f" );
+    m_MotionLayout.AddSlider( m_DispYSlider, "Y", 10, "%6.4f" );
+    m_MotionLayout.AddSlider( m_DispZSlider, "Z", 10, "%6.4f" );
 
 
     m_GCaseLayout.AddYGap();
@@ -310,6 +329,64 @@ bool GeometryAnalysisScreen::Update()
         m_SecondaryXSlider.Update( gcase->m_SecondaryX.GetID() );
         m_SecondaryYSlider.Update( gcase->m_SecondaryY.GetID() );
         m_SecondaryZSlider.Update( gcase->m_SecondaryZ.GetID() );
+
+        m_ExtentChoice.ClearItems();
+
+        m_ExtentChoice.AddItem( "Forward Direction", vsp::EXTENT_FORWARD_INF );
+        m_ExtentChoice.AddItem( "Reverse Direction", vsp::EXTENT_REVERSE_INF );
+
+        bool transhinge = false;
+        if ( gcase->m_GeometryAnalysisType() == vsp::LINEAR_SWEPT_VOLUME_ANALYSIS )
+        {
+            if ( gcase->m_SecondaryType() == vsp::GEOM_TARGET )
+            {
+                Geom* geom = veh->FindGeom( gcase->m_SecondaryGeomID );
+
+                if ( geom )
+                {
+                    HingeGeom* hinge_ptr = dynamic_cast< HingeGeom* >( geom );
+
+                    if ( hinge_ptr )
+                    {
+                        transhinge = true;
+                        if ( hinge_ptr->m_JointTranslateFlag() )
+                        {
+
+                            if ( hinge_ptr->m_JointTransMinFlag() &&
+                                 hinge_ptr->m_JointTransMaxFlag() )
+                            {
+                                m_ExtentChoice.AddItem( "Full Range", vsp::EXTENT_SLIDER_FULL );
+                            }
+
+                            if ( hinge_ptr->m_JointTransMinFlag() )
+                            {
+                                m_ExtentChoice.AddItem( "Before", vsp::EXTENT_SLIDER_BEFORE );
+                            }
+
+                            if ( hinge_ptr->m_JointTransMaxFlag() )
+                            {
+                                m_ExtentChoice.AddItem( "After", vsp::EXTENT_SLIDER_AFTER );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if ( !transhinge )
+        {
+            m_ExtentChoice.AddItem( "Forward Displacement", vsp::EXTENT_FORWARD_FINITE );
+            m_ExtentChoice.AddItem( "Reverse Displacement", vsp::EXTENT_REVERSE_FINITE );
+        }
+
+
+        m_ExtentChoice.UpdateItems();
+
+        m_ExtentChoice.Update( gcase->m_ExtentType.GetID() );
+
+        m_DispXSlider.Update( gcase->m_DispX.GetID() );
+        m_DispYSlider.Update( gcase->m_DispY.GetID() );
+        m_DispZSlider.Update( gcase->m_DispZ.GetID() );
 
         m_ScreenMgr->LoadSetChoice( {&m_PrimarySetChoice, &m_SecondarySetChoice}, {gcase->m_PrimarySet.GetID(), gcase->m_SecondarySet.GetID()} );
 
@@ -507,6 +584,41 @@ bool GeometryAnalysisScreen::Update()
             m_SecondarySetChoice.Deactivate();
         }
 
+        if ( gcase->m_GeometryAnalysisType() == vsp::LINEAR_SWEPT_VOLUME_ANALYSIS )
+        {
+            m_ExtentChoice.Activate();
+
+            m_DispXSlider.Activate();
+            m_DispYSlider.Activate();
+            m_DispZSlider.Activate();
+
+            if ( gcase->m_SecondaryType() == vsp::GEOM_TARGET )
+            {
+                Geom* geom = veh->FindGeom( gcase->m_SecondaryGeomID );
+
+                if ( geom )
+                {
+                    HingeGeom* hinge_ptr = dynamic_cast< HingeGeom* >( geom );
+
+                    if ( hinge_ptr )
+                    {
+                        if ( hinge_ptr->m_JointTranslateFlag() )
+                        {
+                            m_DispXSlider.Deactivate();
+                            m_DispYSlider.Deactivate();
+                            m_DispZSlider.Deactivate();
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            m_ExtentChoice.Deactivate();
+            m_DispXSlider.Deactivate();
+            m_DispYSlider.Deactivate();
+            m_DispZSlider.Deactivate();
+        }
     }
     else
     {

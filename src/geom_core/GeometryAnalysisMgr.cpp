@@ -54,6 +54,11 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_SecondaryY.Init( "SecondaryY", groupname, this, 0.0, -1e12, 1e12 );
     m_SecondaryZ.Init( "SecondaryZ", groupname, this, 0.0, -1e12, 1e12 );
 
+    m_ExtentType.Init( "ExtentType", groupname, this, vsp::EXTENT_FORWARD_INF, vsp::EXTENT_FORWARD_INF, vsp::MOTION_NUM_EXTENT_TYPES - 1 );
+    m_DispX.Init( "DispX", groupname, this, 0.0, -1e12, 1e12 );
+    m_DispY.Init( "DispY", groupname, this, 0.0, -1e12, 1e12 );
+    m_DispZ.Init( "DispZ", groupname, this, 0.0, -1e12, 1e12 );
+
     m_GeometryAnalysisType.Init( "IntererenceCheckType", groupname, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
 
     m_LastResultValue.Init( "LastResult", groupname, this, 0.0, -1e12, 1e12 );
