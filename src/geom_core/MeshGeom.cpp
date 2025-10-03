@@ -4113,7 +4113,7 @@ void MeshGeom::ForceSymmSmallYZero()
         TMesh *tmi = m_TMeshVec[ i ];
         Matrix4d mat;
         BndBox bbi;
-        tmi->UpdateBBox( mat, bbi );
+        tmi->UpdateBBox( bbi, mat );
         double ylimi = bbi.GetMax( 1 );
         if ( bbi.GetCenter().y() > 0 )
         {
@@ -4127,7 +4127,7 @@ void MeshGeom::ForceSymmSmallYZero()
                  tmi->m_PlateNum == tmj->m_PlateNum )
             {
                 BndBox bbj;
-                tmj->UpdateBBox( mat, bbj );
+                tmj->UpdateBBox( bbj, mat );
                 double ylimj = bbj.GetMax( 1 );
                 if ( bbj.GetCenter().y() > 0 )
                 {

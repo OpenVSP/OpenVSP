@@ -2001,16 +2001,6 @@ void TMesh::UpdateBBox( BndBox &bbox, const Matrix4d &transMat )
     }
 }
 
-void TMesh::UpdateBBox( const Matrix4d &mat, BndBox & bb )
-{
-    for ( int j = 0 ; j < ( int )m_TVec.size() ; j++ )
-    {
-        bb.Update( mat.xform( m_TVec[j]->m_N0->m_Pnt ) );
-        bb.Update( mat.xform( m_TVec[j]->m_N1->m_Pnt ) );
-        bb.Update( mat.xform( m_TVec[j]->m_N2->m_Pnt ) );
-    }
-}
-
 void TMesh::ForceSmallYZero()
 {
     double tol = 1e-10;

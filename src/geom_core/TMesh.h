@@ -495,7 +495,6 @@ public:
 
     void LoadBndBox();
     void UpdateBBox( BndBox &bbox, const Matrix4d &transMat = Matrix4d() );
-    void UpdateBBox( const Matrix4d &mat, BndBox & bb );
     void ForceSmallYZero();
 
     virtual double ComputeTheoArea();
