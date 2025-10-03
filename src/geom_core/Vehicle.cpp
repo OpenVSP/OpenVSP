@@ -1379,6 +1379,24 @@ vector< TMesh* > Vehicle::CreateTMeshVec( int normal_set )
     return tmv;
 }
 
+vector< TMesh* > Vehicle::CreateTMeshVec( const vector < string > &geom_vec )
+{
+    vector< TMesh* > tmv;
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        Geom* g_ptr = FindGeom( geom_vec[i] );
+        if ( g_ptr )
+        {
+            vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec( false );
+            for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
+            {
+                tmv.push_back( tMeshVec[j] );
+            }
+        }
+    }
+    return tmv;
+}
+
 vector< TMesh* > Vehicle::CreateTMeshVec( const string &geomid )
 {
     vector< TMesh* > tmv;

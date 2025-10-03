@@ -97,6 +97,7 @@ public:
     string AddMeshGeom( int normal_set, int degen_set = vsp::SET_NONE, bool suppressdisks = false, bool skipnegflipnormal = false, int n_ref = 0, bool checkFlat = false );
 
     vector< TMesh* > CreateTMeshVec( int normal_set );
+    vector< TMesh* > CreateTMeshVec( const vector < string > &geom_vec );
     vector< TMesh* > CreateTMeshVec( const string &geomid );
 
     virtual void AddLinkableContainers( vector< string > & linkable_container_vec );
