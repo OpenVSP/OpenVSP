@@ -124,13 +124,13 @@ protected:
     ToggleButton m_SymmRotYToggle;
     ToggleButton m_SymmRotZToggle;
 
-    SliderInput m_RotXpSlider;
-    SliderInput m_RotYpSlider;
-    SliderInput m_RotZpSlider;
+    SliderAdjRangeInput m_RotXpSlider;
+    SliderAdjRangeInput m_RotYpSlider;
+    SliderAdjRangeInput m_RotZpSlider;
 
-    SliderInput m_RotXnSlider;
-    SliderInput m_RotYnSlider;
-    SliderInput m_RotZnSlider;
+    SliderAdjRangeInput m_RotXnSlider;
+    SliderAdjRangeInput m_RotYnSlider;
+    SliderAdjRangeInput m_RotZnSlider;
 
     TriggerButton m_Evaluate;
     TriggerButton m_ShowResultsViewer;
