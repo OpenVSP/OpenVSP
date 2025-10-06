@@ -27,6 +27,7 @@ input.  These requirements are summarized in the following table.
 | [Ground Maneuverability](#ground-manueverability)             | Any              | 3pt Ground Plane                   |
 | [From Point Visibility](#from-point-visibility)               | Any              | XYZ, HumanGeom, or Geom            |
 | [Composite Clearance Envelope](#composite-clearance-envelope) | Any              | 3pt Composite Clearance Envelope   |
+| [Swept Volume](#swept-volume)                                 | Any              | Any or HingeGeom                   |
 
 
 ## External
@@ -122,3 +123,17 @@ Calculate the minimum ground clearance between the primary geometry and a compos
 the secondary geometry.  Before calculating clearance, a CompGeom type analysis is run on the primary geometry set
 to compute each trimmed OML -- this step allows the geometry set to include negative components.  The secondary
 geometry must be specified by a 3pt Composite Clearance Envelope auxiliary geometry.
+
+## Swept Volume
+
+Perform an [External](#external) interference check where the linear swept volume of the secondary geometry is computed
+before interference is checked.  Like the [External](#external) analysis, a CompGeom type analysis is run on both
+primary and secondary geometry sets to compute each trimmed OML -- this step allows the geometry sets to include
+negative components.
+
+If the secondary geometry is a HingeGeom with linear motion enabled, the swept volume's displacement is obtained from
+the HingeGeom.  Otherwise, the direction of displacement is provided by the user.
+
+Positive and negative displersion angles can be specified.  These angles rotate the swept volume's direction in the
+X, Y, or Z directions.  For typical problems, the X dispersion will control dispersion from the front view and the
+Y dispersion will control dispersion from the side view.

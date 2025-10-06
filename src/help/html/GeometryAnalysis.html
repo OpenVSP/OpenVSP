@@ -122,6 +122,12 @@ Envelope</a></td>
 <td style="text-align: left;">Any</td>
 <td>3pt Composite Clearance Envelope</td>
 </tr>
+<tr>
+<td style="text-align: left;"><a href="#swept-volume">Swept
+Volume</a></td>
+<td style="text-align: left;">Any</td>
+<td>Any or HingeGeom</td>
+</tr>
 </tbody>
 </table>
 <h2 id="external">External</h2>
@@ -221,5 +227,20 @@ primary geometry set to compute each trimmed OML -- this step allows the
 geometry set to include negative components. The secondary geometry must
 be specified by a 3pt Composite Clearance Envelope auxiliary
 geometry.</p>
+<h2 id="swept-volume">Swept Volume</h2>
+<p>Perform an <a href="#external">External</a> interference check where
+the linear swept volume of the secondary geometry is computed before
+interference is checked. Like the <a href="#external">External</a>
+analysis, a CompGeom type analysis is run on both primary and secondary
+geometry sets to compute each trimmed OML -- this step allows the
+geometry sets to include negative components.</p>
+<p>If the secondary geometry is a HingeGeom with linear motion enabled,
+the swept volume's displacement is obtained from the HingeGeom.
+Otherwise, the direction of displacement is provided by the user.</p>
+<p>Positive and negative displersion angles can be specified. These
+angles rotate the swept volume's direction in the X, Y, or Z directions.
+For typical problems, the X dispersion will control dispersion from the
+front view and the Y dispersion will control dispersion from the side
+view.</p>
 </body>
 </html>
