@@ -16,6 +16,9 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
+#include "Vehicle.h"
+#include "VehicleMgr.h"
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -7410,6 +7413,212 @@ double FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TM
         }
     }
     return sqrt( max_dist );
+}
+
+void LookAtVisibility( TMesh *primary_tm, const vec3d & dir, const double n2, const string & resid, vector< TMesh* > & result_tmv )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    BndBox bbox;
+    primary_tm->UpdateBBox( bbox );
+
+    double dist = 1.1 * bbox.DiagDist();
+
+    vec3d disp = dir;
+    disp.normalize();
+    disp *= dist;
+
+
+    TMesh *sv = CreateTMeshPGMeshSweptVolumeTranslate( primary_tm, disp );
+    delete primary_tm;
+
+    // visible from
+    sv->SetIgnoreShadow( disp, 1e-6 );
+    sv->FlattenInPlace();
+
+    sv->ComputeVisibleArea( dir, n2 );
+
+    int ntags = -1;
+    int nss = -1;
+    int nsurf = -1;
+
+    vector < string > surfNameVec;
+    vector < string > surfIDVec;
+
+    vector < string > tagNameVec;
+    vector < string > tagIDVec;
+    vector < vector < string > > vecTagIDVec;
+
+    vector < string > ssNameVec;
+    vector < string > ssIDVec;
+
+    // Subtract off dummy tag.
+    ntags = SubSurfaceMgr.GetNumTags() - 1;
+
+    tagNameVec.resize( ntags );
+    tagIDVec.resize( ntags );
+    vecTagIDVec.resize( ntags );
+
+    for ( int j = 0; j < ntags; j++ )
+    {
+        tagNameVec[j] = SubSurfaceMgr.GetTagNames( j );
+        tagIDVec[j] = SubSurfaceMgr.GetTagIDs( j );
+        vecTagIDVec[j] = SubSurfaceMgr.GetVecTagIDs( j );
+    }
+
+    // populate individual subsurfs
+    for ( int j = 0; j < vecTagIDVec.size(); j++ )
+    {
+        string gtagid = vecTagIDVec[j][0];
+
+        // add to surf ID vec if not already in there
+        if ( find( surfIDVec.begin(), surfIDVec.end(), gtagid ) == surfIDVec.end() )
+        {
+            int pos = gtagid.find_first_of( '_' );
+
+            string gid = gtagid.substr( 0, pos );
+            string surf = gtagid.substr( pos + 1 );
+
+            Geom *g = veh->FindGeom( gid );
+            if ( g )
+            {
+                surfNameVec.push_back( g->GetName() + "," + surf );
+                surfIDVec.push_back( gtagid );
+            }
+        }
+
+        // start at iter 1, skip the geom id since all subsurf ids are unique anyways
+        for ( int k = 1; k < vecTagIDVec[j].size(); k++ )
+        {
+            // add to subsurf ID vec if not already in there
+            if ( find( ssIDVec.begin(), ssIDVec.end(), vecTagIDVec[j][k] ) == ssIDVec.end() )
+            {
+                SubSurface* ss = SubSurfaceMgr.GetSubSurf( vecTagIDVec[j][k] );
+                if ( ss )
+                {
+                    ParmContainer* pc = ss->GetParentContainerPtr();
+                    if ( pc )
+                    {
+                        string full_name = pc->GetName() + "," + ss->GetName();
+                        ssIDVec.push_back( vecTagIDVec[j][k] );
+                        ssNameVec.push_back( full_name );
+                    }
+                }
+            }
+        }
+    }
+
+    nss = ssIDVec.size();
+    nsurf = surfIDVec.size();
+
+    vector < double > surfWetAreaVec;
+    vector < double > surfProjAreaVec;
+    vector < double > surfSolarAreaVec;
+
+    vector < double > tagWetAreaVec;
+    vector < double > tagProjAreaVec;
+    vector < double > tagSolarAreaVec;
+
+    vector < double > ssWetAreaVec;
+    vector < double > ssProjAreaVec;
+    vector < double > ssSolarAreaVec;
+
+    surfWetAreaVec.resize( nsurf, 0.0 );
+    surfProjAreaVec.resize( nsurf, 0.0 );
+    surfSolarAreaVec.resize( nsurf, 0.0 );
+
+    tagWetAreaVec.resize( ntags, 0.0 );
+    tagProjAreaVec.resize( ntags, 0.0 );
+    tagSolarAreaVec.resize( ntags, 0.0 );
+
+    ssWetAreaVec.resize( nss, 0.0 );
+    ssProjAreaVec.resize( nss, 0.0 );
+    ssSolarAreaVec.resize( nss, 0.0 );
+
+    double wet;
+    double proj;
+    double solar;
+
+    for ( int j = 0; j < ntags; j++ )
+    {
+        wet = sv->m_TagWetAreaVec[j];
+        proj = sv->m_TagProjAreaVec[j];
+        solar = sv->m_TagSolarAreaVec[j];
+
+        tagWetAreaVec[j] += wet;
+        tagProjAreaVec[j] += proj;
+        tagSolarAreaVec[j] += solar;
+
+        string gtagid = vecTagIDVec[j][0];
+
+        vector < string >::iterator surf_iter = find( surfIDVec.begin(), surfIDVec.end(), gtagid );
+        int surf_index = -1;
+        if ( surf_iter != surfIDVec.end() )
+        {
+            surf_index = surf_iter - surfIDVec.begin();
+        }
+        if ( surf_index > -1 )
+        {
+            surfWetAreaVec[surf_index] += wet;
+            surfProjAreaVec[surf_index] += proj;
+            surfSolarAreaVec[surf_index] += solar;
+        }
+
+        for ( int k = 1; k < vecTagIDVec[j].size(); k++ )
+        {
+            vector < string >::iterator ssid_iter = find( ssIDVec.begin(), ssIDVec.end(), vecTagIDVec[j][k] );
+            int ss_index = -1;
+            if ( ssid_iter != ssIDVec.end() )
+            {
+                ss_index = ssid_iter - ssIDVec.begin();
+            }
+            if ( ss_index > -1 )
+            {
+                ssWetAreaVec[ss_index] += wet;
+                ssProjAreaVec[ss_index] += proj;
+                ssSolarAreaVec[ss_index] += solar;
+            }
+        }
+    }
+
+
+    result_tmv.push_back( sv );
+
+    Results *res = ResultsMgr.FindResultsPtr( resid );
+    if( res )
+    {
+        // Populate results.
+        res->Add( new NameValData( "Num_Surfs", nsurf, "Number of surfs." ) );
+        res->Add( new NameValData( "Surf_Name", surfNameVec, "Surf names." ) );
+        res->Add( new NameValData( "Surf_ID", surfIDVec, "Surf IDs." ) );
+        res->Add( new NameValData( "Surf_Wet_Area", surfWetAreaVec, "Visible surface area for surf." ) );
+        res->Add( new NameValData( "Surf_Proj_Area", surfProjAreaVec, "Projected visible area for surf." ) );
+        res->Add( new NameValData( "Surf_Solar_Area", surfSolarAreaVec, "Equivalent solar area for surf." ) );
+
+        res->Add( new NameValData( "Num_Tags", ntags, "Number of tags." ) );
+        res->Add( new NameValData( "Tag_Name", tagNameVec, "Tag names." ) );
+        res->Add( new NameValData( "Tag_ID", tagIDVec, "Tag IDs." ) );
+        res->Add( new NameValData( "Tag_Wet_Area", tagWetAreaVec, "Visible surface area for tag." ) );
+        res->Add( new NameValData( "Tag_Proj_Area", tagProjAreaVec, "Projected visible area for tag." ) );
+        res->Add( new NameValData( "Tag_Solar_Area", tagSolarAreaVec, "Equivalent solar area for tag." ) );
+
+        res->Add( new NameValData( "Num_SubSurfs", nss, "Number of SubSurfs." ) );
+        res->Add( new NameValData( "SubSurf_Name", ssNameVec, "SubSurf names." ) );
+        res->Add( new NameValData( "SubSurf_ID", ssIDVec, "SubSurf IDs." ) );
+        res->Add( new NameValData( "SubSurf_Wet_Area", ssWetAreaVec, "Visible surface area for SubSurf." ) );
+        res->Add( new NameValData( "SubSurf_Proj_Area", ssProjAreaVec, "Projected visible area for SubSurf." ) );
+        res->Add( new NameValData( "SubSurf_Solar_Area", ssSolarAreaVec, "Equivalent solar area for SubSurf." ) );
+
+        res->Add( new NameValData( "Total_Wet_Area", sv->m_WetArea, "Visible surface area." ) );
+        res->Add( new NameValData( "Total_Proj_Area", sv->m_ProjArea, "Projected visible area." ) );
+        res->Add( new NameValData( "Total_Solar_Area", sv->m_SolarArea, "Equivalent solar area." ) );
+
+        res->Add( new NameValData( "Result", sv->m_ProjArea, "Interference result" ) );
+    }
 }
 
 void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d & norm, const string & resid, vector< TMesh* > & result_tmv )
