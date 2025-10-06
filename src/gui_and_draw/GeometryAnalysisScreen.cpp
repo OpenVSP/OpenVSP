@@ -103,21 +103,18 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GCaseLayout.ForceNewLine( 0 );
     m_GCaseLayout.AddYGap();
 
-    int optH = 2 * m_GCaseLayout.GetStdHeight() + m_GCaseLayout.GetDividerHeight();
-    m_GCaseLayout.AddSubGroupLayout( m_OptionsLayout, geomW, optH );
-    m_GCaseLayout.AddX( geomW + 5 );
-    int cutoutH = 4 * m_GCaseLayout.GetStdHeight() + m_GCaseLayout.GetDividerHeight();
-    m_GCaseLayout.AddSubGroupLayout( m_CutoutLayout, geomW, cutoutH );
+    int optH = 10 * m_GCaseLayout.GetStdHeight() + m_GCaseLayout.GetDividerHeight();
+    m_GCaseLayout.AddSubGroupLayout( m_OptionsLayout, m_GCaseLayout.GetW(), optH );
     m_GCaseLayout.AddY( optH );
 
     m_GCaseLayout.ForceNewLine( 0 );
     m_GCaseLayout.AddYGap();
 
-    int motionH = 7 * m_GCaseLayout.GetStdHeight() + 2 * m_GCaseLayout.GetDividerHeight();
-    m_GCaseLayout.AddSubGroupLayout( m_MotionLayout, geomW, motionH );
-    m_GCaseLayout.AddY( motionH );
+    m_OptionsLayout.AddDividerBox( "Options" );
 
-    m_GCaseLayout.ForceNewLine( 0 );
+    m_OptionsLayout.AddSubGroupLayout( m_RotateOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
+    m_OptionsLayout.AddSubGroupLayout( m_VisibilityOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
+    m_OptionsLayout.AddSubGroupLayout( m_MotionOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
 
     m_PrimaryLayout.AddDividerBox( "Primary" );
 
@@ -219,56 +216,54 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     val_map.push_back( vsp::XYZ_TARGET );
     m_SecondaryToggleGroup.SetValMapVec( val_map );
 
-    m_OptionsLayout.AddDividerBox( "Options" );
 
-    m_OptionsLayout.SetFitWidthFlag( false );
-    m_OptionsLayout.SetSameLineFlag( true );
-
-    m_OptionsLayout.SetButtonWidth( m_OptionsLayout.GetW() * 0.5 );
-    m_OptionsLayout.AddButton( m_CCWToggle, "CCW" );
-    m_OptionsLayout.AddButton( m_CWToggle, "CW" );
-    m_OptionsLayout.ForceNewLine();
+    m_RotateOptionsLayout.SetButtonWidth( m_RotateOptionsLayout.GetW() * 0.5 );
+    m_RotateOptionsLayout.AddButton( m_CCWToggle, "CCW" );
+    m_RotateOptionsLayout.AddButton( m_CWToggle, "CW" );
+    m_RotateOptionsLayout.ForceNewLine();
 
     m_CCWToggleGroup.Init( this );
     m_CCWToggleGroup.AddButton( m_CCWToggle.GetFlButton() );
     m_CCWToggleGroup.AddButton( m_CWToggle.GetFlButton() );
 
-    m_OptionsLayout.AddButton( m_PolyVisibleToggle, "Visible" );
-    m_OptionsLayout.AddButton( m_PolyOccludedToggle, "Occluded" );
-    m_OptionsLayout.ForceNewLine();
+    m_VisibilityOptionsLayout.AddButton( m_PolyVisibleToggle, "Visible" );
+    m_VisibilityOptionsLayout.AddButton( m_PolyOccludedToggle, "Occluded" );
+    m_VisibilityOptionsLayout.ForceNewLine();
 
     m_PolyVisibleToggleGroup.Init( this );
     m_PolyVisibleToggleGroup.AddButton( m_PolyOccludedToggle.GetFlButton() ); // false first
     m_PolyVisibleToggleGroup.AddButton( m_PolyVisibleToggle.GetFlButton() );  // true
 
 
-    m_CutoutLayout.SetSameLineFlag( false );
-    m_CutoutLayout.SetFitWidthFlag( true );
+    m_VisibilityOptionsLayout.SetSameLineFlag( false );
+    m_VisibilityOptionsLayout.SetFitWidthFlag( true );
 
 
-    m_CutoutLayout.AddDividerBox( "Cutout" );
-    m_SubSurfCutoutBrowser = m_CutoutLayout.AddCheckBrowser( m_CutoutLayout.GetRemainY() );
+    m_VisibilityOptionsLayout.AddDividerBox( "Cutout" );
+    m_SubSurfCutoutBrowser = m_VisibilityOptionsLayout.AddCheckBrowser( m_VisibilityOptionsLayout.GetRemainY() );
     m_SubSurfCutoutBrowser->callback( staticScreenCB, this );
 
 
-    m_MotionLayout.SetSameLineFlag( false );
-    m_MotionLayout.SetFitWidthFlag( true );
+    m_MotionOptionsLayout.SetSameLineFlag( false );
+    m_MotionOptionsLayout.SetFitWidthFlag( true );
 
 
-    m_MotionLayout.AddDividerBox( "Motion" );
+    m_MotionOptionsLayout.AddYGap();
+    m_MotionOptionsLayout.AddDividerBox( "Motion" );
 
-    m_MotionLayout.AddChoice( m_ExtentChoice, "Extent" );
+    m_MotionOptionsLayout.AddChoice( m_ExtentChoice, "Extent" );
 
-    m_MotionLayout.AddSlider( m_DispXSlider, "X", 10, "%6.4f" );
-    m_MotionLayout.AddSlider( m_DispYSlider, "Y", 10, "%6.4f" );
-    m_MotionLayout.AddSlider( m_DispZSlider, "Z", 10, "%6.4f" );
+    m_MotionOptionsLayout.AddSlider( m_DispXSlider, "X", 10, "%6.4f" );
+    m_MotionOptionsLayout.AddSlider( m_DispYSlider, "Y", 10, "%6.4f" );
+    m_MotionOptionsLayout.AddSlider( m_DispZSlider, "Z", 10, "%6.4f" );
 
-    m_MotionLayout.AddDividerBox( "Dispersion" );
+    m_MotionOptionsLayout.AddYGap();
+    m_MotionOptionsLayout.AddDividerBox( "Dispersion" );
 
-    m_MotionLayout.SetSameLineFlag( true );
-    m_MotionLayout.SetFitWidthFlag( false );
+    m_MotionOptionsLayout.SetSameLineFlag( true );
+    m_MotionOptionsLayout.SetFitWidthFlag( false );
 
-    m_MotionLayout.SetInputWidth( 50 );
+    m_MotionOptionsLayout.SetInputWidth( 50 );
 
     char theta[16];
     int indx = 0;
@@ -280,39 +275,39 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     int tbw = 55;
     int thetabw = 30;
 
-    m_MotionLayout.SetButtonWidth( tbw );
-    m_MotionLayout.AddButton( m_SymmRotXToggle, "Symm" );
-    m_MotionLayout.SetFitWidthFlag( true );
-    m_MotionLayout.SetButtonWidth( thetabw );
-    m_MotionLayout.AddSlider( m_RotXpSlider, theta, 10, "%6.4f", m_MotionLayout.GetRemainX() * 0.5 );
+    m_MotionOptionsLayout.SetButtonWidth( tbw );
+    m_MotionOptionsLayout.AddButton( m_SymmRotXToggle, "Symm" );
+    m_MotionOptionsLayout.SetFitWidthFlag( true );
+    m_MotionOptionsLayout.SetButtonWidth( thetabw );
+    m_MotionOptionsLayout.AddSlider( m_RotXpSlider, theta, 10, "%6.4f", m_MotionOptionsLayout.GetRemainX() * 0.5 );
     theta[ indx + 1 ] = '-';
-    m_MotionLayout.AddSlider( m_RotXnSlider, theta, 10, "%6.4f" );
+    m_MotionOptionsLayout.AddSlider( m_RotXnSlider, theta, 10, "%6.4f" );
 
     theta[ indx ] = 'Y';
     theta[ indx + 1 ] = '+';
-    m_MotionLayout.ForceNewLine();
-    m_MotionLayout.SetFitWidthFlag( false );
-    m_MotionLayout.SetButtonWidth( tbw );
-    m_MotionLayout.SetButtonWidth( tbw );
-    m_MotionLayout.AddButton( m_SymmRotYToggle, "Symm" );
-    m_MotionLayout.SetFitWidthFlag( true );
-    m_MotionLayout.SetButtonWidth( thetabw );
-    m_MotionLayout.AddSlider( m_RotYpSlider, theta, 10, "%6.4f", m_MotionLayout.GetRemainX() * 0.5 );
+    m_MotionOptionsLayout.ForceNewLine();
+    m_MotionOptionsLayout.SetFitWidthFlag( false );
+    m_MotionOptionsLayout.SetButtonWidth( tbw );
+    m_MotionOptionsLayout.SetButtonWidth( tbw );
+    m_MotionOptionsLayout.AddButton( m_SymmRotYToggle, "Symm" );
+    m_MotionOptionsLayout.SetFitWidthFlag( true );
+    m_MotionOptionsLayout.SetButtonWidth( thetabw );
+    m_MotionOptionsLayout.AddSlider( m_RotYpSlider, theta, 10, "%6.4f", m_MotionOptionsLayout.GetRemainX() * 0.5 );
     theta[ indx + 1 ] = '-';
-    m_MotionLayout.AddSlider( m_RotYnSlider, theta, 10, "%6.4f" );
+    m_MotionOptionsLayout.AddSlider( m_RotYnSlider, theta, 10, "%6.4f" );
 
     theta[ indx ] = 'Z';
     theta[ indx + 1 ] = '+';
-    m_MotionLayout.ForceNewLine();
-    m_MotionLayout.SetFitWidthFlag( false );
-    m_MotionLayout.SetButtonWidth( tbw );
-    m_MotionLayout.SetButtonWidth( tbw );
-    m_MotionLayout.AddButton( m_SymmRotZToggle, "Symm" );
-    m_MotionLayout.SetFitWidthFlag( true );
-    m_MotionLayout.SetButtonWidth( thetabw );
-    m_MotionLayout.AddSlider( m_RotZpSlider, theta, 10, "%6.4f", m_MotionLayout.GetRemainX() * 0.5 );
+    m_MotionOptionsLayout.ForceNewLine();
+    m_MotionOptionsLayout.SetFitWidthFlag( false );
+    m_MotionOptionsLayout.SetButtonWidth( tbw );
+    m_MotionOptionsLayout.SetButtonWidth( tbw );
+    m_MotionOptionsLayout.AddButton( m_SymmRotZToggle, "Symm" );
+    m_MotionOptionsLayout.SetFitWidthFlag( true );
+    m_MotionOptionsLayout.SetButtonWidth( thetabw );
+    m_MotionOptionsLayout.AddSlider( m_RotZpSlider, theta, 10, "%6.4f", m_MotionOptionsLayout.GetRemainX() * 0.5 );
     theta[ indx + 1 ] = '-';
-    m_MotionLayout.AddSlider( m_RotZnSlider, theta, 10, "%6.4f" );
+    m_MotionOptionsLayout.AddSlider( m_RotZnSlider, theta, 10, "%6.4f" );
 
 
     m_GCaseLayout.AddYGap();
@@ -333,6 +328,11 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GCaseLayout.AddOutput( m_ResultOutput, "", "%6.5f", m_GCaseLayout.GetW() - m_GCaseLayout.GetRemainX() );
 
     m_GeometryBrowserSelect = -1;
+
+    // Initialize to valid group
+    m_OptionsCurrDisplayGroup = &m_RotateOptionsLayout;
+    // Set to null to hide them all.
+    OptionsDisplayGroup( nullptr );
 }
 
 GeometryAnalysisScreen::~GeometryAnalysisScreen()
@@ -720,6 +720,23 @@ bool GeometryAnalysisScreen::Update()
             m_RotYnSlider.Deactivate();
             m_RotZnSlider.Deactivate();
         }
+
+        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE )
+        {
+            OptionsDisplayGroup( &m_RotateOptionsLayout );
+        }
+        else if ( gcase->m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS )
+        {
+            OptionsDisplayGroup( &m_VisibilityOptionsLayout );
+        }
+        else if ( gcase->m_GeometryAnalysisType() == vsp::LINEAR_SWEPT_VOLUME_ANALYSIS )
+        {
+            OptionsDisplayGroup( &m_MotionOptionsLayout );
+        }
+        else
+        {
+            OptionsDisplayGroup( nullptr );
+        }
     }
     else
     {
@@ -806,6 +823,25 @@ void GeometryAnalysisScreen::UpdateWindowSubSurfBrowser()
                 }
             }
         }
+    }
+}
+
+void GeometryAnalysisScreen::OptionsDisplayGroup( GroupLayout* group )
+{
+    if ( m_OptionsCurrDisplayGroup == group )
+    {
+        return;
+    }
+
+    m_RotateOptionsLayout.Hide();
+    m_VisibilityOptionsLayout.Hide();
+    m_MotionOptionsLayout.Hide();
+
+    m_OptionsCurrDisplayGroup = group;
+
+    if ( group )
+    {
+        group->Show();
     }
 }
 

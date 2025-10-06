@@ -46,14 +46,20 @@ public:
 
 protected:
 
+    GroupLayout* m_OptionsCurrDisplayGroup;
+    void OptionsDisplayGroup( GroupLayout* group );
+
+
     GroupLayout m_GenLayout;
     GroupLayout m_BorderLayout;
     GroupLayout m_GCaseLayout;
     GroupLayout m_PrimaryLayout;
     GroupLayout m_SecondaryLayout;
     GroupLayout m_OptionsLayout;
-    GroupLayout m_CutoutLayout;
-    GroupLayout m_MotionLayout;
+
+    GroupLayout m_RotateOptionsLayout;
+    GroupLayout m_VisibilityOptionsLayout;
+    GroupLayout m_MotionOptionsLayout;
 
     ColResizeBrowser* m_GeometryAnalysisBrowser;
     int m_GeometryBrowserSelect;
