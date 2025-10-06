@@ -115,6 +115,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_OptionsLayout.AddSubGroupLayout( m_RotateOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
     m_OptionsLayout.AddSubGroupLayout( m_VisibilityOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
     m_OptionsLayout.AddSubGroupLayout( m_MotionOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
+    m_OptionsLayout.AddSubGroupLayout( m_LookAtVisibilityOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
 
     m_PrimaryLayout.AddDividerBox( "Primary" );
 
@@ -309,6 +310,9 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     theta[ indx + 1 ] = '-';
     m_MotionOptionsLayout.AddSlider( m_RotZnSlider, theta, 10, "%6.4f" );
 
+    m_LookAtVisibilityOptionsLayout.AddSlider( m_AzimuthSlider, "Azimuth", 10, "%6.4f" );
+    m_LookAtVisibilityOptionsLayout.AddSlider( m_ElevationSlider, "Elevation", 10, "%6.4f" );
+    m_LookAtVisibilityOptionsLayout.AddSlider( m_N2RefractionIndexSlider, "N2", 1, "%6.4f" );
 
     m_GCaseLayout.AddYGap();
     m_GCaseLayout.AddDividerBox( "Analysis" );
@@ -451,6 +455,10 @@ bool GeometryAnalysisScreen::Update()
         m_RotXnSlider.Update( gcase->m_RotXn.GetID() );
         m_RotYnSlider.Update( gcase->m_RotYn.GetID() );
         m_RotZnSlider.Update( gcase->m_RotZn.GetID() );
+
+        m_AzimuthSlider.Update( gcase->m_Azimuth.GetID() );
+        m_ElevationSlider.Update( gcase->m_Elevation.GetID() );
+        m_N2RefractionIndexSlider.Update( gcase->m_N2RefractionIndex.GetID() );
 
         m_ScreenMgr->LoadSetChoice( {&m_PrimarySetChoice, &m_SecondarySetChoice}, {gcase->m_PrimarySet.GetID(), gcase->m_SecondarySet.GetID()} );
 
@@ -613,7 +621,8 @@ bool GeometryAnalysisScreen::Update()
         if ( gcase->m_GeometryAnalysisType() == vsp::EXTERNAL_SELF_INTERFERENCE ||
              gcase->m_GeometryAnalysisType() == vsp::GEAR_CG_TIPBACK_ANALYSIS ||
              gcase->m_GeometryAnalysisType() == vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS ||
-             gcase->m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS )
+             gcase->m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::VISIBLE_AT_SURF_ANALYSIS )
         {
             m_SecondaryLayout.GetGroup()->deactivate();
         }
@@ -688,6 +697,10 @@ bool GeometryAnalysisScreen::Update()
         else if ( gcase->m_GeometryAnalysisType() == vsp::LINEAR_SWEPT_VOLUME_ANALYSIS )
         {
             OptionsDisplayGroup( &m_MotionOptionsLayout );
+        }
+        else if ( gcase->m_GeometryAnalysisType() == vsp::VISIBLE_AT_SURF_ANALYSIS )
+        {
+            OptionsDisplayGroup( & m_LookAtVisibilityOptionsLayout );
         }
         else
         {
@@ -792,6 +805,7 @@ void GeometryAnalysisScreen::OptionsDisplayGroup( GroupLayout* group )
     m_RotateOptionsLayout.Hide();
     m_VisibilityOptionsLayout.Hide();
     m_MotionOptionsLayout.Hide();
+    m_LookAtVisibilityOptionsLayout.Hide();
 
     m_OptionsCurrDisplayGroup = group;
 

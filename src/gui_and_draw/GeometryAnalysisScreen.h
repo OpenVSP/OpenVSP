@@ -60,6 +60,7 @@ protected:
     GroupLayout m_RotateOptionsLayout;
     GroupLayout m_VisibilityOptionsLayout;
     GroupLayout m_MotionOptionsLayout;
+    GroupLayout m_LookAtVisibilityOptionsLayout;
 
     ColResizeBrowser* m_GeometryAnalysisBrowser;
     int m_GeometryBrowserSelect;
@@ -131,6 +132,10 @@ protected:
     SliderAdjRangeInput m_RotXnSlider;
     SliderAdjRangeInput m_RotYnSlider;
     SliderAdjRangeInput m_RotZnSlider;
+
+    SliderAdjRangeInput m_AzimuthSlider;
+    SliderAdjRangeInput m_ElevationSlider;
+    SliderAdjRangeInput m_N2RefractionIndexSlider;
 
     TriggerButton m_Evaluate;
     TriggerButton m_ShowResultsViewer;
