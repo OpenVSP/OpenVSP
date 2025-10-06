@@ -1569,6 +1569,26 @@ string GeometryAnalysisCase::Evaluate()
                 }
                 break;
             }
+            case vsp::VISIBLE_AT_SURF_ANALYSIS:
+            {
+                Results* res = ResultsMgr.CreateResults( "Look_At_Visibility", "Visibility of a surface from a direction." );
+                if( res )
+                {
+                    m_LastResult = res->GetID();
+                    primary_tmv = GetPrimaryTMeshVec();
+
+                    CSGMesh( primary_tmv, true );
+                    FlattenTMeshVec( primary_tmv );
+                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+
+
+                    vec3d dir( 1, 0, 0 );
+                    double n2 = 1.33;
+
+                    LookAtVisibility( primary_tm, dir, n2, m_LastResult, m_TMeshVec);
+                }
+                break;
+            }
         }
 
         // These are safe for empty vectors.
