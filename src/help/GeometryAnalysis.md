@@ -28,6 +28,7 @@ input.  These requirements are summarized in the following table.
 | [From Point Visibility](#from-point-visibility)               | Any              | XYZ, HumanGeom, or Geom            |
 | [Composite Clearance Envelope](#composite-clearance-envelope) | Any              | 3pt Composite Clearance Envelope   |
 | [Swept Volume](#swept-volume)                                 | Any              | Any or HingeGeom                   |
+| [Look At Visibility](#look-at-visibility)                     | Any              | N/A                                |
 
 
 ## External
@@ -137,3 +138,18 @@ the HingeGeom.  Otherwise, the direction of displacement is provided by the user
 Positive and negative displersion angles can be specified.  These angles rotate the swept volume's direction in the
 X, Y, or Z directions.  For typical problems, the X dispersion will control dispersion from the front view and the
 Y dispersion will control dispersion from the side view.
+
+## Look At Visibility
+
+Calculate the model's visibility from a specific direction.  Before calculating visibility,
+a CompGeom type analysis is run on the primary geometry set to compute each trimmed OML -- this
+step allows the geometry set to include negative components.
+
+The visible wetted area, visible projected area, and the equivalent solar areas are calculated on a per-surface,
+per-tag, and per-subsurface basis.
+
+The view direction is specified as azimuth and elevation angles from the model's perspective -- i.e. positive up
+and to the right from the pilot's perspective.
+
+The equivalent solar area uses the user specified index of refraction of the glass (or optical coating) of the solar
+cell to compute the Fresnel reflectance correction to the solar cell's effective area.

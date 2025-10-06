@@ -128,6 +128,12 @@ Volume</a></td>
 <td style="text-align: left;">Any</td>
 <td>Any or HingeGeom</td>
 </tr>
+<tr>
+<td style="text-align: left;"><a href="#look-at-visibility">Look At
+Visibility</a></td>
+<td style="text-align: left;">Any</td>
+<td>N/A</td>
+</tr>
 </tbody>
 </table>
 <h2 id="external">External</h2>
@@ -242,5 +248,19 @@ angles rotate the swept volume's direction in the X, Y, or Z directions.
 For typical problems, the X dispersion will control dispersion from the
 front view and the Y dispersion will control dispersion from the side
 view.</p>
+<h2 id="look-at-visibility">Look At Visibility</h2>
+<p>Calculate the model's visibility from a specific direction. Before
+calculating visibility, a CompGeom type analysis is run on the primary
+geometry set to compute each trimmed OML -- this step allows the
+geometry set to include negative components.</p>
+<p>The visible wetted area, visible projected area, and the equivalent
+solar areas are calculated on a per-surface, per-tag, and per-subsurface
+basis.</p>
+<p>The view direction is specified as azimuth and elevation angles from
+the model's perspective -- i.e. positive up and to the right from the
+pilot's perspective.</p>
+<p>The equivalent solar area uses the user specified index of refraction
+of the glass (or optical coating) of the solar cell to compute the
+Fresnel reflectance correction to the solar cell's effective area.</p>
 </body>
 </html>
