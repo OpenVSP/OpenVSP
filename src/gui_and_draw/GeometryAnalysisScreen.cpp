@@ -557,16 +557,10 @@ bool GeometryAnalysisScreen::Update()
 
         if ( gcase->m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS )
         {
-            m_PolyVisibleToggleGroup.Activate();
-            m_SubSurfCutoutBrowser->activate();
-
             m_SecondaryUsePointToggle.Activate();
         }
         else
         {
-            m_PolyVisibleToggleGroup.Deactivate();
-            m_SubSurfCutoutBrowser->deactivate();
-
             m_SecondaryUsePointToggle.Deactivate();
 
             m_SecondaryXSlider.Deactivate();
@@ -628,15 +622,6 @@ bool GeometryAnalysisScreen::Update()
             m_SecondaryLayout.GetGroup()->activate();
         }
 
-        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE )
-        {
-            m_CCWToggleGroup.Activate();
-        }
-        else
-        {
-            m_CCWToggleGroup.Deactivate();
-        }
-
         if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE ||
              gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
              gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
@@ -650,19 +635,9 @@ bool GeometryAnalysisScreen::Update()
 
         if ( gcase->m_GeometryAnalysisType() == vsp::LINEAR_SWEPT_VOLUME_ANALYSIS )
         {
-            m_ExtentChoice.Activate();
-
             m_DispXSlider.Activate();
             m_DispYSlider.Activate();
             m_DispZSlider.Activate();
-
-            m_SymmRotXToggle.Activate();
-            m_SymmRotYToggle.Activate();
-            m_SymmRotZToggle.Activate();
-
-            m_RotXpSlider.Activate();
-            m_RotYpSlider.Activate();
-            m_RotZpSlider.Activate();
 
             m_RotXnSlider.Activate();
             m_RotYnSlider.Activate();
@@ -700,25 +675,6 @@ bool GeometryAnalysisScreen::Update()
             {
                 m_RotZnSlider.Deactivate();
             }
-        }
-        else
-        {
-            m_ExtentChoice.Deactivate();
-            m_DispXSlider.Deactivate();
-            m_DispYSlider.Deactivate();
-            m_DispZSlider.Deactivate();
-
-            m_SymmRotXToggle.Deactivate();
-            m_SymmRotYToggle.Deactivate();
-            m_SymmRotZToggle.Deactivate();
-
-            m_RotXpSlider.Deactivate();
-            m_RotYpSlider.Deactivate();
-            m_RotZpSlider.Deactivate();
-
-            m_RotXnSlider.Deactivate();
-            m_RotYnSlider.Deactivate();
-            m_RotZnSlider.Deactivate();
         }
 
         if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE )
