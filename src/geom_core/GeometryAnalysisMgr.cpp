@@ -72,6 +72,10 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_RotYn.Init( "RotYn", groupname, this, 0.0, -180, 180 );
     m_RotZn.Init( "RotZn", groupname, this, 0.0, -180, 180 );
 
+    m_Azimuth.Init( "Azimuth", groupname, this, 0.0, -180, 180 );
+    m_Elevation.Init( "Elevation", groupname, this, 0.0, -90, 90 );
+    m_N2RefractionIndex.Init( "N2RefractionIndex", groupname, this, 1.0, 0.0, 100 );
+
     m_GeometryAnalysisType.Init( "IntererenceCheckType", groupname, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
 
     m_LastResultValue.Init( "LastResult", groupname, this, 0.0, -1e12, 1e12 );
@@ -1581,11 +1585,9 @@ string GeometryAnalysisCase::Evaluate()
                     FlattenTMeshVec( primary_tmv );
                     TMesh *primary_tm = MergeTMeshVec( primary_tmv );
 
+                    vec3d dir = ToCartesian( vec3d( 1, -m_Azimuth() * M_PI / 180.0, -m_Elevation() * M_PI / 180.0 ) );
 
-                    vec3d dir( 1, 0, 0 );
-                    double n2 = 1.33;
-
-                    LookAtVisibility( primary_tm, dir, n2, m_LastResult, m_TMeshVec);
+                    LookAtVisibility( primary_tm, dir, m_N2RefractionIndex(), m_LastResult, m_TMeshVec);
                 }
                 break;
             }

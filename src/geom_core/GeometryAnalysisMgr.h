@@ -107,6 +107,10 @@ public:
     Parm m_RotYn;
     Parm m_RotZn;
 
+    Parm m_Azimuth;
+    Parm m_Elevation;
+    Parm m_N2RefractionIndex;
+
     IntParm m_GeometryAnalysisType;
 
     string m_LastResult;
