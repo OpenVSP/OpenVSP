@@ -1650,6 +1650,87 @@ double TMesh::ComputeWetArea()
     return m_WetArea;
 }
 
+void TMesh::ComputeVisibleArea( const vec3d &dir, const double n2 )
+{
+    m_WetArea = 0;
+    m_ProjArea = 0;
+    m_SolarArea = 0;
+    m_TagWetAreaVec.clear();
+    m_TagProjAreaVec.clear();
+    m_TagSolarAreaVec.clear();
+    int ntags = SubSurfaceMgr.GetNumTags() - 1;
+    if ( ntags > 0 )
+    {
+        m_TagWetAreaVec.resize( ntags, 0.0);
+        m_TagProjAreaVec.resize( ntags, 0.0);
+        m_TagSolarAreaVec.resize( ntags, 0.0);
+    }
+
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        // TMesh::SubTag guarantees that split tris have same tags as normal tris.
+        // So, just look up tag index once per tri.
+        const int itag = SubSurfaceMgr.GetTag( tri->m_Tags ) - 1;
+
+        const double theta = angle( tri->m_Norm, -dir );
+        const double costheta = cos( theta );
+
+        // Angle of refraction
+        const double theta2 = asin( sin( theta ) / n2 );
+
+        const double tm = tan( theta - theta2 );
+        const double tp = tan( theta + theta2 );
+        const double sm = sin( theta - theta2 );
+        const double sp = sin( theta + theta2 );
+        // Fresnel reflectance
+        const double r = 0.5 * ( ( sm * sm ) / ( sp * sp ) + ( tm * tm ) / (tp * tp ) );
+        // Fresnel transmittance
+        const double f = 1.0 - r;
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
+                {
+                    const double area = tri->m_SplitVec[s]->ComputeArea();
+                    const double proj = area * costheta;
+                    const double solar = f * proj;
+
+                    m_WetArea += area;
+                    m_ProjArea += proj;
+                    m_SolarArea += solar;
+                    if ( itag >= 0 && itag < ntags )
+                    {
+                        m_TagWetAreaVec[itag] += area;
+                        m_TagProjAreaVec[itag] += proj;
+                        m_TagSolarAreaVec[itag] += solar;
+                    }
+                }
+            }
+        }
+        else if ( !tri->m_IgnoreTriFlag )
+        {
+            const double area = tri->ComputeArea();
+            const double proj = area * costheta;
+            const double solar = f * proj;
+
+            m_WetArea += tri->ComputeArea();
+            m_ProjArea += proj;
+            m_SolarArea += solar;
+            if ( itag >= 0 && itag < ntags )
+            {
+                m_TagWetAreaVec[itag] += area;
+                m_TagProjAreaVec[itag] += proj;
+                m_TagSolarAreaVec[itag] += solar;
+            }
+        }
+    }
+}
+
 double TMesh::ComputeWaveDragArea( const std::unordered_map< string, int > &idmap )
 {
     m_WetArea = 0;

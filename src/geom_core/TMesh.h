@@ -499,6 +499,7 @@ public:
 
     virtual double ComputeTheoArea();
     virtual double ComputeWetArea();
+    virtual void ComputeVisibleArea( const vec3d &dir, double n2 );
     virtual double ComputeWaveDragArea( const std::unordered_map< string, int > &idmap );
     virtual double ComputeTheoVol();
     virtual double ComputeTrimVol();
@@ -608,9 +609,13 @@ public:
 
     double m_TheoArea;
     double m_WetArea;
+    double m_ProjArea;
+    double m_SolarArea;
     vector < double > m_CompAreaVec;
     vector < double > m_TagTheoAreaVec;
     vector < double > m_TagWetAreaVec;
+    vector < double > m_TagProjAreaVec;
+    vector < double > m_TagSolarAreaVec;
     double m_TheoVol;
     double m_GuessVol;
     double m_WetVol;
