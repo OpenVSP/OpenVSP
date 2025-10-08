@@ -1774,7 +1774,8 @@ void GeometryAnalysisCase::UpdateDrawObj_PostAnalysis()
     vector < vec3d > colorvec( m_TMeshVec.size(), DrawObj::Color( DrawObj::RED ) );
 
     if ( m_TMeshVec.size() > 0 &&
-         m_GeometryAnalysisType() == vsp::LINEAR_SWEPT_VOLUME_ANALYSIS )
+         ( m_GeometryAnalysisType() == vsp::LINEAR_SWEPT_VOLUME_ANALYSIS ||
+           m_GeometryAnalysisType() == vsp::VISIBLE_AT_SURF_ANALYSIS ) )
     {
         matvec[0].SetMaterialToDefault();
         matvec[0].m_Diff[3] = 0.25; // Make translucent
