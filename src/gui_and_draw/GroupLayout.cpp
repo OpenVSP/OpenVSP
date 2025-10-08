@@ -1276,7 +1276,7 @@ void GroupLayout::AddSubGroupLayout( GroupLayout& layout, int w, int h )
 //==== Add Fl_CheckBrowser ====//
 Fl_Check_Browser* GroupLayout::AddCheckBrowser( int h )
 {
-    int w = FitWidth( 0, m_DividerHeight );
+    int w = FitWidth( 0, m_ButtonWidth );
 
     Fl_Check_Browser* check_browser = new Fl_Check_Browser( m_X, m_Y, w, h );
     check_browser->labelfont( FL_HELVETICA_BOLD );
