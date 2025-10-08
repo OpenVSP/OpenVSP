@@ -9,6 +9,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "BndBox.h"
+#include "Mathematics/DistRay3AlignedBox3.h"
+#include "Mathematics/Ray.h"
+#include "Mathematics/DistLine3AlignedBox3.h"
 
 #include <assert.h>
 
@@ -459,6 +462,29 @@ void BndBox::MaxDistRay( const vec3d &org, const vec3d &norm, double &maxd )
             maxd = d;
         }
     }
+}
+
+void BndBox::MinDistRay( const vec3d &org, const vec3d &norm, double &mind )
+{
+    gte::DCPQuery < double, gte::Ray3 < double >, gte::AlignedBox3 < double > > dcpq;
+
+    gte::Vector3 < double > inOrigin, inDirection, pmin, pmax;
+
+    for ( int j = 0; j < 3; j++ )
+    {
+        inOrigin[j] = org.v[j];
+        inDirection[j] = norm.v[j];
+        pmin[j] = m_Min.v[j];
+        pmax[j] = m_Max.v[j];
+    }
+
+    gte::Ray3 < double > ray( inOrigin, inDirection );
+
+    gte::AlignedBox3 < double > box( pmin, pmax );
+
+    auto result = dcpq( ray, box );
+
+    mind = result.distance;
 }
 
 //==== Assemble Boundbox Draw Lines ====//
