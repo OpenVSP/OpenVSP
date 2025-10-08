@@ -1031,6 +1031,11 @@ double TMesh::MaxDistanceRay( const vec3d &org, const vec3d &norm, double curr_m
     return m_TBox.MaxDistanceRay( org, norm, curr_max_dist, p1, p2 );
 }
 
+double TMesh::MinDistanceRay( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 )
+{
+    return m_TBox.MinDistanceRay( org, norm, curr_min_dist, p1, p2 );
+}
+
 double TMesh::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 )
 {
     return m_TBox.MinAngle( org, norm, ptaxis, axis, curr_min_angle, ccw, p1, p2 );
