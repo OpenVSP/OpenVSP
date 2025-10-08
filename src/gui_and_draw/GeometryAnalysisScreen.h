@@ -48,7 +48,7 @@ protected:
 
     GroupLayout* m_OptionsCurrDisplayGroup;
     void OptionsDisplayGroup( GroupLayout* group );
-
+    void UpdateAzElScrollGroup();
 
     GroupLayout m_GenLayout;
     GroupLayout m_BorderLayout;
@@ -59,6 +59,11 @@ protected:
 
     GroupLayout m_RotateOptionsLayout;
     GroupLayout m_VisibilityOptionsLayout;
+
+    GroupLayout m_CutoutLayout;
+    GroupLayout m_AzElLayout;
+    GroupLayout m_AzElScrollLayout;
+
     GroupLayout m_MotionOptionsLayout;
     GroupLayout m_LookAtVisibilityOptionsLayout;
 
@@ -110,6 +115,20 @@ protected:
     ToggleRadioGroup m_PolyVisibleToggleGroup;
 
     Fl_Check_Browser* m_SubSurfCutoutBrowser;
+
+    ToggleButton m_VizContinuousToggle;
+    ToggleButton m_VizDiscreteToggle;
+    ToggleRadioGroup m_VizModeToggleGroup;
+
+    Fl_Scroll* m_AzElScroll;
+    vector < SliderAdjRangeInput > m_AzSliderVec;
+    vector < SliderAdjRangeInput > m_ElSliderVec;
+    int m_CurrentAzElScrollIndex;
+
+    TriggerButton m_AddAzElButton;
+    TriggerButton m_LookAlongAzElButton;
+    TriggerButton m_DelAzElButton;
+    TriggerButton m_DelAllAzElButton;
 
     ToggleButton m_SecondaryUsePointToggle;
     SliderAdjRangeInput m_SecondaryXSlider;

@@ -227,6 +227,21 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_CCWToggleGroup.AddButton( m_CCWToggle.GetFlButton() );
     m_CCWToggleGroup.AddButton( m_CWToggle.GetFlButton() );
 
+
+    m_VisibilityOptionsLayout.SetSameLineFlag( true );
+    m_VisibilityOptionsLayout.SetFitWidthFlag( false );
+
+
+    m_VisibilityOptionsLayout.SetButtonWidth( m_VisibilityOptionsLayout.GetW() * 0.5 );
+
+    m_VisibilityOptionsLayout.AddButton( m_VizContinuousToggle, "Continuous" );
+    m_VisibilityOptionsLayout.AddButton( m_VizDiscreteToggle, "Discrete" );
+    m_VisibilityOptionsLayout.ForceNewLine();
+
+    m_VizModeToggleGroup.Init( this );
+    m_VizModeToggleGroup.AddButton( m_VizContinuousToggle.GetFlButton() ); // false first
+    m_VizModeToggleGroup.AddButton( m_VizDiscreteToggle.GetFlButton() );  // true
+
     m_VisibilityOptionsLayout.AddButton( m_PolyVisibleToggle, "Visible" );
     m_VisibilityOptionsLayout.AddButton( m_PolyOccludedToggle, "Occluded" );
     m_VisibilityOptionsLayout.ForceNewLine();
@@ -235,14 +250,42 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_PolyVisibleToggleGroup.AddButton( m_PolyOccludedToggle.GetFlButton() ); // false first
     m_PolyVisibleToggleGroup.AddButton( m_PolyVisibleToggle.GetFlButton() );  // true
 
+    m_VisibilityOptionsLayout.AddYGap();
 
-    m_VisibilityOptionsLayout.SetSameLineFlag( false );
-    m_VisibilityOptionsLayout.SetFitWidthFlag( true );
+    m_VisibilityOptionsLayout.SetSameLineFlag( true );
+    m_VisibilityOptionsLayout.SetFitWidthFlag( false );
+
+    int thirdw = ( m_VisibilityOptionsLayout.GetW() - 5 ) / 3;
+
+    m_VisibilityOptionsLayout.AddSubGroupLayout( m_CutoutLayout, thirdw, m_VisibilityOptionsLayout.GetRemainY() );
+    m_VisibilityOptionsLayout.AddX( thirdw + 5 );
+    m_VisibilityOptionsLayout.AddSubGroupLayout( m_AzElLayout, 2 * thirdw, m_VisibilityOptionsLayout.GetRemainY() );
 
 
-    m_VisibilityOptionsLayout.AddDividerBox( "Cutout" );
-    m_SubSurfCutoutBrowser = m_VisibilityOptionsLayout.AddCheckBrowser( m_VisibilityOptionsLayout.GetRemainY() );
+    m_CutoutLayout.AddDividerBox( "Cutout" );
+
+    m_CutoutLayout.SetButtonWidth( thirdw );
+    m_SubSurfCutoutBrowser = m_CutoutLayout.AddCheckBrowser( m_CutoutLayout.GetRemainY() );
     m_SubSurfCutoutBrowser->callback( staticScreenCB, this );
+
+
+
+
+    m_AzElLayout.AddDividerBox( "Discrete Az/El View Directions" );
+
+    m_AzElScroll = m_AzElLayout.AddFlScroll( m_AzElLayout.GetRemainY() - m_AzElLayout.GetStdHeight() );
+    m_AzElScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    m_AzElScroll->box( FL_BORDER_BOX );
+    m_AzElScrollLayout.SetGroupAndScreen( m_AzElScroll, this );
+
+    m_AzElLayout.SetSameLineFlag( true );
+    m_AzElLayout.SetFitWidthFlag( false );
+
+    m_AzElLayout.SetButtonWidth( m_AzElLayout.GetW() / 4 );
+    m_AzElLayout.AddButton( m_AddAzElButton, "Add" );
+    m_AzElLayout.AddButton( m_LookAlongAzElButton, "Look Along" );
+    m_AzElLayout.AddButton( m_DelAzElButton, "Del" );
+    m_AzElLayout.AddButton( m_DelAllAzElButton, "Del All" );
 
 
     m_MotionOptionsLayout.SetSameLineFlag( false );
@@ -335,6 +378,8 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_GeometryBrowserSelect = -1;
 
+    m_CurrentAzElScrollIndex = -1;
+
     // Initialize to valid group
     m_OptionsCurrDisplayGroup = &m_RotateOptionsLayout;
     // Set to null to hide them all.
@@ -360,6 +405,8 @@ bool GeometryAnalysisScreen::Update()
 
     UpdateGeometryAnalysisBrowser();
 
+    UpdateAzElScrollGroup();
+
     GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
 
     if ( gcase )
@@ -383,6 +430,8 @@ bool GeometryAnalysisScreen::Update()
         m_CCWToggleGroup.Update( gcase->m_SecondaryCCWFlag.GetID() );
 
         m_PolyVisibleToggleGroup.Update( gcase->m_PolyVisibleFlag.GetID() );
+
+        m_VizModeToggleGroup.Update( gcase->m_DiscreteVisibilityFlag.GetID() );
 
         m_SecondaryXSlider.Update( gcase->m_SecondaryX.GetID() );
         m_SecondaryYSlider.Update( gcase->m_SecondaryY.GetID() );
@@ -688,6 +737,17 @@ bool GeometryAnalysisScreen::Update()
             }
         }
 
+        m_AzElLayout.GetGroup()->activate();
+        m_PolyVisibleToggleGroup.Activate();
+        if ( !gcase->m_DiscreteVisibilityFlag() )
+        {
+            m_AzElLayout.GetGroup()->deactivate();
+        }
+        else
+        {
+            m_PolyVisibleToggleGroup.Deactivate();
+        }
+
         if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE )
         {
             OptionsDisplayGroup( &m_RotateOptionsLayout );
@@ -796,6 +856,92 @@ void GeometryAnalysisScreen::UpdateWindowSubSurfBrowser()
         }
     }
 }
+
+void GeometryAnalysisScreen::UpdateAzElScrollGroup()
+{
+    int button_width = 60;
+
+    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+    if ( gcase )
+    {
+        if ( m_AzSliderVec.size() != gcase->m_VizAzimuthVec.size() )
+        {
+            m_AzElScroll->clear();
+            m_AzElScrollLayout.SetGroup( m_AzElScroll );
+            m_AzElScrollLayout.InitWidthHeightVals();
+
+            m_AzSliderVec.clear();
+            m_AzSliderVec.resize( gcase->m_VizAzimuthVec.size() );
+            m_ElSliderVec.clear();
+            m_ElSliderVec.resize( gcase->m_VizAzimuthVec.size() );
+
+
+            m_AzElScrollLayout.SetFitWidthFlag( true );
+            m_AzElScrollLayout.SetSameLineFlag( true );
+            m_AzElScrollLayout.SetButtonWidth( button_width );
+
+            for ( int i = 0 ; i < (int)gcase->m_VizAzimuthVec.size() ; i++ )
+            {
+                m_AzElScrollLayout.AddSlider( m_AzSliderVec[i], gcase->m_VizAzimuthVec[i]->GetName().c_str(), 10.0, "%3.2f", m_AzElScrollLayout.GetW() / 2 );
+                m_AzElScrollLayout.AddSlider( m_ElSliderVec[i], gcase->m_VizElevationVec[i]->GetName().c_str(), 10.0, "%3.2f" );
+                m_AzElScrollLayout.ForceNewLine();
+
+                m_AzSliderVec[i].Update( gcase->m_VizAzimuthVec[i]->GetID() );
+                m_ElSliderVec[i].Update( gcase->m_VizElevationVec[i]->GetID() );
+            }
+        }
+        else
+        {
+            for ( int i = 0 ; i < (int)gcase->m_VizAzimuthVec.size() ; i++ )
+            {
+                m_AzSliderVec[i].SetButtonName( gcase->m_VizAzimuthVec[i]->GetName() );
+                m_ElSliderVec[i].SetButtonName( gcase->m_VizElevationVec[i]->GetName() );
+
+                m_AzSliderVec[i].Update( gcase->m_VizAzimuthVec[i]->GetID() );
+                m_ElSliderVec[i].Update( gcase->m_VizElevationVec[i]->GetID() );
+            }
+        }
+
+        if ( m_CurrentAzElScrollIndex >= (int)gcase->m_VizAzimuthVec.size() )
+        {
+            m_CurrentAzElScrollIndex = -1;
+        }
+
+        m_LookAlongAzElButton.Activate();
+        m_DelAzElButton.Activate();
+        if ( m_CurrentAzElScrollIndex == -1 )
+        {
+            m_LookAlongAzElButton.Deactivate();
+            m_DelAzElButton.Deactivate();
+        }
+
+        for ( int i = 0 ; i < (int)gcase->m_VizAzimuthVec.size() ; i++ )
+        {
+            if( i == m_CurrentAzElScrollIndex )
+            {
+                m_AzSliderVec[i].SetLabelColor( FL_YELLOW );
+                m_ElSliderVec[i].SetLabelColor( FL_YELLOW );
+            }
+            else
+            {
+                m_AzSliderVec[i].ResetLabelColor();
+                m_ElSliderVec[i].ResetLabelColor();
+            }
+        }
+    }
+    else
+    {
+        m_AzElScroll->clear();
+        m_AzElScrollLayout.SetGroup( m_AzElScroll );
+        m_AzElScrollLayout.InitWidthHeightVals();
+
+        m_AzSliderVec.clear();
+        m_ElSliderVec.clear();
+
+        m_CurrentAzElScrollIndex = -1;
+    }
+}
+
 
 void GeometryAnalysisScreen::OptionsDisplayGroup( GroupLayout* group )
 {
@@ -1097,9 +1243,65 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             }
         }
     }
+    else if ( gui_device == &m_AddAzElButton )
+    {
+        if ( gcase )
+        {
+            gcase->AddAzEl( 0, 0 );
+            m_CurrentAzElScrollIndex = gcase->m_VizAzimuthVec.size() - 1;
+        }
+    }
+    else if ( gui_device == &m_LookAlongAzElButton )
+    {
+        if ( gcase )
+        {
+            if ( m_CurrentAzElScrollIndex >= 0 && m_CurrentAzElScrollIndex < (int)gcase->m_VizAzimuthVec.size() )
+            {
+                double az = gcase->m_VizAzimuthVec[ m_CurrentAzElScrollIndex ]->Get();
+                double el = gcase->m_VizElevationVec[ m_CurrentAzElScrollIndex ]->Get();
+
+                MainVSPScreen* main_screen = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+                if ( main_screen )
+                {
+                    const vec3d dir = ToCartesian( vec3d( 1, -az * M_PI / 180.0, -el * M_PI / 180.0 ) );
+                    main_screen->AlignView( dir );
+                }
+            }
+        }
+    }
+    else if ( gui_device == &m_DelAzElButton )
+    {
+        if ( gcase )
+        {
+            gcase->RemoveAzEl( m_CurrentAzElScrollIndex );
+        }
+    }
+    else if ( gui_device == &m_DelAllAzElButton )
+    {
+        if ( gcase )
+        {
+            gcase->RemoveAllAzEl();
+            m_CurrentAzElScrollIndex = -1;
+        }
+    }
     else
     {
-        return;
+        if ( gcase )
+        {
+            // Identify event in m_AzElLayout. Set current index to row that
+            // corresponds to the event.
+            string parm_id = gui_device->GetParmID();
+
+            for( size_t j = 0; j < gcase->m_VizAzimuthVec.size(); j++ )
+            {
+                if( !strcmp( parm_id.c_str(), gcase->m_VizAzimuthVec[j]->GetID().c_str() ) ||
+                    !strcmp( parm_id.c_str(), gcase->m_VizElevationVec[j]->GetID().c_str() ) )
+                {
+                    m_CurrentAzElScrollIndex = j;
+                    break;
+                }
+            }
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
