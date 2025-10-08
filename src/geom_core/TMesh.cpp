@@ -7488,6 +7488,99 @@ double FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TM
     return sqrt( max_dist );
 }
 
+void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double > &azvec, const vector < double > & elvec, const vec3d & cen, const string & resid, const vector<string> & cutout_vec  )
+{
+    bool intSubsFlag = !cutout_vec.empty();
+    CSGMesh( primary_tmv, intSubsFlag, cutout_vec );
+
+    for ( int i = 0; i < ( int )primary_tmv.size(); i++ )
+    {
+        primary_tmv[i]->SetIgnoreSubSurface();
+    }
+    FlattenTMeshVec( primary_tmv );
+
+    for ( int i = 0; i < ( int )primary_tmv.size(); i++ )
+    {
+        primary_tmv[i]->LoadBndBox();
+    }
+
+    vector < vec3d > dir_vec;
+    vector < double > dviz_vec, dmiss_vec;
+    vector < int > viz_vec;
+    vector < vec3d > pts;
+    double dviz_sum = 0;
+    for ( int i = 0; i < azvec.size(); ++i )
+    {
+        vec3d dir = -ToCartesian( vec3d( 1.0, -azvec[i] * M_PI / 180.0, -elvec[i] * M_PI / 180.0 ) );
+
+        vector < double > tParmVec;
+        vector < TTri* > triVec;
+
+        for ( int j = 0; j < ( int )primary_tmv.size(); j++ )
+        {
+            primary_tmv[j]->m_TBox.RayCast( cen, dir, tParmVec, triVec );
+        }
+
+        int viz = 0;
+        double dviz = 0;
+        double dmiss = 1.0e12;
+        if ( !tParmVec.empty() )
+        {
+            std::sort( tParmVec.begin(), tParmVec.end() );
+            dviz = tParmVec[0];
+            dmiss = 0;
+            dviz_sum += dviz;
+
+            pts.push_back( cen );
+            pts.push_back( cen + dviz * dir );
+        }
+        else
+        {
+            viz = 1;
+            vector < vec3d > closest_distpts(2);
+            for ( int j = 0; j < ( int )primary_tmv.size(); j++ )
+            {
+                vector < vec3d > distpts(2);
+                double dm = primary_tmv[j]->MinDistanceRay( cen, dir, 1e12, distpts[0], distpts[1] );
+
+                if ( dm < dmiss )
+                {
+                    dmiss = dm;
+                    closest_distpts[0] = distpts[0];
+                    closest_distpts[1] = distpts[1];
+
+                    dviz = -dist( cen, distpts[0] );
+                }
+            }
+
+            pts.push_back( closest_distpts[0] );
+            pts.push_back( closest_distpts[1] );
+        }
+
+        dir_vec.push_back( dir );
+        dviz_vec.push_back( dviz );
+        dmiss_vec.push_back( dmiss );
+        viz_vec.push_back( viz );
+    }
+
+
+    //==== Create Results ====//
+    Results *res = ResultsMgr.FindResultsPtr( resid );
+    if ( res )
+    {
+        res->Add( new NameValData( "Center", cen, "Visibility center point." ) );
+        res->Add( new NameValData( "Pts", pts, "Visibility test endpoints." ) );
+
+        res->Add( new NameValData( "Dirs", dir_vec, "Directions of visibility check." ) );
+        res->Add( new NameValData( "DistVisible", dviz_vec, "Visibility distance." ) );
+        res->Add( new NameValData( "DistMiss", dmiss_vec, "Miss distance of visibility." ) );
+        res->Add( new NameValData( "Visible", viz_vec, "Visibility flag vector (0 occluded, 1 clear line of sight)." ) );
+
+        res->Add( new NameValData( "Result", dviz_sum, "Point visibility result" ) );
+    }
+
+}
+
 void LookAtVisibility( TMesh *primary_tm, const vec3d & dir, const double n2, const string & resid, vector< TMesh* > & result_tmv )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();

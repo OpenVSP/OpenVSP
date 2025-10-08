@@ -1520,7 +1520,41 @@ string GeometryAnalysisCase::Evaluate()
                     vec3d cen;
                     if ( GetSecondaryPt( cen ) )
                     {
-                        m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
+                        if ( m_DiscreteVisibilityFlag() )
+                        {
+                            if ( !m_VizAzimuthVec.empty() )
+                            {
+                                Results* res = ResultsMgr.CreateResults( "Point_Visibility", "Discrete visibility from a point." );
+                                if( res )
+                                {
+                                    m_LastResult = res->GetID();
+                                    vector < double > azvec;
+                                    vector < double > elvec;
+
+                                    for ( int i = 0; i < m_VizAzimuthVec.size(); ++i )
+                                    {
+                                        azvec.push_back( m_VizAzimuthVec[i]->Get() );
+                                        elvec.push_back( m_VizElevationVec[i]->Get() );
+                                    }
+
+                                    DiscreteVisibility( primary_tmv, azvec, elvec, cen, m_LastResult, m_CutoutVec );
+                                }
+                            }
+                            else
+                            {
+                                MessageData errMsgData;
+                                errMsgData.m_String = "Error";
+                                errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                                char buf[255];
+                                snprintf( buf, sizeof( buf ), "Error:  No discrete azimuth/elevations in %s.", m_Name.c_str() );
+                                errMsgData.m_StringVec.emplace_back( string( buf ) );
+                            }
+                        }
+                        else
+                        {
+                            m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
+                        }
+
                         m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                     }
                     else

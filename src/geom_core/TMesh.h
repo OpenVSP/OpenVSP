@@ -707,6 +707,7 @@ bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & ot
 bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vec3d &org, const vec3d &norm );
 bool CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec );
 bool CheckSelfIntersect( const vector<TMesh*> & tmesh_vec );
+void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double > &azvec, const vector < double > & elvec, const vec3d & cen, const string & resid, const vector<string> & cutout_vec );
 void LookAtVisibility( TMesh *primary_tm, const vec3d & dir, double n2, const string & resid, vector< TMesh* > & result_tmv );
 void PlaneInterferenceCheck(  TMesh *primary_tm, const vec3d & org, const vec3d & norm, const string & resid, vector< TMesh* > & result_tmv );
 void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string & resid, vector< TMesh* > & result_tmv );
