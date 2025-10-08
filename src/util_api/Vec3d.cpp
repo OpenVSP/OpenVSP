@@ -1018,19 +1018,26 @@ vec3d proj_pnt_on_line_seg( const vec3d& line_pt1, const vec3d& line_pt2, const 
 //******* Project Pnt Onto Ray ******//
 vec3d proj_pnt_on_ray( const vec3d& line_pt1, const vec3d& line_dir, const vec3d& pnt )
 {
+    double t;
+    return proj_pnt_on_ray( line_pt1, line_dir, pnt, t );
+}
+
+vec3d proj_pnt_on_ray( const vec3d& line_pt1, const vec3d& line_dir, const vec3d& pnt, double &t )
+{
     vec3d p_ln1 = pnt - line_pt1;
 
     double denom = line_dir.mag();
 
     if ( denom <= 0.000000000012 )
     {
+        t = 0;
         return ( line_pt1 );
     }
 
     double numer =  cos_angle( p_ln1, line_dir ) * p_ln1.mag();
 
-    return( line_pt1 + line_dir * ( numer / denom ) );
-
+    t = numer / denom;
+    return( line_pt1 + line_dir * t );
 }
 
 //******* Project Pnt Onto Line ******//

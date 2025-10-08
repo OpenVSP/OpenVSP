@@ -1059,6 +1059,7 @@ public:
     friend vec3d proj_u_on_v( const vec3d& u, const vec3d& v );
     friend vec3d proj_pnt_on_line_seg( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );
     friend vec3d proj_pnt_on_ray( const vec3d& line_pt1, const vec3d& line_dir, const vec3d& pnt );
+    friend vec3d proj_pnt_on_ray( const vec3d& line_pt1, const vec3d& line_dir, const vec3d& pnt, double &t );
     friend vec3d proj_pnt_on_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );
     friend vec3d proj_pnt_to_plane( const vec3d& org, const vec3d& plane_ln1, const vec3d& plane_ln2, const vec3d& pnt );
     friend vec3d proj_vec_to_plane( const vec3d& vec, const vec3d& norm );
