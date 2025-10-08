@@ -4785,8 +4785,8 @@ double TBndBox::MaxDistanceRay( const vec3d &org, const vec3d &norm, double curr
         return curr_max_dist;
     }
 
-    double mind, maxd;
-    m_Box.MinMaxDistRay( org, norm, mind, maxd );
+    double maxd;
+    m_Box.MaxDistRay( org, norm, maxd );
 
     // Farthest point of box (farthest possible for all items in box) is closer than already observed distance.
     if ( maxd < curr_max_dist )
