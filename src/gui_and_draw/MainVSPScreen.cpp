@@ -871,6 +871,30 @@ void MainVSPScreen::FitView( bool all )
     }
 }
 
+void MainVSPScreen::AlignView( const vec3d & v )
+{
+    const vec3d worldUp = vec3d(0., 0., 1.);
+    const vec3d camDir = -v;
+    vec3d camRight = cross(worldUp, camDir);
+    vec3d camUp = cross(camDir, camRight);
+
+    camRight.normalize();
+    camUp.normalize();
+
+    Matrix4d norm_basis;
+    norm_basis.setBasis( camRight, camUp, camDir );
+
+    const vec3d norm_angles = norm_basis.getArcballAngles();
+
+    m_GlWin->rotateSphere(
+        norm_angles.x(),
+        norm_angles.y(),
+        norm_angles.z()
+    );
+
+    m_GlWin->UpdateAllViewParms();
+}
+
 void MainVSPScreen::AlignViewToGeom( string geom_id )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();

@@ -53,6 +53,7 @@ public:
     void SetView( int viewport, int view );
     void SetView( int view );
     void FitView( bool all );
+    void AlignView( const vec3d & v );
     void AlignViewToGeom( string geom_id );
     void ResetViews();
     void SetWindowLayout( int r, int c );
