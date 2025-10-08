@@ -49,6 +49,7 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_SecondaryCCWFlag.Init( "SecondaryCCWFlag", m_GroupName, this, false, false, true );
 
     m_PolyVisibleFlag.Init( "PolyVisibleFlag", m_GroupName, this, false, false, true );
+    m_DiscreteVisibilityFlag.Init( "DiscreteVisibilityFlag", m_GroupName, this, false, false, true );
 
     m_SecondaryX.Init( "SecondaryX", m_GroupName, this, 0.0, -1e12, 1e12 );
     m_SecondaryY.Init( "SecondaryY", m_GroupName, this, 0.0, -1e12, 1e12 );
@@ -81,6 +82,11 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_LastResultValue.Init( "LastResult", m_GroupName, this, 0.0, -1e12, 1e12 );
 }
 
+GeometryAnalysisCase::~GeometryAnalysisCase()
+{
+    RemoveAllAzEl();
+}
+
 void GeometryAnalysisCase::Update()
 {
     // Dual-geometry analyses that require special geometry for secondary
@@ -106,6 +112,58 @@ void GeometryAnalysisCase::Update()
     }
 
     UpdateDrawObj_Live();
+}
+
+void GeometryAnalysisCase::AddAzEl( double az, double el )
+{
+    Parm* p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
+    if ( p )
+    {
+        int i = (int)m_VizAzimuthVec.size();
+        char str[15];
+        snprintf( str, sizeof( str ),  "Az_%d", i );
+        p->Init( string( str ), m_GroupName, this, az, -180.0, 180.0 );
+        p->SetDescript( "Discrete visibility Azimuth" );
+        m_VizAzimuthVec.push_back( p );
+    }
+
+    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
+    if ( p )
+    {
+        int i = (int)m_VizElevationVec.size();
+        char str[15];
+        snprintf( str, sizeof( str ),  "El_%d", i );
+        p->Init( string( str ), m_GroupName, this, el, -90.0, 90.0 );
+        p->SetDescript( "Discrete Visibility Elevation" );
+        m_VizElevationVec.push_back( p );
+    }
+}
+
+void GeometryAnalysisCase::RemoveAzEl( int indx )
+{
+    if ( indx >= 0 && indx < (int)m_VizAzimuthVec.size() )
+    {
+        delete m_VizAzimuthVec[ indx ];
+        m_VizAzimuthVec.erase( m_VizAzimuthVec.begin() + indx );
+
+        delete m_VizElevationVec[ indx ];
+        m_VizElevationVec.erase( m_VizElevationVec.begin() + indx );
+    }
+}
+
+void GeometryAnalysisCase::RemoveAllAzEl()
+{
+    for ( int i = 0; i < m_VizAzimuthVec.size(); i++ )
+    {
+        delete m_VizAzimuthVec[i];
+    }
+    m_VizAzimuthVec.clear();
+
+    for ( int i = 0; i < m_VizElevationVec.size(); i++ )
+    {
+        delete m_VizElevationVec[i];
+    }
+    m_VizElevationVec.clear();
 }
 
 string GeometryAnalysisCase::GetPrimaryName() const
@@ -667,6 +725,8 @@ xmlNodePtr GeometryAnalysisCase::EncodeXml( xmlNodePtr & node )
         XmlUtil::AddStringNode( cutoutSS_node, "cutoutSS_ID", m_CutoutVec[i] );
     }
 
+    XmlUtil::AddIntNode( gcase_node, "NumAzEl", (int)m_VizAzimuthVec.size() );
+
     ParmContainer::EncodeXml( gcase_node );
 
     return gcase_node;
@@ -690,6 +750,13 @@ xmlNodePtr GeometryAnalysisCase::DecodeXml( xmlNodePtr & node )
             string new_cutoutSS = ParmMgr.RemapID( XmlUtil::FindString( cutoutSS_node, "cutoutSS_ID", string() ) );
             m_CutoutVec.push_back( new_cutoutSS );
         }
+    }
+
+    int npt = XmlUtil::FindInt( node, "NumAzEl", 0 );
+
+    while ( m_VizAzimuthVec.size() < npt )
+    {
+        AddAzEl( 0, 0 );
     }
 
     ParmContainer::DecodeXml( node );

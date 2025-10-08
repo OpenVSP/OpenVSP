@@ -23,8 +23,13 @@ class GeometryAnalysisCase : public ParmContainer
 public:
 
     GeometryAnalysisCase();
+    ~GeometryAnalysisCase();
 
     void Update();
+
+    void AddAzEl( double az, double el );
+    void RemoveAzEl( int indx );
+    void RemoveAllAzEl();
 
     string GetPrimaryName() const;
     string GetSecondaryName() const;
@@ -87,6 +92,10 @@ public:
 
     BoolParm m_PolyVisibleFlag;
     vector< string > m_CutoutVec;
+
+    BoolParm m_DiscreteVisibilityFlag;
+    vector < Parm* > m_VizAzimuthVec;
+    vector < Parm* > m_VizElevationVec;
 
     Parm m_SecondaryX;
     Parm m_SecondaryY;
