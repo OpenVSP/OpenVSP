@@ -1384,8 +1384,8 @@ string GeometryAnalysisCase::Evaluate()
 
 
                                     vector < vec3d > distpts(2);
-                                    double min_dist = -1;
-                                    double max_dist = primary_tm->MaxDistanceRay( cor, normal, min_dist, distpts[0], distpts[1] );
+                                    double max_dist = -1;
+                                    max_dist = primary_tm->MaxDistanceRay( cor, normal, max_dist, distpts[0], distpts[1] );
 
 
                                     vector < vec3d > pts;
