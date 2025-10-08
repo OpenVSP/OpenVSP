@@ -41,6 +41,7 @@ public:
 
 
     bool GetDisplacement( double dist, vec3d &dstart, vec3d &disp );
+    void HandleDispersion( const vec3d &disp, vector < vec3d > & dispvec );
     bool GetSecondaryPt( vec3d &pt );
     bool GetSecondaryPtNormal( vec3d &pt, vec3d &normal );
     bool GetSecondarySideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign );

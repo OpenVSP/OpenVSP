@@ -448,6 +448,62 @@ bool GeometryAnalysisCase::GetDisplacement( double dist, vec3d &dstart, vec3d &d
     return true;
 }
 
+void GeometryAnalysisCase::HandleDispersion( const vec3d &disp, vector < vec3d > & dispvec )
+{
+    double tol = 1e-6;
+
+    dispvec.clear();
+    dispvec.push_back( disp );
+
+    if ( std::abs( m_RotXp() ) > tol &&
+         ( std::abs( disp.y() ) > tol || std::abs( disp.z() ) > tol ) )
+    {
+        Matrix4d mat;
+        mat.rotateX( m_RotXp() );
+        dispvec.push_back( mat.xform( disp ) );
+    }
+
+    if ( std::abs( m_RotYp() ) > tol &&
+         ( std::abs( disp.x() ) > tol || std::abs( disp.z() ) > tol ) )
+    {
+        Matrix4d mat;
+        mat.rotateY( m_RotYp() );
+        dispvec.push_back( mat.xform( disp ) );
+    }
+
+    if ( std::abs( m_RotZp() ) > tol &&
+         ( std::abs( disp.x() ) > tol || std::abs( disp.y() ) > tol ) )
+    {
+        Matrix4d mat;
+        mat.rotateZ( m_RotZp() );
+        dispvec.push_back( mat.xform( disp ) );
+    }
+
+    if ( std::abs( m_RotXn() ) > tol &&
+         ( std::abs( disp.y() ) > tol || std::abs( disp.z() ) > tol ) )
+    {
+        Matrix4d mat;
+        mat.rotateX( m_RotXn() );
+        dispvec.push_back( mat.xform( disp ) );
+    }
+
+    if ( std::abs( m_RotYn() ) > tol &&
+         ( std::abs( disp.x() ) > tol || std::abs( disp.z() ) > tol ) )
+    {
+        Matrix4d mat;
+        mat.rotateY( m_RotYn() );
+        dispvec.push_back( mat.xform( disp ) );
+    }
+
+    if ( std::abs( m_RotZn() ) > tol &&
+         ( std::abs( disp.x() ) > tol || std::abs( disp.y() ) > tol ) )
+    {
+        Matrix4d mat;
+        mat.rotateZ( m_RotZn() );
+        dispvec.push_back( mat.xform( disp ) );
+    }
+}
+
 bool GeometryAnalysisCase::GetSecondaryPt( vec3d &pt )
 {
     if ( m_SecondaryType() == vsp::XYZ_TARGET )
