@@ -33,6 +33,9 @@
 #include "tri_tri_intersect.h"
 #include "predicates.h"
 #include "Mathematics/ConvexHull3.h"
+#include "Mathematics/DistRay3Triangle3.h"
+#include "Mathematics/Ray.h"
+#include "Mathematics/Triangle.h"
 
 #include "Geom.h"
 #include "SubSurfaceMgr.h"
@@ -4827,6 +4830,71 @@ double TBndBox::MaxDistanceRay( const vec3d &org, const vec3d &norm, double curr
     return curr_max_dist;
 }
 
+double TBndBox::MinDistanceRay( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 )
+{
+    if ( m_Box.IsEmpty() )
+    {
+        return curr_min_dist;
+    }
+
+    double mind;
+    m_Box.MinDistRay( org, norm, mind );
+
+    // Nearest point of box (closest possible for all items in box) is farther than already observed distance.
+    if ( mind > curr_min_dist )
+    {
+        return curr_min_dist;
+    }
+
+    //==== Recursively Check Sub Boxes ====//
+    if ( m_SBoxVec[0] )
+    {
+        for ( int i = 0 ; i < 8 ; i++ )
+        {
+            curr_min_dist = m_SBoxVec[i]->MinDistanceRay( org, norm, curr_min_dist, p1, p2 );
+        }
+    }
+    //==== Check All Points Against Other Points ====//
+    else
+    {
+        for ( size_t i = 0 ; i < ( int )m_TriVec.size() ; i++ )
+        {
+            TTri* t0 = m_TriVec[i];
+
+            gte::DCPQuery < double, gte::Ray3 < double >, gte::Triangle3 < double > > dcpq;
+
+            gte::Vector3 < double > inOrigin, inDirection, v0, v1, v2;
+
+            for ( int j = 0; j < 3; j++ )
+            {
+                inOrigin[j] = org.v[j];
+                inDirection[j] = norm.v[j];
+                v0[j] = t0->m_N0->m_Pnt.v[j];
+                v1[j] = t0->m_N1->m_Pnt.v[j];
+                v2[j] = t0->m_N2->m_Pnt.v[j];
+            }
+
+            gte::Ray3 < double > ray( inOrigin, inDirection );
+
+            gte::Triangle3 < double > tri( v0, v1, v2 );
+
+            auto result = dcpq( ray, tri );
+
+            if ( result.distance < curr_min_dist )
+            {
+                curr_min_dist = result.distance;
+
+                for ( int j = 0; j < 3; j++ )
+                {
+                    p1.v[j] = result.closest[0][j];
+                    p2.v[j] = result.closest[1][j];
+                }
+            }
+        }
+    }
+
+    return curr_min_dist;
+}
 
 double TBndBox::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 )
 {
