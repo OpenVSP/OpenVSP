@@ -70,6 +70,8 @@ public:
 
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    string m_GroupName;
+
     IntParm m_PrimarySet;
     IntParm m_PrimaryType; // Mode, Set, or Geom
     string m_PrimaryModeID;

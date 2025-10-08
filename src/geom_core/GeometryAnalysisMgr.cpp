@@ -31,54 +31,54 @@
 
 GeometryAnalysisCase::GeometryAnalysisCase()
 {
-    string groupname = "InterferenceCase";
+    m_GroupName = "InterferenceCase";
 
-    m_PrimarySet.Init( "PrimarySet", groupname, this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
+    m_PrimarySet.Init( "PrimarySet", m_GroupName, this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
     m_PrimarySet.SetDescript( "Selected primary set for operation" );
 
-    m_PrimaryType.Init( "PrimaryType", groupname, this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_TGT_OPTIONS - 1 );
+    m_PrimaryType.Init( "PrimaryType", m_GroupName, this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_TGT_OPTIONS - 1 );
 
 
-    m_SecondarySet.Init( "SecondarySet", groupname, this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
+    m_SecondarySet.Init( "SecondarySet", m_GroupName, this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
     m_SecondarySet.SetDescript( "Selected secondary set for operation" );
 
-    m_SecondaryType.Init( "SecondaryType", groupname, this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_TGT_OPTIONS - 1 );
+    m_SecondaryType.Init( "SecondaryType", m_GroupName, this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_TGT_OPTIONS - 1 );
 
-    m_SecondaryZGround.Init( "SecondaryZGround", groupname, this, 0.0, -1e12, 1e12 );
+    m_SecondaryZGround.Init( "SecondaryZGround", m_GroupName, this, 0.0, -1e12, 1e12 );
 
-    m_SecondaryCCWFlag.Init( "SecondaryCCWFlag", groupname, this, false, false, true );
+    m_SecondaryCCWFlag.Init( "SecondaryCCWFlag", m_GroupName, this, false, false, true );
 
-    m_PolyVisibleFlag.Init( "PolyVisibleFlag", groupname, this, false, false, true );
+    m_PolyVisibleFlag.Init( "PolyVisibleFlag", m_GroupName, this, false, false, true );
 
-    m_SecondaryX.Init( "SecondaryX", groupname, this, 0.0, -1e12, 1e12 );
-    m_SecondaryY.Init( "SecondaryY", groupname, this, 0.0, -1e12, 1e12 );
-    m_SecondaryZ.Init( "SecondaryZ", groupname, this, 0.0, -1e12, 1e12 );
+    m_SecondaryX.Init( "SecondaryX", m_GroupName, this, 0.0, -1e12, 1e12 );
+    m_SecondaryY.Init( "SecondaryY", m_GroupName, this, 0.0, -1e12, 1e12 );
+    m_SecondaryZ.Init( "SecondaryZ", m_GroupName, this, 0.0, -1e12, 1e12 );
 
-    m_ExtentType.Init( "ExtentType", groupname, this, vsp::EXTENT_FORWARD_INF, vsp::EXTENT_FORWARD_INF, vsp::MOTION_NUM_EXTENT_TYPES - 1 );
-    m_DispX.Init( "DispX", groupname, this, 0.0, -1e12, 1e12 );
-    m_DispY.Init( "DispY", groupname, this, 0.0, -1e12, 1e12 );
-    m_DispZ.Init( "DispZ", groupname, this, 0.0, -1e12, 1e12 );
+    m_ExtentType.Init( "ExtentType", m_GroupName, this, vsp::EXTENT_FORWARD_INF, vsp::EXTENT_FORWARD_INF, vsp::MOTION_NUM_EXTENT_TYPES - 1 );
+    m_DispX.Init( "DispX", m_GroupName, this, 0.0, -1e12, 1e12 );
+    m_DispY.Init( "DispY", m_GroupName, this, 0.0, -1e12, 1e12 );
+    m_DispZ.Init( "DispZ", m_GroupName, this, 0.0, -1e12, 1e12 );
 
 
-    m_SymmRotX.Init( "SymmRotX", groupname, this, true, false, true );
-    m_SymmRotY.Init( "SymmRotY", groupname, this, true, false, true );
-    m_SymmRotZ.Init( "SymmRotZ", groupname, this, true, false, true );
+    m_SymmRotX.Init( "SymmRotX", m_GroupName, this, true, false, true );
+    m_SymmRotY.Init( "SymmRotY", m_GroupName, this, true, false, true );
+    m_SymmRotZ.Init( "SymmRotZ", m_GroupName, this, true, false, true );
 
-    m_RotXp.Init( "RotXp", groupname, this, 0.0, -180, 180 );
-    m_RotYp.Init( "RotYp", groupname, this, 0.0, -180, 180 );
-    m_RotZp.Init( "RotZp", groupname, this, 0.0, -180, 180 );
+    m_RotXp.Init( "RotXp", m_GroupName, this, 0.0, -180, 180 );
+    m_RotYp.Init( "RotYp", m_GroupName, this, 0.0, -180, 180 );
+    m_RotZp.Init( "RotZp", m_GroupName, this, 0.0, -180, 180 );
 
-    m_RotXn.Init( "RotXn", groupname, this, 0.0, -180, 180 );
-    m_RotYn.Init( "RotYn", groupname, this, 0.0, -180, 180 );
-    m_RotZn.Init( "RotZn", groupname, this, 0.0, -180, 180 );
+    m_RotXn.Init( "RotXn", m_GroupName, this, 0.0, -180, 180 );
+    m_RotYn.Init( "RotYn", m_GroupName, this, 0.0, -180, 180 );
+    m_RotZn.Init( "RotZn", m_GroupName, this, 0.0, -180, 180 );
 
-    m_Azimuth.Init( "Azimuth", groupname, this, 0.0, -180, 180 );
-    m_Elevation.Init( "Elevation", groupname, this, 0.0, -90, 90 );
-    m_N2RefractionIndex.Init( "N2RefractionIndex", groupname, this, 1.0, 0.0, 100 );
+    m_Azimuth.Init( "Azimuth", m_GroupName, this, 0.0, -180, 180 );
+    m_Elevation.Init( "Elevation", m_GroupName, this, 0.0, -90, 90 );
+    m_N2RefractionIndex.Init( "N2RefractionIndex", m_GroupName, this, 1.0, 0.0, 100 );
 
-    m_GeometryAnalysisType.Init( "IntererenceCheckType", groupname, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
+    m_GeometryAnalysisType.Init( "IntererenceCheckType", m_GroupName, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
 
-    m_LastResultValue.Init( "LastResult", groupname, this, 0.0, -1e12, 1e12 );
+    m_LastResultValue.Init( "LastResult", m_GroupName, this, 0.0, -1e12, 1e12 );
 }
 
 void GeometryAnalysisCase::Update()
