@@ -655,7 +655,6 @@ xmlNodePtr GeometryAnalysisCase::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr gcase_node = xmlNewChild( node, NULL, BAD_CAST"GeometryAnalysis", NULL );
 
-    ParmContainer::EncodeXml( gcase_node );
     XmlUtil::AddStringNode( gcase_node, "PrimaryModeID", m_PrimaryModeID );
     XmlUtil::AddStringNode( gcase_node, "PrimaryGeomID", m_PrimaryGeomID );
     XmlUtil::AddStringNode( gcase_node, "SecondaryGeomID", m_SecondaryGeomID );
@@ -668,12 +667,13 @@ xmlNodePtr GeometryAnalysisCase::EncodeXml( xmlNodePtr & node )
         XmlUtil::AddStringNode( cutoutSS_node, "cutoutSS_ID", m_CutoutVec[i] );
     }
 
+    ParmContainer::EncodeXml( gcase_node );
+
     return gcase_node;
 }
 
 xmlNodePtr GeometryAnalysisCase::DecodeXml( xmlNodePtr & node )
 {
-    ParmContainer::DecodeXml( node );
     m_PrimaryModeID = ParmMgr.RemapID( XmlUtil::FindString( node, "PrimaryModeID", m_PrimaryModeID ) );
     m_PrimaryGeomID = ParmMgr.RemapID( XmlUtil::FindString( node, "PrimaryGeomID", m_PrimaryGeomID ) );
     m_SecondaryGeomID = ParmMgr.RemapID( XmlUtil::FindString( node, "SecondaryGeomID", m_SecondaryGeomID ) );
@@ -691,6 +691,8 @@ xmlNodePtr GeometryAnalysisCase::DecodeXml( xmlNodePtr & node )
             m_CutoutVec.push_back( new_cutoutSS );
         }
     }
+
+    ParmContainer::DecodeXml( node );
 
     return node;
 }
