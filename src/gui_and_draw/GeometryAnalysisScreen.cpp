@@ -314,6 +314,8 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_LookAtVisibilityOptionsLayout.AddSlider( m_ElevationSlider, "Elevation", 10, "%6.4f" );
     m_LookAtVisibilityOptionsLayout.AddSlider( m_N2RefractionIndexSlider, "N2", 1, "%6.4f" );
 
+    m_LookAtVisibilityOptionsLayout.AddButton( m_LookAlongButton, "Look From" );
+
     m_GCaseLayout.AddYGap();
     m_GCaseLayout.AddDividerBox( "Analysis" );
 
@@ -1080,6 +1082,18 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 {
                     aux->m_RollTheta.SetFromDevice( roll[ 0 ] );
                 }
+            }
+        }
+    }
+    else if ( gui_device == &m_LookAlongButton )
+    {
+        if ( gcase )
+        {
+            MainVSPScreen* main_screen = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+            if ( main_screen )
+            {
+                const vec3d dir = ToCartesian( vec3d( 1, -gcase->m_Azimuth() * M_PI / 180.0, -gcase->m_Elevation() * M_PI / 180.0 ) );
+                main_screen->AlignView( dir );
             }
         }
     }

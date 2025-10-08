@@ -137,6 +137,8 @@ protected:
     SliderAdjRangeInput m_ElevationSlider;
     SliderAdjRangeInput m_N2RefractionIndexSlider;
 
+    TriggerButton m_LookAlongButton;
+
     TriggerButton m_Evaluate;
     TriggerButton m_ShowResultsViewer;
 
