@@ -113,10 +113,13 @@ is used (up to the turning angle limit).
 
 ## From Point Visibility
 
-Calculate the visible (or occluded) domain from a specific point in space.  Before calculating visibility,
-a CompGeom type analysis is run on the primary geometry set to compute each trimmed OML -- this
-step allows the geometry set to include negative components.  The secondary geometry is used to specify
-the viewpoint.
+From Point Visibility can work in continuous or discrete mode.  In continuous mode, it will
+calculate the visible (or occluded) domain from a specific point in space.  In discrete mode, it will
+calculate the visibility from a specific point in space along a set of specified directions.
+
+Before calculating visibility, a CompGeom type analysis is run on the primary geometry set to compute each
+trimmed OML -- this step allows the geometry set to include negative components.  The secondary geometry is
+used to specify the viewpoint.
 
 ## Composite Clearance Envelope
 

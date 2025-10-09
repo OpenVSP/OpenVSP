@@ -220,11 +220,15 @@ contact point with the largest allowed turning angle is treated as the
 steerable gear. The steering angle to produce the tightest possible turn
 is used (up to the turning angle limit).</p>
 <h2 id="from-point-visibility">From Point Visibility</h2>
-<p>Calculate the visible (or occluded) domain from a specific point in
-space. Before calculating visibility, a CompGeom type analysis is run on
-the primary geometry set to compute each trimmed OML -- this step allows
-the geometry set to include negative components. The secondary geometry
-is used to specify the viewpoint.</p>
+<p>From Point Visibility can work in continuous or discrete mode. In
+continuous mode, it will calculate the visible (or occluded) domain from
+a specific point in space. In discrete mode, it will calculate the
+visibility from a specific point in space along a set of specified
+directions.</p>
+<p>Before calculating visibility, a CompGeom type analysis is run on the
+primary geometry set to compute each trimmed OML -- this step allows the
+geometry set to include negative components. The secondary geometry is
+used to specify the viewpoint.</p>
 <h2 id="composite-clearance-envelope">Composite Clearance Envelope</h2>
 <p>Calculate the minimum ground clearance between the primary geometry
 and a composite clearance envelope specified by the secondary geometry.
