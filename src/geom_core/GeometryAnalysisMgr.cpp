@@ -1514,43 +1514,58 @@ string GeometryAnalysisCase::Evaluate()
             }
             case vsp::LINEAR_SWEPT_VOLUME_ANALYSIS:
             {
-                Results *res = ResultsMgr.CreateResults( "Linear_Swept_Volume_Interference", "Linear swept volume interference check." );
-                if( res )
+                primary_tmv = GetPrimaryTMeshVec();
+                secondary_tmv = GetHingeSecondaryTMeshVec();
+
+                if ( !primary_tmv.empty() && !secondary_tmv.empty() )
                 {
-                    m_LastResult = res->GetID();
-                    primary_tmv = GetPrimaryTMeshVec();
-                    secondary_tmv = GetHingeSecondaryTMeshVec();
+                    Results *res = ResultsMgr.CreateResults( "Linear_Swept_Volume_Interference", "Linear swept volume interference check." );
+                    if( res )
+                    {
+                        m_LastResult = res->GetID();
 
-                    CSGMesh( primary_tmv );
-                    FlattenTMeshVec( primary_tmv );
-                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
-                    primary_tm->LoadBndBox();
+                        CSGMesh( primary_tmv );
+                        FlattenTMeshVec( primary_tmv );
+                        TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                        primary_tm->LoadBndBox();
 
-                    BndBox bbox;
-                    UpdateBBox( bbox, secondary_tmv );
-                    primary_tm->UpdateBBox( bbox );
+                        BndBox bbox;
+                        UpdateBBox( bbox, secondary_tmv );
+                        primary_tm->UpdateBBox( bbox );
 
-                    double dist = 1.1 * bbox.DiagDist();
+                        double dist = 1.1 * bbox.DiagDist();
 
-                    vec3d dstart, disp;
-                    GetDisplacement( dist, dstart, disp );
+                        vec3d dstart, disp;
+                        GetDisplacement( dist, dstart, disp );
 
-                    vector < vec3d > dispvec;
-                    HandleDispersion( disp, dispvec );
+                        vector < vec3d > dispvec;
+                        HandleDispersion( disp, dispvec );
 
-                    Matrix4d T;
-                    T.translatev( dstart );
+                        Matrix4d T;
+                        T.translatev( dstart );
 
-                    TransformMeshVec( secondary_tmv, T );
+                        TransformMeshVec( secondary_tmv, T );
 
-                    CSGMesh( secondary_tmv );
-                    FlattenTMeshVec( secondary_tmv );
-                    TMesh *secondary_tm = MergeTMeshVec( secondary_tmv );
-                    secondary_tm->LoadBndBox();
+                        CSGMesh( secondary_tmv );
+                        FlattenTMeshVec( secondary_tmv );
+                        TMesh *secondary_tm = MergeTMeshVec( secondary_tmv );
+                        secondary_tm->LoadBndBox();
 
 
-                    SweptVolumeInterferenceCheck( primary_tm, secondary_tm, dispvec, m_LastResult, m_TMeshVec );
-                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                        SweptVolumeInterferenceCheck( primary_tm, secondary_tm, dispvec, m_LastResult, m_TMeshVec );
+                        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                    }
+                }
+                else
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                    char buf[255];
+                    snprintf( buf, sizeof( buf ), "Error:  Empty primary or secondary mesh in %s.", m_Name.c_str() );
+                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
                 }
                 break;
             }
