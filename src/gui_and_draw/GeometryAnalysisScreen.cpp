@@ -1248,6 +1248,7 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( gcase )
         {
             gcase->AddAzEl( 0, 0 );
+            gcase->RenameParms();
             m_CurrentAzElScrollIndex = gcase->m_VizAzimuthVec.size() - 1;
         }
     }
@@ -1274,6 +1275,7 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( gcase )
         {
             gcase->RemoveAzEl( m_CurrentAzElScrollIndex );
+            gcase->RenameParms();
         }
     }
     else if ( gui_device == &m_DelAllAzElButton )

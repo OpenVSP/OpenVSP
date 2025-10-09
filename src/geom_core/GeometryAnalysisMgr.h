@@ -30,6 +30,7 @@ public:
     void AddAzEl( double az, double el );
     void RemoveAzEl( int indx );
     void RemoveAllAzEl();
+    void RenameParms();
 
     string GetPrimaryName() const;
     string GetSecondaryName() const;

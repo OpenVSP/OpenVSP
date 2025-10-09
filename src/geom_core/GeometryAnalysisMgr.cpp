@@ -166,6 +166,19 @@ void GeometryAnalysisCase::RemoveAllAzEl()
     m_VizElevationVec.clear();
 }
 
+void GeometryAnalysisCase::RenameParms()
+{
+    for ( int i = 0; i < m_VizAzimuthVec.size(); i++ )
+    {
+        char str[15];
+        snprintf( str, sizeof( str ),  "Az_%d", i );
+        m_VizAzimuthVec[i]->SetName( string( str ) );
+
+        snprintf( str, sizeof( str ),  "El_%d", i );
+        m_VizElevationVec[i]->SetName( string( str ) );
+    }
+}
+
 string GeometryAnalysisCase::GetPrimaryName() const
 {
     if ( m_PrimaryType() == vsp::SET_TARGET )
