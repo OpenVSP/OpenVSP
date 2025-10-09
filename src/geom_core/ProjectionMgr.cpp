@@ -247,7 +247,7 @@ string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVe
     Clipper2Lib::Paths64 targetvec;
     MeshToSphericalPathsVec( target_tm, targetvec, scalerad );
 
-    Dump( targetvec, "before.m" );
+    // Dump( targetvec, "before.m" );
 
     Clipper2Lib::Paths64 solution;
     Union( targetvec, solution );
@@ -385,7 +385,7 @@ string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVe
 
         TransformPolyVec( solutionPolyVecSpherical, spherical2degmat );
 
-        Dump( solutionPolyVecSpherical, "tri.m" );
+        // Dump( solutionPolyVecSpherical, "tri.m" );
 
         result_tmv = Triangulate( solutionPolyVec2d, solutionPolyVec3d, isHole, true, r );
 
