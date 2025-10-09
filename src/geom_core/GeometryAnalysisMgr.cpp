@@ -1575,19 +1575,34 @@ string GeometryAnalysisCase::Evaluate()
             }
             case vsp::VISIBLE_AT_SURF_ANALYSIS:
             {
-                Results* res = ResultsMgr.CreateResults( "Look_At_Visibility", "Visibility of a surface from a direction." );
-                if( res )
+                primary_tmv = GetPrimaryTMeshVec();
+
+                if ( !primary_tmv.empty() )
                 {
-                    m_LastResult = res->GetID();
-                    primary_tmv = GetPrimaryTMeshVec();
+                    Results* res = ResultsMgr.CreateResults( "Look_At_Visibility", "Visibility of a surface from a direction." );
+                    if( res )
+                    {
+                        m_LastResult = res->GetID();
 
-                    CSGMesh( primary_tmv, true );
-                    FlattenTMeshVec( primary_tmv );
-                    TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                        CSGMesh( primary_tmv, true );
+                        FlattenTMeshVec( primary_tmv );
+                        TMesh *primary_tm = MergeTMeshVec( primary_tmv );
 
-                    vec3d dir = ToCartesian( vec3d( 1, -m_Azimuth() * M_PI / 180.0, -m_Elevation() * M_PI / 180.0 ) );
+                        vec3d dir = ToCartesian( vec3d( 1, -m_Azimuth() * M_PI / 180.0, -m_Elevation() * M_PI / 180.0 ) );
 
-                    LookAtVisibility( primary_tm, dir, m_N2RefractionIndex(), m_LastResult, m_TMeshVec);
+                        LookAtVisibility( primary_tm, dir, m_N2RefractionIndex(), m_LastResult, m_TMeshVec );
+                    }
+                }
+                else
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                    char buf[255];
+                    snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
+                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
                 }
                 break;
             }
