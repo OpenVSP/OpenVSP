@@ -247,6 +247,9 @@ string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVe
     Clipper2Lib::Paths64 targetvec;
     MeshToSphericalPathsVec( target_tm, targetvec, scalerad );
 
+    delete target_tm;
+    target_tm = nullptr;
+
     // Dump( targetvec, "before.m" );
 
     Clipper2Lib::Paths64 solution;
