@@ -1913,26 +1913,22 @@ void Geom::Update( bool fullupdate )
 
 void Geom::GetUWTess01( const int &indx, vector < double > &u, vector < double > &w )
 {
-    vector< vector< vec3d > > pnts;
-    vector< vector< vec3d > > norms;
-    vector< vector< vec3d > > uw_pnts;
-
-    UpdateTesselate( m_SurfVec[indx], m_CapUMinSuccess[ m_MainSurfIndxVec[indx] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[indx] ], false, pnts, norms,
-                     uw_pnts);
+    vector < double > utess, vtess;
+    GetUWTess( m_SurfVec[indx], m_CapUMinSuccess[ m_MainSurfIndxVec[indx] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[indx] ], false, utess, vtess );
 
     double umx = GetUMax( indx );
     double wmx = GetWMax( indx );
 
-    u.resize( uw_pnts.size() );
-    for ( int i = 0; i < uw_pnts.size(); i++ )
+    u.resize( utess.size() );
+    for ( int i = 0; i < utess.size(); i++ )
     {
-        u[i] = uw_pnts[i][0].x() / umx;
+        u[i] = utess[i] / umx;
     }
 
-    w.resize( uw_pnts[0].size() );
-    for ( int j = 0; j < uw_pnts[0].size(); j++ )
+    w.resize( vtess.size() );
+    for ( int j = 0; j < vtess.size(); j++ )
     {
-        w[j] = uw_pnts[0][j].y() / wmx;
+        w[j] = vtess[j] / wmx;
     }
 }
 
