@@ -230,7 +230,6 @@ public:
     void MakeVTess( int num_v, std::vector<double> &vtess, int n_cap, bool degen, const int & n_ref = 0 ) const;
 
     //===== Tesselate ====//
-    void TesselateTEforWake( std::vector< vector< vec3d > > & pnts ) const;
     void GetWakeTECurve( piecewise_curve_type& curve ) const;
 
     void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, const int &n_default, bool degen, const int & n_ref = 0 ) const;

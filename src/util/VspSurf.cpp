@@ -1853,20 +1853,6 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, int n_cap, bool 
     }
 }
 
-//==== Tesselate Surface ====//
-void VspSurf::TesselateTEforWake( vector< vector< vec3d > > & pnts ) const
-{
-    std::vector< vector< vec3d > > norms;
-    std::vector< vector< vec3d > > uw_pnts;
-
-    vector<double> u;
-    m_Surface.get_pmap_u( u );
-
-    vector<double> v(1);
-    v[0] = 0.0;
-
-    Tesselate( u, v, pnts, norms, uw_pnts );
-}
 void VspSurf::GetWakeTECurve( piecewise_curve_type & curve ) const
 {
     m_Surface.get_vconst_curve( curve, 0 );
@@ -1930,7 +1916,6 @@ void VspSurf::SplitTesselate( const vector<int> &num_u, int num_v, std::vector< 
 
 // VspSurf::SplitTesselate
 // VspSurf::Tesselate
-// VspSurf::TesselateTEforWake
 // Low level routine that actually calls Code-Eli to evaluate grid of points.
 // No smarts about what U/V tess to work on, just evaluates what it is told.
 // Also called by SplitTess below.
