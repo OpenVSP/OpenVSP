@@ -1098,7 +1098,7 @@ void Surf::BuildDistMap()
     pnCloud.AddPntNodes( pvec );
 
     //==== Use NanoFlann to Find Close Points and Group ====//
-    IndexPntNodes( pnCloud, 1e-12 );
+    IndexPntNodes( pnCloud, PT_MERGE_TOL );
 
     //==== Load Used Points ====//
     vector < int > kused;

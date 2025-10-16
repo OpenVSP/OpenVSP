@@ -2632,7 +2632,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
     PntNodeCloud pnCloud;
     pnCloud.AddPntNodes( allPntVec );
 
-    double tol = 1e-12;
+    double tol = PT_MERGE_TOL;
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );
 
