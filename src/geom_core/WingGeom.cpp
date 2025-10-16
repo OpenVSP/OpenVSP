@@ -2249,6 +2249,58 @@ void WingGeom::CalculateMeshMetrics()
     m_MaxGrowth = maxrat;
 }
 
+void WingGeom::GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< double > &utess, vector< double > &vtess, const int & n_ref ) const
+{
+    vector < int > tessvec;
+    vector < double > rootc;
+    vector < double > tipc;
+    vector < int > umerge;
+
+    if (m_CapUMinOption()!=NO_END_CAP && capUMinSuccess )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+        rootc.push_back( 1.0 );
+        tipc.push_back( 1.0 );
+
+        if ( m_CapUMinOption() <= POINT_END_CAP )
+        {
+            umerge.push_back( 1 );
+        }
+        else
+        {
+            umerge.push_back( 2 );
+        }
+    }
+
+    for ( int i = 0; i < m_TessUVec.size(); i++ )
+    {
+        tessvec.push_back( m_TessUVec[i] );
+        rootc.push_back( m_RootClusterVec[i] );
+        tipc.push_back( m_TipClusterVec[i] );
+        umerge.push_back( m_UMergeVec[i] );
+    }
+
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+        rootc.push_back( 1.0 );
+        tipc.push_back( 1.0 );
+
+        if ( m_CapUMaxOption() <= POINT_END_CAP )
+        {
+            umerge.push_back( 1 );
+        }
+        else
+        {
+            umerge.push_back( 2 );
+        }
+    }
+
+    surf.SetRootTipClustering( rootc, tipc );
+
+    surf.GetUWTess( utess, vtess, tessvec, m_TessW(), m_CapUMinTess(), m_TessU(), degen, umerge, n_ref );
+}
+
 void WingGeom::UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref ) const
 {
     vector < int > tessvec;

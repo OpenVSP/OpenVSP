@@ -200,6 +200,38 @@ void FuselageGeom::UpdateSurf()
     }
 }
 
+void FuselageGeom::GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< double > &utess, vector< double > &vtess, const int & n_ref ) const
+{
+    vector < int > tessvec;
+    vector < double > fwdc;
+    vector < double > aftc;
+
+    if (m_CapUMinOption()!=NO_END_CAP && capUMinSuccess )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+        fwdc.push_back( 1.0 );
+        aftc.push_back( 1.0 );
+    }
+
+    for ( int i = 0; i < m_TessUVec.size(); i++ )
+    {
+        tessvec.push_back( m_TessUVec[i] );
+        fwdc.push_back( m_FwdClusterVec[i] );
+        aftc.push_back( m_AftClusterVec[i] );
+    }
+
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+        fwdc.push_back( 1.0 );
+        aftc.push_back( 1.0 );
+    }
+
+    std::vector<int> umerge = std::vector<int>();
+    surf.SetRootTipClustering( fwdc, aftc );
+    surf.GetUWTess( utess, vtess, tessvec, m_TessW(), m_CapUMinTess(), m_TessU(), degen, umerge, n_ref );
+}
+
 void FuselageGeom::UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref ) const
 {
     vector < int > tessvec;

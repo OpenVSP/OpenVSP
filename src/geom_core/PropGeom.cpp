@@ -2213,6 +2213,68 @@ void PropGeom::EnforcePCurveOrder( double rfirst, double rlast )
     }
 }
 
+void PropGeom::GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< double > &utess, vector< double > &vtess, const int & n_ref ) const
+{
+    vector < int > tessvec;
+    vector < double > rootc;
+    vector < double > tipc;
+    vector < int > umerge;
+
+    int nmerge = surf.GetNumSectU();
+
+    if (m_CapUMinOption()!=NO_END_CAP && capUMinSuccess )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+        rootc.push_back( 1.0 );
+        tipc.push_back( 1.0 );
+
+        if ( m_CapUMinOption() <= POINT_END_CAP )
+        {
+            umerge.push_back( 1 );
+        }
+        else
+        {
+            umerge.push_back( 2 );
+            nmerge--;
+        }
+        nmerge--;
+    }
+
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
+    {
+        nmerge--;
+
+        if ( m_CapUMaxOption() >= ROUND_EXT_END_CAP_NONE )
+        {
+            nmerge--;
+        }
+    }
+
+    tessvec.push_back( m_TessU() );
+    rootc.push_back( m_RootCluster() );
+    tipc.push_back( m_TipCluster() );
+    umerge.push_back( nmerge );
+
+    if (m_CapUMaxOption()!=NO_END_CAP && capUMaxSuccess )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+        rootc.push_back( 1.0 );
+        tipc.push_back( 1.0 );
+
+        if ( m_CapUMaxOption() <= POINT_END_CAP )
+        {
+            umerge.push_back( 1 );
+        }
+        else
+        {
+            umerge.push_back( 2 );
+        }
+    }
+
+    surf.SetRootTipClustering( rootc, tipc );
+    surf.GetUWTess( utess, vtess, tessvec, m_TessW(), m_CapUMinTess(), m_TessU(), degen, umerge, n_ref );
+}
+
 void PropGeom::UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref ) const
 {
     vector < int > tessvec;

@@ -1936,6 +1936,13 @@ void Geom::GetUWTess01( const int &indx, vector < double > &u, vector < double >
     }
 }
 
+void Geom::GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< double > &utess, vector< double > &vtess, const int & n_ref ) const
+{
+    vector < int > num_u_vec( surf.GetNumSectU(), m_TessU() );
+    std::vector<int> umerge = std::vector<int>();
+    surf.GetUWTess( utess, vtess, num_u_vec, m_TessW(), m_CapUMinTess(), m_TessU(), degen, umerge, n_ref );
+}
+
 void Geom::UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref ) const
 {
     surf.Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, n_ref );
