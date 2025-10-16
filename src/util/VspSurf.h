@@ -226,6 +226,7 @@ public:
     double GetRootCluster( const int &index ) const;
     double GetTipCluster( const int &index ) const;
 
+    void GetUWTess( vector < double > &u, vector < double > &v, const vector<int> &num_u, int num_v, const int &n_cap, const int &n_default, bool degen, const std::vector<int> & umerge, const int & n_ref = 0 ) const;
     void MakeUTess( vector < double > &u, vector < int > num_u, const std::vector < int > &umerge, int n_cap, int n_default, const int & n_ref = 0 ) const;
     void MakeVTess( int num_v, std::vector<double> &vtess, int n_cap, bool degen, const int & n_ref = 0 ) const;
 

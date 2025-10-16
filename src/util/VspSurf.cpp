@@ -1472,6 +1472,12 @@ void VspSurf::FlagDuplicate( const VspSurf &othersurf ) const
 
 }
 
+void VspSurf::GetUWTess( vector < double > &u, vector < double > &v, const vector<int> &num_u, int num_v, const int &n_cap, const int &n_default, bool degen, const std::vector<int> & umerge, const int & n_ref ) const
+{
+    MakeVTess( num_v, v, n_cap, degen, n_ref );
+    MakeUTess( u, num_u, umerge, n_cap, n_default, n_ref );
+}
+
 void VspSurf::MakeUTess( vector < double > &u, vector < int > num_u, const std::vector < int > &umerge, int n_cap, int n_default, const int & n_ref ) const
 {
     // Refine tess parameters.
