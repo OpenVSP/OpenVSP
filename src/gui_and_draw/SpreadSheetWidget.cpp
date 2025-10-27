@@ -14,7 +14,7 @@
 template <>
 void SpreadSheet< int >::set_value( int R, int C, const char * str )
 {
-    if ( m_Data)
+    if ( m_Data && m_Data->size() && m_Data->size() > R )
     {
         (*m_Data)[ R ] = strtol( str, nullptr, 10 );
     }
@@ -23,7 +23,7 @@ void SpreadSheet< int >::set_value( int R, int C, const char * str )
 template <>
 string SpreadSheet< int >::get_value( int R, int C )
 {
-    if ( m_Data && (*m_Data).size() )
+    if ( m_Data && m_Data->size() && m_Data->size() > R )
     {
         char s[255];
         snprintf( s, sizeof( s ), m_Format.c_str(), (*m_Data)[ R ] );
@@ -37,7 +37,7 @@ string SpreadSheet< int >::get_value( int R, int C )
 template <>
 void SpreadSheet< double >::set_value( int R, int C, const char * str )
 {
-    if ( m_Data )
+    if ( m_Data && m_Data->size() && m_Data->size() > R )
     {
         (*m_Data)[ R ] = strtod( str, nullptr );
     }
@@ -46,7 +46,7 @@ void SpreadSheet< double >::set_value( int R, int C, const char * str )
 template <>
 string SpreadSheet< double >::get_value( int R, int C )
 {
-    if ( m_Data && (*m_Data).size() )
+    if ( m_Data && m_Data->size() && m_Data->size() > R )
     {
         char s[255];
         snprintf( s, sizeof( s ), m_Format.c_str(), (*m_Data)[ R ] );
@@ -58,7 +58,7 @@ string SpreadSheet< double >::get_value( int R, int C )
 template <>
 string SpreadSheet< double >::get_exact_value( int R, int C )
 {
-    if ( m_Data && (*m_Data).size() )
+    if ( m_Data && m_Data->size() && m_Data->size() > R )
     {
         char s[255];
         snprintf( s, sizeof(s), "%.*e", DBL_DIG + 3, (*m_Data)[ R ] );
@@ -72,7 +72,7 @@ string SpreadSheet< double >::get_exact_value( int R, int C )
 template <>
 void SpreadSheet< string >::set_value( int R, int C, const char * str )
 {
-    if ( m_Data )
+    if ( m_Data && m_Data->size() && m_Data->size() > R )
     {
         (*m_Data)[ R ] = string( str );
     }
@@ -81,7 +81,7 @@ void SpreadSheet< string >::set_value( int R, int C, const char * str )
 template <>
 string SpreadSheet< string >::get_value( int R, int C )
 {
-    if ( m_Data && (*m_Data).size() )
+    if ( m_Data && m_Data->size() && m_Data->size() > R )
     {
         return (*m_Data)[ R ];
     }
@@ -93,7 +93,7 @@ string SpreadSheet< string >::get_value( int R, int C )
 template <>
 void SpreadSheet< vec3d >::set_value( int R, int C, const char * str )
 {
-    if ( m_Data )
+    if ( m_Data && m_Data->size() && m_Data->size() > R )
     {
         (*m_Data)[ R ][ C ] = strtod( str, nullptr );
     }
@@ -102,7 +102,7 @@ void SpreadSheet< vec3d >::set_value( int R, int C, const char * str )
 template <>
 string SpreadSheet< vec3d >::get_value( int R, int C )
 {
-    if ( m_Data && (*m_Data).size() )
+    if ( m_Data && m_Data->size() && m_Data->size() > R )
     {
         char s[255];
         snprintf( s, sizeof( s ), m_Format.c_str(), (*m_Data)[ R ][ C ] );
@@ -114,7 +114,7 @@ string SpreadSheet< vec3d >::get_value( int R, int C )
 template <>
 string SpreadSheet< vec3d >::get_exact_value( int R, int C )
 {
-    if ( m_Data && (*m_Data).size() )
+    if ( m_Data && m_Data->size() && m_Data->size() > R )
     {
         char s[255];
         snprintf( s, sizeof(s), "%.*e", DBL_DIG + 3, (*m_Data)[ R ][ C ] );
@@ -145,7 +145,7 @@ void SpreadSheet< vec3d >::update_size( int nrow, int ncol )
     {
         if ( get_data_nrow() != nrow )
         {
-            (*m_Data).resize( nrow );
+            m_Data->resize( nrow );
             change = true;
         }
 
@@ -161,7 +161,7 @@ void SpreadSheet< vec3d >::update_size( int nrow, int ncol )
 template <>
 void SpreadSheet< vector < int > >::set_value( int R, int C, const char * str )
 {
-    if ( m_Data )
+    if ( m_Data && m_Data->size() && m_Data->size() > R && m_Data[ R ].size() && m_Data[ R ].size() > C )
     {
         bool int_flag = false;
         try
@@ -181,7 +181,7 @@ void SpreadSheet< vector < int > >::set_value( int R, int C, const char * str )
 template <>
 string SpreadSheet< vector < int > >::get_value( int R, int C )
 {
-    if ( m_Data && (*m_Data).size() )
+    if ( m_Data && m_Data->size() && m_Data->size() > R && m_Data[ R ].size() && m_Data[ R ].size() > C )
     {
         char s[255];
         snprintf( s, sizeof( s ), m_Format.c_str(), (*m_Data)[ R ][ C ] );
@@ -193,7 +193,7 @@ string SpreadSheet< vector < int > >::get_value( int R, int C )
 template <>
 string SpreadSheet< vector < int > >::get_exact_value( int R, int C )
 {
-    if ( m_Data && (*m_Data).size() )
+    if ( m_Data && m_Data->size() && m_Data->size() > R && m_Data[ R ].size() && m_Data[ R ].size() > C )
     {
         char s[255];
         snprintf( s, sizeof(s), "%d", (*m_Data)[ R ][ C ] );
@@ -228,7 +228,7 @@ void SpreadSheet< vector < int > >::update_size( int nrow, int ncol )
 
         if ( get_data_nrow() != nrow )
         {
-            (*m_Data).resize( nrow );
+            m_Data->resize( nrow );
             change = true;
         }
 
@@ -253,7 +253,7 @@ void SpreadSheet< vector < int > >::update_size( int nrow, int ncol )
 template <>
 void SpreadSheet< vector < double > >::set_value( int R, int C, const char * str )
 {
-    if ( m_Data )
+    if ( m_Data && m_Data->size() && m_Data->size() > R && m_Data[ R ].size() && m_Data[ R ].size() > C )
     {
         bool dbl_flag = false;
         try
@@ -272,7 +272,7 @@ void SpreadSheet< vector < double > >::set_value( int R, int C, const char * str
 template <>
 string SpreadSheet< vector < double > >::get_value( int R, int C )
 {
-    if ( m_Data && (*m_Data).size() )
+    if ( m_Data && m_Data->size() && m_Data->size() > R && m_Data[ R ].size() && m_Data[ R ].size() > C )
     {
         char s[255];
         snprintf( s, sizeof( s ), m_Format.c_str(), (*m_Data)[ R ][ C ] );
@@ -284,7 +284,7 @@ string SpreadSheet< vector < double > >::get_value( int R, int C )
 template <>
 string SpreadSheet< vector < double > >::get_exact_value( int R, int C )
 {
-    if ( m_Data && (*m_Data).size() )
+    if ( m_Data && m_Data->size() && m_Data->size() > R && m_Data[ R ].size() && m_Data[ R ].size() > C )
     {
         char s[255];
         snprintf( s, sizeof(s), "%.*e", DBL_DIG + 3, (*m_Data)[ R ][ C ] );
@@ -319,7 +319,7 @@ void SpreadSheet< vector < double > >::update_size( int nrow, int ncol )
 
         if ( get_data_nrow() != nrow )
         {
-            (*m_Data).resize( nrow );
+            m_Data->resize( nrow );
             change = true;
         }
 
