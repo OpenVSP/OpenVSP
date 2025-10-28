@@ -1403,12 +1403,12 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         fprintf( stderr, "ERROR %d: Unable to create case file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, m_SetupFile.c_str(), __FILE__, __LINE__ );
         return retStr;
     }
-    fprintf( case_file, "Sref = %lf \n", m_Sref() );
-    fprintf( case_file, "Cref = %lf \n", m_cref() );
-    fprintf( case_file, "Bref = %lf \n", m_bref() );
-    fprintf( case_file, "X_cg = %lf \n", m_Xcg() );
-    fprintf( case_file, "Y_cg = %lf \n", m_Ycg() );
-    fprintf( case_file, "Z_cg = %lf \n", m_Zcg() );
+    fprintf( case_file, "Sref = %lg \n", m_Sref() );
+    fprintf( case_file, "Cref = %lg \n", m_cref() );
+    fprintf( case_file, "Bref = %lg \n", m_bref() );
+    fprintf( case_file, "X_cg = %lg \n", m_Xcg() );
+    fprintf( case_file, "Y_cg = %lg \n", m_Ycg() );
+    fprintf( case_file, "Z_cg = %lg \n", m_Zcg() );
 
     vector<double> alphaVec;
     vector<double> betaVec;
@@ -1421,45 +1421,45 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     fprintf( case_file, "Mach = " );
     for ( i = 0; i < machVec.size() - 1; i++ )
     {
-        fprintf( case_file, "%lf, ", machVec[i] );
+        fprintf( case_file, "%lg, ", machVec[i] );
     }
-    fprintf( case_file, "%lf \n", machVec[i++] );
+    fprintf( case_file, "%lg \n", machVec[i++] );
 
     // Alpha vector
     fprintf( case_file, "AoA = " );
     for ( i = 0; i < alphaVec.size() - 1; i++ )
     {
-        fprintf( case_file, "%lf, ", alphaVec[i] );
+        fprintf( case_file, "%lg, ", alphaVec[i] );
     }
-    fprintf( case_file, "%lf \n", alphaVec[i++] );
+    fprintf( case_file, "%lg \n", alphaVec[i++] );
 
     // Beta vector
     fprintf( case_file, "Beta = " );
     for ( i = 0; i < betaVec.size() - 1; i++ )
     {
-        fprintf( case_file, "%lf, ", betaVec[i] );
+        fprintf( case_file, "%lg, ", betaVec[i] );
     }
-    fprintf( case_file, "%lf \n", betaVec[i++] );
+    fprintf( case_file, "%lg \n", betaVec[i++] );
 
     fprintf( case_file, "ReCref = " );
     for ( i = 0; i < recrefVec.size() - 1; i++ )
     {
-        fprintf( case_file, "%lf, ", recrefVec[i] );
+        fprintf( case_file, "%lg, ", recrefVec[i] );
     }
-    fprintf( case_file, "%lf \n", recrefVec[i++] );
+    fprintf( case_file, "%lg \n", recrefVec[i++] );
 
-    fprintf( case_file, "Vinf = %lf \n", m_Vinf() );
+    fprintf( case_file, "Vinf = %lg \n", m_Vinf() );
 
     if ( m_ManualVrefFlag() )
     {
-        fprintf( case_file, "Vref = %lf \n", m_Vref() );
-        fprintf( case_file, "Mref = %lf \n", m_Machref() );
+        fprintf( case_file, "Vref = %lg \n", m_Vref() );
+        fprintf( case_file, "Mref = %lg \n", m_Machref() );
     }
 
-    fprintf( case_file, "Rho = %lf \n", m_Rho() );
+    fprintf( case_file, "Rho = %lg \n", m_Rho() );
     fprintf( case_file, "StallModel = %d \n", m_StallModel() );
-    fprintf( case_file, "Clo2D = %lf \n", m_Clo2D() );
-    fprintf( case_file, "CLMax2D = %lf \n", m_CLMax2D() );
+    fprintf( case_file, "Clo2D = %lg \n", m_Clo2D() );
+    fprintf( case_file, "CLMax2D = %lg \n", m_CLMax2D() );
 
     fprintf( case_file, "Symmetry = %d \n", m_Symmetry() );
 
@@ -1469,7 +1469,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     fprintf( case_file, "ImplicitWake = %d \n", m_ImplicitWake() );
     fprintf( case_file, "ImplicitWakeStartIteration = %d \n", m_ImplicitWakeStartIteration() );
 
-    fprintf( case_file, "FarDist = %lf \n", m_FarDist() );
+    fprintf( case_file, "FarDist = %lg \n", m_FarDist() );
     fprintf( case_file, "NumWakeNodes = %d \n", m_NumWakeNodes() );
 
     if ( m_FixedWakeFlag() )
@@ -1481,13 +1481,13 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         fprintf( case_file, "WakeIters = %d \n", m_WakeNumIter.Get() );
     }
 
-    fprintf( case_file, "WakeRelax = %lf \n", m_WakeRelax() );
+    fprintf( case_file, "WakeRelax = %lg \n", m_WakeRelax() );
 
-    fprintf( case_file, "ForwardGMRESConvergenceFactor = %lf \n", m_ForwardGMRESConvergenceFactor() );
-    fprintf( case_file, "AdjointGMRESConvergenceFactor = %lf \n", m_AdjointGMRESConvergenceFactor() );
-    fprintf( case_file, "NonLinearConvergenceFactor = %lf \n", m_NonLinearConvergenceFactor() );
-    fprintf( case_file, "CoreSizeFactor = %lf \n", m_CoreSizeFactor() );
-    fprintf( case_file, "FarAway = %lf \n", m_FarAway() );
+    fprintf( case_file, "ForwardGMRESConvergenceFactor = %lg \n", m_ForwardGMRESConvergenceFactor() );
+    fprintf( case_file, "AdjointGMRESConvergenceFactor = %lg \n", m_AdjointGMRESConvergenceFactor() );
+    fprintf( case_file, "NonLinearConvergenceFactor = %lg \n", m_NonLinearConvergenceFactor() );
+    fprintf( case_file, "CoreSizeFactor = %lg \n", m_CoreSizeFactor() );
+    fprintf( case_file, "FarAway = %lg \n", m_FarAway() );
 
 
     fprintf( case_file, "UpdateMatrixPreconditioner = %d \n", m_UpdateMatrixPreconditioner() );
@@ -1571,7 +1571,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
             CpSlice* slice = m_CpSliceVec[i];
             if ( slice )
             {
-                fprintf( case_file, "%d %d %lf \n", i + 1, slice->m_CutType() + 1, slice->m_CutPosition() );
+                fprintf( case_file, "%d %d %lg \n", i + 1, slice->m_CutType() + 1, slice->m_CutPosition() );
             }
         }
     }
@@ -1596,7 +1596,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         else
         {
             fprintf( case_file, "NumberOfTimeSteps = %d \n", m_NumTimeSteps.Get() );
-            fprintf( case_file, "TimeStep = %lf \n", m_TimeStepSize() );
+            fprintf( case_file, "TimeStep = %lg \n", m_TimeStepSize() );
         }
         fprintf( case_file, "StartAveragingTimeStep = %d \n", m_StartAveragingTimeStep.Get() );
     }
@@ -6173,26 +6173,26 @@ void RotorDisk::Write_STP_Data( FILE *InputFile ) const
 
     // Write out RotorDisk to file
 
-    fprintf( InputFile, "%lf %lf %lf \n", m_XYZ.x(), m_XYZ.y(), m_XYZ.z() );
+    fprintf( InputFile, "%lg %lg %lg \n", m_XYZ.x(), m_XYZ.y(), m_XYZ.z() );
 
-    fprintf( InputFile, "%lf %lf %lf \n", m_Normal.x(), m_Normal.y(), m_Normal.z() );
+    fprintf( InputFile, "%lg %lg %lg \n", m_Normal.x(), m_Normal.y(), m_Normal.z() );
 
-    fprintf( InputFile, "%lf \n", m_Diameter() / 2.0 );
+    fprintf( InputFile, "%lg \n", m_Diameter() / 2.0 );
 
-    fprintf( InputFile, "%lf \n", m_HubDiameter() / 2.0 );
+    fprintf( InputFile, "%lg \n", m_HubDiameter() / 2.0 );
 
     if ( m_FlipNormalFlag )
     {
-        fprintf( InputFile, "%lf \n", -m_RPM() );
+        fprintf( InputFile, "%lg \n", -m_RPM() );
     }
     else
     {
-        fprintf( InputFile, "%lf \n", m_RPM() );
+        fprintf( InputFile, "%lg \n", m_RPM() );
     }
 
-    fprintf( InputFile, "%lf \n", m_CT() );
+    fprintf( InputFile, "%lg \n", m_CT() );
 
-    fprintf( InputFile, "%lf \n", m_CP() );
+    fprintf( InputFile, "%lg \n", m_CP() );
 
 }
 
@@ -6695,19 +6695,19 @@ int UnsteadyGroup::WriteGroup( FILE *group_file )
     fprintf( group_file, "GeometryIsFixed = %d\n", geom_fixed );
     fprintf( group_file, "GeometryIsDynamic = %d\n", geom_dynamic );
     fprintf( group_file, "GeometryIsARotor = %d\n", geom_rotor );
-    fprintf( group_file, "RotorDiameter = %lf\n", m_RotorDia() );
-    fprintf( group_file, "OVec = %lf %lf %lf\n", m_Ox(), m_Oy(), m_Oz() );
-    fprintf( group_file, "RVec = %lf %lf %lf\n", m_Rx(), m_Ry(), m_Rz() );
-    fprintf( group_file, "Velocity = %lf %lf %lf\n", m_Vx(), m_Vy(), m_Vz() );
-    fprintf( group_file, "Acceleration = %lf %lf %lf\n", m_Ax(), m_Ay(), m_Az() );
-    fprintf( group_file, "Omega = %lf\n", omega );
-    fprintf( group_file, "Mass = %lf\n", m_Mass() );
-    fprintf( group_file, "Ixx = %lf\n", m_Ixx() );
-    fprintf( group_file, "Iyy = %lf\n", m_Iyy() );
-    fprintf( group_file, "Izz = %lf\n", m_Izz() );
-    fprintf( group_file, "Ixy = %lf\n", m_Ixy() );
-    fprintf( group_file, "Ixz = %lf\n", m_Ixz() );
-    fprintf( group_file, "Iyz = %lf\n", m_Iyz() );
+    fprintf( group_file, "RotorDiameter = %lg\n", m_RotorDia() );
+    fprintf( group_file, "OVec = %lg %lg %lg\n", m_Ox(), m_Oy(), m_Oz() );
+    fprintf( group_file, "RVec = %lg %lg %lg\n", m_Rx(), m_Ry(), m_Rz() );
+    fprintf( group_file, "Velocity = %lg %lg %lg\n", m_Vx(), m_Vy(), m_Vz() );
+    fprintf( group_file, "Acceleration = %lg %lg %lg\n", m_Ax(), m_Ay(), m_Az() );
+    fprintf( group_file, "Omega = %lg\n", omega );
+    fprintf( group_file, "Mass = %lg\n", m_Mass() );
+    fprintf( group_file, "Ixx = %lg\n", m_Ixx() );
+    fprintf( group_file, "Iyy = %lg\n", m_Iyy() );
+    fprintf( group_file, "Izz = %lg\n", m_Izz() );
+    fprintf( group_file, "Ixy = %lg\n", m_Ixy() );
+    fprintf( group_file, "Ixz = %lg\n", m_Ixz() );
+    fprintf( group_file, "Iyz = %lg\n", m_Iyz() );
 
     return vsp::VSP_OK;
 }
