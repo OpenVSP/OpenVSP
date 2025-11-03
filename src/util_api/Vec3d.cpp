@@ -2224,3 +2224,47 @@ vec3d compsum( const vector < vec3d > &x )
 
     return sum;
 }
+
+// ==================================================================
+// Compute intersection of a ray with a sphere, when origin is inside
+// ==================================================================
+// const vec3d & p,        // ray origin (inside sphere)
+// const vec3d & v,        // ray direction (need not be normalized)
+// const vec3d & c,        // sphere center
+// double r,              // sphere radius
+// vec3d & x               // intersection point (output)
+bool raySphereIntersectionFromInside ( const vec3d &p, const vec3d &v, const vec3d &c, const double r, vec3d &x )
+{
+    constexpr double eps = 1e-12;
+
+    vec3d vhat = v;
+    vhat.normalize();
+    const vec3d m = p - c;
+
+    const double dm = dot( vhat, m );
+    const double mm = dot( m, m );
+    double disc = dm * dm - ( mm - r * r );
+
+    if ( disc < 0.0 )
+    {
+        // No intersection (can happen due to numerical roundoff)
+        if ( disc > -1e-10 )
+        {
+            disc = 0.0;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    // Choose the positive root (ray exits sphere)
+    const double t = -dm + std::sqrt( disc );
+    if ( t <= eps )
+    {
+        return false;
+    }
+
+    x = p + vhat * t;
+    return true;
+}

@@ -1476,6 +1476,8 @@ T compsum( const std::vector < T > &x )
     return sum;
 }
 
+bool raySphereIntersectionFromInside ( const vec3d &p, const vec3d &v, const vec3d &c, double r, vec3d &x );
+
 #endif
 
 
