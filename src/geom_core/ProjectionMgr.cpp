@@ -220,6 +220,8 @@ string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVe
     }
     FlattenTMeshVec( targetTMeshVec );
 
+    TMesh *target_tm = MergeTMeshVec( targetTMeshVec );
+
     Matrix4d centranslatemat;
     // Equivalent to 180 deg rotation about Z, but without floating point error.
     centranslatemat.scalex( -1.0 );
@@ -227,9 +229,7 @@ string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVe
 
     centranslatemat.translatev( -cen );
 
-    TransformMeshVec( targetTMeshVec, centranslatemat );
-
-    TMesh *target_tm = MergeTMeshVec( targetTMeshVec );
+    target_tm->Transform( centranslatemat );
 
     target_tm = OctantSplitMesh( target_tm );
 
