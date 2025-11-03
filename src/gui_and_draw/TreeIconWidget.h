@@ -14,10 +14,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <FL/Fl.H>
-#include <FL/Fl_Double_Window.H>
-#include <FL/Fl_Tree.H>
-#include <FL/Fl_Group.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Double_Window.H>
+#include <FL/Fl_Group.H>
+#include <FL/Fl_Tree.H>
 #include <FL/Fl_SVG_Image.H>
 
 #include "APIDefines.h"
