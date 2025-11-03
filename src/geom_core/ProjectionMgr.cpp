@@ -208,20 +208,9 @@ inline double SphericalArea( const vector < vec3d > & azel )
     return a;
 }
 
-string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVec, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible,
+string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible,
                                                 const vector<string> & cutout_vec )
 {
-    bool intSubsFlag = !cutout_vec.empty();
-    CSGMesh( targetTMeshVec, intSubsFlag, cutout_vec );
-
-    for ( int i = 0; i < ( int )targetTMeshVec.size(); i++ )
-    {
-        targetTMeshVec[i]->SetIgnoreSubSurface();
-    }
-    FlattenTMeshVec( targetTMeshVec );
-
-    TMesh *target_tm = MergeTMeshVec( targetTMeshVec );
-
     Matrix4d centranslatemat;
     // Equivalent to 180 deg rotation about Z, but without floating point error.
     centranslatemat.scalex( -1.0 );
@@ -442,6 +431,23 @@ string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVe
     }
 
     return res->GetID();
+}
+
+string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVec, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible,
+                                                const vector<string> & cutout_vec )
+{
+    bool intSubsFlag = !cutout_vec.empty();
+    CSGMesh( targetTMeshVec, intSubsFlag, cutout_vec );
+
+    for ( int i = 0; i < ( int )targetTMeshVec.size(); i++ )
+    {
+        targetTMeshVec[i]->SetIgnoreSubSurface();
+    }
+    FlattenTMeshVec( targetTMeshVec );
+
+    TMesh *target_tm = MergeTMeshVec( targetTMeshVec );
+
+    return PointVisibility( target_tm, cen, result_tmv, poly_visible, cutout_vec );
 }
 
 Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, const vec3d & dir )
