@@ -227,7 +227,7 @@ string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVe
 
     centranslatemat.translatev( -cen );
 
-    TransformMesh( targetTMeshVec, centranslatemat );
+    TransformMeshVec( targetTMeshVec, centranslatemat );
 
     TMesh *target_tm = MergeTMeshVec( targetTMeshVec );
 
@@ -397,7 +397,7 @@ string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVe
         PolyVecToCartesian( solutionPolyVec3d );
 
         centranslatemat.affineInverse();
-        TransformMesh( result_tmv, centranslatemat );
+        TransformMeshVec( result_tmv, centranslatemat );
 
         TransformPolyVec( solutionPolyVec3d, centranslatemat );
     }
@@ -596,7 +596,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
     Matrix4d mat;
     mat.rotatealongX( dir );
 
-    TransformMesh( targetTMeshVec, mat );
+    TransformMeshVec( targetTMeshVec, mat );
 
     m_BBox.Reset();
     UpdateBBox( targetTMeshVec );
@@ -604,7 +604,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
     Matrix4d toclipper, fromclipper;
     double scale = BuildToFromClipper( toclipper, fromclipper );
 
-    TransformMesh( targetTMeshVec, toclipper );
+    TransformMeshVec( targetTMeshVec, toclipper );
 
     vector < Clipper2Lib::Paths64 > targetvec;
     vector < string > targetids;
@@ -668,7 +668,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
             res->Add( new NameValData( "Path", solutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
         }
 
-        TransformMesh( solutionTMeshVec, mat );
+        TransformMeshVec( solutionTMeshVec, mat );
 
         string id = MakeMeshGeom( solutionTMeshVec, solutionPolyVec3d );
 
@@ -691,8 +691,8 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
     Matrix4d mat;
     mat.rotatealongX( dir );
 
-    TransformMesh( targetTMeshVec, mat );
-    TransformMesh( boundaryTMeshVec, mat );
+    TransformMeshVec( targetTMeshVec, mat );
+    TransformMeshVec( boundaryTMeshVec, mat );
 
     m_BBox.Reset();
     UpdateBBox( targetTMeshVec );
@@ -701,8 +701,8 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
     Matrix4d toclipper, fromclipper;
     double scale = BuildToFromClipper( toclipper, fromclipper );
 
-    TransformMesh( targetTMeshVec, toclipper );
-    TransformMesh( boundaryTMeshVec, toclipper );
+    TransformMeshVec( targetTMeshVec, toclipper );
+    TransformMeshVec( boundaryTMeshVec, toclipper );
 
     vector < Clipper2Lib::Paths64 > targetvec;
     vector < string > targetids;
@@ -782,7 +782,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
             res->Add( new NameValData( "Path", solutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
         }
 
-        TransformMesh( solutionTMeshVec, mat );
+        TransformMeshVec( solutionTMeshVec, mat );
 
         string id =  MakeMeshGeom( solutionTMeshVec, solutionPolyVec3d );
 
@@ -820,7 +820,7 @@ void ProjectionMgrSingleton::ExportProjectLines( vector < TMesh* > targetTMeshVe
         Matrix4d toclipper, fromclipper;
         double scale = BuildToFromClipper( toclipper, fromclipper, false ); // Do not translate to bounding box max
 
-        TransformMesh( targetTMeshVec, toclipper );
+        TransformMeshVec( targetTMeshVec, toclipper );
 
         // Project in X, Y, and Z directions:
         vector < vec2d > proj_dir_vec;
@@ -899,24 +899,6 @@ void ProjectionMgrSingleton::PolyVecToCartesian( vector < vector < vec3d > > & p
         for ( int j = 0 ; j < ( int )polyvec[i].size() ; j++ )
         {
             polyvec[i][j] = ToCartesian( polyvec[i][j] );
-        }
-    }
-}
-
-void ProjectionMgrSingleton::TransformMesh( vector < TMesh* > & tmv, const Matrix4d & mat )
-{
-    vec3d zeroV = mat.xform( vec3d( 0.0, 0.0, 0.0 ) );
-
-    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
-    {
-        for ( int j = 0 ; j < ( int )tmv[i]->m_NVec.size() ; j++ )
-        {
-            tmv[i]->m_NVec[j]->m_Pnt = mat.xform( tmv[i]->m_NVec[j]->m_Pnt );
-        }
-
-        for ( int j = 0 ; j < ( int )tmv[i]->m_TVec.size() ; j++ )
-        {
-            tmv[i]->m_TVec[j]->m_Norm = mat.xform( tmv[i]->m_TVec[j]->m_Norm ) - zeroV;
         }
     }
 }

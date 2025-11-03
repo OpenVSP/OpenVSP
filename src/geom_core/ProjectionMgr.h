@@ -77,7 +77,6 @@ protected:
     virtual void MeshToCartesian( vector < TMesh* > & tmv );
     virtual void PolyVecToCartesian( vector < vector < vec3d > > & polyvec );
 
-    virtual void TransformMesh( vector < TMesh* > & tmv, const Matrix4d & mat );
     virtual void TransformPolyVec( vector < vector < vec3d > > & polyvec, const Matrix4d & mat );
 
     virtual void UpdateBBox( vector < TMesh* > & tmv );
