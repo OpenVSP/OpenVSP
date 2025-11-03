@@ -687,7 +687,6 @@ void ApplyScale( double scalefac, vector<TMesh*> &tmv );
 void MergeRemoveOpenMeshes( vector<TMesh*> &tmv, MeshInfo* info, bool deleteopen = true );
 void DeleteMarkedMeshes( vector<TMesh*> &tmv );
 void FlattenTMeshVec( vector<TMesh*> &tmv );
-void TransformMesh( TMesh* mesh, const Matrix4d & TransMat );
 void TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & TransMat );
 vector< string > GetTMeshNames( vector<TMesh*> &tmv );
 vector< string > GetTMeshIDs( vector<TMesh*> &tmv );
