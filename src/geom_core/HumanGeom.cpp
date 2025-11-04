@@ -311,14 +311,24 @@ void HumanGeom::CopyVertsToSkel( const vector < vec3d > & sv )
     }
 }
 
-vec3d HumanGeom::GetDesignEye() const
+void HumanGeom::GetDesignEyeVec( vector < vec3d > & eyevec ) const
+{
+    int n = m_TransMatVec.size();
+    eyevec.resize( n );
+    for ( int i = 0; i < n; i++ )
+    {
+        eyevec[i] = m_TransMatVec[ i ].xform( m_PoseSkelVerts[ DES_EYE ] );
+    }
+}
+
+vec3d HumanGeom::GetMainDesignEye() const
 {
     return m_ModelMatrix.xform( m_PoseSkelVerts[ DES_EYE ] );
 }
 
 Matrix4d HumanGeom::GetDesignEyeMatrix( bool axisaligned ) const
 {
-    vec3d eyept = GetDesignEye();
+    vec3d eyept = GetMainDesignEye();
     Matrix4d mat;
 
     if ( axisaligned )
