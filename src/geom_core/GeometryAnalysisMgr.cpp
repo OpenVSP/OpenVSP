@@ -1530,8 +1530,8 @@ string GeometryAnalysisCase::Evaluate()
                 if ( !primary_tmv.empty() )
                 {
 
-                    vec3d cen;
-                    if ( GetSecondaryPt( cen ) )
+                    vector < vec3d > cen_vec;
+                    if ( GetSecondaryPt( cen_vec ) )
                     {
                         if ( m_DiscreteVisibilityFlag() )
                         {
@@ -1550,7 +1550,7 @@ string GeometryAnalysisCase::Evaluate()
                                         elvec.push_back( m_VizElevationVec[i]->Get() );
                                     }
 
-                                    DiscreteVisibility( primary_tmv, azvec, elvec, cen, m_LastResult, m_CutoutVec );
+                                    DiscreteVisibility( primary_tmv, azvec, elvec, cen_vec, m_LastResult, m_CutoutVec );
                                 }
                             }
                             else
@@ -1565,7 +1565,7 @@ string GeometryAnalysisCase::Evaluate()
                         }
                         else
                         {
-                            m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
+                            m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen_vec, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
                         }
 
                         m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
@@ -1971,14 +1971,13 @@ void GeometryAnalysisCase::UpdateDrawObj_Live()
     m_SecondaryVizPointDO.m_PntVec.clear();
     if ( m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS )
     {
-        vec3d pt;
-        if ( GetSecondaryPt( pt ) )
+        vector < vec3d > pt_vec;
+        if ( GetSecondaryPt( pt_vec ) )
         {
             m_SecondaryVizPointDO.m_GeomID = m_ID + "VizPoint";
             m_SecondaryVizPointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
             m_SecondaryVizPointDO.m_Type = DrawObj::VSP_POINTS;
-            m_SecondaryVizPointDO.m_PntVec.resize( 1 );
-            m_SecondaryVizPointDO.m_PntVec[ 0 ] = pt;
+            m_SecondaryVizPointDO.m_PntVec = pt_vec;
             m_SecondaryVizPointDO.m_PointColor = DrawObj::Color( DrawObj::RED );
             m_SecondaryVizPointDO.m_PointSize = 20.0;
             m_SecondaryVizPointDO.m_GeomChanged = true;
