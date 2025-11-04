@@ -579,16 +579,15 @@ void GeometryAnalysisCase::HandleDispersion( const vec3d &disp, vector < vec3d >
     }
 }
 
-bool GeometryAnalysisCase::GetSecondaryPt( vec3d &pt )
+bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec )
 {
     if ( m_SecondaryType() == vsp::XYZ_TARGET )
     {
-        pt.set_xyz( m_SecondaryX(), m_SecondaryY(), m_SecondaryZ() );
+        pt_vec.push_back( vec3d( m_SecondaryX(), m_SecondaryY(), m_SecondaryZ() ) );
         return true;
     }
     else
     {
-        pt.set_xyz( 0, 0, 1 );
         Vehicle *veh = VehicleMgr.GetVehicle();
         if ( veh )
         {
@@ -600,15 +599,40 @@ bool GeometryAnalysisCase::GetSecondaryPt( vec3d &pt )
 
                 if ( human_ptr )
                 {
-                    pt = human_ptr->GetDesignEye();
+                    human_ptr->GetDesignEyeVec( pt_vec );
                     return true;
                 }
                 else if ( geom )
                 {
-                    Matrix4d mat = geom->getModelMatrix();
-                    pt = mat.xform( vec3d() );
+                    vector < Matrix4d > mat_vec = geom->GetTransMatVec();
+                    for ( int i = 0 ; i < ( int )mat_vec.size() ; i++ )
+                    {
+                        pt_vec.push_back( mat_vec[ i ].xform( vec3d() ) );
+                    }
                     return true;
                 }
+            }
+            else if ( m_SecondaryType() == vsp::SET_TARGET )
+            {
+                int set = m_SecondarySet();
+
+                vector < string > geom_vec = veh->GetGeomVec();
+                for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+                {
+                    Geom* geom = veh->FindGeom( geom_vec[ i ] );
+                    if ( geom )
+                    {
+                        if ( geom->GetSetFlag( set ) )
+                        {
+                            vector < Matrix4d > mat_vec = geom->GetTransMatVec();
+                            for ( int j = 0 ; j < ( int )mat_vec.size() ; j++ )
+                            {
+                                pt_vec.push_back( mat_vec[ j ].xform( vec3d() ) );
+                            }
+                        }
+                    }
+                }
+                return true;
             }
         }
     }
