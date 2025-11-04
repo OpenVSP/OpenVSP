@@ -50,7 +50,7 @@ public:
     virtual Results* Project( );
 
     virtual string PointVisibility( TMesh* &target_tm, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible, const
-                                    vector<string> &cutout_vec );
+                                    vector<string> &cutout_vec, Matrix4d &clipper2sphericalmat, double r );
 
     virtual string PointVisibility( vector < TMesh* > &targetTMeshVec, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible, const
                                     vector<string> &cutout_vec );

@@ -211,19 +211,8 @@ inline double SphericalArea( const vector < vec3d > & azel )
 constexpr double SCALERAD = 1.0e15 / M_PI;
 
 string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible,
-                                                const vector<string> & cutout_vec )
+                                                const vector<string> & cutout_vec, Matrix4d &clipper2sphericalmat, double r )
 {
-
-    BndBox bb;
-    target_tm->UpdateBBox( bb );
-    bb.Update( cen ); // Make sure cen is in BBox
-    const double r = std::max( 1.0, bb.DiagDist() );
-
-    Matrix4d clipper2sphericalmat;
-    clipper2sphericalmat.translatef( r, 0, 0 );
-    clipper2sphericalmat.scaley( 1.0 / SCALERAD );
-    clipper2sphericalmat.scalez( 1.0 / SCALERAD );
-
     Matrix4d centranslatemat;
     // Equivalent to 180 deg rotation about Z, but without floating point error.
     centranslatemat.scalex( -1.0 );
@@ -457,7 +446,17 @@ string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVe
 
     TMesh *target_tm = MergeTMeshVec( targetTMeshVec );
 
-    return PointVisibility( target_tm, cen, result_tmv, poly_visible, cutout_vec );
+    BndBox bb;
+    target_tm->UpdateBBox( bb );
+    bb.Update( cen ); // Make sure cen is in BBox
+    const double r = std::max( 1.0, bb.DiagDist() );
+
+    Matrix4d clipper2sphericalmat;
+    clipper2sphericalmat.translatef( r, 0, 0 );
+    clipper2sphericalmat.scaley( 1.0 / SCALERAD );
+    clipper2sphericalmat.scalez( 1.0 / SCALERAD );
+
+    return PointVisibility( target_tm, cen, result_tmv, poly_visible, cutout_vec, clipper2sphericalmat, r );
 }
 
 Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, const vec3d & dir )
