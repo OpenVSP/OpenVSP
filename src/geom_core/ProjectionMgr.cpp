@@ -210,10 +210,8 @@ inline double SphericalArea( const vector < vec3d > & azel )
 
 constexpr double SCALERAD = 1.0e15 / M_PI;
 
-string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible,
-                                                const vector<string> & cutout_vec, Matrix4d &clipper2sphericalmat, double r )
+void ProjectionMgrSingleton::PointOcclusionPath( TMesh* &target_tm, vec3d cen, Matrix4d &centranslatemat, Clipper2Lib::Paths64 &solution )
 {
-    Matrix4d centranslatemat;
     // Equivalent to 180 deg rotation about Z, but without floating point error.
     centranslatemat.scalex( -1.0 );
     centranslatemat.scaley( -1.0 );
@@ -232,8 +230,15 @@ string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, ve
 
     // Dump( targetvec, "before.m" );
 
-    Clipper2Lib::Paths64 solution;
     Union( targetvec, solution );
+}
+
+string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible,
+                                                const vector<string> & cutout_vec, Matrix4d &clipper2sphericalmat, double r )
+{
+    Matrix4d centranslatemat;
+    Clipper2Lib::Paths64 solution;
+    PointOcclusionPath( target_tm, cen, centranslatemat, solution );
 
     return VisibilityPost( solution, clipper2sphericalmat, centranslatemat, r, cen, result_tmv, poly_visible );
 }
