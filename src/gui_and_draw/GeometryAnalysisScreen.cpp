@@ -179,7 +179,6 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_SecondaryLayout.AddButton( m_SecondaryGeomToggle, "Geom:" );
     m_SecondaryLayout.SetFitWidthFlag( true );
     m_SecondaryGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
-    m_SecondaryGeomPicker.AddExcludeType( BLANK_GEOM_TYPE );
     m_SecondaryLayout.AddGeomPicker( m_SecondaryGeomPicker, m_SecondaryLayout.GetButtonWidth(), "" );
 
     m_SecondaryLayout.ForceNewLine();
