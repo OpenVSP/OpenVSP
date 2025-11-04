@@ -211,6 +211,18 @@ inline double SphericalArea( const vector < vec3d > & azel )
 string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible,
                                                 const vector<string> & cutout_vec )
 {
+    constexpr double scalerad = 1.0e15 / M_PI;
+
+    BndBox bb;
+    target_tm->UpdateBBox( bb );
+    bb.Update( cen ); // Make sure cen is in BBox
+    const double r = std::max( 1.0, bb.DiagDist() );
+
+    Matrix4d clipper2sphericalmat;
+    clipper2sphericalmat.translatef( r, 0, 0 );
+    clipper2sphericalmat.scaley( 1.0 / scalerad );
+    clipper2sphericalmat.scalez( 1.0 / scalerad );
+
     Matrix4d centranslatemat;
     // Equivalent to 180 deg rotation about Z, but without floating point error.
     centranslatemat.scalex( -1.0 );
@@ -221,17 +233,6 @@ string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, ve
     target_tm->Transform( centranslatemat );
 
     target_tm = OctantSplitMesh( target_tm );
-
-    constexpr double scalerad = 1.0e15 / M_PI;
-    BndBox bb;
-    target_tm->UpdateBBox( bb );
-    bb.Update( vec3d() ); // Make sure origin is in BBox
-    const double r = std::max( 1.0, bb.DiagDist() );
-
-    Matrix4d clipper2sphericalmat;
-    clipper2sphericalmat.translatef( r, 0, 0 );
-    clipper2sphericalmat.scaley( 1.0 / scalerad );
-    clipper2sphericalmat.scalez( 1.0 / scalerad );
 
     Clipper2Lib::Paths64 targetvec;
     MeshToSphericalPathsVec( target_tm, targetvec, scalerad );
