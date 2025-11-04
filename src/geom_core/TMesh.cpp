@@ -7488,7 +7488,7 @@ double FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TM
     return sqrt( max_dist );
 }
 
-void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double > &azvec, const vector < double > & elvec, const vec3d & cen, const string & resid, const vector<string> & cutout_vec  )
+void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double > &azvec, const vector < double > & elvec, const vector < vec3d > & cen_vec, const string & resid, const vector<string> & cutout_vec  )
 {
     bool intSubsFlag = !cutout_vec.empty();
     CSGMesh( primary_tmv, intSubsFlag, cutout_vec );
@@ -7509,6 +7509,9 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
     vector < int > viz_vec;
     vector < vec3d > pts;
     double dviz_sum = 0;
+    for ( int icen = 0; icen < ( int )cen_vec.size(); icen++ )
+    {
+        const vec3d &cen = cen_vec[ icen ];
     for ( int i = 0; i < azvec.size(); ++i )
     {
         vec3d dir = -ToCartesian( vec3d( 1.0, -azvec[i] * M_PI / 180.0, -elvec[i] * M_PI / 180.0 ) );
@@ -7562,13 +7565,13 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
         dmiss_vec.push_back( dmiss );
         viz_vec.push_back( viz );
     }
-
+    }
 
     //==== Create Results ====//
     Results *res = ResultsMgr.FindResultsPtr( resid );
     if ( res )
     {
-        res->Add( new NameValData( "Center", cen, "Visibility center point." ) );
+        res->Add( new NameValData( "Center", cen_vec, "Visibility center point." ) );
         res->Add( new NameValData( "Pts", pts, "Visibility test endpoints." ) );
 
         res->Add( new NameValData( "Dirs", dir_vec, "Directions of visibility check." ) );
