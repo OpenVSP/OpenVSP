@@ -236,7 +236,7 @@ string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, ve
     target_tm = OctantSplitMesh( target_tm );
 
     Clipper2Lib::Paths64 targetvec;
-    MeshToSphericalPathsVec( target_tm, targetvec, SCALERAD );
+    MeshToSphericalPathsVec( target_tm, targetvec );
 
     delete target_tm;
     target_tm = nullptr;
@@ -258,7 +258,7 @@ string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution,
     if ( poly_visible )
     {
         Clipper2Lib::Paths64 sphdomain;
-        SphericalDomainPath( sphdomain, SCALERAD );
+        SphericalDomainPath( sphdomain );
 
         Clipper2Lib::Clipper64 clpr;
         clpr.PreserveCollinear( false );
@@ -335,7 +335,7 @@ string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution,
         {
             Clipper2Lib::Paths64 sphdomain;
             string label;
-            OctantDomainPath( ioct, sphdomain, SCALERAD, label );
+            OctantDomainPath( ioct, sphdomain, label );
 
             Clipper2Lib::Clipper64 clpr;
             clpr.PreserveCollinear( false );
@@ -370,7 +370,7 @@ string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution,
 
         PathsToPolyVec( solution, solutionPolyVec3d, 1, 2 ); // put az, el results in 1, 2 components of vec3d
 
-        RefinePolyVec( solutionPolyVec3d, SCALERAD );
+        RefinePolyVec( solutionPolyVec3d );
 
         TransformPolyVec( solutionPolyVec3d, clipper2sphericalmat );
 
@@ -1004,11 +1004,11 @@ void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vect
     }
 }
 
-void ProjectionMgrSingleton::MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Paths64 & pth, const double &scalerad )
+void ProjectionMgrSingleton::MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Paths64 & pth )
 {
     pth.resize( tm->m_TVec.size() );
 
-    double thtol = 1.0 * M_PI / 180.0; // degrees of arc per edge.
+    constexpr double thtol = 1.0 * M_PI / 180.0; // degrees of arc per edge.
 
     double tol = 1e-6;
     Clipper2Lib::Paths64 polepths;
@@ -1049,7 +1049,7 @@ void ProjectionMgrSingleton::MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Pa
         {
             vec3d s = ToSpherical2( ptlist[k], pcen );
 
-            pth[j][k] = Clipper2Lib::Point64( ( int64_t ) ( scalerad * s.y() ), ( int64_t ) ( scalerad * s.z() ) );
+            pth[j][k] = Clipper2Lib::Point64( ( int64_t ) ( SCALERAD * s.y() ), ( int64_t ) ( SCALERAD * s.z() ) );
         }
 
         if ( !Clipper2Lib::IsPositive( pth[j] ) )
@@ -1073,9 +1073,9 @@ void ProjectionMgrSingleton::MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Pa
 
                 Clipper2Lib::Path64 p;
                 p.resize( 3 );
-                p[0] = Clipper2Lib::Point64( ( int64_t ) ( scalerad * pole.y() ), ( int64_t ) ( scalerad * pole.z() ) );
-                p[1] = Clipper2Lib::Point64( ( int64_t ) ( scalerad * o2.y() ), ( int64_t ) ( scalerad * o2.z() ) );
-                p[2] = Clipper2Lib::Point64( ( int64_t ) ( scalerad * other.y() ), ( int64_t ) ( scalerad * other.z() ) );
+                p[0] = Clipper2Lib::Point64( ( int64_t ) ( SCALERAD * pole.y() ), ( int64_t ) ( SCALERAD * pole.z() ) );
+                p[1] = Clipper2Lib::Point64( ( int64_t ) ( SCALERAD * o2.y() ), ( int64_t ) ( SCALERAD * o2.z() ) );
+                p[2] = Clipper2Lib::Point64( ( int64_t ) ( SCALERAD * other.y() ), ( int64_t ) ( SCALERAD * other.z() ) );
 
                 if ( !Clipper2Lib::IsPositive( p ) )
                 {
@@ -1088,12 +1088,12 @@ void ProjectionMgrSingleton::MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Pa
     pth.insert( pth.end(), polepths.begin(), polepths.end() );
 }
 
-void ProjectionMgrSingleton::SphericalDomainPath( Clipper2Lib::Paths64 & pth, const double &scalerad )
+void ProjectionMgrSingleton::SphericalDomainPath( Clipper2Lib::Paths64 & pth )
 {
     pth.resize( 1 );
     pth[0].resize( 5 );
 
-    const double scaledeg = scalerad * M_PI / 180.0;
+    constexpr double scaledeg = SCALERAD * M_PI / 180.0;
     const double daz = scaledeg * 5.0;
 
     pth[0][0] = Clipper2Lib::Point64( ( int64_t ) ( 180.0 * scaledeg ), ( int64_t ) -( 90.0 * scaledeg ) );
@@ -1103,7 +1103,7 @@ void ProjectionMgrSingleton::SphericalDomainPath( Clipper2Lib::Paths64 & pth, co
     pth[0][4] = pth[0][0];
 }
 
-void ProjectionMgrSingleton::OctantDomainPath( int ioct, Clipper2Lib::Paths64 & pth, const double &scalerad, string & label )
+void ProjectionMgrSingleton::OctantDomainPath( int ioct, Clipper2Lib::Paths64 & pth, string & label )
 {
     // Set up arrays to index through octants.
     const double az[] = {-180, -90, 0, 90, -180, -90, 0, 90 };
@@ -1114,10 +1114,11 @@ void ProjectionMgrSingleton::OctantDomainPath( int ioct, Clipper2Lib::Paths64 & 
 
     label = string( 1, ud[ioct] ) + string( 1, fa[ioct] ) + string( 1, lr[ioct] );
 
-    const int64_t azmin = ( int64_t ) ( az[ ioct ] * scalerad * M_PI / 180.0 );
-    const int64_t azmax = ( int64_t ) ( ( az[ ioct ] + 90.0 ) * scalerad * M_PI / 180.0 );
-    const int64_t elmin = ( int64_t ) ( el[ ioct ] * scalerad * M_PI / 180.0 );
-    const int64_t elmax = ( int64_t ) ( ( el[ ioct ] + 90.0 ) * scalerad * M_PI / 180.0 );
+    constexpr double scaledeg = SCALERAD * M_PI / 180.0;
+    const int64_t azmin = ( int64_t ) ( az[ ioct ] * scaledeg );
+    const int64_t azmax = ( int64_t ) ( ( az[ ioct ] + 90.0 ) * scaledeg );
+    const int64_t elmin = ( int64_t ) ( el[ ioct ] * scaledeg );
+    const int64_t elmax = ( int64_t ) ( ( el[ ioct ] + 90.0 ) * scaledeg );
 
     pth.resize( 1 );
     pth[0].resize( 5 );
@@ -1153,9 +1154,9 @@ void ProjectionMgrSingleton::PathsToPolyVec( const Clipper2Lib::Paths64 & pths, 
     }
 }
 
-void ProjectionMgrSingleton::RefinePolyVec( vector < vector < vec3d > > & polyvec, const double & scalerad )
+void ProjectionMgrSingleton::RefinePolyVec( vector < vector < vec3d > > & polyvec )
 {
-    double thtol = scalerad * M_PI / 180.0; // degrees of arc per edge.
+    constexpr double thtol = SCALERAD * M_PI / 180.0; // degrees of arc per edge.
 
     for ( int i = 0; i < polyvec.size(); i++ )
     {

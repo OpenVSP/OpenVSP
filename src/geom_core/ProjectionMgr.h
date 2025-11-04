@@ -93,11 +93,11 @@ protected:
 
     virtual void MeshToPathsVec( const vector < TMesh* > & tmv, vector < Clipper2Lib::Paths64 > & pths, vector < string > & ids, int keepdir1 = 1, int keepdir2 = 2 );
 
-    virtual void MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Paths64 & pth, const double &scalerad );
-    virtual void SphericalDomainPath( Clipper2Lib::Paths64 & pth, const double &scalerad );
-    virtual void OctantDomainPath( int ioct, Clipper2Lib::Paths64 & pth, const double &scalerad, string & label );
+    virtual void MeshToSphericalPathsVec( TMesh* tm, Clipper2Lib::Paths64 & pth );
+    virtual void SphericalDomainPath( Clipper2Lib::Paths64 & pth );
+    virtual void OctantDomainPath( int ioct, Clipper2Lib::Paths64 & pth, string & label );
     virtual void PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, int keepdir1 = 1, int keepdir2 = 2 );
-    virtual void RefinePolyVec( vector < vector < vec3d > > & polyvec, const double & scalerad );
+    virtual void RefinePolyVec( vector < vector < vec3d > > & polyvec );
 
     virtual void Poly3dToPoly2d( vector < vector < vec3d > > & invec, vector < vector < vec2d > > & outvec );
 
