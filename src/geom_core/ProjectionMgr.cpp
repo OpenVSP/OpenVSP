@@ -208,10 +208,11 @@ inline double SphericalArea( const vector < vec3d > & azel )
     return a;
 }
 
+constexpr double SCALERAD = 1.0e15 / M_PI;
+
 string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible,
                                                 const vector<string> & cutout_vec )
 {
-    constexpr double scalerad = 1.0e15 / M_PI;
 
     BndBox bb;
     target_tm->UpdateBBox( bb );
@@ -220,8 +221,8 @@ string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, ve
 
     Matrix4d clipper2sphericalmat;
     clipper2sphericalmat.translatef( r, 0, 0 );
-    clipper2sphericalmat.scaley( 1.0 / scalerad );
-    clipper2sphericalmat.scalez( 1.0 / scalerad );
+    clipper2sphericalmat.scaley( 1.0 / SCALERAD );
+    clipper2sphericalmat.scalez( 1.0 / SCALERAD );
 
     Matrix4d centranslatemat;
     // Equivalent to 180 deg rotation about Z, but without floating point error.
@@ -235,7 +236,7 @@ string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, ve
     target_tm = OctantSplitMesh( target_tm );
 
     Clipper2Lib::Paths64 targetvec;
-    MeshToSphericalPathsVec( target_tm, targetvec, scalerad );
+    MeshToSphericalPathsVec( target_tm, targetvec, SCALERAD );
 
     delete target_tm;
     target_tm = nullptr;
@@ -245,10 +246,10 @@ string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, ve
     Clipper2Lib::Paths64 solution;
     Union( targetvec, solution );
 
-    return VisibilityPost( solution, scalerad, clipper2sphericalmat, centranslatemat, r, cen, result_tmv, poly_visible );
+    return VisibilityPost( solution, clipper2sphericalmat, centranslatemat, r, cen, result_tmv, poly_visible );
 }
 
-string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution, double scalerad,
+string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution,
                                                const Matrix4d &clipper2sphericalmat, Matrix4d &centranslatemat,
                                                const double r, const vec3d &cen,
                                                vector< TMesh* > & result_tmv, bool poly_visible )
@@ -257,7 +258,7 @@ string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution, d
     if ( poly_visible )
     {
         Clipper2Lib::Paths64 sphdomain;
-        SphericalDomainPath( sphdomain, scalerad );
+        SphericalDomainPath( sphdomain, SCALERAD );
 
         Clipper2Lib::Clipper64 clpr;
         clpr.PreserveCollinear( false );
@@ -283,7 +284,7 @@ string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution, d
         // This 'area' is calculated in scaled azimuth/elevation space and then un-scaled.
         // The full domain has an area of 2 pi^2 ~= 19.7 when un-scaled.
         // Typical slivers are observed with an area of 10-16 or smaller.
-        double area = Clipper2Lib::Area( solution[i] ) / ( scalerad * scalerad );
+        double area = Clipper2Lib::Area( solution[i] ) / ( SCALERAD * SCALERAD );
         if ( std::abs( area ) > 1.0e-10 )
         {
             clean.push_back( solution[i] );
@@ -299,13 +300,13 @@ string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution, d
         {
             if ( solution[i][j].x == 0 )
             {
-                fwdbounds.push_back( solution[i][j].y / scalerad * 180.0 / M_PI );
+                fwdbounds.push_back( solution[i][j].y / SCALERAD * 180.0 / M_PI );
             }
             else if (  solution[i][j+1].x != 0 && sgn( solution[i][j].x ) != sgn( solution[i][j + 1].x ) )
             {
                 double f = ( 0.0 - solution[i][j].x ) / ( solution[i][j+1].x - solution[i][j].x );
                 double y = solution[i][j].y + f * ( solution[i][j+1].y - solution[i][j].y );
-                fwdbounds.push_back( y / scalerad * 180.0 / M_PI );
+                fwdbounds.push_back( y / SCALERAD * 180.0 / M_PI );
             }
         }
     }
@@ -334,7 +335,7 @@ string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution, d
         {
             Clipper2Lib::Paths64 sphdomain;
             string label;
-            OctantDomainPath( ioct, sphdomain, scalerad, label );
+            OctantDomainPath( ioct, sphdomain, SCALERAD, label );
 
             Clipper2Lib::Clipper64 clpr;
             clpr.PreserveCollinear( false );
@@ -369,7 +370,7 @@ string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution, d
 
         PathsToPolyVec( solution, solutionPolyVec3d, 1, 2 ); // put az, el results in 1, 2 components of vec3d
 
-        RefinePolyVec( solutionPolyVec3d, scalerad );
+        RefinePolyVec( solutionPolyVec3d, SCALERAD );
 
         TransformPolyVec( solutionPolyVec3d, clipper2sphericalmat );
 
