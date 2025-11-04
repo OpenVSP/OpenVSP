@@ -55,6 +55,11 @@ public:
     virtual string PointVisibility( vector < TMesh* > &targetTMeshVec, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible, const
                                     vector<string> &cutout_vec );
 
+    virtual string VisibilityPost( Clipper2Lib::Paths64 &solution, double scalerad,
+                                   const Matrix4d &clipper2sphericalmat, Matrix4d &centranslatemat,
+                                   double r, const vec3d &cen,
+                                   vector< TMesh* > & result_tmv, bool poly_visible );
+
     virtual Results* Project( int tset, bool thullflag, const vec3d & dir );
     virtual Results* Project( int tset, bool thullflag, int bset, bool bhullflag, const vec3d & dir );
     virtual Results* Project( int tset, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir );

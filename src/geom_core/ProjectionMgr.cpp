@@ -244,6 +244,14 @@ string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, ve
     Clipper2Lib::Paths64 solution;
     Union( targetvec, solution );
 
+    return VisibilityPost( solution, scalerad, clipper2sphericalmat, centranslatemat, r, cen, result_tmv, poly_visible );
+}
+
+string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution, double scalerad,
+                                               const Matrix4d &clipper2sphericalmat, Matrix4d &centranslatemat,
+                                               const double r, const vec3d &cen,
+                                               vector< TMesh* > & result_tmv, bool poly_visible )
+{
     // Calculate 'inverse sphere' -- draw polygon around visible region instead of occluded region.
     if ( poly_visible )
     {
