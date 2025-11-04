@@ -464,6 +464,65 @@ string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVe
     return PointVisibility( target_tm, cen, result_tmv, poly_visible, cutout_vec, clipper2sphericalmat, r );
 }
 
+string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVec, const vector < vec3d > & cen_vec, vector< TMesh* > & result_tmv, bool poly_visible,
+                                                const vector<string> & cutout_vec )
+{
+    bool intSubsFlag = !cutout_vec.empty();
+    CSGMesh( targetTMeshVec, intSubsFlag, cutout_vec );
+
+    for ( int i = 0; i < ( int )targetTMeshVec.size(); i++ )
+    {
+        targetTMeshVec[i]->SetIgnoreSubSurface();
+    }
+    FlattenTMeshVec( targetTMeshVec );
+
+    TMesh *target_tm = MergeTMeshVec( targetTMeshVec );
+
+    BndBox bb;
+    target_tm->UpdateBBox( bb );
+    for ( int i = 0; i < cen_vec.size(); i++ )
+    {
+        bb.Update( cen_vec[ i ] ); // Make sure cen is in BBox
+    }
+    const double r = std::max( 1.0, bb.DiagDist() );
+
+    Matrix4d clipper2sphericalmat;
+    clipper2sphericalmat.translatef( r, 0, 0 );
+    clipper2sphericalmat.scaley( 1.0 / SCALERAD );
+    clipper2sphericalmat.scalez( 1.0 / SCALERAD );
+
+    vec3d master_cen;
+    if ( cen_vec.size() == 1 )
+    {
+        master_cen = cen_vec[ 0 ];
+    }
+    else
+    {
+        master_cen = bb.GetCenter();
+    }
+
+    Matrix4d mastercentranslatemat;
+    mastercentranslatemat.scalex( -1.0 );
+    mastercentranslatemat.scaley( -1.0 );
+    mastercentranslatemat.translatev( -master_cen );
+
+    vector < Clipper2Lib::Paths64 > pthsvec( cen_vec.size() );
+    for ( int i = 0; i < cen_vec.size(); i++ )
+    {
+        TMesh *tm = new TMesh();
+        tm->CopyFlatten( target_tm );
+
+        Matrix4d centranslatemat;
+        PointOcclusionPath( tm, cen_vec[ i ], centranslatemat, pthsvec[ i ] );
+    }
+    delete target_tm;
+
+    Clipper2Lib::Paths64 solution;
+    Intersect( pthsvec, solution );
+
+    return VisibilityPost( solution, clipper2sphericalmat, mastercentranslatemat, r, master_cen, result_tmv, poly_visible );
+}
+
 Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, const vec3d & dir )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
