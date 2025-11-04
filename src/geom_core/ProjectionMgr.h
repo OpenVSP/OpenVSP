@@ -111,6 +111,7 @@ protected:
 
     virtual void Intersect( Clipper2Lib::Paths64 & pthA, Clipper2Lib::Paths64 & pthB, Clipper2Lib::Paths64 & sol );
     virtual void Intersect( vector < Clipper2Lib::Paths64 > & pthsvecA, Clipper2Lib::Paths64 & pthB, vector < Clipper2Lib::Paths64 > & solvec );
+    virtual void Intersect( vector < Clipper2Lib::Paths64 > & pthsvec,  Clipper2Lib::Paths64 & sol );
 
     vector < TMesh * > Triangulate( const vector < vector < vec2d > > &solutionPolyVec2d, const vector < vector < vec3d > > &solutionPolyVec3d, const vector < bool > &isHole, bool addspherepoints = false, double r = 0.0 );
     virtual void Triangulate_TRI( const vector < vector < vec3d > > &solutionPolyVec3d, vector < vector < int > > &connlist, const vector < vec3d > & addpts );

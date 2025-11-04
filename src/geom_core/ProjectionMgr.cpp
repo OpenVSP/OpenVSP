@@ -1316,6 +1316,21 @@ void ProjectionMgrSingleton::Intersect( vector < Clipper2Lib::Paths64 > & pthsve
     }
 }
 
+void ProjectionMgrSingleton::Intersect( vector < Clipper2Lib::Paths64 > & pthsvec, Clipper2Lib::Paths64 & sol )
+{
+    if ( !pthsvec.empty() )
+    {
+        sol = pthsvec[ 0 ];
+
+        for ( int j = 1; j < pthsvec.size(); j++ )
+        {
+            Clipper2Lib::Paths64 pth;
+            Intersect( sol, pthsvec[ j ], pth );
+            sol = pth;
+        }
+    }
+}
+
 vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < vec2d > > &solutionPolyVec2d, const vector < vector < vec3d > > &solutionPolyVec3d, const vector < bool > &isHole, const bool addspherepoints, const double r )
 {
     vector < TMesh * > tmv;
