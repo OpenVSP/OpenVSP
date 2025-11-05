@@ -48,7 +48,7 @@ public:
 
     bool GetDisplacement( double dist, vec3d &dstart, vec3d &disp );
     void HandleDispersion( const vec3d &disp, vector < vec3d > & dispvec );
-    bool GetSecondaryPt( vector < vec3d > &pt_vec );
+    bool GetSecondaryPt( vector < vec3d > &pt_vec, vector < TMesh* > & fov_vec );
     bool GetSecondaryPtNormal( vec3d &pt, vec3d &normal );
     bool GetSecondarySideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign );
     bool GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );

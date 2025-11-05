@@ -49,10 +49,12 @@ public:
 
     virtual Results* Project( );
 
-    virtual void PointOcclusionPath( TMesh* &target_tm, vec3d cen, Matrix4d &centranslatemat, Clipper2Lib::Paths64 &solution );
+    virtual void PointOcclusionPath( TMesh* &target_tm, const vec3d &cen, TMesh *fov,
+                                     Matrix4d &centranslatemat, Clipper2Lib::Paths64 &solution );
 
-    virtual string PointVisibility( vector < TMesh* > &targetTMeshVec, const vector < vec3d > & cen, vector< TMesh* > & result_tmv, bool poly_visible,
-                                                    const vector<string> & cutout_vec );
+    virtual string PointVisibility( vector < TMesh* > &targetTMeshVec, const vector < vec3d > & cen,
+                                    vector<TMesh *> &fov_vec, vector < TMesh* > & result_tmv,
+                                    bool poly_visible, const vector < string > & cutout_vec );
 
     virtual string VisibilityPost( Clipper2Lib::Paths64 &solution,
                                    const Matrix4d &clipper2sphericalmat, Matrix4d &centranslatemat,

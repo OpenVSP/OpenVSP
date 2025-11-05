@@ -210,7 +210,8 @@ inline double SphericalArea( const vector < vec3d > & azel )
 
 constexpr double SCALERAD = 1.0e15 / M_PI;
 
-void ProjectionMgrSingleton::PointOcclusionPath( TMesh* &target_tm, vec3d cen, Matrix4d &centranslatemat, Clipper2Lib::Paths64 &solution )
+void ProjectionMgrSingleton::PointOcclusionPath( TMesh* &target_tm, const vec3d & cen, TMesh *fov,
+                                                 Matrix4d & centranslatemat, Clipper2Lib::Paths64 & solution )
 {
     // Equivalent to 180 deg rotation about Z, but without floating point error.
     centranslatemat.scalex( -1.0 );
@@ -229,6 +230,35 @@ void ProjectionMgrSingleton::PointOcclusionPath( TMesh* &target_tm, vec3d cen, M
     target_tm = nullptr;
 
     // Dump( targetvec, "before.m" );
+
+    if ( fov )
+    {
+        fov->Transform( centranslatemat );
+
+        fov = OctantSplitMesh( fov );
+
+        Clipper2Lib::Paths64 fovvec;
+        MeshToSphericalPathsVec( fov, fovvec );
+
+        delete fov;
+        fov = nullptr;
+
+        Clipper2Lib::Paths64 sphdomain;
+        SphericalDomainPath( sphdomain );
+
+        Clipper2Lib::Clipper64 clpr;
+        clpr.PreserveCollinear( false );
+        clpr.AddSubject( sphdomain );
+        clpr.AddClip( fovvec );
+
+        Clipper2Lib::Paths64 sol;
+        if ( !clpr.Execute( Clipper2Lib::ClipType::Difference, Clipper2Lib::FillRule::NonZero, sol ) )
+        {
+            printf( "Clipper error\n" );
+        }
+
+        targetvec.insert( targetvec.end(), sol.begin(), sol.end() );
+    }
 
     Union( targetvec, solution );
 }
@@ -427,8 +457,9 @@ string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution,
     return res->GetID();
 }
 
-string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVec, const vector < vec3d > & cen_vec, vector< TMesh* > & result_tmv, bool poly_visible,
-                                                const vector<string> & cutout_vec )
+string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVec, const vector < vec3d > & cen_vec,
+                                                vector < TMesh* > &fov_vec, vector < TMesh* > & result_tmv,
+                                                bool poly_visible, const vector < string > & cutout_vec )
 {
     bool intSubsFlag = !cutout_vec.empty();
     CSGMesh( targetTMeshVec, intSubsFlag, cutout_vec );
@@ -476,7 +507,7 @@ string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVe
         tm->CopyFlatten( target_tm );
 
         Matrix4d centranslatemat;
-        PointOcclusionPath( tm, cen_vec[ i ], centranslatemat, pthsvec[ i ] );
+        PointOcclusionPath( tm, cen_vec[ i ], fov_vec[ i ], centranslatemat, pthsvec[ i ] );
     }
     delete target_tm;
 

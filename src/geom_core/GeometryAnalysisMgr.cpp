@@ -579,7 +579,7 @@ void GeometryAnalysisCase::HandleDispersion( const vec3d &disp, vector < vec3d >
     }
 }
 
-bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec )
+bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec, vector < TMesh* > & fov_vec )
 {
     if ( m_SecondaryType() == vsp::XYZ_TARGET )
     {
@@ -596,10 +596,29 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec )
                 Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
                 HumanGeom* human_ptr = dynamic_cast< HumanGeom* >( geom );
+                AuxiliaryGeom* auxthis = dynamic_cast < AuxiliaryGeom* > ( geom );
 
                 if ( human_ptr )
                 {
                     human_ptr->GetDesignEyeVec( pt_vec );
+                    fov_vec.resize( pt_vec.size(), nullptr );
+                    return true;
+                }
+                else if ( auxthis && auxthis->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
+                {
+                    const int n = geom->GetNumTotalSurfs();
+
+                    pt_vec.resize( n );
+
+                    fov_vec = geom->CreateTMeshVec( false );
+
+                    for ( int i = 0; i < n; i++ )
+                    {
+                        pt_vec[ i ] = auxthis->CompPnt01( i, 0, 0 );
+
+                        fov_vec[ i ]->IgnoreULessThan( 1.0 );
+                        fov_vec[ i ]->FlattenInPlace();
+                    }
                     return true;
                 }
                 else if ( geom )
@@ -609,6 +628,7 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec )
                     {
                         pt_vec.push_back( mat_vec[ i ].xform( vec3d() ) );
                     }
+                    fov_vec.resize( pt_vec.size(), nullptr );
                     return true;
                 }
             }
@@ -624,10 +644,31 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec )
                     {
                         if ( geom->GetSetFlag( set ) )
                         {
-                            vector < Matrix4d > mat_vec = geom->GetTransMatVec();
-                            for ( int j = 0 ; j < ( int )mat_vec.size() ; j++ )
+                            AuxiliaryGeom* auxthis = dynamic_cast < AuxiliaryGeom* > ( geom );
+
+                            if ( auxthis && auxthis->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
                             {
-                                pt_vec.push_back( mat_vec[ j ].xform( vec3d() ) );
+                                const int n = geom->GetNumTotalSurfs();
+
+                                vector < TMesh* > fov = geom->CreateTMeshVec( false );
+
+                                for ( int j = 0; j < n; j++ )
+                                {
+                                    pt_vec.push_back( auxthis->CompPnt01( j, 0, 0 ) );
+
+                                    fov[ j ]->IgnoreULessThan( 1.0 );
+                                    fov[ j ]->FlattenInPlace();
+                                    fov_vec.push_back( fov[ j ] );
+                                }
+                            }
+                            else
+                            {
+                                vector < Matrix4d > mat_vec = geom->GetTransMatVec();
+                                for ( int j = 0 ; j < ( int )mat_vec.size() ; j++ )
+                                {
+                                    pt_vec.push_back( mat_vec[ j ].xform( vec3d() ) );
+                                    fov_vec.push_back( nullptr );
+                                }
                             }
                         }
                     }
@@ -1555,7 +1596,8 @@ string GeometryAnalysisCase::Evaluate()
                 {
 
                     vector < vec3d > cen_vec;
-                    if ( GetSecondaryPt( cen_vec ) )
+                    vector < TMesh* > fov_vec;
+                    if ( GetSecondaryPt( cen_vec, fov_vec ) )
                     {
                         if ( m_DiscreteVisibilityFlag() )
                         {
@@ -1589,7 +1631,7 @@ string GeometryAnalysisCase::Evaluate()
                         }
                         else
                         {
-                            m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen_vec, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
+                            m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen_vec, fov_vec, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
                         }
 
                         m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
@@ -1996,7 +2038,8 @@ void GeometryAnalysisCase::UpdateDrawObj_Live()
     if ( m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS )
     {
         vector < vec3d > pt_vec;
-        if ( GetSecondaryPt( pt_vec ) )
+        vector < TMesh* > fov_vec;
+        if ( GetSecondaryPt( pt_vec, fov_vec ) )
         {
             m_SecondaryVizPointDO.m_GeomID = m_ID + "VizPoint";
             m_SecondaryVizPointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
