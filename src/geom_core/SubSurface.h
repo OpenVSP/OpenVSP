@@ -279,6 +279,21 @@ protected:
 
 };
 
+class SSIntersect : public SSXSecCurve
+{
+public:
+    SSIntersect( const string& compID, int type = vsp::SS_INTERSECT );
+    virtual ~SSIntersect();
+
+    virtual void Intersect();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    string m_IntersectID;
+
+};
+
 class SSControlSurf : public SubSurface
 {
 public:

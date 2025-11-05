@@ -451,6 +451,10 @@ std::string SubSurface::GetTypeName( int type )
     {
         return string( "XSec_Curve" );
     }
+    if ( type == vsp::SS_INTERSECT )
+    {
+        return string( "Intersect" );
+    }
     return string( "NONE" );
 }
 
@@ -1372,6 +1376,47 @@ void SSXSecCurve::ChangeID( string id )
     {
         m_XSCurve->SetParentContainer( GetID() );
     }
+}
+
+//////////////////////////////////////////////////////
+//=================== SSIntersect =====================//
+//////////////////////////////////////////////////////
+
+//====== Constructor =====//
+SSIntersect::SSIntersect( const string& comp_id, int type ) : SSXSecCurve( comp_id, type )
+{
+
+}
+
+//===== Destructor =====//
+SSIntersect::~SSIntersect()
+{
+
+}
+
+void SSIntersect::Intersect()
+{
+    printf( "Do the thing! %s\n", m_IntersectID.c_str() );
+}
+
+//==== Encode XML ====//
+xmlNodePtr SSIntersect::EncodeXml(  xmlNodePtr & node  )
+{
+    xmlNodePtr xscrv_node = SSXSecCurve::EncodeXml( node );
+
+    XmlUtil::AddStringNode( node, "IntersectID", m_IntersectID );
+
+    return xscrv_node;
+}
+
+//==== Decode XML ====//
+xmlNodePtr SSIntersect::DecodeXml(  xmlNodePtr & node  )
+{
+    xmlNodePtr xscrv_node = SSXSecCurve::DecodeXml( node );
+
+    m_IntersectID = ParmMgr.RemapID( XmlUtil::FindString( node, "IntersectID", m_IntersectID ) );
+
+    return xscrv_node;
 }
 
 //////////////////////////////////////////////////////

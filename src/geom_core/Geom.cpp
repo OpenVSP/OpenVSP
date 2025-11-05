@@ -5783,6 +5783,11 @@ SubSurface* Geom::AddSubSurf( int type, int surfindex )
         ssurf = new SSXSecCurve( m_ID );
         ssurf->SetName( string( "SS_XSC_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
     }
+    else if ( type == vsp::SS_INTERSECT )
+    {
+        ssurf = new SSIntersect( m_ID );
+        ssurf->SetName( string( "SS_INT_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
+    }
 
     if ( ssurf )
     {
