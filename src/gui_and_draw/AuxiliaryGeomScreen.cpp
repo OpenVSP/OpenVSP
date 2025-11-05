@@ -1710,6 +1710,14 @@ void AuxiliaryGeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( t == vsp::XS_EDIT_CURVE )
         {
+            EditCurveXSec *edit_xsec = dynamic_cast < EditCurveXSec* > ( auxiliary_ptr->GetXSecCurve() );
+            CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+            if ( ceditcreen && edit_xsec )
+            {
+                ceditcreen->SetXSecCurve( edit_xsec );
+            }
+
             m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
         }
     }

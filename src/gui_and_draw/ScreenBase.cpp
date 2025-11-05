@@ -2795,6 +2795,14 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( t == vsp::XS_EDIT_CURVE )
             {
+                EditCurveXSec *edit_xsec = dynamic_cast < EditCurveXSec* > ( sub_surf );
+                CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+                if ( ceditcreen && edit_xsec )
+                {
+                    ceditcreen->SetXSecCurve( edit_xsec );
+                }
+
                 m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
             }
         }
@@ -4598,6 +4606,23 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
         if (t == XS_EDIT_CURVE)
         {
+            XSec* xs = xsec_geom_ptr->GetXSec( xsec_geom_ptr->m_ActiveXSec() );
+
+            if (xs)
+            {
+                XSecCurve* xsc = xs->GetXSecCurve();
+                if ( xsc )
+                {
+                    EditCurveXSec *edit_xsec = dynamic_cast < EditCurveXSec* > ( xsc );
+                    CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+                    if ( ceditcreen && edit_xsec )
+                    {
+                        ceditcreen->SetXSecCurve( edit_xsec );
+                    }
+                }
+            }
+
             m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
         }
     }
