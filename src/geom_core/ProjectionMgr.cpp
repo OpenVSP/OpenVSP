@@ -233,16 +233,6 @@ void ProjectionMgrSingleton::PointOcclusionPath( TMesh* &target_tm, vec3d cen, M
     Union( targetvec, solution );
 }
 
-string ProjectionMgrSingleton::PointVisibility( TMesh* &target_tm, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible,
-                                                const vector<string> & cutout_vec, Matrix4d &clipper2sphericalmat, double r )
-{
-    Matrix4d centranslatemat;
-    Clipper2Lib::Paths64 solution;
-    PointOcclusionPath( target_tm, cen, centranslatemat, solution );
-
-    return VisibilityPost( solution, clipper2sphericalmat, centranslatemat, r, cen, result_tmv, poly_visible );
-}
-
 string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution,
                                                const Matrix4d &clipper2sphericalmat, Matrix4d &centranslatemat,
                                                const double r, const vec3d &cen,
@@ -435,33 +425,6 @@ string ProjectionMgrSingleton::VisibilityPost( Clipper2Lib::Paths64 &solution,
     }
 
     return res->GetID();
-}
-
-string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVec, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible,
-                                                const vector<string> & cutout_vec )
-{
-    bool intSubsFlag = !cutout_vec.empty();
-    CSGMesh( targetTMeshVec, intSubsFlag, cutout_vec );
-
-    for ( int i = 0; i < ( int )targetTMeshVec.size(); i++ )
-    {
-        targetTMeshVec[i]->SetIgnoreSubSurface();
-    }
-    FlattenTMeshVec( targetTMeshVec );
-
-    TMesh *target_tm = MergeTMeshVec( targetTMeshVec );
-
-    BndBox bb;
-    target_tm->UpdateBBox( bb );
-    bb.Update( cen ); // Make sure cen is in BBox
-    const double r = std::max( 1.0, bb.DiagDist() );
-
-    Matrix4d clipper2sphericalmat;
-    clipper2sphericalmat.translatef( r, 0, 0 );
-    clipper2sphericalmat.scaley( 1.0 / SCALERAD );
-    clipper2sphericalmat.scalez( 1.0 / SCALERAD );
-
-    return PointVisibility( target_tm, cen, result_tmv, poly_visible, cutout_vec, clipper2sphericalmat, r );
 }
 
 string ProjectionMgrSingleton::PointVisibility( vector < TMesh* > &targetTMeshVec, const vector < vec3d > & cen_vec, vector< TMesh* > & result_tmv, bool poly_visible,

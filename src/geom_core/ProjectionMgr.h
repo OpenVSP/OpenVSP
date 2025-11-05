@@ -51,12 +51,6 @@ public:
 
     virtual void PointOcclusionPath( TMesh* &target_tm, vec3d cen, Matrix4d &centranslatemat, Clipper2Lib::Paths64 &solution );
 
-    virtual string PointVisibility( TMesh* &target_tm, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible, const
-                                    vector<string> &cutout_vec, Matrix4d &clipper2sphericalmat, double r );
-
-    virtual string PointVisibility( vector < TMesh* > &targetTMeshVec, vec3d cen, vector< TMesh* > & result_tmv, bool poly_visible, const
-                                    vector<string> &cutout_vec );
-
     virtual string PointVisibility( vector < TMesh* > &targetTMeshVec, const vector < vec3d > & cen, vector< TMesh* > & result_tmv, bool poly_visible,
                                                     const vector<string> & cutout_vec );
 
