@@ -1485,6 +1485,37 @@ void TMesh::IgnoreYLessThan( const double & ytol )
     }
 }
 
+void TMesh::IgnoreULessThan( const double & u )
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                vec3d cen = tri->m_SplitVec[s]->ComputeCenterUW();
+
+                if ( cen.x() < u )
+                {
+                    tri->m_SplitVec[s]->m_IgnoreTriFlag = true;
+                }
+            }
+        }
+        else
+        {
+            vec3d cen = tri->ComputeCenterUW();
+
+            if ( cen.x() < u )
+            {
+                tri->m_IgnoreTriFlag = true;
+            }
+        }
+    }
+}
+
 void TMesh::SetIgnoreAbovePlane( const vector <vec3d> & threepts )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )

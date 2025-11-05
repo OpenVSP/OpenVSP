@@ -488,6 +488,7 @@ public:
 
     void SetIgnoreShadow( const vec3d & v, double tol );
     void IgnoreYLessThan( const double & ytol );
+    void IgnoreULessThan ( const double & u );
     void SetIgnoreAbovePlane( const vector <vec3d> & threepts );
     void IgnoreAll();
     void IgnoreNone();
