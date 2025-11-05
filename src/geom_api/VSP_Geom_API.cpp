@@ -213,6 +213,10 @@ void RegisterCFDMeshAnalyses()
     FeaMeshMgr.RegisterAnalysis();
 }
 
+void LimitedIntersectSurfaces( const vector < string > & geomvec )
+{
+    SurfaceIntersectionMgr.LimitedIntersectSurfaces( geomvec );
+}
 
 //===================================================================//
 //===============       File I/O Functions        ===================//

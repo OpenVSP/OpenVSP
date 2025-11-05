@@ -214,6 +214,8 @@ public:
 
     virtual void IntersectSurfaces();
 
+    virtual void LimitedIntersectSurfaces( const vector < string > & geomvec );
+
     virtual void TransferMeshSettings();
 
     virtual void IdentifyCompIDNames();
@@ -230,6 +232,7 @@ public:
 
     virtual void UpdateDisplaySettings();
 
+    virtual void FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs );
     virtual void FetchSurfs( vector< XferSurf > &xfersurfs );
     virtual void LoadSurfs( vector< XferSurf > &xfersurfs, double scale = 1.0, int start_surf_id = 0 );
 

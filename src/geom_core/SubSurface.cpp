@@ -22,6 +22,8 @@
 #include "VspUtil.h"
 #include "StlHelper.h"
 
+#include "VSP_Geom_API.h"
+
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 
 SubSurface::SubSurface( const string& compID, int type )
@@ -1396,7 +1398,9 @@ SSIntersect::~SSIntersect()
 
 void SSIntersect::Intersect()
 {
-    printf( "Do the thing! %s\n", m_IntersectID.c_str() );
+    vector < string > geomvec { m_CompID, m_IntersectID };
+    vsp::LimitedIntersectSurfaces( geomvec );
+
 }
 
 //==== Encode XML ====//

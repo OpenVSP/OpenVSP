@@ -4186,6 +4186,25 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set, bool use
     fclose( pov_file );
 }
 
+void Vehicle::FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs )
+{
+    vector< Geom* > geom_vec = FindGeomVec( geomvec );
+
+    int icomp = 0;
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        int num_surf = geom_vec[i]->GetNumTotalSurfs();
+
+        const vector<VspSurf> *surf_vec_ptr = geom_vec[i]->GetSurfVecPtr();
+
+        for ( int j = 0; j < num_surf; j++ )
+        {
+            (*surf_vec_ptr)[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetName(), geom_vec[i]->GetMainSurfID( j ), icomp, geom_vec[i]->GetSurfCopyIndx( j ), j, xfersurfs);
+            icomp++;
+        }
+    }
+}
+
 void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );

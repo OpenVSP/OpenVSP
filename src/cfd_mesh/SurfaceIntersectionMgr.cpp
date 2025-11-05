@@ -443,6 +443,80 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
+void SurfaceIntersectionSingleton::LimitedIntersectSurfaces( const vector < string > & geomvec )
+{
+    addOutputText( "CLEAR_TERMINAL" );
+
+    m_MeshInProgress = true;
+
+#ifdef DEBUG_TIME_OUTPUT
+    addOutputText( "Init Timer\n" );
+#endif
+
+    addOutputText( "Transfer Mesh Settings\n" );
+    TransferMeshSettings();
+
+    addOutputText( "Fetching Bezier Surfaces\n" );
+
+    vector< XferSurf > xfersurfs;
+    // FetchSurfs( xfersurfs );
+    FetchXFerSurfs( geomvec, xfersurfs );
+
+    // UpdateWakes must be before m_Vehicle->HideAll() to prevent components
+    // being being added to or removed from the Surface Intersection set
+    addOutputText( "Update Wakes\n" );
+    UpdateWakes();
+    WakeMgr.SetStretchMeshFlag( false );
+
+    // // Hide all geoms after fetching their surfaces
+    // m_Vehicle->HideAll();
+
+    addOutputText( "Cleanup\n" );
+    CleanUp();
+
+    addOutputText( "Loading Bezier Surfaces\n" );
+    LoadSurfs( xfersurfs );
+
+    // if ( GetSettingsPtr()->m_IntersectSubSurfs )
+    // {
+    //     addOutputText( "Transfer Subsurf Data\n" );
+    //     TransferSubSurfData();
+    // }
+
+    addOutputText( "Clean Merge Surfs\n" );
+    CleanMergeSurfs( /* skip_duplicate_removal */ false );
+
+    addOutputText( "Identify CompID Names\n" );
+    IdentifyCompIDNames();
+
+    if ( m_SurfVec.size() == 0 )
+    {
+        addOutputText( "No Surfaces To Mesh\n" );
+        m_MeshInProgress = false;
+        MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+        return;
+    }
+
+    addOutputText( "Build Grid\n" );
+    BuildGrid();
+
+    // addOutputText( "Intersect\n" ); // Output in intersect() itself.
+    Intersect();
+
+    addOutputText( "Binary Adaptation Curve Approximation\n" );
+    BinaryAdaptIntCurves();
+
+    // addOutputText( "Exporting Files\n" );
+    // ExportFiles();
+    //
+    // UpdateDrawObjs();
+
+    addOutputText( "Done\n" );
+
+    m_MeshInProgress = false;
+    MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+}
+
 void SurfaceIntersectionSingleton::CleanUp()
 {
     int i;
@@ -645,6 +719,11 @@ void SurfaceIntersectionSingleton::addOutputText( string str, int output_type )
         data.m_StringVec.push_back( str );
         MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
     }
+}
+
+void SurfaceIntersectionSingleton::FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs )
+{
+    m_Vehicle->FetchXFerSurfs( geomvec, xfersurfs );
 }
 
 void SurfaceIntersectionSingleton::FetchSurfs( vector< XferSurf > &xfersurfs )
