@@ -832,6 +832,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 //    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ), vsp::SS_CONTROL );
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_FINITE_LINE ), vsp::SS_FINITE_LINE );
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_XSEC_CURVE ), vsp::SS_XSEC_CURVE );
+    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_INTERSECT ), vsp::SS_INTERSECT );
 
     m_SubSurfLayout.SetChoiceButtonWidth( m_SubSurfLayout.GetRemainX() / 3 );
 
@@ -974,6 +975,22 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SSXSCGroup.AddSlider( m_SSXSCCentUSlider, "Center U", 1, "%7.6f" );
     m_SSXSCGroup.AddSlider( m_SSXSCCentWSlider, "Center W", 1, "%7.6f" );
+
+    m_SSXSCGroup.AddYGap();
+
+    m_SSIntGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+
+    m_SSXSCGroup.SetChoiceButtonWidth( m_SSXSCGroup.GetButtonWidth() );
+    m_SSXSCGroup.SetSameLineFlag( true );
+
+    m_SSXSCGroup.AddGeomPicker( m_SSIntGeomPicker, m_SSXSCGroup.GetButtonWidth(), "Intersect Geom" );
+
+    m_SSXSCGroup.SetFitWidthFlag( false );
+    m_SSXSCGroup.AddButton( m_SSIntIntersectButton, "Intersect" );
+
+    m_SSXSCGroup.SetFitWidthFlag( true );
+    m_SSXSCGroup.SetSameLineFlag( false );
+    m_SSXSCGroup.ForceNewLine();
 
 
     m_SSXSCGroup.AddYGap();
@@ -2047,8 +2064,22 @@ bool GeomScreen::Update()
             m_SSEllAttrEditor.SetEditorCollID( subsurf->m_AttrCollection.GetID() );
             m_SSEllAttrEditor.Update();
         }
-        else if ( subsurf->GetType() == vsp::SS_XSEC_CURVE )
+        else if ( subsurf->GetType() == vsp::SS_XSEC_CURVE ||
+                  subsurf->GetType() == vsp::SS_INTERSECT )
         {
+            if ( subsurf->GetType() == vsp::SS_INTERSECT )
+            {
+                SSIntersect* ssint = dynamic_cast< SSIntersect* >( subsurf );
+                assert( ssint );
+
+                m_SSIntGeomPicker.SetGeomChoice( ssint->m_IntersectID );
+            }
+            else
+            {
+                m_SSIntGeomPicker.SetGeomChoice( "" );
+            }
+            m_SSIntGeomPicker.Update();
+
             SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
             assert( ssxsc );
 
@@ -2997,6 +3028,34 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
                         }
                     }
                 }
+            }
+        }
+    }
+    else if ( device == & m_SSIntGeomPicker )
+    {
+        SSXSecCurve* sub_surf = dynamic_cast < SSXSecCurve* > ( geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() ) );
+        if ( sub_surf )
+        {
+            if ( sub_surf->GetType() == vsp::SS_INTERSECT )
+            {
+                SSIntersect* ssint = dynamic_cast< SSIntersect* >( sub_surf );
+                assert( ssint );
+
+                ssint->m_IntersectID = m_SSIntGeomPicker.GetGeomChoice();
+            }
+        }
+    }
+    else if ( device == & m_SSIntIntersectButton )
+    {
+        SSXSecCurve* sub_surf = dynamic_cast < SSXSecCurve* > ( geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() ) );
+        if ( sub_surf )
+        {
+            if ( sub_surf->GetType() == vsp::SS_INTERSECT )
+            {
+                SSIntersect* ssint = dynamic_cast< SSIntersect* >( sub_surf );
+                assert( ssint );
+
+                ssint->Intersect();
             }
         }
     }
