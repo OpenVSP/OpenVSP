@@ -71,13 +71,9 @@ public:
         m_NeedsShowHideGeoms = true;
     }
 
-    void SetRedrawFlag()
+    void SetVehSelectedFlag()
     {
-        m_RedrawFlag = true;
-    }
-    void ClearRedrawFlag()
-    {
-        m_RedrawFlag = false;
+        m_VehSelected = true;
     }
 
     void UpdateGeomScreens();
@@ -170,7 +166,6 @@ protected:
 
     bool m_VehSelected;
     bool m_VehOpen;
-    bool m_RedrawFlag;
     bool m_NeedsShowHideGeoms;
 
     vector < string > m_SelVec;

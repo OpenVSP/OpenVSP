@@ -142,7 +142,6 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 64
 
     m_VehSelected = false;
     m_VehOpen = true;
-    m_RedrawFlag = true;
     m_NeedsShowHideGeoms = true;
 }
 
@@ -214,6 +213,10 @@ void ManageGeomScreen::UpdateGeomScreens()
 //==== Show Screen ====//
 void ManageGeomScreen::Show()
 {
+    if ( !IsShown() )
+    {
+        m_VehiclePtr->SetGeomMapDirtyFlag( true );
+    }
     m_ScreenMgr->SetUpdateFlag( true );
     BasicScreen::Show();
 }
@@ -240,7 +243,7 @@ void ManageGeomScreen::LoadBrowser()
     vector < Geom* > geom_ptr_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
 
     //==== Rebuild Tree if Redraw Required ====//
-    if ( m_RedrawFlag )
+    if ( m_VehiclePtr->GetGeomMapDirtyFlag() )
     {
         //==== Clear old tree ====//
         m_GeomBrowser->clear();
@@ -281,7 +284,6 @@ void ManageGeomScreen::LoadBrowser()
             }
         }
     }
-    SetRedrawFlag();
 
     //==== Update Tree Items' Label Fonts & Colors ====//
     for ( Fl_Tree_Item *tree_item = m_GeomBrowser->first(); tree_item; tree_item = m_GeomBrowser->next(tree_item) )
@@ -617,21 +619,30 @@ void ManageGeomScreen::GeomBrowserCallback()
         return;
     }
 
+    if ( !m_GeomBrowser )
+    {
+        return;
+    }
+
     string id;
     int icon_event = 0;
     bool show_state;
     int surf_state;
 
-    // Check if any tree icons are triggered and handle open/close here; show/surf icon handling after selVec populated.
-    TreeIconItem* tree_item = dynamic_cast< TreeIconItem* >( m_GeomBrowser->callback_item() );
+    // if item is clicked on collapse icon, toggle it and set that bool to the geom/vehicle's DisplayChildrenFlag
+    TreeIconItem* tree_item = m_GeomBrowser->GetEventItem();
     if ( tree_item )
     {
-        // if item is clicked on collapse icon, toggle it and set that bool to the geom/vehicle's DisplayChildrenFlag
         if ( tree_item->event_on_collapse_icon( m_GeomBrowser->prefs() ) )
         {
             id = tree_item->GetRefID();
             Geom* g = m_VehiclePtr->FindGeom( id );
-            Vehicle* vPtr = ( id == m_VehiclePtr->GetID() ) ? m_VehiclePtr : nullptr;
+
+            Vehicle* vPtr = nullptr;
+            if ( id == m_VehiclePtr->GetID() )
+            {
+                vPtr = m_VehiclePtr;
+            }
 
             bool open_flag = tree_item->is_open();
             if( g )
@@ -681,7 +692,12 @@ void ManageGeomScreen::GeomBrowserCallback()
     // Generate selection vector from scratch if not an icon event
     if ( icon_event == 0 )
     {
-        m_SelVec = GetSelectedBrowserItems();
+        selVec = GetSelectedBrowserItems();
+        if ( selVec == m_SelVec )
+        {
+            return;
+        }
+        m_SelVec = selVec;
     }
     else // if icon event happens, append the associated tree item to the selection vector
     {
@@ -714,14 +730,10 @@ void ManageGeomScreen::GeomBrowserCallback()
 
     if ( selVec.size() == 1 && selVec[0] == m_VehiclePtr->GetID() )
     {
-        m_ScreenMgr->ShowScreen( vsp::VSP_VEH_SCREEN );
         m_VehSelected = true;
-        SelectGeomBrowser();
     }
-
     else
     {
-        m_ScreenMgr->HideScreen( vsp::VSP_VEH_SCREEN );
         m_VehSelected = false;
     }
 
@@ -979,6 +991,15 @@ void ManageGeomScreen::CreateScreens()
 //==== Show Hide Geom Screen Depending on Active Geoms ====//
 void ManageGeomScreen::ShowHideGeomScreens()
 {
+    if ( m_VehSelected )
+    {
+        m_ScreenMgr->ShowScreen( vsp::VSP_VEH_SCREEN );
+    }
+    else
+    {
+        m_ScreenMgr->HideScreen( vsp::VSP_VEH_SCREEN );
+    }
+
     //==== Show Screen - Each Screen Will Test Check Valid Active Geom Type ====//
     for ( int i = 0; i < ( int ) m_GeomScreenVec.size(); i++ )
     {
@@ -990,6 +1011,12 @@ void ManageGeomScreen::ShowHideGeomScreens()
         {
             m_GeomScreenVec[ i ]->Hide();
         }
+    }
+
+    //==== Re-show ManageGeomScreen to refocus events for hotkey detection ====//
+    if ( IsShown() )
+    {
+        Show();
     }
 }
 
@@ -1042,11 +1069,7 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     else if ( w == m_GeomBrowser )
     {
         GeomBrowserCallback();
-
-        //==== Existing geomtree items persist through update ====//
-        ClearRedrawFlag();
     }
-
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
