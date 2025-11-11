@@ -469,6 +469,7 @@ void AuxiliaryGeom::UpdateSurf()
         vec3d cen = bb.GetCenter();
 
         c.EvaluateOnSphere( false );
+        c.Reverse();
 
         // Evaluate cen on sphere.
         double cx = std::cos( cen.x() );
@@ -489,7 +490,7 @@ void AuxiliaryGeom::UpdateSurf()
 
         // Origin point.
         vec3d o;
-        m_MainSurfVec[0].SkinPCPC0( o, c, censph );
+        m_MainSurfVec[0].SkinPCPC0( censph, c, o );
     }
 }
 
