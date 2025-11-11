@@ -614,9 +614,9 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec, vector < TM
 
                     for ( int i = 0; i < n; i++ )
                     {
-                        pt_vec[ i ] = auxthis->CompPnt01( i, 0, 0 );
+                        pt_vec[ i ] = auxthis->CompPnt01( i, 1, 0 );
 
-                        fov_vec[ i ]->IgnoreULessThan( 1.0 );
+                        fov_vec[ i ]->IgnoreUGreaterThan( 1.0 );
                         fov_vec[ i ]->FlattenInPlace();
                     }
                     return true;
@@ -654,9 +654,9 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec, vector < TM
 
                                 for ( int j = 0; j < n; j++ )
                                 {
-                                    pt_vec.push_back( auxthis->CompPnt01( j, 0, 0 ) );
+                                    pt_vec.push_back( auxthis->CompPnt01( j, 1, 0 ) );
 
-                                    fov[ j ]->IgnoreULessThan( 1.0 );
+                                    fov[ j ]->IgnoreUGreaterThan( 1.0 );
                                     fov[ j ]->FlattenInPlace();
                                     fov_vec.push_back( fov[ j ] );
                                 }
