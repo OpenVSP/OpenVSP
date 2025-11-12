@@ -721,6 +721,8 @@ string ExteriorSelfInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TM
 bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB );
 double IntersectSplit( vector < TMesh * > &tmv, bool intSubsFlag, const vector < string > & sub_vec = vector < string > () );
 void IntersectSplitClassify( vector < TMesh * > &tmv, bool intSubsFlag, const vector < string > & sub_vec = vector < string > () );
+void BuildEdgeChains( vector< TEdge* > evec, vector < vector < TEdge* > > & echainvec );
+void FindISectChains( TMesh *tmA, TMesh *tmB, vector < vector < TEdge* > > & echainvec );
 void CSGMesh( vector < TMesh* > & tmv, bool intSubsFlag = false, const vector < string > & sub_vec = vector < string > () );
 void MeshUnion( vector < TMesh* > & tmv );
 void MeshCCEIntersect( vector < TMesh * > &tmv );

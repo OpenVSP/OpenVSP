@@ -8552,6 +8552,97 @@ void IntersectSplitClassify( vector < TMesh * > &tmv, bool intSubsFlag, const ve
     ApplyScale( 1.0 / scalefac, tmv );
 }
 
+void BuildEdgeChains( vector< TEdge* > evec, vector < vector < TEdge* > > & echainvec )
+{
+    // Build chains of edges.
+
+    // Search for first un-used edge, start new chain.
+    int nedg = evec.size();
+    vector < bool > usededge( nedg, false );
+    for ( int iedge = 0; iedge < nedg; iedge++ )
+    {
+        if ( !usededge[ iedge ] )
+        {
+            int ichain = echainvec.size();
+            echainvec.push_back( vector< TEdge* >() );
+            echainvec[ ichain ].push_back( evec[ iedge ] );
+            usededge[ iedge ] = true;
+
+            // Start search for next edge after base edge.
+            int jedge = iedge + 1;
+
+            while ( jedge < nedg )
+            {
+                int jnearest = -1;
+                double dmin = 1e10;
+                bool flip = false;
+
+                // Check remaining edges.
+                for ( ; jedge < nedg; jedge++ )
+                {
+                    TEdge *edge = echainvec[ ichain ].back();
+
+                    if ( !usededge[ jedge ] )
+                    {
+                        TEdge *edge2 = evec[ jedge ];
+
+                        double d = dist( edge->m_N1->m_Pnt, edge2->m_N0->m_Pnt );
+                        if ( d < dmin )
+                        {
+                            jnearest = jedge;
+                            dmin = d;
+                            flip = false;
+                        }
+
+                        d = dist( edge->m_N1->m_Pnt, edge2->m_N1->m_Pnt );
+                        if ( d < dmin )
+                        {
+                            jnearest = jedge;
+                            dmin = d;
+                            flip = true;
+                        }
+                    }
+                }
+
+                if ( jnearest != -1 )
+                {
+                    TEdge *edge2 = evec[ jnearest ];
+
+                    if ( flip )
+                    {
+                        edge2->SwapEdgeDirection();
+                    }
+
+                    echainvec[ ichain ].push_back( edge2 );
+                    usededge[ jnearest ] = true;
+                    // Reset search to base edge.
+                    jedge = iedge + 1;
+                }
+            }
+        }
+    }
+}
+
+void FindISectChains( TMesh *tmA, TMesh *tmB, vector < vector < TEdge* > > & echainvec )
+{
+    // Prep for intersection
+    tmA->LoadBndBox();
+    tmB->LoadBndBox();
+
+    // Intersect meshes
+    tmA->Intersect( tmB );
+
+    // Compile list of all intersection edges in tmA
+    vector< TEdge* > evec;
+    for ( int itri = 0; itri < tmA->m_TVec.size(); itri++ )
+    {
+        TTri *tri = tmA->m_TVec[ itri ];
+        evec.insert( evec.end(), tri->m_ISectEdgeVec.begin(), tri->m_ISectEdgeVec.end() );
+    }
+
+    BuildEdgeChains( evec, echainvec );
+}
+
 void CSGMesh( vector < TMesh * > &tmv, bool intSubsFlag, const vector < string > & sub_vec )
 {
     IntersectSplitClassify( tmv, intSubsFlag, sub_vec );
