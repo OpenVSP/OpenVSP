@@ -286,6 +286,7 @@ public:
     virtual ~SSIntersect();
 
     virtual void Intersect();
+    virtual void IntersectBezier();
 
     virtual void SetFromUWChain( const vector < vector < vec3d > > &uwchains );
 

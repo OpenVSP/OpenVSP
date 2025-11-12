@@ -1396,7 +1396,7 @@ SSIntersect::~SSIntersect()
 
 }
 
-void SSIntersect::Intersect()
+void SSIntersect::IntersectBezier()
 {
     vector < vector < vec3d > > ptchains;
     vector < vector < vec3d > > uwchains;
