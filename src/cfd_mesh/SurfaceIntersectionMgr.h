@@ -214,7 +214,7 @@ public:
 
     virtual void IntersectSurfaces();
 
-    virtual void LimitedIntersectSurfaces( const vector < string > & geomvec );
+    virtual void LimitedIntersectSurfaces( const vector < string > & geomvec, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains );
 
     virtual void TransferMeshSettings();
 

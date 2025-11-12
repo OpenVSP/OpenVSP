@@ -702,7 +702,7 @@ extern bool CheckForVSPHelp( const std::string & path );
 
 extern void RegisterCFDMeshAnalyses();
 
-extern void LimitedIntersectSurfaces( const vector < string > & geomvec );
+extern void LimitedIntersectSurfaces( const vector < string > & geomvec, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains );
 
 //======================== File I/O ================================//
 /*!

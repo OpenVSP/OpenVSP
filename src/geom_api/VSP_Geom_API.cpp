@@ -213,9 +213,9 @@ void RegisterCFDMeshAnalyses()
     FeaMeshMgr.RegisterAnalysis();
 }
 
-void LimitedIntersectSurfaces( const vector < string > & geomvec )
+void LimitedIntersectSurfaces( const vector < string > & geomvec, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains )
 {
-    SurfaceIntersectionMgr.LimitedIntersectSurfaces( geomvec );
+    SurfaceIntersectionMgr.LimitedIntersectSurfaces( geomvec, ptchains, uwchains );
 }
 
 //===================================================================//

@@ -443,7 +443,7 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
-void SurfaceIntersectionSingleton::LimitedIntersectSurfaces( const vector < string > & geomvec )
+void SurfaceIntersectionSingleton::LimitedIntersectSurfaces( const vector < string > & geomvec, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains )
 {
     addOutputText( "CLEAR_TERMINAL" );
 
@@ -494,8 +494,8 @@ void SurfaceIntersectionSingleton::LimitedIntersectSurfaces( const vector < stri
     Intersect();
 
     addOutputText( "Binary Adaptation Curve Approximation\n" );
-    BinaryAdaptIntCurves();
 
+    BuildIntChain( geomvec[0], ptchains, uwchains );
 
     addOutputText( "Done\n" );
 

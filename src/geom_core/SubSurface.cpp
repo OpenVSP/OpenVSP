@@ -1399,8 +1399,11 @@ SSIntersect::~SSIntersect()
 void SSIntersect::Intersect()
 {
     vector < string > geomvec { m_CompID, m_IntersectID };
-    vsp::LimitedIntersectSurfaces( geomvec );
 
+    vector < vector < vec3d > > ptchains;
+    vector < vector < vec3d > > uwchains;
+
+    vsp::LimitedIntersectSurfaces( geomvec, ptchains, uwchains );
 }
 
 //==== Encode XML ====//
