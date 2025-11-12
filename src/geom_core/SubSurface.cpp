@@ -1396,6 +1396,79 @@ SSIntersect::~SSIntersect()
 
 }
 
+void SSIntersect::Intersect()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    Geom *geom = veh->FindGeom( m_CompID );
+    Geom *igeom = veh->FindGeom( m_IntersectID );
+
+    if ( !geom || !igeom )
+    {
+        return;
+    }
+
+    int isurf = m_MainSurfIndx();
+    if ( isurf == -1 )
+    {
+        // When index == -1, treat as ALL, use Surf 0 orientation.
+        isurf = 0;
+    }
+
+    vector < TMesh* > comptmv = geom->CreateTMeshVec( false );
+    vector < TMesh* > inttmv = igeom->CreateTMeshVec( false );
+
+    vector < vector < vec3d > > uwchains;
+
+    if ( !comptmv.empty() && !inttmv.empty() )
+    {
+        TMesh *comptm = nullptr;
+
+        for ( int i = 0; i < ( int )comptmv.size(); i++ )
+        {
+            if ( comptmv[i]->m_SurfNum == isurf )
+            {
+                comptm = comptmv[i];
+                break;
+            }
+        }
+
+        TMesh *inttm = inttmv[0];
+
+        if ( comptm && inttm )
+        {
+            vector < vector < TEdge* > > echainvec;
+            // Perform CSG based intersection and chain extraction into echainvec.
+            FindISectChains( comptm, inttm, echainvec );
+
+            // Copy chain UW values into uwchains.
+            uwchains.resize( echainvec.size() );
+            for ( int ichain = 0; ichain < echainvec.size(); ichain++ )
+            {
+                uwchains[ ichain ].resize( echainvec[ ichain ].size() + 1 );
+                int iedge = 0;
+                for ( ; iedge < echainvec[ ichain ].size(); iedge++ )
+                {
+                    uwchains[ ichain ][ iedge ] = echainvec[ ichain ][ iedge ]->m_N0->m_UWPnt;
+                }
+                uwchains[ ichain ][ iedge ] = echainvec[ ichain ][ iedge - 1 ]->m_N1->m_UWPnt;
+            }
+        }
+    }
+
+    // Set subsurface from chain
+    SetFromUWChain( uwchains );
+
+    // Clean up meshes including chain edges
+    DeleteTMeshVec( comptmv );
+    DeleteTMeshVec( inttmv );
+}
+
 void SSIntersect::IntersectBezier()
 {
     vector < vector < vec3d > > ptchains;
