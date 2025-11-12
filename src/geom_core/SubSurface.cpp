@@ -1398,12 +1398,93 @@ SSIntersect::~SSIntersect()
 
 void SSIntersect::Intersect()
 {
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
     vector < string > geomvec { m_CompID, m_IntersectID };
 
     vector < vector < vec3d > > ptchains;
     vector < vector < vec3d > > uwchains;
 
     vsp::LimitedIntersectSurfaces( geomvec, ptchains, uwchains );
+
+    if ( uwchains.size() > 0 )
+    {
+        Geom *geom = veh->FindGeom( m_CompID );
+
+        if ( !geom )
+        {
+            return;
+        }
+
+        int isurf = m_MainSurfIndx();
+        if ( isurf == -1 )
+        {
+            // When index == -1, treat as ALL, use Surf 0 orientation.
+            isurf = 0;
+        }
+
+        double uscale = geom->GetUMax( isurf );
+        double wscale = geom->GetWMax( isurf );
+
+
+        double umin = 1e6, umax = -1, wmin = 1e6, wmax = -1;
+        for ( int i = 0 ; i < uwchains[0].size(); i++ )
+        {
+            if ( umin > uwchains[0][i].x() ) umin = uwchains[0][i].x();
+            if ( umax < uwchains[0][i].x() ) umax = uwchains[0][i].x();
+            if ( wmin > uwchains[0][i].y() ) wmin = uwchains[0][i].y();
+            if ( wmax < uwchains[0][i].y() ) wmax = uwchains[0][i].y();
+        }
+        double umid = ( umin + umax ) * 0.5;
+        double wmid = ( wmin + wmax ) * 0.5;
+        double uWidth = umax - umin;
+        double wWidth = wmax - wmin;
+
+        double s = 0;
+        vector < double > svec;
+        vector < double > rvec( uwchains[0].size(), 0 );
+        for ( int i = 0 ; i < uwchains[0].size() - 1; i++ )
+        {
+            svec.push_back( s );
+            double ds = ( uwchains[0][i + 1] - uwchains[0][i] ).mag();
+            s += ds;
+        }
+        svec.push_back( s );
+
+        vector < vec3d > uw( uwchains[0].size() );
+        for ( int i = 0 ; i < uwchains[0].size(); i++ )
+        {
+            uw[i].set_xyz( ( ( uwchains[0][i].x() - umid ) / uWidth ) / uscale, ( ( uwchains[0][i].y() - wmid ) / wWidth ) / wscale, 0 );
+            svec[i] /= s;
+        }
+
+        SetXSecCurveType( vsp::XS_EDIT_CURVE );
+
+        EditCurveXSec* xscrv_ptr = dynamic_cast < EditCurveXSec * > ( m_XSCurve );
+
+        if ( xscrv_ptr )
+        {
+            xscrv_ptr->m_SymType.Set( vsp::SYM_NONE );
+            xscrv_ptr->m_CurveType = vsp::LINEAR;
+
+            // Transfer width and height parm values
+            xscrv_ptr->SetWidthHeight( uWidth, wWidth );
+
+            m_CenterU.Set( umid / uscale );
+            m_CenterW.Set( wmid / wscale );
+
+            // Set Bezier control points
+            xscrv_ptr->SetPntVecs( svec, uw, rvec );
+
+        }
+
+
+    }
 }
 
 //==== Encode XML ====//
