@@ -3661,6 +3661,94 @@ vector< Surf* > SurfaceIntersectionSingleton::GetPossCoPlanarSurfs( Surf* surfPt
     return retSurfVec;
 }
 
+void SurfaceIntersectionSingleton::BuildIntChain( const string &id, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains )
+{
+    vector < vector < vec3d > > ptvecvec;
+    vector < vector < vec3d > > uwvecvec;
+
+    list<ISegChain *>::iterator c;
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
+    {
+        if ( !(*c)->m_BorderFlag )
+        {
+            vector<vec3d> ptvec;
+            vector<double> uvec;
+            vector<vec3d> uwvec;
+
+            SCurve * matchCurve = nullptr;
+            if ( id == (*c)->m_ACurve.GetSurf()->GetGeomID() )
+            {
+                matchCurve = &(*c)->m_ACurve;
+            }
+            else
+            {
+                matchCurve = &(*c)->m_BCurve;
+            }
+
+            if ( matchCurve )
+            {
+                Bezier_curve xyzcrvA = matchCurve->GetUWCrv();
+                xyzcrvA.TessAdaptXYZ( *( matchCurve->GetSurf() ), ptvec, .1, 8, uvec );
+
+                for ( int i = 0 ; i < ( int )uvec.size() ; i++ )
+                {
+                    uwvec.push_back( xyzcrvA.CompPnt( uvec[ i ] ) );
+                }
+
+                ptvecvec.push_back( ptvec );
+                uwvecvec.push_back( uwvec );
+            }
+        }
+    }
+
+
+    int nseg = ptvecvec.size();
+
+    vector < bool > segused( nseg, false );
+
+    vector < vector < vec3d > > keepptvec;
+    vector < vector < vec3d > > keepuwvec;
+
+    for ( int i = 0; i < ( int )ptvecvec.size(); i++ )
+    {
+        if ( !segused[ i ] )
+        {
+            keepptvec.push_back( ptvecvec[i] );
+            keepuwvec.push_back( uwvecvec[i] );
+            segused[ i ] = true;
+
+            for ( int j = i + 1; j < ( int )ptvecvec.size(); j++ )
+            {
+                if ( !segused[ j ] )
+                {
+                    vec3d d = keepptvec.back().back() - ptvecvec[j].front();
+                    if ( d.mag() < PT_MERGE_TOL )
+                    {
+                        keepptvec.back().insert( keepptvec.back().end(), ptvecvec[j].begin() + 1, ptvecvec[j].end() );
+                        keepuwvec.back().insert( keepuwvec.back().end(), uwvecvec[j].begin() + 1, uwvecvec[j].end() );
+                        segused[ j ] = true;
+                        j = i + 1;
+                    }
+                    else
+                    {
+                        d = keepptvec.back().back() - ptvecvec[j].back();
+                        if ( d.mag() < PT_MERGE_TOL )
+                        {
+                            keepptvec.back().insert( keepptvec.back().end(), ptvecvec[j].rbegin() + 1, ptvecvec[j].rend() );
+                            keepuwvec.back().insert( keepuwvec.back().end(), uwvecvec[j].rbegin() + 1, uwvecvec[j].rend() );
+                            segused[ j ] = true;
+                            j = i + 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    ptchains = keepptvec;
+    uwchains = keepuwvec;
+}
+
 void SurfaceIntersectionSingleton::BinaryAdaptIntCurves()
 {
     m_BinAdaptCurveAVec.clear();

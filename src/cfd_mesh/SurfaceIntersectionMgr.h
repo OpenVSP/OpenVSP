@@ -279,6 +279,8 @@ public:
     virtual void BuildCurves();
     virtual void IntersectSplitChains();
 
+    virtual void BuildIntChain( const string &id, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains );
+
     virtual void BinaryAdaptIntCurves();
 
     virtual void MergeInteriorChainIPnts();
