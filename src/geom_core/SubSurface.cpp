@@ -1405,12 +1405,10 @@ void SSIntersect::Intersect()
         return;
     }
 
-    vector < string > geomvec { m_CompID, m_IntersectID };
-
     vector < vector < vec3d > > ptchains;
     vector < vector < vec3d > > uwchains;
 
-    vsp::LimitedIntersectSurfaces( geomvec, ptchains, uwchains );
+    vsp::LimitedIntersectSurfaces( { m_CompID, m_IntersectID }, ptchains, uwchains );
 
     if ( uwchains.size() > 0 )
     {
