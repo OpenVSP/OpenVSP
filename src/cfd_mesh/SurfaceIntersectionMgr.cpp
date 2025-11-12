@@ -459,7 +459,6 @@ void SurfaceIntersectionSingleton::LimitedIntersectSurfaces( const vector < stri
     addOutputText( "Fetching Bezier Surfaces\n" );
 
     vector< XferSurf > xfersurfs;
-    // FetchSurfs( xfersurfs );
     FetchXFerSurfs( geomvec, xfersurfs );
 
     // UpdateWakes must be before m_Vehicle->HideAll() to prevent components
@@ -468,20 +467,11 @@ void SurfaceIntersectionSingleton::LimitedIntersectSurfaces( const vector < stri
     UpdateWakes();
     WakeMgr.SetStretchMeshFlag( false );
 
-    // // Hide all geoms after fetching their surfaces
-    // m_Vehicle->HideAll();
-
     addOutputText( "Cleanup\n" );
     CleanUp();
 
     addOutputText( "Loading Bezier Surfaces\n" );
     LoadSurfs( xfersurfs );
-
-    // if ( GetSettingsPtr()->m_IntersectSubSurfs )
-    // {
-    //     addOutputText( "Transfer Subsurf Data\n" );
-    //     TransferSubSurfData();
-    // }
 
     addOutputText( "Clean Merge Surfs\n" );
     CleanMergeSurfs( /* skip_duplicate_removal */ false );
@@ -506,10 +496,6 @@ void SurfaceIntersectionSingleton::LimitedIntersectSurfaces( const vector < stri
     addOutputText( "Binary Adaptation Curve Approximation\n" );
     BinaryAdaptIntCurves();
 
-    // addOutputText( "Exporting Files\n" );
-    // ExportFiles();
-    //
-    // UpdateDrawObjs();
 
     addOutputText( "Done\n" );
 
