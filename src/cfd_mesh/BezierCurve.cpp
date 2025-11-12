@@ -42,6 +42,21 @@ Bezier_curve::~Bezier_curve()
 }
 
 //===== Compute Point  =====//
+vec3d Bezier_curve::CompPnt( double u ) const
+{
+    vec3d rtn;
+
+    // Code-Eli does not handle out-of-bounds very well.
+    if ( u > m_Curve.number_segments() )
+        u = m_Curve.number_segments();
+
+    curve_point_type v( m_Curve.f( u ) );
+    rtn.set_xyz( v.x(), v.y(), v.z() );
+
+    return rtn;
+}
+
+//===== Compute Point  =====//
 vec3d Bezier_curve::CompPnt01( double u ) const
 {
     vec3d rtn;

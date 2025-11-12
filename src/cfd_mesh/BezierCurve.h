@@ -57,6 +57,7 @@ public:
     vec3d FirstPnt() const;
     vec3d LastPnt() const;
 
+    vec3d CompPnt( double u ) const;
     vec3d CompPnt01( double u ) const;
 
     void TessAdaptXYZ( const Surf& srf, std::vector< vec3d >& output, double tol, int Nlimit );
