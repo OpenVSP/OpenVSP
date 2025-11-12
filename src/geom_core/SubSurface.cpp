@@ -1398,17 +1398,22 @@ SSIntersect::~SSIntersect()
 
 void SSIntersect::Intersect()
 {
+    vector < vector < vec3d > > ptchains;
+    vector < vector < vec3d > > uwchains;
+
+    vsp::LimitedIntersectSurfaces( { m_CompID, m_IntersectID }, ptchains, uwchains );
+
+    SetFromUWChain( uwchains );
+}
+
+void SSIntersect::SetFromUWChain( const vector < vector < vec3d > > &uwchains )
+{
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     if ( !veh )
     {
         return;
     }
-
-    vector < vector < vec3d > > ptchains;
-    vector < vector < vec3d > > uwchains;
-
-    vsp::LimitedIntersectSurfaces( { m_CompID, m_IntersectID }, ptchains, uwchains );
 
     if ( uwchains.size() > 0 )
     {

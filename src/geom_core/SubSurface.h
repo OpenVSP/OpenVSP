@@ -287,6 +287,8 @@ public:
 
     virtual void Intersect();
 
+    virtual void SetFromUWChain( const vector < vector < vec3d > > &uwchains );
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
