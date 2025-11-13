@@ -1535,7 +1535,7 @@ void SSIntersect::SetFromUWChain( const vector < vector < vec3d > > &uwchains )
         vector < vec3d > uw( uwchains[0].size() );
         for ( int i = 0 ; i < uwchains[0].size(); i++ )
         {
-            uw[i].set_xyz( ( ( uwchains[0][i].x() - umid ) / uWidth ) / uscale, ( ( uwchains[0][i].y() - wmid ) / wWidth ) / wscale, 0 );
+            uw[i].set_xyz( ( uwchains[0][i].x() - umid ) / uWidth, ( uwchains[0][i].y() - wmid ) / wWidth, 0 );
             svec[i] /= s;
         }
 
@@ -1549,7 +1549,7 @@ void SSIntersect::SetFromUWChain( const vector < vector < vec3d > > &uwchains )
             xscrv_ptr->m_CurveType = vsp::LINEAR;
 
             // Transfer width and height parm values
-            xscrv_ptr->SetWidthHeight( uWidth, wWidth );
+            xscrv_ptr->SetWidthHeight( uWidth / uscale, wWidth / wscale );
 
             m_CenterU.Set( umid / uscale );
             m_CenterW.Set( wmid / wscale );
