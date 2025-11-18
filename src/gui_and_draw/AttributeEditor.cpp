@@ -30,7 +30,7 @@ void AttributeTree::Init( GroupLayout * layout, VspScreen *screen, int browser_h
 
     m_AttrTree = layout->AddTreeWithColumns( browser_h );
     m_AttrTree->showroot( true );
-    m_AttrTree->callback( StaticDeviceCB, this );
+    m_AttrTree->Init( this, layout->GetGroup() );
     m_AttrTree->selectmode( FL_TREE_SELECT_MULTI );
     m_AttrTree->item_reselect_mode( FL_TREE_SELECTABLE_ALWAYS );
     m_AttrTree->sortorder( FL_TREE_SORT_NONE );

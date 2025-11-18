@@ -742,6 +742,11 @@ void AttributeExplorer::AttributeModify( GuiDevice* gui_device, Fl_Widget *w )
                     AttributeMgr.SetAttributeName( attr_id, m_AttrNameIn.GetString() );
                 }
 
+                else if ( dynamic_cast<TreeWithColumns * >( w ) == m_AttrTreeWidget.GetTreeWidget() )
+                {
+                    AttributeMgr.SetAttributeName( attr_id, m_AttrTreeWidget.GetTreeWidget()->GetPopupValue() );
+                }
+
                 //change description
                 else if ( gui_device == &m_AttrDescIn )
                 {
@@ -979,6 +984,8 @@ void AttributeExplorer::AttrTypeDispGroup( int attr_type, GroupLayout * group )
 
 void AttributeExplorer::CallBack( Fl_Widget *w )
 {
+    m_AttrTreeWidget.GetTreeWidget()->HidePopupInput();
+
     // if either text editor is called, run AttributeModify without changing the name
     if ( dynamic_cast<Fl_Text_Editor * >( w ) == m_DataText )
     {
@@ -1000,13 +1007,42 @@ void AttributeExplorer::CallBack( Fl_Widget *w )
 
     if ( w == m_AttrTreeWidget.GetTreeWidget() )
     {
-        m_AttrTreeWidget.ClearRebuildFlag();
+        if ( m_AttrTreeWidget.GetTreeWidget()->GetCBReason() == TREE_CALLBACK_POPUP_ENTER )
+        {
+            if ( m_AttrIDs.size() == 1 )
+            {
+                NameValData* a = AttributeMgr.GetAttributePtr( m_AttrIDs.front() );
+                if ( a && !a->IsProtected() )
+                {
+                    AttributeModify( nullptr, w );
+                }
+            }
+        }
+        else
+        {
+            m_AttrTreeWidget.ClearRebuildFlag();
+        }
+
+        if ( m_AttrTreeWidget.GetTreeWidget()->GetCBReason() == TREE_CALLBACK_POPUP_OPEN )
+        {
+            if ( m_AttrIDs.size() == 1 )
+            {
+                NameValData* a = AttributeMgr.GetAttributePtr( m_AttrIDs.front() );
+                if ( a && !a->IsProtected() )
+                {
+                    m_AttrTreeWidget.GetTreeWidget()->InsertPopupInput( a->GetName(), m_AttrIDs.front());
+                }
+            }
+        }
     }
+
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void AttributeExplorer::GuiDeviceCallBack( GuiDevice* gui_device )
 {
+    m_AttrTreeWidget.GetTreeWidget()->HidePopupInput();
+
     // if name input is called, run AttributeModify with a name-change gui device input
     if ( gui_device == &m_AttrAddTrigger )
     {
