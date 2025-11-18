@@ -8,6 +8,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include "ScreenBase.h"
 #include "TreeColumnWidget.h"
 
 TreeRowItem::TreeRowItem( Fl_Tree *tree, const char *text ) : Fl_Tree_Item( tree )
@@ -134,6 +135,29 @@ TreeWithColumns::TreeWithColumns( int X, int Y, int W, int H, const char *L ) : 
     connectorstyle( FL_TREE_CONNECTOR_DOTTED );
     openicon( new Fl_Pixmap( tree_open_xpm ) );
     closeicon( new Fl_Pixmap( tree_close_xpm ) );
+
+    m_PopupInput = nullptr;
+    m_PopupGroup = nullptr;
+    m_ParentDevice = nullptr;
+
+    m_PopupDrawFlag = false;
+    m_RecentPopup = false;
+
+    m_HotKeyFlag = true;
+    m_DoubleClickFlag = true;
+    m_CBReason = TREE_CALLBACK_UNKNOWN;
+}
+
+void TreeWithColumns::GetAllChildren( vector < TreeRowItem* > & child_vec )
+{
+    for ( Fl_Tree_Item *tree_item = first(); tree_item; tree_item = next( tree_item ) )
+    {
+        TreeRowItem* tree_row_item = dynamic_cast< TreeRowItem * >( tree_item );
+        if ( tree_row_item )
+        {
+            child_vec.push_back( tree_row_item );
+        }
+    }
 }
 
 int TreeWithColumns::column_near_mouse()
@@ -292,6 +316,154 @@ int TreeWithColumns::CheckVecMatch( const vector < string > & vec1, const vector
     return 0;
 }
 
+void TreeWithColumns::Init( GuiDevice* device, Fl_Group* group )
+{
+    m_ParentDevice = device;
+    m_PopupGroup = group;
+    callback( StaticTreeCB, this );
+}
+
+void TreeWithColumns::InitPopupInput()
+{
+    if ( !m_PopupGroup )
+    {
+        return;
+    }
+
+    int x, y, w, h;
+    GetItemDims( x, y, w, h, m_PopupID );
+
+    m_PopupInput = new Fl_Input( x, y, w, h );
+    m_PopupInput->box( FL_THIN_DOWN_BOX );
+    m_PopupInput->textsize( 12 );
+    m_PopupInput->when( FL_WHEN_ENTER_KEY );
+    m_PopupInput->callback( StaticTreeCB, this );
+
+    m_PopupGroup->add( m_PopupInput );
+}
+
+void TreeWithColumns::SetPopupState( bool draw_flag )
+{
+    if ( !m_PopupDrawFlag && draw_flag )
+    {
+        m_RecentPopup = true;
+    }
+    m_PopupDrawFlag = draw_flag;
+}
+
+void TreeWithColumns::SetPopupID( const string & attr_id )
+{
+    m_PopupID = attr_id;
+}
+
+void TreeWithColumns::SetPopupText( const string & text )
+{
+    if ( m_PopupInput )
+    {
+        m_PopupInput->value( text.c_str() );
+    }
+}
+
+bool TreeWithColumns::GetPopupState()
+{
+    if ( m_PopupInput )
+    {
+        return m_PopupDrawFlag;
+    }
+    return false;
+}
+
+const string TreeWithColumns::GetPopupValue()
+{
+    string ret = string("");
+    if ( m_PopupInput )
+    {
+        ret = m_PopupInput->value();
+    }
+    return ret;
+}
+
+void TreeWithColumns::InsertPopupInput( const string & text, const string & attr_id )
+{
+    // Set loc, which updates size of popup window
+    SetPopupID( attr_id );
+
+    // Build the popup if it doesn't exist yet
+    if ( !m_PopupInput )
+    {
+        InitPopupInput();
+    }
+
+    // Set popup to show on draw
+    SetPopupState( true );
+
+    // Set popup text
+    SetPopupText( text );
+}
+
+void TreeWithColumns::HidePopupInput()
+{
+    SetPopupState( false );
+}
+
+void TreeWithColumns::GetItemDims( int &X, int &Y, int &W, int &H, const string & attr_id, int col )
+{
+    TreeRowItem* tree_item = GetItemByAttrId( attr_id );
+    if ( tree_item )
+    {
+        W = m_ColWidths[col];
+        if ( col == 0 )
+        {
+            X = tree_item->label_x();
+            Y = tree_item->label_y();
+            W += x() - hposition() + first_column_minw() - X;
+            H = tree_item->label_h();
+        }
+        else
+        {
+            X = x() - hposition() + first_column_minw();
+            for ( int i = 0; i < col; i++ )
+            {
+                X += m_ColWidths[i];
+            }
+            Y = tree_item->label_y();
+            H = tree_item->label_h();
+        }
+    }
+}
+
+void TreeWithColumns::TreeCB( Fl_Widget* w )
+{
+    // TreeCB is tied to 3 events;
+    //      1. TreeWithColumns::handle()
+    //      2.        Fl_Input::handle()
+    //      3.         Fl_Tree::handle()
+    // so the behavior must be determined here; with a member var to store the callback reason for this Browser
+
+    // init to reason "unknown"
+    m_CBReason = TREE_CALLBACK_UNKNOWN;
+
+    if ( Fl::callback_reason() == FL_REASON_USER )
+    {
+        // "user" reason only possible from TreeWithColumns::handle()
+        m_CBReason = TREE_CALLBACK_POPUP_OPEN;
+    }
+    else if ( w == m_PopupInput || GetPopupState() )
+    {
+        // any callback reason with an open popup will trigger a rename event
+        m_CBReason = TREE_CALLBACK_POPUP_ENTER;
+    }
+    else if ( Fl::callback_reason() == FL_REASON_SELECTED
+           || Fl::callback_reason() == FL_REASON_RESELECTED )
+    {
+        // if no popup visible and callback on browser, browser is selected
+        m_CBReason = TREE_CALLBACK_SELECT;
+    }
+
+    window()->cursor( FL_CURSOR_DEFAULT );              // XXX: if we don't do this, cursor can disappear!
+    m_ParentDevice->DeviceCB( this );
+}
+
 int TreeWithColumns::handle( int e )
 {
     //exit handle method if not resizing
@@ -304,6 +476,22 @@ int TreeWithColumns::handle( int e )
     int ret = 0;
     switch ( e )
     {
+        case FL_KEYBOARD:
+        {
+            // eclipse the Fl_Tree's "enter" hotkey for opening/closing items; needs to be protected for rename callback only
+            int key = Fl::event_key();
+            if ( m_HotKeyFlag && (key == FL_Enter || key == FL_KP_Enter || key == FL_F + 2) )
+            {
+                // open popup input if hotkey supported
+                if (callback())
+                {
+                    // set reason to "opened," then perform callback.
+                    do_callback( FL_REASON_USER );
+                }
+                return 1;
+            }
+            break;
+        }
         case FL_ENTER:
             ret = 1;
             break;
@@ -363,8 +551,52 @@ int TreeWithColumns::handle( int e )
                 return 1;
             }
 
+            // handle release for popup opening/closing
+            if ( m_DoubleClickFlag && Fl::event_clicks() != 0 )
+            {
+                // ensure the item receiving double click is the one that is open
+                Fl_Tree_Item* click_item = find_clicked(0);
+                if ( callback() && click_item && !click_item->event_on_collapse_icon( prefs() ) )
+                {
+                    // set reason to "user," then perform callback.
+                    do_callback( FL_REASON_USER );
+                }
+                return 1;
+            }
             ret = 1;
             break;
     }
     return( Fl_Tree::handle(e) ? 1 : ret );
+}
+
+void TreeWithColumns::draw()
+{
+    // draw browser
+    Fl_Tree::draw();
+
+    // draw popup
+    if ( m_PopupInput && m_PopupDrawFlag )
+    {
+        int x, y, w, h;
+
+        GetItemDims( x, y, w, h, m_PopupID );
+
+        m_PopupInput->resize( x, y, w, h );
+        m_PopupInput->redraw();
+
+        // If popup recently shown/created, then ensure it takes focus, ignore if just scrolling/redrawing
+        if ( m_RecentPopup )
+        {
+            m_PopupInput->activate();
+            m_PopupInput->show();
+            m_PopupInput->take_focus();
+
+            m_RecentPopup = false;
+        }
+    }
+    else if ( m_PopupInput )
+    {
+        m_PopupInput->hide();
+        m_PopupInput->deactivate();
+    }
 }

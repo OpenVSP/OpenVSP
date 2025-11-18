@@ -14,12 +14,16 @@
 #include <stdio.h>
 #include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
+#include <FL/Fl_Input.h>
 #include <FL/Fl_Tree.H>
 
 #include <string>
 #include <vector>
 
 using namespace std;
+
+class GuiDevice;
+class VspScreen;
 
 //==== Tree With Columns ====//
 const char * const tree_open_xpm[] = {
@@ -56,6 +60,13 @@ const char * const tree_close_xpm[] = {
   "#.........#",
   "#.........#",
   "###########"
+};
+
+enum Tree_Callback_Reason {
+  TREE_CALLBACK_UNKNOWN=0,     ///< an item was selected
+  TREE_CALLBACK_SELECT,     ///< an item was selected
+  TREE_CALLBACK_POPUP_ENTER,   ///< the popup input had a callback
+  TREE_CALLBACK_POPUP_OPEN,   ///< the popup input had a callback
 };
 
 // DERIVE CUSTOM CLASS FROM Fl_Tree_Item TO SHOW DATA IN COLUMNS
@@ -127,8 +138,16 @@ class TreeWithColumns : public Fl_Tree
         int m_MinColWidth;
         Fl_Cursor m_LastCursor;
 
+        void draw();
+
+        Fl_Input* m_PopupInput;
+        Fl_Group* m_PopupGroup;
+        GuiDevice* m_ParentDevice;
+        // VspScreen* m_Screen;
+
     public:
        TreeWithColumns( int X, int Y, int W, int H, const char *L = 0 );
+        void GetAllChildren( vector < TreeRowItem*> & child_vec );
 
         int  first_column_minw()
         {
@@ -193,6 +212,36 @@ class TreeWithColumns : public Fl_Tree
 
         static int CheckVecMatch( const vector < string > & vec1, const vector < string > & vec2 );
 
+        void Init( GuiDevice* device, Fl_Group* group );
+        void InitPopupInput();
+
+        void SetPopupState( bool draw_flag );
+        void SetPopupID( const string & attr_id );
+        void SetPopupText( const string & text );
+
+        bool GetPopupState();
+        const string GetPopupValue();
+        const Fl_Input* GetPopupInput()
+        {
+            return m_PopupInput;
+        }
+
+        void InsertPopupInput( const string & text,  const string & attr_id );
+        void HidePopupInput();
+
+        virtual void GetItemDims( int &X, int &Y, int &W, int &H, const string & attr_id, int col = 0 );
+
+        int GetCBReason()
+        {
+            return m_CBReason;
+        }
+
+        void TreeCB( Fl_Widget* w );
+        static void StaticTreeCB( Fl_Widget *w, void* data )
+        {
+            ( ( TreeWithColumns* )data )->TreeCB( w );
+        }
+
         // Manage column resizing
         int handle( int e );
 
@@ -200,6 +249,15 @@ class TreeWithColumns : public Fl_Tree
         // as we expect all items in the tree to be TreeRowItems, not Fl_Tree_Items.
     private:
         using Fl_Tree::add;
+
+        bool m_PopupDrawFlag;
+        bool m_RecentPopup;
+
+        string m_PopupID;
+
+        bool m_DoubleClickFlag;
+        bool m_HotKeyFlag;
+        int m_CBReason;
 };
 
 // Handle custom drawing of the item
