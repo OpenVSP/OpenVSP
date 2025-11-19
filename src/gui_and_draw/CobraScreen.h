@@ -30,8 +30,24 @@ public:
 protected:
 
     GroupLayout m_DesignLayout;
-    SliderAdjRangeInput m_LengthSlider;
-    SliderAdjRangeInput m_FineSlider;
+
+    SliderAdjRangeInput m_XradNSlider;
+    SliderAdjRangeInput m_YradNSlider;
+    SliderAdjRangeInput m_PowXSlider;
+    SliderAdjRangeInput m_ZradNLSlider;
+    SliderAdjRangeInput m_PowNLSlider;
+    ToggleButton m_NoseULSymmToggle;
+    SliderAdjRangeInput m_ZradNUSlider;
+    SliderAdjRangeInput m_PowNUSlider;
+
+    SliderAdjRangeInput m_XlenASlider;
+    SliderAdjRangeInput m_YradASlider;
+    SliderAdjRangeInput m_ZradALSlider;
+    SliderAdjRangeInput m_PowALSlider;
+    ToggleButton m_AftULSymmToggle;
+    SliderAdjRangeInput m_ZradAUSlider;
+    SliderAdjRangeInput m_PowAUSlider;
+
 };
 
 

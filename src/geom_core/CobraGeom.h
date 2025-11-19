@@ -26,8 +26,22 @@ public:
 
     virtual void OffsetXSecs( double off );
 
-    Parm m_Length;
-    Parm m_FineRatio;
+    Parm m_XradN;
+    Parm m_YradN;
+    Parm m_PowX;
+    Parm m_ZradNL;
+    Parm m_PowNL;
+    BoolParm m_NoseULSymm;
+    Parm m_ZradNU;
+    Parm m_PowNU;
+
+    Parm m_XlenA;
+    Parm m_YradA;
+    Parm m_ZradAL;
+    Parm m_PowAL;
+    BoolParm m_AftULSymm;
+    Parm m_ZradAU;
+    Parm m_PowAU;
 
 protected:
     virtual void UpdateSurf();
