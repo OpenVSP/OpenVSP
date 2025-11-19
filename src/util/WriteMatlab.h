@@ -6,6 +6,9 @@
 #include "Vec3d.h"
 #include <cfloat>
 
+using std::string;
+using std::vector;
+
 class WriteMatlab
 {
 public:
