@@ -112,11 +112,11 @@ endif()
 # VERSION. VERSION will typically be like "2.7" on unix, and "27" on windows.
 execute_process(
   COMMAND
-    "${PYTHON_EXECUTABLE}" "-c" "from distutils import sysconfig as s;import sys;import struct;
+    "${PYTHON_EXECUTABLE}" "-c" "import sysconfig as s;import sys;import struct;
 print('.'.join(str(v) for v in sys.version_info));
 print(sys.prefix);
-print(s.get_python_inc(plat_specific=True));
-print(s.get_python_lib(plat_specific=True));
+print(s.get_path('include'));
+print(s.get_path('platlib'));
 print(s.get_config_var('EXT_SUFFIX') or s.get_config_var('SO'));
 print(hasattr(sys, 'gettotalrefcount')+0);
 print(struct.calcsize('@P'));
