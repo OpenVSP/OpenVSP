@@ -22,9 +22,12 @@ using std::vector;
 
 #include "eli/geom/curve/bezier.hpp"
 #include "eli/geom/curve/piecewise.hpp"
+#include "eli/geom/curve/piecewise_creator.hpp"
 
 typedef eli::geom::curve::bezier<double, 3> curve_segment_type;
 typedef eli::geom::curve::piecewise<eli::geom::curve::bezier, double, 3> piecewise_curve_type;
+
+typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
 
 #define TMAGIC 0.004
 
@@ -85,6 +88,11 @@ public:
     void BuildCubic( const vector < vec3d > & input_pnt_vec, const vector < vec3d > & input_slope_vec, const vector < double > & param );
 
     void ToBinaryCubic( bool wingtype, double ttol = 1e-6, double atol = 0.01, int dmin = 2, int dmax = 12, bool flapflag = false, double flapT = 0.2, double flapDT = 0.05 );
+
+    template<typename f__>
+    int FunToBinaryCubic( const f__ &f, double tmin, double tmax, double tol );
+    template<typename f__>
+    int FunToBinaryCubic( const f__ &f, double tmin, double tmax, double tsplit, double tol );
 
     void SetCubicControlPoints( const vector< vec3d > & cntrl_pts ); // Automatic curve parameterization
     void SetCubicControlPoints( const vector < vec3d > & cntrl_pts, const vector < double > & param ); // Specify curve parameterization
@@ -204,6 +212,38 @@ protected:
     double GetCurveDt( int i ) const;
 };
 
+template<typename f__>
+int VspCurve::FunToBinaryCubic( const f__ &f, double tmin, double tmax, double tol )
+{
+    int dmin = 2;
+    int dmax = 12;
+
+    eli::geom::curve::piecewise_binary_cubic_creator_abstract<f__, double, 3, curve_tolerance_type> pbcc;
+    pbcc.setup( f, tmin, tmax, tol, dmin, dmax );
+
+    int depth = pbcc.create( m_Curve );
+    return depth;
+}
+
+template<typename f__>
+int VspCurve::FunToBinaryCubic( const f__ &f, double tmin, double tmax, double tsplit, double tol )
+{
+    int dmin = 2;
+    int dmax = 12;
+
+    eli::geom::curve::piecewise_binary_cubic_creator_abstract<f__, double, 3, curve_tolerance_type> pbcc;
+    pbcc.setup( f, tmin, tsplit, tol, dmin, dmax );
+
+    int depth1 = pbcc.create( m_Curve );
+
+    pbcc.setup( f, tsplit, tmax, tol, dmin, dmax );
+    piecewise_curve_type c2;
+    int depth2 = pbcc.create( c2 );
+
+    m_Curve.push_back( c2 );
+
+    return std::max( depth1, depth2 );
+}
 
 #endif
 

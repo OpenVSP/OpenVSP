@@ -20,9 +20,13 @@ using std::vector;
 
 #include "eli/geom/curve/bezier.hpp"
 #include "eli/geom/curve/piecewise.hpp"
+#include "eli/geom/curve/piecewise_creator.hpp"
 
 typedef eli::geom::curve::bezier<double, 1> oned_curve_segment_type;
 typedef eli::geom::curve::piecewise<eli::geom::curve::bezier, double, 1> oned_piecewise_curve_type;
+
+typedef oned_piecewise_curve_type::tolerance_type oned_curve_tolerance_type;
+typedef oned_piecewise_curve_type::point_type oned_curve_point_type;
 
 class Vsp1DCurve
 {
@@ -57,6 +61,9 @@ public:
     void GetTMap( vector < double > &tmap ) const;
     void ToBinaryCubic( );
     void ToCubic();
+
+    template<typename f__>
+    int FunToBinaryCubic( const f__ &f, double tmin, double tmax, double tol );
 
     void SetCubicControlPoints( const vector< double > & cntrl_pts, bool closed_flag );
     void SetCubicControlPoints( const vector< double > & cntrl_pts, const vector< double > & param, bool closed_flag );
@@ -127,6 +134,19 @@ protected:
     double GetCurveDt( int i ) const;
 };
 
+
+template<typename f__>
+int Vsp1DCurve::FunToBinaryCubic( const f__ &f, double tmin, double tmax, double tol )
+{
+    int dmin = 2;
+    int dmax = 12;
+
+    eli::geom::curve::piecewise_binary_cubic_creator_abstract<f__, double, 1, oned_curve_tolerance_type> pbcc;
+    pbcc.setup( f, tmin, tmax, tol, dmin, dmax );
+
+    int depth = pbcc.create( m_Curve );
+    return depth;
+}
 
 #endif
 
