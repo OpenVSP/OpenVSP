@@ -543,55 +543,28 @@ void CobraGeom::UpdateSurf()
 //==== Compute Rotation Center ====//
 void CobraGeom::ComputeCenter()
 {
-    // m_Center.set_x( m_Length()*m_Origin() );
+    m_Center.set_x( ( m_XradN() + m_XlenA() ) * m_Origin() );
 }
 
 //==== Scale ====//
 void CobraGeom::Scale()
 {
-    // double currentScale = m_Scale() / m_LastScale();
-    // m_Length *= currentScale;
+    double currentScale = m_Scale() / m_LastScale();
+
+    m_XradN *= currentScale;
+    m_YradN *= currentScale;
+    m_ZradNL *= currentScale;
+    m_ZradNU *= currentScale;
+    m_XlenA *= currentScale;
+    m_YradA *= currentScale;
+    m_ZradAL *= currentScale;
+    m_ZradAU *= currentScale;
+
     m_LastScale = m_Scale();
 }
 
 void CobraGeom::AddDefaultSources( double base_len )
 {
-    // double len = m_Length();
-    // double rad = len / m_FineRatio();
-    //
-    // PointSource* psource;
-    // LineSource* lsource;
-    //
-    // psource = new PointSource();
-    // psource->SetName( "Def_Fwd_PS" );
-    // psource->m_Len = 0.05 * rad;
-    // psource->m_Rad = 1.0 * rad;
-    // psource->m_ULoc = 0.0;
-    // psource->m_WLoc = 0.0;
-    // psource->m_MainSurfIndx = 0;
-    // AddCfdMeshSource( psource );
-    //
-    // psource = new PointSource();
-    // psource->SetName( "Def_Aft_PS" );
-    // psource->m_Len = 0.05 * rad;
-    // psource->m_Rad = 1.0 * rad;
-    // psource->m_ULoc = 1.0;
-    // psource->m_WLoc = 0.0;
-    // psource->m_MainSurfIndx = 0;
-    // AddCfdMeshSource( psource );
-    //
-    // lsource = new LineSource();
-    // lsource->SetName( "Def_Fwd_Aft_LS" );
-    // lsource->m_Len = 0.25 * rad;
-    // lsource->m_Len2 = 0.25 * rad;
-    // lsource->m_Rad = 2.0 * rad;
-    // lsource->m_Rad2 = 2.0 * rad;
-    // lsource->m_ULoc1 = 0.0;
-    // lsource->m_WLoc1 = 0.0;
-    // lsource->m_ULoc2 = 1.0;
-    // lsource->m_WLoc2 = 0.0;
-    // lsource->m_MainSurfIndx = 0;
-    // AddCfdMeshSource( lsource );
 }
 
 void CobraGeom::OffsetXSecs( double off )
