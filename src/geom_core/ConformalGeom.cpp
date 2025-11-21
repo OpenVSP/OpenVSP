@@ -155,6 +155,12 @@ void ConformalGeom::UpdateSurf()
         m_WingParentFlag = true;
     }
 
+    bool COBRA_ParentFlag = false;
+    if ( parent_geom->GetType().m_Type == COBRA_GEOM_TYPE )
+    {
+        COBRA_ParentFlag = true;
+    }
+
     //===== Copy Parent ====//
     vector< string > parent_id_vec;
     parent_id_vec.push_back( parent_geom->GetID() );
@@ -208,16 +214,19 @@ void ConformalGeom::UpdateSurf()
                 }
 
                 //==== Make Sure Ribs Are Centered ====//
-                CenterRibCurves(m_MainSurfVec[i], *( parent_geom->GetMainSurfPtr( i ) ), offset);
+                if ( !COBRA_ParentFlag )
+                {
+                    CenterRibCurves(m_MainSurfVec[i], *( parent_geom->GetMainSurfPtr( i ) ), offset);
+                }
 
                 //==== Offset Ribs ====//
-                if ( m_OffsetEnds() )
+                if ( m_OffsetEnds() && !COBRA_ParentFlag )
                 {
                     OffsetEndRibs(m_MainSurfVec[i], offset);
                 }
 
                 //==== Adjust Shape By Scaling Fp and Moving End Ribs ====//
-                if (!m_WingParentFlag)
+                if ( !m_WingParentFlag && !COBRA_ParentFlag )
                 {
 // Measure Error - Expensive
 //ComputeMaxOffsetError( m_MainSurfVec[i], parent_surf_vec[i], offset, 20, 8 );
