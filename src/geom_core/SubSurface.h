@@ -130,10 +130,6 @@ public:
     virtual void UpdatePolygonPnts();
     virtual std::vector< TMesh* > CreateTMeshVec( const vector < double > &uvec, const vector < double > &vvec ) const; // Method to create a TMeshVector
     virtual void UpdateDrawObjs(); // Method to create lines to draw
-    virtual void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
-    virtual void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
-    virtual void SplitSegsU( const double & u, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant U value
-    virtual void SplitSegsW( const double & w, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant W value
     virtual void PrepareSplitVec();
     virtual void SetDisplaySuffix( int num );
     // Save, Load
@@ -188,8 +184,6 @@ protected:
     {
         return -1;
     }
-    virtual void ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec );
-
 };
 
 class SSLine : public SubSurface
