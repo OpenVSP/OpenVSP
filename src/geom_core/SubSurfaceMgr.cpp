@@ -145,16 +145,6 @@ SubSurface* SubSurfaceMgrSingleton::GetSubSurf( const string& subsurf_id )
     return ret_ptr;
 }
 
-void SubSurfaceMgrSingleton::PrepareToSplit()
-{
-    vector< SubSurface* > sub_surfs = GetSubSurfs();
-
-    for ( int i = 0 ; i < ( int )sub_surfs.size() ; i++ )
-    {
-        sub_surfs[i]->PrepareSplitVec();
-    }
-}
-
 void SubSurfaceMgrSingleton::ReSuffixGroupNames( const string& comp_id )
 {
     vector< SubSurface* > ss_vec = GetSubSurfs( comp_id );
