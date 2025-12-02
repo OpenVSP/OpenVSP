@@ -1349,7 +1349,7 @@ void SSIntersect::IntersectBezier()
     SetFromUWChain( uwchains );
 }
 
-void SSIntersect::SetFromUWChain( const vector < vector < vec3d > > &uwchains )
+void SSIntersect::SetFromUWChain( vector < vector < vec3d > > uwchains )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -1377,6 +1377,28 @@ void SSIntersect::SetFromUWChain( const vector < vector < vec3d > > &uwchains )
         double uscale = geom->GetUMax( isurf );
         double wscale = geom->GetWMax( isurf );
 
+        vector < double > dyvec( uwchains[0].size(), 0.0 );
+        double dy = 0;
+        for ( int i = 1 ; i < uwchains[0].size(); i++ )
+        {
+            if ( std::abs( uwchains[0][i].y() - uwchains[0][i-1].y() ) > wscale / 2 )
+            {
+                if ( uwchains[0][i].y() > uwchains[0][i-1].y() )
+                {
+                    dy -= wscale;
+                }
+                else
+                {
+                    dy += wscale;
+                }
+            }
+            dyvec[i] = dy;
+        }
+
+        for ( int i = 0 ; i < uwchains[0].size(); i++ )
+        {
+            uwchains[0][i].set_y( uwchains[0][i].y() + dyvec[i] );
+        }
 
         double umin = 1e6, umax = -1, wmin = 1e6, wmax = -1;
         for ( int i = 0 ; i < uwchains[0].size(); i++ )
@@ -1422,7 +1444,7 @@ void SSIntersect::SetFromUWChain( const vector < vector < vec3d > > &uwchains )
             xscrv_ptr->SetWidthHeight( uWidth / uscale, wWidth / wscale );
 
             m_CenterU.Set( umid / uscale );
-            m_CenterW.Set( wmid / wscale );
+            m_CenterW.Set( clampCyclic( wmid / wscale, 0.0, 1.0 ) );
 
             // Set Bezier control points
             xscrv_ptr->SetPntVecs( svec, uw, rvec );
