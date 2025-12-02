@@ -586,7 +586,8 @@ bool SSLineSeg::Subtag( const vec3d & center ) const
 {
     // Compute cross product of line and first point to center
     vec3d v0c = center - m_P0;
-    vec3d c_prod = cross( m_line, v0c );
+    vec3d line = m_P1 - m_P0;
+    vec3d c_prod = cross( line, v0c );
 
     if ( m_TestType == NO )
     {
@@ -632,9 +633,6 @@ void SSLineSeg::Update( Geom *geom, int indx )
         // Update none scaled points
         m_P0.set_xyz( u0, m_SP0[ 1 ] * wmax, 0 );
         m_P1.set_xyz( u1, m_SP1[ 1 ] * wmax, 0 );
-
-        // Update line
-        m_line = m_P1 - m_P0;
     }
 }
 
@@ -661,9 +659,11 @@ void SSLineSeg::GetDOPts( const VspSurf* surf, const Geom* geom, vector < vec3d 
 
     vec3d pprev = CompPnt( surf, m_P0 );
     vec3d p = pprev;
+
+    vec3d line = m_P1 - m_P0;
     for ( int i = 0 ; i < num_pnts ; i ++ )
     {
-        vec3d uw = ( m_P0 + m_line * ( ( double )i / ( num_pnts - 1 ) ) );
+        vec3d uw = ( m_P0 + line * ( ( double )i / ( num_pnts - 1 ) ) );
         p = CompPnt( surf, uw );
         pts[2*i] = pprev;
         pts[2*i+1] = p;
@@ -704,8 +704,9 @@ void SSLineSeg::AddToTMesh( TMesh* tmesh ) const
 
     double tol = 1.0e-6;
 
+    vec3d line = m_P1 - m_P0;
 
-    vec3d dc = m_line / ( num_cut_lines + 1.0 );
+    vec3d dc = line / ( num_cut_lines + 1.0 );
     vec3d dz = vec3d( 0, 0, 2.0 ) / ( num_z_lines + 1 );
     vec3d start = m_P0 + vec3d( 0, 0, -1 );
 

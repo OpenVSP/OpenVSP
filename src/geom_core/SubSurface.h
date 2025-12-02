@@ -76,7 +76,6 @@ protected:
 private:
     vec3d m_P0; // none scaled uw points
     vec3d m_P1;
-    vec3d m_line;
 };
 
 class SubSurface : public ParmContainer
