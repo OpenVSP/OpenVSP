@@ -698,31 +698,27 @@ TMesh* SSLineSeg::CreateTMesh() const
 
 void SSLineSeg::AddToTMesh( TMesh* tmesh ) const
 {
-
-    unsigned int num_cut_lines = 0;
-    unsigned int num_z_lines = 0;
-
     double tol = 1.0e-6;
 
     vec3d line = m_P1 - m_P0;
 
-    vec3d dc = line / ( num_cut_lines + 1.0 );
-    vec3d dz = vec3d( 0, 0, 2.0 ) / ( num_z_lines + 1 );
+    vec3d dc = line;
+    vec3d dz = vec3d( 0, 0, 2.0 );
     vec3d start = m_P0 + vec3d( 0, 0, -1 );
 
     int c, cz;
 
     vector< vector< vec3d > > pnt_mesh;
-    pnt_mesh.resize( num_cut_lines + 2 );
+    pnt_mesh.resize( 2 );
     for ( int i = 0; i < ( int )pnt_mesh.size(); i++ )
     {
-        pnt_mesh[i].resize( num_z_lines + 2 );
+        pnt_mesh[i].resize( 2 );
     }
 
     // Build plane
-    for ( c = 0 ; c < num_cut_lines + 2 ; c++ )
+    for ( c = 0 ; c < 2 ; c++ )
     {
-        for ( cz = 0 ; cz < num_z_lines + 2 ; cz++ )
+        for ( cz = 0 ; cz < 2 ; cz++ )
         {
             pnt_mesh[c][cz] = start + dc * c + dz * cz;
         }
