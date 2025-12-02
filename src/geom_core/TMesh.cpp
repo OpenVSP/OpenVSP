@@ -8576,11 +8576,13 @@ void BuildEdgeChains( vector< TEdge* > evec, vector < vector < TEdge* > > & echa
                 int jnearest = -1;
                 double dmin = 1e10;
                 bool flip = false;
+                double l1 = 1, l2 = 1;
 
                 // Check remaining edges.
                 for ( ; jedge < nedg; jedge++ )
                 {
                     TEdge *edge = echainvec[ ichain ].back();
+                    l1 = dist( edge->m_N0->m_Pnt, edge->m_N1->m_Pnt );
 
                     if ( !usededge[ jedge ] )
                     {
@@ -8592,6 +8594,7 @@ void BuildEdgeChains( vector< TEdge* > evec, vector < vector < TEdge* > > & echa
                             jnearest = jedge;
                             dmin = d;
                             flip = false;
+                            l2 = dist( edge2->m_N0->m_Pnt, edge2->m_N1->m_Pnt );
                         }
 
                         d = dist( edge->m_N1->m_Pnt, edge2->m_N1->m_Pnt );
@@ -8600,11 +8603,12 @@ void BuildEdgeChains( vector< TEdge* > evec, vector < vector < TEdge* > > & echa
                             jnearest = jedge;
                             dmin = d;
                             flip = true;
+                            l2 = dist( edge2->m_N0->m_Pnt, edge2->m_N1->m_Pnt );
                         }
                     }
                 }
 
-                if ( jnearest != -1 )
+                if ( jnearest != -1 && ( dmin / ( l1 + l2 ) ) < 1e-3 )
                 {
                     TEdge *edge2 = evec[ jnearest ];
 
