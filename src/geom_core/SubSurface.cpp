@@ -346,6 +346,104 @@ void SubSurface::ClampSegs()
     m_LVec = segs;
 }
 
+void SubSurface::ReverseLSegChain( vector < SSLineSeg > & chain )
+{
+    std::reverse( chain.begin(), chain.end() );
+
+    for ( int i = 0; i < chain.size(); i++ )
+    {
+        chain[i].Flip();
+    }
+}
+
+void SubSurface::ExtendLSegChain( const vector< SSLineSeg > &svec, int iseg, vector < bool > &usedseg, vector < SSLineSeg > & chain )
+{
+    int nseg = svec.size();
+
+    // Start search for next edge after base edge.
+    int jseg = iseg + 1;
+
+    while ( jseg < nseg )
+    {
+        int jnearest = -1;
+        double dmin = 1e10;
+        bool flip = false;
+        double l1 = 1, l2 = 1;
+
+        // Check remaining edges.
+        for ( ; jseg < nseg; jseg++ )
+        {
+            const SSLineSeg& seg = chain.back();
+            l1 = dist( seg.GetSP0(), seg.GetSP1() );
+
+            if ( !usedseg[ jseg ] )
+            {
+                const SSLineSeg& seg2 = svec[ jseg ];
+
+                double d = dist( seg.GetSP1(), seg2.GetSP0() );
+                if ( d < dmin )
+                {
+                    jnearest = jseg;
+                    dmin = d;
+                    flip = false;
+                    l2 = dist( seg2.GetSP0(), seg2.GetSP1() );
+                }
+
+                d = dist( seg.GetSP1(), seg2.GetSP1() );
+                if ( d < dmin )
+                {
+                    jnearest = jseg;
+                    dmin = d;
+                    flip = true;
+                    l2 = dist( seg2.GetSP0(), seg2.GetSP1() );
+                }
+            }
+        }
+
+        if ( jnearest != -1 && ( dmin / ( l1 + l2 ) ) < 1e-3 )
+        {
+            SSLineSeg seg2 = svec[ jnearest ];
+
+            if ( flip )
+            {
+                seg2.Flip();
+            }
+
+            chain.push_back( seg2 );
+            usedseg[ jnearest ] = true;
+            // Reset search to base edge.
+            jseg = iseg + 1;
+        }
+    }
+}
+
+void SubSurface::BuildLSegChains( const vector< SSLineSeg > &svec, vector < vector < SSLineSeg > > & schainvec )
+{
+    // Build chains of SSLineSeg.
+
+    // Search for first un-used seg, start new chain.
+    int nseg = svec.size();
+    vector < bool > usedseg( nseg, false );
+    for ( int iseg = 0; iseg < nseg; iseg++ )
+    {
+        if ( !usedseg[ iseg ] )
+        {
+            vector< SSLineSeg > chain;
+            chain.push_back( svec[ iseg ] );
+            usedseg[ iseg ] = true;
+
+            ExtendLSegChain( svec, iseg, usedseg, chain );
+
+            ReverseLSegChain( chain );
+
+            ExtendLSegChain( svec, iseg, usedseg, chain );
+
+            schainvec.push_back( chain );
+
+        }
+    }
+}
+
 void SubSurface::Update()
 {
     if ( m_Type != vsp::SS_CONTROL )

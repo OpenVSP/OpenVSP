@@ -134,6 +134,10 @@ public:
     virtual bool Subtag( TTri* tri ); // Method to subtag triangles from TMesh.
     virtual bool Subtag( const vec3d & center );
     virtual void ClampSegs();
+    static void ReverseLSegChain( vector < SSLineSeg > & chain );
+    static void ExtendLSegChain( const vector< SSLineSeg > &svec, int iseg, vector < bool > &usedseg, vector < SSLineSeg > & chain );
+    static void BuildLSegChains( const vector< SSLineSeg > &svec, vector < vector < SSLineSeg > > & schainvec );
+
     virtual void Update();
     virtual void UpdateOrientation();
     virtual void UpdatePolygonPnts();
