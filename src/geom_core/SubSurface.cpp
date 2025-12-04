@@ -780,8 +780,6 @@ SSLine::SSLine( const string& comp_id, int type ) : SubSurface( comp_id, type )
 
     m_ConstVal0N.Init( "Const_Line_Value0N", "SubSurface", this, 0.5, 0, 1e12 );
     m_ConstVal0N.SetDescript( "Either the U or V value of the line depending on what constant line type is chosen in [0, N] basis." );
-
-    m_LVec.resize( 1 );
 }
 
 SSLine::~SSLine()
@@ -795,6 +793,8 @@ void SSLine::Update()
     {
         return;
     }
+
+    m_LVec.resize( 1 );
 
     int indx = m_MainSurfIndx();
 
@@ -899,7 +899,7 @@ SSRectangle::SSRectangle( const string& comp_id, int type ) : SubSurface( comp_i
     m_TestType.Init( "Test_Type", "SS_Rectangle", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
-    m_LVec.resize(4);
+
 }
 
 //===== Destructor =====//
@@ -914,6 +914,8 @@ void SSRectangle::Update()
     {
         return;
     }
+
+    m_LVec.resize(4);
 
     vec3d center;
     vector< vec3d > pntVec;
@@ -1537,11 +1539,6 @@ SSControlSurf::SSControlSurf( const string& compID, int type ) : SubSurface( com
 
     m_SameAngleFlag.Init( "SameAngleFlag", "SS_Control", this, true, 0, 1 );
     m_SameAngleFlag.SetDescript( "Flag to set control surface start/end angles equal." );
-
-    for ( int i = 0; i < 3; i++ )
-    {
-        m_LVec.push_back( SSLineSeg() );
-    }
 
     m_PolyFlag = false;
 }
@@ -2899,8 +2896,6 @@ SSFiniteLine::SSFiniteLine( const string& comp_id, int type ) : SubSurface( comp
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
 
     m_CreateBeamElements = true;
-
-    m_LVec.resize( 1 );
 }
 
 SSFiniteLine::~SSFiniteLine()
@@ -2909,6 +2904,8 @@ SSFiniteLine::~SSFiniteLine()
 
 void SSFiniteLine::Update()
 {
+    m_LVec.resize( 1 );
+
     // Using m_LVec[0] since SSLine should always only have one line segment
     // Update SSegLine points based on current values
     m_LVec[0].SetSP0( vec3d( m_UStart(), m_WStart(), 0 ) );
