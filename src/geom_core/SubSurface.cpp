@@ -256,8 +256,103 @@ void SubSurface::UpdateDrawObjs()
     }
 }
 
+// Ensure all segments are within valid w=[0, 1] bounds.  Split any segments that cross the boundary.
+void SubSurface::ClampSegs()
+{
+    vector < SSLineSeg > segs;
+    segs.reserve( 2 * m_LVec.size() ); // Reserve for worst case scenario
+
+    for ( int i = 0; i < m_LVec.size(); i++ )
+    {
+        vec3d p0 = m_LVec[i].GetSP0();
+        vec3d p1 = m_LVec[i].GetSP1();
+
+        bool s = false;
+        // Ensure order p0 < p1
+        if ( p0.y() > p1.y() )
+        {
+            std::swap( p0, p1 );
+            s = true;
+        }
+
+        if ( p0.y() <= 1.0 && p1.y() > 1.0 ) // Segment crosses w=1.0 boundary, split
+        {
+            double t = ( 1.0 - p0.y() ) / ( p1.y() - p0.y()  );
+            double x = p0.x() + t * ( p1.x() - p0.x() );
+
+            vec3d pi( x, 1.0, 0 );
+
+            SSLineSeg seg1, seg2;
+
+            seg1.SetSP0( p0 );
+            seg1.SetSP1( pi );
+
+            pi.set_y( pi.y() - 1.0 );
+            p1.set_y( p1.y() - 1.0 );
+
+            seg2.SetSP0( pi );
+            seg2.SetSP1( p1 );
+
+            if ( s )
+            {
+                seg1.Flip();
+                seg2.Flip();
+                std::swap( seg1, seg2 );
+            }
+
+            segs.push_back( seg1 );
+            segs.push_back( seg2 );
+        }
+        else if ( p0.y() <= 0.0 && p1.y() > 0.0 ) // Segment crosses w=0.0 boundary, split
+        {
+            double t = ( 0.0 - p0.y() ) / ( p1.y() - p0.y()  );
+            double x = p0.x() + t * ( p1.x() - p0.x() );
+
+            vec3d pi( x, 0.0, 0 );
+
+            SSLineSeg seg1, seg2;
+
+            seg2.SetSP0( pi );
+            seg2.SetSP1( p1 );
+
+            p0.set_y( p0.y() + 1.0 );
+            pi.set_y( pi.y() + 1.0 );
+
+            seg1.SetSP0( p0 );
+            seg1.SetSP1( pi );
+
+            if ( s )
+            {
+                seg1.Flip();
+                seg2.Flip();
+                std::swap( seg1, seg2 );
+            }
+
+            segs.push_back( seg1 );
+            segs.push_back( seg2 );
+        }
+        else // Segment does not cross boundary, ensure valid w=[0, 1] bounds
+        {
+            p0.set_y( clampCyclicUBInclusive( p0.y(), 0.0, 1.0 ) );
+            p1.set_y( clampCyclicUBInclusive( p1.y(), 0.0, 1.0 ) );
+
+            SSLineSeg seg;
+            seg.SetSP0( p0 );
+            seg.SetSP1( p1 );
+
+            segs.push_back( seg );
+        }
+    }
+    m_LVec = segs;
+}
+
 void SubSurface::Update()
 {
+    if ( m_Type != vsp::SS_CONTROL )
+    {
+        ClampSegs();
+    }
+
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( geom )
     {

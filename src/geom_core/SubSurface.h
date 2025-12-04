@@ -64,6 +64,14 @@ public:
     {
         return m_P1;
     }
+    virtual vec3d GetSP0() const
+    {
+        return m_SP0;
+    }
+    virtual vec3d GetSP1() const
+    {
+        return m_SP1;
+    }
     virtual void GetDOPts( const VspSurf* surf, const Geom* geom, vector < vec3d > &pts, int num_pnts ) const;
     virtual int CompNumDrawPnts( const VspSurf* surf, const Geom* geom ) const;
     virtual void Flip();
@@ -125,6 +133,7 @@ public:
 
     virtual bool Subtag( TTri* tri ); // Method to subtag triangles from TMesh.
     virtual bool Subtag( const vec3d & center );
+    virtual void ClampSegs();
     virtual void Update();
     virtual void UpdateOrientation();
     virtual void UpdatePolygonPnts();
