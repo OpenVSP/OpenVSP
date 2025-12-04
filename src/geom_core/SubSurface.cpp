@@ -732,19 +732,32 @@ void SubSurface::UpdatePolygonPnts()
         return;
     }
 
-    m_PolyPntsVec.resize( 1 );
+    vector < vector < SSLineSeg > > chainvec;
+    BuildLSegChains( m_LVec, chainvec );
 
-    m_PolyPntsVec[0].clear();
+    m_PolyPntsVec.clear();
+    m_PolyPntsVec.resize( chainvec.size() );
 
-    vec3d pnt;
-    int ls;
-    for ( ls = 0; ls < m_LVec.size(); ls++ )
+    for ( int i = 0; i < chainvec.size(); i++ )
     {
-        pnt = m_LVec[ls].GetP0();
-        m_PolyPntsVec[0].push_back( vec2d( pnt.x(), pnt.y() ) );
+        m_PolyPntsVec[i].clear();
+
+        vec3d pnt;
+        int ls;
+        for ( ls = 0; ls < chainvec[i].size(); ls++ )
+        {
+            pnt = chainvec[i][ls].GetP0();
+            m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
+        }
+        pnt = chainvec[i][ls - 1].GetP1();
+        m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
+
+        double d = dist( m_PolyPntsVec[i][0], m_PolyPntsVec[i].back() );
+        if ( d > 1e-3 ) // Close open polygon
+        {
+            m_PolyPntsVec[i].push_back( m_PolyPntsVec[i][0] );
+        }
     }
-    pnt = m_LVec[ls - 1].GetP1();
-    m_PolyPntsVec[0].push_back( vec2d( pnt.x(), pnt.y() ) );
 
     m_PolyPntsReadyFlag = true;
 }
