@@ -8096,6 +8096,110 @@ extern int GetSubSurfType( const std::string & sub_id );
 
 extern std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id );
 
+/*!
+    \ingroup SubSurface
+*/
+/*!
+    Trigger intersection for SS_INTERSECT type subsurfaces
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD", "" );
+    string p2id = AddGeom( "POD", "" );
+
+    string xpod2 = GetParm( p2id, "X_Rel_Location", "XForm" );
+    SetParmVal( xpod2, 4.0 );
+
+    string zrotpod2 = GetParm( p2id, "Z_Rel_Rotation", "XForm" );
+    SetParmVal( zrotpod2, 60.0 );
+
+    string sub_id = AddSubSurf( pid, SS_INTERSECT );
+
+    Update();
+
+    SetIntersectSubSurfGeomID( sub_id, p2id );
+
+    IntersectSubSurf( sub_id );
+
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD", "" )
+    p2id = AddGeom( "POD", "" )
+
+    xpod2 = GetParm( p2id, "X_Rel_Location", "XForm" )
+    SetParmVal( xpod2, 4.0 )
+
+    zrotpod2 = GetParm( p2id, "Z_Rel_Rotation", "XForm" )
+    SetParmVal( zrotpod2, 60.0 )
+
+    sub_id = AddSubSurf( pid, SS_INTERSECT )
+
+    Update()
+
+    SetIntersectSubSurfGeomID( sub_id, p2id )
+
+    IntersectSubSurf( sub_id )
+    \endcode
+    \endPythonOnly
+    \param [in] sub_id string Sub-surface ID
+*/
+
+extern void IntersectSubSurf( const std::string & sub_id );
+
+/*!
+    \ingroup SubSurface
+*/
+/*!
+    Set Geom ID to intersect parent with to create intersection SS_INTERSECT type subsurfaces
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD", "" );
+    string p2id = AddGeom( "POD", "" );
+
+    string xpod2 = GetParm( p2id, "X_Rel_Location", "XForm" );
+    SetParmVal( xpod2, 4.0 );
+
+    string zrotpod2 = GetParm( p2id, "Z_Rel_Rotation", "XForm" );
+    SetParmVal( zrotpod2, 60.0 );
+
+    string sub_id = AddSubSurf( pid, SS_INTERSECT );
+
+    Update();
+
+    SetIntersectSubSurfGeomID( sub_id, p2id );
+
+    IntersectSubSurf( sub_id );
+
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD", "" )
+    p2id = AddGeom( "POD", "" )
+
+    xpod2 = GetParm( p2id, "X_Rel_Location", "XForm" )
+    SetParmVal( xpod2, 4.0 )
+
+    zrotpod2 = GetParm( p2id, "Z_Rel_Rotation", "XForm" )
+    SetParmVal( zrotpod2, 60.0 )
+
+    sub_id = AddSubSurf( pid, SS_INTERSECT )
+
+    Update()
+
+    SetIntersectSubSurfGeomID( sub_id, p2id )
+
+    IntersectSubSurf( sub_id )
+    \endcode
+    \endPythonOnly
+    \param [in] sub_id string Sub-surface ID
+    \param [in] geom_id string Geom ID to intersect with parent to create subsurface
+*/
+
+extern void SetIntersectSubSurfGeomID( const std::string & sub_id, const std::string & geom_id );
 
 /*!
     \ingroup FEAMesh

@@ -3043,6 +3043,55 @@ std::vector<std::string> GetSubSurfParmIDs( const string & sub_id )
     return parm_vec;
 }
 
+void IntersectSubSurf( const std::string & sub_id )
+{
+    SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ss_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "IntersectSubSurf::Can't Find SubSurface " + sub_id );
+        return;
+    }
+
+    SSIntersect* ss_intersect_ptr = dynamic_cast< SSIntersect* >( ss_ptr );
+    if ( !ss_intersect_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "IntersectSubSurf::SubSurface " + sub_id + " is not SS_INTERSECT type" );
+        return;
+    }
+
+    ss_intersect_ptr->Intersect();
+    ErrorMgr.NoError();
+}
+
+void SetIntersectSubSurfGeomID( const std::string & sub_id, const std::string & geom_id )
+{
+    SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ss_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetIntersectSubSurfGeomID::Can't Find SubSurface " + sub_id );
+        return;
+    }
+
+    SSIntersect* ss_intersect_ptr = dynamic_cast< SSIntersect* >( ss_ptr );
+    if ( !ss_intersect_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetIntersectSubSurfGeomID::SubSurface " + sub_id + " is not SS_INTERSECT type" );
+        return;
+    }
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetIntersectSubSurfGeomID::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    ss_intersect_ptr->m_IntersectID = geom_id;
+
+    ErrorMgr.NoError();
+}
+
 //**********************************************************************//
 //*****************     FEA Mesh API Functions     *********************//
 //**********************************************************************//

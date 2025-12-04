@@ -3998,6 +3998,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<string>@+ GetSubSurfParmIDs(const string & in sub_id )", asMETHOD( ScriptMgrSingleton, GetSubSurfParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
+
+    r = se->RegisterGlobalFunction( "void IntersectSubSurf( const string & in sub_id )", asFUNCTION( vsp::IntersectSubSurf ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void SetIntersectSubSurfGeomID( const string & in sub_id, const string & in geom_id )", asFUNCTION( vsp::SetIntersectSubSurfGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     //==== VSPAERO CS Group Functions ====//
 
     r = se->RegisterGlobalFunction("void AutoGroupVSPAEROControlSurfaces()", asFUNCTION(vsp::AutoGroupVSPAEROControlSurfaces), asCALL_CDECL );
