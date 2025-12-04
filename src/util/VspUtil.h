@@ -58,6 +58,7 @@ template <typename T> T clamp( T val, T min, T max )
 }
 */
 
+// Clamp cyclically, where val == max gets clamped to min, max/min will always have unique value.
 template <typename T> T clampCyclic( T val, T min, T max )
 {
     T dv = max - min;
@@ -68,6 +69,24 @@ template <typename T> T clampCyclic( T val, T min, T max )
     }
 
     while ( val >= max )
+    {
+        val -= dv;
+    }
+
+    return val;
+}
+
+// Clamp cyclically, where val == max does not get changed, max/min can have multiple values.
+template <typename T> T clampCyclicUBInclusive( T val, T min, T max )
+{
+    T dv = max - min;
+
+    while ( val < min )
+    {
+        val += dv;
+    }
+
+    while ( val > max )
     {
         val -= dv;
     }
