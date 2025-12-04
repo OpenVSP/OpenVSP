@@ -648,6 +648,12 @@ int SSLineSeg::CompNumDrawPnts( const VspSurf* surf, const Geom* geom ) const
     return ( int )( ( avg_num_secs ) * ( avg_tess - 1 ) );
 }
 
+void SSLineSeg::Flip()
+{
+    std::swap( m_SP0, m_SP1 );
+    std::swap( m_P0, m_P1 );
+}
+
 void SSLineSeg::GetDOPts( const VspSurf* surf, const Geom* geom, vector < vec3d > &pts, int num_pnts ) const
 {
     if ( num_pnts < 0 )

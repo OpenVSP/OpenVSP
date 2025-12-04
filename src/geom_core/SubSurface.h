@@ -66,6 +66,7 @@ public:
     }
     virtual void GetDOPts( const VspSurf* surf, const Geom* geom, vector < vec3d > &pts, int num_pnts ) const;
     virtual int CompNumDrawPnts( const VspSurf* surf, const Geom* geom ) const;
+    virtual void Flip();
 
 protected:
     vec3d m_SP0; // scaled uw points
