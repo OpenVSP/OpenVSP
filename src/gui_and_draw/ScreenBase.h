@@ -426,6 +426,7 @@ public:
 
     GroupLayout m_SSXSCGroup;
 
+    GroupLayout m_SSIntGroup;
     GeomPicker m_SSIntGeomPicker;
     TriggerButton m_SSIntIntersectButton;
 

@@ -978,19 +978,19 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SSXSCGroup.AddYGap();
 
+    m_SSXSCGroup.AddSubGroupLayout( m_SSIntGroup, m_SSXSCGroup.GetW(), m_SSXSCGroup.GetStdHeight() );
+    m_SSXSCGroup.AddY( m_SSXSCGroup.GetStdHeight() );
+
     m_SSIntGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
 
-    m_SSXSCGroup.SetChoiceButtonWidth( m_SSXSCGroup.GetButtonWidth() );
-    m_SSXSCGroup.SetSameLineFlag( true );
+    m_SSIntGroup.SetChoiceButtonWidth( m_SSXSCGroup.GetButtonWidth() );
+    m_SSIntGroup.SetButtonWidth( m_SSXSCGroup.GetButtonWidth() );
+    m_SSIntGroup.SetSameLineFlag( true );
 
-    m_SSXSCGroup.AddGeomPicker( m_SSIntGeomPicker, m_SSXSCGroup.GetButtonWidth(), "Intersect Geom" );
+    m_SSIntGroup.AddGeomPicker( m_SSIntGeomPicker, m_SSXSCGroup.GetButtonWidth(), "Intersect Geom" );
 
-    m_SSXSCGroup.SetFitWidthFlag( false );
-    m_SSXSCGroup.AddButton( m_SSIntIntersectButton, "Intersect" );
-
-    m_SSXSCGroup.SetFitWidthFlag( true );
-    m_SSXSCGroup.SetSameLineFlag( false );
-    m_SSXSCGroup.ForceNewLine();
+    m_SSIntGroup.SetFitWidthFlag( false );
+    m_SSIntGroup.AddButton( m_SSIntIntersectButton, "Intersect" );
 
 
     m_SSXSCGroup.AddYGap();
@@ -2069,16 +2069,21 @@ bool GeomScreen::Update()
         {
             if ( subsurf->GetType() == vsp::SS_INTERSECT )
             {
+                m_SSIntGroup.Show();
+
                 SSIntersect* ssint = dynamic_cast< SSIntersect* >( subsurf );
                 assert( ssint );
 
                 m_SSIntGeomPicker.SetGeomChoice( ssint->m_IntersectID );
+                m_SSIntGeomPicker.Update();
             }
             else
             {
                 m_SSIntGeomPicker.SetGeomChoice( "" );
+                m_SSIntGeomPicker.Update();
+
+                m_SSIntGroup.Hide();
             }
-            m_SSIntGeomPicker.Update();
 
             SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
             assert( ssxsc );
