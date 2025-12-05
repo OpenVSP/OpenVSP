@@ -2485,6 +2485,14 @@ bool FeaPartEditScreen::Update()
                         // m_FeaSSXSCULenSlider.Update( ssxsc->m_ULength.GetID() );
                         // m_FeaSSXSCWLenSlider.Update( ssxsc->m_WLength.GetID() );
                         // m_FeaSSXSCThetaSlider.Update( ssxsc->m_Theta.GetID() );
+                        m_CreateBeamElementsToggle.Update( ssxsc->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( ssxsc->m_KeepDelShellElements.GetID() );
+
+                        if ( ssxsc->m_TestType() == vsp::NONE )
+                        {
+                            m_ShellPropertyChoice.Deactivate();
+                        }
+
                         FeaPartDispGroup( & m_FeaSSXSCGroup );
 
                         // update attribute pointer to SSXSCAttrEditor
