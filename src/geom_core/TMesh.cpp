@@ -8645,6 +8645,10 @@ void FindISectChains( TMesh *tmA, TMesh *tmB, vector < vector < TEdge* > > & ech
     }
 
     BuildEdgeChains( evec, echainvec );
+
+    // How to evaluate a UW point into XYZ on a mesh.
+    // vec3d uw;
+    // vec3d xyz = tmA->CompPnt( uw );
 }
 
 void CSGMesh( vector < TMesh * > &tmv, bool intSubsFlag, const vector < string > & sub_vec )
