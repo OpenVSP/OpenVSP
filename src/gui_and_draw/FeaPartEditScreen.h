@@ -359,8 +359,10 @@ private:
     ToggleRadioGroup m_FeaSSXSCTestToggleGroup;
 
 
+    GroupLayout m_FeaSSIntGroup;
 
-
+    GeomPicker m_FeaSSIntGeomPicker;
+    TriggerButton m_FeaSSIntIntersectButton;
 
     Choice m_FeaSSXSecTypeChoice;
     TriggerButton m_FeaSSXSCShowXSecButton;

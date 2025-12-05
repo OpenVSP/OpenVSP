@@ -1046,6 +1046,23 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
 
     m_FeaSSXSCGroup.AddYGap();
 
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSIntGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetStdHeight() );
+    m_FeaSSXSCGroup.AddY( m_FeaSSXSCGroup.GetStdHeight() );
+
+    m_FeaSSIntGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+
+    m_FeaSSIntGroup.SetChoiceButtonWidth( m_FeaSSXSCGroup.GetButtonWidth() );
+    m_FeaSSIntGroup.SetButtonWidth( m_FeaSSXSCGroup.GetButtonWidth() );
+    m_FeaSSIntGroup.SetSameLineFlag( true );
+
+    m_FeaSSIntGroup.AddGeomPicker( m_FeaSSIntGeomPicker, m_FeaSSIntGroup.GetButtonWidth(), "Intersect Geom" );
+
+    m_FeaSSIntGroup.SetFitWidthFlag( false );
+    m_FeaSSIntGroup.AddButton( m_FeaSSIntIntersectButton, "Intersect" );
+
+
+    m_FeaSSXSCGroup.AddYGap();
+
     m_FeaSSXSCGroup.AddDividerBox( "Type" );
 
     m_FeaSSXSecTypeChoice.AddItem( "POINT", vsp::XS_POINT );
@@ -2473,8 +2490,28 @@ bool FeaPartEditScreen::Update()
 
                         FeaPartDispGroup( &m_FeaSSEllGroup );
                     }
-                    else if ( subsurf->GetType() == vsp::SS_XSEC_CURVE )
+                    else if ( subsurf->GetType() == vsp::SS_XSEC_CURVE ||
+                              subsurf->GetType() == vsp::SS_INTERSECT )
                     {
+                        if ( subsurf->GetType() == vsp::SS_INTERSECT )
+                        {
+                            m_FeaSSIntGroup.Show();
+
+                            SSIntersect* ssint = dynamic_cast< SSIntersect* >( subsurf );
+                            assert( ssint );
+
+                            m_FeaSSIntGeomPicker.SetGeomChoice( ssint->m_IntersectID );
+                            m_FeaSSIntGeomPicker.Update();
+                        }
+                        else
+                        {
+                            m_FeaSSIntGeomPicker.SetGeomChoice( "" );
+                            m_FeaSSIntGeomPicker.Update();
+
+                            m_FeaSSIntGroup.Hide();
+                        }
+
+
                         SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
                         assert( ssxsc );
 
@@ -3430,6 +3467,44 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                             }
                         }
                     }
+                }
+            }
+        }
+        else if ( device == & m_FeaSSIntGeomPicker )
+        {
+            SSXSecCurve* ss_xsc = dynamic_cast < SSXSecCurve* > ( subsurf );
+            if ( ss_xsc )
+            {
+                if ( ss_xsc->GetType() == vsp::SS_INTERSECT )
+                {
+                    SSIntersect* ssint = dynamic_cast< SSIntersect* >( ss_xsc );
+                    assert( ssint );
+
+                    ssint->m_IntersectID = m_FeaSSIntGeomPicker.GetGeomChoice();
+                }
+            }
+        }
+        else if ( device == & m_FeaSSIntIntersectButton )
+        {
+            SSXSecCurve* ss_xsc = dynamic_cast < SSXSecCurve* > ( subsurf );
+            if ( ss_xsc )
+            {
+                if ( ss_xsc->GetType() == vsp::SS_INTERSECT )
+                {
+                    SSIntersect* ssint = dynamic_cast< SSIntersect* >( ss_xsc );
+                    assert( ssint );
+
+                    ssint->Intersect();
+
+                    EditCurveXSec *edit_xsec = dynamic_cast < EditCurveXSec* > ( ssint->GetXSecCurve() );
+                    CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+                    if ( ceditcreen && edit_xsec )
+                    {
+                        ceditcreen->SetXSecCurve( edit_xsec );
+                    }
+
+                    m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
                 }
             }
         }

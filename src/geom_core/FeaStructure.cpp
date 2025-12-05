@@ -399,6 +399,11 @@ SubSurface* FeaStructure::AddFeaSubSurf( int type )
         ssurf = new SSXSecCurve( m_ParentGeomID );
         ssurf->SetName( string( "SSXSecCurve" + to_string( m_FeaSubSurfCount ) ) );
     }
+    else if ( type == vsp::SS_INTERSECT )
+    {
+        ssurf = new SSIntersect( m_ParentGeomID );
+        ssurf->SetName( string( "SSIntersect" + to_string( m_FeaSubSurfCount ) ) );
+    }
 
     if ( ssurf )
     {
