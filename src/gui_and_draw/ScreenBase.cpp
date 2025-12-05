@@ -3243,6 +3243,7 @@ void GeomScreen::SetCurrSubSurf( int ss_index )
                 break;
             }
             case vsp::SS_XSEC_CURVE:
+            case vsp::SS_INTERSECT:
             {
                 vector < string > empty_coll_ids;
                 empty_coll_ids.push_back( ss_coll_id );
