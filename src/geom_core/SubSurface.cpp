@@ -1624,6 +1624,15 @@ void SSIntersect::SetFromUWChain( vector < vector < vec3d > > uwchains )
         double uWidth = umax - umin;
         double wWidth = wmax - wmin;
 
+        if ( uWidth < 1e-6 )
+        {
+            uWidth = 1.0;
+        }
+        if ( wWidth < 1e-6 )
+        {
+            wWidth = 1.0;
+        }
+
         double s = 0;
         vector < double > svec;
         vector < double > rvec( uwchains[0].size(), 0 );
