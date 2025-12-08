@@ -1291,6 +1291,8 @@ void SSXSecCurve::Update()
         return;
     }
 
+    m_XSCurve->SetSkipCurveMods( true );
+
     m_XSCurve->Update();
 
     double w = m_XSCurve->GetWidth();
