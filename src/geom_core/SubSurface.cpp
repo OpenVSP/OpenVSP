@@ -1611,7 +1611,7 @@ void SSIntersect::SetFromUWChain( vector < vector < vec3d > > uwchains )
             uwchains[0][i].set_y( uwchains[0][i].y() + dyvec[i] );
         }
 
-        double umin = 1e6, umax = -1, wmin = 1e6, wmax = -1;
+        double umin = 1e6, umax = -1e-6, wmin = 1e6, wmax = -1e-6;
         for ( int i = 0 ; i < uwchains[0].size(); i++ )
         {
             if ( umin > uwchains[0][i].x() ) umin = uwchains[0][i].x();
