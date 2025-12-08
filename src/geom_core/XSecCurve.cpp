@@ -200,6 +200,8 @@ XSecCurve::XSecCurve()
     m_UseFakeWidth = false;
     m_ForceWingType = false;
 
+    m_SkipCurveMods = false;
+
     m_yscale = 1.0;
 
     SetParmContainerType( vsp::ATTROBJ_XSEC );
@@ -456,22 +458,25 @@ void XSecCurve::Update()
 
     bool wingtype = DetermineWingType();
 
-    // Order of these curve modifiers matters.
-    // No TMAGIC yet.
-    CloseTE( wingtype );
-    // TMAGIC for TE only.
-    TrimTE( wingtype );
-    DeflectTE( wingtype );
+    if ( !m_SkipCurveMods )
+    {
+        // Order of these curve modifiers matters.
+        // No TMAGIC yet.
+        CloseTE( wingtype );
+        // TMAGIC for TE only.
+        TrimTE( wingtype );
+        DeflectTE( wingtype );
 
-    CloseLE( wingtype );
-    // Now TMAGIC for LE also.
-    TrimLE( wingtype );
+        CloseLE( wingtype );
+        // Now TMAGIC for LE also.
+        TrimLE( wingtype );
 
-    CapTE( wingtype );
-    CapLE( wingtype );
+        CapTE( wingtype );
+        CapLE( wingtype );
 
-    // Apply 3D Chevron modification.
-    Chevron();
+        // Apply 3D Chevron modification.
+        Chevron();
+    }
 
     if ( m_Type != XS_POINT )
     {

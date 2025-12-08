@@ -113,6 +113,9 @@ public:
     virtual void SetFakeWidth( double w )                              { m_FakeWidth = w; }
     virtual void SetUseFakeWidth( double b )                           { m_UseFakeWidth = b; }
 
+    virtual void SetSkipCurveMods( bool b )                            { m_SkipCurveMods = b; }
+    virtual bool GetSkipCurveMods()                                    { return m_SkipCurveMods; }
+
     virtual void SetForceWingType( double f )                          { m_ForceWingType = f; }
     virtual bool DetermineWingType();
 
@@ -260,6 +263,8 @@ public:
     virtual void CopyBackgroundSettings( XSecCurve* xsc );
 
 protected:
+
+    bool m_SkipCurveMods;
 
     bool m_UseFakeWidth;
     bool m_ForceWingType;
