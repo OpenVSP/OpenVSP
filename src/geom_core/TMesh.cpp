@@ -8552,6 +8552,48 @@ void IntersectSplitClassify( vector < TMesh * > &tmv, bool intSubsFlag, const ve
     ApplyScale( 1.0 / scalefac, tmv );
 }
 
+// Ensure that the first edge of the chain is oriented in increasing w order.
+void NormalizeChain( vector < TEdge * > & chain )
+{
+    // Rotates chain such that segment with minimum w value is first.
+    // A closed loop will have two such edges.  An open (in uw) will only have one.
+    // It does not matter whether the wmin appears in the first or second node.
+    double wmin = 1e6;
+    int imin = -1;
+    for ( int iedge = 0; iedge < chain.size(); iedge++ )
+    {
+        TEdge * e = chain[ iedge ];
+        if ( e->m_N0->m_UWPnt.y() < wmin || e->m_N1->m_UWPnt.y() < wmin )
+        {
+            wmin = std::min( e->m_N0->m_UWPnt.y(), e->m_N1->m_UWPnt.y() );
+            imin = iedge;
+        }
+    }
+    std::rotate( chain.begin(), chain.begin() + imin, chain.end() );
+
+    // Check to make sure that the first edge of the chain is oriented in increasing w order.
+    bool flip = false;
+    if ( chain.size() > 0 )
+    {
+        TEdge *e = chain[ 0 ];
+        if ( e->m_N0->m_UWPnt.y() > e->m_N1->m_UWPnt.y() )
+        {
+            flip = true;
+            std::reverse( chain.begin(), chain.end() );
+            for ( int i = 0; i < ( int )chain.size(); i++ )
+            {
+                chain[i]->SwapEdgeDirection();
+            }
+        }
+    }
+
+    // If chain was flipped, then re-rotate to put wmin edge first
+    if ( flip )
+    {
+        std::rotate( chain.begin(), chain.end() - 1, chain.end() );
+    }
+}
+
 void BuildEdgeChains( vector< TEdge* > evec, vector < vector < TEdge* > > & echainvec )
 {
     // Build chains of edges.
@@ -8624,6 +8666,11 @@ void BuildEdgeChains( vector< TEdge* > evec, vector < vector < TEdge* > > & echa
                 }
             }
         }
+    }
+
+    for ( int ichain = 0; ichain < ( int )echainvec.size(); ichain++ )
+    {
+        NormalizeChain( echainvec[ ichain ] );
     }
 }
 
