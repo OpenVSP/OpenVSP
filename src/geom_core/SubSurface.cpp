@@ -1653,6 +1653,14 @@ void SSIntersect::SetFromUWChain( vector < vector < vec3d > > uwchains )
             svec[i] /= s;
         }
 
+        double duw = dist ( uwchains[0][0], uwchains[0].back() );
+
+        bool closed = true;
+        if ( duw > 1e-3 )
+        {
+            closed = false;
+        }
+
         SetXSecCurveType( vsp::XS_EDIT_CURVE );
 
         EditCurveXSec* xscrv_ptr = dynamic_cast < EditCurveXSec * > ( m_XSCurve );
@@ -1661,6 +1669,8 @@ void SSIntersect::SetFromUWChain( vector < vector < vec3d > > uwchains )
         {
             xscrv_ptr->m_SymType.Set( vsp::SYM_NONE );
             xscrv_ptr->m_CurveType = vsp::LINEAR;
+
+            xscrv_ptr->m_CloseFlag = closed;
 
             // Transfer width and height parm values
             xscrv_ptr->SetWidthHeight( uWidth / uscale, wWidth / wscale );
