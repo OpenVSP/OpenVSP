@@ -752,8 +752,8 @@ void SubSurface::UpdatePolygonPnts()
         pnt = chainvec[i][ls - 1].GetP1();
         m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
 
-        double d = dist( m_PolyPntsVec[i][0], m_PolyPntsVec[i].back() );
-        if ( d > 1e-3 ) // Close open polygon
+        double du = m_PolyPntsVec[i].back().x() - m_PolyPntsVec[i][0].x();
+        if ( du > 1e-3 ) // Close open (in u) polygon
         {
             m_PolyPntsVec[i].push_back( m_PolyPntsVec[i][0] );
         }
