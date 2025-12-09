@@ -8565,12 +8565,7 @@ void BuildEdgeChains( vector< TEdge* > evec, vector < vector < TEdge* > > & echa
         {
             int ichain = echainvec.size();
             echainvec.push_back( vector< TEdge* >() );
-            TEdge *e = evec[iedge];
-            if ( e->m_N0->m_UWPnt.y() > e->m_N1->m_UWPnt.y() )
-            {
-                e->SwapEdgeDirection();
-            }
-            echainvec[ ichain ].push_back( e );
+            echainvec[ ichain ].push_back( evec[iedge] );
             usededge[ iedge ] = true;
 
             // Start search for next edge after base edge.
