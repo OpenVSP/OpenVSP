@@ -703,6 +703,41 @@ void VspCurve::InterpolateCSpline( const vector< vec3d > & input_pnt_vec, const 
     }
 }
 
+void VspCurve::BuildCubic( const vector < vec3d > & input_pnt_vec, const vector < vec3d > & input_slope_vec, const vector < double > & param )
+{
+    int nseg = input_pnt_vec.size() - 1;
+
+    m_Curve.clear();
+    m_Curve.set_t0( 0.0 );
+
+    for ( int i = 0; i < nseg; i++ )
+    {
+        curve_segment_type c( 3 );
+
+        curve_point_type p0, p1, m0, m1;
+        curve_point_type cp[ 4 ];
+
+        double dt = param[ i + 1 ] - param[ i ];
+
+        input_pnt_vec[ i ].get_pnt( p0 );
+        input_pnt_vec[ i + 1 ].get_pnt( p1 );
+        input_slope_vec[ i ].get_pnt( m0 );
+        input_slope_vec[ i + 1 ].get_pnt( m1 );
+
+        cp[ 0 ] = p0;
+        cp[ 1 ] = p0 + ( dt * m0 / 3.0 );
+        cp[ 2 ] = p1 - ( dt * m1 / 3.0 );
+        cp[ 3 ] = p1;
+
+        for ( curve_index_type j = 0; j < 4; ++j )
+        {
+            c.set_control_point( cp[ j ], j );
+        }
+
+        m_Curve.push_back( c, dt );
+    }
+}
+
 // ttol -- tolerance on gap between curve midpoints
 // atol -- angle tolerance used to detect corners before adaptation.  Smooth if:  abs(1-cos(theta)) <= atol
 // dmin -- minimum number of divisions of curve
