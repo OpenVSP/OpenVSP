@@ -752,6 +752,87 @@ void VspSurf::CreatePlane( double xmin, double xmax, double ymin, double ymax )
     m_Surface.set( patch, 0, 0 );
 }
 
+// Simplifed skinning for when curves and derivatives are known at patches.
+void VspSurf::BuildCubic( const vector<rib_data_type> &ribs, const vector < double > &param )
+{
+    int nribs = ribs.size();
+    int nuseg = nribs - 1;
+
+    std::vector < double > joints;
+    for ( int i = 0; i < nribs; i++ )
+    {
+        std::vector < double > rjoints, jts_out;
+        ribs[i].get_joints( std::back_inserter( rjoints ) );
+
+        std::set_union( joints.begin(), joints.end(), rjoints.begin(), rjoints.end(), std::back_inserter(jts_out) );
+        std::swap(joints, jts_out);
+    }
+
+    vector < piecewise_curve_type > fvec( nribs );
+    vector < piecewise_curve_type > fpvec( nribs );
+    for ( int i = 0; i < nribs; i++ )
+    {
+        fvec[i] = ribs[i].get_f();
+        if ( i == 0 )
+        {
+            piecewise_curve_type fpl;
+            ribs[i].get_fp( fpl, fpvec[i] );
+        }
+        else
+        {
+            piecewise_curve_type fpr;
+            ribs[i].get_fp( fpvec[i], fpr );
+        }
+
+        for ( int j = 0; j < joints.size(); j++ )
+        {
+            fvec[i].split( joints[j] );
+            fpvec[i].split( joints[j] );
+        }
+    }
+
+    int nvseg = joints.size() - 1;
+
+    m_Surface.clear();
+    m_Surface.init_uv( param, joints );
+
+    for ( int iu = 0; iu < nuseg; iu++ )
+    {
+        double du = param[iu + 1] - param[iu];
+        for ( int iv = 0; iv < nvseg; iv++ )
+        {
+            surface_patch_type s( 3, 3 );
+
+            curve_segment_type p0c, m0c, m1c, p1c;
+            fvec[ iu ].get( p0c, iv );
+            fpvec[ iu ].get( m0c, iv );
+            fpvec[ iu + 1 ].get( m1c, iv );
+            fvec[ iu + 1 ].get( p1c, iv );
+
+            for ( int j = 0; j < 4; j++ )
+            {
+                curve_point_type cp[ 4 ];
+
+                const curve_point_type &p0 = p0c.get_control_point( j );
+                const curve_point_type &p1 = p1c.get_control_point( j );
+                const curve_point_type &m0 = m0c.get_control_point( j );
+                const curve_point_type &m1 = m1c.get_control_point( j );
+
+                cp[ 0 ] = p0;
+                cp[ 1 ] = p0 + ( du * m0 / 3.0 );
+                cp[ 2 ] = p1 - ( du * m1 / 3.0 );
+                cp[ 3 ] = p1;
+
+                for ( int i = 0; i < 4; i++ )
+                {
+                    s.set_control_point( cp[ i ], i, j );
+                }
+            }
+            m_Surface.set( s, iu, iv );
+        }
+    }
+}
+
 void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag )
 {
     general_creator_type gc;

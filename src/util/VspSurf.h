@@ -60,6 +60,8 @@ public:
     void CreateDisk( double dia, int ix = vsp::X_DIR, int iy = vsp::Y_DIR );
     void CreatePlane( double xmin, double xmax, double ymin, double ymax );
 
+    void BuildCubic( const vector<rib_data_type> &ribs, const vector < double > &param );
+
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < double > & param, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
