@@ -1,8 +1,8 @@
 .. role:: py(code)
    :language: python
 
-openvsp_config Documentation
-============================
+OpenVSP Config
+==============
 The OpenVSP python API can be loaded in different modes.  Since it is not possible to pass options directly to a python
 package during import, :py:`openvsp_config` is a configuration module that holds variables that the :py:`openvsp` package
 uses to set how it is loaded.
@@ -121,7 +121,7 @@ that uses the OpenVSP API and that can have a fully interactive OpenVSP GUI oper
 own GUI.
 
 Multiple Instances of OpenVSP using the MultiFacade API
------------------------------------------------
+--------------------------------------------------------
 In all releases of OpenVSP, there can only be one instance of OpenVSP in a given process. This means that a user could not
 interface with two separate vehicles loaded in to separate instances of OpenVSP. Although the Facade API was originally
 developed simply to have the GUI and API operate simultaneously, it provides an avenue to enable the user to interface with
@@ -130,6 +130,7 @@ processes can be created to interface with multiple instances of OpenVSP each wi
 multifacade code is detailed below
 
 ..  code-block:: python
+
     import openvsp_config
     openvsp_config.LOAD_MULTI_FACADE = True
     import openvsp as vsp_multi
@@ -159,7 +160,7 @@ Except, it has some additional API calls to create new instances of vsp. These n
 :py:`vsp_multi.vsp_servers.get_vsp_instance(name=None, port=None)` stops a vsp instance by name or port.
 
 Additional Facade Options
------------------------------------------------
+--------------------------
 There are additional options the user can set when working with the facade API.
 
 The :py:`FACADE_PORT` option allows the user to specify a port the facade should communicate across.
@@ -174,19 +175,4 @@ attempt to establish a connection. It does not always succeed first time. The de
 The :py:`FACADE_PRINT_LEVEL` option sets what level of messages will be printed to console when using the facade.
 A value of 0 sets no messages will be printed. A value of 1 (default) sets informative level messages will be printed.
 A value of 2 sets debug level messages will be printed.
-
-Contents
-=========
-
-.. toctree::
-   :maxdepth: 2
-
-   openvsp
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
