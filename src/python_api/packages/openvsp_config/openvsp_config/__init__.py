@@ -7,6 +7,7 @@ LOAD_GRAPHICS = False
 FACADE_PORT = -1
 FACADE_SERVER_TIMEOUT = .1
 FACADE_SERVER_ATTEMPTS = 10
+FACADE_PRINT_LEVEL = 1
 
 # Control whether facade remote access client version is loaded.  Default to False.
 LOAD_FACADE = False
