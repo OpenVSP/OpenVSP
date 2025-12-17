@@ -1606,7 +1606,7 @@ void PropGeom::UpdateBladeAzimuth()
                 thetavec[i] = m_BladeAzimuthParmVec[ i - 1 ]->Get() * M_PI / 180.0;
             }
 
-            BalanceBlades( thetavec );
+            BalanceBladesAnalytic( thetavec );
 
 
             for ( int i = m_Nblade() - 2; i < m_Nblade(); i++ )
