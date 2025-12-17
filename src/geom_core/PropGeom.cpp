@@ -7,6 +7,8 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <vector>
+#include <algorithm>
 
 #include "PropGeom.h"
 #include "ParmMgr.h"
@@ -1696,6 +1698,49 @@ void PropGeom::BalanceBlades(vector < double > &thetavec)
 
     thetavec[ n - 2 ] = theta[ 0 ];
     thetavec[ n - 1 ] = theta[ 1 ];
+}
+
+void PropGeom::BalanceBladesAnalytic( vector < double > & thetavec )
+{
+    double s = 0;
+    double c = 0;
+    int n = thetavec.size();
+
+    for ( int i = 0; i < n - 2; i++ )
+    {
+        s += sin( thetavec[i] );
+        c += cos( thetavec[i] );
+    }
+
+    const double r = std::sqrt( c * c + s * s );
+
+    // Existence condition
+    if ( r > 2.0 )
+    {
+        printf( "Static balance impossible: r > 2.0\n" );
+    }
+    else
+    {
+        // Closed-form solution
+        const double phi = atan2( -s, -c );
+        const double delta = acos( r / 2.0 );
+
+        double theta0 = phi + delta;
+        double theta1 = phi - delta;
+
+        // Enforce [ 0, 2 * pi )
+        theta0 = clampCyclic( theta0, 0.0, 2.0 * M_PI );
+        theta1 = clampCyclic( theta1, 0.0, 2.0 * M_PI );
+
+        // Enforce increasing order
+        if ( theta1 < theta0 )
+        {
+            std::swap( theta0, theta1 );
+        }
+
+        thetavec[ n - 2 ] = theta0;
+        thetavec[ n - 1 ] = theta1;
+    }
 }
 
 void PropGeom::CheckBalance()

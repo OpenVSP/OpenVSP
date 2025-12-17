@@ -241,6 +241,8 @@ protected:
     virtual void UpdateBladeAzimuth();
 
     virtual void BalanceBlades( vector < double > & thetavec );
+    virtual void BalanceBladesAnalytic( vector < double > & thetavec );
+
     virtual void CheckBalance();
 
     virtual void RigidBladeMotion( Matrix4d & mat, double foldangle );
