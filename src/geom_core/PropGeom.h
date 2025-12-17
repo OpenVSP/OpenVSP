@@ -242,6 +242,7 @@ protected:
 
     virtual void BalanceBlades( vector < double > & thetavec );
     virtual void BalanceBladesAnalytic( vector < double > & thetavec );
+    // virtual void BalanceBladesFourier( std::vector<double>& thetavec, const std::vector<int>& fixed_idx, int M );
 
     virtual void CheckBalance();
 

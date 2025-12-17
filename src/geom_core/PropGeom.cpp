@@ -1743,6 +1743,115 @@ void PropGeom::BalanceBladesAnalytic( vector < double > & thetavec )
     }
 }
 
+// Notional code to allow cancellation of higher order modes by adjusting blades.  This requires a nonlinear solve
+// of a matrix whose size will only be known at runtime.  The nrm solver in Code-Eli is only set up to be sized
+// at compile time.
+// struct fourier_balance_functor
+// {
+//     int M;                      // number of modes
+//     Eigen::VectorXd theta_fixed;
+//
+//     typedef Eigen::VectorXd vec;
+//     typedef Eigen::MatrixXd mat;
+//
+//     void operator()( vec& g, mat& gp, const vec& theta_adj ) const
+//     {
+//         const int Na = theta_adj.size();
+//
+//         g.setZero( 2 * M );
+//         gp.setZero( 2 * M, Na );
+//
+//         for ( int m = 1; m <= M; ++m )
+//         {
+//             double Re = 0.0;
+//             double Im = 0.0;
+//
+//             // Fixed blades
+//             for ( int k = 0; k < theta_fixed.size(); ++k )
+//             {
+//                 Re += cos( m * theta_fixed[k] );
+//                 Im += sin( m * theta_fixed[k] );
+//             }
+//
+//             // Adjustable blades
+//             for ( int j = 0; j < Na; ++j )
+//             {
+//                 const double mj = m * theta_adj[ j ];
+//                 Re += cos( mj );
+//                 Im += sin( mj );
+//
+//                 // Jacobian contributions
+//                 gp( 2 * m - 2, j ) = -m * sin( mj );  // d Re / d theta_j
+//                 gp( 2 * m - 1, j ) =  m * cos( mj );  // d Im / d theta_j
+//             }
+//
+//             g( 2 * m - 2 ) = Re;
+//             g( 2 * m - 1 ) = Im;
+//         }
+//     }
+// };
+//
+// void PropGeom::BalanceBladesFourier( std::vector<double>& thetavec, const std::vector<int>& fixed_idx, int M )
+// {
+//     typedef Eigen::VectorXd vec;
+//     typedef Eigen::MatrixXd mat;
+//
+//     const int N = static_cast < int > ( thetavec.size() );
+//
+//     std::vector< int > adj_idx;
+//     for ( int i = 0; i < N; ++i )
+//     {
+//         if ( std::find( fixed_idx.begin(), fixed_idx.end(), i) == fixed_idx.end() )
+//         {
+//             adj_idx.push_back( i );
+//         }
+//     }
+//
+//     const int Na = static_cast< int > ( adj_idx.size() );
+//
+//     if ( Na < 2 * M )
+//     {
+//         printf( "Insufficient DOF to cancel requested modes\n" );
+//     }
+//
+//     // Build fixed-angle vector
+//     vec theta_fixed( fixed_idx.size() );
+//     for ( int i = 0; i < fixed_idx.size(); ++i )
+//     {
+//         theta_fixed[i] = thetavec[ fixed_idx[ i ] ];
+//     }
+//
+//     // Initial guess for adjustable angles
+//     vec theta0( Na );
+//     for ( int i = 0; i < Na; ++i )
+//     {
+//         theta0[i] = thetavec[ adj_idx[ i ] ];
+//     }
+//
+//     // Functor
+//     fourier_balance_functor fun;
+//     fun.M = M;
+//     fun.theta_fixed = theta_fixed;
+//
+//     // Newton–Raphson solver
+//     // Need to dynamically size the solver here, but the solver is not written to allow dynamic problem sizing.
+//     typedef eli::mutil::nls::newton_raphson_system_method< double, Eigen::Dynamic, 1 > nonlinear_solver_type;
+//
+//     nonlinear_solver_type nrm;
+//     nrm.set_initial_guess( theta0 );
+//
+//     vec theta_adj;
+//     vec f0 = vec::Zero( 2 * M );
+//
+//     nrm.find_root( theta_adj, fun, f0 );
+//
+//     for (int i = 0; i < Na; ++i)
+//     {
+//         thetavec[ adj_idx[ i ] ] = clampCyclic( theta_adj[i], 0.0, 2.0 * M_PI );
+//     }
+//     std::sort( thetavec.begin(), thetavec.end() );
+// }
+
 void PropGeom::CheckBalance()
 {
     int n = m_Nblade();
