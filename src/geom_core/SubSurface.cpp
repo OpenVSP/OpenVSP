@@ -1545,7 +1545,10 @@ void SSIntersect::Intersect()
     }
 
     // Set subsurface from chain
-    SetFromUWChain( uwchains );
+    if ( uwchains.size() > 0 )
+    {
+        SetFromUWChain( uwchains[0] );
+    }
 
     // Clean up meshes including chain edges
     DeleteTMeshVec( comptmv );
@@ -1559,10 +1562,13 @@ void SSIntersect::IntersectBezier()
 
     vsp::LimitedIntersectSurfaces( { m_CompID, m_IntersectID }, ptchains, uwchains );
 
-    SetFromUWChain( uwchains );
+    if ( uwchains.size() > 0 )
+    {
+        SetFromUWChain( uwchains[0] );
+    }
 }
 
-void SSIntersect::SetFromUWChain( vector < vector < vec3d > > uwchains )
+void SSIntersect::SetFromUWChain( vector < vec3d > uwchain )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -1571,8 +1577,6 @@ void SSIntersect::SetFromUWChain( vector < vector < vec3d > > uwchains )
         return;
     }
 
-    if ( uwchains.size() > 0 )
-    {
         Geom *geom = veh->FindGeom( m_CompID );
 
         if ( !geom )
@@ -1590,13 +1594,13 @@ void SSIntersect::SetFromUWChain( vector < vector < vec3d > > uwchains )
         double uscale = geom->GetUMax( isurf );
         double wscale = geom->GetWMax( isurf );
 
-        vector < double > dyvec( uwchains[0].size(), 0.0 );
+        vector < double > dyvec( uwchain.size(), 0.0 );
         double dy = 0;
-        for ( int i = 1 ; i < uwchains[0].size(); i++ )
+        for ( int i = 1 ; i < uwchain.size(); i++ )
         {
-            if ( std::abs( uwchains[0][i].y() - uwchains[0][i-1].y() ) > wscale / 2 )
+            if ( std::abs( uwchain[i].y() - uwchain[i-1].y() ) > wscale / 2 )
             {
-                if ( uwchains[0][i].y() > uwchains[0][i-1].y() )
+                if ( uwchain[i].y() > uwchain[i-1].y() )
                 {
                     dy -= wscale;
                 }
@@ -1608,18 +1612,18 @@ void SSIntersect::SetFromUWChain( vector < vector < vec3d > > uwchains )
             dyvec[i] = dy;
         }
 
-        for ( int i = 0 ; i < uwchains[0].size(); i++ )
+        for ( int i = 0 ; i < uwchain.size(); i++ )
         {
-            uwchains[0][i].set_y( uwchains[0][i].y() + dyvec[i] );
+            uwchain[i].set_y( uwchain[i].y() + dyvec[i] );
         }
 
         double umin = 1e6, umax = -1e-6, wmin = 1e6, wmax = -1e-6;
-        for ( int i = 0 ; i < uwchains[0].size(); i++ )
+        for ( int i = 0 ; i < uwchain.size(); i++ )
         {
-            if ( umin > uwchains[0][i].x() ) umin = uwchains[0][i].x();
-            if ( umax < uwchains[0][i].x() ) umax = uwchains[0][i].x();
-            if ( wmin > uwchains[0][i].y() ) wmin = uwchains[0][i].y();
-            if ( wmax < uwchains[0][i].y() ) wmax = uwchains[0][i].y();
+            if ( umin > uwchain[i].x() ) umin = uwchain[i].x();
+            if ( umax < uwchain[i].x() ) umax = uwchain[i].x();
+            if ( wmin > uwchain[i].y() ) wmin = uwchain[i].y();
+            if ( wmax < uwchain[i].y() ) wmax = uwchain[i].y();
         }
         double umid = ( umin + umax ) * 0.5;
         double wmid = ( wmin + wmax ) * 0.5;
@@ -1637,23 +1641,23 @@ void SSIntersect::SetFromUWChain( vector < vector < vec3d > > uwchains )
 
         double s = 0;
         vector < double > svec;
-        vector < double > rvec( uwchains[0].size(), 0 );
-        for ( int i = 0 ; i < uwchains[0].size() - 1; i++ )
+        vector < double > rvec( uwchain.size(), 0 );
+        for ( int i = 0 ; i < uwchain.size() - 1; i++ )
         {
             svec.push_back( s );
-            double ds = ( uwchains[0][i + 1] - uwchains[0][i] ).mag();
+            double ds = ( uwchain[i + 1] - uwchain[i] ).mag();
             s += ds;
         }
         svec.push_back( s );
 
-        vector < vec3d > uw( uwchains[0].size() );
-        for ( int i = 0 ; i < uwchains[0].size(); i++ )
+        vector < vec3d > uw( uwchain.size() );
+        for ( int i = 0 ; i < uwchain.size(); i++ )
         {
-            uw[i].set_xyz( ( uwchains[0][i].x() - umid ) / uWidth, ( uwchains[0][i].y() - wmid ) / wWidth, 0 );
+            uw[i].set_xyz( ( uwchain[i].x() - umid ) / uWidth, ( uwchain[i].y() - wmid ) / wWidth, 0 );
             svec[i] /= s;
         }
 
-        double duw = dist ( uwchains[0][0], uwchains[0].back() );
+        double duw = dist ( uwchain[0], uwchain.back() );
 
         bool closed = true;
         if ( duw > 1e-3 )
@@ -1683,8 +1687,6 @@ void SSIntersect::SetFromUWChain( vector < vector < vec3d > > uwchains )
 
         }
 
-
-    }
 }
 
 //==== Encode XML ====//

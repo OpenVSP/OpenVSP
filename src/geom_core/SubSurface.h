@@ -295,7 +295,7 @@ public:
     virtual void Intersect();
     virtual void IntersectBezier();
 
-    virtual void SetFromUWChain( vector < vector < vec3d > > uwchains );
+    virtual void SetFromUWChain( vector < vec3d > uwchain );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
