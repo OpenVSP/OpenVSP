@@ -302,6 +302,9 @@ public:
 
     string m_IntersectID;
 
+    Parm m_NCurves;
+    Parm m_ICurve;
+
 };
 
 class SSControlSurf : public SubSurface

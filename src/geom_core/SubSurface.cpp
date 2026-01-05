@@ -1470,7 +1470,11 @@ void SSXSecCurve::ChangeID( string id )
 //====== Constructor =====//
 SSIntersect::SSIntersect( const string& comp_id, int type ) : SSXSecCurve( comp_id, type )
 {
+    m_NCurves.Init( "NCurves", "SS_Intersect", this, 0, 0, 100 );
+    m_NCurves.SetDescript( "Number of intersection curves" );
 
+    m_ICurve.Init( "ICurve", "SS_Intersect", this, 0, 0, 100 );
+    m_ICurve.SetDescript( "Index of intersection curve to represent" );
 }
 
 //===== Destructor =====//
@@ -1544,10 +1548,17 @@ void SSIntersect::Intersect()
         }
     }
 
-    // Set subsurface from chain
-    if ( uwchains.size() > 0 )
+    m_NCurves.Set( uwchains.size() );
+
+    if ( m_ICurve() >= m_NCurves() )
     {
-        SetFromUWChain( uwchains[0] );
+        m_ICurve.Set( 0 );
+    }
+
+    // Set subsurface from chain
+    if ( uwchains.size() > m_ICurve() )
+    {
+        SetFromUWChain( uwchains[ m_ICurve() ] );
     }
 
     // Clean up meshes including chain edges
@@ -1562,9 +1573,17 @@ void SSIntersect::IntersectBezier()
 
     vsp::LimitedIntersectSurfaces( { m_CompID, m_IntersectID }, ptchains, uwchains );
 
-    if ( uwchains.size() > 0 )
+    m_NCurves.Set( uwchains.size() );
+
+    if ( m_ICurve() >= m_NCurves() )
     {
-        SetFromUWChain( uwchains[0] );
+        m_ICurve.Set( 0 );
+    }
+
+    // Set subsurface from chain
+    if ( uwchains.size() > m_ICurve() )
+    {
+        SetFromUWChain( uwchains[ m_ICurve() ] );
     }
 }
 
