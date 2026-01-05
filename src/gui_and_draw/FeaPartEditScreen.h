@@ -358,11 +358,12 @@ private:
     ToggleButton m_FeaSSXSCOutsideButton;
     ToggleRadioGroup m_FeaSSXSCTestToggleGroup;
 
-
     GroupLayout m_FeaSSIntGroup;
 
     GeomPicker m_FeaSSIntGeomPicker;
     TriggerButton m_FeaSSIntIntersectButton;
+    Counter m_FeaSSIntICurveCounter;
+    Output m_FeaSSIntNCurvesOutput;
 
     Choice m_FeaSSXSecTypeChoice;
     TriggerButton m_FeaSSXSCShowXSecButton;

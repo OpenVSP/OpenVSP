@@ -1046,8 +1046,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
 
     m_FeaSSXSCGroup.AddYGap();
 
-    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSIntGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetStdHeight() );
-    m_FeaSSXSCGroup.AddY( m_FeaSSXSCGroup.GetStdHeight() );
+    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSIntGroup, m_FeaSSXSCGroup.GetW(), 2 * m_FeaSSXSCGroup.GetStdHeight() );
+    m_FeaSSXSCGroup.AddY( 2 * m_FeaSSXSCGroup.GetStdHeight() );
 
     m_FeaSSIntGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
 
@@ -1059,6 +1059,11 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
 
     m_FeaSSIntGroup.SetFitWidthFlag( false );
     m_FeaSSIntGroup.AddButton( m_FeaSSIntIntersectButton, "Intersect" );
+    m_FeaSSIntGroup.ForceNewLine();
+
+    m_FeaSSIntGroup.SetFitWidthFlag( true );
+    m_FeaSSIntGroup.AddCounter( m_FeaSSIntICurveCounter, "Curve Index", m_FeaSSIntGroup.GetW() / 2 );
+    m_FeaSSIntGroup.AddOutput( m_FeaSSIntNCurvesOutput, "Num Curves", "%3g", m_FeaSSIntGroup.GetW() / 2 );
 
 
     m_FeaSSXSCGroup.AddYGap();
@@ -2502,6 +2507,9 @@ bool FeaPartEditScreen::Update()
 
                             m_FeaSSIntGeomPicker.SetGeomChoice( ssint->m_IntersectID );
                             m_FeaSSIntGeomPicker.Update();
+
+                            m_FeaSSIntICurveCounter.Update( ssint->m_ICurve.GetID() );
+                            m_FeaSSIntNCurvesOutput.Update( ssint->m_NCurves.GetID() );
                         }
                         else
                         {
