@@ -429,6 +429,8 @@ public:
     GroupLayout m_SSIntGroup;
     GeomPicker m_SSIntGeomPicker;
     TriggerButton m_SSIntIntersectButton;
+    Counter m_SSIntICurveCounter;
+    Output m_SSIntNCurvesOutput;
 
     Choice m_SSXSecTypeChoice;
     TriggerButton m_SSXSCShowXSecButton;

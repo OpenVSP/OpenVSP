@@ -978,8 +978,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SSXSCGroup.AddYGap();
 
-    m_SSXSCGroup.AddSubGroupLayout( m_SSIntGroup, m_SSXSCGroup.GetW(), m_SSXSCGroup.GetStdHeight() );
-    m_SSXSCGroup.AddY( m_SSXSCGroup.GetStdHeight() );
+    m_SSXSCGroup.AddSubGroupLayout( m_SSIntGroup, m_SSXSCGroup.GetW(), 2 * m_SSXSCGroup.GetStdHeight() );
+    m_SSXSCGroup.AddY( 2 * m_SSXSCGroup.GetStdHeight() );
 
     m_SSIntGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
 
@@ -991,7 +991,11 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SSIntGroup.SetFitWidthFlag( false );
     m_SSIntGroup.AddButton( m_SSIntIntersectButton, "Intersect" );
+    m_SSIntGroup.ForceNewLine();
 
+    m_SSIntGroup.SetFitWidthFlag( true );
+    m_SSIntGroup.AddCounter( m_SSIntICurveCounter, "Curve Index", m_SSIntGroup.GetW() / 2 );
+    m_SSIntGroup.AddOutput( m_SSIntNCurvesOutput, "Num Curves", "%3g", m_SSIntGroup.GetW() / 2 );
 
     m_SSXSCGroup.AddYGap();
 
@@ -2076,6 +2080,9 @@ bool GeomScreen::Update()
 
                 m_SSIntGeomPicker.SetGeomChoice( ssint->m_IntersectID );
                 m_SSIntGeomPicker.Update();
+
+                m_SSIntICurveCounter.Update( ssint->m_ICurve.GetID() );
+                m_SSIntNCurvesOutput.Update( ssint->m_NCurves.GetID() );
             }
             else
             {
