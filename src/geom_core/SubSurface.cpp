@@ -1577,115 +1577,115 @@ void SSIntersect::SetFromUWChain( vector < vec3d > uwchain )
         return;
     }
 
-        Geom *geom = veh->FindGeom( m_CompID );
+    Geom *geom = veh->FindGeom( m_CompID );
 
-        if ( !geom )
+    if ( !geom )
+    {
+        return;
+    }
+
+    int isurf = m_MainSurfIndx();
+    if ( isurf == -1 )
+    {
+        // When index == -1, treat as ALL, use Surf 0 orientation.
+        isurf = 0;
+    }
+
+    double uscale = geom->GetUMax( isurf );
+    double wscale = geom->GetWMax( isurf );
+
+    vector < double > dyvec( uwchain.size(), 0.0 );
+    double dy = 0;
+    for ( int i = 1 ; i < uwchain.size(); i++ )
+    {
+        if ( std::abs( uwchain[i].y() - uwchain[i-1].y() ) > wscale / 2 )
         {
-            return;
-        }
-
-        int isurf = m_MainSurfIndx();
-        if ( isurf == -1 )
-        {
-            // When index == -1, treat as ALL, use Surf 0 orientation.
-            isurf = 0;
-        }
-
-        double uscale = geom->GetUMax( isurf );
-        double wscale = geom->GetWMax( isurf );
-
-        vector < double > dyvec( uwchain.size(), 0.0 );
-        double dy = 0;
-        for ( int i = 1 ; i < uwchain.size(); i++ )
-        {
-            if ( std::abs( uwchain[i].y() - uwchain[i-1].y() ) > wscale / 2 )
+            if ( uwchain[i].y() > uwchain[i-1].y() )
             {
-                if ( uwchain[i].y() > uwchain[i-1].y() )
-                {
-                    dy -= wscale;
-                }
-                else
-                {
-                    dy += wscale;
-                }
+                dy -= wscale;
             }
-            dyvec[i] = dy;
+            else
+            {
+                dy += wscale;
+            }
         }
+        dyvec[i] = dy;
+    }
 
-        for ( int i = 0 ; i < uwchain.size(); i++ )
-        {
-            uwchain[i].set_y( uwchain[i].y() + dyvec[i] );
-        }
+    for ( int i = 0 ; i < uwchain.size(); i++ )
+    {
+        uwchain[i].set_y( uwchain[i].y() + dyvec[i] );
+    }
 
-        double umin = 1e6, umax = -1e-6, wmin = 1e6, wmax = -1e-6;
-        for ( int i = 0 ; i < uwchain.size(); i++ )
-        {
-            if ( umin > uwchain[i].x() ) umin = uwchain[i].x();
-            if ( umax < uwchain[i].x() ) umax = uwchain[i].x();
-            if ( wmin > uwchain[i].y() ) wmin = uwchain[i].y();
-            if ( wmax < uwchain[i].y() ) wmax = uwchain[i].y();
-        }
-        double umid = ( umin + umax ) * 0.5;
-        double wmid = ( wmin + wmax ) * 0.5;
-        double uWidth = umax - umin;
-        double wWidth = wmax - wmin;
+    double umin = 1e6, umax = -1e-6, wmin = 1e6, wmax = -1e-6;
+    for ( int i = 0 ; i < uwchain.size(); i++ )
+    {
+        if ( umin > uwchain[i].x() ) umin = uwchain[i].x();
+        if ( umax < uwchain[i].x() ) umax = uwchain[i].x();
+        if ( wmin > uwchain[i].y() ) wmin = uwchain[i].y();
+        if ( wmax < uwchain[i].y() ) wmax = uwchain[i].y();
+    }
+    double umid = ( umin + umax ) * 0.5;
+    double wmid = ( wmin + wmax ) * 0.5;
+    double uWidth = umax - umin;
+    double wWidth = wmax - wmin;
 
-        if ( uWidth < 1e-6 )
-        {
-            uWidth = 1.0;
-        }
-        if ( wWidth < 1e-6 )
-        {
-            wWidth = 1.0;
-        }
+    if ( uWidth < 1e-6 )
+    {
+        uWidth = 1.0;
+    }
+    if ( wWidth < 1e-6 )
+    {
+        wWidth = 1.0;
+    }
 
-        double s = 0;
-        vector < double > svec;
-        vector < double > rvec( uwchain.size(), 0 );
-        for ( int i = 0 ; i < uwchain.size() - 1; i++ )
-        {
-            svec.push_back( s );
-            double ds = ( uwchain[i + 1] - uwchain[i] ).mag();
-            s += ds;
-        }
+    double s = 0;
+    vector < double > svec;
+    vector < double > rvec( uwchain.size(), 0 );
+    for ( int i = 0 ; i < uwchain.size() - 1; i++ )
+    {
         svec.push_back( s );
+        double ds = ( uwchain[i + 1] - uwchain[i] ).mag();
+        s += ds;
+    }
+    svec.push_back( s );
 
-        vector < vec3d > uw( uwchain.size() );
-        for ( int i = 0 ; i < uwchain.size(); i++ )
-        {
-            uw[i].set_xyz( ( uwchain[i].x() - umid ) / uWidth, ( uwchain[i].y() - wmid ) / wWidth, 0 );
-            svec[i] /= s;
-        }
+    vector < vec3d > uw( uwchain.size() );
+    for ( int i = 0 ; i < uwchain.size(); i++ )
+    {
+        uw[i].set_xyz( ( uwchain[i].x() - umid ) / uWidth, ( uwchain[i].y() - wmid ) / wWidth, 0 );
+        svec[i] /= s;
+    }
 
-        double duw = dist ( uwchain[0], uwchain.back() );
+    double duw = dist ( uwchain[0], uwchain.back() );
 
-        bool closed = true;
-        if ( duw > 1e-3 )
-        {
-            closed = false;
-        }
+    bool closed = true;
+    if ( duw > 1e-3 )
+    {
+        closed = false;
+    }
 
-        SetXSecCurveType( vsp::XS_EDIT_CURVE );
+    SetXSecCurveType( vsp::XS_EDIT_CURVE );
 
-        EditCurveXSec* xscrv_ptr = dynamic_cast < EditCurveXSec * > ( m_XSCurve );
+    EditCurveXSec* xscrv_ptr = dynamic_cast < EditCurveXSec * > ( m_XSCurve );
 
-        if ( xscrv_ptr )
-        {
-            xscrv_ptr->m_SymType.Set( vsp::SYM_NONE );
-            xscrv_ptr->m_CurveType = vsp::LINEAR;
+    if ( xscrv_ptr )
+    {
+        xscrv_ptr->m_SymType.Set( vsp::SYM_NONE );
+        xscrv_ptr->m_CurveType = vsp::LINEAR;
 
-            xscrv_ptr->m_CloseFlag = closed;
+        xscrv_ptr->m_CloseFlag = closed;
 
-            // Transfer width and height parm values
-            xscrv_ptr->SetWidthHeight( uWidth / uscale, wWidth / wscale );
+        // Transfer width and height parm values
+        xscrv_ptr->SetWidthHeight( uWidth / uscale, wWidth / wscale );
 
-            m_CenterU.Set( umid / uscale );
-            m_CenterW.Set( clampCyclic( wmid / wscale, 0.0, 1.0 ) );
+        m_CenterU.Set( umid / uscale );
+        m_CenterW.Set( clampCyclic( wmid / wscale, 0.0, 1.0 ) );
 
-            // Set Bezier control points
-            xscrv_ptr->SetPntVecs( svec, uw, rvec );
+        // Set Bezier control points
+        xscrv_ptr->SetPntVecs( svec, uw, rvec );
 
-        }
+    }
 
 }
 
