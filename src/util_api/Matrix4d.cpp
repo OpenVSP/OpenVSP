@@ -478,6 +478,86 @@ void Matrix4d::setBasis( const vec3d &xdir, const vec3d &ydir, const vec3d &zdir
     }
 }
 
+void Matrix4d::getRotationAxis( vec3d &axis_dir, vec3d &axis_pnt, double &angle ) const
+{
+    // 1. Extract rotation angle and direction from the 3x3 part
+    // cos( theta ) = ( tr( R ) - 1 ) / 2
+    double trace = mat[0] + mat[5] + mat[10];
+    double cos_theta = ( trace - 1.0 ) * 0.5;
+
+    // Clamp for safety
+    if ( cos_theta > 1.0 )
+    {
+        cos_theta = 1.0;
+    }
+
+    if ( cos_theta < -1.0 )
+    {
+        cos_theta = -1.0;
+    }
+
+    angle = acos( cos_theta );
+
+    if ( std::abs( angle ) < 1e-9 )
+    {
+        // No rotation
+        axis_dir.set_xyz( 0, 0, 1 );
+        axis_pnt = getTranslation();
+        angle = 0.0;
+        return;
+    }
+
+    if ( std::abs( angle - M_PI ) < 1e-9 )
+    {
+        // 180 degree rotation case
+        double xx = ( mat[0] + 1.0 ) * 0.5;
+        double yy = ( mat[5] + 1.0 ) * 0.5;
+        double zz = ( mat[10] + 1.0 ) * 0.5;
+        double xy = ( mat[4] + mat[1] ) * 0.25;
+        double xz = ( mat[8] + mat[2] ) * 0.25;
+        double yz = ( mat[9] + mat[6] ) * 0.25;
+
+        if ( ( xx >= yy ) && ( xx >= zz ) )
+        {
+            axis_dir.set_x( sqrt( xx ) );
+            axis_dir.set_y( xy / axis_dir.x() );
+            axis_dir.set_z( xz / axis_dir.x() );
+        }
+        else if ( yy >= zz )
+        {
+            axis_dir.set_y( sqrt( yy ) );
+            axis_dir.set_x( xy / axis_dir.y() );
+            axis_dir.set_z( yz / axis_dir.y() );
+        }
+        else
+        {
+            axis_dir.set_z( sqrt( zz ) );
+            axis_dir.set_x( xz / axis_dir.z() );
+            axis_dir.set_y( yz / axis_dir.z() );
+        }
+    }
+    else
+    {
+        // Standard case
+        axis_dir.set_xyz( mat[6] - mat[9], mat[8] - mat[2], mat[1] - mat[4] );
+    }
+    axis_dir.normalize();
+
+    // 2. Find a point on the axis
+    // For a transformation M = T * R, the fixed point P satisfies ( R - I ) P = -T_perp
+    // where T_perp is the component of translation perpendicular to the axis.
+    vec3d t = getTranslation();
+    vec3d parallel_t = axis_dir * dot( t, axis_dir );
+    vec3d perp_t = t - parallel_t;
+
+    // Using the formula for the center of rotation: P = ( axis x perp_t ) / ( 2 * tan( angle / 2 ) ) + axis_pnt_at_origin
+    // We can find the point closest to origin: axis_dir.cross( t ) / ( 2 * sin( angle ) ) ... for simple rotation
+    // A more robust way: axis_pnt = 0.5 * ( t + axis_dir.cross( t ) / tan( angle / 2 ) ) projected?
+    // Let's use the cross product method:
+    double tan_half = tan( angle * 0.5 );
+    axis_pnt = cross( axis_dir, perp_t ) * ( 0.5 / tan_half ) + perp_t * 0.5;
+}
+
 void Matrix4d::toQuat( double &qw, double &qx, double &qy, double &qz, double &tx, double &ty, double &tz ) const
 {
     // Copy out translations.

@@ -515,6 +515,8 @@ public:
 
     void setBasis( const vec3d &xdir, const vec3d &ydir, const vec3d &zdir );
 
+    void getRotationAxis( vec3d &axis_dir, vec3d &axis_pnt, double &angle ) const;
+
     void toQuat( double &qw, double &qx, double &qy, double &qz, double &tx, double &ty, double &tz ) const;
 
 private:
