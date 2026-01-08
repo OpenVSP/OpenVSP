@@ -59,6 +59,8 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ContactPt1_Isymm.Init( "ContactPt1_Isymm", "Design", this, 0, 0, 1 );
     m_ContactPt1_SuspensionMode.Init( "ContactPt1_SuspensionMode", "Design", this, vsp::GEAR_SUSPENSION_NOMINAL, vsp::GEAR_SUSPENSION_NOMINAL, vsp::NUM_GEAR_SUSPENSION_MODES - 1 );
     m_ContactPt1_TireMode.Init( "ContactPt1_TireMode", "Design", this, vsp::TIRE_STATIC_LODED_CONTACT, vsp::TIRE_STATIC_LODED_CONTACT, vsp::NUM_TIRE_CONTACT_MODES - 1 );
+    m_ContactPt1_GearMode.Init( "ContactPt1_GearMode", "Design", this, vsp::GEAR_CONFIGURATION_UP, vsp::GEAR_CONFIGURATION_DOWN, vsp::NUM_GEAR_CONFIGURATION_MODES - 1 );
+    m_ContactPt1_KRetract.Init( "ContactPt1_KRetract", "Design", this, 0.0, 0.0, 1.0 );
 
     m_ContactPt2_Isymm.Init( "ContactPt2_Isymm", "Design", this, 0, 0, 1 );
     m_ContactPt2_SuspensionMode.Init( "ContactPt2_SuspensionMode", "Design", this, vsp::GEAR_SUSPENSION_NOMINAL, vsp::GEAR_SUSPENSION_NOMINAL, vsp::NUM_GEAR_SUSPENSION_MODES - 1 );
@@ -427,7 +429,7 @@ void AuxiliaryGeom::UpdateSurf()
                 AppendContact1Surfs( gear, m_BogieTheta() );
             }
         }
-        if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
+        else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
         {
             GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
             if ( gear )
@@ -467,6 +469,16 @@ void AuxiliaryGeom::UpdateSurf()
                 AppendContact1Surfs( gear );
                 AppendContact2Surfs( gear );
                 AppendContact3Surfs( gear );
+            }
+        }
+        else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SINGLE_GEAR )
+        {
+            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            if ( gear )
+            {
+                m_MainSurfVec.clear();
+
+                AppendContact1Surfs( gear );
             }
         }
     }
@@ -563,6 +575,13 @@ void AuxiliaryGeom::UpdateMainTessVec()
             {
                 TessContact1( gear, m_BogieTheta() );
             }
+            else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SINGLE_GEAR )
+            {
+                m_MainTessVec.clear();
+                m_MainFeatureTessVec.clear();
+
+                TessContact1( gear, m_BogieTheta() );
+            }
         }
     }
 }
@@ -598,6 +617,12 @@ void AuxiliaryGeom::UpdateMainDegenGeomPreview()
             }
             else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
             {
+                DegenContact1( gear, m_BogieTheta() );
+            }
+            else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SINGLE_GEAR )
+            {
+                m_MainDegenGeomPreviewVec.clear();
+
                 DegenContact1( gear, m_BogieTheta() );
             }
         }
@@ -764,8 +789,9 @@ string AuxiliaryGeom::GetNotes()
         case vsp::AUX_GEOM_THREE_PT_GROUND:
         case vsp::AUX_GEOM_TWO_PT_GROUND:
         case vsp::AUX_GEOM_ONE_PT_GROUND:
+        case vsp::AUX_GEOM_SINGLE_GEAR:
         case vsp::AUX_GEOM_THREE_PT_CCE:
-            return string( "1pt, 2pt, 3pt Ground Plane, and 3pt CCE Auxiliary Geoms must be children of a Gear Geom." );
+            return string( "1pt, 2pt, 3pt Ground Plane, Single Gear, and 3pt CCE Auxiliary Geoms must be children of a Gear Geom." );
             break;
         case vsp::AUX_GEOM_SUPER_CONE:
             return string( "Super Cone Auxiliary Geoms can be children of any Geom type.  "
@@ -901,7 +927,28 @@ void AuxiliaryGeom::AppendContact1Surfs( GearGeom * gear, double bogietheta )
         Bogie *b1 = gear->GetBogie( m_ContactPt1_ID );
         if ( b1 )
         {
-            b1->TireToBogie( b1->m_TireSurface, m_MainSurfVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta );
+            bool stow = false;
+            bool ret = false;
+            double kretract = 0.0;
+            if ( m_ContactPt1_GearMode() == vsp::GEAR_CONFIGURATION_UP )
+            {
+                if ( b1->m_RetMode() == vsp::GEAR_STOWED_POSITION )
+                {
+                    stow = true;
+                }
+                else
+                {
+                    ret = true;
+                    kretract = 1.0;
+                }
+            }
+            else if ( m_ContactPt1_GearMode() == vsp::GEAR_CONFIGURATION_INTERMEDIATE )
+            {
+                ret = true;
+                kretract = m_ContactPt1_KRetract();
+            }
+
+            b1->TireToBogie( b1->m_TireSurface, m_MainSurfVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
         }
     }
 }
@@ -937,13 +984,29 @@ void AuxiliaryGeom::TessContact1( GearGeom * gear, double bogietheta )
         Bogie *b1 = gear->GetBogie( m_ContactPt1_ID );
         if ( b1 )
         {
-            SimpleTess tireTess;
-            SimpleFeatureTess tireFeatureTess;
+            bool stow = false;
+            bool ret = false;
+            double kretract = 0.0;
+            if ( m_ContactPt1_GearMode() == vsp::GEAR_CONFIGURATION_UP )
+            {
+                if ( b1->m_RetMode() == vsp::GEAR_STOWED_POSITION )
+                {
+                    stow = true;
+                }
+                else
+                {
+                    ret = true;
+                    kretract = 1.0;
+                }
+            }
+            else if ( m_ContactPt1_GearMode() == vsp::GEAR_CONFIGURATION_INTERMEDIATE )
+            {
+                ret = true;
+                kretract = m_ContactPt1_KRetract();
+            }
 
-            UpdateTess( b1->m_TireSurface, false, false, tireTess, tireFeatureTess );
-
-            b1->TireToBogie( tireTess, m_MainTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta );
-            b1->TireToBogie( tireFeatureTess, m_MainFeatureTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta );
+            b1->TireToBogie( b1->m_TireTess, m_MainTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+            b1->TireToBogie( b1->m_TireFeatureTess, m_MainFeatureTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
         }
     }
 }
@@ -991,10 +1054,31 @@ void AuxiliaryGeom::DegenContact1( GearGeom * gear, double bogietheta )
         Bogie *b1 = gear->GetBogie( m_ContactPt1_ID );
         if ( b1 )
         {
+            bool stow = false;
+            bool ret = false;
+            double kretract = 0.0;
+            if ( m_ContactPt1_GearMode() == vsp::GEAR_CONFIGURATION_UP )
+            {
+                if ( b1->m_RetMode() == vsp::GEAR_STOWED_POSITION )
+                {
+                    stow = true;
+                }
+                else
+                {
+                    ret = true;
+                    kretract = 1.0;
+                }
+            }
+            else if ( m_ContactPt1_GearMode() == vsp::GEAR_CONFIGURATION_INTERMEDIATE )
+            {
+                ret = true;
+                kretract = m_ContactPt1_KRetract();
+            }
+
             DegenGeom degenGeom;
             CreateDegenGeom( b1->m_TireSurface, 0, degenGeom, true, 1 );
 
-            b1->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta );
+            b1->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
         }
     }
 }

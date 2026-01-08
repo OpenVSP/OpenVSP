@@ -46,6 +46,7 @@ protected:
     GroupLayout m_3ptGroundPlaneLayout;
     GroupLayout m_2ptGroundPlaneLayout;
     GroupLayout m_1ptGroundPlaneLayout;
+    GroupLayout m_SingleGearLayout;
     GroupLayout m_3ptCCELayout;
     GroupLayout m_SuperConeXSecLayout;
 
@@ -119,6 +120,14 @@ protected:
     SliderAdjRangeInput m_1ptWheelThetaSlider;
     SliderAdjRangeInput m_1ptRollThetaSlider;
 
+    // Single Gear
+
+    Choice m_SingleBogie1Choice;
+    Choice m_SingleBogie1SymmChoice;
+    Choice m_SingleBogie1SuspensionModeChoice;
+    Choice m_SingleBogie1TireModeChoice;
+    Choice m_SingleBogie1GearModeChoice;
+    SliderAdjRangeInput m_SingleKRetractSlider;
 
     // 3pt CCE
 

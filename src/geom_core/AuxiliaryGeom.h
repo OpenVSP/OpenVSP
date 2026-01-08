@@ -93,6 +93,8 @@ public:
     IntParm m_ContactPt1_Isymm;
     IntParm m_ContactPt1_SuspensionMode;
     IntParm m_ContactPt1_TireMode;
+    IntParm m_ContactPt1_GearMode;
+    Parm m_ContactPt1_KRetract;
 
     string m_ContactPt2_ID;
     IntParm m_ContactPt2_Isymm;

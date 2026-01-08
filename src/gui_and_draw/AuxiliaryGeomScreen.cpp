@@ -30,6 +30,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_AuxiliaryGeomModeChoice.AddItem( "3pt Ground Plane", vsp::AUX_GEOM_THREE_PT_GROUND );
     m_AuxiliaryGeomModeChoice.AddItem( "2pt Ground Plane", vsp::AUX_GEOM_TWO_PT_GROUND );
     m_AuxiliaryGeomModeChoice.AddItem( "1pt Ground Plane", vsp::AUX_GEOM_ONE_PT_GROUND );
+    m_AuxiliaryGeomModeChoice.AddItem( "Single Gear", vsp::AUX_GEOM_SINGLE_GEAR );
     m_AuxiliaryGeomModeChoice.AddItem( "3pt Composite Clearance Envelope", vsp::AUX_GEOM_THREE_PT_CCE );
     m_AuxiliaryGeomModeChoice.AddItem( "Super Cone", vsp::AUX_GEOM_SUPER_CONE );
     m_AuxiliaryGeomModeChoice.UpdateItems();
@@ -49,6 +50,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_DesignLayout.AddSubGroupLayout( m_3ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_2ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_1ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
+    m_DesignLayout.AddSubGroupLayout( m_SingleGearLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_3ptCCELayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_SuperConeXSecLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
 
@@ -170,7 +172,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_1ptBogie1TireModeChoice.AddItem( "Flat", vsp::TIRE_FLAT_CONTACT );
     m_1ptBogie1TireModeChoice.UpdateItems();
 
-    m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1Choice, "Bogie 1" );
+    m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1Choice, "Bogie" );
     m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1SymmChoice, "I Symm" );
     m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1SuspensionModeChoice, "Suspension Mode" );
     m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1TireModeChoice, "Tire Mode" );
@@ -179,6 +181,28 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_1ptGroundPlaneLayout.AddSlider( m_1ptWheelThetaSlider, "Wheel Theta", 10, "%5.4f" );
     m_1ptGroundPlaneLayout.AddSlider( m_1ptRollThetaSlider, "Roll Theta", 10, "%5.4f" );
 
+    m_SingleBogie1GearModeChoice.AddItem( "Down", vsp::GEAR_CONFIGURATION_DOWN );
+    m_SingleBogie1GearModeChoice.AddItem( "Up", vsp::GEAR_CONFIGURATION_UP );
+    m_SingleBogie1GearModeChoice.AddItem( "Intermediate", vsp::GEAR_CONFIGURATION_INTERMEDIATE );
+    m_SingleBogie1GearModeChoice.UpdateItems();
+
+    m_SingleBogie1SuspensionModeChoice.AddItem( "Nominal", vsp::GEAR_SUSPENSION_NOMINAL );
+    m_SingleBogie1SuspensionModeChoice.AddItem( "Compressed", vsp::GEAR_SUSPENSION_COMPRESSED );
+    m_SingleBogie1SuspensionModeChoice.AddItem( "Extended", vsp::GEAR_SUSPENSION_EXTENDED );
+    m_SingleBogie1SuspensionModeChoice.UpdateItems();
+
+    m_SingleBogie1TireModeChoice.AddItem( "Static Load", vsp::TIRE_STATIC_LODED_CONTACT );
+    m_SingleBogie1TireModeChoice.AddItem( "Unloaded", vsp::TIRE_NOMINAL_CONTACT );
+    m_SingleBogie1TireModeChoice.AddItem( "Grown", vsp::TIRE_GROWTH_CONTACT );
+    m_SingleBogie1TireModeChoice.AddItem( "Flat", vsp::TIRE_FLAT_CONTACT );
+    m_SingleBogie1TireModeChoice.UpdateItems();
+
+    m_SingleGearLayout.AddChoice( m_SingleBogie1Choice, "Bogie" );
+    m_SingleGearLayout.AddChoice( m_SingleBogie1GearModeChoice, "Gear Mode" );
+    m_SingleGearLayout.AddSlider( m_SingleKRetractSlider, "Retract", 10, "%5.4f" );
+    m_SingleGearLayout.AddChoice( m_SingleBogie1SymmChoice, "I Symm" );
+    m_SingleGearLayout.AddChoice( m_SingleBogie1SuspensionModeChoice, "Suspension Mode" );
+    m_SingleGearLayout.AddChoice( m_SingleBogie1TireModeChoice, "Tire Mode" );
 
 
 
@@ -804,6 +828,7 @@ void AuxiliaryGeomScreen::DisplayGroup( GroupLayout* group )
     m_3ptGroundPlaneLayout.Hide();
     m_2ptGroundPlaneLayout.Hide();
     m_1ptGroundPlaneLayout.Hide();
+    m_SingleGearLayout.Hide();
     m_3ptCCELayout.Hide();
     m_SuperConeXSecLayout.Hide();
 
@@ -972,6 +997,16 @@ bool AuxiliaryGeomScreen::Update()
             m_CCEUnitChoice.Update( auxiliary_ptr->m_CCEUnits.GetID() );
 
             m_CCEMainGearOffsetSlider.Update( auxiliary_ptr->m_CCEMainGearOffset.GetID() );
+        }
+        else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SINGLE_GEAR )
+        {
+            DisplayGroup( &m_SingleGearLayout );
+
+            m_SingleBogie1SymmChoice.Update( auxiliary_ptr->m_ContactPt1_Isymm.GetID() );
+            m_SingleBogie1SuspensionModeChoice.Update( auxiliary_ptr->m_ContactPt1_SuspensionMode.GetID() );
+            m_SingleBogie1TireModeChoice.Update( auxiliary_ptr->m_ContactPt1_TireMode.GetID() );
+            m_SingleBogie1GearModeChoice.Update( auxiliary_ptr->m_ContactPt1_GearMode.GetID() );
+            m_SingleKRetractSlider.Update( auxiliary_ptr->m_ContactPt1_KRetract.GetID() );
         }
         else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
         {
@@ -1389,6 +1424,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
     m_2ptBogie1Choice.ClearItems();
     m_2ptBogie2Choice.ClearItems();
     m_1ptBogie1Choice.ClearItems();
+    m_SingleBogie1Choice.ClearItems();
     m_3ptCCEBogie1Choice.ClearItems();
     m_3ptCCEBogie2Choice.ClearItems();
     m_3ptCCEBogie3Choice.ClearItems();
@@ -1396,6 +1432,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
     if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
          auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND ||
          auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND ||
+         auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SINGLE_GEAR ||
          auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
     {
         Geom* parent_geom = veh->FindGeom( auxiliary_ptr->GetParentID() );
@@ -1415,6 +1452,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
                 m_2ptBogie1Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_2ptBogie2Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_1ptBogie1Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
+                m_SingleBogie1Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_3ptCCEBogie1Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_3ptCCEBogie2Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_3ptCCEBogie3Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
@@ -1425,6 +1463,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
             m_2ptBogie1Choice.UpdateItems();
             m_2ptBogie2Choice.UpdateItems();
             m_1ptBogie1Choice.UpdateItems();
+            m_SingleBogie1Choice.UpdateItems();
             m_3ptCCEBogie1Choice.UpdateItems();
             m_3ptCCEBogie2Choice.UpdateItems();
             m_3ptCCEBogie3Choice.UpdateItems();
@@ -1435,6 +1474,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
                 m_3ptBogie1Choice.SetVal( indx );
                 m_2ptBogie1Choice.SetVal( indx );
                 m_1ptBogie1Choice.SetVal( indx );
+                m_SingleBogie1Choice.SetVal( indx );
                 m_3ptCCEBogie1Choice.SetVal( indx );
             }
             else if ( m_BogieIDVec.size() > 0 )
@@ -1443,6 +1483,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
                 m_3ptBogie1Choice.SetVal( 0 );
                 m_2ptBogie1Choice.SetVal( 0 );
                 m_1ptBogie1Choice.SetVal( 0 );
+                m_SingleBogie1Choice.SetVal( 0 );
                 m_3ptCCEBogie1Choice.SetVal( 0 );
             }
 
@@ -1479,6 +1520,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
             m_3ptBogie1SymmChoice.ClearItems();
             m_2ptBogie1SymmChoice.ClearItems();
             m_1ptBogie1SymmChoice.ClearItems();
+            m_SingleBogie1SymmChoice.ClearItems();
             m_3ptCCEBogie1SymmChoice.ClearItems();
 
             Bogie *b1 = gear->GetBogie( auxiliary_ptr->m_ContactPt1_ID );
@@ -1487,12 +1529,14 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
                 m_3ptBogie1SymmChoice.AddItem( "ISym = 0", 0 );
                 m_2ptBogie1SymmChoice.AddItem( "ISym = 0", 0 );
                 m_1ptBogie1SymmChoice.AddItem( "ISym = 0", 0 );
+                m_SingleBogie1SymmChoice.AddItem( "ISym = 0", 0 );
                 m_3ptCCEBogie1SymmChoice.AddItem( "ISym = 0", 0 );
                 if ( b1->m_Symmetrical() )
                 {
                     m_3ptBogie1SymmChoice.AddItem( "ISym = 1", 1 );
                     m_2ptBogie1SymmChoice.AddItem( "ISym = 1", 1 );
                     m_1ptBogie1SymmChoice.AddItem( "ISym = 1", 1 );
+                    m_SingleBogie1SymmChoice.AddItem( "ISym = 1", 1 );
                     m_3ptCCEBogie1SymmChoice.AddItem( "ISym = 1", 1 );
                 }
             }
@@ -1502,6 +1546,8 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
             m_2ptBogie1SymmChoice.SetVal( auxiliary_ptr->m_ContactPt1_Isymm() );
             m_1ptBogie1SymmChoice.UpdateItems();
             m_1ptBogie1SymmChoice.SetVal( auxiliary_ptr->m_ContactPt1_Isymm() );
+            m_SingleBogie1SymmChoice.UpdateItems();
+            m_SingleBogie1SymmChoice.SetVal( auxiliary_ptr->m_ContactPt1_Isymm() );
             m_3ptCCEBogie1SymmChoice.UpdateItems();
             m_3ptCCEBogie1SymmChoice.SetVal( auxiliary_ptr->m_ContactPt1_Isymm() );
 
@@ -1653,6 +1699,18 @@ void AuxiliaryGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_1ptBogie1Choice )
     {
         int val = m_1ptBogie1Choice.GetVal();
+        if ( val >= 0 && val < m_BogieIDVec.size() )
+        {
+            auxiliary_ptr->SetContactPt1ID( m_BogieIDVec[ val ] );
+        }
+        else
+        {
+            auxiliary_ptr->SetContactPt1ID( "" );
+        }
+    }
+    else if ( device == &m_SingleBogie1Choice )
+    {
+        int val = m_SingleBogie1Choice.GetVal();
         if ( val >= 0 && val < m_BogieIDVec.size() )
         {
             auxiliary_ptr->SetContactPt1ID( m_BogieIDVec[ val ] );
