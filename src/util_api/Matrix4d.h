@@ -327,6 +327,11 @@ public:
         return mat;
     }
 
+    const double *const_data() const
+    {
+        return mat;
+    }
+
     /*!
     \ingroup Matrix4d
     */
