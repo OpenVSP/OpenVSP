@@ -215,10 +215,10 @@ void VspSurf::SwapUWDirections()
 }
 
 //==== Transform Control Points =====//
-void VspSurf::Transform( Matrix4d & mat )
+void VspSurf::Transform( const Matrix4d & mat )
 {
     surface_rotation_matrix_type rmat;
-    double *mmat( mat.data() );
+    const double *mmat( mat.const_data() );
     surface_point_type trans;
 
     rmat << mmat[0], mmat[4], mmat[8],
