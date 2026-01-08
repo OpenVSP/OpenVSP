@@ -280,6 +280,35 @@ void AuxiliaryGeom::UpdateSurf()
     }
     if ( m_ParentType == GEAR_GEOM_TYPE )
     {
+        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        if ( gear )
+        {
+            vector < Bogie* > bogie_vec = gear->GetBogieVec();
+            vector < string > bogie_id_vec;
+            for ( unsigned int i = 0; i < bogie_vec.size(); i++ )
+            {
+                bogie_id_vec.push_back( bogie_vec[i]->GetID() );
+            }
+
+            int indx = vector_find_val( bogie_id_vec, m_ContactPt1_ID );
+            if ( ( indx < 0 || indx >= bogie_id_vec.size() ) && !bogie_id_vec.empty() )
+            {
+                m_ContactPt1_ID = bogie_id_vec[0];
+            }
+
+            indx = vector_find_val( bogie_id_vec, m_ContactPt2_ID );
+            if ( ( indx < 0 || indx >= bogie_id_vec.size() ) && !bogie_id_vec.empty() )
+            {
+                m_ContactPt2_ID = bogie_id_vec[0];
+            }
+
+            indx = vector_find_val( bogie_id_vec, m_ContactPt3_ID );
+            if ( ( indx < 0 || indx >= bogie_id_vec.size() ) && !bogie_id_vec.empty() )
+            {
+                m_ContactPt3_ID = bogie_id_vec[0];
+            }
+        }
+
         if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
         {
             GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
