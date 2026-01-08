@@ -301,8 +301,6 @@ public:
 
     void scalez( const double &scalez );
 
-    void mirrory();
-
     void flipx();
 
     void getMat( double *m ) const;
