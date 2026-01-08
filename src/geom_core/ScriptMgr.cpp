@@ -1498,6 +1498,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "GEAR_SUSPENSION_MODES" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_SUSPENSION_MODES", "GEAR_SUSPENSION_NOMINAL", GEAR_SUSPENSION_NOMINAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_SUSPENSION_MODES", "GEAR_SUSPENSION_COMPRESSED", GEAR_SUSPENSION_COMPRESSED );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_SUSPENSION_MODES", "GEAR_SUSPENSION_EXTENDED", GEAR_SUSPENSION_EXTENDED );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_SUSPENSION_MODES", "NUM_GEAR_SUSPENSION_MODES", NUM_GEAR_SUSPENSION_MODES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "GENDER" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GENDER", "MALE", MALE );
