@@ -590,7 +590,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     static int cp_col_widths[] = { ( m_CpSlicerLayout.GetW() / 3 ) + 10, m_CpSlicerLayout.GetW() / 3, ( m_CpSlicerLayout.GetW() / 3 ) + 10, 0 }; // widths for each column
 
     m_CpSliceBrowser = m_CpSlicerLayout.AddColResizeBrowser( cp_col_widths, 3, CpBrowserHeight );
-    m_CpSliceBrowser->callback( staticScreenCB, this );
+    m_CpSliceBrowser->Init( this, m_CpSlicerLayout.GetGroup() );
 
     m_CpSlicerLayout.SetSameLineFlag( true );
     m_CpSlicerLayout.SetFitWidthFlag( false );
@@ -1109,6 +1109,7 @@ void VSPAEROScreen::Hide()
 void VSPAEROScreen::CallBack( Fl_Widget* w )
 {
     m_CSGroupBrowser->HidePopupInput();
+    m_CpSliceBrowser->HidePopupInput();
 
     if ( w == m_PropElemBrowser )
     {
@@ -1320,6 +1321,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
     assert( m_ScreenMgr );
 
     m_CSGroupBrowser->HidePopupInput();
+    m_CpSliceBrowser->HidePopupInput();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
