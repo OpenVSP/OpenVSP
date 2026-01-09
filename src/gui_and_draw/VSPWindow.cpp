@@ -17,6 +17,10 @@ bool valid_hotkey( int event_length, int key )
     {
         return true;
     }
+    if ( key == FL_Enter || key == FL_KP_Enter )
+    {
+        return true;
+    }
     for ( int fkey = FL_F + 1; fkey < FL_F_Last; fkey++ )
     {
         if ( fkey == key )
