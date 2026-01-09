@@ -24,18 +24,19 @@ class AttributeTree : public GuiDevice
 {
 public:
     AttributeTree();
-    void Init( GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start = false, int start_y = 0, int browser_h = 150 );
+    void Init( GroupLayout * layout, VspScreen *screen, int browser_h = 150 );
     void Activate();
     void Deactivate();
     void Update();
-    void UpdateTree();
-    void SetRedrawFlag()
+    void UpdateLabels();
+    void RebuildTree();
+    void SetRebuildFlag()
     {
-        m_RedrawFlag = true;
+        m_RebuildFlag = true;
     }
-    void ClearRedrawFlag()
+    void ClearRebuildFlag()
     {
-        m_RedrawFlag = false;
+        m_RebuildFlag = false;
     }
     void SetTreeRootID( const string & attrCollectionID = "" );
     void SetTreeAttrID();
@@ -85,7 +86,7 @@ public:
         return m_AttrRootCollID;
     }
 
-    Fl_Tree* GetTreeWidget()
+    TreeWithColumns* GetTreeWidget()
     {
         return m_AttrTree;
     }
@@ -120,7 +121,7 @@ protected:
 
     TreeWithColumns* m_AttrTree;
 
-    bool m_RedrawFlag;
+    bool m_RebuildFlag;
 
 private:
 

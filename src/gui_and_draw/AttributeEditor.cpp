@@ -21,10 +21,10 @@ AttributeTree::AttributeTree()
     m_FilterAttrType = vsp::INVALID_TYPE;
     m_FilterObjType = vsp::ATTROBJ_FREE;
     m_FilterStr = string( "" );
-    m_RedrawFlag = true;
+    m_RebuildFlag = true;
 }
 
-void AttributeTree::Init( GroupLayout * layout, Fl_Group* group, VspScreen *screen, Fl_Callback *cb, bool mod_start, int start_y, int browser_h )
+void AttributeTree::Init( GroupLayout * layout, VspScreen *screen, int browser_h )
 {
     GuiDevice::Init( screen );
 
@@ -71,14 +71,41 @@ void AttributeTree::Update()
 
     TrimCloseVec();
 
-    if ( m_RedrawFlag )
+    if ( m_RebuildFlag )
     {
-        UpdateTree();
+        RebuildTree();
     }
-    SetRedrawFlag();
+    else
+    {
+        UpdateLabels();
+    }
+    m_AttrTree->redraw();
+
+    SetRebuildFlag();
 }
 
-void AttributeTree::UpdateTree()
+void AttributeTree::UpdateLabels()
+{
+    vector < TreeRowItem* > item_vec;
+    m_AttrTree->GetAllChildren( item_vec );
+
+    for ( int i = 0; i < item_vec.size(); i++ )
+    {
+        TreeRowItem* tree_item = item_vec[i];
+        if ( tree_item )
+        {
+            string attr_id = tree_item->GetRefAttrID();
+            NameValData* nvd = AttributeMgr.GetAttributePtr( attr_id );
+            if ( nvd )
+            {
+                string attr_label = nvd->GetName() + '\t' + nvd->GetAsString( true ) + '\t' + nvd->GetTypeName( nvd->GetType(), true , true );
+                tree_item->label( attr_label.c_str() );
+            }
+        }
+    }
+}
+
+void AttributeTree::RebuildTree()
 {
     bool use_auto_select = !( m_AutoSelectIDs.empty() );
 
@@ -230,7 +257,6 @@ void AttributeTree::UpdateTree()
             }
         }
         m_AutoSelectIDs.clear();
-        m_AttrTree->redraw();
     }
     SetTreeAttrID();
 }
@@ -486,7 +512,7 @@ void AttributeEditor::Init( GroupLayout * layout, Fl_Group* group, VspScreen *sc
     }
     int browser_h = std::min( editor_h - layout->GetDividerHeight(), layout->GetRemainY() );
 
-    m_AttrTreeWidget.Init( layout, group, screen, cb, true, m_AttrCommonGroup.GetY(), browser_h);
+    m_AttrTreeWidget.Init( layout, screen, browser_h );
     m_ShowState = false;
 
     if ( browser_h < MIN_ATTR_EDITOR_PX_HEIGHT && group->active() )
@@ -555,7 +581,7 @@ void AttributeEditor::DeviceCB( Fl_Widget* w )
             }
             m_Screen->GetScreenMgr()->ShowScreen( vsp::VSP_ATTRIBUTE_EXPLORER_SCREEN );
         }
-        m_AttrTreeWidget.ClearRedrawFlag();
+        m_AttrTreeWidget.ClearRebuildFlag();
     }
     m_Screen->GetScreenMgr()->SetUpdateFlag( true );
 }
