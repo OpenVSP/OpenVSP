@@ -430,6 +430,27 @@ void Matrix4d::loadYZRef()
     mat[0] = -1;
 }
 
+// Term-by-term multiply transformation matrix by:
+//  1      -1       1       1
+// -1       1      -1      -1
+//  1      -1       1       1
+//  1      -1       1       1
+
+// mat[0]       mat[4]       mat[8]       mat[12]
+// mat[1]       mat[5]       mat[9]       mat[13]
+// mat[2]       mat[6]       mat[10]      mat[14]
+// mat[3]       mat[7]       mat[11]      mat[15]
+
+void Matrix4d::mirrory()
+{
+    mat[4] *= -1.0;
+    mat[1] *= -1.0;
+    mat[9] *= -1.0;
+    mat[13] *= -1.0;
+    mat[6] *= -1.0;
+    mat[7] *= -1.0;
+}
+
 void Matrix4d::buildXForm( const vec3d & pos, const vec3d & rot, const vec3d & cent_rot )
 {
     Matrix4d tran_mat;

@@ -445,6 +445,8 @@ public:
         \param [in] in Transformation vector
     */
 
+    void mirrory();
+
     vec3d xform( const vec3d &in ) const;
 
     void xformvec( std::vector < vec3d > &in ) const;
