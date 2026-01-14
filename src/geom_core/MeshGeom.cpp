@@ -1395,7 +1395,14 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
         int iwe;
         int nwe = m_Wakes[iwake].size();
 
-        fprintf( file_id, "%d ", nwe + 1 );
+        int part = 0;
+        if ( nwe > 1 )
+        {
+            TTri * t = m_Wakes[iwake][0].GetParTri();
+            part = SubSurfaceMgr.GetPart( t->m_Tags );
+        }
+
+        fprintf( file_id, "%d %d ", nwe + 1, part );
 
         for ( iwe = 0; iwe < nwe; iwe++ )
         {
