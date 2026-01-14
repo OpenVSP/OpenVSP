@@ -1900,7 +1900,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 int iprt = 0;
                 int iwe;
                 int nwe = wakes[iwake].size();
-                fprintf( fp, "%d ", nwe + 1 );
+                fprintf( fp, "%d 0 ", nwe + 1 ); // 0 is place holder for part number.
                 for ( iwe = 0; iwe < nwe; iwe++ )
                 {
                     fprintf( fp, "%d", wakes[iwake][iwe].first );
