@@ -91,8 +91,6 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 64
     int fontsize = 12;
     m_GeomBrowser->item_labelsize( fontsize );
 
-    m_GeomBrowser->SetKeyCallback( staticScreenCB, this );
-
     m_RightLayout.AddButton( m_DeleteButton, "Delete" );
     m_RightLayout.AddYGap();
     m_RightLayout.AddDividerBox( "Clipboard" );

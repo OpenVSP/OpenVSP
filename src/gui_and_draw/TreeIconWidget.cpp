@@ -434,6 +434,7 @@ int TreeIconItem::draw_item_content( int render )
     w_icons = render_show->w() + render_surf->w() + 2*buffer;
 
     X = label_x() + label_w() - w_icons;
+    m_CroppedLabelW = label_w() - w_icons - buffer;
 
     m_ShowIconXy[0] = X;
     m_ShowIconXy[1] = Y+yoff1;
@@ -580,6 +581,8 @@ void TreeIconItem::draw_vertical_connector( int x, int y1, int y2, const Fl_Tree
 int TreeIconItem::IconHandle()
 {
     int ret = 0;
+    TreeWithIcons* parent_tree = dynamic_cast< TreeWithIcons* >( tree() );
+
     if ( EventInShow() )
     {
         m_EventType = 1;
@@ -590,15 +593,23 @@ int TreeIconItem::IconHandle()
         m_EventType = 2;
         ret = 2;
     }
-    
-    if ( ret > 0 )
+    else if ( parent_tree && event_on_collapse_icon( parent_tree->prefs() ) )
     {
-        TreeWithIcons* parent_tree = dynamic_cast< TreeWithIcons* >( tree() );
-        if ( parent_tree )
-        {
-            parent_tree->SetEventItemID( GetRefID() );
-        }
+        // no icon event associated with collapse icon; defer to FLTK methods
+        m_EventType = 3;
+        // no ret so the collapse event isn't precluded
+        ret = 0;
     }
+
+    if ( parent_tree && m_EventType > 0 )
+    {
+        // prevent icon events from triggering double click events
+        Fl::event_clicks(0);
+
+        // store ID of tree item responsible for callback; less volatile than FLTK pointer style
+        parent_tree->SetEventItemID( GetRefID() );
+    }
+
     return ret;
 }
 
@@ -682,8 +693,19 @@ TreeWithIcons::TreeWithIcons( int X, int Y, int W, int H, const char *L ) : Fl_T
     closeicon( new Fl_Pixmap( mini_tree_close_xpm ) );
     ClearEventItemID();
 
-    m_KeyCB = nullptr;
-    m_KeyCBData = nullptr;
+    // init popup related member vars
+    m_PopupInput = nullptr;
+    m_PopupGroup = nullptr;
+    m_Screen = nullptr;
+
+    m_PopupDrawFlag = false;
+    m_RecentPopup = false;
+
+    m_PopupItemID = "";
+
+    m_DoubleClickFlag = true;
+    m_HotKeyFlag = true;
+    m_CBReason = TREE_CALLBACK_UNKNOWN;
 }
 
 TreeIconItem* TreeWithIcons::AddRow( const char *s, TreeIconItem *parent_item )
@@ -755,22 +777,156 @@ void TreeWithIcons::GetSelectedItems( vector < TreeIconItem* > *item_vec )
     }
 }
 
-void TreeWithIcons::SetKeyCallback( Fl_Callback* cb, void* p )
+void TreeWithIcons::Init( VspScreen* screen, Fl_Group* group )
 {
-    m_KeyCB = cb;
-    m_KeyCBData = p;
+    m_Screen = screen;
+    m_PopupGroup = group;
+    callback( StaticTreeCB, this );
+}
+
+void TreeWithIcons::InitPopupInput()
+{
+    if ( !m_PopupGroup )
+    {
+        return;
+    }
+
+    int x, y, w, h;
+    GetItemDims( x, y, w, h, m_PopupItemID );
+
+    m_PopupInput = new Fl_Input( x, y, w, h );
+    m_PopupInput->box( FL_THIN_DOWN_BOX );
+    m_PopupInput->textsize( 12 );
+    m_PopupInput->when( FL_WHEN_ENTER_KEY );
+    m_PopupInput->callback( StaticTreeCB, this );
+
+    m_PopupGroup->add( m_PopupInput );
+}
+
+void TreeWithIcons::SetPopupState( bool draw_flag )
+{
+    if ( !m_PopupDrawFlag && draw_flag )
+    {
+        m_RecentPopup = true;
+    }
+    m_PopupDrawFlag = draw_flag;
+}
+
+void TreeWithIcons::SetPopupID( const string & tree_item_id )
+{
+    m_PopupItemID = tree_item_id;
+}
+
+void TreeWithIcons::SetPopupText( const string & text )
+{
+    if ( m_PopupInput )
+    {
+        m_PopupInput->value( text.c_str() );
+    }
+}
+
+bool TreeWithIcons::GetPopupState()
+{
+    if ( m_PopupInput )
+    {
+        return m_PopupDrawFlag;
+    }
+    return false;
+}
+
+const string TreeWithIcons::GetPopupValue()
+{
+    string ret = string("");
+    if ( m_PopupInput )
+    {
+        ret = m_PopupInput->value();
+    }
+    return ret;
+}
+
+void TreeWithIcons::InsertPopupInput( const string & text, const string & tree_item_id )
+{
+    // Set loc, which updates size of popup window
+    SetPopupID( tree_item_id );
+
+    // Build the popup if it doesn't exist yet
+    if ( !m_PopupInput )
+    {
+        InitPopupInput();
+    }
+
+    // Set popup to show on draw
+    SetPopupState( true );
+
+    // Set popup text
+    SetPopupText( text );
+}
+
+void TreeWithIcons::HidePopupInput()
+{
+    SetPopupState( false );
+}
+
+void TreeWithIcons::GetItemDims( int &X, int &Y, int &W, int &H, const string & tree_item_id )
+{
+    TreeIconItem* tree_item = GetItemByRefId( tree_item_id );
+    if ( tree_item )
+    {
+        X = tree_item->label_x();
+        Y = tree_item->label_y();
+        W = tree_item->CroppedLabelW();
+        H = tree_item->label_h();
+    }
+}
+
+void TreeWithIcons::TreeCB( Fl_Widget* w )
+{
+    // TreeCB is tied to 3 events;
+    //      1. TreeWithIcons::handle()
+    //      2.      Fl_Input::handle()
+    //      3.       Fl_Tree::handle()
+    // so the behavior must be determined here; with a member var to store the callback reason for this Browser
+
+    // init to reason "unknown"
+    m_CBReason = TREE_CALLBACK_UNKNOWN;
+
+    if ( Fl::callback_reason() == FL_REASON_USER && !GetPopupState() )
+    {
+        // "user" reason only possible from TreeWithIcons::handle()
+        m_CBReason = TREE_CALLBACK_POPUP_OPEN;
+    }
+    else if ( w == m_PopupInput || GetPopupState() )
+    {
+        // any callback reason with an open popup will trigger a rename event
+        m_CBReason = TREE_CALLBACK_POPUP_ENTER;
+    }
+    else if ( Fl::callback_reason() == FL_REASON_SELECTED
+           || Fl::callback_reason() == FL_REASON_RESELECTED )
+    {
+        // if no popup visible and callback on browser, browser is selected
+        m_CBReason = TREE_CALLBACK_SELECT;
+    }
+
+    window()->cursor( FL_CURSOR_DEFAULT );              // XXX: if we don't do this, cursor can disappear!
+    m_Screen->CallBack( this );
 }
 
 int TreeWithIcons::handle( int e )
 {
     int ret = 0;
+
+
     switch ( e )
     {
         case FL_PUSH:
         {
+
+            ClearEventItemID();
+
             // Check all icons for events prior to normal tree event handling
             // Icon events MUST precede standard events in the geomtree to avoid successive errant callbacks from deselect method
-            for ( Fl_Tree_Item *tree_item = first(); tree_item; tree_item = next(tree_item) )
+            Fl_Tree_Item* tree_item = find_clicked(0);
+            if ( tree_item )
             {
                 TreeIconItem* tree_icon_item = dynamic_cast< TreeIconItem* >( tree_item );
 
@@ -786,16 +942,71 @@ int TreeWithIcons::handle( int e )
             ret = 1;
             break;
         }
-        case FL_KEYDOWN:
+        case FL_KEYBOARD:
         {
-            if ( m_KeyCB && valid_hotkey( Fl::event_length(), Fl::event_key() ) )
+            int key = Fl::event_key();
+            if ( m_HotKeyFlag && ( key == FL_Enter || key == FL_KP_Enter || key == FL_F + 2 ) )
             {
-                m_KeyCB( this, m_KeyCBData );
+                // open popup input if hotkey supported
+                if( callback() )
+                {
+                    // set reason to "opened," then perform callback.
+                    do_callback( FL_REASON_USER );
+                }
+                return 1;
             }
+            break;
+        }
+        case FL_RELEASE:
+        {
+            if ( m_DoubleClickFlag && Fl::event_clicks() != 0 )
+            {
+                // open popup input if double click supported
+                Fl_Tree_Item* click_item = find_clicked(0);
+                if ( callback() && click_item && !click_item->event_on_collapse_icon( prefs() ) )
+                {
+                    // set reason to "user," then perform callback.
+                    do_callback( FL_REASON_USER );
+                }
+                return 1;
+            }
+            break;
         }
         default:
             ret = 1;
             break;
     }
     return( Fl_Tree::handle(e) ? 1 : ret );
+}
+
+void TreeWithIcons::draw()
+{
+    // draw browser
+    Fl_Tree::draw();
+
+    // draw popup
+    if ( m_PopupInput && m_PopupDrawFlag )
+    {
+        int x, y, w, h;
+
+        GetItemDims( x, y, w, h, m_PopupItemID );
+
+        m_PopupInput->resize( x, y, w, h );
+        m_PopupInput->redraw();
+
+        // If popup recently shown/created, then ensure it takes focus, ignore if just scrolling/redrawing
+        if ( m_RecentPopup )
+        {
+            m_PopupInput->activate();
+            m_PopupInput->show();
+            m_PopupInput->take_focus();
+
+            m_RecentPopup = false;
+        }
+    }
+    else if ( m_PopupInput )
+    {
+        m_PopupInput->hide();
+        m_PopupInput->deactivate();
+    }
 }

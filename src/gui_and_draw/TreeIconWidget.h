@@ -17,6 +17,7 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Group.H>
+#include <FL/Fl_Input.H>
 #include <FL/Fl_Tree.H>
 #include <FL/Fl_SVG_Image.H>
 
@@ -27,6 +28,10 @@
 #include <string>
 
 using namespace std;
+
+class VspScreen;
+class GroupLayout;
+
 const char * const mini_tree_open_xpm[] = {
     "9 9 3 1",
     ".    c #fefefe",
@@ -137,6 +142,11 @@ class TreeIconItem : public Fl_Tree_Item
 
         int CheckParent( TreeIconItem* parent_item );
 
+        int CroppedLabelW()
+        {
+            return m_CroppedLabelW;
+        }
+
     protected:
         int draw_item_content( int render );
         void draw_horizontal_connector( int x1, int x2, int y, const Fl_Tree_Prefs &prefs );
@@ -146,6 +156,8 @@ class TreeIconItem : public Fl_Tree_Item
 
         int m_ShowIconXy[4];
         int m_SurfIconXy[4];
+
+        int m_CroppedLabelW;
 
         Fl_SVG_Image* m_ShowIconSvg;
         Fl_SVG_Image* m_SurfIconSvg;
@@ -193,7 +205,40 @@ class TreeWithIcons : public Fl_Tree
         }
         TreeIconItem* GetEventItem();
 
-        void SetKeyCallback( Fl_Callback* cb, void* p );
+        void Init( VspScreen* screen, Fl_Group* group );
+        void InitPopupInput();
+
+        void SetPopupState( bool draw_flag );
+        void SetPopupID( const string & tree_item_id );
+        void SetPopupText( const string & text );
+
+        bool GetPopupState();
+        const string GetPopupValue();
+
+        void InsertPopupInput( const string & text, const string & tree_item_id );
+        void HidePopupInput();
+
+        virtual void GetItemDims( int &X, int &Y, int &W, int &H, const string & tree_item_id );
+
+        void SetDoubleClickFlag( bool flag )
+        {
+            m_DoubleClickFlag = flag;
+        }
+        void SetHotKeyFlag( bool flag )
+        {
+            m_HotKeyFlag = flag;
+        }
+
+        int GetCBReason()
+        {
+            return m_CBReason;
+        }
+
+        void TreeCB( Fl_Widget* w );
+        static void StaticTreeCB( Fl_Widget *w, void* data )
+        {
+            ( ( TreeWithIcons* )data )->TreeCB( w );
+        }
 
         int handle( int e );
 
@@ -202,11 +247,23 @@ class TreeWithIcons : public Fl_Tree
     protected:
         string m_EventItemID;
 
-        Fl_Callback* m_KeyCB;
-        void* m_KeyCBData;
+        void draw();
+
+        Fl_Input* m_PopupInput;
+        Fl_Group* m_PopupGroup;
+        VspScreen* m_Screen;
 
     private:
         using Fl_Tree::add;
+
+        bool m_PopupDrawFlag;
+        bool m_RecentPopup;
+
+        string m_PopupItemID;
+
+        bool m_DoubleClickFlag;
+        bool m_HotKeyFlag;
+        int m_CBReason;
 };
 
 #endif // TREEICON_WIDGET_INCLUDED_
