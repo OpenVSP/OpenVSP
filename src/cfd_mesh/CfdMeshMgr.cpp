@@ -1977,9 +1977,9 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     else
                     {
                         fprintf( fp, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", i + 1, part, tag,
-                                 allUWVec[i][0].x() / uscale, allUWVec[i][0].y(),
-                                 allUWVec[i][1].x() / uscale, allUWVec[i][1].y(),
-                                 allUWVec[i][2].x() / uscale, allUWVec[i][2].y() );
+                                 allUWVec[i][0].x() / uscale, allUWVec[i][0].y() / wscale,
+                                 allUWVec[i][1].x() / uscale, allUWVec[i][1].y() / wscale,
+                                 allUWVec[i][2].x() / uscale, allUWVec[i][2].y() / wscale );
                     }
                 }
             }
