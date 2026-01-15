@@ -366,6 +366,7 @@ Vehicle::~Vehicle()
         delete it->second;
     }
     m_GeomStoreMap.clear();
+    SetGeomMapDirtyFlag( true );
 }
 
 //=== Init ====//
@@ -714,6 +715,7 @@ void Vehicle::Wype()
         delete it->second;
     }
     m_GeomStoreMap.clear();
+    SetGeomMapDirtyFlag( true );
 
     m_ActiveGeom.clear();
     m_TopGeom.clear();
@@ -1027,6 +1029,7 @@ void Vehicle::ForceUpdate( int dirtyflag )
             }
         }
     }
+    SetGeomMapDirtyFlag( true );
     Update();
 }
 
@@ -1045,6 +1048,7 @@ void Vehicle::ChangeGeomID( const string &oldid, const string &newid )
         m_GeomStoreMap.erase( it );
         m_GeomStoreMap[ newid ] = g_ptr;
     }
+    SetGeomMapDirtyFlag( true );
 }
 
 //==== Find Geom Based on GeomID ====//
@@ -1172,6 +1176,7 @@ string Vehicle::CreateGeom( const GeomType & type )
     }
 
     m_GeomStoreMap[ new_geom->GetID() ] = new_geom;
+    SetGeomMapDirtyFlag( true );
 
     Geom* type_geom_ptr = FindGeom( type.m_GeomID );
     if ( type_geom_ptr )
@@ -1653,6 +1658,7 @@ void Vehicle::ReorderActiveGeom( int action )
     {
         parent_geom->SetChildIDVec( id_vec );
     }
+    SetGeomMapDirtyFlag( true );
 
 }
 
@@ -1716,6 +1722,7 @@ void Vehicle::ReparentActiveGeom( int action )
         {
             active_geom->ChangeParentID( GetID(), new_sibling_id );
         }
+        SetGeomMapDirtyFlag( true );
     }
 
     else if ( action == vsp::REORDER_MOVE_DOWN )
@@ -1754,6 +1761,7 @@ void Vehicle::ReparentActiveGeom( int action )
                 active_geom->ChangeParentID( new_parent_id );
             }
         }
+        SetGeomMapDirtyFlag( true );
     }
 }
 
@@ -1827,6 +1835,7 @@ void Vehicle::DeleteGeom( const string & geom_id )
         if ( gPtr )
         {
             m_GeomStoreMap.erase( it );
+            SetGeomMapDirtyFlag( true );
             vector_remove_val( m_ActiveGeom, geom_id );
             delete gPtr;
         }

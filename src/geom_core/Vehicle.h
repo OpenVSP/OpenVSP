@@ -86,6 +86,15 @@ public:
     static void UpdateGUI();
     static int RunScript( const string & file_name, const string & function_name = "main" );
 
+    void SetGeomMapDirtyFlag( bool f )
+    {
+        m_GeomMapDirtyFlag = f;
+    }
+    bool GetGeomMapDirtyFlag()
+    {
+        return m_GeomMapDirtyFlag;
+    }
+
     void ChangeGeomID( const string &oldid, const string &newid );
 
     Geom* FindGeom( const string & geom_id );
@@ -598,6 +607,7 @@ protected:
     virtual void SetExportPropMainSurf( bool b );
 
     unordered_map < string, Geom* > m_GeomStoreMap;                 // All Geom Ptrs
+    bool m_GeomMapDirtyFlag;
 
     vector< DegenGeom > m_DegenGeomVec;         // Vector of components in degenerate representation
     vector< DegenPtMass > m_DegenPtMassVec;

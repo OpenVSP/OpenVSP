@@ -1041,6 +1041,12 @@ void ScreenMgr::UpdateAllScreens()
             m_ScreenVec[i]->Update();
         }
     }
+
+    Vehicle* veh = GetVehiclePtr();
+    if ( veh )
+    {
+        veh->SetGeomMapDirtyFlag( false );
+    }
 }
 
 //==== Show Screen ====//
