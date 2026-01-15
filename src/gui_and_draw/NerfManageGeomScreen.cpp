@@ -18,6 +18,7 @@ using namespace vsp;
 NerfManageGeomScreen::NerfManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275-10, 645, "Nerf Geom Browser" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
+    ((VSP_Window*)m_FLTK_Window)->SetKeyCallback( staticScreenCB, this );
 
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
@@ -103,7 +104,6 @@ NerfManageGeomScreen::NerfManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr,
 
     m_VehSelected = false;
     m_VehOpen = true;
-    m_RedrawFlag = true;
     m_NeedsShowHideGeoms = true;
 }
 
@@ -165,6 +165,10 @@ void NerfManageGeomScreen::UpdateGeomScreens()
 //==== Show Screen ====//
 void NerfManageGeomScreen::Show()
 {
+    if ( !IsShown() )
+    {
+        m_VehiclePtr->SetGeomMapDirtyFlag( true );
+    }
     m_ScreenMgr->SetUpdateFlag( true );
     BasicScreen::Show();
 }
@@ -191,7 +195,7 @@ void NerfManageGeomScreen::LoadBrowser()
     vector < Geom* > geom_ptr_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
 
     //==== Rebuild Tree if Redraw Required ====//
-    if ( m_RedrawFlag )
+    if ( m_VehiclePtr->GetGeomMapDirtyFlag() )
     {
         //==== Clear old tree ====//
         m_GeomBrowser->clear();
@@ -232,7 +236,6 @@ void NerfManageGeomScreen::LoadBrowser()
             }
         }
     }
-    SetRedrawFlag();
 
     //==== Update Tree Items' Label Fonts & Colors ====//
     for ( Fl_Tree_Item *tree_item = m_GeomBrowser->first(); tree_item; tree_item = m_GeomBrowser->next(tree_item) )
@@ -418,7 +421,7 @@ void NerfManageGeomScreen::SelectGeomBrowser( const string &geom_id )
     string select_id = m_VehSelected ? m_VehiclePtr->GetID() : geom_id;
 
     //==== Select ID If Match ====//
-    TreeIconItem* geom_tree_item = m_GeomBrowser->GetItemByRefId( geom_id );
+    TreeIconItem* geom_tree_item = m_GeomBrowser->GetItemByRefId( select_id );
     if ( geom_tree_item )
     {
         int do_callback = 0;
@@ -520,21 +523,30 @@ void NerfManageGeomScreen::GeomBrowserCallback()
         return;
     }
 
+    if ( !m_GeomBrowser )
+    {
+        return;
+    }
+
     string id;
     int icon_event = 0;
     bool show_state;
     int surf_state;
 
-    // Check if any tree icons are triggered and handle open/close here; show/surf icon handling after selVec populated.
-    TreeIconItem* tree_item = dynamic_cast< TreeIconItem* >( m_GeomBrowser->callback_item() );
+    // if item is clicked on collapse icon, toggle it and set that bool to the geom/vehicle's DisplayChildrenFlag
+    TreeIconItem* tree_item = m_GeomBrowser->GetEventItem();
     if ( tree_item )
     {
-        // if item is clicked on collapse icon, toggle it and set that bool to the geom/vehicle's DisplayChildrenFlag
         if ( tree_item->event_on_collapse_icon( m_GeomBrowser->prefs() ) )
         {
             id = tree_item->GetRefID();
             Geom* g = m_VehiclePtr->FindGeom( id );
-            Vehicle* vPtr = ( id == m_VehiclePtr->GetID() ) ? m_VehiclePtr : nullptr;
+
+            Vehicle* vPtr = nullptr;
+            if ( id == m_VehiclePtr->GetID() )
+            {
+                vPtr = m_VehiclePtr;
+            }
 
             bool open_flag = tree_item->is_open();
             if( g )
@@ -584,7 +596,12 @@ void NerfManageGeomScreen::GeomBrowserCallback()
     // Generate selection vector from scratch if not an icon event
     if ( icon_event == 0 )
     {
-        m_SelVec = GetSelectedBrowserItems();
+        selVec = GetSelectedBrowserItems();
+        if ( selVec == m_SelVec )
+        {
+            return;
+        }
+        m_SelVec = selVec;
     }
     else // if icon event happens, append the associated tree item to the selection vector
     {
@@ -617,14 +634,10 @@ void NerfManageGeomScreen::GeomBrowserCallback()
 
     if ( selVec.size() == 1 && selVec[0] == m_VehiclePtr->GetID() )
     {
-        m_ScreenMgr->ShowScreen( vsp::VSP_VEH_SCREEN );
         m_VehSelected = true;
-        SelectGeomBrowser();
     }
-
     else
     {
-        m_ScreenMgr->HideScreen( vsp::VSP_VEH_SCREEN );
         m_VehSelected = false;
     }
 
@@ -656,7 +669,7 @@ void NerfManageGeomScreen::GeomBrowserCallback()
             }
             for ( int j = 0; j < hidden_id_vec.size(); j++ )
             {
-                Geom*  hg = m_VehiclePtr->FindGeom( hidden_id_vec[j] );
+                Geom* hg = m_VehiclePtr->FindGeom( hidden_id_vec[j] );
                 if( hg )
                 {
                     if ( icon_event == 1 )
@@ -850,6 +863,7 @@ void NerfManageGeomScreen::EditName( const string &name )
 void NerfManageGeomScreen::ShowHideGeomScreens()
 {
     //==== Show Screen - Each Screen Will Test Check Valid Active Geom Type ====//
+    ( ( ManageGeomScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) )->SetVehSelectedFlag();
     ( ( ManageGeomScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) )->ShowHideGeomScreens();
 }
 
@@ -890,12 +904,18 @@ void NerfManageGeomScreen::CallBack( Fl_Widget *w )
 {
     assert( m_ScreenMgr );
 
-    if ( w == m_GeomBrowser )
+    if ( Fl::event_key() == 'x' )
+    {
+        vector < string > selVec = GetActiveGeoms();
+        MainVSPScreen* main_screen = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+        if ( main_screen && selVec.size() == 1 )
+        {
+            main_screen->AlignViewToGeom( selVec[0] );
+        }
+    }
+    else if ( w == m_GeomBrowser )
     {
         GeomBrowserCallback();
-
-        //==== Existing geomtree items persist through update ====//
-        ClearRedrawFlag();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
