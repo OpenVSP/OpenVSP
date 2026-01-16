@@ -78,8 +78,8 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 64
 
     bool resizable = true;
     m_GeomBrowser = m_MidLayout.AddTreeWithIcons( m_MidLayout.GetH() - 5, resizable );
+    m_GeomBrowser->Init( this, m_MidLayout.GetGroup() );
     m_GeomBrowser->showroot( true );
-    m_GeomBrowser->callback( staticScreenCB, this );
     m_GeomBrowser->selectmode( FL_TREE_SELECT_MULTI );
     m_GeomBrowser->item_reselect_mode( FL_TREE_SELECTABLE_ALWAYS );
     m_GeomBrowser->sortorder( FL_TREE_SORT_NONE );
@@ -469,7 +469,7 @@ void ManageGeomScreen::SelectGeomBrowser( const string &geom_id )
     string select_id = m_VehSelected ? m_VehiclePtr->GetID() : geom_id;
 
     //==== Select ID If Match ====//
-    TreeIconItem* geom_tree_item = m_GeomBrowser->GetItemByRefId( geom_id );
+    TreeIconItem* geom_tree_item = m_GeomBrowser->GetItemByRefId( select_id );
     if ( geom_tree_item )
     {
         int do_callback = 0;
@@ -1057,6 +1057,8 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
 {
     assert( m_ScreenMgr );
 
+    m_GeomBrowser->HidePopupInput();
+
     if ( Fl::event_key() == 'x' )
     {
         vector < string > selVec = GetActiveGeoms();
@@ -1068,7 +1070,57 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_GeomBrowser )
     {
+        // first apply rename via popup input if applicable
+        if ( m_GeomBrowser->GetCBReason() == TREE_CALLBACK_POPUP_ENTER )
+        {
+            ParmContainer* pc = nullptr;
+            TreeIconItem* t = nullptr;
+
+            if ( m_SelVec.size() == 1 )
+            {
+                if ( m_SelVec[0] == m_VehiclePtr->GetID() )
+                {
+                    pc = m_VehiclePtr;
+                }
+                else
+                {
+                    pc = m_VehiclePtr->FindGeom( m_SelVec[0] );
+                }
+            }
+
+            if ( pc )
+            {
+                string pc_name = m_GeomBrowser->GetPopupValue();
+                pc->SetName( pc_name );
+            }
+        }
+
+        // perform standard geombrowser selection callback
         GeomBrowserCallback();
+
+        // and finally open up new popup callback if needed
+        if ( m_GeomBrowser->GetCBReason() == TREE_CALLBACK_POPUP_OPEN )
+        {
+            ParmContainer* pc = nullptr;
+            TreeIconItem* t = nullptr;
+
+            if ( m_SelVec.size() == 1 )
+            {
+                if ( m_SelVec[0] == m_VehiclePtr->GetID() )
+                {
+                    pc = m_VehiclePtr;
+                }
+                else
+                {
+                    pc = m_VehiclePtr->FindGeom( m_SelVec[0] );
+                }
+            }
+
+            if ( pc )
+            {
+                m_GeomBrowser->InsertPopupInput( pc->GetName(), pc->GetID() );
+            }
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -1082,6 +1134,8 @@ void ManageGeomScreen::CloseCallBack( Fl_Widget *w )
 
 void ManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
 {
+    m_GeomBrowser->HidePopupInput();
+
     if ( device == &m_GeomTypeChoice )
     {
         m_TypeIndex = m_GeomTypeChoice.GetVal();
