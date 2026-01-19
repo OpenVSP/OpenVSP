@@ -1109,6 +1109,8 @@ protected:
     Choice m_EngineInModeChoice;
     Choice m_EngineOutModeChoice;
 
+    ToggleButton m_EngineRotExtensionFlagButton;
+
     SliderAdjRangeInput m_EngineExtendDistanceSlider;
     Choice m_EngineAutoExtensionSetChoice;
     ToggleButton m_EngineAutoExtensionFlagButton;
