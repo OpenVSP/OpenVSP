@@ -5589,6 +5589,7 @@ void EngineModelScreen::BuildEngineGUI( GroupLayout & layout )
     layout.SetChoiceButtonWidth( layout.GetButtonWidth() );
     layout.SetSliderWidth( layout.GetButtonWidth() );
 
+    layout.AddButton( m_EngineRotExtensionFlagButton, "Align X" );
     layout.AddButton( m_EngineAutoExtensionFlagButton, "Auto" );
     layout.AddChoice( m_EngineAutoExtensionSetChoice, "Set:" );
     layout.SetFitWidthFlag( true );
@@ -5710,6 +5711,7 @@ bool EngineModelScreen::Update( )
 
     m_EngineExtendDistanceSlider.Update( geomengine_ptr->m_ExtensionDistance.GetID() );
 
+    m_EngineRotExtensionFlagButton.Update( geomengine_ptr->m_RotExtensionFlag.GetID() );
     m_EngineAutoExtensionFlagButton.Update( geomengine_ptr->m_AutoExtensionFlag.GetID() );
 
     m_ScreenMgr->LoadSetChoice( {&m_EngineAutoExtensionSetChoice}, {geomengine_ptr->m_AutoExtensionSet.GetID()} );
