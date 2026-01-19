@@ -39,6 +39,7 @@ GeomEngine::GeomEngine( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_EngineInModeType.Init( "InletModeType", "EngineModel", this, ENGINE_MODE_TO_LIP, ENGINE_MODE_FLOWTHROUGH, ENGINE_MODE_NUM_TYPES - 1 );
     m_EngineOutModeType.Init( "OutletModeType", "EngineModel", this, ENGINE_MODE_TO_LIP, ENGINE_MODE_TO_LIP, ENGINE_MODE_NUM_TYPES - 1 );
 
+    m_RotExtensionFlag.Init( "RotExtensionFlag", "EngineModel", this, false, false, true );
     m_ExtensionDistance.Init( "ExtensionDistance", "EngineModel", this, 10, 0, 1e12 );
     m_AutoExtensionSet.Init( "AutoExtensionSet", "EngineModel", this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
     m_AutoExtensionFlag.Init( "AutoExtensionFlag", "EngineModel", this, false, false, true );
@@ -78,6 +79,7 @@ void GeomEngine::ValidateParms()
     m_EngineInModeType.Deactivate();
     m_EngineOutModeType.Deactivate();
 
+    m_RotExtensionFlag.Deactivate();
     m_ExtensionDistance.Deactivate();
     m_AutoExtensionSet.Deactivate();
     m_AutoExtensionFlag.Deactivate();
@@ -119,6 +121,7 @@ void GeomEngine::ValidateParms()
 
             if ( m_EngineInModeType() == ENGINE_MODE_EXTEND )
             {
+                m_RotExtensionFlag.Activate();
                 m_AutoExtensionFlag.Activate();
 
                 if ( m_AutoExtensionFlag() )
@@ -171,6 +174,7 @@ void GeomEngine::ValidateParms()
 
             if ( m_EngineOutModeType() == ENGINE_MODE_EXTEND )
             {
+                m_RotExtensionFlag.Activate();
                 m_AutoExtensionFlag.Activate();
 
                 if ( m_AutoExtensionFlag() )
@@ -258,17 +262,25 @@ void GeomEngine::Extend( VspSurf &surf, const double & u, bool extbefore )
     vector < VspCurve > extcrvs(2);
     surf.GetUConstCurve( extcrvs[0], u );
     extcrvs[1] = extcrvs[0];
+
+    vec3d xdir = vec3d( 1., 0. ,0. );
+
+    if ( m_RotExtensionFlag() )
+    {
+        Matrix4d model_matrix;
+        model_matrix = getModelMatrix();
+        model_matrix.affineInverse();
+        vec3d ydir, zdir;
+        model_matrix.getBasis( xdir, ydir, zdir );
+    }
+
     if ( extbefore )
     {
-        double minx, maxx;
-        extcrvs[0].FindMinMaxX( minx, maxx );
-        extcrvs[0].AssignX( minx - m_ExtensionDistance() );
+        extcrvs[0].Offset( -m_ExtensionDistance() * xdir );
     }
     else
     {
-        double minx, maxx;
-        extcrvs[1].FindMinMaxX( minx, maxx );
-        extcrvs[1].AssignX( maxx + m_ExtensionDistance() );
+        extcrvs[1].Offset( m_ExtensionDistance() * xdir );
     }
 
     vector < double > extparam = { 0, 1.0 };
