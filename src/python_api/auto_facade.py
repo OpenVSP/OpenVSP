@@ -103,12 +103,12 @@ class _vsp_server():
                             raise TimeoutError("Waiting for server timed out")
                         continue  # No line, but process still alive wait more
 
-                    if line.startswith("Server Socket Thread: Bound to"):
-                        self.port = int(line.split()[6][:-2])
+                    if line.startswith("OpenVSP Server Socket Thread: Bound to"):
+                        self.port = int(line.split()[7][:-2])
                         break
                 break
             except Exception as e:
-                if openvsp_config.FACADE_PRINT_LEVEL > 0: print(f'Failed to start server, attempt {i+1}, trying again; "{str(e)}"')
+                if openvsp_config.FACADE_PRINT_LEVEL > 0: print(f'OpenVSP failed to start server, attempt {i+1}, trying again; "{str(e)}"')
                 try:
                     self._proc.close()
                     self._proc = None
@@ -216,7 +216,7 @@ CLIENT_END = """
 
 class _server_controller():
     def __init__(self) -> None:
-        if openvsp_config.FACADE_PRINT_LEVEL > 0: print("server controller initialized")
+        if openvsp_config.FACADE_PRINT_LEVEL > 0: print("OpenVSP server controller initialized")
         self._name_to_server = {}
         self._port_to_name = {}
         self._name_to_port = {}
@@ -244,10 +244,10 @@ class _server_controller():
             if isinstance(server, str):
                 return self._name_to_server[server]
             elif server in self._name_to_server.values():
-                    return server
+                return server
         except:
             pass
-        print("Warning: Could not find vsp_instance, returning singleton")
+        print("OpenVSP Warning: Could not find vsp_instance, returning singleton")
         return None
 
     def stop_vsp_instance(self, name=None, port=None):
@@ -259,7 +259,7 @@ class _server_controller():
             server_port = self._name_to_port[name]
             server_name = name
         if server_name == "vsp_singleton":
-            print("Can't close vsp_singleton")
+            print("OpenVSP can't close vsp_singleton")
             return
         self._port_to_name.pop(server_port)
         self._name_to_port.pop(server_name)
@@ -435,10 +435,10 @@ def start_server():
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind((HOST, PORT))
         s.listen()
-        print(f"Server Socket Thread: Bound to {s.getsockname()}. Listening...", file=sys.stderr)
+        print(f"OpenVSP Server Socket Thread: Bound to {s.getsockname()}. Listening...", file=sys.stderr)
         conn, addr = s.accept()
         with conn:
-            if openvsp_config.FACADE_PRINT_LEVEL > 0: print("Server Socket Thread: Connected by %s, %s"%(addr[0], addr[1]))
+            if openvsp_config.FACADE_PRINT_LEVEL > 0: print("OpenVSP Server Socket Thread: Connected by %s, %s"%(addr[0], addr[1]))
             while True:
                 b_data = []
                 data = []
@@ -447,7 +447,7 @@ def start_server():
                     try:
                         packet = conn.recv(1024)
                     except ConnectionResetError:
-                        if openvsp_config.FACADE_PRINT_LEVEL > 0: print("Socket ConnectionResetError")
+                        if openvsp_config.FACADE_PRINT_LEVEL > 0: print("OpenVSP Socket ConnectionResetError")
                         break
                     if not packet: break
                     b_data.append(packet)
@@ -457,15 +457,15 @@ def start_server():
                     except (pickle.UnpicklingError, EOFError):
                         pass
                 if b_data == [] or data == []:
-                    if openvsp_config.FACADE_PRINT_LEVEL > 0: print("Server Socket Thread: Unable to receive data from socket, closing server.")
+                    if openvsp_config.FACADE_PRINT_LEVEL > 0: print("OpenVSP Server Socket Thread: Unable to receive data from socket, closing server.")
                     break
 
                 # Special functionality for StartGUI
                 if data[0] == 'StartGUI':
                     if openvsp_config.FACADE_PRINT_LEVEL > 1:
-                        print("Server Socket Thread: StartGUI called")
+                        print("OpenVSP Server Socket Thread: StartGUI called")
                     if openvsp_config.FACADE_PRINT_LEVEL > 1 and event.is_set():
-                        print("Server Socket Thread: The OpenVSP GUI should already be running")
+                        print("OpenVSP Server Socket Thread: The OpenVSP GUI should already be running")
                     result = 0
                     b_result = pack_data(result)
                     event.set()
@@ -476,14 +476,14 @@ def start_server():
                 # Special functionality for StopGUI
                 elif data[0] == 'StopGUI':
                     if openvsp_config.FACADE_PRINT_LEVEL > 1 and not event.is_set():
-                        print("Server Socket Thread: The OpenVSP GUI is not running")
+                        print("OpenVSP Server Socket Thread: The OpenVSP GUI is not running")
                     if openvsp_config.FACADE_PRINT_LEVEL > 1:
-                        print("Server Socket Thread: About to call StopGUI()")
+                        print("OpenVSP Server Socket Thread: About to call StopGUI()")
                     if module.IsEventLoopRunning():
                         module.StopGUI()
                     gui_active = False
                     if openvsp_config.FACADE_PRINT_LEVEL > 1:
-                        print("Server Socket Thread: After StopGUI() called")
+                        print("OpenVSP Server Socket Thread: After StopGUI() called")
                     result = 0
                     b_result = pack_data(result)
 
@@ -500,18 +500,18 @@ def start_server():
                     foo = getattr(module, func_name)
                     try:
                         if openvsp_config.FACADE_PRINT_LEVEL > 1:
-                            print("Server Socket Thread: A1 Waiting for Lock")
+                            print("OpenVSP Server Socket Thread: A1 Waiting for Lock")
                         if gui_active:
                             module.Lock()
                             if openvsp_config.FACADE_PRINT_LEVEL > 1:
-                                print("Server Socket Thread: A2 Lock obtained")
+                                print("OpenVSP Server Socket Thread: A2 Lock obtained")
                         result = foo(*args, **kwargs)
                         if openvsp_config.FACADE_PRINT_LEVEL > 1:
-                            print("Server Socket Thread: A3 VSP function called")
+                            print("OpenVSP Server Socket Thread: A3 VSP function called")
                         if gui_active:
                             module.Unlock()
                             if openvsp_config.FACADE_PRINT_LEVEL > 1:
-                                print("Server Socket Thread: A4 Lock released")
+                                print("OpenVSP Server Socket Thread: A4 Lock released")
                     except Exception as e:
                         exc_info = sys.exc_info()
                         result = ["error", ''.join(traceback.format_exception(*exc_info))]
@@ -520,18 +520,18 @@ def start_server():
                 # Try to send response back
                 try:
                     if openvsp_config.FACADE_PRINT_LEVEL > 1:
-                        print("Server Socket Thread: sending data back")
+                        print("OpenVSP Server Socket Thread: sending data back")
                     conn.sendall(b_result)
                 except (ConnectionResetError, BrokenPipeError) as e:
-                    if openvsp_config.FACADE_PRINT_LEVEL > 0: print("Server Socket Thread: Unable to send data to socket, closing server.")
+                    if openvsp_config.FACADE_PRINT_LEVEL > 0: print("OpenVSP Server Socket Thread: Unable to send data to socket, closing server.")
                     break
 
-    if openvsp_config.FACADE_PRINT_LEVEL > 0: print("Server Socket Thread: server closing")
+    if openvsp_config.FACADE_PRINT_LEVEL > 0: print("OpenVSP Server Socket Thread: Server closing")
     global gui_wait
     gui_wait = False
     event.set()
     module.StopGUI()
-    if openvsp_config.FACADE_PRINT_LEVEL > 0: print("Server Socket Thread: End of thread")
+    if openvsp_config.FACADE_PRINT_LEVEL > 0: print("OpenVSP Server Socket Thread: End of thread")
 
 
 if __name__ == "__main__":
@@ -542,14 +542,14 @@ if __name__ == "__main__":
     while gui_wait:
         event.wait()
         if openvsp_config.FACADE_PRINT_LEVEL > 1:
-            print("Server GUI Thread: Starting GUI")
+            print("OpenVSP Server GUI Thread: Starting GUI")
         if gui_wait: #makes sure this didnt change while waiting
             gui_active = True
             module.StartGUI()
         if openvsp_config.FACADE_PRINT_LEVEL > 1:
-            print("Server GUI Thread: GUI stopped")
+            print("OpenVSP Server GUI Thread: GUI stopped")
         event.clear()
-    if openvsp_config.FACADE_PRINT_LEVEL > 0: print("Server GUI Thread: End of thread")
+    if openvsp_config.FACADE_PRINT_LEVEL > 0: print("OpenVSP Server GUI Thread: End of thread")
 
 """
     with open('facade_server.py', 'w') as f:
