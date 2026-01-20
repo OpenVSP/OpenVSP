@@ -181,6 +181,7 @@ CLIENT_END = """
     def _close_server(self):
         try:
             self._proc.terminate()
+            self._proc.wait(1)
         except:
             pass
         try:
@@ -197,6 +198,7 @@ CLIENT_END = """
     def __del__(self):
         try:
             self._proc.terminate()
+            self._proc.wait(1)
         except:
             pass
         try:
