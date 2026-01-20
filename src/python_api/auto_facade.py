@@ -283,6 +283,9 @@ def write_facade(file_path):
     new_facade_string = ''
     new_facade_string += CLIENT_HEAD
 
+    init_string_additions = ''
+    func_string_additions = ''
+
     with open(file_path, 'r') as f:
         in_swig_header = True
         in_class = False
@@ -300,7 +303,7 @@ def write_facade(file_path):
             #updating constants
             elif " = _vsp." in line and not "swig" in line:
                 in_swig_header = False
-                new_facade_string += '        self.' + line
+                init_string_additions += '        self.' + line
                 previous_indent = '        '
 
             #adding function decorator to every function
@@ -309,13 +312,15 @@ def write_facade(file_path):
                 and not "   def" in line
                 and not "swig" in line
             ):
-                new_facade_string += "    @client_wrap\n"
+                func_string_additions += "    @client_wrap\n"
                 ind = line.index("(") + 1
-                new_facade_string += '    ' + line[:ind] + "self, " + line[ind:]
+                func_string_additions += '    ' + line[:ind] + "self, " + line[ind:]
                 previous_indent = '    '
 
             elif not in_swig_header:
-                new_facade_string += previous_indent + line
+                func_string_additions += previous_indent + line
+    new_facade_string += init_string_additions
+    new_facade_string += func_string_additions
     new_facade_string += CLIENT_END
     with open('facade.py', 'w') as f:
         f.write(new_facade_string)
