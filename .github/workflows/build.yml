@@ -58,14 +58,14 @@ jobs:
       shell: cmd
       run:   |
         choco install -y swig pandoc
-        pip install sphinx
+        pip install sphinx numpy
 
     - name:  Install MacOS
       if: runner.os == 'macos'
       shell: bash
       run:   |
         brew install swig llvm@${{ matrix.llvm-version }} libomp doxygen graphviz pandoc
-        pip install sphinx
+        pip install sphinx numpy
 
     - name: Install cmake
       uses: jwlawson/actions-setup-cmake@v2
