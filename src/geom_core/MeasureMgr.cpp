@@ -51,7 +51,7 @@ Protractor * MeasureMgrSingleton::CreateAndAddProtractor()
 {
     Protractor * protractor = new Protractor();
 
-    string prname = "PROTRACTOR_" + to_string( m_Protractors.size() );
+    string prname = "PROTRACTOR_" + std::to_string( m_Protractors.size() );
     protractor->SetName( prname );
 
     m_Protractors.push_back( protractor );
@@ -92,7 +92,7 @@ Ruler * MeasureMgrSingleton::CreateAndAddRuler()
 {
     Ruler * ruler = new Ruler();
 
-    string rname = "RULER_" + to_string( m_Rulers.size() );
+    string rname = "RULER_" + std::to_string( m_Rulers.size() );
     ruler->SetName( rname );
 
     m_Rulers.push_back( ruler );
@@ -126,7 +126,7 @@ Probe * MeasureMgrSingleton::CreateAndAddProbe()
 {
     Probe * probe = new Probe();
 
-    string pname = "PROBE_" + to_string( m_Probes.size() );
+    string pname = "PROBE_" + std::to_string( m_Probes.size() );
     probe->SetName( pname );
 
     m_Probes.push_back( probe );
@@ -154,7 +154,7 @@ RSTProbe * MeasureMgrSingleton::CreateAndAddRSTProbe()
 {
     RSTProbe * RSTprobe = new RSTProbe();
 
-    string rstname = "RSTPROBE_" + to_string( m_RSTProbes.size() );
+    string rstname = "RSTPROBE_" + std::to_string( m_RSTProbes.size() );
     RSTprobe->SetName( rstname );
 
     m_RSTProbes.push_back(RSTprobe );
