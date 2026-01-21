@@ -562,6 +562,7 @@ void ManageGeomScreen::AddGeom()
 
     if ( type.m_Type < NUM_GEOM_TYPE )
     {
+        m_VehSelected = false;
         string added_id = m_VehiclePtr->AddGeom( type );
         m_VehiclePtr->SetActiveGeom( added_id );
         SetNeedsShowHideGeoms();
