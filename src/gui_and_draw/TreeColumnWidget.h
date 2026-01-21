@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
-#include <FL/Fl_Input.h>
+#include <FL/Fl_Input.H>
 #include <FL/Fl_Tree.H>
 
 #include <string>
