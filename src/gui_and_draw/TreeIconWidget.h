@@ -179,18 +179,19 @@ class TreeWithIcons : public Fl_Tree
         TreeIconItem* GetItemByRefId( const string & ref_id );
         void GetSelectedItems( vector < TreeIconItem* > *item_vec );
 
-        void SetEventItem( TreeIconItem* event_item )
+        void SetEventItemID( const string & item_id )
         {
-            m_EventItem = event_item;
+            m_EventItemID = item_id;
         }
-        void ClearEventItem()
+        void ClearEventItemID()
         {
-            m_EventItem = nullptr;
+            m_EventItemID.clear();
         }
-        TreeIconItem* GetEventItem()
+        string GetEventItemID()
         {
-            return m_EventItem;
+            return m_EventItemID;
         }
+        TreeIconItem* GetEventItem();
 
         void SetKeyCallback( Fl_Callback* cb, void* p );
 
@@ -199,7 +200,7 @@ class TreeWithIcons : public Fl_Tree
         // Hide these base class methods from the API; we don't want app using them,
         // as we expect all items in the tree to be TreeIconItems, not Fl_Tree_Items.
     protected:
-        TreeIconItem* m_EventItem;
+        string m_EventItemID;
 
         Fl_Callback* m_KeyCB;
         void* m_KeyCBData;

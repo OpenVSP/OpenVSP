@@ -8,6 +8,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <ScreenBase.h>
 #include <TreeIconWidget.h>
 #include <TreeColumnWidget.h>
 #include <VSPWindow.h>
@@ -595,7 +596,7 @@ int TreeIconItem::IconHandle()
         TreeWithIcons* parent_tree = dynamic_cast< TreeWithIcons* >( tree() );
         if ( parent_tree )
         {
-            parent_tree->SetEventItem( this );
+            parent_tree->SetEventItemID( GetRefID() );
         }
     }
     return ret;
@@ -679,7 +680,7 @@ TreeWithIcons::TreeWithIcons( int X, int Y, int W, int H, const char *L ) : Fl_T
     connectorstyle( FL_TREE_CONNECTOR_DOTTED );
     openicon( new Fl_Pixmap( mini_tree_open_xpm ) );
     closeicon( new Fl_Pixmap( mini_tree_close_xpm ) );
-    ClearEventItem();
+    ClearEventItemID();
 
     m_KeyCB = nullptr;
     m_KeyCBData = nullptr;
@@ -728,6 +729,13 @@ TreeIconItem* TreeWithIcons::GetItemByRefId( const string & ref_id )
         }
     }
 
+    return ret_item;
+}
+
+TreeIconItem* TreeWithIcons::GetEventItem()
+{
+    TreeIconItem* ret_item = nullptr;
+    ret_item = GetItemByRefId( m_EventItemID );
     return ret_item;
 }
 

@@ -673,7 +673,7 @@ void ManageGeomScreen::GeomBrowserCallback()
             surf_state = tree_icon_item->GetSurfState();
             icon_event_id = tree_icon_item->GetRefID();
         }
-        m_GeomBrowser->ClearEventItem();
+        m_GeomBrowser->ClearEventItemID();
     }
 
     //==== Find Vector of All Selections ====//
