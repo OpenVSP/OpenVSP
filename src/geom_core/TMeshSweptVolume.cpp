@@ -2,6 +2,11 @@
 // Created by Rob McDonald on 7/28/25.
 //
 
+#ifdef WIN32
+#  define _HAS_STD_BYTE 0
+#  include <windows.h>
+#endif
+
 #include "TMeshSweptVolume.h"
 #include "TMesh.h"
 #include "MeshGeom.h"
