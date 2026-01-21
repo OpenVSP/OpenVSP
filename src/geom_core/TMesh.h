@@ -30,7 +30,13 @@
 #include <unordered_map>
 #include <deque>
 #include <list>
-using namespace std;            //jrg windows??
+
+using std::vector;
+using std::string;
+using std::unordered_map;
+using std::deque;
+using std::list;
+
 
 #include "APIDefines.h"
 

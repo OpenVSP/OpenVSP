@@ -16,7 +16,7 @@
 #include "SubSurface.h"
 #include "ResultsMgr.h"
 
-using namespace std;
+using std::vector;
 
 #ifdef _MSC_VER
 #ifndef NAN

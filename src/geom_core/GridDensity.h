@@ -28,7 +28,10 @@
 #include <vector>
 #include <set>
 #include <string>
-using namespace std;
+
+using std::vector;
+using std::set;
+using std::string;
 
 class Geom;
 class FeaStructure;

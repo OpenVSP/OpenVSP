@@ -31,7 +31,13 @@
 #include <map>
 #include <unordered_map>
 #include <algorithm>
-using namespace std;
+
+using std::list;
+using std::vector;
+using std::set;
+using std::map;
+using std::unordered_map;
+using std::string;
 
 class TNode;
 class TTri;
