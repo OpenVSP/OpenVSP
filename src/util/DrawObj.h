@@ -16,7 +16,8 @@
 #include <vector>
 #include <string>
 
-using namespace std;
+using std::vector;
+using std::string;
 
 #define PICKGEOMHEADER "GPICKING_"
 #define PICKVERTEXHEADER "VPICKING_"

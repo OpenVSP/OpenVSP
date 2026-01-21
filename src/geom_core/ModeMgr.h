@@ -19,7 +19,7 @@
 
 using std::string;
 using std::vector;
-
+using std::pair;
 
 class Mode : public ParmContainer
 {

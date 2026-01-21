@@ -173,7 +173,7 @@ void SpreadSheet< vector < int > >::set_value( int R, int C, const char * str )
 
         if ( int_flag )
         {
-            (*m_Data)[ R ][ C ] = stoi( str, nullptr );
+            (*m_Data)[ R ][ C ] = std::stoi( str, nullptr );
         }
     }
 }

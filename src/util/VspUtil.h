@@ -10,9 +10,11 @@
 #include <cmath>
 
 #include <vector>
+using std::vector;
+using std::string;
+
 #include "Vec3d.h"
 #include "Vec2d.h"
-using namespace std;
 
 #ifndef MAX
 #define MAX(x,y) (((x) < (y)) ? (y):(x))

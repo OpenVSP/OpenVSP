@@ -7,9 +7,6 @@
 
 #include "Vec3d.h"
 
-#include <iostream>
-using namespace std;
-
 class quat;
 
 

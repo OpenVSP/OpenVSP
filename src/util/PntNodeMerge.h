@@ -28,7 +28,8 @@
 #include "nanoflann.hpp"
 
 #include <vector>
-using namespace std;
+using std::vector;
+using std::pair;
 using namespace nanoflann;
 
 struct PntNode;

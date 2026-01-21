@@ -24,6 +24,7 @@
 #include "StringUtil.h"
 
 using std::vector;
+using std::string;
 
 template < typename T >
 class SpreadSheet : public Fl_Table
@@ -263,7 +264,7 @@ string SpreadSheet<T>::row_header_text( int index )
         }
     }
     string s;
-    s = to_string( index + 1 );
+    s = std::to_string( index + 1 );
     return s;
 }
 
