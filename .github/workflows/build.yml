@@ -64,7 +64,17 @@ jobs:
       if: runner.os == 'macos'
       shell: bash
       run:   |
-        brew install swig llvm@${{ matrix.llvm-version }} libomp doxygen graphviz pandoc
+        brew install swig libomp doxygen graphviz pandoc
+
+        # llvm@16 depends on Pythone 3.12, but installing it via brew conflicts with the Python 3.12
+        # already installed with the runner image.  This is currently only a problem for the
+        # macos-14-large runner.  This may be fixed in the future.
+        # In the meantime, --ignore-dependencies is used to install llvm@16 without forcing a Python install.
+        # Note, this risks some other dependencies not being installed.
+        brew install llvm@${{ matrix.llvm-version }} --ignore-dependencies
+
+        brew deps --tree llvm@16
+
         pip install sphinx numpy
 
     - name: Install cmake
