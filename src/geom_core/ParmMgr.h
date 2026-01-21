@@ -11,8 +11,6 @@
 #if !defined(PARMMGR__INCLUDED_)
 #define PARMMGR__INCLUDED_
 
-#include "UsingCpp11.h"
-
 #include "Parm.h"
 #include "ParmUndo.h"
 #include "MessageMgr.h"

@@ -12,7 +12,6 @@
 #define VSPUTILTESTSUITE__INCLUDED_
 
 
-#include "UsingCpp11.h"
 #include "cpptest.h"
 #include "MessageMgr.h"
 #include "VspCurve.h"

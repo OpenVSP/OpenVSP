@@ -11,8 +11,6 @@
 #if !defined(IDMGR__INCLUDED_)
 #define IDMGR__INCLUDED_
 
-#include "UsingCpp11.h"
-
 #include "MessageMgr.h"
 
 #include <map>

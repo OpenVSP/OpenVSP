@@ -66,7 +66,6 @@ SuperEllipse.h
 tinydir.h
 UnitConversion.h
 UtilTestSuite.h
-UsingCpp11.h
 VKTAirfoil.h
 Vsp1DCurve.h
 VspCurve.h
