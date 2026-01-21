@@ -71,9 +71,13 @@ jobs:
         # macos-14-large runner.  This may be fixed in the future.
         # In the meantime, --ignore-dependencies is used to install llvm@16 without forcing a Python install.
         # Note, this risks some other dependencies not being installed.
-        brew install llvm@${{ matrix.llvm-version }} --ignore-dependencies
 
-        brew deps --tree llvm@16
+        # This command dumps the dependency tree for llvm
+        # brew deps --tree llvm@${{ matrix.llvm-version }}
+
+        # Inspection of that tree shows that installing zstd should cover all non-python dependencies.
+        brew install zstd
+        brew install llvm@${{ matrix.llvm-version }} --ignore-dependencies
 
         pip install sphinx numpy
 
