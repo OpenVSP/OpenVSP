@@ -756,7 +756,7 @@ void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET, const stri
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_BOX )
         {
-            fprintf( fp, "*BEAM SECTION, SECTION=PIPE, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), matname.c_str() );
+            fprintf( fp, "*BEAM SECTION, SECTION=BOX, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), matname.c_str() );
             fprintf( fp, "%f,%f,%f,%f,%f,%f\n", m_Dim1, m_Dim2, m_Dim4, m_Dim3, m_Dim4, m_Dim3 );
         }
     }
