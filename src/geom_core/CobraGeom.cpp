@@ -5,6 +5,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include "CobraGeom.h"
 #include "ParmMgr.h"
