@@ -13,6 +13,7 @@
 #include "ParmMgr.h"
 #include "PropGeom.h"
 #include "StlHelper.h"
+#include "ParmContainer.h"
 
 using namespace vsp;
 
@@ -462,8 +463,14 @@ void XSecSurf::ChangeXSecShape( int index, int type )
 
     if ( nxs )
     {
+        // Store XSec name before copy.
+        string nxs_name =  ( ( ParmContainer* ) nxs->GetXSecCurve() )->GetName();
+
         //==== Copy Data ====//
         nxs->CopyFrom( xs );
+
+        // Restore name.
+        nxs->GetXSecCurve()->SetName( nxs_name );
 
         // Swap all XSec ID's.
         nxs->SwapIDs( xs );
