@@ -1,3 +1,159 @@
+# [OpenVSP 3.47.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.47.0)
+
+2026-01-22
+
+OpenVSP 3.47.0
+
+The gap since the last release (3.5mo) is a bit longer than usual (1-2mo).
+While some of that gap is certainly attributable to the holidays, I also
+realized that I've been sitting on some features that I thought had been
+released.  Oops.
+
+There are several new Geometry Analysis capabilities and some existing ones
+have been extended.  A Swept Volume analysis has been added that is useful
+for checking clearance between components that move with straight line motion
+(i.e. store separation).  Some dispersion around the motion vector can be
+included.
+
+A new Look-At Visibility analysis has been added that will calculate the
+visible surface of the aircraft from a specified direction.  This is ideal
+for calculating the effective solar area area of an aircraft while considering
+self-shadowing.
+
+The Look-From Visibility analysis has been extended in three major ways.
+First, it now includes a discrete mode that checks a list of directions in
+addition to the continuous mode that finds all visible directions from a point.
+Second, it can now compute the combined visibility from multiple viewpoints.
+Third, it can now consider a limited field of view from each viewpoint.  These
+capabilities work together appropriately.  It is now possible to compute the
+combined field of view of multiple sensors (each with a limited FOV
+- say a 20deg cone) placed around the airframe.
+
+A new 'Intersect' type subsurface has been added.  This allows the user to
+create a subsurface (in UW space) from the intersection between two objects.
+This subsurface can be used like any other subsurface.
+
+Intersect subsurfaces will find many uses, but one immediate goal is to
+allow specification of a visibility requirement (either a pilot view requirement
+like FAA AC 25.773 or a sensor capability like a 20deg cone) and then generate
+a cutout in the body that meets that requirement.  Another immediate goal
+is to improve the FEA Structures capability, making it easy to accurately
+trim the fuselage skin at wing-body join.
+
+There has been an overhaul of the UX Add/Delete/Rename concepts. Many features
+of OpenVSP involve adding, deleting, and renaming items. These typically live
+in what are known as "Browsers" or "Trees." These items encompass things such
+as Geoms, AdvLinks, Structural Components, Excrescence Drag contributors, and
+much more. As these features were implemented over many years by various people,
+the design language for how an item is manipulated in these browsers became
+muddled. Practically, this led to OpenVSP users having to develop conflicting
+muscle memory from learning multiple menu archetypes. Would an item need a name
+before adding it, or does it have a default name? When renaming an item, does
+the user reuse the name input field or a separate rename input field? Does an
+item rename when hitting "Enter" on the field or when clicking a button labeled
+"rename?" With this noted, a we developed a UX template for
+Adding/Deleting/Renaming items in browsers and trees, resulting in two key
+developments.
+
+First, all instances of mutable browsers were redesigned to the same
+functionality. They all have buttons for Adding & Deleting. No item requires a
+name before adding it and all items now have a default name associated with
+its type.  Renaming items reuses the name input field, and the "rename" button
+has been removed everywhere, deferring to users' "Enter" key callback when
+finishing modifying the name input field.
+
+Second, a popup rename field was developed for easier renaming. This inline
+rename field mimics OS file renaming by inserting a name input field over
+the item in its browser/tree, triggered by double clicking or using an
+applicable hotkey (F2 or Enter to match both Mac and Windows hotkeys). Once
+open, the user may click out of the rename field or type "Enter" to confirm
+their modifications. All mutable browsers now support this feature to reduce
+friction when designing your vehicles.
+
+We believe intentional design consistency is key to enabling further user
+proficiency, however subtle it may appear.
+
+A NASA hypersonic parametric body (COBRA) has been added.  It comes from NASA,
+so you know it is an acronym -- Co-Optimization of Blunt-body Re-entry Analysis.
+This is a shape that was previously generated as a CFD mesh via a Fortran code.
+Implementing it in OpenVSP will let them do lots of new things with it.
+
+I discovered that there is an analytical solution to the problem of statically
+balancing non-uniformly spaced blades.  Although there was nothing wrong with
+the numerical solution I was using, I switched to the analytical solution
+because that is what you do.
+
+There is potential to add a capability for higher order blancing of
+non-uniformly spaced blades, but this would only be relevant for 7+ bladed
+rotors.  Let me know if this is of interest to anyone.
+
+Python 3.9 has reached end of life.  OpenVSP will now support 3.11 and 3.13.
+GitHub Actions has dropped MacOS 13 for x86, so our x86 build is now built
+using MacOS 14.
+
+As usual, there were lots of fixes all over the place including a handful of
+user-reported issues that have been neglected for a while.
+
+There were several fixes and improvements to the multifacade capability of
+the Python API.  Large vectors of vec3d data transferred through the API can
+now be intrepreted directly as numpy arrays.  This is about 400x faster.
+If you have an API workflow that computes a lot of surface points, you'll
+want to use this feature.  This does mean that numpy is required at build
+time.
+
+The OpenVSP build system would not work with Python 3.12+.  This has been
+fixed -- thanks Alasdair Gray.
+
+There were some bugs with writing *.vspgeom files from CFDMesh.  I don't think
+anyone is trying to use that feature, but we are looking at it as a new way
+to work between OpenVSP and CBAero.
+
+All VSPAERO input files are now written with %lg instead of %lf formatting.
+This lets scientific notation be used when appropriate, ensuring that both
+large and small numbers are communicated properly to the solver.  Users
+modeling insect sized aircraft using large units (meters) will appreciate
+having non-zero Sref communicated appropriately.
+
+Some point merge tolerances in CFDMesh have been adjusted.  It was reporting
+a lot of false-positive non-watertight meshes.  This should work better now.
+
+Features:
+- Swept Volume Analysis
+- Look-At Visibility Analysis
+- Look-From Visibility now has discrete mode
+- Look-From Visibility supports multiple viewpoints
+- Look-From Visibility supports constrained FOV from each viewpoint
+- Intersect type SubSurfaces
+- Reworked UX for all item browsers and trees regarding adding/deleting/renaming
+- Explicit Add and Delete button
+- Auto-name for all recently-added items
+- Rename using name field, no button necessary
+- Inline rename field via item double click, F2, or Enter
+- NASA COBRA Hypersonic reentry body geometry
+- Analytical solution to static blade balance
+- Faster transfer of large vec3d data to NumPy via API
+
+
+Build System:
+- Python 3.9 EOL.  Support dropped, supporting 3.11 and 3.13 going forward
+- MacOS 13 EOL, x86 build now using MacOS 14
+- Update FindPythonLibsNew to work with Python 3.12+ -- thanks Alasdair Gray
+
+
+Fixes:
+- Fix Deactivate() logic for sliders all over the place
+- New Geom selected correctly when Vehicle initially selected
+- Fixes for *.vspgeom files from CFDMesh
+- All VSPAERO files written with %lg for precision across all magnitudes
+- False positive non-watertight warning in CFDMesh fixes
+- Fix for repeated CompGeom / ParasiteDrag calls from API
+- Write BOX beam section types correctly to CalculiX files
+- Don't clobber XSecCurve name when changing XSec type
+
+
+---
+
+
 # [OpenVSP 3.46.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.46.0)
 
 2025-09-30
