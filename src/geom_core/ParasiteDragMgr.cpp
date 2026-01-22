@@ -444,7 +444,7 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
     if ( veh && (m_RecomputeGeom || (m_DegenGeomVec.size() == 0 && !m_CompGeomResults)))
     {
         veh->ClearDegenGeom();
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "Comp_Geom" ) );
+
         ClearInputVectors();
         ClearOutputVectors();
 
@@ -485,7 +485,7 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
         m_DegenGeomVec = veh->GetDegenGeomVec();
 
         // First Assignment of CompGeon, Will Carry Through to Rest of Calculate_X
-        m_CompGeomResults = ResultsMgr.FindResults( "Comp_Geom" );
+        m_CompGeomResults = ResultsMgr.FindResultsPtr( ResultsMgr.FindLatestResultsID( "Comp_Geom" ) );
     }
 }
 
