@@ -5680,13 +5680,6 @@ bool EngineModelScreen::Update( )
         }
     }
 
-    // Update menu while keeping setting.  Required to deactivate entries.
-    m_EngineGeomIOChoice.UpdateItems( true );
-    m_EngineGeomInChoice.UpdateItems( true );
-    m_EngineGeomOutChoice.UpdateItems( true );
-    m_EngineInModeChoice.UpdateItems( true );
-    m_EngineOutModeChoice.UpdateItems( true );
-
     m_EngineExtendDistanceSlider.Update( geomengine_ptr->m_ExtensionDistance.GetID() );
 
     m_EngineAutoExtensionFlagButton.Update( geomengine_ptr->m_AutoExtensionFlag.GetID() );
