@@ -189,7 +189,7 @@ void GeomEngine::ValidateParms()
         }
     }
 
-    if ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH || m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG )
+    if ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH || m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG || m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
     {
         m_EngineOutModeType.Deactivate();
     }
@@ -342,6 +342,7 @@ void GeomEngine::UpdateEngine()
         m_OrigSurf.BuildFeatureLines( m_ForceXSecFlag );
 
         VspSurf surf = m_MainSurfVec[0];
+        bool usesurf = true;
         surf.SetSurfCfdType( vsp::CFD_NORMAL );
 
         VspSurf surf2;
@@ -389,6 +390,10 @@ void GeomEngine::UpdateEngine()
                 // Cap Umax.
                 surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
             }
+            else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
+            {
+                usesurf = false;
+            }
             else if ( m_EngineGeomIOType() >= ENGINE_GEOM_INLET_OUTLET ) // Includes outlet description
             {
                 if ( m_EngineOutModeType() == ENGINE_MODE_EXTEND ||
@@ -411,8 +416,12 @@ void GeomEngine::UpdateEngine()
                 // Cap Umax.
                 surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
 
-                if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG )
+                if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG || m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
+                    if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                    {
+                        usesurf = false;
+                    }
                     surf2.TrimU( outfaceu, true );
                     surf2.TrimU( outlipu, false );
                     surf2.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, ptoff, false );
@@ -421,7 +430,6 @@ void GeomEngine::UpdateEngine()
                     surf2.SetSurfCfdType( vsp::CFD_NEGATIVE );
                     usesurf2 = true;
                 }
-
             }
 
             if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH )
@@ -434,6 +442,10 @@ void GeomEngine::UpdateEngine()
 
                 // Cap Umin.
                 surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+            }
+            else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
+            {
+                usesurf = false;
             }
             else if ( m_EngineGeomIOType() <= ENGINE_GEOM_INLET_OUTLET ) // Includes inlet description
             {
@@ -457,8 +469,12 @@ void GeomEngine::UpdateEngine()
                 // Cap Umin.
                 surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
 
-                if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG )
+                if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG || m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
+                    if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                    {
+                        usesurf = false;
+                    }
                     surf3.TrimU( inlipu, true );
                     surf3.TrimU( infaceu, false );
                     surf3.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
@@ -469,8 +485,12 @@ void GeomEngine::UpdateEngine()
                 }
             }
 
-            if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG )
+            if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG || m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ) )
             {
+                if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                {
+                    usesurf = false;
+                }
                 uroll = inlipu;
                 surf2.RollU( uroll );
 
@@ -502,8 +522,12 @@ void GeomEngine::UpdateEngine()
                 {
                     surf.TrimU( outlipu, true );
                 }
-                else if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG )
+                else if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG || m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
+                    if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                    {
+                        usesurf = false;
+                    }
                     surf.TrimU( outfaceu, true );
 
                     surf2.TrimU( outfaceu, false );
@@ -534,9 +558,16 @@ void GeomEngine::UpdateEngine()
                 {
                     surf.TrimU( inlipu, false );
                 }
-                else if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG )
+                else if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG || m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
-                    surf.TrimU( infaceu, false );
+                    if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG )
+                    {
+                        surf.TrimU( infaceu, false );
+                    }
+                    else if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                    {
+                        usesurf = false;
+                    }
 
                     surf3.TrimU( infaceu, true );
                     surf3.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
@@ -560,6 +591,10 @@ void GeomEngine::UpdateEngine()
                 {
                     surf.SetSurfCfdType( vsp::CFD_NEGATIVE );
                 }
+                else if ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
+                {
+                    surf2.SetSurfCfdType( vsp::CFD_NEGATIVE );
+                }
             }
             else if ( m_EngineGeomIOType() == ENGINE_GEOM_OUTLET ) // Outlet description
             {
@@ -576,6 +611,11 @@ void GeomEngine::UpdateEngine()
                 if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG )
                 {
                     surf.SetSurfCfdType( vsp::CFD_NEGATIVE );
+                }
+
+                if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                {
+                    usesurf = false;
                 }
             }
             else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET ) // Inlet description
@@ -594,11 +634,19 @@ void GeomEngine::UpdateEngine()
                 {
                     surf.SetSurfCfdType( vsp::CFD_NEGATIVE );
                 }
+
+                if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                {
+                    usesurf = false;
+                }
             }
         }
 
         m_MainSurfVec.clear();
-        m_MainSurfVec.push_back( surf );
+        if ( usesurf )
+        {
+            m_MainSurfVec.push_back( surf );
+        }
         if ( usesurf2 )
         {
             m_MainSurfVec.push_back( surf2 );
