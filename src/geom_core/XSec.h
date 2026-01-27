@@ -286,6 +286,7 @@ public:
     virtual void SetTanSlews( int side, double top, double right, double bottom, double left );
     virtual void SetTanStrengths( int side, double top, double right, double bottom, double left );
     virtual void SetCurvatures( int side, double top, double right, double bottom, double left );
+    virtual void FlipLRSkinning();
 
     virtual void SetV2DefaultBehavior();
     virtual void ClearSkinning();
