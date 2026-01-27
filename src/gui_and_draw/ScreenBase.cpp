@@ -5567,15 +5567,18 @@ void EngineModelScreen::BuildEngineGUI( GroupLayout & layout )
 
     m_EngineInModeChoice.AddItem( "FLOWTHROUGH", vsp::ENGINE_MODE_FLOWTHROUGH );
     m_EngineInModeChoice.AddItem( "FLOWTHROUGH NEGATIVE", vsp::ENGINE_MODE_FLOWTHROUGH_NEG );
+    m_EngineInModeChoice.AddItem( "FLOWTHROUGH NEGATIVE ONLY", vsp::ENGINE_MODE_FLOWTHROUGH_NEG_ONLY );
     m_EngineInModeChoice.AddItem( "TO LIP", vsp::ENGINE_MODE_TO_LIP );
     m_EngineInModeChoice.AddItem( "TO FACE", vsp::ENGINE_MODE_TO_FACE );
     m_EngineInModeChoice.AddItem( "TO FACE NEGATIVE", vsp::ENGINE_MODE_TO_FACE_NEG );
+    m_EngineInModeChoice.AddItem( "TO FACE NEGATIVE ONLY", vsp::ENGINE_MODE_TO_FACE_NEG_ONLY );
     m_EngineInModeChoice.AddItem( "EXTEND", vsp::ENGINE_MODE_EXTEND );
     layout.AddChoice( m_EngineInModeChoice, "Inlet Mode:" );
 
     m_EngineOutModeChoice.AddItem( "TO LIP", vsp::ENGINE_MODE_TO_LIP );
     m_EngineOutModeChoice.AddItem( "TO FACE", vsp::ENGINE_MODE_TO_FACE );
     m_EngineOutModeChoice.AddItem( "TO FACE NEGATIVE", vsp::ENGINE_MODE_TO_FACE_NEG );
+    m_EngineOutModeChoice.AddItem( "TO FACE NEGATIVE ONLY", vsp::ENGINE_MODE_TO_FACE_NEG_ONLY );
     m_EngineOutModeChoice.AddItem( "EXTEND", vsp::ENGINE_MODE_EXTEND );
     layout.AddChoice( m_EngineOutModeChoice, "Outlet Mode:" );
 
