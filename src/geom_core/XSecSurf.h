@@ -36,6 +36,7 @@ public:
     string GetXSecID( int index ) const;
     void ChangeXSecID( const string &oldID, const string &newID );
     string AddXSec( int type );
+    string AddXSecCopy( XSec* xs );
     void CutXSec( int index );
     void SetCutMinNumXSecs( int num )                { m_CutMinNumXSecs = num; }
     void CopyXSec( int index );
