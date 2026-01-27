@@ -1608,6 +1608,67 @@ void SkinXSec::SetCurvatures( int side, double top, double right, double bottom,
     }
 }
 
+void SkinXSec::FlipLRSkinning()
+{
+    double ang, slew, str, curv;
+
+    // Remap Top
+    ang  = m_TopLAngle();
+    slew = m_TopLSlew();
+    str  = m_TopLStrength();
+    curv = m_TopLCurve();
+    m_TopLAngle    = m_TopRAngle();
+    m_TopLSlew     = m_TopRSlew();
+    m_TopLStrength = m_TopRStrength();
+    m_TopLCurve    = m_TopRCurve();
+    m_TopRAngle    = ang;
+    m_TopRSlew     = slew;
+    m_TopRStrength = str;
+    m_TopRCurve    = curv;
+
+    // Remap Right
+    ang  = m_RightLAngle();
+    slew = m_RightLSlew();
+    str  = m_RightLStrength();
+    curv = m_RightLCurve();
+    m_RightLAngle    = m_RightRAngle();
+    m_RightLSlew     = m_RightRSlew();
+    m_RightLStrength = m_RightRStrength();
+    m_RightLCurve    = m_RightRCurve();
+    m_RightRAngle    = ang;
+    m_RightRSlew     = slew;
+    m_RightRStrength = str;
+    m_RightRCurve    = curv;
+
+    // Remap Bottom
+    ang  = m_BottomLAngle();
+    slew = m_BottomLSlew();
+    str  = m_BottomLStrength();
+    curv = m_BottomLCurve();
+    m_BottomLAngle    = m_BottomRAngle();
+    m_BottomLSlew     = m_BottomRSlew();
+    m_BottomLStrength = m_BottomRStrength();
+    m_BottomLCurve    = m_BottomRCurve();
+    m_BottomRAngle    = ang;
+    m_BottomRSlew     = slew;
+    m_BottomRStrength = str;
+    m_BottomRCurve    = curv;
+
+    // Remap Left
+    ang  = m_LeftLAngle();
+    slew = m_LeftLSlew();
+    str  = m_LeftLStrength();
+    curv = m_LeftLCurve();
+    m_LeftLAngle    = m_LeftRAngle();
+    m_LeftLSlew     = m_LeftRSlew();
+    m_LeftLStrength = m_LeftRStrength();
+    m_LeftLCurve    = m_LeftRCurve();
+    m_LeftRAngle    = ang;
+    m_LeftRSlew     = slew;
+    m_LeftRStrength = str;
+    m_LeftRCurve    = curv;
+}
+
 // Set skinning behavior to be similar to VSP v2's Fuse2.
 void SkinXSec::SetV2DefaultBehavior()
 {
