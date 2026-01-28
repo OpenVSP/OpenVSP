@@ -61,6 +61,7 @@ void glfClose();
 
 /* Font loading/unloading functions */
 int	glfLoadFont(char *font_name);			/* Load Vector font to memory */
+int	glfLoadFontBuffer( const unsigned char *font_buffer, int buffer_size ); /* Load Vector font from memory buffer */
 int	glfLoadBMFFont(char *FName);			/* Load Bitmap font to memory */
 int	glfUnloadFont();						/* Unload font from memory */
 int glfUnloadBMFFont();						/* Unload current BMF font */

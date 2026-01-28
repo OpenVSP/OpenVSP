@@ -194,6 +194,20 @@ static int LittleEndian()
 	return 0;
 }
 
+struct buffer_reader
+{
+	const unsigned char *data;
+	size_t size;
+	size_t pos;
+};
+
+static int BufferRead( void *dst, size_t bytes, struct buffer_reader *reader )
+{
+	if (reader->pos + bytes > reader->size) return 0;
+	memcpy(dst, reader->data + reader->pos, bytes);
+	reader->pos += bytes;
+	return 1;
+}
 
 /*
    ---------------------------------------------------------------------------------
@@ -304,6 +318,113 @@ static int ReadFont(char *font_name, struct glf_font *glff)
 	return GLF_OK;
 }
 
+/*
+|	This function read font buffer and store information in memory
+|	Return: GLF_OK - if all OK
+|	Return: GLF_ERROR - if any error
+*/
+static int ReadFontBuffer(const unsigned char *font_buffer, size_t buffer_size, struct glf_font *glff)
+{
+	char buffer[64];
+	int i, j;
+	unsigned char temp, code, verts, fcets, lns;
+	float tempfx, tempfy;
+	unsigned char *tp;
+	int LEndian; /* True if little endian machine */
+	struct buffer_reader reader;
+
+	if (font_buffer == NULL || buffer_size == 0) return GLF_ERROR;
+
+	reader.data = font_buffer;
+	reader.size = buffer_size;
+	reader.pos = 0;
+
+	if (!BufferRead(buffer, 3, &reader)) return GLF_ERROR;
+	buffer[3] = 0;
+	if (strcmp(buffer, "GLF"))
+	{
+		/* If header is not "GLF" */
+		if (console_msg) printf("Error reading font buffer: incorrect data format\n");
+		return GLF_ERROR;
+	}
+
+	/* Check for machine type */
+	LEndian = LittleEndian();
+
+	if (!BufferRead(glff->font_name, 96, &reader)) return GLF_ERROR;
+	glff->font_name[96] = 0;
+
+	if (!BufferRead(&glff->sym_total, 1, &reader)) return GLF_ERROR;  /* Read total symbols in font */
+
+	for (i=0; i<MAX_FONTS; i++) glff->symbols[i] = NULL;
+
+	for (i=0; i<28; i++) if (!BufferRead(&temp, 1, &reader)) return GLF_ERROR;  /* Read unused data */
+
+	/* Now start to read font data */
+
+	for (i=0; i<glff->sym_total; i++)
+	{
+		if (!BufferRead(&code, 1, &reader)) return GLF_ERROR;  /* Read symbol code   */
+		if (!BufferRead(&verts, 1, &reader)) return GLF_ERROR; /* Read vertexs count */
+		if (!BufferRead(&fcets, 1, &reader)) return GLF_ERROR; /* Read facets count  */
+		if (!BufferRead(&lns, 1, &reader)) return GLF_ERROR;   /* Read lines count   */
+
+		if (glff->symbols[code] != NULL)
+		{
+			if (console_msg) printf("Error reading font buffer: encountered symbols in font\n");
+			return GLF_ERROR;
+		}
+
+		glff->symbols[code] = (struct one_symbol *)malloc(sizeof(struct one_symbol));
+		glff->symbols[code]->vdata = (float *)malloc(8*verts);
+		glff->symbols[code]->fdata = (unsigned char *)malloc(3*fcets);
+		glff->symbols[code]->ldata = (unsigned char *)malloc(lns);
+
+		glff->symbols[code]->vertexs = verts;
+		glff->symbols[code]->facets = fcets;
+		glff->symbols[code]->lines = lns;
+
+		glff->symbols[code]->leftx = 10;
+		glff->symbols[code]->rightx = -10;
+		glff->symbols[code]->topy = 10;
+		glff->symbols[code]->bottomy = -10;
+
+		for (j=0; j<verts; j++)
+		{
+			if (!BufferRead(&tempfx, 4, &reader)) return GLF_ERROR;
+			if (!BufferRead(&tempfy, 4, &reader)) return GLF_ERROR;
+
+			/* If machine is bigendian -> swap low and high words in
+			tempfx and tempfy */
+			if (!LEndian)
+			{
+				tp = (unsigned char *)&tempfx;
+				temp = tp[0]; tp[0] = tp[3]; tp[3] = temp;
+				temp = tp[1]; tp[1] = tp[2]; tp[2] = temp;
+				tp = (unsigned char *)&tempfy;
+				temp = tp[0]; tp[0] = tp[3]; tp[3] = temp;
+				temp = tp[1]; tp[1] = tp[2]; tp[2] = temp;
+			}
+			glff->symbols[code]->vdata[j*2] = tempfx;
+			glff->symbols[code]->vdata[j*2+1] = tempfy;
+
+			if (tempfx < glff->symbols[code]->leftx) glff->symbols[code]->leftx = tempfx;
+			if (tempfx > glff->symbols[code]->rightx) glff->symbols[code]->rightx = tempfx;
+			if (tempfy < glff->symbols[code]->topy) glff->symbols[code]->topy = tempfy;
+			if (tempfy > glff->symbols[code]->bottomy) glff->symbols[code]->bottomy = tempfy;
+		}
+		for (j=0; j<fcets; j++)
+		{
+			if (!BufferRead(&glff->symbols[code]->fdata[j*3], 3, &reader)) return GLF_ERROR;
+		}
+		for (j=0; j<lns; j++)
+		{
+			if (!BufferRead(&glff->symbols[code]->ldata[j], 1, &reader)) return GLF_ERROR;
+		}
+	}
+	return GLF_OK;
+}
+
 
 /*
 | Function loads font to memory from file
@@ -328,6 +449,44 @@ int glfLoadFont(char *font_name)
 
 	if (!flag) return GLF_ERROR; /* Free font not found */
 	if (ReadFont(font_name, fonts[i]) == GLF_OK)
+	{
+		curfont = i; /* Set curfont to just loaded font */
+		return i;
+	}
+
+	if (fonts[i] != NULL)
+	{
+		free(fonts[i]);
+		fonts[i] = NULL;
+	}
+	return GLF_ERROR;
+}
+
+/*
+| Function loads font to memory from buffer
+| Return value: GLF_ERROR  - if error
+|               >=0 - returned font descriptor (load success)
+*/
+int glfLoadFontBuffer( const unsigned char *font_buffer, int buffer_size )
+{
+	int i;
+	char flag; /* Temporary flag */
+
+	if (font_buffer == NULL || buffer_size == 0) return GLF_ERROR;
+
+	/* First we find free font descriptor */
+	flag = 0; /* Descriptor not found yet */
+	for (i=0; i<MAX_FONTS; i++)
+		if (fonts[i] == NULL)
+		{
+			/* Initialize this font */
+			fonts[i] = (struct glf_font *)malloc(sizeof(struct glf_font));
+			flag = 1;
+			break;
+		}
+
+	if (!flag) return GLF_ERROR; /* Free font not found */
+	if (ReadFontBuffer(font_buffer, buffer_size, fonts[i]) == GLF_OK)
 	{
 		curfont = i; /* Set curfont to just loaded font */
 		return i;
