@@ -181,6 +181,14 @@ IF( NOT VSP_NO_API_WRAPPERS )
         FIND_PACKAGE( PythonLibsNew 3.11 )
 
         if ( PYTHONLIBS_FOUND )
+            MESSAGE( STATUS "Python found at top level" )
+
+MESSAGE( STATUS "pythonLocation: " $ENV{pythonLocation} )
+MESSAGE( STATUS "PYTHON_EXECUTABLE: " ${PYTHON_EXECUTABLE} )
+MESSAGE( STATUS "PYTHON_LIBRARY: " ${PYTHON_LIBRARY} )
+MESSAGE( STATUS "PYTHON_INCLUDE_DIR: " ${PYTHON_INCLUDE_DIR} )
+MESSAGE( STATUS "PYTHON_VERSION: " ${PYTHON_VERSION} )
+
             execute_process(
                 COMMAND ${PYTHON_EXECUTABLE} -c "import numpy"
                 RESULT_VARIABLE EXIT_NUMPY
