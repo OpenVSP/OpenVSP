@@ -178,7 +178,7 @@ IF( NOT VSP_NO_API_WRAPPERS )
 
 
     IF( SWIG_FOUND )
-        FIND_PACKAGE( PythonLibsNew 3 )
+        FIND_PACKAGE( PythonLibsNew 3.11 )
 
         if ( PYTHONLIBS_FOUND )
             execute_process(
