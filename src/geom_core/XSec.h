@@ -288,6 +288,7 @@ public:
     virtual void SetCurvatures( int side, double top, double right, double bottom, double left );
 
     virtual void SetV2DefaultBehavior();
+    virtual void ClearSkinning();
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
     virtual void ReadV2FileFuse1( xmlNodePtr &root );
