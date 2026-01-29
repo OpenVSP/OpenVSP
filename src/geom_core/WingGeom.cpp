@@ -1760,8 +1760,6 @@ void WingGeom::UpdateSurf()
     double total_dihed_offset = 0.0;
     double total_twist = 0.0;
 
-    double previous_dihead_rot = 0.0;
-
     //==== Load End Points for Each Section ====//
     for ( int i = 0 ; i < nxsec ; i++ )
     {
@@ -1884,11 +1882,10 @@ void WingGeom::UpdateSurf()
                 {
                     if ( i != 0 && i !=  ( m_XSecSurf.NumXSec() - 1 ) ) // Not first or last foils.
                     {
-                        foil_scale = 1.0 / cos( ( dihead_rot - previous_dihead_rot ) * ( M_PI / 180.0 ) );
+                        foil_scale = 1.0 / cos( ( dihead_rot - GetSumDihedral( i ) ) * ( M_PI / 180.0 ) );
                     }
                 }
             }
-            previous_dihead_rot = dihead_rot;
 
             ws->m_ThickScale = foil_scale;
             foil_scale_vec[i] = foil_scale;
