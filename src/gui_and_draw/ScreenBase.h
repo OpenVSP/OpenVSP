@@ -1024,6 +1024,8 @@ protected:
     StringInput m_SkinXSecCurveNameInput;
 
     ToggleButton m_AllSymButton;
+    TriggerButton m_ClearSkinningButton;
+    TriggerButton m_ClearAllSkinningButton;
     SkinHeader m_TopHeader;
     SkinControl m_TopAngleSkinControl;
     SkinControl m_TopSlewSkinControl;
