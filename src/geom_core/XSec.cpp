@@ -1646,6 +1646,28 @@ void SkinXSec::SetV2DefaultBehavior()
     m_LeftLRAngleEq = 1;
 }
 
+void SkinXSec::ClearSkinning()
+{
+    m_AllSymFlag = true;
+    m_TopLRAngleEq = false;
+    m_TopLRStrengthEq = false;
+    m_TopLRSlewEq = false;
+    m_TopLRCurveEq = false;
+
+    // necessary to validate parms here, as disabling skinning requires multiple operations in order
+    // AllSym = true, and all LR equal = false in order to permit disabling the setter bool parms.
+    ValidateParms();
+
+    m_TopLAngleSet = false;
+    m_TopLSlewSet = false;
+    m_TopLStrengthSet = false;
+    m_TopLCurveSet = false;
+    m_TopRAngleSet = false;
+    m_TopRSlewSet = false;
+    m_TopRStrengthSet = false;
+    m_TopRCurveSet = false;
+}
+
 void SkinXSec::ReadV2FileFuse2( xmlNodePtr &root )
 {
     XSec::ReadV2FileFuse2( root );
