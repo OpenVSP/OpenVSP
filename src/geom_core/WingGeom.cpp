@@ -1285,8 +1285,8 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_RelativeTwistFlag.Init("RelativeTwistFlag", m_Name, this, 0, 0, 1 );
     m_RelativeTwistFlag.SetDescript( "Relative or Absolute Twist" );
 
-    m_RotateAirfoilMatchDiedralFlag.Init( "RotateAirfoilMatchDideralFlag", m_Name, this, 0, 0, 1 );
-    m_RotateAirfoilMatchDiedralFlag.SetDescript( "Rotate all foils perpendicular to dihedral" );
+    m_RotateAirfoilMatchDiedralFlag.Init( "RotateAirfoilMatchDideralFlag", m_Name, this, 1, 0, 1 );
+    m_RotateAirfoilMatchDiedralFlag.SetDescript( "Rotate all foils (except root) perpendicular to dihedral" );
 
     m_CorrectAirfoilThicknessFlag.Init( "CorrectAirfoilthicknessFlag", m_Name, this, 1, 0, 1 );
     m_CorrectAirfoilThicknessFlag.SetDescript( "Scale airfoil thickness to correct for dihedral rotation" );
