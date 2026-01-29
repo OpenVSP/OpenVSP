@@ -127,6 +127,7 @@ public:
     double m_XRotate;
     double m_YRotate;
     double m_ZRotate;
+    double m_SectAxis;
 
     double m_XCenterRot;
     double m_YCenterRot;

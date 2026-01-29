@@ -709,10 +709,20 @@ void WingSect::UpdateFromWing()
     Matrix4d tran_mat;
     tran_mat.translatef( m_XDelta, m_YDelta, m_ZDelta );
 
-    Matrix4d rotate_mat;
-    rotate_mat.rotateZ( m_ZRotate );  // Not used
-    rotate_mat.rotateY( m_YRotate );  // Twist
-    rotate_mat.rotateX( m_XRotate );  // Dihedral
+    // m_ZRotate // Not used
+
+    Matrix4d twist_mat;
+    vec3d twistaxis( 0.0, 1.0, 0.0 );
+    Matrix4d section_mat;
+    section_mat.rotateX( m_SectAxis );
+
+    twistaxis.Transform( section_mat );
+
+    // twist_mat.rotateY( m_YRotate );  // Twist
+    twist_mat.rotate( m_YRotate * M_PI / 180.0, twistaxis );
+
+    Matrix4d match_dihedral_mat;
+    match_dihedral_mat.rotateX( m_XRotate );  // Dihedral
 
     Matrix4d cent_mat;
     cent_mat.translatef( -m_XCenterRot, -m_YCenterRot, -m_ZCenterRot );
@@ -724,7 +734,9 @@ void WingSect::UpdateFromWing()
 
     m_Transform.postMult( tran_mat.data() );
     m_Transform.postMult( cent_mat.data() );
-    m_Transform.postMult( rotate_mat.data() );
+    m_Transform.postMult( match_dihedral_mat.data() );
+    m_Transform.postMult( twist_mat.data() );
+
     m_Transform.postMult( inv_cent_mat.data() );
 
     m_Transform.postMult( xsecsurf->GetGlobalXForm().data() );
@@ -1851,7 +1863,7 @@ void WingGeom::UpdateSurf()
             }
             untransformed_crv_vec[i] = utc;
 
-            if ( m_RotateAirfoilMatchDiedralFlag() )
+            if ( m_RotateAirfoilMatchDiedralFlag() && i > 0 )
             {
                 ws->m_RotateMatchDiedralFlag.Deactivate();
             }
@@ -1862,7 +1874,8 @@ void WingGeom::UpdateSurf()
 
             double dihead_rot = 0.0;
             double foil_scale = 1.0;
-            if ( m_RotateAirfoilMatchDiedralFlag() || ws->m_RotateMatchDiedralFlag() )
+            if ( ( i != 0 && m_RotateAirfoilMatchDiedralFlag() )
+                || ws->m_RotateMatchDiedralFlag() )
             {
                 if ( i == 0 )
                 {
@@ -1886,6 +1899,23 @@ void WingGeom::UpdateSurf()
                     }
                 }
             }
+            else if ( m_CorrectAirfoilThicknessFlag() )
+            {
+                if ( i == 0 )
+                {
+                    foil_scale = 1.0 / cos( GetSumDihedral( i + 1 ) * ( M_PI / 180.0 ) );
+                }
+            }
+
+            double sect_rot = 0.0;
+            if ( i == 0 )
+            {
+                // sect_rot = GetSumDihedral( i+1 );
+            }
+            else
+            {
+                sect_rot = GetSumDihedral( i );
+            }
 
             ws->m_ThickScale = foil_scale;
             foil_scale_vec[i] = foil_scale;
@@ -1897,6 +1927,7 @@ void WingGeom::UpdateSurf()
 
             ws->m_YRotate = total_twist;
             ws->m_XRotate = dihead_rot;
+            ws->m_SectAxis = sect_rot;
 
             ws->m_XCenterRot = ws->m_XDelta + ws->m_TwistLoc()*ws->m_TipChord();
             ws->m_YCenterRot = ws->m_YDelta;
