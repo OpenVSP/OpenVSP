@@ -5,6 +5,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <cstdio>
 
 #include "Matrix4d.h"
 
@@ -17,6 +18,23 @@ void Matrix4d::loadIdentity()
 {
     setIdentity( mat );
 }
+
+void Matrix4d::print( const std::string &header )
+{
+    if ( header != "" )
+    {
+        printf( "%s\n", header.c_str() );
+    }
+    for ( int i = 0 ; i < 4 ; i++ )
+    {
+        for ( int j = 0 ; j < 4 ; j++ )
+        {
+            printf( "%8f ", mat[i * 4 + j] );
+        }
+        printf( "\n" );
+    }
+}
+
 
 void Matrix4d::setIdentity( double* m )
 {

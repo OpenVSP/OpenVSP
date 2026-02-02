@@ -52,6 +52,8 @@ public:
 
     void loadIdentity();
 
+    void print( const std::string &header = "" );
+
     static void setIdentity( double *m );
 
     /*!
