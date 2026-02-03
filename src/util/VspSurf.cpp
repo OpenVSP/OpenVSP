@@ -2156,26 +2156,14 @@ void VspSurf::SplitTesselate( const vector<double> &usplit, const vector<double>
 
 void VspSurf::TessULine( double u, std::vector< vec3d > & pnts, double tol ) const
 {
-    double vmin, vmax;
-    vec3d pmin, pmax;
+    VspCurve c;
+    GetUConstCurve( c, u );
 
     // Use WFeature points as starting point for adaptation for U lines because file-type
     // XSecs can be made of a large number of segments and using them would be inefficient.
-    vmin = m_WFeature[0];
-    pmin = CompPnt( u, vmin );
-
     pnts.clear();
-    for ( int i = 0; i < m_WFeature.size() - 1; i++ )
-    {
-        vmax = m_WFeature[i+1];
-        pmax = CompPnt( u, vmax );
-
-        TessAdaptLine( u, u, vmin, vmax, pmin, pmax, pnts, tol, 10 );
-
-        vmin = vmax;
-        pmin = pmax;
-    }
-    pnts.push_back( pmax );
+    vector < double > tout;
+    c.TessBreaks( m_WFeature, pnts, tout, tol, 10 );
 }
 
 void VspSurf::TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol ) const
@@ -2189,29 +2177,17 @@ void VspSurf::TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol 
 {
     double v = m_WFeature[ iw ];
 
-    vector < double > upts;
-    m_Surface.get_pmap_u( upts );
-
-    double umin, umax;
-    vec3d pmin, pmax;
+    VspCurve c;
+    GetWConstCurve( c, v );
 
     // Use segment boundary points as starting point for adaptation for W lines because
     // not all segment boundaries are features and this helps resolve behavior along a body.
-    umin = upts[0];
-    pmin = CompPnt( umin, v );
+    vector < double > upts;
+    m_Surface.get_pmap_u( upts );
 
     pnts.clear();
-    for ( int i = 0; i < upts.size() - 1; i++ )
-    {
-        umax = upts[i+1];
-        pmax = CompPnt( umax, v );
-
-        TessAdaptLine( umin, umax, v, v, pmin, pmax, pnts, tol, 10 );
-
-        umin = umax;
-        pmin = pmax;
-    }
-    pnts.push_back( pmax );
+    vector < double > tout;
+    c.TessBreaks( upts, pnts, tout, tol, 10 );
 }
 
 void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pnts, double tol, int Nlimit ) const
