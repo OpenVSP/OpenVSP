@@ -245,8 +245,8 @@ public:
     void TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol ) const;
     void TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol ) const;
 
-    void TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pts, double tol, int Nlimit ) const;
-    void TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pts, double tol, int Nlimit, int Nadapt = 0 ) const;
+    // void TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pts, double tol, int Nlimit ) const;
+    // void TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pts, double tol, int Nlimit, int Nadapt = 0 ) const;
 
     void SplitSurfs( vector< piecewise_surface_type > &surfvec, const vector < double > &usuppress, const vector < double > &wsuppress ) const;
     void SplitSurfs( vector< piecewise_surface_type > &surfvec ) const;

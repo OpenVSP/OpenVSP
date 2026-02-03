@@ -2190,37 +2190,37 @@ void VspSurf::TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol 
     c.TessBreaks( upts, pnts, tout, tol, 10 );
 }
 
-void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pnts, double tol, int Nlimit ) const
-{
-    vec3d pmin = CompPnt( umin, wmin );
-    vec3d pmax = CompPnt( umax, wmax );
-
-    TessAdaptLine( umin, umax, wmin, wmax, pmin, pmax, pnts, tol, Nlimit );
-
-    pnts.push_back( pmax );
-}
-
-void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, double tol, int Nlimit, int Nadapt ) const
-{
-    double umid = ( umin + umax ) * 0.5;
-    double wmid = ( wmin + wmax ) * 0.5;
-
-    vec3d pmid = CompPnt( umid, wmid );
-
-    double len = dist( pmin, pmax );
-    double d = dist_pnt_2_line( pmin, pmax, pmid ) / len;
-
-    if ( ( len > DBL_EPSILON && d > tol && Nlimit > 0 ) || Nadapt < 2 )
-    {
-        TessAdaptLine( umin, umid, wmin, wmid, pmin, pmid, pnts, tol, Nlimit - 1, Nadapt + 1 );
-        TessAdaptLine( umid, umax, wmid, wmax, pmid, pmax, pnts, tol, Nlimit - 1, Nadapt + 1 );
-    }
-    else
-    {
-        pnts.push_back( pmin );
-        pnts.push_back( pmid );
-    }
-}
+// void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pnts, double tol, int Nlimit ) const
+// {
+//     vec3d pmin = CompPnt( umin, wmin );
+//     vec3d pmax = CompPnt( umax, wmax );
+//
+//     TessAdaptLine( umin, umax, wmin, wmax, pmin, pmax, pnts, tol, Nlimit );
+//
+//     pnts.push_back( pmax );
+// }
+//
+// void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, double tol, int Nlimit, int Nadapt ) const
+// {
+//     double umid = ( umin + umax ) * 0.5;
+//     double wmid = ( wmin + wmax ) * 0.5;
+//
+//     vec3d pmid = CompPnt( umid, wmid );
+//
+//     double len = dist( pmin, pmax );
+//     double d = dist_pnt_2_line( pmin, pmax, pmid ) / len;
+//
+//     if ( ( len > DBL_EPSILON && d > tol && Nlimit > 0 ) || Nadapt < 2 )
+//     {
+//         TessAdaptLine( umin, umid, wmin, wmid, pmin, pmid, pnts, tol, Nlimit - 1, Nadapt + 1 );
+//         TessAdaptLine( umid, umax, wmid, wmax, pmid, pmax, pnts, tol, Nlimit - 1, Nadapt + 1 );
+//     }
+//     else
+//     {
+//         pnts.push_back( pmin );
+//         pnts.push_back( pmid );
+//     }
+// }
 
 void VspSurf::BuildSimpleFeatureLines()
 {
