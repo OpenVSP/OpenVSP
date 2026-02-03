@@ -16,11 +16,11 @@
 
 #include <FL/Fl.H>
 
-class Gearcreen : public GeomScreen
+class GearScreen : public GeomScreen
 {
 public:
-    Gearcreen( ScreenMgr* mgr );
-    virtual ~Gearcreen()                            {}
+    GearScreen( ScreenMgr* mgr );
+    virtual ~GearScreen()                            {}
 
     virtual void Show();
     virtual bool Update();
@@ -29,7 +29,7 @@ public:
     virtual void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
-        ( ( Gearcreen* )data )->CallBack( w );
+        ( ( GearScreen* )data )->CallBack( w );
     }
 
     virtual void GuiDeviceCallBack( GuiDevice* device );

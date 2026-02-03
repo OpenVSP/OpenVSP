@@ -15,7 +15,7 @@
 
 
 //==== Constructor ====//
-Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
+GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -364,7 +364,7 @@ Gearcreen::Gearcreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
 
 
 //==== Show Pod Screen ====//
-void Gearcreen::Show()
+void GearScreen::Show()
 {
     if ( Update() )
     {
@@ -373,7 +373,7 @@ void Gearcreen::Show()
 }
 
 //==== Update Disk Screen ====//
-bool Gearcreen::Update()
+bool GearScreen::Update()
 {
     assert( m_ScreenMgr );
 
@@ -862,7 +862,7 @@ bool Gearcreen::Update()
     return true;
 }
 
-void Gearcreen::UpdateBogieBrowser()
+void GearScreen::UpdateBogieBrowser()
 {
     char str[255];
 
@@ -912,7 +912,7 @@ void Gearcreen::UpdateBogieBrowser()
 }
 
 //==== Non Menu Callbacks ====//
-void Gearcreen::CallBack( Fl_Widget *w )
+void GearScreen::CallBack( Fl_Widget *w )
 {
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
 
@@ -953,7 +953,7 @@ void Gearcreen::CallBack( Fl_Widget *w )
     GeomScreen::CallBack( w );
 }
 
-void Gearcreen::GuiDeviceCallBack( GuiDevice* device )
+void GearScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
 
