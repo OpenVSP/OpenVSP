@@ -1498,6 +1498,32 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "GEAR_CONFIGURATION_MODES" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_CONFIGURATION_MODES", "GEAR_CONFIGURATION_DOWN", GEAR_CONFIGURATION_DOWN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_CONFIGURATION_MODES", "GEAR_CONFIGURATION_UP", GEAR_CONFIGURATION_UP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_CONFIGURATION_MODES", "GEAR_CONFIGURATION_UP_AND_DOWN", GEAR_CONFIGURATION_UP_AND_DOWN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_CONFIGURATION_MODES", "GEAR_CONFIGURATION_INTERMEDIATE", GEAR_CONFIGURATION_INTERMEDIATE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_CONFIGURATION_MODES", "GEAR_CONFIGURATION_ALL", GEAR_CONFIGURATION_ALL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_CONFIGURATION_MODES", "NUM_GEAR_CONFIGURATION_MODES", NUM_GEAR_CONFIGURATION_MODES );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "GEAR_RETRACT_MODES" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_RETRACT_MODES", "GEAR_STOWED_POSITION", GEAR_STOWED_POSITION );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_RETRACT_MODES", "GEAR_MECHANISM", GEAR_MECHANISM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEAR_RETRACT_MODES", "NUM_GEAR_RETRACT_MODES", NUM_GEAR_RETRACT_MODES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "GEAR_SUSPENSION_MODES" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GEAR_SUSPENSION_MODES", "GEAR_SUSPENSION_NOMINAL", GEAR_SUSPENSION_NOMINAL );

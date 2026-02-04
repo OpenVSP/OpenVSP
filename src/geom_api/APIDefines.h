@@ -859,6 +859,27 @@ enum GDEV { GDEV_TAB,	/*!< Custom GUI Tab */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for gear configuration modes. */
+enum GEAR_CONFIGURATION_MODES { GEAR_CONFIGURATION_DOWN,	/*!< Gear drawn down */
+                                GEAR_CONFIGURATION_UP,	/*!< Gear drawn up */
+                                GEAR_CONFIGURATION_UP_AND_DOWN,	/*!< Gear drawn both up and down  */
+                                GEAR_CONFIGURATION_INTERMEDIATE,	/*!< Gear drawn somewhere beteween down and up  */
+                                GEAR_CONFIGURATION_ALL,	/*!< Gear drawn in all configurations  */
+                                NUM_GEAR_CONFIGURATION_MODES	/*!< Number of gear configuration choices  */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for gear retract modes. */
+enum GEAR_RETRACT_MODES { GEAR_STOWED_POSITION,	/*!< Specified by stowed position */
+                          GEAR_MECHANISM,	/*!< Specified by mechanism */
+                          NUM_GEAR_RETRACT_MODES	/*!< Number of gear retract choices  */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for tire dimension modes. */
 enum GEAR_SUSPENSION_MODES { GEAR_SUSPENSION_NOMINAL,	/*!< Gear suspension at nominal extension */
                              GEAR_SUSPENSION_COMPRESSED,	/*!< Gear suspension is compressed */
