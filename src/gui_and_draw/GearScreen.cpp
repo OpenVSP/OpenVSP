@@ -188,58 +188,58 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_BogieLayout.AddSlider( m_BogieThetaMaxSlider, "Max", 1, "%6.5f" );
 
     // Tire
-    m_TireGroup.SetGroupAndScreen( tire_group, this );
+    m_TireLayout.SetGroupAndScreen( tire_group, this );
 
     int inToggleButtonWidth = 35;
     int modelToggleButtonWidth = 60;
-    int bw = m_TireGroup.GetButtonWidth();
-    int iw = m_TireGroup.GetInputWidth();
+    int bw = m_TireLayout.GetButtonWidth();
+    int iw = m_TireLayout.GetInputWidth();
     int bw2 = 40;
     int iw2 = 50;
 
-    m_TireGroup.AddChoice( m_TireBogieChoice, "Bogie" );
+    m_TireLayout.AddChoice( m_TireBogieChoice, "Bogie" );
 
-    m_TireGroup.AddYGap();
+    m_TireLayout.AddYGap();
 
-    m_TireGroup.AddDividerBox( "Tire" );
-    m_TireGroup.SetSameLineFlag( true );
+    m_TireLayout.AddDividerBox( "Tire" );
+    m_TireLayout.SetSameLineFlag( true );
 
-    m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
-    m_TireGroup.AddButton( m_TireDiameterInToggleButton, "in" );
-    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
-    m_TireGroup.AddButton( m_TireDiameterModelToggleButton, "Model" );
-    m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw );
-    m_TireGroup.AddSlider( m_TireDiameterSlider, "Diameter", 1, "%6.5f" );
+    m_TireLayout.SetFitWidthFlag( false );
+    m_TireLayout.SetButtonWidth( inToggleButtonWidth );
+    m_TireLayout.AddButton( m_TireDiameterInToggleButton, "in" );
+    m_TireLayout.SetButtonWidth( modelToggleButtonWidth );
+    m_TireLayout.AddButton( m_TireDiameterModelToggleButton, "Model" );
+    m_TireLayout.SetFitWidthFlag( true );
+    m_TireLayout.SetButtonWidth( bw );
+    m_TireLayout.AddSlider( m_TireDiameterSlider, "Diameter", 1, "%6.5f" );
 
     m_TireDiameterToggleGroup.Init( this );
     m_TireDiameterToggleGroup.AddButton( m_TireDiameterInToggleButton.GetFlButton() );
     m_TireDiameterToggleGroup.AddButton( m_TireDiameterModelToggleButton.GetFlButton() );
 
 
-    m_TireGroup.ForceNewLine();
+    m_TireLayout.ForceNewLine();
 
 
-    m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
-    m_TireGroup.AddButton( m_TireWidthInToggleButton, "in" );
-    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
-    m_TireGroup.AddButton( m_TireWidthModelToggleButton, "Model" );
-    m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw );
-    m_TireGroup.AddSlider( m_TireWidthSlider, "Width", 1, "%6.5f" );
+    m_TireLayout.SetFitWidthFlag( false );
+    m_TireLayout.SetButtonWidth( inToggleButtonWidth );
+    m_TireLayout.AddButton( m_TireWidthInToggleButton, "in" );
+    m_TireLayout.SetButtonWidth( modelToggleButtonWidth );
+    m_TireLayout.AddButton( m_TireWidthModelToggleButton, "Model" );
+    m_TireLayout.SetFitWidthFlag( true );
+    m_TireLayout.SetButtonWidth( bw );
+    m_TireLayout.AddSlider( m_TireWidthSlider, "Width", 1, "%6.5f" );
 
     m_TireWidthToggleGroup.Init( this );
     m_TireWidthToggleGroup.AddButton( m_TireWidthInToggleButton.GetFlButton() );
     m_TireWidthToggleGroup.AddButton( m_TireWidthModelToggleButton.GetFlButton() );
 
 
-    m_TireGroup.ForceNewLine();
-    m_TireGroup.SetInputWidth( iw2 );
+    m_TireLayout.ForceNewLine();
+    m_TireLayout.SetInputWidth( iw2 );
 
-    m_TireGroup.SetSameLineFlag( false );
-    m_TireGroup.AddSlider( m_PlyRatingSlider, "Ply Rating", 10, "%6.5f" );
+    m_TireLayout.SetSameLineFlag( false );
+    m_TireLayout.AddSlider( m_PlyRatingSlider, "Ply Rating", 10, "%6.5f" );
 
     m_TireModeChoice.AddItem( "Full TRA", vsp::TIRE_TRA );
     m_TireModeChoice.AddItem( "TRA w/ Faired Flange", vsp::TIRE_FAIR_FLANGE );
@@ -247,22 +247,22 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_TireModeChoice.AddItem( "Balloon Tire", vsp::TIRE_BALLOON );
     m_TireModeChoice.AddItem( "Balloon Tire w/ Wheel", vsp::TIRE_BALLOON_WHEEL );
     m_TireModeChoice.AddItem( "Balloon Tire w/ Faired Wheel", vsp::TIRE_BALLOON_FAIR_WHEEL );
-    m_TireGroup.AddChoice( m_TireModeChoice, "Tire Mode" );
+    m_TireLayout.AddChoice( m_TireModeChoice, "Tire Mode" );
 
-    m_TireGroup.AddYGap();
+    m_TireLayout.AddYGap();
 
-    m_TireGroup.AddDividerBox( "Rim" );
-    m_TireGroup.SetSameLineFlag( true );
+    m_TireLayout.AddDividerBox( "Rim" );
+    m_TireLayout.SetSameLineFlag( true );
 
-    m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
-    m_TireGroup.AddButton( m_DrimInToggleButton, "in" );
-    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
-    m_TireGroup.AddButton( m_DrimModelToggleButton, "Model" );
-    m_TireGroup.AddButton( m_DrimFracToggleButton, "Frac D" );
-    m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw2 );
-    m_TireGroup.AddSlider( m_DrimSlider, "Drim", 1, "%6.4f" );
+    m_TireLayout.SetFitWidthFlag( false );
+    m_TireLayout.SetButtonWidth( inToggleButtonWidth );
+    m_TireLayout.AddButton( m_DrimInToggleButton, "in" );
+    m_TireLayout.SetButtonWidth( modelToggleButtonWidth );
+    m_TireLayout.AddButton( m_DrimModelToggleButton, "Model" );
+    m_TireLayout.AddButton( m_DrimFracToggleButton, "Frac D" );
+    m_TireLayout.SetFitWidthFlag( true );
+    m_TireLayout.SetButtonWidth( bw2 );
+    m_TireLayout.AddSlider( m_DrimSlider, "Drim", 1, "%6.4f" );
 
     m_DrimToggleGroup.Init( this );
     m_DrimToggleGroup.AddButton( m_DrimInToggleButton.GetFlButton() );
@@ -270,90 +270,90 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_DrimToggleGroup.AddButton( m_DrimFracToggleButton.GetFlButton() );
 
 
-    m_TireGroup.ForceNewLine();
+    m_TireLayout.ForceNewLine();
 
 
-    m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
-    m_TireGroup.AddButton( m_WrimInToggleButton, "in" );
-    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
-    m_TireGroup.AddButton( m_WrimModelToggleButton, "Model" );
-    m_TireGroup.AddButton( m_WrimFracToggleButton, "Frac W" );
-    m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw2 );
-    m_TireGroup.AddSlider( m_WrimSlider, "Wrim", 1, "%6.4f" );
+    m_TireLayout.SetFitWidthFlag( false );
+    m_TireLayout.SetButtonWidth( inToggleButtonWidth );
+    m_TireLayout.AddButton( m_WrimInToggleButton, "in" );
+    m_TireLayout.SetButtonWidth( modelToggleButtonWidth );
+    m_TireLayout.AddButton( m_WrimModelToggleButton, "Model" );
+    m_TireLayout.AddButton( m_WrimFracToggleButton, "Frac W" );
+    m_TireLayout.SetFitWidthFlag( true );
+    m_TireLayout.SetButtonWidth( bw2 );
+    m_TireLayout.AddSlider( m_WrimSlider, "Wrim", 1, "%6.4f" );
 
     m_WrimToggleGroup.Init( this );
     m_WrimToggleGroup.AddButton( m_WrimInToggleButton.GetFlButton() );
     m_WrimToggleGroup.AddButton( m_WrimModelToggleButton.GetFlButton() );
     m_WrimToggleGroup.AddButton( m_WrimFracToggleButton.GetFlButton() );
 
-    m_TireGroup.ForceNewLine();
-    m_TireGroup.AddYGap();
+    m_TireLayout.ForceNewLine();
+    m_TireLayout.AddYGap();
 
-    m_TireGroup.SetSameLineFlag( false );
-    m_TireGroup.AddDividerBox( "Shoulder" );
-    m_TireGroup.SetSameLineFlag( true );
+    m_TireLayout.SetSameLineFlag( false );
+    m_TireLayout.AddDividerBox( "Shoulder" );
+    m_TireLayout.SetSameLineFlag( true );
 
-    m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
-    m_TireGroup.AddButton( m_HsInToggleButton, "in" );
-    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
-    m_TireGroup.AddButton( m_HsModelToggleButton, "Model" );
-    m_TireGroup.AddButton( m_HsFracToggleButton, "Frac H" );
-    m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw2 );
-    m_TireGroup.AddSlider( m_HsSlider, "Hs", 1, "%6.4f" );
+    m_TireLayout.SetFitWidthFlag( false );
+    m_TireLayout.SetButtonWidth( inToggleButtonWidth );
+    m_TireLayout.AddButton( m_HsInToggleButton, "in" );
+    m_TireLayout.SetButtonWidth( modelToggleButtonWidth );
+    m_TireLayout.AddButton( m_HsModelToggleButton, "Model" );
+    m_TireLayout.AddButton( m_HsFracToggleButton, "Frac H" );
+    m_TireLayout.SetFitWidthFlag( true );
+    m_TireLayout.SetButtonWidth( bw2 );
+    m_TireLayout.AddSlider( m_HsSlider, "Hs", 1, "%6.4f" );
 
     m_HsToggleGroup.Init( this );
     m_HsToggleGroup.AddButton( m_HsInToggleButton.GetFlButton() );
     m_HsToggleGroup.AddButton( m_HsModelToggleButton.GetFlButton() );
     m_HsToggleGroup.AddButton( m_HsFracToggleButton.GetFlButton() );
 
-    m_TireGroup.ForceNewLine();
+    m_TireLayout.ForceNewLine();
 
 
-    m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
-    m_TireGroup.AddButton( m_WsInToggleButton, "in" );
-    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
-    m_TireGroup.AddButton( m_WsModelToggleButton, "Model" );
-    m_TireGroup.AddButton( m_WsFracToggleButton, "Frac W" );
-    m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw2 );
-    m_TireGroup.AddSlider( m_WsSlider, "Ws", 1, "%6.4f" );
+    m_TireLayout.SetFitWidthFlag( false );
+    m_TireLayout.SetButtonWidth( inToggleButtonWidth );
+    m_TireLayout.AddButton( m_WsInToggleButton, "in" );
+    m_TireLayout.SetButtonWidth( modelToggleButtonWidth );
+    m_TireLayout.AddButton( m_WsModelToggleButton, "Model" );
+    m_TireLayout.AddButton( m_WsFracToggleButton, "Frac W" );
+    m_TireLayout.SetFitWidthFlag( true );
+    m_TireLayout.SetButtonWidth( bw2 );
+    m_TireLayout.AddSlider( m_WsSlider, "Ws", 1, "%6.4f" );
 
     m_WsToggleGroup.Init( this );
     m_WsToggleGroup.AddButton( m_WsInToggleButton.GetFlButton() );
     m_WsToggleGroup.AddButton( m_WsModelToggleButton.GetFlButton() );
     m_WsToggleGroup.AddButton( m_WsFracToggleButton.GetFlButton() );
 
-    m_TireGroup.ForceNewLine();
-    m_TireGroup.AddYGap();
+    m_TireLayout.ForceNewLine();
+    m_TireLayout.AddYGap();
 
-    m_TireGroup.SetSameLineFlag( false );
-    m_TireGroup.AddDividerBox( "Static Loaded Radius" );
-    m_TireGroup.SetSameLineFlag( true );
-    m_TireGroup.SetInputWidth( iw );
+    m_TireLayout.SetSameLineFlag( false );
+    m_TireLayout.AddDividerBox( "Static Loaded Radius" );
+    m_TireLayout.SetSameLineFlag( true );
+    m_TireLayout.SetInputWidth( iw );
 
-    m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( inToggleButtonWidth + modelToggleButtonWidth + bw2 );
+    m_TireLayout.SetFitWidthFlag( false );
+    m_TireLayout.SetButtonWidth( inToggleButtonWidth + modelToggleButtonWidth + bw2 );
 
-    m_TireGroup.AddButton( m_DeflectionToggleButton, "Delfection Frac H" );
-    m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( 0 );
-    m_TireGroup.AddSlider( m_DeflectionSlider, "", 1, "%6.5f" );
+    m_TireLayout.AddButton( m_DeflectionToggleButton, "Delfection Frac H" );
+    m_TireLayout.SetFitWidthFlag( true );
+    m_TireLayout.SetButtonWidth( 0 );
+    m_TireLayout.AddSlider( m_DeflectionSlider, "", 1, "%6.5f" );
 
-    m_TireGroup.ForceNewLine();
+    m_TireLayout.ForceNewLine();
 
-    m_TireGroup.SetFitWidthFlag( false );
-    m_TireGroup.SetButtonWidth( inToggleButtonWidth );
-    m_TireGroup.AddButton( m_SLRInToggleButton, "in" );
-    m_TireGroup.SetButtonWidth( modelToggleButtonWidth );
-    m_TireGroup.AddButton( m_SLRModelToggleButton, "Model" );
-    m_TireGroup.SetFitWidthFlag( true );
-    m_TireGroup.SetButtonWidth( bw2 );
-    m_TireGroup.AddSlider( m_SLRSlider, "SLR", 1, "%6.5f" );
+    m_TireLayout.SetFitWidthFlag( false );
+    m_TireLayout.SetButtonWidth( inToggleButtonWidth );
+    m_TireLayout.AddButton( m_SLRInToggleButton, "in" );
+    m_TireLayout.SetButtonWidth( modelToggleButtonWidth );
+    m_TireLayout.AddButton( m_SLRModelToggleButton, "Model" );
+    m_TireLayout.SetFitWidthFlag( true );
+    m_TireLayout.SetButtonWidth( bw2 );
+    m_TireLayout.AddSlider( m_SLRSlider, "SLR", 1, "%6.5f" );
 
     m_SLRToggleGroup.Init( this );
     m_SLRToggleGroup.AddButton( m_SLRInToggleButton.GetFlButton() );
