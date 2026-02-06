@@ -39,10 +39,12 @@ public:
     vec3d GetTireDeflection( int tiremode ) const;
     vec3d GetCompressionUnitDirection( int isymm ) const;
     vec3d GetSuspensionDeflection( int isymm, int suspensionmode ) const;
+    vec3d GetContinuiousSuspensionDeflection( int isymm, double d ) const;
     vec3d GetNominalMeanContactPoint( int isymm ) const;
     vec3d GetMeanContactPoint( int isymm, int tiremode, int suspensionmode, double thetabogie ) const;
     vec3d GetNominalPivotPoint( int isymm ) const;
     vec3d GetPivotPoint( int isymm, int suspensionmode ) const;
+    vec3d GetContinuiousPivotPoint( int isymm, double d ) const;
     double GetAxleArm() const;
     double GetBogieSemiWidth() const;
     vec3d GetAxleDisplacement( double thetabogie ) const;

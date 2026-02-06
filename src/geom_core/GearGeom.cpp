@@ -605,6 +605,11 @@ vec3d Bogie::GetSuspensionDeflection( int isymm, int suspensionmode ) const
     }
 }
 
+vec3d Bogie::GetContinuiousSuspensionDeflection( int isymm, double d ) const
+{
+    return GetCompressionUnitDirection( isymm ) * d;
+}
+
 // Contact point in ground plane coordinate system.
 vec3d Bogie::GetNominalMeanContactPoint( int isymm ) const
 {
@@ -634,6 +639,11 @@ vec3d Bogie::GetNominalPivotPoint( int isymm ) const
 vec3d Bogie::GetPivotPoint( int isymm, int suspensionmode ) const
 {
     return GetNominalPivotPoint( isymm ) + GetSuspensionDeflection( isymm, suspensionmode );
+}
+
+vec3d Bogie::GetContinuiousPivotPoint( int isymm, double d ) const
+{
+    return GetNominalPivotPoint( isymm ) + GetContinuiousSuspensionDeflection( isymm, d );
 }
 
 double Bogie::GetAxleArm() const
