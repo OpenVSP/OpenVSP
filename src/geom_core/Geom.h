@@ -800,6 +800,8 @@ public:
 
     virtual void ExportSurfacePatches( vector< string > &surf_res_ids );
 
+    virtual void UpdateTess( const VspSurf & surf, bool capUMinSuccess, bool capUMaxSuccess, SimpleTess &tess, SimpleFeatureTess &featureTess );
+
 protected:
 
     bool m_UpdateBlock;
@@ -881,7 +883,6 @@ protected:
 
     virtual void UpdatePreTess()   {};
 
-    virtual void UpdateTess( const VspSurf & surf, bool capUMinSuccess, bool capUMaxSuccess, SimpleTess &tess, SimpleFeatureTess &featureTess );
     virtual void UpdateMainTessVec();
     virtual void UpdateTessVec();
 
