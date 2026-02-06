@@ -3390,7 +3390,7 @@ void Geom::UpdateDegenDrawObj()
 
 void Geom::UpdateTess( const VspSurf & surf, bool capUMinSuccess, bool capUMaxSuccess, SimpleTess &tess, SimpleFeatureTess &featureTess )
 {
-    double tol = 1e-3;
+    double tol = 1e-2;
 
     UpdateSplitTesselate( surf, capUMinSuccess, capUMaxSuccess, tess.m_pnts, tess.m_norms );
 
