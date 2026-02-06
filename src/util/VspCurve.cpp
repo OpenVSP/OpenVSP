@@ -1570,18 +1570,18 @@ void VspCurve::Tesselate( const vector< double > &u, vector< vec3d > & output )
 }
 
 //===== Tesselate =====//
-void VspCurve::TessAdapt( vector< vec3d > & pnts, double tol, int Nlimit )
+int VspCurve::TessAdapt( vector < vec3d > &pnts, double tol, int Nlimit )
 {
     vector< double > uout;
-    TessAdapt( pnts, uout, tol, Nlimit );
+    return TessAdapt( pnts, uout, tol, Nlimit );
 }
 
-void VspCurve::TessAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit )
+int VspCurve::TessAdapt( vector < vec3d > &pnts, vector < double > &uout, double tol, int Nlimit )
 {
-    TessAdapt( m_Curve.get_parameter_min(), m_Curve.get_parameter_max(), pnts, uout, tol, Nlimit );
+    return TessAdapt( m_Curve.get_parameter_min(), m_Curve.get_parameter_max(), pnts, uout, tol, Nlimit );
 }
 
-void VspCurve::TessCornerAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, double atol, int Nlimit )
+int VspCurve::TessCornerAdapt( vector < vec3d > &pnts, vector < double > &uout, double tol, double atol, int Nlimit )
 {
     vector < double > tdisc;
     m_Curve.find_discontinuities( atol, tdisc );
@@ -1599,20 +1599,21 @@ void VspCurve::TessCornerAdapt( vector< vec3d > & pnts, vector< double > & uout,
     auto last = std::unique( tdisc.begin(), tdisc.end() );
     tdisc.erase( last, tdisc.end() );
 
-    TessBreaks( tdisc, pnts, uout, tol, Nlimit );
+    return TessBreaks( tdisc, pnts, uout, tol, Nlimit );
 }
 
-void VspCurve::TessSegAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit )
+int VspCurve::TessSegAdapt( vector < vec3d > &pnts, vector < double > &uout, double tol, int Nlimit )
 {
     vector < double > umap;
     m_Curve.get_pmap( umap );
-    TessBreaks( umap, pnts, uout, tol, Nlimit );
+    return TessBreaks( umap, pnts, uout, tol, Nlimit );
 }
 
-void VspCurve::TessBreaks( const vector < double > & ubreak, vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit )
+int VspCurve::TessBreaks( const vector < double > &ubreak, vector < vec3d > &pnts, vector < double > &uout, double tol, int Nlimit )
 {
     int nseg = ubreak.size() - 1;
 
+    int nrmax = 0;
     if ( nseg > 0 )
     {
         double usegstart = ubreak[0];
@@ -1622,7 +1623,8 @@ void VspCurve::TessBreaks( const vector < double > & ubreak, vector< vec3d > & p
         {
             double usegend = ubreak[ i + 1 ];
             vec3d psegend = CompPnt( usegend );
-            TessAdapt( usegstart, usegend, psegstart, psegend, pnts, uout, tol, Nlimit );
+            int nr = TessAdapt( usegstart, usegend, psegstart, psegend, pnts, uout, tol, Nlimit );
+            nrmax = std::max( nrmax, nr );
 
             usegstart = usegend;
             psegstart = psegend;
@@ -1631,20 +1633,22 @@ void VspCurve::TessBreaks( const vector < double > & ubreak, vector< vec3d > & p
         pnts.push_back( psegstart );
         uout.push_back( usegstart );
     }
+    return nrmax;
 }
 
-void VspCurve::TessAdapt( double umin, double umax, std::vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit )
+int VspCurve::TessAdapt( double umin, double umax, std::vector < vec3d > &pnts, vector < double > &uout, double tol, int Nlimit )
 {
     vec3d pmin = CompPnt( umin );
     vec3d pmax = CompPnt( umax );
 
-    TessAdapt( umin, umax, pmin, pmax, pnts, uout, tol, Nlimit );
+    int nref = TessAdapt( umin, umax, pmin, pmax, pnts, uout, tol, Nlimit );
 
     pnts.push_back( pmax );
     uout.push_back( umax );
+    return nref;
 }
 
-void VspCurve::TessAdapt( double umin, double umax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit, int Nadapt )
+int VspCurve::TessAdapt( double umin, double umax, const vec3d &pmin, const vec3d &pmax, std::vector < vec3d > &pnts, vector < double > &uout, double tol, int Nlimit, int Nadapt )
 {
     double umid = ( umin + umax ) * 0.5;
 
@@ -1653,10 +1657,12 @@ void VspCurve::TessAdapt( double umin, double umax, const vec3d & pmin, const ve
     double len = dist( pmin, pmax );
     double d = dist_pnt_2_line( pmin, pmax, pmid ) / len;
 
+    int nref = 0;
     if ( ( len > DBL_EPSILON && d > tol && Nlimit > 0 ) || Nadapt < 3 )
     {
-        TessAdapt( umin, umid, pmin, pmid, pnts, uout, tol, Nlimit - 1, Nadapt + 1 );
-        TessAdapt( umid, umax, pmid, pmax, pnts, uout, tol, Nlimit - 1, Nadapt + 1 );
+        int na = TessAdapt( umin, umid, pmin, pmid, pnts, uout, tol, Nlimit - 1, Nadapt + 1 );
+        int nb = TessAdapt( umid, umax, pmid, pmax, pnts, uout, tol, Nlimit - 1, Nadapt + 1 );
+        nref = std::max( na, nb );
     }
     else
     {
@@ -1666,6 +1672,7 @@ void VspCurve::TessAdapt( double umin, double umax, const vec3d & pmin, const ve
         uout.push_back( umin );
         uout.push_back( umid );
     }
+    return nref + 1;
 }
 
 curve_point_type setX( curve_point_type & cp, void* data )

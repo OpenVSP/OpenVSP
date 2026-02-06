@@ -144,13 +144,13 @@ public:
     void TesselateNoCorner( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout );
     void Tesselate( const vector< double > &u, vector< vec3d > & output );
 
-    void TessAdapt( vector< vec3d > & pnts, double tol, int Nlimit );
-    void TessAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit );
-    void TessCornerAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, double atol, int Nlimit );
-    void TessSegAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit );
-    void TessBreaks( const vector < double > & ubreak, vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit );
-    void TessAdapt( double umin, double umax, std::vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit );
-    void TessAdapt( double umin, double umax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit, int Nadapt = 0 );
+    int TessAdapt( vector < vec3d > &pnts, double tol, int Nlimit );
+    int TessAdapt( vector < vec3d > &pnts, vector < double > &uout, double tol, int Nlimit );
+    int TessCornerAdapt( vector < vec3d > &pnts, vector < double > &uout, double tol, double atol, int Nlimit );
+    int TessSegAdapt( vector < vec3d > &pnts, vector < double > &uout, double tol, int Nlimit );
+    int TessBreaks( const vector < double > &ubreak, vector < vec3d > &pnts, vector < double > &uout, double tol, int Nlimit );
+    int TessAdapt( double umin, double umax, std::vector < vec3d > &pnts, vector < double > &uout, double tol, int Nlimit );
+    int TessAdapt( double umin, double umax, const vec3d &pmin, const vec3d &pmax, std::vector < vec3d > &pnts, vector < double > &uout, double tol, int Nlimit, int Nadapt = 0 );
 
     void AssignX( double x );
     void FindMinMaxX( double & minx, double & maxx );

@@ -241,9 +241,9 @@ public:
     void SplitTesselate( int num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap, const int &n_default ) const;
     void SplitTesselate( const vector<int> &num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap, const int &n_default, const std::vector<int> & umerge = std::vector<int>() ) const;
 
-    void TessULine( double u, std::vector< vec3d > & pnts, double tol ) const;
-    void TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol ) const;
-    void TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol ) const;
+    int TessULine( double u, std::vector < vec3d > &pnts, double tol ) const;
+    int TessUFeatureLine( int iu, std::vector < vec3d > &pnts, double tol ) const;
+    int TessWFeatureLine( int iw, std::vector < vec3d > &pnts, double tol ) const;
 
     // void TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pts, double tol, int Nlimit ) const;
     // void TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pts, double tol, int Nlimit, int Nadapt = 0 ) const;

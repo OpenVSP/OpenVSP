@@ -2154,7 +2154,7 @@ void VspSurf::SplitTesselate( const vector<double> &usplit, const vector<double>
     }
 }
 
-void VspSurf::TessULine( double u, std::vector< vec3d > & pnts, double tol ) const
+int VspSurf::TessULine( double u, std::vector < vec3d > &pnts, double tol ) const
 {
     VspCurve c;
     GetUConstCurve( c, u );
@@ -2163,17 +2163,17 @@ void VspSurf::TessULine( double u, std::vector< vec3d > & pnts, double tol ) con
     // XSecs can be made of a large number of segments and using them would be inefficient.
     pnts.clear();
     vector < double > tout;
-    c.TessBreaks( m_WFeature, pnts, tout, tol, 10 );
+    return c.TessBreaks( m_WFeature, pnts, tout, tol, 10 );
 }
 
-void VspSurf::TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol ) const
+int VspSurf::TessUFeatureLine( int iu, std::vector < vec3d > &pnts, double tol ) const
 {
     double u = m_UFeature[ iu ];
 
-    TessULine( u, pnts, tol );
+    return TessULine( u, pnts, tol );
 }
 
-void VspSurf::TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol ) const
+int VspSurf::TessWFeatureLine( int iw, std::vector < vec3d > &pnts, double tol ) const
 {
     double v = m_WFeature[ iw ];
 
@@ -2187,7 +2187,7 @@ void VspSurf::TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol 
 
     pnts.clear();
     vector < double > tout;
-    c.TessBreaks( upts, pnts, tout, tol, 10 );
+    return c.TessBreaks( upts, pnts, tout, tol, 10 );
 }
 
 // void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pnts, double tol, int Nlimit ) const
