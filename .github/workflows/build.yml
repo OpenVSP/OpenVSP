@@ -42,7 +42,11 @@ jobs:
       shell: bash
       run:   |
         sudo apt-get update
-        sudo apt-get install python3-sphinx python3-numpy python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip pandoc
+        sudo apt-get install python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip pandoc
+        python -m venv $GITHUB_WORKSPACE/.venv
+        source $GITHUB_WORKSPACE/.venv/bin/activate
+        pip install --upgrade pip setuptools wheel
+        pip install sphinx numpy
 
     - name:  Install Linux
       if: matrix.os == 'ubuntu-22.04'
@@ -50,8 +54,12 @@ jobs:
       run:   |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
         sudo apt-get update -y
-        sudo apt-get install python3-sphinx python3-numpy python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip pandoc
+        sudo apt-get install python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip pandoc
         sudo apt-get install gcc-13 g++-13
+        python -m venv $GITHUB_WORKSPACE/.venv
+        source $GITHUB_WORKSPACE/.venv/bin/activate
+        pip install --upgrade pip setuptools wheel
+        pip install sphinx numpy
 
     - name:  Install Windows
       if: runner.os == 'Windows'
@@ -93,6 +101,7 @@ jobs:
         CXX: g++-${{ matrix.gcc-version }}
       shell: bash
       run:   |
+        source $GITHUB_WORKSPACE/.venv/bin/activate
         mkdir build buildlibs artifacts
         cd $GITHUB_WORKSPACE/buildlibs
         cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true ../Libraries
