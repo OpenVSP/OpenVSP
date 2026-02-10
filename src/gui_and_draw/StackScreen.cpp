@@ -271,6 +271,17 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         stackgeom_ptr->InsertXSec( );
     }
+    else if ( gui_device == &m_InitStackPreset )
+    {
+        switch( fl_choice( "Clear all XSECs and init to preset?", "Cancel", "Okay", 0 ) )
+        {
+            case(0):
+                break;
+            case(1):
+                stackgeom_ptr->InitParms( m_StackPresetChoice.GetVal() );
+                break;
+        }
+    }
 
     ChevronScreen::GuiDeviceCallBack( gui_device );
 }
