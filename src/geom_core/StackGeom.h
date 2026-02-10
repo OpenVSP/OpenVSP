@@ -25,6 +25,8 @@ public:
     StackGeom( Vehicle* vehicle_ptr );
     virtual ~StackGeom();
 
+    void InitXSecs( vector < StackXSec* > stack_xs );
+
     virtual void ComputeCenter();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );

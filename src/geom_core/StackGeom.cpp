@@ -89,6 +89,23 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
 
 }
 
+void StackGeom::InitXSecs( vector < StackXSec* > stack_xs )
+{
+    for ( int i = 0; i < stack_xs.size() ; i++ )
+    {
+        m_XSecSurf.AddXSecCopy( stack_xs[i] );
+        StackXSec* xs = ( StackXSec* ) m_XSecSurf.FindXSec( i );
+        xs->SetGroupDisplaySuffix( i );
+
+        if ( i == 0 )
+        {
+            xs->FlipLRSkinning();
+        }
+    }
+    // ValidateParms to update index parm upper limits
+    ValidateParms();
+}
+
 //==== Destructor ====//
 StackGeom::~StackGeom()
 {
