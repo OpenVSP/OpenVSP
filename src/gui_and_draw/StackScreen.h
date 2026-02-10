@@ -33,6 +33,9 @@ protected:
 
     GroupLayout m_DesignLayout;
 
+    Choice m_StackPresetChoice;
+    TriggerButton m_InitStackPreset;
+
     Choice m_DesignPolicyChoice;
 
     Choice m_NoseCapTypeChoice;
