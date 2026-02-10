@@ -33,6 +33,11 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
     m_CapUMaxOption.SetDescript("Type of End Cap on Stack Tail");
     m_CapUMaxOption.Parm::Set(NO_END_CAP);
 
+    InitParms( STACK_PRESET_DEFAULT );
+}
+
+void StackGeom::InitParms( int stack_type )
+{
     //==== Init Parms ====//
     m_TessU = 16;
     m_TessW = 17;
@@ -41,52 +46,602 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
     m_ActiveXSec = 0;
 
     m_XSecSurf.SetXSecType( XSEC_STACK );
+    m_XSecSurf.DeleteAllXSecs();
 
-    m_XSecSurf.AddXSec( XS_POINT );
-    m_XSecSurf.AddXSec( XS_ELLIPSE );
-    m_XSecSurf.AddXSec( XS_ELLIPSE );
-    m_XSecSurf.AddXSec( XS_ELLIPSE );
-    m_XSecSurf.AddXSec( XS_POINT );
+    vector < StackXSec* > stack_xs;
 
-    int j;
-    StackXSec* xs;
+    if ( stack_type == STACK_PRESET_DEFAULT )
+    {
+        // Default StackXSecs
+        StackXSec default_xs0 = StackXSec( new PointXSec() );
+        StackXSec default_xs1 = StackXSec( new EllipseXSec() );
+        StackXSec default_xs2 = StackXSec( new EllipseXSec() );
+        StackXSec default_xs3 = StackXSec( new EllipseXSec() );
+        StackXSec default_xs4 = StackXSec( new PointXSec() );
 
-    j = 0;
-    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
-    xs->SetGroupDisplaySuffix( j );
-    xs->m_XDelta = 0.0;
-    xs->m_TopLAngle = 45.0;
-    xs->m_TopLStrength = 0.75;
-    xs->m_RightLAngle = 45.0;
-    xs->m_RightLStrength = 0.75;
+        default_xs0.m_XDelta = 0.0;
+        default_xs0.m_TopRAngle = 45.0;
+        default_xs0.m_TopRStrength = 0.75;
+        default_xs0.m_RightRAngle = 45.0;
+        default_xs0.m_RightRStrength = 0.75;
 
-    ++j;
-    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
-    xs->SetGroupDisplaySuffix( j );
-    xs->m_XDelta = 1.0;
-    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
+        default_xs1.m_XDelta = 1.0;
+        default_xs1.GetXSecCurve()->SetWidthHeight( 3.0, 2.5 );
 
-    ++j;
-    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
-    xs->SetGroupDisplaySuffix( j );
-    xs->m_XDelta = 2.0;
-    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
+        default_xs2.m_XDelta = 2.0;
+        default_xs2.GetXSecCurve()->SetWidthHeight( 3.0, 2.5 );
 
-    ++j;
-    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
-    xs->SetGroupDisplaySuffix( j );
-    xs->m_XDelta = 1.0;
-    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
+        default_xs3.m_XDelta = 1.0;
+        default_xs3.GetXSecCurve()->SetWidthHeight( 3.0, 2.5 );
 
-    ++j;
-    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
-    xs->SetGroupDisplaySuffix( j );
-    xs->m_XDelta = 0.5;
-    xs->m_TopLAngle = -45.0;
-    xs->m_TopLStrength = 0.75;
-    xs->m_RightLAngle = -45.0;
-    xs->m_RightLStrength = 0.75;
+        default_xs4.m_XDelta = 0.5;
+        default_xs4.m_TopLAngle = -45.0;
+        default_xs4.m_TopLStrength = 0.75;
+        default_xs4.m_RightLAngle = -45.0;
+        default_xs4.m_RightLStrength = 0.75;
 
+        m_OrderPolicy.Set( STACK_FREE );
+        m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+        m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+        stack_xs = { &(default_xs0),
+                        &(default_xs1),
+                        &(default_xs2),
+                        &(default_xs3),
+                        &(default_xs4), };
+        InitXSecs( stack_xs );
+
+        m_EngineInLipIndex   = 0;
+        m_EngineInFaceIndex  = 0;
+        m_EngineOutFaceIndex = 0;
+        m_EngineOutLipIndex  = 0;
+
+        m_EngineGeomIOType = ENGINE_GEOM_NONE;
+        m_EngineGeomInType = ENGINE_GEOM_FLOWTHROUGH;
+        m_EngineGeomOutType = ENGINE_GEOM_TO_LIP;
+        m_EngineInModeType = ENGINE_MODE_TO_LIP;
+        m_EngineOutModeType = ENGINE_MODE_TO_LIP;
+    }
+    else if ( stack_type >= STACK_PRESET_CYLINDER_ENDPTS &&  stack_type <= STACK_PRESET_CYLINDER_ENDCAPS )
+    {
+        // Cylinder StackXSec
+        StackXSec cyl_face_a = StackXSec( new CircleXSec() );
+        StackXSec cyl_face_b = StackXSec( new CircleXSec() );
+        StackXSec end_point = StackXSec( new PointXSec() );
+
+        end_point.m_TopLAngle = -90.0;
+        end_point.m_RightLAngle = -90.0;
+        end_point.m_TopRAngle = 90.0;
+        end_point.m_RightRAngle = 90.0;
+
+        cyl_face_a.ClearSkinning();
+        cyl_face_a.GetXSecCurve()->SetWidthHeight( 2.5, 2.5 );
+
+        cyl_face_b.CopyFrom( &(cyl_face_a) );
+        cyl_face_b.m_XDelta = 3.0;
+
+        switch ( stack_type )
+        {
+            case STACK_PRESET_CYLINDER_ENDPTS:
+            {
+                end_point.ClearSkinning();
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(cyl_face_a),
+                            &(cyl_face_b),
+                            &(end_point),};
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex   = 0;
+                m_EngineInFaceIndex  = 0;
+                m_EngineOutFaceIndex = 0;
+                m_EngineOutLipIndex  = 0;
+
+                m_EngineGeomIOType = ENGINE_GEOM_NONE;
+                m_EngineGeomInType = ENGINE_GEOM_FLOWTHROUGH;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_LIP;
+                m_EngineInModeType = ENGINE_MODE_TO_LIP;
+                m_EngineOutModeType = ENGINE_MODE_TO_LIP;
+
+                break;
+            }
+            case STACK_PRESET_CYLINDER_ENDCAPS:
+            {
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::FLAT_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::FLAT_END_CAP );
+                stack_xs = { &(cyl_face_a),
+                            &(cyl_face_b),};
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex   = 0;
+                m_EngineInFaceIndex  = 0;
+                m_EngineOutFaceIndex = 0;
+                m_EngineOutLipIndex  = 0;
+
+                m_EngineGeomIOType = ENGINE_GEOM_NONE;
+                m_EngineGeomInType = ENGINE_GEOM_FLOWTHROUGH;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_LIP;
+                m_EngineInModeType = ENGINE_MODE_TO_LIP;
+                m_EngineOutModeType = ENGINE_MODE_TO_LIP;
+
+                break;
+            }
+        }
+    }
+    else
+    {
+        // Engine Flowpath StackXSecs
+        StackXSec end_point = StackXSec( new PointXSec() );
+        StackXSec nacelle_outlet_lip = StackXSec( new CircleXSec() );
+        StackXSec nacelle_outlet_face = StackXSec( new CircleXSec() );
+        StackXSec nacelle_midplane = StackXSec( new CircleXSec() );
+        StackXSec nacelle_inlet_face = StackXSec( new CircleXSec() );
+        StackXSec nacelle_inlet_lip = StackXSec( new CircleXSec() );
+        StackXSec nacelle_outer = StackXSec( new CircleXSec() );
+
+        end_point.m_TopLAngle = -90.0;
+        end_point.m_RightLAngle = -90.0;
+        end_point.m_TopRAngle = 90.0;
+        end_point.m_RightRAngle = 90.0;
+
+        nacelle_outlet_lip.m_XDelta = 3.0;
+        nacelle_outlet_lip.m_AllSymFlag = 1;
+        nacelle_outlet_lip.m_TopLAngle = -15.0;
+        nacelle_outlet_lip.m_TopLStrength = 0.25;
+        nacelle_outlet_lip.m_TopLRAngleEq = false;
+        nacelle_outlet_lip.m_TopRAngle = -165.0;
+        nacelle_outlet_lip.GetXSecCurve()->SetWidthHeight( 3.0, 3.0 );
+
+        nacelle_outlet_face.m_XDelta = -2.5;
+        nacelle_outlet_face.m_AllSymFlag = 1;
+        nacelle_outlet_face.m_TopLAngle = -180.0;
+        nacelle_outlet_face.GetXSecCurve()->SetWidthHeight( 2.0, 2.0 );
+
+        nacelle_midplane.m_XDelta = -0.75;
+        nacelle_midplane.m_AllSymFlag = 1;
+        nacelle_midplane.m_TopLAngle = -180.0;
+        nacelle_midplane.GetXSecCurve()->SetWidthHeight( 2.0, 2.0 );
+
+        nacelle_inlet_face.m_XDelta = -0.75;
+        nacelle_inlet_face.m_AllSymFlag = 1;
+        nacelle_inlet_face.m_TopLAngle = -180.0;
+        nacelle_inlet_face.GetXSecCurve()->SetWidthHeight( 2.0, 2.0 );
+
+        nacelle_inlet_lip.m_XDelta = -2.0;
+        nacelle_inlet_lip.m_AllSymFlag = 1;
+        nacelle_inlet_lip.m_TopLRStrengthEq = true;
+        nacelle_inlet_lip.m_TopLAngle = 90.0;
+        nacelle_inlet_lip.m_TopLStrength = 0.55;
+        nacelle_inlet_lip.m_TopRAngle = 90.0;
+        nacelle_inlet_lip.m_TopRStrength = 0.55;
+        nacelle_inlet_lip.GetXSecCurve()->SetWidthHeight( 3.0, 3.0 );
+
+        nacelle_outer.m_XDelta = 3.0;
+        nacelle_outer.GetXSecCurve()->SetWidthHeight( 4.0, 4.0 );
+
+        switch ( stack_type )
+        {
+            case STACK_PRESET_FLOWTHRU_OUTLIP_ORIG:
+            {
+                m_OrderPolicy.Set( STACK_LOOP );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(nacelle_outlet_lip),
+                            &(nacelle_outlet_face),
+                            &(nacelle_midplane),
+                            &(nacelle_inlet_face),
+                            &(nacelle_inlet_lip),
+                            &(nacelle_outer),
+                            &(nacelle_outlet_lip),};
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex   = 4;
+                m_EngineInFaceIndex  = 3;
+                m_EngineOutFaceIndex = 1;
+                m_EngineOutLipIndex  = 0;
+
+                m_EngineGeomIOType = ENGINE_GEOM_INLET_OUTLET;
+                m_EngineGeomInType = ENGINE_GEOM_FLOWTHROUGH;
+                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH_NEG;
+
+                break;
+            }
+            case STACK_PRESET_FLOWTHRU_INLIP_ORIG:
+            {
+                m_OrderPolicy.Set( STACK_LOOP );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(nacelle_inlet_lip),
+                            &(nacelle_outer),
+                            &(nacelle_outlet_lip),
+                            &(nacelle_outlet_face),
+                            &(nacelle_midplane),
+                            &(nacelle_inlet_face),
+                            &(nacelle_inlet_lip),};
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex   = 0;
+                m_EngineInFaceIndex  = 5;
+                m_EngineOutFaceIndex = 3;
+                m_EngineOutLipIndex  = 2;
+
+                m_EngineGeomIOType = ENGINE_GEOM_INLET_OUTLET;
+                m_EngineGeomInType = ENGINE_GEOM_FLOWTHROUGH;
+                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH_NEG;
+
+                break;
+            }
+            case STACK_PRESET_FLOWTHRU_MID_ORIG:
+            {
+                m_OrderPolicy.Set( STACK_LOOP );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(nacelle_midplane),
+                            &(nacelle_inlet_face),
+                            &(nacelle_inlet_lip),
+                            &(nacelle_outer),
+                            &(nacelle_outlet_lip),
+                            &(nacelle_outlet_face),
+                            &(nacelle_midplane),};
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex   = 2;
+                m_EngineInFaceIndex  = 1;
+                m_EngineOutFaceIndex = 5;
+                m_EngineOutLipIndex  = 4;
+
+                m_EngineGeomIOType = ENGINE_GEOM_INLET_OUTLET;
+                m_EngineGeomInType = ENGINE_GEOM_FLOWTHROUGH;
+                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH_NEG;
+
+                break;
+            }
+            case STACK_PRESET_BOTHFACEFACE:
+            {
+                // Modify ref xsecs delta, skinning
+                nacelle_inlet_face.m_XDelta = 0.0;
+
+                nacelle_inlet_face.ClearSkinning();
+                nacelle_outlet_face.ClearSkinning();
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(nacelle_inlet_face),
+                            &(nacelle_inlet_lip),
+                            &(nacelle_outer),
+                            &(nacelle_outlet_lip),
+                            &(nacelle_outlet_face),
+                            &(end_point),};
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex   = 2;
+                m_EngineInFaceIndex  = 1;
+                m_EngineOutFaceIndex = 5;
+                m_EngineOutLipIndex  = 4;
+
+                m_EngineGeomIOType = ENGINE_GEOM_INLET_OUTLET;
+                m_EngineGeomInType = ENGINE_GEOM_TO_FACE;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_FACE;
+                m_EngineInModeType = ENGINE_MODE_TO_FACE;
+                m_EngineOutModeType = ENGINE_MODE_TO_FACE;
+
+                break;
+            }
+            case STACK_PRESET_BOTHLIPFACE:
+            {
+                // Modify ref xsecs delta, skinning
+                nacelle_inlet_lip.m_XDelta = 0.0;
+
+                nacelle_outlet_face.ClearSkinning();
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(nacelle_inlet_lip),
+                            &(nacelle_outer),
+                            &(nacelle_outlet_lip),
+                            &(nacelle_outlet_face),
+                            &(end_point),};
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex   = 1;
+                m_EngineOutFaceIndex = 4;
+                m_EngineOutLipIndex  = 3;
+
+                m_EngineGeomIOType = ENGINE_GEOM_INLET_OUTLET;
+                m_EngineGeomInType = ENGINE_GEOM_TO_LIP;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_FACE;
+                m_EngineInModeType = ENGINE_MODE_TO_LIP;
+                m_EngineOutModeType = ENGINE_MODE_TO_FACE;
+
+                break;
+            }
+            case STACK_PRESET_BOTHFACELIP:
+            {
+                // Modify ref xsecs delta, skinning
+                nacelle_inlet_face.m_XDelta = 0.0;
+
+                nacelle_inlet_face.ClearSkinning();
+                nacelle_outlet_lip.ClearSkinning();
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(nacelle_inlet_face),
+                            &(nacelle_inlet_lip),
+                            &(nacelle_outer),
+                            &(nacelle_outlet_lip),
+                            &(end_point),};
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex   = 2;
+                m_EngineInFaceIndex  = 1;
+                m_EngineOutLipIndex  = 4;
+
+                m_EngineGeomIOType = ENGINE_GEOM_INLET_OUTLET;
+                m_EngineGeomInType = ENGINE_GEOM_TO_FACE;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_LIP;
+                m_EngineInModeType = ENGINE_MODE_TO_FACE;
+                m_EngineOutModeType = ENGINE_MODE_TO_LIP;
+
+                break;
+            }
+            case STACK_PRESET_BOTHLIPLIP:
+            {
+                // Modify ref xsecs delta, skinning
+                nacelle_inlet_lip.m_XDelta = 0.0;
+
+                nacelle_outlet_lip.ClearSkinning();
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(nacelle_inlet_lip),
+                            &(nacelle_outer),
+                            &(nacelle_outlet_lip),
+                            &(end_point),};
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex   = 1;
+                m_EngineOutLipIndex  = 3;
+
+                m_EngineGeomIOType = ENGINE_GEOM_INLET_OUTLET;
+                m_EngineGeomInType = ENGINE_GEOM_TO_LIP;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_LIP;
+                m_EngineInModeType = ENGINE_MODE_TO_LIP;
+                m_EngineOutModeType = ENGINE_MODE_TO_LIP;
+
+                break;
+            }
+            case STACK_PRESET_OUTFACE:
+            {
+                // Modify ref xsecs delta, skinning
+                nacelle_inlet_lip.m_XDelta = 0.0;
+
+                nacelle_outlet_face.ClearSkinning();
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(nacelle_outer),
+                            &(nacelle_outlet_lip),
+                            &(nacelle_outlet_face),
+                            &(end_point),};
+                InitXSecs( stack_xs );
+
+                m_EngineOutFaceIndex = 3;
+                m_EngineOutLipIndex  = 2;
+
+                m_EngineGeomIOType = ENGINE_GEOM_OUTLET;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_FACE;
+                m_EngineOutModeType = ENGINE_MODE_TO_FACE;
+
+                break;
+            }
+            case STACK_PRESET_OUTLIP:
+            {
+                // Modify ref xsecs delta, skinning
+                nacelle_outlet_face.m_AllSymFlag = 1;
+
+                nacelle_outlet_lip.ClearSkinning();
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(nacelle_outer),
+                            &(nacelle_outlet_lip),
+                            &(end_point),};
+                InitXSecs( stack_xs );
+
+                m_EngineOutLipIndex  = 2;
+
+                m_EngineGeomIOType = ENGINE_GEOM_OUTLET;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_LIP;
+                m_EngineOutModeType = ENGINE_MODE_TO_LIP;
+
+                break;
+            }
+            case STACK_PRESET_INFACE:
+            {
+                // Modify ref xsecs delta, skinning
+                end_point.m_XDelta = 3.0;
+                nacelle_inlet_face.m_XDelta = 0.0;
+
+                nacelle_inlet_face.ClearSkinning();
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(nacelle_inlet_face),
+                            &(nacelle_inlet_lip),
+                            &(nacelle_outer),
+                            &(end_point),};
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex  = 2;
+                m_EngineInFaceIndex = 1;
+
+                m_EngineGeomIOType = ENGINE_GEOM_INLET;
+                m_EngineGeomInType = ENGINE_GEOM_TO_FACE;
+                m_EngineInModeType = ENGINE_MODE_TO_FACE;
+
+                break;
+            }
+            case STACK_PRESET_INLIP:
+            {
+                // Modify ref xsecs delta, skinning
+                end_point.m_XDelta = 3.0;
+                nacelle_inlet_lip.m_XDelta = 0.0;
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(nacelle_inlet_lip),
+                            &(nacelle_outer),
+                            &(end_point),};
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex = 1;
+
+                m_EngineGeomIOType = ENGINE_GEOM_INLET;
+                m_EngineGeomInType = ENGINE_GEOM_INLET;
+                m_EngineInModeType = ENGINE_MODE_TO_LIP;
+
+                break;
+            }
+            case STACK_PRESET_FLOWPATH_BOTH:
+            {
+                // reverse order of xsecs means an inverse offset of XDeltas
+                nacelle_outlet_lip.m_XDelta = -nacelle_outlet_face.m_XDelta();
+                nacelle_outlet_face.m_XDelta = -nacelle_midplane.m_XDelta();
+                nacelle_midplane.m_XDelta = -nacelle_inlet_face.m_XDelta();
+                nacelle_inlet_face.m_XDelta = -nacelle_inlet_lip.m_XDelta();
+                nacelle_inlet_lip.m_XDelta = 0.0;
+
+                // flip skinning due to reversal of usual xsec order
+                nacelle_inlet_lip.m_TopLRAngleEq = false;
+                nacelle_inlet_lip.m_RightLRAngleEq = false;
+                nacelle_inlet_lip.m_TopRAngle = -nacelle_inlet_lip.m_TopRAngle();
+                nacelle_inlet_lip.m_RightRAngle = -nacelle_inlet_lip.m_RightRAngle();
+
+                nacelle_inlet_face.m_TopLAngle = 0.0;
+                nacelle_midplane.m_TopLAngle = 0.0;
+                nacelle_outlet_face.m_TopLAngle = 0.0;
+
+                nacelle_outlet_lip.m_TopLAngle = 15.0;
+                nacelle_outlet_lip.m_TopRAngle = -90.0;
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(nacelle_inlet_lip),
+                            &(nacelle_inlet_face),
+                            &(nacelle_midplane),
+                            &(nacelle_outlet_face),
+                            &(nacelle_outlet_lip),
+                            &(end_point),};
+
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex   = 1;
+                m_EngineInFaceIndex  = 2;
+                m_EngineOutFaceIndex = 4;
+                m_EngineOutLipIndex  = 5;
+
+                m_EngineGeomIOType = ENGINE_GEOM_INLET_OUTLET;
+                m_EngineGeomInType = ENGINE_GEOM_FLOWPATH;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_FACE;
+                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH_NEG;
+                m_EngineOutModeType = ENGINE_MODE_TO_LIP;
+
+                break;
+            }
+            case STACK_PRESET_FLOWPATH_IN:
+            {
+                // reverse order of xsecs means an inverse offset of XDeltas
+                nacelle_inlet_face.m_XDelta = -nacelle_inlet_lip.m_XDelta();
+                nacelle_inlet_lip.m_XDelta = 0.0;
+
+                // flip skinning due to reversal of usual xsec order
+                nacelle_inlet_lip.m_TopLRAngleEq = false;
+                nacelle_inlet_lip.m_TopRAngle = -nacelle_inlet_lip.m_TopRAngle();
+
+                nacelle_inlet_face.m_TopLRAngleEq = false;
+                nacelle_inlet_face.m_TopLAngle = 0.0;
+                nacelle_inlet_face.m_TopRAngle = -90.0;
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(nacelle_inlet_lip),
+                            &(nacelle_inlet_face),
+                            &(end_point),};
+
+                InitXSecs( stack_xs );
+
+                m_EngineInLipIndex   = 1;
+                m_EngineInFaceIndex  = 2;
+
+                m_EngineGeomIOType = ENGINE_GEOM_INLET;
+                m_EngineGeomInType = ENGINE_GEOM_FLOWPATH;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_FACE;
+                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH_NEG;
+                m_EngineOutModeType = ENGINE_MODE_TO_LIP;
+
+                break;
+            }
+            case STACK_PRESET_FLOWPATH_OUT:
+            {
+                // reverse order of xsecs means an inverse offset of XDeltas
+                nacelle_outlet_lip.m_XDelta = -nacelle_outlet_face.m_XDelta();
+                nacelle_outlet_face.m_XDelta = 0.0;
+
+                // flip skinning due to reversal of usual xsec order
+                nacelle_outlet_face.m_TopLRAngleEq = false;
+                nacelle_outlet_face.m_TopLAngle = 90.0;
+                nacelle_outlet_face.m_TopRAngle = 0.0;
+
+                nacelle_outlet_lip.m_TopLAngle = 15.0;
+                nacelle_outlet_lip.m_TopRAngle = -90.0;
+
+                m_OrderPolicy.Set( STACK_FREE );
+                m_CapUMinOption.Set( CAP_TYPE::NO_END_CAP );
+                m_CapUMaxOption.Set( CAP_TYPE::NO_END_CAP );
+                stack_xs = { &(end_point),
+                            &(nacelle_outlet_face),
+                            &(nacelle_outlet_lip),
+                            &(end_point),};
+
+                InitXSecs( stack_xs );
+
+                m_EngineOutFaceIndex = 1;
+                m_EngineOutLipIndex  = 2;
+
+                m_EngineGeomIOType = ENGINE_GEOM_OUTLET;
+                m_EngineGeomInType = ENGINE_GEOM_FLOWPATH;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_FACE;
+                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH_NEG;
+                m_EngineOutModeType = ENGINE_MODE_TO_LIP;
+
+                break;
+            }
+        }
+    }
+    Update();
 }
 
 void StackGeom::InitXSecs( vector < StackXSec* > stack_xs )

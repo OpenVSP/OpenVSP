@@ -16,6 +16,27 @@
 #include "XSecCurve.h"
 #include "XSecSurf.h"
 
+enum STACK_PRESETS {
+    STACK_PRESET_DEFAULT=0,              ///< standard init type
+    STACK_PRESET_CYLINDER_ENDPTS=1,      ///< init as a cylinder with points as first/last xsec
+    STACK_PRESET_CYLINDER_ENDCAPS=2,     ///< init as a cylinder with endcaps instead of points
+    STACK_PRESET_FLOWTHRU_OUTLIP_ORIG=3, ///< init as a flowthru nacelle starting/ending with outlet lip
+    STACK_PRESET_FLOWTHRU_INLIP_ORIG=4,  ///< init as a flowthru nacelle starting/ending with inlet lip
+    STACK_PRESET_FLOWTHRU_MID_ORIG=5,    ///< init as a flowthru nacelle starting/ending with outlet face
+    STACK_PRESET_BOTHFACEFACE=6,         ///< init as a nacelle modeled from the inlet face around the outside to the outlet face
+    STACK_PRESET_BOTHLIPFACE=7,          ///< init as a nacelle modeled from the inlet lip around the outside to the outlet face
+    STACK_PRESET_BOTHFACELIP=8,          ///< init as a nacelle modeled from the inlet face around the outside to the outlet lip
+    STACK_PRESET_BOTHLIPLIP=9,           ///< init as a nacelle modeled from the inlet lip around the outside to the outlet lip
+    STACK_PRESET_OUTFACE=10,             ///< init as a nacelle modeled with no inlet, around the outside to the outlet face
+    STACK_PRESET_OUTLIP=11,              ///< init as a nacelle modeled from no inlet, around the outside to the outlet face
+    STACK_PRESET_INFACE=12,              ///< init as a nacelle modeled from inlet face, then close out with no outlet
+    STACK_PRESET_INLIP=13,               ///< init as a nacelle modeled from inlet lip, then close out with no outlet
+    STACK_PRESET_FLOWPATH_BOTH=14,       ///< init as a nacelle's flowpath only, modeling from inlet to outlet
+    STACK_PRESET_FLOWPATH_IN=15,         ///< init as a nacelle's flowpath only, modeling inlet lip to face only
+    STACK_PRESET_FLOWPATH_OUT=16,        ///< init as a nacelle's flowpath only, modeling outlet face to lip only
+
+  };
+
 //==== Stack Geom ====//
 class StackGeom : public GeomEngine
 {
@@ -26,6 +47,7 @@ public:
     virtual ~StackGeom();
 
     void InitXSecs( vector < StackXSec* > stack_xs );
+    void InitParms( int stack_type );
 
     virtual void ComputeCenter();
 
