@@ -23,6 +23,39 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 460, 800, "Stac
     m_DesignLayout.SetGroupAndScreen( design_group, this );
     m_DesignLayout.AddDividerBox( "Design" );
 
+    m_StackPresetChoice.AddItem( "Default", STACK_PRESET_DEFAULT );
+    m_StackPresetChoice.AddItem( "Cylinder with EndPoints", STACK_PRESET_CYLINDER_ENDPTS );
+    m_StackPresetChoice.AddItem( "Cylinder with EndCaps", STACK_PRESET_CYLINDER_ENDCAPS );
+    m_StackPresetChoice.AddItem( "Nacelle Flowthru Outlet Origin", STACK_PRESET_FLOWTHRU_OUTLIP_ORIG );
+    m_StackPresetChoice.AddItem( "Nacelle Flowthru Inlet Origin", STACK_PRESET_FLOWTHRU_INLIP_ORIG );
+    m_StackPresetChoice.AddItem( "Nacelle Flowthru Mid Origin", STACK_PRESET_FLOWTHRU_MID_ORIG );
+    m_StackPresetChoice.AddItem( "Nacelle Inlet + Outlet to Face", STACK_PRESET_BOTHFACEFACE );
+    m_StackPresetChoice.AddItem( "Nacelle Inlet Lip + Outlet Face", STACK_PRESET_BOTHLIPFACE );
+    m_StackPresetChoice.AddItem( "Nacelle Inlet Face + Outlet Lip", STACK_PRESET_BOTHFACELIP );
+    m_StackPresetChoice.AddItem( "Nacelle Inlet + Outlet to Lip", STACK_PRESET_BOTHLIPLIP );
+    m_StackPresetChoice.AddItem( "Nacelle Outlet to Face", STACK_PRESET_OUTFACE );
+    m_StackPresetChoice.AddItem( "Nacelle Outlet to Lip", STACK_PRESET_OUTLIP );
+    m_StackPresetChoice.AddItem( "Nacelle Inlet to Face", STACK_PRESET_INFACE );
+    m_StackPresetChoice.AddItem( "Nacelle Inlet to Lip", STACK_PRESET_INLIP );
+    m_StackPresetChoice.AddItem( "Nacelle Flowpath Inlet + Outlet", STACK_PRESET_FLOWPATH_BOTH );
+    m_StackPresetChoice.AddItem( "Nacelle Flowpath Inlet", STACK_PRESET_FLOWPATH_IN );
+    m_StackPresetChoice.AddItem( "Nacelle Flowpath Outlet", STACK_PRESET_FLOWPATH_OUT );
+
+    int std_btn = m_DesignLayout.GetButtonWidth();
+    int std_slider = m_DesignLayout.GetSliderWidth();
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.SetSliderWidth( 250 );
+    m_DesignLayout.AddChoice( m_StackPresetChoice, "Stack Preset: " );
+    m_DesignLayout.SetButtonWidth( m_DesignLayout.GetRemainX() );
+    m_DesignLayout.AddButton( m_InitStackPreset, "Set" );
+
+    m_DesignLayout.ForceNewLine();
+    m_DesignLayout.SetButtonWidth( std_btn );
+    m_DesignLayout.SetSliderWidth( std_slider );
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.SetSameLineFlag( false );
+
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Design Policy" );
     m_DesignPolicyChoice.AddItem( "FREE" );
