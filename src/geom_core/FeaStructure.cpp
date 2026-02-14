@@ -7280,6 +7280,13 @@ void FeaMaterial::GetAprime( vec6 &aprime ) const
 
 void FeaMaterial::LaminateTheory3D()
 {
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
     int nlayer = m_LayerVec.size();
 
 
@@ -7479,6 +7486,33 @@ void FeaMaterial::LaminateTheory3D()
 
     m_Thickness_FEM = t_sum;
     m_MassDensity_FEM = m / t_sum;
+
+    int length_unit = -1;
+
+    switch ( ( int ) veh->m_StructUnit() )
+    {
+        case vsp::SI_UNIT:
+            length_unit = vsp::LEN_M;
+            break;
+
+        case vsp::CGS_UNIT:
+            length_unit = vsp::LEN_CM;
+            break;
+
+        case vsp::MPA_UNIT:
+            length_unit = vsp::LEN_MM;
+            break;
+
+        case vsp::BFT_UNIT:
+            length_unit = vsp::LEN_FT;
+            break;
+
+        case vsp::BIN_UNIT:
+            length_unit = vsp::LEN_IN;
+            break;
+    }
+
+    m_Thickness = ConvertLength( m_Thickness_FEM(), length_unit, m_LengthUnit() );
 }
 
 //////////////////////////////////////////////////////
