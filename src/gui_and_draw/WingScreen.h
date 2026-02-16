@@ -94,6 +94,7 @@ protected:
     ToggleButton m_RotateAllFoilMatchDihedral;
     ToggleButton m_RotateRootFoilMatchDihedral;
     ToggleButton m_CorrectFoil;
+    ToggleButton m_TwistAllInXZPlane;
 
     ToggleButton m_DihedralAbsoluteToggle;
     ToggleButton m_DihedralRelativeToggle;
@@ -115,6 +116,7 @@ protected:
 
     SliderAdjRangeInput m_DihedralSlider;
     ToggleButton m_RotateThisFoilMatchDihedral;
+    ToggleButton m_TwistThisFoilInXZPlane;
 
     TriggerButton m_CopyAfButton;
     TriggerButton m_PasteAfButton;

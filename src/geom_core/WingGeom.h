@@ -117,6 +117,7 @@ public:
 
     Parm m_Dihedral;
     BoolParm m_RotateMatchDiedralFlag;
+    BoolParm m_TwistInXZPlaneFlag;
 
     Parm m_ProjectedSpan;
 
@@ -128,6 +129,8 @@ public:
     double m_YRotate;
     double m_ZRotate;
     double m_SectAxis;
+
+    bool m_XYTwist;
 
     double m_XCenterRot;
     double m_YCenterRot;
@@ -221,6 +224,7 @@ public:
     BoolParm m_RelativeTwistFlag;
     BoolParm m_RotateAllAirfoilMatchDiedralFlag;
     BoolParm m_CorrectAirfoilThicknessFlag;
+    BoolParm m_TwistAllInXZPlaneFlag;
 
     IntParm m_ActiveWingSection;
 
