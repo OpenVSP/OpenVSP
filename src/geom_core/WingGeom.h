@@ -219,7 +219,7 @@ public:
 
     BoolParm m_RelativeDihedralFlag;
     BoolParm m_RelativeTwistFlag;
-    BoolParm m_RotateAirfoilMatchDiedralFlag;
+    BoolParm m_RotateAllAirfoilMatchDiedralFlag;
     BoolParm m_CorrectAirfoilThicknessFlag;
 
     IntParm m_ActiveWingSection;
