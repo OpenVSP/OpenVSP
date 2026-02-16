@@ -152,7 +152,10 @@ void FeaMeshMgrSingleton::LoadSkins()
             FeaSkin* skin = dynamic_cast<FeaSkin*>( prt );
             assert( skin );
 
-            fea_struct->BuildSuppressList();
+            // Suppression list is built in un-scaled dimensions, but m_MinLen is in scaled dimensions.
+            // Use m_MinLen / 10 as tolerance for co-planar test for suppression of U/W feature lines.
+            double tol = GetMeshPtr()->m_FeaGridDensity.m_MinLen / GetMeshPtr()->m_LenScale / 10.0;
+            fea_struct->BuildSuppressList( tol );
 
             //===== Add FeaSkins ====//
             vector< XferSurf > skinxfersurfs;
