@@ -815,7 +815,7 @@ void FeaStructure::ResetExportFileNames()
     m_StructSettings.ResetExportFileNames( GetName() );
 }
 
-void FeaStructure::BuildSuppressList()
+void FeaStructure::BuildSuppressList( double tol )
 {
     m_Usuppress.clear();
     m_Wsuppress.clear();
@@ -852,7 +852,7 @@ void FeaStructure::BuildSuppressList()
                 pnts[j] = surf->CompPnt( ufeature[i], w );
             }
 
-            if ( PtsOnAnyPlanarPart( pnts ) )
+            if ( PtsOnAnyPlanarPart( pnts, tol ) )
             {
                 m_Usuppress.push_back( ufeature[i] );
             }
@@ -869,7 +869,7 @@ void FeaStructure::BuildSuppressList()
                 pnts[j] = surf->CompPnt( u, wfeature[i] );
             }
 
-            if ( PtsOnAnyPlanarPart( pnts ) )
+            if ( PtsOnAnyPlanarPart( pnts, tol ) )
             {
                 m_Wsuppress.push_back( wfeature[i] );
             }
@@ -877,16 +877,15 @@ void FeaStructure::BuildSuppressList()
     }
 }
 
-bool FeaStructure::PtsOnAnyPlanarPart( const vector < vec3d > &pnts )
+bool FeaStructure::PtsOnAnyPlanarPart( const vector < vec3d > &pnts, double tol )
 {
-    double minlen = m_FeaGridDensity.m_MinLen();
     // Loop over all parts.
     for ( int i  = 0; i < m_FeaPartVec.size(); i++ )
     {
         FeaPart* p = m_FeaPartVec[i];
         if ( p )
         {
-            if ( p->PtsOnPlanarPart( pnts, minlen ) )
+            if ( p->PtsOnPlanarPart( pnts, tol ) )
             {
                 return true;
             }
@@ -1551,10 +1550,8 @@ const VspSurf* FeaPart::GetMainSurf()
     return retsurf;
 }
 
-bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind )
+bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, double tol, int surf_ind )
 {
-    double tol = minlen / 10.0;
-
     if ( m_FeaPartSurfVec.size() > 0 )
     {
         VspSurf surf = m_FeaPartSurfVec[surf_ind];
