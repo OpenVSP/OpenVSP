@@ -91,7 +91,7 @@ protected:
     ToggleButton m_TwistRelativeToggle;
     ToggleRadioGroup m_TwistAbsRelToggle;
 
-    ToggleButton m_RotateFoilMatchDihedral;
+    ToggleButton m_RotateAllFoilMatchDihedral;
     ToggleButton m_RotateRootFoilMatchDihedral;
     ToggleButton m_CorrectFoil;
 

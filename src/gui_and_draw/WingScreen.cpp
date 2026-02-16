@@ -118,7 +118,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
     m_PlanLayout.SetFitWidthFlag( true );
     m_PlanLayout.SetSameLineFlag( false );
 
-    m_PlanLayout.AddButton( m_RotateFoilMatchDihedral, "Rotate All Foils (Except Root) To Match Dihedral" );
+    m_PlanLayout.AddButton( m_RotateAllFoilMatchDihedral, "Rotate All Foils (Except Root) To Match Dihedral" );
     m_PlanLayout.AddButton( m_RotateRootFoilMatchDihedral, "Rotate Wing Root Foil To Match Dihedral" );
     m_PlanLayout.AddButton( m_CorrectFoil, "Correct Foil Thickness For Dihedral Rotation" );
 
@@ -568,7 +568,7 @@ bool WingScreen::Update()
         m_DihedralAbsRelToggle.Update( wing_ptr->m_RelativeDihedralFlag.GetID() );
         m_TwistAbsRelToggle.Update( wing_ptr->m_RelativeTwistFlag.GetID() );
 
-        m_RotateFoilMatchDihedral.Update( wing_ptr->m_RotateAirfoilMatchDiedralFlag.GetID() );
+        m_RotateAllFoilMatchDihedral.Update( wing_ptr->m_RotateAllAirfoilMatchDiedralFlag.GetID() );
         m_RotateThisFoilMatchDihedral.Update( wing_sect->m_RotateMatchDiedralFlag.GetID() );
 
         m_CorrectFoil.Update( wing_ptr->m_CorrectAirfoilThicknessFlag.GetID() );

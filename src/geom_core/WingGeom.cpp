@@ -1285,8 +1285,8 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_RelativeTwistFlag.Init("RelativeTwistFlag", m_Name, this, 0, 0, 1 );
     m_RelativeTwistFlag.SetDescript( "Relative or Absolute Twist" );
 
-    m_RotateAirfoilMatchDiedralFlag.Init( "RotateAirfoilMatchDideralFlag", m_Name, this, 1, 0, 1 );
-    m_RotateAirfoilMatchDiedralFlag.SetDescript( "Rotate all foils (except root) perpendicular to dihedral" );
+    m_RotateAllAirfoilMatchDiedralFlag.Init( "RotateAirfoilMatchDideralFlag", m_Name, this, 1, 0, 1 );
+    m_RotateAllAirfoilMatchDiedralFlag.SetDescript( "Rotate all foils (except root) perpendicular to dihedral" );
 
     m_CorrectAirfoilThicknessFlag.Init( "CorrectAirfoilthicknessFlag", m_Name, this, 1, 0, 1 );
     m_CorrectAirfoilThicknessFlag.SetDescript( "Scale airfoil thickness to correct for dihedral rotation" );
@@ -1863,7 +1863,7 @@ void WingGeom::UpdateSurf()
             }
             untransformed_crv_vec[i] = utc;
 
-            if ( m_RotateAirfoilMatchDiedralFlag() && i > 0 )
+            if ( m_RotateAllAirfoilMatchDiedralFlag() && i > 0 )
             {
                 ws->m_RotateMatchDiedralFlag.Deactivate();
             }
@@ -1874,7 +1874,7 @@ void WingGeom::UpdateSurf()
 
             double dihead_rot = 0.0;
             double foil_scale = 1.0;
-            if ( ( i != 0 && m_RotateAirfoilMatchDiedralFlag() )
+            if ( ( i != 0 && m_RotateAllAirfoilMatchDiedralFlag() )
                 || ws->m_RotateMatchDiedralFlag() )
             {
                 if ( i == 0 )
