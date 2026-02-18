@@ -1,14 +1,3 @@
-
-# Workaround for SC_BUILD_SHARED_LIBS flag.
-# Would prefer to set to OFF.  However, it won't build on Mac with
-# flag set to OFF -- and it won't build on MSVC with it set to ON.
-IF( WIN32 )
-    SET( SC_SHARED OFF )
-ELSE()
-    SET( SC_SHARED ON )
-ENDIF()
-
-
 SET(SC_CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 SET(SC_CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 
