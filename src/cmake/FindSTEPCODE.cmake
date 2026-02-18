@@ -8,9 +8,7 @@ IF(NOT WIN32)
     ${STEPCODE_INSTALL_DIR}/lib/libstepeditor-static.a
     ${STEPCODE_INSTALL_DIR}/lib/libstepcore-static.a
     ${STEPCODE_INSTALL_DIR}/lib/libstepdai-static.a
-    ${STEPCODE_INSTALL_DIR}/lib/libsteputils-static.a
-    # ${STEPCODE_INSTALL_DIR}/lib/libbase.a ) removed in 0.8.2
-    )
+    ${STEPCODE_INSTALL_DIR}/lib/libsteputils-static.a )
 ELSE()
     set( STEPCODE_LIBRARIES
     ${STEPCODE_INSTALL_DIR}/lib/libexpress.lib
@@ -24,6 +22,7 @@ ELSE()
     shlwapi.lib )
 ENDIF()
 
+#${STEPCODE_INSTALL_DIR}/lib/libbase-static.a
 
 set( STEPCODE_INCLUDE_DIR
 ${STEPCODE_INSTALL_DIR}/include/stepcode
