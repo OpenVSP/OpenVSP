@@ -43,7 +43,7 @@ STEPutil::STEPutil( const int & len, const double & tol )
 STEPutil::~STEPutil()
 {
     header_instances->DeleteInstances();
-    instance_list->DeleteInstances();
+  //  instance_list->DeleteInstances();
     delete registry;
     delete instance_list;
     delete sfile;
