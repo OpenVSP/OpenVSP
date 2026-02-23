@@ -23,14 +23,14 @@ MeshCommonSettings::~MeshCommonSettings()
 {
 }
 
-void MeshCommonSettings::InitCommonParms()
+void MeshCommonSettings::InitCommonParms( bool curveFlagDefault )
 {
     m_DrawMeshFlag.Init( "DrawMeshFlag", "DrawMesh", this, true, 0, 1 );
     m_ColorFacesFlag.Init( "ColorTagsFlag", "DrawMesh", this, true, 0, 1 );
     m_ColorTagReason.Init( "ColorReasonFlag", "DrawMesh", this, false, 0, 1 );
 
-    m_DrawBorderFlag.Init( "DrawBorderFlag", "DrawMesh", this, true, 0, 1 );
-    m_DrawIsectFlag.Init( "DrawIsectFlag", "DrawMesh", this, true, 0, 1 );
+    m_DrawBorderFlag.Init( "DrawBorderFlag", "DrawMesh", this, curveFlagDefault, 0, 1 );
+    m_DrawIsectFlag.Init( "DrawIsectFlag", "DrawMesh", this, curveFlagDefault, 0, 1 );
     m_DrawRawFlag.Init( "DrawRawFlag", "DrawMesh", this, false, 0, 1 );
     m_DrawBinAdaptFlag.Init( "DrawBinAdaptFlag", "DrawMesh", this, true, 0, 1 );
 
@@ -106,7 +106,7 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     m_ExportFileNames.resize( vsp::INTERSECT_NUM_FILE_NAMES );
 
-    InitCommonParms();
+    InitCommonParms( true );
 
 }
 
@@ -269,9 +269,7 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
 
     m_ExportRawFlag.Init( "ExportRawFlag", "ExportCFD", this, false, 0, 1 );
 
-    InitCommonParms();
-    m_DrawBorderFlag = false;
-    m_DrawIsectFlag = false;
+    InitCommonParms( false );
 
     m_ExportFileNames.resize( vsp::CFD_NUM_FILE_NAMES );
 }
@@ -408,7 +406,7 @@ StructSettings::StructSettings() : MeshCommonSettings()
 {
     m_Name = "StructSettings";
 
-    InitCommonParms();
+    InitCommonParms( false );
     // Convert to quads should default to ON for structures.
     m_ConvertToQuadsFlag.Set( true );
     // High order elements should default to ON for structures.
