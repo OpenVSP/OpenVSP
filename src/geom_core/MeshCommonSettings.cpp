@@ -108,10 +108,6 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     InitCommonParms();
 
-    m_FarCompFlag = false;
-    m_FarMeshFlag = false;
-    m_SymSplittingOnFlag = false;
-    m_IntersectSubSurfs = true;
 }
 
 IntersectSettings::~IntersectSettings()
