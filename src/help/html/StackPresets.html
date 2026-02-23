@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Stack Presets</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Stack Presets</h1>
+</header>
+<p>Stack Presets can be used to initialize the current stack into a
+variety of useful starting configurations. Some of these presets are
+convenience features, such as <em>Default</em> and <em>Cylinder</em>.
+They get the user to a helpful starting point for modeling geometry. The
+other presets are to assist with engine modeling. OpenVSP supports a
+variety of engine representations, which have subtle but important
+differences. These differences appear both in the geometric modeling as
+well as in the various parms required to set up a nacelle for analyses.
+Given that there are many valid permutations of full nacelle, inlet,
+and/or outlet modeling methods, a sampler of nacelle presets are
+included to jump off from when developing vehicle with propulsion
+modeling.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Stack Presets</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Default</td>
+</tr>
+<tr>
+<td style="text-align: left;">Cylinder with End Points</td>
+</tr>
+<tr>
+<td style="text-align: left;">Cylinder with End Caps</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Flowthru Outlet Origin</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Flowthru Inlet Origin</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Flowthru Mid Origin</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Inlet + Outlet to Face</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Inlet Lip + Outlet Face</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Inlet Face + Outlet Lip</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Inlet + Outlet to Lip</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Outlet to Face</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Outlet to Lip</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Inlet to Face</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Inlet to Lip</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Flowpath Inlet + Outlet</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Flowpath Inlet</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nacelle Flowpath Outlet</td>
+</tr>
+</tbody>
+</table>
+<h2 id="free-presets">Free Presets</h2>
+<p>These are stack presets that use the "Free" Order Policy.</p>
+<h3 id="default">Default</h3>
+<p>This is the default stack initialization type.</p>
+<h3 id="cylinder-with-end-points">Cylinder with End Points</h3>
+<p>A 4-XSec cylinder, with points as the start and end of the stack.
+Skinning is disabled for the whole stack.</p>
+<h3 id="cylinder-with-end-caps">Cylinder with End Caps</h3>
+<p>A 2-XSec cylinder, with flat end caps for the start and end of the
+stack. Skinning is disabled for this stack.</p>
+<h2 id="loop-presets-nacelles">Loop Presets (Nacelles)</h2>
+<p>These are the stack presets that use the "Loop" Order Policy, given
+here as a variety of nacelle models. Engine modeling in OpenVSP includes
+a number of subtle design choices, and not every combination of these
+creates a valid or useful model. As such, we encourage users new to
+engine modeling to begin from one of the included Nacelle stack
+presets.</p>
+<p>There area few important concepts to cover with engine modeling.</p>
+<p>First is Engine Definition, in which the user defines to OpenVSP
+<em>how</em> the engine geometry is modeled. The user may model the
+flowpath (inlet and/or outlet) implicitly with the "Flowthrough"
+definition or explicitly as a "Flowpath" definition. With these options
+selected, the user indicates the applicable engine XSecs on the stack
+itself, which are automatically activated/deactivated by the prior
+engine definition selections.</p>
+<p><img src="images/EngineDefinition.png" title="Engine Definition"
+alt="Engine Definition" /></p>
+<p><img src="images/EngineStations.png" title="Engine Stations"
+alt="Engine Stations" /></p>
+<p>Second is Engine Representation. OpenVSP uses Engine Representation
+to interpret which sections of the defined engine will be used in
+analyses. Once the engine is defined, there remain a subset of options
+on how to represent this geometry.</p>
+<p><img src="images/EngineRepresentation.png"
+title="Engine Representation" alt="Engine Representation" /></p>
+<p>If the geometry models the nacelle explicitly, the user may flag it
+as a positive volume or remove it from analysis. All except the
+"...Negative Only" options will keep the explicitly modeled nacelle
+geom, while the "Negative Only" options discards the nacelle geom.</p>
+<p>If the geometry implicitly models the flowpath, the user may flag it
+to remain an unmodeled volume or to be a negative volume (which acts as
+a boolean removal tool in analyses). The user may also choose to crop
+the flowpath from its maximum definition (e.g., from full inlet/outlet
+flowpath to inlet/outlet "To Face", or from inlet/outlet "To Face" to
+inlet/outlet "To Lip" ).</p>
+<p><img src="images/EngineNacelleOnly.png" title="Engine Nacelle Only"
+alt="Engine Nacelle Only" /></p>
+<p><img src="images/EngineNacelleWithNegativeFlowpath.png"
+title="Engine Nacelle with Negative Flowpath"
+alt="Engine Nacelle with Negative Flowpath" /></p>
+<p><img src="images/EngineNegativeFlowpathOnly.png"
+title="Engine Negative Flowpath Only"
+alt="Engine Negative Flowpath Only" /></p>
+<h3 id="nacelle-flowthru-outlet-origin">Nacelle Flowthru Outlet
+Origin</h3>
+<p>This Nacelle is modeled as a "flow through" geometry, meaning the
+inner and outer surfaces of the nacelle are explicitly modeled with the
+XSecs of the stack. The flowthrough nacelle representation offers some
+flexibility here: users may choose to simply leave the interior portion
+of the nacelle as is, or if the nacelle intersects with other geometry
+may flag the interior as "negative volume," which when performing
+CompGeom or CFD work will perform a boolean cut through any other
+positive volume. Additionally, users may choose to represent this
+nacelle using ONLY the negative volume, omitting the nacelle itself
+while preserving the implicitly-modeled flow path. Users may also crop
+the XSecs represented to the face or lip of the inlet or outlet,
+reducing the nacelle model to a non-flow through geometry. For these
+flowthrough geometries, it is crucial that the order of the XSecs is
+back-to-front on the inner surface and front-to-back on the outer
+surface. This maintains the proper surface normal. As a check, users may
+attach a blank geom to UW trans/rot as a child of the geom and verify
+its normal direction faces out.</p>
+<p>There are three variations on this flowthrough nacelle model, this
+one has the outlet as its XSec origin.</p>
+<p><img src="images/NacelleFlowthruOutletOrigin.png"
+title="Nacelle Flowthru Outlet Origin"
+alt="Nacelle Flowthru Outlet Origin" /></p>
+<h3 id="nacelle-flowthru-inlet-origin">Nacelle Flowthru Inlet
+Origin</h3>
+<p>This Nacelle is modeled as a "flow through" geometry, meaning the
+inner and outer surfaces of the nacelle are explicitly modeled with the
+XSecs of the stack. The flowthrough nacelle representation offers some
+flexibility here: users may choose to simply leave the interior portion
+of the nacelle as is, or if the nacelle intersects with other geometry
+may flag the interior as "negative volume," which when performing
+CompGeom or CFD work will perform a boolean cut through any other
+positive volume. Additionally, users may choose to represent this
+nacelle using ONLY the negative volume, omitting the nacelle itself
+while preserving the implicitly-modeled flow path. Users may also crop
+the XSecs represented to the face or lip of the inlet or outlet,
+reducing the nacelle model to a non-flow through geometry. For these
+flowthrough geometries, it is crucial that the order of the XSecs is
+back-to-front on the inner surface and front-to-back on the outer
+surface. This maintains the proper surface normal. As a check, users may
+attach a blank geom to UW trans/rot as a child of the geom and verify
+its normal direction faces out.</p>
+<p>There are three variations on this flowthrough nacelle model, this
+one has the inlet as its XSec origin.</p>
+<p><img src="images/NacelleFlowthruInletOrigin.png"
+title="Nacelle Flowthru Inlet Origin"
+alt="Nacelle Flowthru Inlet Origin" /></p>
+<h3 id="nacelle-flowthru-mid-origin">Nacelle Flowthru Mid Origin</h3>
+<p>This Nacelle is modeled as a "flow through" geometry, meaning the
+inner and outer surfaces of the nacelle are explicitly modeled with the
+XSecs of the stack. The flowthrough nacelle representation offers some
+flexibility here: users may choose to simply leave the interior portion
+of the nacelle as is, or if the nacelle intersects with other geometry
+may flag the interior as "negative volume," which when performing
+CompGeom or CFD work will perform a boolean cut through any other
+positive volume. Additionally, users may choose to represent this
+nacelle using ONLY the negative volume, omitting the nacelle itself
+while preserving the implicitly-modeled flow path. Users may also crop
+the XSecs represented to the face or lip of the inlet or outlet, or
+choose to extend the inlet or outlet; reducing the nacelle model to a
+non-flow through geometry. For these flowthrough geometries, it is
+crucial that the order of the XSecs is back-to-front on the inner
+surface and front-to-back on the outer surface. This maintains the
+proper surface normal. As a check, users may attach a blank geom to UW
+trans/rot as a child of the geom and verify its normal direction faces
+out.</p>
+<p>There are three variations on this flowthrough nacelle model, this
+one has the middle of the flowpath as its XSec origin.</p>
+<p><img src="images/NacelleFlowthruMidOrigin.png"
+title="Nacelle Flowthru Mid Origin"
+alt="Nacelle Flowthru Mid Origin" /></p>
+<h3 id="nacelle-inlet--outlet-to-face">Nacelle Inlet + Outlet to
+Face</h3>
+<p>This nacelle is modeled from the face of the inlet around the outside
+to the face of the outlet. It does not model the flowthrough region
+between the inlet/outlet faces, but can model the inlet/outlet cavities
+as shown or as negative volumes for CompGeom/CFD operations.
+Additionally, the inlets and outlets may be overridden with an extend
+representation.</p>
+<p><img src="images/NacelleInletOutletFace.png"
+title="Nacelle Inlet + Outlet to Face"
+alt="Nacelle Inlet + Outlet to Face" /></p>
+<h3 id="nacelle-inlet-lip--outlet-face">Nacelle Inlet Lip + Outlet
+Face</h3>
+<p>This nacelle is modeled from the lip of the inlet around the outside
+to the face of the outlet. It does not model the flowthrough region
+between the inlet/outlet faces, but can model the outlet cavity as shown
+or as a negative volume for CompGeom/CFD operations. Additionally, the
+inlets and outlets may be overridden with an extend representation.</p>
+<p><img src="images/NacelleInletLipOutletFace.png"
+title="Nacelle Inlet Lip + Outlet Face"
+alt="Nacelle Inlet Lip + Outlet Face" /></p>
+<h3 id="nacelle-inlet-face--outlet-lip">Nacelle Inlet Face + Outlet
+Lip</h3>
+<p>This nacelle is modeled from the face of the inlet around the outside
+to the lip of the outlet. It does not model the flowthrough region
+between the inlet/outlet faces, but can model the inlet cavity as shown
+or as a negative volume for CompGeom/CFD operations. Additionally, the
+inlets and outlets may be overridden with an extend representation.</p>
+<p><img src="images/NacelleInletFaceOutletLip.png"
+title="Nacelle Inlet Face + Outlet Lip"
+alt="Nacelle Inlet Face + Outlet Lip" /></p>
+<h3 id="nacelle-inlet--outlet-to-lip">Nacelle Inlet + Outlet to Lip</h3>
+<p>This nacelle is modeled from the lip of the inlet around the outside
+to the lip of the outlet. It does not model the flowthrough region
+between the inlet/outlet faces, but the inlets and outlets may be given
+an extend representation.</p>
+<p><img src="images/NacelleInletOutletToLip.png"
+title="Nacelle Inlet + Outlet to Lip"
+alt="Nacelle Inlet + Outlet to Lip" /></p>
+<h3 id="nacelle-outlet-to-face">Nacelle Outlet to Face</h3>
+<p>This nacelle is modeled as outlet-only to face of the outlet. It can
+model the outlet cavity as shown or as a negative volume for
+CompGeom/CFD operations. The outlet may be overridden with an extend
+representation.</p>
+<p><img src="images/NacelleOutletToFace.png"
+title="Nacelle Outlet to Face" alt="Nacelle Outlet to Face" /></p>
+<h3 id="nacelle-outlet-to-lip">Nacelle Outlet to Lip</h3>
+<p>This nacelle is modeled as outlet-only to lip of the outlet. The
+outlet may be overridden with an extend representation.</p>
+<p><img src="images/NacelleOutletToLip.png"
+title="Nacelle Outlet to Lip" alt="Nacelle Outlet to Lip" /></p>
+<h3 id="nacelle-inlet-to-face">Nacelle Inlet to Face</h3>
+<p>This nacelle is modeled as inlet-only starting from the inlet face.
+It can model the inlet cavity as shown or as a negative volume for
+CompGeom/CFD operations. The inlet may be overridden with an extend
+representation.</p>
+<p><img src="images/NacelleInletToFace.png"
+title="Nacelle Inlet to Face" alt="Nacelle Inlet to Face" /></p>
+<h3 id="nacelle-inlet-to-lip">Nacelle Inlet to Lip</h3>
+<p>This nacelle is modeled as inlet-only starting from the inlet lip.
+The inlet may be overridden with an extend representation.</p>
+<p><img src="images/NacelleInletToLip.png" title="Nacelle Inlet to Lip"
+alt="Nacelle Inlet to Lip" /></p>
+<h3 id="nacelle-flowpath-inlet--outlet">Nacelle Flowpath Inlet +
+Outlet</h3>
+<p>This nacelle is explicitly modeling the interior flowpath, with no
+representation of the outer structure. Note that this reverses the XSec
+order from the earlier paradigm, as the inlet face is the first XSec,
+leading through the flowpath to the outlet face. This representation is
+intended to be used as a negative flowpath, with the "negative flowpath
+only" option behaving identically since there is no nacelle modeled in
+the first place. This model also supports extension of inlet and
+outlets.</p>
+<p><img src="images/NacelleFlowpathInletOutlet.png"
+title="Nacelle Flowpath Inlet + Outlet"
+alt="Nacelle Flowpath Inlet + Outlet" /></p>
+<h3 id="nacelle-flowpath-inlet">Nacelle Flowpath Inlet</h3>
+<p>This nacelle is explicitly modeling the interior flowpath from inlet
+lip to inlet face, with no representation of the outer structure. This
+representation is intended to be used as a negative flowpath, with the
+"negative flowpath only" option behaving identically since there is no
+nacelle modeled in the first place. This model also supports extension
+of the inlet.</p>
+<p><img src="images/NacelleFlowpathInlet.png"
+title="Nacelle Flowpath Inlet" alt="Nacelle Flowpath Inlet" /></p>
+<h3 id="nacelle-flowpath-outlet">Nacelle Flowpath Outlet</h3>
+<p>This nacelle is explicitly modeling the interior flowpath from outlet
+face to the outlet lip, with no representation of the outer structure.
+This representation is intended to be used as a negative flowpath, with
+the "negative flowpath only" option behaving identically since there is
+no nacelle modeled in the first place. This model also supports
+extension the outlet.</p>
+<p><img src="images/NacelleFlowpathOutlet.png"
+title="Nacelle Flowpath Outlet" alt="Nacelle Flowpath Outlet" /></p>
+</body>
+</html>
