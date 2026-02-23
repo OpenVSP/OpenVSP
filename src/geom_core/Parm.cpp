@@ -600,6 +600,11 @@ BoolParm::BoolParm() : Parm()
 //==== Set Bool Value ====//
 bool BoolParm::Set( bool val )
 {
+    if ( val == !!( int )m_Val )
+    {
+        return !!( int )m_Val;
+    }
+
     if ( val )
     {
         m_Val = 1.0;
@@ -608,6 +613,13 @@ bool BoolParm::Set( bool val )
     {
         m_Val = 0.0;
     }
+
+    if ( m_Container )
+    {
+        m_Container->ParmChanged( this, SET );
+    }
+
+    LinkMgr.ParmChanged( m_ID, true );
 
     return ( !!( int )m_Val );
 }
