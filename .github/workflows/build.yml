@@ -159,6 +159,23 @@ jobs:
         
         ls $DEPLOY_FILE && (echo "ZIP CREATION SUCCESSFUL" && exit 0) || (echo "ZIP CREATION FAILED" && exit 1)
 
+    - name:  Bundle MacOS App
+      if: runner.os == 'macos'
+      shell: bash
+      run:   |
+        cd $GITHUB_WORKSPACE/build
+        cmake -DVSP_CPACK_GEN=BUNDLE -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DOpenMP_ROOT=$(brew --prefix libomp) -DCMAKE_C_COMPILER=$(brew --prefix llvm@${{ matrix.llvm-version }})/bin/clang -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@${{ matrix.llvm-version }})/bin/clang++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src
+        make -j2 package
+
+        DMGFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-MacOS.dmg
+        VSPVER=$(ls $DMGFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
+        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-${{ matrix.os }}-${RUNNER_ARCH}-Python${{ matrix.python-version }}_${GITHUB_SHA}.dmg
+
+        cp $DMGFILE $DEPLOY_FILE
+        cp $DEPLOY_FILE $GITHUB_WORKSPACE/artifacts
+
+        ls $DEPLOY_FILE && (echo "DMG CREATION SUCCESSFUL" && exit 0) || (echo "DMG CREATION FAILED" && exit 1)
+
     - name: Generate Documentation
       if: matrix.os == 'macos-14'
       shell: bash
