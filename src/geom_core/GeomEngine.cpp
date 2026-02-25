@@ -317,6 +317,22 @@ void GeomEngine::UpdateBBox()
     m_ScaleIndependentBBox.Update( bbvec );
 }
 
+void GeomEngine::UpdateXForm()
+{
+    GeomXSec::UpdateXForm();
+
+    // m_XFormDirty implied because we're in UpdateXForms()
+    if ( m_EngineGeomIOType() != ENGINE_GEOM_NONE
+        && ( ( m_EngineGeomIOType() <= ENGINE_GEOM_INLET_OUTLET // Includes inlet description
+            && m_EngineInModeType() == ENGINE_MODE_EXTEND )
+        ||   ( m_EngineGeomIOType() >= ENGINE_GEOM_INLET_OUTLET  // Includes outlet description
+            && m_EngineOutModeType() == ENGINE_MODE_EXTEND ) )
+        && m_RotExtensionFlag() )
+    {
+        m_SurfDirty = true;
+    }
+}
+
 void GeomEngine::UpdateEngine()
 {
     m_ScaleIndependentMainBBox.Reset();

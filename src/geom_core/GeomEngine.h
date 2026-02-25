@@ -63,6 +63,7 @@ protected:
     virtual void Extend( VspSurf &surf, const double & u, bool extbefore );
     virtual void UpdateEngine();
     virtual void UpdateBBox();
+    virtual void UpdateXForm();
 
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj();
