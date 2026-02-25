@@ -1756,19 +1756,6 @@ void Geom::Update( bool fullupdate )
         }
     }
 
-    if ( GetType().m_Type == STACK_GEOM_TYPE )
-    {
-        StackGeom* stack_ptr = dynamic_cast< StackGeom* >( this );
-
-        if ( stack_ptr
-            && m_XFormDirty
-            && stack_ptr->m_RotExtensionFlag.GetActiveFlag()
-            && stack_ptr->m_RotExtensionFlag() )
-        {
-            m_SurfDirty = true;
-        }
-    }
-
     m_UpdateBlock = true;
 
     m_LateUpdateFlag = false;
