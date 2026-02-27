@@ -1019,7 +1019,9 @@ std::string NerfManageGeomScreen::getFeedbackGroupName()
 void NerfManageGeomScreen::Set( const std::string &geomId )
 {
     printf("%s\n", geomId.c_str());
+    m_GeomBrowser->deselect_all();
     m_VehiclePtr->SetActiveGeom(geomId);
+    m_SelVec = m_VehiclePtr->GetActiveGeomVec();
 
     SetNeedsShowHideGeoms();
     m_ScreenMgr->SetUpdateFlag( true );
