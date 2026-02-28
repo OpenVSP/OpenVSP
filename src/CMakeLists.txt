@@ -329,6 +329,68 @@ ELSEIF ( ${VSP_CPACK_GEN} STREQUAL RPM )
     SET( CPACK_PACKAGING_INSTALL_PREFIX /opt/OpenVSP )
   ENDIF()
   SET( CPACK_STRIP_FILES true )
+ELSEIF ( ${VSP_CPACK_GEN} STREQUAL BUNDLE )
+  IF( NOT APPLE )
+    MESSAGE( FATAL_ERROR "BUNDLE packaging is only supported on macOS" )
+  ENDIF()
+
+  SET( CPACK_GENERATOR Bundle )
+
+  CONFIGURE_FILE( ${VSP_SOURCE_DIR}/cmake/Info.plist.in
+                  ${CMAKE_CURRENT_BINARY_DIR}/Info.plist @ONLY )
+
+  SET( CPACK_BUNDLE_NAME "OpenVSP" )
+  SET( CPACK_BUNDLE_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist )
+  SET( LAUNCHER_SRC ${VSP_SOURCE_DIR}/cmake/OpenVSP-launcher.m )
+  SET( LAUNCHER_BIN ${CMAKE_CURRENT_BINARY_DIR}/OpenVSP-launcher )
+
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${LAUNCHER_BIN}
+    COMMAND /usr/bin/clang -framework Cocoa -fobjc-arc -O2
+            -o ${LAUNCHER_BIN} ${LAUNCHER_SRC}
+    DEPENDS ${LAUNCHER_SRC}
+    COMMENT "Compiling OpenVSP macOS launcher"
+  )
+
+  ADD_CUSTOM_TARGET( openvsp_launcher ALL DEPENDS ${LAUNCHER_BIN} )
+
+  SET( CPACK_BUNDLE_STARTUP_COMMAND ${LAUNCHER_BIN} )
+
+  # Generate .icns from vspIcon.png using sips and iconutil
+  SET( ICON_SRC ${VSP_SOURCE_DIR}/../vspIcon.png )
+  SET( ICONSET_DIR ${CMAKE_CURRENT_BINARY_DIR}/OpenVSP.iconset )
+  SET( ICNS_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/OpenVSP.icns )
+
+  FILE( MAKE_DIRECTORY ${ICONSET_DIR} )
+
+  SET( ICON_SIZES 16 32 128 256 512 )
+  SET( SIPS_COMMANDS )
+  FOREACH( SIZE ${ICON_SIZES} )
+    LIST( APPEND SIPS_COMMANDS
+      COMMAND sips -z ${SIZE} ${SIZE} ${ICON_SRC} --out ${ICONSET_DIR}/icon_${SIZE}x${SIZE}.png )
+  ENDFOREACH()
+  # @2x variants
+  SET( ICON_SIZES_2X 16 32 128 256 )
+  FOREACH( SIZE ${ICON_SIZES_2X} )
+    MATH( EXPR DOUBLE "${SIZE} * 2" )
+    LIST( APPEND SIPS_COMMANDS
+      COMMAND sips -z ${DOUBLE} ${DOUBLE} ${ICON_SRC} --out ${ICONSET_DIR}/icon_${SIZE}x${SIZE}@2x.png )
+  ENDFOREACH()
+  # 512@2x (1024px, upscaled from 400px source)
+  LIST( APPEND SIPS_COMMANDS
+    COMMAND sips -z 1024 1024 ${ICON_SRC} --out ${ICONSET_DIR}/icon_512x512@2x.png )
+
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${ICNS_OUTPUT}
+    ${SIPS_COMMANDS}
+    COMMAND iconutil -c icns ${ICONSET_DIR} -o ${ICNS_OUTPUT}
+    DEPENDS ${ICON_SRC}
+    COMMENT "Generating OpenVSP.icns from vspIcon.png"
+  )
+
+  ADD_CUSTOM_TARGET( openvsp_icns ALL DEPENDS ${ICNS_OUTPUT} )
+
+  SET( CPACK_BUNDLE_ICON ${ICNS_OUTPUT} )
 ENDIF()
 
 IF( APPLE )
