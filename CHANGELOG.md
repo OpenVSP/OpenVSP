@@ -158,8 +158,6 @@ Fixes:
 
 2025-09-30
 
-OpenVSP 3.46.0
-
 I was going to hold off on this release until a couple bigger pending changes
 were finished -- but there are a handful of fixes for problems that people are
 running into.  I thought about doing a 3.45.5 release with just fixes, but
@@ -246,8 +244,6 @@ Bug Fixes:
 
 2025-08-31
 
-OpenVSP 3.45.4
-
 Another small bugfix release.  This time, none of the fixes are applicable
 (well, one technically would apply, but it wasn't causing a problem there)
 to 3.44, so just one release this time.
@@ -278,8 +274,6 @@ Bug fixes:
 # [OpenVSP 3.45.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.3)
 
 2025-08-26
-
-OpenVSP 3.45.3
 
 Mostly a bugfix release, but with a couple small features for good
 measure.
@@ -353,8 +347,6 @@ Bug Fixes:
 
 2025-08-26
 
-OpenVSP 3.44.5
-
 One more small bugfix release of fixes backported from 3.45.X.  One fix
 might be enough for some people to see fixing it as a feature -- but I'm
 calling it a fix so it can go in this version too.
@@ -393,8 +385,6 @@ Bug Fixes:
 # [OpenVSP 3.45.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.2)
 
 2025-08-18
-
-OpenVSP 3.45.2
 
 Another small bugfix release and just a few micro-features.
 
@@ -456,8 +446,6 @@ Bug Fixes:
 
 2025-08-18
 
-OpenVSP 3.44.4
-
 Another small bugfix release with fixes ported back from 3.45.X and just a
 few micro-features.
 
@@ -505,8 +493,6 @@ Bug Fixes:
 # [OpenVSP 3.45.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.1)
 
 2025-08-11
-
-OpenVSP 3.45.1
 
 This is a bugfix with a few extra goodies thrown in.  The applicable
 fixes from this release have been back ported to 3.44.3.  That version
@@ -604,8 +590,6 @@ Bug Fixes:
 
 2025-08-11
 
-OpenVSP 3.44.3
-
 This is a bugfix release made by back porting applicable fixes from
 the 3.45.X branch.  Update to this version if you can't update to
 3.45.X for some reason.  That said, 3.45.X has been going very well
@@ -649,8 +633,6 @@ Bug Fixes:
 # [OpenVSP 3.45.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.0)
 
 2025-07-18
-
-OpenVSP 3.45.0
 
 A huge update to VSPAERO and OpenVSP's support for and integration with it.
 This release represents ~27 months of OpenVSP development and ~18 months
@@ -739,8 +721,6 @@ Libraries:
 
 2025-07-18
 
-OpenVSP 3.44.2
-
 Another fix release to address two or three things in 3.44.1 before the
 release of 3.45.0.  3.45.0 is a really big change that is slightly more
 risky than OpenVSP's normal releases.  Consequently, I'm going to leave
@@ -789,8 +769,6 @@ Fixes:
 
 2025-07-17
 
-OpenVSP 3.43.3
-
 Another quick fix release to improve robustness of some CompGeom style
 operations.
 
@@ -807,8 +785,6 @@ Fixes:
 # [OpenVSP 3.44.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.1)
 
 2025-07-15
-
-OpenVSP 3.44.1
 
 This is a quick fix release to address a few issues that immediately
 appeared in 3.44.0.
@@ -844,8 +820,6 @@ Fixes:
 
 2025-07-15
 
-OpenVSP 3.43.2
-
 This is a quick fix release to improve robustness of some CompGeom style
 operations.
 
@@ -869,8 +843,6 @@ Fixes:
 # [OpenVSP 3.44.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.0)
 
 2025-07-14
-
-OpenVSP 3.44.0
 
 Lots of features working together to create a paradigm shift.  I
 think this release will enable a huge change in how people use OpenVSP.
@@ -988,8 +960,6 @@ Fixes:
 # [OpenVSP 3.43.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.43.1)
 
 2025-07-02
-
-OpenVSP 3.43.1
 
 One feature, a bunch of fixes, and lots of infrastructure in this release.
 
