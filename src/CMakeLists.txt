@@ -341,7 +341,20 @@ ELSEIF ( ${VSP_CPACK_GEN} STREQUAL BUNDLE )
 
   SET( CPACK_BUNDLE_NAME "OpenVSP" )
   SET( CPACK_BUNDLE_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist )
-  SET( CPACK_BUNDLE_STARTUP_COMMAND ${VSP_SOURCE_DIR}/cmake/OpenVSP-launcher.sh )
+  SET( LAUNCHER_SRC ${VSP_SOURCE_DIR}/cmake/OpenVSP-launcher.m )
+  SET( LAUNCHER_BIN ${CMAKE_CURRENT_BINARY_DIR}/OpenVSP-launcher )
+
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${LAUNCHER_BIN}
+    COMMAND /usr/bin/clang -framework Cocoa -fobjc-arc -O2
+            -o ${LAUNCHER_BIN} ${LAUNCHER_SRC}
+    DEPENDS ${LAUNCHER_SRC}
+    COMMENT "Compiling OpenVSP macOS launcher"
+  )
+
+  ADD_CUSTOM_TARGET( openvsp_launcher ALL DEPENDS ${LAUNCHER_BIN} )
+
+  SET( CPACK_BUNDLE_STARTUP_COMMAND ${LAUNCHER_BIN} )
 
   # Generate .icns from vspIcon.png using sips and iconutil
   SET( ICON_SRC ${VSP_SOURCE_DIR}/../vspIcon.png )
