@@ -1,8 +1,113 @@
+# [OpenVSP 3.48.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.48.0)
+
+2026-02-27
+
+This release is either a big-little-release or a little-big-release, I'm not
+quite sure.  It doesn't have a lot of things in it (it is little).  However,
+some of those things are quite consequential (it is big).  I'll leave it up
+to you to decide.
+
+The most consequential change is a change to how twist and dihedral interact
+when lofting a wing.  The order you apply transformation matrices matters,
+and back in 2022 (3.27.0) I made a change on behalf of a particular use case.
+As it turns out, it made other use cases worse -- namely, people trying to
+model toe-in of winglets.  This has been a popular GitHub issue (#292, 304, 328)
+and topic on the Google Group.
+
+You can now get the behavior I think most people will want -- and through some
+combination of options, you can also still get the special use case behavior.
+The default values for a new wing will reflect best practices, but you might
+need to play with existing models to get the behavior you want.
+
+In addition, the airfoil thickness correction for dihedral rotation had a bug
+that has been fixed.
+
+The Stack component now has quick buttons to turn 'off' skinning for a
+section or the whole stack.  This will reduce all the skinning settings to a
+linear loft 'ground state' from which you can then build back up exactly
+the settings you want.
+
+There is also now an ability to set a Stack to certain presets.  These include
+the default stack, a cylinder (two ways), and a bunch of different ways of
+modeling engines.  All these were possible before, but it was a bit of a
+hassle to get everything set up right.  Now, you can select from 14 different
+ways of representing a nacelle from the click of a button.  This should make
+the integrated flowpath modeling capabilities of OpenVSP much easier to use.
+
+There is also now some documentation added to the Stack to hopefully make this
+stuff more clear.
+
+Further, the integrated flowpath modeling gained three new flowpath
+representations -- flowthrough, inlet to face, and nozzle to face negative
+only.  These are useful for tasks like calculating the fuel volume available
+in a fuselage with an embedded flowpath.
+
+Also, when modeling the inlet/exhaust as an extended flowpath, the extension
+can now be done in the global X direction.
+
+For some reason, when the Pick capability was implemented, it was set up to
+only work with bodies in Wireframe mode.  I don't remember a reason for this,
+so I went ahead and made it work with Hidden, Shaded, and Texture views of
+Geoms.  Let me know if this breaks anything.
+
+If you don't know about Pick -- either press 'p' or click the 'Pick' button
+on the Geom Browser.  Now move the mouse over the 3D window.  Different geoms
+will be highlighted in red.  Click on one and it will become the active geom.
+Press P or turn off the button to exit Pick mode.
+
+There was a nasty bug when using composite laminates in the structures
+modeling stuff.  It would cause the GUI to act bizarrely and eventually crash.
+As it turns out, it was an infinite loop in the GUI.  Who knew?
+
+There was also a bug where a co-planarity test for structures was performed
+with a tolerance in FEA scale on a geometry in VSP scale.  If these were
+substantially different (say m vs mm), then FEA parts could be dropped from
+the model and other similar problems.  Thanks Bryan S. for reporting these
+two structures bugs.
+
+Sometimes the VSPAERO viewer would fail to load because it would complain about
+not being able to write or read a font file.  That has been fixed.
+
+The VSPAERO console output would default to an unreadable font when Windows
+was set to a Japanese locale.  We've changed to a different font that will
+hopefully make things better and not worse.  Let me know if you can't read
+what VSPAERO is telling you.
+
+The Python API for Ubuntu had a problem where it was built against the wrong
+version of NumPy.  That should be fixed.
+
+We've had to update the Intel MacOS build to MacOS-15.  Hopefully this doesn't
+cause any problems.  We're coming to the end of days for Intel MacOS.  When it
+is deprecated by Apple, I expect GitHub Actions to stop supporting it and I
+will no longer be able to support the platform.  Do yourself a favor and
+update now.  The M1 processors are really fast.  You'll thank me.
+
+Features:
+- Buttons to turn off skinning for Stacks
+- Shape presets for Stacks -- makes engine flowpaths easy
+- Negative only engine representations
+- Extend flowpath in global X direction
+
+Build System:
+- x85 MacOS build now using MacOS 15
+
+Fixes:
+- Fix twist / dihedral interaction, add options for XZ only twist
+- Fix correct thickness for dihedral
+- Pick now works with hidden, shaded, and texture views
+- FEA GUI Bug with laminates
+- FEA Part dissappearing bug
+- VSPAERO Viewer font fail to load
+- VSPAERO console font on Windows Japanese locale unreadable
+- Ubuntu Python NumPy version mixup
+
+
+---
+
+
 # [OpenVSP 3.47.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.47.0)
 
 2026-01-22
-
-OpenVSP 3.47.0
 
 The gap since the last release (3.5mo) is a bit longer than usual (1-2mo).
 While some of that gap is certainly attributable to the holidays, I also
