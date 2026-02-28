@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.11, 3.13]
-        os: [ windows-2022, ubuntu-22.04, ubuntu-24.04, macos-14-large, macos-14 ]
+        os: [ windows-2022, ubuntu-22.04, ubuntu-24.04, macos-15-intel, macos-14 ]
         exclude:
           - os: ubuntu-22.04
             python-version: 3.11
@@ -23,8 +23,8 @@ jobs:
             gcc-version: 13
           - os: ubuntu-24.04
             gcc-version: 13
-          - os: macos-14-large
-            llvm-version: 16
+          - os: macos-15-intel
+            llvm-version: 16  # AngelScript won't build on Intel Macs with llvm@17 or newer.
           - os: macos-14
             llvm-version: 18
     steps:
