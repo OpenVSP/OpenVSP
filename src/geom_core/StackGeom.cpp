@@ -33,7 +33,60 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
     m_CapUMaxOption.SetDescript("Type of End Cap on Stack Tail");
     m_CapUMaxOption.Parm::Set(NO_END_CAP);
 
-    InitParms( STACK_PRESET_DEFAULT );
+    //==== Init Parms ====//
+    m_TessU = 16;
+    m_TessW = 17;
+    m_TessW.SetMultShift( 8, 1 );
+
+    m_ActiveXSec = 0;
+
+    m_XSecSurf.SetXSecType( XSEC_STACK );
+
+    m_XSecSurf.AddXSec( XS_POINT );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_POINT );
+
+    int j;
+    StackXSec* xs;
+
+    j = 0;
+    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
+    xs->SetGroupDisplaySuffix( j );
+    xs->m_XDelta = 0.0;
+    xs->m_TopLAngle = 45.0;
+    xs->m_TopLStrength = 0.75;
+    xs->m_RightLAngle = 45.0;
+    xs->m_RightLStrength = 0.75;
+
+    ++j;
+    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
+    xs->SetGroupDisplaySuffix( j );
+    xs->m_XDelta = 1.0;
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
+
+    ++j;
+    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
+    xs->SetGroupDisplaySuffix( j );
+    xs->m_XDelta = 2.0;
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
+
+    ++j;
+    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
+    xs->SetGroupDisplaySuffix( j );
+    xs->m_XDelta = 1.0;
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
+
+    ++j;
+    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
+    xs->SetGroupDisplaySuffix( j );
+    xs->m_XDelta = 0.5;
+    xs->m_TopLAngle = -45.0;
+    xs->m_TopLStrength = 0.75;
+    xs->m_RightLAngle = -45.0;
+    xs->m_RightLStrength = 0.75;
+
 }
 
 void StackGeom::InitParms( int stack_type )
