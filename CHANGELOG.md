@@ -1,3 +1,29 @@
+# [OpenVSP 3.48.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.48.1)
+
+2026-03-03
+
+This is a quick bugfix release for a couple of issues that popped up.  Thanks
+to Brian German and Bryan Sandoz -- this version would not exist
+without Br(i,y)an's.
+
+Brian German noticed that files read in with Stacks did not restore the
+parent/child hierarchy.  This would be visible as messed up attachment.
+
+Bryan Sandoz noticed that the fix concerning FEA lamination's didn't always
+work -- and he also noticed some FEA meshes that were not properly connected.
+
+The first bug is particularly nasty and will hit a lot of users.  It is
+important that everyone update.
+
+Bug fixes:
+- Fix problem with Stack attachment when loading files
+- Fix problem with FEA laminates causing GUI infinite loops (again)
+- Adjust FEA Mesh point merge tolerance
+
+
+---
+
+
 # [OpenVSP 3.48.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.48.0)
 
 2026-02-27
