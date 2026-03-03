@@ -1478,8 +1478,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     pnCloud.AddPntNodes( all_pnt_vec );
 
     //==== Compute Tol ====//
-    BndBox bb = m_Vehicle->GetBndBox();
-    double tol = bb.GetLargestDist() * 1.0e-10;
+    double tol = 0.0001 * GetGridDensityPtr()->m_MinLen;
 
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );
