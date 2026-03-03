@@ -317,6 +317,7 @@ string XSecSurf::AddXSecCopy( XSec* copy_xs )
     {
         XSec* xs = CreateXSec( copy_xs->GetXSecCurve()->GetType() );
         xs->CopyFrom( copy_xs, false );
+        xs->SetParentContainer( GetID() );
         id = xs->GetID();
         m_XSecIDDeque.push_back( id );
     }
