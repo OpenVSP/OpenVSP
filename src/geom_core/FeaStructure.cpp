@@ -5602,6 +5602,7 @@ void FeaProperty::Update()
         m_FeaMaterialIndex = -1;
     }
 
+    bool islaminate = false;
     FeaMaterial *fea_mat = StructureMgr.GetFeaMaterial( m_FeaMaterialID );
     if ( fea_mat )
     {
@@ -5610,6 +5611,7 @@ void FeaProperty::Update()
             m_Thickness = fea_mat->m_Thickness();
             m_Thickness_FEM = fea_mat->m_Thickness_FEM();
             m_LengthUnit = fea_mat->m_LengthUnit();
+            islaminate = true;
         }
     }
 
@@ -5768,7 +5770,10 @@ void FeaProperty::Update()
                 break;
         }
 
-        m_Thickness_FEM = ConvertLength( m_Thickness.Get(), m_LengthUnit(), length_unit );
+        if ( !islaminate )
+        {
+            m_Thickness_FEM = ConvertLength( m_Thickness.Get(), m_LengthUnit(), length_unit );
+        }
         m_CrossSecArea_FEM = ConvertLength2( m_CrossSecArea.Get(), m_LengthUnit(), length_unit );
         m_Ixx_FEM = ConvertLength4( m_Ixx.Get(), m_LengthUnit(), length_unit );
         m_Iyy_FEM = ConvertLength4( m_Iyy.Get(), m_LengthUnit(), length_unit );
