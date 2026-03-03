@@ -1,3 +1,29 @@
+# [OpenVSP 3.48.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.48.2)
+
+2026-03-04
+
+Yesterday's haste to fix the problem with 3.48 caused some other problems.
+These are caused by strange interactions between some features -- but I think
+we finally understand what is going on.
+
+This revert's yesterday's changes and instead goes with a simpler approach
+that I first tried as a proof of concept.
+
+While we're at it, we're going to add experimental support for a MacOS *.dmg
+package.  The *.zip isn't going anywhere, but give it a try if you want
+OpenVSP to act more like a normal app on your Mac.  Thanks to
+Christian Jacobsen for putting this together.
+
+Build System:
+- Add experimental *.dmg package for MacOS
+
+Bug Fixes:
+- Fix regressions to Stack Presets caused by 3.48.1 fixes.
+
+
+---
+
+
 # [OpenVSP 3.48.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.48.1)
 
 2026-03-03
