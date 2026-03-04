@@ -66,7 +66,7 @@ public:
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
 
     //==== Copy Between Different Types ====//
-    virtual void CopyFrom( XSec* xs, bool remapIDs = true );
+    virtual void CopyFrom( XSec* xs );
     virtual void CopyBasePos( XSec* xs ) = 0;
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
