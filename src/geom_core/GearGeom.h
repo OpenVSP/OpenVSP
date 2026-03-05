@@ -22,13 +22,27 @@ public:
     // virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     // virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
     virtual void ParmChanged( Parm* parm_ptr, int type );
+    virtual void SetDirtyFlags( Parm* parm_ptr );
 
     int GetNumSurf() const;
     void UpdateParms();
     void UpdateTireCurve();
+    void UpdateStowAttachParms();
+    void UpdateMechAttachParms();
+    void DeactivateStowXForms();
+    void DeactivateMechXForms();
+    void ComposeStowAttachMatrix();
+    void ComposeMechAttachMatrix();
+    void BuildRetractMatrix( Matrix4d &ret_mat, vec3d &knee_pt, vec3d &knee_ax, double k, int isymm ) const;
+    void UpdateRetract();
     void Update();
+    void UpdateRetractAttach();
+    void UpdateTess();
     void UpdateDrawObj( const Matrix4d &relTrans );
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     string GetAcrossDesignation();
     string GetConfigDesignation();
@@ -54,9 +68,24 @@ public:
     vec3d GetAftContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel ) const;
     vec3d GetSideContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel, int ysign ) const;
 
+    virtual bool IsStowParentJoint();
+    virtual bool IsMechParentJoint();
+
+    virtual void SetStowParentID( const string &id );
+    virtual string GetStowParentID()
+    {
+        return m_StowParentID;
+    }
+
+    virtual void SetMechParentID( const string &id );
+    virtual string GetMechParentID()
+    {
+        return m_MechParentID;
+    }
+
     // T must have methods .FlipNormal() and .Transform( Matrix4d )
     template <typename T>
-    void TireToBogie( const T &source, vector<T> &dest, int isymm, int suspensionmode, double bogietheta ) const
+    void TireToBogie( const T &source, vector<T> &dest, int isymm, int suspensionmode, double bogietheta, bool stow = false, bool ret = false, double kretract = 0.0 ) const
     {
         int idest = dest.size();
 
@@ -76,9 +105,31 @@ public:
 
         Matrix4d pivot;
 
-        pivot.translatev( GetPivotPoint( isymm, suspensionmode ) );
+        if ( stow )
+        {
+            if ( isymm == 0 )
+            {
+                pivot = m_StowTransform;
+            }
+            else
+            {
+                pivot = m_StowSymmTransform;
+            }
+        }
+        else
+        {
+            if ( !ret )
+            {
+                pivot.translatev( GetPivotPoint( isymm, suspensionmode ) );
 
-        pivot.rotateY( -bogietheta );
+                pivot.rotateY( -bogietheta );
+            }
+            else
+            {
+                vec3d knee_pt, knee_ax;
+                BuildRetractMatrix( pivot, knee_pt, knee_ax, kretract, isymm );
+            }
+        }
 
         Matrix4d symm;
         double ksymm = 1.0;
@@ -112,7 +163,7 @@ public:
     }
 
     template <typename T>
-    void TireToBogie( const T &source, vector<T> &dest ) const
+    void TireToBogie( const T &source, vector<T> &dest, int gear_config ) const
     {
         int nsymm = 1;
         if ( m_Symmetrical() )
@@ -126,22 +177,80 @@ public:
         //     bogietheta = m_BogieTheta();
         // }
 
-        for ( int isymm = 0; isymm < nsymm; isymm++ )
+        if ( gear_config == vsp::GEAR_CONFIGURATION_DOWN ||
+             gear_config == vsp::GEAR_CONFIGURATION_UP_AND_DOWN ||
+             gear_config == vsp::GEAR_CONFIGURATION_ALL )
         {
-            TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta );
+            for ( int isymm = 0; isymm < nsymm; isymm++ )
+            {
+                TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, false );
+            }
+        }
+
+        if ( gear_config == vsp::GEAR_CONFIGURATION_UP ||
+             gear_config == vsp::GEAR_CONFIGURATION_UP_AND_DOWN ||
+             gear_config == vsp::GEAR_CONFIGURATION_ALL )
+        {
+            for ( int isymm = 0; isymm < nsymm; isymm++ )
+            {
+                if ( m_RetMode() == vsp::GEAR_STOWED_POSITION )
+                {
+                    TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, true );
+                }
+                else
+                {
+                    TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, false, true, 1.0 );
+                }
+            }
+        }
+
+        if ( gear_config == vsp::GEAR_CONFIGURATION_INTERMEDIATE ||
+             gear_config == vsp::GEAR_CONFIGURATION_ALL )
+        {
+            if ( m_RetMode() == vsp::GEAR_MECHANISM )
+            {
+                for ( int isymm = 0; isymm < nsymm; isymm++ )
+                {
+                    TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, false, true, m_MechKRetract() );
+                }
+            }
         }
     }
 
-    void AppendMainSurf( vector < VspSurf > &surfvec ) const;
+    void AppendMainSurf( vector < VspSurf > &surfvec, int gear_config ) const;
 
     bool m_Visible;
+    Matrix4d m_StowTransform;
+    Matrix4d m_StowSymmTransform;
+    Matrix4d m_StowAttachMatrix;
+    Matrix4d m_MechTransform;
+    Matrix4d m_MechSymmTransform;
+    Matrix4d m_MechAttachMatrix;
+    Matrix4d m_GearModelMatrix;
 
     VspCurve m_TireProfile;
     VspSurf m_TireSurface;
 
+    SimpleTess m_TireTess;
+    SimpleFeatureTess m_TireFeatureTess;
+
+    bool m_TireDirty;
+    bool m_TireTessDirty;
+
     DrawObj m_SuspensionTravelLinesDO;
     DrawObj m_SuspensionTravelPointsDO;
 
+    vec3d m_StrutAttachPt;
+    vec3d m_Axis;
+    vec3d m_StowPivotPt;
+    vector < vec3d > m_PivotPtVec;
+    vector < vec3d > m_KneePtVec;
+    vector < vec3d > m_KneeAxVec;
+
+    DrawObj m_AxisDO;
+    DrawObj m_AxisCircleDO;
+    DrawObj m_AxisArrowDO;
+    DrawObj m_StrutDO;
 
     // Bogie
     BoolParm m_Symmetrical;
@@ -226,6 +335,103 @@ public:
     Parm m_WsGModel;
     Parm m_DsGModel;
 
+    // Retracted
+    IntParm m_RetMode;
+
+    string m_StowParentID;
+    IntParm m_StowSurfIndx;
+
+    Parm m_StowXLoc;
+    Parm m_StowYLoc;
+    Parm m_StowZLoc;
+
+    Parm m_StowXRelLoc;
+    Parm m_StowYRelLoc;
+    Parm m_StowZRelLoc;
+
+    Parm m_StowXRot;
+    Parm m_StowYRot;
+    Parm m_StowZRot;
+
+    Parm m_StowXRelRot;
+    Parm m_StowYRelRot;
+    Parm m_StowZRelRot;
+
+    IntParm m_StowAbsRelFlag;
+    IntParm m_StowTransAttachFlag;
+    IntParm m_StowRotAttachFlag;
+
+    Parm m_StowULoc;
+    Parm m_StowU0NLoc;
+    BoolParm m_StowU01;
+    Parm m_StowWLoc;
+
+    Parm m_StowRLoc;
+    BoolParm m_StowR01;
+    Parm m_StowR0NLoc;
+    Parm m_StowSLoc;
+    Parm m_StowTLoc;
+
+    Parm m_StowLLoc;
+    BoolParm m_StowL01;
+    Parm m_StowL0LenLoc;
+    Parm m_StowMLoc;
+    Parm m_StowNLoc;
+
+    Parm m_StowEtaLoc;
+
+
+    Parm m_MechKRetract;
+
+    string m_MechParentID;
+    IntParm m_MechSurfIndx;
+
+    Parm m_MechXLoc;
+    Parm m_MechYLoc;
+    Parm m_MechZLoc;
+
+    Parm m_MechXAxis;
+    Parm m_MechYAxis;
+    Parm m_MechZAxis;
+
+    Parm m_MechXRelLoc;
+    Parm m_MechYRelLoc;
+    Parm m_MechZRelLoc;
+
+    IntParm m_MechAbsRelFlag;
+    IntParm m_MechTransAttachFlag;
+
+    Parm m_MechULoc;
+    Parm m_MechU0NLoc;
+    BoolParm m_MechU01;
+    Parm m_MechWLoc;
+
+    Parm m_MechRLoc;
+    BoolParm m_MechR01;
+    Parm m_MechR0NLoc;
+    Parm m_MechSLoc;
+    Parm m_MechTLoc;
+
+    Parm m_MechLLoc;
+    BoolParm m_MechL01;
+    Parm m_MechL0LenLoc;
+    Parm m_MechMLoc;
+    Parm m_MechNLoc;
+
+    Parm m_MechEtaLoc;
+
+    Parm m_MechKneePos;
+    Parm m_MechKneeAngle;
+    Parm m_MechKneeAzimuthAngle;
+    Parm m_MechKneeElevationAngle;
+    Parm m_MechKneeDownAngle;
+
+    Parm m_MechRetAngle;
+    Parm m_MechTwistAngle;
+    Parm m_MechRollAngle;
+    Parm m_MechBogieAngle;
+
+    Parm m_MechStrutDL;
 };
 
 
@@ -251,6 +457,7 @@ public:
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     virtual void ChangeID( const string &id );
+    virtual void UpdateParents();
 
     void SetCurrBogieIndex( int i )             { m_CurrBogieIndex = i; }
     int GetCurrBogieIndex()                     { return m_CurrBogieIndex; }
@@ -375,6 +582,8 @@ public:
 
     BoolParm m_IncludeNominalGroundPlane;
 
+    IntParm m_GearConfigMode;
+
     Parm m_PlaneSize;
     BoolParm m_AutoPlaneFlag;
 
@@ -401,7 +610,11 @@ public:
     Parm m_ZCGNominalGlobal;
 
 protected:
+    virtual void SetDirtyFlags( Parm* parm_ptr );
+
     virtual void UpdateSurf();
+    virtual void UpdateXForm();
+    virtual void UpdateFeatureLines();
     virtual void UpdateMainTessVec();
     virtual void UpdateTessVec();
     virtual void UpdateMainDegenGeomPreview();
@@ -411,6 +624,9 @@ protected:
     std::vector < Bogie * > m_Bogies;
     std::vector < int > m_BogieMainSurfIndex;
     int m_CurrBogieIndex;
+
+    std::size_t m_ParentHash;
+    vector < string > m_ParentVec;
 
     vector < vec3d > m_MainNominalCGPointVec;
     vec3d m_MainMinCGPoint;

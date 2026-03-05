@@ -16,6 +16,8 @@
 #include "Vehicle.h"
 #include "UnitConversion.h"
 #include "StlHelper.h"
+#include "HingeGeom.h"
+#include "WingGeom.h"
 
 Bogie::Bogie()
 {
@@ -134,11 +136,163 @@ Bogie::Bogie()
     m_WsGModel.SetDescript( "Grown tire shoulder width in model units" );
     m_DsGModel.Init( "DsGModel", "Tire", this, 0.0, 0.0, 1.0e12 );
     m_DsGModel.SetDescript( "Grown tire shoulder diameter in model units" );
+
+    // Retracted
+    m_RetMode.Init( "RetMode", "Retract", this, vsp::GEAR_STOWED_POSITION, vsp::GEAR_STOWED_POSITION, vsp::NUM_GEAR_RETRACT_MODES - 1 );
+    m_RetMode.SetDescript( "Retract mode" );
+
+    m_StowXLoc.Init( "StowXLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+
+    m_StowXLoc.SetDescript( "Global X Location" );
+    m_StowYLoc.Init( "StowYLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+    m_StowYLoc.SetDescript( "Global Y Location" );
+    m_StowZLoc.Init( "StowZLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+    m_StowZLoc.SetDescript( "Global Z Location" );
+    m_StowXRot.Init( "StowXRot", "Retract", this, 0.0, -180, 180 );
+    m_StowXRot.SetDescript( "Global X Rotation" );
+    m_StowYRot.Init( "StowYRot", "Retract", this, 0.0, -180, 180 );
+    m_StowYRot.SetDescript( "Global Y Rotation" );
+    m_StowZRot.Init( "StowZRot", "Retract", this, 0.0,  -180, 180 );
+    m_StowZRot.SetDescript( "Global Z Rotation" );
+
+    m_StowXRelLoc.Init( "StowXRelLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+    m_StowXRelLoc.SetDescript( "X Location Relative to Parent" );
+    m_StowYRelLoc.Init( "StowYRelLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+    m_StowYRelLoc.SetDescript( "Y Location Relative to Parent" );
+    m_StowZRelLoc.Init( "StowZRelLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+    m_StowZRelLoc.SetDescript( "Z Location Relative to Parent" );
+    m_StowXRelRot.Init( "StowXRelRot", "Retract", this, 0.0, -180, 180 );
+    m_StowXRelRot.SetDescript( "X Rotation Relative to Parent" );
+    m_StowYRelRot.Init( "StowYRelRot", "Retract", this, 0.0, -180, 180 );
+    m_StowYRelRot.SetDescript( "Y Rotation Relative to Parent" );
+    m_StowZRelRot.Init( "StowZRelRot", "Retract", this, 0.0, -180, 180 );
+    m_StowZRelRot.SetDescript( "Z Rotation Relative to Parent" );
+
+    // Attachment Parms
+    m_StowAbsRelFlag.Init( "StowAbsRelFlag", "Retract", this, vsp::REL, vsp::ABS, vsp::REL );
+    m_StowTransAttachFlag.Init( "StowTransAttachFlag", "StowAttach", this, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_NUM_TYPES - 1 );
+    m_StowTransAttachFlag.SetDescript( "Determines relative translation coordinate system" );
+    m_StowRotAttachFlag.Init( "StowRotAttachFlag", "StowAttach", this, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_NUM_TYPES - 1 );
+    m_StowRotAttachFlag.SetDescript( "Determines relative rotation axes" );
+    m_StowULoc.Init( "StowULoc", "StowAttach", this, 0.0, 0.0, 1.0 );
+    m_StowULoc.SetDescript( "U Location on parent's surface" );
+    m_StowU01.Init( "StowU01", "StowAttach", this, true, false, true );
+    m_StowU01.SetDescript( "The U value is specified in [0, 1] basis or [0, N] basis." );
+    m_StowU0NLoc.Init( "StowU0NLoc", "StowAttach", this, 0, 0, 1e12 );
+    m_StowU0NLoc.SetDescript( "U Location on parent's surface on [0,N] basis." );
+    m_StowWLoc.Init( "StowWLoc", "StowAttach", this, 0.0, 0.0, 1.0 );
+    m_StowWLoc.SetDescript( "W Location on parent's surface" );
+
+    m_StowRLoc.Init( "StowRLoc", "StowAttach", this, 0.0, 0.0, 1.0 );
+    m_StowRLoc.SetDescript( "R Location in parent's volume" );
+    m_StowR01.Init( "StowR01", "StowAttach", this, true, false, true );
+    m_StowR01.SetDescript( "The R value is specified in [0, 1] basis or [0, N] basis." );
+    m_StowR0NLoc.Init( "StowR0NLoc", "StowAttach", this, 0, 0, 1e12 );
+    m_StowR0NLoc.SetDescript( "R Location in parent's volume on [0,N] basis." );
+    m_StowSLoc.Init( "StowSLoc", "StowAttach", this, 0.5, 0.0, 1.0 );
+    m_StowSLoc.SetDescript( "S Location in parent's volume" );
+    m_StowTLoc.Init( "StowTLoc", "StowAttach", this, 0.5, 0.0, 1.0 );
+    m_StowTLoc.SetDescript( "T Location in parent's volume" );
+
+    m_StowLLoc.Init( "StowLLoc", "StowAttach", this, 0.0, 0.0, 1.0 );
+    m_StowLLoc.SetDescript( "L Location in parent's volume" );
+    m_StowL01.Init( "StowL01", "StowAttach", this, true, false, true );
+    m_StowL01.SetDescript( "The L value is specified in [0, 1] basis or dimensional basis." );
+    m_StowL0LenLoc.Init( "StowL0LenLoc", "StowAttach", this, 0, 0, 1e12 );
+    m_StowL0LenLoc.SetDescript( "L Location in parent's volume on [0,Len] basis." );
+    m_StowMLoc.Init( "StowMLoc", "StowAttach", this, 0.5, 0.0, 1.0 );
+    m_StowMLoc.SetDescript( "M Location in parent's volume" );
+    m_StowNLoc.Init( "StowNLoc", "StowAttach", this, 0.5, 0.0, 1.0 );
+    m_StowNLoc.SetDescript( "N Location in parent's volume" );
+
+    m_StowEtaLoc.Init( "StowEtaLoc", "StowAttach", this, 0.0, 0.0, 1.0 );
+    m_StowEtaLoc.SetDescript( "Eta Location in parent's volume" );
+
+    m_StowSurfIndx.Init( "StowSurfIndx", "StowAttach", this, 0, 0, 1e6 );
+
+    // Mechanism
+    m_MechKRetract.Init( "MechKRetract", "Retract", this, 0.0, 0.0, 1.0 );
+
+    m_MechXLoc.Init( "Mech_XLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+    m_MechYLoc.Init( "Mech_YLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+    m_MechZLoc.Init( "Mech_ZLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+
+    m_MechXAxis.Init( "Mech_X_Axis", "Retract", this, 0.0, -1.0, 1.0 );
+    m_MechYAxis.Init( "Mech_Y_Axis", "Retract", this, 1.0, -1.0, 1.0 );
+    m_MechZAxis.Init( "Mech_Z_Axis", "Retract", this, 0.0, -1.0, 1.0 );
+
+    m_MechXRelLoc.Init( "MechXRelLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+    m_MechXRelLoc.SetDescript( "X Location Relative to Parent" );
+    m_MechYRelLoc.Init( "MechYRelLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+    m_MechYRelLoc.SetDescript( "Y Location Relative to Parent" );
+    m_MechZRelLoc.Init( "MechZRelLoc", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+    m_MechZRelLoc.SetDescript( "Z Location Relative to Parent" );
+
+    // Attachment Parms
+    m_MechAbsRelFlag.Init( "MechAbsRelFlag", "Retract", this, vsp::REL, vsp::ABS, vsp::REL );
+    m_MechTransAttachFlag.Init( "MechTransAttachFlag", "MechAttach", this, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_NUM_TYPES - 1 );
+    m_MechTransAttachFlag.SetDescript( "Determines relative translation coordinate system" );
+    m_MechULoc.Init( "MechULoc", "MechAttach", this, 0.0, 0.0, 1.0 );
+    m_MechULoc.SetDescript( "U Location on parent's surface" );
+    m_MechU01.Init( "MechU01", "MechAttach", this, true, false, true );
+    m_MechU01.SetDescript( "The U value is specified in [0, 1] basis or [0, N] basis." );
+    m_MechU0NLoc.Init( "MechU0NLoc", "MechAttach", this, 0, 0, 1e12 );
+    m_MechU0NLoc.SetDescript( "U Location on parent's surface on [0,N] basis." );
+    m_MechWLoc.Init( "MechWLoc", "MechAttach", this, 0.0, 0.0, 1.0 );
+    m_MechWLoc.SetDescript( "W Location on parent's surface" );
+
+    m_MechRLoc.Init( "MechRLoc", "MechAttach", this, 0.0, 0.0, 1.0 );
+    m_MechRLoc.SetDescript( "R Location in parent's volume" );
+    m_MechR01.Init( "MechR01", "MechAttach", this, true, false, true );
+    m_MechR01.SetDescript( "The R value is specified in [0, 1] basis or [0, N] basis." );
+    m_MechR0NLoc.Init( "MechR0NLoc", "MechAttach", this, 0, 0, 1e12 );
+    m_MechR0NLoc.SetDescript( "R Location in parent's volume on [0,N] basis." );
+    m_MechSLoc.Init( "MechSLoc", "MechAttach", this, 0.5, 0.0, 1.0 );
+    m_MechSLoc.SetDescript( "S Location in parent's volume" );
+    m_MechTLoc.Init( "MechTLoc", "MechAttach", this, 0.5, 0.0, 1.0 );
+    m_MechTLoc.SetDescript( "T Location in parent's volume" );
+
+    m_MechLLoc.Init( "MechLLoc", "MechAttach", this, 0.0, 0.0, 1.0 );
+    m_MechLLoc.SetDescript( "L Location in parent's volume" );
+    m_MechL01.Init( "MechL01", "MechAttach", this, true, false, true );
+    m_MechL01.SetDescript( "The L value is specified in [0, 1] basis or dimensional basis." );
+    m_MechL0LenLoc.Init( "MechL0LenLoc", "MechAttach", this, 0, 0, 1e12 );
+    m_MechL0LenLoc.SetDescript( "L Location in parent's volume on [0,Len] basis." );
+    m_MechMLoc.Init( "MechMLoc", "MechAttach", this, 0.5, 0.0, 1.0 );
+    m_MechMLoc.SetDescript( "M Location in parent's volume" );
+    m_MechNLoc.Init( "MechNLoc", "MechAttach", this, 0.5, 0.0, 1.0 );
+    m_MechNLoc.SetDescript( "N Location in parent's volume" );
+
+    m_MechEtaLoc.Init( "MechEtaLoc", "MechAttach", this, 0.0, 0.0, 1.0 );
+    m_MechEtaLoc.SetDescript( "Eta Location in parent's volume" );
+
+    m_MechSurfIndx.Init( "MechSurfIndx", "MechAttach", this, 0, 0, 1e6 );
+
+    m_MechKneePos.Init( "MechKneePos", "Retract", this, 0.0, 0, 1.0 );
+    m_MechKneeAngle.Init( "MechKneeAngle", "Retract", this, 0.0, -360.0, 360.0 );
+    m_MechKneeAzimuthAngle.Init( "MechKneeAzimuthAngle", "Retract", this, 0.0, -180.0, 180.0 );
+    m_MechKneeElevationAngle.Init( "MechKneeElevationAngle", "Retract", this, 0.0, -90.0, 90.0 );
+    m_MechKneeDownAngle.Init( "MechKneeDownAngle", "Retract", this, 180.0, 0.0, 360.0 );
+
+    m_MechRetAngle.Init( "Mech_RetAngle", "Retract", this, 90.0, -360.0, 360.0 );
+    m_MechTwistAngle.Init( "Mech_TwistAngle", "Retract", this, 0.0, -360.0, 360.0 );
+    m_MechRollAngle.Init( "m_MechRollAngle", "Retract", this, 0.0, -360.0, 360.0 );
+    m_MechBogieAngle.Init( "Mech_BogieAngle", "Retract", this, 0.0, -360.0, 360.0 );
+
+    m_MechStrutDL.Init( "Mech_StrutDL", "Retract", this, 0.0, -1.0e12, 1.0e12 );
+
+    m_TireDirty = true;
+    m_TireTessDirty = true;
 }
 
 //==== Parm Changed ====//
 void Bogie::ParmChanged( Parm* parm_ptr, int type )
 {
+    if ( parm_ptr )
+    {
+        SetDirtyFlags( parm_ptr );
+    }
+
     if ( type == Parm::SET )
     {
         m_LateUpdateFlag = true;
@@ -154,6 +308,24 @@ void Bogie::ParmChanged( Parm* parm_ptr, int type )
     {
         pc->ParmChanged( parm_ptr, type );
     }
+}
+
+void Bogie::SetDirtyFlags( Parm* parm_ptr )
+{
+    if ( !parm_ptr )
+    {
+        return;
+    }
+
+    string gname = parm_ptr->GetGroupName();
+    string pname = parm_ptr->GetName();
+
+    if ( gname == string("Tire") )
+    {
+        m_TireDirty = true;
+        m_TireTessDirty = true;
+    }
+
 }
 
 int Bogie::GetNumSurf() const
@@ -446,22 +618,1261 @@ void Bogie::UpdateTireCurve()
     m_TireProfile.CreateTire( Do, W, Ds, Ws, Drim, Wrim, Hflange, m_TireMode() );
 }
 
+void Bogie::UpdateStowAttachParms()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    Geom* parent = veh->FindGeom( GetStowParentID() );
+
+    if ( parent )
+    {
+        if ( m_StowSurfIndx() >= parent->GetNumTotalSurfs() )
+        {
+            m_StowSurfIndx.Set( 0 );
+        }
+
+        if ( parent->isNonSurfaceType() )
+        {
+            return;
+        }
+
+        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+
+        double umax = parent->GetUMapMax( m_StowSurfIndx() );
+        double lmax = parent->GetSurfPtr( m_StowSurfIndx() )->GetLMax();
+
+        m_StowU0NLoc.SetUpperLimit( umax );
+        m_StowR0NLoc.SetUpperLimit( umax );
+        m_StowL0LenLoc.SetUpperLimit( lmax );
+
+        if ( m_StowU01.Get() )
+        {
+            m_StowU0NLoc.Set( m_StowULoc() * umax );
+        }
+        else
+        {
+            double val = clamp( m_StowU0NLoc(), 0.0, umax );
+            m_StowU0NLoc.Set( val );
+            m_StowULoc.Set( val / umax );
+        }
+
+        if ( m_StowR01.Get() )
+        {
+            m_StowR0NLoc.Set( m_StowRLoc() * umax );
+        }
+        else
+        {
+            double val = clamp( m_StowR0NLoc(), 0.0, umax );
+            m_StowR0NLoc.Set( val );
+            m_StowRLoc.Set( val / umax );
+        }
+
+        if ( m_StowL01.Get() )
+        {
+            m_StowL0LenLoc.Set( m_StowLLoc() * lmax );
+        }
+        else
+        {
+            double val = clamp( m_StowL0LenLoc(), 0.0, lmax );
+            m_StowL0LenLoc.Set( val );
+            m_StowLLoc.Set( val / lmax );
+        }
+
+        if ( wing_parent )
+        {
+            if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_EtaMN || m_StowRotAttachFlag() == vsp::ATTACH_ROT_EtaMN ) // Eta is active.
+            {
+                if ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_UV && m_StowRotAttachFlag() != vsp::ATTACH_ROT_UV ) // U is not active.
+                {
+                    double u = wing_parent->EtatoU( m_StowEtaLoc() ) / umax;
+
+                    double r;
+                    r = u;
+
+                    double l;
+                    parent->ConvertRtoL( m_StowSurfIndx(), r, l );
+
+                    double s, t;
+                    parent->ConvertLMNtoRST( m_StowSurfIndx(), l, m_StowMLoc(), m_StowNLoc(), r, s, t );
+
+                    double w;
+                    if ( t < 0.5 )
+                    {
+                        w = 0.5 * s;
+                    }
+                    else
+                    {
+                        w = 1.0 - 0.5 * s;
+                    }
+
+                    m_StowULoc.Set( u );
+                    m_StowU0NLoc.Set( m_StowULoc() * umax );
+                    m_StowWLoc.Set( w );
+                }
+
+                if ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_RST && m_StowRotAttachFlag() != vsp::ATTACH_ROT_RST ) // R is not active
+                {
+                    double u, w;
+                    u = wing_parent->EtatoU( m_StowEtaLoc() ) / umax;
+                    w = m_StowWLoc();
+                    double r, s, t;
+                    r = u;
+
+                    double l;
+                    parent->ConvertRtoL( m_StowSurfIndx(), r, l );
+
+                    parent->ConvertLMNtoRST( m_StowSurfIndx(), m_StowLLoc(), m_StowMLoc(), m_StowNLoc(), r, s, t );
+                    m_StowRLoc.Set( r );
+                    m_StowR0NLoc.Set( m_StowRLoc() * umax );
+                    m_StowSLoc.Set( s );
+                    m_StowTLoc.Set( t );
+                }
+
+                if ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_LMN && m_StowRotAttachFlag() != vsp::ATTACH_ROT_LMN ) // L is not active
+                {
+                    double u = wing_parent->EtatoU( m_StowEtaLoc() ) / umax;
+
+                    double r;
+                    r = u;
+
+                    double l;
+                    parent->ConvertRtoL( m_StowSurfIndx(), r, l );
+
+                    m_StowLLoc.Set( l );
+                    m_StowL0LenLoc.Set( m_StowLLoc() * lmax );
+                }
+
+            }
+            else // Eta is not active
+            {
+                if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_UV || m_StowRotAttachFlag() == vsp::ATTACH_ROT_UV ) // UV is active
+                {
+                    m_StowEtaLoc = wing_parent->UtoEta( m_StowULoc() * umax );
+                }
+                else if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_RST || m_StowRotAttachFlag() == vsp::ATTACH_ROT_RST ) // RST is active
+                {
+                    double r = m_StowRLoc();
+                    double u = r;
+                    m_StowEtaLoc = wing_parent->UtoEta( u * umax );
+                }
+                else if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_LMN || m_StowRotAttachFlag() == vsp::ATTACH_ROT_LMN ) // LMN is active
+                {
+                    double l = m_StowLLoc();
+                    double r;
+                    parent->ConvertLtoR( m_StowSurfIndx(), l, r );
+                    double u = r;
+                    m_StowEtaLoc = wing_parent->UtoEta( u * umax );
+                }
+                else // Nothing is active, use U value anyway.
+                {
+                    m_StowEtaLoc = wing_parent->UtoEta( m_StowULoc() * umax );
+                }
+            }
+        }
+
+        // If UV is active in either way and RST is not active in any way, compute RST from UV.
+        if ( ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_UV || m_StowRotAttachFlag() == vsp::ATTACH_ROT_UV ) &&
+             ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_RST && m_StowRotAttachFlag() != vsp::ATTACH_ROT_RST ) )
+        {
+            double u, w;
+            u = m_StowULoc();
+            w = m_StowWLoc();
+            double r, s, t;
+            r = u;
+            s = 2.0 * w;
+            t = 0.0;
+            if ( w > 0.5 )
+            {
+                s = 2.0 * ( 1.0 - w );
+                t = 1.0;
+            }
+
+            m_StowRLoc.Set( r );
+            m_StowR0NLoc.Set( m_StowRLoc() * umax );
+            m_StowSLoc.Set( s );
+            m_StowTLoc.Set( t );
+        }
+
+        // If UV is active in either way and LMN is not active in any way, compute LMN from UV.
+        if ( ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_UV || m_StowRotAttachFlag() == vsp::ATTACH_ROT_UV ) &&
+             ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_LMN && m_StowRotAttachFlag() != vsp::ATTACH_ROT_LMN ) )
+        {
+            double u, w;
+            u = m_StowULoc();
+            w = m_StowWLoc();
+            double r, s, t;
+            r = u;
+            s = 2.0 * w;
+            t = 0.0;
+            if ( w > 0.5 )
+            {
+                s = 2.0 * ( 1.0 - w );
+                t = 1.0;
+            }
+
+
+            double l, m, n;
+
+            parent->ConvertRSTtoLMN( m_StowSurfIndx(), r, s, t, l, m, n );
+            m_StowLLoc.Set( l );
+            m_StowL0LenLoc.Set( m_StowLLoc() * lmax );
+            m_StowMLoc.Set( m );
+            m_StowNLoc.Set( n );
+        }
+
+        // If RST is active in either way and LMN is not active in any way, compute LMN from RST.
+        if ( ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_RST || m_StowRotAttachFlag() == vsp::ATTACH_ROT_RST ) &&
+             ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_LMN && m_StowRotAttachFlag() != vsp::ATTACH_ROT_LMN ) )
+        {
+            double l, m, n;
+            parent->ConvertRSTtoLMN( m_StowSurfIndx(), m_StowRLoc(), m_StowSLoc(), m_StowTLoc(), l, m, n );
+            m_StowLLoc.Set( l );
+            m_StowL0LenLoc.Set( m_StowLLoc() * lmax );
+            m_StowMLoc.Set( m );
+            m_StowNLoc.Set( n );
+        }
+
+        // If LMN is active in either way and RST is not active in any way, compute RST from LMN.
+        if ( ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_LMN || m_StowRotAttachFlag() == vsp::ATTACH_ROT_LMN ) &&
+             ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_RST && m_StowRotAttachFlag() != vsp::ATTACH_ROT_RST ) )
+        {
+            double r, s, t;
+            parent->ConvertLMNtoRST( m_StowSurfIndx(), m_StowLLoc(), m_StowMLoc(), m_StowNLoc(), r, s, t );
+            m_StowRLoc.Set( r );
+            m_StowR0NLoc.Set( m_StowRLoc() * umax );
+            m_StowSLoc.Set( s );
+            m_StowTLoc.Set( t );
+        }
+
+        // If RST is active in either way and UV is not active in any way, compute UV from RST.
+        if ( ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_RST || m_StowRotAttachFlag() == vsp::ATTACH_ROT_RST ) &&
+             ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_UV && m_StowRotAttachFlag() != vsp::ATTACH_ROT_UV ) )
+        {
+            double u, w;
+            double r = m_StowRLoc();
+            double s = m_StowSLoc();
+            double t = m_StowTLoc();
+
+            u = r;
+            if ( t < 0.5 )
+            {
+                w = 0.5 * s;
+            }
+            else
+            {
+                w = 1.0 - 0.5 * s;
+            }
+
+            m_StowULoc.Set( u );
+            m_StowU0NLoc.Set( m_StowULoc() * umax );
+            m_StowWLoc.Set( w );
+        }
+
+        // If LMN is active in either way and UV is not active in any way, compute UV from LMN.
+        if ( ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_LMN || m_StowRotAttachFlag() == vsp::ATTACH_ROT_LMN ) &&
+             ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_UV && m_StowRotAttachFlag() != vsp::ATTACH_ROT_UV ) )
+        {
+            double u, w;
+            double r, s, t;
+
+            parent->ConvertLMNtoRST( m_StowSurfIndx(), m_StowLLoc(), m_StowMLoc(), m_StowNLoc(), r, s, t );
+
+            u = r;
+            if ( t < 0.5 )
+            {
+                w = 0.5 * s;
+            }
+            else
+            {
+                w = 1.0 - 0.5 * s;
+            }
+
+            m_StowULoc.Set( u );
+            m_StowU0NLoc.Set( m_StowULoc() * umax );
+            m_StowWLoc.Set( w );
+        }
+    }
+}
+
+void Bogie::UpdateMechAttachParms()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    Geom* parent = veh->FindGeom( GetMechParentID() );
+
+    if ( parent )
+    {
+        if ( m_MechSurfIndx() >= parent->GetNumTotalSurfs() )
+        {
+            m_MechSurfIndx.Set( 0 );
+        }
+
+        if ( parent->isNonSurfaceType() )
+        {
+            return;
+        }
+
+        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+
+        double umax = parent->GetUMapMax( m_MechSurfIndx() );
+        double lmax = parent->GetSurfPtr( m_MechSurfIndx() )->GetLMax();
+
+        m_MechU0NLoc.SetUpperLimit( umax );
+        m_MechR0NLoc.SetUpperLimit( umax );
+        m_MechL0LenLoc.SetUpperLimit( lmax );
+
+        if ( m_MechU01.Get() )
+        {
+            m_MechU0NLoc.Set( m_MechULoc() * umax );
+        }
+        else
+        {
+            double val = clamp( m_MechU0NLoc(), 0.0, umax );
+            m_MechU0NLoc.Set( val );
+            m_MechULoc.Set( val / umax );
+        }
+
+        if ( m_MechR01.Get() )
+        {
+            m_MechR0NLoc.Set( m_MechRLoc() * umax );
+        }
+        else
+        {
+            double val = clamp( m_MechR0NLoc(), 0.0, umax );
+            m_MechR0NLoc.Set( val );
+            m_MechRLoc.Set( val / umax );
+        }
+
+        if ( m_MechL01.Get() )
+        {
+            m_MechL0LenLoc.Set( m_MechLLoc() * lmax );
+        }
+        else
+        {
+            double val = clamp( m_MechL0LenLoc(), 0.0, lmax );
+            m_MechL0LenLoc.Set( val );
+            m_MechLLoc.Set( val / lmax );
+        }
+
+        if ( wing_parent )
+        {
+            if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_EtaMN ) // Eta is active.
+            {
+                double u = wing_parent->EtatoU( m_MechEtaLoc() ) / umax;
+
+                double r;
+                r = u;
+
+                double l;
+                parent->ConvertRtoL( m_MechSurfIndx(), r, l );
+
+                double s, t;
+                parent->ConvertLMNtoRST( m_MechSurfIndx(), l, m_MechMLoc(), m_MechNLoc(), r, s, t );
+
+                double w;
+                if ( t < 0.5 )
+                {
+                    w = 0.5 * s;
+                }
+                else
+                {
+                    w = 1.0 - 0.5 * s;
+                }
+
+                m_MechULoc.Set( u );
+                m_MechU0NLoc.Set( m_MechULoc() * umax );
+                m_MechWLoc.Set( w );
+
+                m_MechRLoc.Set( r );
+                m_MechR0NLoc.Set( m_MechRLoc() * umax );
+                m_MechSLoc.Set( s );
+                m_MechTLoc.Set( t );
+
+                m_MechLLoc.Set( l );
+                m_MechL0LenLoc.Set( m_MechLLoc() * lmax );
+            }
+            else // Eta is not active
+            {
+                if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_UV ) // UV is active
+                {
+                    m_MechEtaLoc = wing_parent->UtoEta( m_MechULoc() * umax );
+                }
+                else if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_RST ) // RST is active
+                {
+                    double r = m_MechRLoc();
+                    double u = r;
+                    m_MechEtaLoc = wing_parent->UtoEta( u * umax );
+                }
+                else if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_LMN ) // LMN is active
+                {
+                    double l = m_MechLLoc();
+                    double r;
+                    parent->ConvertLtoR( m_MechSurfIndx(), l, r );
+                    double u = r;
+                    m_MechEtaLoc = wing_parent->UtoEta( u * umax );
+                }
+                else // Nothing is active, use U value anyway.
+                {
+                    m_MechEtaLoc = wing_parent->UtoEta( m_MechULoc() * umax );
+                }
+            }
+        }
+
+        // If UV is active in either way and RST is not active in any way, compute RST from UV.
+        // If UV is active in either way and LMN is not active in any way, compute LMN from UV.
+        if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_UV )
+        {
+            double u, w;
+            u = m_MechULoc();
+            w = m_MechWLoc();
+            double r, s, t;
+            r = u;
+            s = 2.0 * w;
+            t = 0.0;
+            if ( w > 0.5 )
+            {
+                s = 2.0 * ( 1.0 - w );
+                t = 1.0;
+            }
+
+            m_MechRLoc.Set( r );
+            m_MechR0NLoc.Set( m_MechRLoc() * umax );
+            m_MechSLoc.Set( s );
+            m_MechTLoc.Set( t );
+
+            double l, m, n;
+
+            parent->ConvertRSTtoLMN( m_MechSurfIndx(), r, s, t, l, m, n );
+            m_MechLLoc.Set( l );
+            m_MechL0LenLoc.Set( m_MechLLoc() * lmax );
+            m_MechMLoc.Set( m );
+            m_MechNLoc.Set( n );
+
+        }
+
+
+        // If RST is active in either way and LMN is not active in any way, compute LMN from RST.
+        // If RST is active in either way and UV is not active in any way, compute UV from RST.
+        if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_RST  )
+        {
+            double l, m, n;
+            double r = m_MechRLoc();
+            double s = m_MechSLoc();
+            double t = m_MechTLoc();
+            parent->ConvertRSTtoLMN( m_MechSurfIndx(), r, s, t, l, m, n );
+            m_MechLLoc.Set( l );
+            m_MechL0LenLoc.Set( m_MechLLoc() * lmax );
+            m_MechMLoc.Set( m );
+            m_MechNLoc.Set( n );
+
+            double u, w;
+            u = r;
+            if ( t < 0.5 )
+            {
+                w = 0.5 * s;
+            }
+            else
+            {
+                w = 1.0 - 0.5 * s;
+            }
+
+            m_MechULoc.Set( u );
+            m_MechU0NLoc.Set( m_MechULoc() * umax );
+            m_MechWLoc.Set( w );
+        }
+
+        // If LMN is active in either way and RST is not active in any way, compute RST from LMN.
+        // If LMN is active in either way and UV is not active in any way, compute UV from LMN.
+        if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_LMN  )
+        {
+            double r, s, t;
+            parent->ConvertLMNtoRST( m_MechSurfIndx(), m_MechLLoc(), m_MechMLoc(), m_MechNLoc(), r, s, t );
+            m_MechRLoc.Set( r );
+            m_MechR0NLoc.Set( m_MechRLoc() * umax );
+            m_MechSLoc.Set( s );
+            m_MechTLoc.Set( t );
+
+            double u, w;
+
+            u = r;
+            if ( t < 0.5 )
+            {
+                w = 0.5 * s;
+            }
+            else
+            {
+                w = 1.0 - 0.5 * s;
+            }
+
+            m_MechULoc.Set( u );
+            m_MechU0NLoc.Set( m_MechULoc() * umax );
+            m_MechWLoc.Set( w );
+        }
+    }
+}
+
+//==== Set Rel or Abs Flag ====//
+void Bogie::DeactivateStowXForms()
+{
+    // Deactivate non driving parms and Activate driving parms
+    if ( m_StowAbsRelFlag() ==  vsp::REL  )
+    {
+        m_StowXLoc.Deactivate();
+        m_StowYLoc.Deactivate();
+        m_StowZLoc.Deactivate();
+        m_StowXRot.Deactivate();
+        m_StowYRot.Deactivate();
+        m_StowZRot.Deactivate();
+
+        m_StowXRelLoc.Activate();
+        m_StowYRelLoc.Activate();
+        m_StowZRelLoc.Activate();
+        m_StowXRelRot.Activate();
+        m_StowYRelRot.Activate();
+        m_StowZRelRot.Activate();
+    }
+    else
+    {
+        m_StowXRelLoc.Deactivate();
+        m_StowYRelLoc.Deactivate();
+        m_StowZRelLoc.Deactivate();
+        m_StowXRelRot.Deactivate();
+        m_StowYRelRot.Deactivate();
+        m_StowZRelRot.Deactivate();
+
+        m_StowXLoc.Activate();
+        m_StowYLoc.Activate();
+        m_StowZLoc.Activate();
+        m_StowXRot.Activate();
+        m_StowYRot.Activate();
+        m_StowZRot.Activate();
+    }
+
+    m_StowULoc.Activate();
+    m_StowU0NLoc.Activate();
+    m_StowWLoc.Activate();
+    m_StowRLoc.Activate();
+    m_StowR0NLoc.Activate();
+    m_StowSLoc.Activate();
+    m_StowTLoc.Activate();
+    m_StowLLoc.Activate();
+    m_StowL0LenLoc.Activate();
+    m_StowMLoc.Activate();
+    m_StowNLoc.Activate();
+    m_StowTransAttachFlag.Activate();
+    m_StowRotAttachFlag.Activate();
+
+    if ( IsStowParentJoint() )
+    {
+        m_StowULoc.Deactivate();
+        m_StowU0NLoc.Deactivate();
+        m_StowU01.Deactivate();
+        m_StowWLoc.Deactivate();
+        m_StowRLoc.Deactivate();
+        m_StowR01.Deactivate();
+        m_StowR0NLoc.Deactivate();
+        m_StowSLoc.Deactivate();
+        m_StowTLoc.Deactivate();
+        m_StowLLoc.Deactivate();
+        m_StowL01.Deactivate();
+        m_StowL0LenLoc.Deactivate();
+        m_StowMLoc.Deactivate();
+        m_StowNLoc.Deactivate();
+        m_StowEtaLoc.Deactivate();
+        m_StowTransAttachFlag.Deactivate();
+        m_StowRotAttachFlag.Deactivate();
+    }
+
+    if ( m_StowU01() )
+    {
+        m_StowU0NLoc.Deactivate();
+    }
+    else
+    {
+        m_StowULoc.Deactivate();
+    }
+
+    if ( m_StowR01() )
+    {
+        m_StowR0NLoc.Deactivate();
+    }
+    else
+    {
+        m_StowRLoc.Deactivate();
+    }
+
+    if ( m_StowL01() )
+    {
+        m_StowL0LenLoc.Deactivate();
+    }
+    else
+    {
+        m_StowLLoc.Deactivate();
+    }
+
+}
+
+//==== Set Rel or Abs Flag ====//
+void Bogie::DeactivateMechXForms()
+{
+    ParmContainer* pc = GetParentContainerPtr();
+    if ( pc )
+    {
+        GearGeom * gg = dynamic_cast< GearGeom* >( pc );
+        if ( gg )
+        {
+            int gear_config = gg->m_GearConfigMode();
+
+            if ( gear_config == vsp::GEAR_CONFIGURATION_INTERMEDIATE ||
+                 gear_config == vsp::GEAR_CONFIGURATION_ALL )
+            {
+                m_MechKRetract.Activate();
+            }
+            else
+            {
+                m_MechKRetract.Deactivate();
+            }
+        }
+    }
+
+    // Deactivate non driving parms and Activate driving parms
+    if ( m_MechAbsRelFlag() ==  vsp::REL  )
+    {
+        m_MechXLoc.Deactivate();
+        m_MechYLoc.Deactivate();
+        m_MechZLoc.Deactivate();
+
+        m_MechXRelLoc.Activate();
+        m_MechYRelLoc.Activate();
+        m_MechZRelLoc.Activate();
+    }
+    else
+    {
+        m_MechXRelLoc.Deactivate();
+        m_MechYRelLoc.Deactivate();
+        m_MechZRelLoc.Deactivate();
+
+        m_MechXLoc.Activate();
+        m_MechYLoc.Activate();
+        m_MechZLoc.Activate();
+    }
+
+    m_MechULoc.Activate();
+    m_MechU0NLoc.Activate();
+    m_MechWLoc.Activate();
+    m_MechRLoc.Activate();
+    m_MechR0NLoc.Activate();
+    m_MechSLoc.Activate();
+    m_MechTLoc.Activate();
+    m_MechLLoc.Activate();
+    m_MechL0LenLoc.Activate();
+    m_MechMLoc.Activate();
+    m_MechNLoc.Activate();
+    m_MechTransAttachFlag.Activate();
+
+    if ( IsMechParentJoint() )
+    {
+        m_MechULoc.Deactivate();
+        m_MechU0NLoc.Deactivate();
+        m_MechU01.Deactivate();
+        m_MechWLoc.Deactivate();
+        m_MechRLoc.Deactivate();
+        m_MechR01.Deactivate();
+        m_MechR0NLoc.Deactivate();
+        m_MechSLoc.Deactivate();
+        m_MechTLoc.Deactivate();
+        m_MechLLoc.Deactivate();
+        m_MechL01.Deactivate();
+        m_MechL0LenLoc.Deactivate();
+        m_MechMLoc.Deactivate();
+        m_MechNLoc.Deactivate();
+        m_MechEtaLoc.Deactivate();
+        m_MechTransAttachFlag.Deactivate();
+    }
+
+    if ( m_MechU01() )
+    {
+        m_MechU0NLoc.Deactivate();
+    }
+    else
+    {
+        m_MechULoc.Deactivate();
+    }
+
+    if ( m_MechR01() )
+    {
+        m_MechR0NLoc.Deactivate();
+    }
+    else
+    {
+        m_MechRLoc.Deactivate();
+    }
+
+    if ( m_MechL01() )
+    {
+        m_MechL0LenLoc.Deactivate();
+    }
+    else
+    {
+        m_MechLLoc.Deactivate();
+    }
+
+}
+
+void Bogie::ComposeStowAttachMatrix()
+{
+    m_StowAttachMatrix.loadIdentity();
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    Geom* parent = veh->FindGeom( GetStowParentID() );
+
+    if ( parent )
+    {
+        HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( parent );
+        if ( hingeparent )
+        {
+            m_StowAttachMatrix = hingeparent->GetJointMatrix();
+
+            Matrix4d gmm = m_GearModelMatrix;
+            gmm.affineInverse();
+
+            m_StowAttachMatrix.postMult( gmm.data() );
+            return;
+        }
+    }
+
+    // If both attachment flags set to none, return identity
+    if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_NONE && m_StowRotAttachFlag() == vsp::ATTACH_ROT_NONE )
+    {
+        m_StowAttachMatrix.translatev( GetNominalPivotPoint( 0 ) );
+        return;
+    }
+
+    if ( parent )
+    {
+        Matrix4d transMat;
+        Matrix4d rotMat;
+
+        Matrix4d parentMat;
+        parentMat = parent->getModelMatrix();
+
+        double tempMat[16];
+        parentMat.getMat( tempMat );
+
+        bool revertCompTrans = false;
+        bool revertCompRot = false;
+
+        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+
+        // Parent CompXXXCoordSys methods query the positioned m_RetSurfVec[0] surface,
+        // not m_RetMainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
+        // these calculations and does not need to be applied again.
+        if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_UV )
+        {
+            if ( !( parent->CompTransCoordSys( m_StowSurfIndx(), m_StowULoc(), m_StowWLoc(), transMat )) )
+            {
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_RST )
+        {
+            if ( !( parent->CompTransCoordSysRST( m_StowSurfIndx(), m_StowRLoc(), m_StowSLoc(), m_StowTLoc(), transMat )) )
+            {
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_LMN )
+        {
+            if ( !( parent->CompTransCoordSysLMN( m_StowSurfIndx(), m_StowLLoc(), m_StowMLoc(), m_StowNLoc(), transMat )) )
+            {
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_EtaMN )
+        {
+            double l = m_StowEtaLoc();
+
+            if ( wing_parent )
+            {
+                double umax = parent->GetUMapMax( m_StowSurfIndx() );
+                double u = wing_parent->EtatoU( m_StowEtaLoc() ) / umax;
+
+                double r = u;
+                parent->ConvertRtoL( m_StowSurfIndx(), r, l );
+            }
+
+            if ( !( parent->CompTransCoordSysLMN( m_StowSurfIndx(), l, m_StowMLoc(), m_StowNLoc(), transMat )) )
+            {
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_COMP || revertCompTrans )
+        {
+            transMat.translatef( tempMat[12], tempMat[13], tempMat[14] );
+        }
+
+        if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_NONE )
+        {
+            transMat.translatev( GetNominalPivotPoint( 0 ) );
+
+            double tempMat2[16];
+            m_GearModelMatrix.getMat( tempMat2 );
+
+            transMat.translatef( tempMat2[12], tempMat2[13], tempMat2[14] );
+        }
+
+        if ( m_StowRotAttachFlag() == vsp::ATTACH_ROT_UV )
+        {
+            if ( !( parent->CompRotCoordSys( m_StowSurfIndx(), m_StowULoc(), m_StowWLoc(), rotMat )) )
+            {
+                revertCompRot = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_StowRotAttachFlag() == vsp::ATTACH_ROT_RST )
+        {
+            if ( !( parent->CompRotCoordSysRST( m_StowSurfIndx(), m_StowRLoc(), m_StowSLoc(), m_StowTLoc(), rotMat )) )
+            {
+                revertCompRot = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_StowRotAttachFlag() == vsp::ATTACH_ROT_LMN )
+        {
+            if ( !( parent->CompRotCoordSysLMN( m_StowSurfIndx(), m_StowLLoc(), m_StowMLoc(), m_StowNLoc(), rotMat )) )
+            {
+                revertCompRot = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_StowRotAttachFlag() == vsp::ATTACH_ROT_EtaMN )
+        {
+            double l = m_StowEtaLoc();
+
+            if ( wing_parent )
+            {
+                double umax = parent->GetUMapMax( m_StowSurfIndx() );
+                double u = wing_parent->EtatoU( m_StowEtaLoc() ) / umax;
+
+                double r = u;
+                parent->ConvertRtoL( m_StowSurfIndx(), r, l );
+            }
+
+            if ( !( parent->CompRotCoordSysLMN( m_StowSurfIndx(), l, m_StowMLoc(), m_StowNLoc(), rotMat )) )
+            {
+                revertCompRot = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_StowRotAttachFlag() == vsp::ATTACH_ROT_COMP || revertCompRot )
+        {
+            // Only take rotation matrix from parent so set translation part to zero
+            tempMat[12] = tempMat[13] = tempMat[14] = 0;
+            rotMat.initMat( tempMat );
+        }
+
+        if ( m_StowRotAttachFlag() == vsp::ATTACH_ROT_NONE )
+        {
+            double tempMat2[16];
+            m_GearModelMatrix.getMat( tempMat2 );
+
+            tempMat2[12] = tempMat2[13] = tempMat2[14] = 0;
+            rotMat.initMat( tempMat2 );
+        }
+
+        transMat.matMult( rotMat.data() );
+        m_StowAttachMatrix = transMat;
+    }
+
+    Matrix4d gmm = m_GearModelMatrix;
+    gmm.affineInverse();
+
+    m_StowAttachMatrix.postMult( gmm.data() );
+}
+
+void Bogie::ComposeMechAttachMatrix()
+{
+    m_MechAttachMatrix.loadIdentity();
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    Geom* parent = veh->FindGeom( GetMechParentID() );
+
+    if ( parent )
+    {
+        HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( parent );
+        if ( hingeparent )
+        {
+            m_MechAttachMatrix = hingeparent->GetJointMatrix();
+
+            Matrix4d gmm = m_GearModelMatrix;
+            gmm.affineInverse();
+
+            m_MechAttachMatrix.postMult( gmm.data() );
+            return;
+        }
+    }
+
+    // If both attachment flags set to none, return identity
+    if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_NONE )
+    {
+        m_MechAttachMatrix.translatev( GetNominalPivotPoint( 0 ) );
+        return;
+    }
+
+    if ( parent )
+    {
+        Matrix4d transMat;
+
+        Matrix4d parentMat;
+        parentMat = parent->getModelMatrix();
+
+        double tempMat[16];
+        parentMat.getMat( tempMat );
+
+        bool revertCompTrans = false;
+
+        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+
+        // Parent CompXXXCoordSys methods query the positioned m_RetSurfVec[0] surface,
+        // not m_RetMainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
+        // these calculations and does not need to be applied again.
+        if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_UV )
+        {
+            if ( !( parent->CompTransCoordSys( m_MechSurfIndx(), m_MechULoc(), m_MechWLoc(), transMat )) )
+            {
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_RST )
+        {
+            if ( !( parent->CompTransCoordSysRST( m_MechSurfIndx(), m_MechRLoc(), m_MechSLoc(), m_MechTLoc(), transMat )) )
+            {
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_LMN )
+        {
+            if ( !( parent->CompTransCoordSysLMN( m_MechSurfIndx(), m_MechLLoc(), m_MechMLoc(), m_MechNLoc(), transMat )) )
+            {
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_EtaMN )
+        {
+            double l = m_MechEtaLoc();
+
+            if ( wing_parent )
+            {
+                double umax = parent->GetUMapMax( m_MechSurfIndx() );
+                double u = wing_parent->EtatoU( m_MechEtaLoc() ) / umax;
+
+                double r = u;
+                parent->ConvertRtoL( m_MechSurfIndx(), r, l );
+            }
+
+            if ( !( parent->CompTransCoordSysLMN( m_MechSurfIndx(), l, m_MechMLoc(), m_MechNLoc(), transMat )) )
+            {
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_COMP || revertCompTrans )
+        {
+            transMat.translatef( tempMat[12], tempMat[13], tempMat[14] );
+        }
+
+        m_MechAttachMatrix = transMat;
+    }
+
+    Matrix4d gmm = m_GearModelMatrix;
+    gmm.affineInverse();
+
+    m_MechAttachMatrix.postMult( gmm.data() );
+}
+
+void Bogie::BuildRetractMatrix( Matrix4d &ret_mat, vec3d &knee_pt, vec3d &knee_ax, double k, int isymm ) const
+{
+    vec3d axis = vec3d( m_MechXAxis(), m_MechYAxis(), m_MechZAxis() );
+    axis.normalize();
+
+    vec3d trunnion = vec3d( m_MechXLoc(), m_MechYLoc(), m_MechZLoc() );
+
+    vec3d pivot = GetNominalPivotPoint( 0 );
+
+    vec3d u = trunnion - pivot;
+
+    vec3d u_dir = u;
+    u_dir.normalize();
+    vec3d n = cross( axis, u_dir );
+    n.normalize();
+
+    vec3d v = cross( u_dir, n );
+    v.normalize();
+
+    Matrix4d orientKnee;
+    orientKnee.rotate( m_MechKneeAzimuthAngle() * M_PI / 180.0, u_dir );
+    orientKnee.rotate( -m_MechKneeElevationAngle() * M_PI / 180.0, n );
+    vec3d w = orientKnee.xformnorm( v );
+
+    // SSA calculation for knee position
+    double alpha = m_MechKneeDownAngle() * M_PI / 180.0;
+    double beta = ( 1.0 - m_MechKneePos() ) * std::sin( alpha );
+    double gamma = M_PI - alpha - std::asin( beta );
+
+    Matrix4d knee_bend;
+    knee_bend.translatev( trunnion );
+    knee_bend.rotate( -gamma, axis ); // Negative is to match right hand rule
+    knee_bend.translatev( -trunnion );
+
+    vec3d k_pt = knee_bend.xform( pivot + u * m_MechKneePos() );
+    vec3d k_ax = knee_bend.xformnorm( w );
+
+    ret_mat.translatev( trunnion );
+    ret_mat.rotate( -k * m_MechRetAngle() * M_PI / 180.0, axis ); // Negative is to match right hand rule
+    ret_mat.translatev( -trunnion );
+
+    knee_pt = ret_mat.xform( k_pt );
+    knee_ax = ret_mat.xformnorm( k_ax );
+
+    ret_mat.translatev( k_pt );
+    ret_mat.rotate( -k * m_MechKneeAngle() * M_PI / 180.0, w ); // Negative is to match right hand rule
+    ret_mat.translatev( -k_pt );
+
+    ret_mat.translatev( GetContinuiousPivotPoint( 0, -k * m_MechStrutDL() ) );
+
+    ret_mat.rotateX( k * m_MechRollAngle() );
+
+    ret_mat.rotateY( -k * m_MechBogieAngle() );
+
+    ret_mat.rotateZ( k * m_MechTwistAngle() );
+
+    if ( isymm > 0 )
+    {
+        ret_mat.mirrory();
+    }
+}
+
+void Bogie::UpdateRetract()
+{
+    m_StowTransform.loadIdentity();
+    m_MechTransform.loadIdentity();
+
+    if ( m_RetMode() == vsp::GEAR_STOWED_POSITION )
+    {
+        // These transformations get applied in reverse order.
+        if (  m_StowAbsRelFlag() ==  vsp::REL )
+        {
+            // Apply normal translations
+            m_StowTransform.translatef( m_StowXRelLoc(), m_StowYRelLoc(), m_StowZRelLoc() );
+
+            // Apply rotations
+            m_StowTransform.rotateX( m_StowXRelRot() );
+            m_StowTransform.rotateY( m_StowYRelRot() );
+            m_StowTransform.rotateZ( m_StowZRelRot() );
+
+            // Apply Attached Matrix to Relative Matrix
+            m_StowTransform.postMult( m_StowAttachMatrix.data() );
+
+            // Update Absolute Parameters
+            double tempMat[16];
+            m_StowTransform.getMat( tempMat );
+            m_StowXLoc = tempMat[12];
+            m_StowYLoc = tempMat[13];
+            m_StowZLoc = tempMat[14];
+
+            vec3d angles = m_StowTransform.getAngles();
+            m_StowXRot = angles.x();
+            m_StowYRot = angles.y();
+            m_StowZRot = angles.z();
+        }
+        else if ( m_StowAbsRelFlag() ==  vsp::ABS )
+        {
+            // Apply normal translations
+            m_StowTransform.translatef( m_StowXLoc(), m_StowYLoc(), m_StowZLoc() );
+
+            // Apply rotations
+            m_StowTransform.rotateX( m_StowXRot() );
+            m_StowTransform.rotateY( m_StowYRot() );
+            m_StowTransform.rotateZ( m_StowZRot() );
+
+            // Update Relative Parameters
+            Matrix4d attachedMat = m_StowAttachMatrix;
+            double tempMat[16];
+            attachedMat.affineInverse();
+            attachedMat.matMult( m_StowTransform.data() );
+            attachedMat.getMat( tempMat );
+            m_StowXRelLoc = tempMat[12];
+            m_StowYRelLoc = tempMat[13];
+            m_StowZRelLoc = tempMat[14];
+
+            vec3d angles = attachedMat.getAngles();
+            m_StowXRelRot = angles.x();
+            m_StowYRelRot = angles.y();
+            m_StowZRelRot = angles.z();
+        }
+
+        m_PivotPtVec.clear();
+    }
+    else // vsp::GEAR_MECHANISM
+    {
+        // These transformations get applied in reverse order.
+        if (  m_MechAbsRelFlag() ==  vsp::REL )
+        {
+            // Apply normal translations
+            m_MechTransform.translatef( m_MechXRelLoc(), m_MechYRelLoc(), m_MechZRelLoc() );
+
+            // Apply Attached Matrix to Relative Matrix
+            m_MechTransform.postMult( m_MechAttachMatrix.data() );
+
+            // Update Absolute Parameters
+            double tempMat[16];
+            m_MechTransform.getMat( tempMat );
+            m_MechXLoc = tempMat[12];
+            m_MechYLoc = tempMat[13];
+            m_MechZLoc = tempMat[14];
+        }
+        else if ( m_MechAbsRelFlag() ==  vsp::ABS )
+        {
+            // Apply normal translations
+            m_MechTransform.translatef( m_MechXLoc(), m_MechYLoc(), m_MechZLoc() );
+
+            // Update Relative Parameters
+            Matrix4d attachedMat = m_MechAttachMatrix;
+            double tempMat[16];
+            attachedMat.affineInverse();
+            attachedMat.matMult( m_MechTransform.data() );
+            attachedMat.getMat( tempMat );
+            m_MechXRelLoc = tempMat[12];
+            m_MechYRelLoc = tempMat[13];
+            m_MechZRelLoc = tempMat[14];
+        }
+
+        m_Axis.set_xyz( m_MechXAxis(), m_MechYAxis(), m_MechZAxis() );
+        m_Axis.normalize();
+
+        m_StrutAttachPt.set_xyz( m_MechXLoc(), m_MechYLoc(), m_MechZLoc() );
+
+        m_PivotPtVec.clear();
+        m_KneePtVec.clear();
+        m_KneeAxVec.clear();
+
+        vector < double > kvec;
+
+        ParmContainer* pc = GetParentContainerPtr();
+        if ( pc )
+        {
+            GearGeom * gg = dynamic_cast< GearGeom* >( pc );
+            if ( gg )
+            {
+                int gear_config = gg->m_GearConfigMode();
+
+                if ( gear_config == vsp::GEAR_CONFIGURATION_DOWN ||
+                     gear_config == vsp::GEAR_CONFIGURATION_UP_AND_DOWN ||
+                     gear_config == vsp::GEAR_CONFIGURATION_ALL )
+                {
+                    kvec.push_back( 0.0 );
+                }
+
+                if ( gear_config == vsp::GEAR_CONFIGURATION_UP ||
+                     gear_config == vsp::GEAR_CONFIGURATION_UP_AND_DOWN ||
+                     gear_config == vsp::GEAR_CONFIGURATION_ALL )
+                {
+                    kvec.push_back( 1.0 );
+                }
+
+                if ( gear_config == vsp::GEAR_CONFIGURATION_INTERMEDIATE ||
+                     gear_config == vsp::GEAR_CONFIGURATION_ALL )
+                {
+                    kvec.push_back( m_MechKRetract() );
+                }
+            }
+        }
+
+        for ( int i = 0; i < kvec.size(); i++ )
+        {
+            Matrix4d retractMat;
+            vec3d knee_pt, knee_ax;
+            BuildRetractMatrix( retractMat, knee_pt, knee_ax, kvec[i], 0 );
+
+            m_PivotPtVec.push_back( retractMat.xform( vec3d() ) );
+            m_KneePtVec.push_back( knee_pt );
+            m_KneeAxVec.push_back( knee_ax );
+        }
+    }
+
+
+    m_StowSymmTransform = m_StowTransform;
+    m_StowSymmTransform.mirrory();
+
+}
+
 void Bogie::Update()
 {
     UpdateParms();
-    UpdateTireCurve();
 
-    m_TireSurface.CreateBodyRevolution( m_TireProfile, true, 1 );
-    m_TireSurface.SetMagicVParm( false );
-    m_TireSurface.SetHalfBOR( true );
-    m_TireSurface.FlipNormal();
+    UpdateStowAttachParms();
+    UpdateMechAttachParms();
 
+    DeactivateStowXForms();
+    DeactivateMechXForms();
+
+    UpdateRetractAttach();
+
+    UpdateRetract();
+
+
+    if ( m_TireDirty )
+    {
+        UpdateTireCurve();
+
+        m_TireSurface.CreateBodyRevolution( m_TireProfile, true, 1 );
+        m_TireSurface.SetMagicVParm( false );
+        m_TireSurface.SetHalfBOR( true );
+        m_TireSurface.FlipNormal();
+
+        m_TireSurface.BuildFeatureLines( false );
+    }
+
+    m_TireDirty = false;
+}
+
+void Bogie::UpdateRetractAttach()
+{
+    ComposeStowAttachMatrix();
+    ComposeMechAttachMatrix();
+}
+
+void Bogie::UpdateTess()
+{
+    if ( m_TireTessDirty )
+    {
+        ParmContainer* pc = GetParentContainerPtr();
+        if ( pc )
+        {
+            GearGeom * gg = dynamic_cast< GearGeom* >( pc );
+            if ( gg )
+            {
+                gg->UpdateTess( m_TireSurface, false, false, m_TireTess, m_TireFeatureTess );
+            }
+        }
+    }
+    m_TireTessDirty = false;
 }
 
 void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
 {
     m_SuspensionTravelLinesDO.m_PntVec.clear();
     m_SuspensionTravelPointsDO.m_PntVec.clear();
+
+    m_AxisDO.m_PntVec.clear();
+    m_AxisArrowDO.m_PntVec.clear();
+    m_AxisCircleDO.m_PntVec.clear();
+    m_StrutDO.m_PntVec.clear();
 
     m_SuspensionTravelLinesDO.m_GeomID = m_ID + "LSuspension";
     m_SuspensionTravelLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -477,6 +1888,42 @@ void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
     m_SuspensionTravelPointsDO.m_PointColor = vec3d( 0, 0, 0 );
     m_SuspensionTravelPointsDO.m_GeomChanged = true;
 
+    m_AxisDO.m_GeomID = m_ID + "MAxis";
+    m_AxisDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_AxisDO.m_LineWidth = 2.0;
+    m_AxisDO.m_Type = DrawObj::VSP_LINES;
+    m_AxisDO.m_LineColor = vec3d( 0, 0, 0 );
+    m_AxisDO.m_GeomChanged = true;
+
+    m_AxisCircleDO.m_GeomID = m_ID + "MCircle";
+    m_AxisCircleDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_AxisCircleDO.m_LineWidth = 2.0;
+    m_AxisCircleDO.m_Type = DrawObj::VSP_LINES;
+    m_AxisCircleDO.m_LineColor = vec3d( 0, 0, 0 );
+    m_AxisCircleDO.m_GeomChanged = true;
+
+    m_AxisArrowDO.m_GeomID = m_ID + "MArrow";
+    m_AxisArrowDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_AxisArrowDO.m_LineWidth = 1.0;
+    m_AxisArrowDO.m_Type = DrawObj::VSP_SHADED_TRIS;
+
+    for ( int i = 0; i < 4; i++ )
+    {
+        m_AxisArrowDO.m_MaterialInfo.Ambient[i] = 0.2f;
+        m_AxisArrowDO.m_MaterialInfo.Diffuse[i] = 0.1f;
+        m_AxisArrowDO.m_MaterialInfo.Specular[i] = 0.7f;
+        m_AxisArrowDO.m_MaterialInfo.Emission[i] = 0.0f;
+    }
+    m_AxisArrowDO.m_MaterialInfo.Diffuse[3] = 0.5f;
+    m_AxisArrowDO.m_MaterialInfo.Shininess = 5.0f;
+
+
+    m_StrutDO.m_GeomID = m_ID + "MStrut";
+    m_StrutDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_StrutDO.m_LineWidth = 2.0;
+    m_StrutDO.m_Type = DrawObj::VSP_LINES;
+    m_StrutDO.m_LineColor = vec3d( 0, 0, 0 );
+    m_StrutDO.m_GeomChanged = true;
 
     int isymm = 0;
 
@@ -486,6 +1933,39 @@ void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
     m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_EXTENDED ) ) );
     m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_NOMINAL ) ) );
     m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_COMPRESSED ) ) );
+
+    if ( !m_PivotPtVec.empty() )
+    {
+        double axlen = 1.0;
+
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            axlen = veh->m_AxisLength();
+        }
+
+        vec3d axstart = relTrans.xform( m_StrutAttachPt );
+        vec3d axend = relTrans.xform( m_StrutAttachPt + axlen * m_Axis );
+
+        vec3d u = axend - axstart;
+        MakeCircleArrow(axstart + 0.6 * u, u, 0.5 * axlen, 0.5 * axlen, m_AxisCircleDO, m_AxisArrowDO );
+        m_AxisArrowDO.m_NormVec = vector <vec3d> ( m_AxisArrowDO.m_PntVec.size() );
+
+        MakeDashedLine( axstart,  axend, 4, m_AxisDO.m_PntVec );
+
+        for ( int i = 0; i < m_PivotPtVec.size(); i++ )
+        {
+            m_StrutDO.m_PntVec.push_back( axstart );
+            m_StrutDO.m_PntVec.push_back( relTrans.xform( m_KneePtVec[i] ) );
+            m_StrutDO.m_PntVec.push_back( relTrans.xform( m_KneePtVec[i] ) );
+            m_StrutDO.m_PntVec.push_back( relTrans.xform( m_PivotPtVec[i] ) );
+
+            vec3d knee_axstart = relTrans.xform( m_KneePtVec[i] );
+            vec3d knee_axend = relTrans.xform( m_KneePtVec[i] + axlen * m_KneeAxVec[i] );
+
+            MakeDashedLine( knee_axstart,  knee_axend, 4, m_AxisDO.m_PntVec );
+        }
+    }
 
     // Visualize gear contact points.
     // double bogietheta = 0;
@@ -507,8 +1987,74 @@ void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
 
 void Bogie::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
+    draw_obj_vec.push_back( &m_AxisDO );
+    draw_obj_vec.push_back( &m_AxisCircleDO );
+    draw_obj_vec.push_back( &m_AxisArrowDO );
+    draw_obj_vec.push_back( &m_StrutDO );
     draw_obj_vec.push_back( &m_SuspensionTravelLinesDO );
     draw_obj_vec.push_back( &m_SuspensionTravelPointsDO );
+}
+
+xmlNodePtr Bogie::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr pcnode = ParmContainer::EncodeXml( node );
+
+    xmlNodePtr bogie_node = xmlNewChild( node, nullptr, BAD_CAST"Bogie", nullptr );
+
+    if ( bogie_node )
+    {
+        XmlUtil::AddStringNode( bogie_node, "StowParentID", m_StowParentID );
+        XmlUtil::AddStringNode( bogie_node, "MechParentID", m_MechParentID );
+    }
+
+    return pcnode;
+}
+
+xmlNodePtr Bogie::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr pcnode = ParmContainer::DecodeXml( node );
+
+    xmlNodePtr bogie_node = XmlUtil::GetNode( node, "Bogie", 0 );
+
+    if ( bogie_node )
+    {
+        m_StowParentID = ParmMgr.RemapID( XmlUtil::FindString( bogie_node, "StowParentID", m_StowParentID ) );
+        m_MechParentID = ParmMgr.RemapID( XmlUtil::FindString( bogie_node, "MechParentID", m_MechParentID ) );
+    }
+
+    return pcnode;
+}
+
+void Bogie::SetStowParentID( const string &id )
+{
+    m_StowParentID = id ;
+
+    ParmContainer* pc = GetParentContainerPtr();
+    if ( pc )
+    {
+        GearGeom * gg = dynamic_cast< GearGeom* >( pc );
+        if ( gg )
+        {
+            gg->UpdateParents();
+            gg->Update();
+        }
+    }
+}
+
+void Bogie::SetMechParentID( const string &id )
+{
+    m_MechParentID = id ;
+
+    ParmContainer* pc = GetParentContainerPtr();
+    if ( pc )
+    {
+        GearGeom * gg = dynamic_cast< GearGeom* >( pc );
+        if ( gg )
+        {
+            gg->UpdateParents();
+            gg->Update();
+        }
+    }
 }
 
 string Bogie::GetAcrossDesignation()
@@ -709,11 +2255,40 @@ vec3d Bogie::GetSideContactPoint( int isymm, int suspensionmode, int tiremode, d
     return origin + v;
 }
 
-void Bogie::AppendMainSurf( vector < VspSurf > &surfvec ) const
+void Bogie::AppendMainSurf( vector < VspSurf > &surfvec, int gear_config ) const
 {
-    TireToBogie( m_TireSurface, surfvec );
+    TireToBogie( m_TireSurface, surfvec, gear_config );
 }
 
+bool Bogie::IsStowParentJoint()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    GeomBase* parentPtr = veh->FindGeom( m_StowParentID );
+    if ( parentPtr )
+    {
+        HingeGeom* hingeParentPtr = dynamic_cast < HingeGeom* > ( parentPtr );
+        if ( hingeParentPtr )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Bogie::IsMechParentJoint()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    GeomBase* parentPtr = veh->FindGeom( m_MechParentID );
+    if ( parentPtr )
+    {
+        HingeGeom* hingeParentPtr = dynamic_cast < HingeGeom* > ( parentPtr );
+        if ( hingeParentPtr )
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 //===============================================================================//
 //===============================================================================//
@@ -733,6 +2308,7 @@ GearGeom::GearGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_IncludeNominalGroundPlane.Init( "ShowNominalGroundPlane", "GroundPlane", this, true, false, true );
 
+    m_GearConfigMode.Init( "GearConfigMode", "Gear", this, vsp::GEAR_CONFIGURATION_DOWN, vsp::GEAR_CONFIGURATION_DOWN, vsp::NUM_GEAR_CONFIGURATION_MODES - 1 );
 
     m_CGLocalFlag.Init( "CGLocalFlag", "GroundPlane", this, true, false, true );
 
@@ -769,6 +2345,59 @@ GearGeom::GearGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 GearGeom::~GearGeom()
 {
 
+}
+
+void GearGeom::SetDirtyFlags( Parm* parm_ptr )
+{
+    if ( !parm_ptr )
+    {
+        return;
+    }
+
+    Geom::SetDirtyFlags( parm_ptr );
+
+    string gname = parm_ptr->GetGroupName();
+    string pname = parm_ptr->GetName();
+
+    bool tessdirty = false;
+    bool tiredirty = false;
+
+    if ( ( pname == string("Tess_U") || pname == string("Tess_W") ) )
+    {
+        tessdirty = true;
+
+    }
+    else if ( parm_ptr == &m_ModelLenUnits )
+    {
+        tiredirty = true;
+    }
+
+
+    if ( tessdirty )
+    {
+        int nbogies = m_Bogies.size();
+
+        for ( int i = 0; i < nbogies; i++ )
+        {
+            if ( m_Bogies[i] )
+            {
+                m_Bogies[i]->m_TireTessDirty = true;
+            }
+        }
+    }
+
+    if ( tiredirty )
+    {
+        int nbogies = m_Bogies.size();
+
+        for ( int i = 0; i < nbogies; i++ )
+        {
+            if ( m_Bogies[i] )
+            {
+                m_Bogies[i]->m_TireDirty = true;
+            }
+        }
+    }
 }
 
 void GearGeom::UpdateSurf()
@@ -845,6 +2474,12 @@ void GearGeom::UpdateSurf()
 
     int nbogies = m_Bogies.size();
 
+    int multiplier = 1;
+    if ( m_GearConfigMode() == vsp::GEAR_CONFIGURATION_UP_AND_DOWN )
+    {
+        multiplier = 2;
+    }
+
     int nsurf = 0;
     if ( m_IncludeNominalGroundPlane() )
     {
@@ -858,7 +2493,7 @@ void GearGeom::UpdateSurf()
             {
                 m_Bogies[i]->Update();
             }
-            nsurf += m_Bogies[i]->GetNumSurf();
+            nsurf += multiplier * m_Bogies[i]->GetNumSurf();
         }
     }
 
@@ -879,7 +2514,7 @@ void GearGeom::UpdateSurf()
             if ( m_Bogies[i] )
             {
                 m_BogieMainSurfIndex[i] = m_MainSurfVec.size();
-                m_Bogies[i]->AppendMainSurf( m_MainSurfVec );
+                m_Bogies[i]->AppendMainSurf( m_MainSurfVec, m_GearConfigMode() );
             }
         }
     }
@@ -901,6 +2536,30 @@ void GearGeom::UpdateSurf()
         double d = m_PlaneSize();
         m_MainSurfVec[0].CreatePlane( -d, d, -d, d );
         m_MainSurfVec[0].SetSurfCfdType( vsp::CFD_TRANSPARENT );
+    }
+}
+
+void GearGeom::UpdateXForm()
+{
+    Geom::UpdateXForm();
+
+    int nbogies = m_Bogies.size();
+
+    for ( int i = 0; i < nbogies; i++ )
+    {
+        if ( m_Bogies[i] )
+        {
+            m_Bogies[i]->m_GearModelMatrix = m_ModelMatrix;
+        }
+    }
+}
+
+void GearGeom::UpdateFeatureLines()
+{
+    // Tire Feature Lines are kept up to date.
+    if ( m_IncludeNominalGroundPlane() )
+    {
+        m_MainSurfVec[0].BuildFeatureLines( m_ForceXSecFlag );
     }
 }
 
@@ -935,13 +2594,10 @@ void GearGeom::UpdateMainTessVec()
                 m_Bogies[i]->m_TireSurface.CopyNonSurfaceData( m_MainSurfVec[ m_BogieMainSurfIndex[i] ] );
 
 
-                SimpleTess tireTess;
-                SimpleFeatureTess tireFeatureTess;
+                m_Bogies[i]->UpdateTess();
 
-                UpdateTess( m_Bogies[i]->m_TireSurface, false, false, tireTess, tireFeatureTess );
-
-                m_Bogies[i]->TireToBogie( tireTess, m_MainTessVec );
-                m_Bogies[i]->TireToBogie( tireFeatureTess, m_MainFeatureTessVec );
+                m_Bogies[i]->TireToBogie( m_Bogies[i]->m_TireTess, m_MainTessVec, m_GearConfigMode() );
+                m_Bogies[i]->TireToBogie( m_Bogies[i]->m_TireFeatureTess, m_MainFeatureTessVec, m_GearConfigMode() );
             }
         }
     }
@@ -990,7 +2646,7 @@ void GearGeom::UpdateMainDegenGeomPreview()
                 DegenGeom degenGeom;
                 CreateDegenGeom( m_Bogies[i]->m_TireSurface, 0, degenGeom, true, 1 );
 
-                m_Bogies[i]->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec );
+                m_Bogies[i]->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_GearConfigMode() );
             }
         }
     }
@@ -1109,7 +2765,7 @@ Bogie * GearGeom::CreateAndAddBogie()
 
     m_CurrBogieIndex = m_Bogies.size() - 1;
 
-    m_SurfDirty = true;
+    UpdateParents();
     return bogie;
 }
 
@@ -1182,6 +2838,7 @@ xmlNodePtr GearGeom::DecodeXml( xmlNodePtr & node )
         }
     }
 
+    UpdateParents();
     return label_root_node;
 }
 
@@ -1205,6 +2862,61 @@ void GearGeom::ChangeID( const string &id )
     }
 }
 
+void GearGeom::UpdateParents()
+{
+    m_SurfDirty = true;
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    vector < string > parent_vec;
+    parent_vec.reserve( m_Bogies.size() );
+    for ( int i = 0; i < m_Bogies.size(); i++ )
+    {
+        parent_vec.push_back( m_Bogies[i]->GetStowParentID() );
+        parent_vec.push_back( m_Bogies[i]->GetMechParentID() );
+    }
+
+    std::sort( parent_vec.begin(), parent_vec.end() );
+    parent_vec.erase(std::unique( parent_vec.begin(), parent_vec.end()), parent_vec.end() );
+
+    // Serialize m_ParmIDs into single long string.
+    string str = string_vec_serialize( parent_vec );
+    // Calculate hash to detect changes in m_ParmIDs
+    std::size_t str_hash = std::hash < std::string >{}( str );
+
+    // Relies on currency of m_ParmIDs by UpdateVarBrowser()
+    if ( str_hash != m_ParentHash )
+    {
+        // Remove parents.
+        for ( int i = 0; i < m_ParentVec.size(); i++ )
+        {
+            Geom * g = veh->FindGeom( m_ParentVec[i] );
+            if ( g )
+            {
+                g->RemoveStepChildID( m_ID );
+            }
+        }
+
+        // Add to parents.
+        for ( int i = 0; i < parent_vec.size(); i++ )
+        {
+            Geom * g = veh->FindGeom( parent_vec[i] );
+            if ( g )
+            {
+                g->AddStepChildID( m_ID );
+            }
+        }
+
+        m_ParentVec = parent_vec;
+        m_ParentHash = str_hash;
+    }
+}
+
 void GearGeom::DelAllBogies()
 {
     for( int i = 0; i < ( int )m_Bogies.size(); i++ )
@@ -1212,9 +2924,8 @@ void GearGeom::DelAllBogies()
         delete m_Bogies[i];
     }
     m_Bogies.clear();
-    m_SurfDirty = true;
     m_CurrBogieIndex = -1;
-    Update();
+    UpdateParents();
 }
 
 void GearGeom::ShowAllBogies()
@@ -1268,14 +2979,13 @@ void GearGeom::DelBogie( const int & i )
     Bogie* ruler = m_Bogies[i];
 
     m_Bogies.erase( m_Bogies.begin() +  i );
-    m_SurfDirty = true;
 
     if ( i > m_Bogies.size() - 1 )
     {
         SetCurrBogieIndex( m_Bogies.size() - 1 );
     }
 
-    Update();
+    UpdateParents();
     delete ruler;
 }
 
