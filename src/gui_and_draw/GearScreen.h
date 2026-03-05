@@ -25,6 +25,8 @@ public:
     virtual void Show();
     virtual bool Update();
     virtual void UpdateBogieBrowser();
+    virtual void UpdateStowSurfChoice();
+    virtual void UpdateMechSurfChoice();
 
     virtual void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
@@ -39,6 +41,23 @@ protected:
     GroupLayout m_DesignLayout;
     GroupLayout m_BogieLayout;
     GroupLayout m_TireLayout;
+    GroupLayout m_RetractLayout;
+
+    Fl_Tabs* m_RetractTabs;
+
+    GroupLayout m_StowLayout;
+    GroupLayout m_MechanismLayout;
+    GroupLayout m_Mechanism2Layout;
+
+
+    GroupLayout m_StowAttachLayout;
+    GroupLayout m_StowAttachLayoutTransHeader;
+    GroupLayout m_StowAttachLayoutRotHeader;
+    GroupLayout m_StowAttachLayoutSelections;
+
+    GroupLayout m_MechAttachLayout;
+    GroupLayout m_MechAttachLayoutTransHeader;
+    GroupLayout m_MechAttachLayoutSelections;
 
     Choice m_ModelUnitsChoice;
 
@@ -46,6 +65,7 @@ protected:
     SliderAdjRangeInput m_PlaneSizeSlider;
 
     ToggleButton m_IncludeNominalGroundPlaneToggle;
+    Choice m_GearConfigurationChoice;
 
     ToggleButton m_CGLocalToggle;
     ToggleButton m_CGGlobalToggle;
@@ -156,6 +176,127 @@ protected:
     SliderAdjRangeInput m_DeflectionSlider;
     SliderAdjRange2Input m_SLRSlider;
 
+    // Retracted
+    Choice m_RetBogieChoice;
+
+    Choice m_RetModeChoice;
+
+
+    GeomPicker m_StowGeomPicker;
+    Choice m_StowSurfChoice;
+
+    ToggleButton m_StowXFormAbsoluteToggle;
+    ToggleButton m_StowXFormRelativeToggle;
+    ToggleRadioGroup m_StowXFormAbsRelToggle;
+
+    SliderAdjRange2Input m_StowXLocSlider;
+    SliderAdjRange2Input m_StowYLocSlider;
+    SliderAdjRange2Input m_StowZLocSlider;
+
+    SliderAdjRange2Input m_StowXRotSlider;
+    SliderAdjRange2Input m_StowYRotSlider;
+    SliderAdjRange2Input m_StowZRotSlider;
+
+    //==== Attachments
+    ToggleButton m_StowTransNoneButton;
+    ToggleButton m_StowTransCompButton;
+    ToggleButton m_StowTransUVButton;
+    ToggleButton m_StowTransRSTButton;
+    ToggleButton m_StowTransLMNButton;
+    ToggleButton m_StowTransEtaMNButton;
+    ToggleRadioGroup m_StowTransToggleGroup;
+
+    ToggleButton m_StowRotNoneButton;
+    ToggleButton m_StowRotCompButton;
+    ToggleButton m_StowRotUVButton;
+    ToggleButton m_StowRotRSTButton;
+    ToggleButton m_StowRotLMNButton;
+    ToggleButton m_StowRotEtaMNButton;
+    ToggleRadioGroup m_StowRotToggleGroup;
+
+    ToggleButton m_StowU01Toggle;
+    ToggleButton m_StowU0NToggle;
+    ToggleRadioGroup m_StowUScaleToggleGroup;
+
+    ToggleButton m_StowR01Toggle;
+    ToggleButton m_StowR0NToggle;
+    ToggleRadioGroup m_StowRScaleToggleGroup;
+
+    ToggleButton m_StowL01Toggle;
+    ToggleButton m_StowL0LenToggle;
+    ToggleRadioGroup m_StowLScaleToggleGroup;
+
+    SliderAdjRange2Input m_StowAttachUSlider;
+    SliderAdjRangeInput m_StowAttachVSlider;
+    SliderAdjRange2Input m_StowAttachRSlider;
+    SliderAdjRangeInput m_StowAttachSSlider;
+    SliderAdjRangeInput m_StowAttachTSlider;
+    SliderAdjRange2Input m_StowAttachLSlider;
+    SliderAdjRangeInput m_StowAttachMSlider;
+    SliderAdjRangeInput m_StowAttachNSlider;
+    SliderAdjRangeInput m_StowAttachEtaSlider;
+
+    GeomPicker m_MechGeomPicker;
+    Choice m_MechSurfChoice;
+
+    ToggleButton m_MechXFormAbsoluteToggle;
+    ToggleButton m_MechXFormRelativeToggle;
+    ToggleRadioGroup m_MechXFormAbsRelToggle;
+
+    SliderAdjRange2Input m_MechXLocSlider;
+    SliderAdjRange2Input m_MechYLocSlider;
+    SliderAdjRange2Input m_MechZLocSlider;
+
+    SliderAdjRangeInput m_MechXAxisSlider;
+    SliderAdjRangeInput m_MechYAxisSlider;
+    SliderAdjRangeInput m_MechZAxisSlider;
+
+    //==== Attachments
+    ToggleButton m_MechTransNoneButton;
+    ToggleButton m_MechTransCompButton;
+    ToggleButton m_MechTransUVButton;
+    ToggleButton m_MechTransRSTButton;
+    ToggleButton m_MechTransLMNButton;
+    ToggleButton m_MechTransEtaMNButton;
+    ToggleRadioGroup m_MechTransToggleGroup;
+
+    ToggleButton m_MechU01Toggle;
+    ToggleButton m_MechU0NToggle;
+    ToggleRadioGroup m_MechUScaleToggleGroup;
+
+    ToggleButton m_MechR01Toggle;
+    ToggleButton m_MechR0NToggle;
+    ToggleRadioGroup m_MechRScaleToggleGroup;
+
+    ToggleButton m_MechL01Toggle;
+    ToggleButton m_MechL0LenToggle;
+    ToggleRadioGroup m_MechLScaleToggleGroup;
+
+    SliderAdjRange2Input m_MechAttachUSlider;
+    SliderAdjRangeInput m_MechAttachVSlider;
+    SliderAdjRange2Input m_MechAttachRSlider;
+    SliderAdjRangeInput m_MechAttachSSlider;
+    SliderAdjRangeInput m_MechAttachTSlider;
+    SliderAdjRange2Input m_MechAttachLSlider;
+    SliderAdjRangeInput m_MechAttachMSlider;
+    SliderAdjRangeInput m_MechAttachNSlider;
+    SliderAdjRangeInput m_MechAttachEtaSlider;
+
+    SliderAdjRangeInput m_MechKRetractSlider;
+    SliderAdjRangeInput m_Mech2KRetractSlider;
+
+    SliderAdjRangeInput m_MechKneePosSlider;
+    SliderAdjRangeInput m_MechKneeAngleSlider;
+    SliderAdjRangeInput m_MechKneeClockAngleSlider;
+    SliderAdjRangeInput m_MechKneeElevationAngleSlider;
+    SliderAdjRangeInput m_MechKneeDownAngleSlider;
+
+    SliderAdjRangeInput m_MechRetAngleSlider;
+    SliderAdjRangeInput m_MechTwistAngleSlider;
+    SliderAdjRangeInput m_MechRollAngleSlider;
+    SliderAdjRangeInput m_MechBogieAngleSlider;
+
+    SliderAdjRangeInput m_MechStrutDLSlider;
 };
 
 
