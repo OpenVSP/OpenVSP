@@ -35,6 +35,7 @@ public:
     void ComposeMechAttachMatrix();
     void BuildRetractMatrix( Matrix4d &ret_mat, vec3d &knee_pt, vec3d &knee_ax, double k, int isymm ) const;
     void UpdateRetract();
+    void BackCalculateRetract();
     void Update();
     void UpdateRetractAttach();
     void UpdateTess();

@@ -1811,6 +1811,166 @@ void Bogie::UpdateRetract()
 
 }
 
+void Bogie::BackCalculateRetract()
+{
+    if ( m_RetMode() == vsp::GEAR_STOWED_POSITION )
+    {
+        m_MechParentID = "";
+        m_MechSurfIndx = 0;
+
+        m_MechAbsRelFlag = vsp::REL;
+        m_MechTransAttachFlag = vsp::ATTACH_TRANS_NONE;
+
+        m_MechULoc = 0.0;
+        m_MechU0NLoc = 0.0;
+        m_MechU01 = true;
+        m_MechWLoc = 0.0;
+
+        m_MechRLoc = 0.0;
+        m_MechR01 = true;
+        m_MechR0NLoc = 0.0;
+        m_MechSLoc = 0.5;
+        m_MechTLoc = 0.5;
+
+        m_MechLLoc = 0.0;
+        m_MechL01 = true;
+        m_MechL0LenLoc = 0.0;
+        m_MechMLoc = 0.5;
+        m_MechNLoc = 0.5;
+
+        m_MechEtaLoc = 0.0;
+
+        m_MechKneePos = 0.0;
+        m_MechKneeAngle = 0.0;
+        m_MechKneeAzimuthAngle = 0.0;
+        m_MechKneeElevationAngle = 0.0;
+        m_MechKneeDownAngle = 180.0;
+
+        m_MechTwistAngle = 0.0;
+        m_MechRollAngle = 0.0;
+        m_MechBogieAngle = 0.0;
+
+        m_MechStrutDL = 0.0;
+
+
+
+        SimpleFeatureTess sample_pts;
+        sample_pts.m_ptline.push_back( { vec3d(0, 0, 0), vec3d( 0, 1, 0) } );
+        vector <SimpleFeatureTess> out;
+        TireToBogie( sample_pts, out, vsp::GEAR_CONFIGURATION_UP_AND_DOWN );
+
+        vec3d a = out[0].m_ptline[0][0];
+        vec3d b = out[0].m_ptline[0][1];
+        vec3d aprm = out[1].m_ptline[0][0];
+        vec3d bprm = out[1].m_ptline[0][1];
+
+        vec3d u = b - a;
+        vec3d uprm = bprm - aprm;
+
+        vec3d k = cross( u, uprm );
+        k.normalize();
+
+        m_MechXAxis = k.x();
+        m_MechYAxis = k.y();
+        m_MechZAxis = k.z();
+
+        double theta = angle( u, uprm );
+        m_MechRetAngle = theta * 180.0 / M_PI;
+
+        vec3d c = 0.5 * ( aprm + a );
+
+        vec3d n = aprm - a;
+
+        vec3d p = c + ( 1.0 / ( 2.0 * tan( theta * 0.5 ) ) ) * cross( k, n );
+
+        m_MechXLoc = p.x();
+        m_MechYLoc = p.y();
+        m_MechZLoc = p.z();
+
+        // Only for vsp::ATTACH_TRANS_NONE && vsp::ATTACH_ROT_NONE
+        Matrix4d mechAttachMat;
+        mechAttachMat.translatev( GetNominalPivotPoint( 0 ) );
+
+        Matrix4d mechMat;
+        mechMat.translatev( p );
+
+        // Update Relative Parameters
+        Matrix4d attachedMat = mechAttachMat;
+
+        attachedMat.affineInverse();
+        attachedMat.matMult( mechMat.data() );
+        double tempMat[16];
+        attachedMat.getMat( tempMat );
+        m_MechXRelLoc = tempMat[12];
+        m_MechYRelLoc = tempMat[13];
+        m_MechZRelLoc = tempMat[14];
+    }
+    else // vsp::GEAR_MECHANISM
+    {
+        m_StowParentID = "";
+        m_StowSurfIndx = 0;
+
+        m_StowAbsRelFlag = vsp::REL;
+        m_StowTransAttachFlag = vsp::ATTACH_TRANS_NONE;
+        m_StowRotAttachFlag = vsp::ATTACH_ROT_NONE;
+
+        m_StowULoc = 0.0;
+        m_StowU01 = true;
+        m_StowU0NLoc = 0;
+        m_StowWLoc = 0.0;
+
+        m_StowRLoc = 0.0;
+        m_StowR01 = true;
+        m_StowR0NLoc = 0;
+        m_StowSLoc = 0.5;
+        m_StowTLoc = 0.5;
+
+        m_StowLLoc = 0.0;
+        m_StowL01 = true;
+        m_StowL0LenLoc = 0;
+        m_StowMLoc = 0.5;
+        m_StowNLoc = 0.5;
+
+        m_StowEtaLoc = 0.0;
+
+        // Only for vsp::ATTACH_TRANS_NONE && vsp::ATTACH_ROT_NONE
+        Matrix4d stowAttachMat;
+        stowAttachMat.translatev( GetNominalPivotPoint( 0 ) );
+
+        // Apply normal translations
+        Matrix4d stowMat;
+        vec3d knee_pt, knee_ax;
+        BuildRetractMatrix( stowMat, knee_pt, knee_ax, /* up */ 1.0, 0 );
+
+        double tempMat[16];
+        stowMat.getMat( tempMat );
+
+        m_StowXLoc = tempMat[12];
+        m_StowYLoc = tempMat[13];
+        m_StowZLoc = tempMat[14];
+
+        vec3d angles = stowMat.getAngles();
+        m_StowXRot = angles.x();
+        m_StowYRot = angles.y();
+        m_StowZRot = angles.z();
+
+        // Update Relative Parameters
+        Matrix4d attachedMat = stowAttachMat;
+
+        attachedMat.affineInverse();
+        attachedMat.matMult( stowMat.data() );
+        attachedMat.getMat( tempMat );
+        m_StowXRelLoc = tempMat[12];
+        m_StowYRelLoc = tempMat[13];
+        m_StowZRelLoc = tempMat[14];
+
+        angles = attachedMat.getAngles();
+        m_StowXRelRot = angles.x();
+        m_StowYRelRot = angles.y();
+        m_StowZRelRot = angles.z();
+    }
+}
+
 void Bogie::Update()
 {
     UpdateParms();
@@ -1825,6 +1985,7 @@ void Bogie::Update()
 
     UpdateRetract();
 
+    BackCalculateRetract();
 
     if ( m_TireDirty )
     {
