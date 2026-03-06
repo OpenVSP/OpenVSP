@@ -2322,6 +2322,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "TIRE_CLEARANCE_MODES" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TIRE_CLEARANCE_MODES", "TIRE_NOMINAL_CLEARANCE", TIRE_NOMINAL_CLEARANCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TIRE_CLEARANCE_MODES", "TIRE_GROWTH_CLEARANCE", TIRE_GROWTH_CLEARANCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TIRE_CLEARANCE_MODES", "TIRE_CLEARANCE", TIRE_CLEARANCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TIRE_CLEARANCE_MODES", "NUM_TIRE_CLEARANCE_MODES", NUM_TIRE_CLEARANCE_MODES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "TIRE_CONTACT_MODES" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "TIRE_CONTACT_MODES", "TIRE_STATIC_LODED_CONTACT", TIRE_STATIC_LODED_CONTACT );

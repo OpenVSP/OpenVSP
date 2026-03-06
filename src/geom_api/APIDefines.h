@@ -1477,6 +1477,16 @@ enum TEMP_UNITS { TEMP_UNIT_K = 0,	/*!< Kelvin */
 };
 
 /*!
+\ingroup Enumerations
+*/
+/*! Enum for tire clearance modes. */
+enum TIRE_CLEARANCE_MODES { TIRE_NOMINAL_CLEARANCE,	/*!< Tire nominal shape */
+                            TIRE_GROWTH_CLEARANCE,	/*!< Tire growth (spinning) clearance  */
+                            TIRE_CLEARANCE,	/*!< TRA clearance envelope  */
+                            NUM_TIRE_CLEARANCE_MODES	/*!< Number of tire clearance modes  */
+};
+
+/*!
 	\ingroup Enumerations
 */
 /*! Enum for tire contact radius modes. */
