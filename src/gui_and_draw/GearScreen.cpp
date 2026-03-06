@@ -1328,7 +1328,9 @@ bool GearScreen::Update()
 
             m_PlyRatingSlider.Deactivate();
         }
-        else if ( bogie_ptr->m_TireMode() >= vsp::TIRE_BALLOON )
+        else if ( bogie_ptr->m_TireMode() == vsp::TIRE_BALLOON ||
+                  bogie_ptr->m_TireMode() == vsp::TIRE_BALLOON_WHEEL ||
+                  bogie_ptr->m_TireMode() == vsp::TIRE_BALLOON_FAIR_WHEEL )
         {
             m_WrimToggleGroup.Deactivate();
             m_WrimSlider.Deactivate();

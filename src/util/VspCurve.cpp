@@ -2330,7 +2330,9 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     curve_segment_type c1, c2;
 
 
-    if ( mode >= vsp::TIRE_BALLOON )
+    if ( mode == vsp::TIRE_BALLOON ||
+         mode == vsp::TIRE_BALLOON_WHEEL ||
+         mode == vsp::TIRE_BALLOON_FAIR_WHEEL )
     {
 
 
