@@ -2032,6 +2032,7 @@ void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
 
     m_AxisDO.m_PntVec.clear();
     m_AxisArrowDO.m_PntVec.clear();
+    m_AxisArrowDO.m_NormVec.clear();
     m_AxisCircleDO.m_PntVec.clear();
     m_StrutDO.m_PntVec.clear();
 
@@ -2067,6 +2068,7 @@ void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
     m_AxisArrowDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_AxisArrowDO.m_LineWidth = 1.0;
     m_AxisArrowDO.m_Type = DrawObj::VSP_SHADED_TRIS;
+    m_AxisArrowDO.m_GeomChanged = true;
 
     for ( int i = 0; i < 4; i++ )
     {
