@@ -197,12 +197,18 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_SingleBogie1TireModeChoice.AddItem( "Flat", vsp::TIRE_FLAT_CONTACT );
     m_SingleBogie1TireModeChoice.UpdateItems();
 
+    m_SingleBogie1ClearanceModeChoice.AddItem( "Nominal", vsp::TIRE_NOMINAL_CLEARANCE );
+    m_SingleBogie1ClearanceModeChoice.AddItem( "Grown", vsp::TIRE_GROWTH_CLEARANCE );
+    m_SingleBogie1ClearanceModeChoice.AddItem( "Clearance", vsp::TIRE_CLEARANCE );
+    m_SingleBogie1ClearanceModeChoice.UpdateItems();
+
     m_SingleGearLayout.AddChoice( m_SingleBogie1Choice, "Bogie" );
     m_SingleGearLayout.AddChoice( m_SingleBogie1GearModeChoice, "Gear Mode" );
     m_SingleGearLayout.AddSlider( m_SingleKRetractSlider, "Retract", 10, "%5.4f" );
     m_SingleGearLayout.AddChoice( m_SingleBogie1SymmChoice, "I Symm" );
     m_SingleGearLayout.AddChoice( m_SingleBogie1SuspensionModeChoice, "Suspension Mode" );
     m_SingleGearLayout.AddChoice( m_SingleBogie1TireModeChoice, "Tire Mode" );
+    m_SingleGearLayout.AddChoice( m_SingleBogie1ClearanceModeChoice, "Clearance Mode" );
 
 
 
@@ -1005,6 +1011,7 @@ bool AuxiliaryGeomScreen::Update()
             m_SingleBogie1SymmChoice.Update( auxiliary_ptr->m_ContactPt1_Isymm.GetID() );
             m_SingleBogie1SuspensionModeChoice.Update( auxiliary_ptr->m_ContactPt1_SuspensionMode.GetID() );
             m_SingleBogie1TireModeChoice.Update( auxiliary_ptr->m_ContactPt1_TireMode.GetID() );
+            m_SingleBogie1ClearanceModeChoice.Update( auxiliary_ptr->m_ContactPt1_ClearanceMode.GetID() );
             m_SingleBogie1GearModeChoice.Update( auxiliary_ptr->m_ContactPt1_GearMode.GetID() );
             m_SingleKRetractSlider.Update( auxiliary_ptr->m_ContactPt1_KRetract.GetID() );
         }

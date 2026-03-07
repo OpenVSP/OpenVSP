@@ -126,6 +126,7 @@ protected:
     Choice m_SingleBogie1SymmChoice;
     Choice m_SingleBogie1SuspensionModeChoice;
     Choice m_SingleBogie1TireModeChoice;
+    Choice m_SingleBogie1ClearanceModeChoice;
     Choice m_SingleBogie1GearModeChoice;
     SliderAdjRangeInput m_SingleKRetractSlider;
 
