@@ -2,6 +2,16 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.24)
 
 PROJECT (VSP)
 
+# Standard install paths (GNUInstallDirs provides CMAKE_INSTALL_DATADIR etc.)
+IF(UNIX)
+    INCLUDE(GNUInstallDirs)
+ELSE()
+    # Windows fallback - CPack handles this case
+    SET(CMAKE_INSTALL_DATADIR "share")
+    SET(CMAKE_INSTALL_BINDIR "bin")
+    SET(CMAKE_INSTALL_LIBDIR "lib")
+ENDIF()
+
 # Use this to see the command that CMake is using to build code
 #SET(CMAKE_VERBOSE_MAKEFILE   ON  CACHE BOOL "" FORCE)
 
