@@ -733,6 +733,7 @@ void Vehicle::Wype()
     m_GeomTypeVec.clear();
 
     m_BBox = BndBox();
+    m_ScaleIndependentBBox = BndBox();
 
     m_ExportFileNames.clear();
 
