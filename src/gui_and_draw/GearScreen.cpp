@@ -494,6 +494,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_StowLayout.AddDividerBox( "Attach To Parent" );
 
     m_StowGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+    m_StowGeomPicker.SetIncludeNone( true );
     m_StowLayout.AddGeomPicker( m_StowGeomPicker );
 
     m_StowLayout.AddChoice( m_StowSurfChoice, "Surface" );
@@ -695,6 +696,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_MechanismLayout.AddDividerBox( "Attach To Parent" );
 
     m_MechGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+    m_MechGeomPicker.SetIncludeNone( true );
     m_MechanismLayout.AddGeomPicker( m_MechGeomPicker );
 
     m_MechanismLayout.AddChoice( m_MechSurfChoice, "Surface" );
