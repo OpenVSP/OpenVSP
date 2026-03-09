@@ -19,7 +19,7 @@ create a 3D model of an aircraft defined by common engineering parameters.
 This model can be processed into formats suitable for engineering analysis.
 
 %prep
-%autosetup -n OpenVSP-OpenVSP_%{version}
+%autosetup -n OpenVSP-fedora-3.47.0
 
 %build
 # build third-party libraries
@@ -39,7 +39,7 @@ export CXX=g++-14
     -DVSP_USE_SYSTEM_CPPTEST=false \
     -DCMAKE_C_COMPILER=gcc-14 \
     -DCMAKE_CXX_COMPILER=g++-14 \
-    -S %{_builddir}/OpenVSP-OpenVSP_%{version}/Libraries \
+    -S %{_builddir}/OpenVSP-fedora-3.47.0/Libraries \
     -B .
 %make_build
 popd
@@ -48,14 +48,14 @@ popd
 %cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=OFF \
-    -DVSP_LIBRARY_PATH=%{_builddir}/OpenVSP-OpenVSP_%{version}/buildlibs \
-    -S %{_builddir}/OpenVSP-OpenVSP_%{version}/src
+    -DVSP_LIBRARY_PATH=%{_builddir}/OpenVSP-fedora-3.47.0/buildlibs \
+    -S %{_builddir}/OpenVSP-fedora-3.47.0/src
 %cmake_build
 
 %install
 %cmake_install
-install -Dm 644 %{_builddir}/OpenVSP-OpenVSP_%{version}/pkg/rpm/openvsp.desktop %{buildroot}%{_datadir}/applications/openvsp.desktop
-install -Dm 644 %{_builddir}/OpenVSP-OpenVSP_%{version}/vspIcon.png %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/openvsp.png
+install -Dm 644 %{_builddir}/OpenVSP-fedora-3.47.0/pkg/rpm/openvsp.desktop %{buildroot}%{_datadir}/applications/openvsp.desktop
+install -Dm 644 %{_builddir}/OpenVSP-fedora-3.47.0/vspIcon.png %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/openvsp.png
 # Remove git placeholder files
 find %{buildroot} -name ".keep" -delete
 chmod 755 %{buildroot}%{_prefix}/python/openvsp/conda-recipe/build.sh
