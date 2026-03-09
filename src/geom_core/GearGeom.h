@@ -241,6 +241,12 @@ public:
     SimpleTess m_GrownTireTess;
     SimpleFeatureTess m_GrownTireFeatureTess;
 
+    VspCurve m_ClearanceProfile;
+    VspSurf m_ClearanceSurface;
+
+    SimpleTess m_ClearanceTess;
+    SimpleFeatureTess m_ClearanceFeatureTess;
+
     bool m_TireDirty;
     bool m_TireTessDirty;
 
@@ -324,6 +330,7 @@ public:
     Parm m_WrimModel;
 
     Parm m_PlyRating;
+    Parm m_SpeedRating;
 
     IntParm m_WsMode;
     Parm m_WsFrac;

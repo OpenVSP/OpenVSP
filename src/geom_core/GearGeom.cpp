@@ -107,6 +107,9 @@ Bogie::Bogie()
     m_PlyRating.Init( "PlyRating", "Tire", this, 20.0, 5.0, 100 );
     m_PlyRating.SetDescript( "Tire ply rating" );
 
+    m_SpeedRating.Init( "SpeedRating", "Tire", this, 160.0, 0.0, 1000.0 );
+    m_SpeedRating.SetDescript( "Speed Rating for tire (MPH)" );
+
     m_WsMode.Init( "WsMode", "Tire", this, vsp::TIRE_DIM_FRAC, vsp::TIRE_DIM_IN, vsp::NUM_TIRE_DIM_MODES - 1 );
     m_WsMode.SetDescript( "Mode to control shoulder width specification" );
     m_WsFrac.Init( "WsFrac", "Tire", this, 0.88, 0.0, 1.0 );
@@ -611,10 +614,6 @@ void Bogie::UpdateTireCurve()
     double Ds = 2 * m_HsModel() + Drim;
 
 
-    double Cr = 0;
-    double Cw = 0;
-    double Cside = 0.25;
-
     m_TireProfile.CreateTire( Do, W, Ds, Ws, Drim, Wrim, Hflange, m_TireMode() );
 
     if ( m_TireMode() == vsp::TIRE_TRA ||
@@ -627,10 +626,33 @@ void Bogie::UpdateTireCurve()
         double DSG = m_DsGModel();
 
         m_GrownTireProfile.CreateTire( DG, WG, DSG, WSG, Drim, Wrim, Hflange, m_TireMode() );
+
+        double Hg = 0.5 * ( DG - Drim );
+
+        // Flange radius
+        double Rflange = 0.5 * Hflange;
+        // Flange width
+        double Bmin = 1.3 * Rflange;
+
+        double WGin = WG / in2model;
+
+        double SPDmph = m_SpeedRating();
+
+        // Bias ply clearance alowance.  Calculations in inches.
+        double Crin = 0.001 * ( 17.02 + 2.61 * pow( SPDmph * .01, 3.348 ) ) * WGin + 0.4;
+        double Cwin = 0.019 * WGin + 0.23;
+        double Wmarginin = 0.25;
+
+        double Cr = Crin * in2model;
+        double Cw = Cwin * in2model;
+        double Wmargin = Wmarginin * in2model;
+        double Sx = ( Cw + Cr ) * 0.5;
+        m_ClearanceProfile.CreateTRAClearance( WG, DG, WSG, DSG, Hg, Drim, Wrim, Bmin, Hflange, Cw, Cr, Sx, Wmargin );
     }
     else
     {
         m_GrownTireProfile = m_TireProfile;
+        m_ClearanceProfile = m_TireProfile;
     }
 }
 
@@ -2024,10 +2046,18 @@ void Bogie::Update()
             m_GrownTireSurface.FlipNormal();
 
             m_GrownTireSurface.BuildFeatureLines( false );
+
+            m_ClearanceSurface.CreateBodyRevolution( m_ClearanceProfile, true, 1 );
+            m_ClearanceSurface.SetMagicVParm( false );
+            m_ClearanceSurface.SetHalfBOR( true );
+            m_ClearanceSurface.FlipNormal();
+
+            m_ClearanceSurface.BuildFeatureLines( false );
         }
         else
         {
             m_GrownTireSurface = m_TireSurface;
+            m_ClearanceSurface = m_TireSurface;
         }
     }
 
@@ -2058,11 +2088,15 @@ void Bogie::UpdateTess()
                 {
                     m_GrownTireSurface.CopyNonSurfaceData( m_TireSurface );
                     gg->UpdateTess( m_GrownTireSurface, false, false, m_GrownTireTess, m_GrownTireFeatureTess );
+                    m_ClearanceSurface.CopyNonSurfaceData( m_TireSurface );
+                    gg->UpdateTess( m_ClearanceSurface, false, false, m_ClearanceTess, m_ClearanceFeatureTess );
                 }
                 else
                 {
                     m_GrownTireTess = m_TireTess;
                     m_GrownTireFeatureTess = m_TireFeatureTess;
+                    m_ClearanceTess = m_TireTess;
+                    m_ClearanceFeatureTess = m_TireFeatureTess;
                 }
             }
         }
