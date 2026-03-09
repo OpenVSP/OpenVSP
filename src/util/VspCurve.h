@@ -201,6 +201,7 @@ public:
     void ToCubic( double tol = 0.1 );
 
     void CreateTire( double Do, double W, double Ds, double Ws, double Drim, double Wrim, double Hflange, int mode );
+    void CreateTRAClearance( double Wg, double Dg, double Wsg, double Dsg, double Hg, double D, double A, double Bmin, double Fh, double Cw, double Cr, double Sx, double Wmargin );
 
     void CreateAC25773( int side );
 

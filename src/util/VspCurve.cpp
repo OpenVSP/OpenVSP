@@ -15,6 +15,8 @@
 #include <cfloat>
 #include <limits>
 
+#include "VspUtil.h"
+
 #include "VspCurve.h"
 #include "APIDefines.h"
 #include "StlHelper.h"
@@ -2594,6 +2596,219 @@ void VspCurve::CreateTire( double Do, double W, double Ds, double Ws, double Dri
     // First quadrant has been created.  Now, copy, reflect, and merge to complete curve.
 
     // m_Curve.reflect_xy();
+    piecewise_curve_type pc1 = m_Curve;
+    pc1.reflect_xz();
+    pc1.reverse();
+    m_Curve.push_back( pc1 );
+}
+
+void VspCurve::CreateTRAClearance( double Wg, double Dg, double Wsg, double Dsg, double Hg, double D, double A, double Bmin, double Fh, double Cw, double Cr, double Sx, double Wmargin )
+{
+    double beta = 0.5 * M_PI;
+    double k = eli::constants::math < double >::cubic_bezier_circle_const() * tan( beta * 0.25 );
+
+    m_Curve.clear();
+    m_Curve.set_t0( 0.0 );
+
+    double dt = 1.0;
+    curve_segment_type clin, carc;
+    curve_point_type pt;
+
+    clin.resize( 1 ); // Linear
+    carc.resize( 3 ); // Cubic
+
+    double t;
+    oned_curve_segment_type c1d;
+    oned_curve_point_type x1d;
+    curve_segment_type c1, c2;
+
+    // ---- R1 ----
+    double R1 = Wg / 2.0 + Cw;
+
+    // ---- C1 ----
+    double C1y = Dg / 2.0 + Cr - ( Wg / 2.0 + Cw );
+
+    double C1x =
+            Wsg / 2.0 - std::sqrt(
+                SQ( Wg/2.0 + Cw - Sx ) -
+                SQ( Dsg/2.0 - C1y )
+            );
+
+    // ---- P1 ----
+    double P1x = C1x;
+    double P1y = Dg / 2.0 + Cr;
+
+    double P1ax = C1x + R1;
+    double P1ay = C1y;
+
+    // ---- ANG1 ----
+    double ANG1 =
+            std::atan( ( Dsg / 2.0 - C1y ) /
+                       ( Wsg / 2.0 - C1x ) );
+
+    // ---- C2 ----
+    double C2x = Wsg / 2.0;
+    double C2y = Dsg / 2.0;
+
+    // ---- C3 ----
+    double C3y = D / 2.0 + Hg / 2.0;
+
+    double C3x =
+            ( SQ( Wg/2.0 + Cw - Sx )
+              - SQ( Dsg/2.0 - C3y )
+              - SQ( Wsg/2.0 ) )
+            /
+            ( 2.0 * ( Wg / 2.0 + Cw - Sx ) - Wsg );
+
+    // ---- P2 ----
+    double P2x = C1x + R1 * std::cos( ANG1 );
+    double P2y = C1y + R1 * std::sin( ANG1 );
+
+    // ---- R2 ----
+    double R2 = Wg / 2.0 + Cw - C3x;
+
+    // ---- ANG2 ----
+    double ANG2 =
+            std::atan( ( Dsg / 2.0 - C3y ) /
+                       ( Wsg / 2.0 - C3x ) );
+
+    // ---- P3 ----
+    double P3x = C3x + R2 * std::cos( ANG2 );
+    double P3y = C3y + R2 * std::sin( ANG2 );
+
+    // ---- R3 ----
+    double term =
+            ( Wg / 2.0 ) + Cw - ( A / 2.0 ) - Bmin - Wmargin;
+
+    double R3 =
+            ( 4.0 * SQ( term ) +
+              SQ( Hg - 2.0*Fh ) )
+            /
+            ( 8.0 * term );
+
+    // ---- C4 ----
+    double C4x = Wg / 2.0 + Cw - R3;
+    double C4y = D / 2.0 + Hg / 2.0;
+
+    // ---- P4 ----
+    double P4x = Wg / 2.0 + Cw;
+    double P4y = D / 2.0 + Hg / 2.0;
+
+    double P4ax = C4x;
+    double P4ay = C4y - R3;;
+
+    double P4bx = C3x;
+    double P4by = C3y + R2;
+
+    // ---- P5 ----
+    double P5x = A / 2.0 + Bmin + Wmargin;
+    double P5y = D / 2.0 + Fh;
+
+
+    // Centerline to P5
+    pt << 0, P5x, 0;
+    clin.set_control_point( pt, 0 );
+    pt << 0, P5x, P5y;
+    clin.set_control_point( pt, 1 );
+    m_Curve.push_back( clin, dt );
+
+    // P5 to P4
+    pt << 0, P4ax, P4ay;
+    carc.set_control_point( pt, 0 );
+    pt << 0, P4ax + k * R3, P4ay;
+    carc.set_control_point( pt, 1 );
+    pt << 0, P4x, P4y - k * R3;
+    carc.set_control_point( pt, 2 );
+    pt << 0, P4x, P4y;
+    carc.set_control_point( pt, 3 );
+
+    x1d << -P5x;
+    c1d = carc.singledimensioncurve( 1 );
+    c1d.translate( x1d );
+    eli::geom::intersect::find_zero( t, c1d, 0.5 );
+
+    carc.split( c1, c2, t );
+
+    pt << 0, P5x, P5y;
+    c2.set_control_point( pt, 0 );
+    m_Curve.push_back( c2, dt );
+
+    // pt << 0, P5x, P5y;
+    // clin.set_control_point( pt, 0 );
+    // pt << 0, P4x, P4y;
+    // clin.set_control_point( pt, 1 );
+    // m_Curve.push_back( clin, dt );
+
+    // P4 to P3
+    pt << 0, P4x, P4y;
+    carc.set_control_point( pt, 0 );
+    pt << 0, P4x, P4y + k * R2;
+    carc.set_control_point( pt, 1 );
+    pt << 0, P4bx + k * R2, P4by;
+    carc.set_control_point( pt, 2 );
+    pt << 0, P4bx, P4by;
+    carc.set_control_point( pt, 3 );
+
+    x1d << -P3x;
+    c1d = carc.singledimensioncurve( 1 );
+    c1d.translate( x1d );
+    eli::geom::intersect::find_zero( t, c1d, 0.5 );
+
+    carc.split( c1, c2, t );
+
+    pt << 0, P3x, P3y;
+    c1.set_control_point( pt, 3 );
+    m_Curve.push_back( c1, dt );
+
+    // pt << 0, P4x, P4y;
+    // clin.set_control_point( pt, 0 );
+    // pt << 0, P3x, P3y;
+    // clin.set_control_point( pt, 1 );
+    // m_Curve.push_back( clin, dt );
+
+    // P3 to P2
+    pt << 0, P3x, P3y;
+    clin.set_control_point( pt, 0 );
+    pt << 0, P2x, P2y;
+    clin.set_control_point( pt, 1 );
+    m_Curve.push_back( clin, dt );
+
+    // P2 to P1
+    pt << 0, P1ax, P1ay;
+    carc.set_control_point( pt, 0 );
+    pt << 0, P1ax, P1ay + k * R1;
+    carc.set_control_point( pt, 1 );
+    pt << 0, P1x + k * R1, P1y;
+    carc.set_control_point( pt, 2 );
+    pt << 0, P1x, P1y;
+    carc.set_control_point( pt, 3 );
+
+    x1d << -P2x;
+    c1d = carc.singledimensioncurve( 1 );
+    c1d.translate( x1d );
+    eli::geom::intersect::find_zero( t, c1d, 0.5 );
+
+    carc.split( c1, c2, t );
+
+    pt << 0, P2x, P2y;
+    c2.set_control_point( pt, 0 );
+    m_Curve.push_back( c2, dt );
+
+    // pt << 0, P2x, P2y;
+    // clin.set_control_point( pt, 0 );
+    // pt << 0, P1x, P1y;
+    // clin.set_control_point( pt, 1 );
+    // m_Curve.push_back( clin, dt );
+
+    // P1 to C1
+    pt << 0, P1x, P1y;
+    clin.set_control_point( pt, 0 );
+    pt << 0, 0, P1y;
+    clin.set_control_point( pt, 1 );
+    m_Curve.push_back( clin, dt );
+
+    // First quadrant has been created.  Now, copy, reflect, and merge to complete curve.
+
     piecewise_curve_type pc1 = m_Curve;
     pc1.reflect_xz();
     pc1.reverse();
