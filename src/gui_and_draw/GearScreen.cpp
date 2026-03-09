@@ -50,13 +50,16 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
 
     m_DesignLayout.AddButton( m_IncludeNominalGroundPlaneToggle, "Include Nominal Ground Plane" );
 
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddDividerBox( "Gear Configuration" );
+
     m_GearConfigurationChoice.AddItem( "Down", vsp::GEAR_CONFIGURATION_DOWN );
     m_GearConfigurationChoice.AddItem( "Up", vsp::GEAR_CONFIGURATION_UP );
     m_GearConfigurationChoice.AddItem( "Up and Down", vsp::GEAR_CONFIGURATION_UP_AND_DOWN );
     m_GearConfigurationChoice.AddItem( "Intermediate", vsp::GEAR_CONFIGURATION_INTERMEDIATE );
     m_GearConfigurationChoice.AddItem( "All", vsp::GEAR_CONFIGURATION_ALL );
 
-    m_DesignLayout.AddChoice( m_GearConfigurationChoice, "Gear Configuration" );
+    m_DesignLayout.AddChoice( m_GearConfigurationChoice, "Draw Gear" );
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Model Units" );
@@ -250,6 +253,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
 
     m_TireLayout.ForceNewLine();
     m_TireLayout.SetInputWidth( iw2 );
+    m_TireLayout.SetButtonWidth( m_TireLayout.GetChoiceButtonWidth() );
 
     m_TireLayout.SetSameLineFlag( false );
     m_TireLayout.AddSlider( m_PlyRatingSlider, "Ply Rating", 10, "%6.5f" );
@@ -504,15 +508,15 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_StowAttachLayout.AddYGap();
     m_StowAttachLayout.AddSubGroupLayout( m_StowAttachLayoutRotHeader, buttonw + labelw, m_StowAttachLayout.GetStdHeight() );
 
-    m_StowAttachLayoutTransHeader.SetButtonWidth( buttonw );
+    m_StowAttachLayoutTransHeader.SetButtonWidth( buttonw + 10 );
     m_StowAttachLayoutTransHeader.SetFitWidthFlag( false );
     m_StowAttachLayoutTransHeader.SetSameLineFlag( true );
 
-    m_StowAttachLayoutRotHeader.SetButtonWidth( buttonw );
+    m_StowAttachLayoutRotHeader.SetButtonWidth( buttonw + 10 );
     m_StowAttachLayoutRotHeader.SetFitWidthFlag( false );
     m_StowAttachLayoutRotHeader.SetSameLineFlag( true );
 
-    m_StowAttachLayoutSelections.SetButtonWidth( buttonw );
+    m_StowAttachLayoutSelections.SetButtonWidth( buttonw - 2 );
     m_StowAttachLayoutSelections.SetFitWidthFlag( false );
     m_StowAttachLayoutSelections.SetSameLineFlag( true );
 
@@ -526,7 +530,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_StowAttachLayoutTransHeader.AddLabel( "Translate:", labelw );
     m_StowAttachLayoutTransHeader.AddButton( m_StowTransNoneButton, "Contact" );
 
-    m_StowAttachLayoutSelections.AddX( labelw + buttonw );
+    m_StowAttachLayoutSelections.AddX( labelw + buttonw + 10 );
     m_StowAttachLayoutSelections.AddButton( m_StowTransCompButton, "Comp" );
     m_StowAttachLayoutSelections.AddButton( m_StowTransUVButton, "UW" );
     m_StowAttachLayoutSelections.AddButton( m_StowTransRSTButton, "RST" );
@@ -546,7 +550,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_StowAttachLayoutRotHeader.AddLabel( "Rotate:", labelw );
     m_StowAttachLayoutRotHeader.AddButton( m_StowRotNoneButton, "Contact" );
 
-    m_StowAttachLayoutSelections.AddX( labelw + buttonw );
+    m_StowAttachLayoutSelections.AddX( labelw + buttonw + 10 );
     m_StowAttachLayoutSelections.AddButton( m_StowRotCompButton, "Comp" );
     m_StowAttachLayoutSelections.AddButton( m_StowRotUVButton, "UW" );
     m_StowAttachLayoutSelections.AddButton( m_StowRotRSTButton, "RST" );
@@ -707,11 +711,11 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
 
     m_MechanismLayout.AddY( m_MechAttachLayout.GetH() );
 
-    m_MechAttachLayoutTransHeader.SetButtonWidth( buttonw );
+    m_MechAttachLayoutTransHeader.SetButtonWidth( buttonw + 10 );
     m_MechAttachLayoutTransHeader.SetFitWidthFlag( false );
     m_MechAttachLayoutTransHeader.SetSameLineFlag( true );
 
-    m_MechAttachLayoutSelections.SetButtonWidth( buttonw );
+    m_MechAttachLayoutSelections.SetButtonWidth( buttonw - 2);
     m_MechAttachLayoutSelections.SetFitWidthFlag( false );
     m_MechAttachLayoutSelections.SetSameLineFlag( true );
 
@@ -724,7 +728,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_MechAttachLayoutTransHeader.AddLabel( "Translate:", labelw );
     m_MechAttachLayoutTransHeader.AddButton( m_MechTransNoneButton, "Contact" );
 
-    m_MechAttachLayoutSelections.AddX( labelw + buttonw );
+    m_MechAttachLayoutSelections.AddX( labelw + buttonw + 10 );
     m_MechAttachLayoutSelections.AddButton( m_MechTransCompButton, "Comp" );
     m_MechAttachLayoutSelections.AddButton( m_MechTransUVButton, "UW" );
     m_MechAttachLayoutSelections.AddButton( m_MechTransRSTButton, "RST" );
