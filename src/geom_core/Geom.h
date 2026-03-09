@@ -260,6 +260,7 @@ public:
     bool m_SurfDirty;
     bool m_UpdateSurf;
     bool m_TessDirty;
+    bool m_UpdateTess;
     bool m_HighlightDirty;
     bool m_FeaDirty;
     bool m_GlobalScaleDirty;

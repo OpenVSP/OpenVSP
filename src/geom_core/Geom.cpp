@@ -122,6 +122,7 @@ GeomBase::GeomBase( Vehicle* vehicle_ptr )
 
     m_UpdateXForm = false;
     m_UpdateSurf = false;
+    m_UpdateTess = false;
 }
 
 //==== Destructor ====//
@@ -1915,6 +1916,9 @@ void Geom::Update( bool fullupdate )
         m_UpdateSurf = true;
     m_SurfDirty = false;
 
+    m_UpdateTess = false;
+    if ( m_TessDirty )
+        m_UpdateTess = true;
     m_TessDirty = false;
 
     m_HighlightDirty = false;
@@ -2313,6 +2317,19 @@ void Geom::UpdateChildren( bool fullupdate )
                 if ( m_UpdateSurf || m_UpdateXForm )
                 {
                     child->m_SurfDirty = true;
+                }
+            }
+
+            // If the child is an Auxiliary
+            // Landing gear type Aux geoms get their tessellation from their parent.  This is a significant
+            // speedup, but it means the Aux geom's own tessellation parameters are not used.  Also, this
+            // code is needed to trigger their update.  Unfortunately, this causes an update for all Aux geom
+            // types, but the complication of being more selective is not worthwhile.
+            if ( child->GetType().m_Type == AUXILIARY_GEOM_TYPE )
+            {
+                if ( m_UpdateTess )
+                {
+                    child->m_TessDirty = true;
                 }
             }
 
