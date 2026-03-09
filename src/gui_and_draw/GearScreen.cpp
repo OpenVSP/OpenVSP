@@ -253,6 +253,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
 
     m_TireLayout.SetSameLineFlag( false );
     m_TireLayout.AddSlider( m_PlyRatingSlider, "Ply Rating", 10, "%6.5f" );
+    m_TireLayout.AddSlider( m_SpeedRatingSlider, "Speed Rating", 10, "%6.5f" );
 
     m_TireModeChoice.AddItem( "Full TRA", vsp::TIRE_TRA );
     m_TireModeChoice.AddItem( "TRA w/ Faired Flange", vsp::TIRE_FAIR_FLANGE );
@@ -999,12 +1000,12 @@ bool GearScreen::Update()
         m_TireWidthToggleGroup.Activate();
         m_TireWidthSlider.Activate();
         m_TireModeChoice.Activate();
-        m_PlyRatingSlider.Activate();
         m_DrimToggleGroup.Activate();
         m_DrimSlider.Activate();
         m_WrimToggleGroup.Activate();
         m_WrimSlider.Activate();
         m_PlyRatingSlider.Activate();
+        m_SpeedRatingSlider.Activate();
         m_HsToggleGroup.Activate();
         m_HsSlider.Activate();
         m_WsToggleGroup.Activate();
@@ -1254,6 +1255,7 @@ bool GearScreen::Update()
         }
 
         m_PlyRatingSlider.Update( bogie_ptr->m_PlyRating.GetID() );
+        m_SpeedRatingSlider.Update( bogie_ptr->m_SpeedRating.GetID() );
 
         m_HsToggleGroup.Update( bogie_ptr->m_HsMode.GetID() );
         if ( bogie_ptr->m_HsMode() == vsp::TIRE_DIM_IN )
@@ -1336,6 +1338,7 @@ bool GearScreen::Update()
             m_WrimSlider.Deactivate();
 
             m_PlyRatingSlider.Deactivate();
+            m_SpeedRatingSlider.Deactivate();
             m_HsToggleGroup.Deactivate();
             m_HsSlider.Deactivate();
             m_WsToggleGroup.Deactivate();
@@ -1823,6 +1826,7 @@ bool GearScreen::Update()
         m_TireWidthSlider.Deactivate();
         m_TireModeChoice.Deactivate();
         m_PlyRatingSlider.Deactivate();
+        m_SpeedRatingSlider.Deactivate();
         m_DrimToggleGroup.Deactivate();
         m_DrimSlider.Deactivate();
         m_WrimToggleGroup.Deactivate();

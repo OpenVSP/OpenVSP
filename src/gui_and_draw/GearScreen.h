@@ -156,6 +156,7 @@ protected:
     SliderAdjRange3Input m_WrimSlider;
 
     SliderAdjRangeInput m_PlyRatingSlider;
+    SliderAdjRangeInput m_SpeedRatingSlider;
 
     ToggleButton m_HsInToggleButton;
     ToggleButton m_HsModelToggleButton;
