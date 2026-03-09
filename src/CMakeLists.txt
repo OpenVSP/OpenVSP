@@ -2,6 +2,16 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.24)
 
 PROJECT (VSP)
 
+# Standard install paths (GNUInstallDirs provides CMAKE_INSTALL_DATADIR etc.)
+IF(UNIX)
+    INCLUDE(GNUInstallDirs)
+ELSE()
+    # Windows fallback - CPack handles this case
+    SET(CMAKE_INSTALL_DATADIR "share")
+    SET(CMAKE_INSTALL_BINDIR "bin")
+    SET(CMAKE_INSTALL_LIBDIR "lib")
+ENDIF()
+
 # Use this to see the command that CMake is using to build code
 #SET(CMAKE_VERBOSE_MAKEFILE   ON  CACHE BOOL "" FORCE)
 
@@ -329,6 +339,68 @@ ELSEIF ( ${VSP_CPACK_GEN} STREQUAL RPM )
     SET( CPACK_PACKAGING_INSTALL_PREFIX /opt/OpenVSP )
   ENDIF()
   SET( CPACK_STRIP_FILES true )
+ELSEIF ( ${VSP_CPACK_GEN} STREQUAL BUNDLE )
+  IF( NOT APPLE )
+    MESSAGE( FATAL_ERROR "BUNDLE packaging is only supported on macOS" )
+  ENDIF()
+
+  SET( CPACK_GENERATOR Bundle )
+
+  CONFIGURE_FILE( ${VSP_SOURCE_DIR}/cmake/Info.plist.in
+                  ${CMAKE_CURRENT_BINARY_DIR}/Info.plist @ONLY )
+
+  SET( CPACK_BUNDLE_NAME "OpenVSP" )
+  SET( CPACK_BUNDLE_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist )
+  SET( LAUNCHER_SRC ${VSP_SOURCE_DIR}/cmake/OpenVSP-launcher.m )
+  SET( LAUNCHER_BIN ${CMAKE_CURRENT_BINARY_DIR}/OpenVSP-launcher )
+
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${LAUNCHER_BIN}
+    COMMAND /usr/bin/clang -framework Cocoa -fobjc-arc -O2
+            -o ${LAUNCHER_BIN} ${LAUNCHER_SRC}
+    DEPENDS ${LAUNCHER_SRC}
+    COMMENT "Compiling OpenVSP macOS launcher"
+  )
+
+  ADD_CUSTOM_TARGET( openvsp_launcher ALL DEPENDS ${LAUNCHER_BIN} )
+
+  SET( CPACK_BUNDLE_STARTUP_COMMAND ${LAUNCHER_BIN} )
+
+  # Generate .icns from vspIcon.png using sips and iconutil
+  SET( ICON_SRC ${VSP_SOURCE_DIR}/../vspIcon.png )
+  SET( ICONSET_DIR ${CMAKE_CURRENT_BINARY_DIR}/OpenVSP.iconset )
+  SET( ICNS_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/OpenVSP.icns )
+
+  FILE( MAKE_DIRECTORY ${ICONSET_DIR} )
+
+  SET( ICON_SIZES 16 32 128 256 512 )
+  SET( SIPS_COMMANDS )
+  FOREACH( SIZE ${ICON_SIZES} )
+    LIST( APPEND SIPS_COMMANDS
+      COMMAND sips -z ${SIZE} ${SIZE} ${ICON_SRC} --out ${ICONSET_DIR}/icon_${SIZE}x${SIZE}.png )
+  ENDFOREACH()
+  # @2x variants
+  SET( ICON_SIZES_2X 16 32 128 256 )
+  FOREACH( SIZE ${ICON_SIZES_2X} )
+    MATH( EXPR DOUBLE "${SIZE} * 2" )
+    LIST( APPEND SIPS_COMMANDS
+      COMMAND sips -z ${DOUBLE} ${DOUBLE} ${ICON_SRC} --out ${ICONSET_DIR}/icon_${SIZE}x${SIZE}@2x.png )
+  ENDFOREACH()
+  # 512@2x (1024px, upscaled from 400px source)
+  LIST( APPEND SIPS_COMMANDS
+    COMMAND sips -z 1024 1024 ${ICON_SRC} --out ${ICONSET_DIR}/icon_512x512@2x.png )
+
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${ICNS_OUTPUT}
+    ${SIPS_COMMANDS}
+    COMMAND iconutil -c icns ${ICONSET_DIR} -o ${ICNS_OUTPUT}
+    DEPENDS ${ICON_SRC}
+    COMMENT "Generating OpenVSP.icns from vspIcon.png"
+  )
+
+  ADD_CUSTOM_TARGET( openvsp_icns ALL DEPENDS ${ICNS_OUTPUT} )
+
+  SET( CPACK_BUNDLE_ICON ${ICNS_OUTPUT} )
 ENDIF()
 
 IF( APPLE )
@@ -336,18 +408,17 @@ IF( APPLE )
 ENDIF( APPLE )
 
 INCLUDE( CPack )
-
-INSTALL( DIRECTORY ../examples/airfoil/ DESTINATION airfoil )
-INSTALL( DIRECTORY ../examples/CCE/ DESTINATION CCE )
-INSTALL( DIRECTORY ../examples/CustomScripts/ DESTINATION CustomScripts )
-INSTALL( DIRECTORY ../examples/matlab/ DESTINATION matlab )
-INSTALL( DIRECTORY ../examples/scripts/ DESTINATION scripts )
-INSTALL( DIRECTORY ../examples/textures/ DESTINATION textures )
-INSTALL( DIRECTORY ../examples/vspaero_ex/ DESTINATION vspaero_ex )
-INSTALL( FILES ../LICENSE DESTINATION . )
-INSTALL( FILES ../README.md DESTINATION . )
-INSTALL( FILES ../CHANGELOG.md DESTINATION . )
-INSTALL( FILES ../vspIcon.png DESTINATION .)
+INSTALL( DIRECTORY ../examples/airfoil/ DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/airfoil )
+INSTALL( DIRECTORY ../examples/CCE/ DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/CCE )
+INSTALL( DIRECTORY ../examples/CustomScripts/ DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/CustomScripts )
+INSTALL( DIRECTORY ../examples/matlab/ DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/matlab )
+INSTALL( DIRECTORY ../examples/scripts/ DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/scripts )
+INSTALL( DIRECTORY ../examples/textures/ DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/textures )
+INSTALL( DIRECTORY ../examples/vspaero_ex/ DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/vspaero_ex )
+INSTALL( FILES ../LICENSE DESTINATION ${CMAKE_INSTALL_DOCDIR} )
+INSTALL( FILES ../README.md DESTINATION ${CMAKE_INSTALL_DOCDIR} )
+INSTALL( FILES ../CHANGELOG.md DESTINATION ${CMAKE_INSTALL_DOCDIR} )
+INSTALL( FILES ../vspIcon.png DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 # Potentially redundant, but needed if src is used as project root.
 INCLUDE( CTest )
