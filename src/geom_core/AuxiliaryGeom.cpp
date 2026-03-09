@@ -953,6 +953,10 @@ void AuxiliaryGeom::AppendContact1Surfs( GearGeom * gear, double bogietheta )
             {
                 b1->TireToBogie( b1->m_GrownTireSurface, m_MainSurfVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
             }
+            else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
+            {
+                b1->TireToBogie( b1->m_ClearanceSurface, m_MainSurfVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+            }
             else
             {
                 b1->TireToBogie( b1->m_TireSurface, m_MainSurfVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
@@ -1017,6 +1021,11 @@ void AuxiliaryGeom::TessContact1( GearGeom * gear, double bogietheta )
             {
                 b1->TireToBogie( b1->m_GrownTireTess, m_MainTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
                 b1->TireToBogie( b1->m_GrownTireFeatureTess, m_MainFeatureTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+            }
+            else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
+            {
+                b1->TireToBogie( b1->m_ClearanceTess, m_MainTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_ClearanceFeatureTess, m_MainFeatureTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
             }
             else
             {
@@ -1096,6 +1105,11 @@ void AuxiliaryGeom::DegenContact1( GearGeom * gear, double bogietheta )
             {
                 CreateDegenGeom( b1->m_GrownTireSurface, 0, degenGeom, true, 1 );
             }
+            else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
+            {
+                CreateDegenGeom( b1->m_ClearanceSurface, 0, degenGeom, true, 1 );
+            }
+            else
             {
                 CreateDegenGeom( b1->m_TireSurface, 0, degenGeom, true, 1 );
             }
