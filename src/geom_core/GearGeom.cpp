@@ -1913,6 +1913,9 @@ void Bogie::BackCalculateRetract()
         m_MechZAxis = k.z();
 
         double theta = angle( u, uprm );
+
+        if ( theta != 0.0 && theta != M_PI )
+        {
         m_MechRetAngle = theta * 180.0 / M_PI;
 
         vec3d c = 0.5 * ( aprm + a );
@@ -1942,6 +1945,33 @@ void Bogie::BackCalculateRetract()
         m_MechXRelLoc = tempMat[12];
         m_MechYRelLoc = tempMat[13];
         m_MechZRelLoc = tempMat[14];
+        }
+        else
+        {
+            m_MechYAxis = 1.0;
+
+            m_MechRetAngle = theta * 180.0 / M_PI;
+
+            m_MechXRelLoc = 0.0;
+            m_MechYRelLoc = 0.0;
+            m_MechZRelLoc = 0.0;
+
+            // Apply normal translations
+            Matrix4d mechAttachMat;
+            mechAttachMat.translatef( m_MechXRelLoc(), m_MechYRelLoc(), m_MechZRelLoc() );
+
+            // Apply Attached Matrix to Relative Matrix
+            Matrix4d attachedMat;
+            attachedMat.translatev( GetNominalPivotPoint( 0 ) );
+            mechAttachMat.postMult( attachedMat.data() );
+
+            // Update Absolute Parameters
+            double tempMat[16];
+            mechAttachMat.getMat( tempMat );
+            m_MechXLoc = tempMat[12];
+            m_MechYLoc = tempMat[13];
+            m_MechZLoc = tempMat[14];
+        }
     }
     else // vsp::GEAR_MECHANISM
     {
