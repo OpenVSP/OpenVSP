@@ -3881,7 +3881,7 @@ void GeomPicker::Update( )
             if ( g )
             {
                 char str[256];
-                snprintf( str, sizeof( str ), "%d_%s", i, g->GetName().c_str() );
+                snprintf( str, sizeof( str ), "%d_%s", add_count, g->GetName().c_str() );
                 m_GeomChoice->add( dummymenuentry.c_str(), 0, 0, 0, 0 );
                 m_GeomChoice->replace( add_count, str );
                 add_count++;
