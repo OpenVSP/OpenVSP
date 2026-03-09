@@ -1334,6 +1334,16 @@ public:
         }
     };
 
+    void SetIncludeNone( bool flag )
+    {
+        m_IncludeNone = flag;
+    }
+
+    bool GetIncludeNone()
+    {
+        return m_IncludeNone;
+    }
+
 protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr )      {}
@@ -1349,6 +1359,7 @@ protected:
     vector < int > m_ExcludeTypes;
     vector < int > m_IncludeTypes;
 
+    bool m_IncludeNone;
 };
 
 // Base class for curve editing canvas

@@ -3796,6 +3796,7 @@ GeomPicker::GeomPicker()
 {
     m_Screen = nullptr;
     m_Vehicle = VehicleMgr.GetVehicle();
+    m_IncludeNone = false;
 }
 
 void GeomPicker::Init( VspScreen* screen, Fl_Choice* geom_choice )
@@ -3871,6 +3872,14 @@ void GeomPicker::Update( )
     m_GeomVec.clear();
     m_GeomChoice->clear();
     int add_count = 0;
+
+    if ( m_IncludeNone )
+    {
+        m_GeomVec.push_back( "" );
+        m_GeomChoice->add( "NONE" );
+        add_count++;
+    }
+
     for ( int i = 0 ; i < ( int )allGeomVec.size() ; i++ )
     {
         if ( ValidGeom( allGeomVec[i] ) )
