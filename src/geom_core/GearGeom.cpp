@@ -1916,35 +1916,35 @@ void Bogie::BackCalculateRetract()
 
         if ( theta != 0.0 && theta != M_PI )
         {
-        m_MechRetAngle = theta * 180.0 / M_PI;
+            m_MechRetAngle = theta * 180.0 / M_PI;
 
-        vec3d c = 0.5 * ( aprm + a );
+            vec3d c = 0.5 * ( aprm + a );
 
-        vec3d n = aprm - a;
+            vec3d n = aprm - a;
 
-        vec3d p = c + ( 1.0 / ( 2.0 * tan( theta * 0.5 ) ) ) * cross( k, n );
+            vec3d p = c + ( 1.0 / ( 2.0 * tan( theta * 0.5 ) ) ) * cross( k, n );
 
-        m_MechXLoc = p.x();
-        m_MechYLoc = p.y();
-        m_MechZLoc = p.z();
+            m_MechXLoc = p.x();
+            m_MechYLoc = p.y();
+            m_MechZLoc = p.z();
 
-        // Only for vsp::ATTACH_TRANS_NONE && vsp::ATTACH_ROT_NONE
-        Matrix4d mechAttachMat;
-        mechAttachMat.translatev( GetNominalPivotPoint( 0 ) );
+            // Only for vsp::ATTACH_TRANS_NONE && vsp::ATTACH_ROT_NONE
+            Matrix4d mechAttachMat;
+            mechAttachMat.translatev( GetNominalPivotPoint( 0 ) );
 
-        Matrix4d mechMat;
-        mechMat.translatev( p );
+            Matrix4d mechMat;
+            mechMat.translatev( p );
 
-        // Update Relative Parameters
-        Matrix4d attachedMat = mechAttachMat;
+            // Update Relative Parameters
+            Matrix4d attachedMat = mechAttachMat;
 
-        attachedMat.affineInverse();
-        attachedMat.matMult( mechMat.data() );
-        double tempMat[16];
-        attachedMat.getMat( tempMat );
-        m_MechXRelLoc = tempMat[12];
-        m_MechYRelLoc = tempMat[13];
-        m_MechZRelLoc = tempMat[14];
+            attachedMat.affineInverse();
+            attachedMat.matMult( mechMat.data() );
+            double tempMat[16];
+            attachedMat.getMat( tempMat );
+            m_MechXRelLoc = tempMat[12];
+            m_MechYRelLoc = tempMat[13];
+            m_MechZRelLoc = tempMat[14];
         }
         else
         {
