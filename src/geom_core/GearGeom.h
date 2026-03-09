@@ -235,6 +235,12 @@ public:
     SimpleTess m_TireTess;
     SimpleFeatureTess m_TireFeatureTess;
 
+    VspCurve m_GrownTireProfile;
+    VspSurf m_GrownTireSurface;
+
+    SimpleTess m_GrownTireTess;
+    SimpleFeatureTess m_GrownTireFeatureTess;
+
     bool m_TireDirty;
     bool m_TireTessDirty;
 

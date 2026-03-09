@@ -616,6 +616,22 @@ void Bogie::UpdateTireCurve()
     double Cside = 0.25;
 
     m_TireProfile.CreateTire( Do, W, Ds, Ws, Drim, Wrim, Hflange, m_TireMode() );
+
+    if ( m_TireMode() == vsp::TIRE_TRA ||
+         m_TireMode() == vsp::TIRE_FAIR_FLANGE ||
+         m_TireMode() == vsp::TIRE_FAIR_WHEEL )
+    {
+        double WG = m_WGModel();
+        double DG = m_DGModel();
+        double WSG = m_WsGModel();
+        double DSG = m_DsGModel();
+
+        m_GrownTireProfile.CreateTire( DG, WG, DSG, WSG, Drim, Wrim, Hflange, m_TireMode() );
+    }
+    else
+    {
+        m_GrownTireProfile = m_TireProfile;
+    }
 }
 
 void Bogie::UpdateStowAttachParms()
@@ -1997,6 +2013,22 @@ void Bogie::Update()
         m_TireSurface.FlipNormal();
 
         m_TireSurface.BuildFeatureLines( false );
+
+        if ( m_TireMode() == vsp::TIRE_TRA ||
+             m_TireMode() == vsp::TIRE_FAIR_FLANGE ||
+             m_TireMode() == vsp::TIRE_FAIR_WHEEL )
+        {
+            m_GrownTireSurface.CreateBodyRevolution( m_GrownTireProfile, true, 1 );
+            m_GrownTireSurface.SetMagicVParm( false );
+            m_GrownTireSurface.SetHalfBOR( true );
+            m_GrownTireSurface.FlipNormal();
+
+            m_GrownTireSurface.BuildFeatureLines( false );
+        }
+        else
+        {
+            m_GrownTireSurface = m_TireSurface;
+        }
     }
 
     m_TireDirty = false;
@@ -2019,6 +2051,19 @@ void Bogie::UpdateTess()
             if ( gg )
             {
                 gg->UpdateTess( m_TireSurface, false, false, m_TireTess, m_TireFeatureTess );
+
+                if ( m_TireMode() == vsp::TIRE_TRA ||
+                     m_TireMode() == vsp::TIRE_FAIR_FLANGE ||
+                     m_TireMode() == vsp::TIRE_FAIR_WHEEL )
+                {
+                    m_GrownTireSurface.CopyNonSurfaceData( m_TireSurface );
+                    gg->UpdateTess( m_GrownTireSurface, false, false, m_GrownTireTess, m_GrownTireFeatureTess );
+                }
+                else
+                {
+                    m_GrownTireTess = m_TireTess;
+                    m_GrownTireFeatureTess = m_TireFeatureTess;
+                }
             }
         }
     }
