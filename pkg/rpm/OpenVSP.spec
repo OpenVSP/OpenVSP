@@ -7,8 +7,8 @@ Summary:  A parametric aircraft geometry tool
 License:  NASA-1.3
 URL:      https://www.openvsp.org
 Source:   https://github.com/Mumbri-systems/OpenVSP/archive/refs/heads/fedora-3.47.0.zip
-BuildRequires: libxml2-devel >= 2.12.10-5, gcc-c++ >= 14.2.1-2, openjpeg-devel >= 2.5.4-1, glm-devel >= 1.0.1-5, cminpack-devel >= 1.3.8-10, glew-devel >= 2.2.0-11, swig >= 4.3.1-5, doxygen >= 1.14.0-5, graphviz >= 13.1.2-3, texlive-scheme-basic, python3-devel >= 3.14.3-1, conda >= 25.11.0-3
-BuildRequires:  cmake >= 3.31.10-3, gcc14, gcc14-c++, rpm-build >= 6.0.1-1
+BuildRequires: libxml2-devel >= 2.12.10, gcc-c++ >= 14.2.1-2, openjpeg-devel >= 2.5.4-1, glm-devel >= 1.0.1, cminpack-devel >= 1.3.8, glew-devel >= 2.2.0, swig >= 4.3.0, doxygen >= 1.14.0-5, graphviz >= 12, texlive-scheme-basic, python3-devel >= 3.13, conda >= 24
+BuildRequires:  cmake >= 3.31, gcc14, gcc14-c++, rpm-build >= 4
 #fltk-fluid, fltk-devel,
 BuildRequires: mesa-libGL-devel, mesa-libGLU-devel
 BuildRequires: python3-numpy
