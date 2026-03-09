@@ -6,8 +6,7 @@ Release:  %autorelease
 Summary:  A parametric aircraft geometry tool
 License:  NASA-1.3
 URL:      https://www.openvsp.org
-Source:   https://github.com/OpenVSP/OpenVSP/archive/refs/tags/OpenVSP_%{version}.zip
-Source1:    openvsp.desktop
+Source:   https://github.com/Mumbri-systems/OpenVSP/archive/refs/heads/fedora-3.47.0.zip
 BuildRequires: libxml2-devel >= 2.12.10-5, gcc-c++ >= 14.2.1-2, openjpeg-devel >= 2.5.4-1, glm-devel >= 1.0.1-5, cminpack-devel >= 1.3.8-10, glew-devel >= 2.2.0-11, swig >= 4.3.1-5, doxygen >= 1.14.0-5, graphviz >= 13.1.2-3, texlive-scheme-basic, python3-devel >= 3.14.3-1, conda >= 25.11.0-3
 BuildRequires:  cmake >= 3.31.10-3, gcc14, gcc14-c++, rpm-build >= 6.0.1-1
 #fltk-fluid, fltk-devel,
@@ -55,7 +54,7 @@ popd
 
 %install
 %cmake_install
-install -Dm 644 %{SOURCE1} %{buildroot}%{_datadir}/applications/openvsp.desktop
+install -Dm 644 %{_builddir}/OpenVSP-OpenVSP_%{version}/pkg/rpm/openvsp.desktop %{buildroot}%{_datadir}/applications/openvsp.desktop
 install -Dm 644 %{_builddir}/OpenVSP-OpenVSP_%{version}/vspIcon.png %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/openvsp.png
 # Remove git placeholder files
 find %{buildroot} -name ".keep" -delete
