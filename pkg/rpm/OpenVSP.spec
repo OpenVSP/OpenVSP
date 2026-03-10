@@ -6,10 +6,9 @@ Release:  %autorelease
 Summary:  A parametric aircraft geometry tool
 License:  NASA-1.3
 URL:      https://www.openvsp.org
-Source:   https://github.com/OpenVSP/OpenVSP/archive/refs/tags/OpenVSP_%{version}.zip
-Source1:    openvsp.desktop
-BuildRequires: libxml2-devel >= 2.12.10-5, gcc-c++ >= 14.2.1-2, openjpeg-devel >= 2.5.4-1, glm-devel >= 1.0.1-5, cminpack-devel >= 1.3.8-10, glew-devel >= 2.2.0-11, swig >= 4.3.1-5, doxygen >= 1.14.0-5, graphviz >= 13.1.2-3, texlive-scheme-basic, python3-devel >= 3.14.3-1, conda >= 25.11.0-3
-BuildRequires:  cmake >= 3.31.10-3, gcc14, gcc14-c++, rpm-build >= 6.0.1-1
+Source:   https://github.com/Mumbri-systems/OpenVSP/archive/refs/heads/fedora-3.47.0.zip
+BuildRequires: libxml2-devel >= 2.12.10, gcc-c++ >= 14.2.1-2, openjpeg-devel >= 2.5.4-1, glm-devel >= 1.0.1, cminpack-devel >= 1.3.8, glew-devel >= 2.2.0, swig >= 4.3.0, doxygen >= 1.14.0-5, graphviz >= 12, texlive-scheme-basic, python3-devel >= 3.13, conda >= 24
+BuildRequires:  cmake >= 3.31, gcc14, gcc14-c++, rpm-build >= 4
 #fltk-fluid, fltk-devel,
 BuildRequires: mesa-libGL-devel, mesa-libGLU-devel
 BuildRequires: python3-numpy
@@ -20,7 +19,7 @@ create a 3D model of an aircraft defined by common engineering parameters.
 This model can be processed into formats suitable for engineering analysis.
 
 %prep
-%autosetup -n OpenVSP-OpenVSP_%{version}
+%autosetup -n OpenVSP-fedora-3.47.0
 
 %build
 # build third-party libraries
@@ -40,7 +39,7 @@ export CXX=g++-14
     -DVSP_USE_SYSTEM_CPPTEST=false \
     -DCMAKE_C_COMPILER=gcc-14 \
     -DCMAKE_CXX_COMPILER=g++-14 \
-    -S %{_builddir}/OpenVSP-OpenVSP_%{version}/Libraries \
+    -S %{_builddir}/OpenVSP-fedora-3.47.0/Libraries \
     -B .
 %make_build
 popd
@@ -49,14 +48,14 @@ popd
 %cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=OFF \
-    -DVSP_LIBRARY_PATH=%{_builddir}/OpenVSP-OpenVSP_%{version}/buildlibs \
-    -S %{_builddir}/OpenVSP-OpenVSP_%{version}/src
+    -DVSP_LIBRARY_PATH=%{_builddir}/OpenVSP-fedora-3.47.0/buildlibs \
+    -S %{_builddir}/OpenVSP-fedora-3.47.0/src
 %cmake_build
 
 %install
 %cmake_install
-install -Dm 644 %{SOURCE1} %{buildroot}%{_datadir}/applications/openvsp.desktop
-install -Dm 644 %{_builddir}/OpenVSP-OpenVSP_%{version}/vspIcon.png %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/openvsp.png
+install -Dm 644 %{_builddir}/OpenVSP-fedora-3.47.0/pkg/rpm/openvsp.desktop %{buildroot}%{_datadir}/applications/openvsp.desktop
+install -Dm 644 %{_builddir}/OpenVSP-fedora-3.47.0/vspIcon.png %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/openvsp.png
 # Remove git placeholder files
 find %{buildroot} -name ".keep" -delete
 chmod 755 %{buildroot}%{_prefix}/python/openvsp/conda-recipe/build.sh
