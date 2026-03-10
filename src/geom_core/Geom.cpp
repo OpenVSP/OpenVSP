@@ -1644,8 +1644,19 @@ Geom::~Geom()
     {
         delete m_FeaStructVec[i];
     }
-
     m_FeaStructVec.clear();
+
+    for ( int i = 0 ; i < ( int )m_MainSourceVec.size() ; i++ )
+    {
+        delete m_MainSourceVec[i];
+    }
+    m_MainSourceVec.clear();
+
+    for ( int i = 0; i < m_SimpSourceVec.size(); i++ )
+    {
+        delete m_SimpSourceVec[i];
+    }
+    m_SimpSourceVec.clear();
 }
 
 //==== Set Set Flag ====//
