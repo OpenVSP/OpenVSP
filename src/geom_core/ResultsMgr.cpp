@@ -787,6 +787,7 @@ NameValCollection::NameValCollection( const string & name, const string & id, co
 
 NameValCollection::~NameValCollection()
 {
+    AttributeMgr.DeregisterCollID( GetID() );
     Wype();
 }
 
