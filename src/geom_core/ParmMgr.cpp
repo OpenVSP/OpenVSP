@@ -62,11 +62,12 @@ void ParmMgrSingleton::RemoveParm( Parm* p  )
     unordered_map< string, Parm* >::iterator iter;
     iter = m_ParmMap.find( p->GetID() );
 
+    AttributeMgr.DeregisterCollID( p->GetAttrCollection()->GetID() );
+
     if ( iter !=  m_ParmMap.end() && iter->second == p )
     {
         m_NumParmChanges++;
         m_ParmMap.erase( iter );
-        AttributeMgr.DeregisterCollID( p->GetAttrCollection()->GetID() );
     }
 
     m_DirtyFlag = true;
