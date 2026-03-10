@@ -8,7 +8,7 @@ License:  NASA-1.3
 URL:      https://www.openvsp.org
 Source:   https://github.com/Mumbri-systems/OpenVSP/archive/refs/heads/fedora-3.47.0.zip
 BuildRequires: libxml2-devel >= 2.12.10, gcc-c++ >= 14.2.1-2, openjpeg-devel >= 2.5.4-1, glm-devel >= 1.0.1, cminpack-devel >= 1.3.8, glew-devel >= 2.2.0, swig >= 4.3.0, doxygen >= 1.14.0-5, graphviz >= 12, texlive-scheme-basic, python3-devel >= 3.13, conda >= 24
-BuildRequires:  cmake >= 3.31, gcc14, gcc14-c++, rpm-build >= 4
+BuildRequires:  cmake >= 3.31, gcc, gcc-c++, rpm-build >= 4
 #fltk-fluid, fltk-devel,
 BuildRequires: mesa-libGL-devel, mesa-libGLU-devel
 BuildRequires: python3-numpy
@@ -25,9 +25,6 @@ This model can be processed into formats suitable for engineering analysis.
 # build third-party libraries
 mkdir buildlibs
 pushd buildlibs
-# set gcc-14 for libEigen
-export CC=gcc-14
-export CXX=g++-14
 
 %cmake \
     -DCMAKE_BUILD_TYPE=Release \
@@ -37,8 +34,6 @@ export CXX=g++-14
     -DVSP_USE_SYSTEM_GLEW=true \
     -DVSP_USE_SYSTEM_CMINPACK=true \
     -DVSP_USE_SYSTEM_CPPTEST=false \
-    -DCMAKE_C_COMPILER=gcc-14 \
-    -DCMAKE_CXX_COMPILER=g++-14 \
     -S %{_builddir}/OpenVSP-fedora-3.47.0/Libraries \
     -B .
 %make_build
