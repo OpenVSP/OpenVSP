@@ -106,11 +106,11 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
             {
                 if( !strcmp( attr->Name(), "prefix" ) )
                 {
-                    attr->Raw()->e = new SdaiSi_prefix_var( pfx );
+                    attr->ptr.e = new SdaiSi_prefix_var( pfx );
                 }
                 if( !strcmp( attr->Name(), "name" ) )
                 {
-                    attr->Raw()->e = new SdaiSi_unit_name_var( Si_unit_name__metre );
+                    attr->ptr.e = new SdaiSi_unit_name_var( Si_unit_name__metre );
                 }
             }
         }
@@ -194,8 +194,8 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
                     }
                     if( !strcmp( attr->Name(), "conversion_factor" ) )
                     {
-                        attr->Raw()->c = new( STEPentity * );
-                        *( attr->Raw()->c ) = ( STEPentity * )( len_measure_with_unit );
+                        attr->ptr.c = new( STEPentity * );
+                        *( attr->ptr.c ) = ( STEPentity * )( len_measure_with_unit );
                     }
                 }
             }
@@ -206,8 +206,8 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
                 {
                     if( !strcmp( attr->Name(), "dimensions" ) )
                     {
-                        attr->Raw()->c = new( STEPentity * );
-                        *( attr->Raw()->c ) = ( STEPentity * )( dimensional_exp_len );
+                        attr->ptr.c = new( STEPentity * );
+                        *( attr->ptr.c ) = ( STEPentity * )( dimensional_exp_len );
                     }
                 }
             }
@@ -228,7 +228,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         {
             if( !strcmp( attr->Name(), "unit_component" ) )
             {
-                attr->Raw()->sh = tol_unit;
+                attr->ptr.sh = tol_unit;
             }
             if( !strcmp( attr->Name(), "value_component" ) )
             {
@@ -256,7 +256,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
             {
                 if( !strcmp( attr->Name(), "name" ) )
                 {
-                    attr->Raw()->e = new SdaiSi_unit_name_var( Si_unit_name__radian );
+                    attr->ptr.e = new SdaiSi_unit_name_var( Si_unit_name__radian );
                 }
             }
         }
@@ -299,8 +299,8 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
                     }
                     if( !strcmp( attr->Name(), "conversion_factor" ) )
                     {
-                        attr->Raw()->c = new( STEPentity * );
-                        *( attr->Raw()->c ) = ( STEPentity * )( p_ang_measure_with_unit );
+                        attr->ptr.c = new( STEPentity * );
+                        *( attr->ptr.c ) = ( STEPentity * )( p_ang_measure_with_unit );
                     }
                 }
             }
@@ -311,8 +311,8 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
                 {
                     if( !strcmp( attr->Name(), "dimensions" ) )
                     {
-                        attr->Raw()->c = new( STEPentity * );
-                        *( attr->Raw()->c ) = ( STEPentity * )( dimensional_exp );
+                        attr->ptr.c = new( STEPentity * );
+                        *( attr->ptr.c ) = ( STEPentity * )( dimensional_exp );
                     }
                 }
             }
@@ -334,7 +334,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
             {
                 if( !strcmp( attr->Name(), "name" ) )
                 {
-                    attr->Raw()->e = new SdaiSi_unit_name_var( Si_unit_name__steradian );
+                    attr->ptr.e = new SdaiSi_unit_name_var( Si_unit_name__steradian );
                 }
             }
         }
@@ -372,7 +372,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
                 {
                     EntityAggregate * unc_agg = new EntityAggregate();
                     unc_agg->AddNode( new EntityNode( ( SDAI_Application_instance * ) uncertainty ) );
-                    attr->Raw()->a = unc_agg;
+                    attr->ptr.a = unc_agg;
                 }
             }
 
@@ -389,7 +389,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
                     unit_assigned_agg->AddNode( new EntityNode( ( SDAI_Application_instance * ) ua_length ) );
                     unit_assigned_agg->AddNode( new EntityNode( ( SDAI_Application_instance * ) ua_plane_angle ) );
                     unit_assigned_agg->AddNode( new EntityNode( ( SDAI_Application_instance * ) ua_solid_angle ) );
-                    attr->Raw()->a = unit_assigned_agg;
+                    attr->ptr.a = unit_assigned_agg;
                 }
             }
         }
