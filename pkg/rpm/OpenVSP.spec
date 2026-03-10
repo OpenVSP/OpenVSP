@@ -23,9 +23,7 @@ This model can be processed into formats suitable for engineering analysis.
 
 %build
 # build third-party libraries
-mkdir buildlibs
-pushd buildlibs
-
+pushd Libraries
 %cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DVSP_USE_SYSTEM_LIBXML2=true \
@@ -33,18 +31,16 @@ pushd buildlibs
     -DVSP_USE_SYSTEM_GLM=true \
     -DVSP_USE_SYSTEM_GLEW=true \
     -DVSP_USE_SYSTEM_CMINPACK=true \
-    -DVSP_USE_SYSTEM_CPPTEST=false \
-    -S %{_builddir}/OpenVSP-fedora-3.47.0/Libraries \
-    -B .
+    -DVSP_USE_SYSTEM_CPPTEST=false
 %cmake_build
 popd
 
 # build main
+pushd src
 %cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=OFF \
-    -DVSP_LIBRARY_PATH=%{_builddir}/OpenVSP-fedora-3.47.0/buildlibs \
-    -S %{_builddir}/OpenVSP-fedora-3.47.0/src
+    -DVSP_LIBRARY_PATH=%{_builddir}/OpenVSP-fedora-3.47.0/Libraries/redhat-linux-build
 %cmake_build
 
 %install
