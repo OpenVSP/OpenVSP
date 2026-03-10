@@ -44,6 +44,7 @@ pushd src
 %cmake_build
 
 %install
+pushd src
 %cmake_install
 install -Dm 644 %{_builddir}/OpenVSP-fedora-3.47.0/pkg/rpm/openvsp.desktop %{buildroot}%{_datadir}/applications/openvsp.desktop
 install -Dm 644 %{_builddir}/OpenVSP-fedora-3.47.0/vspIcon.png %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/openvsp.png
