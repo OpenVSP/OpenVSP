@@ -36,7 +36,7 @@ pushd buildlibs
     -DVSP_USE_SYSTEM_CPPTEST=false \
     -S %{_builddir}/OpenVSP-fedora-3.47.0/Libraries \
     -B .
-%make_build
+%cmake_build
 popd
 
 # build main
