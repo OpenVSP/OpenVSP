@@ -9,7 +9,7 @@ URL:      https://www.openvsp.org
 Source:   https://github.com/Mumbri-systems/OpenVSP/archive/refs/heads/fedora-3.47.0.zip
 BuildRequires: libxml2-devel >= 2.12.10, gcc-c++ >= 14.2.1-2, openjpeg-devel >= 2.5.4-1, glm-devel >= 1.0.1, cminpack-devel >= 1.3.8, glew-devel >= 2.2.0, swig >= 4.3.0, doxygen >= 1.14.0-5, graphviz >= 12, texlive-scheme-basic, python3-devel >= 3.13, conda >= 24
 BuildRequires:  cmake >= 3.31, gcc, gcc-c++, rpm-build >= 4
-BuildRequires: eigen3-devel
+# BuildRequires: eigen3-devel major version change to 5.x breaks OpenABF.
 #fltk-fluid, fltk-devel,
 BuildRequires: mesa-libGL-devel, mesa-libGLU-devel
 BuildRequires: python3-numpy
@@ -32,8 +32,7 @@ pushd Libraries
     -DVSP_USE_SYSTEM_GLM=true \
     -DVSP_USE_SYSTEM_GLEW=true \
     -DVSP_USE_SYSTEM_CMINPACK=true \
-    -DVSP_USE_SYSTEM_EIGEN=true \
-    -DEigen3_DIR=/usr/share/cmake/eigen3 \
+    -DVSP_USE_SYSTEM_EIGEN=false \
     -DVSP_USE_SYSTEM_CPPTEST=false
 %cmake_build
 popd
