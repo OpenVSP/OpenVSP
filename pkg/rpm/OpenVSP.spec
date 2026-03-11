@@ -33,6 +33,7 @@ pushd Libraries
     -DVSP_USE_SYSTEM_GLEW=true \
     -DVSP_USE_SYSTEM_CMINPACK=true \
     -DVSP_USE_SYSTEM_EIGEN=true \
+    -DEigen3_DIR=/usr/share/cmake/eigen3 \
     -DVSP_USE_SYSTEM_CPPTEST=false
 %cmake_build
 popd
