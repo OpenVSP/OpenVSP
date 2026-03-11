@@ -39,6 +39,7 @@ ExternalProject_Add( STEPCODE
         -DSC_BUILD_SHARED_LIBS=${SC_SHARED}
         -DSC_PYTHON_GENERATOR=OFF
         -DSC_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 )
 ExternalProject_Get_Property( STEPCODE SOURCE_DIR )
 ExternalProject_Get_Property( STEPCODE BINARY_DIR )
