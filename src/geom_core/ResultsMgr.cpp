@@ -787,6 +787,12 @@ NameValCollection::NameValCollection( const string & name, const string & id, co
 
 NameValCollection::~NameValCollection()
 {
+    int n = AttributeMgr.GetCollRegistration( GetID() );
+    if ( n > 0 )
+    {
+        printf( "Warning: %s %s is registered but being destroyed.\n", m_ID.c_str(), m_Name.c_str() );
+        printf( "%s\n", m_Doc.c_str() );
+    }
     AttributeMgr.DeregisterCollID( GetID() );
     Wype();
 }
