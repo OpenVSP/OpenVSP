@@ -803,6 +803,16 @@ void SubSurfaceMgrSingleton::GetPartData( vector < string > &gidvec, vector < in
 
         gidvec.push_back( gid_bare );
         partvec.push_back( part );
-        surfvec.push_back( stoi( snum.c_str() ) );
+        int sn = -1;
+
+        try
+        {
+            sn = stoi( snum.c_str() );
+        }
+        catch (const std::exception& e)
+        {
+        }
+
+        surfvec.push_back( sn );
     }
 }
