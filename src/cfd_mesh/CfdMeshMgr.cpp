@@ -4286,8 +4286,11 @@ void CfdMeshMgrSingleton::SubTagTris()
             SubSurfaceMgr.m_CompPlate.push_back( surf->GetSurfacePlateNum() );
             SubSurfaceMgr.m_CompCopyIndex.push_back( surf->GetSurfaceCopyIndex() );
             SubSurfaceMgr.m_CompWmin.push_back( 0.0 );
-            SubSurfaceMgr.m_CompUscale.push_back( geom_ptr->GetUMax( surf->GetMainSurfID() ) );
-            SubSurfaceMgr.m_CompWscale.push_back( geom_ptr->GetWMax( surf->GetMainSurfID() ) );
+            if ( geom_ptr )
+            {
+                SubSurfaceMgr.m_CompUscale.push_back( geom_ptr->GetUMax( surf->GetMainSurfID() ) );
+                SubSurfaceMgr.m_CompWscale.push_back( geom_ptr->GetWMax( surf->GetMainSurfID() ) );
+            }
 
             // Set to thin.
             bool thick = false;
