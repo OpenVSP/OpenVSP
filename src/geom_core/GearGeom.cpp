@@ -2158,6 +2158,85 @@ void Bogie::UpdateTess()
     m_TireTessDirty = false;
 }
 
+void Bogie::Scale( double s )
+{
+    m_XContactPt *= s;
+    m_YContactPt *= s;
+    m_ZAboveGround *= s;
+
+    m_Spacing *= s;
+    m_SpacingGap *= s;
+
+    m_Pitch *= s;
+    m_PitchGap *= s;
+
+    m_TravelCompressed *= s;
+    m_TravelExtended *= s;
+
+    if ( m_DiameterMode() == vsp::TIRE_DIM_MODEL )
+    {
+        m_DiameterModel *= s;
+    }
+
+    if ( m_WidthMode() == vsp::TIRE_DIM_MODEL )
+    {
+        m_WidthModel *= s;
+    }
+
+    if ( m_SLRMode() == vsp::TIRE_DIM_MODEL )
+    {
+        m_StaticRadiusModel *= s;
+    }
+
+    if ( m_DrimMode() == vsp::TIRE_DIM_MODEL )
+    {
+        m_DrimModel *= s;
+    }
+
+    if ( m_WrimMode() == vsp::TIRE_DIM_MODEL )
+    {
+        m_WrimModel *= s;
+    }
+
+    if ( m_WsMode() == vsp::TIRE_DIM_MODEL )
+    {
+        m_WsModel *= s;
+    }
+
+    if ( m_HsMode() == vsp::TIRE_DIM_MODEL )
+    {
+        m_HsModel *= s;
+    }
+
+    // These get dynamically calculated, so probably don't matter.
+    m_DFlangeModel *= s;
+
+    m_WGModel *= s;
+    m_DGModel *= s;
+    m_WsGModel *= s;
+    m_DsGModel *= s;
+
+
+    // Back to ones that matter.
+    m_StowXLoc *= s;
+    m_StowYLoc *= s;
+    m_StowZLoc *= s;
+
+    m_StowXRelLoc *= s;
+    m_StowYRelLoc *= s;
+    m_StowZRelLoc *= s;
+
+    m_MechXLoc *= s;
+    m_MechYLoc *= s;
+    m_MechZLoc *= s;
+
+    m_MechXRelLoc *= s;
+    m_MechYRelLoc *= s;
+    m_MechZRelLoc *= s;
+
+    m_MechStrutDL *= s;
+}
+
 void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
 {
     m_SuspensionTravelLinesDO.m_PntVec.clear();
@@ -3043,7 +3122,34 @@ void GearGeom::ComputeCenter()
 void GearGeom::Scale()
 {
     double currentScale = m_Scale() / m_LastScale();
-    // m_Length *= currentScale;
+
+    for ( int i = 0; i < ( int )m_Bogies.size(); i++ )
+    {
+        m_Bogies[i]->Scale( currentScale );
+    }
+
+    m_PlaneSize *= currentScale;
+
+    m_XCGMinLocal *= currentScale;
+    m_XCGMaxLocal *= currentScale;
+    m_XCGNominalLocal *= currentScale;
+    m_YCGMinLocal *= currentScale;
+    m_YCGMaxLocal *= currentScale;
+    m_YCGNominalLocal *= currentScale;
+    m_ZCGMinLocal *= currentScale;
+    m_ZCGMaxLocal *= currentScale;
+    m_ZCGNominalLocal *= currentScale;
+
+    m_XCGMinGlobal *= currentScale;
+    m_XCGMaxGlobal *= currentScale;
+    m_XCGNominalGlobal *= currentScale;
+    m_YCGMinGlobal *= currentScale;
+    m_YCGMaxGlobal *= currentScale;
+    m_YCGNominalGlobal *= currentScale;
+    m_ZCGMinGlobal *= currentScale;
+    m_ZCGMaxGlobal *= currentScale;
+    m_ZCGNominalGlobal *= currentScale;
+
     m_LastScale = m_Scale();
 }
 

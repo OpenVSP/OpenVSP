@@ -39,6 +39,9 @@ public:
     void Update();
     void UpdateRetractAttach();
     void UpdateTess();
+
+    void Scale( double s );
+
     void UpdateDrawObj( const Matrix4d &relTrans );
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
