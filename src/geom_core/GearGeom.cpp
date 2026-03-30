@@ -1905,14 +1905,38 @@ void Bogie::BackCalculateRetract()
         vec3d u = b - a;
         vec3d uprm = bprm - aprm;
 
-        vec3d k = cross( u, uprm );
+        vec3d k_general = cross( a - aprm, u - uprm );
+        vec3d k;
+        if ( k_general.mag() > 1e-10 )
+        {
+            k = k_general;
+        }
+        else
+        {
+            k = cross( u, uprm );
+        }
         k.normalize();
 
         m_MechXAxis = k.x();
         m_MechYAxis = k.y();
         m_MechZAxis = k.z();
 
-        double theta = angle( u, uprm );
+        vec3d u_perp = u - dot( u, k ) * k;
+        vec3d uprm_perp = uprm - dot( uprm, k ) * k;
+        double L2 = u_perp.magsq();
+
+        double theta;
+        if ( L2 > 1e-20 )
+        {
+            double cos_theta = dot( u_perp, uprm_perp ) / L2;
+            double sin_theta = dot( cross( u_perp, uprm_perp ), k ) / L2;
+            theta = atan2( sin_theta, cos_theta );
+        }
+        else
+        {
+            theta = angle( u, uprm );
+        }
+
 
         if ( theta != 0.0 && theta != M_PI )
         {
