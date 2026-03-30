@@ -1814,7 +1814,7 @@ bool GearGeom::GetSteerAngle( const string &cp1, const string &cp2, const string
         vector < double > turnvec( 3 );
         turnvec[0] = b1->m_SteeringAngle();
         turnvec[1] = b2->m_SteeringAngle();
-        turnvec[3] = b3->m_SteeringAngle();
+        turnvec[2] = b3->m_SteeringAngle();
 
         isteer = vector_find_maximum( turnvec );
         steerangle = turnvec[ isteer ] * M_PI / 180.0;
