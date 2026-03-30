@@ -60,7 +60,7 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ContactPt1_SuspensionMode.Init( "ContactPt1_SuspensionMode", "Design", this, vsp::GEAR_SUSPENSION_NOMINAL, vsp::GEAR_SUSPENSION_NOMINAL, vsp::NUM_GEAR_SUSPENSION_MODES - 1 );
     m_ContactPt1_TireMode.Init( "ContactPt1_TireMode", "Design", this, vsp::TIRE_STATIC_LODED_CONTACT, vsp::TIRE_STATIC_LODED_CONTACT, vsp::NUM_TIRE_CONTACT_MODES - 1 );
     m_ContactPt1_ClearanceMode.Init( "ContactPt1_ClearanceMode", "Design", this, vsp::TIRE_NOMINAL_CLEARANCE, vsp::TIRE_NOMINAL_CLEARANCE, vsp::NUM_TIRE_CLEARANCE_MODES - 1 );
-    m_ContactPt1_GearMode.Init( "ContactPt1_GearMode", "Design", this, vsp::GEAR_CONFIGURATION_UP, vsp::GEAR_CONFIGURATION_DOWN, vsp::NUM_GEAR_CONFIGURATION_MODES - 1 );
+    m_ContactPt1_GearMode.Init( "ContactPt1_GearMode", "Design", this, vsp::GEAR_CONFIGURATION_DOWN, vsp::GEAR_CONFIGURATION_DOWN, vsp::NUM_GEAR_CONFIGURATION_MODES - 1 );
     m_ContactPt1_KRetract.Init( "ContactPt1_KRetract", "Design", this, 0.0, 0.0, 1.0 );
 
     m_ContactPt2_Isymm.Init( "ContactPt2_Isymm", "Design", this, 0, 0, 1 );
