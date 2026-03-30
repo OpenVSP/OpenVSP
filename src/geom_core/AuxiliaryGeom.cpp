@@ -109,6 +109,12 @@ void AuxiliaryGeom::Scale()
 
     m_XSCurve->SetScale( currentScale );
 
+    m_Diameter *= currentScale;
+
+    m_RootLength *= currentScale;
+
+    m_CCEMainGearOffset *= currentScale;
+
     m_LastScale = m_Scale();
 }
 
