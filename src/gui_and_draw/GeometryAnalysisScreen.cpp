@@ -765,6 +765,16 @@ bool GeometryAnalysisScreen::Update()
         {
             OptionsDisplayGroup( nullptr );
         }
+
+        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
+             gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE )
+        {
+            m_ApplyRotation.Activate();
+        }
+        else
+        {
+            m_ApplyRotation.Deactivate();
+        }
     }
     else
     {
