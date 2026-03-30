@@ -1984,11 +1984,15 @@ bool GeomScreen::Update()
     assert( set_name_vec.size() == set_flag_vec.size() );
 
     //==== Load Set Names and Values ====//
+    int v_pos = m_SetBrowser->vposition();
+    int h_pos = m_SetBrowser->hposition();
     m_SetBrowser->clear();
     for ( int i = SET_SHOWN ; i < ( int )set_name_vec.size() ; i++ )
     {
         m_SetBrowser->add( set_name_vec[i].c_str(), static_cast<int>( set_flag_vec[i] ) );
     }
+    m_SetBrowser->vposition( v_pos );
+    m_SetBrowser->hposition( h_pos );
 
     //================= SubSurfaces Tab ===================//
 
@@ -2628,8 +2632,8 @@ bool GeomScreen::Update()
     }
 
     //==== SubSurfBrowser ====//
-    int h_pos = m_SubSurfBrowser->hposition();
-    int v_pos = m_SubSurfBrowser->vposition();
+    h_pos = m_SubSurfBrowser->hposition();
+    v_pos = m_SubSurfBrowser->vposition();
     m_SubSurfBrowser->clear();
 
     m_SubSurfBrowser->column_char( ':' );

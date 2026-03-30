@@ -416,6 +416,8 @@ bool WaveDragScreen::Update()
         //==== Flow Tab Update ====//
         vector< SubSurface* > subsurf_vec = SubSurfaceMgr.GetSubSurfs();
 
+        int scroll_pos = m_SubSurfFlowBrowser->vposition();
+
         m_SubSurfFlowBrowser->clear();
         // Load Subsurface Names
         for ( int i = 0; i < ( int )subsurf_vec.size() ; i++ )
@@ -436,6 +438,7 @@ bool WaveDragScreen::Update()
                 }
             }
         }
+        m_SubSurfFlowBrowser->vposition( scroll_pos );
     }
 
     RedrawPlot();

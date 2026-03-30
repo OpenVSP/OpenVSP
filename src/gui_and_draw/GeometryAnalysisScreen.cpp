@@ -825,6 +825,7 @@ void GeometryAnalysisScreen::UpdateWindowSubSurfBrowser()
         return;
     }
 
+    int scroll_pos = m_SubSurfCutoutBrowser->vposition();
     m_SubSurfCutoutBrowser->clear();
 
     GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
@@ -851,6 +852,7 @@ void GeometryAnalysisScreen::UpdateWindowSubSurfBrowser()
                 }
             }
         }
+        m_SubSurfCutoutBrowser->vposition( scroll_pos );
     }
 }
 
