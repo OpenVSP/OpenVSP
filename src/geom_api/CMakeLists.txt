@@ -12,7 +12,6 @@ INCLUDE_DIRECTORIES(
     ${FLTK_INCLUDE_DIR}
     ${SCREENS_INCLUDE_DIR}
     ${GUI_AND_DRAW_INCLUDE_DIR}
-    ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${STEPCODE_INCLUDE_DIR}
     ${LIBIGES_INCLUDE_DIR}
@@ -33,6 +32,8 @@ GuiInterface.h
 VSP_Geom_API.h
 )
 
+target_link_libraries( geom_api Eigen3::Eigen )
+
 ADD_DEPENDENCIES( geom_api
 util
 )
@@ -50,6 +51,8 @@ IF( NOT VSP_NO_GRAPHICS )
     VSP_Geom_API.h
     )
 
+    target_link_libraries( geom_api_g Eigen3::Eigen )
+
     ADD_DEPENDENCIES( geom_api_g
     util
     )
@@ -60,6 +63,8 @@ IF( NOT VSP_NO_GRAPHICS )
     GuiInterface.cpp
     GuiInterface.h
     )
+
+    target_link_libraries( gui_interface_g Eigen3::Eigen )
 
     ADD_DEPENDENCIES( gui_interface_g
     util

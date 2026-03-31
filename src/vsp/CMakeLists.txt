@@ -9,7 +9,6 @@ INCLUDE_DIRECTORIES(
     ${CPPTEST_INCLUDE_DIR}
     ${CPPTEST_INCLUDE_DIRS}
     ${DELABELLA_INCLUDE_DIR}
-    ${EIGEN3_INCLUDE_DIR}
     ${FLTK_INCLUDE_DIR}
     ${GEOM_API_INCLUDE_DIR}
     ${GEOM_CORE_INCLUDE_DIR}
@@ -36,6 +35,8 @@ IF( NOT VSP_NO_GRAPHICS )
     )
 
     set_target_properties( vsp PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
+
+    target_link_libraries( vsp Eigen3::Eigen )
 
     TARGET_LINK_LIBRARIES(vsp
         ${VSP_G_LIBRARIES_CORE_FIRST}
@@ -73,6 +74,8 @@ APITestSuiteCFDMesh.cpp
 ../vsp/main.h.in
 )
 
+target_link_libraries( apitest Eigen3::Eigen )
+
 TARGET_LINK_LIBRARIES(apitest
     ${VSP_LIBRARIES_API_FIRST}
 )
@@ -87,6 +90,8 @@ scriptonly_main.cpp
 common.h
 ../vsp/main.h.in
 )
+
+target_link_libraries( vspscript Eigen3::Eigen )
 
 TARGET_LINK_LIBRARIES(vspscript
     ${VSP_LIBRARIES_CORE_FIRST}

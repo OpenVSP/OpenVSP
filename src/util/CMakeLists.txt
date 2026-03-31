@@ -14,7 +14,6 @@ INCLUDE_DIRECTORIES(
     ${XMLVSP_INCLUDE_DIR}
     ${UTIL_INCLUDE_DIR}
     ${CPPTEST_INCLUDE_DIRS}
-    ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${STEPCODE_INCLUDE_DIR}
     ${GEOM_API_INCLUDE_DIR}
@@ -74,3 +73,5 @@ VspUtil.h
 WriteMatlab.h
 XferSurf.h
 )
+
+target_link_libraries( util Eigen3::Eigen )

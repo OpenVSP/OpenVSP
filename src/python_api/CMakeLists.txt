@@ -43,7 +43,6 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
         ${CPPTEST_INCLUDE_DIR}
         ${CPPTEST_INCLUDE_DIR}
         ${DELABELLA_INCLUDE_DIR}
-        ${EIGEN3_INCLUDE_DIR}
         ${FLTK_INCLUDE_DIR}
         ${GEOM_API_INCLUDE_DIR}
         ${GEOM_CORE_INCLUDE_DIR}
@@ -92,6 +91,8 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
         SOURCES ${I_FILES}
     )
 
+    target_link_libraries( pyvsp Eigen3::Eigen )
+
     SET_TARGET_PROPERTIES( pyvsp PROPERTIES OUTPUT_NAME "vsp" )
 
     IF( APPLE )
@@ -132,6 +133,8 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
             LANGUAGE python
             SOURCES ${I_FILES_g}
         )
+
+        target_link_libraries( pyvsp_g Eigen3::Eigen )
 
         SET_TARGET_PROPERTIES( pyvsp_g PROPERTIES OUTPUT_NAME "vsp_g" )
 

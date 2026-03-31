@@ -9,7 +9,6 @@ INCLUDE_DIRECTORIES(
     ${CodeEli_INCLUDE_DIRS}
     ${CPPTEST_INCLUDE_DIRS}
     ${DELABELLA_INCLUDE_DIR}
-    ${EIGEN3_INCLUDE_DIR}
     ${GEOM_API_INCLUDE_DIR}
     ${LIBIGES_INCLUDE_DIR}
     ${LIBIGL_INCLUDE_DIR}
@@ -202,3 +201,5 @@ XSecSurf.h
 ADD_DEPENDENCIES( geom_core
 util
 )
+
+target_link_libraries( geom_core Eigen3::Eigen )

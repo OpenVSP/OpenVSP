@@ -17,7 +17,6 @@ INCLUDE_DIRECTORIES(
     ${GEOM_CORE_INCLUDE_DIR}
     ${XMLVSP_INCLUDE_DIR}
     ${TRIANGLE_INCLUDE_DIR}
-    ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${TRITRI_INCLUDE_DIR}
     ${GEOM_API_INCLUDE_DIR}
@@ -75,3 +74,5 @@ TwoDNN.h
 ADD_DEPENDENCIES( cfd_mesh
 util
 )
+
+target_link_libraries( cfd_mesh Eigen3::Eigen )

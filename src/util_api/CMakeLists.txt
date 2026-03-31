@@ -4,7 +4,6 @@ SET(UTIL_API_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to util_ap
 
 INCLUDE_DIRECTORIES(
         ${UTIL_API_INCLUDE_DIR}
-        ${EIGEN3_INCLUDE_DIR}
         ${ROBUST_INCLUDE_DIR}
 )
 
@@ -18,3 +17,5 @@ MessageMgr.h
 Vec2d.h
 Vec3d.h
 )
+
+target_link_libraries( util_api Eigen3::Eigen )

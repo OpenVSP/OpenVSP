@@ -15,7 +15,6 @@ INCLUDE_DIRECTORIES(
     ${VSP_GRAPHIC_INCLUDE_DIR}
     ${GLEW_INCLUDE_PATH}
     ${GLM_INCLUDE_DIR}
-    ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/geom_api
     ${GEOM_API_INCLUDE_DIR}
@@ -229,3 +228,5 @@ geom_core
 vsp_graphic
 util
 )
+
+target_link_libraries( gui_and_draw Eigen3::Eigen )

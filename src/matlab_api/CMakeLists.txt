@@ -17,7 +17,6 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
         ${CPPTEST_INCLUDE_DIR}
         ${CPPTEST_INCLUDE_DIR}
         ${DELABELLA_INCLUDE_DIR}
-        ${EIGEN3_INCLUDE_DIR}
         ${FLTK_INCLUDE_DIR}
         ${GEOM_API_INCLUDE_DIR}
         ${GEOM_CORE_INCLUDE_DIR}
@@ -59,6 +58,8 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
         LANGUAGE matlab
         SOURCES ${I_FILES}
     )
+
+    target_link_libraries( vspMEX Eigen3::Eigen )
 
     list(APPEND VSPMEX_LIBS 
         ${Matlab_LIBRARIES}
