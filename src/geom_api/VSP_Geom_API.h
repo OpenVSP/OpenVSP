@@ -6432,12 +6432,12 @@ extern void SetGeomScreenDisable( int s, bool state );
     Hide an OpenVSP GUI screen
     \forcpponly
     \code{.cpp}
-    HideScreen( VSP_INTERFERENCE_SCREEN );
+    HideScreen( VSP_CFD_MESH_SCREEN );
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    HideScreen( VSP_INTERFERENCE_SCREEN )
+    HideScreen( VSP_CFD_MESH_SCREEN )
     \endcode
     \endPythonOnly
     \param [in] s int GUI_VSP_SCREEN enum for screen
@@ -6452,12 +6452,12 @@ extern void HideScreen( int s );
     Show an OpenVSP GUI screen
     \forcpponly
     \code{.cpp}
-    ShowScreen( VSP_INTERFERENCE_SCREEN );
+    ShowScreen( VSP_CFD_MESH_SCREEN );
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    ShowScreen( VSP_INTERFERENCE_SCREEN )
+    ShowScreen( VSP_CFD_MESH_SCREEN )
     \endcode
     \endPythonOnly
     \param [in] s int GUI_VSP_SCREEN enum for screen
