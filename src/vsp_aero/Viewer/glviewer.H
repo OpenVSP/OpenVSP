@@ -9,6 +9,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <stddef.h>
 
 #ifndef WIN32
 #include <unistd.h>
@@ -739,7 +740,7 @@ private:
 
     // Font stuff
 
-    void WriteFontFile( char* fname );
+    void GetFontData( const unsigned char** font_data, size_t* font_size );
 
     // Support code
 
@@ -1193,4 +1194,3 @@ public:
 };
 
 #endif
-

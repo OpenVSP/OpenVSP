@@ -1953,8 +1953,8 @@ Fl_Terminal* GroupLayout::AddFlTerminal( int height )
 
     Fl_Terminal* terminal = new Fl_Terminal ( m_X, m_Y, m_W, height );
 
-    terminal->textfont( FL_SCREEN ); // Default FL_COURIER Must be monospaced
-    terminal->textsize( 12 ); // Default 14
+    terminal->textfont( FL_COURIER ); // Default FL_COURIER Must be monospaced
+    terminal->textsize( 14 ); // Default 14
     terminal->color( FL_WHITE );
     terminal->textbgcolor( FL_WHITE );
     terminal->textbgcolor_default( FL_WHITE );

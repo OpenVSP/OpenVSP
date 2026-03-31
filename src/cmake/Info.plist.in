@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleName</key>
+	<string>OpenVSP</string>
+	<key>CFBundleDisplayName</key>
+	<string>OpenVSP</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.openvsp.OpenVSP</string>
+	<key>CFBundleVersion</key>
+	<string>@VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleExecutable</key>
+	<string>OpenVSP</string>
+	<key>CFBundleIconFile</key>
+	<string>OpenVSP</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>LSMinimumSystemVersion</key>
+	<string>11.0</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>OpenVSP Project</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>vsp3</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -39,7 +39,6 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
 #endif
 
     int i;
-    char tempname[2000];
 
     // Rotation and translation data
 
@@ -168,11 +167,10 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
 
     // Font stuff
 
-    WriteFontFile( tempname );
-
-    glfLoadFont( tempname );
-
-    ::remove(tempname);
+    const unsigned char* font_data = NULL;
+    size_t font_size = 0;
+    GetFontData( &font_data, &font_size );
+    glfLoadFontBuffer( font_data, font_size );
 
     UserTouchedEdgeMach   = 0;
     UserTouchedBeta  = 0;
@@ -13138,33 +13136,12 @@ int GL_VIEWER::WritePNG(char *filename, char *description,
 
 /*##############################################################################
 #                                                                              #
-#                          GL_VIEWER WriteFontFile                             #
+#                           GL_VIEWER GetFontData                              #
 #                                                                              #
 ##############################################################################*/
 
-void GL_VIEWER::WriteFontFile( char* fname )
+void GL_VIEWER::GetFontData( const unsigned char** font_data, size_t* font_size )
 {
-
-    FILE *font_file;
-    int c_size;
-
-    // Sizeof ints and floats
-
-    c_size = sizeof(char);
-
-    // Open the font file
-    std::filesystem::path tempdir = std::filesystem::temp_directory_path();
-    tempdir.append( "cbviewer_font.glf" );
-    strcpy( fname, tempdir.string().c_str() );
-
-    if ( (font_file = fopen(fname,"wb")) == NULL ) {
-
-       printf("Could not open the font file for writing! \n");fflush(NULL);
-
-       exit(1);
-
-    }
-
     // The following hex data contains the glf Times New font data that was
     // contained in the times_new1.glf binary font file. I used the bin2hex.pl
     // perl script found on the web to convert this binary file to hex and store
@@ -13173,7 +13150,7 @@ void GL_VIEWER::WriteFontFile( char* fname )
     // data out to a file that the glf routine then reads in...
 
 /* begin binary data: */
-unsigned char bin_data[] = /* 45361 */
+static const unsigned char bin_data[] = /* 45361 */
 {0x47,0x4C,0x46,0x54,0x69,0x6D,0x65,0x73,0x20,0x4E,0x65,0x77,0x20,0x52,0x6F
 ,0x6D,0x61,0x6E,0x20,0x31,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
@@ -16201,9 +16178,13 @@ unsigned char bin_data[] = /* 45361 */
 ,0x07};
 /* end binary data. size = 45361 bytes */
 
-    fwrite(&bin_data,  c_size, 45361, font_file);
+    if ( font_data != NULL ) {
+       *font_data = bin_data;
+    }
 
-    fclose(font_file);
+    if ( font_size != NULL ) {
+       *font_size = sizeof( bin_data );
+    }
 
 }
 

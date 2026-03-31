@@ -309,6 +309,21 @@ string XSecSurf::AddXSec( int type )
     return id;
 }
 
+//==== Copy from reference XSec ====//
+string XSecSurf::AddXSecCopy( XSec* copy_xs )
+{
+    string id;
+    if ( copy_xs )
+    {
+        XSec* xs = CreateXSec( copy_xs->GetXSecCurve()->GetType() );
+        xs->CopyFrom( copy_xs );
+        xs->SetParentContainer( GetID() );
+        id = xs->GetID();
+        m_XSecIDDeque.push_back( id );
+    }
+    return id;
+}
+
 //==== Cut XSec ====//
 void XSecSurf::CutXSec( int index )
 {
