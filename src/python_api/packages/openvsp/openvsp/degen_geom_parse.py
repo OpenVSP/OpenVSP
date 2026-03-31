@@ -52,10 +52,11 @@ def parse_degen_geom(degen_geom_res_id, vsp_instance=None):
             res = vsp.parse_results_object(point_id)
             degen_obj.point = dg.DegenPoint(res)
 
-        disk_ids = vsp.GetStringResults(degen_id, "disk")
-        for disk_id in disk_ids:
-            res = vsp.parse_results_object(disk_id)
-            degen_obj.disk = dg.DegenDisk(res)
+        if ( vsp.GetNumData(degen_id, "disk") > 0):
+            disk_ids = vsp.GetStringResults(degen_id, "disk")
+            for disk_id in disk_ids:
+                res = vsp.parse_results_object(disk_id)
+                degen_obj.disk = dg.DegenDisk(res)
 
         plate_ids = vsp.GetStringResults(degen_id, "plates")
         for plate_id in plate_ids:
