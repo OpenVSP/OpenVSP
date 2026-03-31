@@ -135,7 +135,7 @@ def plot_surface_components(components: List[SurfaceComponent], plot_normals=Tru
     from mpl_toolkits.mplot3d import Axes3D
 
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
 
     for comp in components:
         for surf in comp.surfaces:
