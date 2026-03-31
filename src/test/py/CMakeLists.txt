@@ -5,3 +5,5 @@ ADD_SUBDIRECTORY( other )
 ADD_TEST( NAME PyTest COMMAND ${PYTHON_VENV_EXE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 
 ADD_TEST( NAME PySampleCodeTest COMMAND ${PYTHON_VENV_EXE} -m unittest openvsp.tests.test_vsp_api  )
+
+ADD_TEST( NAME PyDegenGeomTest COMMAND ${PYTHON_VENV_EXE} -m unittest openvsp.tests.test_degen_geom  )
