@@ -1,165 +1,8 @@
-# [OpenVSP 3.48.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.48.2)
-
-2026-03-04
-
-Yesterday's haste to fix the problem with 3.48 caused some other problems.
-These are caused by strange interactions between some features -- but I think
-we finally understand what is going on.
-
-This revert's yesterday's changes and instead goes with a simpler approach
-that I first tried as a proof of concept.
-
-While we're at it, we're going to add experimental support for a MacOS *.dmg
-package.  The *.zip isn't going anywhere, but give it a try if you want
-OpenVSP to act more like a normal app on your Mac.  Thanks to
-Christian Jacobsen for putting this together.
-
-Build System:
-- Add experimental *.dmg package for MacOS
-
-Bug Fixes:
-- Fix regressions to Stack Presets caused by 3.48.1 fixes.
-
-
----
-
-
-# [OpenVSP 3.48.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.48.1)
-
-2026-03-03
-
-This is a quick bugfix release for a couple of issues that popped up.  Thanks
-to Brian German and Bryan Sandoz -- this version would not exist
-without Br(i,y)an's.
-
-Brian German noticed that files read in with Stacks did not restore the
-parent/child hierarchy.  This would be visible as messed up attachment.
-
-Bryan Sandoz noticed that the fix concerning FEA lamination's didn't always
-work -- and he also noticed some FEA meshes that were not properly connected.
-
-The first bug is particularly nasty and will hit a lot of users.  It is
-important that everyone update.
-
-Bug fixes:
-- Fix problem with Stack attachment when loading files
-- Fix problem with FEA laminates causing GUI infinite loops (again)
-- Adjust FEA Mesh point merge tolerance
-
-
----
-
-
-# [OpenVSP 3.48.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.48.0)
-
-2026-02-27
-
-This release is either a big-little-release or a little-big-release, I'm not
-quite sure.  It doesn't have a lot of things in it (it is little).  However,
-some of those things are quite consequential (it is big).  I'll leave it up
-to you to decide.
-
-The most consequential change is a change to how twist and dihedral interact
-when lofting a wing.  The order you apply transformation matrices matters,
-and back in 2022 (3.27.0) I made a change on behalf of a particular use case.
-As it turns out, it made other use cases worse -- namely, people trying to
-model toe-in of winglets.  This has been a popular GitHub issue (#292, 304, 328)
-and topic on the Google Group.
-
-You can now get the behavior I think most people will want -- and through some
-combination of options, you can also still get the special use case behavior.
-The default values for a new wing will reflect best practices, but you might
-need to play with existing models to get the behavior you want.
-
-In addition, the airfoil thickness correction for dihedral rotation had a bug
-that has been fixed.
-
-The Stack component now has quick buttons to turn 'off' skinning for a
-section or the whole stack.  This will reduce all the skinning settings to a
-linear loft 'ground state' from which you can then build back up exactly
-the settings you want.
-
-There is also now an ability to set a Stack to certain presets.  These include
-the default stack, a cylinder (two ways), and a bunch of different ways of
-modeling engines.  All these were possible before, but it was a bit of a
-hassle to get everything set up right.  Now, you can select from 14 different
-ways of representing a nacelle from the click of a button.  This should make
-the integrated flowpath modeling capabilities of OpenVSP much easier to use.
-
-There is also now some documentation added to the Stack to hopefully make this
-stuff more clear.
-
-Further, the integrated flowpath modeling gained three new flowpath
-representations -- flowthrough, inlet to face, and nozzle to face negative
-only.  These are useful for tasks like calculating the fuel volume available
-in a fuselage with an embedded flowpath.
-
-Also, when modeling the inlet/exhaust as an extended flowpath, the extension
-can now be done in the global X direction.
-
-For some reason, when the Pick capability was implemented, it was set up to
-only work with bodies in Wireframe mode.  I don't remember a reason for this,
-so I went ahead and made it work with Hidden, Shaded, and Texture views of
-Geoms.  Let me know if this breaks anything.
-
-If you don't know about Pick -- either press 'p' or click the 'Pick' button
-on the Geom Browser.  Now move the mouse over the 3D window.  Different geoms
-will be highlighted in red.  Click on one and it will become the active geom.
-Press P or turn off the button to exit Pick mode.
-
-There was a nasty bug when using composite laminates in the structures
-modeling stuff.  It would cause the GUI to act bizarrely and eventually crash.
-As it turns out, it was an infinite loop in the GUI.  Who knew?
-
-There was also a bug where a co-planarity test for structures was performed
-with a tolerance in FEA scale on a geometry in VSP scale.  If these were
-substantially different (say m vs mm), then FEA parts could be dropped from
-the model and other similar problems.  Thanks Bryan S. for reporting these
-two structures bugs.
-
-Sometimes the VSPAERO viewer would fail to load because it would complain about
-not being able to write or read a font file.  That has been fixed.
-
-The VSPAERO console output would default to an unreadable font when Windows
-was set to a Japanese locale.  We've changed to a different font that will
-hopefully make things better and not worse.  Let me know if you can't read
-what VSPAERO is telling you.
-
-The Python API for Ubuntu had a problem where it was built against the wrong
-version of NumPy.  That should be fixed.
-
-We've had to update the Intel MacOS build to MacOS-15.  Hopefully this doesn't
-cause any problems.  We're coming to the end of days for Intel MacOS.  When it
-is deprecated by Apple, I expect GitHub Actions to stop supporting it and I
-will no longer be able to support the platform.  Do yourself a favor and
-update now.  The M1 processors are really fast.  You'll thank me.
-
-Features:
-- Buttons to turn off skinning for Stacks
-- Shape presets for Stacks -- makes engine flowpaths easy
-- Negative only engine representations
-- Extend flowpath in global X direction
-
-Build System:
-- x85 MacOS build now using MacOS 15
-
-Fixes:
-- Fix twist / dihedral interaction, add options for XZ only twist
-- Fix correct thickness for dihedral
-- Pick now works with hidden, shaded, and texture views
-- FEA GUI Bug with laminates
-- FEA Part dissappearing bug
-- VSPAERO Viewer font fail to load
-- VSPAERO console font on Windows Japanese locale unreadable
-- Ubuntu Python NumPy version mixup
-
-
----
-
-
 # [OpenVSP 3.47.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.47.0)
 
 2026-01-22
+
+OpenVSP 3.47.0
 
 The gap since the last release (3.5mo) is a bit longer than usual (1-2mo).
 While some of that gap is certainly attributable to the holidays, I also
@@ -315,6 +158,8 @@ Fixes:
 
 2025-09-30
 
+OpenVSP 3.46.0
+
 I was going to hold off on this release until a couple bigger pending changes
 were finished -- but there are a handful of fixes for problems that people are
 running into.  I thought about doing a 3.45.5 release with just fixes, but
@@ -401,6 +246,8 @@ Bug Fixes:
 
 2025-08-31
 
+OpenVSP 3.45.4
+
 Another small bugfix release.  This time, none of the fixes are applicable
 (well, one technically would apply, but it wasn't causing a problem there)
 to 3.44, so just one release this time.
@@ -431,6 +278,8 @@ Bug fixes:
 # [OpenVSP 3.45.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.3)
 
 2025-08-26
+
+OpenVSP 3.45.3
 
 Mostly a bugfix release, but with a couple small features for good
 measure.
@@ -504,6 +353,8 @@ Bug Fixes:
 
 2025-08-26
 
+OpenVSP 3.44.5
+
 One more small bugfix release of fixes backported from 3.45.X.  One fix
 might be enough for some people to see fixing it as a feature -- but I'm
 calling it a fix so it can go in this version too.
@@ -542,6 +393,8 @@ Bug Fixes:
 # [OpenVSP 3.45.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.2)
 
 2025-08-18
+
+OpenVSP 3.45.2
 
 Another small bugfix release and just a few micro-features.
 
@@ -603,6 +456,8 @@ Bug Fixes:
 
 2025-08-18
 
+OpenVSP 3.44.4
+
 Another small bugfix release with fixes ported back from 3.45.X and just a
 few micro-features.
 
@@ -650,6 +505,8 @@ Bug Fixes:
 # [OpenVSP 3.45.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.1)
 
 2025-08-11
+
+OpenVSP 3.45.1
 
 This is a bugfix with a few extra goodies thrown in.  The applicable
 fixes from this release have been back ported to 3.44.3.  That version
@@ -747,6 +604,8 @@ Bug Fixes:
 
 2025-08-11
 
+OpenVSP 3.44.3
+
 This is a bugfix release made by back porting applicable fixes from
 the 3.45.X branch.  Update to this version if you can't update to
 3.45.X for some reason.  That said, 3.45.X has been going very well
@@ -790,6 +649,8 @@ Bug Fixes:
 # [OpenVSP 3.45.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.45.0)
 
 2025-07-18
+
+OpenVSP 3.45.0
 
 A huge update to VSPAERO and OpenVSP's support for and integration with it.
 This release represents ~27 months of OpenVSP development and ~18 months
@@ -878,6 +739,8 @@ Libraries:
 
 2025-07-18
 
+OpenVSP 3.44.2
+
 Another fix release to address two or three things in 3.44.1 before the
 release of 3.45.0.  3.45.0 is a really big change that is slightly more
 risky than OpenVSP's normal releases.  Consequently, I'm going to leave
@@ -926,6 +789,8 @@ Fixes:
 
 2025-07-17
 
+OpenVSP 3.43.3
+
 Another quick fix release to improve robustness of some CompGeom style
 operations.
 
@@ -942,6 +807,8 @@ Fixes:
 # [OpenVSP 3.44.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.1)
 
 2025-07-15
+
+OpenVSP 3.44.1
 
 This is a quick fix release to address a few issues that immediately
 appeared in 3.44.0.
@@ -977,6 +844,8 @@ Fixes:
 
 2025-07-15
 
+OpenVSP 3.43.2
+
 This is a quick fix release to improve robustness of some CompGeom style
 operations.
 
@@ -1000,6 +869,8 @@ Fixes:
 # [OpenVSP 3.44.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.44.0)
 
 2025-07-14
+
+OpenVSP 3.44.0
 
 Lots of features working together to create a paradigm shift.  I
 think this release will enable a huge change in how people use OpenVSP.
@@ -1117,6 +988,8 @@ Fixes:
 # [OpenVSP 3.43.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.43.1)
 
 2025-07-02
+
+OpenVSP 3.43.1
 
 One feature, a bunch of fixes, and lots of infrastructure in this release.
 

@@ -815,7 +815,7 @@ void FeaStructure::ResetExportFileNames()
     m_StructSettings.ResetExportFileNames( GetName() );
 }
 
-void FeaStructure::BuildSuppressList( double tol )
+void FeaStructure::BuildSuppressList()
 {
     m_Usuppress.clear();
     m_Wsuppress.clear();
@@ -852,7 +852,7 @@ void FeaStructure::BuildSuppressList( double tol )
                 pnts[j] = surf->CompPnt( ufeature[i], w );
             }
 
-            if ( PtsOnAnyPlanarPart( pnts, tol ) )
+            if ( PtsOnAnyPlanarPart( pnts ) )
             {
                 m_Usuppress.push_back( ufeature[i] );
             }
@@ -869,7 +869,7 @@ void FeaStructure::BuildSuppressList( double tol )
                 pnts[j] = surf->CompPnt( u, wfeature[i] );
             }
 
-            if ( PtsOnAnyPlanarPart( pnts, tol ) )
+            if ( PtsOnAnyPlanarPart( pnts ) )
             {
                 m_Wsuppress.push_back( wfeature[i] );
             }
@@ -877,15 +877,16 @@ void FeaStructure::BuildSuppressList( double tol )
     }
 }
 
-bool FeaStructure::PtsOnAnyPlanarPart( const vector < vec3d > &pnts, double tol )
+bool FeaStructure::PtsOnAnyPlanarPart( const vector < vec3d > &pnts )
 {
+    double minlen = m_FeaGridDensity.m_MinLen();
     // Loop over all parts.
     for ( int i  = 0; i < m_FeaPartVec.size(); i++ )
     {
         FeaPart* p = m_FeaPartVec[i];
         if ( p )
         {
-            if ( p->PtsOnPlanarPart( pnts, tol ) )
+            if ( p->PtsOnPlanarPart( pnts, minlen ) )
             {
                 return true;
             }
@@ -1550,8 +1551,10 @@ const VspSurf* FeaPart::GetMainSurf()
     return retsurf;
 }
 
-bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, double tol, int surf_ind )
+bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind )
 {
+    double tol = minlen / 10.0;
+
     if ( m_FeaPartSurfVec.size() > 0 )
     {
         VspSurf surf = m_FeaPartSurfVec[surf_ind];
@@ -5602,7 +5605,6 @@ void FeaProperty::Update()
         m_FeaMaterialIndex = -1;
     }
 
-    bool islaminate = false;
     FeaMaterial *fea_mat = StructureMgr.GetFeaMaterial( m_FeaMaterialID );
     if ( fea_mat )
     {
@@ -5611,7 +5613,6 @@ void FeaProperty::Update()
             m_Thickness = fea_mat->m_Thickness();
             m_Thickness_FEM = fea_mat->m_Thickness_FEM();
             m_LengthUnit = fea_mat->m_LengthUnit();
-            islaminate = true;
         }
     }
 
@@ -5770,10 +5771,7 @@ void FeaProperty::Update()
                 break;
         }
 
-        if ( !islaminate )
-        {
-            m_Thickness_FEM = ConvertLength( m_Thickness.Get(), m_LengthUnit(), length_unit );
-        }
+        m_Thickness_FEM = ConvertLength( m_Thickness.Get(), m_LengthUnit(), length_unit );
         m_CrossSecArea_FEM = ConvertLength2( m_CrossSecArea.Get(), m_LengthUnit(), length_unit );
         m_Ixx_FEM = ConvertLength4( m_Ixx.Get(), m_LengthUnit(), length_unit );
         m_Iyy_FEM = ConvertLength4( m_Iyy.Get(), m_LengthUnit(), length_unit );
@@ -7282,13 +7280,6 @@ void FeaMaterial::GetAprime( vec6 &aprime ) const
 
 void FeaMaterial::LaminateTheory3D()
 {
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if ( !veh )
-    {
-        return;
-    }
-
     int nlayer = m_LayerVec.size();
 
 
@@ -7488,33 +7479,6 @@ void FeaMaterial::LaminateTheory3D()
 
     m_Thickness_FEM = t_sum;
     m_MassDensity_FEM = m / t_sum;
-
-    int length_unit = -1;
-
-    switch ( ( int ) veh->m_StructUnit() )
-    {
-        case vsp::SI_UNIT:
-            length_unit = vsp::LEN_M;
-            break;
-
-        case vsp::CGS_UNIT:
-            length_unit = vsp::LEN_CM;
-            break;
-
-        case vsp::MPA_UNIT:
-            length_unit = vsp::LEN_MM;
-            break;
-
-        case vsp::BFT_UNIT:
-            length_unit = vsp::LEN_FT;
-            break;
-
-        case vsp::BIN_UNIT:
-            length_unit = vsp::LEN_IN;
-            break;
-    }
-
-    m_Thickness = ConvertLength( m_Thickness_FEM(), length_unit, m_LengthUnit() );
 }
 
 //////////////////////////////////////////////////////

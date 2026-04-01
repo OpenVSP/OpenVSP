@@ -982,8 +982,6 @@ public:
 
     virtual void OffsetXSecs( double off );
 
-    virtual void ClearSkinning( const int & i_xs = -1 );
-
     IntParm m_ActiveXSec;
 
 protected:

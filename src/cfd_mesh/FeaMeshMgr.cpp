@@ -152,10 +152,7 @@ void FeaMeshMgrSingleton::LoadSkins()
             FeaSkin* skin = dynamic_cast<FeaSkin*>( prt );
             assert( skin );
 
-            // Suppression list is built in un-scaled dimensions, but m_MinLen is in scaled dimensions.
-            // Use m_MinLen / 10 as tolerance for co-planar test for suppression of U/W feature lines.
-            double tol = GetMeshPtr()->m_FeaGridDensity.m_MinLen / GetMeshPtr()->m_LenScale / 10.0;
-            fea_struct->BuildSuppressList( tol );
+            fea_struct->BuildSuppressList();
 
             //===== Add FeaSkins ====//
             vector< XferSurf > skinxfersurfs;
@@ -1478,7 +1475,8 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     pnCloud.AddPntNodes( all_pnt_vec );
 
     //==== Compute Tol ====//
-    double tol = 0.0001 * GetGridDensityPtr()->m_MinLen;
+    BndBox bb = m_Vehicle->GetBndBox();
+    double tol = bb.GetLargestDist() * 1.0e-10;
 
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );

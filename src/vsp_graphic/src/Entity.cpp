@@ -69,7 +69,7 @@ void Entity::_predraw()
         break;
 
     case Common::VSP_DRAW_SHADED:
-        // Do nothing so surface does not occlude picking.
+        _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
 
     case Common::VSP_DRAW_WIRE_FRAME:
@@ -77,7 +77,7 @@ void Entity::_predraw()
         break;
 
     case Common::VSP_DRAW_WIRE_FRAME_SOLID:
-        // Do nothing so surface does not occlude picking.
+        _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
 
     case Common::VSP_DRAW_WIRE_FRAME_MAPPED:
@@ -97,7 +97,7 @@ void Entity::_predraw()
         break;
 
     case Common::VSP_DRAW_TEXTURED:
-        // Do nothing so surface does not occlude picking.
+        _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
 
     default:

@@ -148,7 +148,7 @@ public:
         return &m_FeaGridDensity;
     }
 
-    void BuildSuppressList( double tol );
+    void BuildSuppressList();
 
     vector < double > GetUSuppress()
     {
@@ -159,7 +159,7 @@ public:
         return m_Wsuppress;
     }
 
-    bool PtsOnAnyPlanarPart( const vector < vec3d > &pnts, double tol );
+    bool PtsOnAnyPlanarPart( const vector < vec3d > &pnts );
 
     // Boundary Condition Stuff
     void AddFeaBC( FeaBC* fea_bc )

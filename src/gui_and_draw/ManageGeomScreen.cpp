@@ -565,8 +565,6 @@ void ManageGeomScreen::AddGeom()
         m_VehSelected = false;
         string added_id = m_VehiclePtr->AddGeom( type );
         m_VehiclePtr->SetActiveGeom( added_id );
-        m_SelVec.clear();
-        m_SelVec.push_back( added_id );
         SetNeedsShowHideGeoms();
     }
 }
@@ -1303,9 +1301,7 @@ std::string ManageGeomScreen::getFeedbackGroupName()
 void ManageGeomScreen::Set( const std::string &geomId )
 {
     printf("%s\n", geomId.c_str());
-    m_GeomBrowser->deselect_all();
     m_VehiclePtr->SetActiveGeom(geomId);
-    m_SelVec = m_VehiclePtr->GetActiveGeomVec();
 
     SetNeedsShowHideGeoms();
     m_ScreenMgr->SetUpdateFlag( true );

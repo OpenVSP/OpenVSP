@@ -5057,27 +5057,18 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SkinLayout.AddIndexSelector( m_SkinIndexSelector );
 
 
-    m_SkinLayout.SetDividerHeight( m_SkinLayout.GetStdHeight() );
     int stdwidth = m_SkinLayout.GetButtonWidth();
     int btnwidth = 5 * stdwidth / 6;
     m_SkinLayout.SetButtonWidth( 2 * btnwidth ); // 2x math operations here to get same rounding error as the IndexSelector buttonwidth
     string label = m_XSecCurveAliasLabel;
     m_SkinLayout.AddInput( m_SkinXSecCurveNameInput, label.c_str() );
-    m_SkinLayout.SetButtonWidth( m_SkinLayout.GetRemainX() / 2 );
-    m_SkinLayout.AddYGap();
-    m_SkinLayout.AddDividerBox( "Skinning Control" );
-    m_SkinLayout.SetSameLineFlag( true );
-    m_SkinLayout.SetFitWidthFlag( false );
-    m_SkinLayout.AddButton( m_ClearSkinningButton, "Clear Skinning For XSec" );
-    m_SkinLayout.AddButton( m_ClearAllSkinningButton, "Clear Skinning For Entire Stack" );
-    m_SkinLayout.SetSameLineFlag( false );
-    m_SkinLayout.SetFitWidthFlag( true );
     m_SkinLayout.SetButtonWidth( stdwidth );
-    m_SkinLayout.ForceNewLine();
+    m_SkinLayout.AddYGap();
 
     m_SkinLayout.SetButtonWidth( 75 );
 
     int oldDH = m_SkinLayout.GetDividerHeight();
+    m_SkinLayout.SetDividerHeight( m_SkinLayout.GetStdHeight() );
 
     m_SkinLayout.AddYGap();
 
@@ -5397,26 +5388,7 @@ void SkinScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         }
         ParmMgr.SetDirtyFlag( true );
     }
-    else if ( gui_device == &m_ClearSkinningButton )
-    {
-        int xsid = geomxsec_ptr->m_ActiveXSec();
-        geomxsec_ptr->ClearSkinning( xsid );
-    }
-    else if ( gui_device == &m_ClearAllSkinningButton )
-    {
-        switch ( fl_choice( "Disable and clear all skinning values from stack?", "Cancel", "Clear Skinning", 0 ) )
-        {
-            case (0):
-            {
-                break;
-            }
-            case (1):
-            {
-                geomxsec_ptr->ClearSkinning();
-                break;
-            }
-        }
-    }
+
     XSecScreen::GuiDeviceCallBack( gui_device );
 }
 
@@ -5567,18 +5539,15 @@ void EngineModelScreen::BuildEngineGUI( GroupLayout & layout )
 
     m_EngineInModeChoice.AddItem( "FLOWTHROUGH", vsp::ENGINE_MODE_FLOWTHROUGH );
     m_EngineInModeChoice.AddItem( "FLOWTHROUGH NEGATIVE", vsp::ENGINE_MODE_FLOWTHROUGH_NEG );
-    m_EngineInModeChoice.AddItem( "FLOWTHROUGH NEGATIVE ONLY", vsp::ENGINE_MODE_FLOWTHROUGH_NEG_ONLY );
     m_EngineInModeChoice.AddItem( "TO LIP", vsp::ENGINE_MODE_TO_LIP );
     m_EngineInModeChoice.AddItem( "TO FACE", vsp::ENGINE_MODE_TO_FACE );
     m_EngineInModeChoice.AddItem( "TO FACE NEGATIVE", vsp::ENGINE_MODE_TO_FACE_NEG );
-    m_EngineInModeChoice.AddItem( "TO FACE NEGATIVE ONLY", vsp::ENGINE_MODE_TO_FACE_NEG_ONLY );
     m_EngineInModeChoice.AddItem( "EXTEND", vsp::ENGINE_MODE_EXTEND );
     layout.AddChoice( m_EngineInModeChoice, "Inlet Mode:" );
 
     m_EngineOutModeChoice.AddItem( "TO LIP", vsp::ENGINE_MODE_TO_LIP );
     m_EngineOutModeChoice.AddItem( "TO FACE", vsp::ENGINE_MODE_TO_FACE );
     m_EngineOutModeChoice.AddItem( "TO FACE NEGATIVE", vsp::ENGINE_MODE_TO_FACE_NEG );
-    m_EngineOutModeChoice.AddItem( "TO FACE NEGATIVE ONLY", vsp::ENGINE_MODE_TO_FACE_NEG_ONLY );
     m_EngineOutModeChoice.AddItem( "EXTEND", vsp::ENGINE_MODE_EXTEND );
     layout.AddChoice( m_EngineOutModeChoice, "Outlet Mode:" );
 
@@ -5592,7 +5561,6 @@ void EngineModelScreen::BuildEngineGUI( GroupLayout & layout )
     layout.SetChoiceButtonWidth( layout.GetButtonWidth() );
     layout.SetSliderWidth( layout.GetButtonWidth() );
 
-    layout.AddButton( m_EngineRotExtensionFlagButton, "Align X" );
     layout.AddButton( m_EngineAutoExtensionFlagButton, "Auto" );
     layout.AddChoice( m_EngineAutoExtensionSetChoice, "Set:" );
     layout.SetFitWidthFlag( true );
@@ -5712,9 +5680,15 @@ bool EngineModelScreen::Update( )
         }
     }
 
+    // Update menu while keeping setting.  Required to deactivate entries.
+    m_EngineGeomIOChoice.UpdateItems( true );
+    m_EngineGeomInChoice.UpdateItems( true );
+    m_EngineGeomOutChoice.UpdateItems( true );
+    m_EngineInModeChoice.UpdateItems( true );
+    m_EngineOutModeChoice.UpdateItems( true );
+
     m_EngineExtendDistanceSlider.Update( geomengine_ptr->m_ExtensionDistance.GetID() );
 
-    m_EngineRotExtensionFlagButton.Update( geomengine_ptr->m_RotExtensionFlag.GetID() );
     m_EngineAutoExtensionFlagButton.Update( geomengine_ptr->m_AutoExtensionFlag.GetID() );
 
     m_ScreenMgr->LoadSetChoice( {&m_EngineAutoExtensionSetChoice}, {geomengine_ptr->m_AutoExtensionSet.GetID()} );
