@@ -1605,8 +1605,8 @@ bool GearGeom::GetTwoPtAftContactPtNormal( const string &cp1, int isymm1, int su
     if ( b1 && b2 )
     {
         const vec3d nnom( 0, 0, 1 );
-        p1 = b1->GetAftContactPoint( isymm1, tire1, suspension1, thetabogie, thetawheel );
-        p2 = b2->GetAftContactPoint( isymm2, tire2, suspension2, thetabogie, thetawheel );
+        p1 = b1->GetAftContactPoint( isymm1, suspension1, tire1, thetabogie, thetawheel );
+        p2 = b2->GetAftContactPoint( isymm2, suspension2, tire2, thetabogie, thetawheel );
         pt = ( p1 + p2 ) * 0.5;
 
         // Make sure axis points generally to the right.
@@ -1651,8 +1651,8 @@ bool GearGeom::GetTwoPtFwdContactPtNormal( const string &cp1, int isymm1, int su
     if ( b1 && b2 )
     {
         const vec3d nnom( 0, 0, 1 );
-        p1 = b1->GetFwdContactPoint( isymm1, tire1, suspension1, thetabogie, thetawheel );
-        p2 = b2->GetFwdContactPoint( isymm2, tire2, suspension2, thetabogie, thetawheel );
+        p1 = b1->GetFwdContactPoint( isymm1, suspension1, tire1, thetabogie, thetawheel );
+        p2 = b2->GetFwdContactPoint( isymm2, suspension2, tire2, thetabogie, thetawheel );
         pt = ( p1 + p2 ) * 0.5;
 
         // Make sure axis points generally to the right.
