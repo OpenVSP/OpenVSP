@@ -2536,7 +2536,6 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
     ModeMgr.DecodeXml( node );
     StructureMgr.DecodeXml( node );
     GeometryAnalysisMgr.DecodeXml( node );
-    Background3DMgr.EncodeXml( node );
 
     return vehicle_node;
 }
