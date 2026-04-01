@@ -166,91 +166,91 @@ void WaveDragSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     if ( itheta >= 0 && itheta < m_ThetaRad.size() )
     {
 
-    // Get bounding box size for cutting plane visualizer dimensions
-    veh->UpdateBBox();
-    BndBox BBox;
-    BBox = veh->GetBndBox();
+        // Get bounding box size for cutting plane visualizer dimensions
+        veh->UpdateBBox();
+        BndBox BBox;
+        BBox = veh->GetBndBox();
 
-    double maxdel = 1.02 * BBox.GetLargestDist();
-    // Get y, z length of bounding box
-    double ydel = BBox.GetMax( 1 ) - BBox.GetMin( 1 );
-    double ycenter = BBox.GetMin( 1 ) + ydel/2;
-    double zdel = BBox.GetMax( 2 ) - BBox.GetMin( 2 );
-    double zcenter = BBox.GetMin( 2 ) + zdel/2;
+        double maxdel = 1.02 * BBox.GetLargestDist();
+        // Get y, z length of bounding box
+        double ydel = BBox.GetMax( 1 ) - BBox.GetMin( 1 );
+        double ycenter = BBox.GetMin( 1 ) + ydel/2;
+        double zdel = BBox.GetMax( 2 ) - BBox.GetMin( 2 );
+        double zcenter = BBox.GetMin( 2 ) + zdel/2;
 
-    // Establish four basic corners of cutting plane visuaizer, with norm in positive x-direction
-    int nq = 4;
-    vector< vec3d > quads(nq);
-    quads[0].set_xyz( 0,  maxdel,  maxdel );
-    quads[1].set_xyz( 0, -maxdel,  maxdel );
-    quads[2].set_xyz( 0, -maxdel, -maxdel );
-    quads[3].set_xyz( 0,  maxdel, -maxdel );
+        // Establish four basic corners of cutting plane visuaizer, with norm in positive x-direction
+        int nq = 4;
+        vector< vec3d > quads(nq);
+        quads[0].set_xyz( 0,  maxdel,  maxdel );
+        quads[1].set_xyz( 0, -maxdel,  maxdel );
+        quads[2].set_xyz( 0, -maxdel, -maxdel );
+        quads[3].set_xyz( 0,  maxdel, -maxdel );
 
-    // Get Mach angle and theta values
-    double MAngle = asin( 1 / m_MachNumber.Get() );
+        // Get Mach angle and theta values
+        double MAngle = asin( 1 / m_MachNumber.Get() );
 
-    double theta = m_ThetaRad[ itheta ];
+        double theta = m_ThetaRad[ itheta ];
 
-    for ( int i = 0; i < nq; i++ )
-    {
-        // Rotate cutting plane visualizer to Mach angle
-        quads[i].rotate_y( -( 0.5 * M_PI - MAngle ) );
-        // Rotate cutting plane visualizer to current theta
-        quads[i].rotate_x( theta );
-        // Move cutting plane visualizer to current slice section location
-        quads[i].offset_x( m_SlicingLoc.Get() );
-        quads[i].offset_y( ycenter );
-        quads[i].offset_z( zcenter );
-    }
+        for ( int i = 0; i < nq; i++ )
+        {
+            // Rotate cutting plane visualizer to Mach angle
+            quads[i].rotate_y( -( 0.5 * M_PI - MAngle ) );
+            // Rotate cutting plane visualizer to current theta
+            quads[i].rotate_x( theta );
+            // Move cutting plane visualizer to current slice section location
+            quads[i].offset_x( m_SlicingLoc.Get() );
+            quads[i].offset_y( ycenter );
+            quads[i].offset_z( zcenter );
+        }
 
-    // Get new normal
-    vec3d quadnorm = cross( quads[3] - quads[2], quads[1] - quads[2] );
-    quadnorm.normalize();
+        // Get new normal
+        vec3d quadnorm = cross( quads[3] - quads[2], quads[1] - quads[2] );
+        quadnorm.normalize();
 
-    // Establish OpenGL shaded plane
-    m_ShadeMeshViewPlane.m_GeomID = "IDFORVIEWPLANE";
-    m_ShadeMeshViewPlane.m_Type = DrawObj::VSP_SHADED_TRIS;
+        // Establish OpenGL shaded plane
+        m_ShadeMeshViewPlane.m_GeomID = "IDFORVIEWPLANE";
+        m_ShadeMeshViewPlane.m_Type = DrawObj::VSP_SHADED_TRIS;
 
-    // Create the triangles
-    m_ShadeMeshViewPlane.m_PntVec.push_back(quads[0]);
-    m_ShadeMeshViewPlane.m_PntVec.push_back(quads[1]);
-    m_ShadeMeshViewPlane.m_PntVec.push_back(quads[3]);
-    m_ShadeMeshViewPlane.m_PntVec.push_back(quads[1]);
-    m_ShadeMeshViewPlane.m_PntVec.push_back(quads[2]);
-    m_ShadeMeshViewPlane.m_PntVec.push_back(quads[3]);
+        // Create the triangles
+        m_ShadeMeshViewPlane.m_PntVec.push_back(quads[0]);
+        m_ShadeMeshViewPlane.m_PntVec.push_back(quads[1]);
+        m_ShadeMeshViewPlane.m_PntVec.push_back(quads[3]);
+        m_ShadeMeshViewPlane.m_PntVec.push_back(quads[1]);
+        m_ShadeMeshViewPlane.m_PntVec.push_back(quads[2]);
+        m_ShadeMeshViewPlane.m_PntVec.push_back(quads[3]);
 
-    for ( int i = 0; i < 6; i++ )
-    {
-        m_ShadeMeshViewPlane.m_NormVec.push_back(quadnorm);
-    }
+        for ( int i = 0; i < 6; i++ )
+        {
+            m_ShadeMeshViewPlane.m_NormVec.push_back(quadnorm);
+        }
 
-    // Set plane color to medium glass
-    for ( int i = 0; i < 4; i++ )
-    {
-        m_ShadeMeshViewPlane.m_MaterialInfo.Ambient[i] = 0.2f;
-        m_ShadeMeshViewPlane.m_MaterialInfo.Diffuse[i] = 0.1f;
-        m_ShadeMeshViewPlane.m_MaterialInfo.Specular[i] = 0.7f;
-        m_ShadeMeshViewPlane.m_MaterialInfo.Emission[i] = 0.0f;
-    }
-    m_ShadeMeshViewPlane.m_MaterialInfo.Diffuse[3] = 0.5f;
-    m_ShadeMeshViewPlane.m_MaterialInfo.Shininess = 5.0f;
+        // Set plane color to medium glass
+        for ( int i = 0; i < 4; i++ )
+        {
+            m_ShadeMeshViewPlane.m_MaterialInfo.Ambient[i] = 0.2f;
+            m_ShadeMeshViewPlane.m_MaterialInfo.Diffuse[i] = 0.1f;
+            m_ShadeMeshViewPlane.m_MaterialInfo.Specular[i] = 0.7f;
+            m_ShadeMeshViewPlane.m_MaterialInfo.Emission[i] = 0.0f;
+        }
+        m_ShadeMeshViewPlane.m_MaterialInfo.Diffuse[3] = 0.5f;
+        m_ShadeMeshViewPlane.m_MaterialInfo.Shininess = 5.0f;
 
-    // Push draw object for cutting plane visualizer
-    draw_obj_vec.push_back( &m_ShadeMeshViewPlane );
+        // Push draw object for cutting plane visualizer
+        draw_obj_vec.push_back( &m_ShadeMeshViewPlane );
 
-    // Establish OpenGL line loop for cutting plane visuaizer edge
-    m_ViewPlaneLine.m_GeomID = "IDFORVIEWPLANELINE";
-    m_ViewPlaneLine.m_Type = DrawObj::VSP_LINE_LOOP;
-    m_ViewPlaneLine.m_LineColor = vec3d( 0, 0, 0 );
-    m_ViewPlaneLine.m_LineWidth = 2.0;
+        // Establish OpenGL line loop for cutting plane visuaizer edge
+        m_ViewPlaneLine.m_GeomID = "IDFORVIEWPLANELINE";
+        m_ViewPlaneLine.m_Type = DrawObj::VSP_LINE_LOOP;
+        m_ViewPlaneLine.m_LineColor = vec3d( 0, 0, 0 );
+        m_ViewPlaneLine.m_LineWidth = 2.0;
 
-    for ( int i = 0; i < nq; i++ )
-    {
-        m_ViewPlaneLine.m_PntVec.push_back(quads[i]);
-    }
+        for ( int i = 0; i < nq; i++ )
+        {
+            m_ViewPlaneLine.m_PntVec.push_back(quads[i]);
+        }
 
-    // Push draw object for line loop
-    draw_obj_vec.push_back( &m_ViewPlaneLine );
+        // Push draw object for line loop
+        draw_obj_vec.push_back( &m_ViewPlaneLine );
     }
 }
 
