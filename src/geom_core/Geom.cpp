@@ -994,12 +994,13 @@ void GeomXForm::ComposeModelMatrix()
         // Apply Attached Matrix to Relative Matrix
         m_ModelMatrix.postMult( m_AttachMatrix.data() );
 
-        // Update Absolute Parameters
-        double tempMat[16];
-        m_ModelMatrix.getMat( tempMat );
-        m_XLoc = tempMat[12];
-        m_YLoc = tempMat[13];
-        m_ZLoc = tempMat[14];
+        // Update Absolute Parameters.
+        // Store the world position of center C so that ABS mode can use it as the
+        // rotation pivot.  When m_Center is zero this equals the translation column.
+        vec3d worldCenter = m_ModelMatrix.xform( m_Center );
+        m_XLoc = worldCenter.x();
+        m_YLoc = worldCenter.y();
+        m_ZLoc = worldCenter.z();
 
         vec3d angles = m_ModelMatrix.getAngles();
         m_XRot = angles.x();
@@ -1008,10 +1009,10 @@ void GeomXForm::ComposeModelMatrix()
     }
     else if ( m_AbsRelFlag() ==  vsp::ABS )
     {
-        // Apply normal translations
+        // XLoc/YLoc/ZLoc is the world position of center C.  Build M = T(XLoc)*R*T(-C)
+        // so that center C maps to XLoc in world space and the object rotates around it.
+        // When m_Center is zero this reduces to T(XLoc)*R, identical to the Center=0 case.
         m_ModelMatrix.translatef( m_XLoc(), m_YLoc(), m_ZLoc() );
-        // Translate to center, apply rotations, translate back
-        m_ModelMatrix.translatef( m_Center.x(), m_Center.y(), m_Center.z() );
         m_ModelMatrix.rotateX( m_XRot() );
         m_ModelMatrix.rotateY( m_YRot() );
         m_ModelMatrix.rotateZ( m_ZRot() );
@@ -1023,9 +1024,14 @@ void GeomXForm::ComposeModelMatrix()
         attachedMat.affineInverse();
         attachedMat.matMult( m_ModelMatrix.data() );
         attachedMat.getMat( tempMat );
-        m_XRelLoc = tempMat[12];
-        m_YRelLoc = tempMat[13];
-        m_ZRelLoc = tempMat[14];
+
+        // The translation column of attachedMat equals T_rel_vec + C - R_rel*C,
+        // because the REL branch builds T_rel * T_C * R * T_{-C} whose origin maps to
+        // T_rel_vec + C - R*C.  Recover T_rel_vec by adding R_rel*C - C.
+        vec3d rc = attachedMat.xformnorm( m_Center );
+        m_XRelLoc = tempMat[12] + rc.x() - m_Center.x();
+        m_YRelLoc = tempMat[13] + rc.y() - m_Center.y();
+        m_ZRelLoc = tempMat[14] + rc.z() - m_Center.z();
 
         vec3d angles = attachedMat.getAngles();
         m_XRelRot = angles.x();
