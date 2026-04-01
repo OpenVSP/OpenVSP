@@ -446,7 +446,8 @@ void SubSurface::BuildLSegChains( const vector< SSLineSeg > &svec, vector < vect
 
 void SubSurface::Update()
 {
-    if ( m_Type != vsp::SS_CONTROL )
+    if ( m_Type != vsp::SS_CONTROL &&
+         m_Type != vsp::SS_LINE )
     {
         ClampSegs();
     }
