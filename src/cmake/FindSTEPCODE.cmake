@@ -24,6 +24,7 @@ ELSE()
     shlwapi.lib )
 ENDIF()
 
+#${STEPCODE_INSTALL_DIR}/lib/libbase-static.a
 
 set( STEPCODE_INCLUDE_DIR
 ${STEPCODE_INSTALL_DIR}/include/stepcode

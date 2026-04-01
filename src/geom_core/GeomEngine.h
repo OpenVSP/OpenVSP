@@ -48,6 +48,8 @@ public:
     IntParm m_EngineInModeType;
     IntParm m_EngineOutModeType;
 
+    BoolParm m_RotExtensionFlag;
+
     IntParm m_AutoExtensionSet;
     BoolParm m_AutoExtensionFlag;
     Parm m_ExtensionDistance;
@@ -61,6 +63,7 @@ protected:
     virtual void Extend( VspSurf &surf, const double & u, bool extbefore );
     virtual void UpdateEngine();
     virtual void UpdateBBox();
+    virtual void UpdateXForm();
 
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj();

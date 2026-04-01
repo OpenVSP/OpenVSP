@@ -6410,6 +6410,22 @@ void GeomXSec::OffsetXSecs( double off )
     }
 }
 
+void GeomXSec::ClearSkinning( const int & i_xs )
+{
+    for ( int i = 0; GetXSec( i ); i++ )
+    {
+        SkinXSec* xs = (SkinXSec*) GetXSec( i );
+        if ( xs )
+        {
+            if ( ( i_xs == -1 ) || ( i == i_xs ) )
+            {
+                xs->ClearSkinning();
+            }
+        }
+    }
+    Update();
+}
+
 void GeomXSec::NormalizeFlaps()
 {
     int nflap = 0;

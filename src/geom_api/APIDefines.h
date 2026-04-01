@@ -487,9 +487,11 @@ enum ENGINE_LOC_INDEX_TYPES { ENGINE_LOC_INLET_LIP,	/*!< Integrated flowpath key
 /*! Enum for identifying how integrated flowpath modeling components are modeled. */
 enum ENGINE_MODE_TYPE { ENGINE_MODE_FLOWTHROUGH,	/*!< Represent integrated flowpath as flowthrough engine. */
                         ENGINE_MODE_FLOWTHROUGH_NEG,	/*!< Represent integrated flowpath as flowthrough engine with negative flowpath. */
+                        ENGINE_MODE_FLOWTHROUGH_NEG_ONLY,	/*!< Represent ONLY the integrated flowpath as flowthrough engine with negative flowpath. */
                         ENGINE_MODE_TO_LIP,	/*!< Represent integrated flowpath to the lip. */
                         ENGINE_MODE_TO_FACE,	/*!< Represent integrated flowpath to the face. */
                         ENGINE_MODE_TO_FACE_NEG,	/*!< Represent integrated flowpath to the face with negative flowpath to the face. */
+                        ENGINE_MODE_TO_FACE_NEG_ONLY,	/*!< Represent ONLY the integrated flowpath to the face with negative flowpath to the face. */
                         ENGINE_MODE_EXTEND,	/*!< Represent integrated flowpath with farfield extensions. */
                         ENGINE_MODE_NUM_TYPES	/*!< Number of integrated flowpath representations. */
 };
