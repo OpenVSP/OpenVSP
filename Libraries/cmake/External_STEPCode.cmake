@@ -20,6 +20,7 @@ ExternalProject_Add( STEPCODE
         -DSC_BUILD_STATIC_LIBS=ON
         -DSC_PYTHON_GENERATOR=OFF
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+		-DSC_ENABLE_TESTING=ON
 )
 ExternalProject_Get_Property( STEPCODE SOURCE_DIR )
 ExternalProject_Get_Property( STEPCODE BINARY_DIR )
