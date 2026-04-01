@@ -162,6 +162,10 @@ void WaveDragSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_ShadeMeshViewPlane.m_GeomChanged = true;
     m_ViewPlaneLine.m_GeomChanged = true;
 
+    int itheta = m_ThetaIndex() - 1;
+    if ( itheta >= 0 && itheta < m_ThetaRad.size() )
+    {
+
     // Get bounding box size for cutting plane visualizer dimensions
     veh->UpdateBBox();
     BndBox BBox;
@@ -185,7 +189,6 @@ void WaveDragSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     // Get Mach angle and theta values
     double MAngle = asin( 1 / m_MachNumber.Get() );
 
-    int itheta = m_ThetaIndex() - 1;
     double theta = m_ThetaRad[ itheta ];
 
     for ( int i = 0; i < nq; i++ )
@@ -248,6 +251,7 @@ void WaveDragSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     // Push draw object for line loop
     draw_obj_vec.push_back( &m_ViewPlaneLine );
+    }
 }
 
 string WaveDragSingleton::SliceAndAnalyze()
