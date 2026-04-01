@@ -11,13 +11,13 @@ IF(NOT WIN32)
     ${STEPCODE_INSTALL_DIR}/lib/libsteputils-static.a )
 ELSE()
     set( STEPCODE_LIBRARIES
-    ${STEPCODE_INSTALL_DIR}/lib/libexpress.lib
+    ${STEPCODE_INSTALL_DIR}/lib/express.lib
     ${STEPCODE_INSTALL_DIR}/lib/libexppp.lib
-    ${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.lib
-    ${STEPCODE_INSTALL_DIR}/lib/libstepeditor.lib
-    ${STEPCODE_INSTALL_DIR}/lib/libstepcore.lib
-    ${STEPCODE_INSTALL_DIR}/lib/libstepdai.lib
-    ${STEPCODE_INSTALL_DIR}/lib/libsteputils.lib
+    ${STEPCODE_INSTALL_DIR}/lib/sdai_ap203.lib
+    ${STEPCODE_INSTALL_DIR}/lib/stepeditor.lib
+    ${STEPCODE_INSTALL_DIR}/lib/stepcore.lib
+    ${STEPCODE_INSTALL_DIR}/lib/stepdai.lib
+    ${STEPCODE_INSTALL_DIR}/lib/steputils.lib
     # ${STEPCODE_INSTALL_DIR}/lib/libbase.lib removed in 0.8.2
     shlwapi.lib )
 ENDIF()
