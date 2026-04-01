@@ -13,8 +13,8 @@ IF(NOT WIN32)
     )
 ELSE()
     set( STEPCODE_LIBRARIES
-    # ${STEPCODE_INSTALL_DIR}/lib/libexpress.lib appears superfluous, and is causing build failures
-    # ${STEPCODE_INSTALL_DIR}/lib/libexppp.lib appears superfluous
+    ${STEPCODE_INSTALL_DIR}/lib/libexpress.lib
+    ${STEPCODE_INSTALL_DIR}/lib/libexppp.lib
     ${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.lib
     ${STEPCODE_INSTALL_DIR}/lib/libstepeditor.lib
     ${STEPCODE_INSTALL_DIR}/lib/libstepcore.lib
