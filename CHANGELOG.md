@@ -1,3 +1,113 @@
+# [OpenVSP 3.49.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.49.0)
+
+2026-04-02
+
+This release is all about one new capability and a lot of bug fixes.  Even if
+you don't plan on using the new capability, you should update for the fixes.
+
+There has been a lot of new stuff over the last year.  The best way to figure
+out how all of it works is to attend the OpenVSP Workshop in Daytona Beach, FL.
+August 4-6.  https://openvsp.org/wiki/doku.php?id=workshop2026
+
+Before I talk about the new capability, you should know about one of the fixes.
+
+Previously, if you used a non-zero center of rotation and toggled a component
+between REL and ABS positioning, it would walk off to la-la-land.  This has
+been fixed.  However, it means that a component in ABS with a non-zero
+center of rotation will now end up in a different location than before.
+This might change people's models.  I'm sorry.  It should be easy to detect
+and fix.
+
+Very few people use the center of rotation -- and ABS is used much less
+frequently than REL, so I'm optimistic this won't burn too many models.
+However, the risk is there.  Be careful.
+
+
+OpenVSP 3.44.0 introduced a native landing gear component to support a bunch
+of new analysis capabilities.  Those analyses really needed a definition of
+the ground plane and how the aircraft moves/rotates in relation to it.  So
+although it looked like landing gear, it was really about the ground plane.
+
+The gear model has been extended to also describe how the gear is stowed or
+retracted.  This is not a tool for the complex design of a retraction
+mechanism.  This is not a tool for kinematic analysis.  This is a very simple
+capability to help the early stage configurator have a plausible solution
+for where the gear is going to fit.  Think of it as starting point to throw
+over the wall to the gear design team -- where they won't be too mad at you.
+
+There are two modes, you can either specify the 'Stowed Position' or the
+'Gear Mechanism'.
+
+When working with Stowed Position, you specify the location and orientation
+of the stowed tires/bogies.  There is no mechanism preventing you from
+placing the nose gear in the vertical tail, or 20ft above the aircraft.  You
+just put the stowed gear where you want it, the reasonableness of that location
+is up to you.
+
+When working with Gear Mechanism, you specify a series of joints (trunnion,
+knee, wrist) and how they move.  The retraction motion schedules all movement
+in proportion (there is no scheduling or nonlinear speed).  There is no
+representation of any other part of the mechanism (no side struts, actuators,
+torque links, locks, etc.).  The intent is to specify a plausible way for the
+gear to move from extended to retracted.  This is not actually a gear
+design/analysis tool.
+
+The gear motion provides many degrees of freedom.  Use them sparingly.  Each
+additional motion represents added complexity and cost.  They are sometimes
+necessary, but they should always buy their way onto the airplane.
+
+Once you know where the gear is stowed, you can use the existing interference
+checks to ensure it fits in the OML and has adequate clearance with other
+subsystems.  To aid this, the Tire and Rim Association's tire clearance model
+has also been implemented.
+
+Using the gear component (and now retraction) has a lot to it.  It will not be
+trivial to figure out.  Come to the Workshop and you can learn it from me.
+
+There are lots of fixes all over the place.
+
+The Python API in the Ubuntu build has been fixed for real this time.  The
+Wave Drag tool won't crash when you look at it the wrong way.  Inlet/outlet
+subsurfaces might work with Wave Drag again.
+
+Corner rounding (mostly for rounded rectangle) should be more robust.  You can
+make a circle from a square now if you really want to.
+
+A crash with ground maneuverability analysis has been fixed.  Landing gear
+now show up correctly when loaded a second time.  Tail strike / tip strike
+analyses with off-nominal gear positions could sometimes have a parameter
+mismatch.
+
+Many other small fixes.
+
+Features:
+- Stowed / Retracted landing gear
+- TRA Clearance model
+- Single gear auxiliary geometry
+- Faster interactivity with landing gear
+
+Build system:
+- Use venv when building Ubuntu to fix numpy version problems
+- Update to Eigen3 5.0.0
+- Update OpenABF to support new Eigen
+
+Fixes:
+- Center of rotation with ABS positioning fixed
+- Wave drag crash on load
+- Ambiguous subsurface with line subsurfaces in WaveDrag
+- Fix mismatch of gear plane for certain analyses
+- Improve robustness of corner rounding
+- Fix crash with ground maneuverability analysis
+- Fix scrolling stability of Check Box Browsers
+- Fix some Python unit tests
+- Only show 'Apply Rotation' when it makes sense
+- Fix landing gear scaling on second load
+- Fix crash due to non-deregistered attribute collection
+
+
+---
+
+
 # [OpenVSP 3.48.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.48.2)
 
 2026-03-04
