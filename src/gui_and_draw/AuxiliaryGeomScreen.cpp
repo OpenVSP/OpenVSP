@@ -54,6 +54,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_DesignLayout.AddSubGroupLayout( m_3ptCCELayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_SuperConeXSecLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
 
+    m_RotorTipPathLayput.SetButtonWidth( m_RotorTipPathLayput.GetChoiceButtonWidth() );
     m_RotorTipPathLayput.AddButton( m_RTP_AutoDiamToggleButton, "Automatic Diameter" );
     m_RotorTipPathLayput.AddSlider( m_RTP_DiameterSlider, "Diameter", 1.0, "%5.4f" );
     m_RotorTipPathLayput.AddSlider( m_RTP_FlapRadiusFractSlider, "r_flap/R", 1.0, "%5.4f" );
@@ -61,6 +62,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_RotorTipPathLayput.AddSlider( m_RTP_ThetaAntiThrustSlider, "Theta Anti Thrust", 1.0, "%5.4f" );
 
 
+    m_RotorBurstLayout.SetButtonWidth( m_RotorBurstLayout.GetChoiceButtonWidth() );
     m_RotorBurstLayout.AddButton( m_RB_AutoDiamToggleButton, "Automatic Diameter" );
     m_RotorBurstLayout.AddSlider( m_RB_DiameterSlider, "Diameter", 1.0, "%5.4f" );
     m_RotorBurstLayout.AddSlider( m_RB_ThetaThrustSlider, "Theta Thrust", 1.0, "%5.4f" );
@@ -81,6 +83,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_3ptBogie1TireModeChoice.AddItem( "Flat", vsp::TIRE_FLAT_CONTACT );
     m_3ptBogie1TireModeChoice.UpdateItems();
 
+    m_3ptGroundPlaneLayout.SetButtonWidth( m_3ptGroundPlaneLayout.GetChoiceButtonWidth() );
     m_3ptGroundPlaneLayout.AddChoice( m_3ptBogie1Choice, "Bogie 1" );
     m_3ptGroundPlaneLayout.AddChoice( m_3ptBogie1SymmChoice, "I Symm" );
     m_3ptGroundPlaneLayout.AddChoice( m_3ptBogie1SuspensionModeChoice, "Suspension Mode" );
@@ -134,6 +137,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_2ptBogie1TireModeChoice.AddItem( "Flat", vsp::TIRE_FLAT_CONTACT );
     m_2ptBogie1TireModeChoice.UpdateItems();
 
+    m_2ptGroundPlaneLayout.SetButtonWidth( m_2ptGroundPlaneLayout.GetChoiceButtonWidth() );
     m_2ptGroundPlaneLayout.AddChoice( m_2ptBogie1Choice, "Bogie 1" );
     m_2ptGroundPlaneLayout.AddChoice( m_2ptBogie1SymmChoice, "I Symm" );
     m_2ptGroundPlaneLayout.AddChoice( m_2ptBogie1SuspensionModeChoice, "Suspension Mode" );
@@ -171,6 +175,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_1ptBogie1TireModeChoice.AddItem( "Flat", vsp::TIRE_FLAT_CONTACT );
     m_1ptBogie1TireModeChoice.UpdateItems();
 
+    m_1ptGroundPlaneLayout.SetButtonWidth( m_1ptGroundPlaneLayout.GetChoiceButtonWidth() );
     m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1Choice, "Bogie" );
     m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1SymmChoice, "I Symm" );
     m_1ptGroundPlaneLayout.AddChoice( m_1ptBogie1SuspensionModeChoice, "Suspension Mode" );
@@ -195,6 +200,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_SingleBogie1ClearanceModeChoice.AddItem( "Clearance", vsp::TIRE_CLEARANCE );
     m_SingleBogie1ClearanceModeChoice.UpdateItems();
 
+    m_SingleGearLayout.SetButtonWidth( m_SingleGearLayout.GetChoiceButtonWidth() );
     m_SingleGearLayout.AddChoice( m_SingleBogie1Choice, "Bogie" );
     m_SingleGearLayout.AddChoice( m_SingleBogie1GearModeChoice, "Gear Mode" );
     m_SingleGearLayout.AddSlider( m_SingleKRetractSlider, "Retract", 10, "%5.4f" );
@@ -215,6 +221,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_3ptCCEBogie1TireModeChoice.AddItem( "Flat", vsp::TIRE_FLAT_CONTACT );
     m_3ptCCEBogie1TireModeChoice.UpdateItems();
 
+    m_3ptCCELayout.SetButtonWidth( m_3ptCCELayout.GetChoiceButtonWidth() );
     m_3ptCCELayout.AddChoice( m_3ptCCEBogie1Choice, "Nose Gear Bogie" );
     m_3ptCCELayout.AddChoice( m_3ptCCEBogie1SymmChoice, "I Symm" );
     m_3ptCCELayout.AddChoice( m_3ptCCEBogie1SuspensionModeChoice, "Suspension Mode" );
@@ -260,7 +267,6 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
 
     m_3ptCCELayout.SetSameLineFlag( true );
     m_3ptCCELayout.SetFitWidthFlag( false );
-    m_3ptCCELayout.SetButtonWidth( m_3ptCCELayout.GetChoiceButtonWidth() );
     m_3ptCCELayout.AddButton( m_ReadCCEFileButton, "Read File" );
 
     m_CCEUnitChoice.AddItem( "mm", vsp::LEN_MM );
@@ -283,6 +289,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_3ptCCELayout.AddSlider( m_CCEMainGearOffsetSlider, "Main Gear Offset", 10, "%5.4f" );
 
     //==== XSec ====//
+    m_SuperConeXSecLayout.SetButtonWidth( m_SuperConeXSecLayout.GetChoiceButtonWidth() );
     m_SuperConeXSecLayout.AddDividerBox( "Cone Alignment" );
 
     m_SuperConeXSecLayout.SetSameLineFlag( true );
