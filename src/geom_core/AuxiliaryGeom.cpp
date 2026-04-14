@@ -194,16 +194,6 @@ void AuxiliaryGeom::UpdateSurf()
             {
                 m_Diameter.Activate();
             }
-
-            if ( m_AuxuliaryGeomMode() == AUX_GEOM_ROTOR_TIP_PATH )
-            {
-                m_FlapRadiusFract.Activate();
-            }
-            else // AUX_GEOM_ROTOR_BURST
-            {
-                m_FlapRadiusFract.Deactivate();
-            }
-
         }
 
 
@@ -261,27 +251,6 @@ void AuxiliaryGeom::UpdateSurf()
             linear_seg.set_control_point( cpAnti, 0 );
             linear_seg.set_control_point( cpOrigin, 1 );
             crv.AppendCurveSegment( linear_seg );
-
-            m_MainSurfVec[0].CreateBodyRevolution( crv, true );
-            m_MainSurfVec[0].SetMagicVParm( false );
-        }
-        else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_BURST )
-        {
-            double radius = m_Diameter() * 0.5;
-
-            double xstart = -m_RootOffset() * m_RootLength();
-            double xend = xstart + m_RootLength();
-
-            vector < vec3d > pts;
-            pts.emplace_back( vec3d( xstart, 0.0, 0.0 ) );
-            pts.emplace_back( vec3d( xstart + tan( -m_ThetaThrust() * M_PI / 180.0 ) * radius, radius, 0.0 ) );
-            pts.emplace_back( vec3d( xend + tan( m_ThetaAntiThrust() * M_PI / 180.0 ) * radius, radius, 0.0 ) );
-            pts.emplace_back( vec3d( xend, 0.0, 0.0 ) );
-
-            vector < double > ts = { 0, 4.0*1.0/3.0, 4.0*2.0/3.0, 4.0 };
-
-            VspCurve crv;
-            crv.InterpolateLinear( pts, ts, false );
 
             m_MainSurfVec[0].CreateBodyRevolution( crv, true );
             m_MainSurfVec[0].SetMagicVParm( false );
@@ -540,6 +509,27 @@ void AuxiliaryGeom::UpdateSurf()
         vec3d o;
         m_MainSurfVec[0].SkinPCPC0( censph, c, o );
     }
+    else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_BURST )
+    {
+        double radius = m_Diameter() * 0.5;
+
+        double xstart = -m_RootOffset() * m_RootLength();
+        double xend = xstart + m_RootLength();
+
+        vector < vec3d > pts;
+        pts.emplace_back( vec3d( xstart, 0.0, 0.0 ) );
+        pts.emplace_back( vec3d( xstart + tan( -m_ThetaThrust() * M_PI / 180.0 ) * radius, radius, 0.0 ) );
+        pts.emplace_back( vec3d( xend + tan( m_ThetaAntiThrust() * M_PI / 180.0 ) * radius, radius, 0.0 ) );
+        pts.emplace_back( vec3d( xend, 0.0, 0.0 ) );
+
+        vector < double > ts = { 0, 4.0*1.0/3.0, 4.0*2.0/3.0, 4.0 };
+
+        VspCurve crv;
+        crv.InterpolateLinear( pts, ts, false );
+
+        m_MainSurfVec[0].CreateBodyRevolution( crv, true );
+        m_MainSurfVec[0].SetMagicVParm( false );
+    }
 }
 
 void AuxiliaryGeom::UpdateMainTessVec()
@@ -790,8 +780,10 @@ string AuxiliaryGeom::GetNotes()
     switch ( m_AuxuliaryGeomMode() )
     {
         case vsp::AUX_GEOM_ROTOR_TIP_PATH:
+            return string( "Rotor Tip Path Auxiliary Geoms must be children of a Prop Geom." );
+            break;
         case vsp::AUX_GEOM_ROTOR_BURST:
-            return string( "Rotor Tip Path and Rotor Burst Auxiliary Geoms must be children of a Prop Geom." );
+            return string( "Rotor Burst Auxiliary Geoms can be children of any Geom type." );
             break;
         case vsp::AUX_GEOM_THREE_PT_GROUND:
         case vsp::AUX_GEOM_TWO_PT_GROUND:

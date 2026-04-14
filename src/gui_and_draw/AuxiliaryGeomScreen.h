@@ -67,7 +67,6 @@ protected:
     ToggleButton m_RB_AutoDiamToggleButton;
 
     SliderAdjRangeInput m_RB_DiameterSlider;
-    SliderAdjRangeInput m_RB_FlapRadiusFractSlider;
 
     SliderAdjRangeInput m_RB_ThetaThrustSlider;
     SliderAdjRangeInput m_RB_ThetaAntiThrustSlider;

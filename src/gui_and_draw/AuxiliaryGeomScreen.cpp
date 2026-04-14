@@ -63,7 +63,6 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
 
     m_RotorBurstLayout.AddButton( m_RB_AutoDiamToggleButton, "Automatic Diameter" );
     m_RotorBurstLayout.AddSlider( m_RB_DiameterSlider, "Diameter", 1.0, "%5.4f" );
-    m_RotorBurstLayout.AddSlider( m_RB_FlapRadiusFractSlider, "r_flap/R", 1.0, "%5.4f" );
     m_RotorBurstLayout.AddSlider( m_RB_ThetaThrustSlider, "Theta Thrust", 1.0, "%5.4f" );
     m_RotorBurstLayout.AddSlider( m_RB_ThetaAntiThrustSlider, "Theta Anti Thrust", 1.0, "%5.4f" );
     m_RotorBurstLayout.AddSlider( m_RB_RootLengthSlider, "Root Length", 1.0, "%5.4f" );
@@ -927,7 +926,6 @@ bool AuxiliaryGeomScreen::Update()
 
             m_RB_AutoDiamToggleButton.Update( auxiliary_ptr->m_AutoDiam.GetID() );
             m_RB_DiameterSlider.Update( auxiliary_ptr->m_Diameter.GetID() );
-            m_RB_FlapRadiusFractSlider.Update( auxiliary_ptr->m_FlapRadiusFract.GetID() );
             m_RB_ThetaThrustSlider.Update( auxiliary_ptr->m_ThetaThrust.GetID() );
             m_RB_ThetaAntiThrustSlider.Update( auxiliary_ptr->m_ThetaAntiThrust.GetID() );
             m_RB_RootLengthSlider.Update( auxiliary_ptr->m_RootLength.GetID() );
