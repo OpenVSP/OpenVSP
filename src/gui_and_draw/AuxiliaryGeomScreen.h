@@ -43,6 +43,7 @@ protected:
 
     GroupLayout m_RotorTipPathLayput;
     GroupLayout m_RotorBurstLayout;
+    GroupLayout m_FragmentLayout;
     GroupLayout m_3ptGroundPlaneLayout;
     GroupLayout m_2ptGroundPlaneLayout;
     GroupLayout m_1ptGroundPlaneLayout;
@@ -73,6 +74,23 @@ protected:
 
     SliderAdjRangeInput m_RB_RootLengthSlider;
     SliderAdjRangeInput m_RB_RootOffsetSlider;
+
+    // AC 20-128A Fragment
+    Choice m_FragModeChoice;
+
+    SliderAdjRangeInput m_FragDiskRadiusSlider;
+    SliderAdjRangeInput m_FragBladeLenSlider;
+    SliderAdjRangeInput m_FragBladeR0Slider;
+
+    SliderAdjRangeInput m_FragFragmentLenSlider;
+    SliderAdjRangeInput m_FragCGradiusSlider;
+
+    SliderAdjRangeInput m_FragReleaseAngleSlider;
+
+    ToggleButton m_FragRotDirToggleButton;
+
+    SliderAdjRangeInput m_FragThetaThrustSlider;
+    SliderAdjRangeInput m_FragThetaAntiThrustSlider;
 
     // 3pt Ground Plane
 

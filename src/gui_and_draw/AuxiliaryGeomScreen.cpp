@@ -27,6 +27,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
 
     m_AuxiliaryGeomModeChoice.AddItem( "Rotor Tip Path", vsp::AUX_GEOM_ROTOR_TIP_PATH );
     m_AuxiliaryGeomModeChoice.AddItem( "Rotor Burst", vsp::AUX_GEOM_ROTOR_BURST );
+    m_AuxiliaryGeomModeChoice.AddItem( "AC 20-128A Rotor Fragment", vsp::AUX_GEOM_ROTOR_FRAGMENT );
     m_AuxiliaryGeomModeChoice.AddItem( "3pt Ground Plane", vsp::AUX_GEOM_THREE_PT_GROUND );
     m_AuxiliaryGeomModeChoice.AddItem( "2pt Ground Plane", vsp::AUX_GEOM_TWO_PT_GROUND );
     m_AuxiliaryGeomModeChoice.AddItem( "1pt Ground Plane", vsp::AUX_GEOM_ONE_PT_GROUND );
@@ -47,6 +48,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
 
     m_DesignLayout.AddSubGroupLayout( m_RotorTipPathLayput, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_RotorBurstLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
+    m_DesignLayout.AddSubGroupLayout( m_FragmentLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_3ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_2ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_1ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
@@ -69,6 +71,40 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_RotorBurstLayout.AddSlider( m_RB_ThetaAntiThrustSlider, "Theta Anti Thrust", 1.0, "%5.4f" );
     m_RotorBurstLayout.AddSlider( m_RB_RootLengthSlider, "Root Length", 1.0, "%5.4f" );
     m_RotorBurstLayout.AddSlider( m_RB_RootOffsetSlider, "Root Offset", 1.0, "%5.4f" );
+
+
+    m_FragModeChoice.AddItem( "One Third Rotor Fragment", vsp::ONE_THIRD_ROTOR_FRAGMENT );
+    m_FragModeChoice.AddItem( "Intermediate Rotor Fragment", vsp::INTERMEDIATE_FRAGMENT );
+    m_FragModeChoice.AddItem( "Alternate Rotor Fragment", vsp::ALTERNATE_FRAGMENT );
+    m_FragModeChoice.AddItem( "Fan Blade Fragment", vsp::FAN_FRAGMENT );
+    m_FragModeChoice.AddItem( "Small Fragment", vsp::SMALL_FRAGMENT );
+    m_FragModeChoice.AddItem( "Generic Fragment", vsp::GENERIC_FRAGMENT );
+    m_FragModeChoice.UpdateItems();
+
+    m_FragmentLayout.AddDividerBox( "Fragment Model" );
+    m_FragmentLayout.AddChoice( m_FragModeChoice, "Model" );
+
+    m_FragmentLayout.SetButtonWidth( m_FragmentLayout.GetChoiceButtonWidth() );
+
+    m_FragmentLayout.AddYGap();
+    m_FragmentLayout.AddDividerBox( "Fragment Dimensions" );
+    m_FragmentLayout.AddSlider( m_FragDiskRadiusSlider, "Disk Radius", 10.0, "%5.4f" );
+    m_FragmentLayout.AddSlider( m_FragBladeLenSlider, "Blade Length", 10.0, "%5.4f" );
+
+    m_FragmentLayout.AddSlider( m_FragBladeR0Slider, "Blade Root Radius", 10.0, "%5.4f" );
+
+    m_FragmentLayout.AddSlider( m_FragFragmentLenSlider, "Fragment Length", 10.0, "%5.4f" );
+    m_FragmentLayout.AddSlider( m_FragCGradiusSlider, "CG Radius", 10.0, "%5.4f" );
+
+    m_FragmentLayout.AddYGap();
+    m_FragmentLayout.AddDividerBox( "Release Point" );
+    m_FragmentLayout.AddSlider( m_FragReleaseAngleSlider, "Release Angle", 100.0, "%5.4f" );
+    m_FragmentLayout.AddButton( m_FragRotDirToggleButton, "Rotate Direction" );
+
+    m_FragmentLayout.AddYGap();
+    m_FragmentLayout.AddDividerBox( "Spread Risk Angle" );
+    m_FragmentLayout.AddSlider( m_FragThetaThrustSlider, "Foreward", 10.0, "%5.4f" );
+    m_FragmentLayout.AddSlider( m_FragThetaAntiThrustSlider, "Aft", 10.0, "%5.4f" );
 
 
 
@@ -830,6 +866,7 @@ void AuxiliaryGeomScreen::DisplayGroup( GroupLayout* group )
 
     m_RotorTipPathLayput.Hide();
     m_RotorBurstLayout.Hide();
+    m_FragmentLayout.Hide();
     m_3ptGroundPlaneLayout.Hide();
     m_2ptGroundPlaneLayout.Hide();
     m_1ptGroundPlaneLayout.Hide();
@@ -937,6 +974,27 @@ bool AuxiliaryGeomScreen::Update()
             m_RB_ThetaAntiThrustSlider.Update( auxiliary_ptr->m_ThetaAntiThrust.GetID() );
             m_RB_RootLengthSlider.Update( auxiliary_ptr->m_RootLength.GetID() );
             m_RB_RootOffsetSlider.Update( auxiliary_ptr->m_RootOffset.GetID() );
+        }
+        else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_FRAGMENT )
+        {
+            DisplayGroup( &m_FragmentLayout );
+
+            m_FragModeChoice.Update( auxiliary_ptr->m_RotorFragmentMode.GetID() );
+
+            m_FragDiskRadiusSlider.Update( auxiliary_ptr->m_DiskRadius.GetID() );
+            m_FragBladeLenSlider.Update( auxiliary_ptr->m_BladeLength.GetID() );
+
+            m_FragBladeR0Slider.Update( auxiliary_ptr->m_BladeRootRadius.GetID() );
+
+            m_FragFragmentLenSlider.Update( auxiliary_ptr->m_FragLength.GetID() );
+            m_FragCGradiusSlider.Update( auxiliary_ptr->m_CGRadius.GetID() );
+
+            m_FragReleaseAngleSlider.Update( auxiliary_ptr->m_ReleaseAngle.GetID() );
+
+            m_FragRotDirToggleButton.Update( auxiliary_ptr->m_RotDir.GetID() );
+
+            m_FragThetaThrustSlider.Update( auxiliary_ptr->m_ThetaThrust.GetID() );
+            m_FragThetaAntiThrustSlider.Update( auxiliary_ptr->m_ThetaAntiThrust.GetID() );
         }
         else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
         {

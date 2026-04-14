@@ -592,6 +592,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_SINGLE_GEAR", AUX_GEOM_SINGLE_GEAR );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_ROTOR_FRAGMENT", AUX_GEOM_ROTOR_FRAGMENT );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "NUM_AUX_GEOM_MODES", NUM_AUX_GEOM_MODES );
     assert( r >= 0 );
 
@@ -1403,6 +1405,24 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_JENKINSON_TAIL", FF_W_JENKINSON_TAIL );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_SCHEMENSKY_SUPERCRITICAL_AF", FF_W_SCHEMENSKY_SUPERCRITICAL_AF );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "FRAGMENT_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FRAGMENT_MODE", "ONE_THIRD_ROTOR_FRAGMENT", ONE_THIRD_ROTOR_FRAGMENT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FRAGMENT_MODE", "INTERMEDIATE_FRAGMENT", INTERMEDIATE_FRAGMENT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FRAGMENT_MODE", "ALTERNATE_FRAGMENT", ALTERNATE_FRAGMENT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FRAGMENT_MODE", "FAN_FRAGMENT", FAN_FRAGMENT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FRAGMENT_MODE", "SMALL_FRAGMENT", SMALL_FRAGMENT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FRAGMENT_MODE", "GENERIC_FRAGMENT", GENERIC_FRAGMENT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FRAGMENT_MODE", "NUM_FRAGMENT_MODES", NUM_FRAGMENT_MODES );
     assert( r >= 0 );
 
 

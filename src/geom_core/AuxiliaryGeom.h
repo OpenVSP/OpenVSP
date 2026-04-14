@@ -83,8 +83,21 @@ public:
     Parm m_RootLength;
     Parm m_RootOffset;
 
+    IntParm m_RotorFragmentMode;
     Parm m_ThetaThrust;
     Parm m_ThetaAntiThrust;
+
+    Parm m_DiskRadius;
+    Parm m_BladeLength;
+    Parm m_BladeRootRadius;
+
+    Parm m_FragLength;
+    Parm m_CGRadius;
+
+    Parm m_ReleaseAngle;
+
+    BoolParm m_RotDir;
+
 
     int m_ParentType;
 

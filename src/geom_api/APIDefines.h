@@ -143,6 +143,7 @@ enum AUX_GEOM_MODE { AUX_GEOM_ROTOR_TIP_PATH,	/*!< Rotor tip path */
                      AUX_GEOM_THREE_PT_CCE,	/*!< Three contact point composite clearance envelope */
                      AUX_GEOM_SUPER_CONE,	/*!< Super cone (XSecCurve based profile) */
                      AUX_GEOM_SINGLE_GEAR,	/*!< Single (potentially) off nominal gear */
+                     AUX_GEOM_ROTOR_FRAGMENT,	/*!< AC 20-128 A rotor fragment */
                      NUM_AUX_GEOM_MODES	/*!< Number of auxiliary geom modes. */
 };
 
@@ -790,6 +791,19 @@ enum FF_W_EQN { FF_W_MANUAL = 0,	/*!< Manual FF equation */
                 FF_W_JENKINSON_WING,	/*!< Jenkinson Wing FF equation */
                 FF_W_JENKINSON_TAIL,	/*!< Jenkinson Tail FF equation */
                 FF_W_SCHEMENSKY_SUPERCRITICAL_AF,	/*!< Schemensky Supercritical Airfoil FF equation */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for AC 20-128A rotor fragment modes. */
+enum FRAGMENT_MODE { ONE_THIRD_ROTOR_FRAGMENT,	/*!< One third rotor fragment */
+                     INTERMEDIATE_FRAGMENT,	/*!< Intermediate rotor fragment */
+                     ALTERNATE_FRAGMENT,	/*!< Alternate rotor fragment model */
+                     FAN_FRAGMENT,	/*!< Fan blade fragment */
+                     SMALL_FRAGMENT,	/*!< Small fragment */
+                     GENERIC_FRAGMENT,	/*!< Generic fragment */
+                     NUM_FRAGMENT_MODES	/*!< Number of auxiliary geom modes. */
 };
 
 /*!

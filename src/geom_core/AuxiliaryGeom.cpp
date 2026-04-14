@@ -56,6 +56,30 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ThetaAntiThrust.Init( "ThetaAntiThrust", "Design", this, 15.0, 0.0, 1.0e12 );
     m_ThetaAntiThrust.SetDescript( "Cone angle in the direction opposite thrust." );
 
+    m_RotorFragmentMode.Init( "RotorFragmentMode", "Design", this, vsp::ONE_THIRD_ROTOR_FRAGMENT, vsp::ONE_THIRD_ROTOR_FRAGMENT, vsp::NUM_FRAGMENT_MODES - 1 );
+    m_RotorFragmentMode.SetDescript( "AC 20.128A Rotor fragment mode" );
+
+    m_DiskRadius.Init( "DiskRadius", "Design", this, 2.0, 0.0, 1.0e12 );
+    m_DiskRadius.SetDescript( "Disk radius of failing rotor" );
+
+    m_BladeLength.Init( "BladeLength", "Design", this, 1.0, 0.0, 1.0e12 );
+    m_BladeLength.SetDescript( "Blade length of failing rotor or fan" );
+
+    m_BladeRootRadius.Init( "BladeRootRadius", "Design", this, 0.1, 0.0, 1.0e12 );
+    m_BladeRootRadius.SetDescript( "Blade root radius of failing fan" );
+
+    m_FragLength.Init( "FragLength", "Design", this, 1.0, 0.0, 1.0e12 );
+    m_FragLength.SetDescript( "Fragment length of failing rotor" );
+
+    m_CGRadius.Init( "CGRadius", "Design", this, 1.0, 0.0, 1.0e12 );
+    m_CGRadius.SetDescript( "CG Radius of failing rotor" );
+
+    m_ReleaseAngle.Init( "ReleaseAngle", "Design", this, 0.0, 0.0, 360.0 );
+    m_ReleaseAngle.SetDescript( "Release angle of rotor fragment" );
+
+    m_RotDir.Init( "RotDir", "Design", this, false, false, true );
+    m_RotDir.SetDescript( "Rotation direction of failing rotor" );
+
     m_ContactPt1_Isymm.Init( "ContactPt1_Isymm", "Design", this, 0, 0, 1 );
     m_ContactPt1_SuspensionMode.Init( "ContactPt1_SuspensionMode", "Design", this, vsp::GEAR_SUSPENSION_NOMINAL, vsp::GEAR_SUSPENSION_NOMINAL, vsp::NUM_GEAR_SUSPENSION_MODES - 1 );
     m_ContactPt1_TireMode.Init( "ContactPt1_TireMode", "Design", this, vsp::TIRE_STATIC_LODED_CONTACT, vsp::TIRE_STATIC_LODED_CONTACT, vsp::NUM_TIRE_CONTACT_MODES - 1 );
@@ -171,6 +195,13 @@ void AuxiliaryGeom::UpdateSurf()
         }
     }
 
+    m_DiskRadius.Activate();
+    m_BladeLength.Activate();
+    m_BladeRootRadius.Activate();
+    m_FragLength.Activate();
+    m_CGRadius.Activate();
+    m_ThetaThrust.Activate();
+    m_ThetaAntiThrust.Activate();
 
     if ( m_ParentType == PROP_GEOM_TYPE )
     {
@@ -530,6 +561,138 @@ void AuxiliaryGeom::UpdateSurf()
         m_MainSurfVec[0].CreateBodyRevolution( crv, true );
         m_MainSurfVec[0].SetMagicVParm( false );
     }
+    else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_FRAGMENT )
+    {
+
+        m_DiskRadius.Deactivate();
+        m_BladeLength.Deactivate();
+        m_BladeRootRadius.Deactivate();
+
+        m_FragLength.Deactivate();
+        m_CGRadius.Deactivate();
+
+        m_ThetaThrust.Deactivate();
+        m_ThetaAntiThrust.Deactivate();
+
+        if ( m_RotorFragmentMode() == vsp::ONE_THIRD_ROTOR_FRAGMENT ||
+             m_RotorFragmentMode() == vsp::INTERMEDIATE_FRAGMENT ||
+             m_RotorFragmentMode() == vsp::ALTERNATE_FRAGMENT )
+        {
+            m_DiskRadius.Activate();
+            m_BladeLength.Activate();
+        }
+        else if ( m_RotorFragmentMode() == vsp::FAN_FRAGMENT ||
+                  m_RotorFragmentMode() == vsp::SMALL_FRAGMENT )
+        {
+            m_BladeLength.Activate();
+            m_BladeRootRadius.Activate();
+        }
+        else if ( m_RotorFragmentMode() == vsp::GENERIC_FRAGMENT )
+        {
+            m_FragLength.Activate();
+            m_CGRadius.Activate();
+
+            m_ThetaThrust.Activate();
+            m_ThetaAntiThrust.Activate();
+        }
+
+
+        // vsp::AUX_GEOM_GENERIC_FRAGMENT Skips this logic tree.
+        if ( m_RotorFragmentMode() == vsp::ONE_THIRD_ROTOR_FRAGMENT ||
+             m_RotorFragmentMode() == vsp::ALTERNATE_FRAGMENT )
+        {
+            const double theta = 2.0 * M_PI / 3.0;
+
+            const double r = m_DiskRadius() + m_BladeLength() / 3.0;
+            m_FragLength = 2 * r * sin ( theta * 0.5 );
+            m_CGRadius = r * cos ( theta * 0.5 );
+
+            if ( m_RotorFragmentMode() == vsp::ONE_THIRD_ROTOR_FRAGMENT )
+            {
+                m_ThetaThrust = 3;
+                m_ThetaAntiThrust = 3;
+            }
+            else // AUX_GEOM_ALTERNATE_FRAGMENT
+            {
+                m_ThetaThrust = 5;
+                m_ThetaAntiThrust = 5;
+            }
+        }
+        else if ( m_RotorFragmentMode() == vsp::INTERMEDIATE_FRAGMENT )
+        {
+            m_FragLength = ( m_DiskRadius() + m_BladeLength() ) / 3.0;
+            m_CGRadius = m_DiskRadius();
+
+            m_ThetaThrust = 5;
+            m_ThetaAntiThrust = 5;
+        }
+        else if ( m_RotorFragmentMode() == vsp::FAN_FRAGMENT )
+        {
+            m_FragLength = m_BladeLength() / 3.0;
+            m_CGRadius = m_BladeRootRadius() + m_BladeLength() * ( 5.0 / 6.0 );
+
+            m_ThetaThrust = 15;
+            m_ThetaAntiThrust = 15;
+        }
+        else if ( m_RotorFragmentMode() == vsp::SMALL_FRAGMENT )
+        {
+            m_FragLength = m_BladeLength() / 2.0;
+            m_CGRadius = m_BladeRootRadius() + m_BladeLength() * ( 3.0 / 4.0 );
+
+            m_ThetaThrust = 15;
+            m_ThetaAntiThrust = 15;
+        }
+
+        const double c = m_FragLength();
+        const double h = m_CGRadius();
+
+        int flip = 1;
+        if ( !m_RotDir() )
+        {
+            flip = -1;
+        }
+
+        vector < double > ts = { 0, 1.0, 2.0, 3.0, 4.0 };
+        vector < vec3d > pts;
+        pts.emplace_back( vec3d( 0.0, 0.0, h - 0.5 * c ) );
+        pts.emplace_back( vec3d( 0.0, 0.0, h - 0.5 * c ) );
+        pts.emplace_back( vec3d( 0.0, 0.0, h + 0.5 * c ) );
+        pts.emplace_back( vec3d( 0.0, 0.0, h + 0.5 * c ) );
+        pts.emplace_back( pts[ 0 ] );
+
+        vector < VspCurve > crv_vec(3);
+        crv_vec[0].InterpolateLinear( pts, ts, false );
+
+        pts.clear();
+        pts.emplace_back( vec3d( refLen * tan ( -m_ThetaThrust() * M_PI / 180.0 ), flip * refLen, h - 0.5 * c ) );
+        pts.emplace_back( vec3d( refLen * tan ( m_ThetaAntiThrust() * M_PI / 180.0 ), flip * refLen, h - 0.5 * c ) );
+        pts.emplace_back( vec3d( refLen * tan ( m_ThetaAntiThrust() * M_PI / 180.0 ), flip * refLen, h + 0.5 * c ) );
+        pts.emplace_back( vec3d( refLen * tan ( -m_ThetaThrust() * M_PI / 180.0 ), flip * refLen, h + 0.5 * c ) );
+        pts.emplace_back( pts[ 0 ] );
+
+        crv_vec[1].InterpolateLinear( pts, ts, false );
+
+        pts.clear();
+        pts.emplace_back( vec3d( 0.0, flip * refLen, h ) );
+        pts.emplace_back( vec3d( 0.0, flip * refLen, h ) );
+        pts.emplace_back( vec3d( 0.0, flip * refLen, h ) );
+        pts.emplace_back( vec3d( 0.0, flip * refLen, h ) );
+        pts.emplace_back( pts[ 0 ] );
+
+        crv_vec[2].InterpolateLinear( pts, ts, false );
+
+        m_MainSurfVec[0].SkinC0( crv_vec, false );
+
+        Matrix4d T;
+        T.rotateX( -flip * m_ReleaseAngle() );
+        m_MainSurfVec[0].Transform( T );
+
+        if ( !m_RotDir() )
+        {
+            m_MainSurfVec[0].FlipNormal();
+        }
+    }
+
 }
 
 void AuxiliaryGeom::UpdateMainTessVec()
@@ -783,7 +946,8 @@ string AuxiliaryGeom::GetNotes()
             return string( "Rotor Tip Path Auxiliary Geoms must be children of a Prop Geom." );
             break;
         case vsp::AUX_GEOM_ROTOR_BURST:
-            return string( "Rotor Burst Auxiliary Geoms can be children of any Geom type." );
+        case vsp::AUX_GEOM_ROTOR_FRAGMENT:
+            return string( "Rotor Burst and Fragment Auxiliary Geoms can be children of any Geom type." );
             break;
         case vsp::AUX_GEOM_THREE_PT_GROUND:
         case vsp::AUX_GEOM_TWO_PT_GROUND:
