@@ -594,6 +594,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_ROTOR_FRAGMENT", AUX_GEOM_ROTOR_FRAGMENT );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_THROWN_BLADE", AUX_GEOM_THROWN_BLADE );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "NUM_AUX_GEOM_MODES", NUM_AUX_GEOM_MODES );
     assert( r >= 0 );
 
@@ -2038,6 +2040,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "PROP_AZIMUTH_MODE", "PROP_AZI_BALANCED", PROP_AZI_BALANCED );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PROP_AZIMUTH_MODE", "NUM_PROP_AZI", NUM_PROP_AZI );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "PROP_BLADE_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_BLADE_MODE", "PROP_BLADE_TRADITIONAL", PROP_BLADE_TRADITIONAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_BLADE_MODE", "PROP_BLADE_NONTRADITIONAL", PROP_BLADE_NONTRADITIONAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_BLADE_MODE", "NUM_PROP_BLADE_MODES", NUM_PROP_BLADE_MODES );
     assert( r >= 0 );
 
 

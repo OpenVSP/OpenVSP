@@ -80,6 +80,12 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_RotDir.Init( "RotDir", "Design", this, false, false, true );
     m_RotDir.SetDescript( "Rotation direction of failing rotor" );
 
+    m_ThrownBladeMode.Init( "ThrownBladeMode", "Design", this, vsp::PROP_BLADE_TRADITIONAL, vsp::PROP_BLADE_TRADITIONAL, vsp::NUM_PROP_BLADE_MODES - 1);
+    m_ThrownBladeMode.SetDescript( "Mode for thrown blade model" );
+
+    m_ThrownBladeCGFrac.Init( "ThrownBladeCGFrac", "Design", this, 0.34, 0.0, 1.0 );
+    m_ThrownBladeCGFrac.SetDescript( "CG location of thrown blade" );
+
     m_ContactPt1_Isymm.Init( "ContactPt1_Isymm", "Design", this, 0, 0, 1 );
     m_ContactPt1_SuspensionMode.Init( "ContactPt1_SuspensionMode", "Design", this, vsp::GEAR_SUSPENSION_NOMINAL, vsp::GEAR_SUSPENSION_NOMINAL, vsp::NUM_GEAR_SUSPENSION_MODES - 1 );
     m_ContactPt1_TireMode.Init( "ContactPt1_TireMode", "Design", this, vsp::TIRE_STATIC_LODED_CONTACT, vsp::TIRE_STATIC_LODED_CONTACT, vsp::NUM_TIRE_CONTACT_MODES - 1 );
@@ -561,12 +567,14 @@ void AuxiliaryGeom::UpdateSurf()
         m_MainSurfVec[0].CreateBodyRevolution( crv, true );
         m_MainSurfVec[0].SetMagicVParm( false );
     }
-    else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_FRAGMENT )
+    else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_FRAGMENT ||
+              m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THROWN_BLADE )
     {
 
         m_DiskRadius.Deactivate();
         m_BladeLength.Deactivate();
         m_BladeRootRadius.Deactivate();
+        m_ThrownBladeCGFrac.Deactivate();
 
         m_FragLength.Deactivate();
         m_CGRadius.Deactivate();
@@ -574,6 +582,8 @@ void AuxiliaryGeom::UpdateSurf()
         m_ThetaThrust.Deactivate();
         m_ThetaAntiThrust.Deactivate();
 
+        if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_FRAGMENT )
+        {
         if ( m_RotorFragmentMode() == vsp::ONE_THIRD_ROTOR_FRAGMENT ||
              m_RotorFragmentMode() == vsp::INTERMEDIATE_FRAGMENT ||
              m_RotorFragmentMode() == vsp::ALTERNATE_FRAGMENT )
@@ -595,8 +605,22 @@ void AuxiliaryGeom::UpdateSurf()
             m_ThetaThrust.Activate();
             m_ThetaAntiThrust.Activate();
         }
+        }
+        else // AUX_GEOM_THROWN_BLADE
+        {
+            if ( m_ThrownBladeMode() == vsp::PROP_BLADE_NONTRADITIONAL )
+            {
+                m_ThrownBladeCGFrac.Activate();
+
+                m_ThetaThrust.Activate();
+                m_ThetaAntiThrust.Activate();
+            }
+            // else // PROP_BLADE_TRADITIONAL
+        }
 
 
+        if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_FRAGMENT )
+        {
         // vsp::AUX_GEOM_GENERIC_FRAGMENT Skips this logic tree.
         if ( m_RotorFragmentMode() == vsp::ONE_THIRD_ROTOR_FRAGMENT ||
              m_RotorFragmentMode() == vsp::ALTERNATE_FRAGMENT )
@@ -641,6 +665,35 @@ void AuxiliaryGeom::UpdateSurf()
 
             m_ThetaThrust = 15;
             m_ThetaAntiThrust = 15;
+        }
+        }
+        else
+        {
+            if ( m_ThrownBladeMode() == vsp::PROP_BLADE_TRADITIONAL )
+            {
+                m_ThetaThrust = 5;
+                m_ThetaAntiThrust = 5;
+
+                m_ThrownBladeCGFrac = 0.34;
+            }
+            // else // PROP_BLADE_NONTRADITIONAL
+
+            if ( m_ParentType == PROP_GEOM_TYPE )
+            {
+                PropGeom * parent_prop = dynamic_cast< PropGeom* > ( parent_geom );
+
+                if ( parent_prop )
+                {
+                    double r0 = parent_prop->GetR0();
+                    double r = 0.5 * parent_prop->m_Diameter();
+
+                    double bladelen = r * ( 1.0 - r0 );
+                    m_FragLength = 2.0 * std::max( 1.0 - m_ThrownBladeCGFrac(), m_ThrownBladeCGFrac() ) * bladelen;
+                    m_CGRadius = r0 * r + m_ThrownBladeCGFrac() * bladelen;
+
+                    m_RotDir = !parent_prop->m_ReverseFlag();
+                }
+            }
         }
 
         const double c = m_FragLength();
@@ -943,7 +996,8 @@ string AuxiliaryGeom::GetNotes()
     switch ( m_AuxuliaryGeomMode() )
     {
         case vsp::AUX_GEOM_ROTOR_TIP_PATH:
-            return string( "Rotor Tip Path Auxiliary Geoms must be children of a Prop Geom." );
+        case vsp::AUX_GEOM_THROWN_BLADE:
+            return string( "Rotor Tip Path and Thrown Blade Auxiliary Geoms must be children of a Prop Geom." );
             break;
         case vsp::AUX_GEOM_ROTOR_BURST:
         case vsp::AUX_GEOM_ROTOR_FRAGMENT:

@@ -28,6 +28,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_AuxiliaryGeomModeChoice.AddItem( "Rotor Tip Path", vsp::AUX_GEOM_ROTOR_TIP_PATH );
     m_AuxiliaryGeomModeChoice.AddItem( "Rotor Burst", vsp::AUX_GEOM_ROTOR_BURST );
     m_AuxiliaryGeomModeChoice.AddItem( "AC 20-128A Rotor Fragment", vsp::AUX_GEOM_ROTOR_FRAGMENT );
+    m_AuxiliaryGeomModeChoice.AddItem( "AC 25.905-1 Thrown Blade", vsp::AUX_GEOM_THROWN_BLADE );
     m_AuxiliaryGeomModeChoice.AddItem( "3pt Ground Plane", vsp::AUX_GEOM_THREE_PT_GROUND );
     m_AuxiliaryGeomModeChoice.AddItem( "2pt Ground Plane", vsp::AUX_GEOM_TWO_PT_GROUND );
     m_AuxiliaryGeomModeChoice.AddItem( "1pt Ground Plane", vsp::AUX_GEOM_ONE_PT_GROUND );
@@ -49,6 +50,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_DesignLayout.AddSubGroupLayout( m_RotorTipPathLayput, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_RotorBurstLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_FragmentLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
+    m_DesignLayout.AddSubGroupLayout( m_ThrownBladeLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_3ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_2ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_1ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
@@ -107,6 +109,28 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_FragmentLayout.AddSlider( m_FragThetaAntiThrustSlider, "Aft", 10.0, "%5.4f" );
 
 
+    m_ThrownBladeModeChoice.AddItem( "Basic Blade", vsp::ONE_THIRD_ROTOR_FRAGMENT );
+    m_ThrownBladeModeChoice.AddItem( "Unconventional Blade", vsp::INTERMEDIATE_FRAGMENT );
+    m_ThrownBladeModeChoice.UpdateItems();
+
+    m_ThrownBladeLayout.AddDividerBox( "Blade Model" );
+    m_ThrownBladeLayout.AddChoice( m_ThrownBladeModeChoice, "Model" );
+
+    m_ThrownBladeLayout.SetButtonWidth( m_ThrownBladeLayout.GetChoiceButtonWidth() );
+
+    m_ThrownBladeLayout.AddYGap();
+    m_ThrownBladeLayout.AddDividerBox( "Fragment Dimensions" );
+
+    m_ThrownBladeLayout.AddSlider( m_BladeCGSlider, "CG Fraction", 10.0, "%5.4f" );
+
+    m_ThrownBladeLayout.AddYGap();
+    m_ThrownBladeLayout.AddDividerBox( "Release Point" );
+    m_ThrownBladeLayout.AddSlider( m_BladeReleaseAngleSlider, "Release Angle", 100.0, "%5.4f" );
+
+    m_ThrownBladeLayout.AddYGap();
+    m_ThrownBladeLayout.AddDividerBox( "Spread Risk Angle" );
+    m_ThrownBladeLayout.AddSlider( m_BladeThetaThrustSlider, "Foreward", 10.0, "%5.4f" );
+    m_ThrownBladeLayout.AddSlider( m_BladeThetaAntiThrustSlider, "Aft", 10.0, "%5.4f" );
 
     m_3ptBogie1SuspensionModeChoice.AddItem( "Nominal", vsp::GEAR_SUSPENSION_NOMINAL );
     m_3ptBogie1SuspensionModeChoice.AddItem( "Compressed", vsp::GEAR_SUSPENSION_COMPRESSED );
@@ -867,6 +891,7 @@ void AuxiliaryGeomScreen::DisplayGroup( GroupLayout* group )
     m_RotorTipPathLayput.Hide();
     m_RotorBurstLayout.Hide();
     m_FragmentLayout.Hide();
+    m_ThrownBladeLayout.Hide();
     m_3ptGroundPlaneLayout.Hide();
     m_2ptGroundPlaneLayout.Hide();
     m_1ptGroundPlaneLayout.Hide();
@@ -995,6 +1020,19 @@ bool AuxiliaryGeomScreen::Update()
 
             m_FragThetaThrustSlider.Update( auxiliary_ptr->m_ThetaThrust.GetID() );
             m_FragThetaAntiThrustSlider.Update( auxiliary_ptr->m_ThetaAntiThrust.GetID() );
+        }
+        else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THROWN_BLADE )
+        {
+            DisplayGroup( &m_ThrownBladeLayout );
+
+            m_ThrownBladeModeChoice.Update( auxiliary_ptr->m_ThrownBladeMode.GetID() );
+
+            m_BladeCGSlider.Update( auxiliary_ptr->m_ThrownBladeCGFrac.GetID() );
+
+            m_BladeReleaseAngleSlider.Update( auxiliary_ptr->m_ReleaseAngle.GetID() );
+
+            m_BladeThetaThrustSlider.Update( auxiliary_ptr->m_ThetaThrust.GetID() );
+            m_BladeThetaAntiThrustSlider.Update( auxiliary_ptr->m_ThetaAntiThrust.GetID() );
         }
         else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
         {

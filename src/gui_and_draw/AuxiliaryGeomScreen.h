@@ -44,6 +44,7 @@ protected:
     GroupLayout m_RotorTipPathLayput;
     GroupLayout m_RotorBurstLayout;
     GroupLayout m_FragmentLayout;
+    GroupLayout m_ThrownBladeLayout;
     GroupLayout m_3ptGroundPlaneLayout;
     GroupLayout m_2ptGroundPlaneLayout;
     GroupLayout m_1ptGroundPlaneLayout;
@@ -91,6 +92,15 @@ protected:
 
     SliderAdjRangeInput m_FragThetaThrustSlider;
     SliderAdjRangeInput m_FragThetaAntiThrustSlider;
+
+    // AC 25.905-1 thrown blade
+    Choice m_ThrownBladeModeChoice;
+
+    SliderAdjRangeInput m_BladeCGSlider;
+    SliderAdjRangeInput m_BladeReleaseAngleSlider;
+
+    SliderAdjRangeInput m_BladeThetaThrustSlider;
+    SliderAdjRangeInput m_BladeThetaAntiThrustSlider;
 
     // 3pt Ground Plane
 

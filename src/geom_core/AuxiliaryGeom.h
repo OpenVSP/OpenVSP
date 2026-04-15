@@ -98,6 +98,8 @@ public:
 
     BoolParm m_RotDir;
 
+    IntParm m_ThrownBladeMode;
+    Parm m_ThrownBladeCGFrac;
 
     int m_ParentType;
 
