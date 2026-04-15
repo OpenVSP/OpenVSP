@@ -584,27 +584,27 @@ void AuxiliaryGeom::UpdateSurf()
 
         if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_FRAGMENT )
         {
-        if ( m_RotorFragmentMode() == vsp::ONE_THIRD_ROTOR_FRAGMENT ||
-             m_RotorFragmentMode() == vsp::INTERMEDIATE_FRAGMENT ||
-             m_RotorFragmentMode() == vsp::ALTERNATE_FRAGMENT )
-        {
-            m_DiskRadius.Activate();
-            m_BladeLength.Activate();
-        }
-        else if ( m_RotorFragmentMode() == vsp::FAN_FRAGMENT ||
-                  m_RotorFragmentMode() == vsp::SMALL_FRAGMENT )
-        {
-            m_BladeLength.Activate();
-            m_BladeRootRadius.Activate();
-        }
-        else if ( m_RotorFragmentMode() == vsp::GENERIC_FRAGMENT )
-        {
-            m_FragLength.Activate();
-            m_CGRadius.Activate();
+            if ( m_RotorFragmentMode() == vsp::ONE_THIRD_ROTOR_FRAGMENT ||
+                 m_RotorFragmentMode() == vsp::INTERMEDIATE_FRAGMENT ||
+                 m_RotorFragmentMode() == vsp::ALTERNATE_FRAGMENT )
+            {
+                m_DiskRadius.Activate();
+                m_BladeLength.Activate();
+            }
+            else if ( m_RotorFragmentMode() == vsp::FAN_FRAGMENT ||
+                      m_RotorFragmentMode() == vsp::SMALL_FRAGMENT )
+            {
+                m_BladeLength.Activate();
+                m_BladeRootRadius.Activate();
+            }
+            else if ( m_RotorFragmentMode() == vsp::GENERIC_FRAGMENT )
+            {
+                m_FragLength.Activate();
+                m_CGRadius.Activate();
 
-            m_ThetaThrust.Activate();
-            m_ThetaAntiThrust.Activate();
-        }
+                m_ThetaThrust.Activate();
+                m_ThetaAntiThrust.Activate();
+            }
         }
         else // AUX_GEOM_THROWN_BLADE
         {
@@ -621,51 +621,51 @@ void AuxiliaryGeom::UpdateSurf()
 
         if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ROTOR_FRAGMENT )
         {
-        // vsp::AUX_GEOM_GENERIC_FRAGMENT Skips this logic tree.
-        if ( m_RotorFragmentMode() == vsp::ONE_THIRD_ROTOR_FRAGMENT ||
-             m_RotorFragmentMode() == vsp::ALTERNATE_FRAGMENT )
-        {
-            const double theta = 2.0 * M_PI / 3.0;
-
-            const double r = m_DiskRadius() + m_BladeLength() / 3.0;
-            m_FragLength = 2 * r * sin ( theta * 0.5 );
-            m_CGRadius = r * cos ( theta * 0.5 );
-
-            if ( m_RotorFragmentMode() == vsp::ONE_THIRD_ROTOR_FRAGMENT )
+            // vsp::AUX_GEOM_GENERIC_FRAGMENT Skips this logic tree.
+            if ( m_RotorFragmentMode() == vsp::ONE_THIRD_ROTOR_FRAGMENT ||
+                 m_RotorFragmentMode() == vsp::ALTERNATE_FRAGMENT )
             {
-                m_ThetaThrust = 3;
-                m_ThetaAntiThrust = 3;
+                const double theta = 2.0 * M_PI / 3.0;
+
+                const double r = m_DiskRadius() + m_BladeLength() / 3.0;
+                m_FragLength = 2 * r * sin ( theta * 0.5 );
+                m_CGRadius = r * cos ( theta * 0.5 );
+
+                if ( m_RotorFragmentMode() == vsp::ONE_THIRD_ROTOR_FRAGMENT )
+                {
+                    m_ThetaThrust = 3;
+                    m_ThetaAntiThrust = 3;
+                }
+                else // AUX_GEOM_ALTERNATE_FRAGMENT
+                {
+                    m_ThetaThrust = 5;
+                    m_ThetaAntiThrust = 5;
+                }
             }
-            else // AUX_GEOM_ALTERNATE_FRAGMENT
+            else if ( m_RotorFragmentMode() == vsp::INTERMEDIATE_FRAGMENT )
             {
+                m_FragLength = ( m_DiskRadius() + m_BladeLength() ) / 3.0;
+                m_CGRadius = m_DiskRadius();
+
                 m_ThetaThrust = 5;
                 m_ThetaAntiThrust = 5;
             }
-        }
-        else if ( m_RotorFragmentMode() == vsp::INTERMEDIATE_FRAGMENT )
-        {
-            m_FragLength = ( m_DiskRadius() + m_BladeLength() ) / 3.0;
-            m_CGRadius = m_DiskRadius();
+            else if ( m_RotorFragmentMode() == vsp::FAN_FRAGMENT )
+            {
+                m_FragLength = m_BladeLength() / 3.0;
+                m_CGRadius = m_BladeRootRadius() + m_BladeLength() * ( 5.0 / 6.0 );
 
-            m_ThetaThrust = 5;
-            m_ThetaAntiThrust = 5;
-        }
-        else if ( m_RotorFragmentMode() == vsp::FAN_FRAGMENT )
-        {
-            m_FragLength = m_BladeLength() / 3.0;
-            m_CGRadius = m_BladeRootRadius() + m_BladeLength() * ( 5.0 / 6.0 );
+                m_ThetaThrust = 15;
+                m_ThetaAntiThrust = 15;
+            }
+            else if ( m_RotorFragmentMode() == vsp::SMALL_FRAGMENT )
+            {
+                m_FragLength = m_BladeLength() / 2.0;
+                m_CGRadius = m_BladeRootRadius() + m_BladeLength() * ( 3.0 / 4.0 );
 
-            m_ThetaThrust = 15;
-            m_ThetaAntiThrust = 15;
-        }
-        else if ( m_RotorFragmentMode() == vsp::SMALL_FRAGMENT )
-        {
-            m_FragLength = m_BladeLength() / 2.0;
-            m_CGRadius = m_BladeRootRadius() + m_BladeLength() * ( 3.0 / 4.0 );
-
-            m_ThetaThrust = 15;
-            m_ThetaAntiThrust = 15;
-        }
+                m_ThetaThrust = 15;
+                m_ThetaAntiThrust = 15;
+            }
         }
         else
         {
