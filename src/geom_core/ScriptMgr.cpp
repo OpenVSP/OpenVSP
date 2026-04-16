@@ -2558,6 +2558,22 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "W_HINT" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "W_HINT", "W_RIGHT_0", W_RIGHT_0 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "W_HINT", "W_BOTTOM", W_BOTTOM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "W_HINT", "W_LEFT", W_LEFT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "W_HINT", "W_TOP", W_TOP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "W_HINT", "W_RIGHT_1", W_RIGHT_1 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "W_HINT", "W_FREE", W_FREE );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "WING_BLEND" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "WING_BLEND", "BLEND_FREE", vsp::BLEND_FREE );
