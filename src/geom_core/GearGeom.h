@@ -71,6 +71,8 @@ public:
     vec3d GetFwdContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel ) const;
     vec3d GetAftContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel ) const;
     vec3d GetSideContactPoint( int isymm, int suspensionmode, int tiremode, double thetabogie, double thetawheel, int ysign ) const;
+    vec3d GetFwdSideContactPoint( int isymm, int suspensionmode, int tiremode, int ysign ) const;
+    vec3d GetFwdCenterContactPoint( int isymm, int suspensionmode, int tiremode, int igap ) const;
 
     virtual bool IsStowParentJoint();
     virtual bool IsMechParentJoint();

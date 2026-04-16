@@ -2630,6 +2630,35 @@ vec3d Bogie::GetSideContactPoint( int isymm, int suspensionmode, int tiremode, d
     return origin + v;
 }
 
+vec3d Bogie::GetFwdSideContactPoint( int isymm, int suspensionmode, int tiremode, int ysign ) const
+{
+    vec3d v( 0, ysign * GetBogieSemiWidth(), 0 );
+
+    vec3d origin = GetFwdContactPoint( isymm, suspensionmode, tiremode, 0, 0 );
+
+    return origin + v;
+}
+
+vec3d Bogie::GetFwdCenterContactPoint( int isymm, int suspensionmode, int tiremode, int igap ) const
+{
+    int na = m_NAcross();
+    double s = m_Spacing();
+
+    double ksymm = 1.0;
+    if ( isymm > 0 )
+    {
+        ksymm = -1.0;
+    }
+
+    double cenGapAcross = 0.5 * na * s;
+
+    vec3d v = vec3d( 0, ksymm * ( ( igap + 1 ) * s - cenGapAcross ), 0 );
+
+    vec3d origin = GetFwdContactPoint( isymm, suspensionmode, tiremode, 0, 0 );
+
+    return origin + v;
+}
+
 void Bogie::AppendMainSurf( vector < VspSurf > &surfvec, int gear_config ) const
 {
     TireToBogie( m_TireSurface, surfvec, gear_config );
