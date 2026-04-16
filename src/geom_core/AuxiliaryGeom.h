@@ -143,6 +143,9 @@ public:
     Parm m_SprayCenterElevationAngle;
     Parm m_SprayCenterWidth;
 
+
+    IntParm m_WheelTireFailureMode;
+
 protected:
 
     virtual void SetDirtyFlags( Parm* parm_ptr );

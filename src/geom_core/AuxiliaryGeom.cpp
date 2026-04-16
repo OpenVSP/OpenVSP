@@ -131,6 +131,11 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_SprayCenterWidth.SetDescript( "delta y_c/D Non dimensional center spray width" );
 
 
+    m_WheelTireFailureMode.Init( "m_WheelTireFailureMode", "Design", this, vsp::WHEEL_TIRE_1LG, vsp::WHEEL_TIRE_1LG, vsp::NUM_WHEEL_TIRE_FAILURE_MODES - 1 );
+    m_WheelTireFailureMode.SetDescript( "Mode for AMC 25.734 wheel and tire failure model" );
+
+
+
     m_SCWorldAligned.Init( "SCWorldAligned", "Design", this, true, false, true );
 
     m_BogieTheta.Init( "BogieTheta", "Design", this, 0.0, -180.0, 180.0 );
@@ -672,6 +677,20 @@ void AuxiliaryGeom::UpdateSurf()
 
             }
         }
+        else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_WHEEL_TIRE_FAILURE )
+        {
+            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            if ( gear )
+            {
+
+                const Bogie *b1 = gear->GetBogie( m_ContactPt1_ID );
+                if ( b1 )
+                {
+
+
+                }
+            }
+        }
     }
     else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
     {
@@ -929,7 +948,8 @@ void AuxiliaryGeom::UpdateSurf()
 void AuxiliaryGeom::UpdateMainTessVec()
 {
     if ( m_ParentType == GEAR_GEOM_TYPE &&
-         m_AuxuliaryGeomMode() != vsp::AUX_GEOM_TIRE_SPRAY )
+         m_AuxuliaryGeomMode() != vsp::AUX_GEOM_TIRE_SPRAY &&
+         m_AuxuliaryGeomMode() != AUX_GEOM_WHEEL_TIRE_FAILURE )
     {
         int nmain = GetNumMainSurfs();
 
@@ -983,7 +1003,8 @@ void AuxiliaryGeom::UpdateMainTessVec()
 void AuxiliaryGeom::UpdateMainDegenGeomPreview()
 {
     if ( m_ParentType == GEAR_GEOM_TYPE &&
-         m_AuxuliaryGeomMode() != vsp::AUX_GEOM_TIRE_SPRAY )
+         m_AuxuliaryGeomMode() != vsp::AUX_GEOM_TIRE_SPRAY &&
+         m_AuxuliaryGeomMode() != AUX_GEOM_WHEEL_TIRE_FAILURE )
     {
         int nmain = GetNumMainSurfs();
 
@@ -1195,7 +1216,8 @@ string AuxiliaryGeom::GetNotes()
         case vsp::AUX_GEOM_SINGLE_GEAR:
         case vsp::AUX_GEOM_THREE_PT_CCE:
         case vsp::AUX_GEOM_TIRE_SPRAY:
-            return string( "1pt, 2pt, 3pt Ground Plane, Single Gear, 3pt CCE, and Tire Spray Auxiliary Geoms must be children of a Gear Geom." );
+        case vsp::AUX_GEOM_WHEEL_TIRE_FAILURE:
+            return string( "1pt, 2pt, 3pt Ground Plane, Single Gear, 3pt CCE, Tire Spray, and Wheel and Tire Failure Auxiliary Geoms must be children of a Gear Geom." );
             break;
         case vsp::AUX_GEOM_SUPER_CONE:
             return string( "Super Cone Auxiliary Geoms can be children of any Geom type.  "

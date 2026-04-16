@@ -594,6 +594,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_TIRE_SPRAY", AUX_GEOM_TIRE_SPRAY );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_WHEEL_TIRE_FAILURE", AUX_GEOM_WHEEL_TIRE_FAILURE );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_ROTOR_FRAGMENT", AUX_GEOM_ROTOR_FRAGMENT );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_THROWN_BLADE", AUX_GEOM_THROWN_BLADE );
@@ -2555,6 +2557,24 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSP_SURF_TYPE", "DISK_SURF", DISK_SURF );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSP_SURF_TYPE", "NUM_SURF_TYPES", NUM_SURF_TYPES );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "WHEEL_TIRE_FAILURE_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WHEEL_TIRE_FAILURE_TYPE", "WHEEL_TIRE_1LG", WHEEL_TIRE_1LG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WHEEL_TIRE_FAILURE_TYPE", "WHEEL_TIRE_1SM", WHEEL_TIRE_1SM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WHEEL_TIRE_FAILURE_TYPE", "WHEEL_TIRE_2", WHEEL_TIRE_2 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WHEEL_TIRE_FAILURE_TYPE", "WHEEL_TIRE_3E", WHEEL_TIRE_3E );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WHEEL_TIRE_FAILURE_TYPE", "WHEEL_TIRE_3R", WHEEL_TIRE_3R );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WHEEL_TIRE_FAILURE_TYPE", "WHEEL_TIRE_4", WHEEL_TIRE_4 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WHEEL_TIRE_FAILURE_TYPE", "NUM_WHEEL_TIRE_FAILURE_MODES", NUM_WHEEL_TIRE_FAILURE_MODES );
     assert( r >= 0 );
 
 

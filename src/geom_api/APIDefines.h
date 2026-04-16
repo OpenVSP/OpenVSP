@@ -146,6 +146,7 @@ enum AUX_GEOM_MODE { AUX_GEOM_ROTOR_TIP_PATH,	/*!< Rotor tip path */
                      AUX_GEOM_ROTOR_FRAGMENT,	/*!< AC 20-128 A rotor fragment */
                      AUX_GEOM_THROWN_BLADE,	/*!< AC 25.905-1 thrown blade */
                      AUX_GEOM_TIRE_SPRAY,	/*!< ESDU 83042a Tire spray pattern */
+                     AUX_GEOM_WHEEL_TIRE_FAILURE,	/*!< AMC 25.734 Wheel and tire failure models */
                      NUM_AUX_GEOM_MODES	/*!< Number of auxiliary geom modes. */
 };
 
@@ -1662,6 +1663,20 @@ enum VSP_SURF_TYPE { NORMAL_SURF,	/*!< Normal VSP surface */
                      WING_SURF,	/*!< Wing VSP surface */
                      DISK_SURF,	/*!< Disk VSP surface */
                      NUM_SURF_TYPES,	/*!< Number of VSP surface types */
+};
+
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for AMC 25.734 wheel and tire failure models */
+enum WHEEL_TIRE_FAILURE_TYPE { WHEEL_TIRE_1LG,	/*!< Large tire debris */
+                               WHEEL_TIRE_1SM,	/*!< Small tire debris */
+                               WHEEL_TIRE_2,	/*!< Wheel flange debris */
+                               WHEEL_TIRE_3E,	/*!< Flailing tire strip extended */
+                               WHEEL_TIRE_3R,	/*!< Flailing tire strip retracted */
+                               WHEEL_TIRE_4,	/*!< Tire burst pressure (Not implemented)*/
+                               NUM_WHEEL_TIRE_FAILURE_MODES,	/*!< Number of wheel and tire failure modes */
 };
 
 /*!

@@ -34,6 +34,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_AuxiliaryGeomModeChoice.AddItem( "1pt Ground Plane", vsp::AUX_GEOM_ONE_PT_GROUND );
     m_AuxiliaryGeomModeChoice.AddItem( "Single Gear", vsp::AUX_GEOM_SINGLE_GEAR );
     m_AuxiliaryGeomModeChoice.AddItem( "ESDU 83042a Tire Spray Envelope", vsp::AUX_GEOM_TIRE_SPRAY );
+    m_AuxiliaryGeomModeChoice.AddItem( "AMC 25.734 Wheel and Tire Failure", vsp::AUX_GEOM_WHEEL_TIRE_FAILURE );
     m_AuxiliaryGeomModeChoice.AddItem( "3pt Composite Clearance Envelope", vsp::AUX_GEOM_THREE_PT_CCE );
     m_AuxiliaryGeomModeChoice.AddItem( "Super Cone", vsp::AUX_GEOM_SUPER_CONE );
     m_AuxiliaryGeomModeChoice.UpdateItems();
@@ -57,6 +58,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_DesignLayout.AddSubGroupLayout( m_1ptGroundPlaneLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_SingleGearLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_TireSprayLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
+    m_DesignLayout.AddSubGroupLayout( m_WheelTireFailureLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_3ptCCELayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
     m_DesignLayout.AddSubGroupLayout( m_SuperConeXSecLayout, m_DesignLayout.GetW(), m_DesignLayout.GetRemainY() );
 
@@ -346,6 +348,25 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_TireSprayLayout.AddDividerBox( "Center Spray" );
     m_TireSprayLayout.AddSlider( m_SprayCenterElevationAngleSlider, gammac, 10.0, "%5.4f" );
     m_TireSprayLayout.AddSlider( m_SprayCenterWidthSlider, deltayc, 10.0, "%5.4f" );
+
+
+    m_WheelTireFailureLayout.SetButtonWidth( m_WheelTireFailureLayout.GetChoiceButtonWidth() );
+    m_WheelTireFailureLayout.AddChoice( m_WheelTireFailureBogie1Choice, "Bogie" );
+    m_WheelTireFailureLayout.AddChoice( m_WheelTireFailureBogie1SymmChoice, "I Symm" );
+
+    m_WheelTireFailureLayout.AddYGap();
+    m_WheelTireFailureLayout.AddDividerBox( "Tire Contact" );
+
+    m_WheelTireFailureModeChoice.AddItem( "Model 1 Large", vsp::WHEEL_TIRE_1LG );
+    m_WheelTireFailureModeChoice.AddItem( "Model 1 Small", vsp::WHEEL_TIRE_1SM );
+    m_WheelTireFailureModeChoice.AddItem( "Model 2", vsp::WHEEL_TIRE_2 );
+    m_WheelTireFailureModeChoice.AddItem( "Model 3E", vsp::WHEEL_TIRE_3E );
+    m_WheelTireFailureModeChoice.AddItem( "Model 3R", vsp::WHEEL_TIRE_3R );
+    // m_WheelTireFailureModeChoice.AddItem( "Model 4", vsp::WHEEL_TIRE_4 ); // Not yet implemented
+    m_WheelTireFailureModeChoice.UpdateItems();
+
+    m_WheelTireFailureLayout.AddChoice( m_WheelTireFailureModeChoice, "Mode" );
+
 
 
     m_3ptCCEBogie1SuspensionModeChoice.AddItem( "Nominal", vsp::GEAR_SUSPENSION_NOMINAL );
@@ -975,6 +996,7 @@ void AuxiliaryGeomScreen::DisplayGroup( GroupLayout* group )
     m_1ptGroundPlaneLayout.Hide();
     m_SingleGearLayout.Hide();
     m_TireSprayLayout.Hide();
+    m_WheelTireFailureLayout.Hide();
     m_3ptCCELayout.Hide();
     m_SuperConeXSecLayout.Hide();
 
@@ -1203,6 +1225,15 @@ bool AuxiliaryGeomScreen::Update()
 
             m_SprayCenterElevationAngleSlider.Update( auxiliary_ptr->m_SprayCenterElevationAngle.GetID() );
             m_SprayCenterWidthSlider.Update( auxiliary_ptr->m_SprayCenterWidth.GetID() );
+        }
+        else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_WHEEL_TIRE_FAILURE )
+        {
+            DisplayGroup( &m_WheelTireFailureLayout );
+
+            m_WheelTireFailureBogie1SymmChoice.Update( auxiliary_ptr->m_ContactPt1_Isymm.GetID() );
+
+            m_WheelTireFailureModeChoice.Update( auxiliary_ptr->m_WheelTireFailureMode.GetID() );
+
         }
         else if ( auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
         {
@@ -1622,6 +1653,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
     m_1ptBogie1Choice.ClearItems();
     m_SingleBogie1Choice.ClearItems();
     m_SprayBogie1Choice.ClearItems();
+    m_WheelTireFailureBogie1Choice.ClearItems();
     m_3ptCCEBogie1Choice.ClearItems();
     m_3ptCCEBogie2Choice.ClearItems();
     m_3ptCCEBogie3Choice.ClearItems();
@@ -1631,7 +1663,8 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
          auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND ||
          auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SINGLE_GEAR ||
          auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE ||
-         auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TIRE_SPRAY )
+         auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TIRE_SPRAY ||
+         auxiliary_ptr->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_WHEEL_TIRE_FAILURE )
     {
         Geom* parent_geom = veh->FindGeom( auxiliary_ptr->GetParentID() );
 
@@ -1652,6 +1685,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
                 m_1ptBogie1Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_SingleBogie1Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_SprayBogie1Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
+                m_WheelTireFailureBogie1Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_3ptCCEBogie1Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_3ptCCEBogie2Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
                 m_3ptCCEBogie3Choice.AddItem( bogie_vec[i]->GetDesignation().c_str(), i );
@@ -1664,6 +1698,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
             m_1ptBogie1Choice.UpdateItems();
             m_SingleBogie1Choice.UpdateItems();
             m_SprayBogie1Choice.UpdateItems();
+            m_WheelTireFailureBogie1Choice.UpdateItems();
             m_3ptCCEBogie1Choice.UpdateItems();
             m_3ptCCEBogie2Choice.UpdateItems();
             m_3ptCCEBogie3Choice.UpdateItems();
@@ -1676,6 +1711,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
                 m_1ptBogie1Choice.SetVal( indx );
                 m_SingleBogie1Choice.SetVal( indx );
                 m_SprayBogie1Choice.SetVal( indx );
+                m_WheelTireFailureBogie1Choice.SetVal( indx );
                 m_3ptCCEBogie1Choice.SetVal( indx );
             }
             else if ( m_BogieIDVec.size() > 0 )
@@ -1686,6 +1722,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
                 m_1ptBogie1Choice.SetVal( 0 );
                 m_SingleBogie1Choice.SetVal( 0 );
                 m_SprayBogie1Choice.SetVal( 0 );
+                m_WheelTireFailureBogie1Choice.SetVal( 0 );
                 m_3ptCCEBogie1Choice.SetVal( 0 );
             }
 
@@ -1724,6 +1761,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
             m_1ptBogie1SymmChoice.ClearItems();
             m_SingleBogie1SymmChoice.ClearItems();
             m_SprayBogie1SymmChoice.ClearItems();
+            m_WheelTireFailureBogie1SymmChoice.ClearItems();
             m_3ptCCEBogie1SymmChoice.ClearItems();
 
             Bogie *b1 = gear->GetBogie( auxiliary_ptr->m_ContactPt1_ID );
@@ -1734,6 +1772,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
                 m_1ptBogie1SymmChoice.AddItem( "ISym = 0", 0 );
                 m_SingleBogie1SymmChoice.AddItem( "ISym = 0", 0 );
                 m_SprayBogie1SymmChoice.AddItem( "ISym = 0", 0 );
+                m_WheelTireFailureBogie1SymmChoice.AddItem( "ISym = 0", 0 );
                 m_3ptCCEBogie1SymmChoice.AddItem( "ISym = 0", 0 );
                 if ( b1->m_Symmetrical() )
                 {
@@ -1742,6 +1781,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
                     m_1ptBogie1SymmChoice.AddItem( "ISym = 1", 1 );
                     m_SingleBogie1SymmChoice.AddItem( "ISym = 1", 1 );
                     m_SprayBogie1SymmChoice.AddItem( "ISym = 1", 1 );
+                    m_WheelTireFailureBogie1SymmChoice.AddItem( "ISym = 1", 1 );
                     m_3ptCCEBogie1SymmChoice.AddItem( "ISym = 1", 1 );
                 }
             }
@@ -1755,6 +1795,8 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
             m_SingleBogie1SymmChoice.SetVal( auxiliary_ptr->m_ContactPt1_Isymm() );
             m_SprayBogie1SymmChoice.UpdateItems();
             m_SprayBogie1SymmChoice.SetVal( auxiliary_ptr->m_ContactPt1_Isymm() );
+            m_WheelTireFailureBogie1SymmChoice.UpdateItems();
+            m_WheelTireFailureBogie1SymmChoice.SetVal( auxiliary_ptr->m_ContactPt1_Isymm() );
             m_3ptCCEBogie1SymmChoice.UpdateItems();
             m_3ptCCEBogie1SymmChoice.SetVal( auxiliary_ptr->m_ContactPt1_Isymm() );
 

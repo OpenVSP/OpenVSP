@@ -50,6 +50,7 @@ protected:
     GroupLayout m_1ptGroundPlaneLayout;
     GroupLayout m_SingleGearLayout;
     GroupLayout m_TireSprayLayout;
+    GroupLayout m_WheelTireFailureLayout;
     GroupLayout m_3ptCCELayout;
     GroupLayout m_SuperConeXSecLayout;
 
@@ -173,6 +174,15 @@ protected:
 
     SliderAdjRangeInput m_SprayCenterElevationAngleSlider;
     SliderAdjRangeInput m_SprayCenterWidthSlider;
+
+    // AMC 25.734 Wheel and Tire Failure
+
+    Choice m_WheelTireFailureBogie1Choice;
+    Choice m_WheelTireFailureBogie1SymmChoice;
+
+    Choice m_WheelTireFailureModeChoice;
+
+
 
     // 3pt CCE
 
