@@ -750,8 +750,6 @@ void AuxiliaryGeom::UpdateSurf()
 
 void AuxiliaryGeom::UpdateMainTessVec()
 {
-    double tol = 1e-3;
-
     if ( m_ParentType == GEAR_GEOM_TYPE )
     {
         int nmain = GetNumMainSurfs();
