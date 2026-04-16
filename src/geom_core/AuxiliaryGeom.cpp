@@ -752,22 +752,22 @@ void AuxiliaryGeom::UpdateMainTessVec()
 {
     double tol = 1e-3;
 
-    int nmain = GetNumMainSurfs();
-
-    m_MainTessVec.clear();
-    m_MainFeatureTessVec.clear();
-
-    m_MainTessVec.reserve( nmain );
-    m_MainFeatureTessVec.reserve( nmain );
-
-    m_MainTessVec.resize( 1 );
-    m_MainFeatureTessVec.resize( 1 );
-
-    // Update primary main surf tess.
-    UpdateTess( m_MainSurfVec[ 0 ], m_CapUMinSuccess[ m_MainSurfIndxVec[ 0 ] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[ 0 ] ], m_MainTessVec[ 0 ], m_MainFeatureTessVec[ 0 ] );
-
     if ( m_ParentType == GEAR_GEOM_TYPE )
     {
+        int nmain = GetNumMainSurfs();
+
+        m_MainTessVec.clear();
+        m_MainFeatureTessVec.clear();
+
+        m_MainTessVec.reserve( nmain );
+        m_MainFeatureTessVec.reserve( nmain );
+
+        m_MainTessVec.resize( 1 );
+        m_MainFeatureTessVec.resize( 1 );
+
+        // Update primary main surf tess.
+        UpdateTess( m_MainSurfVec[ 0 ], m_CapUMinSuccess[ m_MainSurfIndxVec[ 0 ] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[ 0 ] ], m_MainTessVec[ 0 ], m_MainFeatureTessVec[ 0 ] );
+
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
         GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
         if ( gear )
@@ -796,6 +796,10 @@ void AuxiliaryGeom::UpdateMainTessVec()
                 TessContact1( gear, m_BogieTheta() );
             }
         }
+    }
+    else
+    {
+        Geom::UpdateMainTessVec();
     }
 }
 
