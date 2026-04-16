@@ -803,17 +803,17 @@ void AuxiliaryGeom::UpdateMainTessVec()
 
 void AuxiliaryGeom::UpdateMainDegenGeomPreview()
 {
-    int nmain = GetNumMainSurfs();
-
-    m_MainDegenGeomPreviewVec.clear();
-    m_MainDegenGeomPreviewVec.reserve( nmain );
-    m_MainDegenGeomPreviewVec.resize( 1 );
-
-    // Update primary main surf tess.
-    CreateDegenGeom( m_MainSurfVec[ 0 ], 0, m_MainDegenGeomPreviewVec[ 0 ], true, 1 );
-
     if ( m_ParentType == GEAR_GEOM_TYPE )
     {
+        int nmain = GetNumMainSurfs();
+
+        m_MainDegenGeomPreviewVec.clear();
+        m_MainDegenGeomPreviewVec.reserve( nmain );
+        m_MainDegenGeomPreviewVec.resize( 1 );
+
+        // Update primary main surf tess.
+        CreateDegenGeom( m_MainSurfVec[ 0 ], 0, m_MainDegenGeomPreviewVec[ 0 ], true, 1 );
+
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
         GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
         if ( gear )
@@ -841,6 +841,10 @@ void AuxiliaryGeom::UpdateMainDegenGeomPreview()
                 DegenContact1( gear, m_BogieTheta() );
             }
         }
+    }
+    else
+    {
+        Geom::UpdateMainDegenGeomPreview();
     }
 }
 
