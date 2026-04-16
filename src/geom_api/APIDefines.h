@@ -145,6 +145,7 @@ enum AUX_GEOM_MODE { AUX_GEOM_ROTOR_TIP_PATH,	/*!< Rotor tip path */
                      AUX_GEOM_SINGLE_GEAR,	/*!< Single (potentially) off nominal gear */
                      AUX_GEOM_ROTOR_FRAGMENT,	/*!< AC 20-128 A rotor fragment */
                      AUX_GEOM_THROWN_BLADE,	/*!< AC 25.905-1 thrown blade */
+                     AUX_GEOM_TIRE_SPRAY,	/*!< ESDU 83042a Tire spray pattern */
                      NUM_AUX_GEOM_MODES	/*!< Number of auxiliary geom modes. */
 };
 

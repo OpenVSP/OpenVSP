@@ -592,6 +592,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_SINGLE_GEAR", AUX_GEOM_SINGLE_GEAR );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_TIRE_SPRAY", AUX_GEOM_TIRE_SPRAY );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_ROTOR_FRAGMENT", AUX_GEOM_ROTOR_FRAGMENT );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "AUX_GEOM_MODE", "AUX_GEOM_THROWN_BLADE", AUX_GEOM_THROWN_BLADE );

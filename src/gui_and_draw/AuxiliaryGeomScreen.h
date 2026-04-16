@@ -49,6 +49,7 @@ protected:
     GroupLayout m_2ptGroundPlaneLayout;
     GroupLayout m_1ptGroundPlaneLayout;
     GroupLayout m_SingleGearLayout;
+    GroupLayout m_TireSprayLayout;
     GroupLayout m_3ptCCELayout;
     GroupLayout m_SuperConeXSecLayout;
 
@@ -155,6 +156,23 @@ protected:
     Choice m_SingleBogie1ClearanceModeChoice;
     Choice m_SingleBogie1GearModeChoice;
     SliderAdjRangeInput m_SingleKRetractSlider;
+
+    // Tire Spray
+
+    Choice m_SprayBogie1Choice;
+    Choice m_SprayBogie1SymmChoice;
+
+
+    SliderAdjRangeInput m_SprayTireContactWidthSlider;
+    SliderAdjRangeInput m_SprayTireContactHalfLengthSlider;
+
+    SliderAdjRangeInput m_SpraySideElevationAngleSlider;
+    SliderAdjRangeInput m_SpraySidePlanAngleSlider;
+    SliderAdjRangeInput m_SpraySideIncrementalAngleSlider;
+    SliderAdjRangeInput m_SpraySideInclinationAngleSlider;
+
+    SliderAdjRangeInput m_SprayCenterElevationAngleSlider;
+    SliderAdjRangeInput m_SprayCenterWidthSlider;
 
     // 3pt CCE
 

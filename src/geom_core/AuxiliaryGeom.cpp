@@ -105,6 +105,32 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_CCEMainGearOffset.Init( "CCEMainGearOffset", "Design", this, 0, -1e12, 1e12 );
 
+
+    m_SprayTireContactWidth.Init( "SprayTireContactWidth", "Design", this, 0.25, 0.0, 10.0 );
+    m_SprayTireContactWidth.SetDescript( "b_g/D Non dimensional tire contact width" );
+
+    m_SprayTireContactHalfLength.Init( "SprayTireContactHalfLength", "Design", this, 0.22, 0.0, 10.0 );
+    m_SprayTireContactHalfLength.SetDescript( "h/D Non dimensional tire contact half length" );
+
+    m_SpraySideElevationAngle.Init( "SpraySideElevationAngle", "Design", this, 15.0, 0.0, 90.0 );
+    m_SpraySideElevationAngle.SetDescript( "gamma_s Side spray elevation angle" );
+
+    m_SpraySidePlanAngle.Init( "SpraySidePlanAngle", "Design", this, 10.0, 0.0, 90.0 );
+    m_SpraySidePlanAngle.SetDescript( "theta_s Side spray plan angle" );
+
+    m_SpraySideIncrementalAngle.Init( "SpraySideIncrementalAngle", "Design", this, 4.0, 0.0, 90.0 );
+    m_SpraySideIncrementalAngle.SetDescript( "lambda_s Side spray incremental angle" );
+
+    m_SpraySideInclinationAngle.Init( "SpraySideInclinationAngle", "Design", this, 7.0, 0.0, 90.0 );
+    m_SpraySideInclinationAngle.SetDescript( "phi_s Side spray inclination angle" );
+
+    m_SprayCenterElevationAngle.Init( "SprayCenterElevationAngle", "Design", this, 20.0, 0.0, 90.0 );
+    m_SprayCenterElevationAngle.SetDescript( "gamma_c Center spray elevation angle" );
+
+    m_SprayCenterWidth.Init( "SprayCenterWidth", "Design", this, 0.1, 0.0, 1.0e2 );
+    m_SprayCenterWidth.SetDescript( "delta y_c/D Non dimensional center spray width" );
+
+
     m_SCWorldAligned.Init( "SCWorldAligned", "Design", this, true, false, true );
 
     m_BogieTheta.Init( "BogieTheta", "Design", this, 0.0, -180.0, 180.0 );
@@ -494,6 +520,158 @@ void AuxiliaryGeom::UpdateSurf()
                 AppendContact1Surfs( gear );
             }
         }
+        else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TIRE_SPRAY )
+        {
+            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            if ( gear )
+            {
+                m_MainSurfVec.clear();
+
+                const Bogie *b1 = gear->GetBogie( m_ContactPt1_ID );
+                if ( b1 )
+                {
+                    double D = b1->m_DiameterModel();
+                    double h = m_SprayTireContactHalfLength() * D;
+                    double bg = m_SprayTireContactWidth() * D;
+
+                    double gammas = m_SpraySideElevationAngle() * M_PI / 180.0;
+                    double thetas = m_SpraySidePlanAngle() * M_PI / 180.0;
+                    double lambdas = m_SpraySideIncrementalAngle() * M_PI / 180.0;
+                    double phis = m_SpraySideInclinationAngle() * M_PI / 180.0;
+
+                    double x0 = -2.0 * h;
+                    double y0 = 0.75 * bg;
+                    double z0 = 0.0;
+                    vec3d p0 = vec3d( x0, y0, z0 );
+
+                    double x = refLen;
+
+                    double zs = ( 2.0 * h + x ) * tan( gammas );
+                    double ys = y0 + ( 2.0 * h + x ) * tan( thetas );
+                    double deltays = ( 2.0 * h + x ) * tan( lambdas );
+
+                    double deltay_inc = zs * tan( phis );
+
+
+                    vector < double > ts = { 0, 1.0, 2.0, 3.0, 4.0 };
+                    vector < vec3d > pts;
+                    pts.emplace_back( p0 );
+                    pts.emplace_back( p0 );
+                    pts.emplace_back( p0 );
+                    pts.emplace_back( p0 );
+                    pts.emplace_back( pts[ 0 ] );
+
+                    vector < VspCurve > crv_vec(3);
+                    crv_vec[0].InterpolateLinear( pts, ts, false );
+
+                    pts.clear();
+                    pts.emplace_back( vec3d( x, ys, zs ) );
+                    pts.emplace_back( vec3d( x, ys - deltay_inc, 0.0 ) );
+                    pts.emplace_back( vec3d( x, ys - deltays - deltay_inc, 0.0 ) );
+                    pts.emplace_back( vec3d( x, ys - deltays, zs ) );
+                    pts.emplace_back( pts[ 0 ] );
+
+                    crv_vec[1].InterpolateLinear( pts, ts, false );
+
+                    vec3d pcen;
+                    for ( int i = 0; i < pts.size() - 1; i++ )
+                    {
+                        pcen += pts[i];
+                    }
+                    pcen *= 0.25;
+
+                    for ( int i = 0; i < pts.size(); i++ )
+                    {
+                        pts[i] = pcen;
+                    }
+
+                    crv_vec[2].InterpolateLinear( pts, ts, false );
+
+
+                    m_MainSurfVec.resize( 1 );
+                    m_MainSurfVec[0].SkinC0( crv_vec, false );
+                    m_MainSurfVec.push_back( m_MainSurfVec[0] );
+
+                    vec3d pt = b1->GetFwdSideContactPoint( m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),  m_ContactPt1_TireMode(), 1 );
+
+
+                    Matrix4d M;
+                    M.translatev( pt );
+
+                    m_MainSurfVec[0].Transform( M );
+
+                    pt = b1->GetFwdSideContactPoint( m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),  m_ContactPt1_TireMode(), -1 );
+
+                    M.loadIdentity();
+                    M.loadXZRef();
+                    m_MainSurfVec[1].Transform( M );
+                    m_MainSurfVec[1].FlipNormal();
+                    M.loadIdentity();
+                    M.translatev( pt );
+
+                    m_MainSurfVec[1].Transform( M );
+
+
+                    if ( b1->m_NAcross() > 1 && b1->m_NTandem() == 1 )
+                    {
+                        double gammac = m_SprayCenterElevationAngle() * M_PI / 180.0;
+
+                        double zc = ( 2.0 * h + x ) * tan( gammac );
+                        double yc = 0.5 * m_SprayCenterWidth() * D;
+
+                        pts.clear();
+                        pts.emplace_back( vec3d( x0, yc, 0.0 ) );
+                        pts.emplace_back( vec3d( x0, yc, 0.0 ) );
+                        pts.emplace_back( vec3d( x0, -yc, 0.0 ) );
+                        pts.emplace_back( vec3d( x0, -yc, 0.0 ) );
+                        pts.emplace_back( pts[ 0 ] );
+
+                        crv_vec[0].InterpolateLinear( pts, ts, false );
+
+                        pts.clear();
+                        pts.emplace_back( vec3d( x, yc, zc ) );
+                        pts.emplace_back( vec3d( x, yc, 0.0 ) );
+                        pts.emplace_back( vec3d( x, -yc, 0.0 ) );
+                        pts.emplace_back( vec3d( x, -yc, zc ) );
+                        pts.emplace_back( pts[ 0 ] );
+
+                        crv_vec[1].InterpolateLinear( pts, ts, false );
+
+                        pcen = vec3d();
+                        for ( int i = 0; i < pts.size() - 1; i++ )
+                        {
+                            pcen += pts[i];
+                        }
+                        pcen *= 0.25;
+
+                        for ( int i = 0; i < pts.size(); i++ )
+                        {
+                            pts[i] = pcen;
+                        }
+
+                        crv_vec[2].InterpolateLinear( pts, ts, false );
+
+                        VspSurf cen_spray;
+                        cen_spray.SkinC0( crv_vec, false );
+
+                        for ( int igap = 0; igap < b1->m_NAcross() - 1; igap++ )
+                        {
+                            vec3d pc = b1->GetFwdCenterContactPoint( m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),  m_ContactPt1_TireMode(), igap );
+
+                            Matrix4d Mc;
+                            Mc.translatev( pc );
+
+                            m_MainSurfVec.push_back( cen_spray );
+                            m_MainSurfVec.back().Transform( Mc );
+                        }
+
+                    }
+
+                }
+
+
+            }
+        }
     }
     else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
     {
@@ -750,7 +928,8 @@ void AuxiliaryGeom::UpdateSurf()
 
 void AuxiliaryGeom::UpdateMainTessVec()
 {
-    if ( m_ParentType == GEAR_GEOM_TYPE )
+    if ( m_ParentType == GEAR_GEOM_TYPE &&
+         m_AuxuliaryGeomMode() != vsp::AUX_GEOM_TIRE_SPRAY )
     {
         int nmain = GetNumMainSurfs();
 
@@ -803,7 +982,8 @@ void AuxiliaryGeom::UpdateMainTessVec()
 
 void AuxiliaryGeom::UpdateMainDegenGeomPreview()
 {
-    if ( m_ParentType == GEAR_GEOM_TYPE )
+    if ( m_ParentType == GEAR_GEOM_TYPE &&
+         m_AuxuliaryGeomMode() != vsp::AUX_GEOM_TIRE_SPRAY )
     {
         int nmain = GetNumMainSurfs();
 
@@ -1014,7 +1194,8 @@ string AuxiliaryGeom::GetNotes()
         case vsp::AUX_GEOM_ONE_PT_GROUND:
         case vsp::AUX_GEOM_SINGLE_GEAR:
         case vsp::AUX_GEOM_THREE_PT_CCE:
-            return string( "1pt, 2pt, 3pt Ground Plane, Single Gear, and 3pt CCE Auxiliary Geoms must be children of a Gear Geom." );
+        case vsp::AUX_GEOM_TIRE_SPRAY:
+            return string( "1pt, 2pt, 3pt Ground Plane, Single Gear, 3pt CCE, and Tire Spray Auxiliary Geoms must be children of a Gear Geom." );
             break;
         case vsp::AUX_GEOM_SUPER_CONE:
             return string( "Super Cone Auxiliary Geoms can be children of any Geom type.  "

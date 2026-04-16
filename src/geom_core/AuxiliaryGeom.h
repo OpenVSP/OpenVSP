@@ -130,6 +130,19 @@ public:
     Parm m_BogieTheta;
     Parm m_WheelTheta;
     Parm m_RollTheta;
+
+
+    Parm m_SprayTireContactWidth;
+    Parm m_SprayTireContactHalfLength;
+
+    Parm m_SpraySideElevationAngle;
+    Parm m_SpraySidePlanAngle;
+    Parm m_SpraySideIncrementalAngle;
+    Parm m_SpraySideInclinationAngle;
+
+    Parm m_SprayCenterElevationAngle;
+    Parm m_SprayCenterWidth;
+
 protected:
 
     virtual void SetDirtyFlags( Parm* parm_ptr );
