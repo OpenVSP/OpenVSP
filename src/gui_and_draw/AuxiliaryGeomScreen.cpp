@@ -111,8 +111,8 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_FragmentLayout.AddSlider( m_FragThetaAntiThrustSlider, "Aft", 10.0, "%5.4f" );
 
 
-    m_ThrownBladeModeChoice.AddItem( "Basic Blade", vsp::ONE_THIRD_ROTOR_FRAGMENT );
-    m_ThrownBladeModeChoice.AddItem( "Unconventional Blade", vsp::INTERMEDIATE_FRAGMENT );
+    m_ThrownBladeModeChoice.AddItem( "Basic Blade", vsp::PROP_BLADE_TRADITIONAL );
+    m_ThrownBladeModeChoice.AddItem( "Unconventional Blade", vsp::PROP_BLADE_NONTRADITIONAL );
     m_ThrownBladeModeChoice.UpdateItems();
 
     m_ThrownBladeLayout.AddDividerBox( "Blade Model" );
