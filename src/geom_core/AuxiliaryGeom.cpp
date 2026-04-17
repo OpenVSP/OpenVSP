@@ -679,6 +679,8 @@ void AuxiliaryGeom::UpdateSurf()
         }
         else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_WHEEL_TIRE_FAILURE )
         {
+            m_MainSurfVec.clear();
+
             GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
             if ( gear )
             {
@@ -686,7 +688,110 @@ void AuxiliaryGeom::UpdateSurf()
                 const Bogie *b1 = gear->GetBogie( m_ContactPt1_ID );
                 if ( b1 )
                 {
+                    if ( m_WheelTireFailureMode() == vsp::WHEEL_TIRE_2 )
+                    {
+                        double w2rim = b1->m_WrimModel() * 0.5;
+                        double dflange = b1->m_DFlangeModel();
 
+                        double theta = 20 * M_PI / 180.0;
+
+                        vector < vec3d > pts;
+                        pts.emplace_back( vec3d( 0.0, w2rim, 0.0 ) );
+                        pts.emplace_back( vec3d( 0.0, w2rim, 0.5 * dflange ) );
+                        pts.emplace_back( vec3d( 0.0, w2rim + refLen, 0.5 * dflange + refLen * tan( theta ) ) );
+                        pts.emplace_back( vec3d( 0.0, w2rim + refLen, 0.0 ) );
+
+                        vector < double > ts = { 0, 4.0*1.0/3.0, 4.0*2.0/3.0, 4.0 };
+
+                        VspCurve crv;
+                        crv.InterpolateLinear( pts, ts, false );
+
+                        VspSurf rim_burst;
+                        rim_burst.CreateBodyRevolution( crv, true, 1 );
+                        rim_burst.SetMagicVParm( false );
+
+
+                        double pitch = b1->m_Pitch();
+                        double ax = b1->GetAxleArm();
+                        double bogiew = b1->GetBogieSemiWidth();
+
+                        vec3d pivot = b1->GetPivotPoint( m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode() );
+
+                        for ( int itandem = 0; itandem < b1->m_NTandem(); itandem++ )
+                        {
+                            vec3d pt = pivot + vec3d( ax - itandem * pitch, bogiew, 0 );
+
+                            Matrix4d M;
+                            M.translatev( pt );
+
+                            m_MainSurfVec.push_back( rim_burst );
+                            m_MainSurfVec.back().Transform( M );
+                        }
+
+                        Matrix4d Mflip;
+                        Mflip.loadXZRef();
+
+                        rim_burst.Transform( Mflip );
+                        rim_burst.FlipNormal();
+
+                        for ( int itandem = 0; itandem < b1->m_NTandem(); itandem++ )
+                        {
+                            vec3d pt = pivot + vec3d( ax - itandem * pitch, -bogiew, 0 );
+
+                            Matrix4d M;
+                            M.translatev( pt );
+
+                            m_MainSurfVec.push_back( rim_burst );
+                            m_MainSurfVec.back().Transform( M );
+                        }
+                    }
+                    if ( m_WheelTireFailureMode() == vsp::WHEEL_TIRE_3E ||
+                         m_WheelTireFailureMode() == vsp::WHEEL_TIRE_3R )
+                    {
+                        double r = 0.5 * b1->m_DiameterModel();
+                        double wsg = b1->m_WsGModel();
+                        double lstrip = 2.5 * wsg;
+                        double rflail = sqrt( r * r + lstrip * lstrip );
+                        double hflail = rflail - r;
+
+                        double theta = 15 * M_PI / 180.0;
+                        double wflail = 0.25 * wsg + lstrip * tan( theta );
+
+                        vector < vec3d > pts;
+                        pts.emplace_back( vec3d( 0.0, 0.25 * wsg, r ) );
+                        pts.emplace_back( vec3d( 0.0, -0.25 * wsg, r ) );
+                        pts.emplace_back( vec3d( 0.0, -0.25 * wsg - wflail, rflail ) );
+                        pts.emplace_back( vec3d( 0.0, 0.25 * wsg + wflail, rflail ) );
+                        pts.emplace_back( pts[0] );
+
+                        vector < double > ts = { 0, 1.0, 2.0, 3.0, 4.0 };
+
+                        VspCurve crv;
+                        crv.InterpolateLinear( pts, ts, false );
+
+                        VspSurf flail;
+                        flail.CreateBodyRevolution( crv, true, 1 );
+                        flail.SetMagicVParm( false );
+
+                        bool stow = false;
+                        bool ret = false;
+                        double kretract = 0.0;
+                        if ( m_WheelTireFailureMode() == vsp::WHEEL_TIRE_3R )
+                        {
+                            if ( b1->m_RetMode() == vsp::GEAR_STOWED_POSITION )
+                            {
+                                stow = true;
+                            }
+                            else
+                            {
+                                ret = true;
+                                kretract = 1.0;
+                            }
+                        }
+
+                        b1->TireToBogie( flail, m_MainSurfVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), 0.0, stow, ret, kretract );
+
+                    }
 
                 }
             }
