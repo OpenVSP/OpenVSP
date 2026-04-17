@@ -72,19 +72,19 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_GCaseLayout.AddChoice( m_GeometryAnalysisTypeChoice, "Type", m_GCaseLayout.GetW() * 0.5 );
     m_GeometryAnalysisTypeChoice.AddItem( "External", vsp::EXTERNAL_INTERFERENCE );
-    m_GeometryAnalysisTypeChoice.AddItem( "Packaging", vsp::PACKAGING_INTERFERENCE );
     m_GeometryAnalysisTypeChoice.AddItem( "Self External", vsp::EXTERNAL_SELF_INTERFERENCE );
+    m_GeometryAnalysisTypeChoice.AddItem( "Packaging", vsp::PACKAGING_INTERFERENCE );
     m_GeometryAnalysisTypeChoice.AddItem( "Plane Distance", vsp::PLANE_STATIC_DISTANCE_INTERFERENCE );
     m_GeometryAnalysisTypeChoice.AddItem( "Plane 2pt Angle", vsp::PLANE_2PT_ANGLE_INTERFERENCE );
-    m_GeometryAnalysisTypeChoice.AddItem( "Tipback", vsp::GEAR_CG_TIPBACK_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Plane 1pt Angle", vsp::PLANE_1PT_ANGLE_INTERFERENCE );
-    m_GeometryAnalysisTypeChoice.AddItem( "Weight Distribution", vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS );
+    m_GeometryAnalysisTypeChoice.AddItem( "Tipback", vsp::GEAR_CG_TIPBACK_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Tipover", vsp::GEAR_TIPOVER_ANALYSIS );
+    m_GeometryAnalysisTypeChoice.AddItem( "Weight Distribution", vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Ground Maneuverability", vsp::GEAR_TURN_ANALYSIS );
-    m_GeometryAnalysisTypeChoice.AddItem( "From Point Visibility", vsp::VISIBLE_FROM_POINT_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Composite Clearance Envelope", vsp::CCE_INTERFERENCE );
-    m_GeometryAnalysisTypeChoice.AddItem( "Swept Volume", vsp::LINEAR_SWEPT_VOLUME_ANALYSIS );
+    m_GeometryAnalysisTypeChoice.AddItem( "From Point Visibility", vsp::VISIBLE_FROM_POINT_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Look At Visibility", vsp::VISIBLE_AT_SURF_ANALYSIS );
+    m_GeometryAnalysisTypeChoice.AddItem( "Swept Volume", vsp::LINEAR_SWEPT_VOLUME_ANALYSIS );
     m_GeometryAnalysisTypeChoice.UpdateItems();
 
     m_GCaseLayout.ForceNewLine();
