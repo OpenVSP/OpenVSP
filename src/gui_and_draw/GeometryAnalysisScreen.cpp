@@ -85,6 +85,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GeometryAnalysisTypeChoice.AddItem( "From Point Visibility", vsp::VISIBLE_FROM_POINT_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Look At Visibility", vsp::VISIBLE_AT_SURF_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Swept Volume", vsp::LINEAR_SWEPT_VOLUME_ANALYSIS );
+    m_GeometryAnalysisTypeChoice.AddItem( "Risk Angle", vsp::RISK_ANGLE );
     m_GeometryAnalysisTypeChoice.UpdateItems();
 
     m_GCaseLayout.ForceNewLine();
@@ -537,7 +538,8 @@ bool GeometryAnalysisScreen::Update()
         if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
              gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
              gcase->m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS ||
-             gcase->m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE )
+             gcase->m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE ||
+             gcase->m_GeometryAnalysisType() == vsp::RISK_ANGLE )
         {
             m_SecondaryGeomPicker.AddIncludeType( AUXILIARY_GEOM_TYPE );
         }

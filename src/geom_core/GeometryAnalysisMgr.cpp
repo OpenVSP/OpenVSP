@@ -93,7 +93,8 @@ void GeometryAnalysisCase::Update()
     if ( m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
          m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
          m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS ||
-         m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE )
+         m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE ||
+         m_GeometryAnalysisType() == vsp::RISK_ANGLE )
     {
         m_SecondaryType = vsp::GEOM_TARGET;
     }
@@ -1268,6 +1269,55 @@ string GeometryAnalysisCase::Evaluate()
 
                                 delete primary_tm;
                             }
+                        }
+                        else
+                        {
+                            MessageData errMsgData;
+                            errMsgData.m_String = "Error";
+                            errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                            char buf[255];
+                            snprintf( buf, sizeof( buf ), "Error:  Wrong geom type in %s.", m_Name.c_str() );
+                            errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                            MessageMgr::getInstance().SendAll( errMsgData );
+                        }
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
+                }
+                break;
+            }
+            case vsp::RISK_ANGLE:
+            {
+                Results *res = ResultsMgr.CreateResults( "Risk_Angle", "Thrown debris risk angle analysis." );
+                if( res )
+                {
+                    m_LastResult = res->GetID();
+                    primary_tmv = GetPrimaryTMeshVec();
+
+                    if ( !primary_tmv.empty() )
+                    {
+                        CSGMesh( primary_tmv );
+                        FlattenTMeshVec( primary_tmv );
+                        TMesh *primary_tm = MergeTMeshVec( primary_tmv );
+                        DeleteTMeshVec( primary_tmv );
+                        primary_tm->LoadBndBox();
+
+                        vec3d ptaxis;
+                        vec3d axis;
+                        vector < vec3d > t;
+                        int flip;
+                        if ( GetSecondarySpreadTri( ptaxis, axis, t, flip ) )
+                        {
                         }
                         else
                         {
