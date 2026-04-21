@@ -73,6 +73,7 @@ public:
     virtual bool GetTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );
     virtual bool GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
     virtual bool CalculateTurn( vec3d &cor, vec3d &normal, vector<double> &rvec );
+    virtual bool GetSpreadTri( vec3d &pt, vec3d &axis, vector < vec3d > &t, int &flip );
 
     IntParm m_AuxuliaryGeomMode;
 

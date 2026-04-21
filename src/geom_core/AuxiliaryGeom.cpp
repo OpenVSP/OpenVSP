@@ -2308,3 +2308,50 @@ bool AuxiliaryGeom::CalculateTurn( vec3d &cor, vec3d &normal, vector<double> &rv
     }
     return false;
 }
+
+bool AuxiliaryGeom::GetSpreadTri( vec3d &pt, vec3d &axis, vector < vec3d > &t, int &flip )
+{
+    double refLen = 30.0;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        BndBox emptybbox;
+        BndBox b = VehicleMgr.GetVehicle()->GetScaleIndependentBndBox();
+        if ( b != emptybbox )
+        {
+            refLen = 1.5 * b.DiagDist();
+        }
+    }
+
+    const double c = m_FragLength();
+    const double h = m_CGRadius();
+
+    flip = 1;
+    if ( !m_RotDir() )
+    {
+        flip = -1;
+    }
+
+    t.push_back( vec3d( 0.0, 0.0, h - 0.5 * c ) );
+    t.push_back( vec3d( refLen * tan ( -m_ThetaThrust() * M_PI / 180.0 ), flip * refLen, h - 0.5 * c ) );
+    t.push_back( vec3d( refLen * tan ( m_ThetaAntiThrust() * M_PI / 180.0 ), flip * refLen, h - 0.5 * c ) );
+
+
+    t.push_back( vec3d( 0.0, 0.0, h + 0.5 * c ) );
+    t.push_back( vec3d( refLen * tan ( m_ThetaAntiThrust() * M_PI / 180.0 ), flip * refLen, h + 0.5 * c ) );
+    t.push_back( vec3d( refLen * tan ( -m_ThetaThrust() * M_PI / 180.0 ), flip * refLen, h + 0.5 * c ) );
+
+    pt = vec3d( 0, 0, 0 );
+    axis = vec3d( -1.0, 0.0, 0.0 );
+
+    pt = m_ModelMatrix.xform( pt );
+    axis = m_ModelMatrix.xformnorm( axis );
+
+    for ( int i = 0; i < t.size(); i++ )
+    {
+        t[i] = m_ModelMatrix.xform( t[i] );
+    }
+
+    return true;
+}
