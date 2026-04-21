@@ -787,6 +787,26 @@ bool GeometryAnalysisCase::GetSecondaryPtNormalFwdAxleAxis( double thetabogie, v
     return false;
 }
 
+bool GeometryAnalysisCase::GetSecondarySpreadTri( vec3d &pt, vec3d &axis, vector < vec3d > &t, int &flip )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_SecondaryType() == vsp::GEOM_TARGET )
+        {
+            Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+
+            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
+
+            if ( auxiliary_ptr )
+            {
+                return auxiliary_ptr->GetSpreadTri( pt, axis, t, flip );
+            }
+        }
+    }
+    return false;
+}
+
 xmlNodePtr GeometryAnalysisCase::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr gcase_node = xmlNewChild( node, NULL, BAD_CAST"GeometryAnalysis", NULL );
