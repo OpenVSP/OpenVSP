@@ -4,25 +4,27 @@
 
 IF(NOT WIN32)
     set( STEPCODE_LIBRARIES
-    ${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.a
-    ${STEPCODE_INSTALL_DIR}/lib/libstepeditor.a
-    ${STEPCODE_INSTALL_DIR}/lib/libstepcore.a
-    ${STEPCODE_INSTALL_DIR}/lib/libstepdai.a
-    ${STEPCODE_INSTALL_DIR}/lib/libsteputils.a
-    ${STEPCODE_INSTALL_DIR}/lib/libbase.a )
+    ${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203-static.a
+    ${STEPCODE_INSTALL_DIR}/lib/libstepeditor-static.a
+    ${STEPCODE_INSTALL_DIR}/lib/libstepcore-static.a
+    ${STEPCODE_INSTALL_DIR}/lib/libstepdai-static.a
+    ${STEPCODE_INSTALL_DIR}/lib/libsteputils-static.a
+    # ${STEPCODE_INSTALL_DIR}/lib/libbase.a removed in 0.8.2
+    )
 ELSE()
     set( STEPCODE_LIBRARIES
-    ${STEPCODE_INSTALL_DIR}/lib/libexpress.lib
+    ${STEPCODE_INSTALL_DIR}/lib/express.lib
     ${STEPCODE_INSTALL_DIR}/lib/libexppp.lib
     ${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.lib
     ${STEPCODE_INSTALL_DIR}/lib/libstepeditor.lib
     ${STEPCODE_INSTALL_DIR}/lib/libstepcore.lib
     ${STEPCODE_INSTALL_DIR}/lib/libstepdai.lib
     ${STEPCODE_INSTALL_DIR}/lib/libsteputils.lib
-    ${STEPCODE_INSTALL_DIR}/lib/libbase.lib
+    # ${STEPCODE_INSTALL_DIR}/lib/libbase.lib removed in 0.8.2
     shlwapi.lib )
 ENDIF()
 
+#${STEPCODE_INSTALL_DIR}/lib/libbase-static.a
 
 set( STEPCODE_INCLUDE_DIR
 ${STEPCODE_INSTALL_DIR}/include/stepcode
