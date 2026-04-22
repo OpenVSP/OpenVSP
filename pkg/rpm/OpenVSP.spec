@@ -16,7 +16,7 @@ BuildRequires:  cmake >= 3.31, gcc, gcc-c++, rpm-build >= 4
 # BuildRequires: eigen3-devel major version change to 5.x breaks OpenABF.
 #fltk-fluid, fltk-devel,
 BuildRequires: angelscript
-BuildRequries: angelscript-devel
+BuildRequires: angelscript-devel
 BuildRequires: mesa-libGL-devel, mesa-libGLU-devel
 BuildRequires: python3-numpy
 
