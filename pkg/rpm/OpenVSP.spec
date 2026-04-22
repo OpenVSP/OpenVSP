@@ -49,7 +49,7 @@ pushd src
 %cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=OFF \
-    -DVSP_LIBRARY_PATH=%{_builddir}/OpenVSP-%{commit}}/Libraries/redhat-linux-build
+    -DVSP_LIBRARY_PATH=%{_builddir}/OpenVSP-%{commit}/Libraries/redhat-linux-build
 %cmake_build
 
 %install
