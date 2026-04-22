@@ -15,6 +15,7 @@ BuildRequires: libxml2-devel >= 2.12.10, gcc-c++ >= 14.2.1-2, openjpeg-devel >= 
 BuildRequires:  cmake >= 3.31, gcc, gcc-c++, rpm-build >= 4
 # BuildRequires: eigen3-devel major version change to 5.x breaks OpenABF.
 #fltk-fluid, fltk-devel,
+BuildRequires: angelscript
 BuildRequires: mesa-libGL-devel, mesa-libGLU-devel
 BuildRequires: python3-numpy
 
@@ -37,6 +38,7 @@ pushd Libraries
     -DVSP_USE_SYSTEM_GLEW=true \
     -DVSP_USE_SYSTEM_CMINPACK=true \
     -DVSP_USE_SYSTEM_EIGEN=false \
+    -DVSP_USE_SYSTEM_ANGELSCRIPT \
     -DVSP_USE_SYSTEM_CPPTEST=false
 %cmake_build
 popd
