@@ -6,6 +6,7 @@
 #include "VspUtil.h"
 #include <random>
 #include <pcg_random.hpp>
+#include <cmath>
 
 //==== Generate A Unique Random String of Length =====//
 string GenerateRandomID( int length )
@@ -143,4 +144,24 @@ double linterp( double a, double b, double frac )
 int toint( double x )
 {
     return x >= 0 ? (int)( x + 0.5 ) : (int)( x - 0.5 );
+}
+
+// Returns true if angle a comes before angle b (cyclically).
+// NaN b means "no result yet" — any finite a wins.
+// NaN a means invalid candidate — never wins.
+bool angle_less( double a, double b )
+{
+    if ( std::isnan( a ) )
+    {
+        return false;
+    }
+    if ( std::isnan( b ) )
+    {
+        return true;
+    }
+
+    // Shortest signed angular difference (b - a) in (-pi, pi]
+    double d = std::remainder( b - a, 2.0 * M_PI );
+
+    return d > 0.0;
 }
