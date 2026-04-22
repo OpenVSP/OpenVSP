@@ -21,7 +21,7 @@ public:
     MeshCommonSettings();
     virtual ~MeshCommonSettings();
 
-    void InitCommonParms( bool curveFlagDefault );
+    virtual void InitCommonParms();
 
     //Symmetry Plane Boolean Items
     BoolParm m_SymSplittingOnFlag;

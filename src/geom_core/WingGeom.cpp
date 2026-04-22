@@ -617,7 +617,6 @@ WingSect::WingSect( XSecCurve *xsc ) : BlendWingSect( xsc)
 
     m_XDelta  = m_YDelta  = m_ZDelta  = 0;
     m_XRotate = m_YRotate = m_ZRotate = 0;
-    m_XYTwist = false;
     m_XCenterRot = m_YCenterRot = m_ZCenterRot = 0;
     m_ThickScale = 1.0;
 
@@ -655,9 +654,6 @@ WingSect::WingSect( XSecCurve *xsc ) : BlendWingSect( xsc)
 
     m_RotateMatchDiedralFlag.Init( "RotateMatchDideralFlag", m_GroupName, this, 0, 0, 1 );
     m_RotateMatchDiedralFlag.SetDescript( "Rotate foil perpendicular to dihedral" );
-
-    m_TwistInXZPlaneFlag.Init( "TwistInXZPlaneFlag", m_GroupName, this, 0, 0, 1 );
-    m_TwistInXZPlaneFlag.SetDescript( "Twist foil in XZ plane" );
 
     m_RootCluster.Init( "InCluster", m_GroupName, this, 1.0, 1e-4, 10.0 );
     m_RootCluster.SetDescript( "Inboard Tess Cluster Control" );
@@ -713,27 +709,10 @@ void WingSect::UpdateFromWing()
     Matrix4d tran_mat;
     tran_mat.translatef( m_XDelta, m_YDelta, m_ZDelta );
 
-    // m_ZRotate // Not used
-
-    Matrix4d twist_mat;
-    Matrix4d match_dihedral_mat;
-    if ( m_XYTwist )
-    {
-        match_dihedral_mat.rotateY( m_YRotate );  // Twist
-    }
-    else
-    {
-        vec3d twistaxis( 0.0, 1.0, 0.0 );
-        Matrix4d section_mat;
-        section_mat.rotateX( m_SectAxis );
-
-        twistaxis.Transform( section_mat );
-
-        // Sign flip because rotate about axis has different sign convention than rotateXYZ
-        twist_mat.rotate( -m_YRotate * M_PI / 180.0, twistaxis );
-    }
-
-    match_dihedral_mat.rotateX( m_XRotate );  // Dihedral
+    Matrix4d rotate_mat;
+    rotate_mat.rotateZ( m_ZRotate );  // Not used
+    rotate_mat.rotateY( m_YRotate );  // Twist
+    rotate_mat.rotateX( m_XRotate );  // Dihedral
 
     Matrix4d cent_mat;
     cent_mat.translatef( -m_XCenterRot, -m_YCenterRot, -m_ZCenterRot );
@@ -745,9 +724,7 @@ void WingSect::UpdateFromWing()
 
     m_Transform.postMult( tran_mat.data() );
     m_Transform.postMult( cent_mat.data() );
-    m_Transform.postMult( match_dihedral_mat.data() );
-    m_Transform.postMult( twist_mat.data() );
-
+    m_Transform.postMult( rotate_mat.data() );
     m_Transform.postMult( inv_cent_mat.data() );
 
     m_Transform.postMult( xsecsurf->GetGlobalXForm().data() );
@@ -1296,14 +1273,11 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_RelativeTwistFlag.Init("RelativeTwistFlag", m_Name, this, 0, 0, 1 );
     m_RelativeTwistFlag.SetDescript( "Relative or Absolute Twist" );
 
-    m_RotateAllAirfoilMatchDiedralFlag.Init( "RotateAirfoilMatchDideralFlag", m_Name, this, 1, 0, 1 );
-    m_RotateAllAirfoilMatchDiedralFlag.SetDescript( "Rotate all foils (except root) perpendicular to dihedral" );
+    m_RotateAirfoilMatchDiedralFlag.Init( "RotateAirfoilMatchDideralFlag", m_Name, this, 0, 0, 1 );
+    m_RotateAirfoilMatchDiedralFlag.SetDescript( "Rotate all foils perpendicular to dihedral" );
 
     m_CorrectAirfoilThicknessFlag.Init( "CorrectAirfoilthicknessFlag", m_Name, this, 1, 0, 1 );
     m_CorrectAirfoilThicknessFlag.SetDescript( "Scale airfoil thickness to correct for dihedral rotation" );
-
-    m_TwistAllInXZPlaneFlag.Init( "TwistAllInXZPlaneFlag", m_Name, this, false, false, true );
-    m_TwistAllInXZPlaneFlag.SetDescript( "Rotate twist in XZ plane instead of perpendicular to dihedral" );
 
     m_TotalSpan.Init( "TotalSpan", m_Name, this, 1.0, 1e-6, 1000000.0 );
     m_TotalSpan.SetDescript( "Total Planform Span" );
@@ -1786,6 +1760,8 @@ void WingGeom::UpdateSurf()
     double total_dihed_offset = 0.0;
     double total_twist = 0.0;
 
+    double previous_dihead_rot = 0.0;
+
     //==== Load End Points for Each Section ====//
     for ( int i = 0 ; i < nxsec ; i++ )
     {
@@ -1877,27 +1853,7 @@ void WingGeom::UpdateSurf()
             }
             untransformed_crv_vec[i] = utc;
 
-            if ( m_RotateAllAirfoilMatchDiedralFlag() )
-            {
-                m_TwistAllInXZPlaneFlag.Deactivate();
-                ws->m_TwistInXZPlaneFlag.Deactivate();
-            }
-            else
-            {
-                m_TwistAllInXZPlaneFlag.Activate();
-
-                if ( m_TwistAllInXZPlaneFlag() || ws->m_RotateMatchDiedralFlag() )
-                {
-                    ws->m_TwistInXZPlaneFlag.Deactivate();
-                }
-                else
-                {
-                    ws->m_TwistInXZPlaneFlag.Activate();
-                }
-            }
-
-            if ( (m_RotateAllAirfoilMatchDiedralFlag() && i > 0) ||
-                m_TwistAllInXZPlaneFlag() )
+            if ( m_RotateAirfoilMatchDiedralFlag() )
             {
                 ws->m_RotateMatchDiedralFlag.Deactivate();
             }
@@ -1908,8 +1864,7 @@ void WingGeom::UpdateSurf()
 
             double dihead_rot = 0.0;
             double foil_scale = 1.0;
-            if ( ( i != 0 && m_RotateAllAirfoilMatchDiedralFlag() )
-                || ws->m_RotateMatchDiedralFlag() )
+            if ( m_RotateAirfoilMatchDiedralFlag() || ws->m_RotateMatchDiedralFlag() )
             {
                 if ( i == 0 )
                 {
@@ -1929,50 +1884,22 @@ void WingGeom::UpdateSurf()
                 {
                     if ( i != 0 && i !=  ( m_XSecSurf.NumXSec() - 1 ) ) // Not first or last foils.
                     {
-                        foil_scale = 1.0 / cos( ( dihead_rot - GetSumDihedral( i ) ) * ( M_PI / 180.0 ) );
+                        foil_scale = 1.0 / cos( ( dihead_rot - previous_dihead_rot ) * ( M_PI / 180.0 ) );
                     }
                 }
             }
-            else if ( m_CorrectAirfoilThicknessFlag() )
-            {
-                if ( i == 0 )
-                {
-                    foil_scale = 1.0 / cos( GetSumDihedral( i + 1 ) * ( M_PI / 180.0 ) );
-                }
-            }
-
-            double sect_rot = 0.0;
-            if ( i == 0 )
-            {
-                // sect_rot = GetSumDihedral( i+1 );
-            }
-            else
-            {
-                sect_rot = GetSumDihedral( i );
-            }
+            previous_dihead_rot = dihead_rot;
 
             ws->m_ThickScale = foil_scale;
             foil_scale_vec[i] = foil_scale;
 
             //==== Load Transformations =====//
-            if ( !m_RotateAllAirfoilMatchDiedralFlag() &&
-                 !ws->m_RotateMatchDiedralFlag() &&
-                 ( m_TwistAllInXZPlaneFlag() || ws->m_TwistInXZPlaneFlag() ) )
-            {
-                ws->m_XYTwist = true;
-            }
-            else
-            {
-                ws->m_XYTwist = false;
-            }
-
             ws->m_YDelta = total_span;
             ws->m_XDelta = total_sweep_offset;
             ws->m_ZDelta = total_dihed_offset;
 
             ws->m_YRotate = total_twist;
             ws->m_XRotate = dihead_rot;
-            ws->m_SectAxis = sect_rot;
 
             ws->m_XCenterRot = ws->m_XDelta + ws->m_TwistLoc()*ws->m_TipChord();
             ws->m_YCenterRot = ws->m_YDelta;

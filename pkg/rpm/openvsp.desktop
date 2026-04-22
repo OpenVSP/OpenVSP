@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=OpenVSP
+Comment=Parametric Aircraft Geometry Tool
+Exec=/usr/bin/vsp
+Icon=/usr/share/icons/hicolor/scalable/apps/openvsp.png
+Terminal=false
+Type=Application
+Categories=Science;Engineering;

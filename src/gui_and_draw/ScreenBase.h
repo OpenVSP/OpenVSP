@@ -1024,8 +1024,6 @@ protected:
     StringInput m_SkinXSecCurveNameInput;
 
     ToggleButton m_AllSymButton;
-    TriggerButton m_ClearSkinningButton;
-    TriggerButton m_ClearAllSkinningButton;
     SkinHeader m_TopHeader;
     SkinControl m_TopAngleSkinControl;
     SkinControl m_TopSlewSkinControl;
@@ -1108,8 +1106,6 @@ protected:
 
     Choice m_EngineInModeChoice;
     Choice m_EngineOutModeChoice;
-
-    ToggleButton m_EngineRotExtensionFlagButton;
 
     SliderAdjRangeInput m_EngineExtendDistanceSlider;
     Choice m_EngineAutoExtensionSetChoice;
