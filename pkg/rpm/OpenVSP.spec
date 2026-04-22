@@ -38,7 +38,7 @@ pushd Libraries
     -DVSP_USE_SYSTEM_GLEW=true \
     -DVSP_USE_SYSTEM_CMINPACK=true \
     -DVSP_USE_SYSTEM_EIGEN=false \
-    -DVSP_USE_SYSTEM_ANGELSCRIPT \
+    -DVSP_USE_SYSTEM_ANGELSCRIPT=true \
     -DVSP_USE_SYSTEM_CPPTEST=false
 %cmake_build
 popd
