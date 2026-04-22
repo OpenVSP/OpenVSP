@@ -48,6 +48,8 @@ vector <double> logspace( double a, double b, double n);
 
 double linterp( double a, double b, double frac );
 
+int toint( double x );
+
 /*
 template <typename T> T clamp( T val, T min, T max )
 {
@@ -134,8 +136,6 @@ bool aboutequal( T a, T b, T tol = 1e-12 )
 {
     return std::abs( a - b ) < tol;
 }
-
-int toint( double x );
 
 #endif
 
