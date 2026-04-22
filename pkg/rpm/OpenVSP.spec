@@ -24,7 +24,7 @@ create a 3D model of an aircraft defined by common engineering parameters.
 This model can be processed into formats suitable for engineering analysis.
 
 %prep
-%autosetup -n OpenVSP-fedora-%{min_version}
+%autosetup -n OpenVSP-%{commit}
 
 %build
 # build third-party libraries
@@ -46,14 +46,14 @@ pushd src
 %cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=OFF \
-    -DVSP_LIBRARY_PATH=%{_builddir}/OpenVSP-fedora-%{min_version}/Libraries/redhat-linux-build
+    -DVSP_LIBRARY_PATH=%{_builddir}/OpenVSP-%{commit}}/Libraries/redhat-linux-build
 %cmake_build
 
 %install
 pushd src
 %cmake_install
-install -Dm 644 %{_builddir}/OpenVSP-fedora-%{min_version}/pkg/rpm/openvsp.desktop %{buildroot}%{_datadir}/applications/openvsp.desktop
-install -Dm 644 %{_builddir}/OpenVSP-fedora-%{min_version}/vspIcon.png %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/openvsp.png
+install -Dm 644 %{_builddir}/OpenVSP-%{commit}/pkg/rpm/openvsp.desktop %{buildroot}%{_datadir}/applications/openvsp.desktop
+install -Dm 644 %{_builddir}/OpenVSP-%{commit}/vspIcon.png %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/openvsp.png
 # Remove git placeholder files
 find %{buildroot} -name ".keep" -delete
 chmod 755 %{buildroot}%{_prefix}/python/openvsp/conda-recipe/build.sh
