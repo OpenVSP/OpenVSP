@@ -1315,9 +1315,79 @@ string GeometryAnalysisCase::Evaluate()
                         vec3d ptaxis;
                         vec3d axis;
                         vector < vec3d > t;
+                        TMesh *tm = new TMesh();
+
                         int flip;
                         if ( GetSecondarySpreadTri( ptaxis, axis, t, flip ) )
                         {
+                            vector < double > ang;
+                            vector < int > offset;
+
+                            for ( int it = 0; it < 2; it++ )
+                            {
+                                int ioffset = it * 3;
+                                vec3d &v0 = t[0 + ioffset];
+                                vec3d &v1 = t[1 + ioffset];
+                                vec3d &v2 = t[2 + ioffset];
+
+                                vec3d norm = cross( v1 - v0, v2 - v0 );
+                                norm.normalize();
+
+                                vector < int > ccwvec = {1, -1};
+                                for ( int idir = 0; idir < ccwvec.size(); idir++ )
+                                {
+                                    int ccw = ccwvec[ idir ];
+
+                                    vec3d p1, p2;
+
+                                    double theta = ccw * primary_tm->MinAngleTri( norm, v0, v1, v2, ptaxis, axis, std::numeric_limits<double>::quiet_NaN(), ccw, p1, p2 );
+
+                                    if ( !std::isnan( theta ) )
+                                    {
+                                        vec3d r0 = ptaxis + RotateArbAxis( v0 - ptaxis, -theta, axis );
+                                        vec3d r1 = ptaxis + RotateArbAxis( v1 - ptaxis, -theta, axis );
+                                        vec3d r2 = ptaxis + RotateArbAxis( v2 - ptaxis, -theta, axis );
+                                        tm->AddTri( r0, r1, r2, 0 );
+
+                                        ang.push_back( clampCyclic( -flip * theta , 0.0, 2.0 * M_PI ) );
+
+                                        offset.push_back( ioffset );
+                                    }
+                                }
+                            }
+
+                            if ( ang.empty() )
+                            {
+                                res->Add( new NameValData( "Result", 0.0, "Risk angle" ) );
+                            }
+                            else
+                            {
+                                vector < double > angs = ang;
+                                std::sort( angs.begin(), angs.end(), angle_less );
+
+                                double th1 = angs.front();
+                                double th2 = angs.back();
+                                double dth = std::remainder( th2 - th1, 2.0 * M_PI );
+
+                                vector < double > keep = { th1, th2 };
+
+                                for ( int i = 0; i < ang.size(); i++ )
+                                {
+                                    if ( !vector_contains_val( keep, ang[i] ) )
+                                    {
+                                        tm->m_TVec[i]->m_IgnoreTriFlag = true;
+                                    }
+                                }
+                                tm->FlattenInPlace();
+
+                                vector < double > startend = { th1 * 180.0 / M_PI, th2 * 180.0 / M_PI };
+                                res->Add( new NameValData( "StartEnd", startend, "Release angle to contact start and end." ) );
+
+                                res->Add( new NameValData( "Result", dth * 180.0 / M_PI, "Risk angle" ) );
+                                m_TMeshVec.push_back( tm );
+                            }
+
+                            m_TMeshVec.push_back( tm );
                         }
                         else
                         {

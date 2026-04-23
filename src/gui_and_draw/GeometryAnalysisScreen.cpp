@@ -769,7 +769,8 @@ bool GeometryAnalysisScreen::Update()
         }
 
         if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
-             gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE )
+             gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
+             gcase->m_GeometryAnalysisType() == vsp::RISK_ANGLE )
         {
             m_ApplyRotation.Activate();
         }
@@ -1268,6 +1269,21 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 if ( roll.size() > 0 )
                 {
                     aux->m_RollTheta.SetFromDevice( roll[ 0 ] );
+                }
+            }
+            else if ( gcase->m_GeometryAnalysisType() == vsp::RISK_ANGLE )
+            {
+                vector < double > EntryExit = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "EntryExit", 0 );
+                if ( EntryExit.size() == 2 )
+                {
+                    if ( aux->m_ReleaseAngle() != EntryExit[ 0 ] )
+                    {
+                        aux->m_ReleaseAngle.SetFromDevice( EntryExit[ 0 ] );
+                    }
+                    else
+                    {
+                        aux->m_ReleaseAngle.SetFromDevice( EntryExit[ 1 ] );
+                    }
                 }
             }
         }

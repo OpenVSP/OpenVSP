@@ -29,7 +29,7 @@ input.  These requirements are summarized in the following table.
 | [From Point Visibility](#from-point-visibility)               | Any              | XYZ, HumanGeom, or Geom            |
 | [Look At Visibility](#look-at-visibility)                     | Any              | N/A                                |
 | [Swept Volume](#swept-volume)                                 | Any              | Any or HingeGeom                   |
-
+| [Risk Angle](#risk-angle)                                     | Any              | Rotor Fragment or Thrown Blade     |
 
 ## External
 
@@ -156,3 +156,14 @@ the HingeGeom.  Otherwise, the direction of displacement is provided by the user
 Positive and negative displersion angles can be specified.  These angles rotate the swept volume's direction in the
 X, Y, or Z directions.  For typical problems, the X dispersion will control dispersion from the front view and the
 Y dispersion will control dispersion from the side view.
+
+## Risk Angle
+
+Calculate the translational risk angle (in degrees) for a fragment thrown from rotating machinery interfering with
+a geometry as described in FAA AC 20-128A.  If the fragment trajectory misses the target geometry, the risk angle
+is zero degrees.  The bounding release angles of the fragment are also calculated.
+
+Before calculating the risk angle, a CompGeom type analysis is run on the primary geometry set to compute the
+trimmed OML -- this step allows the geometry set to include negative components.  The secondary geometry is
+used to describe the fragment, it must be specified by either an AC 20-128A Rotor Fragment or AC 25.905-1 Thrown Blade
+auxiliary geometry.
