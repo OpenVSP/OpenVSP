@@ -438,6 +438,7 @@ public:
     virtual double MinDistanceRay( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 );
 
     virtual double MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 );
+    virtual double MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &ptaxis, const vec3d &axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 );
 
     BndBox m_Box;
     vector< TTri* > m_TriVec;
@@ -476,6 +477,7 @@ public:
     double MaxDistanceRay( const vec3d &org, const vec3d &norm, double curr_max_dist, vec3d &p1, vec3d &p2 );
     double MinDistanceRay( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 );
     double MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 );
+    double MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &ptaxis, const vec3d &axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 );
     void Split();
 
     void MakeFromPGMesh( PGMesh *m );

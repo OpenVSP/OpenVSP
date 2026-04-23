@@ -1039,6 +1039,11 @@ double TMesh::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis
     return m_TBox.MinAngle( org, norm, ptaxis, axis, curr_min_angle, ccw, p1, p2 );
 }
 
+double TMesh::MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &ptaxis, const vec3d &axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 )
+{
+    return m_TBox.MinAngleTri( norm, v0, v1, v2, ptaxis, axis, curr_min_angle, ccw, p1, p2 );
+}
+
 void TMesh::Split()
 {
     int t;
@@ -5004,6 +5009,212 @@ double TBndBox::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptax
                     curr_min_angle = a;
                     p1 = t0->GetTriNode( j )->m_Pnt;
                     p2 = prot;
+                }
+            }
+        }
+    }
+
+    return curr_min_angle;
+}
+
+double TBndBox::MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &ptaxis, const vec3d &axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 )
+{
+    if ( m_Box.IsEmpty() )
+    {
+        return curr_min_angle;
+    }
+
+    if ( !m_Box.MinMaxAngleTriangle( norm, v0, v1, v2, ptaxis, axis, ccw, curr_min_angle ) )
+    {
+        return curr_min_angle;
+    }
+
+    const vec3d tri_verts[3] = { v0, v1, v2 };
+
+    const int edge_a[3] = { 0, 1, 2 };
+    const int edge_b[3] = { 1, 2, 0 };
+
+    //==== Recursively Check Sub Boxes ====//
+    if ( m_SBoxVec[0] )
+    {
+        for ( int i = 0 ; i < 8 ; i++ )
+        {
+            curr_min_angle = m_SBoxVec[i]->MinAngleTri( norm, v0, v1, v2, ptaxis, axis, curr_min_angle, ccw, p1, p2 );
+        }
+    }
+    //==== Check All Triangles at Leaf ====//
+    else
+    {
+        for ( size_t i = 0; i < m_TriVec.size(); i++ )
+        {
+            TTri* t0 = m_TriVec[i];
+
+            vec3d m0 = t0->GetTriNode( 0 )->m_Pnt;
+            vec3d m1 = t0->GetTriNode( 1 )->m_Pnt;
+            vec3d m2 = t0->GetTriNode( 2 )->m_Pnt;
+            vec3d m_norm = t0->m_Norm;
+
+            const vec3d mesh_verts[3] = { m0, m1, m2 };
+
+            // Precompute both solutions of angle_pnt_2_plane for each mesh vertex.
+            double theta_m[3];
+            vec3d m_back[3];
+            double theta_m_b[3];
+            vec3d m_back_b[3];
+
+            for ( int j = 0; j < 3; j++ )
+            {
+                vec3d prot1, prot2;
+                double theta1, theta2;
+                angle_pnt_2_plane( v0, norm, ptaxis, axis, mesh_verts[j], ccw, prot1, prot2, theta1, theta2 );
+
+                theta_m[j] = theta1;
+                m_back[j] = prot1;
+
+                theta_m_b[j] = theta2;
+                m_back_b[j] = prot2;
+            }
+
+            // Case (a): mesh vertex swept into T's plane — check PtInTri on original T.
+            for ( int j = 0; j < 3; j++ )
+            {
+                if ( angle_less( theta_m[j], curr_min_angle ) && PtInTri( v0, v1, v2, m_back[j] ) )
+                {
+                    curr_min_angle = theta_m[j];
+                    p1 = mesh_verts[j];
+                    p2 = m_back[j];
+                }
+
+                if ( angle_less( theta_m_b[j], curr_min_angle ) && PtInTri( v0, v1, v2, m_back_b[j] ) )
+                {
+                    curr_min_angle = theta_m_b[j];
+                    p1 = mesh_verts[j];
+                    p2 = m_back_b[j];
+                }
+            }
+
+            // Case (b): T vertex swept into mesh triangle's plane — check PtInTri on mesh triangle.
+            for ( int j = 0; j < 3; j++ )
+            {
+                vec3d prot1, prot2;
+                double theta1, theta2;
+                angle_pnt_2_plane( m0, m_norm, ptaxis, axis, tri_verts[j], ccw, prot1, prot2, theta1, theta2 );
+
+                if ( angle_less( theta1, curr_min_angle ) && PtInTri( m0, m1, m2, prot1 ) )
+                {
+                    curr_min_angle = theta1;
+                    p1 = tri_verts[j];
+                    p2 = prot1;
+                }
+
+                if ( angle_less( theta2, curr_min_angle ) && PtInTri( m0, m1, m2, prot2 ) )
+                {
+                    curr_min_angle = theta2;
+                    p1 = tri_verts[j];
+                    p2 = prot2;
+                }
+            }
+
+            // Case (c): mesh edge / T edge crossing via bisection.
+            // Checked for both angle_pnt_2_plane solutions.
+            const double tol = 1e-10;
+            for ( int me = 0; me < 3; me++ )
+            {
+                int ia = edge_a[me];
+                int ib = edge_b[me];
+
+                for ( int te = 0; te < 3; te++ )
+                {
+                    int ja = edge_a[te];
+                    int jb = edge_b[te];
+
+                    vec3d t_edge = tri_verts[jb] - tri_verts[ja];
+
+                    // Solution 1 straddle test.
+                    double sa = dot( norm, cross( t_edge, m_back[ia] - tri_verts[ja] ) );
+                    double sb = dot( norm, cross( t_edge, m_back[ib] - tri_verts[ja] ) );
+
+                    if ( sa * sb < 0.0 )
+                    {
+                        double ta = 0.0, tb = 1.0;
+                        for ( int iter = 0; iter < 50; iter++ )
+                        {
+                            if ( tb - ta < tol )
+                            {
+                                break;
+                            }
+                            double tm = 0.5 * ( ta + tb );
+                            vec3d pm = mesh_verts[ia] + tm * ( mesh_verts[ib] - mesh_verts[ia] );
+                            vec3d prot1, prot2;
+                            double theta1, theta2;
+                            angle_pnt_2_plane( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
+                            double sm = dot( norm, cross( t_edge, prot1 - tri_verts[ja] ) );
+                            if ( sm * sa >= 0.0 )
+                            {
+                                ta = tm;
+                            }
+                            else
+                            {
+                                tb = tm;
+                            }
+                        }
+
+                        double tm = 0.5 * ( ta + tb );
+                        vec3d pm = mesh_verts[ia] + tm * ( mesh_verts[ib] - mesh_verts[ia] );
+                        vec3d prot1, prot2;
+                        double theta1, theta2;
+                        angle_pnt_2_plane( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
+
+                        if ( angle_less( theta1, curr_min_angle ) && PtInTri( v0, v1, v2, prot1 ) )
+                        {
+                            curr_min_angle = theta1;
+                            p1 = pm;
+                            p2 = prot1;
+                        }
+                    }
+
+                    // Solution 2 straddle test.
+                    double sa_b = dot( norm, cross( t_edge, m_back_b[ia] - tri_verts[ja] ) );
+                    double sb_b = dot( norm, cross( t_edge, m_back_b[ib] - tri_verts[ja] ) );
+
+                    if ( sa_b * sb_b < 0.0 )
+                    {
+                        double ta = 0.0, tb = 1.0;
+                        for ( int iter = 0; iter < 50; iter++ )
+                        {
+                            if ( tb - ta < tol )
+                            {
+                                break;
+                            }
+                            double tm = 0.5 * ( ta + tb );
+                            vec3d pm = mesh_verts[ia] + tm * ( mesh_verts[ib] - mesh_verts[ia] );
+                            vec3d prot1, prot2;
+                            double theta1, theta2;
+                            angle_pnt_2_plane( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
+                            double sm_b = dot( norm, cross( t_edge, prot2 - tri_verts[ja] ) );
+                            if ( sm_b * sa_b >= 0.0 )
+                            {
+                                ta = tm;
+                            }
+                            else
+                            {
+                                tb = tm;
+                            }
+                        }
+
+                        double tm = 0.5 * ( ta + tb );
+                        vec3d pm = mesh_verts[ia] + tm * ( mesh_verts[ib] - mesh_verts[ia] );
+                        vec3d prot1, prot2;
+                        double theta1, theta2;
+                        angle_pnt_2_plane( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
+
+                        if ( angle_less( theta2, curr_min_angle ) && PtInTri( v0, v1, v2, prot2 ) )
+                        {
+                            curr_min_angle = theta2;
+                            p1 = pm;
+                            p2 = prot2;
+                        }
+                    }
                 }
             }
         }
