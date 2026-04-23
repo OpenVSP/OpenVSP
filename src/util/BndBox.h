@@ -67,6 +67,7 @@ public:
     bool IntersectPlane( const vec3d &org, const vec3d &norm );
     void MinMaxDistPlane( const vec3d &org, const vec3d &norm, double &mind, double &maxd );
     void MinMaxAnglePlane( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, int ccw, double &mina, double &maxa );
+    bool MinMaxAngleTriangle( const vec3d &norm, const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &ptaxis, const vec3d &axis, int ccw, double curr_min_angle );
 
     void MaxDistRay( const vec3d &org, const vec3d &norm, double &maxd );
     void MinDistRay( const vec3d &org, const vec3d &norm, double &mind );

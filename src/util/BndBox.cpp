@@ -9,6 +9,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "BndBox.h"
+#include "VspUtil.h"
 #include "Mathematics/DistRay3AlignedBox3.h"
 #include "Mathematics/Ray.h"
 #include "Mathematics/DistLine3AlignedBox3.h"
@@ -444,6 +445,110 @@ void BndBox::MinMaxAnglePlane( const vec3d &org, const vec3d &norm, const vec3d&
             maxa = a;
         }
     }
+}
+
+// Returns true if this bounding box could contain a contact angle that improves curr_min_angle.
+bool BndBox::MinMaxAngleTriangle( const vec3d &norm, const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &ptaxis, const vec3d &axis, int ccw, double curr_min_angle )
+{
+    // Rotation preserves z = dot(pt - ptaxis, axis) and r = radial distance from axis.
+    // If the z or r ranges of the triangle and box don't overlap, no contact is possible.
+    vec3d axis_unit = axis;
+    axis_unit.normalize();
+
+    const vec3d tri_verts[3] = { v0, v1, v2 };
+
+    vec3d q0 = tri_verts[0] - ptaxis;
+    double z0 = dot( q0, axis_unit );
+    double r0 = ( q0 - z0 * axis_unit ).mag();
+
+    double z_tri_min = z0, z_tri_max = z0;
+    double r_tri_min = r0, r_tri_max = r0;
+
+    for ( int i = 1; i < 3; i++ )
+    {
+        vec3d q = tri_verts[i] - ptaxis;
+        double z = dot( q, axis_unit );
+        double r = ( q - z * axis_unit ).mag();
+        if ( z < z_tri_min )
+        {
+            z_tri_min = z;
+        }
+        if ( z > z_tri_max )
+        {
+            z_tri_max = z;
+        }
+        if ( r < r_tri_min )
+        {
+            r_tri_min = r;
+        }
+        if ( r > r_tri_max )
+        {
+            r_tri_max = r;
+        }
+    }
+
+    vec3d qb0 = GetCornerPnt( 0 ) - ptaxis;
+    double zb0 = dot( qb0, axis_unit );
+    double rb0 = ( qb0 - zb0 * axis_unit ).mag();
+
+    double z_box_min = zb0, z_box_max = zb0;
+    double r_box_max = rb0;
+
+    for ( int i = 1; i < 8; i++ )
+    {
+        vec3d q = GetCornerPnt( i ) - ptaxis;
+        double z = dot( q, axis_unit );
+        double r = ( q - z * axis_unit ).mag();
+        if ( z < z_box_min )
+        {
+            z_box_min = z;
+        }
+        if ( z > z_box_max )
+        {
+            z_box_max = z;
+        }
+        if ( r > r_box_max )
+        {
+            r_box_max = r;
+        }
+    }
+
+    double r_box_min;
+    MinDistRay( ptaxis, axis_unit, r_box_min );
+
+    if ( z_tri_max < z_box_min || z_tri_min > z_box_max ||
+         r_tri_max < r_box_min || r_tri_min > r_box_max )
+    {
+        return false;
+    }
+
+    // Find the minimum contact angle over all 8 bounding box corners and both solutions.
+    double mina = std::numeric_limits<double>::quiet_NaN();
+
+    for ( int i = 0; i < 8; i++ )
+    {
+        vec3d prot1, prot2;
+        double theta1, theta2;
+        angle_pnt_2_plane( v0, norm, ptaxis, axis, GetCornerPnt( i ), ccw, prot1, prot2, theta1, theta2 );
+
+        if ( angle_less( theta1, mina ) )
+        {
+            mina = theta1;
+        }
+        if ( angle_less( theta2, mina ) )
+        {
+            mina = theta2;
+        }
+    }
+
+    // NaN means no valid bound was computed (e.g. a corner on the rotation axis).
+    // Conservatively assume improvement is possible.
+    if ( std::isnan( mina ) )
+    {
+        return true;
+    }
+
+    return angle_less( mina, curr_min_angle );
 }
 
 // Naive brute foce implementation.  Can likely be optimized substantially.
