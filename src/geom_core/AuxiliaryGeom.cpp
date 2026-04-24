@@ -1399,6 +1399,20 @@ EditCurveXSec* AuxiliaryGeom::ConvertToEdit()
     return xscrv_ptr;
 }
 
+void AuxiliaryGeom::UpdateFlags()
+{
+    // Type 1 tire failure geom.  Ignore m_NegativeVolumeFlag and use hard-wired definitions.
+    if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_WHEEL_TIRE_FAILURE &&
+         ( m_WheelTireFailureMode() == vsp::WHEEL_TIRE_1LG ||
+           m_WheelTireFailureMode() == vsp::WHEEL_TIRE_1SM ) )
+    {
+    }
+    else // All others.
+    {
+        Geom::UpdateFlags();
+    }
+}
+
 void AuxiliaryGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
