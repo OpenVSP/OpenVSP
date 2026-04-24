@@ -55,7 +55,7 @@ step allows the geometry sets to include negative components.
 ## Plane Distance
 
 Calculate the minimum and maximum height of the primary geometry above a plane specified by the secondary geometry.
-Before calculating distance, a CompGeom type analysis is run on the primary geometry set to compute each trimmed
+Before calculating distance, a CompGeom type analysis is run on the primary geometry set to compute the trimmed
 OML -- this step allows the geometry set to include negative components.  The secondary geometry is used to specify
 the static reference plane.  The static reference plane can be specified as a Z-constant plane, as the nominal ground
 plane from a landing gear component, or by a 3pt Ground Plane auxiliary geometry.
@@ -124,14 +124,14 @@ From Point Visibility can work in continuous or discrete mode.  In continuous mo
 calculate the visible (or occluded) domain from a specific point in space.  In discrete mode, it will
 calculate the visibility from a specific point in space along a set of specified directions.
 
-Before calculating visibility, a CompGeom type analysis is run on the primary geometry set to compute each
+Before calculating visibility, a CompGeom type analysis is run on the primary geometry set to compute the
 trimmed OML -- this step allows the geometry set to include negative components.  The secondary geometry is
 used to specify the viewpoint.
 
 ## Look At Visibility
 
 Calculate the model's visibility from a specific direction.  Before calculating visibility,
-a CompGeom type analysis is run on the primary geometry set to compute each trimmed OML -- this
+a CompGeom type analysis is run on the primary geometry set to compute the trimmed OML -- this
 step allows the geometry set to include negative components.
 
 The visible wetted area, visible projected area, and the equivalent solar areas are calculated on a per-surface,
