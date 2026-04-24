@@ -3565,14 +3565,7 @@ bool TTri::SplitTri( bool dumpCase )
     else
     {
         // Rotate All Nodes into YZ Plane
-        // Find angle between triangle normal and the YZ Plane
-        double costheta = dot(m_Norm,vec3d(1,0,0));
-
-        // Find axis orthogonal to both the triangles normal and YZ Plane normal
-        vec3d axis = cross(m_Norm,vec3d(1,0,0));
-
-        // Rotate Points
-        rot_mat.rotate(std::acos(costheta), axis);
+        rot_mat.rotatealongX( m_Norm );
 
         for ( unsigned int n=0; n < m_NVec.size(); n++ )
         {
