@@ -688,7 +688,158 @@ void AuxiliaryGeom::UpdateSurf()
                 const Bogie *b1 = gear->GetBogie( m_ContactPt1_ID );
                 if ( b1 )
                 {
-                    if ( m_WheelTireFailureMode() == vsp::WHEEL_TIRE_2 )
+                    if ( m_WheelTireFailureMode() == vsp::WHEEL_TIRE_1LG ||
+                         m_WheelTireFailureMode() == vsp::WHEEL_TIRE_1SM )
+                    {
+                        // Large debris angle.
+                        double theta = 15 * M_PI / 180.0;
+                        if ( m_WheelTireFailureMode() == vsp::WHEEL_TIRE_1SM )
+                        {
+                            theta = 30 * M_PI / 180.0;
+                        }
+
+                        double bsw = b1->GetBogieSemiWidth();
+                        double dg = b1->m_DGModel();
+                        double aftaxle = b1->GetAxleArm();
+
+                        double r = refLen;
+                        double dy = r * tan( theta );
+                        double y = bsw + dy;
+
+                        vector < vec3d > pts;
+                        pts.emplace_back( vec3d( 0.0, 0.0, 0.0 ) );
+                        pts.emplace_back( vec3d( 0.0, -bsw, 0.0 ) );
+                        pts.emplace_back( vec3d( 0.5 * r, -bsw - 0.5 * dy, 0.0 ) );
+                        pts.emplace_back( vec3d( r, -y, 0.0 ) );
+                        pts.emplace_back( vec3d( r, 0, 0.0 ) );
+                        pts.emplace_back( vec3d( r, y, 0.0 ) );
+                        pts.emplace_back( vec3d( 0.5 * r, bsw + 0.5 * dy, 0.0 ) );
+                        pts.emplace_back( vec3d( 0.0, bsw, 0.0 ) );
+                        pts.emplace_back( pts[ 0 ] );
+
+                        vector < double > ts = linspace( 0, 4, 9 );
+
+                        VspCurve crv;
+                        crv.InterpolateLinear( pts, ts, false );
+
+                        VspSurf zone;
+                        zone.CreateBodyRevolution( crv, true, 1 );
+                        zone.SetMagicVParm( false );
+
+                        zone.TrimV( 2.0, true );
+                        zone.SwapUWDirections();
+                        zone.FlipNormal();
+
+                        vec3d zero( 0.0, 0.0, 0.0 );
+                        zone.CapUMin( FLAT_END_CAP, 1.0, 0.0, 0.0, zero, false );
+                        zone.CapUMax( FLAT_END_CAP, 1.0, 0.0, 0.0, zero, false );
+
+                        // Add 1% exra width to clear zones.
+                        y *= 1.01;
+
+                        pts.clear();
+                        pts.emplace_back( vec3d( -aftaxle, -y, -0.1 * dg ) );
+                        pts.emplace_back( vec3d( -aftaxle, -y, 0.5 * dg ) );
+                        pts.emplace_back( vec3d( -aftaxle - 0.5 * refLen * 1.01, -y, 0.5 * dg ) );
+                        pts.emplace_back( vec3d( -aftaxle - refLen * 1.01, -y, 0.5 * dg ) );
+                        pts.emplace_back( vec3d( -aftaxle - refLen * 1.01, -y, -0.1 * dg ) );
+                        pts.emplace_back( vec3d( -aftaxle - refLen * 1.01, -y, -0.5 * dg ) );
+                        pts.emplace_back( vec3d( -aftaxle - 0.5 * refLen * 1.01, -y, -0.5 * dg ) );
+                        pts.emplace_back( vec3d( -aftaxle, -y, -0.5 * dg ) );
+                        pts.emplace_back( pts[ 0 ] );
+
+
+                        VspCurve c1;
+                        c1.InterpolateLinear( pts, ts, false );
+
+                        for ( int i = 0; i < pts.size(); i++ )
+                        {
+                            pts[ i ].set_y( y );
+                        }
+
+                        VspCurve c2;
+                        c2.InterpolateLinear( pts, ts, false );
+
+                        vector < VspCurve > crv_vec = { c1, c2 };
+
+                        VspSurf clear_fwd;
+                        clear_fwd.SkinC0( crv_vec, false );
+                        clear_fwd.SetMagicVParm( false );
+                        clear_fwd.SetSurfCfdType( vsp::CFD_NEGATIVE );
+
+                        clear_fwd.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                        clear_fwd.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+
+
+                        double k = sqrt( 0.5 );
+
+                        double x0 = aftaxle + 0.5 * dg * k;
+                        double z0 = -0.5 * dg * k;
+                        double dl = 1.01 * refLen * k;
+                        double dw = 1.01 * refLen * 0.5;
+
+
+                        pts.clear();
+                        pts.emplace_back( vec3d( x0 + 0.333 * ( dw + dl ), -y, z0 ) );
+                        pts.emplace_back( vec3d( x0, -y, z0 ) );
+                        pts.emplace_back( vec3d( x0 + 0.5 * dl, -y, z0 + 0.5 * dl ) );
+                        pts.emplace_back( vec3d( x0 + dl, -y, z0 + dl ) );
+                        pts.emplace_back( vec3d( x0 + dl + 0.5 * dw, -y, z0 + dl - 0.5 * dw ) );
+                        pts.emplace_back( vec3d( x0 + dl + dw, -y, z0 + dl - dw ) );
+                        pts.emplace_back( vec3d( x0 + dl + dw, -y, z0 ) );
+                        pts.emplace_back( vec3d( x0 + 0.667 * ( dl + dw ), -y, z0 ) );
+                        pts.emplace_back( pts[ 0 ] );
+
+                        c1.InterpolateLinear( pts, ts, false );
+
+                        for ( int i = 0; i < pts.size(); i++ )
+                        {
+                            pts[ i ].set_y( y );
+                        }
+
+                        c2.InterpolateLinear( pts, ts, false );
+
+                        vector < VspCurve > crv2_vec = { c1, c2 };
+
+                        VspSurf clear_aft;
+                        clear_aft.SkinC0( crv2_vec, false );
+                        clear_aft.SetMagicVParm( false );
+                        clear_aft.FlipNormal();
+                        clear_aft.SetSurfCfdType( vsp::CFD_NEGATIVE );
+
+                        clear_aft.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                        clear_aft.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+
+
+                        m_MainSurfVec.push_back( zone );
+
+                        if ( b1->m_NTandem() > 1 )
+                        {
+                            Matrix4d fwd;
+                            fwd.translatef( -aftaxle, 0, 0 );
+                            m_MainSurfVec[ 0 ].Transform( fwd );
+
+                            Matrix4d aft;
+                            aft.translatef( aftaxle, 0, 0 );
+                            // Rotate by a small angle to prevent bottom surfaces of zones from being coincident.
+                            // Angle calculated to stay within clear_fwd and clear_aft.
+                            aft.rotateY( atan( -0.25 * dg * k / refLen ) * 180.0 / M_PI ); // deg
+                            m_MainSurfVec.push_back( zone );
+                            m_MainSurfVec[ 1 ].Transform( aft );
+                        }
+
+                        m_MainSurfVec.push_back( clear_fwd );
+                        m_MainSurfVec.push_back( clear_aft );
+
+                        Matrix4d pivot;
+                        pivot.translatev( b1->GetPivotPoint( m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode() ) );
+
+                        for ( int i = 0; i < m_MainSurfVec.size(); i++ )
+                        {
+                            m_MainSurfVec[ i ].Transform( pivot );
+                        }
+                    }
+                    else if ( m_WheelTireFailureMode() == vsp::WHEEL_TIRE_2 )
                     {
                         double w2rim = b1->m_WrimModel() * 0.5;
                         double dflange = b1->m_DFlangeModel();
