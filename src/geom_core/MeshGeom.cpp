@@ -622,152 +622,6 @@ int MeshGeom::ReadTriFile( const char * file_name )
     return 1;
 }
 
-void MeshGeom::BuildTriVec( const TMesh* mesh, vector< TTri* > &trivec )
-{
-    for ( int t = 0 ; t < ( int )mesh->m_TVec.size() ; t++ )
-    {
-        TTri* tri = mesh->m_TVec[t];
-        if ( tri->m_SplitVec.size() )
-        {
-            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
-            {
-                if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
-                {
-                    trivec.push_back( tri->m_SplitVec[s] );
-                }
-            }
-        }
-        else if ( !tri->m_IgnoreTriFlag )
-        {
-            trivec.push_back( tri );
-        }
-    }
-}
-
-void MeshGeom::BuildTriVec( const vector < TMesh* > &meshvec, vector< TTri* > &trivec )
-{
-    //==== Find All Exterior and Split Tris =====//
-    for ( int m = 0 ; m < meshvec.size() ; m++ )
-    {
-        BuildTriVec( meshvec[m], trivec );
-    }
-}
-
-void MeshGeom::InitIndexedMesh( const vector < TMesh* > &meshvec )
-{
-    BuildTriVec( meshvec, m_IndexedTriVec );
-}
-
-void MeshGeom::IndexTriVec( vector < TTri* > &trivec, vector < TNode* > &nodvec )
-{
-    //==== Collect All Points ====//
-    vector< TNode* > allNodeVec;
-    allNodeVec.reserve( trivec.size() * 3 );
-    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
-    {
-        trivec[t]->m_N0->m_ID = ( int )allNodeVec.size();
-        allNodeVec.push_back( trivec[t]->m_N0 );
-        trivec[t]->m_N1->m_ID = ( int )allNodeVec.size();
-        allNodeVec.push_back( trivec[t]->m_N1 );
-        trivec[t]->m_N2->m_ID = ( int )allNodeVec.size();
-        allNodeVec.push_back( trivec[t]->m_N2 );
-    }
-    BndBox bb;
-    vector< vec3d > allPntVec( allNodeVec.size() );
-    for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
-    {
-        allPntVec[i] = allNodeVec[i]->m_Pnt;
-        bb.Update( allPntVec[i] );
-    }
-
-    if ( allPntVec.size() == 0 )
-    {
-        return;
-    }
-
-    //==== Build Map ====//
-    PntNodeCloud pnCloud;
-    pnCloud.AddPntNodes( allPntVec );
-
-    //==== Compute Tol ====//
-    double tol = bb.GetLargestDist() * 1.0e-10;
-    if ( tol < DBL_EPSILON )
-    {
-        tol = DBL_EPSILON;
-    }
-
-    //==== Use NanoFlann to Find Close Points and Group ====//
-    IndexPntNodes( pnCloud, tol );
-
-    //==== Load Used Nodes ====//
-    nodvec.reserve( pnCloud.m_NumUsedPts );
-    for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
-    {
-        if ( pnCloud.UsedNode( i ) )
-        {
-            nodvec.push_back( allNodeVec[i] );
-        }
-    }
-
-    //==== Set Adjusted Node IDs ====//
-    for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
-    {
-        allNodeVec[i]->m_ID = pnCloud.GetNodeUsedIndex( i );
-    }
-}
-
-void MeshGeom::IgnoreDegenTris( vector < TTri* > &trivec )
-{
-    //==== Remove Any Bogus Tris ====//
-    vector< TTri* > goodTriVec;
-    goodTriVec.reserve( trivec.size() );
-    //==== Write Out Tris ====//
-    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
-    {
-        TTri* ttri = trivec[t];
-        if( ttri )
-        {
-            if ( ttri->m_N0->m_ID != ttri->m_N1->m_ID &&
-                    ttri->m_N0->m_ID != ttri->m_N2->m_ID &&
-                    ttri->m_N1->m_ID != ttri->m_N2->m_ID )
-            {
-                goodTriVec.push_back( ttri );
-            }
-        }
-    }
-    // Swap instead of assign to avoid copy.
-    // m_IndexedTriVec = goodTriVec;
-    swap( trivec, goodTriVec );
-}
-
-//==== Build Indexed Mesh ====//
-void MeshGeom::BuildIndexedMesh()
-{
-    // Note that these vectors still point into the base m_TMeshVec.  Those tris and nodes
-    // are not changed (beyond assignment of m_ID values).
-    // The TNode::m_ID values are set such that spatially coincident nodes have equal m_ID,
-    // but those nodes are not otherwise merged.
-    // m_IndexedNodeVec contains only the unique TNode's, but m_IndexedTriVec still contains
-    // pointers to TNode's not in m_IndexedNodeVec.
-    m_IndexedTriVec.clear();
-    m_IndexedNodeVec.clear();
-
-    if ( m_ViewMeshFlag() )
-    {
-        BuildTriVec( m_TMeshVec, m_IndexedTriVec );
-    }
-
-    if ( m_ViewSliceFlag() )
-    {
-        BuildTriVec( m_SliceVec, m_IndexedTriVec );
-    }
-
-    IndexTriVec( m_IndexedTriVec, m_IndexedNodeVec );
-
-    IgnoreDegenTris( m_IndexedTriVec );
-
-    Update();
-}
 
 void MeshGeom::WriteVSPGeom( const string file_name )
 {
@@ -784,11 +638,13 @@ void MeshGeom::WriteVSPGeom( const string file_name )
     int num_wakes = 0;
     int i;
 
-    BuildIndexedMesh();
-    IdentifyWakes( m_IndexedTriVec, m_Wakes, m_PolyVec );
+    vector< TTri* > trivec;
+    vector< TNode* > nodvec;
+    BuildIndexedMesh( m_TMeshVec, m_SliceVec, m_ViewMeshFlag(), m_ViewSliceFlag(), trivec, nodvec );
+    IdentifyWakes( trivec, m_Wakes, m_PolyVec );
     num_parts += GetNumIndexedParts();
-    num_pnts += GetNumIndexedPnts();
-    num_tris += GetNumIndexedTris();
+    num_pnts += (int)nodvec.size();
+    num_tris += (int)trivec.size();
     num_wakes += GetNumWakes();
 
     fprintf( file_id, "%d %d %d\n", num_pnts,
@@ -796,24 +652,24 @@ void MeshGeom::WriteVSPGeom( const string file_name )
                                     num_wakes );
 
     //==== Dump Points ====//
-    WriteVSPGeomPnts( file_id, m_IndexedNodeVec, GetTotalTransMat() );
+    WriteVSPGeomPnts( file_id, nodvec, GetTotalTransMat() );
 
     fprintf( file_id, "%d\n", num_tris );
 
     int offset = 0;
     //==== Dump Tris ====//
-    offset = WriteVSPGeomTris( file_id, offset, m_IndexedTriVec, m_IndexedNodeVec );
+    offset = WriteVSPGeomTris( file_id, offset, trivec, nodvec );
 
-    WriteVSPGeomParts( file_id, m_IndexedTriVec );
+    WriteVSPGeomParts( file_id, trivec );
 
     int tcount = 1;
-    WriteVSPGeomParents( file_id, tcount, m_IndexedTriVec );
+    WriteVSPGeomParents( file_id, tcount, trivec );
 
     fprintf( file_id, "%d\n", num_wakes );
 
     offset = 0;
     // Wake line data.
-    offset = WriteVSPGeomWakes( file_id, offset, m_Wakes, m_IndexedNodeVec );
+    offset = WriteVSPGeomWakes( file_id, offset, m_Wakes, nodvec );
 
     m_SurfDirty = true;
     Update();
@@ -821,10 +677,10 @@ void MeshGeom::WriteVSPGeom( const string file_name )
     offset = 0;
     tcount = 1;
     //==== Dump alternate Tris ====//
-    offset = WriteVSPGeomAlternateTris( file_id, offset, tcount, m_IndexedTriVec, m_IndexedNodeVec );
+    offset = WriteVSPGeomAlternateTris( file_id, offset, tcount, trivec, nodvec );
 
     tcount = 1;
-    WriteVSPGeomAlternateParts( file_id, tcount, m_IndexedTriVec );
+    WriteVSPGeomAlternateParts( file_id, tcount, trivec );
     fclose( file_id );
 }
 
@@ -1244,32 +1100,34 @@ void MeshGeom::CreateGeomResults( Results* res )
     //==== Add Index Tris =====//
     if ( m_TMeshVec.size() )
     {
-        BuildIndexedMesh();
+        vector< TTri* > trivec;
+        vector< TNode* > nodvec;
+        BuildIndexedMesh( m_TMeshVec, m_SliceVec, m_ViewMeshFlag(), m_ViewSliceFlag(), trivec, nodvec );
 
         vector< vec3d > pvec;
         Matrix4d XFormMat = GetTotalTransMat();
         //==== Write Out Nodes ====//
-        for ( int i = 0 ; i < ( int )m_IndexedNodeVec.size() ; i++ )
+        for ( int i = 0 ; i < ( int )nodvec.size() ; i++ )
         {
-            TNode* tnode = m_IndexedNodeVec[i];
+            TNode* tnode = nodvec[i];
             pvec.push_back( XFormMat.xform( tnode->m_Pnt ) );
         }
-        res->Add( new NameValData( "Num_Pnts", ( int )m_IndexedNodeVec.size(), "Number of indexed points." ) );
+        res->Add( new NameValData( "Num_Pnts", ( int )nodvec.size(), "Number of indexed points." ) );
         res->Add( new NameValData( "Tri_Pnts", pvec, "Coordinates of indexed points." ) );
 
         //==== Write Out Tris ====//
         vector< int > id0_vec;
         vector< int > id1_vec;
         vector< int > id2_vec;
-        for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+        for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
         {
-            TTri* ttri = m_IndexedTriVec[t];
+            TTri* ttri = trivec[t];
 
             id0_vec.push_back( ttri->m_N0->m_ID );
             id1_vec.push_back( ttri->m_N1->m_ID );
             id2_vec.push_back( ttri->m_N2->m_ID );
         }
-        res->Add( new NameValData( "Num_Tris", ( int )m_IndexedTriVec.size(), "Number of indexed tris." ) );
+        res->Add( new NameValData( "Num_Tris", ( int )trivec.size(), "Number of indexed tris." ) );
         res->Add( new NameValData( "Tri_Index0", id0_vec, "Index of triangle node zero." ) );
         res->Add( new NameValData( "Tri_Index1", id1_vec, "Index of triangle node one." ) );
         res->Add( new NameValData( "Tri_Index2", id2_vec, "Index of triangle node two." ) );
@@ -1302,8 +1160,9 @@ void MeshGeom::CreateGeomResults( Results* res )
 
 void MeshGeom::CreatePtCloudGeom()
 {
-    BuildIndexedMesh();
-    vector < TNode* > nvec = m_IndexedNodeVec;
+    vector< TTri* > trivec;
+    vector< TNode* > nvec;
+    BuildIndexedMesh( m_TMeshVec, m_SliceVec, m_ViewMeshFlag(), m_ViewSliceFlag(), trivec, nvec );
     unsigned int npts = nvec.size();
 
     if ( npts > 0 )

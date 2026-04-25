@@ -775,6 +775,14 @@ TMesh* GetMeshByID( const vector < TMesh* > &tmv, const string &id );
 void DumpMeshes( const vector < TMesh* > &tmv, const string &prefix );
 void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir );
 
+void BuildTriVec( const TMesh* mesh, vector< TTri* > &trivec );
+void BuildTriVec( const vector< TMesh* > &meshvec, vector< TTri* > &trivec );
+void IndexTriVec( vector< TTri* > &trivec, vector< TNode* > &nodvec );
+void IgnoreDegenTris( vector< TTri* > &trivec );
+void BuildIndexedMesh( const vector< TMesh* > &tmv, const vector< TMesh* > &slicevec,
+                       bool viewMesh, bool viewSlice,
+                       vector< TTri* > &trivec, vector< TNode* > &nodvec );
+
 //=============================================================================
 // Indexed Mesh API
 // These functions operate on a pre-built indexed representation of a mesh

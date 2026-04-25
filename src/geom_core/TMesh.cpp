@@ -2623,7 +2623,7 @@ int TMesh::CountVSPGeomPartTagTris( int part, int tag )
 
 // Wake edges are created such that N0.u < N1.u.
 // This comparator sorts first by sgn(N0.y), abs(N0.y), then N0.u and N1.u.
-bool TMOrderWakeEdges ( const TEdge &a, const TEdge &b )
+static bool OrderWakeEdges( const TEdge &a, const TEdge &b )
 {
     if ( sgn( a.m_N0->m_Pnt.y() ) < sgn( b.m_N0->m_Pnt.y() ) ) return true;
     if ( sgn( b.m_N0->m_Pnt.y() ) < sgn( a.m_N0->m_Pnt.y() ) ) return false;
@@ -2658,25 +2658,26 @@ bool TMOrderWakeEdges ( const TEdge &a, const TEdge &b )
     return false;
 }
 
-bool TMAboutEqualWakeNodes ( TNode *a, TNode *b )
+static bool AboutEqualWakeNodes( TNode *a, TNode *b )
 {
     if ( aboutequal( a->m_Pnt.y(), b->m_Pnt.y() )
-         && aboutequal( a->m_Pnt.x(), b->m_Pnt.x() )
-         && aboutequal( a->m_Pnt.z(), b->m_Pnt.z() )
-         && aboutequal( a->m_UWPnt.x(), b->m_UWPnt.x() )
-         && aboutequal( a->m_UWPnt.y(), b->m_UWPnt.y() ) ) return true;
+      && aboutequal( a->m_Pnt.x(), b->m_Pnt.x() )
+      && aboutequal( a->m_Pnt.z(), b->m_Pnt.z() )
+      && aboutequal( a->m_UWPnt.x(), b->m_UWPnt.x() )
+      && aboutequal( a->m_UWPnt.y(), b->m_UWPnt.y() ) ) return true;
 
     return false;
 }
 
-bool TMAboutEqualWakeEdges ( const TEdge &a, const TEdge &b )
+static bool AboutEqualWakeEdges( const TEdge &a, const TEdge &b )
 {
-    if ( TMAboutEqualWakeNodes( a.m_N0, b.m_N0 )
-         && TMAboutEqualWakeNodes( a.m_N1, b.m_N1 ) ) return true;
+    if ( AboutEqualWakeNodes( a.m_N0, b.m_N0 )
+      && AboutEqualWakeNodes( a.m_N1, b.m_N1 ) ) return true;
 
     return false;
 }
 
+// Called from: void TMesh::WriteVSPGeom( const string file_name )
 void TMesh::IdentifyWakes( vector < deque < TEdge > > &wakes )
 {
     vector < TEdge > wakeedges;
@@ -2706,10 +2707,10 @@ void TMesh::IdentifyWakes( vector < deque < TEdge > > &wakes )
         }
     }
 
-    sort( wakeedges.begin(), wakeedges.end(), TMOrderWakeEdges );
+    sort( wakeedges.begin(), wakeedges.end(), OrderWakeEdges );
 
     vector < TEdge >::iterator it;
-    it = unique( wakeedges.begin(), wakeedges.end(), TMAboutEqualWakeEdges );
+    it = unique( wakeedges.begin(), wakeedges.end(), AboutEqualWakeEdges );
 
     wakeedges.resize( distance( wakeedges.begin(), it ) );
 
@@ -2730,14 +2731,14 @@ void TMesh::IdentifyWakes( vector < deque < TEdge > > &wakes )
 
         while ( wit != wlist.end() )
         {
-            if ( TMAboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
+            if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
             {
                 wakes[iwake].push_back( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
-            else if ( TMAboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
+            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
             {
                 wakes[iwake].push_front( *wit );
                 wlist.erase( wit );
@@ -2749,6 +2750,118 @@ void TMesh::IdentifyWakes( vector < deque < TEdge > > &wakes )
     }
 
     int nwake = wakes.size();
+}
+
+// IdentifyWakes -- standalone version for pre-built indexed meshes (Indexed Mesh API)
+//
+// Differences from TMesh::IdentifyWakes above:
+//   - Source triangles come from an arbitrary trivec rather than this->m_TVec.
+//   - Handles four chain-assembly cases instead of two: in addition to appending
+//     and prepending in the natural edge direction, it also calls SwapEdgeDirection()
+//     to handle edges that arrive reversed relative to the chain being built.
+//   - Populates polyvec with the XYZ vertex coordinates of each assembled wake polyline.
+//
+// Called by: MeshGeom::WriteVSPGeom, Vehicle::WriteVSPGeomFile
+void IdentifyWakes( const vector< TTri* > &trivec, vector< deque< TEdge > > &wakes, vector< vector< vec3d > > &polyvec )
+{
+    vector < TEdge > wakeedges;
+
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri *ttri = trivec[t];
+        int we = ttri->WakeEdge();
+
+        if ( we > 0 )
+        {
+            TEdge e;
+            if ( we == 1 )
+            {
+                e = TEdge( ttri->m_N0, ttri->m_N1, ttri );
+            }
+            else if ( we == 2 )
+            {
+                e = TEdge( ttri->m_N1, ttri->m_N2, ttri );
+            }
+            else
+            {
+                e = TEdge( ttri->m_N2, ttri->m_N0, ttri );
+            }
+            e.SortNodesByU();
+            wakeedges.push_back( e );
+        }
+    }
+
+    sort( wakeedges.begin(), wakeedges.end(), OrderWakeEdges );
+
+    vector < TEdge >::iterator it;
+    it = unique( wakeedges.begin(), wakeedges.end(), AboutEqualWakeEdges );
+    wakeedges.resize( distance( wakeedges.begin(), it ) );
+
+    list < TEdge > wlist( wakeedges.begin(), wakeedges.end() );
+
+    wakes.clear();
+    int iwake = 0;
+
+    while ( !wlist.empty() )
+    {
+        list < TEdge >::iterator wit = wlist.begin();
+
+        iwake = wakes.size();
+        wakes.resize( iwake + 1 );
+        wakes[iwake].push_back( *wit );
+        wit = wlist.erase( wit );
+
+        while ( wit != wlist.end() )
+        {
+            if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
+            {
+                wakes[iwake].push_back( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
+            {
+                wakes[iwake].push_front( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            else if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N1 ) )
+            {
+                (*wit).SwapEdgeDirection();
+                wakes[iwake].push_back( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N0 ) )
+            {
+                (*wit).SwapEdgeDirection();
+                wakes[iwake].push_front( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            wit++;
+        }
+    }
+
+    int nwake = wakes.size();
+    polyvec.resize( nwake );
+
+    for ( iwake = 0; iwake < nwake; iwake++ )
+    {
+        int iwe;
+        int nwe = wakes[iwake].size();
+        polyvec[iwake].resize( nwe + 1 );
+
+        for ( iwe = 0; iwe < nwe; iwe++ )
+        {
+            polyvec[iwake][iwe] = wakes[iwake][iwe].m_N0->m_Pnt;
+        }
+        polyvec[iwake][iwe] = wakes[iwake][iwe - 1].m_N1->m_Pnt;
+    }
 }
 
 void TMesh::WriteVSPGeomWakes( FILE* file_id, vector < deque < TEdge > > &wakes )
@@ -10092,6 +10205,140 @@ void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int
     tetraVec.push_back( new TetraMassProp( tri->m_GeomID, tri->m_Density, p5, p3, p4, p1 ) );
 }
 
+void BuildTriVec( const TMesh* mesh, vector< TTri* > &trivec )
+{
+    for ( int t = 0 ; t < ( int )mesh->m_TVec.size() ; t++ )
+    {
+        TTri* tri = mesh->m_TVec[t];
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
+                {
+                    trivec.push_back( tri->m_SplitVec[s] );
+                }
+            }
+        }
+        else if ( !tri->m_IgnoreTriFlag )
+        {
+            trivec.push_back( tri );
+        }
+    }
+}
+
+void BuildTriVec( const vector< TMesh* > &meshvec, vector< TTri* > &trivec )
+{
+    for ( int m = 0 ; m < ( int )meshvec.size() ; m++ )
+    {
+        BuildTriVec( meshvec[m], trivec );
+    }
+}
+
+void IndexTriVec( vector< TTri* > &trivec, vector< TNode* > &nodvec )
+{
+    //==== Collect All Points ====//
+    vector< TNode* > allNodeVec;
+    allNodeVec.reserve( trivec.size() * 3 );
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        trivec[t]->m_N0->m_ID = ( int )allNodeVec.size();
+        allNodeVec.push_back( trivec[t]->m_N0 );
+        trivec[t]->m_N1->m_ID = ( int )allNodeVec.size();
+        allNodeVec.push_back( trivec[t]->m_N1 );
+        trivec[t]->m_N2->m_ID = ( int )allNodeVec.size();
+        allNodeVec.push_back( trivec[t]->m_N2 );
+    }
+    BndBox bb;
+    vector< vec3d > allPntVec( allNodeVec.size() );
+    for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
+    {
+        allPntVec[i] = allNodeVec[i]->m_Pnt;
+        bb.Update( allPntVec[i] );
+    }
+
+    if ( allPntVec.size() == 0 )
+    {
+        return;
+    }
+
+    //==== Build Map ====//
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( allPntVec );
+
+    //==== Compute Tol ====//
+    double tol = bb.GetLargestDist() * 1.0e-10;
+    if ( tol < DBL_EPSILON )
+    {
+        tol = DBL_EPSILON;
+    }
+
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, tol );
+
+    //==== Load Used Nodes ====//
+    nodvec.reserve( pnCloud.m_NumUsedPts );
+    for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
+    {
+        if ( pnCloud.UsedNode( i ) )
+        {
+            nodvec.push_back( allNodeVec[i] );
+        }
+    }
+
+    //==== Set Adjusted Node IDs ====//
+    for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
+    {
+        allNodeVec[i]->m_ID = pnCloud.GetNodeUsedIndex( i );
+    }
+}
+
+void IgnoreDegenTris( vector< TTri* > &trivec )
+{
+    vector< TTri* > goodTriVec;
+    goodTriVec.reserve( trivec.size() );
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        if ( ttri )
+        {
+            if ( ttri->m_N0->m_ID != ttri->m_N1->m_ID &&
+                 ttri->m_N0->m_ID != ttri->m_N2->m_ID &&
+                 ttri->m_N1->m_ID != ttri->m_N2->m_ID )
+            {
+                goodTriVec.push_back( ttri );
+            }
+        }
+    }
+    swap( trivec, goodTriVec );
+}
+
+// Note: these vectors still point into the base tmv/slicevec.  Tris and nodes
+// are not changed beyond assignment of m_ID values.
+// nodvec contains only the unique TNode's, but trivec still contains
+// pointers to TNode's not in nodvec.
+void BuildIndexedMesh( const vector< TMesh* > &tmv, const vector< TMesh* > &slicevec,
+                       bool viewMesh, bool viewSlice,
+                       vector< TTri* > &trivec, vector< TNode* > &nodvec )
+{
+    trivec.clear();
+    nodvec.clear();
+
+    if ( viewMesh )
+    {
+        BuildTriVec( tmv, trivec );
+    }
+
+    if ( viewSlice )
+    {
+        BuildTriVec( slicevec, trivec );
+    }
+
+    IndexTriVec( trivec, nodvec );
+
+    IgnoreDegenTris( trivec );
+}
+
 //=============================================================================
 // Indexed Mesh API
 // These functions operate on a pre-built indexed representation of a mesh
@@ -10435,163 +10682,6 @@ void WriteVSPGeomParents( FILE* file_id, int &tcount, const vector< TTri* > &tri
     }
 }
 
-// Wake edges are created such that N0.u < N1.u.
-// This comparator sorts first by sgn(N0.y), abs(N0.y), then N0.u and N1.u.
-static bool OrderWakeEdges( const TEdge &a, const TEdge &b )
-{
-    if ( sgn( a.m_N0->m_Pnt.y() ) < sgn( b.m_N0->m_Pnt.y() ) ) return true;
-    if ( sgn( b.m_N0->m_Pnt.y() ) < sgn( a.m_N0->m_Pnt.y() ) ) return false;
-
-    if ( abs( a.m_N0->m_Pnt.y() ) < abs( b.m_N0->m_Pnt.y() ) ) return true;
-    if ( abs( b.m_N0->m_Pnt.y() ) < abs( a.m_N0->m_Pnt.y() ) ) return false;
-
-    if ( a.m_N0->m_UWPnt.x() < b.m_N0->m_UWPnt.x() ) return true;
-    if ( b.m_N0->m_UWPnt.x() < a.m_N0->m_UWPnt.x() ) return false;
-
-    if ( a.m_N1->m_UWPnt.x() < b.m_N1->m_UWPnt.x() ) return true;
-    if ( b.m_N1->m_UWPnt.x() < a.m_N1->m_UWPnt.x() ) return false;
-
-    if ( a.m_N0->m_Pnt.x() < b.m_N0->m_Pnt.x() ) return true;
-    if ( b.m_N0->m_Pnt.x() < a.m_N0->m_Pnt.x() ) return false;
-
-    if ( a.m_N0->m_Pnt.z() < b.m_N0->m_Pnt.z() ) return true;
-    if ( b.m_N0->m_Pnt.z() < a.m_N0->m_Pnt.z() ) return false;
-
-    if ( sgn( a.m_N1->m_Pnt.y() ) < sgn( b.m_N1->m_Pnt.y() ) ) return true;
-    if ( sgn( b.m_N1->m_Pnt.y() ) < sgn( a.m_N1->m_Pnt.y() ) ) return false;
-
-    if ( abs( a.m_N1->m_Pnt.y() ) < abs( b.m_N1->m_Pnt.y() ) ) return true;
-    if ( abs( b.m_N1->m_Pnt.y() ) < abs( a.m_N1->m_Pnt.y() ) ) return false;
-
-    if ( a.m_N1->m_Pnt.x() < b.m_N1->m_Pnt.x() ) return true;
-    if ( b.m_N1->m_Pnt.x() < a.m_N1->m_Pnt.x() ) return false;
-
-    if ( a.m_N1->m_Pnt.z() < b.m_N1->m_Pnt.z() ) return true;
-    if ( b.m_N1->m_Pnt.z() < a.m_N1->m_Pnt.z() ) return false;
-
-    return false;
-}
-
-static bool AboutEqualWakeNodes( TNode *a, TNode *b )
-{
-    if ( aboutequal( a->m_Pnt.y(), b->m_Pnt.y() )
-      && aboutequal( a->m_Pnt.x(), b->m_Pnt.x() )
-      && aboutequal( a->m_Pnt.z(), b->m_Pnt.z() )
-      && aboutequal( a->m_UWPnt.x(), b->m_UWPnt.x() )
-      && aboutequal( a->m_UWPnt.y(), b->m_UWPnt.y() ) ) return true;
-
-    return false;
-}
-
-static bool AboutEqualWakeEdges( const TEdge &a, const TEdge &b )
-{
-    if ( AboutEqualWakeNodes( a.m_N0, b.m_N0 )
-      && AboutEqualWakeNodes( a.m_N1, b.m_N1 ) ) return true;
-
-    return false;
-}
-
-void IdentifyWakes( const vector< TTri* > &trivec, vector< deque< TEdge > > &wakes, vector< vector< vec3d > > &polyvec )
-{
-    vector < TEdge > wakeedges;
-
-    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
-    {
-        TTri *ttri = trivec[t];
-        int we = ttri->WakeEdge();
-
-        if ( we > 0 )
-        {
-            TEdge e;
-            if ( we == 1 )
-            {
-                e = TEdge( ttri->m_N0, ttri->m_N1, ttri );
-            }
-            else if ( we == 2 )
-            {
-                e = TEdge( ttri->m_N1, ttri->m_N2, ttri );
-            }
-            else
-            {
-                e = TEdge( ttri->m_N2, ttri->m_N0, ttri );
-            }
-            e.SortNodesByU();
-            wakeedges.push_back( e );
-        }
-    }
-
-    sort( wakeedges.begin(), wakeedges.end(), OrderWakeEdges );
-
-    vector < TEdge >::iterator it;
-    it = unique( wakeedges.begin(), wakeedges.end(), AboutEqualWakeEdges );
-    wakeedges.resize( distance( wakeedges.begin(), it ) );
-
-    list < TEdge > wlist( wakeedges.begin(), wakeedges.end() );
-
-    wakes.clear();
-    int iwake = 0;
-
-    while ( !wlist.empty() )
-    {
-        list < TEdge >::iterator wit = wlist.begin();
-
-        iwake = wakes.size();
-        wakes.resize( iwake + 1 );
-        wakes[iwake].push_back( *wit );
-        wit = wlist.erase( wit );
-
-        while ( wit != wlist.end() )
-        {
-            if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
-            {
-                wakes[iwake].push_back( *wit );
-                wlist.erase( wit );
-                wit = wlist.begin();
-                continue;
-            }
-            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
-            {
-                wakes[iwake].push_front( *wit );
-                wlist.erase( wit );
-                wit = wlist.begin();
-                continue;
-            }
-            else if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N1 ) )
-            {
-                (*wit).SwapEdgeDirection();
-                wakes[iwake].push_back( *wit );
-                wlist.erase( wit );
-                wit = wlist.begin();
-                continue;
-            }
-            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N0 ) )
-            {
-                (*wit).SwapEdgeDirection();
-                wakes[iwake].push_front( *wit );
-                wlist.erase( wit );
-                wit = wlist.begin();
-                continue;
-            }
-            wit++;
-        }
-    }
-
-    int nwake = wakes.size();
-    polyvec.resize( nwake );
-
-    for ( iwake = 0; iwake < nwake; iwake++ )
-    {
-        int iwe;
-        int nwe = wakes[iwake].size();
-        polyvec[iwake].resize( nwe + 1 );
-
-        for ( iwe = 0; iwe < nwe; iwe++ )
-        {
-            polyvec[iwake][iwe] = wakes[iwake][iwe].m_N0->m_Pnt;
-        }
-        polyvec[iwake][iwe] = wakes[iwake][iwe - 1].m_N1->m_Pnt;
-    }
-}
 
 int WriteVSPGeomWakes( FILE* file_id, int offset, const vector< deque< TEdge > > &wakes, const vector< TNode* > &nodvec )
 {

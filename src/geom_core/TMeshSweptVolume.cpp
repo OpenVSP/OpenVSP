@@ -21,10 +21,10 @@ void TMeshToIGL( TMesh * tm, Eigen::MatrixXi &F, Eigen::MatrixXd &V )
     vector< TTri* > trivec;
     vector< TNode* > nodevec;
 
-    MeshGeom::BuildTriVec( tm, trivec );
-    MeshGeom::IndexTriVec( trivec, nodevec );
+    BuildTriVec( tm, trivec );
+    IndexTriVec( trivec, nodevec );
 
-    MeshGeom::IgnoreDegenTris( trivec );
+    IgnoreDegenTris( trivec );
 
     V.resize( nodevec.size(), 3 );
     for ( int i = 0; i < nodevec.size(); ++i )
@@ -48,10 +48,10 @@ void TMeshToIGL( TMesh * tm, vector< TTri* > &trivec, PGMesh *pgm, const vector 
 {
     vector< TNode* > nodevec;
 
-    MeshGeom::BuildTriVec( tm, trivec );
-    MeshGeom::IndexTriVec( trivec, nodevec );
+    BuildTriVec( tm, trivec );
+    IndexTriVec( trivec, nodevec );
 
-    MeshGeom::IgnoreDegenTris( trivec );
+    IgnoreDegenTris( trivec );
 
     vector< PGNode* > pgmnVec( pgm->m_NodeList.begin(), pgm->m_NodeList.end() );
     int pgmnodes = pgmnVec.size();
@@ -127,10 +127,10 @@ void TMeshToIGL( TMesh * tm, vector< TTri* > &trivec, Eigen::MatrixXi &F, Eigen:
 {
     vector< TNode* > nodevec;
 
-    MeshGeom::BuildTriVec( tm, trivec );
-    MeshGeom::IndexTriVec( trivec, nodevec );
+    BuildTriVec( tm, trivec );
+    IndexTriVec( trivec, nodevec );
 
-    MeshGeom::IgnoreDegenTris( trivec );
+    IgnoreDegenTris( trivec );
 
     V.resize( nodevec.size(), 3 );
     for ( int i = 0; i < nodevec.size(); ++i )

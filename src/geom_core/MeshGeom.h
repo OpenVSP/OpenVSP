@@ -61,9 +61,6 @@ public:
     double m_TotalIxz;
     double m_TotalIyz;
 
-    vector< TTri* >  m_IndexedTriVec;
-    vector< TNode* > m_IndexedNodeVec;
-
     vector < TMesh* > m_TMeshVec;
     vector < TMesh* > m_SliceVec;
     vector < vector < vec3d > > m_PolyVec;
@@ -90,20 +87,6 @@ public:
     virtual int   ReadBinInt  ( FILE* fptr );
     virtual void WriteStl( FILE* pov_file );
 
-    static void BuildTriVec( const TMesh* mesh, vector< TTri* > &trivec );
-    static void BuildTriVec( const vector < TMesh* > &meshvec, vector< TTri* > &trivec );
-    virtual void InitIndexedMesh( const vector < TMesh* > &meshvec );
-    static void IndexTriVec( vector < TTri* > &trivec, vector < TNode* > &nodvec );
-    static void IgnoreDegenTris( vector < TTri* > &trivec );
-    virtual void BuildIndexedMesh();
-    virtual int  GetNumIndexedPnts() const
-    {
-        return m_IndexedNodeVec.size();
-    }
-    virtual int  GetNumIndexedTris() const
-    {
-        return m_IndexedTriVec.size();
-    }
     virtual int  GetNumIndexedParts() const
     {
         return m_TMeshVec.size();
